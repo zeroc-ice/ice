@@ -369,17 +369,14 @@ public:
 void
 IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) const
 {
-    StringSeq orphaned;
+    set<string> orphaned;
     if(_remove)
     {
 	StringSeq fullDirectoryListing = readDirectory(identityToPath(dirDesc->directory->ice_getIdentity()));
 	orphaned.reserve(fullDirectoryListing.size());
 	for(StringSeq::const_iterator p = fullDirectoryListing.begin(); p != fullDirectoryListing.end(); ++p)
 	{
-	    if(getSuffix(*p) != "md5")
-	    {
-		orphaned.push_back(*p);
-	    }
+	    orphaned.insert(*p)
 	}
     }
     
@@ -403,7 +400,9 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 
 	if(_remove)
 	{
-	    orphaned.erase(remove(orphaned.begin(), orphaned.end(), path), orphaned.end());
+	    orphaned.erase(path);
+	    orphaned.erase(path + ".md5");
+	    orphaned.erase(path + ".bz2");
 	}
 
 	bool last = (i == fileDescSeq.size() - 1) && orphaned.empty();
@@ -522,21 +521,10 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 	}
     }
 
-    if(!orphaned.empty())
+    for(StringSeq::const_iterator p = orphaned.begin(); p != orphaned.end(); ++p)
     {
-	for(StringSeq::const_iterator p = orphaned.begin(); p != orphaned.end(); ++p)
-	{
-	    cout << indent << "+-" << pathToName(*p) << ": removing orphaned file" << endl;
-	    removeRecursive(*p);
-	    try
-	    {
-		removeRecursive(*p + ".md5");
-	    }
-	    catch(const FileAccessException&)
-	    {
-		// Ignore, the MD5 file might not exist.
-	    }
-	}
+	cout << indent << "+-" << pathToName(*p) << ": removing orphaned file" << endl;
+	removeRecursive(*p);
     }
 }
 
