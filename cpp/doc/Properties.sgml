@@ -3760,6 +3760,25 @@ SaveSizeTrigger (see <literal>Freeze.Evictor.<replaceable>env-name</replaceable>
 </section>
 </section>
 
+<section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.PopulateEmptyIndices</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.PopulateEmptyIndices=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para> 
+When <replaceable>num</replaceable> is not 0 and you create an evictor
+with one or more empty indices, the createEvictor() call will populate
+these indices by iterating over all the corresponding facets. This is particularly
+useful after transforming a Freeze Evictor with FreezeScript, since
+FreezeScript does not transform indices; however this can significantly slow down createEvictor() if you have an empty
+index because none of the facets currently in your database match the type of this index. The default value for this property is 0.
+</para>
+</section>
+</section>
+
 <section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.SavePeriod</title>
 <section><title>Synopsis</title>
 <synopsis>
