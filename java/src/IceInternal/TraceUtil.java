@@ -139,6 +139,15 @@ final class TraceUtil
         stream.pos(0);
 
         byte[] data = stream.readBlob(stream.size());
+        dumpOctets(data);
+
+        stream.pos(pos);
+    }
+
+    public static void
+    dumpOctets(byte[] data)
+    {
+        final int inc = 8;
 
         for(int i = 0; i < data.length; i += inc)
         {
