@@ -473,7 +473,8 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"RemoveOrphaned",
 	"Thorough",
 	"Trace.Files",
-	"UpdatePeriod"
+	"UpdatePeriod",
+	"Directory"
     };
     
     private static final String _iceSSLProps[] =
