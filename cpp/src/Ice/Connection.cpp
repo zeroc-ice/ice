@@ -957,21 +957,49 @@ IceInternal::Connection::read(BasicStream& stream)
     //
 }
 
-// used for the COMPILERFIX below
-static void
-setAbsoluteTimeout(int timeout, IceUtil::Time& result)
-{
-    result = IceUtil::Time::now() + IceUtil::Time::seconds(timeout);
-}
-
 void
 IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threadPool)
 {
+    Byte messageType;
+    Byte compress;
+
+    //
+    // Read the message type, and uncompress the message if necessary.
+    //
+    try
+    {
+	assert(stream.i == stream.b.end());
+	
+	//
+	// We don't need to check magic and version here. This has
+	// already been done by the ThreadPool, which provides us the
+	// stream.
+	//
+	
+	stream.i = stream.b.begin() + 8;
+	stream.read(messageType);
+	stream.read(compress);
+	if(compress == 2)
+	{
+	    BasicStream ustream(_instance.get());
+	    doUncompress(stream, ustream);
+	    stream.b.swap(ustream.b);
+	}
+	
+	stream.i = stream.b.begin() + headerSize;
+    }
+    catch(const LocalException& ex)
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	threadPool->promoteFollower();
+	setState(StateClosed, ex);
+	return;
+    }
+
     OutgoingAsyncPtr outAsync;
 
     Int invoke = 0;
     Int requestId = 0;
-    Byte compress = 0;
 
     {
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -984,74 +1012,13 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    return;
 	}
 	
-//	if(_acmTimeout > 0)
-//	{
-//	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
-//	}
-// COMPILERFIX without this change VC6 sp5 + processor pack generates code that crashed on exceptions
 	if(_acmTimeout > 0)
 	{
-	    setAbsoluteTimeout(_acmTimeout, _acmAbsoluteTimeout);
+	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
 	}
 
 	try
 	{
-	    assert(stream.i == stream.b.end());
-	    stream.i = stream.b.begin();
-
-	    ByteSeq m(sizeof(magic), 0);
-	    stream.readBlob(m, static_cast<Int>(sizeof(magic)));
-	    if(!equal(m.begin(), m.end(), magic))
-	    {
-		BadMagicException ex(__FILE__, __LINE__);
-		ex.badMagic = m;
-		throw ex;
-	    }
-
-	    Byte pMajor;
-	    Byte pMinor;
-	    stream.read(pMajor);
-	    stream.read(pMinor);
-	    if(pMajor != protocolMajor
-	       || static_cast<unsigned char>(pMinor) > static_cast<unsigned char>(protocolMinor))
-	    {
-		UnsupportedProtocolException ex(__FILE__, __LINE__);
-		ex.badMajor = static_cast<unsigned char>(pMajor);
-		ex.badMinor = static_cast<unsigned char>(pMinor);
-		ex.major = static_cast<unsigned char>(protocolMajor);
-		ex.minor = static_cast<unsigned char>(protocolMinor);
-		throw ex;
-	    }
-	    Byte eMajor;
-	    Byte eMinor;
-	    stream.read(eMajor);
-	    stream.read(eMinor);
-	    if(eMajor != encodingMajor
-	       || static_cast<unsigned char>(eMinor) > static_cast<unsigned char>(encodingMinor))
-	    {
-		UnsupportedEncodingException ex(__FILE__, __LINE__);
-		ex.badMajor = static_cast<unsigned char>(eMajor);
-		ex.badMinor = static_cast<unsigned char>(eMinor);
-		ex.major = static_cast<unsigned char>(encodingMajor);
-		ex.minor = static_cast<unsigned char>(encodingMinor);
-		throw ex;
-	    }
-
-	    Byte messageType;
-	    stream.read(messageType);
-
-	    //
-	    // Uncompress if necessary.
-	    //
-            stream.read(compress);
-	    if(compress == 2)
-	    {
-		BasicStream ustream(_instance.get());
-		doUncompress(stream, ustream);
-		stream.b.swap(ustream.b);
-	    }
-
-	    stream.i = stream.b.begin() + headerSize;
 	    
 	    switch(messageType)
 	    {
@@ -1487,6 +1454,11 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 
     if(!_exception.get())
     {
+	//
+	// If we are in closed state, an exception must be set.
+	//
+	assert(_state != StateClosed);
+
 	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 
 	if(_warn)
