@@ -1,6 +1,13 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed a bug in slice2cpp that permitted impossible exceptions
+  to be received by a client if client and server used Slice
+  definitions with mismatched exception specifications. The
+  client now correctly receives UnknownUserException if the
+  server throws an exception that, according to the client's
+  view of the operation, is impossible.
+
 - The documentation has always stated that same-named constructs
   cannot be directly nested inside each other. (For example, a
   module `M' cannot contain a constant named `M'. The slice2cpp

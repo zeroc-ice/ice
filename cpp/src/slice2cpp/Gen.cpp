@@ -1577,6 +1577,50 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "return __ret;";
     }
     C << eb;
+
+    //
+    // Generate a catch block for each legal user exception. This is necessary
+    // to prevent an "impossible" user exception to be thrown if client and
+    // and server use different exception specifications for an operation. For
+    // example:
+    //
+    // Client compiled with:
+    // exception A {};
+    // exception B {};
+    // interface I {
+    //     void op() throws A;
+    // };
+    //
+    // Server compiled with:
+    // exception A {};
+    // exception B {};
+    // interface I {
+    //     void op() throws B; // Differs from client
+    // };
+    //
+    // We need the catch blocks so, if the server throws B from op(), the
+    // client receives UnknownUserException instead of B.
+    //
+    ExceptionList throws = p->throws();
+    throws.sort();
+    throws.unique();
+#if defined(__SUNPRO_CC)
+    throws.sort(derivedToBaseCompare);
+#else
+    throws.sort(Slice::DerivedToBaseCompare());
+#endif
+    for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+    {
+	string scoped = (*i)->scoped();
+	C << nl << "catch(const " << (*i)->scoped() << "&)";
+	C << sb;
+	C << nl << "throw;";
+	C << eb;
+    }
+    C << nl << "catch(const ::Ice::UserException&)";
+    C << sb;
+    C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__);";
+    C << eb;
     C << nl << "catch(const ::Ice::LocalException& __ex)";
     C << sb;
     C << nl << "throw ::IceInternal::NonRepeatable(__ex);";
@@ -3518,9 +3562,31 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "__finished(__ex);";
 	C << nl << "return;";
 	C << eb;
-	C << nl << "catch(const ::Ice::UserException& __ex)";
+
+	//
+	// Generate a catch block for each legal user exception.
+	// (See comment in DelegateMVisitor::visitOperation() for details.)
+	//
+	ExceptionList throws = p->throws();
+	throws.sort();
+	throws.unique();
+#if defined(__SUNPRO_CC)
+	throws.sort(derivedToBaseCompare);
+#else
+	throws.sort(Slice::DerivedToBaseCompare());
+#endif
+	for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+	{
+	    string scoped = (*i)->scoped();
+	    C << nl << "catch(const " << (*i)->scoped() << "& __ex)";
+	    C << sb;
+	    C << nl << "ice_exception(__ex);";
+	    C << nl << "return;";
+	    C << eb;
+	}
+	C << nl << "catch(const ::Ice::UserException&)";
 	C << sb;
-	C << nl << "ice_exception(__ex);";
+	C << nl << "ice_exception(::Ice::UnknownUserException(__FILE__, __LINE__));";
 	C << nl << "return;";
 	C << eb;
 	C << nl << "ice_response" << spar << args << epar << ';';
