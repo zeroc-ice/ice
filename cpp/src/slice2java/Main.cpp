@@ -32,7 +32,6 @@ usage(const char* n)
         "--impl                  Generate sample implementations.\n"
         "--impl-tie              Generate sample TIE implementations.\n"
 	"--depend                Generate Makefile dependencies.\n"
-        "--clone                 Generate clone().\n"
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
         ;
@@ -49,7 +48,6 @@ main(int argc, char* argv[])
     bool tie = false;
     bool impl = false;
     bool implTie = false;
-    bool clone = false;
     bool debug = false;
     bool ice = false;
     bool caseSensitive = false;
@@ -188,15 +186,6 @@ main(int argc, char* argv[])
             }
             --argc;
         }
-        else if(strcmp(argv[idx], "--clone") == 0)
-        {
-            clone = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
 	else if(strcmp(argv[idx], "--depend") == 0)
 	{
 	    depend = true;
@@ -308,7 +297,7 @@ main(int argc, char* argv[])
 	    }
 	    else
 	    {
-		Gen gen(argv[0], base, includePaths, package, output, clone);
+		Gen gen(argv[0], base, includePaths, package, output);
 		if(!gen)
 		{
 		    unit->destroy();

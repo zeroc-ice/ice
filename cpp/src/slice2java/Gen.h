@@ -67,8 +67,7 @@ public:
         const std::string&,
         const std::vector<std::string>&,
         const std::string&,
-        const std::string&,
-        bool);
+        const std::string&);
     ~Gen();
 
     bool operator!() const; // Returns true if there was a constructor error
@@ -84,7 +83,6 @@ private:
     std::vector<std::string> _includePaths;
     std::string _package;
     std::string _dir;
-    bool _clone;
 
     class OpsVisitor : public JavaVisitor
     {
@@ -110,7 +108,7 @@ private:
     {
     public:
 
-        TypesVisitor(const std::string&, const std::string&, bool);
+        TypesVisitor(const std::string&, const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
@@ -121,10 +119,6 @@ private:
         virtual void visitEnum(const EnumPtr&);
         virtual void visitConstDef(const ConstDefPtr&);
         virtual void visitDataMember(const DataMemberPtr&);
-
-    private:
-
-        bool _clone;
     };
 
     class HolderVisitor : public JavaVisitor

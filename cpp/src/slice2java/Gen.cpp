@@ -597,12 +597,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 }
 
 Slice::Gen::Gen(const string& name, const string& base, const vector<string>& includePaths, const string& package,
-                const string& dir, bool clone) :
+                const string& dir) :
     _base(base),
     _includePaths(includePaths),
     _package(package),
-    _dir(dir),
-    _clone(clone)
+    _dir(dir)
 {
 }
 
@@ -622,7 +621,7 @@ Slice::Gen::generate(const UnitPtr& unit)
     OpsVisitor opsVisitor(_dir, _package);
     unit->visit(&opsVisitor);
 
-    TypesVisitor typesVisitor(_dir, _package, _clone);
+    TypesVisitor typesVisitor(_dir, _package);
     unit->visit(&typesVisitor);
 
     HolderVisitor holderVisitor(_dir, _package);
@@ -917,9 +916,8 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(const string& dir, const string& package, bool clone) :
-    JavaVisitor(dir, package),
-    _clone(clone)
+Slice::Gen::TypesVisitor::TypesVisitor(const string& dir, const string& package) :
+    JavaVisitor(dir, package)
 {
 }
 
@@ -1087,41 +1085,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             out << eb;
         }
-    }
-
-    //
-    // ice_copyStateFrom
-    //
-    if(!p->isInterface() && p->hasDataMembers())
-    {
-        out << sp << nl << "protected void"
-            << nl << "ice_copyStateFrom(Ice.Object __obj)";
-        out.inc();
-        out << nl << "throws java.lang.CloneNotSupportedException";
-        out.dec();
-        out << sb;
-        if(_clone)
-        {
-            out << nl << "super.ice_copyStateFrom(__obj);";
-            out << nl << name << " __v = (" << name << ")__obj;";
-
-            //
-            // Perform a shallow copy.
-            //
-            DataMemberList members = p->dataMembers();
-            DataMemberList::const_iterator d;
-            for(d = members.begin(); d != members.end(); ++d)
-            {
-                string memberName = fixKwd((*d)->name());
-                out << nl << "this." << memberName << " = __v." << memberName << ';';
-            }
-        }
-        else
-        {
-            out << nl << "throw new java.lang.CloneNotSupportedException();";
-        }
-
-        out << eb;
     }
 
     //
@@ -1442,11 +1405,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     Output& out = output();
 
-    out << sp << nl << "public final class " << name;
-    if(_clone)
-    {
-        out << " implements java.lang.Cloneable";
-    }
+    out << sp << nl << "public final class " << name << " implements java.lang.Cloneable";
     out << sb;
 
     return true;
@@ -1465,116 +1424,99 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     string typeS = typeToString(p, TypeModeIn, scope);
 
-    if(!members.empty())
+    //
+    // equals
+    //
+    out << sp << nl << "public boolean"
+        << nl << "equals(java.lang.Object rhs)";
+    out << sb;
+    out << nl << typeS << " _r = null;";
+    out << nl << "try";
+    out << sb;
+    out << nl << "_r = (" << typeS << ")rhs;";
+    out << eb;
+    out << nl << "catch(ClassCastException ex)";
+    out << sb;
+    out << eb;
+    out << sp << nl << "if(_r != null)";
+    out << sb;
+    for(d = members.begin(); d != members.end(); ++d)
     {
-        //
-        // equals
-        //
-        out << sp << nl << "public boolean"
-            << nl << "equals(java.lang.Object rhs)";
-        out << sb;
-        out << nl << typeS << " _r = null;";
-        out << nl << "try";
-        out << sb;
-        out << nl << "_r = (" << typeS << ")rhs;";
-        out << eb;
-        out << nl << "catch(ClassCastException ex)";
-        out << sb;
-        out << eb;
-        out << sp << nl << "if(_r != null)";
-        out << sb;
-        for(d = members.begin(); d != members.end(); ++d)
+        string memberName = fixKwd((*d)->name());
+        BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
+        if(b)
         {
-            string memberName = fixKwd((*d)->name());
-            BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
-            if(b)
+            switch(b->kind())
             {
-                switch(b->kind())
+                case Builtin::KindByte:
+                case Builtin::KindBool:
+                case Builtin::KindShort:
+                case Builtin::KindInt:
+                case Builtin::KindLong:
+                case Builtin::KindFloat:
+                case Builtin::KindDouble:
                 {
-                    case Builtin::KindByte:
-                    case Builtin::KindBool:
-                    case Builtin::KindShort:
-                    case Builtin::KindInt:
-                    case Builtin::KindLong:
-                    case Builtin::KindFloat:
-                    case Builtin::KindDouble:
-                    {
-                        out << nl << "if(" << memberName << " != _r." << memberName << ")";
-                        out << sb;
-                        out << nl << "return false;";
-                        out << eb;
-                        break;
-                    }
+                    out << nl << "if(" << memberName << " != _r." << memberName << ")";
+                    out << sb;
+                    out << nl << "return false;";
+                    out << eb;
+                    break;
+                }
 
-                    case Builtin::KindString:
-                    case Builtin::KindObject:
-                    case Builtin::KindObjectProxy:
-                    case Builtin::KindLocalObject:
-                    {
-                        out << nl << "if(!" << memberName << ".equals(_r." << memberName << "))";
-                        out << sb;
-                        out << nl << "return false;";
-                        out << eb;
-                        break;
-                    }
+                case Builtin::KindString:
+                case Builtin::KindObject:
+                case Builtin::KindObjectProxy:
+                case Builtin::KindLocalObject:
+                {
+                    out << nl << "if(!" << memberName << ".equals(_r." << memberName << "))";
+                    out << sb;
+                    out << nl << "return false;";
+                    out << eb;
+                    break;
                 }
             }
-            else
-            {
-                out << nl << "if(!" << memberName << ".equals(_r." << memberName << "))";
-                out << sb;
-                out << nl << "return false;";
-                out << eb;
-            }
         }
-        out << sp << nl << "return true;";
-        out << eb;
-        out << sp << nl << "return false;";
-        out << eb;
-
-        //
-        // hashCode
-        //
-        out << sp << nl << "public int"
-            << nl << "hashCode()";
-        out << sb;
-        out << nl << "int __h = 0;";
-        iter = 0;
-        for(d = members.begin(); d != members.end(); ++d)
+        else
         {
-            string memberName = fixKwd((*d)->name());
-            list<string> metaData = (*d)->getMetaData();
-            writeHashCode(out, (*d)->type(), memberName, iter, metaData);
+            out << nl << "if(!" << memberName << ".equals(_r." << memberName << "))";
+            out << sb;
+            out << nl << "return false;";
+            out << eb;
         }
-        out << nl << "return __h;";
-        out << eb;
     }
+    out << sp << nl << "return true;";
+    out << eb;
+    out << sp << nl << "return false;";
+    out << eb;
 
     //
-    // clone()
+    // hashCode
     //
-    if(_clone)
+    out << sp << nl << "public int"
+        << nl << "hashCode()";
+    out << sb;
+    out << nl << "int __h = 0;";
+    iter = 0;
+    for(d = members.begin(); d != members.end(); ++d)
     {
-        string name = fixKwd(p->name());
-
-        out << sp << nl << "public java.lang.Object"
-            << nl << "clone()";
-        out << sb;
-        out << nl << name << " __result = new " << name << "();";
-
-        //
-        // Perform a shallow copy.
-        //
-        DataMemberList::const_iterator d;
-        for(d = members.begin(); d != members.end(); ++d)
-        {
-            string memberName = fixKwd((*d)->name());
-            out << nl << "__result." << memberName << " = " << memberName << ';';
-        }
-
-        out << nl << "return __result;";
-        out << eb;
+        string memberName = fixKwd((*d)->name());
+        list<string> metaData = (*d)->getMetaData();
+        writeHashCode(out, (*d)->type(), memberName, iter, metaData);
     }
+    out << nl << "return __h;";
+    out << eb;
+
+    //
+    // clone - need to override it to make it public
+    //
+    out << sp << nl << "public java.lang.Object"
+        << nl << "clone()";
+    out.inc();
+    out << nl << "throws java.lang.CloneNotSupportedException";
+    out.dec();
+    out << sb;
+    out << nl << "return super.clone();";
+    out << eb;
 
     if(!p->isLocal())
     {
