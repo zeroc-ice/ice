@@ -36,51 +36,144 @@ public:
 	// Standard vector-like operations.
 	//
 
-	typedef std::vector<Ice::Byte>::value_type value_type;
-	typedef std::vector<Ice::Byte>::iterator iterator;
-	typedef std::vector<Ice::Byte>::const_iterator const_iterator;
-	typedef std::vector<Ice::Byte>::reference reference;
-	typedef std::vector<Ice::Byte>::const_reference const_reference;
-	typedef std::vector<Ice::Byte>::pointer pointer;
-	typedef std::vector<Ice::Byte>::difference_type difference_type;
-	typedef std::vector<Ice::Byte>::size_type size_type;
+	typedef Ice::Byte value_type;
+	typedef Ice::Byte* iterator;
+	typedef const Ice::Byte* const_iterator;
+	typedef Ice::Byte& reference;
+	typedef const Ice::Byte& const_reference;
+	typedef Ice::Byte* pointer;
+	typedef int difference_type;
+	typedef size_t size_type;
 
-	Container() { }
+	Container() :
+	    _buf(0),
+	    _size(0),
+	    _capacity(0)
+	{
+	}
 
-	iterator begin() { return _buf.begin(); }
+	~Container()
+	{
+	    free(_buf);
+	}
 
-	const_iterator begin() const { return _buf.begin(); }
+	iterator begin()
+	{
+	    return _buf;
+	}
 
-	iterator end() { return _buf.end(); }
+	const_iterator begin() const
+	{
+	    return _buf;
+	}
 
-	const_iterator end() const { return _buf.end(); }
+	iterator end()
+	{
+	    return _buf + _size;
+	}
 
-	size_type size() const { return _buf.size(); }
+	const_iterator end() const
+	{
+	    return _buf + _size;
+	}
 
-	bool empty() const { return _buf.empty(); }
+	size_type size() const
+	{
+	    return _size;
+	}
 
-	void swap(Container& other) { return _buf.swap(other._buf); }
+	bool empty() const
+	{
+	    return !_size;
+	}
 
-	void resize(size_type n) { _buf.resize(n); }
+	void swap(Container& other)
+	{
+	    std::swap(_buf, other._buf);
+	    std::swap(_size, other._size);
+	    std::swap(_capacity, other._capacity);
+	}
+	
+	void clear()
+	{
+	    free(_buf);
+	    _buf = 0;
+	    _size = 0;
+	    _capacity = 0;
+	}
 
-	void push_back(value_type v) { _buf.push_back(v); }
+	void resize(size_type n)
+	{
+	    _size = n;
+	    if(_size > _capacity)
+	    {
+		_capacity = std::max(_size, 2 * _capacity);
+		if(_buf)
+		{
+		    _buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));
+		}
+		else
+		{
+		    _buf = reinterpret_cast<pointer>(malloc(_capacity));
+		}
+	    }
+	}
 
-	reference operator[](size_type n) { return _buf[n]; }
+	void push_back(value_type v)
+	{
+	    resize(_size + 1);
+	    _buf[_size - 1] = v;
+	}
 
-	const_reference operator[](size_type n) const { return _buf[n]; }
+	reference operator[](size_type n)
+	{
+	    assert(n < _size);
+	    return _buf[n];
+	}
+
+	const_reference operator[](size_type n) const
+	{
+	    assert(n < _size);
+	    return _buf[n];
+	}
 
 	//
 	// Special operations.
 	//
-	void copyFromVector(const std::vector<Ice::Byte>& v) { _buf = v; }
-	void copyToVector(std::vector<Ice::Byte>& v) const { v = _buf; }
-	
+
+	void copyFromVector(const std::vector<value_type>& v)
+	{
+	    if(v.empty())
+	    {
+		clear();
+	    }
+	    else
+	    {
+		resize(v.size());
+		memcpy(_buf, &v[0], v.size());
+	    }
+	}
+
+	void copyToVector(std::vector<value_type>& v) const
+	{
+	    if(empty())
+	    {
+		v.clear();
+	    }
+	    else
+	    {
+		std::vector<value_type>(_buf, _buf + _size).swap(v);
+	    }
+	}
+
     private:
 
 	Container(const Container&);
 	void operator=(const Container&);
 
-	std::vector<Ice::Byte> _buf;
+	pointer _buf;
+	size_type _size;
+	size_type _capacity;
     };
 
     Container b;
