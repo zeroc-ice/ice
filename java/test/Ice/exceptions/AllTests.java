@@ -1184,7 +1184,7 @@ public class AllTests
 	
 	    System.out.println("ok");
 	
-            System.out.print("catching derived types... ");
+            System.out.print("catching derived types with AMI... ");
             System.out.flush();
 	
 	    {

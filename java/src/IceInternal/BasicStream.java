@@ -396,13 +396,11 @@ public class BasicStream
 	{
 	    throw new Ice.NegativeSizeException();
 	}
-// TODO: How to implement this check in Java?
-/*
-	if(sz - 4 > _buf.length())
+
+	if(sz - 4 > _buf.limit())
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException();
 	}
-*/
 	_readEncapsStack.sz = sz;
 
         byte eMajor = readByte();

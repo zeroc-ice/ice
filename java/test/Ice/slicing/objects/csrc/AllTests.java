@@ -665,8 +665,6 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-
-	public B r;
     }
 
     private static class AMI_Test_paramTest4I extends AMI_Test_paramTest4
@@ -705,8 +703,6 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-
-	public B r;
     }
 
     private static class AMI_Test_sequenceTestI extends AMI_Test_sequenceTest
