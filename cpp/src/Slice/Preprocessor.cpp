@@ -101,9 +101,16 @@ Slice::Preprocessor::printMakefileDependencies(const string& suffix)
     
     cmd += " -M " + _args + " " + _fileName;
 
+    //
+    // Change the suffix for non-C++ dependency files (such as for C#)
+    //
     const char* cSuffix = suffix.c_str();
 
+#ifdef _WIN32
     FILE* cppHandle = _popen(cmd.c_str(), "r");
+#else
+    FILE* cppHandle = popen(cmd.c_str(), "r");
+#endif
 
     char buf[1024];
     while(fgets(buf, sizeof(buf), cppHandle) != NULL)
