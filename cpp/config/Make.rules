@@ -82,7 +82,7 @@ endif
 # can find it, set BZIP2_HOME to the bzip2 installation directory.
 #
 
-BZIP2_HOME		?= /opt/bzip2
+#BZIP2_HOME		?= /opt/bzip2
 
 
 #
@@ -91,7 +91,7 @@ BZIP2_HOME		?= /opt/bzip2
 # directory.
 #
 
-DB_HOME		?= /opt/db
+#DB_HOME		?= /opt/db
 
 #
 # If OpenSSL is not installed in a standard location where the
@@ -99,7 +99,7 @@ DB_HOME		?= /opt/db
 # directory.
 #
 
-OPENSSL_HOME		?= /opt/openssl
+#OPENSSL_HOME		?= /opt/openssl
 
 #
 # Define if your OpenSSL requires Kerberos, and if Kerberos is not
@@ -114,7 +114,7 @@ KERBEROS_HOME		?= /usr/kerberos
 # installation directory.
 #
 
-EXPAT_HOME		?= /opt/expat
+#EXPAT_HOME		?= /opt/expat
 
 
 #
@@ -124,7 +124,7 @@ EXPAT_HOME		?= /opt/expat
 #
 #
 
-READLINE_HOME		?= /opt/readline
+#READLINE_HOME		?= /opt/readline
 
 
 # ----------------------------------------------------------------------
