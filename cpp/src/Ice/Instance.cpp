@@ -485,11 +485,6 @@ IceInternal::Instance::destroy()
 	}
 
 	_destroyed = true;
-	
-	//
-	// Destroy all contained objects. Then set all references to null,
-	// to avoid cyclic object dependencies.
-	//
 
 	if(_objectAdapterFactory)
 	{

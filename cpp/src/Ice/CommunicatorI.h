@@ -70,7 +70,6 @@ private:
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
     bool _destroyed;
-
     ::IceInternal::InstancePtr _instance;
 
     //
