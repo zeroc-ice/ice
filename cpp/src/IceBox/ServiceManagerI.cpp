@@ -256,6 +256,12 @@ IceBox::ServiceManagerI::init(const string& service, const string& entryPoint, c
         e.reason = "ServiceManager: exception in entry point `" + entryPoint + "': " + ex.ice_name();
         throw e;
     }
+    catch (...)
+    {
+        FailureException e;
+        e.reason = "ServiceManager: unknown exception in entry point `" + entryPoint + "'";
+        throw e;
+    }
 
     //
     // Invoke Service::init().
