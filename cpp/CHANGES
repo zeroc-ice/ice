@@ -1,6 +1,8 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Added extra file integrity checks to IcePatch::Client.
+
 - Fixed a problem with servers not shutting down properly under
   certain circumstances.
 

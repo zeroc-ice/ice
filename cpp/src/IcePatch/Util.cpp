@@ -532,6 +532,23 @@ IcePatch::createMD5(const string& path, const LoggerPtr& logger)
     //
     assert(path != ".");
 
+    //
+    // Calculate and save the MD5 hash value.
+    //
+    ByteSeq bytesMD5 = calcMD5(path, logger);
+
+    putMD5(path, bytesMD5);
+
+    if(logger)
+    {
+	Trace out(logger, "IcePatch");
+	out << "created MD5 file for `" << path << "'";
+    }
+}
+
+ByteSeq
+IcePatch::calcMD5(const string& path, const LoggerPtr& logger)
+{
     ByteSeq bytes;
 
     FileInfo info = getFileInfo(path, true, logger);
@@ -608,16 +625,7 @@ IcePatch::createMD5(const string& path, const LoggerPtr& logger)
 	fill(bytesMD5.begin(), bytesMD5.end(), 0);
     }
     
-    //
-    // Save the MD5 hash value.
-    //
-    putMD5(path, bytesMD5);
-
-    if(logger)
-    {
-	Trace out(logger, "IcePatch");
-	out << "created MD5 file for `" << path << "'";
-    }
+    return bytesMD5;
 }
 
 ByteSeq
