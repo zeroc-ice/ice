@@ -251,7 +251,21 @@ IceInternal::Reference::Reference(const string& ident, BasicStream* s) :
     // constructor read the identity, and pass it as a parameter.
     //
 
-    s->read(const_cast<string&>(facet));
+    string fac;
+    s->read(fac);
+    const_cast<string&>(facet) = fac;
+
+    Byte mod;
+    s->read(mod);
+    if (mod < 0 || mod > static_cast<Byte>(ModeBatchLast))
+    {
+	throw ProxyUnmarshalException(__FILE__, __LINE__);
+    }
+    const_cast<Mode&>(mode) = static_cast<Mode>(mod);
+
+    bool sec;
+    s->read(sec);
+    const_cast<bool&>(secure) = sec;
 
     vector<EndpointPtr>::const_iterator p;
     Ice::Int sz;
@@ -290,7 +304,11 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     // write the identity.
     //
 
-    s->write(facet);
+//    s->write(facet);
+
+//    s->write(static_cast<Byte>(mode));
+
+//    s->write(secure);
 
     vector<EndpointPtr>::const_iterator p;
 
@@ -306,6 +324,7 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     }
     else
     {
+	s->write(false);
 	s->write(Ice::Int(endpoints.size()));
 	for (p = endpoints.begin(); p != endpoints.end(); ++p)
 	{

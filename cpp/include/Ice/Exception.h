@@ -75,6 +75,7 @@ class UnmarshalOutOfBoundsException;
 class NoServantFactoryException;
 class ServantUnmarshalException;
 class UserExceptionUnmarshalException;
+class ProxyUnmarshalException;
 class StringEncodingException;
 class MemoryLimitException;
 class EncapsulationException;
@@ -116,6 +117,7 @@ std::ostream& printException(std::ostream&, const Ice::UnmarshalOutOfBoundsExcep
 std::ostream& printException(std::ostream&, const Ice::NoServantFactoryException&);
 std::ostream& printException(std::ostream&, const Ice::ServantUnmarshalException&);
 std::ostream& printException(std::ostream&, const Ice::UserExceptionUnmarshalException&);
+std::ostream& printException(std::ostream&, const Ice::ProxyUnmarshalException&);
 std::ostream& printException(std::ostream&, const Ice::StringEncodingException&);
 std::ostream& printException(std::ostream&, const Ice::MemoryLimitException&);
 std::ostream& printException(std::ostream&, const Ice::EncapsulationException&);

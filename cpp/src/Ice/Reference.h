@@ -31,7 +31,8 @@ public:
 	ModeOneway,
 	ModeBatchOneway,
 	ModeDatagram,
-	ModeBatchDatagram
+	ModeBatchDatagram,
+	ModeBatchLast = ModeBatchDatagram
     };
 
     Reference(const InstancePtr&, const std::string&, const std::string&, Mode, bool,

@@ -137,7 +137,7 @@ IceInternal::BasicStream::skipEncaps()
     Int sz;
     read(sz);
     i += sz;
-    if (i >= b.end())
+    if (i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
@@ -606,16 +606,6 @@ IceInternal::BasicStream::read(vector<Double>& v)
 void
 IceInternal::BasicStream::write(const string& v)
 {
-    //
-    // TODO: Revise reading/writing of strings and wstrings. Strings
-    // shouldn't be null-terminated on the wire. Instead, the string
-    // size should be transmitted first, and strings should be allowed
-    // to have 0 bytes. Only one initial Int parameter is sufficient,
-    // with negative values indicating redirection, and positive
-    // values for string lengths. Strings with length 0 should never
-    // be redirected.
-    //
-
     map<string, Int>::const_iterator p = _encapsStack.back().stringsWritten.find(v);
     if (p != _encapsStack.back().stringsWritten.end())
     {
@@ -623,13 +613,16 @@ IceInternal::BasicStream::write(const string& v)
     }
     else
     {
-	write(Int(-1));
-	int pos = b.size();
-	resize(pos + v.size() + 1);
-	copy(v.begin(), v.end(), b.begin() + pos);
-	b.back() = 0;
-	Int sz = _encapsStack.back().stringsWritten.size();
-	_encapsStack.back().stringsWritten[v] = sz;
+	Int len = v.size();
+	write(len);
+	if (len > 0)
+	{
+	    int pos = b.size();
+	    resize(pos + len);
+	    copy(v.begin(), v.end(), b.begin() + pos);
+//  	    Int sz = _encapsStack.back().stringsWritten.size();
+//  	    _encapsStack.back().stringsWritten[v] = -(sz + 1);
+	}
     }
 }
 
@@ -653,35 +646,37 @@ IceInternal::BasicStream::write(const vector<string>& v)
 void
 IceInternal::BasicStream::read(string& v)
 {
-    // TODO: Needs to be revised. See comments in write(const string&).
-    Int idx;
-    read(idx);
+    Int len;
+    read(len);
 
-    if (idx >= 0)
+    assert(len >= 0);
+
+    if (len < 0)
     {
-	if (static_cast<vector<string>::size_type>(idx) >= _encapsStack.back().stringsRead.size())
+	if (static_cast<vector<string>::size_type>(-(len + 1)) >= _encapsStack.back().stringsRead.size())
 	{
 	    throw StringEncodingException(__FILE__, __LINE__);
 	}
-	v = _encapsStack.back().stringsRead[idx];
-    }
-    else if(idx == -1)
-    {
-	Container::iterator begin = i;
-	do
-	{
-	    if (i >= b.end())
-	    {
-		throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	    }
-	}
-	while (*i++);
-	v = begin;
-	_encapsStack.back().stringsRead.push_back(v);
+	v = _encapsStack.back().stringsRead[-(len + 1)];
     }
     else
     {
-	throw StringEncodingException(__FILE__, __LINE__);
+	if (len == 0)
+	{
+	    v.erase();
+	}
+	else
+	{
+	    Container::iterator begin = i;
+	    i += len;
+	    if (i > b.end())
+	    {
+		throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	    }
+	    v.resize(len);
+	    copy(begin, i, v.begin());
+//	    _encapsStack.back().stringsRead.push_back(v);
+	}
     }
 }
 
@@ -706,7 +701,6 @@ IceInternal::BasicStream::read(vector<string>& v)
 void
 IceInternal::BasicStream::write(const wstring& v)
 {
-    // TODO: Needs to be revised. See comments in write(const string&).
     map<wstring, Int>::const_iterator p = _encapsStack.back().wstringsWritten.find(v);
     if (p != _encapsStack.back().wstringsWritten.end())
     {
@@ -714,15 +708,18 @@ IceInternal::BasicStream::write(const wstring& v)
     }
     else
     {
-	write(Int(-1));
-	wstring::const_iterator p;
-	for (p = v.begin(); p != v.end(); ++p)
+	Int len = v.size();
+	write(len);
+	if (len > 0)
 	{
-	    write(static_cast<Short>(*p));
+	    wstring::const_iterator p;
+	    for (p = v.begin(); p != v.end(); ++p)
+	    {
+		write(static_cast<Short>(*p));
+	    }
+	    Int sz = _encapsStack.back().wstringsWritten.size();
+	    _encapsStack.back().wstringsWritten[v] = -(sz + 1);
 	}
-	write(Short(0));
-	Int sz = _encapsStack.back().wstringsWritten.size();
-	_encapsStack.back().wstringsWritten[v] = sz;
     }
 }
 
@@ -740,36 +737,30 @@ IceInternal::BasicStream::write(const vector<wstring>& v)
 void
 IceInternal::BasicStream::read(wstring& v)
 {
-    // TODO: Needs to be revised. See comments in write(const string&).
-    Int idx;
-    read(idx);
+    Int len;
+    read(len);
 
-    if (idx >= 0)
+    if (len < 0)
     {
-	if (static_cast<vector<string>::size_type>(idx) >= _encapsStack.back().wstringsRead.size())
+	if (static_cast<vector<string>::size_type>(-(len + 1)) >= _encapsStack.back().wstringsRead.size())
 	{
 	    throw StringEncodingException(__FILE__, __LINE__);
 	}
-	v = _encapsStack.back().wstringsRead[idx];
-    }
-    else if(idx == -1)
-    {
-	v.erase();
-	while (true)
-	{
-	    Short s;
-	    read(s);
-	    if (!s)
-	    {
-		break;
-	    }
-	    v += static_cast<wchar_t>(s);
-	}
-	_encapsStack.back().wstringsRead.push_back(v);
+	v = _encapsStack.back().wstringsRead[-(len + 1)];
     }
     else
     {
-	throw StringEncodingException(__FILE__, __LINE__);
+	v.erase();
+	if (len > 0)
+	{
+	    while (len--)
+	    {
+		Short s;
+		read(s);
+		v += static_cast<wchar_t>(s);
+	    }
+	    _encapsStack.back().wstringsRead.push_back(v);
+	}
     }
 }
 

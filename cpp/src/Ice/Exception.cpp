@@ -197,6 +197,13 @@ IceUtil::printException(ostream& out, const UserExceptionUnmarshalException& ex)
 }
 
 ostream&
+IceUtil::printException(ostream& out, const ProxyUnmarshalException& ex)
+{
+    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
+    return out << ":\nprotocol error: inconsistent proxy data during unmarshaling";
+}
+
+ostream&
 IceUtil::printException(ostream& out, const StringEncodingException& ex)
 {
     IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));

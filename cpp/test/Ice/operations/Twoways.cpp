@@ -127,6 +127,7 @@ twoways(const Test::MyClassPrx& p)
 
     {
 	Test::MyClassPrx c1;
+	c1->_getIdentity();
 	Test::MyClassPrx c2;
 	Test::MyClassPrx r;
 	
@@ -153,6 +154,30 @@ twoways(const Test::MyClassPrx& p)
 	test(c2 != 0);
 	test(r == p);
 	r->opVoid();
+	try
+	{
+	    c1->opVoid();
+	    test(false);
+	}
+	catch(const IceUtil::NullHandleException&)
+	{
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	try
+	{
+	    c1->opVoid();
+	    test(false);
+	}
+	catch(const Ice::Exception&)
+	{
+	}
+	catch(...)
+	{
+	    test(false);
+	}
     }
 
     {

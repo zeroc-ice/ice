@@ -305,6 +305,16 @@ local exception UserExceptionUnmarshalException extends ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException], which is
+ * raised if inconsistent data is received while unmarshaling a proxy.
+ *
+ **/
+local exception ProxyUnmarshalException extends ProtocolException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [ProtocolException], which is
  * raised if an out-of-bounds condition occurs during unmarshaling.
  *
  **/

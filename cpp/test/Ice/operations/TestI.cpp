@@ -97,6 +97,7 @@ MyDerivedClassI::opMyEnum(Test::MyEnum p1,
     return Test::enum3;
 }
 
+using namespace std;
 Test::MyClassPrx
 MyDerivedClassI::opMyClass(const Test::MyClassPrx& p1,
 			   Test::MyClassPrx& p2, Test::MyClassPrx& p3)
