@@ -82,7 +82,7 @@ def isCygwin():
 
 def isWin32():
 
-    if sys.platform == "win32":
+    if sys.platform == "win32" or isCygwin():
         return 1
     else:
         return 0
