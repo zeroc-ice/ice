@@ -42,6 +42,7 @@ SLICE_SRCS	= Hello.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
+LINKWITH	:= -lIcePack -lIceBox -lIce -lIceUtil
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
