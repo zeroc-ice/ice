@@ -101,9 +101,9 @@ else:
     print "unknown platform (" + sys.platform + ")!"
     sys.exit(1)
 
-#if not os.path.exists(os.path.join("python", "Ice_BuiltinSequences_ice.py")):
-#    print "makebindist.py must be run in a compiled IcePy tree"
-#    sys.exit(1)
+if not os.path.exists(os.path.join("python", "Ice_BuiltinSequences_ice.py")):
+    print "makebindist.py must be run in a compiled IcePy tree"
+    sys.exit(1)
 
 #
 # Save the current directory.
@@ -123,6 +123,7 @@ cwd = os.getcwd()
 #
 # Export sources from CVS.
 #
+print "Checking out CVS tag " + tag + "..."
 if verbose:
     quiet = ""
 else:
@@ -203,6 +204,7 @@ shutil.rmtree(os.path.join("icepy", "modules"))
 #
 # Copy executables and libraries.
 #
+print "Copying executables and libraries..."
 icehome = os.environ["ICE_HOME"]
 executables = [ ]
 libraries = [ ]
@@ -284,19 +286,20 @@ if strip:
 #
 # Create binary archives.
 #
+print "Creating distribution..."
 icever = "IcePy-" + version
 os.rename("icepy", icever)
 if verbose:
     quiet = "v"
 else:
     quiet = ""
-os.system("tar c" + quiet + "vf " + icever + "-bin-" + platform + ".tar " + icever)
+os.system("tar c" + quiet + "f " + icever + "-bin-" + platform + ".tar " + icever)
 os.system("gzip -9 " + icever + "-bin-" + platform + ".tar")
 if verbose:
     quiet = ""
 else:
     quiet = "-q"
-os.system("zip -9ry " + quiet + " " + icever + "-bin-" + platform + ".zip " + icever)
+os.system("zip -9 -r -y " + quiet + " " + icever + "-bin-" + platform + ".zip " + icever)
 
 #
 # Copy files (README, etc.).
@@ -305,5 +308,7 @@ os.system("zip -9ry " + quiet + " " + icever + "-bin-" + platform + ".zip " + ic
 #
 # Done.
 #
+print "Cleaning up..."
 shutil.rmtree(icever)
 shutil.rmtree("ice")
+print "Done."
