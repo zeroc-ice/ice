@@ -8,9 +8,10 @@ Start the IceStorm service:
 
 $ ../../../bin/icebox --Ice.Config=config_service
 
-This currently assumes there is a directory called db in the cwd.
+This currently assumes there is a subdirectory named db in the current
+working directory.
 
-In a seperate window:
+In a separate window:
 
 $ ../../../bin/icestormadmin -e "create time"
 $ ./subscriber
@@ -19,5 +20,5 @@ In another window:
 
 $ ./publisher
 
-For each run of the publisher 10 "tick" messages should be displayed
-in the subscriber window.
+Ten "tick" messages should be displayed in the subscriber window for
+each run of the publisher.

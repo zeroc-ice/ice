@@ -5,7 +5,7 @@ $ ./server
 
 In the second window, run the Glacier starter:
 
-$ glacierstarter --Ice.Config=config
+$ ../../../bin/glacierstarter --Ice.Config=config
 
 In the third window, run the client:
 
