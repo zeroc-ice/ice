@@ -26,14 +26,26 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     private int
     run(String[] args)
     {
+        StringSeqHolder argsH = new StringSeqHolder(args);
         try
         {
             //
             // Initialize a Communicator. The services may share this
             // Communicator instance if desired.
             //
-            StringSeqHolder argsH = new StringSeqHolder(args);
             _communicator = Util.initialize(argsH);
+        }
+        catch(Exception ex)
+        {
+            // Don't have a logger yet
+            System.err.println("ServiceManager: exception in Communicator");
+            ex.printStackTrace();
+            return 1;
+        }
+
+        try
+        {
+            _logger = _communicator.getLogger();
 
             //
             // Create an object adapter. Services probably should NOT share
@@ -75,15 +87,21 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         }
         catch(LocalException ex)
         {
-            System.err.println("ServiceManager: " + ex);
-            ex.printStackTrace();
+            java.io.StringWriter sw = new java.io.StringWriter();
+            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            ex.printStackTrace(pw);
+            pw.flush();
+            _logger.error("ServiceManager: " + ex + "\n" + sw.toString());
             stopServices();
             return 1;
         }
         catch(Exception ex)
         {
-            System.err.println("ServiceManager: unknown exception");
-            ex.printStackTrace();
+            java.io.StringWriter sw = new java.io.StringWriter();
+            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            ex.printStackTrace(pw);
+            pw.flush();
+            _logger.error("ServiceManager: unknown exception\n" + sw.toString());
             stopServices();
             return 1;
         }
@@ -191,7 +209,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
                 }
                 catch (ClassCastException ex)
                 {
-                    System.err.println("ServiceManager: class " + className + " does not implement Ice.Service");
+                    _logger.error("ServiceManager: class " + className + " does not implement Ice.Service");
                     return false;
                 }
                 svc.init(name, _communicator, serviceProperties, argsH.value);
@@ -199,22 +217,26 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             }
             catch (ClassNotFoundException ex)
             {
-                System.err.println("ServiceManager: class " + className + " not found");
+                _logger.error("ServiceManager: class " + className + " not found");
                 return false;
             }
             catch (IllegalAccessException ex)
             {
-                System.err.println("ServiceManager: unable to access default constructor in class " + className);
+                _logger.error("ServiceManager: unable to access default constructor in class " + className);
                 return false;
             }
             catch (InstantiationException ex)
             {
-                System.err.println("ServiceManager: unable to instantiate class " + className);
+                _logger.error("ServiceManager: unable to instantiate class " + className);
                 return false;
             }
             catch (ServiceFailureException ex)
             {
-                System.err.println("ServiceManager: initialization failed for service " + name);
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                _logger.error("ServiceManager: initialization failed for service " + name + "\n" + sw.toString());
                 return false;
             }
         }
@@ -237,13 +259,20 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             }
             catch (ServiceFailureException ex)
             {
-                System.err.println("ServiceManager: start failed for service " + name);
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                _logger.error("ServiceManager: start failed for service " + name + "\n" + sw.toString());
                 return false;
             }
             catch(Exception ex)
             {
-                System.err.println("ServiceManager: exception in start for service " + name);
-                ex.printStackTrace();
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                _logger.error("ServiceManager: exception in start for service " + name + "\n" + sw.toString());
                 return false;
             }
         }
@@ -266,8 +295,11 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             }
             catch (Exception ex)
             {
-                System.err.println("ServiceManager: exception in stop for service " + name);
-                ex.printStackTrace();
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                ex.printStackTrace(pw);
+                pw.flush();
+                _logger.error("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
             }
         }
         _services.clear();
@@ -282,5 +314,6 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     }
 
     private Communicator _communicator;
+    private Logger _logger;
     private java.util.HashMap _services = new java.util.HashMap();
 }
