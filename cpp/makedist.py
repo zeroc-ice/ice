@@ -16,6 +16,18 @@
 import os, sys, shutil, fnmatch, re
 
 #
+# Program usage.
+#
+def usage():
+    print "Usage: " + sys.argv[0] + " [options] [tag]"
+    print
+    print "Options:"
+    print "-h    Show this message."
+    print "-d    Skip SGML documentation conversion."
+    print
+    print "If no tag is given, HEAD is used."
+
+#
 # Find files matching a pattern.
 #
 def find(path, patt):
@@ -44,7 +56,7 @@ def fixMakefile(file, target):
     newLines = []
     for x in origLines:
         #
-        # If the line starts with target string, then
+        # If the line starts with the target string, then
         # comment out this make target.
         #
         if x.startswith(target) and not x.startswith(target + ".o"):
@@ -63,11 +75,8 @@ def fixMakefile(file, target):
             doComment = 0
             doCheck = 0
 
-        if doComment:
+        if doComment or (doCheck and x.find(target) != -1):
             x = "#" + x
-        elif doCheck:
-            if x.find(target) != -1:
-                x = "#" + x
         newLines.append(x)
 
     newMakefile.writelines(newLines)
@@ -79,10 +88,17 @@ def fixMakefile(file, target):
 # Check arguments
 #
 tag = "-rHEAD"
+skipDocs = 0
 for x in sys.argv[1:]:
     if x == "-h":
-        print "usage: " + sys.argv[0] + " [-h] [tag]"
+        usage()
         sys.exit(0)
+    elif x == "-d":
+        skipDocs = 1
+    elif x.startswith("-"):
+        print "Unknown option `" + x + "'"
+        usage()
+        sys.exit(1)
     else:
         tag = "-r" + x
 
@@ -137,7 +153,6 @@ for x in grammars:
 #
 # Generate flex files.
 #
-cwd = os.getcwd()
 scanners = find("ice", "*.l")
 for x in scanners:
     #
@@ -154,6 +169,34 @@ for x in scanners:
     # Edit the Makefile to comment out the flex rules.
     #
     fixMakefile("Makefile", base)
+    os.chdir(cwd)
+
+#
+# Generate HTML documentation. We need to build icecpp
+# and slice2docbook first.
+#
+if not skipDocs:
+    os.chdir(os.path.join("ice", "src", "icecpp"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "IceUtil"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "Slice"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "src", "slice2docbook"))
+    os.system("gmake")
+    os.chdir(cwd)
+    os.chdir(os.path.join("ice", "doc"))
+    os.system("gmake")
+    os.chdir(cwd)
+
+    #
+    # Clean the source directory.
+    #
+    os.chdir(os.path.join("ice", "src"))
+    os.system("gmake clean")
     os.chdir(cwd)
 
 #
