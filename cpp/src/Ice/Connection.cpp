@@ -132,7 +132,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 	Int sz = os->b.size();
 	p = reinterpret_cast<Byte*>(&sz);
 	copy(p, p + sizeof(Int), os->i + 3);
-	if (!_endpoint->oneway() && !oneway)
+	if (!_endpoint->datagram() && !oneway)
 	{
 	    requestId = _nextRequestId++;
 	    if (requestId <= 0)
@@ -156,7 +156,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
     // Only add to the request map if there was no exception, and if
     // the operation is not oneway.
     //
-    if (!_endpoint->oneway() && !oneway)
+    if (!_endpoint->datagram() && !oneway)
     {
 	_requestsHint = _requests.insert(_requests.end(), make_pair(requestId, out));
     }
@@ -379,7 +379,20 @@ IceInternal::Connection::message(BasicStream& stream)
 		case closeConnectionMsg:
 		{
 		    traceHeader("received close connection", stream, _logger, _traceLevels);
-		    throw CloseConnectionException(__FILE__, __LINE__);
+		    if (_endpoint->datagram())
+		    {
+			if (_warn)
+			{
+			    ostringstream s;
+			    s << "ignoring close connection message for datagram connection:\n"
+			      << _transceiver->toString();
+			    _logger->warning(s.str());
+			}
+		    }
+		    else
+		    {
+			throw CloseConnectionException(__FILE__, __LINE__);
+		    }
 		    break;
 		}
 		
@@ -419,7 +432,7 @@ IceInternal::Connection::message(BasicStream& stream)
 	    {
 		Int requestId;
 		is->read(requestId);
-		if (!_endpoint->oneway() && requestId != 0) // 0 means oneway
+		if (!_endpoint->datagram() && requestId != 0) // 0 means oneway
 		{
 		    response = true;
 		    ++_responseCount;
@@ -483,7 +496,7 @@ IceInternal::Connection::message(BasicStream& stream)
 		
 		--_responseCount;
 		
-		if (_state == StateClosing && _responseCount == 0)
+		if (_state == StateClosing && _responseCount == 0 && !_endpoint->datagram())
 		{
 		    closeConnection();
 		}
@@ -554,10 +567,10 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 	//
 	// Don't warn about certain expected exceptions.
 	//
-	if (!dynamic_cast<const CloseConnectionException*>(&ex) &&
-	    !dynamic_cast<const CommunicatorDestroyedException*>(&ex) &&
-	    !dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) &&
-	    !(dynamic_cast<const ConnectionLostException*>(&ex) && _state == StateClosing));
+	if (!(dynamic_cast<const CloseConnectionException*>(&ex) ||
+	      dynamic_cast<const CommunicatorDestroyedException*>(&ex) ||
+	      dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) ||
+	      (dynamic_cast<const ConnectionLostException*>(&ex) && _state == StateClosing)))
 	{
 	    warning(ex);
 	}
@@ -576,6 +589,15 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 void
 IceInternal::Connection::setState(State state)
 {
+    //
+    // We don't want to send close connection messages if the endpoint
+    // only supports oneway transmission from client to server.
+    //
+    if (_endpoint->datagram() && state == StateClosing)
+    {
+	state = StateClosed;
+    }
+
     if (_state == state) // Don't switch twice
     {
 	return;
@@ -631,12 +653,13 @@ IceInternal::Connection::setState(State state)
 		_threadPool->_register(_transceiver->fd(), this);
 	    }
 	    _threadPool->unregister(_transceiver->fd(), true);
+	    break;
 	}
     }
 
     _state = state;
 
-    if (_state == StateClosing && _responseCount == 0)
+    if (_state == StateClosing && _responseCount == 0 && !_endpoint->datagram())
     {
 	try
 	{
