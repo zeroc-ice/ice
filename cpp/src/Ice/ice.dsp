@@ -1162,6 +1162,49 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\slice\Ice\FacetMap.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__IDENT="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\FacetMap.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/FacetMap.ice \
+	move FacetMap.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\FacetMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"FacetMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__IDENT="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\FacetMap.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/FacetMap.ice \
+	move FacetMap.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\FacetMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"FacetMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\slice\Ice\LocalException.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
