@@ -54,13 +54,6 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_ConnectionF_ice.py \
 		  Ice_SliceChecksumDict_ice.py
 
-GLACIER_SRCS	= Glacier_Router_ice.py \
-		  Glacier_SessionF_ice.py \
-		  Glacier_Session_ice.py \
-		  Glacier_SessionManagerF_ice.py \
-		  Glacier_SessionManager_ice.py \
-		  Glacier_Starter_ice.py
-
 GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 		  Glacier2_Router_ice.py \
 		  Glacier2_SessionF_ice.py \
@@ -74,19 +67,19 @@ ICEPACK_SRCS	= IcePack_Admin_ice.py \
 		  IcePack_Exception_ice.py \
 		  IcePack_Query_ice.py
 
-ICEPATCH_SRCS	= IcePatch_IcePatch_ice.py
+ICEPATCH2_SRCS	= IcePatch2_FileInfo_ice.py \
+		  IcePatch2_FileServer_ice.py
 
 ICESTORM_SRCS	= IceStorm_IceStorm_ice.py
 
 ALL_SRCS	= $(ICE_SRCS) \
-		  $(GLACIER_SRCS) \
 		  $(GLACIER2_SRCS) \
 		  $(ICEBOX_SRCS) \
 		  $(ICEPACK_SRCS) \
-		  $(ICEPATCH_SRCS) \
+		  $(ICEPATCH2_SRCS) \
 		  $(ICESTORM_SRCS)
 
-PACKAGES	= Glacier Glacier2 IceBox IcePack IcePatch IceStorm
+PACKAGES	= Glacier2 IceBox IcePack IcePatch2 IceStorm
 
 SLICE2PYFLAGS	= -I$(slicedir) --ice
 

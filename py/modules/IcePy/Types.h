@@ -13,6 +13,7 @@
 #include <Python.h>
 #include <Util.h>
 #include <Ice/Stream.h>
+#include <IceUtil/OutputUtil.h>
 
 namespace IcePy
 {
@@ -33,6 +34,12 @@ class AbortMarshaling
 };
 
 typedef std::map<PyObject*, Ice::ObjectPtr> ObjectMap;
+
+struct PrintObjectHistory
+{
+    int index;
+    std::map<PyObject*, int> objects;
+};
 
 //
 // The delayed nature of class unmarshaling in the Ice protocol requires us to
@@ -86,6 +93,8 @@ public:
     //
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*) = 0;
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*) = 0;
+
+    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*) = 0;
 };
 typedef IceUtil::Handle<TypeInfo> TypeInfoPtr;
 
@@ -102,6 +111,8 @@ public:
 
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
+
+    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
 
     void marshalSequence(PyObject*, const Ice::OutputStreamPtr&);
     void unmarshalSequence(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
@@ -138,6 +149,8 @@ public:
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
 
+    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+
     std::string id;
     EnumeratorList enumerators;
     PyObjectHandle pythonType;
@@ -172,6 +185,8 @@ public:
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
 
+    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+
     virtual void destroy();
 
     std::string id;
@@ -197,6 +212,8 @@ public:
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
     virtual void unmarshaled(PyObject*, PyObject*, void*);
 
+    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+
     virtual void destroy();
 
     std::string id;
@@ -220,6 +237,8 @@ public:
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
     virtual void unmarshaled(PyObject*, PyObject*, void*);
+
+    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
 
     virtual void destroy();
 
@@ -254,7 +273,11 @@ public:
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
 
+    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+
     virtual void destroy();
+
+    void printMembers(PyObject*, IceUtil::Output&, PrintObjectHistory*);
 
     std::string id;
     bool isAbstract;
@@ -279,6 +302,8 @@ public:
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
 
+    virtual void print(PyObject*, IceUtil::Output&, PrintObjectHistory*);
+
     virtual void destroy();
 
     std::string id;
@@ -296,6 +321,9 @@ public:
 
     void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     PyObject* unmarshal(const Ice::InputStreamPtr&);
+
+    void print(PyObject*, IceUtil::Output&);
+    void printMembers(PyObject*, IceUtil::Output&, PrintObjectHistory*);
 
     std::string id;
     ExceptionInfoPtr base;
@@ -370,5 +398,7 @@ extern "C" PyObject* IcePy_defineProxy(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_declareClass(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineClass(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_defineException(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_stringify(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_stringifyException(PyObject*, PyObject*);
 
 #endif

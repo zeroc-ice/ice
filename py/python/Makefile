@@ -42,13 +42,6 @@ ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_ConnectionF_ice.py \
 		  Ice_SliceChecksumDict_ice.py
 
-GLACIER_SRCS	= Glacier_Router_ice.py \
-		  Glacier_SessionF_ice.py \
-		  Glacier_Session_ice.py \
-		  Glacier_SessionManagerF_ice.py \
-		  Glacier_SessionManager_ice.py \
-		  Glacier_Starter_ice.py
-
 GLACIER2_SRCS	= Glacier2_RouterF_ice.py \
 		  Glacier2_Router_ice.py \
 		  Glacier2_SessionF_ice.py \
@@ -62,27 +55,24 @@ ICEPACK_SRCS	= IcePack_Admin_ice.py \
 		  IcePack_Exception_ice.py \
 		  IcePack_Query_ice.py
 
-ICEPATCH_SRCS	= IcePatch_IcePatch_ice.py
+ICEPATCH2_SRCS	= IcePatch2_FileInfo_ice.py \
+		  IcePatch2_FileServer_ice.py
 
 ICESTORM_SRCS	= IceStorm_IceStorm_ice.py
 
 ALL_SRCS	= $(ICE_SRCS) \
-		  $(GLACIER_SRCS) \
 		  $(GLACIER2_SRCS) \
 		  $(ICEBOX_SRCS) \
 		  $(ICEPACK_SRCS) \
-		  $(ICEPATCH_SRCS) \
+		  $(ICEPATCH2_SRCS) \
 		  $(ICESTORM_SRCS)
 
-PACKAGES	= Glacier Glacier2 IceBox IcePack IcePatch IceStorm
+PACKAGES	= Glacier2 IceBox IcePack IcePatch2 IceStorm
 
 all:: $(ALL_SRCS)
 
 Ice_%_ice.py: $(slicedir)/Ice/%.ice
 	$(SLICE2PY) --prefix Ice_ --ice --no-package $(SLICE2PYFLAGS) $<
-
-Glacier_%_ice.py: $(slicedir)/Glacier/%.ice
-	$(SLICE2PY) --prefix Glacier_ --checksum $(SLICE2PYFLAGS) $<
 
 Glacier2_%_ice.py: $(slicedir)/Glacier2/%.ice
 	$(SLICE2PY) --prefix Glacier2_ --checksum $(SLICE2PYFLAGS) $<
@@ -93,8 +83,8 @@ IceBox_%_ice.py: $(slicedir)/IceBox/%.ice
 IcePack_%_ice.py: $(slicedir)/IcePack/%.ice
 	$(SLICE2PY) --prefix IcePack_ --ice --checksum $(SLICE2PYFLAGS) $<
 
-IcePatch_%_ice.py: $(slicedir)/IcePatch/%.ice
-	$(SLICE2PY) --prefix IcePatch_ --ice --checksum $(SLICE2PYFLAGS) $<
+IcePatch2_%_ice.py: $(slicedir)/IcePatch2/%.ice
+	$(SLICE2PY) --prefix IcePatch2_ --ice --checksum $(SLICE2PYFLAGS) $<
 
 IceStorm_%_ice.py: $(slicedir)/IceStorm/%.ice
 	$(SLICE2PY) --prefix IceStorm_ --ice --checksum $(SLICE2PYFLAGS) $<

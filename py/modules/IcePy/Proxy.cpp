@@ -14,6 +14,7 @@
 #include <structmember.h>
 #include <Connection.h>
 #include <Util.h>
+#include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/Locator.h>
 #include <Ice/Proxy.h>
@@ -98,6 +99,16 @@ proxyCompare(ProxyObject* p1, ProxyObject* p2)
     {
         return 1;
     }
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+proxyRepr(ProxyObject* self)
+{
+    string str = (*self->communicator)->proxyToString(*self->proxy);
+    return PyString_FromString(const_cast<char*>(str.c_str()));
 }
 
 #ifdef WIN32
@@ -1149,7 +1160,7 @@ PyTypeObject ProxyType =
     0,                               /* tp_getattr */
     0,                               /* tp_setattr */
     (cmpfunc)proxyCompare,           /* tp_compare */
-    0,                               /* tp_repr */
+    (reprfunc)proxyRepr,             /* tp_repr */
     0,                               /* tp_as_number */
     0,                               /* tp_as_sequence */
     0,                               /* tp_as_mapping */

@@ -60,6 +60,10 @@ static PyMethodDef methods[] =
         PyDoc_STR("internal function") },
     { "defineException", (PyCFunction)IcePy_defineException, METH_VARARGS,
         PyDoc_STR("internal function") },
+    { "stringify", (PyCFunction)IcePy_stringify, METH_VARARGS,
+        PyDoc_STR("internal function") },
+    { "stringifyException", (PyCFunction)IcePy_stringifyException, METH_VARARGS,
+        PyDoc_STR("internal function") },
     { "loadSlice", (PyCFunction)IcePy_loadSlice, METH_VARARGS,
         PyDoc_STR("loadSlice(cmd) -> None") },
     { NULL, NULL} /* sentinel */

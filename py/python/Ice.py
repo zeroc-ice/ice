@@ -97,6 +97,7 @@ def createTempClass():
 #
 IcePy._t_Object = IcePy.declareClass('::Ice::Object')
 IcePy._t_ObjectPrx = IcePy.declareProxy('::Ice::Object')
+IcePy._t_LocalObject = IcePy.declareClass('::Ice::LocalObject')
 
 #
 # Slice checksum dictionary.
@@ -619,6 +620,9 @@ Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Nonmutating, False
 Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Nonmutating, False, (), (), None, ())
 Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Nonmutating, False, (), (), _t_StringSeq, ())
 Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Nonmutating, False, (), (), IcePy._t_string, ())
+
+IcePy._t_LocalObject = IcePy.defineClass('::Ice::LocalObject', LocalObject, False, None, (), ())
+LocalObject.ice_type = IcePy._t_LocalObject
 
 #
 # Annotate Ice::Identity.

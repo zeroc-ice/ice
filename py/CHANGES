@@ -1,6 +1,8 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Added support for stringifying generated types.
+
 - Added support for Ice::Connection, which is accessible to servants
   from Ice::Current, and to clients from the proxy operation
   ice_connection.
