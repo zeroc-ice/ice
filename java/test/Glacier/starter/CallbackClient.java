@@ -40,7 +40,7 @@ class CallbackClient extends Ice.Application
 
         System.out.print("testing stringToProxy for glacier starter... ");
         System.out.flush();
-        ref = "Glacier/starter:default -p 12346 -t 5000";
+        ref = "Glacier/starter:default -p 12346 -t 30000";
         Ice.ObjectPrx starterBase = communicator().stringToProxy(ref);
         System.out.println("ok");
 

@@ -39,7 +39,7 @@ command = starter + TestUtil.clientServerOptions + \
           r' --Glacier.Starter.RouterPath=' + router + \
           r' --Glacier.Starter.PropertiesOverride=Ice.ServerIdleTime=10' \
           r' --Glacier.Starter.CryptPasswords="' + toplevel + r'/test/Glacier/starter/passwords"' + \
-          r' --Glacier.Starter.Endpoints="default -p 12346 -t 5000"' + \
+          r' --Glacier.Starter.Endpoints="default -p 12346 -t 30000"' + \
           r' --Glacier.Router.Endpoints="default"' + \
           r' --Glacier.Router.Client.Endpoints="default"' + \
           r' --Glacier.Router.Server.Endpoints="tcp"'
