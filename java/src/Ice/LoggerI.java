@@ -26,6 +26,15 @@ public final class LoggerI extends LocalObjectImpl implements Logger
     }
 
     public void
+    print(String message)
+    {
+	synchronized(_globalMutex)
+	{
+	    System.err.println(message);
+	}
+    }
+
+    public void
     trace(String category, String message)
     {
 	synchronized(_globalMutex)

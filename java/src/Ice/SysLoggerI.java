@@ -44,6 +44,12 @@ public final class SysLoggerI extends LocalObjectImpl implements Logger
     }
 
     public void
+    print(String message)
+    {
+	log(LOG_INFO, message);
+    }
+
+    public void
     trace(String category, String message)
     {
 	log(LOG_INFO, category + ": " + message);

@@ -10,6 +10,11 @@
 public final class DummyLogger extends Ice.LocalObjectImpl implements Ice.Logger
 {
     public void
+    print(String message)
+    {
+    }
+
+    public void
     trace(String category, String message)
     {
     }
