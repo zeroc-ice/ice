@@ -105,11 +105,11 @@ inline bool startWith(Key key, Key root)
 //
 
 void
-marshalRoot(const EvictorStorageKey& v, Key& bytes, const CommunicatorPtr& communicator)
+marshalRoot(const Ice::Identity& v, Key& bytes, const CommunicatorPtr& communicator)
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
-    v.identity.__write(&stream);
+    v.__write(&stream);
     bytes.swap(stream.b);
 }
 
@@ -1510,9 +1510,7 @@ Freeze::EvictorI::load(const Identity& ident)
     // identity.
     //
     Key root;
-    EvictorStorageKey rootEsk;
-    rootEsk.identity = ident;
-    marshalRoot(rootEsk, root, _communicator);
+    marshalRoot(ident, root, _communicator);
 
     Key key(root);
     const size_t defaultKeySize = 1024;
