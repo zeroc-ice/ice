@@ -128,17 +128,20 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	{
 	    String[] list = log_archive(com.sleepycat.db.Db.DB_ARCH_ABS);
 	    
-	    for(int i = 0; i < list.length; i++)
+	    if(list != null)
 	    {
-		//
-		// Remove each file
-		//
-		java.io.File file = new java.io.File(list[i]);
-		boolean ok = file.delete();
-		if(!ok)
+		for(int i = 0; i < list.length; i++)
 		{
-		    _key.communicator.getLogger().warning(
-			"could not delete file \"" + list[i] + "\"");
+		    //
+		    // Remove each file
+		    //
+		    java.io.File file = new java.io.File(list[i]);
+		    boolean ok = file.delete();
+		    if(!ok)
+		    {
+			_key.communicator.getLogger().warning(
+			    "could not delete file \"" + list[i] + "\"");
+		    }
 		}
 	    }
 	}
@@ -168,9 +171,7 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 		    {
 			continue;
 		    }
-		    //
-		    // Loop
-		    //
+		    break;
 		}
 		if(_done)
 		{
@@ -178,6 +179,12 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 		}
 	    }
 	    
+	    if(_trace >= 2)
+	    {
+		_key.communicator.getLogger().trace
+		    ("Freeze.DbEnv", "checkpointing environment \"" + _key.envName + "\"");
+	    }
+
 	    try
 	    {
 		txn_checkpoint(_kbyte, 0, 0);
@@ -241,11 +248,6 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	// Deadlock detection
 	//
 	set_lk_detect(com.sleepycat.db.Db.DB_LOCK_MINLOCKS);
-	
-	//
-	// Async tx
-	//
-	set_flags(com.sleepycat.db.Db.DB_TXN_NOSYNC, true);
 
 	int flags = com.sleepycat.db.Db.DB_INIT_LOCK |
 	    com.sleepycat.db.Db.DB_INIT_LOG |
@@ -290,16 +292,16 @@ class SharedDbEnv extends com.sleepycat.db.DbEnv implements com.sleepycat.db.DbE
 	}
 
 	//
-	// Default checkpoint period is every 10 minutes
+	// Default checkpoint period is every 120 seconds
 	//
-	_checkpointPeriod = properties.getPropertyAsIntWithDefault(
-	    propertyPrefix + ".CheckpointPeriod", 10) * 60 * 1000;
+	_checkpointPeriod = properties.getPropertyAsIntWithDefault
+	    (propertyPrefix + ".CheckpointPeriod", 120) * 1000;
 	
-	_kbyte = properties.getPropertyAsInt(
-	    propertyPrefix + ".PeriodicCheckpointMinSize");
+	_kbyte = properties.getPropertyAsIntWithDefault
+	    (propertyPrefix + ".PeriodicCheckpointMinSize", 0);
 
-	_autoDelete = (properties.getPropertyAsIntWithDefault(
-			   propertyPrefix + ".OldLogsAutoDelete", 1) != 0);
+	_autoDelete = (properties.getPropertyAsIntWithDefault
+		       (propertyPrefix + ".OldLogsAutoDelete", 1) != 0);
 	
 	_thread = new Thread(this);
 	_thread.start();
