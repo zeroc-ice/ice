@@ -34,6 +34,8 @@ public class BasicStream
 	
 	_traceSlicing = -1;
 
+        _marshalFacets = true;
+
 	_messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
     }
 
@@ -1311,11 +1313,17 @@ public class BasicStream
         while(num > 0);
     }
 
+    public void
+    marshalFacets(boolean b)
+    {
+        _marshalFacets = b;
+    }
+
     void
     writeInstance(Ice.Object v, Integer index)
     {
         writeInt(index.intValue());
-        v.__write(this);
+        v.__write(this, _marshalFacets);
     }
 
     void
@@ -1641,6 +1649,8 @@ public class BasicStream
 
     private int _traceSlicing;
     private String _slicingCat;
+
+    private boolean _marshalFacets;
 
     private int _messageSizeMax;
 }

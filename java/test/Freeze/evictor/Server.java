@@ -14,39 +14,24 @@
 
 public class Server
 {
-
     static class ServantTie extends Test._ServantTie
     {
 	public void
-	__write(IceInternal.BasicStream os)
+	__write(IceInternal.BasicStream os, boolean marshalFacets)
 	{
 	    ((ServantI)ice_delegate()).setLastSavedValue();
-	    super.__write(os);
+	    super.__write(os, marshalFacets);
 	}
-	
-	public void
-	__marshal(Ice.Stream os, boolean marshalFacets)
-	{
-	    ((ServantI)ice_delegate()).setLastSavedValue();
-	    super.__marshal(os, marshalFacets);
-	}	
     }
 
     static class FacetTie extends Test._FacetTie
     {
 	public void
-	__write(IceInternal.BasicStream os)
+	__write(IceInternal.BasicStream os, boolean marshalFacets)
 	{
 	    ((FacetI)ice_delegate()).setLastSavedValue();
-	    super.__write(os);
+	    super.__write(os, marshalFacets);
 	}
-	
-	public void
-	__marshal(Ice.Stream os, boolean marshalFacets)
-	{
-	    ((FacetI)ice_delegate()).setLastSavedValue();
-	    super.__marshal(os, marshalFacets);
-	}	
     }
     
     static class ServantFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
@@ -82,7 +67,6 @@ public class Server
         {
         }
     }
-
 
     static int
     run(String[] args, Ice.Communicator communicator, String envName)

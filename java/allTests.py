@@ -37,7 +37,6 @@ tests = [ \
     "Ice/slicing/exceptions", \
     "Ice/slicing/objects", \
     "Ice/custom", \
-    "IceXML/encoding", \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \

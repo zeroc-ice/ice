@@ -194,25 +194,34 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     }
 
     public void
-    __write(IceInternal.BasicStream __os)
+    __write(IceInternal.BasicStream __os, boolean __marshalFacets)
     {
-        synchronized(_activeFacetMap)
-        {
-	    __os.writeTypeId(ice_staticId());
-	    __os.startWriteSlice();
-            final int sz = _activeFacetMap.size();
-            __os.writeSize(sz);
+        __os.writeTypeId(ice_staticId());
+        __os.startWriteSlice();
 
-            java.util.Set set = _activeFacetMap.keySet();
-            String[] keys = new String[sz];
-            set.toArray(keys);
-            for(int i = 0; i < sz; i++)
+        if(__marshalFacets)
+        {
+            synchronized(_activeFacetMap)
             {
-                __os.writeString(keys[i]);
-                __os.writeObject((Object)_activeFacetMap.get(keys[i]));
+                final int sz = _activeFacetMap.size();
+                __os.writeSize(sz);
+
+                java.util.Set set = _activeFacetMap.keySet();
+                String[] keys = new String[sz];
+                set.toArray(keys);
+                for(int i = 0; i < sz; i++)
+                {
+                    __os.writeString(keys[i]);
+                    __os.writeObject((Object)_activeFacetMap.get(keys[i]));
+                }
             }
-	    __os.endWriteSlice();
         }
+        else
+        {
+            __os.writeSize(0);
+        }
+
+        __os.endWriteSlice();
     }
 
     private class Patcher implements IceInternal.Patcher
@@ -261,73 +270,6 @@ public class ObjectImpl implements Object, java.lang.Cloneable
 
 	    __is.endReadSlice();
         }
-    }
-
-    public void
-    __marshal(Ice.Stream __os, boolean __marshalFacets)
-    {
-	if(__marshalFacets)
-	{
-	    synchronized(_activeFacetMap)
-	    {
-		final int sz = _activeFacetMap.size();
-		
-		__os.startWriteDictionary("ice:facets", sz);
-		java.util.Set set = _activeFacetMap.keySet();
-		String[] keys = new String[sz];
-		set.toArray(keys);
-		for(int i = 0; i < sz; i++)
-		{
-		    __os.startWriteDictionaryElement();
-		    __os.writeString("ice:key", keys[i]);
-		    __os.writeObject("ice:value", (Object)_activeFacetMap.get(keys[i]));
-		    __os.endWriteDictionaryElement();
-		}
-	    }
-	}
-	else
-	{
-	    __os.startWriteDictionary("ice:facets", 0);
-	}
-
-	__os.endWriteDictionary();
-    }
-
-    public void
-    __unmarshal(Ice.Stream __is)
-    {
-        synchronized(_activeFacetMap)
-        {
-            final String facetsName = "ice:facets";
-            final String keyName = "ice:key";
-            final String valueName = "ice:value";
-
-            int sz = __is.startReadDictionary(facetsName);
-
-            _activeFacetMap.clear();
-
-            while(sz-- > 0)
-            {
-                __is.startReadDictionaryElement();
-                String key = __is.readString(keyName);
-                Object value = __is.readObject(valueName, "", null);
-                _activeFacetMap.put(key, value);
-                __is.endReadDictionaryElement();
-            }
-            __is.endReadDictionary();
-        }
-    }
-
-    public final void
-    ice_marshal(String name, Ice.Stream stream)
-    {
-        stream.writeObject(name, this);
-    }
-
-    public static Object
-    ice_unmarshal(String name, Ice.Stream stream)
-    {
-        return stream.readObject(name, "", null);
     }
 
     public final void

@@ -15,7 +15,6 @@ the Free Software Foundation.
 
     <target name="all">
         <ant dir="Ice"/>
-        <ant dir="IceXML"/>
         <ant dir="IcePack"/>
         <ant dir="Freeze"/>
         <ant dir="Glacier"/>
@@ -23,7 +22,6 @@ the Free Software Foundation.
 
     <target name="clean">
         <ant dir="Ice" target="clean"/>
-        <ant dir="IceXML" target="clean"/>
         <ant dir="IcePack" target="clean"/>
         <ant dir="Freeze" target="clean"/>
         <ant dir="Glacier" target="clean"/>

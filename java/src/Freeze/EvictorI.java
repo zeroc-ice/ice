@@ -16,8 +16,8 @@ package Freeze;
 
 class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 {
-    public EvictorI(Ice.Communicator communicator, String envName,
-		    String dbName, boolean createDb)
+    public
+    EvictorI(Ice.Communicator communicator, String envName, String dbName, boolean createDb)
     {
 	_communicator = communicator;
 	_dbEnvHolder = SharedDbEnv.get(communicator, envName);
@@ -26,8 +26,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	init(envName, dbName, createDb);
     }
 
-    public EvictorI(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv,
-		    String dbName, boolean createDb)
+    public
+    EvictorI(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv, String dbName, boolean createDb)
     {
 	_communicator = communicator;
 	_dbEnvHolder = null;
@@ -151,7 +151,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			while(p.hasNext())
 			{
 			    java.util.Map.Entry entry = (java.util.Map.Entry) p.next();
-			    
 			    destroyFacetImpl((Facet) entry.getValue());
 			}
 		    }
@@ -351,13 +350,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			//
 			// Destroy all existing facets
 			//
-			
 			java.util.Iterator p = element.facets.entrySet().iterator();
-
 			while(p.hasNext())
 			{
 			    java.util.Map.Entry entry = (java.util.Map.Entry) p.next();
-			    
 			    destroyFacetImpl((Facet) entry.getValue());
 			}
 		    }
@@ -388,7 +384,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    _communicator.getLogger().trace("Freeze::Evictor",
 					    "destroyed \"" + Ice.Util.identityToString(ident) + "\"");
 	}
-	
     }
 
     public void
@@ -489,7 +484,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     public void
     removeAllFacets(Ice.Identity ident)
     {
-
 	EvictorElement loadedElement = null;
 	int loadedElementGeneration = 0;
 
@@ -808,7 +802,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 	if(cookie != null)
 	{
-
 	    Facet facet= (Facet)cookie;
 	    assert(facet != null);
 
@@ -1045,7 +1038,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			EvictorStorageKey esk = new EvictorStorageKey();
 			esk.identity = facet.element.identity;
 			esk.facet = facet.path;
-			obj.key = marshal(esk, _communicator);
+			obj.key = marshalKey(esk, _communicator);
 			obj.status = status;
 			if(status != destroyed)
 			{
@@ -1159,8 +1152,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    }
 		} 
 	    } while(tryAgain);
-	    
-	    
+
 	    synchronized(this)
 	    {
 		_generation++;
@@ -1187,118 +1179,111 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
-
     static byte[]
-    marshalRoot(EvictorStorageKey v, Ice.Communicator communicator)
+    marshalRootKey(EvictorStorageKey v, Ice.Communicator communicator)
     {
-	try
-	{
-	    java.io.StringWriter sw = new java.io.StringWriter();
-	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	    Ice.Stream __os = new IceXML.StreamI(communicator, pw);
-	    v.ice_marshal("Key", __os);
-	    String str = sw.toString();
-	    
-	    //
-	    // TODO: fix this!
-	    // 
-	    int index = str.indexOf("</identity>");
-	    String root = str.substring(0, index + 11);
-	    return root.getBytes("UTF8");
-	}
-	catch(java.io.UnsupportedEncodingException ex)
-	{
-	    Ice.SyscallException e = new Ice.SyscallException();
-	    e.initCause(ex);
-	    throw e;
-	}
+        IceInternal.BasicStream os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
+        try
+        {
+            v.identity.__write(os);
+            java.nio.ByteBuffer buf = os.prepareWrite();
+            byte[] r = new byte[buf.limit()];
+            buf.get(r);
+            return r;
+        }
+        finally
+        {
+            os.destroy();
+        }
     }
 
     static byte[]
-    marshal(EvictorStorageKey v, Ice.Communicator communicator)
+    marshalKey(EvictorStorageKey v, Ice.Communicator communicator)
     {
-	try
-	{
-	    java.io.StringWriter sw = new java.io.StringWriter();
-	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	    Ice.Stream __os = new IceXML.StreamI(communicator, pw);
-	    v.ice_marshal("Key", __os);
-	    return sw.toString().getBytes("UTF8");
-	}
-	catch(java.io.UnsupportedEncodingException ex)
-	{
-	    Ice.SyscallException e = new Ice.SyscallException();
-	    e.initCause(ex);
-	    throw e;
-	}
+        IceInternal.BasicStream os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
+        try
+        {
+            v.__write(os);
+            java.nio.ByteBuffer buf = os.prepareWrite();
+            byte[] r = new byte[buf.limit()];
+            buf.get(r);
+            return r;
+        }
+        finally
+        {
+            os.destroy();
+        }
     }
-    
+
     static EvictorStorageKey
     unmarshalKey(byte[] b, Ice.Communicator communicator)
     {
-	try
-	{
-	    final String data = _header + new String(b, "UTF8") + _footer;
-	    Ice.Stream __is = new IceXML.StreamI(communicator, new java.io.StringReader(data));
-	    Freeze.EvictorStorageKey __r = new Freeze.EvictorStorageKey();
-	    __r.ice_unmarshal("Key", __is);
-	    return __r;
-	}
-	catch(java.io.UnsupportedEncodingException ex)
-	{
-	    Ice.SyscallException e = new Ice.SyscallException();
-	    e.initCause(ex);
-	    throw e;
-	}
+        IceInternal.BasicStream is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
+        try
+        {
+            is.resize(b.length, true);
+            java.nio.ByteBuffer buf = is.prepareRead();
+            buf.position(0);
+            buf.put(b);
+            buf.position(0);
+            EvictorStorageKey key = new EvictorStorageKey();
+            key.__read(is);
+            return key;
+        }
+        finally
+        {
+            is.destroy();
+        }
     }
-	
+
     static byte[]
-    marshal(ObjectRecord v, Ice.Communicator communicator)
+    marshalValue(ObjectRecord v, Ice.Communicator communicator)
     {
-	try
-	{
-	    java.io.StringWriter sw = new java.io.StringWriter();
-	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	    Ice.Stream __os = new IceXML.StreamI(communicator, pw);
-	    __os.marshalFacets(false);
-	    v.ice_marshal("Value", __os);
-	    return sw.toString().getBytes("UTF8");
-	}
-	catch(java.io.UnsupportedEncodingException ex)
-	{
-	    Ice.SyscallException e = new Ice.SyscallException();
-	    e.initCause(ex);
-	    throw e;
-	}
+        IceInternal.BasicStream os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
+        os.marshalFacets(false);
+        try
+        {
+            v.__write(os);
+            os.writePendingObjects();
+            java.nio.ByteBuffer buf = os.prepareWrite();
+            byte[] r = new byte[buf.limit()];
+            buf.get(r);
+            return r;
+        }
+        finally
+        {
+            os.destroy();
+        }
     }
 
     static ObjectRecord
     unmarshalValue(byte[] b, Ice.Communicator communicator)
     {
-	try
-	{
-	    final String data = _header + new String(b, "UTF8") + _footer;
-	    Ice.Stream __is = new IceXML.StreamI(communicator, new java.io.StringReader(data));
-	    Freeze.ObjectRecord __r = new Freeze.ObjectRecord();
-	    __r.ice_unmarshal("Value", __is);
-	    return __r;
-	}
-	catch(java.io.UnsupportedEncodingException ex)
-	{
-	    Ice.SyscallException e = new Ice.SyscallException();
-	    e.initCause(ex);
-	    throw e;
-	}
+        IceInternal.BasicStream is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
+        try
+        {
+            is.resize(b.length, true);
+            java.nio.ByteBuffer buf = is.prepareRead();
+            buf.position(0);
+            buf.put(b);
+            buf.position(0);
+            ObjectRecord key = new ObjectRecord();
+            key.__read(is);
+            is.readPendingObjects();
+            return key;
+        }
+        finally
+        {
+            is.destroy();
+        }
     }
 
     private void
     init(String envName, String dbName, boolean createDb)
     {
-	_trace = _communicator.getProperties().getPropertyAsInt(
-	    "Freeze.Trace.Evictor");
+	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
 
-	_errorPrefix = "Freeze Evictor DbEnv(\"" + envName + "\") Db(\"" +
-	    dbName + "\"): ";
+	_errorPrefix = "Freeze Evictor DbEnv(\"" + envName + "\") Db(\"" + dbName + "\"): ";
 
 	String propertyPrefix = "Freeze.Evictor." + envName + '.' + dbName; 
 	
@@ -1322,8 +1307,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    }
 	    
 	    _db = new com.sleepycat.db.Db(_dbEnv, 0);
-	    _db.open(null, dbName, null, com.sleepycat.db.Db.DB_BTREE, 
-		     flags, 0);
+	    _db.open(null, dbName, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
 
 	    //
 	    // TODO: FREEZE_DB_MODE
@@ -1397,7 +1381,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	esk.identity = ident;
 	esk.facet = null;
 	
-	byte[] key = marshal(esk, _communicator);
+	byte[] key = marshalKey(esk, _communicator);
 
 	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(key);
 		
@@ -1443,7 +1427,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
-    
     private void
     addToModifiedQueue(Facet facet)
     {
@@ -1493,18 +1476,25 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    stats.lastSaveTime = saveStart - stats.creationTime;
 	    stats.avgSaveTime = (long)(stats.avgSaveTime * 0.95 + diff * 0.05);
 	}
-	return marshal(rec, _communicator);
+	return marshalValue(rec, _communicator);
     }
 
     private EvictorElement
     load(Ice.Identity ident)
     {
-	EvictorStorageKey esk = new EvictorStorageKey();
-	esk.identity = ident;
-	esk.facet = null;
-	byte[] root = marshalRoot(esk, _communicator);
-	
-	com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(root);
+        //
+        // This method attempts to restore an object and all of its facets from the database. It works by
+        // iterating over the database keys that match the "root" key. The root key is the encoded portion
+        // of the EvictorStorageKey struct that the object and its facets all have in common, namely the
+        // identity.
+        //
+	EvictorStorageKey rootEsk = new EvictorStorageKey();
+	rootEsk.identity = ident;
+	rootEsk.facet = null;
+	byte[] root = marshalRootKey(rootEsk, _communicator);
+        byte[] mainKey = marshalKey(rootEsk, _communicator);
+
+	com.sleepycat.db.Dbt dbKey;
 	com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
 
 	EvictorElement result = null;
@@ -1521,9 +1511,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		//
 		// Get first pair
 		//	
-		int rs = dbc.get(dbKey, dbValue, com.sleepycat.db.Db.DB_SET_RANGE);
+                dbKey = new com.sleepycat.db.Dbt(mainKey);
+		int rs = dbc.get(dbKey, dbValue, com.sleepycat.db.Db.DB_SET);
 	
-		if(rs != 0 || !startWith(dbKey.get_data(), root))
+		if(rs != 0)
 		{ 
 		    if(_trace >= 2)
 		    {
@@ -1540,7 +1531,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    //
 		    // Unmarshal key and data and insert it into result's facet map
 		    //
-		    esk = unmarshalKey(dbKey.get_data(), _communicator);
+		    EvictorStorageKey esk = unmarshalKey(dbKey.get_data(), _communicator);
 		    
 		    Facet facet = new Facet(result);
 		    facet.status = clean;
@@ -1748,7 +1739,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
-
     private void
     removeFacetImpl(java.util.Map facets, String[] facetPath)
     {
@@ -1851,7 +1841,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	byte[] key;
 	byte[] value;
 	byte status;
-    };
+    }
 
     class EvictorElement
     {
@@ -1860,7 +1850,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	java.util.Map facets = new java.util.HashMap();
 	Ice.Identity identity;
 	Facet mainObject;
-    };
+    }
     
     class Facet extends Ice.LocalObjectImpl
     {
@@ -1872,7 +1862,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	ObjectRecord rec;
 	EvictorElement element;
 	String[] path;
-    };
+    }
     
     //
     // Wrapper to use a String[] as key of a HashMap.
@@ -1917,7 +1907,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	
 	String[] array;
     }
-
 
     //
     // Clean object; can become modified or destroyed
@@ -2004,12 +1993,4 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     // this element, then the loaded value is current.
     //
     private int _generation = 0;
-
-
-
-    private static final String _header = "<ice:data xmlns=\"http://www.noorg.org/schemas\"" +
-					  " xmlns:ice=\"http://www.zeroc.com/schemas\"" +
-					  " xmlns:xsi=\"http://www.w3.org/2003/XMLSchema-instance\"" +
-					  " xsi:schemaLocation=\"http://www.noorg.org/schemas IdentityObjectRecordDict.xsd\">";
-    private static final String _footer = "</ice:data>";
 }

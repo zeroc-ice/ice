@@ -71,7 +71,6 @@ the Free Software Foundation.
                 <include name="Properties.ice" />
                 <include name="Router.ice" />
                 <include name="ServantLocator.ice" />
-                <include name="Stream.ice" />
 		<include name="Locator.ice" />
             </fileset>
             <fileset dir="${slice.dir}/Glacier">

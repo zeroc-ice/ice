@@ -585,7 +585,8 @@ public abstract class Map extends java.util.AbstractMap
         {
 	    if(_trace >= 3)
 	    {
-		_communicator.getLogger().trace("DB", "starting transaction for cursor on database \"" + _dbName + "\"");
+		_communicator.getLogger().trace("DB", "starting transaction for cursor on database \"" + _dbName +
+                                                "\"");
 	    }
 
 	    try
@@ -786,7 +787,8 @@ public abstract class Map extends java.util.AbstractMap
 	    {
 		if(_trace >= 3)
 		{
-		    _communicator.getLogger().trace("DB", "committing transaction for cursor on database \"" + _dbName + "\"");
+		    _communicator.getLogger().trace("DB", "committing transaction for cursor on database \"" +
+                                                    _dbName + "\"");
 		}
 
 		try
@@ -912,7 +914,6 @@ public abstract class Map extends java.util.AbstractMap
 	    }
 	}
 
-
 	private void
 	closeCursor(com.sleepycat.db.Dbc cursor)
 	{
@@ -951,7 +952,8 @@ public abstract class Map extends java.util.AbstractMap
 	    {
 		if(_trace >= 3)
 		{
-		    _communicator.getLogger().trace("DB", "rolling back transaction for cursor on database \"" + _dbName + "\"");
+		    _communicator.getLogger().trace("DB", "rolling back transaction for cursor on database \"" +
+                                                    _dbName + "\"");
 		}
 
 		try
@@ -988,7 +990,8 @@ public abstract class Map extends java.util.AbstractMap
     static class Entry implements java.util.Map.Entry 
     {
         public
-        Entry(Map.EntryIterator iterator, Map map, Ice.Communicator communicator, com.sleepycat.db.Dbt dbKey, byte[] valueBytes)
+        Entry(Map.EntryIterator iterator, Map map, Ice.Communicator communicator, com.sleepycat.db.Dbt dbKey,
+              byte[] valueBytes)
         {
             _iterator = iterator;
 	    _map = map;
@@ -1059,7 +1062,8 @@ public abstract class Map extends java.util.AbstractMap
 	    return getKey() + "=" + getValue();
 	}
 
-	com.sleepycat.db.Dbt getDbKey()
+	com.sleepycat.db.Dbt
+        getDbKey()
 	{
 	    return _dbKey;
 	}
@@ -1080,7 +1084,37 @@ public abstract class Map extends java.util.AbstractMap
 	private Object _value = null;
         private boolean _haveValue = false;
     }
-    
+
+    public static class Patcher implements IceInternal.Patcher
+    {
+        public
+        Patcher(String type)
+        {
+            this.type = type;
+        }
+
+        public void
+        patch(Ice.Object v)
+        {
+            value = v;
+        }
+
+        public String
+        type()
+        {
+            return this.type;
+        }
+
+        public Ice.Object
+        value()
+        {
+            return this.value;
+        }
+
+        public String type;
+        public Ice.Object value;
+    }
+
     private java.util.Set _entrySet = null;
     private SharedDbEnv _dbEnvHolder = null;
     private com.sleepycat.db.DbEnv _dbEnv = null;

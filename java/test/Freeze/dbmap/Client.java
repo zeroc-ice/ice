@@ -445,17 +445,10 @@ public class Client
 		envName += "db";
 	    }
 	    
-            ByteIntMapXML xml = new ByteIntMapXML(communicator, envName, "xml", true);
-            System.out.println("testing XML encoding...");
-            status = run(args, xml);
-	    xml.close();
-            if(status == 0)
-            {
-                ByteIntMapBinary binary = new ByteIntMapBinary(communicator, envName, "binary", true);
-                System.out.println("testing binary encoding...");
-                status = run(args, binary);
-		binary.close();
-            }
+            ByteIntMap binary = new ByteIntMap(communicator, envName, "binary", true);
+            System.out.println("testing encoding...");
+            status = run(args, binary);
+            binary.close();
 	}
 	catch(DBException ex)
 	{

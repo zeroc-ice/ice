@@ -144,7 +144,6 @@ public class ServantI implements Test._ServantOperations
 	_evictor.removeAllFacets(current.id);
     }
 
-
     void setLastSavedValue()
     {
 	synchronized(_tie)
@@ -158,5 +157,4 @@ public class ServantI implements Test._ServantOperations
     protected Test.AMD_Servant_setValueAsync _setValueAsyncCB;
     protected int _setValueAsyncValue;
     protected Test.Servant _tie;
-
 }

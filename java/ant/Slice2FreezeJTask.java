@@ -33,8 +33,6 @@ import java.io.FileOutputStream;
  *
  * Attributes:
  *
- *   binary - Enables --binary option.
- *
  * Nested elements:
  *
  *   define - defines a preprocessor symbol
@@ -73,12 +71,6 @@ public class Slice2FreezeJTask extends SliceTask
     setTranslator(File prog)
     {
         _translator = prog;
-    }
-
-    public void
-    setBinary(boolean binary)
-    {
-        _binary = binary;
     }
 
     public Dict
@@ -196,14 +188,6 @@ public class Slice2FreezeJTask extends SliceTask
 	    cmd.append(" --output-dir ");
 	    cmd.append(_outputDir.toString());
 	}
-
-        //
-        // Add --binary
-        //
-        if(_binary)
-        {
-            cmd.append(" --binary");
-        }
 
 	//
 	// Add --case-sensitive
@@ -374,7 +358,6 @@ public class Slice2FreezeJTask extends SliceTask
     }
 
     private File _translator = null;
-    private boolean _binary = false;
 
     public class Dict
     {

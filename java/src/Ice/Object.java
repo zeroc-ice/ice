@@ -34,15 +34,9 @@ public interface Object
 
     IceInternal.DispatchStatus __dispatch(IceInternal.Incoming in, Current current);
 
-    void __write(IceInternal.BasicStream __os);
+    void __write(IceInternal.BasicStream __os, boolean __marshalFacets);
 
     void __read(IceInternal.BasicStream __is, boolean __rid);
-
-    void __marshal(Ice.Stream __os, boolean __marshalFacets);
-
-    void __unmarshal(Ice.Stream __is);
-
-    void ice_marshal(String name, Ice.Stream stream);
 
     void ice_addFacet(Object facet, String name);
 
