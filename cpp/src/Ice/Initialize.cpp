@@ -148,6 +148,11 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, char* argv[])
             ++i;
         }
     }
+
+    //
+    // Make sure that argv[argc] == 0, the ISO C++ standard requires this.
+    //
+    argv[argc] = 0;
 }
 
 InstancePtr
