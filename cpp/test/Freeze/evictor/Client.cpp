@@ -565,7 +565,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
 
-    //
     // Deactivate and recreate evictor, to ensure that servants
     // are restored properly after database close and reopen.
     //

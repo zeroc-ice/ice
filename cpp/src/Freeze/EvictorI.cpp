@@ -383,7 +383,6 @@ Freeze::EvictorI::setSize(Int evictorSize)
 Int
 Freeze::EvictorI::getSize()
 {
-    DeactivateController::Guard deactivateGuard(_deactivateController);
     Lock sync(*this);
     return static_cast<Int>(_evictorSize);
 }
@@ -993,6 +992,11 @@ Freeze::EvictorI::hasFacet(const Identity& ident, const string& facet)
 ObjectPtr
 Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 {
+    //
+    // If only Ice calls locate/finished/deactivate, then it cannot be deactivated.
+    //
+    DeactivateController::Guard deactivateGuard(_deactivateController);
+
     ObjectPtr result = locateImpl(current, cookie);
     
     if(result == 0)
@@ -1051,11 +1055,6 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 ObjectPtr
 Freeze::EvictorI::locateImpl(const Current& current, LocalObjectPtr& cookie)
 {
-    //
-    // If only Ice calls locate/finished/deactivate, then it cannot be deactivated.
-    //
-    DeactivateController::Guard deactivateGuard(_deactivateController);
-
     cookie = 0;
 
     ObjectStore* store = findStore(current.facet);
