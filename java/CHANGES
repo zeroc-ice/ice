@@ -1,6 +1,9 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Changed the IceBox.ServiceManagerI class to be inheritable and its
+  run() method to be public.
+
 - Added -E option to the various Slice compilers to print
   proprocessor output on stdout.
 

@@ -1,11 +1,22 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Reverted a change included in 2.1.0 where oneway and batch oneway
+  invocations were not retried anymore. As in previous versions, if
+  the connection associated to a oneway or batch oneway proxy is
+  closed for some reasons, an invocation on this proxy will
+  transparently reestablish the connection again. Please see the Ice
+  manual for more information on oneway and batch oneway reliability.
+
 - A race condition with Glacier2 detaching the request handler thread
   has been fixed.
 
 - Added -E option to the various Slice compilers to print proprocessor
   output on stdout.
+
+- Ice::ObjectNotExistException are now retried for invocations made on
+  indirect proxies. This allows to transparently migrate objects or
+  objects adapters.
 
 - As announced with version 1.6, slice2cpp and slice2freeze now
   require all Slice definitions to be nested inside a module;
@@ -26,6 +37,9 @@ Changes since version 2.1.0
       slice2cpp x.ice -I.
 
   are now equivalent.
+
+- Fixed bug where the IcePack node with a collocated registry wouldn't
+  terminate after the admin "shutdown" command.
 
 - The Windows demo/IcePatch2/MFC example displays an error dialog when
   the patch client is run without the --IcePatch2.Endpoints option.
