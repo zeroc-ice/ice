@@ -118,7 +118,8 @@ private:
     TopicSubscribersPtr _subscribers; // Set of Subscribers
 
     Freeze::ConnectionPtr _connection;
-    PersistentTopicMap _topics; 
+    PersistentTopicMap _topics;
+    LinkRecordDict _links;
 };
 
 typedef IceUtil::Handle<TopicI> TopicIPtr;

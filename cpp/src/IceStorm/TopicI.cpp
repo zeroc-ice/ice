@@ -21,10 +21,8 @@
 #include <Freeze/Initialize.h>
 #include <algorithm>
 
-
 using namespace IceStorm;
 using namespace std;
-
 
 namespace IceStorm
 {
@@ -304,7 +302,8 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
     _factory(factory),
     _destroyed(false),
     _connection(Freeze::createConnection(adapter->getCommunicator(), envName)),
-    _topics(_connection, dbName, false)
+    _topics(_connection, dbName, false),
+    _links(links)
 {
     _subscribers = new TopicSubscribers(_traceLevels);
 
@@ -333,7 +332,7 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
     //
     // Re-establish linked subscribers.
     //
-    for(LinkRecordDict::const_iterator p = links.begin(); p != links.end(); ++p)
+    for(LinkRecordDict::const_iterator p = _links.begin(); p != _links.end(); ++p)
     {
 	if(_traceLevels->topic > 0)
 	{
@@ -489,7 +488,6 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
 	out << _name << " link " << name << " cost " << cost;
     }
 
-   
     //
     // Retrieve the TopicLink.
     //
@@ -497,13 +495,7 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
     TopicLinkPrx link = internal->getLinkProxy();
     Ice::Identity ident = link->ice_getIdentity();
 
-    
-    PersistentTopicMap::const_iterator p = _topics.find(_name);
-    assert(p != _topics.end());
-
-    LinkRecordDict links = p->second;
-    
-    if(links.find(name) != links.end())
+    if(_links.find(name) != _links.end())
     {
 	LinkExists ex;
 	ex.name = name;
@@ -517,9 +509,12 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
     record.obj = link;
     record.cost = cost;
     record.theTopic = topic;
-    links.insert(LinkRecordDict::value_type(name, record));
+    _links.insert(LinkRecordDict::value_type(name, record));
 
-    _topics.put(PersistentTopicMap::value_type(_name, links));
+    //
+    // Save
+    //
+    _topics.put(PersistentTopicMap::value_type(_name, _links));
 
     //
     // Create the subscriber object and add it to the set of subscribers.
@@ -544,13 +539,9 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
     TopicInternalPrx internal = TopicInternalPrx::checkedCast(topic);
     Ice::ObjectPrx link = internal->getLinkProxy();
 
-    PersistentTopicMap::const_iterator p = _topics.find(_name);
-    assert(p != _topics.end());
+    LinkRecordDict::iterator q = _links.find(name);
 
-    LinkRecordDict links = p->second;
-    LinkRecordDict::iterator q = links.find(name);
-
-    if(q == links.end())
+    if(q == _links.end())
     {
 	if(_traceLevels->topic > 0)
 	{
@@ -564,8 +555,12 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
     }
     else
     {
-	links.erase(q);
-	_topics.put(PersistentTopicMap::value_type(_name, links));
+	_links.erase(q);
+	
+	//
+	// Save
+	//
+	_topics.put(PersistentTopicMap::value_type(_name, _links));
 
 	if(_traceLevels->topic > 0)
 	{
@@ -589,13 +584,9 @@ TopicI::getLinkInfoSeq(const Ice::Current&) const
     TopicI* const This = const_cast<TopicI* const>(this);
     This->reap();
 
-    PersistentTopicMap::const_iterator p = _topics.find(_name);
-    assert(p != _topics.end());
-    LinkRecordDict links = p->second;
-    
     LinkInfoSeq seq;
 
-    for(LinkRecordDict::const_iterator q = links.begin(); q != links.end(); ++q)
+    for(LinkRecordDict::const_iterator q = _links.begin(); q != _links.end(); ++q)
     {
 	LinkInfo info;
 	info.name = q->first;
@@ -631,9 +622,6 @@ TopicI::reap()
 	return;
     }
 
-    PersistentTopicMap::const_iterator p = _topics.find(_name);
-    assert(p != _topics.end());
-    LinkRecordDict links = p->second;
     bool updated = false;
     
     //
@@ -647,7 +635,7 @@ TopicI::reap()
 	assert(subscriber->error());
 	if(subscriber->persistent())
 	{
-	    if(links.erase(subscriber->id().category) > 0)
+	    if(_links.erase(subscriber->id().category) > 0)
 	    {
 		updated = true;
 		if(_traceLevels->topic > 0)
@@ -669,6 +657,6 @@ TopicI::reap()
     
     if(updated)
     {
-	_topics.put(PersistentTopicMap::value_type(_name, links));
+	_topics.put(PersistentTopicMap::value_type(_name, _links));
     }
 }
