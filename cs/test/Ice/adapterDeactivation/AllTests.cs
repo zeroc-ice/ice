@@ -36,7 +36,7 @@ public class AllTests
         test(obj.Equals(@base));
         Console.Out.WriteLine("ok");
         
-	Console.Out.Write("creating, activating and deactivating a new adapter in one operation...");
+	Console.Out.Write("creating, activating and deactivating a new adapter in one operation... ");
 	Console.Out.Flush();
 	obj.transient();
 	Console.Out.WriteLine("ok");

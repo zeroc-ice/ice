@@ -122,7 +122,7 @@ public class AllTests
         test(ff.callF().Equals("F"));
         Console.WriteLine("ok");
         
-        Console.Write("testing facet G");
+        Console.Write("testing facet G... ");
         Console.Out.Flush();
         GPrx gf = GPrxHelper.checkedCast(ff, "facetGH");
         test(gf != null);
