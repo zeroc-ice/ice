@@ -75,6 +75,7 @@ public:
 
 private:
 
+    ::IceInternal::InstancePtr _instance;
     ::IceInternal::BasicStream _stream;
 };
 

@@ -22,7 +22,7 @@ void IceInternal::decRef(EventHandler* p) { p->__decRef(); }
 
 IceInternal::EventHandler::EventHandler(const InstancePtr& instance) :
     _instance(instance),
-    _stream(_instance) // Not instance! This must be _instance!
+    _stream(_instance) // Must be _instance, and not instance, because BasicStream does not duplicate the instance!
 {
 }
 

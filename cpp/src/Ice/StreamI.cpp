@@ -15,7 +15,8 @@ using namespace Ice;
 using namespace IceInternal;
 
 Ice::StreamI::StreamI(const InstancePtr& instance) :
-    _stream(instance)
+    _instance(instance),
+    _stream(_instance) // Must be _instance, and not instance, because BasicStream does not duplicate the instance!
 {
 }
 
