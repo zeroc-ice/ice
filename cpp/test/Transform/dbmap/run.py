@@ -78,15 +78,17 @@ os.system(makedb)
 
 testold = os.path.join(directory, "TestOld.ice")
 testnew = os.path.join(directory, "TestNew.ice")
+initxml = os.path.join(directory, "init.xml")
+checkxml = os.path.join(directory, "check.xml")
 
-command = transformdb + " --old " + testold + " --new " + testold + " -f init.xml " + dbdir + " default.db init.db"
+command = transformdb + " --old " + testold + " --new " + testold + " -f " + initxml + " " + dbdir + " default.db init.db"
 os.system(command)
 
 command = transformdb + " --old " + testold + " --new " + testnew + " --key int --value ::S " + dbdir + " init.db check.db"
 stdin, stdout, stderr = os.popen3(command)
 
 stderr.readlines()
-command = transformdb + " --old " + testnew + " --new " + testnew + " -f check.xml " + dbdir + " check.db tmp.db"
+command = transformdb + " --old " + testnew + " --new " + testnew + " -f " + checkxml + " " + dbdir + " check.db tmp.db"
 os.system(command)
 
 print "ok"
