@@ -42,7 +42,7 @@ SLICEFILES	= ../slice/Ice/BuiltinSequences.ice \
 		  ../slice/IcePack/Admin.ice \
 		  ../slice/Glacier/Glacier.ice \
 		  ../slice/IceBox/IceBox.ice \
-		  ../slice/IcePatch/Node.ice
+		  ../slice/IcePatch/IcePatch.ice
 
 include $(top_srcdir)/config/Make.rules
 
