@@ -116,7 +116,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	Ice.Properties properties = _communicator.getProperties();
 
 	_deadlockWarning = properties.getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
-	_keepIterators = properties.getPropertyAsInt("Freeze.Map.KeepIterators") != 0;
+	_keepIterators = properties.getPropertyAsIntWithDefault("Freeze.Map.KeepIterators", 1) != 0;
     }
 
     ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv)

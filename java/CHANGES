@@ -3,21 +3,21 @@ Changes since version 1.2.0
 
 - A new Freeze warning is issued when a live iterator is closed by the
   finalizer of Freeze.Map or Freeze.ConnectionI. To see this warning
-  in programs that do not run very long or create a large number of
-  objects, it may be necessary to explicitely call the JVM garbage
+  in programs that do not run very long or do not create a large number 
+  of objects, it may be necessary to explicitely call the JVM garbage
   collector with System.gc().
 
-- Added new Freeze property Freeze.Map.KeepIterators. When 0 (the
-  default), maps keep their iterators as weak references. This way, a
-  JVM with aggressive garbage collection may release iterators before
-  an explicit close(), closeAllIterators(), or a similar call on the
-  enclosing map or connection, which results in better concurrency
-  since iterators keep locks.  Otherwise, when
-  Freeze.Map.KeepIterators is not 0, the maps keep their iterators as
-  regular Java references. In this case, when an iterator finalize
-  method closes a live iterator, a warning is issued, since this means
-  that the enclosing map is also ready to be garbage collected. During
-  development, it is recommended to set this variable to 1.
+- Added new Freeze property Freeze.Map.KeepIterators. When 0, maps keep
+  their iterators as weak references. This way, a JVM with aggressive 
+  garbage collection may release iterators before an explicit close(), 
+  closeAllIterators(), or a similar call on the enclosing map or 
+  connection, which results in better concurrency since iterators keep 
+  locks.  Otherwise, when Freeze.Map.KeepIterators is not 0, the maps 
+  keep their iterators as regular Java references. In this case, when 
+  an iterator finalize method closes a live iterator, a warning is 
+  issued, since this means that the enclosing map is also ready to be 
+  garbage collected. The default value for Freeze.Map.KeepIterators is
+  1; it is recommended to keep this default value during development.
 
 - Added property Ice.Override.ConnectTimeout. See the manual for
   details.
