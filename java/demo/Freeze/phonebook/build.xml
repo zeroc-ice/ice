@@ -55,15 +55,13 @@ the Free Software Foundation.
             </includepath>
             <fileset dir="." includes="PhoneBook.ice"/>
         </slice2java>
-	<!--
         <slice2freezej outputdir="${generated.dir}">
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
             <fileset dir="." includes="PhoneBook.ice"/>
-	    <dict name="NameIdentitiesDict" key="string" value="Identities"/>
+	    <index name="NameIndex" type="Contact" member="name" casesensitive="no"/>
         </slice2freezej>
-	-->
     </target>
 
     <target name="compile" depends="generate">

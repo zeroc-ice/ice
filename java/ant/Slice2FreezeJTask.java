@@ -37,6 +37,8 @@ import java.io.FileOutputStream;
  *
  *   define - defines a preprocessor symbol
  *   dict - contains the NAME, KEY TYPE, and VALUE TYPE of a Freeze map.
+ *   index - contains the NAME, CLASS TYPE, MEMBER NAME and optional
+ *   case sensitivity of a Freeze Evictor index.
  *
  * Example:
  *
@@ -54,6 +56,7 @@ import java.io.FileOutputStream;
  *                    <include name="*.ice" />
  *                </fileset>
  *                <dict name="CharIntMap" key="char" value="int"/>
+ *                <dict name="NameIndex" type="Foo" member="name" casesensitive="false"/>
  *            </slice2freezej>
  *        </target>
  *    </project>
@@ -81,13 +84,21 @@ public class Slice2FreezeJTask extends SliceTask
 	return d;
     }
 
+    public Index
+    createIndex()
+    {
+	Index i = new Index();
+	_indices.add(i);
+	return i;
+    }
+
     public void
     execute()
         throws BuildException
     {
-	if(_dicts.isEmpty())
+	if(_dicts.isEmpty() && _indices.isEmpty())
 	{
-            throw new BuildException("No dictionaries specified");
+            throw new BuildException("No dictionary or index specified");
 	}
 
 	//
@@ -97,7 +108,7 @@ public class Slice2FreezeJTask extends SliceTask
 
 	//
 	// Check if the set of slice files changed. If it changed we
-	// need to rebuild all the dictionnaries.
+	// need to rebuild all the dictionnaries and indices.
 	//
 	boolean build = false;
 	java.util.List sliceFiles = new java.util.LinkedList();
@@ -133,7 +144,7 @@ public class Slice2FreezeJTask extends SliceTask
 	if(!build)
 	{
 	    //
-	    // Check that each dictionnaries has been built at least
+	    // Check that each dictionnary has been built at least
 	    // once.
 	    //
 	    p = _dicts.iterator();
@@ -146,6 +157,21 @@ public class Slice2FreezeJTask extends SliceTask
 		    break;
 		}
 	    }
+
+	    //
+	    // Likewise for indices
+	    //
+	    p = _indices.iterator();
+	    while(p.hasNext())
+	    {
+		SliceDependency depend = (SliceDependency)dependencies.get(getIndexTargetKey((Index)p.next()));
+		if(depend == null)
+		{
+		    build = true;
+		    break;
+		}
+	    }
+	    
 	}
 	
 	//
@@ -161,9 +187,27 @@ public class Slice2FreezeJTask extends SliceTask
 	    dictString.append(d.getName() + "," + d.getKey() + "," + d.getValue());
 	}
 
+	//
+	// Add the --index options.
+	//
+	p = _indices.iterator();
+	StringBuffer indexString = new StringBuffer();
+	while(p.hasNext())
+	{
+	    Index i = (Index)p.next();
+
+	    indexString.append(" --index ");
+	    indexString.append(i.getName() + "," + i.getType() + "," + i.getMember());
+	    if(i.getCasesensitive() == false)
+	    {
+		indexString.append("," + "case-insensitive");
+	    }
+	}
+
+
 	if(!build)
 	{
-	    log("skipping" + dictString);
+	    log("skipping" + dictString + indexString);
 	    return;
 	}
 
@@ -235,6 +279,12 @@ public class Slice2FreezeJTask extends SliceTask
 	//
 	cmd.append(dictString);
 
+
+	//
+	// Add the --index options.
+	//
+	cmd.append(indexString);
+
 	//
 	// Add the slice files.
 	//
@@ -303,6 +353,11 @@ public class Slice2FreezeJTask extends SliceTask
 	    //
 	    cmd.append(dictString);
 
+	     //
+	    // Add the --index options.
+	    //
+	    cmd.append(indexString);
+
 	    //
 	    // It's not possible anymore to re-use the same output property since Ant 1.5.x. so we use a 
 	    // unique property name here. Perhaps we should output the dependencies to a file instead.
@@ -335,6 +390,12 @@ public class Slice2FreezeJTask extends SliceTask
 	    dependencies.put(getDictTargetKey((Dict)p.next()), new SliceDependency());
 	}
 
+	p = _indices.iterator();
+	while(p.hasNext())
+	{
+	    dependencies.put(getIndexTargetKey((Index)p.next()), new SliceDependency());
+	}
+
 	writeDependencies(dependencies);
     }
 
@@ -345,16 +406,31 @@ public class Slice2FreezeJTask extends SliceTask
 	// Since the dependency file can be shared by several slice
 	// tasks we need to make sure that each dependency has a
 	// unique key. We use the name of the task, the output
-	// directory, the first dictionary name and the name of the
+	// directory, the first dictionary or index name and the name of the
 	// slice file to be compiled.
 	//
-	return "slice2freezej " + _outputDir.toString() + ((Dict)_dicts.get(0)).getName() + slice;
+	String name;
+	if(_dicts.size() > 0)
+	{
+	    name = ((Dict)_dicts.get(0)).getName();
+	}
+	else
+	{
+	    name = ((Index)_indices.get(0)).getName();
+	}
+	return "slice2freezej " + _outputDir.toString() + name + slice;
     }
 
     private String
     getDictTargetKey(Dict d)
     {
 	return "slice2freezej " + _outputDir.toString() + d.getName();
+    }
+
+    private String
+    getIndexTargetKey(Index i)
+    {
+	return "slice2freezej " + _outputDir.toString() + i.getName();
     }
 
     private File _translator = null;
@@ -401,5 +477,66 @@ public class Slice2FreezeJTask extends SliceTask
 	    return _value;
 	}
     };
+
+
+    public class Index
+    {
+	private String _name;
+	private String _type;
+	private String _member;
+	private boolean _caseSensitive = true;
+
+	public void
+	setName(String name)
+	{
+	    _name = name;
+	}
+
+	public String
+	getName()
+	{
+	    return _name;
+	}
+
+	public void
+	setType(String type)
+	{
+	    _type = type;
+	}
+
+	public String
+	getType()
+	{
+	    return _type;
+	}
+
+	public void
+	setMember(String member)
+	{
+	    _member = member;
+	}
+
+	public String
+	getMember()
+	{
+	    return _member;
+	}
+	
+	public void
+	setCasesensitive(boolean caseSensitive)
+	{
+	    _caseSensitive = caseSensitive;
+	}
+
+	public boolean
+	getCasesensitive()
+	{
+	    return _caseSensitive;
+	}
+
+    };
+
+
     private java.util.List _dicts = new java.util.LinkedList();
+    private java.util.List _indices = new java.util.LinkedList();
 }
