@@ -1148,7 +1148,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:WARNING: Ice, Berkeley DB, libzlib2, OpenSSL and Xerces-C++ are protected by copyright law and international treaties. Please read carefully their respective license agreements on the next page."
+                            "Value" = "8:WARNING: Ice, Berkeley DB, libbzip2, OpenSSL and Xerces-C++ are protected by copyright law and international treaties. Please read carefully their respective license agreements on the next page."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -1161,7 +1161,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:The installer will guide you through the steps required to install [ProductName] [Product Version] for Visual Studio .NET 2002 and its dependencies (Berkeley DB, libzlib2, OpenSSL and Xerces-C++) on your computer."
+                            "Value" = "8:The installer will guide you through the steps required to install [ProductName] [Product Version] for Visual Studio .NET 2002 and its dependencies (Berkeley DB, libbzip2, OpenSSL and Xerces-C++) on your computer."
                             "DefaultValue" = "8:#1203"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -1207,7 +1207,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:WARNING: Ice, Berkeley DB, libzlib2, OpenSSL and Xerces-C++ are protected by copyright law and international treaties. Please read carefully their respective license agreements on the next page."
+                            "Value" = "8:WARNING: Ice, Berkeley DB, libbzip2, OpenSSL and Xerces-C++ are protected by copyright law and international treaties. Please read carefully their respective license agreements on the next page."
                             "DefaultValue" = "8:#1202"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -1220,7 +1220,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:The installer will guide you through the steps required to install [ProductName] [Product Version] for Visual Studio .NET 2002 and its dependencies (Berkeley DB, libzlib2, OpenSSL and Xerces-C++) on your computer."
+                            "Value" = "8:The installer will guide you through the steps required to install [ProductName] [Product Version] for Visual Studio .NET 2002 and its dependencies (Berkeley DB, libbzip2, OpenSSL and Xerces-C++) on your computer."
                             "DefaultValue" = "8:#1203"
                             "UsePlugInResources" = "11:TRUE"
                             }
