@@ -32,7 +32,8 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             // Initialize a Communicator. The services may share this
             // Communicator instance if desired.
             //
-            _communicator = Util.initialize(args);
+            StringSeqHolder argsH = new StringSeqHolder(args);
+            _communicator = Util.initialize(argsH);
 
             //
             // Create an object adapter. Services probably should NOT share
@@ -45,17 +46,25 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             //
             // Load and initialize the services.
             //
-            initServices();
-
-            //
-            // Don't dispatch requests until we've initialized the services.
-            //
-            adapter.activate();
+            if (!initServices(argsH.value))
+            {
+                stopServices();
+                return 1;
+            }
 
             //
             // Invoke start() on the services.
             //
-            startServices();
+            if (!startServices())
+            {
+                stopServices();
+                return 1;
+            }
+
+            //
+            // Start request dispatching after we've started the services.
+            //
+            adapter.activate();
 
             _communicator.waitForShutdown();
 
@@ -68,12 +77,14 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         {
             System.err.println("ServiceManager: " + ex);
             ex.printStackTrace();
+            stopServices();
             return 1;
         }
         catch(Exception ex)
         {
             System.err.println("ServiceManager: unknown exception");
             ex.printStackTrace();
+            stopServices();
             return 1;
         }
 
@@ -101,7 +112,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     }
 
     private boolean
-    initServices()
+    initServices(String[] serverArgs)
     {
         //
         // Retrieve all properties with the prefix "Ice.Service.".
@@ -114,6 +125,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         String[] arr = properties.getProperties(prefix);
         for (int i = 0; i < arr.length; i += 2)
         {
+            String name = arr[i].substring(prefix.length());
             String value = arr[i + 1];
             int pos = value.indexOf(' ');
             if (pos == -1)
@@ -142,23 +154,48 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             }
 
             //
+            // Create a Property set from the server's remaining command-line
+            // arguments, and the service's command-line arguments.
+            //
+            Util.addArgumentPrefix(name);
+            StringSeqHolder argsH = new StringSeqHolder();
+            argsH.value = new String[serverArgs.length + args.length];
+            System.arraycopy(serverArgs, 0, argsH.value, 0, serverArgs.length);
+            System.arraycopy(args, 0, argsH.value, serverArgs.length, args.length);
+            Properties serviceProperties = Util.createProperties(argsH);
+
+            //
+            // TODO: Need removeArgumentPrefix? Without it, args for other
+            // services which have already been initialized will also be
+            // included in the property set.
+            //
+
+            //
+            // TODO: Should we really supply the unfiltered *server*
+            // command-line arguments to the service? If not, we may need
+            // to modify the Properties interface to allow parsing
+            // multiple sets of arguments.
+            //
+
+            //
             // Instantiate the class and invoke init().
             //
             try
             {
                 Class c = Class.forName(className);
                 java.lang.Object obj = c.newInstance();
+                Service svc;
                 try
                 {
-                    Service svc = (Service)obj;
-                    svc.init(_communicator, args);
-                    _services.add(svc);
+                    svc = (Service)obj;
                 }
                 catch (ClassCastException ex)
                 {
                     System.err.println("ServiceManager: class " + className + " does not implement Ice.Service");
                     return false;
                 }
+                svc.init(name, _communicator, serviceProperties, argsH.value);
+                _services.put(name, svc);
             }
             catch (ClassNotFoundException ex)
             {
@@ -175,31 +212,65 @@ public final class ServiceManagerI extends _ServiceManagerDisp
                 System.err.println("ServiceManager: unable to instantiate class " + className);
                 return false;
             }
+            catch (ServiceFailureException ex)
+            {
+                System.err.println("ServiceManager: initialization failed for service " + name);
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean
+    startServices()
+    {
+        java.util.Iterator p = _services.entrySet().iterator();
+        while (p.hasNext())
+        {
+            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+            String name = (String)entry.getKey();
+            Service svc = (Service)entry.getValue();
+            try
+            {
+                svc.start();
+            }
+            catch (ServiceFailureException ex)
+            {
+                System.err.println("ServiceManager: start failed for service " + name);
+                return false;
+            }
+            catch(Exception ex)
+            {
+                System.err.println("ServiceManager: exception in start for service " + name);
+                ex.printStackTrace();
+                return false;
+            }
         }
 
         return true;
     }
 
     private void
-    startServices()
-    {
-        java.util.Iterator p = _services.iterator();
-        while (p.hasNext())
-        {
-            Service svc = (Service)p.next();
-            svc.start();
-        }
-    }
-
-    private void
     stopServices()
     {
-        java.util.Iterator p = _services.iterator();
+        java.util.Iterator p = _services.entrySet().iterator();
         while (p.hasNext())
         {
-            Service svc = (Service)p.next();
-            svc.stop();
+            java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
+            String name = (String)entry.getKey();
+            Service svc = (Service)entry.getValue();
+            try
+            {
+                svc.stop();
+            }
+            catch (Exception ex)
+            {
+                System.err.println("ServiceManager: exception in stop for service " + name);
+                ex.printStackTrace();
+            }
         }
+        _services.clear();
     }
 
     public static void
@@ -211,5 +282,5 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     }
 
     private Communicator _communicator;
-    private java.util.LinkedList _services = new java.util.LinkedList();
+    private java.util.HashMap _services = new java.util.HashMap();
 }
