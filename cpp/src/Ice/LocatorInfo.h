@@ -13,6 +13,7 @@
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
+#include <Ice/Locator.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/LocatorF.h>
 #include <Ice/ProxyF.h>
