@@ -3516,7 +3516,7 @@ Slice::Unit::setComment(const string& comment)
 string
 Slice::Unit::currentComment()
 {
-    string comment;
+    string comment = "";
     comment.swap(_currentComment);
     return comment;
 }
@@ -3600,7 +3600,7 @@ Slice::Unit::scanPosition(const char* s)
 	    {
 		--_currentIncludeLevel;
 	    }
-	    _currentComment.erase();
+	    _currentComment = "";
 	}
 	else
 	{

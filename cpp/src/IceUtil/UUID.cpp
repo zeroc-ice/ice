@@ -13,6 +13,7 @@
 // **********************************************************************
 
 #include <IceUtil/UUID.h>
+#include <IceUtil/Unicode.h>
 
 #ifdef _WIN32
 #   include <rpc.h>
@@ -33,15 +34,22 @@ IceUtil::generateUUID()
     UUID uuid;
     UuidCreate(&uuid);
 
-#if _MSC_VER == 1200
-    unsigned char* str;
+#if _MSC_VER > 1200
+    wchar_t* str;
 #else
-    unsigned short* str;    // Type has changed for some reason in VC++ 2002 (but doc still
-#endif			    // says it's unsigned char *...)
+    unsigned char* str;
+#endif
 
     UuidToString(&uuid, &str);
 
-    string result(reinterpret_cast<char*>(str));
+    string result;
+
+#if _MSC_VER > 1200
+    result = wstringToString(wstring(str));
+#else
+    result = reinterpret_cast<char*>(str);
+#endif
+
     RpcStringFree(&str);
     return result;
     

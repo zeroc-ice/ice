@@ -49,7 +49,6 @@ private:
     const std::string _fileName;
     const std::string _args;
     FILE* _cppHandle;
-
 };
 
 }
