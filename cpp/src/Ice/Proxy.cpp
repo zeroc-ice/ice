@@ -45,10 +45,10 @@ void IceInternal::decRef(::IceDelegateD::Ice::Object* p) { p->__decRef(); }
 IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId)
 {
 //
-// Without this work-around, release VC7.0 build crash when FacetNotExistException
+// Without this work-around, release VC7.0 and VC7.1 build crash when FacetNotExistException
 // is raised
 //
-#if defined(_MSC_VER) && (_MSC_VER == 1300)
+#if defined(_MSC_VER) && (_MSC_VER >= 1300) && (_MSC_VER <= 1310)
     ObjectPrx fooBar;
 #endif
 
