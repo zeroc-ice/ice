@@ -46,7 +46,7 @@
 	</and>
     </condition>
     
-    <fail message="Unable to detect a valid Ice installtion.">
+    <fail message="Unable to detect a valid Ice installation.">
 	<condition>
 	    <not>
 		<isset property="installtype"/>
