@@ -41,17 +41,20 @@ public class Client
         }
 
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
-        HelloPrx twoway = HelloPrx.checkedCast(base);
+        HelloPrx twoway = HelloPrxHelper.checkedCast(base);
         if (twoway == null)
         {
             System.err.println("invalid object reference");
             return 1;
         }
-        HelloPrx oneway = HelloPrx.uncheckedCast(twoway.ice_oneway());
-        HelloPrx batchOneway = HelloPrx.uncheckedCast(twoway.ice_batchOneway());
-        HelloPrx datagram = HelloPrx.uncheckedCast(twoway.ice_datagram());
+        HelloPrx oneway =
+            HelloPrxHelper.uncheckedCast(twoway.ice_oneway());
+        HelloPrx batchOneway =
+            HelloPrxHelper.uncheckedCast(twoway.ice_batchOneway());
+        HelloPrx datagram =
+            HelloPrxHelper.uncheckedCast(twoway.ice_datagram());
         HelloPrx batchDatagram =
-            HelloPrx.uncheckedCast(twoway.ice_batchDatagram());
+            HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
 
         boolean secure = false;
         int timeout = -1;
@@ -109,11 +112,11 @@ public class Client
                         timeout = -1;
                     }
 
-                    twoway = HelloPrx.uncheckedCast(
+                    twoway = HelloPrxHelper.uncheckedCast(
                         twoway.ice_timeout(timeout));
-                    oneway = HelloPrx.uncheckedCast(
+                    oneway = HelloPrxHelper.uncheckedCast(
                         oneway.ice_timeout(timeout));
-                    batchOneway = HelloPrx.uncheckedCast(
+                    batchOneway = HelloPrxHelper.uncheckedCast(
                         batchOneway.ice_timeout(timeout));
 
                     if (timeout == -1)
@@ -129,13 +132,15 @@ public class Client
                 {
                     secure = !secure;
 
-                    twoway = HelloPrx.uncheckedCast(twoway.ice_secure(secure));
-                    oneway = HelloPrx.uncheckedCast(oneway.ice_secure(secure));
-                    batchOneway =
-                        HelloPrx.uncheckedCast(batchOneway.ice_secure(secure));
-                    datagram = HelloPrx.uncheckedCast(
+                    twoway = HelloPrxHelper.uncheckedCast(
+                        twoway.ice_secure(secure));
+                    oneway = HelloPrxHelper.uncheckedCast(
+                        oneway.ice_secure(secure));
+                    batchOneway = HelloPrxHelper.uncheckedCast(
+                        batchOneway.ice_secure(secure));
+                    datagram = HelloPrxHelper.uncheckedCast(
                         datagram.ice_secure(secure));
-                    batchDatagram = HelloPrx.uncheckedCast(
+                    batchDatagram = HelloPrxHelper.uncheckedCast(
                         batchDatagram.ice_secure(secure));
 
                     if (secure)
