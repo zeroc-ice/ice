@@ -126,7 +126,7 @@ public class Client
                 }
                 else if(line.Equals("r"))
                 {
-                    hello = HelloPrxHelper.checkedCast(query.findObjectByType("::Hello"));
+                    hello = HelloPrxHelper.checkedCast(query.findObjectByType("::Demo::Hello"));
                 }
                 else if(line.Equals("S"))
                 {
