@@ -128,21 +128,16 @@ public class Incoming
 
                 if(status != DispatchStatus.DispatchOK && status != DispatchStatus.DispatchUserException)
                 {
+		    assert(status == DispatchStatus.DispatchObjectNotExist ||
+			   status == DispatchStatus.DispatchFacetNotExist ||
+			   status == DispatchStatus.DispatchOperationNotExist);
+
                     _os.resize(statusPos, false);
                     _os.writeByte((byte)status.value());
 
-		    if(status == DispatchStatus.DispatchObjectNotExist)
-		    {
-			_current.id.__write(_os);
-		    }
-		    else if(status == DispatchStatus.DispatchFacetNotExist)
-		    {
-			_os.writeStringSeq(_current.facet);
-		    }
-		    else if(status == DispatchStatus.DispatchOperationNotExist)
-		    {
-			_os.writeString(_current.operation);
-		    }
+		    _current.id.__write(_os);
+		    _os.writeStringSeq(_current.facet);
+		    _os.writeString(_current.operation);
                 }
                 else
                 {
@@ -170,7 +165,7 @@ public class Incoming
                 _os.writeProxy(ex._prx);
             }
         }
-        catch(Ice.ObjectNotExistException ex)
+        catch(Ice.RequestFailedException ex)
         {
             if(locator != null && servant != null)
             {
@@ -183,51 +178,30 @@ public class Incoming
             {
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
-                _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
+
+		if(ex instanceof Ice.ObjectNotExistException)
+		{
+		    _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
+		}
+		else if(ex instanceof Ice.FacetNotExistException)
+		{
+		    _os.writeByte((byte)DispatchStatus._DispatchFacetNotExist);
+		}
+		else if(ex instanceof Ice.OperationNotExistException)
+		{
+		    _os.writeByte((byte)DispatchStatus._DispatchOperationNotExist);
+		}
+		else
+		{
+		    assert(false);
+		}
+
 		// Not current.id.__write(_os), so that the identity
 		// can be overwritten.
 		ex.id.__write(_os);
-            }
-
-	    // Rethrow, so that the caller can print a warning.
-            throw ex;
-        }
-        catch(Ice.FacetNotExistException ex)
-        {
-            if(locator != null && servant != null)
-            {
-                assert(_adapter != null);
-                locator.finished(_current, servant, _cookie.value);
-            }
-
-            _is.endReadEncaps();
-            if(response)
-            {
-                _os.endWriteEncaps();
-                _os.resize(statusPos, false);
-                _os.writeByte((byte)DispatchStatus._DispatchFacetNotExist);
 		// Not _os.write(current.facet), so that the facet can
 		// be overwritten.
 		_os.writeStringSeq(ex.facet);
-            }
-
-	    // Rethrow, so that the caller can print a warning.
-            throw ex;
-        }
-        catch(Ice.OperationNotExistException ex)
-        {
-            if(locator != null && servant != null)
-            {
-                assert(_adapter != null);
-                locator.finished(_current, servant, _cookie.value);
-            }
-
-            _is.endReadEncaps();
-            if(response)
-            {
-                _os.endWriteEncaps();
-                _os.resize(statusPos, false);
-                _os.writeByte((byte)DispatchStatus._DispatchOperationNotExist);
 		// Not _os.write(current.operation), so that the
 		// operation can be overwritten.
 		_os.writeString(ex.operation);

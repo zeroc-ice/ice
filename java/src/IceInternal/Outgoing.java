@@ -220,30 +220,42 @@ public final class Outgoing
                 }
 
                 case DispatchStatus._DispatchObjectNotExist:
-                {
+                case DispatchStatus._DispatchFacetNotExist:
+                case DispatchStatus._DispatchOperationNotExist:
+		{
                     _state = StateLocalException;
-                    Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
+
+		    Ice.RequestFailedException ex = null;
+		    switch((int)status)
+		    {
+			case DispatchStatus._DispatchObjectNotExist:
+			{
+			    ex = new Ice.ObjectNotExistException();
+			    break;
+			}
+
+			case DispatchStatus._DispatchFacetNotExist:
+			{
+			    ex = new Ice.FacetNotExistException();
+			    break;
+			}
+
+			case DispatchStatus._DispatchOperationNotExist:
+			{
+			    ex = new Ice.OperationNotExistException();
+			    break;
+			}
+			
+			default:
+			{
+			    assert(false);
+			    break;
+			}
+		    }
+
 		    ex.id = new Ice.Identity();
 		    ex.id.__read(_is);
-		    _exception = ex;
-                    _fillStackTrace = true;
-                    break;
-                }
-
-                case DispatchStatus._DispatchFacetNotExist:
-                {
-                    _state = StateLocalException;
-                    Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
 		    ex.facet = _is.readStringSeq();
-		    _exception = ex;
-                    _fillStackTrace = true;
-                    break;
-                }
-
-                case DispatchStatus._DispatchOperationNotExist:
-                {
-                    _state = StateLocalException;
-                    Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
 		    ex.operation = _is.readString();
 		    _exception = ex;
                     _fillStackTrace = true;

@@ -116,38 +116,56 @@ Ice::LocationForwardIdentityException::ice_print(ostream& out) const
     out << ":\nidentity mismatch in location forward";
 }
 
+static void
+printFailedRequestData(ostream& out, const RequestFailedException& ex)
+{
+    out << "\nidentity: " << identityToString(ex.id);
+    out << "\nfacet: ";
+    vector<string>::const_iterator p = ex.facet.begin();
+    while(p != ex.facet.end())
+    {
+	//
+	// TODO: Escape for whitespace and slashes.
+	//
+	out << *p++;
+	if(p != ex.facet.end())
+	{
+	    out << '/';
+	}
+    }
+    out << "\noperation: " << ex.operation;
+}
+
+void
+Ice::RequestFailedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nrequest failed";
+    printFailedRequestData(out, *this);
+}
+
 void
 Ice::ObjectNotExistException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nobject `" << identityToString(id) << "' does not exist";
+    out << ":\nobject does not exist";
+    printFailedRequestData(out, *this);
 }
 
 void
 Ice::FacetNotExistException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nfacet `";
-    vector<string>::const_iterator p = facet.begin();
-    while(p != facet.end())
-    {
-	//
-	// TODO: Escape for whitespace and slashes.
-	//
-	out << *p++;
-	if(p != facet.end())
-	{
-	    out << '/';
-	}
-    }
-    out << "' does not exist";
+    out << ":\nfacet does not exist";
+    printFailedRequestData(out, *this);
 }
 
 void
 Ice::OperationNotExistException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\noperation `" << operation << "' does not exist";
+    out << ":\noperation does not exist";
+    printFailedRequestData(out, *this);
 }
 
 void

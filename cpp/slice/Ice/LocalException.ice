@@ -20,10 +20,12 @@ module Ice
 /**
  *
  * This exception is raised if an operation call on a server raises a
- * local exception. Since the exception is local, it is not
- * transmitted by the &Ice; protocol. Instead, the client only receives
- * an [UknownLocalException] for all local exceptions being raised by
- * the server.
+ * local exception. Because local exceptions are not transmitted by
+ * the &Ice; protocol, the client receives all local exceptions raised
+ * by the server as [UknownLocalException]. The only exception to this
+ * rule are all exceptions derived from [RequestFailedException],
+ * which are transmitted by the &Ice; protocol even though they are
+ * declared [local].
  *
  **/
 local exception UnknownLocalException
@@ -170,16 +172,31 @@ local exception LocationForwardIdentityException
 
 /**
  *
- * This exception is raised if an object does not exist on the server.
- *
- * @see ObjectAdapter::add
- * @see ObjectAdapter::addServantLocator
+ * This exception is raised if a request failed. This exception, and
+ * all exceptions derived from [RequestFailedException], is
+ * transmitted by the &Ice; protocol, even though it is declared
+ * [local].
  *
  **/
-local exception ObjectNotExistException
+local exception RequestFailedException
 {
-    /** The identity of the object that does exist. */
+    /** The identity of the Ice Object to which the request was sent to. */
     Identity id;
+
+    /** The facet to which the request was sent to. */
+    FacetPath facet;
+
+    /** The operation name of the request. */
+    string operation;
+};
+
+/**
+ *
+ * This exception is raised if an object does not exist on the server.
+ *
+ **/
+local exception ObjectNotExistException extends RequestFailedException
+{
 };
 
 /**
@@ -188,10 +205,8 @@ local exception ObjectNotExistException
  * facet path.
  *
  **/
-local exception FacetNotExistException
+local exception FacetNotExistException extends RequestFailedException
 {
-    /** The facet that does exist. */
-    FacetPath facet;
 };
 
 /**
@@ -201,10 +216,8 @@ local exception FacetNotExistException
  * client or the server using an outdated Slice specification.
  *
  **/
-local exception OperationNotExistException
+local exception OperationNotExistException extends RequestFailedException
 {
-    /** The operation name that does exist. */
-    string operation;
 };
 
 /**

@@ -247,41 +247,52 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    }
 	    
 	    case DispatchObjectNotExist:
-	    {
-		_state = StateLocalException;
-                // Don't do ex->identity.read(_is), as this operation
-                // might throw exceptions. In such case ex would leak.
-		Identity ident;
-		ident.__read(&_is);
-		ObjectNotExistException* ex = new ObjectNotExistException(__FILE__, __LINE__);
-		ex->id = ident;
-		_exception = auto_ptr<LocalException>(ex);
-		break;
-	    }
-	    
 	    case DispatchFacetNotExist:
+	    case DispatchOperationNotExist:
 	    {
 		_state = StateLocalException;
                 // Don't do _is.read(ex->facet), as this operation
                 // might throw exceptions. In such case ex would leak.
+		Identity ident;
+		ident.__read(&_is);
 		vector<string> facet;
 		_is.read(facet);
-		FacetNotExistException* ex = new FacetNotExistException(__FILE__, __LINE__);
-		ex->facet = facet;
-		_exception = auto_ptr<LocalException>(ex);
-		break;
-	    }
-	    
-	    case DispatchOperationNotExist:
-	    {
-		_state = StateLocalException;
-                // Don't do _is.read(ex->operation), as this operation
-                // might throw exceptions. In such case ex would leak.
 		string operation;
 		_is.read(operation);
-		OperationNotExistException* ex = new OperationNotExistException(__FILE__, __LINE__);
+
+		RequestFailedException* ex;
+		switch(static_cast<DispatchStatus>(status))
+		{
+		    case DispatchObjectNotExist:
+		    {
+			ex = new ObjectNotExistException(__FILE__, __LINE__);
+			break;
+		    }
+
+		    case DispatchFacetNotExist:
+		    {
+			ex = new FacetNotExistException(__FILE__, __LINE__);
+			break;
+		    }
+
+		    case DispatchOperationNotExist:
+		    {
+			ex = new OperationNotExistException(__FILE__, __LINE__);
+			break;
+		    }
+
+		    default:
+		    {
+			assert(false);
+			break;
+		    }
+		}
+
+		ex->id = ident;
+		ex->facet = facet;
 		ex->operation = operation;
 		_exception = auto_ptr<LocalException>(ex);
+
 		break;
 	    }
 	    
