@@ -291,7 +291,10 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
             }
             case Builtin::KindString:
             {
+                out << nl << "if(" << name << " != null)";
+                out << sb;
                 out << nl << "__h = 5 * __h + " << name << ".hashCode();";
+                out << eb;
                 break;
             }
             case Builtin::KindObject:
@@ -309,17 +312,9 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
     }
 
     ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if(prx)
-    {
-        out << nl << "if(" << name << " != null)";
-        out << sb;
-        out << nl << "__h = 5 * __h + " << name << ".hashCode();";
-        out << eb;
-        return;
-    }
-
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
+    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
+    if(prx || cl || dict)
     {
         out << nl << "if(" << name << " != null)";
         out << sb;
@@ -338,6 +333,8 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
             listType = findMetaData(l);
         }
 
+        out << nl << "if(" << name << " != null)";
+        out << sb;
         if(!listType.empty())
         {
             out << nl << "__h = 5 * __h + " << name << ".hashCode();";
@@ -353,6 +350,7 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
             writeHashCode(out, seq->type(), elem.str(), iter);
             out << eb;
         }
+        out << eb;
         return;
     }
 
@@ -2023,7 +2021,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 case Builtin::KindObjectProxy:
                 case Builtin::KindLocalObject:
                 {
-                    out << nl << "if(!" << memberName << ".equals(_r." << memberName << "))";
+                    out << nl << "if(" << memberName << " != _r." << memberName << " && " << memberName
+                        << " != null && !" << memberName << ".equals(_r." << memberName << "))";
                     out << sb;
                     out << nl << "return false;";
                     out << eb;
@@ -2053,7 +2052,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 }
                 if(!listType.empty())
                 {
-                    out << nl << "if(!" << memberName << ".equals(_r." << memberName << "))";
+                    out << nl << "if(" << memberName << " != _r." << memberName << " && " << memberName
+                        << " != null && !" << memberName << ".equals(_r." << memberName << "))";
                     out << sb;
                     out << nl << "return false;";
                     out << eb;
@@ -2068,7 +2068,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
             }
             else
             {
-                out << nl << "if(!" << memberName << ".equals(_r." << memberName << "))";
+                out << nl << "if(" << memberName << " != _r." << memberName << " && " << memberName
+                    << " != null && !" << memberName << ".equals(_r." << memberName << "))";
                 out << sb;
                 out << nl << "return false;";
                 out << eb;
