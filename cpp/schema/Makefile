@@ -16,7 +16,11 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-all:: Identity.xsd
+all:: BuiltinSequences.xsd \
+      Identity.xsd
+
+BuiltinSequences.xsd: $(top_srcdir)/slice/Ice/BuiltinSequences.ice
+	$(SLICE2XSD) --ice $(top_srcdir)/slice/Ice/BuiltinSequences.ice
 
 Identity.xsd: $(top_srcdir)/slice/Ice/Identity.ice
 	$(SLICE2XSD) --ice $(top_srcdir)/slice/Ice/Identity.ice
