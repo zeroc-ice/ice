@@ -16,14 +16,9 @@
 namespace IceInternal
 {
 
-class Collector;
-void incRef(Collector*);
-void decRef(Collector*);
-typedef IceInternal::Handle<Collector> CollectorPtr;
-
 class CollectorFactory;
-void incRef(CollectorFactory*);
-void decRef(CollectorFactory*);
+ICE_API void incRef(CollectorFactory*);
+ICE_API void decRef(CollectorFactory*);
 typedef IceInternal::Handle<CollectorFactory> CollectorFactoryPtr;
 
 }

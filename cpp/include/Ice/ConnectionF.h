@@ -17,8 +17,8 @@ namespace IceInternal
 {
 
 class Connection;
-void incRef(Connection*);
-void decRef(Connection*);
+ICE_API void incRef(Connection*);
+ICE_API void decRef(Connection*);
 typedef IceInternal::Handle<Connection> ConnectionPtr;
 
 }

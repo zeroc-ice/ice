@@ -17,8 +17,8 @@ namespace IceInternal
 {
 
 class EmitterFactory;
-void incRef(EmitterFactory*);
-void decRef(EmitterFactory*);
+ICE_API void incRef(EmitterFactory*);
+ICE_API void decRef(EmitterFactory*);
 typedef IceInternal::Handle<EmitterFactory> EmitterFactoryPtr;
 
 }
