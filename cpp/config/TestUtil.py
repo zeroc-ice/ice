@@ -137,6 +137,13 @@ def waitServiceReady(pipe, token):
         if output == token + " ready":
             break
 
+def printOutputFromPipe(pipe):
+    while 1:
+        line = pipe.readline()
+        if not line:
+            break
+        os.write(1, line)
+
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
@@ -203,8 +210,7 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     clientPipe = os.popen(client + clientOptions + additionalClientOptions)
     print "ok"
 
-    for output in clientPipe.xreadlines():
-	print output,
+    printOutputFromPipe(clientPipe)
 
     clientStatus = clientPipe.close()
     serverStatus = serverPipe.close()
@@ -239,8 +245,7 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     getAdapterReady(clientPipe)
     print "ok"
 
-    for output in clientPipe.xreadlines():
-	print output,
+    printOutputFromPipe(clientPipe)
 
     clientStatus = clientPipe.close()
     serverStatus = serverPipe.close()
@@ -262,8 +267,7 @@ def collocatedTestWithOptions(name, additionalOptions):
     collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions)
     print "ok"
 
-    for output in collocatedPipe.xreadlines():
-	print output,
+    printOutputFromPipe(collocatedPipe)
 
     collocatedStatus = collocatedPipe.close()
 
