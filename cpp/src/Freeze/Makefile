@@ -16,40 +16,41 @@ LIBNAME		= $(call mklibname,Freeze)
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
 
-OBJS		= DB.o \
-                  Exception.o \
-		  Evictor.o \
-		  EvictorF.o \
-		  EvictorStorage.o \
-                  Connection.o \
+OBJS		= CatalogData.o \
+                  Catalog.o \
                   ConnectionF.o \
+		  ConnectionF.o \
                   ConnectionI.o \
-                  Transaction.o \
-                  TransactionI.o \
-                  SharedDb.o \
-	  	  MapI.o \
-                  Util.o \
-                  ObjectStore.o \
+                  Connection.o \
+		  DB.o \
+		  EvictorF.o \
 		  EvictorI.o \
                   EvictorIteratorI.o \
-                  Index.o \
+		  Evictor.o \
+		  EvictorStorage.o \
+                  Exception.o \
                   IndexI.o \
+                  Index.o \
+	  	  MapI.o \
+                  ObjectStore.o \
                   SharedDbEnv.o \
+                  SharedDb.o \
                   TransactionHolder.o \
-                  Catalog.o \
-                  CatalogData.o \
+                  TransactionI.o \
+                  Transaction.o \
+                  Util.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/DB.ice \
-                  $(SDIR)/Exception.ice \
+                  $(SDIR)/CatalogData.ice \
                   $(SDIR)/Connection.ice \
                   $(SDIR)/ConnectionF.ice \
-                  $(SDIR)/Transaction.ice \
-		  $(SDIR)/Evictor.ice \
+                  $(SDIR)/Exception.ice \
 		  $(SDIR)/EvictorF.ice \
 		  $(SDIR)/EvictorStorage.ice \
-                  $(SDIR)/CatalogData.ice
+		  $(SDIR)/Evictor.ice \
+                  $(SDIR)/Transaction.ice
 
 HDIR		= $(includedir)/Freeze
 SDIR		= $(slicedir)/Freeze

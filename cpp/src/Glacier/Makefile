@@ -19,10 +19,12 @@ STARTER		= $(top_srcdir)/bin/glacierstarter
 LIBTARGETS      = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 TARGETS         = $(LIBTARGETS) $(ROUTER) $(STARTER)
 
-OBJS		= Starter.o \
-		  Router.o \
+OBJS		= Router.o \
+		  SessionF.o \
 		  Session.o \
-		  SessionManager.o
+		  SessionManagerF.o \
+		  SessionManager.o \
+		  Starter.o
 
 ROBJS		= GlacierRouter.o \
 		  RouterI.o \

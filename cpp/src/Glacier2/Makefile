@@ -18,28 +18,30 @@ ROUTER		= $(top_srcdir)/bin/glacier2router
 LIBTARGETS      = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 TARGETS         = $(LIBTARGETS) $(ROUTER)
 
-OBJS		= Router.o \
-		  Session.o \
+OBJS		= PermissionsVerifierF.o \
+		  PermissionsVerifier.o \
+		  RouterF.o \
+		  Router.o \
 		  SessionF.o \
-		  PermissionsVerifier.o
+		  Session.o
 
-ROBJS		= Glacier2Router.o \
-		  SessionRouterI.o \
-		  RouterI.o \
-		  Blobject.o \
+ROBJS		= Blobject.o \
 		  ClientBlobject.o \
-		  ServerBlobject.o \
+		  CryptPermissionsVerifierI.o \
+		  Glacier2Router.o \
 		  RequestQueue.o \
-		  CryptPermissionsVerifierI.o
+		  RouterI.o \
+		  ServerBlobject.o \
+		  SessionRouterI.o
 
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(ROBJS:.o=.cpp)
 
-SLICE_SRCS	= $(SDIR)/Router.ice \
-		  $(SDIR)/Session.ice \
+SLICE_SRCS	= $(SDIR)/PermissionsVerifierF.ice \
 		  $(SDIR)/PermissionsVerifier.ice \
-		  $(SDIR)/PermissionsVerifierF.ice
+		  $(SDIR)/Router.ice \
+		  $(SDIR)/Session.ice
 
 HDIR		= $(includedir)/Glacier2
 SDIR		= $(slicedir)/Glacier2

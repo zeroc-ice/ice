@@ -15,46 +15,48 @@ LIBNAME		= $(call mklibname,IceSSL)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= Plugin.o \
-                  Exception.o \
-                  OpenSSLPluginI.o \
-                  SslEndpoint.o \
-                  SslException.o \
-                  SslConnector.o \
-                  SslAcceptor.o \
-		  SslTransceiver.o \
-		  SslClientTransceiver.o \
-		  SslServerTransceiver.o \
-                  BaseCerts.o \
+OBJS		= BaseCerts.o \
                   CertificateAuthority.o \
                   CertificateDesc.o \
-                  ConfigParser.o \
-                  Context.o \
-                  ClientContext.o \
-                  ServerContext.o \
-                  GeneralConfig.o \
-                  TempCerts.o \
+                  CertificateVerifierF.o \
                   CertificateVerifier.o \
                   CertificateVerifierOpenSSL.o \
-                  OpenSSLJanitors.o \
-                  RSACertificateGen.o \
+                  ClientContext.o \
+                  ConfigParser.o \
+                  Context.o \
                   Convert.o \
+                  DefaultCertificateVerifier.o \
+                  DHParams.o \
+                  Exception.o \
+                  GeneralConfig.o \
+                  OpenSSLJanitors.o \
+                  OpenSSLPluginI.o \
+                  OpenSSLUtils.o \
+    		  PluginF.o \
+    		  Plugin.o \
+                  RSACertificateGen.o \
+                  RSAKeyPair.o \
                   RSAPrivateKey.o \
                   RSAPublicKey.o \
-                  RSAKeyPair.o \
-                  DHParams.o \
-                  OpenSSLUtils.o \
-                  DefaultCertificateVerifier.o \
+                  ServerContext.o \
                   SingleCertificateVerifier.o \
+                  SslAcceptor.o \
+		  SslClientTransceiver.o \
+                  SslConnector.o \
+                  SslEndpoint.o \
+                  SslException.o \
+		  SslServerTransceiver.o \
+		  SslTransceiver.o \
+                  TempCerts.o \
                   TraceLevels.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/Exception.ice \
-		  $(SDIR)/Plugin.ice \
 		  $(SDIR)/PluginF.ice \
-	 	  $(SDIR)/CertificateVerifier.ice \
-	 	  $(SDIR)/CertificateVerifierF.ice
+		  $(SDIR)/Plugin.ice \
+	 	  $(SDIR)/CertificateVerifierF.ice \
+	 	  $(SDIR)/CertificateVerifier.ice
 
 HDIR		= $(includedir)/IceSSL
 SDIR		= $(slicedir)/IceSSL

@@ -19,9 +19,11 @@ OBJS		= Acceptor.o \
 		  Application.o \
 		  BasicStream.o \
 		  BuiltinSequences.o \
+		  CommunicatorF.o \
 		  CommunicatorI.o \
 		  Communicator.o \
 		  ConnectionFactory.o \
+		  ConnectionF.o \
 		  ConnectionI.o \
 		  ConnectionMonitor.o \
 		  Connection.o \
@@ -46,23 +48,30 @@ OBJS		= Acceptor.o \
 		  Instance.o \
 		  LocalException.o \
 		  LocalObject.o \
+		  LocatorF.o \
 		  LocatorInfo.o \
 		  Locator.o \
+		  LoggerF.o \
 		  LoggerI.o \
 		  Logger.o \
 		  LoggerUtil.o \
 		  Network.o \
 		  ObjectAdapterFactory.o \
+		  ObjectAdapterF.o \
 		  ObjectAdapterI.o \
 		  ObjectAdapter.o \
+		  ObjectFactoryF.o \
 		  ObjectFactoryManager.o \
 		  ObjectFactory.o \
 		  Object.o \
 		  OutgoingAsync.o \
 		  Outgoing.o \
+		  PluginF.o \
 		  PluginManagerI.o \
 		  Plugin.o \
+		  ProcessF.o \
 		  Process.o \
+		  PropertiesF.o \
 		  PropertiesI.o \
 		  Properties.o \
 		  PropertyNames.o \
@@ -71,14 +80,17 @@ OBJS		= Acceptor.o \
 		  Proxy.o \
 		  ReferenceFactory.o \
 		  Reference.o \
+		  RouterF.o \
 		  RouterInfo.o \
 		  Router.o \
 		  RoutingTable.o \
+		  ServantLocatorF.o \
 		  ServantLocator.o \
 		  ServantManager.o \
 		  Service.o \
 		  SliceChecksumDict.o \
 		  SliceChecksums.o \
+		  StatsF.o \
 		  Stats.o \
 		  StreamI.o \
 		  Stream.o \
@@ -116,8 +128,8 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/ObjectFactory.ice \
 		  $(SDIR)/PluginF.ice \
 		  $(SDIR)/Plugin.ice \
-                  $(SDIR)/ProcessF.ice \
-                  $(SDIR)/Process.ice \
+		  $(SDIR)/ProcessF.ice \
+		  $(SDIR)/Process.ice \
 		  $(SDIR)/PropertiesF.ice \
 		  $(SDIR)/Properties.ice \
 		  $(SDIR)/RouterF.ice \
@@ -125,8 +137,8 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/ServantLocatorF.ice \
 		  $(SDIR)/ServantLocator.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
-                  $(SDIR)/StatsF.ice \
-                  $(SDIR)/Stats.ice
+		  $(SDIR)/StatsF.ice \
+		  $(SDIR)/Stats.ice
 
 HDIR		= $(includedir)/Ice
 SDIR		= $(slicedir)/Ice
