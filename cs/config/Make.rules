@@ -8,10 +8,11 @@
 # **********************************************************************
 
 #
-# Set this to the root of the Ice for C++ source tree.
-# (You must use a pathname that is relative to $(top_srcdir),
-# which is the current directory. If you do not have the Ice for C++
-# source tree around, it does not matter what you set this to.
+# Set this to the root of the Ice for C++ source tree if you want to
+# build using the Slice definitions from the C++ source tree.
+# (You must set slice_home to a pathname that is relative to $(top_srcdir),
+# which is the current directory.) If you do not have the Ice for C++
+# source tree around, the setting of slice_home does not matter.
 #
 
 slice_home=$(top_srcdir)/../ice
