@@ -429,12 +429,11 @@ IceBox::ServiceManagerI::stop(const string& service)
 void
 IceBox::ServiceManagerI::stopAll()
 {
-    map<string,ServiceInfo>::const_iterator r = _services.begin();
-    while(r != _services.end())
+    while(!_services.empty())
     {
-        try
-        {
-            stop(string((*r++).first));
+	try
+	{
+	    stop(_services.begin()->first);
         }
         catch(const FailureException& ex)
         {
@@ -442,5 +441,4 @@ IceBox::ServiceManagerI::stopAll()
             out << ex.reason;
         }
     }
-    assert(_services.empty());
 }
