@@ -1047,6 +1047,24 @@ The routing table tracing level:
 </section>
 </section>
 
+<section><title>Glacier.Router.Client.ForwardContext, Glacier.Router.Server.ForwardContext</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Router.Client.ForwardContext=<replaceable>num</replaceable>
+Glacier.Router.Server.ForwardContext=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the context parameter is forwarded unmodified as received from the
+client or server, respectively. Otherwise an empty context is
+forwarded. Default is no context forwarding.
+</para>
+</section>
+</section>
+
 <section><title>Glacier.Router.SessionManager</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -1056,9 +1074,8 @@ Glacier.Router.SessionManager=<replaceable>proxy</replaceable>
 <section>
 <title>Description</title>
 <para>
-A stringified proxy to the session manager interface. If not specified,
-it is not possible to use the <literal>Router::createSession</literal>
-method.
+A stringified proxy to a session manager. If not specified, it is not
+possible to use the <literal>Router::createSession()</literal> method.
 </para>
 </section>
 </section>
@@ -1072,7 +1089,9 @@ Glacier.Router.UserId=<replaceable>name</replaceable>
 <section>
 <title>Description</title>
 <para>
-The authenticated userId of the remote user.
+The authenticated user id. This is usually passed from the &Glacier;
+router starter. The user id is used as argument to
+<literal>Router::createSession()</literal>.
 </para>
 </section>
 </section>
@@ -1086,9 +1105,9 @@ Glacier.Router.AllowCategories=<replaceable>list</replaceable>
 <section>
 <title>Description</title>
 <para>
-A whitespace seperated list of categories. If this property is set
-then requests are only permitted to identities with a category found
-in this list.
+A whitespace seperated list of categories. If this property is set,
+then requests are only permitted to &Ice; objects with an identity
+that matches one of the categories from this list.
 </para>
 </section>
 </section>
@@ -1216,8 +1235,9 @@ Glacier.Starter.AddUserToAllowCategories=<replaceable>value</replaceable>
 <section>
 <title>Description</title>
 <para>
-If present the userId is added to the
-<literal>Glacier.Router.AllowCategories</literal> property.
+If set, the user id authenticated by the &Glacier; router starter is
+added to the <literal>Glacier.Router.AllowCategories</literal>
+property upon router startup.
 </para>
 </section>
 </section>
@@ -1468,7 +1488,7 @@ The &Freeze; evictor activity tracing level:
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace Ice Object creation and destruction, as well as
+<entry>Trace &Ice; object creation and destruction, as well as
 evictor deactivation.</entry>
 </row>
 <row>

@@ -14,20 +14,27 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
-Glacier::Missive::Missive(const ObjectPrx& proxy, const vector<Byte>& inParams, const Current& current) :
+Glacier::Missive::Missive(const ObjectPrx& proxy, const vector<Byte>& inParams, const Current& current,
+			  bool forwardContext) :
     _proxy(proxy),
     _inParams(inParams),
-    _current(current)
+    _current(current),
+    _forwardContext(forwardContext)
 {
 }
 
-ObjectPrx
+void
 Glacier::Missive::invoke()
 {
-    // TODO: Should we forward the context? Perhaps a config parameter?
     std::vector<Byte> dummy;
-    _proxy->ice_invoke(_current.operation, _current.nonmutating, _inParams, dummy, _current.context);
-    return _proxy;
+    if (_forwardContext)
+    {
+	_proxy->ice_invoke(_current.operation, _current.nonmutating, _inParams, dummy, _current.context);
+    }
+    else
+    {
+	_proxy->ice_invoke(_current.operation, _current.nonmutating, _inParams, dummy);
+    }
 }
 
 bool
@@ -36,7 +43,24 @@ Glacier::Missive::override(const MissivePtr& missive)
     return false;
 }
 
-Glacier::MissiveQueue::MissiveQueue() :
+const ObjectPrx&
+Glacier::Missive::getProxy() const
+{
+    return _proxy;
+}
+
+const Current&
+Glacier::Missive::getCurrent() const
+{
+    return _current;
+}
+
+Glacier::MissiveQueue::MissiveQueue(const Ice::CommunicatorPtr& communicator, int traceLevel, bool reverse,
+				    const IceUtil::Time& _sleepTime) :
+    _communicator(communicator),
+    _logger(communicator->getLogger()),
+    _traceLevel(traceLevel),
+    _reverse(reverse),
     _destroy(false)
 {
 }
@@ -45,6 +69,7 @@ Glacier::MissiveQueue::~MissiveQueue()
 {
     assert(_destroy);
     assert(_missives.empty());
+    assert(!_communicator);
 }
 
 void 
@@ -54,6 +79,8 @@ Glacier::MissiveQueue::destroy()
     
     _destroy = true;
     _missives.clear();
+    _communicator = 0;
+    _logger = 0;
     
     notify();
 }
@@ -110,20 +137,40 @@ Glacier::MissiveQueue::run()
 	    {
 		try
 		{
-		    proxies.push_back((*p)->invoke());
+		    const ObjectPrx& proxy = (*p)->getProxy();
+		    const Current& current = (*p)->getCurrent();
+
+		    if (_traceLevel >= 2)
+		    {
+			Trace out(_logger, "Glacier");
+			if (_reverse)
+			{
+			    out << "reverse ";
+			}
+			out << "batch routing to:\n"
+			    << "proxy = " << _communicator->proxyToString(proxy) << '\n'
+			    << "operation = " << current.operation << '\n'
+			    << "nonmutating = " << (current.nonmutating ? "true" : "false");
+		    }
+		    
+		    (*p)->invoke();
+		    proxies.push_back(proxy);
 		}
 		catch (const Ice::Exception& ex)
 		{
-		    //
-		    // Remember exception and destroy the missive queue.
-		    //
-		    _destroy = true;
-		    _missives.clear();
-		    _exception = std::auto_ptr<Ice::Exception>(ex.ice_clone());
-		    return;
+		    if (_traceLevel >= 1)
+		    {
+			Trace out(_logger, "Glacier");
+			if (_reverse)
+			{
+			    out << "reverse ";
+			}
+			out << "batch routing exception:\n" << ex;
+		    }
 		}
-		_missives.clear();
 	    }
+
+	    _missives.clear();
 	}
         
         //
@@ -136,8 +183,8 @@ Glacier::MissiveQueue::run()
             //
             // This sends all batched missives.
             //
-	    sort(proxies.begin(), proxies.end());
-	    proxies.erase(unique(proxies.begin(), proxies.end()), proxies.end());
+//	    sort(proxies.begin(), proxies.end());
+//	    proxies.erase(unique(proxies.begin(), proxies.end()), proxies.end());
             vector<ObjectPrx>::const_iterator p;
 	    for (p = proxies.begin(); p != proxies.end(); ++p)
 	    {
@@ -148,21 +195,24 @@ Glacier::MissiveQueue::run()
             // In order to avoid flooding the missive receivers, we add
             // a delay between sending missives.
 	    //
-	    // TODO: Configurable.
-            //
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(250));
+	    if (_sleepTime > IceUtil::Time())
+	    {
+		IceUtil::ThreadControl::sleep(_sleepTime);
+	    }
         }
         catch (const Ice::Exception& ex)
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
             
-            //
-            // Remember exception and destroy the missive queue.
-            //
-            _destroy = true;
-            _missives.clear();
-            _exception = std::auto_ptr<Ice::Exception>(ex.ice_clone());
-            return;
+	    if (_traceLevel >= 1)
+	    {
+		Trace out(_logger, "Glacier");
+		if (_reverse)
+		{
+		    out << "reverse ";
+		}
+		out << "batch routing exception:\n" << ex;
+	    }
         }
     }
 }

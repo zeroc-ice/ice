@@ -17,7 +17,7 @@ using namespace Glacier;
 
 Glacier::Blobject::Blobject(const CommunicatorPtr& communicator) :
     _communicator(communicator),
-    _logger(_communicator->getLogger())
+    _logger(communicator->getLogger())
 {
 }
 
@@ -48,6 +48,63 @@ Glacier::Blobject::destroy()
     }
 }
 
+
+bool
+Glacier::Blobject::invoke(ObjectPrx& proxy, const vector<Byte>& inParams, vector<Byte>& outParams,
+			  const Current& current)
+{
+    try
+    {
+	MissiveQueuePtr missiveQueue = modifyProxy(proxy, current);
+
+	if (missiveQueue) // Batch routing?
+	{
+	    missiveQueue->add(new Missive(proxy, inParams, current, _forwardContext));
+	    return true;
+	}
+	else // Regular routing.
+	{
+	    if (_traceLevel >= 2)
+	    {
+		Trace out(_logger, "Glacier");
+		if (reverse())
+		{
+		    out << "reverse ";
+		}
+		out << "routing to:\n"
+		    << "proxy = " << _communicator->proxyToString(proxy) << '\n'
+		    << "operation = " << current.operation << '\n'
+		    << "nonmutating = " << (current.nonmutating ? "true" : "false");
+	    }
+	    
+	    if (_forwardContext)
+	    {
+		return proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
+	    }
+	    else
+	    {
+		return proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams);
+	    }
+	}
+    }
+    catch (const Exception& ex)
+    {
+	if (_traceLevel >= 1)
+	{
+	    Trace out(_logger, "Glacier");
+	    if (reverse())
+	    {
+		out << "reverse ";
+	    }
+	    out << "routing exception:\n" << ex;
+	}
+
+	ex.ice_throw();
+    }
+
+    assert(false);
+    return true; // To keep the compiler happy.
+}
 
 MissiveQueuePtr
 Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current)
@@ -129,7 +186,7 @@ Glacier::Blobject::getMissiveQueue()
     IceUtil::Mutex::Lock lock(_missiveQueueMutex);
     if (!_missiveQueue)
     {
-	_missiveQueue = new MissiveQueue;
+	_missiveQueue = new MissiveQueue(_communicator, _traceLevel, reverse(), _batchSleepTime);
 	_missiveQueueControl = _missiveQueue->start();
     }
     return _missiveQueue;

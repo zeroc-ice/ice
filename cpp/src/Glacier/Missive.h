@@ -25,16 +25,19 @@ class Missive : virtual public IceUtil::Shared
 {
 public:
 
-    Missive(const Ice::ObjectPrx&, const std::vector<Ice::Byte>&, const Ice::Current&);
+    Missive(const Ice::ObjectPrx&, const std::vector<Ice::Byte>&, const Ice::Current&, bool);
     
-    virtual Ice::ObjectPrx invoke();
-    virtual bool override(const MissivePtr&);
+    void invoke();
+    bool override(const MissivePtr&);
+    const Ice::ObjectPrx& getProxy() const;
+    const Ice::Current& getCurrent() const;
 
 private:
 
-    const Ice::ObjectPrx _proxy;
-    const std::vector<Ice::Byte>& _inParams;
+    Ice::ObjectPrx _proxy;
+    std::vector<Ice::Byte> _inParams;
     Ice::Current _current;
+    bool _forwardContext;
 };
 
 class MissiveQueue;
@@ -44,7 +47,7 @@ class MissiveQueue : virtual public IceUtil::Thread, IceUtil::Monitor<IceUtil::M
 {
 public:
 
-    MissiveQueue();
+    MissiveQueue(const Ice::CommunicatorPtr&, int, bool, const IceUtil::Time&);
     virtual ~MissiveQueue();
     
     void destroy();
@@ -52,11 +55,15 @@ public:
 
     virtual void run();
 
-protected:
+private:
 
-    Ice::ObjectPrx _proxy;
+    Ice::CommunicatorPtr _communicator;
+    Ice::LoggerPtr _logger;
+    int _traceLevel;
+    bool _reverse;
+    IceUtil::Time _sleepTime;
+
     std::vector<MissivePtr> _missives;
-    std::auto_ptr<Ice::Exception> _exception;
     bool _destroy;
 };
 

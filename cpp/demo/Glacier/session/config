@@ -9,7 +9,7 @@ IceSSL.Client.CertPath=../../../certs
 IceSSL.Client.Config=sslconfig.xml
 IceSSL.Server.CertPath=../../../certs
 IceSSL.Server.Config=sslconfig.xml
-#IceSSL.Trace.Security=4
+#IceSSL.Trace.Security=1
 
 Glacier.Router.Endpoints=default
 Glacier.Router.SessionManager=HelloSessionManager:tcp -p 10000:ssl -p 10001

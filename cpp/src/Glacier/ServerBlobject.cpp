@@ -16,11 +16,20 @@ using namespace Ice;
 using namespace Glacier;
 
 Glacier::ServerBlobject::ServerBlobject(const ObjectAdapterPtr& clientAdapter) :
-    Glacier::Blobject(_clientAdapter->getCommunicator()),
+    Glacier::Blobject(clientAdapter->getCommunicator()),
     _clientAdapter(clientAdapter)
 {
     PropertiesPtr properties = _communicator->getProperties();
     _traceLevel = properties->getPropertyAsInt("Glacier.Router.Trace.Server");
+    _forwardContext = properties->getPropertyAsInt("Glacier.Router.Server.ForwardContext") > 0;
+    _batchSleepTime = IceUtil::Time::milliSeconds(
+	properties->getPropertyAsIntWithDefault("Glacier.Router.Server.BatchSleepTime", 250));
+}
+
+bool
+Glacier::ServerBlobject::reverse()
+{
+    return true;
 }
 
 void
@@ -39,37 +48,8 @@ Glacier::ServerBlobject::ice_invoke(const vector<Byte>& inParams, vector<Byte>& 
 {
     assert(_clientAdapter); // Destroyed?
 
-    try
-    {
-	ObjectPrx proxy = _clientAdapter->createReverseProxy(current.identity);
-	assert(proxy);
+    ObjectPrx proxy = _clientAdapter->createReverseProxy(current.identity);
+    assert(proxy);
 
-	MissiveQueuePtr missiveQueue = modifyProxy(proxy, current);
-	assert(!missiveQueue);
-	
-	if (_traceLevel >= 2)
-	{
-	    Trace out(_logger, "Glacier");
-	    out << "reverse routing to:\n"
-		<< "proxy = " << _communicator->proxyToString(proxy) << '\n'
-		<< "operation = " << current.operation << '\n'
-		<< "nonmutating = " << (current.nonmutating ? "true" : "false");
-	}
-
-	// TODO: Should we forward the context? Perhaps a config parameter?
-	return proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
-    }
-    catch (const Exception& ex)
-    {
-	if (_traceLevel >= 1)
-	{
-	    Trace out(_logger, "Glacier");
-	    out << "reverse routing exception:\n" << ex;
-	}
-
-	ex.ice_throw();
-    }
-
-    assert(false);
-    return true; // To keep the compiler happy.
+    return invoke(proxy, inParams, outParams, current);
 }

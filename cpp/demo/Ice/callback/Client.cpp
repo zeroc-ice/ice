@@ -107,7 +107,7 @@ CallbackClient::run(int argc, char* argv[])
 	    else if (c == 'O')
 	    {
 		Context context;
-		context["_fwd"] = "o" + secureStr;
+		context["_fwd"] = "O" + secureStr;
 		batchOneway->initiateCallback(onewayR, context);
 	    }
 	    else if (c == 'd')
@@ -119,7 +119,7 @@ CallbackClient::run(int argc, char* argv[])
 	    else if (c == 'D')
 	    {
 		Context context;
-		context["_fwd"] = "d" + secureStr;
+		context["_fwd"] = "D" + secureStr;
 		batchDatagram->initiateCallback(datagramR, context);
 	    }
 	    else if (c == 'f')

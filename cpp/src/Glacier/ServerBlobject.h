@@ -22,13 +22,14 @@ public:
 
     ServerBlobject(const Ice::ObjectAdapterPtr&);
 
+    virtual bool reverse();
+
     void destroy();
     virtual bool ice_invoke(const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);
 
 private:
 
     Ice::ObjectAdapterPtr _clientAdapter;
-    int _traceLevel;
 };
 
 }

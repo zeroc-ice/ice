@@ -23,12 +23,13 @@ public:
 
     ClientBlobject(const Ice::CommunicatorPtr&, const IceInternal::RoutingTablePtr&, const std::string&);
 
+    virtual bool reverse();
+
     void destroy();
     virtual bool ice_invoke(const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);
 
 private:
 
-    int _traceLevel;
     IceInternal::RoutingTablePtr _routingTable;
     std::vector<std::string> _allowCategories;
 };

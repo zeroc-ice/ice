@@ -63,7 +63,7 @@ IceSSL.Server.Config=sslconfig.xml
 # 1 = trace warning messages
 # 2 = config file parsing warnings
 #
-#IceSSL.Trace.Security=4
+#IceSSL.Trace.Security=2
 
 #
 # Glacier settings

@@ -192,7 +192,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	if (!_properties->getProperty("Glacier.Starter.AddUserToAllowCategories").empty())
 	{
 	    args.push_back("--Glacier.Router.AllowCategories=" +
-			   _properties->getProperty("Glacier.Router.AllowCategories") + string(" ") + userId);
+			   _properties->getProperty("Glacier.Router.AllowCategories") + " " + userId);
 	}
 
 	ostringstream s;

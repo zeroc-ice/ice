@@ -25,6 +25,9 @@ Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
 {
     PropertiesPtr properties = _communicator->getProperties();
     _traceLevel = properties->getPropertyAsInt("Glacier.Router.Trace.Client");
+    _forwardContext = properties->getPropertyAsInt("Glacier.Router.Client.ForwardContext") > 0;
+    _batchSleepTime = IceUtil::Time::milliSeconds(
+	properties->getPropertyAsIntWithDefault("Glacier.Router.Client.BatchSleepTime", 250));
 
     const string ws = " \t";
     string::size_type current = allowCategories.find_first_not_of(ws, 0);
@@ -38,6 +41,12 @@ Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
     }
     sort(_allowCategories.begin(), _allowCategories.end()); // Must be sorted.
     _allowCategories.erase(unique(_allowCategories.begin(), _allowCategories.end()), _allowCategories.end());
+}
+
+bool
+Glacier::ClientBlobject::reverse()
+{
+    return false;
 }
 
 void
@@ -75,43 +84,13 @@ Glacier::ClientBlobject::ice_invoke(const vector<Byte>& inParams, vector<Byte>& 
 	}
     }
 
-    try
+    ObjectPrx proxy = _routingTable->get(current.identity);
+    if (!proxy)
     {
-	ObjectPrx proxy = _routingTable->get(current.identity);
-	
-	if (!proxy)
-	{
-	    ObjectNotExistException ex(__FILE__, __LINE__);
-	    ex.identity = current.identity;
-	    throw ex;
-	}
-
-	MissiveQueuePtr missiveQueue = modifyProxy(proxy, current);
-	assert(!missiveQueue);
-	
-	if (_traceLevel >= 2)
-	{
-	    Trace out(_logger, "Glacier");
-	    out << "routing to:\n"
-		<< "proxy = " << _communicator->proxyToString(proxy) << '\n'
-		<< "operation = " << current.operation << '\n'
-		<< "nonmutating = " << (current.nonmutating ? "true" : "false");
-	}
-
-	// TODO: Should we forward the context? Perhaps a config parameter?
-	return proxy->ice_invoke(current.operation, current.nonmutating, inParams, outParams, current.context);
-    }
-    catch (const Exception& ex)
-    {
-	if (_traceLevel >= 1)
-	{
-	    Trace out(_logger, "Glacier");
-	    out << "routing exception:\n" << ex;
-	}
-
-	ex.ice_throw();
+	ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.identity = current.identity;
+	throw ex;
     }
 
-    assert(false);
-    return true; // To keep the compiler happy.
+    return invoke(proxy, inParams, outParams, current);
 }

@@ -23,14 +23,21 @@ public:
     
     Blobject(const Ice::CommunicatorPtr&);
     virtual ~Blobject();
+
+    virtual bool reverse() = 0;
     
     void destroy();
-    virtual MissiveQueuePtr modifyProxy(Ice::ObjectPrx&, const Ice::Current&);
+    bool invoke(Ice::ObjectPrx&, const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);
+    MissiveQueuePtr modifyProxy(Ice::ObjectPrx&, const Ice::Current&);
 
 protected:
 
     Ice::CommunicatorPtr _communicator;
     Ice::LoggerPtr _logger;
+
+    int _traceLevel;
+    bool _forwardContext;
+    IceUtil::Time _batchSleepTime;
 
 private:
 
