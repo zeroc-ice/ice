@@ -116,12 +116,19 @@ Ice::PropertiesI::getCommandLineOptions()
 StringSeq
 Ice::PropertiesI::parseCommandLineOptions(const string& prefix, const StringSeq& options)
 {
+    string pfx = prefix;
+    if(!pfx.empty() && pfx[pfx.size() - 1] != '.')
+    {
+	pfx += '.';
+    }
+    pfx = "--" + pfx;
+    
     StringSeq result;
     StringSeq::size_type i;
     for(i = 0; i < options.size(); i++)
     {
         string opt = options[i];
-        if(opt.find("--" + prefix + ".") == 0)
+        if(opt.find(pfx) == 0)
         {
             if(opt.find('=') == string::npos)
             {

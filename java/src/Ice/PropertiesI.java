@@ -111,13 +111,20 @@ class PropertiesI implements Properties
     }
 
     public synchronized String[]
-    parseCommandLineOptions(String prefix, String[] options)
+    parseCommandLineOptions(String pfx, String[] options)
     {
+	String prefix = pfx;
+	if(pfx.length() > 0 && pfx.charAt(pfx.length() - 1) != '.')
+	{
+	    pfx += '.';
+	}
+	pfx = "--" + pfx;
+
         java.util.ArrayList result = new java.util.ArrayList();
         for(int i = 0; i < options.length; i++)
         {
             String opt = options[i];
-            if(opt.startsWith("--" + prefix + "."))
+            if(opt.startsWith(pfx))
             {
                 if(opt.indexOf('=') == -1)
                 {
@@ -300,5 +307,4 @@ class PropertiesI implements Properties
     }
 
     private java.util.HashMap _properties = new java.util.HashMap();
-    private static java.util.HashSet _argumentPrefixes = new java.util.HashSet();
 }

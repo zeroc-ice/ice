@@ -13,7 +13,6 @@
 
 #include <IceUtil/Mutex.h>
 #include <Ice/Properties.h>
-#include <set>
 
 namespace Ice
 {

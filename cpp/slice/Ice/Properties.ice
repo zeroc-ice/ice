@@ -135,10 +135,14 @@ local interface Properties
      *
      * Convert a sequence of command-line options into properties.
      * All options which begin with
-     * <screen>--<emphasis>prefix</emphasis>.</screen>
-     * will be converted into properties.
+     * <screen>--<emphasis>prefix</emphasis>.</screen> will be
+     * converted into properties. If the prefix is empty, all options
+     * that begin with <screen>--</screen> will be converted to
+     * properties.
      *
-     * @param prefix The property prefix.
+     * @param prefix The property prefix, or an empty string to
+     * convert all options starting with <screen>--</screen>.
+     *
      * @param options The command-line options.
      *
      * @return The command-line options which were not converted,
