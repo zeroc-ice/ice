@@ -17,7 +17,7 @@
 
 #include <IceUtil/RecMutex.h>
 #include <IceStorm/IceStormInternal.h>
-#include <IceStorm/IdentityLinkDict.h>
+#include <IceStorm/PersistentTopicMap.h>
 #include <IceStorm/SubscriberFactory.h>
 #include <list>
 
@@ -74,8 +74,8 @@ class TopicI : public TopicInternal, public IceUtil::RecMutex
 {
 public:
 
-    TopicI(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const std::string&, 
-	   const SubscriberFactoryPtr&, const std::string&, const std::string&, bool);
+    TopicI(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const std::string&, const LinkRecordDict&, 
+	   const SubscriberFactoryPtr&, const std::string&, const std::string&);
     ~TopicI();
 
     virtual std::string getName(const Ice::Current&) const;
@@ -118,7 +118,7 @@ private:
     TopicSubscribersPtr _subscribers; // Set of Subscribers
 
     Freeze::ConnectionPtr _connection;
-    IdentityLinkDict _links; // The database of Topic links
+    PersistentTopicMap _topics; 
 };
 
 typedef IceUtil::Handle<TopicI> TopicIPtr;

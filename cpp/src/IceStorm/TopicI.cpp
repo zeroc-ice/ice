@@ -296,15 +296,15 @@ TopicLinkI::forward(const string& op, Ice::OperationMode mode, const ByteSeq& da
 }
 
 TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& traceLevels, const string& name,
-	       const SubscriberFactoryPtr& factory, 
-	       const string& envName, const string& dbName, bool createDb) :
+	       const LinkRecordDict& links, const SubscriberFactoryPtr& factory, 
+	       const string& envName, const string& dbName) :
     _adapter(adapter),
     _traceLevels(traceLevels),
     _name(name),
     _factory(factory),
     _destroyed(false),
     _connection(Freeze::createConnection(adapter->getCommunicator(), envName)),
-    _links(_connection, dbName, createDb)
+    _topics(_connection, dbName, false)
 {
     _subscribers = new TopicSubscribers(_traceLevels);
 
@@ -331,9 +331,9 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
     _linkPrx = TopicLinkPrx::uncheckedCast(_adapter->add(_link, id));
 
     //
-    // Run through link database re-establishing linked subscribers.
+    // Re-establish linked subscribers.
     //
-    for(IdentityLinkDict::const_iterator p = _links.begin(); p != _links.end(); ++p)
+    for(LinkRecordDict::const_iterator p = links.begin(); p != links.end(); ++p)
     {
 	if(_traceLevels->topic > 0)
 	{
@@ -345,7 +345,7 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
 	// Create the subscriber object and add it to the set of
 	// subscribers.
 	//
-	SubscriberPtr subscriber = _factory->createLinkSubscriber(p->second.obj, p->second.info.cost);
+	SubscriberPtr subscriber = _factory->createLinkSubscriber(p->second.obj, p->second.cost);
 	_subscribers->add(subscriber);
     }
 }
@@ -403,8 +403,6 @@ TopicI::destroy(const Ice::Current&)
     }
 
     _adapter->remove(id);
-
-    _links.destroy();
 }
 
 void
@@ -491,6 +489,7 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
 	out << _name << " link " << name << " cost " << cost;
     }
 
+   
     //
     // Retrieve the TopicLink.
     //
@@ -498,20 +497,34 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
     TopicLinkPrx link = internal->getLinkProxy();
     Ice::Identity ident = link->ice_getIdentity();
 
+    
+    PersistentTopicMap::const_iterator p = _topics.find(_name);
+    assert(p != _topics.end());
+
+    LinkRecordDict links = p->second;
+    
+    if(links.find(name) != links.end())
+    {
+	LinkExists ex;
+	ex.name = name;
+	throw ex;
+    }
+
     //
-    // Create the LinkDB record.
+    // Create the LinkRecord
     //
-    LinkDB dbInfo;
-    dbInfo.obj = link;
-    dbInfo.info.theTopic = topic;
-    dbInfo.info.name = name;
-    dbInfo.info.cost = cost;
-    _links.put(pair<const Ice::Identity, const LinkDB>(ident, dbInfo));
+    LinkRecord record;
+    record.obj = link;
+    record.cost = cost;
+    record.theTopic = topic;
+    links.insert(LinkRecordDict::value_type(name, record));
+
+    _topics.put(PersistentTopicMap::value_type(_name, links));
 
     //
     // Create the subscriber object and add it to the set of subscribers.
     //
-    SubscriberPtr subscriber = _factory->createLinkSubscriber(dbInfo.obj, dbInfo.info.cost);
+    SubscriberPtr subscriber = _factory->createLinkSubscriber(record.obj, record.cost);
     _subscribers->add(subscriber);
 }
 
@@ -527,25 +540,39 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
 
     reap();
 
+    string name = topic->getName();
     TopicInternalPrx internal = TopicInternalPrx::checkedCast(topic);
     Ice::ObjectPrx link = internal->getLinkProxy();
 
-    if(_links.erase(link->ice_getIdentity()) > 0)
+    PersistentTopicMap::const_iterator p = _topics.find(_name);
+    assert(p != _topics.end());
+
+    LinkRecordDict links = p->second;
+    LinkRecordDict::iterator q = links.find(name);
+
+    if(q == links.end())
     {
 	if(_traceLevels->topic > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
-	    out << _name << " unlink " << topic->getName();
+	    out << _name << " unlink " << name << " failed - not linked";
 	}
-	_subscribers->remove(link);
+
+	NoSuchLink ex;
+	ex.name = name;
+	throw ex;
     }
     else
     {
+	links.erase(q);
+	_topics.put(PersistentTopicMap::value_type(_name, links));
+
 	if(_traceLevels->topic > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
-	    out << _name << " unlink " << topic->getName() << " failed - not linked";
+	    out << _name << " unlink " << name;
 	}
+	_subscribers->remove(link);
     }
 }
 
@@ -562,11 +589,18 @@ TopicI::getLinkInfoSeq(const Ice::Current&) const
     TopicI* const This = const_cast<TopicI* const>(this);
     This->reap();
 
+    PersistentTopicMap::const_iterator p = _topics.find(_name);
+    assert(p != _topics.end());
+    LinkRecordDict links = p->second;
+    
     LinkInfoSeq seq;
 
-    for(IdentityLinkDict::const_iterator p = _links.begin(); p != _links.end(); ++p)
+    for(LinkRecordDict::const_iterator q = links.begin(); q != links.end(); ++q)
     {
-	LinkInfo info = p->second.info;
+	LinkInfo info;
+	info.name = q->first;
+	info.cost = q->second.cost;
+	info.theTopic = q->second.theTopic;
 	seq.push_back(info);
     }
 
@@ -597,6 +631,11 @@ TopicI::reap()
 	return;
     }
 
+    PersistentTopicMap::const_iterator p = _topics.find(_name);
+    assert(p != _topics.end());
+    LinkRecordDict links = p->second;
+    bool updated = false;
+    
     //
     // Run through all invalid subscribers and remove them from the
     // database.
@@ -608,8 +647,9 @@ TopicI::reap()
 	assert(subscriber->error());
 	if(subscriber->persistent())
 	{
-	    if(_links.erase(subscriber->id()) > 0)
+	    if(links.erase(subscriber->id().category) > 0)
 	    {
+		updated = true;
 		if(_traceLevels->topic > 0)
 		{
 		    Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
@@ -625,5 +665,10 @@ TopicI::reap()
 		}
 	    }
 	}
+    }
+    
+    if(updated)
+    {
+	_topics.put(PersistentTopicMap::value_type(_name, links));
     }
 }

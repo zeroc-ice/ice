@@ -40,9 +40,8 @@ SERVICE_OBJS	= IceStorm.o \
 		  SubscriberFactory.o \
 		  TopicI.o \
 		  TopicManagerI.o \
-		  StringBoolDict.o \
-		  IdentityLinkDict.o \
-		  LinkDB.o \
+                  PersistentTopicMap.o \
+		  LinkRecord.o \
 		  IceStormInternal.o \
 		  Service.o \
 		  QueuedProxy.o \
@@ -62,7 +61,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 SLICE_SRCS	= $(SDIR)/IceStorm.ice \
 		  IceStormInternal.ice \
-		  LinkDB.ice
+		  LinkRecord.ice
 
 HDIR		= $(includedir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
@@ -106,20 +105,15 @@ $(ADMIN): $(AOBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm -lIceXML $(READLINE_LIBS) $(LIBS)
 
-StringBoolDict.h StringBoolDict.cpp: $(SLICE2FREEZE)
-	rm -f StringBoolDict.h StringBoolDict.cpp
-	$(SLICE2FREEZECMD) --dict IceStorm::StringBoolDict,string,bool StringBoolDict
+
+
+PersistentTopicMap.h PersistentTopicMap.cpp: ../IceStorm/LinkRecord.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
+	rm -f PersistentTopicMap.h PersistentTopicMap.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecordDict PersistentTopicMap \
+	../IceStorm/LinkRecord.ice
 
 clean::
-	rm -f StringBoolDict.h StringBoolDict.cpp
-
-IdentityLinkDict.h IdentityLinkDict.cpp: ../IceStorm/LinkDB.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
-	rm -f IdentityLinkDict.h IdentityLinkDict.cpp
-	$(SLICE2FREEZECMD) --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkDB IdentityLinkDict \
-	../IceStorm/LinkDB.ice $(slicedir)/Ice/Identity.ice
-
-clean::
-	rm -f IdentityLinkDict.h IdentityLinkDict.cpp
+	rm -f PersistentTopicMap.h PersistentTopicMap.cpp
 
 # Needed for make -jn to work.
 ../IceStorm/Grammar.y: Grammar.h

@@ -33,6 +33,7 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
     _publishAdapter(publishAdapter),
     _traceLevels(traceLevels),
     _envName(envName),
+    _dbName(dbName),
     _connection(Freeze::createConnection(_communicator, envName)),
     _topics(_connection, dbName)
 {
@@ -40,31 +41,11 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
     _factory = new SubscriberFactory(_communicator, _traceLevels, _flusher);
 
     //
-    // Recreate each of the topics in the dictionary. If the topic
-    // database doesn't exist then the topic was previously destroyed,
-    // but not removed from the _topics dictionary. Normally this
-    // should only occur in the event of a crash.
+    // Recreate each of the topics in the persistent map
     //
-    StringBoolDict::iterator p = _topics.begin();
-    while(p != _topics.end())
+    for(PersistentTopicMap::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
     {
-	assert(_topicIMap.find(p->first) == _topicIMap.end());
-	try
-	{
-	    installTopic("recreate", p->first, false);
-	    ++p;
-	}
-	catch(const Freeze::NotFoundException& ex)
-	{
-	    if(_traceLevels->topicMgr > 0)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
-		out << ex;
-	    }
-	    StringBoolDict::iterator tmp = p;
-	    ++p;
-	    _topics.erase(tmp);
-	}
+	installTopic(p->first, p->second, false);
     }
 }
 
@@ -76,7 +57,6 @@ TopicManagerI::~TopicManagerI()
 TopicPrx
 TopicManagerI::create(const string& name, const Ice::Current&)
 {
-    // TODO: reader/writer mutex
     IceUtil::Mutex::Lock sync(*this);
 
     reap();
@@ -88,8 +68,8 @@ TopicManagerI::create(const string& name, const Ice::Current&)
         throw ex;
     }
 
-    installTopic("create", name, true);
-    _topics.put(pair<const string, const bool>(name, true));
+    _topics.put(PersistentTopicMap::value_type(name, LinkRecordDict()));
+    installTopic(name, LinkRecordDict(), true);
 
     //
     // The identity is the name of the Topic.
@@ -204,28 +184,29 @@ TopicManagerI::shutdown()
 }
 
 void
-TopicManagerI::installTopic(const string& message, const string& name, bool create)
+TopicManagerI::installTopic(const string& name, const LinkRecordDict& links, bool create)
 {
+    //
+    // Called by constructor or with 'this' mutex locked. 
+    //
+
     if(_traceLevels->topicMgr > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
-	out << message << ' ' << name;
+	if(create)
+	{
+	    out << "creating new topic \"" << name << "\"";
+	}
+	else
+	{
+	    out << "loading topic \"" << name << "\" from database";
+	}
     }
 
     //
-    // Prepend "topic-" to the topic name in order to form a
-    // unique name for the Freeze database. Since the name we
-    // supply is also used as a filename, we call getDatabaseName 
-    // to obtain a name with any questionable filename characters converted to hex.
-    //
-    // TODO: instance
-    // TODO: failure? cleanup database?
-    //
-    string dbName = "topic-" + getDatabaseName(name);  
-    //
     // Create topic implementation
     //
-    TopicIPtr topicI = new TopicI(_publishAdapter, _traceLevels, name, _factory, _envName, dbName, create);
+    TopicIPtr topicI = new TopicI(_publishAdapter, _traceLevels, name, links, _factory, _envName, _dbName);
     
     //
     // The identity is the name of the Topic.
@@ -234,27 +215,4 @@ TopicManagerI::installTopic(const string& message, const string& name, bool crea
     id.name = name;
     _topicAdapter->add(topicI, id);
     _topicIMap.insert(TopicIMap::value_type(name, topicI));
-}
-
-string
-TopicManagerI::getDatabaseName(const string& name)
-{
-    string result;
-    result.reserve(name.size());
-
-    for(string::size_type i = 0; i < name.size(); i++)
-    {
-        if(isalnum(name[i]) || name[i] == '.' || name[i] == '-' || name[i] == '_')
-        {
-            result.push_back(name[i]);
-        }
-        else
-        {
-            ostringstream ostr;
-            ostr << '%' << hex << static_cast<int>(name[i]);
-            result.append(ostr.str());
-        }
-    }
-
-    return result;
 }

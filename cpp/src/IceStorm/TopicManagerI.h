@@ -16,7 +16,7 @@
 #define TOPIC_MANAGER_I_H
 
 #include <IceStorm/IceStorm.h>
-#include <IceStorm/StringBoolDict.h>
+#include <IceStorm/PersistentTopicMap.h>
 
 namespace IceStorm
 {
@@ -62,9 +62,8 @@ public:
 
 private:
 
-    void installTopic(const std::string&, const std::string&, bool);
-    static std::string getDatabaseName(const std::string&);
-
+    void installTopic(const std::string&, const LinkRecordDict&, bool);
+  
     Ice::CommunicatorPtr _communicator;
     Ice::ObjectAdapterPtr _topicAdapter;
     Ice::ObjectAdapterPtr _publishAdapter;
@@ -73,8 +72,9 @@ private:
     FlusherPtr _flusher;
     SubscriberFactoryPtr _factory;
     std::string _envName;
+    std::string _dbName;
     Freeze::ConnectionPtr _connection;
-    StringBoolDict _topics;
+    PersistentTopicMap _topics;
 };
 
 typedef IceUtil::Handle<TopicManagerI> TopicManagerIPtr;

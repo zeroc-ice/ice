@@ -80,7 +80,7 @@ IceStorm::ServiceI::start(const string& name,
     _topicAdapter = communicator->createObjectAdapter(name + ".TopicManager");
     _publishAdapter = communicator->createObjectAdapter(name + ".Publish");
 
-    _manager = new TopicManagerI(communicator, _topicAdapter, _publishAdapter, traceLevels, envName, "topicmanager");
+    _manager = new TopicManagerI(communicator, _topicAdapter, _publishAdapter, traceLevels, envName, "topics");
     _topicAdapter->add(_manager, stringToIdentity(name + "/TopicManager"));
 
     _topicAdapter->activate();

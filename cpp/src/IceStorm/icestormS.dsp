@@ -114,11 +114,11 @@ SOURCE=.\IceStormInternal.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\IdentityLinkDict.cpp
+SOURCE=.\PersistentTopicMap.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\LinkDB.cpp
+SOURCE=.\LinkRecord.cpp
 # End Source File
 # Begin Source File
 
@@ -147,10 +147,6 @@ SOURCE=.\QueuedProxy.cpp
 # Begin Source File
 
 SOURCE=.\Service.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\StringBoolDict.cpp
 # End Source File
 # Begin Source File
 
@@ -198,7 +194,7 @@ SOURCE=.\IceStormInternalI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IdentityLinkDict.h
+SOURCE=.\PersistentTopicMap.h
 # End Source File
 # Begin Source File
 
@@ -215,10 +211,6 @@ SOURCE=.\OnewayBatchSubscriber.h
 # Begin Source File
 
 SOURCE=.\OnewaySubscriber.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\StringBoolDict.h
 # End Source File
 # Begin Source File
 
@@ -244,45 +236,7 @@ SOURCE=.\TraceLevels.h
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
-# Begin Source File
 
-SOURCE=.\dummy.ice
-
-!IF  "$(CFG)" == "IceStormS - Win32 Release"
-
-USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
-# Begin Custom Build
-InputPath=.\dummy.ice
-
-BuildCmds= \
-	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringBoolDict,string,bool StringBoolDict
-
-"StringBoolDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"StringBoolDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
-
-USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
-# Begin Custom Build
-InputPath=.\dummy.ice
-
-BuildCmds= \
-	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringBoolDict,string,bool StringBoolDict
-
-"StringBoolDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"StringBoolDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
 # Begin Source File
 
 SOURCE=.\IceStormInternal.ice
@@ -324,29 +278,29 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=.\LinkDB.ice
+SOURCE=.\LinkRecord.ice
 
 !IF  "$(CFG)" == "IceStormS - Win32 Release"
 
 USERDEP__LINKD="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=.\LinkDB.ice
+InputPath=.\LinkRecord.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice -I.. LinkDB.ice \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkDB IdentityLinkDict ../IceStorm/LinkDB.ice ../../slice/Ice/Identity.ice \
+	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice -I.. LinkRecord.ice \
+	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecord PersistentTopicMap ../IceStorm/LinkRecord.ice  \
 	
 
-"LinkDB.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"LinkRecord.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"LinkDB.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"LinkRecord.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"IdentityLinkDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"PersistentTopicMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"IdentityLinkDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"PersistentTopicMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -354,23 +308,23 @@ BuildCmds= \
 
 USERDEP__LINKD="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=.\LinkDB.ice
+InputPath=.\LinkRecord.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice -I.. LinkDB.ice \
-	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkDB IdentityLinkDict ../IceStorm/LinkDB.ice ../../slice/Ice/Identity.ice \
+	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice -I.. LinkRecord.ice \
+	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::PersistentTopicMap,string,IceStorm::LinkRecord PersistentTopicMap ../IceStorm/LinkRecord.ice  \
 	
 
-"LinkDB.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"LinkRecord.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"LinkDB.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"LinkRecord.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"IdentityLinkDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"PersistentTopicMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"IdentityLinkDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"PersistentTopicMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef LINK_INFO_ICE
-#define LINK_INFO_ICE
+#ifndef LINK_RECORD_ICE
+#define LINK_RECORD_ICE
 
 #include <IceStorm/IceStormInternal.ice>
 
@@ -25,11 +25,18 @@ module IceStorm
  * Used to store persistent information for Topic federation.
  *
  **/
-struct LinkDB
+struct LinkRecord
 {
     TopicLink* obj;
-    LinkInfo info;
+    int cost;
+
+    //
+    // Only for Topic::getLinkInfoSeq()
+    //
+    Topic* theTopic; 
 };
+
+dictionary<string, LinkRecord> LinkRecordDict;
 
 }; // End module IceStorm
 

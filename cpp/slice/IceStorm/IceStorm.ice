@@ -75,6 +75,38 @@ dictionary<string, string> QoS;
 
 /**
  *
+ * This exception indicates that an attempt was made to create a link
+ * that already exists.
+ *
+ **/
+exception LinkExists
+{
+    /**
+     *
+     * The name of the linked topic.
+     *
+     */
+    string name;
+};
+
+/**
+ *
+ * This exception indicates that an attempt was made to remove a
+ * link that does not exist.
+ *
+ **/
+exception NoSuchLink
+{
+    /**
+     *
+     * The name of the link that does not exist.
+     *
+     */
+    string name;
+};
+
+/**
+ *
  * Publishers publish information on a particular topic. A topic
  * logically represents a type.
  *
@@ -143,7 +175,7 @@ interface Topic
      * @param cost The cost to the linked topic.
      *
      **/
-    idempotent void link(Topic* linkTo, int cost);
+    void link(Topic* linkTo, int cost) throws LinkExists;
 
     /**
      *
@@ -152,7 +184,7 @@ interface Topic
      * @param link The topic to destroy the link to.
      *
      **/
-    idempotent void unlink(Topic* linkTo);
+    void unlink(Topic* linkTo) throws NoSuchLink;
 
     /**
      *
