@@ -888,6 +888,24 @@ namespace Ice
 		_communicator.shutdown();
 	    }
 
+	    public override void writeMessage(string message, int fd, Ice.Current current)
+	    {
+		switch(fd)
+		{
+		    case 1:
+		    {
+			System.Console.Out.WriteLine(message);
+			break;
+		    }
+		    case 2:
+		    {
+			System.Console.Error.WriteLine(message);
+			break;
+		    }
+		}
+	    }	
+
+
 	    private Communicator _communicator;
 	}
 	
