@@ -15289,6 +15289,28 @@
                                             "Property" = "8:_BC6CFDF21F004AA49BCF99B54B6475D5"
                                                 "Folders"
                                                 {
+                                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_421641806A784D229C8F29B2D4D4957A"
+                                                    {
+                                                    "Name" = "8:registry"
+                                                    "AlwaysCreate" = "11:TRUE"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "Property" = "8:_B30EF9013BC74011A55BC7CC0C149F2B"
+                                                        "Folders"
+                                                        {
+                                                        }
+                                                    }
+                                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_D1EEC10142E44D8BADA7822AF9B369BE"
+                                                    {
+                                                    "Name" = "8:node"
+                                                    "AlwaysCreate" = "11:TRUE"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "Property" = "8:_6F6B0C71DB394246B9A46E1900C1B23B"
+                                                        "Folders"
+                                                        {
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -15311,6 +15333,28 @@
                                             "Property" = "8:_205A99D76B034A68B964442F7D2EF596"
                                                 "Folders"
                                                 {
+                                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_144FFA8E705041E69CDB9DA4AB7A9ACF"
+                                                    {
+                                                    "Name" = "8:node"
+                                                    "AlwaysCreate" = "11:TRUE"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "Property" = "8:_7C7C76562A9A43A4B6E8D3F50AE8D893"
+                                                        "Folders"
+                                                        {
+                                                        }
+                                                    }
+                                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_6DDAD82452B546A997ECB1AB8C9DD0FA"
+                                                    {
+                                                    "Name" = "8:registry"
+                                                    "AlwaysCreate" = "11:TRUE"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "Property" = "8:_1AB02E331B9E4CFF910C8BA7E3B8877C"
+                                                        "Folders"
+                                                        {
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -15905,6 +15949,28 @@
                                             "Property" = "8:_43B09ED058404DB4A7BB27C1DC4B4748"
                                                 "Folders"
                                                 {
+                                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_8106E8F1D690474CA315FB27EF5B7DE3"
+                                                    {
+                                                    "Name" = "8:registry"
+                                                    "AlwaysCreate" = "11:TRUE"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "Property" = "8:_31F9EF87EB9F4864B85ADCDCE9C3806F"
+                                                        "Folders"
+                                                        {
+                                                        }
+                                                    }
+                                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_B7501DC9314842338725456255D1EC13"
+                                                    {
+                                                    "Name" = "8:node"
+                                                    "AlwaysCreate" = "11:TRUE"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "Property" = "8:_78D22BBB1BC345DBA4F06D235A78FEEB"
+                                                        "Folders"
+                                                        {
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -15927,6 +15993,28 @@
                                             "Property" = "8:_3ECC414CBB8145FCA56D0FC74E4FEE29"
                                                 "Folders"
                                                 {
+                                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_C4C27C79D19847D1B15C57C005493693"
+                                                    {
+                                                    "Name" = "8:registry"
+                                                    "AlwaysCreate" = "11:TRUE"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "Property" = "8:_FCC62ACE7987404E91F24F83FA2E2E99"
+                                                        "Folders"
+                                                        {
+                                                        }
+                                                    }
+                                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_FCA6EE2CA48547D7963B09CC911C878E"
+                                                    {
+                                                    "Name" = "8:node"
+                                                    "AlwaysCreate" = "11:TRUE"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "Property" = "8:_2523730180E9421C8162A151721937EF"
+                                                        "Folders"
+                                                        {
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
