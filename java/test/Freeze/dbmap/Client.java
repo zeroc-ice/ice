@@ -10,67 +10,6 @@
 
 import Freeze.*;
 
-class CharIntMap extends Freeze.Map
-{
-    public byte[]
-    encodeKey(Object o, Ice.Communicator communicator)
-    {
-	if(!(o instanceof Character))
-	{
-	    throw new RuntimeException();
-	}
-	java.io.StringWriter sw = new java.io.StringWriter();
-	java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	pw.print("<data>");
-	Ice.Stream ostream = new IceXML.StreamI(communicator, pw);
-	ostream.writeByte("Key", (byte) ((Character)o).charValue());
-	pw.print("</data>");
-	pw.flush();
-
-	return sw.toString().getBytes();
-    }
-
-    public Object
-    decodeKey(byte[] b, Ice.Communicator communicator)
-    {
-	java.io.StringReader sr = new java.io.StringReader(new String(b));
-	Ice.Stream istream = new IceXML.StreamI(communicator, sr);
-	return new Character((char) istream.readByte("Key"));
-    }
-
-    public byte[]
-    encodeValue(Object o, Ice.Communicator communicator)
-    {
-	if(!(o instanceof Integer))
-	{
-	    throw new RuntimeException();
-	}
-
-	java.io.StringWriter sw = new java.io.StringWriter();
-	java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	pw.print("<data>");
-	Ice.Stream ostream = new IceXML.StreamI(communicator, pw);
-	ostream.writeInt("Value", ((Integer)o).intValue());
-	pw.print("</data>");
-	pw.flush();
-
-	return sw.toString().getBytes();
-    }
-
-    public Object
-    decodeValue(byte[] b, Ice.Communicator communicator)
-    {
-	java.io.StringReader sr = new java.io.StringReader(new String(b));
-	Ice.Stream istream = new IceXML.StreamI(communicator, sr);
-	return new Integer(istream.readInt("Value"));
-    }
-
-    CharIntMap(Freeze.DB db)
-    {
-	super(db);
-    }
-}
-
 public class Client
 {
     static String alphabet = "abcdefghijklmnopqrstuvwxyz";
@@ -85,34 +24,19 @@ public class Client
     }
 
     private static void
-    populateDB(CharIntMap m)
+    populateDB(java.util.Map m)
 	throws DBException
     {
 	for(int j = 0; j < alphabet.length(); ++j)
 	{
-	    m.put(new Character(alphabet.charAt(j)), new Integer(j));
+            m.put(new Byte((byte)alphabet.charAt(j)), new Integer(j));
 	}
     }
 
     private static int
-    run(String[] args, DBEnvironment dbEnv)
+    run(String[] args, java.util.Map m)
 	throws DBException
     {
-	DB db = dbEnv.openDB("test", true);
-
-	CharIntMap m = new CharIntMap(db);
-
-	//
-	// First clear the database.
-	//
-	m.clear();
-
-	//
-	// Re-populate.
-	//
-	populateDB(m);
-	test(m.size() == 26);
-
 	//
 	// Populate the database with the alphabet.
 	//
@@ -120,18 +44,19 @@ public class Client
 
 	int j;
 
-	System.out.print("testing populate... ");
+	System.out.print("  testing populate... ");
+        System.out.flush();
 	for(j = 0; j < alphabet.length(); ++j)
 	{
-	    Object value = m.get(new Character(alphabet.charAt(j)));
+	    Object value = m.get(new Byte((byte)alphabet.charAt(j)));
 	    test(value != null);
 	}
-	test(m.get(new Character('0')) == null);
+	test(m.get(new Byte((byte)'0')) == null);
 	for(j = 0; j < alphabet.length(); ++j)
 	{
-	    test(m.containsKey(new Character(alphabet.charAt(j))));
+	    test(m.containsKey(new Byte((byte)alphabet.charAt(j))));
 	}
-	test(!m.containsKey(new Character('0')));
+	test(!m.containsKey(new Byte((byte)'0')));
 	for(j = 0; j < alphabet.length(); ++j)
 	{
 	    test(m.containsValue(new Integer(j)));
@@ -141,18 +66,19 @@ public class Client
 	test(!m.isEmpty());
 	System.out.println("ok");
 
-	System.out.print("testing erase... ");
-	m.remove(new Character('a'));
-	m.remove(new Character('b'));
-	m.remove(new Character('c'));
+	System.out.print("  testing erase... ");
+        System.out.flush();
+	m.remove(new Byte((byte)'a'));
+	m.remove(new Byte((byte)'b'));
+	m.remove(new Byte((byte)'c'));
 	for(j = 3; j < alphabet.length(); ++j)
 	{
-	    Object value = m.get(new Character(alphabet.charAt(j)));
+	    Object value = m.get(new Byte((byte)alphabet.charAt(j)));
 	    test(value != null);
 	}
-	test(m.get(new Character('a')) == null);
-	test(m.get(new Character('b')) == null);
-	test(m.get(new Character('c')) == null);
+	test(m.get(new Byte((byte)'a')) == null);
+	test(m.get(new Byte((byte)'b')) == null);
+	test(m.get(new Byte((byte)'c')) == null);
 	System.out.println("ok");
 	
 	//
@@ -160,7 +86,8 @@ public class Client
 	//
 	populateDB(m);
 
-	System.out.print("testing keySet... ");
+	System.out.print("  testing keySet... ");
+        System.out.flush();
 	java.util.Set keys = m.keySet();
 	test(keys.size() == alphabet.length());
 	test(!keys.isEmpty());
@@ -170,12 +97,13 @@ public class Client
 	    Object o = p.next();
 	    test(keys.contains(o));
 
-	    Character c = (Character)o;
-	    test(m.containsKey(c));
+	    Byte b = (Byte)o;
+	    test(m.containsKey(b));
 	}
 	System.out.println("ok");
 
-	System.out.print("testing values... ");
+	System.out.print("  testing values... ");
+        System.out.flush();
 	java.util.Collection values = m.values();
 	test(values.size() == alphabet.length());
 	test(!values.isEmpty());
@@ -190,7 +118,8 @@ public class Client
 	}
 	System.out.println("ok");
 
-	System.out.print("testing entrySet... ");
+	System.out.print("  testing entrySet... ");
+        System.out.flush();
 	java.util.Set entrySet = m.entrySet();
 	test(entrySet.size() == alphabet.length());
 	test(!entrySet.isEmpty());
@@ -206,30 +135,31 @@ public class Client
 	}
 	System.out.println("ok");
 
-	System.out.print("testing iterator.remove... ");
+	System.out.print("  testing iterator.remove... ");
+        System.out.flush();
 
 	test(m.size() == 26);
-	test(m.get(new Character('b')) != null);
-	test(m.get(new Character('n')) != null);
-	test(m.get(new Character('z')) != null);
+	test(m.get(new Byte((byte)'b')) != null);
+	test(m.get(new Byte((byte)'n')) != null);
+	test(m.get(new Byte((byte)'z')) != null);
 
 	p = entrySet.iterator();
 	while(p.hasNext())
 	{
 	    Object o = p.next();
 	    java.util.Map.Entry e = (java.util.Map.Entry)o;
-	    Character c = (Character)e.getKey();
-	    char v = c.charValue();
-	    if(v == 'b' || v == 'n' || v == 'z')
+	    Byte b = (Byte)e.getKey();
+	    byte v = b.byteValue();
+	    if(v == (byte)'b' || v == (byte)'n' || v == (byte)'z')
 	    {
 		p.remove();
 	    }
 	}
 
 	test(m.size() == 23);
-	test(m.get(new Character('b')) == null);
-	test(m.get(new Character('n')) == null);
-	test(m.get(new Character('z')) == null);
+	test(m.get(new Byte((byte)'b')) == null);
+	test(m.get(new Byte((byte)'n')) == null);
+	test(m.get(new Byte((byte)'z')) == null);
 
 	//
 	// Re-populate.
@@ -243,17 +173,17 @@ public class Client
 	{
 	    Object o = p.next();
 	    java.util.Map.Entry e = (java.util.Map.Entry)o;
-	    char v = ((Character)e.getKey()).charValue();
-	    if(v == 'a' || v == 'b' || v == 'c')
+	    byte v = ((Byte)e.getKey()).byteValue();
+	    if(v == (byte)'a' || v == (byte)'b' || v == (byte)'c')
 	    {
 		p.remove();
 	    }
 	}
 
 	test(m.size() == 23);
-	test(m.get(new Character('a')) == null);
-	test(m.get(new Character('b')) == null);
-	test(m.get(new Character('c')) == null);
+	test(m.get(new Byte((byte)'a')) == null);
+	test(m.get(new Byte((byte)'b')) == null);
+	test(m.get(new Byte((byte)'c')) == null);
 	System.out.println("ok");
 
 	return 0;
@@ -266,6 +196,7 @@ public class Client
 	Ice.Communicator communicator = null;
 	DBEnvironment dbEnv = null;
 	String dbEnvDir = "db";
+        DB xmlDB = null, binaryDB = null;
 
 	try
 	{
@@ -280,7 +211,17 @@ public class Client
 		dbEnvDir += "db";
 	    }
 	    dbEnv = Freeze.Util.initialize(communicator, dbEnvDir);
-	    status = run(args, dbEnv);
+            xmlDB = dbEnv.openDB("xml", true);
+            ByteIntMapXML xml = new ByteIntMapXML(xmlDB);
+            System.out.println("testing XML encoding...");
+            status = run(args, xml);
+            if(status == 0)
+            {
+                binaryDB = dbEnv.openDB("binary", true);
+                ByteIntMapBinary binary = new ByteIntMapBinary(binaryDB);
+                System.out.println("testing binary encoding...");
+                status = run(args, binary);
+            }
 	}
 	catch(Exception ex)
 	{
@@ -288,6 +229,54 @@ public class Client
 	    System.err.println(ex);
 	    status = 1;
 	}
+
+        if(xmlDB != null)
+        {
+            try
+            {
+                xmlDB.close();
+            }
+            catch(DBException ex)
+            {
+                System.err.println(args[0] + ": " + ex + ": " + ex.message);
+                status = 1;
+            }
+            catch(Ice.LocalException ex)
+            {
+                System.err.println(args[0] + ": " + ex);
+                status = 1;
+            }
+            catch(Exception ex)
+            {
+                System.err.println(args[0] + ": unknown exception: " + ex);
+                status = 1;
+            }
+            xmlDB = null;
+        }
+
+        if(binaryDB != null)
+        {
+            try
+            {
+                binaryDB.close();
+            }
+            catch(DBException ex)
+            {
+                System.err.println(args[0] + ": " + ex + ": " + ex.message);
+                status = 1;
+            }
+            catch(Ice.LocalException ex)
+            {
+                System.err.println(args[0] + ": " + ex);
+                status = 1;
+            }
+            catch(Exception ex)
+            {
+                System.err.println(args[0] + ": unknown exception: " + ex);
+                status = 1;
+            }
+            binaryDB = null;
+        }
 
 	if(dbEnv != null)
 	{
