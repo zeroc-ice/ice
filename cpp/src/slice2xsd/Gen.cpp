@@ -343,8 +343,16 @@ Slice::Gen::visitSequence(const SequencePtr& p)
 
     O << se("xs:sequence");
 
-    O << nl << "<xs:element name=\"e\" type=\"" << toString(p->type())
-      << "\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>";
+    os.str("");
+    os << "xs:element name=\"e\" type=\"" << toString(p->type()) 
+       << "\" minOccurs=\"0\" maxOccurs=\"unbounded\"";
+    O << se(os.str());
+    ProxyPtr proxy = ProxyPtr::dynamicCast(p->type());
+    if (proxy)
+    {
+	annotate(proxy->_class()->scoped());
+    }
+    O << ee; // xs:element
 
     O << ee; // xs:sequence
 
@@ -375,8 +383,27 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     O << se("xs:sequence");
 
     O.inc();
-    O << nl << "<xs:element name=\"key\" type=\"" << toString(p->keyType()) << "\"/>";
-    O << nl << "<xs:element name=\"value\" type=\"" << toString(p->valueType()) << "\"/>";
+    os.str("");
+    os << "xs:element name=\"key\" type=\"" << toString(p->keyType()) << "\"";
+    O << se(os.str());
+    ProxyPtr proxy = ProxyPtr::dynamicCast(p->keyType());
+    if (proxy)
+    {
+	annotate(proxy->_class()->scoped());
+    }
+    O << ee; // xs:element
+    os.str("");
+    os << "xs:element name=\"value\" type=\"" << toString(p->valueType()) << "\"";
+    O << se(os.str());
+    proxy = ProxyPtr::dynamicCast(p->valueType());
+    if (proxy)
+    {
+	annotate(proxy->_class()->scoped());
+    }
+    O << ee; // xs:element
+
+    //O << nl << "<xs:element name=\"key\" type=\"" << toString(p->keyType()) << "\"/>";
+    //O << nl << "<xs:element name=\"value\" type=\"" << toString(p->valueType()) << "\"/>";
     O.dec();
 
     O << ee; // xs:sequence
