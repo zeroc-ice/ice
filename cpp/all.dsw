@@ -381,10 +381,10 @@ Package=<4>
     Project_Dep_Name dbmap
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name singleP
+    Project_Dep_Name singleS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name singleS
+    Project_Dep_Name singleC
     End Project Dependency
 }}}
 
@@ -1131,7 +1131,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "singleP"=.\test\IceStorm\single\singleP.dsp - Package Owner=<4>
+Project: "singleC"=.\test\IceStorm\single\singleC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
