@@ -21,11 +21,11 @@ public final class ServantManager extends Thread
             facet = "";
         }
 
-        java.util.HashMap m = (java.util.HashMap)_servantMap.get(ident);
+        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
         if(m == null)
         {
             m = new java.util.HashMap();
-            _servantMap.put(ident, m);
+            _servantMapMap.put(ident, m);
         }
         else
         {
@@ -55,7 +55,7 @@ public final class ServantManager extends Thread
             facet = "";
         }
 
-        java.util.HashMap m = (java.util.HashMap)_servantMap.get(ident);
+        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
         Ice.Object obj = null;
         if(m == null || (obj = (Ice.Object)m.get(facet)) == null)
 	{
@@ -72,7 +72,7 @@ public final class ServantManager extends Thread
         m.remove(facet);
         if(m.isEmpty())
         {
-            _servantMap.remove(ident);
+            _servantMapMap.remove(ident);
         }
     }
 
@@ -81,7 +81,7 @@ public final class ServantManager extends Thread
     {
 	assert(_instance != null); // Must not be called after destruction.
 
-        java.util.HashMap m = (java.util.HashMap)_servantMap.get(ident);
+        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
         if(m == null)
 	{
 	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
@@ -90,7 +90,7 @@ public final class ServantManager extends Thread
 	    throw ex;
 	}
 
-	_servantMap.remove(ident);
+	_servantMapMap.remove(ident);
 
         return m;
     }
@@ -105,7 +105,7 @@ public final class ServantManager extends Thread
             facet = "";
         }
 
-        java.util.HashMap m = (java.util.HashMap)_servantMap.get(ident);
+        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
         Ice.Object obj = null;
         if(m != null)
         {
@@ -115,12 +115,26 @@ public final class ServantManager extends Thread
         return obj;
     }
 
+    public synchronized java.util.Map
+    findAllFacets(Ice.Identity ident)
+    {
+	assert(_instance != null); // Must not be called after destruction.
+
+        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
+        if(m != null)
+        {
+            return new java.util.HashMap(m);
+        }
+
+        return new java.util.HashMap();
+    }
+
     public synchronized boolean
     hasServant(Ice.Identity ident)
     {
 	assert(_instance != null); // Must not be called after destruction.
 
-        java.util.HashMap m = (java.util.HashMap)_servantMap.get(ident);
+        java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
         if(m == null)
         {
             return false;
@@ -189,7 +203,7 @@ public final class ServantManager extends Thread
     {
 	assert(_instance != null); // Must not be called after destruction.
 
-	_servantMap.clear();
+	_servantMapMap.clear();
 	
 	java.util.Iterator p = _locatorMap.entrySet().iterator();
 	while(p.hasNext())
@@ -219,6 +233,6 @@ public final class ServantManager extends Thread
 
     private Instance _instance;
     final private String _adapterName;
-    private java.util.HashMap _servantMap = new java.util.HashMap();
+    private java.util.HashMap _servantMapMap = new java.util.HashMap();
     private java.util.HashMap _locatorMap = new java.util.HashMap();
 }
