@@ -886,12 +886,12 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
     {
 	if (scoped[i] == ':')
 	{
-	    id.push_back('.');
+	    id += '.';
 	    ++i;
 	}
 	else
 	{
-	    id.push_back(scoped[i]);
+	    id += scoped[i];
 	}
     }
 
@@ -904,7 +904,7 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
 	id.erase(1 + 44);
     }
 
-    id.push_back('"');
+    id += '"';
     return id;
 }
 

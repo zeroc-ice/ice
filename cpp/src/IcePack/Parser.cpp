@@ -404,7 +404,7 @@ IcePack::Parser::parse(const std::string& commands, bool debug)
     assert(!_commands.empty());
     yyin = 0;
 
-    _currentFile.clear();
+    _currentFile = "";
     _currentLine = 0;
     _continue = false;
     nextLine();

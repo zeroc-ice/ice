@@ -11,16 +11,6 @@
 #include <IceUtil/Functional.h>
 #include <Slice/Parser.h>
 
-//
-// Stupid Visual C++ defines min and max as macros :-(
-//
-#ifdef min
-#   undef min
-#endif
-#ifdef max
-#   undef max
-#endif
-
 using namespace std;
 using namespace Slice;
 
@@ -2046,8 +2036,8 @@ Slice::Unit::parse(FILE* file, bool debug)
     _currentComment = "";
     _currentLine = 1;
     _currentIncludeLevel = 0;
-    _currentFile.clear();
-    _topLevelFile.clear();
+    _currentFile = "";
+    _topLevelFile = "";
     _includeFiles.clear();
     pushContainer(this);
 

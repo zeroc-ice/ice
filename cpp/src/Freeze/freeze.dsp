@@ -116,10 +116,6 @@ SOURCE=.\Evictor.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\EvictorF.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\EvictorI.cpp
 # End Source File
 # End Group
@@ -294,7 +290,7 @@ InputPath=..\..\slice\Freeze\EvictorF.ice
 	set PATH=%PATH%;..\..\lib 
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/EvictorF.ice 
 	move EvictorF.h ..\..\include\Freeze 
-	del EvcitorF.cpp 
+	del EvictorF.cpp 
 	
 # End Custom Build
 
@@ -307,7 +303,7 @@ InputPath=..\..\slice\Freeze\EvictorF.ice
 	set PATH=%PATH%;..\..\lib 
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/EvictorF.ice 
 	move EvictorF.h ..\..\include\Freeze 
-	del EvcitorF.cpp 
+	del EvictorF.cpp 
 	
 # End Custom Build
 

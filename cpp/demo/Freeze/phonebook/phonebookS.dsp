@@ -89,10 +89,6 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Evictor.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\PhoneBook.cpp
 # End Source File
 # Begin Source File
@@ -105,16 +101,16 @@ SOURCE=.\ServantFactory.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ServantInitializer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Server.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
-# Begin Source File
-
-SOURCE=.\Evictor.h
-# End Source File
 # Begin Source File
 
 SOURCE=.\PhoneBook.h
@@ -126,6 +122,10 @@ SOURCE=.\PhoneBookI.h
 # Begin Source File
 
 SOURCE=.\ServantFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServantInitializer.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
