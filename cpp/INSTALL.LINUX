@@ -35,7 +35,9 @@ installing STLport is not required for this compiler version.
 Third-party libraries
 ---------------------
 
-- Berkeley DB 4.1
+- Berkeley DB 4.1.25 configured with --enable-cxx
+  You can download the Berkeley DB source distribution 
+  from http://www.sleepycat.com
 
 - expat 1.9x
 
@@ -46,21 +48,17 @@ Third-party libraries
 - readline and ncurses (optional, but used unless you set USE_READLINE
   to no in config/Make.rules)
 
-Berkeley DB, expat, OpenSSL, bzip2, readline and ncurses are usually
-available with your Linux distribution.
+expat, OpenSSL, bzip2, readline and ncurses are usually available with 
+your Linux distribution.
 
 The RPMs for RedHat 8.0 are:
-db4-devel-4.0.14-14
 expat-devel-1.95.4-1
 openssl-devel-0.9.6b-29
 bzip2-devel-1.0.2-5
 readline-devel-4.3-3
 ncurses-devel-5.2-28
 
-If you don't have them, you can download Berkeley DB from:
-http://www.sleepycat.com/download
-
-And expat from:
+If you don't have them, you can download expat from:
 http://sourceforge.net/projects/expat/
 
 And OpenSSL from:
@@ -167,18 +165,18 @@ that is supplied by RedHat 9 with Ice, because it was not built
 properly for use with LD_ASSUME_KERNEL. We recommend downloading the
 latest release from the URL shown above.
 
-The steps for building BerkeleyDB are straightforward:
+The steps for building Berkeley DB are straightforward:
 
 $ tar xzf db-X.Y.Z.tar.gz
 $ export LD_ASSUME_KERNEL=2.4.1
 $ cd db-X.Y.Z/build_unix
-$ ../dist/configure --enable-java --prefix=/opt/db-X.Y.Z
+$ ../dist/configure --enable-cxx --enable-java --prefix=/opt/db-X.Y.Z
 $ make
 
 The --enable-java option is necessary if you plan to use Ice for Java.
 The --prefix option overrides the default installation directory.
 
-Please refer to the BerkeleyDB documentation if you need more
+Please refer to the Berkeley DB documentation if you need more
 information.
 
 
