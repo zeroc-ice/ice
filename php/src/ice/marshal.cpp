@@ -243,6 +243,7 @@ public:
     virtual void invoke(const ::Ice::ObjectPtr&);
 
     zend_class_entry* ce; // The formal type
+    string scoped;
     zval* zv;             // The destination zval
 };
 typedef IceUtil::Handle<ReadObjectCallback> ReadObjectCallbackPtr;
@@ -257,7 +258,7 @@ public:
 
     virtual void read(const Ice::InputStreamPtr&, bool);
 
-    void setValue(zend_class_entry*, zval*);
+    void setValue(zend_class_entry*, const string&, zval*);
 
 private:
     zval* _value;
@@ -282,6 +283,7 @@ public:
 private:
     Slice::ClassDefPtr _def;
     zend_class_entry* _class; // The static class type.
+    string _scoped;
 };
 
 } // End of namespace IcePHP
@@ -1481,7 +1483,7 @@ IcePHP::ReadObjectCallback::invoke(const Ice::ObjectPtr& v)
     ObjectReaderPtr p = ObjectReaderPtr::dynamicCast(v);
     if(p)
     {
-        p->setValue(ce, zv);
+        p->setValue(ce, scoped, zv);
     }
     else
     {
@@ -1596,7 +1598,7 @@ IcePHP::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
 }
 
 void
-IcePHP::ObjectReader::setValue(zend_class_entry* ce, zval* zv)
+IcePHP::ObjectReader::setValue(zend_class_entry* ce, const string& scoped, zval* zv)
 {
     //
     // Compare the class entries. The argument "ce" represents the formal type.
@@ -1604,7 +1606,7 @@ IcePHP::ObjectReader::setValue(zend_class_entry* ce, zval* zv)
     if(!checkClass(_class, ce))
     {
         Ice::NoObjectFactoryException ex(__FILE__, __LINE__);
-        ex.type = ce->name;
+        ex.type = scoped;
         throw ex;
     }
 
@@ -1628,11 +1630,12 @@ IcePHP::ObjectMarshaler::ObjectMarshaler(const Slice::ClassDefPtr& def TSRMLS_DC
     //
     if(def)
     {
-        string scoped = def->scoped();
-        _class = findClassScoped(scoped TSRMLS_CC);
+        _scoped = def->scoped();
+        _class = findClassScoped(_scoped TSRMLS_CC);
     }
     else
     {
+        _scoped = "::Ice::Object";
         _class = findClass("Ice_ObjectImpl" TSRMLS_CC);
     }
 
@@ -1724,6 +1727,7 @@ IcePHP::ObjectMarshaler::unmarshal(zval* zv, const Ice::InputStreamPtr& is TSRML
 {
     ReadObjectCallbackPtr cb = new ReadObjectCallback;
     cb->ce = _class;
+    cb->scoped = _scoped;
     cb->zv = zv;
 
     //
