@@ -69,20 +69,15 @@ IcePatch2::FileServerI::getFileCompressed(const string& pa, Int pos, Int num, co
 	throw ex;
     }
 
-    string path = simplify(_dataDir + '/' + pa);
-    path += ".bz2";
-
-    string::size_type slashPos = path.find('/');
-    while(slashPos != string::npos)
+    string path = simplify(pa);
+    
+    if(path == ".." ||
+       path.find("/../") != string::npos ||
+       path.size() >= 3 && (path.substr(0, 3) == "../" || path.substr(path.size() - 3, 3) == "/.."))
     {
-        string::size_type endPos = path.find('/', slashPos + 1);
-	if(path.substr(slashPos + 1, endPos - slashPos - 1) == "..")
-	{
-	    FileAccessException ex;
-	    ex.reason = "illegal `..' component in path `" + pa + "'";
-	    throw ex;
-	}
-	slashPos = endPos;
+	FileAccessException ex;
+	ex.reason = "illegal `..' component in path `" + path + "'";
+	throw ex;
     }
 
     if(num <= 0 || pos < 0)
@@ -91,9 +86,9 @@ IcePatch2::FileServerI::getFileCompressed(const string& pa, Int pos, Int num, co
     }
 
 #ifdef _WIN32
-    int fd = open(path.c_str(), _O_RDONLY | _O_BINARY);
+    int fd = open((_dataDir + '/' + path + ".bz2").c_str(), _O_RDONLY | _O_BINARY);
 #else
-    int fd = open(path.c_str(), O_RDONLY);
+    int fd = open((_dataDir + '/' + path + ".bz2").c_str(), O_RDONLY);
 #endif
     if(fd == -1)
     {
