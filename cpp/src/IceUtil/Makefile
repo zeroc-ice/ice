@@ -15,27 +15,28 @@ LIBNAME		= $(call mklibname,IceUtil)
 
 TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
 
-OBJS		= Exception.o \
-		  Unicode.o \
-		  UUID.o \
-		  RecMutex.o \
-		  RWRecMutex.o \
+OBJS		= Base64.o \
 		  Cond.o \
+		  CountDownLatch.o \
+		  CtrlCHandler.o \
+		  Exception.o \
+		  GC.o \
+		  GCRecMutex.o \
+		  GCShared.o \
+		  InputUtil.o \
+		  MD5.o \
+		  MD5I.o \
+		  Options.o \
+		  OutputUtil.o \
+		  RWRecMutex.o \
+		  RecMutex.o \
+		  StaticMutex.o
+		  StringUtil.o \
 		  Thread.o \
 		  ThreadException.o \
-                  StaticMutex.o \
-                  CtrlCHandler.o \
 		  Time.o \
-		  StringUtil.o \
-		  InputUtil.o \
-		  OutputUtil.o \
-                  Base64.o \
-		  GCShared.o \
-		  GCRecMutex.o \
-		  GC.o \
-                  CountDownLatch.o \
-                  MD5.o \
-                  MD5I.o
+		  UUID.o \
+		  Unicode.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Options.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/JavaUtil.h>
 
@@ -899,204 +900,216 @@ main(int argc, char* argv[])
     string cppArgs;
     vector<string> includePaths;
     string include;
-    string output;
-    bool depend = false;
-    bool debug = false;
-    bool ice = false;
-    bool caseSensitive = false;
     vector<Dict> dicts;
     vector<Index> indices;
+    string output;
+    bool depend;
+    bool debug;
+    bool ice;
+    bool caseSensitive;
 
-    int idx = 1;
-    while(idx < argc)
+    IceUtil::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
+    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("", "include-dir", IceUtil::Options::NeedArg);
+    opts.addOpt("", "dict", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("", "index", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("", "dict-index", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("", "output-dir", IceUtil::Options::NeedArg);
+    opts.addOpt("", "depend");
+    opts.addOpt("d", "debug");
+    opts.addOpt("", "ice");
+    opts.addOpt("", "case-sensitive");
+     
+    vector<string> args;
+    try
     {
-        if(strncmp(argv[idx], "-I", 2) == 0)
-        {
-            cppArgs += ' ';
-            cppArgs += argv[idx];
+        args = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+	cerr << argv[0] << ": " << e.reason << endl;
+	usage(argv[0]);
+	return EXIT_FAILURE;
+    }
 
-            string path = argv[idx] + 2;
-            if(path.length())
-            {
-                includePaths.push_back(path);
-            }
+    if(opts.isSet("h") || opts.isSet("help"))
+    {
+	usage(argv[0]);
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("v") || opts.isSet("version"))
+    {
+	cout << ICE_STRING_VERSION << endl;
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("D"))
+    {
+	vector<string> optargs = opts.argVec("D");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -D" + *i;
+	}
+    }
+    if(opts.isSet("U"))
+    {
+	vector<string> optargs = opts.argVec("U");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -U" + *i;
+	}
+    }
+    if(opts.isSet("I"))
+    {
+	includePaths = opts.argVec("I");
+	for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+	{
+	    cppArgs += " -I" + *i;
+	}
+    }
+    if(opts.isSet("include-dir"))
+    {
+	include = opts.optArg("include-dir");
+    }
+    if(opts.isSet("dict"))
+    {
+	vector<string> args = opts.argVec("dict");
+	for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+	{
+	    string s = *i;
+	    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+	    
+	    Dict dict;
 
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
-        {
-            cppArgs += ' ';
-            cppArgs += argv[idx];
+	    string::size_type pos;
+	    pos = s.find(',');
+	    if(pos != string::npos)
+	    {
+		dict.name = s.substr(0, pos);
+		s.erase(0, pos + 1);
+	    }
+	    pos = s.find(',');
+	    if(pos != string::npos)
+	    {
+		dict.key = s.substr(0, pos);
+		s.erase(0, pos + 1);
+	    }
+	    dict.value = s;
 
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "--dict") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
+	    if(dict.name.empty())
+	    {
+		cerr << argv[0] << ": " << *i << ": no name specified" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
 
-            string s = argv[idx + 1];
-            s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
-            
-            Dict dict;
+	    if(dict.key.empty())
+	    {
+		cerr << argv[0] << ": " << *i << ": no key specified" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
 
-            string::size_type pos;
-            pos = s.find(',');
-            if(pos != string::npos)
-            {
-                dict.name = s.substr(0, pos);
-                s.erase(0, pos + 1);
-            }
-            pos = s.find(',');
-            if(pos != string::npos)
-            {
-                dict.key = s.substr(0, pos);
-                s.erase(0, pos + 1);
-            }
-            dict.value = s;
+	    if(dict.value.empty())
+	    {
+		cerr << argv[0] << ": " << *i << ": no value specified" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
 
-            if(dict.name.empty())
-            {
-                cerr << argv[0] << ": " << argv[idx] << ": no name specified" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            if(dict.key.empty())
-            {
-                cerr << argv[0] << ": " << argv[idx] << ": no key specified" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            if(dict.value.empty())
-            {
-                cerr << argv[0] << ": " << argv[idx] << ": no value specified" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            dicts.push_back(dict);
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-	else if(strcmp(argv[idx], "--index") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            string s = argv[idx + 1];
-            s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
-            
+	    dicts.push_back(dict);
+	}
+    }
+    if(opts.isSet("index"))
+    {
+	vector<string> args = opts.argVec("index");
+	for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+	{
+	    string s = *i;
+	    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+	    
 	    Index index;
 
-            string::size_type pos;
-            pos = s.find(',');
-            if(pos != string::npos)
-            {
-                index.name = s.substr(0, pos);
-                s.erase(0, pos + 1);
-            }
-            pos = s.find(',');
-            if(pos != string::npos)
-            {
-                index.type = s.substr(0, pos);
-                s.erase(0, pos + 1);
-            }
+	    string::size_type pos;
+	    pos = s.find(',');
+	    if(pos != string::npos)
+	    {
+		index.name = s.substr(0, pos);
+		s.erase(0, pos + 1);
+	    }
+	    pos = s.find(',');
+	    if(pos != string::npos)
+	    {
+		index.type = s.substr(0, pos);
+		s.erase(0, pos + 1);
+	    }
 	    pos = s.find(',');
 	    string caseString;
 	    if(pos != string::npos)
-            {
-                index.member = s.substr(0, pos);
-                s.erase(0, pos + 1);
+	    {
+		index.member = s.substr(0, pos);
+		s.erase(0, pos + 1);
 		caseString = s;
-            }
+	    }
 	    else
 	    {
 		index.member = s;
 		caseString = "case-sensitive";
 	    }
 
-            if(index.name.empty())
-            {
-                cerr << argv[0] << ": " << argv[idx] << ": no name specified" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
+	    if(index.name.empty())
+	    {
+		cerr << argv[0] << ": " << *i << ": no name specified" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
 
-            if(index.type.empty())
-            {
-                cerr << argv[0] << ": " << argv[idx] << ": no type specified" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
+	    if(index.type.empty())
+	    {
+		cerr << argv[0] << ": " << *i << ": no type specified" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
 
-            if(index.member.empty())
-            {
-                cerr << argv[0] << ": " << argv[idx] << ": no member specified" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
+	    if(index.member.empty())
+	    {
+		cerr << argv[0] << ": " << *i << ": no member specified" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
 	    
 	    if(caseString != "case-sensitive" && caseString != "case-insensitive")
-            {
-                cerr << argv[0] << ": " << argv[idx]
-		     << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
+	    {
+		cerr << argv[0] << ": " << *i << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
 	    index.caseSensitive = (caseString == "case-sensitive");
 
-            indices.push_back(index);
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-	else if(strcmp(argv[idx], "--dict-index") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            string s = argv[idx + 1];
-            s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
-            
+	    indices.push_back(index);
+	}
+    }
+    if(opts.isSet("dict-index"))
+    {
+	vector<string> args = opts.argVec("dict-index");
+	for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+	{
+	    string s = *i;
+	    s.erase(remove_if(s.begin(), s.end(), ::isspace), s.end());
+	    
 	    string dictName;
 	    DictIndex index;
-            string::size_type pos;
-          
+	    string::size_type pos;
+	  
 	    string caseString = "case-sensitive";
 	    pos = s.find(',');
 	    if(pos != string::npos)
-            {
-                dictName = s.substr(0, pos);
-                s.erase(0, pos + 1);
+	    {
+		dictName = s.substr(0, pos);
+		s.erase(0, pos + 1);
 
 		pos = s.find(',');
 		if(pos != string::npos)
@@ -1116,26 +1129,25 @@ main(int argc, char* argv[])
 			index.member = s;
 		    }
 		}
-            }
+	    }
 	    else
 	    {
 		dictName = s;
 	    }
 
 	    if(dictName.empty())
-            {
-                cerr << argv[0] << ": " << argv[idx] << ": no dictionary specified" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
+	    {
+		cerr << argv[0] << ": " << *i << ": no dictionary specified" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
 
 	    if(caseString != "case-sensitive" && caseString != "case-insensitive")
-            {
-                cerr << argv[0] << ": " << argv[idx]
-		     << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
+	    {
+		cerr << argv[0] << ": " << *i << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+	    }
 	    index.caseSensitive = (caseString == "case-sensitive");
 
 	    bool found = false;
@@ -1145,8 +1157,7 @@ main(int argc, char* argv[])
 		{
 		    if(find(p->indices.begin(), p->indices.end(), index) != p->indices.end())
 		    {
-			cerr << argv[0] << ": " << argv[idx] << " " << argv[idx + 1]
-			     << ": this dict-index is defined twice" << endl;
+			cerr << argv[0] << ": --dict-index " << *i << ": this dict-index is defined twice" << endl;
 			return EXIT_FAILURE;
 		    }
 
@@ -1157,106 +1168,20 @@ main(int argc, char* argv[])
 	    }
 	    if(!found)
 	    {
-		cerr << argv[0] << ": " << argv[idx] << ": unknown dictionary" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
+		cerr << argv[0] << ": " << *i << ": unknown dictionary" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
 	    }
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
-        {
-            usage(argv[0]);
-            return EXIT_SUCCESS;
-        }
-        else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
-        {
-            cout << ICE_STRING_VERSION << endl;
-            return EXIT_SUCCESS;
-        }
-	else if(strcmp(argv[idx], "--depend") == 0)
-	{
-	    depend = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
 	}
-        else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
-        {
-            debug = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-	else if(strcmp(argv[idx], "--ice") == 0)
-	{
-	    ice = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strcmp(argv[idx], "--case-sensitive") == 0)
-	{
-	    caseSensitive = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-        else if(strcmp(argv[idx], "--include-dir") == 0)
-        {
-            if(idx + 1 >= argc)
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-            
-            include = argv[idx + 1];
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "--output-dir") == 0)
-        {
-            if(idx + 1 >= argc)
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-            
-            output = argv[idx + 1];
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(argv[idx][0] == '-')
-        {
-            cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
-            usage(argv[0]);
-            return EXIT_FAILURE;
-        }
-        else
-        {
-            ++idx;
-        }
     }
+    if(opts.isSet("output-dir"))
+    {
+	output = opts.optArg("output-dir");
+    }
+    depend = opts.isSet("depend");
+    debug = opts.isSet("d") || opts.isSet("debug");
+    ice = opts.isSet("ice");
+    caseSensitive = opts.isSet("case-sensitive");
 
     if(dicts.empty() && indices.empty())
     {
@@ -1269,16 +1194,16 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    for(idx = 1 ; idx < argc ; ++idx)
+    for(vector<string>::size_type idx = 1; idx < args.size(); ++idx)
     {
 	if(depend)
 	{
-	    Preprocessor icecpp(argv[0], argv[idx], cppArgs);
+	    Preprocessor icecpp(argv[0], args[idx], cppArgs);
 	    icecpp.printMakefileDependencies(Preprocessor::Java);
 	}
 	else
 	{
-	    Preprocessor icecpp(argv[0], argv[idx], cppArgs);
+	    Preprocessor icecpp(argv[0], args[idx], cppArgs);
 	    FILE* cppHandle = icecpp.preprocess(false);
 
 	    if(cppHandle == 0)

@@ -14,6 +14,7 @@
 #include <Freeze/Initialize.h>
 #include <Freeze/Transaction.h>
 #include <Freeze/Catalog.h>
+#include <IceUtil/Options.h>
 #include <db_cxx.h>
 #include <sys/stat.h>
 #include <fstream>
@@ -182,290 +183,170 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 {
     string oldCppArgs;
     string newCppArgs;
-    bool debug = false;
+    bool debug;
     bool ice = true; // Needs to be true in order to create default definitions.
-    bool caseSensitive = false;
     string outputFile;
-    bool ignoreTypeChanges = false;
-    bool purgeObjects = false;
-    bool catastrophicRecover = false;
-    bool suppress = false;
-    bool allDb = false;
+    bool allDb;
+    bool ignoreTypeChanges;
+    bool purgeObjects;
+    bool catastrophicRecover;
+    bool suppress;
     string inputFile;
     vector<string> oldSlice;
     vector<string> newSlice;
-    bool evictor = false;
+    bool evictor;
+    bool caseSensitive;
     string keyTypeNames;
     string valueTypeNames;
     string dbEnvName, dbName, dbEnvNameNew;
 
-    int idx = 1;
-    while(idx < argc)
+    IceUtil::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
+    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("d", "debug");
+    opts.addOpt("", "ice");
+    opts.addOpt("o", "", IceUtil::Options::NeedArg);
+    opts.addOpt("a");
+    opts.addOpt("i");
+    opts.addOpt("p");
+    opts.addOpt("c");
+    opts.addOpt("w");
+    opts.addOpt("f", "", IceUtil::Options::NeedArg);
+    opts.addOpt("", "include-old", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("", "include-new", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("", "old", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("", "new", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("e");
+    opts.addOpt("", "key", IceUtil::Options::NeedArg);
+    opts.addOpt("", "value", IceUtil::Options::NeedArg);
+    opts.addOpt("", "case-sensitive");
+
+    vector<string> args;
+    try
     {
-        if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
-        {
-            usage(argv[0]);
-            return EXIT_SUCCESS;
-        }
-        else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
-        {
-            cout << ICE_STRING_VERSION << endl;
-            return EXIT_SUCCESS;
-        }
-        else if(strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
-        {
-            oldCppArgs += ' ';
-            oldCppArgs += argv[idx];
-            newCppArgs += ' ';
-            newCppArgs += argv[idx];
-
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
-        {
-            debug = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "--ice") == 0)
-        {
-            ice = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "--case-sensitive") == 0)
-        {
-            caseSensitive = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-	else if(strcmp(argv[idx], "-a") == 0)
-        {
-            allDb = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "-o") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            outputFile = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "-i") == 0)
-        {
-            ignoreTypeChanges = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "-p") == 0)
-        {
-            purgeObjects = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "-c") == 0)
-        {
-            catastrophicRecover = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "-w") == 0)
-        {
-            suppress = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "-f") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            inputFile = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "--include-old") == 0)
-        {
-            oldCppArgs += " -I";
-            oldCppArgs += argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "--include-new") == 0)
-        {
-            newCppArgs += " -I";
-            newCppArgs += argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "--old") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            oldSlice.push_back(argv[idx + 1]);
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "--new") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            newSlice.push_back(argv[idx + 1]);
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "-e") == 0)
-        {
-            evictor = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "--key") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            keyTypeNames = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "--value") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            valueTypeNames = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(argv[idx][0] == '-')
-        {
-            cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
-            usage(argv[0]);
-            return EXIT_FAILURE;
-        }
-        else
-        {
-            ++idx;
-        }
+        args = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+	cerr << argv[0] << ": " << e.reason << endl;
+	usage(argv[0]);
+	return EXIT_FAILURE;
     }
 
-    if(outputFile.empty() && (allDb && argc != 3 || !allDb && argc != 4))
+    if(opts.isSet("h") || opts.isSet("help"))
+    {
+	usage(argv[0]);
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("v") || opts.isSet("version"))
+    {
+	cout << ICE_STRING_VERSION << endl;
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("D"))
+    {
+	vector<string> optargs = opts.argVec("D");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    oldCppArgs += " -D" + *i;
+	    newCppArgs += " -D" + *i;
+	}
+    }
+    if(opts.isSet("U"))
+    {
+	vector<string> optargs = opts.argVec("U");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    oldCppArgs += " -U" + *i;
+	    newCppArgs += " -U" + *i;
+	}
+    }
+    debug = opts.isSet("d") || opts.isSet("debug");
+
+    // No need to set --ice here, it is always true.
+
+    if(opts.isSet("o"))
+    {
+	outputFile = opts.optArg("o");
+    }
+    allDb = opts.isSet("a");
+    ignoreTypeChanges = opts.isSet("i");
+    purgeObjects = opts.isSet("p");
+    catastrophicRecover = opts.isSet("c");
+    suppress = opts.isSet("w");
+    if(opts.isSet("f"))
+    {
+	inputFile = opts.optArg("f");
+    }
+    if(opts.isSet("include-old"))
+    {
+	vector<string> optargs = opts.argVec("include-old");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    oldCppArgs += " -I" + *i;
+	}
+    }
+    if(opts.isSet("include-new"))
+    {
+	vector<string> optargs = opts.argVec("include-new");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    newCppArgs += " -I" + *i;
+	}
+    }
+    if(opts.isSet("old"))
+    {
+	vector<string> optargs = opts.argVec("old");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    oldSlice.push_back(*i);
+	}
+    }
+    if(opts.isSet("new"))
+    {
+	vector<string> optargs = opts.argVec("new");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    newSlice.push_back(*i);
+	}
+    }
+    evictor = opts.isSet("e");
+    if(opts.isSet("key"))
+    {
+	keyTypeNames = opts.optArg("key");
+    }
+    if(opts.isSet("value"))
+    {
+	valueTypeNames = opts.optArg("value");
+    }
+    caseSensitive = opts.isSet("case-sensitive");
+
+    if(outputFile.empty() && (allDb && args.size() != 2 || !allDb && args.size() != 3))
     {
         usage(argv[0]);
         return EXIT_FAILURE;
     }
 
-    if(argc > 1)
+    if(!args.empty())
     {
-        dbEnvName = argv[1];
+        dbEnvName = args[0];
     }
-    if(argc > 2)
+    if(args.size() > 1)
     {
 	if(allDb)
 	{
-	    dbEnvNameNew = argv[2];
+	    dbEnvNameNew = args[1];
 	}
 	else
 	{
-	    dbName = argv[2];
+	    dbName = args[1];
 	}
     }
-    if(argc > 3)
+    if(args.size() > 2)
     {
-        dbEnvNameNew = argv[3];
+        dbEnvNameNew = args[2];
     }
 
     Slice::UnitPtr oldUnit = Slice::Unit::createUnit(true, true, ice, caseSensitive);

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Options.h>
 #include <IcePatch2/Util.h>
 
 #ifdef _WIN32
@@ -115,62 +116,69 @@ main(int argc, char* argv[])
     string dataDir;
     StringSeq fileSeq;
     int compress = 1;
-    bool caseInsensitive = false;
-    bool verbose = false;
+    bool verbose;
+    bool caseInsensitive;
 
-    int i;
-    for(i = 1; i < argc; ++i)
+    IceUtil::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
+    opts.addOpt("z", "compress");
+    opts.addOpt("Z", "no-compress");
+    opts.addOpt("V", "verbose");
+    opts.addOpt("i", "case-insensitive");
+    
+    vector<string> args;
+    try
     {
-        if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-        {
-            usage(argv[0]);
-            return EXIT_SUCCESS;
-        }
-        else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
-        {
-            cout << ICE_STRING_VERSION << endl;
-            return EXIT_SUCCESS;
-        }
-        else if(strcmp(argv[i], "-z") == 0 || strcmp(argv[i], "--compress") == 0)
-        {
-            compress = 2;
-        }
-        else if(strcmp(argv[i], "-Z") == 0 || strcmp(argv[i], "--no-compress") == 0)
-        {
-            compress = 0;
-        }
-        else if(strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--case-insensitive") == 0)
-        {
-            caseInsensitive = true;
-        }
-        else if(strcmp(argv[i], "-V") == 0 || strcmp(argv[i], "--verbose") == 0)
-        {
-            verbose = true;
-        }
-        else if(argv[i][0] == '-')
-        {
-            cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
-            usage(argv[0]);
-            return EXIT_FAILURE;
-        }
-        else
-        {
-            if(dataDir.empty())
-            {
-                dataDir = normalize(argv[i]);
-            }
-            else
-            {
-		fileSeq.push_back(normalize(argv[i]));
-            }
-        }
+    	args = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+        cerr << e.reason << endl;
+	usage(argv[0]);
+	return EXIT_FAILURE;
     }
 
-    if(dataDir.empty())
+    if(opts.isSet("h") || opts.isSet("help"))
+    {
+	usage(argv[0]);
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("v") || opts.isSet("version"))
+    {
+	cout << ICE_STRING_VERSION << endl;
+	return EXIT_SUCCESS;
+    }
+    bool doCompress = opts.isSet("z") || opts.isSet("compress");
+    bool dontCompress = opts.isSet("Z") || opts.isSet("no-compress");
+    if(doCompress && dontCompress)
+    {
+        cerr << argv[0] << ": only one of -z and -Z are mutually exclusive" << endl;
+	usage(argv[0]);
+	return EXIT_FAILURE;
+    }
+    if(doCompress)
+    {
+        compress = 2;
+    }
+    else if(dontCompress)
+    {
+        compress = 0;
+    }
+    verbose = opts.isSet("V") || opts.isSet("verbose");
+    caseInsensitive = opts.isSet("i") || opts.isSet("case-insensitive");
+
+    if(args.empty())
     {
         cerr << argv[0] << ": no data directory specified" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
+    }
+    dataDir = normalize(args[0]);
+
+    for(vector<string>::size_type i = 1; i < args.size(); ++i)
+    {
+        fileSeq.push_back(normalize(args[i]));
     }
 
     try

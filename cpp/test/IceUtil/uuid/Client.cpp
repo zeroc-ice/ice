@@ -68,10 +68,8 @@ private:
     bool _verbose;
 };
 
-
 int main(int argc, char* argv[])
 {
-
     long howMany = 300000;
     int threadCount = 3;
     bool verbose = false;

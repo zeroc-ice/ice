@@ -9,6 +9,7 @@
 
 #include <Ice/Application.h>
 #include <Ice/SliceChecksums.h>
+#include <IceUtil/Options.h>
 #include <IceBox/IceBox.h>
 
 using namespace std;
@@ -48,38 +49,37 @@ Client::usage()
 int
 Client::run(int argc, char* argv[])
 {
-    vector<string> commands;
+    IceUtil::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
 
-    int idx = 1;
-    while(idx < argc)
+    vector<string> commands;
+    try
     {
-        if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
-        {
-            usage();
-            return EXIT_SUCCESS;
-        }
-        else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
-        {
-            cout << ICE_STRING_VERSION << endl;
-            return EXIT_SUCCESS;
-        }
-        else if(argv[idx][0] == '-')
-        {
-            cerr << appName() << ": unknown option `" << argv[idx] << "'" << endl;
-            usage();
-            return EXIT_FAILURE;
-        }
-        else
-        {
-            commands.push_back(argv[idx]);
-            ++idx;
-        }
+    	commands = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+        cerr << e.reason << endl;
+	usage();
+	return EXIT_FAILURE;
+    }
+
+    if(opts.isSet("h") || opts.isSet("help"))
+    {
+	usage();
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("v") || opts.isSet("version"))
+    {
+	cout << ICE_STRING_VERSION << endl;
+	return EXIT_SUCCESS;
     }
 
     if(commands.empty())
     {
         usage();
-        return EXIT_SUCCESS;
+        return EXIT_FAILURE;
     }
 
     PropertiesPtr properties = communicator()->getProperties();

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <IceBox/ServiceManagerI.h>
 
@@ -48,24 +49,37 @@ Server::usage()
 int
 Server::run(int argc, char* argv[])
 {
-    for(int i = 1; i < argc; ++i)
+    IceUtil::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
+    
+    vector<string> args;
+    try
     {
-        if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-        {
-            usage();
-            return EXIT_SUCCESS;
-        }
-        else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
-        {
-            cout << ICE_STRING_VERSION << endl;
-            return EXIT_SUCCESS;
-        }
-        else if(strncmp(argv[i], "--", 2) != 0)
-        {
-            cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
-            usage();
-            return EXIT_FAILURE;
-        }
+    	args = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+        cerr << e.reason << endl;
+	usage();
+	return EXIT_FAILURE;
+    }
+
+    if(opts.isSet("h") || opts.isSet("help"))
+    {
+	usage();
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("v") || opts.isSet("version"))
+    {
+	cout << ICE_STRING_VERSION << endl;
+	return EXIT_SUCCESS;
+    }
+
+    if(!args.empty())
+    {
+	usage();
+	return EXIT_FAILURE;
     }
 
     ServiceManagerI* serviceManagerImpl = new ServiceManagerI(this, argc, argv);

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Options.h>
 #include <Slice/Preprocessor.h>
 #include <Gen.h>
 
@@ -41,132 +42,90 @@ int
 main(int argc, char* argv[])
 {
     string cppArgs;
-    bool debug = false;
-    bool ice = false;
-    bool caseSensitive = false;
-    bool standAlone = false;
-    bool noGlobals = false;
-    bool chapter = false;
-    bool noIndex = false;
+    bool standAlone;
+    bool noGlobals;
+    bool chapter;
+    bool noIndex;
+    bool debug;
+    bool ice;
+    bool caseSensitive;
 
-    int idx = 1;
-    while(idx < argc)
+    IceUtil::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
+    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("s", "stand-alone");
+    opts.addOpt("", "no-globals");
+    opts.addOpt("", "chapter");
+    opts.addOpt("", "noindex");
+    opts.addOpt("d", "debug");
+    opts.addOpt("", "ice");
+    opts.addOpt("", "case-sensitive");
+
+    vector<string> args;
+    try
     {
-	if(strncmp(argv[idx], "-I", 2) == 0)
-	{
-	    cppArgs += ' ';
-	    cppArgs += argv[idx];
-
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
-	{
-	    cppArgs += ' ';
-	    cppArgs += argv[idx];
-
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strcmp(argv[idx], "-s") == 0 || strcmp(argv[idx], "--stand-alone") == 0)
-	{
-	    standAlone = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strcmp(argv[idx], "--no-globals") == 0)
-	{
-	    noGlobals = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strcmp(argv[idx], "--chapter") == 0)
-	{
-	    chapter = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strcmp(argv[idx], "--noindex") == 0)
-	{
-	    noIndex = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
-	{
-	    usage(argv[0]);
-	    return EXIT_SUCCESS;
-	}
-	else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
-	{
-	    cout << ICE_STRING_VERSION << endl;
-	    return EXIT_SUCCESS;
-	}
-	else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
-	{
-	    debug = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strcmp(argv[idx], "--ice") == 0)
-	{
-	    ice = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strcmp(argv[idx], "--case-sensitive") == 0)
-	{
-	    caseSensitive = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(argv[idx][0] == '-')
-	{
-	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
-	else
-	{
-	    ++idx;
-	}
+        args = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+	cerr << argv[0] << ": " << e.reason << endl;
+	usage(argv[0]);
+	return EXIT_FAILURE;
     }
 
-    if(argc < 2)
+    if(opts.isSet("h") || opts.isSet("help"))
+    {
+	usage(argv[0]);
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("v") || opts.isSet("version"))
+    {
+	cout << ICE_STRING_VERSION << endl;
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("D"))
+    {
+	vector<string> optargs = opts.argVec("D");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -D" + *i;
+	}
+    }
+    if(opts.isSet("U"))
+    {
+	vector<string> optargs = opts.argVec("U");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -U" + *i;
+	}
+    }
+    if(opts.isSet("I"))
+    {
+	vector<string> optargs = opts.argVec("I");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -I" + *i;
+	}
+    }
+    standAlone = opts.isSet("s") || opts.isSet("stand-alone");
+    noGlobals = opts.isSet("no-globals");
+    chapter = opts.isSet("chapter");
+    noIndex = opts.isSet("noindex");
+    debug = opts.isSet("d") || opts.isSet("debug");
+    ice = opts.isSet("ice");
+    caseSensitive = opts.isSet("case-sensitive");
+
+    if(args.empty())
     {
 	cerr << argv[0] << ": no docbook file specified" << endl;
 	usage(argv[0]);
 	return EXIT_FAILURE;
     }
 
-    string docbook(argv[1]);
+    string docbook(args[0]);
     string suffix;
     string::size_type pos = docbook.rfind('.');
     if(pos != string::npos)
@@ -180,7 +139,7 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    if(argc < 3)
+    if(args.size() < 2)
     {
 	cerr << argv[0] << ": no input file" << endl;
 	usage(argv[0]);
@@ -191,9 +150,9 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    for(idx = 2 ; idx < argc ; ++idx)
+    for(vector<string>::size_type idx = 1; idx < args.size(); ++idx)
     {
-	Preprocessor icecpp(argv[0], argv[idx], cppArgs);
+	Preprocessor icecpp(argv[0], args[idx], cppArgs);
 	FILE* cppHandle = icecpp.preprocess(true);
 
 	if(cppHandle == 0)

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Options.h>
 #include <Ice/Application.h>
 #include <Ice/SliceChecksums.h>
 #include <IcePack/Parser.h>
@@ -53,83 +54,74 @@ Client::run(int argc, char* argv[])
 {
     string cpp("cpp");
     string commands;
-    bool debug = false;
+    bool debug;
 
-    int idx = 1;
-    while(idx < argc)
+    IceUtil::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
+    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("e", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("d", "debug");
+
+    vector<string> args;
+    try
     {
-	if(strncmp(argv[idx], "-I", 2) == 0)
-	{
-	    cpp += ' ';
-	    cpp += argv[idx];
-
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
-	{
-	    cpp += ' ';
-	    cpp += argv[idx];
-
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
-	{
-	    usage();
-	    return EXIT_SUCCESS;
-	}
-	else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
-	{
-	    cout << ICE_STRING_VERSION << endl;
-	    return EXIT_SUCCESS;
-	}
-	else if(strcmp(argv[idx], "-e") == 0)
-	{
-	    if(idx + 1 >= argc)
-            {
-		cerr << appName() << ": argument expected for`" << argv[idx] << "'" << endl;
-		usage();
-		return EXIT_FAILURE;
-            }
-	    
-	    commands += argv[idx + 1];
-	    commands += ';';
-
-	    for(int i = idx ; i + 2 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 2];
-	    }
-	    argc -= 2;
-	}
-	else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
-	{
-	    debug = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(argv[idx][0] == '-')
-	{
-	    cerr << appName() << ": unknown option `" << argv[idx] << "'" << endl;
-	    usage();
-	    return EXIT_FAILURE;
-	}
-	else
-	{
-	    ++idx;
-	}
+    	args = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+        cerr << e.reason << endl;
+	usage();
+	return EXIT_FAILURE;
     }
 
-    if(argc >= 2 && !commands.empty())
+    if(opts.isSet("h") || opts.isSet("help"))
+    {
+	usage();
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("v") || opts.isSet("version"))
+    {
+	cout << ICE_STRING_VERSION << endl;
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("D"))
+    {
+	vector<string> optargs = opts.argVec("D");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cpp += " -D" + *i;
+	}
+    }
+    if(opts.isSet("U"))
+    {
+	vector<string> optargs = opts.argVec("U");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cpp += " -U" + *i;
+	}
+    }
+    if(opts.isSet("I"))
+    {
+	vector<string> optargs = opts.argVec("I");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cpp += " -I" + *i;
+	}
+    }
+    if(opts.isSet("e"))
+    {
+	vector<string> optargs = opts.argVec("e");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    commands += *i + ";";
+	}
+    }
+    debug = opts.isSet("d") || opts.isSet("debug");
+
+    if(!args.empty() && !commands.empty())
     {
 	cerr << appName() << ": `-e' option cannot be used if input files are given" << endl;
 	usage();
@@ -192,17 +184,17 @@ Client::run(int argc, char* argv[])
     }
     else // Process files given on the command line
     {
-	for(idx = 1 ; idx < argc ; ++idx)
+	for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
 	{
-	    ifstream test(argv[idx]);
+	    ifstream test(i->c_str());
 	    if(!test)
 	    {
-		cerr << appName() << ": can't open `" << argv[idx] << "' for reading: " << strerror(errno) << endl;
+		cerr << appName() << ": can't open `" << *i << "' for reading: " << strerror(errno) << endl;
 		return EXIT_FAILURE;
 	    }
 	    test.close();
 	    
-	    string cmd = cpp + " " + argv[idx];
+	    string cmd = cpp + " " + *i;
 #ifdef _WIN32
 	    FILE* cppHandle = _popen(cmd.c_str(), "r");
 #else

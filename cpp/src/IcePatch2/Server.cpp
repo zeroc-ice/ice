@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Options.h>
 #include <Ice/Service.h>
 #include <IcePatch2/FileServerI.h>
 #include <IcePatch2/Util.h>
@@ -70,37 +71,42 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 {
     string dataDir;
 
-    for(int i = 1; i < argc; ++i)
+    IceUtil::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
+    
+    vector<string> args;
+    try
     {
-	if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-	{
-	    usage(argv[0]);
-	    return false;
-	}
-	else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
-	{
-	    cout << ICE_STRING_VERSION << endl;
-	    return false;
-	}
-        else if(argv[i][0] == '-')
-        {
-            cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
-            usage(argv[0]);
-            return false;
-        }
-        else
-        {
-            if(dataDir.empty())
-            {
-                dataDir = argv[i];
-            }
-            else
-            {
-		cerr << argv[0] << ": too many arguments" << endl;
-		usage(argv[0]);
-		return false;
-            }
-        }
+    	args = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+        cerr << e.reason << endl;
+	usage(argv[0]);
+	return EXIT_FAILURE;
+    }
+
+    if(opts.isSet("h") || opts.isSet("help"))
+    {
+	usage(argv[0]);
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("v") || opts.isSet("version"))
+    {
+	cout << ICE_STRING_VERSION << endl;
+	return EXIT_SUCCESS;
+    }
+
+    if(args.size() > 1)
+    {
+	cerr << argv[0] << ": too many arguments" << endl;
+	usage(argv[0]);
+	return false;
+    }
+    if(args.size() == 1)
+    {
+        dataDir = args[0];
     }
 
     PropertiesPtr properties = communicator()->getProperties();

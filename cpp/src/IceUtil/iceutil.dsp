@@ -13,7 +13,7 @@ CFG=iceutil - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "iceutil.mak" CFG="IceUtil - Win32 Debug"
+!MESSAGE NMAKE /f "iceutil.mak" CFG="iceutil - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -150,6 +150,10 @@ SOURCE=.\MD5I.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Options.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\OutputUtil.cpp
 # End Source File
 # Begin Source File
@@ -202,11 +206,11 @@ SOURCE=..\..\include\iceutil\Cond.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\iceutil\CountDownLatch.h
+SOURCE=..\..\include\iceutil\Config.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\iceutil\Config.h
+SOURCE=..\..\include\iceutil\CountDownLatch.h
 # End Source File
 # Begin Source File
 
@@ -267,6 +271,10 @@ SOURCE=..\..\include\iceutil\Monitor.h
 # Begin Source File
 
 SOURCE=..\..\include\iceutil\Mutex.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\Options.h
 # End Source File
 # Begin Source File
 

@@ -11,6 +11,7 @@
 #include <FreezeScript/Util.h>
 #include <FreezeScript/Exception.h>
 #include <IceUtil/OutputUtil.h>
+#include <IceUtil/Options.h>
 #include <db_cxx.h>
 #include <sys/stat.h>
 #include <fstream>
@@ -101,216 +102,134 @@ static int
 run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 {
     string cppArgs;
-    bool debug = false;
+    bool debug;
     bool ice = true; // Needs to be true in order to create default definitions.
-    bool caseSensitive = false;
     string outputFile;
     string inputFile;
     vector<string> slice;
-    bool evictor = false;
+    bool evictor;
     string keyTypeName;
     string valueTypeName;
     string selectExpr;
+    bool caseSensitive;
     string dbEnvName, dbName;
 
-    int idx = 1;
-    while(idx < argc)
+    IceUtil::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
+    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("d", "debug");
+    opts.addOpt("", "ice");
+    opts.addOpt("o", "", IceUtil::Options::NeedArg);
+    opts.addOpt("f", "", IceUtil::Options::NeedArg);
+    opts.addOpt("", "load", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("e");
+    opts.addOpt("", "key", IceUtil::Options::NeedArg);
+    opts.addOpt("", "value", IceUtil::Options::NeedArg);
+    opts.addOpt("", "select", IceUtil::Options::NeedArg);
+    opts.addOpt("", "case-sensitive");
+
+    vector<string> args;
+    try
     {
-        if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
-        {
-            usage(argv[0]);
-            return EXIT_SUCCESS;
-        }
-        else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
-        {
-            cout << ICE_STRING_VERSION << endl;
-            return EXIT_SUCCESS;
-        }
-        else if(strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
-        {
-            cppArgs += ' ';
-            cppArgs += argv[idx];
-
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strncmp(argv[idx], "-I", 2) == 0)
-        {
-            cppArgs += ' ';
-            cppArgs += argv[idx];
-
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
-        {
-            debug = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "--ice") == 0)
-        {
-            ice = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "--case-sensitive") == 0)
-        {
-            caseSensitive = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "-o") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            outputFile = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "-f") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            inputFile = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "--load") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            slice.push_back(argv[idx + 1]);
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "-e") == 0)
-        {
-            evictor = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "--key") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            keyTypeName = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "--value") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            valueTypeName = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(strcmp(argv[idx], "--select") == 0)
-        {
-            if(idx + 1 >= argc || argv[idx + 1][0] == '-')
-            {
-                cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            selectExpr = argv[idx + 1];
-
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-        else if(argv[idx][0] == '-')
-        {
-            cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
-            usage(argv[0]);
-            return EXIT_FAILURE;
-        }
-        else
-        {
-            ++idx;
-        }
+        args = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+	cerr << argv[0] << ": " << e.reason << endl;
+	usage(argv[0]);
+	return EXIT_FAILURE;
     }
 
-    if(outputFile.empty() && argc < 3)
+    if(opts.isSet("h") || opts.isSet("help"))
+    {
+	usage(argv[0]);
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("v") || opts.isSet("version"))
+    {
+	cout << ICE_STRING_VERSION << endl;
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("D"))
+    {
+	vector<string> optargs = opts.argVec("D");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -D" + *i;
+	}
+    }
+    if(opts.isSet("U"))
+    {
+	vector<string> optargs = opts.argVec("U");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -U" + *i;
+	}
+    }
+    if(opts.isSet("I"))
+    {
+	vector<string> optargs = opts.argVec("I");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -I" + *i;
+	}
+    }
+    debug = opts.isSet("d") || opts.isSet("debug");
+
+    // No need to set --ice option here -- it is always true.
+
+    if(opts.isSet("o"))
+    {
+	outputFile = opts.optArg("o");
+    }
+    if(opts.isSet("f"))
+    {
+	inputFile = opts.optArg("f");
+    }
+    if(opts.isSet("load"))
+    {
+        vector<string> args;
+	for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+	{
+	    slice.push_back(*i);
+	}
+    }
+    evictor = opts.isSet("e");
+    if(opts.isSet("key"))
+    {
+	keyTypeName = opts.optArg("key");
+    }
+    if(opts.isSet("value"))
+    {
+	valueTypeName = opts.optArg("value");
+    }
+    if(opts.isSet("select"))
+    {
+	selectExpr = opts.optArg("select");
+    }
+    caseSensitive = opts.isSet("case-sensitive");
+
+    if(outputFile.empty() && args.size() < 2)
     {
         usage(argv[0]);
         return EXIT_FAILURE;
     }
 
-    if(argc > 1)
+    if(!args.empty())
     {
-        dbEnvName = argv[1];
+        dbEnvName = args[0];
     }
-    if(argc > 2)
+    if(args.size() == 2)
     {
-        dbName = argv[2];
+        dbName = args[1];
+    }
+    else
+    {
+        usage(argv[0]);
+        return EXIT_FAILURE;
     }
 
     if(!inputFile.empty() && !selectExpr.empty())

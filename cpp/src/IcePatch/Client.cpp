@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Options.h>
 #include <Ice/Application.h>
 #include <Ice/SliceChecksums.h>
 #include <IcePatch/FileDescFactory.h>
@@ -62,6 +63,33 @@ IcePatch::Client::run(int argc, char* argv[])
 {
     Glacier::RouterPrx router;
 
+    IceUtil::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
+    
+    vector<string> subdirs;
+    try
+    {
+    	subdirs = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+        cerr << e.reason << endl;
+	usage();
+	return EXIT_FAILURE;
+    }
+
+    if(opts.isSet("h") || opts.isSet("help"))
+    {
+	usage();
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("v") || opts.isSet("version"))
+    {
+	cout << ICE_STRING_VERSION << endl;
+	return EXIT_SUCCESS;
+    }
+
     try
     {
 	int idx = 1;
@@ -89,15 +117,7 @@ IcePatch::Client::run(int argc, char* argv[])
 	    }
 	}
 
-	vector<string> subdirs;
-	if(argc > 1)
-	{
-	    for(int i = 1; i < argc; ++i)
-	    {
-		subdirs.push_back(argv[i]);
-	    }
-	}
-	else
+	if(subdirs.empty())
 	{
 	    subdirs.push_back(".");
 	}

@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Options.h>
 #include <Ice/Ice.h>
 #include <IcePatch/Util.h>
 #include <set>
@@ -50,49 +51,49 @@ CalcApp::run(int argc, char* argv[])
 {
     string dataDir;
     vector<string> oldDataDirs;
-    _totals = false;
+    _totals;
 
-    int i;
-    for(i = 1; i < argc; ++i)
+    IceUtil::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
+    opts.addOpt("t");
+    
+    vector<string> args;
+    try
     {
-        if(strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-        {
-            usage();
-            return EXIT_SUCCESS;
-        }
-        else if(strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
-        {
-            cout << ICE_STRING_VERSION << endl;
-            return EXIT_SUCCESS;
-        }
-        else if(strcmp(argv[i], "-t") == 0)
-        {
-            _totals = true;
-        }
-        else if(argv[i][0] == '-')
-        {
-            cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
-            usage();
-            return EXIT_FAILURE;
-        }
-        else
-        {
-            if(dataDir.empty())
-            {
-                dataDir = argv[i];
-            }
-            else
-            {
-                oldDataDirs.push_back(argv[i]);
-            }
-        }
+    	args = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+        cerr << e.reason << endl;
+	usage();
+	return EXIT_FAILURE;
     }
 
-    if(dataDir.empty())
+    if(opts.isSet("h") || opts.isSet("help"))
+    {
+	usage();
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("v") || opts.isSet("version"))
+    {
+	cout << ICE_STRING_VERSION << endl;
+	return EXIT_SUCCESS;
+    }
+    _totals = opts.isSet("t");
+
+
+    if(args.empty())
     {
         cerr << argv[0] << ": no data directory specified" << endl;
         usage();
         return EXIT_FAILURE;
+    }
+    dataDir = args[0];
+
+    for(vector<string>::size_type i = 1; i < args.size(); ++i)
+    {
+	oldDataDirs.push_back(args[i]);
     }
 
     if(dataDir == ".")

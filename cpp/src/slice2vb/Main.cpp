@@ -7,6 +7,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Options.h>
 #include <Slice/Preprocessor.h>
 #include <Gen.h>
 
@@ -44,173 +45,94 @@ main(int argc, char* argv[])
     string cppArgs;
     vector<string> includePaths;
     string output;
-    bool tie = false;
-    bool impl = false;
-    bool implTie = false;
-    bool debug = false;
-    bool ice = false;
-    bool caseSensitive = false;
-    bool depend = false;
-    bool checksum = false;
-    bool stream = false;
+    bool tie;
+    bool impl;
+    bool implTie;
+    bool depend;
+    bool debug;
+    bool ice;
+    bool checksum;
+    bool stream;
+    bool caseSensitive;
 
-    int idx = 1;
-    while(idx < argc)
+    IceUtil::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
+    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("", "output-dir", IceUtil::Options::NeedArg);
+    opts.addOpt("", "tie");
+    opts.addOpt("", "impl");
+    opts.addOpt("", "impl-tie");
+    opts.addOpt("", "depend");
+    opts.addOpt("d", "debug");
+    opts.addOpt("", "ice");
+    opts.addOpt("", "checksum");
+    opts.addOpt("", "stream");
+    opts.addOpt("", "case-sensitive");
+
+    vector<string>args;
+    try
     {
-        if(strncmp(argv[idx], "-I", 2) == 0)
-        {
-            cppArgs += ' ';
-            cppArgs += argv[idx];
-
-            string path = argv[idx] + 2;
-            if(path.length())
-            {
-                includePaths.push_back(path);
-            }
-
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strncmp(argv[idx], "-D", 2) == 0 ||
-                 strncmp(argv[idx], "-U", 2) == 0)
-        {
-            cppArgs += ' ';
-            cppArgs += argv[idx];
-
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "-h") == 0 ||
-                 strcmp(argv[idx], "--help") == 0)
-        {
-            usage(argv[0]);
-            return EXIT_SUCCESS;
-        }
-        else if(strcmp(argv[idx], "-v") == 0 ||
-                 strcmp(argv[idx], "--version") == 0)
-        {
-            cout << ICE_STRING_VERSION << endl;
-            return EXIT_SUCCESS;
-        }
-        else if(strcmp(argv[idx], "-d") == 0 ||
-                 strcmp(argv[idx], "--debug") == 0)
-        {
-            debug = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-	else if(strcmp(argv[idx], "--ice") == 0)
-	{
-	    ice = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-        else if(strcmp(argv[idx], "--output-dir") == 0)
-        {
-            if(idx + 1 >= argc)
-            {
-                cerr << argv[0] << ": argument expected for`" << argv[idx]
-                     << "'" << endl;
-                usage(argv[0]);
-                return EXIT_FAILURE;
-            }
-
-            output = argv[idx + 1];
-            for(int i = idx ; i + 2 < argc ; ++i)
-            {
-                argv[i] = argv[i + 2];
-            }
-            argc -= 2;
-        }
-	else if(strcmp(argv[idx], "--case-sensitive") == 0)
-	{
-	    caseSensitive = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-        else if(strcmp(argv[idx], "--tie") == 0)
-        {
-            tie = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "--impl") == 0)
-        {
-            impl = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-        else if(strcmp(argv[idx], "--impl-tie") == 0)
-        {
-            implTie = true;
-            for(int i = idx ; i + 1 < argc ; ++i)
-            {
-                argv[i] = argv[i + 1];
-            }
-            --argc;
-        }
-	else if(strcmp(argv[idx], "--depend") == 0)
-	{
-	    depend = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strcmp(argv[idx], "--checksum") == 0)
-	{
-	    checksum = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-	else if(strcmp(argv[idx], "--stream") == 0)
-	{
-	    stream = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
-	    {
-		argv[i] = argv[i + 1];
-	    }
-	    --argc;
-	}
-        else if(argv[idx][0] == '-')
-        {
-            cerr << argv[0] << ": unknown option `" << argv[idx] << "'"
-                 << endl;
-            usage(argv[0]);
-            return EXIT_FAILURE;
-        }
-        else
-        {
-            ++idx;
-        }
+        args = opts.parse(argc, argv);
+    }
+    catch(const IceUtil::Options::BadOpt& e)
+    {
+        cerr << argv[0] << ": " << e.reason << endl;
+	usage(argv[0]);
+	return EXIT_FAILURE;
     }
 
-    if(argc < 2)
+    if(opts.isSet("h") || opts.isSet("help"))
+    {
+	usage(argv[0]);
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("v") || opts.isSet("version"))
+    {
+	cout << ICE_STRING_VERSION << endl;
+	return EXIT_SUCCESS;
+    }
+    if(opts.isSet("D"))
+    {
+        vector<string> optargs = opts.argVec("D");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+            cppArgs += " -D" + *i;
+	}
+    }
+    if(opts.isSet("U"))
+    {
+        vector<string> optargs = opts.argVec("U");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+            cppArgs += " -U" + *i;
+	}
+    }
+    if(opts.isSet("I"))
+    {
+        includePaths = opts.argVec("I");
+	for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+	{
+            cppArgs += " -I" + *i;
+	}
+    }
+    if(opts.isSet("output-dir"))
+    {
+	output = opts.optArg("output-dir");
+    }
+    tie = opts.isSet("tie");
+    impl = opts.isSet("impl");
+    implTie = opts.isSet("impl-tie");
+    depend = opts.isSet("depend");
+    debug = opts.isSet("d") || opts.isSet("debug");
+    ice = opts.isSet("ice");
+    checksum = opts.isSet("checksum");
+    stream = opts.isSet("stream");
+    caseSensitive = opts.isSet("case-sensitive");
+
+    if(args.empty())
     {
         cerr << argv[0] << ": no input file" << endl;
         usage(argv[0]);
@@ -226,16 +148,16 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    for(idx = 1 ; idx < argc ; ++idx)
+    for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
 	if(depend)
 	{
-	    Preprocessor icecpp(argv[0], argv[idx], cppArgs);
+	    Preprocessor icecpp(argv[0], *i, cppArgs);
 	    icecpp.printMakefileDependencies(Preprocessor::VisualBasic);
 	}
 	else
 	{
-	    Preprocessor icecpp(argv[0], argv[idx], cppArgs);
+	    Preprocessor icecpp(argv[0], *i, cppArgs);
 	    FILE* cppHandle = icecpp.preprocess(false);
 
 	    if(cppHandle == 0)

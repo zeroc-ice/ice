@@ -32,5 +32,6 @@
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/GC.h>
+#include <IceUtil/Options.h>
 
 #endif
