@@ -5,6 +5,9 @@ Changes since version 1.5.1
 
 - Added test and demo for using Ice for C# with Glacier.
 
+- Changed the slice2cs code generator to avoid generating empty
+  namespaces.
+
 Changes since version 1.5.0
 ---------------------------
 
