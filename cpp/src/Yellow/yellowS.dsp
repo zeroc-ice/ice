@@ -13,7 +13,7 @@ CFG=YellowS - Win32 Debug
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "YellowS.mak" CFG="IceStormS - Win32 Debug"
+!MESSAGE NMAKE /f "YellowS.mak" CFG="YellowS - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
@@ -29,7 +29,7 @@ CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "IceStormS - Win32 Release"
+!IF  "$(CFG)" == "YellowS - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -61,7 +61,7 @@ SOURCE="$(InputPath)"
 PostBuild_Cmds=copy Release\yellowservice001.* ..\..\lib
 # End Special Build Tool
 
-!ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "YellowS - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
