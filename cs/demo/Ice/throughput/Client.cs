@@ -14,13 +14,22 @@ public class Client
 {
     private static void menu()
     {
-        Console.Out.WriteLine("usage:\n"
-	                       + "s: send byte sequence\n"
-			       + "o: send byte sequence as oneway\n"
-			       + "r: receive byte sequence\n"
-			       + "e: echo (send and receive) byte sequence\n"
-			       + "x: exit\n"
-			       + "?: help\n");
+        Console.WriteLine("usage:\n"
+                           + "\n"
+                           + "toggle type of data to send:\n"
+                           + "1: sequence of bytes (default)\n"
+                           + "2: sequence of strings (\"hello\")\n"
+                           + "3: sequence structs with a string (\"hello\") and a double\n"
+                           + "select test to run:\n"
+                           + "t: Send sequence as twoway\n"
+                           + "o: Send sequence as oneway\n" 
+                           + "r: Receive sequence\n"
+			   + "e: Echo (send and receive) sequence\n"
+                           + "\n"
+                           + "other commands\n"
+                           + "s: shutdown server\n"
+			   + "x: exit\n"
+			   + "?: help\n");
     }
     
     private static int run(string[] args, Ice.Communicator communicator)
@@ -42,122 +51,267 @@ public class Client
             return 1;
         }
         ThroughputPrx throughputOneway = ThroughputPrxHelper.uncheckedCast(throughput.ice_oneway());
-        
-        byte[] seq = new byte[seqSize.value];
+
+        byte[] byteSeq = new byte[ByteSeqSize.value];
+
+        string[] stringSeq = new string[StringSeqSize.value];
+	for(int i = 0; i < StringSeqSize.value; ++i)
+	{
+	    stringSeq[i] = "hello";
+	}
+
+        StringDouble[] structSeq = new StringDouble[StringDoubleSeqSize.value];
+        for(int i = 0; i < StringDoubleSeqSize.value; ++i)
+        {
+            structSeq[i].s = "hello";
+            structSeq[i].d = 3.14;
+        }
         
         menu();
         
+        throughput.ice_ping(); // Initial ping to setup the connection.
+
+        //
+        // By default use byte sequence.
+        //
+        char currentType = '1';
+        int seqSize = ByteSeqSize.value;
+
         string line = null;
         do 
         {
             try
             {
-                Console.Out.Write("==> ");
+                Console.Write("==> ");
                 Console.Out.Flush();
                 line = Console.In.ReadLine();
-                if(line == null)
-                {
-                    break;
-                }
-                
-                // Initial ping to setup the connection.
-                throughput.ice_ping();
-                
-                long tmsec = System.DateTime.Now.Ticks / 10000;
 
-                int repetitions = 100;
-                
-                if(line.Equals("s") || line.Equals("o") || line.Equals("r") || line.Equals("e"))
+                long tmsec = System.DateTime.Now.Ticks / 10000;
+                const int repetitions = 1000;
+
+                if(line.Equals("1") || line.Equals("2") || line.Equals("3"))
+                {
+                    currentType = line[0];
+                    switch(currentType)
+                    {
+                        case '1':
+                        {
+                            Console.WriteLine("using byte sequences");
+                            seqSize = ByteSeqSize.value;
+                            break;
+                        }
+                        case '2':
+                        {
+                            Console.WriteLine("using string sequences");
+                            seqSize = StringSeqSize.value;
+                            break;
+                        }
+                        case '3':
+                        {
+                            Console.WriteLine("using struct sequences");
+                            seqSize = StringDoubleSeqSize.value;
+                            break;
+                        }
+                    } 
+                }
+                else if(line.Equals("t") || line.Equals("o") || line.Equals("r") || line.Equals("e"))
                 {
                     char c = line[0];
-                    
                     switch (c)
                     {                       
-                        case 's': 
+                        case 't': 
                         case 'o': 
                         {
-                            Console.Out.Write("sending");
+                            Console.Write("sending");
                             break;
                         }                                            
                         case 'r': 
                         {
-                            Console.Out.Write("receiving");
+                            Console.Write("receiving");
                             break;
                         }                              
                         case 'e': 
                         {
-                            Console.Out.Write("sending and receiving");
+                            Console.Write("sending and receiving");
                             break;
                         }
                     }
-                    
-                    Console.Out.Write(" " + repetitions + " sequences of size " + seqSize.value);
-                    
+                
+                    Console.Write(" " + repetitions);
+                    switch(currentType)
+                    {
+                        case '1':
+                        {
+                            Console.Write(" byte");
+                            break;
+                        }
+                        case '2':
+                        {
+                            Console.Write(" string");
+                            break;
+                        }
+                        case '3':
+                        {
+                            Console.Write(" struct");
+                            break;
+                        }
+                    }
+                    Console.Write(" sequences of size " + seqSize);
+
                     if(c == 'o')
                     {
-                        Console.Out.Write(" as oneway");
+                        Console.Write(" as oneway");
                     }
-                    
-                    Console.Out.WriteLine("...");
-                    
+        
+                    Console.WriteLine("...");
+        
                     for (int i = 0; i < repetitions; ++i)
                     {
-                        switch (c)
+                        switch(currentType)
                         {
-                            
-                            case 's': 
+                            case '1':
                             {
-                                throughput.sendByteSeq(seq);
+                                switch(c)
+                                {
+                                    case 't':
+                                    {
+                                        throughput.sendByteSeq(byteSeq);
+                                        break;
+                                    }
+
+                                    case 'o': 
+                                    {
+                                        throughputOneway.sendByteSeq(byteSeq);
+                                        break;
+                                    }
+
+                                    case 'r': 
+                                    {
+                                        throughput.recvByteSeq();
+                                        break;
+                                    }                            
+                        
+                                    case 'e': 
+                                    {
+                                        throughput.echoByteSeq(byteSeq);
+                                        break;
+                                    }
+                                }
+                                break;
+                            }
+
+                            case '2':
+                            {
+                                switch(c)
+                                {
+                                    case 't':
+                                    {
+                                        throughput.sendStringSeq(stringSeq);
+                                        break;
+                                    }
+
+                                    case 'o': 
+                                    {
+                                        throughputOneway.sendStringSeq(stringSeq);
+                                        break;
+                                    }
+
+                                    case 'r': 
+                                    {
+                                        throughput.recvStringSeq();
+                                        break;
+                                    }                            
+                        
+                                    case 'e': 
+                                    {
+                                        throughput.echoStringSeq(stringSeq);
+                                        break;
+                                    }
+                                }
                                 break;
                             }
                             
-                            
-                            case 'o': 
+                            case '3':
                             {
-                                throughputOneway.sendByteSeq(seq);
+                                switch(c)
+                                {
+                                    case 't':
+                                    {
+                                        throughput.sendStructSeq(structSeq);
+                                        break;
+                                    }
+
+                                    case 'o': 
+                                    {
+                                        throughputOneway.sendStructSeq(structSeq);
+                                        break;
+                                    }
+
+                                    case 'r': 
+                                    {
+                                        throughput.recvStructSeq();
+                                        break;
+                                    }                            
+                        
+                                    case 'e': 
+                                    {
+                                        throughput.echoStructSeq(structSeq);
+                                        break;
+                                    }
+                                }
                                 break;
                             }
-                            
-                            
-                            case 'r': 
-                            {
-                                throughput.recvByteSeq();
-                                break;
-                            }
-                            
-                            
-                            case 'e': 
-                            {
-                                throughput.echoByteSeq(seq);
-                                break;
-                            }
-                            }
+                        }
                     }
-                    
+        
                     double dmsec = System.DateTime.Now.Ticks / 10000 - tmsec;
-                    Console.Out.WriteLine("time for " + repetitions + " sequences: " + dmsec.ToString("F") + "ms");
-                    Console.Out.WriteLine("time per sequence: " + ((double)(dmsec / repetitions)).ToString("F") + "ms");
-                    double mbit = repetitions * seqSize.value * 8.0 / dmsec / 1000.0;
-                    if(c == 'e')
+                    Console.WriteLine("time for " + repetitions + " sequences: " + dmsec.ToString("F") + "ms");
+                    Console.WriteLine("time per sequence: " + ((double)(dmsec / repetitions)).ToString("F") + "ms");
+                    int wireSize = 0;
+                    switch(currentType)
                     {
-                        mbit *= 2;
+                        case '1':
+                        {
+                            wireSize = 1;
+                            break;
+                        }
+                        case '2':
+                        {
+                            wireSize = stringSeq[0].Length;
+                            break;
+                        }
+                        case '3':
+                        {
+                            wireSize = structSeq[0].s.Length;
+                            wireSize += 8; // Size of double on the wire.
+                            break;
+                        }
                     }
-                    Console.Out.WriteLine("throughput: " + mbit.ToString("F") + "MBit/s");
-                }
-                else if(line.Equals("x"))
-                {
-                    // Nothing to do
-                }
-                else if(line.Equals("?"))
-                {
-                    menu();
-                }
-                else
-                {
-                    Console.Out.WriteLine("unknown command `" + line + "'");
-                    menu();
-                }
-            }
+		    double mbit = repetitions * seqSize * wireSize * 8.0 / dmsec / 1000.0;
+		    if(c == 'e')
+		    {
+			mbit *= 2;
+		    }
+		    Console.WriteLine("throughput: " + mbit.ToString("F") + "MBit/s");
+		}
+		else if(line.Equals("s"))
+		{
+		    throughput.shutdown();
+		}
+		else if(line.Equals("x"))
+		{
+		    // Nothing to do
+		}
+		else if(line.Equals("?"))
+		{
+		    menu();
+		}
+		else
+		{
+		    Console.WriteLine("unknown command `" + line + "'");
+		    menu();
+		}
+	    }
             catch(System.Exception ex)
             {
                 Console.Error.WriteLine(ex);
