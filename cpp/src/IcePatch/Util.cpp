@@ -184,13 +184,26 @@ IcePatch::removeRecursive(const string& path)
 	{
 	    removeRecursive(*p);
 	}
-    }
 
-    if(::remove(path.c_str()) == -1)
+#ifdef _WIN32
+	if(_rmdir(path.c_str()) == -1)
+#else
+        if(rmdir(path.c_str()) == -1)
+#endif
+	{
+	    FileAccessException ex;
+	    ex.reason = "cannot remove directory `" + path + "': " + strerror(errno);
+	    throw ex;
+	}
+    }
+    else
     {
-	FileAccessException ex;
-	ex.reason = "cannot remove file `" + path + "': " + strerror(errno);
-	throw ex;
+	if(::remove(path.c_str()) == -1)
+	{
+	    FileAccessException ex;
+	    ex.reason = "cannot remove file `" + path + "': " + strerror(errno);
+	    throw ex;
+	}
     }
 }
 
