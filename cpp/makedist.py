@@ -230,11 +230,11 @@ filesToRemove = [ \
     os.path.join("ice", "fixCopyright.py"), \
     ]
 filesToRemove.extend(find("ice", ".dummy"))
-filesToRemove.extend(find("ice/src/slice2cs", "*"))
+#filesToRemove.extend(find("ice/src/slice2cs", "*"))
 for x in filesToRemove:
     os.remove(x)
-os.removedirs("ice/src/slice2cs")
-editFile("ice/src/Makefile", "slice2cs")
+#os.removedirs("ice/src/slice2cs")
+#editFile("ice/src/Makefile", "slice2cs")
 
 #
 # Generate bison files.
