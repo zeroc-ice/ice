@@ -124,7 +124,7 @@ public:
 
     virtual void run() = 0;
 
-    ThreadControl start();
+    ThreadControl start(size_t = 0);
 
     ThreadControl getThreadControl() const;
 
