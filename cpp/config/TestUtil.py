@@ -240,13 +240,13 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     client = os.path.join(testdir, clientName)
 
     print "starting " + serverName + "...",
-    serverPipe = os.popen(server + serverOptions + additionalServerOptions)
+    serverPipe = os.popen(server + serverOptions + additionalServerOptions + " 2>&1")
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting " + clientName + "...",
-    clientPipe = os.popen(client + clientOptions + additionalClientOptions)
+    clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1")
     print "ok"
 
     printOutputFromPipe(clientPipe)
@@ -273,13 +273,13 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     client = os.path.join(testdir, "client")
 
     print "starting server...",
-    serverPipe = os.popen(server + clientServerOptions + additionalServerOptions)
+    serverPipe = os.popen(server + clientServerOptions + additionalServerOptions + " 2>&1")
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + clientServerOptions + additionalClientOptions)
+    clientPipe = os.popen(client + clientServerOptions + additionalClientOptions + " 2>&1")
     getServerPid(clientPipe)
     getAdapterReady(clientPipe)
     print "ok"
@@ -303,7 +303,7 @@ def collocatedTestWithOptions(name, additionalOptions):
     collocated = os.path.join(testdir, "collocated")
 
     print "starting collocated...",
-    collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions)
+    collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions + " 2>&1")
     print "ok"
 
     printOutputFromPipe(collocatedPipe)

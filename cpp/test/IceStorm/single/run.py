@@ -46,7 +46,7 @@ TestUtil.cleanDbDir(dbEnvName)
 iceStormDBEnv=" --IceBox.DBEnvName.IceStorm=" + dbEnvName
 
 print "starting icestorm service...",
-command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv
+command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv + " 2>&1"
 iceBoxPipe = os.popen(command)
 TestUtil.getServerPid(iceBoxPipe)
 #TestUtil.getAdapterReady(iceBoxPipe)
@@ -54,7 +54,7 @@ TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
 print "ok"
 
 print "creating topic...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create single"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create single"' + " 2>&1"
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
@@ -76,7 +76,7 @@ except:
     pass # Ignore errors if the lockfile is not present
 
 print "starting subscriber...",
-command = subscriber + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile
+command = subscriber + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile + " 2>&1"
 subscriberPipe = os.popen(command)
 TestUtil.getServerPid(subscriberPipe)
 TestUtil.getAdapterReady(subscriberPipe)
@@ -94,7 +94,7 @@ print "ok"
 # causes subscriber to terminate.
 #
 print "starting publisher...",
-command = publisher + TestUtil.clientOptions + iceStormReference
+command = publisher + TestUtil.clientOptions + iceStormReference + " 2>&1"
 publisherPipe = os.popen(command)
 print "ok"
 
@@ -118,7 +118,7 @@ print "ok"
 # Destroy the topic.
 #
 print "destroying topic...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy single"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy single"' + " 2>&1"
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
@@ -130,7 +130,7 @@ print "ok"
 # Shutdown icestorm.
 #
 print "shutting down icestorm service...",
-command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown'
+command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown' + " 2>&1"
 iceBoxAdminPipe = os.popen(command)
 iceBoxAdminStatus = iceBoxAdminPipe.close()
 if iceBoxAdminStatus:

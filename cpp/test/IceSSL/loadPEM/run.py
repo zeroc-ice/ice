@@ -41,7 +41,7 @@ client = os.path.join(testdir, "loadPEM")
 
 localClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost
 print "starting loadPEM...",
-clientPipe = os.popen(client + localClientOptions + testOptions)
+clientPipe = os.popen(client + localClientOptions + testOptions + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

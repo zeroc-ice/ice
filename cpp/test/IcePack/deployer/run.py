@@ -47,7 +47,7 @@ def startClient(options):
                         options
 
     print "starting client...",
-    clientPipe = os.popen(os.path.join(testdir, "client") + fullClientOptions)
+    clientPipe = os.popen(os.path.join(testdir, "client") + fullClientOptions + " 2>&1")
     print "ok"
 
     TestUtil.printOutputFromPipe(clientPipe)

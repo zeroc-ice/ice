@@ -46,7 +46,7 @@ file.close();
 print "ok"
 
 print "starting client...",
-clientPipe = os.popen(client + clientOptions)
+clientPipe = os.popen(client + clientOptions + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe);

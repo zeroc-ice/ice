@@ -36,7 +36,7 @@ client = os.path.join(testdir, "certificateVerifier")
 
 localClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost
 print "starting certificateVerifier...",
-clientPipe = os.popen(client + localClientOptions)
+clientPipe = os.popen(client + localClientOptions + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

@@ -32,7 +32,7 @@ client = os.path.join(testdir, "client")
 clientOptions = ' ' + testdir;
 
 print "starting client...",
-clientPipe = os.popen(client + clientOptions)
+clientPipe = os.popen(client + clientOptions + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe);
