@@ -196,8 +196,9 @@ os.system("cvs -z5 -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice
 # Remove files.
 #
 filesToRemove = [ \
-    "ice/makedist.py", \
+    os.path.join("ice", "makedist.py"), \
     ]
+filesToRemove.extend(find("ice", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
 
