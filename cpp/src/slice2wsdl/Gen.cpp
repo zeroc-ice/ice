@@ -145,8 +145,8 @@ Slice::Gen::emitOperation(Output& O, const OperationPtr& p)
     os << "wsdl:operation name=\"" << p->name() << "\"";
     start(O, os.str());
 
-    O << nl << "<wsdl:input message=\"tns:input." << p->name() << "\">";
-    O << nl << "<wsdl:output message=\"tns:output." << p->name() << "\">";
+    O << nl << "<wsdl:input message=\"tns:input." << p->name() << "\"/>";
+    O << nl << "<wsdl:output message=\"tns:output." << p->name() << "\"/>";
 
     end(O); // operation
 }
