@@ -131,7 +131,7 @@ public class IncomingConnectionFactory extends EventHandler
 	//
 	try
 	{
-	    assert(transceiver);
+	    assert(transceiver != null);
             Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
             connection.activate();
             _connections.add(connection);
