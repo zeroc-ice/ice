@@ -17,8 +17,11 @@
 #include <Ice/ObjectFactoryF.ice>
 #include <Ice/UserExceptionFactoryF.ice>
 #include <Ice/RouterF.ice>
-#include <Ice/SslSystemF.ice>
-#include <Ice/SslExtensionF.ice>
+
+#ifdef ICE_CPP 
+#   include <Ice/SslSystemF.ice>
+#   include <Ice/SslExtensionF.ice>
+#endif
 
 /**
  *
@@ -346,10 +349,13 @@ local interface Communicator
 
     /**
      *
-     * Get an SslExtension instance.  The SslExtension instance can then
-     * be used as a factory for generation of some stock worker objects.  
+     * Get an [IceSSL::SslExtension] instance. The SSL extension
+     * instance can then be used as a factory for generation of some
+     * stock worker objects.
+     // ML: What "are stock worker objects"?
      *
-     * @return An SslExtension object representing the SSL implementation.
+     * @return An SSL extension object representing the SSL
+     * implementation.
      *
      * @see IceSSL::SslExtension
      *
@@ -358,9 +364,10 @@ local interface Communicator
 
     /**
      *
-     * Get the IceSSL::System instance being used by this Communicator.  
+     * Get the [IceSSL::System] instance being used by this
+     * Communicator.
      *
-     * @return The IceSSL::System this Communicator is using.
+     * @return The [IceSSL::System] this Communicator is using.
      *
      * @see IceSSL::System
      *
