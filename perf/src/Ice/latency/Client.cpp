@@ -28,6 +28,7 @@ public:
 	{
 	    wait();
 	}
+	_finished = false;
     }
 
 private:

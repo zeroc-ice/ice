@@ -101,6 +101,11 @@ def runTAOPerfs(expr, results, i):
     test.run("4tp", "Thread_Pool", "latency oneway", "4")
     test.run("tpc", "Thread_Per_Connection", "latency oneway", "")
     
+    #test = TestUtil.Test(expr, results, i, "TAO", "latency twoway AMI")
+    #test.run("1tp", "Thread_Pool", "latency twoway ami", "1")
+    #test.run("4tp", "Thread_Pool", "latency twoway ami", "4")
+    #test.run("tpc", "Thread_Per_Connection", "latency twoway ami", "")
+
     test = TestUtil.Test(expr, results, i, "TAO", "throughput byte")
     test.run("1tp", "Thread_Pool", "throughput byte", "1")
     test.run("4tp", "Thread_Pool", "throughput byte", "4")

@@ -1,5 +1,5 @@
 //
-// Test.idl,v 1.1 2001/05/09 22:38:26 coryan Exp
+// Test.idl,v 1.2 2002/03/09 21:24:29 crodrigu Exp
 //
 
 /// A simple module to avoid namespace pollution
@@ -25,7 +25,6 @@ module Test
     void sendByteSeq(in ByteSeq seq);
     void sendStringSeq(in StringSeq seq);
     void sendStringDoubleSeq(in StringDoubleSeq seq);
-    void sendStruct(in StringDouble seq);
 
     /// A simple method to measure roundtrip delays
     /**
@@ -35,9 +34,10 @@ module Test
      * request.
      */
     void test_method ();
-    oneway void test_oneway ();
+
+    oneway void test_oneway();
 
     /// Shutdown the ORB
-    void shutdown ();
+    oneway void shutdown ();
   };
 };

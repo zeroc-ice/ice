@@ -25,7 +25,6 @@ module Test
     void sendByteSeq(in ByteSeq seq);
     void sendStringSeq(in StringSeq seq);
     void sendStringDoubleSeq(in StringDoubleSeq seq);
-    void sendStruct(in StringDouble seq);
 
     /// A simple method to measure roundtrip delays
     /**

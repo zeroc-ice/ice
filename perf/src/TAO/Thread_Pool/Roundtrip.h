@@ -34,9 +34,6 @@ public:
   virtual void sendStringDoubleSeq (const Test::StringDoubleSeq & seq ACE_ENV_ARG_DECL_WITH_DEFAULTS)
     ACE_THROW_SPEC ((CORBA::SystemException));
 
-  virtual void sendStruct (const Test::StringDouble & seq ACE_ENV_ARG_DECL_WITH_DEFAULTS)
-    ACE_THROW_SPEC ((CORBA::SystemException));
-
   virtual void test_method (ACE_ENV_SINGLE_ARG_DECL)
     ACE_THROW_SPEC ((CORBA::SystemException));
 

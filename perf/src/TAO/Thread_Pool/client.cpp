@@ -1,6 +1,7 @@
 // client.cpp,v 1.6 2003/11/02 23:27:22 dhinton Exp
 
 #include "Roundtrip.h"
+#include "Roundtrip_Handler.h"
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"
 #include "ace/Sched_Params.h"
@@ -22,15 +23,6 @@ ACE_RCSID(Thread_Per_Connection_Latency, client, "client.cpp,v 1.6 2003/11/02 23
 
 const char *ior = "file://test.ior";
 int do_shutdown = 1;
-
-void
-usage()
-{
-    cout << "For latenct tests:" << endl;
-    cout << "  client latency oneway|twoway" << endl;
-    cout << "For throughput tests:" << endl;
-    cout << "  client throughput byte|string|struct" << endl;
-}
 
 int
 main (int argc, char *argv[])
@@ -86,8 +78,22 @@ main (int argc, char *argv[])
       policies[0]->destroy (ACE_ENV_SINGLE_ARG_PARAMETER);
       ACE_CHECK;
 
+      CORBA::Object_var poa_object =
+        orb->resolve_initial_references("RootPOA" ACE_ENV_ARG_PARAMETER);
+      ACE_TRY_CHECK;
+
+      PortableServer::POA_var root_poa =
+        PortableServer::POA::_narrow (poa_object.in () ACE_ENV_ARG_PARAMETER);
+      ACE_TRY_CHECK;
+
+      PortableServer::POAManager_var poa_manager =
+        root_poa->the_POAManager (ACE_ENV_SINGLE_ARG_PARAMETER);
+      ACE_TRY_CHECK;
+
     bool latency = false;
     bool oneway = false;
+    bool twoway = false;
+    bool ami = false;
 
     bool throughput = false;
     bool sendbytes = false;
@@ -95,52 +101,67 @@ main (int argc, char *argv[])
     bool sendlongstrings = false;
     bool sendstructs = false;
 
-    if(argc != 3)
-    {
-        usage();
-        return 1;
-    }
 
-    if(strcmp(argv[1], "latency") == 0)
+    int i;
+    for(i = 0; i < argc; ++i)
     {
-    	latency = true;
-        if(strcmp(argv[2], "oneway") == 0)
+        if(strcmp(argv[i], "latency") == 0)
+	{
+	    latency = true;
+	}
+	else if(strcmp(argv[i], "throughput") == 0)
+	{
+	    throughput = true;
+	}
+	else if(strcmp(argv[i], "oneway") == 0)
 	{
 	    oneway = true;
 	}
-
-    }
-    else if(strcmp(argv[1], "throughput") == 0)
-    {
-        throughput = true;
-	if(strcmp(argv[2], "byte") == 0)
+	else if(strcmp(argv[i], "twoway") == 0)
+	{
+	    twoway = true;
+	}
+	else if(strcmp(argv[i], "ami") == 0)
+	{
+	    ami = true;
+	}
+	else if(strcmp(argv[i], "byte") == 0)
 	{
 	    sendbytes = true;
 	}
-	else if(strcmp(argv[2], "string") == 0)
+	else if(strcmp(argv[i], "string") == 0)
 	{
 	    sendstrings = true;
 	}
-	else if(strcmp(argv[2], "longString") == 0)
+	else if(strcmp(argv[i], "longString") == 0)
 	{
 	    sendlongstrings = true;
 	}
-	else if(strcmp(argv[2], "struct") == 0)
+	else if(strcmp(argv[i], "struct") == 0)
 	{
 	    sendstructs = true;
 	}
-	else
-	{
-	    usage();
-	    return 1;
-	}
-    }
-    else
-    {
-        usage();
-	return 1;
     }
 
+    if(!latency && !throughput)
+    {
+        latency = true;
+    }
+
+    if(latency)
+    {
+        if(!oneway && !twoway)
+	{
+	    twoway = true;
+	}
+    }
+    else if(throughput)
+    {
+        if(!sendbytes && !sendstrings && !sendlongstrings && !sendstructs)
+	{
+	    sendbytes = true;
+	}
+    }
 
       object =
         orb->string_to_object (ior ACE_ENV_ARG_PARAMETER);
@@ -163,6 +184,19 @@ main (int argc, char *argv[])
 
     if(latency)
     {
+        Roundtrip_Handler *roundtrip_handler_impl;
+	ACE_NEW_RETURN (roundtrip_handler_impl,
+			Roundtrip_Handler (),
+			1);
+	PortableServer::ServantBase_var owner_transfer(roundtrip_handler_impl);
+
+	Test::AMI_RoundtripHandler_var roundtrip_handler =
+	  roundtrip_handler_impl->_this (ACE_ENV_SINGLE_ARG_PARAMETER);
+	ACE_TRY_CHECK;
+
+	poa_manager->activate (ACE_ENV_SINGLE_ARG_PARAMETER);
+	ACE_TRY_CHECK;
+
 #ifdef WIN32
         struct _timeb tb;
         _ftime(&tb);
@@ -189,6 +223,14 @@ main (int argc, char *argv[])
 	  {
               roundtrip->test_oneway (ACE_ENV_SINGLE_ARG_PARAMETER);
               ACE_TRY_CHECK;
+	  }
+	  else if(ami)
+	  {
+	      roundtrip->sendc_test_method (roundtrip_handler.in ()
+	      				    ACE_ENV_SINGLE_ARG_PARAMETER);
+	      ACE_TRY_CHECK;
+
+	      roundtrip_handler_impl->waitFinished();
 	  }
 	  else
 	  {

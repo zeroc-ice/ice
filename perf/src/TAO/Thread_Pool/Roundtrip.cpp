@@ -3,6 +3,8 @@
 //
 #include "Roundtrip.h"
 
+#include <iostream>
+
 ACE_RCSID(Thread_Pool_Latency, Roundtrip, "Roundtrip.cpp,v 1.4 2004/01/11 05:06:02 bala Exp")
 
 Roundtrip::Roundtrip (CORBA::ORB_ptr orb)
@@ -24,12 +26,6 @@ Roundtrip::sendStringSeq (const Test::StringSeq & ACE_ENV_ARG_DECL_WITH_DEFAULTS
 
 void
 Roundtrip::sendStringDoubleSeq (const Test::StringDoubleSeq & ACE_ENV_ARG_DECL_WITH_DEFAULTS)
-  ACE_THROW_SPEC ((CORBA::SystemException))
-{
-}
-
-void
-Roundtrip::sendStruct (const Test::StringDouble &  ACE_ENV_ARG_DECL_WITH_DEFAULTS)
   ACE_THROW_SPEC ((CORBA::SystemException))
 {
 }

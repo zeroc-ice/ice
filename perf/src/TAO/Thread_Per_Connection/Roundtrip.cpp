@@ -31,12 +31,6 @@ Roundtrip::sendStringDoubleSeq (const Test::StringDoubleSeq & ACE_ENV_ARG_DECL_W
 }
 
 void
-Roundtrip::sendStruct (const Test::StringDouble &  ACE_ENV_ARG_DECL_WITH_DEFAULTS)
-  ACE_THROW_SPEC ((CORBA::SystemException))
-{
-}
-
-void
 Roundtrip::test_method (ACE_ENV_SINGLE_ARG_DECL)
   ACE_THROW_SPEC ((CORBA::SystemException))
 {
