@@ -17,14 +17,16 @@ Building and running the C++ demos
 
 The C++ demos are in the demo directory.
 
-To build a C++ demo, you just need to open demo\demo.sln in Visual
-Studio .NET, right click on it in the Solution Explorer window and
-select "Build". 
+To build a C++ demo, you just need to open the workspace demo\demo.dsw
+in Visual Studio 6.0. Set your active project to "all" by using
+Project->Set Active Project. And then start the compilation by using
+Build->Build for Visual C++ 6.0.
 
 To run these demos, you need to add the Ice bin directory to your
 PATH, for example:
 
-set PATH=C:\Ice-2.1.0\bin;%PATH%
+set ICE_HOME=<Ice installation root directory>
+set PATH=%ICE_HOME%\bin;%PATH%
 
 Then open a Command Prompt, change to the desired demo subdirectory,
 and and type 'server' to start the server. In a separate Command
