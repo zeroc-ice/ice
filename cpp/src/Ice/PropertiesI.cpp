@@ -275,7 +275,7 @@ static const string glacierProps[] =
     "Starter.Certificate.StateProvince",
     "Starter.CryptPasswords",
     "Starter.Endpoints",
-    "Starter.PermissionsVerifer",
+    "Starter.PermissionsVerifier",
     "Starter.PropertiesOverride",
     "Starter.RouterPath",
     "Starter.StartupTimeout",
