@@ -9,6 +9,11 @@ ICE_LICENSE file included in this distribution.
 
 To run the demo:
 
+For icebox to be able to find the library containing the service, you
+must add the current directory to LD_LIBRARY_PATH (Linux) or Path
+(Windows). Alternatively, you can copy libHelloService.{so,dll} to a
+directory that is in the path.
+
 Start the IcePack service:
 
 $ icepacknode --Ice.Config=config --warn
@@ -22,3 +27,4 @@ This will deploy the servers described in the file "application.xml"
 and start the client.
 
 Messages will be displayed in the IcePack service window.
+
