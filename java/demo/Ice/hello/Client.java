@@ -73,23 +73,23 @@ public class Client
                 }
                 if(line.equals("t"))
                 {
-                    twoway.hello();
+                    twoway.sayHello();
                 }
                 else if(line.equals("o"))
                 {
-                    oneway.hello();
+                    oneway.sayHello();
                 }
                 else if(line.equals("O"))
                 {
-                    batchOneway.hello();
+                    batchOneway.sayHello();
                 }
                 else if(line.equals("d"))
                 {
-                    datagram.hello();
+                    datagram.sayHello();
                 }
                 else if(line.equals("D"))
                 {
-                    batchDatagram.hello();
+                    batchDatagram.sayHello();
                 }
                 else if(line.equals("f"))
                 {

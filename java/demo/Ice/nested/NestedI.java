@@ -16,12 +16,12 @@ class NestedI extends Nested
     }
 
     public void
-    nested(int level, NestedPrx proxy, Ice.Current current)
+    nestedCall(int level, NestedPrx proxy, Ice.Current current)
     {
         System.out.println("" + level);
         if(--level > 0)
         {
-            proxy.nested(level, _self, current.ctx);
+            proxy.nestedCall(level, _self, current.ctx);
         }
     }
 

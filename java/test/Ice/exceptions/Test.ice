@@ -15,22 +15,22 @@ interface Thrower;
 
 exception A
 {
-    int a;
+    int aMem;
 };
 
 exception B extends A
 {
-    int b;
+    int bMem;
 };
 
 exception C extends B
 {
-    int c;
+    int cMem;
 };
 
 exception D
 {
-    int d;
+    int dMem;
 };
 
 interface Thrower

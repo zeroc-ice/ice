@@ -78,7 +78,7 @@ public class AllTests
         }
         catch(A ex)
         {
-            test(ex.a == 1);
+            test(ex.aMem == 1);
         }
         catch(Exception ex)
         {
@@ -92,7 +92,7 @@ public class AllTests
         }
         catch(A ex)
         {
-            test(ex.a == 1);
+            test(ex.aMem == 1);
         }
         catch(Exception ex)
         {
@@ -106,7 +106,7 @@ public class AllTests
         }
         catch(D ex)
         {
-            test(ex.d == -1);
+            test(ex.dMem == -1);
         }
         catch(Exception ex)
         {
@@ -120,8 +120,8 @@ public class AllTests
         }
         catch(B ex)
         {
-            test(ex.a == 1);
-            test(ex.b == 2);
+            test(ex.aMem == 1);
+            test(ex.bMem == 2);
         }
         catch(Exception ex)
         {
@@ -135,9 +135,9 @@ public class AllTests
         }
         catch(C ex)
         {
-            test(ex.a == 1);
-            test(ex.b == 2);
-            test(ex.c == 3);
+            test(ex.aMem == 1);
+            test(ex.bMem == 2);
+            test(ex.cMem == 3);
         }
         catch(Exception ex)
         {
@@ -156,7 +156,7 @@ public class AllTests
         }
         catch(A ex)
         {
-            test(ex.a == 1);
+            test(ex.aMem == 1);
         }
         catch(Exception ex)
         {
@@ -170,8 +170,8 @@ public class AllTests
         }
         catch(B ex)
         {
-            test(ex.a == 1);
-            test(ex.b == 2);
+            test(ex.aMem == 1);
+            test(ex.bMem == 2);
         }
         catch(Exception ex)
         {
@@ -254,8 +254,8 @@ public class AllTests
         }
         catch(B ex)
         {
-            test(ex.a == 1);
-            test(ex.b == 2);
+            test(ex.aMem == 1);
+            test(ex.bMem == 2);
         }
         catch(Exception ex)
         {
@@ -269,9 +269,9 @@ public class AllTests
         }
         catch(C ex)
         {
-            test(ex.a == 1);
-            test(ex.b == 2);
-            test(ex.c == 3);
+            test(ex.aMem == 1);
+            test(ex.bMem == 2);
+            test(ex.cMem == 3);
         }
         catch(Exception ex)
         {
@@ -285,9 +285,9 @@ public class AllTests
         }
         catch(C ex)
         {
-            test(ex.a == 1);
-            test(ex.b == 2);
-            test(ex.c == 3);
+            test(ex.aMem == 1);
+            test(ex.bMem == 2);
+            test(ex.cMem == 3);
         }
         catch(Exception ex)
         {

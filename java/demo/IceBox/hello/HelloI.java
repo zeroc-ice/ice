@@ -17,7 +17,7 @@ public class HelloI extends Hello
     }
 
     public void
-    hello(Ice.Current current)
+    sayHello(Ice.Current current)
     {
         System.out.println("Hello World!");
     }

@@ -13,7 +13,7 @@
 
 class Nested
 {
-    void nested(int level, Nested* proxy);
+    void nestedCall(int level, Nested* proxy);
 };
 
 #endif

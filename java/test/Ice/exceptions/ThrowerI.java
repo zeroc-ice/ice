@@ -35,7 +35,7 @@ public final class ThrowerI extends _ThrowerDisp
         throws A
     {
         A ex = new A();
-        ex.a = a;
+        ex.aMem = a;
         throw ex;
     }
 
@@ -47,13 +47,13 @@ public final class ThrowerI extends _ThrowerDisp
         if(a > 0)
         {
             A ex = new A();
-            ex.a = a;
+            ex.aMem = a;
             throw ex;
         }
         else
         {
             D ex = new D();
-            ex.d = a;
+            ex.dMem = a;
             throw ex;
         }
     }
@@ -70,8 +70,8 @@ public final class ThrowerI extends _ThrowerDisp
         throws B
     {
         B ex = new B();
-        ex.a = a;
-        ex.b = b;
+        ex.aMem = a;
+        ex.bMem = b;
         throw ex;
     }
 
@@ -94,9 +94,9 @@ public final class ThrowerI extends _ThrowerDisp
         throws C
     {
         C ex = new C();
-        ex.a = a;
-        ex.b = b;
-        ex.c = c;
+        ex.aMem = a;
+        ex.bMem = b;
+        ex.cMem = c;
         throw ex;
     }
 

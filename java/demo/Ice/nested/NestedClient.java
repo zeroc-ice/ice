@@ -58,7 +58,7 @@ class NestedClient extends Ice.Application
                 int level = Integer.parseInt(s);
                 if(level > 0)
                 {
-                    nested.nested(level, self);
+                    nested.nestedCall(level, self);
                 }
             }
             catch(NumberFormatException ex)
