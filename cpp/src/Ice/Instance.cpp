@@ -207,6 +207,22 @@ IceInternal::Instance::clientThreadPool()
 
     if(!_clientThreadPool) // Lazy initialization.
     {
+	//
+	// Make sure that the client thread pool defaults are correctly
+	//
+	if(_properties->getProperty("Ice.ThreadPool.Client.Size").empty())
+	{
+	    _properties->setProperty("Ice.ThreadPool.Client.Size", "1");
+	}
+	if(_properties->getProperty("Ice.ThreadPool.Client.SizeMax").empty())
+	{
+	    _properties->setProperty("Ice.ThreadPool.Client.SizeMax", "1");
+	}
+	if(_properties->getProperty("Ice.ThreadPool.Client.SizeWarn").empty())
+	{
+	    _properties->setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+	}
+
 	_clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
     }
 
@@ -222,13 +238,6 @@ IceInternal::Instance::serverThreadPool()
     
     if(!_serverThreadPool) // Lazy initialization.
     {
-	//
-	// Make sure that the server thread pool default is set
-	// correctly.
-	//
-	_properties->setProperty("Ice.ThreadPool.Server.Size",
-				 _properties->getPropertyWithDefault("Ice.ThreadPool.Server.Size", "10"));
-
 	int timeout = _properties->getPropertyAsInt("Ice.ServerIdleTime");
 	_serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
     }

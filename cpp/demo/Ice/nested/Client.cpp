@@ -57,8 +57,8 @@ NestedClient::run(int argc, char* argv[])
     adapter->add(new NestedI(self), Ice::stringToIdentity("nestedClient"));
     adapter->activate();
 
-    cout << "Note: The maximum nesting level is (sz - 1) * 2, with sz\n"
-	 << "being the number of threads in the server thread pool. if\n"
+    cout << "Note: The maximum nesting level is sz * 2, with sz being\n"
+	 << "the maximum number of threads in the server thread pool. if\n"
 	 << "you specify a value higher than that, the application will\n"
 	 << "block or timeout.\n"
 	 << endl;

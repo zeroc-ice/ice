@@ -35,7 +35,7 @@ namespace IceInternal
 
 class BasicStream;
 
-class ThreadPool : public ::IceUtil::Shared, public IceUtil::Mutex
+class ThreadPool : public IceUtil::Shared, public IceUtil::Mutex
 {
 public:
 
@@ -60,20 +60,30 @@ private:
 
     InstancePtr _instance;
     bool _destroyed;
-    const int _size;
-    const int _sizeMax;
+    const std::string _prefix;
+
+    const int _size; // Number of threads that are pre-created.
+    const int _sizeMax; // Maximum number of threads.
+    const int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
+    int _inUse; // Number of threads that are currently in use.
+    IceUtil::Mutex _inUseMutex;
+
     SOCKET _maxFd;
     SOCKET _minFd;
     SOCKET _lastFd;
     SOCKET _fdIntrRead;
     SOCKET _fdIntrWrite;
     fd_set _fdSet;
-    std::list<std::pair<SOCKET, EventHandlerPtr> > _changes; // Event handler set for addition; null for removal.
-    std::map<SOCKET, EventHandlerPtr> _handlerMap;
-    int _timeout;
-    ::IceUtil::Mutex _threadMutex;
 
-    class EventHandlerThread : public ::IceUtil::Thread
+    std::list<std::pair<SOCKET, EventHandlerPtr> > _changes; // Event handler set for addition; null for removal.
+
+    std::map<SOCKET, EventHandlerPtr> _handlerMap;
+
+    int _timeout;
+
+    IceUtil::Mutex _threadMutex;
+
+    class EventHandlerThread : public IceUtil::Thread
     {
     public:
 	
