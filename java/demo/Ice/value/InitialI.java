@@ -16,8 +16,6 @@ class InitialI extends Initial
 {
     InitialI(Ice.ObjectAdapter adapter)
     {
-        _adapter = adapter;
-
         _simple = new Simple();
         _simple.message = "a message 4 u";
 
@@ -65,7 +63,6 @@ class InitialI extends Initial
         throw ex;
     }
 
-    private Ice.ObjectAdapter _adapter;
     private Simple _simple;
     private Printer _printer;
     private PrinterPrx _printerProxy;
