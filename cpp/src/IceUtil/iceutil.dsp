@@ -142,6 +142,14 @@ SOURCE=.\InputUtil.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\MD5.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\MD5I.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\OutputUtil.cpp
 # End Source File
 # Begin Source File
@@ -243,6 +251,14 @@ SOURCE=..\..\include\IceUtil\InputUtil.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\Lock.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\MD5.h
+# End Source File
+# Begin Source File
+
+SOURCE=MD5I.h
 # End Source File
 # Begin Source File
 

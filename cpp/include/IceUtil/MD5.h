@@ -20,7 +20,7 @@ struct md5_state_s;
 namespace IceUtil
 {
 
-class MD5
+class ICE_UTIL_API MD5
 {
 public:
 

@@ -106,6 +106,10 @@ PostBuild_Cmds=copy $(OutDir)\sliced.lib ..\..\lib	copy $(OutDir)\slice14d.pdb .
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Checksum.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\CPlusPlusUtil.cpp
 # End Source File
 # Begin Source File
@@ -136,6 +140,10 @@ SOURCE=.\Scanner.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\..\incluce\Slice\Checksum.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\incluce\Slice\CPlusPlusUtil.h

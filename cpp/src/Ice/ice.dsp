@@ -1930,6 +1930,49 @@ InputPath=..\..\slice\Ice\ServantLocatorF.ice
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\slice\Ice\SliceChecksumDict.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__IDENT="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SliceChecksumDict.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SliceChecksumDict.ice \
+	move SliceChecksumDict.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\SliceChecksumDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"SliceChecksumDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__IDENT="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SliceChecksumDict.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SliceChecksumDict.ice \
+	move SliceChecksumDict.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\SliceChecksumDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"SliceChecksumDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\slice\Ice\Stats.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"

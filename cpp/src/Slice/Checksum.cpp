@@ -40,8 +40,8 @@ private:
 
 }
 
-Slice::ChecksumVisitor::ChecksumVisitor(ChecksumMap& map) :
-    _map(map)
+Slice::ChecksumVisitor::ChecksumVisitor(ChecksumMap& m) :
+    _map(m)
 {
 }
 
