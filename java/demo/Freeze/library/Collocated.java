@@ -65,6 +65,7 @@ class LibraryCollocated extends Freeze.Application
 	//
 	int status = RunParser.runParser(appName(), args, communicator());
 	adapter.deactivate();
+	adapter.waitForDeactivate();
 
 	return status;
     }
