@@ -31,7 +31,6 @@ copy(InputIter first, InputIter last, OutputIter result)
     std::copy(first, last, result);
 }
 
-/*
 template<>
 void
 copy(std::vector<Ice::Byte>::const_iterator first, std::vector<Ice::Byte>::const_iterator last,
@@ -39,7 +38,22 @@ copy(std::vector<Ice::Byte>::const_iterator first, std::vector<Ice::Byte>::const
 {
     memcpy(&*result, &*first, last - first);
 }
-*/
+
+template<>
+void
+copy(std::string::const_iterator first, std::string::const_iterator last,
+     std::vector<Ice::Byte>::iterator result)
+{
+    memcpy(&*result, &*first, last - first);
+}
+
+template<>
+void
+copy(std::vector<Ice::Byte>::const_iterator first, std::vector<Ice::Byte>::const_iterator last,
+     std::string::iterator result)
+{
+    memcpy(&*result, &*first, last - first);
+}
 
 using namespace std;
 using namespace Ice;
@@ -82,7 +96,13 @@ inlineResize(Buffer* buffer, int total)
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }
-    buffer->b.reserve(max(static_cast<size_t>(total), 2 * buffer->b.capacity()));
+
+    int capacity = buffer->b.capacity();
+    if(capacity < total)
+    {
+	buffer->b.reserve(max(total, 2 * capacity));
+    }
+
     buffer->b.resize(total);
 }
 
@@ -99,6 +119,7 @@ IceInternal::BasicStream::reserve(int total)
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }
+
     b.reserve(total);
 }
 

@@ -43,11 +43,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     IceUtil::Time tsec = IceUtil::Time::now();
 
     const int repetitions = 100;
-    const int size = 500000;
 
-    cout << "sending and receiving " << repetitions << " sequences of size " << size
+    cout << "sending and receiving " << repetitions << " sequences of size " << seqSize
 	 << " (this may take a while)" << endl;
-    ByteSeq seq(size, 0);
+    ByteSeq seq(seqSize, 0);
     for(int i = 0; i < repetitions; ++i)
     {
 	throughput->echoByteSeq(seq);

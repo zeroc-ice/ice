@@ -22,11 +22,31 @@ class ThroughputI : public Throughput
 {
 public:
 
+    ThroughputI() :
+	_seq(seqSize, 0)
+    {
+    }
+
+    virtual void
+    sendByteSeq(const ByteSeq&, const Ice::Current&)
+    {
+    }
+
+    virtual ByteSeq
+    recvByteSeq(const Ice::Current&)
+    {
+	return _seq;
+    }
+
     virtual ByteSeq
     echoByteSeq(const ByteSeq& seq, const Ice::Current&)
     {
 	return seq;
     }
+
+private:
+
+    ByteSeq _seq;
 };
 
 #endif
