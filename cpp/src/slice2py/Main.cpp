@@ -272,8 +272,6 @@ usage(const char* n)
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
-        "--header-ext EXT     Use EXT instead of the default `h' extension.\n"
-        "--source-ext EXT     Use EXT instead of the default `cpp' extension.\n"
         "-DNAME               Define NAME as 1.\n"
         "-DNAME=DEF           Define NAME as DEF.\n"
         "-UNAME               Remove any definition for NAME.\n"
@@ -282,6 +280,7 @@ usage(const char* n)
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
         "--all                Generate code for Slice definitions in included files.\n"
+        "--no-package         Do not create Python packages.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }
@@ -295,6 +294,7 @@ main(int argc, char* argv[])
     bool ice = false;
     bool caseSensitive = false;
     bool all = false;
+    bool noPackage = false;
 
     int idx = 1;
     while(idx < argc)
@@ -361,6 +361,15 @@ main(int argc, char* argv[])
         else if(strcmp(argv[idx], "--all") == 0)
         {
             all = true;
+            for(int i = idx ; i + 1 < argc ; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            --argc;
+        }
+        else if(strcmp(argv[idx], "--no-package") == 0)
+        {
+            noPackage = true;
             for(int i = idx ; i + 1 < argc ; ++i)
             {
                 argv[i] = argv[i + 1];
@@ -463,13 +472,16 @@ main(int argc, char* argv[])
             //
             // Generate the Python mapping.
             //
-            generate(u, out);
+            generate(u, all, out);
 
             //
             // Create or update the Python package hierarchy.
             //
-            PackageVisitor visitor(argv[0], base + "_ice", output);
-            u->visit(&visitor, false);
+            if(!noPackage)
+            {
+                PackageVisitor visitor(argv[0], base + "_ice", output);
+                u->visit(&visitor, false);
+            }
         }
 
         u->destroy();
