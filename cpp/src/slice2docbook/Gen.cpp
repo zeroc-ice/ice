@@ -15,8 +15,11 @@
 using namespace std;
 using namespace Slice;
 
-Slice::Gen::Gen(const string& name, const string& file, bool standAlone)
-    : standAlone_(standAlone)
+Slice::Gen::Gen(const string& name, const string& file, bool standAlone,
+		bool noGlobals)
+    : standAlone_(standAlone),
+      noGlobals_(noGlobals),
+      chapter_("section") // Could also be "chapter"
 {
     O.open(file.c_str());
     if(!O)
@@ -51,13 +54,17 @@ Slice::Gen::visitUnitStart(const Unit_ptr& p)
     if(standAlone_)
     {
 	O << "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook V3.1//EN\">";
-	start("book");
+	start("article");
     }
 
     printHeader();
-    start("chapter", "Global Module");
-    start("section", "Overview");
-    visitContainer(p);
+
+    if(!noGlobals_)
+    {
+	start(chapter_, "Global Module");
+	start("section", "Overview");
+	visitContainer(p);
+    }
 }
 
 void
@@ -70,7 +77,8 @@ Slice::Gen::visitUnitEnd(const Unit_ptr& p)
 void
 Slice::Gen::visitModuleStart(const Module_ptr& p)
 {
-    start("chapter id=" + scopedToId(p -> scoped()), p -> scoped().substr(2));
+    start(chapter_ + " id=" + scopedToId(p -> scoped()),
+	  p -> scoped().substr(2));
     start("section", "Overview");
     O.zeroIndent();
     O << nl << "<synopsis>module <classname>" << p -> name()
@@ -306,7 +314,8 @@ Slice::Gen::visitContainer(const Container_ptr& p)
 void
 Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
 {
-    start("chapter id=" + scopedToId(p -> scoped()), p -> scoped().substr(2));
+    start(chapter_ + " id=" + scopedToId(p -> scoped()),
+	  p -> scoped().substr(2));
 
     start("section", "Overview");
     O.zeroIndent();
@@ -506,7 +515,7 @@ Slice::Gen::printHeader()
 "-->";
     
     O.zeroIndent();
-    O << nl << header;
+    O << header;
     O.restoreIndent();
 }
 

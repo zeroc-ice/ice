@@ -1,5 +1,6 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
-<!ENTITY reference SYSTEM "reference.sgml">
+<!ENTITY ModuleIce SYSTEM "ModuleIce.sgml">
+<!ENTITY Properties SYSTEM "Properties.sgml">
 ]>
 <!--
 **********************************************************************
@@ -41,82 +42,21 @@ All Rights Reserved
 <part>
 <title>Introduction</title>
 <chapter>
-<title>Getting Started with Ice</title>
+<title>Getting Started</title>
 <para>
 TBD
 </para>
-</chapter>
-<chapter>
-<title>Writing Specifications with Slice</title>
-<section>
-<title>Modules</title>
-<para>
-TBD
-</para>
-</section>
-<section>
-<title>Classes</title>
-<para>
-TBD
-</para>
-</section>
-<section>
-<title>Interfaces</title>
-<para>
-TBD
-</para>
-</section>
-</chapter>
-<chapter>
-<title>The Slice to C++ Mapping</title>
-<para>
-TBD
-</para>
-<programlisting>
-int
-main(int argc, char* argv[])
-{
-    int status;
-    Ice::Communicator_ptr communicator;
-
-    try
-    {
-	communicator = Ice::initialize(argc, argv); <co id="intro.main.init">
-	status = run(argc, argv, communicator); <co id="intro.main.run">
-    }
-    catch(const Ice::LocalException& ex) <co id="intro.main.ex1">
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if(communicator) <co id="intro.main.if">
-    {
-	try
-	{
-	    communicator -> destroy(); <co id="intro.main.dest">
-	}
-	catch(const Ice::LocalException& ex) <co id="intro.main.ex2">
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status; <co id="intro.main.return">
-}
-</programlisting>
-<calloutlist>
-<callout arearefs="intro.main.init">
-<para>
-blahblahblah
-</para>
-</callout>
-</calloutlist>
 </chapter>
 </part>
 <part>
 <title>Reference</title>
-&reference;
+<chapter>
+<title>Module Ice</title>
+&ModuleIce;
+</chapter>
+<chapter>
+<title>Properties</title>
+&Properties;
+</chapter>
 </part>
 </book>

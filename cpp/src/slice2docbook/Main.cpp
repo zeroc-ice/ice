@@ -21,6 +21,7 @@ usage(const char* n)
     cerr <<	
 "Options:\n"
 "-s, --stand-alone    Create stand-alone docbook file.\n"
+"--no-globals         Don't document the global module.\n"
 "-h, --help           Show this message.\n"
 "-DNAME               Define NAME as 1.\n"
 "-DNAME=DEF           Define NAME as DEF.\n"
@@ -37,6 +38,7 @@ main(int argc, char* argv[])
     vector<string> includePaths;
     bool debug = false;
     bool standAlone = false;
+    bool noGlobals = false;
 
     int idx = 1;
     while(idx < argc)
@@ -68,6 +70,13 @@ main(int argc, char* argv[])
 		strcmp(argv[idx], "--stand-alone") == 0)
 	{
 	    standAlone = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+		argv[i] = argv[i + 1];
+	    --argc;
+	}
+	else if(strcmp(argv[idx], "--no-globals") == 0)
+	{
+	    noGlobals = true;
 	    for(int i = idx ; i + 1 < argc ; ++i)
 		argv[i] = argv[i + 1];
 	    --argc;
@@ -189,7 +198,7 @@ main(int argc, char* argv[])
 
     if(status == EXIT_SUCCESS)
     {
-	Gen gen(argv[0], docbook, standAlone);
+	Gen gen(argv[0], docbook, standAlone, noGlobals);
 	if(!gen)
 	{
 	    unit -> destroy();

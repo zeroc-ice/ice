@@ -1,0 +1,56 @@
+<!--
+**********************************************************************
+Copyright (c) 2001
+MutableRealms, Inc.
+Huntsville, AL, USA
+
+All Rights Reserved
+**********************************************************************
+-->
+
+<section><title>Tracing</title>
+<variablelist>
+<varlistentry>
+<term>
+ice.trace.network=<replaceable>num</replaceable>
+</term>
+<listitem>
+<para>
+The network tracing level.
+0 = no network tracing
+1 = trace connection establishment and closure
+2 = like 1, but more detailed
+3 = like 2, but also trace data transfer
+</para>
+</listitem>
+</varlistentry>
+<varlistentry>
+<term>
+ice.trace.protocol=<replaceable>num</replaceable>
+</term>
+<listitem>
+<para>
+The protocol tracing level.
+0 = no protocol tracing
+1 = trace protocol messages
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
+
+<section><title>Thread Pool</title>
+<variablelist>
+<varlistentry>
+<term>
+ice.thread_pool.size=<replaceable>num</replaceable>
+</term>
+<listitem>
+<para>
+The number of threads in the thread pool. The default value is
+10. <replaceable>num</replaceable> must be equal to or larger than 1.
+</para>
+</listitem>
+</varlistentry>
+</variablelist>
+</section>
