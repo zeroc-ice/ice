@@ -775,8 +775,15 @@ def main():
     #
     # Configure environment.
     #
+    if getPlatform() <> "aix":
+	dylibEnvironmentVar = 'LD_LIBRARY_PATH'
+    else:
+	dylibEnvironmentVar = 'LIBPATH'
+
     for k, v in buildEnvironment.iteritems():
-	os.environ[k] = buildEnvironment[k] 
+	os.environ[k] = v
+	if os.environ.has_key(dylibEnvironmentVar):
+	    os.environ[dylibEnvironmentVar] = v + "/lib:" + os.environ[dylibEnvironmentVar] 
 
     if buildDir == None:
         logging.info("No build directory specified, defaulting to $HOME/tmp/icebuild")
