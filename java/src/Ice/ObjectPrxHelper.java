@@ -177,7 +177,7 @@ public class ObjectPrxHelper implements ObjectPrx
 
     public final boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
-               java.util.Map __context)
+               java.util.Map context)
     {
         int __cnt = 0;
         while(true)
@@ -185,7 +185,7 @@ public class ObjectPrxHelper implements ObjectPrx
             try
             {
                 _ObjectDel __del = __getDelegate();
-                return __del.ice_invoke(operation, mode, inParams, outParams, __context);
+                return __del.ice_invoke(operation, mode, inParams, outParams, context);
             }
             catch(IceInternal.NonRepeatable __ex)
             {
@@ -197,6 +197,32 @@ public class ObjectPrxHelper implements ObjectPrx
                 {
                     __rethrowException(__ex.get());
                 }
+            }
+            catch(LocalException __ex)
+            {
+                __cnt = __handleException(__ex, __cnt);
+            }
+        }
+    }
+
+    public final void
+    ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams)
+    {
+        ice_invoke_async(cb, operation, mode, inParams, null);
+    }
+
+    public final void
+    ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
+		     java.util.Map context)
+    {
+        int __cnt = 0;
+        while(true)
+        {
+            try
+            {
+                _ObjectDel __del = __getDelegate();
+                __del.ice_invoke_async(cb, operation, mode, inParams, context);
+		return;
             }
             catch(LocalException __ex)
             {

@@ -141,6 +141,16 @@ public class _ObjectDelM implements _ObjectDel
     }
 
     public void
+    ice_invoke_async(AMI_Object_ice_invoke cb, String operation, Ice.OperationMode mode, byte[] inParams,
+		     java.util.Map context)
+    {
+	cb.__setup(__connection, __reference, operation, mode, context);
+	IceInternal.BasicStream __os = cb.__os();
+	__os.writeBlob(inParams);
+	cb.__invoke();
+    }
+
+    public void
     ice_flush()
     {
         __connection.flushBatchRequest();

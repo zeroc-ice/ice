@@ -16,24 +16,27 @@ package Ice;
 
 public interface _ObjectDel
 {
-    boolean ice_isA(String __id, java.util.Map __context)
+    boolean ice_isA(String id, java.util.Map context)
         throws IceInternal.NonRepeatable;
 
-    void ice_ping(java.util.Map __context)
+    void ice_ping(java.util.Map context)
         throws IceInternal.NonRepeatable;
 
-    String[] ice_ids(java.util.Map __context)
+    String[] ice_ids(java.util.Map context)
         throws IceInternal.NonRepeatable;
 
-    String ice_id(java.util.Map __context)
+    String ice_id(java.util.Map context)
         throws IceInternal.NonRepeatable;
 
-    String[] ice_facets(java.util.Map __context)
+    String[] ice_facets(java.util.Map context)
         throws IceInternal.NonRepeatable;
 
     boolean ice_invoke(String operation, Ice.OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                        java.util.Map context)
         throws IceInternal.NonRepeatable;
+
+    void ice_invoke_async(AMI_Object_ice_invoke cb, String operation, Ice.OperationMode mode, byte[] inParams,
+			  java.util.Map context);
 
     void ice_flush();
 }

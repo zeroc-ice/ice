@@ -24,7 +24,6 @@ public abstract class OutgoingAsync
     }
 
     public abstract void ice_exception(Ice.LocalException ex);
-    public abstract void __response(boolean ok);
 
     public void
     __setup(Connection connection, Reference ref, String operation, Ice.OperationMode mode, java.util.Map context)
@@ -233,6 +232,8 @@ public abstract class OutgoingAsync
     {
         return _os;
     }
+
+    protected abstract void __response(boolean ok);
 
     private void
     warning(Exception ex)
