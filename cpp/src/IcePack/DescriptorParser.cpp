@@ -120,31 +120,6 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    error("element <icepack> is a top level element");
 	}
 	_isTopLevel = false;
-
-	//
-	// Set the current base directory. Relative paths specified in the rest of descriptors will be 
-	// relative to this base directory. If no base directory is specified, the default base directory
-	// is the directory where this descriptor is located.
-	//
-	string baseDir = getAttributeValueWithDefault(attrs, "basedir", "");
-	if(baseDir.empty() || baseDir[0] != '/')
-	{
-	    if(!baseDir.empty())
-	    {
-		baseDir = "/" + baseDir;
-	    }
-
-	    string::size_type end = _filename.find_last_of('/');
-	    if(end != string::npos)
-	    {
-		baseDir = _filename.substr(0, end) + baseDir;
-	    }
-	    else
-	    {
-		baseDir = "." + baseDir;
-	    }
-	}
-	_variables.back()["basedir"] = baseDir;
     }
     else if(_isTopLevel)
     {
@@ -182,11 +157,11 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	{
 	    if(p->first == "descriptor")
 	    {
-		file = p->second;
+		file = substitute(p->second);
 	    }
 	    else if(p->first == "targets")
 	    {
-		targets = p->second;
+		targets = substitute(p->second);
 	    }
 	    else
 	    {
@@ -200,9 +175,13 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    error("attribute `descriptor' is mandatory in element <include>");
 	}
 
-	if(hasVariable("basedir") && file[0] != '/')
+	if(file[0] != '/')
 	{
-	    file = getVariable("basedir") + "/" + file;
+	    string::size_type end = _filename.find_last_of('/');
+	    if(end != string::npos)
+	    {
+		file = _filename.substr(0, end) + "/" + file;
+	    }
 	}
 
 	string oldFileName = _filename;
@@ -504,20 +483,6 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	    _currentApplication->comment = elementValue();
 	}
     }
-    else if(name == "exe")
-    {
-	if(!_currentServer)
-	{
-	    error("element <exe> can only be the child of a <server> element");
-	}
-    }
-    else if(name == "pwd")
-    {
-	if(!_currentServer)
-	{
-	    error("element <pwd> can only be the child of a <server> element");
-	}
-    }
     else if(name == "option")
     {
 	if(!_currentServer)
@@ -533,14 +498,6 @@ DescriptorHandler::endElement(const string& name, int line, int column)
 	    error("element <env> can only be the child of a <server> element");
 	}
 	_currentServer->envs.push_back(elementValue());
-    }
-    else if(name == "classname")
-    {
-	JavaServerDescriptorPtr descriptor = JavaServerDescriptorPtr::dynamicCast(_currentServer);
-	if(!descriptor)
-	{
-	    error("element <classname> can only be the child of a Java <server> element");	    
-	}
     }
     else if(name == "jvm-option")
     {
