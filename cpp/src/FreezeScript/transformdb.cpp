@@ -523,8 +523,8 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     //
     DbEnv dbEnv(0);
     DbEnv dbEnvNew(0);
-    DbTxn* txn = 0;
     DbTxn* txnNew = 0;
+    vector<Db*> dbs;
     int status = EXIT_SUCCESS;
     try
     {
@@ -537,7 +537,8 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 #endif
 
         //
-        // Open the old database environment and start a transaction. Use DB_RECOVER_FATAL if -c is specified.
+        // Open the old database environment. Use DB_RECOVER_FATAL if -c is specified.
+        // No transaction is created for the old environment.
         //
         {
             u_int32_t flags = DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_CREATE;
@@ -551,7 +552,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             }
             dbEnv.open(dbEnvName.c_str(), flags, FREEZE_SCRIPT_DB_MODE);
         }
-        dbEnv.txn_begin(0, &txn, 0);
 
         //
         // Open the new database environment and start a transaction.
@@ -565,12 +565,16 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         if(evictor)
         {
             //
-            // Open the old database in a transaction and collect the names of the embedded databases.
+            // The evictor database file contains multiple databases. We must first
+            // determine the names of those databases, ignoring any whose names
+            // begin with "$index:". Each database represents a separate facet, with
+            // the facet name used as the database name. The database named "$default"
+            // represents the main object.
             //
             vector<string> dbNames;
             {
                 Db db(&dbEnv, 0);
-                db.open(txn, dbName.c_str(), 0, DB_UNKNOWN, DB_RDONLY, 0);
+                db.open(0, dbName.c_str(), 0, DB_UNKNOWN, DB_RDONLY, 0);
                 Dbt dbKey, dbValue;
                 dbKey.set_flags(DB_DBT_MALLOC);
                 dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
@@ -592,53 +596,55 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
                 db.close(0);
             }
 
+            //
+            // Transform each database. To workaround a bug in BerkeleyDB, we
+            // delay closing the new databases until after the transaction is
+            // aborted or committed.
+            //
             for(vector<string>::iterator p = dbNames.begin(); p != dbNames.end(); ++p)
             {
-                Db db(&dbEnv, 0);
-                db.open(txn, dbName.c_str(), p->c_str(), DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
+                string name = p->c_str();
 
-                Db dbNew(&dbEnvNew, 0);
-                dbNew.open(txnNew, dbName.c_str(), p->c_str(), DB_BTREE, DB_CREATE | DB_EXCL,
-                           FREEZE_SCRIPT_DB_MODE);
+                Db db(&dbEnv, 0);
+                db.open(0, dbName.c_str(), name.c_str(), DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
+
+                Db* dbNew = new Db(&dbEnvNew, 0);
+                dbs.push_back(dbNew);
+                dbNew->open(txnNew, dbName.c_str(), name.c_str(), DB_BTREE, DB_CREATE | DB_EXCL, FREEZE_SCRIPT_DB_MODE);
 
                 //
                 // Execute the transformation descriptors.
                 //
                 istringstream istr(descriptors);
-                FreezeScript::transformDatabase(communicator, oldUnit, newUnit, &db, txn, &dbNew, txnNew,
+                string facet = (name == "$default" ? "" : name);
+                FreezeScript::transformDatabase(communicator, oldUnit, newUnit, &db, dbNew, txnNew, facet,
                                                 purgeObjects, cerr, suppress, istr);
 
-                //
-                // Checkpoint to migrate changes from the log to the database.
-                //
-                dbEnvNew.txn_checkpoint(0, 0, DB_FORCE);
-
                 db.close(0);
-                dbNew.close(0);
             }
         }
         else
         {
+            //
+            // Transform a map database. To workaround a bug in BerkeleyDB, we
+            // delay closing the new database until after the transaction is
+            // aborted or committed.
+            //
             Db db(&dbEnv, 0);
-            db.open(txn, dbName.c_str(), 0, DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
+            db.open(0, dbName.c_str(), 0, DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
 
-            Db dbNew(&dbEnvNew, 0);
-            dbNew.open(txnNew, dbName.c_str(), 0, DB_BTREE, DB_CREATE | DB_EXCL, FREEZE_SCRIPT_DB_MODE);
+            Db* dbNew = new Db(&dbEnvNew, 0);
+            dbs.push_back(dbNew);
+            dbNew->open(txnNew, dbName.c_str(), 0, DB_BTREE, DB_CREATE | DB_EXCL, FREEZE_SCRIPT_DB_MODE);
 
             //
             // Execute the transformation descriptors.
             //
             istringstream istr(descriptors);
-            FreezeScript::transformDatabase(communicator, oldUnit, newUnit, &db, txn, &dbNew, txnNew,
-                                            purgeObjects, cerr, suppress, istr);
-
-            //
-            // Checkpoint to migrate changes from the log to the database.
-            //
-            dbEnvNew.txn_checkpoint(0, 0, DB_FORCE);
+            FreezeScript::transformDatabase(communicator, oldUnit, newUnit, &db, dbNew, txnNew, "", purgeObjects, cerr,
+                                            suppress, istr);
 
             db.close(0);
-            dbNew.close(0);
         }
     }
     catch(const DbException& ex)
@@ -648,32 +654,57 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
     catch(...)
     {
-        if(txn)
+        try
         {
-            txn->abort();
+            if(txnNew)
+            {
+                txnNew->abort();
+            }
+            for(vector<Db*>::iterator p = dbs.begin(); p != dbs.end(); ++p)
+            {
+                Db* db = *p;
+                db->close(0);
+                delete db;
+            }
+            dbEnv.close(0);
+            dbEnvNew.close(0);
         }
-        if(txnNew)
+        catch(const DbException& ex)
         {
-            txnNew->abort();
+            cerr << argv[0] << ": database error: " << ex.what() << endl;
         }
-        dbEnv.close(0);
-        dbEnvNew.close(0);
         throw;
     }
 
-    if(txn)
-    {
-        txn->abort();
-    }
     if(txnNew)
     {
-        if(status == EXIT_FAILURE)
+        try
         {
-            txnNew->abort();
+            if(status == EXIT_FAILURE)
+            {
+                txnNew->abort();
+            }
+            else
+            {
+                txnNew->commit(0);
+
+                //
+                // Checkpoint to migrate changes from the log to the database(s).
+                //
+                dbEnvNew.txn_checkpoint(0, 0, DB_FORCE);
+
+                for(vector<Db*>::iterator p = dbs.begin(); p != dbs.end(); ++p)
+                {
+                    Db* db = *p;
+                    db->close(0);
+                    delete db;
+                }
+            }
         }
-        else
+        catch(const DbException& ex)
         {
-            txnNew->commit(0);
+            cerr << argv[0] << ": database error: " << ex.what() << endl;
+            status = EXIT_FAILURE;
         }
     }
     dbEnv.close(0);
