@@ -397,6 +397,21 @@ public class Slice2FreezeJTask extends SliceTask
 	    }
 
 	    //
+	    // Add the --dict options.
+	    //
+	    cmd.append(dictString);
+
+	    //
+	    // Add the --dict-index options.
+	    //
+	    cmd.append(dictIndexString);
+
+	     //
+	    // Add the --index options.
+	    //
+	    cmd.append(indexString);
+
+	    //
 	    // Add the slice files.
 	    //
 	    p = sliceFiles.iterator();
@@ -414,21 +429,7 @@ public class Slice2FreezeJTask extends SliceTask
                     cmd.append(s);
                 }
 	    }
-
-	    //
-	    // Add the --dict options.
-	    //
-	    cmd.append(dictString);
-
-	    //
-	    // Add the --dict-index options.
-	    //
-	    cmd.append(dictIndexString);
-
-	     //
-	    // Add the --index options.
-	    //
-	    cmd.append(indexString);
+ 
 
 	    //
 	    // It's not possible anymore to re-use the same output property since Ant 1.5.x. so we use a 
