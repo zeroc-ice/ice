@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<graph>
+  <vertex-set>
+    <vertex name="fed1"/>
+    <vertex name="fed2"/>
+    <vertex name="fed3"/>
+  </vertex-set>
+  <edge-set>
+    <edge source="fed1" target="fed2" cost="10"/>
+    <edge source="fed2" target="fed3" cost="5"/>
+  </edge-set>
+</graph>

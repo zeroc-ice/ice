@@ -45,13 +45,11 @@ int yyparse();
 namespace IceStorm
 {
 
+//
+// Forward declaration.
+//
 class Parser;
 typedef ::IceUtil::Handle<Parser> ParserPtr;
-
-}
-
-namespace IceStorm
-{
 
 class Parser : public ::IceUtil::SimpleShared
 {
@@ -63,8 +61,10 @@ public:
 
     void create(const std::list<std::string>&);
     void destroy(const std::list<std::string>&);
-    void listAll();
+    void dolist(const std::list<std::string>&); // Don't name list - conflicts with std::list
     void link(const std::list<std::string>&);
+    void unlink(const std::list<std::string>&);
+    void graph(const std::list<std::string>&);
     void shutdown();
 
     void getInput(char*, int&, int);
@@ -97,6 +97,6 @@ private:
 
 extern Parser* parser; // The current parser for bison/flex
 
-}
+} // End namespace IceStorm
 
 #endif

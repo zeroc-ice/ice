@@ -21,8 +21,8 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = os.path.join("IceStorm", "federation")
-testdir = os.path.join(toplevel, "test", name)
+testdir = os.path.join(toplevel, "test", "IceStorm", "federation2")
+exedir = os.path.join(toplevel, "test", "IceStorm", "federation")
 
 iceStorm = os.path.join(toplevel, "bin", "icestorm")
 iceStormAdmin = os.path.join(toplevel, "bin", "icestormadmin")
@@ -55,16 +55,14 @@ iceStormAdminPipe.close()
 print "ok"
 
 print "linking topics...",
-command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "link fed1 fed2 10"'
-iceStormAdminPipe = os.popen(command)
-iceStormAdminPipe.close()
-command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "link fed2 fed3 5"'
+graph = os.path.join(testdir, "graph.xml");
+command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "graph \"' + graph + r'\" 10"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminPipe.close()
 print "ok"
 
-publisher = os.path.join(testdir, "publisher")
-subscriber = os.path.join(testdir, "subscriber")
+publisher = os.path.join(exedir, "publisher")
+subscriber = os.path.join(exedir, "subscriber")
 
 #
 # Start the subscriber. The subscriber creates a lock-file which

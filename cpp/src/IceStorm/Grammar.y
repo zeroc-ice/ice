@@ -34,6 +34,8 @@ yyerror(const char* s)
 %token ICE_STORM_LIST
 %token ICE_STORM_SHUTDOWN
 %token ICE_STORM_LINK
+%token ICE_STORM_UNLINK
+%token ICE_STORM_GRAPH
 %token ICE_STORM_STRING
 
 %%
@@ -83,9 +85,22 @@ command
 {
     parser->link($2);
 }
+| ICE_STORM_UNLINK strings ';'
+{
+    parser->unlink($2);
+}
+| ICE_STORM_GRAPH strings ';'
+{
+    parser->graph($2);
+}
 | ICE_STORM_LIST ';'
 {
-    parser->listAll();
+    std::list<std::string> args;
+    parser->dolist(args);
+}
+| ICE_STORM_LIST strings ';'
+{
+    parser->dolist($2);
 }
 | ICE_STORM_SHUTDOWN ';'
 {

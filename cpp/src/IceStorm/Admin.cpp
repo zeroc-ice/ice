@@ -12,6 +12,8 @@
 #include <IceStorm/Parser.h>
 #include <fstream>
 
+#include <util/PlatformUtils.hpp>
+
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
@@ -27,9 +29,24 @@ public:
 int
 main(int argc, char* argv[])
 {
+    try
+    {
+	XMLPlatformUtils::Initialize();
+    }
+    catch(const XMLException& e)
+    {
+	cout << e.getMessage() << endl;
+	return EXIT_FAILURE;
+    }
+
     addArgumentPrefix("IceStorm");
+
     Client app;
-    return app.main(argc, argv);
+    int rc = app.main(argc, argv);
+
+    XMLPlatformUtils::Terminate();
+
+    return rc;
 }
 
 void

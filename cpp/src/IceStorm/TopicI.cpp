@@ -323,7 +323,7 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
     _link = new TopicLinkI(_subscribers);
 
     id.name = "link";
-    _linkPrx = TopicLinkPrx::checkedCast(_adapter->add(_link, id));
+    _linkPrx = TopicLinkPrx::uncheckedCast(_adapter->add(_link, id));
 
     //
     // Run through link database - re-establishing linked subscribers
@@ -337,7 +337,7 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
 	    _traceLevels->logger->trace(_traceLevels->topicCat, s.str());
 	}
 	
-	SubscriberPtr subscriber = _factory->createLinkSubscriber(p->second.obj, p->second.cost);
+	SubscriberPtr subscriber = _factory->createLinkSubscriber(p->second.obj, p->second.info.cost);
 	_subscribers->add(subscriber);
     }
 }
@@ -404,10 +404,11 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
 
     reap();
 
+    string name = topic->getName();
     if (_traceLevels->topic > 0)
     {
 	ostringstream s;
-	s << _name << " link " << topic->getName() << " cost " << cost;
+	s << _name << " link " << name << " cost " << cost;
 	_traceLevels->logger->trace(_traceLevels->topicCat, s.str());
     }
 
@@ -418,9 +419,11 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
     TopicLinkPrx link = internal->getLinkProxy();
     Ice::Identity ident = link->ice_getIdentity();
 
-    LinkInfo info;
-    info.obj = link;
-    info.cost = cost;
+    LinkDB dbInfo;
+    dbInfo.obj = link;
+    dbInfo.info.topic = topic;
+    dbInfo.info.name = name;
+    dbInfo.info.cost = cost;
 
     //
     // If the link already exists then remove the original subscriber.
@@ -435,9 +438,9 @@ TopicI::link(const TopicPrx& topic, Ice::Int cost, const Ice::Current&)
 	_subscribers->unsubscribe(ident);
     }
 
-    _links.insert(make_pair(ident, info));
+    _links.insert(make_pair(ident, dbInfo));
 
-    SubscriberPtr subscriber = _factory->createLinkSubscriber(info.obj, info.cost);
+    SubscriberPtr subscriber = _factory->createLinkSubscriber(dbInfo.obj, dbInfo.info.cost);
     _subscribers->add(subscriber);
 }
 
@@ -475,6 +478,29 @@ TopicI::unlink(const TopicPrx& topic, const Ice::Current&)
 	    _traceLevels->logger->trace(_traceLevels->topicCat, s.str());
 	}
     }
+}
+
+LinkInfoSeq
+TopicI::getLinkInfoSeq(const Ice::Current&)
+{
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
+
+    if (_destroyed)
+    {
+	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+    }
+
+    reap();
+
+    LinkInfoSeq seq;
+
+    for (IdentityLinkDict::const_iterator p = _links.begin(); p != _links.end(); ++p)
+    {
+	LinkInfo info = p->second.info;
+	seq.push_back(info);
+    }
+
+    return seq;
 }
 
 TopicLinkPrx

@@ -19,7 +19,7 @@ using namespace std;
 
 LinkSubscriber::LinkSubscriber(const TraceLevelsPtr& traceLevels, const TopicLinkPrx& obj, Ice::Int cost) :
     Subscriber(traceLevels, obj->ice_getIdentity()),
-    _obj(TopicLinkPrx::checkedCast(obj->ice_batchOneway())),
+    _obj(TopicLinkPrx::uncheckedCast(obj->ice_batchOneway())),
     _cost(cost)
 {
 }

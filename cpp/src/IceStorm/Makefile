@@ -33,13 +33,14 @@ SOBJS		= TraceLevels.o \
 		  TopicManagerI.o \
 		  StringBoolDict.o \
 		  IdentityLinkDict.o \
-		  LinkInfo.o \
+		  LinkDB.o \
 		  IceStormInternal.o \
 		  Server.o
 
 AOBJS		= Admin.o \
 		  Grammar.o \
 		  Scanner.o \
+		  WeightedGraph.o \
 		  Parser.o
 
 SRCS		= $(OBJS:.o=.cpp) \
@@ -53,7 +54,7 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IceStorm -I$(slicedir) -I..
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -I$(XERCESC)/include/xercesc
 LDFLAGS		:= $(LDFLAGS) -L$(DB)/lib
 
 $(VERSIONED_NAME): $(OBJS)
@@ -95,17 +96,17 @@ StringBoolDict.h StringBoolDict.cpp: $(SLICE2FREEZE)
 clean::
 	rm -f StringBoolDict.h StringBoolDict.cpp
 
-LinkInfo.h LinkInfo.cpp: $(SLICE2CPP)
-	rm -f LinkInfo.h LinkInfo.cpp
-	$(SLICECMD) LinkInfo.ice
+LinkDB.h LinkDB.cpp: LinkDB.ice $(SLICE2CPP)
+	rm -f LinkDB.h LinkDB.cpp
+	$(SLICECMD) LinkDB.ice
 
 clean::
-	rm -f LinkInfo.h LinkInfo.cpp
+	rm -f LinkDB.h LinkDB.cpp
 
-IdentityLinkDict.h IdentityLinkDict.cpp: $(SLICE2FREEZE)
+IdentityLinkDict.h IdentityLinkDict.cpp: ../IceStorm/LinkDB.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
 	rm -f IdentityLinkDict.h IdentityLinkDict.cpp
-	$(SLICE2FREEZECMD) --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkInfo IdentityLinkDict \
-	../IceStorm/LinkInfo.ice $(slicedir)/Ice/Identity.ice
+	$(SLICE2FREEZECMD) --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkDB IdentityLinkDict \
+	../IceStorm/LinkDB.ice $(slicedir)/Ice/Identity.ice
 
 clean::
 	rm -f IdentityLinkDict.h IdentityLinkDict.cpp

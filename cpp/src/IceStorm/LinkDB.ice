@@ -18,13 +18,13 @@ module IceStorm
 
 /**
  *
- * Use to store persistent information on Topic federation.
+ * Used to store persistent information for Topic federation.
  *
  **/
-struct LinkInfo
+struct LinkDB
 {
     TopicLink* obj;
-    int cost;
+    LinkInfo info;
 };
 
 }; // End module IceStorm

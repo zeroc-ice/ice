@@ -21,6 +21,49 @@ module IceStorm
 
 /**
  *
+ * Forward declaration.
+ *
+ **/
+interface Topic;
+
+/**
+ *
+ * Information on the topic links.
+ *
+ **/
+struct LinkInfo
+{
+    /**
+     *
+     * The linked topic.
+     *
+     **/
+    Topic* topic;
+
+    /**
+     *
+     * The name of the linked topic.
+     *
+     **/
+    string name;
+
+    /**
+     *
+     * The cost of traversing this link.
+     *
+     **/
+    int cost;
+};
+
+/**
+ *
+ * A sequence of LinkInfo objects.
+ *
+ **/
+sequence<LinkInfo> LinkInfoSeq;
+
+/**
+ *
  * Publishers publish information on a particular Topic. A topic
  * logically represents a type.
  *
@@ -53,7 +96,7 @@ interface Topic
      * @return A proxy to publish data on this Topic.
      *
      **/
-    Object* getPublisher();
+    nonmutating Object* getPublisher();
 
     /**
      *
@@ -76,6 +119,15 @@ interface Topic
      *
      **/
     void unlink(Topic* linkTo);
+
+    /**
+     *
+     * Retrieve information on the current links.
+     *
+     * @return A sequence of LinkInfo objects.
+     *
+     **/
+    nonmutating LinkInfoSeq getLinkInfoSeq();
 
     /**
      *
@@ -174,7 +226,7 @@ interface TopicManager
      * @throws NoSuchTopic Raised if the Topic doesn't exist.
      *
      **/
-    Topic* retrieve(string name) throws NoSuchTopic;
+    nonmutating Topic* retrieve(string name) throws NoSuchTopic;
 
     /**
      *

@@ -112,6 +112,14 @@ NL	[\n]
     return ICE_STORM_LINK;
 }
 
+"unlink" {
+    return ICE_STORM_UNLINK;
+}
+
+"graph" {
+    return ICE_STORM_GRAPH;
+}
+
 "shutdown" {
     return ICE_STORM_SHUTDOWN;
 }

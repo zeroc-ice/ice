@@ -10,6 +10,7 @@
 
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
+#include <IceStorm/WeightedGraph.h>
 
 #include <algorithm>
 
@@ -45,13 +46,12 @@ Parser::usage()
         "exit, quit                  Exit this program.\n"
         "create TOPICS               Add TOPICS.\n"
         "destroy TOPICS              Remove TOPICS.\n"
-        "link FROM TO COST           Link topics with the give COST.\n"
-        "list                        List all server descriptions.\n"
+        "link FROM TO COST           Link FROM to TO with the given COST.\n"
+        "unlink FROM TO              Unlink TO from FROM.\n"
+        "graph DATA COST             Construct the link graph as described in DATA with COST\n"
+        "list [TOPICS]               Display information on TOPICS or all topics.\n"
         "shutdown                    Shut the IceStorm server down.\n";
 }
-
-#include <IceUtil/Functional.h>
-#include <functional>
 
 void
 Parser::create(const list<string>& args)
@@ -145,23 +145,221 @@ Parser::link(const list<string>& _args)
 }
 
 void
-Parser::listAll()
+Parser::unlink(const list<string>& _args)
 {
+    list<string> args = _args;
+
+    if (args.size() != 2)
+    {
+	error("`unlink' requires exactly two arguments (type `help' for more info)");
+	return;
+    }
+
+    try
+    {    
+	TopicPrx fromTopic;
+	TopicPrx toTopic;
+	
+	try
+	{
+	    fromTopic = _admin->retrieve(args.front());
+	}
+	catch(const IceStorm::NoSuchTopic&)
+	{
+	    ostringstream s;
+	    s << args.front() << ": topic doesn't exist";
+	    error(s.str());
+	    return;
+	}
+	args.pop_front();
+	
+	try
+	{
+	    toTopic = _admin->retrieve(args.front());
+	}
+	catch(const IceStorm::NoSuchTopic&)
+	{
+	    ostringstream s;
+	    s << args.front() << ": topic doesn't exist";
+	    error(s.str());
+	    return;
+	}
+
+	fromTopic->unlink(toTopic);
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+Parser::dolist(const list<string>& _args)
+{
+    list<string> args = _args;
+
     try
     {
-	TopicDict d = _admin->retrieveAll();
-	if (!d.empty())
+	if (args.size() == 0)
 	{
-	    for (TopicDict::iterator i = d.begin(); i != d.end(); ++i)
+	    TopicDict d = _admin->retrieveAll();
+	    if (!d.empty())
 	    {
-		if (i != d.begin())
+		for (TopicDict::iterator i = d.begin(); i != d.end(); ++i)
 		{
-		    cout << ", ";
+		    if (i != d.begin())
+		    {
+			cout << ", ";
+		    }
+		    cout << i->first;
 		}
-		cout << i->first;
+		cout << endl;
 	    }
-	    cout << endl;
 	}
+	else
+	{
+	    while (args.size() != 0)
+	    {
+		string name = args.front();
+		args.pop_front();
+		cout << name << endl;
+		try
+		{
+		    TopicPrx topic = _admin->retrieve(name);
+		    LinkInfoSeq links = topic->getLinkInfoSeq();
+		    for (LinkInfoSeq::const_iterator p = links.begin(); p != links.end(); ++p)
+		    {
+			cout << "\t" << (*p).name << " with cost " << (*p).cost << endl;
+		    }
+		}
+		catch(const NoSuchTopic&)
+		{
+		    cout << "\tNo such topic" << endl;
+		}
+	    }
+	}
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+void
+Parser::graph(const list<string>& _args)
+{
+    list<string> args = _args;
+
+    if (args.size() != 2)
+    {
+	error("`graph' requires exactly two arguments (type `help' for more info)");
+	return;
+    }
+
+    string file = args.front();
+    args.pop_front();
+    int maxCost = atoi(args.front().c_str());
+    if (maxCost == 0)
+    {
+	error("`graph': cost must be a positive number");
+	return;
+    }
+    
+
+    try
+    {
+	WeightedGraph graph;
+	if (!graph.parse(file))
+	{
+	    cerr << file << ": parse failed" << endl;
+	    return;
+	}
+	
+
+	//
+	// Compute the new edge set.
+	//
+	vector<int> edges;
+	graph.compute(edges, maxCost);
+	graph.swap(edges);
+
+	//
+	// Ensure each vertex is present.
+	//
+	vector<string> vertices = graph.getVertices();
+	TopicDict d = _admin->retrieveAll();
+	vector<string>::const_iterator p;
+
+	for (p = vertices.begin(); p != vertices.end(); ++p)
+	{
+	    if (d.find(*p) == d.end())
+	    {
+		cout << *p << ": referenced topic not found" << endl;
+		return;
+	    }
+	}
+
+	int links = 0;
+	int unlinks = 0;
+
+	//
+	// Get the edge set for reach vertex.
+	//
+	for (p = vertices.begin(); p != vertices.end(); ++p)
+	{
+	    TopicPrx topic = d[*p];
+	    assert(topic);
+	    LinkInfoSeq seq = topic->getLinkInfoSeq();
+
+	    vector<pair<string, int> > edges = graph.getEdgesFor(*p);
+	    for (vector<pair<string, int> >::const_iterator q = edges.begin(); q != edges.end(); ++q)
+	    {
+		bool link = true;
+		for (LinkInfoSeq::iterator r = seq.begin(); r != seq.end(); ++r)
+		{
+		    //
+		    // Found the link element.
+		    //
+		    if ((*r).name == (*q).first)
+		    {
+			//
+			// If the cost is the same, then there is
+			// nothing to do.
+			//
+			if ((*r).cost == (*q).second)
+			{
+			    link = false;
+			}
+			seq.erase(r);
+			break;
+		    }
+		}
+
+		//
+		// Else, need to rebind the link.
+		//
+		if (link)
+		{
+		    TopicPrx target = d[(*q).first];
+		    ++links;
+		    topic->link(target, (*q).second);
+		}
+	    }
+
+	    //
+	    // The remainder of the links are obsolete.
+	    //
+	    for (LinkInfoSeq::const_iterator r = seq.begin(); r != seq.end(); ++r)
+	    {
+		++unlinks;
+		topic->unlink((*r).topic);
+	    }
+	}
+	cout << "graph: " << links << " new or changed links. " << unlinks << " unlinks." << endl;
     }
     catch(const Exception& ex)
     {
