@@ -34,6 +34,16 @@ public final class ThreadPool
         _timeout = timeout;
 	_promote = true;
 
+	String programName = _instance.properties().getProperty("Ice.ProgramName");
+        if(programName.length() > 0)
+        {
+            _programNamePrefix = programName + "-";
+        }
+	else
+	{
+	    _programNamePrefix = "";
+	}
+
         Network.SocketPair pair = Network.createPipe();
         _fdIntrRead = (java.nio.channels.ReadableByteChannel)pair.source;
         _fdIntrWrite = pair.sink;
@@ -76,22 +86,13 @@ public final class ThreadPool
 	int sizeWarn = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeWarn", _sizeMax * 80 / 100);
 	_sizeWarn = sizeWarn;
 
-        //
-        // Use Ice.ProgramName as the prefix for the thread names.
-        //
-        String programNamePrefix = "";
-        String programName = _instance.properties().getProperty("Ice.ProgramName");
-        if(programName.length() > 0)
-        {
-            programNamePrefix = programName + "-";
-        }
-
-        try
+	try
         {
             _threads = new java.util.Vector(_size);
             for(int i = 0; i < _size; i++)
             {
-		EventHandlerThread thread = new EventHandlerThread(programNamePrefix + _prefix + "-" + i);
+		EventHandlerThread thread = new EventHandlerThread(_programNamePrefix + _prefix + "-" +
+								   _threads.size());
                 _threads.add(thread);
 		thread.start();
             }
@@ -229,6 +230,27 @@ public final class ThreadPool
 		    String s = "thread pool `" + _prefix + "' is running low on threads\n"
 			+ "Size=" + _size + ", " + "SizeMax=" + _sizeMax + ", " + "SizeWarn=" + _sizeWarn;
 		    _instance.logger().warning(s);
+		}
+
+		assert(_inUse <= _threads.size());
+		if(!_destroyed && _inUse < _sizeMax && _inUse == _threads.size())
+		{
+		    try
+		    {
+			EventHandlerThread thread = new EventHandlerThread(_programNamePrefix + _prefix + "-" +
+									   _threads.size());
+			_threads.add(thread);
+			thread.start();
+		    }
+		    catch(RuntimeException ex)
+		    {
+			java.io.StringWriter sw = new java.io.StringWriter();
+			java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+			ex.printStackTrace(pw);
+			pw.flush();
+			String s = "cannot create thread for `" + _prefix + "':\n" + sw.toString();
+			_instance.logger().error(s);
+		    }
 		}
 	    }
         }
@@ -923,7 +945,8 @@ public final class ThreadPool
 
     private Instance _instance;
     private boolean _destroyed;
-    private String _prefix;
+    private final String _prefix;
+    private final String _programNamePrefix;
 
     private final int _size; // Number of threads that are pre-created.
     private final int _sizeMax; // Maximum number of threads.
@@ -935,9 +958,13 @@ public final class ThreadPool
     private java.nio.channels.WritableByteChannel _fdIntrWrite;
     private java.nio.channels.Selector _selector;
     private java.util.Set _keys;
+
     private java.util.LinkedList _changes = new java.util.LinkedList();
+
     private java.util.HashMap _handlerMap = new java.util.HashMap();
+
     private int _timeout;
+
     private boolean _promote;
     private java.lang.Object _promoteMonitor = new java.lang.Object();
 

@@ -105,6 +105,7 @@ IceInternal::ThreadPool::~ThreadPool()
 {
     assert(_destroyed);
     assert(_inUse == 0);
+
     closeSocket(_fdIntrWrite);
     closeSocket(_fdIntrRead);
 }
@@ -162,9 +163,6 @@ IceInternal::ThreadPool::promoteFollower()
 	    {
 		try
 		{
-		    cout << __FILE__ << ": " << __LINE__ << "\n"
-			 << "Size=" << _size << ", " << "SizeMax=" << _sizeMax << ", " << "SizeWarn=" << _sizeWarn
-			 << " _threads.size()=" << _threads.size() << endl;
 		    IceUtil::ThreadPtr thread = new EventHandlerThread(this);
 		    _threads.push_back(thread->start());
 		}
