@@ -24,16 +24,25 @@ class ICE_UTIL_API Options
 {
 public:
 
-    struct APIError
+    struct Error
     {
-        APIError(const ::std::string& r) : reason(r) {}
+        Error(const ::std::string& r) : reason(r) {}
         ::std::string reason;
     };
 
-    struct BadOpt
+    struct APIError : public Error
     {
-        BadOpt(const ::std::string& r) : reason(r) {}
-	::std::string reason;
+        APIError(const ::std::string& r) : Error(r) {}
+    };
+
+    struct BadOpt : public Error
+    {
+        BadOpt(const ::std::string& r) : Error(r) {}
+    };
+
+    struct BadQuote : public Error
+    {
+        BadQuote(const ::std::string& r) : Error(r) {}
     };
 
     enum LengthType { ShortOpt, LongOpt };
@@ -43,6 +52,7 @@ public:
     Options();
     void addOpt(const ::std::string&, const ::std::string& = "",
                 ArgType = NoArg, ::std::string = "", RepeatType = NoRepeat);
+    ::std::vector< ::std::string> parse(const ::std::string&);
     ::std::vector< ::std::string> parse(int, char*[]);
     bool isSet(const ::std::string&) const;
     ::std::string optArg(const ::std::string&) const;

@@ -91,6 +91,386 @@ IceUtil::Options::addOpt(const string& shortOpt, const string& longOpt, ArgType 
 }
 
 vector<string>
+IceUtil::Options::parse(const string& line)
+{
+    const string IFS = " \t\n"; // Internal Field Separator.
+
+    //
+    // Strip leading whitespace.
+    //
+    string::size_type start = line.find_first_not_of(IFS);
+    if(start == string::npos)
+    {
+        return vector<string>();
+    }
+    string l(line, start);
+
+    vector<string> vec;
+    vec.push_back(""); // Push dummy argv[0].
+
+    enum ParseState { Normal, DoubleQuote, SingleQuote, ANSIQuote };
+    ParseState state = Normal;
+
+    string arg;
+
+    for(string::size_type i = 0; i < l.size(); ++i)
+    {
+	char c = l[i];
+        switch(state)
+	{
+	    case Normal:
+	    {
+		switch(c)
+		{
+		    case '\\':
+		    {
+			//
+			// Ignore a backslash at the end of the string,
+			// and strip backslash-newline pairs. Anything
+			// else following a backslash is taken literally.
+			//
+			if(i < l.size() - 1 && l[++i] != '\n')
+			{
+			    arg.push_back(l[i]);
+			}
+			break;
+		    }
+		    case '\'':
+		    {
+			state = SingleQuote;
+			break;
+		    }
+		    case '"':
+		    {
+			state = DoubleQuote;
+			break;
+		    }
+		    case '$':
+		    {
+			if(i < l.size() - 1 && l[i + 1] == '\'')
+			{
+			    state = ANSIQuote; // Bash uses $'<text>' to allow ANSI escape sequences within <text>.
+			    ++i;
+			}
+			else
+			{
+			    arg.push_back(l[i]);
+			}
+			break;
+		    }
+		    default:
+		    {
+			if(IFS.find(l[i]) != string::npos)
+			{
+			    //
+			    // We just saw the end of an argument.
+			    // Push it onto the end of the argument
+			    // vector and eat up any trailing consecutive
+			    // whitespace characters.
+			    //
+			    vec.push_back(arg);
+			    arg.clear();
+			    while(++i < l.size() && IFS.find(l[i]) != string::npos)
+			    {
+				;
+			    }
+			    --i;
+			}
+			else
+			{
+			    arg.push_back(l[i]);
+			}
+			break;
+		    }
+		}
+		break;
+	    }
+	    case DoubleQuote:
+	    {
+	        //
+		// Within double quotes, only backslash retains its special
+		// meaning, and only if followed by double quote, backslash,
+		// or newline. If not followed by one of these characters,
+		// both the backslash and the character are preserved.
+		//
+		if(c == '\\' && i < l.size() - 1)
+		{
+		    switch(c = l[++i])
+		    {
+			case '"':
+			case '\\':
+			case '\n':
+			{
+			    arg.push_back(c);
+			    break;
+			}
+			default:
+			{
+			    arg.push_back('\\');
+			    arg.push_back(c);
+			    break;
+			}
+		    }
+		}
+		else
+		{
+		    arg.push_back(c);
+		}
+		break;
+	    }
+	    case SingleQuote:
+	    {
+		if(c == '\'')
+		{
+		   state = Normal; // End of single-quote mode.
+		}
+		else
+		{
+		    arg.push_back(c); // Everything else is taken literally.
+		}
+		break;
+	    }
+	    case ANSIQuote:
+	    {
+		switch(c)
+		{
+		    case '\\':
+		    {
+			switch(c = l[++i])
+			{
+			    //
+			    // Single-letter escape sequences.
+			    //
+			    case 'a':
+			    {
+				arg.push_back('\a');
+				break;
+			    }
+			    case 'b':
+			    {
+				arg.push_back('\b');
+				break;
+			    }
+			    case 'f':
+			    {
+				arg.push_back('\f');
+				break;
+			    }
+			    case 'n':
+			    {
+				arg.push_back('\n');
+				break;
+			    }
+			    case 'r':
+			    {
+				arg.push_back('\r');
+				break;
+			    }
+			    case 't':
+			    {
+				arg.push_back('\t');
+				break;
+			    }
+			    case 'v':
+			    {
+				arg.push_back('\v');
+				break;
+			    }
+			    case '\\':
+			    {
+				arg.push_back('\\');
+				break;
+			    }
+			    case '\'':
+			    {
+				arg.push_back('\'');
+				break;
+			    }
+			    case 'e': // Not ANSI-C, but used by bash.
+			    {
+				arg.push_back('\033');
+				break;
+			    }
+
+			    //
+			    // Process up to three octal digits.
+			    //
+			    case '0':
+			    case '1':
+			    case '2':
+			    case '3':
+			    {
+				static string octalDigits = "01234567";
+				unsigned short us = c - '0';
+				for(string::size_type j = i;
+				    j < i + 2 && j < l.size() && octalDigits.find_first_of(c = l[i]) != string::npos;
+				    ++j)
+				{
+				    us = us * 8 + c - '0';
+				    ++i;
+				}
+				arg.push_back(static_cast<char>(us));
+				break;
+			    }
+
+			    //
+			    // Process up to two hex digits.
+			    //
+			    case 'x':
+			    {
+				if(i == l.size() - 1)
+				{
+				    arg.push_back('x');
+				    continue;
+				}
+				IceUtil::Int64 ull = 0;
+				for(string::size_type j = i + 1; j < i + 3 && j < l.size() && isxdigit(c = l[j]); ++j)
+				{
+				    ull *= 16;
+				    if(isdigit(c))
+				    {
+					ull += c - '0';
+				    }
+				    else if(islower(c))
+				    {
+					ull += c - 'a' + 10;
+				    }
+				    else
+				    {
+					ull += c - 'A' + 10;
+				    }
+				    ++i;
+				}
+				arg.push_back(static_cast<char>(ull));
+				break;
+			    }
+
+			    //
+			    // Process control-chars.
+			    //
+			    case 'c':
+			    {
+				if(isalpha(c) || c == '@' || (c >= '[' && c <= '_'))
+				{
+				    arg.push_back(static_cast<char>(toupper(c) - '@'));
+				}
+				else
+				{
+				    //
+				    // Bash does not define what should happen if a \c
+				    // is not followed by a recognized control character.
+				    // We simply treat this case like other unrecognized
+				    // escape sequences, that is, we preserver the escape
+				    // sequence unchanged.
+				    //
+				    arg.push_back('\\');
+				    arg.push_back('c');
+				    arg.push_back(c);
+				}
+				break;
+			    }
+
+			    //
+			    // If inside an ANSI-quoted string, a backslash isn't followed by
+			    // one of the recognized characters, both the backslash and the
+			    // character are preserved.
+			    //
+			    default:
+			    {
+				arg.push_back('\\');
+				arg.push_back(c);
+				break;
+			    }
+			}
+			break;
+		    }
+		    case '\'':
+		    {
+			state = Normal;
+			break;
+		    }
+		    default:
+		    {
+			arg.push_back(c);
+			break;
+		    }
+		}
+	        break;
+	    }
+	    default:
+	    {
+		assert(!"Impossible parse state");
+		break;
+	    }
+	}
+    }
+
+    switch(state)
+    {
+	case Normal:
+	{
+	    break; // Everything worked fine.
+	}
+	case SingleQuote:
+	{
+	    throw BadQuote("missing closing single quote");
+	    break;
+	}
+	case DoubleQuote:
+	{
+	    throw BadQuote("missing closing double quote");
+	    break;
+	}
+	case ANSIQuote:
+	{
+	    throw BadQuote("unterminated $' quote");
+	    break;
+	}
+	default:
+	{
+	    assert(!"Impossible parse state");
+	    break;
+	}
+    }
+
+    if(!arg.empty())
+    {
+	vec.push_back(arg);
+    }
+
+    //
+    // Make an artificial argc/argv pair, and call the
+    // normal parse() below to take care of the options.
+    //
+    int argc = vec.size();
+    char **argv = new char*[argc + 1]; // + 1 for terminating null pointer.
+    for(int j = 0; j < argc; ++j)
+    {
+	argv[j] = strdup(vec[j].c_str());
+    }
+    argv[j] = 0; // Required by ISO standard C++.
+    try
+    {
+	vector<string> result = parse(argc, argv);
+        for(j = 0; j < argc; ++j)
+	{
+	    free(argv[j]);
+	}
+	delete[] argv;
+	return result;
+    }
+    catch(...)
+    {
+        for(j = 0; j < argc; ++j)
+	{
+	    free(argv[j]);
+	}
+	delete[] argv;
+        throw;
+    }
+}
+
+vector<string>
 IceUtil::Options::parse(int argc, char* argv[])
 {
     IceUtil::RecMutex::Lock sync(_m);
