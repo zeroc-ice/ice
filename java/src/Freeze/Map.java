@@ -887,7 +887,7 @@ public abstract class Map extends java.util.AbstractMap
 			String txnId = Long.toHexString((_txn.id() & 0x7FFFFFFF) + 0x80000000L); 
 
 			_connection.communicator().getLogger().trace
-			    ("Freeze.Map", _errorPrefix + "successfully started transaction " +
+			    ("Freeze.Map", _errorPrefix + "started transaction " +
 			     txnId + " for cursor");
 		    }
 		}
@@ -1206,7 +1206,7 @@ public abstract class Map extends java.util.AbstractMap
 		    if(_connection.txTrace() >= 1)
 		    {
 			_connection.communicator().getLogger().trace
-			    ("Freeze.Map", _errorPrefix + "successfully committed transaction " +
+			    ("Freeze.Map", _errorPrefix + "committed transaction " +
 			     txnId);
 		    }
 
@@ -1414,7 +1414,7 @@ public abstract class Map extends java.util.AbstractMap
 		    if(_connection.txTrace() >= 1)
 		    {
 			_connection.communicator().getLogger().trace
-			    ("Freeze.Map", _errorPrefix + "successfully rolled back transaction " +
+			    ("Freeze.Map", _errorPrefix + "rolled back transaction " +
 			     txnId);
 		    }
 		}

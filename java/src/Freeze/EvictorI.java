@@ -1696,7 +1696,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				txnId = Long.toHexString((tx.id() & 0x7FFFFFFF) + 0x80000000L); 
 
 				_communicator.getLogger().trace
-				    ("Freeze.Evictor", _errorPrefix + "successfully started transaction " +
+				    ("Freeze.Evictor", _errorPrefix + "started transaction " +
 				     txnId + " in saving thread");
 			    }
 
@@ -1715,7 +1715,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				if(_txTrace >= 1)
 				{
 				    _communicator.getLogger().trace
-					("Freeze.Evictor", _errorPrefix + "successfully committed transaction " +
+					("Freeze.Evictor", _errorPrefix + "committed transaction " +
 					 txnId);
 				}
 			    }
@@ -1727,7 +1727,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				    if(_txTrace >= 1)
 				    {
 					_communicator.getLogger().trace
-					    ("Freeze.Evictor", _errorPrefix + "successfully rolled back transaction " +
+					    ("Freeze.Evictor", _errorPrefix + "rolled back transaction " +
 					     txnId);
 				    }
 				}

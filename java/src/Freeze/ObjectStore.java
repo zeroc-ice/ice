@@ -47,7 +47,7 @@ class ObjectStore implements IceUtil.Store
 		txnId = Long.toHexString((txn.id() & 0x7FFFFFFF) + 0x80000000L); 
 	    
 		evictor.communicator().getLogger().trace
-		    ("Freeze.Evictor", _evictor.errorPrefix() + "successfully started transaction " +
+		    ("Freeze.Evictor", _evictor.errorPrefix() + "started transaction " +
 		      txnId + " to open Db");
 	    }
 	    
@@ -77,7 +77,7 @@ class ObjectStore implements IceUtil.Store
 	    if(evictor.txTrace() >= 1)
 	    {
 		evictor.communicator().getLogger().trace
-		    ("Freeze.Evictor", _evictor.errorPrefix() + "successfully committed transaction " +
+		    ("Freeze.Evictor", _evictor.errorPrefix() + "committed transaction " +
 		     txnId);
 	    }
 
@@ -107,7 +107,7 @@ class ObjectStore implements IceUtil.Store
 		    if(evictor.txTrace() >= 1)
 		    {
 			evictor.communicator().getLogger().trace
-			    ("Freeze.Evictor", _evictor.errorPrefix() + "successfully rolled back transaction " +
+			    ("Freeze.Evictor", _evictor.errorPrefix() + "rolled back transaction " +
 			     txnId);
 		    }
 		}

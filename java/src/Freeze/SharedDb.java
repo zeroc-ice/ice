@@ -117,7 +117,7 @@ class SharedDb extends com.sleepycat.db.Db
 		txnId = Long.toHexString((txn.id() & 0x7FFFFFFF) + 0x80000000L); 
 
 		_key.communicator.getLogger().trace
-		    ("Freeze.Map", errorPrefix(_key) + "successfully started transaction " +
+		    ("Freeze.Map", errorPrefix(_key) + "started transaction " +
 		      txnId + " to open Db \"" + _key.dbName + "\"");
 	    }
 
@@ -150,7 +150,7 @@ class SharedDb extends com.sleepycat.db.Db
 	    if(connection.txTrace() >= 1)
 	    {
 		_key.communicator.getLogger().trace
-		    ("Freeze.Map", errorPrefix(_key) + "successfully committed transaction " +
+		    ("Freeze.Map", errorPrefix(_key) + "committed transaction " +
 		     txnId);
 	    }
 
@@ -185,7 +185,7 @@ class SharedDb extends com.sleepycat.db.Db
 		    if(connection.txTrace() >= 1)
 		    {
 			_key.communicator.getLogger().trace
-			    ("Freeze.Map", errorPrefix(_key) + "successfully rolled back transaction " + txnId);
+			    ("Freeze.Map", errorPrefix(_key) + "rolled back transaction " + txnId);
 		    }
 		}
 		catch(com.sleepycat.db.DbException dx)

@@ -31,7 +31,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 	    if(_txTrace >= 1)
 	    {
 		_connection.communicator().getLogger().trace
-		    ("Freeze.Map", _errorPrefix + "successfully committed transaction " + txnId);
+		    ("Freeze.Map", _errorPrefix + "committed transaction " + txnId);
 	    }
 
 	}
@@ -90,7 +90,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 	    if(_txTrace >= 1)
 	    {
 		_connection.communicator().getLogger().trace
-		    ("Freeze.Map", _errorPrefix + "successfully rolled back transaction " + txnId);
+		    ("Freeze.Map", _errorPrefix + "rolled back transaction " + txnId);
 	    }
 
 	}
@@ -145,7 +145,7 @@ class TransactionI extends Ice.LocalObjectImpl implements Transaction
 		String txnId = Long.toHexString((_txn.id() & 0x7FFFFFFF) + 0x80000000L); 
 
 		_connection.communicator().getLogger().trace
-		    ("Freeze.Map", _errorPrefix + "successfully started transaction " + txnId);
+		    ("Freeze.Map", _errorPrefix + "started transaction " + txnId);
 	    }
 
 	}
