@@ -64,6 +64,32 @@ repeat:
 	    goto repeat;
 	}
 
+	if (wouldBlock())
+	{
+	    SOCKET fd = _fd; // Copy fd, in case another thread calls close()
+	    if (fd != INVALID_SOCKET)
+	    {
+	    repeatSelect:
+
+		FD_SET(fd, &_wFdSet);
+		int ret = ::select(fd + 1, 0, &_wFdSet, 0, 0);
+		
+		if (ret == SOCKET_ERROR)
+		{
+		    if (interrupted())
+		    {
+			goto repeatSelect;
+		    }
+		    
+		    SocketException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
+		}
+	    }
+	    
+	    goto repeat;
+	}
+
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -124,6 +150,32 @@ repeat:
 	    goto repeat;
 	}
 	
+	if (wouldBlock())
+	{
+	    SOCKET fd = _fd; // Copy fd, in case another thread calls close()
+	    if (fd != INVALID_SOCKET)
+	    {
+	    repeatSelect:
+
+		FD_SET(fd, &_rFdSet);
+		int ret = ::select(fd + 1, &_rFdSet, 0, 0, 0);
+		
+		if (ret == SOCKET_ERROR)
+		{
+		    if (interrupted())
+		    {
+			goto repeatSelect;
+		    }
+		    
+		    SocketException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
+		}
+	    }
+	    
+	    goto repeat;
+	}
+
 	SocketException ex(__FILE__, __LINE__);
 	ex.error = getSocketErrno();
 	throw ex;
@@ -177,7 +229,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     try
     {
 	_fd = createSocket(true);
-	setBlock(_fd, true);
+	setBlock(_fd, false);
 	getAddress(host, port, _addr);
 	doConnect(_fd, _addr, -1);
 	_connect = false; // We're connected now
@@ -193,6 +245,9 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 	_fd = INVALID_SOCKET;
 	throw;
     }
+
+    FD_ZERO(&_rFdSet);
+    FD_ZERO(&_wFdSet);
 }
 
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port,
@@ -207,7 +262,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     try
     {
 	_fd = createSocket(true);
-	setBlock(_fd, true);
+	setBlock(_fd, false);
 	getAddress(host, port, _addr);
 	doBind(_fd, _addr);
 	    
@@ -222,6 +277,9 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 	_fd = INVALID_SOCKET;
 	throw;
     }
+
+    FD_ZERO(&_rFdSet);
+    FD_ZERO(&_wFdSet);
 }
 
 IceInternal::UdpTransceiver::~UdpTransceiver()

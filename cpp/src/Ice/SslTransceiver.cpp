@@ -89,9 +89,9 @@ IceInternal::SslTransceiver::SslTransceiver(const InstancePtr& instance,
                                             SOCKET fd,
                                             const ConnectionPtr& sslConnection) :
     _instance(instance),
-    _fd(fd),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
+    _fd(fd),
     _sslConnection(sslConnection)
 {
     assert(sslConnection != 0);

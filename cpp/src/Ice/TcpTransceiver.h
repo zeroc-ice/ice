@@ -41,9 +41,9 @@ private:
     friend class TcpAcceptor;
 
     InstancePtr _instance;
-    SOCKET _fd;
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
+    SOCKET _fd;
     fd_set _rFdSet;
     fd_set _wFdSet;
 };

@@ -59,6 +59,8 @@ private:
     bool _connect;
     SOCKET _fd;
     struct sockaddr_in _addr;
+    fd_set _rFdSet;
+    fd_set _wFdSet;
     std::string _protocolName;
 };
 

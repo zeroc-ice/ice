@@ -269,9 +269,9 @@ IceInternal::TcpTransceiver::toString() const
 
 IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd) :
     _instance(instance),
-    _fd(fd),
     _traceLevels(instance->traceLevels()),
-    _logger(instance->logger())
+    _logger(instance->logger()),
+    _fd(fd)
 {
     FD_ZERO(&_rFdSet);
     FD_ZERO(&_wFdSet);
