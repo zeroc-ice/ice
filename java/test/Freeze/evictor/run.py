@@ -32,5 +32,5 @@ os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.g
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
-TestUtil.clientServerTestWithOptions(name, " " + testdir, "")
+TestUtil.clientServerTestWithOptions(" " + testdir, "")
 sys.exit(0)
