@@ -1,6 +1,14 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Added setDefaultContext() and getDefaultContext() to
+  the Ice::Communicator interface. This allows a default context
+  to be established on a communicator-wide basis. See section
+  29.8.3 in the doc.
+
+  Added ice_defaultContext to Ice::ObjectProxy. This creates a new
+  proxy that uses the default context established on the communicator.
+
 - Overloaded the checkedCast member function of the generated PrxHelper
   classes to allow a trailing argument of type ::Ice::Context. This makes
   it possible to do stateful things that require a context in a
