@@ -91,7 +91,7 @@ ice_newObject(zend_class_entry* ce TSRMLS_DC)
     obj->zobj.in_set = 0;
     obj->ptr = 0;
 
-    ALLOC_HASHTABLE(obj->zobj.properties);
+    obj->zobj.properties = static_cast<HashTable*>(emalloc(sizeof(HashTable)));
     zend_hash_init(obj->zobj.properties, 0, NULL, ZVAL_PTR_DTOR, 0);
     zend_hash_copy(obj->zobj.properties, &ce->default_properties, (copy_ctor_func_t) zval_add_ref, &tmp,
                    sizeof(zval*));
