@@ -188,9 +188,9 @@ Client::run(int argc, char* argv[])
     }
     else // Process files given on the command line
     {
-	for(vector<string>::size_type idx = 1; idx < args.size(); ++idx)
+	for(vector<string>::size_type idx = 0; idx < args.size(); ++idx)
 	{
-	    ifstream test(argv[idx]);
+	    ifstream test(args[idx]);
 	    if(!test)
 	    {
 		cerr << appName() << ": can't open `" << args[idx] << "' for reading: " << strerror(errno) << endl;
@@ -198,7 +198,7 @@ Client::run(int argc, char* argv[])
 	    }
 	    test.close();
 	    
-	    string cmd = cpp + " " + argv[idx];
+	    string cmd = cpp + " " + args[idx];
 #ifdef _WIN32
 	    FILE* cppHandle = _popen(cmd.c_str(), "r");
 #else

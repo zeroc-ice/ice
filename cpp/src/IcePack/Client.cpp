@@ -161,7 +161,7 @@ Client::run(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    if(argc < 2) // No files given
+    if(args.empty()) // No files given
     {
 	if(!commands.empty()) // Commands were given
 	{
