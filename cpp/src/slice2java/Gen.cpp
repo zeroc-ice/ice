@@ -16,10 +16,7 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
-namespace	// anonymous
-{
-
-string
+static string					// Should be an anonymous namespace, but VC6 can't handle that.
 sliceModeToIceMode(const OperationPtr& op)
 {
     string mode;
@@ -3140,8 +3137,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 Slice::Gen::DelegateDVisitor::DelegateDVisitor(const string& dir, const string& package) :
     JavaVisitor(dir, package)
 {
-}
-
 }
 
 bool
