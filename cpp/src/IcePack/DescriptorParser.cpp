@@ -182,7 +182,8 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	    }
 	    else
 	    {
-		_variables.back()[p->first] = substitute(p->second);
+		string v = substitute(p->second);
+		_variables.back()[p->first] = v;
 	    }
 	}
 
@@ -370,7 +371,7 @@ DescriptorHandler::startElement(const string& name, const IceXML::Attributes& at
 	}
 
 	ObjectDescriptor object;
-	object.type = getAttributeValue(attrs, "type");
+	object.type = getAttributeValueWithDefault(attrs, "type", "");
 	object.proxy = _communicator->stringToProxy(getAttributeValue(attrs, "identity") + "@" + _currentAdapter.id);
 	object.adapterId = _currentAdapter.id;
 	_currentAdapter.objects.push_back(object);
