@@ -41,6 +41,8 @@ public:
 
 protected:
     Marshaler();
+
+    static std::string zendTypeToString(int);
 };
 
 #endif

@@ -28,7 +28,7 @@ ice_object_new(zend_class_entry* ce TSRMLS_DC)
     ice_object* obj;
     zval* tmp;
 
-    obj = (ice_object*)emalloc(sizeof(ice_object));
+    obj = static_cast<ice_object*>(emalloc(sizeof(ice_object)));
     obj->zobj.ce = ce;
     obj->zobj.in_get = 0;
     obj->zobj.in_set = 0;
@@ -36,8 +36,8 @@ ice_object_new(zend_class_entry* ce TSRMLS_DC)
 
     ALLOC_HASHTABLE(obj->zobj.properties);
     zend_hash_init(obj->zobj.properties, 0, NULL, ZVAL_PTR_DTOR, 0);
-    zend_hash_copy(obj->zobj.properties, &ce->default_properties, (copy_ctor_func_t) zval_add_ref,
-                   (void *) &tmp, sizeof(zval *));
+    zend_hash_copy(obj->zobj.properties, &ce->default_properties, (copy_ctor_func_t) zval_add_ref, &tmp,
+                   sizeof(zval*));
 
     return obj;
 }
@@ -51,7 +51,7 @@ ice_object_get(zval* zv TSRMLS_DC)
         return 0;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(zv TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
     if(!obj)
     {
         php_error(E_ERROR, "no object found in %s()", get_active_function_name(TSRMLS_C));

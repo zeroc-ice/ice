@@ -109,7 +109,7 @@ Ice_Communicator_create(zval* zv TSRMLS_DC)
     }
     assert(!obj->ptr);
     Ice::CommunicatorPtr* communicator = new Ice::CommunicatorPtr(_communicator);
-    obj->ptr = (void*)communicator;
+    obj->ptr = communicator;
 
     return true;
 }
@@ -155,7 +155,7 @@ ZEND_FUNCTION(Ice_Communicator_stringToProxy)
         return;
     }
     assert(!obj->ptr);
-    Ice::CommunicatorPtr* _this = (Ice::CommunicatorPtr*)obj->ptr;
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
 
     if(ZEND_NUM_ARGS() != 1)
     {
@@ -195,7 +195,7 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
         return;
     }
     assert(!obj->ptr);
-    Ice::CommunicatorPtr* _this = (Ice::CommunicatorPtr*)obj->ptr;
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
 
     if(ZEND_NUM_ARGS() != 1)
     {
@@ -218,7 +218,7 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
     try
     {
         string result = (*_this)->proxyToString(proxy);
-        RETURN_STRING((char*)result.c_str(), 1);
+        RETURN_STRING(const_cast<char*>(result.c_str()), 1);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -244,16 +244,16 @@ Ice_Communicator_alloc(zend_class_entry* ce TSRMLS_DC)
 static void
 Ice_Communicator_dtor(void* p, zend_object_handle handle TSRMLS_DC)
 {
-    ice_object* obj = (ice_object*)p;
+    ice_object* obj = static_cast<ice_object*>(p);
     if(obj->ptr)
     {
         //
         // Delete the smart pointer - the communicator will be destroyed when
         // the module shuts down.
         //
-        Ice::CommunicatorPtr* _this = (Ice::CommunicatorPtr*)obj->ptr;
+        Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
         delete _this;
     }
 
-    zend_objects_destroy_object((zend_object*)p, handle TSRMLS_CC);
+    zend_objects_destroy_object(static_cast<zend_object*>(p), handle TSRMLS_CC);
 }

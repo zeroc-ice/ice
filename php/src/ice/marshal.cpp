@@ -36,6 +36,21 @@ private:
     Slice::BuiltinPtr _type;
 };
 
+class SequenceMarshaler : public Marshaler
+{
+public:
+    SequenceMarshaler(const Slice::SequencePtr&);
+    ~SequenceMarshaler();
+
+    virtual std::string getArgType() const;
+    virtual bool marshal(zval*, IceInternal::BasicStream&);
+    virtual bool unmarshal(zval*, IceInternal::BasicStream&);
+
+private:
+    Slice::SequencePtr _type;
+    MarshalerPtr _elementMarshaler;
+};
+
 //
 // Marshaler implementation.
 //
@@ -76,6 +91,12 @@ Marshaler::createMarshaler(const Slice::TypePtr& type)
         }
     }
 
+    Slice::SequencePtr seq = Slice::SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        return new SequenceMarshaler(seq);
+    }
+
 #if 0
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
@@ -91,14 +112,52 @@ Marshaler::createMarshaler(const Slice::TypePtr& type)
     if(dict)
     {
     }
-
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
-    {
-    }
 #endif
 
     return 0;
+}
+
+std::string
+Marshaler::zendTypeToString(int type)
+{
+    string result;
+
+    switch(type)
+    {
+    case IS_NULL:
+        result = "null";
+        break;
+
+    case IS_LONG:
+        result = "long";
+        break;
+
+    case IS_DOUBLE:
+        result = "double";
+        break;
+
+    case IS_STRING:
+        result = "string";
+        break;
+
+    case IS_ARRAY:
+        result = "array";
+        break;
+
+    case IS_OBJECT:
+        result = "object";
+        break;
+
+    case IS_BOOL:
+        result = "bool";
+        break;
+
+    default:
+        result = "unknown";
+        break;
+    }
+
+    return result;
 }
 
 //
@@ -161,7 +220,8 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
     {
         if(Z_TYPE_P(zv) != IS_BOOL)
         {
-            php_error(E_ERROR, "expected boolean value");
+            string s = zendTypeToString(Z_TYPE_P(zv));
+            php_error(E_ERROR, "expected boolean value but received %s", s.c_str());
             return false;
         }
         os.write(Z_BVAL_P(zv) ? true : false);
@@ -171,7 +231,8 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
     {
         if(Z_TYPE_P(zv) != IS_LONG)
         {
-            php_error(E_ERROR, "expected byte value");
+            string s = zendTypeToString(Z_TYPE_P(zv));
+            php_error(E_ERROR, "expected byte value but received %s", s.c_str());
             return false;
         }
         long val = Z_LVAL_P(zv);
@@ -187,7 +248,8 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
     {
         if(Z_TYPE_P(zv) != IS_LONG)
         {
-            php_error(E_ERROR, "expected short value");
+            string s = zendTypeToString(Z_TYPE_P(zv));
+            php_error(E_ERROR, "expected short value but received %s", s.c_str());
             return false;
         }
         long val = Z_LVAL_P(zv);
@@ -203,7 +265,8 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
     {
         if(Z_TYPE_P(zv) != IS_LONG)
         {
-            php_error(E_ERROR, "expected int value");
+            string s = zendTypeToString(Z_TYPE_P(zv));
+            php_error(E_ERROR, "expected int value but received %s", s.c_str());
             return false;
         }
         long val = Z_LVAL_P(zv);
@@ -223,7 +286,8 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
         //
         if(Z_TYPE_P(zv) != IS_LONG && Z_TYPE_P(zv) != IS_STRING)
         {
-            php_error(E_ERROR, "expected long value");
+            string s = zendTypeToString(Z_TYPE_P(zv));
+            php_error(E_ERROR, "expected long value but received %s", s.c_str());
             return false;
         }
         Ice::Long val;
@@ -248,7 +312,8 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
     {
         if(Z_TYPE_P(zv) != IS_DOUBLE)
         {
-            php_error(E_ERROR, "expected float value");
+            string s = zendTypeToString(Z_TYPE_P(zv));
+            php_error(E_ERROR, "expected float value but received %s", s.c_str());
             return false;
         }
         double val = Z_DVAL_P(zv);
@@ -259,7 +324,8 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
     {
         if(Z_TYPE_P(zv) != IS_DOUBLE)
         {
-            php_error(E_ERROR, "expected double value");
+            string s = zendTypeToString(Z_TYPE_P(zv));
+            php_error(E_ERROR, "expected double value but received %s", s.c_str());
             return false;
         }
         double val = Z_DVAL_P(zv);
@@ -270,7 +336,8 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
     {
         if(Z_TYPE_P(zv) != IS_STRING)
         {
-            php_error(E_ERROR, "expected string value");
+            string s = zendTypeToString(Z_TYPE_P(zv));
+            php_error(E_ERROR, "expected string value but received %s", s.c_str());
             return false;
         }
         string val(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
@@ -398,5 +465,77 @@ PrimitiveMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is)
             assert(false);
     }
 #endif
+    return true;
+}
+
+//
+// SequenceMarshaler implementation.
+//
+SequenceMarshaler::SequenceMarshaler(const Slice::SequencePtr& type) :
+    _type(type)
+{
+    _elementMarshaler = createMarshaler(type->type());
+}
+
+SequenceMarshaler::~SequenceMarshaler()
+{
+}
+
+string
+SequenceMarshaler::getArgType() const
+{
+    return "a";
+}
+
+bool
+SequenceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os)
+{
+    if(Z_TYPE_P(zv) != IS_ARRAY)
+    {
+        string s = zendTypeToString(Z_TYPE_P(zv));
+        php_error(E_ERROR, "expected array value but received %s", s.c_str());
+        return false;
+    }
+
+    HashTable* arr = Z_ARRVAL_P(zv);
+    HashPosition pos;
+    zval** val;
+
+    os.writeSize(zend_hash_num_elements(arr));
+
+    zend_hash_internal_pointer_reset_ex(arr, &pos);
+    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+    {
+        if(!_elementMarshaler->marshal(*val, os))
+        {
+            return false;
+        }
+        zend_hash_move_forward_ex(arr, &pos);
+    }
+
+    return true;
+}
+
+bool
+SequenceMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is)
+{
+    array_init(zv);
+
+    Ice::Int sz;
+    is.readSize(sz);
+
+    // TODO: Optimize for certain sequence types (e.g., bytes)?
+
+    for(Ice::Int i = 0; i < sz; ++i)
+    {
+        zval* val;
+        MAKE_STD_ZVAL(val);
+        if(!_elementMarshaler->unmarshal(val, is))
+        {
+            return false;
+        }
+        add_index_zval(zv, i, val);
+    }
+
     return true;
 }

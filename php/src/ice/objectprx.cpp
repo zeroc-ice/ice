@@ -147,9 +147,9 @@ Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDefPtr
         return false;
     }
 
-    ice_object* zprx = (ice_object*)zend_object_store_get_object(zv TSRMLS_CC);
+    ice_object* zprx = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
     assert(!zprx->ptr);
-    zprx->ptr = (void*)new Proxy(p, def);
+    zprx->ptr = new Proxy(p, def);
     return true;
 }
 
@@ -164,9 +164,9 @@ Ice_ObjectPrx_fetch(zval* zv, Ice::ObjectPrx& prx TSRMLS_DC)
 {
     if(!ZVAL_IS_NULL(zv))
     {
-        ice_object* p = (ice_object*)zend_object_store_get_object(zv TSRMLS_CC);
+        ice_object* p = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
         assert(p->ptr);
-        Proxy* proxy = (Proxy*)p->ptr;
+        Proxy* proxy = static_cast<Proxy*>(p->ptr);
         prx = proxy->getProxy();
     }
     return true;
@@ -192,9 +192,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
         RETURN_FALSE;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -221,9 +221,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ping)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -244,14 +244,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_id)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
         string id = _this->getProxy()->ice_id();
-        RETURN_STRINGL((char*)id.c_str(), id.length(), 1);
+        RETURN_STRINGL(const_cast<char*>(id.c_str()), id.length(), 1);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -267,9 +267,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ids)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -278,7 +278,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ids)
         uint idx = 0;
         for(vector<string>::const_iterator p = ids.begin(); p != ids.end(); ++p, ++idx)
         {
-            add_index_stringl(return_value, idx, (char*)(*p).c_str(), (*p).length(), 1);
+            add_index_stringl(return_value, idx, const_cast<char*>((*p).c_str()), (*p).length(), 1);
         }
     }
     catch(const IceUtil::Exception& ex)
@@ -295,9 +295,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_facets)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -306,7 +306,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_facets)
         uint idx = 0;
         for(vector<string>::const_iterator p = facets.begin(); p != facets.end(); ++p, ++idx)
         {
-            add_index_stringl(return_value, idx, (char*)(*p).c_str(), (*p).length(), 1);
+            add_index_stringl(return_value, idx, const_cast<char*>((*p).c_str()), (*p).length(), 1);
         }
     }
     catch(const IceUtil::Exception& ex)
@@ -323,9 +323,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -334,7 +334,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet)
         uint idx = 0;
         for(vector<string>::const_iterator p = facet.begin(); p != facet.end(); ++p, ++idx)
         {
-            add_index_stringl(return_value, idx, (char*)(*p).c_str(), (*p).length(), 1);
+            add_index_stringl(return_value, idx, const_cast<char*>((*p).c_str()), (*p).length(), 1);
         }
     }
     catch(const IceUtil::Exception& ex)
@@ -374,9 +374,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet)
         zend_hash_move_forward_ex(arr, &pos);
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -409,9 +409,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_appendFacet)
         RETURN_NULL();
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -437,9 +437,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_twoway)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -463,9 +463,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isTwoway)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -486,9 +486,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_oneway)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -512,9 +512,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isOneway)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -535,9 +535,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_batchOneway)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -561,9 +561,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isBatchOneway)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -584,9 +584,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_datagram)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -610,9 +610,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isDatagram)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -633,9 +633,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_batchDatagram)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -659,9 +659,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isBatchDatagram)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -682,9 +682,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_secure)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     zend_bool b;
     if(zend_parse_parameters(ZEND_NUM_ARGS(), "b", &b) != SUCCESS)
@@ -714,9 +714,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_compress)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -745,9 +745,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -777,9 +777,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_default)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -803,9 +803,9 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_flush)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -833,9 +833,9 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
         RETURN_NULL();
     }
 
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     try
     {
@@ -900,7 +900,11 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
             if(check)
             {
-                if(!_this->getProxy()->ice_isA(id))
+                //
+                // Verify that the object supports the requested type. We don't use id here,
+                // because it might contain a proxy type (e.g., "::MyClass*").
+                //
+                if(!_this->getProxy()->ice_isA(decl->scoped()))
                 {
                     RETURN_NULL();
                 }
@@ -1065,15 +1069,6 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     }
 }
 
-#if 0
-Proxy::Proxy(const Ice::ObjectPrx& proxy) :
-    _proxy(proxy)
-{
-    Ice::CommunicatorPtr communicator = Ice_Communicator_instance();
-    _instance = IceInternal::getInstance(communicator);
-}
-#endif
-
 Proxy::Proxy(const Ice::ObjectPrx& proxy, const Slice::ClassDefPtr& cls) :
     _proxy(proxy), _class(cls)
 {
@@ -1142,12 +1137,12 @@ Ice_ObjectPrx_alloc(zend_class_entry* ce TSRMLS_DC)
 static void
 Ice_ObjectPrx_dtor(void* p, zend_object_handle handle TSRMLS_DC)
 {
-    ice_object* obj = (ice_object*)p;
-    Proxy* _this = (Proxy*)obj->ptr;
+    ice_object* obj = static_cast<ice_object*>(p);
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     delete _this;
 
-    zend_objects_destroy_object((zend_object*)p, handle TSRMLS_CC);
+    zend_objects_destroy_object(static_cast<zend_object*>(p), handle TSRMLS_CC);
 }
 
 static union _zend_function*
@@ -1163,9 +1158,9 @@ Ice_ObjectPrx_get_method(zval* zv, char* method, int len TSRMLS_DC)
     result = zend_get_std_object_handlers()->get_method(zv, method, len TSRMLS_CC);
     if(result == NULL)
     {
-        ice_object* obj = (ice_object*)zend_object_store_get_object(zv TSRMLS_CC);
+        ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
         assert(obj->ptr);
-        Proxy* _this = (Proxy*)obj->ptr;
+        Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
         if(!_this->getClass())
         {
@@ -1181,7 +1176,7 @@ Ice_ObjectPrx_get_method(zval* zv, char* method, int len TSRMLS_DC)
         }
 
         // TODO: Leak?
-        zend_internal_function* zif = (zend_internal_function*)emalloc(sizeof(zend_internal_function));
+        zend_internal_function* zif = static_cast<zend_internal_function*>(emalloc(sizeof(zend_internal_function)));
         zif->arg_types = NULL;
         zif->function_name = estrndup(method, len);
         zif->handler = ZEND_FN(Ice_ObjectPrx_call);
@@ -1196,18 +1191,12 @@ Ice_ObjectPrx_get_method(zval* zv, char* method, int len TSRMLS_DC)
 
 ZEND_FUNCTION(Ice_ObjectPrx_call)
 {
-    ice_object* obj = (ice_object*)zend_object_store_get_object(getThis() TSRMLS_CC);
+    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
     assert(obj->ptr);
-    Proxy* _this = (Proxy*)obj->ptr;
+    Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     OperationPtr op = _this->getOperation(get_active_function_name(TSRMLS_C));
     assert(op); // get_method should have already verified the operation's existence.
 
     op->invoke(INTERNAL_FUNCTION_PARAM_PASSTHRU);
-}
-
-static int
-Ice_ObjectPrx_call(char* method, INTERNAL_FUNCTION_PARAMETERS)
-{
-    cerr << "Method `" << method << "' was invoked on Ice_ObjectPrx" << endl;
 }

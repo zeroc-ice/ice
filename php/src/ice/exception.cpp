@@ -137,7 +137,7 @@ ZEND_FUNCTION(Ice_LocalException_message)
         RETURN_EMPTY_STRING();
     }
     assert(obj->ptr);
-    RETURN_STRING((char*)obj->ptr, 1);
+    RETURN_STRING(static_cast<char*>(obj->ptr), 1);
 }
 
 static zend_object_value
@@ -157,7 +157,7 @@ Ice_LocalException_alloc(zend_class_entry* ce TSRMLS_DC)
 static void
 Ice_LocalException_dtor(void* p, zend_object_handle handle TSRMLS_DC)
 {
-    ice_object* obj = (ice_object*)p;
+    ice_object* obj = static_cast<ice_object*>(p);
 
     if(obj->ptr)
     {
@@ -165,5 +165,5 @@ Ice_LocalException_dtor(void* p, zend_object_handle handle TSRMLS_DC)
         obj->ptr = 0;
     }
 
-    zend_objects_destroy_object((zend_object*)p, handle TSRMLS_CC);
+    zend_objects_destroy_object(static_cast<zend_object*>(p), handle TSRMLS_CC);
 }
