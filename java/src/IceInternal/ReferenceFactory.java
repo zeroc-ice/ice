@@ -436,8 +436,12 @@ public final class ReferenceFactory
         //
         String[] facetPath = s.readStringSeq();
         String facet;
-        if(facetPath.length > 0) // TODO: Throw an exception if facetPath has more than one element?
+        if(facetPath.length > 0)
         {
+	    if(facetPath.length > 1)
+	    {
+	        throw new Ice.ProxyUnmarshalException();
+	    }
             facet = facetPath[0];
         }
 	else

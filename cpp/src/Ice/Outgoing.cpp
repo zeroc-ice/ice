@@ -297,8 +297,12 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    vector<string> facetPath;
 	    _is.read(facetPath);
 	    string facet;
-	    if(!facetPath.empty()) // TODO: Throw an exception if facetPath has more than one element?
+	    if(!facetPath.empty())
 	    {
+		if(facetPath.size() > 1)
+		{
+		    throw MarshalException(__FILE__, __LINE__);
+		}
 		facet.swap(facetPath[0]);
 	    }
 

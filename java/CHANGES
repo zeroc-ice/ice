@@ -56,6 +56,12 @@ Changes since version 1.3.0
     because it is a change to the object model, and not just to the
     way objects are transferred or encoded.
 
+  * If your application receives a request or reply with a facet path
+    with more than one element, the run time throws a MarshalException.
+
+  * If your application receives a proxy with a facet path with
+    more than one element, the run time throws ProxyUnmarshalException.
+
 - Ice no longer retries operation calls on RequestFailedException.
   (ObjectNotExistException, OperationNotExistException, and
   FacetNotExistException are derived from RequestFailedException.)

@@ -67,8 +67,12 @@ final public class Incoming extends IncomingBase
         // For compatibility with the old FacetPath.
         //
         String[] facetPath = _is.readStringSeq();
-        if(facetPath.length > 0) // TODO: Throw an exception if facetPath has more than one element?
+        if(facetPath.length > 0)
         {
+	    if(facetPath.length > 1)
+	    {
+	        throw new Ice.MarshalException();
+	    }
             _current.facet = facetPath[0];
         }
 	else

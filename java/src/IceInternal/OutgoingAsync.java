@@ -52,8 +52,12 @@ public abstract class OutgoingAsync
                         //
                         String[] facetPath = __is.readStringSeq();
                         String facet;
-                        if(facetPath.length > 0) // TODO: Throw an exception if facetPath has more than one element?
+                        if(facetPath.length > 0)
                         {
+			    if(facetPath.length > 1)
+			    {
+			        throw new Ice.MarshalException();
+			    }
                             facet = facetPath[0];
                         }
 			else
