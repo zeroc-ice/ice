@@ -106,6 +106,10 @@ PostBuild_Cmds=copy Debug\iceutil001d.* ..\..\lib
 
 SOURCE=.\Exception.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\Unicode.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -133,6 +137,10 @@ SOURCE=..\..\include\IceUtil\IceUtil.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\Shared.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\Unicode.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
