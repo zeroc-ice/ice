@@ -656,6 +656,61 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     }
 
+    private static class AMI_MyClass_opStringSSSI extends Test.AMI_MyClass_opStringSSS
+    {
+	public void
+	ice_response(String[][][] rsso, String[][][] ssso)
+	{
+	    test(ssso.length == 5);
+	    test(ssso[0].length == 2);
+	    test(ssso[0][0].length == 2);
+	    test(ssso[0][1].length == 1);
+	    test(ssso[1].length == 1);
+	    test(ssso[1][0].length == 1);
+	    test(ssso[2].length == 2);
+	    test(ssso[2][0].length == 2);
+	    test(ssso[2][1].length == 1);
+	    test(ssso[3].length == 1);
+	    test(ssso[3][0].length == 1);
+	    test(ssso[4].length == 0);
+	    test(ssso[0][0][0].equals("abc"));
+	    test(ssso[0][0][1].equals("de"));
+	    test(ssso[0][1][0].equals("xyz"));
+	    test(ssso[1][0][0].equals("hello"));
+	    test(ssso[2][0][0].equals(""));
+	    test(ssso[2][0][1].equals(""));
+	    test(ssso[2][1][0].equals("abcd"));
+	    test(ssso[3][0][0].equals(""));
+
+	    test(rsso.length == 3);
+	    test(rsso[0].length == 0);
+	    test(rsso[1].length == 1);
+	    test(rsso[1][0].length == 1);
+	    test(rsso[2].length == 2);
+	    test(rsso[2][0].length == 2);
+	    test(rsso[2][1].length == 1);
+	    test(rsso[1][0][0].equals(""));
+	    test(rsso[2][0][0].equals(""));
+	    test(rsso[2][0][1].equals(""));
+	    test(rsso[2][1][0].equals("abcd"));
+	    callback.called();
+	}
+
+	public void
+	ice_exception(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+
+	public boolean
+	check()
+	{
+	    return callback.check();
+	}
+
+	private Callback callback = new Callback();
+    }
+
     private static class AMI_MyClass_opByteBoolDI extends Test.AMI_MyClass_opByteBoolD
     {
 	public void
@@ -1114,6 +1169,48 @@ class TwowaysAMI
 
 	    AMI_MyClass_opStringSSI cb = new AMI_MyClass_opStringSSI();
 	    p.opStringSS_async(cb, ssi1, ssi2);
+	    test(cb.check());
+	}
+
+	{
+	    final String[][][] sssi1 =
+	    {
+		{
+		    {
+			"abc", "de"
+		    },
+		    {
+			"xyz"
+		    }
+		},
+		{
+		    {
+			"hello"
+		    }
+		}
+	    };
+
+	    final String[][][] sssi2 =
+	    {
+		{
+		    {
+			"", ""
+		    },
+		    {
+			"abcd"
+		    }
+		},
+		{
+		    {
+			""
+		    }
+		},
+		{
+		}
+	    };
+
+	    AMI_MyClass_opStringSSSI cb = new AMI_MyClass_opStringSSSI();
+	    p.opStringSSS_async(cb, sssi1, sssi2);
 	    test(cb.check());
 	}
 

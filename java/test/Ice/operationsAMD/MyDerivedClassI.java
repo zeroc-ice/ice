@@ -376,6 +376,23 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     }
 
     public void
+    opStringSSS_async(Test.AMD_MyClass_opStringSSS cb,
+		     String[][][] p1, String[][][] p2,
+		     Ice.Current current)
+    {
+        String[][][] p3 = new String[p1.length + p2.length][][];
+        System.arraycopy(p1, 0, p3, 0, p1.length);
+        System.arraycopy(p2, 0, p3, p1.length, p2.length);
+
+        String[][][] r = new String[p2.length][][];
+        for(int i = 0; i < p2.length; i++)
+        {
+            r[i] = p2[p2.length - (i + 1)];
+        }
+        cb.ice_response(r, p3);
+    }
+
+    public void
     opStringStringD_async(Test.AMD_MyClass_opStringStringD cb,
 			  java.util.Map p1, java.util.Map p2,
 			  Ice.Current current)

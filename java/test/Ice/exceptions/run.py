@@ -33,7 +33,7 @@ testdirAMD = os.path.join(toplevel, "test", nameAMD)
 print "tests with regular server."
 classpath = os.getenv("CLASSPATH", "")
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + classpath
-TestUtil.clientServerTest()
+TestUtil.clientServerTestWithOptions("", " --Ice.Warn.Connections=0")
 
 print "tests with AMD server."
 server = "java -ea Server --Ice.ProgramName=Server "
@@ -47,7 +47,7 @@ print "ok"
 print "starting client...",
 classpath = os.getenv("CLASSPATH", "")
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + classpath
-clientPipe = os.popen(client + TestUtil.clientOptions + " 2>&1")
+(clientPipeIn, clientPipe) = os.popen4(client + TestUtil.clientOptions + " --Ice.Warn.Connections=0")
 print "ok"
 TestUtil.printOutputFromPipe(clientPipe)
 clientStatus = clientPipe.close()

@@ -15,6 +15,8 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+#include <Ice/Current.ice>
+
 module Test
 {
 
@@ -60,6 +62,8 @@ sequence<DoubleS> DoubleSS;
 sequence<StringS> StringSS;
 sequence<MyEnumS> MyEnumSS;
 sequence<MyClassS> MyClassSS;
+
+sequence<StringSS> StringSSS;
 
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;
@@ -126,6 +130,9 @@ dictionary<string, MyEnum> StringMyEnumD;
     StringSS opStringSS(StringSS p1, StringSS p2,
 			out StringSS p3);
 
+    StringSSS opStringSSS(StringSSS p1, StringSSS p2,
+    			  out StringSSS p3);
+
     ByteBoolD opByteBoolD(ByteBoolD p1, ByteBoolD p2,
 			  out ByteBoolD p3);
 
@@ -143,7 +150,7 @@ dictionary<string, MyEnum> StringMyEnumD;
 
     IntS opIntS(IntS s);
 
-    StringStringD opContext();
+    Ice::Context opContext();
 
 };
 

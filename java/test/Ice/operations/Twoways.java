@@ -408,6 +408,81 @@ class Twoways
             test(rso[2].length == 0);
         }
 
+	{
+	    final String[][][] sssi1 =
+	    {
+		{
+		    {
+			"abc", "de"
+		    },
+		    {
+			"xyz"
+		    }
+		},
+		{
+		    {
+			"hello"
+		    }
+		}
+	    };
+
+	    final String[][][] sssi2 =
+	    {
+		{
+		    {
+			"", ""
+		    },
+		    {
+			"abcd"
+		    }
+		},
+		{
+		    {
+			""
+		    }
+		},
+		{
+		}
+	    };
+
+	    Test.StringSSSHolder ssso = new Test.StringSSSHolder();
+	    String rsso[][][];
+
+	    rsso = p.opStringSSS(sssi1, sssi2, ssso);
+	    test(ssso.value.length == 5);
+	    test(ssso.value[0].length == 2);
+	    test(ssso.value[0][0].length == 2);
+	    test(ssso.value[0][1].length == 1);
+	    test(ssso.value[1].length == 1);
+	    test(ssso.value[1][0].length == 1);
+	    test(ssso.value[2].length == 2);
+	    test(ssso.value[2][0].length == 2);
+	    test(ssso.value[2][1].length == 1);
+	    test(ssso.value[3].length == 1);
+	    test(ssso.value[3][0].length == 1);
+	    test(ssso.value[4].length == 0);
+	    test(ssso.value[0][0][0].equals("abc"));
+	    test(ssso.value[0][0][1].equals("de"));
+	    test(ssso.value[0][1][0].equals("xyz"));
+	    test(ssso.value[1][0][0].equals("hello"));
+	    test(ssso.value[2][0][0].equals(""));
+	    test(ssso.value[2][0][1].equals(""));
+	    test(ssso.value[2][1][0].equals("abcd"));
+	    test(ssso.value[3][0][0].equals(""));
+
+	    test(rsso.length == 3);
+	    test(rsso[0].length == 0);
+	    test(rsso[1].length == 1);
+	    test(rsso[1][0].length == 1);
+	    test(rsso[2].length == 2);
+	    test(rsso[2][0].length == 2);
+	    test(rsso[2][1].length == 1);
+	    test(rsso[1][0][0].equals(""));
+	    test(rsso[2][0][0].equals(""));
+	    test(rsso[2][0][1].equals(""));
+	    test(rsso[2][1][0].equals("abcd"));
+	}
+
         {
             java.util.Map di1 = new java.util.HashMap();
             di1.put(new Byte((byte)10), Boolean.TRUE);

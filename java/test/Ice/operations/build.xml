@@ -13,6 +13,9 @@ the Free Software Foundation.
 -->
 <project name="test_Ice_operations" default="all" basedir=".">
 
+    <!-- get access to env variables globally -->
+    <property environment="env" />
+
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
     <property name="lib.dir" value="${top.dir}/lib"/>
@@ -29,6 +32,20 @@ the Free Software Foundation.
     <target name="init">
         <!-- Create the time stamp -->
         <tstamp/>
+
+        <!-- Define the slice.dir property -->
+        <condition property="slice.dir" value="slice">
+            <available file="slice" type="dir"/>
+        </condition>
+        <condition property="slice.dir" value="${env.ICE_HOME}/slice">
+            <and>
+                <available type="dir" file="${env.ICE_HOME}/slice"/>
+                <not>
+                    <available file="slice" type="dir"/>
+                </not>
+            </and>
+        </condition>
+        <fail message="Slice source directory not found" unless="slice.dir"/>
     </target>
 
     <target name="generate" depends="init">
@@ -36,6 +53,9 @@ the Free Software Foundation.
         <mkdir dir="${generated.dir}"/>
         <slice2java outputdir="${generated.dir}">
             <fileset dir="." includes="Test.ice"/>
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
         </slice2java>
     </target>
 

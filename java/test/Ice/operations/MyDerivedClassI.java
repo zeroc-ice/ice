@@ -338,6 +338,23 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return r;
     }
 
+    public String[][][]
+    opStringSSS(String[][][] p1, String[][][] p2,
+	       Test.StringSSSHolder p3,
+               Ice.Current current)
+    {
+        p3.value = new String[p1.length + p2.length][][];
+        System.arraycopy(p1, 0, p3.value, 0, p1.length);
+        System.arraycopy(p2, 0, p3.value, p1.length, p2.length);
+
+        String[][][] r = new String[p2.length][][];
+        for(int i = 0; i < p2.length; i++)
+        {
+            r[i] = p2[p2.length - (i + 1)];
+        }
+        return r;
+    }
+
     public java.util.Map
     opStringStringD(java.util.Map p1, java.util.Map p2,
                     Test.StringStringDHolder p3,
