@@ -234,6 +234,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 			            break;
 			        }
 			    }
+			    break;
 			}
 
 		        case '3':
@@ -264,6 +265,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 			            break;
 			        }
 			    }
+			    break;
 			}
 		    }
 		}
