@@ -67,6 +67,14 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simpleIcePackS", "IcePack\s
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simpleIcePackSvc", "IcePack\simple\simpleIcePackSvc.vcproj", "{A80026F9-61A6-4B11-A2B2-3F4D8F9CE3D5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "printerC", "book\printer\printerC.vcproj", "{52F10EF5-C73B-454F-9EC0-332349B45110}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "printerS", "book\printer\PrinterS.vcproj", "{E8A5A30A-D785-4656-9574-A6C7F5D8EC77}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simpleFSC", "book\simple_filesystem\simpleFSC.vcproj", "{C326B6BE-5A0D-49D2-9A3B-090B945D2891}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "simpleFSS", "book\simple_filesystem\simpleFSS.vcproj", "{6904928F-43F3-4F52-ACEC-5429B5CA7CAF}"
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		ConfigName.0 = Debug
@@ -211,6 +219,22 @@ Global
 		{A80026F9-61A6-4B11-A2B2-3F4D8F9CE3D5}.Debug.Build.0 = Debug|Win32
 		{A80026F9-61A6-4B11-A2B2-3F4D8F9CE3D5}.Release.ActiveCfg = Release|Win32
 		{A80026F9-61A6-4B11-A2B2-3F4D8F9CE3D5}.Release.Build.0 = Release|Win32
+		{52F10EF5-C73B-454F-9EC0-332349B45110}.Debug.ActiveCfg = Debug|Win32
+		{52F10EF5-C73B-454F-9EC0-332349B45110}.Debug.Build.0 = Debug|Win32
+		{52F10EF5-C73B-454F-9EC0-332349B45110}.Release.ActiveCfg = Release|Win32
+		{52F10EF5-C73B-454F-9EC0-332349B45110}.Release.Build.0 = Release|Win32
+		{E8A5A30A-D785-4656-9574-A6C7F5D8EC77}.Debug.ActiveCfg = Debug|Win32
+		{E8A5A30A-D785-4656-9574-A6C7F5D8EC77}.Debug.Build.0 = Debug|Win32
+		{E8A5A30A-D785-4656-9574-A6C7F5D8EC77}.Release.ActiveCfg = Release|Win32
+		{E8A5A30A-D785-4656-9574-A6C7F5D8EC77}.Release.Build.0 = Release|Win32
+		{C326B6BE-5A0D-49D2-9A3B-090B945D2891}.Debug.ActiveCfg = Debug|Win32
+		{C326B6BE-5A0D-49D2-9A3B-090B945D2891}.Debug.Build.0 = Debug|Win32
+		{C326B6BE-5A0D-49D2-9A3B-090B945D2891}.Release.ActiveCfg = Release|Win32
+		{C326B6BE-5A0D-49D2-9A3B-090B945D2891}.Release.Build.0 = Release|Win32
+		{6904928F-43F3-4F52-ACEC-5429B5CA7CAF}.Debug.ActiveCfg = Debug|Win32
+		{6904928F-43F3-4F52-ACEC-5429B5CA7CAF}.Debug.Build.0 = Debug|Win32
+		{6904928F-43F3-4F52-ACEC-5429B5CA7CAF}.Release.ActiveCfg = Release|Win32
+		{6904928F-43F3-4F52-ACEC-5429B5CA7CAF}.Release.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
