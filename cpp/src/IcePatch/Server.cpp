@@ -8,6 +8,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/IceUtil.h>
 #include <Ice/Application.h>
 #include <IcePatch/FileLocator.h>
 #include <IcePatch/Util.h>
@@ -28,9 +29,26 @@ public:
 
     void usage();
     virtual int run(int, char*[]);
-
-    static void cleanup(const FileDescSeq&);
 };
+
+class Updater : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    Updater(const ObjectAdapterPtr&);
+
+    virtual void run();
+    void destroy();
+
+protected:
+
+    const ObjectAdapterPtr& _adapter;
+    bool _destroy;
+
+    void cleanup(const FileDescSeq&);
+};
+
+typedef IceUtil::Handle<Updater> UpdaterPtr;
 
 };
 
@@ -48,96 +66,161 @@ IcePatch::Server::usage()
 int
 IcePatch::Server::run(int argc, char* argv[])
 {
-    try
+    for (int i = 1; i < argc; ++i)
     {
-        for (int i = 1; i < argc; ++i)
-        {
-            if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-            {
-                usage();
-                return EXIT_SUCCESS;
-            }
-            else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
-            {
-                cout << ICE_STRING_VERSION << endl;
-                return EXIT_SUCCESS;
-            }
-            else
-            {
-                cerr << appName() << ": unknown option `" << argv[i] << "'" << endl;
-                usage();
-                return EXIT_FAILURE;
-            }
-        }
-        
-        PropertiesPtr properties = communicator()->getProperties();
-        
-        //
-        // Get the IcePatch endpoints.
-        //
-        const char* endpointsProperty = "IcePatch.Endpoints";
-        string endpoints = properties->getProperty(endpointsProperty);
-        if (endpoints.empty())
-        {
-            cerr << appName() << ": property `" << endpointsProperty << "' is not set" << endl;
-            return EXIT_FAILURE;
-        }
-        
-        //
-        // Get the working directory and change to this directory.
-        //
-        const char* directoryProperty = "IcePatch.Directory";
-        string directory = properties->getProperty(directoryProperty);
-        if (!directory.empty())
-        {
-#ifdef _WIN32
-	    if (_chdir(directory.c_str()) == -1)
-#else
-	    if (chdir(directory.c_str()) == -1)
-#endif
-	    {
-		cerr << appName() << ": cannot change to directory `" << directory << "': " << strerror(errno) << endl;
-	    }
-        }
-
-        //
-        // Create and initialize the object adapter and the file locator.
-        //
-        ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("IcePatch", endpointsProperty);
-        ServantLocatorPtr fileLocator = new FileLocator(adapter);
-        adapter->addServantLocator(fileLocator, "IcePatch");
-         
-	//
-	// Do cleanup.
-	//
-	Identity identity = pathToIdentity(".");
-	ObjectPrx topObj = communicator()->stringToProxy(identityToString(identity) + ':' + endpoints);
-	FilePrx top = FilePrx::checkedCast(topObj);
-	assert(top);
-	DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
-	assert(topDesc);
-	cleanup(topDesc->directory->getContents());
-
-	//
-	// Everything ok, let's go.
-	//
-	shutdownOnInterrupt();
-	adapter->activate();
-	communicator()->waitForShutdown();
-	ignoreInterrupt();
+	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+	{
+	    usage();
+	    return EXIT_SUCCESS;
+	}
+	else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+	{
+	    cout << ICE_STRING_VERSION << endl;
+	    return EXIT_SUCCESS;
+	}
+	else
+	{
+	    cerr << appName() << ": unknown option `" << argv[i] << "'" << endl;
+	    usage();
+	    return EXIT_FAILURE;
+	}
     }
-    catch (const FileAccessException& ex)
+    
+    PropertiesPtr properties = communicator()->getProperties();
+    
+    //
+    // Get the IcePatch endpoints.
+    //
+    const char* endpointsProperty = "IcePatch.Endpoints";
+    string endpoints = properties->getProperty(endpointsProperty);
+    if (endpoints.empty())
     {
-	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
+	cerr << appName() << ": property `" << endpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
+    
+    //
+    // Get the working directory and change to this directory.
+    //
+    const char* directoryProperty = "IcePatch.Directory";
+    string directory = properties->getProperty(directoryProperty);
+    if (!directory.empty())
+    {
+#ifdef _WIN32
+	if (_chdir(directory.c_str()) == -1)
+#else
+	if (chdir(directory.c_str()) == -1)
+#endif
+	{
+	    cerr << appName() << ": cannot change to directory `" << directory << "': " << strerror(errno) << endl;
+	}
+    }
+    
+    //
+    // Create and initialize the object adapter and the file locator.
+    //
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("IcePatch", endpointsProperty);
+    ServantLocatorPtr fileLocator = new FileLocator(adapter);
+    adapter->addServantLocator(fileLocator, "IcePatch");
+    
+    //
+    // Start updater.
+    //
+    UpdaterPtr updater = new Updater(adapter);
+    updater->start();
+
+    //
+    // Everything ok, let's go.
+    //
+    shutdownOnInterrupt();
+    adapter->activate();
+    communicator()->waitForShutdown();
+    ignoreInterrupt();
+
+    //
+    // Destroy and join with updater.
+    //
+    updater->destroy();
+    updater->getThreadControl().join();
 
     return EXIT_SUCCESS;
 }
 
-void
-IcePatch::Server::cleanup(const FileDescSeq& fileDescSeq)
+IcePatch::Updater::Updater(const ObjectAdapterPtr& adapter) :
+    _adapter(adapter),
+    _destroy(false)
 {
+}
+
+void
+IcePatch::Updater::run()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
+    Int updatePeriod = properties->getPropertyAsIntWithDefault("IcePatch.UpdatePeriod", 60);
+    if (updatePeriod < 10)
+    {
+	updatePeriod = 10;
+    }
+
+    while (!_destroy)
+    {
+	try
+	{
+	    Identity identity = pathToIdentity(".");
+	    ObjectPrx topObj = _adapter->createProxy(identity);
+	    FilePrx top = FilePrx::checkedCast(topObj);
+	    assert(top);
+	    DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
+	    assert(topDesc);
+	    cleanup(topDesc->directory->getContents());
+	}
+	catch (const FileAccessException& ex)
+	{
+	    Error out(_adapter->getCommunicator()->getLogger());
+	    out << "exception during update:\n" << ex << ":\n" << ex.reason;
+	}
+	catch (const ConnectFailedException&)
+	{
+	    //
+	    // This exception can be raised if the adapter is shutdown
+	    // while this thread is still running. In such case, we
+	    // terminate this thread.
+	    //
+	    break;
+	}
+	catch (const Exception& ex)
+	{
+	    Error out(_adapter->getCommunicator()->getLogger());
+	    out << "exception during update:\n" << ex;
+	}
+
+	if (_destroy)
+	{
+	    break;
+	}
+
+	timedwait(updatePeriod * 1000);
+    }
+}
+
+void
+IcePatch::Updater::destroy()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    _destroy = true;
+    notify();
+}
+
+void
+IcePatch::Updater::cleanup(const FileDescSeq& fileDescSeq)
+{
+    if (_destroy)
+    {
+	return;
+    }
+
     for (FileDescSeq::const_iterator p = fileDescSeq.begin(); p != fileDescSeq.end(); ++p)
     {
 	DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(*p);

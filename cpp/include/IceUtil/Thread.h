@@ -41,9 +41,6 @@ struct HandleWrapper : public Shared
 typedef Handle<HandleWrapper> HandleWrapperPtr;
 #endif
 
-//
-//
-//
 class ICE_UTIL_API ThreadControl
 {
 public:
