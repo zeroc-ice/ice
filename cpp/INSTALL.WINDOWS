@@ -144,4 +144,14 @@ directory, which contains DLLs and executables, to your PATH.
 Installation
 ======================================================================
 
-TBD
+For Windows, no automatic installation is supported. You must copy the
+contents of the bin, include, and lib directories by hand. The include
+directory contains all Ice include files. The lib directory all Ice
+libraries. And the bin directory all Ice executables, as well as all
+DLLs.
+
+After installation, make sure to add the include directory to the
+Visual C++ "Include files", the lib directory to the "Library files",
+and the bin directory to the "Executable files". (Visual C++ 6.0:
+Choose Tools->Options->Directories. Visual C++ .NET: Choose
+Tools->Options->Projects->VC++ Directories.)

@@ -128,4 +128,7 @@ If you want to try out any of the demos, make sure to add to add the
 Installation
 ======================================================================
 
-TBD
+No automatic installation for Ice for Java is supported. All you have
+to do is to copy the various .jar files from the lib directory to any
+directory of your choice, and then to add these Java archives to your
+CLASSPATH.
