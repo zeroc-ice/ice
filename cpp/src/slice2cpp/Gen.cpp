@@ -1778,7 +1778,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__);";
     C << eb;
-    C << nl << "catch (...)";
+    C << nl << "catch(...)";
     C << sb;
     C << nl << "throw ::Ice::UnknownException(__FILE__, __LINE__);";
     C << eb;

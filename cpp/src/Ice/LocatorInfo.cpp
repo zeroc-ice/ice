@@ -245,7 +245,7 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, bool& cached)
 		    endpoints = object->__reference()->endpoints;
 		}
 	    }
-	    catch(LocalException& ex)
+	    catch(const LocalException&)
 	    {
 		//
 		// Ignore. The proxy will most likely get empty
