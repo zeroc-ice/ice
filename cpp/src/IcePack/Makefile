@@ -82,7 +82,7 @@ HDIR		= $(includedir)/IcePack
 LOCAL_HDIR	= ../IcePack
 SDIR		= $(slicedir)/IcePack
 SLICE2CPPFLAGS	= -I.. -I$(slicedir)
-SLICE2CPPCMD    = $(SLICE2CPP) --ice --include-dir IcePack --dll-export ICE_PACK_API $(SLICE2CPPFLAGS)
+SLICECMD    	= $(SLICE2CPP) --ice --include-dir IcePack --dll-export ICE_PACK_API $(SLICE2CPPFLAGS)
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IcePack -I.. -I$(slicedir)
 include $(top_srcdir)/config/Make.rules
 
@@ -128,7 +128,7 @@ clean::
 
 $(HDIR)/Admin.h Admin.cpp: $(SDIR)/Admin.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Admin.h Admin.cpp
-	$(SLICE2CPPCMD) $(SDIR)/Admin.ice
+	$(SLICECMD) $(SDIR)/Admin.ice
 	mv Admin.h $(HDIR)
 
 clean::
@@ -136,7 +136,7 @@ clean::
 
 $(LOCAL_HDIR)/Internal.h Internal.cpp: Internal.ice $(SLICE2CPP)
 	rm -f Internal.h Internal.cpp
-	$(SLICE2CPPCMD) Internal.ice
+	$(SLICECMD) Internal.ice
 
 clean::
 	rm -f Internal.h Internal.cpp
