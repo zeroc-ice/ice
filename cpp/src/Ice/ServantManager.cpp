@@ -43,7 +43,7 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
 
     if(p == _servantMapMap.end())
     {
-	p = _servantMapMap.insert(_servantMapMapHint, pair<const Identity, ServantMap>(ident, ServantMap()));
+	p = _servantMapMap.insert(_servantMapMapHint, pair<const Identity, FacetMap>(ident, FacetMap()));
     }
     else
     {
@@ -73,7 +73,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
-    ServantMap::iterator q;
+    FacetMap::iterator q;
 
     if(p == _servantMapMap.end() || p->first != ident)
     {
@@ -108,6 +108,54 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
     }
 }
 
+FacetMap
+IceInternal::ServantManager::removeAllFacets(const Identity& ident)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    assert(_instance); // Must not be called after destruction.
+
+    ServantMapMap::iterator p = _servantMapMapHint;
+
+    if(p == _servantMapMap.end() || p->first != ident)
+    {
+	p = _servantMapMap.find(ident);
+    }
+    
+    if(p == _servantMapMap.end())
+    {
+	NotRegisteredException ex(__FILE__, __LINE__);
+	ex.kindOfObject = "servant";
+	ex.id = identityToString(ident);
+	throw ex;
+    }
+
+    cerr << "p->second.size() = " << p->second.size() << endl;
+    //FacetMap result = p->second;
+    FacetMap result;
+    for(FacetMap::const_iterator i = p->second.begin(); i != p->second.end(); ++i)
+    {
+	result.insert(*i);
+    }
+
+    if(p == _servantMapMapHint)
+    {
+	_servantMapMap.erase(p++);
+	_servantMapMapHint = p;
+    }
+    else
+    {
+	_servantMapMap.erase(p);
+    }
+    cerr << "result.size() = " << result.size() << endl;
+    for(FacetMap::const_iterator i = result.begin(); i != result.end(); ++i)
+    {
+	cerr << i->first << endl;
+    }
+
+    return result;
+}
+
 ObjectPtr
 IceInternal::ServantManager::findServant(const Identity& ident, const string& facet) const
 {
@@ -116,7 +164,7 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
     assert(_instance); // Must not be called after destruction.
 
     ServantMapMap::iterator p = _servantMapMapHint;
-    ServantMap::iterator q;
+    FacetMap::iterator q;
     
     ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
 

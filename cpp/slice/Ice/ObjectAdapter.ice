@@ -20,6 +20,7 @@
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
 #include <Ice/Identity.ice>
+#include <Ice/FacetMap.ice>
 
 module Ice
 {
@@ -236,7 +237,8 @@ local interface ObjectAdapter
 
     /**
      *
-     * Remove a servant from the object adapter's Active Servant Map.
+     * Remove a servant (that is, the default facet) from the
+     * object adapter's Active Servant Map.
      *
      * @param id The identity of the &Ice; object that is
      * implemented by the servant. If the servant implements multiple
@@ -269,6 +271,23 @@ local interface ObjectAdapter
      *
      **/
     void removeFacet(Identity id, string facet);
+
+    /**
+     * Remove all facets with the given identity from the Active
+     * Servant Map (that is, completely remove the &Ice object,
+     * including it's default facet). Removing an identity that
+     * is not in the map throws [NotRegisteredException].
+     *
+     * @param id The identity of the &Ice object to be removed.
+     *
+     * @return A collection containing all the facet names and
+     * servants of the removed &Ice object.
+     *
+     * @see FacetMap
+     * @see remove
+     * @see removeFacet
+     **/
+    FacetMap removeAllFacets(Identity id);
 
     /**
      *

@@ -355,6 +355,17 @@ Ice::ObjectAdapterI::removeFacet(const Identity& ident, const string& facet)
     _servantManager->removeServant(ident, facet);
 }
 
+FacetMap
+Ice::ObjectAdapterI::removeAllFacets(const Identity& ident)
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    checkForDeactivation();
+    checkIdentity(ident);
+
+    FacetMap fm = _servantManager->removeAllFacets(ident);
+}
+
 ObjectPtr
 Ice::ObjectAdapterI::find(const Identity& ident)
 {

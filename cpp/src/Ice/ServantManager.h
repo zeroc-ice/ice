@@ -21,6 +21,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/ServantLocatorF.h>
 #include <Ice/Identity.h>
+#include <Ice/FacetMap.h>
 
 namespace Ice
 {
@@ -38,6 +39,7 @@ public:
 
     void addServant(const Ice::ObjectPtr&, const Ice::Identity&, const std::string&);
     void removeServant(const Ice::Identity&, const std::string&);
+    Ice::FacetMap removeAllFacets(const Ice::Identity&);
     Ice::ObjectPtr findServant(const Ice::Identity&, const std::string&) const;
     bool hasServant(const Ice::Identity&) const;
 
@@ -55,8 +57,7 @@ private:
 
     const std::string _adapterName;
 
-    typedef std::map<std::string, Ice::ObjectPtr> ServantMap;
-    typedef std::map<Ice::Identity, ServantMap> ServantMapMap;
+    typedef std::map<Ice::Identity, Ice::FacetMap> ServantMapMap;
 
     ServantMapMap _servantMapMap;
     mutable ServantMapMap::iterator _servantMapMapHint;

@@ -53,6 +53,37 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(gotException);
     cout << "ok" << endl;
 
+    cout << "testing removeAllFacets..." << flush;
+    Ice::ObjectPtr obj1 = new EmptyI;
+    Ice::ObjectPtr obj2 = new EmptyI;
+    adapter->addFacet(obj1, Ice::stringToIdentity("id1"), "f1");
+    adapter->addFacet(obj2, Ice::stringToIdentity("id1"), "f2");
+    Ice::ObjectPtr obj3 = new EmptyI;
+    adapter->addFacet(obj1, Ice::stringToIdentity("id2"), "f1");
+    adapter->addFacet(obj2, Ice::stringToIdentity("id2"), "f2");
+    adapter->addFacet(obj3, Ice::stringToIdentity("id2"), "");
+    Ice::FacetMap fm = adapter->removeAllFacets(Ice::stringToIdentity("id1"));
+    cerr << "fm.size() = " << fm.size() << endl;
+    test(fm.size() == 2);
+    test(fm["f1"] == obj1);
+    test(fm["f2"] == obj2);
+    gotException = false;
+    try
+    {
+	adapter->removeAllFacets(Ice::stringToIdentity("id1"));
+    }
+    catch(Ice::NotRegisteredException&)
+    {
+	gotException = true;
+    }
+    test(gotException);
+    fm = adapter->removeAllFacets(Ice::stringToIdentity("id2"));
+    test(fm.size() == 3);
+    test(fm["f1"] == obj1);
+    test(fm["f2"] == obj2);
+    test(fm[""] == obj3);
+    cout << "ok" << endl;
+
     adapter->deactivate();
 
     cout << "testing stringToProxy... " << flush;

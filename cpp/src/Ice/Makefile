@@ -91,7 +91,8 @@ OBJS		= Initialize.o \
 		  FactoryTableDef.o \
 		  FactoryTable.o \
 		  Service.o \
-		  Process.o
+		  Process.o \
+		  FacetMap.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -120,7 +121,8 @@ SLICE_SRCS	= $(SDIR)/LocalException.ice \
                   $(SDIR)/StatsF.ice \
                   $(SDIR)/Stats.ice \
                   $(SDIR)/Process.ice \
-                  $(SDIR)/ProcessF.ice
+                  $(SDIR)/ProcessF.ice \
+		  $(SDIR)/FacetMap.ice
 
 HDIR		= $(includedir)/Ice
 SDIR		= $(slicedir)/Ice
