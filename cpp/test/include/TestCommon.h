@@ -11,7 +11,7 @@
 #ifndef TEST_COMMON_H
 #define TEST_COMMON_H
 
-#include <iostream>
+#include <IceUtil/Config.h>
 #include <cstdlib>
 
 void
