@@ -148,7 +148,7 @@ IceInternal::ThreadPool::getMaxConnections()
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     _instance(instance),
     _destroyed(false),
-    _lastFd(INVALID_SOCKET),
+    _lastFd(-1),
     _servers(0),
     _timeout(0)
 {
@@ -160,9 +160,6 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
 
     FD_ZERO(&_fdSet);
     FD_SET(_fdIntrRead, &_fdSet);
-#ifdef WIN32 // Optimization for WIN32 fd_set
-    _fdIntrReadIdx = _fdSet.fd_count - 1;
-#endif
     _maxFd = _fdIntrRead;
     _minFd = _fdIntrRead;
 
@@ -314,15 +311,57 @@ IceInternal::ThreadPool::run()
 	    
 	    bool interrupt = false;
 
-#ifdef WIN32 // Optimization for WIN32 fd_set
-	    if (fdSet.fd_array[_fdIntrReadIdx] == static_cast<SOCKET>(_fdIntrRead))
+//
+// Optimization for WIN32 specific version of fd_set. Looping with a
+// FD_ISSET test like for Unix is very unefficient for WIN32.
+//
+#ifdef WIN32
+	    //
+	    // Round robin for the filedescriptors. The interrupt
+	    // filedescriptor has priority.
+	    //
+	    assert(fdSet.fd_count > 0);
+	    int largerFd = _maxFd + 1;
+	    int smallestFd = _maxFd + 1;
+	    for (u_short i = 0; i < fdSet.fd_count; ++i)
+	    {
+		int fd = static_cast<int>(fdSet.fd_array[i]);
+
+		if (fd == _fdIntrRead)
+		{
+		    shutdown = clearInterrupt();
+		    interrupt = true;
+		    break;
+		}
+
+		if (fd > _lastFd)
+		{
+		    largerFd = min(largerFd, fd);
+		}
+
+		smallestFd = min(smallestFd, fd);
+	    }
+
+	    if (!interrupt)
+	    {
+		if (largerFd <= _maxFd)
+		{
+		    assert(largerFd >= _minFd);
+		    _lastFd = largerFd;
+		}
+		else
+		{
+		    assert(smallestFd >= _minFd && smallestFd <= _maxFd);
+		    _lastFd = smallestFd;
+		}
+	    }
 #else
 	    if (FD_ISSET(_fdIntrRead, &fdSet))
-#endif
 	    {
 		shutdown = clearInterrupt();
 		interrupt = true;
 	    }
+#endif
 	    
 	    if (!_adds.empty())
 	    {
@@ -392,10 +431,10 @@ IceInternal::ThreadPool::run()
 		for (list<int>::reverse_iterator p = _reapList.rbegin(); p != _reapList.rend(); ++p)
 		{
 		    int fd = *p;
-		    if (fd != INVALID_SOCKET)
+		    if (fd != -1)
 		    {
 			_reapList.pop_back();
-			_reapList.push_front(INVALID_SOCKET);
+			_reapList.push_front(-1);
 			map<int, pair<EventHandlerPtr, list<int>::iterator> >::iterator q = _handlerMap.find(fd);
 			q->second.second = _reapList.begin();
 			handler = q->second.first;
@@ -407,23 +446,17 @@ IceInternal::ThreadPool::run()
 
 	    if (!reap)
 	    {
+#ifndef WIN32
 		//
 		// Round robin for the filedescriptors.
 		//
+		int loops = 0;
+
 		if (_lastFd < _minFd - 1)
 		{
 		    _lastFd = _minFd - 1;
 		}
-		
-		//
-		// TODO: This code is very inefficient under Windows,
-		// because FD_ISSET is implemented as a loop, and
-		// because socketdescriptors are not small, ordered
-		// integers, like under Unix. Therefore this should be
-		// rewritten to use the fd_set structure under Windows
-		// directly.
-		//
-		int loops = 0;
+
 		do
 		{
 		    if (++_lastFd > _maxFd)
@@ -433,7 +466,7 @@ IceInternal::ThreadPool::run()
 		    }
 		}
 		while (!FD_ISSET(_lastFd, &fdSet) && loops <= 1);
-		
+
 		if (loops > 1)
 		{
 		    ostringstream s;
@@ -441,6 +474,7 @@ IceInternal::ThreadPool::run()
 		    _instance->logger()->error(s.str());
 		    goto repeatSelect;
 		}
+#endif
 		
 		map<int, pair<EventHandlerPtr, list<int>::iterator> >::iterator p = _handlerMap.find(_lastFd);
 		if(p == _handlerMap.end())
