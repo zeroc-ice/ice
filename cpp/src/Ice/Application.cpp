@@ -59,6 +59,11 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	cerr << _appName << ": " << ex << endl;
 	status = EXIT_FAILURE;
     }
+    catch(const std::exception& ex)
+    {
+	cerr << _appName << ": std::exception: " << ex.what() << endl;
+	status = EXIT_FAILURE;
+    }
     catch(...)
     {
 	cerr << _appName << ": unknown exception" << endl;
@@ -74,6 +79,11 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	catch(const Exception& ex)
 	{
 	    cerr << _appName << ": " << ex << endl;
+	    status = EXIT_FAILURE;
+	}
+	catch(const std::exception& ex)
+	{
+	    cerr << _appName << ": std::exception: " << ex.what() << endl;
 	    status = EXIT_FAILURE;
 	}
 	catch(...)
