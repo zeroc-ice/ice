@@ -199,6 +199,11 @@ Slice::Gen::generate(const UnitPtr& unit)
 	H << "\n#include <Ice/LocalObject.h>";
     }
 
+    if(unit->usesConsts())
+    {
+	H << "\n#include <Ice/Const.h>";
+    }
+
     StringList includes = unit->includeFiles();
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
     {
@@ -213,8 +218,6 @@ Slice::Gen::generate(const UnitPtr& unit)
     {
 	_dllExport += " ";
     }
-
-    printDefInt64Macro(H);
 
     ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
     unit->visit(&proxyDeclVisitor);
@@ -265,8 +268,6 @@ Slice::Gen::generate(const UnitPtr& unit)
         ImplVisitor implVisitor(implH, implC, _dllExport);
         unit->visit(&implVisitor);
     }
-
-    printUndefInt64Macro(H);
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport) :
@@ -983,7 +984,7 @@ Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
     }
     else if(bp && bp->kind() == Builtin::KindLong)
     {
-	H << "INT64LITERAL(" << p->value() << ")";
+	H << "ICE_INT64_LITERAL(" << p->value() << ")";
     }
     else
     {

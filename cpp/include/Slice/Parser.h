@@ -766,6 +766,7 @@ public:
 
     bool usesProxies() const;
     bool usesNonLocals() const;
+    bool usesConsts() const;
 
     StringList includeFiles() const;
 

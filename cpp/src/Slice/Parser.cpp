@@ -3392,6 +3392,24 @@ Slice::Unit::usesNonLocals() const
     return false;
 }
 
+bool
+Slice::Unit::usesConsts() const
+{
+    for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
+    {
+	for(ContainedList::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+	{
+	    ConstDefPtr cd = ConstDefPtr::dynamicCast(*q);
+	    if(cd)
+	    {
+		return true;
+	    }
+	}
+    }
+
+    return false;
+}
+
 StringList
 Slice::Unit::includeFiles() const
 {
