@@ -1,11 +1,11 @@
-Ice.Adapter.CallbackAdapter.Endpoints=tcp -p 10000:udp -p 10000#:ssl -p 10001
+Ice.Adapter.CallbackAdapter.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
 Ice.Trace.Network=1
 Ice.Trace.Protocol=1
 Ice.ConnectionWarnings=1
 
-#Ice.SSL.Client.CertPath=../../../certs
-#Ice.SSL.Client.Config=sslconfig.xml
-#Ice.SSL.Server.CertPath=../../../certs
-#Ice.SSL.Server.Config=sslconfig.xml
+Ice.SSL.Client.CertPath=../../../certs
+Ice.SSL.Client.Config=sslconfig.xml
+Ice.SSL.Server.CertPath=../../../certs
+Ice.SSL.Server.Config=sslconfig.xml
 
