@@ -9,6 +9,7 @@ GCShared.o: GCShared.cpp ../../include/IceUtil/GCShared.h ../../include/IceUtil/
 InputUtil.o: InputUtil.cpp ../../include/IceUtil/InputUtil.h ../../include/IceUtil/Config.h
 MD5.o: MD5.cpp ../../include/IceUtil/MD5.h ../../include/IceUtil/Config.h ../IceUtil/MD5I.h
 MD5I.o: MD5I.cpp ../IceUtil/MD5I.h
+MemoryPool.o: MemoryPool.cpp ../../include/IceUtil/MemoryPool.h ../../include/IceUtil/Mutex.h ../../include/IceUtil/Config.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h
 Options.o: Options.cpp ../../include/IceUtil/Options.h ../../include/IceUtil/Config.h ../../include/IceUtil/RecMutex.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h
 OutputUtil.o: OutputUtil.cpp ../../include/IceUtil/OutputUtil.h ../../include/IceUtil/Config.h
 RWRecMutex.o: RWRecMutex.cpp ../../include/IceUtil/RWRecMutex.h ../../include/IceUtil/Mutex.h ../../include/IceUtil/Config.h ../../include/IceUtil/Lock.h ../../include/IceUtil/ThreadException.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Cond.h ../../include/IceUtil/Time.h ../../include/IceUtil/Thread.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Handle.h
