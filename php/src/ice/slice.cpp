@@ -58,12 +58,12 @@ using namespace std;
 //
 
 //
-// Visitor descends the Slice parse tree and creates PHP classes for certain Slice types.
+// PHPVisitor descends the Slice parse tree and creates PHP classes for certain Slice types.
 //
-class Visitor : public Slice::ParserVisitor
+class PHPVisitor : public Slice::ParserVisitor
 {
 public:
-    Visitor(int TSRMLS_DC);
+    PHPVisitor(int TSRMLS_DC);
 
     virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
     virtual bool visitExceptionStart(const Slice::ExceptionPtr&);
@@ -74,7 +74,8 @@ public:
     virtual void visitConst(const Slice::ConstPtr&);
 
 private:
-    zend_class_entry* createZendClass(const Slice::ContainedPtr&);
+    zend_class_entry* allocClass(const string&);
+    zend_class_entry* findClass(const string&);
 
     int _module;
     zend_class_entry* _currentClass;
@@ -197,20 +198,8 @@ parseSlice(const string& argStr)
     return status;
 }
 
-static void
-destroyUserFunc(void* p)
-{
-    zend_op_array* op = static_cast<zend_op_array*>(p);
-cerr << "destroying function " << op->function_name << endl;
-    assert(op->type = ZEND_USER_FUNCTION);
-    free(op->function_name);
-    free(op->refcount);
-    free(op->opcodes);
-    free(op->arg_types);
-}
-
 bool
-Slice_init(int module TSRMLS_DC)
+Slice_init(TSRMLS_D)
 {
     //
     // Parse the Slice files.
@@ -222,18 +211,9 @@ Slice_init(int module TSRMLS_DC)
         {
             return false;
         }
-
-        Visitor visitor(module TSRMLS_CC);
-        _unit->visit(&visitor);
     }
 
     return true;
-}
-
-Slice::UnitPtr
-Slice_getUnit(TSRMLS_DC)
-{
-    return _unit;
 }
 
 bool
@@ -256,6 +236,26 @@ Slice_shutdown(TSRMLS_DC)
     }
 
     return true;
+}
+
+bool
+Slice_defineClasses(int module TSRMLS_DC)
+{
+    _typeMap.clear();
+
+    if(_unit)
+    {
+        PHPVisitor visitor(module TSRMLS_CC);
+        _unit->visit(&visitor);
+    }
+
+    return true;
+}
+
+Slice::UnitPtr
+Slice_getUnit()
+{
+    return _unit;
 }
 
 zend_class_entry*
@@ -305,7 +305,7 @@ Slice_isNativeKey(const Slice::TypePtr& type)
     return false;
 }
 
-Visitor::Visitor(int module TSRMLS_DC) :
+PHPVisitor::PHPVisitor(int module TSRMLS_DC) :
     _module(module), _currentClass(0)
 {
 #ifdef ZTS
@@ -314,55 +314,45 @@ Visitor::Visitor(int module TSRMLS_DC) :
 }
 
 bool
-Visitor::visitClassDefStart(const Slice::ClassDefPtr& p)
+PHPVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
 {
     //
-    // Get the class entry for the base exception (if any).
+    // Collect the base class and interfaces.
     //
     zend_class_entry* parent = NULL;
-#if 0
-    Slice::ExceptionPtr base = p->base();
-    if(base)
+    zend_class_entry** interfaces = NULL;
+    zend_uint numInterfaces = 0;
+    Slice::ClassList bases = p->bases();
+    if(!bases.empty())
     {
-        string s = base->scoped();
-        string f = ice_lowerCase(ice_flatten(s));
-        TypeMap::iterator q = _typeMap.find(f);
-        if(q != _typeMap.end())
+        if(!bases.front()->isInterface())
         {
-            parent = q->second->entry;
+            parent = findClass(bases.front()->scoped());
+            if(parent == NULL)
+            {
+                return false;
+            }
+            bases.pop_front();
+            assert((parent->type & ZEND_ACC_INTERFACE) == 0);
         }
-        else
+
+        if(!bases.empty())
         {
-            zend_error(E_ERROR, "base exception %s not found", f.c_str());
-            return false;
+            interfaces = static_cast<zend_class_entry**>(emalloc(bases.size() * sizeof(zend_class_entry*)));
+            Slice::ClassList::iterator q;
+            for(Slice::ClassList::iterator q = bases.begin(); q != bases.end(); ++q, ++numInterfaces)
+            {
+                interfaces[numInterfaces] = findClass((*q)->scoped());
+                if(interfaces[numInterfaces] == NULL)
+                {
+                    return false;
+                }
+                assert(interfaces[numInterfaces]->type & ZEND_ACC_INTERFACE);
+            }
         }
     }
-#endif
 
-    string scoped = p->scoped();
-    string flat = ice_lowerCase(ice_flatten(scoped));
-
-    zend_class_entry ce;
-    INIT_CLASS_ENTRY(ce, flat.c_str(), NULL);
-    //
-    // We have to reset name_length because the INIT_CLASS_ENTRY macro assumes the class name
-    // is a string constant.
-    //
-    ce.name_length = flat.length();
-    zend_class_entry* cls = zend_register_internal_class_ex(&ce, parent, NULL TSRMLS_CC);
-
-    if(cls == NULL)
-    {
-        zend_error(E_ERROR, "unable to create class for type %s", scoped.c_str());
-        return false;
-    }
-
-    //
-    // Reset the hashtable destructor for the function table. See visitOperation and
-    // the note at the top of the file.
-    //
-    cls->function_table.pDestructor = destroyUserFunc;
-
+    zend_class_entry* cls = allocClass(p->scoped());
     if(p->isInterface())
     {
         cls->ce_flags |= ZEND_ACC_INTERFACE;
@@ -371,16 +361,25 @@ Visitor::visitClassDefStart(const Slice::ClassDefPtr& p)
     {
         cls->ce_flags |= ZEND_ACC_ABSTRACT;
     }
-
-    _typeMap[flat] = new TypeInfo(p, cls);
-
+    if(parent)
+    {
+        zend_do_inheritance(cls, parent);
+    }
+    cls->interfaces = interfaces;
+    cls->num_interfaces = numInterfaces;
+    for(zend_uint i = 0; i < numInterfaces; ++i)
+    {
+        zend_do_implement_interface(cls, interfaces[i]);
+    }
+    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, &cls, sizeof(zend_class_entry*), NULL);
+    _typeMap[cls->name] = new TypeInfo(p, cls);
     _currentClass = cls;
 
     return true;
 }
 
 bool
-Visitor::visitExceptionStart(const Slice::ExceptionPtr& p)
+PHPVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
 {
     //
     // Get the class entry for the base exception (if any).
@@ -403,33 +402,19 @@ Visitor::visitExceptionStart(const Slice::ExceptionPtr& p)
         }
     }
 
-    string scoped = p->scoped();
-    string flat = ice_lowerCase(ice_flatten(scoped));
-
-    zend_class_entry ce;
-    INIT_CLASS_ENTRY(ce, flat.c_str(), NULL);
-    //
-    // We have to reset name_length because the INIT_CLASS_ENTRY macro assumes the class name
-    // is a string constant.
-    //
-    ce.name_length = flat.length();
-    // TODO: Check for conflicts with existing symbols?
-    zend_class_entry* cls = zend_register_internal_class_ex(&ce, parent, NULL TSRMLS_CC);
-
-    if(cls == NULL)
+    zend_class_entry* cls = allocClass(p->scoped());
+    if(parent)
     {
-        zend_error(E_ERROR, "unable to create class for type %s", scoped.c_str());
+        zend_do_inheritance(cls, parent);
     }
-    else
-    {
-        _typeMap[flat] = new TypeInfo(p, cls);
-    }
+    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, &cls, sizeof(zend_class_entry*), NULL);
+    _typeMap[cls->name] = new TypeInfo(p, cls);
 
     return false;
 }
 
 bool
-Visitor::visitStructStart(const Slice::StructPtr& p)
+PHPVisitor::visitStructStart(const Slice::StructPtr& p)
 {
     //
     // Special case for Ice::Identity, which is predefined.
@@ -439,12 +424,18 @@ Visitor::visitStructStart(const Slice::StructPtr& p)
         return false;
     }
 
-    createZendClass(p);
+    zend_class_entry* cls = allocClass(p->scoped());
+    cls->ce_flags |= ZEND_ACC_FINAL;
+    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, &cls, sizeof(zend_class_entry*), NULL);
+    _typeMap[cls->name] = new TypeInfo(p, cls);
+
+    //createZendClass(p);
+
     return false;
 }
 
 void
-Visitor::visitOperation(const Slice::OperationPtr& p)
+PHPVisitor::visitOperation(const Slice::OperationPtr& p)
 {
     assert(_currentClass);
 
@@ -452,19 +443,8 @@ Visitor::visitOperation(const Slice::OperationPtr& p)
     char* cname = const_cast<char*>(name.c_str());
 
     zend_op_array op;
-    //
-    // We can't do this because it uses the e* allocation functions.
-    //
-    //init_op_array(&op, ZEND_USER_FUNCTION, INITIAL_OP_ARRAY_SIZE TSRMLS_CC);
-    //
-    memset(&op, 0, sizeof(zend_op_array));
-    op.type = ZEND_USER_FUNCTION;
-    op.function_name = strdup(cname);
-    op.refcount = static_cast<zend_uint*>(malloc(sizeof(zend_uint)));
-    *op.refcount = 1;
-    op.size = 8192; // TODO: Too large?
-    op.opcodes = static_cast<zend_op*>(calloc(op.size, sizeof(zend_op)));
-    op.current_brk_cont = static_cast<zend_uint>(-1);
+    init_op_array(&op, ZEND_USER_FUNCTION, INITIAL_OP_ARRAY_SIZE TSRMLS_CC);
+    op.function_name = estrndup(cname, name.length());
     op.fn_flags = ZEND_ACC_ABSTRACT | ZEND_ACC_PUBLIC;
     op.scope = _currentClass;
     op.prototype = NULL;
@@ -494,14 +474,11 @@ Visitor::visitOperation(const Slice::OperationPtr& p)
        FAILURE)
     {
         zend_error(E_ERROR, "unable to add method %s to class %s", cname, _currentClass->name);
-        free(op.function_name);
-        free(op.refcount);
-        free(op.opcodes);
     }
 }
 
 void
-Visitor::visitDictionary(const Slice::DictionaryPtr& p)
+PHPVisitor::visitDictionary(const Slice::DictionaryPtr& p)
 {
     Slice::TypePtr keyType = p->keyType();
     if(!Slice_isNativeKey(keyType))
@@ -515,41 +492,40 @@ Visitor::visitDictionary(const Slice::DictionaryPtr& p)
 }
 
 void
-Visitor::visitEnum(const Slice::EnumPtr& p)
+PHPVisitor::visitEnum(const Slice::EnumPtr& p)
 {
     //
     // Enum values are represented as integers, however we define a class in order
     // to hold constants that symbolically identify the enumerators.
     //
-    zend_class_entry* cls = createZendClass(p);
-    if(cls != NULL)
+    zend_class_entry* cls = allocClass(p->scoped());
+    //
+    // Create a class constant for each enumerator.
+    //
+    Slice::EnumeratorList l = p->getEnumerators();
+    Slice::EnumeratorList::const_iterator q;
+    long i;
+    for(q = l.begin(), i = 0; q != l.end(); ++q, ++i)
     {
-        //
-        // Create a class constant for each enumerator.
-        //
-        Slice::EnumeratorList l = p->getEnumerators();
-        Slice::EnumeratorList::const_iterator q;
-        long i;
-        for(q = l.begin(), i = 0; q != l.end(); ++q, ++i)
-        {
-            string name = (*q)->name();
-            zval* en;
-            ALLOC_ZVAL(en);
-            ZVAL_LONG(en, i);
-            zend_hash_update(&cls->constants_table, const_cast<char*>(name.c_str()), name.length() + 1, &en,
-                             sizeof(zval*), NULL);
-        }
+        string name = (*q)->name();
+        zval* en;
+        MAKE_STD_ZVAL(en);
+        ZVAL_LONG(en, i);
+        zend_hash_update(&cls->constants_table, const_cast<char*>(name.c_str()), name.length() + 1, &en,
+                         sizeof(zval*), NULL);
     }
+    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, &cls, sizeof(zend_class_entry*), NULL);
+    _typeMap[cls->name] = new TypeInfo(p, cls);
 }
 
 void
-Visitor::visitConst(const Slice::ConstPtr& p)
+PHPVisitor::visitConst(const Slice::ConstPtr& p)
 {
     string name = ice_flatten(p->scoped()); // Don't convert to lower case; constant names are case sensitive.
     char* cname = const_cast<char*>(name.c_str());
     uint cnameLen = name.length() + 1;
     string value = p->value();
-    const int flags = CONST_PERSISTENT|CONST_CS; // Persistent and case sensitive
+    const int flags = CONST_CS; // Case sensitive
 
     Slice::TypePtr type = p->type();
     Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
@@ -636,28 +612,37 @@ Visitor::visitConst(const Slice::ConstPtr& p)
 }
 
 zend_class_entry*
-Visitor::createZendClass(const Slice::ContainedPtr& type)
+PHPVisitor::allocClass(const string& scoped)
 {
-    string scoped = type->scoped();
+    zend_class_entry* result = static_cast<zend_class_entry*>(emalloc(sizeof(zend_class_entry)));
+
     string flat = ice_lowerCase(ice_flatten(scoped));
 
-    zend_class_entry ce;
-    INIT_CLASS_ENTRY(ce, flat.c_str(), NULL);
-    //
-    // We have to reset name_length because the INIT_CLASS_ENTRY macro assumes the class name
-    // is a string constant.
-    //
-    ce.name_length = flat.length();
-    // TODO: Check for conflicts with existing symbols?
-    zend_class_entry* result = zend_register_internal_class(&ce TSRMLS_CC);
+    result->type = ZEND_USER_CLASS;
+    result->name = estrndup(const_cast<char*>(flat.c_str()), flat.length());
+    result->name_length = flat.length();
 
-    if(result == NULL)
+    zend_initialize_class_data(result, 1 TSRMLS_CC);
+
+    result->ce_flags |= ZEND_ACC_PUBLIC;
+
+    return result;
+}
+
+zend_class_entry*
+PHPVisitor::findClass(const string& scoped)
+{
+    zend_class_entry* result = NULL;
+
+    string f = ice_lowerCase(ice_flatten(scoped));
+    TypeMap::iterator p = _typeMap.find(f);
+    if(p != _typeMap.end())
     {
-        zend_error(E_ERROR, "unable to create class for type %s", scoped.c_str());
+        result = p->second->entry;
     }
     else
     {
-        _typeMap[flat] = new TypeInfo(type, result);
+        zend_error(E_ERROR, "class %s not found", f.c_str());
     }
 
     return result;

@@ -70,27 +70,27 @@ ZEND_MINIT_FUNCTION(ice)
 {
     REGISTER_INI_ENTRIES();
 
-    if(!Ice_Communicator_init(TSRMLS_CC))
+    if(!Ice_Communicator_init(TSRMLS_C))
     {
         return FAILURE;
     }
 
-    if(!Ice_Identity_init(TSRMLS_CC))
+    if(!Ice_Identity_init(TSRMLS_C))
     {
         return FAILURE;
     }
 
-    if(!Ice_ObjectPrx_init(TSRMLS_CC))
+    if(!Ice_ObjectPrx_init(TSRMLS_C))
     {
         return FAILURE;
     }
 
-    if(!Ice_LocalException_init(TSRMLS_CC))
+    if(!Ice_LocalException_init(TSRMLS_C))
     {
         return FAILURE;
     }
 
-    if(!Slice_init(module_number TSRMLS_CC))
+    if(!Slice_init(TSRMLS_C))
     {
         return FAILURE;
     }
@@ -104,7 +104,7 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
 
     int status = SUCCESS;
 
-    if(!Slice_shutdown(TSRMLS_CC))
+    if(!Slice_shutdown(TSRMLS_C))
     {
         status = FAILURE;
     }
@@ -117,7 +117,15 @@ ZEND_RINIT_FUNCTION(ice)
     //
     // Create a new communicator for each request, storing it in the global variable "ICE".
     //
-    if(!Ice_Communicator_create(TSRMLS_CC))
+    if(!Ice_Communicator_create(TSRMLS_C))
+    {
+        return FAILURE;
+    }
+
+    //
+    // Define the PHP classes for Slice types.
+    //
+    if(!Slice_defineClasses(module_number TSRMLS_CC))
     {
         return FAILURE;
     }
