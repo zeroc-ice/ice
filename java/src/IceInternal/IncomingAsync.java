@@ -134,7 +134,12 @@ public class IncomingAsync extends IncomingBase
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
-		_os.writeString(ex.toString());
+//		_os.writeString(ex.toString());
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		_os.writeString(sw.toString());
             }
         }
         catch(Ice.UserException ex)
@@ -149,7 +154,12 @@ public class IncomingAsync extends IncomingBase
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
-		_os.writeString(ex.toString());
+//		_os.writeString(ex.toString());
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		_os.writeString(sw.toString());
             }
         }
 	catch(Exception ex)
@@ -164,7 +174,12 @@ public class IncomingAsync extends IncomingBase
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
-		_os.writeString(ex.toString());
+//		_os.writeString(ex.toString());
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		_os.writeString(sw.toString());
             }
 	}
 
