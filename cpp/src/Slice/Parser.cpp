@@ -79,6 +79,27 @@ Slice::Builtin::kind() const
     return _kind;
 }
 
+string
+Builtin::kindAsString() const
+{
+    return builtinTable[_kind];
+}
+
+const char* Slice::Builtin::builtinTable[] =
+    {
+	"byte",
+	"bool",
+	"short",
+	"int",
+	"long",
+	"float",
+	"double",
+	"string",
+	"Object",
+	"Object*",
+	"LocalObject"
+    };
+
 Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) :
     Type(unit),
     SyntaxTreeBase(unit),
@@ -631,6 +652,66 @@ Slice::Container::createEnumerator(const string& name)
     return p;
 }
 
+ConstDefPtr
+Slice::Container::createConstDef(const string name, const TypePtr& constType,
+	                         const TypePtr& literalType, const string& value)
+{
+    //
+    // Check that the constant name is legal
+    //
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if(!matches.empty())
+    {
+	ConstDefPtr p = ConstDefPtr::dynamicCast(matches.front());
+	if(p)
+	{
+	    if(_unit->ignRedefs())
+	    {
+		return p;
+	    }
+	}
+	string msg;
+	if(matches.front()->name() == name)
+	{
+	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    msg += "' as constant";
+	    _unit->error(msg);
+	    return 0;
+	}
+	msg = "constant `" + name + "' differs only in capitalization from ";
+	msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+	_unit->warning(msg);	// TODO: change to error in stable_39
+    }
+
+    //
+    // Check that the constant type is legal
+    //
+    if(!legalConstType(name, constType))
+    {
+	return 0;
+    }
+
+    //
+    // Check that the type of the constant is compatible with the type of the initializer
+    //
+    if(!constTypesAreCompatible(name, constType, literalType))
+    {
+	return 0;
+    }
+
+    //
+    // Check that the initializer is in range
+    //
+    if(!checkRange(name, constType, value))
+    {
+	return 0;
+    }
+
+    ConstDefPtr p = new ConstDef(this, name, constType, value);
+    _contents.push_back(p);
+    return p;
+}
+
 TypeList
 Slice::Container::lookupType(const string& scoped, bool printError)
 {
@@ -647,24 +728,9 @@ Slice::Container::lookupType(const string& scoped, bool printError)
     //
     // Check for builtin type.
     //
-    static const char* builtinTable[] =
+    for(unsigned int i = 0; i < sizeof(Builtin::builtinTable) / sizeof(const char*); ++i)
     {
-	"byte",
-	"bool",
-	"short",
-	"int",
-	"long",
-	"float",
-	"double",
-	"string",
-	"Object",
-	"Object*",
-	"LocalObject"
-    };
-
-    for(unsigned int i = 0; i < sizeof(builtinTable) / sizeof(const char*); ++i)
-    {
-	if(sc == builtinTable[i])
+	if(sc == Builtin::builtinTable[i])
 	{
 	    TypeList result;
 	    result.push_back(_unit->builtin(static_cast<Builtin::Kind>(i)));
@@ -1082,6 +1148,11 @@ Slice::Container::hasOtherConstructedOrExceptions() const
 	    return true;
 	}
 
+	if(ConstDefPtr::dynamicCast(*p))
+	{
+	    return true;
+	}
+
 	ContainerPtr container = ContainerPtr::dynamicCast(*p);
 	if(container && container->hasOtherConstructedOrExceptions())
 	{
@@ -1384,6 +1455,167 @@ Slice::Container::checkPairIntersections(const StringPartitionList& l, const str
     }
 }
 
+bool
+Slice::Container::legalConstType(const string& name, const TypePtr& constType, bool printError) const
+{
+    if(constType == 0)
+    {
+	return false;
+    }
+
+    BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
+    if(ct)
+    {
+	switch(ct->kind())
+	{
+	    case Builtin::KindBool:
+	    case Builtin::KindByte:
+	    case Builtin::KindShort:
+	    case Builtin::KindInt:
+	    case Builtin::KindLong:
+	    case Builtin::KindFloat:
+	    case Builtin::KindDouble:
+	    case Builtin::KindString:
+	    {
+		return true;
+		break;
+	    }
+	    default:
+	    {
+		string msg = "constant `" + name + "' has illegal type: `" + ct->kindAsString() + "'";
+		_unit->error(msg);
+		return false;
+		break;
+	    }
+	}
+    }
+
+    EnumPtr ep = EnumPtr::dynamicCast(constType);
+    if(!ep)
+    {
+	string msg = "constant `" + name + "' has illegal type";
+	_unit->error(msg);
+	return false;
+    }
+    return true;
+}
+
+bool
+Slice::Container::constTypesAreCompatible(const string& name,
+	                                  const TypePtr& constType,
+					  const TypePtr& literalType,
+					  bool printError) const
+{
+    BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
+    BuiltinPtr lt = BuiltinPtr::dynamicCast(literalType);
+    if(ct && lt)
+    {
+	switch(ct->kind())
+	{
+	    case Builtin::KindBool:
+	    if(lt->kind() == Builtin::KindBool)
+	    {
+		return true;
+		break;
+	    }
+	    case Builtin::KindByte:
+	    case Builtin::KindShort:
+	    case Builtin::KindInt:
+	    case Builtin::KindLong:
+	    {
+		if(lt->kind() == Builtin::KindLong)
+		return true;
+		break;
+	    }
+	    case Builtin::KindFloat:
+	    case Builtin::KindDouble:
+	    {
+		if(lt->kind() == Builtin::KindDouble)
+		return true;
+		break;
+	    }
+	    case Builtin::KindString:
+	    {
+		if(lt->kind() == Builtin::KindString)
+		return true;
+		break;
+	    }
+	}
+	string msg = "initializer type `" + lt->kindAsString();
+	msg += "' is incompatible with the type `" + ct->kindAsString() + "' of constant `" + name + "'";
+	_unit->error(msg);
+	return false;
+    }
+    if(ct && !lt)
+    {
+	string msg = "initializer type is incompatible with the type `" + ct->kindAsString();
+	msg += "' of constant `" + name + "'";
+	_unit->error(msg);
+	return false;
+    }
+    EnumPtr ep = EnumPtr::dynamicCast(literalType);
+    if(ep)
+    {
+	// TODO: check that the left-hand enum type and the right-hand enum type are the same
+    }
+    // TODO: assert here once the enum problem is fixed -- the right-hand type can only be
+    //       a built-in type or an enumeration; Grammar.y makes sure of that.
+    if(!ep)
+    {
+	// TODO: fix this
+	string msg = "hmmm... can't cast to enumerator!";
+	_unit->error(msg);
+    }
+    return true;
+}
+
+bool
+Slice::Container::checkRange(const string& name, const TypePtr& constType, const string& value, bool printError) const
+{
+    BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
+    if (!ct)
+	return true;	// Enums are checked elsewhere
+
+    switch(ct->kind())
+    {
+	case Builtin::KindByte:
+	{
+	    // TODO: need to really do all this with 64-bit longs -- what about Windows?
+	    long l = strtol(value.c_str(), 0, 0);
+	    if(l < 0 || l > 255)
+	    {
+		string msg = "initializer for constant `" + name + "' out of range for type byte";
+		_unit->error(msg);
+		return false;
+	    }
+	    break;
+	}
+	case Builtin::KindShort:
+	{
+	    long l = strtol(value.c_str(), 0, 0);
+	    if(l < 32768 || l > 32767)
+	    {
+		string msg = "initializer for constant `" + name + "' out of range for type short";
+		_unit->error(msg);
+		return false;
+	    }
+	    break;
+	}
+	case Builtin::KindInt:
+	{
+	    long l = strtol(value.c_str(), 0, 0);
+	    if(l < 2147483648 || l > 2147483647)
+	    {
+		string msg = "initializer for constant `" + name + "' out of range for type int";
+		_unit->error(msg);
+		return false;
+	    }
+	    break;
+	}
+    }
+    return true;	// Everything else is either in range or doesn't need checking
+}
+
 // ----------------------------------------------------------------------
 // Module
 // ----------------------------------------------------------------------
@@ -1656,10 +1888,14 @@ Slice::ClassDef::createOperation(const string& name,
 	    if((*q)->name() == name)
 	    {
 		string msg = "operation `" + name;
-		msg += "' is already defined as ";
-		string vowels = "aeiou";
-		msg += find(vowels.begin(), vowels.end(), *((*q)->kindOf().begin())) != vowels.end() ? "an " : "a ";
-		msg += (*q)->kindOf() + " in a base interface or class";
+		msg += "' is already defined as a";
+		static const string vowels = "aeiou";
+		string kindOf = (*q)->kindOf();
+		if(vowels.find_first_of(kindOf[0]) != string::npos)
+		{
+		    msg += "n";
+		}
+		msg += " " + kindOf + " in a base interface or class";
 		_unit->error(msg);
 		return 0;
 	    }
@@ -1786,10 +2022,14 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 	    if((*q)->name() == name)
 	    {
 		string msg = "data member `" + name;
-		msg += "' is already defined as ";
+		msg += "' is already defined as a";
 		static const string vowels = "aeiou";
-		msg += vowels.find(*((*q)->kindOf().begin())) != vowels.npos ? "an " : "a ";
-		msg += (*q)->kindOf() + " in a base interface or class";
+		string kindOf = (*q)->kindOf();
+		if(vowels.find_first_of(kindOf[0]) != string::npos)
+		{
+		    msg += "n";
+		}
+		msg += " " + kindOf + " in a base interface or class";
 		_unit->error(msg);
 		return 0;
 	    }
@@ -2560,6 +2800,53 @@ Slice::Enumerator::kindOf() const
 Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name) :
     Contained(container, name),
     SyntaxTreeBase(container->unit())
+{
+}
+
+// ----------------------------------------------------------------------
+// ConstDef
+// ----------------------------------------------------------------------
+
+TypePtr
+Slice::ConstDef::type() const
+{
+    return _type;
+}
+
+string
+Slice::ConstDef::value() const
+{
+    return _value;
+}
+
+Contained::ContainedType
+Slice::ConstDef::containedType() const
+{
+    return ContainedTypeEnumerator;	// TODO: Fix this
+}
+
+bool
+Slice::ConstDef::uses(const ContainedPtr&) const
+{
+    return false;	// TODO: fix this?
+}
+
+string
+Slice::ConstDef::kindOf() const
+{
+    return "constant";
+}
+
+void
+Slice::ConstDef::visit(ParserVisitor* visitor)
+{
+    visitor->visitConstDef(this);
+}
+
+Slice::ConstDef::ConstDef(const ContainerPtr& container, const string& name,
+	                  const TypePtr& type, const string& value) :
+    Contained(container, name),
+    SyntaxTreeBase(container->unit()), _type(type), _value(value)
 {
 }
 

@@ -52,6 +52,7 @@ class Sequence;
 class Dictionary;
 class Enum;
 class Enumerator;
+class ConstDef;
 class Unit;
 class CICompare;
 
@@ -74,6 +75,7 @@ typedef ::IceUtil::Handle<Sequence> SequencePtr;
 typedef ::IceUtil::Handle<Dictionary> DictionaryPtr;
 typedef ::IceUtil::Handle<Enum> EnumPtr;
 typedef ::IceUtil::Handle<Enumerator> EnumeratorPtr;
+typedef ::IceUtil::Handle<ConstDef> ConstDefPtr;
 typedef ::IceUtil::Handle<Unit> UnitPtr;
 
 }
@@ -149,6 +151,7 @@ public:
     virtual void visitSequence(const SequencePtr&) { }
     virtual void visitDictionary(const DictionaryPtr&) { }
     virtual void visitEnum(const EnumPtr&) { }
+    virtual void visitConstDef(const ConstDefPtr&) { }
 };
 
 // ----------------------------------------------------------------------
@@ -214,6 +217,9 @@ public:
 	KindLocalObject
     };
     Kind kind() const;
+    std::string kindAsString() const;
+
+    static const char* builtinTable[];
 
 protected:
 
@@ -297,6 +303,7 @@ public:
     DictionaryPtr createDictionary(const std::string&, const TypePtr&, const TypePtr&, bool);
     EnumPtr createEnum(const std::string&, bool);
     EnumeratorPtr createEnumerator(const std::string&);
+    ConstDefPtr createConstDef(const std::string, const TypePtr&, const TypePtr&, const std::string&);
     TypeList lookupType(const std::string&, bool = true);
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
     ContainedList lookupContained(const std::string&, bool = true);
@@ -338,6 +345,10 @@ private:
 		      const ClassDefPtr) const;
     StringPartitionList toStringPartitionList(const GraphPartitionList&) const;
     void checkPairIntersections(const StringPartitionList&, const std::string&) const;
+
+    bool legalConstType(const std::string&, const TypePtr&, bool = true) const;
+    bool constTypesAreCompatible(const std::string&, const TypePtr&, const TypePtr&, bool = true) const;
+    bool checkRange(const std::string&, const TypePtr&, const std::string&, bool = true) const;
 };
 
 // ----------------------------------------------------------------------
@@ -608,6 +619,30 @@ protected:
 
     Enumerator(const ContainerPtr&, const std::string&);
     friend class SLICE_API Container;
+};
+
+// ----------------------------------------------------------------------
+// ConstDef
+// ----------------------------------------------------------------------
+
+class SLICE_API ConstDef : virtual public Contained
+{
+public:
+
+    TypePtr type() const;
+    std::string value() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual ContainedType containedType() const;
+    virtual std::string kindOf() const;
+    virtual void visit(ParserVisitor*);
+
+protected:
+
+    ConstDef(const ContainerPtr&, const std::string&, const TypePtr&, const std::string&);
+    friend class SLICE_API Container;
+
+    TypePtr _type;
+    std::string _value;
 };
 
 // ----------------------------------------------------------------------

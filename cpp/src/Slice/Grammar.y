@@ -910,7 +910,6 @@ enumerator_list
 }
 | enumerator
 {
-    $$ = $1;
 }
 ;
 
@@ -1137,7 +1136,6 @@ scoped_name
 // ----------------------------------------------------------------------
 : ICE_IDENTIFIER
 {
-    $$ = $1;
 }
 | ICE_SCOPE_DELIMITOR ICE_IDENTIFIER
 {
@@ -1290,38 +1288,6 @@ local
 ;
 
 // ----------------------------------------------------------------------
-const_type
-// ----------------------------------------------------------------------
-: ICE_BYTE
-{
-}
-//
-// Note ICE_BOOL is deal with in const_def
-//
-| ICE_SHORT
-{
-}
-| ICE_INT
-{
-}
-| ICE_LONG
-{
-}
-| ICE_FLOAT
-{
-}
-| ICE_DOUBLE
-{
-}
-| ICE_STRING
-{
-}
-| ICE_ENUM
-{
-}
-;
-
-// ----------------------------------------------------------------------
 unary_plus_minus
 // ----------------------------------------------------------------------
 : '+'
@@ -1334,12 +1300,6 @@ unary_plus_minus
 {
     IntegerTokPtr itp = new IntegerTok;
     itp->v = -1;
-    $$ = itp;
-}
-|
-{
-    IntegerTokPtr itp = new IntegerTok;
-    itp->v = 1;
     $$ = itp;
 }
 ;
@@ -1356,61 +1316,129 @@ numeric_literal
 ;
 
 // ----------------------------------------------------------------------
-const_literal
+numeric_initializer
 // ----------------------------------------------------------------------
-: unary_plus_minus numeric_literal
+: unary_plus_minus numeric_initializer
 {
     IntegerTokPtr sign = IntegerTokPtr::dynamicCast($1);
-    IntegerTokPtr integer = IntegerTokPtr::dynamicCast($2);
-    if(integer)
+    IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($2);
+    if(intVal)
     {
     	if(sign->v == -1)
 	{
-	    if(integer->v < 0 && integer->v == LONG_MIN)
+	    if(intVal->v < 0 && intVal->v == LONG_MIN)
 	    {
-		string msg = "integer constant `" + integer->v;
+		string msg = "integer constant `" + intVal->v;
 		msg += "' is too large in magnitude to convert to a positive number";
 		unit->error(msg);
 	    }
-	    integer->v *= -1;
+	    intVal->v *= -1;
 	}
     }
     else
     {
-    	FloatingTokPtr floating = FloatingTokPtr::dynamicCast($2);
-	assert(floating);
-	floating->v *= sign->v;
+	FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast($2);
+	assert(floatVal);
+	floatVal->v *= sign->v;
     }
     $$ = $2;
 }
-| enumerator
+| numeric_literal
 {
+}
+;
+
+// ----------------------------------------------------------------------
+const_initializer
+// ----------------------------------------------------------------------
+: numeric_initializer
+{
+    TypeStringTokPtr typestring = new TypeStringTok;
+    ostringstream sstr;
+    BuiltinPtr type;
+    IntegerTokPtr intVal = IntegerTokPtr::dynamicCast($1);
+    if(intVal)
+    {
+	type = unit->builtin(Builtin::KindLong);
+	sstr << intVal->v << ends;
+    }
+    else
+    {
+    	FloatingTokPtr floatVal = FloatingTokPtr::dynamicCast($1);
+    	assert(floatVal);
+	type = unit->builtin(Builtin::KindDouble);
+	sstr << floatVal->v << ends;
+    }
+    typestring->v = make_pair(type, sstr.str());
+    $$ = typestring;
+}
+| scoped_name
+{
+    StringTokPtr scoped = StringTokPtr::dynamicCast($1);
+    TypeStringTokPtr typestring = new TypeStringTok;
+    ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
+    if(cl.empty())
+    {
+    	typestring->v = make_pair(TypePtr(0), scoped->v);
+    }
+    else
+    {
+	EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(cl.front());
+	if(!enumerator)
+	{
+	    string msg = "illegal initializer: `" + scoped->v + "' is a";
+	    static const string vowels = "aeiou";
+	    string kindOf = cl.front()->kindOf();
+	    if(vowels.find_first_of(kindOf[0]) != string::npos)
+	    {
+	    	msg += "n";
+	    }
+	    msg += " " + kindOf;
+	    unit->error(msg);
+	}
+	// Hmmm... there appears to be no way to get from an enumerator
+	// to its parent enumeration (of type EnumPtr).
+	// We need this to do the type checking on the enumerations.
+	EnumPtr type;	// TODO: fix this
+	typestring->v = make_pair(type, scoped->v);
+    }
+    $$ = typestring;
 }
 | ICE_STRING_LITERAL
 {
+    BuiltinPtr type = unit->builtin(Builtin::KindString);
+    StringTokPtr literal = StringTokPtr::dynamicCast($1);
+    TypeStringTokPtr typestring = new TypeStringTok;
+    typestring->v = make_pair(type, literal->v);
+    $$ = typestring;
+}
+| ICE_FALSE
+{
+    BuiltinPtr type = unit->builtin(Builtin::KindBool);
+    StringTokPtr literal = StringTokPtr::dynamicCast($1);
+    TypeStringTokPtr typestring = new TypeStringTok;
+    typestring->v = make_pair(type, literal->v);
+    $$ = typestring;
+}
+| ICE_TRUE
+{
+    BuiltinPtr type = unit->builtin(Builtin::KindBool);
+    StringTokPtr literal = StringTokPtr::dynamicCast($1);
+    TypeStringTokPtr typestring = new TypeStringTok;
+    typestring->v = make_pair(type, literal->v);
+    $$ = typestring;
 }
 ;
 
 // ----------------------------------------------------------------------
 const_def
 // ----------------------------------------------------------------------
-: ICE_CONST const_type ICE_IDENTIFIER '=' const_literal
+: ICE_CONST type ICE_IDENTIFIER '=' const_initializer
 {
-    //
-    //TODO: createConst, including semantic checks
-    //
-}
-| ICE_CONST ICE_BOOL ICE_IDENTIFIER '=' ICE_FALSE
-{
-    //
-    //TODO: createConst, including semantic checks
-    //
-}
-| ICE_CONST ICE_BOOL ICE_IDENTIFIER '=' ICE_TRUE
-{
-    //
-    //TODO: createConst, including semantic checks
-    //
+    TypePtr const_type = TypePtr::dynamicCast($2);
+    StringTokPtr ident = StringTokPtr::dynamicCast($3);
+    TypeStringTokPtr value = TypeStringTokPtr::dynamicCast($5);
+    $$ = unit->currentContainer()->createConstDef(ident->v, const_type, value->v.first, value->v.second);
 }
 ;
 

@@ -328,6 +328,12 @@ Slice::Gen::visitEnum(const EnumPtr& p)
 }
 
 void
+Slice::Gen::visitConstDef(const ConstDefPtr& p)
+{
+    // TODO: deal with constant definitions here
+}
+
+void
 Slice::Gen::visitSequence(const SequencePtr& p)
 {
     O << sp;

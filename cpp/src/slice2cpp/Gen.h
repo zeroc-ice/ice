@@ -64,6 +64,7 @@ private:
 	virtual void visitSequence(const SequencePtr&);
 	virtual void visitDictionary(const DictionaryPtr&);
 	virtual void visitEnum(const EnumPtr&);
+	virtual void visitConstDef(const ConstDefPtr&);
 	virtual void visitDataMember(const DataMemberPtr&);
 
     private:

@@ -1782,6 +1782,12 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     close();
 }
 
+void
+Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
+{
+    // TODO: emit constant definition
+}
+
 Slice::Gen::HolderVisitor::HolderVisitor(const string& dir,
                                          const string& package) :
     JavaVisitor(dir, package)

@@ -929,6 +929,13 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
+Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
+{
+    H << sp;
+    H << nl << "const " << inputTypeToString(p->type()) << " " << p->name() << " = " << p->value() << ";";
+}
+
+void
 Slice::Gen::TypesVisitor::emitExceptionBase(const ExceptionPtr& base, const std::string& call)
 {
     if(base)

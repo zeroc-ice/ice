@@ -723,6 +723,12 @@ Slice::Gen::visitEnum(const EnumPtr& p)
 }
 
 void
+Slice::Gen::visitConstDef(const ConstDefPtr& p)
+{
+    // TODO: Deal with constant definition here
+}
+
+void
 Slice::Gen::printHeader()
 {
     static const char* header =

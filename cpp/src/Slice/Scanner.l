@@ -12,6 +12,7 @@
 
 #include <Slice/GrammarUtil.h> // Before Grammer.h, so that YYSTYPE is defined
 #include <Slice/Grammar.h>
+#include <stdlib.h>
 #include <math.h>
 
 using namespace std;
@@ -40,7 +41,7 @@ void initScanner();
 integer_constant	(\+|-)?(0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+)
 fractional_constant	([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.)
 exponent_part		(e|E)(\+|-)?[[:digit:]]+
-floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent_part}))[fFlL]?
+floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent_part}))[fF]?
 
 %%
 
@@ -316,15 +317,16 @@ floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent
 }
 
 {floating_literal} {
+    errno = 0;
     FloatingTokPtr ftp = new FloatingTok;
     *yylvalp = ftp;
-    errno = 0;
-    ftp->v = strtod(yytext, 0);
-    //
-    // TODO: think about what to do with infinity and NaN. Probably nothing because the slice compiler
-    // doesn't necessarily run on the same architecture as the compiled stubs/skeletons, but NaN and INF are
-    // architecture dependent...
-    //
+    string literal(yytext);
+    char lastChar = literal[literal.size() - 1];
+    if(lastChar == 'f' || lastChar == 'F')
+    {
+    	literal = literal.substr(0, literal.size() - 1);	// Clobber trailing 'f' or 'F' suffix
+    }
+    ftp->v = strtod(literal.c_str(), 0);
     if((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
 	string msg = "floating-point constant `";
