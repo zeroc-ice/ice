@@ -17,7 +17,7 @@ namespace IceInternal
 
     public sealed class OutgoingConnectionFactory
     {
-	public virtual void destroy()
+	public void destroy()
 	{
 	    lock(this)
 	    {
@@ -39,7 +39,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual void waitUntilFinished()
+	public void waitUntilFinished()
 	{
 	    Hashtable connections;
 	    
@@ -77,7 +77,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual Ice.ConnectionI create(Endpoint[] endpoints, out bool compress)
+	public Ice.ConnectionI create(Endpoint[] endpoints, out bool compress)
 	{
 	    Debug.Assert(endpoints.Length > 0);
 	    
@@ -352,7 +352,7 @@ namespace IceInternal
 	    return newConnection;
 	}
 	
-	virtual public void setRouter(Ice.RouterPrx router)
+	public void setRouter(Ice.RouterPrx router)
 	{
 	    lock(this)
 	    {
@@ -415,7 +415,7 @@ namespace IceInternal
 	    }
 	}
 
-	public virtual void removeAdapter(Ice.ObjectAdapter adapter)
+	public void removeAdapter(Ice.ObjectAdapter adapter)
 	{
 	    lock(this)
 	    {
@@ -446,7 +446,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual void flushBatchRequests()
+	public void flushBatchRequests()
 	{
 	    LinkedList c = new LinkedList();
 	    
@@ -502,7 +502,7 @@ namespace IceInternal
 
     public sealed class IncomingConnectionFactory : EventHandler
     {
-	public virtual void activate()
+	public void activate()
 	{
 	    lock(this)
 	    {
@@ -510,7 +510,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual void hold()
+	public void hold()
 	{
 	    lock(this)
 	    {
@@ -518,7 +518,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual void destroy()
+	public void destroy()
 	{
 	    lock(this)
 	    {
@@ -526,7 +526,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual void waitUntilHolding()
+	public void waitUntilHolding()
 	{
 	    LinkedList connections;
 	    
@@ -557,7 +557,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual void waitUntilFinished()
+	public void waitUntilFinished()
 	{
 	    LinkedList connections;
 	    
@@ -589,13 +589,13 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual Endpoint endpoint()
+	public Endpoint endpoint()
 	{
 	    // No mutex protection necessary, _endpoint is immutable.
 	    return _endpoint;
 	}
 	
-	public virtual bool equivalent(Endpoint endp)
+	public bool equivalent(Endpoint endp)
 	{
 	    if(_transceiver != null)
 	    {
@@ -606,7 +606,7 @@ namespace IceInternal
 	    return endp.equivalent(_acceptor);
 	}
 	
-	public virtual Ice.ConnectionI[] connections()
+	public Ice.ConnectionI[] connections()
 	{
 	    lock(this)
 	    {
@@ -631,7 +631,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual void flushBatchRequests()
+	public void flushBatchRequests()
 	{
 	    //
 	    // connections() is synchronized, so no need to synchronize here.
@@ -738,15 +738,15 @@ namespace IceInternal
 		    
 		    _connections.Add(connection);
 		}
-	    }
-	    finally
-	    {
-		//
-		// This makes sure that we promote a follower before
-		// we leave the scope of the mutex above, but after we
-		// call accept() (if we call it).
-		//
-		threadPool.promoteFollower();
+		finally
+		{
+		    //
+		    // This makes sure that we promote a follower before
+		    // we leave the scope of the mutex above, but after we
+		    // call accept() (if we call it).
+		    //
+		    threadPool.promoteFollower();
+		}
 	    }
 	    
 	    Debug.Assert(connection != null);
