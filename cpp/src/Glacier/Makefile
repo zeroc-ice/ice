@@ -1,11 +1,16 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003 - 2004
+# ZeroC, Inc.
+# North Palm Beach, FL, USA
+#
+# All Rights Reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
+
 
 top_srcdir	= ../..
 
@@ -70,11 +75,11 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(ROUTER): $(ROBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(ROBJS) -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(ROBJS) -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
 
 $(STARTER): $(SOBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier -lIceSSL $(OPENSSL_LIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
 
 install:: all
 	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)

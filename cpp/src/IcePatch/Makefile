@@ -1,11 +1,16 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003 - 2004
+# ZeroC, Inc.
+# North Palm Beach, FL, USA
+#
+# All Rights Reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
+
 
 top_srcdir	= ../..
 
@@ -64,15 +69,15 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(CLIENT): $(CLIENT_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(CLIENT_OBJS) -lIcePatch -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(CLIENT_OBJS) -lIcePatch -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS) $(EXPAT_LIBS)
 
 $(CALC): $(CALC_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(CALC_OBJS) -lIcePatch $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(CALC_OBJS) -lIcePatch $(LIBS) $(OPENSSL_LIBS)
 
 $(SERVER): $(SERVER_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SERVER_OBJS) -lIcePatch $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SERVER_OBJS) -lIcePatch $(LIBS) $(OPENSSL_LIBS)
 
 install:: all
 	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)

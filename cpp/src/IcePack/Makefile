@@ -1,11 +1,16 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003 - 2004
+# ZeroC, Inc.
+# North Palm Beach, FL, USA
+#
+# All Rights Reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
+
 
 top_srcdir	= ../..
 
@@ -117,11 +122,12 @@ $(ADMIN): $(ADMIN_OBJS) $(libdir)/$(LIBNAME)
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) -lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(DB_LIBS) \
+	$(EXPAT_LIBS)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) -lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(DB_LIBS) $(EXPAT_LIBS)
 
 $(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp
@@ -152,11 +158,11 @@ clean::
 	rm -f StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp
 
 # Needed for make -jn to work.
-../IcePack/Grammar.y: Grammar.h
+#../IcePack/Grammar.y: Grammar.h
 
 clean::
-	rm -f Grammar.cpp Grammar.h
-	rm -f Scanner.cpp
+#	rm -f Grammar.cpp Grammar.h
+#	rm -f Scanner.cpp
 
 install:: all
 	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
