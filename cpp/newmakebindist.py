@@ -505,9 +505,9 @@ def main():
 
     if build and not cvsMode:
         collectSources = False
-        if sources == None and clean:
+        if sources == None:
             sources = buildDir + "/sources"
-            collectSources = True
+            collectSources = clean
 
         #
         # Ice must be first or building the other source distributions will fail.
