@@ -15,7 +15,7 @@
 using namespace std;
 using namespace Ice;
 
-class TestServer : public Application
+class TestClient : public Application
 {
 public:
 
@@ -25,12 +25,12 @@ public:
 int
 main(int argc, char* argv[])
 {
-    TestServer app;
+    TestClient app;
     return app.main(argc, argv);
 }
 
 int
-TestServer::run(int argc, char* argv[])
+TestClient::run(int argc, char* argv[])
 {
     TestPrx allTests(const CommunicatorPtr&);
     TestPrx obj = allTests(communicator());
