@@ -425,7 +425,7 @@ IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out, bool compre
 	if(compress && os->b.size() >= 100) // Only compress messages larger than 100 bytes.
 	{
 	    //
-	    // Message compressed, request compressed response.
+	    // Message compressed. Request compressed response, if any.
 	    //
 	    os->b[9] = 2;
 	    
@@ -445,10 +445,10 @@ IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out, bool compre
 	}
 	else
 	{
-	    if(out && compress)
+	    if(compress)
 	    {
 		//
-		// Message not compressed, but request compressed response.
+		// Message not compressed. Request compressed response, if any.
 		//
 		os->b[9] = 1;
 	    }
@@ -586,7 +586,7 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
 	if(compress && os->b.size() >= 100) // Only compress messages larger than 100 bytes.
 	{
 	    //
-	    // Message compressed, request compressed response.
+	    // Message compressed. Request compressed response, if any.
 	    //
 	    os->b[9] = 2;
 	    
@@ -609,7 +609,7 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
 	    if(compress)
 	    {
 		//
-		// Message not compressed, but request compressed response.
+		// Message not compressed. Request compressed response, if any.
 		//
 		os->b[9] = 1;
 	    }
@@ -808,7 +808,7 @@ IceInternal::Connection::flushBatchRequest()
 	if(_batchRequestCompress && _batchStream.b.size() >= 100) // Only compress messages larger than 100 bytes.
 	{
 	    //
-	    // Message compressed, request compressed response.
+	    // Message compressed. Request compressed response, if any.
 	    //
 	    _batchStream.b[9] = 2;
 	    
@@ -828,6 +828,14 @@ IceInternal::Connection::flushBatchRequest()
 	}
 	else
 	{
+	    if(_batchRequestCompress)
+	    {
+		//
+		// Message not compressed. Request compressed response, if any.
+		//
+		_batchStream.b[9] = 1;
+	    }
+
 	    //
 	    // No compression, just fill in the message size.
 	    //
@@ -896,7 +904,7 @@ IceInternal::Connection::sendResponse(BasicStream* os, Byte compressFlag)
 	if(compressFlag > 0 && os->b.size() >= 100)
 	{
 	    //
-	    // Response is compressed.
+	    // Message compressed. Request compressed response, if any.
 	    //
 	    os->b[9] = 2;
 
@@ -916,6 +924,14 @@ IceInternal::Connection::sendResponse(BasicStream* os, Byte compressFlag)
 	}
 	else
 	{
+	    if(compressFlag > 0)
+	    {
+		//
+		// Message not compressed. Request compressed response, if any.
+		//
+		os->b[9] = 1;
+	    }
+
 	    //
 	    // No compression, just fill in the message size.
 	    //

@@ -484,8 +484,8 @@ typedef set<string> OrphanedSet;
 #endif
 
 void
-IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, Long& runningTotal,
-                        Long patchTotal) const
+IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent,
+			Long& runningTotal, Long patchTotal) const
 {
     OrphanedSet orphaned;
     if(_remove)
@@ -683,9 +683,19 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
 		while(true)
 		{
 		    //
+		    // We don't want to use compression when we
+		    // retrieve files, since files are pre-compressed
+		    // already. (Disabling compression here is only
+		    // relevant if a router is used. Otherwise, the
+		    // icepatch server already gives us a proxy for
+		    // the regular file with compression disabled.)
+		    //
+		    RegularPrx regular = RegularPrx::uncheckedCast(regDesc->reg->ice_compress(false));
+
+		    //
 		    // Retrieve file from server.
 		    //
-		    ByteSeq md5 = getRegular(regDesc->reg, progressCB);
+		    ByteSeq md5 = getRegular(regular, progressCB);
 
 		    //
 		    // Get the latest file description from server, as

@@ -126,13 +126,12 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	//
 	// Modify endpoints with overrides.
 	//
-	DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
 	vector<EndpointPtr>::iterator q;
 	for(q = endpoints.begin(); q != endpoints.end(); ++q)
 	{
-	    if(defaultsAndOverrides->overrideTimeout)
+	    if(_instance->defaultsAndOverrides()->overrideTimeout)
 	    {
-		*q = (*q)->timeout(defaultsAndOverrides->overrideTimeoutValue);
+		*q = (*q)->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
 	    }
 
 	    //
@@ -164,7 +163,15 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 		//
 		if(!pr.first->second->isDestroyed())
 		{
-		    compress = (*r)->compress();
+		    if(_instance->defaultsAndOverrides()->overrideCompress)
+		    {
+			compress = _instance->defaultsAndOverrides()->overrideCompressValue;
+		    }
+		    else
+		    {
+			compress = (*r)->compress();
+		    }
+
 		    return pr.first->second;
 		}
 
@@ -222,7 +229,15 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 		    //
 		    if(!pr.first->second->isDestroyed())
 		    {
-			compress = (*r)->compress();
+			if(_instance->defaultsAndOverrides()->overrideCompress)
+			{
+			    compress = _instance->defaultsAndOverrides()->overrideCompressValue;
+			}
+			else
+			{
+			    compress = (*r)->compress();
+			}
+
 			return pr.first->second;
 		    }
 
@@ -258,10 +273,9 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 		assert(connector);
 
 		Int timeout;
-		DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-		if(defaultsAndOverrides->overrideConnectTimeout)
+		if(_instance->defaultsAndOverrides()->overrideConnectTimeout)
 		{
-		    timeout = defaultsAndOverrides->overrideConnectTimeoutValue;
+		    timeout = _instance->defaultsAndOverrides()->overrideConnectTimeoutValue;
 		}
 		// It is not necessary to check for overrideTimeout,
 		// the endpoint has already been modified with this
@@ -276,7 +290,14 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	    }	    
 	    connection = new Connection(_instance, transceiver, endpoint, 0);
 	    connection->validate();
-	    compress = (*r)->compress();
+	    if(_instance->defaultsAndOverrides()->overrideCompress)
+	    {
+		compress = _instance->defaultsAndOverrides()->overrideCompressValue;
+	    }
+	    else
+	    {
+		compress = (*r)->compress();
+	    }
 	    break;
 	}
 	catch(const LocalException& ex)
@@ -362,7 +383,6 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	//
 	ObjectPrx proxy = routerInfo->getClientProxy();
 	ObjectAdapterPtr adapter = routerInfo->getAdapter();
-	DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
 	vector<EndpointPtr>::const_iterator p;
 	for(p = proxy->__reference()->endpoints.begin(); p != proxy->__reference()->endpoints.end(); ++p)
 	{
@@ -371,9 +391,9 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	    //
 	    // Modify endpoints with overrides.
 	    //
-	    if(defaultsAndOverrides->overrideTimeout)
+	    if(_instance->defaultsAndOverrides()->overrideTimeout)
 	    {
-		endpoint = endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
+		endpoint = endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
 	    }
 
 	    //
@@ -763,16 +783,16 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connections") > 0),
     _state(StateHolding)
 {
-    DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
-
-    if(defaultsAndOverrides->overrideTimeout)
+    if(_instance->defaultsAndOverrides()->overrideTimeout)
     {
-	const_cast<EndpointPtr&>(_endpoint) = _endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
+	const_cast<EndpointPtr&>(_endpoint) =
+	    _endpoint->timeout(_instance->defaultsAndOverrides()->overrideTimeoutValue);
     }
 
-    if(defaultsAndOverrides->overrideCompress)
+    if(_instance->defaultsAndOverrides()->overrideCompress)
     {
-	const_cast<EndpointPtr&>(_endpoint) = _endpoint->compress(defaultsAndOverrides->overrideCompressValue);
+	const_cast<EndpointPtr&>(_endpoint) =
+	    _endpoint->compress(_instance->defaultsAndOverrides()->overrideCompressValue);
     }
 
     const_cast<TransceiverPtr&>(_transceiver) = _endpoint->serverTransceiver(const_cast<EndpointPtr&>(_endpoint));
