@@ -774,28 +774,38 @@ IceInternal::createPipe(SOCKET fds[2])
     try
     {
 	fds[0] = createSocket(false);
-	setBlock(fds[0], true);
     }
     catch(...)
     {
-	closeSocket(fd);
+	::closesocket(fd);
 	throw;
     }
 
     try
     {
+	setBlock(fds[0], true);
 	doConnect(fds[0], addr, -1);
 	fds[1] = doAccept(fd, -1);
+    }
+    catch(...)
+    {
+	::closesocket(fd);
+	::closeSocket(fds[0]);
+	throw;
+    }
+
+    ::closeSocket(fd);
+	
+    try
+    {
 	setBlock(fds[1], true);
     }
     catch(...)
     {
-	closeSocket(fd);
-	closeSocket(fds[0]);
+	::closesocket(fds[0]);
+	::closesocket(fds[1]);
 	throw;
     }
-
-    closeSocket(fd);
 
 #else
 
@@ -806,8 +816,17 @@ IceInternal::createPipe(SOCKET fds[2])
 	throw ex;
     }
 
-    setBlock(fds[0], true);
-    setBlock(fds[1], true);
+    try
+    {
+	setBlock(fds[0], true);
+	setBlock(fds[1], true);
+    }
+    catch(...)
+    {
+	close(fds[0]);
+	close(fds[1]);
+	throw;
+    }
 
 #endif
 }
