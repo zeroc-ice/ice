@@ -262,7 +262,12 @@ public final class ServiceManagerI extends _ServiceManagerDisp
                 //
                 // Initialize the Ice.ProgramName property with the name of this service.
                 //
-                serviceProperties.setProperty("Ice.ProgramName", service);
+		String name = serviceProperties.getProperty("Ice.ProgramName");
+		if(!name.equals(service))
+		{
+		    name = name.length() == 0 ? name + "-" + service : service;
+		    serviceProperties.setProperty("Ice.ProgramName", name);
+		}
 
 		Ice.Properties fileProperties = Ice.Util.createProperties(serviceArgs);
 		serviceProperties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());

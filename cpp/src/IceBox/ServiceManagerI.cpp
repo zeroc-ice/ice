@@ -271,6 +271,16 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    
 	    PropertiesPtr serviceProperties = properties->clone();
 
+	    //
+	    // Append the service name to the program name if not empty.
+	    //
+	    string name = serviceProperties->getProperty("Ice.ProgramName");
+	    if(name != service)
+	    {
+		name = name.empty() ? service : name + "-" + service;
+		serviceProperties->setProperty("Ice.ProgramName", name);
+	    }
+
 	    PropertiesPtr fileProperties = createProperties(serviceArgs);
 	    serviceProperties->parseCommandLineOptions("", fileProperties->getCommandLineOptions());
 
