@@ -240,23 +240,21 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     client = os.path.join(testdir, clientName)
 
     print "starting " + serverName + "...",
-    (serverPipeIn, serverPipe) = os.popen4(server + serverOptions + additionalServerOptions)
+    serverPipe = os.popen(server + serverOptions + additionalServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting " + clientName + "...",
-    (clientPipeIn, clientPipe) = os.popen4(client + clientOptions + additionalClientOptions)
+    clientPipe = os.popen(client + clientOptions + additionalClientOptions)
     print "ok"
 
     printOutputFromPipe(clientPipe)
 
-    clientInStatus = clientPipeIn.close()
     clientStatus = clientPipe.close()
-    serverInStatus = serverPipeIn.close() 
     serverStatus = serverPipe.close()
 
-    if clientInStatus or clientStatus or serverInStatus or serverStatus:
+    if clientStatus or serverStatus:
 	killServers()
 	sys.exit(1)
 
@@ -275,25 +273,23 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     client = os.path.join(testdir, "client")
 
     print "starting server...",
-    (serverPipeIn, serverPipe) = os.popen4(server + clientServerOptions + additionalServerOptions)
+    serverPipe = os.popen(server + clientServerOptions + additionalServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    (clientPipeIn, clientPipe) = os.popen4(client + clientServerOptions + additionalClientOptions)
+    clientPipe = os.popen(client + clientServerOptions + additionalClientOptions)
     getServerPid(clientPipe)
     getAdapterReady(clientPipe)
     print "ok"
 
     printOutputFromPipe(clientPipe)
 
-    clientInStatus = clientPipeIn.close()
     clientStatus = clientPipe.close()
-    serverInStatus = serverPipeIn.close() 
     serverStatus = serverPipe.close()
 
-    if clientInStatus or clientStatus or serverInStatus or serverStatus:
+    if clientStatus or serverStatus:
 	killServers()
 	sys.exit(1)
 
@@ -307,15 +303,14 @@ def collocatedTestWithOptions(name, additionalOptions):
     collocated = os.path.join(testdir, "collocated")
 
     print "starting collocated...",
-    (collocatedPipeIn, collocatedPipe) = os.popen4(collocated + collocatedOptions + additionalOptions)
+    collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions)
     print "ok"
 
     printOutputFromPipe(collocatedPipe)
 
-    collocatedInStatus = collocatedPipeIn.close()
     collocatedStatus = collocatedPipe.close()
 
-    if collocatedInStatus or collocatedStatus:
+    if collocatedStatus:
 	killServers()
 	sys.exit(1)
 
