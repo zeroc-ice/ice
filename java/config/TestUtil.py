@@ -166,23 +166,21 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
     client = "java -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
-    (serverPipeIn, serverPipe) = os.popen4(server + serverOptions + additionalServerOptions)
+    serverPipe = os.popen(server + serverOptions + additionalServerOptions  + " 2>&1")
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    (clientPipeIn, clientPipe) = os.popen4(client + clientOptions + additionalClientOptions)
+    clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1")
     print "ok"
 
     #printOutputFromPipe(serverPipe)
     printOutputFromPipe(clientPipe)
 
-    clientInStatus = clientPipeIn.close()
     clientStatus = clientPipe.close()
-    serverInStatus = serverPipeIn.close() 
     serverStatus = serverPipe.close()
 
-    if clientInStatus or clientStatus or serverInStatus or serverStatus:
+    if clientStatus or serverStatus:
 	killServers()
 	sys.exit(1)
 
@@ -197,25 +195,23 @@ def clientServerTestWithClasspath(serverClasspath, clientClasspath):
 
     print "starting server...",
     os.environ["CLASSPATH"] = scp
-    (serverPipeIn, serverPipe) = os.popen4(server + serverOptions)
+    serverPipe = os.popen(server + serverOptions + " 2>&1")
     os.environ["CLASSPATH"] = classpath
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
     os.environ["CLASSPATH"] = ccp
-    (clientPipeIn, clientPipe) = os.popen4(client + clientOptions)
+    clientPipe = os.popen(client + clientOptions + " 2>&1")
     os.environ["CLASSPATH"] = classpath
     print "ok"
 
     printOutputFromPipe(clientPipe)
 
-    clientInStatus = clientPipeIn.close()
     clientStatus = clientPipe.close()
-    serverInStatus = serverPipeIn.close() 
     serverStatus = serverPipe.close()
 
-    if clientInStatus or clientStatus or serverInStatus or serverStatus:
+    if clientStatus or serverStatus:
 	killServers()
 	sys.exit(1)
     
@@ -230,22 +226,20 @@ def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOp
     client = "java -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
-    (serverPipeIn, serverPipe) = os.popen4(server + serverOptions + additionalServerOptions)
+    serverPipe = os.popen(server + serverOptions + additionalServerOptions + " 2>&1")
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    (clientPipeIn, clientPipe) = os.popen4(client + clientOptions + additionalClientOptions)
+    clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1")
     print "ok"
 
     printOutputFromPipe(clientPipe)
 
-    clientInStatus = clientPipeIn.close()
     clientStatus = clientPipe.close()
-    serverInStatus = serverPipeIn.close() 
     serverStatus = serverPipe.close()
 
-    if clientInStatus or clientStatus or serverInStatus or serverStatus:
+    if  clientStatus or serverStatus:
 	killServers()
 	sys.exit(1)
 
@@ -258,15 +252,14 @@ def collocatedTestWithOptions(additionalOptions):
     collocated = "java -ea Collocated --Ice.ProgramName=Collocated "
 
     print "starting collocated...",
-    (collocatedPipeIn, collocatedPipe) = os.popen4(collocated + collocatedOptions + additionalOptions)
+    collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions + " 2>&1")
     print "ok"
 
     printOutputFromPipe(collocatedPipe)
 
-    collocatedInStatus = collocatedPipeIn.close()
     collocatedStatus = collocatedPipe.close()
 
-    if collocatedInStatus or collocatedStatus:
+    if collocatedStatus:
 	killServers()
 	sys.exit(1)
 

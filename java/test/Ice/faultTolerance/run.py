@@ -36,10 +36,9 @@ num = 12
 base = 12340
 
 serverPipes = { }
-serverPipesIn = { }
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
-    (serverPipesIn[i], serverPipes[i]) = os.popen4(server + TestUtil.serverOptions + " %d" % (base + i))
+    serverPipes[i] = os.popen(server + TestUtil.serverOptions + " %d" % (base + i) + " 2>&1")
     TestUtil.getAdapterReady(serverPipes[i])
     print "ok"
 
@@ -47,18 +46,20 @@ ports = ""
 for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 print "starting client...",
-(clientPipeIn, clientPipe) = os.popen4(client + TestUtil.clientOptions + " " + ports)
+clientPipe = os.popen(client + TestUtil.clientOptions + " " + ports + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
 
-clientInStatus = clientPipeIn.close()
+for i in range(0, num):
+    serverPipes[i].close()
+
 clientStatus = clientPipe.close()
 serverStatus = None
 for i in range(0, num):
-    serverStatus = serverStatus or serverPipes[i].close() or serverPipesIn[i].close()
+    serverStatus = serverStatus or serverPipes[i].close()
 
-if clientInStatus or clientStatus or serverStatus:
+if clientStatus or serverStatus:
     sys.exit(1)
 
 sys.exit(0)

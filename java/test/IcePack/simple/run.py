@@ -77,14 +77,13 @@ IcePackAdmin.addServer("server", os.path.join(testdir, "simple_server.xml"), "",
 print "ok"
 
 print "starting client...",
-(clientPipeIn, clientPipe) = os.popen4(client + TestUtil.clientOptions + additionalOptions + " --with-deploy")
+clientPipe = os.popen(client + TestUtil.clientOptions + additionalOptions + " --with-deploy" + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
     
-clientStatusIn = clientPipeIn.close()
 clientStatus = clientPipe.close()
-if clientStatusIn or clientStatus:
+if clientStatus:
     TestUtil.killServers()
     sys.exit(1)
 

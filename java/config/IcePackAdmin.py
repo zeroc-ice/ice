@@ -119,13 +119,12 @@ def shutdownIcePackRegistry():
     print "shutting down icepack registry...",
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "shutdown" '
+              r' -e "shutdown" ' + " 2>&1"
 
-    (icePackAdminPipeIn, icePackAdminPipe) = os.popen4(command)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
-    icePackAdminInStatus = icePackAdminPipeIn.close()
     icePackAdminStatus = icePackAdminPipe.close()
-    if icePackAdminInStatus or icePackAdminStatus:
+    if icePackAdminStatus:
         TestUtil.killServers()
         sys.exit(1)
     print "ok"
@@ -138,13 +137,12 @@ def shutdownIcePackNode():
     print "shutting down icepack node...",
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "node shutdown localnode" '
+              r' -e "node shutdown localnode" ' + " 2>&1"
 
-    (icePackAdminPipeIn, icePackAdminPipe) = os.popen4(command)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
-    icePackAdminInStatus = icePackAdminPipeIn.close()
     icePackAdminStatus = icePackAdminPipe.close()
-    if icePackAdminInStatus or icePackAdminStatus:
+    if icePackAdminStatus:
         TestUtil.killServers()
         sys.exit(1)
     print "ok"
@@ -157,13 +155,12 @@ def addApplication(descriptor, targets):
     descriptor = descriptor.replace("\\", "/")
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "application add \"' + descriptor + '\\" ' + targets + ' \"'
+              r' -e "application add \"' + descriptor + '\\" ' + targets + ' \"' + " 2>&1"
 
-    (icePackAdminPipeIn, icePackAdminPipe) = os.popen4(command)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
-    icePackAdminInStatus = icePackAdminPipeIn.close()
     icePackAdminStatus = icePackAdminPipe.close()
-    if icePackAdminInStatus or icePackAdminStatus:
+    if icePackAdminStatus:
         TestUtil.killServers()
         sys.exit(1)
 
@@ -175,14 +172,12 @@ def removeApplication(descriptor):
     descriptor = descriptor.replace("\\", "/")
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "application remove \"' + descriptor + '\\" \"'
+              r' -e "application remove \"' + descriptor + '\\" \"' + " 2>&1"
 
-
-    (icePackAdminPipeIn, icePackAdminPipe) = os.popen4(command)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
-    icePackAdminInStatus = icePackAdminPipeIn.close()
     icePackAdminStatus = icePackAdminPipe.close()
-    if icePackAdminInStatus or icePackAdminStatus:
+    if icePackAdminStatus:
         TestUtil.killServers()
         sys.exit(1)
 
@@ -197,13 +192,12 @@ def addServer(name, serverDescriptor, server, libpath, targets):
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
               r' -e "server add localnode \"' + name + '\\" \\"' + serverDescriptor + '\\" ' + \
-              r' \"' + server + '\\" \\"' + libpath + '\\" ' + targets + '\"'
+              r' \"' + server + '\\" \\"' + libpath + '\\" ' + targets + '\"' + " 2>&1"
 
-    (icePackAdminPipeIn, icePackAdminPipe) = os.popen4(command)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
-    icePackAdminInStatus = icePackAdminPipeIn.close()
     icePackAdminStatus = icePackAdminPipe.close()
-    if icePackAdminInStatus or icePackAdminStatus:
+    if icePackAdminStatus:
         TestUtil.killServers()
         sys.exit(1)
 
@@ -214,13 +208,12 @@ def removeServer(name):
 
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "server remove \"' + name + '\\" \"'
+              r' -e "server remove \"' + name + '\\" \"' + " 2>&1"
 
-    (icePackAdminPipeIn, icePackAdminPipe) = os.popen4(command)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
-    icePackAdminInStatus = icePackAdminPipeIn.close()
     icePackAdminStatus = icePackAdminPipe.close()
-    if icePackAdminInStatus or icePackAdminStatus:
+    if icePackAdminStatus:
         TestUtil.killServers()
         sys.exit(1)
   
@@ -231,13 +224,12 @@ def startServer(name):
 
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "server start \"' + name + '\\""'
+              r' -e "server start \"' + name + '\\""' + " 2>&1"
 
-    (icePackAdminPipeIn, icePackAdminPipe) = os.popen4(command)
+    icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
-    icePackAdminInStatus = icePackAdminPipeIn.close()
     icePackAdminStatus = icePackAdminPipe.close()
-    if icePackAdminInStatus or icePackAdminStatus:
+    if icePackAdminStatus:
         TestUtil.killServers()
         sys.exit(1)
 
@@ -248,7 +240,7 @@ def listAdapters():
 
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "adapter list"'
+              r' -e "adapter list"' + " 2>&1"
 
     icePackAdminPipe = os.popen(command)
     return icePackAdminPipe

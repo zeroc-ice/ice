@@ -35,15 +35,14 @@ TestUtil.cleanDbDir(dbdir)
 client = "java -ea Client"
 
 print "starting client...",
-(clientPipeIn, clientPipe) = os.popen4(client + TestUtil.clientOptions + " " + testdir)
+clientPipe = os.popen(client + TestUtil.clientOptions + " " + testdir + " 2>&1")
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)
 
-clientInStatus = clientPipeIn.close()
 clientStatus = clientPipe.close()
 
-if clientInStatus or clientStatus:
+if clientStatus:
     sys.exit(1)
 
 sys.exit(0)

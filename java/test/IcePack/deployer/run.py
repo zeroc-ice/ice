@@ -45,14 +45,13 @@ def startClient(options):
 
     print "starting client...",
 
-    (clientPipeIn, clientPipe) = os.popen4("java -ea Client " + fullClientOptions)
+    clientPipe = os.popen("java -ea Client " + fullClientOptions + " 2>&1")
     print "ok"
 
     TestUtil.printOutputFromPipe(clientPipe)
     
-    clientInStatus = clientPipeIn.close()
     clientStatus = clientPipe.close()
-    if clientInStatus or clientStatus:
+    if clientStatus:
         print "failed"
 
 #
