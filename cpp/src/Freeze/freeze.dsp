@@ -313,32 +313,6 @@ InputPath=..\..\slice\Freeze\DBF.ice
 # End Source File
 # Begin Source File
 
-SOURCE=.\dummy.ice
-
-!IF  "$(CFG)" == "Freeze - Win32 Release"
-
-!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
-
-# Begin Custom Build
-InputPath=.\dummy.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2freeze.exe --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,string,Object IdentityObjectDict \
-	
-
-"IdentityObjectDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"IdentityObjectDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\slice\Freeze\Evictor.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
@@ -412,6 +386,47 @@ InputPath=..\..\slice\Freeze\EvictorF.ice
 	move EvictorF.h ..\..\include\Freeze 
 	del EvictorF.cpp 
 	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\Identity.ice
+
+!IF  "$(CFG)" == "Freeze - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Identity.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2freeze.exe --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice \
+	
+
+"IdentityObjectDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IdentityObjectDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Identity.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2freeze.exe --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice \
+	
+
+"IdentityObjectDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IdentityObjectDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
 # End Custom Build
 
 !ENDIF 

@@ -136,10 +136,6 @@ SOURCE=.\Current.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Identity.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Direct.cpp
 # End Source File
 # Begin Source File
@@ -157,6 +153,14 @@ SOURCE=.\EventHandler.cpp
 # Begin Source File
 
 SOURCE=.\Exception.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Identity.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IdentityUtil.cpp
 # End Source File
 # Begin Source File
 
@@ -420,10 +424,6 @@ SOURCE=..\..\include\Ice\Current.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\Identity.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\Ice\Direct.h
 # End Source File
 # Begin Source File
@@ -465,6 +465,14 @@ SOURCE=..\..\include\Ice\Handle.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Ice.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Identity.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\IdentityUtil.h
 # End Source File
 # Begin Source File
 
@@ -893,7 +901,7 @@ SOURCE=..\..\slice\Ice\Identity.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
-USERDEP__CURRE="../../bin/slice2cpp.exe"	
+USERDEP__IDENT="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Identity.ice
 
@@ -912,7 +920,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
-USERDEP__CURRE="../../bin/slice2cpp.exe"	
+USERDEP__IDENT="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Identity.ice
 

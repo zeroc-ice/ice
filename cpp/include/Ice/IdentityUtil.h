@@ -16,9 +16,9 @@
 namespace Ice
 {
 
-std::ostream& operator<<(std::ostream&, const Identity&);
-Identity stringToIdentity(const std::string&);
-std::string identityToString(const Identity&);
+ICE_API std::ostream& operator<<(std::ostream&, const Identity&);
+ICE_API Identity stringToIdentity(const std::string&);
+ICE_API std::string identityToString(const Identity&);
 
 }
 
