@@ -35,7 +35,7 @@ struct ice_class_entry
 {
     zend_class_entry ce;
     char* scoped;
-    void* contained;
+    void* syntaxTreeBase;
     void* marshaler;
 };
 
