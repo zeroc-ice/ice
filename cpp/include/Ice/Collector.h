@@ -121,6 +121,7 @@ private:
     };
 
     void setState(State);
+    void clearBacklog();
     void warning(const ::Ice::LocalException&) const;
 
     Instance instance_;

@@ -64,6 +64,7 @@ namespace __Ice
 bool interrupted();
 bool acceptInterrupted();
 bool noBuffers();
+bool wouldBlock();
 bool notConnected();
 bool connectFailed();
 bool connectionLost();

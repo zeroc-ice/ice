@@ -36,6 +36,7 @@ public:
     void shutdown();
     void listen();
     Transceiver accept();
+    Transceiver acceptNoBlock();
     std::string toString() const;
 
 private:
