@@ -569,7 +569,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         connections.toArray(arr);
         return arr;
     }
-
+    
     public void
     flushBatchRequests()
     {

@@ -59,10 +59,10 @@ IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::
 	    oldNode->ice_ping();
 	    throw NodeActiveException();
 	}
-	catch(const NodeNotExistException& ex)
+	catch(const NodeNotExistException&)
 	{
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::LocalException&)
 	{
 	}
 

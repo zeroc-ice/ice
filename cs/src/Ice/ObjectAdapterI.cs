@@ -9,7 +9,6 @@
 
 namespace Ice
 {
-	
     using System.Collections;
     using System.Diagnostics;
 
@@ -424,24 +423,17 @@ namespace Ice
 	    }
 	}
 	
-	public ObjectPrx createReverseProxy(Identity ident, TransportInfo transport)
+	public ObjectPrx createReverseProxy(Identity ident)
 	{
 	    lock(this)
 	    {
 		checkForDeactivation();
 		checkIdentity(ident);
 		
-		//
-		// Create a reference and return a reverse proxy for this
-		// reference.
-		//
-		IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
-		IceInternal.Reference r =
-		    _instance.referenceFactory().create(ident, new Ice.Context(), "",
-							IceInternal.Reference.ModeTwoway, false,
-							"", endpoints, null, null, this, true);
+		// TODO
+		Debug.Assert(false);
 		
-		return _instance.proxyFactory().referenceToProxy(r);
+		return null;
 	    }
 	}
 	
@@ -604,7 +596,7 @@ namespace Ice
 	    }
 	    
 	}
-
+	
 	public void flushBatchRequests()
 	{
 	    ArrayList f;
