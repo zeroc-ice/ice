@@ -154,6 +154,10 @@ SOURCE=.\StaticMutex.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StringUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Thread.cpp
 # End Source File
 # Begin Source File
@@ -259,6 +263,10 @@ SOURCE=..\..\include\IceUtil\Shared.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\StaticMutex.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\StringUtil.h
 # End Source File
 # Begin Source File
 

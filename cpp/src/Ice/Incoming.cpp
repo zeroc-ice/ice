@@ -23,8 +23,8 @@
 #include <Ice/Properties.h>
 #include <Ice/IdentityUtil.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/StringUtil.h>
 #include <Ice/Protocol.h>
+#include <IceUtil/StringUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -92,7 +92,7 @@ IceInternal::IncomingBase::__warning(const string& msg) const
     
     out << "dispatch exception: " << msg;
     out << "\nidentity: " << _current.id;
-    out << "\nfacet: " << encodeString(_current.facet, "");
+    out << "\nfacet: " << IceUtil::escapeString(_current.facet, "");
     out << "\noperation: " << _current.operation;
 }
 

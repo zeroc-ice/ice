@@ -30,6 +30,7 @@ OBJS		= Exception.o \
                   StaticMutex.o \
                   CtrlCHandler.o \
 		  Time.o \
+		  StringUtil.o \
 		  InputUtil.o \
 		  OutputUtil.o \
                   Base64.o \

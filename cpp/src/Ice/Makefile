@@ -88,7 +88,6 @@ OBJS		= Initialize.o \
 		  ProtocolPluginFacade.o \
 		  Locator.o \
 		  LocatorInfo.o \
-		  StringUtil.o \
 		  FactoryTableDef.o \
 		  FactoryTable.o \
 		  Service.o \

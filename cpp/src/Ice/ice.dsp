@@ -362,10 +362,6 @@ SOURCE=.\Stats.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StringUtil.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\TcpAcceptor.cpp
 # End Source File
 # Begin Source File
@@ -847,10 +843,6 @@ SOURCE=..\..\include\Ice\StatsF.h
 # Begin Source File
 
 SOURCE=.\StreamI.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\StringUtil.h
 # End Source File
 # Begin Source File
 

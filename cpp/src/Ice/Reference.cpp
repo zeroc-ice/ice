@@ -23,13 +23,13 @@
 #include <Ice/Router.h>
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
-#include <Ice/StringUtil.h>
 #include <Ice/Functional.h>
 #include <Ice/ObjectAdapterI.h> // For getIncomingConnections().
 #include <Ice/Connection.h>
 #include <Ice/ConnectionFactory.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
+#include <IceUtil/StringUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -294,7 +294,7 @@ IceInternal::Reference::toString() const
 	// the reference parser uses as separators, then we enclose
 	// the facet string in quotes.
 	//
-	string fs = encodeString(facet, "");
+	string fs = IceUtil::escapeString(facet, "");
 	if(fs.find_first_of(" \t\n\r:@") != string::npos)
 	{
 	    s << '"' << fs << '"';
@@ -359,7 +359,7 @@ IceInternal::Reference::toString() const
     }
     else if(!adapterId.empty())
     {
-        string a = encodeString(adapterId, "");
+        string a = IceUtil::escapeString(adapterId, "");
         //
         // If the encoded adapter id string contains characters which
         // the reference parser uses as separators, then we enclose

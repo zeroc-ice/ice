@@ -18,7 +18,7 @@
 #include <Ice/IdentityUtil.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Instance.h>
-#include <Ice/StringUtil.h>
+#include <IceUtil/StringUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -54,7 +54,7 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
 	    ex.id = identityToString(ident);
 	    if(!facet.empty())
 	    {
-		ex.id += " -f " + encodeString(facet, "");
+		ex.id += " -f " + IceUtil::escapeString(facet, "");
 	    }
 	    throw ex;
 	}
@@ -87,7 +87,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
 	ex.id = identityToString(ident);
 	if(!facet.empty())
 	{
-	    ex.id += " -f " + encodeString(facet, "");
+	    ex.id += " -f " + IceUtil::escapeString(facet, "");
 	}
 	throw ex;
     }

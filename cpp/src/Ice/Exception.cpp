@@ -16,7 +16,6 @@
 #include <Ice/LocalException.h>
 #include <Ice/Network.h>
 #include <Ice/IdentityUtil.h>
-#include <Ice/StringUtil.h>
 #include <Ice/Plugin.h>
 #include <iomanip>
 

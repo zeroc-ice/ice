@@ -21,7 +21,7 @@
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocatorInfo.h>
-#include <Ice/StringUtil.h>
+#include <IceUtil/StringUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -150,7 +150,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     // or double quotation marks.
     //
     string idstr;
-    end = checkQuote(s, beg);
+    end = IceUtil::checkQuote(s, beg);
     if(end == string::npos)
     {
 	ProxyParseException ex(__FILE__, __LINE__);
@@ -264,7 +264,7 @@ IceInternal::ReferenceFactory::create(const string& str)
             if(s[argumentBeg] != '@' && s[argumentBeg] != ':' && s[argumentBeg] != '-')
             {
                 beg = argumentBeg;
-                end = checkQuote(s, beg);
+                end = IceUtil::checkQuote(s, beg);
                 if(end == string::npos)
                 {
 		    ProxyParseException ex(__FILE__, __LINE__);
@@ -304,7 +304,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		    throw ex;
 		}
 
-		if(!decodeString(argument, 0, argument.size(), facet))
+		if(!IceUtil::unescapeString(argument, 0, argument.size(), facet))
 		{
 		    ProxyParseException ex(__FILE__, __LINE__);
 		    ex.str = str;
@@ -427,7 +427,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 		throw ex;
 	    }
 
-            end = checkQuote(s, beg);
+            end = IceUtil::checkQuote(s, beg);
             if(end == string::npos)
             {
 		ProxyParseException ex(__FILE__, __LINE__);
@@ -447,7 +447,7 @@ IceInternal::ReferenceFactory::create(const string& str)
                 beg++; // Skip leading quote
             }
 
-            if(!decodeString(s, beg, end, adapter) || adapter.size() == 0)
+            if(!IceUtil::unescapeString(s, beg, end, adapter) || adapter.size() == 0)
             {
 		ProxyParseException ex(__FILE__, __LINE__);
 		ex.str = str;

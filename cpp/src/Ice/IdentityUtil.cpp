@@ -13,8 +13,8 @@
 // **********************************************************************
 
 #include <Ice/IdentityUtil.h>
-#include <Ice/StringUtil.h>
 #include <Ice/LocalException.h>
+#include <IceUtil/StringUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -58,7 +58,7 @@ Ice::stringToIdentity(const string& s)
 
     if(slash == string::npos)
     {
-        if(!decodeString(s, 0, s.size(), ident.name))
+        if(!IceUtil::unescapeString(s, 0, s.size(), ident.name))
         {
             IdentityParseException ex(__FILE__, __LINE__);
             ex.str = s;
@@ -67,7 +67,7 @@ Ice::stringToIdentity(const string& s)
     }
     else
     {
-        if(!decodeString(s, 0, slash, ident.category))
+        if(!IceUtil::unescapeString(s, 0, slash, ident.category))
         {
             IdentityParseException ex(__FILE__, __LINE__);
             ex.str = s;
@@ -75,7 +75,7 @@ Ice::stringToIdentity(const string& s)
         }
         if(slash + 1 < s.size())
         {
-            if(!decodeString(s, slash + 1, s.size(), ident.name))
+            if(!IceUtil::unescapeString(s, slash + 1, s.size(), ident.name))
             {
                 IdentityParseException ex(__FILE__, __LINE__);
                 ex.str = s;
@@ -92,10 +92,10 @@ Ice::identityToString(const Identity& ident)
 {
     if(ident.category.empty())
     {
-	return encodeString(ident.name, "/");
+	return IceUtil::escapeString(ident.name, "/");
     }
     else
     {
-	return encodeString(ident.category, "/") + '/' + encodeString(ident.name, "/");
+	return IceUtil::escapeString(ident.category, "/") + '/' + IceUtil::escapeString(ident.name, "/");
     }
 }
