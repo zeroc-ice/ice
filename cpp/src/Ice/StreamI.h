@@ -52,8 +52,11 @@ class InputStreamI : public InputStream
 {
 public:
 
-    InputStreamI(const IceInternal::InstancePtr&, const ::std::vector< ::Ice::Byte >&);
+    //InputStreamI(const IceInternal::InstancePtr&, const ::std::vector< ::Ice::Byte >&);
+    InputStreamI(const Ice::CommunicatorPtr&, const ::std::vector< ::Ice::Byte >&);
     virtual ~InputStreamI();
+
+    virtual Ice::CommunicatorPtr communicator() const;
 
     virtual void sliceObjects(bool);
 
@@ -99,6 +102,7 @@ public:
 
 private:
 
+    Ice::CommunicatorPtr _communicator;
     IceInternal::BasicInputStream _is;
     bool _readObjects;
     ::std::vector< ReadObjectCallbackPtr > _callbacks;
@@ -111,8 +115,11 @@ class OutputStreamI : public OutputStream
 {
 public:
 
-    OutputStreamI(const IceInternal::InstancePtr&);
+    //OutputStreamI(const IceInternal::InstancePtr&);
+    OutputStreamI(const Ice::CommunicatorPtr&);
     virtual ~OutputStreamI();
+
+    virtual Ice::CommunicatorPtr communicator() const;
 
     virtual void writeBool(bool);
     virtual void writeBoolSeq(const ::std::vector< bool >&);
@@ -155,6 +162,7 @@ public:
 
 private:
 
+    Ice::CommunicatorPtr _communicator;
     IceInternal::BasicOutputStream _os;
     bool _writeObjects;
 };

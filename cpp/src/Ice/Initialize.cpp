@@ -170,13 +170,13 @@ Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& prop
 InputStreamPtr
 Ice::createInputStream(const CommunicatorPtr& communicator, const vector<Byte>& bytes)
 {
-    return new InputStreamI(getInstance(communicator), bytes);
+    return new InputStreamI(communicator, bytes);
 }
 
 OutputStreamPtr
 Ice::createOutputStream(const CommunicatorPtr& communicator)
 {
-    return new OutputStreamI(getInstance(communicator));
+    return new OutputStreamI(communicator);
 }
 
 InstancePtr

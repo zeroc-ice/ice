@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/StreamI.h>
+#include <Ice/Initialize.h>
 
 using namespace std;
 using namespace Ice;
@@ -31,8 +32,8 @@ IceInternal::BasicOutputStream::BasicOutputStream(IceInternal::Instance* instanc
 //
 // InputStreamI
 //
-Ice::InputStreamI::InputStreamI(const IceInternal::InstancePtr& instance, const vector<Byte>& data) :
-    _is(instance.get(), this), _readObjects(false)
+Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const vector<Byte>& data) :
+    _communicator(communicator), _is(IceInternal::getInstance(communicator).get(), this), _readObjects(false)
 {
     _is.b = data;
     _is.i = _is.b.begin();
@@ -40,6 +41,12 @@ Ice::InputStreamI::InputStreamI(const IceInternal::InstancePtr& instance, const 
 
 Ice::InputStreamI::~InputStreamI()
 {
+}
+
+CommunicatorPtr
+Ice::InputStreamI::communicator() const
+{
+    return _communicator;
 }
 
 void
@@ -252,13 +259,19 @@ Ice::InputStreamI::finished()
 //
 // OutputStreamI
 //
-Ice::OutputStreamI::OutputStreamI(const IceInternal::InstancePtr& instance) :
-    _os(instance.get(), this), _writeObjects(false)
+Ice::OutputStreamI::OutputStreamI(const Ice::CommunicatorPtr& communicator) :
+    _communicator(communicator), _os(IceInternal::getInstance(communicator).get(), this), _writeObjects(false)
 {
 }
 
 Ice::OutputStreamI::~OutputStreamI()
 {
+}
+
+CommunicatorPtr
+Ice::OutputStreamI::communicator() const
+{
+    return _communicator;
 }
 
 void

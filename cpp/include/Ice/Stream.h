@@ -11,6 +11,7 @@
 #define ICE_STREAM_H
 
 #include <Ice/StreamF.h>
+#include <Ice/CommunicatorF.h>
 #include <Ice/Object.h>
 #include <Ice/Exception.h>
 #include <IceUtil/Shared.h>
@@ -29,6 +30,8 @@ typedef IceUtil::Handle< ReadObjectCallback > ReadObjectCallbackPtr;
 class ICE_API InputStream : public ::IceUtil::Shared
 {
 public:
+
+    virtual Ice::CommunicatorPtr communicator() const = 0;
 
     virtual void sliceObjects(bool) = 0;
 
@@ -76,6 +79,8 @@ public:
 class ICE_API OutputStream : public ::IceUtil::Shared
 {
 public:
+
+    virtual Ice::CommunicatorPtr communicator() const = 0;
 
     virtual void writeBool(bool) = 0;
     virtual void writeBoolSeq(const ::std::vector< bool >&) = 0;
