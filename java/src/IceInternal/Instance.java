@@ -78,6 +78,12 @@ public class Instance
         return _threadPool;
     }
 
+    public synchronized BufferManager
+    bufferManager()
+    {
+        return _bufferManager;
+    }
+
     //
     // Only for use by Ice.CommunicatorI
     //
@@ -97,6 +103,7 @@ public class Instance
             _userExceptionFactoryManager = new UserExceptionFactoryManager();
             _objectAdapterFactory = new ObjectAdapterFactory(this);
             _threadPool = new ThreadPool(this);
+            _bufferManager = new BufferManager();
         }
         catch (Ice.LocalException ex)
         {
@@ -200,6 +207,12 @@ public class Instance
             _threadPool.joinWithAllThreads();
             _threadPool = null;
         }
+
+        if (_bufferManager != null)
+        {
+            _bufferManager.destroy();
+            _bufferManager = null;
+        }
     }
 
     private Ice.Communicator _communicator;
@@ -212,4 +225,5 @@ public class Instance
     private UserExceptionFactoryManager _userExceptionFactoryManager;
     private ObjectAdapterFactory _objectAdapterFactory;
     private ThreadPool _threadPool;
+    private BufferManager _bufferManager;
 }
