@@ -17,17 +17,17 @@ using namespace Slice;
 void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] ice-files ...\n";
+    cerr << "Usage: " << n << " [options] slice-files ...\n";
     cerr <<	
 "Options:\n"
-"-h, --help          Show this message.\n"
-"-DNAME              Define NAME as 1.\n"
-"-DNAME=DEF          Define NAME as DEF.\n"
-"-UNAME              Remove any definition for NAME.\n"
-"-IDIR               Put DIR in the include file search path.\n"
-"--include-dir       Specify the header include directory.\n"
-"--dll-export        Specify a symbol for DLL exports.\n"
-"-d, --debug         Print debug messages.\n"
+"-h, --help           Show this message.\n"
+"-DNAME               Define NAME as 1.\n"
+"-DNAME=DEF           Define NAME as DEF.\n"
+"-UNAME               Remove any definition for NAME.\n"
+"-IDIR                Put DIR in the include file search path.\n"
+"--include-dir DIR    Use DIR as the header include directory.\n"
+"--dll-export SYMBOL  Use SYMBOL for DLL exports.\n"
+"-d, --debug          Print debug messages.\n"
 	;
 }
 
