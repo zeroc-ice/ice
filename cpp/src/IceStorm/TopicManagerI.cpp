@@ -156,7 +156,7 @@ void
 TopicManagerI::reap()
 {
     //
-    // Always Called with mutex locked
+    // Always called with mutex locked.
     //
     // IceUtil::Mutex::Lock sync(*this);
     //
@@ -170,7 +170,13 @@ TopicManagerI::reap()
 		Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
 		out << "Reaping " << i->first;
 	    }
+
 	    _topics.erase(i->first);
+
+            Ice::Identity id;
+            id.name = i->first;
+            _topicAdapter->remove(id);
+
 	    _topicIMap.erase(i++);
 	}
 	else

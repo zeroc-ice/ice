@@ -103,8 +103,8 @@ IceStorm::TopicSubscribers::add(const SubscriberPtr& subscriber)
     // If a subscriber with this identity is already subscribed
     // then mark the subscriber as replaced.
     //
-    // Note that this doesn't actually remove the Subscribe from
-    // the list of subscribers - it marks the Subscriber as
+    // Note that this doesn't actually remove the subscriber from
+    // the list of subscribers - it marks the subscriber as
     // replaced, and it's removed on the next event publish.
     //
     for(SubscriberList::iterator i = _subscribers.begin() ; i != _subscribers.end(); ++i)
@@ -121,15 +121,15 @@ IceStorm::TopicSubscribers::add(const SubscriberPtr& subscriber)
     }
 
     //
-    // Add to the set of subscribers
+    // Add to the set of subscribers.
     //
     _subscribers.push_back(subscriber);
 }
 
 //
-// Unsubscribe the Subscriber with the given identity. Note that
-// this doesn't remove the Subscriber from the list of subscribers
-// - it marks the Subscriber as unsubscribed, and it's removed on
+// Unsubscribe the subscriber with the given identity. Note that
+// this doesn't remove the subscriber from the list of subscribers
+// - it marks the subscriber as unsubscribed, and it's removed on
 // the next event publish.
 //
 void
@@ -153,7 +153,7 @@ IceStorm::TopicSubscribers::remove(const Ice::ObjectPrx& obj)
     }
     
     //
-    // If the subscriber was not found then display a diagnostic
+    // If the subscriber was not found then display a diagnostic.
     //
     if(_traceLevels->topic > 0)
     {
@@ -377,11 +377,21 @@ TopicI::destroy(const Ice::Current&)
     _destroyed = true;
 
     //
-    // See the comment in the constructor for the format of the identity.
+    // See the comment in the constructor for the format of the identities.
     //
     Ice::Identity id;
     id.category = _name;
     id.name = "publish";
+
+    if(_traceLevels->topic > 0)
+    {
+	Ice::Trace out(_traceLevels->logger, _traceLevels->topicCat);
+	out << "destroying " << id;
+    }
+
+    _adapter->remove(id);
+
+    id.name = "link";
 
     if(_traceLevels->topic > 0)
     {
