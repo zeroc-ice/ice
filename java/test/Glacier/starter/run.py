@@ -34,7 +34,12 @@ ice_home = os.environ['ICE_HOME']
 starter = os.path.join(ice_home, "bin", "glacierstarter")
 router = os.path.join(ice_home, "bin", "glacierrouter")
 
+#
+# Glacier needs four threads in the server thread pool to avoid
+# a deadlock. (IceJ only)
+#
 command = starter + TestUtil.clientServerOptions + \
+          r' --Ice.ThreadPool.Server.Size=4' \
           r' --Ice.PrintProcessId' \
           r' --Glacier.Starter.RouterPath=' + router + \
           r' --Glacier.Starter.PropertiesOverwrite=Ice.ServerIdleTime=10' \
