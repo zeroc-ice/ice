@@ -962,6 +962,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name simpleS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name starterC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name starterS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2660,6 +2666,24 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name Glacier
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name GlacierRouter
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name GlacierStarter
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceSSL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
 }}}
 
 ###############################################################################
