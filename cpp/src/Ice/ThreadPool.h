@@ -56,7 +56,7 @@ private:
     bool clearInterrupt();
     void setInterrupt(char);
 
-    void run();
+    bool run(); // Returns true if a follower should be promoted.
     void read(const EventHandlerPtr&);
 
     InstancePtr _instance;
@@ -89,10 +89,12 @@ private:
     };
     friend class EventHandlerThread;
 
-    std::vector<IceUtil::ThreadControl> _threads; // Control for all threads, running or not.
     const int _size; // Number of threads that are pre-created.
     const int _sizeMax; // Maximum number of threads.
     const int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
+
+    std::vector<IceUtil::ThreadControl> _threads; // Control for all threads, running or not.
+    int _running; // Number of running threads.
     int _inUse; // Number of threads that are currently in use.
     double _load; // Current load in number of threads.
 
