@@ -15,6 +15,9 @@
 #ifndef PHP_ICE_H
 #define PHP_ICE_H
 
+#define ICEPHP_STRING_VERSION "0.0.1"
+#define ICEPHP_INT_VERSION 00001      // AABBCC, with AA=major, BB=minor, CC=patch
+
 /*
  * This file may be included by PHP's build system, therefore we have
  * to guard the use of 'extern "C"'.
