@@ -91,7 +91,7 @@ IceInternal::IncomingBase::__warning(const Exception& ex) const
 void
 IceInternal::IncomingBase::__warning(const string& msg) const
 {
-    if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+    if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
     {
 	Warning out(_os.instance()->logger());
 	
