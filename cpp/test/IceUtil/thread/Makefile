@@ -28,6 +28,7 @@ OBJS		= TestBase.o \
 		  MutexTest.o \
 		  MonitorMutexTest.o \
 		  MonitorRecMutexTest.o \
+                  CountDownLatchTest.o \
 		  TestSuite.o \
 		  Client.o
 

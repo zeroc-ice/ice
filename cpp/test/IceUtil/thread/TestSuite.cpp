@@ -13,6 +13,7 @@
 // **********************************************************************
 
 #include <TestSuite.h>
+#include <CountDownLatchTest.h>
 #include <MutexTest.h>
 #include <RecMutexTest.h>
 #include <RWRecMutexTest.h>
@@ -28,10 +29,11 @@ std::list<TestBasePtr> allTests;
 void
 initializeTestSuite()
 {
+    allTests.push_back(new MutexTest);
+    allTests.push_back(new CountDownLatchTest);
     allTests.push_back(new CreateTest);
     allTests.push_back(new AliveTest);
     allTests.push_back(new StartTest);
-    allTests.push_back(new MutexTest);
     allTests.push_back(new RecMutexTest);
     allTests.push_back(new RWRecMutexTest);
     allTests.push_back(new StaticMutexTest);

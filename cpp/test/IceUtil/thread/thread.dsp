@@ -99,6 +99,10 @@ SOURCE=.\Client.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\CountDownLatchTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\CreateTest.cpp
 # End Source File
 # Begin Source File
@@ -144,6 +148,10 @@ SOURCE=.\TestSuite.cpp
 # Begin Source File
 
 SOURCE=.\AliveTest.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\CountDownLatchTest.h
 # End Source File
 # Begin Source File
 

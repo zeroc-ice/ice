@@ -30,6 +30,7 @@
 #include <IceUtil/StaticMutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h>
+#include <IceUtil/CountDownLatch.h>
 #include <IceUtil/Base64.h>
 #include <IceUtil/Time.h>
 #include <IceUtil/InputUtil.h>
