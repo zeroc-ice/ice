@@ -463,8 +463,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         return;
     }
 
-    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-    assert(constructed);
+    assert(ConstructedPtr::dynamicCast(type));
     string typeS = typeToString(type);
     if(marshal)
     {
@@ -527,7 +526,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 			}
 			else
 			{
-			    out << "Ice.ObjectSeq(__len);";
+			    out << typeToString(seq);
 			}
 			out << nl << "for(int __i = 0; __i < __len; ++__i)";
 			out << sb;
@@ -542,7 +541,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 			}
 			else
 			{
-			    out << "Ice.ObjectPrxSeq(__len);";
+			    out << typeToString(seq);
 			}
 			out << nl << "for(int __i = 0; __i < __len; ++__i)";
 			out << sb;
@@ -694,7 +693,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    out << sb;
 	    if(isArray)
 	    {
-		out << nl << param << " = (" << typeS << ')' << stream << ".readByte();";
+		out << nl << param << "[__i] = (" << typeS << ')' << stream << ".readByte();";
 	    }
 	    else
 	    {

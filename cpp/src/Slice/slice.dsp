@@ -140,6 +140,10 @@ SOURCE=.\PythonUtil.cpp
 
 SOURCE=.\Scanner.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\VbUtil.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -179,6 +183,10 @@ SOURCE=..\..\include\Slice\Preprocessor.h
 # Begin Source File
 
 SOURCE=..\..\include\Slice\PythonUtil.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Slice\VbUtil.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

@@ -33,7 +33,7 @@ public:
     FILE* preprocess(bool);
     bool close();
 
-    enum Language { CPlusPlus, Java, CSharp };
+    enum Language { CPlusPlus, Java, CSharp, VisualBasic };
 
     void printMakefileDependencies(Language);
     

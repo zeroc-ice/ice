@@ -230,6 +230,37 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
 	    }
 	    break;
 	}
+	case VisualBasic:
+	{
+	    //
+	    // Change .cpp suffix to .vb suffix.
+	    //
+	    char buf[1024];
+	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+	    {
+		char* dot;
+		char* colon = strchr(buf, ':');
+		if(colon != NULL)
+		{
+		    *colon = '\0';
+		    dot = strrchr(buf, '.');
+		    *colon = ':';
+		    if(dot != NULL)
+		    {
+			if(strncmp(dot, ".cpp:", 5) == 0)
+			{
+			    *dot = '\0';
+			    fputs(buf, stdout);
+			    fputs(".vb", stdout);
+			    fputs(colon, stdout);
+			    continue;
+			}
+		    }
+		}
+		fputs(buf, stdout);
+	    }
+	    break;
+	}
 	default:
 	{
 	    abort();

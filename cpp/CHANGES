@@ -1,6 +1,18 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed a bug in the slice2cs code generator:
+  
+  ["cs:collection"] sequence<Object> S1;
+  ["cs:collection"] sequence<Object*> S2;
+
+  Sequences of Object or Object* caused incorrect code
+  to be generated if they were marked as "cs:collection".
+
+- Fixed a number of bugs in slice2cs that cause incorrect
+  code to be generated if C# keywords were used as Slice
+  identifiers.
+
 - Fixed a bug in slice2cpp that permitted impossible exceptions
   to be received by a client if client and server used Slice
   definitions with mismatched exception specifications. The

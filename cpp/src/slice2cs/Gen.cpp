@@ -97,7 +97,8 @@ Slice::CsVisitor::writeInheritedOperations(const ClassDefPtr& p)
 	allOps.unique();
 	for(OperationList::const_iterator op = allOps.begin(); op != allOps.end(); ++op)
 	{
-	    bool amd = p->hasMetaData("amd") || (*op)->hasMetaData("amd");
+	    ClassDefPtr containingClass = ClassDefPtr::dynamicCast((*op)->container());
+	    bool amd = containingClass->hasMetaData("amd") || (*op)->hasMetaData("amd");
 	    string name = fixId((*op)->name());
 	    if(!amd)
 	    {
@@ -260,7 +261,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
         assert(cl);
 
-        string opName = fixId(op->name());
+        string opName = op->name();
         _out << sp << nl << "public static IceInternal.DispatchStatus ___" << opName << '(' << name
 	     << " __obj, IceInternal.Incoming __in, Ice.Current __current)";
         _out << sb;
@@ -351,29 +352,30 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 		string retS = typeToString(ret);
 		_out << retS << " __ret = ";
 	    }
-	    _out << "__obj." << opName << '(';
+	    _out << "__obj." << fixId(opName) << spar;
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
 		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
 		bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
 		               || ClassDeclPtr::dynamicCast(q->first);
 		
+		string arg;
 		if(isClass)
 		{
-		    _out << "(" << typeToString(q->first) << ")";
+		    arg += "(" + typeToString(q->first) + ")";
 		}
-		_out << fixId(q->second);
+		arg += fixId(q->second);
 		if(isClass)
 		{
-		    _out << "_PP.value";
+		    arg += "_PP.value";
 		}
-		_out << ", ";
+		_out << arg;
 	    }
 	    for(q = outParams.begin(); q != outParams.end(); ++q)
 	    {
-		_out << "out " << fixId(q->second) << ", ";
+		_out << "out " + fixId(q->second);
 	    }
-	    _out << "__current);";
+	    _out << "__current" << epar << ';';
 	    
 	    //
 	    // Marshal 'out' parameters and return value.
@@ -462,29 +464,43 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	    //
 	    // Call on the servant.
 	    //
-	    string classNameAMD = "AMD_" + fixId(p->name());
+	    string classNameAMD = "AMD_" + p->name();
 	    _out << nl << classNameAMD << '_' << opName << " __cb = new _" << classNameAMD << '_' << opName
 		 << "(__in);";
             _out << nl << "try";
             _out << sb;
-	    _out << nl << "__obj." << opName << (amd ? "_async(__cb, " : "(");
+	    _out << nl << "__obj.";
+	    if(amd)
+	    {
+		_out << opName << "_async";
+	    }
+	    else
+	    {
+	        _out << fixId(opName);
+	    }
+	    _out << spar;
+	    if(amd)
+	    {
+	        _out << "__cb";
+	    }
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
 		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
 		bool isClass = (builtin && builtin->kind() == Builtin::KindObject)
 		               || ClassDeclPtr::dynamicCast(q->first);
+		string arg;
 		if(isClass)
 		{
-		    _out << "(" << typeToString(q->first) << ")";
+		    arg += "(" + typeToString(q->first) + ")";
 		}
-		_out << fixId(q->second);
+		arg += fixId(q->second);
 		if(isClass)
 		{
-		    _out << "_PP.value";
+		    arg += "_PP.value";
 		}
-		_out << ", ";
+		_out << arg;
 	    }
-	    _out << "__current);";
+	    _out << "__current" << epar << ';';
 	    _out << eb;
 	    _out << nl << "catch(_System.Exception ex)";
 	    _out << sb;
@@ -543,7 +559,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	_out << sp << nl << "public override IceInternal.DispatchStatus "
 	     << "__dispatch(IceInternal.Incoming __in, Ice.Current __current)";
 	_out << sb;
-	_out << "int pos;";
+	_out << nl << "int pos;";
 	_out << nl << "if(_System.Type.GetType(\"Mono.Runtime\", false) != null) // Bug in Mono 1.0 DefaultInvariant";
 	_out << sb;
 	_out << nl << "pos = _System.Array.BinarySearch(__all, __current.operation);";
@@ -562,7 +578,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	int i = 0;
 	for(q = allOpNames.begin(); q != allOpNames.end(); ++q)
 	{
-	    string opName = fixId(*q);
+	    string opName = *q;
 
 	    _out << nl << "case " << i++ << ':';
 	    _out << sb;
@@ -600,21 +616,15 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 			}
 			else
 			{
-			    string base = fixId(cl->scoped());
+			    string base = cl->scoped();
 			    if(cl->isInterface())
 			    {
-			        string::size_type pos = base.rfind('.');
-				if(pos != string::npos)
-				{
-				    base = base.insert(pos + 1, "_");
-				}
-				else
-				{
-				    base = "_" + base;
-				}
+			        string::size_type pos = base.rfind("::");
+				assert(pos != string::npos);
+				base = base.insert(pos + 2, "_");
 				base += "Disp";
 			    }
-			    _out << nl << "return " << base << ".___" << opName << "(this, __in, __current);";
+			    _out << nl << "return " << fixId(base) << ".___" << opName << "(this, __in, __current);";
 			}
 			break;
 		    }
@@ -659,7 +669,7 @@ Slice::CsVisitor::getParamsAsync(const OperationPtr& op, bool amd)
     string name = fixId(op->name());
     ContainerPtr container = op->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container); // Get the class containing the op.
-    params.push_back((amd ? "AMD_" : "AMI_") + fixId(cl->name()) + '_' + op->name() + " __cb");
+    params.push_back((amd ? "AMD_" : "AMI_") + cl->name() + '_' + op->name() + " __cb");
 
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -995,13 +1005,13 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    string name = fixId(p->name());
+    string name = p->name();
     string scoped = fixId(p->scoped());
     ClassList bases = p->bases();
 
     if(p->isInterface())
     {
-        _out << sp << nl << "public interface " << name << " : ";
+        _out << sp << nl << "public interface " << fixId(name) << " : ";
 	if(p->isLocal())
 	{
 	    _out << "Ice.LocalObject";
@@ -1028,7 +1038,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    _out << "abstract ";
 	}
-	_out << "class " << name << " : ";
+	_out << "class " << fixId(name) << " : ";
 
 	if(bases.empty() || bases.front()->isInterface())
 	{
@@ -2423,8 +2433,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 	return false;
     }
 
-    string name = fixId(p->name());
-    string scoped = fixId(p->scoped());
+    string name = p->name();
     ClassList bases = p->bases();
 
     _out << sp << nl << "public interface " << name << "Prx : ";
@@ -2437,7 +2446,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 	ClassList::const_iterator q = bases.begin();
 	while(q != bases.end())
 	{
-	    _out << fixId((*q)->scoped()) << "Prx";
+	    _out << fixId((*q)->scoped() + "Prx");
 	    if(++q != bases.end())
 	    {
 		_out << ", ";
@@ -2477,8 +2486,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	// context parameter.
 	//
 	_out << sp;
-	_out << nl << "void " << name << "_async" << spar << paramsAMI << epar << ';';
-	_out << nl << "void " << name << "_async" << spar << paramsAMI << "Ice.Context __ctx" << epar << ';';
+	_out << nl << "void " << p->name() << "_async" << spar << paramsAMI << epar << ';';
+	_out << nl << "void " << p->name() << "_async" << spar << paramsAMI << "Ice.Context __ctx" << epar << ';';
     }
 }
 
@@ -2521,7 +2530,7 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 {
-    string name = fixId(p->name());
+    string name = p->name();
     string scoped = fixId(p->scoped());
     ClassList bases = p->bases();
 
@@ -2548,21 +2557,16 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 		{
 		    first = false;
 		}
-		string s = fixId((*q)->scoped());
-		string::size_type pos = s.rfind('.');
-		if(pos != string::npos)
-		{
-		    s.insert(pos + 1, "_");
-		}
-		else
-		{
-		    s = "_" + s;
-		}
-		_out << s << "Operations";
+		string s = (*q)->scoped();
+		string::size_type pos = s.rfind("::");
+		assert(pos != string::npos);
+		s.insert(pos + 2, "_");
+		s += "Operations";
 		if(noCurrent)
 		{
-		    _out << "NC";
+		    s += "NC";
 		}
+		_out << fixId(s);
 	    }
 	    ++q;
 	}
@@ -2574,12 +2578,12 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
 	OperationPtr op = *r;
-	string name = fixId(op->name());
+	bool amd = !p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd"));
+	string name = amd ? (op->name() + "_async") : fixId(op->name());
 
 	TypePtr ret;
 	vector<string> params;
 
-	bool amd = !p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd"));
 
 	if(amd)
 	{
@@ -2595,7 +2599,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 
 	if(!noCurrent)
 	{ 
-	    _out << sp << nl << retS << ' ' << name << (amd ? "_async" : "") << spar << params;
+	    _out << sp << nl << retS << ' ' << name << spar << params;
 	    if(!p->isLocal())
 	    {
 		_out << "Ice.Current __current";
@@ -2606,7 +2610,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 	{
 	    if(!p->isLocal())
 	    {
-		_out << sp << nl << retS << ' ' << name << (amd ? "_async" : "") << spar << params << epar << ';';
+		_out << sp << nl << retS << ' ' << name << spar << params << epar << ';';
 	    }
 	}
     }
@@ -2644,7 +2648,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     if(p->isLocal())
         return false;
 
-    string name = fixId(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
 
     _out << sp << nl << "public class " << name << "PrxHelper : Ice.ObjectPrxHelperBase, " << name << "Prx";
@@ -2688,7 +2692,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << sb;
 	if(op->returnsData())
 	{
-	    _out << nl << "__checkTwowayOnly(\"" << opName << "\");";
+	    _out << nl << "__checkTwowayOnly(\"" << op->name() << "\");";
 	}
 	_out << nl << "Ice._ObjectDel __delBase = __getDelegate();";
 	_out << nl << '_' << name << "Del __del = (_" << name << "Del)__delBase;";
@@ -2723,43 +2727,29 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << eb;
     }
 
-    bool hasAsyncOps = false;
-
     if(!ops.empty())
     {
 	_out << sp << nl << "#endregion"; // Synchronous operations
-
-	if(p->hasMetaData("ami"))
-	{
-	    hasAsyncOps = true;
-	}
-	else
-	{
-	    for(r = ops.begin(); r != ops.end(); ++r)
-	    {
-		if((*r)->hasMetaData("ami"))
-		{
-		    hasAsyncOps = true;
-		}
-	    }
-	}
     }
 
-    if(hasAsyncOps)
-    {
-	_out << sp << nl << "#region Asynchronous operations";
-    }
+    bool hasAsyncOps = false;
 
     for(r = ops.begin(); r != ops.end(); ++r)
     {
 	OperationPtr op = *r;
 	
-	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
+	ClassDefPtr containingClass = ClassDefPtr::dynamicCast(op->container());
+	if(containingClass->hasMetaData("ami") || op->hasMetaData("ami"))
 	{
+	    if(!hasAsyncOps)
+	    {
+		_out << sp << nl << "#region Asynchronous operations";
+		hasAsyncOps = true;
+	    }
 	    vector<string> paramsAMI = getParamsAsync(op, false);
 	    vector<string> argsAMI = getArgsAsync(op);
 
-	    string opName = fixId(op->name());
+	    string opName = op->name();
 
 	    //
 	    // Write two versions of the operation - with and without a
@@ -2956,7 +2946,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "__os.writeSize(__v.Count);";
     _out << nl << "foreach(_System.Collections.DictionaryEntry __e in __v)";
     _out << sb;
-    string keyArg = "(" + keyS + ")__e.Key";
+    string keyArg = "((" + keyS + ")__e.Key)";
     writeMarshalUnmarshalCode(_out, key, keyArg, true, false);
     string valueArg = "(" + valueS + ")__e.Value";
     writeMarshalUnmarshalCode(_out, value, valueArg, true, false);
@@ -3046,7 +3036,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 	return false;
     }
 
-    string name = fixId(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
 
     _out << sp << nl << "public interface _" << name << "Del : ";
@@ -3059,18 +3049,12 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 	ClassList::const_iterator q = bases.begin();
 	while(q != bases.end())
 	{
-	    string s = fixId((*q)->scoped());
-	    string::size_type pos = s.rfind('.');
-	    if(pos != string::npos)
-	    {
-	        s = s.insert(pos + 1, "_");
-	    }
-	    else
-	    {
-	        s = "_" + s;
-	    }
+	    string s = (*q)->scoped();
+	    string::size_type pos = s.rfind("::");
+	    assert(pos != string::npos);
+	    s = s.insert(pos + 2, "_");
 	    s += "Del";
-	    _out << s;
+	    _out << fixId(s);
 	    if(++q != bases.end())
 	    {
 		_out << ", ";
@@ -3135,7 +3119,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
        return false;
     }
 
-    string name = fixId(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
 
     _out << sp << nl << "public sealed class _" << name << "DelM : Ice._ObjectDelM, _" << name << "Del";
@@ -3358,7 +3342,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    string name = fixId(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
 
     _out << sp << nl << "public sealed class _" << name << "DelD : Ice._ObjectDelD, _" << name << "Del";
@@ -3373,6 +3357,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         string opName = fixId(op->name());
         TypePtr ret = op->returnType();
         string retS = typeToString(ret);
+	ClassDefPtr containingClass = ClassDefPtr::dynamicCast(op->container());
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -3385,7 +3370,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << sp;
         _out << nl << "public " << retS << ' ' << opName << spar << params << "Ice.Context __context" << epar;
         _out << sb;
-	if(p->hasMetaData("amd") || op->hasMetaData("amd"))
+	if(containingClass->hasMetaData("amd") || op->hasMetaData("amd"))
 	{
 	    _out << nl << "throw new Ice.CollocationOptimizationException();";
 	}
@@ -3398,7 +3383,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out << sb;
 	    _out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current);";
 	    _out << nl << "object __servant = __direct.servant();";
-	    _out << nl << "if(__servant is " << name << ")";
+	    _out << nl << "if(__servant is " << fixId(name) << ")";
 	    _out << sb;
 	    _out << nl << "try";
 	    _out << sb;
@@ -3407,7 +3392,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    {
 		_out << "return ";
 	    }
-	    _out << "((" << name << ")__servant)." << opName << spar << args << "__current" << epar << ';';
+	    _out << "((" << fixId(containingClass->name()) << ")__servant)."
+	         << opName << spar << args << "__current" << epar << ';';
 	    if(!ret)
 	    {
 	        _out << nl << "return;";
@@ -3477,9 +3463,9 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    string name = fixId(p->name());
+    string name = p->name();
 
-    _out << sp << nl << "public abstract class _" << name << "Disp : Ice.ObjectImpl, " << name;
+    _out << sp << nl << "public abstract class _" << name << "Disp : Ice.ObjectImpl, " << fixId(name);
     _out << sb;
 
     OperationList ops = p->operations();
@@ -3586,7 +3572,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	return;
     }
 
-    string name = fixId(p->name());
+    string name = p->name();
     
     if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {
@@ -3620,7 +3606,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
 	vector<string> paramsInvoke = getParamsAsync(p, false);
 
-	_out << sp << nl << "public abstract class AMI_" << fixId(cl->name()) << '_'
+	_out << sp << nl << "public abstract class AMI_" << cl->name() << '_'
 	     << name << " : IceInternal.OutgoingAsync";
 	_out << sb;
 	_out << sp;
@@ -3631,7 +3617,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out << sb;
 	_out << nl << "try";
 	_out << sb;
-	_out << nl << "__prepare(__prx, \"" << p->name() << "\", " << sliceModeToIceMode(p) << ", __ctx);";
+	_out << nl << "__prepare(__prx, \"" << name << "\", " << sliceModeToIceMode(p) << ", __ctx);";
 	for(q = inParams.begin(); q != inParams.end(); ++q)
 	{
 	    string typeS = typeToString(q->first);
@@ -3751,16 +3737,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
     if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
     {
-	string classNameAMD = "AMD_" + fixId(cl->name());
-	ContainerPtr parentScope = cl->container();
-	ModulePtr mod = ModulePtr::dynamicCast(cl->container());
-	string absoluteAMD = "AMD_" + fixId(cl->name());
-	if(mod)
-	{
-	    absoluteAMD = fixId(mod->scoped()) + '.' + absoluteAMD;
-	}
-
-	string classNameAMDI = "_AMD_" + fixId(cl->name());
+	string classNameAMD = "AMD_" + cl->name();
+	string classNameAMDI = "_AMD_" + cl->name();
 
 	vector<string> paramsAMD = getParamsAsyncCB(p);
 
@@ -3897,14 +3875,14 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
     
-    string name = fixId(p->name());
+    string name = p->name();
 
     _out << sp << nl << "public class _" << name << "Tie : ";
     if(p->isInterface())
     {
 	if(p->isLocal())
 	{
-	    _out << name << ", Ice.TieBase";
+	    _out << fixId(name) << ", Ice.TieBase";
 	}
 	else
 	{
@@ -3913,7 +3891,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        _out << name << ", Ice.TieBase";
+        _out << fixId(name) << ", Ice.TieBase";
     }
     _out << sb;
 
@@ -3974,11 +3952,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
 	bool hasAMD = p->hasMetaData("amd") || (*r)->hasMetaData("amd");
-        string opName = fixId((*r)->name());
-        if(hasAMD)
-        {
-            opName += "_async";
-        }
+        string opName = hasAMD ? (*r)->name() + "_async" : fixId((*r)->name());
 
         TypePtr ret = (*r)->returnType();
         string retS = typeToString(ret);
@@ -4048,11 +4022,7 @@ Slice::Gen::TieVisitor::writeInheritedOperations(const ClassDefPtr& p, NameSet& 
     for(r = ops.begin(); r != ops.end(); ++r)
     {
 	bool hasAMD = p->hasMetaData("amd") || (*r)->hasMetaData("amd");
-        string opName = fixId((*r)->name());
-        if(hasAMD)
-        {
-            opName += "_async";
-        }
+        string opName = hasAMD ? (*r)->name() + "_async" : fixId((*r)->name());
 	if(opNames.find(opName) != opNames.end())
 	{
 	    continue;
@@ -4117,7 +4087,7 @@ void
 Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool local, bool comment, bool forTie)
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-    string opName = fixId(op->name());
+    string opName = op->name();
     TypePtr ret = op->returnType();
     string retS = typeToString(ret);
     ParamDeclList params = op->parameters();
@@ -4163,25 +4133,19 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool local, 
 		_out << nl << typeToString(type) << ' ' << name << " = " << writeValue(type) << ';';
 	    }
 	}
-	_out << nl << "__cb.ice_response(";
+	_out << nl << "__cb.ice_response" << spar;
 	if(ret)
 	{
 	    _out << "__ret";
 	}
-	bool firstParam = !ret;
 	for(i = params.begin(); i != params.end(); ++i)
 	{
 	    if((*i)->isOutParam())
 	    {
-	        if(!firstParam)
-		{
-		    _out << ", ";
-		}
-		firstParam = false;
 		_out << fixId((*i)->name());
 	    }
 	}
-	_out << ");";
+	_out << epar << ';';
 	_out << eb;
     }
     else
@@ -4193,7 +4157,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool local, 
 	{
 	    _out << "override ";
 	}
-	_out << retS << ' ' << opName << spar << pDecls;
+	_out << retS << ' ' << fixId(opName) << spar << pDecls;
 	if(!local)
 	{
 	    _out << "Ice.Current __current";
@@ -4311,14 +4275,14 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    string name = fixId(p->name());
+    string name = p->name();
 
     _out << sp << nl << "public sealed class " << name << 'I';
     if(p->isInterface())
     {
         if(p->isLocal())
 	{
-	    _out << " : Ice.LocalObjectImpl, " << name;
+	    _out << " : Ice.LocalObjectImpl, " << fixId(name);
 	}
 	else
 	{
@@ -4327,7 +4291,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        _out << " : " << name;
+        _out << " : " << fixId(name);
     }
     _out << sb;
 
@@ -4379,7 +4343,7 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    string name = fixId(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
 
     //
@@ -4394,7 +4358,15 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << sp << nl << "public class " << name << "I : ";
     if(inheritImpl)
     {
-        _out << fixId(bases.front()->name()) << "I, ";
+	if(bases.front()->isAbstract())
+	{
+	    _out << bases.front()->name() << 'I';
+	}
+	else
+	{
+	    _out << fixId(bases.front()->name());
+	}
+	_out << ", ";
     }
     _out << '_' << name << "Operations";
     _out << sb;
@@ -4420,7 +4392,7 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             _out << sp;
             _out << nl << "// ";
-            _out << nl << "// Implemented by " << fixId(bases.front()->name()) << 'I';
+            _out << nl << "// Implemented by " << bases.front()->name() << 'I';
             _out << nl << "//";
             writeOperation(*r, p->isLocal(), true, true);
         }
