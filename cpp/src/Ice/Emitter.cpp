@@ -473,10 +473,10 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
     {
 	try
 	{
-	    TransceiverPtr transceiver = (*q)->clientTransceiver(_instance);
+	    TransceiverPtr transceiver = (*q)->clientTransceiver();
 	    if (!transceiver)
 	    {
-		ConnectorPtr connector = (*q)->connector(_instance);
+		ConnectorPtr connector = (*q)->connector();
 		assert(connector);
 		transceiver = connector->connect((*q)->timeout());
 		assert(transceiver);

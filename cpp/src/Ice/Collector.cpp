@@ -628,7 +628,7 @@ IceInternal::CollectorFactory::CollectorFactory(const InstancePtr& instance,
 
     try
     {
-	_transceiver = _endpoint->serverTransceiver(_instance, _endpoint);
+	_transceiver = _endpoint->serverTransceiver(_endpoint);
 	if (_transceiver)
 	{
 	    CollectorPtr collector = new Collector(_instance, _adapter, _transceiver, _endpoint);
@@ -636,7 +636,7 @@ IceInternal::CollectorFactory::CollectorFactory(const InstancePtr& instance,
 	}
 	else
 	{
-	    _acceptor = _endpoint->acceptor(_instance, _endpoint);
+	    _acceptor = _endpoint->acceptor(_endpoint);
 	    assert(_acceptor);
 	    _acceptor->listen();
 	    _threadPool = _instance->threadPool();

@@ -50,6 +50,7 @@ public:
     UserExceptionFactoryManagerPtr userExceptionFactoryManager();
     ObjectAdapterFactoryPtr objectAdapterFactory();
     ThreadPoolPtr threadPool();
+    std::string defaultProtocol();
     
 private:
 
@@ -68,6 +69,7 @@ private:
     UserExceptionFactoryManagerPtr _userExceptionFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ThreadPoolPtr _threadPool;
+    std::string _defaultProtocol;
 
     //
     // Global state management

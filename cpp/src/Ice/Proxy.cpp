@@ -631,11 +631,17 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure))),
 			endpoints.end());
     }
+//
+// We allow secure connections also if they are not explicitly
+// required.
+//
+/*
     else
     {
 	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), ::Ice::constMemFun(&Endpoint::secure)),
 			endpoints.end());
     }
+*/
 
     if (endpoints.empty())
     {

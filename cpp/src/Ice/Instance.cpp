@@ -141,6 +141,14 @@ IceInternal::Instance::threadPool()
     return _threadPool;
 }
 
+string
+IceInternal::Instance::defaultProtocol()
+{
+    // No synchronization necessary
+    // JTCSyncT<JTCMutex> sync(*this);
+    return _defaultProtocol;
+}
+
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
     _communicator(communicator),
     _properties(properties)
@@ -256,6 +264,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	_userExceptionFactoryManager = new UserExceptionFactoryManager();
 	_objectAdapterFactory = new ObjectAdapterFactory(this);
 	_threadPool = new ThreadPool(this);
+	_defaultProtocol = _properties->getProperty("Ice.DefaultProtocol");
+	if (_defaultProtocol.empty())
+	{
+	    _defaultProtocol = "tcp";
+	}
     }
     catch(...)
     {

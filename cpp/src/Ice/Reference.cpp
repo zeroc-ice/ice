@@ -223,7 +223,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
 	}
 	
 	string es = s.substr(beg, end - beg);
-	EndpointPtr endp = Endpoint::endpointFromString(es);
+	EndpointPtr endp = Endpoint::endpointFromString(instance, es);
 
 	if (orig)
 	{

@@ -32,12 +32,10 @@ class Endpoint : public ::IceUtil::Shared
 {
 public:
 
-    Endpoint() { }
-
     //
     // Create an endpoint from a string
     //
-    static EndpointPtr endpointFromString(const std::string&);
+    static EndpointPtr endpointFromString(const InstancePtr&, const std::string&);
     
     //
     // Unmarshal an endpoint
@@ -91,7 +89,7 @@ public:
     // Return a client side transceiver for this endpoint, or null if a
     // transceiver can only be created by a connector.
     //
-    virtual TransceiverPtr clientTransceiver(const InstancePtr&) const = 0;
+    virtual TransceiverPtr clientTransceiver() const = 0;
 
     //
     // Return a server side transceiver for this endpoint, or null if a
@@ -100,13 +98,13 @@ public:
     // "effective" endpoint, which might differ from this endpoint,
     // for example, if a dynamic port number is assigned.
     //
-    virtual TransceiverPtr serverTransceiver(const InstancePtr&, EndpointPtr&) const = 0;
+    virtual TransceiverPtr serverTransceiver(EndpointPtr&) const = 0;
 
     //
     // Return a connector for this endpoint, or null if no connector
     // is available.
     //
-    virtual ConnectorPtr connector(const InstancePtr&) const = 0;
+    virtual ConnectorPtr connector() const = 0;
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors
@@ -115,7 +113,7 @@ public:
     // from this endpoint, for example, if a dynamic port number is
     // assigned.
     //
-    virtual AcceptorPtr acceptor(const InstancePtr&, EndpointPtr&) const = 0;
+    virtual AcceptorPtr acceptor(EndpointPtr&) const = 0;
 
     //
     // Check whether the endpoint is equivalent to a specific
@@ -145,10 +143,10 @@ public:
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;
     virtual bool secure() const;
-    virtual TransceiverPtr clientTransceiver(const InstancePtr&) const;
-    virtual TransceiverPtr serverTransceiver(const InstancePtr&, EndpointPtr&) const;
-    virtual ConnectorPtr connector(const InstancePtr&) const;
-    virtual AcceptorPtr acceptor(const InstancePtr&, EndpointPtr&) const;
+    virtual TransceiverPtr clientTransceiver() const;
+    virtual TransceiverPtr serverTransceiver(EndpointPtr&) const;
+    virtual ConnectorPtr connector() const;
+    virtual AcceptorPtr acceptor(EndpointPtr&) const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
 
@@ -160,6 +158,7 @@ private:
     //
     // All members are const, because endpoints are immutable.
     //
+    const InstancePtr _instance;
     const std::vector< ::Ice::Byte> _rawBytes;
 };
 
@@ -167,8 +166,8 @@ class TcpEndpoint : public Endpoint
 {
 public:
 
-    TcpEndpoint(const std::string&, ::Ice::Int, ::Ice::Int);
-    TcpEndpoint(const std::string&);
+    TcpEndpoint(const InstancePtr&, const std::string&, ::Ice::Int, ::Ice::Int);
+    TcpEndpoint(const InstancePtr&, const std::string&);
     TcpEndpoint(BasicStream*);
 
     virtual void streamWrite(BasicStream*) const;
@@ -179,10 +178,10 @@ public:
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;
     virtual bool secure() const;
-    virtual TransceiverPtr clientTransceiver(const InstancePtr&) const;
-    virtual TransceiverPtr serverTransceiver(const InstancePtr&, EndpointPtr&) const;
-    virtual ConnectorPtr connector(const InstancePtr&) const;
-    virtual AcceptorPtr acceptor(const InstancePtr&, EndpointPtr&) const;
+    virtual TransceiverPtr clientTransceiver() const;
+    virtual TransceiverPtr serverTransceiver(EndpointPtr&) const;
+    virtual ConnectorPtr connector() const;
+    virtual AcceptorPtr acceptor(EndpointPtr&) const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
 
@@ -194,6 +193,7 @@ private:
     //
     // All members are const, because endpoints are immutable.
     //
+    const InstancePtr _instance;
     const std::string _host;
     const ::Ice::Int _port;
     const ::Ice::Int _timeout;
@@ -203,8 +203,8 @@ class SslEndpoint : public Endpoint
 {
 public:
 
-    SslEndpoint(const std::string&, ::Ice::Int, ::Ice::Int);
-    SslEndpoint(const std::string&);
+    SslEndpoint(const InstancePtr&, const std::string&, ::Ice::Int, ::Ice::Int);
+    SslEndpoint(const InstancePtr&, const std::string&);
     SslEndpoint(BasicStream*);
 
     virtual void streamWrite(BasicStream*) const;
@@ -215,10 +215,10 @@ public:
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;
     virtual bool secure() const;
-    virtual TransceiverPtr clientTransceiver(const InstancePtr&) const;
-    virtual TransceiverPtr serverTransceiver(const InstancePtr&, EndpointPtr&) const;
-    virtual ConnectorPtr connector(const InstancePtr&) const;
-    virtual AcceptorPtr acceptor(const InstancePtr&, EndpointPtr&) const;
+    virtual TransceiverPtr clientTransceiver() const;
+    virtual TransceiverPtr serverTransceiver(EndpointPtr&) const;
+    virtual ConnectorPtr connector() const;
+    virtual AcceptorPtr acceptor(EndpointPtr&) const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
 
@@ -230,6 +230,7 @@ private:
     //
     // All members are const, because endpoints are immutable.
     //
+    const InstancePtr _instance;
     const std::string _host;
     const ::Ice::Int _port;
     const ::Ice::Int _timeout;
@@ -239,8 +240,8 @@ class UdpEndpoint : public Endpoint
 {
 public:
 
-    UdpEndpoint(const std::string&, ::Ice::Int);
-    UdpEndpoint(const std::string&);
+    UdpEndpoint(const InstancePtr&, const std::string&, ::Ice::Int);
+    UdpEndpoint(const InstancePtr&, const std::string&);
     UdpEndpoint(BasicStream*);
 
     virtual void streamWrite(BasicStream*) const;
@@ -251,10 +252,10 @@ public:
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;
     virtual bool secure() const;
-    virtual TransceiverPtr clientTransceiver(const InstancePtr&) const;
-    virtual TransceiverPtr serverTransceiver(const InstancePtr&, EndpointPtr&) const;
-    virtual ConnectorPtr connector(const InstancePtr&) const;
-    virtual AcceptorPtr acceptor(const InstancePtr&, EndpointPtr&) const;
+    virtual TransceiverPtr clientTransceiver() const;
+    virtual TransceiverPtr serverTransceiver(EndpointPtr&) const;
+    virtual ConnectorPtr connector() const;
+    virtual AcceptorPtr acceptor(EndpointPtr&) const;
     virtual bool equivalent(const TransceiverPtr&) const;
     virtual bool equivalent(const AcceptorPtr&) const;
 
@@ -266,6 +267,7 @@ private:
     //
     // All members are const, because endpoints are immutable.
     //
+    const InstancePtr _instance;
     const std::string _host;
     const ::Ice::Int _port;
 };
