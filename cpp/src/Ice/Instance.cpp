@@ -81,6 +81,8 @@ public:
 
 static GlobalStateMutexDestroyer destroyer;
 
+volatile bool Instance::_printProcessIdDone = false;
+
 }
 
 void IceInternal::incRef(Instance* p) { p->__incRef(); }
@@ -627,15 +629,20 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     }
 
     //
-    // Show process id if requested.
+    // Show process id if requested (but only once).
     //
-    if(_properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
+    if(!_printProcessIdDone && _properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
     {
+	IceUtil::RecMutex::Lock sync(*this); // Double-checked locking
+	if(!_printProcessIdDone)
+	{
 #ifdef _WIN32
-        cout << _getpid() << endl;
+	    cout << _getpid() << endl;
 #else
-        cout << getpid() << endl;
+	    cout << getpid() << endl;
 #endif
+	    _printProcessIdDone = true;
+	}
     }
 
     //

@@ -101,6 +101,7 @@ private:
     EndpointFactoryManagerPtr _endpointFactoryManager;
     DynamicLibraryListPtr _dynamicLibraryList;
     Ice::PluginManagerPtr _pluginManager;
+    volatile static bool _printProcessIdDone;
 
     //
     // Global state management
