@@ -22,7 +22,6 @@ bool Slice_init(TSRMLS_D);
 bool Slice_shutdown(TSRMLS_D);
 bool Slice_createClasses(int TSRMLS_DC);
 bool Slice_destroyClasses(TSRMLS_D);
-bool Slice_registerFactories(const Ice::CommunicatorPtr& TSRMLS_DC);
 Slice::UnitPtr Slice_getUnit();
 bool Slice_isNativeKey(const Slice::TypePtr&);
 

@@ -69,6 +69,7 @@ class PHPVisitor : public Slice::ParserVisitor
 public:
     PHPVisitor(TypeMap&, int TSRMLS_DC);
 
+    virtual void visitClassDecl(const Slice::ClassDeclPtr&);
     virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
     virtual bool visitExceptionStart(const Slice::ExceptionPtr&);
     virtual bool visitStructStart(const Slice::StructPtr&);
@@ -77,47 +78,14 @@ public:
     virtual void visitConst(const Slice::ConstPtr&);
 
 private:
-    zend_class_entry* allocClass(const string&, const Slice::ContainedPtr&);
     zend_class_entry* findClass(const string&);
 
     TypeMap& _typeMap;
     int _module;
-    zend_class_entry* _currentClass;
 #ifdef ZTS
     TSRMLS_D;
 #endif
-};
-
-//
-// FactoryWrapper is an implementation of Ice::ObjectFactory that creates PHP objects.
-// A single instance can be used for all types.
-//
-class FactoryWrapper : public Ice::ObjectFactory
-{
-public:
-    FactoryWrapper(TypeMap&);
-
-    virtual Ice::ObjectPtr create(const string&);
-    virtual void destroy();
-
-private:
-    TypeMap& _typeMap;
-};
-
-//
-// FactoryVisitor descends the Slice parse tree and registers an object factory for each
-// non-abstract class.
-//
-class FactoryVisitor : public Slice::ParserVisitor
-{
-public:
-    FactoryVisitor(const Ice::CommunicatorPtr&, TypeMap&);
-
-    virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
-
-private:
-    Ice::CommunicatorPtr _communicator;
-    Ice::ObjectFactoryPtr _factory;
+    zend_class_entry* _iceObjectClass;
 };
 
 //
@@ -188,7 +156,7 @@ parseSlice(const string& argStr)
     }
 
     bool ignoreRedefs = false;
-    bool all = false;
+    bool all = true;
     _unit = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
     bool status = true;
 
@@ -221,6 +189,27 @@ parseSlice(const string& argStr)
     return status;
 }
 
+static zend_class_entry*
+allocClass(const string& scoped, const Slice::SyntaxTreeBasePtr& p TSRMLS_DC)
+{
+    ice_class_entry* result = static_cast<ice_class_entry*>(emalloc(sizeof(ice_class_entry)));
+
+    string flat = ice_lowerCase(ice_flatten(scoped));
+
+    result->ce.type = ZEND_USER_CLASS;
+    result->ce.name = estrndup(const_cast<char*>(flat.c_str()), flat.length());
+    result->ce.name_length = flat.length();
+
+    zend_initialize_class_data((zend_class_entry*)result, 1 TSRMLS_CC);
+
+    result->ce.ce_flags |= ZEND_ACC_PUBLIC;
+    result->scoped = estrndup(const_cast<char*>(scoped.c_str()), scoped.length());
+    result->syntaxTreeBase = new Slice::SyntaxTreeBasePtr(p);
+    result->marshaler = 0;
+
+    return (zend_class_entry*)result;
+}
+
 bool
 Slice_init(TSRMLS_D)
 {
@@ -234,6 +223,10 @@ Slice_init(TSRMLS_D)
         {
             return false;
         }
+    }
+    else
+    {
+        _unit = Slice::Unit::createUnit(false, false, false, false);
     }
 
     return true;
@@ -267,11 +260,24 @@ Slice_createClasses(int module TSRMLS_DC)
     TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
     assert(typeMap->empty());
 
-    if(_unit)
-    {
-        PHPVisitor visitor(*typeMap, module TSRMLS_CC);
-        _unit->visit(&visitor);
-    }
+    //
+    // Create the class Ice_Object.
+    //
+    string scoped = Ice::Object::ice_staticId();
+    Slice::TypePtr p = _unit->builtin(Slice::Builtin::KindObject);
+    zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
+    zval* facetMap;
+    MAKE_STD_ZVAL(facetMap);
+    array_init(facetMap);
+    zend_hash_add(&cls->default_properties, "ice_facets", sizeof("ice_facets"), (void**)&facetMap, sizeof(zval*), NULL);
+    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, &cls, sizeof(zend_class_entry*), NULL);
+    (*typeMap)[scoped] = cls;
+
+    //
+    // Descend the parse tree and create PHP classes.
+    //
+    PHPVisitor visitor(*typeMap, module TSRMLS_CC);
+    _unit->visit(&visitor);
 
     return true;
 }
@@ -284,24 +290,12 @@ Slice_destroyClasses(TSRMLS_D)
     for(TypeMap::iterator p = typeMap->begin(); p != typeMap->end(); ++p)
     {
         ice_class_entry* ice = (ice_class_entry*)p->second;
-        delete static_cast<Slice::ContainedPtr*>(ice->contained);
+        efree(ice->scoped);
+        delete static_cast<Slice::SyntaxTreeBasePtr*>(ice->syntaxTreeBase);
         delete static_cast<MarshalerPtr*>(ice->marshaler);
     }
 
     typeMap->clear();
-
-    return true;
-}
-
-bool
-Slice_registerFactories(const Ice::CommunicatorPtr& communicator TSRMLS_DC)
-{
-    if(_unit)
-    {
-        TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-        FactoryVisitor visitor(communicator, *typeMap);
-        _unit->visit(&visitor);
-    }
 
     return true;
 }
@@ -345,11 +339,25 @@ Slice_isNativeKey(const Slice::TypePtr& type)
 }
 
 PHPVisitor::PHPVisitor(TypeMap& typeMap, int module TSRMLS_DC) :
-    _typeMap(typeMap), _module(module), _currentClass(0)
+    _typeMap(typeMap), _module(module)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
 #endif
+    _iceObjectClass = findClass("::Ice::Object");
+    assert(_iceObjectClass);
+}
+
+void
+PHPVisitor::visitClassDecl(const Slice::ClassDeclPtr& p)
+{
+    Slice::ClassDefPtr def = p->definition();
+    if(!def)
+    {
+        string scoped = p->scoped();
+        zend_error(E_WARNING, "%s %s declared but not defined", p->isInterface() ? "interface" : "class",
+                   scoped.c_str());
+    }
 }
 
 bool
@@ -391,8 +399,13 @@ PHPVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
         }
     }
 
+    if(parent == NULL && !p->isInterface())
+    {
+        parent = _iceObjectClass;
+    }
+
     string scoped = p->scoped();
-    zend_class_entry* cls = allocClass(scoped, p);
+    zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
     if(p->isInterface())
     {
         cls->ce_flags |= ZEND_ACC_INTERFACE;
@@ -413,7 +426,6 @@ PHPVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
     }
     zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, &cls, sizeof(zend_class_entry*), NULL);
     _typeMap[scoped] = cls;
-    _currentClass = cls;
 
     return false;
 }
@@ -436,7 +448,7 @@ PHPVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
     }
 
     string scoped = p->scoped();
-    zend_class_entry* cls = allocClass(scoped, p);
+    zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
     if(parent)
     {
         zend_do_inheritance(cls, parent);
@@ -460,7 +472,7 @@ PHPVisitor::visitStructStart(const Slice::StructPtr& p)
         return false;
     }
 
-    zend_class_entry* cls = allocClass(scoped, p);
+    zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
     cls->ce_flags |= ZEND_ACC_FINAL;
     zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, &cls, sizeof(zend_class_entry*), NULL);
     _typeMap[scoped] = cls;
@@ -491,7 +503,7 @@ PHPVisitor::visitEnum(const Slice::EnumPtr& p)
     // Enum values are represented as integers, however we define a class in order
     // to hold constants that symbolically identify the enumerators.
     //
-    zend_class_entry* cls = allocClass(scoped, p);
+    zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
 
     //
     // Create a class constant for each enumerator.
@@ -548,8 +560,8 @@ PHPVisitor::visitConst(const Slice::ConstPtr& p)
             //
             if(sizeof(Ice::Long) > sizeof(long) && (l < LONG_MIN || l > LONG_MAX))
             {
-                zend_register_stringl_constant(cname, cnameLen, const_cast<char*>(value.c_str()), value.length(),
-                                               flags, _module TSRMLS_CC);
+                char* cvalue = estrndup(const_cast<char*>(value.c_str()), value.length());
+                zend_register_stringl_constant(cname, cnameLen, cvalue, value.length(), flags, _module TSRMLS_CC);
             }
             else
             {
@@ -560,8 +572,8 @@ PHPVisitor::visitConst(const Slice::ConstPtr& p)
 
         case Slice::Builtin::KindString:
         {
-            zend_register_stringl_constant(cname, cnameLen, const_cast<char*>(value.c_str()), value.length(), flags,
-                                           _module TSRMLS_CC);
+            char* cvalue = estrndup(const_cast<char*>(value.c_str()), value.length());
+            zend_register_stringl_constant(cname, cnameLen, cvalue, value.length(), flags, _module TSRMLS_CC);
             break;
         }
 
@@ -606,27 +618,6 @@ PHPVisitor::visitConst(const Slice::ConstPtr& p)
 }
 
 zend_class_entry*
-PHPVisitor::allocClass(const string& scoped, const Slice::ContainedPtr& contained)
-{
-    ice_class_entry* result = static_cast<ice_class_entry*>(emalloc(sizeof(ice_class_entry)));
-
-    string flat = ice_lowerCase(ice_flatten(scoped));
-
-    result->ce.type = ZEND_USER_CLASS;
-    result->ce.name = estrndup(const_cast<char*>(flat.c_str()), flat.length());
-    result->ce.name_length = flat.length();
-
-    zend_initialize_class_data(&result->ce, 1 TSRMLS_CC);
-
-    result->ce.ce_flags |= ZEND_ACC_PUBLIC;
-    result->scoped = estrndup(const_cast<char*>(scoped.c_str()), scoped.length());
-    result->contained = new Slice::ContainedPtr(contained);
-    result->marshaler = 0;
-
-    return (zend_class_entry*)result;
-}
-
-zend_class_entry*
 PHPVisitor::findClass(const string& scoped)
 {
     zend_class_entry* result = NULL;
@@ -642,46 +633,4 @@ PHPVisitor::findClass(const string& scoped)
     }
 
     return result;
-}
-
-//
-// FactoryWrapper
-//
-FactoryWrapper::FactoryWrapper(TypeMap& typeMap) :
-    _typeMap(typeMap)
-{
-}
-
-Ice::ObjectPtr
-FactoryWrapper::create(const string& scoped)
-{
-    TypeMap::iterator p = _typeMap.find(scoped);
-    assert(p != _typeMap.end());
-    Ice::ObjectPtr result;
-    // TODO
-    return result;
-}
-
-void
-FactoryWrapper::destroy()
-{
-}
-
-//
-// FactoryVisitor
-//
-FactoryVisitor::FactoryVisitor(const Ice::CommunicatorPtr& communicator, TypeMap& typeMap) :
-    _communicator(communicator), _factory(new FactoryWrapper(typeMap))
-{
-}
-
-bool
-FactoryVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
-{
-    if(!p->isAbstract())
-    {
-        _communicator->addObjectFactory(_factory, p->scoped());
-    }
-
-    return false;
 }
