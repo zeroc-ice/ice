@@ -20,7 +20,7 @@
 namespace IceUtil
 {
 
-class GCRecMutex
+class ICE_UTIL_API GCRecMutex
 {
 public:
 
@@ -29,9 +29,9 @@ public:
     RecMutex* _m;
 };
 
-extern GCRecMutex gcRecMutex;
+extern ICE_UTIL_API GCRecMutex gcRecMutex;
 
-class GCRecMutexInit
+class ICE_UTIL_API GCRecMutexInit
 {
 public:
 

@@ -16,7 +16,7 @@
 
 using namespace IceUtil;
 
-GCRecMutex IceUtil::gcRecMutex;
+GCRecMutex ICE_UTIL_API IceUtil::gcRecMutex;
 
 static int gcInitCount = 0;
 
