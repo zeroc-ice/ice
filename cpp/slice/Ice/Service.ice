@@ -15,17 +15,13 @@
 #include <Ice/CommunicatorF.ice>
 #include <Ice/PropertiesF.ice>
 
-/**
- *
- * The basic Ice module, containing all the Ice core functionality.
- *
- **/
 module Ice
 {
     
 /**
  *
  * Used by a Service's [init] operation to indicate failure.
+// ML: [init] cannot be resolved. Use [Service::init].
  *
  **/
 local exception ServiceFailureException
@@ -35,10 +31,11 @@ local exception ServiceFailureException
 /**
  *
  * An application service. A Service is managed by a ServiceManager.
+// ML: Service Manager, or [ServiceManager]. (Please fix everywhere.)
  * A Service's lifecycle has three stages. The ServiceManager will
  * invoke [init] on all services prior to calling [start], and will
- * invoke [stop] on all services when [shutdown] is called. The
- * order in which the services are invoked is not defined.
+ * invoke [stop] on all services when [shutdown] is called. The order
+ * in which the services are invoked is not defined.
  *
  * <orderedlist>
  *
@@ -50,11 +47,13 @@ local exception ServiceFailureException
  * client-side activities which might result in an invocation
  * on a collocated service.</para></listitem>
  *
+// ML: start again? Should be shutdown, I guess.
  * <listitem><para><important>start</important> - Destroy
  * Communicators, deactivate Object Adapters, clean up resources,
  * etc.</para></listitem>
  *
  * </orderedlist>
+// ML: Shouldn't a table be used here instead of a list? Or some other list type?
  *
  * <note><para>If the service requires an object adapter, it should
  * be created and activated in [init]. However, the service should
@@ -74,6 +73,7 @@ local interface Service
     /**
      *
      * Initialize the Service. The <replaceable>communicator</replaceable>
+     // ML: Not replaceable, just literal, or use [].
      * argument is the Communicator instance created by the ServiceManager.
      * The service may use this instance, or may create its own as needed.
      * The advantage of using this Communicator instance is that
@@ -83,10 +83,13 @@ local interface Service
      * responsible for destroying it.</para></note>
      *
      * @param name The service's name, as determined by the configuration.
+     *
      * @param communicator The ServiceManager's Communicator instance.
+     *
      * @param properties The property set representing the service's
      * command-line arguments of the form
      * [--<replaceable>name</replaceable>.key=value].
+     *
      * @param args The service arguments which were not converted into
      * properties.
      *
@@ -119,6 +122,7 @@ local interface Service
 /**
  *
  * An application server.
+// ML: Application server? This expression is overused already...
  *
  * @see Service
  *
