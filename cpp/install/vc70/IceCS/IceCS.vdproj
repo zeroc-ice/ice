@@ -21,9 +21,27 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_01A6E888C202493587932A2705D756EF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\INVOKE\\INVOKESD.CSPROJ"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_01FEA73923014F52A7B207370F1CAF40"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\NESTED\\CONFIG"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0232A661AEED4138B4ECAE6EBFA86646"
+        "OwnerKey" = "8:_22932D412D0BAB574C43975351666FFE"
+        "MsmSig" = "8:system.drawing_d697235b1c35241334ff0fe4ff027af7"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0232A661AEED4138B4ECAE6EBFA86646"
+        "OwnerKey" = "8:_956FD2DC2C815B3B4A9DABD77204AAA7"
+        "MsmSig" = "8:system.drawing_d697235b1c35241334ff0fe4ff027af7"
         }
         "Entry"
         {
@@ -45,12 +63,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_080BCB3975C44BB685580E10E18BEC4C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\GLACIER\\SESSION\\SESSIONS.CSPROJ"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_08957F4C6FAF40469B67F04D5E0437A5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\GLACIER\\SESSION\\HELLOSESSIONI.VB"
@@ -66,6 +78,12 @@
         "MsmKey" = "8:_0971A5CE2F5A42C6A839D1D40C41542E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\INVOKE\\PRINTER.ICE"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_0A4E0EB257CE40C7B44FD4F360813615"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\PRINTER\\.DEPEND"
         }
         "Entry"
         {
@@ -105,12 +123,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_10B35E9CB2A74ABD8631BAEF7A431401"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\CONFIG"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_119D3615A7FF4BFEA6F61DB96839206C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\SIMPLE_FILESYSTEM\\FILESYSTEM.ICE"
@@ -123,21 +135,21 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_12C3462A22544FA19E645BD5DCDB59B7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\LATENCY\\LATENCY.ICE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_12D2BA7B99454F288E16B1142FC3740B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\GLACIER\\SESSION\\CONFIG"
         }
         "Entry"
         {
-        "MsmKey" = "8:_1534650CBF654DD69A909D3BBFC61DE9"
+        "MsmKey" = "8:_154A5F014EF4470DBACADE7BD42F571D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\PRINTER\\PRINTERCD.CSPROJ"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_185D1B3F08424A12BC8B2A5B82B49710"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\SIMPLE\\SIMPLEICEPACKS.CSPROJ"
+        "MsmSig" = "8:generatevbc:\\builds\\icevb\\bin\\generatevb.exe"
         }
         "Entry"
         {
@@ -147,21 +159,9 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1A2E79728FB446069B139040AD77907E"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\INVOKEC.VBPROJ"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_1A62F867BBBA47DFA6908798ABCC5FF1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\SIMPLE\\HELLO.ICE"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1BF71865064B45CCB1A4F8FE3336C731"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\SIMPLE\\SIMPLEICEPACKC.CSPROJ"
         }
         "Entry"
         {
@@ -177,15 +177,15 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1FF3086785F24962B866786C435BB229"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\NESTED\\CONFIG.SERVER"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_21EED79935FA49FAB7107469D9066807"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\SIMPLE_FILESYSTEM\\DIRECTORYI.CS"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_22932D412D0BAB574C43975351666FFE"
+        "OwnerKey" = "8:_154A5F014EF4470DBACADE7BD42F571D"
+        "MsmSig" = "8:microsoft.visualbasic_98993ab73e357305af663b8aaed0f7af"
         }
         "Entry"
         {
@@ -201,6 +201,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_23B58A2836DD40E89C24C53AB88191BF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\INVOKE\\INVOKECD.CSPROJ"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_282D64EBD5BF43E3AC6E45E3A161A7CE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\INVOKE\\MAKEFILE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_2B3E58E9F0E94D4EAAC5CB077FCE3C57"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:glaciercs_259a9c94e3c9a8e54a3d56f9be27fd8d"
@@ -210,6 +222,12 @@
         "MsmKey" = "8:_2B7E536F028549249CE29C9B5E700E14"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\VALUE\\INITIALI.VB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2BA41198AABB44BC97383EDE9555DD91"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\HELLO\\.DEPEND"
         }
         "Entry"
         {
@@ -243,6 +261,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_30577D32BD67425AABB190A10B413458"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\CALLBACK\\.DEPEND"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_319A26D290C8446E8096B99D104BB055"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\CALLBACK\\CALLBACKS.VBPROJ"
@@ -261,6 +285,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_32DB776E6BEE42DEB49C038119FA996C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\HELLO\\HELLOICEPACKSD.CSPROJ"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_351CB7C19849494D87B7F4C6431263D7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\BOOK\\SIMPLE_FILESYSTEM\\SIMPLEFSS.VBPROJ"
@@ -276,6 +306,18 @@
         "MsmKey" = "8:_369937306ED24F6EA26913BC0108E70A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\NESTED\\NESTEDSERVER.CS"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_371ABE2EECDD42878C1805F3DFE0C3B0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\HELLO\\.DEPEND"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_372B1AD4816D43E5A8D6EBD6AE5E9F7D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\PRINTER\\PRINTERCD.CSPROJ"
         }
         "Entry"
         {
@@ -327,12 +369,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3EBF45B4D923483A9D3D138C0638229B"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\SIMPLE_FILESYSTEM\\SIMPLEFSC.CSPROJ"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_40A7C1581D4142AEB89220E7007D9615"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\THROUGHPUT\\THROUGHPUT.ICE"
@@ -366,12 +402,6 @@
         "MsmKey" = "8:_44994AF28A7542E6B9FEF80D044CF773"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\VALUE\\CLIENT.VB"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_44D7BF0786D745AA8E6C33AFE9AE018F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\PRINTER.ICE"
         }
         "Entry"
         {
@@ -459,15 +489,27 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4CC7560D893C4C29BA779C8AEAE1D63F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\LATENCY\\LATENCYCD.VBPROJ"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4D87CF21FD4848137189237CD2AB77CF"
+        "OwnerKey" = "8:_956FD2DC2C815B3B4A9DABD77204AAA7"
+        "MsmSig" = "8:accessibility_3c919784cd9c56cf9735d3e7c15b7c2e"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4EF5B781C3B04DD588E157A58BDF4FB7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\LATENCY\\SERVER.CS"
         }
         "Entry"
         {
-        "MsmKey" = "8:_4FD596CB347543C5AB977EE36B656A80"
+        "MsmKey" = "8:_5162B95E8A8044A38C7F6BBA8BB30D6A"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:generatec:\\builds\\icecs\\bin\\generate.exe"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\LATENCY\\LATENCYCOMMOND.VBPROJ"
         }
         "Entry"
         {
@@ -495,8 +537,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_53F9ECCF1EC3430DBAC1E4F05BE67FC3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\HELLO\\HELLOICEPACKCD.CSPROJ"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5489675EB66C41558C7FA642E54FB614"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\GLACIER\\SESSION\\.DEPEND"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5531E18D8ECD5715A6EB807CD5757577"
-        "OwnerKey" = "8:_BD65D73F044441279352A3B78123CEF9"
+        "OwnerKey" = "8:_2B3E58E9F0E94D4EAAC5CB077FCE3C57"
         "MsmSig" = "8:icecs_b33370c4cb366887549130fb29e43224"
         }
         "Entry"
@@ -508,7 +562,7 @@
         "Entry"
         {
         "MsmKey" = "8:_5531E18D8ECD5715A6EB807CD5757577"
-        "OwnerKey" = "8:_2B3E58E9F0E94D4EAAC5CB077FCE3C57"
+        "OwnerKey" = "8:_BD65D73F044441279352A3B78123CEF9"
         "MsmSig" = "8:icecs_b33370c4cb366887549130fb29e43224"
         }
         "Entry"
@@ -519,9 +573,21 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_561A0B075FDA464D82FF3B45D1829272"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\HELLO\\MAKEFILE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5880D591E98F4697B288EFB811643409"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\GLACIER\\SESSION\\SESSIONC.VBPROJ"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_58B34123013D450F86236D975D41ED26"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\LATENCY\\CONFIG"
         }
         "Entry"
         {
@@ -531,9 +597,21 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_5961ABCE19214C6C90450231A665F78A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\NESTED\\MAKEFILE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_5A1FD11518C14CF6A70059AA3ACD7BB4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\HELLO\\HELLOC.VBPROJ"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5A51A6E9E8E84E42921A4E65963F38EB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\THROUGHPUT\\MAKEFILE"
         }
         "Entry"
         {
@@ -570,6 +648,12 @@
         "MsmKey" = "8:_60E275AD086645129D867BC9E32E047F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\CALLBACK\\CALLBACKCD.CSPROJ"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_613348645DA4434BA7692377F455C5AA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\SIMPLE_FILESYSTEM\\MAKEFILE"
         }
         "Entry"
         {
@@ -621,12 +705,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_67A7578A3D0C4182B94DDA55CF672ECE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\PRINTERI.VB"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_684CD04E78C14047B9E187C3840BDB35"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\THROUGHPUT\\CONFIG"
@@ -639,21 +717,33 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_68BC530B842D49D435340ABD6E8260BA"
+        "OwnerKey" = "8:_DEF190B5C30987DB306C6CBCEC2BDEC7"
+        "MsmSig" = "8:system.xml_3e5fe87b0e28b717e6c8ac9b88cac515"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_68BC530B842D49D435340ABD6E8260BA"
+        "OwnerKey" = "8:_956FD2DC2C815B3B4A9DABD77204AAA7"
+        "MsmSig" = "8:system.xml_3e5fe87b0e28b717e6c8ac9b88cac515"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_69707D2073CC41DE9CCAE7684A389673"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\CALLBACK\\CLIENT.VB"
         }
         "Entry"
         {
-        "MsmKey" = "8:_6B2989F8D57846118D3BC4508230300D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\GLACIER\\SESSION\\SESSIONC.CSPROJ"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_6B754B9C58E54A64B3F0A35A6E9828FE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\SIMPLE_FILESYSTEM\\SERVER.CS"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6D5CC3CB0BF54D269B0E3B87AB0E3080"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\THROUGHPUT\\.DEPEND"
         }
         "Entry"
         {
@@ -681,12 +771,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_737EC51F50BE400EB60F877361F61DF6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\SIMPLE_FILESYSTEM\\SIMPLEFSS.CSPROJ"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_73A1665F1ABE4A4D9F31334EE4D2A4F3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\GLACIER\\SESSION\\HELLOSESSIONI.CS"
@@ -696,6 +780,12 @@
         "MsmKey" = "8:_742352B391744A56AE847A47E8DF9AAF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\HELLO\\HELLOI.CS"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_74AB698FF3EC4E24802030993B751536"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\LATENCY\\MAKEFILE"
         }
         "Entry"
         {
@@ -723,6 +813,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_789FED7BF6124E9DBDDA61A0BE58169C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\SIMPLE\\MAKEFILE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_78A86567A570459DADEB8609E7C27A66"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\VALUE\\VALUECOMMON.VBPROJ"
@@ -741,9 +837,9 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_7C466740AFD149EE9F9E49169FD9184F"
+        "MsmKey" = "8:_8001F8A3719F4803A7C7CFCDFF649399"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\CLIENT.VB"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\CONFIG"
         }
         "Entry"
         {
@@ -777,21 +873,27 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_841157F42A3748A2ADFFD33C67781B23"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\COMPILESLICE.VCPROJ"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_84E8B5B12E004F6781C131F5A4617406"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\NESTED\\NESTEDC.VBPROJ"
         }
         "Entry"
         {
-        "MsmKey" = "8:_86592CF59A064212AB9F460417F3124C"
+        "MsmKey" = "8:_8545AFCCDC3A4BB3A9B6C38C72148861"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\SIMPLE\\CONFIG"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\SIMPLE\\.DEPEND"
         }
         "Entry"
         {
-        "MsmKey" = "8:_884B6A472BFD41328023FD57206BF621"
+        "MsmKey" = "8:_86592CF59A064212AB9F460417F3124C"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\PRINTER\\PRINTERS.CSPROJ"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\SIMPLE\\CONFIG"
         }
         "Entry"
         {
@@ -813,15 +915,15 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8F33ECC3B79E42DE8B959516024DA6C5"
+        "MsmKey" = "8:_8DCD375CF6E3405E802A17284C6E1827"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\LATENCY\\CLIENT.CS"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\GLACIER\\SESSION\\SESSIONSD.CSPROJ"
         }
         "Entry"
         {
-        "MsmKey" = "8:_9079A817EB2546948CD58CA8C2F21054"
+        "MsmKey" = "8:_8F33ECC3B79E42DE8B959516024DA6C5"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\PRINTER\\PRINTERC.CSPROJ"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\LATENCY\\CLIENT.CS"
         }
         "Entry"
         {
@@ -831,9 +933,45 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_936DE363E8E64470A8B8397D28AB3188"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\LATENCY\\CLIENT.VB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_93C4C7714BAB48F6851E15E0DC800A45"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\VALUE\\.DEPEND"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_949DDC2F4ACF486985F48D8503ACFB50"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICEPACK\\SIMPLE\\CONFIG"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_94C3742E240746AB8F6F0829E0546C86"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\CALLBACK\\MAKEFILE"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_956FD2DC2C815B3B4A9DABD77204AAA7"
+        "OwnerKey" = "8:_22932D412D0BAB574C43975351666FFE"
+        "MsmSig" = "8:system.windows.forms_faf45a57a21d3135f5ca700443995e81"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_95FCB493AEAE41AFAB59D8D6629EAC2D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\LATENCY\\LATENCYSD.VBPROJ"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_97F12271773749F1AF1B6B339D4DC59E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\SIMPLE\\SIMPLEICEPACKCD.CSPROJ"
         }
         "Entry"
         {
@@ -861,12 +999,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_9948EF385D234D2181AA239B66809472"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\INVOKE\\INVOKEC.CSPROJ"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_9990C47C5D414BD7A544A82A4B7B617C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\CALLBACK\\CALLBACKSERVER.CS"
@@ -885,15 +1017,21 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9B706BE3D0F64C58B474F5832D8567C2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\PRINTERI.VB"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_9D867217A8884147ADA08F6135C07DC1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\NESTED\\NESTEDSERVER.VB"
         }
         "Entry"
         {
-        "MsmKey" = "8:_A0278BA5105B486D90607CF21011D197"
+        "MsmKey" = "8:_9ECDE96DB01841D8AB8CCF7317BE6B27"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\.PRINTER.STREAM"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\VALUE\\MAKEFILE"
         }
         "Entry"
         {
@@ -933,6 +1071,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_A897F8F9F04C413DB386A277C3A126D4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\GLACIER\\SESSION\\MAKEFILE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_AA3C541EBCCB436DA2A6BF3C01A9A4DF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\GLACIER\\SESSION\\CLIENT.VB"
@@ -948,6 +1092,12 @@
         "MsmKey" = "8:_AD8B93D2217B4F69A0C621B89AD966B4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICEPACK\\SIMPLE\\SERVER.VB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_AE78B8BE7B02432BBA50D2472A989CD9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:generatecsc:\\builds\\icecs\\bin\\generatecs.exe"
         }
         "Entry"
         {
@@ -993,6 +1143,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BBD3CC12598540EDB07A09F27D41B6A3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\INVOKECOMMOND.VBPROJ"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BC55A24529444F159E4041F4DB4B44D2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\CALLBACK\\SERVER.VB"
@@ -1011,12 +1167,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_BCA3BDD3535841C3A50A93808894B8B3"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\HELLO\\HELLOICEPACKS.CSPROJ"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_BD65D73F044441279352A3B78123CEF9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:glacier2cs_b33327d3267ff62c8d0c523750fee183"
@@ -1026,12 +1176,6 @@
         "MsmKey" = "8:_BDA6E74FDB054FDAAA4BDEDC55249A6E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\BOOK\\EVICTOR\\EVICTORBASE.VB"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_BEF614488FD747AEBA2FDE59635C7096"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\CALLBACK\\CONFIG.SERVER"
         }
         "Entry"
         {
@@ -1059,6 +1203,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C1B1B5D230BC4D13B8DE5A6DE4256779"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\INVOKE\\.DEPEND"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C2B04EF30744479EAD4DBA4E6149FD9B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\SIMPLE\\SIMPLEICEPACKSD.CSPROJ"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C30339347BE04B1F8590B8AAB43590F3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICEPACK\\SIMPLE\\HELLOI.VB"
@@ -1071,21 +1227,9 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C4524243EC0B4A168C6DC0D34AB4997C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\INVOKE\\INVOKES.CSPROJ"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_C4D86C8218EF45FD8273EFEFDFCAD38D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\VALUE\\PRINTERI.VB"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_C5018CE93108485BAF28B6C0EFFB041C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\SERVER.VB"
         }
         "Entry"
         {
@@ -1104,6 +1248,12 @@
         "MsmKey" = "8:_C5E5938560654FDB95E827EF1C38847A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\HELLO\\HELLOI.VB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C637CD7E569745D98AB0FBD0C659A97F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\PRINTER\\MAKEFILE"
         }
         "Entry"
         {
@@ -1143,6 +1293,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_CE0FAC9632F649AB9D224874D39D65C6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\CLIENT.VB"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D134006EC70744A6BE943FBCE297C401"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICEPACK\\SIMPLE\\CLIENT.VB"
@@ -1167,6 +1323,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_D73A8A68218C439F90C62ABD46E384C0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\LATENCY\\.DEPEND"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D751249006574E039069515A1F350D7F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\VALUE\\PRINTERI.CS"
@@ -1182,6 +1344,12 @@
         "MsmKey" = "8:_D96AD82368DF4B42BE3EDCA2C3AC4BDF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\HELLO\\HELLOCD.CSPROJ"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D98CC08040084331B8FA1F24F8A96032"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\LATENCY\\SERVER.VB"
         }
         "Entry"
         {
@@ -1227,6 +1395,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_DEF190B5C30987DB306C6CBCEC2BDEC7"
+        "OwnerKey" = "8:_956FD2DC2C815B3B4A9DABD77204AAA7"
+        "MsmSig" = "8:system.runtime.serialization.formatters.soap_93960ee20c46d33c577424f714bb3c08"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DF2770486ADC44678B4947D814FC2F90"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\INVOKESD.VBPROJ"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_DF5A2DAB3A7B4E0FA84B49D2B51ADA72"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\PRINTER\\CLIENT.CS"
@@ -1239,12 +1419,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_E0BCE7A0192D4B58A2946CA22818775D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\INVOKES.VBPROJ"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
         "OwnerKey" = "8:_05B630DEFC44472E895F48E4C0195E43"
         "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
@@ -1252,7 +1426,7 @@
         "Entry"
         {
         "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
-        "OwnerKey" = "8:_4FD596CB347543C5AB977EE36B656A80"
+        "OwnerKey" = "8:_5531E18D8ECD5715A6EB807CD5757577"
         "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
         }
         "Entry"
@@ -1282,7 +1456,31 @@
         "Entry"
         {
         "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
-        "OwnerKey" = "8:_5531E18D8ECD5715A6EB807CD5757577"
+        "OwnerKey" = "8:_AE78B8BE7B02432BBA50D2472A989CD9"
+        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
+        "OwnerKey" = "8:_0232A661AEED4138B4ECAE6EBFA86646"
+        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
+        "OwnerKey" = "8:_956FD2DC2C815B3B4A9DABD77204AAA7"
+        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
+        "OwnerKey" = "8:_22932D412D0BAB574C43975351666FFE"
+        "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E0E23C2D334131D430CCF96B24980A1C"
+        "OwnerKey" = "8:_154A5F014EF4470DBACADE7BD42F571D"
         "MsmSig" = "8:system_af3114d44c876a69868e2d6d41ced2a3"
         }
         "Entry"
@@ -1302,6 +1500,12 @@
         "MsmKey" = "8:_E3A06240D8324D3EA950F2A5F7165A8E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICEPACK\\HELLO\\SERVER.XML"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_E3F0CCE9A31844B9B235AF193B38EE6B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\.DEPEND"
         }
         "Entry"
         {
@@ -1341,6 +1545,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_EAEECDA25AB943388E49B1734737BCCD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\BOOK\\SIMPLE_FILESYSTEM\\.DEPEND"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EBA5BC38284445098DEFD8E9C27A38D8"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\.PRINTER.STREAM"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_EC5179ED51A84844BAF9D9F9D0BAF7FB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICEPACK\\HELLO\\HELLOI.VB"
@@ -1353,21 +1569,9 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_EC8E594A33DA4A3BA8E472E710260685"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\HELLO\\HELLOICEPACKC.CSPROJ"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_ED821EFC4E3641C39C7C1D1B42DEB450"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\BOOK\\SIMPLE_FILESYSTEM\\FILEI.VB"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_EE92100553EB4133892107E2679A5540"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\INVOKECOMMON.VBPROJ"
         }
         "Entry"
         {
@@ -1413,6 +1617,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_F703E65F05F740D88A5FFECC65F0505F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\PRINTER.ICE"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F8E9AC8CD7EA4C9396A5E28538040E7F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICEPACK\\HELLO\\MAKEFILE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_FA028B296971423EBFC83A624EA5DE6E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:icepackcs_6f04873e8c155aaa01e6938b4f49c4b5"
@@ -1431,15 +1647,45 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_FCD15570523144918AB873E8E9EC9DDE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\DEMO.SLN"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_FCFE2012640745F78DDCF5A3906864D2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\GLACIER\\SESSION\\README"
         }
         "Entry"
         {
+        "MsmKey" = "8:_FD30E54CED904EEB8185F1C390E0C70E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\NESTED\\.DEPEND"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FD367C181A844CCDA60C88C90094DBF9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\INVOKECD.VBPROJ"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_FD81205FD9714BA8A8EAA10B847131F6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\ICE\\VALUE\\VALUECD.CSPROJ"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FE18D012C2D64593905F4C2B6910ED35"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEVB\\DEMO\\ICE\\INVOKE\\SERVER.VB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FE7DAC6FB86F438FA44A493C892CCC01"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\DEMO\\GLACIER\\SESSION\\SESSIONCD.CSPROJ"
         }
     }
     "Configurations"
@@ -1494,6 +1740,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_01A6E888C202493587932A2705D756EF"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\invoke\\invokeSD.csproj"
+            "TargetName" = "8:invokeSD.csproj"
+            "Tag" = "8:"
+            "Folder" = "8:_A8FE7AF7D47D4ED3945626268C4ED273"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_01FEA73923014F52A7B207370F1CAF40"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\nested\\config"
@@ -1512,6 +1778,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_0232A661AEED4138B4ECAE6EBFA86646"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:TRUE"
+            "AssemblyAsmDisplayName" = "8:System.Drawing, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
+                "ScatterAssemblies"
+                {
+                    "_0232A661AEED4138B4ECAE6EBFA86646"
+                    {
+                    "Name" = "8:System.Drawing.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:System.Drawing.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_BB40E1547A604CAC8FB6CECEBA417D3D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_031A5ECC266D40A6B424169F359E81A7"
@@ -1536,8 +1833,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_05837D118B704443B751F73402483D3B"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\printer\\printerCommon.vbproj"
-            "TargetName" = "8:printerCommon.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\printer\\printerCommonD.vbproj"
+            "TargetName" = "8:printerCommonD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_FA7B3752008447728391BCEA37ABDFD5"
             "Condition" = "8:"
@@ -1571,26 +1868,6 @@
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_35813370D74044E5B6B38AC562AE1AC5"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_080BCB3975C44BB685580E10E18BEC4C"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Glacier\\session\\sessionS.csproj"
-            "TargetName" = "8:sessionS.csproj"
-            "Tag" = "8:"
-            "Folder" = "8:_8C97BCF33AE246D1ABC8F1C778F02516"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1665,10 +1942,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_0A4E0EB257CE40C7B44FD4F360813615"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\printer\\.depend"
+            "TargetName" = "8:.depend"
+            "Tag" = "8:"
+            "Folder" = "8:_8B91F7F33A484245ADAB4E0A7E0DCE8D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_0B421D314EAE4AAA862A6E0C40DB845A"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\hello\\helloIcePackC.vbproj"
-            "TargetName" = "8:helloIcePackC.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\hello\\helloIcePackCD.vbproj"
+            "TargetName" = "8:helloIcePackCD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_41A29853FA924D31B63E030BDF2AFB95"
             "Condition" = "8:"
@@ -1785,26 +2082,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_10B35E9CB2A74ABD8631BAEF7A431401"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\config"
-            "TargetName" = "8:config"
-            "Tag" = "8:"
-            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_119D3615A7FF4BFEA6F61DB96839206C"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\simple_filesystem\\Filesystem.ice"
@@ -1845,6 +2122,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_12C3462A22544FA19E645BD5DCDB59B7"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\latency\\Latency.ice"
+            "TargetName" = "8:Latency.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_87E0E26A4D9A4C26AD2F9B0C09D974C4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_12D2BA7B99454F288E16B1142FC3740B"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Glacier\\session\\config"
@@ -1865,32 +2162,23 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_1534650CBF654DD69A909D3BBFC61DE9"
+            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_154A5F014EF4470DBACADE7BD42F571D"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\printer\\printerCD.csproj"
-            "TargetName" = "8:printerCD.csproj"
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:generatevb, Version=0.0.0.0, Culture=neutral"
+                "ScatterAssemblies"
+                {
+                    "_154A5F014EF4470DBACADE7BD42F571D"
+                    {
+                    "Name" = "8:generatevb.exe"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\bin\\generatevb.exe"
+            "TargetName" = "8:"
             "Tag" = "8:"
-            "Folder" = "8:_8B91F7F33A484245ADAB4E0A7E0DCE8D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_185D1B3F08424A12BC8B2A5B82B49710"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\simple\\simpleIcePackS.csproj"
-            "TargetName" = "8:simpleIcePackS.csproj"
-            "Tag" = "8:"
-            "Folder" = "8:_5ACD7DB560D14927BB95C4BE1FD6C748"
+            "Folder" = "8:_BB40E1547A604CAC8FB6CECEBA417D3D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1925,50 +2213,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_1A2E79728FB446069B139040AD77907E"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\invokeC.vbproj"
-            "TargetName" = "8:invokeC.vbproj"
-            "Tag" = "8:"
-            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_1A62F867BBBA47DFA6908798ABCC5FF1"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\simple\\Hello.ice"
             "TargetName" = "8:Hello.ice"
-            "Tag" = "8:"
-            "Folder" = "8:_5ACD7DB560D14927BB95C4BE1FD6C748"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_1BF71865064B45CCB1A4F8FE3336C731"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\simple\\simpleIcePackC.csproj"
-            "TargetName" = "8:simpleIcePackC.csproj"
             "Tag" = "8:"
             "Folder" = "8:_5ACD7DB560D14927BB95C4BE1FD6C748"
             "Condition" = "8:"
@@ -2025,26 +2273,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_1FF3086785F24962B866786C435BB229"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\nested\\config.server"
-            "TargetName" = "8:config.server"
-            "Tag" = "8:"
-            "Folder" = "8:_2CCB6C02703B46D29107837BBA723F53"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_21EED79935FA49FAB7107469D9066807"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\simple_filesystem\\DirectoryI.cs"
@@ -2063,6 +2291,37 @@
             "Register" = "3:1"
             "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_22932D412D0BAB574C43975351666FFE"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:TRUE"
+            "AssemblyAsmDisplayName" = "8:Microsoft.VisualBasic, Version=7.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
+                "ScatterAssemblies"
+                {
+                    "_22932D412D0BAB574C43975351666FFE"
+                    {
+                    "Name" = "8:Microsoft.VisualBasic.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Microsoft.VisualBasic.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_BB40E1547A604CAC8FB6CECEBA417D3D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
             "IsolateTo" = "8:"
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2363B1EC1D3D45B4853C6B216E557231"
@@ -2091,6 +2350,46 @@
             "TargetName" = "8:Value.ice"
             "Tag" = "8:"
             "Folder" = "8:_92BF38DD88C64FC28355E76BE7F5C070"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_23B58A2836DD40E89C24C53AB88191BF"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\invoke\\invokeCD.csproj"
+            "TargetName" = "8:invokeCD.csproj"
+            "Tag" = "8:"
+            "Folder" = "8:_A8FE7AF7D47D4ED3945626268C4ED273"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_282D64EBD5BF43E3AC6E45E3A161A7CE"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\invoke\\Makefile"
+            "TargetName" = "8:Makefile"
+            "Tag" = "8:"
+            "Folder" = "8:_A8FE7AF7D47D4ED3945626268C4ED273"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2156,10 +2455,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2BA41198AABB44BC97383EDE9555DD91"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\hello\\.depend"
+            "TargetName" = "8:.depend"
+            "Tag" = "8:"
+            "Folder" = "8:_C29388CCEE854E30AF315207CCCF187D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2BCB9E1617E04DAC80366B415CBA367B"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\printer\\printerS.vbproj"
-            "TargetName" = "8:printerS.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\printer\\printerSD.vbproj"
+            "TargetName" = "8:printerSD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_FA7B3752008447728391BCEA37ABDFD5"
             "Condition" = "8:"
@@ -2198,8 +2517,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2D14B12BBCFD4B8397237A679CB6885A"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\callback\\callbackCommon.vbproj"
-            "TargetName" = "8:callbackCommon.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\callback\\callbackCommonD.vbproj"
+            "TargetName" = "8:callbackCommonD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_D99D2A9A96F9493E931A0A96DA3212A9"
             "Condition" = "8:"
@@ -2256,10 +2575,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_30577D32BD67425AABB190A10B413458"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\callback\\.depend"
+            "TargetName" = "8:.depend"
+            "Tag" = "8:"
+            "Folder" = "8:_07038C1F28974741A2F5A0FBE723D7DF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_319A26D290C8446E8096B99D104BB055"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\callback\\callbackS.vbproj"
-            "TargetName" = "8:callbackS.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\callback\\callbackSD.vbproj"
+            "TargetName" = "8:callbackSD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_D99D2A9A96F9493E931A0A96DA3212A9"
             "Condition" = "8:"
@@ -2316,10 +2655,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_32DB776E6BEE42DEB49C038119FA996C"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\hello\\helloIcePackSD.csproj"
+            "TargetName" = "8:helloIcePackSD.csproj"
+            "Tag" = "8:"
+            "Folder" = "8:_C29388CCEE854E30AF315207CCCF187D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_351CB7C19849494D87B7F4C6431263D7"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\simple_filesystem\\simpleFSS.vbproj"
-            "TargetName" = "8:simpleFSS.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\simple_filesystem\\simpleFSSD.vbproj"
+            "TargetName" = "8:simpleFSSD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_9084996B6F484CCBA90F2A3E94BF5663"
             "Condition" = "8:"
@@ -2338,8 +2697,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_3672EF4328DA4B5989F9D4A2CE6EC781"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\simple_filesystem\\simpleFSC.vbproj"
-            "TargetName" = "8:simpleFSC.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\simple_filesystem\\simpleFSCD.vbproj"
+            "TargetName" = "8:simpleFSCD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_9084996B6F484CCBA90F2A3E94BF5663"
             "Condition" = "8:"
@@ -2376,10 +2735,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_371ABE2EECDD42878C1805F3DFE0C3B0"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\hello\\.depend"
+            "TargetName" = "8:.depend"
+            "Tag" = "8:"
+            "Folder" = "8:_752F6A2803E344E38D8217D672B6957C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_372B1AD4816D43E5A8D6EBD6AE5E9F7D"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\printer\\printerCD.csproj"
+            "TargetName" = "8:printerCD.csproj"
+            "Tag" = "8:"
+            "Folder" = "8:_8B91F7F33A484245ADAB4E0A7E0DCE8D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_37AD5054092B4FCEA69E2FD1A0EBB473"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\hello\\helloIcePackCommon.vbproj"
-            "TargetName" = "8:helloIcePackCommon.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\hello\\helloIcePackCommonD.vbproj"
+            "TargetName" = "8:helloIcePackCommonD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_41A29853FA924D31B63E030BDF2AFB95"
             "Condition" = "8:"
@@ -2536,26 +2935,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_3EBF45B4D923483A9D3D138C0638229B"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\simple_filesystem\\simpleFSC.csproj"
-            "TargetName" = "8:simpleFSC.csproj"
-            "Tag" = "8:"
-            "Folder" = "8:_6214955093D04F50B04E9040D52CDE44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_40A7C1581D4142AEB89220E7007D9615"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\throughput\\Throughput.ice"
@@ -2598,8 +2977,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4266E77523A6421EB3532BA5290E38F5"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\nested\\nestedCommon.vbproj"
-            "TargetName" = "8:nestedCommon.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\nested\\nestedCommonD.vbproj"
+            "TargetName" = "8:nestedCommonD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_A108943E15844F4CAEBEFBF1AE6EF43E"
             "Condition" = "8:"
@@ -2662,26 +3041,6 @@
             "TargetName" = "8:Client.vb"
             "Tag" = "8:"
             "Folder" = "8:_0695DF6B5AAD4451B06CE0C9BC121840"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_44D7BF0786D745AA8E6C33AFE9AE018F"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\Printer.ice"
-            "TargetName" = "8:Printer.ice"
-            "Tag" = "8:"
-            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2858,8 +3217,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_49F3164D4E014090A20FF74AE9E53268"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\printer\\printerC.vbproj"
-            "TargetName" = "8:printerC.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\printer\\printerCD.vbproj"
+            "TargetName" = "8:printerCD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_FA7B3752008447728391BCEA37ABDFD5"
             "Condition" = "8:"
@@ -2918,8 +3277,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4ACEA22C228D4606A91D8FE5B30E8463"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Glacier\\session\\sessionCommon.vbproj"
-            "TargetName" = "8:sessionCommon.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Glacier\\session\\sessionCommonD.vbproj"
+            "TargetName" = "8:sessionCommonD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_7B70AE07C3D54997AAC1EBBB14662E4C"
             "Condition" = "8:"
@@ -2976,6 +3335,57 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4CC7560D893C4C29BA779C8AEAE1D63F"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\latency\\latencyCD.vbproj"
+            "TargetName" = "8:latencyCD.vbproj"
+            "Tag" = "8:"
+            "Folder" = "8:_87E0E26A4D9A4C26AD2F9B0C09D974C4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_4D87CF21FD4848137189237CD2AB77CF"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:TRUE"
+            "AssemblyAsmDisplayName" = "8:Accessibility, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
+                "ScatterAssemblies"
+                {
+                    "_4D87CF21FD4848137189237CD2AB77CF"
+                    {
+                    "Name" = "8:Accessibility.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:Accessibility.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_BB40E1547A604CAC8FB6CECEBA417D3D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_4EF5B781C3B04DD588E157A58BDF4FB7"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\latency\\Server.cs"
@@ -2996,23 +3406,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_4FD596CB347543C5AB977EE36B656A80"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5162B95E8A8044A38C7F6BBA8BB30D6A"
             {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:generate, Version=1.0.0.0, Culture=neutral"
-                "ScatterAssemblies"
-                {
-                    "_4FD596CB347543C5AB977EE36B656A80"
-                    {
-                    "Name" = "8:generate.exe"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\bin\\generate.exe"
-            "TargetName" = "8:"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\latency\\latencyCommonD.vbproj"
+            "TargetName" = "8:latencyCommonD.vbproj"
             "Tag" = "8:"
-            "Folder" = "8:_BB40E1547A604CAC8FB6CECEBA417D3D"
+            "Folder" = "8:_87E0E26A4D9A4C26AD2F9B0C09D974C4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3029,8 +3428,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_51E1BFF5533340778E3215E33B0A2B83"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\callback\\callbackC.vbproj"
-            "TargetName" = "8:callbackC.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\callback\\callbackCD.vbproj"
+            "TargetName" = "8:callbackCD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_D99D2A9A96F9493E931A0A96DA3212A9"
             "Condition" = "8:"
@@ -3069,8 +3468,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_534C5EE989A64F56B2F7F75219E93F80"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\value\\valueS.vbproj"
-            "TargetName" = "8:valueS.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\value\\valueSD.vbproj"
+            "TargetName" = "8:valueSD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_0695DF6B5AAD4451B06CE0C9BC121840"
             "Condition" = "8:"
@@ -3091,6 +3490,46 @@
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Glacier\\session\\HelloSessionManagerI.cs"
             "TargetName" = "8:HelloSessionManagerI.cs"
+            "Tag" = "8:"
+            "Folder" = "8:_8C97BCF33AE246D1ABC8F1C778F02516"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_53F9ECCF1EC3430DBAC1E4F05BE67FC3"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\hello\\helloIcePackCD.csproj"
+            "TargetName" = "8:helloIcePackCD.csproj"
+            "Tag" = "8:"
+            "Folder" = "8:_C29388CCEE854E30AF315207CCCF187D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5489675EB66C41558C7FA642E54FB614"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Glacier\\session\\.depend"
+            "TargetName" = "8:.depend"
             "Tag" = "8:"
             "Folder" = "8:_8C97BCF33AE246D1ABC8F1C778F02516"
             "Condition" = "8:"
@@ -3158,12 +3597,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_561A0B075FDA464D82FF3B45D1829272"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\hello\\Makefile"
+            "TargetName" = "8:Makefile"
+            "Tag" = "8:"
+            "Folder" = "8:_752F6A2803E344E38D8217D672B6957C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5880D591E98F4697B288EFB811643409"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Glacier\\session\\sessionC.vbproj"
-            "TargetName" = "8:sessionC.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Glacier\\session\\sessionCD.vbproj"
+            "TargetName" = "8:sessionCD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_7B70AE07C3D54997AAC1EBBB14662E4C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_58B34123013D450F86236D975D41ED26"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\latency\\config"
+            "TargetName" = "8:config"
+            "Tag" = "8:"
+            "Folder" = "8:_87E0E26A4D9A4C26AD2F9B0C09D974C4"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3198,12 +3677,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5961ABCE19214C6C90450231A665F78A"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\nested\\Makefile"
+            "TargetName" = "8:Makefile"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCB6C02703B46D29107837BBA723F53"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5A1FD11518C14CF6A70059AA3ACD7BB4"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\hello\\helloC.vbproj"
-            "TargetName" = "8:helloC.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\hello\\helloCD.vbproj"
+            "TargetName" = "8:helloCD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_24D27FBD1A5E4CB7B9B369C708558F5C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5A51A6E9E8E84E42921A4E65963F38EB"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\throughput\\Makefile"
+            "TargetName" = "8:Makefile"
+            "Tag" = "8:"
+            "Folder" = "8:_92B378583F9D4CB7B8A998457550C7AA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3240,8 +3759,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_5AD757DE3EBC433DB8BCF501948D8194"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\simple\\simpleIcePackC.vbproj"
-            "TargetName" = "8:simpleIcePackC.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\simple\\simpleIcePackCD.vbproj"
+            "TargetName" = "8:simpleIcePackCD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_334BE6566C654DC890EEE606B573FBCF"
             "Condition" = "8:"
@@ -3338,10 +3857,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_613348645DA4434BA7692377F455C5AA"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\simple_filesystem\\Makefile"
+            "TargetName" = "8:Makefile"
+            "Tag" = "8:"
+            "Folder" = "8:_6214955093D04F50B04E9040D52CDE44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_619BF7193B174D6DA15E26290C181B61"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\hello\\helloCommon.vbproj"
-            "TargetName" = "8:helloCommon.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\hello\\helloCommonD.vbproj"
+            "TargetName" = "8:helloCommonD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_24D27FBD1A5E4CB7B9B369C708558F5C"
             "Condition" = "8:"
@@ -3440,8 +3979,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_66299A14E2BE4DCAB340F6D894FE22C3"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\simple_filesystem\\simpleCommon.vbproj"
-            "TargetName" = "8:simpleCommon.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\simple_filesystem\\simpleCommonD.vbproj"
+            "TargetName" = "8:simpleCommonD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_9084996B6F484CCBA90F2A3E94BF5663"
             "Condition" = "8:"
@@ -3498,26 +4037,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_67A7578A3D0C4182B94DDA55CF672ECE"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\PrinterI.vb"
-            "TargetName" = "8:PrinterI.vb"
-            "Tag" = "8:"
-            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_684CD04E78C14047B9E187C3840BDB35"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\throughput\\config"
@@ -3558,12 +4077,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6B2989F8D57846118D3BC4508230300D"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6B754B9C58E54A64B3F0A35A6E9828FE"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Glacier\\session\\sessionC.csproj"
-            "TargetName" = "8:sessionC.csproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\simple_filesystem\\Server.cs"
+            "TargetName" = "8:Server.cs"
             "Tag" = "8:"
-            "Folder" = "8:_8C97BCF33AE246D1ABC8F1C778F02516"
+            "Folder" = "8:_6214955093D04F50B04E9040D52CDE44"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3578,12 +4097,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6B754B9C58E54A64B3F0A35A6E9828FE"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6D5CC3CB0BF54D269B0E3B87AB0E3080"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\simple_filesystem\\Server.cs"
-            "TargetName" = "8:Server.cs"
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\throughput\\.depend"
+            "TargetName" = "8:.depend"
             "Tag" = "8:"
-            "Folder" = "8:_6214955093D04F50B04E9040D52CDE44"
+            "Folder" = "8:_92B378583F9D4CB7B8A998457550C7AA"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3678,26 +4197,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_737EC51F50BE400EB60F877361F61DF6"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\simple_filesystem\\simpleFSS.csproj"
-            "TargetName" = "8:simpleFSS.csproj"
-            "Tag" = "8:"
-            "Folder" = "8:_6214955093D04F50B04E9040D52CDE44"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_73A1665F1ABE4A4D9F31334EE4D2A4F3"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Glacier\\session\\HelloSessionI.cs"
@@ -3738,6 +4237,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_74AB698FF3EC4E24802030993B751536"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\latency\\Makefile"
+            "TargetName" = "8:Makefile"
+            "Tag" = "8:"
+            "Folder" = "8:_1B6D67A6EAEC408284FA00FF60A13F45"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_75D49B7645324DA989597690AC825443"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\throughput\\throughputCD.csproj"
@@ -3760,8 +4279,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_762A3CC7AA9941159FEFB61FD03EE31A"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\hello\\helloIcePackS.vbproj"
-            "TargetName" = "8:helloIcePackS.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\hello\\helloIcePackSD.vbproj"
+            "TargetName" = "8:helloIcePackSD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_41A29853FA924D31B63E030BDF2AFB95"
             "Condition" = "8:"
@@ -3780,8 +4299,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_77331953A5DC4DBE871E07D84173E3F7"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\throughput\\throughputS.vbproj"
-            "TargetName" = "8:throughputS.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\throughput\\throughputSD.vbproj"
+            "TargetName" = "8:throughputSD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_657DF2341A3E495EB4AEB4D39333DC15"
             "Condition" = "8:"
@@ -3818,10 +4337,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_789FED7BF6124E9DBDDA61A0BE58169C"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\simple\\Makefile"
+            "TargetName" = "8:Makefile"
+            "Tag" = "8:"
+            "Folder" = "8:_5ACD7DB560D14927BB95C4BE1FD6C748"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_78A86567A570459DADEB8609E7C27A66"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\value\\valueCommon.vbproj"
-            "TargetName" = "8:valueCommon.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\value\\valueCommonD.vbproj"
+            "TargetName" = "8:valueCommonD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_0695DF6B5AAD4451B06CE0C9BC121840"
             "Condition" = "8:"
@@ -3878,10 +4417,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_7C466740AFD149EE9F9E49169FD9184F"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8001F8A3719F4803A7C7CFCDFF649399"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\Client.vb"
-            "TargetName" = "8:Client.vb"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\config"
+            "TargetName" = "8:config"
             "Tag" = "8:"
             "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
             "Condition" = "8:"
@@ -3998,12 +4537,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_841157F42A3748A2ADFFD33C67781B23"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\compileSlice.vcproj"
+            "TargetName" = "8:compileSlice.vcproj"
+            "Tag" = "8:"
+            "Folder" = "8:_E0D00A83967144A389E173CB051A5FD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_84E8B5B12E004F6781C131F5A4617406"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\nested\\nestedC.vbproj"
-            "TargetName" = "8:nestedC.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\nested\\nestedCD.vbproj"
+            "TargetName" = "8:nestedCD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_A108943E15844F4CAEBEFBF1AE6EF43E"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8545AFCCDC3A4BB3A9B6C38C72148861"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\simple\\.depend"
+            "TargetName" = "8:.depend"
+            "Tag" = "8:"
+            "Folder" = "8:_5ACD7DB560D14927BB95C4BE1FD6C748"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4024,26 +4603,6 @@
             "TargetName" = "8:config"
             "Tag" = "8:"
             "Folder" = "8:_5ACD7DB560D14927BB95C4BE1FD6C748"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_884B6A472BFD41328023FD57206BF621"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\printer\\printerS.csproj"
-            "TargetName" = "8:printerS.csproj"
-            "Tag" = "8:"
-            "Folder" = "8:_8B91F7F33A484245ADAB4E0A7E0DCE8D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4080,8 +4639,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_89B4C59EB94C4D60B248E2D7AAC60A2F"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\simple\\simpleIcePackS.vbproj"
-            "TargetName" = "8:simpleIcePackS.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\simple\\simpleIcePackSD.vbproj"
+            "TargetName" = "8:simpleIcePackSD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_334BE6566C654DC890EEE606B573FBCF"
             "Condition" = "8:"
@@ -4118,12 +4677,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8F33ECC3B79E42DE8B959516024DA6C5"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8DCD375CF6E3405E802A17284C6E1827"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\latency\\Client.cs"
-            "TargetName" = "8:Client.cs"
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Glacier\\session\\sessionSD.csproj"
+            "TargetName" = "8:sessionSD.csproj"
             "Tag" = "8:"
-            "Folder" = "8:_1B6D67A6EAEC408284FA00FF60A13F45"
+            "Folder" = "8:_8C97BCF33AE246D1ABC8F1C778F02516"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4138,12 +4697,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9079A817EB2546948CD58CA8C2F21054"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8F33ECC3B79E42DE8B959516024DA6C5"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\printer\\printerC.csproj"
-            "TargetName" = "8:printerC.csproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\latency\\Client.cs"
+            "TargetName" = "8:Client.cs"
             "Tag" = "8:"
-            "Folder" = "8:_8B91F7F33A484245ADAB4E0A7E0DCE8D"
+            "Folder" = "8:_1B6D67A6EAEC408284FA00FF60A13F45"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4178,12 +4737,143 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_936DE363E8E64470A8B8397D28AB3188"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\latency\\Client.vb"
+            "TargetName" = "8:Client.vb"
+            "Tag" = "8:"
+            "Folder" = "8:_87E0E26A4D9A4C26AD2F9B0C09D974C4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_93C4C7714BAB48F6851E15E0DC800A45"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\value\\.depend"
+            "TargetName" = "8:.depend"
+            "Tag" = "8:"
+            "Folder" = "8:_92BF38DD88C64FC28355E76BE7F5C070"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_949DDC2F4ACF486985F48D8503ACFB50"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\simple\\config"
             "TargetName" = "8:config"
             "Tag" = "8:"
             "Folder" = "8:_334BE6566C654DC890EEE606B573FBCF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_94C3742E240746AB8F6F0829E0546C86"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\callback\\Makefile"
+            "TargetName" = "8:Makefile"
+            "Tag" = "8:"
+            "Folder" = "8:_07038C1F28974741A2F5A0FBE723D7DF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_956FD2DC2C815B3B4A9DABD77204AAA7"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:TRUE"
+            "AssemblyAsmDisplayName" = "8:System.Windows.Forms, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b77a5c561934e089"
+                "ScatterAssemblies"
+                {
+                    "_956FD2DC2C815B3B4A9DABD77204AAA7"
+                    {
+                    "Name" = "8:System.Windows.Forms.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:System.Windows.Forms.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_BB40E1547A604CAC8FB6CECEBA417D3D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_95FCB493AEAE41AFAB59D8D6629EAC2D"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\latency\\latencySD.vbproj"
+            "TargetName" = "8:latencySD.vbproj"
+            "Tag" = "8:"
+            "Folder" = "8:_87E0E26A4D9A4C26AD2F9B0C09D974C4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_97F12271773749F1AF1B6B339D4DC59E"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\simple\\simpleIcePackCD.csproj"
+            "TargetName" = "8:simpleIcePackCD.csproj"
+            "Tag" = "8:"
+            "Folder" = "8:_5ACD7DB560D14927BB95C4BE1FD6C748"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4278,26 +4968,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9948EF385D234D2181AA239B66809472"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\invoke\\invokeC.csproj"
-            "TargetName" = "8:invokeC.csproj"
-            "Tag" = "8:"
-            "Folder" = "8:_A8FE7AF7D47D4ED3945626268C4ED273"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9990C47C5D414BD7A544A82A4B7B617C"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\callback\\CallbackServer.cs"
@@ -4358,6 +5028,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9B706BE3D0F64C58B474F5832D8567C2"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\PrinterI.vb"
+            "TargetName" = "8:PrinterI.vb"
+            "Tag" = "8:"
+            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9D867217A8884147ADA08F6135C07DC1"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\nested\\NestedServer.vb"
@@ -4378,12 +5068,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A0278BA5105B486D90607CF21011D197"
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_9ECDE96DB01841D8AB8CCF7317BE6B27"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\.Printer.stream"
-            "TargetName" = "8:.Printer.stream"
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\value\\Makefile"
+            "TargetName" = "8:Makefile"
             "Tag" = "8:"
-            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
+            "Folder" = "8:_92BF38DD88C64FC28355E76BE7F5C070"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4400,8 +5090,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A0CAFD1802E44465959BDC1F3EBB70D8"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\throughput\\throughputCommon.vbproj"
-            "TargetName" = "8:throughputCommon.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\throughput\\throughputCommonD.vbproj"
+            "TargetName" = "8:throughputCommonD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_657DF2341A3E495EB4AEB4D39333DC15"
             "Condition" = "8:"
@@ -4518,6 +5208,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_A897F8F9F04C413DB386A277C3A126D4"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Glacier\\session\\Makefile"
+            "TargetName" = "8:Makefile"
+            "Tag" = "8:"
+            "Folder" = "8:_8C97BCF33AE246D1ABC8F1C778F02516"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_AA3C541EBCCB436DA2A6BF3C01A9A4DF"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Glacier\\session\\Client.vb"
@@ -4564,6 +5274,37 @@
             "TargetName" = "8:Server.vb"
             "Tag" = "8:"
             "Folder" = "8:_334BE6566C654DC890EEE606B573FBCF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_AE78B8BE7B02432BBA50D2472A989CD9"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:generatecs, Version=1.0.0.0, Culture=neutral"
+                "ScatterAssemblies"
+                {
+                    "_AE78B8BE7B02432BBA50D2472A989CD9"
+                    {
+                    "Name" = "8:generatecs.exe"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\bin\\generatecs.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_BB40E1547A604CAC8FB6CECEBA417D3D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4680,8 +5421,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_B7A8E5E385EF411F84A9F0FC2ED77C74"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\nested\\nestedS.vbproj"
-            "TargetName" = "8:nestedS.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\nested\\nestedSD.vbproj"
+            "TargetName" = "8:nestedSD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_A108943E15844F4CAEBEFBF1AE6EF43E"
             "Condition" = "8:"
@@ -4715,6 +5456,26 @@
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_BB40E1547A604CAC8FB6CECEBA417D3D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BBD3CC12598540EDB07A09F27D41B6A3"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\invokeCommonD.vbproj"
+            "TargetName" = "8:invokeCommonD.vbproj"
+            "Tag" = "8:"
+            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4789,26 +5550,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BCA3BDD3535841C3A50A93808894B8B3"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\hello\\helloIcePackS.csproj"
-            "TargetName" = "8:helloIcePackS.csproj"
-            "Tag" = "8:"
-            "Folder" = "8:_C29388CCEE854E30AF315207CCCF187D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_BD65D73F044441279352A3B78123CEF9"
             {
             "AssemblyRegister" = "3:1"
@@ -4846,26 +5587,6 @@
             "TargetName" = "8:EvictorBase.vb"
             "Tag" = "8:"
             "Folder" = "8:_F3DB8AEEA0B548F68C68EE09A93C3C69"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_BEF614488FD747AEBA2FDE59635C7096"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\callback\\config.server"
-            "TargetName" = "8:config.server"
-            "Tag" = "8:"
-            "Folder" = "8:_07038C1F28974741A2F5A0FBE723D7DF"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4960,6 +5681,46 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C1B1B5D230BC4D13B8DE5A6DE4256779"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\invoke\\.depend"
+            "TargetName" = "8:.depend"
+            "Tag" = "8:"
+            "Folder" = "8:_A8FE7AF7D47D4ED3945626268C4ED273"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C2B04EF30744479EAD4DBA4E6149FD9B"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\simple\\simpleIcePackSD.csproj"
+            "TargetName" = "8:simpleIcePackSD.csproj"
+            "Tag" = "8:"
+            "Folder" = "8:_5ACD7DB560D14927BB95C4BE1FD6C748"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C30339347BE04B1F8590B8AAB43590F3"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\simple\\HelloI.vb"
@@ -5000,52 +5761,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C4524243EC0B4A168C6DC0D34AB4997C"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\invoke\\invokeS.csproj"
-            "TargetName" = "8:invokeS.csproj"
-            "Tag" = "8:"
-            "Folder" = "8:_A8FE7AF7D47D4ED3945626268C4ED273"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C4D86C8218EF45FD8273EFEFDFCAD38D"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\value\\PrinterI.vb"
             "TargetName" = "8:PrinterI.vb"
             "Tag" = "8:"
             "Folder" = "8:_0695DF6B5AAD4451B06CE0C9BC121840"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C5018CE93108485BAF28B6C0EFFB041C"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\Server.vb"
-            "TargetName" = "8:Server.vb"
-            "Tag" = "8:"
-            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5106,6 +5827,26 @@
             "TargetName" = "8:HelloI.vb"
             "Tag" = "8:"
             "Folder" = "8:_24D27FBD1A5E4CB7B9B369C708558F5C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C637CD7E569745D98AB0FBD0C659A97F"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\printer\\Makefile"
+            "TargetName" = "8:Makefile"
+            "Tag" = "8:"
+            "Folder" = "8:_8B91F7F33A484245ADAB4E0A7E0DCE8D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5240,6 +5981,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_CE0FAC9632F649AB9D224874D39D65C6"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\Client.vb"
+            "TargetName" = "8:Client.vb"
+            "Tag" = "8:"
+            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D134006EC70744A6BE943FBCE297C401"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\simple\\Client.vb"
@@ -5320,6 +6081,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D73A8A68218C439F90C62ABD46E384C0"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\latency\\.depend"
+            "TargetName" = "8:.depend"
+            "Tag" = "8:"
+            "Folder" = "8:_1B6D67A6EAEC408284FA00FF60A13F45"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D751249006574E039069515A1F350D7F"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\value\\PrinterI.cs"
@@ -5380,10 +6161,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D98CC08040084331B8FA1F24F8A96032"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\latency\\Server.vb"
+            "TargetName" = "8:Server.vb"
+            "Tag" = "8:"
+            "Folder" = "8:_87E0E26A4D9A4C26AD2F9B0C09D974C4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_D9F53C5404674A19B150EA91F46F3B70"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Glacier\\session\\sessionS.vbproj"
-            "TargetName" = "8:sessionS.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Glacier\\session\\sessionSD.vbproj"
+            "TargetName" = "8:sessionSD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_7B70AE07C3D54997AAC1EBBB14662E4C"
             "Condition" = "8:"
@@ -5482,8 +6283,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_DE11C41AE6C14753B31E51B5E8695EF7"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\simple\\simpleIcePackCommon.vbproj"
-            "TargetName" = "8:simpleIcePackCommon.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\simple\\simpleIcePackCommonD.vbproj"
+            "TargetName" = "8:simpleIcePackCommonD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_334BE6566C654DC890EEE606B573FBCF"
             "Condition" = "8:"
@@ -5506,6 +6307,57 @@
             "TargetName" = "8:Hello.ice"
             "Tag" = "8:"
             "Folder" = "8:_41A29853FA924D31B63E030BDF2AFB95"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{C7BF5952-4B9D-11D3-8E24-00C04F6837D0}:_DEF190B5C30987DB306C6CBCEC2BDEC7"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:TRUE"
+            "AssemblyAsmDisplayName" = "8:System.Runtime.Serialization.Formatters.Soap, Version=1.0.5000.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
+                "ScatterAssemblies"
+                {
+                    "_DEF190B5C30987DB306C6CBCEC2BDEC7"
+                    {
+                    "Name" = "8:System.Runtime.Serialization.Formatters.Soap.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:System.Runtime.Serialization.Formatters.Soap.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_BB40E1547A604CAC8FB6CECEBA417D3D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_DF2770486ADC44678B4947D814FC2F90"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\invokeSD.vbproj"
+            "TargetName" = "8:invokeSD.vbproj"
+            "Tag" = "8:"
+            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5546,26 +6398,6 @@
             "TargetName" = "8:Latency.ice"
             "Tag" = "8:"
             "Folder" = "8:_1B6D67A6EAEC408284FA00FF60A13F45"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E0BCE7A0192D4B58A2946CA22818775D"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\invokeS.vbproj"
-            "TargetName" = "8:invokeS.vbproj"
-            "Tag" = "8:"
-            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5626,6 +6458,26 @@
             "TargetName" = "8:server.xml"
             "Tag" = "8:"
             "Folder" = "8:_41A29853FA924D31B63E030BDF2AFB95"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E3F0CCE9A31844B9B235AF193B38EE6B"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\.depend"
+            "TargetName" = "8:.depend"
+            "Tag" = "8:"
+            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5702,8 +6554,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E714F756E3BE4F74840CEC4BDF0A87EB"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\hello\\helloS.vbproj"
-            "TargetName" = "8:helloS.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\hello\\helloSD.vbproj"
+            "TargetName" = "8:helloSD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_24D27FBD1A5E4CB7B9B369C708558F5C"
             "Condition" = "8:"
@@ -5760,6 +6612,46 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EAEECDA25AB943388E49B1734737BCCD"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\book\\simple_filesystem\\.depend"
+            "TargetName" = "8:.depend"
+            "Tag" = "8:"
+            "Folder" = "8:_6214955093D04F50B04E9040D52CDE44"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EBA5BC38284445098DEFD8E9C27A38D8"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\.Printer.stream"
+            "TargetName" = "8:.Printer.stream"
+            "Tag" = "8:"
+            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EC5179ED51A84844BAF9D9F9D0BAF7FB"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\IcePack\\hello\\HelloI.vb"
@@ -5800,52 +6692,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EC8E594A33DA4A3BA8E472E710260685"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\hello\\helloIcePackC.csproj"
-            "TargetName" = "8:helloIcePackC.csproj"
-            "Tag" = "8:"
-            "Folder" = "8:_C29388CCEE854E30AF315207CCCF187D"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_ED821EFC4E3641C39C7C1D1B42DEB450"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\book\\simple_filesystem\\FileI.vb"
             "TargetName" = "8:FileI.vb"
             "Tag" = "8:"
             "Folder" = "8:_9084996B6F484CCBA90F2A3E94BF5663"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EE92100553EB4133892107E2679A5540"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\invokeCommon.vbproj"
-            "TargetName" = "8:invokeCommon.vbproj"
-            "Tag" = "8:"
-            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5922,8 +6774,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F45A7CD06FD84AC391658A038FBC296F"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\throughput\\throughputC.vbproj"
-            "TargetName" = "8:throughputC.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\throughput\\throughputCD.vbproj"
+            "TargetName" = "8:throughputCD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_657DF2341A3E495EB4AEB4D39333DC15"
             "Condition" = "8:"
@@ -5962,8 +6814,8 @@
             }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F54B1F4AE53E43FE8A3426433F74BEE2"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\value\\valueC.vbproj"
-            "TargetName" = "8:valueC.vbproj"
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\value\\valueCD.vbproj"
+            "TargetName" = "8:valueCD.vbproj"
             "Tag" = "8:"
             "Folder" = "8:_0695DF6B5AAD4451B06CE0C9BC121840"
             "Condition" = "8:"
@@ -5986,6 +6838,46 @@
             "TargetName" = "8:throughputSD.csproj"
             "Tag" = "8:"
             "Folder" = "8:_92B378583F9D4CB7B8A998457550C7AA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F703E65F05F740D88A5FFECC65F0505F"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\Printer.ice"
+            "TargetName" = "8:Printer.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_F8E9AC8CD7EA4C9396A5E28538040E7F"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\IcePack\\hello\\Makefile"
+            "TargetName" = "8:Makefile"
+            "Tag" = "8:"
+            "Folder" = "8:_C29388CCEE854E30AF315207CCCF187D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6071,6 +6963,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FCD15570523144918AB873E8E9EC9DDE"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\demo.sln"
+            "TargetName" = "8:demo.sln"
+            "Tag" = "8:"
+            "Folder" = "8:_E0D00A83967144A389E173CB051A5FD2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FCFE2012640745F78DDCF5A3906864D2"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Glacier\\session\\README"
@@ -6091,12 +7003,92 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FD30E54CED904EEB8185F1C390E0C70E"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\nested\\.depend"
+            "TargetName" = "8:.depend"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCB6C02703B46D29107837BBA723F53"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FD367C181A844CCDA60C88C90094DBF9"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\invokeCD.vbproj"
+            "TargetName" = "8:invokeCD.vbproj"
+            "Tag" = "8:"
+            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FD81205FD9714BA8A8EAA10B847131F6"
             {
             "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Ice\\value\\valueCD.csproj"
             "TargetName" = "8:valueCD.csproj"
             "Tag" = "8:"
             "Folder" = "8:_92BF38DD88C64FC28355E76BE7F5C070"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FE18D012C2D64593905F4C2B6910ED35"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icevb\\demo\\Ice\\invoke\\Server.vb"
+            "TargetName" = "8:Server.vb"
+            "Tag" = "8:"
+            "Folder" = "8:_AE02255C1DC642BBBFA21BB6645BBBF9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FE7DAC6FB86F438FA44A493C892CCC01"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\demo\\Glacier\\session\\sessionCD.csproj"
+            "TargetName" = "8:sessionCD.csproj"
+            "Tag" = "8:"
+            "Folder" = "8:_8C97BCF33AE246D1ABC8F1C778F02516"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6449,6 +7441,28 @@
                                             "Condition" = "8:"
                                             "Transitive" = "11:FALSE"
                                             "Property" = "8:_C08AF45BDCBE4265A05C47D762650710"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_87E0E26A4D9A4C26AD2F9B0C09D974C4"
+                                    {
+                                    "Name" = "8:latency"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_9917D4E5505944489A6D2BCACC137C50"
+                                        "Folders"
+                                        {
+                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_87761A146DA94E93B7ABCCDB6A677803"
+                                            {
+                                            "Name" = "8:generated"
+                                            "AlwaysCreate" = "11:TRUE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_35F2E24BCD95433E98AFF509CF7595C6"
                                                 "Folders"
                                                 {
                                                 }

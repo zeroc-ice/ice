@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 /nologo /subsystem:windows /machine:I386 /out:"client.exe" /libpath:"../../../../lib"
+# ADD LINK32 Ice.lib IceUtil.lib /nologo /subsystem:windows /machine:I386 /out:"client.exe" /libpath:"../../../../lib"
 
 !ELSEIF  "$(CFG)" == "mfcHelloC - Win32 Debug"
 
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:windows /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../../lib"
+# ADD LINK32 Iced.lib IceUtild.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept /out:"client.exe" /libpath:"../../../../lib"
 
 !ENDIF 
 

@@ -237,12 +237,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0E8D4465D6A6472EAAC814B7E84BBF8C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICE\\README"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0EDD70AE4E1644B3860870F5A5E208DF"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\CONFIG\\BUILD.PROPERTIES"
@@ -795,6 +789,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_3431049B462549E49E9F27C162DEEB97"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\BOOK\\SIMPLE_FILESYSTEM\\FILESYSTEM\\FILEI.JAVA"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_346B7138D75F40F6AA615B7767E08EEB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\SLICE\\GLACIER2\\PERMISSIONSVERIFIER.ICE"
@@ -1335,6 +1335,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_559AA26EBAC1409A8069B65430E0DEBC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\BOOK\\BUILD.XML"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_55F52D830F76412EA2B3F66FB9FACB0A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICEPACK\\SIMPLE\\HELLOSERVICEI.CPP"
@@ -1764,6 +1770,12 @@
         "MsmKey" = "8:_6F65096F866347948DED9D75DC417D3E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICESSL\\CERTIFICATEVERIFIEROPENSSL.H"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6FE567490625419AA848259850AD06C0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\BOOK\\SIMPLE_FILESYSTEM\\FILESYSTEM\\DIRECTORYI.JAVA"
         }
         "Entry"
         {
@@ -2445,6 +2457,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_95F1CE894BBB4D7DADA5DC89A7B20914"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\README"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_95FC77C137E6459FBCB63B2615A8C080"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\THROUGHPUT\\THROUGHPUTI.H"
@@ -2841,6 +2859,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_AD0A6F3EBFAF4F5DBB85BBFE06DB8CCA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\BOOK\\SIMPLE_FILESYSTEM\\FILESYSTEM.ICE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_AD1C3AA8EADB4937A7A1B08713B8FE1F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\FREEZE\\CONNECTIONF.H"
@@ -2946,6 +2970,12 @@
         "MsmKey" = "8:_B519DD4D57EC47B8B1621FD4E0878009"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICEPACK\\BUILD.XML"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B532871E8D4546C498D37C40E119E75A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\GLACIER2\\CALLBACK\\CALLBACK.ICE"
         }
         "Entry"
         {
@@ -3939,6 +3969,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_EEEBC07BCD494EDFAEE6F8A1338E7716"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\INVOKE\\PRINTER.ICE"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_F0093A4AD2F446ECA5C229081AA9AC4E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICEPACK\\HELLO\\SERVICE.XML"
@@ -4813,7 +4849,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\hello\\Hello.ice"
             "TargetName" = "8:Hello.ice"
             "Tag" = "8:"
-            "Folder" = "8:_FF47A87D6EF64394A4C0BCB04E2D3622"
+            "Folder" = "8:_4613B97EA48041E4BCD675B68E0D94B8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5014,26 +5050,6 @@
             "TargetName" = "8:Server.java"
             "Tag" = "8:"
             "Folder" = "8:_FFF6ABFB3F9F402E8B13BA3817EF527B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_0E8D4465D6A6472EAAC814B7E84BBF8C"
-            {
-            "SourcePath" = "8:..\\..\\..\\README"
-            "TargetName" = "8:README"
-            "Tag" = "8:"
-            "Folder" = "8:_471F6D87C35445C1925FF82F646DF9CC"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5413,7 +5429,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\value\\Client.py"
             "TargetName" = "8:Client.py"
             "Tag" = "8:"
-            "Folder" = "8:_BCDB20D198F34B1AB2301E774E072B01"
+            "Folder" = "8:_5B126611390242B6B879DA834715C896"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5493,7 +5509,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\latency\\Client.py"
             "TargetName" = "8:Client.py"
             "Tag" = "8:"
-            "Folder" = "8:_B89C22664E4648ACAE4DD665F66776E4"
+            "Folder" = "8:_81864AE4BF8145FCBBA10766CE2C1567"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6573,7 +6589,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\hello\\Server.py"
             "TargetName" = "8:Server.py"
             "Tag" = "8:"
-            "Folder" = "8:_FF47A87D6EF64394A4C0BCB04E2D3622"
+            "Folder" = "8:_4613B97EA48041E4BCD675B68E0D94B8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -6888,6 +6904,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_3431049B462549E49E9F27C162DEEB97"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\book\\simple_filesystem\\Filesystem\\FileI.java"
+            "TargetName" = "8:FileI.java"
+            "Tag" = "8:"
+            "Folder" = "8:_26C339D969324533B12119C93471EEAC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_346B7138D75F40F6AA615B7767E08EEB"
             {
             "SourcePath" = "8:..\\..\\..\\slice\\Glacier2\\PermissionsVerifier.ice"
@@ -7073,7 +7109,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\value\\config"
             "TargetName" = "8:config"
             "Tag" = "8:"
-            "Folder" = "8:_BCDB20D198F34B1AB2301E774E072B01"
+            "Folder" = "8:_5B126611390242B6B879DA834715C896"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7413,7 +7449,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\callback\\Client.py"
             "TargetName" = "8:Client.py"
             "Tag" = "8:"
-            "Folder" = "8:_0E8FB2000F024A21A8EE767BB67BAE20"
+            "Folder" = "8:_95F7432473664DAC9E497270B4F5897E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -7733,7 +7769,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\throughput\\config"
             "TargetName" = "8:config"
             "Tag" = "8:"
-            "Folder" = "8:_D56368D17B4941E1B83E53EDC7BC2D37"
+            "Folder" = "8:_72FC3B69B1AE47E8913C53D05C130AC0"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -8668,6 +8704,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_559AA26EBAC1409A8069B65430E0DEBC"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\book\\build.xml"
+            "TargetName" = "8:build.xml"
+            "Tag" = "8:"
+            "Folder" = "8:_026F7F2E79A54BC48E0C04C22427FD61"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_55F52D830F76412EA2B3F66FB9FACB0A"
             {
             "SourcePath" = "8:..\\..\\..\\demo\\IcePack\\simple\\HelloServiceI.cpp"
@@ -8913,7 +8969,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\throughput\\Client.py"
             "TargetName" = "8:Client.py"
             "Tag" = "8:"
-            "Folder" = "8:_D56368D17B4941E1B83E53EDC7BC2D37"
+            "Folder" = "8:_72FC3B69B1AE47E8913C53D05C130AC0"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9153,7 +9209,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\callback\\config"
             "TargetName" = "8:config"
             "Tag" = "8:"
-            "Folder" = "8:_0E8FB2000F024A21A8EE767BB67BAE20"
+            "Folder" = "8:_95F7432473664DAC9E497270B4F5897E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9653,7 +9709,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\hello\\config"
             "TargetName" = "8:config"
             "Tag" = "8:"
-            "Folder" = "8:_FF47A87D6EF64394A4C0BCB04E2D3622"
+            "Folder" = "8:_4613B97EA48041E4BCD675B68E0D94B8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -10108,6 +10164,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6FE567490625419AA848259850AD06C0"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icej\\demo\\book\\simple_filesystem\\Filesystem\\DirectoryI.java"
+            "TargetName" = "8:DirectoryI.java"
+            "Tag" = "8:"
+            "Folder" = "8:_26C339D969324533B12119C93471EEAC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_7055FE7119D64161BADBF48419849B1D"
             {
             "SourcePath" = "8:..\\..\\..\\demo\\IcePack\\hello\\HelloServiceI.cpp"
@@ -10213,7 +10289,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\latency\\Server.py"
             "TargetName" = "8:Server.py"
             "Tag" = "8:"
-            "Folder" = "8:_B89C22664E4648ACAE4DD665F66776E4"
+            "Folder" = "8:_81864AE4BF8145FCBBA10766CE2C1567"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -12348,6 +12424,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_95F1CE894BBB4D7DADA5DC89A7B20914"
+            {
+            "SourcePath" = "8:..\\..\\..\\demo\\README"
+            "TargetName" = "8:README"
+            "Tag" = "8:"
+            "Folder" = "8:_471F6D87C35445C1925FF82F646DF9CC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_95FC77C137E6459FBCB63B2615A8C080"
             {
             "SourcePath" = "8:..\\..\\..\\demo\\Ice\\throughput\\ThroughputI.h"
@@ -12873,7 +12969,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\value\\Printer.py"
             "TargetName" = "8:Printer.py"
             "Tag" = "8:"
-            "Folder" = "8:_BCDB20D198F34B1AB2301E774E072B01"
+            "Folder" = "8:_5B126611390242B6B879DA834715C896"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -13628,6 +13724,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_AD0A6F3EBFAF4F5DBB85BBFE06DB8CCA"
+            {
+            "SourcePath" = "8:..\\..\\..\\demo\\book\\simple_filesystem\\Filesystem.ice"
+            "TargetName" = "8:Filesystem.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_B50930457B534F618075A4E7AD4CEB53"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_AD1C3AA8EADB4937A7A1B08713B8FE1F"
             {
             "SourcePath" = "8:..\\..\\..\\include\\Freeze\\ConnectionF.h"
@@ -13733,7 +13849,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\throughput\\Throughput.ice"
             "TargetName" = "8:Throughput.ice"
             "Tag" = "8:"
-            "Folder" = "8:_D56368D17B4941E1B83E53EDC7BC2D37"
+            "Folder" = "8:_72FC3B69B1AE47E8913C53D05C130AC0"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -13974,6 +14090,26 @@
             "TargetName" = "8:build.xml"
             "Tag" = "8:"
             "Folder" = "8:_C70DC24063D9471697D362B938F75E73"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_B532871E8D4546C498D37C40E119E75A"
+            {
+            "SourcePath" = "8:..\\..\\..\\demo\\Glacier2\\callback\\Callback.ice"
+            "TargetName" = "8:Callback.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_0C151CEF327A45788A344EB0E551467D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -14793,7 +14929,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\callback\\Server.py"
             "TargetName" = "8:Server.py"
             "Tag" = "8:"
-            "Folder" = "8:_0E8FB2000F024A21A8EE767BB67BAE20"
+            "Folder" = "8:_95F7432473664DAC9E497270B4F5897E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -14913,7 +15049,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\throughput\\Server.py"
             "TargetName" = "8:Server.py"
             "Tag" = "8:"
-            "Folder" = "8:_D56368D17B4941E1B83E53EDC7BC2D37"
+            "Folder" = "8:_72FC3B69B1AE47E8913C53D05C130AC0"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -14953,7 +15089,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\hello\\Client.py"
             "TargetName" = "8:Client.py"
             "Tag" = "8:"
-            "Folder" = "8:_FF47A87D6EF64394A4C0BCB04E2D3622"
+            "Folder" = "8:_4613B97EA48041E4BCD675B68E0D94B8"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -17213,7 +17349,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\value\\Server.py"
             "TargetName" = "8:Server.py"
             "Tag" = "8:"
-            "Folder" = "8:_BCDB20D198F34B1AB2301E774E072B01"
+            "Folder" = "8:_5B126611390242B6B879DA834715C896"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -17234,6 +17370,26 @@
             "TargetName" = "8:Latency.ice"
             "Tag" = "8:"
             "Folder" = "8:_B767548B35224F1A9F63E09942B7CDE4"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_EEEBC07BCD494EDFAEE6F8A1338E7716"
+            {
+            "SourcePath" = "8:..\\..\\..\\demo\\Ice\\invoke\\Printer.ice"
+            "TargetName" = "8:Printer.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_E56C2BE5100F4891A55F1BB22AB06E7B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -17393,7 +17549,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\latency\\config"
             "TargetName" = "8:config"
             "Tag" = "8:"
-            "Folder" = "8:_B89C22664E4648ACAE4DD665F66776E4"
+            "Folder" = "8:_81864AE4BF8145FCBBA10766CE2C1567"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -17533,7 +17689,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\value\\Value.ice"
             "TargetName" = "8:Value.ice"
             "Tag" = "8:"
-            "Folder" = "8:_BCDB20D198F34B1AB2301E774E072B01"
+            "Folder" = "8:_5B126611390242B6B879DA834715C896"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -17793,7 +17949,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\callback\\Callback.ice"
             "TargetName" = "8:Callback.ice"
             "Tag" = "8:"
-            "Folder" = "8:_0E8FB2000F024A21A8EE767BB67BAE20"
+            "Folder" = "8:_95F7432473664DAC9E497270B4F5897E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -18253,7 +18409,7 @@
             "SourcePath" = "8:..\\..\\..\\..\\icepy\\demo\\Ice\\latency\\Latency.ice"
             "TargetName" = "8:Latency.ice"
             "Tag" = "8:"
-            "Folder" = "8:_B89C22664E4648ACAE4DD665F66776E4"
+            "Folder" = "8:_81864AE4BF8145FCBBA10766CE2C1567"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -19213,6 +19369,17 @@
                                     "Property" = "8:_3C453CF981EE4712AFF74D5CE386C925"
                                         "Folders"
                                         {
+                                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_26C339D969324533B12119C93471EEAC"
+                                            {
+                                            "Name" = "8:Filesystem"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_B184C5A7F24C434C89E3592FC35BBD79"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
                                         }
                                     }
                                     "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_7F87EDCEB46C4E8B9618FAF331A48991"
@@ -19547,59 +19714,70 @@
                     "Property" = "8:_67E0F08C1CA94B8FA4CC3E9A1C71BF97"
                         "Folders"
                         {
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_0E8FB2000F024A21A8EE767BB67BAE20"
+                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_F3DFA0DFCB534915B6DAB8563A8DB0B4"
                             {
-                            "Name" = "8:callback"
+                            "Name" = "8:Ice"
                             "AlwaysCreate" = "11:FALSE"
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
-                            "Property" = "8:_C514EBC05F134577903FD0C0A7448D66"
+                            "Property" = "8:_C41368279586439BA9C1078B97D0E6AA"
                                 "Folders"
                                 {
-                                }
-                            }
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_B89C22664E4648ACAE4DD665F66776E4"
-                            {
-                            "Name" = "8:latency"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_F221ED05C29E4247AA9CF5A706F71B17"
-                                "Folders"
-                                {
-                                }
-                            }
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_BCDB20D198F34B1AB2301E774E072B01"
-                            {
-                            "Name" = "8:value"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_3559D6EF390B4E4CA9E4AB14F7DBDA40"
-                                "Folders"
-                                {
-                                }
-                            }
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_D56368D17B4941E1B83E53EDC7BC2D37"
-                            {
-                            "Name" = "8:throughput"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_D6015FCFC38848B48D27B8A0D8B8F9BA"
-                                "Folders"
-                                {
-                                }
-                            }
-                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_FF47A87D6EF64394A4C0BCB04E2D3622"
-                            {
-                            "Name" = "8:hello"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_62D674F5C51B496EA14C783FD29CC50E"
-                                "Folders"
-                                {
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_4613B97EA48041E4BCD675B68E0D94B8"
+                                    {
+                                    "Name" = "8:hello"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_62D674F5C51B496EA14C783FD29CC50E"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_5B126611390242B6B879DA834715C896"
+                                    {
+                                    "Name" = "8:value"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_3559D6EF390B4E4CA9E4AB14F7DBDA40"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_72FC3B69B1AE47E8913C53D05C130AC0"
+                                    {
+                                    "Name" = "8:throughput"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_D6015FCFC38848B48D27B8A0D8B8F9BA"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_81864AE4BF8145FCBBA10766CE2C1567"
+                                    {
+                                    "Name" = "8:latency"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_F221ED05C29E4247AA9CF5A706F71B17"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
+                                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_95F7432473664DAC9E497270B4F5897E"
+                                    {
+                                    "Name" = "8:callback"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_C514EBC05F134577903FD0C0A7448D66"
+                                        "Folders"
+                                        {
+                                        }
+                                    }
                                 }
                             }
                         }

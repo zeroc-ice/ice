@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"client.exe" /libpath:"../../../lib"
+# ADD LINK32 Freeze.lib Ice.lib IceUtil.lib /nologo /subsystem:console /machine:I386 /out:"client.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none
 
 !ELSEIF  "$(CFG)" == "phonebookC - Win32 Debug"
@@ -77,7 +77,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 Freezed.lib Iced.lib IceUtild.lib /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /nodefaultlib
 
 !ENDIF 
@@ -203,13 +203,15 @@ USERDEP__PHONE="..\..\..\bin\slice2cpp.exe"	"..\..\..\bin\slice2freeze.exe"	"..\
 InputPath=.\PhoneBook.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice
+	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
+	
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "PhoneBook.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
+
 # End Custom Build
 
 !ENDIF 

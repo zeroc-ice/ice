@@ -53,7 +53,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /machine:I386
-# ADD LINK32 /nologo /subsystem:windows /machine:I386 /out:"server.exe" /libpath:"../../../../lib"
+# ADD LINK32 ice.lib iceutil.lib /nologo /subsystem:windows /machine:I386 /out:"server.exe" /libpath:"../../../../lib"
 
 !ELSEIF  "$(CFG)" == "mfcHelloS - Win32 Debug"
 
@@ -79,7 +79,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 /nologo /subsystem:windows /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../../lib"
+# ADD LINK32 iced.lib iceutild.lib /nologo /subsystem:windows /debug /machine:I386 /pdbtype:sept /out:"server.exe" /libpath:"../../../../lib"
 
 !ENDIF 
 
@@ -157,11 +157,19 @@ SOURCE=.\StdAfx.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
+SOURCE=.\res\HelloServer.ico
+# End Source File
+# Begin Source File
+
+SOURCE=.\res\HelloServer.rc2
+# End Source File
+# Begin Source File
+
 SOURCE=.\Hello.ice
 
 !IF  "$(CFG)" == "mfcHelloS - Win32 Release"
 
-USERDEP__HELLO="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\slice.lib"	
+USERDEP__HELLO="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\slice.lib"
 # Begin Custom Build
 InputPath=.\Hello.ice
 
@@ -177,7 +185,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "mfcHelloS - Win32 Debug"
 
-USERDEP__HELLO="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\sliced.lib"	
+USERDEP__HELLO="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\sliced.lib"
 # Begin Custom Build
 InputPath=.\Hello.ice
 
@@ -193,14 +201,6 @@ BuildCmds= \
 
 !ENDIF 
 
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\HelloServer.ico
-# End Source File
-# Begin Source File
-
-SOURCE=.\res\HelloServer.rc2
 # End Source File
 # End Group
 # End Target
