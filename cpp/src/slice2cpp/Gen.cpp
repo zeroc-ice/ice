@@ -751,14 +751,12 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	// Don't use v.resize(sz) or v.reserve(sz) here, as it cannot
 	// be checked whether sz is a reasonable value.
 	//
-	// Michi: I don't think it matters -- if the size is unreasonable, we just fall over after having
-	// unmarshaled a whole lot of stuff instead of falling over straight away.
-	//
-	C << nl << "v.resize(sz);";
-	C << nl << "for(int i = 0; i < sz; ++i)";
+	C << nl << "while(sz--)";
 	C << sb;
-	writeGenericMarshalUnmarshalCode(C, type, "v[i]", false);
+	C << nl << "v.resize(v.size() + 1);";
+	writeGenericMarshalUnmarshalCode(C, type, "v.back()", false, "\"e\"");
 	C << eb;
+	C << nl << "__is->endReadSequence();";
 	C << eb;
 
 	C << sp << nl << "void" << nl << scope.substr(2) << name << "Helper::"
