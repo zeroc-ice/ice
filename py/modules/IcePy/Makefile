@@ -9,14 +9,46 @@
 
 top_srcdir	= ../..
 
+LIBFILENAME     = $(call mkpylibfilename,IcePy,$(VERSION))
+SONAME          = $(call mkpysoname,IcePy,$(SOVERSION))  
+LIBNAME		= $(call mkpylibname,IcePy)
+
+TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+
+OBJS		= Communicator.o \
+		  Current.o \
+		  Init.o \
+		  Logger.o \
+		  ObjectAdapter.o \
+		  ObjectFactory.o \
+		  Operation.o \
+		  Properties.o \
+		  Proxy.o \
+		  Slice.o \
+		  Types.o \
+		  Util.o
+
+SRCS		= $(OBJS:.o=.cpp)
+
 include $(top_srcdir)/config/Make.rules
 
-all::
-	python setup.py build
-	python setup.py install --install-lib $(libdir)
+CPPFLAGS	:= -I. $(CPPFLAGS) $(ICE_FLAGS) $(PYTHON_FLAGS)
 
-install::
-	python setup.py install --install-lib $(install_libdir)
+LINKWITH        := $(ICE_LIBS) $(PYTHON_LIBS)
 
-clean::
-	rm -rf build
+$(libdir)/$(LIBFILENAME): $(OBJS)
+	rm -f $@
+	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
+
+$(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
+	rm -f $@
+	ln -s $(LIBFILENAME) $@
+
+$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+	rm -f $@
+	ln -s $(SONAME) $@
+
+install:: all
+	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+
+include .depend

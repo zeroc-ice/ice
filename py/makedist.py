@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, fnmatch, re
+import os, sys, shutil, fnmatch, re, glob
 
 #
 # Show usage information.
@@ -84,7 +84,7 @@ os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + t
 #
 # NOTE: Assumes that the C++ and Python trees will use the same tag.
 #
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice/slice")
+os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice/slice ice/config")
 #
 # Copy Slice directories.
 #
@@ -101,6 +101,8 @@ slicedirs = [\
 os.mkdir(os.path.join("icepy", "slice"))
 for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icepy", "slice", x), 1)
+for x in glob.glob(os.path.join("ice", "config", "Make.rules.*")):
+    shutil.copyfile(x, os.path.join("icepy", "config", os.path.basename(x)))
 
 #
 # Remove files.
