@@ -722,8 +722,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
     string name = fixId(p->name());
     DataMemberList dataMembers = p->dataMembers();
-    DataMemberList::const_iterator q;
-
 
     if(!p->isInterface())
     {
