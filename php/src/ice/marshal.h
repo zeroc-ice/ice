@@ -18,8 +18,9 @@
 #include "common.h"
 #include <Slice/Parser.h>
 
-void Marshal_initObjectMap(TSRMLS_D);
-void Marshal_destroyObjectMap(TSRMLS_D);
+void Marshal_preOperation(TSRMLS_D);
+void Marshal_postOperation(TSRMLS_D);
+void Marshal_registerFactories(const Ice::CommunicatorPtr& TSRMLS_DC);
 
 class Marshaler;
 typedef IceUtil::Handle<Marshaler> MarshalerPtr;
@@ -35,6 +36,8 @@ public:
 
     virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC) = 0;
     virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC) = 0;
+
+    virtual void destroy() = 0;
 
     static std::string zendTypeToString(int);
 
