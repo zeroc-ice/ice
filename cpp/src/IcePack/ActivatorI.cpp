@@ -293,28 +293,37 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     //
     const char* env = NULL;
     string envbuf;
-//cout << "Activator: description.envs.size() = " << server->description.envs.size() << endl;
     if(!server->description.envs.empty())
     {
-//cout << "Activator: creating environment block" << endl;
         map<string, string> envMap;
         LPVOID parentEnv = GetEnvironmentStrings();
         const char* var = reinterpret_cast<const char*>(parentEnv);
+        if(*var == '=')
+        {
+            //
+            // The environment block may start with some information about the
+            // current drive and working directory. This is indicated by a leading
+            // '=' character, so we skip to the first '\0' byte.
+            //
+            while(*var)
+                var++;
+            var++;
+        }
         while(*var)
         {
             string s(var);
-//cout << "  - adding parent variable `" << s << "'" << endl;
             string::size_type pos = s.find('=');
             if(pos != string::npos)
             {
                 envMap.insert(map<string, string>::value_type(s.substr(0, pos), s.substr(pos + 1)));
             }
+            var += s.size();
+            var++; // Skip the '\0' byte
         }
         FreeEnvironmentStrings(static_cast<char*>(parentEnv));
         for(p = server->description.envs.begin(); p != server->description.envs.end(); ++p)
         {
             string s = *p;
-//cout << "  - adding descriptor variable `" << s << "'" << endl;
             string::size_type pos = s.find('=');
             if(pos != string::npos)
             {
@@ -330,7 +339,6 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
         }
         envbuf.push_back('\0');
         env = envbuf.c_str();
-//cout << "  - envbuf.size() = " << envbuf.size() << endl;
     }
 
     STARTUPINFO si;
