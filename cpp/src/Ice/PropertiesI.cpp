@@ -195,7 +195,8 @@ static const string icePatchProps[] =
     "Thorough",
     "Trace.Files",
     "UpdatePeriod",
-    "Directory"
+    "Directory",
+    "Dynamic"
 };
 
 static const string iceSSLProps[] =

@@ -30,7 +30,7 @@ IcePatch::pathToName(const string& path)
     }
 }
 
-void
+ByteSeq
 IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 {
     string path = identityToPath(regular->ice_getIdentity());
@@ -210,8 +210,5 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	throw ex;
     }
 
-    //
-    // Create a MD5 file for the original file.
-    //
-    createMD5(path);
+    return calcMD5(path, false);
 }

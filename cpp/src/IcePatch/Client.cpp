@@ -40,6 +40,7 @@ private:
 
     bool _remove;
     bool _thorough;
+    bool _dynamic;
 };
 
 }
@@ -231,6 +232,11 @@ IcePatch::Client::run(int argc, char* argv[])
 	_thorough = properties->getPropertyAsInt("IcePatch.Thorough") > 0;
 
         //
+        // Check whether we calculate MD5s for files dynamically.
+        //
+        _dynamic = properties->getPropertyAsIntWithDefault("IcePatch.Dynamic", 1) > 0;
+
+        //
         // Create and install the node description factories.
         //
         ObjectFactoryPtr factory = new FileDescFactory;
@@ -285,7 +291,7 @@ IcePatch::Client::run(int argc, char* argv[])
 		pos = pos2 + 1;		    
 	    }
 
-	    cout << pathToName(*p) << endl;
+	    cout << pathToName(*p);
 
             string dir = *p;
             if(dir == ".")
@@ -293,7 +299,6 @@ IcePatch::Client::run(int argc, char* argv[])
                 dir = cwd;
             }
 
-            Long total = 0;
             ByteSeq md5;
             try
             {
@@ -302,12 +307,25 @@ IcePatch::Client::run(int argc, char* argv[])
             catch(const FileAccessException&)
             {
             }
-            total = topDesc->dir->getTotal(md5);
 
-            Long runningTotal = 0;
-	    patch(topDesc, "", runningTotal, total);
-
-            createMD5(dir);
+            if(!_thorough && md5 == topDesc->md5)
+            {
+                //
+                // Skip the top-level directory if the MD5s match.
+                //
+                cout << ": ok" << endl;
+            }
+            else
+            {
+                //
+                // Patch the directory.
+                //
+                cout << endl;
+                Long total = topDesc->dir->getTotal(md5);
+                Long runningTotal = 0;
+                patch(topDesc, "", runningTotal, total);
+                createMD5(dir, _dynamic);
+            }
 	}
     }
     catch(const FileAccessException& ex)
@@ -477,8 +495,6 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
 
 		case FileTypeDirectory:
 		{
-		    cout << " ok" << endl;
-
 		    if(!_thorough && !subDirDesc->md5.empty())
 		    {
 			ByteSeq md5;
@@ -492,9 +508,12 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
 			
 			if(md5 == subDirDesc->md5)
 			{
+                            cout << " ok" << endl;
 			    continue;
 			}
 		    }
+
+                    cout << endl;
 
 		    break;
 		}
@@ -535,6 +554,9 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
 	    bool update = false;
 
 	    FileInfo info = getFileInfo(path, false);
+            string pathMD5 = path + ".md5";
+            FileInfo infoMD5 = getFileInfo(pathMD5, false);
+
 	    switch(info.type)
 	    {
 		case FileTypeNotExist:
@@ -554,14 +576,12 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
 		{
 		    ByteSeq md5;
 		    
-		    if(_thorough)
+		    if(_thorough || _dynamic)
 		    {
-			md5 = calcMD5(path);
+			md5 = calcMD5(path, _dynamic);
 		    }
 		    else
 		    {
-			string pathMD5 = path + ".md5";
-			FileInfo infoMD5 = getFileInfo(pathMD5, false);
 			if(infoMD5.type == FileTypeRegular && infoMD5.time >= info.time)
 			{
 			    md5 = getMD5(path);
@@ -576,11 +596,28 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
 		    else
 		    {
 			cout << " ok" << endl;
+
+                        //
+                        // Cache the MD5 value if none is present.
+                        //
+                        if(!_dynamic && infoMD5.type == FileTypeNotExist)
+                        {
+                            putMD5(path, md5);
+                        }
 		    }
 
 		    break;
 		}
 	    }
+
+            //
+            // If we're calculating MD5s dynamically, we need to remove
+            // any existing MD5 file to be safe.
+            //
+            if(_dynamic && infoMD5.type != FileTypeNotExist)
+            {
+                removeRecursive(pathMD5);
+            }
 
 	    if(update)
 	    {
@@ -592,11 +629,11 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
 		    //
 		    // Retrieve file from server.
 		    //
-		    getRegular(regDesc->reg, progressCB);
+		    ByteSeq md5 = getRegular(regDesc->reg, progressCB);
 
 		    //
 		    // Get the latest file description from server, as
-		    // the file may mave recently changed.
+		    // the file may have recently changed.
 		    //
 		    regDesc = RegularDescPtr::dynamicCast(regDesc->reg->describe());
 		    if(!regDesc)
@@ -609,21 +646,17 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
 		    }
 
 		    //
-		    // Compare the icepatch and locally built MD5s. If
-		    // they differ, try again unless we've hit the
+		    // Compare the MD5s of the server and the local file.
+		    // If they differ, try again unless we've hit the
 		    // retry limit.
 		    //
-		    ByteSeq md5;
-		    string pathMD5 = path + ".md5";
-		    FileInfo infoMD5 = getFileInfo(pathMD5, false);
-		    if(infoMD5.type == FileTypeRegular)
-		    {
-			md5 = getMD5(path);
-		    }
-
 		    if(regDesc->md5 == md5)
 		    {
                         runningTotal += regDesc->reg->getBZ2Size();
+                        if(!_dynamic)
+                        {
+                            putMD5(path, md5);
+                        }
 			break;
 		    }
 		    else if(retries < 3)
@@ -635,15 +668,7 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent, L
 			removeRecursive(path);
 
 			FileAccessException ex;
-			ex.reason = "Retry count exceeded while patching `" + path + "':\n";
-                        if(infoMD5.type == FileTypeRegular)
-                        {
-                            ex.reason += "MD5 mismatch";
-                        }
-                        else
-                        {
-                            ex.reason += "MD5 file not found";
-                        }
+			ex.reason = "Retry count exceeded while patching `" + path + "':\nMD5 mismatch";
 			throw ex;
 		    }
 		}

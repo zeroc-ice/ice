@@ -30,7 +30,7 @@ public:
 };
 
 ICE_PATCH_API std::string pathToName(const std::string&);
-ICE_PATCH_API void getRegular(const IcePatch::RegularPrx&, ProgressCB&);
+ICE_PATCH_API Ice::ByteSeq getRegular(const IcePatch::RegularPrx&, ProgressCB&);
 
 }
 

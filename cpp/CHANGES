@@ -1,7 +1,12 @@
 Changes since version 1.4.0
 ---------------------------
 
-- AIX 5.2/VisualAge 6.0 port
+- Changed the default behavior of the IcePatch client to dynamically
+  calculate the unique signatures of local files in order to reduce
+  the number of cache files, and added the property IcePatch.Dynamic
+  to control this behavior.
+
+- AIX 5.2/VisualAge 6.0 port.
 
 - Changed the --depend option of slice2java. If you get dependencies
   for a file x.ice that includes y.ice, the dependency line that is

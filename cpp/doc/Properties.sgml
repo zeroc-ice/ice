@@ -3181,4 +3181,22 @@ client to skip a directory if its unique signature matches the server's.
 </section>
 </section>
 
+<section><title>IcePatch.Dynamic</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch.Dynamic=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the IcePatch client dynamically calculates the unique signatures of
+local files rather than caching the signatures. This reduces the
+number of local cache files at the expense of more processing when
+comparing directories with the server. The default value is 1.
+</para>
+</section>
+</section>
+
 </section>
