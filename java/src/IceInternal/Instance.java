@@ -26,24 +26,44 @@ public class Instance
     public synchronized Ice.Logger
     logger()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _logger;
     }
 
     public synchronized void
     logger(Ice.Logger logger)
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         _logger = logger;
     }
 
     public synchronized Ice.Stats
     stats()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _stats;
     }
 
     public synchronized void
     stats(Ice.Stats stats)
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         _stats = stats;
     }
 
@@ -64,61 +84,109 @@ public class Instance
     public synchronized RouterManager
     routerManager()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _routerManager;
     }
 
     public synchronized LocatorManager
     locatorManager()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _locatorManager;
     }
 
     public synchronized ReferenceFactory
     referenceFactory()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _referenceFactory;
     }
 
     public synchronized ProxyFactory
     proxyFactory()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _proxyFactory;
     }
 
     public synchronized OutgoingConnectionFactory
     outgoingConnectionFactory()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _outgoingConnectionFactory;
     }
 
     public synchronized ConnectionMonitor
     connectionMonitor()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _connectionMonitor;
     }
 
     public synchronized ObjectFactoryManager
     servantFactoryManager()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _servantFactoryManager;
     }
 
     public synchronized UserExceptionFactoryManager
     userExceptionFactoryManager()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _userExceptionFactoryManager;
     }
 
     public synchronized ObjectAdapterFactory
     objectAdapterFactory()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _objectAdapterFactory;
     }
 
     public synchronized ThreadPool
     clientThreadPool()
     {
-	assert(!_destroyed);
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
 	
 	if(_clientThreadPool == null) // Lazy initialization.
 	{
@@ -148,7 +216,10 @@ public class Instance
     public synchronized ThreadPool
     serverThreadPool()
     {
-	assert(!_destroyed);
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
 	
 	if(_serverThreadPool == null) // Lazy initialization.
 	{
@@ -162,12 +233,22 @@ public class Instance
     public synchronized EndpointFactoryManager
     endpointFactoryManager()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _endpointFactoryManager;
     }
 
     public synchronized Ice.PluginManager
     pluginManager()
     {
+	if(_destroyed)
+	{
+	    throw new Ice.CommunicatorDestroyedException();
+	}
+
         return _pluginManager;
     }
 
@@ -328,6 +409,7 @@ public class Instance
 	synchronized(this)
 	{
 	    _objectAdapterFactory = null;
+
 	    _outgoingConnectionFactory = null;
 	    
 	    if(_connectionMonitor != null)

@@ -97,6 +97,12 @@ LoggerPtr
 IceInternal::Instance::logger()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _logger;
 }
 
@@ -104,6 +110,12 @@ void
 IceInternal::Instance::logger(const LoggerPtr& logger)
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     _logger = logger;
 }
 
@@ -111,6 +123,12 @@ StatsPtr
 IceInternal::Instance::stats()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _stats;
 }
 
@@ -118,6 +136,12 @@ void
 IceInternal::Instance::stats(const StatsPtr& stats)
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     _stats = stats;
 }
 
@@ -139,6 +163,12 @@ RouterManagerPtr
 IceInternal::Instance::routerManager()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _routerManager;
 }
 
@@ -146,6 +176,12 @@ LocatorManagerPtr
 IceInternal::Instance::locatorManager()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _locatorManager;
 }
 
@@ -153,6 +189,12 @@ ReferenceFactoryPtr
 IceInternal::Instance::referenceFactory()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _referenceFactory;
 }
 
@@ -160,6 +202,12 @@ ProxyFactoryPtr
 IceInternal::Instance::proxyFactory()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _proxyFactory;
 }
 
@@ -167,6 +215,12 @@ OutgoingConnectionFactoryPtr
 IceInternal::Instance::outgoingConnectionFactory()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _outgoingConnectionFactory;
 }
 
@@ -174,6 +228,12 @@ ConnectionMonitorPtr
 IceInternal::Instance::connectionMonitor()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _connectionMonitor;
 }
 
@@ -181,6 +241,12 @@ ObjectFactoryManagerPtr
 IceInternal::Instance::servantFactoryManager()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _servantFactoryManager;
 }
 
@@ -188,6 +254,12 @@ UserExceptionFactoryManagerPtr
 IceInternal::Instance::userExceptionFactoryManager()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _userExceptionFactoryManager;
 }
 
@@ -195,6 +267,12 @@ ObjectAdapterFactoryPtr
 IceInternal::Instance::objectAdapterFactory()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _objectAdapterFactory;
 }
 
@@ -203,7 +281,10 @@ IceInternal::Instance::clientThreadPool()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    assert(!_destroyed);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
 
     if(!_clientThreadPool) // Lazy initialization.
     {
@@ -234,7 +315,10 @@ IceInternal::Instance::serverThreadPool()
 {
     IceUtil::RecMutex::Lock sync(*this);
 
-    assert(!_destroyed);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
     
     if(!_serverThreadPool) // Lazy initialization.
     {
@@ -249,6 +333,12 @@ EndpointFactoryManagerPtr
 IceInternal::Instance::endpointFactoryManager()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _endpointFactoryManager;
 }
 
@@ -256,6 +346,12 @@ DynamicLibraryListPtr
 IceInternal::Instance::dynamicLibraryList()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _dynamicLibraryList;
 }
 
@@ -263,6 +359,12 @@ PluginManagerPtr
 IceInternal::Instance::pluginManager()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+
     return _pluginManager;
 }
 

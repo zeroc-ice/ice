@@ -1,6 +1,10 @@
 Changes since version 1.0.1
 ---------------------------
 
+- In some cases, communicator destruction could result in a
+  NullHandleException. This has been fixed. Now a
+  CommunicatorDestroyedException is raised.
+
 - A monitor now holds the mutex lock while signaling a condition
   variable. Otherwise it's possible that that the condition variable
   is destroyed before the signaling call returns, resulting in

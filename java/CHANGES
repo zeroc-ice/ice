@@ -1,6 +1,10 @@
 Changes since version 1.0.1
 ---------------------------
 
+- In some cases, communicator destruction could result in a
+  java.lang.NullPointerException. This has been fixed. Now a
+  CommunicatorDestroyedException is raised.
+
 - Fixed a bug with AMD methods using a servant locator, such as the
   Freeze evictor.
 
