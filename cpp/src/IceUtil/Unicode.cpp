@@ -109,7 +109,7 @@ IceUtil::stringToWstring(const string& str)
 	    // Length 5 and 6 is declared invalid in Unicode 3.1 and ISO 10646:2001.
 	    wc = c & 1;
 	    len = 6;
-	    minval = 0; // TODO
+	    minval = 0x4000000;
 	}
 #endif
 	else
