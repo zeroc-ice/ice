@@ -75,16 +75,19 @@ IcePatch::DirectoryI::getNodes(const Ice::Current& current)
     }
 
     Nodes result;
-    result.reserve(n);
+    result.reserve(n - 2);
 
     Identity identity;
     identity.category = "IcePatch";
 
     while(n--)
     {
-	identity.name = namelist[n]->d_name;
+	if (strcmp(namelist[n]->d_name, "..") != 0 && strcmp(namelist[n]->d_name, ".") != 0)
+	{
+	    identity.name = path + '/' + namelist[n]->d_name;
+	    result.push_back(NodePrx::uncheckedCast(_adapter->createProxy(identity)));
+	}
 	free(namelist[n]);
-	result.push_back(NodePrx::uncheckedCast(_adapter->createProxy(identity)));
     }
     free(namelist);
 

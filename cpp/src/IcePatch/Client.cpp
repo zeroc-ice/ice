@@ -24,7 +24,8 @@ public:
 
     void usage();
     virtual int run(int, char*[]);
-    void printNode(const NodePrx&, int);
+    void printNode(const NodePrx&);
+    void printNodes(const Nodes&, const string&);
 };
 
 };
@@ -95,37 +96,58 @@ IcePatch::Client::run(int argc, char* argv[])
     //
     ObjectPrx topObj = communicator()->stringToProxy("IcePatch/.:" + endpoints);
     NodePrx top = NodePrx::checkedCast(topObj);
-    printNode(top, 0);
+    printNode(top);
 
     return EXIT_SUCCESS;
 }
 
 void
-IcePatch::Client::printNode(const NodePrx& node, int ident)
+IcePatch::Client::printNode(const NodePrx& node)
 {
-    int i;
-
-    for (i = 0; i < ident; ++i)
+    string name = node->ice_getIdentity().name;
+    string::size_type pos = name.rfind('/');
+    if (pos != string::npos)
     {
-	if (i == ident - 1)
-	{
-	    cout << '+';
-	}
-	else
-	{
-	    cout << ' ';
-	}
+	name.erase(0, pos + 1);
     }
-    
-    cout << node->ice_getIdentity().name << endl;
 
+    cout << name << endl;
+    
     DirectoryPrx directory = DirectoryPrx::checkedCast(node);
     if (directory)
     {
-	Nodes nodes = directory->getNodes();
-	for (i = 0; i < static_cast<int>(nodes.size()); ++i)
+	printNodes(directory->getNodes(), "");
+    }
+}
+
+void
+IcePatch::Client::printNodes(const Nodes& nodes, const string& indent)
+{
+    for (unsigned int i = 0; i < nodes.size(); ++i)
+    {
+	string name = nodes[i]->ice_getIdentity().name;
+	string::size_type pos = name.rfind('/');
+	if (pos != string::npos)
 	{
-	    printNode(nodes[i], ident + 1);
+	    name.erase(0, pos + 1);
+	}
+    
+	cout << indent << "+-" << name << endl;
+	
+	DirectoryPrx directory = DirectoryPrx::checkedCast(nodes[i]);
+	if (directory)
+	{
+	    string newIndent;
+	    if (i < nodes.size() - 1)
+	    {
+		newIndent = indent + "| ";
+	    }
+	    else
+	    {
+		newIndent = indent + "  ";
+	    }
+
+	    printNodes(directory->getNodes(), newIndent);
 	}
     }
 }
