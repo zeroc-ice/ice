@@ -33,6 +33,7 @@ Imports System.Threading
 Module Generate
 
     Private proc As Process
+    Private progName As String
 
     Private Sub RedirectStandardOutput()
 	Dim output As String = proc.StandardOutput.ReadToEnd()
@@ -75,12 +76,17 @@ Module Generate
 	    info.RedirectStandardOutput = True
 	    info.RedirectStandardError = True
 	    proc = Process.Start(info)
+	    If proc Is Nothing
+                Console.Error.WriteLine(progName + ": cannot start `" & _slice2vb & " " & cmdArgs & "'")
+		Environment.Exit(1)
+	    End If
 	    Dim t1 As Thread = New Thread(New ThreadStart(AddressOf RedirectStandardOutput))
 	    Dim t2 As Thread = New Thread(New ThreadStart(AddressOf RedirectStandardError))
 	    t1.Start()
 	    t2.Start()
 	    proc.WaitForExit()
 	    Dim rc As Integer = proc.ExitCode
+	    proc.Close()
 	    t1.Join()
 	    t2.Join()
 	    Return rc
@@ -156,7 +162,7 @@ Module Generate
 
     End Class
 
-    Private Sub usage(ByVal progName As String)
+    Private Sub usage()
 	Console.Error.WriteLine("usage: {0} solution_dir build|rebuild|clean", progName)
 	Environment.Exit(1)
     End Sub
@@ -166,9 +172,9 @@ Module Generate
 	'
 	' Check arguments.
 	'
-	Dim progName As String = AppDomain.CurrentDomain.FriendlyName
+	progName = AppDomain.CurrentDomain.FriendlyName
 	If args.Length <> 2 Then
-	    usage(progName)
+	    usage()
 	End If
 
 	Dim solDir As String = args(0)
@@ -180,7 +186,7 @@ Module Generate
 	ElseIf args(1).Equals("clean") Then
 	    action = BuildAction.build.clean
 	Else
-	    usage(progName)
+	    usage()
 	End If
 
 	'
