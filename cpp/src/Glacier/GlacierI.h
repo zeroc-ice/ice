@@ -18,6 +18,9 @@
 namespace Glacier
 {
 
+using IceSecurity::Ssl::OpenSSL::RSACertificateGenContext;
+using IceSecurity::Ssl::OpenSSL::RSACertificateGen;
+
 class StarterI : public Starter
 {
 public:

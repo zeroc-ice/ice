@@ -31,10 +31,12 @@ updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR",
 print "starting glacier starter...",
 command = starter + updatedClientServerOptions + \
           r' --Glacier.Starter.RouterPath=' + router + \
-          r' --Glacier.Starter.Endpoints="default -p 12346 -t 2000"' + \
+          r' --Glacier.Starter.Endpoints="default -p 12346 -t 5000"' + \
           r' --Glacier.Router.Endpoints="default"' + \
           r' --Glacier.Client.Endpoints="default"' + \
           r' --Glacier.Server.Endpoints="default"'
+
+print command
 
 starterPipe = os.popen(command)
 TestUtil.getServerPid(starterPipe)

@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 #include <openssl/ssl.h>
-#include <Ice/BuiltInSequences.h>
+#include <Ice/BuiltinSequences.h>
 #include <Ice/SslRSAKeyPairF.h>
 #include <Ice/SslRSACertificateGenF.h>
 

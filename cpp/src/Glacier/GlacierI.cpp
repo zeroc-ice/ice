@@ -75,9 +75,9 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
     ByteSeq clientCertificate;
     ByteSeq routerCertificate;
 
-    clientKeyPair.keyToByteSeq(clientPrivateKey);
-    clientKeyPair.certToByteSeq(clientCertificate);
-    routerKeyPair.certToByteSeq(routerCertificate);
+    clientKeyPair->keyToByteSeq(clientPrivateKey);
+    clientKeyPair->certToByteSeq(clientCertificate);
+    routerKeyPair->certToByteSeq(routerCertificate);
 
     // routerPrivateKeyBase64 and routerCertificateBase64 are passed to the
     // router as the values for the properties
@@ -98,9 +98,9 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, con
     string routerCertificateBase64;
     string clientCertificateBase64;
 
-    routerKeyPair.keyToBase64(routerPrivateKeyBase64);
-    routerKeyPair.certToBase64(routerCertificateBase64);
-    clientKeyPair.certToBase64(clientCertificateBase64);
+    routerKeyPair->keyToBase64(routerPrivateKeyBase64);
+    routerKeyPair->certToBase64(routerCertificateBase64);
+    clientKeyPair->certToBase64(clientCertificateBase64);
 
     //
     // Start a router

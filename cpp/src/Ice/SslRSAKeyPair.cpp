@@ -97,7 +97,7 @@ IceSecurity::Ssl::OpenSSL::RSAKeyPair::certToByteSeq(ByteSeq& certSeq)
 
     // We have to do this because i2d_X509_PUBKEY changes the pointer.
     unsigned char* pubKeyBuff = publicKeyBuffer;
-    int retSize = i2d_X509(_publicKey, &pubKeyBuff);
+    i2d_X509(_publicKey, &pubKeyBuff);
 
     ucharToByteSeq(publicKeyBuffer, pubKeySize, certSeq);
 

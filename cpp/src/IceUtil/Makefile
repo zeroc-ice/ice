@@ -25,7 +25,8 @@ OBJS		= Exception.o \
 		  RWRecMutex.o \
 		  Cond.o \
 		  Thread.o \
-		  OutputUtil.o
+		  OutputUtil.o \
+                  Base64.o
 
 SRCS		= $(OBJS:.o=.cpp)
 

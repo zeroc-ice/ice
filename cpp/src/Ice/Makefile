@@ -90,6 +90,12 @@ OBJS		= Initialize.o \
                   SslSystem.o \
                   SslSystemOpenSSL.o \
                   SslTempCerts.o \
+                  SslCertificateVerifier.o \
+                  SslCertificateVerifierOpenSSL.o \
+                  SslJanitors.o \
+                  SslRSACertificateGen.o \
+                  SslRSAKeyPair.o \
+                  SslOpenSSLUtils.o \
 		  UdpTransceiver.o \
                   Cryptor.o \
                   CryptKey.o \
