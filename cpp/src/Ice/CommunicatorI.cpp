@@ -91,7 +91,7 @@ Ice::CommunicatorI::destroy()
 
     bool last;
     {
-	IceUtil::RecMutex::Lock sync(*this); // TODO: This lock is per communicator, so it can't lock a global.
+	IceUtil::StaticMutex::Lock sync(gcMutex);
         last = (--communicatorCount == 0);
     }
 
@@ -375,15 +375,12 @@ Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& 
 	// collector can continue to log messages even if the first communicator that
 	// is created isn't the last communicator to be destroyed.
 	//
-	IceUtil::RecMutex::Lock sync(*this); // TODO: This lock is per communicator, so it can't lock a global.
+	IceUtil::StaticMutex::Lock sync(gcMutex);
 	if(++communicatorCount == 1)
 	{
-	    {
-		IceUtil::StaticMutex::Lock l(gcMutex);
-		gcTraceLevel = _instance->traceLevels()->gc;
-		gcTraceCat = _instance->traceLevels()->gcCat;
-		gcLogger = _instance->logger();
-	    }
+	    gcTraceLevel = _instance->traceLevels()->gc;
+	    gcTraceCat = _instance->traceLevels()->gcCat;
+	    gcLogger = _instance->logger();
 	    theCollector = new IceUtil::GC(properties->getPropertyAsInt("Ice.GC.Interval"), printGCStats);
 	    theCollector->start();
 	}
