@@ -431,6 +431,7 @@ IcePatch::createMD5(const string& path)
 	// is done so that there can be no partial MD5 files after an
 	// abortive application termination.
 	//
+        ::remove(pathMD5.c_str());
 	if (rename(tmpName.c_str(), pathMD5.c_str()) == -1)
 	{
 	    NodeAccessException ex;
@@ -666,6 +667,7 @@ IcePatch::createBZ2(const string& path)
 	// is done so that there can be no partial BZ2 files after an
 	// abortive application termination.
 	//
+        ::remove(pathBZ2.c_str());
 	if (rename(tmpName.c_str(), pathBZ2.c_str()) == -1)
 	{
 	    NodeAccessException ex;
