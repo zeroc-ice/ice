@@ -383,7 +383,7 @@ def extractDemos(buildDir, version, distro, demoDir):
        Ice"""
     cwd = os.getcwd()
     os.chdir(buildDir + "/demotree")
-    os.system("tar xvfz ../sources/" + distro + ".tar.gz " + distro + "/demo " + distro + "/config " \
+    os.system("gzip -dc ../sources/" + distro + ".tar.gz | tar x " + distro + "/demo " + distro + "/config " \
 	    + distro + "/certs")
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo" + demoDir)
 
@@ -524,7 +524,8 @@ endif
     os.system("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.sln\" ` ; do rm -rf $f ; done'")
     os.system("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.csproj\" ` ; do rm -rf $f ; done'")
 
-    os.system("tar cvfz Ice-" + version + "-demos.tar.gz Ice-" + version + "-demos")
+    os.system("tar cvf Ice-" + version + "-demos.tar Ice-" + version + "-demos")
+    os.system("gzip -9 cvf Ice-" + version + "-demos.tar")
     os.chdir(cwd)
 
 def makeInstall(buildDir, installDir, distro, clean):
@@ -535,7 +536,7 @@ def makeInstall(buildDir, installDir, distro, clean):
         shutil.rmtree(distro, True)
         
     if not os.path.exists(distro):
-        os.system("tar xfvz sources/" + distro + ".tar.gz")
+        os.system("gzip -dc sources/" + distro + ".tar.gz | tar x")
         
     os.chdir(distro)
 
