@@ -78,6 +78,7 @@ encodeChar(string::value_type b, string& s, const string& special)
     }
     default:
     {
+	// TODO: ML: Don't use old C-style casts.
         if(((signed char)b) <= 31 || b == 127)
         {
             s.push_back('\\');
@@ -154,7 +155,7 @@ IceInternal::decodeString(const string& s, string::size_type start, string::size
             start++;
             if(start == end)
             {
-                return false; // Missing character
+                return false; // Missing character.
             }
             ch = s[start];
             switch(ch)
@@ -217,16 +218,17 @@ IceInternal::decodeString(const string& s, string::size_type start, string::size
                 }
                 if(val > 255)
                 {
-                    return false; // Octal value out of range
+                    return false; // Octal value out of range.
                 }
                 result.push_back((string::value_type)val);
-                continue; // don't increment start
+                continue; // Don't increment start.
             }
             default:
             {
+		// TODO: ML: No old C-style casts.
                 if(((signed char)ch) <= 31 || ch == 127)
                 {
-                    return false; // Malformed encoding
+                    return false; // Malformed encoding.
                 }
                 else
                 {
@@ -267,7 +269,7 @@ IceInternal::checkQuote(const string& s, string::size_type start)
             }
             start = pos + 1;
         }
-        return string::npos; // Unmatched quote
+        return string::npos; // Unmatched quote.
     }
-    return 0; // Not quoted
+    return 0; // Not quoted.
 }

@@ -30,27 +30,37 @@ IcePatch::FileLocator::locate(const ObjectAdapterPtr& adapter, const Current& cu
     //
     string path = identityToPath(current.id);
 
-    if(path.empty()) // Empty paths are not permissible.
+    if(path.empty())
+    {
+	return 0;
+    }
+    
+    if(path == ".")
     {
 	return 0;
     }
 
-    if(path[0] == '/') // Path must not start with '/'.
+    if(path[0] == '/') // Example: /usr/mail/foo
     {
 	return 0;
     }
 
-    if(path.find("..") != string::npos) // Path must not contain '..'.
+    //
+    // Note: We could make the following rule more selective, to allow
+    // names such as "...foo". But since such names are rather
+    // uncommon, we disallow ".." altogether, to be on the safe side.
+    //
+    if(path.find("..") != string::npos) // Example: foo/../..
     {
 	return 0;
     }
 
-    if(path.find(':') == 1) // Path cannot contain ':' as second character.
+    if(path.find(':') == 1) // Example: c:\blah
     {
 	return 0;
     }
 
-    if(ignoreSuffix(path)) // Some suffixes are reserved.
+    if(ignoreSuffix(path)) // Example: foo.md5
     {
 	return 0;
     }

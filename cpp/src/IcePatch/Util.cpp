@@ -70,6 +70,11 @@ normalizePath(const string& path)
         result.erase(0, 2);
     }
 
+    if(result.size() >= 2 && result.substr(result.size() - 2, 2) == "/.")
+    {
+        result.erase(result.size() - 2, 2);
+    }
+
     return result;
 }
 
@@ -205,6 +210,7 @@ IcePatch::readDirectory(const string& path)
     while(true)
     {
 	string name = data.name;
+	assert(!name.empty());
 
 	if(name != ".." && name != ".")
 	{
@@ -248,6 +254,7 @@ IcePatch::readDirectory(const string& path)
     for(int i = 0; i < n; ++i)
     {
 	string name = namelist[i]->d_name;
+	assert(!name.empty());
 
 	free(namelist[i]);
 
@@ -360,33 +367,60 @@ IcePatch::getPartialMD5(const string& path, Int size)
 void
 IcePatch::createMD5(const string& path)
 {
-    //
-    // Read the original file.
-    //
     FileInfo info = getFileInfo(path, true);
-    ifstream file(path.c_str(), ios::binary);
-    if(!file)
+    if(info.type == FileTypeUnknown)
     {
 	FileAccessException ex;
-	ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
+	ex.reason = "cannot create .md5 file for `" + path + "' because file type is unknown";
 	throw ex;
     }
+
     ByteSeq bytes;
-    bytes.resize(info.size);
-    file.read(&bytes[0], bytes.size());
-    if(!file)
+    if(info.type == FileTypeDirectory)
     {
-	FileAccessException ex;
-	ex.reason = "cannot read `" + path + "': " + strerror(errno);
-	throw ex;
+	//
+	// Read all MD5 files in the directory.
+	//
+	StringSeq paths = readDirectory(path);
+	for(StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
+	{
+	    if(getSuffix(*p) == "md5")
+	    {
+		ByteSeq md5 = getMD5(removeSuffix(*p));
+		copy(md5.begin(), md5.end(), back_inserter(bytes));
+	    }
+	}
     }
-    if(file.gcount() < static_cast<int>(bytes.size()))
+    else
     {
-	FileAccessException ex;
-	ex.reason = "could not read all bytes from `" + path + "'";
-	throw ex;
+	assert(info.type == FileTypeRegular);
+
+	//
+	// Read the original file.
+	//
+	ifstream file(path.c_str(), ios::binary);
+	if(!file)
+	{
+	    FileAccessException ex;
+	    ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
+	    throw ex;
+	}
+	bytes.resize(info.size);
+	file.read(&bytes[0], bytes.size());
+	if(!file)
+	{
+	    FileAccessException ex;
+	    ex.reason = "cannot read `" + path + "': " + strerror(errno);
+	    throw ex;
+	}
+	if(file.gcount() < static_cast<int>(bytes.size()))
+	{
+	    FileAccessException ex;
+	    ex.reason = "could not read all bytes from `" + path + "'";
+	    throw ex;
+	}
+	file.close();
     }
-    file.close();
     
     //
     // Create the MD5 hash value.
@@ -488,6 +522,20 @@ IcePatch::getBZ2(const string& path, Int pos, Int num)
 void
 IcePatch::createBZ2(const string& path)
 {
+    FileInfo info = getFileInfo(path, true);
+    if(info.type == FileTypeUnknown)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot create .bz2 file for `" + path + "' because file type is unknown";
+	throw ex;
+    }
+    if(info.type == FileTypeDirectory)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot create .bz2 file for `" + path + "' because this is a directory";
+	throw ex;
+    }
+
     //
     // Read the original file in blocks and write a temporary BZ2
     // file.

@@ -46,7 +46,7 @@ interface TopicLink
      *
      * @param op The operation name.
      *
-     * @param isIdempotent Flag indicating whether the operation is
+     * @param idempotent Flag indicating whether the operation is
      * idempotent.
      *
      * @param data The encoded for the operation in parameters.
@@ -55,7 +55,7 @@ interface TopicLink
      * originating request.
      *
      **/
-    void forward(string op, bool isIdempotent, ByteSeq data, ContextData context);
+    void forward(string op, bool \idempotent, ByteSeq data, ContextData context);
 };
 
 /**

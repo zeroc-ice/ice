@@ -16,6 +16,12 @@
 namespace Ice
 {
 
+#ifdef _WIN32
+BOOL WINAPI interruptHandler(DWORD);
+#else
+void interruptHandler(int);
+#endif
+
 class ICE_API Application : public IceUtil::noncopyable
 {
 public:
@@ -59,10 +65,23 @@ public:
     static void ignoreInterrupt();
     static void defaultInterrupt();
 
+    //
+    // Return true if communicator()->shutdown() has been called
+    // because of an interrupt.
+    //
+    static bool isShutdownFromInterrupt();
+
 private:
 
     static const char* _appName;
     static CommunicatorPtr _communicator;
+    static bool _shutdown;
+
+#ifdef _WIN32
+    friend BOOL WINAPI interruptHandler(DWORD);
+#else
+    friend void interruptHandler(int);
+#endif
 };
 
 };

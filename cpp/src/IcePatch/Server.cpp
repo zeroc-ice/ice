@@ -35,14 +35,16 @@ class Updater : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    Updater(const ObjectAdapterPtr&);
+    Updater(const ObjectAdapterPtr&, const IceUtil::Time&);
 
     virtual void run();
     void destroy();
 
 protected:
 
-    const ObjectAdapterPtr& _adapter;
+    const ObjectAdapterPtr _adapter;
+    const LoggerPtr _logger;
+    const IceUtil::Time _updatePeriod;
     bool _destroy;
 
     void cleanup(const FileDescSeq&);
@@ -125,10 +127,20 @@ IcePatch::Server::run(int argc, char* argv[])
     adapter->addServantLocator(fileLocator, "IcePatch");
     
     //
-    // Start updater.
+    // Start the updater if an update period is set.
     //
-    UpdaterPtr updater = new Updater(adapter);
-    updater->start();
+    UpdaterPtr updater;
+    IceUtil::Time updatePeriod = IceUtil::Time::seconds(
+	properties->getPropertyAsIntWithDefault("IcePatch.UpdatePeriod", 60));
+    if(updatePeriod != IceUtil::Time())
+    {
+	if(updatePeriod < IceUtil::Time::seconds(10))
+	{
+	    updatePeriod = IceUtil::Time::seconds(10);
+	}
+	updater = new Updater(adapter, updatePeriod);
+	updater->start();
+    }
 
     //
     // Everything ok, let's go.
@@ -139,16 +151,21 @@ IcePatch::Server::run(int argc, char* argv[])
     ignoreInterrupt();
 
     //
-    // Destroy and join with updater.
+    // Destroy and join with the updater, if there is one.
     //
-    updater->destroy();
-    updater->getThreadControl().join();
+    if(updater)
+    {
+	updater->destroy();
+	updater->getThreadControl().join();
+    }
 
     return EXIT_SUCCESS;
 }
 
-IcePatch::Updater::Updater(const ObjectAdapterPtr& adapter) :
+IcePatch::Updater::Updater(const ObjectAdapterPtr& adapter, const IceUtil::Time& updatePeriod) :
     _adapter(adapter),
+    _logger(_adapter->getCommunicator()->getLogger()),
+    _updatePeriod(updatePeriod),
     _destroy(false)
 {
 }
@@ -157,14 +174,6 @@ void
 IcePatch::Updater::run()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-    PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
-    IceUtil::Time updatePeriod = IceUtil::Time::seconds(
-	properties->getPropertyAsIntWithDefault("IcePatch.UpdatePeriod", 60));
-    if(updatePeriod < IceUtil::Time::seconds(10))
-    {
-	updatePeriod = IceUtil::Time::seconds(10);
-    }
 
     while(!_destroy)
     {
@@ -180,7 +189,7 @@ IcePatch::Updater::run()
 	}
 	catch(const FileAccessException& ex)
 	{
-	    Error out(_adapter->getCommunicator()->getLogger());
+	    Error out(_logger);
 	    out << "exception during update:\n" << ex << ":\n" << ex.reason;
 	}
 	catch(const BusyException&)
@@ -189,19 +198,18 @@ IcePatch::Updater::run()
 	    // Just loop if we're busy.
 	    //
 	}
-	catch(const ConnectFailedException&)
-	{
-	    //
-	    // This exception can be raised if the adapter is shutdown
-	    // while this thread is still running. In such case, we
-	    // terminate this thread.
-	    //
-	    break;
-	}
 	catch(const Exception& ex)
 	{
-	    Error out(_adapter->getCommunicator()->getLogger());
-	    out << "exception during update:\n" << ex;
+	    //
+	    // If we are interrupted due to a shutdown, don't print
+	    // any exceptions. Exceptions are normal in such case, for
+	    // example, ObjectAdapterDeactivatedException.
+	    //
+	    if(!Application::isShutdownFromInterrupt())
+	    {
+		Error out(_logger);
+		out << "exception during update:\n" << ex;
+	    }
 	}
 
 	if(_destroy)
@@ -209,7 +217,7 @@ IcePatch::Updater::run()
 	    break;
 	}
 
-	timedWait(updatePeriod);
+	timedWait(_updatePeriod);
     }
 }
 

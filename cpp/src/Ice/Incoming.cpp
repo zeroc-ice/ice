@@ -32,7 +32,7 @@ IceInternal::Incoming::invoke(bool response)
     current.id.__read(&_is);
     _is.read(current.facet);
     _is.read(current.operation);
-    _is.read(current.isIdempotent);
+    _is.read(current.idempotent);
     Int sz;
     _is.readSize(sz);
     while(sz--)
@@ -272,7 +272,7 @@ IceInternal::Incoming::invoke(bool response)
 	// Rethrow, so that the caller can print a warning.
 	ex.ice_throw();
     }
-    catch (...)
+    catch(...)
     {
 	if(locator && servant)
 	{

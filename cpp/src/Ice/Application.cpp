@@ -16,8 +16,9 @@
 using namespace std;
 using namespace Ice;
 
-const char* Application::_appName;
+const char* Application::_appName = 0;
 CommunicatorPtr Application::_communicator;
+bool Application::_shutdown = false;
 
 Ice::Application::Application()
 {
@@ -101,11 +102,16 @@ Ice::Application::communicator()
 
 #ifdef _WIN32
 
-static BOOL WINAPI
-interruptHandler(DWORD)
+BOOL WINAPI
+Ice::interruptHandler(DWORD)
 {
-    assert(Application::communicator());
-    Application::communicator()->shutdown();
+    Application::_shutdown = true;
+
+    //
+    // Don't use Application::communicator(), this is not signal-safe.
+    //
+    assert(Application::_communicator);
+    Application::_communicator->shutdown();
     return TRUE;
 }
 
@@ -132,11 +138,16 @@ Ice::Application::defaultInterrupt()
 
 #else
 
-static void
-interruptHandler(int)
+void
+Ice::interruptHandler(int)
 {
-    assert(Application::communicator());
-    Application::communicator()->shutdown();
+    Application::_shutdown = true;
+
+    //
+    // Don't use Application::communicator(), this is not signal-safe.
+    //
+    assert(Application::_communicator);
+    Application::_communicator->shutdown();
 }
 
 void
@@ -179,3 +190,9 @@ Ice::Application::defaultInterrupt()
 }
 
 #endif
+
+bool
+Ice::Application::isShutdownFromInterrupt()
+{
+    return _shutdown;
+}

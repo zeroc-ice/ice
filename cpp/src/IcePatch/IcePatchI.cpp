@@ -32,25 +32,75 @@ IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :
 }
 
 FileDescPtr
-IcePatch::DirectoryI::describe(const Ice::Current& current)
+IcePatch::DirectoryI::describe(const Current& current)
 {
-    // No lock necessary.
     string path = identityToPath(current.id);
+
     DirectoryDescPtr desc = new DirectoryDesc;
     desc->directory = DirectoryPrx::uncheckedCast(_adapter->createProxy(current.id));
-    return desc;
+
+    try
+    {
+	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
+
+	FileInfo info = getFileInfo(path, true);
+	FileInfo infoMD5 = getFileInfo(path + ".md5", false);
+	if(infoMD5.type == FileTypeRegular && infoMD5.time > info.time)
+	{
+	    desc->md5 = getMD5(path);
+	    return desc;
+	}
+    }
+    catch(const IceUtil::LockedException&)
+    {
+	throw BusyException();
+    }
+    
+    //
+    // Force .md5 files to be created and orphaned files to be
+    // removed. This must be done outside the thread
+    // synchronization, to avoid deadlocks.
+    //
+    getContents(current);
+
+    try
+    {
+	IceUtil::RWRecMutex::TryWLock sync(_globalMutex, _busyTimeout);
+
+	FileInfo info = getFileInfo(path, true);
+	FileInfo infoMD5 = getFileInfo(path + ".md5", false);
+	if(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
+	{
+	    createMD5(path);
+	    
+	    if(_traceLevel > 0)
+	    {
+		Trace out(_logger, "IcePatch");
+		out << "created .md5 file for directory `" << path << "'";
+	    }
+	}
+
+	desc->md5 = getMD5(path);
+	return desc;
+    }
+    catch(const IceUtil::LockedException&)
+    {
+	throw BusyException();
+    }
 }
 
 FileDescSeq
-IcePatch::DirectoryI::getContents(const Ice::Current& current)
+IcePatch::DirectoryI::getContents(const Current& current)
 {
+    string path = identityToPath(current.id);
+
     StringSeq filteredPaths;
 
     try
     {
 	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
+
 	bool syncUpgraded = false;
-	string path = identityToPath(current.id);
 	StringSeq paths = readDirectory(path);
 	filteredPaths.reserve(paths.size() / 3);
 	for(StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
@@ -122,12 +172,13 @@ IcePatch::RegularI::RegularI(const ObjectAdapterPtr& adapter) :
 }
 
 FileDescPtr
-IcePatch::RegularI::describe(const Ice::Current& current)
+IcePatch::RegularI::describe(const Current& current)
 {
+    string path = identityToPath(current.id);
+
     try
     {
 	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
-	string path = identityToPath(current.id);
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoMD5 = getFileInfo(path + ".md5", false);
@@ -142,14 +193,14 @@ IcePatch::RegularI::describe(const Ice::Current& current)
 		if(_traceLevel > 0)
 		{
 		    Trace out(_logger, "IcePatch");
-		    out << "created .md5 file for `" << path << "'";
+		    out << "created .md5 file for regular file `" << path << "'";
 		}
 	    }
 	}
 	
 	RegularDescPtr desc = new RegularDesc;
-	desc->regular = RegularPrx::uncheckedCast(_adapter->createProxy(current.id));
 	desc->md5 = getMD5(path);
+	desc->regular = RegularPrx::uncheckedCast(_adapter->createProxy(current.id));
 	return desc;
     }
     catch(const IceUtil::LockedException&)
@@ -159,12 +210,13 @@ IcePatch::RegularI::describe(const Ice::Current& current)
 }
 
 Int
-IcePatch::RegularI::getBZ2Size(const Ice::Current& current)
+IcePatch::RegularI::getBZ2Size(const Current& current)
 {
+    string path = identityToPath(current.id);
+
     try
     {
 	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
-	string path = identityToPath(current.id);
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
@@ -198,12 +250,13 @@ IcePatch::RegularI::getBZ2Size(const Ice::Current& current)
 }
 
 ByteSeq
-IcePatch::RegularI::getBZ2(Ice::Int pos, Ice::Int num, const Ice::Current& current)
+IcePatch::RegularI::getBZ2(Int pos, Int num, const Current& current)
 {
+    string path = identityToPath(current.id);
+
     try
     {
 	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
-	string path = identityToPath(current.id);
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
@@ -232,12 +285,13 @@ IcePatch::RegularI::getBZ2(Ice::Int pos, Ice::Int num, const Ice::Current& curre
 }
 
 ByteSeq
-IcePatch::RegularI::getBZ2MD5(Ice::Int size, const Ice::Current& current)
+IcePatch::RegularI::getBZ2MD5(Int size, const Current& current)
 {
+    string path = identityToPath(current.id);
+
     try
     {
 	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
-	string path = identityToPath(current.id);
 	
 	FileInfo info = getFileInfo(path, true);
 	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);

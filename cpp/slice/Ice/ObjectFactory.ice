@@ -16,10 +16,10 @@ module Ice
 
 /**
  *
- * A factory for Objects. Object Factories are used in several
+ * A factory for objects. Object factories are used in several
  * places, for example, for receiving "objects by value" or for the
- * [Freeze] module. Object Factories must be implemented by the
- * application writer, and installed with the Communicator.
+ * [Freeze] module. Object factories must be implemented by the
+ * application writer, and installed with the communicator.
  *
  * @see Freeze
  * @see UserExceptionFactory
@@ -29,25 +29,25 @@ local interface ObjectFactory
 {
     /**
      *
-     * Create a new Object for a given Object type. The type is the
+     * Create a new object for a given object type. The type is the
      * absolute Slice type name, i.e., the the name relative to the
      * unnamed top-level Slice module. For example, the absolute Slice
-     * type name for Objects for interfaces of type [Bar] in the
+     * type name for objects for interfaces of type [Bar] in the
      * module [Foo] is [::Foo::Bar].
      *
      * <note><para>The leading "[::]" is required.</para></note>
      *
-     * @param type The Object type.
+     * @param type The object type.
      *
-     * @return The Object created for the given type.
+     * @return The object created for the given type.
      *
      **/
     Object create(string type);
 
     /**
      *
-     * Called when the factory is removed from the Communicator, or if
-     * the Communicator is destroyed.
+     * Called when the factory is removed from the communicator, or if
+     * the communicator is destroyed.
      *
      * @see Communicator::removeObjectFactory
      * @see Communicator::destroy

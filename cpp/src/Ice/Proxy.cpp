@@ -249,7 +249,7 @@ IceProxy::Ice::Object::ice_facets(const Context& __context)
 
 bool
 IceProxy::Ice::Object::ice_invoke(const string& operation,
-				  bool isIdempotent,
+				  bool idempotent,
 				  const vector<Byte>& inParams,
 				  vector<Byte>& outParams,
 				  const Context& context)
@@ -260,7 +260,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    return __del->ice_invoke(operation, isIdempotent, inParams, outParams, context);
+	    return __del->ice_invoke(operation, idempotent, inParams, outParams, context);
 	}
 	catch(const LocationForward& __ex)
 	{
@@ -268,7 +268,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	}
 	catch(const NonRepeatable& __ex)
 	{
-	    if(isIdempotent)
+	    if(idempotent)
 	    {
 		__handleException(*__ex.get(), __cnt);
 	    }
@@ -817,12 +817,12 @@ IceDelegateM::Ice::Object::ice_facets(const Context& __context)
 
 bool
 IceDelegateM::Ice::Object::ice_invoke(const string& operation,
-				      bool isIdempotent,
+				      bool idempotent,
 				      const vector<Byte>& inParams,
 				      vector<Byte>& outParams,
 				      const Context& context)
 {
-    Outgoing __out(__connection, __reference, operation, isIdempotent, context);
+    Outgoing __out(__connection, __reference, operation, idempotent, context);
     BasicStream* __os = __out.os();
     __os->writeBlob(inParams);
     bool ok = __out.invoke();
@@ -1192,13 +1192,13 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 
 bool
 IceDelegateD::Ice::Object::ice_invoke(const string& operation,
-				      bool isIdempotent,
+				      bool idempotent,
 				      const vector<Byte>& inParams,
 				      vector<Byte>& outParams,
 				      const ::Ice::Context& context)
 {
     Current current;
-    __initCurrent(current, operation, isIdempotent, context);
+    __initCurrent(current, operation, idempotent, context);
     while(true)
     {
 	Direct __direct(__adapter, current);
@@ -1258,7 +1258,7 @@ IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, boo
     current.id = __reference->identity;
     current.facet = __reference->facet;
     current.operation = op;
-    current.isIdempotent = idempotent;
+    current.idempotent = idempotent;
     current.ctx = context;
 }
 
