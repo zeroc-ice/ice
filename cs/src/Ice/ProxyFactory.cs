@@ -77,9 +77,56 @@ namespace IceInternal
 	    }
 	}
 	
-	public int[] getRetryIntervals()
+	public int checkRetryAfterException(Ice.LocalException ex, int cnt)
 	{
-	    return _retryIntervals;
+	    ++cnt;
+
+	    TraceLevels traceLevels = _instance.traceLevels();
+	    Ice.Logger logger = _instance.logger();
+
+	    //
+	    // Instance components may be null if Communicator has been destroyed.
+	    //
+	    if(traceLevels != null && logger != null)
+	    {
+		if(cnt > _retryIntervals.Length)
+		{
+		    if(traceLevels.retry >= 1)
+		    {
+			string s = "cannot retry operation call because retry limit has been exceeded\n" + ex;
+			logger.trace(traceLevels.retryCat, s);
+		    }
+		    throw ex;
+		}
+
+		if(traceLevels.retry >= 1)
+		{
+		    string s = "re-trying operation call";
+		    if(cnt > 0 && _retryIntervals[cnt - 1] > 0)
+		    {
+			s += " in " + _retryIntervals[cnt - 1] + "ms";
+		    }
+		    s += " because of exception\n" + ex;
+		    logger.trace(traceLevels.retryCat, s);
+		}
+
+		if(cnt > 0)
+		{
+		    //
+		    // Sleep before retrying.
+		    //
+		    System.Threading.Thread.Sleep(_retryIntervals[cnt - 1]);
+		}
+
+		return cnt;
+	    }
+	    else
+	    {
+		//
+		// Impossible to retry after Communicator has been destroyed.
+		//
+		throw ex;
+	    }
 	}
 
 	//

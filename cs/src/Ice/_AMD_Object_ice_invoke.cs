@@ -30,7 +30,7 @@ namespace Ice
 	    catch(Ice.LocalException ex)
 	    {
 		__exception(ex);
-		return ;
+		return;
 	    }
 	    
 	    __response(ok);

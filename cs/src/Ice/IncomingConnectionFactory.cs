@@ -233,7 +233,7 @@ namespace IceInternal
 		catch(Ice.TimeoutException)
 		{
 		    // Ignore timeouts.
-		    return ;
+		    return;
 		}
 		catch(Ice.LocalException ex)
 		{

@@ -43,8 +43,25 @@ namespace IceInternal
 	    _marshalFacets = true;
 	    
 	    _messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
+
+	    _objectList = null;
 	}
 	
+	//
+	// Do NOT use a finalizer, this would cause a sever performance
+	// penalty! We must make sure that destroy() is called instead, to
+	// reclaim resources.
+	//
+	public virtual void destroy()
+	{
+	    _bufferManager.reclaim(_buf);
+	    _buf = null;
+	}
+	
+	//
+	// This function allows this object to be reused, rather than
+	// reallocated.
+	//
 	public virtual void reset()
 	{
 	    _limit = 0;
@@ -58,17 +75,13 @@ namespace IceInternal
 		_readEncapsCache = _readEncapsStack;
 		_readEncapsStack = null;
 	    }
+
+	    if(_objectList != null)
+	    {
+	        _objectList.Clear();
+	    }
 	}
 
-	//
-	// Must be called in order to reclaim the buffer
-	//
-	public virtual void destroy()
-	{
-	    _bufferManager.reclaim(_buf);
-	    _buf = null;
-	}
-	
 	public virtual IceInternal.Instance instance()
 	{
 	    return _instance;
@@ -93,21 +106,30 @@ namespace IceInternal
 	    ReadEncaps tmpRead = other._readEncapsStack;
 	    other._readEncapsStack = _readEncapsStack;
 	    _readEncapsStack = tmpRead;
+
 	    tmpRead = other._readEncapsCache;
 	    other._readEncapsCache = _readEncapsCache;
 	    _readEncapsCache = tmpRead;
+
 	    WriteEncaps tmpWrite = other._writeEncapsStack;
 	    other._writeEncapsStack = _writeEncapsStack;
 	    _writeEncapsStack = tmpWrite;
+
 	    tmpWrite = other._writeEncapsCache;
 	    other._writeEncapsCache = _writeEncapsCache;
 	    _writeEncapsCache = tmpWrite;
+
 	    int tmpReadSlice = other._readSlice;
 	    other._readSlice = _readSlice;
 	    _readSlice = tmpReadSlice;
+
 	    int tmpWriteSlice = other._writeSlice;
 	    other._writeSlice = _writeSlice;
 	    _writeSlice = tmpWriteSlice;
+
+	    ArrayList tmpObjectList = other._objectList;
+	    other._objectList = _objectList;
+	    _objectList = tmpObjectList;
 	}
 	
 	public virtual void resize(int total, bool reading)
@@ -1026,7 +1048,7 @@ namespace IceInternal
 	    if(index == 0)
 	    {
 		patcher.patch(null);
-		return ;
+		return;
 	    }
 	    
 	    if(index < 0 && patcher != null)
@@ -1048,7 +1070,7 @@ namespace IceInternal
 		//
 		patchlist.Add(patcher);
 		patchReferences(null, i);
-		return ;
+		return;
 	    }
 	    
 	    while(true)
@@ -1101,27 +1123,46 @@ namespace IceInternal
 		
 		if(v == null)
 		{
-		    //
-		    // Performance sensitive, so we use lazy initialization for tracing.
-		    //
-		    if(_traceSlicing == -1)
+		    if(_sliceObjects)
 		    {
-			_traceSlicing = _instance.traceLevels().slicing;
-			_slicingCat = _instance.traceLevels().slicingCat;
+			//
+			// Performance sensitive, so we use lazy initialization for tracing.
+			//
+			if(_traceSlicing == -1)
+			{
+			    _traceSlicing = _instance.traceLevels().slicing;
+			    _slicingCat = _instance.traceLevels().slicingCat;
+			}
+			if(_traceSlicing > 0)
+			{
+			    TraceUtil.traceSlicing("class", id, _slicingCat, _instance.logger());
+			}
+			skipSlice(); // Slice off this derived part -- we don't understand it.
+			continue;
 		    }
-		    if(_traceSlicing > 0)
+		    else
 		    {
-			TraceUtil.traceSlicing("class", id, _slicingCat, _instance.logger());
+		        Ice.NoObjectFactoryException ex = new Ice.NoObjectFactoryException();
+			ex.type = id;
+			throw ex;
 		    }
-		    skipSlice(); // Slice off this derived part -- we don't understand it.
-		    continue;
 		}
 		
 		int i = index;
 		_readEncapsStack.unmarshaledMap[i] = v;
+
+		//
+		// Record each object instance so that readPendingObjects can invoke ice_postUnmarshal
+		// after all objects have been unmarshaled.
+		//
+		if(_objectList == null)
+		{
+		    _objectList = new ArrayList();
+		}
+
 		v.__read(this, false);
 		patchReferences(i, null);
-		return ;
+		return;
 	    }
 	}
 	
@@ -1186,14 +1227,16 @@ namespace IceInternal
 		    {
 			TraceUtil.traceSlicing("exception", id, _slicingCat, _instance.logger());
 		    }
-		    skipSlice(); // Slice off what we don't understand
-		    id = readString(); // Read type id for next slice
+		    skipSlice(); // Slice off what we don't understand.
+		    id = readString(); // Read type id for next slice.
 		}
 	    }
+
 	    //
-	    // Getting here should be impossible: we can get here only if the sender has marshaled a sequence
-	    // of type IDs, none of which we have factory for. This means that sender and receiver disagree
-	    // about the Slice definitions they use.
+	    // We can get here only if the sender has marshaled a sequence
+	    // of type Ids, none of which we have factory for. This means
+	    // that sender and receiver disagree about the Slice
+	    //  definitions they use.
 	    //
 	    throw new Ice.UnknownUserException("Client and server disagree about the type IDs in use");
 	}
@@ -1242,16 +1285,51 @@ namespace IceInternal
 		}
 	    }
 	    while(num > 0);
+
+	    //
+	    // Iterate over unmarshaledMap and invoke ice_postUnmarshal on each object.
+	    // We must do this after all objects in this encapsulation have been
+	    // unmarshaled in order to ensure that any object data members have been
+	    // properly patched.
+	    //
+	    if(_objectList != null)
+	    {
+		foreach(Ice.Object obj in _objectList)
+		{
+		    try
+		    {
+		        obj.ice_postUnmarshal();
+		    }
+		    catch(System.Exception ex)
+		    {
+		        _instance.logger().warning("exception raised by ice_postUnmarshal::\n" + ex);
+		    }
+		}
+	    }
 	}
 	
 	public virtual void marshalFacets(bool b)
 	{
 	    _marshalFacets = b;
 	}
+
+	public void
+	sliceObjects(bool b)
+	{
+	    _sliceObjects = b;
+	}
 	
 	internal virtual void writeInstance(Ice.Object v, int index)
 	{
 	    writeInt(index);
+	    try
+	    {
+	        v.ice_preMarshal();
+	    }
+	    catch(System.Exception ex)
+	    {
+		_instance.logger().warning("exception raised by ice_preMarshal::\n" + ex);
+	    }
 	    v.__write(this, _marshalFacets);
 	}
 	
@@ -1276,7 +1354,7 @@ namespace IceInternal
 		patchlist = (IceUtil.LinkedList)_readEncapsStack.patchMap[instanceIndex];
 		if(patchlist == null)
 		{
-		    return ; // We don't have anything to patch for the instance just unmarshaled
+		    return; // We don't have anything to patch for the instance just unmarshaled
 		}
 		v = (Ice.Object)_readEncapsStack.unmarshaledMap[instanceIndex];
 		patchIndex = instanceIndex;
@@ -1289,7 +1367,7 @@ namespace IceInternal
 		v = (Ice.Object)_readEncapsStack.unmarshaledMap[patchIndex];
 		if(v == null)
 		{
-		    return ; // We haven't unmarshaled the instance for this index yet
+		    return; // We haven't unmarshaled the instance for this index yet
 		}
 		patchlist = (IceUtil.LinkedList)_readEncapsStack.patchMap[patchIndex];
 	    }
@@ -1641,8 +1719,11 @@ namespace IceInternal
 	private string _slicingCat;
 	
 	private bool _marshalFacets;
+	private bool _sliceObjects;
 	
 	private int _messageSizeMax;
+
+	private ArrayList _objectList;
 
 	private static volatile bool _assembliesLoaded = false;
 	private static Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs

@@ -71,7 +71,7 @@ namespace Ice
 		    __checkTwowayOnly("ice_ping");
 		    Object_Del __del = __getDelegate();
 		    __del.ice_ping(__context);
-		    return ;
+		    return;
 		}
 		catch(IceInternal.NonRepeatable __ex)
 		{
@@ -207,20 +207,8 @@ namespace Ice
 	public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, ByteSeq inParams,
 			             Context context)
 	{
-	    int __cnt = 0;
-	    while(true)
-	    {
-		try
-		{
-		    Object_Del __del = __getDelegate();
-		    __del.ice_invoke_async(cb, operation, mode, inParams, context);
-		    return ;
-		}
-		catch(LocalException __ex)
-		{
-		    __cnt = __handleException(__ex, __cnt);
-		}
-	    }
+	    __checkTwowayOnly("ice_invoke_async");
+	    cb.__invoke(__reference(), operation, mode, inParams, context);
 	}
 	
 	public Identity ice_getIdentity()
@@ -583,63 +571,13 @@ namespace Ice
 		_reference.locatorInfo.clearObjectCache(_reference);
 	    }
 	    
-	    ++cnt;
-	    
-	    IceInternal.TraceLevels traceLevels = _reference.instance.traceLevels();
-	    Logger logger = _reference.instance.logger();
 	    IceInternal.ProxyFactory proxyFactory = _reference.instance.proxyFactory();
-	    
-	    //
-	    // Instance components may be null if Communicator has been destroyed.
-	    //
-	    if(traceLevels != null && logger != null && proxyFactory != null)
+	    if(proxyFactory != null)
 	    {
-		int[] retryIntervals = proxyFactory.getRetryIntervals();
-		
-		if(cnt > retryIntervals.Length)
-		{
-		    if(traceLevels.retry >= 1)
-		    {
-			//UPGRADE_TODO: The equivalent in .NET for method 'java.lang.Throwable.toString' may return a different value. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1043"' // TODO
-			string s = "cannot retry operation call because retry limit has been exceeded\n" + ex.ToString();
-			logger.trace(traceLevels.retryCat, s);
-		}
-		    throw ex;
-		}
-		
-		if(traceLevels.retry >= 1)
-		{
-		    string s = "re-trying operation call";
-		    if(cnt > 0 && retryIntervals[cnt - 1] > 0)
-		    {
-			s += " in " + retryIntervals[cnt - 1] + "ms";
-		    }
-		    s += " because of exception\n" + ex;
-		    logger.trace(traceLevels.retryCat, s);
-		}
-		
-		if(cnt > 0)
-		{
-		    //
-		    // Sleep before retrying.
-		    //
-		    try
-		    {
-			SupportClass.ThreadClass.Current();
-			System.Threading.Thread.Sleep(new System.TimeSpan(10000 * retryIntervals[cnt - 1]));
-		    }
-		    catch(System.Threading.ThreadInterruptedException)
-		    {
-		    }
-		}
-		
-		return cnt;
+	        return proxyFactory.checkRetryAfterException(ex, cnt);
 	    }
 	    else
 	    {
-		//
-		// Impossible to retry after Communicator has been destroyed.
-		//
 		throw ex;
 	    }
 	}

@@ -555,6 +555,260 @@ namespace IceInternal
 	}
 	
 	//
+	// Get a suitable connection for this reference.
+	//
+	public Connection getConnection()
+	{
+	    Connection connection;
+
+	    if(reverseAdapter != null)
+	    {
+		//
+		// If we have a reverse object adapter, we use the incoming
+		// connections from such object adapter.
+		//
+		Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)reverseAdapter;
+		Connection[] connections = adapter.getIncomingConnections();
+
+		Endpoint[] endpoints = new Endpoint[connections.Length];
+		for(int i = 0; i < connections.Length; i++)
+		{
+		    endpoints[i] = connections[i].endpoint();
+		}
+		endpoints = filterEndpoints(endpoints);
+
+		if(endpoints.Length == 0)
+		{
+		    Ice.NoEndpointException e = new Ice.NoEndpointException();
+		    e.proxy = ToString();
+		    throw e;
+		}
+
+		int j;
+		for(j = 0; j < connections.Length; j++)
+		{
+		    if(connections[j].endpoint().Equals(endpoints[0]))
+		    {
+			break;
+		    }
+		}
+		Debug.Assert(j < connections.Length);
+		connection = connections[j];
+	    }
+	    else
+	    {
+		while(true)
+		{
+		    bool cached = false;
+		    Endpoint[] endpts = null;
+
+		    if(routerInfo != null)
+		    {
+			//
+			// If we route, we send everything to the router's client
+			// proxy endpoints.
+			//
+			Ice.ObjectPrx proxy = routerInfo.getClientProxy();
+			endpts = ((Ice.ObjectPrxHelper)proxy).__reference().endpoints;
+		    }
+		    else if(endpoints.Length > 0)
+		    {
+			endpts = endpoints;
+		    }
+		    else if(locatorInfo != null)
+		    {
+			endpts = locatorInfo.getEndpoints(this, out cached);
+		    }
+
+		    Endpoint[] filteredEndpts = filterEndpoints(endpts);
+		    if(filteredEndpts == null || filteredEndpts.Length == 0)
+		    {
+			Ice.NoEndpointException e = new Ice.NoEndpointException();
+			e.proxy = ToString();
+			throw e;
+		    }
+
+		    try
+		    {
+			OutgoingConnectionFactory factory = instance.outgoingConnectionFactory();
+			connection = factory.create(filteredEndpts);
+			Debug.Assert(connection != null);
+		    }
+		    catch(Ice.LocalException ex)
+		    {
+			if(routerInfo == null && endpoints.Length == 0)
+			{
+			    Debug.Assert(locatorInfo != null);
+			    locatorInfo.clearCache(this);
+			    
+			    if(cached)
+			    {
+				TraceLevels traceLevels = instance.traceLevels();
+				Ice.Logger logger = instance.logger();
+				
+				if(traceLevels.retry >= 2)
+				{
+				    string s = "connection to cached endpoints failed\n" +
+					       "removing endpoints from cache and trying one more time\n" + ex;
+				    logger.trace(traceLevels.retryCat, s);
+				}
+				
+				continue;
+			    }
+			}
+
+			throw ex;
+		    }   
+
+		    break;
+		}
+
+		//
+		// If we have a router, set the object adapter for this
+		// router (if any) to the new connection, so that
+		// callbacks from the router can be received over this new
+		// connection.
+		//
+		if(routerInfo != null)
+		{
+		    connection.setAdapter(routerInfo.getAdapter());
+		}
+	    }
+
+	    Debug.Assert(connection != null);
+	    return connection;
+	}
+
+	//
+	// Filter endpoints based on criteria from this reference.
+	//
+	public Endpoint[]
+	filterEndpoints(Endpoint[] allEndpoints)
+	{
+	    ArrayList endpoints = new ArrayList();
+
+	    //
+	    // Filter out unknown endpoints.
+	    //
+	    for(int i = 0; i < allEndpoints.Length; i++)
+	    {
+		if(!allEndpoints[i].unknown())
+		{
+		    endpoints.Add(allEndpoints[i]);
+		}
+	    }
+
+	    switch(mode)
+	    {
+		case Reference.ModeTwoway:
+		case Reference.ModeOneway:
+		case Reference.ModeBatchOneway:
+		{
+		    //
+		    // Filter out datagram endpoints.
+		    //
+		    ArrayList tmp = new ArrayList();
+		    foreach(Endpoint endpoint in endpoints)
+		    {
+			if(!endpoint.datagram())
+			{
+			    tmp.Add(endpoint);
+			}
+		    }
+		    endpoints = tmp;
+		    break;
+		}
+
+		case Reference.ModeDatagram:
+		case Reference.ModeBatchDatagram:
+		{
+		    //
+		    // Filter out non-datagram endpoints.
+		    //
+		    ArrayList tmp = new ArrayList();
+		    foreach(Endpoint endpoint in endpoints)
+		    {
+			if(endpoint.datagram())
+			{
+			    tmp.Add(endpoint);
+			}
+		    }
+		    endpoints = tmp;
+		    break;
+		}
+	    }
+
+	    //
+	    // Randomize the order of endpoints.
+	    //
+	    for(int i = 0; i < endpoints.Count - 1; ++i)
+	    {
+		int r = _rand.Next(endpoints.Count - i) + i;
+		Debug.Assert(r >= i && r < endpoints.Count);
+		if(r != i)
+		{
+		    object tmp = endpoints[i];
+		    endpoints[i] = endpoints[r];
+		    endpoints[r] = tmp;
+		}
+	    }
+
+	    //
+	    // If a secure connection is requested, remove all non-secure
+	    // endpoints. Otherwise make non-secure endpoints preferred over
+	    // secure endpoints by partitioning the endpoint vector, so that
+	    // non-secure endpoints come first.
+	    //
+	    if(secure)
+	    {
+		ArrayList tmp = new ArrayList();
+		foreach(Endpoint endpoint in endpoints)
+		{
+		    if(endpoint.secure())
+		    {
+			tmp.Add(endpoint);
+		    }
+		}
+		endpoints = tmp;
+	    }
+	    else
+	    {
+		endpoints.Sort(_comparator);
+	    }
+	    
+	    Endpoint[] arr = new Endpoint[endpoints.Count];
+	    endpoints.CopyTo(arr);
+	    return arr;
+	}
+
+	private static System.Random _rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
+
+	private class EndpointComparator : IComparer
+	{
+	    public int Compare(object l, object r)
+	    {
+		IceInternal.Endpoint le = (IceInternal.Endpoint)l;
+		IceInternal.Endpoint re = (IceInternal.Endpoint)r;
+		bool ls = le.secure();
+		bool rs = re.secure();
+		if((ls && rs) || (!ls && !rs))
+		{
+		    return 0;
+		}
+		else if(!ls && rs)
+		{
+		    return -1;
+		}
+		else
+		{
+		    return 1;
+		}
+	    }
+	}
+	
+	private static EndpointComparator _comparator = new EndpointComparator();
+
+	//
 	// Only for use by ReferenceFactory
 	//
 	internal Reference(Instance inst, Ice.Identity ident, Ice.Context ctx, Ice.FacetPath fac, int md,

@@ -28,14 +28,28 @@ namespace IceInternal
 	}
 	
 	//
+	// Do NOT user a finalizer, this would cause a sever perforrmance
+	// penalty! We must make sure that __destroy() is called instead,
+	// to reclaim resources.
+	//
+	public override void __destroy()
+	{
+	    base.__destroy();
+	    
+	    if(_is != null)
+	    {
+		_is.destroy();
+		_is = null;
+	    }
+	}
+	
+	//
 	// This function allows this object to be reused, rather than
 	// reallocated.
 	//
 	public override void reset(Instance instance, Connection connection,
 	                           Ice.ObjectAdapter adapter, bool response, byte compress)
 	{
-	    base.reset(instance, connection, adapter, response, compress);
-	    
 	    if(_is == null)
 	    {
 		_is = new BasicStream(instance);
@@ -44,6 +58,8 @@ namespace IceInternal
 	    {
 		_is.reset();
 	    }
+
+	    base.reset(instance, connection, adapter, response, compress);
 	}
 	
 	public void invoke(ServantManager servantManager)
@@ -290,20 +306,6 @@ namespace IceInternal
 	public BasicStream ostr()
 	{
 	    return _os;
-	}
-	
-	//
-	// Reclaim resources.
-	//
-	public override void __destroy()
-	{
-	    base.__destroy();
-	    
-	    if(_is != null)
-	    {
-		_is.destroy();
-		_is = null;
-	    }
 	}
 	
 	internal Incoming next; // For use by Connection.

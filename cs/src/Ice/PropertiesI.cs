@@ -295,7 +295,7 @@ namespace Ice
 	    int hash = s.IndexOf('#');
 	    if(hash == 0)
 	    {
-		return ; // ignore comment lines
+		return; // ignore comment lines
 	    }
 	    else if(hash != - 1)
 	    {
@@ -316,7 +316,7 @@ namespace Ice
 	    }
 	    if(end == -1)
 	    {
-		return ;
+		return;
 	    }
 	    
 	    string key = s.Substring(0, end);

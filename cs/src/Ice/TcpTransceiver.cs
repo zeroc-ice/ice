@@ -40,11 +40,12 @@ namespace IceInternal
 	    try
 	    {
 		_fd.Close();
+		_fd = null;
 	    }
-	    catch(System.IO.IOException)
+	    catch(System.IO.IOException ex)
 	    {
+	        throw new Ice.SocketException(ex);
 	    }
-	    _fd = null;
 	}
 	
 	public void shutdown()
@@ -60,8 +61,9 @@ namespace IceInternal
 	    {
 		_fd.Shutdown(SocketShutdown.Send); // Shutdown socket for writing
 	    }
-	    catch(System.IO.IOException)
+	    catch(System.IO.IOException ex)
 	    {
+	        throw new Ice.SocketException(ex);
 	    }
 	}
 	

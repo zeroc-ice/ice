@@ -177,5 +177,4 @@ namespace IceInternal
 	
 	protected internal bool _finished;
     }
-	
 }

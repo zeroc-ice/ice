@@ -81,8 +81,7 @@ namespace IceInternal
 	public static bool connectFailed(Win32Exception ex)
 	{
 	    int error = ex.NativeErrorCode;
-	    return error == WSAECONNREFUSED ||
-		   error == WSAETIMEDOUT ||
+	    return error == WSAETIMEDOUT ||
 		   error == WSAENETUNREACH ||
 		   error == WSAECONNRESET ||
 		   error == WSAESHUTDOWN ||
@@ -103,6 +102,11 @@ namespace IceInternal
 		   error == WSAECONNABORTED ||
 		   error == WSAENETDOWN ||
 		   error == WSAENETRESET;
+	}
+
+	public static bool connectionRefused(Win32Exception ex)
+	{
+	    return ex.NativeErrorCode == WSAECONNREFUSED;
 	}
 	
 	public static bool notConnected(Win32Exception ex)

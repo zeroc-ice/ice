@@ -214,26 +214,8 @@ namespace IceInternal
 		    throw new Ice.CommunicatorDestroyedException();
 		}
 		
-		if(_clientThreadPool == null)
-		// Lazy initialization.
+		if(_clientThreadPool == null) // Lazy initialization.
 		{
-		    //
-		    // Make sure that the client thread pool defaults are
-		    // correctly.
-		    //
-		    if(_properties.getProperty("Ice.ThreadPool.Client.Size") == "")
-		    {
-			_properties.setProperty("Ice.ThreadPool.Client.Size", "1");
-		    }
-		    if(_properties.getProperty("Ice.ThreadPool.Client.SizeMax") == "")
-		    {
-			_properties.setProperty("Ice.ThreadPool.Client.SizeMax", "1");
-		    }
-		    if(_properties.getProperty("Ice.ThreadPool.Client.SizeWarn") == "")
-		    {
-			_properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-		    }
-		    
 		    _clientThreadPool = new ThreadPool(this, "Ice.ThreadPool.Client", 0);
 		}
 		
@@ -293,6 +275,12 @@ namespace IceInternal
 	    return _messageSizeMax;
 	}
 	
+	public int connectionIdleTime()
+	{
+	    // No mutex lock, immutable.
+	    return _connectionIdleTime;
+	}
+
 	public virtual void flushBatchRequests()
 	{
 	    OutgoingConnectionFactory connectionFactory;
@@ -335,7 +323,8 @@ namespace IceInternal
 		}
 		else
 		{
-		    _logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"), _properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
+		    _logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"),
+		                              _properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 		}
 		
 		_stats = null; // There is no default statistics callback object.
@@ -344,19 +333,33 @@ namespace IceInternal
 		
 		_defaultsAndOverrides = new DefaultsAndOverrides(_properties);
 		
-		const int defaultMessageSizeMax = 1024;
-		int num = _properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
-		if(num < 1)
 		{
-		    _messageSizeMax = defaultMessageSizeMax * 1024; // Ignore stupid values.
+		    const int defaultMessageSizeMax = 1024;
+		    int num = _properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+		    if(num < 1)
+		    {
+			_messageSizeMax = defaultMessageSizeMax * 1024; // Ignore stupid values.
+		    }
+		    else if(num > 0x7fffffff / 1024)
+		    {
+			_messageSizeMax = 0x7fffffff;
+		    }
+		    else
+		    {
+			_messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+		    }
 		}
-		else if(num > 0x7fffffff / 1024)
+
 		{
-		    _messageSizeMax = 0x7fffffff;
-		}
-		else
-		{
-		    _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+		    int num = _properties.getPropertyAsIntWithDefault("Ice.ConnectionIdleTime", 60);
+		    if(num < 0)
+		    {
+			_connectionIdleTime = 0;
+		    }
+		    else
+		    {
+			_connectionIdleTime = num;
+		    }
 		}
 		
 		_routerManager = new RouterManager();
@@ -444,11 +447,9 @@ namespace IceInternal
 	    }
 
 	    //
-	    // Connection monitor initializations must be done after
-	    // daemon() is called, since daemon() forks.
+	    // Start connection monitor if necessary.
 	    //
-	    int acmTimeout = _properties.getPropertyAsInt("Ice.ConnectionIdleTime");
-	    int interval = _properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", acmTimeout);
+	    int interval = _properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", _connectionIdleTime);
 	    if(interval > 0)
 	    {
 		_connectionMonitor = new ConnectionMonitor(this, interval);
@@ -498,7 +499,6 @@ namespace IceInternal
 		
 		if(_connectionMonitor != null)
 		{
-		    //UPGRADE_ISSUE: Method 'java.lang.Thread.destroy' was not converted. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1000_javalangThreaddestroy"'
 		    _connectionMonitor.destroy();
 		    _connectionMonitor = null;
 		}
@@ -587,6 +587,7 @@ namespace IceInternal
 	private volatile TraceLevels _traceLevels; // Immutable, not reset by destroy().
 	private volatile DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
 	private volatile int _messageSizeMax; // Immutable, not reset by destroy().
+	private volatile int _connectionIdleTime; // Immutable, not reset by destroy().
 	private RouterManager _routerManager;
 	private LocatorManager _locatorManager;
 	private ReferenceFactory _referenceFactory;

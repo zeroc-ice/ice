@@ -116,12 +116,6 @@ namespace Ice
 	    throw new CollocationOptimizationException();
 	}
 	
-	public virtual void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, Ice.OperationMode mode,
-	                                     Ice.ByteSeq inParams, Ice.Context context)
-	{
-	    throw new CollocationOptimizationException();
-	}
-	
 	//
 	// Only for use by ObjectPrx.
 	//

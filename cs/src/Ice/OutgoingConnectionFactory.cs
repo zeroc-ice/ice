@@ -239,6 +239,21 @@ namespace IceInternal
 		    {
 			Connector connector = endpoint.connector();
 			Debug.Assert(connector != null);
+
+			int timeout;
+			DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+			if(defaultsAndOverrides.overrideConnectTimeout)
+			{
+			    timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
+			}
+			// It is not necessary to check for overrideTimeout,
+			// the endpoint has already been modified this this
+			// override, if set.
+			else
+			{
+			    timeout = endpoint.timeout();
+			}
+
 			transceiver = connector.connect(endpoint.timeout());
 			Debug.Assert(transceiver != null);
 		    }

@@ -16,195 +16,105 @@ namespace IceInternal
 {
 
     using System.Collections;
+    using System.Diagnostics;
 
     public abstract class OutgoingAsync
     {
 	public OutgoingAsync()
 	{
-	    _is = null;
-	    _os = null;
 	}
 	
 	public abstract void ice_exception(Ice.LocalException ex);
 	
-	public virtual void __setup(Connection connection, Reference r, string operation, Ice.OperationMode mode,
-	                            Ice.Context context)
+	public void __finished(BasicStream istr)
 	{
+	    System.Threading.Monitor.Enter(this);
+
+	    DispatchStatus status;
+	    
 	    try
 	    {
-		_connection = connection;
-		if(_is == null)
-		{
-		    _is = new BasicStream(r.instance);
-		}
-		else
-		{
-		    _is.reset();
-		}
-		if(_os == null)
-		{
-		    _os = new BasicStream(r.instance);
-		}
-		else
-		{
-		    _os.reset();
-		}
+		__is.swap(istr);
 		
-		_connection.prepareRequest(_os);
+		status = (DispatchStatus)__is.readByte();
 		
-		r.identity.__write(_os);
-		_os.writeStringSeq(r.facet);
-		_os.writeString(operation);
-		_os.writeByte((byte)mode);
-		if(context == null)
+		switch(status)
 		{
-		    _os.writeSize(0);
-		}
-		else
-		{
-		    int sz = context.Count;
-		    _os.writeSize(sz);
-		    if(sz > 0)
+		    case DispatchStatus.DispatchOK:
+		    case DispatchStatus.DispatchUserException:
 		    {
-			foreach(DictionaryEntry entry in context)
-			{
-			    _os.writeString((string)entry.Key);
-			    _os.writeString((string)entry.Value);
-			}
-		    }
-		}
-		
-		//
-		// Input and output parameters are always sent in an
-		// encapsulation, which makes it possible to forward
-		// requests as blobs.
-		//
-		_os.startWriteEncaps();
-	    }
-	    catch(System.Exception ex)
-	    {
-		destroy();
-		throw ex;
-	    }
-	}
-	
-	public virtual void __invoke()
-	{
-	    try
-	    {
-		_os.endWriteEncaps();
-		
-		_connection.sendAsyncRequest(this);
-		
-		if(_connection.timeout() >= 0)
-		{
-		    _absoluteTimeoutMillis = (System.DateTime.Now.Ticks - 621355968000000000) / 10000
-					     + _connection.timeout();
-		}
-	    }
-	    catch(System.Exception ex)
-	    {
-		destroy();
-		throw ex;
-	    }
-	}
-	
-	public virtual void __finished(BasicStream istr)
-	{
-	    try
-	    {
-		_is.swap(istr);
-		byte status = _is.readByte();
-		
-		switch((DispatchStatus)status)
-		{
-		    case DispatchStatus.DispatchOK: 
-		    {
-			//
-			// Input and output parameters are always sent in an
-			// encapsulation, which makes it possible to forward
-			// oneway requests as blobs.
-			//
-			_is.startReadEncaps();
-			__response(true);
+			__is.startReadEncaps();
 			break;
 		    }
 		    
-		    case DispatchStatus.DispatchUserException: 
-		    {
-			//
-			// Input and output parameters are always sent in an
-			// encapsulation, which makes it possible to forward
-			// oneway requests as blobs.
-			//
-			_is.startReadEncaps();
-			__response(false);
-			break;
-		    }
-		    
-		    case DispatchStatus.DispatchObjectNotExist: 
+		    case DispatchStatus.DispatchObjectNotExist:
 		    {
 			Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
 			ex.id = new Ice.Identity();
-			ex.id.__read(_is);
-			ex.facet = _is.readFacetPath();
-			ex.operation = _is.readString();
-			ice_exception(ex);
-			break;
+			ex.id.__read(__is);
+			ex.facet = __is.readFacetPath();
+			ex.operation = __is.readString();
+			throw ex;
 		    }
 		    
-		    case DispatchStatus.DispatchFacetNotExist: 
+		    case DispatchStatus.DispatchFacetNotExist:
 		    {
 			Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
 			ex.id = new Ice.Identity();
-			ex.id.__read(_is);
-			ex.facet = _is.readFacetPath();
-			ex.operation = _is.readString();
-			ice_exception(ex);
-			break;
+			ex.id.__read(__is);
+			ex.facet = __is.readFacetPath();
+			ex.operation = __is.readString();
+			throw ex;
 		    }
 		    
-		    case DispatchStatus.DispatchOperationNotExist: 
+		    case DispatchStatus.DispatchOperationNotExist:
 		    {
 			Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
 			ex.id = new Ice.Identity();
-			ex.id.__read(_is);
-			ex.facet = _is.readFacetPath();
-			ex.operation = _is.readString();
-			ice_exception(ex);
-			break;
+			ex.id.__read(__is);
+			ex.facet = __is.readFacetPath();
+			ex.operation = __is.readString();
+			throw ex;
 		    }
 		    
-		    case DispatchStatus.DispatchUnknownException: 
+		    case DispatchStatus.DispatchUnknownException:
 		    {
 			Ice.UnknownException ex = new Ice.UnknownException();
-			ex.unknown = _is.readString();
-			ice_exception(ex);
-			break;
+			ex.unknown = __is.readString();
+			throw ex;
 		    }
 		    
-		    case DispatchStatus.DispatchUnknownLocalException: 
+		    case DispatchStatus.DispatchUnknownLocalException:
 		    {
 			Ice.UnknownLocalException ex = new Ice.UnknownLocalException();
-			ex.unknown = _is.readString();
-			ice_exception(ex);
-			break;
+			ex.unknown = __is.readString();
+			throw ex;
 		    }
 		    
-		    case DispatchStatus.DispatchUnknownUserException: 
+		    case DispatchStatus.DispatchUnknownUserException:
 		    {
 			Ice.UnknownUserException ex = new Ice.UnknownUserException();
-			ex.unknown = _is.readString();
-			ice_exception(ex);
-			break;
+			ex.unknown = __is.readString();
+			throw ex;
 		    }
 		    
-		    default: 
+		    default:
 		    {
-			ice_exception(new Ice.UnknownReplyStatusException());
-			break;
+			throw new Ice.UnknownReplyStatusException();
 		    }
 		}
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		__finished(ex);
+		return;
+	    }
+		
+	    Debug.Assert(status == DispatchStatus.DispatchOK || status == DispatchStatus.DispatchUserException);
+	    
+	    try
+	    {
+		__response(status == DispatchStatus.DispatchOK);
 	    }
 	    catch(System.Exception ex)
 	    {
@@ -212,12 +122,62 @@ namespace IceInternal
 	    }
 	    finally
 	    {
-		destroy();
+		cleanup();
 	    }
 	}
 	
-	public virtual void __finished(Ice.LocalException exc)
+	public void __finished(Ice.LocalException exc)
 	{
+	    System.Threading.Monitor.Enter(this);
+
+	    if(_reference != null)
+	    {
+		if(_reference.locatorInfo != null)
+		{
+		    _reference.locatorInfo.clearObjectCache(_reference);
+		}
+		
+		bool doRetry = false;
+		
+		//
+		// A CloseConnectionException indicates graceful
+		// server shutdown, and is therefore always repeatable
+		// without violating "at-most-once". That's because by
+		// sending a close connection message, the server
+		// guarantees that all outstanding requests can safely
+		// be repeated. Otherwise, we can also retry if the
+		// operation mode Nonmutating or Idempotent.
+		//
+		if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent ||
+		   exc is Ice.CloseConnectionException)
+		{
+		    try
+		    {
+			ProxyFactory proxyFactory = _reference.instance.proxyFactory();
+			if(proxyFactory != null)
+			{
+			    _cnt = proxyFactory.checkRetryAfterException(exc, _cnt);
+			}
+			else
+			{
+			    throw exc; // The communicator is already destroyed, so we cannot retry.
+			}
+			
+			doRetry = true;
+		    }
+		    catch(Ice.LocalException)
+		    {
+		    }
+		}
+		
+		if(doRetry)
+		{
+		    _connection = null;
+		    __send();
+		    return;
+		}
+	    }
+	    
 	    try
 	    {
 		ice_exception(exc);
@@ -228,64 +188,205 @@ namespace IceInternal
 	    }
 	    finally
 	    {
-		destroy();
+		cleanup();
 	    }
 	}
 	
-	public virtual bool __timedOut()
+	public bool __timedOut()
 	{
-	    if(_connection.timeout() >= 0)
+	    _timeoutMutex.WaitOne();
+	    long absoluteTimeoutMillis = _absoluteTimeoutMillis;
+	    _timeoutMutex.ReleaseMutex();
+
+	    if(absoluteTimeoutMillis > 0)
 	    {
-		return (System.DateTime.Now.Ticks - 621355968000000000) / 10000 >= _absoluteTimeoutMillis;
+		return System.DateTime.Now.Ticks / 10 >= absoluteTimeoutMillis;
 	    }
 	    else
 	    {
 		return false;
 	    }
 	}
-	
-	public virtual BasicStream __is()
+
+	protected void __prepare(Reference r, string operation, Ice.OperationMode mode, Ice.Context context)
 	{
-	    return _is;
+	    System.Threading.Monitor.Enter(this);
+
+	    try
+	    {
+		//
+		// We must first wait for other requests to finish.
+		//
+		while(_reference != null)
+		{
+		    try
+		    {
+			System.Threading.Monitor.Wait(this);
+		    }
+		    catch(System.Threading.ThreadInterruptedException)
+		    {
+		    }
+		}
+		
+		_reference = r;
+		Debug.Assert(_connection == null);
+		_connection = _reference.getConnection();
+		_cnt = 0;
+		_mode = mode;
+		Debug.Assert(__is == null);
+		__is = new BasicStream(_reference.instance);
+		Debug.Assert(__os == null);
+		__os = new BasicStream(_reference.instance);
+		
+		_connection.prepareRequest(__os);
+		
+		r.identity.__write(__os);
+		__os.writeStringSeq(r.facet);
+		__os.writeString(operation);
+		__os.writeByte((byte)mode);
+		if(context == null)
+		{
+		    __os.writeSize(0);
+		}
+		else
+		{
+		    int sz = context.Count;
+		    __os.writeSize(sz);
+		    if(sz > 0)
+		    {
+			foreach(DictionaryEntry e in context)
+			{
+			    __os.writeString((string)e.Key);
+			    __os.writeString((string)e.Value);
+			}
+		    }
+		}
+		
+		__os.startWriteEncaps();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		cleanup();
+		throw ex;
+	    }
 	}
 	
-	public virtual BasicStream __os()
+	protected void __send()
 	{
-	    return _os;
+	    System.Threading.Monitor.Wait(this);
+
+	    try
+	    {
+		while(true)
+		{
+		    if(_connection == null)
+		    {
+			_connection = _reference.getConnection();
+		    }
+		    
+		    _timeoutMutex.WaitOne();
+		    if(_connection.timeout() >= 0)
+		    {
+			_absoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _connection.timeout();
+		    }
+		    else
+		    {
+			_absoluteTimeoutMillis = 0;
+		    }
+		    _timeoutMutex.ReleaseMutex();
+		    
+		    try
+		    {
+			_connection.sendAsyncRequest(__os, this);
+			
+			//
+			// Don't do anything after sendAsyncRequest() returned
+			// without an exception.  I such case, there will be
+			// callbacks, i.e., calls to the __finished()
+			// functions. Since there is no mutex protection, we
+			// cannot modify state here and in such callbacks.
+			//
+			return;
+		    }
+		    catch(Ice.LocalException ex)
+		    {
+			if(_reference.locatorInfo != null)
+			{
+			    _reference.locatorInfo.clearObjectCache(_reference);
+			}
+			
+			ProxyFactory proxyFactory = _reference.instance.proxyFactory();
+			if(proxyFactory != null)
+			{
+			    _cnt = proxyFactory.checkRetryAfterException(ex, _cnt);
+			}
+			else
+			{
+			    throw ex; // The communicator is already destroyed, so we cannot retry.
+			}
+		    }
+		    
+		    _connection = null;
+		}
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		__finished(ex);
+	    }
 	}
-	
+
 	protected internal abstract void __response(bool ok);
-	
-	private void destroy()
-	{
-	    if(_is != null)
-	    {
-		_is.destroy();
-		_is = null;
-	    }
-	    if(_os != null)
-	    {
-		_os.destroy();
-		_os = null;
-	    }
-	}
 	
 	private void warning(System.Exception ex)
 	{
-	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+	    if(__os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
 	    {
-		IceUtil.OutputBase output = new IceUtil.OutputBase("");
-		output.setUseTab(false);
-		output.print("exception raised by AMI callback:\n");
-		output.print(ex.ToString());
-		_os.instance().logger().warning(output.ToString()); // TODO: need to override ToString()?
+	        __os.instance().logger().warning("exception raised by AMI callback:\n" + ex);
 	    }
 	}
+
+	private void cleanup()
+	{
+	    if(_reference != null)
+	    {
+	        _reference = null;
+	    }
+
+	    if(_connection != null)
+	    {
+	        _connection = null;
+	    }
+
+	    if(__is != null)
+	    {
+		__is.destroy();
+		__is = null;
+	    }
+	    if(__os != null)
+	    {
+		__os.destroy();
+		__os = null;
+	    }
+
+	    System.Threading.Monitor.Pulse(this);
+	    System.Threading.Monitor.Exit(this);
+	}
 	
+	protected BasicStream __is;
+	protected BasicStream __os;
+
+	private Reference _reference;
 	private Connection _connection;
+	private int _cnt;
+	private Ice.OperationMode _mode;
+
+	//
+	// Must be volatile, because we don't want to lock the monitor
+	// below in __timedOut(), to avoid deadlocks.
+	// This is true for Java -- for C#, we sadly can't have volatile longs :-(
+	//
 	private long _absoluteTimeoutMillis;
-	private BasicStream _is;
-	private BasicStream _os;
+	System.Threading.Mutex _timeoutMutex = new System.Threading.Mutex();
     }
 
 }

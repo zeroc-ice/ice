@@ -24,40 +24,35 @@ namespace IceInternal
 	{
 	    lock(this)
 	    {
-		if(_exception != null)
-		{
-		    throw _exception;
-		}
-		
-		if(_state != StateNotValidated)
-		{
-		    return;
-		}
-		
-		if(!_endpoint.datagram()) // Datagram connections are always implicitly validated.
+	        Debug.Assert(_state == StateNotValidated);
+
+		if(!endpoint().datagram()) // Datagram connections are always implicitly validated.
 		{
 		    try
 		    {
 			if(_adapter != null)
 			{
-			    //
-			    // Incoming connections play the active role with
-			    // respect to connection validation.
-			    //
-			    BasicStream os = new BasicStream(_instance);
-			    os.writeByte(Protocol.magic[0]);
-			    os.writeByte(Protocol.magic[1]);
-			    os.writeByte(Protocol.magic[2]);
-			    os.writeByte(Protocol.magic[3]);
-			    os.writeByte(Protocol.protocolMajor);
-			    os.writeByte(Protocol.protocolMinor);
-			    os.writeByte(Protocol.encodingMajor);
-			    os.writeByte(Protocol.encodingMinor);
-			    os.writeByte(Protocol.validateConnectionMsg);
-			    os.writeByte((byte)0); // Compression status.
-			    os.writeInt(Protocol.headerSize); // Message size.
-			    TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
-			    _transceiver.write(os, _endpoint.timeout());
+			    lock(_sendMutex)
+			    {
+				//
+				// Incoming connections play the active role with
+				// respect to connection validation.
+				//
+				BasicStream os = new BasicStream(_instance);
+				os.writeByte(Protocol.magic[0]);
+				os.writeByte(Protocol.magic[1]);
+				os.writeByte(Protocol.magic[2]);
+				os.writeByte(Protocol.magic[3]);
+				os.writeByte(Protocol.protocolMajor);
+				os.writeByte(Protocol.protocolMinor);
+				os.writeByte(Protocol.encodingMajor);
+				os.writeByte(Protocol.encodingMinor);
+				os.writeByte(Protocol.validateConnectionMsg);
+				os.writeByte((byte)0); // Compression status.
+				os.writeInt(Protocol.headerSize); // Message size.
+				TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
+				_transceiver.write(os, _endpoint.timeout());
+			    }
 			}
 			else
 			{
@@ -163,27 +158,11 @@ namespace IceInternal
 		    }
 		}
 		
-		//
-		// We only print warnings after successful connection validation.
-		//
-		_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0;
-		
-		//
-		// We only use active connection management after successful
-		// connection validation. We don't use active connection
-		// management for datagram connections at all, because such
-		// "virtual connections" cannot be reestablished.
-		//
-		if(!_endpoint.datagram())
+		if(_acmTimeout > 0)
 		{
-		    _acmTimeout = _instance.properties().getPropertyAsInt("Ice.ConnectionIdleTime");
-		    if(_acmTimeout > 0)
-		    {
-			_acmAbsoluteTimeoutMillis = (System.DateTime.Now.Ticks - 621355968000000000) / 10000 +
-						    _acmTimeout * 1000;
-		    }
+		    long _acmAbsolutetimoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
 		}
-		
+
 		//
 		// We start out in holding state.
 		//
@@ -234,33 +213,26 @@ namespace IceInternal
 	
 	public bool isValidated()
 	{
-	    //
-	    // No synchronization necessary, _state is declared
-	    // volatile. Synchronization is not possible here anyway,
-	    // because this function must not block.
-	    //
-	    return _state > StateNotValidated;
+	    lock(this)
+	    {
+		return _state > StateNotValidated;
+	    }
 	}
 
 	public bool isDestroyed()
 	{
-	    //
-	    // No synchronization necessary, _state is declared
-	    // volatile. Synchronization is not possible here anyway,
-	    // because this function must not block.
-	    //
-	    return _state >= StateClosing;
+	    lock(this)
+	    {
+		return _state >= StateClosing;
+	    }
 	}
 
 	public bool isFinished()
 	{
-	    //
-	    // No synchronization necessary, _transceiver and
-	    // _dispatchCount are declared volatile. Synchronization is
-	    // not possible here anyway, because this function must not
-	    // block.
-	    //
-	    return _transceiver == null && _dispatchCount == 0;
+	    lock(this)
+	    {
+		return _transceiver == null && _dispatchCount == 0;
+	    }
 	}
 
 	public void waitUntilHolding()
@@ -285,12 +257,13 @@ namespace IceInternal
 	    lock(this)
 	    {
 		//
-		// We wait indefinitely until all outstanding requests are
-		// completed. Otherwise we couldn't guarantee that there are
-		// no outstanding calls when deactivate() is called on the
-		// servant locators.
+		// We wait indefinitely until connection closing has been
+		// initiated. We also wait indefinitely until all outstanding
+		// requests are completed. Otherwise we couldn't guarantee
+		// that there are no outstanding calls when deactivate() is
+		// called on the servant locators.
 		//
-		while(_dispatchCount > 0)
+		while(_state < StateClosing || _dispatchCount > 0)
 		{
 		    try
 		    {
@@ -302,25 +275,43 @@ namespace IceInternal
 		}
 		
 		//
-		// Now we must wait for connection closure. If there is a
-		// timeout, we force the connection closure.
+		// Now we must wait until close() has been called on the
+		// transceiver.
 		//
 		while(_transceiver != null)
 		{
 		    try
 		    {
-			if(_endpoint.timeout() >= 0)
+			if(_state != StateClosed && _endpoint.timeout() >= 0)
 			{
-			    long absoluteTimeoutMillis = (System.DateTime.Now.Ticks - 621355968000000000) / 10000
-							 + _endpoint.timeout();
+			    long absoluteWaitTime = _stateTime + _endpoint.timeout();
+			    int waitTime = (int)(absoluteWaitTime - System.DateTime.Now.Ticks / 10);
 			    
-			    System.Threading.Monitor.Wait(this, System.TimeSpan.FromMilliseconds(_endpoint.timeout()));
-			    
-			    if((System.DateTime.Now.Ticks - 621355968000000000) / 10000 >= absoluteTimeoutMillis)
+			    if(waitTime > 0)
 			    {
-				setState(StateClosed, new Ice.CloseTimeoutException());
-				// No return here, we must still wait until _transceiver becomes null.
+			        //
+				// We must wait a bit longer until we close
+				// this connection.
+				//
+				System.Threading.Monitor.Wait(this, waitTime);
+				if(System.DateTime.Now.Ticks / 10 >= absoluteWaitTime)
+				{
+				    setState(StateClosed, new Ice.CloseTimeoutException());
+				}
 			    }
+			    else
+			    {
+				//
+			        // We already waited long enough, so let's
+				// close this connection!
+				//
+				setState(StateClosed, new Ice.CloseTimeoutException());
+			    }
+
+			    //
+			    // No return here, we must still wait until
+			    // close() is called on the _transceiver.
+			    //
 			}
 			else
 			{
@@ -331,9 +322,9 @@ namespace IceInternal
 		    {
 		    }
 		}
-		
-		Debug.Assert(_state == StateClosed);
 	    }
+
+	    Debug.Assert(_state == StateClosed);
 	}
 	
 	public void monitor()
@@ -360,39 +351,17 @@ namespace IceInternal
 		//
 		// Active connection management for idle connections.
 		//
-		// TODO: Hack: ACM for incoming connections doesn't work right
-		// with AMI.
 		//
-		if(_acmTimeout > 0 && closingOK() && _adapter == null)
+		if(_acmTimeout > 0 &&
+		   _requests.Count == 0 && _asyncRequests.Count == 0 &&
+		   !_batchStreamInUse && _batchStream.isEmpty() &&
+		   _dispatchCount == 0)
 		{
-		    if((System.DateTime.Now.Ticks - 621355968000000000) / 10000 >= _acmAbsoluteTimeoutMillis)
+		    if(System.DateTime.Now.Ticks / 10 >= _acmAbsoluteTimeoutMillis)
 		    {
 			setState(StateClosing, new Ice.ConnectionTimeoutException());
-			return ;
+			return;
 		    }
-		}
-	    }
-	}
-	
-	public void incProxyCount()
-	{
-	    lock(this)
-	    {
-		Debug.Assert(_proxyCount >= 0);
-		++_proxyCount;
-	    }
-	}
-	
-	public void decProxyCount()
-	{
-	    lock(this)
-	    {
-		Debug.Assert(_proxyCount > 0);
-		--_proxyCount;
-		
-		if(_proxyCount == 0 && _adapter == null && closingOK())
-		{
-		    setState(StateClosing, new Ice.CloseConnectionException());
 		}
 	    }
 	}
@@ -406,127 +375,222 @@ namespace IceInternal
 	    (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0, (byte)0
 	};
 	
+	//
+	// TODO:  Should not be a member function of Connection.
+	//
 	public void prepareRequest(BasicStream os)
 	{
 	    os.writeBlob(_requestHdr);
 	}
 	
-	public void sendRequest(Outgoing og, bool oneway)
+	public void sendRequest(BasicStream os, Outgoing og)
 	{
+	    int requestId = 0;
+
 	    lock(this)
 	    {
+		Debug.Assert(!(og != null && _endpoint.datagram())); // Twoway requests cannot be datagrams.
+
 		if(_exception != null)
 		{
 		    throw _exception;
 		}
+
 		Debug.Assert(_state > StateNotValidated);
 		Debug.Assert(_state < StateClosing);
 		
-		int requestId = 0;
-		
-		try
+		//
+		// Fill in the message size.
+		//
+		os.pos(10);
+		os.writeInt(os.size());
+
+		//
+		// Only add to the request map if this is a twoway call.
+		//
+		if(og != null)
 		{
-		    BasicStream os = og.ostr();
-		    os.pos(10);
-		    
 		    //
-		    // Fill in the message size and request ID.
+		    // Create a new unique request ID.
 		    //
-		    os.writeInt(os.size());
-		    if(!_endpoint.datagram() && !oneway)
+		    if(requestId <= 0)
 		    {
+			_nextRequestId = 1;
 			requestId = _nextRequestId++;
-			if(requestId <= 0)
-			{
-			    _nextRequestId = 1;
-			    requestId = _nextRequestId++;
-			}
-			os.writeInt(requestId);
 		    }
 		    
+		    //
+		    // Fill in the request ID.
+		    //
+		    os.pos(Protocol.headerSize);
+		    os.writeInt(requestId);
+
+		    //
+		    // Add ot the requests map.
+		    //
+		    _requests[requestId] = og;
+		}
+		
+		if(_acmTimeout > 0)
+		{
+		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
+		}
+	    }
+	    
+	    try
+	    {
+	        lock(_sendMutex)
+		{
+		    if(_transceiver == null) // Has the transceiver already been closed?
+		    {
+		        Debug.Assert(_exception != null);
+			throw _exception; // The exception is immutable at this point.
+		    }
+
 		    //
 		    // Send the request.
 		    //
 		    TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
 		    _transceiver.write(os, _endpoint.timeout());
 		}
-		catch(Ice.LocalException ex)
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+	        lock(this)
 		{
 		    setState(StateClosed, ex);
 		    Debug.Assert(_exception != null);
-		    throw _exception;
-		}
-		
-		//
-		// Only add to the request map if there was no exception, and if
-		// the operation is not oneway.
-		//
-		if(!_endpoint.datagram() && !oneway)
-		{
-		    _requests[requestId] = og;
-		}
-		
-		if(_acmTimeout > 0)
-		{
-		    _acmAbsoluteTimeoutMillis = (System.DateTime.Now.Ticks - 621355968000000000) / 10000
-						+ _acmTimeout * 1000;
+
+		    if(og != null)
+		    {
+			//
+			// If the request has already been removed from
+			// the request map, we are out of luck. It would
+			// mean that finished() has been called already,
+			// and therefore the exception has been set using
+			// the Outgoing::finished() callback. In this
+			// case, we cannot throw the exception here,
+			// because we must not both raise an exception and
+			// have Outgoing::finished() called with an
+			// exception. This means that in some rare cases,
+			// a request will not be retried even though it
+			// could. But I honestly don't know how I could
+			// avoid this, without a very elaborate and
+			// complex design, which would be bad for
+			// performance.
+			//
+			Outgoing o = (Outgoing)_requests[requestId];
+			_requests.Remove(requestId);
+			if(o != null)
+			{
+			    Debug.Assert(o == og);
+			    throw _exception;
+			}
+		    }
+		    else
+		    {
+		        throw _exception;
+		    }
 		}
 	    }
 	}
 	
-	public void sendAsyncRequest(OutgoingAsync og)
+	public void sendAsyncRequest(BasicStream os, OutgoingAsync og)
 	{
+	    int requestId = 0;
+
 	    lock(this)
 	    {
+	        Debug.Assert(!_endpoint.datagram()); // Twoway requests cannot be datagrams, and async implies twoway.
+
 		if(_exception != null)
 		{
 		    throw _exception;
 		}
+
 		Debug.Assert(_state > StateNotValidated);
 		Debug.Assert(_state < StateClosing);
 		
-		int requestId = 0;
-		
-		try
+		//
+		// Fill in the message size.
+		//
+		os.pos(10);
+		os.writeInt(os.size());
+		    
+		//
+		// Create a new unique request ID.
+		//
+		requestId = _nextRequestId++;
+		if(requestId <= 0)
 		{
-		    BasicStream os = og.__os();
-		    os.pos(10);
-		    
-		    //
-		    // Fill in the message size and request ID.
-		    //
-		    os.writeInt(os.size());
+		    _nextRequestId = 1;
 		    requestId = _nextRequestId++;
-		    if(requestId <= 0)
-		    {
-			_nextRequestId = 1;
-			requestId = _nextRequestId++;
-		    }
-		    os.writeInt(requestId);
+		}
+
+		//
+		// Fill in the request ID.
+		//
+		os.pos(Protocol.headerSize);
+		os.writeInt(requestId);
+
+		//
+		// Add to the requests map.
+		//
+		_asyncRequests[requestId] = og;
 		    
+		if(_acmTimeout > 0)
+		{
+		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10  + _acmTimeout * 1000;
+		}
+	    }
+
+	    try
+	    {
+	        lock(_sendMutex)
+		{
+		    if(_transceiver == null) // Has the transceiver already been closed?
+		    {
+		        Debug.Assert(_exception != null);
+			throw _exception; // The exception is imuutable at this point.
+		    }
+
 		    //
 		    // Send the request.
 		    //
 		    TraceUtil.traceRequest("sending asynchronous request", os, _logger, _traceLevels);
 		    _transceiver.write(os, _endpoint.timeout());
 		}
-		catch(Ice.LocalException ex)
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+	        lock(this)
 		{
 		    setState(StateClosed, ex);
 		    Debug.Assert(_exception != null);
-		    throw _exception;
-		}
-		
-		//
-		// Only add to the request map if there was no exception.
-		//
-		_asyncRequests[requestId] = og;
-		
-		if(_acmTimeout > 0)
-		{
-		    _acmAbsoluteTimeoutMillis = (System.DateTime.Now.Ticks - 621355968000000000) / 10000
-						+ _acmTimeout * 1000;
-		}
+		    
+		    //
+		    // If the request has already been removed from the
+		    // async request map, we are out of luck. It would
+		    // mean that finished() has been called already, and
+		    // therefore the exception has been set using the
+		    // OutgoingAsync::__finished() callback. In this case,
+		    // we cannot throw the exception here, because we must
+		    // not both raise an exception and have
+		    // OutgoingAsync::__finished() called with an
+		    // exception. This means that in some rare cases, a
+		    // request will not be retried even though it
+		    // could. But I honestly don't know how I could avoid
+		    // this, without a very elaborate and complex design,
+		    // which would be bad for performance.
+		    //
+		    OutgoingAsync o = (OutgoingAsync)_asyncRequests[requestId];
+		    _asyncRequests.Remove(requestId);
+		    if(o != null)
+		    {
+			Debug.Assert(o == og);
+			throw _exception;
+		    }
+	    	}
 	    }
 	}
 	
@@ -559,6 +623,7 @@ namespace IceInternal
 		{
 		    throw _exception;
 		}
+
 		Debug.Assert(_state > StateNotValidated);
 		Debug.Assert(_state < StateClosing);
 		
@@ -580,7 +645,7 @@ namespace IceInternal
 		
 		//
 		// _batchStream now belongs to the caller, until
-		// finishBatchRequest() or abortBatchRequest() is called.
+		// finishBatchRequest() is called.
 		//
 	    }
 	}
@@ -593,26 +658,12 @@ namespace IceInternal
 		{
 		    throw _exception;
 		}
+
 		Debug.Assert(_state > StateNotValidated);
 		Debug.Assert(_state < StateClosing);
 		
 		_batchStream.swap(os); // Get the batch stream back.
 		++_batchRequestNum; // Increment the number of requests in the batch.
-		
-		//
-		// Give the Connection back.
-		//
-		Debug.Assert(_batchStreamInUse);
-		_batchStreamInUse = false;
-		System.Threading.Monitor.PulseAll(this);
-	    }
-	}
-	
-	public void abortBatchRequest()
-	{
-	    lock(this)
-	    {
-		setState(StateClosed, new Ice.AbortBatchRequestException());
 		
 		//
 		// Give the Connection back.
@@ -642,131 +693,163 @@ namespace IceInternal
 		{
 		    throw _exception;
 		}
+
 		Debug.Assert(_state > StateNotValidated);
 		Debug.Assert(_state < StateClosing);
 		
-		if(!_batchStream.isEmpty())
+		if(_batchStream.isEmpty())
 		{
-		    try
-		    {
-			_batchStream.pos(10);
-			
-			//
-			// Fill in the message size.
-			//
-			_batchStream.writeInt(_batchStream.size());
-			
-			//
-			// Fill in the number of requests in the batch.
-			//
-			_batchStream.writeInt(_batchRequestNum);
-			
-			//
-			// Send the batch request.
-			//
-			TraceUtil.traceBatchRequest("sending batch request", _batchStream, _logger, _traceLevels);
-			_transceiver.write(_batchStream, _endpoint.timeout());
-			
-			//
-			// Reset _batchStream so that new batch messages can be sent.
-			//
-			_batchStream.destroy();
-			_batchStream = new BasicStream(_instance);
-			_batchRequestNum = 0;
-		    }
-		    catch(Ice.LocalException ex)
-		    {
-			setState(StateClosed, ex);
-			Debug.Assert(_exception != null);
-			throw _exception;
-		    }
-		    
-		    if(_acmTimeout > 0)
-		    {
-			_acmAbsoluteTimeoutMillis = (System.DateTime.Now.Ticks - 621355968000000000) / 10000
-						    + _acmTimeout * 1000;
-		    }
+		    return; // Nothing to do.
 		}
-		
-		if(_proxyCount == 0 && _adapter == null && closingOK())
+			
+		//
+		// Fill in the message size.
+		//
+		_batchStream.pos(10);
+		_batchStream.writeInt(_batchStream.size());
+			
+		//
+		// Fill in the number of requests in the batch.
+		//
+		_batchStream.writeInt(_batchRequestNum);
+			
+		if(_acmTimeout > 0)
 		{
-		    setState(StateClosing, new Ice.CloseConnectionException());
+		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
 		}
+
+		//
+		// Prevent that new batch requests are added while we are
+		// flushing.
+		//
+		_batchStreamInUse = true;
+	    }
+
+	    try
+	    {
+	        lock(_sendMutex)
+		{
+		    if(_transceiver == null) // Has the transceiver already been closed?
+		    {
+		        Debug.Assert(_exception != null);
+			throw _exception; // The exception is immutable at this point.
+		    }
+
+		    //
+		    // Send the batch request.
+		    //
+		    TraceUtil.traceBatchRequest("sending batch request", _batchStream, _logger, _traceLevels);
+		    _transceiver.write(_batchStream, _endpoint.timeout());
+		}
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+	        lock(this)
+		{
+		    setState(StateClosed, ex);
+		    Debug.Assert(_exception != null);
+
+		    //
+		    // Since batch requests area all oneways (or datarams), we
+		    // must report the exception to the caller.
+		    //
+		    throw _exception;
+		}
+	    }
+
+	    lock(this)
+	    {
+	        //
+		// Reset the batch stream, and notify that flushing is over.
+		//
+		_batchStream.destroy();
+		_batchStream = new BasicStream(_instance);
+		_batchRequestNum = 0;
+		_batchStreamInUse = false;
+		System.Threading.Monitor.PulseAll(this);
 	    }
 	}
 	
 	public void sendResponse(BasicStream os, byte compress)
 	{
-	    lock(this)
+	    try
 	    {
-		try
+		lock(_sendMutex)
 		{
-		    if(--_dispatchCount == 0)
+		    if(_transceiver == null) // Ha sthe transceiver already been closed?
 		    {
-			System.Threading.Monitor.PulseAll(this);
+		        Debug.Assert(_exception != null);
+			throw _exception; // The exception is immutable at this point.
 		    }
-		    
-		    if(_state == StateClosed)
-		    {
-			return;
-		    }
-		    
+
 		    //
 		    // Fill in the message size.
 		    //
 		    os.pos(10);
-		    int sz = os.size();
-		    os.writeInt(sz);
+		    os.writeInt(os.size());
 		    
 		    //
 		    // Send the reply.
 		    //
 		    TraceUtil.traceReply("sending reply", os, _logger, _traceLevels);
 		    _transceiver.write(os, _endpoint.timeout());
-		    
+		}
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+	        lock(this)
+		{
+		    setState(StateClosed, ex);
+		}
+	    }
+
+	    lock(this)
+	    {
+	        Debug.Assert(_state > StateNotValidated);
+
+		try
+		{
+		    if(--_dispatchCount == 0)
+		    {
+		        System.Threading.Monitor.PulseAll(this);
+		    }
+
 		    if(_state == StateClosing && _dispatchCount == 0)
 		    {
-			initiateShutdown();
+		        initiateShutdown();
+		    }
+		
+		    if(_acmTimeout > 0)
+		    {
+			_acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
 		    }
 		}
 		catch(Ice.LocalException ex)
 		{
 		    setState(StateClosed, ex);
-		}
-		
-		if(_acmTimeout > 0)
-		{
-		    _acmAbsoluteTimeoutMillis = (System.DateTime.Now.Ticks - 621355968000000000) / 10000
-						+ _acmTimeout * 1000;
 		}
 	    }
 	}
 	
 	public void sendNoResponse()
 	{
-	    lock(this)
+	    Debug.Assert(_state > StateNotValidated);
+
+	    try
 	    {
-		try
+		if(--_dispatchCount == 0)
 		{
-		    if(--_dispatchCount == 0)
-		    {
-			System.Threading.Monitor.PulseAll(this);
-		    }
-		    
-		    if(_state == StateClosed)
-		    {
-			return;
-		    }
-		    
-		    if(_state == StateClosing && _dispatchCount == 0)
-		    {
-			initiateShutdown();
-		    }
+		    System.Threading.Monitor.PulseAll(this);
 		}
-		catch(Ice.LocalException ex)
+		
+		if(_state == StateClosing && _dispatchCount == 0)
 		{
-		    setState(StateClosed, ex);
+		    initiateShutdown();
 		}
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		setState(StateClosed, ex);
 	    }
 	}
 	
@@ -853,81 +936,63 @@ namespace IceInternal
 	public override void message(BasicStream stream, ThreadPool threadPool)
 	{
 	    OutgoingAsync outAsync = null;
-	    
 	    int invoke = 0;
 	    int requestId = 0;
 	    byte compress = 0;
 	    
 	    lock(this)
 	    {
+	        //
+		// We must promote with the synchronization, otherwise
+		// there could be various race conditions with close
+		// connection messages and other messages.
+		//
 		threadPool.promoteFollower();
 		
+		Debug.Assert(_state > StateNotValidated);
+
 		if(_state == StateClosed)
 		{
-		    System.Threading.Thread.Sleep(0);
-		    return ;
+		    return;
 		}
 		
 		if(_acmTimeout > 0)
 		{
-		    _acmAbsoluteTimeoutMillis = (System.DateTime.Now.Ticks - 621355968000000000) / 10000
-						+ _acmTimeout * 1000;
+		    _acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
 		}
 		
 		try
 		{
+		    //
+		    // We don't need to check magic and version here. This
+		    // has already been done by the ThreadPool, which
+		    // provides us the stream.
+		    //
 		    Debug.Assert(stream.pos() == stream.size());
 		    stream.pos(0);
-		    
-		    byte[] m = new byte[4];
-		    m[0] = stream.readByte();
-		    m[1] = stream.readByte();
-		    m[2] = stream.readByte();
-		    m[3] = stream.readByte();
-		    if(m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1] ||
-		       m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
-		    {
-			Ice.BadMagicException ex = new Ice.BadMagicException();
-			ex.badMagic = new Ice.ByteSeq(m);
-			throw ex;
-		    }
-		    
-		    byte pMajor = stream.readByte();
-		    byte pMinor = stream.readByte();
-		    if(pMajor != Protocol.protocolMajor || pMinor > Protocol.protocolMinor)
-		    {
-			Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
-			e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-			e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-			e.major = Protocol.protocolMajor;
-			e.minor = Protocol.protocolMinor;
-			throw e;
-		    }
-		    
-		    byte eMajor = stream.readByte();
-		    byte eMinor = stream.readByte();
-		    if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
-		    {
-			Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-			e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-			e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-			e.major = Protocol.encodingMajor;
-			e.minor = Protocol.encodingMinor;
-			throw e;
-		    }
-		    
 		    byte messageType = stream.readByte();
 		    compress = stream.readByte();
-		    
 		    if(compress == (byte)2)
 		    {
 			throw new Ice.CompressionNotSupportedException();
 		    }
-		    
 		    stream.pos(Protocol.headerSize);
 		    
 		    switch(messageType)
 		    {
+		        case Protocol.closeConnectionMsg:
+			{
+			    TraceUtil.traceHeader("received close connection", stream, _logger, _traceLevels);
+			    if(_endpoint.datagram() && _warn)
+			    {
+			        _logger.warning("ignoring close connection message for datagram connection:\n" + _desc);
+			    }
+			    else
+			    {
+			        setState(StateClosed, new Ice.CloseConnectionException());
+			    }
+			    break;
+			}
 			case Protocol.requestMsg: 
 			{
 			    if(_state == StateClosing)
@@ -985,11 +1050,6 @@ namespace IceInternal
 				{
 				    throw new Ice.UnknownRequestIdException();
 				}
-				
-				if(_proxyCount == 0 && _adapter == null && closingOK())
-				{
-				    setState(StateClosing, new Ice.CloseConnectionException());
-				}
 			    }
 			    break;
 			}
@@ -999,37 +1059,18 @@ namespace IceInternal
 			    TraceUtil.traceHeader("received validate connection", stream, _logger, _traceLevels);
 			    if(_warn)
 			    {
-				_logger.warning("ignoring unexpected validate connection message:\n"
-						+ _transceiver.ToString());
-			    }
-			    break;
-			}
-			
-			case Protocol.closeConnectionMsg: 
-			{
-			    TraceUtil.traceHeader("received close connection", stream, _logger, _traceLevels);
-			    if(_endpoint.datagram())
-			    {
-				if(_warn)
-				{
-				    _logger.warning("ignoring close connection message for datagram connection:\n"
-						    + _transceiver.ToString());
-				}
-			    }
-			    else
-			    {
-				throw new Ice.CloseConnectionException();
+				_logger.warning("ignoring unexpected validate connection message:\n" + _desc);
 			    }
 			    break;
 			}
 			
 			default: 
 			{
-			    TraceUtil.traceHeader("received unknown message\n" + "(invalid, closing connection)",
+			    TraceUtil.traceHeader("received unknown message\n" +
+			                          "(invalid, closing connection)",
 						  stream, _logger, _traceLevels);
 			    throw new Ice.UnknownMessageException();
 			}
-			
 		    }
 		}
 		catch(Ice.LocalException ex)
@@ -1126,21 +1167,70 @@ namespace IceInternal
 	
 	public override void finished(ThreadPool threadPool)
 	{
+	    threadPool.promoteFollower();
+	    
+	    Ice.LocalException exception = null;
+
+	    Hashtable requests = null;
+	    Hashtable asyncRequests = null;
+
 	    lock(this)
 	    {
-		threadPool.promoteFollower();
-		
 		if(_state == StateActive || _state == StateClosing)
 		{
 		    registerWithPool();
 		}
-		else if(_state == StateClosed && _transceiver != null)
+		else if(_state == StateClosed)
 		{
-		    _transceiver.close();
-		    _transceiver = null;
-		    _threadPool = null; // We don't need the thread pool anymore.
-		    System.Threading.Monitor.PulseAll(this);
+		    //
+		    // We must make sure that nobody is sending when we
+		    // close the transeiver.
+		    //
+		    lock(_sendMutex)
+		    {
+		        try
+			{
+			    _transceiver.close();
+			}
+			catch(Ice.LocalException ex)
+			{
+			    exception = ex;
+			}
+
+			_transceiver = null;
+			System.Threading.Monitor.PulseAll(this);
+		    }
 		}
+
+		if(_state == StateClosed || _state == StateClosing)
+		{
+		    requests = _requests;
+		    _requests = new Hashtable();
+
+		    asyncRequests = _asyncRequests;
+		    _asyncRequests = new Hashtable();
+		}
+	    }
+
+	    if(requests != null)
+	    {
+	        foreach(Outgoing og in requests.Values)
+		{
+		    og.finished(_exception); // The exception is immutable at this point.
+		}
+	    }
+
+	    if(asyncRequests != null)
+	    {
+	        foreach(OutgoingAsync og in asyncRequests.Values)
+		{
+		    og.__finished(_exception); // The exception is immutable at this point.
+		}
+	    }
+
+	    if(exception != null)
+	    {
+	        throw exception;
 	    }
 	}
 	
@@ -1154,8 +1244,7 @@ namespace IceInternal
 	
 	public override string ToString()
 	{
-	    Debug.Assert(_transceiver != null);
-	    return _transceiver.ToString();
+	    return _desc; // No mutex lock, _desc is immutable.
 	}
 	
 	internal Connection(Instance instance, Transceiver transceiver,
@@ -1163,24 +1252,22 @@ namespace IceInternal
 	    : base(instance)
 	{
 	    _transceiver = transceiver;
+	    _desc = transceiver.ToString();
 	    _endpoint = endpoint;
 	    _adapter = adapter;
 	    _logger = instance.logger(); // Cached for better performance.
 	    _traceLevels = instance.traceLevels(); // Cached for better performance.
 	    _registeredWithPool = false;
-	    _warn = false;
-	    _acmTimeout = 0;
+	    _warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0;
+	    _acmTimeout = _endpoint.datagram() ? 0 : _instance.connectionIdleTime();
 	    _acmAbsoluteTimeoutMillis = 0;
-	    _requests = new Hashtable();
-	    _asyncRequests = new Hashtable();
 	    _nextRequestId = 1;
 	    _batchStream = new BasicStream(instance);
 	    _batchStreamInUse = false;
 	    _batchRequestNum = 0;
 	    _dispatchCount = 0;
-	    _proxyCount = 0;
 	    _state = StateNotValidated;
-	    _incomingCacheMutex = new System.Threading.Mutex();
+	    _stateTime = System.DateTime.Now.Ticks / 10;
 	    
 	    if(_adapter != null)
 	    {
@@ -1196,11 +1283,10 @@ namespace IceInternal
 	
 	~Connection()
 	{
-	    Debug.Assert(_state == StateClosed, "~Connection(): _state != StateClosed");
-	    Debug.Assert(_transceiver == null, "~Connection(): _tranceiver != null");
-	    Debug.Assert(_dispatchCount == 0, "~Connection(): _dispatchCount != 0");
-	    Debug.Assert(_proxyCount == 0, "~Connection(): _proxyCount != 0");
-	    Debug.Assert(_incomingCache == null, "~Connection(): _incomingCache != null");
+	    Debug.Assert(_state == StateClosed);
+	    Debug.Assert(_transceiver == null);
+	    Debug.Assert(_dispatchCount == 0);
+	    Debug.Assert(_incomingCache == null);
 
 	    _batchStream.destroy();
 	}
@@ -1213,8 +1299,13 @@ namespace IceInternal
 	
 	private void setState(int state, Ice.LocalException ex)
 	{
-	    if(_state == state)
-	    // Don't switch twice.
+	    //
+	    // If setState() is called with an exception, then only closed
+	    // and closing states are permissible.
+	    //
+	    Debug.Assert(state == StateClosing || state == StateClosed);
+
+	    if(_state == state) // Don't switch twice.
 	    {
 		return;
 	    }
@@ -1226,15 +1317,21 @@ namespace IceInternal
 		if(_warn)
 		{
 		    //
-		    // Don't warn about certain expected exceptions.
+		    // We don't warn if we are not validated.
 		    //
-		    if(!(_exception is Ice.CloseConnectionException ||
-			  _exception is Ice.ConnectionTimeoutException ||
-			  _exception is Ice.CommunicatorDestroyedException ||
-			  _exception is Ice.ObjectAdapterDeactivatedException ||
-			  (_exception is Ice.ConnectionLostException && _state == StateClosing)))
+		    if(_state > StateNotValidated)
 		    {
-			warning("connection exception", _exception);
+		        //
+			// Don't warn about certain expected exceptions.
+			//
+			if(!(_exception is Ice.CloseConnectionException ||
+			      _exception is Ice.ConnectionTimeoutException ||
+			      _exception is Ice.CommunicatorDestroyedException ||
+			      _exception is Ice.ObjectAdapterDeactivatedException ||
+			      (_exception is Ice.ConnectionLostException && _state == StateClosing)))
+			{
+			    warning("connection exception", _exception);
+			}
 		    }
 		}
 	    }
@@ -1245,18 +1342,6 @@ namespace IceInternal
 	    // connection that is not yet marked as closed or closing.
 	    //
 	    setState(state);
-	    
-	    foreach(Outgoing og in _requests.Values)
-	    {
-		 og.finished(_exception);
-	    }
-	    _requests.Clear();
-	    
-	    foreach(OutgoingAsync og in _asyncRequests.Values)
-	    {
-		og.__finished(_exception);
-	    }
-	    _asyncRequests.Clear();
 	}
 
 	private void setState(int state)
@@ -1270,8 +1355,7 @@ namespace IceInternal
 		state = StateClosed;
 	    }
 	    
-	    if(_state == state)
-	    // Don't switch twice.
+	    if(_state == state) // Don't switch twice.
 	    {
 		return;
 	    }
@@ -1336,9 +1420,25 @@ namespace IceInternal
 		    if(_state == StateNotValidated)
 		    {
 			Debug.Assert(!_registeredWithPool);
-			_transceiver.close();
-			_transceiver = null;
-			_threadPool = null; // We don't need the thread pool anymore.
+
+			//
+			// We must make sure that nobidy is sending when
+			// we close the transceiver.
+			//
+			lock(_sendMutex)
+			{
+			    try
+			    {
+				_transceiver.close();
+			    }
+			    catch(Ice.LocalException)
+			    {
+			        // Here we ignore any exceptions in close().
+			    }
+
+			    _transceiver = null;
+			    //System.Threading.Monitor.PulseAll(); // We notify already below.
+			}
 		    }
 		    else
 		    {
@@ -1350,6 +1450,7 @@ namespace IceInternal
 	    }
 	    
 	    _state = state;
+	    _stateTime = System.DateTime.Now.Ticks / 10;
 	    System.Threading.Monitor.PulseAll(this);
 	    
 	    if(_state == StateClosing && _dispatchCount == 0)
@@ -1372,24 +1473,32 @@ namespace IceInternal
 	    
 	    if(!_endpoint.datagram())
 	    {
-		//
-		// Before we shut down, we send a close connection
-		// message.
-		//
-		BasicStream os = new BasicStream(_instance);
-		os.writeByte(Protocol.magic[0]);
-		os.writeByte(Protocol.magic[1]);
-		os.writeByte(Protocol.magic[2]);
-		os.writeByte(Protocol.magic[3]);
-		os.writeByte(Protocol.protocolMajor);
-		os.writeByte(Protocol.protocolMinor);
-		os.writeByte(Protocol.encodingMajor);
-		os.writeByte(Protocol.encodingMinor);
-		os.writeByte(Protocol.closeConnectionMsg);
-		os.writeByte((byte)0); // Compression status.
-		os.writeInt(Protocol.headerSize); // Message size.
-		_transceiver.write(os, _endpoint.timeout());
-		_transceiver.shutdown();
+	        lock(_sendMutex)
+		{
+		    //
+		    // Before we shut down, we send a close connection
+		    // message.
+		    //
+		    BasicStream os = new BasicStream(_instance);
+		    os.writeByte(Protocol.magic[0]);
+		    os.writeByte(Protocol.magic[1]);
+		    os.writeByte(Protocol.magic[2]);
+		    os.writeByte(Protocol.magic[3]);
+		    os.writeByte(Protocol.protocolMajor);
+		    os.writeByte(Protocol.protocolMinor);
+		    os.writeByte(Protocol.encodingMajor);
+		    os.writeByte(Protocol.encodingMinor);
+		    os.writeByte(Protocol.closeConnectionMsg);
+		    os.writeByte((byte)0); // Compression status.
+		    os.writeInt(Protocol.headerSize); // Message size.
+
+		    //
+		    // Send the message.
+		    //
+		    TraceUtil.traceHeader("sending close connection", os, _logger, _traceLevels);
+		    _transceiver.write(os, _endpoint.timeout());
+		    _transceiver.shutdown();
+		}
 	    }
 	}
 	
@@ -1397,7 +1506,6 @@ namespace IceInternal
 	{
 	    if(!_registeredWithPool)
 	    {
-		Debug.Assert(_threadPool != null);
 		_threadPool._register(_transceiver.fd(), this);
 		_registeredWithPool = true;
 		
@@ -1413,7 +1521,6 @@ namespace IceInternal
 	{
 	    if(_registeredWithPool)
 	    {
-		Debug.Assert(_threadPool != null);
 		_threadPool.unregister(_transceiver.fd());
 		_registeredWithPool = false;
 		
@@ -1427,7 +1534,7 @@ namespace IceInternal
 	
 	private void warning(string msg, System.Exception ex)
 	{
-	    _logger.warning(msg + ":\n" + ex.StackTrace.ToString() + _transceiver.ToString());
+	    _logger.warning(msg + ":\n" + ex.StackTrace.ToString() + "\n" + _transceiver.ToString());
 	}
 	
 	private Incoming getIncoming(bool response, byte compress)
@@ -1475,7 +1582,8 @@ namespace IceInternal
 		_dispatchCount == 0;
 	}
 	
-	private volatile Transceiver _transceiver; // Must be volatile, see comment in isFinished().
+	private volatile Transceiver _transceiver;
+	private volatile string _desc;
 	private volatile Endpoint _endpoint;
 	
 	private Ice.ObjectAdapter _adapter;
@@ -1493,23 +1601,27 @@ namespace IceInternal
 	private long _acmAbsoluteTimeoutMillis;
 	
 	private int _nextRequestId;
-	private Hashtable _requests;
-	private Hashtable _asyncRequests;
+	private Hashtable _requests = new Hashtable();
+	private Hashtable _asyncRequests = new Hashtable();
 	
 	private Ice.LocalException _exception;
-	
+
 	private BasicStream _batchStream;
 	private bool _batchStreamInUse;
 	private int _batchRequestNum;
 	
-	private volatile int _dispatchCount; // Must be volatile, see comment in isDestroyed().
+	private volatile int _dispatchCount;
 	
-	private int _proxyCount;
+	private volatile int _state; // The current state.
+	private long _stateTime; // The last time when the state was changed.
 	
-	private volatile int _state; // Must be volatile, see comment in isDestroyed().
-	
-	private Incoming _incomingCache;
-	private System.Threading.Mutex _incomingCacheMutex;
-    }
+	//
+	// We have a separate mutex for sending, so that we don't block
+	// the whole connection when we do a blocking send.
+	//
+	private object _sendMutex = new object();
 
+	private Incoming _incomingCache;
+	private System.Threading.Mutex _incomingCacheMutex = new System.Threading.Mutex();
+    }
 }

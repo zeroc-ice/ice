@@ -615,24 +615,19 @@ namespace IceInternal
 		}
 		else if(laddr != null && raddr != null)
 		{
-		    if(laddr.Address.Equals(raddr.Address))
+		    byte[] larr = laddr.Address.GetAddressBytes();
+		    byte[] rarr = raddr.Address.GetAddressBytes();
+		    Debug.Assert(larr.Length == rarr.Length);
+		    for(int i = 0; i < larr.Length; i++)
 		    {
-			if(laddr.Port < raddr.Port)
+			if(larr[i] < rarr[i])
 			{
 			    return -1;
 			}
-			else if(laddr.Port > raddr.Port)
+			else if(rarr[i] < larr[i])
 			{
 			    return 1;
 			}
-		    }
-		    else if(laddr.Address.GetHashCode() < raddr.Address.GetHashCode())
-		    {
-			return -1;
-		    }
-		    else if(laddr.Address.GetHashCode() > raddr.Address.GetHashCode())
-		    {
-			return 1;
 		    }
 		}
 	    }

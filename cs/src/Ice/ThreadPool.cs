@@ -66,21 +66,26 @@ namespace IceInternal
 	    
 	    _changes = new IceUtil.LinkedList();
 
-	    int size = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".Size", 5);
+	    //
+	    // We use just one thread as the default. This is the fastest
+	    // possible setting, still allows one level of nesting, and
+	    // doesn't require to make the servants thread safe.
+	    //
+	    int size = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".Size", 1);
 	    if(size < 1)
 	    {
 		size = 1;
 	    }
-	    _size = size;
 	    
 	    int sizeMax = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeMax", _size * 10);
 	    if(sizeMax < _size)
 	    {
 		sizeMax = _size;
 	    }
-	    _sizeMax = sizeMax;
 	    
 	    int sizeWarn = _instance.properties().getPropertyAsIntWithDefault(_prefix + ".SizeWarn", _sizeMax * 80 / 100);
+	    _size = size;
+	    _sizeMax = sizeMax;
 	    _sizeWarn = sizeWarn;
 	    
 	    _messageSizeMax = _instance.messageSizeMax();
@@ -126,7 +131,7 @@ namespace IceInternal
 		Debug.Assert(_handlerMap.Count == 0);
 		Debug.Assert(_changes.Count == 0);
 		_destroyed = true;
-		setInterrupt(0);
+		setInterrupt();
 	    }
 	}
 	
@@ -139,7 +144,7 @@ namespace IceInternal
 		#endif
 		Debug.Assert(!_destroyed);
 		_changes.Add(new FdHandlerPair(fd, handler));
-		setInterrupt(0);
+		setInterrupt();
 	    }
 	}
 	
@@ -164,7 +169,7 @@ namespace IceInternal
 		
 		Debug.Assert(!_destroyed);
 		_changes.Add(new FdHandlerPair(fd, null));
-		setInterrupt(0);
+		setInterrupt();
 	    }
 	}
 	
@@ -214,15 +219,6 @@ namespace IceInternal
 	    }
 	}
 	
-	public void initiateShutdown()
-	{
-	    #if TRACE_SHUTDOWN
-		trace("initiate server shutdown");
-	    #endif
-	    
-	    setInterrupt(1);
-	}
-	
 	public void joinWithAllThreads()
 	{
 	    //
@@ -248,7 +244,7 @@ namespace IceInternal
 	    }
 	}
 	
-	private bool clearInterrupt()
+	private void clearInterrupt()
 	{
 	    #if TRACE_INTERRUPT
 		trace("clearInterrupt");
@@ -279,13 +275,12 @@ namespace IceInternal
 		}
 		throw new Ice.SocketException("Could not read from interrupt socket", ex);
 	    }
-	    return buf[0] == 1;
 	}
 	
-	private void setInterrupt(int b)
+	private void setInterrupt()
 	{
 	    #if TRACE_INTERRUPT
-		trace("setInterrupt(" + b + ")");
+		trace("setInterrupt()");
 		#if TRACE_STACK_TRACE
 		    try
 		    {
@@ -297,14 +292,11 @@ namespace IceInternal
 		    }
 		#endif
 	    #endif
-	    
-	    byte[] buf = new byte[1];
-	    buf[0] = (byte)b;
 
 	repeat:
 	    try
 	    {
-		_fdIntrWrite.Send(buf);
+		_fdIntrWrite.Send(_intrBuf);
 	    }
 	    catch(SocketException ex)
 	    {
@@ -318,6 +310,8 @@ namespace IceInternal
 		throw new Ice.SocketException("Could not write to interrupt socket", ex);
 	    }
 	}
+
+	private static byte[] _intrBuf = new byte[1];
 
 	//
 	// Each thread supplies a BasicStream, to avoid creating excessive
@@ -362,74 +356,74 @@ namespace IceInternal
 		ArrayList readList = new ArrayList(_handlerMap.Count + 1);
 		readList.Add(_fdIntrRead);
 		readList.AddRange(_handlerMap.Keys);
+
+
 		Network.doSelect(readList, null, null, _timeout);
-		if(readList.Count == 0) // We initiate a shutdown if there is a thread pool timeout.
-		{
-		    #if TRACE_SELECT
-			trace("timeout");
-		    #endif
-		    
-		    _timeout = 0;
-		    initiateShutdown();
-		    continue;
-		}
-		
+
 		EventHandler handler = null;
 		bool finished = false;
 		bool shutdown = false;
-		
+
 		lock(this)
 		{
-		    #if TRACE_SELECT || TRACE_INTERRUPT
-			System.Text.StringBuilder sb = new System.Text.StringBuilder();
-			sb.Append("readable sockets:");
-			foreach(Socket s in readList)
-			{
-			    sb.Append(" " + s.Handle);
-				if(_handlerMap[s] != null)
-				{
-				    sb.Append(" (" + _handlerMap[s].GetType().FullName + ") ");
-				}
-			}
-			trace("readable sockets: " + sb.ToString());
-		    #endif
-
-		    if(readList.Contains(_fdIntrRead))
+		    if(readList.Count == 0) // We initiate a shutdown if there is a thread pool timeout.
 		    {
-			#if TRACE_SELECT || TRACE_INTERRUPT
-			    trace("detected interrupt");
+			#if TRACE_SELECT
+			    trace("timeout");
 			#endif
 			
-			//
-			// There are three possibilities for an interrupt:
-			//
-			// - The thread pool has been destroyed.
-			//
-			// - Server shutdown has been initiated.
-			//
-			// - An event handler was registered or unregistered.
-			//
-			
-			//
-			// Thread pool destroyed?
-			//
-			if(_destroyed)
+			Debug.Assert(_timeout > 0);
+			_timeout = 0;
+			shutdown = true;
+		    }
+		    else
+		    {
+			#if TRACE_SELECT || TRACE_INTERRUPT
+			    System.Text.StringBuilder sb = new System.Text.StringBuilder();
+			    sb.Append("readable sockets:");
+			    foreach(Socket s in readList)
+			    {
+				sb.Append(" " + s.Handle);
+				    if(_handlerMap[s] != null)
+				    {
+					sb.Append(" (" + _handlerMap[s].GetType().FullName + ") ");
+				    }
+			    }
+			    trace("readable sockets: " + sb.ToString());
+			#endif
+
+			if(readList.Contains(_fdIntrRead))
 			{
-			    #if TRACE_SHUTDOWN
-				trace("destroyed, thread id = " + System.Threading.Thread.CurrentThread.Name);
+			    #if TRACE_SELECT || TRACE_INTERRUPT
+				trace("detected interrupt");
 			    #endif
 			    
 			    //
-			    // Don't clear the interrupt fd if destroyed,
-			    // so that the other threads exit as well.
+			    // There are three possibilities for an interrupt:
 			    //
-			    return true;
-			}
-			
-			shutdown = clearInterrupt();
-			
-			if(!shutdown)
-			{
+			    // 1. The thread pool has been destroyed.
+			    //
+			    // 2. An event handler was registered or unregistered.
+			    //
+			    
+			    //
+			    // Thread pool destroyed?
+			    //
+			    if(_destroyed)
+			    {
+				#if TRACE_SHUTDOWN
+				    trace("destroyed, thread id = " + System.Threading.Thread.CurrentThread.Name);
+				#endif
+				
+				//
+				// Don't clear the interrupt fd if destroyed,
+				// so that the other threads exit as well.
+				//
+				return true;
+			    }
+			    
+			    clearInterrupt();
+			    
 			    //
 			    // An event handler must have been registered
 			    // or unregistered.
@@ -439,14 +433,14 @@ namespace IceInternal
 			    first.MoveNext();
 			    FdHandlerPair change = (FdHandlerPair)first.Current;
 			    first.Remove();
-			    if(change.handler != null)
+			    if(change.handler != null) // Addition if handler is set.
 			    {
 				_handlerMap[change.fd] = change.handler;
 		    
-    #if TRACE_REGISTRATION
-				trace("added handler (" + change.handler.GetType().FullName + ") for fd "
-					+ change.fd.Handle);
-    #endif
+				#if TRACE_REGISTRATION
+				    trace("added handler (" + change.handler.GetType().FullName + ") for fd "
+					  + change.fd.Handle);
+				#endif
 		    
 				continue;
 			    }
@@ -456,44 +450,49 @@ namespace IceInternal
 				_handlerMap.Remove(change.fd);
 				finished = true;
 		    
-    #if TRACE_REGISTRATION
-				trace("removed handler (" + handler.GetType().FullName + ") for fd "
-					+ change.fd.Handle);
-    #endif
+				#if TRACE_REGISTRATION
+				    trace("removed handler (" + handler.GetType().FullName + ") for fd "
+					  + change.fd.Handle);
+				#endif
 		    
 				// Don't continue; we have to call
 				// finished() on the event handler below,
 				// outside the thread synchronization.
 			    }
 			}
-		    }
-		    else
-		    {
-			Socket fd = (Socket)readList[0];
-			#if TRACE_SELECT
-			    trace("found a readable socket: " + fd.Handle);
-			#endif
-			handler = (EventHandler)_handlerMap[fd];
-				
-			if(handler == null)
+			else
 			{
+			    Socket fd = (Socket)readList[0];
 			    #if TRACE_SELECT
-				trace("socket " + fd.Handle + " not registered with " + _prefix);
+				trace("found a readable socket: " + fd.Handle);
 			    #endif
-			    
-			    continue;
+			    handler = (EventHandler)_handlerMap[fd];
+				    
+			    if(handler == null)
+			    {
+				#if TRACE_SELECT
+				    trace("socket " + fd.Handle + " not registered with " + _prefix);
+				#endif
+				
+				continue;
+			    }
 			}
 		    }
 		}
+
+		//
+		// Now we are outside the thread synchronization.
+		//
 		
-		Debug.Assert(handler != null || shutdown);
-		
-		if(shutdown) // Shutdown has been initiated.
+		if(shutdown)
 		{
 		    #if TRACE_SHUTDOWN
 			trace("shutdown detected");
 		    #endif
 		    
+		    //
+		    // Initiate server shutdown.
+		    //
 		    ObjectAdapterFactory factory;
 		    try
 		    {
@@ -506,9 +505,17 @@ namespace IceInternal
 		    
 		    promoteFollower();
 		    factory.shutdown();
+
+		    //
+		    // No "continue", because we want shutdown to be done in
+		    // its own thread from this pool. Therefore we called
+		    // promoteFollower();
+		    //
 		}
 		else
 		{
+		    Debug.Assert(handler != null);
+
 		    if(finished)
 		    {
 			//
@@ -521,10 +528,17 @@ namespace IceInternal
 			}
 			catch(Ice.LocalException ex)
 			{
-			    //UPGRADE_TODO: The equivalent in .NET for method 'java.Object.toString' may return a different value. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1043"'
-			    string s = "exception in `" + _prefix + "' while calling finished():\n" + ex + "\n" + handler.ToString();
+			    string s = "exception in `" + _prefix + "' while calling finished():\n"
+			               + ex + "\n" + handler.ToString();
 			    _instance.logger().error(s);
 			}
+
+			//
+			// No "continue", because we want finished() to be
+			// called in its own thread from this pool. Note
+			// that this means that finished() must call
+			// promoteFollower().
+			//
 		    }
 		    else
 		    {
@@ -562,7 +576,25 @@ namespace IceInternal
 				Debug.Assert(stream.pos() == stream.size());
 			    }
 			    
-			    handler.message(stream, this);
+			    //
+			    // Provide a new message to the handler.
+			    //
+			    try
+			    {
+				handler.message(stream, this);
+			    }
+			    catch(Ice.LocalException ex)
+			    {
+			        string s = "exception in `" + _prefix + "' while calling finished():\n" + ex;
+			    	_instance.logger().error(s);
+			    }
+
+			    //
+			    // No "continue", because we want message() to
+			    // be called in its own thread from this
+			    // pool. Note that this means that message()
+			    // must call promoteFollower().
+			    //
 			}
 			finally
 			{
@@ -833,7 +865,6 @@ namespace IceInternal
 		Name = name;
 	    }
 	    
-	    //UPGRADE_TODO: The equivalent of method 'java.lang.Thread.run' is not an override method. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1143"'
 	    override public void Run()
 	    {
 		BasicStream stream = new BasicStream(Enclosing_Instance._instance);

@@ -47,6 +47,18 @@ namespace IceInternal
 		overrideTimeoutValue = -1;
 	    }
 	    
+	    val = properties.getProperty("Ice.Override.ConnectTimeout");
+	    if(val.Length > 0)
+	    {
+	        overrideConnectTimeout = true;
+		overrideConnectTimeoutValue = properties.getPropertyAsInt("Ice.Override.ConnectTimeout");
+	    }
+	    else
+	    {
+	        overrideTimeout = false;
+		overrideTimeoutValue = -1;
+	    }
+
 	    val = properties.getProperty("Ice.Override.Compress");
 	    if(val.Length > 0)
 	    {
@@ -69,6 +81,8 @@ namespace IceInternal
 	
 	public bool overrideTimeout;
 	public int overrideTimeoutValue;
+	public bool overrideConnectTimeout;
+	public int overrideConnectTimeoutValue;
 	public bool overrideCompress;
 	public bool overrideCompressValue;
     }

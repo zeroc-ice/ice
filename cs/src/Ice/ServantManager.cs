@@ -68,32 +68,32 @@ public sealed class ServantManager : SupportClass.ThreadClass
 	}
     }
     
-    public void addServantLocator(Ice.ServantLocator locator, string prefix)
+    public void addServantLocator(Ice.ServantLocator locator, string category)
     {
 	lock(this)
 	{
 	    Debug.Assert(_instance != null); // Must not be called after destruction.
 	    
-	    Ice.ServantLocator l = (Ice.ServantLocator)_locatorMap[prefix];
+	    Ice.ServantLocator l = (Ice.ServantLocator)_locatorMap[category];
 	    if(l != null)
 	    {
 		Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-		ex.id = prefix;
+		ex.id = category;
 		ex.kindOfObject = "servant locator";
 		throw ex;
 	    }
 	    
-	    _locatorMap[prefix] = locator;
+	    _locatorMap[category] = locator;
 	}
     }
     
-    public Ice.ServantLocator findServantLocator(string prefix)
+    public Ice.ServantLocator findServantLocator(string category)
     {
 	lock(this)
 	{
 	    Debug.Assert(_instance != null); // Must not be called after destruction.
 	    
-	    return (Ice.ServantLocator)_locatorMap[prefix];
+	    return (Ice.ServantLocator)_locatorMap[category];
 	}
     }
     
@@ -102,9 +102,6 @@ public sealed class ServantManager : SupportClass.ThreadClass
     //
     public ServantManager(Instance instance, string adapterName)
     {
-	//UPGRADE_TODO: Field java.util was not converted. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1095"'
-	_servantMap = new Hashtable();
-	_locatorMap = new Hashtable();
 	_instance = instance;
 	_adapterName = adapterName;
     }
@@ -119,7 +116,6 @@ public sealed class ServantManager : SupportClass.ThreadClass
 	//Debug.Assert(_instance == null);
     }
     
-    //UPGRADE_TODO: The equivalent of method 'java.lang.Thread.destroy' is not an override method. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1143"'
     //
     // Only for use by Ice.ObjectAdatperI.
     //
@@ -141,7 +137,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
 		catch(System.Exception ex)
 		{
 		    string s = "exception during locator deactivation:\n" + "object adapter: `"
-		               + _adapterName + "'\n" + "locator prefix: `" + p.Key + "'\n" + ex;
+		               + _adapterName + "'\n" + "locator category: `" + p.Key + "'\n" + ex;
 		    _instance.logger().error(s);
 		}
 	    }
@@ -154,8 +150,8 @@ public sealed class ServantManager : SupportClass.ThreadClass
     
     private Instance _instance;
     private readonly string _adapterName;
-    private Hashtable _servantMap;
-    private Hashtable _locatorMap;
+    private Hashtable _servantMap = new Hashtable();
+    private Hashtable _locatorMap = new Hashtable();
 }
 
 }

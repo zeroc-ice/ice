@@ -19,12 +19,28 @@ namespace Ice
 	public abstract void ice_response(bool ok, ByteSeq outParams);
 	public abstract override void ice_exception(Ice.LocalException ex);
 
+	public void __invoke(IceInternal.Reference r, string operation, OperationMode mode,
+		             ByteSeq inParams, Ice.Context context)
+	{
+	    try
+	    {
+	        __prepare(r, operation, mode, context);
+		__os.writeBlob(inParams);
+		__os.endWriteEncaps();
+	    }
+	    catch(LocalException ex)
+	    {
+	        __finished(ex);
+		return;
+	    }
+	    __send();
+	}
+
 	protected internal override void __response(bool ok) // ok == true means no user exception.
 	{
 	    ByteSeq outParams;
 	    try
 	    {
-		IceInternal.BasicStream __is = this.__is();
 		int sz = __is.getReadEncapsSize();
 		outParams = __is.readBlob(sz);
 	    }

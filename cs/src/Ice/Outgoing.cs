@@ -32,28 +32,38 @@ namespace IceInternal
 	    writeHeader(operation, mode, context);
 	}
 	
+	//
+	// Do NOT use a finalizer, this would cause a severe performance
+	// penalty! We must make sure that destroy() is called instead,
+	// to reclaim resources.
+	//
+	public void destroy()
+	{
+	    Debug.Assert(_is != null);
+	    _is.destroy();
+	    _is = null;
+	    
+	    Debug.Assert(_os != null);
+	    _os.destroy();
+	    _os = null;
+	}
+	
+	//
+	// This function allows this object to be reused, rather than
+	// reallocated.
+	//
 	public void reset(string operation, Ice.OperationMode mode, Ice.Context context)
 	{
 	    _state = StateUnsent;
 	    _exception = null;
 	    
+	    Debug.Assert(_is != null);
 	    _is.reset();
+
+	    Debug.Assert(_os != null);
 	    _os.reset();
 	    
 	    writeHeader(operation, mode, context);
-	}
-	
-	public void destroy()
-	{
-	    if(_state == StateUnsent &&
-		(_reference.mode == Reference.ModeBatchOneway ||
-		 _reference.mode == Reference.ModeBatchDatagram))
-	    {
-		_connection.abortBatchRequest();
-	    }
-	    
-	    _os.destroy();
-	    _is.destroy();
 	}
 	
 	// Returns true if ok, false if user exception.
@@ -65,26 +75,48 @@ namespace IceInternal
 	    {
 		case Reference.ModeTwoway: 
 		{
+		    //
+		    // We let all exceptions raised by sending directly
+		    // propagate to the caller, because they can be
+		    // retried without violating "at-most-once". In case
+		    // of such exceptions, the connection object does not
+		    // call back on this object, so we don't need to lock
+		    // the mutex, keep track of state, or save exceptions.
+		    //
+		    _connection.sendRequest(_os, this);
+
+		    //
+		    // Wait until the request has completed, or until the
+		    // request times out.
+		    //
+
 		    bool timedOut = false;
 		    
 		    lock(this)
 		    {
-			_connection.sendRequest(this, false);
-			_state = StateInProgress;
-			
+			//
+			// It's possible that the request has already
+			// completed, due to a regular response, or because of
+			// an exception. So we only change the state to "in
+			// progress" if it is still "unsent".
+			//
+			if(_state == StateUnsent)
+			{
+			    _state = StateInProgress;
+			}
+
 			int timeout = _connection.timeout();
-			while(_state == StateInProgress)
+			while(_state == StateInProgress && !timedOut)
 			{
 			    try
 			    {
 				if(timeout >= 0)
 				{
-				    System.Threading.Monitor.Wait(this, System.TimeSpan.FromMilliseconds(timeout));
+				    System.Threading.Monitor.Wait(this, timeout);
+				    
 				    if(_state == StateInProgress)
 				    {
 					timedOut = true;
-					_state = StateLocalException;
-					_exception = new Ice.TimeoutException();
 				    }
 				}
 				else
@@ -104,13 +136,31 @@ namespace IceInternal
 			// Must be called outside the synchronization of
 			// this object
 			//
-			_connection.exception(_exception);
+			_connection.exception(new Ice.TimeoutException());
+
+			//
+			// We must wait until the exception set above has
+			// propagated to this Outgoing object.
+			//
+			lock(this)
+			{
+			    while(_state == StateInProgress)
+			    {
+				try
+				{
+				    System.Threading.Monitor.Wait(this);
+				}
+				catch(System.Threading.ThreadInterruptedException)
+				{
+				}
+			    }
+			    
+			    Debug.Assert(_exception != null);
+			}
 		    }
 		    
 		    if(_exception != null)
 		    {
-			// _exception.fillInStackTrace(); // TODO: how to do this in C#?
-			
 			//      
 			// A CloseConnectionException indicates graceful
 			// server shutdown, and is therefore always repeatable
@@ -144,15 +194,16 @@ namespace IceInternal
 		case Reference.ModeOneway: 
 		case Reference.ModeDatagram: 
 		{
-		    try
-		    {
-			_connection.sendRequest(this, true);
-		    }
-		    catch(Ice.DatagramLimitException ex)
-		    {
-			throw new NonRepeatable(ex);
-		    }
-		    _state = StateInProgress;
+		    //
+		    // For oneway and datagram requests, the connection
+		    // object never calls back on this object. Therefore
+		    // we don't need to lock the mutex, keep track of
+		    // state, or save exceptions. We simply let all
+		    // exceptions from sending propagate to the caller,
+		    // because such exceptions can be retried without
+		    // violating "at-most-once".
+		    //
+		    _connection.sendRequest(_os, null);
 		    break;
 		}
 		
@@ -160,14 +211,10 @@ namespace IceInternal
 		case Reference.ModeBatchDatagram: 
 		{
 		    //
-		    // The state must be set to StateInProgress before calling
-		    // finishBatchRequest, because otherwise if
-		    // finishBatchRequest raises an exception, the destructor
-		    // of this class will call abortBatchRequest, and calling
-		    // both finishBatchRequest and abortBatchRequest is
-		    // illegal.
+		    // For batch oneways and datagrams, the same rules as for
+		    // regular oneways and datagrams (see comment above)
+		    // apply.
 		    //
-		    _state = StateInProgress;
 		    _connection.finishBatchRequest(_os);
 		    break;
 		}
@@ -178,154 +225,140 @@ namespace IceInternal
 	
 	public void finished(BasicStream istr)
 	{
-	    lock(this)
+	    Debug.Assert(_reference.mode == Reference.ModeTwoway); // Can only be called for twoways.
+
+	    Debug.Assert(_state <= StateInProgress);
+
+	    _is.swap(istr);
+	    DispatchStatus status = (DispatchStatus)_is.readByte();
+
+	    switch(status)
 	    {
-		//
-		// The state might be StateLocalException if there was a
-		// timeout in invoke().
-		//
-		if(_state == StateInProgress)
+		case DispatchStatus.DispatchOK:
 		{
-		    _is.swap(istr);
-		    byte status = _is.readByte();
-		    
-		    switch((DispatchStatus)status)
-		    {
-			case DispatchStatus.DispatchOK: 
-			{
-			    //
-			    // Input and output parameters are always sent in an
-			    // encapsulation, which makes it possible to forward
-			    // oneway requests as blobs.
-			    //
-			    _is.startReadEncaps();
-			    _state = StateOK;
-			    break;
-			}
-			
-			case DispatchStatus.DispatchUserException: 
-			{
-			    //
-			    // Input and output parameters are always sent in an
-			    // encapsulation, which makes it possible to forward
-			    // oneway requests as blobs.
-			    //
-			    _is.startReadEncaps();
-			    _state = StateUserException;
-			    break;
-			}
-			
-			case DispatchStatus.DispatchObjectNotExist: 
-			case DispatchStatus.DispatchFacetNotExist: 
-			case DispatchStatus.DispatchOperationNotExist: 
-			{
-			    _state = StateLocalException;
-			    
-			    Ice.RequestFailedException ex = null;
-			    switch((DispatchStatus)status)
-			    {
-				case DispatchStatus.DispatchObjectNotExist: 
-				{
-				    ex = new Ice.ObjectNotExistException();
-				    break;
-				}
-				
-				case DispatchStatus.DispatchFacetNotExist: 
-				{
-				    ex = new Ice.FacetNotExistException();
-				    break;
-				}
-				
-				case DispatchStatus.DispatchOperationNotExist: 
-				{
-				    ex = new Ice.OperationNotExistException();
-				    break;
-				}
-				
-				default: 
-				{
-				    Debug.Assert(false);
-				    break;
-				}
-			    }
-			    
-			    ex.id = new Ice.Identity();
-			    ex.id.__read(_is);
-			    ex.facet = _is.readFacetPath();
-			    ex.operation = _is.readString();
-			    _exception = ex;
-			    break;
-			}
-			
-			case DispatchStatus.DispatchUnknownException: 
-			case DispatchStatus.DispatchUnknownLocalException: 
-			case DispatchStatus.DispatchUnknownUserException: 
-			{
-			    _state = StateLocalException;
-			    
-			    Ice.UnknownException ex = null;
-			    switch((DispatchStatus)status)
-			    {
-				case DispatchStatus.DispatchUnknownException: 
-				{
-				    ex = new Ice.UnknownException();
-				    break;
-				}
-				
-				case DispatchStatus.DispatchUnknownLocalException: 
-				{
-				    ex = new Ice.UnknownLocalException();
-				    break;
-				}
-				
-				case DispatchStatus.DispatchUnknownUserException: 
-				{
-				    ex = new Ice.UnknownUserException();
-				    break;
-				}
-				
-				default: 
-				{
-				    Debug.Assert(false);
-				    break;
-				}
-				
-			    }
-			    
-			    ex.unknown = _is.readString();
-			    _exception = ex;
-			    break;
-			}
-			
-			default: 
-			{
-			    _state = StateLocalException;
-			    _exception = new Ice.UnknownReplyStatusException();
-			    break;
-			}
-			
-		    }
+		    //
+		    // Input and output parameters are always sent in an
+		    // encapsulation, which makes it possible to forward
+		    // oneway requests as blobs.
+		    //
+		    _is.startReadEncaps();
+		    _state = StateOK;
+		    break;
 		}
 		
-		System.Threading.Monitor.Pulse(this);
+		case DispatchStatus.DispatchUserException:
+		{
+		    //
+		    // Input and output parameters are always sent in an
+		    // encapsulation, which makes it possible to forward
+		    // oneway requests as blobs.
+		    //
+		    _is.startReadEncaps();
+		    _state = StateUserException;
+		    break;
+		}
+		
+		case DispatchStatus.DispatchObjectNotExist:
+		case DispatchStatus.DispatchFacetNotExist:
+		case DispatchStatus.DispatchOperationNotExist:
+		{
+		    _state = StateLocalException;
+		    
+		    Ice.RequestFailedException ex = null;
+		    switch(status)
+		    {
+			case DispatchStatus.DispatchObjectNotExist:
+			{
+			    ex = new Ice.ObjectNotExistException();
+			    break;
+			}
+			
+			case DispatchStatus.DispatchFacetNotExist:
+			{
+			    ex = new Ice.FacetNotExistException();
+			    break;
+			}
+			
+			case DispatchStatus.DispatchOperationNotExist:
+			{
+			    ex = new Ice.OperationNotExistException();
+			    break;
+			}
+			
+			default:
+			{
+			    Debug.Assert(false);
+			    break;
+			}
+		    }
+		    
+		    ex.id = new Ice.Identity();
+		    ex.id.__read(_is);
+		    ex.facet = _is.readFacetPath();
+		    ex.operation = _is.readString();
+		    _exception = ex;
+		    break;
+		}
+		
+		case DispatchStatus.DispatchUnknownException:
+		case DispatchStatus.DispatchUnknownLocalException:
+		case DispatchStatus.DispatchUnknownUserException:
+		{
+		    _state = StateLocalException;
+		    
+		    Ice.UnknownException ex = null;
+		    switch(status)
+		    {
+			case DispatchStatus.DispatchUnknownException:
+			{
+			    ex = new Ice.UnknownException();
+			    break;
+			}
+			
+			case DispatchStatus.DispatchUnknownLocalException:
+			{
+			    ex = new Ice.UnknownLocalException();
+			    break;
+			}
+			
+			case DispatchStatus.DispatchUnknownUserException: 
+			{
+			    ex = new Ice.UnknownUserException();
+			    break;
+			}
+			
+			default:
+			{
+			    Debug.Assert(false);
+			    break;
+			}
+		    }
+		    
+		    ex.unknown = _is.readString();
+		    _exception = ex;
+		    break;
+		}
+		
+		default:
+		{
+		    _state = StateLocalException;
+		    _exception = new Ice.UnknownReplyStatusException();
+		    break;
+		}
 	    }
+
+	    System.Threading.Monitor.Pulse(this);
 	}
 	
 	public void finished(Ice.LocalException ex)
 	{
-	    lock(this)
-	    {
-		//
-		// The state might be StateLocalException if there was a
-		// timeout in invoke().
-		//
-		if(_state == StateInProgress)
-		{
-		    _state = StateLocalException;
-		    _exception = ex;
-		    System.Threading.Monitor.Pulse(this);
-		}
-	    }
+	    Debug.Assert(_reference.mode == Reference.ModeTwoway); // Can only be called for twoways.
+	    
+	    Debug.Assert(_state <= StateInProgress);
+
+	    _state = StateLocalException;
+	    _exception = ex;
+	    System.Threading.Monitor.Pulse(this);
 	}
 	
 	public BasicStream istr()

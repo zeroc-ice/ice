@@ -39,6 +39,12 @@ namespace Ice
 
 	public void activate()
 	{
+	    Ice.LocatorRegistryPrx locatorRegistry = null;
+	    bool registerProcess = false;
+	    string serverId = "";
+	    Communicator communicator = null;
+	    bool printAdapterReady = false;
+
 	    lock(this)
 	    {
 		checkForDeactivation();
@@ -47,53 +53,90 @@ namespace Ice
 		{
 		    if(_locatorInfo != null && _id.Length > 0)
 		    {
-			Identity ident = new Identity();
-			ident.category = "";
-			ident.name = "dummy";
-			
-			//
-			// TODO: This might throw if we can't connect to the
-			// locator. Shall we raise a special exception for the
-			// activate operation instead of a non obvious network
-			// exception?
-			//
-			try
-			{
-			    _locatorInfo.getLocatorRegistry().setAdapterDirectProxy(_id, newDirectProxy(ident));
-			}
-			catch(Ice.AdapterNotFoundException ex)
-			{
-			    NotRegisteredException ex1 = new NotRegisteredException(ex);
-			    ex1.id = _id;
-			    ex1.kindOfObject = "object adapter";
-			    throw ex1;
-			}
-			catch(Ice.AdapterAlreadyActiveException ex)
-			{
-			    ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException(ex);
-			    ex1.id = _id;
-			    throw ex1;
-			}
+		    	locatorRegistry = _locatorInfo.getLocatorRegistry();
 		    }
-		}
-		
-		int sz = _incomingConnectionFactories.Count;
-		for(int i = 0; i < sz; ++i)
-		{
-		    IceInternal.IncomingConnectionFactory factory
-			= (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories[i];
-		    factory.activate();
-		}
-		
-		if(!_printAdapterReadyDone)
-		{
-		    if(_instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0)
+
+		    registerProcess = _instance.properties().getPropertyAsInt(_name + ".RegisterProcess") > 0;
+		    serverId = _instance.properties().getProperty("Ice.ServerId");
+		    printAdapterReady = _instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+
+		    if(registerProcess && locatorRegistry == null)
 		    {
-			System.Console.Out.WriteLine(_name + " ready");
+		        _instance.logger().warning("object adapter `" + _name + "' cannot register the process " +
+						   "without alocator registry");
+			registerProcess = false;
 		    }
-		    
+		    else if(registerProcess && serverId.Length == 0)
+		    {
+		        _instance.logger().warning("object adapter `" + _name + "' cannot register the process " +
+			                           "without a value for Ice.ServerId");
+			registerProcess = false;
+		    }
+
+		    communicator = _communicator;
 		    _printAdapterReadyDone = true;
 		}
+		
+		foreach(IceInternal.IncomingConnectionFactory icf in _incomingConnectionFactories)
+		{
+		    icf.activate();
+		}
+	    }
+
+	    //
+	    // We must call on the locator registry oustide the thread
+	    // synchronization, to avoid deadlocks.
+	    //
+	    if(locatorRegistry != null)
+	    {
+	    	//
+		// TODO: This might throw if we can't connect to the
+		// locator. Shall we raise a special exception for the
+		// activate operation instead of a non obvious network
+		// exception?
+		//
+		try {
+		    Identity ident = new Identity();
+		     ident.category = "";
+		     ident.name = "dummy";
+		     locatorRegistry.setAdapterDirectProxy(_id, newDirectProxy(ident));
+		}
+		catch(Ice.AdapterNotFoundException)
+		{
+		    NotRegisteredException ex1 = new NotRegisteredException();
+		    ex1.id = _id;
+		    ex1.kindOfObject = "object adapter";
+		    throw ex1;
+		}
+		catch(Ice.AdapterAlreadyActiveException)
+		{
+		    ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
+		    ex1.id = _id;
+		    throw ex1;
+		}
+
+		if(registerProcess)
+		{
+		    Process servant = new ProcessI(communicator);
+		    ProcessPrx proxy = ProcessPrxHelper.uncheckedCast(addWithUUID(servant));
+
+		    try
+		    {
+		    	locatorRegistry.setServerProcessProxy(serverId, proxy);
+		    } 
+		    catch(ServerNotFoundException)
+		    {
+		        NotRegisteredException ex1 = new NotRegisteredException();
+			ex1.id = serverId;
+			ex1.kindOfObject = "server";
+			throw ex1;
+		    }
+		}
+	    }
+
+	    if(printAdapterReady)
+	    {
+		System.Console.Out.WriteLine(_name + " ready");
 	    }
 	}
 	
@@ -800,6 +843,21 @@ namespace Ice
 	    {
 		ident.category = "";
 	    }
+	}
+
+	private sealed class ProcessI : Process_Disp
+	{
+	    public ProcessI(Communicator communicator)
+	    {
+		_communicator = communicator;
+	    }
+
+	    public override void shutdown(Ice.Current current)
+	    {
+		_communicator.shutdown();
+	    }
+
+	    private Communicator _communicator;
 	}
 	
 	private bool _deactivated;
