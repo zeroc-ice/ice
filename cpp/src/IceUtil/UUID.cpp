@@ -149,7 +149,7 @@ IceUtil::generateUUID()
     // Adjust the bits that say "version 4" UUID
     //
     uuid.timeHighAndVersion[0] &= 0x0F;
-    uuid.timeHighAndVersion[0] |= (3 << 4);
+    uuid.timeHighAndVersion[0] |= (4 << 4);
     uuid.clockSeqHiAndReserved &= 0x3F;
     uuid.clockSeqHiAndReserved |= 0x80;
 
