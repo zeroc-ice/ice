@@ -9,7 +9,6 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#include <Glacier/Glacier.h>
 #include <IcePatch/FileDescFactory.h>
 #include <IcePatch/Util.h>
 #include <Glacier/Glacier.h>
@@ -406,6 +405,7 @@ int
 main(int argc, char* argv[])
 {
     addArgumentPrefix("IcePatch");
+    addArgumentPrefix("Glacier");
     Client app;
     return app.main(argc, argv);
 }

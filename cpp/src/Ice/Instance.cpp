@@ -307,6 +307,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
         _sslSystem = IceSSL::Factory::getSystem(this);
         _sslSystem->configure();
 
+#ifndef _WIN32
 	//
 	// daemon() must be called after the SSL system has been
 	// configured, since SSL might want to read a passphrase from
@@ -324,6 +325,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 		throw ex;
 	    }
 	}
+#endif
 
 	//
 	// Must be done after daemon() is called, since daemon()
