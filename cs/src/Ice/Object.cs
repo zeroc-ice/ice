@@ -225,6 +225,8 @@ namespace Ice
 	    
             __is.endReadSlice();
         }
+
+        public static Ice.Current defaultCurrent = new Ice.Current();
     }
 
     public abstract class Blobject : Ice.ObjectImpl

@@ -22,7 +22,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyVersion("1.5.0")]
 [assembly: AssemblyDelaySign(false)]
 #if __MonoCS__
-[assembly: AssemblyKeyFile("IcecsKey.snk")] // mcs uses different search algorithm
+[assembly: AssemblyKeyFile("IcecsKey.snk")] // mcs uses different search algorithm.
 #else
 [assembly: AssemblyKeyFile(@"..\..\IcecsKey.snk")]
 #endif

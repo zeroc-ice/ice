@@ -396,7 +396,7 @@ namespace IceInternal
 	{
             if(_compressionEnabled)
             {
-                if(uncompressed.size() < 100 && compress)
+                if(uncompressed.size() > 100 && compress)
                 {
                     BasicStream cstream = null;
 
