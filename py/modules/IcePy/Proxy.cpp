@@ -42,7 +42,13 @@ allocateProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communica
         return NULL;
     }
 
-    p->proxy = new Ice::ObjectPrx(proxy->ice_collocationOptimization(false));
+    //
+    // Disabling collocation optimization can cause subtle problems with proxy
+    // comparison (such as in RouterInfo::get) if a proxy from IcePy is
+    // compared with a proxy from Ice/C++.
+    //
+    //p->proxy = new Ice::ObjectPrx(proxy->ice_collocationOptimization(false));
+    p->proxy = new Ice::ObjectPrx(proxy);
     p->communicator = new Ice::CommunicatorPtr(communicator);
 
     return p;
