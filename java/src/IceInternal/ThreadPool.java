@@ -30,8 +30,9 @@ public final class ThreadPool
         _instance = instance;
         _destroyed = false;
         _prefix = prefix;
-	_inUse = 0;
         _timeout = timeout;
+	_inUse = 0;
+	_load = 0;
 	_promote = true;
 
 	String programName = _instance.properties().getProperty("Ice.ProgramName");
@@ -216,11 +217,11 @@ public final class ThreadPool
     {
         if(_sizeMax > 1)
         {
-	    synchronized(_promoteMonitor)
+	    synchronized(this)
 	    {
 		assert(!_promote);
 		_promote = true;
-		_promoteMonitor.notify();
+		notify();
 
 		assert(_inUse >= 0);
 		++_inUse;
@@ -392,13 +393,13 @@ public final class ThreadPool
     {
 	if(_sizeMax > 1)
 	{
-	    synchronized(_promoteMonitor)
+	    synchronized(this)
 	    {
 		while(!_promote)
 		{
 		    try
 		    {
-			_promoteMonitor.wait();
+			wait();
 		    }
 		    catch(InterruptedException ex)
 		    {
@@ -673,7 +674,7 @@ public final class ThreadPool
 
 	    if(_sizeMax > 1)
 	    {
-		synchronized(_promoteMonitor)
+		synchronized(this)
 		{
 		    assert(_inUse > 0);
 		    --_inUse;
@@ -682,7 +683,7 @@ public final class ThreadPool
 		    {
 			try
 			{
-			    _promoteMonitor.wait();
+			    wait();
 			}
 			catch(InterruptedException ex)
 			{
@@ -948,11 +949,6 @@ public final class ThreadPool
     private final String _prefix;
     private final String _programNamePrefix;
 
-    private final int _size; // Number of threads that are pre-created.
-    private final int _sizeMax; // Maximum number of threads.
-    private final int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
-    private int _inUse; // Number of threads that are currently in use.
-
     private java.nio.channels.ReadableByteChannel _fdIntrRead;
     private java.nio.channels.SelectionKey _fdIntrReadKey;
     private java.nio.channels.WritableByteChannel _fdIntrWrite;
@@ -964,9 +960,6 @@ public final class ThreadPool
     private java.util.HashMap _handlerMap = new java.util.HashMap();
 
     private int _timeout;
-
-    private boolean _promote;
-    private java.lang.Object _promoteMonitor = new java.lang.Object();
 
     private final class EventHandlerThread extends Thread
     {
@@ -1014,11 +1007,11 @@ public final class ThreadPool
 	    //
 	    if(_sizeMax > 1)
 	    {
-		synchronized(_promoteMonitor)
+		synchronized(ThreadPool.this)
 		{
 		    assert(!_promote);
 		    _promote = true;
-		    _promoteMonitor.notify();
+		    ThreadPool.this.notify();
 		}
 	    }
 
@@ -1027,4 +1020,11 @@ public final class ThreadPool
     }
 
     private java.util.Vector _threads; // All threads, running or not.
+    private final int _size; // Number of threads that are pre-created.
+    private final int _sizeMax; // Maximum number of threads.
+    private final int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
+    private int _inUse; // Number of threads that are currently in use.
+    private double _load; // Current load in number of threads.
+
+    private boolean _promote;
 }
