@@ -1,6 +1,13 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed a race condition in the IcePack on demand server activation code which
+  could cause clients to hang under rare conditions if the server couldn't be 
+  activated.
+
+- Fixed a small memory leak in the IcePack node that would occur each time a 
+  process is forked (Unix only).
+
 - Added 'object list' and 'object describe' IcePack admin commands.
 
 - Changed the signature of IcePack::Admin::removeObject() to take the identity
