@@ -69,6 +69,14 @@ public class Server
         
         try
         {
+	    //
+	    // In this test, we need longer server idle time,
+	    // otherwise our test servers may time out before they are
+	    // used in the test.
+	    //
+	    Ice.Properties properties = Ice.Util.getDefaultProperties(ref args);
+	    properties.setProperty("Ice.ServerIdleTime", "120"); // Two minutes
+
             communicator = Ice.Util.initialize(ref args);
             status = run(args, communicator);
         }

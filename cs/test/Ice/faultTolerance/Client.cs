@@ -51,6 +51,12 @@ public class Client
         
         try
         {
+	    //
+	    // This test aborts servers, so we don't want warnings.
+	    //
+	    Ice.Properties properties = Ice.Util.getDefaultProperties(ref args);
+	    properties.setProperty("Ice.Warn.Connections", "0");
+
             communicator = Ice.Util.initialize(ref args);
             status = run(args, communicator);
         }

@@ -17,17 +17,17 @@ public sealed class TestI : _TestDisp
     
     public override void abort(Ice.Current current)
     {
-        System.Environment.Exit(1);
+        System.Diagnostics.Process.GetCurrentProcess().Kill();
     }
     
     public override void idempotentAbort(Ice.Current current)
     {
-        System.Environment.Exit(1);
+        System.Diagnostics.Process.GetCurrentProcess().Kill();
     }
     
     public override void nonmutatingAbort(Ice.Current current)
     {
-        System.Environment.Exit(1);
+        System.Diagnostics.Process.GetCurrentProcess().Kill();
     }
     
     public override int pid(Ice.Current current)
