@@ -58,6 +58,18 @@ local interface Properties
 
     /**
      *
+     * Get all properties whose keys begins with
+     * <replaceable>prefix</replaceable>. If
+     * <replaceable>prefix</replaceable> is an empty string,
+     * then all properties are returned.
+     *
+     * @return The matching properties, in [key,value] pairs.
+     *
+     **/
+    StringSeq getProperties(string prefix);
+
+    /**
+     *
      * Set a property.
      *
      * @param key The property key.

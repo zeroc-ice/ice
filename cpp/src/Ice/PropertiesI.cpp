@@ -50,6 +50,25 @@ Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
     }
 }
 
+StringSeq
+Ice::PropertiesI::getProperties(const string& prefix)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    StringSeq result;
+    map<string, string>::const_iterator p;
+    for (p = _properties.begin(); p != _properties.end(); ++p)
+    {
+        if (prefix.empty() || p->first.find(prefix) == 0)
+        {
+            result.push_back(p->first);
+            result.push_back(p->second);
+        }
+    }
+
+    return result;
+}
+
 void
 Ice::PropertiesI::setProperty(const string& key, const string& value)
 {
