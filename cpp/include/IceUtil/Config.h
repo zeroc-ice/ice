@@ -97,14 +97,26 @@
 #       error "Only multi-threaded DLL libraries can be used with Ice!"
 #   endif
 
+//
 // The Windows default of 64 is too small -- we want more concurrent
-// connections than that.
-
+// connections than that. However, we don't redefine it if it's already
+// set, because that means windows.h has already been included and
+// therefore it's too late to change it here.
+//
 #   ifndef FS_SETSIZE
 #      define FD_SETSIZE 1024
 #   endif
 
 #   include <windows.h>
+
+//
+// MFC applications that include afxwin.h before this header will cause
+// windows.h to skip inclusion of winsock2.h, so we include it here if
+// necessary.
+// 
+#   ifndef _WINSOCK2API_
+#      include <winsock2.h>
+#   endif
 
 // '...' : forcing value to bool 'true' or 'false' (performance warning)
 #   pragma warning( disable : 4800 )
