@@ -84,5 +84,5 @@ IcePatch::FileI::describe(const Ice::Current& current)
 ByteSeq
 IcePatch::FileI::getBlock(Int n, const Ice::Current& current)
 {
-    return getBZ2(identityToPath(current.identity), n);
+    return getBlockBZ2(identityToPath(current.identity), n);
 }

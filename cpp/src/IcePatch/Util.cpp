@@ -219,7 +219,6 @@ IcePatch::getMD5(const string& path)
     //
     struct stat bufmd5;
     string pathmd5 = path + ".md5";
-    unsigned char md5[16];
     bool createmd5 = false;
     if (::stat(pathmd5.c_str(), &bufmd5) == -1)
     {
@@ -256,10 +255,13 @@ IcePatch::getMD5(const string& path)
 	}
     }
 
+    ByteSeq md5;
+    md5.resize(16);
+
     if (createmd5)
     {
 	//
-	// Open the original file and create a MD5 hash value
+	// Open the original file and create a MD5 hash value.
 	//
 	{
 	    int fd = ::open(path.c_str(), O_RDONLY);
@@ -291,7 +293,7 @@ IcePatch::getMD5(const string& path)
 		    throw ex;
 		}
 		
-		::MD5(fileBuf, sz, md5);
+		::MD5(fileBuf, sz, reinterpret_cast<unsigned char*>(&md5[0]));
 		
 		::close(fd);
 		delete [] fileBuf;
@@ -319,7 +321,7 @@ IcePatch::getMD5(const string& path)
 	    
 	    try
 	    {
-		int sz = ::write(fd, md5, 16);
+		int sz = ::write(fd, &md5[0], 16);
 		
 		if (sz == -1)
 		{
@@ -360,7 +362,7 @@ IcePatch::getMD5(const string& path)
 	
 	try
 	{
-	    int sz = ::read(fd, md5, 16);
+	    int sz = ::read(fd, &md5[0], 16);
 	    
 	    if (sz == -1)
 	    {
@@ -385,16 +387,7 @@ IcePatch::getMD5(const string& path)
 	}
     }
 
-    //
-    // Convert array to byte sequence.
-    //
-    ByteSeq result;
-    result.resize(16);
-    for (int i = 0; i < 16; ++i)
-    {
-	result[i] = md5[i];
-    }
-    return result;
+    return md5;
 }
 
 string
@@ -420,8 +413,69 @@ IcePatch::MD5ToString(const ByteSeq& md5)
     return out.str();
 }
 
+static void
+createBZ2(const string& path, char* buf, int sz)
+{
+    FILE* file = fopen(path.c_str(), "wb");
+    if (!file)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot open `" + path + "' for writing:" + strerror(errno);
+	throw ex;
+    }
+    
+    try
+    {
+	int bzError;
+	BZFILE* bzFile = BZ2_bzWriteOpen(&bzError, file, 5, 0, 0);
+	if (bzError != BZ_OK)
+	{
+	    NodeAccessException ex;
+	    ex.reason = "BZ2_bzWriteOpen failed";
+	    throw ex;
+	}
+	
+	try
+	{
+	    BZ2_bzWrite(&bzError, bzFile, buf, sz);
+	    if (bzError != BZ_OK)
+	    {
+		NodeAccessException ex;
+		ex.reason = "BZ2_bzWrite failed";
+		throw ex;
+	    }
+
+	    BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
+	    if (bzError != BZ_OK)
+	    {
+		NodeAccessException ex;
+		ex.reason = "BZ2_bzWriteClose failed";
+		throw ex;
+	    }
+	}
+	catch (...)
+	{
+	    BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
+	    if (bzError != BZ_OK)
+	    {
+		NodeAccessException ex;
+		ex.reason = "BZ2_bzWriteClose failed";
+		throw ex;
+	    }
+	    throw;
+	}
+	
+	fclose(file);
+    }
+    catch (...)
+    {
+	fclose(file);
+	throw;
+    }
+}
+
 ByteSeq
-IcePatch::getBZ2(const string& path, Int n)
+IcePatch::getBlockBZ2(const string& path, Int n)
 {
     //
     // Stat the file to get a bzip2 file for.
@@ -478,9 +532,101 @@ IcePatch::getBZ2(const string& path, Int n)
 	}
     }
 
+/*
     if (createbz2)
     {
+	//
+	// Open the original file and create a bzip2 file.
+	//
+	int fd = ::open(path.c_str(), O_RDONLY);
+	
+	if (fd == -1)
+	{
+	    NodeAccessException ex;
+	    ex.reason = "cannot open `" + path + "' for reading:" + strerror(errno);
+	    throw ex;
+	}
+	
+	unsigned char* fileBuf = new unsigned char[buf.st_size];
+	
+	try
+	{
+	    int sz = ::read(fd, fileBuf, buf.st_size);
+	    
+	    if (sz == -1)
+	    {
+		NodeAccessException ex;
+		ex.reason = "cannot read `" + path + "':" + strerror(errno);
+		throw ex;
+	    }
+	    
+	    if (sz < buf.st_size)
+	    {
+		NodeAccessException ex;
+		ex.reason = "could not read all bytes from `" + path + "'";
+		throw ex;
+	    }
+	    
+	    createBZ2(pathbz2, fileBuf, sz);
+	    
+	    ::close(fd);
+	    delete [] fileBuf;
+	}
+	catch (...)
+	{
+	    ::close(fd);
+	    delete [] fileBuf;
+	    throw;
+	}
+    }
+*/
+
+    //
+    // Open the bzip2 file and read the appropriate block of data.
+    //
+    pathbz2 = path;
+    int fd = ::open(pathbz2.c_str(), O_RDONLY);
+    
+    if (fd == -1)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot open `" + pathbz2 + "' for reading:" + strerror(errno);
+	throw ex;
     }
 
-    return ByteSeq();
+    ByteSeq block;
+    block.resize(128); // TODO: This is a very small number for testing only.
+
+    try
+    {
+	off_t offset = lseek(fd, n * block.size(), SEEK_SET);
+	if (offset == -1)
+	{
+	    NodeAccessException ex;
+	    ostringstream out;
+	    out << "cannot seek position " << n * block.size() << " in file `" + pathbz2 + "':" + strerror(errno);
+	    ex.reason = out.str();
+	    throw ex;
+	}
+
+	int sz = ::read(fd, &block[0], block.size());
+	
+	if (sz == -1)
+	{
+	    NodeAccessException ex;
+	    ex.reason = "cannot read `" + path + "':" + strerror(errno);
+	    throw ex;
+	}
+
+	block.resize(sz);
+
+	close(fd);
+    }
+    catch (...)
+    {
+	close(fd);
+	throw;
+    }
+
+    return block;
 }
