@@ -123,22 +123,27 @@ No additional steps are necessary on Linux.
 Additional Requirements for Solaris with Sun CC
 =========================================================================
 
-Edit the file <phpdir>/libtool, search for the line beginning with
-"archive_cmds=", and change \$LD to \$CXX in the value of both
-archive_cmds and archive_expsym_cmds.
+1. Edit the file <phpdir>/libtool, search for the line beginning with
+   "archive_cmds=", and change \$LD to \$CXX in the value of both
+   archive_cmds and archive_expsym_cmds.
 
-If you are building the Ice extension in a static configuration, edit
-the file <phpdir>/Makefile and make the following changes:
+2. If you are building the Ice extension in a dynamic configuration, edit
+   the file <phpdir>/Makefile and add the following definition:
 
-- If the command-line interpreter is being built, search for the
-  definition of the BUILD_CLI variable and change "$(CC)" to "$(CXX)".
+     EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE
 
-- If the CGI interpreter is being built, search for the definition of
-  the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
+3. If you are building the Ice extension in a static configuration, edit
+   the file <phpdir>/Makefile and make the following changes:
 
-- If a Web server module is being built, search for the line beginning
-  with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
-  well as in the rule for "libs/libphp5.bundle" below.
+   - If the command-line interpreter is being built, search for the
+     definition of the BUILD_CLI variable and change "$(CC)" to "$(CXX)".
+
+   - If the CGI interpreter is being built, search for the definition of
+     the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
+
+   - If a Web server module is being built, search for the line beginning
+     with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
+     well as in the rule for "libs/libphp5.bundle" below.
 
 Note that PHP 5 cannot be compiled using Sun CC 5.3.
 
