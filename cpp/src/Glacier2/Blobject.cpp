@@ -52,8 +52,8 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 	try
 	{
 	    IceUtil::Time sleepTime = _reverse ?
-		IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsInt(serverSleepTime)) :
-		IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsInt(clientSleepTime));
+		IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(serverSleepTime)) :
+		IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(clientSleepTime));
 	    
 	    _requestQueue = new RequestQueue(sleepTime);
 	    
