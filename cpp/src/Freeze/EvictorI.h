@@ -53,6 +53,11 @@ public:
     virtual void removeFacet(const Ice::Identity&, const std::string&);
     virtual void destroyObject(const Ice::Identity&);
 
+    virtual void keep(const Ice::Identity&);
+    virtual void keepFacet(const Ice::Identity&, const std::string&);
+    virtual void release(const Ice::Identity&);
+    virtual void releaseFacet(const Ice::Identity&, const std::string&);
+
     virtual bool hasObject(const Ice::Identity&);
     virtual bool hasFacet(const Ice::Identity&, const std::string&);
 

@@ -143,6 +143,7 @@ struct EvictorElement : public Ice::LocalObject
     //
     std::list<EvictorElementPtr>::iterator evictPosition;
     int usageCount;
+    int keepCount;
     bool stale;
     
     //

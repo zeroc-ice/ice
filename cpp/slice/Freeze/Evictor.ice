@@ -277,11 +277,92 @@ local interface Evictor extends Ice::ServantLocator
      * @throws EvictorDeactivatedException Raised if the evictor has
      * been deactivated.
      *
+     *
      * @see remove
      * @see addFacet
      *
      **/
     void removeFacet(Ice::Identity id, string facet);
+
+    /**
+     *
+     * Lock this object in the evictor cache. This lock can be released
+     * by [release] or remove. [release] releases only one lock, while
+     * [remove] releases all the locks.
+     *
+     * @param id The identity of the &Ice; object.
+     *
+     * @throws NotRegisteredException Raised if this identity was not 
+     * registered with the evictor.
+     *
+     * @throws DatabaseException Raised if a database failure occurred.
+     *
+     * @see keepFacet
+     * @see release
+     * @see remove
+     *
+     **/
+     void keep(Ice::Identity id);
+
+    /**
+     *
+     * Like [keep], but with a facet. Calling <code>keep(id)</code> 
+     * is equivalent to calling [keepFacet] with an empty facet.
+     *
+     * @param id The identity of the &Ice; object.
+     *
+     * @param facet The facet. An empty facet means the default
+     * facet.
+     *
+     * @throws NotRegisteredException Raised if this identity was not 
+     * registered with the evictor.
+     *
+     * @throws DatabaseException Raised if a database failure occurred.
+     *
+     * @see keep
+     * @see releaseFacet
+     * @see removeFacet
+     *
+     **/
+    void keepFacet(Ice::Identity id, string facet);
+
+
+    /**
+     *
+     * Release a "lock" acquired by [keep]. Once all the locks on an
+     * object have been released, the object is again subject to the 
+     * normal eviction strategy.
+     *
+     * @param id The identity of the &Ice; object.
+     *
+     * @throws NotRegisteredException Raised if this object was not
+     * "locked" with [keep] or [keepFacet].
+     *
+     * @see keepFacet
+     * @see release
+     *
+     **/
+    void release(Ice::Identity id);
+
+    
+    /**
+     *
+     * Like [release], but with a facet. Calling <code>release(id)</code> 
+     * is equivalent to calling [releaseFacet] with an empty facet.
+     *
+     * @param id The identity of the &Ice; object.
+     *
+     * @param facet The facet. An empty facet means the default
+     * facet.
+     *
+     * @throws NotRegisteredException Raised if this object was not
+     * "locked" with [keep] or [keepFacet].
+     *
+     * @see keep
+     * @see releaseFacet
+     *
+     **/
+    void releaseFacet(Ice::Identity id, string facet);
 
 
     /**

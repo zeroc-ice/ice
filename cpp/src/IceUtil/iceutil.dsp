@@ -114,6 +114,10 @@ SOURCE=.\Cond.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\CountDownLatch.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\CtrlCHandler.cpp
 # End Source File
 # Begin Source File
@@ -187,6 +191,10 @@ SOURCE=..\..\include\IceUtil\Base64.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\Cond.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\CountDownLatch.h
 # End Source File
 # Begin Source File
 

@@ -345,6 +345,7 @@ Freeze::ObjectStore::pinned(const EvictorElementPtr& element, Cache::Position p)
 Freeze::EvictorElement::EvictorElement(ObjectStore& s) :
     store(s),
     usageCount(-1),
+    keepCount(0),
     stale(true),
     status(clean)
 {

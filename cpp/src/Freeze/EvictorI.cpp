@@ -322,11 +322,11 @@ Freeze::EvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, cons
 	
 	EvictorElementPtr element = new EvictorElement(*store);
 	element->status = EvictorElement::dead;
-	pair<EvictorElementPtr, bool> ir = store->insert(ident, element);
+	EvictorElementPtr oldElt = store->putIfAbsent(ident, element);
       
-	if(ir.second == false)
+	if(oldElt != 0)
 	{
-	    element = ir.first;
+	    element = oldElt;
 	}
 
 	{
@@ -439,11 +439,11 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 	
 	EvictorElementPtr element = new EvictorElement(*store);
 	element->status = EvictorElement::dead;
-	pair<EvictorElementPtr, bool> ir = store->insert(ident, element);
+	EvictorElementPtr oldElt = store->putIfAbsent(ident, element);
       
-	if(ir.second == false)
+	if(oldElt != 0)
 	{
-	    element = ir.first;
+	    element = oldElt;
 	}
 
 	{
@@ -559,45 +559,61 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 		}
 	    
 		fixEvictPosition(element);
-		IceUtil::Mutex::Lock lock(element->mutex);
-	
-		switch(element->status)
 		{
-		    case EvictorElement::clean:
+		    IceUtil::Mutex::Lock lock(element->mutex);
+		    
+		    switch(element->status)
 		    {
-			element->status = EvictorElement::destroyed;
-			element->rec.servant = 0;
-			addToModifiedQueue(element);
-			break;
+			case EvictorElement::clean:
+			{
+			    element->status = EvictorElement::destroyed;
+			    element->rec.servant = 0;
+			    addToModifiedQueue(element);
+			    break;
+			}
+			case EvictorElement::created:
+			{
+			    element->status = EvictorElement::dead;
+			    element->rec.servant = 0;
+			    break;
+			}
+			case EvictorElement::modified:
+			{
+			    element->status = EvictorElement::destroyed;
+			    element->rec.servant = 0;
+			    //
+			    // Not necessary to push it on the modified queue, as a modified
+			    // element is either on the queue already or about to be saved
+			    // (at which point it becomes clean)
+			    //
+			    break;
+			}  
+			case EvictorElement::destroyed:
+			case EvictorElement::dead:
+			{
+			    notThere = true;
+			    break;
+			}
+			default:
+			{
+			    assert(0);
+			    break;
+			}
 		    }
-		    case EvictorElement::created:
-		    {
-			element->status = EvictorElement::dead;
-			element->rec.servant = 0;
-			break;
-		    }
-		    case EvictorElement::modified:
-		    {
-			element->status = EvictorElement::destroyed;
-			element->rec.servant = 0;
-			//
-			// Not necessary to push it on the modified queue, as a modified
-			// element is either on the queue already or about to be saved
-			// (at which point it becomes clean)
-			//
-			break;
-		    }  
-		    case EvictorElement::destroyed:
-		    case EvictorElement::dead:
-		    {
-			notThere = true;
-			break;
-		    }
-		    default:
-		    {
-			assert(0);
-			break;
-		    }
+		}
+		if(element->keepCount > 0)
+		{
+		    assert(notThere == false);
+
+		    element->keepCount = 0;
+		    //
+		    // Add to front of evictor queue
+		    //
+		    // Note that save evicts dead objects
+		    //
+		    _evictorList.push_front(element);
+		    _currentEvictorSize++;
+		    element->evictPosition = _evictorList.begin();
 		}
 	    }
 	    break; // for(;;)  
@@ -645,6 +661,156 @@ Freeze::EvictorI::destroyObject(const Identity& ident)
     }
 }
 
+void
+Freeze::EvictorI::keep(const Identity& ident)
+{
+    keepFacet(ident, "");
+}
+
+void
+Freeze::EvictorI::keepFacet(const Identity& ident, const string& facet)
+{
+    bool notThere = false;
+
+    ObjectStore* store = findStore(facet);
+    if(store == 0)
+    {
+	notThere = true;
+    }
+    else
+    {
+	for(;;)
+	{
+	    EvictorElementPtr element = store->pin(ident);
+	    if(element == 0)
+	    {
+		notThere = true;
+		break;
+	    }
+	    
+	    Lock sync(*this);
+	    if(_deactivated)
+	    {
+		throw EvictorDeactivatedException(__FILE__, __LINE__);
+	    }
+	    
+	    if(element->stale)
+	    {
+		//
+		// try again
+		//
+		continue;
+	    }
+	    
+	    
+	    {
+		IceUtil::Mutex::Lock lockElement(element->mutex);
+		if(element->status == EvictorElement::destroyed || element->status == EvictorElement::dead)
+		{
+		    notThere = true;
+		    break;
+		}
+	    }
+	    
+	    //
+	    // Found!
+	    //
+
+	    if(element->keepCount == 0)
+	    {
+		if(element->usageCount < 0)
+		{
+		    //
+		    // New object
+		    //
+		    element->usageCount = 0;
+		}
+		else
+		{
+		    _evictorList.erase(element->evictPosition);
+		    _currentEvictorSize--;
+		}
+		element->keepCount = 1;
+	    }
+	    else
+	    {
+		element->keepCount++;
+	    }
+	    break;
+	}
+    }
+
+    if(notThere)
+    {
+	NotRegisteredException ex(__FILE__, __LINE__);
+	ex.kindOfObject = "servant";
+	ex.id = identityToString(ident);
+	if(!facet.empty())
+	{
+	    ex.id += " -f " + facet;
+	}
+	throw ex;
+    }
+}
+
+void
+Freeze::EvictorI::release(const Identity& ident)
+{
+    releaseFacet(ident, "");
+}
+
+void
+Freeze::EvictorI::releaseFacet(const Identity& ident, const string& facet)
+{
+    {
+	Lock sync(*this);
+	
+	if(_deactivated)
+	{
+	    throw EvictorDeactivatedException(__FILE__, __LINE__);
+	}
+	
+	StoreMap::iterator p = _storeMap.find(facet);
+	if(p != _storeMap.end())
+	{
+	    ObjectStore* store = (*p).second;
+	    
+	    EvictorElementPtr element = store->getIfPinned(ident);
+	    if(element != 0)
+	    {
+		assert(!element->stale);
+		if(element->keepCount > 0) 
+		{
+		    if(--element->keepCount == 0)
+		    {
+			//
+			// Add to front of evictor queue
+			//
+			// Note that the element cannot be destroyed or dead since
+			// its keepCount was > 0.
+			//
+			_evictorList.push_front(element);
+			_currentEvictorSize++;
+			element->evictPosition = _evictorList.begin();
+		    }
+		    //
+		    // Success
+		    //
+		    return;
+		}
+	    }
+	}
+    }
+    
+    NotRegisteredException ex(__FILE__, __LINE__);
+    ex.kindOfObject = "servant";
+    ex.id = identityToString(ident);
+    if(!facet.empty())
+    {
+	ex.id += " -f " + facet;
+    }
+    throw ex;
+}
 
 EvictorIteratorPtr
 Freeze::EvictorI::getIterator(const string& facet, Int batchSize)
@@ -692,7 +858,7 @@ Freeze::EvictorI::hasFacet(const Identity& ident, const string& facet)
 	    return false;
 	}
 	
-	ObjectStore* store = (*p).second;
+	store = (*p).second;
 	
 	EvictorElementPtr element = store->getIfPinned(ident);
 	if(element != 0)
@@ -858,7 +1024,7 @@ Freeze::EvictorI::finished(const Current& current, const ObjectPtr& servant, con
 	{
 	    addToModifiedQueue(element);
 	}
-	else
+	else if(element->usageCount == 0 && element->keepCount == 0)
 	{
 	    //
 	    // Evict as many elements as necessary.
@@ -1230,7 +1396,7 @@ Freeze::EvictorI::run()
 		    EvictorElementPtr& element = *q;
 		    if(!element->stale)
 		    {
-			if(element->usageCount == 0)
+			if(element->usageCount == 0 && element->keepCount == 0)
 			{
 			    //
 			    // Get rid of unused dead elements
@@ -1345,6 +1511,7 @@ Freeze::EvictorI::evict()
 
 	EvictorElementPtr& element = *p;
 	assert(!element->stale);
+	assert(element->keepCount == 0);
 
 	if(_trace >= 2 || (_trace >= 1 && _evictorList.size() % 50 == 0))
 	{
@@ -1374,27 +1541,32 @@ void
 Freeze::EvictorI::fixEvictPosition(const EvictorElementPtr& element)
 {
     assert(!element->stale);
-    if(element->usageCount < 0)
+    
+    if(element->keepCount == 0)
     {
-	//
-	// New object
-	//
-	element->usageCount = 0;
-	_currentEvictorSize++;
+	if(element->usageCount < 0)
+	{
+	    //
+	    // New object
+	    //
+	    element->usageCount = 0;
+	    _currentEvictorSize++;
+	}
+	else
+	{
+	    _evictorList.erase(element->evictPosition);
+	}
+	_evictorList.push_front(element);
+	element->evictPosition = _evictorList.begin();
     }
-    else
-    {
-	_evictorList.erase(element->evictPosition);
-    }
-    _evictorList.push_front(element);
-    element->evictPosition = _evictorList.begin();
 }
 
 void 
 Freeze::EvictorI::evict(const EvictorElementPtr& element)
 {
     assert(!element->stale);
- 
+    assert(element->keepCount == 0);
+
     _evictorList.erase(element->evictPosition);
     _currentEvictorSize--;
     element->stale = true;

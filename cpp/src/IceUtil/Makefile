@@ -36,7 +36,8 @@ OBJS		= Exception.o \
                   Base64.o \
 		  GCShared.o \
 		  GCRecMutex.o \
-		  GC.o
+		  GC.o \
+                  CountDownLatch.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
