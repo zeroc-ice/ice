@@ -14,6 +14,8 @@
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterF.h>
+#include <Ice/ProxyF.h>
+#include <Ice/ObjectF.h>
 #include <Ice/Shared.h>
 #include <map>
 
@@ -27,6 +29,7 @@ public:
     void shutdown();
     ::Ice::ObjectAdapter_ptr createObjectAdapter(const std::string&,
 						 const std::string&);
+    ::Ice::Object_ptr proxyToObject(const ::Ice::Object_prx&);
 
 private:
 
