@@ -168,7 +168,7 @@ SOURCE=..\..\include\Freeze\Freeze.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Freeze\FreezeMap.h
+SOURCE=..\..\include\Freeze\Map.h
 # End Source File
 # Begin Source File
 

@@ -302,8 +302,9 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    }
 	    else
 	    {
-		out << nl << stream << deref << func << "::Ice::Object::__classIds[0], " << param << ")";
+		out << nl << stream << deref << func << "::Ice::Object::__classIds[0], " << param << ");";
 	    }
+	    return;
 	}
 	else
 	{

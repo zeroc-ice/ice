@@ -12,9 +12,7 @@
 #define FREEZE_MAP_H
 
 #include <Freeze/DB.h>
-#include <Ice/InstanceF.h>
-#include <Ice/BasicStream.h>
-#include <Ice/Initialize.h>
+#include <Ice/Ice.h>
 
 #include <iterator>
 
@@ -27,15 +25,15 @@ namespace Freeze
 // database.
 //
 template <typename key_type, typename value_type, typename KeyCodec, typename ValueCodec>
-class DbWrapper
+class DBWrapper
 {
 public:
 
-    DbWrapper()
+    DBWrapper()
     {
     }
 
-    DbWrapper(const DBPtr& db, const key_type& key, const value_type& value) :
+    DBWrapper(const DBPtr& db, const key_type& key, const value_type& value) :
 	_db(db), _key(key), _value(value)
     {
     }
@@ -55,7 +53,7 @@ public:
 	return _value == value;
     }
 
-    DbWrapper& operator=(const value_type& value)
+    DBWrapper& operator=(const value_type& value)
     {
 	Freeze::Key k;
 	Freeze::Value v;
@@ -82,36 +80,36 @@ private:
 // Forward declaration
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-class DbMap;
+class DBMap;
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-class ConstDbIterator;
+class ConstDBIterator;
 
 //
-// It's necessary to have DbPair so that automatic conversion to
+// It's necessary to have DBPair so that automatic conversion to
 // std::pair<key_type, mapped_type> from std::pair<key_type,
-// DbWrapper<...> > can work correctly (and global operator== &
+// DBWrapper<...> > can work correctly (and global operator== &
 // operator!=).
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-struct DbPair
+struct DBPair
 {
     typedef key_type first_type;
-    typedef  DbWrapper<key_type, mapped_type, KeyCodec, ValueCodec> second_type;
+    typedef  DBWrapper<key_type, mapped_type, KeyCodec, ValueCodec> second_type;
     
     first_type first;
     second_type second;
     
-    DbPair() :
+    DBPair() :
 	first(first_type()), second(second_type())
     {
     }
     
-    DbPair(const first_type& f, const second_type& s) :
+    DBPair(const first_type& f, const second_type& s) :
 	first(f), second(s)
     {
     }
     
-    ~DbPair()
+    ~DBPair()
     {
     }
 
@@ -122,46 +120,46 @@ struct DbPair
 };
 
 //
-// Global operator== & operator!= for both DbPair & std::pair.
+// Global operator== & operator!= for both DBPair & std::pair.
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-inline bool  operator==(const DbPair<key_type, mapped_type, KeyCodec, ValueCodec>& p1,
-			const DbPair<key_type, mapped_type, KeyCodec, ValueCodec>& p2)
+inline bool operator==(const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p1,
+		       const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p2)
 { 
     return p1.first == p2.first && p1.second == p2.second; 
 }
 
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-inline bool  operator==(const DbPair<key_type, mapped_type, KeyCodec, ValueCodec>& p1,
-			const std::pair<key_type, mapped_type>& p2)
+inline bool operator==(const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p1,
+		       const std::pair<key_type, mapped_type>& p2)
 { 
     return p1.first == p2.first && p1.second == p2.second; 
 }
 
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-inline bool  operator==(const std::pair<key_type, mapped_type>& p1,
-			const DbPair<key_type, mapped_type, KeyCodec, ValueCodec>& p2)
+inline bool operator==(const std::pair<key_type, mapped_type>& p1,
+		       const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p2)
 { 
     return p1.first == p2.first && p1.second == p2.second; 
 }
 
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-inline bool  operator!=(const DbPair<key_type, mapped_type, KeyCodec, ValueCodec>& p1,
-			const DbPair<key_type, mapped_type, KeyCodec, ValueCodec>& p2)
+inline bool operator!=(const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p1,
+		       const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p2)
 { 
     return p1.first != p2.first || p1.second != p2.second; 
 }
 
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-inline bool  operator!=(const DbPair<key_type, mapped_type, KeyCodec, ValueCodec>& p1,
-			const std::pair<key_type, mapped_type>& p2)
+inline bool operator!=(const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p1,
+		       const std::pair<key_type, mapped_type>& p2)
 { 
     return p1.first != p2.first || p1.second != p2.second; 
 }
 
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-inline bool  operator!=(const std::pair<key_type, mapped_type>& p1,
-			const DbPair<key_type, mapped_type, KeyCodec, ValueCodec>& p2)
+inline bool operator!=(const std::pair<key_type, mapped_type>& p1,
+		       const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p2)
 { 
     return p1.first != p2.first || p1.second != p2.second; 
 }
@@ -169,7 +167,7 @@ inline bool  operator!=(const std::pair<key_type, mapped_type>& p1,
 //
 // This is necessary for MSVC support.
 //
-struct DbIteratorBase
+struct DBIteratorBase
 {
     typedef std::forward_iterator_tag iterator_category;
 };
@@ -185,7 +183,7 @@ struct DbIteratorBase
 // necessary.
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-class DbIterator : public DbIteratorBase
+class DBIterator : public DBIteratorBase
 {
 public:
 
@@ -207,22 +205,22 @@ public:
 
     //
     // This is a special value-type that allows write-back to the
-    // database. It's necessary to use DbPair so that automatic
+    // database. It's necessary to use DBPair so that automatic
     // conversion to std::pair<key_type,mapped_type> can work correct
     // (and global operator== & !=).
     //
-    typedef DbPair<key_type, mapped_type, KeyCodec, ValueCodec> reference_value_type;
+    typedef DBPair<key_type, mapped_type, KeyCodec, ValueCodec> reference_value_type;
 
-    DbIterator(const DBPtr& db, const DBCursorPtr& cursor)
+    DBIterator(const DBPtr& db, const DBCursorPtr& cursor)
 	: _db(db), _cursor(cursor)
     {
     }
 
-    DbIterator()
+    DBIterator()
     {
     }
 
-    DbIterator(const DbIterator& rhs)
+    DBIterator(const DBIterator& rhs)
     {
 	if (rhs._cursor)
 	{
@@ -232,7 +230,7 @@ public:
 	_db = rhs._db;
     }
 
-    DbIterator& operator=(const DbIterator& rhs)
+    DBIterator& operator=(const DBIterator& rhs)
     {
 	if (_cursor)
 	{
@@ -249,7 +247,7 @@ public:
 	return *this;
     }
 
-    ~DbIterator()
+    ~DBIterator()
     {
 	if (_cursor)
 	{
@@ -257,7 +255,7 @@ public:
 	}
     }
 
-    bool operator==(const DbIterator& rhs)
+    bool operator==(const DBIterator& rhs)
     {
 	if (!_db && !rhs._db)
 	{
@@ -266,20 +264,20 @@ public:
 	return false;
     }
 
-    bool operator!=(const DbIterator& rhs)
+    bool operator!=(const DBIterator& rhs)
     {
 	return !(*this == rhs);
     }
 
-    DbIterator& operator++()
+    DBIterator& operator++()
     {
 	incr();
 	return *this;
     }
 
-    DbIterator operator++(int)
+    DBIterator operator++(int)
     {
-	DbIterator tmp = *this;
+	DBIterator tmp = *this;
 	tmp.incr();
 	return tmp;
     }
@@ -295,7 +293,7 @@ public:
 	mapped_type value;
 
 	getCurrentValue(key, value);
-	_ref = reference_value_type(key, DbWrapper<key_type, mapped_type, KeyCodec, ValueCodec> (_db, key, value));
+	_ref = reference_value_type(key, DBWrapper<key_type, mapped_type, KeyCodec, ValueCodec> (_db, key, value));
 	return _ref;
     }
 
@@ -333,8 +331,8 @@ private:
 	ValueCodec::read(value, v, instance);
     }
 
-    friend class ConstDbIterator<key_type, mapped_type, KeyCodec, ValueCodec>;
-    friend class DbMap<key_type, mapped_type, KeyCodec, ValueCodec>;
+    friend class ConstDBIterator<key_type, mapped_type, KeyCodec, ValueCodec>;
+    friend class DBMap<key_type, mapped_type, KeyCodec, ValueCodec>;
 
     DBPtr _db;
     DBCursorPtr _cursor;
@@ -347,10 +345,10 @@ private:
 };
 
 //
-// See DbIterator comments for design notes
+// See DBIterator comments for design notes
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-class ConstDbIterator : public DbIteratorBase
+class ConstDBIterator : public DBIteratorBase
 {
 public:
 
@@ -370,13 +368,13 @@ public:
 
     typedef value_type& reference;
 
-    ConstDbIterator(const DBPtr& db, const DBCursorPtr& cursor)
+    ConstDBIterator(const DBPtr& db, const DBCursorPtr& cursor)
 	: _db(db), _cursor(cursor)
     {
     }
-    ConstDbIterator() { }
+    ConstDBIterator() { }
 
-    ConstDbIterator(const ConstDbIterator& rhs)
+    ConstDBIterator(const ConstDBIterator& rhs)
     {
 	if (rhs._cursor)
 	{
@@ -387,10 +385,10 @@ public:
     }
 
     //
-    // A DbIterator can be converted to a ConstDbIterator (but not
+    // A DBIterator can be converted to a ConstDBIterator (but not
     // vice versa) - same for operator=.
     //
-    ConstDbIterator(const DbIterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs)
+    ConstDBIterator(const DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs)
     {
 	if (rhs._cursor)
 	{
@@ -400,7 +398,7 @@ public:
 	_db = rhs._db;
     }
 
-    ConstDbIterator& operator=(const ConstDbIterator& rhs)
+    ConstDBIterator& operator=(const ConstDBIterator& rhs)
     {
 	if (_cursor)
 	{
@@ -420,7 +418,7 @@ public:
     //
     // Create const_iterator from iterator.
     //
-    ConstDbIterator& operator=(const DbIterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs)
+    ConstDBIterator& operator=(const DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>& rhs)
     {
 	if (_cursor)
 	{
@@ -437,7 +435,7 @@ public:
 	return *this;
     }
 
-    ~ConstDbIterator()
+    ~ConstDBIterator()
     {
 	if (_cursor)
 	{
@@ -445,7 +443,7 @@ public:
 	}
     }
 
-    bool operator==(const ConstDbIterator& rhs)
+    bool operator==(const ConstDBIterator& rhs)
     {
 	if (!_db && !rhs._db)
 	{
@@ -454,20 +452,20 @@ public:
 	return false;
     }
 
-    bool operator!=(const ConstDbIterator& rhs)
+    bool operator!=(const ConstDBIterator& rhs)
     {
 	return !(*this == rhs);
     }
 
-    ConstDbIterator& operator++()
+    ConstDBIterator& operator++()
     {
 	incr();
 	return *this;
     }
 
-    ConstDbIterator operator++(int)
+    ConstDBIterator operator++(int)
     {
-	ConstDbIterator tmp = *this;
+	ConstDBIterator tmp = *this;
 	tmp.incr();
 	return tmp;
     }
@@ -513,7 +511,7 @@ private:
 	ValueCodec::read(value, v, instance);
     }
 
-    friend class DbMap<key_type, mapped_type, KeyCodec, ValueCodec>;
+    friend class DBMap<key_type, mapped_type, KeyCodec, ValueCodec>;
 
     DBPtr _db;
     DBCursorPtr _cursor;
@@ -535,7 +533,7 @@ private:
 // bidirectional iterators.
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-class DbMap
+class DBMap
 {
 public:
 
@@ -555,8 +553,8 @@ public:
     // hasher, key_equal, key_compare, value_compare
     //
 
-    typedef DbIterator<key_type, mapped_type, KeyCodec, ValueCodec > iterator;
-    typedef ConstDbIterator<key_type, mapped_type, KeyCodec, ValueCodec > const_iterator;
+    typedef DBIterator<key_type, mapped_type, KeyCodec, ValueCodec > iterator;
+    typedef ConstDBIterator<key_type, mapped_type, KeyCodec, ValueCodec > const_iterator;
 
     typedef std::pair<const key_type&, mapped_type>& reference;
     typedef const std::pair<const key_type&, mapped_type>& const_reference;
@@ -568,9 +566,9 @@ public:
     typedef ptrdiff_t difference_type;
 
     //
-    // Special type similar to DbIterator::value_type_reference
+    // Special type similar to DBIterator::value_type_reference
     //
-    typedef DbWrapper<key_type, mapped_type, KeyCodec, ValueCodec> mapped_type_reference;
+    typedef DBWrapper<key_type, mapped_type, KeyCodec, ValueCodec> mapped_type_reference;
 
     //
     // Allocators are not supported.
@@ -580,14 +578,14 @@ public:
     //
     // Constructors
     //
-    DbMap(const DBPtr& db) :
+    DBMap(const DBPtr& db) :
 	_db(db)
     {
     }
 
 #ifdef __STL_MEMBER_TEMPLATES
     template <class _InputIterator>
-    DbMap(const DBPtr& db, _InputIterator first, _InputIterator last) :
+    DBMap(const DBPtr& db, _InputIterator first, _InputIterator last) :
 	_db(db)
     {
 	while (first != last)
@@ -597,7 +595,7 @@ public:
 	}
     }
 #else
-    DbMap(const DBPtr& db, const value_type* first, const value_type* last) :
+    DBMap(const DBPtr& db, const value_type* first, const value_type* last) :
 	_db(db)
     {
 	while (first != last)
@@ -606,7 +604,7 @@ public:
 	    ++first;
 	}
     }
-    DbMap(const DBPtr& db, const_iterator first, const_iterator last) :
+    DBMap(const DBPtr& db, const_iterator first, const_iterator last) :
 	_db(db)
     { 
 	while (first != last)
@@ -617,7 +615,7 @@ public:
     }
 #endif /*__STL_MEMBER_TEMPLATES */
 
-    ~DbMap()
+    ~DBMap()
     {
     }
 
@@ -628,7 +626,7 @@ public:
     // hasher hash_funct() const, key_equal key_eq() const
     //
 
-    bool operator==(const DbMap& rhs) const
+    bool operator==(const DBMap& rhs) const
     {
 	//
 	// This does a memberwise equality for the entire contents of
@@ -654,12 +652,12 @@ public:
 	return true;
     }
 
-    bool operator!=(const DbMap& rhs) const
+    bool operator!=(const DBMap& rhs) const
     {
 	return !(*this == rhs);
     }
     
-    void swap(DbMap& rhs)
+    void swap(DBMap& rhs)
     {
 	DBPtr tmp = _db;
 	_db = rhs._db;
@@ -942,26 +940,27 @@ namespace std
 
 template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
 inline pair<key_type, mapped_type>*
-value_type(const Freeze::DbIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
+value_type(const Freeze::DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
 {
     return (pair<key_type, mapped_type>*)0;
 }
 
 template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
 inline pair<key_type, mapped_type>*
-value_type(const Freeze::ConstDbIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
+value_type(const Freeze::ConstDBIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
 {
     return (pair<key_type, mapped_type>*)0;
 }
 
-inline forward_iterator_tag iterator_category(const Freeze::DbIteratorBase&)
+inline forward_iterator_tag iterator_category(const Freeze::DBIteratorBase&)
 {
     return forward_iterator_tag();
 }
 
-inline ptrdiff_t* distance_type(const Freeze::DbIteratorBase&) { return (ptrdiff_t*) 0; }
+inline ptrdiff_t* distance_type(const Freeze::DBIteratorBase&) { return (ptrdiff_t*) 0; }
 
 } // End namespace std
+
 #endif /* _STLP_CLASS_PARTIAL_SPECIALIZATION */
 
 #endif

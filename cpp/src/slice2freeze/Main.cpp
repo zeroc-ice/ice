@@ -169,7 +169,7 @@ writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output&
     writeCodecH(keyType, name + "KeyCodec", "Key", H, dllExport);
     writeCodecH(valueType, name + "ValueCodec", "Value", H, dllExport);
 
-    H << sp << nl << "typedef Freeze::DbMap< " << typeToString(keyType) << ", " << typeToString(valueType) << ", "
+    H << sp << nl << "typedef Freeze::DBMap< " << typeToString(keyType) << ", " << typeToString(valueType) << ", "
       << name << "KeyCodec, " << name << "ValueCodec> " << name << ";";
 
     for (q = scope.begin(); q != scope.end(); ++q)
@@ -484,7 +484,7 @@ main(int argc, char* argv[])
 	H << "\n#ifndef __" << s << "__";
 	H << "\n#define __" << s << "__";
 	H << '\n';
-	H << "\n#include <Freeze/FreezeMap.h>";
+	H << "\n#include <Freeze/Map.h>";
 	
 	{
 	    for (StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)

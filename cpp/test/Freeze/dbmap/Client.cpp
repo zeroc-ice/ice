@@ -66,7 +66,7 @@ public:
     }
 };
 
-typedef DbMap<char, int, KeyCodec, ValueCodec> CharIntMap;
+typedef DBMap<char, int, KeyCodec, ValueCodec> CharIntMap;
 
 static char alphabetChars[] = "abcdefghijklmnopqrstuvwxyz";
 vector<char> alphabet(alphabetChars, alphabetChars + sizeof(alphabetChars)-1);
