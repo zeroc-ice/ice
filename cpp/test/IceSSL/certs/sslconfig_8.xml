@@ -3,6 +3,7 @@
 <SSLConfig> 
     <server> 
         <general version="SSLv23" cipherlist="RC4-MD5" verifymode="peer|client_once|fail_no_cert" verifydepth="2" /> 
+        <certauthority file="cacert.pem" />
         <basecerts> 
             <rsacert keysize="1024"> 
                 <public  encoding="PEM" filename="goodCert_2.pem" /> 

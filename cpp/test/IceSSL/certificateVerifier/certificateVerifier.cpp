@@ -117,10 +117,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     std::cout << "Setting Certificate Verifiers on Client context." << std::endl;
 
-    std::cout << "Setting verifier of wrong type... ";
+    std::cout << "Setting verifier of wrong type... " << std::flush;
     testExpectCertificateVerifierTypeException(system, IceSSL::Client, badVerifier);
 
-    std::cout << "Setting verifier of correct type... ";
+    std::cout << "Setting verifier of correct type... " << std::flush;
     testExpectNoException(system, IceSSL::Client, goodVerifier);
 
     //
@@ -129,10 +129,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     std::cout << "Setting Certificate Verifiers on Server context." << std::endl;
 
-    std::cout << "Setting verifier of wrong type... ";
+    std::cout << "Setting verifier of wrong type... " << std::flush;
     testExpectCertificateVerifierTypeException(system, IceSSL::Server, badVerifier);
 
-    std::cout << "Setting verifier of correct type... ";
+    std::cout << "Setting verifier of correct type... " << std::flush;
     testExpectNoException(system, IceSSL::Server, goodVerifier);
 
     //
@@ -141,10 +141,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     std::cout << "Setting Certificate Verifiers on Client and Server contexts." << std::endl;
 
-    std::cout << "Setting verifier of wrong type... ";
+    std::cout << "Setting verifier of wrong type... " << std::flush;
     testExpectCertificateVerifierTypeException(system, IceSSL::ClientServer, badVerifier);
 
-    std::cout << "Setting verifier of correct type... ";
+    std::cout << "Setting verifier of correct type... " << std::flush;
     testExpectNoException(system, IceSSL::ClientServer, goodVerifier);
 
     return EXIT_SUCCESS;

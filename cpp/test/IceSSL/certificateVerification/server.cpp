@@ -92,7 +92,6 @@ PingerI::PingerI()
 void
 PingerI::ping(const ::Ice::Current&)
 {
-    std::cout << "ping." << std::endl;
 }
 
 int
@@ -100,9 +99,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
 
-    // Test crashes if I put this in.
-    // properties->setProperty("Ice.ConnectionWarnings", "0");
-
+    properties->setProperty("Ice.ConnectionWarnings", "0");
     properties->setProperty("Ice.SSL.Client.CertPath","../certs");
     properties->setProperty("Ice.SSL.Client.Config", "sslconfig_8.xml");
 

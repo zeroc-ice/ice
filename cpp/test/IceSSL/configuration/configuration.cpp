@@ -83,7 +83,7 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
         configFileDesc = "no configuration file";
     }
 
-    std::cout << contextString << " with " << configFileDesc << "... ";
+    std::cout << contextString << " with " << configFileDesc << "... " << std::flush;
 
     try
     {

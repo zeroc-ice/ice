@@ -38,8 +38,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     IceSSL::SystemPtr sslSystem = communicator->getSslSystem();
 
     Ice::PropertiesPtr properties = communicator->getProperties();
-    properties->setProperty("Ice.SSL.Client.CertPath","../certs");
-    properties->setProperty("Ice.SSL.Client.Config", "sslconfig_7.xml");
 
     bool singleCertVerifier = false;
     if (properties->getProperty("Ice.SSL.Client.CertificateVerifier") == "singleCert")
@@ -47,7 +45,39 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         singleCertVerifier = true;
     }
 
-    cout << "client and server do not trust each other... ";
+/*
+
+// Note: This section is commented out because Ice is currently not destroying SslTransceivers
+//       properly, resulting in cached connections (which cause the expected failure sections
+//       to succeed, causing the test to fail).
+
+    if (!singleCertVerifier)
+    {
+        cout << "client and server trusted, client using stock certificate... ";
+
+        properties->setProperty("Ice.SSL.Client.CertPath","../certs");
+        properties->setProperty("Ice.SSL.Client.Config", "sslconfig_6.xml");
+        sslSystem->configure(IceSSL::Client);
+        sslSystem->addTrustedCertificate(IceSSL::Client, serverTrustedCert);
+        try
+        {
+            PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
+            pinger->ping();
+            cout << "ok" << endl;
+        }
+        catch(const Ice::LocalException& localEx)
+        {
+            cout << localEx << endl;
+            km->shutdown();
+            test(false);
+        }
+    }
+*/
+
+    properties->setProperty("Ice.SSL.Client.CertPath","../certs");
+    properties->setProperty("Ice.SSL.Client.Config", "sslconfig_7.xml");
+
+    cout << "client and server do not trust each other... " << flush;
 
     // Neither Client nor Server will trust.
     sslSystem->configure(IceSSL::Client);
@@ -76,7 +106,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         test(false);
     }
 
-    cout << "client trusted, server not trusted... ";
+    cout << "client trusted, server not trusted... " << flush;
 
     // Client will not trust Server, but Server will trust Client.
     sslSystem->setRSAKeys(IceSSL::Client, clientTrustedKey, clientTrustedCert);
@@ -97,7 +127,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         test(false);
     }
 
-    cout << "client trusts server, server does not trust client... ";
+    cout << "client trusts server, server does not trust client... " << flush;
 
     // Client trusts, Server does not.
     sslSystem->configure(IceSSL::Client);
@@ -113,7 +143,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
         PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
         pinger->ping();
-	cout << "fail" << endl;
         km->shutdown();
         test(false);
     }
@@ -123,14 +152,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         //       generating this exception.
 	cout << "ok" << endl;
     }
-    catch(const Ice::LocalException& localEx)
+    catch(const Ice::LocalException&)
     {
-        cout << localEx << endl;
         km->shutdown();
         test(false);
     }
 
-    cout << "both client and server trust each other... ";
+    cout << "both client and server trust each other... " << flush;
 
     // Both Client and Server trust.
     sslSystem->setRSAKeys(IceSSL::Client, clientTrustedKey, clientTrustedCert);
@@ -143,12 +171,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     catch(const Ice::LocalException&)
     {
-	cout << "fail" << endl;
         km->shutdown();
         test(false);
     }
 
-    cout << "shutting down... ";
+    cout << "shutting down... " << flush;
     km->shutdown();
     cout << "ok" << endl;
 

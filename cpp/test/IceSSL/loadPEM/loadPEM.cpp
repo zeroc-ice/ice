@@ -193,22 +193,22 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     PropertiesPtr properties = communicator->getProperties();
     properties->setProperty("Ice.SSL.Client.CertPath", "../certs");
 
-    std::cout << "Bad private key and certificate... ";
+    std::cout << "Bad private key and certificate... " << std::flush;
     testExpectCertificateAndPrivateKeyLoadException(communicator, "sslconfig_1.xml");
 
-    std::cout << "Bad private key and good certificate 1... ";
+    std::cout << "Bad private key and good certificate 1... " << std::flush;
     testExpectPrivateKeyLoadException(communicator, "sslconfig_2.xml");
 
-    std::cout << "Good private key 1 and bad certificate... ";
+    std::cout << "Good private key 1 and bad certificate... " << std::flush;
     testExpectCertificateLoadException(communicator, "sslconfig_3.xml");
 
-    std::cout << "Good private key 1 and good certificate 2, mismatched... ";
+    std::cout << "Good private key 1 and good certificate 2, mismatched... " << std::flush;
     testExpectCertificateKeyMatchException(communicator, "sslconfig_4.xml");
 
-    std::cout << "Good private key 2 and good certificate 1, mismatched (again)... ";
+    std::cout << "Good private key 2 and good certificate 1, mismatched (again)... " << std::flush;
     testExpectCertificateKeyMatchException(communicator, "sslconfig_5.xml");
 
-    std::cout << "Good matched private key and certificate... ";
+    std::cout << "Good matched private key and certificate... " << std::flush;
     testNoException(communicator, "sslconfig_6.xml");
 
     return EXIT_SUCCESS;
