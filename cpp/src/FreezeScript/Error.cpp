@@ -69,7 +69,7 @@ FreezeScript::ErrorReporter::error(const string& msg)
     {
         ostr << "error: " << msg << endl;
     }
-    throw Exception(__FILE__, __LINE__, ostr.str());
+    throw FailureException(__FILE__, __LINE__, ostr.str());
 }
 
 void

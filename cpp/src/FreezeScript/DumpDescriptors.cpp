@@ -854,7 +854,7 @@ FreezeScript::FailDescriptor::execute(const SymbolTablePtr& sym, ExecuteInfo*)
         }
     }
 
-    throw Exception(__FILE__, __LINE__, _message);
+    throw FailureException(__FILE__, __LINE__, _message);
 }
 
 //

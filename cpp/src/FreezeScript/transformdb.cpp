@@ -661,7 +661,7 @@ main(int argc, char* argv[])
         communicator = Ice::initialize(argc, argv);
         status = run(argc, argv, communicator);
     }
-    catch(const FreezeScript::Exception& ex)
+    catch(const FreezeScript::FailureException& ex)
     {
         string reason = ex.reason();
         cerr << argv[0] << ": " << reason;

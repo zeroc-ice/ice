@@ -105,7 +105,7 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
         ice = Slice::ModulePtr::dynamicCast(c.front());
         if(!ice)
         {
-            throw Exception(__FILE__, __LINE__, "the symbol `::Ice' is defined in Slice but is not a module");
+            throw FailureException(__FILE__, __LINE__, "the symbol `::Ice' is defined in Slice but is not a module");
         }
     }
 
@@ -127,7 +127,8 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
         identity = Slice::StructPtr::dynamicCast(l.front());
         if(!identity)
         {
-            throw Exception(__FILE__, __LINE__, "the symbol `::Ice::Identity' is defined in Slice but is not a struct");
+            throw FailureException(__FILE__, __LINE__,
+                                   "the symbol `::Ice::Identity' is defined in Slice but is not a struct");
         }
     }
 
@@ -147,8 +148,8 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
         facetPath = Slice::SequencePtr::dynamicCast(l.front());
         if(!facetPath)
         {
-            throw Exception(__FILE__, __LINE__,
-                            "the symbol `::Ice::FacetPath' is defined in Slice but is not a sequence");
+            throw FailureException(__FILE__, __LINE__,
+                                   "the symbol `::Ice::FacetPath' is defined in Slice but is not a sequence");
         }
     }
 
@@ -166,7 +167,8 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
         freeze = Slice::ModulePtr::dynamicCast(c.front());
         if(!freeze)
         {
-            throw Exception(__FILE__, __LINE__, "the symbol `::Freeze' is defined in Slice but is not a module");
+            throw FailureException(__FILE__, __LINE__,
+                                   "the symbol `::Freeze' is defined in Slice but is not a module");
         }
     }
 
@@ -185,8 +187,8 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
     {
         if(!Slice::StructPtr::dynamicCast(l.front()))
         {
-            throw Exception(__FILE__, __LINE__, "the symbol `::Freeze::EvictorStorageKey' is defined in "
-                            "Slice but is not a struct");
+            throw FailureException(__FILE__, __LINE__, "the symbol `::Freeze::EvictorStorageKey' is defined in "
+                                   "Slice but is not a struct");
         }
     }
 
@@ -209,8 +211,8 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
         stats = Slice::StructPtr::dynamicCast(l.front());
         if(!stats)
         {
-            throw Exception(__FILE__, __LINE__, "the symbol `::Freeze::Statistics' is defined in "
-                            "Slice but is not a struct");
+            throw FailureException(__FILE__, __LINE__, "the symbol `::Freeze::Statistics' is defined in "
+                                   "Slice but is not a struct");
         }
     }
 
@@ -230,8 +232,8 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
     {
         if(!Slice::StructPtr::dynamicCast(l.front()))
         {
-            throw Exception(__FILE__, __LINE__, "the symbol `::Freeze::ObjectRecord' is defined in "
-                            "Slice but is not a struct");
+            throw FailureException(__FILE__, __LINE__, "the symbol `::Freeze::ObjectRecord' is defined in "
+                                   "Slice but is not a struct");
         }
     }
 }

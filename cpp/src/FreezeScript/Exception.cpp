@@ -17,23 +17,23 @@
 using namespace std;
 
 //
-// Exception
+// FailureException
 //
-FreezeScript::Exception::Exception(const char* file, int line, const string& reason) :
+FreezeScript::FailureException::FailureException(const char* file, int line, const string& reason) :
     IceUtil::Exception(file, line), _reason(reason)
 {
 }
 
-string FreezeScript::Exception::_name = "FreezeScript::Exception";
+string FreezeScript::FailureException::_name = "FreezeScript::FailureException";
 
 const string&
-FreezeScript::Exception::ice_name() const
+FreezeScript::FailureException::ice_name() const
 {
     return _name;
 }
 
 void
-FreezeScript::Exception::ice_print(ostream& out) const
+FreezeScript::FailureException::ice_print(ostream& out) const
 {
 #if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug
     Exception::ice_print(out);
@@ -48,19 +48,19 @@ FreezeScript::Exception::ice_print(ostream& out) const
 }
 
 IceUtil::Exception*
-FreezeScript::Exception::ice_clone() const
+FreezeScript::FailureException::ice_clone() const
 {
-    return new Exception(ice_file(), ice_line(), _reason);
+    return new FailureException(ice_file(), ice_line(), _reason);
 }
 
 void
-FreezeScript::Exception::ice_throw() const
+FreezeScript::FailureException::ice_throw() const
 {
     throw *this;
 }
 
 string
-FreezeScript::Exception::reason() const
+FreezeScript::FailureException::reason() const
 {
     return _reason;
 }
