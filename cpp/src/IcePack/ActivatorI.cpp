@@ -352,7 +352,6 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
         &pi                       // Process info
     );
 
-//    delete[] cmdbuf;
     free(cmdbuf);
 
     if(!b)
