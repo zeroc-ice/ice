@@ -13,7 +13,6 @@ class CallbackServer : Ice.Application
     public override int run(string[] args)
     {
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Callback.Server");
-        CallbackPrx self = CallbackPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("callback")));
         adapter.add(new CallbackI(), Ice.Util.stringToIdentity("callback"));
         adapter.activate();
         communicator().waitForShutdown();
