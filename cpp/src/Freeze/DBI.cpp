@@ -29,14 +29,18 @@ class DBEnvironmentMap : public IceUtil::Mutex
 {
 public:
 
-    DBEnvironmentMap() : _nextId(0) { }
+    DBEnvironmentMap() :
+	_nextId(0)
+    {
+    }
 
     ~DBEnvironmentMap()
     {
 	assert(_map.empty());
     }
 
-    int add(const DBEnvironmentPtr& env)
+    int
+    add(const DBEnvironmentPtr& env)
     {
 	IceUtil::Mutex::Lock sync(*this);
 
@@ -45,14 +49,16 @@ public:
 	return _nextId++;
     }
     
-    void remove(int id)
+    void
+    remove(int id)
     {
 	IceUtil::Mutex::Lock sync(*this);
 
 	_map.erase(id);
     }
   
-    DBEnvironmentPtr get(int id)
+    DBEnvironmentPtr
+    get(int id)
     {
 	IceUtil::Mutex::Lock sync(*this);
 	
@@ -73,7 +79,7 @@ private:
 
 static DBEnvironmentMap _dbEnvMap;
 
-void
+static void
 FreezeErrCallFcn(const char* prefix, char* msg)
 {
     DBEnvironmentPtr dbEnv = _dbEnvMap.get(atoi(prefix));
@@ -143,6 +149,7 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
 				       DB_INIT_LOG |
 				       DB_INIT_MPOOL |
 				       DB_INIT_TXN |
+				       DB_THREAD |
 				       DB_RECOVER,
 				       FREEZE_DB_MODE), _errorPrefix, "DB_ENV->open");
 

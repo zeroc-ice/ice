@@ -9,12 +9,37 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceUtil/IceUtil.h>
 #include <Yellow/Yellow.h>
 #include <TestCommon.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Yellow;
+
+class StressThread : public IceUtil::Thread
+{
+public:
+
+    StressThread(const QueryPrx& query) :
+	_query(query)
+    {
+    }
+
+    virtual void
+    run()
+    {
+	string intf = "::Test";
+	for (int i = 0; i < 100; ++i)
+	{
+	    Ice::ObjectPrx result = _query->lookup(intf);
+	}
+    }
+
+private:
+
+    QueryPrx _query;
+};
 
 static int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
@@ -115,6 +140,19 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     catch(const NoSuchOfferException&)
     {
 	// Expected
+    }
+    cout << "ok" << endl;
+
+    cout << "testing concurrent queries... " << flush;
+    vector<IceUtil::ThreadControl> controls;
+    for(int i = 0; i < 10; ++i)
+    {
+	IceUtil::ThreadPtr t = new StressThread(query);
+	controls.push_back(t->start());
+    }
+    for(vector<IceUtil::ThreadControl>::iterator p = controls.begin(); p != controls.end(); ++p)
+    {
+	p->join();
     }
     cout << "ok" << endl;
 
