@@ -1119,21 +1119,21 @@ public final class Connection extends EventHandler
 	    
             case StateClosed:
             {
-		if(!_registeredWithPool)
+		//
+		// If we change from not validated, we can close right
+		// away. Otherwise we first must make sure that we are
+		// registered, then we unregister, and let finished()
+		// do the close.
+		//
+		if(_state == StateNotValidated)
 		{
-		    //
-		    // If we are not registered with the thread pool,
-		    // we can close right now.
-		    //
+		    assert(!_registeredWithPool);
 		    _transceiver.close();
 		    _transceiver = null;
 		}
 		else
 		{
-		    //
-		    // If we are registered with the thread pool, we
-		    // unregister. finished() will then do the close.
-		    //
+		    registerWithPool();
 		    unregisterWithPool();
 		}
 		break;
