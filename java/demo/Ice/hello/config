@@ -48,8 +48,8 @@ Ice.Warn.Connections=1
 #
 Glacier.Router.Endpoints=default -p 10005
 Glacier.Router.Client.Endpoints=tcp:udp
-Glacier.Trace.Client=2
-Glacier.Trace.RoutingTable=1
+Glacier.Router.Trace.Client=2
+Glacier.Router.Trace.RoutingTable=1
 
 #
 # Uncomment the following lines if you want to run this demo with Glacier
