@@ -744,7 +744,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    {
 			_communicator.getLogger().trace("Freeze.Evictor",
 							" \"" + Ice.Util.identityToString(ident) +
-							"\" does not have the desired facet");
+							"\" does not have the desired facet " + facetPathToString(current.facet));
 		    }
 		    synchronized(this)
 		    {
@@ -1071,6 +1071,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				    {
 					if(servant == facet.rec.servant)
 					{
+					    if(_trace >= 3)
+					    {
+						_communicator.getLogger().trace(
+						    "Freeze.Evictor", 
+						    "saving/streaming \"" + Ice.Util.identityToString(facet.element.identity) +
+						    "\" " + facetPathToString(facet.path) + ": created or modified -> clean");
+					    }
+					    
 					    facet.status = clean;
 					    streamedObjectQueue.add(streamFacet(facet, status, saveStart));
 					}
@@ -1082,6 +1090,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				    }
 				    case destroyed:
 				    {
+					if(_trace >= 3)
+					{
+					    _communicator.getLogger().trace(
+						"Freeze.Evictor", 
+						"saving/streaming \"" + Ice.Util.identityToString(facet.element.identity) +
+						"\" " + facetPathToString(facet.path) + ": destroyed -> dead");
+					}
+
 					facet.status = dead;
 					streamedObjectQueue.add(streamFacet(facet, status, saveStart));
 					break;
@@ -1099,7 +1115,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    }
 		} while(tryAgain);
 	    }
-	    
+
 	    //
 	    // Now let's save all these streamed objects to disk using a transaction
 	    //
@@ -1302,6 +1318,16 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			("Found orphan facet \"" + Ice.Util.identityToString(esk.identity) 
 			 + "\" " + facetPathToString(esk.facet));
 		    assert(false);
+		}
+		else
+		{
+		    if(_trace >= 3)
+		    {
+			_communicator.getLogger().trace
+			    ("Freeze.Evictor",
+			     "Iterator is reading facet \"" + Ice.Util.identityToString(esk.identity) 
+			     + "\" " + facetPathToString(esk.facet));
+		    }
 		}
 
 		identities.add(esk.identity);
