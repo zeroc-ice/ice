@@ -75,7 +75,7 @@
 #endif
 
 //
-// Some include files we need almost everywhere
+// Some include files we need almost everywhere.
 //
 #include <cassert>
 #include <iostream>
@@ -90,7 +90,7 @@
 #endif
 
 //
-// By deriving from this class, other classes are made non-copyable
+// By deriving from this class, other classes are made non-copyable.
 //
 namespace IceUtil
 {
@@ -115,7 +115,7 @@ private:
 };
 
 //
-// Some definitions for 64-bit integers
+// Some definitions for 64-bit integers.
 //
 #if defined(_WIN32)
 typedef __int64 Int64;
@@ -130,7 +130,7 @@ const Int64 Int64Max = 0x7fffffffffffffffLL;
 }
 
 //
-// The Ice version
+// The Ice version.
 //
 #define ICE_STRING_VERSION "1.0.0" // "A.B.C", with A=major, B=minor, C=patch
 #define ICE_INT_VERSION 10000      // AABBCC, with AA=major, BB=minor, CC=patch
