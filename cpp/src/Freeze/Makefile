@@ -23,6 +23,7 @@ TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME)
 
 OBJS		= DBException.o \
 		  Evictor.o \
+		  EvictorF.o \
 		  ObjectRecord.o \
 	  	  MapI.o \
 		  EvictorI.o \

@@ -27,7 +27,9 @@ TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME) \
 OBJS		= Starter.o \
 		  Router.o \
 		  Session.o \
-		  SessionManager.o
+		  SessionF.o \
+		  SessionManager.o \
+		  SessionManagerF.o
 
 ROBJS		= GlacierRouter.o \
 		  RouterI.o \
