@@ -49,8 +49,7 @@ TestString(const Ice::CommunicatorPtr& communicator)
 	
 	istringstream is(os.str());
 	Ice::StreamPtr istream = new IceXML::StreamI(communicator, is);
-	string result;
-	istream->readString(element, result);
+	string result = istream->readString(element);
 	test(result == strings[i]);
     }
 }

@@ -70,12 +70,12 @@ local interface Stream
      *
      * @param name The name of the parameter.
      *
-     * @param size The number of elements in the dictionary.
+     * @return The number of elements in the dictionary.
      *
      * @see endReadDictionary
      *
      **/
-    void startReadDictionary(string name ; int size);
+    int startReadDictionary(string name);
 
     /**
      *
@@ -150,12 +150,12 @@ local interface Stream
      *
      * @param name The name of the parameter.
      *
-     * @param size The number of elements in the sequence.
+     * @return The number of elements in the sequence.
      *
      * @see endReadSequence
      *
      **/
-    void startReadSequence(string name ; int size);
+    int startReadSequence(string name);
 
     /**
      *
@@ -287,12 +287,12 @@ local interface Stream
      *
      * @param table The enumeration elements.
      *
-     * @param ordinal The index of the enumeration value.
+     * @return The index of the enumeration value.
      *
      * @see writeEnum
      *
      **/
-    void readEnum(string name, StringSeq table ; int ordinal);
+    int readEnum(string name, StringSeq table);
 
     /**
      *
@@ -326,12 +326,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read..
      *
-     * @param value The byte that has been read.
+     * @return The byte that has been read.
      *
      * @see writeByte
      *
      **/
-    void readByte(string name ; byte value);
+    byte readByte(string name);
 
     /**
      *
@@ -339,12 +339,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read..
      *
-     * @param value The bytes that have been read.
+     * @return The bytes that have been read.
      *
      * @see writeByteSeq
      *
      **/
-    void readByteSeq(string name ; ByteSeq value);
+    ByteSeq readByteSeq(string name);
 
     /**
      *
@@ -378,12 +378,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read..
      *
-     * @param value The bool that has been read.
+     * @return The bool that has been read.
      *
      * @see writeBool
      *
      **/
-    void readBool(string name ; bool value);
+    bool readBool(string name);
 
     /**
      *
@@ -391,12 +391,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read..
      *
-     * @param value The bools that have been read.
+     * @return The bools that have been read.
      *
      * @see writeBoolSeq
      *
      **/
-    void readBoolSeq(string name ; BoolSeq value);
+    BoolSeq readBoolSeq(string name);
 
     /**
      *
@@ -430,12 +430,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read..
      *
-     * @param value The short that has been read.
+     * @return The short that has been read.
      *
      * @see writeShort
      *
      **/
-    void readShort(string name ; short value);
+    short readShort(string name);
 
     /**
      *
@@ -443,12 +443,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read..
      *
-     * @param value The shorts that have been read.
+     * @return The shorts that have been read.
      *
      * @see writeShortSeq
      *
      **/
-    void readShortSeq(string name ; ShortSeq value);
+    ShortSeq readShortSeq(string name);
 
     /**
      *
@@ -482,12 +482,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read..
      *
-     * @param value The int that has been read.
+     * @return The int that has been read.
      *
      * @see writeInt
      *
      **/
-    void readInt(string name ; int value);
+    int readInt(string name);
 
     /**
      *
@@ -495,12 +495,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read..
      *
-     * @param value The ints that have been read.
+     * @return The ints that have been read.
      *
      * @see writeIntSeq
      *
      **/
-    void readIntSeq(string name ; IntSeq value);
+    IntSeq readIntSeq(string name);
 
     /**
      *
@@ -534,12 +534,12 @@ local interface Stream
      *
      * @param name The name of the parameter.
      *
-     * @param value The long that has been read.
+     * @return The long that has been read.
      *
      * @see readLong
      *
      **/
-    void readLong(string name ; long value);
+    long readLong(string name);
 
     /**
      *
@@ -547,12 +547,12 @@ local interface Stream
      *
      * @param name The name of the parameter.
      *
-     * @param value The longs that have been read.
+     * @return The longs that have been read.
      *
      * @see readLongSeq
      *
      **/
-    void readLongSeq(string name ; LongSeq value);
+    LongSeq readLongSeq(string name);
 
     /**
      *
@@ -586,12 +586,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read.
      *
-     * @param value The float that has been read.
+     * @return The float that has been read.
      *
      * @see writeFloat
      *
      **/
-    void readFloat(string name ; float value);
+    float readFloat(string name);
 
     /**
      *
@@ -599,12 +599,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read.
      *
-     * @param value The floats that have been read.
+     * @return The floats that have been read.
      *
      * @see writeFloatSeq
      *
      **/
-    void readFloatSeq(string name ; FloatSeq value);
+    FloatSeq readFloatSeq(string name);
 
     /**
      *
@@ -638,12 +638,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read.
      *
-     * @param value The double that has been read.
+     * @return The double that has been read.
      *
      * @see writeDouble
      *
      **/
-    void readDouble(string name ; double value);
+    double readDouble(string name);
 
     /**
      *
@@ -651,12 +651,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read.
      *
-     * @param value The doubles that have been read.
+     * @return The doubles that have been read.
      *
      * @see writeDoubleSeq
      *
      **/
-    void readDoubleSeq(string name ; DoubleSeq value);
+    DoubleSeq readDoubleSeq(string name);
 
     /**
      *
@@ -690,12 +690,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read.
      *
-     * @param value The string that has been read.
+     * @return The string that has been read.
      *
      * @see writeString
      *
      **/
-    void readString(string name ; string value);
+    string readString(string name);
 
     /**
      *
@@ -703,12 +703,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read.
      *
-     * @param value The strings that have been read.
+     * @return The strings that have been read.
      *
      * @see writeStringSeq
      *
      **/
-    void readStringSeq(string name ; StringSeq value);
+    StringSeq readStringSeq(string name);
 
     /**
      *
@@ -729,12 +729,12 @@ local interface Stream
      *
      * @param name The name of the parameter that has been read.
      *
-     * @param value The proxy that has been read.
+     * @return The proxy that has been read.
      *
      * @see writeProxy
      *
      **/
-    void readProxy(string name ; Object* value);
+    Object* readProxy(string name);
 
     /**
      *
@@ -764,12 +764,12 @@ local interface Stream
      *
      * @param factory The object factory to use as desribed above.
      *
-     * @param value The object that has been read.
+     * @return The object that has been read.
      *
      * @see ObjectFactory, readObject
      *
      **/
-    void readObject(string name, string signatureType, ObjectFactory factory; Object value);
+    Object readObject(string name, string signatureType, ObjectFactory factory);
 };
 
 };

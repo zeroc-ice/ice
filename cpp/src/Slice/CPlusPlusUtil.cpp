@@ -496,22 +496,30 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
     {
 	if (builtin->kind() == Builtin::KindObject)
 	{
-	    streamFunc +=  outputBuiltinTable[builtin->kind()];
+	    streamFunc += outputBuiltinTable[builtin->kind()];
 	    if (marshal)
 	    {
 		out << nl << stream << deref << streamFunc << "(" << tagName << ", " << param << ");";
 	    }
 	    else
 	    {
-		out << nl << stream << deref << streamFunc << "(" << tagName << ", ::Ice::Object::__classIds[0], 0, "
-		    << param << ");";
+		out << nl << param << " = " << stream << deref << streamFunc << "(" << tagName
+                    << ", ::Ice::Object::__classIds[0], 0);";
 	    }
 	    return;
 	}
 	else
 	{
-	    out << nl << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()]
-		<< "(" << tagName << ", " << param << ");";
+            if (marshal)
+            {
+                out << nl << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()]
+                    << "(" << tagName << ", " << param << ");";
+            }
+            else
+            {
+                out << nl << param << " = " << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()]
+                    << "(" << tagName << ");";
+            }
 	    return;
 	}
     }
@@ -543,8 +551,8 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 		factory = "0";
 		type = "\"\"";
 	    }
-	    out << nl << stream << deref << streamFunc << "Object(" << tagName << ", "
-		<< type << ", " << factory << ", " << obj << ");";
+	    out << nl << obj << " = " << stream << deref << streamFunc << "Object(" << tagName << ", "
+		<< type << ", " << factory << ");";
 	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(" << obj << ");";
 	}
 	out << eb;
@@ -565,8 +573,16 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 	BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
 	if (builtin)
 	{
-	    out << nl << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()] << "Seq("
-		<< tagName << ", " << param << ");";
+            if (marshal)
+            {
+                out << nl << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()] << "Seq("
+                    << tagName << ", " << param << ");";
+            }
+            else
+            {
+                out << nl << param << " = " << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()]
+                    << "Seq(" << tagName << ");";
+            }
 	}
 	else
 	{

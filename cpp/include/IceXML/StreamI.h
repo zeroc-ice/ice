@@ -57,7 +57,7 @@ public:
 
     virtual void endWriteDictionaryElement();
 
-    virtual void startReadDictionary(const ::std::string&, ::Ice::Int&);
+    virtual ::Ice::Int startReadDictionary(const ::std::string&);
 
     virtual void endReadDictionary();
 
@@ -73,7 +73,7 @@ public:
 
     virtual void endWriteSequenceElement();
 
-    virtual void startReadSequence(const ::std::string&, ::Ice::Int&);
+    virtual ::Ice::Int startReadSequence(const ::std::string&);
 
     virtual void endReadSequence();
 
@@ -99,80 +99,79 @@ public:
 
     virtual void writeEnum(const ::std::string&, const ::Ice::StringSeq&, ::Ice::Int);
 
-    virtual void readEnum(const ::std::string&, const ::Ice::StringSeq&, ::Ice::Int&);
+    virtual ::Ice::Int readEnum(const ::std::string&, const ::Ice::StringSeq&);
 
     virtual void writeByte(const ::std::string&, ::Ice::Byte);
 
     virtual void writeByteSeq(const ::std::string&, const ::Ice::ByteSeq&);
 
-    virtual void readByte(const ::std::string&, ::Ice::Byte&);
+    virtual ::Ice::Byte readByte(const ::std::string&);
 
-    virtual void readByteSeq(const ::std::string&, ::Ice::ByteSeq&);
+    virtual ::Ice::ByteSeq readByteSeq(const ::std::string&);
 
     virtual void writeBool(const ::std::string&, bool);
 
     virtual void writeBoolSeq(const ::std::string&, const ::Ice::BoolSeq&);
 
-    virtual void readBool(const ::std::string&, bool&);
+    virtual bool readBool(const ::std::string&);
 
-    virtual void readBoolSeq(const ::std::string&, ::Ice::BoolSeq&);
+    virtual ::Ice::BoolSeq readBoolSeq(const ::std::string&);
 
     virtual void writeShort(const ::std::string&, ::Ice::Short);
 
     virtual void writeShortSeq(const ::std::string&, const ::Ice::ShortSeq&);
 
-    virtual void readShort(const ::std::string&, ::Ice::Short&);
+    virtual ::Ice::Short readShort(const ::std::string&);
 
-    virtual void readShortSeq(const ::std::string&, ::Ice::ShortSeq&);
+    virtual ::Ice::ShortSeq readShortSeq(const ::std::string&);
 
     virtual void writeInt(const ::std::string&, ::Ice::Int);
 
     virtual void writeIntSeq(const ::std::string&, const ::Ice::IntSeq&);
 
-    virtual void readInt(const ::std::string&, ::Ice::Int&);
+    virtual ::Ice::Int readInt(const ::std::string&);
 
-    virtual void readIntSeq(const ::std::string&, ::Ice::IntSeq&);
+    virtual ::Ice::IntSeq readIntSeq(const ::std::string&);
 
     virtual void writeLong(const ::std::string&, ::Ice::Long);
 
     virtual void writeLongSeq(const ::std::string&, const ::Ice::LongSeq&);
 
-    virtual void readLong(const ::std::string&, ::Ice::Long&);
+    virtual ::Ice::Long readLong(const ::std::string&);
 
-    virtual void readLongSeq(const ::std::string&, ::Ice::LongSeq&);
+    virtual ::Ice::LongSeq readLongSeq(const ::std::string&);
 
     virtual void writeFloat(const ::std::string&, ::Ice::Float);
 
     virtual void writeFloatSeq(const ::std::string&, const ::Ice::FloatSeq&);
 
-    virtual void readFloat(const ::std::string&, ::Ice::Float&);
+    virtual ::Ice::Float readFloat(const ::std::string&);
 
-    virtual void readFloatSeq(const ::std::string&, ::Ice::FloatSeq&);
+    virtual ::Ice::FloatSeq readFloatSeq(const ::std::string&);
 
     virtual void writeDouble(const ::std::string&, ::Ice::Double);
 
     virtual void writeDoubleSeq(const ::std::string&, const ::Ice::DoubleSeq&);
 
-    virtual void readDouble(const ::std::string&, ::Ice::Double&);
+    virtual ::Ice::Double readDouble(const ::std::string&);
 
-    virtual void readDoubleSeq(const ::std::string&, ::Ice::DoubleSeq&);
+    virtual ::Ice::DoubleSeq readDoubleSeq(const ::std::string&);
 
     virtual void writeString(const ::std::string&, const ::std::string&);
 
     virtual void writeStringSeq(const ::std::string&, const ::Ice::StringSeq&);
 
-    virtual void readString(const ::std::string&, ::std::string&);
+    virtual ::std::string readString(const ::std::string&);
 
-    virtual void readStringSeq(const ::std::string&, ::Ice::StringSeq&);
+    virtual ::Ice::StringSeq readStringSeq(const ::std::string&);
 
     virtual void writeProxy(const ::std::string&, const ::Ice::ObjectPrx&);
 
-    virtual void readProxy(const ::std::string&, ::Ice::ObjectPrx&);
+    virtual ::Ice::ObjectPrx readProxy(const ::std::string&);
 
     virtual void writeObject(const ::std::string&, const ::Ice::ObjectPtr&);
 
-    virtual void readObject(const ::std::string&, const ::std::string&, const ::Ice::ObjectFactoryPtr&,
-			    ::Ice::ObjectPtr&);
+    virtual ::Ice::ObjectPtr readObject(const ::std::string&, const ::std::string&, const ::Ice::ObjectFactoryPtr&);
 
 private:
 

@@ -331,12 +331,13 @@ IceXML::StreamI::endWriteDictionaryElement()
     endWrite();
 }
 
-void
-IceXML::StreamI::startReadDictionary(const string& name, ::Ice::Int& size)
+::Ice::Int
+IceXML::StreamI::startReadDictionary(const string& name)
 {
     startRead(name);
-    size = readLength();
+    ::Ice::Int size = readLength();
     _input->current = _input->current.getFirstChild();
+    return size;
 }
 
 void
@@ -384,12 +385,13 @@ IceXML::StreamI::endWriteSequenceElement()
     endWrite();
 }
 
-void
-IceXML::StreamI::startReadSequence(const string& name, ::Ice::Int& size)
+::Ice::Int
+IceXML::StreamI::startReadSequence(const string& name)
 {
     startRead(name);
-    size = readLength();
+    ::Ice::Int size = readLength();
     _input->current = _input->current.getFirstChild();
+    return size;
 }
 
 void
@@ -468,8 +470,8 @@ IceXML::StreamI::writeEnum(const string& name, const ::Ice::StringSeq& table, ::
     _os << nl << "<" << name << ">" << table[ordinal] << "</" << name << ">";
 }
 
-void
-IceXML::StreamI::readEnum(const string& name, const ::Ice::StringSeq& table, ::Ice::Int& ordinal)
+::Ice::Int
+IceXML::StreamI::readEnum(const string& name, const ::Ice::StringSeq& table)
 {
     startRead(name);
 
@@ -485,9 +487,10 @@ IceXML::StreamI::readEnum(const string& name, const ::Ice::StringSeq& table, ::I
     {
 	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
     }
-    ordinal = p - table.begin();
 
     endRead();
+
+    return p - table.begin();
 }
 
 void
@@ -511,8 +514,8 @@ IceXML::StreamI::writeByteSeq(const string& name, const ::Ice::ByteSeq& seq)
     endWrite();
 }
 
-void
-IceXML::StreamI::readByte(const string& name, ::Ice::Byte& value)
+::Ice::Byte
+IceXML::StreamI::readByte(const string& name)
 {
     startRead(name);
 
@@ -528,9 +531,10 @@ IceXML::StreamI::readByte(const string& name, ::Ice::Byte& value)
     {
 	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
     }
-    value = (::Ice::Byte)i;
 
     endRead();
+
+    return (::Ice::Byte)i;
 }
 
 //
@@ -573,9 +577,11 @@ IceXML::StreamI::readByte(const string& name, ::Ice::Byte& value)
 //
 //
 
-void
-IceXML::StreamI::readByteSeq(const string& name, ::Ice::ByteSeq& value)
+::Ice::ByteSeq
+IceXML::StreamI::readByteSeq(const string& name)
 {
+    ::Ice::ByteSeq value;
+
     startRead(name);
 
     ::Ice::Int size = readLength();
@@ -585,11 +591,13 @@ IceXML::StreamI::readByteSeq(const string& name, ::Ice::ByteSeq& value)
 	_input->current = _input->current.getFirstChild();
 	for (int i = 0; i < size; ++i)
 	{
-	    readByte(seqElementName, value[i]);
+	    value[i] = readByte(seqElementName);
 	}
     }
     
     endRead();
+
+    return value;
 }
 
 void
@@ -611,8 +619,8 @@ IceXML::StreamI::writeBoolSeq(const string& name, const ::Ice::BoolSeq& seq)
     endWrite();
 }
 
-void
-IceXML::StreamI::readBool(const string& name, bool& value)
+bool
+IceXML::StreamI::readBool(const string& name)
 {
     startRead(name);
 
@@ -623,14 +631,17 @@ IceXML::StreamI::readBool(const string& name, bool& value)
     }
 
     string s = toString(child.getNodeValue());
-    value = (s == "true") ? true : false;
 
     endRead();
+
+    return (s == "true") ? true : false;
 }
 
-void
-IceXML::StreamI::readBoolSeq(const string& name, ::Ice::BoolSeq& value)
+::Ice::BoolSeq
+IceXML::StreamI::readBoolSeq(const string& name)
 {
+    ::Ice::BoolSeq value;
+
     startRead(name);
 
     ::Ice::Int size = readLength();
@@ -640,13 +651,13 @@ IceXML::StreamI::readBoolSeq(const string& name, ::Ice::BoolSeq& value)
 	_input->current = _input->current.getFirstChild();
 	for (int i = 0; i < size; ++i)
 	{
-	    bool v;
-	    readBool(seqElementName, v);
-	    value[i] = v;
+	    value[i] = readBool(seqElementName);
 	}
     }
     
     endRead();
+
+    return value;
 }
 
 void
@@ -668,8 +679,8 @@ IceXML::StreamI::writeShortSeq(const string& name, const ::Ice::ShortSeq& seq)
     endWrite();
 }
 
-void
-IceXML::StreamI::readShort(const string& name, ::Ice::Short& value)
+::Ice::Short
+IceXML::StreamI::readShort(const string& name)
 {
     startRead(name);
 
@@ -685,14 +696,17 @@ IceXML::StreamI::readShort(const string& name, ::Ice::Short& value)
     {
 	throw ::Ice::UnmarshalException(__FILE__, __LINE__);
     }
-    value = (::Ice::Short)i;
 
     endRead();
+
+    return (::Ice::Short)i;
 }
 
-void
-IceXML::StreamI::readShortSeq(const string& name, ::Ice::ShortSeq& value)
+::Ice::ShortSeq
+IceXML::StreamI::readShortSeq(const string& name)
 {
+    ::Ice::ShortSeq value;
+
     startRead(name);
 
     ::Ice::Int size = readLength();
@@ -702,11 +716,13 @@ IceXML::StreamI::readShortSeq(const string& name, ::Ice::ShortSeq& value)
 	_input->current = _input->current.getFirstChild();
 	for (int i = 0; i < size; ++i)
 	{
-	    readShort(seqElementName, value[i]);
+	    value[i] = readShort(seqElementName);
 	}
     }
     
     endRead();
+
+    return value;
 }
 
 void
@@ -728,8 +744,8 @@ IceXML::StreamI::writeIntSeq(const string& name, const ::Ice::IntSeq& seq)
     endWrite();
 }
 
-void
-IceXML::StreamI::readInt(const string& name, ::Ice::Int& value)
+::Ice::Int
+IceXML::StreamI::readInt(const string& name)
 {
     startRead(name);
 
@@ -740,14 +756,17 @@ IceXML::StreamI::readInt(const string& name, ::Ice::Int& value)
     }
 
     string s = toString(child.getNodeValue());
-    value = atoi(s.c_str());
 
     endRead();
+
+    return atoi(s.c_str());
 }
 
-void
-IceXML::StreamI::readIntSeq(const string& name, ::Ice::IntSeq& value)
+::Ice::IntSeq
+IceXML::StreamI::readIntSeq(const string& name)
 {
+    ::Ice::IntSeq value;
+
     startRead(name);
 
     ::Ice::Int size = readLength();
@@ -757,11 +776,13 @@ IceXML::StreamI::readIntSeq(const string& name, ::Ice::IntSeq& value)
 	_input->current = _input->current.getFirstChild();
 	for (int i = 0; i < size; ++i)
 	{
-	    readInt(seqElementName, value[i]);
+	    value[i] = readInt(seqElementName);
 	}
     }
     
     endRead();
+
+    return value;
 }
 
 void
@@ -783,8 +804,8 @@ IceXML::StreamI::writeLongSeq(const string& name, const ::Ice::LongSeq& seq)
     endWrite();
 }
 
-void
-IceXML::StreamI::readLong(const string& name, ::Ice::Long& value)
+::Ice::Long
+IceXML::StreamI::readLong(const string& name)
 {
     startRead(name);
 
@@ -795,14 +816,17 @@ IceXML::StreamI::readLong(const string& name, ::Ice::Long& value)
     }
 
     string s = toString(child.getNodeValue());
-    value = atol(s.c_str());
 
     endRead();
+
+    return atol(s.c_str());
 }
 
-void
-IceXML::StreamI::readLongSeq(const string& name, ::Ice::LongSeq& value)
+::Ice::LongSeq
+IceXML::StreamI::readLongSeq(const string& name)
 {
+    ::Ice::LongSeq value;
+
     startRead(name);
 
     ::Ice::Int size = readLength();
@@ -812,11 +836,13 @@ IceXML::StreamI::readLongSeq(const string& name, ::Ice::LongSeq& value)
 	_input->current = _input->current.getFirstChild();
 	for (int i = 0; i < size; ++i)
 	{
-	    readLong(seqElementName, value[i]);
+	    value[i] = readLong(seqElementName);
 	}
     }
     
     endRead();
+
+    return value;
 }
 
 void
@@ -838,8 +864,8 @@ IceXML::StreamI::writeFloatSeq(const string& name, const ::Ice::FloatSeq& seq)
     endWrite();
 }
 
-void
-IceXML::StreamI::readFloat(const string& name, ::Ice::Float& value)
+::Ice::Float
+IceXML::StreamI::readFloat(const string& name)
 {
     startRead(name);
 
@@ -850,14 +876,17 @@ IceXML::StreamI::readFloat(const string& name, ::Ice::Float& value)
     }
 
     string s = toString(child.getNodeValue());
-    value = (::Ice::Float)atof(s.c_str());
 
     endRead();
+
+    return (::Ice::Float)atof(s.c_str());
 }
 
-void
-IceXML::StreamI::readFloatSeq(const string& name, ::Ice::FloatSeq& value)
+::Ice::FloatSeq
+IceXML::StreamI::readFloatSeq(const string& name)
 {
+    ::Ice::FloatSeq value;
+
     startRead(name);
 
     ::Ice::Int size = readLength();
@@ -867,11 +896,13 @@ IceXML::StreamI::readFloatSeq(const string& name, ::Ice::FloatSeq& value)
 	_input->current = _input->current.getFirstChild();
 	for (int i = 0; i < size; ++i)
 	{
-	    readFloat(seqElementName, value[i]);
+	    value[i] = readFloat(seqElementName);
 	}
     }
     
     endRead();
+
+    return value;
 }
 
 void
@@ -893,8 +924,8 @@ IceXML::StreamI::writeDoubleSeq(const string& name, const ::Ice::DoubleSeq& seq)
     endWrite();
 }
 
-void
-IceXML::StreamI::readDouble(const string& name, ::Ice::Double& value)
+::Ice::Double
+IceXML::StreamI::readDouble(const string& name)
 {
     startRead(name);
 
@@ -905,14 +936,17 @@ IceXML::StreamI::readDouble(const string& name, ::Ice::Double& value)
     }
 
     string s = toString(child.getNodeValue());
-    value = atof(s.c_str());
 
     endRead();
+
+    return atof(s.c_str());
 }
 
-void
-IceXML::StreamI::readDoubleSeq(const string& name, ::Ice::DoubleSeq& value)
+::Ice::DoubleSeq
+IceXML::StreamI::readDoubleSeq(const string& name)
 {
+    ::Ice::DoubleSeq value;
+
     startRead(name);
 
     ::Ice::Int size = readLength();
@@ -922,11 +956,13 @@ IceXML::StreamI::readDoubleSeq(const string& name, ::Ice::DoubleSeq& value)
 	_input->current = _input->current.getFirstChild();
 	for (int i = 0; i < size; ++i)
 	{
-	    readDouble(seqElementName, value[i]);
+	    value[i] = readDouble(seqElementName);
 	}
     }
     
     endRead();
+
+    return value;
 }
 
 void
@@ -1002,9 +1038,11 @@ IceXML::StreamI::writeStringSeq(const string& name, const ::Ice::StringSeq& seq)
     endWrite();
 }
 
-void
-IceXML::StreamI::readString(const string& name, string& value)
+string
+IceXML::StreamI::readString(const string& name)
 {
+    string value;
+
     startRead(name);
 
     DOM_Node child = _input->current.getFirstChild();
@@ -1023,11 +1061,15 @@ IceXML::StreamI::readString(const string& name, string& value)
     }
 
     endRead();
+
+    return value;
 }
 
-void
-IceXML::StreamI::readStringSeq(const string& name, ::Ice::StringSeq& value)
+::Ice::StringSeq
+IceXML::StreamI::readStringSeq(const string& name)
 {
+    ::Ice::StringSeq value;
+
     startRead(name);
 
     ::Ice::Int size = readLength();
@@ -1037,11 +1079,13 @@ IceXML::StreamI::readStringSeq(const string& name, ::Ice::StringSeq& value)
 	_input->current = _input->current.getFirstChild();
 	for (int i = 0; i < size; ++i)
 	{
-	    readString(seqElementName, value[i]);
+	    value[i] = readString(seqElementName);
 	}
     }
     
     endRead();
+
+    return value;
 }
 
 void
@@ -1053,8 +1097,8 @@ IceXML::StreamI::writeProxy(const string& name, const ::Ice::ObjectPrx& proxy)
     _os << nl << "<" << name << ">" << s << "</" << name << ">";
 }
 
-void
-IceXML::StreamI::readProxy(const string& name, ::Ice::ObjectPrx& value)
+::Ice::ObjectPrx
+IceXML::StreamI::readProxy(const string& name)
 {
     startRead(name);
 
@@ -1069,9 +1113,9 @@ IceXML::StreamI::readProxy(const string& name, ::Ice::ObjectPrx& value)
 	s = toString(child.getNodeValue());
     }
 
-    value = _communicator->stringToProxy(s);
-
     endRead();
+
+    return _communicator->stringToProxy(s);
 }
 
 void
@@ -1110,10 +1154,11 @@ IceXML::StreamI::writeObject(const string& name, const ::Ice::ObjectPtr& obj)
     }
 }
 
-void
-IceXML::StreamI::readObject(const string& name, const string& signatureType, const ::Ice::ObjectFactoryPtr& factory,
-		      ::Ice::ObjectPtr& value)
+::Ice::ObjectPtr
+IceXML::StreamI::readObject(const string& name, const string& signatureType, const ::Ice::ObjectFactoryPtr& factory)
 {
+    ::Ice::ObjectPtr value;
+
     startRead(name);
 
     //
@@ -1137,7 +1182,7 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
 	{
 	    value = p->second;
 	    endRead();
-	    return;
+	    return value;
 	}
 
 	//
@@ -1221,6 +1266,8 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
     }
 
     endRead();
+
+    return value;
 }
 
 void

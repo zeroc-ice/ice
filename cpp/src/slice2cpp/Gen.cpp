@@ -669,8 +669,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << sp << nl << "void" << nl << scope.substr(2) << "ice_unmarshal(const ::std::string& __name, "
 	  << "const ::Ice::StreamPtr& __is, " << scoped << "& v, " << scope << "__U__" << name << ')';
 	C << sb;
-	C << nl << "::Ice::Int sz;";
-	C << nl << "__is->startReadSequence(__name, sz);";
+	C << nl << "::Ice::Int sz = __is->startReadSequence(__name);";
 	//
 	// Don't use v.resize(sz) or v.reserve(sz) here, as it cannot
 	// be checked whether sz is a reasonable value.
@@ -797,8 +796,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	C << sp << nl << "void" << nl << scope.substr(2) << "ice_unmarshal(const ::std::string& __name, "
 	  << "const ::Ice::StreamPtr& __is, " << scoped << "& v, " << scope << "__U__" << name << ')';
 	C << sb;
-	C << nl << "::Ice::Int sz;";
-	C << nl << "__is->startReadDictionary(__name, sz);";
+	C << nl << "::Ice::Int sz = __is->startReadDictionary(__name);";
 	C << nl << "while (sz--)";
 	C << sb;
 	C << nl << "::std::pair<" << ks << ", " << vs << "> pair;";
@@ -927,8 +925,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	C << sp << nl << "void" << nl << scope.substr(2) << "ice_unmarshal(const ::std::string& __name, "
 	  << "const ::Ice::StreamPtr& __is, " << scoped << "& v)";
 	C << sb;
-	C << nl << "::Ice::Int ordinal;";
-	C << nl << "__is->readEnum(__name, __T__" << name << ", ordinal);";
+	C << nl << "::Ice::Int ordinal = __is->readEnum(__name, __T__" << name << ");";
         C << nl << "v = static_cast< " << scoped << ">(ordinal);";
 	C << eb;
     }
@@ -2635,8 +2632,7 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "void" << nl << scope.substr(2) << "ice_unmarshal(const ::std::string& __name, "
 	  << "const ::Ice::StreamPtr& __is, " << scoped << "Prx& v)";
 	C << sb;
-	C << nl << "::Ice::ObjectPrx proxy;";
-	C << nl << "__is->readProxy(__name, proxy);";
+	C << nl << "::Ice::ObjectPrx proxy = __is->readProxy(__name);";
 	C << nl << "if (!proxy)";
 	C << sb;
 	C << nl << "v = 0;";

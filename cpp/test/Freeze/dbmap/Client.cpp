@@ -42,7 +42,7 @@ public:
 	string data(bytes.begin(), bytes.end());
 	istringstream is(data);
 	Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, is, false);
-	stream->readByte("Key", key);
+	key = stream->readByte("Key");
     }
 };
 
@@ -70,7 +70,7 @@ public:
 	string data(bytes.begin(), bytes.end());
 	istringstream is(data);
 	Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, is, false);
-	stream->readInt("Value", value);
+	value = stream->readInt("Value");
     }
 };
 

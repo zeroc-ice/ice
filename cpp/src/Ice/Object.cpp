@@ -270,8 +270,7 @@ Ice::Object::__unmarshal(const ::Ice::StreamPtr& __is)
     static const string keyName = "key";
     static const string valueName = "value";
 
-    Int sz;
-    __is->startReadDictionary(facetsName, sz);
+    Int sz = __is->startReadDictionary(facetsName);
     
     _activeFacetMap.clear();
     _activeFacetMapHint = _activeFacetMap.end();
@@ -280,8 +279,8 @@ Ice::Object::__unmarshal(const ::Ice::StreamPtr& __is)
     {
 	__is->startReadDictionaryElement();
 	pair<string, ObjectPtr> v;
-	__is->readString(keyName, v.first);
-	__is->readObject(valueName, "", 0, v.second);
+	v.first = __is->readString(keyName);
+	v.second = __is->readObject(valueName, "", 0);
 	_activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, v);
 	__is->endReadDictionaryElement();
     }
@@ -297,7 +296,7 @@ Ice::Object::ice_marshal(const string& name, const ::Ice::StreamPtr& stream)
 void
 Ice::Object::ice_unmarshal(const string& name, const ::Ice::StreamPtr& stream, ObjectPtr& value)
 {
-    stream->readObject(name, "", 0, value);
+    value = stream->readObject(name, "", 0);
 }
 
 void
