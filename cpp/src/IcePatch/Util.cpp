@@ -17,6 +17,7 @@
 #include <fstream>
 #include <sys/stat.h>
 #include <openssl/md5.h>
+#include <utime.h>
 #include <bzlib.h>
 
 #ifdef _WIN32
@@ -135,30 +136,75 @@ IcePatch::removeSuffix(const string& path)
 }
 
 FileInfo
-IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist)
+IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist, const Ice::LoggerPtr& logger)
 {
+    FileInfo result;
     struct stat buf;
-    if(::stat(path.c_str(), &buf) == -1)
+
+    while(true)
     {
-	if(!exceptionIfNotExist && errno == ENOENT)
+	if(::stat(path.c_str(), &buf) == -1)
 	{
-	    FileInfo result;
-	    result.size = 0;
-	    result.time = 0;
-	    result.type = FileTypeNotExist;
-            return result;
+	    if(!exceptionIfNotExist && errno == ENOENT)
+	    {
+		FileInfo result;
+		result.size = 0;
+		result.time = 0;
+		result.type = FileTypeNotExist;
+		return result;
+	    }
+	    else
+	    {
+		FileAccessException ex;
+		ex.reason = "cannot stat `" + path + "': " + strerror(errno);
+		throw ex;
+	    }
 	}
-	else
+	
+	result.size = buf.st_size;
+	result.time = buf.st_mtime;
+	
+	if(IceUtil::Time::seconds(result.time) <= IceUtil::Time::now())
 	{
-	    FileAccessException ex;
-	    ex.reason = "cannot stat `" + path + "': " + strerror(errno);
-	    throw ex;
+	    break;
+	}
+	
+	if(logger)
+	{
+	    Trace out(logger, "IcePatch");
+	    out << "modification time for `" << path << "' is in the future\n";
+	    out << "setting modification time to the current time.";
+	}
+	    
+	if(::utime(path.c_str(), 0) == -1)
+	{
+	    if(errno != ENOENT)
+	    {
+		FileAccessException ex;
+		ex.reason = "cannot utime `" + path + "': " + strerror(errno);
+		throw ex;
+	    }
+	}
+	
+	if(!ignoreSuffix(path))
+	{
+	    try
+	    {
+		removeRecursive(path + ".md5");
+	    }
+	    catch(const FileAccessException&)
+	    {
+	    }
+	    
+	    try
+	    {
+		removeRecursive(path + ".bz2");
+	    }
+	    catch(const FileAccessException&)
+	    {
+	    }
 	}
     }
-
-    FileInfo result;
-    result.size = buf.st_size;
-    result.time = buf.st_mtime;
 
     if(S_ISDIR(buf.st_mode))
     {
@@ -179,7 +225,7 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist)
 }
 
 void
-IcePatch::removeRecursive(const string& path)
+IcePatch::removeRecursive(const string& path, const Ice::LoggerPtr& logger)
 {
     if(getFileInfo(path, true).type == FileTypeDirectory)
     {
@@ -208,6 +254,12 @@ IcePatch::removeRecursive(const string& path)
 	    ex.reason = "cannot remove file `" + path + "': " + strerror(errno);
 	    throw ex;
 	}
+    }
+
+    if(logger)
+    {
+	Trace out(logger, "IcePatch");
+	out << "removed file `" << path << "'";
     }
 }
 
@@ -381,7 +433,7 @@ IcePatch::putMD5(const string& path, const ByteSeq& bytesMD5)
 }
 
 void
-IcePatch::createMD5(const string& path)
+IcePatch::createMD5(const string& path, const LoggerPtr& logger)
 {
     //
     // The current directory is not permissible for MD5 value
@@ -469,6 +521,12 @@ IcePatch::createMD5(const string& path)
     // Save the MD5 hash value.
     //
     putMD5(path, bytesMD5);
+
+    if(logger)
+    {
+	Trace out(logger, "IcePatch");
+	out << "created MD5 file for `" << path << "'";
+    }
 }
 
 ByteSeq
@@ -600,7 +658,7 @@ IcePatch::getBZ2(const string& path, Int pos, Int num)
 }
 
 void
-IcePatch::createBZ2(const string& path)
+IcePatch::createBZ2(const string& path, const Ice::LoggerPtr& logger)
 {
     FileInfo info = getFileInfo(path, true);
     if(info.type == FileTypeDirectory)
@@ -706,5 +764,11 @@ IcePatch::createBZ2(const string& path)
 	FileAccessException ex;
 	ex.reason = "cannot rename `" + pathBZ2Temp + "' to  `" + pathBZ2 + "': " + strerror(errno);
 	throw ex;
+    }
+
+    if(logger)
+    {
+	Trace out(logger, "IcePatch");
+	out << "created BZ2 file for `" << path << "'";
     }
 }

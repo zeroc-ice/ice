@@ -55,15 +55,31 @@ IcePatch::FileI::readMD5(const Current& current) const
 	    sync.timedUpgrade(_busyTimeout);
 
 	    infoMD5 = getFileInfo(path + ".md5", false);
-
-	    if(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
+	    while(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
 	    {
-		createMD5(path);
-		
-		if(_traceLevel > 0)
+		//
+		// Timestamps have only a resolution of one second, so
+		// we sleep if it's likely that the created MD5 file
+		// would have the same time stamp as the source file.
+		//
+		IceUtil::Time diff = IceUtil::Time::seconds(info.time + 1) - IceUtil::Time::now();
+		if(diff > IceUtil::Time())
 		{
-		    Trace out(_logger, "IcePatch");
-		    out << "created MD5 file for `" << path << "'";
+		    IceUtil::ThreadControl::sleep(diff);
+		}
+
+		createMD5(path, _traceLevel > 0 ? _logger : LoggerPtr());
+
+		//
+		// If the source file size has changed after we
+		// created the MD5 file, we try again.
+		//
+		FileInfo oldInfo = info;
+		info = getFileInfo(path, true);
+		infoMD5 = getFileInfo(path + ".md5", true); // Must exist.
+		if(info.size != oldInfo.size)
+		{
+		    info.time = infoMD5.time;
 		}
 	    }
 	}
@@ -122,13 +138,7 @@ IcePatch::DirectoryI::getContents(const Current& current) const
 			equal_range(paths2.begin(), paths2.end(), removeSuffix(*p));
 		    if(r2.first == r2.second)
 		    {
-			removeRecursive(*p);
-
-			if(_traceLevel > 0)
-			{
-			    Trace out(_logger, "IcePatch");
-			    out << "removed orphaned file `" << *p << "'";
-			}
+			removeRecursive(*p, _traceLevel > 0 ? _logger : LoggerPtr());
 		    }
 		}
 	    }
@@ -200,23 +210,21 @@ IcePatch::RegularI::getBZ2Size(const Current& current) const
 	    sync.timedUpgrade(_busyTimeout);
 
 	    infoBZ2 = getFileInfo(path + ".bz2", false);
-
-	    if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+	    while(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	    {
-		createBZ2(path);
+		createBZ2(path, _traceLevel > 0 ? _logger : LoggerPtr());
 		
-		if(_traceLevel > 0)
+		//
+		// If the source file size has changed after we
+		// created the BZ2 file, we try again.
+		//
+		FileInfo oldInfo = info;
+		info = getFileInfo(path, true);
+		infoBZ2 = getFileInfo(path + ".bz2", true); // Must exist.
+		if(info.size != oldInfo.size)
 		{
-		    Trace out(_logger, "IcePatch");
-		    out << "created BZ2 file for `" << path << "'";
+		    info.time = infoBZ2.time;
 		}
-		
-		//
-		// Get the .bz2 file info again, so that we can return the
-		// size below. This time the .bz2 file must exist,
-		// otherwise an exception is raised.
-		//
-		infoBZ2 = getFileInfo(path + ".bz2", true);
 	    }
 	}
 	
@@ -246,15 +254,20 @@ IcePatch::RegularI::getBZ2(Int pos, Int num, const Current& current) const
 	    sync.timedUpgrade(_busyTimeout);
 
 	    infoBZ2 = getFileInfo(path + ".bz2", false);
-
-	    if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+	    while(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	    {
-		createBZ2(path);
-		
-		if(_traceLevel > 0)
+		createBZ2(path, _traceLevel > 0 ? _logger : LoggerPtr());
+
+		//
+		// If the source file size has changed after we
+		// created the BZ2 file, we try again.
+		//
+		FileInfo oldInfo = info;
+		info = getFileInfo(path, true);
+		infoBZ2 = getFileInfo(path + ".bz2", true); // Must exist.
+		if(info.size != oldInfo.size)
 		{
-		    Trace out(_logger, "IcePatch");
-		    out << "created BZ2 file for `" << path << "'";
+		    info.time = infoBZ2.time;
 		}
 	    }
 	}
@@ -285,15 +298,20 @@ IcePatch::RegularI::getBZ2MD5(Int size, const Current& current) const
 	    sync.timedUpgrade(_busyTimeout);
 
 	    infoBZ2 = getFileInfo(path + ".bz2", false);
-
-	    if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
+	    while(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	    {
-		createBZ2(path);
-		
-		if(_traceLevel > 0)
+		createBZ2(path, _traceLevel > 0 ? _logger : LoggerPtr());
+
+		//
+		// If the source file size has changed after we
+		// created the BZ2 file, we try again.
+		//
+		FileInfo oldInfo = info;
+		info = getFileInfo(path, true);
+		infoBZ2 = getFileInfo(path + ".bz2", true); // Must exist.
+		if(info.size != oldInfo.size)
 		{
-		    Trace out(_logger, "IcePatch");
-		    out << "created BZ2 file for `" << path << "'";
+		    info.time = infoBZ2.time;
 		}
 	    }
 	}

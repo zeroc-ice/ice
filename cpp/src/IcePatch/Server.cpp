@@ -242,14 +242,14 @@ IcePatch::Updater::cleanup(const FileDescSeq& fileDescSeq)
 	{
 	    //
 	    // Force MD5 files to be created and orphaned files to be
-	    // removed.
+	    // removed. Then recurse into subdirectories.
 	    //
 	    cleanup(directoryDesc->dir->getContents());
 
 	    //
-	    // Call describe(), because MD5 files in subdirectories
-	    // might have changed, resulting in a different summary
-	    // MD5 for this directory.
+	    // Call describe(), because BZ2 and MD5 files in the
+	    // directory might have changed, resulting in a different
+	    // summary MD5 for this directory.
 	    //
 	    directoryDesc->dir->describe();
 	}
