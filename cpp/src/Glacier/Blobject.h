@@ -21,7 +21,7 @@
 namespace Glacier
 {
 
-class Blobject : public Ice::Blobject
+class Blobject : public Ice::BlobjectAsync
 {
 public:
     
@@ -31,7 +31,8 @@ public:
     virtual bool reverse() = 0;
     
     void destroy();
-    bool invoke(Ice::ObjectPrx&, const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);
+    void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
+		const Ice::Current&);
     MissiveQueuePtr modifyProxy(Ice::ObjectPrx&, const Ice::Current&);
 
 protected:

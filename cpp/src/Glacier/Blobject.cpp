@@ -52,9 +52,34 @@ Glacier::Blobject::destroy()
     }
 }
 
+class GlacierCB : public AMI_Object_ice_invoke
+{
+public:
 
-bool
-Glacier::Blobject::invoke(ObjectPrx& proxy, const vector<Byte>& inParams, vector<Byte>& outParams,
+    GlacierCB(const AMD_Object_ice_invokePtr& cb) :
+	_cb(cb)
+    {
+    }
+
+    virtual void
+    ice_response(bool ok, const ::std::vector< ::Ice::Byte>& outParams)
+    {
+	_cb->ice_response(ok, outParams);
+    }
+
+    virtual void
+    ice_exception(const ::IceUtil::Exception& ex)
+    {
+	_cb->ice_exception(ex);
+    }
+
+private:
+
+    AMD_Object_ice_invokePtr _cb;
+};
+
+void
+Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
 			  const Current& current)
 {
     try
@@ -64,7 +89,7 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const vector<Byte>& inParams, vector
 	if(missiveQueue) // Batch routing?
 	{
 	    missiveQueue->add(new Missive(proxy, inParams, current, _forwardContext));
-	    return true;
+	    return;
 	}
 	else // Regular routing.
 	{
@@ -81,13 +106,15 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const vector<Byte>& inParams, vector
 		    << "mode = " << current.mode;
 	    }
 	    
+	    AMI_Object_ice_invokePtr amiCB = new GlacierCB(amdCB);
+
 	    if(_forwardContext)
 	    {
-		return proxy->ice_invoke(current.operation, current.mode, inParams, outParams, current.ctx);
+		proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams, current.ctx);
 	    }
 	    else
 	    {
-		return proxy->ice_invoke(current.operation, current.mode, inParams, outParams);
+		proxy->ice_invoke_async(amiCB, current.operation, current.mode, inParams);
 	    }
 	}
     }
@@ -106,8 +133,7 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const vector<Byte>& inParams, vector
 	ex.ice_throw();
     }
 
-    assert(false);
-    return true; // To keep the compiler happy.
+    return;
 }
 
 MissiveQueuePtr

@@ -47,13 +47,14 @@ Glacier::ServerBlobject::destroy()
     Blobject::destroy();
 }
 
-bool
-Glacier::ServerBlobject::ice_invoke(const vector<Byte>& inParams, vector<Byte>& outParams, const Current& current)
+void
+Glacier::ServerBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
+					  const Current& current)
 {
     assert(_clientAdapter); // Destroyed?
 
     ObjectPrx proxy = _clientAdapter->createReverseProxy(current.id);
     assert(proxy);
 
-    return invoke(proxy, inParams, outParams, current);
+    invoke(proxy, amdCB, inParams, current);
 }

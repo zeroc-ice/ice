@@ -28,6 +28,8 @@
 #include <Ice/Proxy.h>
 #include <Ice/Object.h>
 #include <Ice/IdentityUtil.h>
+#include <Ice/OutgoingAsync.h>
+#include <Ice/IncomingAsync.h>
 #include <Ice/Application.h>
 
 //#include <Ice/Stream.h>
