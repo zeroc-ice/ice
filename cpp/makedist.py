@@ -56,10 +56,10 @@ def fixMakefile(file, target):
     newLines = []
     for x in origLines:
         #
-        # If the line starts with the target string, then
-        # comment out this make target.
+        # If the rule contains the target string, then
+        # comment out this rule.
         #
-        if x.startswith(target) and not x.startswith(target + ".o"):
+        if not x.startswith("\t") and x.find(target) != -1 and x.find(target + ".o") == -1:
             doComment = 1
         #
         # If the line starts with "clean::", then check
@@ -127,6 +127,36 @@ def fixProject(file, target):
     newProject.writelines(newLines)
     newProject.close()
     oldProject.close()
+    os.remove(origfile)
+
+#
+# Comment out implicit parser/scanner rules in config/Make.rules.
+#
+def fixMakeRules(file):
+    origfile = file + ".orig"
+    os.rename(file, origfile)
+    oldFile = open(origfile, "r")
+    newFile = open(file, "w")
+    origLines = oldFile.readlines()
+
+    doComment = 0
+    newLines = []
+    for x in origLines:
+        if x.find("%.y") != -1 or x.find("%.l") != -1:
+            doComment = 1
+        #
+        # Stop when we encounter an empty line.
+        #
+        elif len(x.strip()) == 0:
+            doComment = 0
+
+        if doComment:
+            x = "#" + x
+        newLines.append(x)
+
+    newFile.writelines(newLines)
+    newFile.close()
+    oldFile.close()
     os.remove(origfile)
 
 #
@@ -226,6 +256,12 @@ for x in scanners:
     for p in glob.glob("*.dsp"):
         fixProject(p, file)
     os.chdir(cwd)
+
+#
+# Comment out the implicit parser and scanner rules in
+# config/Make.rules.
+#
+fixMakeRules(os.path.join("ice", "config", "Make.rules"))
 
 #
 # Generate HTML documentation. We need to build icecpp
