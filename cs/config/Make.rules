@@ -1,0 +1,141 @@
+# **********************************************************************
+#
+# Copyright (c) 2003
+# ZeroC, Inc.
+# Billerica, MA, USA
+#
+# All Rights Reserved.
+#
+# Ice is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License version 2 as published by
+# the Free Software Foundation.
+#
+# **********************************************************************
+
+#
+# Select an installation base directory. The directory will be created
+# if it does not exist.
+#
+
+prefix			= /opt/Icicle-$(VERSION)
+
+#
+# Define DEBUG as yes if you want to build with debug information and
+# assertions enabled.
+#
+
+DEBUG		= yes
+
+#
+# If libbzip2 is not installed in a standard location where the compiler 
+# can find it, set BZIP2_HOME to the bzip2 installation directory.
+#
+
+#BZIP2_HOME		?= /opt/bzip2
+
+#
+# If Berkeley DB is not installed in a standard location where the
+# compiler can find it, set DB_HOME to the Berkeley DB installation
+# directory.
+#
+
+#DB_HOME		?= /opt/db
+
+#
+# If OpenSSL is not installed in a standard location where the
+# compiler can find it, set OPENSSL_HOME to the OpenSSL installation
+# directory.
+#
+
+#OPENSSL_HOME		?= /opt/openssl
+
+#
+# Define if your OpenSSL requires Kerberos, and if Kerberos is not
+# installed in a standard location.
+#
+
+KERBEROS_HOME		?= /usr/kerberos
+
+#
+# If expat is not installed in a standard location where the
+# compiler can find it, set EXPAT_HOME to the expat
+# installation directory.
+#
+
+#EXPAT_HOME		?= /opt/expat
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+SHELL			= /bin/sh
+VERSION			= 1.3.0
+bindir			= $(top_srcdir)/bin
+libdir			= $(top_srcdir)/lib
+slicedir		= $(top_srcdir)/slice
+
+install_bindir		= $(prefix)/bin
+install_libdir		= $(prefix)/lib
+install_slicedir	= $(prefix)/slice
+
+INSTALL			= cp -fp
+
+MCS			= mcs
+
+LIBS			= $(libdir)/Icicle.dll
+
+ifeq ($(DEBUG),yes)
+    MCSFLAGS := -g
+endif
+
+SLICE2CS		= slice2cs
+
+GEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_SRCS))))
+CGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_C_SRCS))))
+SGEN_SRCS = $(subst .ice,.cs,$(addprefix $(GDIR)/,$(notdir $(SLICE_S_SRCS))))
+
+EVERYTHING		= all depend clean install
+
+.SUFFIXES:
+.SUFFIXES:		.cs .ice
+
+%.cs: %.ice
+	$(SLICE2CS) $(SLICE2CSFLAGS) $<
+
+$(GDIR)/%.cs: $(SDIR)/%.ice
+	$(SLICE2CS) --output-dir $(GDIR) $(SLICE2CSFLAGS) $<
+
+all:: $(TARGETS)
+
+depend:: $(SLICE_SRCS) $(SLICE_C_SRCS) $(SLICE_S_SRCS)
+	-rm -f .depend
+	if test -n "$(SLICE_SRCS)" ; then \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_SRCS) | \
+	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	fi
+	if test -n "$(SLICE_C_SRCS)" ; then \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_C_SRCS) | \
+	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	fi
+	if test -n "$(SLICE_S_SRCS)" ; then \
+	    $(SLICE2CS) --depend $(SLICE2CSFLAGS) $(SLICE_S_SRCS) | \
+	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	fi
+
+clean::
+	-rm -f $(TARGETS) *.bak
+
+ifneq ($(SLICE_SRCS),)
+clean::
+	-rm -f $(GEN_SRCS)
+endif
+ifneq ($(SLICE_C_SRCS),)
+clean::
+	-rm -f $(CGEN_SRCS)
+endif
+ifneq ($(SLICE_S_SRCS),)
+clean::
+	-rm -f $(SGEN_SRCS)
+endif
+
+install::

@@ -581,7 +581,11 @@ namespace IceInternal
 	}
 	
 	private bool _destroyed;
+#if __MonoCS__
+	private /* volatile */ Ice.Properties _properties; // Mono Beta 1 bug: mcs can't handle volatile interfaces.
+#else
 	private volatile Ice.Properties _properties; // Immutable, not reset by destroy().
+#endif
 	private Ice.Logger _logger; // Not reset by destroy().
 	private Ice.Stats _stats; // Not reset by destroy().
 	private volatile TraceLevels _traceLevels; // Immutable, not reset by destroy().

@@ -1,0 +1,1 @@
+generated/Test.cs: ./Test.ice ../../../slice/Ice/Current.ice ../../../slice/Ice/ObjectAdapterF.ice ../../../slice/Ice/Identity.ice ../../../slice/Ice/Facet.ice

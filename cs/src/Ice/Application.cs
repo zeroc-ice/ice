@@ -299,7 +299,7 @@ namespace Ice
 	}
 
 	[DllImport("kernel32.dll")]
-	private static extern Boolean SetConsoleCtrlHandler(EventHandler eh, Boolean add);
+	private static extern Boolean SetConsoleCtrlHandler(Application.EventHandler eh, Boolean add);
 
 	private static readonly object sync = typeof(Application);
 
@@ -310,7 +310,8 @@ namespace Ice
 	private static bool _nohup;
 
 	private delegate Boolean EventHandler(int sig);
-	private static readonly EventHandler _handler = new EventHandler(HandlerRoutine); // First-level handler
+	private static readonly Application.EventHandler _handler
+	    = new Application.EventHandler(HandlerRoutine); // First-level handler
 
 	private delegate void Callback(int sig);
 	private static readonly Callback _destroyCallback = new Callback(destroyOnInterruptCallback);

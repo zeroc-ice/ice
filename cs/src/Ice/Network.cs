@@ -15,7 +15,9 @@
 //
 // Work-around for bug in .NET Socket class implementation.
 //
+#if !__MonoCS__
 #define ENDPOINTBUG
+#endif
 
 namespace IceInternal
 {
@@ -36,6 +38,7 @@ namespace IceInternal
 	const int WSAEINTR = 10004;
 	const int WSAEFAULT = 10014;
 	const int WSAEWOULDBLOCK = 10035;
+	const int WSAEINPROGRESS = 10036; // Deprecated in winsock2, but still used by Mono Beta 1
 	const int WSAEMSGSIZE = 10040;
 	const int WSAENETDOWN = 10050;
 	const int WSAENETUNREACH = 10051;
@@ -91,7 +94,9 @@ namespace IceInternal
 
 	public static bool connectInProgress(Win32Exception ex)
 	{
-	    return ex.NativeErrorCode == WSAEWOULDBLOCK;
+	    int error = ex.NativeErrorCode;
+	    return error == WSAEWOULDBLOCK ||
+	           error == WSAEINPROGRESS;
 	}
 
 	public static bool connectionLost(Win32Exception ex)
@@ -354,6 +359,7 @@ namespace IceInternal
             //
             // Set larger send buffer size to avoid performance problems on
             // WIN32.
+	    // TODO: how to disable this for Mono when not on Windows?
             //
 	    setSendBufferSize(socket, 64 * 1024);
 
@@ -822,7 +828,7 @@ namespace IceInternal
 		remoteEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
 	    }
     #else
-	    localEndpoint = (IPEndPoint)socket.LocalEndPoint;
+	    IPEndPoint localEndpoint = (IPEndPoint)socket.LocalEndPoint;
 
 	    IPEndPoint remoteEndpoint;
 	    try

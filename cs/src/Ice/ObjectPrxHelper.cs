@@ -173,6 +173,9 @@ namespace Ice
 	public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
 	                       Context context)
 	{
+#if __MonoCS__
+	    outParams = null; // Mono bug: mcs does not track this correctly.
+#endif
 	    int __cnt = 0;
 	    while(true)
 	    {
@@ -208,6 +211,7 @@ namespace Ice
 			             Context context)
 	{
 	    __checkTwowayOnly("ice_invoke_async");
+
 	    cb.__invoke(__reference(), operation, mode, inParams, context);
 	}
 	

@@ -1,0 +1,2 @@
+generated/Test.cs: ./Test.ice
+generated/ServerPrivate.cs: ServerPrivate.ice Test.ice
