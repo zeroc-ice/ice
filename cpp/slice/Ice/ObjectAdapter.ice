@@ -367,9 +367,9 @@ local interface ObjectAdapter
      * the router. This avoids the need for the router to establish
      * a separate connection back to this object adapter.
      *
-     * <note><para> You can only add a particular router to one single
-     * object adapter. Adding a router to more than one object adapter
-     * will result in undefined behavior. However, it is possible to
+     * <note><para> You can add a particular router to only a single
+     * object adapter. Adding the same router to more than one object adapter
+     * results in undefined behavior. However, it is possible to
      * add different routers to different object
      * adapters. </para></note>
      *
