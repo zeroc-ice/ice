@@ -11,8 +11,6 @@
 #ifndef TEST_BASE_H
 #define TEST_BASE_H
 
-//#include <string>
-
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
 

@@ -16,7 +16,7 @@
 using namespace std;
 using namespace IceUtil;
 
-static const std::string mutexTestName("mutex");
+static const string mutexTestName("mutex");
 
 class MutexTestThread : public Thread
 {

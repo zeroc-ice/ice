@@ -18,7 +18,7 @@
 using namespace std;
 using namespace IceUtil;
 
-static const std::string createTestName("thread create");
+static const string createTestName("thread create");
 
 class CreateTestThread : public Thread
 {

@@ -93,7 +93,7 @@ private:
 
 typedef Handle<MonitorMutexTestThread2> MonitorMutexTestThread2Ptr;
 
-static const std::string monitorMutexTestName("monitor<mutex>");
+static const string monitorMutexTestName("monitor<mutex>");
 
 MonitorMutexTest::MonitorMutexTest() :
     TestBase(monitorMutexTestName)

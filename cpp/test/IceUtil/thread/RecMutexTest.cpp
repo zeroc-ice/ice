@@ -16,7 +16,7 @@
 using namespace std;
 using namespace IceUtil;
 
-static const std::string recMutexTestName("recursive mutex");
+static const string recMutexTestName("recursive mutex");
 
 class RecMutexTestThread : public Thread
 {
