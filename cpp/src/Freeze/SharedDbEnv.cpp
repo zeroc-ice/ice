@@ -29,7 +29,7 @@ class CheckpointThread : public Thread, public Monitor<Mutex>
 {
 public:
 
-    CheckpointThread(SharedDbEnv&, const Time&, Int, bool, Int);
+    CheckpointThread(SharedDbEnv&, const Time&, Int, Int);
 
     virtual void run();
   
@@ -40,7 +40,6 @@ private:
     bool _done;
     Time _checkpointPeriod;
     Int _kbyte;
-    bool _autoDelete;
     Int _trace;
 };
 
@@ -131,8 +130,11 @@ Freeze::SharedDbEnv::~SharedDbEnv()
     //
     // First terminate checkpointing thread
     //
-    _thread->terminate();
-    _thread = 0;
+    if(_thread != 0)
+    {
+	_thread->terminate();
+	_thread = 0;
+    }
     
     try
     {
@@ -195,71 +197,6 @@ void Freeze::SharedDbEnv::__decRef()
 	//
 	delete this;
     }
-}
-
-void 
-Freeze::SharedDbEnv::deleteOldLogs()
-{
-    IceUtil::Mutex::Lock lock(_oldLogsMutex);
-    
-    char** list = 0;
-
-    try
-    {
-	log_archive(&list, DB_ARCH_ABS);
-	
-	if(list != 0)
-	{
-	    for(int i = 0; list[i] != 0; i++)
-	    {
-		//
-		// Remove each file
-		//
-
-		if(_trace >= 2)
-		{
-		    Trace out(_communicator->getLogger(), "Freeze.DbEnv");
-		    out << "removing \"" << list[i] << "\" from DbEnv \"" << _envName << "\"";
-		}
-
-#ifdef _WIN32
-
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-		BOOL ok = DeleteFile(list[i]);
-#else
-		BOOL ok = DeleteFileA(list[i]);
-#endif
-		if(!ok)
-		{
-		    DWORD err = GetLastError();
-		    Warning out(_communicator->getLogger());
-		    out << "could not delete file: \"" << list[i] << "\" error number: " << err;
-		}
-#else
-		int err = unlink(list[i]);
-		if(err != 0)
-		{
-		    Warning out(_communicator->getLogger());
-		    out << "could not unlink file: \"" << list[i] << "\": " << strerror(err);
-		}
-#endif
-	    
-	    }
-	}
-    }
-    catch(const ::DbException& dx)
-    {
-	free(list);
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
-    }
-    catch(...)
-    {
-	free(list);
-	throw;
-    }   
-    free(list);
 }
 
 Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
@@ -338,6 +275,17 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
 	*/
 	
 	//
+	// Maybe we can deprecate this property since it can be set in the DB_CONFIG file
+	//
+	bool autoDelete = (properties->getPropertyAsIntWithDefault(
+			       propertyPrefix + ".OldLogsAutoDelete", 1) != 0); 
+
+	if(autoDelete)
+	{
+	    set_flags(DB_LOG_AUTOREMOVE, 1);
+	}
+
+	//
 	// Threading
 	// 
 	flags |= DB_THREAD;
@@ -360,21 +308,20 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     Int checkpointPeriod = properties->getPropertyAsIntWithDefault(
 	propertyPrefix + ".CheckpointPeriod", 120);
     Int kbyte = properties->getPropertyAsIntWithDefault(propertyPrefix + ".PeriodicCheckpointMinSize", 0);
-
-    bool autoDelete = (properties->getPropertyAsIntWithDefault(
-			   propertyPrefix + ".OldLogsAutoDelete", 1) != 0); 
     
-    _thread = new CheckpointThread(*this, Time::seconds(checkpointPeriod), kbyte, autoDelete, _trace);
+    if(checkpointPeriod > 0)
+    {
+	_thread = new CheckpointThread(*this, Time::seconds(checkpointPeriod), kbyte, _trace);
+    }
 }
 
 
 
-Freeze::CheckpointThread::CheckpointThread(SharedDbEnv& dbEnv, const Time& checkpointPeriod, Int kbyte, bool autoDelete, Int trace) : 
+Freeze::CheckpointThread::CheckpointThread(SharedDbEnv& dbEnv, const Time& checkpointPeriod, Int kbyte, Int trace) : 
     _dbEnv(dbEnv), 
     _done(false), 
     _checkpointPeriod(checkpointPeriod), 
     _kbyte(kbyte),
-    _autoDelete(autoDelete),
     _trace(trace)
 {
     start();
@@ -425,19 +372,6 @@ Freeze::CheckpointThread::run()
 	{
 	    Warning out(_dbEnv.getCommunicator()->getLogger());
 	    out << "checkpoint on DbEnv \"" << _dbEnv.getEnvName() << "\" raised DbException: " << dx.what();
-	}
-	
-	if(_autoDelete)
-	{
-	    try
-	    {
-		_dbEnv.deleteOldLogs();
-	    }
-	    catch(const IceUtil::Exception& ex)
-	    {
-		Warning out(_dbEnv.getCommunicator()->getLogger());
-		out << "deleteOldLogs on DbEnv \"" << _dbEnv.getEnvName() << "\" raised: " << ex;
-	    }
 	}
     }
 }

@@ -3684,8 +3684,8 @@ Freeze.DbEnv.<replaceable>env-name</replaceable>.DbCheckpointPeriod=<replaceable
 <section>
 <title>Description</title>
 <para>
-Every Berkeley DB environment created by Freeze has an associated
-thread that checkpoints this environment every <replaceable>num</replaceable> seconds.
+Every Berkeley DB environment created by Freeze has an associated thread that checkpoints this environment every
+<replaceable>num</replaceable> seconds. If <replaceable>num</replaceable> is less than 0, no checkpoint is performed.
 Defaults to 120 seconds.
 </para>
 </section>

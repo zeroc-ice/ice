@@ -35,8 +35,6 @@ public:
 
     void __incRef();
     void __decRef();
-
-    void deleteOldLogs();
    
     const std::string& getEnvName() const;
     const Ice::CommunicatorPtr& getCommunicator() const;
