@@ -1,6 +1,10 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Fixed a bug in IceSSL that caused the error message "WRN unable
+  to load certificate authorities" to be logged when no value
+  was specified for the "path" attribute of <certauthority>.
+
 - Added property Ice.Override.ConnectTimeout. See the manual for
   details.
 
