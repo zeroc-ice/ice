@@ -364,6 +364,7 @@ Slice::Container::createException(const string& name, bool local, const Exceptio
 	{
 	    if (_unit->ignRedefs())
 	    {
+		p->updateIncludeLevel();
 		return p;
 	    }
 
@@ -397,6 +398,7 @@ Slice::Container::createStruct(const string& name)
 	{
 	    if (_unit->ignRedefs())
 	    {
+		p->updateIncludeLevel();
 		return p;
 	    }
 
