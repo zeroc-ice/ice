@@ -18,31 +18,31 @@ import RPMTools
 
 def getIceVersion(file):
     """Extract the ICE version string from a file."""
-    config = open(file, "r")
-    return  re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
+    config = open(file, 'r')
+    return  re.search('ICE_STRING_VERSION \"([0-9\.]*)\"', config.read()).group(1)
 
 def getIceSoVersion(file):
     """Extract the ICE version ordinal from a file."""
-    config = open(file, "r")
-    intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
+    config = open(file, 'r')
+    intVersion = int(re.search('ICE_INT_VERSION ([0-9]*)', config.read()).group(1))
     majorVersion = intVersion / 10000
     minorVersion = intVersion / 100 - 100 * majorVersion
     return '%d' % (majorVersion * 10 + minorVersion)
 
 def getPlatform():
     """Determine the platform we are building and targetting for"""
-    if sys.platform.startswith("win") or sys.platform.startswith("cygwin"):
-        return "win32"
-    elif sys.platform.startswith("linux"):
-        return "linux"
-    elif sys.platform.startswith("sunos"):
-        return "solaris"
-    elif sys.platform.startswith("hp"):
-        return "hpux"
-    elif sys.platform.startswith("darwin"):
-        return "macosx"
-    elif sys.platform.startswith("aix"):
-        return "aix"
+    if sys.platform.startswith('win') or sys.platform.startswith('cygwin'):
+        return 'win32'
+    elif sys.platform.startswith('linux'):
+        return 'linux'
+    elif sys.platform.startswith('sunos'):
+        return 'solaris'
+    elif sys.platform.startswith('hp'):
+        return 'hpux'
+    elif sys.platform.startswith('darwin'):
+        return 'macosx'
+    elif sys.platform.startswith('aix'):
+        return 'aix'
     else:
         return None
     
@@ -54,13 +54,13 @@ def initDirectory(d):
         # Make sure its a directory and has correct permissions.
         #
         if not os.path.isdir(d):
-            print "Path " + d + " exists but is not a directory."
+            print 'Path ' + d + ' exists but is not a directory.'
             sys.exit(1)
             
         if os.access(d, os.X_OK | os.R_OK | os.W_OK):
-            logging.info("Path " + d + " exists and is ok, continuing")
+            logging.info('Path ' + d + ' exists and is ok, continuing')
         else:
-            logging.warning("Directory " + d + " exists, but has incorrect permissions")
+            logging.warning('Directory ' + d + ' exists, but has incorrect permissions')
             sys.exit(1)
     else:
         #
@@ -72,13 +72,13 @@ def getVersion(cvsTag, buildDir):
     """Extracts a source file from the repository and gets the version number from it"""
     cwd = os.getcwd()
     os.chdir(buildDir)
-    if getPlatform() == "aix":
-        os.environ["LIBPATH"] = ""
-    os.system("cvs -d cvs.zeroc.com:/home/cvsroot export -r " + cvsTag + " ice/include/IceUtil/Config.h")
+    if getPlatform() == 'aix':
+        os.environ['LIBPATH'] = ''
+    os.system('cvs -d cvs.zeroc.com:/home/cvsroot export -r ' + cvsTag + ' ice/include/IceUtil/Config.h')
 
-    result = [ getIceVersion("ice/include/IceUtil/Config.h"), getIceSoVersion("ice/include/IceUtil/Config.h")]
-    os.remove("ice/include/IceUtil/Config.h")
-    os.removedirs("ice/include/IceUtil")
+    result = [ getIceVersion('ice/include/IceUtil/Config.h'), getIceSoVersion('ice/include/IceUtil/Config.h')]
+    os.remove('ice/include/IceUtil/Config.h')
+    os.removedirs('ice/include/IceUtil')
     os.chdir(cwd)
     return result
 
@@ -107,7 +107,7 @@ def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
     os.chdir(cwd + "/../" + cvsdir)
     if len(tag) > 0:
 	print 'Making disribution ' + cvsdir + ' with tag ' + tag
-    if cvsdir == "icepy" or cvsdir == "ice":
+    if cvsdir in ['icepy', 'ice', 'icephp']:
         os.system("./makedist.py " + tag)
     else:
         os.system("./makedist.py -d " + tag)
@@ -164,7 +164,8 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
 	filename = 'Make.rules'
 	if demoDir == 'cs':
 	    filename = filename + '.cs'
-	for line in fileinput.input(filename, True, ".bak"):
+	makefile =  fileinput.input(filename, True)
+	for line in makefile:
 	    if state == 'done':
 		if line.startswith('slicedir'):
 		    state = 'untilblank'
@@ -218,16 +219,15 @@ endif
         # script doesn't seem to work properly for the slice files.
         os.chdir("..")
         os.system("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
-	fileinput.nextfile()
-	fileinput.close()
+	makefile.close()
         os.chdir(tcwd)
     elif demoDir == "j":
         tcwd = os.getcwd()
         os.chdir(buildDir + "/Ice-" + version + "-demos/config")
-	for line in fileinput.input('common.xml', True, ".bak"):
+	xmlfile = fileinput.input('common.xml', True)
+	for line in xmlfile: 
 	    print line.rstrip('\n').replace('ICE_VERSION', version)
-	fileinput.nextfile()
-	fileinput.close()
+	xmlfile.close()
 	os.system
         os.chdir(tcwd)
         
@@ -247,6 +247,11 @@ def archiveDemoTree(buildDir, version, installFiles):
     os.remove('Ice-' + version + '-demos/config/makeprops.py')
     os.remove('Ice-' + version + '-demos/config/makedepend.py')
     os.remove('Ice-' + version + '-demos/config/PropertyNames.def')
+
+    #
+    # XXX- There is a problem here where the backup files aren't closed.  The files are being held open for some
+    # reason.
+    #
     os.system('Ice-' + version + '-demos/config/*.bak')
 
     # 
@@ -279,7 +284,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean):
         shutil.rmtree(distro, True)
         
     if not os.path.exists(distro):
-        os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf -")
+        os.system('gzip -dc ' + sources + '/' + distro + '.tar.gz | tar xf -')
         
     os.chdir(distro)
 
@@ -287,53 +292,69 @@ def makeInstall(sources, buildDir, installDir, distro, clean):
     # Java does not have a 'make install' process, but comes complete with the Jar 
     # already built.
     # 
-    if distro.startswith("IceJ"):
-        shutil.copy(buildDir + "/" + distro + "/lib/Ice.jar", installDir + "/lib")
+    if distro.startswith('IceJ'):
+        shutil.copy(buildDir + '/' + distro + '/lib/Ice.jar', installDir + '/lib')
 	#
 	# We really just want to copy the files, not move them.
 	# Shelling out to a copy is easier (and more likely to always
 	# work) than shutil.copytree().
 	#
-	os.system("cp -pR " + buildDir + "/" + distro + "/ant " + installDir)
+	os.system('cp -pR ' + buildDir + '/' + distro + '/ant ' + installDir)
 	os.system('find ' + installDir + '/ant  -name "*.java" | xargs rm')
         os.chdir(cwd)
         return
 
-    if distro.startswith("IceCS"):
-	os.system("perl -pi -e 's/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/' config/Make.rules.cs")
-    else:
-	os.system("perl -pi -e 's/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/' config/Make.rules")
+    if distro.startswith('IcePHP'):
+        os.chdir(cwd)
+	return
 
-    if distro.startswith("IcePy"):
+    if distro.startswith('IceCS'):
+	os.system('perl -pi -e \'s/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/\' config/Make.rules.cs')
+    else:
+	os.system('perl -pi -e \'s/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/\' config/Make.rules')
+
+    if distro.startswith('IcePy'):
         try:
-            pyHome = os.environ["PYTHON_HOME"]
+            pyHome = os.environ['PYTHON_HOME']
         except KeyError:
             pyHome = None
             
-        if pyHome == None or pyHome == "":
-            logging.info("PYTHON_HOME is not set, figuring it out and trying that")
+        if pyHome == None or pyHome == '':
+            logging.info('PYTHON_HOME is not set, figuring it out and trying that')
             pyHome = sys.exec_prefix
             
         os.system("perl -pi -e 's/^PYTHON.HOME.*$/PYTHON\_HOME \?= "+ pyHome.replace("/", "\/") + \
 		"/' config/Make.rules")
 
-    if getPlatform() <> "linux":
-	if distro.startswith("IcePy"):
+    if getPlatform() <> 'linux':
+	if distro.startswith('IcePy'):
 	    os.system("perl -pi -e 's/^PYTHON.INCLUDE.DIR.*$/PYTHON_INCLUDE_DIR = \$\(PYTHON_HOME\)\/include\/\$\(PYTHON_VERSION\)/' config/Make.rules")
 	    os.system("perl -pi -e 's/^PYTHON.LIB.DIR.*$/PYTHON_LIB_DIR = \$\(PYTHON_HOME\)\/lib\/\$\(PYTHON_VERSION\)\/config/' config/Make.rules")
 
-    os.system("gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=" + installDir + " install")
+    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    print 'XXX'
+    print 'XXX Optimization is disabled to speed up builds during development '
+    print 'XXX'
+    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+    print 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX'
+
+    os.system('gmake NOGAC=yes OPTIMIZE=no INSTALL_ROOT=' + installDir + ' install')
     os.chdir(cwd)
     
 def shlibExtensions(versionString, versionInt):
     """Returns a tuple containing the extensions for the shared library, and the 2 symbolic links (respectively)"""
     platform = getPlatform()
-    if platform == "hpux":
-        return [".sl." + versionString, ".sl." + versionInt, ".sl"]
-    elif platform == "macosx":
-        return ["." + versionString + ".dylib", "." + versionInt + ".dylib", ".dylib"]
+    if platform == 'hpux':
+        return ['.sl.' + versionString, '.sl.' + versionInt, '.sl']
+    elif platform == 'macosx':
+        return ['.' + versionString + '.dylib', '.' + versionInt + '.dylib', '.dylib']
     else:
-        return [".so." + versionString, ".so." + versionInt, ".so"]
+        return ['.so.' + versionString, '.so.' + versionInt, '.so']
 
 def getPlatformLibExtension():
     platform = getPlatform()
@@ -400,7 +421,7 @@ def copyExpatFiles(expatLocation, version):
     fileList.extend(lines)
 
     for i in lines:
-	if i != "libexpat." + getPlatformLibExtension():
+	if i != 'libexpat.' + getPlatformLibExtension():
 	    linkList.append(i)
 
     os.chdir(cwd)
@@ -408,60 +429,367 @@ def copyExpatFiles(expatLocation, version):
     shutil.copy(expatLocation + '/' + fileList[0].strip(), 'Ice-' + version + '/' + fileList[0].strip())
     os.symlink(os.path.basename(fileList[0].strip()), 'Ice-' + version + '/' + linkList[0].strip())
 
+def makePHPbinary(sources, buildDir, installDir, version, clean):
+    """ Create the IcePHP binaries and install to Ice installation directory """
+
+    #
+    # We currently run configure each time even if clean=false.  This is because a large part of the IcePHP build
+    # process is actually the configure step.  This could probably be bypassed afterwards.
+    #
+    phpMatches = glob.glob(sources + '/php*.tar.[gb]z?')
+    if len(phpMatches) == 0:
+	print 'Unable to find PHP source tarball'
+    	sys.exit(1)
+
+    phpFile = ''
+    phpVersion = ''
+    #
+    # There is more than one php archive in the sources directory.  Try and determine which one is the newest version.
+    # If you want a specific version its best to remove the other distributions. 
+    #
+    if len(phpMatches) > 1:
+	#
+	# We need to decide which file to use.
+	#
+	newest = 0
+	for f in phpMatches:
+	    m = re.search('([0-9]+)\.([0-9]+)\.([0-9]?).*', f)
+
+	    for gr in m.groups():
+		verString = verString + gr
+		if len(phpVersion) == 0:
+		    phpVersion = gr
+		else:
+		    phpVersion = phpVersion + '.'  + gr
+
+	    #
+	    # We want to make sure that version string have the same number of significant digits no matter how many
+	    # version number components there are.
+	    # 
+	    while len(verString) < 5:
+		verString = verString + '0'
+
+	    intVersion = int(verString)
+	    if intVersion > newest:
+		phpFile = f
+		newest = intVersion
+    else:
+	phpFile = phpMatches[0]
+	m = re.search('([0-9]+)\.([0-9]+)\.([0-9]?).*', phpFile)
+
+	for gr in m.groups():
+	    if len(phpVersion) == 0:
+		phpVersion = gr
+	    else:
+		phpVersion = phpVersion + '.'  + gr
+
+    logging.info('Using PHP archive :' + phpFile)
+    root, ext = os.path.splitext(phpFile)
+    untarCmd = ''
+    if ext.endswith('bz2'):
+	untarCmd = 'bunzip2 -dc '
+    else:
+	untarCmd = 'gzip -dc '
+
+    origWD = os.getcwd()
+    os.chdir(buildDir)
+    untarCmd = untarCmd + phpFile + ' | tar xf -  ' 
+    os.system(untarCmd)
+    os.chdir(origWD)
+
+    # 
+    # return the likely root directory name for the php distro.
+    #
+    phpDir = buildDir + '/php-' + phpVersion
+    os.system('ln -sf ' + buildDir + '/IcePHP-' + version + '/src/ice ' + phpDir + '/ext')
+    cwd = os.getcwd()
+    os.chdir(phpDir)
+    platform = getPlatform()
+
+    if platform == 'solaris':
+	os.environ['CC'] = 'cc'
+	os.environ['CXX'] = 'CC'
+
+    if platform =='hpux':
+	os.system('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure-hpux.gz > configure')
+    else:
+	os.system('gzip -dc ' + buildDir + '/IcePHP-' + version + '/configure.gz > configure')
+
+    if platform == 'aix':
+	#
+	# Shared library isn't supported on AIX.  XXX Does this platform have libxml installed?
+	#
+	os.system('./configure --disable-libxml --with-ice=' + installDir + '/Ice-' + version)
+    elif platform == 'hpux':
+	#
+	# Our HP-UX platform doesn't seem to have a libxml installed.
+	#
+	os.system('./configure --disable-libxml --with-ice=shared,' + installDir + '/Ice-' + version)
+    else:
+	#
+	# Everything else should be dynamic and pretty much basic.
+	#
+	os.system('./configure --with-ice=shared,' + installDir + '/Ice-' + version)
+
+    # 
+    # Need to make some changes to the PHP distribution.
+    #
+    
+    #
+    # libtool changes
+    #
+    # This is almost universally an LD => CXX conversion. 
+    #
+    if platform <> 'linux':
+	if platform in ['solaris', 'macosx']:
+	    libtool = fileinput.input('libtool', True)
+	    for line in libtool :
+		if line.startswith('archive_cmds='):
+		    if platform == 'macosx':
+			print line.replace('\$CC', '\$CXX').rstrip('\n')
+		    else:
+			print line.replace('\$LD', '\$CXX').rstrip('\n')
+		else:
+		    print line.rstrip('\n')
+
+	    libtool.close()
+
+
+    #
+    # Makefile changes
+    #
+    if platform <> 'linux':
+	#
+	# Each platform has its own special tweaks.
+	#
+	if platform == 'solaris':
+	    xtraCXXFlags = True
+	    xtraCFlags = True
+	    replacingCC = False
+	    makefile = fileinput.input('Makefile', True)
+	    for line in makefile:
+		if not replacingCC:
+		    if line.startswith('CFLAGS ='):
+			print line.rstrip('\n') + ' -D__sparc__'
+		    elif line.startswith('EXTRA_CXXFLAGS ='):
+			xtraCXXFlags = False
+			print line.rstrip('\n') + ' -DCOMPILE_DL_ICE'
+		    elif line.startswith('EXTRA_CFLAGS ='):
+			xtraCFlags = False
+			print line.rstrip('\n') + ' -DIEEE_BIG_ENDIAN'
+		    elif line.startswith('libphp5.la:'):
+			replacingCC = True
+			print line.strip('\n')
+		    elif line.startswith('libs/libphp5.bundle:'):
+			replacingCC = True
+			print line.strip('\n')
+		    else:
+			print line.rstrip('\n')
+		else:
+		    if len(line.rstrip('\n').strip()) == 0:
+			replacingCC = False
+			print 
+		    else:
+			print line.strip('\n'). replace('$(CC)', '$(CXX)')
+
+	    makefile.close()
+
+	    if xtraCXXFlags or xtraCFlags:
+		start = True
+		makefile = fileinput.input('Makefile', True)
+		for line in makefile:
+		    if start:
+			if xtraCXXFlags:
+			    print 'EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE'
+			if xtraCFlags:
+			    print 'EXTRA_CFLAGS = -DIEEE_BIG_ENDIAN -D__sparc__'
+			start = False
+		    print line.rstrip('\n')
+		makefile.close()
+
+
+	elif platform == 'hpux':
+	    xtraCXXFlags = True
+	    xtraLDFlags = True
+	    replacingCC = False
+	    makefile = fileinput.input('Makefile', True)
+	    for line in makefile:
+		if not replacingCC:
+		    if line.startswith('EXTRA_LDFLAGS_PROGRAM ='):
+			xtraLDFlags = False
+			print line.rstrip('\n') + ' $(EXTRA_CXXFLAGS) -Wl,+s'
+		    elif line.startswith('EXTRA_CXXFLAGS ='):
+			xtraCXXFlags = False
+			print line.rstrip('\n') + ' -AA +Z -mt +DA2.0N'
+		    elif line.find('BUILD_CLI') != -1:
+			print line.replace('$(CC)', '$(CXX)').rstrip('\n')
+		    elif line.find('BUILD_CGI') != -1:
+			print line.replace('$(CC)', '$(CXX)').rstrip('\n')
+		    elif line.startswith('libphp5.la:'):
+			replacingCC = True
+			print line.strip('\n')
+		    elif line.startswith('libs/libphp5.bundle:'):
+			replacingCC = True
+			print line.strip('\n')
+		    else:
+			print line.rstrip('\n')
+		else:
+		    if len(line.rstrip('\n').strip()) == 0:
+			replacingCC = False
+			print 
+		    else:
+			print line.strip('\n'). replace('$(CC)', '$(CXX)')
+
+	    makefile.close()
+
+	    if xtraCXXFlags or xtraLDFlags:
+		start = True
+		makefile = fileinput.input('Makefile', True)
+		for line in makefile:
+		    if start:
+			if xtraCXXFlags:
+			    print 'EXTRA_CXXFLAGS = -AA +Z -mt +DA2.0N'
+			if xtraLDFlags:
+			    print 'EXTRA_LDFLAGS_PROGRAM = $(EXTRA_CXXFLAGS) -Wl,+s'
+			start = False
+		    print line.rstrip('\n')
+		makefile.close()
+
+
+	elif platform == 'aix':
+	    xtraCXXFlags = True
+	    xtraCFlags = True
+	    replacingCC = False
+	    makefile = fileinput.input('Makefile', True)
+	    for line in makefile:
+		if not replacingCC:
+		    if line.startswith('EXTRA_CXXFLAGS ='):
+			xtraCXXFlags = False
+			print line.rstrip('\n') + ' -brtl -qrtti=all -qstaticinline -D_LARGE_FILES'
+		    if line.startswith('EXTRA_CFLAGS ='):
+			xtraCFlags = False
+			print line.rstrip('\n') + ' -DIEEE_BIG_ENDIAN'
+		    elif line.find('BUILD_CLI') != -1:
+			print line.replace('$(CC)', '$(CXX)').rstrip('\n')
+		    elif line.find('BUILD_CGI') != -1:
+			print line.replace('$(CC)', '$(CXX)').rstrip('\n')
+		    elif line.startswith('libphp5.la:'):
+			replacingCC = True
+			print line.strip('\n')
+		    elif line.startswith('libs/libphp5.bundle:'):
+			replacingCC = True
+			print line.strip('\n')
+		    else:
+			print line.rstrip('\n')
+		else:
+		    if len(line.rstrip('\n').strip()) == 0:
+			replacingCC = False
+			print 
+		    else:
+			print line.strip('\n'). replace('$(CC)', '$(CXX)')
+
+	    makefile.close()
+
+	    if xtraCXXFlags or xtraCFlags:
+
+		start = True
+		makefile = fileinput.input('Makefile', True)
+		for line in makefile:
+		    if start:
+			if xtraCXXFlags:
+			    print 'EXTRA_CXXFLAGS =  -brtl -qrtti=all -qstaticinline -D_LARGE_FILES'
+			if xtraCFlags:
+			    print 'EXTRA_CFLAGS = -DIEEE_BIG_ENDIAN'
+			start = False
+		    print line.rstrip('\n')
+		makefile.close()
+
+
+	elif platform == 'macosx':
+	    replacingCC = False
+	    makefile = fileinput.input('Makefile', True)
+	    for line in makefile: 
+		if not replacingCC:
+		    if line.find('BUILD_CLI') != -1:
+			print line.replace('$(CC)', '$(CXX)').rstrip('\n')
+		    elif line.find('BUILD_CGI') != -1:
+			print line.replace('$(CC)', '$(CXX)').rstrip('\n')
+		    elif line.startswith('libphp5.la:'):
+			replacingCC = True
+			print line.strip('\n')
+		    elif line.startswith('libs/libphp5.bundle:'):
+			replacingCC = True
+			print line.strip('\n')
+		    else:
+			print line.rstrip('\n')
+		else:
+		    if len(line.rstrip('\n').strip()) == 0:
+			replacingCC = False
+			print 
+		    else:
+			print line.strip('\n'). replace('$(CC)', '$(CXX)')
+
+	    makefile.close()
+
+    shutil.copy(phpDir + '/modules/ice.so', installDir + '/Ice-' + version + '/lib/icephp.so')
+
+    os.system('gmake')
+    os.chdir(cwd)
+
 def usage():
     """Print usage/help information"""
-    print "Usage: " + sys.argv[0] + " [options] [tag]"
+    print 'Usage: ' + sys.argv[0] + ' [options] [tag]'
     print
-    print "Options:"
-    print "-h                     Show this message."
-    print "--build-dir=[path]     Specify the directory where the distributions"
-    print "                       will be unpacked and built."
-    print "--install-dir=[path]   Specify the directory where the distribution"
-    print "                       contents will be installed to."
-    print "--install-root=[path]  Specify the root directory that will appear"
-    print "                       in the tarball."
-    print "--sources=[path]       Specify the location of the sources directory."
-    print "                       If this is omitted makebindist will traverse"
-    print "                       ../icej ../icepy ../icecs, etc and make the"
-    print "                       distributions for you."
-    print "-v, --verbose          Print verbose processing messages."
-    print "-t, --tag              Specify the CVS version tag for the packages."
-    print "--noclean              Do not clean up current sources where"
-    print "                       applicable (some bits will still be cleaned."
-    print "--nobuild              Run through the process but don't build"
-    print "                       anything new."
-    print "--specfile             Just print the RPM spec file and exit."
-    print "--usecvs		  Use contents of existing CVS directories"
-    print "                       to create binary package (This option cannot"
-    print "                       be used to create RPMS)"
+    print 'Options:'
+    print '-h                     Show this message.'
+    print '--build-dir=[path]     Specify the directory where the distributions'
+    print '                       will be unpacked and built.'
+    print '--install-dir=[path]   Specify the directory where the distribution'
+    print '                       contents will be installed to.'
+    print '--install-root=[path]  Specify the root directory that will appear'
+    print '                       in the tarball.'
+    print '--sources=[path]       Specify the location of the sources directory.'
+    print '                       If this is omitted makebindist will traverse'
+    print '                       ../icej ../icepy ../icecs, etc and make the'
+    print '                       distributions for you.'
+    print '-v, --verbose          Print verbose processing messages.'
+    print '-t, --tag              Specify the CVS version tag for the packages.'
+    print '--noclean              Do not clean up current sources where'
+    print '                       applicable (some bits will still be cleaned.'
+    print '--nobuild              Run through the process but don\'t build'
+    print '                       anything new.'
+    print '--specfile             Just print the RPM spec file and exit.'
+    print '--usecvs		  Use contents of existing CVS directories'
+    print '                       to create binary package (This option cannot'
+    print '                       be used to create RPMS)'
     print 
-    print "The following options set the locations for third party libraries"
-    print "that may be required on your platform.  Alternatively, you can"
-    print "set these locations using environment variables of the form.  If"
-    print "you do not set locations through the enviroment or through the "
-    print "command line, default locations will be used (system defaults +"
-    print "the default locations indicated)."
+    print 'The following options set the locations for third party libraries'
+    print 'that may be required on your platform.  Alternatively, you can'
+    print 'set these locations using environment variables of the form.  If'
+    print 'you do not set locations through the enviroment or through the '
+    print 'command line, default locations will be used (system defaults +'
+    print 'the default locations indicated).'
     print 
-    print "LIBRARY_HOME=[path to library]"
+    print 'LIBRARY_HOME=[path to library]'
     print
-    print "e.g. for bzip2"
+    print 'e.g. for bzip2'
     print 
-    print "export BZIP2_HOME=/opt/bzip2-1.0.3"
+    print 'export BZIP2_HOME=/opt/bzip2-1.0.3'
     print 
-    print "--stlporthome=[path]   Specify location of the STLPort libraries, "
-    print "                       if required."
-    print "--bzip2home=[path]     Specify location of the bzip2 libraries "
-    print "                       (default=/opt/bzip2)."
-    print "--dbhome=[path]        Specify location of Berkeley DB"
-    print "                       (default=/opt/db)."
-    print "--sslhome=[path]       Specify location of OpenSSL"
-    print "                       (default=/opt/openssl)."
-    print "--expathome=[path]	  Specify location of expat libraries "
-    print "                       (default=/opt/expat)."
-    print "--readlinehome=[path]  Specify readline library and location "
-    print "                       (defaults to /opt/readline if set)."
+    print '--stlporthome=[path]   Specify location of the STLPort libraries, '
+    print '                       if required.'
+    print '--bzip2home=[path]     Specify location of the bzip2 libraries '
+    print '                       (default=/opt/bzip2).'
+    print '--dbhome=[path]        Specify location of Berkeley DB'
+    print '                       (default=/opt/db).'
+    print '--sslhome=[path]       Specify location of OpenSSL'
+    print '                       (default=/opt/openssl).'
+    print '--expathome=[path]	  Specify location of expat libraries '
+    print '                       (default=/opt/expat).'
+    print '--readlinehome=[path]  Specify readline library and location '
+    print '                       (defaults to /opt/readline if set).'
     print
-    print "If no tag is specified, HEAD is used."
+    print 'If no tag is specified, HEAD is used.'
 
 def main():
 
@@ -626,6 +954,7 @@ def main():
         # Ice must be first or building the other source distributions will fail.
         #
         sourceTarBalls = [ ("ice", "Ice-" + version, ""),
+			   ("icephp","IcePHP-" + version, "php"),
                            ("icej","IceJ-" + version, "j") ]
 
 	if getPlatform() <> "aix":
@@ -666,7 +995,7 @@ def main():
 	# TODO: Sanity check to make sure that the script is being run
 	# from a location that it expects.
 	#
-	cvsDirs = [ 'ice', 'icej', 'icepy' ]
+	cvsDirs = [ 'ice', 'icej', 'icepy', 'icephp' ]
 	if getPlatform() == 'linux':
 	    cvsDirs.append('icecs')
 
@@ -726,6 +1055,8 @@ def main():
 	cf = installFiles + '/unix/' + psf + '.' + uname
 	if os.path.exists(cf):
 	    shutil.copy(cf, 'Ice-' + version + '/' + psf) 
+
+    makePHPbinary(sources, buildDir, installDir, version, clean)
 
     os.system('tar cf Ice-' + version + '-bin-' + getPlatform() + '.tar Ice-' + version)
     os.system('gzip -9 Ice-' + version + '-bin-' + getPlatform() + '.tar')
