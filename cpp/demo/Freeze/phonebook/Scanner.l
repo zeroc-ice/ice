@@ -3,7 +3,7 @@
 // **********************************************************************
 //
 // Copyright (c) 2001
-// Mutable Realms, Inc.
+// ZeroC, Inc.
 // Huntsville, AL, USA
 //
 // All Rights Reserved

@@ -1,3 +1,12 @@
+<!--
+
+Copyright (c) 2002
+ZeroC, Inc.
+Huntsville, AL, USA
+
+All Rights Reserved
+
+-->
 <project name="test_Ice_exceptions" default="all" basedir=".">
 
     <!-- set global properties for this build -->

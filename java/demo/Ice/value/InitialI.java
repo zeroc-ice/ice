@@ -1,7 +1,7 @@
 // **********************************************************************
 //
 // Copyright (c) 2001
-// Mutable Realms, Inc.
+// ZeroC, Inc.
 // Huntsville, AL, USA
 //
 // All Rights Reserved
@@ -19,13 +19,11 @@ class InitialI extends Initial
 
         _printer = new PrinterI();
         _printer.message = "Ice rulez!";
-        _printerProxy =
-            PrinterPrxHelper.uncheckedCast(adapter.addWithUUID(_printer));
+        _printerProxy = PrinterPrxHelper.uncheckedCast(adapter.addWithUUID(_printer));
 
         _derivedPrinter = new DerivedPrinterI();
         _derivedPrinter.message = _printer.message;
-        _derivedPrinter.derivedMessage = "Coming soon: the ultimate online " +
-            "game from MutableRealms!";
+        _derivedPrinter.derivedMessage = "a derived message 4 u";
         adapter.addWithUUID(_derivedPrinter);
     }
 

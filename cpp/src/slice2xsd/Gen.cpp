@@ -1,7 +1,7 @@
 // **********************************************************************
 //
 // Copyright (c) 2001
-// Mutable Realms, Inc.
+// ZeroC, Inc.
 // Huntsville, AL, USA
 //
 // All Rights Reserved
@@ -79,13 +79,13 @@ Slice::Gen::generate(const UnitPtr& unit)
     os << "xs:schema"
        << " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
        << "\n           elementFormDefault=\"qualified\""
-       << "\n           xmlns:ice=\"http://www.mutablerealms.com/schemas\""
+       << "\n           xmlns:ice=\"http://www.zeroc.com/schemas\""
        << "\n           xmlns:tns=\"" << _orgName << "/schemas\""
        << "\n           targetNamespace=\"" << _orgName << "/schemas\"";
 
     O << se(os.str());
     // TODO: schemaLocation?
-    O << nl << "<xs:import namespace=\"http://www.mutablerealms.com/schemas\" schemaLocation=\"ice.xsd\"/>";
+    O << nl << "<xs:import namespace=\"http://www.zeroc.com/schemas\" schemaLocation=\"ice.xsd\"/>";
 
     StringList includes = unit->includeFiles();
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
@@ -459,7 +459,7 @@ Slice::Gen::printHeader()
 "<!--\n"
 "**********************************************************************\n"
 "Copyright (c) 2001\n"
-"Mutable Realms, Inc.\n"
+"ZeroC, Inc.\n"
 "Huntsville, AL, USA\n"
 "\n"
 "All Rights Reserved\n"

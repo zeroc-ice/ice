@@ -17,7 +17,7 @@
 <!--
 **********************************************************************
 Copyright (c) 2001
-Mutable Realms, Inc.
+ZeroC, Inc.
 Huntsville, AL, USA
 
 All Rights Reserved
@@ -35,7 +35,7 @@ All Rights Reserved
 </author>
 </authorgroup>
 <publisher>
-<publishername>Mutable Realms, Inc.</publishername>
+<publishername>ZeroC, Inc.</publishername>
 <address>
 <city>Huntsville</city>
 <state>Alabama</state>
@@ -49,7 +49,7 @@ All Rights Reserved
 </legalnotice>
 <copyright>
 <year>2001</year>
-<holder>Mutable Realms, Inc. All rights reserved.</holder>
+<holder>ZeroC, Inc. All rights reserved.</holder>
 </copyright>
 </bookinfo>
 <part>

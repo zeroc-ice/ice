@@ -1,7 +1,7 @@
 // **********************************************************************
 //
 // Copyright (c) 2002
-// Mutable Realms, Inc.
+// ZeroC, Inc.
 // Huntsville, AL, USA
 //
 // All Rights Reserved
@@ -2510,7 +2510,7 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
         // Header and footer for instance documents.
         //
         const string header = "<ice:data xmlns=\"http://www.noorg.org/schemas\""
-                              " xmlns:ice=\"http://www.mutablerealms.com/schemas\""
+                              " xmlns:ice=\"http://www.zeroc.com/schemas\""
                               " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
                               " xsi:schemaLocation=\"http://www.noorg.org/schemas Dummy.xsd\">";
         const string footer = "</ice:data>";

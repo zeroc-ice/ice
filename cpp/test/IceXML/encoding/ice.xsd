@@ -2,7 +2,7 @@
 <!--
 **********************************************************************
 Copyright (c) 2001
-MutableRealms, Inc.
+ZeroC, Inc.
 Huntsville, AL, USA
 
 All Rights Reserved
@@ -10,8 +10,8 @@ All Rights Reserved
 -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
            elementFormDefault="qualified"
-	   xmlns:tns="http://www.mutablerealms.com/schemas"
-	   targetNamespace="http://www.mutablerealms.com/schemas">
+	   xmlns:tns="http://www.zeroc.com/schemas"
+	   targetNamespace="http://www.zeroc.com/schemas">
 
   <xs:simpleType name="_internal.proxyType">
     <xs:annotation>

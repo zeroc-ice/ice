@@ -1,7 +1,7 @@
 // **********************************************************************
 //
 // Copyright (c) 2002
-// Mutable Realms, Inc.
+// ZeroC, Inc.
 // Huntsville, AL, USA
 //
 // All Rights Reserved
@@ -388,7 +388,7 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
         out << sp << nl << "private static final String _header = ";
         out.useCurrentPosAsIndent();
         out << "\"<ice:data xmlns=\\\"http://www.noorg.org/schemas\\\"\" +"
-            << nl << "\" xmlns:ice=\\\"http://www.mutablerealms.com/schemas\\\"\" +"
+            << nl << "\" xmlns:ice=\\\"http://www.zeroc.com/schemas\\\"\" +"
             << nl << "\" xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\"\" +"
             << nl << "\" xsi:schemaLocation=\\\"http://www.noorg.org/schemas " << name << ".xsd\\\">\";";
         out.restoreIndent();

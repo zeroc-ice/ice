@@ -1,7 +1,7 @@
 // **********************************************************************
 //
 // Copyright (c) 2002
-// Mutable Realms, Inc.
+// ZeroC, Inc.
 // Huntsville, AL, USA
 //
 // All Rights Reserved
@@ -853,9 +853,9 @@ transformEvictor(const DBEnvironmentPtr& dbEnv)
         "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
         "           elementFormDefault=\"qualified\""
         "           xmlns:tns=\"http://www.noorg.org/schemas\""
-        "           xmlns:ice=\"http://www.mutablerealms.com/schemas\""
+        "           xmlns:ice=\"http://www.zeroc.com/schemas\""
         "           targetNamespace=\"http://www.noorg.org/schemas\">"
-        "    <xs:import namespace=\"http://www.mutablerealms.com/schemas\" schemaLocation=\"ice.xsd\"/>"
+        "    <xs:import namespace=\"http://www.zeroc.com/schemas\" schemaLocation=\"ice.xsd\"/>"
         "    <xs:element name=\"Key\" type=\"_internal.Ice.IdentityType\"/>"
         "    <xs:element name=\"Value\" type=\"ice:_internal.objectType\"/></xs:schema>";
 

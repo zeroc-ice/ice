@@ -1,7 +1,7 @@
 // **********************************************************************
 //
 // Copyright (c) 2001
-// Mutable Realms, Inc.
+// ZeroC, Inc.
 // Huntsville, AL, USA
 //
 // All Rights Reserved
@@ -25,7 +25,7 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
 
     _derivedPrinter = new DerivedPrinterI;
     _derivedPrinter->message = _printer->message;
-    _derivedPrinter->derivedMessage = "Coming soon: the ultimate online game from MutableRealms!";
+    _derivedPrinter->derivedMessage = "a derived message 4 u";
     adapter->addWithUUID(_derivedPrinter);
 }
 

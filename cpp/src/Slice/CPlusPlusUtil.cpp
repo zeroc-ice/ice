@@ -1,7 +1,7 @@
 // **********************************************************************
 //
 // Copyright (c) 2001
-// Mutable Realms, Inc.
+// ZeroC, Inc.
 // Huntsville, AL, USA
 //
 // All Rights Reserved
@@ -64,7 +64,7 @@ Slice::printHeader(Output& out)
 "// **********************************************************************\n"
 "//\n"
 "// Copyright (c) 2001\n"
-"// Mutable Realms, Inc.\n"
+"// ZeroC, Inc.\n"
 "// Huntsville, AL, USA\n"
 "//\n"
 "// All Rights Reserved\n"
