@@ -385,6 +385,13 @@ IceBox::ServiceManagerI::stopAll()
 		info.communicator->shutdown();
 		info.communicator->waitForShutdown();
 	    }
+	    catch(const Ice::CommunicatorDestroyedException&)
+	    {
+		//
+		// Ignore, the service might have already destroyed
+		// the communicator for its own reasons.
+		//
+	    }
 	    catch(const Ice::Exception& ex)
 	    {
 		Warning out(_logger);

@@ -20,7 +20,7 @@ LIBFILENAME     = $(call mklibfilename,HelloService,$(VERSION))
 SONAME          = $(call mksoname,HelloService,$(SOVERSION))  
 LIBNAME         = $(call mklibname,HelloService)  
 
-TARGETS		= $(CLIENT) $(NAME) $(LIBFILENAME) $(SONAME) $(LIBNAME)
+TARGETS		= $(CLIENT) $(LIBFILENAME) $(SONAME) $(LIBNAME)
 
 
 OBJS		= Hello.o

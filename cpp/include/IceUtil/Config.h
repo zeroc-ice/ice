@@ -23,7 +23,7 @@
 //
 #if defined(__i386) || defined(_M_IX86) || defined (__x86_64)
 #   define ICE_LITTLE_ENDIAN
-#elif defined(__sparc)
+#elif defined(__sparc) || defined(__sparc__)
 #   define ICE_BIG_ENDIAN
 #else
 #   error "Unknown architecture"
@@ -32,7 +32,12 @@
 //
 // 32 or 64 bit mode?
 //
-#if (defined(__sun) && defined(__sparcv9)) || (defined(__linux) && defined(__x86_64))
+#if defined(__linux) && defined(__sparc__)
+//
+// We are a linux sparc, which forces 32 bit usr land, no matter the architecture
+//
+#   define  ICE_32
+#elif (defined(__sun) && defined(__sparcv9)) || (defined(__linux) && defined(__x86_64))
 #   define ICE_64
 #else
 #   define ICE_32

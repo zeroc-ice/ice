@@ -16,9 +16,28 @@
 # This file is included by Make.rules when uname is Linux.
 #
 
+USE_SPARC_ASM           = irrelevant
 MACHINE                 = $(shell uname -m)
 
-CXX			= c++
+CXX	                = c++
+
+ifeq ($(MACHINE),sparc64)
+#
+# We are an ultra, at least, and so have the atomic instructions
+#
+USE_SPARC_ASM           = yes
+CXXARCHFLAGS            := -mcpu=ultrasparc -pipe -Wno-deprecated -DUSE_SPARC_ASM
+endif
+
+ifeq ($(MACHINE),sparc)
+#
+# We are a sun4m or sun4c
+# On sun4m, there is a bug in some CPU/kernel/gcc configurations which
+# prevent us from using '-mcpu=v8'
+#
+USE_SPARC_ASM           = no
+CXXARCHFLAGS            := -mtune=v8 -pipe -Wno-deprecated -DICE_USE_MUTEX_SHARED
+endif
 
 ifeq ($(MACHINE),x86_64)
 
@@ -37,6 +56,13 @@ else
      CXXFLAGS		:= -g $(CXXFLAGS)
 endif
 
+ifeq ($(USE_SPARC_ASM),yes)
+CFLAGS                  := -O3 -mcpu=ultrasparc -pipe -DNDEBUG -fPIC -DUSE_SPARC_ASM
+endif
+ifeq ($(USE_SPARC_ASM),no)
+CFLAGS                  := -O3 -mcpu=v8 -pipe -DNDEBUG -fPIC -DICE_USE_MUTEX_SHARED
+endif
+
 mkshlib                 = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4)
 
 BASELIBS		= -lIceUtil $(STLPORT_LIBS) -lpthread 
@@ -45,6 +71,6 @@ LIBS			= -lIce $(BASELIBS)
 ICEUTIL_OS_LIBS         = -lpthread
 ICE_OS_LIBS             = -ldl
 
-PLATFORM_HAS_READLINE  := yes
+PLATFORM_HAS_READLINE   := yes
 
 export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)

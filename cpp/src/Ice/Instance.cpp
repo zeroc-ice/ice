@@ -662,17 +662,11 @@ IceInternal::Instance::destroy()
 {
     assert(!_destroyed);
 
-    if(_objectAdapterFactory)
-    {
-	_objectAdapterFactory->shutdown();
-	_objectAdapterFactory->waitForShutdown();
-    }
-	
-    if(_outgoingConnectionFactory)
-    {
-	_outgoingConnectionFactory->destroy();
-	_outgoingConnectionFactory->waitUntilFinished();
-    }
+    _objectAdapterFactory->shutdown();	
+    _outgoingConnectionFactory->destroy();
+
+    _objectAdapterFactory->waitForShutdown();
+    _outgoingConnectionFactory->waitUntilFinished();
 
     ThreadPoolPtr serverThreadPool;
     ThreadPoolPtr clientThreadPool;
