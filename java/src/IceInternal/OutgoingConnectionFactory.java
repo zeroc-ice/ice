@@ -38,9 +38,16 @@ public class OutgoingConnectionFactory
         //
         // Search for existing connections.
         //
+	DefaultsAndOverwrites defaultsAndOverwrites = _instance.defaultsAndOverwrites();
         for (int i = 0; i < endpoints.length; i++)
         {
-            Connection connection = (Connection)_connections.get(endpoints[i]);
+	    Endpoint endpoint = endpoints[i];
+	    if (defaultsAndOverwrites.overwriteTimeout)
+	    {
+		endpoint = endpoint.timeout(defaultsAndOverwrites.overwriteTimeoutValue);
+	    }
+
+            Connection connection = (Connection)_connections.get(endpoints);
             if (connection != null)
             {
                 return connection;
@@ -57,19 +64,25 @@ public class OutgoingConnectionFactory
         Ice.LocalException exception = null;
         for (int i = 0; i < endpoints.length; i++)
         {
-            try
+  	    Endpoint endpoint = endpoints[i];
+	    if (defaultsAndOverwrites.overwriteTimeout)
+	    {
+		endpoint = endpoint.timeout(defaultsAndOverwrites.overwriteTimeoutValue);
+	    }
+	    
+	    try
             {
-                Transceiver transceiver = endpoints[i].clientTransceiver();
+                Transceiver transceiver = endpoint.clientTransceiver();
                 if (transceiver == null)
                 {
-                    Connector connector = endpoints[i].connector();
+                    Connector connector = endpoint.connector();
                     assert(connector != null);
-                    transceiver = connector.connect(endpoints[i].timeout());
+                    transceiver = connector.connect(endpoint.timeout());
                     assert(transceiver != null);
                 }
-                connection = new Connection(_instance, transceiver, endpoints[i], null);
+                connection = new Connection(_instance, transceiver, endpoint, null);
                 connection.activate();
-                _connections.put(endpoints[i], connection);
+                _connections.put(endpoint, connection);
                 break;
             }
             catch (Ice.SocketException ex)
@@ -136,11 +149,17 @@ public class OutgoingConnectionFactory
             //
             Ice.ObjectPrx proxy = routerInfo.getClientProxy();
             Ice.ObjectAdapter adapter = routerInfo.getAdapter();
+	    DefaultsAndOverwrites defaultsAndOverwrites = _instance.defaultsAndOverwrites();
             Endpoint[] endpoints = ((Ice.ObjectPrxHelper)proxy).__reference().endpoints;
             for (int i = 0; i < endpoints.length; i++)
             {
-                Connection connection =
-                    (Connection)_connections.get(endpoints[i]);
+		Endpoint endpoint = endpoints[i];
+		if (defaultsAndOverwrites.overwriteTimeout)
+		{
+		    endpoint = endpoint.timeout(defaultsAndOverwrites.overwriteTimeoutValue);
+		}
+
+                Connection connection = (Connection)_connections.get(endpoint);
                 if (connection != null)
                 {
                     connection.setAdapter(adapter);

@@ -304,6 +304,38 @@ router.
 </section>
 </section>
 
+<section><title>Ice.Overwrite.Timeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Overwrite.Timeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If set, this property overwrites timeout settings in all
+endpoints. <replaceable>num</replaceable> is the timeout value in
+milliseconds, or -1 for no timeout.
+</para>
+</section>
+</section>
+
+<section><title>Ice.Overwrite.Compression</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Overwrite.Compression=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If set, this property overwrites compession settings in all
+proxies. If <replaceable>num</replaceable> is set to a value larger
+than zero, compression is enabled. If zero, compression is disabled.
+</para>
+</section>
+</section>
+
 </section>
 
 <!-- ********************************************************************** -->

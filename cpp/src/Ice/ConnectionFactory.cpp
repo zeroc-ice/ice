@@ -13,6 +13,7 @@
 #include <Ice/Instance.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
+#include <Ice/DefaultsAndOverwrites.h>
 #include <Ice/Properties.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Connector.h>
@@ -66,10 +67,17 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
     //
     // Search for existing connections.
     //
+    DefaultsAndOverwritesPtr defaultsAndOverwrites = _instance->defaultsAndOverwrites();
     vector<EndpointPtr>::const_iterator q;
     for (q = endpoints.begin(); q != endpoints.end(); ++q)
     {
-	map<EndpointPtr, ConnectionPtr>::const_iterator r = _connections.find(*q);
+	EndpointPtr endpoint = *q;
+	if (defaultsAndOverwrites->overwriteTimeout)
+	{
+	    endpoint = endpoint->timeout(defaultsAndOverwrites->overwriteTimeoutValue);
+	}
+
+	map<EndpointPtr, ConnectionPtr>::const_iterator r = _connections.find(endpoint);
 	if (r != _connections.end())
 	{
 	    return r->second;
@@ -87,19 +95,25 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
     q = endpoints.begin();
     while (q != endpoints.end())
     {
+	EndpointPtr endpoint = *q;
+	if (defaultsAndOverwrites->overwriteTimeout)
+	{
+	    endpoint = endpoint->timeout(defaultsAndOverwrites->overwriteTimeoutValue);
+	}
+
 	try
 	{
-	    TransceiverPtr transceiver = (*q)->clientTransceiver();
+	    TransceiverPtr transceiver = endpoint->clientTransceiver();
 	    if (!transceiver)
 	    {
-		ConnectorPtr connector = (*q)->connector();
+		ConnectorPtr connector = endpoint->connector();
 		assert(connector);
-		transceiver = connector->connect((*q)->timeout());
+		transceiver = connector->connect(endpoint->timeout());
 		assert(transceiver);
 	    }	    
-	    connection = new Connection(_instance, transceiver, *q, 0);
+	    connection = new Connection(_instance, transceiver, endpoint, 0);
 	    connection->activate();
-	    _connections.insert(make_pair(*q, connection));
+	    _connections.insert(make_pair(endpoint, connection));
 	    break;
 	}
 	catch (const SocketException& ex)
@@ -163,10 +177,17 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	//
 	ObjectPrx proxy = routerInfo->getClientProxy();
 	ObjectAdapterPtr adapter = routerInfo->getAdapter();
+	DefaultsAndOverwritesPtr defaultsAndOverwrites = _instance->defaultsAndOverwrites();
 	vector<EndpointPtr>::const_iterator p;
 	for (p = proxy->__reference()->endpoints.begin(); p != proxy->__reference()->endpoints.end(); ++p)
 	{
-	    map<EndpointPtr, ConnectionPtr>::const_iterator q = _connections.find(*p);
+	    EndpointPtr endpoint = *p;
+	    if (defaultsAndOverwrites->overwriteTimeout)
+	    {
+		endpoint = endpoint->timeout(defaultsAndOverwrites->overwriteTimeoutValue);
+	    }
+
+	    map<EndpointPtr, ConnectionPtr>::const_iterator q = _connections.find(endpoint);
 	    if (q != _connections.end())
 	    {
 		q->second->setAdapter(adapter);
@@ -409,6 +430,12 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     _adapter(adapter),
     _state(StateHolding)
 {
+    DefaultsAndOverwritesPtr defaultsAndOverwrites = _instance->defaultsAndOverwrites();
+    if (defaultsAndOverwrites->overwriteTimeout)
+    {
+	_endpoint = _endpoint->timeout(defaultsAndOverwrites->overwriteTimeoutValue);
+    }
+
     _warn = _instance->properties()->getPropertyAsInt("Ice.ConnectionWarnings") > 0;
 
     try

@@ -20,6 +20,14 @@ protocol = "ssl"
 #protocol = ""
 
 #
+# Set compressed to 1 in case you want to run the tests with
+# protocol compression.
+#
+
+compress = 1
+#compress = 0
+
+#
 # Set the host to the host name the test servers are running on. If not
 # set, the local host is used.
 #
@@ -44,6 +52,11 @@ else:
     clientProtocol = ""
     serverProtocol = ""
     clientServerProtocol = ""
+
+if compress:
+    clientProtocol += " --Ice.Overwrite.Compress"
+    serverProtocol += " --Ice.Overwrite.Compress"
+    clientServerProtocol += " --Ice.Overwrite.Compress"
 
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host

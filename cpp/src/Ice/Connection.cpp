@@ -117,9 +117,16 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool comp)
 	    copy(p, p + sizeof(Int), os->b.begin() + headerSize);
 	}
 
-	if (_defaultsAndOverwrites->overwriteCompress)
+	if (os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
 	{
-	    comp = _defaultsAndOverwrites->overwriteCompressValue;
+	    comp = false;
+	}
+	else
+	{
+	    if (_defaultsAndOverwrites->overwriteCompress)
+	    {
+		comp = _defaultsAndOverwrites->overwriteCompressValue;
+	    }
 	}
 
 	if (comp)
@@ -250,9 +257,16 @@ IceInternal::Connection::flushBatchRequest(bool comp)
 
 	_batchStream.i = _batchStream.b.begin();
 	
-	if (_defaultsAndOverwrites->overwriteCompress)
+	if (_batchStream.b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
 	{
-	    comp = _defaultsAndOverwrites->overwriteCompressValue;
+	    comp = false;
+	}
+	else
+	{
+	    if (_defaultsAndOverwrites->overwriteCompress)
+	    {
+		comp = _defaultsAndOverwrites->overwriteCompressValue;
+	    }
 	}
 
 	if (comp)
@@ -654,9 +668,16 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		    return;
 		}
 		
-		if (_defaultsAndOverwrites->overwriteCompress)
+		if (os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
 		{
-		    comp = _defaultsAndOverwrites->overwriteCompressValue;
+		    comp = false;
+		}
+		else
+		{
+		    if (_defaultsAndOverwrites->overwriteCompress)
+		    {
+			comp = _defaultsAndOverwrites->overwriteCompressValue;
+		    }
 		}
 
 		if (comp)
