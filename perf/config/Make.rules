@@ -1,0 +1,80 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+ifndef ICE_HOME
+    $(error ICE_HOME is not defined)
+endif
+
+ifndef TAO_HOME
+    $(error TAO_HOME is not defined)
+endif
+
+#
+# Define OPTIMIZE as yes if you want to build with optimization.
+#
+OPTIMIZE		= yes
+
+ICE_CPPFLAGS		?= -I$(ICE_HOME)/include
+ICE_LIBS		?= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
+
+# ----------------------------------------------------------------------
+# Don't change anything below this line!
+# ----------------------------------------------------------------------
+
+SHELL			= /bin/sh
+
+UNAME			:= $(shell uname)
+
+slicedir		= -I$(ICE_HOME)/slice
+configdir		= $(ICE_HOME)/config
+
+include	 $(configdir)/Make.rules.$(UNAME)
+
+CPPFLAGS		=
+ICECPPFLAGS		= -I$(slicedir)
+SLICE2CPPFLAGS		= $(ICECPPFLAGS)
+
+LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS)
+
+SLICE2CPP		= $(ICE_HOME)/bin/slice2cpp
+
+EVERYTHING		= all depend clean install
+
+.SUFFIXES:
+.SUFFIXES:		.cpp .o .py
+
+all:: $(SRCS)
+
+%.h %.cpp: %.ice
+	rm -f $(*F).h $(*F).cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice	
+
+.cpp.o:
+	$(CXX) -c $(CPPFLAGS) $(CXXFLAGS) $<
+
+clean::
+	-rm -f $(TARGETS)
+	-rm -f core *.o *.pyc *.bak
+
+all:: $(SRCS) $(TARGETS)
+
+depend:: $(SRCS) $(SLICE_SRCS)
+	-rm -f .depend
+	if test -n "$(SRCS)" ; then \
+	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
+	    $(configdir)/makedepend.py >> .depend; \
+	fi
+
+ifneq ($(TEMPLATE_REPOSITORY),)
+clean::
+	rm -fr $(TEMPLATE_REPOSITORY)
+endif
+
+install::
+
