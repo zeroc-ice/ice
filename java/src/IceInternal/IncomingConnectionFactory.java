@@ -221,16 +221,7 @@ public class IncomingConnectionFactory extends EventHandler
         _endpoint = endpoint;
         _adapter = adapter;
         _state = StateHolding;
-
-        try
-        {
-            String val = _instance.properties().getProperty("Ice.ConnectionWarnings");
-            _warn = Integer.parseInt(val) > 0 ? true : false;
-        }
-        catch (NumberFormatException ex)
-        {
-            _warn = false;
-        }
+	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
 
         try
         {

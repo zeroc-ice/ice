@@ -621,7 +621,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _proxyUsageCount(0),
     _state(StateHolding)
 {
-    _warn = atoi(_instance->properties()->getProperty("Ice.ConnectionWarnings").c_str()) > 0;
+    _warn = _instance->properties()->getPropertyAsInt("Ice.ConnectionWarnings") > 0;
 }
 
 IceInternal::Connection::~Connection()

@@ -501,17 +501,8 @@ class DBI implements DB
 	_dbEnvObj = dbEnvObj;
 	_db = db;
 	_name = name;
-
 	_errorPrefix = "Freeze::DB(\"" + _name + "\"): ";
-
-        try
-        {
-            _trace = Integer.parseInt(_communicator.getProperties().getProperty("Freeze.Trace.DB"));
-        }
-        catch (NumberFormatException ex)
-        {
-            // TODO: Do anything?
-        }
+	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.DB");
 
 	if (_trace >= 1)
 	{

@@ -43,8 +43,6 @@ command = starter + updatedClientServerOptions + \
           r' --Glacier.Client.Endpoints="default"' + \
           r' --Glacier.Server.Endpoints="tcp"'
 
-print command
-
 print "starting glacier starter...",
 starterPipe = os.popen(command)
 TestUtil.getServerPid(starterPipe)

@@ -24,8 +24,7 @@ IcePack::Forward::Forward(const CommunicatorPtr& communicator, const AdminPtr& a
     _activator = new Activator(_communicator);
     _activator->start();
 
-    _waitTime = atoi(_communicator->getProperties()->
-		     getPropertyWithDefault("IcePack.Activator.WaitTime", "10").c_str());
+    _waitTime = _communicator->getProperties()->getPropertyAsIntWithDefault("IcePack.Activator.WaitTime", 10);
     if (_waitTime < 0)
     {
 	_waitTime = 0;

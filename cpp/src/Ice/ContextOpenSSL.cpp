@@ -565,18 +565,7 @@ IceSSL::OpenSSL::Context::connectionSetup(const ConnectionPtr& connection)
 {
     // Set the Post-Handshake Read timeout
     // This timeout is implemented once on the first read after hanshake.
-    int handshakeReadTimeout;
-    std::string value = _properties->getProperty(_handshakeTimeoutProperty);
-
-    if (!value.empty())
-    {
-	handshakeReadTimeout = atoi(value.c_str());
-    }
-    else
-    {
-        handshakeReadTimeout = 5000;
-    }
-
+    int handshakeReadTimeout = _properties->getPropertyAsIntWithDefault(_handshakeTimeoutProperty, 5000);
     connection->setHandshakeReadTimeout(handshakeReadTimeout);
 }
 

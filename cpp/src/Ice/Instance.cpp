@@ -190,10 +190,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     if (++_globalStateCounter == 1) // Only on first call
     {
 #ifndef _WIN32
-	if (atoi(_properties->getProperty("Ice.Daemon").c_str()) > 0)
+	if (_properties->getPropertyAsInt("Ice.Daemon") > 0)
 	{
-	    int noclose = atoi(_properties->getProperty("Ice.DaemonNoClose").c_str());
-	    int nochdir = atoi(_properties->getProperty("Ice.DaemonNoChdir").c_str());
+	    int noclose = _properties->getPropertyAsInt("Ice.DaemonNoClose");
+	    int nochdir = _properties->getPropertyAsInt("Ice.DaemonNoChdir");
 	    
 	    if (daemon(nochdir, noclose) == -1)
 	    {
@@ -237,7 +237,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    }
 	}
 
-	if (atoi(_properties->getProperty("Ice.UseSyslog").c_str()) > 0)
+	if (_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
 	{
 	    _identForOpenlog = _properties->getProperty("Ice.ProgramName");
 	    if (_identForOpenlog.empty())
@@ -253,7 +253,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	// forks. Does not work together with Ice.Daemon if
 	// Ice.DaemonNoClose is not set.
 	//
-	if (atoi(_properties->getProperty("Ice.PrintProcessId").c_str()) > 0)
+	if (_properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
 	{
 #ifdef _WIN32
 	    cout << _getpid() << endl;
@@ -300,7 +300,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     {
 	__setNoDelete(true);
 #ifndef _WIN32
-	if (atoi(_properties->getProperty("Ice.UseSyslog").c_str()) > 0)
+	if (_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
 	{
 	    _logger = new SysLoggerI;
 	}

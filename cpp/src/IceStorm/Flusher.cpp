@@ -37,8 +37,7 @@ public:
 	_traceLevels(traceLevels),
         _destroy(false)
     {
-	_flushTime = atoi(communicator->getProperties()->
-			  getPropertyWithDefault("IceStorm.Flush.Timeout", "1000").c_str());
+	_flushTime = communicator->getProperties()->getPropertyAsIntWithDefault("IceStorm.Flush.Timeout", 1000);
 	if (_flushTime < 100)
 	{
 	    _flushTime = 100; // Minimum of 100 ms

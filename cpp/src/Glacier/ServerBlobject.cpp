@@ -20,7 +20,7 @@ Glacier::ServerBlobject::ServerBlobject(const ObjectAdapterPtr& clientAdapter) :
     _logger(_clientAdapter->getCommunicator()->getLogger())
 {
     PropertiesPtr properties = _clientAdapter->getCommunicator()->getProperties();
-    _traceLevel = atoi(properties->getProperty("Glacier.Trace.Server").c_str());
+    _traceLevel = properties->getPropertyAsInt("Glacier.Trace.Server");
 }
 
 Glacier::ServerBlobject::~ServerBlobject()

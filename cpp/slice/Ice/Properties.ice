@@ -58,8 +58,8 @@ local interface Properties
 
     /**
      *
-     * Get a property as an integer. If the property is not set, 0 is
-     * returned.
+     * Get a property as an integer. If the property does not exist, 0
+     * is returned.
      *
      * @param key The property key.
      *
@@ -69,6 +69,23 @@ local interface Properties
      *
      **/
     int getPropertyAsInt(string key);
+
+    /**
+     *
+     * Get a property as an integer. If the property does not exist, a
+     * default value is returned.
+     *
+     * @param key The property key.
+     *
+     * @param value The supplied default value.
+     *
+     * @return The property value interpreted as integer or the
+     * supplied default value.
+     *
+     * @see setProperty
+     *
+     **/
+    int getPropertyAsIntWithDefault(string key, int value);
 
     /**
      *

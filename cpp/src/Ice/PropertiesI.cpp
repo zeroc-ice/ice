@@ -50,6 +50,28 @@ Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
     }
 }
 
+Int
+Ice::PropertiesI::getPropertyAsInt(const string& key)
+{
+    return getPropertyAsIntWithDefault(key, 0);
+}
+
+Int
+Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    map<string, string>::const_iterator p = _properties.find(key);
+    if (p != _properties.end())
+    {
+	return static_cast<Int>(atoi(p->second.c_str()));
+    }
+    else
+    {
+	return value;
+    }
+}
+
 StringSeq
 Ice::PropertiesI::getProperties(const string& prefix)
 {
@@ -67,22 +89,6 @@ Ice::PropertiesI::getProperties(const string& prefix)
     }
 
     return result;
-}
-
-Int
-Ice::PropertiesI::getPropertyAsInt(const string& key)
-{
-    IceUtil::Mutex::Lock sync(*this);
-
-    map<string, string>::const_iterator p = _properties.find(key);
-    if (p != _properties.end())
-    {
-	return static_cast<Int>(atoi(p->second.c_str()));
-    }
-    else
-    {
-	return 0;
-    }
 }
 
 void

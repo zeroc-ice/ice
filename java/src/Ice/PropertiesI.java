@@ -42,6 +42,35 @@ class PropertiesI implements Properties
         return result;
     }
 
+    public int
+    getPropertyAsInt(String key)
+    {
+	return getPropertyAsIntWithDefault(key, 0);
+    }
+
+    public synchronized int
+    getPropertyAsIntWithDefault(String key, int value)
+    {
+        String result = (String)_properties.get(key);
+        if (result == null)
+        {
+            result = System.getProperty(key);
+        }
+        if (result == null)
+        {
+            return value;
+        }
+
+	try
+	{
+	    return Integer.parseInt(result);
+	}
+	catch (NumberFormatException ex)
+	{
+	    return 0;
+	}
+    }
+
     public synchronized String[]
     getProperties(String prefix)
     {

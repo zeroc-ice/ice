@@ -699,16 +699,7 @@ public final class Connection extends EventHandler
         _responseCount = 0;
 	_proxyUsageCount = 0;
         _state = StateHolding;
-
-        try
-        {
-            String val = _instance.properties().getProperty("Ice.ConnectionWarnings");
-            _warn = Integer.parseInt(val) > 0 ? true : false;
-        }
-        catch (NumberFormatException ex)
-        {
-            _warn = false;
-        }
+	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
     }
 
     protected void

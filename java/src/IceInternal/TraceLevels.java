@@ -14,73 +14,25 @@ public final class TraceLevels
 {
     TraceLevels(Ice.Properties properties)
     {
-        network = 0;
         networkCat = "Network";
-        protocol = 0;
         protocolCat = "Protocol";
-        retry = 0;
         retryCat = "Retry";
-        security = 0;
         securityCat = "Security";
 
-        String value;
         final String keyBase = "Ice.Trace.";
 
-        value = properties.getProperty(keyBase + networkCat);
-        if (value.length() > 0)
-        {
-            try
-            {
-                network = Integer.parseInt(value);
-            }
-            catch (NumberFormatException ex)
-            {
-            }
-        }
-
-        value = properties.getProperty(keyBase + protocolCat);
-        if (value.length() > 0)
-        {
-            try
-            {
-                protocol = Integer.parseInt(value);
-            }
-            catch (NumberFormatException ex)
-            {
-            }
-        }
-
-        value = properties.getProperty(keyBase + retryCat);
-        if (value.length() > 0)
-        {
-            try
-            {
-                retry = Integer.parseInt(value);
-            }
-            catch (NumberFormatException ex)
-            {
-            }
-        }
-
-        value = properties.getProperty(keyBase + securityCat);
-        if (value.length() > 0)
-        {
-            try
-            {
-                security = Integer.parseInt(value);
-            }
-            catch (NumberFormatException ex)
-            {
-            }
-        }
+        network = properties.getPropertyAsInt(keyBase + networkCat);
+	protocol = properties.getPropertyAsInt(keyBase + protocolCat);
+        retry = properties.getPropertyAsInt(keyBase + retryCat);
+        security = properties.getPropertyAsInt(keyBase + securityCat);
     }
 
-    public int network;
-    public String networkCat;
-    public int protocol;
-    public String protocolCat;
-    public int retry;
-    public String retryCat;
-    public int security;
-    public String securityCat;
+    final public int network;
+    final public String networkCat;
+    final public int protocol;
+    final public String protocolCat;
+    final public int retry;
+    final public String retryCat;
+    final public int security;
+    final public String securityCat;
 }

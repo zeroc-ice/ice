@@ -289,15 +289,7 @@ class EvictorI implements Evictor
 	_db = db;
 	_dict = new IdentityObjectDict(db);
 	_persistenceMode = persistenceMode;
-
-        try
-        {
-            _trace = Integer.parseInt(_db.getCommunicator().getProperties().getProperty("Freeze.Trace.Evictor"));
-        }
-        catch (NumberFormatException ex)
-        {
-            // TODO: Do anything?
-        }
+	_trace = _db.getCommunicator().getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
     }
 
     private void

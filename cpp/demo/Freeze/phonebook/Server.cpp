@@ -38,7 +38,6 @@ int
 PhoneBookServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
 {
     PropertiesPtr properties = communicator()->getProperties();
-    string value;
     
     DBPtr dbPhoneBook = dbEnv->openDB("phonebook", true);
     DBPtr dbContacts = dbEnv->openDB("contacts", true);
@@ -47,8 +46,7 @@ PhoneBookServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv
     // Create an Evictor for contacts.
     //
     EvictorPtr evictor;
-    value = properties->getProperty("PhoneBook.SaveAfterMutatingOperation");
-    if(!value.empty() && atoi(value.c_str()) > 0)
+    if(properties->getPropertyAsInt("PhoneBook.SaveAfterMutatingOperation") > 0)
     {
 	evictor = dbContacts->createEvictor(SaveAfterMutatingOperation);
     }
@@ -56,10 +54,10 @@ PhoneBookServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv
     {
 	evictor = dbContacts->createEvictor(SaveUponEviction);
     }
-    value = properties->getProperty("PhoneBook.EvictorSize");
-    if(!value.empty())
+    Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
+    if(evictorSize > 0)
     {
-	evictor->setSize(atoi(value.c_str()));
+	evictor->setSize(evictorSize);
     }
     
     //

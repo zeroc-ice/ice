@@ -32,29 +32,29 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator, const PasswordV
 {
     assert(_verifier);
 
-    _traceLevel = atoi(_properties->getProperty("Glacier.Trace.Starter").c_str());
+    _traceLevel = _properties->getPropertyAsInt("Glacier.Trace.Starter");
 
     // Set up the Certificate Generation context
-    ostringstream defSecondsValid;
-    defSecondsValid << dec << IceSSL::OpenSSL::RSACertificateGenContext::daysToSeconds(1);
     string country = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Country", "US");
     string stateProv = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.StateProvince", "DC");
     string locality = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Locality", "Washington");
     string org = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Organization", "Some Company Inc.");
     string orgUnit = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.OranizationalUnit", "Sales");
     string commonName = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.CommonName", "John Doe");
-    string bitStrength = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.BitStrength", "1024");
-    string secondsValid = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.SecondsValid",
-                                                              defSecondsValid.str());
 
+    Int bitStrength = _properties->getPropertyAsIntWithDefault(
+	"Glacier.Starter.Certificate.BitStrength", 1024);
+    Int secondsValid = _properties->getPropertyAsIntWithDefault(
+	"Glacier.Starter.Certificate.SecondsValid", IceSSL::OpenSSL::RSACertificateGenContext::daysToSeconds(1));
+    
     _certContext.setCountry(country);
     _certContext.setStateProvince(stateProv);
     _certContext.setLocality(locality);
     _certContext.setOrganization(org);
     _certContext.setOrgainizationalUnit(orgUnit);
     _certContext.setCommonName(commonName);
-    _certContext.setBitStrength(atoi(bitStrength.c_str()));
-    _certContext.setSecondsValid(atol(secondsValid.c_str()));
+    _certContext.setBitStrength(bitStrength);
+    _certContext.setSecondsValid(secondsValid);
 }
 
 void
@@ -280,7 +280,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    FD_ZERO(&fdSet);
 	    FD_SET(fds[0], &fdSet);
 	    struct timeval tv;
-	    tv.tv_sec = atoi(_properties->getPropertyWithDefault("Glacier.Starter.StartupTimeout", "10").c_str());
+	    tv.tv_sec = _properties->getPropertyAsIntWithDefault("Glacier.Starter.StartupTimeout", 10);
 	    if (tv.tv_sec < 1)
 	    {
 		tv.tv_sec = 1; // One second is minimum.

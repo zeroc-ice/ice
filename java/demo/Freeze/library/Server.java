@@ -21,38 +21,19 @@ class LibraryServer extends Freeze.Application
 	//
 	// Create an Evictor for books.
 	//
-	Freeze.EvictorPersistenceMode mode;
-	int v = 0;
-        try
-        {
-            v = Integer.parseInt(properties.getProperty("Library.SaveAfterMutatingOperation"));
-        }
-        catch (NumberFormatException ex)
-        {
-	}
-
-	if (v != 0)
+	Freeze.Evictor evictor;
+	if (properties.getPropertyAsInt("Library.SaveAfterMutatingOperation") > 0)
 	{
-	    mode = Freeze.EvictorPersistenceMode.SaveAfterMutatingOperation;
+	    evictor = dbBooks.createEvictor(Freeze.EvictorPersistenceMode.SaveAfterMutatingOperation);
 	}
 	else
 	{
-	    mode = Freeze.EvictorPersistenceMode.SaveUponEviction;
+	    evictor = dbBooks.createEvictor(Freeze.EvictorPersistenceMode.SaveUponEviction);
 	}
-	Freeze.Evictor evictor = dbBooks.createEvictor(mode);
-
-	v = 0;
-        try
-        {
-            v = Integer.parseInt(properties.getProperty("Library.EvictorSize"));
-        }
-        catch (NumberFormatException ex)
-        {
-        }
-
-	if (v != 0)
+	int evictorSize = properties.getPropertyAsInt("Library.EvictorSize");
+	if (evictorSize > 0)
 	{
-	    evictor.setSize(v);
+	    evictor.setSize(evictorSize);
 	}
     
 	//

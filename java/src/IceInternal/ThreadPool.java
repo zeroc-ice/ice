@@ -206,21 +206,8 @@ public final class ThreadPool
         //
         _keysIter = null;
 
-        try
-        {
-            _timeout = Integer.parseInt(_properties.getProperty("Ice.ServerIdleTime"));
-        }
-        catch (NumberFormatException ex)
-        {
-        }
-
-	try
-	{
-	    _threadNum = Integer.parseInt(_properties.getPropertyWithDefault("Ice.ThreadPool.Size", "10"));
-	}
-	catch (NumberFormatException ex)
-	{
-	}
+	_timeout = _properties.getPropertyAsInt("Ice.ServerIdleTime");
+	_threadNum = _properties.getPropertyAsIntWithDefault("Ice.ThreadPool.Size", 10);
 	if (_threadNum < 1)
 	{
 	    _threadNum = 1;
@@ -241,14 +228,8 @@ public final class ThreadPool
             throw ex;
         }
 
-        // Must be called after _threadNum is set
-        try
-        {
-            setMaxConnections(Integer.parseInt(_properties.getProperty("Ice.ThreadPool.MaxConnections")));
-        }
-        catch (NumberFormatException ex)
-        {
-        }
+        // Must be called after _threadNum is set.
+	setMaxConnections(_properties.getPropertyAsInt("Ice.ThreadPool.MaxConnections"));
     }
 
     protected void

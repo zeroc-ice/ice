@@ -199,18 +199,8 @@ class DBEnvironmentI implements DBEnvironment
     {
 	_communicator = communicator;
 	_name = name;
-
 	_errorPrefix = "Freeze::DBEnvironment(\"" + _name + "\"): ";
-
-        try
-        {
-            _trace = Integer.parseInt(_communicator.getProperties().getProperty("Freeze.Trace.DB"));
-        }
-        catch (NumberFormatException ex)
-        {
-            // TODO: Do anything?
-        }
-
+	_trace = getCommunicator().getProperties().getPropertyAsInt("Freeze.Trace.DB");
 	_dbEnv = new com.sleepycat.db.DbEnv(0);
 	
 	if (_trace >= 1)

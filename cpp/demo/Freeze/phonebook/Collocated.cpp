@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace Freeze;
 
 class PhoneBookCollocated : public Freeze::Application
 {
@@ -24,7 +25,7 @@ public:
     {
     }
 
-    virtual int runFreeze(int argc, char* argv[], const Freeze::DBEnvironmentPtr&);
+    virtual int runFreeze(int argc, char* argv[], const DBEnvironmentPtr&);
 };
 
 int
@@ -35,31 +36,30 @@ main(int argc, char* argv[])
 }
 
 int
-PhoneBookCollocated::runFreeze(int argc, char* argv[], const Freeze::DBEnvironmentPtr& dbEnv)
+PhoneBookCollocated::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
 {
     PropertiesPtr properties = communicator()->getProperties();
     string value;
     
-    Freeze::DBPtr dbPhoneBook = dbEnv->openDB("phonebook", true);
-    Freeze::DBPtr dbContacts = dbEnv->openDB("contacts", true);
+    DBPtr dbPhoneBook = dbEnv->openDB("phonebook", true);
+    DBPtr dbContacts = dbEnv->openDB("contacts", true);
     
     //
     // Create an Evictor for contacts.
     //
-    Freeze::EvictorPtr evictor;
-    value = properties->getProperty("PhoneBook.SaveAfterMutatingOperation");
-    if(!value.empty() && atoi(value.c_str()) > 0)
+    EvictorPtr evictor;
+    if(properties->getPropertyAsInt("PhoneBook.SaveAfterMutatingOperation") > 0)
     {
-	evictor = dbContacts->createEvictor(Freeze::SaveAfterMutatingOperation);
+	evictor = dbContacts->createEvictor(SaveAfterMutatingOperation);
     }
     else
     {
-	evictor = dbContacts->createEvictor(Freeze::SaveUponEviction);
+	evictor = dbContacts->createEvictor(SaveUponEviction);
     }
-    value = properties->getProperty("PhoneBook.EvictorSize");
-    if(!value.empty())
+    Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
+    if(evictorSize > 0)
     {
-	evictor->setSize(atoi(value.c_str()));
+	evictor->setSize(evictorSize);
     }
     
     //
@@ -78,7 +78,7 @@ PhoneBookCollocated::runFreeze(int argc, char* argv[], const Freeze::DBEnvironme
     // Create and install a factory and initializer for contacts.
     //
     ObjectFactoryPtr contactFactory = new ContactFactory(phoneBook, evictor);
-    Freeze::ServantInitializerPtr contactInitializer = Freeze::ServantInitializerPtr::dynamicCast(contactFactory);
+    ServantInitializerPtr contactInitializer = ServantInitializerPtr::dynamicCast(contactFactory);
     communicator()->addObjectFactory(contactFactory, "::Contact");
     evictor->installServantInitializer(contactInitializer);
     

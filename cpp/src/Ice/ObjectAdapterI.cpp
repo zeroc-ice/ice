@@ -59,7 +59,7 @@ Ice::ObjectAdapterI::activate()
 
     if (!_printAdapterReadyDone)
     {
-	if (atoi(_instance->properties()->getProperty("Ice.PrintAdapterReady").c_str()) > 0)
+	if (_instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0)
 	{
 	    cout << _name << " ready" << endl;
 	}

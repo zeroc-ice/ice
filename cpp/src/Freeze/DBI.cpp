@@ -69,7 +69,7 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
     _name(name)
 {
     _errorPrefix = "Freeze::DBEnvironment(\"" + _name + "\"): ";
-    _trace = atoi(_communicator->getProperties()->getProperty("Freeze.Trace.DB").c_str());
+    _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.DB");
 
     if (_trace >= 1)
     {
@@ -239,7 +239,7 @@ Freeze::DBTransactionI::DBTransactionI(const CommunicatorPtr& communicator, ::DB
     _name(name)
 {
     _errorPrefix = "Freeze::DBTransaction(\"" + _name + "\"): ";
-    _trace = atoi(_communicator->getProperties()->getProperty("Freeze.Trace.DB").c_str());
+    _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.DB");
 
     if (_trace >= 2)
     {
@@ -316,7 +316,7 @@ DBCursorI::DBCursorI(const ::Ice::CommunicatorPtr& communicator, const std::stri
     _cursor(cursor)
 {
     _errorPrefix = "Freeze::DBCursor(\"" + _name += "\"): ";
-    _trace = atoi(_communicator->getProperties()->getProperty("Freeze.Trace.DB").c_str());
+    _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.DB");
 
     if (_trace >= 1)
     {
@@ -559,7 +559,7 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& d
     _name(name)
 {
     _errorPrefix = "Freeze::DB(\"" + _name + "\"): ";
-    _trace = atoi(_communicator->getProperties()->getProperty("Freeze.Trace.DB").c_str());
+    _trace = _communicator->getProperties()->getPropertyAsInt("Freeze.Trace.DB");
 
     if (_trace >= 1)
     {

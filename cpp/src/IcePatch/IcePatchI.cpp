@@ -21,7 +21,7 @@ IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter) :
     _adapter(adapter),
     _logger(adapter->getCommunicator()->getLogger())
 {
-    _traceLevel = atoi(adapter->getCommunicator()->getProperties()->getProperty("IcePatch.Trace.Files").c_str());
+    _traceLevel = adapter->getCommunicator()->getProperties()->getPropertyAsInt("IcePatch.Trace.Files");
 }
 
 IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :

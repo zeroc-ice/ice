@@ -25,7 +25,7 @@ Glacier::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
     _routingTable(routingTable)
 {
     PropertiesPtr properties = _clientAdapter->getCommunicator()->getProperties();
-    _routingTableTraceLevel = atoi(properties->getProperty("Glacier.Trace.RoutingTable").c_str());
+    _routingTableTraceLevel = properties->getPropertyAsInt("Glacier.Trace.RoutingTable");
 }
 
 Glacier::RouterI::~RouterI()

@@ -42,16 +42,9 @@ public class ObjectAdapterI implements ObjectAdapter
 
 	if (!_printAdapterReadyDone)
 	{
-	    try
+	    if (_instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0)
 	    {
-		String value = _instance.properties().getProperty("Ice.PrintAdapterReady");
-		if (Integer.parseInt(value) >= 1)
-		{
-		    System.out.println(_name + " ready");
-		}
-	    }
-	    catch (NumberFormatException ex)
-	    {
+		System.out.println(_name + " ready");
 	    }
 
 	    _printAdapterReadyDone = true;

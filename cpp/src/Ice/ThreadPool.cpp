@@ -181,8 +181,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     _maxFd = _fdIntrRead;
     _minFd = _fdIntrRead;
 
-    _timeout = atoi(_properties->getProperty("Ice.ServerIdleTime").c_str());
-    _threadNum = atoi(_properties->getPropertyWithDefault("Ice.ThreadPool.Size", "10").c_str());
+    _timeout = _properties->getPropertyAsInt("Ice.ServerIdleTime");
+    _threadNum = _properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Size", 10);
     if (_threadNum < 1)
     {
 	_threadNum = 1;
@@ -207,7 +207,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     }
 
     // Must be called after _threadNum is set.
-    setMaxConnections(atoi(_properties->getProperty("Ice.ThreadPool.MaxConnections").c_str()));
+    setMaxConnections(_properties->getPropertyAsInt("Ice.ThreadPool.MaxConnections"));
 }
 
 IceInternal::ThreadPool::~ThreadPool()

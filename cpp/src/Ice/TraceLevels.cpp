@@ -19,41 +19,16 @@ void IceInternal::incRef(TraceLevels* p) { p->__incRef(); }
 void IceInternal::decRef(TraceLevels* p) { p->__decRef(); }
 
 IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties) :
-    network(0),
     networkCat("Network"),
-    protocol(0),
     protocolCat("Protocol"),
-    retry(0),
     retryCat("Retry"),
-    security(0),
     securityCat("Security")
 {
-    string value;
     const string keyBase = "Ice.Trace.";
-
-    value = properties->getProperty(keyBase + networkCat);
-    if (!value.empty())
-    {
-	const_cast<int&>(network) = atoi(value.c_str());
-    }
-    
-    value = properties->getProperty(keyBase + protocolCat);
-    if (!value.empty())
-    {
-	const_cast<int&>(protocol) = atoi(value.c_str());
-    }
-
-    value = properties->getProperty(keyBase + retryCat);
-    if (!value.empty())
-    {
-	const_cast<int&>(retry) = atoi(value.c_str());
-    }
-
-    value = properties->getProperty(keyBase + securityCat);
-    if (!value.empty())
-    {
-	const_cast<int&>(security) = atoi(value.c_str());
-    }
+    const_cast<int&>(network) = properties->getPropertyAsInt(keyBase + networkCat);
+    const_cast<int&>(protocol) = properties->getPropertyAsInt(keyBase + protocolCat);
+    const_cast<int&>(retry) = properties->getPropertyAsInt(keyBase + retryCat);
+    const_cast<int&>(security) = properties->getPropertyAsInt(keyBase + securityCat);
 }
 
 IceInternal::TraceLevels::~TraceLevels()

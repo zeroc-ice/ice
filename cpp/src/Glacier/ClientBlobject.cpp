@@ -22,7 +22,7 @@ Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
     _routingTable(routingTable)
 {
     PropertiesPtr properties = _communicator->getProperties();
-    _traceLevel = atoi(properties->getProperty("Glacier.Trace.Client").c_str());
+    _traceLevel = properties->getPropertyAsInt("Glacier.Trace.Client");
 }
 
 Glacier::ClientBlobject::~ClientBlobject()
