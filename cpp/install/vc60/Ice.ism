@@ -52,10 +52,10 @@
 	<summary>
 		<codepage>1252</codepage>
 		<title>Installation Database</title>
-		<subject>Blank Project Template</subject>
+		<subject>##ID_STRING19##</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
-		<comments>Contact:  Your local administrator</comments>
+		<comments>##ID_STRING18##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
 		<revnumber>{A10323D6-03EB-4C7B-8897-6E4EE77E4D65}</revnumber>
@@ -2344,6 +2344,8 @@
 		<row><td>ID_STRING15</td><td>1033</td><td>+ICE_HOME</td><td>0</td><td/><td>-1457951093</td></row>
 		<row><td>ID_STRING16</td><td>1033</td><td>HTML Documentation</td><td>0</td><td/><td>161047826</td></row>
 		<row><td>ID_STRING17</td><td>1033</td><td>Third Party Packages for C++ Development</td><td>0</td><td/><td>966353073</td></row>
+		<row><td>ID_STRING18</td><td>1033</td><td>The Internet Communications Engine (ICE) runtimes, tools, files and libraries for developing ICE applications.</td><td>0</td><td/><td>1234791985</td></row>
+		<row><td>ID_STRING19</td><td>1033</td><td>Ice 2.1.0 for Visual Studio 6.0</td><td>0</td><td/><td>1234810225</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>Ice Runtime</td><td>0</td><td/><td>1100550255</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>-1457951318</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>

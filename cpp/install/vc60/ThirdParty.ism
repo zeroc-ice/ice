@@ -55,7 +55,7 @@
 		<subject>##ID_STRING4##</subject>
 		<author>##COMPANY_NAME##</author>
 		<keywords>Installer,MSI,Database</keywords>
-		<comments>Contact:  Your local administrator</comments>
+		<comments>##ID_STRING5##</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
 		<revnumber>{A10323D6-03EB-4C7B-8897-6E4EE77E4D65}</revnumber>
@@ -2325,6 +2325,7 @@
 		<row><td>ID_STRING2</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-1860585904</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>http://www.zeroc.com</td><td>0</td><td/><td>-1860628848</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>Ice 2.1.0 Third Party Packages for Visual Studio 6.0</td><td>0</td><td/><td>-1860585039</td></row>
+		<row><td>ID_STRING5</td><td>1033</td><td>Third Party tools, files and libraries for compiling the Internet Communications Engine (ICE).</td><td>0</td><td/><td>1234789873</td></row>
 		<row><td>IIDS_UITEXT_FeatureUninstalled</td><td>1033</td><td>This feature will remain uninstalled.</td><td>0</td><td/><td>479664453</td></row>
 	</table>
 
