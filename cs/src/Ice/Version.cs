@@ -18,8 +18,8 @@ public sealed class Version
     //
     // The Ice version.
     //
-    public const System.String ICE_STRING_VERSION = "1.4.0"; // "A.B.C", with A=major, B=minor, C=patch
-    public const int ICE_INT_VERSION = 10400;                // AABBCC, with AA=major, BB=minor, CC=patch
+    public const System.String ICE_STRING_VERSION = "1.5.0"; // "A.B.C", with A=major, B=minor, C=patch
+    public const int ICE_INT_VERSION = 10500;                // AABBCC, with AA=major, BB=minor, CC=patch
 }
 
 }
