@@ -34,7 +34,7 @@ class ICE_API Object : public ::__Ice::Shared, JTCMutex
 {
 public:
 
-    bool _implements(const std::string&);
+    bool _isA(const std::string&);
 
     bool operator==(const Object&) const;
     bool operator!=(const Object&) const;
@@ -74,7 +74,7 @@ class ICE_API Object : public ::__Ice::Shared
 {
 public:
 
-    virtual bool _implements(const std::string&) = 0;
+    virtual bool _isA(const std::string&) = 0;
 
 protected:
 
@@ -96,7 +96,7 @@ class ICE_API Object : virtual public ::__IceDelegate::Ice::Object
 {
 public:
 
-    virtual bool _implements(const std::string&);
+    virtual bool _isA(const std::string&);
 
 protected:
 

@@ -497,17 +497,25 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDef_ptr& p)
 	return;
 
     string name = p -> name();
+    ClassList bases = p -> bases();
 
-    ClassDef_ptr base = p -> base();
-    string baseS;
-    if(base)
-	baseS = base -> scoped();
-    else
-	baseS = "::Ice::Object";
-    
     H << sp;
-    H << nl << "class" << dllExport_ << ' ' << name << " : "
-      << "virtual public ::__IceProxy" << baseS;
+    H << nl << "class" << dllExport_ << ' ' << name << " : ";
+    if(bases.empty())
+	H << "virtual public ::__IceProxy::Ice::Object";
+    else
+    {
+	H.useCurrentPosAsIndent();
+	ClassList::iterator q = bases.begin();
+	while(q != bases.end())
+	{
+	    H << "virtual public ::__IceProxy" << (*q) -> scoped();
+	    if(++q != bases.end())
+		H << ',' << nl;
+	}
+	H.restoreIndent();
+    }
+
     H << sb;
     H.dec();
     H << nl << "public: ";
@@ -673,16 +681,24 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDef_ptr& p)
 	return;
 
     string name = p -> name();
-    ClassDef_ptr base = p -> base();
-    string baseS;
-    if(base)
-	baseS = base -> scoped();
-    else
-	baseS = "::Ice::Object";
-    
+    ClassList bases = p -> bases();
+
     H << sp;
-    H << nl << "class" << dllExport_ << ' ' << name << " : "
-      << "virtual public ::__IceDelegate" << baseS;
+    H << nl << "class" << dllExport_ << ' ' << name << " : ";
+    if(bases.empty())
+	H << "virtual public ::__IceDelegate::Ice::Object";
+    else
+    {
+	H.useCurrentPosAsIndent();
+	ClassList::iterator q = bases.begin();
+	while(q != bases.end())
+	{
+	    H << "virtual public ::__IceDelegate" << (*q) -> scoped();
+	    if(++q != bases.end())
+		H << ',' << nl;
+	}
+	H.restoreIndent();
+    }
     H << sb;
     H.dec();
     H << nl << "public: ";
@@ -809,19 +825,24 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDef_ptr& p)
 
     string name = p -> name();
     string scoped = p -> scoped();
+    ClassList bases = p -> bases();
 
-    ClassDef_ptr base = p -> base();
-    string baseS;
-    if(base)
-	baseS = base -> scoped();
-    else
-	baseS = "::Ice::Object";
-    
     H << sp;
     H << nl << "class" << dllExport_ << ' ' << name << " : ";
     H.useCurrentPosAsIndent();
     H << "virtual public ::__IceDelegate" << scoped << ',';
-    H << nl << "virtual public ::__IceDelegateM" << baseS;
+    if(bases.empty())
+	H << nl << "virtual public ::__IceDelegateM::Ice::Object";
+    else
+    {
+	ClassList::iterator q = bases.begin();
+	while(q != bases.end())
+	{
+	    H << nl << "virtual public ::__IceDelegateM" << (*q) -> scoped();
+	    if(++q != bases.end())
+		H << ',';
+	}
+    }
     H.restoreIndent();
     H << sb;
     H.dec();
@@ -1022,82 +1043,137 @@ Slice::Gen::ObjectVisitor::visitModuleEnd(const Module_ptr& p)
 void
 Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDef_ptr& p)
 {
-    bool isLocal = p -> isLocal();
     string name = p -> name();
     string scoped = p -> scoped();
-
-    vector<ClassDef_ptr> bases;
-    vector<ClassDef_ptr>::const_iterator q;
-
-    ClassDef_ptr base = p;
-    while((base = base -> base()))
-	bases.push_back(base);
-
-    string baseS;
-    if(!bases.empty())
-    {
-	base = bases[0];
-	baseS = base -> scoped();
-    }
-    else
-    {
-	if(isLocal)
-	    baseS = "::Ice::LocalObject";
-	else
-	    baseS = "::Ice::Object";
-    }
-
+    ClassList bases = p -> bases();
+    
     H << sp;
     H << nl << "class" << dllExport_ << ' ' << name << " : ";
-    if(isLocal)
+    if(p -> isLocal())
     {
-        // No virtual inheritance for local objects
-	H << "public " << baseS;
+	if(bases.empty())
+	    H << "virtual public ::Ice::LocalObject";
+	else
+	{
+	    H.useCurrentPosAsIndent();
+	    ClassList::iterator q = bases.begin();
+	    while(q != bases.end())
+	    {
+		H << "virtual public " << (*q) -> scoped();
+		if(++q != bases.end())
+		    H << ',' << nl;
+	    }
+	    H.restoreIndent();
+	}
     }
     else
     {
 	H.useCurrentPosAsIndent();
 	H << "virtual public ::__IceDelegate" << scoped << ',';
- 	H << nl << "virtual public " << baseS;
+	if(bases.empty())
+	    H << nl << "virtual public ::Ice::Object";
+	else
+	{
+	    ClassList::iterator q = bases.begin();
+	    while(q != bases.end())
+	    {
+		H << nl << "virtual public " << (*q) -> scoped();
+		if(++q != bases.end())
+		    H << ',';
+	    }
+	}
 	H.restoreIndent();
     }
     H << sb;
     H.dec();
     H << nl << "public: ";
     H.inc();
-    if(!isLocal)
+    if(!p -> isLocal())
     {
+	ClassList allBases = p -> allBases();
+	list<string> ids;
+	transform(allBases.begin(), allBases.end(),
+		  back_inserter(ids),
+		  ::Ice::memFun(&ClassDef::scoped));
+	list<string> other;
+	other.push_back(scoped);
+	other.push_back("::Ice::Object");
+	other.sort();
+	ids.merge(other);
+	ids.unique();
+	
+	ClassList allBaseClasses;
+	ClassDef_ptr cl;
+	if(!bases.empty())
+	    cl = bases.front();
+	else
+	    cl = 0;
+	while(cl && !cl -> isInterface())
+	{
+	    allBaseClasses.push_back(cl);
+	    ClassList baseBases = cl -> bases();
+	    if(!baseBases.empty())
+		cl = baseBases.front();
+	    else
+		cl = 0;
+	}
+	list<string> classIds;
+	transform(allBaseClasses.begin(), allBaseClasses.end(),
+		  back_inserter(classIds),
+		  ::Ice::memFun(&ClassDef::scoped));
+	if(!p -> isInterface())
+	    classIds.push_front(scoped);
+	classIds.push_back("::Ice::Object");
+
+	list<string>::iterator q;
+
 	H << sp;
-	H << nl << "static std::string __implements["
-	  << bases.size() + 2 << "];";
+	H << nl << "static std::string __ids[" << ids.size() << "];";
 	H << sp;
-	H << nl << "virtual bool _implements(const std::string&);";
+	H << nl << "static std::string __classIds[" << classIds.size() << "];";
 	H << sp;
-	H << nl << "virtual const std::string* __ids();";
+	H << nl << "virtual bool _isA(const std::string&);";
+	H << sp;
+	H << nl << "virtual const std::string* _classIds();";
 	C << sp;
 	C << nl << "std::string " << scoped.substr(2)
-	  << "::__implements[" << bases.size() + 2 << "] =";
+	  << "::__ids[" << ids.size() << "] =";
 	C << sb;
-	C << nl << '"' << scoped << "\",";
-	for(q = bases.begin(); q != bases.end(); ++q)
-	    C << nl << '"' << (*q) -> scoped() << "\",";
-	C << nl << "\"::Ice::Object\"";
+	q = ids.begin();
+	while(q != ids.end())
+	{
+	    C << nl << '"' << *q << '"';
+	    if(++q != ids.end())
+		C << ',';
+	}
+	C << eb << ';';
+	C << sp;
+	C << nl << "std::string " << scoped.substr(2)
+	  << "::__classIds[" << classIds.size() << "] =";
+	C << sb;
+	q = classIds.begin();
+	while(q != classIds.end())
+	{
+	    C << nl << '"' << *q << '"';
+	    if(++q != classIds.end())
+		C << ',';
+	}
 	C << eb << ';';
 	C << sp;
 	C << nl << "bool" << nl << scoped.substr(2)
-	  << "::_implements(const std::string& s)";
+	  << "::_isA(const std::string& s)";
 	C << sb;
-	C << nl << "std::string* b = __implements;";
-	C << nl << "std::string* e = __implements + " << bases.size() + 2
-	  << ';';
-	C << nl << "std::string* r = std::find(b, e, s);";
-	C << nl << "return(r != e);";
+	C << nl << "std::string* b = __ids;";
+	C << nl << "std::string* e = __ids + " << ids.size() << ';';
+	C << nl << "std::pair<std::string*, std::string*> r = "
+	  << "std::equal_range(b, e, s);";
+	C << nl << "return r.first != r.second;";
 	C << eb;
 	C << sp;
 	C << nl << "const std::string*" << nl << scoped.substr(2)
-	  << "::__ids()";
+	  << "::_classIds()";
 	C << sb;
-	C << nl << "return __implements;";
+	C << nl << "return __classIds;";
 	C << eb;
     }
 }
@@ -1109,7 +1185,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDef_ptr& p)
     string scoped = p -> scoped();
 
     list<Operation_ptr> operations = p -> operations();
-    ClassDef_ptr base = p -> base();
+    ClassList bases = p -> bases();
+    ClassDef_ptr base;
+    if(!bases.empty() && !bases.front() -> isInterface())
+	base = bases.front();
     
     if(!p -> isLocal() && !operations.empty())
     {
@@ -1431,7 +1510,7 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDef_ptr& p)
 	C << sb;
 	C << nl << "d = dynamic_cast< ::__IceProxy" << scoped
 	  << "*>(b);";
-	C << nl << "if(!d && b -> _implements(\"" << scoped << "\"))";
+	C << nl << "if(!d && b -> _isA(\"" << scoped << "\"))";
 	C << sb;
 	C << nl << "d = new ::__IceProxy" << scoped << ';';
 	C << nl << "b -> __copyTo(d);";

@@ -213,11 +213,8 @@ Slice::Container::createModule(const string& name)
 }
 
 ClassDef_ptr
-Slice::Container::createClassDef(const string& name,
-				 const ClassDef_ptr& base,
-				 const ClassList& interfaces,
-				 bool local,
-				 bool intf)
+Slice::Container::createClassDef(const string& name, bool local, bool intf,
+				 const ClassList& bases)
 {
     list<Contained_ptr> matches = unit_ -> findContents(thisScope() + name);
     for(list<Contained_ptr>::iterator p = matches.begin();
@@ -226,7 +223,7 @@ Slice::Container::createClassDef(const string& name,
     {
 	ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(*p);
 	if(cl)
-	    continue; // TODO: Check whether local matches
+	    continue; // TODO: Check whether local and interface matches
 
 	if(unit_ -> ignRedefs())
 	{
@@ -238,8 +235,7 @@ Slice::Container::createClassDef(const string& name,
 	assert(false); // TODO: Already exists and not a class declaration
     }
     
-    ClassDef_ptr def = new ClassDef(this, name, base, interfaces,
-				    local, intf);
+    ClassDef_ptr def = new ClassDef(this, name, local, intf, bases);
     contents_.push_back(def);
     
     for(list<Contained_ptr>::iterator q = matches.begin();
@@ -275,12 +271,12 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 	{
 	    assert(!def);
 	    def = clDef;
-	    continue; // TODO: Check whether local matches
+	    continue; // TODO: Check whether local and interface matches
 	}
 	
 	ClassDecl_ptr clDecl = ClassDecl_ptr::dynamicCast(*p);
 	if(clDecl)
-	    continue; // TODO: Check whether local matches
+	    continue; // TODO: Check whether local and interface matches
 
 	// TODO: Already defined as something other than a class
 	assert(false);
@@ -305,7 +301,7 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 	}
     }
 
-    ClassDecl_ptr cl = new ClassDecl(this, name, local, false);
+    ClassDecl_ptr cl = new ClassDecl(this, name, local, intf);
     contents_.push_back(cl);
 
     if(def)
@@ -697,7 +693,7 @@ Slice::ClassDecl::ClassDecl(const Container_ptr& container,
 void
 Slice::ClassDef::destroy()
 {
-    base_ = 0;
+    bases_.empty();
     Container::destroy();
 }
 
@@ -750,16 +746,27 @@ Slice::ClassDef::createDataMember(const string& name, const Type_ptr& type)
     return p;
 }
 
-ClassDef_ptr
-Slice::ClassDef::base()
+ClassList
+Slice::ClassDef::bases()
 {
-    return base_;
+    return bases_;
 }
 
 ClassList
-Slice::ClassDef::interfaces()
+Slice::ClassDef::allBases()
 {
-    return interfaces_;
+    ClassList result = bases_;
+    result.sort();
+    result.unique();
+    for(ClassList::iterator p = bases_.begin();
+	p != bases_.end();
+	++p)
+    {
+	ClassList li = (*p) -> allBases();
+	result.merge(li);
+	result.unique();
+    }
+    return result;
 }
 
 list<Operation_ptr>
@@ -795,7 +802,10 @@ Slice::ClassDef::dataMembers()
 bool
 Slice::ClassDef::isAbstract()
 {
-    if(base_ && base_ -> isAbstract())
+    if(isInterface())
+	return true;
+
+    if(!bases_.empty() && bases_.front() -> isAbstract())
 	return true;
 
     for(list<Contained_ptr>::const_iterator p = contents_.begin();
@@ -840,25 +850,26 @@ Slice::ClassDef::visit(ParserVisitor* visitor)
 
 Slice::ClassDef::ClassDef(const Container_ptr& container,
 			  const string& name,
-			  const ClassDef_ptr& base,
-			  const ClassList& interfaces,
 			  bool local,
-			  bool intf)
+			  bool intf,
+			  const ClassList& bases)
     : Contained(container, name),
       Container(container -> unit()),
       SyntaxTreeBase(container -> unit()),
-      base_(base),
-      interfaces_(interfaces),
       local_(local),
-      interface_(intf)
+      interface_(intf),
+      bases_(bases)
 {
-    assert(!base_ || !base_ -> isInterface());
+    //
+    // First element of bases may be a class, all others must be
+    // interfaces
+    //
 #ifndef NDEBUG
-    for(ClassList::iterator p = interfaces_.begin();
-	p != interfaces_.end();
+    for(ClassList::iterator p = bases_.begin();
+	p != bases_.end();
 	++p)
     {
-	assert((*p) -> isInterface());
+	assert(p == bases_.begin() || (*p) -> isInterface());
     }
 #endif
 }

@@ -174,7 +174,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 	{
 	    out << nl << "::Ice::Object_ptr __obj;";
 	    out << nl << stream << " -> read(__obj, " << cl -> scoped()
-		<< "::__implements[0]);";
+		<< "::__classIds[0]);";
 	    out << nl << "if(!__obj)";
 	    ClassDef_ptr def = cl -> definition();
 	    if(def && !def -> isAbstract())

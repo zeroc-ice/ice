@@ -203,7 +203,9 @@ class_decl
     BoolTok_ptr local = BoolTok_ptr::dynamicCast($1);
     StringTok_ptr ident = StringTok_ptr::dynamicCast($3);
     Container_ptr cont = unit -> currentContainer();
-    ClassDecl_ptr cl = cont -> createClassDecl(ident -> v, local -> v, false);
+    ClassDecl_ptr cl = cont -> createClassDecl(ident -> v,
+					       local -> v,
+					       false);
 }
 ;
 
@@ -216,11 +218,14 @@ class_def
     StringTok_ptr ident = StringTok_ptr::dynamicCast($3);
     Container_ptr cont = unit -> currentContainer();
     ClassDef_ptr base = ClassDef_ptr::dynamicCast($4);
-    ClassListTok_ptr intfs = ClassListTok_ptr::dynamicCast($5);
-    ClassDef_ptr derived = cont -> createClassDef(ident -> v, base,
-						  intfs -> v, local -> v,
-						  false);
-    unit -> pushContainer(derived);
+    ClassListTok_ptr bases = ClassListTok_ptr::dynamicCast($5);
+    if(base)
+	bases -> v.push_front(base);
+    ClassDef_ptr cl = cont -> createClassDef(ident -> v,
+					     local -> v,
+					     false,
+					     bases -> v);
+    unit -> pushContainer(cl);
 }
 '{' class_exports '}'
 {
@@ -290,7 +295,9 @@ interface_decl
     BoolTok_ptr local = BoolTok_ptr::dynamicCast($1);
     StringTok_ptr ident = StringTok_ptr::dynamicCast($3);
     Container_ptr cont = unit -> currentContainer();
-    ClassDecl_ptr cl = cont -> createClassDecl(ident -> v, local -> v, true);
+    ClassDecl_ptr cl = cont -> createClassDecl(ident -> v,
+					       local -> v,
+					       true);
 }
 ;
 
@@ -302,11 +309,12 @@ interface_def
     BoolTok_ptr local = BoolTok_ptr::dynamicCast($1);
     StringTok_ptr ident = StringTok_ptr::dynamicCast($3);
     Container_ptr cont = unit -> currentContainer();
-    ClassListTok_ptr intfs = ClassListTok_ptr::dynamicCast($4);
-    ClassDef_ptr derived = cont -> createClassDef(ident -> v, 0,
-						  intfs -> v, local -> v,
-						  true);
-    unit -> pushContainer(derived);
+    ClassListTok_ptr bases = ClassListTok_ptr::dynamicCast($4);
+    ClassDef_ptr cl = cont -> createClassDef(ident -> v,
+					     local -> v,
+					     true,
+					     bases -> v);
+    unit -> pushContainer(cl);
 }
 '{' interface_exports '}'
 {

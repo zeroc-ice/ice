@@ -272,8 +272,8 @@ public:
 
     virtual void destroy();
     Module_ptr createModule(const std::string&);
-    ClassDef_ptr createClassDef(const std::string&, const ClassDef_ptr&,
-				const ClassList&, bool, bool);
+    ClassDef_ptr createClassDef(const std::string&, bool, bool,
+				const ClassList&);
     ClassDecl_ptr createClassDecl(const std::string&, bool, bool);
     Vector_ptr createVector(const std::string&, const Type_ptr&);
     Enum_ptr createEnum(const std::string&, const StringList&);
@@ -371,8 +371,8 @@ public:
 				  const TypeStringList&, const TypeStringList&,
 				  const TypeList&);
     DataMember_ptr createDataMember(const std::string&, const Type_ptr&);
-    ClassDef_ptr base();
-    ClassList interfaces();
+    ClassList bases();
+    ClassList allBases();
     std::list<Operation_ptr> operations();
     std::list<DataMember_ptr> dataMembers();
     bool isAbstract();
@@ -385,16 +385,14 @@ protected:
 
     ClassDef(const Container_ptr&,
 	     const std::string&,
-	     const ClassDef_ptr&,
-	     const ClassList&,
 	     bool,
-	     bool);
+	     bool,
+	     const ClassList&);
     friend class ICE_API Container;
 
-    ClassDef_ptr base_;
-    ClassList interfaces_;
     bool local_;
     bool interface_;
+    ClassList bases_;
 };
 
 // ----------------------------------------------------------------------

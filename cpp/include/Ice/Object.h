@@ -41,9 +41,9 @@ public:
     Object();
     virtual ~Object();
 
-    virtual bool _implements(const std::string&);
-    ::__Ice::DispatchStatus ____implements(::__Ice::Incoming&);
-    virtual const std::string* __ids() = 0;
+    virtual bool _isA(const std::string&);
+    ::__Ice::DispatchStatus ____isA(::__Ice::Incoming&);
+    virtual const std::string* _classIds() = 0;
 
     typedef ::__Ice::DispatchStatus (Object::*__Op)(::__Ice::Incoming&);
     static __Op __ops[];
