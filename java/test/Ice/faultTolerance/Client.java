@@ -75,8 +75,16 @@ public class Client
 
         try
         {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
+	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
+
+	    //
+	    // This test aborts servers, so we don't want warnings.
+	    //
+	    properties.setProperty("Ice.Warn.Connections", "0");
+
+            communicator = Ice.Util.initialize(argsH);
+            status = run(argsH.value, communicator);
         }
         catch(Ice.LocalException ex)
         {

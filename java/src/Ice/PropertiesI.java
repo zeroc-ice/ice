@@ -230,30 +230,16 @@ final class PropertiesI extends LocalObjectImpl implements Properties
     public synchronized Properties
     _clone()
     {
-        PropertiesI p = new PropertiesI(new String[0]);
-        p._properties.putAll(_properties);
-        return p;
+        return new PropertiesI(this);
+    }
+
+    PropertiesI(PropertiesI p)
+    {
+        _properties.putAll(p._properties);
     }
 
     PropertiesI()
     {
-    }
-
-    PropertiesI(String[] args)
-    {
-        for(int i = 0; i < args.length; i++)
-        {
-            if(args[i].startsWith("--Ice.Config"))
-            {
-                String line = args[i];
-                if(line.indexOf('=') == -1)
-                {
-                    line += "=1";
-                }
-                parseLine(line.substring(2));
-            }
-        }
-
         loadConfig();
     }
 
@@ -280,6 +266,8 @@ final class PropertiesI extends LocalObjectImpl implements Properties
         }
 
         loadConfig();
+
+	args.value = parseIceCommandLineOptions(args.value);
     }
 
     private void

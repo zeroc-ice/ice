@@ -468,10 +468,12 @@ PropertiesPtr
 Ice::PropertiesI::clone()
 {
     IceUtil::Mutex::Lock sync(*this);
+    return new PropertiesI(this);
+}
 
-    PropertiesI* p = new PropertiesI();
-    p->_properties = _properties;
-    return p;
+Ice::PropertiesI::PropertiesI(const PropertiesI* p) :
+    _properties(p->_properties)
+{
 }
 
 Ice::PropertiesI::PropertiesI()

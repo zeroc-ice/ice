@@ -269,10 +269,10 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
         _instance.flushBatchRequests();
     }
 
-    CommunicatorI(StringSeqHolder args, Properties properties)
+    CommunicatorI(Properties properties)
     {
 	_destroyed = false;
-        _instance = new IceInternal.Instance(this, args, properties);
+        _instance = new IceInternal.Instance(this, properties);
     }
 
     protected void

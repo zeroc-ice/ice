@@ -39,6 +39,7 @@ public:
 
 private:
 
+    PropertiesI(const PropertiesI*);
     PropertiesI();
     PropertiesI(StringSeq&);
 

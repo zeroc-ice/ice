@@ -274,15 +274,10 @@ public class Instance
     // Only for use by Ice.CommunicatorI
     //
     public
-    Instance(Ice.Communicator communicator, Ice.StringSeqHolder args, Ice.Properties properties)
+    Instance(Ice.Communicator communicator, Ice.Properties properties)
     {
         _destroyed = false;
         _properties = properties;
-
-        //
-        // Convert command-line options to properties.
-        //
-        args.value = _properties.parseIceCommandLineOptions(args.value);
 
         try
         {
