@@ -167,7 +167,8 @@ Freeze::DBEnvironmentI::close()
 
     while(!_dbMap.empty())
     {
-	_dbMap.begin()->second->close();
+	DBPtr db = _dbMap.begin()->second;
+	db->close();
     }
 
     if (_trace >= 1)
@@ -384,9 +385,7 @@ Freeze::DBI::put(const Key& key, const Value& value)
 Value
 Freeze::DBI::get(const Key& key)
 {
-    cout << "xxx" << endl;
     JTCSyncT<JTCMutex> sync(*this);
-    cout << "yyy" << endl;
 
     if (!_db)
     {

@@ -167,6 +167,8 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity
 {
     JTCSyncT<JTCMutex> sync(*this);
 
+    assert(_db);
+
     //
     // If this operation is called on a deactivated servant locator,
     // it's a bug in Ice.
@@ -255,6 +257,7 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const string& identity, cons
 {
     JTCSyncT<JTCMutex> sync(*this);
 
+    assert(_db);
     assert(servant);
 
     //
@@ -301,10 +304,14 @@ Freeze::EvictorI::deactivate()
 	if (_trace >= 1)
 	{
 	    ostringstream s;
-	    s << "deactivating, saving unsaved Ice Objects in the queue to the database";
+	    s << "deactivating, saving unsaved Ice Objects to the database";
 	    _db->getCommunicator()->getLogger()->trace("Evictor", s.str());
 	}
 
+	//
+	// Set the evictor size to zero, meaning that we will evict
+	// everything possible.
+	//
 	_evictorSize = 0;
 	evict();
     }
@@ -368,6 +375,18 @@ Freeze::EvictorI::evict()
 	      << "number of elements in the queue: " << _evictorMap.size();
 	    _db->getCommunicator()->getLogger()->trace("Evictor", s.str());
 	}
+    }
+
+    //
+    // If we're deactivated, and if there are no more elements to
+    // evict, set _db to zero to break cyclic object
+    // dependencies.
+    //
+    if (_deactivated && _evictorMap.empty())
+    {
+	assert(_evictorList.empty());
+	assert(_evictorSize == 0);
+	_db = 0;
     }
 }
 

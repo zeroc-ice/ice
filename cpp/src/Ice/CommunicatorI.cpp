@@ -49,12 +49,10 @@ Ice::CommunicatorI::shutdown()
 void
 Ice::CommunicatorI::waitForShutdown()
 {
-    JTCSyncT<JTCRecursiveMutex> sync(*this);
-    if (!_instance)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
+    //
+    // No mutex locking here, otherwise the communicator is blocked
+    // while waiting for shutdown.
+    //
     _threadPool->waitUntilServerFinished();
 }
 
