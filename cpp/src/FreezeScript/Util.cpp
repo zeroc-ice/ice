@@ -92,8 +92,8 @@ FreezeScript::createEvictorSliceTypes(const Slice::UnitPtr& unit)
     {
         identity = ice->createStruct("Identity", false);
         Slice::TypePtr str = unit->builtin(Slice::Builtin::KindString);
-        identity->createDataMember("category", str);
         identity->createDataMember("name", str);
+        identity->createDataMember("category", str);
     }
     else
     {
