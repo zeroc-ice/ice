@@ -87,9 +87,9 @@ static inline int ice_atomic_dec_and_test(ice_atomic_t *v)
 
 /**
  * ice_atomic_exchange_add - same as InterlockedExchangeAdd. This didn't
- * come from ice_atomic.h (the code was derived from similar code in
+ * come from atomic.h (the code was derived from similar code in
  * /usr/include/asm/rwsem.h)
- **/
+ */
 static inline int ice_atomic_exchange_add(int i, ice_atomic_t* v)
 {
     int tmp = i;
@@ -284,7 +284,7 @@ Shared::__decRef()
 inline int
 Shared::__getRef() const
 {
-    return InterlockedExchangeAdd(const_cast<ice_atomic_t*>(&_ref), 0);
+    return InterlockedExchangeAdd(const_cast<LONG*>(&_ref), 0);
 }
 
 inline void

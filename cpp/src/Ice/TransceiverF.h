@@ -19,7 +19,7 @@ namespace IceInternal
 class Transceiver;
 void incRef(Transceiver*);
 void decRef(Transceiver*);
-typedef IceInternal::Handle<Transceiver> TransceiverPtr;
+typedef Handle<Transceiver> TransceiverPtr;
 
 }
 

@@ -381,14 +381,22 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
     string s(endpts);
     transform(s.begin(), s.end(), s.begin(), tolower);
 
-    string::size_type beg = 0;
-    string::size_type end;
-    
     __setNoDelete(true);
     try
     {
-	while (true)
+	string::size_type beg;
+	string::size_type end = 0;
+
+	while (end < s.length())
 	{
+	    static const string delim = " \t\n\r";
+	    
+	    beg = s.find_first_not_of(delim, end);
+	    if (beg == string::npos)
+	    {
+		break;
+	    }
+
 	    end = s.find(':', beg);
 	    if (end == string::npos)
 	    {
@@ -397,7 +405,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 	    
 	    if (end == beg)
 	    {
-		throw EndpointParseException(__FILE__, __LINE__);
+		break;
 	    }
 	    
 	    string es = s.substr(beg, end - beg);
@@ -409,13 +417,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 	    //
 	    EndpointPtr endp = Endpoint::endpointFromString(instance, es);
 	    _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, endp, this));
-	    
-	    if (end == s.length())
-	    {
-		break;
-	    }
-	    
-	    beg = end + 1;
+
+	    end = end + 1;
 	}
     }
     catch(...)

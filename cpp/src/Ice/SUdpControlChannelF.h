@@ -20,8 +20,25 @@ namespace SecureUdp
 {
 
 class ControlChannel;
-void incRef(ControlChannel*);
-void decRef(ControlChannel*);
+
+}
+
+}
+
+namespace IceInternal
+{
+
+void incRef(::IceSecurity::SecureUdp::ControlChannel*);
+void decRef(::IceSecurity::SecureUdp::ControlChannel*);
+
+}
+
+namespace IceSecurity
+{
+
+namespace SecureUdp
+{
+
 typedef IceInternal::Handle<ControlChannel> ControlChannelPtr;
 
 }

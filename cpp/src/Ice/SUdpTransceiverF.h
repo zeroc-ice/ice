@@ -19,7 +19,7 @@ namespace IceInternal
 class SUdpTransceiver;
 void incRef(SUdpTransceiver*);
 void decRef(SUdpTransceiver*);
-typedef IceInternal::Handle<SUdpTransceiver> SUdpTransceiverPtr;
+typedef Handle<SUdpTransceiver> SUdpTransceiverPtr;
 
 }
 

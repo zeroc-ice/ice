@@ -695,7 +695,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	list<ConnectionPtr>::iterator p;
 	for (p = connections.begin(); p != connections.end(); ++p)
 	{
-	    if ((*p)->endpoint() == endpoints.front());
+	    if ((*p)->endpoint() == endpoints.front())
 	    {
 		break;
 	    }

@@ -32,6 +32,7 @@ class ControlChannel : public virtual Shared
 {
 
 protected:
+
     ControlChannel(const SUdpTransceiverPtr&, const InstancePtr&);
     virtual ~ControlChannel();
 

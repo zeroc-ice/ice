@@ -7,8 +7,9 @@
 // All Rights Reserved
 //
 // **********************************************************************
+
 #ifdef WIN32
-#pragma warning(disable:4786)
+#   pragma warning(disable:4786) // TODO: Comment about what this warning disables.
 #endif
 
 //
@@ -301,7 +302,8 @@ verifyCallback(int ok, X509_STORE_CTX *ctx)
 
         if (!ok)
         {
-            outStringStream << "verify error: num = " << verifyError << " : "  << X509_verify_cert_error_string(verifyError) << endl;
+            outStringStream << "verify error: num = " << verifyError << " : " 
+			    << X509_verify_cert_error_string(verifyError) << endl;
 
         }
 
@@ -331,7 +333,8 @@ verifyCallback(int ok, X509_STORE_CTX *ctx)
 
         outStringStream << "verify return = " << ok << endl;
 
-        IceSecurity::Ssl::OpenSSL::System::_globalLogger->trace(IceSecurity::Ssl::OpenSSL::System::_globalTraceLevels->securityCat, outStringStream.str());
+        IceSecurity::Ssl::OpenSSL::System::_globalLogger->trace(
+	    IceSecurity::Ssl::OpenSSL::System::_globalTraceLevels->securityCat, outStringStream.str());
     }
 
     return ok;
@@ -452,7 +455,8 @@ bio_dump_cb(BIO *bio, int cmd, const char *argp, int argi, long argl, long ret)
 
         if (cmd == (BIO_CB_READ|BIO_CB_RETURN) || cmd == (BIO_CB_WRITE|BIO_CB_RETURN))
         {
-            IceSecurity::Ssl::OpenSSL::System::_globalLogger->trace(IceSecurity::Ssl::OpenSSL::System::_globalTraceLevels->securityCat, outStringStream.str());
+            IceSecurity::Ssl::OpenSSL::System::_globalLogger->trace(
+		IceSecurity::Ssl::OpenSSL::System::_globalTraceLevels->securityCat, outStringStream.str());
         }
     }
 

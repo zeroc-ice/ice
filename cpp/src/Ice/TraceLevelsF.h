@@ -19,7 +19,7 @@ namespace IceInternal
 class TraceLevels;
 void incRef(TraceLevels*);
 void decRef(TraceLevels*);
-typedef IceInternal::Handle<TraceLevels> TraceLevelsPtr;
+typedef Handle<TraceLevels> TraceLevelsPtr;
 
 }
 

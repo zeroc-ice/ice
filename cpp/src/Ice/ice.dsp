@@ -25,7 +25,7 @@ CFG=Ice - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=cl.exe
+CPP=xicl6.exe
 MTL=midl.exe
 RSC=rc.exe
 
@@ -52,9 +52,9 @@ RSC=rc.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=link.exe
+LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 ws2_32.lib libeay32.lib ssleay32.lib xerces-c_1.lib /nologo /dll /machine:I386 /out:"Release/ice001.dll"
+# ADD LINK32 ws2_32.lib libeay32.lib ssleay32.lib xerces-c_1.lib /nologo /dll /machine:I386 /nodefaultlib /out:"Release/ice001.dll"
 # SUBTRACT LINK32 /pdb:none /debug
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
@@ -75,7 +75,7 @@ PostBuild_Cmds=copy Release\ice001.* ..\..\lib
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "WIN32" /D "_UNICODE" /D "_DEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /D "ICE_SECURITY_DEBUG" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "WIN32" /D "_UNICODE" /D "_DEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /GZ /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -84,10 +84,10 @@ PostBuild_Cmds=copy Release\ice001.* ..\..\lib
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=link.exe
+LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 ws2_32.lib libeay32.lib ssleay32.lib xerces-c_1D.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice001d.dll" /pdbtype:sept
-# SUBTRACT LINK32 /pdb:none
+# SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy Debug\ice001d.* ..\..\lib
@@ -121,18 +121,6 @@ SOURCE=.\Communicator.cpp
 # Begin Source File
 
 SOURCE=.\CommunicatorI.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Router.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RouterInfo.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RoutingTable.cpp
 # End Source File
 # Begin Source File
 
@@ -260,6 +248,22 @@ SOURCE=.\ReferenceFactory.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Router.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\RouterInfo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\RoutingTable.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SecureUdp.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SecurityException.cpp
 # End Source File
 # Begin Source File
@@ -344,6 +348,22 @@ SOURCE=.\StreamI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SUdpClientControlChannel.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SUdpControlChannel.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SUdpServerControlChannel.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SUdpTransceiver.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TcpAcceptor.cpp
 # End Source File
 # Begin Source File
@@ -417,30 +437,6 @@ SOURCE=..\..\include\Ice\CommunicatorF.h
 # Begin Source File
 
 SOURCE=.\CommunicatorI.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\Router.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RouterF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RouterInfo.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\RouterInfoF.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RoutingTable.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\RoutingTableF.h
 # End Source File
 # Begin Source File
 
@@ -616,6 +612,10 @@ SOURCE=..\..\include\Ice\Outgoing.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\PicklerI.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Ice\Properties.h
 # End Source File
 # Begin Source File
@@ -665,6 +665,38 @@ SOURCE=.\ReferenceFactory.h
 # Begin Source File
 
 SOURCE=.\ReferenceFactoryF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Router.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\RouterF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\RouterInfo.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\RouterInfo.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\RouterInfoF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\RoutingTable.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\RoutingTableF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SecureUdp.h
 # End Source File
 # Begin Source File
 
@@ -757,6 +789,30 @@ SOURCE=..\..\include\Ice\StreamF.h
 # Begin Source File
 
 SOURCE=.\StreamI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SUdpClientControlChannel.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SUdpControlChannel.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SUdpControlChannelF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SUdpServerControlChannel.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SUdpTransceiver.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SUdpTransceiverF.h
 # End Source File
 # Begin Source File
 
@@ -896,86 +952,6 @@ InputPath=..\..\slice\Ice\CommunicatorF.ice
 	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/CommunicatorF.ice 
 	move CommunicatorF.h ..\..\include\Ice 
 	del CommunicatorF.cpp 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\Router.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__COMMU="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\Router.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Router.ice \
-	move Router.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__COMMU="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\Router.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Router.ice \
-	move Router.h ..\..\include\Ice \
-	
-
-"..\..\include\Ice\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Ice\RouterF.ice
-
-!IF  "$(CFG)" == "Ice - Win32 Release"
-
-USERDEP__COMMUN="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\RouterF.ice
-
-"..\..\include\Ice\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RouterF.ice 
-	move RouterF.h ..\..\include\Ice 
-	del RouterF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
-
-USERDEP__COMMUN="../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Ice\RouterF.ice
-
-"..\..\include\Ice\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RouterF.ice 
-	move RouterF.h ..\..\include\Ice 
-	del RouterF.cpp 
 	
 # End Custom Build
 
@@ -1439,6 +1415,129 @@ InputPath=..\..\slice\Ice\PropertiesF.ice
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\slice\Ice\Router.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__ROUTE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Router.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Router.ice \
+	move Router.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__ROUTE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Router.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Router.ice \
+	move Router.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Router.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Router.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\RouterF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__ROUTER="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\RouterF.ice
+
+"..\..\include\Ice\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RouterF.ice 
+	move RouterF.h ..\..\include\Ice 
+	del RouterF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__ROUTER="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\RouterF.ice
+
+"..\..\include\Ice\RouterF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/RouterF.ice 
+	move RouterF.h ..\..\include\Ice 
+	del RouterF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\SecureUdp.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__SECUR="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SecureUdp.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --include-dir Ice -I../../slice ../../slice/Ice/SecureUdp.ice \
+	
+
+"SecureUdp.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"SecureUdp.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__SECUR="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SecureUdp.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --include-dir Ice -I../../slice ../../slice/Ice/SecureUdp.ice \
+	
+
+"SecureUdp.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"SecureUdp.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\slice\Ice\SecurityException.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
@@ -1461,7 +1560,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
-USERDEP__SECUR="../../bin/slice2cpp.exe"	
+USERDEP__SECURI="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\SecurityException.ice
 

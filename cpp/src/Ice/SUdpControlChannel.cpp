@@ -14,13 +14,13 @@
 using namespace std;
 using namespace Ice;
 
-void IceSecurity::SecureUdp::incRef(ControlChannel* p) { p->__incRef(); }
-void IceSecurity::SecureUdp::decRef(ControlChannel* p) { p->__decRef(); }
+void IceInternal::incRef(::IceSecurity::SecureUdp::ControlChannel* p) { p->__incRef(); }
+void IceInternal::decRef(::IceSecurity::SecureUdp::ControlChannel* p) { p->__decRef(); }
 
 IceSecurity::SecureUdp::ControlChannel::ControlChannel(const SUdpTransceiverPtr& transceiver,
                                                        const InstancePtr& instance) :
-                                       _transceiver(transceiver),
-                                       _instance(instance)
+    _transceiver(transceiver),
+    _instance(instance)
 {
     assert(transceiver);
 }

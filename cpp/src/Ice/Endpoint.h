@@ -304,6 +304,7 @@ private:
     const std::string _host;
     const ::Ice::Int _port;
 };
+
 }
 
 #endif

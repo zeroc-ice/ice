@@ -17,9 +17,9 @@ namespace IceInternal
 {
 
 class ReferenceFactory;
-ICE_API void incRef(ReferenceFactory*);
-ICE_API void decRef(ReferenceFactory*);
-typedef IceInternal::Handle<ReferenceFactory> ReferenceFactoryPtr;
+void incRef(ReferenceFactory*);
+void decRef(ReferenceFactory*);
+typedef Handle<ReferenceFactory> ReferenceFactoryPtr;
 
 }
 

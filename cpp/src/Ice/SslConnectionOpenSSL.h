@@ -79,14 +79,14 @@ private:
 
 class HandshakeSentinel
 {
-
 public:
+
     HandshakeSentinel(SafeFlag& handshakeFlag) :
-                     _flag(handshakeFlag)
+	_flag(handshakeFlag)
     {
         _ownHandshake = _flag.checkAndSet();
     }
-
+    
     ~HandshakeSentinel()
     { 
         if (_ownHandshake)
@@ -101,13 +101,13 @@ public:
     }
 
 private:
+
     bool _ownHandshake;
     SafeFlag& _flag;
 };
 
 class Connection : public IceSecurity::Ssl::Connection
 {
-
 public:
 
     Connection(SSL*, string&);

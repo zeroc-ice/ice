@@ -27,10 +27,9 @@ using Ice::LoggerPtr;
 
 class Connection
 {
-
 public:
 
-    virtual ~Connection() {};
+    virtual ~Connection() { };
 
     virtual void shutdown() = 0;
 

@@ -19,12 +19,12 @@ namespace IceInternal
 class RouterManager;
 void incRef(RouterManager*);
 void decRef(RouterManager*);
-typedef IceInternal::Handle<RouterManager> RouterManagerPtr;
+typedef Handle<RouterManager> RouterManagerPtr;
 
 class RouterInfo;
 void incRef(RouterInfo*);
 void decRef(RouterInfo*);
-typedef IceInternal::Handle<RouterInfo> RouterInfoPtr;
+typedef Handle<RouterInfo> RouterInfoPtr;
 
 }
 

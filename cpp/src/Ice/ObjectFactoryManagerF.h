@@ -19,7 +19,7 @@ namespace IceInternal
 class ObjectFactoryManager;
 void incRef(ObjectFactoryManager*);
 void decRef(ObjectFactoryManager*);
-typedef IceInternal::Handle<ObjectFactoryManager> ObjectFactoryManagerPtr;
+typedef Handle<ObjectFactoryManager> ObjectFactoryManagerPtr;
 
 }
 

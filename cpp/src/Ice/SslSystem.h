@@ -8,7 +8,6 @@
 //
 // **********************************************************************
 
-
 #ifndef ICE_SSL_SYSTEM_H
 #define ICE_SSL_SYSTEM_H
 
@@ -28,13 +27,14 @@ using Ice::PropertiesPtr;
 
 class Factory;
 
-// TODO: Can we derive this from Shared?  How hard would that be?
+// TODO: Can we derive this from Shared? How hard would that be?
+// TODO: <ml>Absolutely. Please do not add yet another reference counting mechanism.</ml>
 
 class System
 {
-
 public:
-    inline string getSystemID() const { return _systemID; };
+
+    string getSystemID() const { return _systemID; };
 
     virtual bool isConfigLoaded() = 0;
     virtual void loadConfig() = 0;
@@ -58,8 +58,9 @@ protected:
     virtual ~System();
 
     // Reference counting.
-    inline void incRef() { _refCount++; };
-    inline bool decRef() { return (--_refCount ? true : false); };
+    // TODO: Remove this, use IceUtil::Shared or Ice::Shared.
+    void incRef() { _refCount++; };
+    bool decRef() { return (--_refCount ? true : false); };
 
     string _systemID;
     int _refCount;
@@ -67,9 +68,8 @@ protected:
     TraceLevelsPtr _traceLevels;
     LoggerPtr _logger;
     PropertiesPtr _properties;
-
-friend class Factory;
-
+    
+    friend class Factory;
 };
 
 }

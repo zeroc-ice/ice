@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #ifdef WIN32
-#pragma warning(disable:4786)
+#   pragma warning(disable:4786) // TODO: Comment about what the disabled warning is.
 #endif
 
 #include <Ice/SslFactory.h>

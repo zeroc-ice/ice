@@ -19,7 +19,7 @@ namespace IceInternal
 class EventHandler;
 void incRef(EventHandler*);
 void decRef(EventHandler*);
-typedef IceInternal::Handle<EventHandler> EventHandlerPtr;
+typedef Handle<EventHandler> EventHandlerPtr;
 
 }
 

@@ -26,13 +26,13 @@ namespace IceSecurity
 namespace Ssl
 {
 
-typedef enum
+enum SslProtocol
 {
     SSL_V2 = 1,     // Only speak SSLv2
     SSL_V23,        // Speak SSLv2 and SSLv3
     SSL_V3,         // Only speak SSLv3
     TLS_V1          // Only speak TLSv1
-} SslProtocol;
+};
 
 }
 
@@ -76,7 +76,6 @@ typedef map<int,DiffieHellmanParamsFile> DHParamsMap;
 
 class System : public IceSecurity::Ssl::System
 {
-
 public:
 
     void printContextInfo(SSL_CTX*);
@@ -109,15 +108,15 @@ public:
 
 protected:
 
-     System(string&);
+    System(string&);
     ~System();
-
+    
 private:
-
+    
     // Base Diffie-Hellman 512bit key (only to be used for key exchange).
     static unsigned char _tempDiffieHellman512p[];
     static unsigned char _tempDiffieHellman512g[];
-
+    
     // Default SSL Contexts, for both Server and Client connections.
     SSL_CTX* _sslServerContext;
     SSL_CTX* _sslClientContext;
@@ -185,7 +184,6 @@ private:
 
     friend class IceSecurity::Ssl::Factory;
     friend class Connection;
-
 };
 
 }

@@ -220,15 +220,13 @@ Ice::PropertiesI::parseLine(const string& line)
 	return;
     }
     
+    string value;
     beg = s.find_first_not_of(delim + "=", end);
-    if (beg == string::npos)
+    if (beg != string::npos)
     {
-	return;
+	end = s.length();
+	value = s.substr(beg, end - beg);
     }
-    
-    end = s.length();
-    
-    string value = s.substr(beg, end - beg);
     
     setProperty(key, value);
 }

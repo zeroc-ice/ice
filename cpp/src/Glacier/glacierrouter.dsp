@@ -25,7 +25,7 @@ CFG=GlacierRouter - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=cl.exe
+CPP=xicl6.exe
 RSC=rc.exe
 
 !IF  "$(CFG)" == "GlacierRouter - Win32 Release"
@@ -49,9 +49,9 @@ RSC=rc.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=link.exe
+LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 /nologo /subsystem:console /machine:I386 /out:"C:\marc\ice\bin\glacier.exe" /libpath:"../../../lib"
+# ADD LINK32 /nologo /subsystem:console /machine:I386 /nodefaultlib /out:"C:\marc\ice\bin\glacier.exe" /libpath:"../../../lib"
 
 !ELSEIF  "$(CFG)" == "GlacierRouter - Win32 Debug"
 
@@ -74,9 +74,10 @@ LINK32=link.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=link.exe
+LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 /nologo /subsystem:console /debug /machine:I386 /out:"C:\marc\ice\bin\glacier.exe" /pdbtype:sept /libpath:"../../../lib"
+# SUBTRACT LINK32 /nodefaultlib
 
 !ENDIF 
 
@@ -99,6 +100,10 @@ SOURCE=.\GlacierRouter.cpp
 
 SOURCE=.\RouterI.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\ServerBlobject.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -110,6 +115,10 @@ SOURCE=.\ClientBlobject.h
 # Begin Source File
 
 SOURCE=.\RouterI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerBlobject.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

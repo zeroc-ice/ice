@@ -14,13 +14,6 @@
 #include <Ice/SUdpControlChannel.h>
 #include <Ice/SecureUdp.h>
 
-namespace IceInternal
-{
-
-class SUdpTransceiverPtr;
-
-}
-
 namespace IceSecurity
 {
 

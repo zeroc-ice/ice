@@ -19,7 +19,7 @@ namespace IceInternal
 class Connector;
 void incRef(Connector*);
 void decRef(Connector*);
-typedef IceInternal::Handle<Connector> ConnectorPtr;
+typedef Handle<Connector> ConnectorPtr;
 
 }
 

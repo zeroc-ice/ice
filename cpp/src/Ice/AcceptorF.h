@@ -19,7 +19,7 @@ namespace IceInternal
 class Acceptor;
 void incRef(Acceptor*);
 void decRef(Acceptor*);
-typedef IceInternal::Handle<Acceptor> AcceptorPtr;
+typedef Handle<Acceptor> AcceptorPtr;
 
 }
 

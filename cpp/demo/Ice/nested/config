@@ -1,9 +1,8 @@
 Nested.NestedServer=nestedServer:default -p 10000 -t 1000
-Ice.Adapter.NestedServerAdapter.Endpoints=default -p 10000 -t 1000
 Ice.Adapter.NestedClientAdapter.Endpoints=default -t 1000
 
-Ice.ThreadPool.Size=5
-#Ice.Trace.Network=3
+Ice.ThreadPool.Size=10
+Ice.Trace.Network=1
 #Ice.Trace.Protocol=1
 #Ice.ConnectionWarnings=1
 
@@ -16,5 +15,5 @@ Glacier.Server.Endpoints=default -p 10011
 Glacier.Trace.Client=1
 Glacier.Trace.Server=1
 Ice.DefaultRouter=router:default -p 10005
-Ice.Adapter.NestedServerAdapter.Router=router:default -p 10005
-Ice.Adapter.NestedServerAdapter.Endpoints=
+Ice.Adapter.NestedClientAdapter.Router=router:default -p 10005
+Ice.Adapter.NestedClientAdapter.Endpoints=

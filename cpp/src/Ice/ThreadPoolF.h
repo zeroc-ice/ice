@@ -19,7 +19,7 @@ namespace IceInternal
 class ThreadPool;
 void incRef(ThreadPool*);
 void decRef(ThreadPool*);
-typedef IceInternal::Handle<ThreadPool> ThreadPoolPtr;
+typedef Handle<ThreadPool> ThreadPoolPtr;
 
 }
 
