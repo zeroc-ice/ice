@@ -385,7 +385,7 @@ Parser::graph(const list<string>& _args)
 void
 Parser::showBanner()
 {
-    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2004 ZeroC, Inc." << endl;
+    cout << "Ice " << ICE_STRING_VERSION << "  Copyright 2003-2005 ZeroC, Inc." << endl;
 #ifdef GPL_BUILD
     cout << gplBanner << endl;
 #endif

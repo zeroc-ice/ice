@@ -15,7 +15,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("Ice for C#")]
-[assembly: AssemblyCopyright("Copyright (c) 2003-2004, ZeroC, Inc.")]
+[assembly: AssemblyCopyright("Copyright (c) 2003-2005, ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]		
 [assembly: AssemblyVersion("2.1.0")]

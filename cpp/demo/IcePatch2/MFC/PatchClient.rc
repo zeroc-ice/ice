@@ -136,7 +136,7 @@ BEGIN
             VALUE "FileDescription", "Ice Patch Client\0"
             VALUE "FileVersion", "1.0.0.1\0"
             VALUE "InternalName", "PatchClient.exe\0"
-            VALUE "LegalCopyright", "Copyright (c) 2003 - 2004 ZeroC, Inc.  All rights reserved.\0"
+            VALUE "LegalCopyright", "Copyright (c) 2003 - 2005 ZeroC, Inc.  All rights reserved.\0"
             VALUE "OriginalFilename", "PatchClient.exe\0"
             VALUE "ProductName", "Ice\0"
             VALUE "ProductVersion", "1.0.0.1\0"
