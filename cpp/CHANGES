@@ -1,6 +1,14 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Added the demo/IcePack/simple demo.
+
+- Fixed a bug in IcePack that could cause the node to crash if a
+  server failed to start.
+
+- IceBox services deployed with IcePack are now loaded in the order
+  they appear in the XML IceBox descriptor.
+
 - Connections are now not closed anymore when that last proxy using
   the connection is destroyed. Doing so is error prone:
 

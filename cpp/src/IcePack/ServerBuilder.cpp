@@ -19,6 +19,8 @@
 #include <IcePack/AdapterFactory.h>
 #include <IcePack/ServerFactory.h>
 
+#include <iterator>
+
 using namespace std;
 using namespace IcePack;
 
@@ -381,6 +383,13 @@ IcePack::ServerBuilder::parse(const std::string& descriptor)
 	}
     }
 
+    if(_kind == ServerKindCppIceBox || _kind == ServerKindJavaIceBox)
+    {
+	ostringstream os;
+	copy(_serviceNames.begin(), _serviceNames.end(), ostream_iterator<string>(os," "));
+	addProperty("IceBox.LoadOrder", os.str());
+    }
+
     _description.args.push_back("--Ice.Config=" + _configFile);
 }
 
@@ -600,6 +609,8 @@ IcePack::ServerBuilder::addService(const string& name, const string& descriptor,
     TaskPtr t = task;
     task->parse(toLocation(descriptor));
     _tasks.push_back(t);
+
+    _serviceNames.push_back(name);
 }
 
 void

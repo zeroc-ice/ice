@@ -68,6 +68,7 @@ private:
     std::string _className;
     std::string _libraryPath;
     std::vector<std::string> _javaOptions;
+    std::vector<std::string> _serviceNames;
 
     ServerPrx _server;
     std::map<std::string, ServerAdapterPrx> _serverAdapters;

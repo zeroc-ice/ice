@@ -17,6 +17,7 @@
   <!-- ============================================================= -->
   <properties>
     <property name="Identity" value="${name}"/>
+    <property name="Ice.ThreadPool.Server.Size" value="5"/>
   </properties>
 
   <target name="debug">

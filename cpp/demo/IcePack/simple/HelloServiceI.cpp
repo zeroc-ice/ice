@@ -45,11 +45,10 @@ HelloServiceI::start(const string& name,
 		     const ::Ice::CommunicatorPtr& communicator,
 		     const ::Ice::StringSeq& args)
 {
-    _adapter = communicator->createObjectAdapter(name);
-
     string id = communicator->getProperties()->getProperty("Identity");
 
-    Ice::ObjectPtr object = new HelloFactoryI();
+    _adapter = communicator->createObjectAdapter(name);
+    ::Ice::ObjectPtr object = new HelloI;
     _adapter->add(object, Ice::stringToIdentity(id));
     _adapter->activate();
 }

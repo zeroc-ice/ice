@@ -16,7 +16,8 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= hello
+SUBDIRS		= simple \
+	          hello
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

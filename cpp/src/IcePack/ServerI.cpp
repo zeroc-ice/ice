@@ -242,15 +242,19 @@ void
 IcePack::ServerI::terminated(const Ice::Current&)
 {
     ServerState newState = Inactive; // Initialize to keep the compiler happy.
-
+    while(true)
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 	switch(_state)
 	{
 	case Inactive:
-	case Activating:
 	{
 	    assert(false);
+	}
+	case Activating:
+	{
+	    wait(); // TODO: Timeout?
+	    continue;
 	}
 	case Active:
 	{
@@ -286,6 +290,7 @@ IcePack::ServerI::terminated(const Ice::Current&)
 	}
 
 	assert(_state == Deactivating || _state == Destroying);
+	break;
     }
 
     if(newState != Destroyed)
