@@ -551,98 +551,56 @@ IcePatch::calcMD5(const string& path, bool dynamic, const LoggerPtr& logger)
     if(info.type == FileTypeDirectory)
     {
 	StringSeq paths = readDirectory(path);
-        if(dynamic)
+        for(StringSeq::const_iterator p = paths.begin(); p < paths.end(); ++p)
         {
-            //
-            // Dynamically compute the MD5s for all files, but reuse the MD5s
-            // already computed for subdirectories.
-            //
-            for(StringSeq::const_iterator p = paths.begin(); p < paths.end(); ++p)
+            if(!ignoreSuffix(*p))
             {
-                if(!ignoreSuffix(*p))
+                ByteSeq subBytesMD5;
+                FileInfo subInfo = getFileInfo(*p, true, logger);
+                if(subInfo.type == FileTypeDirectory)
                 {
-                    ByteSeq subBytesMD5;
-                    FileInfo subInfo = getFileInfo(*p, true, logger);
-                    if(subInfo.type == FileTypeDirectory)
+                    try
                     {
                         subBytesMD5 = getMD5(*p);
                     }
-                    else if(subInfo.type == FileTypeRegular)
+                    catch(const FileAccessException&)
                     {
                         subBytesMD5 = calcMD5(*p, dynamic, logger);
                     }
-
+                }
+                else if(subInfo.type == FileTypeRegular)
+                {
                     //
-                    // We must take the filename into account, so that
-                    // renaming a file will change the summary MD5.
+                    // If dynamic is true or the MD5 file is out of date, then
+                    // calculate a new MD5 for the file, otherwise use the
+                    // existing MD5.
                     //
-                    string plainFile = p->substr(p->rfind('/') + 1);
-                    copy(plainFile.begin(), plainFile.end(), back_inserter(bytes));
-                    copy(subBytesMD5.begin(), subBytesMD5.end(), back_inserter(bytes));
-                }
-
-#if 0
-                string plainPath;
-                ByteSeq subBytesMD5;
-                if(getSuffix(*p) == "md5")
-                {
-                    plainPath = removeSuffix(*p);
-                    FileInfo plainPathInfo = getFileInfo(plainPath, true, logger);
-                    if(plainPathInfo.type != FileTypeDirectory)
+                    if(dynamic)
                     {
-                        continue; // Ignore MD5 for a regular file.
+                        subBytesMD5 = calcMD5(*p, dynamic, logger);
                     }
-
-                    subBytesMD5 = getMD5(plainPath);
-                }
-                else if(!ignoreSuffix(*p))
-                {
-                    plainPath = *p;
-                    FileInfo plainPathInfo = getFileInfo(*p, true, logger);
-                    if(plainPathInfo.type != FileTypeRegular)
+                    else
                     {
-                        continue;
+                        FileInfo subInfoMD5 = getFileInfo(*p + ".md5", false, logger);
+                        if(subInfoMD5.type != FileTypeRegular || subInfoMD5.time < subInfo.time)
+                        {
+                            subBytesMD5 = calcMD5(*p, dynamic, logger);
+                        }
+                        else
+                        {
+                            subBytesMD5 = getMD5(*p);
+                        }
                     }
-
-                    subBytesMD5 = calcMD5(plainPath, dynamic, logger);
-                }
-                else
-                {
-                    continue;
                 }
 
                 //
                 // We must take the filename into account, so that
                 // renaming a file will change the summary MD5.
                 //
-                string plainFile = plainPath.substr(plainPath.rfind('/') + 1);
+                string plainFile = p->substr(p->rfind('/') + 1);
                 copy(plainFile.begin(), plainFile.end(), back_inserter(bytes));
                 copy(subBytesMD5.begin(), subBytesMD5.end(), back_inserter(bytes));
-#endif
             }
-        }
-        else
-        {
-            //
-            // Create a summary of all MD5 files.
-            //
-            for(StringSeq::const_iterator p = paths.begin(); p < paths.end(); ++p)
-            {
-                if(getSuffix(*p) == "md5")
-                {
-                    string plainPath = removeSuffix(*p);
-
-                    //
-                    // We must take the filename into account, so that
-                    // renaming a file will change the summary MD5.
-                    //
-                    string plainFile = plainPath.substr(plainPath.rfind('/') + 1);
-                    copy(plainFile.begin(), plainFile.end(), back_inserter(bytes));
-
-                    ByteSeq subBytesMD5 = getMD5(plainPath);
-                    copy(subBytesMD5.begin(), subBytesMD5.end(), back_inserter(bytes));
-                }
-            }	
         }
     }
     else
