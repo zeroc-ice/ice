@@ -651,23 +651,23 @@ for the proper operation of the &IceSSL; extension.
 </section>
 </section>
 
-<section><title>IceSSL.Client.Handshake.ReadTimeout, IceSSL.Server.Handshake.ReadTimeout</title>
+<section><title>IceSSL.Client.Handshake.Retries</title>
 <section><title>Synopsis</title>
 <synopsis>
-IceSSL.Client.Handshake.ReadTimeout=<replaceable>ms</replaceable>
-IceSSL.Server.Handshake.ReadTimeout=<replaceable>ms</replaceable>
+IceSSL.Client.Handshake.Retries=<replaceable>number</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-In order to tweak the behavior of SSL with regards to handshake, this timeout
-value, expressed in milliseconds, will be used for the first read directly
-after the SSL handshake is completed.  This gives the other party time to send
-application data before the connection times-out and resets.
+IceSSL clients attempt to perform an entire SSL handshake in the connection
+phase, during the setup of the SslTransceiver.  When attempting this handshake,
+it is possible that the client will timeout waiting for a response from the
+server.  This property makes it possible to change the number of handshake
+retries the client attempts before throwing a ConnectionFailedException.
 </para>
 <para>
-If not specified, the default value for these properties is 5000ms, or 5 seconds.
+If not specified, the default value for this property is 10 retries.
 </para>
 </section>
 </section>
