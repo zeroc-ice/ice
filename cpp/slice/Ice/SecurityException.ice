@@ -11,8 +11,6 @@
 #ifndef ICE_SECURITY_EXCEPTION_ICE
 #define ICE_SECURITY_EXCEPTION_ICE
 
-#include <Ice/LocalException.ice>
-
 module IceSecurity
 {
 
@@ -44,10 +42,11 @@ module Ssl
 /**
  *
  * This exception indicates that there has been a problem encountered
- * while parsing the SSL Configuration file, or while attempting to locate
- * the configuration file.  This exception could indicate a problem with
- * the Ice.Ssl.Config or Ice.Ssl.CertPath properties for your
- * <literal>communicator</literal>.
+ * while parsing the SSL Configuration file, or while attempting to
+ * locate the configuration file.  This exception could indicate a
+ * problem with the <literal>Ice.Ssl.Config</literal> or
+ * <literal>Ice.Ssl.CertPath</literal> properties for your
+ * [Ice::Communicator].
  *
  **/
 local exception ConfigParseException extends SecurityException
@@ -89,9 +88,10 @@ module OpenSSL
 
 /**
  *
- * A problem was encountered while setting up the <literal>SSL_CTX</literal>
- * context structure.  This can include problems related to parsing the
- * key files or allocating a <literal>SSL_CTX</literal> structure.
+ * A problem was encountered while setting up the
+ * <literal>SSL_CTX</literal> context structure.  This can include
+ * problems related to parsing the key files or allocating a
+ * <literal>SSL_CTX</literal> structure.
  *
  **/
 local exception ContextException extends SecurityException
