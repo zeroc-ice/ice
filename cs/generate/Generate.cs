@@ -62,17 +62,17 @@ namespace Generate
 		if(Directory.Exists(sliceDir))
 		{
 		    sliceFiles = Directory.GetFiles(sliceDir, slicePat);
-		    if(sliceFiles.Length == 0)
+		}
+	    }
+	    if(sliceFiles.Length == 0)
+	    {
+		if(iceHome != null)
+		{
+		    sliceDir = Path.Combine(Path.Combine(iceHome, "slice"), projName);
+		    if(Directory.Exists(sliceDir))
 		    {
-			if(iceHome != null)
-			{
-			    sliceDir = Path.Combine(Path.Combine(iceHome, "slice"), projName);
-			    if(Directory.Exists(sliceDir))
-			    {
-				sliceFiles = Directory.GetFiles(sliceDir, slicePat);
-			    }
-			}
-		    }	    
+			sliceFiles = Directory.GetFiles(sliceDir, slicePat);
+		    }
 		}
 	    }
 	    if(sliceFiles.Length == 0)

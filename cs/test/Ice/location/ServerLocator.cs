@@ -20,6 +20,18 @@ public class ServerLocator : Ice.Locator_Disp
         _registryPrx = registryPrx;
     }
     
+    // TODO: These should be AMD operations.
+
+    public override Ice.ObjectPrx findAdapterById(string adapter, Ice.Current current)
+    {
+	return _registry.getAdapter(adapter);
+    }
+
+    public override Ice.ObjectPrx findObjectById(Ice.Identity id, Ice.Current current)
+    {
+	return _registry.getObject(id);
+    }
+
     /*
     public virtual void findAdapterById_async(Ice.AMD_Locator_findAdapterById response, string adapter,
     					      Ice.Current current)
