@@ -763,6 +763,10 @@ Transform::Data::checkClasses(const Slice::ClassDeclPtr& dest, const Slice::Clas
             }
             s = Slice::ClassDeclPtr::dynamicCast(l.front());
         }
+        else
+        {
+            s = src;
+        }
 
         if(s)
         {
