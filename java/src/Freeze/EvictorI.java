@@ -946,7 +946,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    "Freeze.Trace.Evictor");
 
 	_errorPrefix = "Freeze Evictor DbEnv(\"" + envName + "\") Db(\"" +
-	    dbName + "\") :";
+	    dbName + "\"): ";
 
 	String propertyPrefix = "Freeze.Evictor." + envName + '.' + dbName; 
 	

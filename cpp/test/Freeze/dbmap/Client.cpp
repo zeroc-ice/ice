@@ -24,6 +24,9 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
+
+// #define SHOW_EXCEPTIONS 1
+
 #ifdef __SUNPRO_CC
 extern
 #else
@@ -69,11 +72,11 @@ populateDB(MAP& m)
 }
 
 template<class MAP>
-class StressThread : public IceUtil::Thread
+class ReadThread : public IceUtil::Thread
 {
 public:
 
-    StressThread(MAP& m) :
+    ReadThread(MAP& m) :
 	_map(m)
     {
     }
@@ -81,12 +84,36 @@ public:
     virtual void
     run()
     {
-	for(int i = 0; i < 50; ++i)
+	for(int i = 0; i < 10; ++i)
 	{
-	    typename MAP::iterator p = _map.begin();
-	    assert(p != _map.end());
-	    Byte b = p->second;
-	    test(b < 128);
+	    for(;;)
+	    {
+		try
+		{
+		    for(typename MAP::iterator p = _map.begin(); p != _map.end(); ++p)
+		    {
+			test(p->first == p->second + 'a');
+			IceUtil::ThreadControl::yield();
+		    }
+		    break; // for(;;)
+		}
+		catch(const DBDeadlockException&)
+		{
+#ifdef SHOW_EXCEPTIONS
+		    cerr << "r" << flush;
+#endif
+		    //
+		    // Try again
+		    //
+		}
+		catch(const DBInvalidPositionException&)
+		{
+#ifdef SHOW_EXCEPTIONS
+		    cerr << "i" << flush;
+#endif
+		    break;
+		}
+	    }
 	}
     }
 
@@ -94,6 +121,63 @@ private:
 
     MAP& _map;
 };
+
+template<class MAP>
+class WriteThread : public IceUtil::Thread
+{
+public:
+
+    WriteThread(MAP& m) :
+	_map(m)
+    {
+    }
+
+    virtual void
+    run()
+    {
+	//
+	// Delete an recreate each object
+	//
+	for(int i = 0; i < 4; ++i)
+	{
+	    for(;;)
+	    {
+		try
+		{
+		    for(typename MAP::iterator p = _map.begin(); p != _map.end(); ++p)
+		    {
+			p.set(p->second + 1);
+			_map.erase(p);
+		    }
+		    break; // for(;;)
+		}
+		catch(const DBDeadlockException&)
+		{
+#ifdef SHOW_EXCEPTIONS
+		    cerr << "w" << flush;
+#endif
+		    //
+		    // Try again
+		    //
+		}
+		catch(const DBInvalidPositionException&)
+		{
+#ifdef SHOW_EXCEPTIONS
+		    cerr << "I" << flush;
+#endif
+		    break;
+		}
+	    }
+	    populateDB(_map);
+	}
+    }
+
+private:
+
+    MAP& _map;
+};
+
+
 
 template<class MAP>
 int
@@ -127,6 +211,8 @@ run(int argc, char* argv[], MAP& m)
 	test(cp != m.end());
 	test(cp->first == *j && cp->second == j - alphabet.begin());
     }
+    p = m.end();
+    cp = m.end();
 
     test(!m.empty());
     test(m.size() == alphabet.size());
@@ -237,7 +323,7 @@ run(int argc, char* argv[], MAP& m)
     ++p;
 
     test(p2->first == data.first && p2->second == data.second);
-
+  
     p = m.find('n');
     p2 = ++p;
     test(p2->first == p->first);
@@ -392,12 +478,19 @@ run(int argc, char* argv[], MAP& m)
     }
     cout << "ok" << endl;
 
+    p = m.end();
+
     cout << "  testing concurrent access... " << flush;
+    m.clear();
+    populateDB(m);
+
     vector<IceUtil::ThreadControl> controls;
-    for(int i = 0; i < 10; ++i)
+    for(int i = 0; i < 5; ++i)
     {
-	IceUtil::ThreadPtr t = new StressThread<MAP>(m);
-	controls.push_back(t->start());
+	IceUtil::ThreadPtr rt = new ReadThread<MAP>(m);
+	controls.push_back(rt->start());
+	IceUtil::ThreadPtr wt = new WriteThread<MAP>(m);
+	controls.push_back(wt->start());
     }
     for(vector<IceUtil::ThreadControl>::iterator q = controls.begin(); q != controls.end(); ++q)
     {

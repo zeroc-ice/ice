@@ -16,23 +16,47 @@ import Freeze.*;
 
 public class Client
 {
-    static class StressThread extends Thread
+    static class ReadThread extends Thread
     {
         public void
         run()
         {
             try
             {
-		for(int i = 0; i < 50; ++i)
+		for(int i = 0; i < 10; ++i)
 		{
-		    java.util.Set entrySet = _map.entrySet();
-		    java.util.Iterator p = entrySet.iterator();
-		    if(p.hasNext())
+		    for(;;)
 		    {
-			Object o = p.next();
-			test(entrySet.contains(o));
+			java.util.Iterator p = null;
+
+			try
+			{
+			    java.util.Set entrySet = _map.entrySet();
+			    p = entrySet.iterator();
+			 
+			    while(p.hasNext())
+			    {
+				java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+				byte v = ((Byte)e.getKey()).byteValue();
+				test(e.getValue().equals(new Integer(v - (byte)'a')));
+			    }
+			    break;
+			}
+			catch(DBDeadlockException ex)
+			{
+			    // System.err.print("r");
+			    //
+			    // Try again
+			    //
+			}
+			finally
+			{
+			    if(p != null)
+			    {
+				((Freeze.Map.EntryIterator)p).close();
+			    }
+			}
 		    }
-		    ((Freeze.Map.EntryIterator)p).close();
 		}
 	    }
 	    catch(Exception ex)
@@ -42,13 +66,75 @@ public class Client
 	    }
 	}
 	
-	StressThread(java.util.Map m)
+	ReadThread(java.util.Map m)
         {
 	    _map = m;
 	}
 
 	private java.util.Map _map;
     }
+
+
+    static class WriteThread extends Thread
+    {
+        public void
+        run()
+        {
+            try
+            {
+		for(int i = 0; i < 4; ++i)
+		{
+		    for(;;)
+		    {
+			java.util.Iterator p = null;
+
+			try
+			{
+			    java.util.Set entrySet = _map.entrySet();
+			    p = entrySet.iterator();
+			 
+			    while(p.hasNext())
+			    {
+				java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+				int v = ((Integer)e.getValue()).intValue() + 1;
+				e.setValue(new Integer(v));
+				p.remove();
+			    }
+			    break;
+			}
+			catch(DBDeadlockException ex)
+			{
+			    // System.err.print("w");
+			    //
+			    // Try again
+			    //
+			}
+			finally
+			{
+			    if(p != null)
+			    {
+				((Freeze.Map.EntryIterator)p).close();
+			    }
+			}
+		    }
+		    populateDB(_map);
+		}
+	    }
+	    catch(Exception ex)
+	    {
+		ex.printStackTrace();
+		System.err.println(ex);
+	    }
+	}
+	
+	WriteThread(java.util.Map m)
+        {
+	    _map = m;
+	}
+
+	private java.util.Map _map;
+    }
+
 
     static String alphabet = "abcdefghijklmnopqrstuvwxyz";
 
@@ -288,14 +374,19 @@ public class Client
 	    System.out.print("  testing concurrent access... ");
 	    System.out.flush();
 	
+	    m.clear();
+	    populateDB(m);
+	    
+
 	    java.util.List l = new java.util.ArrayList();
 	
 	    //
 	    // Create each thread.
 	    //
-	    for(int i = 0; i < 10; ++i)
+	    for(int i = 0; i < 5; ++i)
 	    {
-		l.add(new StressThread(m));
+		l.add(new ReadThread(m));
+		l.add(new WriteThread(m));
 	    }
 
 	    //

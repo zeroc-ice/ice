@@ -195,9 +195,18 @@ public class Client
 	//
 	// Clean up.
 	//
+	evictor.destroyAllServants();
 	for(int i = 0; i < size; i++)
 	{
-	    servants[i].destroy();
+	    try
+	    {
+		servants[i].getValue();
+		test(false);
+	    }
+	    catch(Ice.ObjectNotExistException ex)
+	    {
+		// Expected
+	    }
 	}
 	
 	evictor.deactivate();

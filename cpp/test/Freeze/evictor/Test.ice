@@ -40,6 +40,7 @@ interface RemoteEvictor
     void clearLastSavedValue();
     void saveNow();
     void deactivate();
+    void destroyAllServants();
 };
 
 interface RemoteEvictorFactory

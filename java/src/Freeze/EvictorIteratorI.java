@@ -34,11 +34,12 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 	
 	    //
 	    // Keep 0 length since we're not interested in the data
-	    //
+	    // Unfortunately Berkeley DB does not like null data buffers,
+	    // so we use a dummy buffer
+	    // 
 	    com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
-	    dbValue.set_flags(com.sleepycat.db.Db.DB_DBT_USERMEM | 
-			      com.sleepycat.db.Db.DB_DBT_PARTIAL);
-	
+	    dbValue.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
+	  
 	    try
 	    {
 		if(_dbc.get(dbKey, dbValue, com.sleepycat.db.Db.DB_NEXT) == 0)

@@ -731,8 +731,7 @@ public abstract class Map extends java.util.AbstractMap
 		    // No interested in data
 		    //
 		    com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
-		    dbValue.set_flags(com.sleepycat.db.Db.DB_DBT_USERMEM | 
-			      com.sleepycat.db.Db.DB_DBT_PARTIAL);
+		    dbValue.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 		    
 		    int rc = clone.get(_lastReturned.getDbKey(), dbValue, com.sleepycat.db.Db.DB_SET);
 
@@ -873,8 +872,7 @@ public abstract class Map extends java.util.AbstractMap
 		    // Not interested in data
 		    //
 		    com.sleepycat.db.Dbt dummy = new com.sleepycat.db.Dbt();
-		    dummy.set_flags(com.sleepycat.db.Db.DB_DBT_USERMEM | 
-				    com.sleepycat.db.Db.DB_DBT_PARTIAL);
+		    dummy.set_flags(com.sleepycat.db.Db.DB_DBT_PARTIAL);
 		    
 		    int rc = clone.get(entry.getDbKey(), dummy, com.sleepycat.db.Db.DB_SET);
 

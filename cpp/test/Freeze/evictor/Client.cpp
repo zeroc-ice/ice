@@ -188,11 +188,20 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     //
     // Clean up.
     //
+    evictor->destroyAllServants();
     for(i = 0; i < size; i++)
     {
-	servants[i]->destroy();
+	try
+	{
+	    servants[i]->getValue();
+	    test(false);
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	    // Expected
+	}
     }
-    
+
     evictor->deactivate();
     cout << "ok" << endl;
 

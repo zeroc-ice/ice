@@ -166,6 +166,18 @@ Test::RemoteEvictorI::deactivate(const Current& current)
 }
 
 void
+Test::RemoteEvictorI::destroyAllServants(const Current&)
+{
+    Freeze::EvictorIteratorPtr p = _evictor->getIterator();
+    while(p->hasNext())
+    {
+	_evictor->destroyObject(p->next());
+    }
+    p->destroy();
+    _evictor->saveNow();
+}
+
+void
 Test::RemoteEvictorI::setLastSavedValue(Int value)
 {
     _lastSavedValue = value;

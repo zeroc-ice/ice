@@ -78,6 +78,18 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         _evictorAdapter.waitForDeactivate();
         _adapter.remove(Ice.Util.stringToIdentity(_category));
     }
+    
+    public void
+    destroyAllServants(Ice.Current current)
+    {
+	Freeze.EvictorIterator p = _evictor.getIterator();
+	while(p.hasNext())
+	{
+	    _evictor.destroyObject(p.next());
+	}
+	p.destroy();
+	_evictor.saveNow();
+    }
 
     void
     setLastSavedValue(int value)

@@ -81,6 +81,8 @@ public:
 
     virtual void deactivate(const Ice::Current&);
 
+    virtual void destroyAllServants(const Ice::Current&);
+
     void setLastSavedValue(Ice::Int);
 
 private:
