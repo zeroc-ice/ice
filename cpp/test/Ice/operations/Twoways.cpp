@@ -617,6 +617,26 @@ twoways(const Test::MyClassPrx& p)
     }
 
     {
+	Test::StringStringD di1;
+	di1["foo"] = "abc -1.1";
+	di1["bar"] = "abc 123123.2";
+	Test::StringStringD di2;
+	di2["foo"] = "abc -1.1";
+	di2["FOO"] = "abc -100.4";
+	di2["BAR"] = "abc 0.5";
+
+	Test::StringStringD _do;
+	Test::StringStringD ro = p->opStringStringD(di1, di2, _do);
+
+	test(_do == di1);
+	test(ro.size() == 4);
+	test(ro["foo"] == "abc -1.1");
+	test(ro["FOO"] == "abc -100.4");
+	test(ro["bar"] == "abc 123123.2");
+	test(ro["BAR"] == "abc 0.5");
+    }
+
+    {
 	Test::WStringMyEnumD di1;
 	di1[L"abc"] = Test::enum1;
 	di1[L""] = Test::enum2;

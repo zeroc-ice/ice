@@ -63,6 +63,7 @@ dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;
 dictionary<long, float> LongFloatD;
 dictionary<double, string> DoubleStringD;
+dictionary<string, string> StringStringD;
 dictionary<wstring, MyEnum> WStringMyEnumD;
 dictionary<MyClass*, string> MyClassStringD;
 
@@ -145,6 +146,9 @@ class MyClass
 
     DoubleStringD opDoubleStringD(DoubleStringD p1, DoubleStringD p2;
 				  DoubleStringD p3);
+
+    StringStringD opStringStringD(StringStringD p1, StringStringD p2;
+				  StringStringD p3);
 
     WStringMyEnumD opWStringMyEnumD(WStringMyEnumD p1, WStringMyEnumD p2;
 				    WStringMyEnumD p3);

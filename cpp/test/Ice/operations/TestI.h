@@ -128,6 +128,9 @@ public:
     virtual Test::DoubleStringD opDoubleStringD(const Test::DoubleStringD&, const Test::DoubleStringD&,
 						Test::DoubleStringD&);
 
+    virtual Test::StringStringD opStringStringD(const Test::StringStringD&, const Test::StringStringD&,
+						Test::StringStringD&);
+
     virtual Test::WStringMyEnumD opWStringMyEnumD(const Test::WStringMyEnumD&, const Test::WStringMyEnumD&,
 						  Test::WStringMyEnumD&);
 

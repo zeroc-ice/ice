@@ -344,6 +344,21 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name objectsS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name clockC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name clockS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceStorm
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceStormC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceStormS
+    End Project Dependency
 }}}
 
 ###############################################################################

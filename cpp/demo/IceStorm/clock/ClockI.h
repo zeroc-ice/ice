@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef CLOCKI_H
-#define CLOCKI_H
+#ifndef CLOCK_I_H
+#define CLOCK_I_H
 
 #include <Clock.h>
 
@@ -17,11 +17,7 @@ class ClockI : public Clock
 {
 public:
 
-    ClockI() { }
-    ~ClockI() { }
-
-    virtual void
-    tick();
+    virtual void tick();
 };
 
 #endif

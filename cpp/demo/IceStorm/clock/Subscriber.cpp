@@ -10,7 +10,6 @@
 
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
-
 #include <ClockI.h>
 
 using namespace std;

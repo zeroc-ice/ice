@@ -317,6 +317,16 @@ MyDerivedClassI::opDoubleStringD(const Test::DoubleStringD& p1, const Test::Doub
     return r;
 }
 
+Test::StringStringD
+MyDerivedClassI::opStringStringD(const Test::StringStringD& p1, const Test::StringStringD& p2,
+				 Test::StringStringD& p3)
+{
+    p3 = p1;
+    Test::StringStringD r = p1;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    return r;
+}
+
 Test::WStringMyEnumD
 MyDerivedClassI::opWStringMyEnumD(const Test::WStringMyEnumD& p1, const Test::WStringMyEnumD& p2,
 				  Test::WStringMyEnumD& p3)

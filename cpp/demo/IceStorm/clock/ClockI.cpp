@@ -9,7 +9,6 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-
 #include <ClockI.h>
 
 using namespace std;
