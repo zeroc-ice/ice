@@ -104,6 +104,10 @@ PostBuild_Cmds=copy Debug\freeze001d.* ..\..\lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Application.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\DB.cpp
 # End Source File
 # Begin Source File
@@ -128,15 +132,19 @@ SOURCE=.\EvictorI.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=..\..\include\Freeze\Application.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Freeze\DB.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Freeze\DBF.h
+SOURCE=..\..\include\Freeze\DBException.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Freeze\DBException.h
+SOURCE=..\..\include\Freeze\DBF.h
 # End Source File
 # Begin Source File
 
@@ -213,6 +221,51 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\slice\Freeze\DBException.ice
+
+!IF  "$(CFG)" == "Freeze - Win32 Release"
+
+USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\DBException.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBException.ice \
+	move DBException.h ..\..\include\Freeze \
+	
+
+"..\..\include\Freeze\DBException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"DBException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
+
+USERDEP__DBEXC="..\..\bin\slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Freeze\DBException.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBException.ice \
+	move DBException.h ..\..\include\Freeze \
+	
+
+"..\..\include\Freeze\DBException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"DBException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\slice\Freeze\DBF.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
@@ -241,51 +294,6 @@ InputPath=..\..\slice\Freeze\DBF.ice
 	move DBF.h ..\..\include\Freeze 
 	del DBF.cpp 
 	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Freeze\DBException.ice
-
-!IF  "$(CFG)" == "Freeze - Win32 Release"
-
-USERDEP__DB_IC="..\..\bin\slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Freeze\DBException.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBException.ice \
-	move DBException.h ..\..\include\Freeze \
-	
-
-"..\..\include\Freeze\DBException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"DBException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
-
-USERDEP__DB_IC="..\..\bin\slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Freeze\DBException.ice
-
-BuildCmds= \
-	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBException.ice \
-	move DBException.h ..\..\include\Freeze \
-	
-
-"..\..\include\Freeze\DBException.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"DBException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
 # End Custom Build
 
 !ENDIF 
