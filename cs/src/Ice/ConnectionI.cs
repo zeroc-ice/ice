@@ -546,6 +546,13 @@ namespace Ice
 		    }
 		}
 	    }
+	    finally
+	    {
+	        if(!Object.ReferenceEquals(os, stream))
+		{
+		    stream.destroy();
+		}
+	    }
 	}
 	
 	public void sendAsyncRequest(IceInternal.BasicStream os, IceInternal.OutgoingAsync og, bool compress)
@@ -837,6 +844,13 @@ namespace Ice
 		    // must report the exception to the caller.
 		    //
 		    throw _exception;
+		}
+	    }
+	    finally
+	    {
+	        if(!Object.ReferenceEquals(_batchStream, stream))
+		{
+		    stream.destroy();
 		}
 	    }
 
