@@ -391,14 +391,14 @@ template<typename P, typename Y> inline P
 checkedCast(const ::IceInternal::ProxyHandle<Y>& b)
 {
     Y* tag = 0;
-    return ::IceInternal::checkedCastHelper<P>(b, tag);
+    return ::IceInternal::checkedCastHelper<typename P::element_type>(b, tag);
 
 }
 template<typename P, typename Y> inline P
 uncheckedCast(const ::IceInternal::ProxyHandle<Y>& b)
 {
     Y* tag = 0;
-    return ::IceInternal::uncheckedCastHelper<P>(b, tag);
+    return ::IceInternal::uncheckedCastHelper<typename P::element_type>(b, tag);
 }
 
 template<typename P> inline P 
