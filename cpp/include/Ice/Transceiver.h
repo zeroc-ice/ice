@@ -37,7 +37,7 @@ private:
     friend class ConnectorI; // May create and destroy TransceiverIs
     friend class AcceptorI; // May create and destroy TransceiverIs
 
-    int fd_; // The socketdescriptor
+    int fd_;
 };
 
 }
