@@ -54,7 +54,7 @@ LIBS			= -lIce $(BASELIBS)
 ICEUTIL_OS_LIBS         := -lpthread -lrt
 ICE_OS_LIBS             := -ldl -lsocket
 
-lp64dir                := sparcv9
+lp64suffix              := /sparcv9
 
 ifeq ($(LP64),yes)
     export LD_LIBRARY_PATH_64	:= $(libdir):$(LD_LIBRARY_PATH_64)

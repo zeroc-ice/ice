@@ -26,7 +26,7 @@ ifeq ($(MACHINE),x86_64)
         CXXARCHFLAGS    := -m32
     endif    
 
-    lp64dir             := lib64
+    lp64suffix          := 64
 endif
 
 CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -fPIC -Wall -D_REENTRANT

@@ -2,6 +2,9 @@
 Requirements
 ======================================================================
 
+OS
+--
+A recent Linux distribution for Intel x86 or AMD Opteron (x86-64).
 
 C++ compiler
 ------------
@@ -35,12 +38,14 @@ Third-party libraries
 
 - bzip2 1.0
 
+- Readline 4.3 (optional)
+
 Xerces-C++ can be download from:
 
 http://xml.apache.org/xerces-c
 
-Berkeley DB, OpenSSL, and bzip2 are usually available with your Linux 
-distribution. The RPMs for Redhat 8.0 are:
+Berkeley DB, OpenSSL, bzip2 and Readline are usually available 
+with your Linux  distribution. The RPMs for Redhat 8.0 are:
 
 db4-devel-4.0.14-14
 openssl-devel-0.9.6b-29
@@ -112,6 +117,17 @@ PATH and "lib" to LD_LIBRARY_PATH:
 $ export PATH=`pwd`/bin:$PATH
 $ export LD_LIBRARY_PATH=`pwd`/bin:$LD_LIBRARY_PATH
 
+======================================================================
+64 bit builds on AMD Opteron
+======================================================================
+
+To build Ice in 64 bit mode, you need to:
+ - Obtain or build all the third party dependencies, and put the 64 bit
+   libraries in the "lib64" directories. For example put 
+   Berkeley DB 64 bit libraries in $DB_HOME/lib64.
+ - Set the environment variable LP64 to yes, e.g.:
+   $ export LP64=yes
+ - Build and test as described above.
 
 ======================================================================
 Installation
@@ -126,3 +142,8 @@ LD_LIBRARY_PATH. When compiling Ice programs, you must also make sure
 to pass the location of the <prefix>/include directory to the compiler
 with the -I option, and the location of the <prefix>/lib directory
 with the -L option.
+
+If LP64 is set to yes, the libraries are installed in <prefix>/lib64 
+and the programs are installed in <prefix>/bin64. Other files are 
+identical for 32 and 64 bit.
+

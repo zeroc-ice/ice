@@ -370,12 +370,16 @@ PhoneBookI::getNewIdentity()
 	}
 
 	char s[20];
-#ifdef _WIN32
-	sprintf(s, "%I64d", n);
+
+#if defined(ICE_64)
+	sprintf(s, "%ld", n);
 #else
+#   ifdef _WIN32
+	sprintf(s, "%I64d", n);
+#   else
 	sprintf(s, "%lld", n);
+#   endif
 #endif
-    
 	Identity id;
 
 	id.name = s;

@@ -119,8 +119,8 @@ includedir		= $(top_srcdir)/include
 slicedir		= $(top_srcdir)/slice
 
 ifeq ($(LP64),yes)
-    install_bindir	= $(prefix)/bin/$(lp64dir)
-    install_libdir	= $(prefix)/lib/$(lp64dir)
+    install_bindir	= $(prefix)/bin$(lp64suffix)
+    install_libdir	= $(prefix)/lib$(lp64suffix)
 else
     install_bindir	= $(prefix)/bin
     install_libdir	= $(prefix)/lib
@@ -144,7 +144,7 @@ UNAME                   := $(shell uname)
 include  $(top_srcdir)/config/Make.rules.$(UNAME)
 
 ifeq ($(LP64),yes)
-    libsubdir             := lib/$(lp64dir)
+    libsubdir             := lib$(lp64suffix)
 else
     libsubdir             := lib
 endif
@@ -201,10 +201,10 @@ ifeq ($(PLATFORM_HAS_READLINE),yes)
     ifeq ($(USE_READLINE),yes)
         ifneq ($(READLINE_HOME),)
             READLINE_FLAGS	= -DHAVE_READLINE -I$(READLINE_HOME)/include
-            READLINE_LIBS	= -L$(READLINE_HOME)/$(libsubdir) -lreadline -lncurses
+            READLINE_LIBS	= -L$(READLINE_HOME)/$(libsubdir) -lreadline
         else
             READLINE_FLAGS	= -DHAVE_READLINE
-            READLINE_LIBS	= -lreadline -lncurses
+            READLINE_LIBS	= -lreadline
         endif
     endif
 endif
