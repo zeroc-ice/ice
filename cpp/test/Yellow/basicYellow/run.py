@@ -32,7 +32,6 @@ updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
 
 IceBoxEndpoints=' --IceBox.ServiceManager.Endpoints="default -p 12345"'
-IceBoxReference=' --IceBox.ServiceManager="ServiceManager:default -p 12345"'
 YellowService=" --IceBox.Service.Yellow=YellowService:create" + \
 	      ' --Yellow.Query.Endpoints="default -p 12346" --Yellow.Admin.Endpoints="default -p 12347"' + \
 	      ' --IceBox.PrintServicesReady=Yellow'
@@ -64,7 +63,7 @@ for output in clientPipe.xreadlines():
 # Shutdown yellow.
 #
 print "shutting down yellow service...",
-command = IceBoxAdmin + updatedClientOptions + IceBoxReference + r' shutdown'
+command = IceBoxAdmin + updatedClientOptions + IceBoxEndpoints + r' shutdown'
 IceBoxAdminPipe = os.popen(command)
 IceBoxAdminStatus = IceBoxAdminPipe.close()
 if IceBoxAdminStatus:

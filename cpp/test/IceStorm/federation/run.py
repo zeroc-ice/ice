@@ -33,7 +33,6 @@ updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
 
 iceBoxEndpoints=' --IceBox.ServiceManager.Endpoints="default -p 12345"'
-iceBoxReference=' --IceBox.ServiceManager="ServiceManager: default -p 12345"'
 
 iceStormService=" --IceBox.Service.IceStorm=IceStormService:create" + \
                 ' --IceStorm.TopicManager.Endpoints="default -p 12346"' + \
@@ -168,7 +167,7 @@ print "ok"
 # Shutdown icestorm.
 #
 print "shutting down icestorm service...",
-command = iceBoxAdmin + updatedClientOptions + iceBoxReference + r' shutdown'
+command = iceBoxAdmin + updatedClientOptions + iceBoxEndpoints + r' shutdown'
 iceBoxAdminPipe = os.popen(command)
 iceBoxAdminStatus = iceBoxAdminPipe.close()
 if iceBoxAdminStatus:
