@@ -13,7 +13,7 @@
 #ifndef __LoggerF_h__
 #define __LoggerF_h__
 
-#include <Ice/Handle.h>
+#include <Ice/LocalObjectF.h>
 
 namespace Ice
 {

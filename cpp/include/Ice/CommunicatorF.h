@@ -8,25 +8,67 @@
 //
 // **********************************************************************
 
-#ifndef ICE_COMMUNICATOR_F_H
-#define ICE_COMMUNICATOR_F_H
+// Generated from file `Communicator.ice'
 
-#include <Ice/Handle.h>
+#ifndef __CommunicatorF_h__
+#define __CommunicatorF_h__
 
-namespace Ice { class Communicator; }
+#include <Ice/LocalObjectF.h>
+
+namespace Ice
+{
+
+class ObjectAdapter;
+
+class ValueFactory;
+
+class Properties;
+
+class Logger;
+
+class Pickler;
+
+class Communicator;
+
+}
 
 namespace __Ice
 {
 
-void ICE_API incRef(::Ice::Communicator*);
-void ICE_API decRef(::Ice::Communicator*);
+void incRef(::Ice::ObjectAdapter*);
+void decRef(::Ice::ObjectAdapter*);
+
+void incRef(::Ice::ValueFactory*);
+void decRef(::Ice::ValueFactory*);
+
+void incRef(::Ice::Properties*);
+void decRef(::Ice::Properties*);
+
+void incRef(::Ice::Logger*);
+void decRef(::Ice::Logger*);
+
+void incRef(::Ice::Pickler*);
+void decRef(::Ice::Pickler*);
+
+void incRef(::Ice::Communicator*);
+void decRef(::Ice::Communicator*);
 
 }
 
 namespace Ice
 {
 
-typedef __Ice::Handle<Communicator> Communicator_ptr;
+typedef ::__Ice::Handle< ::Ice::ObjectAdapter> ObjectAdapter_ptr;
+
+typedef ::__Ice::Handle< ::Ice::ValueFactory> ValueFactory_ptr;
+
+typedef ::__Ice::Handle< ::Ice::Properties> Properties_ptr;
+
+typedef ::__Ice::Handle< ::Ice::Logger> Logger_ptr;
+
+typedef ::__Ice::Handle< ::Ice::Pickler> Pickler_ptr;
+
+typedef ::__Ice::Handle< ::Ice::Communicator> Communicator_ptr;
 
 }
 

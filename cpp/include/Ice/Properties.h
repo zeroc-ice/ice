@@ -34,8 +34,8 @@ private:
 
     friend ICE_API Communicator_ptr initialize(int&, char*[]);
     friend ICE_API Properties_ptr createProperties();
-    friend ICE_API Properties_ptr createProperties(const Properties_ptr&);
-    friend ICE_API Properties_ptr createProperties(const std::string&);
+    friend ICE_API Properties_ptr copyProperties(const Properties_ptr&);
+    friend ICE_API Properties_ptr loadProperties(const std::string&);
 
     void load(const std::string&);
     void parse(std::istream&);

@@ -18,5 +18,6 @@
 #include <Ice/Logger.h>
 #include <Ice/ValueFactory.h>
 #include <Ice/Pickler.h>
+#include <Ice/Initialize.h>
 
 #endif

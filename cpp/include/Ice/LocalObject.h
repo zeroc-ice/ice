@@ -12,6 +12,7 @@
 #define ICE_LOCAL_OBJECT_H
 
 #include <Ice/LocalObjectF.h>
+#include <Ice/ProxyF.h> // TODO...
 #include <Ice/Shared.h>
 
 namespace __Ice

@@ -8,63 +8,46 @@
 //
 // **********************************************************************
 
-#ifndef ICE_COMMUNICATOR_H
-#define ICE_COMMUNICATOR_H
+// Generated from file `Communicator.ice'
+
+#ifndef __Communicator_h__
+#define __Communicator_h__
 
 #include <Ice/CommunicatorF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/ProxyF.h>
-#include <Ice/ObjectAdapterF.h>
-#include <Ice/ValueFactoryF.h>
-#include <Ice/PropertiesF.h>
-#include <Ice/LoggerF.h>
-#include <Ice/PicklerF.h>
-#include <Ice/Shared.h>
+#include <Ice/LocalObject.h>
 
 namespace Ice
 {
 
-class ICE_API Communicator : public ::__Ice::Shared, public JTCRecursiveMutex
+class Communicator : public ::Ice::LocalObject
 {
-public:
-    
-    void destroy();
-    void shutdown();
-    void waitForShutdown();
+public: 
 
-    Object_prx stringToProxy(const std::string&);
+    virtual void destroy() = 0;
 
-    ObjectAdapter_ptr createObjectAdapter(const std::string&);
-    ObjectAdapter_ptr createObjectAdapter(const std::string&,
-					  const std::string&);
+    virtual void shutdown() = 0;
 
-    void installValueFactory(const ValueFactory_ptr&, const std::string&);
+    virtual void waitForShutdown() = 0;
 
-    Properties_ptr properties();
+    virtual ::Ice::Object_prx stringToProxy(const ::std::string&) = 0;
 
-    Logger_ptr logger();
-    void logger(const Logger_ptr&);
+    virtual ::Ice::ObjectAdapter_ptr createObjectAdapter(const ::std::string&) = 0;
 
-    Pickler_ptr pickler();
+    virtual ::Ice::ObjectAdapter_ptr createObjectAdapterWithEndpoints(const ::std::string&, const ::std::string&) = 0;
 
-private:
+    virtual void installValueFactory(const ::Ice::ValueFactory_ptr&, const ::std::string&) = 0;
 
-    Communicator(const Properties_ptr&);
-    virtual ~Communicator();
+    virtual ::Ice::Properties_ptr getProperties() = 0;
 
-    friend ICE_API Communicator_ptr initialize(int&, char*[]);
-    friend ICE_API Communicator_ptr initialize(int&, char*[],
-					       const Properties_ptr&);
+    virtual ::Ice::Logger_ptr getLogger() = 0;
 
-    ::__Ice::Instance_ptr instance_;
+    virtual void setLogger(const ::Ice::Logger_ptr&) = 0;
+
+    virtual ::Ice::Pickler_ptr getPickler() = 0;
+
+    virtual void __write(::__Ice::Stream*);
+    virtual void __read(::__Ice::Stream*);
 };
-
-ICE_API Communicator_ptr initialize(int&, char*[]);
-ICE_API Communicator_ptr initialize(int&, char*[], const Properties_ptr&);
-
-ICE_API Properties_ptr createProperties();
-ICE_API Properties_ptr createProperties(const Properties_ptr&);
-ICE_API Properties_ptr createProperties(const std::string&);
 
 }
 
