@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_GCRECMUTEX_H
-#define ICE_GCRECMUTEX_H
+#ifndef ICE_GC_REC_MUTEX_H
+#define ICE_GC_REC_MUTEX_H
 
 #include <IceUtil/RecMutex.h>
 

@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_UTIL_GCShared_H
-#define ICE_UTIL_GCShared_H
+#ifndef ICE_UTIL_GC_SHARED_H
+#define ICE_UTIL_GC_SHARED_H
 
 #include <IceUtil/GCRecMutex.h>
 #include <set>

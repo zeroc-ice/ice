@@ -29,7 +29,12 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+namespace IceInternal
+{
+
 IceUtil::Handle<IceUtil::GC> theCollector = 0;
+
+}
 
 struct GarbageCollectorStats
 {

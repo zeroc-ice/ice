@@ -22,19 +22,20 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-namespace Ice
+namespace IceInternal
 {
 
 extern IceUtil::Handle<IceUtil::GC> theCollector;
 
-void collectGarbage()
+}
+
+void
+Ice::collectGarbage()
 {
     if(theCollector)
     {
 	theCollector->collectGarbage();
     }
-}
-
 }
 
 CommunicatorPtr

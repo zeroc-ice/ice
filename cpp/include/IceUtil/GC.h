@@ -19,7 +19,6 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
-#include <IceUtil/GCF.h>
 
 namespace IceUtil
 {
