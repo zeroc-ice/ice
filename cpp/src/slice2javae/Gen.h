@@ -72,7 +72,7 @@ public:
 
     bool operator!() const; // Returns true if there was a constructor error
 
-    void generate(const UnitPtr&, bool);
+    void generate(const UnitPtr&);
     void generateTie(const UnitPtr&);
     void generateImpl(const UnitPtr&);
     void generateImplTie(const UnitPtr&);
@@ -119,7 +119,7 @@ private:
     {
     public:
 
-        TypesVisitor(const std::string&, bool);
+        TypesVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual void visitClassDefEnd(const ClassDefPtr&);
@@ -130,17 +130,13 @@ private:
         virtual void visitEnum(const EnumPtr&);
         virtual void visitConst(const ConstPtr&);
         virtual void visitDataMember(const DataMemberPtr&);
-
-    private:
-
-        bool _stream;
     };
 
     class HolderVisitor : public JavaVisitor
     {
     public:
 
-        HolderVisitor(const std::string&, bool);
+        HolderVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
@@ -151,25 +147,19 @@ private:
     private:
 
         void writeHolder(const TypePtr&);
-
-        bool _stream;
     };
 
     class HelperVisitor : public JavaVisitor
     {
     public:
 
-        HelperVisitor(const std::string&, bool);
+        HelperVisitor(const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
         virtual void visitEnum(const EnumPtr&);
-
-    private:
-
-        bool _stream;
     };
 
     class ProxyVisitor : public JavaVisitor

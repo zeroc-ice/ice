@@ -35,7 +35,6 @@ usage(const char* n)
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
         "--checksum CLASS        Generate checksums for Slice definitions into CLASS.\n"
-        "--stream                Generate marshaling support for public stream API.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }
@@ -54,7 +53,6 @@ main(int argc, char* argv[])
     bool debug;
     bool ice;
     string checksumClass;
-    bool stream;
     bool caseSensitive;
 
     IceUtil::Options opts;
@@ -72,7 +70,6 @@ main(int argc, char* argv[])
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
     opts.addOpt("", "checksum", IceUtil::Options::NeedArg);
-    opts.addOpt("", "stream");
     opts.addOpt("", "case-sensitive");
 
     vector<string>args;
@@ -136,7 +133,6 @@ main(int argc, char* argv[])
     {
 	checksumClass = opts.optArg("checksum");
     }
-    stream = opts.isSet("stream");
     caseSensitive = opts.isSet("case-sensitive");
 
     if(args.empty())
@@ -212,7 +208,7 @@ main(int argc, char* argv[])
 			p->destroy();
 			return EXIT_FAILURE;
 		    }
-		    gen.generate(p, stream);
+		    gen.generate(p);
 		    if(tie)
 		    {
 			gen.generateTie(p);

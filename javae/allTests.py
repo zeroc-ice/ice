@@ -63,7 +63,6 @@ tests = [ \
     "Ice/custom", \
     "Ice/checksum", \
     "Ice/package", \
-    "Ice/stream", \
     ]
 
 def usage():

@@ -706,7 +706,7 @@ Slice::Gen::operator!() const
 }
 
 void
-Slice::Gen::generate(const UnitPtr& p, bool stream)
+Slice::Gen::generate(const UnitPtr& p)
 {
     JavaGenerator::validateMetaData(p);
 
@@ -716,13 +716,13 @@ Slice::Gen::generate(const UnitPtr& p, bool stream)
     PackageVisitor packageVisitor(_dir);
     p->visit(&packageVisitor, false);
 
-    TypesVisitor typesVisitor(_dir, stream);
+    TypesVisitor typesVisitor(_dir);
     p->visit(&typesVisitor, false);
 
-    HolderVisitor holderVisitor(_dir, stream);
+    HolderVisitor holderVisitor(_dir);
     p->visit(&holderVisitor, false);
 
-    HelperVisitor helperVisitor(_dir, stream);
+    HelperVisitor helperVisitor(_dir);
     p->visit(&helperVisitor, false);
 
     ProxyVisitor proxyVisitor(_dir);
@@ -1122,8 +1122,8 @@ Slice::Gen::PackageVisitor::visitModuleStart(const ModulePtr& p)
     return false;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(const string& dir, bool stream) :
-    JavaVisitor(dir), _stream(stream)
+Slice::Gen::TypesVisitor::TypesVisitor(const string& dir) :
+    JavaVisitor(dir)
 {
 }
 
@@ -1305,10 +1305,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	if(allClassMembers.size() != 0)
 	{
 	    out << sp << nl << "private class Patcher implements IceInternal.Patcher";
-            if(_stream)
-            {
-                out << ", Ice.ReadObjectCallback";
-            }
 	    out << sb;
 	    if(allClassMembers.size() > 1)
 	    {
@@ -1365,14 +1361,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    }
 	    out << eb;
 
-            if(_stream)
-            {
-                out << sp << nl << "public void" << nl << "invoke(Ice.Object v)";
-                out << sb;
-                out << nl << "patch(v);";
-                out << eb;
-            }
-
 	    if(allClassMembers.size() > 1)
 	    {
 		out << sp << nl << "private int __member;";
@@ -1409,71 +1397,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	out << nl << "__is.endReadSlice();";
         out << nl << "super.__read(__is, true);";
         out << eb;
-
-        if(_stream)
-        {
-            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __out)";
-            out << sb;
-            out << nl << "__out.writeTypeId(ice_staticId());";
-            out << nl << "__out.startSlice();";
-            iter = 0;
-            for(d = members.begin(); d != members.end(); ++d)
-            {
-                StringList metaData = (*d)->getMetaData();
-                writeStreamMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), true, iter, false,
-                                                metaData);
-            }
-            out << nl << "__out.endSlice();";
-            out << nl << "super.__write(__out);";
-            out << eb;
-
-            out << sp << nl << "public void" << nl << "__read(Ice.InputStream __in, boolean __rid)";
-            out << sb;
-            out << nl << "if(__rid)";
-            out << sb;
-            out << nl << "String myId = __in.readTypeId();";
-            out << eb;
-            out << nl << "__in.startSlice();";
-            iter = 0;
-            for(d = members.begin(); d != members.end(); ++d)
-            {
-                StringList metaData = (*d)->getMetaData();
-                ostringstream patchParams;
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
-                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
-                {
-                    if(classMembers.size() > 1 || allClassMembers.size() > 1)
-                    {
-                        patchParams << "new Patcher(" << classMemberCount++ << ')';
-                    }
-                }
-                writeStreamMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), false, iter, false,
-                                                metaData, patchParams.str());
-            }
-            out << nl << "__in.endSlice();";
-            out << nl << "super.__read(__in, true);";
-            out << eb;
-        }
-        else
-        {
-            //
-            // Emit placeholder functions to catch errors.
-            //
-            string scoped = p->scoped();
-            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __out)";
-            out << sb;
-            out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
-            out << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
-            out << nl << "throw ex;";
-            out << eb;
-
-            out << sp << nl << "public void" << nl << "__read(Ice.InputStream __in, boolean __rid)";
-            out << sb;
-            out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
-            out << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
-            out << nl << "throw ex;";
-            out << eb;
-        }
     }
 
     return true;
@@ -1567,10 +1490,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	if(allClassMembers.size() != 0)
 	{
 	    out << sp << nl << "private class Patcher implements IceInternal.Patcher";
-            if(_stream)
-            {
-                out << ", Ice.ReadObjectCallback";
-            }
 	    out << sb;
 	    if(allClassMembers.size() > 1)
 	    {
@@ -1627,14 +1546,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    }
 	    out << eb;
 
-            if(_stream)
-            {
-                out << sp << nl << "public void" << nl << "invoke(Ice.Object v)";
-                out << sb;
-                out << nl << "patch(v);";
-                out << eb;
-            }
-
 	    if(allClassMembers.size() > 1)
 	    {
 		out << sp << nl << "private int __member;";
@@ -1673,77 +1584,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << nl << "super.__read(__is, true);";
         }
         out << eb;
-
-        if(_stream)
-        {
-            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __out)";
-            out << sb;
-            out << nl << "__out.writeString(\"" << scoped << "\");";
-            out << nl << "__out.startSlice();";
-            iter = 0;
-            for(d = members.begin(); d != members.end(); ++d)
-            {
-                StringList metaData = (*d)->getMetaData();
-                writeStreamMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), true, iter, false,
-                                                metaData);
-            }
-            out << nl << "__out.endSlice();";
-            if(base)
-            {
-                out << nl << "super.__write(__out);";
-            }
-            out << eb;
-
-            out << sp << nl << "public void" << nl << "__read(Ice.InputStream __in, boolean __rid)";
-            out << sb;
-            out << nl << "if(__rid)";
-            out << sb;
-            out << nl << "String myId = __in.readString();";
-            out << eb;
-            out << nl << "__in.startSlice();";
-            iter = 0;
-            for(d = members.begin(); d != members.end(); ++d)
-            {
-                ostringstream patchParams;
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
-                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
-                {
-                    if(classMembers.size() > 1 || allClassMembers.size() > 1)
-                    {
-                        patchParams << "new Patcher(" << classMemberCount++ << ')';
-                    }
-                }
-                StringList metaData = (*d)->getMetaData();
-                writeStreamMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), false, iter, false,
-                                                metaData, patchParams.str());
-            }
-            out << nl << "__in.endSlice();";
-            if(base)
-            {
-                out << nl << "super.__read(__in, true);";
-            }
-            out << eb;
-        }
-        else
-        {
-            //
-            // Emit placeholder functions to catch errors.
-            //
-            string scoped = p->scoped();
-            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __out)";
-            out << sb;
-            out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
-            out << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
-            out << nl << "throw ex;";
-            out << eb;
-
-            out << sp << nl << "public void" << nl << "__read(Ice.InputStream __in, boolean __rid)";
-            out << sb;
-            out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
-            out << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
-            out << nl << "throw ex;";
-            out << eb;
-        }
 
 	if(p->usesClasses())
 	{
@@ -1931,10 +1771,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	if(classMembers.size() != 0)
 	{
 	    out << sp << nl << "private class Patcher implements IceInternal.Patcher";
-            if(_stream)
-            {
-                out << ", Ice.ReadObjectCallback";
-            }
 	    out << sb;
 	    if(classMembers.size() > 1)
 	    {
@@ -1991,14 +1827,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    }
 	    out << eb;
 
-            if(_stream)
-            {
-                out << sp << nl << "public void" << nl << "invoke(Ice.Object v)";
-                out << sb;
-                out << nl << "patch(v);";
-                out << eb;
-            }
-
 	    if(classMembers.size() > 1)
 	    {
 		out << sp << nl << "private int __member;";
@@ -2027,41 +1855,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		    		      patchParams.str());
         }
         out << eb;
-
-        if(_stream)
-        {
-            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __out)";
-            out << sb;
-            iter = 0;
-            for(d = members.begin(); d != members.end(); ++d)
-            {
-                StringList metaData = (*d)->getMetaData();
-                writeStreamMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), true, iter, false,
-                                                metaData);
-            }
-            out << eb;
-
-            out << sp << nl << "public void" << nl << "__read(Ice.InputStream __in)";
-            out << sb;
-            iter = 0;
-            classMemberCount = 0;
-            for(d = members.begin(); d != members.end(); ++d)
-            {
-                ostringstream patchParams;
-                BuiltinPtr builtin = BuiltinPtr::dynamicCast((*d)->type());
-                if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*d)->type()))
-                {
-                    if(classMembers.size() > 1)
-                    {
-                        patchParams << "new Patcher(" << classMemberCount++ << ')';
-                    }
-                }
-                StringList metaData = (*d)->getMetaData();
-                writeStreamMarshalUnmarshalCode(out, package, (*d)->type(), fixKwd((*d)->name()), false, iter, false,
-                                                metaData, patchParams.str());
-            }
-            out << eb;
-        }
     }
 
     out << eb;
@@ -2170,46 +1963,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << eb;
         out << nl << "return " << name << ".convert(__v);";
         out << eb;
-
-        if(_stream)
-        {
-            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __out)";
-            out << sb;
-            if(sz <= 0x7f)
-            {
-                out << nl << "__out.writeByte((byte)__value);";
-            }
-            else if(sz <= 0x7fff)
-            {
-                out << nl << "__out.writeShort((short)__value);";
-            }
-            else
-            {
-                out << nl << "__out.writeInt(__value);";
-            }
-            out << eb;
-
-            out << sp << nl << "public static " << name << nl << "__read(Ice.InputStream __in)";
-            out << sb;
-            if(sz <= 0x7f)
-            {
-                out << nl << "int __v = __in.readByte();";
-            }
-            else if(sz <= 0x7fff)
-            {
-                out << nl << "int __v = __in.readShort();";
-            }
-            else
-            {
-                out << nl << "int __v = __in.readInt();";
-            }
-            out << nl << "if(__v < 0 || __v >= " << sz << ')';
-            out << sb;
-            out << nl << "throw new Ice.MarshalException();";
-            out << eb;
-            out << nl << "return " << name << ".convert(__v);";
-            out << eb;
-        }
     }
 
     out << sp << nl << "final static private String[] __T =";
@@ -2359,8 +2112,8 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     close();
 }
 
-Slice::Gen::HolderVisitor::HolderVisitor(const string& dir, bool stream) :
-    JavaVisitor(dir), _stream(stream)
+Slice::Gen::HolderVisitor::HolderVisitor(const string& dir) :
+    JavaVisitor(dir)
 {
 }
 
@@ -2448,10 +2201,6 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
 	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(p))
 	    {
 		out << sp << nl << "public class Patcher implements IceInternal.Patcher";
-                if(_stream)
-                {
-                    out << ", Ice.ReadObjectCallback";
-                }
 		out << sb;
 		out << nl << "public void";
 		out << nl << "patch(Ice.Object v)";
@@ -2464,13 +2213,6 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
 		out << nl << "return \"" << p->typeId() << "\";";
 		out << eb;
 
-                if(_stream)
-                {
-                    out << sp << nl << "public void" << nl << "invoke(Ice.Object v)";
-                    out << sb;
-                    out << nl << "patch(v);";
-                    out << eb;
-                }
 		out << eb;
 
 		out << sp << nl << "public Patcher";
@@ -2486,8 +2228,8 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
     }
 }
 
-Slice::Gen::HelperVisitor::HelperVisitor(const string& dir, bool stream) :
-    JavaVisitor(dir), _stream(stream)
+Slice::Gen::HelperVisitor::HelperVisitor(const string& dir) :
+    JavaVisitor(dir)
 {
 }
 
@@ -2741,57 +2483,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return null;";
     out << eb;
 
-    if(_stream)
-    {
-        out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __out, " << name << "Prx v)";
-        out << sb;
-        out << nl << "__out.writeProxy(v);";
-        out << eb;
-
-        out << sp << nl << "public static " << name << "Prx" << nl << "read(Ice.InputStream __in)";
-        out << sb;
-        out << nl << "Ice.ObjectPrx proxy = __in.readProxy();";
-        out << nl << "if(proxy != null)";
-        out << sb;
-        out << nl << name << "PrxHelper result = new " << name << "PrxHelper();";
-        out << nl << "result.__copyFrom(proxy);";
-        out << nl << "return result;";
-        out << eb;
-        out << nl << "return null;";
-        out << eb;
-    }
-
     out << eb;
     close();
-
-    if(_stream)
-    {
-        //
-        // Class helper.
-        //
-        if(!open(getAbsolute(p, "", "", "Helper")))
-        {
-            return false;
-        }
-
-        Output& out2 = output();
-
-        out2 << sp << nl << "public final class " << name << "Helper";
-        out2 << sb;
-
-        out2 << sp << nl << "public static void" << nl << "write(Ice.OutputStream __out, " << fixKwd(name) << " __v)";
-        out2 << sb;
-        out2 << nl << "__out.writeObject(__v);";
-        out2 << eb;
-
-        out2 << sp << nl << "public static void" << nl << "read(Ice.InputStream __in, " << name << "Holder __h)";
-        out2 << sb;
-        out2 << nl << "__in.readObject(__h.getPatcher());";
-        out2 << eb;
-
-        out2 << eb;
-        close();
-    }
 
     return false;
 }
@@ -2799,37 +2492,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
 {
-    if(!p->isLocal() && _stream)
-    {
-        string name = p->name();
-        string fixedName = fixKwd(name);
-
-        if(!open(getAbsolute(p, "", "", "Helper")))
-        {
-            return false;
-        }
-
-        Output& out = output();
-
-        out << sp << nl << "public final class " << name << "Helper";
-        out << sb;
-
-        out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __out, " << fixedName << " __v)";
-        out << sb;
-        out << nl << "__v.__write(__out);";
-        out << eb;
-
-        out << sp << nl << "public static " << fixedName << nl << "read(Ice.InputStream __in)";
-        out << sb;
-        out << nl << fixedName << " __v = new " << fixedName << "();";
-        out << nl << "__v.__read(__in);";
-        out << nl << "return __v;";
-        out << eb;
-
-        out << eb;
-        close();
-    }
-
     return false;
 }
 
@@ -2871,23 +2533,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 	writeSequenceMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
         out << nl << "return __v;";
         out << eb;
-
-        if(_stream)
-        {
-            out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __out, " << typeS << " __v)";
-            out << sb;
-            iter = 0;
-            writeStreamSequenceMarshalUnmarshalCode(out, package, p, "__v", true, iter, false);
-            out << eb;
-
-            out << sp << nl << "public static " << typeS << nl << "read(Ice.InputStream __in)";
-            out << sb;
-            out << nl << typeS << " __v;";
-            iter = 0;
-            writeStreamSequenceMarshalUnmarshalCode(out, package, p, "__v", false, iter, false);
-            out << nl << "return __v;";
-            out << eb;
-        }
 
         out << eb;
         close();
@@ -3027,10 +2672,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 	    // The dictionary uses class values.
 	    //
 	    out << sp << nl << "private static class Patcher implements IceInternal.Patcher";
-            if(_stream)
-            {
-                out << ", Ice.ReadObjectCallback";
-            }
 	    out << sb;
 	    string keyTypeS = keyS;
             BuiltinPtr b = BuiltinPtr::dynamicCast(key);
@@ -3095,14 +2736,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 	    out << sb;
 	    out << nl << "return \"" << value->typeId() << "\";";
 	    out << eb;
-
-            if(_stream)
-            {
-                out << sp << nl << "public void" << nl << "invoke(Ice.Object v)";
-                out << sb;
-                out << nl << "patch(v);";
-                out << eb;
-            }
 
 	    out << sp << nl << "private java.util.Map __m;";
 	    out << nl << "private " << keyTypeS << " __key;";
@@ -3219,213 +2852,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << nl << "return __r;";
         out << eb;
 
-        if(_stream)
-        {
-            out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __out, " << "java.util.Map __v)";
-            out << sb;
-            out << nl << "if(__v == null)";
-            out << sb;
-            out << nl << "__out.writeSize(0);";
-            out << eb;
-            out << nl << "else";
-            out << sb;
-            out << nl << "__out.writeSize(__v.size());";
-            out << nl << "java.util.Iterator __i = __v.entrySet().iterator();";
-            out << nl << "while(__i.hasNext())";
-            out << sb;
-            out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i.next();";
-            iter = 0;
-            for(i = 0; i < 2; i++)
-            {
-                string val;
-                string arg;
-                TypePtr type;
-                if(i == 0)
-                {
-                    arg = "__e.getKey()";
-                    type = key;
-                }
-                else
-                {
-                    arg = "__e.getValue()";
-                    type = value;
-                }
-
-                BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-                if(b)
-                {
-                    switch(b->kind())
-                    {
-                        case Builtin::KindByte:
-                        {
-                            val = "((java.lang.Byte)" + arg + ").byteValue()";
-                            break;
-                        }
-                        case Builtin::KindBool:
-                        {
-                            val = "((java.lang.Boolean)" + arg + ").booleanValue()";
-                            break;
-                        }
-                        case Builtin::KindShort:
-                        {
-                            val = "((java.lang.Short)" + arg + ").shortValue()";
-                            break;
-                        }
-                        case Builtin::KindInt:
-                        {
-                            val = "((java.lang.Integer)" + arg + ").intValue()";
-                            break;
-                        }
-                        case Builtin::KindLong:
-                        {
-                            val = "((java.lang.Long)" + arg + ").longValue()";
-                            break;
-                        }
-                        case Builtin::KindFloat:
-                        {
-                            val = "((java.lang.Float)" + arg + ").floatValue()";
-                            break;
-                        }
-                        case Builtin::KindDouble:
-                        {
-                            val = "((java.lang.Double)" + arg + ").doubleValue()";
-                            break;
-                        }
-                        case Builtin::KindString:
-                        case Builtin::KindObject:
-                        case Builtin::KindObjectProxy:
-                        {
-                            break;
-                        }
-                        case Builtin::KindLocalObject:
-                        {
-                            assert(false);
-                            break;
-                        }
-                    }
-                }
-
-                if(val.empty())
-                {
-                    val = "((" + typeToString(type, TypeModeIn, package) + ')' + arg + ')';
-                }
-                writeStreamMarshalUnmarshalCode(out, package, type, val, true, iter, false);
-            }
-            out << eb;
-            out << eb;
-            out << eb;
-
-	    out << sp << nl << "public static " << (dictType.empty() ? "java.util.Map" : dictType)
-                << nl << "read(Ice.InputStream __in)";
-            out << sb;
-            out << nl << "int __sz = __in.readSize();";
-	    out << nl << (dictType.empty() ? "java.util.Map" : dictType) << " __r = new "
-		<< (dictType.empty() ? "java.util.HashMap(__sz)" : dictType + "()") << ';';
-            out << nl << "for(int __i = 0; __i < __sz; __i++)";
-            out << sb;
-            iter = 0;
-            for(i = 0; i < 2; i++)
-            {
-                string arg;
-                TypePtr type;
-                if(i == 0)
-                {
-                    arg = "__key";
-                    type = key;
-                }
-                else
-                {
-                    arg = "__value";
-                    type = value;
-                }
-
-                BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-                if(b)
-                {
-                    switch(b->kind())
-                    {
-                        case Builtin::KindByte:
-                        {
-                            out << nl << "java.lang.Byte " << arg << " = new java.lang.Byte(__in.readByte());";
-                            break;
-                        }
-                        case Builtin::KindBool:
-                        {
-                            out << nl << "java.lang.Boolean " << arg << " = new java.lang.Boolean(__in.readBool());";
-                            break;
-                        }
-                        case Builtin::KindShort:
-                        {
-                            out << nl << "java.lang.Short " << arg << " = new java.lang.Short(__in.readShort());";
-                            break;
-                        }
-                        case Builtin::KindInt:
-                        {
-                            out << nl << "java.lang.Integer " << arg << " = new java.lang.Integer(__in.readInt());";
-                            break;
-                        }
-                        case Builtin::KindLong:
-                        {
-                            out << nl << "java.lang.Long " << arg << " = new java.lang.Long(__in.readLong());";
-                            break;
-                        }
-                        case Builtin::KindFloat:
-                        {
-                            out << nl << "java.lang.Float " << arg << " = new java.lang.Float(__in.readFloat());";
-                            break;
-                        }
-                        case Builtin::KindDouble:
-                        {
-                            out << nl << "java.lang.Double " << arg << " = new java.lang.Double(__in.readDouble());";
-                            break;
-                        }
-                        case Builtin::KindString:
-                        {
-                            out << nl << "java.lang.String " << arg << " = __in.readString();";
-                            break;
-                        }
-                        case Builtin::KindObject:
-                        {
-                            out << nl << "__in.readObject(new Patcher(__r, __key));";
-                            break;
-                        }
-                        case Builtin::KindObjectProxy:
-                        {
-                            out << nl << "Ice.ObjectPrx " << arg << " = __in.readProxy();";
-                            break;
-                        }
-                        case Builtin::KindLocalObject:
-                        {
-                            assert(false);
-                            break;
-                        }
-                    }
-                }
-                else
-                {
-                    string s = typeToString(type, TypeModeIn, package);
-                    BuiltinPtr builtin2 = BuiltinPtr::dynamicCast(type);
-                    if((builtin2 && builtin2->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
-                    {
-                        writeStreamMarshalUnmarshalCode(out, package, type, arg, false, iter, false, StringList(),
-                                                        "new Patcher(__r, __key)");
-                    }
-                    else
-                    {
-                        out << nl << s << ' ' << arg << ';';
-                        writeStreamMarshalUnmarshalCode(out, package, type, arg, false, iter, false);
-                    }
-                }
-            }
-            if(!(builtin && builtin->kind() == Builtin::KindObject) && !ClassDeclPtr::dynamicCast(value))
-            {
-                out << nl << "__r.put(__key, __value);";
-            }
-            out << eb;
-            out << nl << "return __r;";
-            out << eb;
-        }
-
         out << eb;
         close();
     }
@@ -3434,34 +2860,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
 {
-    if(!p->isLocal() && _stream)
-    {
-        string name = p->name();
-        string fixedName = fixKwd(name);
-
-        if(!open(getAbsolute(p, "", "", "Helper")))
-        {
-            return;
-        }
-
-        Output& out = output();
-
-        out << sp << nl << "public final class " << name << "Helper";
-        out << sb;
-
-        out << sp << nl << "public static void" << nl << "write(Ice.OutputStream __out, " << fixedName << " __v)";
-        out << sb;
-        out << nl << "__v.__write(__out);";
-        out << eb;
-
-        out << sp << nl << "public static " << fixedName << nl << "read(Ice.InputStream __in)";
-        out << sb;
-        out << nl << "return " << fixedName << ".__read(__in);";
-        out << eb;
-
-        out << eb;
-        close();
-    }
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(const string& dir) :

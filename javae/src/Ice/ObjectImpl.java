@@ -203,33 +203,4 @@ public class ObjectImpl implements Object, java.lang.Cloneable
 
         __is.endReadSlice();
     }
-
-    public void
-    __write(Ice.OutputStream __out)
-    {
-        __out.writeTypeId(ice_staticId());
-        __out.startSlice();
-        __out.writeSize(0); // For compatibility with the old AFM.
-        __out.endSlice();
-    }
-
-    public void
-    __read(Ice.InputStream __in, boolean __rid)
-    {
-        if(__rid)
-        {
-            String myId = __in.readTypeId();
-        }
-
-        __in.startSlice();
-
-        // For compatibility with the old AFM.
-        int sz = __in.readSize();
-        if(sz != 0)
-        {
-            throw new MarshalException();
-        }
-
-        __in.endSlice();
-    }
 }
