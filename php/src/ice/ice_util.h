@@ -70,11 +70,6 @@ zend_class_entry* findClass(const std::string& TSRMLS_DC);
 zend_class_entry* findClassScoped(const std::string& TSRMLS_DC);
 
 //
-// Split a string into a vector of arguments. Quoted arguments are supported.
-//
-bool splitString(const std::string&, std::vector<std::string>&);
-
-//
 // Convert a string to lowercase.
 //
 std::string lowerCase(const std::string&);

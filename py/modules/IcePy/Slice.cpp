@@ -14,6 +14,7 @@
 #include <Util.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/PythonUtil.h>
+#include <IceUtil/Options.h>
 
 //
 // Python headers needed for PyEval_EvalCode.
@@ -37,10 +38,15 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         return NULL;
     }
 
-    Ice::StringSeq argSeq;
-    if(!splitString(cmd, argSeq))
+    vector<string> argSeq;
+    try
     {
-        return NULL;
+	argSeq = IceUtil::Options::split(cmd);
+    }
+    catch(const IceUtil::Options::Error& ex)
+    {
+	PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
+	return NULL;
     }
 
     if(list != NULL)
@@ -48,70 +54,72 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         listToStringSeq(list, argSeq);
     }
 
+    IceUtil::Options opts;
+    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("d", "debug");
+    opts.addOpt("", "ice");
+    opts.addOpt("", "checksum");
+    opts.addOpt("", "all");
+    opts.addOpt("", "case-sensitive");
+
+    vector<string> files;
+    try
+    {
+	argSeq.insert(argSeq.begin(), ""); // dummy argv[0]
+	files = opts.parse(argSeq);
+	if(files.empty())
+	{
+	    PyErr_Format(PyExc_RuntimeError, "no Slice files specified in `%s'", cmd);
+	    return NULL;
+	}
+    }
+    catch(const IceUtil::Options::BadOpt& ex)
+    {
+	PyErr_Format(PyExc_RuntimeError, "error in Slice options: %s", ex.reason.c_str());
+	return NULL;
+    }
+
     string cppArgs;
     Ice::StringSeq includePaths;
-    Ice::StringSeq files;
     bool debug = false;
     bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
     bool caseSensitive = false;
     bool all = false;
     bool checksum = false;
-
-    vector<string>::const_iterator p;
-    for(p = argSeq.begin(); p != argSeq.end(); ++p)
+    if(opts.isSet("D"))
     {
-        string arg = *p;
-        if(arg.substr(0, 2) == "-I" || arg.substr(0, 2) == "-D" || arg.substr(0, 2) == "-U")
-        {
-            cppArgs += ' ';
-            if(arg.find(' ') != string::npos)
-            {
-                cppArgs += "'";
-                cppArgs += arg;
-                cppArgs += "'";
-            }
-            else
-            {
-                cppArgs += arg;
-            }
-
-            if(arg.substr(0, 2) == "-I" && arg.size() > 2)
-            {
-                includePaths.push_back(arg.substr(2));
-            }
-        }
-        else if(arg == "--case-sensitive")
-        {
-            caseSensitive = true;
-        }
-        else if(arg == "--all")
-        {
-            all = true;
-        }
-        else if(arg == "--checksum")
-        {
-            checksum = true;
-        }
-        else if(arg[0] == '-')
-        {
-            PyErr_Format(PyExc_RuntimeError, "unknown option `%s'", arg.c_str());
-            return NULL;
-        }
-        else
-        {
-            files.push_back(arg);
-        }
+	vector<string> optargs = opts.argVec("D");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -D" + *i;
+	}
     }
-
-    if(files.empty())
+    if(opts.isSet("U"))
     {
-        PyErr_Format(PyExc_RuntimeError, "no Slice files specified in `%s'", cmd);
-        return NULL;
+	vector<string> optargs = opts.argVec("U");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -U" + *i;
+	}
     }
+    if(opts.isSet("I"))
+    {
+	includePaths = opts.argVec("I");
+	for(vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+	{
+	    cppArgs += " -I" + *i;
+	}
+    }
+    debug = opts.isSet("d") || opts.isSet("debug");
+    caseSensitive = opts.isSet("case-sensitive");
+    all = opts.isSet("all");
+    checksum = opts.isSet("checksum");
 
     bool ignoreRedefs = false;
 
-    for(p = files.begin(); p != files.end(); ++p)
+    for(vector<string>::const_iterator p = files.begin(); p != files.end(); ++p)
     {
         string file = *p;
         Slice::Preprocessor icecpp("icecpp", file, cppArgs);

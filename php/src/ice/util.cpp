@@ -547,50 +547,6 @@ IcePHP::findClassScoped(const string& scoped TSRMLS_DC)
     return findClass(flatten(scoped) TSRMLS_CC);
 }
 
-bool
-IcePHP::splitString(const string& str, vector<string>& args)
-{
-    string delim = " \t\n\r";
-    string::size_type beg;
-    string::size_type end = 0;
-    while(true)
-    {
-        beg = str.find_first_not_of(delim, end);
-        if(beg == string::npos)
-        {
-            break;
-        }
-
-        //
-        // Check for quoted argument.
-        //
-        char ch = str[beg];
-        if(ch == '"' || ch == '\'')
-        {
-            beg++;
-            end = str.find(ch, beg);
-            if(end == string::npos)
-            {
-                php_error_docref(NULL TSRMLS_CC, E_ERROR, "unterminated quote in `%s'", str.c_str());
-                return false;
-            }
-            args.push_back(str.substr(beg, end - beg));
-            end++; // Skip end quote.
-        }
-        else
-        {
-            end = str.find_first_of(delim + "'\"", beg);
-            if(end == string::npos)
-            {
-                end = str.length();
-            }
-            args.push_back(str.substr(beg, end - beg));
-        }
-    }
-
-    return true;
-}
-
 string
 IcePHP::lowerCase(const string& s)
 {

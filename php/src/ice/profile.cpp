@@ -15,6 +15,7 @@
 #include "ice_util.h"
 
 #include <Slice/Preprocessor.h>
+#include <IceUtil/Options.h>
 #include <fstream>
 
 using namespace std;
@@ -257,62 +258,80 @@ static bool
 parseSlice(const string& argStr, Slice::UnitPtr& unit)
 {
     vector<string> args;
-    if(!splitString(argStr, args))
+    try
     {
-        return false;
+	args = IceUtil::Options::split(argStr);
+    }
+    catch(const IceUtil::Options::Error& ex)
+    {
+	php_error_docref(NULL TSRMLS_CC, E_ERROR, "error occurred while parsing Slice options in `%s':\n%s",
+			 argStr.c_str(), ex.reason.c_str());
+	return false;
+    }
+
+    IceUtil::Options opts;
+    opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("d", "debug");
+    opts.addOpt("", "ice");
+    opts.addOpt("", "case-sensitive");
+
+    vector<string> files;
+    try
+    {
+	args.insert(args.begin(), ""); // dummy argv[0]
+	files = opts.parse(args);
+	if(files.empty() && !argStr.empty())
+	{
+	    php_error_docref(NULL TSRMLS_CC, E_ERROR, "no Slice files specified in `%s'", argStr.c_str());
+	    return false;
+	}
+    }
+    catch(const IceUtil::Options::BadOpt& ex)
+    {
+	php_error_docref(NULL TSRMLS_CC, E_ERROR, "error occurred while parsing Slice options in `%s':\n%s",
+			 argStr.c_str(), ex.reason.c_str());
+	return false;
     }
 
     string cppArgs;
-    vector<string> files;
     bool debug = false;
-    bool ice = true; // This must be true so that we can create Ice::Identity when necessary
+    bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
     bool caseSensitive = false;
-
-    vector<string>::const_iterator p;
-    for(p = args.begin(); p != args.end(); ++p)
+    if(opts.isSet("D"))
     {
-        string arg = *p;
-        if(arg.substr(0, 2) == "-I" || arg.substr(0, 2) == "-D" || arg.substr(0, 2) == "-U")
-        {
-            cppArgs += ' ';
-            if(arg.find(' ') != string::npos)
-            {
-                cppArgs += "'";
-                cppArgs += arg;
-                cppArgs += "'";
-            }
-            else
-            {
-                cppArgs += arg;
-            }
-        }
-        else if(arg == "--case-sensitive")
-        {
-            caseSensitive = true;
-        }
-        else if(arg[0] == '-')
-        {
-            php_error_docref(NULL TSRMLS_CC, E_ERROR, "unknown option `%s' in ice.slice", arg.c_str());
-            return false;
-        }
-        else
-        {
-            files.push_back(arg);
-        }
+	vector<string> optargs = opts.argVec("D");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -D" + *i;
+	}
     }
-
-    if(files.empty())
+    if(opts.isSet("U"))
     {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "no Slice files specified in ice.slice");
-        return false;
+	vector<string> optargs = opts.argVec("U");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -U" + *i;
+	}
     }
+    if(opts.isSet("I"))
+    {
+	vector<string> optargs = opts.argVec("I");
+	for(vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+	{
+	    cppArgs += " -I" + *i;
+	}
+    }
+    debug = opts.isSet("d") || opts.isSet("debug");
+    caseSensitive = opts.isSet("case-sensitive");
 
     bool ignoreRedefs = false;
     bool all = true;
     unit = Slice::Unit::createUnit(ignoreRedefs, all, ice, caseSensitive);
     bool status = true;
 
-    for(p = files.begin(); p != files.end(); ++p)
+    for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
     {
         Slice::Preprocessor icecpp("icecpp", *p, cppArgs);
         FILE* cppHandle = icecpp.preprocess(false);
@@ -323,7 +342,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit)
             break;
         }
 
-        int parseStatus = unit->parse(cppHandle, debug, false);
+        int parseStatus = unit->parse(cppHandle, debug);
 
         if(!icecpp.close())
         {
@@ -371,11 +390,17 @@ createProfile(const string& name, const string& config, const string& options, c
 
     if(!options.empty())
     {
-        Ice::StringSeq args;
-        if(!splitString(options, args))
-        {
-            return false;
-        }
+	vector<string> args;
+	try
+	{
+	    args = IceUtil::Options::split(options);
+	}
+	catch(const IceUtil::Options::Error& ex)
+	{
+	    php_error_docref(NULL TSRMLS_CC, E_ERROR, "error occurred while parsing the options `%s':\n%s",
+			     options.c_str(), ex.reason.c_str());
+	    return false;
+	}
         properties->parseCommandLineOptions("", args);
     }
 
