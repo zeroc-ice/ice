@@ -45,6 +45,7 @@ BASELIBS	= -lIceUtil -lstlport_gcc -lpthread
 LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
 
 #CXX		= icc
+#CXXFLAGS	= -g -KPIC -w1
 #CXXFLAGS	= -O3 -DNDEBUG
 #CPPFLAGS	= -I$(includedir)
 #LDFLAGS 	= -L$(libdir) -L$(OPENSSL_HOME)/lib -L$(XERCESC_HOME)/lib

@@ -306,3 +306,35 @@ IceUtil::Thread::operator<(const Thread& rhs) const
 }
 
 #endif
+
+#ifdef never
+void ice_atomic_inc(ice_atomic_t *v)
+{
+    __asm__ __volatile__(
+	"lock ; incl %0"
+	:"=m" (v->counter)
+	:"m" (v->counter));
+}
+
+int ice_atomic_dec_and_test(ice_atomic_t *v)
+{
+    
+    unsigned char c;
+    __asm__ __volatile__(
+	"lock ; decl %0; sete %1"
+	:"=m" (v->counter), "=qm" (c)
+	:"m" (v->counter) : "memory");
+    return c != 0;
+}
+
+int ice_atomic_exchange_add(int i, ice_atomic_t* v)
+{
+    int tmp = i;
+    __asm__ __volatile__(
+	"lock ; xadd %0,(%2)"
+	:"+r"(tmp), "=m"(v->counter)
+	:"r"(v), "m"(v->counter)
+	: "memory");
+    return tmp + i;
+}
+#endif

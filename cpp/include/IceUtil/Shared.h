@@ -13,13 +13,25 @@
 
 #include <IceUtil/Config.h>
 
-#ifndef WIN32
 //
-// Linux only. Unfortunately, asm/atomic.h builds non-SMP safe code
-// with non-SMP kernels. This means that executables compiled with a
-// non-SMP kernel would fail randomly due to concurrency errors with
-// reference counting on SMP hosts. Therefore the relevent pieces of
-// atomic.h are more-or-less duplicated.
+// The inline assembler causes problems with shared libraries.
+//
+#if defined(__ICC) && !defined(WIN32)
+#   define ICE_USE_MUTEX_SHARED
+#endif
+
+#ifdef ICE_USE_MUTEX_SHARED
+#   include <IceUtil/Mutex.h>
+#endif
+
+#if !defined(WIN32) && !defined(ICE_USE_MUTEX_SHARED)
+
+//
+// Linux only. Unfortunately, asm/ice_atomic.h builds non-SMP safe
+// code with non-SMP kernels. This means that executables compiled
+// with a non-SMP kernel would fail randomly due to concurrency errors
+// with reference counting on SMP hosts. Therefore the relevent pieces
+// of ice_atomic.h are more-or-less duplicated.
 //
 
 /*
@@ -27,26 +39,26 @@
  * on us. We need to use _exactly_ the address the user gave us,
  * not some alias that contains the same information.
  */
-typedef struct { volatile int counter; } atomic_t;
+typedef struct { volatile int counter; } ice_atomic_t;
 
 /**
- * atomic_set - set atomic variable
- * @v: pointer of type atomic_t
+ * ice_atomic_set - set ice_atomic variable
+ * @v: pointer of type ice_atomic_t
  * @i: required value
  * 
  * Atomically sets the value of @v to @i.  Note that the guaranteed
- * useful range of an atomic_t is only 24 bits.
+ * useful range of an ice_atomic_t is only 24 bits.
  */ 
-#define atomic_set(v,i)		(((v)->counter) = (i))
+#define ice_atomic_set(v,i)		(((v)->counter) = (i))
 
 /**
- * atomic_inc - increment atomic variable
- * @v: pointer of type atomic_t
+ * ice_atomic_inc - increment ice_atomic variable
+ * @v: pointer of type ice_atomic_t
  * 
  * Atomically increments @v by 1.  Note that the guaranteed
- * useful range of an atomic_t is only 24 bits.
+ * useful range of an ice_atomic_t is only 24 bits.
  */ 
-static __inline__ void atomic_inc(atomic_t *v)
+static inline void ice_atomic_inc(ice_atomic_t *v)
 {
     __asm__ __volatile__(
 	"lock ; incl %0"
@@ -55,18 +67,17 @@ static __inline__ void atomic_inc(atomic_t *v)
 }
 
 /**
- * atomic_dec_and_test - decrement and test
- * @v: pointer of type atomic_t
+ * ice_atomic_dec_and_test - decrement and test
+ * @v: pointer of type ice_atomic_t
  * 
  * Atomically decrements @v by 1 and
  * returns true if the result is 0, or false for all other
  * cases.  Note that the guaranteed
- * useful range of an atomic_t is only 24 bits.
+ * useful range of an ice_atomic_t is only 24 bits.
  */ 
-static __inline__ int atomic_dec_and_test(atomic_t *v)
+static inline int ice_atomic_dec_and_test(ice_atomic_t *v)
 {
     unsigned char c;
-    
     __asm__ __volatile__(
 	"lock ; decl %0; sete %1"
 	:"=m" (v->counter), "=qm" (c)
@@ -75,11 +86,11 @@ static __inline__ int atomic_dec_and_test(atomic_t *v)
 }
 
 /**
- * atomic_exchange_add - same as InterlockedExchangeAdd. This didn't
- * come from atomic.h (the code was derived from similar code in
+ * ice_atomic_exchange_add - same as InterlockedExchangeAdd. This didn't
+ * come from ice_atomic.h (the code was derived from similar code in
  * /usr/include/asm/rwsem.h)
  **/
-static __inline__ int atomic_exchange_add(int i, atomic_t* v)
+static inline int ice_atomic_exchange_add(int i, ice_atomic_t* v)
 {
     int tmp = i;
     __asm__ __volatile__(
@@ -89,6 +100,7 @@ static __inline__ int atomic_exchange_add(int i, atomic_t* v)
 	: "memory");
     return tmp + i;
 }
+
 #endif
 
 //
@@ -170,23 +182,75 @@ public:
 
 private:
 
-#ifdef WIN32
+#ifdef ICE_USE_MUTEX_SHARED
+    int _ref;
+    Mutex _mutex;
+#elif defined(WIN32)
     LONG _ref;
 #else
-    atomic_t _ref;
+    ice_atomic_t _ref;
 #endif
     bool _noDelete;
-
-    //
-    // For the plain vanilla version.
-    //
-    // bool _noDelete;
-    // int _ref;
-    // Mutex _mutex;
-    //
 };
 
-#ifdef WIN32
+#ifdef ICE_USE_MUTEX_SHARED
+
+inline
+Shared::Shared() :
+    _ref(0),
+    _noDelete(false)
+{
+}
+
+inline
+Shared::~Shared()
+{
+}
+
+inline void
+Shared::__incRef()
+{
+    _mutex.lock();
+    assert(_ref >= 0);
+    ++_ref;
+    _mutex.unlock();
+}
+
+inline void
+Shared::__decRef()
+{
+    _mutex.lock();
+    bool doDelete = false;
+    assert(_ref > 0);
+    if (--_ref == 0)
+    {
+	doDelete = !_noDelete;
+    }
+    _mutex.unlock();
+    if (doDelete)
+    {
+	delete this;
+    }
+}
+
+inline int
+Shared::__getRef()
+{
+    _mutex.lock();
+    int ref = _ref;
+    _mutex.unlock();
+    return ref;
+}
+
+inline void
+Shared::__setNoDelete(bool b)
+{
+    _mutex.lock();
+    _noDelete = b;
+    _mutex.unlock();
+}
+
+#elif defined(WIN32)
 
 inline
 Shared::Shared() :
@@ -235,7 +299,7 @@ inline
 Shared::Shared() :
     _noDelete(false)
 {
-    atomic_set(&_ref, 0);
+    ice_atomic_set(&_ref, 0);
 }
 
 inline
@@ -246,15 +310,15 @@ Shared::~Shared()
 inline void
 Shared::__incRef()
 {
-    assert(atomic_exchange_add(0, &_ref) >= 0);
-    atomic_inc(&_ref);
+    assert(ice_atomic_exchange_add(0, &_ref) >= 0);
+    ice_atomic_inc(&_ref);
 }
 
 inline void
 Shared::__decRef()
 {
-    assert(atomic_exchange_add(0, &_ref) > 0);
-    if (atomic_dec_and_test(&_ref) && !_noDelete)
+    assert(ice_atomic_exchange_add(0, &_ref) > 0);
+    if (ice_atomic_dec_and_test(&_ref) && !_noDelete)
     {
 	delete this;
     }
@@ -263,7 +327,7 @@ Shared::__decRef()
 inline int
 Shared::__getRef()
 {
-    return atomic_exchange_add(0, &_ref);
+    return ice_atomic_exchange_add(0, &_ref);
 }
 
 inline void
@@ -273,64 +337,6 @@ Shared::__setNoDelete(bool b)
 }
 #endif
 
-/*
- * This is the mutex protected version
- *
-inline
-Shared::Shared() :
-    _ref(0),
-    _noDelete(false)
-{
-}
-
-inline
-Shared::~Shared()
-{
-}
-
-inline void
-Shared::__incRef();
-{
-    _mutex.lock();
-    assert(_ref >= 0);
-    ++_ref;
-    _mutex.unlock();
-}
-
-inline void
-Shared::__decRef()
-{
-    _mutex.lock();
-    bool doDelete = false;
-    assert(_ref > 0);
-    if (--_ref == 0)
-    {
-	doDelete = !_noDelete;
-    }
-    _mutex.unlock();
-    if (doDelete)
-    {
-	delete this;
-    }
-}
-
-inline int
-Shared::__getRef()
-{
-    _mutex.lock();
-    int ref = _ref;
-    _mutex.unlock();
-    return ref;
-}
-
-inline void
-Shared::__setNoDelete(bool b)
-{
-    _mutex.lock();
-    _noDelete = b;
-    _mutex.unlock();
-}
-*/
 
 }
 
