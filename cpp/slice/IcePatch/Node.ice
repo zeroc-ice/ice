@@ -46,6 +46,9 @@ class DirectoryDesc extends NodeDesc
 
 interface File extends Node
 {
+    int getSizeBZ2()
+	throws NodeAccessException;
+
     Ice::ByteSeq getBytesBZ2(int pos, int num)
 	throws NodeAccessException;
 };
@@ -53,6 +56,7 @@ interface File extends Node
 class FileDesc extends NodeDesc
 {
     File* file;
+    int size;
     Ice::ByteSeq md5;
 };
 

@@ -11,6 +11,7 @@
 #include <Ice/Application.h>
 #include <IcePatch/NodeDescFactory.h>
 #include <IcePatch/Util.h>
+#include <iomanip>
 
 using namespace std;
 using namespace Ice;
@@ -116,12 +117,33 @@ IcePatch::Client::run(int argc, char* argv[])
     }
     catch (const NodeAccessException& ex)
     {
-	cerr << ex << ":\n" << ex.reason << endl;
+	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
 	return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
 }
+
+class MyProgressCB : public ProgressCB
+{
+public:
+
+    virtual void start(Int)
+    {
+	cout << "  0% " << flush;
+    }
+
+    virtual void update(Int total, Int pos)
+    {
+	Ice::Int percent = pos * 100 / total;
+	cout << "\b\b\b\b\b" << setw(3) << percent << "% " << flush;
+    }
+
+    virtual void finished(Int total)
+    {
+	cout << "\b\b\b\b\b" << "100% " << flush;
+    }
+};
 
 void
 IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string& indent)
@@ -206,13 +228,15 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 	    assert(fileDesc);
 	    cout << indent << "+-" << pathToName(path) << "... " << flush;
 
+	    MyProgressCB progressCB;
+
 	    FileInfo info = getFileInfo(path);
 	    switch (info)
 	    {
 		case FileInfoNotExist:
 		{
 		    cout << "getting file... " << flush;
-		    getFile(fileDesc->file);
+		    getFile(fileDesc->file, progressCB);
 		    break;
 		}
 
@@ -221,7 +245,7 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 		    cout << "removing directory... " << flush;
 		    removeRecursive(path);
 		    cout << "getting file... " << flush;
-		    getFile(fileDesc->file);
+		    getFile(fileDesc->file, progressCB);
 		    break;
 		}
 
@@ -233,7 +257,7 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 			cout << "removing file... " << flush;
 			removeRecursive(path);
 			cout << "getting file... " << flush;
-			getFile(fileDesc->file);
+			getFile(fileDesc->file, progressCB);
 		    }
 		    break;
 		}
@@ -243,7 +267,7 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 		    cout << "removing unknown file... " << flush;
 		    removeRecursive(path);
 		    cout << "getting file... " << flush;
-		    getFile(fileDesc->file);
+		    getFile(fileDesc->file, progressCB);
 		    break;
 		}
 	    }

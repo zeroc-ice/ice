@@ -10,6 +10,7 @@
 
 #include <Ice/Application.h>
 #include <IcePatch/NodeLocator.h>
+#include <IcePatch/Util.h>
 
 using namespace std;
 using namespace Ice;
@@ -86,6 +87,20 @@ IcePatch::Server::run(int argc, char* argv[])
     if (endpoints.empty())
     {
 	cerr << appName() << ": property `" << endpointsProperty << "' is not set" << endl;
+	return EXIT_FAILURE;
+    }
+
+    //
+    // Create MD5 and BZ2 files.
+    //
+    try
+    {
+	createMD5Recursive(".");
+	createBZ2Recursive(".");    
+    }
+    catch (const NodeAccessException& ex)
+    {
+	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
 	return EXIT_FAILURE;
     }
 

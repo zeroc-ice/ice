@@ -47,6 +47,7 @@ public:
     FileI(const Ice::ObjectAdapterPtr&);
 
     virtual NodeDescPtr describe(const Ice::Current&);
+    virtual Ice::Int getSizeBZ2(const Ice::Current&);
     virtual Ice::ByteSeq getBytesBZ2(Ice::Int, Ice::Int, const Ice::Current&);
 };
 

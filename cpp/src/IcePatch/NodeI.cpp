@@ -44,6 +44,11 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
     StringSeq::const_iterator p;
     for (p = paths.begin(); p != paths.end(); ++p)
     {
+	if (pathToName(*p) == tmpName)
+	{
+	    continue;
+	}
+
 	string suffix = getSuffix(*p);
 	if (suffix == "md5" || suffix == "bz2")
 	{
@@ -79,6 +84,12 @@ IcePatch::FileI::describe(const Ice::Current& current)
     desc->file = FilePrx::uncheckedCast(_adapter->createProxy(current.identity));
     desc->md5 = getMD5(identityToPath(current.identity));
     return desc;
+}
+
+Int
+IcePatch::FileI::getSizeBZ2(const Ice::Current& current)
+{
+    return IcePatch::getSizeBZ2(identityToPath(current.identity));
 }
 
 ByteSeq

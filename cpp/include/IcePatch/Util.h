@@ -17,6 +17,8 @@
 namespace IcePatch
 {
 
+extern const std::string tmpName;
+
 std::string identityToPath(const Ice::Identity&);
 Ice::Identity pathToIdentity(const std::string&);
 
@@ -36,14 +38,26 @@ void removeRecursive(const std::string&);
 void createDirectory(const std::string&);
 
 Ice::ByteSeq getMD5(const std::string&);
-std::string MD5ToString(const Ice::ByteSeq&);
+void createMD5(const std::string&);
+void createMD5Recursive(const std::string&);
 
 void writeBZ2(const std::string&, const Ice::ByteSeq&);
 Ice::ByteSeq readBZ2(const std::string&);
 
+Ice::Int getSizeBZ2(const std::string&);
 Ice::ByteSeq getBytesBZ2(const std::string&, Ice::Int, Ice::Int);
+void createBZ2(const std::string&);
+void createBZ2Recursive(const std::string&);
 
-void getFile(const IcePatch::FilePrx&);
+class ProgressCB
+{
+public:
+
+    virtual void start(Ice::Int) = 0;
+    virtual void update(Ice::Int, Ice::Int) = 0;
+    virtual void finished(Ice::Int) = 0;
+};
+void getFile(const IcePatch::FilePrx&, ProgressCB&);
 
 }
 
