@@ -26,10 +26,10 @@ class ICE_API ProxyFactoryI : public Shared
 {
 public:
     
-    ::Ice::ObjectProxy stringToProxy(const std::string&);
-    ::Ice::ObjectProxy streamToProxy(Stream*);
-    ::Ice::ObjectProxy referenceToProxy(const Reference&);
-    void proxyToStream(const ::Ice::ObjectProxy&, Stream*);
+    ::Ice::Object_pptr stringToProxy(const std::string&);
+    ::Ice::Object_pptr streamToProxy(Stream*);
+    ::Ice::Object_pptr referenceToProxy(const Reference&);
+    void proxyToStream(const ::Ice::Object_pptr&, Stream*);
 
 private:
 

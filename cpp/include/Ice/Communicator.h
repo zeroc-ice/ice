@@ -31,7 +31,7 @@ public:
     void shutdown();
     void waitForShutdown();
 
-    ObjectProxy stringToProxy(const std::string&);
+    Object_pptr stringToProxy(const std::string&);
 
     ObjectAdapter createObjectAdapter(const std::string&);
     ObjectAdapter createObjectAdapter(const std::string&, const std::string&);

@@ -25,17 +25,17 @@ namespace Ice
 {
 
 // No virtual inheritance for ice objects
-class ICE_API ObjectS : public ::__Ice::Shared
+class ICE_API Object : public ::__Ice::Shared
 {
 public:
 
-    ObjectS();
-    virtual ~ObjectS();
+    Object();
+    virtual ~Object();
 
     virtual bool _implements(const std::string&);
     void ____implements(::__Ice::Incoming&);
 
-    typedef void (ObjectS::*__Op)(::__Ice::Incoming&);
+    typedef void (Object::*__Op)(::__Ice::Incoming&);
     static __Op __ops[];
     static std::string __names[];
     virtual bool __dispatch(::__Ice::Incoming&, const std::string&);
