@@ -1,6 +1,10 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Instead of aborting the caller thread, Ice for Java now catches
+  assertions in servant methods, prints the assertion, closes the
+  connection, and continues.
+
 - Added dynamic thread pools, i.e., thread pools that grow and shrink
   based on a calculated load factory. Please see the section about
   thread pools in the manual for further details.

@@ -1043,6 +1043,21 @@ public final class Connection extends EventHandler
                         setState(StateClosed, ex);
                     }
                 }
+		catch(AssertionError ex)
+		{
+		    //
+		    // Java only: Upon an assertion, we don't kill the
+		    // whole process, but just print the stack trace
+		    // and close the connection.
+		    //
+		    ex.printStackTrace();
+                    reclaimIncoming(in); // Must be called outside the synchronization.
+                    in = null;
+                    synchronized(this)
+                    {
+                        setState(StateClosed, new Ice.UnknownException());
+                    }
+		}
             }
             finally
             {

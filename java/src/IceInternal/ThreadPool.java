@@ -1047,7 +1047,7 @@ public final class ThreadPool
                 _instance.logger().error(s);
 		promote = true;
             }
-            catch(RuntimeException ex)
+            catch(Exception ex)
             {
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -1056,11 +1056,6 @@ public final class ThreadPool
                 String s = "unknown exception in `" + _prefix + "' thread " + getName() + ":\n" + sw.toString();
                 _instance.logger().error(s);
 		promote = true;
-            }
-
-            if(TRACE_THREAD)
-            {
-                trace("run() terminated");
             }
 
 	    if(promote && _sizeMax > 1)
@@ -1078,6 +1073,11 @@ public final class ThreadPool
 	    }
 
             stream.destroy();
+
+            if(TRACE_THREAD)
+            {
+                trace("run() terminated");
+            }
         }
     }
 

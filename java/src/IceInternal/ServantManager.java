@@ -148,7 +148,7 @@ public final class ServantManager extends Thread
 	    {
 		locator.deactivate();
 	    }
-	    catch(RuntimeException ex)
+	    catch(Exception ex)
 	    {
 		java.io.StringWriter sw = new java.io.StringWriter();
 		java.io.PrintWriter pw = new java.io.PrintWriter(sw);

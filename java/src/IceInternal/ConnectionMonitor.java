@@ -140,11 +140,12 @@ public final class ConnectionMonitor extends Thread
 			java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 			ex.printStackTrace(pw);
 			pw.flush();
-			String s = "exception in thread pool thread " + getName() + ":\n" + sw.toString();
+			String s = "exception in connection monitor thread " + getName() + ":\n" +
+			    sw.toString();
 			_instance.logger().error(s);
 		    }
 		}
-		catch(RuntimeException ex)
+		catch(Exception ex)
 		{
 		    synchronized(this)
 		    {
@@ -152,7 +153,8 @@ public final class ConnectionMonitor extends Thread
 			java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 			ex.printStackTrace(pw);
 			pw.flush();
-			String s = "unknown exception in thread pool thread " + getName() + ":\n" + sw.toString();
+			String s = "unknown exception in connection monitor thread " + getName() + ":\n" +
+			    sw.toString();
 			_instance.logger().error(s);
 		    }
 		}

@@ -150,6 +150,8 @@ public class IncomingBase
     final protected void
     __finishInvoke(boolean success)
     {
+	assert(_is != null);
+
 	if(_locator != null && _servant != null)
 	{
 	    _locator.finished(_current, _servant, _cookie.value);
@@ -182,6 +184,8 @@ public class IncomingBase
     final protected void
     __warning(Exception ex)
     {
+	assert(_os != null);
+
 	if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	{
 	    java.io.StringWriter sw = new java.io.StringWriter();

@@ -194,7 +194,7 @@ final public class Incoming extends IncomingBase
 	// ...
 	}
 	*/
-        catch(RuntimeException ex)
+        catch(Exception ex)
         {
 	    __warning(ex);
 
