@@ -598,8 +598,8 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 
     if(addr.sin_addr.s_addr == INADDR_NONE)
     {
-
 #ifdef _WIN32
+
 	//
 	// Windows XP has getaddrinfo(), but we don't want to require XP to run Ice.
 	//
@@ -626,6 +626,7 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
 
 #else
+
 	struct addrinfo* info = 0;
 	int retry = 5;
 
@@ -636,7 +637,8 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 	do
 	{
 	    rs = getaddrinfo(host.c_str(), 0, &hints, &info);    
-	} while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
+	}
+	while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
 	
 	if(rs != 0)
 	{
@@ -651,6 +653,7 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 
 	addr.sin_addr.s_addr = sin->sin_addr.s_addr;
 	freeaddrinfo(info);
+
 #endif
     }
 }
@@ -667,6 +670,7 @@ IceInternal::getLocalHost(bool numeric)
     }
     
 #ifdef _WIN32
+
     //
     // Windows XP has getaddrinfo(), but we don't want to require XP to run Ice.
     //
@@ -714,7 +718,8 @@ IceInternal::getLocalHost(bool numeric)
     do
     {
 	rs = getaddrinfo(host, 0, &hints, &info);    
-    } while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
+    }
+    while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
     
     if(rs != 0)
     {
@@ -737,6 +742,7 @@ IceInternal::getLocalHost(bool numeric)
     }
     freeaddrinfo(info);
     return result;
+
 #endif
 }
 

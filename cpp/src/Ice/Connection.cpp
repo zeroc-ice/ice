@@ -658,6 +658,14 @@ IceInternal::Connection::prepareBatchRequest(BasicStream* os)
 {
     lock();
 
+    //
+    // Wait if flushing is currently in progress.
+    //
+    while(_batchFlushInProgress)
+    {
+	wait();
+    }
+
     if(_exception.get())
     {
 	unlock();
@@ -665,11 +673,6 @@ IceInternal::Connection::prepareBatchRequest(BasicStream* os)
     }
     assert(_state > StateNotValidated);
     assert(_state < StateClosing);
-
-    while(_batchFlushInProgress)
-    {
-	wait();
-    }
 
     if(_batchStream.b.empty())
     {
@@ -722,6 +725,14 @@ IceInternal::Connection::flushBatchRequest()
     {
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
+	//
+	// Wait if flushing is currently in progress.
+	//
+	while(_batchFlushInProgress)
+	{
+	    wait();
+	}
+	
 	if(_exception.get())
 	{
 	    //
@@ -826,17 +837,12 @@ IceInternal::Connection::flushBatchRequest()
 	assert(_exception.get());
 
 	//
-	// Reset _batchStream and _batchRequestNum, so that new batch
-	// messages can be sent.
+	// Reset the batch stream, and notify that flushing is over.
 	//
 	BasicStream dummy(_instance.get());
 	_batchStream.swap(dummy);
 	assert(_batchStream.b.empty());
 	_batchRequestNum = 0;
-
-	//
-	// Notify that flushing is over.
-	//
 	_batchFlushInProgress = false;
 	notifyAll();
 
@@ -851,8 +857,12 @@ IceInternal::Connection::flushBatchRequest()
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
 	//
-	// Notify that flushing is over.
+	// Reset the batch stream, and notify that flushing is over.
 	//
+	BasicStream dummy(_instance.get());
+	_batchStream.swap(dummy);
+	assert(_batchStream.b.empty());
+	_batchRequestNum = 0;
 	_batchFlushInProgress = false;
 	notifyAll();
 
