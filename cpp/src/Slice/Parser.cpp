@@ -630,8 +630,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 	    }
 	    return TypeList();
 	}
-	return contained->container()->lookupTypeNoBuiltin(scoped,
-							       printError);
+	return contained->container()->lookupTypeNoBuiltin(scoped, printError);
     }
     else
     {

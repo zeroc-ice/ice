@@ -119,6 +119,24 @@ class MyClass
     WStringSS opWStringSS(WStringSS p1, WStringSS p2;
 			  WStringSS p3);
 
+    ByteBoolD opByteBoolD(ByteBoolD p1;
+			  ByteBoolD p2);
+
+    ShortIntD opShortIntD(ShortIntD p1;
+			  ShortIntD p2);
+
+    LongFloatD opLongFloatD(LongFloatD p1;
+			    LongFloatD p2);
+
+    DoubleStringD opDoubleStringD(DoubleStringD p1;
+				  DoubleStringD p2);
+
+    WStringMyEnumD opWStringMyEnumD(WStringMyEnumD p1;
+				    WStringMyEnumD p2);
+
+    MyClassStringD opMyClassStringD(MyClassStringD p1;
+				    MyClassStringD p2);
+
     void opEx(int p) throws
         byte,
 	bool,
