@@ -11,8 +11,8 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <IceSSL/Exception.h>
-#include <IceSSL/RSACertificateGen.h>
 #include <IceSSL/RSAKeyPair.h>
+#include <IceSSL/RSACertificateGen.h>
 #include <IceSSL/Plugin.h>
 #include <IceUtil/Base64.h>
 
@@ -23,8 +23,8 @@ using namespace Ice;
 
 void
 testExpectCertificateAndPrivateKeyParseException(const IceSSL::PluginPtr& plugin,
-                                                 const std::string& key,
-                                                 const std::string& cert)
+                                                 const string& key,
+                                                 const string& cert)
 {
     try
     {
@@ -54,7 +54,7 @@ testExpectCertificateAndPrivateKeyParseException(const IceSSL::PluginPtr& plugin
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
@@ -90,11 +90,11 @@ testExpectCertificateAndPrivateKeyParseException(const IceSSL::PluginPtr& plugin
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
-testExpectPrivateKeyParseException(const IceSSL::PluginPtr& plugin, const std::string& key, const std::string& cert)
+testExpectPrivateKeyParseException(const IceSSL::PluginPtr& plugin, const string& key, const string& cert)
 {
     try
     {
@@ -121,7 +121,7 @@ testExpectPrivateKeyParseException(const IceSSL::PluginPtr& plugin, const std::s
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
@@ -152,11 +152,11 @@ testExpectPrivateKeyParseException(const IceSSL::PluginPtr& plugin, const Ice::B
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
-testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const std::string& key, const std::string& cert)
+testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const string& key, const string& cert)
 {
     try
     {
@@ -183,7 +183,7 @@ testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const std::
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
@@ -214,11 +214,11 @@ testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const Ice::
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
-testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const std::string& cert)
+testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const string& cert)
 {
     try
     {
@@ -245,7 +245,7 @@ testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const std::
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
@@ -276,13 +276,13 @@ testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const Ice::
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
 testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin,
-                                        const std::string& key,
-                                        const std::string& cert)
+                                        const string& key,
+                                        const string& cert)
 {
     try
     {
@@ -309,7 +309,7 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin,
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
@@ -342,11 +342,11 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin,
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
-testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin, const std::string& cert)
+testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin, const string& cert)
 {
     try
     {
@@ -373,7 +373,7 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin, const s
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
@@ -404,13 +404,13 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin, const I
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
 testExpectCertificateKeyMatchException(const IceSSL::PluginPtr& plugin,
-                                       const std::string& key,
-                                       const std::string& cert)
+                                       const string& key,
+                                       const string& cert)
 {
     try
     {
@@ -437,7 +437,7 @@ testExpectCertificateKeyMatchException(const IceSSL::PluginPtr& plugin,
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
@@ -470,11 +470,11 @@ testExpectCertificateKeyMatchException(const IceSSL::PluginPtr& plugin,
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
-testNoException(const IceSSL::PluginPtr& plugin, const std::string& key, const std::string& cert)
+testNoException(const IceSSL::PluginPtr& plugin, const string& key, const string& cert)
 {
     try
     {
@@ -497,7 +497,7 @@ testNoException(const IceSSL::PluginPtr& plugin, const std::string& key, const s
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
@@ -524,11 +524,11 @@ testNoException(const IceSSL::PluginPtr& plugin, const Ice::ByteSeq& key, const 
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
-testNoException(const IceSSL::PluginPtr& plugin, const std::string& cert)
+testNoException(const IceSSL::PluginPtr& plugin, const string& cert)
 {
     try
     {
@@ -551,7 +551,7 @@ testNoException(const IceSSL::PluginPtr& plugin, const std::string& cert)
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 void
@@ -578,7 +578,7 @@ testNoException(const IceSSL::PluginPtr& plugin, const Ice::ByteSeq& cert)
         test(false);
     }
 
-    std::cout << "ok" << std::endl;
+    cout << "ok" << endl;
 }
 
 int
@@ -589,35 +589,35 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::PluginPtr plugin = communicator->getPluginManager()->getPlugin("IceSSL");
     IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
 
-    std::string clientTestCertPath = properties->getProperty("IceSSL.Test.Client.CertPath");
+    string clientTestCertPath = properties->getProperty("IceSSL.Test.Client.CertPath");
 
     IceSSL::OpenSSL::RSACertificateGen certGen;
 
     IceSSL::OpenSSL::RSAKeyPairPtr goodKeyPair1;
     IceSSL::OpenSSL::RSAKeyPairPtr goodKeyPair2;
 
-    std::string goodKey1File = clientTestCertPath + "/goodKey_1.pem";
-    std::string goodCert1File = clientTestCertPath + "/goodCert_1.pem";
-    std::string goodKey2File = clientTestCertPath + "/goodKey_2.pem";
-    std::string goodCert2File = clientTestCertPath + "/goodCert_2.pem";
+    string goodKey1File = clientTestCertPath + "/goodKey_1.pem";
+    string goodCert1File = clientTestCertPath + "/goodCert_1.pem";
+    string goodKey2File = clientTestCertPath + "/goodKey_2.pem";
+    string goodCert2File = clientTestCertPath + "/goodCert_2.pem";
 
     goodKeyPair1 = certGen.loadKeyPair(goodKey1File, goodCert1File);
     goodKeyPair2 = certGen.loadKeyPair(goodKey2File, goodCert2File);
 
     Ice::ByteSeq gcert1;
     Ice::ByteSeq gkey1;
-    std::string gcert1b64;
-    std::string gkey1b64;
+    string gcert1b64;
+    string gkey1b64;
 
     Ice::ByteSeq gcert2;
     Ice::ByteSeq gkey2;
-    std::string gcert2b64;
-    std::string gkey2b64;
+    string gcert2b64;
+    string gkey2b64;
 
     Ice::ByteSeq badCert;
     Ice::ByteSeq badKey;
-    std::string badCertb64;
-    std::string badKeyb64;
+    string badCertb64;
+    string badKeyb64;
 
     goodKeyPair1->certToByteSeq(gcert1);
     goodKeyPair1->keyToByteSeq(gkey1);
@@ -629,11 +629,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     goodKeyPair2->certToBase64(gcert2b64);
     goodKeyPair2->keyToBase64(gkey2b64);
 
-    std::string badKeyFile = clientTestCertPath + "/badKey.b64"; 
-    std::string badCertFile = clientTestCertPath + "/badCert.b64";
+    string badKeyFile = clientTestCertPath + "/badKey.b64"; 
+    string badCertFile = clientTestCertPath + "/badCert.b64";
 
-    std::ifstream keyStream(badKeyFile.c_str());
-    std::ifstream certStream(badCertFile.c_str());
+    ifstream keyStream(badKeyFile.c_str());
+    ifstream certStream(badCertFile.c_str());
 
     keyStream >> badKeyb64;
     certStream >> badCertb64;
@@ -644,88 +644,88 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     badKey = IceUtil::Base64::decode(badKeyb64);
     badCert = IceUtil::Base64::decode(badCertb64);
 
-    std::cout << "testing certificate and key parsing failures." << std::endl;
+    cout << "testing certificate and key parsing failures." << endl;
 
-    std::cout << "bad private key and certificate (Base64)... " << std::flush;
+    cout << "bad private key and certificate (Base64)... " << flush;
     testExpectCertificateAndPrivateKeyParseException(sslPlugin, badKeyb64, badCertb64);
 
-    std::cout << "bad private key and certificate... " << std::flush;
+    cout << "bad private key and certificate... " << flush;
     testExpectCertificateAndPrivateKeyParseException(sslPlugin, badKey, badCert);
 
-    std::cout << "bad private key and good certificate (Base64)... " << std::flush;
+    cout << "bad private key and good certificate (Base64)... " << flush;
     testExpectPrivateKeyParseException(sslPlugin, badKeyb64, gcert1b64);
 
-    std::cout << "bad private key and good certificate... " << std::flush;
+    cout << "bad private key and good certificate... " << flush;
     testExpectPrivateKeyParseException(sslPlugin, badKey, gcert1);
 
-    std::cout << "good private key and bad certificate (Base64)... " << std::flush;
+    cout << "good private key and bad certificate (Base64)... " << flush;
     testExpectCertificateParseException(sslPlugin, gkey1b64, badCertb64);
 
-    std::cout << "good private key and bad certificate... " << std::flush;
+    cout << "good private key and bad certificate... " << flush;
     testExpectCertificateParseException(sslPlugin, gkey1, badCert);
 
-    std::cout << "bad certificate as a trusted certificate... " << std::flush;
+    cout << "bad certificate as a trusted certificate... " << flush;
     testExpectCertificateParseException(sslPlugin, badCert);
     
-    std::cout << "bad certificate as a trusted certificate (Base64)... " << std::flush;
+    cout << "bad certificate as a trusted certificate (Base64)... " << flush;
     testExpectCertificateParseException(sslPlugin, badCertb64);
     
-    std::cout << "testing setting good certificates and keys on a unconfigured context." << std::endl;
+    cout << "testing setting good certificates and keys on a unconfigured context." << endl;
 
-    std::cout << "good private key and certificate... " << std::flush;
+    cout << "good private key and certificate... " << flush;
     testExpectContextNotConfiguredException(sslPlugin, gkey1, gcert1);
     
-    std::cout << "good private key and certificate (Base64)... " << std::flush;
+    cout << "good private key and certificate (Base64)... " << flush;
     testExpectContextNotConfiguredException(sslPlugin, gkey1b64, gcert1b64);
 
-    std::cout << "good private key and certificate (again)... " << std::flush;
+    cout << "good private key and certificate (again)... " << flush;
     testExpectContextNotConfiguredException(sslPlugin, gkey2, gcert2);
     
-    std::cout << "good private key and certificate (Base64) (again)... " << std::flush;
+    cout << "good private key and certificate (Base64) (again)... " << flush;
     testExpectContextNotConfiguredException(sslPlugin, gkey2b64, gcert2b64);
 
-    std::cout << "good certificate as a trusted certificate... " << std::flush;
+    cout << "good certificate as a trusted certificate... " << flush;
     testExpectContextNotConfiguredException(sslPlugin, gcert1);
     
-    std::cout << "good certificate as a trusted certificate (Base64)... " << std::flush;
+    cout << "good certificate as a trusted certificate (Base64)... " << flush;
     testExpectContextNotConfiguredException(sslPlugin, gcert1b64);
 
     properties->setProperty("IceSSL.Client.CertPath", clientTestCertPath);
     properties->setProperty("IceSSL.Client.Config", "sslconfig_6.xml");
     sslPlugin->configure(IceSSL::Client);
 
-    std::cout << "testing mismatched certificates and keys failures on a configured context." << std::endl;
+    cout << "testing mismatched certificates and keys failures on a configured context." << endl;
 
-    std::cout << "good private key and certificate, mismatched... " << std::flush;
+    cout << "good private key and certificate, mismatched... " << flush;
     testExpectCertificateKeyMatchException(sslPlugin, gkey1, gcert2);
     
-    std::cout << "good private key and certificate, mismatched (Base64)... " << std::flush;
+    cout << "good private key and certificate, mismatched (Base64)... " << flush;
     testExpectCertificateKeyMatchException(sslPlugin, gkey1b64, gcert2b64);
 
-    std::cout << "good private key and certificate, mismatched (again)... " << std::flush;
+    cout << "good private key and certificate, mismatched (again)... " << flush;
     testExpectCertificateKeyMatchException(sslPlugin, gkey2, gcert1);
     
-    std::cout << "good private key and certificate, mismatched (Base64) (again)... " << std::flush;
+    cout << "good private key and certificate, mismatched (Base64) (again)... " << flush;
     testExpectCertificateKeyMatchException(sslPlugin, gkey2b64, gcert1b64);
 
-    std::cout << "testing setting good certificates and keys on a configured context." << std::endl;
+    cout << "testing setting good certificates and keys on a configured context." << endl;
 
-    std::cout << "good private key and certificate... " << std::flush;
+    cout << "good private key and certificate... " << flush;
     testNoException(sslPlugin, gkey1, gcert1);
     
-    std::cout << "good private key and certificate (Base64)... " << std::flush;
+    cout << "good private key and certificate (Base64)... " << flush;
     testNoException(sslPlugin, gkey1b64, gcert1b64);
 
-    std::cout << "good private key and certificate (again)... " << std::flush;
+    cout << "good private key and certificate (again)... " << flush;
     testNoException(sslPlugin, gkey2, gcert2);
     
-    std::cout << "good private key and certificate (Base64) (again)... " << std::flush;
+    cout << "good private key and certificate (Base64) (again)... " << flush;
     testNoException(sslPlugin, gkey2b64, gcert2b64);
 
-    std::cout << "good certificate as trusted certificate... " << std::flush;
+    cout << "good certificate as trusted certificate... " << flush;
     testNoException(sslPlugin, gcert1);
     
-    std::cout << "good certificate as trusted certificate (Base64)... " << std::flush;
+    cout << "good certificate as trusted certificate (Base64)... " << flush;
     testNoException(sslPlugin, gcert2b64);
 
     return EXIT_SUCCESS;
@@ -744,7 +744,7 @@ main(int argc, char* argv[])
     }
     catch(const Ice::Exception& ex)
     {
-	cerr << ex << endl;
+        cerr << ex << endl;
 	status = EXIT_FAILURE;
     }
 
@@ -756,7 +756,7 @@ main(int argc, char* argv[])
 	}
 	catch(const Ice::Exception& ex)
 	{
-	    cerr << ex << endl;
+            cerr << ex << endl;
 	    status = EXIT_FAILURE;
 	}
     }
