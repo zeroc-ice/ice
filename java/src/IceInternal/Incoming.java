@@ -41,12 +41,21 @@ public class Incoming
         {
             _current.ctx.clear();
         }
-        _current.adapter = adapter;
 
-	if(_current.adapter != null)
-	{
-	    ((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
-	}
+        if(_current.adapter != adapter)
+        {
+            if(_current.adapter != null)
+            {
+                ((Ice.ObjectAdapterI)(_current.adapter)).decUsageCount();
+            }
+
+            _current.adapter = adapter;
+
+            if(_current.adapter != null)
+            {
+                ((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
+            }
+        }
     }
 
     //
