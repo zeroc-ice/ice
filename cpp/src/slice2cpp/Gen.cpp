@@ -2460,7 +2460,11 @@ Slice::Gen::IceInternalVisitor::visitClassDecl(const ClassDeclPtr& p)
 	H << nl << _dllExport << "void decRef(::IceProxy" << scoped << "*);";
 
 	H << sp;
+	H << nl << _dllExport << "void checkedCast(const ::Ice::ObjectPrx&, "
+	  << "ProxyHandle< ::IceProxy" << scoped << ">&);";
 	H << nl << _dllExport << "void checkedCast(const ::Ice::ObjectPrx&, const ::std::string&, "
+	  << "ProxyHandle< ::IceProxy" << scoped << ">&);";
+	H << nl << _dllExport << "void uncheckedCast(const ::Ice::ObjectPrx&, "
 	  << "ProxyHandle< ::IceProxy" << scoped << ">&);";
 	H << nl << _dllExport << "void uncheckedCast(const ::Ice::ObjectPrx&, const ::std::string&, "
 	  << "ProxyHandle< ::IceProxy" << scoped << ">&);";
@@ -2500,13 +2504,11 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << eb;
 
 	C << sp;
-	C << nl << "void" << nl << "IceInternal::checkedCast(const ::Ice::ObjectPrx& b, const ::std::string& f, "
+	C << nl << "void" << nl << "IceInternal::checkedCast(const ::Ice::ObjectPrx& b, "
 	  << scoped << "Prx& d)";
 	C << sb;
 	C << nl << "d = 0;";
 	C << nl << "if(b)";
-	C << sb;
-	C << nl << "if(f == b->ice_getFacet())";
 	C << sb;
 	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b.get());";
 	C << nl << "if(!d && b->ice_isA(\"" << p->scoped() << "\"))";
@@ -2515,9 +2517,16 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "d->__copyFrom(b);";
 	C << eb;
 	C << eb;
-	C << nl << "else";
+	C << eb;
+
+	C << sp;
+	C << nl << "void" << nl << "IceInternal::checkedCast(const ::Ice::ObjectPrx& b, const ::std::string& f, "
+	  << scoped << "Prx& d)";
 	C << sb;
-	C << nl << "::Ice::ObjectPrx bb = b->ice_newFacet(f);";
+	C << nl << "d = 0;";
+	C << nl << "if(b)";
+	C << sb;
+	C << nl << "::Ice::ObjectPrx bb = b->ice_appendFacet(f);";
 	C << nl << "try";
 	C << sb;
 	C << nl << "if(bb->ice_isA(\"" << p->scoped() << "\"))";
@@ -2531,6 +2540,21 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << eb;
 	C << eb;
 	C << eb;
+
+	C << sp;
+	C << nl << "void" << nl << "IceInternal::uncheckedCast(const ::Ice::ObjectPrx& b, "
+	  << scoped << "Prx& d)";
+	C << sb;
+	C << nl << "d = 0;";
+	C << nl << "if(b)";
+	C << sb;
+	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b.get());";
+	C << nl << "if(!d)";
+	C << sb;
+	C << nl << "d = new ::IceProxy" << scoped << ";";
+	C << nl << "d->__copyFrom(b);";
+	C << eb;
+	C << eb;
 	C << eb;
 
 	C << sp;
@@ -2540,21 +2564,9 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "d = 0;";
 	C << nl << "if(b)";
 	C << sb;
-	C << nl << "if(f == b->ice_getFacet())";
-	C << sb;
-	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b.get());";
-	C << nl << "if(!d)";
-	C << sb;
-	C << nl << "d = new ::IceProxy" << scoped << ";";
-	C << nl << "d->__copyFrom(b);";
-	C << eb;
-	C << eb;
-	C << nl << "else";
-	C << sb;
-	C << nl << "::Ice::ObjectPrx bb = b->ice_newFacet(f);";
+	C << nl << "::Ice::ObjectPrx bb = b->ice_appendFacet(f);";
 	C << nl << "d = new ::IceProxy" << scoped << ";";
 	C << nl << "d->__copyFrom(bb);";
-	C << eb;
 	C << eb;
 	C << eb;
     }

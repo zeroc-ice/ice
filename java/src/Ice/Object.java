@@ -105,10 +105,13 @@ public class Object
     public final String[]
     ice_facets(Current current)
     {
-        java.util.Set keySet = _activeFacetMap.keySet();
-        String[] v = new String[keySet.size()];
-        keySet.toArray(v);
-        return v;
+        synchronized(_activeFacetMap)
+        {
+	    java.util.Set keySet = _activeFacetMap.keySet();
+	    String[] v = new String[keySet.size()];
+	    keySet.toArray(v);
+	    return v;
+	}
     }
 
     public static IceInternal.DispatchStatus
@@ -175,7 +178,7 @@ public class Object
     public void
     __write(IceInternal.BasicStream __os)
     {
-        synchronized(_activeFacetMapMutex)
+        synchronized(_activeFacetMap)
         {
             final int sz = _activeFacetMap.size();
             __os.writeSize(sz);
@@ -194,7 +197,7 @@ public class Object
     public void
     __read(IceInternal.BasicStream __is)
     {
-        synchronized(_activeFacetMapMutex)
+        synchronized(_activeFacetMap)
         {
             int sz = __is.readSize();
 
@@ -212,7 +215,7 @@ public class Object
     public void
     __marshal(Ice.Stream __os)
     {
-        synchronized(_activeFacetMapMutex)
+        synchronized(_activeFacetMap)
         {
             final int sz = _activeFacetMap.size();
 
@@ -234,7 +237,7 @@ public class Object
     public void
     __unmarshal(Ice.Stream __is)
     {
-        synchronized(_activeFacetMapMutex)
+        synchronized(_activeFacetMap)
         {
             final String facetsName = "ice:facets";
             final String keyName = "key";
@@ -271,7 +274,7 @@ public class Object
     public final void
     ice_addFacet(Object facet, String name)
     {
-        synchronized(_activeFacetMapMutex)
+        synchronized(_activeFacetMap)
         {
             _activeFacetMap.put(name, facet);
         }
@@ -280,7 +283,7 @@ public class Object
     public final void
     ice_removeFacet(String name)
     {
-        synchronized(_activeFacetMapMutex)
+        synchronized(_activeFacetMap)
         {
             _activeFacetMap.remove(name);
         }
@@ -289,7 +292,7 @@ public class Object
     public final void
     ice_removeAllFacets()
     {
-        synchronized(_activeFacetMapMutex)
+        synchronized(_activeFacetMap)
         {
             _activeFacetMap.clear();
         }
@@ -298,12 +301,11 @@ public class Object
     public final Object
     ice_findFacet(String name)
     {
-        synchronized(_activeFacetMapMutex)
+        synchronized(_activeFacetMap)
         {
             return (Object)_activeFacetMap.get(name);
         }
     }
 
     private java.util.HashMap _activeFacetMap = new java.util.HashMap();
-    private java.lang.Object _activeFacetMapMutex = new java.lang.Object();
 }

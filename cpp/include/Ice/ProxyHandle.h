@@ -166,7 +166,15 @@ public:
     }
         
     template<class Y>
-    static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f = "")
+    static ProxyHandle checkedCast(const ProxyHandle<Y>& r)
+    {
+	ProxyHandle p;
+	::IceInternal::checkedCast(r, p);
+	return p;
+    }
+
+    template<class Y>
+    static ProxyHandle checkedCast(const ProxyHandle<Y>& r, const std::string& f)
     {
 	ProxyHandle p;
 	::IceInternal::checkedCast(r, f, p);
@@ -174,7 +182,15 @@ public:
     }
 
     template<class Y>
-    static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r, const std::string& f = "")
+    static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r)
+    {
+	ProxyHandle p;
+	::IceInternal::uncheckedCast(r, p);
+	return p;
+    }
+
+    template<class Y>
+    static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r, const std::string& f)
     {
 	ProxyHandle p;
 	::IceInternal::uncheckedCast(r, f, p);

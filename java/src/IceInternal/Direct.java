@@ -42,9 +42,9 @@ public final class Direct
                 }
             }
 
-            if(_servant != null && _current.facet.length() > 0)
+            if(_servant != null && _current.facet.length > 0)
             {
-                _facetServant = _servant.ice_findFacet(_current.facet);
+                _facetServant = _servant.ice_findFacet(_current.facet[0]);
                 if(_facetServant == null)
                 {
 		    Ice.FacetNotExistException ex = new Ice.FacetNotExistException();

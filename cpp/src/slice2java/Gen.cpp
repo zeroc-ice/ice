@@ -638,8 +638,7 @@ Slice::Gen::generateImplTie(const UnitPtr& unit)
     unit->visit(&implTieVisitor);
 }
 
-Slice::Gen::OpsVisitor::OpsVisitor(const string& dir,
-                                   const string& package) :
+Slice::Gen::OpsVisitor::OpsVisitor(const string& dir, const string& package) :
     JavaVisitor(dir, package)
 {
 }
@@ -745,8 +744,7 @@ Slice::Gen::OpsVisitor::visitOperation(const OperationPtr& p)
     out << ';';
 }
 
-Slice::Gen::TieVisitor::TieVisitor(const string& dir,
-                                   const string& package) :
+Slice::Gen::TieVisitor::TieVisitor(const string& dir, const string& package) :
     JavaVisitor(dir, package)
 {
 }
@@ -889,9 +887,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(const string& dir,
-                                       const string& package,
-                                       bool clone) :
+Slice::Gen::TypesVisitor::TypesVisitor(const string& dir, const string& package, bool clone) :
     JavaVisitor(dir, package),
     _clone(clone)
 {
@@ -1769,8 +1765,7 @@ Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
 #endif
 }
 
-Slice::Gen::HolderVisitor::HolderVisitor(const string& dir,
-                                         const string& package) :
+Slice::Gen::HolderVisitor::HolderVisitor(const string& dir, const string& package) :
     JavaVisitor(dir, package)
 {
 }
@@ -1860,8 +1855,7 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
     }
 }
 
-Slice::Gen::HelperVisitor::HelperVisitor(const string& dir,
-                                         const string& package) :
+Slice::Gen::HelperVisitor::HelperVisitor(const string& dir, const string& package) :
     JavaVisitor(dir, package)
 {
 }
@@ -2004,92 +1998,79 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     // checkedCast
     //
     out << sp << nl << "public static " << name << "Prx"
-        << nl << "checkedCast(Ice.ObjectPrx p)";
+        << nl << "checkedCast(Ice.ObjectPrx b)";
     out << sb;
-    out << nl << "return checkedCast(p, \"\");";
+     out << nl << name << "Prx d = null;";
+     out << nl << "if(b != null)";
+     out << sb;
+      out << nl << "try";
+      out << sb;
+       out << nl << "d = (" << name << "Prx)b;";
+      out << eb;
+      out << nl << "catch(ClassCastException ex)";
+      out << sb;
+       out << nl << "if(b.ice_isA(\"" << scoped << "\"))";
+       out << sb;
+        out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+        out << nl << "h.__copyFrom(b);";
+        out << nl << "d = h;";
+       out << eb;
+      out << eb;
+     out << eb;
+     out << nl << "return d;";
     out << eb;
 
     out << sp << nl << "public static " << name << "Prx"
-        << nl << "checkedCast(Ice.ObjectPrx p, String facet)";
+        << nl << "checkedCast(Ice.ObjectPrx b, String f)";
     out << sb;
-    out << nl << name << "Prx result = null;";
-    out << nl << "if(p != null)";
-    out << sb;
-    out << nl << "if(facet.equals(p.ice_getFacet()))";
-    out << sb;
-    out << nl << "try";
-    out << sb;
-    out << nl << "result = (" << name << "Prx)p;";
-    out << eb;
-    out << nl << "catch(ClassCastException ex)";
-    out << sb;
-    out << nl << "if(p.ice_isA(\"" << scoped << "\"))";
-    out << sb;
-    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    out << nl << "h.__copyFrom(p);";
-    out << nl << "result = h;";
-    out << eb;
-    out << eb;
-    out << eb;
-    out << nl << "else";
-    out << sb;
-    out << nl << "Ice.ObjectPrx pp = p.ice_newFacet(facet);";
-    out << nl << "try";
-    out << sb;
-    out << nl << "if(pp.ice_isA(\"" << scoped << "\"))";
-    out << sb;
-    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    out << nl << "h.__copyFrom(pp);";
-    out << nl << "result = h;";
-    out << eb;
-    out << eb;
-    out << nl << "catch(Ice.FacetNotExistException ex)";
-    out << sb;
-    out << eb;
-    out << eb;
-    out << eb;
-    out << sp;
-    out << nl << "return result;";
+     out << nl << name << "Prx d = null;";
+     out << nl << "if(b != null)";
+     out << sb;
+      out << nl << "Ice.ObjectPrx bb = b.ice_appendFacet(f);";
+      out << nl << "try";
+      out << sb;
+       out << nl << "if(bb.ice_isA(\"" << scoped << "\"))";
+       out << sb;
+	out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+	out << nl << "h.__copyFrom(bb);";
+	out << nl << "d = h;";
+       out << eb;
+      out << eb;
+      out << nl << "catch(Ice.FacetNotExistException ex)";
+      out << sb;
+      out << eb;
+     out << eb;
+     out << nl << "return d;";
     out << eb;
 
     //
     // uncheckedCast
     //
     out << sp << nl << "public static " << name << "Prx"
-        << nl << "uncheckedCast(Ice.ObjectPrx p)";
+        << nl << "uncheckedCast(Ice.ObjectPrx b)";
     out << sb;
-    out << nl << "return uncheckedCast(p, \"\");";
+     out << nl << name << "Prx d = null;";
+     out << nl << "if(b != null)";
+     out << sb;
+      out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+      out << nl << "h.__copyFrom(b);";
+      out << nl << "d = h;";
+     out << eb;
+     out << nl << "return d;";
     out << eb;
 
     out << sp << nl << "public static " << name << "Prx"
-        << nl << "uncheckedCast(Ice.ObjectPrx p, String facet)";
+        << nl << "uncheckedCast(Ice.ObjectPrx b, String f)";
     out << sb;
-    out << nl << name << "Prx result = null;";
-    out << nl << "if(p != null)";
-    out << sb;
-    out << nl << "if(facet.equals(p.ice_getFacet()))";
-    out << sb;
-    out << nl << "try";
-    out << sb;
-    out << nl << "result = (" << name << "Prx)p;";
-    out << eb;
-    out << nl << "catch(ClassCastException ex)";
-    out << sb;
-    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    out << nl << "h.__copyFrom(p);";
-    out << nl << "result = h;";
-    out << eb;
-    out << eb;
-    out << nl << "else";
-    out << sb;
-    out << nl << "Ice.ObjectPrx pp = p.ice_newFacet(facet);";
-    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
-    out << nl << "h.__copyFrom(pp);";
-    out << nl << "result = h;";
-    out << eb;
-    out << eb;
-    out << sp;
-    out << nl << "return result;";
+     out << nl << name << "Prx d = null;";
+     out << nl << "if(b != null)";
+     out << sb;
+      out << nl << "Ice.ObjectPrx bb = b.ice_appendFacet(f);";
+      out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+      out << nl << "h.__copyFrom(bb);";
+      out << nl << "d = h;";
+     out << eb;
+     out << nl << "return d;";
     out << eb;
 
     //
@@ -2673,8 +2654,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     }
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(const string& dir,
-                                       const string& package) :
+Slice::Gen::ProxyVisitor::ProxyVisitor(const string& dir, const string& package) :
     JavaVisitor(dir, package)
 {
 }
@@ -2775,8 +2755,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     out << ';';
 }
 
-Slice::Gen::DelegateVisitor::DelegateVisitor(const string& dir,
-                                             const string& package) :
+Slice::Gen::DelegateVisitor::DelegateVisitor(const string& dir, const string& package) :
     JavaVisitor(dir, package)
 {
 }
@@ -2859,8 +2838,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::DelegateMVisitor::DelegateMVisitor(const string& dir,
-                                               const string& package) :
+Slice::Gen::DelegateMVisitor::DelegateMVisitor(const string& dir, const string& package) :
     JavaVisitor(dir, package)
 {
 }
@@ -3037,8 +3015,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::DelegateDVisitor::DelegateDVisitor(const string& dir,
-                                               const string& package) :
+Slice::Gen::DelegateDVisitor::DelegateDVisitor(const string& dir, const string& package) :
     JavaVisitor(dir, package)
 {
 }
@@ -3180,8 +3157,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(const string& dir,
-                                                 const string& package) :
+Slice::Gen::DispatcherVisitor::DispatcherVisitor(const string& dir, const string& package) :
     JavaVisitor(dir, package)
 {
 }
@@ -3219,8 +3195,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::BaseImplVisitor::BaseImplVisitor(const string& dir,
-                                             const string& package) :
+Slice::Gen::BaseImplVisitor::BaseImplVisitor(const string& dir, const string& package) :
     JavaVisitor(dir, package)
 {
 }
@@ -3317,8 +3292,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& scope, co
     out << eb;
 }
 
-Slice::Gen::ImplVisitor::ImplVisitor(const string& dir,
-                                     const string& package) :
+Slice::Gen::ImplVisitor::ImplVisitor(const string& dir, const string& package) :
     BaseImplVisitor(dir, package)
 {
 }
@@ -3380,8 +3354,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     return false;
 }
 
-Slice::Gen::ImplTieVisitor::ImplTieVisitor(const string& dir,
-                                           const string& package) :
+Slice::Gen::ImplTieVisitor::ImplTieVisitor(const string& dir, const string& package) :
     BaseImplVisitor(dir, package)
 {
 }

@@ -55,6 +55,7 @@ OBJS		= Initialize.o \
 		  ReferenceFactory.o \
 		  Identity.o \
 		  IdentityUtil.o \
+		  Facet.o \
 		  Current.o \
 		  Router.o \
 		  RouterInfo.o \
@@ -262,6 +263,14 @@ $(HDIR)/Identity.h Identity.cpp: $(SDIR)/Identity.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/Identity.h Identity.cpp
+
+$(HDIR)/Facet.h Facet.cpp: $(SDIR)/Facet.ice $(SLICE2CPP)
+	rm -f $(HDIR)/Facet.h Facet.cpp
+	$(SLICECMD) $(SDIR)/Facet.ice
+	mv Facet.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/Facet.h Facet.cpp
 
 $(HDIR)/Current.h Current.cpp: $(SDIR)/Current.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Current.h Current.cpp

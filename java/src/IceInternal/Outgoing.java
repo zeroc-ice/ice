@@ -234,7 +234,7 @@ public final class Outgoing
                 {
                     _state = StateLocalException;
                     Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
-		    ex.facet = _is.readString();
+		    ex.facet = _is.readStringSeq();
 		    _exception = ex;
                     _fillStackTrace = true;
                     break;
@@ -331,7 +331,7 @@ public final class Outgoing
         }
 
         _reference.identity.__write(_os);
-        _os.writeString(_reference.facet);
+        _os.writeStringSeq(_reference.facet);
         _os.writeString(operation);
         _os.writeBool(nonmutating);
         if(context == null)

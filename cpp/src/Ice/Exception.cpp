@@ -113,7 +113,20 @@ void
 Ice::FacetNotExistException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nfacet `" << facet << "' does not exist";
+    out << ":\nfacet `";
+    vector<string>::const_iterator p = facet.begin();
+    while(p != facet.end())
+    {
+	//
+	// TODO: Escape for whitespace and slashes.
+	//
+	out << *p++;
+	if(p != facet.end())
+	{
+	    out << '/';
+	}
+    }
+    out << "' does not exist";
 }
 
 void

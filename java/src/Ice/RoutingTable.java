@@ -30,7 +30,7 @@ public final class RoutingTable
 
         ObjectPrx proxy = prx.ice_default(); // We insert the proxy in it's default form into the routing table.
 
-        synchronized (this)
+        synchronized(this)
         {
             if(!_table.containsKey(proxy.ice_getIdentity()))
             {
@@ -55,7 +55,7 @@ public final class RoutingTable
             return null;
         }
 
-        synchronized (this)
+        synchronized(this)
         {
             return (ObjectPrx)_table.get(ident);
         }

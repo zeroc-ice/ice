@@ -12,6 +12,7 @@
 #define ICE_LOCAL_EXCEPTION_ICE
 
 #include <Ice/Identity.ice>
+#include <Ice/Facet.ice>
 
 module Ice
 {
@@ -149,13 +150,13 @@ local exception ObjectNotExistException
 /**
  *
  * This exception is raised if an object does not implement a given
- * facet.
+ * facet path.
  *
  **/
 local exception FacetNotExistException
 {
-    /** The name of the facet that does exist. */
-    string facet;
+    /** The facet that does exist. */
+    FacetPath facet;
 };
 
 /**

@@ -91,6 +91,8 @@ Ice::Object::ice_id(const Current&)
 vector<string>
 Ice::Object::ice_facets(const Current&)
 {
+    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
+
     vector<string> v;
     for(map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
     {

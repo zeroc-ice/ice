@@ -14,7 +14,7 @@ public final class ReferenceFactory
 {
     public synchronized Reference
     create(Ice.Identity ident,
-           String facet,
+           String[] facet,
            int mode,
            boolean secure,
 	   boolean compress,
@@ -92,7 +92,7 @@ public final class ReferenceFactory
 
         String[] arr = init.split("[ \t\n\r]+");
         Ice.Identity ident = Ice.Util.stringToIdentity(arr[0]);
-        String facet = "";
+        String[] facet = new String[0];
         int mode = Reference.ModeTwoway;
         boolean secure = false;
         boolean compress = false;
@@ -126,7 +126,8 @@ public final class ReferenceFactory
                         throw new Ice.EndpointParseException();
                     }
 
-                    facet = argument;
+		    // TODO: For Mark.
+                    //facet = argument;
                     break;
                 }
 
@@ -261,7 +262,7 @@ public final class ReferenceFactory
         // constructor read the identity, and pass it as a parameter.
         //
 
-        String facet = s.readString();
+        String[] facet = s.readStringSeq();
 
         int mode = (int)s.readByte();
         if(mode < 0 || mode > Reference.ModeLast)

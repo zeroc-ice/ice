@@ -49,33 +49,38 @@ void IceInternal::incRef(::IceDelegateD::Ice::Object* p) { p->__incRef(); }
 void IceInternal::decRef(::IceDelegateD::Ice::Object* p) { p->__decRef(); }
 
 void
+IceInternal::checkedCast(const ObjectPrx& b, ObjectPrx& d)
+{
+    d = b;
+}
+
+void
 IceInternal::checkedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
 {
     d = 0;
     if(b)
     {
-	if(f == b->ice_getFacet())
+	ObjectPrx bb = b->ice_appendFacet(f);
+	try
 	{
-	    d = b;
-	}
-	else
-	{
-	    ObjectPrx bb = b->ice_newFacet(f);
-	    try
-	    {
 #ifdef NDEBUG
-		bb->ice_isA("::Ice::Object");
+	    bb->ice_isA("::Ice::Object");
 #else
-		bool ok = bb->ice_isA("::Ice::Object");
-		assert(ok);
+	    bool ok = bb->ice_isA("::Ice::Object");
+	    assert(ok);
 #endif
-		d = bb;
-	    }
-	    catch(const FacetNotExistException&)
-	    {
-	    }
+	    d = bb;
+	}
+	catch(const FacetNotExistException&)
+	{
 	}
     }
+}
+
+void
+IceInternal::uncheckedCast(const ObjectPrx& b, ObjectPrx& d)
+{
+    d = b;
 }
 
 void
@@ -84,7 +89,7 @@ IceInternal::uncheckedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
     d = 0;
     if(b)
     {
-	d = b->ice_newFacet(f);
+	d = b->ice_appendFacet(f);
     }
 }
 
@@ -300,14 +305,14 @@ IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
     }
 }
 
-string
+vector<string>
 IceProxy::Ice::Object::ice_getFacet() const
 {
     return _reference->facet;
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
+IceProxy::Ice::Object::ice_newFacet(const vector<string>& newFacet) const
 {
     if(newFacet == _reference->facet)
     {
@@ -319,6 +324,16 @@ IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
 	proxy->setup(_reference->changeFacet(newFacet));
 	return proxy;
     }
+}
+
+ObjectPrx
+IceProxy::Ice::Object::ice_appendFacet(const string& f) const
+{
+    vector<string> newFacet = _reference->facet;
+    newFacet.push_back(f);
+    ObjectPrx proxy(new ::IceProxy::Ice::Object());
+    proxy->setup(_reference->changeFacet(newFacet));
+    return proxy;
 }
 
 ObjectPrx

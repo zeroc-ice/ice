@@ -36,7 +36,7 @@ public final class RouterManager
 
         Ice.RouterPrx router = Ice.RouterPrxHelper.uncheckedCast(rtr.ice_router(null)); // The router cannot be routed.
 
-        synchronized (this)
+        synchronized(this)
         {
             RouterInfo info = (RouterInfo)_table.get(router);
             if(info == null)

@@ -35,29 +35,20 @@ public interface ObjectPrx
                        java.util.Map __context);
 
     Identity ice_getIdentity();
-
     ObjectPrx ice_newIdentity(Identity newIdentity);
 
-    String ice_getFacet();
-
-    ObjectPrx ice_newFacet(String newFacet);
+    String[] ice_getFacet();
+    ObjectPrx ice_newFacet(String[] newFacet);
+    ObjectPrx ice_appendFacet(String f);
 
     ObjectPrx ice_twoway();
-
     ObjectPrx ice_oneway();
-
     ObjectPrx ice_batchOneway();
-
     ObjectPrx ice_datagram();
-
     ObjectPrx ice_batchDatagram();
-
     ObjectPrx ice_secure(boolean b);
-
     ObjectPrx ice_timeout(int t);
-
     ObjectPrx ice_router(Ice.RouterPrx router);
-
     ObjectPrx ice_default();
 
     void ice_flush();

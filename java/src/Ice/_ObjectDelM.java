@@ -413,7 +413,7 @@ public class _ObjectDelM implements _ObjectDel
     {
         IceInternal.Outgoing out;
 
-        synchronized (__outgoingMutex)
+        synchronized(__outgoingMutex)
         {
             if(__outgoingCache == null)
             {
@@ -433,7 +433,7 @@ public class _ObjectDelM implements _ObjectDel
     protected void
     reclaimOutgoing(IceInternal.Outgoing out)
     {
-        synchronized (__outgoingMutex)
+        synchronized(__outgoingMutex)
         {
             out.next = __outgoingCache;
             __outgoingCache = out;

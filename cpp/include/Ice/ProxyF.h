@@ -76,8 +76,12 @@ ICE_API void decRef(::IceDelegateM::Ice::Object*);
 ICE_API void incRef(::IceDelegateD::Ice::Object*);
 ICE_API void decRef(::IceDelegateD::Ice::Object*);
 
+ICE_API void checkedCast(const ProxyHandle< ::IceProxy::Ice::Object>&,
+			 ProxyHandle< ::IceProxy::Ice::Object>&);
 ICE_API void checkedCast(const ProxyHandle< ::IceProxy::Ice::Object>&, const ::std::string&,
 			 ProxyHandle< ::IceProxy::Ice::Object>&);
+ICE_API void uncheckedCast(const ProxyHandle< ::IceProxy::Ice::Object>&,
+			   ProxyHandle< ::IceProxy::Ice::Object>&);
 ICE_API void uncheckedCast(const ProxyHandle< ::IceProxy::Ice::Object>&, const ::std::string&,
 			   ProxyHandle< ::IceProxy::Ice::Object>&);
 

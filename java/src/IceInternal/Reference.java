@@ -50,7 +50,7 @@ public final class Reference
             return false;
         }
 
-        if(facet != null && !facet.equals(r.facet))
+        if(!java.util.Arrays.equals(facet, r.facet))
         {
             return false;
         }
@@ -121,7 +121,7 @@ public final class Reference
         // write the identity.
         //
 
-        s.writeString(facet);
+        s.writeStringSeq(facet);
 
         s.writeByte((byte)mode);
 
@@ -155,10 +155,10 @@ public final class Reference
         StringBuffer s = new StringBuffer();
         s.append(Ice.Util.identityToString(identity));
 
-        if(facet.length() > 0)
+        if(facet.length > 0)
         {
             s.append(" -f ");
-            s.append(facet);
+	    // TODO: For Mark.
         }
 
         switch(mode)
@@ -227,7 +227,7 @@ public final class Reference
     //
     final public Instance instance;
     final public Ice.Identity identity;
-    final public String facet;
+    final public String[] facet;
     final public int mode;
     final public boolean secure;
     final public boolean compress;
@@ -257,9 +257,9 @@ public final class Reference
     }
 
     public Reference
-    changeFacet(String newFacet)
+    changeFacet(String[] newFacet)
     {
-        if(newFacet.equals(facet))
+        if(java.util.Arrays.equals(facet, newFacet))
         {
             return this;
         }
@@ -429,7 +429,8 @@ public final class Reference
         RouterInfo routerInfo = instance.routerManager().get(instance.referenceFactory().getDefaultRouter());
         LocatorInfo locatorInfo = instance.locatorManager().get(instance.referenceFactory().getDefaultLocator());
 
-        return instance.referenceFactory().create(identity, "", ModeTwoway, false, false, adapterId, endpoints,
+        return instance.referenceFactory().create(identity, new String[0], ModeTwoway, false, false,
+						  adapterId, endpoints,
                                                   routerInfo, locatorInfo, null);
     }
 
@@ -438,7 +439,7 @@ public final class Reference
     //
     Reference(Instance inst,
               Ice.Identity ident,
-              String fac,
+              String[] fac,
               int md,
               boolean sec,
               boolean com,
@@ -479,10 +480,13 @@ public final class Reference
             h = 5 * h + (int)identity.category.charAt(i);
         }
 
-        sz = facet.length();
-        for(int i = 0; i < sz; i++)
-        {   
-            h = 5 * h + (int)facet.charAt(i);
+        for(int i = 0; i < facet.length; i++)
+        {
+	    sz = facet[i].length();
+	    for(int j = 0; j < sz; j++)
+	    {
+		h = 5 * h + (int)facet[i].charAt(j);
+	    }
         }
 
         h = 5 * h + mode;

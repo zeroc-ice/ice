@@ -39,7 +39,7 @@ public final class LocatorManager
 	// TODO: reap unused locator info objects?
 	//
 
-        synchronized (this)
+        synchronized(this)
         {
             LocatorInfo info = (LocatorInfo)_table.get(locator);
             if(info == null)

@@ -264,7 +264,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 		_state = StateLocalException;
                 // Don't do _is.read(ex->facet), as this operation
                 // might throw exceptions. In such case ex would leak.
-		string facet;
+		vector<string> facet;
 		_is.read(facet);
 		FacetNotExistException* ex = new FacetNotExistException(__FILE__, __LINE__);
 		ex->facet = facet;

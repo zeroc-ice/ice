@@ -239,7 +239,19 @@ IceInternal::Reference::toString() const
 
     if(!facet.empty())
     {
-	s << " -f " << facet;
+	s << " -f ";
+	vector<string>::const_iterator p = facet.begin();
+	while(p != facet.end())
+	{
+	    //
+	    // TODO: Escape for whitespace and slashes.
+	    //
+	    s << *p++;
+	    if(p != facet.end())
+	    {
+		s << '/';
+	    }
+	}
     }
 
     switch(mode)
@@ -319,7 +331,7 @@ IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
 }
 
 ReferencePtr
-IceInternal::Reference::changeFacet(const string& newFacet) const
+IceInternal::Reference::changeFacet(const vector<string>& newFacet) const
 {
     if(newFacet == facet)
     {
@@ -489,13 +501,13 @@ IceInternal::Reference::changeDefault() const
     RouterInfoPtr routerInfo = instance->routerManager()->get(instance->referenceFactory()->getDefaultRouter());
     LocatorInfoPtr locatorInfo = instance->locatorManager()->get(instance->referenceFactory()->getDefaultLocator());
 
-    return instance->referenceFactory()->create(identity, "", ModeTwoway, false, false, adapterId,
+    return instance->referenceFactory()->create(identity, vector<string>(), ModeTwoway, false, false, adapterId,
 						endpoints, routerInfo, locatorInfo, 0);
 }
 
 IceInternal::Reference::Reference(const InstancePtr& inst,
 				  const Identity& ident,
-				  const string& fac,
+				  const vector<string>& facPath,
 				  Mode md,
 				  bool sec,
 				  bool com,
@@ -506,7 +518,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
 				  const ObjectAdapterPtr& rvAdapter) :
     instance(inst),
     identity(ident),
-    facet(fac),
+    facet(facPath),
     mode(md),
     secure(sec),
     compress(com),
@@ -525,6 +537,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
     Int h = 0;
 	
     string::const_iterator p;
+    vector<string>::const_iterator q;
 
     for(p = identity.name.begin(); p != identity.name.end(); ++p)
     {
@@ -536,9 +549,12 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
 	h = 5 * h + *p;
     }
 
-    for(p = facet.begin(); p != facet.end(); ++p)
+    for(q = facet.begin(); q != facet.end(); ++q)
     {
-	h = 5 * h + *p;
+	for(p = q->begin(); p != q->end(); ++p)
+	{
+	    h = 5 * h + *p;
+	}
     }
 
     h = 5 * h + static_cast<Int>(mode);

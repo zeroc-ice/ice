@@ -27,7 +27,7 @@ void IceInternal::decRef(::IceInternal::ReferenceFactory* p) { p->__decRef(); }
 
 ReferencePtr
 IceInternal::ReferenceFactory::create(const Identity& ident,
-				      const string& facet,
+				      const vector<string>& facet,
 				      Reference::Mode mode,
 				      bool secure,
 				      bool compress,
@@ -131,7 +131,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     }
 
     Identity ident = stringToIdentity(s.substr(beg, end - beg));
-    string facet;
+    vector<string> facet;
     Reference::Mode mode = Reference::ModeTwoway;
     bool secure = false;
     bool compress = false;
@@ -192,7 +192,25 @@ IceInternal::ReferenceFactory::create(const string& str)
 		{
 		    throw ProxyParseException(__FILE__, __LINE__);
 		}
-		facet = argument;
+		
+		//
+		// TODO: Escape for whitespace and slashes.
+		//
+		string::size_type beg = 0;
+		while(beg < argument.size())
+		{
+		    string::size_type end = argument.find('/', beg);
+		    if(end == string::npos)
+		    {
+			facet.push_back(argument.substr(beg));
+		    }
+		    else
+		    {
+			facet.push_back(argument.substr(beg, end - beg));
+			++end;
+		    }
+		    beg = end;
+		}
 		break;
 	    }
 
@@ -330,7 +348,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     // constructor read the identity, and pass it as a parameter.
     //
 
-    string facet;
+    vector<string> facet;
     s->read(facet);
 
     Byte modeAsByte;

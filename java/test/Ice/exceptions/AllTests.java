@@ -366,17 +366,32 @@ public class AllTests
 
         System.out.print("catching facet not exist exception... ");
         System.out.flush();
-
-        try
-        {
+ 
+	try
+	{
 	    ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
-	    thrower2.ice_ping();
-	    test(false);
-        }
-        catch(Ice.FacetNotExistException ex)
-        {
-	    test(ex.facet.equals("no such facet"));
-        }
+	    try
+	    {
+		thrower2.ice_ping();
+		test(false);
+	    }
+	    catch(Ice.FacetNotExistException ex)
+	    {
+		test(ex.facet[0].equals("no such facet"));
+	    }
+
+	    ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(thrower2, "no such facet either");
+	    try
+	    {
+		thrower3.ice_ping();
+		test(false);
+	    }
+	    catch(Ice.FacetNotExistException ex)
+	    {
+		test(ex.facet[0].equals("no such facet"));
+		test(ex.facet[1].equals("no such facet either"));
+	    }
+	}
         catch(Exception ex)
         {
             test(false);

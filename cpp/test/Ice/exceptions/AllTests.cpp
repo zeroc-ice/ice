@@ -353,12 +353,27 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     try
     {
 	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower, "no such facet");
-	thrower2->ice_ping();
-	test(false);
-    }
-    catch(const Ice::FacetNotExistException& ex)
-    {
-	test(ex.facet.front() == "no such facet");
+	try
+	{
+	    thrower2->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::FacetNotExistException& ex)
+	{
+	    test(ex.facet[0] == "no such facet");
+	}
+
+	ThrowerPrx thrower3 = ThrowerPrx::uncheckedCast(thrower2, "no such facet either");
+	try
+	{
+	    thrower3->ice_ping();
+	    test(false);
+	}
+	catch(const Ice::FacetNotExistException& ex)
+	{
+	    test(ex.facet[0] == "no such facet");
+	    test(ex.facet[1] == "no such facet either");
+	}
     }
     catch (...)
     {

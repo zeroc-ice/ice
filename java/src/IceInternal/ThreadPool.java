@@ -435,7 +435,7 @@ public final class ThreadPool
                 EventHandler handler = null;
                 boolean finished = false;
 
-                synchronized (this)
+                synchronized(this)
                 {
                     if(_keys.contains(_fdIntrReadKey) && _fdIntrReadKey.isReadable())
                     {
@@ -589,7 +589,7 @@ public final class ThreadPool
                     //
                     handler.finished(this);
 
-                    synchronized (this)
+                    synchronized(this)
                     {
                         assert(_handlers > 0);
                         if(--_handlers == 0)

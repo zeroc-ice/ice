@@ -43,13 +43,17 @@ namespace IceInternal
 ICE_API void incRef(::IceProxy::Ice::Router*);
 ICE_API void decRef(::IceProxy::Ice::Router*);
 
+ICE_API void checkedCast(const ::Ice::ObjectPrx&, ProxyHandle< ::IceProxy::Ice::Router>&);
 ICE_API void checkedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Router>&);
+ICE_API void uncheckedCast(const ::Ice::ObjectPrx&, ProxyHandle< ::IceProxy::Ice::Router>&);
 ICE_API void uncheckedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Router>&);
 
 ICE_API void incRef(::IceProxy::Ice::Locator*);
 ICE_API void decRef(::IceProxy::Ice::Locator*);
 
+ICE_API void checkedCast(const ::Ice::ObjectPrx&, ProxyHandle< ::IceProxy::Ice::Locator>&);
 ICE_API void checkedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Locator>&);
+ICE_API void uncheckedCast(const ::Ice::ObjectPrx&, ProxyHandle< ::IceProxy::Ice::Locator>&);
 ICE_API void uncheckedCast(const ::Ice::ObjectPrx&, const ::std::string&, ProxyHandle< ::IceProxy::Ice::Locator>&);
 
 }
@@ -76,19 +80,20 @@ public:
     bool operator<(const Object&) const;
     ::Ice::Int ice_hash() const;
 
-    bool ice_isA(const std::string&, const ::Ice::Context& = ::Ice::Context());
+    bool ice_isA(const ::std::string&, const ::Ice::Context& = ::Ice::Context());
     void ice_ping(const ::Ice::Context& = ::Ice::Context());
     ::std::vector< ::std::string> ice_ids(const ::Ice::Context& = ::Ice::Context());
     ::std::string ice_id(const ::Ice::Context& = ::Ice::Context());
     ::std::vector< ::std::string> ice_facets(const ::Ice::Context& = ::Ice::Context());
-    bool ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
+    bool ice_invoke(const ::std::string&, bool, const ::std::vector< ::Ice::Byte>&, ::std::vector< ::Ice::Byte>&,
 		    const ::Ice::Context& = ::Ice::Context()); // Returns true if ok, false if user exception.
 
     ::Ice::Identity ice_getIdentity() const;
     ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
 
-    std::string ice_getFacet() const;
-    ::Ice::ObjectPrx ice_newFacet(const std::string&) const;
+    ::std::vector< ::std::string> ice_getFacet() const;
+    ::Ice::ObjectPrx ice_newFacet(const ::std::vector< ::std::string>&) const;
+    ::Ice::ObjectPrx ice_appendFacet(const ::std::string&) const;
 
     ::Ice::ObjectPrx ice_twoway() const;
     ::Ice::ObjectPrx ice_oneway() const;
@@ -135,13 +140,13 @@ class ICE_API Object : public ::IceUtil::Shared
 {
 public:
 
-    virtual bool ice_isA(const std::string&, const ::Ice::Context&) = 0;
+    virtual bool ice_isA(const ::std::string&, const ::Ice::Context&) = 0;
     virtual void ice_ping(const ::Ice::Context&) = 0;
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&) = 0;
     virtual ::std::string ice_id(const ::Ice::Context&) = 0;
     virtual ::std::vector< ::std::string> ice_facets(const ::Ice::Context&) = 0;
-    virtual bool ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
-			    const ::Ice::Context&) = 0;
+    virtual bool ice_invoke(const ::std::string&, bool, const ::std::vector< ::Ice::Byte>&,
+			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&) = 0;
     virtual void ice_flush() = 0;
 };
 
@@ -156,13 +161,13 @@ public:
 
     virtual ~Object();
 
-    virtual bool ice_isA(const std::string&, const ::Ice::Context&);
+    virtual bool ice_isA(const ::std::string&, const ::Ice::Context&);
     virtual void ice_ping(const ::Ice::Context&);
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     virtual ::std::string ice_id(const ::Ice::Context&);
     virtual ::std::vector< ::std::string> ice_facets(const ::Ice::Context&);
-    virtual bool ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
-			    const ::Ice::Context&);
+    virtual bool ice_invoke(const ::std::string&, bool, const ::std::vector< ::Ice::Byte>&,
+			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
     virtual void ice_flush();
 
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>&);
@@ -177,7 +182,8 @@ private:
     void setup(const ::IceInternal::ReferencePtr&);
     friend class ::IceProxy::Ice::Object;
 
-    std::vector< ::IceInternal::EndpointPtr> filterEndpoints(const std::vector< ::IceInternal::EndpointPtr>&) const;
+    ::std::vector< ::IceInternal::EndpointPtr>
+    filterEndpoints(const ::std::vector< ::IceInternal::EndpointPtr>&) const;
 };
 
 } }
@@ -189,13 +195,13 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 {
 public:
 
-    virtual bool ice_isA(const std::string&, const ::Ice::Context&);
+    virtual bool ice_isA(const ::std::string&, const ::Ice::Context&);
     virtual void ice_ping(const ::Ice::Context&);
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     virtual ::std::string ice_id(const ::Ice::Context&);
     virtual ::std::vector< ::std::string> ice_facets(const ::Ice::Context&);
-    virtual bool ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
-			    const ::Ice::Context&);
+    virtual bool ice_invoke(const ::std::string&, bool, const ::std::vector< ::Ice::Byte>&,
+			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
     virtual void ice_flush();
 
     void __copyFrom(const ::IceInternal::Handle< ::IceDelegateD::Ice::Object>&);
@@ -205,7 +211,7 @@ protected:
     ::Ice::ObjectAdapterPtr __adapter;
     ::IceInternal::ReferencePtr __reference;
 
-    void __initCurrent(::Ice::Current&, const std::string&, bool, const ::Ice::Context&);
+    void __initCurrent(::Ice::Current&, const ::std::string&, bool, const ::Ice::Context&);
 
 private:
 

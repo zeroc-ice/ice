@@ -12,6 +12,7 @@
 #define ICE_CURRENT_ICE
 
 #include <Ice/Identity.ice>
+#include <Ice/Facet.ice>
 
 module Ice
 {
@@ -25,7 +26,7 @@ module Ice
  *
  **/
 local dictionary<string, string> Context;
-    
+
 /**
  *
  * Information about the current method invocation for servers. Each
@@ -41,7 +42,7 @@ local struct Current
 {
     /**
      *
-     * The &&Ice;; object identity.
+     * The &Ice; object identity.
      *
      **/
     Identity id;
@@ -51,7 +52,7 @@ local struct Current
      * The facet.
      *
      ***/
-    string facet;
+    FacetPath facet;
 
     /**
      *

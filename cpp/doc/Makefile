@@ -19,16 +19,17 @@ SGMLFILES	= manual.sgml \
 
 SLICEFILES	= ../slice/Ice/BuiltinSequences.ice \
 		  ../slice/Ice/Communicator.ice \
-		  ../slice/Ice/Current.ice \
 		  ../slice/Ice/Identity.ice \
+		  ../slice/Ice/Facet.ice \
+		  ../slice/Ice/Current.ice \
 		  ../slice/Ice/LocalException.ice \
-		  ../slice/Ice/Locator.ice \
 		  ../slice/Ice/Logger.ice \
 		  ../slice/Ice/ObjectAdapter.ice \
 		  ../slice/Ice/ObjectFactory.ice \
 		  ../slice/Ice/Plugin.ice \
 		  ../slice/Ice/Properties.ice \
 		  ../slice/Ice/Router.ice \
+		  ../slice/Ice/Locator.ice \
 		  ../slice/Ice/ServantLocator.ice \
 		  ../slice/Ice/Stream.ice \
 		  ../slice/Ice/UserExceptionFactory.ice \

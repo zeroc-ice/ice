@@ -246,14 +246,14 @@ public class ObjectPrxHelper implements ObjectPrx
         }
     }
 
-    public final String
+    public final String[]
     ice_getFacet()
     {
         return _reference.facet;
     }
 
     public final ObjectPrx
-    ice_newFacet(String newFacet)
+    ice_newFacet(String[] newFacet)
     {
         if(newFacet.equals(_reference.facet))
         {
@@ -265,6 +265,17 @@ public class ObjectPrxHelper implements ObjectPrx
             proxy.setup(_reference.changeFacet(newFacet));
             return proxy;
         }
+    }
+
+    public final ObjectPrx
+    ice_appendFacet(String f)
+    {
+	String[] newFacet = new String[_reference.facet.length + 1];
+	System.arraycopy(_reference.facet, 0, newFacet, 0, _reference.facet.length);
+	newFacet[newFacet.length - 1] = f;
+	ObjectPrxHelper proxy = new ObjectPrxHelper();
+	proxy.setup(_reference.changeFacet(newFacet));
+	return proxy;
     }
 
     public final ObjectPrx

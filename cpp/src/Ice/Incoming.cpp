@@ -100,7 +100,7 @@ IceInternal::Incoming::invoke(bool response)
 	{
 	    if(!current.facet.empty())
 	    {
-		ObjectPtr facetServant = servant->ice_findFacet(current.facet);
+		ObjectPtr facetServant = servant->ice_findFacet(current.facet.front());
 		if(!facetServant)
 		{
 		    status = DispatchFacetNotExist;
@@ -182,7 +182,7 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
 	    _os.write(static_cast<Byte>(DispatchObjectNotExist));
-            // Not current.identity.__write(_os), so that the identity
+            // Not current.id.__write(_os), so that the identity
             // can be overwritten.
 	    ex.id.__write(&_os);
 	}
@@ -204,7 +204,7 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
 	    _os.write(static_cast<Byte>(DispatchFacetNotExist));
-	    // Not _os.write(current.facet), so that the identity can
+	    // Not _os.write(current.facet), so that the facet can
 	    // be overwritten.
 	    _os.write(ex.facet);
 	}
@@ -226,7 +226,7 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
 	    _os.write(static_cast<Byte>(DispatchOperationNotExist));
-	    // Not _os.write(current.operation), so that the identity
+	    // Not _os.write(current.operation), so that the operation
 	    // can be overwritten.
 	    _os.write(ex.operation);
 	}
