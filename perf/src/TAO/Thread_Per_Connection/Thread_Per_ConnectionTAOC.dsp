@@ -93,6 +93,10 @@ SOURCE="TestC.cpp"
 
 SOURCE=.\TestS.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\Worker_Thread.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -112,6 +116,10 @@ SOURCE="TestS.h"
 # Begin Source File
 
 SOURCE="TestS_T.h"
+# End Source File
+# Begin Source File
+
+SOURCE=.\Worker_Thread.h
 # End Source File
 # End Group
 # Begin Group "Inline Files"
