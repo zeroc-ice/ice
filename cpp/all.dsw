@@ -371,6 +371,15 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name cursor
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name complexC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name complexP
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name dbmap
+    End Project Dependency
 }}}
 
 ###############################################################################
