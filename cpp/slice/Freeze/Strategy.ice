@@ -112,6 +112,28 @@ local interface PersistenceStrategy
      **/
     void evictedObject(ObjectStore store, Ice::Identity ident, Object servant, LocalObject cookie);
 
+    
+    /**
+     *
+     * Called after the evictor has saved a servant.
+     *
+     * @param store The object store. This value may be retained
+     * by the strategy if necessary.
+     *
+     * @param ident The identity of the &Ice; object.
+     *
+     * @param servant The servant incarnating the &Ice; object.
+     *
+     * @param cookie The strategy's private state associated with the &Ice; object.
+     *
+     * @param usageCount The number of operations currently using this object (>= 1).
+     *
+     * @see Evictor::saveObject
+     *
+     **/
+    void savedObject(ObjectStore store, Ice::Identity ident, Object servant, LocalObject cookie, int usageCount);
+
+
     /**
      *
      * Called before an operation is invoked on an object.

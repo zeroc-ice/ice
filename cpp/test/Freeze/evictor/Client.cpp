@@ -171,6 +171,16 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         }
         test(evictor->getLastEvictedValue() == -1);
 
+
+	// 
+	// Test explicit saves
+	//
+	for(i = 0; i < size; i++)
+        {
+	    servants[i]->saveValue(i + 1);
+	    test(evictor->getLastSavedValue() == i + 1);
+        }
+
         //
         // Clean up.
         //

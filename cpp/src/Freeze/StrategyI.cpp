@@ -44,12 +44,32 @@ Freeze::EvictionStrategyI::evictedObject(const ObjectStorePtr& store,
     //
     CookiePtr c = CookiePtr::dynamicCast(cookie);
     assert(c);
+
     if(c->mutated)
     {
         store->save(ident, servant);
         c->mutated = false;
     }
 }
+
+
+void
+Freeze::EvictionStrategyI::savedObject(const ObjectStorePtr& store,
+				       const Identity& ident,
+				       const ObjectPtr& servant,
+				       const LocalObjectPtr& cookie,
+				       Ice::Int usageCount)
+{
+    assert(usageCount > 0);
+
+    if(usageCount == 1)
+    {
+	CookiePtr c = CookiePtr::dynamicCast(cookie);
+	assert(c);
+	c->mutated = false;
+    }    
+}
+
 
 void
 Freeze::EvictionStrategyI::preOperation(const ObjectStorePtr& store,
@@ -100,9 +120,9 @@ Freeze::IdleStrategyI::destroyedObject(const Identity& ident, const LocalObjectP
 
 void
 Freeze::IdleStrategyI::evictedObject(const ObjectStorePtr& store,
-                                        const Identity& ident,
-                                        const ObjectPtr& servant,
-                                        const LocalObjectPtr& cookie)
+				     const Identity& ident,
+				     const ObjectPtr& servant,
+				     const LocalObjectPtr& cookie)
 {
     //
     // The object must reach the idle state in order for it to be
@@ -113,6 +133,25 @@ Freeze::IdleStrategyI::evictedObject(const ObjectStorePtr& store,
     assert(c);
     assert(!c->mutated);
 }
+
+void
+Freeze::IdleStrategyI::savedObject(const ObjectStorePtr& store,
+				   const Identity& ident,
+				   const ObjectPtr& servant,
+				   const LocalObjectPtr& cookie,
+				   Ice::Int usageCount)
+{
+    assert(usageCount > 0);
+
+    if(usageCount == 1)
+    {
+	CookiePtr c = CookiePtr::dynamicCast(cookie);
+	assert(c);
+	c->mutated = false;
+    }
+}
+
+
 
 void
 Freeze::IdleStrategyI::preOperation(const ObjectStorePtr& store,

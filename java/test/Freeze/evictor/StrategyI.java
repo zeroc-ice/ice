@@ -42,6 +42,12 @@ public final class StrategyI extends Ice.LocalObjectImpl implements Freeze.Persi
     }
 
     public void
+    savedObject(Freeze.ObjectStore store, Ice.Identity ident, Ice.Object servant, Ice.LocalObject cookie, int usageCount)
+    {
+	_delegate.savedObject(store, ident, servant, cookie, usageCount);
+    }
+
+    public void
     preOperation(Freeze.ObjectStore store, Ice.Identity ident, Ice.Object servant, boolean mutating,
                  Ice.LocalObject cookie)
     {

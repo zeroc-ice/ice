@@ -48,6 +48,18 @@ public final class EvictionStrategyI extends Ice.LocalObjectImpl implements Evic
     }
 
     public void
+    savedObject(ObjectStore store, Ice.Identity ident, Ice.Object servant, Ice.LocalObject cookie, int usageCount)
+    {
+	assert(usageCount > 0);
+
+	if(usageCount == 1)
+	{
+	    Cookie c = (Cookie)cookie;
+	    c.mutated = false;
+	}    
+    }
+
+    public void
     preOperation(ObjectStore store, Ice.Identity ident, Ice.Object servant, boolean mutating, Ice.LocalObject cookie)
     {
         if(mutating)

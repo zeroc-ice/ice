@@ -40,6 +40,7 @@ public:
     virtual Ice::Int getSize();
     
     virtual void createObject(const Ice::Identity&, const Ice::ObjectPtr&);
+    virtual void saveObject(const Ice::Identity&);
     virtual void destroyObject(const Ice::Identity&);
 
     virtual void installServantInitializer(const ServantInitializerPtr&);

@@ -120,6 +120,16 @@ local exception EvictorDeactivatedException
 
 /**
  *
+ * This exception is raised if the object has been destroyed.
+ *
+ **/
+local exception ObjectDestroyedException
+{
+};
+
+
+/**
+ *
  * A semi-automatic &Ice; object persistence manager, based on the
  * evictor pattern. The evictor is a servant locator implementation
  * that stores the persistent state of its objects in a database. Any
@@ -224,6 +234,31 @@ local interface Evictor extends Ice::ServantLocator
      *
      **/
     void createObject(Ice::Identity identity, Object servant);
+
+
+    /**
+     *
+     * Save this &Ice; object immediately. The application must ensure
+     * that the persistent data members of the object are not modified
+     * by another thread during this operation.
+     * saveObject calls savedObject on the associated persistence 
+     * strategy.
+     *
+     * @param identity The identity of the &Ice; object to save.
+     *
+     * @throws DBException Raised if a database failure occurred.
+     *
+     * @throws EvictorDeactivatedException Raised if the evictor has
+     * been deactivated.
+     *
+     * @throws ObjectDestroyedException Raised if the object has been
+     * destroyed
+     *
+     * @see Ice::Identity
+     * @see destroyObject
+     *
+     **/
+    void saveObject(Ice::Identity identity);
 
     /**
      *

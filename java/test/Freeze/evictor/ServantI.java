@@ -51,6 +51,13 @@ public final class ServantI extends Test.Servant
     }
 
     public void
+    saveValue(int value, Ice.Current current)
+    {
+        this.value = value;
+	_evictor.saveObject(current.id);
+    }
+
+    public void
     setValueAsync_async(Test.AMD_Servant_setValueAsync __cb, int value, Ice.Current current)
     {
         _setValueAsyncCB = __cb;

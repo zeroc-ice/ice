@@ -39,6 +39,12 @@ public:
                                const Ice::ObjectPtr&,
                                const Ice::LocalObjectPtr&);
 
+    virtual void savedObject(const ObjectStorePtr&,
+			     const Ice::Identity&,
+			     const Ice::ObjectPtr&,
+			     const Ice::LocalObjectPtr&,
+			     Ice::Int);
+
     virtual void preOperation(const ObjectStorePtr&,
                               const Ice::Identity&,
                               const Ice::ObjectPtr&,
@@ -57,7 +63,7 @@ private:
 
     struct Cookie : public Ice::LocalObject
     {
-        bool mutated;
+	bool     mutated;
     };
     typedef IceUtil::Handle<Cookie> CookiePtr;
 };
@@ -76,6 +82,12 @@ public:
                                const Ice::ObjectPtr&,
                                const Ice::LocalObjectPtr&);
 
+    virtual void savedObject(const ObjectStorePtr&,
+			     const Ice::Identity&,
+			     const Ice::ObjectPtr&,
+			     const Ice::LocalObjectPtr&,
+			     Ice::Int);
+
     virtual void preOperation(const ObjectStorePtr&,
                               const Ice::Identity&,
                               const Ice::ObjectPtr&,
@@ -94,7 +106,7 @@ private:
 
     struct Cookie : public Ice::LocalObject
     {
-        bool mutated;
+	bool mutated;
         Ice::Int mutatingCount;
     };
     typedef IceUtil::Handle<Cookie> CookiePtr;

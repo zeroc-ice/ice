@@ -47,6 +47,8 @@ public:
     virtual void setValueAsync_async(const AMD_Servant_setValueAsyncPtr&, Ice::Int,
                                      const Ice::Current& = Ice::Current());
 
+    virtual void saveValue(Ice::Int, const Ice::Current&);
+
     virtual void releaseAsync(const Ice::Current& = Ice::Current()) const;
 
     virtual void destroy(const Ice::Current& = Ice::Current());
@@ -129,6 +131,12 @@ public:
                                const Ice::Identity&,
                                const Ice::ObjectPtr&,
                                const Ice::LocalObjectPtr&);
+
+    virtual void savedObject(const Freeze::ObjectStorePtr&,
+			     const Ice::Identity&,
+			     const Ice::ObjectPtr&,
+			     const Ice::LocalObjectPtr&,
+			     Ice::Int);
 
     virtual void preOperation(const Freeze::ObjectStorePtr&,
                               const Ice::Identity&,

@@ -166,6 +166,32 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
 }
 
 void
+Freeze::EvictorI::saveObject(const Identity& ident)
+{
+    IceUtil::Mutex::Lock sync(*this);
+    
+    if(_deactivated)
+    {
+	throw EvictorDeactivatedException(__FILE__, __LINE__);
+    }
+    
+    map<Identity, EvictorElementPtr>::iterator p = _evictorMap.find(ident);
+    if(p == _evictorMap.end())
+    {
+	throw ObjectDestroyedException(__FILE__, __LINE__);
+    }
+    EvictorElementPtr element = p->second;
+    assert(!element->destroyed);
+    
+    //
+    // TODO: another lookup is not very efficient! 
+    //
+    save(ident, element->rec.servant);
+    
+    _strategy->savedObject(this, ident, element->rec.servant, element->strategyCookie, element->usageCount);
+}
+
+void
 Freeze::EvictorI::destroyObject(const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
@@ -539,6 +565,13 @@ Freeze::EvictorI::remove(const Identity& ident)
 
 void
 Freeze::EvictorDeactivatedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nunknown local exception";
+}
+
+void
+Freeze::ObjectDestroyedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nunknown local exception";

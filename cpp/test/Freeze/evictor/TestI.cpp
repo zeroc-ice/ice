@@ -50,6 +50,14 @@ Test::ServantI::setValue(Int val, const Current&)
 }
 
 void
+Test::ServantI::saveValue(Int val, const Current& current)
+{
+    value = val;
+    _evictor->saveObject(current.id);
+}
+
+
+void
 Test::ServantI::setValueAsync_async(const AMD_Servant_setValueAsyncPtr& __cb, Int value, const Current&)
 {
     _setValueAsyncCB = __cb;
@@ -250,6 +258,17 @@ Test::StrategyI::evictedObject(const Freeze::ObjectStorePtr& store,
 
     _delegate->evictedObject(store, ident, servant, cookie);
 }
+
+void
+Test::StrategyI::savedObject(const Freeze::ObjectStorePtr& store,
+			     const Identity& ident,
+			     const ObjectPtr& servant,
+			     const LocalObjectPtr& cookie,
+			     Ice::Int usageCount)
+{
+    _delegate->savedObject(store, ident, servant, cookie, usageCount);
+}
+
 
 void
 Test::StrategyI::preOperation(const Freeze::ObjectStorePtr& store,

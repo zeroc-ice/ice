@@ -180,6 +180,16 @@ public class Client
             }
             test(evictor.getLastEvictedValue() == -1);
 
+	    
+	    // 
+	    // Test explicit saves
+	    //
+	    for(int i = 0; i < size; i++)
+	    {
+		servants[i].saveValue(i + 1);
+		test(evictor.getLastSavedValue() == i + 1);
+	    }
+
             //
             // Clean up.
             //

@@ -1,6 +1,13 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added saveObject() operation on Evictor, and savedObject() operation
+  on PersistenceStrategy.
+  saveObject() saves a persistent object immediately. Once an operation 
+  has called saveObject(), the object is considered "clean": other updates
+  by the same operation can only be reliably saved by another call to 
+  saveObject().
+
 - Added a test to the property parsing code to print a warning on System.err
   if a property is not recognized. This prevents silly typos, such as
   "Ice.config=MyFile" (instead of "Ice.Config=MyFile") from slipping through

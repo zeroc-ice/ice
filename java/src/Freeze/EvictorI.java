@@ -116,6 +116,26 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
     }
 
     synchronized public void
+    saveObject(Ice.Identity ident)
+    {
+	if(_deactivated)
+	{
+	    throw new EvictorDeactivatedException();
+	}
+
+	EvictorElement element = (EvictorElement)_evictorMap.get(ident);
+	if(element == null)
+	{
+	    throw new ObjectDestroyedException();
+	}
+	assert(!element.destroyed);
+
+	save(ident, element.rec.servant);
+	_strategy.savedObject(this, ident, element.rec.servant, element.strategyCookie, element.usageCount);
+    }
+
+
+    synchronized public void
     destroyObject(Ice.Identity ident)
     {
 	if(_deactivated)

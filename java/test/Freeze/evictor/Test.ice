@@ -25,6 +25,8 @@ class Servant
     void setValue(int value);
     ["ami", "amd"] void setValueAsync(int value);
 
+    void saveValue(int value);
+
     nonmutating void releaseAsync();
 
     void destroy();
