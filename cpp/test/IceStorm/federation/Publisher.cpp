@@ -82,15 +82,39 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
 
     ObjectPrx obj = fed1->getPublisher();
-    obj = obj->ice_oneway();
+    if(!obj->ice_isDatagram())
+    {
+        if(!EventPrx::checkedCast(obj->ice_twoway()))
+        {
+            cerr << argv[0] << ": checkedCast failed for fed1 publisher" << endl;
+            return EXIT_FAILURE;
+        }
+        obj = obj->ice_oneway();
+    }
     EventPrx eventFed1 = EventPrx::uncheckedCast(obj);
 
     obj = fed2->getPublisher();
-    obj = obj->ice_oneway();
+    if(!obj->ice_isDatagram())
+    {
+        if(!EventPrx::checkedCast(obj->ice_twoway()))
+        {
+            cerr << argv[0] << ": checkedCast failed for fed2 publisher" << endl;
+            return EXIT_FAILURE;
+        }
+        obj = obj->ice_oneway();
+    }
     EventPrx eventFed2 = EventPrx::uncheckedCast(obj);
 
     obj = fed3->getPublisher();
-    obj = obj->ice_oneway();
+    if(!obj->ice_isDatagram())
+    {
+        if(!EventPrx::checkedCast(obj->ice_twoway()))
+        {
+            cerr << argv[0] << ": checkedCast failed for fed3 publisher" << endl;
+            return EXIT_FAILURE;
+        }
+        obj = obj->ice_oneway();
+    }
     EventPrx eventFed3 = EventPrx::uncheckedCast(obj);
 
     Ice::Context context;

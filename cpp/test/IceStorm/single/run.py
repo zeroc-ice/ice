@@ -36,6 +36,7 @@ iceBoxEndpoints = ' --IceBox.ServiceManager.Endpoints="default -p 12345"'
 
 iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIceVersion() + ":create" + \
                   ' --IceStorm.TopicManager.Endpoints="default -p 12346"' + \
+                  ' --IceStorm.Publish.Endpoints="default"' + \
                   " --IceBox.PrintServicesReady=IceStorm"
 iceStormReference = ' --IceStorm.TopicManager.Proxy="IceStorm/TopicManager:default -p 12346"'
 
@@ -52,7 +53,7 @@ TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
 print "ok"
 
 print "creating topic...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create single"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create single ::Single"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:

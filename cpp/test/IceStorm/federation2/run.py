@@ -38,8 +38,76 @@ iceBoxEndpoints = ' --IceBox.ServiceManager.Endpoints="default -p 12345"'
 
 iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIceVersion() + ":create" + \
                   ' --IceStorm.TopicManager.Endpoints="default -p 12346"' + \
+                  ' --IceStorm.Publish.Endpoints="default"' + \
 		  " --IceBox.PrintServicesReady=IceStorm"
 iceStormReference = ' --IceStorm.TopicManager.Proxy="IceStorm/TopicManager: default -p 12346"'
+
+def doTest(batch):
+    global testdir
+    global iceStormReference
+
+    publisher = os.path.join(toplevel, "test", "IceStorm", "federation", "publisher")
+    subscriber = os.path.join(toplevel, "test", "IceStorm", "federation", "subscriber")
+
+    if batch:
+        name = "batch subscriber"
+    else:
+        name = "subscriber"
+
+    #
+    # Start the subscriber. The subscriber creates a lock-file which
+    # is used later to ensure that the subscriber actually goes away.
+    #
+    subscriberLockFile = os.path.join(testdir, 'subscriber.lock')
+    try:
+        os.remove(subscriberLockFile)
+    except:
+        pass # Ignore errors if the lockfile is not present
+
+    print "starting " + name + "...",
+    command = subscriber + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile
+    subscriberPipe = os.popen(command)
+    TestUtil.getServerPid(subscriberPipe)
+    TestUtil.getAdapterReady(subscriberPipe)
+    print "ok"
+
+    print "checking " + name + " lockfile creation...",
+    if not os.path.isfile(subscriberLockFile):
+        print "failed!"
+        TestUtil.killServers()
+        sys.exit(1)
+    print "ok"
+
+    #
+    # Start the publisher. This should publish events which eventually
+    # causes subscriber to terminate.
+    #
+    print "starting publisher...",
+    command = publisher + TestUtil.clientOptions + iceStormReference
+    publisherPipe = os.popen(command)
+    print "ok"
+
+    for output in publisherPipe.xreadlines():
+        print output,
+
+    #
+    # Verify that the subscriber has terminated.
+    #
+    print "checking " + name + " lockfile removal...",
+    lockCount = 0
+    while os.path.isfile(subscriberLockFile):
+        if lockCount > 10:
+            print "failed!"
+            TestUtil.killServers()
+            sys.exit(1)
+        time.sleep(1)
+        lockCount = lockCount + 1    
+    print "ok"
+
+    subscriberStatus = subscriberPipe.close()
+    publisherStatus = publisherPipe.close()
+
+    return subscriberStatus or publisherStatus
 
 dbEnvName = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbEnvName)
@@ -53,19 +121,19 @@ TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
 print "ok"
 
 print "creating topics...",
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed1"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed1 ::Event"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed2"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed2 ::Event"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
-command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed3"'
+command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed3 ::Event"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
@@ -83,58 +151,14 @@ if iceStormAdminStatus:
     sys.exit(1)
 print "ok"
 
-publisher = os.path.join(exedir, "publisher")
-subscriber = os.path.join(exedir, "subscriber")
-
 #
-# Start the subscriber. The subscriber creates a lock-file which
-# is used later to ensure that the subscriber actually goes away.
+# Test oneway subscribers.
 #
-subscriberLockFile = os.path.join(testdir, 'subscriber.lock')
-try:
-    os.remove(subscriberLockFile)
-except:
-    pass # Ignore errors if the lockfile is not present
-
-print "starting subscriber...",
-command = subscriber + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile
-subscriberPipe = os.popen(command)
-TestUtil.getServerPid(subscriberPipe)
-TestUtil.getAdapterReady(subscriberPipe)
-print "ok"
-
-print "checking subscriber lockfile creation...",
-if not os.path.isfile(subscriberLockFile):
-    print "failed!"
-    TestUtil.killServers()
-    sys.exit(1)
-print "ok"
-
+onewayStatus = doTest(0)
 #
-# Start the publisher. This should publish events which eventually
-# causes subscriber to terminate.
+# Test batch oneway subscribers.
 #
-print "starting publisher...",
-command = publisher + TestUtil.clientOptions + iceStormReference
-publisherPipe = os.popen(command)
-print "ok"
-
-for output in publisherPipe.xreadlines():
-    print output,
-
-#
-# Verify that the subscriber has terminated.
-#
-print "checking subscriber lockfile removal...",
-lockCount = 0
-while os.path.isfile(subscriberLockFile):
-    if lockCount > 10:
-        print "failed!"
-        TestUtil.killServers()
-        sys.exit(1)
-    time.sleep(1)
-    lockCount = lockCount + 1    
-print "ok"
+batchStatus = doTest(1)
 
 #
 # Destroy the topic.
@@ -173,10 +197,8 @@ if iceBoxAdminStatus:
 print "ok"
 
 iceBoxStatus = iceBoxPipe.close()
-subscriberStatus = subscriberPipe.close()
-publisherStatus = publisherPipe.close()
 
-if iceBoxStatus or subscriberStatus or publisherStatus:
+if iceBoxStatus or onewayStatus or batchStatus:
     TestUtil.killServers()
     sys.exit(1)
 

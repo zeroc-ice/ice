@@ -16,6 +16,12 @@ IceStorm.TopicManager.Proxy=IceStorm/TopicManager:default -p 10000
 IceStorm.TopicManager.Endpoints=default -p 10000
 
 #
+# This property defines the endpoints on which the topic
+# publisher objects listen.
+#
+IceStorm.Publish.Endpoints=default
+
+#
 # TopicManager Tracing
 #
 # 0 = no tracing

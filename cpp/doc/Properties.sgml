@@ -1561,7 +1561,21 @@ IceStorm.TopicManager.Endpoints=<replaceable>endpoints</replaceable>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints for the &IceStorm; topic manager.
+Defines the endpoints for the &IceStorm; topic manager and topic objects.
+</para>
+</section>
+</section>
+
+<section><title>IceStorm.Publish.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.Publish.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the endpoints for the &IceStorm; publisher objects.
 </para>
 </section>
 </section>
@@ -1585,13 +1599,7 @@ The topic manager tracing level:
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace topic creation, subscription, and unsubscription.</entry>
-</row>
-<row>
-<entry>2</entry>
-<entry>Like 1, but more verbose, including QoS information, and other
-diagnostic information.
-</entry>
+<entry>Trace topic creation.</entry>
 </row>
 </tbody>
 </tgroup>
@@ -1619,7 +1627,13 @@ The topic tracing level:
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace topic diagnostic information.</entry>
+<entry>Trace topic links, subscription, and unsubscription.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Like 1, but more verbose, including QoS information, and other
+diagnostic information.
+</entry>
 </row>
 </tbody>
 </tgroup>

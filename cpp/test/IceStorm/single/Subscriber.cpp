@@ -102,13 +102,14 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
     ObjectPtr single = new SingleI(communicator);
-    ObjectPrx object = adapter->add(single, stringToIdentity("single/events"));
+    ObjectPrx object = adapter->addWithUUID(single);
 
     IceStorm::QoS qos;
     //TODO: qos["reliability"] = "batch";
     try
     {
-	manager->subscribe(qos, object);
+        TopicPrx topic = manager->retrieve("single");
+	topic->subscribe(qos, object);
     }
     catch(const IceStorm::NoSuchTopic& e)
     {

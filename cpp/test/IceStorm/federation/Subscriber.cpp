@@ -73,6 +73,17 @@ deleteLock(const string& name)
 #endif
 }
 
+void
+usage(const char* appName)
+{
+    cerr << "Usage: " << appName << " [options] [lockfile]\n";
+    cerr <<	
+	"Options:\n"
+	"-h, --help           Show this message.\n"
+	"-b                   Use batch reliability.\n"
+	;
+}
+
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
@@ -83,11 +94,39 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     stringSeqToArgs(args, argc, argv);
 
     string lockfile = "subscriber.lock";
+    bool batch = false;
 
-    if(argc != 1)
+    int idx = 1;
+    while(idx < argc)
     {
-	lockfile = argv[1];
+	if(strcmp(argv[idx], "-b") == 0)
+	{
+            batch = true;
+
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
+	else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
+	{
+	    usage(argv[0]);
+	    return EXIT_SUCCESS;
+	}
+	else if(argv[idx][0] == '-')
+	{
+	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+	else
+	{
+            lockfile = argv[idx];
+	    ++idx;
+	}
     }
+
     createLock(lockfile);
 
     const char* managerProxyProperty = "IceStorm.TopicManager.Proxy";
@@ -114,17 +153,26 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     //
     // Activate the servants.
     //
-    ObjectPrx objFed1 = adapter->add(eventFed1, stringToIdentity("fed1/events"));
-    ObjectPrx objFed2 = adapter->add(eventFed2, stringToIdentity("fed2/events"));
-    ObjectPrx objFed3 = adapter->add(eventFed3, stringToIdentity("fed3/events"));
+    ObjectPrx objFed1 = adapter->addWithUUID(eventFed1);
+    ObjectPrx objFed2 = adapter->addWithUUID(eventFed2);
+    ObjectPrx objFed3 = adapter->addWithUUID(eventFed3);
+
+    adapter->activate();
 
     IceStorm::QoS qos;
-    //TODO: qos["reliability"] = "batch";
+    if(batch)
+    {
+        qos["reliability"] = "batch";
+    }
     try
     {
-	manager->subscribe(qos, objFed1);
-	manager->subscribe(qos, objFed2);
-	manager->subscribe(qos, objFed3);
+        TopicPrx topic;
+        topic = manager->retrieve("fed1");
+	topic->subscribe(qos, objFed1);
+        topic = manager->retrieve("fed2");
+	topic->subscribe(qos, objFed2);
+        topic = manager->retrieve("fed3");
+	topic->subscribe(qos, objFed3);
     }
     catch(const IceStorm::NoSuchTopic& e)
     {
@@ -132,13 +180,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    adapter->activate();
-
     communicator->waitForShutdown();
-
-//      cout << "eventFed1->count(): " << eventFed1->count() << endl;
-//      cout << "eventFed2->count(): " << eventFed2->count() << endl;
-//      cout << "eventFed3->count(): " << eventFed3->count() << endl;
 
     test(eventFed1->count() == 30);
     test(eventFed2->count() == 40);

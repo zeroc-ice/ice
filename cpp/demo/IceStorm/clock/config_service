@@ -6,7 +6,7 @@ IceBox.ServiceManager.Endpoints=tcp -p 9998
 #
 # The IceStorm service
 #
-IceBox.Service.IceStorm=IceStormService,1.0.0:create --Ice.Config=config
+IceBox.Service.IceStorm=IceStormService,1.0.1:create --Ice.Config=config
 IceBox.DBEnvName.IceStorm=db
 
 #

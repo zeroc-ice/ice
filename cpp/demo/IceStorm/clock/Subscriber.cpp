@@ -18,7 +18,7 @@
 
 #include <ClockI.h>
 
-#include <list>
+#include <map>
 
 using namespace std;
 
@@ -89,38 +89,24 @@ Subscriber::run(int argc, char* argv[])
     Ice::ObjectPtr clock = new ClockI();
 
     //
-    // Create a UUID to use in the name field of the the object
-    // identity. The same UUID can be used for the identity of each
-    // Subscriber object since the category field will differ.
-    //
-    string uuid = IceUtil::generateUUID();
-
-    //
     // List of all subscribers.
     //
-    list<Ice::ObjectPrx> subscribers;
+    map<string, Ice::ObjectPrx> subscribers;
 
     //
-    // Add the servant to the adapter for the given
-    // topics. Alternatively a ServantLocator could have been used for
-    // the same purpose.
+    // Add the servant to the adapter for each topic. A ServantLocator
+    // could have been used for the same purpose.
     //
     for(Ice::StringSeq::iterator p = topics.begin(); p != topics.end(); ++p)
     {
 	//
-	// The category is the name of the topic.
-	//
-	Ice::Identity ident;
-	ident.category = *p;
-	ident.name = uuid;
-
-	//
 	// Add a Servant for the Ice Object.
 	//
-	Ice::ObjectPrx object = adapter->add(clock, ident);
+	Ice::ObjectPrx object = adapter->addWithUUID(clock);
 	try
 	{
-	    manager->subscribe(qos, object);
+            IceStorm::TopicPrx topic = manager->retrieve(*p);
+	    topic->subscribe(qos, object);
 	}
 	catch(const IceStorm::NoSuchTopic& e)
 	{
@@ -133,7 +119,7 @@ Subscriber::run(int argc, char* argv[])
 	// ensures that only subscribed subscribers are unsubscribed
 	// in the case of an error.
 	//
-	subscribers.push_back(object);
+	subscribers[*p] = object;
     }
 
     //
@@ -150,11 +136,12 @@ Subscriber::run(int argc, char* argv[])
     //
     // Unsubscribe all subscribed objects.
     //
-    for(list<Ice::ObjectPrx>::const_iterator q = subscribers.begin(); q != subscribers.end(); ++q)
+    for(map<string,Ice::ObjectPrx>::const_iterator q = subscribers.begin(); q != subscribers.end(); ++q)
     {
 	try
 	{
-	    manager->unsubscribe(*q);
+            IceStorm::TopicPrx topic = manager->retrieve(q->first);
+	    topic->unsubscribe(q->second);
 	}
 	catch(const IceStorm::NoSuchTopic& e)
 	{

@@ -60,10 +60,18 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     //
     // Get a publisher object, create a oneway proxy and then cast to
-    // a Single object
+    // a Single object.
     //
     ObjectPrx obj = topic->getPublisher();
-    obj = obj->ice_oneway();
+    if(!obj->ice_isDatagram())
+    {
+        if(!SinglePrx::checkedCast(obj->ice_twoway()))
+        {
+            cerr << argv[0] << ": checkedCast failed for publisher" << endl;
+            return EXIT_FAILURE;
+        }
+        obj = obj->ice_oneway();
+    }
     SinglePrx single = SinglePrx::uncheckedCast(obj);
 
     for(int i = 0; i < 10; ++i)
