@@ -18,6 +18,21 @@ LogI::LogI() :
 }
 
 void
+LogI::print(const string& msg)
+{
+    string s = msg;
+
+    string::size_type idx = 0;
+    while((idx = s.find("\n", idx)) != string::npos)
+    {
+        s.replace(idx, 1, "\r\n  ");
+        idx += 3;
+    }
+
+    message(s);
+}
+
+void
 LogI::trace(const string& category, const string& msg)
 {
     string s = "[ " + category + ": " + msg + " ]";

@@ -196,6 +196,11 @@ protected:
     virtual void trace(const std::string&);
 
     //
+    // Log a literal message.
+    //
+    virtual void print(const std::string&);
+
+    //
     // Enable the CtrlCHandler to invoke interrupt() when a signal occurs.
     //
     void enableInterrupt();

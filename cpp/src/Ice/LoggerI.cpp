@@ -26,6 +26,14 @@ Ice::LoggerI::LoggerI(const string& prefix, bool timestamp) :
 }
 
 void
+Ice::LoggerI::print(const string& message)
+{
+    IceUtil::Mutex::Lock sync(_globalMutex);
+
+    cerr << message << endl;
+}
+
+void
 Ice::LoggerI::trace(const string& category, const string& message)
 {
     IceUtil::Mutex::Lock sync(_globalMutex);
@@ -35,7 +43,12 @@ Ice::LoggerI::trace(const string& category, const string& message)
     {
 	s += IceUtil::Time::now().toString() + " ";
     }
-    s += _prefix + category + ": " + message + " ]";
+    s += _prefix;
+    if(!category.empty())
+    {
+        s += category + ": ";
+    }
+    s += message + " ]";
 
     string::size_type idx = 0;
     while((idx = s.find("\n", idx)) != string::npos)

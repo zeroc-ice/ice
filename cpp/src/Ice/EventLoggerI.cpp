@@ -104,6 +104,19 @@ Ice::EventLoggerI::~EventLoggerI()
 }
 
 void
+Ice::EventLoggerI::print(const string& message)
+{
+    const char* str[1];
+    str[0] = message.c_str();
+    if(!ReportEvent(_source, EVENTLOG_INFORMATION_TYPE, 0, EVENT_LOGGER_MSG, NULL, 1, 0, str, NULL))
+    {
+        SyscallException ex(__FILE__, __LINE__);
+        ex.error = GetLastError();
+        throw ex;
+    }
+}
+
+void
 Ice::EventLoggerI::trace(const string& category, const string& message)
 {
     string s;

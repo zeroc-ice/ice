@@ -984,6 +984,19 @@ Ice::Service::trace(const string& msg)
 }
 
 void
+Ice::Service::print(const string& msg)
+{
+    if(_logger)
+    {
+        _logger->print(msg);
+    }
+    else
+    {
+        cerr << msg << endl;
+    }
+}
+
+void
 Ice::Service::enableInterrupt()
 {
     _ctrlCHandler->setCallback(ctrlCHandlerCallback);

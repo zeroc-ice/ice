@@ -58,6 +58,8 @@ protected:
 private:
 
     void usage(const std::string&);
+
+    LoggerPtr _logger;
 };
 
 };
@@ -69,6 +71,8 @@ IcePatch2::PatcherService::PatcherService()
 bool
 IcePatch2::PatcherService::start(int argc, char* argv[])
 {
+    _logger = communicator()->getLogger();
+
     string dataDir;
 
     IceUtil::Options opts;
@@ -82,7 +86,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     }
     catch(const IceUtil::Options::BadOpt& e)
     {
-        cerr << e.reason << endl;
+        _logger->error(e.reason);
 	usage(argv[0]);
 	return false;
     }
@@ -94,13 +98,13 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     }
     if(opts.isSet("v") || opts.isSet("version"))
     {
-	cout << ICE_STRING_VERSION << endl;
+	_logger->print(ICE_STRING_VERSION);
 	return false;
     }
 
     if(args.size() > 1)
     {
-	cerr << argv[0] << ": too many arguments" << endl;
+	_logger->error("too many arguments");
 	usage(argv[0]);
 	return false;
     }
@@ -116,7 +120,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 	dataDir = properties->getProperty("IcePatch2.Directory");
 	if(dataDir.empty())
 	{
-	    cerr << argv[0] << ": no data directory specified" << endl;
+	    _logger->error("no data directory specified");
 	    usage(argv[0]);
 	    return false;
 	}
@@ -141,19 +145,21 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     }
     catch(const string& ex)
     {
-        cerr << argv[0] << ": " << ex << endl;
+        _logger->error(ex);
         return false;
     }
     catch(const char* ex)
     {
-        cerr << argv[0] << ": " << ex << endl;
+        _logger->error(ex);
         return false;
     }
     
     const char* endpointsProperty = "IcePatch2.Endpoints";
     if(properties->getProperty(endpointsProperty).empty())
     {
-	cerr << argv[0] << ": property `" << endpointsProperty << "' is not set" << endl;
+	ostringstream os;
+	os << "property `" << endpointsProperty << "' is not set";
+	_logger->error(os.str());
 	return false;
     }
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePatch2");
@@ -237,8 +243,8 @@ IcePatch2::PatcherService::usage(const string& appName)
 	// --nochdir is intentionally not shown here. (See the comment in main().)
     );
 #endif
-    cerr << "Usage: " << appName << " [options] [DIR]" << endl;
-    cerr << options << endl;
+    _logger->print("Usage: " + appName + " [options] [DIR]");
+    _logger->print(options);
 }
 
 int
@@ -278,7 +284,7 @@ main(int argc, char* argv[])
     try
     {
         status = svc.main(argc + 1, v);
-    }
+    u
     catch(...)
     {
         // Ignore exceptions -- the only thing left to do is to free memory.

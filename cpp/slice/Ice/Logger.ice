@@ -23,7 +23,15 @@ local interface Logger
 {
     /**
      *
-     * Log trace messages.
+     * Print a message. The message is printed literally, without
+     * any decorations such as executable name or time stamp.
+     *
+     **/
+    void print(string message);
+
+    /**
+     *
+     * Log a trace message.
      *
      * @param category The trace category.
      *
@@ -34,7 +42,7 @@ local interface Logger
 
     /**
      *
-     * Log warning messages.
+     * Log a warning message.
      *
      * @param message The warning message to log.
      *
@@ -45,7 +53,7 @@ local interface Logger
 
     /**
      *
-     * Log error messages.
+     * Log an error message.
      *
      * @param message The error message to log.
      *
