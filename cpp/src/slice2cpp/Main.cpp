@@ -30,6 +30,7 @@ usage(const char* n)
         "--output-dir DIR     Create files in the directory DIR.\n"
         "--dll-export SYMBOL  Use SYMBOL for DLL exports.\n"
         "--impl               Generate sample implementations.\n"
+	"--depend             Generate Makefile dependencies.\n"
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
         ;
@@ -227,12 +228,16 @@ main(int argc, char* argv[])
 		base.erase(0, pos + 1);
 	    }
 
-	    string cmd = cpp + " -M -MT " + base + ".cpp " + argv[idx];
-
 #ifdef _WIN32
+	    //
+	    // -MT is not supported by cygwin cpp so we just use the
+	    // default.
+	    //
+	    string cmd = cpp + " -M " + argv[idx];
 	    FILE* cppHandle = _popen(cmd.c_str(), "w");
 	    _pclose(cppHandle);
 #else
+	    string cmd = cpp + " -M -MT " + base + ".cpp " + argv[idx];
 	    FILE* cppHandle = popen(cmd.c_str(), "w");
 	    pclose(cppHandle);
 #endif

@@ -31,6 +31,7 @@ usage(const char* n)
         "--tie                   Generate TIE classes.\n"
         "--impl                  Generate sample implementations.\n"
         "--impl-tie              Generate sample TIE implementations.\n"
+	"--depend                Generate Makefile dependencies.\n"
         "--clone                 Generate clone().\n"
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
@@ -256,7 +257,7 @@ main(int argc, char* argv[])
 		base.erase(0, pos + 1);
 	    }
 
-	    string cmd = cpp + " -M -MT " + base + ".java " + argv[idx];
+	    string cmd = cpp + " -M " + argv[idx];
 
 #ifdef _WIN32
 	    FILE* cppHandle = _popen(cmd.c_str(), "w");
