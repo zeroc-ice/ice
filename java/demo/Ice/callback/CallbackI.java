@@ -19,7 +19,7 @@ public final class CallbackI extends Callback
     initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {
         System.out.println("initiating callback");
-        proxy.callback(current.context);
+        proxy.callback(current.ctx);
     }
 
     public void

@@ -171,7 +171,8 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool comp)
     catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
-	ex.ice_throw();
+	assert(_exception.get());
+	_exception->ice_throw();
     }
     
     //
@@ -318,7 +319,8 @@ IceInternal::Connection::flushBatchRequest(bool comp)
     catch(const LocalException& ex)
     {
 	setState(StateClosed, ex);
-	ex.ice_throw();
+	assert(_exception.get());
+	_exception->ice_throw();
     }
 }
 
@@ -344,7 +346,7 @@ IceInternal::Connection::setAdapter(const ObjectAdapterPtr& adapter)
     //
     // We are registered with a thread pool in active and closing
     // mode. However, we only change subscription if we're in active
-    // mode, and thus ignore closing mode here.k
+    // mode, and thus ignore closing mode here.
     //
     if(_state == StateActive)
     {
@@ -417,8 +419,8 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    // Uncompress if necessary.
 	    //
 	    if(messageType == compressedRequestMsg ||
-		messageType == compressedRequestBatchMsg ||
-		messageType == compressedReplyMsg)
+	       messageType == compressedRequestBatchMsg ||
+	       messageType == compressedReplyMsg)
 	    {
 		BasicStream ustream(_instance);
 		uncompress(stream, ustream);
@@ -637,7 +639,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			out << "unknown user exception:\n" << ex << '\n' << _transceiver->toString();
 		    }
 		}
-		catch (...)
+		catch(...)
 		{
 		    IceUtil::RecMutex::Lock sync(*this);
 		    if(_warn)
@@ -759,33 +761,6 @@ IceInternal::Connection::exception(const LocalException& ex)
     setState(StateClosed, ex);
 }
 
-/*
-bool
-IceInternal::Connection::tryDestroy(const ThreadPoolPtr& threadPool)
-{
-    bool isLocked = trylock();
-    if(!isLocked)
-    {
-	return false;
-    }
-
-    threadPool->promoteFollower();
-
-    try
-    {
-	setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
-    }
-    catch (...)
-    {
-	unlock();
-	throw;
-    }
-    
-    unlock();    
-    return true;
-}
-*/
-
 IceInternal::Connection::Connection(const InstancePtr& instance,
 				    const TransceiverPtr& transceiver,
 				    const EndpointPtr& endpoint,
@@ -806,6 +781,24 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _registeredWithPool(false)
 {
     _warn = _instance->properties()->getPropertyAsInt("Ice.ConnectionWarnings") > 0;
+
+    if(_adapter)
+    {
+	//
+	// Incoming connections are always implicitly validated.
+	//
+	_connectionValidated = true;
+    }
+    else
+    {
+	//
+	// Outoging datagram connections are always validated
+	// implicitly. Outgoing non-datagram connections must receive a
+	// message from the server for connection validation.
+	//
+	//_connectionValidated = _endpoint->datagram();
+	_connectionValidated = true; // TODO: Not finished yet.
+    }
 }
 
 IceInternal::Connection::~Connection()
@@ -844,20 +837,27 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 
     if(!_exception.get())
     {
-	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+	if(_connectionValidated)
+	{
+	    _exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+	}
+	else
+	{
+	    _exception = auto_ptr<LocalException>(new CloseConnectionException(__FILE__, __LINE__));
+	}
 
 	if(_warn)
 	{
 	    //
 	    // Don't warn about certain expected exceptions.
 	    //
-	    if(!(dynamic_cast<const CloseConnectionException*>(&ex) ||
-		  dynamic_cast<const CommunicatorDestroyedException*>(&ex) ||
-		  dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) ||
-		  (dynamic_cast<const ConnectionLostException*>(&ex) && _state == StateClosing)))
+	    if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
+		 dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
+		 dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get()) ||
+		 (dynamic_cast<const ConnectionLostException*>(_exception.get()) && _state == StateClosing)))
 	    {
 		Warning out(_logger);
-		out << "connection exception:\n" << ex << '\n' << _transceiver->toString();
+		out << "connection exception:\n" << *_exception.get() << '\n' << _transceiver->toString();
 	    }
 	}
     }

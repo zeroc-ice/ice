@@ -59,13 +59,6 @@ public:
     //
     virtual void exception(const ::Ice::LocalException&) = 0;
 
-    //
-    // Try to destroy the event handler. Returns false if the event
-    // handler cannot be destroyed because it is in use, or true
-    // otherwise.
-    //
-//    virtual bool tryDestroy(const ThreadPoolPtr&) = 0;
-
 protected:
     
     EventHandler(const InstancePtr&);

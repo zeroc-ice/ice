@@ -21,7 +21,7 @@ class NestedI extends Nested
         System.out.println("" + level);
         if(--level > 0)
         {
-            proxy.nested(level, _self, current.context);
+            proxy.nested(level, _self, current.ctx);
         }
     }
 

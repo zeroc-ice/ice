@@ -26,7 +26,7 @@ final class HelloSessionI extends HelloSession
     public void
     destroy(Ice.Current current)
     {
-        _manager.remove(current.identity);
+        _manager.remove(current.id);
     }
 
     private String _userId;

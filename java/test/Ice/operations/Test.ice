@@ -71,79 +71,79 @@ class MyClass
  
     void opVoid();
     
-    byte opByte(byte p1, byte p2;
-		byte p3);
+    byte opByte(byte p1, byte p2,
+		out byte p3);
 
-    bool opBool(bool p1, bool p2;
-		bool p3);
+    bool opBool(bool p1, bool p2,
+		out bool p3);
 
-    long opShortIntLong(short p1, int p2, long p3;
-			short p4, int p5, long p6);
+    long opShortIntLong(short p1, int p2, long p3,
+			out short p4, out int p5, out long p6);
 
-    double opFloatDouble(float p1, double p2;
-			 float p3, double p4);
+    double opFloatDouble(float p1, double p2,
+			 out float p3, out double p4);
 
-    string opString(string p1, string p2;
-		    string p3);
+    string opString(string p1, string p2,
+		    out string p3);
 
-    MyEnum opMyEnum(MyEnum p1; MyEnum p2);
+    MyEnum opMyEnum(MyEnum p1, out MyEnum p2);
 
-    MyClass* opMyClass(MyClass* p1; MyClass* p2, MyClass* p3);
+    MyClass* opMyClass(MyClass* p1, out MyClass* p2, out MyClass* p3);
 
-    Struct opStruct(Struct p1, Struct p2;
-		    Struct p3);
+    Struct opStruct(Struct p1, Struct p2,
+		    out Struct p3);
 
-    ByteS opByteS(ByteS p1, ByteS p2;
-		  ByteS p3);
+    ByteS opByteS(ByteS p1, ByteS p2,
+		  out ByteS p3);
 
-    BoolS opBoolS(BoolS p1, BoolS p2;
-		  BoolS p3);	
+    BoolS opBoolS(BoolS p1, BoolS p2,
+		  out BoolS p3);	
 
-    LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3;
-			  ::Test::ShortS p4, IntS p5, LongS p6);
+    LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3,
+			  out ::Test::ShortS p4, out IntS p5, out LongS p6);
 
-    DoubleS opFloatDoubleS(FloatS p1, DoubleS p2;
-			   FloatS p3, DoubleS p4);
+    DoubleS opFloatDoubleS(FloatS p1, DoubleS p2,
+			   out FloatS p3, out DoubleS p4);
     
-    StringS opStringS(StringS p1, StringS p2;
-		      StringS p3);
+    StringS opStringS(StringS p1, StringS p2,
+		      out StringS p3);
     
-    ByteSS opByteSS(ByteSS p1, ByteSS p2;
-		    ByteSS p3);
+    ByteSS opByteSS(ByteSS p1, ByteSS p2,
+		    out ByteSS p3);
     
-    BoolSS opBoolSS(BoolSS p1, BoolSS p2;
-		    BoolSS p3);
+    BoolSS opBoolSS(BoolSS p1, BoolSS p2,
+		    out BoolSS p3);
     
-    LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3;
-			    ShortSS p4, IntSS p5, LongSS p6);
+    LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3,
+			    out ShortSS p4, out IntSS p5, out LongSS p6);
     
     
-    DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2;
-			     FloatSS p3, DoubleSS p4);
+    DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2,
+			     out FloatSS p3, out DoubleSS p4);
     
-    StringSS opStringSS(StringSS p1, StringSS p2;
-			StringSS p3);
+    StringSS opStringSS(StringSS p1, StringSS p2,
+			out StringSS p3);
 
-    ByteBoolD opByteBoolD(ByteBoolD p1, ByteBoolD p2;
-			  ByteBoolD p3);
+    ByteBoolD opByteBoolD(ByteBoolD p1, ByteBoolD p2,
+			  out ByteBoolD p3);
 
-    ShortIntD opShortIntD(ShortIntD p1, ShortIntD p2;
-			  ShortIntD p3);
+    ShortIntD opShortIntD(ShortIntD p1, ShortIntD p2,
+			  out ShortIntD p3);
 
-    LongFloatD opLongFloatD(LongFloatD p1, LongFloatD p2;
-			    LongFloatD p3);
+    LongFloatD opLongFloatD(LongFloatD p1, LongFloatD p2,
+			    out LongFloatD p3);
 
-    DoubleStringD opDoubleStringD(DoubleStringD p1, DoubleStringD p2;
-				  DoubleStringD p3);
+    DoubleStringD opDoubleStringD(DoubleStringD p1, DoubleStringD p2,
+				  out DoubleStringD p3);
 
-    StringStringD opStringStringD(StringStringD p1, StringStringD p2;
-				  StringStringD p3);
+    StringStringD opStringStringD(StringStringD p1, StringStringD p2,
+				  out StringStringD p3);
 
-    StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2;
-				  StringMyEnumD p3);
+    StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2,
+				  out StringMyEnumD p3);
 
-    MyClassStringD opMyClassStringD(MyClassStringD p1, MyClassStringD p2;
-				    MyClassStringD p3);
+    MyClassStringD opMyClassStringD(MyClassStringD p1, MyClassStringD p2,
+				    out MyClassStringD p3);
 };
 
 class MyDerivedClass extends MyClass

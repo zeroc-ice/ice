@@ -144,7 +144,8 @@ public final class Connection extends EventHandler
             catch(Ice.LocalException ex)
             {
                 setState(StateClosed, ex);
-                throw ex;
+		assert(_exception != null);
+		throw _exception;
             }
 
             //
@@ -257,7 +258,8 @@ public final class Connection extends EventHandler
             catch(Ice.LocalException ex)
             {
                 setState(StateClosed, ex);
-                throw ex;
+		assert(_exception != null);
+		throw _exception;
             }
         }
         finally
@@ -699,6 +701,25 @@ public final class Connection extends EventHandler
         _state = StateHolding;
 	_warn = _instance.properties().getPropertyAsInt("Ice.ConnectionWarnings") > 0 ? true : false;
 	_registeredWithPool = false;
+
+	if(_adapter != null)
+	{
+	    //
+	    // Incoming connections are always implicitly validated.
+	    //
+	    _connectionValidated = true;
+	}
+	else
+	{
+	    //
+	    // Outoging datagram connections are always validated
+	    // implicitly. Outgoing non-datagram connections must receive a
+	    // message from the server for connection validation.
+	    //
+	    //_connectionValidated = _endpoint.datagram();
+	    _connectionValidated = true; // TODO: Not finished yet.
+	}
+
     }
 
     protected void
@@ -764,19 +785,26 @@ public final class Connection extends EventHandler
 
         if(_exception == null)
         {
-            _exception = ex;
+	    if(_connectionValidated)
+	    {
+		_exception = ex;
+	    }
+	    else
+	    {
+		_exception = new Ice.CloseConnectionException();
+	    }
 
             if(_warn)
             {
                 //
                 // Don't warn about certain expected exceptions.
                 //
-                if(!(ex instanceof Ice.CloseConnectionException ||
-                      ex instanceof Ice.CommunicatorDestroyedException ||
-                      ex instanceof Ice.ObjectAdapterDeactivatedException ||
-                      (ex instanceof Ice.ConnectionLostException && _state == StateClosing)))
+                if(!(_exception instanceof Ice.CloseConnectionException ||
+		     _exception instanceof Ice.CommunicatorDestroyedException ||
+		     _exception instanceof Ice.ObjectAdapterDeactivatedException ||
+		     (_exception instanceof Ice.ConnectionLostException && _state == StateClosing)))
                 {
-                    warning("connection exception", ex);
+                    warning("connection exception", _exception);
                 }
             }
         }
@@ -1001,6 +1029,7 @@ public final class Connection extends EventHandler
     private int _state;
     private boolean _warn;
     private boolean _registeredWithPool;
+    private boolean _connectionValidated;
     private RecursiveMutex _mutex = new RecursiveMutex();
     private Incoming _incomingCache;
 }

@@ -114,6 +114,7 @@ private:
     State _state;
     bool _warn;
     bool _registeredWithPool;
+    bool _connectionValidated;
 };
 
 }

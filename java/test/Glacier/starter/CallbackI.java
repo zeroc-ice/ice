@@ -18,14 +18,14 @@ final class CallbackI extends Callback
     public void
     initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {
-        proxy.callback(current.context);
+        proxy.callback(current.ctx);
     }
 
     public void
     initiateCallbackEx(CallbackReceiverPrx proxy, Ice.Current current)
 	throws CallbackException
     {
-        proxy.callbackEx(current.context);
+        proxy.callbackEx(current.ctx);
     }
 
     public void

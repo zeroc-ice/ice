@@ -355,7 +355,7 @@ public class AllTests
         }
         catch(Ice.ObjectNotExistException ex)
         {
-	    test(ex.identity.equals(id));
+	    test(ex.id.equals(id));
         }
         catch(Exception ex)
         {
