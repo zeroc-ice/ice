@@ -12,6 +12,7 @@
 #define ICE_THREAD_POOL_H
 
 #include <IceUtil/Shared.h>
+#include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h>
 

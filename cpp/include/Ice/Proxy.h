@@ -12,6 +12,7 @@
 #define ICE_PROXY_H
 
 #include <IceUtil/Shared.h>
+#include <IceUtil/Mutex.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ConnectionF.h>

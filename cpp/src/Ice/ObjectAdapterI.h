@@ -12,6 +12,7 @@
 #define ICE_OBJECT_ADAPTER_I_H
 
 #include <IceUtil/Shared.h>
+#include <IceUtil/Mutex.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterFactoryF.h>

@@ -13,6 +13,7 @@
 
 #include <string>
 #include <map>
+#include <IceUtil/Mutex.h>
 #include <Ice/SslSystem.h>
 
 namespace IceSecurity

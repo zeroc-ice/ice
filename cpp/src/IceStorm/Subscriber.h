@@ -11,6 +11,7 @@
 #ifndef SUBSCRIBER_H
 #define SUBSCRIBER_H
 
+#include <IceUtil/Mutex.h>
 #include <Ice/Current.h> // For Ice::Context
 #include <Ice/Identity.h>
 

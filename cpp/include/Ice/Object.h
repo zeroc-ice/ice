@@ -12,6 +12,7 @@
 #define ICE_OBJECT_H
 
 #include <IceUtil/Shared.h>
+#include <IceUtil/Mutex.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 

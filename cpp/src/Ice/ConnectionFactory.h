@@ -11,6 +11,7 @@
 #ifndef ICE_CONNECTION_FACTORY_H
 #define ICE_CONNECTION_FACTORY_H
 
+#include <IceUtil/Mutex.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/InstanceF.h>

@@ -11,6 +11,7 @@
 #ifndef ICE_OUTGOING_H
 #define ICE_OUTGOING_H
 
+#include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/ReferenceF.h>

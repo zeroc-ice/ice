@@ -12,6 +12,7 @@
 #define ICE_SSL_CONNECTION_OPENSSL_H
 
 #include <openssl/ssl.h>
+#include <IceUtil/Mutex.h>
 #include <Ice/SslConnection.h>
 #include <Ice/SslSystem.h>
 #include <Ice/Buffer.h>

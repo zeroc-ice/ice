@@ -11,6 +11,7 @@
 #ifndef ICE_SYS_LOGGER_I_H
 #define ICE_SYS_LOGGER_I_H
 
+#include <IceUtil/Mutex.h>
 #include <Ice/Logger.h>
 
 namespace Ice

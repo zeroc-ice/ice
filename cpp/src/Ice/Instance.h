@@ -12,6 +12,7 @@
 #define ICE_INSTANCE_H
 
 #include <IceUtil/Shared.h>
+#include <IceUtil/Mutex.h>
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/PropertiesF.h>

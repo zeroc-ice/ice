@@ -12,6 +12,7 @@
 #define ICE_SERVANT_FACTORY_MANAGER_H
 
 #include <IceUtil/Shared.h>
+#include <IceUtil/Mutex.h>
 #include <Ice/ObjectFactoryManagerF.h>
 #include <Ice/ObjectFactoryF.h>
 

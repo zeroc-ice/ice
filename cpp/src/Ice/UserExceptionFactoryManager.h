@@ -12,6 +12,7 @@
 #define ICE_USER_EXCEPTION_FACTORY_MANAGER_H
 
 #include <IceUtil/Shared.h>
+#include <IceUtil/Mutex.h>
 #include <Ice/UserExceptionFactoryManagerF.h>
 #include <Ice/UserExceptionFactoryF.h>
 

@@ -8,6 +8,8 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Mutex.h>
+
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
 
