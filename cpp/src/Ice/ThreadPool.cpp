@@ -39,10 +39,10 @@ IceInternal::ThreadPool::_register(SOCKET fd, const EventHandlerPtr& handler)
 }
 
 void
-IceInternal::ThreadPool::unregister(SOCKET fd)
+IceInternal::ThreadPool::unregister(SOCKET fd, bool callFinished)
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
-    _removes.push_back(fd);
+    _removes.push_back(make_pair(fd, callFinished));
     setInterrupt();
 }
 
@@ -328,12 +328,15 @@ IceInternal::ThreadPool::run()
 		//
 		// Handlers are permanently removed.
 		//
-		for (vector<SOCKET>::iterator p = _removes.begin(); p != _removes.end(); ++p)
+		for (vector<pair<SOCKET, bool> >::iterator p = _removes.begin(); p != _removes.end(); ++p)
 		{
-		    map<SOCKET, EventHandlerPtr>::iterator q = _handlerMap.find(*p);
+		    map<SOCKET, EventHandlerPtr>::iterator q = _handlerMap.find(p->first);
 		    assert(q != _handlerMap.end());
-		    FD_CLR(*p, &_fdSet);
-		    q->second->finished();
+		    FD_CLR(p->first, &_fdSet);
+		    if (p->second) // Call finished() on the handler?
+		    {
+			q->second->finished();
+		    }
 		    if (q->second->server())
 		    {
 			--_servers;
@@ -352,6 +355,13 @@ IceInternal::ThreadPool::run()
 		{
 		    notifyAll(); // For waitUntil...Finished() methods.
 		}
+
+		//
+                // Selected filedescriptors may have changed, I
+                // therefore need to repeat the select().
+		//
+		shutdown = clearInterrupt();
+		goto repeatSelect;
 	    }
 
 //

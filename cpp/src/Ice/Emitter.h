@@ -41,6 +41,7 @@ public:
     bool destroyed() const;
     void prepareRequest(Outgoing*);
     void sendRequest(Outgoing*, bool);
+    void removeRequest(Outgoing*);
     void prepareBatchRequest(Outgoing*);
     void finishBatchRequest(Outgoing*);
     void abortBatchRequest();

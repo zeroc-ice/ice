@@ -243,6 +243,7 @@ IceInternal::Emitter::message(BasicStream& stream)
     
     if (_state != StateActive)
     {
+	JTCThread::yield();
 	return;
     }
 
@@ -341,6 +342,7 @@ void
 IceInternal::Emitter::finished()
 {
     JTCSyncT<JTCMutex> sync(*this);
+    assert(_state == StateClosed);
     _transceiver->close();
 }
 
@@ -407,14 +409,14 @@ IceInternal::Emitter::setState(State state, const LocalException& ex)
     {
 	case StateActive:
 	{
-	    return; // Can't switch back to holding state
+	    return;
 	}
 	
 	case StateClosed:
 	{
 	    if (_threadPool)
 	    {
-		_threadPool->unregister(_transceiver->fd());
+		_threadPool->unregister(_transceiver->fd(), true);
 	    }
 	    else
 	    {

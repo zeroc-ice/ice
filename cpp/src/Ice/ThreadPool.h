@@ -31,7 +31,7 @@ class ThreadPool : public ::IceUtil::Shared, public JTCMonitorT<JTCMutex>
 public:
 
     void _register(SOCKET, const EventHandlerPtr&);
-    void unregister(SOCKET);
+    void unregister(SOCKET, bool);
     void promoteFollower();
     void initiateServerShutdown(); // Signal-safe shutdown initiation.
     void waitUntilServerFinished();
@@ -62,7 +62,7 @@ private:
     SOCKET _fdIntrWrite;
     fd_set _fdSet;
     std::vector<std::pair<SOCKET, EventHandlerPtr> > _adds;
-    std::vector<SOCKET> _removes;
+    std::vector<std::pair<SOCKET, bool> > _removes;
     std::map<SOCKET, EventHandlerPtr> _handlerMap;
     int _servers;
     int _timeout;

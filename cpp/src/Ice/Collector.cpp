@@ -98,6 +98,7 @@ IceInternal::Collector::message(BasicStream& stream)
 
 	if (_state != StateActive && _state != StateClosing)
 	{
+	    JTCThread::yield();
 	    return;
 	}
 	
@@ -291,15 +292,8 @@ void
 IceInternal::Collector::finished()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
-
-    //
-    // We also unregister with the thread pool if we go to holding
-    // state, but in this case we may not close the connection.
-    //
-    if (_state == StateClosed)
-    {
-	_transceiver->close();
-    }
+    assert(_state == StateClosed);
+    _transceiver->close();
 }
 
 bool
@@ -384,7 +378,7 @@ IceInternal::Collector::setState(State state)
 		return;
 	    }
 
-	    _threadPool->unregister(_transceiver->fd());
+	    _threadPool->unregister(_transceiver->fd(), false);
 	    break;
 	}
 
@@ -434,7 +428,7 @@ IceInternal::Collector::setState(State state)
 	    {
 		_threadPool->_register(_transceiver->fd(), this);
 	    }
-	    _threadPool->unregister(_transceiver->fd());
+	    _threadPool->unregister(_transceiver->fd(), true);
 	    break;
 	}
     }
@@ -532,6 +526,7 @@ IceInternal::CollectorFactory::message(BasicStream&)
     if (_state != StateActive)
     {
 	_threadPool->promoteFollower();
+	JTCThread::yield();
 	return;
     }
     
@@ -588,17 +583,10 @@ void
 IceInternal::CollectorFactory::finished()
 {
     JTCSyncT<JTCMutex> sync(*this);
-
-    //
-    // We also unregister with the thread pool if we go to holding
-    // state, but in this case we may not close the acceptor.
-    //
-    if (_state == StateClosed)
-    {
-	_acceptor->shutdown();
-	clearBacklog();
-	_acceptor->close();
-    }
+    assert(_state == StateClosed);
+    _acceptor->shutdown();
+    clearBacklog();
+    _acceptor->close();
 }
 
 bool
@@ -687,7 +675,7 @@ IceInternal::CollectorFactory::setState(State state)
 
 	    if (_threadPool)
 	    {
-		_threadPool->unregister(_acceptor->fd());
+		_threadPool->unregister(_acceptor->fd(), false);
 	    }
 
 	    for_each(_collectors.begin(), _collectors.end(), ::Ice::voidMemFun(&Collector::hold));
@@ -706,7 +694,7 @@ IceInternal::CollectorFactory::setState(State state)
 		{
 		    _threadPool->_register(_acceptor->fd(), this);
 		}
-		_threadPool->unregister(_acceptor->fd());
+		_threadPool->unregister(_acceptor->fd(), true);
 	    }
 	    for_each(_collectors.begin(), _collectors.end(), ::Ice::voidMemFun(&Collector::destroy));
 	    _collectors.clear();

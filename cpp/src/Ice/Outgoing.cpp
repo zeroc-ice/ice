@@ -112,7 +112,7 @@ IceInternal::Outgoing::invoke()
 	case Reference::ModeTwoway:
 	{
 	    bool timedOut = false;
-	    
+
 	    {
 		JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
 		
@@ -129,9 +129,9 @@ IceInternal::Outgoing::invoke()
 			    wait(timeout);
 			    if (_state == StateInProgress)
 			    {
+				timedOut = true;
 				_state = StateLocalException;
 				_exception = auto_ptr<LocalException>(new TimeoutException(__FILE__, __LINE__));
-				timedOut = true;
 			    }
 			}
 			else
@@ -144,18 +144,18 @@ IceInternal::Outgoing::invoke()
 		    }
 		}
 	    }
-	    
+
+	    if (timedOut)
+	    {
+		//
+		// Must be called outside the synchronization of this
+		// object.
+		//
+		_emitter->exception(*_exception.get());
+	    }
+
 	    if (_exception.get())
 	    {
-		if (timedOut)
-		{
-		    //
-		    // Must be called outside the synchronization of this
-		    // object
-		    //
-		    _emitter->exception(*_exception.get());
-		}
-
 		//
 		// A CloseConnectionException indicates graceful
 		// server shutdown, and is therefore always repeatable
@@ -230,7 +230,7 @@ void
 IceInternal::Outgoing::finished(BasicStream& is)
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
-    assert(_state != StateUnsent);
+
     if (_state == StateInProgress)
     {
 	_is.swap(is);
@@ -267,13 +267,13 @@ IceInternal::Outgoing::finished(BasicStream& is)
 		_state = StateLocationForward;
 		break;
 	    }
-
+	    
 	    case DispatchProxyRequested:
 	    {
 		_state = StateProxyRequested;
 		break;
 	    }
-
+	    
 	    case DispatchObjectNotExist:
 	    {
 		_state = StateLocalException;
@@ -301,14 +301,14 @@ IceInternal::Outgoing::finished(BasicStream& is)
 		_exception = auto_ptr<LocalException>(new UnknownLocalException(__FILE__, __LINE__));
 		break;
 	    }
-
+	    
 	    case DispatchUnknownUserException:
 	    {
 		_state = StateLocalException;
 		_exception = auto_ptr<LocalException>(new UnknownUserException(__FILE__, __LINE__));
 		break;
 	    }
-
+	    
 	    case DispatchUnknownException:
 	    {
 		_state = StateLocalException;
@@ -323,6 +323,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 		break;
 	    }
 	}
+
 	notify();
     }
 }
@@ -331,7 +332,7 @@ void
 IceInternal::Outgoing::finished(const LocalException& ex)
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
-    assert(_state != StateUnsent);
+
     if (_state == StateInProgress)
     {
 	_state = StateLocalException;
