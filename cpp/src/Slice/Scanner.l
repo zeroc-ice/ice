@@ -380,6 +380,113 @@ using namespace Slice;
     return ICE_OP_IDENTIFIER;
 }
 
+\" {
+    // "..."-type strings
+    StringTokPtr str = new StringTok;
+    while (true)
+    {
+	char c = static_cast<char>(yyinput());
+	if (c == '"')
+	{
+	    break;
+	}
+	else if (c == EOF)
+	{
+	    unit->warning("EOF in string");
+	    break;
+	}
+	else if (c == '\n')
+	{
+	    str->v += c;
+	    unit->nextLine();
+	}
+	else if (c == '\\')
+	{
+	    char next = static_cast<char>(yyinput());
+	    switch (next)
+	    {
+		case '\\':
+		case '"':
+		{
+		    str->v += next;
+		    break;
+		}
+	    
+		case 'n':
+		{
+		    str->v += '\n';
+		    break;
+		}
+	    
+		case 'r':
+		{
+		    str->v += '\r';
+		    break;
+		}
+
+		case 't':
+		{
+		    str->v += '\t';
+		    break;
+		}
+	    
+		case 'v':
+		{
+		    str->v += '\v';
+		    break;
+		}
+	    
+		case 'f':
+		{
+		    str->v += '\f';
+		    break;
+		}
+	    
+		default:
+		{
+		    str->v += c;
+		    unput(next);
+		}
+	    }
+	}
+	else
+	{
+	    str->v += c;
+	}
+    }
+    *yylvalp = str;
+    return ICE_STRING_LITERAL;
+}
+
+\' {
+    // '...'-type strings
+    StringTokPtr str = new StringTok;
+    while (true)
+    {
+	char c = static_cast<char>(yyinput());
+	if (c == '\'')
+	{
+	    break;
+	}
+	else if (c == EOF)
+	{
+	    unit->warning("EOF in string");
+	    break;
+	}
+	else if (c == '\n')
+	{
+	    str->v += c;
+	    unit->nextLine();
+	}
+	else
+	{
+	    str->v += c;
+	}
+    }
+    *yylvalp = str;
+    return ICE_STRING_LITERAL;
+}
+
 [[:space:]] {
     // Igore white-space
     

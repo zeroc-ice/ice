@@ -58,6 +58,7 @@ yyerror(const char* s)
 //
 %token ICE_SCOPE_DELIMITOR
 %token ICE_IDENTIFIER
+%token ICE_STRING_LITERAL
 %token ICE_OP_IDENTIFIER
 %token ICE_OP_KEYWORD
 
@@ -72,16 +73,39 @@ start
 ;
 
 // ----------------------------------------------------------------------
+meta_data
+// ----------------------------------------------------------------------
+: '[' string_list ']'
+{
+    $$ = $2;
+}
+| '[' ']'
+{
+    $$ = new StringListTok;
+}
+|
+{
+    $$ = new StringListTok;
+}
+;
+
+// ----------------------------------------------------------------------
 definitions
 // ----------------------------------------------------------------------
-: definition ';' definitions
+: meta_data definition ';' definitions
 {
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
+    ContainedPtr contained = ContainedPtr::dynamicCast($2);
+    if (contained && !metaData->v.empty())
+    {
+	contained->setMetaData(metaData->v);
+    }
 }
 | error ';' definitions
 {
     yyerrok;
 }
-| definition
+| meta_data definition
 {
     unit->error("`;' missing after definition");
 }
@@ -211,13 +235,19 @@ exception_extends
 // ----------------------------------------------------------------------
 exception_exports
 // ----------------------------------------------------------------------
-: exception_export ';' exception_exports
+: meta_data exception_export ';' exception_exports
 {
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
+    ContainedPtr contained = ContainedPtr::dynamicCast($2);
+    if (contained && !metaData->v.empty())
+    {
+	contained->setMetaData(metaData->v);
+    }
 }
 | error ';' exception_exports
 {
 }
-| exception_export
+| meta_data exception_export
 {
     unit->error("`;' missing after definition");
 }
@@ -278,13 +308,19 @@ struct_def
 // ----------------------------------------------------------------------
 struct_exports
 // ----------------------------------------------------------------------
-: struct_export ';' struct_exports
+: meta_data struct_export ';' struct_exports
 {
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
+    ContainedPtr contained = ContainedPtr::dynamicCast($2);
+    if (contained && !metaData->v.empty())
+    {
+	contained->setMetaData(metaData->v);
+    }
 }
 | error ';' struct_exports
 {
 }
-| struct_export
+| meta_data struct_export
 {
     unit->error("`;' missing after definition");
 }
@@ -409,13 +445,19 @@ implements
 // ----------------------------------------------------------------------
 class_exports
 // ----------------------------------------------------------------------
-: class_export ';' class_exports
+: meta_data class_export ';' class_exports
 {
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
+    ContainedPtr contained = ContainedPtr::dynamicCast($2);
+    if (contained && !metaData->v.empty())
+    {
+	contained->setMetaData(metaData->v);
+    }
 }
 | error ';' class_exports
 {
 }
-| class_export
+| meta_data class_export
 {
     unit->error("`;' missing after definition");
 }
@@ -569,13 +611,19 @@ interface_extends
 // ----------------------------------------------------------------------
 interface_exports
 // ----------------------------------------------------------------------
-: interface_export ';' interface_exports
+: meta_data interface_export ';' interface_exports
 {
+    StringListTokPtr metaData = StringListTokPtr::dynamicCast($1);
+    ContainedPtr contained = ContainedPtr::dynamicCast($2);
+    if (contained && !metaData->v.empty())
+    {
+	contained->setMetaData(metaData->v);
+    }
 }
 | error ';' interface_exports
 {
 }
-| interface_export
+| meta_data interface_export
 {
     unit->error("`;' missing after definition");
 }
@@ -985,6 +1033,25 @@ return_type
 | type
 {
     $$ = $1;
+}
+;
+
+// ----------------------------------------------------------------------
+string_list
+// ----------------------------------------------------------------------
+: ICE_STRING_LITERAL ',' string_list
+{
+    StringTokPtr str = StringTokPtr::dynamicCast($1);
+    StringListTokPtr stringList = StringListTokPtr::dynamicCast($3);
+    $$ = stringList;
+    stringList->v.push_back(str->v);
+}
+| ICE_STRING_LITERAL
+{
+    StringTokPtr str = StringTokPtr::dynamicCast($1);
+    StringListTokPtr stringList = new StringListTok;
+    $$ = stringList;
+    stringList->v.push_back(str->v);
 }
 ;
 

@@ -107,15 +107,27 @@ Slice::Contained::scope()
 }
 
 string
+Slice::Contained::file()
+{
+    return _file;
+}
+
+string
 Slice::Contained::comment()
 {
     return _comment;
 }
 
-string
-Slice::Contained::file()
+list<string>
+Slice::Contained::getMetaData()
 {
-    return _file;
+    return _metaData;
+}
+
+void
+Slice::Contained::setMetaData(const list<string>& metaData)
+{
+    _metaData = metaData;
 }
 
 bool
@@ -143,8 +155,8 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
     _scoped += "::" + _name;				       
     assert(_unit);
     _unit->addContent(this);
-    _comment = _unit->currentComment();
     _file = _unit->currentFile();
+    _comment = _unit->currentComment();
 }
 
 // ----------------------------------------------------------------------

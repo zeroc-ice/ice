@@ -226,8 +226,10 @@ public:
     std::string name();
     std::string scoped();
     std::string scope();
-    std::string comment();
     std::string file();
+    std::string comment();
+    std::list<std::string> getMetaData();
+    void setMetaData(const std::list<std::string>&);
 
     enum ContainedType
     {
@@ -257,8 +259,9 @@ protected:
     ContainerPtr _container;
     std::string _name;
     std::string _scoped;
-    std::string _comment;
     std::string _file;
+    std::string _comment;
+    std::list<std::string> _metaData;
 };
 
 // ----------------------------------------------------------------------
