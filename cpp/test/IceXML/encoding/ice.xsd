@@ -2,7 +2,7 @@
 <!--
 **********************************************************************
 Copyright (c) 2001
-Mutable Realms, Inc.
+MutableRealms, Inc.
 Huntsville, AL, USA
 
 All Rights Reserved
@@ -40,9 +40,14 @@ All Rights Reserved
   <xs:element name="object" type="tns:_internal.objectType" nillable="true"/>
 
   <xs:complexType name="_internal.facetContentType">
+    <xs:annotation>
+      <xs:appinfo>
+        <type>struct</type>
+       </xs:appinfo>
+     </xs:annotation>
     <xs:sequence>
       <xs:element name="key" type="xs:string"/>
-      <xs:element name="value" type="tns:_internal.objectType"/>
+      <xs:element name="value" type="tns:_internal.reference"/>
     </xs:sequence>
   </xs:complexType>
 
@@ -61,6 +66,11 @@ All Rights Reserved
   <xs:element name="facet" type="tns:_internal.facetType"/>
 
   <xs:complexType name="dataType">
+    <xs:annotation>
+      <xs:appinfo>
+        <type>internal</type>
+       </xs:appinfo>
+     </xs:annotation>
     <xs:sequence>
        <xs:any namespace="##any" minOccurs="0" maxOccurs="unbounded"/>
     </xs:sequence>
@@ -69,8 +79,13 @@ All Rights Reserved
   <xs:element name="data" type="tns:dataType"/>
 
   <xs:complexType name="_internal.reference">
+    <xs:annotation>
+      <xs:appinfo>
+        <type>reference</type>
+       </xs:appinfo>
+     </xs:annotation>
     <xs:sequence/>
-    <xs:attribute name="href" type="xs:anyURI" use="required"/>
+    <xs:attribute name="href" type="xs:anyURI" use="optional"/>
   </xs:complexType>
 
 </xs:schema>

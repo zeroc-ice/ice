@@ -47,7 +47,7 @@ All Rights Reserved
      </xs:annotation>
     <xs:sequence>
       <xs:element name="key" type="xs:string"/>
-      <xs:element name="value" type="tns:_internal.objectType"/>
+      <xs:element name="value" type="tns:_internal.reference"/>
     </xs:sequence>
   </xs:complexType>
 
