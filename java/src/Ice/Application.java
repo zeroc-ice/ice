@@ -149,6 +149,24 @@ public abstract class Application
     synchronized public static void
     destroyOnInterrupt()
     {
+	//
+	// Remove the shutdown hook it's set.
+	//
+	if(_shutdownHook != null)
+	{
+	    try
+	    {
+		Runtime.getRuntime().removeShutdownHook(_shutdownHook);
+                _shutdownHook = null;
+	    }
+	    catch(java.lang.IllegalStateException ex)
+	    {
+		//
+		// Expected if we are in the process of shutting down.
+		//
+	    }
+	}
+
 	if(_destroyHook == null)
 	{
 	    //
@@ -174,6 +192,24 @@ public abstract class Application
     synchronized public static void
     shutdownOnInterrupt()
     {
+	//
+	// Remove the destroy hook if it's set.
+	//
+	if(_destroyHook != null)
+	{
+	    try
+	    {
+		Runtime.getRuntime().removeShutdownHook(_destroyHook);
+                _destroyHook = null;
+	    }
+	    catch(java.lang.IllegalStateException ex)
+	    {
+		//
+		// Expected if we are in the process of shutting down.
+		//
+	    }
+	}
+
 	if(_shutdownHook == null)
 	{
 	    //
@@ -205,6 +241,21 @@ public abstract class Application
 	    {
 		Runtime.getRuntime().removeShutdownHook(_shutdownHook);
                 _shutdownHook = null;
+	    }
+	    catch(java.lang.IllegalStateException ex)
+	    {
+		//
+		// Expected if we are in the process of shutting down.
+		//
+	    }
+	}
+
+	if(_destroyHook != null)
+	{
+	    try
+	    {
+		Runtime.getRuntime().removeShutdownHook(_destroyHook);
+                _destroyHook = null;
 	    }
 	    catch(java.lang.IllegalStateException ex)
 	    {
