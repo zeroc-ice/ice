@@ -133,6 +133,8 @@ if not skipDocs:
     os.chdir(cwd)
     os.mkdir(os.path.join("icecs", "doc"))
     os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icecs", "doc", "reference"))
+    os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icecs", "doc", "README.html"))
+    os.rename(os.path.join("ice", "doc", "images"), os.path.join("icecs", "doc", "images"))
 shutil.rmtree("ice")
 
 #
