@@ -130,49 +130,52 @@ public abstract class OutgoingAsync
     {
 	synchronized(_monitor)
 	{
-	    if(_reference.locatorInfo != null)
+	    if(_reference != null)
 	    {
-		_reference.locatorInfo.clearObjectCache(_reference);
-	    }
-	    
-	    boolean doRetry = false;
-	    
-	    //
-	    // A CloseConnectionException indicates graceful server
-	    // shutdown, and is therefore always repeatable without
-	    // violating "at-most-once". That's because by sending a
-	    // close connection message, the server guarantees that
-	    // all outstanding requests can safely be
-	    // repeated. Otherwise, we can also retry if the operation
-	    // mode Nonmutating or Idempotent.
-	    //
-	    if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent ||
-	       exc instanceof Ice.CloseConnectionException)
-	    {
-		try
+		if(_reference.locatorInfo != null)
 		{
-		    ProxyFactory proxyFactory = _reference.instance.proxyFactory();
-		    if(proxyFactory != null)
-		    {
-			_cnt = proxyFactory.checkRetryAfterException(exc, _cnt);
-		    }
-		    else
-		    {
-			throw exc; // The communicator is already destroyed, so we cannot retry.
-		    }
-		    
-		    doRetry = true;
+		    _reference.locatorInfo.clearObjectCache(_reference);
 		}
-		catch(Ice.LocalException ex)
+		
+		boolean doRetry = false;
+		
+		//
+		// A CloseConnectionException indicates graceful
+		// server shutdown, and is therefore always repeatable
+		// without violating "at-most-once". That's because by
+		// sending a close connection message, the server
+		// guarantees that all outstanding requests can safely
+		// be repeated. Otherwise, we can also retry if the
+		// operation mode Nonmutating or Idempotent.
+		//
+		if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent ||
+		   exc instanceof Ice.CloseConnectionException)
 		{
+		    try
+		    {
+			ProxyFactory proxyFactory = _reference.instance.proxyFactory();
+			if(proxyFactory != null)
+			{
+			    _cnt = proxyFactory.checkRetryAfterException(exc, _cnt);
+			}
+			else
+			{
+			    throw exc; // The communicator is already destroyed, so we cannot retry.
+			}
+			
+			doRetry = true;
+		    }
+		    catch(Ice.LocalException ex)
+		    {
+		    }
 		}
-	    }
-	    
-	    if(doRetry)
-	    {
-		_connection = null;
-		__send();
-		return;
+		
+		if(doRetry)
+		{
+		    _connection = null;
+		    __send();
+		    return;
+		}
 	    }
 	    
 	    try

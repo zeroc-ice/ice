@@ -156,47 +156,51 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(_monitor);
 
-    if(_reference->locatorInfo)
+    if(_reference)
     {
-	_reference->locatorInfo->clearObjectCache(_reference);
-    }
-    
-    bool doRetry = false;
-
-    //
-    // A CloseConnectionException indicates graceful server shutdown,
-    // and is therefore always repeatable without violating
-    // "at-most-once". That's because by sending a close connection
-    // message, the server guarantees that all outstanding requests
-    // can safely be repeated. Otherwise, we can also retry if the
-    // operation mode Nonmutating or Idempotent.
-    //
-    if(_mode == Nonmutating || _mode == Idempotent || dynamic_cast<const CloseConnectionException*>(&exc))
-    {
-	try
+	if(_reference->locatorInfo)
 	{
-	    ProxyFactoryPtr proxyFactory = _reference->instance->proxyFactory();
-	    if(proxyFactory)
-	    {
-		proxyFactory->checkRetryAfterException(exc, _cnt);
-	    }
-	    else
-	    {
-		exc.ice_throw(); // The communicator is already destroyed, so we cannot retry.
-	    }
-
-	    doRetry = true;
+	    _reference->locatorInfo->clearObjectCache(_reference);
 	}
-	catch(const LocalException&)
+	
+	bool doRetry = false;
+	
+	//
+	// A CloseConnectionException indicates graceful server
+	// shutdown, and is therefore always repeatable without
+	// violating "at-most-once". That's because by sending a close
+	// connection message, the server guarantees that all
+	// outstanding requests can safely be repeated. Otherwise, we
+	// can also retry if the operation mode Nonmutating or
+	// Idempotent.
+	//
+	if(_mode == Nonmutating || _mode == Idempotent || dynamic_cast<const CloseConnectionException*>(&exc))
 	{
+	    try
+	    {
+		ProxyFactoryPtr proxyFactory = _reference->instance->proxyFactory();
+		if(proxyFactory)
+		{
+		    proxyFactory->checkRetryAfterException(exc, _cnt);
+		}
+		else
+		{
+		    exc.ice_throw(); // The communicator is already destroyed, so we cannot retry.
+		}
+		
+		doRetry = true;
+	    }
+	    catch(const LocalException&)
+	    {
+	    }
 	}
-    }
-
-    if(doRetry)
-    {
-	_connection = 0;
-	__send();
-	return;
+	
+	if(doRetry)
+	{
+	    _connection = 0;
+	    __send();
+	    return;
+	}
     }
     
     try
