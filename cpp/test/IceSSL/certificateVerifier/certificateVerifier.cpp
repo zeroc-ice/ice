@@ -8,7 +8,8 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <Ice/CertificateVerifier.h>
 #include <Ice/CertificateVerifierOpenSSL.h>
 #include <Ice/SslException.h>
@@ -42,46 +43,27 @@ GoodCertificateVerifier::verify(int preVerifyOk, X509_STORE_CTX* certificateStor
 // certificateVerifierClient definition
 //
 
-class certificateVerifierClient : public Application
-{
-public:
-
-    virtual int run(int, char*[]);
-
-private:
-    PropertiesPtr _properties;
-    IceSSL::SystemPtr _system;
-
-    ::IceSSL::CertificateVerifierPtr _badVerifier;
-    ::IceSSL::CertificateVerifierPtr _goodVerifier;
-
-    void testExpectCertificateVerifierTypeException(IceSSL::ContextType, const IceSSL::CertificateVerifierPtr&);
-    void testExpectNoException(IceSSL::ContextType, const IceSSL::CertificateVerifierPtr&);
-};
-
 void
-certificateVerifierClient::testExpectCertificateVerifierTypeException(IceSSL::ContextType context,
-                                                                      const IceSSL::CertificateVerifierPtr& verifier)
+testExpectCertificateVerifierTypeException(const IceSSL::SystemPtr& system,
+                                           IceSSL::ContextType context,
+                                           const IceSSL::CertificateVerifierPtr& verifier)
 {
     try
     {
-        _system->setCertificateVerifier(context, verifier);
-        std::cout << "failed" << std::endl;
-        abort();
+        system->setCertificateVerifier(context, verifier);
+        test(false);
     }
     catch (const IceSSL::CertificateVerifierTypeException&)
     {
         std::cout << "ok" << std::endl;
     }
-    catch (const Ice::LocalException& localEx)
+    catch (const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << localEx << std::endl;
-        abort();
+        test(false);
     }
     catch (...)
     {
@@ -89,30 +71,27 @@ certificateVerifierClient::testExpectCertificateVerifierTypeException(IceSSL::Co
         // Unknown exceptions are always bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << "Unknown exception." << std::endl;
-        abort();
+        test(false);
     }
 }
 
 void
-certificateVerifierClient::testExpectNoException(IceSSL::ContextType context,
-                                                 const IceSSL::CertificateVerifierPtr& verifier)
+testExpectNoException(const IceSSL::SystemPtr& system,
+                      IceSSL::ContextType context,
+                      const IceSSL::CertificateVerifierPtr& verifier)
 {
     try
     {
-        _system->setCertificateVerifier(context, verifier);
+        system->setCertificateVerifier(context, verifier);
         std::cout << "ok" << std::endl;
     }
-    catch (const Ice::LocalException& localEx)
+    catch (const Ice::LocalException&)
     {
         //
         // Any other exception is bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << localEx << std::endl;
-        abort();
+        test(false);
     }
     catch (...)
     {
@@ -120,27 +99,17 @@ certificateVerifierClient::testExpectNoException(IceSSL::ContextType context,
         // Unknown exceptions are always bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << "Unknown exception." << std::endl;
-        abort();
+        test(false);
     }
 }
 
 int
-main(int argc, char* argv[])
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    certificateVerifierClient app;
-    return app.main(argc, argv, "");
-}
+    IceSSL::SystemPtr system = communicator->getSslSystem();
 
-int
-certificateVerifierClient::run(int argc, char* argv[])
-{
-    _properties = communicator()->getProperties();
-    _system = communicator()->getSslSystem();
-
-    _badVerifier  = new BadCertificateVerifier();
-    _goodVerifier = new GoodCertificateVerifier();
+    ::IceSSL::CertificateVerifierPtr badVerifier  = new BadCertificateVerifier();
+    ::IceSSL::CertificateVerifierPtr goodVerifier = new GoodCertificateVerifier();
 
     //
     // Testing IceSSL::Client context type.
@@ -149,10 +118,10 @@ certificateVerifierClient::run(int argc, char* argv[])
     std::cout << "Setting Certificate Verifiers on Client context." << std::endl;
 
     std::cout << "Setting verifier of wrong type... ";
-    testExpectCertificateVerifierTypeException(IceSSL::Client, _badVerifier);
+    testExpectCertificateVerifierTypeException(system, IceSSL::Client, badVerifier);
 
     std::cout << "Setting verifier of correct type... ";
-    testExpectNoException(IceSSL::Client, _goodVerifier);
+    testExpectNoException(system, IceSSL::Client, goodVerifier);
 
     //
     // Testing IceSSL::Server context type.
@@ -161,10 +130,10 @@ certificateVerifierClient::run(int argc, char* argv[])
     std::cout << "Setting Certificate Verifiers on Server context." << std::endl;
 
     std::cout << "Setting verifier of wrong type... ";
-    testExpectCertificateVerifierTypeException(IceSSL::Server, _badVerifier);
+    testExpectCertificateVerifierTypeException(system, IceSSL::Server, badVerifier);
 
     std::cout << "Setting verifier of correct type... ";
-    testExpectNoException(IceSSL::Server, _goodVerifier);
+    testExpectNoException(system, IceSSL::Server, goodVerifier);
 
     //
     // Testing IceSSL::ClientServer context type.
@@ -173,10 +142,43 @@ certificateVerifierClient::run(int argc, char* argv[])
     std::cout << "Setting Certificate Verifiers on Client and Server contexts." << std::endl;
 
     std::cout << "Setting verifier of wrong type... ";
-    testExpectCertificateVerifierTypeException(IceSSL::ClientServer, _badVerifier);
+    testExpectCertificateVerifierTypeException(system, IceSSL::ClientServer, badVerifier);
 
     std::cout << "Setting verifier of correct type... ";
-    testExpectNoException(IceSSL::ClientServer, _goodVerifier);
+    testExpectNoException(system, IceSSL::ClientServer, goodVerifier);
 
     return EXIT_SUCCESS;
+}
+
+int
+main(int argc, char* argv[])
+{
+    int status;
+    Ice::CommunicatorPtr communicator;
+
+    try
+    {
+	communicator = Ice::initialize(argc, argv);
+	status = run(argc, argv, communicator);
+    }
+    catch(const Ice::Exception& ex)
+    {
+	cerr << ex << endl;
+	status = EXIT_FAILURE;
+    }
+
+    if (communicator)
+    {
+	try
+	{
+	    communicator->destroy();
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    status = EXIT_FAILURE;
+	}
+    }
+
+    return status;
 }

@@ -8,7 +8,8 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <Ice/SslException.h>
 #include <Ice/System.h>
 
@@ -18,37 +19,24 @@
 using namespace std;
 using namespace Ice;
 
-class ConfigurationClient : public Application
-{
-public:
-
-    virtual int run(int, char*[]);
-    void testContextNoConfig(IceSSL::ContextType);
-    void testContextWithConfig(IceSSL::ContextType, const std::string&, const std::string&, bool expectFailure = true);
-};
-
-int
-main(int argc, char* argv[])
-{
-    ConfigurationClient app;
-    return app.main(argc, argv, "");
-}
-
+void testContextWithConfig(const Ice::CommunicatorPtr&, IceSSL::ContextType, const std::string&,
+                           const std::string&, bool expectFailure = true);
 
 void
-ConfigurationClient::testContextNoConfig(IceSSL::ContextType contextType)
+testContextNoConfig(const Ice::CommunicatorPtr& communicator, IceSSL::ContextType contextType)
 {
-    testContextWithConfig(contextType, "", "");
+    testContextWithConfig(communicator, contextType, "", "");
 }
 
 void
-ConfigurationClient::testContextWithConfig(IceSSL::ContextType contextType,
-                                           const std::string& clientFile,
-                                           const std::string& serverFile,
-                                           bool expectFailure)
+testContextWithConfig(const Ice::CommunicatorPtr& communicator,
+                      IceSSL::ContextType contextType,
+                      const std::string& clientFile,
+                      const std::string& serverFile,
+                      bool expectFailure)
 {
-    PropertiesPtr properties = communicator()->getProperties();
-    IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
+    PropertiesPtr properties = communicator->getProperties();
+    IceSSL::SystemPtr sslSystem = communicator->getSslSystem();
 
     std::string contextString;
 
@@ -105,15 +93,14 @@ ConfigurationClient::testContextWithConfig(IceSSL::ContextType contextType,
 
         if (expectFailure)
         {
-            std::cout << "failed" << std::endl;
-            abort();
+            test(false);
         }
         else
         {
             std::cout << "ok" << std::endl;
         }
     }
-    catch (const IceSSL::ConfigurationLoadingException& configEx)
+    catch (const IceSSL::ConfigurationLoadingException&)
     {
         //
         // Depending on the context type, and if we supplied
@@ -130,9 +117,7 @@ ConfigurationClient::testContextWithConfig(IceSSL::ContextType contextType,
                 }
                 else
                 {
-                    std::cout << "failed" << std::endl;
-                    std::cout << configEx << std::endl;
-                    abort();
+                    test(false);
                 }
                 break;
             }
@@ -145,9 +130,7 @@ ConfigurationClient::testContextWithConfig(IceSSL::ContextType contextType,
                 }
                 else
                 {
-                    std::cout << "failed" << std::endl;
-                    std::cout << configEx << std::endl;
-                    abort();
+                    test(false);
                 }
                 break;
             }
@@ -160,23 +143,19 @@ ConfigurationClient::testContextWithConfig(IceSSL::ContextType contextType,
                 }
                 else
                 {
-                    std::cout << "failed" << std::endl;
-                    std::cout << configEx << std::endl;
-                    abort();
+                    test(false);
                 }
                 break;
             }
         }
     }
-    catch (const LocalException& localEx)
+    catch (const LocalException&)
     {
         //
         // Any other exception is bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << localEx << std::endl;
-        abort();
+        test(false);
     }
     catch (...)
     {
@@ -184,29 +163,60 @@ ConfigurationClient::testContextWithConfig(IceSSL::ContextType contextType,
         // Unknown exceptions are always bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << "Unknown exception." << std::endl;
-        abort();
+        test(false);
     }
 }
 
 int
-ConfigurationClient::run(int argc, char* argv[])
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     // Testing Client context.
-    testContextNoConfig(IceSSL::Client);
-    testContextWithConfig(IceSSL::Client,"client_sslconfig.xml","");
+    testContextNoConfig(communicator, IceSSL::Client);
+    testContextWithConfig(communicator, IceSSL::Client,"client_sslconfig.xml","", false);
 
     // Testing Server context.
-    testContextNoConfig(IceSSL::Server);
-    testContextWithConfig(IceSSL::Server,"","server_sslconfig.xml");
+    testContextNoConfig(communicator, IceSSL::Server);
+    testContextWithConfig(communicator, IceSSL::Server,"","server_sslconfig.xml", false);
 
     // Testing ClientServer context.
-    testContextNoConfig(IceSSL::ClientServer);
-    testContextWithConfig(IceSSL::ClientServer, "client_sslconfig.xml", "");
-    testContextWithConfig(IceSSL::ClientServer, "", "server_sslconfig.xml");
-    testContextWithConfig(IceSSL::ClientServer, "client_sslconfig.xml", "server_sslconfig.xml");
-    testContextWithConfig(IceSSL::ClientServer, "sslconfig.xml", "sslconfig.xml", false);
+    testContextNoConfig(communicator, IceSSL::ClientServer);
+    testContextWithConfig(communicator, IceSSL::ClientServer, "client_sslconfig.xml", "");
+    testContextWithConfig(communicator, IceSSL::ClientServer, "", "server_sslconfig.xml");
+    testContextWithConfig(communicator, IceSSL::ClientServer, "client_sslconfig.xml", "server_sslconfig.xml", false);
+    testContextWithConfig(communicator, IceSSL::ClientServer, "sslconfig.xml", "sslconfig.xml", false);
 
     return EXIT_SUCCESS;
+}
+
+int
+main(int argc, char* argv[])
+{
+    int status;
+    Ice::CommunicatorPtr communicator;
+
+    try
+    {
+	communicator = Ice::initialize(argc, argv);
+	status = run(argc, argv, communicator);
+    }
+    catch(const Ice::Exception& ex)
+    {
+	cerr << ex << endl;
+	status = EXIT_FAILURE;
+    }
+
+    if (communicator)
+    {
+	try
+	{
+	    communicator->destroy();
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    status = EXIT_FAILURE;
+	}
+    }
+
+    return status;
 }

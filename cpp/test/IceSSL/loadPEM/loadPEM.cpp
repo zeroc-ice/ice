@@ -8,46 +8,26 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <Ice/SslException.h>
 #include <Ice/System.h>
 
 using namespace std;
 using namespace Ice;
 
-class PEMLoadingClient : public Application
-{
-public:
-
-    virtual int run(int, char*[]);
-
-    void testExpectCertificateAndPrivateKeyLoadException(const std::string&);
-    void testExpectPrivateKeyLoadException(const std::string&);
-    void testExpectCertificateLoadException(const std::string&);
-    void testExpectCertificateKeyMatchException(const std::string&);
-    void testNoException(const std::string&);
-
-private:
-    PropertiesPtr _properties;
-    IceSSL::SystemPtr _system;
-};
-
-int
-main(int argc, char* argv[])
-{
-    PEMLoadingClient app;
-    return app.main(argc, argv, "");
-}
-
 void
-PEMLoadingClient::testExpectCertificateAndPrivateKeyLoadException(const std::string& configFile)
+testExpectCertificateAndPrivateKeyLoadException(const Ice::CommunicatorPtr& communicator,
+                                                const std::string& configFile)
 {
+    PropertiesPtr properties = communicator->getProperties();
+    IceSSL::SystemPtr system = communicator->getSslSystem();
+
     try
     {
-        _properties->setProperty("Ice.SSL.Client.Config", configFile);
-        _system->configure(IceSSL::Client);
-        std::cout << "failed" << std::endl;
-        abort();
+        properties->setProperty("Ice.SSL.Client.Config", configFile);
+        system->configure(IceSSL::Client);
+        test(false);
     }
     catch (const IceSSL::OpenSSL::CertificateLoadException&)
     {
@@ -57,15 +37,13 @@ PEMLoadingClient::testExpectCertificateAndPrivateKeyLoadException(const std::str
     {
         std::cout << "ok" << std::endl;
     }
-    catch (const LocalException& localEx)
+    catch (const LocalException&)
     {
         //
         // Any other exception is bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << localEx << std::endl;
-        abort();
+        test(false);
     }
     catch (...)
     {
@@ -73,35 +51,33 @@ PEMLoadingClient::testExpectCertificateAndPrivateKeyLoadException(const std::str
         // Unknown exceptions are always bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << "Unknown exception." << std::endl;
-        abort();
+        test(false);
     }
 }
 
 void
-PEMLoadingClient::testExpectPrivateKeyLoadException(const std::string& configFile)
+testExpectPrivateKeyLoadException(const Ice::CommunicatorPtr& communicator, const std::string& configFile)
 {
+    PropertiesPtr properties = communicator->getProperties();
+    IceSSL::SystemPtr system = communicator->getSslSystem();
+
     try
     {
-        _properties->setProperty("Ice.SSL.Client.Config", configFile);
-        _system->configure(IceSSL::Client);
-        std::cout << "failed" << std::endl;
-        abort();
+        properties->setProperty("Ice.SSL.Client.Config", configFile);
+        system->configure(IceSSL::Client);
+        test(false);
     }
     catch (const IceSSL::OpenSSL::PrivateKeyLoadException&)
     {
         std::cout << "ok" << std::endl;
     }
-    catch (const LocalException& localEx)
+    catch (const LocalException&)
     {
         //
         // Any other exception is bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << localEx << std::endl;
-        abort();
+        test(false);
     }
     catch (...)
     {
@@ -109,35 +85,33 @@ PEMLoadingClient::testExpectPrivateKeyLoadException(const std::string& configFil
         // Unknown exceptions are always bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << "Unknown exception." << std::endl;
-        abort();
+        test(false);
     }
 }
 
 void
-PEMLoadingClient::testExpectCertificateLoadException(const std::string& configFile)
+testExpectCertificateLoadException(const Ice::CommunicatorPtr& communicator, const std::string& configFile)
 {
+    PropertiesPtr properties = communicator->getProperties();
+    IceSSL::SystemPtr system = communicator->getSslSystem();
+
     try
     {
-        _properties->setProperty("Ice.SSL.Client.Config", configFile);
-        _system->configure(IceSSL::Client);
-        std::cout << "failed" << std::endl;
-        abort();
+        properties->setProperty("Ice.SSL.Client.Config", configFile);
+        system->configure(IceSSL::Client);
+        test(false);
     }
     catch (const IceSSL::OpenSSL::CertificateLoadException&)
     {
         std::cout << "ok" << std::endl;
     }
-    catch (const LocalException& localEx)
+    catch (const LocalException&)
     {
         //
         // Any other exception is bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << localEx << std::endl;
-        abort();
+        test(false);
     }
     catch (...)
     {
@@ -145,35 +119,33 @@ PEMLoadingClient::testExpectCertificateLoadException(const std::string& configFi
         // Unknown exceptions are always bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << "Unknown exception." << std::endl;
-        abort();
+        test(false);
     }
 }
 
 void
-PEMLoadingClient::testExpectCertificateKeyMatchException(const std::string& configFile)
+testExpectCertificateKeyMatchException(const Ice::CommunicatorPtr& communicator, const std::string& configFile)
 {
+    PropertiesPtr properties = communicator->getProperties();
+    IceSSL::SystemPtr system = communicator->getSslSystem();
+
     try
     {
-        _properties->setProperty("Ice.SSL.Client.Config", configFile);
-        _system->configure(IceSSL::Client);
-        std::cout << "failed" << std::endl;
-        abort();
+        properties->setProperty("Ice.SSL.Client.Config", configFile);
+        system->configure(IceSSL::Client);
+        test(false);
     }
     catch (const IceSSL::OpenSSL::CertificateKeyMatchException&)
     {
         std::cout << "ok" << std::endl;
     }
-    catch (const LocalException& localEx)
+    catch (const LocalException&)
     {
         //
         // Any other exception is bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << localEx << std::endl;
-        abort();
+        test(false);
     }
     catch (...)
     {
@@ -181,30 +153,29 @@ PEMLoadingClient::testExpectCertificateKeyMatchException(const std::string& conf
         // Unknown exceptions are always bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << "Unknown exception." << std::endl;
-        abort();
+        test(false);
     }
 }
 
 void
-PEMLoadingClient::testNoException(const std::string& configFile)
+testNoException(const Ice::CommunicatorPtr& communicator, const std::string& configFile)
 {
+    PropertiesPtr properties = communicator->getProperties();
+    IceSSL::SystemPtr system = communicator->getSslSystem();
+
     try
     {
-        _properties->setProperty("Ice.SSL.Client.Config", configFile);
-        _system->configure(IceSSL::Client);
+        properties->setProperty("Ice.SSL.Client.Config", configFile);
+        system->configure(IceSSL::Client);
         std::cout << "ok" << std::endl;
     }
-    catch (const LocalException& localEx)
+    catch (const LocalException&)
     {
         //
         // Any other exception is bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << localEx << std::endl;
-        abort();
+        test(false);
     }
     catch (...)
     {
@@ -212,37 +183,66 @@ PEMLoadingClient::testNoException(const std::string& configFile)
         // Unknown exceptions are always bad.
         //
 
-        std::cout << "failed" << std::endl;
-        std::cout << "Unknown exception." << std::endl;
-        abort();
+        test(false);
     }
 }
 
 int
-PEMLoadingClient::run(int argc, char* argv[])
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    _properties = communicator()->getProperties();
-    _system = communicator()->getSslSystem();
-
-    _properties->setProperty("Ice.SSL.Client.CertPath", "../certs");
+    PropertiesPtr properties = communicator->getProperties();
+    properties->setProperty("Ice.SSL.Client.CertPath", "../certs");
 
     std::cout << "Bad private key and certificate... ";
-    testExpectCertificateAndPrivateKeyLoadException("sslconfig_1.xml");
+    testExpectCertificateAndPrivateKeyLoadException(communicator, "sslconfig_1.xml");
 
     std::cout << "Bad private key and good certificate 1... ";
-    testExpectPrivateKeyLoadException("sslconfig_2.xml");
+    testExpectPrivateKeyLoadException(communicator, "sslconfig_2.xml");
 
     std::cout << "Good private key 1 and bad certificate... ";
-    testExpectCertificateLoadException("sslconfig_3.xml");
+    testExpectCertificateLoadException(communicator, "sslconfig_3.xml");
 
     std::cout << "Good private key 1 and good certificate 2, mismatched... ";
-    testExpectCertificateKeyMatchException("sslconfig_4.xml");
+    testExpectCertificateKeyMatchException(communicator, "sslconfig_4.xml");
 
     std::cout << "Good private key 2 and good certificate 1, mismatched (again)... ";
-    testExpectCertificateKeyMatchException("sslconfig_5.xml");
+    testExpectCertificateKeyMatchException(communicator, "sslconfig_5.xml");
 
     std::cout << "Good matched private key and certificate... ";
-    testNoException("sslconfig_6.xml");
+    testNoException(communicator, "sslconfig_6.xml");
 
     return EXIT_SUCCESS;
+}
+
+int
+main(int argc, char* argv[])
+{
+    int status;
+    Ice::CommunicatorPtr communicator;
+
+    try
+    {
+	communicator = Ice::initialize(argc, argv);
+	status = run(argc, argv, communicator);
+    }
+    catch(const Ice::Exception& ex)
+    {
+	cerr << ex << endl;
+	status = EXIT_FAILURE;
+    }
+
+    if (communicator)
+    {
+	try
+	{
+	    communicator->destroy();
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	    status = EXIT_FAILURE;
+	}
+    }
+
+    return status;
 }
