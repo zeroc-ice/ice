@@ -13,18 +13,7 @@
 #
 # **********************************************************************
 
-import os, sys, fnmatch, re
-
-#
-# Remove a file or directory (recursive).
-#
-def rm(path):
-    if os.path.isdir(path) and not os.path.islink(path):
-        for x in os.listdir(path):
-            rm(os.path.join(path, x))
-        os.rmdir(path)
-    else:
-        os.remove(path)
+import os, sys, shutil, fnmatch, re
 
 #
 # Find files matching a pattern.
@@ -54,10 +43,11 @@ for x in sys.argv[1:]:
 #
 # Remove any existing "dist" directory and create a new one.
 #
-if os.path.exists("dist"):
-    rm("dist")
-os.mkdir("dist")
-os.chdir("dist")
+distdir = "dist"
+if os.path.exists(distdir):
+    shutil.rmtree(distdir)
+os.mkdir(distdir)
+os.chdir(distdir)
 
 #
 # Export sources from CVS.
@@ -71,7 +61,7 @@ filesToRemove = [ \
     "ice/makedist.py", \
     ]
 for x in filesToRemove:
-    rm(x)
+    os.remove(x)
 
 #
 # Generate bison files.
@@ -103,15 +93,14 @@ for x in scanners:
 #
 # Get Ice version.
 #
-config = open("ice/include/IceUtil/Config.h", "r")
+config = open(os.path.join("ice", "include", "IceUtil", "Config.h"), "r")
 version = re.search("ICE_STRING_VERSION \"(.*)\"", config.read()).group(1)
 
 #
 # Create archives.
 #
 icever = "Ice-" + version
-os.mkdir(icever)
-os.rename("ice", os.path.join(icever, "ice"))
+os.rename("ice", icever)
 os.system("tar cvzf " + icever + ".tar.gz " + icever)
 os.system("zip -9r " + icever + ".zip " + icever)
 
@@ -122,4 +111,4 @@ os.system("zip -9r " + icever + ".zip " + icever)
 #
 # Done.
 #
-rm(icever)
+shutil.rmtree(icever)
