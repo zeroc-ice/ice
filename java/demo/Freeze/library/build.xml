@@ -1,20 +1,21 @@
-<project name="demo_Ice_hello" default="all" basedir=".">
+<project name="demo_Freeze_library" default="all" basedir=".">
+
+    <!-- get access to env variables globally -->
+    <property environment="env" />
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
     <property name="lib.dir" value="${top.dir}/lib"/>
-    <property name="slice.dir" value="${top.dir}/../ice/slice"/>
+    <property name="slice.dir" value="${env.ICE_HOME}/slice"/>
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
     <property name="tags.dir" value="${generated.dir}/.tags"/>
 
     <!-- install slice2java task -->
-    <taskdef name="slice2java" classpath="${top.dir}/ant"
-        classname="Slice2JavaTask" />
+    <taskdef name="slice2java" classpath="${top.dir}/ant" classname="Slice2JavaTask" />
 
     <!-- install slice2freezej task -->
-    <taskdef name="slice2freezej" classpath="${top.dir}/ant"
-        classname="Slice2FreezeJTask" />
+    <taskdef name="slice2freezej" classpath="${top.dir}/ant" classname="Slice2FreezeJTask" />
 
     <target name="init">
         <!-- Create the time stamp -->

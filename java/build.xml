@@ -1,5 +1,8 @@
 <project name="main" default="all" basedir=".">
 
+    <!-- get access to env variables globally -->
+    <property environment="env" />
+
     <!-- install slice2java task -->
     <taskdef name="slice2java" classpath="ant" classname="Slice2JavaTask" />
 
@@ -7,7 +10,7 @@
     <taskdef name="slice2freezej" classpath="ant" classname="Slice2FreezeJTask" />
 
     <!-- set global properties for this build -->
-    <property name="slice.dir" value="../ice/slice"/>
+    <property name="slice.dir" value="${env.ICE_HOME}/slice"/>
     <property name="src.dir" value="src"/>
     <property name="lib.dir" value="lib"/>
     <property name="generated.dir" value="generated"/>

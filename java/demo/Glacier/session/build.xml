@@ -1,16 +1,18 @@
 <project name="demo_Glacier_session" default="all" basedir=".">
 
+    <!-- get access to env variables globally -->
+    <property environment="env" />
+
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
-    <property name="slice.dir" value="${top.dir}/../ice/slice"/>
+    <property name="slice.dir" value="${env.ICE_HOME}/slice"/>
     <property name="lib.dir" value="${top.dir}/lib"/>
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
     <property name="tags.dir" value="${generated.dir}/.tags"/>
 
     <!-- install slice2java task -->
-    <taskdef name="slice2java" classpath="${top.dir}/ant"
-        classname="Slice2JavaTask" />
+    <taskdef name="slice2java" classpath="${top.dir}/ant" classname="Slice2JavaTask" />
 
     <target name="init">
         <!-- Create the time stamp -->
