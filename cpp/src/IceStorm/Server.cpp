@@ -60,7 +60,8 @@ main(int argc, char* argv[])
     // found.
     //
     string dbdir = "db";
-    for (int i = 1; i < argc; ++i)
+    int i = 1;
+    while (i < argc)
     {
 	if (strcmp(argv[i], "--dbdir") == 0)
 	{
@@ -79,7 +80,10 @@ main(int argc, char* argv[])
 		++i;
 	    }
 	    argc -= 2;
-	    break;
+	}
+	else
+	{
+	    ++i;
 	}
     }
     

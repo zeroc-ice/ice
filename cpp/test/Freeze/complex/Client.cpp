@@ -47,6 +47,7 @@ validate(const DBPtr& db)
 	test(root->calc() == p->first.result);
     }
     cout << "ok" << endl;
+
     return EXIT_SUCCESS;
 }
 
