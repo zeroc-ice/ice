@@ -166,11 +166,18 @@ Glacier::RouterApp::run(int argc, char* argv[])
 
 extern "C"
 {
+
 static void
 childHandler(int)
 {
+    //
+    // Call wait to de-allocate any ressources allocated for the child
+    // process and avoid zombie processes. See man wait or waitpid for
+    // more information.
+    //
     wait(0);
 }
+
 }
 
 int

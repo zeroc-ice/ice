@@ -57,7 +57,8 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator, const PasswordV
     Int bitStrength = _properties->getPropertyAsIntWithDefault(
 	"Glacier.Starter.Certificate.BitStrength", 1024);
     Int secondsValid = _properties->getPropertyAsIntWithDefault(
-	"Glacier.Starter.Certificate.SecondsValid", static_cast<Int>(IceSSL::RSACertificateGenContext::daysToSeconds(1)));
+	"Glacier.Starter.Certificate.SecondsValid",
+	static_cast<Int>(IceSSL::RSACertificateGenContext::daysToSeconds(1)));
     Int issuedAdjust = _properties->getPropertyAsIntWithDefault("Glacier.Starter.Certificate.IssuedAdjust", 0);
     
     _certContext.setCountry(country);
@@ -283,6 +284,14 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
     if(pid == 0) // Child process.
     {
+#ifdef __linux
+	//
+	// Create a process group for this child, to be able to send 
+	// a signal to all the thread-processes with killpg
+	//
+	setpgrp();
+#endif
+
 	//
 	// Close all filedescriptors, except for standard input,
 	// standard output, standard error output, and the write side
@@ -325,6 +334,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    string msg = "can't execute `" + path + "': " + strerror(errno);
 	    write(fds[1], msg.c_str(), msg.length());
 	    close(fds[1]);
+	    //sleep(100000); //XXX
 	    exit(EXIT_FAILURE);
 	}
     }

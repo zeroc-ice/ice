@@ -211,9 +211,9 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	ex.error = getSystemErrno();
 	throw ex;
     }
+
     if(pid == 0) // Child process.
     {
-
 #ifdef __linux
 	//
 	// Create a process group for this child, to be able to send 
@@ -221,6 +221,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	//
 	setpgrp();
 #endif
+
 	//
 	// Close all file descriptors, except for standard input,
 	// standard output, standard error output, and the write side
