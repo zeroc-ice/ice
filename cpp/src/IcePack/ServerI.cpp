@@ -657,6 +657,15 @@ ServerI::stopInternal(const Ice::Current& current)
 	{
 	    while(!_process)
 	    {
+		if(_state == Inactive || _state == Destroyed)
+		{
+		    //
+		    // State changed to inactive or destroyed, the server
+		    // has been correctly deactivated, we can return.
+		    //
+		    return;
+		}
+
 		//
 		// Wait for the process to be set.
 		//
