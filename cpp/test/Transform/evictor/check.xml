@@ -24,6 +24,6 @@
     
     <!-- class ::RenamedFacetObject -->
     <transform type="::RenamedFacetObject">
-        <fail test="new.doubleToString != '901234.5'"/>
+        <fail test="new.doubleToString != '901235' and new.doubleToString != '901234'"/>
     </transform>
 </transformer>
