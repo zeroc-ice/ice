@@ -199,15 +199,8 @@ public final class Util
 
         if(_localAddress == null)
         {
-            java.net.InetAddress addr = null;
-            try
-            {
-                addr = java.net.InetAddress.getLocalHost();
-            }
-            catch(java.net.UnknownHostException ex)
-            {
-                throw new DNSException();
-            }
+            java.net.InetAddress addr = IceInternal.Network.getLocalAddress();
+
             byte[] ip = addr.getAddress();
             _localAddress = "";
             for(int i = 0; i < ip.length; i++)

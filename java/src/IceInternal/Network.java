@@ -381,25 +381,63 @@ public final class Network
     public static String
     getLocalHost(boolean numeric)
     {
-        String host;
+        java.net.InetAddress addr = getLocalAddress();
+
+        return numeric ? addr.getHostAddress() : addr.getHostName();
+    }
+
+    public static java.net.InetAddress
+    getLocalAddress()
+    {
+        java.net.InetAddress addr = null;
 
         try
         {
-            if(!numeric)
-            {
-                host = java.net.InetAddress.getLocalHost().getHostName();
-            }
-            else
-            {
-                host = java.net.InetAddress.getLocalHost().getHostAddress();
-            }
+            addr = java.net.InetAddress.getLocalHost();
         }
         catch(java.net.UnknownHostException ex)
         {
-            throw new Ice.DNSException();
+            //
+            // UnknownHostException may be raised on DHCP systems, so
+            // we iterate over the network interfaces and pick an IP
+            // address (preferably not the loopback address).
+            //
+            java.net.InetAddress loopback = null;
+            try
+            {
+                java.util.Enumeration ni = java.net.NetworkInterface.getNetworkInterfaces();
+                while(addr == null && ni.hasMoreElements())
+                {
+                    java.net.NetworkInterface i = (java.net.NetworkInterface)ni.nextElement();
+                    java.util.Enumeration addrs = i.getInetAddresses();
+                    while(addr == null && addrs.hasMoreElements())
+                    {
+                        java.net.InetAddress a = (java.net.InetAddress)addrs.nextElement();
+                        if(!a.isLoopbackAddress())
+                        {
+                            addr = a;
+                        }
+                        else
+                        {
+                            loopback = a;
+                        }
+                    }
+                }
+            }
+            catch(java.net.SocketException e)
+            {
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+
+            if(addr == null)
+            {
+                addr = loopback; // Use the loopback address as the last resort.
+            }
         }
 
-        return host;
+        return addr;
     }
 
     public static final class SocketPair
