@@ -863,7 +863,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 		{
 		    _acceptor->close();
 		}
-		catch(const LocalException& ex)
+		catch(const LocalException&)
 		{
 		    // Here we ignore any exceptions in close().
 		}
