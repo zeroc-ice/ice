@@ -22,9 +22,12 @@
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/Janitor.hpp>
 #include <xercesc/framework/MemBufInputSource.hpp>
+#include <xercesc/framework/LocalFileInputSource.hpp>
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/SAXParseException.hpp>
+
+#include <set>
 
 #include <sys/stat.h>
 
@@ -1159,13 +1162,13 @@ private:
     //
     // Load all schemas in a list of directories.
     //
-    void load(DocumentMap&, const string&, const Ice::StringSeq&);
+    void load(DocumentMap&, set<string>&, const string&, const Ice::StringSeq&);
 
     //
     // Schema import/include handling.
     //
-    void import(DocumentMap&, const string&, const string&, const Ice::StringSeq&);
-    void processImport(DOMDocument*, DocumentMap&, const Ice::StringSeq&);
+    void import(DocumentMap&, set<string>&, const string&, const string&, const Ice::StringSeq&);
+    void processImport(DOMDocument*, DocumentMap&, set<string>&, const Ice::StringSeq&);
 
     //
     // Element processing.
@@ -1250,6 +1253,12 @@ private:
     // transform.
     //
     TransformMap _defaultInitializedTransforms;
+
+    //
+    // Set of already imported file.
+    //
+    set<string> _fromImportedFiles;
+    set<string> _toImportedFiles;
 
     //
     // Why won't MSVC allow name to be a string?
@@ -1348,11 +1357,11 @@ XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc,
     Ice::StringSeq::size_type i;
     for(i = 0; i < loadFrom.size(); i++)
     {
-        load(_fromDocs, loadFrom[i], pathFrom);
+        load(_fromDocs, _fromImportedFiles, loadFrom[i], pathFrom);
     }
     for(i = 0; i < loadTo.size(); i++)
     {
-        load(_toDocs, loadTo[i], pathTo);
+        load(_toDocs, _toImportedFiles, loadTo[i], pathTo);
     }
 
     //
@@ -1373,8 +1382,8 @@ XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc,
     //
     // Process the import/include declarations for the source schema documents.
     //
-    processImport(fromDoc, _fromDocs, pathFrom);
-    processImport(toDoc, _toDocs, pathTo);
+    processImport(fromDoc, _fromDocs, _fromImportedFiles, pathFrom);
+    processImport(toDoc, _toDocs, _toImportedFiles, pathTo);
 
     //
     // Finally process each element from the old schema document.
@@ -1386,7 +1395,8 @@ XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc,
 }
 
 void
-XMLTransform::TransformFactory::load(DocumentMap& documents, const string& path, const Ice::StringSeq& paths)
+XMLTransform::TransformFactory::load(DocumentMap& documents, set<string>& importedFiles, const string& path, 
+				     const Ice::StringSeq& paths)
 {
     //
     // If the path ends in ".xsd", then assume it's a schema file
@@ -1399,7 +1409,7 @@ XMLTransform::TransformFactory::load(DocumentMap& documents, const string& path,
     //
     if(path.rfind(".xsd") != string::npos)
     {
-        import(documents, "", path, paths);
+        import(documents, importedFiles, "", path, paths);
     }
     else
     {
@@ -1432,12 +1442,12 @@ XMLTransform::TransformFactory::load(DocumentMap& documents, const string& path,
             {
                 if(name != ".." && name != ".")
                 {
-                    load(documents, fullPath, paths); // Recurse through subdirectories
+                    load(documents, importedFiles, fullPath, paths); // Recurse through subdirectories
                 }
             }
             else if(S_ISREG(buf.st_mode) && name.rfind(".xsd") != string::npos)
             {
-                import(documents, "", fullPath, paths);
+                import(documents, importedFiles, "", fullPath, paths);
             }
 
             if(_findnext(h, &data) == -1)
@@ -1487,12 +1497,12 @@ XMLTransform::TransformFactory::load(DocumentMap& documents, const string& path,
             {
                 if(name != ".." && name != ".")
                 {
-                    load(documents, fullPath, paths); // Recurse through subdirectories
+                    load(documents, importedFiles, fullPath, paths); // Recurse through subdirectories
                 }
             }
             else if(S_ISREG(buf.st_mode) && name.rfind(".xsd") != string::npos)
             {
-                import(documents, "", fullPath, paths);
+                import(documents, importedFiles, "", fullPath, paths);
             }
         }
         
@@ -1503,9 +1513,27 @@ XMLTransform::TransformFactory::load(DocumentMap& documents, const string& path,
 }
 
 void
-XMLTransform::TransformFactory::import(DocumentMap& documents, const string& ns, const string& loc,
-                                       const Ice::StringSeq& paths)
+XMLTransform::TransformFactory::import(DocumentMap& documents, set<string>& importedFiles, const string& ns, 
+				       const string& loc, const Ice::StringSeq& paths)
 {
+    //
+    // Find the file and ensure we didn't already imported it.
+    //
+    string file = findFile(loc, paths);
+
+    ArrayJanitor<XMLCh> s(XMLString::transcode(file.c_str()));
+    LocalFileInputSource source(s.get());
+
+    string systemId = toString(source.getSystemId());
+
+    if(importedFiles.find(systemId) != importedFiles.end())
+    {
+	//
+	// Already imported, nothing to do.
+	//
+	return;
+    }
+
     DOMTreeErrorReporter errorReporter;
     XercesDOMParser parser;
     parser.setValidationScheme(AbstractDOMParser::Val_Never);
@@ -1514,8 +1542,7 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, const string& ns,
 
     try
     {
-        string file = findFile(loc, paths);
-        parser.parse(file.c_str());
+        parser.parse(source);
     }
     catch(const XMLException& ex)
     {
@@ -1557,13 +1584,19 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, const string& ns,
     documents.insert(make_pair(info->getTargetNamespace(), info));
 
     //
+    // Add the file to the list of imported files.
+    //
+    importedFiles.insert(systemId);
+
+    //
     // Process any imports or includes in the imported document.
     //
-    processImport(document, documents, paths);
+    processImport(document, documents, importedFiles, paths);
 }
 
 void
-XMLTransform::TransformFactory::processImport(DOMDocument* parent, DocumentMap& documents, const Ice::StringSeq& paths)
+XMLTransform::TransformFactory::processImport(DOMDocument* parent, DocumentMap& documents, 
+					      set<string>& importedFiles, const Ice::StringSeq& paths)
 {
     DOMNode* schema = findSchemaRoot(parent);
     assert(schema);
@@ -1577,13 +1610,13 @@ XMLTransform::TransformFactory::processImport(DOMDocument* parent, DocumentMap& 
 	    string ns = getAttributeByName(child, "namespace");
 	    string loc = getAttributeByName(child, "schemaLocation");
 	    
-	    import(documents, ns, loc, paths);
+	    import(documents, importedFiles, ns, loc, paths);
 	}
         else if(nodeName == includeElementName)
 	{
 	    string loc = getAttributeByName(child, "schemaLocation");
 	    
-	    import(documents, "", loc, paths);
+	    import(documents, importedFiles, "", loc, paths);
 	}
 	child = child->getNextSibling();
     }
