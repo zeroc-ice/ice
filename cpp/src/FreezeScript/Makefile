@@ -47,7 +47,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) $(DB_FLAGS) 
 
-$(TRANSFORMDB): $(TRANSFORM_OBJS) $(OBJS)
+$(TRANSFORMDB): $(TRANSFORM_OBJS) $(COMMON_OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(TRANSFORM_OBJS) $(COMMON_OBJS) -lSlice -lIceXML $(LIBS) $(DB_LIBS)
 
