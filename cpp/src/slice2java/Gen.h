@@ -99,6 +99,11 @@ protected:
     //
     void writeHashCode(Output&, const TypePtr&, const std::string&, int&);
 
+    //
+    // Generate dispatch methods for a class or interface
+    //
+    void writeDispatch(Output&, const ClassDefPtr&);
+
 private:
 
     void printHeader();
