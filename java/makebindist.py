@@ -101,6 +101,7 @@ icehome = os.environ["ICE_HOME"]
 executables = [ ]
 libraries = [ ]
 symlinks = 0
+strip = 0
 if platform == "win32":
     winver = version.replace(".", "")
     debug = ""
@@ -137,13 +138,16 @@ else:
         "libSlice.so",\
     ]
     symlinks = 1
+    strip = 1
 
 bindir = icever + "/bin"
 libdir = icever + "/lib"
 os.mkdir(bindir)
 os.mkdir(libdir)
+
 for x in executables:
     shutil.copyfile(icehome + "/bin/" + x, bindir + "/" + x)
+
 if symlinks:
     for x in libraries:
         libname = x + '.' + version
@@ -154,6 +158,13 @@ if symlinks:
 else:
     for x in libraries:
         shutil.copyfile(icehome + "/lib/" + x, libdir + "/" + x)
+
+if strip:
+    for x in executables:
+        os.system("strip " + bindir + "/" + x)
+    for x in libraries:
+        os.system("strip " + libdir + "/" + x)
+
 
 #
 # Create binary archives.
