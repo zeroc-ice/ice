@@ -8,6 +8,14 @@ Requirements
 If you don't have Python 2.3 on your system, you can download the
 source distribution from http://www.python.org.
 
+If you have downloaded a source distribution, see the build
+instructions below.
+
+If you have downloaded a binary distribution of Ice for Python,
+you have everything you need to use Ice from Python; it is not
+necessary to download and build Ice for C++. See the section
+"Configuring your Environment" below.
+
 
 =========================================================================
 Building the Ice extension for Python (Linux/Solaris/HP-UX/MacOS X/AIX)
@@ -35,13 +43,7 @@ Follow these steps to build the Ice extension for Python:
    additional user priveleges to install in the directory specified
    by config/Make.rules.
 
-5) Modify your PYTHONPATH environment variable to include the Ice
-   for Python extension. Assuming you installed the extension in
-   the default directory (/opt/IcePy-2.0.0), you would modify your
-   environment as shown below:
-
-   export ICEPY_HOME=/opt/IcePy-2.0.0
-   export PYTHONPATH=$ICEPY_HOME/lib:$ICEPY_HOME/python:$PYTHONPATH
+5) See "Configuring your Environment" below.
 
 
 =========================================================================
@@ -67,24 +69,42 @@ Follow these steps to build the Ice extension for Python:
 
 4) Build the "IcePy" project.
 
-5) Modify your environment to allow Python to find the Ice for
+5) See "Configuring your Environment" below.
+
+NOTE: When compiling the Python interpreter from sources using
+      Microsoft Visual C++ 6.0, the presence of the STLport header
+      files causes a compilation error. The solution is to temporarily
+      remove or rename the STLport include directory in your Visual C++
+      settings using Tools/Options/Directories/Include files.
+
+
+=========================================================================
+Configuring your Environment
+=========================================================================
+
+Unix:
+
+   Modify your PYTHONPATH environment variable to include the Ice
+   for Python extension. Assuming you installed the extension in
+   the default directory (/opt/IcePy-2.0.0), you would modify your
+   environment as shown below:
+
+   export ICEPY_HOME=/opt/IcePy-2.0.0
+   export PYTHONPATH=$ICEPY_HOME/lib:$ICEPY_HOME/python:$PYTHONPATH
+
+Windows:
+
+   Modify your environment to allow Python to find the Ice for
    Python extension. The interpreter must be able to locate
    the extension DLL as well as the Python source files in the
    "python" subdirectory. This is normally accomplished by setting
    the PYTHONPATH environment variable to contain the necessary
    subdirectories. For example, if the Ice for Python extension is
-   installed in C:\IcePy, you could configure your environment as
-   follows:
+   installed in C:\IcePy-2.0.0, you could configure your environment
+   as follows:
 
-   set ICEPY_HOME=C:\IcePy
+   set ICEPY_HOME=C:\IcePy-2.0.0
    set PYTHONPATH=%ICEPY_HOME%\bin;%ICEPY_HOME%\python
-
-
-NOTE: When compiling the Python interpreter from sources using
-Microsoft Visual C++ 6.0, the presence of the STLport header files
-causes a compilation error. The solution is to temporarily remove or
-rename the STLport include directory in your Visual C++ settings using
-Tools/Options/Directories/Include files.
 
 
 =========================================================================
