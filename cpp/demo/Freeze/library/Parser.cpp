@@ -74,7 +74,7 @@ Parser::addBook(const list<string>& _args)
     {
 	error(ex.message);
     }
-    catch(const BookExistsException& ex)
+    catch(const BookExistsException&)
     {
 	error("The book already exists.");
     }
