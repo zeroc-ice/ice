@@ -73,7 +73,7 @@ class CallbackClient extends Ice.Application
                 base.ice_ping();
                 test(false);
             }
-            catch(Ice.ObjectNotExistException ex)
+            catch(Ice.ConnectionLostException ex)
             {
                 System.out.println("ok");
             }
@@ -305,7 +305,7 @@ class CallbackClient extends Ice.Application
                 base.ice_ping();
                 test(false);
             }
-            catch(Ice.ObjectNotExistException ex)
+            catch(Ice.ConnectionLostException ex)
             {
                 System.out.println("ok");
             }

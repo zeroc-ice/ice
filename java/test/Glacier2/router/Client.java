@@ -12,8 +12,18 @@ public class Client
     public static void
     main(String[] args)
     {
+	//
+	// We must disable connection warnings, because we attempt to
+	// ping the router before session establishment, as well as
+	// after session destruction. Both will cause a
+	// ConnectionLostException.
+	//
+	Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+	Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
+	properties.setProperty("Ice.Warn.Connections", "0");
+
         CallbackClient app = new CallbackClient();
-        int status = app.main("Client", args);
+        int status = app.main("Client", argsH.value);
         System.exit(status);
     }
 }
