@@ -51,6 +51,7 @@ public:
     virtual void postTransform(const DataPtr&, const DataPtr&) = 0;
     virtual ObjectDataMap& getObjectMap() = 0;
     virtual bool purgeObjects() const = 0;
+    virtual Slice::TypePtr getRename(const Slice::TypePtr&) const = 0;
 };
 
 class DataInitializer : virtual public IceUtil::SimpleShared
@@ -135,8 +136,8 @@ protected:
 
     Data(const ErrorReporterPtr&, bool);
 
-    bool isCompatible(const Slice::TypePtr&, const Slice::TypePtr&);
-    bool checkClasses(const Slice::ClassDeclPtr&, const Slice::ClassDeclPtr&);
+    bool isCompatible(const Slice::TypePtr&, const Slice::TypePtr&, DataInterceptor&);
+    bool checkClasses(const Slice::ClassDeclPtr&, const Slice::ClassDeclPtr&, DataInterceptor&);
 
     ErrorReporterPtr _errorReporter;
     bool _readOnly;

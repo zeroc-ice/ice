@@ -473,7 +473,7 @@ Transform::Data::print(ostream& os) const
 }
 
 bool
-Transform::Data::isCompatible(const Slice::TypePtr& dest, const Slice::TypePtr& src)
+Transform::Data::isCompatible(const Slice::TypePtr& dest, const Slice::TypePtr& src, DataInterceptor& interceptor)
 {
     Slice::BuiltinPtr b1 = Slice::BuiltinPtr::dynamicCast(dest);
     if(b1)
@@ -629,7 +629,7 @@ Transform::Data::isCompatible(const Slice::TypePtr& dest, const Slice::TypePtr& 
     if(cl1)
     {
         Slice::ClassDeclPtr cl2 = Slice::ClassDeclPtr::dynamicCast(src);
-        if(cl2 && checkClasses(cl1, cl2))
+        if(cl2 && checkClasses(cl1, cl2, interceptor))
         {
             return true;
         }
@@ -640,7 +640,12 @@ Transform::Data::isCompatible(const Slice::TypePtr& dest, const Slice::TypePtr& 
     Slice::StructPtr s1 = Slice::StructPtr::dynamicCast(dest);
     if(s1)
     {
-        Slice::StructPtr s2 = Slice::StructPtr::dynamicCast(src);
+        Slice::TypePtr s = interceptor.getRename(src);
+        if(!s)
+        {
+            s = src;
+        }
+        Slice::StructPtr s2 = Slice::StructPtr::dynamicCast(s);
         if(s2 && s1->scoped() == s2->scoped())
         {
             return true;
@@ -659,7 +664,7 @@ Transform::Data::isCompatible(const Slice::TypePtr& dest, const Slice::TypePtr& 
         }
 
         Slice::ProxyPtr p2 = Slice::ProxyPtr::dynamicCast(src);
-        if(p2 && checkClasses(p1->_class(), p2->_class()))
+        if(p2 && checkClasses(p1->_class(), p2->_class(), interceptor))
         {
             return true;
         }
@@ -673,7 +678,8 @@ Transform::Data::isCompatible(const Slice::TypePtr& dest, const Slice::TypePtr& 
         Slice::DictionaryPtr d2 = Slice::DictionaryPtr::dynamicCast(src);
         if(d2)
         {
-            return isCompatible(d1->keyType(), d2->keyType()) && isCompatible(d1->valueType(), d2->valueType());
+            return isCompatible(d1->keyType(), d2->keyType(), interceptor) &&
+                   isCompatible(d1->valueType(), d2->valueType(), interceptor);
         }
 
         return false;
@@ -685,7 +691,7 @@ Transform::Data::isCompatible(const Slice::TypePtr& dest, const Slice::TypePtr& 
         Slice::SequencePtr seq2 = Slice::SequencePtr::dynamicCast(src);
         if(seq2)
         {
-            return isCompatible(seq1->type(), seq2->type());
+            return isCompatible(seq1->type(), seq2->type(), interceptor);
         }
 
         return false;
@@ -694,9 +700,19 @@ Transform::Data::isCompatible(const Slice::TypePtr& dest, const Slice::TypePtr& 
     Slice::EnumPtr e1 = Slice::EnumPtr::dynamicCast(dest);
     if(e1)
     {
-        Slice::EnumPtr e2 = Slice::EnumPtr::dynamicCast(src);
         Slice::BuiltinPtr b2 = Slice::BuiltinPtr::dynamicCast(src);
-        if((e2 && e1->scoped() == e2->scoped()) || (b2 && b2->kind() == Slice::Builtin::KindString))
+        if(b2 && b2->kind() == Slice::Builtin::KindString)
+        {
+            return true;
+        }
+
+        Slice::TypePtr s = interceptor.getRename(src);
+        if(!s)
+        {
+            s = src;
+        }
+        Slice::EnumPtr e2 = Slice::EnumPtr::dynamicCast(s);
+        if(e2 && e1->scoped() == e2->scoped())
         {
             return true;
         }
@@ -709,8 +725,17 @@ Transform::Data::isCompatible(const Slice::TypePtr& dest, const Slice::TypePtr& 
 }
 
 bool
-Transform::Data::checkClasses(const Slice::ClassDeclPtr& dest, const Slice::ClassDeclPtr& src)
+Transform::Data::checkClasses(const Slice::ClassDeclPtr& dest, const Slice::ClassDeclPtr& src,
+                              DataInterceptor& interceptor)
 {
+    //
+    // Here are the rules for verifying class compatibility:
+    //
+    // 1. If the type ids are the same, assume they are compatible.
+    // 2. If the source type has been renamed, then check its equivalent new definition for compatibility.
+    // 3. Otherwise, the types are only compatible if they are defined in the same Slice unit, and if the
+    //    destination type is a base type of the source type.
+    //
     string s1 = dest->scoped();
     string s2 = src->scoped();
     if(s1 == s2)
@@ -719,17 +744,26 @@ Transform::Data::checkClasses(const Slice::ClassDeclPtr& dest, const Slice::Clas
     }
     else
     {
-        Slice::ClassDefPtr def = src->definition();
-        if(!def)
+        Slice::TypePtr t = interceptor.getRename(src);
+        Slice::ClassDeclPtr s = Slice::ClassDeclPtr::dynamicCast(t);
+        if(s)
         {
-            _errorReporter->error("class " + s2 + " declared but not defined");
+            return checkClasses(dest, s, interceptor);
         }
-        Slice::ClassList bases = def->allBases();
-        for(Slice::ClassList::iterator p = bases.begin(); p != bases.end(); ++p)
+        else if(dest->unit().get() == src->unit().get())
         {
-            if((*p)->scoped() == s1)
+            Slice::ClassDefPtr def = src->definition();
+            if(!def)
             {
-                return true;
+                _errorReporter->error("class " + s2 + " declared but not defined");
+            }
+            Slice::ClassList bases = def->allBases();
+            for(Slice::ClassList::iterator p = bases.begin(); p != bases.end(); ++p)
+            {
+                if((*p)->scoped() == s1)
+                {
+                    return true;
+                }
             }
         }
     }
@@ -2078,7 +2112,7 @@ void
 Transform::StructData::transformI(const DataPtr& data, DataInterceptor& interceptor)
 {
     StructDataPtr s = StructDataPtr::dynamicCast(data);
-    if(s && _type->scoped() == s->_type->scoped())
+    if(s && isCompatible(_type, s->_type, interceptor))
     {
         //
         // Invoke transform() on members with the same name.
@@ -2356,7 +2390,7 @@ void
 Transform::SequenceData::transformI(const DataPtr& data, DataInterceptor& interceptor)
 {
     SequenceDataPtr s = SequenceDataPtr::dynamicCast(data);
-    if(s && isCompatible(_type, s->_type))
+    if(s && isCompatible(_type, s->_type, interceptor))
     {
         DataList elements;
         for(DataList::const_iterator p = s->_elements.begin(); p != s->_elements.end(); ++p)
@@ -2653,7 +2687,7 @@ Transform::EnumData::transformI(const DataPtr& data, DataInterceptor& intercepto
 {
     EnumDataPtr e = EnumDataPtr::dynamicCast(data);
     StringDataPtr s = StringDataPtr::dynamicCast(data);
-    if(e && _type->scoped() == e->_type->scoped())
+    if(e && isCompatible(_type, e->_type, interceptor))
     {
         //
         // Get the enumerator's name and attempt to find it in our type.
@@ -2898,7 +2932,7 @@ void
 Transform::DictionaryData::transformI(const DataPtr& data, DataInterceptor& interceptor)
 {
     DictionaryDataPtr d = DictionaryDataPtr::dynamicCast(data);
-    if(d && isCompatible(_type, d->_type))
+    if(d && isCompatible(_type, d->_type, interceptor))
     {
         DataMap m;
         for(DataMap::const_iterator p = d->_map.begin(); p != d->_map.end(); ++p)
@@ -2966,15 +3000,6 @@ void
 Transform::DictionaryData::add(const DataPtr& key, const DataPtr& value)
 {
     assert(!readOnly());
-
-    if(!isCompatible(_type->keyType(), key->getType()))
-    {
-        _errorReporter->typeMismatchError(_type->keyType(), key->getType(), true);
-    }
-    if(!isCompatible(_type->valueType(), value->getType()))
-    {
-        _errorReporter->typeMismatchError(_type->valueType(), value->getType(), true);
-    }
 
     DataMap::iterator p = _map.find(key);
     assert(p == _map.end());
@@ -3093,8 +3118,6 @@ Transform::ObjectData::transform(const DataPtr& data, DataInterceptor& intercept
     ObjectDataPtr o = ObjectDataPtr::dynamicCast(data);
     if(o)
     {
-        assert(isCompatible(_type, o->_type));
-
         //
         // The source object must be present in the object map (we currently don't support
         // transforming two ObjectData instances from the same Slice unit - this transform
@@ -3493,7 +3516,7 @@ Transform::ObjectRef::transformI(const DataPtr& data, DataInterceptor& intercept
         //
         // Allow a nil value from type Object.
         //
-        if(Slice::BuiltinPtr::dynamicCast(o->_type) || isCompatible(_type, o->_type))
+        if(Slice::BuiltinPtr::dynamicCast(o->_type) || isCompatible(_type, o->_type, interceptor))
         {
             setValue(0);
         }
@@ -3505,7 +3528,7 @@ Transform::ObjectRef::transformI(const DataPtr& data, DataInterceptor& intercept
     else
     {
         Slice::TypePtr otype = o->_value->getType();
-        if(isCompatible(_type, otype))
+        if(isCompatible(_type, otype, interceptor))
         {
             //
             // If the types are in the same Slice unit, then we can simply
@@ -3527,42 +3550,41 @@ Transform::ObjectRef::transformI(const DataPtr& data, DataInterceptor& intercept
                 }
                 else
                 {
-                    string name = typeName(otype);
-                    Slice::TypeList l = _type->unit()->lookupType(name, false);
-                    if(l.empty())
+                    //
+                    // If the type has been renamed, we need to get its equivalent
+                    // in the new Slice definitions.
+                    //
+                    Slice::TypePtr newType = interceptor.getRename(otype);
+                    if(!newType)
                     {
-                        throw ClassNotFoundException(name);
+                        string name = typeName(otype);
+                        Slice::TypeList l = _type->unit()->lookupType(name, false);
+                        if(l.empty())
+                        {
+                            throw ClassNotFoundException(name);
+                        }
+                        newType = l.front();
                     }
-                    else
+
+                    //
+                    // Use createObject() so that an initializer is invoked if necessary.
+                    //
+                    DataPtr newObj = _factory->createObject(newType, _readOnly);
+                    ObjectRefPtr newRef = ObjectRefPtr::dynamicCast(newObj);
+                    assert(newRef);
+
+                    try
                     {
-                        Slice::ClassDeclPtr decl = Slice::ClassDeclPtr::dynamicCast(l.front());
-                        if(decl)
-                        {
-                            Slice::ClassDefPtr def = decl->definition();
-                            if(!def)
-                            {
-                                _errorReporter->error("no definition for " + name);
-                            }
-                        }
-                        //
-                        // Create a new object and increment its reference count. We do this
-                        // because it's possible for its reference count to be manipulated
-                        // during transformation, and we don't want it to be destroyed.
-                        //
-                        ObjectDataPtr data = new ObjectData(_factory, l.front(), _readOnly);
-                        data->incRef();
-                        try
-                        {
-                            data->transform(o->_value, interceptor);
-                        }
-                        catch(...)
-                        {
-                            data->decRef();
-                            throw;
-                        }
-                        setValue(data);
-                        data->decRef();
+                        newRef->_value->transform(o->_value, interceptor);
                     }
+                    catch(...)
+                    {
+                        newObj->destroy();
+                        throw;
+                    }
+
+                    setValue(newRef->_value);
+                    newObj->destroy();
                 }
             }
         }

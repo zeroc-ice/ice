@@ -35,6 +35,7 @@ class TransformDescriptor;
 typedef IceUtil::Handle<TransformDescriptor> TransformDescriptorPtr;
 
 typedef map<string, TransformDescriptorPtr> TransformMap;
+typedef map<string, string> RenameMap;
 
 class DeleteRecordException {};
 
@@ -268,14 +269,16 @@ class TransformDescriptor : public ExecutableContainerDescriptor
 {
 public:
 
-    TransformDescriptor(const DescriptorPtr&, int, const string&, bool);
+    TransformDescriptor(const DescriptorPtr&, int, const string&, bool, const string&);
 
     string type() const;
+    string rename() const;
     bool doDefaultTransform() const;
 
 private:
 
     bool _default;
+    string _rename;
     Slice::TypePtr _oldType;
     Slice::TypePtr _newType;
 };
@@ -315,7 +318,7 @@ public:
     virtual void execute(TransformSymbolTable&, DataInterceptor&);
 
     bool transform(IceInternal::BasicStream&, IceInternal::BasicStream&, IceInternal::BasicStream&,
-                   IceInternal::BasicStream&, const TransformMap&, bool);
+                   IceInternal::BasicStream&, const TransformMap&, const RenameMap&, bool);
 
 private:
 
@@ -352,7 +355,8 @@ private:
     Slice::UnitPtr _new;
     ErrorReporterPtr _errorReporter;
     DatabaseDescriptorPtr _database;
-    TransformMap _transforms;
+    TransformMap _transformMap;
+    RenameMap _renameMap;
     vector<DescriptorPtr> _children;
 };
 typedef IceUtil::Handle<TransformerDescriptor> TransformerDescriptorPtr;
@@ -385,12 +389,13 @@ class TransformInterceptor : public DataInterceptor
 public:
 
     TransformInterceptor(const DataFactoryPtr&, const ErrorReporterPtr&, const Slice::UnitPtr&,
-                         const Slice::UnitPtr&, const TransformMap&, bool);
+                         const Slice::UnitPtr&, const TransformMap&, const RenameMap&, bool);
 
     virtual bool preTransform(const DataPtr&, const DataPtr&);
     virtual void postTransform(const DataPtr&, const DataPtr&);
     virtual ObjectDataMap& getObjectMap();
     virtual bool purgeObjects() const;
+    virtual Slice::TypePtr getRename(const Slice::TypePtr&) const;
 
 private:
 
@@ -399,6 +404,7 @@ private:
     Slice::UnitPtr _old;
     Slice::UnitPtr _new;
     const TransformMap& _transformMap;
+    const RenameMap& _renameMap;
     ObjectDataMap _objectMap;
     bool _purgeObjects;
 };
@@ -1322,8 +1328,8 @@ Transform::IterateDescriptor::execute(TransformSymbolTable& sym, DataInterceptor
 // TransformDescriptor
 //
 Transform::TransformDescriptor::TransformDescriptor(const DescriptorPtr& parent, int line, const string& type,
-                                                    bool def) :
-    ExecutableContainerDescriptor(parent, line, "transform"), Descriptor(parent, line), _default(def)
+                                                    bool def, const string& rename) :
+    ExecutableContainerDescriptor(parent, line, "transform"), Descriptor(parent, line), _default(def), _rename(rename)
 {
     DescriptorErrorContext ctx(errorReporter(), "transform", _line);
 
@@ -1344,12 +1350,27 @@ Transform::TransformDescriptor::TransformDescriptor(const DescriptorPtr& parent,
     {
         _newType = l.front();
     }
+
+    if(!rename.empty())
+    {
+        l = oldUnit()->lookupType(rename, false);
+        if(l.empty())
+        {
+            errorReporter()->error("unable to find type `" + rename + "' in old Slice definitions");
+        }
+    }
 }
 
 string
 Transform::TransformDescriptor::type() const
 {
     return typeName(_newType);
+}
+
+string
+Transform::TransformDescriptor::rename() const
+{
+    return _rename;
 }
 
 bool
@@ -1391,8 +1412,9 @@ Transform::InitDescriptor::initialize(const DataFactoryPtr& factory, const DataP
     //
     // Also need an interceptor in order to call execute.
     //
-    TransformMap transforms;
-    TransformInterceptor interceptor(factory, errorReporter(), oldUnit(), newUnit(), transforms, false);
+    TransformMap transformMap;
+    RenameMap renameMap;
+    TransformInterceptor interceptor(factory, errorReporter(), oldUnit(), newUnit(), transformMap, renameMap, false);
     execute(sym, interceptor);
 }
 
@@ -1500,11 +1522,13 @@ Transform::DatabaseDescriptor::execute(TransformSymbolTable&, DataInterceptor&)
 bool
 Transform::DatabaseDescriptor::transform(IceInternal::BasicStream& inKey, IceInternal::BasicStream& inValue,
                                          IceInternal::BasicStream& outKey, IceInternal::BasicStream& outValue,
-                                         const TransformMap& transforms, bool purgeObjects)
+                                         const TransformMap& transformMap, const RenameMap& renameMap,
+                                         bool purgeObjects)
 {
     errorReporter()->raise(false);
 
-    TransformInterceptor interceptor(factory(), errorReporter(), oldUnit(), newUnit(), transforms, purgeObjects);
+    TransformInterceptor interceptor(factory(), errorReporter(), oldUnit(), newUnit(), transformMap, renameMap,
+                                     purgeObjects);
 
     //
     // Create data representations of the old key and value types.
@@ -1598,12 +1622,22 @@ Transform::TransformerDescriptor::addChild(const DescriptorPtr& child)
     else if(transform)
     {
         string name = transform->type();
-        TransformMap::iterator p = _transforms.find(name);
-        if(p != _transforms.end())
+        TransformMap::iterator p = _transformMap.find(name);
+        if(p != _transformMap.end())
         {
             errorReporter()->error("transform `" + name + "' specified more than once");
         }
-        _transforms.insert(TransformMap::value_type(name, transform));
+        _transformMap.insert(TransformMap::value_type(name, transform));
+        string rename = transform->rename();
+        if(!rename.empty())
+        {
+            RenameMap::iterator q = _renameMap.find(rename);
+            if(q != _renameMap.end())
+            {
+                errorReporter()->error("multiple transform descriptors specify the rename value `" + rename + "'");
+            }
+            _renameMap.insert(RenameMap::value_type(rename, name));
+        }
         _children.push_back(transform);
     }
     else if(init)
@@ -1696,7 +1730,7 @@ Transform::TransformerDescriptor::transform(const Ice::CommunicatorPtr& communic
             outValue.startWriteEncaps();
             try
             {
-                if(_database->transform(inKey, inValue, outKey, outValue, _transforms, purgeObjects))
+                if(_database->transform(inKey, inValue, outKey, outValue, _transformMap, _renameMap, purgeObjects))
                 {
                     outValue.endWriteEncaps();
                     Dbt dbNewKey(&outKey.b[0], outKey.b.size()), dbNewValue(&outValue.b[0], outValue.b.size());
@@ -1808,7 +1842,9 @@ Transform::DescriptorHandler::startElement(const string& name, const IceXML::Att
 
         IceXML::Attributes::const_iterator p;
 
-        string type;
+        string type, rename;
+        bool def = true;
+
         p = attributes.find("type");
         if(p == attributes.end())
         {
@@ -1816,7 +1852,6 @@ Transform::DescriptorHandler::startElement(const string& name, const IceXML::Att
         }
         type = p->second;
 
-        bool def = true;
         p = attributes.find("default");
         if(p != attributes.end())
         {
@@ -1826,7 +1861,13 @@ Transform::DescriptorHandler::startElement(const string& name, const IceXML::Att
             }
         }
 
-        d = new TransformDescriptor(_current, line, type, def);
+        p = attributes.find("rename");
+        if(p != attributes.end())
+        {
+            rename = p->second;
+        }
+
+        d = new TransformDescriptor(_current, line, type, def, rename);
     }
     else if(name == "init")
     {
@@ -2132,9 +2173,10 @@ Transform::TransformInterceptor::TransformInterceptor(const DataFactoryPtr& fact
                                                       const Slice::UnitPtr& oldUnit,
                                                       const Slice::UnitPtr& newUnit,
                                                       const TransformMap& transformMap,
+                                                      const RenameMap& renameMap,
                                                       bool purgeObjects) :
     _factory(factory), _errorReporter(errorReporter), _old(oldUnit), _new(newUnit), _transformMap(transformMap),
-    _purgeObjects(purgeObjects)
+    _renameMap(renameMap), _purgeObjects(purgeObjects)
 {
 }
 
@@ -2192,6 +2234,25 @@ bool
 Transform::TransformInterceptor::purgeObjects() const
 {
     return _purgeObjects;
+}
+
+Slice::TypePtr
+Transform::TransformInterceptor::getRename(const Slice::TypePtr& oldType) const
+{
+    Slice::TypePtr result;
+
+    if(oldType->unit().get() == _old.get())
+    {
+        RenameMap::const_iterator p = _renameMap.find(typeName(oldType));
+        if(p != _renameMap.end())
+        {
+            Slice::TypeList l = _new->lookupType(p->second, false);
+            assert(!l.empty());
+            return l.front();
+        }
+    }
+
+    return result;
 }
 
 //
