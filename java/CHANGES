@@ -1,6 +1,11 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed a bug that caused marshaling failures when global metadata
+  was used to define an alternate Java package. Two new properties
+  are supported: Ice.Package.* and Ice.Default.Package. See the
+  manual for more information.
+
 - Fixed bug in slice2java: with the --impl-tie option, incorrect
   code was generated for local interfaces and classes.
 

@@ -322,6 +322,8 @@ public class Instance
 
 	    _stats = null; // There is no default statistics callback object.
 
+            validatePackages();
+
             _traceLevels = new TraceLevels(_properties);
 
             _defaultsAndOverrides = new DefaultsAndOverrides(_properties);
@@ -560,6 +562,34 @@ public class Instance
 	{
 	    serverThreadPool.joinWithAllThreads();
 	}
+    }
+
+    private void
+    validatePackages()
+    {
+        final String prefix = "Ice.Package.";
+        java.util.Map map = _properties.getPropertiesForPrefix(prefix);
+        java.util.Iterator p = map.entrySet().iterator();
+        while(p.hasNext())
+        {
+            java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+            String key = (String)e.getKey();
+            String pkg = (String)e.getValue();
+            if(key.length() == prefix.length())
+            {
+                _logger.warning("ignoring invalid property: " + key + "=" + pkg);
+            }
+            String module = key.substring(prefix.length());
+            String className = pkg + "." + module + "._Marker";
+            try
+            {
+                Class.forName(className);
+            }
+            catch(Exception ex)
+            {
+                _logger.warning("unable to validate package: " + key + "=" + pkg);
+            }
+        }
     }
 
     private boolean _destroyed;

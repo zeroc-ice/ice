@@ -372,6 +372,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"ConnectionIdleTime",
 	"Default.Host",
 	"Default.Locator",
+	"Default.Package",
 	"Default.Protocol",
 	"Default.Router",
 	"GC.Interval",			// Not used by Java but left here to suppress warnings.
@@ -383,6 +384,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"Override.Compress",
 	"Override.ConnectTimeout",
 	"Override.Timeout",
+	"Package.*",
 	"Plugin.*",
 	"PrintAdapterReady",
 	"PrintProcessId",

@@ -64,6 +64,7 @@ tests = [ \
     "Ice/slicing/objects", \
     "Ice/custom", \
     "Ice/checksum", \
+    "Ice/package", \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \

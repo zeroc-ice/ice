@@ -1703,14 +1703,8 @@ public class BasicStream
 
         try
         {
-            Class c = Class.forName(typeToClass(id));
-            //
-            // Ensure the class is instantiable. The constants are
-            // defined in the JVM specification (0x200 = interface,
-            // 0x400 = abstract).
-            //
-            int modifiers = c.getModifiers();
-            if((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
+            Class c = findClass(id);
+            if(c != null)
             {
                 Ice.ObjectFactory dynamicFactory = new DynamicObjectFactory(c);
                 //
@@ -1738,14 +1732,10 @@ public class BasicStream
                 }
             }
         }
-        catch(ClassNotFoundException ex)
-        {
-            // Ignore
-        }
-        catch(Exception ex)
+        catch(LinkageError ex)
         {
             Ice.NoObjectFactoryException e = new Ice.NoObjectFactoryException();
-	    e.type = id;
+            e.type = id;
             e.initCause(ex);
             throw e;
         }
@@ -1801,51 +1791,125 @@ public class BasicStream
 
         if(factory == null)
         {
-            String className = typeToClass(id);
-
-            while(factory == null)
+            try
             {
-                Class c = null;
-                try
-                {
-                    c = Class.forName(className);
-                }
-                catch(ClassNotFoundException ex)
-                {
-                    break;
-                }
-                catch(LinkageError ex)
-                {
-                    Ice.MarshalException e = new Ice.MarshalException();
-                    e.initCause(ex);
-                    throw e;
-                }
-
-                assert(c != null);
-
-                //
-                // Ensure the class is instantiable. The constants are
-                // defined in the JVM specification (0x200 = interface,
-                // 0x400 = abstract).
-                //
-                int modifiers = c.getModifiers();
-                if((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
+                Class c = findClass(id);
+                if(c != null)
                 {
                     factory = new DynamicUserExceptionFactory(c);
                 }
-                else
+            }
+            catch(LinkageError ex)
+            {
+                Ice.MarshalException e = new Ice.MarshalException();
+                e.initCause(ex);
+                throw e;
+            }
+
+            if(factory != null)
+            {
+                synchronized(_factoryMutex)
                 {
-                    throw new Ice.MarshalException();
+                    _exceptionFactories.put(id, factory);
                 }
             }
         }
 
-	synchronized(_factoryMutex)
-	{
-	    _exceptionFactories.put(id, factory);
-	}
-
         return factory;
+    }
+
+    private Class
+    findClass(String id)
+        throws LinkageError
+    {
+        Class c = null;
+
+        //
+        // To convert a Slice type id into a Java class, we do the following:
+        //
+        // 1. Convert the Slice type id into a classname (e.g., ::M::X -> M.X).
+        // 2. If that fails, extract the top-level module (if any) from the type id
+        //    and check for an Ice.Package property. If found, prepend the property
+        //    value to the classname.
+        // 3. If that fails, check for an Ice.Default.Package property. If found,
+        //    prepend the property value to the classname.
+        //
+        String className = typeToClass(id);
+        c = getConcreteClass(className);
+        if(c == null)
+        {
+            int pos = id.indexOf(':', 2);
+            if(pos != -1)
+            {
+                String topLevelModule = id.substring(2, pos);
+                String pkg = _instance.properties().getProperty("Ice.Package." + topLevelModule);
+                if(pkg.length() > 0)
+                {
+                    c = getConcreteClass(pkg + "." + className);
+                }
+            }
+        }
+
+        if(c == null)
+        {
+            String pkg = _instance.properties().getProperty("Ice.Default.Package");
+            if(pkg.length() > 0)
+            {
+                c = getConcreteClass(pkg + "." + className);
+            }
+        }
+
+        return c;
+    }
+
+    private Class
+    getConcreteClass(String className)
+        throws LinkageError
+    {
+        try
+        {
+            Class c = Class.forName(className);
+            //
+            // Ensure the class is instantiable. The constants are
+            // defined in the JVM specification (0x200 = interface,
+            // 0x400 = abstract).
+            //
+            int modifiers = c.getModifiers();
+            if((modifiers & 0x200) == 0 && (modifiers & 0x400) == 0)
+            {
+                return c;
+            }
+        }
+        catch(ClassNotFoundException ex)
+        {
+            // Ignore
+        }
+
+        return null;
+    }
+
+    private static String
+    fixKwd(String name)
+    {
+        //
+        // Keyword list. *Must* be kept in alphabetical order. Note that checkedCast and uncheckedCast
+        // are not Java keywords, but are in this list to prevent illegal code being generated if
+        // someone defines Slice operations with that name.
+        //
+        final String[] keywordList = 
+        {       
+            "abstract", "assert", "boolean", "break", "byte", "case", "catch",
+            "char", "checkedCast", "class", "clone", "const", "continue", "default", "do",
+            "double", "else", "equals", "extends", "false", "final", "finalize",
+            "finally", "float", "for", "getClass", "goto", "hashCode", "if",
+            "implements", "import", "instanceof", "int", "interface", "long",
+            "native", "new", "notify", "notifyAll", "null", "package", "private",
+            "protected", "public", "return", "short", "static", "strictfp", "super", "switch",
+            "synchronized", "this", "throw", "throws", "toString", "transient",
+            "true", "try", "uncheckedCast", "void", "volatile", "wait", "while"
+        };
+        boolean found =  java.util.Arrays.binarySearch(keywordList, name) >= 0;
+        return found ? "_" + name : name;
     }
 
     private String
@@ -1855,7 +1919,33 @@ public class BasicStream
         {
             throw new Ice.MarshalException();
         }
-        return id.substring(2).replaceAll("::", ".");
+
+        StringBuffer buf = new StringBuffer(id.length());
+
+        int start = 2;
+        boolean done = false;
+        while(!done)
+        {
+            int end = id.indexOf(':', start);
+            String s;
+            if(end != -1)
+            {
+                s = id.substring(start, end);
+                start = end + 2;
+            }
+            else
+            {
+                s = id.substring(start);
+                done = true;
+            }
+            if(buf.length() > 0)
+            {
+                buf.append('.');
+            }
+            buf.append(fixKwd(s));
+        }
+
+        return buf.toString();
     }
 
     private IceInternal.Instance _instance;

@@ -26,6 +26,7 @@
         <ant dir="custom"/>
         <ant dir="translator"/>
         <ant dir="checksum"/>
+        <ant dir="package"/>
     </target>
 
     <target name="clean">
@@ -43,6 +44,7 @@
         <ant dir="custom" target="clean"/>
         <ant dir="translator" target="clean"/>
         <ant dir="checksum" target="clean"/>
+        <ant dir="package" target="clean"/>
     </target>
 
 </project>
