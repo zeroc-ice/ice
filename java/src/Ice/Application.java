@@ -146,7 +146,17 @@ public abstract class Application
 	    // thread before to end.
 	    //
 	    _shutdownHook = new ShutdownHook();
-	    Runtime.getRuntime().addShutdownHook(_shutdownHook);
+	    try
+	    {
+		Runtime.getRuntime().addShutdownHook(_shutdownHook);
+	    }
+	    catch(java.lang.IllegalStateException ex)
+	    {
+		if(_communicator != null)
+		{
+		    _communicator.shutdown();
+		}
+	    }
 	}
     }
     
