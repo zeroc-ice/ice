@@ -16,15 +16,57 @@
 #include <IcePack/ServerAdapterI.h>
 #include <IcePack/ServerFactory.h>
 #include <IcePack/TraceLevels.h>
+#include <IcePack/WaitQueue.h>
 
 using namespace std;
 using namespace IcePack;
+
+namespace IcePack
+{
+
+class WaitForAdapterActivation : public WaitItem
+{
+public:
+ 
+    WaitForAdapterActivation(const ServerAdapterPtr& adapter, 
+			     const TraceLevelsPtr traceLevels,
+			     const AMD_Adapter_getDirectProxyPtr& cb) : 
+	WaitItem(adapter),
+	_adapter(adapter),
+	_traceLevels(traceLevels),
+	_cb(cb)
+    {
+    }
+    
+    virtual void execute()
+    {
+	_adapter->getDirectProxy_async(_cb, false);
+    }
+
+    virtual void expired(bool destroyed)
+    {
+	if(_traceLevels->adapter > 1)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+	    out << "server adapter `" << _adapter->id << "' activation timed out";
+	}
+	_cb->ice_response(0);
+    }
+
+private:
+    
+    ServerAdapterPtr _adapter;
+    TraceLevelsPtr _traceLevels;
+    AMD_Adapter_getDirectProxyPtr _cb;
+};
+
+}
 
 IcePack::ServerAdapterI::ServerAdapterI(const ServerFactoryPtr& factory, const TraceLevelsPtr& traceLevels, 
 					Ice::Int waitTime) :
     _factory(factory),
     _traceLevels(traceLevels),
-    _waitTime(waitTime)
+    _waitTime(IceUtil::Time::seconds(waitTime))
 {
 }
 
@@ -32,10 +74,12 @@ IcePack::ServerAdapterI::~ServerAdapterI()
 {
 }
 
-Ice::ObjectPrx
-IcePack::ServerAdapterI::getDirectProxy(bool activate, const Ice::Current& current)
+void
+IcePack::ServerAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPtr& cb,
+					      bool activate, 
+					      const Ice::Current& current)
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    ::IceUtil::Mutex::Lock sync(*this);
 
     if(!_proxy && activate)
     {
@@ -54,21 +98,8 @@ IcePack::ServerAdapterI::getDirectProxy(bool activate, const Ice::Current& curre
 	{
 	    if(svr->start(OnDemand))
 	    {
-		_notified = false;
-
-		while(!_notified)
-		{
-		    bool notify = timedWait(IceUtil::Time::seconds(_waitTime));
-		    if(!notify)
-		    {
-			if(_traceLevels->adapter > 1)
-			{
-			    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-			    out << "server adapter `" << id << "' activation timed out";
-			}
-			break;
-		    }
-		}
+		_factory->getWaitQueue()->add(new WaitForAdapterActivation(this, _traceLevels, cb), _waitTime);
+		return;
 	    }
 	    else
 	    {
@@ -94,13 +125,17 @@ IcePack::ServerAdapterI::getDirectProxy(bool activate, const Ice::Current& curre
 	    throw ex;
 	}
     }
-    return _proxy;
+
+    //
+    // Return the adapter direct proxy.
+    //
+    cb->ice_response(_proxy);
 }
 
 void
 IcePack::ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    ::IceUtil::Mutex::Lock sync(*this);
 
     //
     // If the adapter proxy is not null the given proxy can only be
@@ -124,7 +159,7 @@ IcePack::ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Cu
 	out << "server adapter `" << id << "' " << (_proxy ? "activated" : "deactivated");
     }
     
-    notifyAll();
+    _factory->getWaitQueue()->notifyAllWaitingOn(this);
 }
 
 void

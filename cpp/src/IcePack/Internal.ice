@@ -108,7 +108,7 @@ interface Adapter
      * endpoints.
      *
      **/
-    ["ami"] Object* getDirectProxy(bool activate);
+    ["amd", "ami"] Object* getDirectProxy(bool activate);
 
     /**
      *

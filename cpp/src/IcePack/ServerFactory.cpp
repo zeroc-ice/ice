@@ -59,10 +59,12 @@ public:
 IcePack::ServerFactory::ServerFactory(const Ice::ObjectAdapterPtr& adapter, 
 				      const TraceLevelsPtr& traceLevels, 
 				      const Freeze::DBEnvironmentPtr& dbEnv,
-				      const ActivatorPtr& activator) :
+				      const ActivatorPtr& activator,
+				      const WaitQueuePtr& waitQueue) :
     _adapter(adapter),
     _traceLevels(traceLevels),
-    _activator(activator)
+    _activator(activator),
+    _waitQueue(waitQueue)
 {
     Ice::PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
     _waitTime = properties->getPropertyAsIntWithDefault("IcePack.Node.WaitTime", 60);
@@ -179,6 +181,12 @@ IcePack::ServerFactory::createServerAndAdapters(const ServerDescription& descrip
     }
     
     return proxy;
+}
+
+const WaitQueuePtr&
+IcePack::ServerFactory::getWaitQueue() const
+{
+    return _waitQueue;
 }
 
 //

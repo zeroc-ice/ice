@@ -189,12 +189,18 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
     activator = new ActivatorI(traceLevels, properties);
 
     //
+    // Create the wait queue.
+    //
+    WaitQueuePtr waitQueue = new WaitQueue();
+    waitQueue->start();
+
+    //
     // Creates the server factory. The server factory creates server
     // and server adapter persistent objects. It also takes care of
     // installing the evictors and object factory necessary to persist
     // and create these objects.
     //
-    ServerFactoryPtr serverFactory = new ServerFactory(adapter, traceLevels, dbEnv, activator);
+    ServerFactoryPtr serverFactory = new ServerFactory(adapter, traceLevels, dbEnv, activator, waitQueue);
     
     //
     // Create the node object and the node info. Because of circular
@@ -306,6 +312,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
     activator->waitForShutdown();
     ignoreInterrupt();
 
+    waitQueue->destroy();
+
     activator->destroy();
 
     //
@@ -313,6 +321,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
     //
     communicator->shutdown();
     communicator->waitForShutdown();
+
+    activator = 0;
 
     return EXIT_SUCCESS;
 }

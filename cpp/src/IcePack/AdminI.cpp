@@ -216,7 +216,7 @@ IcePack::AdminI::getAdapterEndpoints(const string& id, const Current&) const
     AdapterPrx adapter = _adapterRegistry->findById(id);
     try
     {
-	return _communicator->proxyToString(adapter->getDirectProxy(false));
+	return _communicator->proxyToString(adapter->getDirectProxy(true));
     }
     catch(const Ice::ObjectNotExistException&)
     {

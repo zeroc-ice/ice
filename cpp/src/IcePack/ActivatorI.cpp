@@ -579,79 +579,78 @@ IcePack::ActivatorI::terminationListener()
 	    while(p != _processes.end())
 	    {
 		int fd = p->fd;
-		if(FD_ISSET(fd, &fdSet))
-		{
-		    char s[16];
-		    int ret;
-		    string message;
-
-		    //
-		    // Read the message over the pipe.
-		    //
-		    while((ret = read(fd, &s, 16)) > 0)
-		    {
-			message.append(s, ret);
-		    }
-
-		    if(ret == -1)
-		    {
-			if(errno != EAGAIN || message.empty())
-			{
-			    SyscallException ex(__FILE__, __LINE__);
-			    ex.error = getSystemErrno();
-			    throw ex;
-			}
-
-			++p;
-		    }
-		    else if(ret == 0)
-		    {    
-			//
-			// If the pipe was closed, the process has terminated.
-			//
-
-			if(_traceLevels->activator > 0)
-			{
-			    Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-			    out << "detected server `" << p->server->description.name << "' termination";
-			}
-
-			try
-			{
-			    p->server->terminated();
-			}
-			catch(const Ice::LocalException& ex)
-			{
-			    Ice::Warning out(_traceLevels->logger);
-			    out << "unexpected exception raised by server `" << p->server->description.name 
-				<< "' termination:\n" << ex;
-			}
-			    
-			p = _processes.erase(p);
-			close(fd);
-
-			//
-			// We are deactivating and there's no more active processes. We can now 
-			// end this loop
-			//
-			if(_deactivating && _processes.empty())
-			{
-			    return;
-			}
-		    }
-
-		    //
-		    // Log the received message.
-		    //
-		    if(!message.empty())
-		    {
-			Error out(_traceLevels->logger);
-			out << message;
-		    }
-		}
-		else
+		if(!FD_ISSET(fd, &fdSet))   
 		{
 		    ++p;
+		    continue;
+		}
+
+		char s[16];
+		int ret;
+		string message;
+
+		//
+		// Read the message over the pipe.
+		//
+		while((ret = read(fd, &s, 16)) > 0)
+		{
+		    message.append(s, ret);
+		}
+
+		if(ret == -1)
+		{
+		    if(errno != EAGAIN || message.empty())
+		    {
+			SyscallException ex(__FILE__, __LINE__);
+			ex.error = getSystemErrno();
+			throw ex;
+		    }
+
+		    ++p;
+		}
+		else if(ret == 0)
+		{    
+		    //
+		    // If the pipe was closed, the process has terminated.
+		    //
+
+		    if(_traceLevels->activator > 0)
+		    {
+			Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+			out << "detected server `" << p->server->description.name << "' termination";
+		    }
+
+		    try
+		    {
+			p->server->terminated();
+		    }
+		    catch(const Ice::LocalException& ex)
+		    {
+			Ice::Warning out(_traceLevels->logger);
+			out << "unexpected exception raised by server `" << p->server->description.name 
+			    << "' termination:\n" << ex;
+		    }
+			    
+		    p = _processes.erase(p);
+		    close(fd);
+
+		    //
+		    // We are deactivating and there's no more active processes. We can now 
+		    // end this loop
+		    //
+		    if(_deactivating && _processes.empty())
+		    {
+			return;
+		    }
+		}
+
+		//
+		// Log the received message.
+		//
+		if(!message.empty())
+		{
+		    Error out(_traceLevels->logger);
+		    out << message;
 		}
 	    }
 	}

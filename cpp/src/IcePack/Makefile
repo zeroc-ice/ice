@@ -46,8 +46,8 @@ NODE_OBJS	= NodeInfo.o \
 		  ServerFactory.o \
 		  ServerDeployerI.o \
 	          Activator.o \
-		  ActivatorI.o
-#		  WaitQueue.o
+		  ActivatorI.o \
+		  WaitQueue.o
 
 REGISTRY_OBJS   = Registry.o \
 	 	  ObjectRegistryI.o \

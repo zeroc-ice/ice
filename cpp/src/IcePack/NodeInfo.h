@@ -37,7 +37,7 @@ public:
     ServerFactoryPtr getServerFactory() const;
     TraceLevelsPtr getTraceLevels() const;
     NodePtr getNode() const;
-    
+
     AdapterRegistryPrx getAdapterRegistry() const;
     ObjectRegistryPrx getObjectRegistry() const;
     ServerRegistryPrx getServerRegistry() const;

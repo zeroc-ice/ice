@@ -29,11 +29,13 @@ IcePack::StandaloneAdapterI::StandaloneAdapterI()
 {
 }
 
-Ice::ObjectPrx
-IcePack::StandaloneAdapterI::getDirectProxy(bool activate, const Ice::Current&)
+void
+IcePack::StandaloneAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPtr& cb,
+						  bool activate,
+						  const Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(*this);
-    return proxy;
+    cb->ice_response(proxy);
 }
 
 void

@@ -27,14 +27,14 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class ServerFactory;
 typedef IceUtil::Handle<ServerFactory> ServerFactoryPtr;
 
-class ServerAdapterI : public ServerAdapter, public ::IceUtil::Monitor< ::IceUtil::Mutex>
+class ServerAdapterI : public ServerAdapter, public ::IceUtil::Mutex
 {
 public:
 
     ServerAdapterI(const ServerFactoryPtr&, const TraceLevelsPtr&, Ice::Int waitTime);
     virtual ~ServerAdapterI();
 
-    virtual ::Ice::ObjectPrx getDirectProxy(bool, const ::Ice::Current&);
+    virtual void getDirectProxy_async(const AMD_Adapter_getDirectProxyPtr& cb, bool, const Ice::Current&);
     virtual void setDirectProxy(const ::Ice::ObjectPrx&, const ::Ice::Current&);
     virtual void destroy(const ::Ice::Current&);
 
@@ -42,7 +42,7 @@ private:
 
     ServerFactoryPtr _factory;
     TraceLevelsPtr _traceLevels;
-    Ice::Int _waitTime;
+    IceUtil::Time _waitTime;
 
     Ice::ObjectPrx _proxy;
     bool _notified;
