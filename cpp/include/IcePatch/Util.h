@@ -47,6 +47,7 @@ ICE_PATCH_API Ice::StringSeq readDirectory(const std::string&);
 ICE_PATCH_API void createDirectory(const std::string&);
 
 ICE_PATCH_API Ice::ByteSeq getMD5(const std::string&);
+ICE_PATCH_API Ice::ByteSeq getPartialMD5(const std::string&, Ice::Int);
 ICE_PATCH_API void createMD5(const std::string&);
 
 ICE_PATCH_API Ice::ByteSeq getBZ2(const std::string&, Ice::Int, Ice::Int);
@@ -56,11 +57,11 @@ class ICE_PATCH_API ProgressCB
 {
 public:
 
-    virtual void startDownload(Ice::Int) = 0;
+    virtual void startDownload(Ice::Int, Ice::Int) = 0;
     virtual void updateDownload(Ice::Int, Ice::Int) = 0;
     virtual void finishedDownload(Ice::Int) = 0;
 
-    virtual void startUncompress(Ice::Int) = 0;
+    virtual void startUncompress(Ice::Int, Ice::Int) = 0;
     virtual void updateUncompress(Ice::Int, Ice::Int) = 0;
     virtual void finishedUncompress(Ice::Int) = 0;
 };

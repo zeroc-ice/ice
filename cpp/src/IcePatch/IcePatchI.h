@@ -54,6 +54,7 @@ public:
     virtual FileDescPtr describe(const Ice::Current&);
     virtual Ice::Int getBZ2Size(const Ice::Current&);
     virtual Ice::ByteSeq getBZ2(Ice::Int, Ice::Int, const Ice::Current&);
+    virtual Ice::ByteSeq getBZ2MD5(Ice::Int, const Ice::Current&);
 };
 
 }

@@ -55,6 +55,9 @@ interface Regular extends File
 
     Ice::ByteSeq getBZ2(int pos, int num)
 	throws FileAccessException, BusyException;
+
+    Ice::ByteSeq getBZ2MD5(int size)
+	throws FileAccessException, BusyException;
 };
 
 class RegularDesc extends FileDesc

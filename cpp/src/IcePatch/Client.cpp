@@ -241,9 +241,10 @@ class MyProgressCB : public ProgressCB
 {
 public:
 
-    virtual void startDownload(Int)
+    virtual void startDownload(Int total, Int pos)
     {
-	cout << " download   0%" << flush;
+	Ice::Int percent = pos * 100 / total;
+	cout << " download " << setw(3) << percent << "%" << flush;
     }
 
     virtual void updateDownload(Int total, Int pos)
@@ -252,19 +253,21 @@ public:
 	cout << "\b\b\b\b" << setw(3) << percent << "%" << flush;
     }
 
-    virtual void finishedDownload(Int)
+    virtual void finishedDownload(Int total)
     {
-	cout << "\b\b\b\b" << setw(3) << 100 << "%" << flush;
+	updateDownload(total, total);
     }
 
-    virtual void startUncompress(Int)
+    virtual void startUncompress(Int total, Int pos)
     {
-	cout << " uncompress   0%" << flush;
+	Ice::Int percent = pos * 100 / total;
+	cout << " uncompress " << setw(3) << percent << "%" << flush;
     }
-
+    
     virtual void updateUncompress(Int total, Int pos)
     {
-	updateDownload(total, pos);
+	Ice::Int percent = pos * 100 / total;
+	cout << "\b\b\b\b" << setw(3) << percent << "%" << flush;
     }
 
     virtual void finishedUncompress(Int total)

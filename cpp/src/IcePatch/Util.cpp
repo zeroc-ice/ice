@@ -298,6 +298,55 @@ IcePatch::getMD5(const string& path)
     return bytesMD5;
 }
 
+ByteSeq
+IcePatch::getPartialMD5(const string& path, Int size)
+{
+    if (size < 0)
+    {
+	FileAccessException ex;
+	ex.reason = "negative file size is illegal";
+	throw ex;
+    }
+    
+    //
+    // Read the original file partially.
+    //
+    FileInfo info = getFileInfo(path, true);
+    size = std::min(size, static_cast<Int>(info.size));
+    ifstream file(path.c_str(), ios::binary);
+    if (!file)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
+	throw ex;
+    }
+    ByteSeq bytes;
+    bytes.resize(size);
+    file.read(&bytes[0], bytes.size());
+    if (!file)
+    {
+	FileAccessException ex;
+	ex.reason = "cannot read `" + path + "': " + strerror(errno);
+	throw ex;
+    }
+    if (file.gcount() < static_cast<int>(bytes.size()))
+    {
+	FileAccessException ex;
+	ex.reason = "could not read all bytes from `" + path + "'";
+	throw ex;
+    }
+    file.close();
+    
+    //
+    // Create the MD5 hash value.
+    //
+    ByteSeq bytesMD5;
+    bytesMD5.resize(16);
+    MD5(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), reinterpret_cast<unsigned char*>(&bytesMD5[0]));
+
+    return bytesMD5;
+}
+
 void
 IcePatch::createMD5(const string& path)
 {
@@ -374,6 +423,27 @@ IcePatch::createMD5(const string& path)
 ByteSeq
 IcePatch::getBZ2(const string& path, Int pos, Int num)
 {
+    if (pos < 0)
+    {
+	FileAccessException ex;
+	ex.reason = "negative read offset is illegal";
+	throw ex;
+    }
+
+    if (num < 0)
+    {
+	FileAccessException ex;
+	ex.reason = "negative data segment size is illegal";
+	throw ex;
+    }
+
+    if (num > 1024 * 1024)
+    {
+	FileAccessException ex;
+	ex.reason = "maxium data segment size exceeded";
+	throw ex;
+    }
+    
     string pathBZ2 = path + ".bz2";
     ifstream fileBZ2(pathBZ2.c_str(), ios::binary);
     if (!fileBZ2)
@@ -513,13 +583,29 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     string path = identityToPath(regular->ice_getIdentity());
     string pathBZ2 = path + ".bz2";
     Int totalBZ2 = regular->getBZ2Size();
+    Int posBZ2 = 0;
+
+    //
+    // Check for partial BZ2 file.
+    //
+    FileInfo infoBZ2 = getFileInfo(pathBZ2, false);
+    if (infoBZ2.type == FileTypeRegular)
+    {
+	ByteSeq remoteBZ2MD5 = regular->getBZ2MD5(infoBZ2.size);
+	ByteSeq localBZ2MD5 = getPartialMD5(pathBZ2, infoBZ2.size);
+
+	if (remoteBZ2MD5 == localBZ2MD5)
+	{
+	    posBZ2 = infoBZ2.size;
+	}
+    }
 
     //
     // Get the BZ2 file.
     //
-    progressCB.startDownload(totalBZ2);
+    progressCB.startDownload(totalBZ2, posBZ2);
 
-    ofstream fileBZ2(pathBZ2.c_str(), ios::binary);
+    ofstream fileBZ2(pathBZ2.c_str(), ios::binary | (posBZ2 ? ios::app : 0));
     if (!fileBZ2)
     {
 	FileAccessException ex;
@@ -527,19 +613,18 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	throw ex;
     }
 
-    ByteSeq bytesBZ2;
-    Int pos = 0;
-    while(pos < totalBZ2)
+    while(posBZ2 < totalBZ2)
     {
-	static const Int num = 64 * 1024;
+	static const Int numBZ2 = 64 * 1024;
 
-	bytesBZ2 = regular->getBZ2(pos, num);
+	ByteSeq bytesBZ2 = regular->getBZ2(posBZ2, numBZ2);
 	if (bytesBZ2.empty())
 	{
 	    break;
 	}
+	sleep(1);
 	
-	pos += bytesBZ2.size();
+	posBZ2 += bytesBZ2.size();
 	
 	fileBZ2.write(&bytesBZ2[0], bytesBZ2.size());
 	if (!fileBZ2)
@@ -549,12 +634,12 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	    throw ex;
 	}
 	
-	if (static_cast<Int>(bytesBZ2.size()) < num)
+	if (static_cast<Int>(bytesBZ2.size()) < numBZ2)
 	{
 	    break;
 	}
 	
-	progressCB.updateDownload(totalBZ2, pos);
+	progressCB.updateDownload(totalBZ2, posBZ2);
     }
 
     progressCB.finishedDownload(totalBZ2);
@@ -594,14 +679,14 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	throw ex;
     }
     
-    static const Int num = 64 * 1024;
-    Byte bytes[num];
+    static const Int numBZ2 = 64 * 1024;
+    Byte bytesBZ2[numBZ2];
     
-    progressCB.startUncompress(totalBZ2);
+    progressCB.startUncompress(totalBZ2, 0);
     
     while (bzError != BZ_STREAM_END)
     {
-	int sz = BZ2_bzRead(&bzError, bzFile, bytes, num);
+	int sz = BZ2_bzRead(&bzError, bzFile, bytesBZ2, numBZ2);
 	if (bzError != BZ_OK && bzError != BZ_STREAM_END)
 	{
 	    FileAccessException ex;
@@ -629,7 +714,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 
 	    progressCB.updateUncompress(totalBZ2, pos);
 	    
-	    file.write(bytes, sz);
+	    file.write(bytesBZ2, sz);
 	    if (!file)
 	    {
 		FileAccessException ex;

@@ -225,3 +225,37 @@ IcePatch::RegularI::getBZ2(Ice::Int pos, Ice::Int num, const Ice::Current& curre
 	throw BusyException();
     }
 }
+
+ByteSeq
+IcePatch::RegularI::getBZ2MD5(Ice::Int size, const Ice::Current& current)
+{
+    try
+    {
+	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout);
+	string path = identityToPath(current.identity);
+	
+	FileInfo info = getFileInfo(path, true);
+	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
+	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+	{
+	    sync.timedUpgrade(_busyTimeout);
+	    infoBZ2 = getFileInfo(path + ".bz2", false);
+	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+	    {
+		createBZ2(path);
+		
+		if (_traceLevel > 0)
+		{
+		    Trace out(_logger, "IcePatch");
+		    out << "created .bz2 file for `" << path << "'";
+		}
+	    }
+	}
+	
+	return IcePatch::getPartialMD5(path + ".bz2", size);
+    }
+    catch (const IceUtil::LockedException&)
+    {
+	throw BusyException();
+    }
+}
