@@ -370,6 +370,39 @@ DBCursorI::curr(Key& key, Value& value)
     value = Value(static_cast<Byte*>(dbData.data), static_cast<Byte*>(dbData.data) + dbData.size);
 }
 
+void
+DBCursorI::set(const Value& value)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_cursor)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBT dbKey, dbData;
+    memset(&dbKey, 0, sizeof(dbKey));
+    memset(&dbData, 0, sizeof(dbData));
+    dbData.data = const_cast<void*>(static_cast<const void*>(value.begin()));
+    dbData.size = value.size();
+
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "reading current value from database \"" << _name << "\"";
+	_communicator->getLogger()->trace("DBCursor", s.str());
+    }
+
+    //
+    // Note that the dbKey element is ignored.
+    //
+    checkBerkeleyDBReturn(_cursor->c_put(_cursor, &dbKey, &dbData, DB_CURRENT), _errorPrefix, "DBcursor->c_set");
+}
+
 bool
 DBCursorI::next()
 {

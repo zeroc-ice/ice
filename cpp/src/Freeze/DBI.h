@@ -93,6 +93,7 @@ public:
     virtual ::Ice::CommunicatorPtr getCommunicator();
 
     virtual void curr(Key& key, Value& value);
+    virtual void set(const Value& value);
     virtual bool next();
     virtual bool prev();
     virtual void del();

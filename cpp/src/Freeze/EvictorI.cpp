@@ -109,7 +109,7 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
     //
     // Save the new Ice Object to the database.
     //
-    _dict[ident] = servant;
+    _dict.insert(make_pair(ident, servant));
     add(ident, servant);
 
     if (_trace >= 1)
@@ -224,7 +224,7 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 	// This should work - but with MSVC for some reason it does not. Re-examine.
 	//
 	//ObjectPtr servant = p->second;
-	ObjectPtr servant = p->second.get_value();
+	ObjectPtr servant = p->second;
 		
 	//
 	// Add the new Servant to the evictor queue.
@@ -288,7 +288,7 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const Current& current,
     {
 	if (!current.nonmutating)
 	{
-	    _dict[current.identity] = servant;
+	    _dict.insert(make_pair(current.identity, servant));
 	}
     }
 
@@ -364,7 +364,7 @@ Freeze::EvictorI::evict()
 	//
 	if (_persistenceMode == SaveUponEviction)
 	{
-	    _dict[ident] = element->servant;
+	    _dict.insert(make_pair(ident, element->servant));
 	}
 
 	//

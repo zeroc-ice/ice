@@ -213,6 +213,20 @@ local interface DBCursor
 
     /**
      *
+     * Overwrite the data to which the cursor currently refers.
+     *
+     * @param value The value to write into the database
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
+     **/
+    void set(Value v) throws DBException;
+
+    /**
+     *
      * Move the cursor to the next element in the database.
      *
      * @return false if there is no next element in the database, true

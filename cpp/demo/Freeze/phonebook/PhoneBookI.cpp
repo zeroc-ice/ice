@@ -133,10 +133,15 @@ PhoneBookI::createContact(const Ice::Current&)
     // is the empty string. See the comment in getNewIdentity why the
     // prefix "N" is needed.
     //
+    NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("N");
     Identities identities;
-    identities = _nameIdentitiesDict["N"];
+    if (p != _nameIdentitiesDict.end())
+    {
+	identities = p->second;
+    }
+
     identities.push_back(ident);
-    _nameIdentitiesDict["N"] = identities;
+    _nameIdentitiesDict.insert(make_pair("N", identities));
     
     //
     // Turn the identity into a Proxy and return the Proxy to the
@@ -155,7 +160,12 @@ PhoneBookI::findContacts(const string& name, const Ice::Current&)
     // them to the caller. See the comment in getNewIdentity why the
     // prefix "N" is needed.
     //
-    Identities identities = _nameIdentitiesDict["N" + name];
+    NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("N" + name);
+    Identities identities;
+    if (p !=  _nameIdentitiesDict.end())
+    {
+	identities = p->second;
+    }
 
     Contacts contacts;
     contacts.reserve(identities.size());
@@ -203,7 +213,7 @@ PhoneBookI::remove(const Identity& ident, const string& name)
     }
 
     Identities identities  = p->second;
-    identities.erase(remove_if(identities.begin(), identities.end(), bind2nd(equal_to<string>(), ident)),
+    identities.erase(remove_if(identities.begin(), identities.end(), bind2nd(equal_to<Ice::Identity>(), ident)),
 		     identities.end());
 
     if (identities.empty())
@@ -216,7 +226,7 @@ PhoneBookI::remove(const Identity& ident, const string& name)
 	// See the comment in getNewIdentity why the prefix "N" is
 	// needed.
 	//
-	_nameIdentitiesDict["N" + name] = identities;
+	_nameIdentitiesDict.insert(make_pair("N" + name, identities));
     }
 }
 
@@ -230,9 +240,14 @@ PhoneBookI::move(const Identity& ident, const string& oldName, const string& new
     // comment in getNewIdentity why the prefix "N" is needed.
     //
     remove(ident, oldName);
-    Identities identities = _nameIdentitiesDict["N" + newName];
+    NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("N" + newName);
+    Identities identities;
+    if (p != _nameIdentitiesDict.end())
+    {
+	identities = p->second;
+    }
     identities.push_back(ident);
-    _nameIdentitiesDict["N" + newName] = identities;
+    _nameIdentitiesDict.insert(make_pair("N" + newName, identities));
 }
 
 Identity
@@ -255,7 +270,7 @@ PhoneBookI::getNewIdentity()
     }
     else
     {
-	ids = p->second.name;
+	ids = p->second;
 	assert(ids.size() == 1);
 #ifdef WIN32
 	n = _atoi64(ids.front().name.c_str()) + 1;
@@ -276,7 +291,7 @@ PhoneBookI::getNewIdentity()
     id.name = s;
     ids.clear();
     ids.push_back(id);
-    _nameIdentitiesDict["ID"].name = ids;
+    _nameIdentitiesDict.insert(make_pair("ID", ids));
 
     id.name = s;
     id.category = "contact";

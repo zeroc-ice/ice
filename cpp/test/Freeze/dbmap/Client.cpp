@@ -206,14 +206,27 @@ run(int argc, char* argv[], const DBPtr& db)
     cout << "ok" << endl;
 
     cout << "testing operator[]... ";
-    test(m['d'] == 3);
+    p = m.find('d');
+    test(p != m.end() && p->second == 3);
     test(m.find('a') == m.end());
-    test(m['a'] == 0);
-    test(m.find('a') != m.end());
-    m['a'] = 1;
-    test(m['a'] == 1);
-    m['a'] = 0;
-    test(m['a'] == 0);
+    m.insert(CharIntMap::value_type('a', 1));
+    p = m.find('a');
+    test(p != m.end() && p->second == 1);
+    m.insert(CharIntMap::value_type('a', 0));
+    p = m.find('a');
+    test(p != m.end() && p->second == 0);
+    cout << "ok" << endl;
+
+    //
+    // Test writing into an iterator.
+    //
+    cout << "testing iterator.set... ";
+    p = m.find('a');
+    test(p != m.end() && p->second == 0);
+    p.set(1);
+    test(p != m.end() && p->second == 1);
+    p = m.find('a');
+    test(p != m.end() && p->second == 1);
     cout << "ok" << endl;
     
     //
@@ -251,14 +264,14 @@ run(int argc, char* argv[], const DBPtr& db)
     // order).
     //
     j = find(alphabet.begin(), alphabet.end(), 'n');
-    vector<CharIntMap::value_type> pairs;
-    pairs.push_back(CharIntMap::value_type(*j, j - alphabet.begin()));
+    vector< pair <char, int> > pairs;
+    pairs.push_back(make_pair(*j, j - alphabet.begin()));
     ++j;
-    pairs.push_back(CharIntMap::value_type(*j, j - alphabet.begin()));
+    pairs.push_back(make_pair(*j, j - alphabet.begin()));
     ++j;
-    pairs.push_back(CharIntMap::value_type(*j, j - alphabet.begin()));
+    pairs.push_back(make_pair(*j, j - alphabet.begin()));
     ++j;
-    pairs.push_back(CharIntMap::value_type(*j, j - alphabet.begin()));
+    pairs.push_back(make_pair(*j, j - alphabet.begin()));
 
     p = find_first_of(m.begin(), m.end(), pairs.begin(), pairs.end());
     test(p != m.end());
@@ -274,7 +287,7 @@ run(int argc, char* argv[], const DBPtr& db)
     copy(m.begin(), m.end(), back_inserter(pairs));
     test(pairs.size() == m.size());
 
-    vector<CharIntMap::value_type>::const_iterator pit;
+    vector<pair<char, int> >::const_iterator pit;
     for (pit = pairs.begin() ; pit != pairs.end() ; ++pit)
     {
 	p = m.find(pit->first);

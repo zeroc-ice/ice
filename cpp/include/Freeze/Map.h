@@ -20,157 +20,12 @@ namespace Freeze
 {
 
 //
-// This wrapper class holds a key/value pair and the associated
-// database. Upon assignment it writes the new value into the backing
-// database.
-//
-template <typename key_type, typename value_type, typename KeyCodec, typename ValueCodec>
-class DBWrapper
-{
-public:
-
-    DBWrapper()
-    {
-    }
-
-    DBWrapper(const DBPtr& db, const key_type& key, const value_type& value) :
-	_db(db), _key(key), _value(value)
-    {
-    }
-
-    operator value_type() const
-    {
-	return _value;
-    }
-
-    //
-    // For MSVC (EvictorI.cpp). TODO: Re-examine.
-    //
-    value_type get_value() const
-    {
-	return _value;
-    }
-
-    bool operator!=(const value_type& value) const
-    {
-	return _value != value;
-    }
-
-    bool operator==(const value_type& value) const
-    {
-	return _value == value;
-    }
-
-    DBWrapper& operator=(const value_type& value)
-    {
-	Freeze::Key k;
-	Freeze::Value v;
-	
-	IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());
-	k = KeyCodec::write(_key, instance);
-	v = ValueCodec::write(value, instance);
-	
-	_db->put(k, v);
-
-	_value = value;
-
-	return *this;
-    }
-
-private:
-
-    DBPtr _db;
-    key_type _key;
-    value_type _value;
-};
-
-//
 // Forward declaration
 //
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
 class DBMap;
 template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
 class ConstDBIterator;
-
-//
-// It's necessary to have DBPair so that automatic conversion to
-// std::pair<key_type, mapped_type> from std::pair<key_type,
-// DBWrapper<...> > can work correctly (and global operator== &
-// operator!=).
-//
-template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-struct DBPair
-{
-    typedef key_type first_type;
-    typedef  DBWrapper<key_type, mapped_type, KeyCodec, ValueCodec> second_type;
-    
-    first_type first;
-    second_type second;
-    
-    DBPair() :
-	first(first_type()), second(second_type())
-    {
-    }
-    
-    DBPair(const first_type& f, const second_type& s) :
-	first(f), second(s)
-    {
-    }
-    
-    ~DBPair()
-    {
-    }
-
-    operator std::pair<key_type, mapped_type>()
-    {
-	return std::pair<key_type, mapped_type>(first, second);
-    }
-};
-
-//
-// Global operator== & operator!= for both DBPair & std::pair.
-//
-template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-inline bool operator==(const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p1,
-		       const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p2)
-{ 
-    return p1.first == p2.first && p1.second == p2.second; 
-}
-
-template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-inline bool operator==(const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p1,
-		       const std::pair<key_type, mapped_type>& p2)
-{ 
-    return p1.first == p2.first && p1.second == p2.second; 
-}
-
-template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-inline bool operator==(const std::pair<key_type, mapped_type>& p1,
-		       const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p2)
-{ 
-    return p1.first == p2.first && p1.second == p2.second; 
-}
-
-template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-inline bool operator!=(const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p1,
-		       const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p2)
-{ 
-    return p1.first != p2.first || p1.second != p2.second; 
-}
-
-template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-inline bool operator!=(const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p1,
-		       const std::pair<key_type, mapped_type>& p2)
-{ 
-    return p1.first != p2.first || p1.second != p2.second; 
-}
-
-template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
-inline bool operator!=(const std::pair<key_type, mapped_type>& p1,
-		       const DBPair<key_type, mapped_type, KeyCodec, ValueCodec>& p2)
-{ 
-    return p1.first != p2.first || p1.second != p2.second; 
-}
 
 //
 // This is necessary for MSVC support.
@@ -181,7 +36,9 @@ struct DBIteratorBase
 };
 
 //
-// Database iterator. This implements a forward iterator.
+// Database iterator. This implements a forward iterator with the
+// restriction that it's only possible to explicitely write back into
+// the database.
 //
 // Equality and inequality are based on whether the iterator is
 // "valid". An valid iterator contains a valid database and cursor
@@ -197,27 +54,11 @@ public:
 
     typedef ptrdiff_t difference_type;
 
-    //
-    // NOTE:
-    //
-    // Normally this would be const key_type, mapped_type. However,
-    // since there the returned data is always data that is in the
-    // backing database then it's not necessary - in fact, it screws
-    // up the operator*() and operator-> methods.
-    //
-    typedef std::pair<key_type, mapped_type> value_type;
+    typedef std::pair<const key_type, const mapped_type> value_type;
 
     typedef value_type* pointer;
 
     typedef value_type& reference;
-
-    //
-    // This is a special value-type that allows write-back to the
-    // database. It's necessary to use DBPair so that automatic
-    // conversion to std::pair<key_type,mapped_type> can work correct
-    // (and global operator== & !=).
-    //
-    typedef DBPair<key_type, mapped_type, KeyCodec, ValueCodec> reference_value_type;
 
     DBIterator(const DBPtr& db, const DBCursorPtr& cursor)
 	: _db(db), _cursor(cursor)
@@ -295,20 +136,35 @@ public:
     //
     // value_type& operator*(), value_type operator*() const
     //
-    reference_value_type& operator*() const
+    value_type& operator*() const
     {
 	key_type key;
 	mapped_type value;
 
 	getCurrentValue(key, value);
-	_ref = reference_value_type(key, DBWrapper<key_type, mapped_type, KeyCodec, ValueCodec> (_db, key, value));
+
+	//
+	// !IMPORTANT!
+	//
+	// This method has to cache the returned value to implement
+	// operator->().
+	//
+	const_cast<key_type&>(_ref.first) = key;
+	const_cast<mapped_type&>(_ref.second) = value;
 	return _ref;
     }
 
+    value_type* operator->() { return &(operator*()); }
+
     //
-    // Special version that allows writing back to the database.
+    // This special method allows writing back into the database.
     //
-    reference_value_type* operator->() { return &(operator*()); }
+    void set(const mapped_type& value)
+    {
+	IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());
+	Freeze::Value v = ValueCodec::write(value, instance);
+	_cursor->set(v);
+    }
 
 private:
 
@@ -349,7 +205,7 @@ private:
     // Cached last return value. This is so that operator->() can
     // actually return a pointer.
     //
-    mutable reference_value_type _ref;
+    mutable value_type _ref;
 };
 
 //
@@ -362,15 +218,7 @@ public:
 
     typedef ptrdiff_t difference_type;
 
-    //
-    // NOTE:
-    //
-    // Normally this would be const key_type, mapped_type. However,
-    // since there the returned data is always data that is in the
-    // backing database then it's not necessary - in fact, it screws
-    // up the operator*() and operator-> methods.
-    //
-    typedef std::pair<key_type, mapped_type> value_type;
+    typedef std::pair<const key_type, const mapped_type> value_type;
 
     typedef value_type* pointer;
 
@@ -478,13 +326,24 @@ public:
 	return tmp;
     }
 
+    //
+    // Note that this doesn't follow the regular iterator mapping:
+    //
+    // value_type operator*() const
+    //
     value_type& operator*() const
     {
 	key_type key;
 	mapped_type value;
 
-	getCurrentValue(key, value);
-	_ref = value_type(key, value);
+	//
+	// !IMPORTANT!
+	//
+	// This method has to cache the returned value to implement
+	// operator->().
+	//
+	const_cast<key_type&>(_ref.first) = key;
+	const_cast<mapped_type&>(_ref.second) = value;
 	return _ref;
     }
 
@@ -533,9 +392,10 @@ private:
 
 //
 // This is an STL container that matches the requirements of a
-// Associated Container. It also supports the same interface as a
-// Hashed Associative Container, except the hasher & key_equal
-// methods.
+// Associated Container - with the restriction that operator[] isn't
+// implemented. It also supports the same interface as a Hashed
+// Associative Container (with the above restrictions), except the
+// hasher & key_equal methods.
 //
 // TODO: If necessary it would be possible to implement reverse and
 // bidirectional iterators.
@@ -545,15 +405,7 @@ class DBMap
 {
 public:
 
-    //
-    // NOTE:
-    //
-    // Normally this would be const key_type, mapped_type. However,
-    // since there the returned data is always data that is in the
-    // backing database then it's not necessary - in fact, it screws
-    // up the operator*() and operator-> methods.
-    //
-    typedef std::pair<key_type, mapped_type> value_type;
+    typedef std::pair<const key_type, const mapped_type> value_type;
 
     //
     // These are not supported:
@@ -564,24 +416,19 @@ public:
     typedef DBIterator<key_type, mapped_type, KeyCodec, ValueCodec > iterator;
     typedef ConstDBIterator<key_type, mapped_type, KeyCodec, ValueCodec > const_iterator;
 
-    typedef std::pair<const key_type&, mapped_type>& reference;
-    typedef const std::pair<const key_type&, mapped_type>& const_reference;
-
-    typedef std::pair<const key_type&, mapped_type>* pointer;
-    typedef const std::pair<const key_type&, mapped_type>* const_pointer;
+    //
+    // No definition for reference, const_reference, pointer or
+    // const_pointer.
+    //
 
     typedef size_t size_type;
     typedef ptrdiff_t difference_type;
 
     //
-    // Special type similar to DBIterator::value_type_reference
-    //
-    typedef DBWrapper<key_type, mapped_type, KeyCodec, ValueCodec> mapped_type_reference;
-
-    //
     // Allocators are not supported.
     //
     // allocator_type
+    //
 
     //
     // Constructors
@@ -720,33 +567,19 @@ public:
 	return 0xffffffff; // TODO: is this the max?
     }
 
-    mapped_type_reference operator[](const key_type& key)
-    {
-	IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());
-	Freeze::Key k = KeyCodec::write(key, instance);
-	mapped_type value;
-
-	try
-	{
-	    Freeze::Value v = _db->get(k);
-	    ValueCodec::read(value, v, instance);
-	}
-	catch(const DBNotFoundException&)
-	{
-	    value = mapped_type();
-	    Freeze::Value v = ValueCodec::write(value, instance);
-	    _db->put(k, v);
-	}
-	return mapped_type_reference(_db, key, value);
-	
-    }
+    //
+    // This method isn't implemented.
+    //
+    // mapped_type& operator[](const key_type& key)
+    //
 
     //
     // This method isn't in the STLport library - but it's referenced
     // in "STL Tutorial and Refrence Guide, Second Edition". It's not
     // currently implemented.
     //
-    //const mapped_type& operator[](const key_type& key) const;
+    // const mapped_type& operator[](const key_type& key) const;
+    //
 
     //
     // No allocators.
@@ -946,18 +779,19 @@ private:
 namespace std
 {
 
+//XXX update
 template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
-inline pair<key_type, mapped_type>*
+inline pair<const key_type, const mapped_type>*
 value_type(const Freeze::DBIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
 {
-    return (pair<key_type, mapped_type>*)0;
+    return (pair<const key_type, const mapped_type>*)0;
 }
 
 template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
-inline pair<key_type, mapped_type>*
+inline pair<const key_type, const mapped_type>*
 value_type(const Freeze::ConstDBIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
 {
-    return (pair<key_type, mapped_type>*)0;
+    return (pair<const key_type, const mapped_type>*)0;
 }
 
 inline forward_iterator_tag iterator_category(const Freeze::DBIteratorBase&)

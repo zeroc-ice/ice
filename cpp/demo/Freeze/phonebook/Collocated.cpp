@@ -77,7 +77,7 @@ PhoneBookCollocated::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& d
     // Create the phonebook, and add it to the Object Adapter.
     //
     PhoneBookIPtr phoneBook = new PhoneBookI(adapter, dbPhoneBook, evictor);
-    adapter->add(phoneBook, "phonebook");
+    adapter->add(phoneBook, Ice::stringToIdentity("phonebook"));
     
     //
     // Create and install a factory and initializer for contacts.
