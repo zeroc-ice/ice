@@ -19,6 +19,12 @@ IceSSL::CertificateVerifierOpenSSL::~CertificateVerifierOpenSSL()
 }
 
 void
+IceSSL::CertificateVerifierOpenSSL::setContext(::IceSSL::ContextType contextType)
+{
+    _contextType = contextType;
+}
+
+void
 IceInternal::incRef(::IceSSL::CertificateVerifierOpenSSL* p)
 {
     p->__incRef();

@@ -61,6 +61,7 @@ void
 IceSSL::Context::setCertificateVerifier(const CertificateVerifierPtr& verifier)
 {
     _certificateVerifier = verifier;
+    _certificateVerifier->setContext(_contextType);
 }
 
 void
@@ -153,11 +154,14 @@ IceSSL::Context::configure(const GeneralConfig& generalConfig,
 // Protected
 //
 
-IceSSL::Context::Context(const TraceLevelsPtr& traceLevels, const CommunicatorPtr& communicator) :
+IceSSL::Context::Context(const TraceLevelsPtr& traceLevels, const CommunicatorPtr& communicator,
+                         const ContextType& type) :
     _traceLevels(traceLevels),
-    _communicator(communicator)
+    _communicator(communicator),
+    _contextType(type)
 {
     _certificateVerifier = new DefaultCertificateVerifier(traceLevels, communicator);
+    _certificateVerifier->setContext(_contextType);
     _sslContext = 0;
 
     _maxPassphraseRetriesDefault = "4";

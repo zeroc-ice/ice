@@ -232,6 +232,7 @@ IceSSL::OpenSSLPluginI::~OpenSSLPluginI()
 
     ERR_free_strings();
     unregisterThreads();
+    ERR_remove_state(0);
 
     EVP_cleanup();
 
@@ -639,6 +640,8 @@ IceSSL::OpenSSLPluginI::setCertificateVerifier(ContextType contextType,
         IceSSL::CertificateVerifierTypeException cvtEx(__FILE__, __LINE__);
         throw cvtEx;
     }
+
+    castVerifier->setContext(contextType);
 
     if(contextType == Client || contextType == ClientServer)
     {

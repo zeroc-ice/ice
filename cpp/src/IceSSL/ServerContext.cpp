@@ -98,7 +98,7 @@ IceSSL::ServerContext::createTransceiver(int socket, const OpenSSLPluginIPtr& pl
 //
 
 IceSSL::ServerContext::ServerContext(const TraceLevelsPtr& traceLevels, const CommunicatorPtr& communicator) :
-    Context(traceLevels, communicator)
+    Context(traceLevels, communicator, Server)
 {
     _rsaPrivateKeyProperty = "IceSSL.Server.Overrides.RSA.PrivateKey";
     _rsaPublicKeyProperty  = "IceSSL.Server.Overrides.RSA.Certificate";

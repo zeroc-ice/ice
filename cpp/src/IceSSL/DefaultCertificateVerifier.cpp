@@ -13,6 +13,7 @@
 // **********************************************************************
 
 #include <Ice/Communicator.h>
+#include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/DefaultCertificateVerifier.h>
@@ -52,8 +53,82 @@ IceSSL::DefaultCertificateVerifier::verify(int preVerifyOkay, X509_STORE_CTX* x5
             X509_STORE_CTX_set_error(x509StoreContext, verifyError);
         }
 
-        // If we have ANY errors, we bail out.
-        preVerifyOkay = 0;
+        bool checkIgnoreValid = false;
+
+        switch(verifyError)
+        {
+            case X509_V_ERR_CERT_NOT_YET_VALID:
+            case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
+            {
+                checkIgnoreValid = true;
+                break;
+            }
+
+            case X509_V_ERR_CERT_HAS_EXPIRED:
+            case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
+            {
+                checkIgnoreValid = true;
+                break;
+            }
+
+            default :
+            {
+                // If we have any other errors, we bail out.
+                preVerifyOkay = 0;
+                break;
+            }
+        }
+
+        if(checkIgnoreValid)
+        {
+            ::Ice::PropertiesPtr properties = _communicator->getProperties();
+
+            switch(_contextType)
+            {
+                case Client :
+                {
+                    if(properties->getPropertyAsIntWithDefault("IceSSL.Client.IgnoreValidPeriod", 0) == 0)
+                    {
+                        // Unless we're told to ignore this result, we bail out.
+                        preVerifyOkay = 0;
+                    }
+                    else
+                    {
+                        preVerifyOkay = 1;
+                    }
+                    break;
+                }
+
+                case Server :
+                {
+                    if(properties->getPropertyAsIntWithDefault("IceSSL.Server.IgnoreValidPeriod", 0) == 0)
+                    {
+                        // Unless we're told to ignore this result, we bail out.
+                        preVerifyOkay = 0;
+                    }
+                    else
+                    {
+                        preVerifyOkay = 1;
+                    }
+                    break;
+                }
+
+                case ClientServer:
+                {
+                    if(properties->getPropertyAsIntWithDefault("IceSSL.Client.IgnoreValidPeriod", 0) == 0 && 
+                        properties->getPropertyAsIntWithDefault("IceSSL.Server.IgnoreValidPeriod", 0) == 0)
+                    {
+                        // Unless we're told to ignore this result, we bail out.
+                        preVerifyOkay = 0;
+                    }
+                    else
+                    {
+                        preVerifyOkay = 1;
+                    }
+                    break;
+                }
+            }
+        }
     }
 
     // Only if ICE_PROTOCOL level logging is on do we worry about this.

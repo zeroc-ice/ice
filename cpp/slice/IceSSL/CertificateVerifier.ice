@@ -15,6 +15,8 @@
 #ifndef ICE_SSL_CERTIFICATE_VERIFIER_ICE
 #define ICE_SSL_CERTIFICATE_VERIFIER_ICE
 
+#include <IceSSL/Plugin.ice>
+
 module IceSSL
 {
 
@@ -37,6 +39,15 @@ module IceSSL
  **/
 local interface CertificateVerifier
 {
+    /**
+     *
+     * Set the context type of this Certificate Verifier.
+     *
+     * @param type The type of context that is using this CertificateVerifier,
+     * Client, Server or ClientServer.
+     *
+     **/
+    void setContext(ContextType type);
 };
 
 };

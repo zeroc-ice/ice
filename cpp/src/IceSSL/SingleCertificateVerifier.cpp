@@ -28,8 +28,8 @@ IceSSL::SingleCertificateVerifier::SingleCertificateVerifier(const ByteSeq& publ
 
 int
 IceSSL::SingleCertificateVerifier::verify(int preVerifyOkay,
-                                                   X509_STORE_CTX* x509StoreContext,
-                                                   SSL* sslConnection)
+                                          X509_STORE_CTX* x509StoreContext,
+                                          SSL* sslConnection)
 {
     // For getting the CA certificate
     X509* trustedCert = 0;

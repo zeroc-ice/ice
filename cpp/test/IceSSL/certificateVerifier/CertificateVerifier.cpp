@@ -29,12 +29,14 @@ using namespace Ice;
 class BadCertificateVerifier : virtual public ::IceSSL::CertificateVerifier
 {
 public:
+    virtual void setContext(IceSSL::ContextType type) { };
 };
 
 class GoodCertificateVerifier : virtual public ::IceSSL::CertificateVerifierOpenSSL
 {
 public:
     virtual int verify(int, X509_STORE_CTX*, SSL*);
+    virtual void setContext(IceSSL::ContextType type) { };
 };
 
 int

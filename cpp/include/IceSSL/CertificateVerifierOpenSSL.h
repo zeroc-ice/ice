@@ -17,6 +17,7 @@
 
 #include <IceSSL/Config.h>
 #include <IceSSL/CertificateVerifier.h>
+#include <IceSSL/Plugin.h>
 #include <openssl/ssl.h>
 
 namespace IceSSL
@@ -28,7 +29,13 @@ public:
 
     virtual ~CertificateVerifierOpenSSL();
 
+    void setContext(ContextType);
+
     virtual int verify(int, X509_STORE_CTX*, SSL*) = 0;
+
+protected:
+
+    ContextType _contextType;
 };
 
 typedef IceInternal::Handle<IceSSL::CertificateVerifierOpenSSL> CertificateVerifierOpenSSLPtr;
