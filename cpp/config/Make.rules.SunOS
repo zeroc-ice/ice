@@ -33,3 +33,6 @@ LIBEXT			= so
 
 BASELIBS		= -lIceUtil $(STLPORT_LIBS) -lpthread
 LIBS			= -lIce -lbz2 $(BASELIBS) -ldl
+
+ICEUTIL_OS_LIBS         = -lpthread -lrt
+ICE_OS_LIBS             = -lsocket

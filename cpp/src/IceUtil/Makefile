@@ -36,7 +36,7 @@ SRCS		= $(OBJS:.o=.cpp)
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= $(CPPFLAGS) 
-LINKWITH        := $(STLPORT_LIBS)
+LINKWITH        := $(STLPORT_LIBS) $(ICEUTIL_OS_LIBS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
