@@ -27,7 +27,7 @@ public:
     Direct(const ::Ice::ObjectAdapterPtr&, const ReferencePtr&, const char*);
     ~Direct();
 
-    const ::Ice::ObjectPtr& servant();    
+    const ::Ice::ObjectPtr& facetServant();    
 
 private:
 
@@ -35,6 +35,7 @@ private:
     const ReferencePtr& _reference;
     const char* _operation;
     ::Ice::ObjectPtr _servant;
+    ::Ice::ObjectPtr _facetServant;
     ::Ice::ServantLocatorPtr _locator;
     ::Ice::LocalObjectPtr _cookie;
 };

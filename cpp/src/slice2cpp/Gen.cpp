@@ -1338,7 +1338,7 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateD" << scoped << paramsDecl;
     C << sb;
     C << nl << "::IceInternal::Direct __direct(__adapter, __reference, \"" << name << "\");";
-    C << nl << cl->scoped() << "* __servant = dynamic_cast< " << cl->scoped() << "*>(__direct.servant().get());";
+    C << nl << cl->scoped() << "* __servant = dynamic_cast< " << cl->scoped() << "*>(__direct.facetServant().get());";
     C << nl << "if (!__servant)";
     C << sb;
     C << nl << "throw ::Ice::OperationNotExistException(__FILE__, __LINE__);";

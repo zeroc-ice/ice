@@ -71,17 +71,26 @@ IceInternal::Incoming::invoke(BasicStream& is)
 		servant = locator->locate(_adapter, identity, operation, cookie);
 	    }
 	}
-	
+
 	if(!servant)
 	{
 	    _os.write(static_cast<Byte>(DispatchObjectNotExist));
 	}
 	else
 	{
-	    if(!facet.empty())
+	    if (!facet.empty())
 	    {
-		// Not implemented yet
-		_os.write(static_cast<Byte>(DispatchFacetNotExist));
+		ObjectPtr facetServant = servant->_findFacet(facet);
+		if (!facetServant)
+		{
+		    _os.write(static_cast<Byte>(DispatchFacetNotExist));
+		}
+		else
+		{
+		    _os.write(static_cast<Byte>(DispatchOK));
+		    DispatchStatus status = facetServant->__dispatch(*this, operation);
+		    *(_os.b.begin() + statusPos) = static_cast<Byte>(status);
+		}
 	    }
 	    else
 	    {
@@ -93,14 +102,14 @@ IceInternal::Incoming::invoke(BasicStream& is)
 
 	if (locator && servant)
 	{
-	    locator->finished(_adapter, identity, servant, operation, cookie);
+	    locator->finished(_adapter, identity, operation, servant, cookie);
 	}
     }
     catch (const LocationForward& ex)
     {
 	if (locator && servant)
 	{
-	    locator->finished(_adapter, identity, servant, operation, cookie);
+	    locator->finished(_adapter, identity, operation, servant, cookie);
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchLocationForward));
@@ -111,7 +120,7 @@ IceInternal::Incoming::invoke(BasicStream& is)
     {
 	if (locator && servant)
 	{
-	    locator->finished(_adapter, identity, servant, operation, cookie);
+	    locator->finished(_adapter, identity, operation, servant, cookie);
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchUnknownLocalException));
@@ -121,7 +130,7 @@ IceInternal::Incoming::invoke(BasicStream& is)
     {
 	if (locator && servant)
 	{
-	    locator->finished(_adapter, identity, servant, operation, cookie);
+	    locator->finished(_adapter, identity, operation, servant, cookie);
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchUnknownUserException));
@@ -131,7 +140,7 @@ IceInternal::Incoming::invoke(BasicStream& is)
     {
 	if (locator && servant)
 	{
-	    locator->finished(_adapter, identity, servant, operation, cookie);
+	    locator->finished(_adapter, identity, operation, servant, cookie);
 	}
 	_os.b.resize(statusPos);
 	_os.write(static_cast<Byte>(DispatchUnknownException));

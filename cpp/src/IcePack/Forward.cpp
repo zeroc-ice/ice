@@ -159,8 +159,8 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
 }
 
 void
-IcePack::Forward::finished(const ObjectAdapterPtr&, const string&, const ObjectPtr&, const string&,
-			   const LocalObjectPtr&)
+IcePack::Forward::finished(const ObjectAdapterPtr&, const string&, const string&,
+			   const ObjectPtr&, const LocalObjectPtr&)
 {
     // Nothing to do
 }

@@ -252,8 +252,8 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity
 }
 
 void
-Freeze::EvictorI::finished(const ObjectAdapterPtr&, const string& identity, const ObjectPtr& servant,
-			   const string& operation, const LocalObjectPtr& cookie)
+Freeze::EvictorI::finished(const ObjectAdapterPtr&, const string& identity, const string& operation,
+			   const ObjectPtr& servant, const LocalObjectPtr& cookie)
 {
     JTCSyncT<JTCMutex> sync(*this);
 

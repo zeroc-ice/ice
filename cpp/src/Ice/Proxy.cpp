@@ -559,14 +559,14 @@ bool
 IceDelegateD::Ice::Object::_isA(const string& s)
 {
     Direct __direct(__adapter, __reference, "_isA");
-    return __direct.servant()->_isA(s);
+    return __direct.facetServant()->_isA(s);
 }
 
 void
 IceDelegateD::Ice::Object::_ping()
 {
     Direct __direct(__adapter, __reference, "_ping");
-    __direct.servant()->_ping();
+    __direct.facetServant()->_ping();
 }
 
 void

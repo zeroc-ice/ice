@@ -49,12 +49,21 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const ReferencePtr&
 		_servant = _locator->locate(_adapter, _reference->identity, _operation, _cookie);
 	    }
 	}
+	
+	if (_servant && !ref->facet.empty())
+	{
+	    _facetServant = _servant->_findFacet(ref->facet);
+	    if (!_facetServant)
+	    {
+		throw FacetNotExistException(__FILE__, __LINE__);
+	    }
+	}
     }
     catch(...)
     {
 	if (_locator && _servant)
 	{
-	    _locator->finished(_adapter, _reference->identity, _servant, _operation, _cookie);
+	    _locator->finished(_adapter, _reference->identity, _operation, _servant, _cookie);
 	}
 	throw;
     }
@@ -63,24 +72,25 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const ReferencePtr&
     {
 	throw ObjectNotExistException(__FILE__, __LINE__);
     }
-
-    if(!ref->facet.empty())
-    {
-	// Not implemented yet
-	throw FacetNotExistException(__FILE__, __LINE__);
-    }
 }
 
 IceInternal::Direct::~Direct()
 {
     if (_locator && _servant)
     {
-	_locator->finished(_adapter, _reference->identity, _servant, _operation, _cookie);
+	_locator->finished(_adapter, _reference->identity, _operation, _servant, _cookie);
     }
 }
 
 const ObjectPtr&
-IceInternal::Direct::servant()
+IceInternal::Direct::facetServant()
 {
-    return _servant;
+    if (_facetServant)
+    {
+	return _facetServant;
+    }
+    else
+    {
+	return _servant;
+    }
 }

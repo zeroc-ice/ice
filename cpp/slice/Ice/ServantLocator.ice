@@ -76,9 +76,9 @@ local interface ServantLocator
      * @param identity The identity of the Ice Object for which a
      * Servant was located by [locate].
      *
-     * @param servant The Servant that was returned by [locate].
-     *
      * @param operation The operation the Object Adapter just called.
+     *
+     * @param servant The Servant that was returned by [locate].
      *
      * @param cookie The cookie that was returned by [locate].
      *
@@ -86,7 +86,7 @@ local interface ServantLocator
      * @see locate
      *
      **/
-    void finished(ObjectAdapter adapter, string identity, Object servant, string operation, LocalObject cookie);
+    void finished(ObjectAdapter adapter, string identity, string operation, Object servant, LocalObject cookie);
 
     /**
      *
