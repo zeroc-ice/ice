@@ -13,7 +13,8 @@
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/Stub.h>
+#include <Ice/StubF.h>
+#include <Ice/Shared.h>
 
 namespace Ice
 {

@@ -13,7 +13,6 @@
 
 #include <Ice/StubF.h>
 #include <Ice/Shared.h>
-#include <string>
 
 namespace _IceIntf { namespace Ice
 {

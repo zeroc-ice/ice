@@ -12,7 +12,6 @@
 #define ICE_SHARED_H
 
 #include <Ice/Config.h>
-#include <cassert>
 
 namespace _Ice
 {

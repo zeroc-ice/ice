@@ -14,7 +14,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/CommunicatorF.h>
 #include <Ice/ObjectFactoryF.h>
-#include <Ice/Stub.h>
+#include <Ice/Shared.h>
 
 namespace _Ice
 {

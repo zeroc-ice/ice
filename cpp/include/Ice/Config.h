@@ -11,6 +11,25 @@
 #ifndef ICE_CONFIG_H
 #define ICE_CONFIG_H
 
+//
+// Some include files we need almost everywhere
+//
+#include <cerrno>
+#include <cassert>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <string>
+#include <vector>
+
+//
+// Define Ice and _Ice namespace, for those files which do not include
+// any files which use these namespaces. This way we can use uniform
+// "using" statements everywhere.
+//
+namespace Ice { }
+namespace _Ice { }
+
 #ifdef WIN32
 
 // ... identifier was truncated to '255' characters in the debug information
