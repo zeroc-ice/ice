@@ -29,12 +29,12 @@ C compiler
 Third-party libraries
 ---------------------
 
-- Berkeley DB 4.1.25 or 4.2.52 with C++ support enabled, and built
-  with a C++ compiler compatible with the one you are using.  The
+- Berkeley DB 4.2.52 or 4.3.21 with C++ support enabled, and built
+  with a C++ compiler compatible with the one you are using. The
   Berkeley DB source distribution can be downloaded from
   http://www.sleepycat.com
   
-  We recommend to configure and build Berkeley DB with:
+  We recommend that you configure and build Berkeley DB with:
 
   $ export CXXOPTS="-AA -mt"
   $ export CCOPTS="-mt"
@@ -50,6 +50,10 @@ Third-party libraries
   (plus --prefix=<dir> and/or --enable-java if you like)
   $ gmake
  
+  Note that Ice for Java is not compatible with version 4.3.21,
+  therefore if you intend to use Ice for Java with Berkeley DB,
+  you must use version 4.2.52 and the option --enable-java.
+
 - OpenSSL 0.9.7c, which can be downloaded from http://www.openssl.org
 
   We do not recommend to use the binary distribution available from
