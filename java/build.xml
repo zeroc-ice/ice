@@ -62,6 +62,9 @@
             <fileset dir="${slice.dir}/IceStorm">
                 <include name="IceStorm.ice" />
             </fileset>
+            <fileset dir="${slice.dir}/Yellow">
+                <include name="Yellow.ice" />
+            </fileset>
         </slice2java>
         <slice2freezej tagdir="${tags.dir}" outputdir="${generated.dir}">
             <includepath>
