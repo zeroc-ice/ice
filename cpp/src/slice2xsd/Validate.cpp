@@ -8,6 +8,8 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Config.h>
+
 #include <util/PlatformUtils.hpp>
 #include <util/XMLString.hpp>
 #include <util/XMLUniDefs.hpp>
@@ -26,6 +28,7 @@
 #include <iostream>
 
 using namespace std;
+
 // Global streaming operator for DOMString is defined in DOMPrint.cpp
 //extern ostream& operator<<(ostream& target, const DOMString& s);
 ostream& operator<< (ostream& target, const DOMString& s)
@@ -61,7 +64,6 @@ public:
 	     << "\", line " << toCatch.getLineNumber()
 	     << ", column " << toCatch.getColumnNumber()
 	     << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
-
     }
 
     void
@@ -80,23 +82,30 @@ public:
 
     bool getSawErrors() const { return _sawErrors; }
 
-    bool    _sawErrors;
+    bool _sawErrors;
 };
 
 void
-usage(const char* progName)
+usage(const char* n)
 {
+    cerr << "Usage: " << n << " xml-files...\n";
+    cerr <<
+	"Options:\n"
+	"-h, --help	      Show this message.\n"
+	"-v, --version	      Display the Ice version.\n"
+	;
 }
 
 int
 main(int argc, char** argv)
 {
-        // Initialize the XML4C2 system
+    //
+    // Initialize the XML4C2 system
+    //
     try
     {
         XMLPlatformUtils::Initialize();
     }
-
     catch(const XMLException& toCatch)
     {
         cerr << "Error during Xerces-c Initialization.\n"
@@ -105,58 +114,84 @@ main(int argc, char** argv)
         return 1;
     }
 
+    int idx = 1;
+    while(idx < argc)
+    {
+	if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
+	{
+	    usage(argv[0]);
+	    return EXIT_SUCCESS;
+	}
+	else if(strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
+	{
+	    cout << ICE_STRING_VERSION << endl;
+	    return EXIT_SUCCESS;
+	}
+	else if(argv[idx][0] == '-')
+	{
+	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+	else
+	{
+	    ++idx;
+	}
+    }
+
     if(argc < 2)
     {
+	cerr << argv[0] << ": no input file" << endl;
 	usage(argv[0]);
 	return EXIT_FAILURE;
     }
 
-    //
-    //  Create our parser, then attach an error handler to the parser.
-    //  The parser will call back to methods of the ErrorHandler if it
-    //  discovers errors during the course of parsing the XML document.
-    //
-    DOMParser* parser = new DOMParser;
-    parser->setValidationScheme(DOMParser::Val_Auto);
-    parser->setDoNamespaces(true);
-    parser->setDoSchema(true);
-    parser->setValidationSchemaFullChecking(true);
-
-    DOMTreeErrorReporter *errReporter = new DOMTreeErrorReporter();
-    parser->setErrorHandler(errReporter);
-    parser->setCreateEntityReferenceNodes(false);
-    parser->setToCreateXMLDeclTypeNode(true);
-
-    //
-    //  Parse the XML file, catching any XML exceptions that might propogate
-    //  out of it.
-    //
     bool errorsOccured = false;
-    try
+    for(idx = 1 ; idx < argc ; ++idx)
     {
-        parser->parse(argv[1]);
-        int errorCount = parser->getErrorCount();
-        if(errorCount > 0)
+        //
+        //  Create our parser, then attach an error handler to the parser.
+        //  The parser will call back to methods of the ErrorHandler if it
+        //  discovers errors during the course of parsing the XML document.
+        //
+        DOMParser* parser = new DOMParser;
+        parser->setValidationScheme(DOMParser::Val_Auto);
+        parser->setDoNamespaces(true);
+        parser->setDoSchema(true);
+        parser->setValidationSchemaFullChecking(true);
+
+        DOMTreeErrorReporter *errReporter = new DOMTreeErrorReporter();
+        parser->setErrorHandler(errReporter);
+        parser->setCreateEntityReferenceNodes(false);
+        parser->setToCreateXMLDeclTypeNode(true);
+
+        //
+        //  Parse the XML file, catching any XML exceptions that might propogate
+        //  out of it.
+        //
+        try
+        {
+            parser->parse(argv[idx]);
+            if(parser->getErrorCount() > 0)
+            {
+                errorsOccured = true;
+            }
+        }
+        catch(const XMLException& e)
+        {
+            cerr << "An error occured during parsing\n   Message: " << DOMString(e.getMessage()) << endl;
             errorsOccured = true;
-    }
-
-    catch(const XMLException& e)
-    {
-        cerr << "An error occured during parsing\n   Message: "
-             << DOMString(e.getMessage()) << endl;
-        errorsOccured = true;
-    }
-    catch(const DOM_DOMException& e)
-    {
-       cerr << "A DOM error occured during parsing\n   DOMException code: "
-             << e.code << endl;
-        errorsOccured = true;
-    }
-
-    catch (...)
-    {
-        cerr << "An error occured during parsing\n " << endl;
-        errorsOccured = true;
+        }
+        catch(const DOM_DOMException& e)
+        {
+            cerr << "A DOM error occured during parsing\n   DOMException code: " << e.code << endl;
+            errorsOccured = true;
+        }
+        catch(...)
+        {
+            cerr << "An error occured during parsing\n " << endl;
+            errorsOccured = true;
+        }
     }
 
     return (errorsOccured) ? EXIT_FAILURE : EXIT_SUCCESS;
