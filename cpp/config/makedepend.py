@@ -9,12 +9,12 @@
 #
 # **********************************************************************
 
-import fileinput, string
+import fileinput
 
 previous = ""
 
 for line in fileinput.input():
-    line = string.strip(line)
+    line = line.strip()
 
     if(previous):
         line = previous + " " + line
@@ -25,7 +25,7 @@ for line in fileinput.input():
     else:
         previous = ""
 
-    for s in string.split(line):
+    for s in line.split():
         if(s[0] != "/"):
             print s,
 

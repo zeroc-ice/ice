@@ -1,1 +1,1 @@
-NativeRedefinition.ice:12 error: redefinition of native `Native'
+NativeRedefinition.ice:12: redefinition of native `Native'

@@ -31,7 +31,7 @@ IcePack::Forward::Forward(const CommunicatorPtr& communicator, const AdminPtr& a
     value = properties->getProperty("IcePack.Activator.WaitTime");
     if (value.length())
     {
-	_waitTime = atoi(value);
+	_waitTime = atoi(value.c_str());
 	if (_waitTime < 0)
 	{
 	    _waitTime = 0;

@@ -216,9 +216,12 @@ IcePack::Parser::error(const char* s)
 {
     if (!yycommands && !isatty(fileno(yyin)))
     {
-	cerr << _currentFile << ':' << _currentLine << ' ';
+	cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
     }
-    cerr << "error: " << s << endl;
+    else
+    {
+	cerr << "error: " << s << endl;
+    }
     yynerrs++;
 }
 
@@ -233,9 +236,12 @@ IcePack::Parser::warning(const char* s)
 {
     if (!yycommands && !isatty(fileno(yyin)))
     {
-	cerr << _currentFile << ':' << _currentLine << ' ';
+	cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
     }
-    cerr << "warning: " << s << endl;
+    else
+    {
+	cerr << "warning: " << s << endl;
+    }
 }
 
 void

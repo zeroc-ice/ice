@@ -1,4 +1,4 @@
-DeclaratorMissing.ice:13 error: missing declarator
-DeclaratorMissing.ice:13 error: missing declarator
-DeclaratorMissing.ice:14 error: missing declarator
-DeclaratorMissing.ice:14 error: missing declarator
+DeclaratorMissing.ice:13: missing declarator
+DeclaratorMissing.ice:13: missing declarator
+DeclaratorMissing.ice:14: missing declarator
+DeclaratorMissing.ice:14: missing declarator

@@ -1,2 +1,2 @@
-RedefinitionAsEnumerator.ice:13 error: redefinition of `Vector' as enumerator
-RedefinitionAsEnumerator.ice:13 error: redefinition of `Class' as enumerator
+RedefinitionAsEnumerator.ice:13: redefinition of `Vector' as enumerator
+RedefinitionAsEnumerator.ice:13: redefinition of `Class' as enumerator

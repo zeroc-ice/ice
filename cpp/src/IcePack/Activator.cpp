@@ -13,6 +13,7 @@
 #include <IcePack/Admin.h>
 #include <sstream>
 #include <fcntl.h>
+#include <sys/wait.h>
 
 using namespace std;
 using namespace Ice;
@@ -294,6 +295,17 @@ IcePack::Activator::terminationListener()
 		{
 		    ++p;
 		}
+	    }
+	}
+
+	//
+	// Remove zombie processes, if any
+	//
+	if (waitpid(-1, 0, WNOHANG | WUNTRACED) == -1)
+	{
+	    if (errno != ECHILD) // Ignore ECHILD
+	    {
+		throw SystemException(__FILE__, __LINE__);
 	    }
 	}
     }

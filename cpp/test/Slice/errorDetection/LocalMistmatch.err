@@ -1,12 +1,12 @@
-LocalMistmatch.ice:12 error: local `Intf1' was declared non-local
-LocalMistmatch.ice:13 error: local `Intf1' was declared non-local
-LocalMistmatch.ice:16 error: local `Intf2' was defined non-local
-LocalMistmatch.ice:19 error: non-local `Intf3' was declared local
-LocalMistmatch.ice:20 error: non-local `Intf3' was declared local
-LocalMistmatch.ice:23 error: non-local `Intf4' was defined local
-LocalMistmatch.ice:26 error: local `Class1' was declared non-local
-LocalMistmatch.ice:27 error: local `Class1' was declared non-local
-LocalMistmatch.ice:30 error: local `Class2' was defined non-local
-LocalMistmatch.ice:33 error: non-local `Class3' was declared local
-LocalMistmatch.ice:34 error: non-local `Class3' was declared local
-LocalMistmatch.ice:37 error: non-local `Class4' was defined local
+LocalMistmatch.ice:12: local `Intf1' was declared non-local
+LocalMistmatch.ice:13: local `Intf1' was declared non-local
+LocalMistmatch.ice:16: local `Intf2' was defined non-local
+LocalMistmatch.ice:19: non-local `Intf3' was declared local
+LocalMistmatch.ice:20: non-local `Intf3' was declared local
+LocalMistmatch.ice:23: non-local `Intf4' was defined local
+LocalMistmatch.ice:26: local `Class1' was declared non-local
+LocalMistmatch.ice:27: local `Class1' was declared non-local
+LocalMistmatch.ice:30: local `Class2' was defined non-local
+LocalMistmatch.ice:33: non-local `Class3' was declared local
+LocalMistmatch.ice:34: non-local `Class3' was declared local
+LocalMistmatch.ice:37: non-local `Class4' was defined local

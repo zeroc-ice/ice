@@ -1,1 +1,1 @@
-VectorRedefinition.ice:12 error: redefinition of vector `Vector'
+VectorRedefinition.ice:12: redefinition of vector `Vector'

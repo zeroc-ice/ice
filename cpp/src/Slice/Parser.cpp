@@ -1664,7 +1664,7 @@ Slice::Unit::currentIncludeLevel()
 void
 Slice::Unit::error(const char* s)
 {
-    cerr << _currentFile << ':' << _currentLine << " error: " << s << endl;
+    cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
     yynerrs++;
 }
 
@@ -1677,7 +1677,7 @@ Slice::Unit::error(const string& s)
 void
 Slice::Unit::warning(const char* s)
 {
-    cerr << _currentFile << ':' << _currentLine << " warning: " << s << endl;
+    cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
 }
 
 void

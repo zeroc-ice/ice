@@ -1,2 +1,2 @@
-RedefinitionAsClass.ice:12 error: declaration of already defined `Vector1' as class
-RedefinitionAsClass.ice:15 error: redefinition of `Vector2' as class
+RedefinitionAsClass.ice:12: declaration of already defined `Vector1' as class
+RedefinitionAsClass.ice:15: redefinition of `Vector2' as class

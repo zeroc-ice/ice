@@ -39,11 +39,10 @@ for file in files:
         continue
     
     regex2 = re.compile(r"^.*(?=" + file + ")")
-    diffs = ""
     i = 0
-    while i < len(lines1) and i < len(lines2):
-        line1 = regex2.sub("", lines1[i])
-        line2 = regex2.sub("", lines2[i])
+    while i < len(lines1):
+        line1 = regex2.sub("", lines1[i]).strip()
+        line2 = regex2.sub("", lines2[i]).strip()
         if line1 != line2:
             print "failed!"
             break

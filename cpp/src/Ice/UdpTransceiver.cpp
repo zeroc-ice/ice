@@ -35,9 +35,13 @@ IceInternal::UdpTransceiver::close()
     {
 	ostringstream s;
 	if (_sender)
+	{
 	    s << "stopping to send packets to " << toString();
+	}
 	else
+	{
 	    s << "stopping to receive packets at " << toString();
+	}
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif	
@@ -66,7 +70,9 @@ repeat:
     if (ret == SOCKET_ERROR)
     {
 	if (interrupted())
+	{
 	    goto repeat;
+	}
 
 	throw SocketException(__FILE__, __LINE__);
     }
@@ -100,7 +106,9 @@ repeat:
     if (ret == SOCKET_ERROR)
     {
 	if (interrupted())
+	{
 	    goto repeat;
+	}
 	
 	throw SocketException(__FILE__, __LINE__);
     }
@@ -128,12 +136,16 @@ bool
 IceInternal::UdpTransceiver::equivalent(const string& host, int port) const
 {
     if (_sender)
+    {
 	return false;
+    }
 
     struct sockaddr_in addr;
     getAddress(host.c_str(), port, addr);
     if (addr.sin_addr.s_addr == htonl(INADDR_LOOPBACK))
+    {
 	return port == ntohs(_addr.sin_port);
+    }
 
     struct sockaddr_in localAddr;
     getLocalAddress(ntohs(_addr.sin_port), localAddr);

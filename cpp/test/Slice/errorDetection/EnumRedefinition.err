@@ -1,1 +1,1 @@
-EnumRedefinition.ice:12 error: redefinition of enum `Enum'
+EnumRedefinition.ice:12: redefinition of enum `Enum'

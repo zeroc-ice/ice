@@ -109,7 +109,9 @@ IceInternal::TcpAcceptor::equivalent(const string& host, int port) const
     struct sockaddr_in addr;
     getAddress(host.c_str(), port, addr);
     if (addr.sin_addr.s_addr == htonl(INADDR_LOOPBACK))
+    {
 	return port == ntohs(_addr.sin_port);
+    }
 
     struct sockaddr_in localAddr;
     getLocalAddress(ntohs(_addr.sin_port), localAddr);
@@ -126,7 +128,9 @@ IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, int port) :
 #endif
 
     if (_backlog <= 0)
+    {
         _backlog = 5;
+    }
 
     try
     {

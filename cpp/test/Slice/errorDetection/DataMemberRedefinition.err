@@ -1,1 +1,1 @@
-DataMemberRedefinition.ice:14 error: redefinition of data member `member'
+DataMemberRedefinition.ice:14: redefinition of data member `member'

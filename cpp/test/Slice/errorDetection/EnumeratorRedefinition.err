@@ -1,2 +1,2 @@
-EnumeratorRedefinition.ice:12 error: redefinition of enumerator `B'
-EnumeratorRedefinition.ice:12 error: redefinition of enumerator `A'
+EnumeratorRedefinition.ice:12: redefinition of enumerator `B'
+EnumeratorRedefinition.ice:12: redefinition of enumerator `A'

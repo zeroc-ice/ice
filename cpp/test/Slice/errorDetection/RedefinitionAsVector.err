@@ -1,1 +1,1 @@
-RedefinitionAsVector.ice:12 error: redefinition of `Class' as vector
+RedefinitionAsVector.ice:12: redefinition of `Class' as vector

@@ -70,7 +70,9 @@ IceInternal::SslTransceiver::write(Buffer& buf, int timeout)
     // Limit packet size to avoid performance problems on WIN32
     //
     if (packetSize > 64 * 1024)
+    {
 	packetSize = 64 * 1024;
+    }
 #endif
 
     while (buf.i != buf.b.end())
@@ -90,7 +92,9 @@ IceInternal::SslTransceiver::write(Buffer& buf, int timeout)
 	if (ret == SOCKET_ERROR)
 	{
 	    if (interrupted())
+	    {
 		continue;
+	    }
 
 	    if (noBuffers() && packetSize > 1024)
 	    {
@@ -114,27 +118,37 @@ IceInternal::SslTransceiver::write(Buffer& buf, int timeout)
 			ret = ::select(fd + 1, 0, &wFdSet, 0, &tv);
 		    }
 		    else
+		    {
 			ret = ::select(fd + 1, 0, &wFdSet, 0, 0);
+		    }
 		    
 		    if (ret == SOCKET_ERROR)
 		    {
 			if (interrupted())
+			{
 			    goto repeatSelect;
+			}
 			
 			throw SocketException(__FILE__, __LINE__);
 		    }
 		    
 		    if (ret == 0)
+		    {
 			throw TimeoutException(__FILE__, __LINE__);
+		    }
 		}
 		
 		continue;
 	    }
 	    
 	    if (connectionLost())
+	    {
 		throw ConnectionLostException(__FILE__, __LINE__);
+	    }
 	    else
+	    {
 		throw SocketException(__FILE__, __LINE__);
+	    }
 	}
 
 #ifndef ICE_NO_TRACE
@@ -149,7 +163,9 @@ IceInternal::SslTransceiver::write(Buffer& buf, int timeout)
 	buf.i += ret;
 
 	if (packetSize > buf.b.end() - buf.i)
+	{
 	    packetSize = buf.b.end() - buf.i;
+	}
     }
 }
 
@@ -175,7 +191,9 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 	if (ret == SOCKET_ERROR)
 	{
 	    if (interrupted())
+	    {
 		continue;
+	    }
 	    
 	    if (noBuffers() && packetSize > 1024)
 	    {
@@ -199,27 +217,37 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 			ret = ::select(fd + 1, &rFdSet, 0, 0, &tv);
 		    }
 		    else
+		    {
 			ret = ::select(fd + 1, &rFdSet, 0, 0, 0);
+		    }
 		    
 		    if (ret == SOCKET_ERROR)
 		    {
 			if (interrupted())
+			{
 			    goto repeatSelect;
+			}
 			
 			throw SocketException(__FILE__, __LINE__);
 		    }
 		    
 		    if (ret == 0)
+		    {
 			throw TimeoutException(__FILE__, __LINE__);
+		    }
 		}
 	    
 		continue;
 	    }
 	    
 	    if (connectionLost())
+	    {
 		throw ConnectionLostException(__FILE__, __LINE__);
+	    }
 	    else
+	    {
 		throw SocketException(__FILE__, __LINE__);
+	    }
 	}
 
 #ifndef ICE_NO_TRACE
@@ -234,7 +262,9 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 	buf.i += ret;
 
 	if (packetSize > buf.b.end() - buf.i)
+	{
 	    packetSize = buf.b.end() - buf.i;
+	}
     }
 }
 
