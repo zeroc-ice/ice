@@ -932,6 +932,10 @@ public class BasicStream
         if (_buf.position() == _limit)
         {
             _limit += size;
+            if (_limit > MAX)
+            {
+                throw new Ice.MemoryLimitException();
+            }
             if (_limit > _capacity)
             {
                 final int cap2 = _capacity << 1;

@@ -23,8 +23,17 @@ final class BufferManager
         java.nio.ByteBuffer buf = getBuffer(size);
         if (buf == null)
         {
-            //buf = java.nio.ByteBuffer.allocateDirect(size);
-            buf = java.nio.ByteBuffer.allocate(size);
+            try
+            {
+                //buf = java.nio.ByteBuffer.allocateDirect(size);
+                buf = java.nio.ByteBuffer.allocate(size);
+            }
+            catch (OutOfMemoryError ex)
+            {
+                Ice.MemoryLimitException e = new Ice.MemoryLimitException();
+                e.initCause(ex);
+                throw e;
+            }
             buf.order(java.nio.ByteOrder.LITTLE_ENDIAN);
         }
         return buf;
@@ -36,8 +45,17 @@ final class BufferManager
         java.nio.ByteBuffer buf = getBuffer(size);
         if (buf == null)
         {
-            //buf = java.nio.ByteBuffer.allocateDirect(size);
-            buf = java.nio.ByteBuffer.allocate(size);
+            try
+            {
+                //buf = java.nio.ByteBuffer.allocateDirect(size);
+                buf = java.nio.ByteBuffer.allocate(size);
+            }
+            catch (OutOfMemoryError ex)
+            {
+                Ice.MemoryLimitException e = new Ice.MemoryLimitException();
+                e.initCause(ex);
+                throw e;
+            }
             buf.order(java.nio.ByteOrder.LITTLE_ENDIAN);
         }
         buf.put(old);
