@@ -68,7 +68,7 @@ Module Generate
 	' Compile a Slice file, redirecting standard output and standard error to the console.
 	'
 	Private Function doCompile(ByVal sliceFile As String, ByVal outputDir As String) As Integer
-	    Dim cmdArgs As String = "--output-dir " & outputDir & " --ice " & _includes & " " & sliceFile
+            Dim cmdArgs As String = "--output-dir " & outputDir & " --ice " & _includes & " " & sliceFile
 	    Dim info As ProcessStartInfo = New ProcessStartInfo(_slice2vb, cmdArgs)
 	    info.CreateNoWindow = True
 	    info.UseShellExecute = False

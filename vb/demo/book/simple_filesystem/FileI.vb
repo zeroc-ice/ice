@@ -29,19 +29,19 @@ Public Class FileI
     ' Slice Node::name() operation
 
     Public Overloads Overrides Function name(ByVal current As Ice.Current) As String
-	Return _name
+        Return _name
     End Function
 
     ' Slice File::read() operation
 
     Public Overloads Overrides Function read(ByVal current As Ice.Current) As String()
-	Return _lines
+        Return _lines
     End Function
 
     ' Slice File::write() operation
 
     Public Overloads Overrides Sub write(ByVal text As String(), ByVal current As Ice.Current)
-	_lines = text
+        _lines = text
     End Sub
 
     Public Shared _adapter As Ice.ObjectAdapter
