@@ -42,7 +42,6 @@ import java.io.BufferedWriter;
  *   outputdir - The value for the --output-dir translator option.
  *   package - The value for the --package translator option.
  *   tie - The value for the --tie translator option.
- *   clone - The value for the --clone translator option.
  *   casesensitive - The value for the --case-sensitive translator option.
  *
  * Nested elements:
@@ -82,7 +81,6 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
         _package = null;
         _includePath = null;
         _tie = false;
-        _clone = false;
 	_caseSensitive = false;
     }
 
@@ -143,12 +141,6 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
     setTie(boolean tie)
     {
         _tie = tie;
-    }
-
-    public void
-    setClone(boolean c)
-    {
-        _clone = c;
     }
 
     public void
@@ -288,14 +280,6 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
             }
 
             //
-            // Add --clone
-            //
-            if(_clone)
-            {
-                cmd.append(" --clone");
-            }
-
-            //
             // Add --case-sensitive
             //
             if(_caseSensitive)
@@ -417,7 +401,6 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
     private String _package;
     private Path _includePath;
     private boolean _tie;
-    private boolean _clone;
     private boolean _caseSensitive;
     private java.util.List _fileSets = new java.util.LinkedList();
 }
