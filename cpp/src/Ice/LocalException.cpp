@@ -10,72 +10,10 @@
 
 #include <Ice/LocalException.h>
 #include <Ice/Network.h>
-#include <sstream>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-
-Ice::LocalException::LocalException(const char* file, int line) :
-    _file(file),
-    _line(line)
-{
-}
-
-Ice::LocalException::~LocalException()
-{
-}
-
-Ice::LocalException::LocalException(const LocalException& ex)
-{
-    _line = ex._line;
-    _file = ex._file;
-}
-
-LocalException&
-Ice::LocalException::operator=(const LocalException& ex)
-{
-    if (this != &ex)
-    {
-	_line = ex._line;
-	_file = ex._file;
-    }
-
-    return *this;
-}
-
-string
-Ice::LocalException::toString() const
-{
-    return debugInfo() + "unknown local exception";
-}
-
-LocalException*
-Ice::LocalException::clone() const
-{
-    return new LocalException(*this);
-}
-
-void
-Ice::LocalException::raise() const
-{
-    throw *this;
-}
-
-std::string
-Ice::LocalException::debugInfo() const
-{
-    ostringstream s;
-    s << _file << ':' << _line << ": ";
-    return s.str();
-}
-
-ostream&
-Ice::operator<<(ostream& out, const LocalException& ex)
-{
-    string s = ex.toString();
-    return out << s;
-}
 
 Ice::UnknownException::UnknownException(const char* file, int line) :
     LocalException(file, line)

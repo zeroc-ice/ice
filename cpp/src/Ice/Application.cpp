@@ -55,7 +55,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
     }
     catch(const LocalException& ex)
     {
-	cerr << _appName << ": local exception: " << ex << endl;
+	cerr << _appName << ": " << ex << endl;
 	status = EXIT_FAILURE;
     }
     catch(...)
@@ -72,7 +72,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	}
 	catch(const LocalException& ex)
 	{
-	    cerr << _appName << ": local exception: " << ex << endl;
+	    cerr << _appName << ": " << ex << endl;
 	    status = EXIT_FAILURE;
 	}
 	catch(...)

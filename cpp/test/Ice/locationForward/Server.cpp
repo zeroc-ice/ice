@@ -10,7 +10,6 @@
 
 #include <Ice/Ice.h>
 #include <TestI.h>
-#include <sstream>
 
 using namespace std;
 

@@ -11,7 +11,6 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
-#include <sstream>
 
 using namespace std;
 

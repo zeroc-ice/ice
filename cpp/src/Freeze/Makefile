@@ -28,7 +28,7 @@ OBJS		= DB.o \
 SRCS		= $(OBJS:.o=.cpp)
 
 HDIR		= $(includedir)/Freeze
-IDIR		= $(slicedir)/Freeze
+SDIR		= $(slicedir)/Freeze
 SLICECMD	= $(SLICE2CPP) --include-dir Freeze --dll-export FREEZE_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
@@ -44,42 +44,42 @@ $(NAME): $(VERSIONED_NAME)
 	rm -f $@
 	ln -s $(VERSIONED_BASE) $@
 
-$(HDIR)/DB.h DB.cpp: $(IDIR)/DB.ice $(SLICE2CPP)
+$(HDIR)/DB.h DB.cpp: $(SDIR)/DB.ice $(SLICE2CPP)
 	rm -f $(HDIR)/DB.h DB.cpp
-	$(SLICECMD) $(IDIR)/DB.ice
+	$(SLICECMD) $(SDIR)/DB.ice
 	mv DB.h $(HDIR)
 
 clean::
 	rm -f $(HDIR)/DB.h DB.cpp
 
-$(HDIR)/DBF.h: $(IDIR)/DBF.ice $(SLICE2CPP)
+$(HDIR)/DBF.h: $(SDIR)/DBF.ice $(SLICE2CPP)
 	rm -f $(HDIR)/DBF.h DBF.cpp
-	$(SLICECMD) $(IDIR)/DBF.ice
+	$(SLICECMD) $(SDIR)/DBF.ice
 	mv DBF.h $(HDIR)
 	rm -f DBF.cpp
 
 clean::
 	rm -f $(HDIR)/DBF.h
 
-$(HDIR)/DBException.h DBException.cpp: $(IDIR)/DBException.ice $(SLICE2CPP)
+$(HDIR)/DBException.h DBException.cpp: $(SDIR)/DBException.ice $(SLICE2CPP)
 	rm -f $(HDIR)/DBException.h DBException.cpp
-	$(SLICECMD) $(IDIR)/DBException.ice
+	$(SLICECMD) $(SDIR)/DBException.ice
 	mv DBException.h $(HDIR)
 
 clean::
 	rm -f $(HDIR)/DBException.h DBException.cpp
 
-$(HDIR)/Evictor.h Evictor.cpp: $(IDIR)/Evictor.ice $(SLICE2CPP)
+$(HDIR)/Evictor.h Evictor.cpp: $(SDIR)/Evictor.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Evictor.h Evictor.cpp
-	$(SLICECMD) $(IDIR)/Evictor.ice
+	$(SLICECMD) $(SDIR)/Evictor.ice
 	mv Evictor.h $(HDIR)
 
 clean::
 	rm -f $(HDIR)/Evictor.h Evictor.cpp
 
-$(HDIR)/EvictorF.h: $(IDIR)/EvictorF.ice $(SLICE2CPP)
+$(HDIR)/EvictorF.h: $(SDIR)/EvictorF.ice $(SLICE2CPP)
 	rm -f $(HDIR)/EvictorF.h EvictorF.cpp
-	$(SLICECMD) $(IDIR)/EvictorF.ice
+	$(SLICECMD) $(SDIR)/EvictorF.ice
 	mv EvictorF.h $(HDIR)
 	rm -f EvictorF.cpp
 

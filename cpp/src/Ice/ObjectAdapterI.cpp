@@ -18,7 +18,6 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/Functional.h>
-#include <sstream>
 
 #ifdef WIN32
 #   include <sys/timeb.h>

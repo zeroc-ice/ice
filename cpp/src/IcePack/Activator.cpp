@@ -11,7 +11,6 @@
 #include <Ice/Ice.h>
 #include <IcePack/Activator.h>
 #include <IcePack/Admin.h>
-#include <sstream>
 #include <fcntl.h>
 #include <sys/wait.h>
 

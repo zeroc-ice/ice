@@ -13,7 +13,6 @@
 
 #include <IceUtil/Config.h>
 #include <fstream>
-#include <sstream>
 #include <stack>
 
 #ifdef WIN32

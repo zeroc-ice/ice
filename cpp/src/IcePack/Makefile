@@ -38,7 +38,7 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
 HDIR		= $(includedir)/IcePack
-IDIR		= $(slicedir)/IcePack
+SDIR		= $(slicedir)/IcePack
 SLICECMD	= $(SLICE2CPP) --include-dir IcePack --dll-export ICE_PACK_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
@@ -74,17 +74,17 @@ clean::
 	-rm -f Grammer.cpp Grammer.h Grammer.output
 	-rm -f Scanner.cpp lex.yy.c
 
-$(HDIR)/Admin.h Admin.cpp: $(IDIR)/Admin.ice $(SLICE2CPP)
+$(HDIR)/Admin.h Admin.cpp: $(SDIR)/Admin.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Admin.h Admin.cpp
-	$(SLICECMD) $(IDIR)/Admin.ice
+	$(SLICECMD) $(SDIR)/Admin.ice
 	mv Admin.h $(HDIR)
 
 clean::
 	rm -f $(HDIR)/Admin.h Admin.cpp
 
-$(HDIR)/AdminF.h: $(IDIR)/AdminF.ice $(SLICE2CPP)
+$(HDIR)/AdminF.h: $(SDIR)/AdminF.ice $(SLICE2CPP)
 	rm -f $(HDIR)/AdminF.h AdminF.cpp
-	$(SLICECMD) $(IDIR)/AdminF.ice
+	$(SLICECMD) $(SDIR)/AdminF.ice
 	mv AdminF.h $(HDIR)
 	rm -f AdminF.cpp
 

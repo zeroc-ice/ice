@@ -32,7 +32,7 @@ struct ToIfdef
 };
 
 Slice::Gen::Gen(const string& name, const string& base,	const string& include, const vector<string>& includePaths,
-		const string& dllExport) :
+		const string& dllExport, const string& dir) :
     _base(base),
     _include(include),
     _includePaths(includePaths),
@@ -59,6 +59,11 @@ Slice::Gen::Gen(const string& name, const string& base,	const string& include, c
 
     string fileH = _base + ".h";
     string fileC = _base + ".cpp";
+    if (!dir.empty())
+    {
+	fileH = dir + '/' + fileH;
+	fileC = dir + '/' + fileC;
+    }
 
     H.open(fileH.c_str());
     if (!H)
@@ -78,6 +83,10 @@ Slice::Gen::Gen(const string& name, const string& base,	const string& include, c
     printHeader(C);
 
     string s = fileH;
+    if (_include.size())
+    {
+	s = _include + '/' + s;
+    }
     transform(s.begin(), s.end(), s.begin(), ToIfdef());
     H << "\n#ifndef __" << s << "__";
     H << "\n#define __" << s << "__";

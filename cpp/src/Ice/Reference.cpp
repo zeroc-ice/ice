@@ -12,7 +12,6 @@
 #include <Ice/Endpoint.h>
 #include <Ice/Stream.h>
 #include <Ice/LocalException.h>
-#include <sstream>
 
 using namespace std;
 using namespace Ice;

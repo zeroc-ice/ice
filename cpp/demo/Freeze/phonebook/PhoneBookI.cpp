@@ -9,7 +9,6 @@
 // **********************************************************************
 
 #include <PhoneBookI.h>
-#include <sstream>
 
 using namespace std;
 using namespace Ice;

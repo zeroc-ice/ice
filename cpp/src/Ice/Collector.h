@@ -23,10 +23,17 @@
 #include <Ice/EventHandler.h>
 #include <list>
 
+namespace IceUtil
+{
+
+class Exception;
+
+}
+
 namespace Ice
 {
 
-class LocalException;
+typedef IceUtil::Exception LocalException;
 class ObjectAdapterI;
 
 }

@@ -11,34 +11,13 @@
 #ifndef ICE_LOCAL_EXCEPTION_H
 #define ICE_LOCAL_EXCEPTION_H
 
+#include <IceUtil/Exception.h>
 #include <Ice/Config.h>
 
 namespace Ice
 {
 
-class ICE_API LocalException
-{
-public:
-
-    LocalException(const char*, int);
-    virtual ~LocalException();
-    LocalException(const LocalException&);
-    LocalException& operator=(const LocalException&);
-    virtual std::string toString() const;
-    virtual LocalException* clone() const;
-    virtual void raise() const;
-
-protected:
-
-    std::string debugInfo() const;
-
-private:
-
-    const char* _file;
-    int _line;
-};
-
-ICE_API std::ostream& operator<<(std::ostream&, const LocalException&);
+typedef IceUtil::Exception LocalException;
 
 class ICE_API UnknownException : public LocalException
 {
@@ -82,8 +61,7 @@ public:
 
     CommunicatorDestroyedException(const char*, int);
     CommunicatorDestroyedException(const CommunicatorDestroyedException&);
-    CommunicatorDestroyedException& operator=(
-	const CommunicatorDestroyedException&);
+    CommunicatorDestroyedException& operator=(const CommunicatorDestroyedException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
     virtual void raise() const;
@@ -94,10 +72,8 @@ class ICE_API ObjectAdapterDeactivatedException : public LocalException
 public:    
 
     ObjectAdapterDeactivatedException(const char*, int);
-    ObjectAdapterDeactivatedException(
-	const ObjectAdapterDeactivatedException&);
-    ObjectAdapterDeactivatedException& operator=(
-	const ObjectAdapterDeactivatedException&);
+    ObjectAdapterDeactivatedException(const ObjectAdapterDeactivatedException&);
+    ObjectAdapterDeactivatedException& operator=(const ObjectAdapterDeactivatedException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
     virtual void raise() const;
@@ -351,8 +327,7 @@ public:
 
     UnsupportedProtocolException(const char*, int);
     UnsupportedProtocolException(const UnsupportedProtocolException&);
-    UnsupportedProtocolException& operator=(
-	const UnsupportedProtocolException&);
+    UnsupportedProtocolException& operator=(const UnsupportedProtocolException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
     virtual void raise() const;
@@ -364,8 +339,7 @@ public:
 
     UnsupportedEncodingException(const char*, int);
     UnsupportedEncodingException(const UnsupportedEncodingException&);
-    UnsupportedEncodingException& operator=(
-	const UnsupportedEncodingException&);
+    UnsupportedEncodingException& operator=(const UnsupportedEncodingException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
     virtual void raise() const;

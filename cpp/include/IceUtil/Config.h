@@ -44,6 +44,8 @@
 // Some include files we need almost everywhere
 //
 #include <cassert>
+#include <iostream>
+#include <sstream>
 
 //
 // We need Threads/C++

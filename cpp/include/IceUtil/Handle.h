@@ -11,7 +11,7 @@
 #ifndef ICE_UTIL_HANDLE_H
 #define ICE_UTIL_HANDLE_H
 
-#include <IceUtil/Config.h>
+#include <IceUtil/Exception.h>
 #include <algorithm>
 
 //
@@ -21,6 +21,42 @@
 namespace IceUtil
 {
 
+class NullHandleException : public Exception
+{
+public:
+
+    NullHandleException(const char* file, int line) :
+	Exception(file, line)
+    {
+    }
+
+    NullHandleException(const NullHandleException& ex) :
+	Exception(ex)
+    {
+    }
+
+    NullHandleException& operator=(const NullHandleException& ex)
+    {
+	Exception::operator=(ex);
+	return *this;
+    }
+
+    virtual std::string toString() const
+    {
+	return debugInfo() + "operation call on null handle";
+    }
+
+    virtual NullHandleException* clone() const
+    {
+	return new NullHandleException(*this);
+    }
+
+    virtual void raise() const
+    {
+	throw *this;
+    }
+};
+
 template<typename T>
 class HandleBase
 {
@@ -28,11 +64,30 @@ public:
 
     typedef T element_type;
     
-    T* get() const { return _ptr; }
-    T* operator->() const { return _ptr; }
-    operator bool() const { return _ptr ? true : false; }
+    T* get() const
+    {
+	return _ptr;
+    }
 
-    void swap(HandleBase& other) { std::swap(_ptr, other._ptr); }
+    T* operator->() const
+    {
+	if (!_ptr)
+	{
+	    throw NullHandleException(__FILE__, __LINE__);	    
+	}
+
+	return _ptr;
+    }
+
+    operator bool() const
+    {
+	return _ptr ? true : false;
+    }
+
+    void swap(HandleBase& other)
+    {
+	std::swap(_ptr, other._ptr);
+    }
 
     T* _ptr;
 };

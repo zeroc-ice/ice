@@ -22,7 +22,6 @@
 #include <Ice/Stream.h>
 #include <Ice/LocalException.h>
 #include <Ice/Functional.h>
-#include <sstream>
 
 using namespace std;
 using namespace Ice;

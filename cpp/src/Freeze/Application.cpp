@@ -38,7 +38,7 @@ Freeze::Application::run(int argc, char* argv[])
     }
     catch(const LocalException& ex)
     {
-	cerr << appName() << ": local exception: " << ex << endl;
+	cerr << appName() << ": " << ex << endl;
 	status = EXIT_FAILURE;
     }
     catch(const DBExceptionPtrE& ex)
@@ -60,7 +60,7 @@ Freeze::Application::run(int argc, char* argv[])
 	}
 	catch(const LocalException& ex)
 	{
-	    cerr << appName() << ": local exception: " << ex << endl;
+	    cerr << appName() << ": " << ex << endl;
 	    status = EXIT_FAILURE;
 	}
 	catch(const DBExceptionPtrE& ex)

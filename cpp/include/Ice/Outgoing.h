@@ -15,10 +15,17 @@
 #include <Ice/ReferenceF.h>
 #include <Ice/Stream.h>
 
+namespace IceUtil
+{
+
+class Exception;
+
+}
+
 namespace Ice
 {
 
-class LocalException;
+typedef IceUtil::Exception LocalException;
 
 }
 

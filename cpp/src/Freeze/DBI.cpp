@@ -14,7 +14,6 @@
 #include <Freeze/EvictorI.h>
 #include <Freeze/Initialize.h>
 #include <sys/stat.h>
-#include <sstream>
 
 using namespace std;
 using namespace Ice;

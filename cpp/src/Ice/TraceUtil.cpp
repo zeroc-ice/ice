@@ -15,7 +15,6 @@
 #include <Ice/Logger.h>
 #include <Ice/Stream.h>
 #include <Ice/Protocol.h>
-#include <sstream>
 
 using namespace std;
 using namespace Ice;

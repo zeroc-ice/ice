@@ -19,10 +19,17 @@
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
 
+namespace IceUtil
+{
+
+class Exception;
+
+}
+
 namespace Ice
 {
 
-class LocalException;
+typedef IceUtil::Exception LocalException;
 class LocationForward;
 
 class ICE_API ObjectPrxE

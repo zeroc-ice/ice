@@ -18,7 +18,6 @@
 #include <Ice/Functional.h>
 #include <Ice/Protocol.h>
 #include <Ice/ObjectAdapterFactory.h>
-#include <sstream>
 
 using namespace std;
 using namespace Ice;

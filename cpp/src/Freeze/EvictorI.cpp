@@ -10,7 +10,6 @@
 
 #include <Ice/Object.h> // Not included in Ice/Ice.h
 #include <Freeze/EvictorI.h>
-#include <sstream>
 
 using namespace std;
 using namespace Ice;

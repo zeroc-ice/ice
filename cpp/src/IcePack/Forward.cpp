@@ -11,7 +11,6 @@
 #include <Ice/Ice.h>
 #include <IcePack/Forward.h>
 #include <IcePack/Admin.h>
-#include <sstream>
 
 using namespace std;
 using namespace Ice;
