@@ -118,7 +118,8 @@ IceInternal::connectionLost()
 #else
     return errno == ECONNRESET ||
            errno == ESHUTDOWN ||
-           errno == ECONNABORTED;
+           errno == ECONNABORTED ||
+	   errno == EPIPE;
 #endif
 }
 
