@@ -207,7 +207,6 @@ Glacier::Router::run(int argc, char* argv[])
 		 << strerror(errno) << endl;
 	    return EXIT_FAILURE;
 	}
-
 	close(fd);
     }
 #endif

@@ -167,7 +167,6 @@ IcePack::Activator::activate(const ServerDescription& desc)
 	    //
 	    SystemException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();
-	    throw ex;
 	    ostringstream s;
 	    s << "can't execute `" << path << "':\n" << ex;
 	    write(fds[1], s.str().c_str(), s.str().length());

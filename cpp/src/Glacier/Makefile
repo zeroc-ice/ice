@@ -19,7 +19,7 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 ROUTER		= $(top_srcdir)/bin/glacier
 STARTER		= $(top_srcdir)/bin/glacierstarter
 
-TARGETS		= $(NAME) $(VERSIONED_NAME) $(ROUTER) #$(STARTER)
+TARGETS		= $(NAME) $(VERSIONED_NAME) $(ROUTER) $(STARTER)
 
 OBJS		= Glacier.o
 
