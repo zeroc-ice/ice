@@ -301,6 +301,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IcePatch2", "src\IcePatch2\
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "glacier2callbackC", "demo\Glacier2\callback\glacier2callbackC.csproj", "{5675512A-559A-4916-908E-35825BE29B6B}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "glacier2callbackS", "demo\Glacier2\callback\glacier2callbackS.csproj", "{CC732454-D8EC-41D8-AEF0-EF8A07DB0818}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "glacier2callbackSS", "demo\Glacier2\callback\glacier2callbackSS.csproj", "{212A63B7-D2C4-41EC-ABDF-534BC425D486}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -559,6 +571,18 @@ Global
 		{FBF4A16F-D0F6-47DD-AE60-FDFEF793EB92}.Debug.Build.0 = Debug|.NET
 		{FBF4A16F-D0F6-47DD-AE60-FDFEF793EB92}.Release.ActiveCfg = Release|.NET
 		{FBF4A16F-D0F6-47DD-AE60-FDFEF793EB92}.Release.Build.0 = Release|.NET
+		{5675512A-559A-4916-908E-35825BE29B6B}.Debug.ActiveCfg = Debug|.NET
+		{5675512A-559A-4916-908E-35825BE29B6B}.Debug.Build.0 = Debug|.NET
+		{5675512A-559A-4916-908E-35825BE29B6B}.Release.ActiveCfg = Release|.NET
+		{5675512A-559A-4916-908E-35825BE29B6B}.Release.Build.0 = Release|.NET
+		{CC732454-D8EC-41D8-AEF0-EF8A07DB0818}.Debug.ActiveCfg = Debug|.NET
+		{CC732454-D8EC-41D8-AEF0-EF8A07DB0818}.Debug.Build.0 = Debug|.NET
+		{CC732454-D8EC-41D8-AEF0-EF8A07DB0818}.Release.ActiveCfg = Release|.NET
+		{CC732454-D8EC-41D8-AEF0-EF8A07DB0818}.Release.Build.0 = Release|.NET
+		{212A63B7-D2C4-41EC-ABDF-534BC425D486}.Debug.ActiveCfg = Debug|.NET
+		{212A63B7-D2C4-41EC-ABDF-534BC425D486}.Debug.Build.0 = Debug|.NET
+		{212A63B7-D2C4-41EC-ABDF-534BC425D486}.Release.ActiveCfg = Release|.NET
+		{212A63B7-D2C4-41EC-ABDF-534BC425D486}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
