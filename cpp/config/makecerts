@@ -62,18 +62,13 @@ else
     # Create a new certificate and key.
     #
 
-    #
-    # Note: Comment this out if you wish to be prompted for DN information.
-    #
-    # BATCHOPS=-batch
-
     SERIAL=`cat $CA_HOME/serial`
     KEY_NAME=`echo $SERIAL`_key.pem
     CERT_NAME=`echo $SERIAL`_cert.pem
     openssl req -config $ICE_HOME/config/generic.cnf -newkey rsa $PASSPHRASE -keyout $CA_HOME/$KEY_NAME -keyform PEM -out $CA_HOME/req.pem
     echo "You will be prompted for a passphrase - this is so we can sign the new certificate."
     echo "Enter the passphrase for the CA signing authority."
-    openssl ca -config $ICE_HOME/config/generic.cnf $BATCHOPS -in $CA_HOME/req.pem
+    openssl ca -config $ICE_HOME/config/generic.cnf -in $CA_HOME/req.pem
     mv $CA_HOME/$SERIAL.pem $CA_HOME/$CERT_NAME
     cp $CA_HOME/$KEY_NAME  $ICE_HOME/certs/newkey.pem
     cp $CA_HOME/$CERT_NAME $ICE_HOME/certs/newcert.pem
