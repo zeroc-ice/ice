@@ -284,9 +284,9 @@ Glacier::RequestQueue::run()
             //
 //	    sort(proxies.begin(), proxies.end());
 //	    proxies.erase(unique(proxies.begin(), proxies.end()), proxies.end());
-	    for(vector<ObjectPrx>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+	    for(vector<ObjectPrx>::const_iterator q = proxies.begin(); q != proxies.end(); ++q)
 	    {
-		(*p)->ice_flush();
+		(*q)->ice_flush();
 	    }
         }
         catch(const Ice::Exception& ex)

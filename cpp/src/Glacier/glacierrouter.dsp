@@ -103,7 +103,7 @@ SOURCE=.\GlacierRouter.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Missive.cpp
+SOURCE=.\Request.cpp
 # End Source File
 # Begin Source File
 
@@ -127,7 +127,7 @@ SOURCE=.\ClientBlobject.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Missive.h
+SOURCE=.\Request.h
 # End Source File
 # Begin Source File
 
