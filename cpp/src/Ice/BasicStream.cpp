@@ -125,11 +125,11 @@ IceInternal::BasicStream::endWriteEncaps()
     Byte* dest = &(*(b.begin() + start));
 
 #ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&sz) + sizeof(Int);
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest = *--src;
+    const Byte* src = reinterpret_cast<const Byte*>(&sz) + sizeof(Int) - 1;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest = *src;
 #else
     const Byte* src = reinterpret_cast<const Byte*>(&sz);
     *dest++ = *src++;
@@ -278,11 +278,28 @@ void
 IceInternal::BasicStream::endWriteSlice()
 {
     Int sz = static_cast<Int>(b.size() - _writeSlice + sizeof(Int));
+#if 0
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(Int), b.begin() + _writeSlice - sizeof(Int));
 #else
     copy(p, p + sizeof(Int), b.begin() + _writeSlice - sizeof(Int));
+#endif
+#else
+    Byte* dest = &(*(b.begin() + _writeSlice - sizeof(Int)));
+#ifdef ICE_BIG_ENDIAN
+    const Byte* src = reinterpret_cast<const Byte*>(&sz) + sizeof(Int) - 1;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest = *src;
+#else
+    const Byte* src = reinterpret_cast<const Byte*>(&sz);
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest++ = *src++;
+    *dest = *src;
+#endif
 #endif
 }
 
@@ -492,9 +509,9 @@ IceInternal::BasicStream::write(Short v)
     resize(pos + sizeof(Short));
     Byte* dest = &b[pos];
 #ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Short);
-    *dest++ = *--src;
-    *dest = *--src;
+    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Short) - 1;
+    *dest++ = *src--;
+    *dest = *src;
 #else
     const Byte* src = reinterpret_cast<const Byte*>(&v);
     *dest++ = *src++;
@@ -517,8 +534,8 @@ IceInternal::BasicStream::write(const vector<Short>& v)
 	for(int j = 0 ; j < sz ; ++j)
 	{
 	    *dest++ = *src--;
-	    *dest++ = *src;
-	    src += 2 * sizeof(Short) - 1;
+	    *dest++ = *src--;
+	    src += 2 * sizeof(Short);
 	}
 #else
 	ice_copy(reinterpret_cast<const Byte*>(&v[0]),
@@ -538,9 +555,9 @@ IceInternal::BasicStream::read(Short& v)
     const Byte* src = &(*i);
     i += sizeof(Short);
 #ifdef ICE_BIG_ENDIAN
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Short);
-    *--dest = *src++;
-    *--dest = *src;
+    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Short) - 1;
+    *dest-- = *src++;
+    *dest = *src;
 #else
     Byte* dest = reinterpret_cast<Byte*>(&v);
     *dest++ = *src++;
@@ -569,8 +586,8 @@ IceInternal::BasicStream::read(vector<Short>& v)
 	for(int j = 0 ; j < sz ; ++j)
 	{
 	    *dest-- = *src++;
-	    *dest = *src++;
-	    dest += 2 * sizeof(Short) - 1;
+	    *dest-- = *src++;
+	    dest += 2 * sizeof(Short);
 	}
 #else
 	ice_copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
@@ -585,11 +602,11 @@ IceInternal::BasicStream::write(Int v)
     resize(pos + sizeof(Int));
     Byte* dest = &b[pos];
 #ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Int);
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest = *--src;
+    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Int) - 1;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest = *src;
 #else
     const Byte* src = reinterpret_cast<const Byte*>(&v);
     *dest++ = *src++;
@@ -616,8 +633,8 @@ IceInternal::BasicStream::write(const vector<Int>& v)
 	    *dest++ = *src--;
 	    *dest++ = *src--;
 	    *dest++ = *src--;
-	    *dest++ = *src;
-	    src += 2 * sizeof(Int) - 1;
+	    *dest++ = *src--;
+	    src += 2 * sizeof(Int);
 	}
 #else
 	ice_copy(reinterpret_cast<const Byte*>(&v[0]),
@@ -637,11 +654,11 @@ IceInternal::BasicStream::read(Int& v)
     const Byte* src = &(*i);
     i += sizeof(Int);
 #ifdef ICE_BIG_ENDIAN
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Int);
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src;
+    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Int) - 1;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest = *src;
 #else
     Byte* dest = reinterpret_cast<Byte*>(&v);
     *dest++ = *src++;
@@ -674,8 +691,8 @@ IceInternal::BasicStream::read(vector<Int>& v)
 	    *dest-- = *src++;
 	    *dest-- = *src++;
 	    *dest-- = *src++;
-	    *dest = *src++;
-	    dest += 2 * sizeof(Int) - 1;
+	    *dest-- = *src++;
+	    dest += 2 * sizeof(Int);
 	}
 #else
 	ice_copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
@@ -690,15 +707,15 @@ IceInternal::BasicStream::write(Long v)
     resize(pos + sizeof(Long));
     Byte* dest = &b[pos];
 #ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Long);
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest = *--src;
+    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Long) - 1;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest = *src;
 #else
     const Byte* src = reinterpret_cast<const Byte*>(&v);
     *dest++ = *src++;
@@ -733,8 +750,8 @@ IceInternal::BasicStream::write(const vector<Long>& v)
 	    *dest++ = *src--;
 	    *dest++ = *src--;
 	    *dest++ = *src--;
-	    *dest++ = *src;
-	    src += 2 * sizeof(Long) - 1;
+	    *dest++ = *src--;
+	    src += 2 * sizeof(Long);
 	}
 #else
 	ice_copy(reinterpret_cast<const Byte*>(&v[0]),
@@ -754,15 +771,15 @@ IceInternal::BasicStream::read(Long& v)
     const Byte* src = &(*i);
     i += sizeof(Long);
 #ifdef ICE_BIG_ENDIAN
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Long);
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src;
+    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Long) - 1;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest = *src;
 #else
     Byte* dest = reinterpret_cast<Byte*>(&v);
     *dest++ = *src++;
@@ -803,8 +820,8 @@ IceInternal::BasicStream::read(vector<Long>& v)
 	    *dest-- = *src++;
 	    *dest-- = *src++;
 	    *dest-- = *src++;
-	    *dest = *src++;
-	    dest += 2 * sizeof(Long) - 1;
+	    *dest-- = *src++;
+	    dest += 2 * sizeof(Long);
 	}
 #else
 	ice_copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
@@ -819,11 +836,11 @@ IceInternal::BasicStream::write(Float v)
     resize(pos + sizeof(Float));
     Byte* dest = &b[pos];
 #ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Float);
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest = *--src;
+    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Float) - 1;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest = *src;
 #else
     const Byte* src = reinterpret_cast<const Byte*>(&v);
     *dest++ = *src++;
@@ -850,8 +867,8 @@ IceInternal::BasicStream::write(const vector<Float>& v)
 	    *dest++ = *src--;
 	    *dest++ = *src--;
 	    *dest++ = *src--;
-	    *dest++ = *src;
-	    src += 2 * sizeof(Float) - 1;
+	    *dest++ = *src--;
+	    src += 2 * sizeof(Float);
 	}
 #else
 	ice_copy(reinterpret_cast<const Byte*>(&v[0]),
@@ -871,11 +888,11 @@ IceInternal::BasicStream::read(Float& v)
     const Byte* src = &(*i);
     i += sizeof(Float);
 #ifdef ICE_BIG_ENDIAN
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Float);
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src;
+    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Float) - 1;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest = *src;
 #else
     Byte* dest = reinterpret_cast<Byte*>(&v);
     *dest++ = *src++;
@@ -908,8 +925,8 @@ IceInternal::BasicStream::read(vector<Float>& v)
 	    *dest-- = *src++;
 	    *dest-- = *src++;
 	    *dest-- = *src++;
-	    *dest = *src++;
-	    dest += 2 * sizeof(Float) - 1;
+	    *dest-- = *src++;
+	    dest += 2 * sizeof(Float);
 	}
 #else
 	ice_copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
@@ -924,15 +941,15 @@ IceInternal::BasicStream::write(Double v)
     resize(pos + sizeof(Double));
     Byte* dest = &b[pos];
 #ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Double);
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest++ = *--src;
-    *dest = *--src;
+    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Double) - 1;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest++ = *src--;
+    *dest = *src;
 #else
     const Byte* src = reinterpret_cast<const Byte*>(&v);
     *dest++ = *src++;
@@ -967,8 +984,8 @@ IceInternal::BasicStream::write(const vector<Double>& v)
 	    *dest++ = *src--;
 	    *dest++ = *src--;
 	    *dest++ = *src--;
-	    *dest++ = *src;
-	    src += 2 * sizeof(Double) - 1;
+	    *dest++ = *src--;
+	    src += 2 * sizeof(Double);
 	}
 #else
 	ice_copy(reinterpret_cast<const Byte*>(&v[0]),
@@ -988,15 +1005,15 @@ IceInternal::BasicStream::read(Double& v)
     const Byte* src = &(*i);
     i += sizeof(Double);
 #ifdef ICE_BIG_ENDIAN
-    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Double);
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src++;
-    *--dest = *src;
+    Byte* dest = reinterpret_cast<Byte*>(&v) + sizeof(Double) - 1;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest-- = *src++;
+    *dest = *src;
 #else
     Byte* dest = reinterpret_cast<Byte*>(&v);
     *dest++ = *src++;
@@ -1037,8 +1054,8 @@ IceInternal::BasicStream::read(vector<Double>& v)
 	    *dest-- = *src++;
 	    *dest-- = *src++;
 	    *dest-- = *src++;
-	    *dest = *src++;
-	    dest += 2 * sizeof(Double) - 1;
+	    *dest-- = *src++;
+	    dest += 2 * sizeof(Double);
 	}
 #else
 	ice_copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
@@ -1075,20 +1092,12 @@ IceInternal::BasicStream::read(string& v)
 {
     Int len;
     readSize(len);
-
-    if(len <= 0)
+    if(b.end() - i < len)
     {
-	v.erase();
+	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-    else
-    {
-	if(b.end() - i < len)
-	{
-	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-	}
-	v.assign(reinterpret_cast<const char*>(&(*i)), len);
-	i += len;
-    }
+    v.assign(reinterpret_cast<const char*>(&(*i)), len);
+    i += len;
 }
 
 void
