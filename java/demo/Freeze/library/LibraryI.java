@@ -107,9 +107,8 @@ class LibraryI extends _LibraryDisp
 	try
 	{
 	    //
-	    // Lookup all phone book books that match a name, and
-	    // return them to the caller. See the comment in
-	    // getNewIdentity why the prefix "N" is needed.
+	    // Lookup all books that match the given authors, and
+	    // return them to the caller.
 	    //
 	    String[] isbnSeq = (String[])_authors.get(authors);
 

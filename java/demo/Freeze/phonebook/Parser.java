@@ -36,7 +36,7 @@ class Parser
     }
 
     void
-    addContacts(java.util.LinkedList args)
+    addContacts(java.util.List args)
     {
 	if (args.isEmpty())
 	{
@@ -66,7 +66,7 @@ class Parser
     }
 
     void
-    findContacts(java.util.LinkedList args)
+    findContacts(java.util.List args)
     {
 	if (args.size() != 1)
 	{
@@ -76,7 +76,7 @@ class Parser
 	
 	try
 	{
-	    String name = (String)args.getFirst();
+	    String name = (String)args.get(0);
 	    _foundContacts = _phoneBook.findContacts(name);
 	    _current = 0;
 	    System.out.println("number of contacts found: " + _foundContacts.length);
@@ -126,7 +126,7 @@ class Parser
     }
 
     void
-    setCurrentName(java.util.LinkedList args)
+    setCurrentName(java.util.List args)
     {
 	if (args.size() != 1)
 	{
@@ -138,7 +138,7 @@ class Parser
 	{
 	    if (_current != _foundContacts.length)
 	    {
-		String name = (String)args.getFirst();
+		String name = (String)args.get(0);
 		_foundContacts[_current].setName(name);
 		System.out.println("changed name to `" + name + "'");
 	    }
@@ -158,7 +158,7 @@ class Parser
     }
 
     void
-    setCurrentAddress(java.util.LinkedList args)
+    setCurrentAddress(java.util.List args)
     {
 	if (args.size() != 1)
 	{
@@ -170,7 +170,7 @@ class Parser
 	{
 	    if (_current != _foundContacts.length)
 	    {
-		String addr = (String)args.getFirst();
+		String addr = (String)args.get(0);
 		_foundContacts[_current].setAddress(addr);
 		System.out.println( "changed address to `" + addr + "'" );
 	    }
@@ -186,7 +186,7 @@ class Parser
     }
 
     void
-    setCurrentPhone(java.util.LinkedList args)
+    setCurrentPhone(java.util.List args)
     {
 	if (args.size() != 1)
 	{
@@ -199,7 +199,7 @@ class Parser
 	    
 	    if (_current != _foundContacts.length)
 	    {
-		String number = (String)args.getFirst();
+		String number = (String)args.get(0);
 		_foundContacts[_current].setPhone(number);
 		System.out.println( "changed phone number to `" + number + "'" );
 	    }
@@ -240,7 +240,7 @@ class Parser
     }
 
     void
-    setEvictorSize(java.util.LinkedList args)
+    setEvictorSize(java.util.List args)
     {
 	if (args.size() != 1)
 	{
@@ -248,7 +248,7 @@ class Parser
 	    return;
 	}
 
-	String s = (String)args.getFirst();
+	String s = (String)args.get(0);
 	try
 	{
 	    _phoneBook.setEvictorSize(Integer.parseInt(s));

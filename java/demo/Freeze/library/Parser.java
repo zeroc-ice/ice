@@ -20,8 +20,8 @@ class Parser
     usage()
     {
 	System.err.print(
-	    "help             Print this message.\n" +
-	    "exit, quit       Exit this program.\n" +
+	    "help                    Print this message.\n" +
+	    "exit, quit              Exit this program.\n" +
 	    "add isbn title authors  Create new book.\n" +
 	    "isbn NUMBER             Find the book with given ISBN number.\n" +
 	    "authors NAME            Find all books by the given authors.\n" +
@@ -29,13 +29,13 @@ class Parser
 	    "current                 Display the current book.\n" +
 	    "rent NAME               Rent the current book for customer NAME.\n" +
 	    "return                  Return the currently rented book.\n" +
-	    "remove           Permanently remove the current book from the library.\n" +
-	    "size SIZE        Set the evictor size for books to SIZE.\n" +
-	    "shutdown         Shut the library server down.\n");
+	    "remove                  Permanently remove the current book from the library.\n" +
+	    "size SIZE               Set the evictor size for books to SIZE.\n" +
+	    "shutdown                Shut the library server down.\n");
     }
 
     void
-    addBook(java.util.LinkedList args)
+    addBook(java.util.List args)
     {
 	if (args.size() != 3)
 	{
@@ -68,7 +68,7 @@ class Parser
     }
 
     void
-    findIsbn(java.util.LinkedList args)
+    findIsbn(java.util.List args)
     {
 	if (args.size() != 1)
 	{
@@ -104,7 +104,7 @@ class Parser
     }
 
     void
-    findAuthors(java.util.LinkedList args)
+    findAuthors(java.util.List args)
     {
 	if (args.size() != 1)
 	{
@@ -177,7 +177,7 @@ class Parser
     }
 
     void
-    rentCurrent(java.util.LinkedList args)
+    rentCurrent(java.util.List args)
     {
 	if (args.size() != 1)
 	{
@@ -258,7 +258,7 @@ class Parser
     }
 
     void
-    setEvictorSize(java.util.LinkedList args)
+    setEvictorSize(java.util.List args)
     {
 	if (args.size() != 1)
 	{
@@ -266,7 +266,7 @@ class Parser
 	    return;
 	}
 
-	String s = (String)args.getFirst();
+	String s = (String)args.get(0);
 	try
 	{
 	    _library.setEvictorSize(Integer.parseInt(s));

@@ -54,7 +54,7 @@ class Grammar
 		}
 		else if (_token.type == Token.TOK_ADD_BOOK)
 		{
-		    java.util.LinkedList s = strings();
+		    java.util.List s = strings();
 		    if (_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
@@ -63,7 +63,7 @@ class Grammar
 		}
 		else if (_token.type == Token.TOK_FIND_ISBN)
 		{
-		    java.util.LinkedList s = strings();
+		    java.util.List s = strings();
 		    if (_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
@@ -72,7 +72,7 @@ class Grammar
 		}
 		else if (_token.type == Token.TOK_FIND_AUTHORS)
 		{
-		    java.util.LinkedList s = strings();
+		    java.util.List s = strings();
 		    if (_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
@@ -101,7 +101,7 @@ class Grammar
 		}
 		else if (_token.type == Token.TOK_RENT_BOOK)
 		{
-		    java.util.LinkedList s = strings();
+		    java.util.List s = strings();
 		    if (_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
@@ -129,7 +129,7 @@ class Grammar
 		}
 		else if (_token.type == Token.TOK_SET_EVICTOR_SIZE)
 		{
-		    java.util.LinkedList s = strings();
+		    java.util.List s = strings();
 		    if (_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
@@ -158,10 +158,10 @@ class Grammar
 	}
     }
 
-    private java.util.LinkedList
+    private java.util.List
     strings()
     {
-	java.util.LinkedList l = new java.util.LinkedList();
+	java.util.List l = new java.util.ArrayList();
 	while (true)
 	{
 	    _token = _scanner.nextToken();

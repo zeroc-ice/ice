@@ -54,7 +54,7 @@ class Grammar
 		}
 		else if (_token.type == Token.TOK_ADD_CONTACTS)
 		{
-		    java.util.LinkedList s = strings();
+		    java.util.List s = strings();
 		    if (_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
@@ -63,7 +63,7 @@ class Grammar
 		}
 		else if (_token.type == Token.TOK_FIND_CONTACTS)
 		{
-		    java.util.LinkedList s = strings();
+		    java.util.List s = strings();
 		    if (_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
@@ -92,7 +92,7 @@ class Grammar
 		}
 		else if (_token.type == Token.TOK_SET_CURRENT_NAME)
 		{
-		    java.util.LinkedList s = strings();
+		    java.util.List s = strings();
 		    if (_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
@@ -101,7 +101,7 @@ class Grammar
 		}
 		else if (_token.type == Token.TOK_SET_CURRENT_ADDRESS)
 		{
-		    java.util.LinkedList s = strings();
+		    java.util.List s = strings();
 		    if (_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
@@ -110,7 +110,7 @@ class Grammar
 		}
 		else if (_token.type == Token.TOK_SET_CURRENT_PHONE)
 		{
-		    java.util.LinkedList s = strings();
+		    java.util.List s = strings();
 		    if (_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
@@ -129,7 +129,7 @@ class Grammar
 		}
 		else if (_token.type == Token.TOK_SET_EVICTOR_SIZE)
 		{
-		    java.util.LinkedList s = strings();
+		    java.util.List s = strings();
 		    if (_token.type != Token.TOK_SEMI)
 		    {
 			throw new ParseError("Expected ';'");
@@ -158,10 +158,10 @@ class Grammar
 	}
     }
 
-    private java.util.LinkedList
+    private java.util.List
     strings()
     {
-	java.util.LinkedList l = new java.util.LinkedList();
+	java.util.List l = new java.util.ArrayList();
 	while (true)
 	{
 	    _token = _scanner.nextToken();
