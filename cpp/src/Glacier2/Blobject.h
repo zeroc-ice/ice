@@ -27,8 +27,7 @@ public:
 
 protected:
 
-    void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
-		const Ice::Current&);
+    void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, const Ice::ByteSeq&, const Ice::Current&);
 
     const Ice::CommunicatorPtr _communicator;
     const Ice::PropertiesPtr _properties;

@@ -623,9 +623,11 @@ public final class PropertiesI extends LocalObjectImpl implements Properties
 
     private static final String _glacier2Props[] =
     {
+	"AddUserToAllowCategories",
 	"Admin.Endpoints",
 	"Admin.PublishedEndpoints",
 	"AdminIdentity",
+	"AllowCategories",
 	"Client.AlwaysBatch",
 	"Client.Endpoints",
 	"Client.PublishedEndpoints",

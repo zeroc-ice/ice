@@ -14,7 +14,7 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::Request::Request(const ObjectPrx& proxy, const vector<Byte>& inParams, const Current& current,
+Glacier2::Request::Request(const ObjectPrx& proxy, const ByteSeq& inParams, const Current& current,
 			   bool forwardContext, const AMD_Object_ice_invokePtr& amdCB) :
     _proxy(proxy),
     _inParams(inParams),
@@ -29,7 +29,7 @@ Glacier2::Request::Request(const ObjectPrx& proxy, const vector<Byte>& inParams,
     if(!_proxy->ice_isTwoway())
     {
 	bool ok = true;
-	vector<Byte> outParams;
+	ByteSeq outParams;
 	_amdCB->ice_response(ok, outParams);
     }
 
@@ -44,7 +44,7 @@ void
 Glacier2::Request::invoke()
 {
     bool ok;
-    vector<Byte> outParams;
+    ByteSeq outParams;
     
     try
     {

@@ -354,9 +354,11 @@ static const string glacierProps[] =
 
 static const string glacier2Props[] =
 {
+    "AddUserToAllowCategories",
     "Admin.Endpoints",
     "Admin.PublishedEndpoints",
     "AdminIdentity",
+    "AllowCategories",
     "Client.AlwaysBatch",
     "Client.Endpoints",
     "Client.PublishedEndpoints",

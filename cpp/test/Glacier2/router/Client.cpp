@@ -83,7 +83,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
 	cout << "testing stringToProxy for server object... " << flush;
-	base = communicator()->stringToProxy("callback:tcp -p 12345 -t 10000");
+	base = communicator()->stringToProxy("c1/callback:tcp -p 12345 -t 10000");
 	cout << "ok" << endl;
     }
 	
@@ -106,7 +106,7 @@ CallbackClient::run(int argc, char* argv[])
 	cout << "trying to create session with wrong password... " << flush;
 	try
 	{
-	    session = router->createSession("dummy", "xxx");
+	    session = router->createSession("userid", "xxx");
 	    test(false);
 	}
 	catch(const Glacier2::PermissionDeniedException&)
@@ -130,7 +130,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
 	cout << "creating session with correct password... " << flush;
-	session = router->createSession("dummy", "abc123");
+	session = router->createSession("userid", "abc123");
 	cout << "ok" << endl;
     }
 
@@ -138,7 +138,7 @@ CallbackClient::run(int argc, char* argv[])
 	cout << "trying to create a second session... " << flush;
 	try
 	{
-	    router->createSession("dummy", "abc123");
+	    router->createSession("userid", "abc123");
 	    test(false);
 	}
 	catch(const Glacier2::CannotCreateSessionException&)
@@ -247,6 +247,45 @@ CallbackClient::run(int argc, char* argv[])
 	{
 	    cout << "ok" << endl;
 	}
+    }
+
+    {
+	cout << "testing whether other allowed category is accepted... " << flush;
+	Context context;
+	context["_fwd"] = "t";
+	CallbackPrx otherCategoryTwoway = CallbackPrx::uncheckedCast(
+	    twoway->ice_newIdentity(stringToIdentity("c2/callback")));
+	otherCategoryTwoway->initiateCallback(twowayR, context);
+	test(callbackReceiverImpl->callbackOK());
+	cout << "ok" << endl;
+    }
+
+    {
+	cout << "testing whether disallowed category gets rejected... " << flush;
+	Context context;
+	context["_fwd"] = "t";
+	try
+	{
+	    CallbackPrx otherCategoryTwoway = CallbackPrx::uncheckedCast(
+		twoway->ice_newIdentity(stringToIdentity("c3/callback")));
+	    otherCategoryTwoway->initiateCallback(twowayR, context);
+	    test(false);
+	}
+	catch(const ObjectNotExistException& ex)
+	{
+	    cout << "ok" << endl;
+	}
+    }
+
+    {
+	cout << "testing whether user-id as category is accepted... " << flush;
+	Context context;
+	context["_fwd"] = "t";
+	CallbackPrx otherCategoryTwoway = CallbackPrx::uncheckedCast(
+	    twoway->ice_newIdentity(stringToIdentity("_userid/callback")));
+	otherCategoryTwoway->initiateCallback(twowayR, context);
+	test(callbackReceiverImpl->callbackOK());
+	cout << "ok" << endl;
     }
 
     {

@@ -631,9 +631,11 @@ namespace Ice
 	    
 	private static readonly string[] _glacier2Props = new string[]
 	{
+	    "AddUserToAllowCategories",
 	    "Admin.Endpoints",
 	    "Admin.PublishedEndpoints",
 	    "AdminIdentity",
+	    "AllowCategories",
 	    "Client.AlwaysBatch",
 	    "Client.Endpoints",
 	    "Client.PublishedEndpoints",

@@ -24,7 +24,7 @@ class Request : public IceUtil::Shared
 {
 public:
 
-    Request(const Ice::ObjectPrx&, const std::vector<Ice::Byte>&, const Ice::Current&, bool,
+    Request(const Ice::ObjectPrx&, const Ice::ByteSeq&, const Ice::Current&, bool,
 	    const Ice::AMD_Object_ice_invokePtr&);
     
     void invoke();
@@ -35,7 +35,7 @@ public:
 private:
 
     const Ice::ObjectPrx _proxy;
-    const std::vector<Ice::Byte> _inParams;
+    const Ice::ByteSeq _inParams;
     const Ice::Current _current;
     const bool _forwardContext;
     const std::string _override;

@@ -21,13 +21,42 @@ Glacier2::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter, const ObjectAd
     _routingTable(new IceInternal::RoutingTable),
     _routingTableTraceLevel(_communicator->getProperties()->getPropertyAsInt("Glacier2.Trace.RoutingTable")),
     _clientProxy(clientAdapter->createProxy(stringToIdentity("dummy"))),
-    _clientBlobject(new ClientBlobject(_communicator, _routingTable, "")),
     _connection(connection),
     _userId(userId),
     _session(session),
     _timestamp(IceUtil::Time::now()),
     _destroy(false)
 {
+    string allow = _communicator->getProperties()->getProperty("Glacier2.AllowCategories");
+    StringSeq allowCategories;
+    
+    const string ws = " \t";
+    string::size_type current = allow.find_first_not_of(ws, 0);
+    while(current != string::npos)
+    {
+	string::size_type pos = allow.find_first_of(ws, current);
+	string::size_type len = (pos == string::npos) ? string::npos : pos - current;
+	string category = allow.substr(current, len);
+	allowCategories.push_back(category);
+	current = allow.find_first_not_of(ws, pos);
+    }
+
+    int addUserMode = _communicator->getProperties()->getPropertyAsInt("Glacier2.AddUserToAllowCategories");
+    if(addUserMode == 1)
+    {
+	allowCategories.push_back(_userId); // Add user id to allowed categories.
+    }
+    else if(addUserMode == 2)
+    {
+	allowCategories.push_back('_' + _userId); // Add user id with prepended underscore to allowed categories.
+    }
+
+    sort(allowCategories.begin(), allowCategories.end()); // Must be sorted.
+    allowCategories.erase(unique(allowCategories.begin(), allowCategories.end()), allowCategories.end());
+
+    const_cast<ClientBlobjectPtr&>(_clientBlobject) = new ClientBlobject(_communicator, _routingTable,
+									 allowCategories);
+
     if(serverAdapter)
     {
 	ObjectPrx& serverProxy = const_cast<ObjectPrx&>(_serverProxy);

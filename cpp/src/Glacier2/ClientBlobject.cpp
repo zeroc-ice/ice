@@ -17,26 +17,12 @@ using namespace Glacier2;
 
 Glacier2::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
 					 const IceInternal::RoutingTablePtr& routingTable,
-					 const string& allow) :
+					 const StringSeq& allowCategories) :
     Glacier2::Blobject(communicator, false),
     _routingTable(routingTable),
+    _allowCategories(allowCategories),
     _rejectTraceLevel(_properties->getPropertyAsInt("Glacier2.Client.Trace.Reject"))
 {
-    vector<string>& allowCategories = const_cast<vector<string>&>(_allowCategories);
-
-    const string ws = " \t";
-    string::size_type current = allow.find_first_not_of(ws, 0);
-    while(current != string::npos)
-    {
-	string::size_type pos = allow.find_first_of(ws, current);
-	string::size_type len = (pos == string::npos) ? string::npos : pos - current;
-	string category = allow.substr(current, len);
-	allowCategories.push_back(category);
-	current = allow.find_first_not_of(ws, pos);
-    }
-
-    sort(allowCategories.begin(), allowCategories.end()); // Must be sorted.
-    allowCategories.erase(unique(allowCategories.begin(), allowCategories.end()), allowCategories.end());
 }
 
 Glacier2::ClientBlobject::~ClientBlobject()
@@ -53,7 +39,7 @@ Glacier2::ClientBlobject::destroy()
 }
 
 void
-Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
+Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const ByteSeq& inParams,
 					   const Current& current)
 {
     assert(_routingTable); // Destroyed?
