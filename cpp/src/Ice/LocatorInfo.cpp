@@ -245,12 +245,14 @@ IceInternal::LocatorInfo::getEndpoints(const ReferencePtr& ref, bool& cached)
 		    endpoints = object->__reference()->endpoints;
 		}
 	    }
-	    catch(LocalException&)
+	    catch(LocalException& ex)
 	    {
 		//
 		// Ignore. The proxy will most likely get empty
 		// endpoints and raise a NoEndpointException().
 		//
+		Warning out(ref->instance->logger());
+		out << "couldn't contact the locator:\n" << ex;
 	    }
 
 	    //
