@@ -211,10 +211,18 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
 	args.push_back("--Glacier.Router.UserId=" + userId);
 	
-	if(!_properties->getProperty("Glacier.Starter.AddUserToAllowCategories").empty())
+	int addUserMode = _properties->getPropertyAsIntWithDefault("Glacier.Starter.AddUserToAllowCategories", 0);
+	if(addUserMode == 1)
 	{
+	    // Add user id to allowed categories.
 	    args.push_back("--Glacier.Router.AllowCategories=" +
 			   _properties->getProperty("Glacier.Router.AllowCategories") + " " + userId);
+	}
+	else if(addUserMode == 2)
+	{
+	    // Add user id with prepended underscore to allowed categories.
+	    args.push_back("--Glacier.Router.AllowCategories=" +
+			   _properties->getProperty("Glacier.Router.AllowCategories") + " _" + userId);
 	}
 
 	ostringstream s;

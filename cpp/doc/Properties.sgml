@@ -1818,15 +1818,33 @@ only.)
 <section><title>Glacier.Starter.AddUserToAllowCategories</title>
 <section><title>Synopsis</title>
 <synopsis>
-Glacier.Starter.AddUserToAllowCategories=<replaceable>value</replaceable>
+Glacier.Starter.AddUserToAllowCategories=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-If set, the user id authenticated by the &Glacier; router starter is
-added to the <literal>Glacier.Router.AllowCategories</literal>
-property upon router startup.
+Control the addition of the user id authenticated by the &Glacier; router
+starter to the <literal>Glacier.Router.AllowCategories</literal> property 
+upon router startup:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>Do not add user id. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Add user id.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Add user id with prepended underscore.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
 </para>
 </section>
 </section>
