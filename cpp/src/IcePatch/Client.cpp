@@ -45,62 +45,58 @@ IcePatch::Client::usage()
 int
 IcePatch::Client::run(int argc, char* argv[])
 {
-    for (int i = 1; i < argc; ++i)
-    {
-	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-	{
-	    usage();
-	    return EXIT_SUCCESS;
-	}
-	else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
-	{
-	    cout << ICE_STRING_VERSION << endl;
-	    return EXIT_SUCCESS;
-	}
-	else
-	{
-	    cerr << appName() << ": unknown option `" << argv[i] << "'" << endl;
-	    usage();
-	    return EXIT_FAILURE;
-	}
-    }
-
-    PropertiesPtr properties = communicator()->getProperties();
-    
-    //
-    // Get the working directory and change to this directory.
-    //
-    const char* directoryProperty = "IcePatch.Directory";
-    string directory = properties->getProperty(directoryProperty);
-    if (!directory.empty())
-    {
-	if (chdir(directory.c_str()) == -1)
-	{
-	    cerr << appName() << ": can't change to directory `" << directory << "': " << strerror(errno) << endl;
-	    return EXIT_FAILURE;
-	}
-    }
-
-    //
-    // Get the IcePatch endpoints.
-    //
-    const char* endpointsProperty = "IcePatch.Endpoints";
-    string endpoints = properties->getProperty(endpointsProperty);
-    if (endpoints.empty())
-    {
-	cerr << appName() << ": property `" << endpointsProperty << "' is not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    //
-    // Create and install the node description factory.
-    //
-    ObjectFactoryPtr factory = new NodeDescFactory;
-    communicator()->addObjectFactory(factory, "::IcePatch::DirectoryDesc");
-    communicator()->addObjectFactory(factory, "::IcePatch::FileDesc");
-
     try
     {
+        for (int i = 1; i < argc; ++i)
+        {
+            if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+            {
+                usage();
+                return EXIT_SUCCESS;
+            }
+            else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+            {
+                cout << ICE_STRING_VERSION << endl;
+                return EXIT_SUCCESS;
+            }
+            else
+            {
+                cerr << appName() << ": unknown option `" << argv[i] << "'" << endl;
+                usage();
+                return EXIT_FAILURE;
+            }
+        }
+        
+        PropertiesPtr properties = communicator()->getProperties();
+        
+        //
+        // Get the IcePatch endpoints.
+        //
+        const char* endpointsProperty = "IcePatch.Endpoints";
+        string endpoints = properties->getProperty(endpointsProperty);
+        if (endpoints.empty())
+        {
+            cerr << appName() << ": property `" << endpointsProperty << "' is not set" << endl;
+            return EXIT_FAILURE;
+        }
+        
+        //
+        // Get the working directory and change to this directory.
+        //
+        const char* directoryProperty = "IcePatch.Directory";
+        string directory = properties->getProperty(directoryProperty);
+        if (!directory.empty())
+        {
+            changeDirectory(directory);
+        }
+        
+        //
+        // Create and install the node description factory.
+        //
+        ObjectFactoryPtr factory = new NodeDescFactory;
+        communicator()->addObjectFactory(factory, "::IcePatch::DirectoryDesc");
+        communicator()->addObjectFactory(factory, "::IcePatch::FileDesc");
+        
 	//
 	// Display node structure.
 	//

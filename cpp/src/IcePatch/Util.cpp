@@ -137,6 +137,42 @@ IcePatch::getFileInfo(const string& path)
     return FileInfoUnknown;
 }
 
+void
+IcePatch::removeRecursive(const string& path)
+{
+    if (getFileInfo(path) == FileInfoDirectory)
+    {
+	StringSeq paths = readDirectory(path);
+	StringSeq::const_iterator p;
+	for (p = paths.begin(); p != paths.end(); ++p)
+	{
+	    removeRecursive(*p);
+	}
+    }
+    
+    if (::remove(path.c_str()) == -1)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot remove file `" + path + "': " + strerror(errno);
+	throw ex;
+    }
+}
+
+void
+IcePatch::changeDirectory(const string& path)
+{
+#ifdef WIN32
+    if (_chdir(path.c_str()) == -1)
+#else
+    if (chdir(path.c_str()) == -1)
+#endif
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot change to directory `" + path + "': " + strerror(errno);
+	throw ex;
+    }
+}
+
 StringSeq
 IcePatch::readDirectory(const string& path)
 {
@@ -210,27 +246,6 @@ IcePatch::readDirectory(const string& path)
     return result;
 
 #endif
-}
-
-void
-IcePatch::removeRecursive(const string& path)
-{
-    if (getFileInfo(path) == FileInfoDirectory)
-    {
-	StringSeq paths = readDirectory(path);
-	StringSeq::const_iterator p;
-	for (p = paths.begin(); p != paths.end(); ++p)
-	{
-	    removeRecursive(*p);
-	}
-    }
-    
-    if (::remove(path.c_str()) == -1)
-    {
-	NodeAccessException ex;
-	ex.reason = "cannot remove file `" + path + "': " + strerror(errno);
-	throw ex;
-    }
 }
 
 void

@@ -43,79 +43,75 @@ IcePatch::Server::usage()
 int
 IcePatch::Server::run(int argc, char* argv[])
 {
-    for (int i = 1; i < argc; ++i)
-    {
-	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
-	{
-	    usage();
-	    return EXIT_SUCCESS;
-	}
-	else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
-	{
-	    cout << ICE_STRING_VERSION << endl;
-	    return EXIT_SUCCESS;
-	}
-	else
-	{
-	    cerr << appName() << ": unknown option `" << argv[i] << "'" << endl;
-	    usage();
-	    return EXIT_FAILURE;
-	}
-    }
-
-    PropertiesPtr properties = communicator()->getProperties();
-    
-    //
-    // Get the working directory and change to this directory.
-    //
-    const char* directoryProperty = "IcePatch.Directory";
-    string directory = properties->getProperty(directoryProperty);
-    if (!directory.empty())
-    {
-	if (chdir(directory.c_str()) == -1)
-	{
-	    cerr << appName() << ": can't change to directory `" << directory << "': " << strerror(errno) << endl;
-	    return EXIT_FAILURE;
-	}
-    }
-
-    //
-    // Get the IcePatch endpoints.
-    //
-    const char* endpointsProperty = "IcePatch.Endpoints";
-    string endpoints = properties->getProperty(endpointsProperty);
-    if (endpoints.empty())
-    {
-	cerr << appName() << ": property `" << endpointsProperty << "' is not set" << endl;
-	return EXIT_FAILURE;
-    }
-
-    //
-    // Create MD5 and BZ2 files.
-    //
     try
     {
+        for (int i = 1; i < argc; ++i)
+        {
+            if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
+            {
+                usage();
+                return EXIT_SUCCESS;
+            }
+            else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
+            {
+                cout << ICE_STRING_VERSION << endl;
+                return EXIT_SUCCESS;
+            }
+            else
+            {
+                cerr << appName() << ": unknown option `" << argv[i] << "'" << endl;
+                usage();
+                return EXIT_FAILURE;
+            }
+        }
+        
+        PropertiesPtr properties = communicator()->getProperties();
+        
+        //
+        // Get the IcePatch endpoints.
+        //
+        const char* endpointsProperty = "IcePatch.Endpoints";
+        string endpoints = properties->getProperty(endpointsProperty);
+        if (endpoints.empty())
+        {
+            cerr << appName() << ": property `" << endpointsProperty << "' is not set" << endl;
+            return EXIT_FAILURE;
+        }
+        
+        //
+        // Get the working directory and change to this directory.
+        //
+        const char* directoryProperty = "IcePatch.Directory";
+        string directory = properties->getProperty(directoryProperty);
+        if (!directory.empty())
+        {
+            changeDirectory(directory);
+        }
+        
+        //
+        // Create MD5 and BZ2 files.
+        //
 	createMD5Recursive(".");
 	createBZ2Recursive(".");    
+        
+        //
+        // Create and initialize the object adapter and the node locator.
+        //
+        ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("IcePatch", endpointsProperty);
+        ServantLocatorPtr nodeLocator = new NodeLocator(adapter);
+        adapter->addServantLocator(nodeLocator, "IcePatch");
+        adapter->activate();
+        
+        //
+        // We're done, let's wait for shutdown.
+        //
+        communicator()->waitForShutdown();
     }
     catch (const NodeAccessException& ex)
     {
 	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
 	return EXIT_FAILURE;
     }
-
-    //
-    // Create and initialize the object adapter and the node locator.
-    //
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapterFromProperty("IcePatch", endpointsProperty);
-    ServantLocatorPtr nodeLocator = new NodeLocator(adapter);
-    adapter->addServantLocator(nodeLocator, "IcePatch");
-    adapter->activate();
-
-    //
-    // We're done, let's wait for shutdown.
-    //
-    communicator()->waitForShutdown();
 
     return EXIT_SUCCESS;
 }

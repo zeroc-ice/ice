@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="IcePackS" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="IcePatchS" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=IcePackS - Win32 Debug
+CFG=IcePatchS - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "IcePackS.mak".
+!MESSAGE NMAKE /f "IcePatchS.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "IcePackS.mak" CFG="IcePackS - Win32 Debug"
+!MESSAGE NMAKE /f "IcePatchS.mak" CFG="IcePatchS - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "IcePackS - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "IcePackS - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "IcePatchS - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "IcePatchS - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=IcePackS - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "IcePackS - Win32 Release"
+!IF  "$(CFG)" == "IcePatchS - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,10 +51,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 setargv.obj /nologo /subsystem:console /machine:I386 /out:"../../bin/icepack.exe" /libpath:"../../../lib"
+# ADD LINK32 setargv.obj /nologo /subsystem:console /machine:I386 /out:"../../bin/icepatch.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
+!ELSEIF  "$(CFG)" == "IcePatchS - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -77,25 +77,25 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"../../bin/icepack.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"../../bin/icepatch.exe" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /nodefaultlib
 
 !ENDIF 
 
 # Begin Target
 
-# Name "IcePackS - Win32 Release"
-# Name "IcePackS - Win32 Debug"
+# Name "IcePatchS - Win32 Release"
+# Name "IcePatchS - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\AdminI.cpp
+SOURCE=.\NodeI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Forward.cpp
+SOURCE=.\NodeLocator.cpp
 # End Source File
 # Begin Source File
 
@@ -107,11 +107,11 @@ SOURCE=.\Server.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\AdminI.h
+SOURCE=.\NodeI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Forward.h
+SOURCE=.\NodeLocator.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

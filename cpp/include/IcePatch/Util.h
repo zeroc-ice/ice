@@ -17,13 +17,13 @@
 namespace IcePatch
 {
 
-extern const std::string tmpName;
+extern ICE_PATCH_API const std::string tmpName;
 
-std::string identityToPath(const Ice::Identity&);
-Ice::Identity pathToIdentity(const std::string&);
+ICE_PATCH_API std::string identityToPath(const Ice::Identity&);
+ICE_PATCH_API Ice::Identity pathToIdentity(const std::string&);
 
-std::string pathToName(const std::string&);
-std::string getSuffix(const std::string&);
+ICE_PATCH_API std::string pathToName(const std::string&);
+ICE_PATCH_API std::string getSuffix(const std::string&);
 
 enum FileInfo
 {
@@ -32,21 +32,23 @@ enum FileInfo
     FileInfoRegular,
     FileInfoUnknown
 };
-FileInfo getFileInfo(const std::string&);
-Ice::StringSeq readDirectory(const std::string&);
-void removeRecursive(const std::string&);
-void createDirectory(const std::string&);
+ICE_PATCH_API FileInfo getFileInfo(const std::string&);
+ICE_PATCH_API void removeRecursive(const std::string&);
 
-Ice::ByteSeq getMD5(const std::string&);
-void createMD5(const std::string&);
-void createMD5Recursive(const std::string&);
+ICE_PATCH_API void changeDirectory(const std::string&);
+ICE_PATCH_API Ice::StringSeq readDirectory(const std::string&);
+ICE_PATCH_API void createDirectory(const std::string&);
 
-Ice::Int getSizeBZ2(const std::string&);
-Ice::ByteSeq getBytesBZ2(const std::string&, Ice::Int, Ice::Int);
-void createBZ2(const std::string&);
-void createBZ2Recursive(const std::string&);
+ICE_PATCH_API Ice::ByteSeq getMD5(const std::string&);
+ICE_PATCH_API void createMD5(const std::string&);
+ICE_PATCH_API void createMD5Recursive(const std::string&);
 
-class ProgressCB
+ICE_PATCH_API Ice::Int getSizeBZ2(const std::string&);
+ICE_PATCH_API Ice::ByteSeq getBytesBZ2(const std::string&, Ice::Int, Ice::Int);
+ICE_PATCH_API void createBZ2(const std::string&);
+ICE_PATCH_API void createBZ2Recursive(const std::string&);
+
+class ICE_PATCH_API ProgressCB
 {
 public:
 
@@ -54,7 +56,7 @@ public:
     virtual void update(Ice::Int, Ice::Int) = 0;
     virtual void finished(Ice::Int) = 0;
 };
-void getFile(const IcePatch::FilePrx&, ProgressCB&);
+ICE_PATCH_API void getFile(const IcePatch::FilePrx&, ProgressCB&);
 
 }
 

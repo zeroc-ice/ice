@@ -17,7 +17,7 @@
 namespace IcePatch
 {
 
-class NodeDescFactory : public Ice::ObjectFactory
+class ICE_PATCH_API NodeDescFactory : public Ice::ObjectFactory
 {
 public:
 

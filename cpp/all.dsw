@@ -156,6 +156,48 @@ Package=<4>
 
 ###############################################################################
 
+Project: "IcePatchC"=.\src\IcePatch\IcePatchC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "IcePatchS"=.\src\IcePatch\IcePatchS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "IceStorm"=.\src\IceStorm\IceStorm.dsp - Package Owner=<4>
 
 Package=<5>
@@ -514,6 +556,27 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name configuration
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name bench
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatchC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatchS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libraryC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libraryCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name libraryS
     End Project Dependency
 }}}
 
