@@ -20,6 +20,88 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     final static String defaultDb = "$default";
     final static String indexPrefix = "$index:";
 
+
+    //
+    // The WatchDogThread is used by the saving thread to ensure the
+    // streaming of some object does not take more than timeout ms.
+    //
+    class WatchDogThread extends Thread
+    {
+	WatchDogThread(long timeout, String name)
+	{
+	    super(name);
+	    _timeout = timeout;
+	    assert timeout > 0;
+	}
+
+	public synchronized void run()
+	{
+	    while(!_done)
+	    {
+		boolean interrupted = false;
+		long startTime = 0;
+
+		//
+		// Unfortunely wait can be waken up by a spurious wakeup,
+		// so we cannot reliably tell when we are woken up by a timeout.
+		//
+		try
+		{
+		    if(_active)
+		    {
+			startTime = System.currentTimeMillis();
+			wait(_timeout);
+		    }
+		    else
+		    {
+			wait();
+		    }
+		}
+		catch(InterruptedException e)
+		{
+		    //
+		    // Ignore
+		    //
+		}
+
+		if(!_done && _active && startTime > 0)
+		{
+		    //
+		    // Did we timeout?
+		    //
+		    if(System.currentTimeMillis() - startTime >= _timeout)
+		    {
+			_communicator.getLogger().error
+			(_errorPrefix + "Streaming watch dog thread timed out. *** Halting JVM ***");
+			Runtime.getRuntime().halt(1);
+		    }
+		}
+	    }
+	}
+
+	synchronized void activate()
+	{
+	    _active = true;
+	    notify();
+	}
+	
+	synchronized void deactivate()
+	{
+	    _active = false;
+	    notify();
+	}
+
+	synchronized void terminate()
+	{
+	    _done = true;
+	    notify();
+	}
+
+	private final long _timeout;
+	private boolean _done = false;
+	private boolean _active = false;
+    }
+
     
     class DeactivateController
     {
@@ -249,20 +331,35 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
 
 	//
-	// Start saving thread
+	// Start threads
 	//
-	String threadName;
+	String savingThreadName;
+	
 	String programName = _communicator.getProperties().getProperty("Ice.ProgramName");
         if(programName.length() > 0)
         {
-            threadName = programName + "-";
+            savingThreadName = programName + "-";
         }
 	else
 	{
-	    threadName = "";
+	    savingThreadName = "";
 	}
-	threadName += "FreezeEvictorThread(" + envName + '.' + _filename + ")";
-	_thread = new Thread(this, threadName);
+	String watchDogThreadName = savingThreadName + "FreezeEvictorWatchDogThread(" + envName + '.' + _filename + ")";
+	savingThreadName += "FreezeEvictorThread(" + envName + '.' + _filename + ")";
+
+	//
+	// By default, no stream timeout
+	//
+	long streamTimeout =  _communicator.getProperties()
+	    .getPropertyAsIntWithDefault(propertyPrefix + ".StreamTimeout", 0) * 1000;
+
+	if(streamTimeout > 0)
+	{
+	    _watchDogThread = new WatchDogThread(streamTimeout, watchDogThreadName);
+	    _watchDogThread.start();
+	}
+
+	_thread = new Thread(this, savingThreadName);
 	_thread.start();
     }
 
@@ -1323,6 +1420,23 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    {
 		    }
 		}
+
+		if(_watchDogThread != null)
+		{
+		    _watchDogThread.terminate();
+		    
+		    for(;;)
+		    {
+			try
+			{
+			    _watchDogThread.join();
+			    break;
+			}
+			catch(InterruptedException ex)
+			{
+			}
+		    }	
+		}
 		
 		java.util.Iterator p = _storeMap.values().iterator();
 		while(p.hasNext())
@@ -1480,6 +1594,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			    // Lock servant and then facet so that user can safely lock
 			    // servant and call various Evictor operations
 			    //
+			    if(_watchDogThread != null)
+			    {
+				_watchDogThread.activate();
+			    }
 			    synchronized(servant)
 			    {
 				synchronized(element)
@@ -1525,6 +1643,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 					}
 				    }
 				}
+			    }
+			    if(_watchDogThread != null)
+			    {
+				_watchDogThread.deactivate();
 			    }
 			}
 		    } while(tryAgain);
@@ -2045,6 +2167,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     private java.util.List _modifiedQueue = new java.util.ArrayList();
     
     private boolean              _savingThreadDone = false;
+    private WatchDogThread       _watchDogThread = null;
+
     private DeactivateController _deactivateController = new DeactivateController();
    
     private final Ice.ObjectAdapter _adapter;
