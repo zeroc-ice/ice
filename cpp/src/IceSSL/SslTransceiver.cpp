@@ -40,7 +40,17 @@ IceSSL::SslTransceiver::close()
 
     SOCKET fd = _fd;
     _fd = INVALID_SOCKET;
-    _sslConnection->shutdown();
+
+    int shutdown = 0;
+    int numRetries = 100;
+    int retries = -numRetries;
+    do
+    {
+        shutdown = _sslConnection->shutdown();
+        retries++;
+    }
+    while ((shutdown == 0) && (retries < 0));
+
     ::shutdown(fd, SHUT_RDWR); // helps to unblock threads in recv()
     closeSocket(fd);
 }
@@ -55,7 +65,16 @@ IceSSL::SslTransceiver::shutdown()
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
-    _sslConnection->shutdown();
+    int shutdown = 0;
+    int numRetries = 100;
+    int retries = -numRetries;
+    do
+    {
+        shutdown = _sslConnection->shutdown();
+        retries++;
+    }
+    while ((shutdown == 0) && (retries < 0));
+
     ::shutdown(_fd, SHUT_WR); // Shutdown socket for writing
 }
 

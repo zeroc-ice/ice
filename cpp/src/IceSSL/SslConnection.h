@@ -29,7 +29,7 @@ public:
                const CertificateVerifierPtr&);
     virtual ~Connection();
 
-    virtual void shutdown() = 0;
+    virtual int shutdown(int timeout = 0) = 0;
 
     virtual int read(IceInternal::Buffer&, int) = 0;
     virtual int write(IceInternal::Buffer&, int) = 0;

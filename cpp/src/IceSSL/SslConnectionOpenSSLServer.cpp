@@ -52,14 +52,8 @@ IceSSL::OpenSSL::ServerConnection::~ServerConnection()
 {
 }
 
-void
-IceSSL::OpenSSL::ServerConnection::shutdown()
-{
-    Connection::shutdown();
-}
-
 int
-IceSSL::OpenSSL::ServerConnection::init(int timeout)
+IceSSL::OpenSSL::ServerConnection::handshake(int timeout)
 {
     assert(_sslConnection != 0);
 
@@ -67,16 +61,15 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
     
     while (!retCode)
     {
-        int i = 0;
-
         _readTimeout = timeout > _handshakeReadTimeout ? timeout : _handshakeReadTimeout;
 
         if (_initWantWrite)
         {
-            i = writeSelect(timeout);
+            int i = writeSelect(timeout);
 
             if (i == 0)
             {
+                cerr << "-" << flush;
                 return 0;
             }
 
@@ -84,10 +77,11 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
         }
         else
         {
-            i = readSelect(_readTimeout);
+            int i = readSelect(_readTimeout);
 
             if (i == 0)
             {
+                cerr << "-" << flush;
                 return 0;
             }
         }
@@ -102,19 +96,12 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
 
             if (verifyError != X509_V_OK)
             {
-                CertificateVerificationException certVerEx(__FILE__, __LINE__);
+                // Flag the connection for shutdown, let the
+                // usual initialization take care of it.
 
-                certVerEx._message = "ssl certificate verification error";
+                _phase = Shutdown;
 
-                string errors = sslGetErrors();
-
-                if (!errors.empty())
-                {
-                    certVerEx._message += "\n";
-                    certVerEx._message += errors;
-                }
-
-                throw certVerEx;
+                return 0;
             }
             else
             {
@@ -169,15 +156,17 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
                         ex.error = getSocketErrno();
                         throw ex;
                     }
-                    else
-                    {
-                        SocketException ex(__FILE__, __LINE__);
-                        ex.error = getSocketErrno();
-                        throw ex;
-                    }
+
+                    SocketException ex(__FILE__, __LINE__);
+                    ex.error = getSocketErrno();
+                    throw ex;
                 }
                 else
                 {
+                    //
+                    // NOTE: Should this be ConnectFailedException like in the Client?
+                    //
+
                     ProtocolException protocolEx(__FILE__, __LINE__);
 
                     // Protocol Error: Unexpected EOF
@@ -210,6 +199,8 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
 
         if (retCode > 0)
         {
+            _phase = Connected;
+
             // Init finished, look at the connection information.
             showConnectionInfo();
         }
@@ -309,12 +300,10 @@ IceSSL::OpenSSL::ServerConnection::write(Buffer& buf, int timeout)
                         ex.error = getSocketErrno();
                         throw ex;
 	            }
-	            else
-	            {
-		        SocketException ex(__FILE__, __LINE__);
-		        ex.error = getSocketErrno();
-		        throw ex;
-	            }
+
+                    SocketException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
                 }
                 else
                 {

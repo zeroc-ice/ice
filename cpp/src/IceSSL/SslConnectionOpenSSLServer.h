@@ -28,8 +28,7 @@ public:
                      const IceSSL::PluginBaseIPtr&);
     virtual ~ServerConnection();
 
-    virtual void shutdown();
-    virtual int init(int timeout = 0);
+    virtual int handshake(int timeout = 0);
 
     virtual int write(IceInternal::Buffer&, int);
 

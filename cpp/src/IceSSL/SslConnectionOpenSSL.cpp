@@ -71,6 +71,9 @@ IceSSL::OpenSSL::Connection::Connection(const IceSSL::CertificateVerifierPtr& ce
 
     SSL_set_ex_data(sslConnection, 0, static_cast<void*>(plugin.get()));
 
+    // We always start off in a Handshake
+    _phase = Handshake;
+
     _lastError = SSL_ERROR_NONE;
 
     _initWantRead = 0;
@@ -94,39 +97,141 @@ IceSSL::OpenSSL::Connection::~Connection()
     }
 }
 
-void
-IceSSL::OpenSSL::Connection::shutdown()
+int
+IceSSL::OpenSSL::Connection::shutdown(int timeout)
 {
     if (_sslConnection == 0)
     {
-        return;
+        return 1;
     }
 
-    if (_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
-    { 
-        _logger->trace(_traceLevels->securityCat, "WRN " +
-                       string("shutting down ssl connection\n") +
-                       fdToString(SSL_get_fd(_sslConnection)));
-    }
+    int retCode = 0;
 
-    int shutdown = 0;
-    int numRetries = 100;
-    int retries = -numRetries;
-
-    do
+    if (_initWantWrite)
     {
-        shutdown = SSL_shutdown(_sslConnection);
-        retries++;
-    }
-    while ((shutdown == 0) && (retries < 0));
+        int i = writeSelect(timeout);
 
-    if ((_traceLevels->security >= IceSSL::SECURITY_PROTOCOL) && (shutdown <= 0))
-    {
-        ostringstream s;
-        s << "ssl shutdown failure encountered: code[" << shutdown << "] retries[";
-        s << (retries + numRetries) << "]\n" << fdToString(SSL_get_fd(_sslConnection));
-        _logger->trace(_traceLevels->securityCat, s.str());
+        if (i == 0)
+        {
+            return 0;
+        }
+
+        _initWantWrite = 0;
     }
+    else if (_initWantRead)
+    {
+        int i = readSelect(timeout);
+
+        if (i == 0)
+        {
+            return 0;
+        }
+
+        _initWantRead = 0;
+    }
+
+    ERR_clear_error();
+
+    retCode = SSL_shutdown(_sslConnection);
+
+    if (retCode == 1)
+    {
+        // Shutdown successful - shut down the socket for writing.
+        ::shutdown(SSL_get_fd(_sslConnection), SHUT_WR);
+    }
+    else if (retCode == -1)
+    {
+        setLastError(retCode);
+
+        // Shutdown failed due to an error.
+
+        switch (getLastError())
+        {
+            case SSL_ERROR_WANT_WRITE:
+            {
+                _initWantWrite = 1;
+                retCode = 0;
+                break;
+            }
+
+            case SSL_ERROR_WANT_READ:
+            {
+                _initWantRead = 1;
+                retCode = 0;
+                break;
+            }
+
+            case SSL_ERROR_NONE:
+            case SSL_ERROR_WANT_X509_LOOKUP:
+            {
+                // Ignore
+                retCode = 0;
+                break;
+            }
+
+            case SSL_ERROR_SYSCALL:
+            {
+                //
+                // Some error with the underlying transport.
+                //
+
+                if (interrupted())
+                {
+                    retCode = 0;
+                    break;
+                }
+
+                if (wouldBlock())
+                {
+                    readSelect(timeout);
+                    retCode = 0;
+                    break;
+                }
+
+                if (connectionLost())
+                {
+                    ConnectionLostException ex(__FILE__, __LINE__);
+                    ex.error = getSocketErrno();
+                    throw ex;
+                }
+
+                //
+                // Non-specific socket problem.
+                //
+                SocketException ex(__FILE__, __LINE__);
+                ex.error = getSocketErrno();
+                throw ex;
+            }
+
+            case SSL_ERROR_SSL:
+            {
+                //
+                // Error in the SSL library, usually a Protocol error.
+                //
+
+                ProtocolException protocolEx(__FILE__, __LINE__);
+
+                protocolEx._message = "encountered a violation of the ssl protocol during shutdown\n";
+                protocolEx._message += sslGetErrors();
+
+                throw protocolEx;
+            }
+
+            case SSL_ERROR_ZERO_RETURN:
+            {
+                //
+                // Indicates that the SSL connection has been closed. For SSLv3.0
+                // and TLSv1.0, it indicates that a closure alert was received,
+                // and thus the connection has been closed cleanly.
+                //
+
+		CloseConnectionException ex(__FILE__, __LINE__);
+		throw ex;
+            }
+        }
+    }
+
+    return retCode;
 }
 
 void
@@ -288,7 +393,45 @@ IceSSL::OpenSSL::Connection::initialize(int timeout)
         {
             // Perform our init(), then leave.
             IceUtil::Mutex::Lock sync(_handshakeWaitMutex);
-            retCode = init(timeout);
+
+            // Here we 'take the ball and run with it' for as long as we can
+            // get away with it.  As long as we don't encounter some error
+            // status (or completion), this thread continues to service the
+            // initialize() call.
+            while (retCode == 0)
+            {
+                switch (_phase)
+                {
+                    case Handshake :
+                    {
+                        retCode = handshake(timeout);
+                        break;
+                    }
+
+                    case Shutdown : 
+                    {
+                        retCode = shutdown(timeout);
+                        break;
+                    }
+
+                    case Connected :
+                    {
+                        retCode = SSL_is_init_finished(_sslConnection);
+
+                        if (!retCode)
+                        {
+                            // In this case, we are essentially renegotiating
+                            // the connection at the behest of the peer.
+                            _phase = Handshake;
+                            continue;
+                        }
+
+                        // Done here.
+                        return retCode;
+                    }
+                }
+            }
+
             break;
         }
     }
@@ -437,7 +580,7 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
             continue;
         }
 
-        // initReturn must be > 0, so we're okay to try a write
+        // initReturn must be > 0, so we're okay to try a read
 
         if (!pending() && !readSelect(_readTimeout))
         {
@@ -520,12 +663,10 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
                         ex.error = getSocketErrno();
                         throw ex;
                     }
-                    else
-                    {
-                        SocketException ex(__FILE__, __LINE__);
-                        ex.error = getSocketErrno();
-                        throw ex;
-                    }
+
+                    SocketException ex(__FILE__, __LINE__);
+                    ex.error = getSocketErrno();
+                    throw ex;
                 }
                 else // (bytesRead == 0)
                 {

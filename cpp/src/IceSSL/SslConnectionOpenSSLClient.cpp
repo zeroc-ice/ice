@@ -50,14 +50,8 @@ IceSSL::OpenSSL::ClientConnection::~ClientConnection()
 {
 }
 
-void
-IceSSL::OpenSSL::ClientConnection::shutdown()
-{
-    Connection::shutdown();
-}
-
 int
-IceSSL::OpenSSL::ClientConnection::init(int timeout)
+IceSSL::OpenSSL::ClientConnection::handshake(int timeout)
 {
     assert(_sslConnection != 0);
 
@@ -65,31 +59,30 @@ IceSSL::OpenSSL::ClientConnection::init(int timeout)
 
     while (!retCode)
     {
-        int i = 0;
-
         _readTimeout = timeout > _handshakeReadTimeout ? timeout : _handshakeReadTimeout;
 
         if (_initWantRead)
         {
-            i = readSelect(_readTimeout);
+            int i = readSelect(_readTimeout);
+
+            if (i == 0)
+            {
+                return 0;
+            }
+
+            _initWantRead = 0;
         }
         else if (_initWantWrite)
         {
-            i = writeSelect(timeout);
-        }
+            int i = writeSelect(timeout);
 
-        if (_initWantRead && i == 0)
-        {
-            return 0;
-        }
+            if (i == 0)
+            {
+                return 0;
+            }
 
-        if (_initWantWrite && i == 0)
-        {
-            return 0;
+            _initWantWrite = 0;
         }
-
-        _initWantRead = 0;
-        _initWantWrite = 0;
 
         int result = connect();
 
@@ -121,6 +114,7 @@ IceSSL::OpenSSL::ClientConnection::init(int timeout)
                 // this define here as OpenSSL doesn't refer
                 // to it as a SOCKET_ERROR (but that's what it is
                 // if you look at their code).
+
                 if(result == -1)
                 {
                     // IO Error in underlying BIO
@@ -142,12 +136,10 @@ IceSSL::OpenSSL::ClientConnection::init(int timeout)
                         ex.error = getSocketErrno();
                         throw ex;
                     }
-                    else
-                    {
-                        SocketException ex(__FILE__, __LINE__);
-                        ex.error = getSocketErrno();
-                        throw ex;
-                    }
+
+                    SocketException ex(__FILE__, __LINE__);
+                    ex.error = getSocketErrno();
+                    throw ex;
                 }
                 else    // result == 0
                 {
@@ -158,6 +150,7 @@ IceSSL::OpenSSL::ClientConnection::init(int timeout)
                     // errno isn't set in this situation, so we always use
                     // ECONNREFUSED.
                     //
+
                     ConnectFailedException ex(__FILE__, __LINE__);
 #ifdef _WIN32
                     ex.error = WSAECONNREFUSED;
@@ -215,6 +208,8 @@ IceSSL::OpenSSL::ClientConnection::init(int timeout)
 
         if (retCode > 0)
         {
+            _phase = Connected;
+
             // Init finished, look at the connection information.
             showConnectionInfo();
         }
@@ -324,12 +319,10 @@ IceSSL::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
 		        ex.error = getSocketErrno();
 		        throw ex;
 	            }
-	            else
-	            {
-		        SocketException ex(__FILE__, __LINE__);
-		        ex.error = getSocketErrno();
-		        throw ex;
-	            }
+
+                    SocketException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
                 }
                 else if (bytesWritten > 0)
                 {

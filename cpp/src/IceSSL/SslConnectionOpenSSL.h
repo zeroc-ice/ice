@@ -116,6 +116,13 @@ private:
 //       would always be a reference to them from the map.
 typedef std::map<SSL*, Connection*> SslConnectionMap;
 
+typedef enum
+{
+    Handshake,  // The connection is negotiating a connection with the peer.
+    Shutdown,   // The connection is in the process of shutting down.
+    Connected   // The connection is connected - communication may continue.
+} ConnectPhase;
+
 class Connection : public IceSSL::Connection
 {
 public:
@@ -125,12 +132,12 @@ public:
                const IceSSL::PluginBaseIPtr&);
     virtual ~Connection();
 
-    virtual void shutdown();
+    virtual int shutdown(int timeout = 0);
 
     virtual int read(IceInternal::Buffer&, int);
     virtual int write(IceInternal::Buffer&, int) = 0;
 
-    virtual int init(int timeout = 0) = 0;
+    virtual int handshake(int timeout = 0) = 0;
 
     void setHandshakeReadTimeout(int timeout);
 
@@ -188,6 +195,8 @@ protected:
     int _initWantWrite;
     int _handshakeReadTimeout;
     int _readTimeout;
+
+    ConnectPhase _phase;
 };
 
 }
