@@ -47,7 +47,11 @@ allocateProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communica
     // comparison (such as in RouterInfo::get) if a proxy from IcePy is
     // compared with a proxy from Ice/C++.
     //
-    //p->proxy = new Ice::ObjectPrx(proxy->ice_collocationOptimization(false));
+    //if(proxy)
+    //{
+    //    p->proxy = new Ice::ObjectPrx(proxy->ice_collocationOptimization(false));
+    //}
+    //
     p->proxy = new Ice::ObjectPrx(proxy);
     p->communicator = new Ice::CommunicatorPtr(communicator);
 
