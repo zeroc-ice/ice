@@ -909,7 +909,7 @@ Slice::JavaGenerator::writeGenericMarshalUnmarshalCode(Output& out,
                 }
                 else
                 {
-                    out << nl << "v = " << stream << ".readObject(" << name << ", \"\", null);";
+                    out << nl << v << " = " << stream << ".readObject(" << name << ", \"\", null);";
                 }
                 break;
             }
