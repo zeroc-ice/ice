@@ -40,11 +40,11 @@ Compilation and Testing
 Extract the Ice archive in any directory you like (for example, in
 your home directory):
 
-$ tar xvfz Ice-<version>.tar.gz
+$ tar xvfz Ice-@ver@.tar.gz
 
-Change the working directory to Ice-<version>:
+Change the working directory to Ice-@ver@:
 
-$ cd Ice-<version>
+$ cd Ice-@ver@
 
 Edit config/Make.rules to establish your build configuration. The
 comments in the file provide more information. Pay particular
