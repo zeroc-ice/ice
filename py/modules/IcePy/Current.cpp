@@ -176,7 +176,7 @@ currentGetter(CurrentObject* self, void* closure)
         {
             PyObject* type = lookupType("Ice.OperationMode");
             assert(type != NULL);
-            char* enumerator;
+            char* enumerator = 0;
             switch(self->current->mode)
             {
             case Ice::Normal:

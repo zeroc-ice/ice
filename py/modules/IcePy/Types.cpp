@@ -130,8 +130,7 @@ exceptionInfoDealloc(ExceptionInfoObject* self)
 static void
 addClassInfo(const string& id, const ClassInfoPtr& info)
 {
-    ClassInfoMap::iterator p = _classInfoMap.find(id);
-    assert(p == _classInfoMap.end());
+    assert(_classInfoMap.find(id) == _classInfoMap.end());
     _classInfoMap.insert(ClassInfoMap::value_type(id, info));
 }
 
@@ -141,8 +140,7 @@ addClassInfo(const string& id, const ClassInfoPtr& info)
 static void
 addProxyInfo(const string& id, const ProxyInfoPtr& info)
 {
-    ProxyInfoMap::iterator p = _proxyInfoMap.find(id);
-    assert(p == _proxyInfoMap.end());
+    assert(_proxyInfoMap.find(id) == _proxyInfoMap.end());
     _proxyInfoMap.insert(ProxyInfoMap::value_type(id, info));
 }
 
@@ -166,8 +164,7 @@ lookupProxyInfo(const string& id)
 static void
 addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
 {
-    ExceptionInfoMap::iterator p = _exceptionInfoMap.find(id);
-    assert(p == _exceptionInfoMap.end());
+    assert(_exceptionInfoMap.find(id) == _exceptionInfoMap.end());
     _exceptionInfoMap.insert(ExceptionInfoMap::value_type(id, info));
 }
 
@@ -359,7 +356,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     }
     case PrimitiveInfo::KindByte:
     {
-        long val;
+        long val = 0;
         if(PyInt_Check(p))
         {
             val = PyInt_AS_LONG(p);
@@ -380,7 +377,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     }
     case PrimitiveInfo::KindShort:
     {
-        long val;
+        long val = 0;
         if(PyInt_Check(p))
         {
             val = PyInt_AS_LONG(p);
@@ -401,7 +398,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     }
     case PrimitiveInfo::KindInt:
     {
-        long val;
+        long val = 0;
         if(PyInt_Check(p))
         {
             val = PyInt_AS_LONG(p);
@@ -422,7 +419,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     }
     case PrimitiveInfo::KindLong:
     {
-        Ice::Long val;
+        Ice::Long val = 0;
         if(PyInt_Check(p))
         {
             val = PyInt_AS_LONG(p);
@@ -442,7 +439,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     }
     case PrimitiveInfo::KindFloat:
     {
-        float val;
+        float val = 0;
         if(PyFloat_Check(p))
         {
             val = static_cast<float>(PyFloat_AS_DOUBLE(p));
@@ -457,7 +454,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     }
     case PrimitiveInfo::KindDouble:
     {
-        double val;
+        double val = 0;
         if(PyFloat_Check(p))
         {
             val = PyFloat_AS_DOUBLE(p);
