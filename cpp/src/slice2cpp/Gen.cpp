@@ -590,6 +590,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	string scope = p->scope();
 	
 	int sz = enumerators.size();
+	assert(sz <= 0x7fffffff); // 64-bit enums are not supported
 	
 	H << sp << nl << _dllExport << "void __write(::IceInternal::BasicStream*, " << name << ");";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&);";
@@ -604,13 +605,9 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	{
 	    C << nl << "__os->write(static_cast< ::Ice::Short>(v));";
 	}
-	else if (sz <= 0x7fffffff)
-	{
-	    C << nl << "__os->write(static_cast< ::Ice::Int>(v));";
-	}
 	else
 	{
-	    C << nl << "__os->write(static_cast< ::Ice::Long>(v));";
+	    C << nl << "__os->write(static_cast< ::Ice::Int>(v));";
 	}
 	C << eb;
 	C << sp << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::BasicStream* __is, " << scoped
@@ -628,15 +625,9 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	    C << nl << "__is->read(val);";
 	    C << nl << "v = static_cast< " << scoped << ">(val);";
 	}
-	else if (sz <= 0x7fffffff)
-	{
-	    C << nl << "::Ice::Int val;";
-	    C << nl << "__is->read(val);";
-	    C << nl << "v = static_cast< " << scoped << ">(val);";
-	}
 	else
 	{
-	    C << nl << "::Ice::Long val;";
+	    C << nl << "::Ice::Int val;";
 	    C << nl << "__is->read(val);";
 	    C << nl << "v = static_cast< " << scoped << ">(val);";
 	}
