@@ -104,15 +104,15 @@ PostBuild_Cmds=copy Debug\helloservice001d.* .
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\Hello.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\HelloI.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\HelloServiceI.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Hello.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -130,27 +130,11 @@ SOURCE=.\Hello.h
 
 SOURCE=.\Hello.ice
 
-!IF  "$(CFG)" == "helloIceBoxC - Win32 Release"
+!IF  "$(CFG)" == "helloIceBoxS - Win32 Release"
 
-USERDEP__HELLO="../../../bin/slice2cpp.exe"	
-# Begin Custom Build
-InputPath=.\Hello.ice
+!ELSEIF  "$(CFG)" == "helloIceBoxS - Win32 Debug"
 
-BuildCmds= \
-	set PATH=%PATH%;..\..\..\lib \
-	..\..\..\bin\slice2cpp.exe Hello.ice \
-	
-
-"Hello.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Hello.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "helloIceBoxC - Win32 Debug"
-
-USERDEP__HELLO="../../../bin/slice2cpp.exe"	
+USERDEP__HELLO="../../../bin/slice2cpp.exe"	"../../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Hello.ice
 

@@ -1075,6 +1075,7 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
 	    throw UnknownException(__FILE__, __LINE__);
 	}
     }
+    return false; // To keep VC++ compiler happy.
 }
 
 void
@@ -1130,6 +1131,7 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
 	    throw UnknownException(__FILE__, __LINE__);
 	}
     }
+    return false; // To keep VC++ compiler happy.
 }
 
 string
@@ -1157,6 +1159,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
 	    throw UnknownException(__FILE__, __LINE__);
 	}
     }
+    return false; // To keep VC++ compiler happy.
 }
 
 vector<string>
@@ -1184,6 +1187,7 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 	    throw UnknownException(__FILE__, __LINE__);
 	}
     }
+    return false; // To keep VC++ compiler happy.
 }
 
 bool
@@ -1222,6 +1226,7 @@ IceDelegateD::Ice::Object::ice_invoke(const string& operation,
 	    throw UnknownException(__FILE__, __LINE__);
 	}
     }
+    return false; // To keep VC++ compiler happy.
 }
 
 void
