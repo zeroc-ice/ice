@@ -21,6 +21,10 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         _db = db;
         _strategy = strategy;
         _evictor = evictor;
+        Ice.Communicator communicator = adapter.getCommunicator();
+        _evictorAdapter = communicator.createObjectAdapterWithEndpoints(Ice.Util.generateUUID(), "default");
+        _evictorAdapter.addServantLocator(evictor, category);
+        _evictorAdapter.activate();
         _lastSavedValue = -1;
     }
 
@@ -31,14 +35,23 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     }
 
     public Test.ServantPrx
-    createServant(int value, Ice.Current current)
+    createServant(int id, int value, Ice.Current current)
     {
-        Ice.Identity id = new Ice.Identity();
-        id.category = _category;
-        id.name = "" + value;
+        Ice.Identity ident = new Ice.Identity();
+        ident.category = _category;
+        ident.name = "" + id;
         ServantI servant = new ServantI(this, _evictor, value);
-        _evictor.createObject(id, servant);
-        return Test.ServantPrxHelper.uncheckedCast(_adapter.createProxy(id));
+        _evictor.createObject(ident, servant);
+        return Test.ServantPrxHelper.uncheckedCast(_evictorAdapter.createProxy(ident));
+    }
+
+    public Test.ServantPrx
+    getServant(int id, Ice.Current current)
+    {
+        Ice.Identity ident = new Ice.Identity();
+        ident.category = _category;
+        ident.name = "" + id;
+        return Test.ServantPrxHelper.uncheckedCast(_evictorAdapter.createProxy(ident));
     }
 
     public int
@@ -70,7 +83,8 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     public void
     deactivate(Ice.Current current)
     {
-        _adapter.removeServantLocator(_category);
+        _evictorAdapter.deactivate();
+        _evictorAdapter.waitForDeactivate();
         _adapter.remove(Ice.Util.stringToIdentity(_category));
         _db.close();
     }
@@ -86,5 +100,6 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     private Freeze.DB _db;
     private StrategyI _strategy;
     private Freeze.Evictor _evictor;
+    private Ice.ObjectAdapter _evictorAdapter;
     private int _lastSavedValue;
 }

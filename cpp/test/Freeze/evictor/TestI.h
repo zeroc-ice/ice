@@ -74,7 +74,9 @@ public:
 
     virtual void setSize(::Ice::Int, const Ice::Current&);
 
-    virtual ::Test::ServantPrx createServant(::Ice::Int, const Ice::Current&);
+    virtual ::Test::ServantPrx createServant(::Ice::Int, ::Ice::Int, const Ice::Current&);
+
+    virtual ::Test::ServantPrx getServant(::Ice::Int, const Ice::Current&);
 
     virtual ::Ice::Int getLastSavedValue(const Ice::Current&) const;
 
@@ -95,6 +97,7 @@ private:
     Freeze::DBPtr _db;
     StrategyIPtr _strategy;
     Freeze::EvictorPtr _evictor;
+    Ice::ObjectAdapterPtr _evictorAdapter;
     Ice::Int _lastSavedValue;
 };
 

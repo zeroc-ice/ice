@@ -55,7 +55,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         vector<Test::ServantPrx> servants;
         for(i = 0; i < size; i++)
         {
-            servants.push_back(evictor->createServant(i));
+            servants.push_back(evictor->createServant(i, i));
             test(evictor->getLastSavedValue() == i);
         }
 
@@ -124,7 +124,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         //
         for(i = 0; i < size; i++)
         {
-            servants.push_back(evictor->createServant(i));
+            servants.push_back(evictor->createServant(i, i));
         }
 
         //
@@ -136,6 +136,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         evictor->setSize(size);
         for(i = 0; i < size; i++)
         {
+            servants[i] = evictor->getServant(i);
             test(servants[i]->getValue() == i);
         }
 
@@ -147,7 +148,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         //
         // Create new servant - should cause eviction.
         //
-        servants.push_back(evictor->createServant(size));
+        servants.push_back(evictor->createServant(size, size));
         test(evictor->getLastEvictedValue() == 0);
 
         //
@@ -171,7 +172,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         }
         test(evictor->getLastEvictedValue() == -1);
 
-
 	// 
 	// Test explicit saves
 	//
@@ -189,6 +189,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
             servants[i]->destroy();
         }
 
+        evictor->deactivate();
         cout << "ok" << endl;
     }
 
@@ -212,7 +213,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         vector<Test::ServantPrx> servants;
         for(i = 0; i < size; i++)
         {
-            servants.push_back(evictor->createServant(i));
+            servants.push_back(evictor->createServant(i, i));
             test(evictor->getLastSavedValue() == i);
         }
 
@@ -312,7 +313,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         //
         for(i = 0; i < size; i++)
         {
-            servants.push_back(evictor->createServant(i));
+            servants.push_back(evictor->createServant(i, i));
         }
 
         //
@@ -324,6 +325,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         evictor->setSize(size);
         for(i = 0; i < size; i++)
         {
+            servants[i] = evictor->getServant(i);
             test(servants[i]->getValue() == i);
         }
 
@@ -336,7 +338,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         // Create new servant - should cause eviction but no
         // servants should be saved.
         //
-        servants.push_back(evictor->createServant(size));
+        servants.push_back(evictor->createServant(size, size));
         test(evictor->getLastSavedValue() == size);
         test(evictor->getLastEvictedValue() != -1);
 
@@ -359,6 +361,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
             servants[i]->destroy();
         }
 
+        evictor->deactivate();
         cout << "ok" << endl;
     }
 

@@ -106,6 +106,10 @@ Test::RemoteEvictorI::RemoteEvictorI(const ObjectAdapterPtr& adapter, const stri
     _evictor(evictor),
     _lastSavedValue(-1)
 {
+    CommunicatorPtr communicator = adapter->getCommunicator();
+    _evictorAdapter = communicator->createObjectAdapterWithEndpoints(IceUtil::generateUUID(), "default");
+    _evictorAdapter->addServantLocator(evictor, category);
+    _evictorAdapter->activate();
 }
 
 void
@@ -115,16 +119,27 @@ Test::RemoteEvictorI::setSize(Int size, const Current&)
 }
 
 Test::ServantPrx
-Test::RemoteEvictorI::createServant(Int value, const Current&)
+Test::RemoteEvictorI::createServant(Int id, Int value, const Current&)
 {
-    Identity id;
-    id.category = _category;
+    Identity ident;
+    ident.category = _category;
     ostringstream ostr;
-    ostr << value;
-    id.name = ostr.str();
+    ostr << id;
+    ident.name = ostr.str();
     ServantPtr servant = new ServantI(this, _evictor, value);
-    _evictor->createObject(id, servant);
-    return ServantPrx::uncheckedCast(_adapter->createProxy(id));
+    _evictor->createObject(ident, servant);
+    return ServantPrx::uncheckedCast(_evictorAdapter->createProxy(ident));
+}
+
+Test::ServantPrx
+Test::RemoteEvictorI::getServant(Int id, const Current&)
+{
+    Identity ident;
+    ident.category = _category;
+    ostringstream ostr;
+    ostr << id;
+    ident.name = ostr.str();
+    return ServantPrx::uncheckedCast(_evictorAdapter->createProxy(ident));
 }
 
 Int
@@ -156,7 +171,8 @@ Test::RemoteEvictorI::clearLastEvictedValue(const Current&)
 void
 Test::RemoteEvictorI::deactivate(const Current& current)
 {
-    _adapter->removeServantLocator(_category);
+    _evictorAdapter->deactivate();
+    _evictorAdapter->waitForDeactivate();
     _adapter->remove(stringToIdentity(_category));
     _db->close();
 }
@@ -215,7 +231,6 @@ Test::RemoteEvictorFactoryI::createEvictor(const string& name,
     }
     StrategyIPtr strategy = new StrategyI(delegate);
     Freeze::EvictorPtr evictor = db->createEvictor(strategy);
-    _adapter->addServantLocator(evictor, name);
 
     RemoteEvictorIPtr remoteEvictor = new RemoteEvictorI(_adapter, name, db, strategy, evictor);
     Freeze::ServantInitializerPtr initializer = new Initializer(remoteEvictor, evictor);

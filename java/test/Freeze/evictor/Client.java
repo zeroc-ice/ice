@@ -64,7 +64,7 @@ public class Client
             Test.ServantPrx[] servants = new Test.ServantPrx[size];
             for(int i = 0; i < size; i++)
             {
-                servants[i] = evictor.createServant(i);
+                servants[i] = evictor.createServant(i, i);
                 test(evictor.getLastSavedValue() == i);
             }
 
@@ -133,7 +133,7 @@ public class Client
             //
             for(int i = 0; i < size; i++)
             {
-                servants[i] = evictor.createServant(i);
+                servants[i] = evictor.createServant(i, i);
             }
 
             //
@@ -145,6 +145,7 @@ public class Client
             evictor.setSize(size);
             for(int i = 0; i < size; i++)
             {
+                servants[i] = evictor.getServant(i);
                 test(servants[i].getValue() == i);
             }
 
@@ -156,7 +157,7 @@ public class Client
             //
             // Create new servant - should cause eviction.
             //
-            servants[size] = evictor.createServant(size);
+            servants[size] = evictor.createServant(size, size);
             test(evictor.getLastEvictedValue() == 0);
 
             //
@@ -198,6 +199,7 @@ public class Client
                 servants[i].destroy();
             }
 
+            evictor.deactivate();
             System.out.println("ok");
         }
 
@@ -221,7 +223,7 @@ public class Client
             Test.ServantPrx[] servants = new Test.ServantPrx[size];
             for(int i = 0; i < size; i++)
             {
-                servants[i] = evictor.createServant(i);
+                servants[i] = evictor.createServant(i, i);
                 test(evictor.getLastSavedValue() == i);
             }
 
@@ -327,7 +329,7 @@ public class Client
             //
             for(int i = 0; i < size; i++)
             {
-                servants[i] = evictor.createServant(i);
+                servants[i] = evictor.createServant(i, i);
             }
 
             //
@@ -339,6 +341,7 @@ public class Client
             evictor.setSize(size);
             for(int i = 0; i < size; i++)
             {
+                servants[i] = evictor.getServant(i);
                 test(servants[i].getValue() == i);
             }
 
@@ -351,7 +354,7 @@ public class Client
             // Create new servant - should cause eviction but no
             // servants should be saved.
             //
-            servants[size] = evictor.createServant(size);
+            servants[size] = evictor.createServant(size, size);
             test(evictor.getLastSavedValue() == size);
             test(evictor.getLastEvictedValue() != -1);
 
@@ -374,6 +377,7 @@ public class Client
                 servants[i].destroy();
             }
 
+            evictor.deactivate();
             System.out.println("ok");
         }
 

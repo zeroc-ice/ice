@@ -38,9 +38,9 @@ public:
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Freeze::DBEnvironmentPtr& dbEnv)
 {
-    communicator->getProperties()->setProperty("Evictor.Endpoints", "default -p 12345 -t 2000");
+    communicator->getProperties()->setProperty("Factory.Endpoints", "default -p 12345 -t 2000");
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Evictor");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Factory");
 
     Test::RemoteEvictorFactoryPtr factory = new Test::RemoteEvictorFactoryI(adapter, dbEnv);
     adapter->add(factory, Ice::stringToIdentity("factory"));

@@ -37,7 +37,8 @@ class Servant
 interface RemoteEvictor
 {
     void setSize(int size);
-    Servant* createServant(int value);
+    Servant* createServant(int id, int value);
+    Servant* getServant(int id);
     nonmutating int getLastSavedValue();
     void clearLastSavedValue();
     nonmutating int getLastEvictedValue();

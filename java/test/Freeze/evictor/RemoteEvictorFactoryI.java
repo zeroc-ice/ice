@@ -55,7 +55,6 @@ public final class RemoteEvictorFactoryI extends Test._RemoteEvictorFactoryDisp
         }
         StrategyI strategy = new StrategyI(delegate);
         Freeze.Evictor evictor = db.createEvictor(strategy);
-        _adapter.addServantLocator(evictor, name);
 
         RemoteEvictorI remoteEvictor = new RemoteEvictorI(_adapter, name, db, strategy, evictor);
         evictor.installServantInitializer(new Initializer(remoteEvictor, evictor));
