@@ -82,6 +82,9 @@ Win32 Release" project. For details, please see:
 
 http://www.sleepycat.com/docs/index.html
 
+On AIX with Java 1.4.2, you also need the non-public "java-globalrefs"
+patch for Berkeley DB 4.2.52.
+
 Make sure to add db.jar to your CLASSPATH. And verify that the Berkeley
 DB shared libraries are in your java.library.path. On Linux, this can
 be achieved by adding <Berkeley DB home>/lib to your LD_LIBRARY_PATH,
