@@ -118,7 +118,7 @@ public class DirectReference extends RoutableReference
         Endpoint[] endpts = super.getRoutedEndpoints();
 	if(endpts.length == 0)
 	{
-	    endpts =_endpoints;
+	    endpts = _endpoints;
 	}
 	Endpoint[] filteredEndpoints = filterEndpoints(endpts);
 	if(filteredEndpoints.length == 0)
