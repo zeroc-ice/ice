@@ -340,7 +340,7 @@ IcePack::Parser::describeServer(const list<string>& args)
 	cout << "node = " << desc.node << endl;
 	cout << "path = " << desc.path << endl;
 	cout << "pwd = " << desc.pwd << endl;
-	cout << "activation = " << (desc.activation == OnDemand ? "on-demand" : "manual");
+	cout << "activation = " << (desc.activation == OnDemand ? "on-demand" : "manual") << endl;
 	cout << "args = ";
 	copy(desc.theArgs.begin(), desc.theArgs.end(), ostream_iterator<string>(cout," "));
 	cout << endl;

@@ -40,7 +40,7 @@ IcePack::ServerAdapterI::getDirectProxy(bool activate, const Ice::Current& curre
 	// be changed.
 	//
 
-	if(_traceLevels->adapter > 2)
+	if(_traceLevels->adapter > 1)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 	    out << "waiting for activation of server adapter `" << name << "'";
@@ -57,7 +57,7 @@ IcePack::ServerAdapterI::getDirectProxy(bool activate, const Ice::Current& curre
 		    bool notify = timedWait(IceUtil::Time::seconds(_waitTime));
 		    if(!notify)
 		    {
-			if(_traceLevels->adapter > 1)
+			if(_traceLevels->adapter > 0)
 			{
 			    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 			    out << "server adapter `" << name << "' activation timed out";
@@ -67,7 +67,7 @@ IcePack::ServerAdapterI::getDirectProxy(bool activate, const Ice::Current& curre
 	    }
 	    else
 	    {
-		if(_traceLevels->adapter > 1)
+		if(_traceLevels->adapter > 0)
 		{
 		    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 		    out << "server adapter `" << name << "' activation failed, couldn't start the server";
@@ -110,7 +110,7 @@ IcePack::ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Cu
     _proxy = prx;
     _notified = true;
 
-    if(_traceLevels->adapter > 1)
+    if(_traceLevels->adapter > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 	out << "server adapter `" << name << "' " << (_proxy ? "activated" : "deactivated");

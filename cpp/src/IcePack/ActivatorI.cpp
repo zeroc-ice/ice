@@ -303,7 +303,8 @@ IcePack::ActivatorI::deactivate(const ServerPtr& server)
     //
     // Send a SIGTERM to the process.
     //
-    if(::kill(static_cast<pid_t>(pid), SIGTERM))
+    int ret = ::kill(static_cast<pid_t>(pid), SIGTERM);
+    if(ret != 0 && ret != ESRCH)
     {
 	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
@@ -333,7 +334,8 @@ IcePack::ActivatorI::kill(const ServerPtr& server)
     //
     // Send a SIGKILL to the process.
     //
-    if(::kill(static_cast<pid_t>(pid), SIGKILL))
+    int ret = ::kill(static_cast<pid_t>(pid), SIGKILL);
+    if(ret != 0 && ret != ESRCH)
     {
 	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
