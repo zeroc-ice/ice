@@ -25,18 +25,29 @@ namespace IceUtil
 //
 class Cond;
 
+//
+// We must name this LockT instead of Lock, because otherwise some
+// compilers (such as Sun Forte 6.2) have problems with constructs
+// such as:
+//
+// class Foo
+// {
+//     // ...
+//     typedef Lock<Mutex> Lock;
+// }
+//
 template <typename T>
-class Lock
+class LockT
 {
 public:
-
-    Lock(const T& mutex) :
+    
+    LockT(const T& mutex) :
 	_mutex(mutex)
     {
 	_mutex.lock();
     }
 
-    ~Lock()
+    ~LockT()
     {
 	_mutex.unlock();
     }
@@ -48,18 +59,22 @@ private:
     friend class Cond;
 };
 
+//
+// Must be name TryLockT, not TryLock. See the comment for LockT for
+// an explanation.
+//
 template <typename T>
-class TryLock
+class TryLockT
 {
 public:
 
-    TryLock(const T& mutex) :
+    TryLockT(const T& mutex) :
 	_mutex(mutex)
     {
 	_mutex.trylock();
     }
-
-    ~TryLock()
+    
+    ~TryLockT()
     {
 	_mutex.unlock();
     }

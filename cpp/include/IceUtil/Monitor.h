@@ -32,8 +32,8 @@ class Monitor
 {
 public:
 
-    typedef Lock<Monitor<T> > Lock;
-    typedef TryLock<Monitor<T> > TryLock;
+    typedef LockT<Monitor<T> > Lock;
+    typedef TryLockT<Monitor<T> > TryLock;
 
     Monitor();
     ~Monitor();

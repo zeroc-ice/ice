@@ -37,8 +37,8 @@ public:
     //
     // Lock & TryLock typedefs.
     //
-    typedef Lock<RecMutex> Lock;
-    typedef TryLock<RecMutex> TryLock;
+    typedef LockT<RecMutex> Lock;
+    typedef TryLockT<RecMutex> TryLock;
 
     RecMutex();
     ~RecMutex();

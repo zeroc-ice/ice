@@ -44,8 +44,8 @@ public:
     //
     // Lock & TryLock typedefs.
     //
-    typedef Lock<Mutex> Lock;
-    typedef TryLock<Mutex> TryLock;
+    typedef LockT<Mutex> Lock;
+    typedef TryLockT<Mutex> TryLock;
 
     Mutex();
     ~Mutex();

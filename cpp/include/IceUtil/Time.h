@@ -31,13 +31,9 @@ public:
     // operator do the right thing.
     
     static Time now();
-    static Time seconds(long);
-    static Time milliSeconds(long);
-#ifdef _WIN32
-    static Time microSeconds(__int64);
-#else
-    static Time microSeconds(long long);
-#endif
+    static Time seconds(Int64);
+    static Time milliSeconds(Int64);
+    static Time microSeconds(Int64);
 
     Time operator-() const;
     Time operator-(const Time&) const;

@@ -42,13 +42,13 @@ IceUtil::Time::now()
 }
 
 Time
-IceUtil::Time::seconds(long t)
+IceUtil::Time::seconds(Int64 t)
 {
     return Time(t * static_cast<Int64>(1000000));
 }
 
 Time
-IceUtil::Time::milliSeconds(long t)
+IceUtil::Time::milliSeconds(Int64 t)
 {
     return Time(t * static_cast<Int64>(1000));
 }
@@ -137,7 +137,7 @@ IceUtil::Time::operator timeval() const
 
 IceUtil::Time::operator double() const
 {
-    return _usec / 1000000.0L;
+    return _usec / 1000000;
 }
 
 Time::Time(Int64 usec) :
