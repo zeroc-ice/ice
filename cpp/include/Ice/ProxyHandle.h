@@ -26,23 +26,19 @@ class ProxyHandle
 {
 public:
     
-    typedef T element_type;
-    
-//    ProxyHandle() : Ptr(0) { }
-
     ProxyHandle(T* p = 0)
-	: Ptr(p)
+	: _ptr(p)
     {
-	if (Ptr)
-	    incRef(Ptr);
+	if (_ptr)
+	    incRef(_ptr);
     }
     
     template<typename Y>
     ProxyHandle(const ProxyHandle<Y>& r)
-	: Ptr(r.Ptr)
+	: _ptr(r._ptr)
     {
-	if (Ptr)
-	    incRef(Ptr);
+	if (_ptr)
+	    incRef(_ptr);
     }
 
 #ifdef WIN32 // COMPILERBUG: Is VC++ or GNU C++ right here???
@@ -51,29 +47,29 @@ public:
 #else
     ProxyHandle(const ProxyHandle& r)
 #endif
-	: Ptr(r.Ptr)
+	: _ptr(r._ptr)
     {
-	if (Ptr)
-	    incRef(Ptr);
+	if (_ptr)
+	    incRef(_ptr);
     }
     
     ~ProxyHandle()
     {
-	if (Ptr)
-	    decRef(Ptr);
+	if (_ptr)
+	    decRef(_ptr);
     }
     
     ProxyHandle& operator=(T* p)
     {
-	if (Ptr != p)
+	if (_ptr != p)
 	{
 	    if (p)
 		incRef(p);
 
-	    if (Ptr)
-		decRef(Ptr);
+	    if (_ptr)
+		decRef(_ptr);
 	    
-	    Ptr = p;
+	    _ptr = p;
 	}
 	return *this;
     }
@@ -81,15 +77,15 @@ public:
     template<typename Y>
     ProxyHandle& operator=(const ProxyHandle<Y>& r)
     {
-	if (Ptr != r.Ptr)
+	if (_ptr != r._ptr)
 	{
-	    if (r.Ptr)
-		incRef(r.Ptr);
+	    if (r._ptr)
+		incRef(r._ptr);
 
-	    if (Ptr)
-		decRef(Ptr);
+	    if (_ptr)
+		decRef(_ptr);
 	    
-	    Ptr = r.Ptr;
+	    _ptr = r._ptr;
 	}
 	return *this;
     }
@@ -101,15 +97,15 @@ public:
     ProxyHandle& operator=(const ProxyHandle& r)
 #endif
     {
-	if (Ptr != r.Ptr)
+	if (_ptr != r._ptr)
 	{
-	    if (r.Ptr)
-		incRef(r.Ptr);
+	    if (r._ptr)
+		incRef(r._ptr);
 
-	    if (Ptr)
-		decRef(Ptr);
+	    if (_ptr)
+		decRef(_ptr);
 	    
-	    Ptr = r.Ptr;
+	    _ptr = r._ptr;
 	}
 	return *this;
     }
@@ -118,7 +114,7 @@ public:
     static ProxyHandle checkedCast(const ProxyHandle<Y>& r)
     {
 	T* p;
-	::IceInternal::checkedCast(r.Ptr, p);
+	::IceInternal::checkedCast(r._ptr, p);
 	return ProxyHandle(p);
     }
 
@@ -126,17 +122,17 @@ public:
     static ProxyHandle uncheckedCast(const ProxyHandle<Y>& r)
     {
 	T* p;
-	::IceInternal::uncheckedCast(r.Ptr, p);
+	::IceInternal::uncheckedCast(r._ptr, p);
 	return ProxyHandle(p);
     }
 
-    T* get() const { return Ptr; }
+    typedef T element_type;
+    
+    T* get() const { return _ptr; }
+    T* operator->() const { return _ptr; }
+    operator bool() const { return _ptr ? true : false; }
 
-    T& operator*() const { return *Ptr; }
-    T* operator->() const { return Ptr; }
-    operator bool() const { return Ptr ? true : false; }
-
-    void swap(ProxyHandle& other) { std::swap(Ptr, other.Ptr); }
+    void swap(ProxyHandle& other) { std::swap(_ptr, other._ptr); }
 
 #ifndef WIN32 // COMPILERBUG: VC++ 6.0 doesn't understand this
  
@@ -146,25 +142,49 @@ protected:
 
 #endif
 
-    T* Ptr;
+    T* _ptr;
 };
 
 template<typename T, typename U>
 inline bool operator==(const ProxyHandle<T>& a, const ProxyHandle<U>& b)
 {
-    return *a.get() == *b.get();
-}
-
-template<typename T, typename U>
-inline bool operator!=(const ProxyHandle<T>& a, const ProxyHandle<U>& b)
-{
-    return *a.get() != *b.get();
+    T* ap = a.get();
+    T* bp = b.get();
+    if (ap == bp)
+    {
+	return true;
+    }
+    else if (!ap)
+    {
+	assert(bp);
+	return false;
+    }
+    else
+    {
+	return *ap == *bp;
+    }
 }
 
 template<typename T, typename U>
 inline bool operator<(const ProxyHandle<T>& a, const ProxyHandle<U>& b)
 {
-    return *a.get() < *b.get();
+    T* ap = a.get();
+    T* bp = b.get();
+    if (!ap || !bp)
+    {
+	if (!ap && bp)
+	{
+	    return true;
+	}
+	else
+	{
+	    return false;
+	}
+    }
+    else
+    {
+	return *a.get() < *b.get();
+    }
 }
 
 }

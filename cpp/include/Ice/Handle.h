@@ -172,37 +172,43 @@ protected:
 template<typename T, typename U>
 inline bool operator==(const Handle<T>& a, const Handle<U>& b)
 {
-    return *a.get() == *b.get();
-}
-
-template<typename T, typename U>
-inline bool operator!=(const Handle<T>& a, const Handle<U>& b)
-{
-    return *a.get() != *b.get();
+    T* ap = a.get();
+    T* bp = b.get();
+    if (ap == bp)
+    {
+	return true;
+    }
+    else if (!ap)
+    {
+	assert(bp);
+	return false;
+    }
+    else
+    {
+	return *ap == *bp;
+    }
 }
 
 template<typename T, typename U>
 inline bool operator<(const Handle<T>& a, const Handle<U>& b)
 {
-    return *a.get() < *b.get();
-}
-
-template<typename T, typename U>
-inline bool operator<=(const Handle<T>& a, const Handle<U>& b)
-{
-    return *a.get() <= *b.get();
-}
-
-template<typename T, typename U>
-inline bool operator>(const Handle<T>& a, const Handle<U>& b)
-{
-    return *a.get() > *b.get();
-}
-
-template<typename T, typename U>
-inline bool operator>=(const Handle<T>& a, const Handle<U>& b)
-{
-    return *a.get() >= *b.get();
+    T* ap = a.get();
+    T* bp = b.get();
+    if (!ap || !bp)
+    {
+	if (!ap && bp)
+	{
+	    return true;
+	}
+	else
+	{
+	    return false;
+	}
+    }
+    else
+    {
+	return *a.get() < *b.get();
+    }
 }
 
 }

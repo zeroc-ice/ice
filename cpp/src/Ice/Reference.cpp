@@ -348,43 +348,37 @@ IceInternal::Reference::changeEndpoints(const std::vector<EndpointPtr>& newEndpo
 bool
 IceInternal::Reference::operator==(const Reference& r) const
 {
-    return !operator!=(r);
-}
-
-bool
-IceInternal::Reference::operator!=(const Reference& r) const
-{
     if (this == &r)
     {
-	return false;
+	return true;
     }
     
     if (identity != r.identity)
     {
-	return true;
+	return false;
     }
 
     if (mode != r.mode)
     {
-	return true;
+	return false;
     }
 
     if (secure != r.secure)
     {
-	return true;
+	return false;
     }
 
     if (origEndpoints != r.origEndpoints)
     {
-	return true;
+	return false;
     }
 
     if (endpoints != r.endpoints)
     {
-	return true;
+	return false;
     }
 
-    return false;
+    return true;
 }
 
 bool

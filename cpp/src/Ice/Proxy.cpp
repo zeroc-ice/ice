@@ -147,12 +147,6 @@ IceProxy::Ice::Object::operator==(const Object& r) const
 }
 
 bool
-IceProxy::Ice::Object::operator!=(const Object& r) const
-{
-    return _reference->identity != r._reference->identity;
-}
-
-bool
 IceProxy::Ice::Object::operator<(const Object& r) const
 {
     return _reference->identity < r._reference->identity;

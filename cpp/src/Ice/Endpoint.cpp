@@ -199,29 +199,23 @@ IceInternal::UnknownEndpoint::equivalent(const AcceptorPtr&) const
 bool
 IceInternal::UnknownEndpoint::operator==(const Endpoint& r) const
 {
-    return !operator!=(r);
-}
-
-bool
-IceInternal::UnknownEndpoint::operator!=(const Endpoint& r) const
-{
     const UnknownEndpoint* p = dynamic_cast<const UnknownEndpoint*>(&r);
     if (!p)
-    {
-	return true;
-    }
-
-    if (this == p)
     {
 	return false;
     }
 
-    if (_rawBytes != p->_rawBytes)
+    if (this == p)
     {
 	return true;
     }
 
-    return false;
+    if (_rawBytes != p->_rawBytes)
+    {
+	return false;
+    }
+
+    return true;
 }
 
 bool
@@ -466,44 +460,37 @@ IceInternal::TcpEndpoint::equivalent(const AcceptorPtr& acceptor) const
 bool
 IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
 {
-    return !operator!=(r);
-}
-
-bool
-IceInternal::TcpEndpoint::operator!=(const Endpoint& r) const
-{
     const TcpEndpoint* p = dynamic_cast<const TcpEndpoint*>(&r);
     if (!p)
-    {
-	return true;
-    }
-
-    if (this == p)
     {
 	return false;
     }
 
-    if (_port != p->_port)
+    if (this == p)
     {
 	return true;
     }
-    
+
+    if (_port != p->_port)
+    {
+	return false;
+    }
+
+    if(_timeout != p->_timeout)
+    {
+	return false;
+    }
+
     struct sockaddr_in laddr;
     struct sockaddr_in raddr;
     getAddress(_host.c_str(), _port, laddr);
     getAddress(p->_host.c_str(), p->_port, raddr);
-    
     if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
     {
-	return true;
+	return false;
     }
 
-    if (_timeout != p->_timeout)
-    {
-	return true;
-    }
-
-    return false;
+    return true;
 }
 
 bool
@@ -539,7 +526,6 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
     struct sockaddr_in raddr;
     getAddress(_host.c_str(), _port, laddr);
     getAddress(p->_host.c_str(), p->_port, raddr);
-
     if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
     {
 	return true;
@@ -786,44 +772,37 @@ IceInternal::SslEndpoint::equivalent(const AcceptorPtr& acceptor) const
 bool
 IceInternal::SslEndpoint::operator==(const Endpoint& r) const
 {
-    return !operator!=(r);
-}
-
-bool
-IceInternal::SslEndpoint::operator!=(const Endpoint& r) const
-{
     const SslEndpoint* p = dynamic_cast<const SslEndpoint*>(&r);
     if (!p)
-    {
-	return true;
-    }
-
-    if (this == p)
     {
 	return false;
     }
 
-    if (_port != p->_port)
+    if (this == p)
     {
 	return true;
     }
-    
+
+    if (_port != p->_port)
+    {
+	return false;
+    }
+
+    if(_timeout != p->_timeout)
+    {
+	return false;
+    }
+
     struct sockaddr_in laddr;
     struct sockaddr_in raddr;
     getAddress(_host.c_str(), _port, laddr);
     getAddress(p->_host.c_str(), p->_port, raddr);
-    
     if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
     {
-	return true;
+	return false;
     }
 
-    if (_timeout != p->_timeout)
-    {
-	return true;
-    }
-
-    return false;
+    return true;
 }
 
 bool
@@ -859,7 +838,6 @@ IceInternal::SslEndpoint::operator<(const Endpoint& r) const
     struct sockaddr_in raddr;
     getAddress(_host.c_str(), _port, laddr);
     getAddress(p->_host.c_str(), p->_port, raddr);
-
     if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
     {
 	return true;
@@ -1084,39 +1062,32 @@ IceInternal::UdpEndpoint::equivalent(const AcceptorPtr&) const
 bool
 IceInternal::UdpEndpoint::operator==(const Endpoint& r) const
 {
-    return !operator!=(r);
-}
-
-bool
-IceInternal::UdpEndpoint::operator!=(const Endpoint& r) const
-{
     const UdpEndpoint* p = dynamic_cast<const UdpEndpoint*>(&r);
     if (!p)
-    {
-	return true;
-    }
-
-    if (this == p)
     {
 	return false;
     }
 
-    if (_port != p->_port)
-    {
-	return true;
-    }
-    
-    struct sockaddr_in laddr;
-    struct sockaddr_in raddr;
-    getAddress(_host.c_str(), _port, laddr);
-    getAddress(p->_host.c_str(), p->_port, raddr);
-    
-    if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
+    if (this == p)
     {
 	return true;
     }
 
-    return false;
+    if (_port != p->_port)
+    {
+	return false;
+    }
+
+    struct sockaddr_in laddr;
+    struct sockaddr_in raddr;
+    getAddress(_host.c_str(), _port, laddr);
+    getAddress(p->_host.c_str(), p->_port, raddr);
+    if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
+    {
+	return false;
+    }
+
+    return true;
 }
 
 bool
@@ -1152,7 +1123,6 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
     struct sockaddr_in raddr;
     getAddress(_host.c_str(), _port, laddr);
     getAddress(p->_host.c_str(), p->_port, raddr);
-
     if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
     {
 	return true;

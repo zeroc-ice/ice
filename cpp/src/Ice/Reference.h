@@ -70,7 +70,6 @@ public:
     ReferencePtr changeEndpoints(const std::vector<EndpointPtr>&) const;
  
     bool operator==(const Reference&) const;
-    bool operator!=(const Reference&) const;
     bool operator<(const Reference&) const;
 };
 

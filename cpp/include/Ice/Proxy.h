@@ -53,7 +53,6 @@ public:
     void _ping();
 
     bool operator==(const Object&) const;
-    bool operator!=(const Object&) const;
     bool operator<(const Object&) const;
 
     std::string _getIdentity() const;
