@@ -47,4 +47,10 @@ $(TRANSFORM_DB): $(TRANSFORM_OBJS) $(NAME)
 clean::
 	rm -f $(TRANSFORM_DB)
 
+install:: all
+	$(INSTALL_LIBRARY) $(VERSIONED_NAME) $(install_libdir)
+	rm -f $(install_libdir)/$(notdir $(NAME))
+	ln -s $(notdir $(VERSIONED_NAME)) $(install_libdir)/$(notdir $(NAME))
+	$(INSTALL_PROGRAM) $(TRANSFORM_DB) $(install_bindir)
+
 include .depend

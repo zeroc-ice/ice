@@ -39,4 +39,8 @@ $(VALIDATE): $(VOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(VOBJS) $(BASELIBS) $(XERCESC_LIBS)
 
+install:: all
+	$(INSTALL_PROGRAM) $(NAME) $(install_bindir)
+	$(INSTALL_PROGRAM) $(VALIDATE) $(install_bindir)
+
 include .depend

@@ -12,27 +12,13 @@
 #
 # **********************************************************************
 
-top_srcdir	= ../..
-
-NAME		= $(top_srcdir)/bin/slice2wsdl
-
-TARGETS		= $(NAME)
-
-OBJS		= Gen.o \
-		  Main.o
-
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(VOBJS:.o=.cpp)
+top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(CPPFLAGS) $(XERCESC_FLAGS)
-
-$(NAME): $(OBJS)
-	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lSlice $(BASELIBS) $(XERCESC_LIBS)
-
-install:: all
-	$(INSTALL_PROGRAM) $(NAME) $(install_bindir)
-
-include .depend
+install::
+	@for i in *.xsd ; \
+	do \
+	    echo "Installing $$i" ; \
+	    $(INSTALL_DATA) $$i $(install_schemadir)/$$i ; \
+	done

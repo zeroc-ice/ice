@@ -68,4 +68,11 @@ $(STARTER): $(SOBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS) -lcrypt
 
+install:: all
+	$(INSTALL_LIBRARY) $(VERSIONED_NAME) $(install_libdir)
+	rm -f $(install_libdir)/$(notdir $(NAME))
+	ln -s $(notdir $(VERSIONED_NAME)) $(install_libdir)/$(notdir $(NAME))
+	$(INSTALL_PROGRAM) $(ROUTER) $(install_bindir)
+	$(INSTALL_PROGRAM) $(STARTER) $(install_bindir)
+
 include .depend

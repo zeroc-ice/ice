@@ -43,4 +43,9 @@ clean::
 	rm -f Grammar.cpp Grammar.h
 	rm -f Scanner.cpp
 
+install:: all
+	$(INSTALL_LIBRARY) $(VERSIONED_NAME) $(install_libdir)
+	rm -f $(install_libdir)/$(notdir $(NAME))
+	ln -s $(notdir $(VERSIONED_NAME)) $(install_libdir)/$(notdir $(NAME))
+
 include .depend

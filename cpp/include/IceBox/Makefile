@@ -14,25 +14,18 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/bin/slice2wsdl
-
-TARGETS		= $(NAME)
-
-OBJS		= Gen.o \
-		  Main.o
-
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(VOBJS:.o=.cpp)
-
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(CPPFLAGS) $(XERCESC_FLAGS)
+install::
+	@if test ! -d $(install_includedir)/IceBox ; \
+	then \
+	    echo "Creating $(install_includedir)/IceBox..." ; \
+	    mkdir $(install_includedir)/IceBox ; \
+	    chmod a+rx $(install_includedir)/IceBox ; \
+	fi
 
-$(NAME): $(OBJS)
-	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lSlice $(BASELIBS) $(XERCESC_LIBS)
-
-install:: all
-	$(INSTALL_PROGRAM) $(NAME) $(install_bindir)
-
-include .depend
+	@for i in *.h ; \
+	do \
+	    echo "Installing $$i" ; \
+	    $(INSTALL_DATA) $$i $(install_includedir)/IceBox/$$i ; \
+	done

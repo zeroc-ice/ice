@@ -59,4 +59,11 @@ $(SERVER): $(SOBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIcePatch $(LIBS) $(OPENSSL_LIBS)
 
+install:: all
+	$(INSTALL_LIBRARY) $(VERSIONED_NAME) $(install_libdir)
+	rm -f $(install_libdir)/$(notdir $(NAME))
+	ln -s $(notdir $(VERSIONED_NAME)) $(install_libdir)/$(notdir $(NAME))
+	$(INSTALL_PROGRAM) $(CLIENT) $(install_bindir)
+	$(INSTALL_PROGRAM) $(SERVER) $(install_bindir)
+
 include .depend

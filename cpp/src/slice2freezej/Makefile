@@ -30,4 +30,7 @@ $(NAME): $(OBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lSlice $(BASELIBS)
 
+install:: all
+	$(INSTALL_PROGRAM) $(NAME) $(install_bindir)
+
 include .depend

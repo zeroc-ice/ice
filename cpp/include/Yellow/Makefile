@@ -14,25 +14,18 @@
 
 top_srcdir	= ../..
 
-NAME		= $(top_srcdir)/bin/slice2wsdl
-
-TARGETS		= $(NAME)
-
-OBJS		= Gen.o \
-		  Main.o
-
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(VOBJS:.o=.cpp)
-
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(CPPFLAGS) $(XERCESC_FLAGS)
+install::
+	@if test ! -d $(install_includedir)/Yellow ; \
+	then \
+	    echo "Creating $(install_includedir)/Yellow..." ; \
+	    mkdir $(install_includedir)/Yellow ; \
+	    chmod a+rx $(install_includedir)/Yellow ; \
+	fi
 
-$(NAME): $(OBJS)
-	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lSlice $(BASELIBS) $(XERCESC_LIBS)
-
-install:: all
-	$(INSTALL_PROGRAM) $(NAME) $(install_bindir)
-
-include .depend
+	@for i in *.h ; \
+	do \
+	    echo "Installing $$i" ; \
+	    $(INSTALL_DATA) $$i $(install_includedir)/Yellow/$$i ; \
+	done

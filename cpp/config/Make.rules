@@ -13,6 +13,13 @@
 # **********************************************************************
 
 #
+# Select an installation base directory. The directory will be created
+# if it does not exist.
+#
+
+prefix			= /opt/Ice
+
+#
 # The values below can be overridden by defining them as environment
 # variables. For example, if you are using a bourne shell or
 # compatible, you can override the location of STLport like this:
@@ -70,6 +77,18 @@ libdir			= $(top_srcdir)/lib
 includedir		= $(top_srcdir)/include
 slicedir		= $(top_srcdir)/slice
 export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)
+
+install_bindir		= $(prefix)/bin
+install_libdir		= $(prefix)/lib
+install_includedir	= $(prefix)/include
+install_slicedir	= $(prefix)/slice
+install_schemadir	= $(prefix)/schema
+install_docdir		= $(prefix)/doc
+
+INSTALL			= /usr/bin/install -c
+INSTALL_PROGRAM		= ${INSTALL}
+INSTALL_LIBRARY		= ${INSTALL} -m 644
+INSTALL_DATA		= ${INSTALL} -m 644
 
 ifneq ($(STLPORT_HOME),)
     STLPORT_FLAGS	= -I$(STLPORT_HOME)/include/stlport
@@ -132,7 +151,7 @@ SLICE2XSD		= $(bindir)/slice2xsd
 SLICE2FREEZE		= $(bindir)/slice2freeze
 SLICE2DOCBOOK		= $(bindir)/slice2docbook
 
-EVERYTHING		= all depend clean
+EVERYTHING		= all depend clean install
 
 .SUFFIXES:
 .SUFFIXES:		.cpp .c .o
@@ -203,3 +222,5 @@ clean::
 	rm -f $(addprefix $(HDIR), $(addsuffix .h, $(basename $(subst $(SDIR),, \
 	$(filter $(SDIR)/%.ice, $(SLICE_SRCS))))))
 endif
+
+install::

@@ -39,4 +39,9 @@ $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
 	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
+install:: all
+	$(INSTALL_LIBRARY) $(VERSIONED_NAME) $(install_libdir)
+	rm -f $(install_libdir)/$(notdir $(NAME))
+	ln -s $(notdir $(VERSIONED_NAME)) $(install_libdir)/$(notdir $(NAME))
+
 include .depend

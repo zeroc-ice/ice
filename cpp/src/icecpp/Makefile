@@ -36,5 +36,8 @@ $(NAME): $(OBJS)
 	rm -f $@
 	$(CC) -o $@ $(OBJS)
 
+install:: all
+	$(INSTALL_PROGRAM) $(NAME) $(install_bindir)
+
 clean::
 	rm -f cexp.c

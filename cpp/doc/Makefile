@@ -78,3 +78,42 @@ SliceDoc.sgml: $(SLICEFILES) $(SLICE2DOCBOOK)
 
 clean::
 	rm -f SliceDoc.sgml
+
+install::
+	@if test -f manual/index.html ; \
+	then \
+	    if test ! -d $(install_docdir)/images ; \
+	    then \
+		echo "Creating $(install_docdir)/images..." ; \
+		mkdir $(install_docdir)/images ; \
+		chmod a+rx $(install_docdir)/images ; \
+	    fi ; \
+	    echo "Installing images..." ; \
+	    ${INSTALL_DATA} images/*.gif $(install_docdir)/images ; \
+	    if test ! -d $(install_docdir)/manual ; \
+	    then \
+		echo "Creating $(install_docdir)/manual..." ; \
+		mkdir $(install_docdir)/manual ; \
+		chmod a+rx $(install_docdir)/manual ; \
+	    fi ; \
+	    echo "Installing HTML..." ; \
+	    ${INSTALL_DATA} manual/*.html $(install_docdir)/manual ; \
+	    if test ! -d $(install_docdir)/manual/stylesheet-images ; \
+	    then \
+		echo "Creating $(install_docdir)/manual/stylesheet-images..." ; \
+		mkdir $(install_docdir)/manual/stylesheet-images ; \
+		chmod a+rx $(install_docdir)/manual/stylesheet-images ; \
+	    fi ; \
+	    echo "Installing image links..." ; \
+            (cd $(install_docdir)/manual/stylesheet-images; ln -f -s ../../images/*.gif .) ; \
+	fi
+	@if test -f manual.pdf ; \
+	then \
+	    echo "Installing manual.pdf..." ; \
+	    ${INSTALL_DATA} manual.pdf $(install_docdir) ; \
+	fi
+	@if test -f manual.dvi ; \
+	then \
+	    echo "Installing manual.dvi..." ; \
+	    ${INSTALL_DATA} manual.dvi $(install_docdir) ; \
+	fi

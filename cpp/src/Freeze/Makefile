@@ -57,4 +57,9 @@ $(VERSIONED_NAME): $(OBJS)
 clean::
 	rm -f IdentityObjectDict.h IdentityObjectDict.cpp
 
+install:: all
+	$(INSTALL_LIBRARY) $(VERSIONED_NAME) $(install_libdir)
+	rm -f $(install_libdir)/$(notdir $(NAME))
+	ln -s $(notdir $(VERSIONED_NAME)) $(install_libdir)/$(notdir $(NAME))
+
 include .depend
