@@ -20,6 +20,7 @@ void IceInternal::incRef(IceSSL::TraceLevels* p) { p->__incRef(); }
 void IceInternal::decRef(IceSSL::TraceLevels* p) { p->__decRef(); }
 
 IceSSL::TraceLevels::TraceLevels(const IceInternal::ProtocolPluginFacadePtr& protocolPluginFacade) :
+    network(0),
     security(0),
     securityCat("Security")
 {

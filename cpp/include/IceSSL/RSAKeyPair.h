@@ -12,6 +12,7 @@
 #define ICE_SSL_RSA_KEY_PAIR_H
 
 #include <IceUtil/Shared.h>
+#include <openssl/ssl.h>
 
 #include <Ice/BuiltinSequences.h>
 
@@ -19,8 +20,6 @@
 #include <IceSSL/RSACertificateGenF.h>
 #include <IceSSL/RSAPrivateKeyF.h>
 #include <IceSSL/RSAPublicKeyF.h>
-
-#include <openssl/ssl.h>
 
 #ifdef _WIN32
 #   ifdef ICE_SSL_API_EXPORTS
