@@ -85,9 +85,10 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	
 	synchronized(this)
 	{
-	    while(!_mapList.isEmpty())
+	    java.util.Iterator p = _mapList.iterator();
+	    while(p.hasNext())
 	    {
-		((Map) _mapList.get(0)).close(finalizing);
+		((Map) p.next()).close(finalizing);
 	    }
 	}
 	
@@ -115,8 +116,8 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
 	Ice.Properties properties = _communicator.getProperties();
 
-	_deadlockWarning = properties.getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
-	_keepIterators = properties.getPropertyAsIntWithDefault("Freeze.Map.KeepIterators", 1) != 0;
+	_deadlockWarning = properties.getPropertyAsInt("Freeze.Warn.Deadlocks") > 0;
+	_closeInFinalizeWarning = properties.getPropertyAsIntWithDefault("Freeze.Warn.CloseInFinalize", 1) > 0;
     }
 
     ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv)
@@ -141,16 +142,19 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	}
     }
 
-    synchronized void
+    synchronized java.util.Iterator
     registerMap(Map map)
     {
-	_mapList.add(map);
+	_mapList.addFirst(map);
+	java.util.Iterator p = _mapList.iterator();
+	p.next();
+	return p;
     }
 
     synchronized void
-    unregisterMap(Map map)
+    unregisterMap(java.util.Iterator p)
     {
-	_mapList.remove(map);
+	p.remove();
     }
 
     void
@@ -203,9 +207,9 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
     }
 
     final boolean
-    keepIterators()
+    closeInFinalizeWarning()
     {
-	return _keepIterators;
+	return _closeInFinalizeWarning;
     }
 
     private Ice.Communicator _communicator;
@@ -213,8 +217,8 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
     private com.sleepycat.db.DbEnv _dbEnv;
     private String _envName;
     private TransactionI _transaction;
-    private java.util.List _mapList = new java.util.LinkedList();
+    private LinkedList _mapList = new Freeze.LinkedList();
     private int _trace;
     private boolean _deadlockWarning;
-    private boolean _keepIterators;
+    private boolean _closeInFinalizeWarning;
 }

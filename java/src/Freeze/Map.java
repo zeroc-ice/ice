@@ -24,7 +24,7 @@ public abstract class Map extends java.util.AbstractMap
 	_trace = _connection.trace();
 	_db = SharedDb.get(_connection, dbName, createDb);
 	
-	_connection.registerMap(this);
+	_token = _connection.registerMap(this);
     }
 
     public void
@@ -413,32 +413,16 @@ public abstract class Map extends java.util.AbstractMap
     void
     closeAllIteratorsExcept(Object except, boolean finalizing)
     {
-	java.util.Iterator p = _iteratorList.iterator();
-	int count = 0;
+	synchronized(_iteratorList)
+	{
+	    java.util.Iterator p = _iteratorList.iterator();
 
-	if(_connection.keepIterators())
-	{
 	    while(p.hasNext())
 	    {
-		Object o = p.next();
-		if(o != except)
+		Object obj = p.next();
+		if(obj != except)
 		{
-		    ((EntryIterator) o).close(finalizing);
-		}
-	    }
-	}
-	else
-	{
-	    while(p.hasNext())
-	    {
-		Object o = ((java.lang.ref.WeakReference) p.next()).get();
-		if(o != except && o != null)
-		{
-		    ((EntryIterator) o).close(finalizing);
-		}
-		if(o == null || o != except)
-		{
-		    p.remove();
+		    ((EntryIterator) obj).close(finalizing);
 		}
 	    }
 	}
@@ -450,11 +434,8 @@ public abstract class Map extends java.util.AbstractMap
 	close(true);
     }
 
-    
     //
     // The synchronization is only needed when finalizing is true
-    // The extra runtime cost is not worth the added complexity
-    // of synchronizing only when finalizing is true.
     //
     void 
     close(boolean finalizing)
@@ -471,7 +452,8 @@ public abstract class Map extends java.util.AbstractMap
 		finally
 		{
 		    _db = null;
-		    _connection.unregisterMap(this);
+		    _connection.unregisterMap(_token);
+		    _token = null;
 		}
 	    }
 	}
@@ -725,13 +707,13 @@ public abstract class Map extends java.util.AbstractMap
 		throw ex;
 	    }
 
-	    if(_connection.keepIterators())
+	    synchronized(_iteratorList)
 	    {
-		_iteratorList.add(this);
-	    }
-	    else
-	    {
-		_iteratorList.add(new java.lang.ref.WeakReference(this));
+		_iteratorList.addFirst(this);
+		java.util.Iterator p = _iteratorList.iterator();
+		p.next();
+		_iteratorListToken = p;
+
 	    }
         }
 
@@ -905,11 +887,10 @@ public abstract class Map extends java.util.AbstractMap
 	// The synchronized is needed because this method can be called 
 	// concurrently by Connection, Map and Map.EntryIterator finalizers.
 	//
-
 	synchronized void
 	close(boolean finalizing)
 	{
-	    if(finalizing && (_cursor != null || _txn != null))
+	    if(finalizing && (_cursor != null || _txn != null) && _connection.closeInFinalizeWarning())
 	    {
 		_connection.communicator().getLogger().warning
 		    ("finalize() closing a live iterator on Map \"" + _db.dbName() + "\"; the application "
@@ -917,7 +898,16 @@ public abstract class Map extends java.util.AbstractMap
 		     + "Map.closeAllIterators(), Map.close(), Connection.close(), or (if also "
 		     + "leaking a transaction) Transaction.commit() or Transaction.rollback()");
 	    }
-	    
+	 
+	    if(_iteratorListToken != null)
+	    {
+		synchronized(_iteratorList)
+		{
+		    _iteratorListToken.remove();
+		    _iteratorListToken = null;
+		}
+	    }
+   
 	    if(_cursor != null)	
 	    {
 		com.sleepycat.db.Dbc cursor = _cursor;
@@ -970,22 +960,7 @@ public abstract class Map extends java.util.AbstractMap
 	protected void
         finalize()
         {
-	    //
-	    // finalizing denotes the finalization of the containing
-	    // Map and/or Connection.
-	    // When keepIterators is true, the only way this iterator
-	    // can be finalized is when the containing Map (and indirectly
-	    // Connection) is also finalizable, so we set finalizing 
-	    // to true.
-	    // When iterators are kept as weak-references (i.e. keepIterators
-	    // is false), we can't issue finalization warnings because
-	    // early finalization, for example before an explicit Map.close(),
-	    // is actually a good thing since it releases locks earlier, 
-	    // improving concurrency.
-	    //
-	    boolean finalizing = _connection.keepIterators();
-	  
-            close(finalizing);
+            close(true);
         }
 
 	void
@@ -1156,6 +1131,7 @@ public abstract class Map extends java.util.AbstractMap
         private com.sleepycat.db.Dbc _cursor;
         private Entry _current;
         private Entry _lastReturned;
+	private java.util.Iterator _iteratorListToken;
     }
 
     static class Entry implements java.util.Map.Entry 
@@ -1287,8 +1263,9 @@ public abstract class Map extends java.util.AbstractMap
     }
     
     private ConnectionI _connection;
+    private java.util.Iterator _token;
     private java.util.Set _entrySet;
-    private java.util.List _iteratorList = new java.util.LinkedList();
+    private LinkedList _iteratorList = new LinkedList();
     private SharedDb _db;
     private String _errorPrefix;
     private int _trace;
