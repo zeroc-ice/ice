@@ -251,7 +251,7 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
             return false;
         }
 
-        if(val < 0 || val > 255)
+        if(PyErr_Occurred() || val < 0 || val > 255)
         {
             return false;
         }
@@ -273,7 +273,7 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
             return false;
         }
 
-        if(val < SHRT_MIN || val > SHRT_MAX)
+        if(PyErr_Occurred() || val < SHRT_MIN || val > SHRT_MAX)
         {
             return false;
         }
@@ -295,7 +295,7 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
             return false;
         }
 
-        if(val < INT_MIN || val > INT_MAX)
+        if(PyErr_Occurred() || val < INT_MIN || val > INT_MAX)
         {
             return false;
         }
@@ -303,14 +303,17 @@ IcePy::PrimitiveInfo::validate(PyObject* p)
     }
     case PrimitiveInfo::KindLong:
     {
-        //
-        // The platform's 'long' type may not be 64 bits, so we also accept
-        // a string argument for this type.
-        //
-        if(!PyInt_Check(p) && !PyLong_Check(p) && !PyString_Check(p))
+        if(!PyInt_Check(p) && !PyLong_Check(p))
         {
             return false;
         }
+
+        PyLong_AsLongLong(p);
+        if(PyErr_Occurred())
+        {
+            return false;
+        }
+
         break;
     }
     case PrimitiveInfo::KindFloat:
@@ -366,6 +369,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
             assert(false); // validate() should have caught this.
         }
 
+        assert(!PyErr_Occurred()); // validate() should have caught this.
         assert(val >= 0 && val <= 255); // validate() should have caught this.
         os->writeByte(static_cast<Ice::Byte>(val));
         break;
@@ -386,6 +390,7 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
             assert(false); // validate() should have caught this.
         }
 
+        assert(!PyErr_Occurred()); // validate() should have caught this.
         assert(val >= SHRT_MIN && val <= SHRT_MAX); // validate() should have caught this.
         os->writeShort(static_cast<Ice::Short>(val));
         break;
@@ -406,16 +411,13 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
             assert(false); // validate() should have caught this.
         }
 
+        assert(!PyErr_Occurred()); // validate() should have caught this.
         assert(val >= INT_MIN && val <= INT_MAX); // validate() should have caught this.
         os->writeInt(static_cast<Ice::Int>(val));
         break;
     }
     case PrimitiveInfo::KindLong:
     {
-        //
-        // The platform's 'long' type may not be 64 bits, so we also accept
-        // a string argument for this type.
-        //
         Ice::Long val;
         if(PyInt_Check(p))
         {
@@ -423,24 +425,14 @@ IcePy::PrimitiveInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
         }
         else if(PyLong_Check(p))
         {
-            val = PyLong_AsLong(p);
-        }
-        else if(PyString_Check(p))
-        {
-            char* sval = PyString_AS_STRING(p);
-            assert(sval);
-            string::size_type pos;
-            if(!IceUtil::stringToInt64(sval, val, pos))
-            {
-                PyErr_Format(PyExc_ValueError, "invalid long value `%s'", sval);
-                throw AbortMarshaling();
-            }
+            val = PyLong_AsLongLong(p);
         }
         else
         {
             assert(false); // validate() should have caught this.
         }
 
+        assert(!PyErr_Occurred()); // validate() should have caught this.
         os->writeLong(val);
         break;
     }
@@ -534,26 +526,7 @@ IcePy::PrimitiveInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCa
     case PrimitiveInfo::KindLong:
     {
         Ice::Long val = is->readLong();
-        PyObjectHandle p;
-
-        //
-        // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
-        //
-        if(sizeof(Ice::Long) > sizeof(long) && (val < LONG_MIN || val > LONG_MAX))
-        {
-            char buf[64];
-#ifdef WIN32
-            sprintf(buf, "%I64d", val);
-#else
-            sprintf(buf, "%lld", val);
-#endif
-            p = PyString_FromString(buf);
-        }
-        else
-        {
-            p = PyInt_FromLong(static_cast<long>(val));
-        }
-
+        PyObjectHandle p = PyLong_FromLongLong(val);
         cb->unmarshaled(p.get(), target, closure);
         break;
     }
@@ -636,7 +609,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
                 val = PyLong_AsLong(item);
             }
 
-            if(val < 0 || val > 255)
+            if(PyErr_Occurred() || val < 0 || val > 255)
             {
                 PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<byte>", i);
                 throw AbortMarshaling();
@@ -668,7 +641,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
                 val = PyLong_AsLong(item);
             }
 
-            if(val < SHRT_MIN || val > SHRT_MAX)
+            if(PyErr_Occurred() || val < SHRT_MIN || val > SHRT_MAX)
             {
                 PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<short>", i);
                 throw AbortMarshaling();
@@ -705,7 +678,7 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
                 throw AbortMarshaling();
             }
 
-            if(val < INT_MIN || val > INT_MAX)
+            if(PyErr_Occurred() || val < INT_MIN || val > INT_MAX)
             {
                 PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<int>", i);
                 throw AbortMarshaling();
@@ -727,10 +700,6 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
                 throw AbortMarshaling();
             }
 
-            //
-            // The platform's 'long' type may not be 64 bits, so we also accept
-            // a string argument for this type.
-            //
             Ice::Long val;
             if(PyInt_Check(item))
             {
@@ -738,20 +707,15 @@ IcePy::PrimitiveInfo::marshalSequence(PyObject* p, const Ice::OutputStreamPtr& o
             }
             else if(PyLong_Check(item))
             {
-                val = PyLong_AsLong(item);
-            }
-            else if(PyString_Check(item))
-            {
-                char* sval = PyString_AS_STRING(item);
-                assert(sval);
-                string::size_type pos;
-                if(!IceUtil::stringToInt64(sval, val, pos))
-                {
-                    PyErr_Format(PyExc_ValueError, "invalid long value `%s' in element %d of sequence<long>", sval, i);
-                    throw AbortMarshaling();
-                }
+                val = PyLong_AsLongLong(item);
             }
             else
+            {
+                PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<int>", i);
+                throw AbortMarshaling();
+            }
+
+            if(PyErr_Occurred())
             {
                 PyErr_Format(PyExc_AttributeError, "invalid value for element %d of sequence<int>", i);
                 throw AbortMarshaling();
@@ -949,24 +913,7 @@ IcePy::PrimitiveInfo::unmarshalSequence(const Ice::InputStreamPtr& is, const Unm
 
         for(int i = 0; i < sz; ++i)
         {
-            PyObjectHandle item;
-            //
-            // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
-            //
-            if(sizeof(Ice::Long) > sizeof(long) && (seq[i] < LONG_MIN || seq[i] > LONG_MAX))
-            {
-                char buf[64];
-#ifdef WIN32
-                sprintf(buf, "%I64d", seq[i]);
-#else
-                sprintf(buf, "%lld", seq[i]);
-#endif
-                item = PyString_FromString(buf);
-            }
-            else
-            {
-                item = PyInt_FromLong(static_cast<long>(seq[i]));
-            }
+            PyObjectHandle item = PyLong_FromLongLong(seq[i]);
             if(item.get() == NULL)
             {
                 throw AbortMarshaling();
