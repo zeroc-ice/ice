@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "_USRDLL" /D "TRANSFORM_API_EXPORTS" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /I "dummyinclude" /D "_USRDLL" /D "TRANSFORM_API_EXPORTS" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /FD /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -76,7 +76,7 @@ PostBuild_Cmds=copy $(OutDir)\transform.lib ..\..\lib	copy $(OutDir)\transform12
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_USRDLL" /D "TRANSFORM_API_EXPORTS" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "../../include" /I "dummyinclude" /D "_USRDLL" /D "TRANSFORM_API_EXPORTS" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -150,14 +150,6 @@ SOURCE=.\TransformUtil.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=..\..\include\Transform\Transformer.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Transform\Exception.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\Analyzer.h
 # End Source File
 # Begin Source File
@@ -167,6 +159,10 @@ SOURCE=.\Data.h
 # Begin Source File
 
 SOURCE=.\Error.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Transform\Exception.h
 # End Source File
 # Begin Source File
 
@@ -186,6 +182,10 @@ SOURCE=.\Parser.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Transform\Transformer.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\TransformUtil.h
 # End Source File
 # End Group
@@ -196,7 +196,7 @@ SOURCE=.\TransformUtil.h
 
 SOURCE=.\Grammar.y
 
-!IF  "$(CFG)" == "Slice - Win32 Release"
+!IF  "$(CFG)" == "Transform - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Grammar.y
@@ -214,7 +214,7 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Slice - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Transform - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Grammar.y
@@ -239,7 +239,7 @@ BuildCmds= \
 
 SOURCE=.\Scanner.l
 
-!IF  "$(CFG)" == "Slice - Win32 Release"
+!IF  "$(CFG)" == "Transform - Win32 Release"
 
 # Begin Custom Build
 InputPath=.\Scanner.l
@@ -251,7 +251,7 @@ InputPath=.\Scanner.l
 	
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "Slice - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Transform - Win32 Debug"
 
 # Begin Custom Build
 InputPath=.\Scanner.l
