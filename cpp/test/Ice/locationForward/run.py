@@ -31,15 +31,20 @@ serverPipes = { }
 for i in range(0, num):
     print "starting server #%d..." % (i + 1),
     if i + 1 < num:
-        s = "--Ice.PrintProcessId --fwd \"test:tcp -t 2000 -p %d\" %d" % ((base + i + 1), (base + i))
+        s = "--Ice.PrintProcessId --Ice.PrintAdapterReady --fwd \"test:tcp -t 2000 -p %d\" %d" \
+            % ((base + i + 1), (base + i))
     else:
-        s = "--Ice.PrintProcessId %d" % (base + i)
+        s = "--Ice.PrintProcessId --Ice.PrintAdapterReady %d" % (base + i)
     serverPipes[i] = os.popen(server + " " + s)
     output = serverPipes[i].readline().strip()
     if not output:
         print "failed!"
         sys.exit(0)
     TestUtil.serverPids.append(int(output))
+    output = serverPipes[i].readline().strip()
+    if not output:
+        print "failed!"
+        sys.exit(0)
     print "ok"
 
 print "starting client...",

@@ -137,28 +137,6 @@ Sets the endpoints for the object adapter
 </section>
 </section>
 
-<section><title>Ice.Adapter.Forward.Endpoints</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.Adapter.Forward.Endpoints=<replaceable>endpoints</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-<replaceable>endpoints</replaceable> are the &IcePack; location
-forward endpoints. Set this property if you want &Ice; to create
-references that point to the &IcePack; location forwarder.
-<note>
-<para>
-Do not use an Object Adapter with the name <literal>Forward</literal>
-in your own applications.
-</para>
-</note>
-</para>
-</section>
-</section>
-
 </section>
 
 <!-- ********************************************************************** -->
@@ -220,6 +198,24 @@ Ice.PrintProcessId=<replaceable>num</replaceable>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 the process ID is printed on standard output upon startup.
+</para>
+</section>
+</section>
+
+<section><title>Ice.PrintAdapterReady</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.PrintAdapterReady=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+an object adapter prints "<replaceable>adapter_name</replaceable>
+ready" on standard output after initialization is complete. This is
+useful for scripts that wish to wait until an object adapter is ready
+to be used.
 </para>
 </section>
 </section>

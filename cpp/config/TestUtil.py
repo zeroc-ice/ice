@@ -34,12 +34,16 @@ def clientServerTest(toplevel, name):
     client = os.path.normpath(testdir + "/client")
 
     print "starting server...",
-    serverPipe = os.popen(server + " --Ice.PrintProcessId")
+    serverPipe = os.popen(server + " --Ice.PrintProcessId --Ice.PrintAdapterReady")
     output = serverPipe.readline().strip()
     if not output:
         print "failed!"
         sys.exit(0)
     serverPids.append(int(output))
+    output = serverPipe.readline().strip()
+    if not output:
+        print "failed!"
+        sys.exit(0)
     print "ok"
     
     print "starting client...",

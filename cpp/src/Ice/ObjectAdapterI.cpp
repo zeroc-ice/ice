@@ -16,6 +16,7 @@
 #include <Ice/Endpoint.h>
 #include <Ice/Collector.h>
 #include <Ice/LocalException.h>
+#include <Ice/Properties.h>
 #include <Ice/Functional.h>
 #include <sstream>
 
@@ -319,6 +320,12 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
     if (_collectorFactories.empty())
     {
 	throw EndpointParseException(__FILE__, __LINE__);
+    }
+
+    string value = _instance->properties()->getProperty("Ice.PrintAdapterReady");
+    if (atoi(value.c_str()) >= 1)
+    {
+	cout << _name << " ready" << endl;
     }
 }
 
