@@ -188,8 +188,10 @@ marshal(const ObjectRecord& v, Value& bytes, const CommunicatorPtr& communicator
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
     stream.marshalFacets(false);
+    stream.startWriteEncaps();
     v.__write(&stream);
     stream.writePendingObjects();
+    stream.endWriteEncaps();
     bytes.swap(stream.b);
 }
 
@@ -200,8 +202,10 @@ unmarshal(ObjectRecord& v, const Value& bytes, const CommunicatorPtr& communicat
     IceInternal::BasicStream stream(instance.get());
     stream.b = bytes;
     stream.i = stream.b.begin();
+    stream.startReadEncaps();
     v.__read(&stream);
     stream.readPendingObjects();
+    stream.endReadEncaps();
 }
 
 }

@@ -1525,8 +1525,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
         os.marshalFacets(false);
         try
         {
+            os.startWriteEncaps();
             v.__write(os);
             os.writePendingObjects();
+            os.endWriteEncaps();
             java.nio.ByteBuffer buf = os.prepareWrite();
             byte[] r = new byte[buf.limit()];
             buf.get(r);
@@ -1550,8 +1552,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
             buf.put(b);
             buf.position(0);
             ObjectRecord rec= new ObjectRecord();
+            is.startReadEncaps();
             rec.__read(is);
             is.readPendingObjects();
+            is.endReadEncaps();
             return rec;
         }
         finally

@@ -124,16 +124,22 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
     {
         string keyValue;
         TypePtr type;
+        bool encaps;
 
         if(i == 0)
         {
             keyValue = "Key";
             type = keyType;
+            //
+            // Do not encapsulate keys.
+            //
+            encaps = false;
         }
         else
         {
             keyValue = "Value";
             type = valueType;
+            encaps = true;
         }
 
         string typeS, valS;
@@ -207,11 +213,19 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
             << "new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
         out << nl << "try";
         out << sb;
+        if(encaps)
+        {
+            out << nl << "__os.startWriteEncaps();";
+        }
         iter = 0;
         writeMarshalUnmarshalCode(out, "", type, valS, true, iter, false);
         if(type->usesClasses())
         {
             out << nl << "__os.writePendingObjects();";
+        }
+        if(encaps)
+        {
+            out << nl << "__os.endWriteEncaps();";
         }
         out << nl << "java.nio.ByteBuffer __buf = __os.prepareWrite();";
         out << nl << "byte[] __r = new byte[__buf.limit()];";
@@ -239,6 +253,10 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << nl << "__buf.position(0);";
         out << nl << "__buf.put(b);";
         out << nl << "__buf.position(0);";
+        if(encaps)
+        {
+            out << nl << "__is.startReadEncaps();";
+        }
         iter = 0;
         list<string> metaData;
         string patchParams;
@@ -307,6 +325,10 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         if(type->usesClasses())
         {
             out << nl << "__is.readPendingObjects();";
+        }
+        if(encaps)
+        {
+            out << nl << "__is.endReadEncaps();";
         }
         if((b && b->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
         {

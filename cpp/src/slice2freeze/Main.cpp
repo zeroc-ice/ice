@@ -104,7 +104,7 @@ writeCodecH(const TypePtr& type, const string& name, const string& freezeType, O
 }
 
 void
-writeCodecC(const TypePtr& type, const string& name, const string& freezeType, Output& C)
+writeCodecC(const TypePtr& type, const string& name, const string& freezeType, bool encaps, Output& C)
 {
     string quotedFreezeType = "\"" + freezeType + "\"";
 
@@ -113,14 +113,21 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, O
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
     C << nl << "IceInternal::BasicStream stream(instance.get());";
+    if(encaps)
+    {
+        C << nl << "stream.startWriteEncaps();";
+    }
     writeMarshalUnmarshalCode(C, type, "v", true, "stream", false);
     if(type->usesClasses())
     {
         C << nl << "stream.writePendingObjects();";
     }
+    if(encaps)
+    {
+        C << nl << "stream.endWriteEncaps();";
+    }
     C << nl << "bytes.swap(stream.b);";
     C << eb;
-
 
     C << sp << nl << "void" << nl << name << "::read(" << typeToString(type) << "& v, "
       << "const Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator)";
@@ -129,10 +136,18 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, O
     C << nl << "IceInternal::BasicStream stream(instance.get());";
     C << nl << "stream.b = bytes;";
     C << nl << "stream.i = stream.b.begin();";
+    if(encaps)
+    {
+        C << nl << "stream.startReadEncaps();";
+    }
     writeMarshalUnmarshalCode(C, type, "v", false, "stream", false);
     if(type->usesClasses())
     {
         C << nl << "stream.readPendingObjects();";
+    }
+    if(encaps)
+    {
+        C << nl << "stream.endReadEncaps();";
     }
     C << eb;
 }
@@ -202,8 +217,8 @@ writeCodecs(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C,
 	H << nl << '}';
     }
 
-    writeCodecC(keyType, absolute + "KeyCodec", "Key", C);
-    writeCodecC(valueType, absolute + "ValueCodec", "Value", C);
+    writeCodecC(keyType, absolute + "KeyCodec", "Key", false, C);
+    writeCodecC(valueType, absolute + "ValueCodec", "Value", true, C);
 
     return true;
 }
