@@ -31,10 +31,7 @@ IceInternal::ConnectionMonitor::destroy()
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
-	if(!_instance)
-	{
-	    return;
-	}
+	assert(_instance);
 	
 	_instance = 0;
 	_connections.clear();
@@ -49,12 +46,7 @@ void
 IceInternal::ConnectionMonitor::add(const ConnectionPtr& connection)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-    if(!_instance)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
+    assert(_instance);
     _connections.insert(connection);
 }
 
@@ -62,12 +54,7 @@ void
 IceInternal::ConnectionMonitor::remove(const ConnectionPtr& connection)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-    if(!_instance)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
-
+    assert(_instance);
     _connections.erase(connection);
 }
 

@@ -108,6 +108,8 @@ IceInternal::Connection::waitUntilFinished() const
     {
 	wait();
     }
+
+    assert(_state == StateClosed);
 }
 
 void
@@ -1412,7 +1414,7 @@ IceInternal::Connection::setState(State state)
 	    {
 		//
 		// If we are registered with the thread pool, we
-		// unregister. finish() will then do the close.
+		// unregister. finished() will then do the close.
 		//
 		unregisterWithPool();
 	    }

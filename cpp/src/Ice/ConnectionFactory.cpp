@@ -73,13 +73,13 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
     //
     // First we wait until the factory is destroyed.
     //
-    while(!_destroyed)
+    while(!_destroyed || !_pending.empty())
     {
 	wait();
     }
 
     //
-    // Now we wait for until the destruction of each connection is
+    // Now we wait until the destruction of each connection has
     // finished.
     //
     for_each(_connections.begin(), _connections.end(),
@@ -236,7 +236,6 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	    }	    
 	    connection = new Connection(_instance, transceiver, endpoint, 0);
 	    connection->validate();
-	    connection->activate();
 	    break;
 	}
 	catch(const LocalException& ex)
@@ -265,16 +264,6 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
-	if(_destroyed)
-	{
-	    if(connection)
-	    {
-		connection->destroy(Connection::CommunicatorDestroyed);
-	    }
-
-	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
-	}
-
 	//
 	// Signal other threads that we are done with trying to
 	// establish connections to our endpoints.
@@ -294,6 +283,16 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	else
 	{
 	    _connections.insert(make_pair(connection->endpoint(), connection));
+
+	    if(_destroyed)
+	    {
+		connection->destroy(Connection::CommunicatorDestroyed);
+		throw CommunicatorDestroyedException(__FILE__, __LINE__);
+	    }
+	    else
+	    {
+		connection->activate();
+	    }
 	}
     }
 
@@ -427,7 +426,7 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
     }
 
     //
-    // Now we wait for until the destruction of each connection is
+    // Now we wait until the destruction of each connection has
     // finished.
     //
     for_each(_connections.begin(), _connections.end(), Ice::constVoidMemFun(&Connection::waitUntilFinished));
@@ -558,15 +557,15 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 	_connections.push_back(connection);
     }
     
+    assert(connection);
+
     //
-    // We validate and activate outside the thread synchronization, to
-    // not block the factory.
+    // We validate outside the thread synchronization, to not block
+    // the factory.
     //
     try
     {
-	assert(connection);
 	connection->validate();
-	connection->activate(); // The factory must be active at this point, so we activate the connection, too.
     }
     catch(const LocalException&)
     {
@@ -577,6 +576,12 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 	// object code.
 	//
     }
+
+    //
+    // The factory must be active at this point, so we activate the
+    // connection, too.
+    //
+    connection->activate();
 }
 
 void

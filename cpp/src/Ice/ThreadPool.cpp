@@ -34,6 +34,7 @@ void
 IceInternal::ThreadPool::_register(SOCKET fd, const EventHandlerPtr& handler)
 {
     IceUtil::Mutex::Lock sync(*this);
+    assert(!_destroyed);
     _changes.push_back(make_pair(fd, handler));
     setInterrupt(0);
 }
@@ -42,6 +43,7 @@ void
 IceInternal::ThreadPool::unregister(SOCKET fd)
 {
     IceUtil::Mutex::Lock sync(*this);
+    assert(!_destroyed);
     _changes.push_back(make_pair(fd, EventHandlerPtr(0)));
     setInterrupt(0);
 }
@@ -160,6 +162,8 @@ IceInternal::ThreadPool::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
     assert(!_destroyed);
+    assert(_changes.empty());
+    assert(_handlerMap.empty());
     _destroyed = true;
     setInterrupt(0);
 }
