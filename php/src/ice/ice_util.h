@@ -106,6 +106,11 @@ std::string zendTypeToString(int);
 bool isNativeKey(const Slice::TypePtr&);
 
 //
+// Extracts a context (i.e., dictionary<string, string>) from the given zval.
+//
+bool getContext(zval*, Ice::Context& TSRMLS_DC);
+
+//
 // Exception-safe efree.
 //
 class AutoEfree

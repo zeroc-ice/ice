@@ -244,15 +244,25 @@ ZEND_FUNCTION(Ice_ObjectPrx___construct)
 
 ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
 {
-    if(ZEND_NUM_ARGS() != 1)
+    if(ZEND_NUM_ARGS() < 1 || ZEND_NUM_ARGS() > 2)
     {
         WRONG_PARAM_COUNT;
     }
 
     char* id;
     int len;
+    zval* arr = NULL;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &id, &len) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|a", &id, &len, &arr) == FAILURE)
+    {
+        RETURN_FALSE;
+    }
+
+    //
+    // Populate the context (if necessary).
+    //
+    Ice::Context ctx;
+    if(arr && !getContext(arr, ctx TSRMLS_CC))
     {
         RETURN_FALSE;
     }
@@ -263,7 +273,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
 
     try
     {
-        if(_this->getProxy()->ice_isA(id))
+        if(_this->getProxy()->ice_isA(id, ctx))
         {
             RETVAL_TRUE;
         }
@@ -281,9 +291,25 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
 
 ZEND_FUNCTION(Ice_ObjectPrx_ice_ping)
 {
-    if(ZEND_NUM_ARGS() != 0)
+    if(ZEND_NUM_ARGS() > 1)
     {
         WRONG_PARAM_COUNT;
+    }
+
+    zval* arr = NULL;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &arr) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    //
+    // Populate the context (if necessary).
+    //
+    Ice::Context ctx;
+    if(arr && !getContext(arr, ctx TSRMLS_CC))
+    {
+        RETURN_NULL();
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -292,7 +318,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ping)
 
     try
     {
-        _this->getProxy()->ice_ping();
+        _this->getProxy()->ice_ping(ctx);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -304,9 +330,25 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ping)
 
 ZEND_FUNCTION(Ice_ObjectPrx_ice_id)
 {
-    if(ZEND_NUM_ARGS() != 0)
+    if(ZEND_NUM_ARGS() > 1)
     {
         WRONG_PARAM_COUNT;
+    }
+
+    zval* arr = NULL;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &arr) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    //
+    // Populate the context (if necessary).
+    //
+    Ice::Context ctx;
+    if(arr && !getContext(arr, ctx TSRMLS_CC))
+    {
+        RETURN_NULL();
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -315,7 +357,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_id)
 
     try
     {
-        string id = _this->getProxy()->ice_id();
+        string id = _this->getProxy()->ice_id(ctx);
         RETURN_STRINGL(const_cast<char*>(id.c_str()), id.length(), 1);
     }
     catch(const IceUtil::Exception& ex)
@@ -327,9 +369,25 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_id)
 
 ZEND_FUNCTION(Ice_ObjectPrx_ice_ids)
 {
-    if(ZEND_NUM_ARGS() != 0)
+    if(ZEND_NUM_ARGS() > 1)
     {
         WRONG_PARAM_COUNT;
+    }
+
+    zval* arr = NULL;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &arr) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    //
+    // Populate the context (if necessary).
+    //
+    Ice::Context ctx;
+    if(arr && !getContext(arr, ctx TSRMLS_CC))
+    {
+        RETURN_NULL();
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -338,7 +396,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ids)
 
     try
     {
-        vector<string> ids = _this->getProxy()->ice_ids();
+        vector<string> ids = _this->getProxy()->ice_ids(ctx);
         array_init(return_value);
         uint idx = 0;
         for(vector<string>::const_iterator p = ids.begin(); p != ids.end(); ++p, ++idx)
@@ -355,9 +413,25 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ids)
 
 ZEND_FUNCTION(Ice_ObjectPrx_ice_facets)
 {
-    if(ZEND_NUM_ARGS() != 0)
+    if(ZEND_NUM_ARGS() > 1)
     {
         WRONG_PARAM_COUNT;
+    }
+
+    zval* arr = NULL;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|a", &arr) == FAILURE)
+    {
+        RETURN_NULL();
+    }
+
+    //
+    // Populate the context (if necessary).
+    //
+    Ice::Context ctx;
+    if(arr && !getContext(arr, ctx TSRMLS_CC))
+    {
+        RETURN_NULL();
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
@@ -366,7 +440,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_facets)
 
     try
     {
-        Ice::FacetPath facets = _this->getProxy()->ice_facets();
+        Ice::FacetPath facets = _this->getProxy()->ice_facets(ctx);
         array_init(return_value);
         uint idx = 0;
         for(vector<string>::const_iterator p = facets.begin(); p != facets.end(); ++p, ++idx)
@@ -1205,51 +1279,9 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         // Populate the context (if necessary).
         //
         Ice::Context ctx;
-        if(ZEND_NUM_ARGS() == numParams + 1)
+        if(ZEND_NUM_ARGS() == numParams + 1 && !getContext(*args[numParams], ctx TSRMLS_CC))
         {
-            if(Z_TYPE_PP(args[numParams]) != IS_ARRAY)
-            {
-                string s = zendTypeToString(Z_TYPE_PP(args[i]));
-                zend_error(E_ERROR, "%s(): expected an array for the context argument but received %s",
-                           get_active_function_name(TSRMLS_C), s.c_str());
-                return;
-            }
-
-            HashTable* arr = Z_ARRVAL_PP(args[i]);
-            HashPosition pos;
-            zval** val;
-
-            zend_hash_internal_pointer_reset_ex(arr, &pos);
-            while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
-            {
-                //
-                // Get the key (which can be a long or a string).
-                //
-                char* keyStr;
-                uint keyLen;
-                ulong keyNum;
-                int keyType = zend_hash_get_current_key_ex(arr, &keyStr, &keyLen, &keyNum, 0, &pos);
-
-                //
-                // Store the key in a zval, so that we can reuse the PrimitiveMarshaler logic.
-                //
-                if(keyType != HASH_KEY_IS_STRING)
-                {
-                    zend_error(E_ERROR, "%s(): context key must be a string", get_active_function_name(TSRMLS_C));
-                    return;
-                }
-
-                zend_hash_get_current_data_ex(arr, (void**)&val, &pos);
-                if(Z_TYPE_PP(val) != IS_STRING)
-                {
-                    zend_error(E_ERROR, "%s(): context value must be a string", get_active_function_name(TSRMLS_C));
-                    return;
-                }
-
-                ctx[keyStr] = Z_STRVAL_PP(val);
-
-                zend_hash_move_forward_ex(arr, &pos);
-            }
+            return;
         }
 
         //

@@ -608,3 +608,53 @@ IcePHP::isNativeKey(const Slice::TypePtr& type)
 
     return false;
 }
+
+bool
+IcePHP::getContext(zval* zv, Ice::Context& ctx TSRMLS_DC)
+{
+    if(Z_TYPE_P(zv) != IS_ARRAY)
+    {
+        string s = zendTypeToString(Z_TYPE_P(zv));
+        zend_error(E_ERROR, "%s(): expected an array for the context argument but received %s",
+                   get_active_function_name(TSRMLS_C), s.c_str());
+        return false;
+    }
+
+    HashTable* arr = Z_ARRVAL_P(zv);
+    HashPosition pos;
+    zval** val;
+
+    zend_hash_internal_pointer_reset_ex(arr, &pos);
+    while(zend_hash_get_current_data_ex(arr, (void**)&val, &pos) != FAILURE)
+    {
+        //
+        // Get the key (which can be a long or a string).
+        //
+        char* keyStr;
+        uint keyLen;
+        ulong keyNum;
+        int keyType = zend_hash_get_current_key_ex(arr, &keyStr, &keyLen, &keyNum, 0, &pos);
+
+        //
+        // Store the key in a zval, so that we can reuse the PrimitiveMarshaler logic.
+        //
+        if(keyType != HASH_KEY_IS_STRING)
+        {
+            zend_error(E_ERROR, "%s(): context key must be a string", get_active_function_name(TSRMLS_C));
+            return false;
+        }
+
+        zend_hash_get_current_data_ex(arr, (void**)&val, &pos);
+        if(Z_TYPE_PP(val) != IS_STRING)
+        {
+            zend_error(E_ERROR, "%s(): context value must be a string", get_active_function_name(TSRMLS_C));
+            return false;
+        }
+
+        ctx[keyStr] = Z_STRVAL_PP(val);
+
+        zend_hash_move_forward_ex(arr, &pos);
+    }
+
+    return true;
+}
