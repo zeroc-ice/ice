@@ -18,7 +18,7 @@ class NestedClient : public Application
 {
 public:
 
-    int run(int, char*[]);
+    virtual int run(int, char*[]);
 };
 
 int

@@ -16,7 +16,7 @@ using namespace Ice;
 
 class PhoneBookClient : public Application
 {
-    int run(int argc, char* argv[]);
+    virtual int run(int argc, char* argv[]);
 };
 
 int

@@ -22,7 +22,8 @@ OBJS		= DB.o \
 		  DBException.o \
 		  Evictor.o \
 	  	  DBI.o \
-		  EvictorI.o
+		  EvictorI.o \
+		  Application.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
