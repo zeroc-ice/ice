@@ -1667,6 +1667,7 @@ public class BasicStream
         }
         catch(Exception ex)
         {
+	    ex.printStackTrace();
 	    throw new Ice.UnknownUserException();
         }
 

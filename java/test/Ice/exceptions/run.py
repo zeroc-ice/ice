@@ -41,18 +41,20 @@ client = "java -ea Client --Ice.ProgramName=Client "
 print "starting server...",
 classpath = os.getenv("CLASSPATH", "")
 os.environ["CLASSPATH"] = os.path.join(testdirAMD, "classes") + TestUtil.sep + classpath
-serverPipe = os.popen(server + TestUtil.serverOptions)
+(serverPipeIn, serverPipe) = os.popen4(server + TestUtil.serverOptions)
 TestUtil.getAdapterReady(serverPipe)
 print "ok"
 print "starting client...",
 classpath = os.getenv("CLASSPATH", "")
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + classpath
-clientPipe = os.popen(client + TestUtil.clientOptions)
+(clientPipeIn, clientPipe) = os.popen4(client + TestUtil.clientOptions)
 print "ok"
 TestUtil.printOutputFromPipe(clientPipe)
+clientInStatus = clientPipeIn.close()
 clientStatus = clientPipe.close()
+serverInStatus = serverPipeIn.close()
 serverStatus = serverPipe.close()
-if clientStatus or serverStatus:
+if clientInStatus or serverInStatus:
     TestUtil.killServers()
     sys.exit(1)
 

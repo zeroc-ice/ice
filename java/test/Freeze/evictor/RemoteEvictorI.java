@@ -89,6 +89,11 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
 	{
 	    throw new Test.EvictorDeactivatedException();
 	}
+	catch(Ice.LocalException e)
+	{
+	    System.out.println("Throwing " + e.toString());
+	    throw e;
+	}
     }
 
     public Test.ServantPrx

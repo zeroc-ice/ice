@@ -45,7 +45,7 @@ command = starter + TestUtil.clientServerOptions + \
           r' --Glacier.Router.Server.Endpoints="tcp"'
 
 print "starting glacier starter...",
-starterPipe = os.popen(command)
+(starterPipeIn, starterPipe) = os.popen4(command)
 TestUtil.getServerPid(starterPipe)
 TestUtil.getAdapterReady(starterPipe)
 print "ok"
@@ -64,9 +64,10 @@ print "shutting down glacier starter...",
 TestUtil.killServers() # TODO: Graceful shutdown.
 print "ok"
 
+starterInStatus = starterPipeIn.close()
 starterStatus = starterPipe.close()
 
-if starterStatus:
+if starterInStatus or starterStatus:
     TestUtil.killServers()
     #sys.exit(1) # TODO: Uncomment when when we have graceful shutdown.
 

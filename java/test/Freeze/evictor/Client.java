@@ -91,7 +91,7 @@ public class Client
 			test(_servants[i].slowGetValue() == i);
 		    }
 		}
-		catch(Ice.ConnectionRefusedException e)
+		catch(Ice.SocketException e)
 		{
 		    //
 		    // Expected
@@ -149,14 +149,23 @@ public class Client
 		    //
 		    return;
 		}
+		catch(Test.AlreadyRegisteredException e)
+		{
+		    System.err.println("Caught unexpected AlreadyRegistedException:" + e.toString());
+		    System.err.println("index is " + index);
+		    test(false);
+		    return;
+		}
 		catch(Ice.LocalException e)
 		{
 		    System.err.println("Caught unexpected : " + e.toString());
+		    e.printStackTrace();
 		    test(false);
 		    return;
 		}
 		catch(Exception e)
 		{
+		    e.printStackTrace();
 		    test(false);
 		    return;
 		}

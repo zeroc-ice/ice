@@ -174,6 +174,7 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
     (clientPipeIn, clientPipe) = os.popen4(client + clientOptions + additionalClientOptions)
     print "ok"
 
+    #printOutputFromPipe(serverPipe)
     printOutputFromPipe(clientPipe)
 
     clientInStatus = clientPipeIn.close()
