@@ -59,7 +59,7 @@ main(int argc, char* argv[])
 	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::Exception& ex)
     {
 	cerr << ex << endl;
 	status = EXIT_FAILURE;
@@ -71,7 +71,7 @@ main(int argc, char* argv[])
 	{
 	    communicator->destroy();
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::Exception& ex)
 	{
 	    cerr << ex << endl;
 	    status = EXIT_FAILURE;

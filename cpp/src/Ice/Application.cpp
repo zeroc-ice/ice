@@ -53,7 +53,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	}
 	status = run(argc, argv);
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	cerr << _appName << ": " << ex << endl;
 	status = EXIT_FAILURE;
@@ -70,7 +70,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	{
 	    _communicator->destroy();
 	}
-	catch(const LocalException& ex)
+	catch(const Exception& ex)
 	{
 	    cerr << _appName << ": " << ex << endl;
 	    status = EXIT_FAILURE;

@@ -28,12 +28,17 @@ class DerivedPrinter extends Printer
     void printUppercase();
 };
 
+exception DerivedPrinterException
+{
+    DerivedPrinter derived;
+};
+
 class Initial
 {
     Simple simple();
     void printer(; Printer impl, Printer* proxy);
     Printer derivedPrinter();
-    void throwDerivedPrinter() throws Printer;
+    void throwDerivedPrinter() throws DerivedPrinterException;
 };
 
 #endif

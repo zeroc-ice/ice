@@ -56,8 +56,7 @@ Ice::LocalException::_throw() const
     throw *this;
 }
 
-Ice::UserException::UserException(const char* file, int line) :
-    Exception(file, line)
+Ice::UserException::UserException()
 {
 }
 

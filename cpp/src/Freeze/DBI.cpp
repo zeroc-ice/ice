@@ -33,33 +33,32 @@ Freeze::checkBerkeleyDBReturn(int ret, const string& prefix, const string& op)
 	return; // Everything ok
     }
     
-    DBExceptionPtr ex;
+    ostringstream s;
+    s << prefix << op << ": " << db_strerror(ret);
 
     switch (ret)
     {
 	case DB_LOCK_DEADLOCK:
 	{
-	    ex = new DBDeadlockException;
-	    break;
+	    DBDeadlockException ex;
+	    ex.message = s.str();
+	    throw ex;
 	}
 
 	case DB_NOTFOUND:
 	{
-	    ex = new DBNotFoundException;
-	    break;
+	    DBNotFoundException ex;
+	    ex.message = s.str();
+	    throw ex;
 	}
 	
 	default:
 	{
-	    ex = new DBException;
-	    break;
+	    DBException ex;
+	    ex.message = s.str();
+	    throw ex;
 	}
     }
-
-    ostringstream s;
-    s << prefix << op << ": " << db_strerror(ret);
-    ex->message = s.str();
-    ex->_throw();
 }
 
 Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, const string& name) :
@@ -132,9 +131,9 @@ Freeze::DBEnvironmentI::openDB(const string& name)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBExceptionPtr ex = new DBException;
-	ex->message = s.str();
-	ex->_throw();
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
     }
 
     map<string, DBPtr>::iterator p = _dbMap.find(name);
@@ -253,9 +252,9 @@ Freeze::DBTransactionI::commit()
     {
 	ostringstream s;
 	s << _errorPrefix << "transaction has already been committed or aborted";
-	DBExceptionPtr ex = new DBException;
-	ex->message = s.str();
-	ex->_throw();
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
     }
 
     if (_trace >= 2)
@@ -279,9 +278,9 @@ Freeze::DBTransactionI::abort()
     {
 	ostringstream s;
 	s << _errorPrefix << "transaction has already been committed or aborted";
-	DBExceptionPtr ex = new DBException;
-	ex->message = s.str();
-	ex->_throw();
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
     }
 
     if (_trace >= 2)
@@ -362,9 +361,9 @@ Freeze::DBI::put(const Key& key, const Value& value)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBExceptionPtr ex = new DBException;
-	ex->message = s.str();
-	ex->_throw();
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
     }
 
     DBT dbKey, dbData;
@@ -394,9 +393,9 @@ Freeze::DBI::get(const Key& key)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBExceptionPtr ex = new DBException;
-	ex->message = s.str();
-	ex->_throw();
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
     }
 
     DBT dbKey, dbData;
@@ -426,9 +425,9 @@ Freeze::DBI::del(const Key& key)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBExceptionPtr ex = new DBException;
-	ex->message = s.str();
-	ex->_throw();
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
     }
 
     DBT dbKey;
@@ -455,9 +454,9 @@ Freeze::DBI::putServant(const string& identity, const ObjectPtr& servant)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBExceptionPtr ex = new DBException;
-	ex->message = s.str();
-	ex->_throw();
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
     }
 
     if (!servant)
@@ -496,9 +495,9 @@ Freeze::DBI::getServant(const string& identity)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBExceptionPtr ex = new DBException;
-	ex->message = s.str();
-	ex->_throw();
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
     }
 
     DBT dbKey, dbData;
@@ -542,9 +541,9 @@ Freeze::DBI::delServant(const string& identity)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBExceptionPtr ex = new DBException;
-	ex->message = s.str();
-	ex->_throw();
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
     }
 
     DBT dbKey;
@@ -595,9 +594,9 @@ Freeze::DBI::createEvictor(EvictorPersistenceMode persistenceMode)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBExceptionPtr ex = new DBException;
-	ex->message = s.str();
-	ex->_throw();
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
     }
 
     return new EvictorI(this, _communicator, persistenceMode);

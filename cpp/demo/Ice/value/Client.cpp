@@ -140,7 +140,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     cout << '\n'
 	 << "Finally, we try the same again, but instead of returning the\n"
-	 << "derived object, we throw it as an exception.\n"
+	 << "derived object, we throw an exception containing the derived\n"
+	 << "object.\n"
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
@@ -148,10 +149,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	initial->throwDerivedPrinter();
     }
-    catch(const PrinterPtrE& ex)
+    catch(const DerivedPrinterException& ex)
     {
-	const PrinterPtr& p = ex;
-	derived = DerivedPrinterPtr::dynamicCast(p);
+	derived = ex.derived;
 	assert(derived);
     }
 
@@ -177,7 +177,7 @@ main(int argc, char* argv[])
 	communicator = Ice::initializeWithProperties(properties);
 	status = run(argc, argv, communicator);
     }
-    catch(const Ice::LocalException& ex)
+    catch(const Ice::Exception& ex)
     {
 	cerr << ex << endl;
 	status = EXIT_FAILURE;
@@ -189,7 +189,7 @@ main(int argc, char* argv[])
 	{
 	    communicator->destroy();
 	}
-	catch(const Ice::LocalException& ex)
+	catch(const Ice::Exception& ex)
 	{
 	    cerr << ex << endl;
 	    status = EXIT_FAILURE;

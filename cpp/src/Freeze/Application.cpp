@@ -36,14 +36,14 @@ Freeze::Application::run(int argc, char* argv[])
 	dbEnv = Freeze::initialize(communicator(), _dbEnvName);
 	status = runFreeze(argc, argv, dbEnv);
     }
-    catch(const LocalException& ex)
+    catch(const DBException& ex)
     {
-	cerr << appName() << ": " << ex << endl;
+	cerr << appName() << ": " << ex << ": " << ex.message << endl;
 	status = EXIT_FAILURE;
     }
-    catch(const DBExceptionPtrE& ex)
+    catch(const Exception& ex)
     {
-	cerr << appName() << ": database exception: " << ex->message << endl;
+	cerr << appName() << ": " << ex << endl;
 	status = EXIT_FAILURE;
     }
     catch(...)
@@ -58,14 +58,14 @@ Freeze::Application::run(int argc, char* argv[])
 	{
 	    dbEnv->close();
 	}
-	catch(const LocalException& ex)
+	catch(const DBException& ex)
 	{
-	    cerr << appName() << ": " << ex << endl;
+	    cerr << appName() << ": " << ex << ": " << ex.message << endl;
 	    status = EXIT_FAILURE;
 	}
-	catch(const DBExceptionPtrE& ex)
+	catch(const Exception& ex)
 	{
-	    cerr << appName() << ": database exception: " << ex->message << endl;
+	    cerr << appName() << ": " << ex << endl;
 	    status = EXIT_FAILURE;
 	}
 	catch(...)

@@ -434,7 +434,7 @@ IceDelegateM::Ice::Object::_isA(const string& s)
     __os->write(s);
     if (!__out.invoke())
     {
-	throw ::Ice::UserException(__FILE__, __LINE__);
+	throw ::Ice::UserException();
     }
     bool __ret;
     __is->read(__ret);
@@ -449,7 +449,7 @@ IceDelegateM::Ice::Object::_ping()
     __os->write("_ping");
     if (!__out.invoke())
     {
-	throw ::Ice::UserException(__FILE__, __LINE__);
+	throw ::Ice::UserException();
     }
 }
 

@@ -96,7 +96,7 @@ IceInternal::Emitter::sendRequest(Outgoing* out, bool oneway)
 	traceRequest("sending request", *os, _logger, _traceLevels);
 	_transceiver->write(*os, _endpoint->timeout());
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	setState(StateClosed, ex);
 	ex._throw();
@@ -203,7 +203,7 @@ IceInternal::Emitter::flushBatchRequest()
 	_batchStream.swap(dummy);
 	assert(_batchStream.b.empty());
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	setState(StateClosed, ex);
 	ex._throw();
@@ -307,7 +307,7 @@ IceInternal::Emitter::message(BasicStream& stream)
 	    }
 	}
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	setState(StateClosed, ex);
 	return;

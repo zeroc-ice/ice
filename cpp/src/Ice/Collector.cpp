@@ -191,7 +191,7 @@ IceInternal::Collector::message(BasicStream& stream)
 	    setState(StateClosed); // Connection drop from client is ok
 	    return;
 	}
-	catch(const LocalException& ex)
+	catch(const Exception& ex)
 	{
 	    warning(ex);
 	    setState(StateClosed);
@@ -212,7 +212,7 @@ IceInternal::Collector::message(BasicStream& stream)
 		    stream.swap(*in.is());
 		}
 	    }
-	    catch(const LocalException& ex)
+	    catch(const Exception& ex)
 	    {
 		JTCSyncT<JTCRecursiveMutex> sync(*this);
 		warning(ex);
@@ -257,7 +257,7 @@ IceInternal::Collector::message(BasicStream& stream)
 	    setState(StateClosed); // Connection drop from client is ok
 	    return;
 	}
-	catch(const LocalException& ex)
+	catch(const Exception& ex)
 	{
 	    warning(ex);
 	    setState(StateClosed);
@@ -400,7 +400,7 @@ IceInternal::Collector::setState(State state)
 		    state = StateClosed;
 		    setState(state); // Connection drop from client is ok
 		}
-		catch(const LocalException& ex)
+		catch(const Exception& ex)
 		{
 		    warning(ex);
 		    state = StateClosed;
@@ -557,7 +557,7 @@ IceInternal::CollectorFactory::message(BasicStream&)
     {
 	// Ignore timeouts
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	warning(ex);
 	destroy();
@@ -720,7 +720,7 @@ IceInternal::CollectorFactory::clearBacklog()
 	    CollectorPtr collector = new Collector(_instance, _adapter, transceiver, _endpoint);
 	    collector->destroy();
 	}
-	catch(const LocalException&)
+	catch(const Exception&)
 	{
 	    break;
 	}

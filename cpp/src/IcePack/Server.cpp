@@ -103,7 +103,7 @@ main(int argc, char* argv[])
 	communicator = initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	cerr << ex << endl;
 	status = EXIT_FAILURE;
@@ -115,7 +115,7 @@ main(int argc, char* argv[])
 	{
 	    communicator->destroy();
 	}
-	catch(const LocalException& ex)
+	catch(const Exception& ex)
 	{
 	    cerr << ex << endl;
 	    status = EXIT_FAILURE;

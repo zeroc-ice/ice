@@ -51,7 +51,9 @@ InitialI::derivedPrinter()
 void
 InitialI::throwDerivedPrinter()
 {
-    _derivedPrinter->_throw();
+    DerivedPrinterException ex;
+    ex.derived = _derivedPrinter;
+    throw ex;
 }
 
 void

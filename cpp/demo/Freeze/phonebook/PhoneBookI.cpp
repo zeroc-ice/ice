@@ -137,7 +137,7 @@ PhoneBookI::createContact()
     {
 	identities = _nameIdentitiesDict->get("N");
     }
-    catch(const DBNotFoundExceptionPtrE&)
+    catch(const DBNotFoundException&)
     {
     }
     identities.push_back(identity);
@@ -164,7 +164,7 @@ PhoneBookI::findContacts(const string& name)
     {
 	identities = _nameIdentitiesDict->get("N" + name);
     }
-    catch(const DBNotFoundExceptionPtrE&)
+    catch(const DBNotFoundException&)
     {
     }
 
@@ -230,7 +230,7 @@ PhoneBookI::move(const string& identity, const string& oldName, const string& ne
     {
 	identities = _nameIdentitiesDict->get("N" + newName);
     }
-    catch(const DBNotFoundExceptionPtrE&)
+    catch(const DBNotFoundException&)
     {
     }
     identities.push_back(identity);
@@ -252,7 +252,7 @@ PhoneBookI::getNewIdentity()
 	id = atoll(ids.front().c_str()) + 1;
 #endif
     }
-    catch(const DBNotFoundExceptionPtrE&)
+    catch(const DBNotFoundException&)
     {
 	id = 0;
     }

@@ -36,7 +36,7 @@ class ICE_API UserException : public IceUtil::Exception
 {
 public:    
 
-    UserException(const char*, int);
+    UserException();
     UserException(const UserException&);
     UserException& operator=(const UserException&);
     virtual std::string _name() const;

@@ -72,7 +72,7 @@ NestedClient::run(int argc, char* argv[])
 		nested->nested(level, self);
 	    }
 	}
-	catch(const LocalException& ex)
+	catch(const Exception& ex)
 	{
 	    cerr << ex << endl;
 	}

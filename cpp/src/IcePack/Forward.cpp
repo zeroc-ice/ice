@@ -140,7 +140,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
 		}
 	    }
 	}
-	catch(const LocalException& ex)
+	catch(const Exception& ex)
 	{
 	    //
 	    // If we get an exception, all we an do is to log it and

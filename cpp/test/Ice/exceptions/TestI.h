@@ -21,24 +21,15 @@ public:
 
     virtual void shutdown();
     virtual void throwAasA(Ice::Int);
-    virtual void throwAasAproxy();
     virtual void throwBasA(Ice::Int, Ice::Int);
-    virtual void throwBasAproxy();
     virtual void throwCasA(Ice::Int, Ice::Int, Ice::Int);
-    virtual void throwCasAproxy();
     virtual void throwBasB(Ice::Int, Ice::Int);
-    virtual void throwBasBproxy();
     virtual void throwCasB(Ice::Int, Ice::Int, Ice::Int);
-    virtual void throwCasBproxy();
     virtual void throwCasC(Ice::Int, Ice::Int, Ice::Int);
-    virtual void throwCasCproxy();
 
 private:
 
     Ice::ObjectAdapterPtr _adapter;
-    APrx _a;
-    BPrx _b;
-    CPrx _c;
 };
 
 #endif

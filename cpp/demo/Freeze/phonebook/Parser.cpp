@@ -67,11 +67,11 @@ Parser::addContacts(const list<string>& args)
 	    cout << "added new contact for `" << *p << "'" << endl;
 	}
     }
-    catch(const DBExceptionPtrE& ex)
+    catch(const DBException& ex)
     {
-	error(ex->message);
+	error(ex.message);
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -95,11 +95,11 @@ Parser::findContacts(const list<string>& args)
 	cout << "number of contacts found: " << _foundContacts.size() << endl;
 	printCurrent();
     }
-    catch(const DBExceptionPtrE& ex)
+    catch(const DBException& ex)
     {
-	error(ex->message);
+	error(ex.message);
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -134,11 +134,11 @@ Parser::printCurrent()
 	    cout << "no current contact" << endl;
 	}
     }
-    catch(const DBExceptionPtrE& ex)
+    catch(const DBException& ex)
     {
-	error(ex->message);
+	error(ex.message);
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -167,11 +167,11 @@ Parser::setCurrentName(const list<string>& args)
 	    cout << "no current contact" << endl;
 	}
     }
-    catch(const DBExceptionPtrE& ex)
+    catch(const DBException& ex)
     {
-	error(ex->message);
+	error(ex.message);
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -200,11 +200,11 @@ Parser::setCurrentAddress(const list<string>& args)
 	    cout << "no current contact" << endl;
 	}
     }
-    catch(const DBExceptionPtrE& ex)
+    catch(const DBException& ex)
     {
-	error(ex->message);
+	error(ex.message);
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -233,11 +233,11 @@ Parser::setCurrentPhone(const list<string>& args)
 	    cout << "no current contact" << endl;
 	}
     }
-    catch(const DBExceptionPtrE& ex)
+    catch(const DBException& ex)
     {
-	error(ex->message);
+	error(ex.message);
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -260,11 +260,11 @@ Parser::removeCurrent()
 	    cout << "no current contact" << endl;
 	}
     }
-    catch(const DBExceptionPtrE& ex)
+    catch(const DBException& ex)
     {
-	error(ex->message);
+	error(ex.message);
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -285,11 +285,11 @@ Parser::setEvictorSize(const list<string>& args)
     {
 	_phoneBook->setEvictorSize(atoi(args.front().c_str()));
     }
-    catch(const DBExceptionPtrE& ex)
+    catch(const DBException& ex)
     {
-	error(ex->message);
+	error(ex.message);
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -304,11 +304,11 @@ Parser::shutdown()
     {
 	_phoneBook->shutdown();
     }
-    catch(const DBExceptionPtrE& ex)
+    catch(const DBException& ex)
     {
-	error(ex->message);
+	error(ex.message);
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;

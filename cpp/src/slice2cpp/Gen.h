@@ -205,6 +205,7 @@ private:
 	virtual void visitModuleEnd(const ModulePtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 	virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual bool visitExceptionStart(const ExceptionPtr&);
 	virtual bool visitStructStart(const StructPtr&);
 	virtual void visitOperation(const OperationPtr&);
 	virtual void visitDataMember(const DataMemberPtr&);

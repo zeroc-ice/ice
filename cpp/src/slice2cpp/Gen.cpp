@@ -112,7 +112,7 @@ Slice::Gen::generate(const UnitPtr& unit)
     else
     {
 	H << "\n#include <Ice/LocalObject.h>";
-//	C << "\n#include <Ice/BasicStream.h>";
+	C << "\n#include <Ice/BasicStream.h>";
     }
 
     StringList includes = unit->includeFiles();
@@ -237,6 +237,13 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	    C << nl << base->scoped() << "(file, line)";
 	}
 	C.dec();
+	C << sb;
+	C << eb;
+    }
+    else
+    {
+	H << nl << name << "();";
+	C << sp << nl << scoped.substr(2) << "::" << name << "()";
 	C << sb;
 	C << eb;
     }
@@ -1165,12 +1172,12 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	    C << eb;
 	}
 	C << eb;
-	C << nl << "throw ::Ice::UserException(__FILE__, __LINE__);";
+	C << nl << "throw ::Ice::UserException();";
     }
     else
 */
     {
-	C << nl << "throw ::Ice::UserException(__FILE__, __LINE__);";
+	C << nl << "throw ::Ice::UserException();";
     }
     C << eb;
     writeAllocateCode(C, TypeStringList(), ret);
@@ -1752,6 +1759,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << eb;
     }
     H << eb << ';';
+}
+
+bool
+Slice::Gen::ObjectVisitor::visitExceptionStart(const ExceptionPtr&)
+{
+    return false;
 }
 
 bool

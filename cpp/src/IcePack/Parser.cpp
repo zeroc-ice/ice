@@ -74,7 +74,7 @@ IcePack::Parser::add(const list<string>& args)
 	_admin->add(desc);
 
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -95,7 +95,7 @@ IcePack::Parser::remove(const list<string>& args)
     {
 	_admin->remove(args.front());
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -129,7 +129,7 @@ IcePack::Parser::listAll()
 	    }
 	}
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;
@@ -144,7 +144,7 @@ IcePack::Parser::shutdown()
     {
 	_admin->shutdown();
     }
-    catch(const LocalException& ex)
+    catch(const Exception& ex)
     {
 	ostringstream s;
 	s << ex;
