@@ -113,6 +113,7 @@ static const string iceProps[] = {
 					"Default.Router",
 					"Logger.Timestamp",
 					"MonitorConnections",
+					"Nohup",
 					"NullHandleAbort",
 					"Override.Compress",
 					"Override.Timeout",
@@ -136,29 +137,6 @@ static const string iceProps[] = {
 					"Warn.Leaks"
 				 };
 
-static const string iceSSLProps[] = {
-				        "Client.CertificateVerifier",
-					"Client.CertPath.*",
-					"Client.Config",
-					"Client.Handshake.Retries",
-					"Client.Overrides.CACertificate",
-					"Client.Overrides.DSA.Certificate",
-					"Client.Overrides.DSA.PrivateKey",
-					"Client.Overrides.RSA.Certificate",
-					"Client.Overrides.RSA.PrivateKey",
-					"Client.Passphrase.Retries",
-					"Server.CertificateVerifier",
-					"Server.CertPath.*",
-					"Server.Config",
-					"Server.Overrides.CACertificate",
-					"Server.Overrides.DSA.Certificate",
-					"Server.Overrides.DSA.PrivateKey",
-					"Server.Overrides.RSA.Certificate",
-					"Server.Overrides.RSA.PrivateKey",
-					"Server.Passphrase.Retries",
-				        "Trace.Security"
-				    };
-
 static const string iceBoxProps[] = {
 				        "DBEnvName.*",
 					"PrintServicesReady",
@@ -175,7 +153,9 @@ static const string icePackProps[] = {
 					"Node.Data",
 					"Node.Endpoints",
 					"Node.Name",
+					"Node.PrintServersReady",
 					"Node.PropertiesOverride",
+					"Node.ThreadPool.Size",
 					"Node.Trace.Activator",
 					"Node.Trace.Adapter",
 					"Node.Trace.Server",
@@ -193,6 +173,37 @@ static const string icePackProps[] = {
 					"Registry.Trace.ObjectRegistry",
 				        "Registry.Trace.ServerRegistry"
 				     };
+
+static const string icePatchProps[] = {
+    					"BusyTimeout",
+    					"RemoveOrphaned",
+					"Thorough",
+					"Trace.Files",
+					"UpdatePeriod"
+    				      };
+
+static const string iceSSLProps[] = {
+				        "Client.CertificateVerifier",
+					"Client.CertPath*",
+					"Client.Config",
+					"Client.Handshake.Retries",
+					"Client.Overrides.CACertificate",
+					"Client.Overrides.DSA.Certificate",
+					"Client.Overrides.DSA.PrivateKey",
+					"Client.Overrides.RSA.Certificate",
+					"Client.Overrides.RSA.PrivateKey",
+					"Client.Passphrase.Retries",
+					"Server.CertificateVerifier",
+					"Server.CertPath*",
+					"Server.Config",
+					"Server.Overrides.CACertificate",
+					"Server.Overrides.DSA.Certificate",
+					"Server.Overrides.DSA.PrivateKey",
+					"Server.Overrides.RSA.Certificate",
+					"Server.Overrides.RSA.PrivateKey",
+					"Server.Passphrase.Retries",
+				        "Trace.Security"
+				    };
 
 static const string iceStormProps[] = {
 					"Flush.Timeout",
@@ -261,6 +272,7 @@ static const PropertyValues validProps[] = {
 				{ "IceBox", iceBoxProps, sizeof(iceBoxProps) / sizeof(iceBoxProps[0]) },
 				{ "Ice", iceProps, sizeof(iceProps) / sizeof(iceProps[0]) },
 				{ "IcePack", icePackProps, sizeof(icePackProps) / sizeof(icePackProps[0]) },
+				{ "IcePatch", icePatchProps, sizeof(icePatchProps) / sizeof(icePatchProps[0]) },
 				{ "IceSSL", iceSSLProps, sizeof(iceSSLProps) / sizeof(iceSSLProps[0]) },
 				{ "IceStorm", iceStormProps, sizeof(iceStormProps) / sizeof(iceStormProps[0]) }
 					   };

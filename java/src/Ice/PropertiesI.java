@@ -380,6 +380,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 						    "Default.Router",
 						    "Logger.Timestamp",
 						    "MonitorConnections",
+						    "Nohup",
 						    "NullHandleAbort",
 						    "Override.Compress",
 						    "Override.Timeout",
@@ -403,29 +404,6 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 						    "Warn.Leaks"
 				              };
 
-    private static final String _iceSSLProps[] = {
-						    "Client.CertificateVerifier",
-						    "Client.CertPath.*",
-						    "Client.Config",
-						    "Client.Handshake.Retries",
-						    "Client.Overrides.CACertificate",
-						    "Client.Overrides.DSA.Certificate",
-						    "Client.Overrides.DSA.PrivateKey",
-						    "Client.Overrides.RSA.Certificate",
-						    "Client.Overrides.RSA.PrivateKey",
-						    "Client.Passphrase.Retries",
-						    "Server.CertificateVerifier",
-						    "Server.CertPath.*",
-						    "Server.Config",
-						    "Server.Overrides.CACertificate",
-						    "Server.Overrides.DSA.Certificate",
-						    "Server.Overrides.DSA.PrivateKey",
-						    "Server.Overrides.RSA.Certificate",
-						    "Server.Overrides.RSA.PrivateKey",
-						    "Server.Passphrase.Retries",
-						    "Trace.Security"
-					         };
-
     private static final String _iceBoxProps[] = {
 						    "DBEnvName.*",
 						    "PrintServicesReady",
@@ -442,7 +420,9 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 						    "Node.Data",
 						    "Node.Endpoints",
 						    "Node.Name",
+						    "Node.PrintServersReady",
 						    "Node.PropertiesOverride",
+						    "Node.ThreadPool.Size",
 						    "Node.Trace.Activator",
 						    "Node.Trace.Adapter",
 						    "Node.Trace.Server",
@@ -460,6 +440,37 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 						    "Registry.Trace.ObjectRegistry",
 						    "Registry.Trace.ServerRegistry"
 					          };
+
+    private static final String _icePatchProps[] = {
+						    "BusyTimeout",
+						    "RemoveOrphaned",
+						    "Thorough",
+						    "Trace.Files",
+						    "UpdatePeriod"
+						   };
+
+    private static final String _iceSSLProps[] = {
+						    "Client.CertificateVerifier",
+						    "Client.CertPath*",
+						    "Client.Config",
+						    "Client.Handshake.Retries",
+						    "Client.Overrides.CACertificate",
+						    "Client.Overrides.DSA.Certificate",
+						    "Client.Overrides.DSA.PrivateKey",
+						    "Client.Overrides.RSA.Certificate",
+						    "Client.Overrides.RSA.PrivateKey",
+						    "Client.Passphrase.Retries",
+						    "Server.CertificateVerifier",
+						    "Server.CertPath*",
+						    "Server.Config",
+						    "Server.Overrides.CACertificate",
+						    "Server.Overrides.DSA.Certificate",
+						    "Server.Overrides.DSA.PrivateKey",
+						    "Server.Overrides.RSA.Certificate",
+						    "Server.Overrides.RSA.PrivateKey",
+						    "Server.Passphrase.Retries",
+						    "Trace.Security"
+					         };
 
     private static final String _iceStormProps[] = {
 						    "Flush.Timeout",
@@ -522,6 +533,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	    _validProps.put("IceBox", _iceBoxProps);
 	    _validProps.put("Ice", _iceProps);
 	    _validProps.put("IcePack", _icePackProps);
+	    _validProps.put("IcePatch", _icePatchProps);
 	    _validProps.put("IceSSL", _iceSSLProps);
 	    _validProps.put("IceStorm", _iceStormProps);
 	}
