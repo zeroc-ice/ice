@@ -348,14 +348,22 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     public void
     writeByteSeq(String name, byte[] value)
     {
-        startWriteSequence(name, value.length);
-        for(int i = 0; i < value.length; i++)
+        if(value == null)
         {
-            startWriteSequenceElement();
-            _os.startEscapes().write("" + (int)value[i]).endEscapes();
-            endWriteSequenceElement();
+            startWriteSequence(name, value.length);
+            endWriteSequence();
         }
-        endWriteSequence();
+        else
+        {
+            startWriteSequence(name, value.length);
+            for(int i = 0; i < value.length; i++)
+            {
+                startWriteSequenceElement();
+                _os.startEscapes().write("" + (int)value[i]).endEscapes();
+                endWriteSequenceElement();
+            }
+            endWriteSequence();
+        }
     }
 
     public byte
@@ -421,12 +429,20 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     public void
     writeBoolSeq(String name, boolean[] value)
     {
-        startWriteSequence(name, value.length);
-        for(int i = 0; i < value.length; i++)
+        if(value == null)
         {
-            _os.se("e").write(value[i] ? "true" : "false").ee();
+            startWriteSequence(name, value.length);
+            endWriteSequence();
         }
-        endWriteSequence();
+        else
+        {
+            startWriteSequence(name, value.length);
+            for(int i = 0; i < value.length; i++)
+            {
+                _os.se("e").write(value[i] ? "true" : "false").ee();
+            }
+            endWriteSequence();
+        }
     }
 
     public boolean
@@ -482,12 +498,20 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     public void
     writeShortSeq(String name, short[] value)
     {
-        startWriteSequence(name, value.length);
-        for(int i = 0; i < value.length; i++)
+        if(value == null)
         {
-            _os.se("e").write("" + value[i]).ee();
+            startWriteSequence(name, value.length);
+            endWriteSequence();
         }
-        endWriteSequence();
+        else
+        {
+            startWriteSequence(name, value.length);
+            for(int i = 0; i < value.length; i++)
+            {
+                _os.se("e").write("" + value[i]).ee();
+            }
+            endWriteSequence();
+        }
     }
 
     public short
@@ -553,12 +577,20 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     public void
     writeIntSeq(String name, int[] value)
     {
-        startWriteSequence(name, value.length);
-        for(int i = 0; i < value.length; i++)
+        if(value == null)
         {
-            _os.se("e").write("" + value[i]).ee();
+            startWriteSequence(name, value.length);
+            endWriteSequence();
         }
-        endWriteSequence();
+        else
+        {
+            startWriteSequence(name, value.length);
+            for(int i = 0; i < value.length; i++)
+            {
+                _os.se("e").write("" + value[i]).ee();
+            }
+            endWriteSequence();
+        }
     }
 
     public int
@@ -624,12 +656,20 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     public void
     writeLongSeq(String name, long[] value)
     {
-        startWriteSequence(name, value.length);
-        for(int i = 0; i < value.length; i++)
+        if(value == null)
         {
-            _os.se("e").write("" + value[i]).ee();
+            startWriteSequence(name, value.length);
+            endWriteSequence();
         }
-        endWriteSequence();
+        else
+        {
+            startWriteSequence(name, value.length);
+            for(int i = 0; i < value.length; i++)
+            {
+                _os.se("e").write("" + value[i]).ee();
+            }
+            endWriteSequence();
+        }
     }
 
     public long
@@ -695,12 +735,20 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     public void
     writeFloatSeq(String name, float[] value)
     {
-        startWriteSequence(name, value.length);
-        for(int i = 0; i < value.length; i++)
+        if(value == null)
         {
-            _os.se("e").write("" + value[i]).ee();
+            startWriteSequence(name, value.length);
+            endWriteSequence();
         }
-        endWriteSequence();
+        else
+        {
+            startWriteSequence(name, value.length);
+            for(int i = 0; i < value.length; i++)
+            {
+                _os.se("e").write("" + value[i]).ee();
+            }
+            endWriteSequence();
+        }
     }
 
     public float
@@ -766,12 +814,20 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     public void
     writeDoubleSeq(String name, double[] value)
     {
-        startWriteSequence(name, value.length);
-        for(int i = 0; i < value.length; i++)
+        if(value == null)
         {
-            _os.se("e").write("" + value[i]).ee();
+            startWriteSequence(name, value.length);
+            endWriteSequence();
         }
-        endWriteSequence();
+        else
+        {
+            startWriteSequence(name, value.length);
+            for(int i = 0; i < value.length; i++)
+            {
+                _os.se("e").write("" + value[i]).ee();
+            }
+            endWriteSequence();
+        }
     }
 
     public double
@@ -842,17 +898,25 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     public void
     writeStringSeq(String name, String[] value)
     {
-        startWriteSequence(name, value.length);
-        for(int i = 0; i < value.length; i++)
+        if(value == null)
         {
-            _os.se("e");
-            if(value[i] != null && value[i].length() > 0)
-            {
-                _os.startEscapes().write(value[i] == null ? "" : value[i]).endEscapes();
-            }
-            _os.ee();
+            startWriteSequence(name, value.length);
+            endWriteSequence();
         }
-        endWriteSequence();
+        else
+        {
+            startWriteSequence(name, value.length);
+            for(int i = 0; i < value.length; i++)
+            {
+                _os.se("e");
+                if(value[i] != null && value[i].length() > 0)
+                {
+                    _os.startEscapes().write(value[i] == null ? "" : value[i]).endEscapes();
+                }
+                _os.ee();
+            }
+            endWriteSequence();
+        }
     }
 
     public String
