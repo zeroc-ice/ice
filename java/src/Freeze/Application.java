@@ -12,8 +12,8 @@ package Freeze;
 
 public abstract class Application extends Ice.Application
 {
-
-    public Application(String dbEnvName)
+    public
+    Application(String dbEnvName)
     {
 	_dbEnvName = dbEnvName;
     }
@@ -81,5 +81,4 @@ public abstract class Application extends Ice.Application
     runFreeze(String[] args, DBEnvironment dbEnv);
 
     private String _dbEnvName;
-
 }

@@ -56,7 +56,7 @@ class RunParser
 	Ice.Properties properties = communicator.getProperties();
 	String refProperty = "PhoneBook.PhoneBook";
 	String ref = properties.getProperty(refProperty);
-	if (ref == null)
+	if (ref.length() == 0)
 	{
 	    System.err.println(appName +  ": property `" + refProperty + "' not set");
 	    return 1;

@@ -286,4 +286,3 @@ class Scanner
     private String _buf = null;
     private int _pos;
 }
-

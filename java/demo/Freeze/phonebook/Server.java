@@ -27,19 +27,14 @@ class PhoneBookServer extends Freeze.Application
 	// Create an Evictor for contacts.
 	//
 	Freeze.Evictor evictor;
-	String value = properties.getProperty("PhoneBook.SaveAfterMutatingOperation");
 	int v = 0;
-	if (value != null)
-	{
-	    try
-	    {
-		v = Integer.parseInt(value);
-	    }
-	    catch (NumberFormatException ex)
-	    {
-	    }
+        try
+        {
+            v = Integer.parseInt(properties.getProperty("PhoneBook.SaveAfterMutatingOperation"));
+        }
+        catch (NumberFormatException ex)
+        {
 	}
-	
 
 	if(v != 0)
 	{
@@ -50,17 +45,13 @@ class PhoneBookServer extends Freeze.Application
 	    evictor = dbContacts.createEvictor(Freeze.EvictorPersistenceMode.SaveUponEviction);
 	}
 
-	value = properties.getProperty("PhoneBook.EvictorSize");
-	if (value != null)
-	{
-	    try
-	    {
-		v = Integer.parseInt(value);
-	    }
-	    catch (NumberFormatException ex)
-	    {
-	    }
-	}
+        try
+        {
+            v = Integer.parseInt(properties.getProperty("PhoneBook.EvictorSize"));
+        }
+        catch (NumberFormatException ex)
+        {
+        }
 
 	if(v != 0)
 	{

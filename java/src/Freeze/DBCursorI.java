@@ -280,23 +280,15 @@ class DBCursorI implements DBCursor
 	_name = name;
 	_cursor = cursor;
 
-	Ice.Properties properties = _communicator.getProperties();
-	String value;
-
-	value = properties.getProperty("Freeze.Trace.DB");
-	if (value != null)
-	{
-	    try
-	    {
-		_trace = Integer.parseInt(value);
-	    }
-	    catch (NumberFormatException ex)
-	    {
-		// TODO: Do anything?
-	    }
-	}
-
 	_errorPrefix = "Freeze::DBCursor(\"" + _name + "\"): ";
+        try
+        {
+            _trace = Integer.parseInt(_communicator.getProperties().getProperty("Freeze.Trace.DB"));
+        }
+        catch (NumberFormatException ex)
+        {
+            // TODO: Do anything?
+        }
 
 	if (_trace >= 1)
 	{

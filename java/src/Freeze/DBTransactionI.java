@@ -64,7 +64,7 @@ class DBTransactionI implements DBTransaction
 	if (_trace >= 2)
 	{
 	    _communicator.getLogger().trace("DB", "aborting transaction for environment \"" + _name +
-					     "\" due to deadlock");
+					    "\" due to deadlock");
 	}
 	
 	try
@@ -88,20 +88,15 @@ class DBTransactionI implements DBTransaction
 	_name = name;
 
 	_errorPrefix = "Freeze::DBTransaction(\"" + _name + "\"): ";
-	
-	String value = _communicator.getProperties().getProperty("Freeze.Trace.DB");
-	if (value != null)
-	{
-	    try
-	    {
-		_trace = Integer.parseInt(value);
-	    }
-	    catch (NumberFormatException ex)
-	    {
-		// TODO: Do anything?
-	    }
-	}
-	
+        try
+        {
+            _trace = Integer.parseInt(_communicator.getProperties().getProperty("Freeze.Trace.DB"));
+        }
+        catch (NumberFormatException ex)
+        {
+            // TODO: Do anything?
+        }
+
 	if (_trace >= 2)
 	{
 	    _communicator.getLogger().trace("DB", "starting transaction for environment \"" + _name + "\"");

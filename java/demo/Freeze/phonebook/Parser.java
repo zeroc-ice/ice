@@ -10,7 +10,6 @@
 
 class Parser
 {
-
     public
     Parser(Ice.Communicator communicator, PhoneBookPrx phoneBook)
     {
@@ -42,7 +41,7 @@ class Parser
     {
 	if (args.isEmpty())
 	{
-	    error("`add' requires at least one rgument (type `help' for more info)");
+	    error("`add' requires at least one argument (type `help' for more info)");
 	    return;
 	}
 	
@@ -331,5 +330,4 @@ class Parser
     private PhoneBookPrx _phoneBook;
 
     private java.io.BufferedReader _in;
-
 }

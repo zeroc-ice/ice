@@ -272,21 +272,14 @@ class EvictorI implements Evictor
 	_dict = new IdentityObjectDict(db);
 	_persistenceMode = persistenceMode;
 
-	Ice.Properties properties = _db.getCommunicator().getProperties();
-	String value;
-
-	value = properties.getProperty("Freeze.Trace.Evictor");
-	if (value != null)
-	{
-	    try
-	    {
-		_trace = Integer.parseInt(value);
-	    }
-	    catch (NumberFormatException ex)
-	    {
-		// TODO: Do anything?
-	    }
-	}
+        try
+        {
+            _trace = Integer.parseInt(_db.getCommunicator().getProperties().getProperty("Freeze.Trace.Evictor"));
+        }
+        catch (NumberFormatException ex)
+        {
+            // TODO: Do anything?
+        }
     }
 
     private void
@@ -392,7 +385,6 @@ class EvictorI implements Evictor
 	java.util.Iterator position;
 	public int usageCount;
     };
-
 
     //
     // Map of Ice.Identity to EvictorElement
