@@ -470,7 +470,6 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    ParamDeclList::const_iterator r = paramList.begin();
 	    while(r != paramList.end())
 	    {
-		O << nl;
 		if((*r)->isOutParam())
 		{
 		    O << "out ";
@@ -480,6 +479,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 		if(++r != paramList.end())
 		{
 		    O << ',';
+		    O << nl;
 		}
 	    }
 	    O << ')';
@@ -958,7 +958,7 @@ Slice::Gen::printComment(const ContainedPtr& p)
     if(!derivedClasses.empty())
     {
 	start("section", "Derived Classes and Interfaces", false);
-	start("para");
+	O << nl << "<para>";
 	start("simplelist type=\"inline\"");
 	for(ClassList::const_iterator q = derivedClasses.begin(); q != derivedClasses.end(); ++q)
 	{
@@ -967,7 +967,7 @@ Slice::Gen::printComment(const ContainedPtr& p)
 	    end();
 	}
 	end();
-	end();
+	O << "</para>";
 	end();
     }
 
@@ -980,7 +980,7 @@ Slice::Gen::printComment(const ContainedPtr& p)
     if(!derivedExceptions.empty())
     {
 	start("section", "Derived Exceptions", false);
-	start("para");
+	O << nl << "<para>";
 	start("simplelist type=\"inline\"");
 	for(ExceptionList::const_iterator q = derivedExceptions.begin(); q != derivedExceptions.end(); ++q)
 	{
@@ -989,7 +989,7 @@ Slice::Gen::printComment(const ContainedPtr& p)
 	    end();
 	}
 	end();
-	end();
+	O << "</para>";
 	end();
     }
 
@@ -1010,7 +1010,7 @@ Slice::Gen::printComment(const ContainedPtr& p)
     if(!usedBy.empty())
     {
 	start("section", "Used By", false);
-	start("para");
+	O << nl << "<para>";
 	start("simplelist type=\"inline\"");
 	for(ContainedList::const_iterator q = usedBy.begin(); q != usedBy.end(); ++q)
 	{
@@ -1019,14 +1019,14 @@ Slice::Gen::printComment(const ContainedPtr& p)
 	    end();
 	}
 	end();
-	end();
+	O << "</para>";
 	end();
     }
 
     if(!see.empty())
     {
 	start("section", "See Also", false);
-	start("para");
+	O << nl << "<para>";
 	start("simplelist type=\"inline\"");
 	for(StringList::const_iterator q = see.begin(); q != see.end(); ++q)
 	{
@@ -1035,7 +1035,7 @@ Slice::Gen::printComment(const ContainedPtr& p)
 	    end();
 	}
 	end();
-	end();
+	O << "</para>";
 	end();
     }
 }
