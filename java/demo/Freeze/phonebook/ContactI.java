@@ -62,7 +62,7 @@ class ContactI extends Contact
     {
 	try
 	{
-	    _evictor.destroyObject(current.id);
+	    _factory.getEvictor().destroyObject(current.id);
 	}
 	catch(Freeze.DatabaseException ex)
 	{
@@ -72,9 +72,9 @@ class ContactI extends Contact
 	}
     }
 
-    ContactI(Freeze.Evictor evictor)
+    ContactI(ContactFactory factory)
     {
-	_evictor = evictor;
+	_factory = factory;
 	//
 	// It's possible to avoid this if there were two constructors
 	// - one for original creation of the Contact and one for
@@ -85,6 +85,6 @@ class ContactI extends Contact
 	phone = new String();
     }
 
-    private Freeze.Evictor _evictor;
+    private ContactFactory _factory;
  
 }

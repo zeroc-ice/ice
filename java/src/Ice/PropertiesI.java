@@ -565,6 +565,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 
     private static final String _freezeProps[] =
     {
+	"Warn.Deadlocks",
 	"Trace.Map",
 	"Trace.Evictor",
 	"Trace.DbEnv",

@@ -103,6 +103,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	_dbEnv = _dbEnvHolder;
 	_envName = envName;
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
+	_deadlockWarning = _communicator.getProperties().getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
     }
 
     ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv)
@@ -180,6 +181,12 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	return _trace;
     }
 
+    boolean
+    deadlockWarning()
+    {
+	return _deadlockWarning;
+    }
+
     private Ice.Communicator _communicator;
     private SharedDbEnv _dbEnvHolder;
     private com.sleepycat.db.DbEnv _dbEnv;
@@ -187,4 +194,5 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
     private TransactionI _transaction;
     private java.util.List _mapList = new java.util.LinkedList();
     private int _trace;
+    private boolean _deadlockWarning;
 }

@@ -110,6 +110,13 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 		}
 		catch(com.sleepycat.db.DbDeadlockException dx)
 		{
+		    if(_evictor.deadlockWarning())
+		    {
+			communicator().getLogger().warning
+			    ("Deadlock in Freeze.Index.untypedFindFirst while iterating over Db \"" + _evictor.dbName()
+			     + "\"; retrying ...");
+		    }
+
 		    //
 		    // Retry
 		    //
@@ -189,6 +196,13 @@ public abstract class Index implements com.sleepycat.db.DbSecondaryKeyCreate
 		}
 		catch(com.sleepycat.db.DbDeadlockException dx)
 		{
+		    if(_evictor.deadlockWarning())
+		    {
+			communicator().getLogger().warning
+			    ("Deadlock in Freeze.Index.untypedCount while iterating over Db \"" + _evictor.dbName()
+			     + "\"; retrying ...");
+		    }
+
 		    //
 		    // Retry
 		    //

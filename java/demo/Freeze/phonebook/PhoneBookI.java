@@ -28,7 +28,7 @@ class PhoneBookI extends _PhoneBookDisp
 	//
 	// Create a new Contact Servant.
 	//
-	ContactI contact = new ContactI(_evictor);
+	ContactI contact = new ContactI(_contactFactory);
     
 	//
 	// Create a new Ice Object in the evictor, using the new
@@ -79,12 +79,15 @@ class PhoneBookI extends _PhoneBookDisp
 	current.adapter.getCommunicator().shutdown();
     }
 
-    PhoneBookI(Freeze.Evictor evictor, NameIndex index)
+    PhoneBookI(Freeze.Evictor evictor, ContactFactory contactFactory, 
+	       NameIndex index)
     {
 	_evictor = evictor;
+	_contactFactory = contactFactory;
 	_index = index;
     }
     
     private Freeze.Evictor _evictor;
+    private ContactFactory _contactFactory;
     private NameIndex _index;
 }

@@ -154,6 +154,13 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
 			_key.set_size(0);
 		    }
 
+		    if(_evictor.deadlockWarning())
+		    {
+			communicator.getLogger().warning
+			    ("Deadlock in Freeze.EvictorIteratorI.load while iterating over Db \"" + _evictor.dbName()
+			     + "\"; retrying ...");
+		    }
+		    
 		    //
 		    // Retry
 		    //

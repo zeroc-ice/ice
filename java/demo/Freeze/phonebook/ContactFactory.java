@@ -18,7 +18,7 @@ class ContactFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     create(String type)
     {
 	assert(type.equals("::Contact"));
-	return new ContactI(_evictor);
+	return new ContactI(this);
     }
 
     public void
@@ -26,9 +26,20 @@ class ContactFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     {
     }
 
-    ContactFactory(Freeze.Evictor evictor)
+    ContactFactory()
+    {
+    }
+
+    void
+    setEvictor(Freeze.Evictor evictor)
     {
 	_evictor = evictor;
+    }
+
+    Freeze.Evictor
+    getEvictor()
+    {
+	return _evictor;
     }
 
     private Freeze.Evictor _evictor;

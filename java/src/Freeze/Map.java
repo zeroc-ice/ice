@@ -134,6 +134,13 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		else
 		{
+		    if(_connection.deadlockWarning())
+		    {
+			_connection.communicator().getLogger().warning
+			    ("Deadlock in Freeze.Map.containsValue while iterating over Db \"" + _db.dbName() 
+			     + "\"; retrying ...");
+		    }
+
 		    //
 		    // Try again
 		    //
@@ -198,6 +205,13 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		else
 		{
+		    if(_connection.deadlockWarning())
+		    {
+			_connection.communicator().getLogger().warning
+			    ("Deadlock in Freeze.Map.containsKey while reading Db \"" + _db.dbName() 
+			     + "\"; retrying ...");
+		    }
+
 		    //
 		    // Try again
 		    //
@@ -317,6 +331,13 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		else
 		{
+		    if(_connection.deadlockWarning())
+		    {
+			_connection.communicator().getLogger().warning
+			    ("Deadlock in Freeze.Map.clear on Db \"" + _db.dbName() 
+			     + "\"; retrying ...");
+		    }
+		    
 		    //
 		    // Try again
 		    //
@@ -473,6 +494,13 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		else
 		{
+		    if(_connection.deadlockWarning())
+		    {
+			_connection.communicator().getLogger().warning
+			    ("Deadlock in Freeze.Map.getImpl while reading Db \"" + _db.dbName() 
+			     + "\"; retrying ...");
+		    }
+
 		    //
 		    // Try again
 		    //
@@ -531,6 +559,13 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		else
 		{
+		    if(_connection.deadlockWarning())
+		    {
+			_connection.communicator().getLogger().warning
+			    ("Deadlock in Freeze.Map.putImpl while writing into Db \"" + _db.dbName() 
+			     + "\"; retrying ...");
+		    }
+
 		    //
 		    // Try again
 		    //
@@ -586,6 +621,13 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		else
 		{
+		    if(_connection.deadlockWarning())
+		    {
+			_connection.communicator().getLogger().warning
+			    ("Deadlock in Freeze.Map.removeImpl while writing into Db \"" + _db.dbName() 
+			     + "\"; retrying ...");
+		    }
+
 		    //
 		    // Try again
 		    //
