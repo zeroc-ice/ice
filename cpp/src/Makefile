@@ -25,10 +25,10 @@ SUBDIRS		= IceUtil \
 		  IceSSL \
 		  IceXML \
 		  Freeze \
+		  IceBox \
 		  IceStorm \
 		  IcePack \
 		  Glacier \
-		  IceBox \
 		  IcePatch
 
 $(EVERYTHING)::
