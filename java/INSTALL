@@ -152,7 +152,17 @@ If everything worked out, you should see lots of "ok". In case of a
 failure, the tests abort with "failed".
 
 If you want to try out any of the demos, make sure to add lib/Ice.jar
-to your CLASSPATH.
+and "classes" to to your CLASSPATH. Then change to the desired demo
+directory and follow the instructions in the README file. If no README
+file is present the demo can be run by entering the following command 
+to start the server:
+
+$ java Server
+
+Then in a separate window enter the following command to start the
+client:
+
+$ java Client
 
 
 ======================================================================

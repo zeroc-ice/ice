@@ -13,6 +13,3 @@ This will deploy the servers described in the file "application.xml"
 and start the client.
 
 Messages will be displayed in the IcePack service window.
-
-These commands require the "Ice.jar" file and the local subdirectory
-"classes" to be in your CLASSPATH.

@@ -6,6 +6,3 @@ $ java IceBox.Server --Ice.Config=config
 In the second window, run the client:
 
 $ java Client
-
-These commands require the "Ice.jar" file and the local subdirectory
-"classes" to be in your CLASSPATH.
