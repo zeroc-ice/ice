@@ -20,7 +20,7 @@ default_ca = ice
 
 
 [ ice ]
-dir              = $ENV::ICE_HOME/certs/ca  # Where everything is kept.
+dir              = $ENV::ICE_HOME/certs/openssl/ca  # Where everything is kept.
 private_key      = $dir/cakey.pem           # The CA Private Key.
 certificate      = $dir/cacert.pem          # The CA Certificate.
 database         = $dir/index.txt           # Database index file.
@@ -39,9 +39,9 @@ x509_extensions  = certificate_extensions
 
 
 [ ca_policy ]
-countryName            = optional
-stateOrProvinceName    = optional
-organizationName       = optional
+countryName            = match
+stateOrProvinceName    = match
+organizationName       = match
 organizationalUnitName = optional
 emailAddress           = optional
 commonName             = supplied
@@ -57,9 +57,9 @@ authorityKeyIdentifier = keyid:always,issuer:always
 
 [ req ]
 default_bits        = 1024
-default_keyfile     = $ENV::ICE_HOME/certs/newkey.pem
+default_keyfile     = $ENV::ICE_HOME/certs/s_rsa1024_priv.pem
 default_md          = md5
-prompt              = yes
+prompt              = no
 distinguished_name  = root_ca_distinguished_name
 x509_extensions     = root_ca_extensions
 
@@ -70,8 +70,8 @@ stateOrProvinceName    = Some State
 localityName           = Somewhere
 organizationName       = Your Company
 organizationalUnitName = Development
-commonName             = Your Name
-emailAddress           = you@some.net
+commonName             = Ice Server
+emailAddress           = iceserver@some.net
 
 
 [ root_ca_extensions ]

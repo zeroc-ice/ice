@@ -20,7 +20,7 @@ default_ca = ice
 
 
 [ ice ]
-dir              = $ENV::ICE_HOME/certs/ca  # Where everything is kept.
+dir              = $ENV::ICE_HOME/certs/openssl/ca  # Where everything is kept.
 private_key      = $dir/cakey.pem           # The CA Private Key.
 certificate      = $dir/cacert.pem          # The CA Certificate.
 database         = $dir/index.txt           # Database index file.
