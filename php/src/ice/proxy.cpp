@@ -1233,7 +1233,6 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
                 //
                 // Store the key in a zval, so that we can reuse the PrimitiveMarshaler logic.
                 //
-                zval zkey;
                 if(keyType != HASH_KEY_IS_STRING)
                 {
                     zend_error(E_ERROR, "%s(): context key must be a string", get_active_function_name(TSRMLS_C));

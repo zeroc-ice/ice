@@ -549,6 +549,7 @@ do_load(const string& name, const Ice::StringSeq& args TSRMLS_DC)
     ICE_G(properties) = new Ice::PropertiesPtr(properties);
 
     ICE_G(profile) = profile;
+    return true;
 }
 
 ZEND_FUNCTION(Ice_loadProfile)
