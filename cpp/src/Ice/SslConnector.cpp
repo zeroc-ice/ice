@@ -28,7 +28,7 @@ IceInternal::SslConnector::connect(int timeout)
     if (_traceLevels->network >= 2)
     {
 	ostringstream s;
-	s << "trying to connect to " << toString();
+	s << "trying to establish ssl connection to " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif
@@ -40,7 +40,7 @@ IceInternal::SslConnector::connect(int timeout)
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
-	s << "connection established\n" << fdToString(fd);
+	s << "ssl connection established\n" << fdToString(fd);
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif	

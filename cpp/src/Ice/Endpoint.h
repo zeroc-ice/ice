@@ -88,11 +88,6 @@ public:
     virtual bool secure() const = 0;
 
     //
-    // Convenience function for STL algorithms: !datagram() && !secure()
-    //
-    bool regular() const;
-
-    //
     // Return client- and server-side Transceivers for the endpoint,
     // or null if a TransceiverPtr can only be created by Acceptors or
     // Connectors.

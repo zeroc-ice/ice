@@ -34,7 +34,7 @@ IceInternal::TcpAcceptor::close()
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
-	s << "stopping to accept connections at " << toString();
+	s << "stopping to accept tcp connections at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif	
@@ -51,7 +51,7 @@ IceInternal::TcpAcceptor::shutdown()
     if (_traceLevels->network >= 2)
     {
 	ostringstream s;
-	s << "shutting down accepting connections at " << toString();
+	s << "shutting down accepting tcp connections at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif	
@@ -76,7 +76,7 @@ IceInternal::TcpAcceptor::listen()
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
-	s << "accepting connections at " << toString();
+	s << "accepting tcp connections at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif
@@ -90,7 +90,7 @@ IceInternal::TcpAcceptor::accept(int timeout)
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
-	s << "accepted connection\n" << fdToString(fd);
+	s << "accepted tcp connection\n" << fdToString(fd);
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif	

@@ -34,7 +34,7 @@ IceInternal::SslTransceiver::close()
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
-	s << "closing connection\n" << toString();
+	s << "closing ssl connection\n" << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif	
@@ -52,7 +52,7 @@ IceInternal::SslTransceiver::shutdown()
     if (_traceLevels->network >= 2)
     {
 	ostringstream s;
-	s << "shutting down connection\n" << toString();
+	s << "shutting down ssl connection\n" << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif	
@@ -155,7 +155,7 @@ IceInternal::SslTransceiver::write(Buffer& buf, int timeout)
 	if (_traceLevels->network >= 3)
 	{
 	    ostringstream s;
-	    s << "sent " << ret << " of " << packetSize << " bytes via SSL\n" << toString();
+	    s << "sent " << ret << " of " << packetSize << " bytes via ssl\n" << toString();
 	    _logger->trace(_traceLevels->networkCat, s.str());
 	}
 #endif	
@@ -254,7 +254,7 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 	if (_traceLevels->network >= 3)
 	{
 	    ostringstream s;
-	    s << "received " << ret << " of " << packetSize << " bytes via SSL\n" << toString();
+	    s << "received " << ret << " of " << packetSize << " bytes via ssl\n" << toString();
 	    _logger->trace(_traceLevels->networkCat, s.str());
 	}
 #endif	

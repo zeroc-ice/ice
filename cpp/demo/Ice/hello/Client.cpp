@@ -13,6 +13,24 @@
 
 using namespace std;
 
+void
+menu()
+{
+    cout <<
+	"usage:\n"
+	"t: send greeting as twoway\n"
+	"o: send greeting as oneway\n"
+	"O: send greeting as batch oneway\n"
+	"d: send greeting as datagram\n"
+	"D: send greeting as batch datagram\n"
+	"f: flush all batch requests\n"
+	"T: set a timeout\n"
+	"S: switch secure mode on/off\n"
+	"s: shutdown server\n"
+	"x: exit\n"
+	"?: help\n";
+}
+
 int
 run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
 {
@@ -20,41 +38,30 @@ run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
     std::string ref = properties->getProperty("Hello.Hello");
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
 
-    HelloPrx hello = HelloPrx::checkedCast(base);
-    if (!hello)
+    HelloPrx twoway = HelloPrx::checkedCast(base);
+    if (!twoway)
     {
 	cerr << argv[0] << ": invalid object reference" << endl;
 	return EXIT_FAILURE;
     }
+    HelloPrx oneway = HelloPrx::uncheckedCast(twoway->_oneway());
+    HelloPrx batchOneway = HelloPrx::uncheckedCast(twoway->_batchOneway());
+    HelloPrx datagram = HelloPrx::uncheckedCast(twoway->_datagram());
+    HelloPrx batchDatagram = HelloPrx::uncheckedCast(twoway->_batchDatagram());
 
-    HelloPrx timeout = HelloPrx::uncheckedCast(hello->_timeout(2000));
-    HelloPrx oneway = HelloPrx::uncheckedCast(hello->_oneway());
-    HelloPrx batchOneway = HelloPrx::uncheckedCast(hello->_batchOneway());
-    HelloPrx datagram = HelloPrx::uncheckedCast(hello->_datagram());
-    HelloPrx batchDatagram = HelloPrx::uncheckedCast(hello->_batchDatagram());
+    bool secure = false;
+    int timeout = -1;
 
-    cout << "h: hello" << endl;
-    cout << "t: hello w/ 2s timeout" << endl;
-    cout << "o: hello as oneway" << endl;
-    cout << "O: hello as batch oneway" << endl;
-    cout << "d: hello as datagram" << endl;
-    cout << "D: hello as batch datagram" << endl;
-    cout << "f: flush batch request" << endl;
-    cout << "s: shutdown" << endl;
-    cout << "x: exit" << endl;
+    menu();
 
     char c;
     do
     {
 	cout << "==> ";
 	cin >> c;
-	if (c == 'h')
+	if (c == 't')
 	{
-	    hello->hello();
-	}
-	else if (c == 't')
-	{
-	    timeout->hello();
+	    twoway->hello();
 	}
 	else if (c == 'o')
 	{
@@ -77,9 +84,61 @@ run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
 	    batchOneway->_flush();
 	    batchDatagram->_flush();
 	}
+  	else if (c == 'T')
+	{
+	    if (timeout == -1)
+	    {
+		timeout = 2000;
+	    }
+	    else
+	    {
+		timeout = -1;
+	    }
+
+	    twoway = HelloPrx::uncheckedCast(twoway->_timeout(timeout));
+	    oneway = HelloPrx::uncheckedCast(oneway->_timeout(timeout));
+	    batchOneway = HelloPrx::uncheckedCast(batchOneway->_timeout(timeout));
+
+	    if (timeout == -1)
+	    {
+		cout << "timeout is now switched off" << endl;
+	    }
+	    else
+	    {
+		cout << "timeout is now set to 2000ms" << endl;
+	    }
+	}
+  	else if (c == 'S')
+	{
+	    secure = !secure;
+
+	    twoway = HelloPrx::uncheckedCast(twoway->_secure(secure));
+	    oneway = HelloPrx::uncheckedCast(oneway->_secure(secure));
+	    batchOneway = HelloPrx::uncheckedCast(batchOneway->_secure(secure));
+	    datagram = HelloPrx::uncheckedCast(datagram->_secure(secure));
+	    batchDatagram = HelloPrx::uncheckedCast(batchDatagram->_secure(secure));
+
+	    if (secure)
+	    {
+		cout << "secure mode is now on" << endl;
+	    }
+	    else
+	    {
+		cout << "secure mode is now off" << endl;
+	    }
+	}
   	else if (c == 's')
 	{
-  	    hello->shutdown();
+  	    twoway->shutdown();
+	}
+	else if (c == '?')
+	{
+	    menu();
+	}
+	else
+	{
+	    cout << "unknown command `" << c << "'" << endl;
+	    menu();
 	}
     }
     while (cin.good() && c != 'x');

@@ -34,7 +34,7 @@ IceInternal::TcpTransceiver::close()
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
-	s << "closing connection\n" << toString();
+	s << "closing tcp connection\n" << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif	
@@ -52,7 +52,7 @@ IceInternal::TcpTransceiver::shutdown()
     if (_traceLevels->network >= 2)
     {
 	ostringstream s;
-	s << "shutting down connection\n" << toString();
+	s << "shutting down tcp connection\n" << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif	
@@ -155,7 +155,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 	if (_traceLevels->network >= 3)
 	{
 	    ostringstream s;
-	    s << "sent " << ret << " of " << packetSize << " bytes via TCP\n" << toString();
+	    s << "sent " << ret << " of " << packetSize << " bytes via tcp\n" << toString();
 	    _logger->trace(_traceLevels->networkCat, s.str());
 	}
 #endif	
@@ -254,7 +254,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 	if (_traceLevels->network >= 3)
 	{
 	    ostringstream s;
-	    s << "received " << ret << " of " << packetSize << " bytes via TCP\n" << toString();
+	    s << "received " << ret << " of " << packetSize << " bytes via tcp\n" << toString();
 	    _logger->trace(_traceLevels->networkCat, s.str());
 	}
 #endif	

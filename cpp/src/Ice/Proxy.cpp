@@ -309,14 +309,6 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     {
 	ex.raise();
     }
-    catch (const NoEndpointException&)
-    {
-	//
-	// We always retry on a no endpoint exception, as we might
-	// have a forwarded reference, but we retry with the original
-	// reference.
-	//
-    }
     catch (const CloseConnectionException&)
     {
 	//
@@ -407,7 +399,6 @@ Handle< ::IceDelegate::Ice::Object>
 IceProxy::Ice::Object::__getDelegate()
 {
     JTCSyncT<JTCMutex> sync(*this);
-
     if (!_delegate)
     {
 	ObjectPtr obj = _reference->instance->objectAdapterFactory()->proxyToObject(this);
@@ -524,6 +515,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
     // upon initial initialization.
     //
     _reference = reference;
+
     vector<EndpointPtr> endpoints;
     switch (_reference->mode)
     {
@@ -532,7 +524,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
 	case Reference::ModeBatchOneway:
 	{
 	    remove_copy_if(_reference->endpoints.begin(), _reference->endpoints.end(), back_inserter(endpoints), 
-			   not1(::IceInternal::constMemFun(&Endpoint::regular)));
+			   ::IceInternal::constMemFun(&Endpoint::datagram));
 	    break;
 	}
 	
@@ -549,6 +541,12 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
     {
 	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
 				  not1(::IceInternal::constMemFun(&Endpoint::secure))),
+			endpoints.end());
+    }
+    else
+    {
+	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
+				  ::IceInternal::constMemFun(&Endpoint::secure)),
 			endpoints.end());
     }
 

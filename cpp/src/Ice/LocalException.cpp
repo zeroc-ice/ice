@@ -241,7 +241,7 @@ Ice::WrongObjectAdapterException::operator=(const WrongObjectAdapterException& e
 string
 Ice::WrongObjectAdapterException::toString() const
 {
-    string s = debugInfo() + "no suitable endpoint information available";
+    string s = debugInfo() + "wrong object adapter";
     return s;
 }
 
@@ -277,7 +277,7 @@ Ice::NoEndpointException::operator=(const NoEndpointException& ex)
 string
 Ice::NoEndpointException::toString() const
 {
-    string s = debugInfo() + "no suitable endpoint information available";
+    string s = debugInfo() + "no suitable endpoint available";
     return s;
 }
 

@@ -100,12 +100,6 @@ IceInternal::Endpoint::streamRead(Stream* s, EndpointPtr& v)
     }
 }
 
-bool
-IceInternal::Endpoint::regular() const
-{
-    return !secure() && !datagram();
-}
-
 IceInternal::UnknownEndpoint::UnknownEndpoint(Stream* s)
 {
     s->read(const_cast<vector<Byte>&>(_rawBytes));

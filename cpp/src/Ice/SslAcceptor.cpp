@@ -34,7 +34,7 @@ IceInternal::SslAcceptor::close()
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
-	s << "stopping to accept connections at " << toString();
+	s << "stopping to accept ssl connections at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif	
@@ -51,7 +51,7 @@ IceInternal::SslAcceptor::shutdown()
     if (_traceLevels->network >= 2)
     {
 	ostringstream s;
-	s << "shutting down accepting connections at " << toString();
+	s << "shutting down accepting ssl connections at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif	
@@ -76,7 +76,7 @@ IceInternal::SslAcceptor::listen()
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
-	s << "accepting connections at " << toString();
+	s << "accepting ssl connections at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif
@@ -90,7 +90,7 @@ IceInternal::SslAcceptor::accept(int timeout)
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
-	s << "accepted connection\n" << fdToString(fd);
+	s << "accepted ssl connection\n" << fdToString(fd);
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 #endif	
