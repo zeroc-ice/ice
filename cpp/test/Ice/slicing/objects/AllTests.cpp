@@ -1334,7 +1334,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(r);
 	    test(r->ice_id() == "::Test::B");
 	    test(r->sb == "D3.sb");
-	    test(r->pb = r);
+	    test(r->pb == r);
 	}
 	catch(...)
 	{
@@ -1369,7 +1369,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(r);
 	    test(r->ice_id() == "::Test::B");
 	    test(r->sb == "D3.sb");
-	    test(r->pb = r);
+	    test(r->pb == r);
 	}
 	catch(...)
 	{
@@ -1404,7 +1404,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(r);
 	    test(r->ice_id() == "::Test::B");
 	    test(r->sb == "D3.sb");
-	    test(r->pb = r);
+	    test(r->pb == r);
 	}
 	catch(...)
 	{
@@ -1442,7 +1442,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(r);
 	    test(r->ice_id() == "::Test::B");
 	    test(r->sb == "D3.sb");
-	    test(r->pb = r);
+	    test(r->pb == r);
 	}
 	catch(...)
 	{
