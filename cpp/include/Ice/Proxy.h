@@ -114,6 +114,7 @@ public:
     ::Ice::ObjectPrx ice_timeout(int) const;
     ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
     ::Ice::ObjectPrx ice_locator(const ::Ice::LocatorPrx&) const;
+    ::Ice::ObjectPrx ice_collocationOptimization(bool) const;
     ::Ice::ObjectPrx ice_default() const;
 
     void ice_flush(); // Flush batch messages

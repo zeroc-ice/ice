@@ -90,6 +90,11 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
+    if(collocationOptimization != r.collocationOptimization)
+    {
+	return false;
+    }
+
     return true;
 }
 
@@ -197,6 +202,15 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
     
+    if(!collocationOptimization && r.collocationOptimization)
+    {
+	return true;
+    }
+    else if(r.collocationOptimization < collocationOptimization)
+    {
+	return false;
+    }
+
     return false;
 }
 
@@ -371,7 +385,8 @@ IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
     else
     {
 	return instance->referenceFactory()->create(newIdentity, facet, mode, secure, compress, adapterId,
-						    endpoints, routerInfo, locatorInfo, reverseAdapter);
+						    endpoints, routerInfo, locatorInfo, reverseAdapter,
+						    collocationOptimization);
     }
 }
 
@@ -385,7 +400,8 @@ IceInternal::Reference::changeFacet(const FacetPath& newFacet) const
     else
     {
 	return instance->referenceFactory()->create(identity, newFacet, mode, secure, compress, adapterId,
-						    endpoints, routerInfo, locatorInfo, reverseAdapter);
+						    endpoints, routerInfo, locatorInfo, reverseAdapter,
+						    collocationOptimization);
     }
 }
 
@@ -435,7 +451,8 @@ IceInternal::Reference::changeTimeout(int timeout) const
     }
 
     return instance->referenceFactory()->create(identity, facet, mode, secure, compress, adapterId,
-						newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter);
+						newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter,
+						collocationOptimization);
 }
 
 ReferencePtr
@@ -448,7 +465,8 @@ IceInternal::Reference::changeMode(Mode newMode) const
     else
     {
 	return instance->referenceFactory()->create(identity, facet, newMode, secure, compress, adapterId,
-						    endpoints, routerInfo, locatorInfo, reverseAdapter);
+						    endpoints, routerInfo, locatorInfo, reverseAdapter,
+						    collocationOptimization);
     }
 }
 
@@ -462,7 +480,8 @@ IceInternal::Reference::changeSecure(bool newSecure) const
     else
     {
 	return instance->referenceFactory()->create(identity, facet, mode, newSecure, compress, adapterId,
-						    endpoints, routerInfo, locatorInfo, reverseAdapter);
+						    endpoints, routerInfo, locatorInfo, reverseAdapter,
+						    collocationOptimization);
     }
 }
 
@@ -476,7 +495,8 @@ IceInternal::Reference::changeCompress(bool newCompress) const
     else
     {
 	return instance->referenceFactory()->create(identity, facet, mode, secure, newCompress, adapterId,
-						    endpoints, routerInfo, locatorInfo, reverseAdapter);
+						    endpoints, routerInfo, locatorInfo, reverseAdapter,
+						    collocationOptimization);
     }
 }
 
@@ -490,7 +510,8 @@ IceInternal::Reference::changeAdapterId(const string& newAdapterId) const
     else
     {
 	return instance->referenceFactory()->create(identity, facet, mode, secure, compress, newAdapterId,
-						    endpoints, routerInfo, locatorInfo, reverseAdapter);
+						    endpoints, routerInfo, locatorInfo, reverseAdapter,
+						    collocationOptimization);
     }
 }
 
@@ -504,7 +525,8 @@ IceInternal::Reference::changeEndpoints(const vector<EndpointPtr>& newEndpoints)
     else
     {
 	return instance->referenceFactory()->create(identity, facet, mode, secure, compress, adapterId,
-						    newEndpoints, routerInfo, locatorInfo, reverseAdapter);
+						    newEndpoints, routerInfo, locatorInfo, reverseAdapter,
+						    collocationOptimization);
     }
 }
 
@@ -520,7 +542,8 @@ IceInternal::Reference::changeRouter(const RouterPrx& newRouter) const
     else
     {
 	return instance->referenceFactory()->create(identity, facet, mode, secure, compress, adapterId,
-						    endpoints, newRouterInfo, locatorInfo, reverseAdapter);
+						    endpoints, newRouterInfo, locatorInfo, reverseAdapter,
+						    collocationOptimization);
     }
 }
 
@@ -536,7 +559,23 @@ IceInternal::Reference::changeLocator(const LocatorPrx& newLocator) const
     else
     {
 	return instance->referenceFactory()->create(identity, facet, mode, secure, compress, adapterId,
-						    endpoints, routerInfo, newLocatorInfo, reverseAdapter);
+						    endpoints, routerInfo, newLocatorInfo, reverseAdapter,
+						    collocationOptimization);
+    }
+}
+
+ReferencePtr
+IceInternal::Reference::changeCollocationOptimization(bool newCollocationOptimization) const
+{
+    if(newCollocationOptimization == collocationOptimization)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    else
+    {
+	return instance->referenceFactory()->create(identity, facet, mode, secure, compress, adapterId,
+						    endpoints, routerInfo, locatorInfo, reverseAdapter,
+						    newCollocationOptimization);
     }
 }
 
@@ -547,7 +586,7 @@ IceInternal::Reference::changeDefault() const
     LocatorInfoPtr locatorInfo = instance->locatorManager()->get(instance->referenceFactory()->getDefaultLocator());
 
     return instance->referenceFactory()->create(identity, FacetPath(), ModeTwoway, false, false, adapterId,
-						endpoints, routerInfo, locatorInfo, 0);
+						endpoints, routerInfo, locatorInfo, 0, true);
 }
 
 IceInternal::Reference::Reference(const InstancePtr& inst,
@@ -560,7 +599,8 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
 				  const vector<EndpointPtr>& endpts,
 				  const RouterInfoPtr& rtrInfo,
 				  const LocatorInfoPtr& locInfo,
-				  const ObjectAdapterPtr& rvAdapter) :
+				  const ObjectAdapterPtr& rvAdapter,
+				  bool collocationOptimization) :
     instance(inst),
     identity(ident),
     facet(facPath),
@@ -572,6 +612,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
     routerInfo(rtrInfo),
     locatorInfo(locInfo),
     reverseAdapter(rvAdapter),
+    collocationOptimization(collocationOptimization),
     hashValue(0)
 {
     //

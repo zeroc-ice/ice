@@ -74,6 +74,7 @@ public:
     const RouterInfoPtr routerInfo; // Null if no router is used.
     const LocatorInfoPtr locatorInfo; // Null if no locator is used.
     const Ice::ObjectAdapterPtr reverseAdapter; // For reverse communications using the adapter's incoming connections.
+    const bool collocationOptimization;
     const Ice::Int hashValue;
 
     //
@@ -90,14 +91,14 @@ public:
     ReferencePtr changeEndpoints(const std::vector<EndpointPtr>&) const;
     ReferencePtr changeRouter(const ::Ice::RouterPrx&) const;
     ReferencePtr changeLocator(const ::Ice::LocatorPrx&) const;
+    ReferencePtr changeCollocationOptimization(bool) const;
     ReferencePtr changeDefault() const;
  
 private:
 
     Reference(const InstancePtr&, const Ice::Identity&, const Ice::FacetPath&, Mode, bool, bool,
 	      const std::string&, const std::vector<EndpointPtr>&,
-	      const RouterInfoPtr&, const LocatorInfoPtr&,
-	      const Ice::ObjectAdapterPtr&);
+	      const RouterInfoPtr&, const LocatorInfoPtr&, const Ice::ObjectAdapterPtr&, bool);
     friend class ReferenceFactory;
 };
 

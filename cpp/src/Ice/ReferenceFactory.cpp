@@ -40,7 +40,8 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const vector<EndpointPtr>& endpoints,
 				      const RouterInfoPtr& routerInfo,
 				      const LocatorInfoPtr& locatorInfo,
-				      const ObjectAdapterPtr& reverseAdapter)
+				      const ObjectAdapterPtr& reverseAdapter,
+				      bool collocationOptimization)
 {
     Mutex::Lock sync(*this);
 
@@ -58,7 +59,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     // Create new reference
     //
     ReferencePtr ref = new Reference(_instance, ident, facet, mode, secure, compress, adapterId,
-				     endpoints, routerInfo, locatorInfo, reverseAdapter);
+				     endpoints, routerInfo, locatorInfo, reverseAdapter, collocationOptimization);
 
     //
     // If we already have an equivalent reference, use such equivalent
@@ -505,7 +506,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
     LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
-    return create(ident, facet, mode, secure, compress, adapter, endpoints, routerInfo, locatorInfo, 0);
+    return create(ident, facet, mode, secure, compress, adapter, endpoints, routerInfo, locatorInfo, 0, true);
 }
 
 ReferencePtr
@@ -560,7 +561,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
     LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
-    return create(ident, facet, mode, secure, compress, adapterId, endpoints, routerInfo, locatorInfo, 0);
+    return create(ident, facet, mode, secure, compress, adapterId, endpoints, routerInfo, locatorInfo, 0, true);
 }
 
 void

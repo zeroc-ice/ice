@@ -501,6 +501,22 @@ IceProxy::Ice::Object::ice_locator(const LocatorPrx& locator) const
 }
 
 ObjectPrx
+IceProxy::Ice::Object::ice_collocationOptimization(bool b) const
+{
+    ReferencePtr ref = _reference->changeCollocationOptimization(b);
+    if(ref == _reference)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(ref);
+	return proxy;
+    }
+}
+
+ObjectPrx
 IceProxy::Ice::Object::ice_default() const
 {
     ReferencePtr ref = _reference->changeDefault();
@@ -664,14 +680,18 @@ IceProxy::Ice::Object::__getDelegate()
             throw CommunicatorDestroyedException(__FILE__, __LINE__);
         }
 
-	ObjectAdapterPtr adapter = objectAdapterFactory->findObjectAdapter(this);
-	if(adapter)
+	if(_reference->collocationOptimization)
 	{
-	    Handle< ::IceDelegateD::Ice::Object> delegate = __createDelegateD();
-	    delegate->setup(_reference, adapter);
-	    _delegate = delegate;
+	    ObjectAdapterPtr adapter = objectAdapterFactory->findObjectAdapter(this);
+	    if(adapter)
+	    {
+		Handle< ::IceDelegateD::Ice::Object> delegate = __createDelegateD();
+		delegate->setup(_reference, adapter);
+		_delegate = delegate;
+	    }
 	}
-	else
+
+	if(!_delegate)
 	{
 	    Handle< ::IceDelegateM::Ice::Object> delegate = __createDelegateM();
 	    delegate->setup(_reference);
