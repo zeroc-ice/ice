@@ -298,6 +298,7 @@ public class AllTests
 		    System.out.flush();
 		    AMI_Test_shutdownI cb = new AMI_Test_shutdownI();
 		    obj.shutdown_async(cb);
+		    test(cb.check());
 		    System.out.println("ok");
 		}
             }

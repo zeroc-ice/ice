@@ -963,8 +963,8 @@ public final class Connection extends EventHandler
 	{
 	    synchronized(this)
 	    {
-		threadPool.promoteFollower();
 		setState(StateClosed, ex);
+		threadPool.promoteFollower();
 		return;
 	    }
 	}

@@ -1152,12 +1152,6 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	return;
     }
 
-    //
-    // For all other messages, we can promote a follower right away,
-    // without setting the state first, or holding the mutex lock.
-    //
-    threadPool->promoteFollower();
-	
     OutgoingAsyncPtr outAsync;
     Int invoke = 0;
     Int requestId = 0;
@@ -1169,6 +1163,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 
 	if(_state == StateClosed)
 	{
+	    threadPool->promoteFollower();
 	    return;
 	}
 	
@@ -1327,9 +1322,23 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	catch(const LocalException& ex)
 	{
 	    setState(StateClosed, ex);
+	    threadPool->promoteFollower();
 	    return;
 	}
     }
+
+    //
+    // For all messages other than close connection (see comment
+    // above), we can promote a follower thread without holding the
+    // mutex lock. However, this must be done after requests have been
+    // removed from the request maps (due to reply messages, see code
+    // above). Otherwise there is a race condition with a close
+    // connection message that is received after reply messages. The
+    // close connection message might be processed before the reply
+    // messages are procsessed, meaning that requests would see a
+    // close connection instead of the response they already received.
+    //
+    threadPool->promoteFollower();
 
     //
     // Asynchronous replies must be handled outside the thread
