@@ -3639,3 +3639,314 @@ The default value is 0.
 </section>
 
 </section>
+
+<!-- ********************************************************************** -->
+<section><title>&Freeze; Properties</title>
+<!-- ********************************************************************** -->
+
+<section><title>Freeze.DbEnv.<replaceable>env-name</replaceable>.CheckpointPeriod</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.DbEnv.<replaceable>env-name</replaceable>.CheckpointPeriod=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Every Berkeley DB environment created by Freeze has an associated thread that checkpoints this environment every
+<replaceable>num</replaceable> seconds. If <replaceable>num</replaceable> is less than 0, no checkpoint is performed.
+Defaults to 120 seconds.
+</para>
+</section>
+</section>
+
+
+<section><title>Freeze.DbEnv.<replaceable>env-name</replaceable>.DbHome</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.DbEnv.<replaceable>env-name</replaceable>.DbHome=<replaceable>db-home</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the home directory of this &Freeze; database
+environment. Defaults to <replaceable>env-name</replaceable>.
+</para>
+</section>
+</section>
+
+<section><title>Freeze.DbEnv.<replaceable>env-name</replaceable>.DbPrivate</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.DbEnv.<replaceable>env-name</replaceable>.DbPrivate=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+&Freeze; instructs Berkeley DB to use process private memory instead of shared
+memory. The default value is 1. Set it to 0 in order to run db_archive (or another Berkeley DB utility) on a running environment.
+</para>
+</section>
+</section>
+
+<section><title>Freeze.DbEnv.<replaceable>env-name</replaceable>.DbRecoverFatal</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.DbEnv.<replaceable>env-name</replaceable>.DbRecoverFatal=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+"fatal" recovery is performed when the environment is opened. The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Freeze.DbEnv.<replaceable>env-name</replaceable>.OldLogsAutoDelete</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.DbEnv.<replaceable>env-name</replaceable>.OldLogsAutoDelete=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+old transactional logs no longer in use are deleted after each
+periodic checkpoint  (see
+<literal>Freeze.DbEnv.<replaceable>env-name</replaceable>.CheckpointPeriod</literal>). The default value is 1.
+</para>
+</section>
+</section>
+
+<section><title>Freeze.DbEnv.<replaceable>env-name</replaceable>.PeriodicCheckpointMinSize</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.DbEnv.<replaceable>env-name</replaceable>.PeriodicCheckpointMinSize=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+<replaceable>num</replaceable> is the minimum size in kbytes for the
+periodic checkpoint (see
+<literal>Freeze.DbEnv.<replaceable>env-name</replaceable>.CheckpointPeriod</literal>). 
+This value is passed to Berkeley DB's checkpoint function. Defaults to
+0 (which means no minimum).
+</para>
+</section>
+</section>
+
+
+<section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.MaxTxSize</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.MaxTxSize=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para> &Freeze; uses a background thread to save updates
+to the database. Transactions are used to save many
+facets together. <replaceable>num</replaceable> defines the maximum
+number of facets saved per transaction. Defaults to 10 *
+SaveSizeTrigger (see <literal>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.SaveSizeTrigger</literal>); if this value is negative, the actual value is set to 100.
+</para>
+</section>
+</section>
+
+<section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.SavePeriod</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.SavePeriod=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para> &Freeze; uses a background thread to save updates
+to the database. After <replaceable>num</replaceable> milliseconds
+without saving, if there is any facet created, modified or destroyed, this background thread wakes up to
+save these facets. When <replaceable>num</replaceable> is 0, there is
+no periodic saving. Defaults to 60,000.
+</para>
+</section>
+</section>
+
+
+<section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.SaveSizeTrigger</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.SaveSizeTrigger=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para> &Freeze; uses a background thread to save updates
+to the database. When <replaceable>num</replaceable> is 0 or positive,
+as soon as <replaceable>num</replaceable> or more facets have been
+created, modified or destroyed, this background thread wakes up to
+save them. When <replaceable>num</replaceable> is negative, there is no size trigger. Defaults to 10.
+</para>
+</section>
+</section>
+
+<section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.StreamTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.StreamTimeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para> When the saving thread saves an object, it needs to lock
+this object in order to get a consistent copy of the object's state. If the
+lock cannot be acquired within <replaceable>num</replaceable> seconds,
+a fatal error is generated. If a fatal error callback was registered
+by the appplication, this callback is called; otherwise the program
+is terminated immediately.
+When <replaceable>num</replaceable> is 0 or negative, there is no
+timeout. The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Freeze.Trace.DbEnv</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Trace.DbEnv=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The &Freeze; database environment activity trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No database environment activity trace. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace database open and close.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Also trace checkpoints and the removal of old log files.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>Freeze.Trace.Evictor</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Trace.Evictor=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The &Freeze; evictor activity trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No evictor activity trace. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace &Ice; object and facet creation and destruction, facet streaming time, facet saving time, object eviction
+(every 50 objects) and evictor deactivation.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Also trace object lookups, and all object evictions.</entry>
+</row>
+<row>
+<entry>3</entry>
+<entry>Also trace object retrieval from the database.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>Freeze.Trace.Map</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Trace.Map=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The &Freeze; map activity trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No map activity trace. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace database open and close.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Also trace iterator and transaction operations, and reference
+counting of the underlying database.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>Freeze.Warn.Deadlocks</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Warn.Deadlocks=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+&Freeze; logs a warning message when a deadlock occur. The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Freeze.Warn.CloseInFinalize</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Warn.CloseInFinalize=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+&Freeze; logs a warning message when an application neglects to explicitly
+close a map iterator. The default value is 1. (Java only)
+</para>
+</section>
+</section>
+
+
+</section>
