@@ -344,6 +344,7 @@ public final class PropertyNames
         "^Freeze\\.DbEnv\\.[^\\s.]+\\.OldLogsAutoDelete$",
         "^Freeze\\.DbEnv\\.[^\\s.]+\\.PeriodicCheckpointMinSize$",
         "^Freeze\\.Evictor\\.[^\\s.]+\\.[^\\s.]+\\.MaxTxSize$",
+	"^Freeze\\.Evictor\\.[^\\s.]+\\.[^\\s.]+\\.PopulateEmptyIndices$",
         "^Freeze\\.Evictor\\.[^\\s.]+\\.[^\\s.]+\\.SavePeriod$",
         "^Freeze\\.Evictor\\.[^\\s.]+\\.[^\\s.]+\\.SaveSizeTrigger$",
         "^Freeze\\.Evictor\\.[^\\s.]+\\.[^\\s.]+\\.StreamTimeout$",

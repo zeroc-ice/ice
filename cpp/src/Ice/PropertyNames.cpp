@@ -342,6 +342,7 @@ const char* IceInternal::PropertyNames::FreezeProps[] =
     "Freeze.DbEnv.*.OldLogsAutoDelete",
     "Freeze.DbEnv.*.PeriodicCheckpointMinSize",
     "Freeze.Evictor.*.*.MaxTxSize",
+    "Freeze.Evictor.*.*.PopulateEmptyIndices",
     "Freeze.Evictor.*.*.SavePeriod",
     "Freeze.Evictor.*.*.SaveSizeTrigger",
     "Freeze.Evictor.*.*.StreamTimeout",
