@@ -15,7 +15,6 @@ public class InputStreamI implements InputStream
     InputStreamI(Communicator communicator, byte[] data)
     {
         _communicator = communicator;
-        _readObjects = false;
 
 	_is = new IceInternal.BasicInputStream(Util.getInstance(communicator), this);
         _is.resize(data.length, true);
@@ -177,7 +176,6 @@ public class InputStreamI implements InputStream
     public void
     readObject(ReadObjectCallback cb)
     {
-        _readObjects = true;
         _is.readObject(new Patcher(cb));
     }
 
@@ -213,12 +211,21 @@ public class InputStreamI implements InputStream
     }
 
     public void
-    finished()
+    startEncapsulation()
     {
-        if(_readObjects)
-        {
-            _is.readPendingObjects();
-        }
+        _is.startReadEncaps();
+    }
+
+    public void
+    endEncapsulation()
+    {
+        _is.endReadEncaps();
+    }
+
+    public void
+    readPendingObjects()
+    {
+        _is.readPendingObjects();
     }
 
     public void
@@ -233,5 +240,4 @@ public class InputStreamI implements InputStream
 
     private Communicator _communicator;
     private IceInternal.BasicInputStream _is;
-    private boolean _readObjects;
 }

@@ -33,7 +33,7 @@ IceInternal::BasicOutputStream::BasicOutputStream(IceInternal::Instance* instanc
 // InputStreamI
 //
 Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const vector<Byte>& data) :
-    _communicator(communicator), _is(IceInternal::getInstance(communicator).get(), this), _readObjects(false)
+    _communicator(communicator), _is(IceInternal::getInstance(communicator).get(), this)
 {
     _is.b = data;
     _is.i = _is.b.begin();
@@ -210,7 +210,6 @@ patchObject(void* addr, ObjectPtr& v)
 void
 Ice::InputStreamI::readObject(const ReadObjectCallbackPtr& cb)
 {
-    _readObjects = true;
     _callbacks.push_back(cb); // Keep reference to callback.
     _is.read(patchObject, cb.get());
 }
@@ -242,25 +241,34 @@ Ice::InputStreamI::endSlice()
 }
 
 void
+Ice::InputStreamI::startEncapsulation()
+{
+    _is.startReadEncaps();
+}
+
+void
+Ice::InputStreamI::endEncapsulation()
+{
+    _is.endReadEncaps();
+}
+
+void
 Ice::InputStreamI::skipSlice()
 {
     _is.skipSlice();
 }
 
 void
-Ice::InputStreamI::finished()
+Ice::InputStreamI::readPendingObjects()
 {
-    if(_readObjects)
-    {
-        _is.readPendingObjects();
-    }
+    _is.readPendingObjects();
 }
 
 //
 // OutputStreamI
 //
 Ice::OutputStreamI::OutputStreamI(const Ice::CommunicatorPtr& communicator) :
-    _communicator(communicator), _os(IceInternal::getInstance(communicator).get(), this), _writeObjects(false)
+    _communicator(communicator), _os(IceInternal::getInstance(communicator).get(), this)
 {
 }
 
@@ -385,7 +393,6 @@ Ice::OutputStreamI::writeProxy(const ObjectPrx& v)
 void
 Ice::OutputStreamI::writeObject(const ObjectPtr& v)
 {
-    _writeObjects = true;
     _os.write(v);
 }
 
@@ -414,12 +421,26 @@ Ice::OutputStreamI::endSlice()
 }
 
 void
+Ice::OutputStreamI::startEncapsulation()
+{
+    _os.startWriteEncaps();
+}
+
+void
+Ice::OutputStreamI::endEncapsulation()
+{
+    _os.endWriteEncaps();
+}
+
+void
+Ice::OutputStreamI::writePendingObjects()
+{
+    _os.writePendingObjects();
+}
+
+void
 Ice::OutputStreamI::finished(vector<Byte>& bytes)
 {
-    if(_writeObjects)
-    {
-        _os.writePendingObjects();
-    }
     bytes.swap(_os.b);
 }
 

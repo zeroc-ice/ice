@@ -15,7 +15,6 @@ namespace Ice
 	{
 	    _communicator = communicator;
 	    _os = new IceInternal.BasicOutputStream(Util.getInstance(communicator), this);
-	    _writeObjects = false;
 	}
 
 	~OutputStreamI()
@@ -120,7 +119,6 @@ namespace Ice
 
 	public void writeObject(Ice.Object v)
 	{
-	    _writeObjects = true;
 	    _os.writeObject(v);
 	}
 
@@ -144,13 +142,23 @@ namespace Ice
 	    _os.endWriteSlice();
 	}
 
+	public void startEncapsulation()
+	{
+	    _os.startWriteEncaps();
+	}
+
+	public void endEncapsulation()
+	{
+	    _os.endWriteEncaps();
+	}
+
+	public void writePendingObjects()
+	{
+	    _os.writePendingObjects();
+	}
+
 	public byte[] finished()
 	{
-	    if(_writeObjects)
-	    {
-		_os.writePendingObjects();
-	    }
-
 	    IceInternal.ByteBuffer buf = _os.prepareWrite();
 	    byte[] result = new byte[buf.limit()];
 	    buf.get(result);
@@ -169,6 +177,5 @@ namespace Ice
 
 	private Communicator _communicator;
 	private IceInternal.BasicOutputStream _os;
-	private bool _writeObjects;
     }
 }

@@ -98,13 +98,15 @@ public:
     virtual void endSlice();
     virtual void skipSlice();
 
-    virtual void finished();
+    virtual void startEncapsulation();
+    virtual void endEncapsulation();
+
+    virtual void readPendingObjects();
 
 private:
 
     Ice::CommunicatorPtr _communicator;
     IceInternal::BasicInputStream _is;
-    bool _readObjects;
     ::std::vector< ReadObjectCallbackPtr > _callbacks;
 };
 
@@ -158,13 +160,17 @@ public:
     virtual void startSlice();
     virtual void endSlice();
 
+    virtual void startEncapsulation();
+    virtual void endEncapsulation();
+
+    virtual void writePendingObjects();
+
     virtual void finished(::std::vector< ::Ice::Byte >&);
 
 private:
 
     Ice::CommunicatorPtr _communicator;
     IceInternal::BasicOutputStream _os;
-    bool _writeObjects;
 };
 
 }

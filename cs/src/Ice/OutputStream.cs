@@ -50,6 +50,11 @@ namespace Ice
 	void startSlice();
 	void endSlice();
 
+	void startEncapsulation();
+	void endEncapsulation();
+
+	void writePendingObjects();
+
 	byte[] finished();
 	void destroy();
     }

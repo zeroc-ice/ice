@@ -14,7 +14,6 @@ namespace Ice
 	public InputStreamI(Communicator communicator, byte[] data)
 	{
 	    _communicator = communicator;
-	    _readObjects = false;
 
 	    _is = new IceInternal.BasicInputStream(Util.getInstance(communicator), this);
 	    _is.resize(data.Length, true);
@@ -151,7 +150,6 @@ namespace Ice
 
 	public void readObject(ReadObjectCallback cb)
 	{
-	    _readObjects = true;
 	    _is.readObject(new Patcher(cb));
 	}
 
@@ -180,12 +178,19 @@ namespace Ice
 	    _is.skipSlice();
 	}
 
-	public void finished()
+	public void startEncapsulation()
 	{
-	    if(_readObjects)
-	    {
-		_is.readPendingObjects();
-	    }
+	    _is.startReadEncaps();
+	}
+
+	public void endEncapsulation()
+	{
+	    _is.endReadEncaps();
+	}
+
+	public void readPendingObjects()
+	{
+	    _is.readPendingObjects();
 	}
 
 	public void destroy()
@@ -199,6 +204,5 @@ namespace Ice
 
 	private Communicator _communicator;
 	private IceInternal.BasicInputStream _is;
-	private bool _readObjects;
     }
 }

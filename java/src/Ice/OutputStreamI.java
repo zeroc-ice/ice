@@ -16,7 +16,6 @@ public class OutputStreamI implements OutputStream
     {
         _communicator = communicator;
         _os = new IceInternal.BasicOutputStream(Util.getInstance(communicator), this);
-        _writeObjects = false;
     }
 
     protected void
@@ -143,7 +142,6 @@ public class OutputStreamI implements OutputStream
     public void
     writeObject(Ice.Object v)
     {
-        _writeObjects = true;
         _os.writeObject(v);
     }
 
@@ -171,14 +169,27 @@ public class OutputStreamI implements OutputStream
         _os.endWriteSlice();
     }
 
+    public void
+    startEncapsulation()
+    {
+        _os.startWriteEncaps();
+    }
+
+    public void
+    endEncapsulation()
+    {
+        _os.endWriteEncaps();
+    }
+
+    public void
+    writePendingObjects()
+    {
+        _os.writePendingObjects();
+    }
+
     public byte[]
     finished()
     {
-        if(_writeObjects)
-        {
-            _os.writePendingObjects();
-        }
-
         java.nio.ByteBuffer buf = _os.prepareWrite();
         byte[] result = new byte[buf.limit()];
         buf.get(result);
@@ -198,5 +209,4 @@ public class OutputStreamI implements OutputStream
 
     private Communicator _communicator;
     private IceInternal.BasicOutputStream _os;
-    private boolean _writeObjects;
 }

@@ -50,6 +50,11 @@ public interface OutputStream
     void startSlice();
     void endSlice();
 
+    void startEncapsulation();
+    void endEncapsulation();
+
+    void writePendingObjects();
+
     byte[] finished();
     void destroy();
 }

@@ -73,7 +73,10 @@ public:
     virtual void endSlice() = 0;
     virtual void skipSlice() = 0;
 
-    virtual void finished() = 0;
+    virtual void startEncapsulation() = 0;
+    virtual void endEncapsulation() = 0;
+
+    virtual void readPendingObjects() = 0;
 };
 
 class ICE_API OutputStream : public ::IceUtil::Shared
@@ -118,6 +121,11 @@ public:
 
     virtual void startSlice() = 0;
     virtual void endSlice() = 0;
+
+    virtual void startEncapsulation() = 0;
+    virtual void endEncapsulation() = 0;
+
+    virtual void writePendingObjects() = 0;
 
     virtual void finished(::std::vector< ::Ice::Byte >&) = 0;
 };
