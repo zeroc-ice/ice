@@ -2,7 +2,6 @@
 Requirements
 ======================================================================
 
-
 Windows version
 ---------------
 
@@ -96,7 +95,6 @@ http://www.activestate.com
 Compilation and Testing
 ======================================================================
 
-
 Using your favorite Zip tool, unzip the Ice archive anywhere you
 like. Then start the Microsoft Visual C++ IDE.
 
@@ -160,11 +158,12 @@ Installation
 Installation instructions for Visual Studio .NET 2002 and 2003
 are provided in Ice-<version>\install\vc70\README and 
 Ice-<version>\vc71\README.
+
 No automatic installation support is provided for Visual C++ 6.0: you 
 need to copy the contents of the bin, include, and lib directories 
-by hand. The include directory contains all Ice include files. The 
-lib directory all Ice libraries. And the bin directory all Ice 
-executables, as well as all DLLs.
+by hand. The include directory contains all Ice include files, the 
+lib directory all Ice libraries, and the bin directory all Ice 
+executables and DLLs.
 
 After installation, make sure to add the include directory to the
 Visual C++ "Include files", the lib directory to the "Library files",
