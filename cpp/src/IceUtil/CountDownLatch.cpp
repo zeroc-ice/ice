@@ -89,8 +89,11 @@ IceUtil::CountDownLatch::countDown()
     {
 	broadcast = true;
     }
-    unlock();
-    
+#if defined(__APPLE__)
+    //
+    // On MacOS X we do the broadcast with the mutex held. This seems to be necessary to prevent the 
+    // broadcast call to hang (spining in an infinite loop).
+    //
     if(broadcast)
     {
 	int rc = pthread_cond_broadcast(&_cond);
@@ -100,6 +103,21 @@ IceUtil::CountDownLatch::countDown()
 	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
 	}
     }
+    unlock();
+    
+#else
+    unlock();
+    
+    if(broadcast)
+    {
+	int rc = pthread_cond_broadcast(&_cond);
+	if(rc != 0)
+	{
+	    throw ThreadSyscallException(__FILE__, __LINE__, rc);
+	}
+    }
+#endif
+
 #endif
 }
 
