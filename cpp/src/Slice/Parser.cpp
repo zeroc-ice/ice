@@ -890,6 +890,44 @@ Slice::ClassDef::createOperation(const string& name,
 	return 0;
     }
 
+    {
+	TypeStringList allParams = inParams;
+	allParams.insert(allParams.end(), outParams.begin(), outParams.end());
+	
+	TypeStringList::iterator p = allParams.begin();
+	while(p != allParams.end())
+	{
+	    TypeStringList::iterator q = p;
+	    ++q;
+	    while(q != allParams.end())
+	    {
+		if(p -> second == q -> second)
+		{
+		    string msg = "duplicate parameter `";
+		    msg += p -> second;
+		    msg += "'";
+		    yyerror(msg);
+		    return 0;
+		}
+		++q;
+	    }
+	    ++p;
+	}
+    }
+
+    if(name == this -> name())
+    {
+	string msg;
+	if(isInterface())
+	    msg = "interface name `";
+	else
+	    msg = "class name `";
+	msg += name;
+	msg += "' can not be used as operation";
+	yyerror(msg);
+	return 0;
+    }
+
     Operation_ptr p = new Operation(this, name, returnType,
 				    inParams, outParams, throws);
     contents_.push_back(p);
@@ -920,6 +958,19 @@ Slice::ClassDef::createDataMember(const string& name, const Type_ptr& type)
 	string msg = "redefinition of `";
 	msg += name;
 	msg += "' as data member";
+	yyerror(msg);
+	return 0;
+    }
+
+    if(name == this -> name())
+    {
+	string msg;
+	if(isInterface())
+	    msg = "interface name `";
+	else
+	    msg = "class name `";
+	msg += name;
+	msg += "' can not be used as data member";
 	yyerror(msg);
 	return 0;
     }
