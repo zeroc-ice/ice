@@ -15,13 +15,18 @@ module IceSSL
 {
 
 /**
- * This is the base interface for objects that will perform Certificate
- * Verification during the SSL Handshake.  Subclass interfaces will
- * depend on the requirements of the underlying SSL implementation.
+ *
+ * This is the base interface for objects that will perform
+ * Certificate Verification during the SSL handshake. Subclass
+ * interfaces will depend on the requirements of the underlying SSL
+ // ML: Derived interfaces.
+ * implementation.
+ // ML: I don't understand this explanation at all. What objects are you referring to?
  *
  **/
 local interface CertificateVerifier
 {
+// ML: No methods??? What is this class? I guess this needs a lot more explanation.
 };
 
 };

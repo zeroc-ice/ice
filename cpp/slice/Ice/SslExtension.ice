@@ -18,22 +18,34 @@ module IceSSL
 {
 
 /**
- * This is the primary interface responsible for providing the application
- * layer with stock certificate verification and configuration objects.
+ *
+ * This is the primary interface responsible for providing the
+ * application layer with stock certificate verification and
+ * configuration objects.
+ // ML: configuration objects? I don't see anything below named "configuration objects".
  *
  **/
 local interface SslExtension
 {
     /**
+     *
      * Retrieves an instance of the stock CertificateVerifier that is
+     // ML: [CertificateViewer] or Certificate Viewer...
      * installed by default in all System instances.
+     // ML: What System instance? I guess IceSSL::System. In this case, use [System].
+     // ML: @return missing
+     *
      **/
     CertificateVerifier getDefaultCertVerifier();
 
     /**
+     *
      * Returns an instance of a CertificateVerifier that only accepts
      * a single certificate, that being the certificate represented by
      * the binary DER encoding contained in the provided ByteSeq.
+     // ML: byte sequence for [ByteSeq].
+     // ML: @param, @return missing
+     *
      **/
     CertificateVerifier getSingleCertVerifier(Ice::ByteSeq certificate);
 };
