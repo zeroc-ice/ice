@@ -18,6 +18,7 @@
 
 #include "communicator.h"
 #include "proxy.h"
+#include "marshal.h"
 #include "exception.h"
 #include "util.h"
 
@@ -76,7 +77,6 @@ Ice_Communicator_create(TSRMLS_D)
     // Create the global variable for the communicator, but delay creation of the communicator
     // itself until it is first used (see handleGetMethod).
     //
-
     if(object_init_ex(global, Ice_Communicator_entry_ptr) != SUCCESS)
     {
         zend_error(E_ERROR, "unable to create object for communicator");
@@ -93,7 +93,7 @@ Ice_Communicator_create(TSRMLS_D)
 }
 
 Ice::CommunicatorPtr
-Ice_Communicator_instance(TSRMLS_D)
+Ice_Communicator_getInstance(TSRMLS_D)
 {
     Ice::CommunicatorPtr result;
 
@@ -128,22 +128,13 @@ Ice_Communicator_instance(TSRMLS_D)
     return result;
 }
 
-void
-Ice_Communicator_addRef(TSRMLS_D)
+zval*
+Ice_Communicator_getZval(TSRMLS_D)
 {
     zval **zv = NULL;
     zend_hash_find(&EG(symbol_table), "ICE", sizeof("ICE"), (void **) &zv);
     assert(zv);
-    Z_OBJ_HT_PP(zv)->add_ref(*zv TSRMLS_CC);
-}
-
-void
-Ice_Communicator_decRef(TSRMLS_D)
-{
-    zval **zv = NULL;
-    zend_hash_find(&EG(symbol_table), "ICE", sizeof("ICE"), (void **) &zv);
-    assert(zv);
-    Z_OBJ_HT_PP(zv)->del_ref(*zv TSRMLS_CC);
+    return *zv;
 }
 
 ZEND_FUNCTION(Ice_Communicator___construct)
@@ -315,4 +306,9 @@ initCommunicator(ice_object* obj TSRMLS_DC)
     char** argv;
     Ice::CommunicatorPtr communicator = Ice::initializeWithProperties(argc, argv, props);
     obj->ptr = new Ice::CommunicatorPtr(communicator);
+
+    //
+    // Register factories in the communicator.
+    //
+    Marshal_registerFactories(communicator TSRMLS_CC);
 }

@@ -19,9 +19,8 @@
 
 bool Ice_Communicator_init(TSRMLS_D);
 bool Ice_Communicator_create(TSRMLS_D);
-Ice::CommunicatorPtr Ice_Communicator_instance(TSRMLS_D);
-void Ice_Communicator_addRef(TSRMLS_D);
-void Ice_Communicator_decRef(TSRMLS_D);
+Ice::CommunicatorPtr Ice_Communicator_getInstance(TSRMLS_D);
+zval* Ice_Communicator_getZval(TSRMLS_D);
 
 //
 // Ice_Communicator class methods.
