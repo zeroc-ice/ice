@@ -21,7 +21,7 @@ import os, sys, shutil, re, string, getopt, glob
 # NOTES:
 #  There are python-ese ways to do some of the things I've shelled out to do.
 #  We might want to convert some of these things, but a lot of things can be
-#  done with one command.
+#  done with one line in a shell.
 #
 
 #
@@ -30,10 +30,8 @@ import os, sys, shutil, re, string, getopt, glob
 verbose = False
 
 #
-# fileLists is a mapping of all of the files that will go into a binary distribution.
+# Represents the 'main' package of an RPM spec file.
 #
-fileLists = dict()
-
 class Package:
     """Encapsulates RPM spec file information to be used to generate a spec file on Linux
        and create RPMs for Ice"""
@@ -66,7 +64,9 @@ class Package:
         ofile.write("%files\n")
         self.writeFileList(ofile, version, intVersion)
 
-
+#
+# Represents subpackages in an RPM spec file.
+#
 class Subpackage(Package):
     def writeHdr(self, ofile):
         ofile.write("%package " + self.name + "\n")
@@ -81,13 +81,21 @@ class Subpackage(Package):
         ofile.write("%files " + self.name + "\n")
         self.writeFileList(ofile, version, intVersion)
 
-transforms = [ ("slice", "share/slice"),
-               ("lib/Ice.jar", "lib/Ice-%version%/Ice.jar" ),
+#
+# NOTE: File transforms should be listed before directory transforms.
+#
+transforms = [ ("lib/Ice.jar", "lib/Ice-%version%/Ice.jar" ),
+	       ("slice", "share/slice"),
+	       ("ant", "lib/Ice-%version%/ant"),
                ("doc", "share/doc/Ice-%version%"),
                ("ICE_LICENSE", "share/doc/Ice-%version%/ICE_LICENSE"),
-               ("LICENSE", "share/doc/Ice-%version%/LICENSE"),
+               ("LICENSE", "share/doc/Ice-%version%/LICENSE")
                ]
-               
+
+#
+# fileLists is an in-memory representation of the package contents of
+# the Ice spec file.
+# 
 fileLists = [
     Package("main",
             "",
@@ -137,7 +145,8 @@ fileLists = [
                "Ice runtime for C\# applications",
                "Development/Libraries Development/Tools",
                "",
-               [("lib", "lib/glacier2cs.dll"), ("lib", "lib/icecs.dll"), ("lib", "lib/icepackcs.dll")]),
+               [("lib", "lib/glacier2cs.dll"), ("lib", "lib/icecs.dll"), ("lib", "lib/icepackcs.dll"),
+                ("lib", "lib/icepatch2cs.dll"), ("lib", "lib/icestormcs.dll")]),
     Subpackage("dotnet-devel",
                "ice-dotnet mono-devel",
                "Ice tools for developing Ice applications in C\#",
@@ -149,7 +158,8 @@ fileLists = [
                "Ice runtime for Java applications",
                "Development/Libraries",
                "",
-               [("doc", "lib/Ice-%version%/Ice.jar")]),
+               [("doc", "lib/Ice-%version%/Ice.jar"),
+	        ("dir", "lib/Ice-%version%/ant")]),
     Subpackage("java-devel",
                "ice-java",
                "Ice tools developing Ice applications in Java",
@@ -249,10 +259,10 @@ def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
        are going to go get them ourselves"""
     cwd = os.getcwd()
     os.chdir(cwd + "/../" + cvsdir)
-    if cvsdir == "icepy":
+    if cvsdir == "icepy" or cvsdir == "ice":
         os.system("./makedist.py " + tag)
     else:
-        os.system("./makedist.py " + tag)
+        os.system("./makedist.py -d" + tag)
     shutil.copy("dist/" + distro + ".tar.gz", sourceDir)
     os.chdir(cwd)
 
@@ -262,36 +272,42 @@ def extractDemos(buildDir, version, distro, demoDir):
        Ice"""
     cwd = os.getcwd()
     os.chdir(buildDir + "/demotree")
-    os.system("tar xvfz ../sources/" + distro + ".tar.gz " + distro + "/demo " + distro + "/config " + distro + "/ant")
+    os.system("tar xvfz ../sources/" + distro + ".tar.gz " + distro + "/demo " + distro + "/config ")
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo_" + demoDir)
-    shutil.move(distro + "/config", buildDir + "/Ice-" + version + "-demos/config_" + demoDir)
-    if demoDir == "java":
-        shutil.move(distro + "/ant", buildDir + "/Ice-" + version + "-demos/ant")
 
-    # Change make includes to point to the right config directories.
-    script = "find " + buildDir + "/Ice-" + version + "-demos/demo_" + demoDir + " -name Makefile | xargs "
-    script = script + "perl -pi -e 's/config\/Make.rules/config_" + demoDir + "\/Make.rules/'"
-    os.system(script)
+    #
+    # 'System' copying of files here because its just easier!
+    # 
+    os.system("cp " + distro + "/config/* " + buildDir + "/Ice-" + version + "-demos/config")
 
-    # Change make includes within the config directory to point to the right directory.
-    script = "find " + buildDir + "/Ice-" + version + "-demos/config_" + demoDir + " -name Make* | xargs "
-    script = script + "perl -pi -e 's/config\//config_" + demoDir + "\//'"
-    os.system(script)
+    #
+    # The following hunks spawn a perl process to do an in-place edit
+    # of the root Make.rules file.  The changes remove the reliance on
+    # top_srcdir for the location of files that are not in the demo
+    # package.  The '\\x24' string is the $ metacharacter.  For some
+    # reason the perl interpreter is treating the $ metacharacter
+    # differently in the replacement text if grouping and capturing is
+    # used.  Some of the regular expressions could probably be written
+    # a bit better.
+    #
 
+    #
     # C++ specific build modifications.
+    #
     if demoDir == "cpp":
         tcwd = os.getcwd()
-        os.chdir(buildDir + "/Ice-" + version + "-demos/config_" + demoDir)
+        os.chdir(buildDir + "/Ice-" + version + "-demos/config")
+	shutil.move(os.getcwd() + "/Make.rules", os.getcwd() + "/Make.cxx.rules")
         script = "perl -pi -e 's/^prefix.*$/ifeq (\$(ICE_HOME),)\n   ICE_DIR  \= \/usr\nelse\n"
         script = script + "   ICE_DIR \= \$(ICE_HOME)\n"
-        script = script + "endif\n/' Make.rules"
+        script = script + "endif\n/' Make.cxx.rules"
         os.system(script)
 
-        script = "perl -pi -e 's/^([a-z]*dir.*=)\s*\$\(top_srcdir\)\/([A-Za-z]*)$/$1 \\x24\(ICE_DIR\)\/$2/' Make.rules"
+        script = "perl -pi -e 's/^([a-z]*dir.*=)\s*\$\(top_srcdir\)\/([A-Za-z]*)$/$1 \\x24\(ICE_DIR\)\/$2/' Make.cxx.rules"
         os.system(script)
 
         script = "perl -pi -e 's/^slicedir.*$/ifeq (\$(ICE_DIR),\/usr)\n    slicedir \= \$(ICE_DIR)\/share\/slice\n"
-        script = script + "else\n    slicedir \= \$(ICE_DIR)\/slice\nendif\n/' Make.rules"
+        script = script + "else\n    slicedir \= \$(ICE_DIR)\/slice\nendif\n/' Make.cxx.rules"
         os.system(script)
         
         # Dependency files are all going to be bogus.  The makedepend
@@ -300,24 +316,42 @@ def extractDemos(buildDir, version, distro, demoDir):
         os.system("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
         
         os.chdir(tcwd)
+    #
     # C# specific build modifications
+    #
     elif demoDir == "cs":
         tcwd = os.getcwd()
-        os.chdir(buildDir + "/Ice-" + version + "-demos/config_" + demoDir)
+        os.chdir(buildDir + "/Ice-" + version + "-demos/config")
+	shutil.move(os.getcwd() + "/Make.rules", os.getcwd() + "/Make.cs.rules")
         script = "perl -pi -e 's/^slice_home.*$/ifeq (\$(ICE_HOME),)\n   ICE_DIR  \= \/usr\nelse\n"
         script = script + "   ICE_DIR \= \$(ICE_HOME)\n"
-        script = script + "endif\n/' Make.rules"
+        script = script + "endif\n/' Make.cs.rules"
         os.system(script)
 
         script = "perl -pi -e 's/^((?:lib|bin)dir.*=)\s*\$\(top_srcdir\)\/([A-Za-z]*).*$/$1 \\x24\(ICE_DIR\)\/$2/' "
-        script = script + "Make.rules"
+        script = script + "Make.cs.rules"
         os.system(script)
 
         
         script = "perl -pi -e 's/^slicedir.*slice_home.*$/ifeq (\$(ICE_DIR),\/usr)\n"
         script = script + "   slicedir \:= \\x24\(ICE_DIR\)\/share\/slice\nelse\n"
-        script = script + "   slicedir \:= \\x24\(ICE_DIR\)\/slice\nendif\n/' Make.rules"
+        script = script + "   slicedir \:= \\x24\(ICE_DIR\)\/slice\nendif\n/' Make.cs.rules"
         os.system(script)
+
+        # Dependency files are all going to be bogus.  The makedepend
+        # script doesn't seem to work properly for the slice files.
+        os.chdir("..")
+        os.system("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
+
+        os.chdir(tcwd)
+    elif demoDir == "java":
+        tcwd = os.getcwd()
+        os.chdir(buildDir + "/Ice-" + version + "-demos/config")
+	#
+	# The RPM configuration is the only one that cares about Ice
+	# version numbers.
+	#
+	os.system("perl -pi -e 's/ICE_VERSION/" + version + "/' common.rpm.xml")
         os.chdir(tcwd)
         
     shutil.rmtree(buildDir + "/demotree/" + distro, True)
@@ -326,7 +360,29 @@ def extractDemos(buildDir, version, distro, demoDir):
 def archiveDemoTree(buildDir, version):
     cwd = os.getcwd()
     os.chdir(buildDir)
-    os.system("perl -pi -e 's/^prefix.*$/prefix = /opt/Ice-" + version + " Ice-" + version + "-demos/config/Make.rules")
+    ofile = open("Ice-" + version + "-demos/config/Make.rules", "w+")
+
+    #
+    # Strictly speaking I dislike this method of writing strings, but in
+    # a way its more readable for this kind of output.
+    #
+    ofile.write("""
+# **********************************************************************
+#
+# Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+ifeq ($(findstring demo_cs, $(CURDIR)), demo_cs)
+   include $(top_srcdir)/config/Make.cs.rules
+else
+   include $(top_srcdir)/config/Make.cxx.rules
+endif
+""")
+    ofile.close()
     os.system("tar cvfz Ice-" + version + "-demos.tar.gz Ice-" + version + "-demos")
     os.chdir(cwd)
 
@@ -343,7 +399,13 @@ def makeInstall(buildDir, installDir, distro, clean):
     os.chdir(distro)
 
     if distro.startswith("IceJ"):
-        shutil.copy( buildDir + "/" + distro + "/lib/Ice.jar", installDir + "/lib")
+        shutil.copy(buildDir + "/" + distro + "/lib/Ice.jar", installDir + "/lib")
+	#
+	# We really just want to copy the files, not move them.
+	# Shelling out to a copy is easier (and more likely to always
+	# work) than shutil.copytree().
+	#
+	os.system("cp -aR " + buildDir + "/" + distro + "/ant " + installDir)
         os.chdir(cwd)
         return
 
@@ -390,29 +452,28 @@ def printRPMHeader(ofile, version, release, installDir):
     ofile.write("Version: " + version + "\n")
     ofile.write("Release: " + release + "\n")
     ofile.write("License: GPL\n")
-    ofile.write("""Group: Development/Libraries
-Vendor: ZeroC Inc
-URL: http://www.zeroc.com/index.html
-Source0: http://www.zeroc.com/downloads/%{name}-%{version}.tar.gz
-Source1: http://www.zeroc.com/downloads/%{name}J-%{version}.tar.gz
-Source2: http://www.zeroc.com/downloads/%{name}Py-%{version}.tar.gz
-Source3: http://www.zeroc.com/downloads/%{name}CS-%{version}.tar.gz
-""")
+    ofile.write("Group: Development/Libraries\n")
+    ofile.write("Vendor: ZeroC Inc\n")
+    ofile.write("URL: http://www.zeroc.com/index.html\n")
+    ofile.write("Source0: http://www.zeroc.com/downloads/%{name}-%{version}.tar.gz\n")
+    ofile.write("Source1: http://www.zeroc.com/downloads/%{name}J-%{version}.tar.gz\n")
+    ofile.write("Source2: http://www.zeroc.com/downloads/%{name}Py-%{version}.tar.gz\n")
+    ofile.write("Source3: http://www.zeroc.com/downloads/%{name}CS-%{version}.tar.gz\n")
+    ofile.write("\n")
     ofile.write("BuildRoot: " + installDir + "\n")
     ofile.write("Prefix: /usr\n")
-    ofile.write("""
-%description
-
-%prep
-
-%build
-
-%install
-
-%clean
-
-
-""")
+    ofile.write("\n")
+    ofile.write("%description\n")
+    ofile.write("\n")
+    ofile.write("%prep\n")
+    ofile.write("\n")
+    ofile.write("%build\n")
+    ofile.write("\n")
+    ofile.write("%install\n")
+    ofile.write("\n")
+    ofile.write("%clean\n")
+    ofile.write("\n")
+    ofile.write("\n")
 
 def missingPathParts(source, dest):
     print "Calculating :  " + source + " and " + dest
@@ -443,7 +504,8 @@ def missingPathParts(source, dest):
 
 def transformDirectories(transforms, version, installDir):
     """Transforms a directory tree that was created with 'make installs' to an RPM friendly
-       directory tree"""
+       directory tree.  NOTE, this will not work on all transforms, there are certain
+       types of transforms in certain orders that will break it."""
     cwd = os.getcwd()
     os.chdir(installDir + "/Ice-" + version)
     for source, dest in transforms:
@@ -452,19 +514,29 @@ def transformDirectories(transforms, version, installDir):
 
         sourcedir = source
         destdir = dest
-        if not os.path.isdir(sourcedir):
-            sourcedir = os.path.dirname(sourcedir)
 
-        # This is a special problem.  What this implies is that we are trying to move the contents of a directory
-        # into a subdirectory of itself.  The regular shutil.move() won't cut it.
-        if os.path.isdir(sourcedir) and sourcedir.split("/")[0] == destdir.split("/")[0]:
-            shutil.move(source, "./tmp")
-            os.makedirs(destdir)
-            shutil.move("./tmp", destdir)
-        else:
-            if not os.path.exists(os.path.dirname(dest)):
-                os.makedirs(missingPathParts(sourcedir, destdir))
-            shutil.move(source, dest)
+	if os.path.exists("./tmp"):
+	    shutil.rmtree("./tmp")
+	try:
+	    if not os.path.isdir(sourcedir):
+		os.renames(source, dest)
+	    else:
+		# 
+		# This is a special problem.  What this implies is that
+		# we are trying to move the contents of a directory into
+		# a subdirectory of itself.  The regular shutil.move()
+		# won't cut it.
+		# 
+		if os.path.isdir(sourcedir) and sourcedir.split("/")[0] == destdir.split("/")[0]:
+		    os.renames(sourcedir, "./tmp/" + sourcedir)
+		    os.renames("./tmp/" + sourcedir, destdir)	
+		else:
+		    os.renames(source, dest)
+
+	except OSError:
+	    print "Exception occurred while trying to transform " + source + " to " + dest
+	    raise
+
     os.chdir(cwd)
 
 def usage():
