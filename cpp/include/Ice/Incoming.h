@@ -41,16 +41,22 @@ protected:
     Ice::ServantLocatorPtr _locator;
     Ice::LocalObjectPtr _cookie;
 
+    bool _response;
+
+    BasicStream _is;
+    BasicStream _os;
+
+//
+// Cannot be private. IncomingAsync needs _connection to initialize a
+// ConnectionPtr.
+//
+//private:
+
     //
     // Optimization. The connection may not be deleted while a
     // stack-allocated Incoming still holds it.
     //
     Connection* _connection;
-
-    bool _response;
-
-    BasicStream _is;
-    BasicStream _os;
 };
 
 class ICE_API Incoming : public IncomingBase

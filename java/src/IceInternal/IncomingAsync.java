@@ -20,6 +20,7 @@ public class IncomingAsync extends IncomingBase
     IncomingAsync(Incoming in) // Adopts the argument. It must not be used afterwards.
     {
 	super(in);
+	_finished = false;
     }
 
     protected void
@@ -39,6 +40,9 @@ public class IncomingAsync extends IncomingBase
     final protected void
     __response(boolean ok)
     {
+	assert(!_finished);
+	_finished = true;
+	
 	if(_response)
 	{
 	    _os.endWriteEncaps();
@@ -64,6 +68,9 @@ public class IncomingAsync extends IncomingBase
     final protected void
     __exception(Exception exc)
     {
+	assert(!_finished);
+	_finished = true;
+
 	try
 	{
 	    throw exc;
@@ -163,4 +170,6 @@ public class IncomingAsync extends IncomingBase
     {
 	return _os;
     }
+
+    protected boolean _finished;
 };

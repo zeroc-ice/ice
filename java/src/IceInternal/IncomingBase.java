@@ -23,10 +23,10 @@ public class IncomingBase
         _current.id = new Ice.Identity();
         _current.adapter = adapter;
         _cookie = new Ice.LocalObjectHolder();
-	_connection = connection;
 	_response = response;
         _is = new BasicStream(instance);
         _os = new BasicStream(instance);
+	_connection = connection;
     }
 
     protected
@@ -36,12 +36,47 @@ public class IncomingBase
 	_servant = in._servant;
 	_locator = in._locator;
 	_cookie = in._cookie;
-	_connection = in._connection;
 	_response = in._response;
 	_is = in._is;
 	in._is = null;
 	_os = in._os;
 	in._os = null;
+	_connection = in._connection;
+    }
+
+    //
+    // This function allows this object to be reused, rather than
+    // reallocated.
+    //
+    public void
+    reset(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response)
+    {
+        _current.adapter = adapter;
+        if(_current.ctx != null)
+        {
+            _current.ctx.clear();
+        }
+	_servant = null;
+	_locator = null;
+        _cookie.value = null;
+	_response = response;
+	if(_is == null)
+	{
+	    _is = new BasicStream(instance);
+	}
+	else
+	{
+	    _is.reset();
+	}
+	if(_os == null)
+	{
+	    _os = new BasicStream(instance);
+	}
+	else
+	{
+	    _os.reset();
+	}
+	_connection = connection;
     }
 
     //
@@ -120,10 +155,10 @@ public class IncomingBase
     protected Ice.ServantLocator _locator;
     protected Ice.LocalObjectHolder _cookie;
 
-    protected Connection _connection;
-
     protected boolean _response;
 
     protected BasicStream _is;
     protected BasicStream _os;
+
+    private Connection _connection;
 };

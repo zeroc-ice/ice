@@ -42,6 +42,10 @@ protected:
     BasicStream* __is() { return &_is; }
     BasicStream* __os() { return &_os; }
 
+protected:
+
+    bool _finished;
+
 private:
 
     //

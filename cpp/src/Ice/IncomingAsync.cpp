@@ -31,6 +31,7 @@ void IceInternal::decRef(AMD_Object_ice_invoke* p) { p->__decRef(); }
 
 IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
     IncomingBase(in),
+    _finished(false),
     _instanceCopy(_is.instance()),
     _connectionCopy(_connection)
 {
@@ -39,6 +40,9 @@ IceInternal::IncomingAsync::IncomingAsync(Incoming& in) :
 void
 IceInternal::IncomingAsync::__response(bool ok)
 {
+    assert(!_finished);
+    _finished = true;
+
     if(_response)
     {
 	_os.endWriteEncaps();
@@ -59,6 +63,9 @@ IceInternal::IncomingAsync::__response(bool ok)
 void
 IceInternal::IncomingAsync::__exception(const Exception& exc)
 {
+    assert(!_finished);
+    _finished = true;
+
     try
     {
 	exc.ice_throw();
@@ -156,6 +163,9 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 void
 IceInternal::IncomingAsync::__exception(const std::exception& ex)
 {
+    assert(!_finished);
+    _finished = true;
+
     if(_response)
     {
 	_os.endWriteEncaps();
@@ -172,6 +182,9 @@ IceInternal::IncomingAsync::__exception(const std::exception& ex)
 void
 IceInternal::IncomingAsync::__exception()
 {
+    assert(!_finished);
+    _finished = true;
+
     if(_response)
     {
 	_os.endWriteEncaps();

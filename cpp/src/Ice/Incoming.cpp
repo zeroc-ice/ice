@@ -33,10 +33,10 @@ using namespace IceInternal;
 IceInternal::IncomingBase::IncomingBase(Instance* instance, Connection* connection, 
 					const ObjectAdapterPtr& adapter,
 					bool response) :
-    _connection(connection),
     _response(response),
     _is(instance),
-    _os(instance)
+    _os(instance),
+    _connection(connection)
 {
     _current.adapter = adapter;
 }
@@ -46,10 +46,10 @@ IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
     _servant(in._servant),
     _locator(in._locator),
     _cookie(in._cookie),
-    _connection(in._connection),
     _response(in._response),
     _is(in._is.instance()),
-    _os(in._os.instance())
+    _os(in._os.instance()),
+    _connection(in._connection)
 {
     _is.swap(in._is);
     _os.swap(in._os);
@@ -62,7 +62,7 @@ IceInternal::IncomingBase::__finishInvoke(bool success)
     {
 	_locator->finished(_current, _servant, _cookie);
     }
-
+    
     if(success)
     {
 	_is.endReadEncaps();
@@ -71,7 +71,7 @@ IceInternal::IncomingBase::__finishInvoke(bool success)
     {
 	_is.skipReadEncaps();
     }
-
+    
     //
     // Send a response if necessary. If we don't need to send a
     // response, we still need to tell the connection that we're

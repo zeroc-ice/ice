@@ -22,41 +22,6 @@ final public class Incoming extends IncomingBase
 	super(instance, connection, adapter, response);
     }
 
-    //
-    // This function allows this object to be reused, rather than
-    // reallocated.
-    //
-    public void
-    reset(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response)
-    {
-        _current.adapter = adapter;
-        if(_current.ctx != null)
-        {
-            _current.ctx.clear();
-        }
-	_servant = null;
-	_locator = null;
-        _cookie.value = null;
-	_connection = connection;
-	_response = response;
-	if(_is == null)
-	{
-	    _is = new BasicStream(instance);
-	}
-	else
-	{
-	    _is.reset();
-	}
-	if(_os == null)
-	{
-	    _os = new BasicStream(instance);
-	}
-	else
-	{
-	    _os.reset();
-	}
-    }
-
     public void
     invoke(ServantManager servantManager)
     {
