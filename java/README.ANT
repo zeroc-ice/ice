@@ -1,0 +1,26 @@
+Ice for Java uses Apache Ant for its build system. Ant can be
+downloaded here:
+
+http://jakarta.apache.org/ant/index.html
+
+After installing ant, you'll need to install an Ice-specific
+extension, which is located in the ant/ subdirectory. One
+way to do this is to add the ant/ subdirectory to your CLASSPATH.
+Another way is to create a .antrc file (Unix) or antrc_pre.bat file
+(Windows) in your home directory, which sets the CLASSPATH only for
+the duration of the ant run.
+
+For example, if the full path of the ant/ subdirectory is
+/home/smith/cvs/icej/ant, then the .antrc file would contain
+
+CLASSPATH=/home/smith/cvs/icej/ant:$CLASSPATH
+
+On Windows, the antrc_pre.bat file would contain
+
+set CLASSPATH=C:/smith/cvs/icej/ant;%CLASSPATH%
+
+To build Ice for Java, run 'ant' without any arguments. To run
+the equivalent of 'make clean', run 'ant clean'. The build system
+expects the slice2java executable to be in your PATH.
+
+Note that the control file for ant is build.xml.
