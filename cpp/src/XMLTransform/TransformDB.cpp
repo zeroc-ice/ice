@@ -144,7 +144,10 @@ main(int argc, char* argv[])
                 usage(argv[0]);
                 return EXIT_FAILURE;
             }
-            idx++;
+	    else
+	    {
+		idx++;
+	    }
         }
 
         if((evictor && argc != 3) || (!evictor && argc != 5))

@@ -78,8 +78,15 @@ DOMTreeErrorReporter::getErrors() const
 string
 DOMTreeErrorReporter::toString(const XMLCh* s)
 {
-    char* t = XMLString::transcode(s);
-    string r(t);
-    delete[] t;
-    return r;
+    if(s)
+    {
+	char* t = XMLString::transcode(s);
+	string r(t);
+	delete[] t;
+	return r;
+    }
+    else
+    {
+	return string();
+    }
 }
