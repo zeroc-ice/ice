@@ -413,6 +413,23 @@ main(int argc, char* argv[])
 	    }
 	    
 	    //
+	    // The node needs a different thread pool to avoid
+	    // deadlocks in connection validation.
+	    //
+	    if(properties->getPropertyAsInt("IcePack.Node.ThreadPool.Size") == 0)
+	    {
+		int size = properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
+
+		ostringstream os1;
+		os1 << static_cast<int>(size / 3);
+		properties->setProperty("IcePack.Node.ThreadPool.Size", os1.str());
+
+		ostringstream os2;
+		os2 << size - static_cast<int>(size / 3);
+		properties->setProperty("Ice.ThreadPool.Server.Size", os2.str());
+	    }
+
+	    //
 	    // Set the Ice.Default.Locator property to point to the
 	    // collocated locator (this property is passed by the
 	    // activator to each activated server).

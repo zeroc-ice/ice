@@ -657,7 +657,7 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 	//
 	vector<EndpointPtr> endpoints;
 	ReferencePtr ref = _instance->referenceFactory()->create(ident, vector<string>(), Reference::ModeTwoway,
-								 false, _id, endpoints, 0, 0, 0, true);
+								 false, _id, endpoints, 0, _locatorInfo, 0, true);
 
 	//
 	// Return a proxy for the reference. 
@@ -689,7 +689,7 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
     // Create a reference and return a proxy for this reference.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(ident, vector<string>(), Reference::ModeTwoway,
-							     false, "", endpoints, 0, 0, 0, true);
+							     false, "", endpoints, 0, _locatorInfo, 0, true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
 }
