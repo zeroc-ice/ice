@@ -55,6 +55,8 @@ IcePatch::Client::usage()
 int
 IcePatch::Client::run(int argc, char* argv[])
 {
+    RouterPrx router;
+
     try
     {
         for (int i = 1; i < argc; ++i)
@@ -99,7 +101,6 @@ IcePatch::Client::run(int argc, char* argv[])
 	    ByteSeq publicKey;
 	    ByteSeq routerCert;
 
-	    RouterPrx router;
 	    while (!router)
 	    {
 		string id;
@@ -195,7 +196,16 @@ IcePatch::Client::run(int argc, char* argv[])
     catch (const FileAccessException& ex)
     {
 	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
+	if (router)
+	{
+	    router->shutdown();
+	}
 	return EXIT_FAILURE;
+    }
+    
+    if (router)
+    {
+	router->shutdown();
     }
 
     return EXIT_SUCCESS;
