@@ -1261,30 +1261,33 @@ IceInternal::BasicStream::throwException()
 void
 BasicStream::writePendingObjects()
 {
-    while(_currentWriteEncaps->toBeMarshaledMap->size())
+    if(_currentWriteEncaps && _currentWriteEncaps->toBeMarshaledMap)
     {
-	PtrToIndexMap savedMap = *_currentWriteEncaps->toBeMarshaledMap;
-	writeSize(static_cast<Int>(savedMap.size()));
-	for(PtrToIndexMap::iterator p = savedMap.begin(); p != savedMap.end(); ++p)
+	while(_currentWriteEncaps->toBeMarshaledMap->size())
 	{
-	    //
-	    // Add an instance from the old to-be-marshaled map to the marshaled map and then
-	    // ask the instance to marshal itself. Any new class instances that are triggered
-	    // by the classes marshaled are added to toBeMarshaledMap.
-	    //
-	    _currentWriteEncaps->marshaledMap->insert(*p);
-	    writeInstance(p->first, p->second);
-	}
+	    PtrToIndexMap savedMap = *_currentWriteEncaps->toBeMarshaledMap;
+	    writeSize(static_cast<Int>(savedMap.size()));
+	    for(PtrToIndexMap::iterator p = savedMap.begin(); p != savedMap.end(); ++p)
+	    {
+		//
+		// Add an instance from the old to-be-marshaled map to the marshaled map and then
+		// ask the instance to marshal itself. Any new class instances that are triggered
+		// by the classes marshaled are added to toBeMarshaledMap.
+		//
+		_currentWriteEncaps->marshaledMap->insert(*p);
+		writeInstance(p->first, p->second);
+	    }
 
-        //
-	// We have marshaled all the instances for this pass, substract what we have
-	// marshaled from the toBeMarshaledMap.
-	//
-	PtrToIndexMap newMap;
-	set_difference(_currentWriteEncaps->toBeMarshaledMap->begin(), _currentWriteEncaps->toBeMarshaledMap->end(),
-		       savedMap.begin(), savedMap.end(),
-		       insert_iterator<PtrToIndexMap>(newMap, newMap.begin()));
-	*_currentWriteEncaps->toBeMarshaledMap = newMap;
+	    //
+	    // We have marshaled all the instances for this pass, substract what we have
+	    // marshaled from the toBeMarshaledMap.
+	    //
+	    PtrToIndexMap newMap;
+	    set_difference(_currentWriteEncaps->toBeMarshaledMap->begin(), _currentWriteEncaps->toBeMarshaledMap->end(),
+			   savedMap.begin(), savedMap.end(),
+			   insert_iterator<PtrToIndexMap>(newMap, newMap.begin()));
+	    *_currentWriteEncaps->toBeMarshaledMap = newMap;
+	}
     }
     writeSize(0);	// Zero marker indicates end of sequence of sequences of instances.
 }

@@ -1217,11 +1217,6 @@ public class BasicStream
     public void
     writePendingObjects()
     {
-	//
-	// TODO: Benoit: I think we need to check for these to be null here because it's possible that
-	// these attributes are null if no objects have been written (which might be the case when 
-	// marshalling a sequence of objects if the sequence has no elements).
-	//
 	if(_writeEncapsStack != null && _writeEncapsStack.toBeMarshaledMap != null)
 	{
 	    while(_writeEncapsStack.toBeMarshaledMap.size() > 0)
