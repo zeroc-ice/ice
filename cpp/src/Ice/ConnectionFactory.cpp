@@ -308,7 +308,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	    Trace out(_instance->logger(), traceLevels->retryCat);
 
 	    out << "connection to endpoint failed";
-	    if(q != endpoints.end())
+	    if(q + 1 != endpoints.end())
 	    {
 		out << ", trying next endpoint\n";
 	    }

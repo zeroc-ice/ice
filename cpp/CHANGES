@@ -1,10 +1,13 @@
 Changes since version 2.0.0
 ---------------------------
 
-- Added setDefaultContext() and getDefaultContext() to
-  the Ice::Communicator interface. This allows a default context
-  to be established on a communicator-wide basis. See section
-  29.8.3 in the doc.
+- Fixed incorrect logging message if no more endpoints are available
+  for retry.
+
+- Added setDefaultContext() and getDefaultContext() to the
+  Ice::Communicator interface. This allows a default context to be
+  established on a communicator-wide basis. See section 29.8.3 in the
+  doc.
 
   Added ice_defaultContext to Ice::ObjectProxy. This creates a new
   proxy that uses the default context established on the communicator.
@@ -18,7 +21,7 @@ Changes since version 2.0.0
   servant locator's activate() method.
 
 - Added catalogs for Freeze: each database environment used by Freeze
-  now contains a special dictionary (named __catalog) that keeps track 
+  now contains a special dictionary (named __catalog) that keeps track
   of all evictor and dictionary databases in this environment.
 
 - Fixed a bug in slice2cs and slice2vb: incorrect code was generated
@@ -26,9 +29,9 @@ Changes since version 2.0.0
   module and if the base interface contained an AMD operation.
 
 - Changed IceUtil::GCShared to derive from IceUtil::Shared.
-  (Previously, these two classes were unrelated.) This change
-  allows servants to be derived from IceUtil::Thread, which was
-  impossible previously.
+  (Previously, these two classes were unrelated.) This change allows
+  servants to be derived from IceUtil::Thread, which was impossible
+  previously.
 
 Changes since version 1.5.1
 ---------------------------
