@@ -21,6 +21,12 @@
 #include <stdlib.h>
 #include <math.h>
 
+#ifdef _WIN32
+// I get these warnings from some flex versions:
+// warning C4003: not enough actual parameters for macro 'yywrap'
+#   pragma warning( disable : 4003 )
+#endif
+
 using namespace std;
 using namespace Slice;
 
