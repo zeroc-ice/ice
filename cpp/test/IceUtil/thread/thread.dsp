@@ -91,6 +91,10 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\AliveTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Client.cpp
 # End Source File
 # Begin Source File
@@ -137,6 +141,10 @@ SOURCE=.\TestSuite.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\AliveTest.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\CreateTest.h

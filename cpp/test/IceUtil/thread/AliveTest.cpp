@@ -15,7 +15,6 @@
 #include <IceUtil/IceUtil.h>
 
 #include <stdio.h>
-#include <unistd.h>
 
 #include <AliveTest.h>
 #include <TestCommon.h>
@@ -25,11 +24,37 @@ using namespace IceUtil;
 
 static const string createTestName("thread alive");
 
+class Synchronizer : public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+    Synchronizer() : _done(false)
+    {
+    }
+
+    void p()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+	while (!_done)
+	{
+	    wait();
+	}
+    }
+
+    void v()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
+	_done = true;
+	notify();
+    }
+
+private:
+    bool _done;
+};
+
 class AliveTestThread : public Thread
 {
 public:
-    
-    AliveTestThread(IceUtil::RWRecMutex& m) : _m(m)
+    AliveTestThread(Synchronizer& child, Synchronizer& parent) : _child(child), _parent(parent)
     {
     }
 
@@ -37,7 +62,8 @@ public:
     {
 	try
 	{
-	    IceUtil::RWRecMutex::TryWLock lock(_m, IceUtil::Time::seconds(1));
+	   _child.v();
+	   _parent.p();
 	}
 	catch(IceUtil::ThreadLockedException &)
 	{
@@ -45,7 +71,8 @@ public:
     }
 
 private:
-    RWRecMutex& _m;
+    Synchronizer& _child;
+    Synchronizer& _parent;
 };
 
 typedef Handle<AliveTestThread> AliveTestThreadPtr;
@@ -62,11 +89,13 @@ AliveTest::run()
     // Check that calling isAlive() returns the correct result for alive and
     // and dead threads.
     //
-    IceUtil::RWRecMutex m;
-    m.writelock();
-    AliveTestThreadPtr t = new AliveTestThread(m);
+    Synchronizer parentReady;
+    Synchronizer childReady;
+    AliveTestThreadPtr t = new AliveTestThread(childReady, parentReady);
     IceUtil::ThreadControl c = t->start();
+    childReady.p();
     test(c.isAlive());
+    parentReady.v();
     c.join();
     test(!c.isAlive());
 }

@@ -90,6 +90,22 @@ IceUtil::ThreadControl::detach()
     }
 }
 
+bool
+IceUtil::ThreadControl::isAlive() const
+{
+    if(!_handle->handle)
+    {
+	return false;
+    }
+
+    DWORD rc;
+    if(GetExitCodeThread(_handle->handle, &rc) == 0)
+    {
+	return false;
+    }
+    return rc == STILL_ACTIVE;
+}
+
 void
 IceUtil::ThreadControl::sleep(const Time& timeout)
 {
