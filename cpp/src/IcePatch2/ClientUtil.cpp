@@ -152,9 +152,9 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
 	throw string("no data directory specified");
     }
 
-    if(_chunkSize < 1)
+    if(_chunkSize < 1024)
     {
-	const_cast<Int&>(_chunkSize) = 1;
+	const_cast<Int&>(_chunkSize) = 1024;
     }
 
     PropertiesPtr properties = communicator->getProperties();
