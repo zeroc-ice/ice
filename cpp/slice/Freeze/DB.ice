@@ -278,16 +278,17 @@ local interface DBCursor
 
 /**
  *
- * A database that can store basic key/value pairs, or
- * identity/servant pairs. In case the database is used to store both
- * key/value and identity/Servant pairs, it is the application's
- * responsbility to make sure that there is no overlap between keys
- * and identities. Identities are simply strings, while values are
- * sequence of bytes. This means that no byte representation of
- * identity strings may be equal to any of the keys. Due to the
- * difficulty to avoid this in practice, the use of one single
- * database to store both key/value and identity/Servant pairs is
- * discouraged.
+ * A database that can store basic key/value pairs. In addition a
+ * database can be used in conjunction with an Evictor (which stores
+ * identity/Servant pairs) to provide automatic persistence of servant
+ * state. In case the database is used in conjunction with an evictor
+ * it is the application's responsbility to make sure that there is no
+ * overlap between keys and identities. Identities are simply strings,
+ * while values are sequence of bytes. This means that no byte
+ * representation of identity strings may be equal to any of the
+ * keys. Due to the difficulty to avoid this in practice, the use of
+ * one single database to store both key/value and identity/Servant
+ * pairs is discouraged.
  *
  * @see DBEnvironment
  * @see DBCursor
@@ -329,6 +330,10 @@ local interface DB
      *
      * Create a cursor for this database.
      *
+     * <note><para>Care must be taken to not to close this database,
+     * or the database environment this database belongs to, before
+     * the Cursor has been properly closed.</para></note>
+     *
      * @return A database cursor.
      *
      * @throws DBNotFoundException Raised if the database is empty.
@@ -345,6 +350,10 @@ local interface DB
      *
      * Create a cursor for this database. Calling [curr] on the cursor
      * will return the key/value pair for the given key.
+     *
+     * <note><para>Care must be taken to not to close this database,
+     * or the database environment this database belongs to, before
+     * the Cursor has been properly closed.</para></note>
      *
      * @return A database cursor.
      *
@@ -425,76 +434,6 @@ local interface DB
      *
      **/
     void del(Key key) throws DBException;
-
-    /**
-     *
-     * Put a Servant into the database, using the Ice Object's
-     * identity implemented by the Servant as a key.
-     *
-     * @param identity The identity under which the servant will be
-     * stored in the database.
-     *
-     * @param servant The servant to store. If the servant is null,
-     * this operation does nothing.
-     *
-     * @throws DBDeadlockException Raised if a deadlock occurred.
-     *
-     * @throws DBException Raised if any other database failure
-     * occurred.
-     *
-     * @see getServant
-     * @see delServant
-     *
-     **/
-    void putServant(string identity, Object servant) throws DBException;
-
-    /**
-     *
-     * Get a Servant from the database by the Ice Object's identity
-     * which the Servant must implement.
-     *
-     * @param identity The identity under which the servant is stored
-     * in the database.
-     *
-     * @return The Servant from the database, or null if the identity
-     * does not exist.
-     *
-     * @throws DBNotFoundException Raised if the Servant's identity
-     * was not found in the database.
-     *
-     * @throws DBDeadlockException Raised if a deadlock occurred.
-     *
-     * @throws DBException Raised if any other database failure
-     * occurred.
-     *
-     * @see putServant
-     * @see delServant
-     *
-     **/
-    Object getServant(string identity) throws DBException;
-
-    /**
-     *
-     * Remove an identity and the corresponding Servant from the
-     * database. If the identity does not exist, this operation will
-     * do nothing.
-     *
-     * @param identity The identity to remove together with the
-     * corresponding Servant.
-     *
-     * @throws DBNotFoundException Raised if the Servant's identity
-     * was not found in the database.
-     *
-     * @throws DBDeadlockException Raised if a deadlock occurred.
-     *
-     * @throws DBException Raised if any other database failure
-     * occurred.
-     *
-     * @see putServant
-     * @see getServant
-     *
-     **/
-    void delServant(string identity) throws DBException;
 
     /**
      *

@@ -21,13 +21,23 @@ using namespace IceStorm;
 using namespace std;
 
 TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice::ObjectAdapterPtr& adapter,
-			     const TraceLevelsPtr& traceLevels) :
+			     const TraceLevelsPtr& traceLevels, const Freeze::DBPtr& db) :
     _communicator(communicator),
     _adapter(adapter),
-    _traceLevels(traceLevels)
+    _traceLevels(traceLevels),
+    _topics(db)
 
 {
     _flusher = new Flusher(_communicator, _traceLevels);
+
+    //
+    // Recreate each of the topics in the dictionary.
+    //
+    for (StringBoolDict::const_iterator p = _topics.begin(); p != _topics.end(); ++p)
+    {
+	assert(_topicIMap.find(p->first) == _topicIMap.end());
+	installTopic("Recreate", p->first);
+    }
 }
 
 TopicManagerI::~TopicManagerI()
@@ -49,19 +59,8 @@ TopicManagerI::create(const string& name, const Ice::Current&)
         throw ex;
     }
 
-    if (_traceLevels->topicMgr > 0)
-    {
-	ostringstream s;
-	s << "Create " << name;
-	_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
-    }
-
-    //
-    // Create topic implementation
-    //
-    TopicIPtr topicI = new TopicI(_adapter, _traceLevels, _communicator->getLogger(), name, _flusher);
-    _adapter->add(topicI, name);
-    _topicIMap.insert(TopicIMap::value_type(name, topicI));
+    installTopic("Create", name);
+    _topics[name] = true;
 
     return TopicPrx::uncheckedCast(_adapter->createProxy(name));
 }
@@ -74,7 +73,10 @@ TopicManagerI::retrieve(const string& name, const Ice::Current&)
     reap();
 
     if (_topicIMap.find(name) != _topicIMap.end())
+    {
 	return TopicPrx::uncheckedCast(_adapter->createProxy(name));
+    }
+
     NoSuchTopic ex;
     ex.name = name;
     throw ex;
@@ -156,7 +158,7 @@ TopicManagerI::subscribe(const string& id, const QoS& qos, const StringSeq& topi
     }
 
     //
-    // Now subscribe to each Topic.
+    // Subscribe to each Topic.
     //
     for (i = topics.begin() ; i != topics.end() ; ++i)
     {
@@ -192,6 +194,9 @@ TopicManagerI::unsubscribe(const string& id, const StringSeq& topics, const Ice:
 	_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
     }
 
+    //
+    // Unsubscribe to each Topic.
+    //
     for (StringSeq::const_iterator i = topics.begin() ; i != topics.end() ; ++i)
     {
 	TopicIMap::iterator elem = _topicIMap.find(*i);
@@ -228,6 +233,7 @@ TopicManagerI::reap()
 		s << "Reaping " << i->first;
 		_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
 	    }
+	    _topics.erase(i->first);
 	    _topicIMap.erase(i++);
 	}
 	else
@@ -237,3 +243,20 @@ TopicManagerI::reap()
     }
 }
 
+void
+TopicManagerI::installTopic(const std::string& message, const std::string& name)
+{
+    if (_traceLevels->topicMgr > 0)
+    {
+	ostringstream s;
+	s << message << ' ' << name;
+	_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
+    }
+
+    //
+    // Create topic implementation
+    //
+    TopicIPtr topicI = new TopicI(_adapter, _traceLevels, _communicator->getLogger(), name, _flusher);
+    _adapter->add(topicI, name);
+    _topicIMap.insert(TopicIMap::value_type(name, topicI));
+}

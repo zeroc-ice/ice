@@ -23,6 +23,7 @@ OBJS		= DB.o \
 		  Evictor.o \
 	  	  DBI.o \
 		  EvictorI.o \
+		  StringObjectDict.o \
 		  Application.o
 
 SRCS		= $(OBJS:.o=.cpp)
@@ -30,6 +31,7 @@ SRCS		= $(OBJS:.o=.cpp)
 HDIR		= $(includedir)/Freeze
 SDIR		= $(slicedir)/Freeze
 SLICECMD	= $(SLICE2CPP) --include-dir Freeze --dll-export FREEZE_API -I$(slicedir)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir Freeze --dll-export FREEZE_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -85,5 +87,12 @@ $(HDIR)/EvictorF.h: $(SDIR)/EvictorF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/EvictorF.h
+
+StringObjectDict.h StringObjectDict.cpp: $(SLICE2FREEZE)
+	rm -f StringObjectDict.h StringObjectDict.cpp
+	$(SLICE2FREEZECMD) --dict Freeze::StringObjectDict,string,Object StringObjectDict
+
+clean::
+	rm -f StringObjectDict.h StringObjectDict.cpp
 
 include .depend

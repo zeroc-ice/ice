@@ -27,6 +27,7 @@ SOBJS		= TraceLevels.o \
 		  Subscriber.o \
 		  TopicI.o \
 		  TopicManagerI.o \
+		  StringBoolDict.o \
 		  Server.o
 
 AOBJS		= Admin.o \
@@ -41,10 +42,12 @@ SRCS		= $(OBJS:.o=.cpp) \
 HDIR		= $(includedir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
 SLICECMD	= $(SLICE2CPP) --include-dir IceStorm --dll-export ICE_STORM_API -I$(slicedir)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IceStorm --dll-export ICE_STORM_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS)
+LDFLAGS		:= $(LDFLAGS) -L$(DB)/lib
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
@@ -57,17 +60,20 @@ $(NAME): $(VERSIONED_NAME)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIceStorm $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIceStorm -lFreeze -ldb $(LIBS)
 
 $(ADMIN): $(AOBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(LIBS) -lreadline -lcurses
 
-
 $(HDIR)/IceStorm.h IceStorm.cpp: $(SDIR)/IceStorm.ice $(SLICE2CPP)
 	rm -f $(HDIR)/IceStorm.h IceStorm.cpp
 	$(SLICECMD) $(SDIR)/IceStorm.ice
 	mv IceStorm.h $(HDIR)
+
+StringBoolDict.h StringBoolDict.cpp: $(SLICE2FREEZE)
+	rm -f StringBoolDict.h StringBoolDict.cpp
+	$(SLICE2FREEZECMD) --dict IceStorm::StringBoolDict,string,bool StringBoolDict
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y

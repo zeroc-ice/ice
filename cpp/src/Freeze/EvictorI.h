@@ -13,8 +13,9 @@
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-#include <Freeze/DB.h>
 #include <Freeze/Evictor.h>
+#include <Freeze/StringObjectDict.h>
+
 #include <list>
 
 namespace Freeze
@@ -61,6 +62,7 @@ private:
     std::map<std::string, EvictorElementPtr>::size_type _evictorSize;
 
     bool _deactivated;
+    StringObjectDict _dict;
     Freeze::DBPtr _db;
     EvictorPersistenceMode _persistenceMode;
     ServantInitializerPtr _initializer;

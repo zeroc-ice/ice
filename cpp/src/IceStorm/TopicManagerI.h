@@ -15,6 +15,7 @@
 #include <IceStorm/TopicIF.h>
 #include <IceStorm/FlusherF.h>
 #include <IceStorm/TraceLevelsF.h>
+#include <IceStorm/StringBoolDict.h>
 
 namespace IceStorm
 {
@@ -25,7 +26,8 @@ class TopicManagerI : public TopicManager, public JTCMutex
 {
 public:
 
-    TopicManagerI(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&);
+    TopicManagerI(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&,
+		  const Freeze::DBPtr&);
     ~TopicManagerI();
 
     virtual TopicPrx create(const std::string&, const Ice::Current&);
@@ -40,11 +42,14 @@ private:
 
     void reap();
 
+    void installTopic(const std::string&, const std::string&);
+
     Ice::CommunicatorPtr _communicator;
     Ice::ObjectAdapterPtr _adapter;
     TraceLevelsPtr _traceLevels;
     TopicIMap _topicIMap;
     FlusherPtr _flusher;
+    StringBoolDict _topics;
 };
 
 } // End namespace IceStorm

@@ -130,10 +130,6 @@ public:
     virtual Value get(const Key&);
     virtual void del(const Key&);
 
-    virtual void putServant(const std::string&, const ::Ice::ObjectPtr&);
-    virtual ::Ice::ObjectPtr getServant(const std::string&);
-    virtual void delServant(const std::string&);
-
     virtual void clear();
 
     virtual void close();

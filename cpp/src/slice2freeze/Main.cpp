@@ -24,7 +24,7 @@ struct Dict
 void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] file-base slice-files...\n";
+    cerr << "Usage: " << n << " [options] file-base [slice-files...]\n";
     cerr <<
 	"Options:\n"
 	"-h, --help            Show this message.\n"
@@ -377,13 +377,6 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    if (argc < 3)
-    {
-	cerr << argv[0] << ": no input file" << endl;
-	usage(argv[0]);
-	return EXIT_FAILURE;
-    }
-
     string fileH = argv[1];
     fileH += ".h";
     string fileC = argv[1];
@@ -447,7 +440,6 @@ main(int argc, char* argv[])
 #else
 	pclose(cppHandle);
 #endif
-	
     }
 
     if (status == EXIT_SUCCESS)

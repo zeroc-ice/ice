@@ -18,6 +18,7 @@ using namespace Freeze;
 Freeze::EvictorI::EvictorI(const DBPtr& db, EvictorPersistenceMode persistenceMode) :
     _evictorSize(10),
     _deactivated(false),
+    _dict(db),
     _db(db),
     _persistenceMode(persistenceMode),
     _trace(0)
@@ -108,7 +109,7 @@ Freeze::EvictorI::createObject(const string& ident, const ObjectPtr& servant)
     //
     // Save the new Ice Object to the database.
     //
-    _db->putServant(ident, servant);
+    _dict[ident] = servant;
     add(ident, servant);
 
     if (_trace >= 1)
@@ -137,7 +138,7 @@ Freeze::EvictorI::destroyObject(const string& ident)
     //
     // Delete the Ice Object from the database.
     //
-    _db->delServant(ident);
+    _dict.erase(ident);
     remove(ident);
 
     if (_trace >= 1)
@@ -209,16 +210,8 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 	// Load the Ice Object from database and create and add a
 	// Servant for it.
 	//
-	ObjectPtr servant;
-	try
-	{
-	    servant = _db->getServant(current.identity);
-	}
-	catch (const DBNotFoundException&)
-	{
-	}
-
-	if (!servant)
+	StringObjectDict::iterator p = _dict.find(current.identity);
+	if (p == _dict.end())
 	{
 	    //
             // The Ice Object with the given identity does not exist,
@@ -226,6 +219,8 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const Current& current
 	    //
 	    return 0;
 	}
+
+	ObjectPtr servant = p->second;
 	
 	//
 	// Add the new Servant to the evictor queue.
@@ -289,7 +284,7 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const Current& current,
     {
 	if (!current.nonmutating)
 	{
-	    _db->putServant(current.identity, servant);
+	    _dict[current.identity] = servant;
 	}
     }
 
@@ -365,7 +360,7 @@ Freeze::EvictorI::evict()
 	//
 	if (_persistenceMode == SaveUponEviction)
 	{
-	    _db->putServant(ident, element->servant);
+	    _dict[ident] = element->servant;
 	}
 
 	//
