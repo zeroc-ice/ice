@@ -1,11 +1,14 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Fixed a bug with AMD methods using a servant locator, such as the
+  Freeze evictor.
+
 - Changed the generated equals() method to use the helper
-  java.util.Arrays.equals() when comparing sequences, rather
-  than the native array equals() method. This means the equals()
-  method for a type containing a sequence member will perform
-  a deep comparison of the sequence.
+  java.util.Arrays.equals() when comparing sequences, rather than the
+  native array equals() method. This means the equals() method for a
+  type containing a sequence member will perform a deep comparison of
+  the sequence.
 
 - Added timestamps to the default Ice logger. You can enable
   timestamps by setting the `Ice.Logger.Timestamp' property to a value
@@ -16,9 +19,8 @@ Changes since version 1.0.1
   all stopped first and then their communicators are destroyed.
 
 - Modified the Ice protocol to fix a problem with compression. The
-  message types for compressed messages have been removed, and a
-  field has been added to the message header indicating compression
-  status.
+  message types for compressed messages have been removed, and a field
+  has been added to the message header indicating compression status.
 
 - Added version negotiation to the Ice protocol. This permits future
   protocol extensions to be added without breaking interoperability

@@ -22,11 +22,17 @@ public class IncomingBase
         _current = new Ice.Current();
         _current.id = new Ice.Identity();
         _current.adapter = adapter;
+
         _cookie = new Ice.LocalObjectHolder();
+
 	_response = response;
+
         _compress = compress;
+
         _is = new BasicStream(instance);
+
         _os = new BasicStream(instance);
+
 	_connection = connection;
     }
 
@@ -34,15 +40,31 @@ public class IncomingBase
     IncomingBase(IncomingBase in) // Adopts the argument. It must not be used afterwards.
     {
 	_current = in._current;
+	in._current = null;
+
 	_servant = in._servant;
+	in._servant = null;
+
 	_locator = in._locator;
+	in._locator = null;
+
 	_cookie = in._cookie;
+	in._cookie = null;
+
 	_response = in._response;
+	in._response = false;
+
+	_compress = in._compress;
+	in._compress = 0;
+
 	_is = in._is;
 	in._is = null;
+
 	_os = in._os;
 	in._os = null;
+
 	_connection = in._connection;
+	in._connection = null;
     }
 
     //
@@ -52,16 +74,40 @@ public class IncomingBase
     public void
     reset(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
     {
-        _current.adapter = adapter;
-        if(_current.ctx != null)
-        {
-            _current.ctx.clear();
-        }
+	if(_current == null)
+	{
+	    _current = new Ice.Current();
+	    _current.id = new Ice.Identity();
+	    _current.adapter = adapter;
+	}
+	else
+	{
+	    assert(_current.id != null);
+	    _current.adapter = adapter;
+
+	    if(_current.ctx != null)
+	    {
+		_current.ctx.clear();
+	    }
+	}
+
 	_servant = null;
+
 	_locator = null;
-        _cookie.value = null;
+
+	if(_cookie == null)
+	{
+	    _cookie = new Ice.LocalObjectHolder();
+	}
+	else
+	{
+	    _cookie.value = null;
+	}
+
 	_response = response;
+
         _compress = compress;
+
 	if(_is == null)
 	{
 	    _is = new BasicStream(instance);
@@ -70,6 +116,7 @@ public class IncomingBase
 	{
 	    _is.reset();
 	}
+
 	if(_os == null)
 	{
 	    _os = new BasicStream(instance);
@@ -78,6 +125,7 @@ public class IncomingBase
 	{
 	    _os.reset();
 	}
+
 	_connection = connection;
     }
 

@@ -895,8 +895,6 @@ public class BasicStream
     readStringSeq()
     {
         final int sz = readSize();
-        // Don't use v.resize(sz) or v.reserve(sz) here, as it cannot be
-        // checked whether sz is a reasonable value
         String[] v = new String[sz];
         for(int i = 0; i < sz; i++)
         {
