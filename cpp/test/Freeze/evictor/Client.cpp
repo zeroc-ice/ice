@@ -90,7 +90,7 @@ public:
 		    test(_servants[i]->slowGetValue() == i);
 		}
 	    }
-	    catch(const Ice::ConnectionRefusedException& cr)
+	    catch(const Ice::ConnectionRefusedException&)
 	    {
 		//
 		// Expected

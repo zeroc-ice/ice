@@ -186,7 +186,7 @@ Test::ServantI::destroy(const Current& current)
     {
 	_evictor->remove(current.id);
     }
-    catch(const Ice::NotRegisteredException& e)
+    catch(const Ice::NotRegisteredException&)
     {
 	throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
@@ -288,7 +288,7 @@ Test::RemoteEvictorI::createServant(Int id, Int value, const Current&)
     {
 	throw EvictorDeactivatedException();
     }
-    catch(const Freeze::EvictorDeactivatedException& ex)
+    catch(const Freeze::EvictorDeactivatedException&)
     {
 	throw EvictorDeactivatedException();
     }
