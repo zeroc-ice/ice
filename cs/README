@@ -1,4 +1,4 @@
-This is the 1.5.0 release of Ice for C#.
+This is the 1.6.0 release of Ice for C#.
 
 The following features of Ice for C++ are currently not supported:
 
@@ -6,11 +6,11 @@ The following features of Ice for C++ are currently not supported:
 
 - Any of the Ice services (Freeze, Glacier, etc.)
 
-- Protocol compression is supported under Windows (both .NET and Mono)
-  but not on other platforms. Note that, for compression to work, libbz2.dll
-  must be installed and in your %PATH%. If libbz2.dll cannot be found at
-  run time, the Ice run time automatically disables protocol compression.
-  You can download bzip2 at http://sources.redhat.com/bzip2.
+- Protocol compression is supported. Note that, for compression to work,
+  libbz2 must be installed and in your %PATH% or $LD_LIBRARY_PATH.
+  If libbz2 cannot be found at run time, the Ice run time automatically
+  disables protocol compression. You can download bzip2 at
+  http://sources.redhat.com/bzip2.
 
 Supported environments:
 
