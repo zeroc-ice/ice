@@ -16,8 +16,8 @@
 #include <Freeze/EvictorI.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Freeze;
+using namespace Ice;
 
 namespace Freeze
 {

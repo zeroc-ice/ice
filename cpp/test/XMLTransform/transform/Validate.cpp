@@ -32,8 +32,8 @@
 #include <fstream>
 
 using namespace std;
-using namespace Ice;
 using namespace Freeze;
+using namespace Ice;
 
 #define NUM_KEYS        50
 #define NUM_ELEMENTS    50
@@ -507,7 +507,7 @@ static void
 validateEvictor(const DBEnvironmentPtr& dbEnv)
 {
     DBPtr db;
-    EvictorPtr evictor;
+    Freeze::EvictorPtr evictor;
 
     CommunicatorPtr communicator = dbEnv->getCommunicator();
     communicator->addObjectFactory(Test::C1::ice_factory(), Test::C1::ice_staticId());

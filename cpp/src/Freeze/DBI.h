@@ -159,7 +159,7 @@ public:
     virtual EvictionStrategyPtr createEvictionStrategy();
     virtual IdleStrategyPtr createIdleStrategy();
 
-    virtual EvictorPtr createEvictor(const PersistenceStrategyPtr&);
+    virtual Freeze::EvictorPtr createEvictor(const PersistenceStrategyPtr&);
 
 private:
 

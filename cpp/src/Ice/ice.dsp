@@ -178,6 +178,14 @@ SOURCE=.\EventHandler.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Evictor.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\EvictorBase.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Exception.cpp
 # End Source File
 # Begin Source File
@@ -515,6 +523,14 @@ SOURCE=.\EventHandler.h
 # Begin Source File
 
 SOURCE=.\EventHandlerF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Evictor.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\EvictorBase.h
 # End Source File
 # Begin Source File
 
@@ -1043,6 +1059,47 @@ BuildCmds= \
    $(BuildCmds)
 
 "Current.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\Evictor.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Evictor.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Evictor.ice \
+	move Evictor.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Evictor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Evictor.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Evictor.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Evictor.ice \
+	move Evictor.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Evictor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Evictor.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

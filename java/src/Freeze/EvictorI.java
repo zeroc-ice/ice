@@ -106,7 +106,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 
 	if(_trace >= 1)
 	{
-	    _db.getCommunicator().getLogger().trace("Evictor", "created \"" + Ice.Util.identityToString(ident) + "\"");
+	    _db.getCommunicator().getLogger().trace("Freeze::Evictor",
+	                                            "created \"" + Ice.Util.identityToString(ident) + "\"");
 	}
 	
 	//
@@ -155,7 +156,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 
             if(_trace >= 1)
             {
-                _db.getCommunicator().getLogger().trace("Evictor", "destroyed \"" +
+                _db.getCommunicator().getLogger().trace("Freeze::Evictor", "destroyed \"" +
                                                         Ice.Util.identityToString(ident) + "\"");
             }
 	}
@@ -224,7 +225,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 	{
 	    if(_trace >= 2)
 	    {
-		_db.getCommunicator().getLogger().trace("Evictor",
+		_db.getCommunicator().getLogger().trace("Freeze::Evictor",
 							"found \"" + Ice.Util.identityToString(ident) +
 							"\" in the queue");
 	    }
@@ -247,7 +248,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 	    if(_trace >= 2)
 	    {
 		_db.getCommunicator().getLogger().trace(
-		    "Evictor",
+		    "Freeze::Evictor",
 		    "couldn't find \"" + Ice.Util.identityToString(ident) + "\" in the queue\n"
 		    + "loading \"" + Ice.Util.identityToString(ident) + "\" from the database");
 	    }
@@ -347,7 +348,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 	    
 	    if(_trace >= 1)
 	    {
-		_db.getCommunicator().getLogger().trace("Evictor",
+		_db.getCommunicator().getLogger().trace("Freeze::Evictor",
 							"deactivating, saving unsaved Ice objects to the database");
 	    }
 	    
@@ -445,7 +446,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
 		if(_trace >= 2)
 		{
 		    _db.getCommunicator().getLogger().trace(
-			"Evictor", 
+			"Freeze::Evictor", 
 			"evicted \"" + Ice.Util.identityToString(ident) +
 			"\" from the queue\n" + "number of elements in the queue: " +
 			_evictorMap.size());
@@ -529,7 +530,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, ObjectStore
     //
     // This is a list of Ice.Identity.
     //
-    private LinkedList _evictorList = new LinkedList();
+    private IceInternal.LinkedList _evictorList = new IceInternal.LinkedList();
 
     private int _evictorSize = 10;
     private boolean _deactivated = false;

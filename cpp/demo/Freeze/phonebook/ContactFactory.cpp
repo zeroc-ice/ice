@@ -18,7 +18,7 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-ContactFactory::ContactFactory(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
+ContactFactory::ContactFactory(const PhoneBookIPtr& phoneBook, const Freeze::EvictorPtr& evictor) :
     _phoneBook(phoneBook),
     _evictor(evictor)
 {

@@ -961,7 +961,7 @@ Freeze::DBI::createIdleStrategy()
     return new IdleStrategyI;
 }
 
-EvictorPtr
+Freeze::EvictorPtr
 Freeze::DBI::createEvictor(const PersistenceStrategyPtr& strategy)
 {
     IceUtil::Mutex::Lock sync(*this);

@@ -73,7 +73,7 @@ Any setting of the <literal>Ice.Config</literal> property inside the configurati
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&Ice; Tracing Properties</title>
+<section><title>&Ice; Trace Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Trace.Network</title>
@@ -91,7 +91,7 @@ The network trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No network tracing. (default)</entry>
+<entry>No network trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -127,7 +127,7 @@ The protocol trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No protocol tracing. (default)</entry>
+<entry>No protocol trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -155,7 +155,7 @@ The request retry trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No request retry tracing. (default)</entry>
+<entry>No request retry trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -187,7 +187,7 @@ The slicing trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No tracing of slicing activity. (default)</entry>
+<entry>No trace of slicing activity. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -390,6 +390,138 @@ an object adapter prints "<replaceable>adapter_name</replaceable>
 ready" on standard output after initialization is complete. This is
 useful for scripts that need to wait until an object adapter is ready
 to be used.
+</para>
+</section>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>&Ice; Evictor Properties</title>
+<!-- ********************************************************************** -->
+
+<section><title>Ice.Evictor.Size</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Evictor.Size=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Overrides the default cache size for evictors. If this property is not set, the default cache size is 1000.
+Values less than 1 are ignored.
+</para>
+</section>
+</section>
+
+<section><title><replaceable>name</replaceable>.Evictor.Size</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.Evictor.Size=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the evictor cache size for an evictor attached to an object adapter with the name
+<replaceable>name</replaceable>, provided that the evictor is the default evictor (registered
+for the empty category) or that the evictor's size has not been set with a category-specific property).
+Values less than 1 are ignored.
+This property overrides the value of <literal>Ice.Evictor.Size</literal>.
+</para>
+</section>
+</section>
+
+<section><title><replaceable>name</replaceable>.<replaceable>category</replaceable>.Evictor.Size</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.<replaceable>category</replaceable>.Evictor.Size=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the evictor cache size for an evictor attached to an object adapter with the name
+<replaceable>name</replaceable> and for the object identity category <replaceable>category</replaceable>.
+Values less than 1 are ignored.
+This property overrides the value of <literal><replaceable>name</replaceable>.Evictor.Size</literal> and
+<literal>Ice.Evictor.Size</literal>.
+</para>
+</section>
+</section>
+
+<section><title>Ice.Evictor.Trace</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Evictor.Trace=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The default trace level for evictors. Trace levels have the following behavior:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No evictor activity trace. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace &Ice; evictor deactivation. The trace includes the number of entries
+in the cache, the number of evictions, the number of cache hits and misses, and the
+hit ratio on the cache during the lifetime of the evictor.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Also trace evictor queue activity (cache misses and evictions).</entry>
+</row>
+<row>
+<entry>3</entry>
+<entry>Also trace cache hits. (This causes a trace message for every request that arrives
+at the evictor, except for requests for which <literal>instantiate()</literal> does not return a servant.)</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title><replaceable>name</replaceable>.Evictor.Trace</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.Evictor.Trace=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the trace level for an evictor attached to an object adapter with the name
+<replaceable>name</replaceable>, provided that the evictor is the default evictor (registered
+for the empty category) or that the evictor's trace level has not been set with a category-specific property).
+This property overrides the value of <literal>Ice.Evictor.Trace</literal>.
+Trace levels are as for <literal>Ice.Evictor.Trace</literal>.
+</para>
+</section>
+</section>
+
+<section><title><replaceable>name</replaceable>.<replaceable>category</replaceable>.Evictor.Trace</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.<replaceable>category</replaceable>.Evictor.Trace=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the trace level for an evictor attached to an object adapter with the name
+<replaceable>name</replaceable> and for the object identity category <replaceable>category</replaceable>.
+This property overrides the value of <literal><replaceable>name</replaceable>.Evictor.Trace</literal> and
+<literal>Ice.Evictor.Trace</literal>.
+Trace levels are as for <literal>Ice.Evictor.Trace</literal>.
 </para>
 </section>
 </section>
@@ -869,13 +1001,13 @@ IceSSL.Trace.Security=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The SSL plug-in tracing level:
+The SSL plug-in trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No security tracing. (default)</entry>
+<entry>No security trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1321,13 +1453,13 @@ IcePack.Registry.Trace.ServerRegistry=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The server registry tracing level:
+The server registry trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No server registry tracing. (default)</entry>
+<entry>No server registry trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1349,13 +1481,13 @@ IcePack.Registry.Trace.AdapterRegistry=<replaceable>num</replaceable>
 <section>
 <title>Description</title>
 <para>
-The object adapter registry tracing level:
+The object adapter registry trace level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No object adapter registry tracing. (default)</entry>
+<entry>No object adapter registry trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1383,7 +1515,7 @@ The node registry trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No node registry tracing. (default)</entry>
+<entry>No node registry trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1411,7 +1543,7 @@ The object registry trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No object registry tracing. (default)</entry>
+<entry>No object registry trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1566,7 +1698,7 @@ The server trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No server tracing. (default)</entry>
+<entry>No server trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1604,7 +1736,7 @@ The object adapter trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No object adapter tracing. (default)</entry>
+<entry>No object adapter trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1642,7 +1774,7 @@ The activator trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No activator tracing. (default)</entry>
+<entry>No activator trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1715,7 +1847,7 @@ The topic manager trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No topic manager tracing. (default)</entry>
+<entry>No topic manager trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1743,7 +1875,7 @@ The topic trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No topic tracing. (default)</entry>
+<entry>No topic trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1777,7 +1909,7 @@ Trace information on the thread that flushes batch reliability events to subscri
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No flush tracing. (default)</entry>
+<entry>No flush trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1805,7 +1937,7 @@ The subscriber trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No subscriber tracing. (default)</entry>
+<entry>No subscriber trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1928,7 +2060,7 @@ The client interface trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No client interface tracing. (default)</entry>
+<entry>No client interface trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1963,7 +2095,7 @@ The server interface trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No server interface tracing. (default)</entry>
+<entry>No server interface trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1998,7 +2130,7 @@ The routing table trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No routing table tracing. (default)</entry>
+<entry>No routing table trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -2259,7 +2391,7 @@ The router starter trace level: (Unix only.)
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No router starter tracing. (default)</entry>
+<entry>No router starter trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -2467,7 +2599,7 @@ The &Freeze; database activity trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No database activity tracing. (default)</entry>
+<entry>No database activity trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -2499,7 +2631,7 @@ The &Freeze; evictor activity trace level:
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No evictor activity tracing. (default)</entry>
+<entry>No evictor activity trace. (default)</entry>
 </row>
 <row>
 <entry>1</entry>

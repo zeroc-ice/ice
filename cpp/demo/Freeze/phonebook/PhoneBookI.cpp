@@ -18,7 +18,7 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-ContactI::ContactI(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
+ContactI::ContactI(const PhoneBookIPtr& phoneBook, const Freeze::EvictorPtr& evictor) :
     _phoneBook(phoneBook),
     _evictor(evictor),
     _destroyed(false)
@@ -148,7 +148,7 @@ ContactI::destroy(const Ice::Current&)
     }
 }
 
-PhoneBookI::PhoneBookI(const DBPtr& db, const EvictorPtr& evictor) :
+PhoneBookI::PhoneBookI(const DBPtr& db, const Freeze::EvictorPtr& evictor) :
     _db(db),
     _evictor(evictor),
     _nameIdentitiesDict(db)

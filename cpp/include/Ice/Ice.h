@@ -25,6 +25,7 @@
 #include <Ice/ObjectFactory.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
+#include <Ice/EvictorBase.h>
 #include <Ice/Proxy.h>
 #include <Ice/Object.h>
 #include <Ice/IdentityUtil.h>

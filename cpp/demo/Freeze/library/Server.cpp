@@ -58,7 +58,7 @@ LibraryServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     {
         strategy = dbBooks->createEvictionStrategy();
     }
-    EvictorPtr evictor = dbBooks->createEvictor(strategy);
+    Freeze::EvictorPtr evictor = dbBooks->createEvictor(strategy);
     Int evictorSize = properties->getPropertyAsInt("Library.EvictorSize");
     if(evictorSize > 0)
     {

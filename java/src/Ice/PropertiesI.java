@@ -378,6 +378,8 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 						    "Default.Locator",
 						    "Default.Protocol",
 						    "Default.Router",
+						    "Evictor.Size",
+						    "Evictor.Trace",
 						    "Logger.Timestamp",
 						    "MonitorConnections",
 						    "Nohup",

@@ -12,7 +12,7 @@
 //
 // **********************************************************************
 
-package Freeze;
+package IceInternal;
 
 //
 // Stripped down LinkedList implementation for use in the Evictor. The
@@ -25,7 +25,7 @@ package Freeze;
 //    retained over structural changes to the list itself (similar to an
 //    STL list).
 //
-class LinkedList
+public class LinkedList
 {
     public
     LinkedList()
@@ -33,7 +33,7 @@ class LinkedList
         _header.next = _header.previous = _header;
     }
 
-    public Object
+    public java.lang.Object
     getFirst()
     {
 	if(_size == 0)
@@ -45,7 +45,7 @@ class LinkedList
     }
 
     public void
-    addFirst(Object o)
+    addFirst(java.lang.Object o)
     {
 	addBefore(o, _header.next);
     }
@@ -82,7 +82,7 @@ class LinkedList
 	    return _next != null;
 	}
 
-	public Object
+	public java.lang.Object
 	next()
 	{
             if(_next == null)
@@ -139,7 +139,7 @@ class LinkedList
 	    return _next != null;
 	}
 
-	public Object
+	public java.lang.Object
 	next()
 	{
             if(_next == null)
@@ -190,11 +190,11 @@ class LinkedList
 
     private static class Entry 
     {
-	Object element;
+	java.lang.Object element;
 	Entry next;
 	Entry previous;
 
-	Entry(Object element, Entry next, Entry previous)
+	Entry(java.lang.Object element, Entry next, Entry previous)
 	{
 	    this.element = element;
 	    this.next = next;
@@ -203,7 +203,7 @@ class LinkedList
     }
 
     private Entry
-    addBefore(Object o, Entry e)
+    addBefore(java.lang.Object o, Entry e)
     {
 	Entry newEntry = new Entry(o, e, e.previous);
 	newEntry.previous.next = newEntry;

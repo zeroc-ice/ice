@@ -58,7 +58,7 @@ PhoneBookServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv
     {
         strategy = dbContacts->createEvictionStrategy();
     }
-    EvictorPtr evictor = dbContacts->createEvictor(strategy);
+    Freeze::EvictorPtr evictor = dbContacts->createEvictor(strategy);
     Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
     if(evictorSize > 0)
     {

@@ -33,8 +33,8 @@
 #include <fstream>
 
 using namespace std;
-using namespace Ice;
 using namespace Freeze;
+using namespace Ice;
 
 #define NUM_KEYS        50
 #define NUM_ELEMENTS    50
@@ -970,7 +970,7 @@ transformEvictor(const DBEnvironmentPtr& dbEnv)
     DBPtr db;
     StringSeq loadOld, loadNew;
     Identity ident;
-    EvictorPtr evictor;
+    Freeze::EvictorPtr evictor;
 
     loadOld.push_back("TestOld.xsd");
     loadOld.push_back("Identity.xsd");

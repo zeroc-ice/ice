@@ -15,8 +15,8 @@
 #include <Freeze/StrategyI.h>
 
 using namespace std;
-using namespace Ice;
 using namespace Freeze;
+using namespace Ice;
 
 LocalObjectPtr
 Freeze::EvictionStrategyI::activatedObject(const Identity& ident,
