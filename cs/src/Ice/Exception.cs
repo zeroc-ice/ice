@@ -1,3 +1,14 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+using System.Diagnostics;
+
 namespace Ice
 {
 
@@ -28,7 +39,21 @@ namespace Ice
         private static readonly string _dflt = "Ice.UserException";
         public abstract void __write(IceInternal.BasicStream __os);
         public abstract void __read(IceInternal.BasicStream __is, bool __rid);
-        public abstract bool __usesClasses();
+
+	public virtual void __write(Ice.OutputStream __out)
+	{
+	    Debug.Assert(false);
+	}
+
+	public virtual void __read(Ice.InputStream __in, bool __rid)
+	{
+	    Debug.Assert(false);
+	}
+
+	public virtual bool __usesClasses()
+	{
+	    return false;
+	}
     }
 
 }

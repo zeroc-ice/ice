@@ -94,6 +94,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "BasicInputStream.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "BasicOutputStream.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "BasicStream.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -174,6 +184,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "InputStream.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "InputStreamI.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Instance.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -224,6 +244,16 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "ObjectReader.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ObjectWriter.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "Outgoing.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -235,6 +265,16 @@
                 />
                 <File
                     RelPath = "OutputBase.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "OutputStream.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "OutputStreamI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -265,6 +305,11 @@
                 />
                 <File
                     RelPath = "ProxyFactory.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "ReadObjectCallback.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

@@ -26,11 +26,16 @@ namespace IceInternal
 
 	public abstract void patch(Ice.Object v);
 
-        public string type()
+        public virtual string type()
         {
             Debug.Assert(_type != null);
             return _type.FullName;
         }
+
+	public virtual void invoke(Ice.Object v)
+	{
+	    patch(v);
+	}
 
         protected System.Type _type;
     }

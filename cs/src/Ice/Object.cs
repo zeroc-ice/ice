@@ -51,8 +51,12 @@ namespace Ice
 	void ice_postUnmarshal();
 
 	IceInternal.DispatchStatus __dispatch(IceInternal.Incoming inc, Current current);
+
 	void __write(IceInternal.BasicStream __os);
 	void __read(IceInternal.BasicStream __is, bool __rid);
+
+	void __write(OutputStream __out);
+	void __read(InputStream __in, bool __rid);
     }
 
     public class ObjectImpl : Object
@@ -225,6 +229,33 @@ namespace Ice
 	    
             __is.endReadSlice();
         }
+
+	public void __write(OutputStream __out)
+	{
+	    __out.writeTypeId(ice_staticId());
+	    __out.startSlice();
+	    __out.writeSize(0); // For compatibility with the old AFM.
+	    __out.endSlice();
+	}
+
+	public void __read(InputStream __in, bool __rid)
+	{
+	    if(__rid)
+	    {
+		string myId = __in.readTypeId();
+	    }
+
+	    __in.startSlice();
+
+	    // For compatibility with the old AFM.
+	    int sz = __in.readSize();
+	    if(sz != 0)
+	    {
+		throw new MarshalException();
+	    }
+
+	    __in.endSlice();
+	}
 
         public static Ice.Current defaultCurrent = new Ice.Current();
     }
