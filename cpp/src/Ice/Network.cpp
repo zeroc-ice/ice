@@ -594,7 +594,7 @@ repeatAccept:
 }
 
 #ifdef HAVE_NO_GETHOSTBYNAME_R
-static IceUtil::Mutex getHostByNameMutex;
+static IceUtil::StaticMutex getHostByNameMutex;
 #endif
 
 void
@@ -612,7 +612,7 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 
 #ifdef HAVE_NO_GETHOSTBYNAME_R
 
-	IceUtil::Mutex::Lock sync(getHostByNameMutex);
+	IceUtil::StaticMutex::Lock sync(getHostByNameMutex);
 	
 	do
 	{
@@ -650,7 +650,7 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 		buf.resize(buf.size() * 2);
 	    }
 	}
-	while(res && herr == TRY_AGAIN && --retry >= 0);
+	while(res != 0 && herr == TRY_AGAIN && --retry >= 0);
 
 	if(res)
 	{
@@ -683,7 +683,7 @@ IceInternal::getLocalHost(bool numeric)
 	
 #ifdef HAVE_NO_GETHOSTBYNAME_R
 
-	IceUtil::Mutex::Lock sync(getHostByNameMutex);
+	IceUtil::StaticMutex::Lock sync(getHostByNameMutex);
 	
 	do
 	{
@@ -721,7 +721,7 @@ IceInternal::getLocalHost(bool numeric)
 		buf.resize(buf.size() * 2);
 	    }
 	}
-	while(res && herr == TRY_AGAIN && --retry >= 0);
+	while(res != 0 && herr == TRY_AGAIN && --retry >= 0);
 
 	if(res)
 	{
