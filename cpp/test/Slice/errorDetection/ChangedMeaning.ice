@@ -161,6 +161,17 @@ interface Blah3
 
 module M1
 {
+    enum smnpEnum { a };
+
+    struct smnpStruct
+    {
+	smnpEnum e;
+    };
+
+    exception smnpException
+    {
+    };
+
     module M2
     {
         enum C { C1, C2, C3 };
@@ -171,3 +182,8 @@ const M1::M2::C MyConstant1 = M1::M2::C2; // OK
 const ::M1::M2::C MyConstant2 = M1::M2::C2; // OK
 const M1::M2::C MyConstant3 = ::M1::M2::C2; // OK
 const ::M1::M2::C MyConstant4 = ::M1::M2::C2; // OK
+
+class smnpTest1Class
+{
+    M1::smnpStruct smnpTest1Op1() throws M1::smnpException; // OK
+};

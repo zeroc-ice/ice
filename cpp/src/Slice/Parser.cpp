@@ -1594,21 +1594,28 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
 	//
 	// For each scope, get the container until we have the container
 	// for the first scope (which is the introduced one).
-	// For enumeration constants, step up one additional step. This
-	// is necessary because, in the syntax tree, the enumerator has
-	// a container but, when naming the enumerator in the Slice source,
-	// the enumerator enters the enclosing scope.
 	//
 	ContainerPtr c;
-	if(EnumeratorPtr::dynamicCast(namedThing))
+	bool first = true;
+	while(pos != string::npos)
 	{
-	    c = namedThing->container();
-	    pos = scoped.find("::", pos + 2);
-	}
-	while(c && pos != string::npos)
-	{
-	    c = ContainedPtr::dynamicCast(c)->container();
-	    pos = scoped.find("::", pos + 2);
+	    if(first)
+	    {
+		c = namedThing->container();
+	    }
+	    else
+	    {
+		ContainedPtr contained = ContainedPtr::dynamicCast(c);
+		if(contained)
+		{
+		    c = contained->container();
+		}
+	    }
+	    first = false;
+	    if(pos != string::npos)
+	    {
+		pos = scoped.find("::", pos + 2);
+	    }
 	}
 	if(ContainedPtr::dynamicCast(c))
 	{
