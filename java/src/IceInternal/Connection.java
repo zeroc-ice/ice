@@ -1378,17 +1378,23 @@ public final class Connection extends EventHandler
 
             if(_warn)
             {
-                //
-                // Don't warn about certain expected exceptions.
-                //
-                if(!(_exception instanceof Ice.CloseConnectionException ||
-		     _exception instanceof Ice.ConnectionTimeoutException ||
-		     _exception instanceof Ice.CommunicatorDestroyedException ||
-		     _exception instanceof Ice.ObjectAdapterDeactivatedException ||
-		     (_exception instanceof Ice.ConnectionLostException && _state == StateClosing)))
-                {
-                    warning("connection exception", _exception);
-                }
+		//
+		// We don't warn if we are not validated.
+		//
+		if(_state > StateNotValidated)
+		{
+		    //
+		    // Don't warn about certain expected exceptions.
+		    //
+		    if(!(_exception instanceof Ice.CloseConnectionException ||
+			 _exception instanceof Ice.ConnectionTimeoutException ||
+			 _exception instanceof Ice.CommunicatorDestroyedException ||
+			 _exception instanceof Ice.ObjectAdapterDeactivatedException ||
+			 (_exception instanceof Ice.ConnectionLostException && _state == StateClosing)))
+		    {
+			warning("connection exception", _exception);
+		    }
+		}
             }
         }
 

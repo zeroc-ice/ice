@@ -1594,16 +1594,22 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 	if(_warn)
 	{
 	    //
-	    // Don't warn about certain expected exceptions.
+	    // We don't warn if we are not validated.
 	    //
-	    if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
-		 dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
-		 dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
-		 dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get()) ||
-		 (dynamic_cast<const ConnectionLostException*>(_exception.get()) && _state == StateClosing)))
+	    if(_state > StateNotValidated)
 	    {
-		Warning out(_logger);
-		out << "connection exception:\n" << *_exception.get() << '\n' << _desc;
+		//
+		// Don't warn about certain expected exceptions.
+		//
+		if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
+		     dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
+		     dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
+		     dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get()) ||
+		     (dynamic_cast<const ConnectionLostException*>(_exception.get()) && _state == StateClosing)))
+		{
+		    Warning out(_logger);
+		    out << "connection exception:\n" << *_exception.get() << '\n' << _desc;
+		}
 	    }
 	}
     }
