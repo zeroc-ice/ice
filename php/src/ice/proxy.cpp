@@ -27,6 +27,33 @@
 using namespace std;
 
 //
+// Here's a brief description of how proxies are handled by this extension.
+//
+// A single PHP class, Ice_ObjectPrx, is registered. This is an "internal" class,
+// i.e., implemented by this extension, and it is used to represent all proxies
+// regardless of interface type.
+//
+// Like in C++, a proxy is only capable of invoking the Ice::ObjectPrx operations
+// until it is narrowed with a checked or unchecked cast. Unlike C++, no PHP classes
+// are created for proxies, because all marshaling activity is driven by the Slice
+// definitions, not by statically-generated code.
+//
+// In order to perform a checked or unchecked cast, the user invokes ice_checkedCast
+// or ice_uncheckedCast on the proxy to be narrowed, supplying a scoped name for the
+// desired type. Internally, the proxy validates the scoped name and returns a new
+// proxy containing the Slice class or interface definition. This proxy is considered
+// to be narrowed to that interface and therefore supports user-defined operations.
+//
+// Naturally, there are many predefined proxy methods (e.g., ice_isA, etc.), but
+// the proxy also needs to support user-defined operations (if it has type information).
+// We use a Zend API hook that allows us to intercept the invocation of unknown methods
+// on the proxy object. At this point, the proxy checks the interface definition for
+// an operation with the given name, and then creates an Operation object (see below)
+// that is responsible for invoking the operation. The proxy caches the Operation objects
+// for future reuse.
+//
+
+//
 // Class entries represent the PHP class implementations we have registered.
 //
 zend_class_entry* Ice_ObjectPrx_entry_ptr;
@@ -37,7 +64,8 @@ zend_class_entry* Ice_ObjectPrx_entry_ptr;
 class Operation : public IceUtil::SimpleShared
 {
 public:
-    Operation(const Ice::ObjectPrx&, const Slice::OperationPtr&, const IceInternal::InstancePtr&);
+    Operation(const Ice::ObjectPrx&, const string&, const Slice::OperationPtr&, const IceInternal::InstancePtr&
+              TSRMLS_DC);
     virtual ~Operation();
 
     zend_uchar* getArgTypes() const;
@@ -47,9 +75,12 @@ private:
     void throwException(IceInternal::BasicStream& TSRMLS_DC);
 
     Ice::ObjectPrx _proxy;
+    string _name; // Local name, not the on-the-wire name
     Slice::OperationPtr _op;
     IceInternal::InstancePtr _instance;
-    string _name;
+#ifdef ZTS
+    TSRMLS_D;
+#endif
     vector<string> _paramNames;
     MarshalerPtr _result;
     vector<MarshalerPtr> _inParams;
@@ -64,7 +95,8 @@ typedef IceUtil::Handle<Operation> OperationPtr;
 class Proxy
 {
 public:
-    Proxy(const Ice::ObjectPrx&, const Slice::ClassDefPtr& = Slice::ClassDefPtr());
+    Proxy(const Ice::ObjectPrx& TSRMLS_DC, const Slice::ClassDefPtr& = Slice::ClassDefPtr());
+    ~Proxy();
 
     const Ice::ObjectPrx& getProxy() const;
     const Slice::ClassDefPtr& getClass() const;
@@ -74,6 +106,9 @@ public:
 private:
     Ice::ObjectPrx _proxy;
     Slice::ClassDefPtr _class;
+#ifdef ZTS
+    TSRMLS_D;
+#endif
     IceInternal::InstancePtr _instance;
     Slice::OperationList _classOps;
     map<string, OperationPtr> _ops;
@@ -83,14 +118,14 @@ private:
 // Ice::ObjectPrx support.
 //
 static zend_object_handlers Ice_ObjectPrx_handlers;
-static zend_object_value Ice_ObjectPrx_alloc(zend_class_entry* TSRMLS_DC);
-static void Ice_ObjectPrx_dtor(void*, zend_object_handle TSRMLS_DC);
-static union _zend_function* Ice_ObjectPrx_get_method(zval*, char*, int TSRMLS_DC);
-static int Ice_ObjectPrx_compare(zval*, zval* TSRMLS_DC);
+static zend_object_value handleAlloc(zend_class_entry* TSRMLS_DC);
+static void handleDestroy(void*, zend_object_handle TSRMLS_DC);
+static union _zend_function* handleGetMethod(zval*, char*, int TSRMLS_DC);
+static int handleCompare(zval*, zval* TSRMLS_DC);
 ZEND_FUNCTION(Ice_ObjectPrx_call);
 
 //
-// Function entries for Ice::ObjectPrx methods.
+// Predefined methods for Ice_ObjectPrx.
 //
 static function_entry Ice_ObjectPrx_methods[] =
 {
@@ -126,18 +161,18 @@ static function_entry Ice_ObjectPrx_methods[] =
 };
 
 bool
-Ice_ObjectPrx_init(TSRMLS_DC)
+Ice_ObjectPrx_init(TSRMLS_D)
 {
     //
     // Register the Ice_ObjectPrx class.
     //
     zend_class_entry ce_ObjectPrx;
     INIT_CLASS_ENTRY(ce_ObjectPrx, "Ice_ObjectPrx", Ice_ObjectPrx_methods);
-    ce_ObjectPrx.create_object = Ice_ObjectPrx_alloc;
+    ce_ObjectPrx.create_object = handleAlloc;
     Ice_ObjectPrx_entry_ptr = zend_register_internal_class(&ce_ObjectPrx TSRMLS_CC);
     memcpy(&Ice_ObjectPrx_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
-    Ice_ObjectPrx_handlers.get_method = Ice_ObjectPrx_get_method;
-    Ice_ObjectPrx_handlers.compare_objects = Ice_ObjectPrx_compare;
+    Ice_ObjectPrx_handlers.get_method = handleGetMethod;
+    Ice_ObjectPrx_handlers.compare_objects = handleCompare;
 
     return true;
 }
@@ -178,7 +213,7 @@ Ice_ObjectPrx_create(zval* zv, const Ice::ObjectPrx& p, const Slice::ClassDeclPt
 
     ice_object* zprx = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
     assert(!zprx->ptr);
-    zprx->ptr = new Proxy(p, def);
+    zprx->ptr = new Proxy(p TSRMLS_CC, def);
     return true;
 }
 
@@ -773,7 +808,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_secure)
     Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
     zend_bool b;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), "b", &b) != SUCCESS)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &b TSRMLS_CC) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -807,7 +842,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_compress)
     try
     {
         zend_bool b;
-        if(zend_parse_parameters(ZEND_NUM_ARGS(), "b", &b) != SUCCESS)
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &b) != SUCCESS)
         {
             RETURN_NULL();
         }
@@ -838,7 +873,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout)
     try
     {
         long l;
-        if(zend_parse_parameters(ZEND_NUM_ARGS(), "l", &l) != SUCCESS)
+        if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "l", &l) != SUCCESS)
         {
             RETURN_NULL();
         }
@@ -1012,17 +1047,20 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_checkedCast)
     do_cast(INTERNAL_FUNCTION_PARAM_PASSTHRU, true);
 }
 
-Operation::Operation(const Ice::ObjectPrx& proxy, const Slice::OperationPtr& op,
-                     const IceInternal::InstancePtr& instance) :
-    _proxy(proxy), _op(op), _instance(instance), _name(op->name())
+Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, const Slice::OperationPtr& op,
+                     const IceInternal::InstancePtr& instance TSRMLS_DC) :
+    _proxy(proxy), _name(name), _op(op), _instance(instance)
 {
+#ifdef ZTS
+    this->TSRMLS_C = TSRMLS_C;
+#endif
     //
     // Create Marshaler objects for return type and parameters.
     //
     Slice::TypePtr ret = op->returnType();
     if(ret)
     {
-        _result = Marshaler::createMarshaler(ret);
+        _result = Marshaler::createMarshaler(ret TSRMLS_CC);
         if(!_result)
         {
             return;
@@ -1042,7 +1080,7 @@ Operation::Operation(const Ice::ObjectPrx& proxy, const Slice::OperationPtr& op,
     Slice::ParamDeclList::const_iterator p;
     for(p = params.begin(), i = 1; p != params.end(); ++p, ++i)
     {
-        MarshalerPtr m = Marshaler::createMarshaler((*p)->type());
+        MarshalerPtr m = Marshaler::createMarshaler((*p)->type() TSRMLS_CC);
         if(!m)
         {
             break;
@@ -1112,10 +1150,10 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
 
     try
     {
+        Marshal_initObjectMap(TSRMLS_C);
+
         //
         // Marshal the arguments.
-        //
-        // TODO: Check for class usage.
         //
         IceInternal::BasicStream os(_instance.get());
         vector<MarshalerPtr>::iterator p;
@@ -1133,15 +1171,17 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         }
 
         //
-        // Invoke the operation.
+        // Invoke the operation. Don't use _name here.
         //
         IceInternal::BasicStream is(_instance.get());
-        if(!_proxy->ice_invoke(_name, mode, os.b, is.b))
+        if(!_proxy->ice_invoke(_op->name(), mode, os.b, is.b))
         {
             is.i = is.b.begin();
             throwException(is TSRMLS_CC);
             return;
         }
+
+        Marshal_destroyObjectMap(TSRMLS_C);
 
         //
         // Unmarshal the results.
@@ -1177,6 +1217,7 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
     }
     catch(const IceUtil::Exception& ex)
     {
+        Marshal_destroyObjectMap(TSRMLS_C);
         ice_throw_exception(ex TSRMLS_CC);
     }
 }
@@ -1205,7 +1246,7 @@ Operation::throwException(IceInternal::BasicStream& is TSRMLS_DC)
                 return;
             }
 
-            MarshalerPtr m = Marshaler::createExceptionMarshaler(ex);
+            MarshalerPtr m = Marshaler::createExceptionMarshaler(ex TSRMLS_CC);
             assert(m);
 
             zval* zex;
@@ -1240,16 +1281,38 @@ Operation::throwException(IceInternal::BasicStream& is TSRMLS_DC)
     throw Ice::UnknownUserException(__FILE__, __LINE__);
 }
 
-Proxy::Proxy(const Ice::ObjectPrx& proxy, const Slice::ClassDefPtr& cls) :
+Proxy::Proxy(const Ice::ObjectPrx& proxy TSRMLS_DC, const Slice::ClassDefPtr& cls) :
     _proxy(proxy), _class(cls)
 {
-    Ice::CommunicatorPtr communicator = Ice_Communicator_instance();
+#ifdef ZTS
+    this->TSRMLS_C = TSRMLS_C;
+#endif
+    Ice::CommunicatorPtr communicator = Ice_Communicator_instance(TSRMLS_C);
     _instance = IceInternal::getInstance(communicator);
+
+    //
+    // We want to ensure that the PHP object corresponding to the communicator is
+    // not destroyed until after this proxy is destroyed.
+    //
+    Ice_Communicator_addRef(TSRMLS_C);
 
     if(cls)
     {
         _classOps = _class->allOperations();
     }
+}
+
+Proxy::~Proxy()
+{
+    //
+    // In order to avoid the communicator's "leak warning", we have to ensure that we
+    // remove any references to the communicator or its supporting objects. This must
+    // be done prior to invoking Ice_Communicator_decRef().
+    // 
+    _instance = 0;
+    _ops.clear();
+    _proxy = 0;
+    Ice_Communicator_decRef(TSRMLS_C);
 }
 
 const Ice::ObjectPrx&
@@ -1275,10 +1338,11 @@ Proxy::getOperation(const string& name)
     {
         for(Slice::OperationList::const_iterator q = _classOps.begin(); q != _classOps.end(); ++q)
         {
-            if(n == ice_lowerCase((*q)->name()))
+            string opName = ice_lowerCase(ice_fixIdent((*q)->name()));
+            if(n == opName)
             {
-                result = new Operation(_proxy, *q, _instance);
-                _ops[n] = result;
+                result = new Operation(_proxy, opName, *q, _instance TSRMLS_CC);
+                _ops[opName] = result;
                 break;
             }
         }
@@ -1292,21 +1356,21 @@ Proxy::getOperation(const string& name)
 }
 
 static zend_object_value
-Ice_ObjectPrx_alloc(zend_class_entry* ce TSRMLS_DC)
+handleAlloc(zend_class_entry* ce TSRMLS_DC)
 {
     zend_object_value result;
 
     ice_object* obj = ice_newObject(ce TSRMLS_CC);
     assert(obj);
 
-    result.handle = zend_objects_store_put(obj, Ice_ObjectPrx_dtor, NULL TSRMLS_CC);
+    result.handle = zend_objects_store_put(obj, handleDestroy, NULL TSRMLS_CC);
     result.handlers = &Ice_ObjectPrx_handlers;
 
     return result;
 }
 
 static void
-Ice_ObjectPrx_dtor(void* p, zend_object_handle handle TSRMLS_DC)
+handleDestroy(void* p, zend_object_handle handle TSRMLS_DC)
 {
     ice_object* obj = static_cast<ice_object*>(p);
     Proxy* _this = static_cast<Proxy*>(obj->ptr);
@@ -1317,7 +1381,7 @@ Ice_ObjectPrx_dtor(void* p, zend_object_handle handle TSRMLS_DC)
 }
 
 static union _zend_function*
-Ice_ObjectPrx_get_method(zval* zv, char* method, int len TSRMLS_DC)
+handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
 {
     zend_function* result;
 
@@ -1360,7 +1424,7 @@ Ice_ObjectPrx_get_method(zval* zv, char* method, int len TSRMLS_DC)
 }
 
 static int
-Ice_ObjectPrx_compare(zval* zobj1, zval* zobj2 TSRMLS_DC)
+handleCompare(zval* zobj1, zval* zobj2 TSRMLS_DC)
 {
     //
     // PHP guarantees that the objects have the same class.

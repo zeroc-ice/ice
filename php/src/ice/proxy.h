@@ -15,17 +15,10 @@
 #ifndef ICE_PHP_OBJECT_PRX_H
 #define ICE_PHP_OBJECT_PRX_H
 
-extern "C"
-{
-#include "php.h"
-#include "php_ini.h"
-#include "ext/standard/info.h"
-}
-
-#include <Ice/Ice.h>
+#include "common.h"
 #include <Slice/Parser.h>
 
-bool Ice_ObjectPrx_init(TSRMLS_DC);
+bool Ice_ObjectPrx_init(TSRMLS_D);
 bool Ice_ObjectPrx_create(zval*, const Ice::ObjectPrx& TSRMLS_DC);
 bool Ice_ObjectPrx_create(zval*, const Ice::ObjectPrx&, const Slice::ClassDeclPtr& TSRMLS_DC);
 bool Ice_ObjectPrx_fetch(zval*, Ice::ObjectPrx& TSRMLS_DC);
