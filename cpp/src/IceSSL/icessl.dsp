@@ -126,6 +126,10 @@ SOURCE=.\CertificateVerifierOpenSSL.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ClientContext.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ConfigParser.cpp
 # End Source File
 # Begin Source File
@@ -134,15 +138,7 @@ SOURCE=.\ConfigParserErrorReporter.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ContextOpenSSL.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ContextOpenSSLClient.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ContextOpenSSLServer.cpp
+SOURCE=.\Context.cpp
 # End Source File
 # Begin Source File
 
@@ -182,10 +178,6 @@ SOURCE=.\Plugin.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\PluginBaseI.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\RSACertificateGen.cpp
 # End Source File
 # Begin Source File
@@ -199,6 +191,10 @@ SOURCE=.\RSAPrivateKey.cpp
 # Begin Source File
 
 SOURCE=.\RSAPublicKey.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerContext.cpp
 # End Source File
 # Begin Source File
 
@@ -270,6 +266,10 @@ SOURCE=..\..\include\IceSSL\CertificateVerifierOpenSSL.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ClientContext.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ConfigParser.h
 # End Source File
 # Begin Source File
@@ -278,19 +278,11 @@ SOURCE=.\ConfigParserErrorReporter.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ContextOpenSSL.h
+SOURCE=.\Context.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ContextOpenSSLClient.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ContextOpenSSLF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ContextOpenSSLServer.h
+SOURCE=.\ContextF.h
 # End Source File
 # Begin Source File
 
@@ -330,19 +322,15 @@ SOURCE=.\OpenSSLPluginI.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\OpenSSLPluginIF.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\OpenSSLUtils.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\include\IceSSL\Plugin.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\PluginBaseI.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\PluginBaseIF.h
 # End Source File
 # Begin Source File
 
@@ -379,6 +367,10 @@ SOURCE=..\..\include\IceSSL\RSAPublicKey.h
 # Begin Source File
 
 SOURCE=..\..\include\IceSSL\RSAPublicKeyF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerContext.h
 # End Source File
 # Begin Source File
 
