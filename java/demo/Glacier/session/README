@@ -1,8 +1,5 @@
-To run this demo, you need the client from the equivalent Ice for C++
-demo. No Java client is supported at this time, because the client
-uses the C/C++ tools "flex" and "bison".
-
-Open three terminal windows. In the first window, start the server:
+To run this demo, open three terminal windows. In the first window,
+start the server:
 
 $ java Server
 
@@ -10,9 +7,9 @@ In the second window, run the Glacier starter:
 
 $ glacierstarter --Ice.Config=config
 
-In the third window, run the C++ client:
+In the third window, run the client:
 
-$ <path_to_c++_client>/client
+$ java Client
 
 You will be asked for a userid and a password. Any userid/password
 combination with the password being the same as the userid will be

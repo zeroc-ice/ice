@@ -225,10 +225,10 @@ PropertiesPtr
 Ice::CommunicatorI::getProperties()
 {
     RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
+    //
+    // No check for destruction. It must be possible to access the
+    // properties after destruction.
+    //
     return _instance->properties();
 }
 
@@ -236,10 +236,10 @@ LoggerPtr
 Ice::CommunicatorI::getLogger()
 {
     RecMutex::Lock sync(*this);
-    if(_destroyed)
-    {
-	throw CommunicatorDestroyedException(__FILE__, __LINE__);
-    }
+    //
+    // No check for destruction. It must be possible to access the
+    // logger after destruction.
+    //
     return _instance->logger();
 }
 

@@ -195,20 +195,20 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
     public synchronized Properties
     getProperties()
     {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
+	//
+	// No check for destruction. It must be possible to access the
+	// properties after destruction.
+	//
         return _instance.properties();
     }
 
     public synchronized Logger
     getLogger()
     {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
+	//
+	// No check for destruction. It must be possible to access the
+	// logger after destruction.
+	//
         return _instance.logger();
     }
 
