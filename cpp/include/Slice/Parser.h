@@ -170,7 +170,7 @@ class SLICE_API SyntaxTreeBase : public GrammarBase
 public:
 
     virtual void destroy();
-    UnitPtr unit();
+    UnitPtr unit() const;
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -233,17 +233,17 @@ class SLICE_API Contained : virtual public SyntaxTreeBase
 {
 public:
 
-    ContainerPtr container();
+    ContainerPtr container() const;
     std::string name();
     std::string scoped();
-    std::string scope();
-    std::string file();
-    std::string comment();
+    std::string scope() const;
+    std::string file() const;
+    std::string comment() const;
 
     int includeLevel();
     void updateIncludeLevel();
 
-    std::list<std::string> getMetaData();
+    std::list<std::string> getMetaData() const;
     void setMetaData(const std::list<std::string>&);
 
     enum ContainedType
@@ -259,9 +259,10 @@ public:
 	ContainedTypeOperation,
 	ContainedTypeDataMember
     };
-    virtual ContainedType containedType() = 0;
+    virtual ContainedType containedType() const = 0;
 
-    virtual bool uses(const ContainedPtr&) = 0;
+    virtual bool uses(const ContainedPtr&) const = 0;
+    virtual std::string kindOf() const = 0;
 
     bool operator<(const Contained&) const;
     bool operator==(const Contained&) const;
@@ -302,17 +303,17 @@ public:
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
     ContainedList lookupContained(const std::string&, bool = true);
     ExceptionPtr lookupException(const std::string&, bool = true);
-    ModuleList modules();
-    ClassList classes();
-    ExceptionList exceptions();
-    StructList structs();
-    SequenceList sequences();
-    DictionaryList dictionaries();
-    EnumList enums();
-    bool hasNonLocalClassDecls();
-    bool hasClassDecls();
-    bool hasClassDefs();
-    bool hasOtherConstructedOrExceptions(); // Exceptions or constructed types other than classes.
+    ModuleList modules() const;
+    ClassList classes() const;
+    ExceptionList exceptions() const;
+    StructList structs() const;
+    SequenceList sequences() const;
+    DictionaryList dictionaries() const;
+    EnumList enums() const;
+    bool hasNonLocalClassDecls() const;
+    bool hasClassDecls() const;
+    bool hasClassDefs() const;
+    bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     std::string thisScope();
     void mergeModules();
     void sort();
@@ -346,8 +347,9 @@ class SLICE_API Module : virtual public Container, virtual public Contained
 {
 public:
 
-    virtual ContainedType containedType();
-    virtual bool uses(const ContainedPtr&);
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -364,7 +366,7 @@ class SLICE_API Constructed : virtual public Type, virtual public Contained
 {
 public:
 
-    bool isLocal();
+    bool isLocal() const;
     ConstructedList dependencies();
     virtual void recDependencies(std::set<ConstructedPtr>&) = 0; // Internal operation, don't use directly.
 
@@ -386,9 +388,10 @@ public:
     virtual void destroy();
     ClassDefPtr definition();
     bool isInterface();
-    virtual ContainedType containedType();
-    virtual bool uses(const ContainedPtr&);
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
     virtual void visit(ParserVisitor*);
+    virtual std::string kindOf() const;
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
 protected:
@@ -420,19 +423,20 @@ public:
     OperationPtr createOperation(const std::string&, const TypePtr&, const TypeStringList&, const TypeStringList&,
 				 const ExceptionList&);
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
-    ClassDeclPtr declaration();
-    ClassList bases();
-    ClassList allBases();
-    OperationList operations();
-    OperationList allOperations();
-    DataMemberList dataMembers();
-    DataMemberList allDataMembers();
+    ClassDeclPtr declaration() const;
+    ClassList bases() const;
+    ClassList allBases() const;
+    OperationList operations() const;
+    OperationList allOperations() const;
+    DataMemberList dataMembers() const;
+    DataMemberList allDataMembers() const;
     bool isAbstract();
     bool isInterface();
-    bool isLocal();
-    bool hasDataMembers();
-    virtual ContainedType containedType();
-    virtual bool uses(const ContainedPtr&);
+    bool isLocal() const;
+    bool hasDataMembers() const;
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -475,12 +479,13 @@ public:
 
     virtual void destroy();
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
-    DataMemberList dataMembers();
-    ExceptionPtr base();
-    ExceptionList allBases();
-    bool isLocal();
-    virtual ContainedType containedType();
-    virtual bool uses(const ContainedPtr&);
+    DataMemberList dataMembers() const;
+    ExceptionPtr base() const;
+    ExceptionList allBases() const;
+    bool isLocal() const;
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -502,8 +507,9 @@ public:
 
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     DataMemberList dataMembers();
-    virtual ContainedType containedType();
-    virtual bool uses(const ContainedPtr&);
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
@@ -522,8 +528,9 @@ class SLICE_API Sequence : virtual public Constructed
 public:
 
     TypePtr type();
-    virtual ContainedType containedType();
-    virtual bool uses(const ContainedPtr&);
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
@@ -545,8 +552,9 @@ public:
 
     TypePtr keyType();
     TypePtr valueType();
-    virtual ContainedType containedType();
-    virtual bool uses(const ContainedPtr&);
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
@@ -569,8 +577,9 @@ public:
 
     EnumeratorList getEnumerators();
     void setEnumerators(const EnumeratorList&);
-    virtual ContainedType containedType();
-    virtual bool uses(const ContainedPtr&);
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
@@ -590,8 +599,9 @@ class SLICE_API Enumerator : virtual public Contained
 {
 public:
 
-    virtual bool uses(const ContainedPtr&);
-    virtual ContainedType containedType();
+    virtual bool uses(const ContainedPtr&) const;
+    virtual ContainedType containedType() const;
+    virtual std::string kindOf() const;
 
 protected:
 
@@ -607,12 +617,13 @@ class SLICE_API Operation : virtual public Contained
 {
 public:
 
-    TypePtr returnType();
-    TypeStringList inputParameters();
-    TypeStringList outputParameters();
-    ExceptionList throws();
-    virtual ContainedType containedType();
-    virtual bool uses(const ContainedPtr&);
+    TypePtr returnType() const;
+    TypeStringList inputParameters() const;
+    TypeStringList outputParameters() const;
+    ExceptionList throws() const;
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -636,8 +647,9 @@ class SLICE_API DataMember : virtual public Contained
 public:
 
     TypePtr type();
-    virtual ContainedType containedType();
-    virtual bool uses(const ContainedPtr&);
+    virtual ContainedType containedType() const;
+    virtual bool uses(const ContainedPtr&) const;
+    virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -660,15 +672,16 @@ public:
 
     static UnitPtr createUnit(bool, bool);
 
-    bool ignRedefs();
+    bool ignRedefs() const;
 
     void setComment(const std::string&);
     std::string currentComment();
-    std::string currentFile();
+    std::string currentFile() const;
+    int currentLine() const;
 
     void nextLine();
     void scanPosition(const char*);
-    int currentIncludeLevel();
+    int currentIncludeLevel() const;
 
     void error(const char*);
     void error(const std::string&);
@@ -676,21 +689,21 @@ public:
     void warning(const char*);
     void warning(const std::string&);
 
-    ContainerPtr currentContainer();
+    ContainerPtr currentContainer() const;
     void pushContainer(const ContainerPtr&);
     void popContainer();
 
     void addContent(const ContainedPtr&);
     void removeContent(const ContainedPtr&);
-    ContainedList findContents(const std::string&);
-    ClassList findDerivedClasses(const ClassDefPtr&);
-    ExceptionList findDerivedExceptions(const ExceptionPtr&);
-    ContainedList findUsedBy(const ContainedPtr&);
+    ContainedList findContents(const std::string&) const;
+    ClassList findDerivedClasses(const ClassDefPtr&) const;
+    ExceptionList findDerivedExceptions(const ExceptionPtr&) const;
+    ContainedList findUsedBy(const ContainedPtr&) const;
 
-    bool usesProxies();
-    bool usesNonLocals();
+    bool usesProxies() const;
+    bool usesNonLocals() const;
 
-    StringList includeFiles();
+    StringList includeFiles() const;
 
     int parse(FILE*, bool);
 
@@ -714,7 +727,7 @@ private:
     StringList _includeFiles;
     std::stack<ContainerPtr> _containerStack;
     std::map<Builtin::Kind, BuiltinPtr> _builtins;
-    std::map<std::string, ContainedList > _contentMap;
+    std::map<std::string, ContainedList> _contentMap;
 };
 
 extern SLICE_API Unit* unit; // The current parser for bison/flex

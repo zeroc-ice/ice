@@ -1,1 +1,1 @@
-RedefinitionAsDataMember.ice:14: redefinition of `operation' as data member
+RedefinitionAsDataMember.ice:14: redefinition of operation `operation' as data member `operation'

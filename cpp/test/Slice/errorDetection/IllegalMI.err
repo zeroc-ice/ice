@@ -1,7 +1,7 @@
 IllegalMI.ice:46: ambiguous multiple inheritance: `op' is defined in two or more base classes
-IllegalMI.ice:69: operation `op' is already defined in a base interface or class
-IllegalMI.ice:91: operation `op' is already defined in a base interface or class
-IllegalMI.ice:113: operation `op' is already defined in a base interface or class
+IllegalMI.ice:69: operation `op' is already defined as an operation in a base interface or class
+IllegalMI.ice:91: operation `op' is already defined as an operation in a base interface or class
+IllegalMI.ice:113: operation `op' is already defined as an operation in a base interface or class
 IllegalMI.ice:154: ambiguous multiple inheritance: `op' is defined in two or more base classes
 IllegalMI.ice:176: ambiguous multiple inheritance: `op' is defined in two or more base classes
 IllegalMI.ice:198: ambiguous multiple inheritance: `op' is defined in two or more base classes
@@ -17,8 +17,8 @@ IllegalMI.ice:455: ambiguous multiple inheritance: `op' is defined in two or mor
 IllegalMI.ice:482: ambiguous multiple inheritance: `op' is defined in two or more base classes
 IllegalMI.ice:509: ambiguous multiple inheritance: `op' is defined in two or more base classes
 IllegalMI.ice:537: ambiguous multiple inheritance: `op' is defined in two or more base classes
-IllegalMI.ice:604: operation `op' is already defined in a base interface or class
-IllegalMI.ice:638: operation `op' is already defined in a base interface or class
+IllegalMI.ice:604: operation `op' is already defined as an operation in a base interface or class
+IllegalMI.ice:638: operation `op' is already defined as an operation in a base interface or class
 IllegalMI.ice:759: ambiguous multiple inheritance: `op' is defined in two or more base classes
 IllegalMI.ice:820: ambiguous multiple inheritance: `op' is defined in two or more base classes
 IllegalMI.ice:881: ambiguous multiple inheritance: `op' is defined in two or more base classes

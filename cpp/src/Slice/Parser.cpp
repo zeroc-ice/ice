@@ -25,6 +25,16 @@ Unit* unit;
 }
 
 // ----------------------------------------------------------------------
+// to_lower() helper function
+// ----------------------------------------------------------------------
+
+static void
+to_lower(string& s)
+{
+    transform(s.begin(), s.end(), s.begin(), tolower);
+}
+
+// ----------------------------------------------------------------------
 // SyntaxTreeBase
 // ----------------------------------------------------------------------
 
@@ -35,7 +45,7 @@ Slice::SyntaxTreeBase::destroy()
 }
 
 UnitPtr
-Slice::SyntaxTreeBase::unit()
+Slice::SyntaxTreeBase::unit() const
 {
     return _unit;
 }
@@ -81,7 +91,7 @@ Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) :
 // ----------------------------------------------------------------------
 
 ContainerPtr
-Slice::Contained::container()
+Slice::Contained::container() const
 {
     return _container;
 }
@@ -99,7 +109,7 @@ Slice::Contained::scoped()
 }
 
 string
-Slice::Contained::scope()
+Slice::Contained::scope() const
 {
     string::size_type idx = _scoped.rfind("::");
     assert(idx != string::npos);
@@ -107,13 +117,13 @@ Slice::Contained::scope()
 }
 
 string
-Slice::Contained::file()
+Slice::Contained::file() const
 {
     return _file;
 }
 
 string
-Slice::Contained::comment()
+Slice::Contained::comment() const
 {
     return _comment;
 }
@@ -131,7 +141,7 @@ Slice::Contained::updateIncludeLevel()
 }
 
 list<string>
-Slice::Contained::getMetaData()
+Slice::Contained::getMetaData() const
 {
     return _metaData;
 }
@@ -190,17 +200,36 @@ Slice::Container::createModule(const string& name)
     ContainedList matches = _unit->findContents(thisScope() + name);
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
+	string msg;
+	bool differsOnlyInCase = matches.front()->name() != name;
 	ModulePtr module = ModulePtr::dynamicCast(*p);
 	if(module)
 	{
-	    continue; // Reopening modules is permissible
+	    if(!differsOnlyInCase)
+	    {
+		continue;	// Reopening modules is permissible...
+	    }
+	    else		// ... but only if they are capitalized correctly
+	    {
+		msg += "module `" + name + "' is capitalized inconsistently with its previous name: `";
+		msg += module->name() + "'";
+		_unit->warning(msg);	// TODO: Change to error in stable_39
+	    }
 	}
 	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as module";
-	_unit->error(msg);
-	return 0;
+	if(differsOnlyInCase)
+	{
+	    msg = "module `" + name + "' differs only in capitalization from ";
+	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
+	    _unit->warning(msg);		// TODO: Change to error in stable_39
+	}
+	else
+	{
+	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    msg += "' as module";
+	    _unit->error(msg);
+	    return 0;
+	}
     }
 
     ModulePtr q = new Module(this, name);
@@ -221,10 +250,11 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 	    {
 		continue;
 	    }
-
 	    return 0;
 	}
 
+	string msg;
+	bool differsOnlyInCase = matches.front()->name() != name;
 	ClassDefPtr def = ClassDefPtr::dynamicCast(*p);
 	if(def)
 	{
@@ -233,35 +263,38 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 		def->updateIncludeLevel();
 		return def;
 	    }
-
-	    string msg = "redefinition of ";
-	    if(intf)
+	    if (!differsOnlyInCase)
 	    {
-		msg += "interface";
+		string msg = "redefinition of ";
+		msg += intf ? "interface" : "class";
+		msg += " `" + name + "'";
+		_unit->error(msg);
+		return 0;
 	    }
 	    else
 	    {
-		msg += "class";
+		msg = intf ? "interface" : "class";
+		msg += " definition `" + name + "' is capitalized inconsistently with its previous name: `";
+		msg += def->name() + "'";
+		_unit->warning(msg);	// TODO: Change to error in stable_39
 	    }
-	    msg += " `";
-	    msg += name;
-	    msg += "'";
+	}
+
+	if(differsOnlyInCase)
+	{
+	    msg = intf ? "interface" : "class";
+	    msg = " definition `" + name + "' differs only in capitalization from ";
+	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
+	    _unit->warning(msg);		// TODO: Change to error in stable_39
+	}
+	else
+	{
+	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name() + "' as ";
+	    msg += intf ? "interface" : "class";
 	    _unit->error(msg);
 	    return 0;
 	}
 	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as ";
-	if(intf)
-	{
-	    msg += "interface";
-	}
-	else
-	{
-	    msg += "class";
-	}
-	_unit->error(msg);
 	return 0;
     }
 
@@ -338,118 +371,6 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
     return def;
 }
 
-// TODO: ML: The order of declaration in the header should match the
-// order of definition in the .cpp file.
-
-//
-// Return true if the class definition cdp is on one of the class lists in gpl, false otherwise.
-//
-bool
-Slice::Container::isInList(const GraphPartitionList& gpl, const ClassDefPtr cdp) const
-{
-    for(GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
-    {
-	// TODO: ML: Why not just i->begin()? (Here and elsewhere.)
-	if(find((*i).begin(), (*i).end(), cdp) != (*i).end())
-// TODO: ML: Indentation.
-{
-	    return true;
-}
-    }
-    return false;
-}
-
-// TODO: ML: Line length must be <= 119 chars.
-void
-Slice::Container::addPartition(GraphPartitionList& gpl, GraphPartitionList::reverse_iterator tail, const ClassDefPtr base) const
-{
-    //
-    // If this base is on one of the partition lists already, do nothing.
-    //
-    if(isInList(gpl, base))
-    {
-	return;
-    }
-    //
-    // Put the current base at the end of the current partition.
-    //
-    (*tail).push_back(base);
-    //
-    // If the base has bases in turn, recurse, adding the first base
-    // of base (the left-most "grandbase") to the current partition.
-    //
-    if(base->_bases.size())
-    {
-	addPartition(gpl, tail, *(base->_bases.begin()));
-    }
-    //
-    // If the base has multiple bases, each of the "grandbases"
-    // except for the left-most (which we just dealt with)
-    // adds a new partition.
-    //
-    if(base->_bases.size() > 1)
-    {
-	ClassList::const_iterator i = base->_bases.begin();
-	while(++i != base->_bases.end())
-	{
-	    ClassList cl;
-	    gpl.push_back(cl);
-	    addPartition(gpl, gpl.rbegin(), *i);
-	}
-    }
-}
-
-//
-// Convert the list of partitions of class definitions into a
-// list of sets, with each set containing the operation and member
-// names defined by the classes in each partition.
-// 
-StringSetList
-Slice::Container::toStringSetList(const GraphPartitionList& gpl) const
-{
-    StringSetList spl;
-    for(GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
-    {
-	StringSet ss;
-	spl.push_back(ss);
-	for(ClassList::const_iterator j = (*i).begin(); j != (*i).end(); ++j)
-	{
-	    OperationList operations = (*j)->operations();
-	    DataMemberList members = (*j)->dataMembers();
-	    for(OperationList::const_iterator l = operations.begin(); l != operations.end(); ++l)
-	    {
-		spl.rbegin()->insert((*l)->name());
-	    }
-	    for(DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
-	    {
-		spl.rbegin()->insert((*m)->name());
-	    }
-	}
-    }
-    return spl;
-}
-
-//
-// Return the union of the intersections of all possible pairs of sets of strings.
-//
-StringList
-Slice::Container::unionOfAllPairIntersections(const StringSetList& l) const
-{
-    StringList result;
-    for(StringSetList::const_iterator i = l.begin(); i != l.end(); ++i)
-    {
-	StringSetList::const_iterator cursor = i;
-	++cursor;
-	for(StringSetList::const_iterator j = cursor; j != l.end(); ++j)
-	{
-	    set_intersection((*i).begin(), (*i).end(), (*j).begin(), (*j).end(), back_inserter(result));
-	}
-    }
-    result.sort();
-    result.unique();
-    return result;
-}
-
 ClassDeclPtr
 Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 {
@@ -482,19 +403,23 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 	    return 0;
 	}
 	
-	string msg = "declaration of already defined `";
-	msg += name;
-	msg += "' as ";
-	if(intf)
+	string msg;
+	bool differsOnlyInCase = matches.front()->name() != name;
+	if (differsOnlyInCase)
 	{
-	    msg += "interface";
+	    msg = "class declaration `" + name + "' differs only in capitalization from ";
+	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
+	    _unit->warning(msg);		// TODO: Change to error in stable_39
 	}
 	else
-	{
-	    msg += "class";
+    	{
+	    msg = "declaration of already defined `";
+	    msg += name;
+	    msg += "' as ";
+	    msg += intf ? "interface" : "class";
+	    _unit->error(msg);
+	    return 0;
 	}
-	_unit->error(msg);
-	return 0;
     }
 
     //
@@ -541,19 +466,18 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 		p->updateIncludeLevel();
 		return p;
 	    }
-
-	    string msg = "redefinition of exception `";
-	    msg += name;
-	    msg += "'";
+	}
+	string msg;
+	if (matches.front()->name() == name)
+	{
+	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    msg += "' as exception";
 	    _unit->error(msg);
 	    return 0;
 	}
-	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as exception";
-	_unit->error(msg);
-	return 0;
+	msg = "exception `" + name + "' differs only in capitalization from ";
+	msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+	_unit->warning(msg);	// TODO: Change to error in stable_39
     }
 
     ExceptionPtr p = new Exception(this, name, base, local);
@@ -575,19 +499,18 @@ Slice::Container::createStruct(const string& name, bool local)
 		p->updateIncludeLevel();
 		return p;
 	    }
-
-	    string msg = "redefinition of struct `";
-	    msg += name;
-	    msg += "'";
+	}
+	string msg;
+	if (matches.front()->name() == name)
+	{
+	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    msg += "' as struct";
 	    _unit->error(msg);
 	    return 0;
 	}
-	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as struct";
-	_unit->error(msg);
-	return 0;
+	msg = "struct `" + name + "' differs only in capitalization from ";
+	msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+	_unit->warning(msg);	// TODO: Change to error in stable_39
     }
 
     StructPtr p = new Struct(this, name, local);
@@ -608,21 +531,20 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, bool l
 	    {
 		return p;
 	    }
-
-	    string msg = "redefinition of sequence `";
-	    msg += name;
-	    msg += "'";
+	}
+	string msg;
+	if (matches.front()->name() == name)
+	{
+	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    msg += "' as sequence";
 	    _unit->error(msg);
 	    return 0;
 	}
-	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as sequence";
-	_unit->error(msg);
-	return 0;
+	msg = "sequence `" + name + "' differs only in capitalization from ";
+	msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+	_unit->warning(msg);	// TODO: change to error in stable_39
     }
-
+    
     SequencePtr p = new Sequence(this, name, type, local);
     _contents.push_back(p);
     return p;
@@ -641,19 +563,18 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 	    {
 		return p;
 	    }
-
-	    string msg = "redefinition of dictionary `";
-	    msg += name;
-	    msg += "'";
+	}
+	string msg;
+	if (matches.front()->name() == name)
+	{
+	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    msg += "' as dictionary";
 	    _unit->error(msg);
 	    return 0;
 	}
-	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as dictionary";
-	_unit->error(msg);
-	return 0;
+	msg = "dictionary `" + name + "' differs only in capitalization from ";
+	msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+	_unit->warning(msg);	// TODO: change to error in stable_39
     }
 
     DictionaryPtr p = new Dictionary(this, name, keyType, valueType, local);
@@ -674,19 +595,18 @@ Slice::Container::createEnum(const string& name, bool local)
 	    {
 		return p;
 	    }
-
-	    string msg = "redefinition of enum `";
-	    msg += name;
-	    msg += "'";
+	}
+	string msg;
+	if (matches.front()->name() == name)
+	{
+	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    msg += "' as enumeration";
 	    _unit->error(msg);
 	    return 0;
 	}
-	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as enum";
-	_unit->error(msg);
-	return 0;
+	msg = "enumeration `" + name + "' differs only in capitalization from ";
+	msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+	_unit->warning(msg);	// TODO: change to error in stable_39
     }
 
     EnumPtr p = new Enum(this, name, local);
@@ -707,19 +627,18 @@ Slice::Container::createEnumerator(const string& name)
 	    {
 		return p;
 	    }
-
-	    string msg = "redefinition of enumerator `";
-	    msg += name;
-	    msg += "'";
+	}
+	string msg;
+	if (matches.front()->name() == name)
+	{
+	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    msg += "' as enumerator";
 	    _unit->error(msg);
 	    return 0;
 	}
-	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as enumerator";
-	_unit->error(msg);
-	return 0;
+	msg = "enumerator `" + name + "' differs only in capitalization from ";
+	msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+	_unit->warning(msg);	// TODO: change to error in stable_39
     }
 
     EnumeratorPtr p = new Enumerator(this, name);
@@ -974,7 +893,7 @@ Slice::Container::lookupException(const string& scoped, bool printError)
 }
 
 ModuleList
-Slice::Container::modules()
+Slice::Container::modules() const
 {
     ModuleList result;
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -989,7 +908,7 @@ Slice::Container::modules()
 }
 
 ClassList
-Slice::Container::classes()
+Slice::Container::classes() const
 {
     ClassList result;
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -1004,7 +923,7 @@ Slice::Container::classes()
 }
 
 ExceptionList
-Slice::Container::exceptions()
+Slice::Container::exceptions() const
 {
     ExceptionList result;
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -1019,7 +938,7 @@ Slice::Container::exceptions()
 }
 
 StructList
-Slice::Container::structs()
+Slice::Container::structs() const
 {
     StructList result;
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -1034,7 +953,7 @@ Slice::Container::structs()
 }
 
 SequenceList
-Slice::Container::sequences()
+Slice::Container::sequences() const
 {
     SequenceList result;
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -1049,7 +968,7 @@ Slice::Container::sequences()
 }
 
 DictionaryList
-Slice::Container::dictionaries()
+Slice::Container::dictionaries() const
 {
     DictionaryList result;
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -1064,7 +983,7 @@ Slice::Container::dictionaries()
 }
 
 EnumList
-Slice::Container::enums()
+Slice::Container::enums() const
 {
     EnumList result;
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -1079,7 +998,7 @@ Slice::Container::enums()
 }
 
 bool
-Slice::Container::hasNonLocalClassDecls()
+Slice::Container::hasNonLocalClassDecls() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
@@ -1100,7 +1019,7 @@ Slice::Container::hasNonLocalClassDecls()
 }
 
 bool
-Slice::Container::hasClassDecls()
+Slice::Container::hasClassDecls() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
@@ -1120,7 +1039,7 @@ Slice::Container::hasClassDecls()
 }
 
 bool
-Slice::Container::hasClassDefs()
+Slice::Container::hasClassDefs() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
@@ -1140,7 +1059,7 @@ Slice::Container::hasClassDefs()
 }
 
 bool
-Slice::Container::hasOtherConstructedOrExceptions()
+Slice::Container::hasOtherConstructedOrExceptions() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
@@ -1333,20 +1252,134 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
     return true;
 }
 
+//
+// Return true if the class definition cdp is on one of the class lists in gpl, false otherwise.
+//
+bool
+Slice::Container::isInList(const GraphPartitionList& gpl, const ClassDefPtr cdp) const
+{
+    for(GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
+    {
+	if(find(i->begin(), i->end(), cdp) != i->end())
+	{
+	    return true;
+	}
+    }
+    return false;
+}
+
+void
+Slice::Container::addPartition(GraphPartitionList& gpl,
+	                       GraphPartitionList::reverse_iterator tail,
+			       const ClassDefPtr base) const
+{
+    //
+    // If this base is on one of the partition lists already, do nothing.
+    //
+    if(isInList(gpl, base))
+    {
+	return;
+    }
+    //
+    // Put the current base at the end of the current partition.
+    //
+    tail->push_back(base);
+    //
+    // If the base has bases in turn, recurse, adding the first base
+    // of base (the left-most "grandbase") to the current partition.
+    //
+    if(base->_bases.size())
+    {
+	addPartition(gpl, tail, *(base->_bases.begin()));
+    }
+    //
+    // If the base has multiple bases, each of the "grandbases"
+    // except for the left-most (which we just dealt with)
+    // adds a new partition.
+    //
+    if(base->_bases.size() > 1)
+    {
+	ClassList::const_iterator i = base->_bases.begin();
+	while(++i != base->_bases.end())
+	{
+	    ClassList cl;
+	    gpl.push_back(cl);
+	    addPartition(gpl, gpl.rbegin(), *i);
+	}
+    }
+}
+
+//
+// Convert the list of partitions of class definitions into a
+// list of sets, with each set containing the operation and member
+// names defined by the classes in each partition.
+// 
+StringSetList
+Slice::Container::toStringSetList(const GraphPartitionList& gpl) const
+{
+    StringSetList spl;
+    for(GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
+    {
+	StringSet ss;
+	spl.push_back(ss);
+	for(ClassList::const_iterator j = i->begin(); j != i->end(); ++j)
+	{
+	    OperationList operations = (*j)->operations();
+	    DataMemberList members = (*j)->dataMembers();
+	    for(OperationList::const_iterator l = operations.begin(); l != operations.end(); ++l)
+	    {
+		spl.rbegin()->insert((*l)->name());
+	    }
+	    for(DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
+	    {
+		spl.rbegin()->insert((*m)->name());
+	    }
+	}
+    }
+    return spl;
+}
+
+//
+// Return the union of the intersections of all possible pairs of sets of strings.
+//
+StringList
+Slice::Container::unionOfAllPairIntersections(const StringSetList& l) const
+{
+    StringList result;
+    for(StringSetList::const_iterator i = l.begin(); i != l.end(); ++i)
+    {
+	StringSetList::const_iterator cursor = i;
+	++cursor;
+	for(StringSetList::const_iterator j = cursor; j != l.end(); ++j)
+	{
+	    set_intersection(i->begin(), i->end(), j->begin(), j->end(), back_inserter(result));
+	}
+    }
+    result.sort();
+    result.unique();
+    return result;
+}
+
 // ----------------------------------------------------------------------
 // Module
 // ----------------------------------------------------------------------
 
 Contained::ContainedType
-Slice::Module::containedType()
+Slice::Module::containedType() const
 {
     return ContainedTypeModule;
 }
 
 bool
-Slice::Module::uses(const ContainedPtr&)
+Slice::Module::uses(const ContainedPtr&) const
 {
     return false;
+}
+
+std::string
+Slice::Module::kindOf() const
+{
+    return "module";
 }
 
 void
@@ -1376,7 +1409,7 @@ Slice::Module::Module(const ContainerPtr& container, const string& name) :
 // ----------------------------------------------------------------------
 
 bool
-Slice::Constructed::isLocal()
+Slice::Constructed::isLocal() const
 {
     return _local;
 }
@@ -1421,15 +1454,23 @@ Slice::ClassDecl::isInterface()
 }
 
 Contained::ContainedType
-Slice::ClassDecl::containedType()
+Slice::ClassDecl::containedType() const
 {
     return ContainedTypeClass;
 }
 
 bool
-Slice::ClassDecl::uses(const ContainedPtr&)
+Slice::ClassDecl::uses(const ContainedPtr&) const
 {
     return false;
+}
+
+std::string
+Slice::ClassDecl::kindOf() const
+{
+    string s = _interface ? "interface" : "class";
+    s += " declaration";
+    return s;
 }
 
 void
@@ -1491,17 +1532,16 @@ Slice::ClassDef::createOperation(const string& name,
 	    {
 		return p;
 	    }
-
-	    string msg = "redefinition of operation `";
-	    msg += name;
-	    msg += "'";
-	    _unit->error(msg);
-	    return 0;
 	}
-	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as operation";
+	string msg;
+	if(matches.front()->name() != name)
+	{
+	    msg = "operation `" + name + "' differs only in capitalization from ";
+	    msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+	    _unit->warning(msg);	// TODO: change to error in stable_39
+	}
+	msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	msg += "' as operation `" + name + "'";
 	_unit->error(msg);
 	return 0;
     }
@@ -1524,6 +1564,10 @@ Slice::ClassDef::createOperation(const string& name,
 		// signature (but the missing parameters have been reported
 		// already).
 		//
+		string plc = p->second;
+		to_lower(plc);
+		string qlc = q->second;
+		to_lower(qlc);
 		if(p->second == q->second && p->second != "")
 		{
 		    string msg = "duplicate parameter `";
@@ -1532,43 +1576,73 @@ Slice::ClassDef::createOperation(const string& name,
 		    _unit->error(msg);
 		    return 0;
 		}
+		if(plc == qlc && plc != "")
+		{
+		    string msg = "parameter `" + p->second;
+		    msg += "' differs only in capitalization from parameter `" + q->second + "'";
+		    _unit->warning(msg);	// TODO: change to error in stable_39
+		}
+
 		++q;
 	    }
 	    ++p;
 	}
     }
 
+    //
+    // Check whether enclosing interface/class has the same name
+    //
     if(name == this->name())
     {
-	string msg;
-	if(isInterface())
-	{
-	    msg = "interface name `";
-	}
-	else
-	{
-	    msg = "class name `";
-	}
-	msg += name;
-	msg += "' cannot be used as operation";
+	string msg = isInterface() ? "interface" : "class";
+	msg += "name `" + name + "' cannot be used as operation name";
 	_unit->error(msg);
 	return 0;
     }
+    string newName = name;
+    to_lower(newName);
+    string thisName = this->name();
+    to_lower(thisName);
+    if(newName == thisName)
+    {
+	string msg = "operation `" + name + "' differs only in capitalization from enclosing ";
+	msg += isInterface() ? "interface" : "class";
+	msg += " name `" + this->name() + "'";
+	_unit->warning(msg);	// TODO: change to error in stable_39
+    }
 
     //
-    // Check whether any bases have defined this operation already
+    // Check whether any bases have defined something with the same name already
     //
     for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
     {
+	ContainedList cl;
 	OperationList ol = (*p)->allOperations();
-	for(OperationList::const_iterator p = ol.begin(); p != ol.end(); ++p)
+	copy(ol.begin(), ol.end(), back_inserter(cl));
+	DataMemberList dml = (*p)->allDataMembers();
+	copy(dml.begin(), dml.end(), back_inserter(cl));
+	// TODO: once we have constants, append constants to this list for checking
+	for(ContainedList::const_iterator p = cl.begin(); p != cl.end(); ++p)
 	{
 	    if((*p)->name() == name)
 	    {
 		string msg = "operation `" + name;
-		msg += "' is already defined in a base interface or class";
+		msg += "' is already defined as ";
+		string vowels = "aeiou";
+		msg += find(vowels.begin(), vowels.end(), *((*p)->kindOf().begin())) != vowels.end() ? "an " : "a ";
+		msg += (*p)->kindOf() + " in a base interface or class";
 		_unit->error(msg);
 		return 0;
+	    }
+	    string baseName = (*p)->name();
+	    to_lower(baseName);
+	    string newName = name;
+	    to_lower(newName);
+	    if(baseName == newName)
+	    {
+		string msg = "operation `" + name + "' differs only in capitalization from " + (*p)->kindOf();
+		msg += " `" + (*p)->name() + "', which is defined in a base interface or class";
+		_unit->warning(msg);	// TODO: change to error in stable_39
 	    }
 	}
     }
@@ -1592,53 +1666,77 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 	    {
 		return p;
 	    }
-
-	    string msg = "redefinition of data member `";
-	    msg += name;
-	    msg += "'";
-	    _unit->error(msg);
-	    return 0;
 	}
-	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as data member";
-	_unit->error(msg);
-	return 0;
-    }
-
-    if(name == this->name())
-    {
 	string msg;
-	if(isInterface())
+	if(matches.front()->name() != name)
 	{
-	    msg = "interface name `";
+	    msg = "data member `" + name + "' differs only in capitalization from ";
+	    msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+	    _unit->warning(msg);	// TODO: change to error in stable_39
 	}
 	else
 	{
-	    msg = "class name `";
+	    msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
+	    msg += "' as data member `" + name + "'";
+	    _unit->error(msg);
+	    return 0;
 	}
-	msg += name;
-	msg += "' cannot be used as data member";
-	_unit->error(msg);
-	return 0;
     }
 
     //
+    // Check whether enclosing class has the same name
     //
-    // Check whether any bases have defined this data member already
+    if(name == this->name())
+    {
+	string msg = "class name `";
+	msg += name;
+	msg += "' cannot be used as data member name";
+	_unit->error(msg);
+	return 0;
+    }
+    string newName = name;
+    to_lower(newName);
+    string thisName = this->name();
+    to_lower(thisName);
+    if(newName == thisName)
+    {
+	string msg = "data member `" + name + "' differs only in capitalization from enclosing class name `";
+	msg += this->name() + "'";
+	_unit->warning(msg);	// TODO: change to error in stable_39
+    }
+
+    //
+    // Check whether any bases have defined something with the same name already
     //
     for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
     {
+	ContainedList cl;
+	OperationList ol = (*p)->allOperations();
+	copy(ol.begin(), ol.end(), back_inserter(cl));
 	DataMemberList dml = (*p)->allDataMembers();
-	for(DataMemberList::const_iterator p = dml.begin(); p != dml.end(); ++p)
+	copy(dml.begin(), dml.end(), back_inserter(cl));
+	// TODO: once we have constants, append constants to this list for checking
+	for(ContainedList::const_iterator p = cl.begin(); p != cl.end(); ++p)
 	{
 	    if((*p)->name() == name)
 	    {
 		string msg = "data member `" + name;
-		msg += "' is already defined in a base interface or class";
+		msg += "' is already defined as ";
+		string vowels = "aeiou";
+		msg += find(vowels.begin(), vowels.end(), *((*p)->kindOf().begin())) != vowels.end() ? "an " : "a ";
+		msg += (*p)->kindOf() + " in a base interface or class";
 		_unit->error(msg);
 		return 0;
+	    }
+	    string baseName = (*p)->name();
+	    to_lower(baseName);
+	    string newName = name;
+	    to_lower(newName);
+	    if(baseName == newName)
+	    {
+		string msg = "data member `" + name + "' differs only in capitalization from " + (*p)->kindOf();
+		msg += " `" + (*p)->name() + "', which is defined in a base interface or class";
+		_unit->warning(msg);	// TODO: change to error in stable_39
 	    }
 	}
     }
@@ -1650,19 +1748,19 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 }
 
 ClassDeclPtr
-Slice::ClassDef::declaration()
+Slice::ClassDef::declaration() const
 {
     return _declaration;
 }
 
 ClassList
-Slice::ClassDef::bases()
+Slice::ClassDef::bases() const
 {
     return _bases;
 }
 
 ClassList
-Slice::ClassDef::allBases()
+Slice::ClassDef::allBases() const
 {
     ClassList result = _bases;
     result.sort();
@@ -1677,7 +1775,7 @@ Slice::ClassDef::allBases()
 }
 
 OperationList
-Slice::ClassDef::operations()
+Slice::ClassDef::operations() const
 {
     OperationList result;
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -1692,7 +1790,7 @@ Slice::ClassDef::operations()
 }
 
 OperationList
-Slice::ClassDef::allOperations()
+Slice::ClassDef::allOperations() const
 {
     OperationList result = operations();
     result.sort();
@@ -1707,7 +1805,7 @@ Slice::ClassDef::allOperations()
 }
 
 DataMemberList
-Slice::ClassDef::dataMembers()
+Slice::ClassDef::dataMembers() const
 {
     DataMemberList result;
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -1722,7 +1820,7 @@ Slice::ClassDef::dataMembers()
 }
 
 DataMemberList
-Slice::ClassDef::allDataMembers()
+Slice::ClassDef::allDataMembers() const
 {
     DataMemberList result = dataMembers();
     result.sort();
@@ -1767,29 +1865,39 @@ Slice::ClassDef::isInterface()
 }
 
 bool
-Slice::ClassDef::isLocal()
+Slice::ClassDef::isLocal() const
 {
     return _local;
 }
 
 bool
-Slice::ClassDef::hasDataMembers()
+Slice::ClassDef::hasDataMembers() const
 {
     return _hasDataMembers;
 }
 
 Contained::ContainedType
-Slice::ClassDef::containedType()
+Slice::ClassDef::containedType() const
 {
     return ContainedTypeClass;
 }
 
 bool
-Slice::ClassDef::uses(const ContainedPtr&)
+Slice::ClassDef::uses(const ContainedPtr&) const
 {
     // No uses() implementation here. DataMember and Operation have
     // their own uses().
     return false;
+}
+
+std::string
+Slice::ClassDef::kindOf() const
+{
+    string s;
+    if(isLocal())
+	s += "local ";
+    s += "isInterface()" ? "interface" : "class";
+    return s;
 }
 
 void
@@ -1870,28 +1978,72 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
 	    {
 		return p;
 	    }
-
-	    string msg = "redefinition of data member `";
-	    msg += name;
-	    msg += "'";
+	}
+	string msg;
+	if(matches.front()->name() != name)
+	{
+	    msg = "exception member `" + name + "' differs only in capitalization from ";
+	    msg += "exception member `" + matches.front()->name() + "'";
+	    _unit->warning(msg);	// TODO: change to error in stable_39
+	}
+	else
+	{
+	    msg = "redefinition of exception member `" + name + "'";
 	    _unit->error(msg);
 	    return 0;
 	}
-	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as data member";
-	_unit->error(msg);
-	return 0;
     }
 
+    //
+    // Check whether enclosing exception has the same name
+    //
     if(name == this->name())
     {
 	string msg = "exception name `";
 	msg += name;
-	msg += "' cannot be used as data member";
+	msg += "' cannot be used as exception member name";
 	_unit->error(msg);
 	return 0;
+    }
+    string newName = name;
+    to_lower(newName);
+    string thisName = this->name();
+    to_lower(thisName);
+    if(newName == thisName)
+    {
+	string msg = "exception member `" + name + "' differs only in capitalization from enclosing exception name `";
+	msg += this->name() + "'";
+	_unit->warning(msg);	// TODO: change to error in stable_39
+    }
+
+    //
+    // Check whether any bases have defined a member with the same name already
+    //
+    ExceptionList bl = allBases();
+    for(ExceptionList::const_iterator p = bl.begin(); p != bl.end(); ++p)
+    {
+	ContainedList cl;
+	DataMemberList dml = (*p)->dataMembers();
+	copy(dml.begin(), dml.end(), back_inserter(cl));
+	for(ContainedList::const_iterator p = cl.begin(); p != cl.end(); ++p)
+	{
+	    if((*p)->name() == name)
+	    {
+		string msg = "exception member `" + name + "' is already defined in a base exception";
+		_unit->error(msg);
+		return 0;
+	    }
+	    string baseName = (*p)->name();
+	    to_lower(baseName);
+	    string newName = name;
+	    to_lower(newName);
+	    if(baseName == newName)
+	    {
+		string msg = "exception member `" + name + "' differs only in capitalization from exception member `";
+		msg += (*p)->name() + "', which is defined in a base exception";
+		_unit->warning(msg);	// TODO: change to error in stable_39
+	    }
+	}
     }
 
     DataMemberPtr p = new DataMember(this, name, type);
@@ -1900,7 +2052,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type)
 }
 
 DataMemberList
-Slice::Exception::dataMembers()
+Slice::Exception::dataMembers() const
 {
     DataMemberList result;
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -1915,13 +2067,13 @@ Slice::Exception::dataMembers()
 }
 
 ExceptionPtr
-Slice::Exception::base()
+Slice::Exception::base() const
 {
     return _base;
 }
 
 ExceptionList
-Slice::Exception::allBases()
+Slice::Exception::allBases() const
 {
     ExceptionList result;
     if(_base)
@@ -1933,22 +2085,28 @@ Slice::Exception::allBases()
 }
 
 bool
-Slice::Exception::isLocal()
+Slice::Exception::isLocal() const
 {
     return _local;
 }
 
 Contained::ContainedType
-Slice::Exception::containedType()
+Slice::Exception::containedType() const
 {
     return ContainedTypeException;
 }
 
 bool
-Slice::Exception::uses(const ContainedPtr&)
+Slice::Exception::uses(const ContainedPtr&) const
 {
     // No uses() implementation here. DataMember has its own uses().
     return false;
+}
+
+std::string
+Slice::Exception::kindOf() const
+{
+    return "exception";
 }
 
 void
@@ -1992,28 +2150,42 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
 	    {
 		return p;
 	    }
-
-	    string msg = "redefinition of data member `";
-	    msg += name;
-	    msg += "'";
+	}
+	string msg;
+	if(matches.front()->name() != name)
+	{
+	    msg = "member `" + name + "' differs only in capitalization from ";
+	    msg += "member `" + matches.front()->name() + "'";
+	    _unit->warning(msg);	// TODO: change to error in stable_39
+	}
+	else
+	{
+	    msg = "redefinition of struct member `" + name + "'";
 	    _unit->error(msg);
 	    return 0;
 	}
-	
-	string msg = "redefinition of `";
-	msg += name;
-	msg += "' as data member";
-	_unit->error(msg);
-	return 0;
     }
 
+    //
+    // Check whether enclosing struct has the same name
+    //
     if(name == this->name())
     {
 	string msg = "struct name `";
 	msg += name;
-	msg += "' cannot be used as data member";
+	msg += "' cannot be used as member name";
 	_unit->error(msg);
 	return 0;
+    }
+    string newName = name;
+    to_lower(newName);
+    string thisName = this->name();
+    to_lower(thisName);
+    if(newName == thisName)
+    {
+	string msg = "struct member `" + name + "' differs only in capitalization from enclosing struct name `";
+	msg += this->name() + "'";
+	_unit->warning(msg);	// TODO: change to error in stable_39
     }
 
     if(type.get() == this)
@@ -2046,15 +2218,21 @@ Slice::Struct::dataMembers()
 }
 
 Contained::ContainedType
-Slice::Struct::containedType()
+Slice::Struct::containedType() const
 {
     return ContainedTypeStruct;
 }
 
 bool
-Slice::Struct::uses(const ContainedPtr&)
+Slice::Struct::uses(const ContainedPtr&) const
 {
     return false;
+}
+
+std::string
+Slice::Struct::kindOf() const
+{
+    return "struct";
 }
 
 void
@@ -2098,13 +2276,13 @@ Slice::Sequence::type()
 }
 
 Contained::ContainedType
-Slice::Sequence::containedType()
+Slice::Sequence::containedType() const
 {
     return ContainedTypeSequence;
 }
 
 bool
-Slice::Sequence::uses(const ContainedPtr& contained)
+Slice::Sequence::uses(const ContainedPtr& contained) const
 {
     ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
     if(contained2 && contained2 == contained)
@@ -2113,6 +2291,12 @@ Slice::Sequence::uses(const ContainedPtr& contained)
     }
 
     return false;
+}
+
+std::string
+Slice::Sequence::kindOf() const
+{
+    return "sequence";
 }
 
 void
@@ -2158,13 +2342,13 @@ Slice::Dictionary::valueType()
 }
 
 Contained::ContainedType
-Slice::Dictionary::containedType()
+Slice::Dictionary::containedType() const
 {
     return ContainedTypeDictionary;
 }
 
 bool
-Slice::Dictionary::uses(const ContainedPtr& contained)
+Slice::Dictionary::uses(const ContainedPtr& contained) const
 {
     {
 	ContainedPtr contained2 = ContainedPtr::dynamicCast(_keyType);
@@ -2183,6 +2367,12 @@ Slice::Dictionary::uses(const ContainedPtr& contained)
     }
 
     return false;
+}
+
+std::string
+Slice::Dictionary::kindOf() const
+{
+    return "dictionary";
 }
 
 void
@@ -2241,15 +2431,21 @@ Slice::Enum::setEnumerators(const EnumeratorList& ens)
 }
 
 Contained::ContainedType
-Slice::Enum::containedType()
+Slice::Enum::containedType() const
 {
     return ContainedTypeEnum;
 }
 
 bool
-Slice::Enum::uses(const ContainedPtr&)
+Slice::Enum::uses(const ContainedPtr&) const
 {
     return false;
+}
+
+std::string
+Slice::Enum::kindOf() const
+{
+    return "enumeration";
 }
 
 void
@@ -2277,15 +2473,21 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool local)
 // ----------------------------------------------------------------------
 
 Contained::ContainedType
-Slice::Enumerator::containedType()
+Slice::Enumerator::containedType() const
 {
     return ContainedTypeEnumerator;
 }
 
 bool
-Slice::Enumerator::uses(const ContainedPtr&)
+Slice::Enumerator::uses(const ContainedPtr&) const
 {
     return false;
+}
+
+std::string
+Slice::Enumerator::kindOf() const
+{
+    return "enumerator";
 }
 
 Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name) :
@@ -2299,37 +2501,37 @@ Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name)
 // ----------------------------------------------------------------------
 
 TypePtr
-Slice::Operation::returnType()
+Slice::Operation::returnType() const
 {
     return _returnType;
 }
 
 TypeStringList
-Slice::Operation::inputParameters()
+Slice::Operation::inputParameters() const
 {
     return _inParams;
 }
 
 TypeStringList
-Slice::Operation::outputParameters()
+Slice::Operation::outputParameters() const
 {
     return _outParams;
 }
 
 ExceptionList
-Slice::Operation::throws()
+Slice::Operation::throws() const
 {
     return _throws;
 }
 
 Contained::ContainedType
-Slice::Operation::containedType()
+Slice::Operation::containedType() const
 {
     return ContainedTypeOperation;
 }
 
 bool
-Slice::Operation::uses(const ContainedPtr& contained)
+Slice::Operation::uses(const ContainedPtr& contained) const
 {
     {
 	ContainedPtr contained2 = ContainedPtr::dynamicCast(_returnType);
@@ -2373,6 +2575,12 @@ Slice::Operation::uses(const ContainedPtr& contained)
     return false;
 }
 
+std::string
+Slice::Operation::kindOf() const
+{
+    return "operation";
+}
+
 void
 Slice::Operation::visit(ParserVisitor* visitor)
 {
@@ -2402,13 +2610,13 @@ Slice::DataMember::type()
 }
 
 Contained::ContainedType
-Slice::DataMember::containedType()
+Slice::DataMember::containedType() const
 {
     return ContainedTypeDataMember;
 }
 
 bool
-Slice::DataMember::uses(const ContainedPtr& contained)
+Slice::DataMember::uses(const ContainedPtr& contained) const
 {
     ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
     if(contained2 && contained2 == contained)
@@ -2417,6 +2625,12 @@ Slice::DataMember::uses(const ContainedPtr& contained)
     }
 
     return false;
+}
+
+std::string
+Slice::DataMember::kindOf() const
+{
+    return "data member";
 }
 
 void
@@ -2443,7 +2657,7 @@ Slice::Unit::createUnit(bool ignRedefs, bool all)
 }
 
 bool
-Slice::Unit::ignRedefs()
+Slice::Unit::ignRedefs() const
 {
     return _ignRedefs;
 }
@@ -2494,9 +2708,15 @@ Slice::Unit::currentComment()
 }
 
 string
-Slice::Unit::currentFile()
+Slice::Unit::currentFile() const
 {
     return _currentFile;
+}
+
+int
+Slice::Unit::currentLine() const
+{
+    return _currentLine;
 }
 
 void
@@ -2579,7 +2799,7 @@ Slice::Unit::scanPosition(const char* s)
 }
 
 int
-Slice::Unit::currentIncludeLevel()
+Slice::Unit::currentIncludeLevel() const
 {
     if(_all)
     {
@@ -2617,7 +2837,7 @@ Slice::Unit::warning(const string& s)
 }
 
 ContainerPtr
-Slice::Unit::currentContainer()
+Slice::Unit::currentContainer() const
 {
     assert(!_containerStack.empty());
     return _containerStack.top();
@@ -2639,14 +2859,17 @@ Slice::Unit::popContainer()
 void
 Slice::Unit::addContent(const ContainedPtr& contained)
 {
-    _contentMap[contained->scoped()].push_back(contained);
+    string scopedLowerCase = contained->scoped();
+    to_lower(scopedLowerCase);
+    _contentMap[scopedLowerCase].push_back(contained);
 }
 
 void
 Slice::Unit::removeContent(const ContainedPtr& contained)
 {
-    string scoped = contained->scoped();
-    map<string, ContainedList>::iterator p = _contentMap.find(scoped);
+    string scopedLowerCase = contained->scoped();
+    to_lower(scopedLowerCase);
+    map<string, ContainedList>::iterator p = _contentMap.find(scopedLowerCase);
     assert(p != _contentMap.end());
     ContainedList::iterator q;
     for(q = p->second.begin(); q != p->second.end(); ++q)
@@ -2661,13 +2884,15 @@ Slice::Unit::removeContent(const ContainedPtr& contained)
 }
 
 ContainedList
-Slice::Unit::findContents(const string& scoped)
+Slice::Unit::findContents(const string& scoped) const
 {
     assert(!scoped.empty());
     assert(scoped[0] == ':');
 
-    map<string, ContainedList>::const_iterator p = _contentMap.find(scoped);
+    string scopedLowerCase = scoped;
+    to_lower(scopedLowerCase);
 
+    map<string, ContainedList>::const_iterator p = _contentMap.find(scopedLowerCase);
     if(p != _contentMap.end())
     {
 	return p->second;
@@ -2679,7 +2904,7 @@ Slice::Unit::findContents(const string& scoped)
 }
 
 ClassList
-Slice::Unit::findDerivedClasses(const ClassDefPtr& cl)
+Slice::Unit::findDerivedClasses(const ClassDefPtr& cl) const
 {
     ClassList derived;
     for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
@@ -2703,7 +2928,7 @@ Slice::Unit::findDerivedClasses(const ClassDefPtr& cl)
 }
 
 ExceptionList
-Slice::Unit::findDerivedExceptions(const ExceptionPtr& ex)
+Slice::Unit::findDerivedExceptions(const ExceptionPtr& ex) const
 {
     ExceptionList derived;
     for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
@@ -2727,7 +2952,7 @@ Slice::Unit::findDerivedExceptions(const ExceptionPtr& ex)
 }
 
 ContainedList
-Slice::Unit::findUsedBy(const ContainedPtr& contained)
+Slice::Unit::findUsedBy(const ContainedPtr& contained) const
 {
     ContainedList usedBy;
     for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
@@ -2746,7 +2971,7 @@ Slice::Unit::findUsedBy(const ContainedPtr& contained)
 }
 
 bool
-Slice::Unit::usesProxies()
+Slice::Unit::usesProxies() const
 {
     for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
     {
@@ -2769,7 +2994,7 @@ Slice::Unit::usesProxies()
 }
 
 bool
-Slice::Unit::usesNonLocals()
+Slice::Unit::usesNonLocals() const
 {
     for(map<string, ContainedList>::const_iterator p = _contentMap.begin(); p != _contentMap.end(); ++p)
     {
@@ -2803,7 +3028,7 @@ Slice::Unit::usesNonLocals()
 }
 
 StringList
-Slice::Unit::includeFiles()
+Slice::Unit::includeFiles() const
 {
     return _includeFiles;
 }
