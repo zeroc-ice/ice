@@ -282,20 +282,20 @@ run(int argc, char* argv[], MAP& m)
     test(p->first == 'b');
 
     //
-    // find_first_of. First construct a vector of pairs (n, o, p,
-    // q). The test must find one of the types (it doesn't matter
+    // find_first_of. First construct a map with keys n, o, p,
+    // q. The test must find one of the types (it doesn't matter
     // which since the container doesn't have to maintain sorted
     // order).
     //
     j = find(alphabet.begin(), alphabet.end(), 'n');
-    vector< pair <Byte, Int> > pairs;
-    pairs.push_back(make_pair(*j, j - alphabet.begin()));
+    map<Byte, const Int> pairs;
+    pairs.insert(make_pair(*j, j - alphabet.begin()));
     ++j;
-    pairs.push_back(make_pair(*j, j - alphabet.begin()));
+    pairs.insert(make_pair(*j, j - alphabet.begin()));
     ++j;
-    pairs.push_back(make_pair(*j, j - alphabet.begin()));
+    pairs.insert(make_pair(*j, j - alphabet.begin()));
     ++j;
-    pairs.push_back(make_pair(*j, j - alphabet.begin()));
+    pairs.insert(make_pair(*j, j - alphabet.begin()));
 
     p = find_first_of(m.begin(), m.end(), pairs.begin(), pairs.end());
     test(p != m.end());
@@ -307,10 +307,13 @@ run(int argc, char* argv[], MAP& m)
     test(p->first == 'n' || p->first == 'o' || p->first == 'p' || p->first == 'q');
 
     pairs.clear();
-    copy(m.begin(), m.end(), back_inserter(pairs));
+    for(p = m.begin(); p != m.end(); ++p)
+    {
+        pairs.insert(make_pair(p->first, p->second));
+    }
     test(pairs.size() == m.size());
 
-    vector<pair<Byte, Int> >::const_iterator pit;
+    map<Byte, const Int>::const_iterator pit;
     for(pit = pairs.begin(); pit != pairs.end(); ++pit)
     {
 	p = m.find(pit->first);
