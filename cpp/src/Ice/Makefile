@@ -108,16 +108,7 @@ OBJS		= Initialize.o \
                   OpenSSLUtils.o \
                   DefaultCertificateVerifier.o \
                   SingleCertificateVerifier.o \
-		  UdpTransceiver.o \
-                  Cryptor.o \
-                  CryptKey.o \
-                  MessageAuthenticator.o \
-                  SUdpClient.o \
-                  SUdpTransceiver.o \
-                  SUdpControlChannel.o \
-                  SUdpServerControlChannel.o \
-                  SUdpClientControlChannel.o \
-                  SecureUdp.o
+		  UdpTransceiver.o 
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -228,23 +219,6 @@ $(HDIR)/ObjectAdapterF.h: $(SDIR)/ObjectAdapterF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/ObjectAdapterF.h
-
-$(HDIR)/SecureUdp.h SecureUdp.cpp: $(SDIR)/SecureUdp.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SecureUdp.h SecureUdp.cpp
-	$(SLICECMD) $(SDIR)/SecureUdp.ice
-	mv SecureUdp.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/SecureUdp.h SecureUdp.cpp
-
-$(HDIR)/SecureUdpF.h: $(SDIR)/SecureUdpF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SecureUdpF.h SecureUdpF.cpp
-	$(SLICECMD) $(SDIR)/SecureUdpF.ice
-	mv SecureUdpF.h $(HDIR)
-	rm -f SecureUdpF.cpp
-
-clean::
-	rm -f $(HDIR)/SecureUdpF.h
 
 $(HDIR)/CertificateVerifier.h CertificateVerifier.cpp: $(SDIR)/CertificateVerifier.ice $(SLICE2CPP)
 	rm -f $(HDIR)/CertificateVerifier.h CertificateVerifier.cpp
