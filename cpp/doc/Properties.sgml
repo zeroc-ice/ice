@@ -667,6 +667,23 @@ milliseconds, or -1 for no timeout.
 </section>
 </section>
 
+<section><title>Ice.Override.ConnectTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Override.ConnectTimeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property overrides timeout settings used to establish
+connections.  <replaceable>num</replaceable> is the timeout value in
+milliseconds, or -1 for no timeout. If this property is not set, then
+<literal>Ice.Override.Timeout</literal> is used.
+</para>
+</section>
+</section>
+
 <section><title>Ice.Override.Compress</title>
 <section><title>Synopsis</title>
 <synopsis>

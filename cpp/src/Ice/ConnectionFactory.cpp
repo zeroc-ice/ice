@@ -251,7 +251,22 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	    {
 		ConnectorPtr connector = endpoint->connector();
 		assert(connector);
-		transceiver = connector->connect(endpoint->timeout());
+
+		Int timeout;
+		DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
+		if(defaultsAndOverrides->overrideConnectTimeout)
+		{
+		    timeout = defaultsAndOverrides->overrideConnectTimeoutValue;
+		}
+		// It is not necessary to check for overrideTimeout,
+		// the endpoint has already been modified with this
+		// override, if set.
+		else
+		{
+		    timeout = endpoint->timeout();
+		}
+
+		transceiver = connector->connect(timeout);
 		assert(transceiver);
 	    }	    
 	    connection = new Connection(_instance, transceiver, endpoint, 0);

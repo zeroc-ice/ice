@@ -400,6 +400,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"Nohup",
 	"NullHandleAbort",
 	"Override.Compress",
+	"Override.ConnectTimeout",
 	"Override.Timeout",
 	"Plugin.*",
 	"PrintAdapterReady",

@@ -119,6 +119,7 @@ static const string iceProps[] =
     "Nohup",
     "NullHandleAbort",
     "Override.Compress",
+    "Override.ConnectTimeout",
     "Override.Timeout",
     "Plugin.*",
     "PrintAdapterReady",

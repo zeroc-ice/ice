@@ -259,7 +259,22 @@ public class OutgoingConnectionFactory
 		{
 		    Connector connector = endpoint.connector();
 		    assert(connector != null);
-		    transceiver = connector.connect(endpoint.timeout());
+
+		    int timeout;
+		    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+		    if(defaultsAndOverrides.overrideConnectTimeout)
+		    {
+			timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
+		    }
+		    // It is not necessary to check for overrideTimeout,
+		    // the endpoint has already been modified with this
+		    // override, if set.
+		    else
+		    {
+			timeout = endpoint.timeout();
+		    }
+
+		    transceiver = connector.connect(timeout);
 		    assert(transceiver != null);
 		}
 		connection = new Connection(_instance, transceiver, endpoint, null);

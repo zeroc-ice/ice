@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Added property Ice.Override.ConnectTimeout. See the manual for
+  details.
+
 - Fixed a rare deadlock in the object adapter, when a locator was
   used.
 
