@@ -35,7 +35,7 @@ name = os.path.join("IcePack", "simple")
 # Add locator options for client and servers. All servers are now
 # clients since they need to make requests to IcePack.
 #
-additionalOptions = " --Ice.Default.Locator=\"IcePack/locator:default -p 12346\""
+additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\""
 
 TestUtil.cleanDbDir(os.path.join(testdir, "data/db"))
 
@@ -51,79 +51,44 @@ TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalOptions, add
 TestUtil.collocatedTestWithOptions(toplevel, name, additionalOptions)
 
 #
-# Get adapter list, ensure that TestAdapter is in the list.
+# Remove the adapter (registered by the server) before deploying the
+# server.
 #
-print "testing adapter registration...",
-hasTestAdapter = 0;
-icePackAdminPipe = IcePackAdmin.listAdapters(ice_home);
-for adaptername in icePackAdminPipe.xreadlines():
-    if adaptername.strip() == "TestAdapter":
-        hasTestAdapter = 1
-        
-if hasTestAdapter == 0:
-    print "failed!"
-    TestUtil.killServers()
-    sys.exit(1)
-
-icePackStatus = icePackAdminPipe.close()
-if icePackStatus:
-    TestUtil.killServers()
-    sys.exit(1)   
-print "ok"
-
 IcePackAdmin.removeAdapter(ice_home, "TestAdapter")
 
 #
-# This test doesn't work under Windows.
+# Test client/server with on demand activation.
 #
-if TestUtil.isWin32() == 0:
+classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + TestUtil.sep + \
+            os.getenv("CLASSPATH", "")
+client = "java -ea -classpath \"" + classpath + "\" Client "
 
-    classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + TestUtil.sep + \
-	os.getenv("CLASSPATH", "")
-    client = "java -ea -classpath \"" + classpath + "\" Client "
+if TestUtil.protocol == "ssl":
+    targets = "ssl"
+else:
+    targets = ""
 
-    print "registering server with icepack...",
-    IcePackAdmin.addServer(ice_home, "server", os.path.join(testdir, "simple_server.xml"), "", classpath, "");
-    print "ok"
+print "registering server with icepack...",
+IcePackAdmin.addServer(ice_home, "server", os.path.join(testdir, "simple_server.xml"), "", classpath, "");
+print "ok"
 
-    print "testing adapter registration...",
-    hasTestAdapter = 0;
-    icePackAdminPipe = IcePackAdmin.listAdapters(ice_home);
-    for adaptername in icePackAdminPipe.xreadlines():
-        if adaptername.strip() == "TestAdapter":
-            hasTestAdapter = 1
-            
-    if hasTestAdapter == 0:
-        print "failed!"
-        TestUtil.killServers()
-        sys.exit(1)
-        
-    icePackStatus = icePackAdminPipe.close()
-    if icePackStatus:
-       TestUtil.killServers()
-       sys.exit(1)
-       
-    print "ok"    
+updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel) + additionalOptions
 
-    updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
+print "starting client...",
+clientPipe = os.popen(client + updatedClientOptions)
+print "ok"
 
-    print "starting client...",
-    clientPipe = os.popen(client + updatedClientOptions + additionalOptions)
-    print "ok"
+for output in clientPipe.xreadlines():
+    print output,
+    
+clientStatus = clientPipe.close()
+if clientStatus:
+    TestUtil.killServers()
+    sys.exit(1)
 
-    for output in clientPipe.xreadlines():
-        print output,
-
-    clientStatus = clientPipe.close()
-    if clientStatus:
-	TestUtil.killServers()
-	sys.exit(1)
-
-    time.sleep(1)
-
-    print "unregister server with icepack...",
-    IcePackAdmin.removeServer(ice_home, "server");
-    print "ok"
+print "unregister server with icepack...",
+IcePackAdmin.removeServer(ice_home, "server");
+print "ok"
     
 IcePackAdmin.shutdownIcePack(ice_home, icePackPipe)
 

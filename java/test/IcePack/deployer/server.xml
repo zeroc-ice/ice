@@ -1,0 +1,22 @@
+<server kind="java">
+
+  <classname>Server</classname>
+
+  <target name="manual">
+    <activation mode="manual"/>
+    <property name="Mode" value="manual"/>
+  </target>
+
+  <adapters>
+    <adapter name="${name}Adapter" endpoints="default">
+      <offer interface="::Test" identity="${name}"/>
+    </adapter>
+  </adapters>
+
+  <properties>
+    <property name="Type" value="Server"/>
+    <property name="Name" value="${name}"/>
+    <property name="Ice.ConnectionWarnings" value="1"/>
+  </properties>
+
+</server>

@@ -21,6 +21,7 @@ public final class LocatorInfo
     synchronized public void
     destroy()
     {
+	_locator = null;
 	_locatorRegistry = null;
 	_adapterTable.clear();
     }

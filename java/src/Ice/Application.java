@@ -123,25 +123,49 @@ public abstract class Application
         return _communicator;
     }
 
-    //
-    // TODO: These need to be implemented.
-    //
     public static void
     shutdownOnInterrupt()
     {
+	//
+	// As soon as the shutdown hook ends all the threads are
+	// terminated. So the shutdown hook will join the current
+	// thread before to end.
+	//
+	_shutdownHook = new ShutdownHook(Thread.currentThread());
+	Runtime.getRuntime().addShutdownHook(_shutdownHook);
     }
-
+    
     public static void
     ignoreInterrupt()
     {
+	try
+	{
+	    Runtime.getRuntime().removeShutdownHook(_shutdownHook);
+	}
+	catch(java.lang.IllegalStateException ex)
+	{
+	    //
+	    // Expected if we are in the process of shutting down.
+	    //
+	}
     }
 
     public static void
     defaultInterrupt()
     {
+	try
+	{
+	    Runtime.getRuntime().removeShutdownHook(_shutdownHook);
+	}
+	catch(java.lang.IllegalStateException ex)
+	{
+	    //
+	    // Expected if we are in the process of shutting down.
+	    //
+	}
     }
-
 
     private static String _appName;
     private static Communicator _communicator;
+    private static Thread _shutdownHook;
 }

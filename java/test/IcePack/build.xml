@@ -2,10 +2,12 @@
 
     <target name="all">
         <ant dir="simple"/>
+        <ant dir="deployer"/>
     </target>
 
     <target name="clean">
         <ant dir="simple" target="clean"/>
+        <ant dir="deployer" target="clean"/>
     </target>
 
 </project>

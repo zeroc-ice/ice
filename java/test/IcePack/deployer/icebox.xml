@@ -1,0 +1,10 @@
+<server kind="java-icebox" endpoints="default">
+
+  <service name="${name}Service1" descriptor="service.xml"/>
+  <service name="${name}Service2" descriptor="freezeservice.xml"/>
+
+  <properties>
+    <property name="Ice.ConnectionWarnings" value="1"/>
+  </properties>
+
+</server>

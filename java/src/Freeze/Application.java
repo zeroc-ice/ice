@@ -24,13 +24,9 @@ public abstract class Application extends Ice.Application
 	int status;
 	DBEnvironment dbEnv = null;
 
-        ShutdownHook hook = null;
-
 	try
 	{
 	    dbEnv = Freeze.Util.initialize(communicator(), _dbEnvName);
-            hook = new ShutdownHook(dbEnv);
-            Runtime.getRuntime().addShutdownHook(hook);
 	    status = runFreeze(args, dbEnv);
 	}
 	catch(DBException ex)
@@ -70,7 +66,6 @@ public abstract class Application extends Ice.Application
 		status = 1;
 	    }
 	    dbEnv = null;
-            Runtime.getRuntime().removeShutdownHook(hook);
 	}
 	
 	return status;

@@ -13,20 +13,20 @@ package IceBox;
 public final class ServiceManagerI extends _ServiceManagerDisp
 {
     public
-    ServiceManagerI(Ice.Communicator communicator, String[] args)
+    ServiceManagerI(Ice.Application server, String[] args)
     {
-        _communicator = communicator;
-        _logger = _communicator.getLogger();
+	_server = server;
+        _logger = _server.communicator().getLogger();
         _argv = args;
 
-        Ice.Properties properties = _communicator.getProperties();
+        Ice.Properties properties = _server.communicator().getProperties();
         _options = properties.getCommandLineOptions();
     }
 
     public void
     shutdown(Ice.Current current)
     {
-        _communicator.shutdown();
+        _server.communicator().shutdown();
     }
 
     int
@@ -38,7 +38,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	    // Prefix the adapter name and object identity with the value
 	    // of the IceBox.Name property.
 	    //
-	    Ice.Properties properties = _communicator.getProperties();
+	    Ice.Properties properties = _server.communicator().getProperties();
 	    String namePrefix = properties.getProperty("IceBox.Name");
 	    if(namePrefix.length() > 0)
 	    {
@@ -51,7 +51,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             // will most likely need to be firewalled for security reasons.
             //
             Ice.ObjectAdapter adapter =
-                _communicator.createObjectAdapterFromProperty(namePrefix + "ServiceManagerAdapter",
+                _server.communicator().createObjectAdapterFromProperty(namePrefix + "ServiceManagerAdapter",
                                                               "IceBox.ServiceManager.Endpoints");
 
 	    String identity = properties.getPropertyWithDefault("IceBox.ServiceManager.Identity", 
@@ -125,7 +125,9 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             //
             adapter.activate();
 
-            _communicator.waitForShutdown();
+            _server.shutdownOnInterrupt();
+            _server.communicator().waitForShutdown();
+	    _server.ignoreInterrupt();
 
             //
             // Invoke stop() on the services.
@@ -266,7 +268,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		//
 	        Service s = (Service)info.service;
 	        info.dbEnvName = null;
-                s.start(service, _communicator, serviceProperties, serviceArgs.value);
+                s.start(service, _server.communicator(), serviceProperties, serviceArgs.value);
 	    }
 	    catch(ClassCastException e)
 	    {
@@ -278,7 +280,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		//
 	        FreezeService fs = (FreezeService)info.service;
 
-                Ice.Properties properties = _communicator.getProperties();
+                Ice.Properties properties = _server.communicator().getProperties();
 		String propName = "IceBox.DBEnvName." + service;
 		info.dbEnvName = properties.getProperty(propName);
 
@@ -286,7 +288,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		if(dbInfo == null)
 		{
 		    dbInfo = new DBEnvironmentInfo();
-		    dbInfo.dbEnv = Freeze.Util.initialize(_communicator, info.dbEnvName);
+		    dbInfo.dbEnv = Freeze.Util.initialize(_server.communicator(), info.dbEnvName);
 		    dbInfo.openCount = 1;
 		}
 		else
@@ -295,7 +297,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		}
 		_dbEnvs.put(info.dbEnvName, dbInfo);
 		
-                fs.start(service, _communicator, serviceProperties, serviceArgs.value, dbInfo.dbEnv);
+                fs.start(service, _server.communicator(), serviceProperties, serviceArgs.value, dbInfo.dbEnv);
 	    }
             _services.put(service, info);
         }
@@ -404,7 +406,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         public int openCount;
     }
 
-    private Ice.Communicator _communicator;
+    private Ice.Application _server;
     private Ice.Logger _logger;
     private String[] _argv; // Filtered server argument vector
     private String[] _options; // Server property set converted to command-line options

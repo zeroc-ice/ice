@@ -10,7 +10,7 @@
 
 package IceBox;
 
-public final class Server
+public final class Server extends Ice.Application
 {
     private static void
     usage()
@@ -25,54 +25,33 @@ public final class Server
     public static void
     main(String[] args)
     {
-        Ice.Communicator communicator = null;
-        int status = 0;
+	Server server = new Server();
+	server.main("IceBox.Server", args);
+    }
 
-        try
-        {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            communicator = Ice.Util.initialize(argsH);
+    public int
+    run(String[] args)
+    {
+	Ice.Properties properties = communicator().getProperties();
+	Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+	argsH.value = properties.parseCommandLineOptions("IceBox", argsH.value);
+	
+	for(int i = 1; i < argsH.value.length; ++i)
+	{
+	    if(argsH.value[i].equals("-h") || argsH.value[i].equals("--help"))
+	    {
+		usage();
+		return 0;
+	    }
+	    else if(!argsH.value[i].startsWith("--"))
+	    {
+		System.err.println("Server: unknown option `" + argsH.value[i] + "'");
+		usage();
+		return 1;
+	    }
+	}
 
-            Ice.Properties properties = communicator.getProperties();
-            argsH.value = properties.parseCommandLineOptions("IceBox", argsH.value);
-
-            for(int i = 1; i < argsH.value.length; ++i)
-            {
-                if(argsH.value[i].equals("-h") || argsH.value[i].equals("--help"))
-                {
-                    usage();
-                    System.exit(0);
-                }
-                else if(!argsH.value[i].startsWith("--"))
-                {
-                    System.err.println("Server: unknown option `" + argsH.value[i] + "'");
-                    usage();
-                    System.exit(1);
-                }
-            }
-
-            ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator, argsH.value);
-            status = serviceManagerImpl.run();
-        }
-        catch(Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
-        System.exit(status);
+	ServiceManagerI serviceManagerImpl = new ServiceManagerI(this, argsH.value);
+	return serviceManagerImpl.run();
     }
 }

@@ -1,0 +1,10 @@
+<application>
+
+   <server name="Yellow" descriptor="yellow_icebox.xml"/>
+
+   <server name="IceBox1" descriptor="icebox.xml"/>
+   <server name="IceBox2" descriptor="icebox.xml"/>
+   <server name="Server1" descriptor="server.xml"/>
+   <server name="Server2" descriptor="server.xml"/>
+
+</application>

@@ -8,13 +8,13 @@
 //
 // **********************************************************************
 
-package Freeze;
+package Ice;
 
 public class ShutdownHook extends Thread
 {
-    ShutdownHook(DBEnvironment env)
+    ShutdownHook(Thread threadToJoin)
     {
-        _env = env;
+	_threadToJoin = threadToJoin;
     }
 
     public void
@@ -22,7 +22,9 @@ public class ShutdownHook extends Thread
     {
         try
         {
-            _env.close();
+	    Ice.Application.communicator().shutdown();
+
+	    _threadToJoin.join();
         }
         catch(Exception ex)
         {
@@ -30,5 +32,5 @@ public class ShutdownHook extends Thread
         }
     }
 
-    private DBEnvironment _env;
+    Thread _threadToJoin;
 }

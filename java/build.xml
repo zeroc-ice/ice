@@ -62,6 +62,9 @@
             <fileset dir="${slice.dir}/IceBox">
                 <include name="IceBox.ice" />
             </fileset>
+            <fileset dir="${slice.dir}/IcePack">
+                <include name="Admin.ice" />
+            </fileset>
             <fileset dir="${slice.dir}/IceStorm">
                 <include name="IceStorm.ice" />
             </fileset>
