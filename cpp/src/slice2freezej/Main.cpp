@@ -500,12 +500,14 @@ FreezeGenerator::generate(UnitPtr& u, const Index& index)
     //
     // Key marshalling
     //
+    string typeString = typeToString(type, TypeModeIn);
+
     out << sp << nl << "protected byte[]" << nl 
 	<< "marshalKey(Ice.Object __servant)";
     out << sb;
-    out << nl << "if(__servant instanceof " << index.type << ")";
+    out << nl << "if(__servant instanceof " << typeString << ")";
     out << sb;
-    out << nl <<  memberTypeString << " __key = ((" << index.type << ")__servant)." << index.member << ";"; 
+    out << nl <<  memberTypeString << " __key = ((" << typeString << ")__servant)." << index.member << ";"; 
     out << nl << "return marshalKey(__key);";
     out << eb;
     out << nl << "else";
