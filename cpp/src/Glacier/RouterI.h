@@ -26,9 +26,11 @@ public:
     virtual ~RouterI();
 
     void destroy();
+
     virtual Ice::ObjectPrx getClientProxy(const Ice::Current&);
     virtual Ice::ObjectPrx getServerProxy(const Ice::Current&);
     virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
+    virtual void shutdown(const Ice::Current&);
 
 private:
 

@@ -41,6 +41,11 @@ tests = [ \
     "IceStorm/federation2", \
     ]
 
+if sys.platform != "win32":
+    tests += [ \
+        "Glacier/starter", \
+        ]
+
 #
 # The user can supply on the command line a subset of tests to run.
 #

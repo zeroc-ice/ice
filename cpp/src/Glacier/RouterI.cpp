@@ -29,7 +29,7 @@ Glacier::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
 
 Glacier::RouterI::~RouterI()
 {
-    assert(!_clientAdapter == 0);
+    assert(!_clientAdapter);
 }
 
 void
@@ -46,13 +46,16 @@ Glacier::RouterI::destroy()
 ObjectPrx
 Glacier::RouterI::getClientProxy(const Current&)
 {
-    assert(_clientAdapter);
+    assert(_clientAdapter); // Destroyed?
+
     return _clientAdapter->createProxy(stringToIdentity("dummy"));
 }
 
 ObjectPrx
 Glacier::RouterI::getServerProxy(const Current&)
 {
+    assert(_clientAdapter); // Destroyed?
+
     if (_serverAdapter)
     {
 	return _serverAdapter->createProxy(stringToIdentity("dummy"));
@@ -66,6 +69,8 @@ Glacier::RouterI::getServerProxy(const Current&)
 void
 Glacier::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
 {
+    assert(_clientAdapter); // Destroyed?
+
     if (_routingTableTraceLevel)
     {
 	ostringstream s;
@@ -75,4 +80,11 @@ Glacier::RouterI::addProxy(const ObjectPrx& proxy, const Current&)
     }
 
     _routingTable->add(proxy);
+}
+
+void
+Glacier::RouterI::shutdown(const Current&)
+{
+    assert(_routingTable);
+    _clientAdapter->getCommunicator()->shutdown();
 }

@@ -272,9 +272,6 @@ interface TopicManager
      *
      * Shutdown the &IceStorm; instance.
      *
-     * TODO: This should probably become part of the adminstrative
-     * interface.
-     *
      **/
     void shutdown();
 };

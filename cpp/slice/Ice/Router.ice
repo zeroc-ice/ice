@@ -56,6 +56,13 @@ interface Router
      *
      **/
     void addProxy(Object* proxy);
+
+    /**
+     *
+     * Shutdown the router.
+     *
+     **/
+    void shutdown();
 };
 
 };

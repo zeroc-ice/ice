@@ -64,14 +64,20 @@ def killServers():
 
     for pid in serverPids:
         if sys.platform == "cygwin":
-	    print "killServers(): not implemented for cygwin python"
-	    sys.exit(1)
-        if sys.platform == "win32":
-            import win32api
-            handle = win32api.OpenProcess(1, 0, pid)
-            win32api.TerminateProcess(handle, 0)
+            print "killServers(): not implemented for cygwin python."
+            sys.exit(1)
+        elif sys.platform == "win32":
+            try:
+                import win32api
+                handle = win32api.OpenProcess(1, 0, pid)
+                win32api.TerminateProcess(handle, 0)
+            except:
+                pass # Ignore errors, such as non-existing processes.
         else:
-            os.kill(pid, 9)
+            try:
+                os.kill(pid, 9)
+            except:
+                pass # Ignore errors, such as non-existing processes.
 
     serverPids = []
 
