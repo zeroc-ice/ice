@@ -21,11 +21,11 @@ SLICE_SRCS	=
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(DB_FLAGS) $(CPPFLAGS)
+CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze $(DB_LIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze $(LIBS)
 
 IntLongMap.h IntLongMap.cpp: $(SLICE2FREEZE)
 	rm -f IntLongMap.h IntLongMap.cpp

@@ -46,7 +46,7 @@ SLICE_SRCS	= Library.ice
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(DB_FLAGS) $(READLINE_FLAGS) $(CPPFLAGS)
+CPPFLAGS	:= -I. $(READLINE_FLAGS) $(CPPFLAGS)
 SLICE2CPPFLAGS	:= --ice $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
@@ -55,11 +55,11 @@ $(CLIENT): $(OBJS) $(COBJS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze $(DB_LIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze $(LIBS)
 
 $(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) -lFreeze $(DB_LIBS) $(LIBS) $(READLINE_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) -lFreeze $(LIBS) $(READLINE_LIBS)
 
 LibraryTypes.h LibraryTypes.cpp: Library.ice $(SLICE2FREEZE)
 	rm -f LibraryTypes.h LibraryTypes.cpp
