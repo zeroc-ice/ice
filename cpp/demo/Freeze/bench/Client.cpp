@@ -168,7 +168,7 @@ private:
 	    TransactionHolder txHolder(_connection);
 	    for(i = 0; i < _repetitions; ++i)
 	    {
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(_MSC_VER) && (_MSC_VER < 1310)
 		m.put(T::value_type(i, i));
 #else
 		m.put(typename T::value_type(i, i));
@@ -271,7 +271,7 @@ private:
 		s2.s = os.str();
 		s2.s1 = s1;
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(_MSC_VER) && (_MSC_VER < 1310)
 		m.put(T::value_type(s1, s2));
 #else
 		m.put(typename T::value_type(s1, s2));
@@ -352,7 +352,7 @@ private:
 		ostringstream os;
 		os << i;
 		c1->s = os.str();
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(_MSC_VER) && (_MSC_VER < 1310)
 		m.put(T::value_type(s1, c1));
 #else
 		m.put(typename T::value_type(s1, c1));
@@ -427,7 +427,7 @@ private:
 	    TransactionHolder txHolder(_connection);
 	    for(i = 0; i < _repetitions; ++i)
 	    {
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(_MSC_VER) && (_MSC_VER < 1310)
 		m.put(T::value_type(i, i));
 #else
 		m.put(typename T::value_type(i, i));
@@ -723,7 +723,7 @@ TestApp::run(int argc, char* argv[])
 
     cout << "IntIntMap" << endl;
  
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(_MSC_VER) && (_MSC_VER < 1310)
     {
 	IntIntMap* dummy = 0;
 	IntIntMapTest("IntIntMap", dummy);
@@ -733,7 +733,7 @@ TestApp::run(int argc, char* argv[])
 #endif
     
     cout <<"Struct1Struct2Map" << endl;
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(_MSC_VER) && (_MSC_VER < 1310)
     {
 	Struct1Struct2Map* dummy = 0;
 	Struct1Struct2MapTest("Struct1Struct2Map", dummy);
@@ -743,7 +743,7 @@ TestApp::run(int argc, char* argv[])
 #endif
 
     cout <<"Struct1Class1Map" << endl;
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
+#if defined(_MSC_VER) && (_MSC_VER < 1310)
     {
 	Struct1Class1Map* dummy = 0;
 	Struct1Class1MapTest("Struct1Class1Map", dummy);
@@ -760,7 +760,7 @@ TestApp::run(int argc, char* argv[])
 
     cout <<"IntIntMap (read test)" << endl;
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)  
+#if defined(_MSC_VER) && (_MSC_VER < 1310)  
     {
 	IntIntMap* dummy = 0;
 	IntIntMapReadTest("IntIntMap", dummy);
