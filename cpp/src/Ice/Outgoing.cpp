@@ -187,7 +187,7 @@ IceInternal::Outgoing::invoke()
 		// guarantees that all outstanding requests can safely
 		// be repeated.
 		//
-		if(dynamic_cast<const CloseConnectionException*>(_exception.get()))
+		if(dynamic_cast<CloseConnectionException*>(_exception.get()))
 		{
 		    _exception->ice_throw();
 		}
