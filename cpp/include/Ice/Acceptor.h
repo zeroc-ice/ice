@@ -15,7 +15,10 @@
 #include <Ice/InstanceF.h>
 #include <Ice/TransceiverF.h>
 #include <Ice/Shared.h>
-#include <netinet/in.h>
+
+#ifndef WIN32
+#   include <netinet/in.h> // For struct sockaddr_in
+#endif
 
 namespace _Ice
 {
