@@ -244,7 +244,6 @@ def archiveDemoTree(buildDir, version):
 
     os.system("tar cf Ice-" + version + "-demos.tar Ice-" + version + "-demos")
     os.system("gzip -9 Ice-" + version + "-demos.tar")
-    os.system("zip -q9ry Ice-" + version + "-demos.zip Ice-" + version + "-demos")
     os.chdir(cwd)
 
 def makeInstall(sources, buildDir, installDir, distro, clean):
@@ -562,7 +561,6 @@ def main():
 	if getPlatform() == "linux":
 	    archiveDemoTree(buildDir, version)
 	    shutil.move(buildDir + "/Ice-" + version + "-demos.tar.gz", installDir + "/Ice-" + version + "-demos.tar.gz")
-	    shutil.move(buildDir + "/Ice-" + version + "-demos.zip", installDir + "/Ice-" + version + "-demos.zip")
 
     elif cvsMode:
 	collectSources = False
@@ -592,6 +590,7 @@ def main():
 	    if d == "icej":
 		shutil.copy("lib/Ice.jar", installDir +"/Ice-" + version + "/lib")
 		os.system("cp -pR ant " + installDir + "/Ice-" + version)
+		os.system('find ' + installDir + 'Ice-' + version + ' -name "*.java" | xargs rm')
 	    else:
 		os.system("perl -pi -e 's/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/' config/Make.rules")
 		os.system("gmake INSTALL_ROOT=" + installDir + "/Ice-" + version + " install")
@@ -608,7 +607,6 @@ def main():
     os.chdir(installDir)
     os.system("tar cf Ice-" + version + "-bin-" + getPlatform() + ".tar Ice-" + version)
     os.system("gzip -9 Ice-" + version + "-bin-" + getPlatform() + ".tar")
-    os.system("zip -9qry Ice-" + version + "-bin-" + getPlatform() + ".zip Ice-" + version)
     os.chdir(cwd)
 
     #
