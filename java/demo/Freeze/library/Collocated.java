@@ -31,7 +31,7 @@ class LibraryCollocated extends Freeze.Application
         {
 	}
 
-	if(v != 0)
+	if (v != 0)
 	{
 	    mode = Freeze.EvictorPersistenceMode.SaveAfterMutatingOperation;
 	}
@@ -50,7 +50,7 @@ class LibraryCollocated extends Freeze.Application
         {
         }
 
-	if(v != 0)
+	if (v != 0)
 	{
 	    evictor.setSize(v);
 	}

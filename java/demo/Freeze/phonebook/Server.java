@@ -31,7 +31,7 @@ class PhoneBookServer extends Freeze.Application
         {
 	}
 
-	if(v != 0)
+	if (v != 0)
 	{
 	    evictor = dbContacts.createEvictor(Freeze.EvictorPersistenceMode.SaveAfterMutatingOperation);
 	}
@@ -49,7 +49,7 @@ class PhoneBookServer extends Freeze.Application
         {
         }
 
-	if(v != 0)
+	if (v != 0)
 	{
 	    evictor.setSize(v);
 	}
