@@ -13,7 +13,6 @@
 #include <Ice/Instance.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
-#include <Ice/ObjectAdapter.h>
 #include <Ice/ServantFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Logger.h>
@@ -28,37 +27,40 @@ void
 Ice::CommunicatorI::destroy()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
+
     shutdown();
-    _instance->destroy();
-    _instance = 0;
+
+    if (_instance)
+    {
+	_instance->destroy();
+	_instance = 0;
+    }
+
+    //
+    // Don't set _threadPool to null here! See the comments in the
+    // header file.
+    //
 }
 
 void
 Ice::CommunicatorI::shutdown()
+{
+    //
+    // No mutex locking here! This operation must be signal-safe.
+    //
+    _threadPool->initiateServerShutdown();
+}
+
+void
+Ice::CommunicatorI::waitForShutdown()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     if (!_instance)
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    _instance->objectAdapterFactory()->shutdown();
-}
 
-void
-Ice::CommunicatorI::waitForShutdown()
-{
-    ThreadPoolPtr threadPool;
-
-    {
-	JTCSyncT<JTCRecursiveMutex> sync(*this);
-	if (!_instance)
-	{
-	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
-	}
-	threadPool = _instance->threadPool();
-    }
-
-    threadPool->waitUntilServerFinished();
+    _threadPool->waitUntilServerFinished();
 }
 
 ObjectPrx
@@ -103,7 +105,7 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
     {
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
-    return _instance->objectAdapterFactory() -> createObjectAdapter(name, endpts);
+    return _instance->objectAdapterFactory()->createObjectAdapter(name, endpts);
 }
 
 void
@@ -161,9 +163,25 @@ Ice::CommunicatorI::getPickler()
     return _instance->pickler();
 }
 
-Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties) :
-    _instance(new Instance(this, properties))
+Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties)
 {
+    __setNoDelete(true);
+    try
+    {
+	_instance = new Instance(this, properties);
+    }
+    catch(...)
+    {
+	__setNoDelete(false);
+	throw;
+    }
+    __setNoDelete(false);
+
+    //
+    // Se the comments in the header file for an explanation of why we
+    // need _threadPool directly in CommunicatorI.
+    //
+    _threadPool = _instance->threadPool();
 }
 
 Ice::CommunicatorI::~CommunicatorI()

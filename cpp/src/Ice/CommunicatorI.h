@@ -11,6 +11,7 @@
 #ifndef ICE_COMMUNICATOR_I_H
 #define ICE_COMMUNICATOR_I_H
 
+#include <Ice/ThreadPoolF.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
 
@@ -50,6 +51,15 @@ private:
     friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
     ::IceInternal::InstancePtr _instance;
+
+    //
+    // We need _threadPool directly in CommunicatorI, and it must
+    // never be set to null. That's because the shutdown() operation
+    // is signal-safe, and thus must not access any mutex locks or
+    // _instance. It may only access _threadPool->initiateShutdown(),
+    // which is signal-safe as well.
+    //
+    ::IceInternal::ThreadPoolPtr _threadPool;
 };
 
 }

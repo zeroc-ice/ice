@@ -230,18 +230,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
     string::size_type beg = 0;
     string::size_type end;
     
-    //
-    // Set the "no delete" flag to true, meaning that this object will
-    // not be deleted, even if the reference count drops to zero. This
-    // is needed because if the constructor of the CollectorFactory
-    // throws an exception, or if the CollectorFactories are destroyed
-    // with "deactivate" from within this constructor, all
-    // ObjectAdapterPtrs for this object will be destroyed, and thus
-    // this object would be deleted if the "no delete" flag is not
-    // set.
-    //
     __setNoDelete(true);
-
     try
     {
 	while (true)
@@ -258,10 +247,12 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 	    }
 	    
 	    string es = s.substr(beg, end - beg);
-	    
+	   
+	    //
 	    // Don't store the endpoint in the adapter. The Collector
 	    // might change it, for example, to fill in the real port
 	    // number if a zero port number is given.
+	    //
 	    EndpointPtr endp = Endpoint::endpointFromString(es);
 	    _collectorFactories.push_back(new CollectorFactory(instance, this, endp));
 	    
@@ -282,7 +273,6 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 	__setNoDelete(false);
 	throw;
     }
-
     __setNoDelete(false);
     
     if (_collectorFactories.empty())

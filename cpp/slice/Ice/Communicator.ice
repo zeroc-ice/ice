@@ -43,11 +43,10 @@ local class Communicator
     /**
      *
      * Destroy the Communicator. This operation calls
-     * <literal>shutdown</literal> implicitly, if it hasn't been called
-     * before. Calling <literal>destroy</literal> more than once is not
-     * permissible, and will cause a local Ice exception to be
-     * thrown. Calling <literal>destroy</literal> cleans up memory, and
-     * shuts down the client-side of an application.
+     * <literal>shutdown</literal> implicitly.  Calling
+     * <literal>destroy</literal> cleans up memory, and shuts the
+     * client-side of an application down. Subsequent calls to
+     * <literal>destroy</literal> are ignored.
      *
      * @see shutdown
      *
@@ -56,11 +55,15 @@ local class Communicator
 
     /**
      *
-     * Shut down the server-side of an
-     * application. <literal>shutdown</literal> deactivates all Object
-     * Adapters. Calling <literal>shutdown</literal> more than once is
-     * not permissible, and will cause a local Ice exception to be
-     * thrown.
+     * Shut the server-side of an application
+     * down. <literal>shutdown</literal> deactivates all Object
+     * Adapters. Subsequent calls to <literal>shutdown</literal> are
+     * ignored.
+     *
+     * <important><para>Shutdown is the only operation that is
+     * signal-safe, i.e., it is safe to call this operation from a
+     * Unix signal handler. No other Ice operation must be called from
+     * a Unix signal handler.</para></important>
      *
      * <note><para> Shutdown is not immediate, i.e., after
      * <literal>shutdown</literal> returns, the server-side of the
@@ -78,13 +81,15 @@ local class Communicator
      *
      * Wait until the server-side of an application has shut
      * down. Calling <literal>shutdown</literal> initiates server-side
-     * shutdown, and <literal>waitForShutdown</literal> only returns when
-     * such shutdown has been completed. A typical use of this
+     * shutdown, and <literal>waitForShutdown</literal> only returns
+     * when such shutdown has been completed. A typical use of this
      * operation is to call it from the main thread, which then waits
-     * until some other thread calls <literal>shutdown</literal>. After
-     * such shutdown is complete, the main thread returns and can do
-     * some cleanup work before it calls <literal>destroy</literal> and
-     * then exits the application.
+     * until some other thread calls
+     * <literal>shutdown</literal>. After such shutdown is complete,
+     * the main thread returns and can do some cleanup work before it
+     * finally calls <literal>destroy</literal> to also shut the
+     * client-side of the application down, and then exits the
+     * application.
      *
      * @see shutdown
      * @see destroy

@@ -13,11 +13,11 @@
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
-#include <Ice/Communicator.h>
 #include <Ice/Properties.h>
 #include <Ice/Logger.h>
 #include <Ice/Functional.h>
 #include <Ice/Protocol.h>
+#include <Ice/ObjectAdapterFactory.h>
 #include <sstream>
 
 using namespace std;
@@ -51,6 +51,17 @@ void
 IceInternal::ThreadPool::promoteFollower()
 {
     _threadMutex.unlock();
+}
+
+void
+IceInternal::ThreadPool::initiateServerShutdown()
+{
+    char c = 1;
+#ifdef WIN32
+    ::send(_fdIntrWrite, &c, 1, 0);
+#else
+    ::write(_fdIntrWrite, &c, 1);
+#endif
 }
 
 void
@@ -164,17 +175,24 @@ IceInternal::ThreadPool::destroy()
     setInterrupt();
 }
 
-void
+bool
 IceInternal::ThreadPool::clearInterrupt()
 {
-    char s[32]; // Clear up to 32 interrupts at once
+    bool shutdown = false;
+    char c;
 #ifdef WIN32
-    while (::recv(_fdIntrRead, s, 32, 0) == 32)
-	;
+    while (::recv(_fdIntrRead, &c, 1, 0) == 1)
 #else
-    while (::read(_fdIntrRead, s, 32) == 32)
-	;
+    while (::read(_fdIntrRead, &c, 1) == 1)
 #endif
+    {
+	if (c == 1) // Shutdown initiated?
+	{
+	    shutdown = true;
+	}
+    }
+
+    return shutdown;
 }
 
 void
@@ -191,6 +209,8 @@ IceInternal::ThreadPool::setInterrupt()
 void
 IceInternal::ThreadPool::run()
 {
+    bool shutdown = false;
+
     while (true)
     {
 	_threadMutex.lock();
@@ -199,6 +219,13 @@ IceInternal::ThreadPool::run()
 	InstancePtr instance;
 	
     repeatSelect:
+
+	if (shutdown) // Shutdown has been initiated
+	{
+	    shutdown = false;
+	    _instance->objectAdapterFactory()->shutdown();
+	}
+
 	fd_set fdSet;
 	memcpy(&fdSet, &_fdSet, sizeof(fd_set));
 	int ret;
@@ -218,7 +245,7 @@ IceInternal::ThreadPool::run()
 	{
 	    assert(_timeout);
 	    _timeout = 0;
-	    _instance->communicator()->shutdown();
+	    _instance->objectAdapterFactory()->shutdown();
 	    goto repeatSelect;
 	}
 	
@@ -248,9 +275,16 @@ IceInternal::ThreadPool::run()
 		return;
 	    }
 		
+	    bool again = false;
+	    
 	    if (FD_ISSET(_fdIntrRead, &fdSet))
 	    {
-		clearInterrupt();
+		shutdown = clearInterrupt();
+		if (shutdown)
+		{
+		    again = true;
+		}
+
 #ifdef WIN32
 		FD_CLR(static_cast<u_int>(_fdIntrRead), &fdSet);
 #else
@@ -258,12 +292,10 @@ IceInternal::ThreadPool::run()
 #endif
 	    }
 	    
-	    bool again = false;
-	    
 	    if (!_adds.empty())
 	    {
 		//
-		// New handlers have been addedf
+		// New handlers have been added
 		//
 		for (vector<pair<int, EventHandlerPtr> >::iterator p = _adds.begin(); p != _adds.end(); ++p)
 		{

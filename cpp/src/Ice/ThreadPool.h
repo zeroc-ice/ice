@@ -28,6 +28,7 @@ public:
     void _register(int, const EventHandlerPtr&);
     void unregister(int);
     void promoteFollower();
+    void initiateServerShutdown(); // Signal-safe shutdown initiation.
     void waitUntilServerFinished();
     void waitUntilFinished();
     void joinWithAllThreads();
@@ -39,7 +40,7 @@ private:
     void destroy();
     friend class Instance;
 
-    void clearInterrupt();
+    bool clearInterrupt();
     void setInterrupt();
 
     void run();
