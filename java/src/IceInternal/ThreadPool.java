@@ -479,8 +479,8 @@ public final class ThreadPool
                             continue repeatSelect;
                         }
 
-                        stream.swap(handler._stream); // TODO
-                        //assert(stream.i == stream.b.end());
+                        stream.swap(handler._stream);
+                        assert(stream.pos() == stream.size());
                     }
 
                     handler.message(stream);
@@ -491,10 +491,55 @@ public final class ThreadPool
         }
     }
 
-    private EventHandler
-    read()
+    private void
+    read(EventHandler handler)
     {
-        // TODO
+        BasicStream stream = handler._stream;
+
+        if (stream.size() < Protocol.headerSize) // Read header?
+        {
+            if (stream.size() == 0)
+            {
+                stream.resize(Protocol.headerSize);
+                stream.pos(0);
+            }
+
+            handler.read(stream);
+            if (stream.pos() != stream.size())
+            {
+                return;
+            }
+        }
+
+        if (stream.size() >= Protocol.headerSize) // Interpret header?
+        {
+            int pos = stream.pos();
+            stream.pos(0);
+            byte protVer = stream.readByte();
+            if (protVer != Protocol.protocolVersion)
+            {
+                throw new Ice.UnsupportedProtocolException();
+            }
+            byte encVer = stream.readByte();
+            if (encVer != Protocol.encodingVersion)
+            {
+                throw new Ice.UnsupportedEncodingException();
+            }
+            byte messageType = stream.readByte();
+            int size = stream.readInt();
+            if (size > 1024 * 1024) // TODO: Configurable
+            {
+                throw new Ice.MemoryLimitException();
+            }
+            stream.resize(size);
+            stream.pos(pos);
+        }
+
+        if (stream.size() > Protocol.headerSize &&
+            stream.pos() != stream.size())
+        {
+            handler.read(stream);
+        }
     }
 
     private void
