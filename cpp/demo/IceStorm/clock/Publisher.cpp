@@ -11,7 +11,7 @@
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 
-#include <IceStorm/Clock.h>
+#include <Clock.h>
 
 using namespace std;
 

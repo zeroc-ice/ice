@@ -144,7 +144,9 @@ public:
 	_subscribers.remove_if(::Ice::constMemFun(&Subscriber::invalid));
 
 	for (SubscriberList::iterator i = _subscribers.begin(); i != _subscribers.end(); ++i)
+	{
 	    (*i)->publish(op, blob);
+	}
 	//for_each(_subscribers.begin(), _subscribers.end(), Ice::memFun(&Subscriber::publish));
     }
 

@@ -248,7 +248,8 @@ DispatchStatus
 Ice::Blobject::__dispatch(Incoming& in, const string& identity, const string& facet, const string& operation)
 {
     vector<Byte> blob;
-    in.is()->read(blob);
+    Int sz = in.is()->getReadEncapsSize();
+    in.is()->readBlob(blob, sz);
     ice_invokeIn(identity, facet, operation, blob);
     return ::IceInternal::DispatchOK;
 }

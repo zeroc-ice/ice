@@ -28,8 +28,8 @@ IceInternal::BasicStream::BasicStream(const InstancePtr& instance) :
     _encapsStack(1)
 {
     _encapsStack.resize(1);
-    _encapsStack.back().start = 0;
     _encapsStack.back().encoding = 0;
+    _encapsStack.back().start = 0;
 }
 
 IceInternal::BasicStream::~BasicStream()
@@ -80,11 +80,11 @@ IceInternal::BasicStream::reserve(int total)
 void
 IceInternal::BasicStream::startWriteEncaps()
 {
+    write(Int(0)); // Encoding
     write(Int(0)); // Placeholder for the encapsulation length
     _encapsStack.resize(_encapsStack.size() + 1);
-    _encapsStack.back().start = b.size();
     _encapsStack.back().encoding = 0;
-    write(_encapsStack.back().encoding);
+    _encapsStack.back().start = b.size();
 }
 
 void
@@ -104,15 +104,17 @@ IceInternal::BasicStream::endWriteEncaps()
 void
 IceInternal::BasicStream::startReadEncaps()
 {
-    Int sz;
-    read(sz);
-    _encapsStack.resize(_encapsStack.size() + 1);
-    _encapsStack.back().start = i - b.begin();
-    read(_encapsStack.back().encoding);
-    if (_encapsStack.back().encoding != 0)
+    Int encoding;
+    read(encoding);
+    if (encoding != 0)
     {
 	throw UnsupportedEncodingException(__FILE__, __LINE__);
     }
+    Int sz;
+    read(sz);
+    _encapsStack.resize(_encapsStack.size() + 1);
+    _encapsStack.back().encoding = encoding;
+    _encapsStack.back().start = i - b.begin();
 }
 
 void
@@ -121,7 +123,13 @@ IceInternal::BasicStream::endReadEncaps()
     int start = _encapsStack.back().start;
     _encapsStack.pop_back();
     i = b.begin() + start - sizeof(Int);
-    skipEncaps();
+    Int sz;
+    read(sz);
+    i += sz;
+    if (i > b.end())
+    {
+	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
 }
 
 void
@@ -139,9 +147,27 @@ IceInternal::BasicStream::checkReadEncaps()
     }
 }
 
+Int
+IceInternal::BasicStream::getReadEncapsSize()
+{
+    int start = _encapsStack.back().start;
+    Container::iterator save = i;
+    i = b.begin() + start - sizeof(Int);
+    Int sz;
+    read(sz);
+    i = save;
+    return sz;
+}
+
 void
 IceInternal::BasicStream::skipEncaps()
 {
+    Int encoding;
+    read(encoding);
+    if (encoding != 0)
+    {
+	throw UnsupportedEncodingException(__FILE__, __LINE__);
+    }
     Int sz;
     read(sz);
     i += sz;
@@ -149,6 +175,27 @@ IceInternal::BasicStream::skipEncaps()
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
+}
+
+void
+IceInternal::BasicStream::writeBlob(const vector<Byte>& v)
+{
+    int pos = b.size();
+    resize(pos + v.size());
+    copy(v.begin(), v.end(), b.begin() + pos);
+}
+
+void
+IceInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
+{
+    Container::iterator begin = i;
+    i += sz;
+    if (i > b.end())
+    {
+	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
+    v.resize(sz);
+    copy(begin, i, v.begin());
 }
 
 void

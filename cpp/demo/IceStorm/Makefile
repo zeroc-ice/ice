@@ -8,20 +8,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= IceUtil \
-		  Slice \
-		  slice2cpp \
-		  slice2freeze \
-		  slice2docbook \
-		  slice2java \
-		  Ice \
-		  Freeze \
-		  IceStorm \
-		  IcePack
+SUBDIRS		= clock
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -12,7 +12,7 @@ IceStorm.TopicManager=TopicManager:tcp -h localhost -p 10000
 # 2 = like 1, but more detailed
 # 3 = like 2, but also trace data transfer
 #
-#Ice.Trace.Network=1
+Ice.Trace.Network=1
 
 #
 # Protocol Tracing
@@ -20,4 +20,4 @@ IceStorm.TopicManager=TopicManager:tcp -h localhost -p 10000
 # 0 = no protocol tracing
 # 1 = trace protocol messages
 #
-#Ice.Trace.Protocol=1
+Ice.Trace.Protocol=1

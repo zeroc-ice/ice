@@ -536,7 +536,7 @@ IceDelegateM::Ice::Object::ice_invokeIn(const string& operation, const vector<By
 {
     Outgoing __out(__emitter, __reference, operation.c_str());
     BasicStream* __os = __out.os();
-    __os->write(inParams);
+    __os->writeBlob(inParams);
     if (!__out.invoke())
     {
 	throw ::Ice::UnknownUserException(__FILE__, __LINE__);

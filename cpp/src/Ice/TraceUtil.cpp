@@ -131,8 +131,6 @@ IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, cons
 	while (stream.i != stream.b.end())
 	{
 	    s << "\nrequest #" << cnt++ << ':';
-	    BasicStream::Container::iterator q = stream.i;
-	    stream.startReadEncaps();
 	    string identity;
 	    stream.read(identity);
 	    s << "\nidentity = " << identity;
@@ -142,7 +140,6 @@ IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, cons
 	    string operation;
 	    stream.read(operation);
 	    s << "\noperation name = " << operation;
-	    stream.i = q;
 	    stream.skipEncaps();
 	}
 	logger->trace(tl->protocolCat, s.str());

@@ -45,7 +45,11 @@ public:
     void startReadEncaps();
     void endReadEncaps();
     void checkReadEncaps();
+    Ice::Int getReadEncapsSize();
     void skipEncaps();
+
+    void writeBlob(const std::vector<Ice::Byte>&);
+    void readBlob(std::vector<Ice::Byte>&, Ice::Int);
 
     void write(Ice::Byte v) { b.push_back(v); }
     void write(const std::vector<Ice::Byte>&);
