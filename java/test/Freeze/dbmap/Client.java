@@ -191,13 +191,20 @@ public class Client
 	    java.util.Iterator p = entrySet.iterator();
 	    while(p.hasNext())
 	    {
-		Object o = p.next();
-		java.util.Map.Entry e = (java.util.Map.Entry)o;
+		java.util.Map.Entry e = (java.util.Map.Entry)p.next();
 		Byte b = (Byte)e.getKey();
 		byte v = b.byteValue();
 		if(v == (byte)'b' || v == (byte)'n' || v == (byte)'z')
 		{
 		    p.remove();
+                    try
+                    {
+                        p.remove();
+                    }
+                    catch(IllegalStateException ex)
+                    {
+                        // Expected.
+                    }
 		}
 	    }
 
@@ -219,8 +226,7 @@ public class Client
 	    p = entrySet.iterator();
 	    while(p.hasNext())
 	    {
-		Object o = p.next();
-		java.util.Map.Entry e = (java.util.Map.Entry)o;
+		java.util.Map.Entry e = (java.util.Map.Entry)p.next();
 		byte v = ((Byte)e.getKey()).byteValue();
 		if(v == (byte)'a' || v == (byte)'b' || v == (byte)'c')
 		{
@@ -234,6 +240,52 @@ public class Client
 	    test(m.get(new Byte((byte)'c')) == null);
 	    System.out.println("ok");
 	}
+
+        {
+            System.out.print("  testing entry.setValue... ");
+            System.out.flush();
+
+            //
+            // Re-populate.
+            //
+            populateDB(m);
+
+            java.util.Set entrySet = m.entrySet();
+            java.util.Iterator p = entrySet.iterator();
+            while(p.hasNext())
+            {
+                java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+                byte v = ((Byte)e.getKey()).byteValue();
+                if(v == (byte)'b' || v == (byte)'n' || v == (byte)'z')
+                {
+                    e.setValue(new Integer(v + 100));
+                }
+            }
+
+            ((Freeze.Map.EntryIterator)p).close();
+
+            test(m.size() == 26);
+            test(m.get(new Byte((byte)'b')) != null);
+            test(m.get(new Byte((byte)'n')) != null);
+            test(m.get(new Byte((byte)'z')) != null);
+
+            p = entrySet.iterator();
+            while(p.hasNext())
+            {
+                java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+                byte v = ((Byte)e.getKey()).byteValue();
+                if(v == (byte)'b' || v == (byte)'n' || v == (byte)'z')
+                {
+                    test(e.getValue().equals(new Integer(v + 100)));
+                }
+                else
+                {
+                    test(e.getValue().equals(new Integer(v - (byte)'a')));
+                }
+            }
+
+            System.out.println("ok");
+        }
 
 	/**
 	 *
