@@ -22,17 +22,18 @@ using namespace std;
 void
 IceSecurity::Ssl::ErrorReporter::warning(const SAXParseException& toCatch)
 {
-    if (_traceLevels->security >= SECURITY_PARSE_WARNINGS)
+    if (ICE_SECURITY_LEVEL_PARSEWARNINGS)
     {
 	ostringstream s;
 
-        s << "Xerces-c Init Exception: "<< "Warning at file \""
+        s << "SSL configuration file parse warning.\n"
+          << "Xerces-c Init Exception: "<< "Warning at file \""
           << DOMString(toCatch.getSystemId())
           << "\", line " << toCatch.getLineNumber()
           << ", column " << toCatch.getColumnNumber()
           << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
 
-        _logger->trace(_traceLevels->securityCat, s.str());
+        ICE_PARSE_WARNING(s.str());
     }
 }
 
@@ -41,17 +42,18 @@ IceSecurity::Ssl::ErrorReporter::error(const SAXParseException& toCatch)
 {
     _sawErrors = true;
 
-    if (_traceLevels->security >= SECURITY_PARSE_WARNINGS)
+    if (ICE_SECURITY_LEVEL_PARSEWARNINGS)
     {
 	ostringstream s;
 
-        s << "Xerces-c Init Exception: "<< "Error at file \""
+        s << "SSL configuration file parse error.\n"
+          << "Xerces-c Init Exception: "<< "Error at file \""
           << DOMString(toCatch.getSystemId())
           << "\", line " << toCatch.getLineNumber()
           << ", column " << toCatch.getColumnNumber()
           << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
 
-        _logger->trace(_traceLevels->securityCat, s.str());
+        ICE_PARSE_WARNING(s.str());
     }
 }
 
@@ -60,17 +62,18 @@ IceSecurity::Ssl::ErrorReporter::fatalError(const SAXParseException& toCatch)
 {
     _sawErrors = true;
 
-    if (_traceLevels->security >= SECURITY_PARSE_WARNINGS)
+    if (ICE_SECURITY_LEVEL_PARSEWARNINGS)
     {
 	ostringstream s;
 
-        s << "Xerces-c Init Exception: "<< "Fatal error at file \""
+        s << "SSL configuration file parse error.\n"
+          << "Xerces-c Init Exception: "<< "Fatal error at file \""
           << DOMString(toCatch.getSystemId())
           << "\", line " << toCatch.getLineNumber()
           << ", column " << toCatch.getColumnNumber()
           << "\n   Message: " << DOMString(toCatch.getMessage()) << endl;
 
-        _logger->trace(_traceLevels->securityCat, s.str());
+        ICE_PARSE_WARNING(s.str());
     }
 }
 

@@ -28,13 +28,13 @@ using std::string;
 //
 
 IceSecurity::SecurityException::SecurityException(const char* errMessage, const char* file, int line) :
-    LocalException(file, line),
-    _message(errMessage)
+                               LocalException(file, line),
+                               _message(errMessage)
 {
 }
 
 IceSecurity::SecurityException::SecurityException(const SecurityException& ex) :
-    LocalException(ex)
+                               LocalException(ex)
 {
 }
 
@@ -88,102 +88,52 @@ IceSecurity::SecurityException::ice_throw() const
     throw *this;
 }
 
-///////////////////////////////////
-////////// InitException //////////
-///////////////////////////////////
+///////////////////////////////////////
+//////// ConfigParseException /////////
+///////////////////////////////////////
 
 //
 // Public Methods
 //
 
-IceSecurity::Ssl::InitException::InitException(const char* errMessage, const char* file, int line) :
-                                SecurityException(errMessage, file, line)
+IceSecurity::Ssl::ConfigParseException::ConfigParseException(const char* errMessage, const char* file, int line) :
+                                       SecurityException(errMessage, file, line)
 {
 }
 
-IceSecurity::Ssl::InitException::InitException(const InitException& ex) :
-    SecurityException(ex)
+IceSecurity::Ssl::ConfigParseException::ConfigParseException(const ConfigParseException& ex) :
+                                       SecurityException(ex)
 {
 }
 
-IceSecurity::Ssl::InitException&
-IceSecurity::Ssl::InitException::operator=(const InitException& ex)
+IceSecurity::Ssl::ConfigParseException&
+IceSecurity::Ssl::ConfigParseException::operator=(const ConfigParseException& ex)
 {
     SecurityException::operator=(ex);
     return *this;
 }
 
 string
-IceSecurity::Ssl::InitException::ice_name() const
+IceSecurity::Ssl::ConfigParseException::ice_name() const
 {
-    return "IceSecurity::InitException";
+    return "IceSecurity::ConfigParseException";
 }
 
 void
-IceSecurity::Ssl::InitException::ice_print(ostream& out) const
+IceSecurity::Ssl::ConfigParseException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nsecurity system initialization exception";
+    out << ":\nsecurity system shutdown exception";
 }
 
 Ice::Exception*
-IceSecurity::Ssl::InitException::ice_clone() const
+IceSecurity::Ssl::ConfigParseException::ice_clone() const
 {
-    return new InitException(*this);
+    return new ConfigParseException(*this);
 }
 
 void
-IceSecurity::Ssl::InitException::ice_throw() const
-{
-    throw *this;
-}
-
-/////////////////////////////////////
-////////// ReInitException //////////
-/////////////////////////////////////
-
-//
-// Public Methods
-//
-
-IceSecurity::Ssl::ReInitException::ReInitException(const char* errMessage, const char* file, int line) :
-                                  SecurityException(errMessage, file, line)
-{
-}
-
-IceSecurity::Ssl::ReInitException::ReInitException(const ReInitException& ex) :
-                                  SecurityException(ex)
-{
-}
-
-IceSecurity::Ssl::ReInitException&
-IceSecurity::Ssl::ReInitException::operator=(const ReInitException& ex)
-{
-    SecurityException::operator=(ex);
-    return *this;
-}
-
-string
-IceSecurity::Ssl::ReInitException::ice_name() const
-{
-    return "IceSecurity::ReInitException";
-}
-
-void
-IceSecurity::Ssl::ReInitException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nsecurity system re-initialization exception";
-}
-
-Ice::Exception*
-IceSecurity::Ssl::ReInitException::ice_clone() const
-{
-    return new ReInitException(*this);
-}
-
-void
-IceSecurity::Ssl::ReInitException::ice_throw() const
+IceSecurity::Ssl::ConfigParseException::ice_throw() const
 {
     throw *this;
 }
@@ -216,7 +166,7 @@ IceSecurity::Ssl::ShutdownException::operator=(const ShutdownException& ex)
 string
 IceSecurity::Ssl::ShutdownException::ice_name() const
 {
-    return "IceSecurity::ShutdownException";
+    return "IceSecurity::Ssl::ShutdownException";
 }
 
 void
@@ -238,6 +188,106 @@ IceSecurity::Ssl::ShutdownException::ice_throw() const
     throw *this;
 }
 
+/////////////////////////////////////
+///////// ProtocolException /////////
+/////////////////////////////////////
+
+//
+// Public Methods
+//
+
+IceSecurity::Ssl::ProtocolException::ProtocolException(const char* errMessage, const char* file, int line) :
+                                    ShutdownException(errMessage, file, line)
+{
+}
+
+IceSecurity::Ssl::ProtocolException::ProtocolException(const ProtocolException& ex) :
+                                    ShutdownException(ex)
+{
+}
+
+IceSecurity::Ssl::ProtocolException&
+IceSecurity::Ssl::ProtocolException::operator=(const ProtocolException& ex)
+{
+    ShutdownException::operator=(ex);
+    return *this;
+}
+
+string
+IceSecurity::Ssl::ProtocolException::ice_name() const
+{
+    return "IceSecurity::Ssl::ProtocolException";
+}
+
+void
+IceSecurity::Ssl::ProtocolException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nsecurity system re-initialization exception";
+}
+
+Ice::Exception*
+IceSecurity::Ssl::ProtocolException::ice_clone() const
+{
+    return new ProtocolException(*this);
+}
+
+void
+IceSecurity::Ssl::ProtocolException::ice_throw() const
+{
+    throw *this;
+}
+
+///////////////////////////////////
+////// CertificateException ///////
+///////////////////////////////////
+
+//
+// Public Methods
+//
+
+IceSecurity::Ssl::CertificateException::CertificateException(const char* errMessage, const char* file, int line) :
+                                       ShutdownException(errMessage, file, line)
+{
+}
+
+IceSecurity::Ssl::CertificateException::CertificateException(const CertificateException& ex) :
+                                       ShutdownException(ex)
+{
+}
+
+IceSecurity::Ssl::CertificateException&
+IceSecurity::Ssl::CertificateException::operator=(const CertificateException& ex)
+{
+    ShutdownException::operator=(ex);
+    return *this;
+}
+
+string
+IceSecurity::Ssl::CertificateException::ice_name() const
+{
+    return "IceSecurity::CertificateException";
+}
+
+void
+IceSecurity::Ssl::CertificateException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nsecurity system initialization exception";
+}
+
+Ice::Exception*
+IceSecurity::Ssl::CertificateException::ice_clone() const
+{
+    return new CertificateException(*this);
+}
+
+void
+IceSecurity::Ssl::CertificateException::ice_throw() const
+{
+    throw *this;
+}
+
 //////////////////////////////////////
 ////////// ContextException //////////
 //////////////////////////////////////
@@ -247,26 +297,26 @@ IceSecurity::Ssl::ShutdownException::ice_throw() const
 //
 
 IceSecurity::Ssl::OpenSSL::ContextException::ContextException(const char* errMessage, const char* file, int line) :
-                                            InitException(errMessage, file, line)
+                                            SecurityException(errMessage, file, line)
 {
 }
 
 IceSecurity::Ssl::OpenSSL::ContextException::ContextException(const ContextException& ex) :
-                                            InitException(ex)
+                                            SecurityException(ex)
 {
 }
 
 IceSecurity::Ssl::OpenSSL::ContextException&
 IceSecurity::Ssl::OpenSSL::ContextException::operator=(const ContextException& ex)
 {
-    InitException::operator=(ex);
+    SecurityException::operator=(ex);
     return *this;
 }
 
 string
 IceSecurity::Ssl::OpenSSL::ContextException::ice_name() const
 {
-    return "IceSecurity::ContextException";
+    return "IceSecurity::Ssl::OpenSSL::ContextException";
 }
 
 void

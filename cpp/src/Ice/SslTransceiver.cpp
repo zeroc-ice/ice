@@ -17,16 +17,11 @@
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
-#include <Ice/SslException.h>
 #include <sstream>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using IceSecurity::SecurityException;
-using IceSecurity::Ssl::InitException;
-using IceSecurity::Ssl::ReInitException;
-using IceSecurity::Ssl::ShutdownException;
 
 int
 IceInternal::SslTransceiver::fd()
@@ -37,7 +32,7 @@ IceInternal::SslTransceiver::fd()
 void
 IceInternal::SslTransceiver::close()
 {
-    METHOD_INV("SslTransceiver::close()");
+    ICE_METHOD_INV("SslTransceiver::close()");
 
     if (_traceLevels->network >= 1)
     {
@@ -52,13 +47,13 @@ IceInternal::SslTransceiver::close()
     ::shutdown(fd, SHUT_RDWR); // helps to unblock threads in recv()
     closeSocket(fd);
 
-    METHOD_RET("SslTransceiver::close()");
+    ICE_METHOD_RET("SslTransceiver::close()");
 }
 
 void
 IceInternal::SslTransceiver::shutdown()
 {
-    METHOD_INV("SslTransceiver::shutdown()");
+    ICE_METHOD_INV("SslTransceiver::shutdown()");
 
     if (_traceLevels->network >= 2)
     {
@@ -69,21 +64,21 @@ IceInternal::SslTransceiver::shutdown()
 
     ::shutdown(_fd, SHUT_WR); // Shutdown socket for writing
 
-    METHOD_RET("SslTransceiver::shutdown()");
+    ICE_METHOD_RET("SslTransceiver::shutdown()");
 }
 
 void
 IceInternal::SslTransceiver::write(Buffer& buf, int timeout)
 {
-    METHOD_INV("SslTransceiver::write()")
+    ICE_METHOD_INV("SslTransceiver::write()")
     _sslConnection->write(buf, timeout);
-    METHOD_RET("SslTransceiver::write()");
+    ICE_METHOD_RET("SslTransceiver::write()");
 }
 
 void
 IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 {
-    METHOD_INV("SslTransceiver::read()");
+    ICE_METHOD_INV("SslTransceiver::read()");
 
     if (!_sslConnection->read(buf, timeout))
     {
@@ -92,7 +87,7 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
         throw clEx;
     }
 
-    METHOD_RET("SslTransceiver::read()");
+    ICE_METHOD_RET("SslTransceiver::read()");
 }
 
 string

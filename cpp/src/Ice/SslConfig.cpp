@@ -16,13 +16,16 @@
 
 #include <util/PlatformUtils.hpp>
 #include <parsers/DOMParser.hpp>
+#include <framework/LocalFileInputSource.hpp>
+#include <util/Janitor.hpp>
 
+#include <Ice/Security.h>
 #include <Ice/SslException.h>
 #include <Ice/SslConfigErrorReporter.h>
 #include <Ice/SslConfig.h>
 
 using namespace std;
-using namespace IceSecurity::Ssl::OpenSSL;
+using namespace IceSecurity::Ssl;
 
 //
 // Public Methods
@@ -30,6 +33,15 @@ using namespace IceSecurity::Ssl::OpenSSL;
 
 IceSecurity::Ssl::Parser::Parser(const string& configFile) :
                          _configFile(configFile)
+{
+    _configPath  = "./";
+    _traceLevels = 0;
+    _logger      = 0;
+}
+
+IceSecurity::Ssl::Parser::Parser(const string& configFile, const string& configPath) :
+                         _configFile(configFile),
+                         _configPath(configPath)
 {
     _traceLevels = 0;
     _logger      = 0;
@@ -48,14 +60,11 @@ IceSecurity::Ssl::Parser::process()
     }
     catch(const XMLException& toCatch)
     {
-        if (_traceLevels->network >= 1)
-        {
-	    ostringstream s;
-	    s << "Xerces-c Init Exception: " << DOMString(toCatch.getMessage());
-	    _logger->trace(_traceLevels->networkCat, s.str());
-        }
+	ostringstream s;
+        s << "While parsing " << _configFile << flush;
+	s << "Xerces-c Init Exception: " << DOMString(toCatch.getMessage());
 
-        throw ContextException("Xerces-c Init Exception.", __FILE__, __LINE__);
+        throw ConfigParseException(s.str().c_str(), __FILE__, __LINE__);
     }
 
     int errorCount = 0;
@@ -66,7 +75,7 @@ IceSecurity::Ssl::Parser::process()
     //  Create our parser, then attach an error handler to the parser.
     //  The parser will call back to methods of the ErrorHandler if it
     //  discovers errors during the course of parsing the XML document.
-    DOMParser *parser = new DOMParser;
+    DOMParser* parser = new DOMParser;
     parser->setValidationScheme(DOMParser::Val_Auto);
     parser->setDoNamespaces(false);
     parser->setDoSchema(false);
@@ -76,7 +85,33 @@ IceSecurity::Ssl::Parser::process()
 
     try
     {
-        parser->parse(_configFile.c_str());
+        string::iterator fileBegin = _configFile.begin();
+
+        if (*fileBegin != '/')
+        {
+            string::iterator pathEnd = _configPath.end();
+
+            if (*pathEnd != '/')
+            {
+                _configPath += "/";
+            }
+
+            XMLCh* xmlConfigPath = XMLString::transcode(_configPath.c_str());
+            XMLCh* xmlConfigFile = XMLString::transcode(_configFile.c_str());
+            ArrayJanitor<XMLCh> janPath(xmlConfigPath);
+            ArrayJanitor<XMLCh> janFile(xmlConfigFile);
+            LocalFileInputSource configSource(xmlConfigPath, xmlConfigFile);
+
+            parser->parse(configSource);
+        }
+        else
+        {
+            XMLCh* xmlConfigFile = XMLString::transcode(_configFile.c_str());
+            ArrayJanitor<XMLCh> janFile(xmlConfigFile);
+            LocalFileInputSource configSource(xmlConfigFile);
+
+            parser->parse(configSource);
+        }
 
         errorCount = parser->getErrorCount();
 
@@ -94,14 +129,10 @@ IceSecurity::Ssl::Parser::process()
         }
 
         ostringstream s;
+        s << "While parsing " << _configFile << flush;
 	s << "Xerces-c Parsing Error: " << DOMString(e.getMessage());
 
-        if (_traceLevels->network >= 1)
-        {
-	    _logger->trace(_traceLevels->networkCat, s.str());
-        }
-
-        throw ContextException(s.str().c_str(), __FILE__, __LINE__);
+        throw ConfigParseException(s.str().c_str(), __FILE__, __LINE__);
     }
     catch (const DOM_DOMException& e)
     {
@@ -111,14 +142,11 @@ IceSecurity::Ssl::Parser::process()
         }
 
 	ostringstream s;
+        s << "While parsing " << _configFile << flush;
 	s << "Xerces-c DOM Parsing Error, DOMException code: " << e.code;
+        s << ", message: " << e.msg;
 
-        if (_traceLevels->network >= 1)
-        {
-	    _logger->trace(_traceLevels->networkCat, s.str());
-        }
-
-        throw ContextException(s.str().c_str(), __FILE__, __LINE__);
+        throw ConfigParseException(s.str().c_str(), __FILE__, __LINE__);
     }
     catch (...)
     {
@@ -127,14 +155,9 @@ IceSecurity::Ssl::Parser::process()
             delete errReporter;
         }
 
-        string s = "An error occured during parsing";
+        string s = "While parsing " + _configFile + "\n" + "An unknown error occured during parsing.";
 
-        if (_traceLevels->network >= 1)
-        {
-	    _logger->trace(_traceLevels->networkCat, s);
-        }
-
-        throw ContextException(s.c_str(), __FILE__, __LINE__);
+        throw ConfigParseException(s.c_str(), __FILE__, __LINE__);
     }
 
     if (errReporter != 0)
@@ -144,14 +167,9 @@ IceSecurity::Ssl::Parser::process()
 
     if (errorCount)
     {
-        string s = errorCount + "Errors occured during parsing";
+        string s = errorCount + "errors occured during parsing.";
 
-        if (_traceLevels->network >= 1)
-        {
-	    _logger->trace(_traceLevels->networkCat, s);
-        }
-
-        throw ContextException(s.c_str(), __FILE__, __LINE__);
+        throw ConfigParseException(s.c_str(), __FILE__, __LINE__);
     }
 }
 
@@ -318,7 +336,15 @@ IceSecurity::Ssl::Parser::getCertAuth(DOM_Node rootNode, CertificateAuthority& c
 
                 if (nodeName.compare("file") == 0)
                 {
-                    certAuth.setCAFileName(nodeValue);
+                    string filename = nodeValue;
+
+                    // Just a filename, no path component, append path.
+                    if ((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
+                    {
+                        filename = _configPath + filename;
+                    }
+
+                    certAuth.setCAFileName(filename);
                 }
                 else if (nodeName.compare("path") == 0)
                 {
@@ -510,6 +536,12 @@ IceSecurity::Ssl::Parser::loadCertificateFile(DOM_Node rootNode, CertificateFile
             else if (nodeName.compare("filename") == 0)
             {
                 filename = nodeValue;
+
+                // Just a filename, no path component, append path.
+                if ((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
+                {
+                    filename = _configPath + filename;
+                }
             }
         }
 

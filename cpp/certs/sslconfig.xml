@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no" ?> 
-<!DOCTYPE SSLConfig SYSTEM "C:\UNIX\cygwin\home\anthony\dev\src\ice\Certs\sslconfig.dtd"> 
+<!DOCTYPE SSLConfig SYSTEM "sslconfig.dtd"> 
 <SSLConfig> 
     <client> 
         <general version="SSLv23" cipherlist="RC4-MD5" verifymode="peer" verifydepth="10" /> 
-        <certauthority file="C:\UNIX\cygwin\home\anthony\dev\src\ice\Certs\cacert.pem" />
+        <certauthority file="cacert.pem" />
         <basecerts> 
 <!--
             <rsacert keysize="1024"> 
-                <public  encoding="PEM" filename="C:\UNIX\cygwin\home\anthony\dev\src\ice\Certs\c_rsa1024_pub_old.pem" /> 
-                <private encoding="PEM" filename="C:\UNIX\cygwin\home\anthony\dev\src\ice\Certs\c_rsa1024_priv_old.pem" /> 
+                <public  encoding="PEM" filename="c_rsa1024_pub_old.pem" /> 
+                <private encoding="PEM" filename="c_rsa1024_priv_old.pem" /> 
             </rsacert> 
 -->
             <rsacert keysize="1024"> 
-                <public  encoding="PEM" filename="C:\UNIX\cygwin\home\anthony\dev\src\ice\Certs\c_rsa1024_pub.pem" /> 
-                <private encoding="PEM" filename="C:\UNIX\cygwin\home\anthony\dev\src\ice\Certs\c_rsa1024_priv.pem" /> 
+                <public  encoding="PEM" filename="c_rsa1024_pub.pem" /> 
+                <private encoding="PEM" filename="c_rsa1024_priv.pem" /> 
             </rsacert> 
         </basecerts> 
     </client> 
     <server> 
         <general version="SSLv23" cipherlist="RC4-MD5" verifymode="peer|fail_no_cert|client_once" verifydepth="10" /> 
-        <certauthority file="C:\UNIX\cygwin\home\anthony\dev\src\ice\Certs\cacert.pem" />
+        <certauthority file="cacert.pem" />
         <basecerts> 
 <!--
             <rsacert keysize="1024"> 
-                <public  encoding="PEM" filename="C:\UNIX\cygwin\home\anthony\dev\src\ice\Certs\s_rsa1024_pub_old.pem" /> 
-                <private encoding="PEM" filename="C:\UNIX\cygwin\home\anthony\dev\src\ice\Certs\s_rsa1024_priv_old.pem" /> 
+                <public  encoding="PEM" filename="s_rsa1024_pub_old.pem" /> 
+                <private encoding="PEM" filename="s_rsa1024_priv_old.pem" /> 
             </rsacert>
 -->
             <rsacert keysize="1024"> 
-                <public  encoding="PEM" filename="C:\UNIX\cygwin\home\anthony\dev\src\ice\Certs\s_rsa1024_pub.pem" /> 
-                <private encoding="PEM" filename="C:\UNIX\cygwin\home\anthony\dev\src\ice\Certs\s_rsa1024_priv.pem" /> 
+                <public  encoding="PEM" filename="s_rsa1024_pub.pem" /> 
+                <private encoding="PEM" filename="s_rsa1024_priv.pem" /> 
             </rsacert>
         </basecerts>
     </server> 

@@ -33,60 +33,109 @@ typedef enum
 
 }
 
-#define SECURITY_LEVEL_METHODS (_traceLevels->security >= IceSecurity::SECURITY_METHODS)
-#define SECURITY_LEVEL_PARSEWARNINGS (_traceLevels->security >= IceSecurity::SECURITY_PARSE_WARNINGS)
-#define SECURITY_LEVEL_WARNINGS (_traceLevels->security >= IceSecurity::SECURITY_WARNINGS)
-#define SECURITY_LEVEL_EXCEPTIONS (_traceLevels->security >= IceSecurity::SECURITY_EXCEPTIONS)
-#define SECURITY_LEVEL_PROTOCOL (_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL)
-#define SECURITY_LEVEL_PROTOCOL_DEBUG (_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL_DEBUG)
+#define ICE_SECURITY_LOGGER(s) _logger->trace(_traceLevels->securityCat, s);
 
-#define SECURITY_LOGGER(s) _logger->trace(_traceLevels->securityCat, s);
+#ifdef ICE_SECURITY_DEBUG
 
-#define METHOD_INV(s) \
-    if (_traceLevels->security >= IceSecurity::SECURITY_METHODS) \
+#define ICE_SECURITY_LEVEL_METHODS (_traceLevels->security >= IceSecurity::SECURITY_METHODS)
+#define ICE_SECURITY_LEVEL_PARSEWARNINGS (_traceLevels->security >= IceSecurity::SECURITY_PARSE_WARNINGS)
+#define ICE_SECURITY_LEVEL_WARNINGS (_traceLevels->security >= IceSecurity::SECURITY_WARNINGS)
+#define ICE_SECURITY_LEVEL_EXCEPTIONS (_traceLevels->security >= IceSecurity::SECURITY_EXCEPTIONS)
+#define ICE_SECURITY_LEVEL_PROTOCOL (_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL)
+#define ICE_SECURITY_LEVEL_PROTOCOL_DEBUG (_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL_DEBUG)
+
+#define ICE_SECURITY_LEVEL_PROTOCOL_GLOBAL \
+    (IceSecurity::Ssl::OpenSSL::System::_globalTraceLevels->security >= IceSecurity::SECURITY_PROTOCOL)
+
+#define ICE_METHOD_INV(s) \
+    if (ICE_SECURITY_LEVEL_METHODS) \
     { \
-	_logger->trace(_traceLevels->securityCat, "INV " + string(s)); \
+	ICE_SECURITY_LOGGER("INV " + string(s)); \
     }
 
-#define METHOD_INS(s) \
-    if (_traceLevels->security >= IceSecurity::SECURITY_METHODS) \
+#define ICE_METHOD_INS(s) \
+    if (ICE_SECURITY_LEVEL_METHODS) \
     { \
-	_logger->trace(_traceLevels->securityCat, "INS " + string(s)); \
+	ICE_SECURITY_LOGGER("INS " + string(s)); \
     }
 
-#define METHOD_RET(s) \
-    if (_traceLevels->security >= IceSecurity::SECURITY_METHODS) \
+#define ICE_METHOD_RET(s) \
+    if (ICE_SECURITY_LEVEL_METHODS) \
     { \
-	_logger->trace(_traceLevels->securityCat, "RET " + string(s)); \
+	ICE_SECURITY_LOGGER("RET " + string(s)); \
     }
 
-#define PARSE_WARNING(s) \
-    if (_traceLevels->security >= IceSecurity::SECURITY_PARSE_WARNINGS) \
+#define ICE_PARSE_WARNING(s) \
+    if (ICE_SECURITY_LEVEL_PARSEWARNINGS) \
     { \
-	_logger->trace(_traceLevels->securityCat, "PWN " + string(s)); \
+	ICE_SECURITY_LOGGER("PWN " + string(s)); \
     }
 
-#define WARNING(s) \
-    if (_traceLevels->security >= IceSecurity::SECURITY_WARNINGS) \
+#define ICE_WARNING(s) \
+    if (ICE_SECURITY_LEVEL_WARNINGS) \
     { \
-	_logger->trace(_traceLevels->securityCat, "WRN " + string(s)); \
+	ICE_SECURITY_LOGGER("WRN " + string(s)); \
     }
 
-#define EXCEPTION(s) \
-    if (_traceLevels->security >= IceSecurity::SECURITY_EXCEPTIONS) \
+#define ICE_EXCEPTION(s) \
+    if (ICE_SECURITY_LEVEL_EXCEPTIONS) \
     { \
-	_logger->trace(_traceLevels->securityCat, "EXC " + string(s)); \
+	ICE_SECURITY_LOGGER("EXC " + string(s)); \
     }
 
-#define PROTOCOL(s) \
-    if (_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL) \
+#define ICE_PROTOCOL(s) \
+    if (ICE_SECURITY_LEVEL_PROTOCOL) \
     { \
-	_logger->trace(_traceLevels->securityCat, "PTL " + string(s)); \
+	ICE_SECURITY_LOGGER("PTL " + string(s)); \
     }
 
-#define PROTOCOL_DEBUG(s) \
-    if (_traceLevels->security >= IceSecurity::SECURITY_PROTOCOL_DEBUG) \
+#define ICE_PROTOCOL_DEBUG(s) \
+    if (ICE_SECURITY_LEVEL_PROTOCOL_DEBUG) \
     { \
-	_logger->trace(_traceLevels->securityCat, "DBG " + string(s)); \
+	ICE_SECURITY_LOGGER("DBG " + string(s)); \
     }
+
+#else
+
+#define ICE_SECURITY_LEVEL_METHODS false
+#define ICE_SECURITY_LEVEL_PARSEWARNINGS (_traceLevels->security >= IceSecurity::SECURITY_PARSE_WARNINGS)
+#define ICE_SECURITY_LEVEL_WARNINGS (_traceLevels->security >= IceSecurity::SECURITY_WARNINGS)
+#define ICE_SECURITY_LEVEL_EXCEPTIONS false
+#define ICE_SECURITY_LEVEL_PROTOCOL false
+#define ICE_SECURITY_LEVEL_PROTOCOL_DEBUG false
+#define ICE_SECURITY_LEVEL_PROTOCOL_GLOBAL false
+
+#define ICE_METHOD_INV(s)
+#define ICE_METHOD_INS(s)
+#define ICE_METHOD_RET(s)
+
+#define ICE_PARSE_WARNING(s) \
+    if (ICE_SECURITY_LEVEL_PARSEWARNINGS) \
+    { \
+	ICE_SECURITY_LOGGER("PWN " + string(s)); \
+    }
+
+#define ICE_WARNING(s) \
+    if (ICE_SECURITY_LEVEL_WARNINGS) \
+    { \
+	ICE_SECURITY_LOGGER("WRN " + string(s)); \
+    }
+
+#define ICE_EXCEPTION(s)
+#define ICE_PROTOCOL(s)
+#define ICE_PROTOCOL_DEBUG(s)
+
+#endif
+
+#define ICE_SSLERRORS(s) \
+    if (!s.empty()) \
+    { \
+        s += "\n"; \
+        s += sslGetErrors(); \
+    } \
+    else \
+    { \
+        s = sslGetErrors(); \
+    }
+
 #endif

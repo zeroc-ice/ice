@@ -71,6 +71,9 @@ protected:
 
     int readSSL(Buffer&, int);
 
+    // Retrieves errors from the OpenSSL library.
+    string sslGetErrors();
+
     virtual void showConnectionInfo() = 0;
 
     void showCertificateChain(BIO*);

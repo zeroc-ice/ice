@@ -278,8 +278,9 @@ verifyCallback(int ok, X509_STORE_CTX *ctx)
         ok = 0;
     }
 
-    // Only if PROTOCOL level logging is on do we worry about this.
-    if (IceSecurity::Ssl::OpenSSL::System::_globalTraceLevels->security >= IceSecurity::SECURITY_PROTOCOL)
+    // Only if ICE_PROTOCOL level logging is on do we worry about this.
+//    if (IceSecurity::Ssl::OpenSSL::System::_globalTraceLevels->security >= IceSecurity::SECURITY_PROTOCOL)
+    if (ICE_SECURITY_LEVEL_PROTOCOL_GLOBAL)
     {
         char buf[256];
 
@@ -454,7 +455,7 @@ bio_dump_cb(BIO *bio, int cmd, const char *argp, int argi, long argl, long ret)
 void
 IceSecurity::Ssl::OpenSSL::System::printContextInfo(SSL_CTX* context)
 {
-    if (SECURITY_LEVEL_PROTOCOL)
+    if (ICE_SECURITY_LEVEL_PROTOCOL)
     {
         ostringstream s;
 
@@ -489,14 +490,14 @@ IceSecurity::Ssl::OpenSSL::System::printContextInfo(SSL_CTX* context)
         s << "verify_mode:  0x" << hex << context->verify_mode << endl;
         s << "verify_depth: " << Int(context->verify_depth) << endl;
 
-        PROTOCOL(s.str());
+        ICE_PROTOCOL(s.str());
     }
 }
 
 IceSecurity::Ssl::Connection*
 IceSecurity::Ssl::OpenSSL::System::createServerConnection(int socket)
 {
-    METHOD_INV("OpenSSL::System::createServerConnection()");
+    ICE_METHOD_INV("OpenSSL::System::createServerConnection()");
 
     SSL* sslConnection = createConnection(_sslServerContext, socket);
 
@@ -529,7 +530,7 @@ IceSecurity::Ssl::OpenSSL::System::createServerConnection(int socket)
         throw;
     }
 
-    METHOD_RET("OpenSSL::System::createServerConnection()");
+    ICE_METHOD_RET("OpenSSL::System::createServerConnection()");
 
     return connection;
 }
@@ -537,7 +538,7 @@ IceSecurity::Ssl::OpenSSL::System::createServerConnection(int socket)
 IceSecurity::Ssl::Connection*
 IceSecurity::Ssl::OpenSSL::System::createClientConnection(int socket)
 {
-    METHOD_INV("OpenSSL::System::createClientConnection()");
+    ICE_METHOD_INV("OpenSSL::System::createClientConnection()");
 
     SSL* sslConnection = createConnection(_sslClientContext, socket);
 
@@ -570,7 +571,7 @@ IceSecurity::Ssl::OpenSSL::System::createClientConnection(int socket)
         throw;
     }
 
-    METHOD_RET("OpenSSL::System::createClientConnection()");
+    ICE_METHOD_RET("OpenSSL::System::createClientConnection()");
 
     return connection;
 }
@@ -578,7 +579,7 @@ IceSecurity::Ssl::OpenSSL::System::createClientConnection(int socket)
 void
 IceSecurity::Ssl::OpenSSL::System::shutdown()
 {
-    METHOD_INV("OpenSSL::System::shutdown()");
+    ICE_METHOD_INV("OpenSSL::System::shutdown()");
 
     if (_sslServerContext != 0)
     {
@@ -614,13 +615,13 @@ IceSecurity::Ssl::OpenSSL::System::shutdown()
         iDH++;
     }
 
-    METHOD_RET("OpenSSL::System::shutdown()");
+    ICE_METHOD_RET("OpenSSL::System::shutdown()");
 }
 
 bool
 IceSecurity::Ssl::OpenSSL::System::isConfigLoaded()
 {
-    METHOD_INS("OpenSSL::System::isConfigLoaded()");
+    ICE_METHOD_INS("OpenSSL::System::isConfigLoaded()");
 
     return _configLoaded;
 }
@@ -628,7 +629,7 @@ IceSecurity::Ssl::OpenSSL::System::isConfigLoaded()
 void
 IceSecurity::Ssl::OpenSSL::System::loadConfig()
 {
-    METHOD_INV("OpenSSL::System::loadConfig()");
+    ICE_METHOD_INV("OpenSSL::System::loadConfig()");
 
     // This step is required in order to supply callback functions
     // with access to the TraceLevels and Logger.
@@ -638,8 +639,13 @@ IceSecurity::Ssl::OpenSSL::System::loadConfig()
         _globalLogger = _logger;
     }
 
-    const string& systemID = getSystemID();
-    Parser sslConfig(systemID);
+    // TODO: Get the Path and File properly here.
+    string configFile = _properties->getProperty("Ice.Ssl.Config");
+    string certificatePath = _properties->getProperty("Ice.Ssl.CertPath");
+    Parser sslConfig(configFile, certificatePath);
+
+    // const string& systemID = getSystemID();
+    // Parser sslConfig(systemID);
 
     sslConfig.setTrace(_traceLevels);
     sslConfig.setLogger(_logger);
@@ -654,7 +660,7 @@ IceSecurity::Ssl::OpenSSL::System::loadConfig()
     // Walk the parse tree, get the Client configuration.
     if (sslConfig.loadClientConfig(clientGeneral, clientCertAuth, clientBaseCerts))
     {
-        if (SECURITY_LEVEL_PROTOCOL)
+        if (ICE_SECURITY_LEVEL_PROTOCOL)
         {
             ostringstream s;
 
@@ -667,7 +673,7 @@ IceSecurity::Ssl::OpenSSL::System::loadConfig()
             s << "--------------------------" << endl;
             s << clientBaseCerts << endl;
 
-            PROTOCOL(s.str());
+            ICE_PROTOCOL(s.str());
         }
 
         initClient(clientGeneral, clientCertAuth, clientBaseCerts);
@@ -681,7 +687,7 @@ IceSecurity::Ssl::OpenSSL::System::loadConfig()
     // Walk the parse tree, get the Server configuration.
     if (sslConfig.loadServerConfig(serverGeneral, serverCertAuth, serverBaseCerts, serverTempCerts))
     {
-        if (SECURITY_LEVEL_PROTOCOL)
+        if (ICE_SECURITY_LEVEL_PROTOCOL)
         {
             ostringstream s;
 
@@ -698,19 +704,19 @@ IceSecurity::Ssl::OpenSSL::System::loadConfig()
             s << "--------------------------" << endl;
             s << serverTempCerts << endl;
 
-            PROTOCOL(s.str());
+            ICE_PROTOCOL(s.str());
         }
 
         initServer(serverGeneral, serverCertAuth, serverBaseCerts, serverTempCerts);
     }
 
-    METHOD_RET("OpenSSL::System::loadConfig()");
+    ICE_METHOD_RET("OpenSSL::System::loadConfig()");
 }
 
 RSA*
 IceSecurity::Ssl::OpenSSL::System::getRSAKey(SSL *s, int isExport, int keyLength)
 {
-    METHOD_INV("OpenSSL::System::getRSAKey()");
+    ICE_METHOD_INV("OpenSSL::System::getRSAKey()");
 
     JTCSyncT<JTCMutex> sync(_tempRSAKeysMutex);
 
@@ -786,7 +792,7 @@ IceSecurity::Ssl::OpenSSL::System::getRSAKey(SSL *s, int isExport, int keyLength
         }
     }
 
-    METHOD_RET("OpenSSL::System::getRSAKey()");
+    ICE_METHOD_RET("OpenSSL::System::getRSAKey()");
 
     return rsa_tmp;
 }
@@ -794,7 +800,7 @@ IceSecurity::Ssl::OpenSSL::System::getRSAKey(SSL *s, int isExport, int keyLength
 DH*
 IceSecurity::Ssl::OpenSSL::System::getDHParams(SSL *s, int isExport, int keyLength)
 {
-    METHOD_INV("OpenSSL::System::getDHParams()");
+    ICE_METHOD_INV("OpenSSL::System::getDHParams()");
 
     JTCSyncT<JTCMutex> sync(_tempDHKeysMutex);
 
@@ -827,7 +833,7 @@ IceSecurity::Ssl::OpenSSL::System::getDHParams(SSL *s, int isExport, int keyLeng
         }
     }
 
-    METHOD_RET("OpenSSL::System::getDHParams()");
+    ICE_METHOD_RET("OpenSSL::System::getDHParams()");
 
     return dh_tmp;
 }
@@ -853,11 +859,11 @@ IceSecurity::Ssl::OpenSSL::System::System(string& systemID) :
 
 IceSecurity::Ssl::OpenSSL::System::~System()
 {
-    METHOD_INV("OpenSSL::~System()");
+    ICE_METHOD_INV("OpenSSL::~System()");
 
     shutdown();
 
-    METHOD_RET("OpenSSL::~System()");
+    ICE_METHOD_RET("OpenSSL::~System()");
 }
 
 //
@@ -869,7 +875,7 @@ IceSecurity::Ssl::OpenSSL::System::initClient(GeneralConfig& general,
                                               CertificateAuthority& certAuth,
                                               BaseCertificates& baseCerts)
 {
-    METHOD_INV("OpenSSL::System::initClient()");
+    ICE_METHOD_INV("OpenSSL::System::initClient()");
 
     // Init the Random Number System.
     initRandSystem(general.getRandomBytesFiles());
@@ -911,7 +917,7 @@ IceSecurity::Ssl::OpenSSL::System::initClient(GeneralConfig& general,
         loadCAFiles(_sslClientContext, certAuth);
     }
 
-    METHOD_RET("OpenSSL::System::initClient()");
+    ICE_METHOD_RET("OpenSSL::System::initClient()");
 }
 
 void
@@ -920,7 +926,7 @@ IceSecurity::Ssl::OpenSSL::System::initServer(GeneralConfig& general,
                                               BaseCertificates& baseCerts,
                                               TempCertificates& tempCerts)
 {
-    METHOD_INV("OpenSSL::System::initServer()");
+    ICE_METHOD_INV("OpenSSL::System::initServer()");
 
     // Init the Random Number System.
     initRandSystem(general.getRandomBytesFiles());
@@ -985,13 +991,13 @@ IceSecurity::Ssl::OpenSSL::System::initServer(GeneralConfig& general,
 
     printContextInfo(_sslServerContext);
 
-    METHOD_RET("OpenSSL::System::initServer()");
+    ICE_METHOD_RET("OpenSSL::System::initServer()");
 }
 
 SSL_METHOD*
 IceSecurity::Ssl::OpenSSL::System::getSslMethod(SslProtocol sslVersion)
 {
-    METHOD_INV("OpenSSL::System::getSslMethod()");
+    ICE_METHOD_INV("OpenSSL::System::getSslMethod()");
 
     SSL_METHOD* sslMethod = 0;
 
@@ -1027,15 +1033,15 @@ IceSecurity::Ssl::OpenSSL::System::getSslMethod(SslProtocol sslVersion)
 
             errorString = "SSL Version ";
             errorString += sslVersion;
-            errorString += " not supported.";
+            errorString += " not supported - defaulting to SSL_V23.";
 
-            EXCEPTION(errorString);
+            ICE_WARNING(errorString);
 
-            throw ContextException(errorString.c_str(), __FILE__, __LINE__);
+            sslMethod   = SSLv23_method();
         }
     }
 
-    METHOD_RET("OpenSSL::System::getSslMethod()");
+    ICE_METHOD_RET("OpenSSL::System::getSslMethod()");
 
     return sslMethod;
 }
@@ -1043,14 +1049,14 @@ IceSecurity::Ssl::OpenSSL::System::getSslMethod(SslProtocol sslVersion)
 void
 IceSecurity::Ssl::OpenSSL::System::processCertificate(SSL_CTX* sslContext, const CertificateDesc& certificateDesc)
 {
-    METHOD_INV("OpenSSL::System::processCertificate()");
+    ICE_METHOD_INV("OpenSSL::System::processCertificate()");
 
     const CertificateFile& publicCert = certificateDesc.getPublic();
     const CertificateFile& privateKey = certificateDesc.getPrivate();
 
     addKeyCert(sslContext, publicCert, privateKey);
 
-    METHOD_RET("OpenSSL::System::processCertificate()");
+    ICE_METHOD_RET("OpenSSL::System::processCertificate()");
 }
 
 void
@@ -1058,7 +1064,7 @@ IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
                                               const CertificateFile& publicCert,
                                               const CertificateFile& privateKey)
 {
-    METHOD_INV("OpenSSL::System::addKeyCert()");
+    ICE_METHOD_INV("OpenSSL::System::addKeyCert()");
 
     if (!publicCert.getFileName().empty())
     {
@@ -1080,14 +1086,14 @@ IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
             errorString += "'\n";
             errorString += sslGetErrors();
 
-            EXCEPTION(errorString);
+            ICE_EXCEPTION(errorString);
 
             throw ContextException(errorString.c_str(), __FILE__, __LINE__);
         }
 
         if (privateKey.getFileName().empty())
         {
-            WARNING("No Private Key specified - using the certificate.");
+            ICE_WARNING("No private key specified - using the certificate.");
 
             privKeyFile = publicFile;
             privKeyFileType = publicEncoding;
@@ -1098,12 +1104,12 @@ IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
         {
             string errorString;
 
-            errorString = "unable to get private key from '";
+            errorString = "Unable to get private key from '";
             errorString += privKeyFile;
             errorString += "'\n";
             errorString += sslGetErrors();
 
-            EXCEPTION(errorString);
+            ICE_EXCEPTION(errorString);
 
 	    throw ContextException(errorString.c_str(), __FILE__, __LINE__);
         }
@@ -1112,69 +1118,92 @@ IceSecurity::Ssl::OpenSSL::System::addKeyCert(SSL_CTX* sslContext,
         // set against the SSL context match up.
         if (!SSL_CTX_check_private_key(sslContext))
         {
-            string errorString = "Private key does not match the certificate public key";
+            string errorString = "Private key does not match the certificate public key.";
+            string sslError = sslGetErrors();
 
-            EXCEPTION(errorString);
+            if (!sslError.empty())
+            {
+                errorString += sslError;
+            }
+
+            ICE_EXCEPTION(errorString);
 
             throw ContextException(errorString.c_str(), __FILE__, __LINE__);
         }
 
     }
 
-    METHOD_RET("OpenSSL::System::addKeyCert()");
+    ICE_METHOD_RET("OpenSSL::System::addKeyCert()");
 }
 
 
 SSL_CTX*
 IceSecurity::Ssl::OpenSSL::System::createContext(SslProtocol sslProtocol)
 {
-    METHOD_INV("OpenSSL::System::createContext()");
+    ICE_METHOD_INV("OpenSSL::System::createContext()");
 
     SSL_CTX* context = SSL_CTX_new(getSslMethod(sslProtocol));
 
     if (context == 0)
     {
-        string errorString = "Unable to create SSL Context.";
+        string errorString = "Unable to create SSL Context.\n" + sslGetErrors();
 
-        EXCEPTION(errorString);
+        ICE_EXCEPTION(errorString);
 
         throw ContextException(errorString.c_str(), __FILE__, __LINE__);
     }
 
-    METHOD_RET("OpenSSL::System::createContext()");
+    ICE_METHOD_RET("OpenSSL::System::createContext()");
 
     return context;
 }
 
 
-//
-// TODO: Clean this up.  This routine is pretty much ripped off from the OpenSSL
-//       routine ERR_print_errors_fp(), except we got rid of the file pointer.
-//
 string
 IceSecurity::Ssl::OpenSSL::System::sslGetErrors()
 {
-    METHOD_INV("OpenSSL::System::sslGetErrors()");
+    ICE_METHOD_INV("OpenSSL::System::sslGetErrors()");
 
     string errorMessage;
-    char buf[200], bigBuffer[1024];
-    const char* file;
+    char buf[200];
+    char bigBuffer[1024];
+    const char* file = 0;
     const char* data = 0;
-    int line, flags;
+    int line = 0;
+    int flags = 0;
+    unsigned errorCode = 0;
+    int errorNum = 1;
 
     unsigned long es = CRYPTO_thread_id();
 
-    while ((line = ERR_get_error_line_data(&file, &line, &data, &flags)) != 0)
+    while ((errorCode = ERR_get_error_line_data(&file, &line, &data, &flags)) != 0)
     {
-        // Request an error from the OpenSSL library
-        ERR_error_string_n(line, buf, sizeof(buf));
-
-        sprintf(bigBuffer,"%lu:%s:%s:%d:%s\n",es,buf,file,line,(flags&ERR_TXT_STRING)?data:"");
-
+        sprintf(bigBuffer,"%6d - Thread ID: %lu\n", errorNum, es);
         errorMessage += bigBuffer;
+
+        sprintf(bigBuffer,"%6d - Error:     %u\n", errorNum, errorCode);
+        errorMessage += bigBuffer;
+
+        // Request an error from the OpenSSL library
+        ERR_error_string_n(errorCode, buf, sizeof(buf));
+        sprintf(bigBuffer,"%6d - Message:   %s\n", errorNum, buf);
+        errorMessage += bigBuffer;
+
+        sprintf(bigBuffer,"%6d - Location:  %s, %d\n", errorNum, file, line);
+        errorMessage += bigBuffer;
+
+        if (flags & ERR_TXT_STRING)
+        {
+            sprintf(bigBuffer,"%6d - Data:      %s\n", errorNum, data);
+            errorMessage += bigBuffer;
+        }
+
+        errorNum++;
     }
 
-    METHOD_RET("OpenSSL::System::sslGetErrors()");
+    ERR_clear_error();
+
+    ICE_METHOD_RET("OpenSSL::System::sslGetErrors()");
 
     return errorMessage;
 }
@@ -1182,7 +1211,7 @@ IceSecurity::Ssl::OpenSSL::System::sslGetErrors()
 SSL*
 IceSecurity::Ssl::OpenSSL::System::createConnection(SSL_CTX* sslContext, int socket)
 {
-    METHOD_INV("OpenSSL::System::createConnection()");
+    ICE_METHOD_INV("OpenSSL::System::createConnection()");
 
     SSL *sslConnection = 0;
 
@@ -1192,7 +1221,7 @@ IceSecurity::Ssl::OpenSSL::System::createConnection(SSL_CTX* sslContext, int soc
 
     SSL_set_fd(sslConnection, socket);
 
-    if (SECURITY_LEVEL_PROTOCOL_DEBUG)
+    if (ICE_SECURITY_LEVEL_PROTOCOL_DEBUG)
     {
         sslConnection->debug = 1;
         BIO_set_callback(SSL_get_rbio(sslConnection), bio_dump_cb);
@@ -1206,7 +1235,7 @@ IceSecurity::Ssl::OpenSSL::System::createConnection(SSL_CTX* sslContext, int soc
     // to work properly.
     Factory::addSystemHandle(sslConnection, this);
 
-    METHOD_RET("OpenSSL::System::createConnection()");
+    ICE_METHOD_RET("OpenSSL::System::createConnection()");
 
     return sslConnection;
 }
@@ -1214,20 +1243,20 @@ IceSecurity::Ssl::OpenSSL::System::createConnection(SSL_CTX* sslContext, int soc
 void
 IceSecurity::Ssl::OpenSSL::System::loadCAFiles(SSL_CTX* sslContext, CertificateAuthority& certAuth)
 {
-    METHOD_INV("OpenSSL::System::loadCAFiles()");
+    ICE_METHOD_INV("OpenSSL::System::loadCAFiles()");
 
     string caFile = certAuth.getCAFileName();
     string caPath = certAuth.getCAPath();
 
     loadCAFiles(sslContext, caFile.c_str(), caPath.c_str());
 
-    METHOD_RET("OpenSSL::System::loadCAFiles()");
+    ICE_METHOD_RET("OpenSSL::System::loadCAFiles()");
 }
 
 void
 IceSecurity::Ssl::OpenSSL::System::loadCAFiles(SSL_CTX* sslContext, const char* caFile, const char* caPath)
 {
-    METHOD_INV("OpenSSL::System::loadCAFiles()");
+    ICE_METHOD_INV("OpenSSL::System::loadCAFiles()");
 
     if (sslContext != 0)
     {
@@ -1248,17 +1277,17 @@ IceSecurity::Ssl::OpenSSL::System::loadCAFiles(SSL_CTX* sslContext, const char* 
             (!SSL_CTX_set_default_verify_paths(sslContext)))
         {
             // Non Fatal.
-            WARNING("Unable to load/verify Certificate Authorities.");
+            ICE_WARNING("Unable to load/verify Certificate Authorities.");
         }
     }
 
-    METHOD_RET("OpenSSL::System::loadCAFiles()");
+    ICE_METHOD_RET("OpenSSL::System::loadCAFiles()");
 }
 
 void
 IceSecurity::Ssl::OpenSSL::System::loadAndCheckCAFiles(SSL_CTX* sslContext, CertificateAuthority& certAuth)
 {
-    METHOD_INV("OpenSSL::System::loadAndCheckCAFiles()");
+    ICE_METHOD_INV("OpenSSL::System::loadAndCheckCAFiles()");
 
     if (sslContext != 0)
     {
@@ -1272,24 +1301,26 @@ IceSecurity::Ssl::OpenSSL::System::loadAndCheckCAFiles(SSL_CTX* sslContext, Cert
         {
             STACK_OF(X509_NAME)* certNames = SSL_load_client_CA_file(caFile.c_str());
 
-            if (certNames != 0)
+            if (certNames == 0)
             {
-               SSL_CTX_set_client_CA_list(sslContext, certNames);
+                string errorString = "Unable to load Certificate Authorities certificate names from " + caFile + ".\n";
+                errorString += sslGetErrors();
+                ICE_WARNING(errorString);
             }
             else
             {
-                WARNING("Unable to set SSL context Certificate Authorities.");
+                SSL_CTX_set_client_CA_list(sslContext, certNames);
             }
         }
     }
 
-    METHOD_RET("OpenSSL::System::loadAndCheckCAFiles()");
+    ICE_METHOD_RET("OpenSSL::System::loadAndCheckCAFiles()");
 }
 
 DH*
 IceSecurity::Ssl::OpenSSL::System::loadDHParam(const char* dhfile)
 {
-    METHOD_INV(string("OpenSSL::System::loadDHParam(") + dhfile + string(")"));
+    ICE_METHOD_INV(string("OpenSSL::System::loadDHParam(") + dhfile + string(")"));
 
     DH* ret = 0;
     BIO* bio;
@@ -1304,7 +1335,7 @@ IceSecurity::Ssl::OpenSSL::System::loadDHParam(const char* dhfile)
         BIO_free(bio);
     }
 
-    METHOD_RET(string("OpenSSL::System::loadDHParam(") + dhfile + string(")"));
+    ICE_METHOD_RET(string("OpenSSL::System::loadDHParam(") + dhfile + string(")"));
 
     return ret;
 }
@@ -1312,7 +1343,7 @@ IceSecurity::Ssl::OpenSSL::System::loadDHParam(const char* dhfile)
 DH*
 IceSecurity::Ssl::OpenSSL::System::getTempDH(unsigned char* p, int plen, unsigned char* g, int glen)
 {
-    METHOD_INV("OpenSSL::System::getTempDH()");
+    ICE_METHOD_INV("OpenSSL::System::getTempDH()");
 
     DH* dh = 0;
 
@@ -1329,7 +1360,7 @@ IceSecurity::Ssl::OpenSSL::System::getTempDH(unsigned char* p, int plen, unsigne
         }
     }
 
-    METHOD_RET("OpenSSL::System::getTempDH()");
+    ICE_METHOD_RET("OpenSSL::System::getTempDH()");
 
     return dh;
 }
@@ -1337,12 +1368,12 @@ IceSecurity::Ssl::OpenSSL::System::getTempDH(unsigned char* p, int plen, unsigne
 DH*
 IceSecurity::Ssl::OpenSSL::System::getTempDH512()
 {
-    METHOD_INV("OpenSSL::System::getTempDH512()");
+    ICE_METHOD_INV("OpenSSL::System::getTempDH512()");
 
     DH* dh = getTempDH(_tempDiffieHellman512p, sizeof(_tempDiffieHellman512p),
                        _tempDiffieHellman512g, sizeof(_tempDiffieHellman512g));
 
-    METHOD_RET("OpenSSL::System::getTempDH512()");
+    ICE_METHOD_RET("OpenSSL::System::getTempDH512()");
 
     return dh;
 }
@@ -1350,7 +1381,7 @@ IceSecurity::Ssl::OpenSSL::System::getTempDH512()
 void
 IceSecurity::Ssl::OpenSSL::System::setDHParams(SSL_CTX* sslContext, BaseCertificates& baseCerts)
 {
-    METHOD_INV("OpenSSL::System::setDHParams()");
+    ICE_METHOD_INV("OpenSSL::System::setDHParams()");
 
     string dhFile;
     int encoding = 0;
@@ -1377,7 +1408,7 @@ IceSecurity::Ssl::OpenSSL::System::setDHParams(SSL_CTX* sslContext, BaseCertific
 
     if (dh == 0)
     {
-        WARNING("Could not load Diffie-Hellman params, generating a temporary 512bit key.");
+        ICE_WARNING("Could not load Diffie-Hellman params, generating a temporary 512bit key.");
 
         dh = getTempDH512();
     }
@@ -1389,30 +1420,30 @@ IceSecurity::Ssl::OpenSSL::System::setDHParams(SSL_CTX* sslContext, BaseCertific
         DH_free(dh);
     }
 
-    METHOD_RET("OpenSSL::System::setDHParams()");
+    ICE_METHOD_RET("OpenSSL::System::setDHParams()");
 }
 
 void
 IceSecurity::Ssl::OpenSSL::System::setCipherList(SSL_CTX* sslContext, const string& cipherList)
 {
-    METHOD_INV("OpenSSL::System::setCipherList()");
+    ICE_METHOD_INV("OpenSSL::System::setCipherList()");
 
     if (!cipherList.empty() && (!SSL_CTX_set_cipher_list(sslContext, cipherList.c_str())))
     {
-        string errorString = "Error setting cipher list.";
+        string errorString = "Error setting cipher list " + cipherList + " - using default list.\n";
 
-        EXCEPTION(errorString);
+        errorString += sslGetErrors();
 
-        throw ContextException(errorString.c_str(), __FILE__, __LINE__);
+        ICE_WARNING(errorString);
     }
 
-    METHOD_RET("OpenSSL::System::setCipherList()");
+    ICE_METHOD_RET("OpenSSL::System::setCipherList()");
 }
 
 int
 IceSecurity::Ssl::OpenSSL::System::seedRand()
 {
-    METHOD_INV("OpenSSL::System::seedRand()");
+    ICE_METHOD_INV("OpenSSL::System::seedRand()");
 
     int retCode = 1;
     char buffer[1024];
@@ -1432,7 +1463,7 @@ IceSecurity::Ssl::OpenSSL::System::seedRand()
         _randSeeded = 1;
     }
 
-    METHOD_RET("OpenSSL::System::seedRand()");
+    ICE_METHOD_RET("OpenSSL::System::seedRand()");
 
     return retCode;
 }
@@ -1440,7 +1471,7 @@ IceSecurity::Ssl::OpenSSL::System::seedRand()
 long
 IceSecurity::Ssl::OpenSSL::System::loadRandFiles(const string& names)
 {
-    METHOD_INV("OpenSSL::System::loadRandFiles(" + names + ")");
+    ICE_METHOD_INV("OpenSSL::System::loadRandFiles(" + names + ")");
 
     long tot = 0;
 
@@ -1482,7 +1513,7 @@ IceSecurity::Ssl::OpenSSL::System::loadRandFiles(const string& names)
         delete []namesString;
     }
 
-    METHOD_RET("OpenSSL::System::loadRandFiles(" + names + ")");
+    ICE_METHOD_RET("OpenSSL::System::loadRandFiles(" + names + ")");
 
     return tot;
 }
@@ -1490,7 +1521,7 @@ IceSecurity::Ssl::OpenSSL::System::loadRandFiles(const string& names)
 void
 IceSecurity::Ssl::OpenSSL::System::initRandSystem(const string& randBytesFiles)
 {
-    METHOD_INV("OpenSSL::System::initRandSystem(" + randBytesFiles + ")");
+    ICE_METHOD_INV("OpenSSL::System::initRandSystem(" + randBytesFiles + ")");
 
     if (!_randSeeded)
     {
@@ -1498,7 +1529,7 @@ IceSecurity::Ssl::OpenSSL::System::initRandSystem(const string& randBytesFiles)
 
         if (!seedRand() && randBytesFiles.empty() && !RAND_status())
         {
-            WARNING("There is a lack of random data, consider specifying a random data file.");
+            ICE_WARNING("There is a lack of random data, consider specifying a random data file.");
         }
 
         if (!randBytesFiles.empty())
@@ -1507,13 +1538,13 @@ IceSecurity::Ssl::OpenSSL::System::initRandSystem(const string& randBytesFiles)
         }
     }
 
-    METHOD_RET("OpenSSL::System::initRandSystem(" + randBytesFiles + ")");
+    ICE_METHOD_RET("OpenSSL::System::initRandSystem(" + randBytesFiles + ")");
 }
 
 void
 IceSecurity::Ssl::OpenSSL::System::loadTempCerts(TempCertificates& tempCerts)
 {
-    METHOD_INV("OpenSSL::System::loadTempCerts()");
+    ICE_METHOD_INV("OpenSSL::System::loadTempCerts()");
 
     RSAVector::iterator iRSA = tempCerts.getRSACerts().begin();
     RSAVector::iterator eRSA = tempCerts.getRSACerts().end();
@@ -1542,5 +1573,5 @@ IceSecurity::Ssl::OpenSSL::System::loadTempCerts(TempCertificates& tempCerts)
         iDHP++;
     }
 
-    METHOD_RET("OpenSSL::System::loadTempCerts()");
+    ICE_METHOD_RET("OpenSSL::System::loadTempCerts()");
 }

@@ -14,6 +14,7 @@
 
 #include <string>
 #include <Ice/SslConnection.h>
+#include <Ice/Properties.h>
 
 namespace IceSecurity
 {
@@ -22,6 +23,8 @@ namespace Ssl
 {
 
 using std::string;
+using Ice::LoggerPtr;
+using Ice::PropertiesPtr;
 
 class Factory;
 
@@ -43,8 +46,11 @@ public:
     void setTrace(TraceLevelsPtr traceLevels) { _traceLevels = traceLevels; };
     bool isTraceSet() const { return (_traceLevels == 0 ? false : true); };
 
-    void setLogger(Ice::LoggerPtr traceLevels) { _logger = traceLevels; };
+    void setLogger(LoggerPtr traceLevels) { _logger = traceLevels; };
     bool isLoggerSet() const { return (_logger == 0 ? false : true); };
+
+    void setProperties(PropertiesPtr properties) { _properties = properties; };
+    bool isPropertiesSet() const { return (_properties == 0 ? false : true); };
 
 protected:
 
@@ -59,7 +65,8 @@ protected:
     int _refCount;
 
     TraceLevelsPtr _traceLevels;
-    Ice::LoggerPtr _logger;
+    LoggerPtr _logger;
+    PropertiesPtr _properties;
 
 friend class Factory;
 

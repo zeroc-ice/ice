@@ -38,6 +38,7 @@ class Parser
 public:
     // Constructor, based on the indicated file.
     Parser(const string&);
+    Parser(const string&, const string&);
     ~Parser();
 
     // Performs a complete parsing of the file.
@@ -57,6 +58,7 @@ private:
 
     DOM_Node _root;
     string _configFile;
+    string _configPath;
 
     TraceLevelsPtr _traceLevels;
     LoggerPtr _logger;

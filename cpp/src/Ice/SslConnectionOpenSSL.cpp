@@ -11,6 +11,7 @@
 #pragma warning(disable:4786)
 #endif
 
+#include <openssl/err.h>
 #include <string>
 #include <sstream>
 #include <Ice/Network.h>
@@ -35,12 +36,7 @@ using std::endl;
 
 IceSecurity::Ssl::OpenSSL::Connection::Connection(SSL* sslConnection, string& systemID)
 {
-    if (sslConnection == 0)
-    {
-        string errorString = "Construction of Connection with NULL SSL pointer.";
-
-        throw ContextException(errorString.c_str(), __FILE__, __LINE__);
-    }
+    assert(sslConnection);
 
     // Get the system we were generated from
     _system = IceSecurity::Ssl::Factory::getSystem(systemID);
@@ -55,29 +51,29 @@ IceSecurity::Ssl::OpenSSL::Connection::Connection(SSL* sslConnection, string& sy
 
 IceSecurity::Ssl::OpenSSL::Connection::~Connection()
 {
-    METHOD_INV("OpenSSL::Connection::~Connection()");
+    ICE_METHOD_INV("OpenSSL::Connection::~Connection()");
 
     shutdown();
 
     IceSecurity::Ssl::Factory::releaseSystem(_system);
 
-    METHOD_RET("OpenSSL::Connection::~Connection()");
+    ICE_METHOD_RET("OpenSSL::Connection::~Connection()");
 }
 
 void
 IceSecurity::Ssl::OpenSSL::Connection::shutdown()
 {
-    METHOD_INV("OpenSSL::Connection::shutdown()");
+    ICE_METHOD_INV("OpenSSL::Connection::shutdown()");
 
     if (_sslConnection != 0)
     {
-        WARNING(string("shutting down SSL connection\n") + fdToString(SSL_get_fd(_sslConnection)));
+        ICE_WARNING(string("shutting down SSL connection\n") + fdToString(SSL_get_fd(_sslConnection)));
 
         SSL_free(_sslConnection);
         _sslConnection = 0;
     }
 
-    METHOD_RET("OpenSSL::Connection::shutdown()");
+    ICE_METHOD_RET("OpenSSL::Connection::shutdown()");
 }
 
 //
@@ -87,13 +83,13 @@ IceSecurity::Ssl::OpenSSL::Connection::shutdown()
 int
 IceSecurity::Ssl::OpenSSL::Connection::connect()
 {
-    METHOD_INV("OpenSSL::Connection::connect()");
+    ICE_METHOD_INV("OpenSSL::Connection::connect()");
 
     int result = SSL_connect(_sslConnection);
 
     setLastError(result);
 
-    METHOD_RET("OpenSSL::Connection::connect()");
+    ICE_METHOD_RET("OpenSSL::Connection::connect()");
 
     return result;
 }
@@ -101,13 +97,13 @@ IceSecurity::Ssl::OpenSSL::Connection::connect()
 int
 IceSecurity::Ssl::OpenSSL::Connection::accept()
 {
-    METHOD_INV("OpenSSL::Connection::accept()");
+    ICE_METHOD_INV("OpenSSL::Connection::accept()");
 
     int result = SSL_accept(_sslConnection);
 
     setLastError(result);
 
-    METHOD_RET("OpenSSL::Connection::accept()");
+    ICE_METHOD_RET("OpenSSL::Connection::accept()");
 
     return result;
 }
@@ -115,7 +111,7 @@ IceSecurity::Ssl::OpenSSL::Connection::accept()
 int
 IceSecurity::Ssl::OpenSSL::Connection::renegotiate()
 {
-    METHOD_INS("OpenSSL::Connection::renegotiate()");
+    ICE_METHOD_INS("OpenSSL::Connection::renegotiate()");
 
     return SSL_renegotiate(_sslConnection);
 }
@@ -123,13 +119,13 @@ IceSecurity::Ssl::OpenSSL::Connection::renegotiate()
 int
 IceSecurity::Ssl::OpenSSL::Connection::sslRead(char* buffer, int bufferSize)
 {
-    METHOD_INV("OpenSSL::Connection::sslRead()");
+    ICE_METHOD_INV("OpenSSL::Connection::sslRead()");
 
     int bytesRead = SSL_read(_sslConnection, buffer, bufferSize);
 
     setLastError(bytesRead);
 
-    METHOD_RET("OpenSSL::Connection::sslRead()");
+    ICE_METHOD_RET("OpenSSL::Connection::sslRead()");
 
     return bytesRead;
 }
@@ -137,13 +133,13 @@ IceSecurity::Ssl::OpenSSL::Connection::sslRead(char* buffer, int bufferSize)
 int
 IceSecurity::Ssl::OpenSSL::Connection::sslWrite(char* buffer, int bufferSize)
 {
-    METHOD_INV("OpenSSL::Connection::sslWrite()");
+    ICE_METHOD_INV("OpenSSL::Connection::sslWrite()");
 
     int bytesWritten = SSL_write(_sslConnection, buffer, bufferSize);
 
     setLastError(bytesWritten);
 
-    METHOD_RET("OpenSSL::Connection::sslWrite()");
+    ICE_METHOD_RET("OpenSSL::Connection::sslWrite()");
 
     return bytesWritten;
 }
@@ -152,7 +148,7 @@ IceSecurity::Ssl::OpenSSL::Connection::sslWrite(char* buffer, int bufferSize)
 void
 IceSecurity::Ssl::OpenSSL::Connection::printGetError(int errCode)
 {
-    if (SECURITY_LEVEL_PROTOCOL_DEBUG)
+    if (ICE_SECURITY_LEVEL_PROTOCOL_DEBUG)
     {
         string errorString;
 
@@ -209,7 +205,7 @@ IceSecurity::Ssl::OpenSSL::Connection::printGetError(int errCode)
 
         if (!errorString.empty())
         {
-            SECURITY_LOGGER(string("Encountered: ") + errorString)
+            ICE_SECURITY_LOGGER(string("Encountered: ") + errorString)
         }
     }
 }
@@ -226,7 +222,7 @@ IceSecurity::Ssl::OpenSSL::Connection::printGetError(int errCode)
 void
 IceSecurity::Ssl::OpenSSL::Connection::protocolWrite()
 {
-    METHOD_INV("OpenSSL::Connection::protocolWrite()");
+    ICE_METHOD_INV("OpenSSL::Connection::protocolWrite()");
 
     static char buffer[10];
 
@@ -237,7 +233,7 @@ IceSecurity::Ssl::OpenSSL::Connection::protocolWrite()
     //       strangely, check this!
     sslWrite(buffer,0);
 
-    METHOD_RET("OpenSSL::Connection::protocolWrite()");
+    ICE_METHOD_RET("OpenSSL::Connection::protocolWrite()");
 }
 
 int
@@ -245,7 +241,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readInBuffer(Buffer& buf)
 {
     JTCSyncT<JTCMutex> sync(_inBufferMutex);
 
-    METHOD_INV("OpenSSL::Connection::readInBuffer()");
+    ICE_METHOD_INV("OpenSSL::Connection::readInBuffer()");
 
     int bytesRead = 0;
 
@@ -270,18 +266,18 @@ IceSecurity::Ssl::OpenSSL::Connection::readInBuffer(Buffer& buf)
         // Erase the data that we've copied out of the _inBuffer.
         _inBuffer.b.erase(inBufferBegin, inBufferEndAt);
 
-        if (SECURITY_LEVEL_PROTOCOL)
+        if (ICE_SECURITY_LEVEL_PROTOCOL)
         {
             string protocolString = "Copied ";
             protocolString += Int(bytesRead);
             protocolString += string(" bytes from SSL buffer\n");
             protocolString += fdToString(SSL_get_fd(_sslConnection));
 
-            PROTOCOL(protocolString);
+            ICE_PROTOCOL(protocolString);
         }
     }
 
-    METHOD_RET("OpenSSL::Connection::readInBuffer()");
+    ICE_METHOD_RET("OpenSSL::Connection::readInBuffer()");
 
     return bytesRead;
 }
@@ -289,7 +285,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readInBuffer(Buffer& buf)
 int
 IceSecurity::Ssl::OpenSSL::Connection::readSelect(int timeout)
 {
-    METHOD_INV("OpenSSL::Connection::readSelect()");
+    ICE_METHOD_INV("OpenSSL::Connection::readSelect()");
 
     int ret;
     int fd = SSL_get_fd(_sslConnection);
@@ -331,7 +327,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSelect(int timeout)
         throw TimeoutException(__FILE__, __LINE__);
     }
 
-    METHOD_RET("OpenSSL::Connection::readSelect()");
+    ICE_METHOD_RET("OpenSSL::Connection::readSelect()");
 
     return FD_ISSET(fd, &rFdSet);
 }
@@ -339,7 +335,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSelect(int timeout)
 int
 IceSecurity::Ssl::OpenSSL::Connection::writeSelect(int timeout)
 {
-    METHOD_INV("OpenSSL::Connection::writeSelect()");
+    ICE_METHOD_INV("OpenSSL::Connection::writeSelect()");
 
     int ret;
     int fd = SSL_get_fd(_sslConnection);
@@ -381,7 +377,7 @@ IceSecurity::Ssl::OpenSSL::Connection::writeSelect(int timeout)
         throw TimeoutException(__FILE__, __LINE__);
     }
 
-    METHOD_RET("OpenSSL::Connection::writeSelect()");
+    ICE_METHOD_RET("OpenSSL::Connection::writeSelect()");
     
     return FD_ISSET(fd, &wFdSet);
 }
@@ -389,7 +385,7 @@ IceSecurity::Ssl::OpenSSL::Connection::writeSelect(int timeout)
 int
 IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
 {
-    METHOD_INV("OpenSSL::Connection::readSSL()");
+    ICE_METHOD_INV("OpenSSL::Connection::readSSL()");
 
     int packetSize = buf.b.end() - buf.i;
     int totalBytesRead = 0;
@@ -428,7 +424,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                         s << "received " << bytesRead << " of " << packetSize;
                         s << " bytes via SSL\n" << fdToString(SSL_get_fd(_sslConnection));
 
-                        PROTOCOL(s.str());
+                        ICE_PROTOCOL(s.str());
 
                         totalBytesRead += bytesRead;
 
@@ -446,7 +442,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                         //       structure. The server does nothing.  I'm ignoring this,
                         //       at the moment, I'm sure it will come back at me.
 
-                        PROTOCOL("Error SSL_ERROR_NONE: Repeating as per protocol.");
+                        ICE_PROTOCOL("Error SSL_ERROR_NONE: Repeating as per protocol.");
                     }
                     continue;
                 }
@@ -459,7 +455,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                     // programs, so this should be valid.  No actual application data
                     // will be sent, just protocol packets.
 
-                    PROTOCOL("Error SSL_ERROR_WANT_WRITE.");
+                    ICE_PROTOCOL("Error SSL_ERROR_WANT_WRITE.");
 
                     protocolWrite();
 
@@ -472,7 +468,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                     // Whatever happened, the last read didn't actually read anything for
                     // us.  This is effectively a retry.
 
-                    PROTOCOL("Error SSL_ERROR_WANT_READ: Repeating as per protocol.");
+                    ICE_PROTOCOL("Error SSL_ERROR_WANT_READ: Repeating as per protocol.");
 
                     continue;
                 }
@@ -481,7 +477,7 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                 {
                     // Perform another read.  The read should take care of this.
 
-                    PROTOCOL("Error SSL_ERROR_WANT_X509_LOOKUP: Repeating as per protocol.");
+                    ICE_PROTOCOL("Error SSL_ERROR_WANT_X509_LOOKUP: Repeating as per protocol.");
 
                     continue;
                 }
@@ -490,44 +486,126 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
                 {
                     if(bytesRead == -1)
                     {
-                        SocketException ex(__FILE__, __LINE__);
-                        ex.error = getSocketErrno();
-                        throw ex;
+                        // IO Error in underlying BIO
+
+                        if (interrupted())
+                        {
+                            break;
+                        }
+
+                        if (wouldBlock())
+                        {
+                            break;
+                        }
+
+                        if (connectionLost())
+                        {
+                            ConnectionLostException ex(__FILE__, __LINE__);
+                            ex.error = getSocketErrno();
+                            throw ex;
+                        }
+                        else
+                        {
+                            SocketException ex(__FILE__, __LINE__);
+                            ex.error = getSocketErrno();
+                            throw ex;
+                        }
                     }
-                    else
+                    else // (bytesRead == 0)
                     {
-                        string errorString = "SSL_ERROR_SYSCALL";
+                        // Protocol Error: Unexpected EOF
+                        string errorString = "Encountered an EOF that violates the SSL Protocol.\n";
 
-                        EXCEPTION(errorString);
+                        ICE_SSLERRORS(errorString);
+                        ICE_EXCEPTION(errorString);
 
-                        throw ShutdownException(errorString.c_str(), __FILE__, __LINE__);
+                        throw ProtocolException(errorString.c_str(), __FILE__, __LINE__);
                     }
                 }
 
                 case SSL_ERROR_SSL:
                 {
-                    string errorString = "SSL_ERROR_SSL";
+                    string errorString = "Encountered a violation the SSL Protocol.\n";
 
-                    EXCEPTION(errorString);
+                    ICE_SSLERRORS(errorString);
+                    ICE_EXCEPTION(errorString);
 
-                    throw ShutdownException(errorString.c_str(), __FILE__, __LINE__);
+                    throw ProtocolException(errorString.c_str(), __FILE__, __LINE__);
                 }
 
                 case SSL_ERROR_ZERO_RETURN:
                 {
-                    string errorString = "SSL_ERROR_ZERO_RETURN";
+                    // string errorString = "SSL_ERROR_ZERO_RETURN";
+                    // ICE_EXCEPTION(errorString);
+                    // throw ShutdownException(errorString.c_str(), __FILE__, __LINE__);
 
-                    EXCEPTION(errorString);
-
-                    throw ShutdownException(errorString.c_str(), __FILE__, __LINE__);
+                    if (connectionLost())
+	            {
+		        ConnectionLostException ex(__FILE__, __LINE__);
+		        ex.error = getSocketErrno();
+		        throw ex;
+	            }
+	            else
+	            {
+		        SocketException ex(__FILE__, __LINE__);
+		        ex.error = getSocketErrno();
+		        throw ex;
+	            }
                 }
             }
         }
     }
 
-    METHOD_RET("OpenSSL::Connection::readSSL()");
+    ICE_METHOD_RET("OpenSSL::Connection::readSSL()");
 
     return totalBytesRead;
+}
+
+string
+IceSecurity::Ssl::OpenSSL::Connection::sslGetErrors()
+{
+    ICE_METHOD_INV("OpenSSL::Connection::sslGetErrors()");
+
+    string errorMessage;
+    char buf[200];
+    char bigBuffer[1024];
+    const char* file = 0;
+    const char* data = 0;
+    int line = 0;
+    int flags = 0;
+    unsigned errorCode = 0;
+    int errorNum = 1;
+
+    unsigned long es = CRYPTO_thread_id();
+
+    while ((errorCode = ERR_get_error_line_data(&file, &line, &data, &flags)) != 0)
+    {
+        sprintf(bigBuffer,"%6d - Thread ID: %lu\n", errorNum, es);
+        errorMessage += bigBuffer;
+
+        sprintf(bigBuffer,"%6d - Error:     %u\n", errorNum, errorCode);
+        errorMessage += bigBuffer;
+
+        // Request an error from the OpenSSL library
+        ERR_error_string_n(errorCode, buf, sizeof(buf));
+        sprintf(bigBuffer,"%6d - Message:   %s\n", errorNum, buf);
+        errorMessage += bigBuffer;
+
+        sprintf(bigBuffer,"%6d - Location:  %s, %d\n", errorNum, file, line);
+        errorMessage += bigBuffer;
+
+        if (flags & ERR_TXT_STRING)
+        {
+            sprintf(bigBuffer,"%6d - Data:      %s\n", errorNum, data);
+            errorMessage += bigBuffer;
+        }
+
+        errorNum++;
+    }
+
+    ICE_METHOD_RET("OpenSSL::Connection::sslGetErrors()");
+
+    return errorMessage;
 }
 
 void

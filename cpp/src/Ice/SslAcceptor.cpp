@@ -102,9 +102,11 @@ IceInternal::SslAcceptor::accept(int timeout)
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
+    PropertiesPtr properties = _instance->properties();
+
     // This is the Ice SSL Configuration File on which we will base
     // all connections in this communicator.
-    string configFile = _instance->properties()->getProperty("Ice.Ssl.Config");
+    string configFile = properties->getProperty("Ice.Ssl.Config");
 
     // Get an instance of the SslSystem singleton.
     System* sslSystem = Factory::getSystem(configFile);
@@ -117,6 +119,11 @@ IceInternal::SslAcceptor::accept(int timeout)
     if (!sslSystem->isLoggerSet())
     {
         sslSystem->setLogger(_logger);
+    }
+
+    if (!sslSystem->isPropertiesSet())
+    {
+        sslSystem->setProperties(properties);
     }
 
     // Initialize the server (if needed)

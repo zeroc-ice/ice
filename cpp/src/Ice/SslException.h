@@ -28,7 +28,7 @@ using Ice::LocalException;
 // This exception serves as the base for all SSL related exceptions.  It should probably
 // not be constructed directly, but can be used in this manner if desired.
 //
-class ICE_API SecurityException : public LocalException // public SocketException
+class ICE_API SecurityException : public LocalException
 {
 public:    
 
@@ -49,37 +49,13 @@ private:
 namespace Ssl
 {
 
-// InitException
-//
-// This exception indicates a problem during SSL connection setup, most likely due to
-// problems with the SSL handshake.  This is primarily a client-side exception.
-//
-class ICE_API InitException : public SecurityException
+class ICE_API ConfigParseException : public SecurityException
 {
 public:    
 
-    InitException(const char*, const char*, int);
-    InitException(const InitException&);
-    InitException& operator=(const InitException&);
-    virtual string ice_name() const;
-    virtual void ice_print(std::ostream&) const;
-    virtual Exception* ice_clone() const;
-    virtual void ice_throw() const;
-
-};
-
-// ReInitException
-//
-// This exception indicates that the SSL connection should be re-initialized.
-// This is primarily a server-side exception.
-//
-class ICE_API ReInitException : public SecurityException
-{
-public:    
-
-    ReInitException(const char*, const char*, int);
-    ReInitException(const ReInitException&);
-    ReInitException& operator=(const ReInitException&);
+    ConfigParseException(const char*, const char*, int);
+    ConfigParseException(const ConfigParseException&);
+    ConfigParseException& operator=(const ConfigParseException&);
     virtual string ice_name() const;
     virtual void ice_print(std::ostream&) const;
     virtual Exception* ice_clone() const;
@@ -107,6 +83,34 @@ public:
 
 };
 
+class ICE_API ProtocolException : public ShutdownException
+{
+public:    
+
+    ProtocolException(const char*, const char*, int);
+    ProtocolException(const ProtocolException&);
+    ProtocolException& operator=(const ProtocolException&);
+    virtual string ice_name() const;
+    virtual void ice_print(std::ostream&) const;
+    virtual Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+};
+
+class ICE_API CertificateException : public ShutdownException
+{
+public:    
+
+    CertificateException(const char*, const char*, int);
+    CertificateException(const CertificateException&);
+    CertificateException& operator=(const CertificateException&);
+    virtual string ice_name() const;
+    virtual void ice_print(std::ostream&) const;
+    virtual Exception* ice_clone() const;
+    virtual void ice_throw() const;
+
+};
+
 namespace OpenSSL
 {
 
@@ -115,7 +119,7 @@ namespace OpenSSL
 // This exception indicates that a problem occurred while setting up the
 // SSL context structure (SSL_CTX).
 //
-class ICE_API ContextException : public InitException
+class ICE_API ContextException : public SecurityException
 {
 public:    
 
