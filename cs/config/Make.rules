@@ -22,7 +22,7 @@ slice_home=$(top_srcdir)/../ice
 # if it does not exist.
 #
 
-prefix			= /opt/Icecs-$(VERSION)
+prefix			= /opt/icecs-$(VERSION)
 
 #
 # Define DEBUG as yes if you want to build with debug information and
@@ -92,7 +92,7 @@ INSTALL			= cp -fp
 
 MCS			= mcs
 
-LIBS			= $(libdir)/Icecs.dll
+LIBS			= $(libdir)/icecs.dll
 
 ifeq ($(DEBUG),yes)
     MCSFLAGS := -g

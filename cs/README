@@ -53,9 +53,9 @@ Installation
 You can copy the generated icecs/lib/Ice.dll file where you want it
 and then reference it in your appliation code.
 
-Alternatively, you can add the generated Icecs.dll to the global
+Alternatively, you can add the generated icecs.dll to the global
 assembly cache. To do this, open Explorer and navigate to
-C:\WINDOWS\assembly. Then drag and drop (or copy and paste) Icecs.dll
+C:\WINDOWS\assembly. Then drag and drop (or copy and paste) icecs.dll
 into the right-hand pane to install it in the cache. Once installed in
 the cache, the assembly will always be located correctly without having
 to set environment variables.

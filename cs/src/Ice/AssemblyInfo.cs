@@ -11,7 +11,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTitle("Icecs")]
+[assembly: AssemblyTitle("icecs")]
 [assembly: AssemblyDescription("Ice core run-time support")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyConfiguration("")]

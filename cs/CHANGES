@@ -2,7 +2,7 @@ Changes since Alpha 2
 ---------------------
 
 - The DLL that contains the Ice for C# run time has been renamed from
-  Icicle.dll to Icecs.dll.
+  Icicle.dll to icecs.dll.
 
 - Added support for protocol compression.
 
