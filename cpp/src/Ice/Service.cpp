@@ -1497,7 +1497,7 @@ Ice::Service::runDaemon(int argc, char* argv[])
                 break;
             }
             close(fds[1]);
-            fds[1] = 0;
+            fds[1] = -1;
 
             //
             // Wait for service shutdown.
@@ -1530,7 +1530,7 @@ Ice::Service::runDaemon(int argc, char* argv[])
     // If the service failed and the pipe to the parent is still open,
     // then send an error notification to the parent.
     //
-    if(status != EXIT_SUCCESS && fds[1] != 0)
+    if(status != EXIT_SUCCESS && fds[1] != -1)
     {
         char c = 1;
         while(true)
