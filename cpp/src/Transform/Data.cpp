@@ -749,9 +749,26 @@ Transform::BooleanData::transform(const DataPtr& data, DataInterceptor& intercep
     if(interceptor.preTransform(this, data))
     {
         BooleanDataPtr b = BooleanDataPtr::dynamicCast(data);
+        StringDataPtr s = StringDataPtr::dynamicCast(data);
         if(b)
         {
             _value = b->booleanValue();
+        }
+        else if(s)
+        {
+            string v = s->stringValue();
+            if(v == "true")
+            {
+                _value = true;
+            }
+            else if(v == "false")
+            {
+                _value = false;
+            }
+            else
+            {
+                _errorReporter->conversionError(v, _type);
+            }
         }
         else
         {
@@ -765,7 +782,7 @@ void
 Transform::BooleanData::set(const DataPtr& value, DataInterceptor&, bool convert)
 {
     StringDataPtr s = StringDataPtr::dynamicCast(value);
-    if(convert && s)
+    if(s)
     {
         string v = s->stringValue();
         if(v == "true")
@@ -2220,6 +2237,42 @@ Transform::SequenceData::getElements() const
 }
 
 void
+Transform::SequenceData::resize(const DataPtr& length, const DataPtr& value, DataInterceptor& interceptor, bool convert)
+{
+    Ice::Long l = length->integerValue();
+    if(l < 0 || l > INT_MAX)
+    {
+        _errorReporter->error("sequence length " + length->toString() + " is out of range");
+        return;
+    }
+
+    DataList::size_type len = static_cast<DataList::size_type>(l);
+    if(len < _elements.size())
+    {
+        for(DataList::size_type i = len; i < _elements.size(); ++i)
+        {
+            _elements[i]->destroy();
+        }
+        _elements.resize(len);
+    }
+    else if(len > _elements.size())
+    {
+        Slice::TypePtr type = _type->type();
+        for(DataList::size_type i = _elements.size(); i < len; ++i)
+        {
+            DataPtr v = _factory->create(type, _readOnly);
+            if(value)
+            {
+                v->set(value, interceptor, convert);
+            }
+            _elements.push_back(v);
+        }
+    }
+
+    _length = _factory->createInteger(l, true);
+}
+
+void
 Transform::SequenceData::printI(IceUtil::Output& out, ObjectDataHistory& history) const
 {
     out << "sequence " << typeName(_type) << " (size = " << _elements.size() << ")";
@@ -2804,7 +2857,7 @@ Transform::DictionaryData::getElements() const
 }
 
 void
-Transform::DictionaryData::put(const DataPtr& key, const DataPtr& value, DataInterceptor& interceptor, bool convert)
+Transform::DictionaryData::add(const DataPtr& key, const DataPtr& value)
 {
     assert(!readOnly());
 
@@ -2817,19 +2870,10 @@ Transform::DictionaryData::put(const DataPtr& key, const DataPtr& value, DataInt
         _errorReporter->typeMismatchError(_type->valueType(), value->getType(), true);
     }
 
-    DataPtr newKey = _factory->create(_type->keyType(), false);
-    newKey->set(key, interceptor, convert);
-    DataPtr newValue = _factory->create(_type->valueType(), false);
-    newValue->set(value, interceptor, convert);
+    DataMap::iterator p = _map.find(key);
+    assert(p == _map.end());
 
-    DataMap::iterator p = _map.find(newKey);
-    if(p != _map.end())
-    {
-        p->first->destroy();
-        p->second->destroy();
-    }
-
-    _map.insert(DataMap::value_type(newKey, newValue));
+    _map.insert(DataMap::value_type(key, value));
     _length = _factory->createInteger(static_cast<Ice::Long>(_map.size()), true);
 }
 
@@ -2963,12 +3007,12 @@ Transform::ObjectData::transform(const DataPtr& data, DataInterceptor& intercept
             //
             // Invoke transform() on members with the same name.
             //
-            for(DataMemberMap::iterator p = _members.begin(); p != _members.end(); ++p)
+            for(DataMemberMap::iterator q = _members.begin(); q != _members.end(); ++q)
             {
-                DataMemberMap::iterator q = o->_members.find(p->first);
-                if(q != o->_members.end())
+                DataMemberMap::iterator r = o->_members.find(q->first);
+                if(r != o->_members.end())
                 {
-                    p->second->transform(q->second, interceptor);
+                    q->second->transform(r->second, interceptor);
                 }
             }
         }
@@ -3093,10 +3137,10 @@ Transform::ObjectData::printI(IceUtil::Output& out, ObjectDataHistory& history) 
     {
         history.insert(ObjectDataHistory::value_type(this, true));
         out << sb;
-        for(DataMemberMap::const_iterator p = _members.begin(); p != _members.end(); ++p)
+        for(DataMemberMap::const_iterator q = _members.begin(); q != _members.end(); ++q)
         {
-            out << nl << p->first << " = ";
-            p->second->printI(out, history);
+            out << nl << q->first << " = ";
+            q->second->printI(out, history);
         }
         out << eb;
     }

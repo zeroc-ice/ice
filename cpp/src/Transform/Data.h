@@ -428,6 +428,7 @@ public:
     virtual std::string toString() const;
 
     DataList getElements() const;
+    void resize(const DataPtr&, const DataPtr&, DataInterceptor&, bool);
 
     virtual void printI(IceUtil::Output&, ObjectDataHistory&) const;
 
@@ -524,7 +525,7 @@ public:
     virtual std::string toString() const;
 
     DataMap getElements() const;
-    void put(const DataPtr&, const DataPtr&, DataInterceptor&, bool);
+    void add(const DataPtr&, const DataPtr&);
     void remove(const DataPtr&);
 
     virtual void printI(IceUtil::Output&, ObjectDataHistory&) const;
