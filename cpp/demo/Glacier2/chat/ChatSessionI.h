@@ -20,31 +20,31 @@ public:
 
     ChatRoomMembers();
 
-    void add(const ::Demo::ChatCallbackPrx&);
-    void remove(const ::Demo::ChatCallbackPrx&);
+    void add(const Demo::ChatCallbackPrx&);
+    void remove(const Demo::ChatCallbackPrx&);
     void message(const std::string&);
 
 private:
     
-    std::list<::Demo::ChatCallbackPrx> _members;
+    std::list< Demo::ChatCallbackPrx > _members;
 };
 typedef IceUtil::Handle<ChatRoomMembers> ChatRoomMembersPtr;
 
-class ChatSessionI : public ::Demo::ChatSession, public IceUtil::Mutex
+class ChatSessionI : public Demo::ChatSession, public IceUtil::Mutex
 {
 public:
 
     ChatSessionI(const ChatRoomMembersPtr&, const std::string&);
 
-    virtual void setCallback(const ::Demo::ChatCallbackPrx&, const Ice::Current&);
+    virtual void setCallback(const Demo::ChatCallbackPrx&, const Ice::Current&);
     virtual void say(const std::string&, const Ice::Current&);
     virtual void destroy(const Ice::Current&);
 
 private:
 
     ChatRoomMembersPtr _members;
-    ::std::string _userId;
-    ::Demo::ChatCallbackPrx _callback;
+    std::string _userId;
+    Demo::ChatCallbackPrx _callback;
     bool _destroy;
 };
 

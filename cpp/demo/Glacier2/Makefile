@@ -11,7 +11,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= callback
+SUBDIRS		= callback chat
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
