@@ -13,6 +13,12 @@
 
 #include <IceBox/IceBox.h>
 
+#if defined(_WIN32)
+#   define YELLOW_SERVICE_API __declspec(dllexport)
+#else
+#   define YELLOW_SERVICE_API /**/
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace Yellow;
@@ -21,7 +27,7 @@ using namespace Freeze;
 namespace Yellow
 {
 
-class ServiceI : public ::IceBox::FreezeService
+class YELLOW_SERVICE_API ServiceI : public ::IceBox::FreezeService
 {
 public:
 
@@ -50,7 +56,7 @@ extern "C"
 //
 // Factory function
 //
-::IceBox::FreezeService*
+YELLOW_SERVICE_API ::IceBox::FreezeService*
 create(Ice::CommunicatorPtr communicator)
 {
     return new Yellow::ServiceI;

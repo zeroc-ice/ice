@@ -12,6 +12,12 @@
 #include <IceStorm/TraceLevels.h>
 #include <IceBox/IceBox.h>
 
+#if defined(_WIN32)
+#   define ICESTORM_SERVICE_API __declspec(dllexport)
+#else
+#   define ICESTORM_SERVICE_API /**/
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
@@ -20,12 +26,12 @@ using namespace Freeze;
 namespace IceStorm
 {
 
-class Service : public ::IceBox::FreezeService
+class ICESTORM_SERVICE_API ServiceI : public ::IceBox::FreezeService
 {
 public:
 
-    Service();
-    virtual ~Service();
+    ServiceI();
+    virtual ~ServiceI();
 
     virtual void start(const string&,
                       const CommunicatorPtr&,
@@ -49,24 +55,24 @@ extern "C"
 //
 // Factory function
 //
-::IceBox::FreezeService*
+ICESTORM_SERVICE_API ::IceBox::FreezeService*
 create(CommunicatorPtr communicator)
 {
-    return new Service;
+    return new ServiceI;
 }
 
 }
 
-IceStorm::Service::Service()
+IceStorm::ServiceI::ServiceI()
 {
 }
 
-IceStorm::Service::~Service()
+IceStorm::ServiceI::~ServiceI()
 {
 }
 
 void
-IceStorm::Service::start(const string& name,
+IceStorm::ServiceI::start(const string& name,
 			 const CommunicatorPtr& communicator,
 			 const PropertiesPtr& properties,
 			 const StringSeq& args,
@@ -84,7 +90,7 @@ IceStorm::Service::start(const string& name,
 }
 
 void
-IceStorm::Service::stop()
+IceStorm::ServiceI::stop()
 {
     _adapter->deactivate();
 
