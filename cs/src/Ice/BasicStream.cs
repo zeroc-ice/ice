@@ -619,6 +619,10 @@ namespace IceInternal
 	
 	public virtual void writeBlob(byte[] v)
 	{
+            if(v == null)
+            {
+                return;
+            }
 	    expand(v.Length);
 	    _buf.put(v);
 	}
