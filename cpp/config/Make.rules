@@ -86,7 +86,7 @@ prefix			= /opt/Ice-$(VERSION)
 #
 #
 
-USE_READLINE            : = 1
+USE_READLINE            := 1
 #READLINE_HOME		?= /opt/readline
 
 
