@@ -59,6 +59,7 @@ tests = [ \
     "Ice/operations", \
     "Ice/slicing/exceptions", \
     "Ice/slicing/objects", \
+    "Ice/checksum", \
     ]
 
 def usage():
