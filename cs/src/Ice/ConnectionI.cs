@@ -71,8 +71,7 @@ namespace Ice
 			    ins.resize(IceInternal.Protocol.headerSize, true);
 			    ins.pos(0);
 			    _transceiver.read(ins, _endpoint.timeout());
-			    int pos = ins.pos();
-			    Debug.Assert(pos >= IceInternal.Protocol.headerSize);
+			    Debug.Assert(ins.pos() == IceInternal.Protocol.headerSize);
 			    ins.pos(0);
 			    byte[] m = new byte[4];
 			    m[0] = ins.readByte();
@@ -88,27 +87,6 @@ namespace Ice
 			    }
 			    byte pMajor = ins.readByte();
 			    byte pMinor = ins.readByte();
-			    
-			    //
-			    // We only check the major version number
-			    // here. The minor version number is irrelevant --
-			    // no matter what minor version number is offered
-			    // by the server, we can be certain that the
-			    // server supports at least minor version 0.  As
-			    // the client, we are obliged to never produce a
-			    // message with a minor version number that is
-			    // larger than what the server can understand, but
-			    // we don't care if the server understands more
-			    // than we do.
-			    //
-			    // Note: Once we add minor versions, we need to
-			    // modify the client side to never produce a
-			    // message with a minor number that is greater
-			    // than what the server can handle. Similarly, the
-			    // server side will have to be modified so it
-			    // never replies with a minor version that is
-			    // greater than what the client can handle.
-			    //
 			    if(pMajor != IceInternal.Protocol.protocolMajor)
 			    {
 				Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
@@ -118,15 +96,8 @@ namespace Ice
 				e.minor = IceInternal.Protocol.protocolMinor;
 				throw e;
 			    }
-			    
 			    byte eMajor = ins.readByte();
 			    byte eMinor = ins.readByte();
-			    
-			    //
-			    // The same applies here as above -- only the
-			    // major version number of the encoding is
-			    // relevant.
-			    //
 			    if(eMajor != IceInternal.Protocol.encodingMajor)
 			    {
 				Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
@@ -136,15 +107,12 @@ namespace Ice
 				e.minor = IceInternal.Protocol.encodingMinor;
 				throw e;
 			    }
-			    
 			    byte messageType = ins.readByte();
 			    if(messageType != IceInternal.Protocol.validateConnectionMsg)
 			    {
 				throw new Ice.ConnectionNotValidatedException();
 			    }
-			    
 			    byte compress = ins.readByte(); // Ignore compression status for validate connection.
-			    
 			    int size = ins.readInt();
 			    if(size != IceInternal.Protocol.headerSize)
 			    {

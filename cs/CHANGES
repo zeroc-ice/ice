@@ -1,21 +1,23 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed tracing of operation mode.
+
 - The escape prefix for Slice identifiers that are used by .NET
-  framework classes has been changed from "_cs_" to "_Ice_".
-  For example, Slice "Add" now maps to C# "_Ice_Add" instead
-  of "_cs_Add".
-  In addition, the prefix is now case-insensitive, so Slice "add"
-  now maps to C# "_Ice_add" whereas, previously, it mapped to C#
+  framework classes has been changed from "_cs_" to "_Ice_".  For
+  example, Slice "Add" now maps to C# "_Ice_Add" instead of "_cs_Add".
+
+  In addition, the prefix is now case-insensitive, so Slice "add" now
+  maps to C# "_Ice_add" whereas, previously, it mapped to C#
   "add". (These changes were necessary to preserve binary
   compatibility of slice2cs and slice2vb generated code.)
 
 - The documentation has always stated that same-named constructs
-  cannot be directly nested inside each other. (For example, a
-  module `M' cannot contain a constant named `M'. The slice2cs
-  compiler did not enforce this correctly up to now for modules
-  containing constructs with the same name as the enclosing module.
-  This has been fixed and now results in a diagnostic.
+  cannot be directly nested inside each other. (For example, a module
+  `M' cannot contain a constant named `M'. The slice2cs compiler did
+  not enforce this correctly up to now for modules containing
+  constructs with the same name as the enclosing module.  This has
+  been fixed and now results in a diagnostic.
 
 - The slice2cs compiler now disallows Slice definitions at global
   scope: only modules can be defined at global scope. Everything else
@@ -27,23 +29,22 @@ Changes since version 1.5.1
   ["cs:collection"] sequence<Object> S1;
   ["cs:collection"] sequence<Object*> S2;
 
-  Sequences of Object or Object* caused incorrect code
-  to be generated if they were marked as "cs:collection".
+  Sequences of Object or Object* caused incorrect code to be generated
+  if they were marked as "cs:collection".
 
 - Fixed a bug in the slice2cs code generator: for nested sequences,
-  incorrect code was generated if both the inner and the outer sequence
-  were mapped as arrays.
+  incorrect code was generated if both the inner and the outer
+  sequence were mapped as arrays.
 
-- Fixed a number of bugs in slice2cs that cause incorrect
-  code to be generated if C# keywords were used as Slice
-  identifiers.
+- Fixed a number of bugs in slice2cs that cause incorrect code to be
+  generated if C# keywords were used as Slice identifiers.
 
 - Fixed the and slice2cs compiler for operations with multiple
-  exceptions in an exception specification: if an exception was a base of one or
-  more other exceptions in the same exception specification, the code
-  generator sometimes emitted the catch blocks in the marshaling and
-  dispatch code in the wrong order. (This applied only to interfaces
-  with an ["amd"] metadata directive.)
+  exceptions in an exception specification: if an exception was a base
+  of one or more other exceptions in the same exception specification,
+  the code generator sometimes emitted the catch blocks in the
+  marshaling and dispatch code in the wrong order. (This applied only
+  to interfaces with an ["amd"] metadata directive.)
 
 - Several demos used Slice classes where interfaces were more
   appropriate. This has been fixed.

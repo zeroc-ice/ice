@@ -99,7 +99,7 @@ namespace IceInternal
 		s.Write("\nrequest id = " + requestId);
 		
 		byte status = str.readByte();
-		s.Write("\nreply status = " + (int) status + ' ');
+		s.Write("\nreply status = " + (int)status + ' ');
 		
 		switch((DispatchStatus)status)
 		{
@@ -236,7 +236,7 @@ namespace IceInternal
 		{
 		    if(j < data.Length)
 		    {
-			int n = (int) data[j];
+			int n = (int)data[j];
 			if(n < 0)
 			{
 			    n += 256;
@@ -311,8 +311,34 @@ namespace IceInternal
 	    
 	    try
 	    {
-		bool nonmutating = stream.readBool();
-		o.Write("\nnonmutating = " + nonmutating);
+		byte mode = stream.readByte();
+		o.Write("\nmode = " + (int)mode + ' ');
+		switch((Ice.OperationMode)mode)
+		{
+		    case Ice.OperationMode.Normal:
+		    {
+			o.Write("(normal)");
+			break;
+		    }
+		    
+		    case Ice.OperationMode.Nonmutating:
+		    {
+			o.Write("(nonmutating)");
+			break;
+		    }
+		    
+		    case Ice.OperationMode.Idempotent:
+		    {
+			o.Write("(idempotent)");
+			break;
+		    }
+		    
+		    default:
+		    {
+			o.Write("(unknown)");
+			break;
+		    }
+		}
 		
 		int sz = stream.readSize();
 		o.Write("\ncontext = ");
@@ -352,7 +378,7 @@ namespace IceInternal
 		//o.Write("\nencoding version = " + (int)eMajor + "." + (int)eMinor);
 		
 		byte type = stream.readByte();
-		o.Write("\nmessage type = " + (int) type + ' ');
+		o.Write("\nmessage type = " + (int)type + ' ');
 		switch(type)
 		{
 		    case Protocol.requestMsg: 
@@ -393,7 +419,7 @@ namespace IceInternal
 		}
 		
 		byte compress = stream.readByte();
-		o.Write("\ncompression status = " + (int) compress + ' ');
+		o.Write("\ncompression status = " + (int)compress + ' ');
 		switch(compress)
 		{
 		    case (byte)0: 

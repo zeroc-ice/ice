@@ -40,7 +40,6 @@ namespace IceInternal
 	    _size = 0;
 	    _sizeMax = 0;
 	    _sizeWarn = 0;
-	    _messageSizeMax = 0;
 	    _threadIndex = 0;
 	    _running = 0;
 	    _inUse = 0;
@@ -85,8 +84,6 @@ namespace IceInternal
 	    _size = size;
 	    _sizeMax = sizeMax;
 	    _sizeWarn = sizeWarn;
-	    
-	    _messageSizeMax = _instance.messageSizeMax();
 	    
 	    try
 	    {
@@ -724,7 +721,7 @@ namespace IceInternal
 	    {
 		throw new Ice.IllegalMessageSizeException();
 	    }
-	    if(size > _messageSizeMax)
+	    if(size > _instance.messageSizeMax())
 	    {
 		throw new Ice.MemoryLimitException();
 	    }
@@ -740,7 +737,8 @@ namespace IceInternal
 		{
 		    if(_warnUdp)
 		    {
-			_instance.logger().warning("DatagramLimitException: maximum size of " + stream.pos() + " exceeded");
+			_instance.logger().warning("DatagramLimitException: maximum size of " + stream.pos() +
+						   " exceeded");
 		    }
 		    stream.pos(0);
 		    stream.resize(0, true);
@@ -893,8 +891,6 @@ namespace IceInternal
 	private readonly int _size; // Number of threads that are pre-created.
 	private readonly int _sizeMax; // Maximum number of threads.
 	private readonly int _sizeWarn; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
-	
-	private readonly int _messageSizeMax;
 	
 	private ArrayList _threads; // All threads, running or not.
 	private int _threadIndex; // For assigning thread names.
