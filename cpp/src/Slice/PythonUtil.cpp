@@ -90,14 +90,16 @@ private:
     //
     string scopedToType(const string&);
 
-    struct ExceptionDataMember
+    struct MemberInfo
     {
         string fixedName;
         TypePtr type;
         bool inherited;
     };
+    typedef list<MemberInfo> MemberInfoList;
 
-    void collectExceptionMembers(const ExceptionPtr&, list<ExceptionDataMember>&, bool);
+    void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
+    void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
     Output& _out;
     set<string>& _moduleHistory;
@@ -270,7 +272,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     _out << sp << nl << "_M_" << fixedScoped << " = Ice.createTempClass()";
     _out << nl << "class " << fixedName << '(';
-    string baseScoped;
+    string baseScoped, baseName;
     if(bases.empty())
     {
         if(p->isLocal())
@@ -295,16 +297,58 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(!bases.front()->isInterface())
         {
             baseScoped = bases.front()->scoped();
+            baseName = getSymbol(bases.front());
         }
     }
     _out << "):";
 
     _out.inc();
-    if(p->isLocal())
+
+    //
+    // __init__
+    //
+    _out << nl << "def __init__(self";
+    MemberInfoList allMembers;
+    collectClassMembers(p, allMembers, false);
+    if(!allMembers.empty())
+    {
+        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        {
+            _out << ", " << q->fixedName << '=';
+            writeDefaultValue(q->type);
+        }
+    }
+    _out << "):";
+    _out.inc();
+    if(baseName.empty() && !p->hasDataMembers())
     {
         _out << nl << "pass";
     }
     else
+    {
+        if(!baseName.empty())
+        {
+            _out << nl << baseName << ".__init__(self";
+            for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            {
+                if(q->inherited)
+                {
+                    _out << ", " << q->fixedName;
+                }
+            }
+            _out << ')';
+        }
+        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        {
+            if(!q->inherited)
+            {
+                _out << nl << "self." << q->fixedName << " = " << q->fixedName;;
+            }
+        }
+    }
+    _out.dec();
+
+    if(!p->isLocal())
     {
         //
         // ice_ids
@@ -414,7 +458,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "class " << fixedName << "Prx(";
         if(bases.empty())
         {
-            _out << "IcePy.ObjectPrx";
+            _out << "Ice.ObjectPrx";
         }
         else
         {
@@ -455,14 +499,14 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << ", " << inParams;
             }
-            _out << ", ctx=None):";
+            _out << ", _ctx=None):";
             _out.inc();
             _out << nl << "return _M_" << fixedScoped << "._op_" << (*oli)->name() << ".invoke(self, (" << inParams;
             if(!inParams.empty() && inParams.find(',') == string::npos)
             {
                 _out << ", ";
             }
-            _out << "), ctx)";
+            _out << "), _ctx)";
             _out.dec();
 
             if(p->hasMetaData("ami") || (*oli)->hasMetaData("ami"))
@@ -472,7 +516,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     _out << ", " << inParams;
                 }
-                _out << ", ctx=None):";
+                _out << ", _ctx=None):";
                 _out.inc();
                 _out << nl << "return _M_" << fixedScoped << "._op_" << (*oli)->name() << ".invokeAsync(self, _cb, ("
                      << inParams;
@@ -480,7 +524,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     _out << ", ";
                 }
-                _out << "), ctx)";
+                _out << "), _ctx)";
                 _out.dec();
             }
         }
@@ -721,11 +765,11 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     // __init__
     //
     _out << nl << "def __init__(self";
-    list<ExceptionDataMember> allMembers;
+    MemberInfoList allMembers;
     collectExceptionMembers(p, allMembers, false);
     if(!allMembers.empty())
     {
-        for(list<ExceptionDataMember>::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
             _out << ", " << q->fixedName << '=';
             writeDefaultValue(q->type);
@@ -742,7 +786,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         if(base)
         {
             _out << nl << baseName << ".__init__(self";
-            for(list<ExceptionDataMember>::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 if(q->inherited)
                 {
@@ -751,7 +795,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             }
             _out << ')';
         }
-        for(list<ExceptionDataMember>::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
             if(!q->inherited)
             {
@@ -762,11 +806,11 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out.dec();
 
     //
-    // ice_id
+    // ice_name
     //
-    _out << sp << nl << "def ice_id(self):";
+    _out << sp << nl << "def ice_name(self):";
     _out.inc();
-    _out << nl << "return '" << scoped << "'";
+    _out << nl << "return '" << scoped.substr(2) << "'";
     _out.dec();
 
     //
@@ -782,7 +826,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         _out << nl << "return '" << fixedScoped << ":'";
         _out.inc();
-        for(list<ExceptionDataMember>::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
             _out << " +\\"
                  << nl << "'\\n" << q->fixedName << ": ' + str(self." << q->fixedName << ')';
@@ -971,6 +1015,11 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out.inc();
     _out << sp << nl << "def __init__(self, val):";
     _out.inc();
+    {
+        ostringstream assertion;
+        assertion << "assert(val >= 0 and val < " << enums.size() << ')';
+        _out << nl << assertion.str();
+    }
     _out << nl << "self.value = val";
     _out.dec();
     _out << sp << nl << "def __str__(self):";
@@ -1370,8 +1419,28 @@ Slice::Python::CodeVisitor::scopedToType(const string& scoped)
 }
 
 void
-Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, list<ExceptionDataMember>& allMembers,
-                                                    bool inherited)
+Slice::Python::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMembers, bool inherited)
+{
+    ClassList bases = p->bases();
+    if(!bases.empty() && !bases.front()->isInterface())
+    {
+        collectClassMembers(bases.front(), allMembers, true);
+    }
+
+    DataMemberList members = p->dataMembers();
+
+    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    {
+        MemberInfo m;
+        m.fixedName = fixIdent((*q)->name());
+        m.type = (*q)->type();
+        m.inherited = inherited;
+        allMembers.push_back(m);
+    }
+}
+
+void
+Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allMembers, bool inherited)
 {
     ExceptionPtr base = p->base();
     if(base)
@@ -1383,7 +1452,7 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, list<
 
     for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
     {
-        ExceptionDataMember m;
+        MemberInfo m;
         m.fixedName = fixIdent((*q)->name());
         m.type = (*q)->type();
         m.inherited = inherited;
