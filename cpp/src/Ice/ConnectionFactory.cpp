@@ -933,11 +933,14 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 	{
 	    if(_instance->threadPerConnection())
 	    {
-		//
-		// Connect to our own acceptor, which unblocks our
-		// thread per incoming connection factory stuck in accept().
-		//
-		_acceptor->connectToSelf();
+		if(_acceptor)
+		{
+		    //
+		    // Connect to our own acceptor, which unblocks our
+		    // thread per incoming connection factory stuck in accept().
+		    //
+		    _acceptor->connectToSelf();
+		}
 	    }
 	    else
 	    {
