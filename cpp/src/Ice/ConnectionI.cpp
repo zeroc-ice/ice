@@ -2107,7 +2107,7 @@ Ice::ConnectionI::run()
 	    //
 	}
     }
-    catch(const LocalException& ex)
+    catch(const LocalException&)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -2123,7 +2123,7 @@ Ice::ConnectionI::run()
 	{
 	    _transceiver->close();
 	}
-	catch(const LocalException& ex)
+	catch(const LocalException&)
 	{
 	    // Here we ignore any exceptions in close().
 	}
