@@ -667,6 +667,7 @@ transformStruct(const DBEnvironmentPtr& dbEnv)
 	    for(IntS1Map::iterator p = map.begin(); p != map.end(); ++p)
 	    {
 		Test::S1 s1 = p->second;
+		s1.b = false;
 	    }
         }
 
