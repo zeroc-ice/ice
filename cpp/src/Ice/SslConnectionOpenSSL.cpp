@@ -158,6 +158,12 @@ IceSSL::OpenSSL::Connection::getConnection(SSL* sslPtr)
     return ConnectionPtr(connection);
 }
 
+//
+// Note: Do not throw exceptions from verifyCertificate - it would rip through the OpenSSL system,
+//       interfering with the usual handling and alert system of the handshake.  Exceptions should
+//       be caught here (if they can be generated), logged and then a fail return code (0) should 
+//       returned.
+//
 int
 IceSSL::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509_STORE_CTX* x509StoreContext)
 {
@@ -207,6 +213,8 @@ IceSSL::OpenSSL::Connection::verifyCertificate(int preVerifyOkay, X509_STORE_CTX
 int
 IceSSL::OpenSSL::Connection::connect()
 {
+    assert(_sslConnection != 0);
+
     int result = SSL_connect(_sslConnection);
 
     setLastError(result);
@@ -217,6 +225,8 @@ IceSSL::OpenSSL::Connection::connect()
 int
 IceSSL::OpenSSL::Connection::accept()
 {
+    assert(_sslConnection != 0);
+
     int result = SSL_accept(_sslConnection);
 
     setLastError(result);
@@ -224,9 +234,11 @@ IceSSL::OpenSSL::Connection::accept()
     return result;
 }
 
+// NOTE: Currently not used, maybe later.
 int
 IceSSL::OpenSSL::Connection::renegotiate()
 {
+    assert(_sslConnection != 0);
     return SSL_renegotiate(_sslConnection);
 }
 
@@ -277,18 +289,22 @@ IceSSL::OpenSSL::Connection::initialize(int timeout)
 int
 IceSSL::OpenSSL::Connection::pending()
 {
+    assert(_sslConnection != 0);
     return SSL_pending(_sslConnection);
 }
 
 int
 IceSSL::OpenSSL::Connection::getLastError() const
 {
+    assert(_sslConnection != 0);
     return SSL_get_error(_sslConnection, _lastError);
 }
 
 int
 IceSSL::OpenSSL::Connection::sslRead(char* buffer, int bufferSize)
 {
+    assert(_sslConnection != 0);
+
     int bytesRead = SSL_read(_sslConnection, buffer, bufferSize);
 
     setLastError(bytesRead);
@@ -299,6 +315,8 @@ IceSSL::OpenSSL::Connection::sslRead(char* buffer, int bufferSize)
 int
 IceSSL::OpenSSL::Connection::sslWrite(char* buffer, int bufferSize)
 {
+    assert(_sslConnection != 0);
+
     int bytesWritten = SSL_write(_sslConnection, buffer, bufferSize);
 
     setLastError(bytesWritten);
@@ -315,6 +333,7 @@ IceSSL::OpenSSL::Connection::sslWrite(char* buffer, int bufferSize)
 // packets, not application packets.  This looks wierd, but it is essentially what
 // the demo programs are doing, so I feel okay copying them.  The only reason that I
 // have defined the buffer[] array is so that I have a valid buffer pointer.
+/*
 void
 IceSSL::OpenSSL::Connection::protocolWrite()
 {
@@ -327,6 +346,7 @@ IceSSL::OpenSSL::Connection::protocolWrite()
     //       strangely, check this!
     sslWrite(buffer,0);
 }
+*/
 
 int
 IceSSL::OpenSSL::Connection::readInBuffer(Buffer& buf)
@@ -370,12 +390,14 @@ IceSSL::OpenSSL::Connection::readInBuffer(Buffer& buf)
 }
 
 int
-IceSSL::OpenSSL::Connection::readSelect(int timeout)
+IceSSL::OpenSSL::Connection::select(int timeout, bool write)
 {
     int ret;
-    SOCKET fd = SSL_get_fd(_sslConnection);
-    fd_set rFdSet;
 
+    assert(_sslConnection != 0);
+    SOCKET fd = SSL_get_fd(_sslConnection);
+
+    fd_set rwFdSet;
     struct timeval tv;
 
     if (timeout >= 0)
@@ -386,16 +408,30 @@ IceSSL::OpenSSL::Connection::readSelect(int timeout)
 
     do
     {
-        FD_ZERO(&rFdSet);
-        FD_SET(fd, &rFdSet);
+        FD_ZERO(&rwFdSet);
+        FD_SET(fd, &rwFdSet);
 
         if (timeout >= 0)
         {
-            ret = ::select(fd + 1, &rFdSet, 0, 0, &tv);
+            if (write)
+            {
+                ret = ::select(fd + 1, 0, &rwFdSet, 0, &tv);
+            }
+            else
+            {
+                ret = ::select(fd + 1, &rwFdSet, 0, 0, &tv);
+            }
         }
         else
         {
-            ret = ::select(fd + 1, &rFdSet, 0, 0, 0);
+            if (write)
+            {
+                ret = ::select(fd + 1, 0, &rwFdSet, 0, 0);
+            }
+            else
+            {
+                ret = ::select(fd + 1, &rwFdSet, 0, 0, 0);
+            }
         }
     }
     while (ret == SOCKET_ERROR && interrupted());
@@ -412,53 +448,19 @@ IceSSL::OpenSSL::Connection::readSelect(int timeout)
         throw TimeoutException(__FILE__, __LINE__);
     }
 
-    return FD_ISSET(fd, &rFdSet);
+    return FD_ISSET(fd, &rwFdSet);
+}
+
+int
+IceSSL::OpenSSL::Connection::readSelect(int timeout)
+{
+    return select(timeout, false);
 }
 
 int
 IceSSL::OpenSSL::Connection::writeSelect(int timeout)
 {
-    int ret;
-    SOCKET fd = SSL_get_fd(_sslConnection);
-    fd_set wFdSet;
-
-    struct timeval tv;
-
-    if (timeout >= 0)
-    {
-        tv.tv_sec = timeout / 1000;
-        tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-    }
-
-    do
-    {
-        FD_ZERO(&wFdSet);
-        FD_SET(fd, &wFdSet);
-
-        if (timeout >= 0)
-        {
-            ret = ::select(fd + 1, 0, &wFdSet, 0, &tv);
-        }
-        else
-        {
-            ret = ::select(fd + 1, 0, &wFdSet, 0, 0);
-        }
-    }
-    while (ret == SOCKET_ERROR && interrupted());
-
-    if (ret == SOCKET_ERROR)
-    {
-	SocketException ex(__FILE__, __LINE__);
-	ex.error = getSocketErrno();
-	throw ex;
-    }
-
-    if (ret == 0)
-    {
-        throw TimeoutException(__FILE__, __LINE__);
-    }
-
-    return FD_ISSET(fd, &wFdSet);
+    return select(timeout, true);
 }
 
 int
@@ -480,7 +482,6 @@ IceSSL::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
         if (initReturn == -1)
         {
             // Handshake underway, timeout immediately, easy way to deal with this.
-            // _logger->trace(_traceLevels->securityCat, "Throwing TimeoutException, Line 566");
             throw TimeoutException(__FILE__, __LINE__);
         }
 
@@ -542,12 +543,14 @@ IceSSL::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
 
             case SSL_ERROR_WANT_WRITE:
             {
+                // TODO: This can most likely be removed.
+
                 // If we get this error here, it HAS to be because the protocol wants
                 // to do something handshake related.  As such, We're going to call
                 // write with an empty buffer.  I've seen this done in the demo
                 // programs, so this should be valid.  No actual application data
                 // will be sent, just protocol packets.
-                protocolWrite();
+                // protocolWrite();
                 continue;
             }
 
@@ -632,49 +635,6 @@ IceSSL::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
     return totalBytesRead;
 }
 
-string
-IceSSL::OpenSSL::Connection::sslGetErrors()
-{
-    string errorMessage;
-    char buf[200];
-    char bigBuffer[1024];
-    const char* file = 0;
-    const char* data = 0;
-    int line = 0;
-    int flags = 0;
-    unsigned errorCode = 0;
-    int errorNum = 1;
-
-    unsigned long es = CRYPTO_thread_id();
-
-    while ((errorCode = ERR_get_error_line_data(&file, &line, &data, &flags)) != 0)
-    {
-        sprintf(bigBuffer,"%6d - Thread ID: %lu\n", errorNum, es);
-        errorMessage += bigBuffer;
-
-        sprintf(bigBuffer,"%6d - Error:     %u\n", errorNum, errorCode);
-        errorMessage += bigBuffer;
-
-        // Request an error from the OpenSSL library
-        ERR_error_string_n(errorCode, buf, sizeof(buf));
-        sprintf(bigBuffer,"%6d - Message:   %s\n", errorNum, buf);
-        errorMessage += bigBuffer;
-
-        sprintf(bigBuffer,"%6d - Location:  %s, %d\n", errorNum, file, line);
-        errorMessage += bigBuffer;
-
-        if (flags & ERR_TXT_STRING)
-        {
-            sprintf(bigBuffer,"%6d - Data:      %s\n", errorNum, data);
-            errorMessage += bigBuffer;
-        }
-
-        errorNum++;
-    }
-
-    return errorMessage;
-}
-
 void
 IceSSL::OpenSSL::Connection::addConnection(SSL* sslPtr, Connection* connection)
 {
@@ -695,6 +655,9 @@ IceSSL::OpenSSL::Connection::removeConnection(SSL* sslPtr)
 void
 IceSSL::OpenSSL::Connection::showCertificateChain(BIO* bio)
 {
+    assert(_sslConnection != 0);
+    assert(bio != 0);
+
     STACK_OF(X509)* sk;
 
     // Big nasty buffer
@@ -724,6 +687,9 @@ IceSSL::OpenSSL::Connection::showCertificateChain(BIO* bio)
 void
 IceSSL::OpenSSL::Connection::showPeerCertificate(BIO* bio, const char* connType)
 {
+    assert(_sslConnection != 0);
+    assert(bio != 0);
+
     X509* peerCert = 0;
     char buffer[4096];
 
@@ -754,6 +720,9 @@ IceSSL::OpenSSL::Connection::showPeerCertificate(BIO* bio, const char* connType)
 void
 IceSSL::OpenSSL::Connection::showSharedCiphers(BIO* bio)
 {
+    assert(_sslConnection != 0);
+    assert(bio != 0);
+
     char buffer[4096];
     char* strpointer = 0;
 
@@ -794,6 +763,9 @@ IceSSL::OpenSSL::Connection::showSharedCiphers(BIO* bio)
 void
 IceSSL::OpenSSL::Connection::showSessionInfo(BIO* bio)
 {
+    assert(_sslConnection != 0);
+    assert(bio != 0);
+
     if (_sslConnection->hit)
     {
         BIO_printf(bio, "Reused session-id\n");
@@ -805,6 +777,9 @@ IceSSL::OpenSSL::Connection::showSessionInfo(BIO* bio)
 void
 IceSSL::OpenSSL::Connection::showSelectedCipherInfo(BIO* bio)
 {
+    assert(_sslConnection != 0);
+    assert(bio != 0);
+
     const char* str;
     SSL_CIPHER* cipher;
 
@@ -821,6 +796,9 @@ IceSSL::OpenSSL::Connection::showSelectedCipherInfo(BIO* bio)
 void
 IceSSL::OpenSSL::Connection::showHandshakeStats(BIO* bio)
 {
+    assert(_sslConnection != 0);
+    assert(bio != 0);
+
     BIO_printf(bio, "---\nSSL handshake has read %ld bytes and written %ld bytes\n",
             BIO_number_read(SSL_get_rbio(_sslConnection)),
             BIO_number_written(SSL_get_wbio(_sslConnection)));
@@ -829,6 +807,10 @@ IceSSL::OpenSSL::Connection::showHandshakeStats(BIO* bio)
 void
 IceSSL::OpenSSL::Connection::showClientCAList(BIO* bio, const char* connType)
 {
+    assert(_sslConnection != 0);
+    assert(bio != 0);
+    assert(connType != 0);
+
     char buffer[4096];
     STACK_OF(X509_NAME)* sk = SSL_get_client_CA_list(_sslConnection);
 

@@ -149,17 +149,18 @@ protected:
     int sslRead(char*, int);
     int sslWrite(char*, int);
 
-    void protocolWrite();
+//    void protocolWrite();
 
     int readInBuffer(IceInternal::Buffer&);
 
+    int select(int, bool);
     int readSelect(int);
     int writeSelect(int);
 
     int readSSL(IceInternal::Buffer&, int);
 
     // Retrieves errors from the OpenSSL library.
-    std::string sslGetErrors();
+//    std::string sslGetErrors();
 
     static void addConnection(SSL*, Connection*);
     static void removeConnection(SSL*);

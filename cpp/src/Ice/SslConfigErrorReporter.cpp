@@ -21,6 +21,9 @@
 
 using namespace std;
 
+void ::IceInternal::incRef(::IceSSL::ErrorReporter* p) { p->__incRef(); }
+void ::IceInternal::decRef(::IceSSL::ErrorReporter* p) { p->__decRef(); }
+
 void
 IceSSL::ErrorReporter::warning(const SAXParseException& toCatch)
 {
@@ -28,7 +31,7 @@ IceSSL::ErrorReporter::warning(const SAXParseException& toCatch)
     {
 	ostringstream s;
 
-        s << "SSL configuration file parse warning.\n" << flush;
+        s << "SSL configuration file parse warning." << endl;
         s << "Xerces-c Init Exception: Warning at file \"" << flush;
         s << DOMString(toCatch.getSystemId()) << flush;
         s << "\", line " << toCatch.getLineNumber() << flush;
@@ -48,7 +51,7 @@ IceSSL::ErrorReporter::error(const SAXParseException& toCatch)
     {
 	ostringstream s;
 
-        s << "SSL configuration file parse error.\n" << flush;
+        s << "SSL configuration file parse error." << endl;
         s << "Xerces-c Init Exception: Error at file \"" << flush;
         s << DOMString(toCatch.getSystemId()) << flush;
         s << "\", line " << toCatch.getLineNumber() << flush;
@@ -68,7 +71,7 @@ IceSSL::ErrorReporter::fatalError(const SAXParseException& toCatch)
     {
 	ostringstream s;
 
-        s << "SSL configuration file parse error.\n" << flush;
+        s << "SSL configuration file parse error." << endl;
         s << "Xerces-c Init Exception: Fatal error at file \"" << flush;
         s << DOMString(toCatch.getSystemId()) << flush;
         s << "\", line " << toCatch.getLineNumber() << flush;

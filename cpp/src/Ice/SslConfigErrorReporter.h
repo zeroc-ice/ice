@@ -12,6 +12,7 @@
 #define ICE_SSL_CONFIG_ERROR_REPORTER_H
 
 #include <iostream>
+#include <IceUtil/Shared.h>
 #include <util/XercesDefs.hpp>
 #include <dom/DOMString.hpp>
 #include <sax/ErrorHandler.hpp>
@@ -21,7 +22,7 @@
 namespace IceSSL
 {
 
-class ErrorReporter : public ErrorHandler
+class ErrorReporter : public ErrorHandler, public IceUtil::Shared
 {
 
 public:
@@ -52,7 +53,17 @@ private:
     Ice::LoggerPtr _logger;
 };
 
+typedef IceInternal::Handle<ErrorReporter> ErrorReporterPtr;
+
 std::ostream& operator << (std::ostream& target, const DOMString& s);
+
+}
+
+namespace IceInternal
+{
+
+void incRef(::IceSSL::ErrorReporter*);
+void decRef(::IceSSL::ErrorReporter*);
 
 }
 

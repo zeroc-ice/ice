@@ -24,6 +24,9 @@
 
 using IceSSL::ConnectionPtr;
 
+void ::IceInternal::incRef(::IceSSL::OpenSSL::Context* p) { p->__incRef(); }
+void ::IceInternal::decRef(::IceSSL::OpenSSL::Context* p) { p->__decRef(); }
+
 IceSSL::OpenSSL::Context::~Context()
 {
     if (_sslContext != 0)

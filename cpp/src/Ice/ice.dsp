@@ -2156,6 +2156,23 @@ SOURCE=..\..\slice\Ice\SslExtension.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__SSLEX="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SslExtension.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SslExtension.ice \
+	move SslExtension.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\SslExtension.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"SslExtension.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
 USERDEP__SSLEX="../../bin/slice2cpp.exe"	
@@ -2184,6 +2201,18 @@ SOURCE=..\..\slice\Ice\SslExtensionF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+USERDEP__SSLEXT="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SslExtensionF.ice
+
+"..\..\include\Ice\SslExtensionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SslExtensionF.ice 
+	move SslExtensionF.h ..\..\include\Ice 
+	del SslExtensionF.cpp 
+	
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
 USERDEP__SSLEXT="../../bin/slice2cpp.exe"	
@@ -2206,6 +2235,23 @@ InputPath=..\..\slice\Ice\SslExtensionF.ice
 SOURCE=..\..\slice\Ice\SslSystem.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__SSLSY="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SslSystem.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SslSystem.ice \
+	move SslSystem.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\SslSystem.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"SslSystem.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
@@ -2234,6 +2280,18 @@ BuildCmds= \
 SOURCE=..\..\slice\Ice\SslSystemF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__SSLSYS="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SslSystemF.ice
+
+"..\..\include\Ice\SslSystemF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/SslSystemF.ice 
+	move SslSystemF.h ..\..\include\Ice 
+	del SslSystemF.cpp 
+	
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 

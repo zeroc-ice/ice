@@ -10,6 +10,7 @@
 
 #include <string>
 #include <sstream>
+#include <Ice/SslOpenSSLUtils.h>
 #include <Ice/Network.h>
 #include <Ice/OpenSSL.h>
 #include <Ice/SecurityException.h>
@@ -52,6 +53,8 @@ IceSSL::OpenSSL::ClientConnection::ClientConnection(
             const IceSSL::SystemInternalPtr& system) :
                                             Connection(traceLevels, logger, certificateVerifier, connection, system)
 {
+    assert(_sslConnection != 0);
+
     // Set the Connect Connection state for this connection.
     SSL_set_connect_state(_sslConnection);
 }
@@ -69,6 +72,8 @@ IceSSL::OpenSSL::ClientConnection::shutdown()
 int
 IceSSL::OpenSSL::ClientConnection::init(int timeout)
 {
+    assert(_sslConnection != 0);
+
     int retCode = SSL_is_init_finished(_sslConnection);
 
     while (!retCode)

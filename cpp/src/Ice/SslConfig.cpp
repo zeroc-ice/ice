@@ -74,7 +74,7 @@ IceSSL::Parser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
         ostringstream s;
-        s << "While parsing " << _configFile << flush;
+        s << "While parsing " << _configFile << ": " << endl;
 	s << "Xerces-c Init Exception: " << DOMString(toCatch.getMessage());
 
         configEx._message = s.str();
@@ -84,7 +84,7 @@ IceSSL::Parser::process()
 
     int errorCount = 0;
 
-    ErrorReporter* errReporter = new ErrorReporter(_traceLevels, _logger);
+    ErrorReporterPtr errReporter = new ErrorReporter(_traceLevels, _logger);
     assert(errReporter != 0);
 
     //  Create our parser, then attach an error handler to the parser.
@@ -96,7 +96,7 @@ IceSSL::Parser::process()
     parser.setDoSchema(false);
     parser.setCreateEntityReferenceNodes(false);
     parser.setToCreateXMLDeclTypeNode(true);
-    parser.setErrorHandler(errReporter);
+    parser.setErrorHandler(errReporter.get());
 
     try
     {
@@ -138,15 +138,10 @@ IceSSL::Parser::process()
     }
     catch (const XMLException& e)
     {
-        if (errReporter != 0)
-        {
-            delete errReporter;
-        }
-
         ConfigParseException configEx(__FILE__, __LINE__);
 
         ostringstream s;
-        s << "While parsing " << _configFile << flush;
+        s << "While parsing " << _configFile << ": " << endl;
 	s << "Xerces-c Parsing Error: " << DOMString(e.getMessage());
 
         configEx._message = s.str();
@@ -155,15 +150,10 @@ IceSSL::Parser::process()
     }
     catch (const DOM_DOMException& e)
     {
-        if (errReporter != 0)
-        {
-            delete errReporter;
-        }
-
         ConfigParseException configEx(__FILE__, __LINE__);
 
 	ostringstream s;
-        s << "While parsing " << _configFile << flush;
+        s << "While parsing " << _configFile << ": " << endl;
 	s << "Xerces-c DOM Parsing Error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
@@ -173,21 +163,11 @@ IceSSL::Parser::process()
     }
     catch (...)
     {
-        if (errReporter != 0)
-        {
-            delete errReporter;
-        }
-
         ConfigParseException configEx(__FILE__, __LINE__);
 
         configEx._message = "While parsing " + _configFile + "\n" + "An unknown error occured during parsing.";
 
         throw configEx;
-    }
-
-    if (errReporter != 0)
-    {
-        delete errReporter;
     }
 
     if (errorCount)
@@ -211,13 +191,29 @@ IceSSL::Parser::loadClientConfig(GeneralConfig& general, CertificateAuthority& c
     string clientSectionString("SSLConfig:client");
     DOM_Node clientSection = find(clientSectionString);
 
-    // If we actually have a client section.
-    if (clientSection != 0)
+    try
     {
-        getGeneral(clientSection, general);
-        getCertAuth(clientSection, certAuth);
-        getBaseCerts(clientSection, baseCerts);
-        retCode = true;
+        // If we actually have a client section.
+        if (clientSection != 0)
+        {
+            getGeneral(clientSection, general);
+            getCertAuth(clientSection, certAuth);
+            getBaseCerts(clientSection, baseCerts);
+            retCode = true;
+        }
+    }
+    catch (const DOM_DOMException& e)
+    {
+        ConfigParseException configEx(__FILE__, __LINE__);
+
+	ostringstream s;
+        s << "While loading Client configuration: " << endl;
+	s << "Xerces-c DOM Parsing Error, DOMException code: " << e.code;
+        s << ", message: " << e.msg;
+
+        configEx._message = s.str();
+
+        throw configEx;
     }
     
     return retCode;
@@ -233,14 +229,30 @@ IceSSL::Parser::loadServerConfig(GeneralConfig& general,
     string serverSectionString("SSLConfig:server");
     DOM_Node serverSection = find(serverSectionString);
 
-    // If we actually have a client section.
-    if (serverSection != 0)
+    try
     {
-        getGeneral(serverSection, general);
-        getCertAuth(serverSection, certAuth);
-        getBaseCerts(serverSection, baseCerts);
-        getTempCerts(serverSection, tempCerts);
-        retCode = true;
+        // If we actually have a client section.
+        if (serverSection != 0)
+        {
+            getGeneral(serverSection, general);
+            getCertAuth(serverSection, certAuth);
+            getBaseCerts(serverSection, baseCerts);
+            getTempCerts(serverSection, tempCerts);
+            retCode = true;
+        }
+    }
+    catch (const DOM_DOMException& e)
+    {
+        ConfigParseException configEx(__FILE__, __LINE__);
+
+	ostringstream s;
+        s << "While loading Server configuration " << endl;
+	s << "Xerces-c DOM Parsing Error, DOMException code: " << e.code;
+        s << ", message: " << e.msg;
+
+        configEx._message = s.str();
+
+        throw configEx;
     }
     
     return retCode;
