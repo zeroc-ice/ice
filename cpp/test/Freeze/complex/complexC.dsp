@@ -126,6 +126,28 @@ SOURCE=.\Complex.ice
 
 !IF  "$(CFG)" == "complexC - Win32 Release"
 
+# Begin Custom Build
+InputPath=.\Complex.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\..\lib \
+	..\..\..\bin\slice2cpp.exe Complex.ice \
+	..\..\..\bin\slice2freeze.exe --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice \
+	
+
+"Complex.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Complex.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ComplexDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ComplexDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "complexC - Win32 Debug"
 
 # Begin Custom Build

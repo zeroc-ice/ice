@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "." /I "../../../include" /I "../../include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I "../../include" /I "." /I "../../../include" /I "dummyinclude" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
 # SUBTRACT CPP /WX /Fr
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -67,7 +67,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /I "../../include" /I "dummyinclude" /D "_DEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /GZ /c
 # SUBTRACT CPP /WX /Fr
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -147,6 +147,28 @@ SOURCE=.\Complex.ice
 
 !IF  "$(CFG)" == "complexP - Win32 Release"
 
+# Begin Custom Build
+InputPath=.\Complex.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\..\lib \
+	..\..\..\bin\slice2cpp.exe Complex.ice \
+	..\..\..\bin\slice2freeze.exe --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice \
+	
+
+"Complex.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Complex.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ComplexDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"ComplexDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "complexP - Win32 Debug"
 
 # Begin Custom Build
@@ -164,10 +186,10 @@ BuildCmds= \
 "Complex.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ComplexDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ComplexDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ComplexDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ComplexDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -179,6 +201,22 @@ BuildCmds= \
 SOURCE=.\Grammar.y
 
 !IF  "$(CFG)" == "complexP - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\Grammar.y
+
+BuildCmds= \
+	bison -dvt Grammar.y \
+	move Grammar.tab.c Grammar.cpp \
+	move Grammar.tab.h Grammar.h \
+	
+
+"Grammar.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Grammar.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "complexP - Win32 Debug"
 
@@ -206,6 +244,15 @@ BuildCmds= \
 SOURCE=.\Scanner.l
 
 !IF  "$(CFG)" == "complexP - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\Scanner.l
+
+"Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	flex Scanner.l 
+	move lex.yy.c Scanner.cpp 
+	
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "complexP - Win32 Debug"
 
