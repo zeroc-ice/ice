@@ -99,9 +99,25 @@ class Package:
 
         ofile.write("\n")    
 
+    def writePostInstall(self, ofile, version, intVersion):
+	for perm, f in self.filelist:
+	    if perm == "dll":
+		ofile.write("cd /usr ;  gacutil -i " + f + " ; cd - \n")
+
+    def writePostUninstall(self, ofile, version, intVersion):
+	for perm, f in self.filelist:
+	    if perm == "dll":
+		ofile.write("\n")
+
     def writeFiles(self, ofile, version, intVersion):
         ofile.write("%files\n")
         self.writeFileList(ofile, version, intVersion)
+
+	ofile.write("%post\n")
+	self.writePostInstall(ofile, version, intVersion)
+
+	ofile.write("%postun\n")
+	self.writePostUninstall(ofile, version, intVersion)
 
     def addPrepGenerator(self, gen):
 	if self.prepTextGen == None:
@@ -139,6 +155,12 @@ class Subpackage(Package):
         ofile.write("%files " + self.name + "\n")
         self.writeFileList(ofile, version, intVersion)
 
+	ofile.write("%post " + self.name + "\n")
+	self.writePostInstall(ofile, version, intVersion)
+
+	ofile.write("%postun " + self.name + "\n")
+	self.writePostUninstall(ofile, version, intVersion)
+
 #
 # NOTE: File transforms should be listed before directory transforms.
 #
@@ -147,6 +169,8 @@ transforms = [ ("file", "lib/Ice.jar", "lib/Ice-%version%/Ice.jar" ),
 	       ("dir", "ant", "lib/Ice-%version%/ant"),
 	       ("dir", "python", "lib/Ice-%version%/python"),
                ("dir", "doc", "share/doc/Ice-%version%"),
+               ("file", "README", "share/doc/Ice-%version%/README"),
+               ("file", "SOURCES", "share/doc/Ice-%version%/SOURCES"),
                ("file", "ICE_LICENSE", "share/doc/Ice-%version%/ICE_LICENSE"),
                ("file", "LICENSE", "share/doc/Ice-%version%/LICENSE")
                ]
@@ -164,6 +188,8 @@ fileLists = [
 	    "",
             [("doc", "share/doc/Ice-%version%/ICE_LICENSE"),
              ("doc", "share/doc/Ice-%version%/LICENSE"),
+             ("doc", "share/doc/Ice-%version%/README"),
+             ("doc", "share/doc/Ice-%version%/SOURCES"),
              ("exe", "bin/dumpdb"),
              ("exe", "bin/transformdb"),
              ("exe", "bin/glacier2router"),
@@ -192,7 +218,7 @@ fileLists = [
              ("lib", "lib/libSlice.so.VERSION"),
              ("dir", "share/slice"),
              ("dir", "share/doc/Ice-%version%/images"),
-             ("dir", "share/doc/Ice-%version%/manual"),
+             ("dir", "share/doc/Ice-%version%/reference"),
 	     ("xdir", "share/doc/Ice-%version%/config"),
 	     ("xdir", "share/doc/Ice-%version%/certs"),
 	     ("file", "share/doc/Ice-%version%/README.DEMOS")]),
@@ -220,13 +246,8 @@ fileLists = [
 		("dir", "share/doc/Ice-%version%/demo"),
 		("file", "share/doc/Ice-%version%/config/Make.rules"),
 		("file", "share/doc/Ice-%version%/config/makedepend.py"),
-		("file", "share/doc/Ice-%version%/config/makecerts"),
 		("file", "share/doc/Ice-%version%/config/makeprops.py"),
 		("file", "share/doc/Ice-%version%/config/Make.rules.Linux"),
-		("file", "share/doc/Ice-%version%/config/server.cnf"),
-		("file", "share/doc/Ice-%version%/config/client.cnf"),
-		("file", "share/doc/Ice-%version%/config/generic.cnf"),
-		("file", "share/doc/Ice-%version%/config/ice_ca.cnf"),
 	        ("file", "share/doc/Ice-%version%/certs/cacert.pem"),
 	        ("file", "share/doc/Ice-%version%/certs/c_dh1024.pem"),
 	        ("file", "share/doc/Ice-%version%/certs/client_sslconfig.xml"),
@@ -245,10 +266,13 @@ fileLists = [
                "Development/Libraries Development/Tools",
                "",
 	       "",
-               [("lib", "lib/glacier2cs.dll"), ("lib", "lib/icecs.dll"), ("lib", "lib/icepackcs.dll"),
-                ("lib", "lib/icepatch2cs.dll"), ("lib", "lib/icestormcs.dll")]),
+               [("dll", "bin/glacier2cs.dll"), 
+	        ("dll", "bin/icecs.dll"), 
+		("dll", "bin/icepackcs.dll"),
+                ("dll", "bin/icepatch2cs.dll"), 
+		("dll", "bin/icestormcs.dll")]),
     Subpackage("csharp-devel",
-               "ice-csharp = %version%, mono-devel >= 1.0.6, mono-devel < 1.1",
+               "ice-dotnet = %version%, mono-devel >= 1.0.6, mono-devel < 1.1",
                "Ice tools for developing Ice applications in C\#",
                "Development/Libraries Development/Tools",
                "",
@@ -268,9 +292,6 @@ fileLists = [
 	        ("file", "share/doc/Ice-%version%/certs/certs.jks"),
 	        ("file", "share/doc/Ice-%version%/certs/client.jks"),
 	        ("file", "share/doc/Ice-%version%/certs/server.jks"),
-	        ("file", "share/doc/Ice-%version%/certs/makecerts"),
-	        ("dir", "share/doc/Ice-%version%/certs/openssl"),
-	        ("dir", "share/doc/Ice-%version%/certs/cpp"),
 	        ("file", "share/doc/Ice-%version%/config/build.properties"),
 	        ("file", "share/doc/Ice-%version%/config/common.xml"),
 		("dir", "share/doc/Ice-%version%/demoj")]),
@@ -483,7 +504,7 @@ gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr 
 cd $RPM_BUILD_DIR/IceCS-%{version}
 export PATH=$RPM_BUILD_DIR/Ice-%{version}/bin:$PATH
 export LD_LIBRARY_PATH=$RPM_BUILD_DIR/Ice-%{version}/lib:$LD_LIBRARY_PATH
-gmake ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr install
+gmake NOGAC=yes ICE_HOME=$RPM_BUILD_DIR/Ice-%{version} RPM_BUILD_ROOT=$RPM_BUILD_ROOT/usr install
 """)
 
 def writeTransformCommands(ofile, version):

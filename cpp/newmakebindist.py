@@ -104,8 +104,8 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
     os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/demo " + distro + "/config " \
 	    + distro + "/certs")
     if demoDir == "":
-	os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/install/rpm/README.DEMOS")
-	shutil.move(distro + "/install/rpm/README.DEMOS", buildDir + "/Ice-" + version + "-demos/README.DEMOS")
+	os.system("gzip -dc " + sources + "/" + distro + ".tar.gz | tar xf - " + distro + "/install/unix/README.DEMOS")
+	shutil.move(distro + "/install/unix/README.DEMOS", buildDir + "/Ice-" + version + "-demos/README.DEMOS")
 	
     shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo" + demoDir)
 
@@ -120,6 +120,16 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
 	os.mkdir(buildDir + "/Ice-" + version + "-demos/certs")
 
     os.system("cp -pR " + distro + "/certs/* " + buildDir + "/Ice-" + version + "-demos/certs")
+
+    # 
+    # Clean up some unwanted files.
+    #
+    if os.path.exists(buildDir + "/Ice-" + version + "-demos/certs/openssl"):
+	os.system("rm -rf " + buildDir + "/Ice-" + version + "-demos/certs/openssl")
+    if os.path.exists(buildDir + "/Ice-" + version + "-demos/certs/makecerts"):
+	os.system("rm " + buildDir + "/Ice-" + version + "-demos/certs/makecerts")
+    if os.path.exists(buildDir + "/Ice-" + version + "-demos/config/makecerts"):
+	os.system("rm " + buildDir + "/Ice-" + version + "-demos/config/makecerts")
 
     #
     # C++ specific build modifications.
@@ -280,7 +290,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean):
 	    os.system("perl -pi -e 's/^PYTHON.INCLUDE.DIR.*$/PYTHON_INCLUDE_DIR = \$\(PYTHON_HOME\)\/include\/\$\(PYTHON_VERSION\)/' config/Make.rules")
 	    os.system("perl -pi -e 's/^PYTHON.LIB.DIR.*$/PYTHON_LIB_DIR = \$\(PYTHON_HOME\)\/lib\/\$\(PYTHON_VERSION\)\/config/' config/Make.rules")
 
-    os.system("gmake OPTIMIZE=yes INSTALL_ROOT=" + installDir + " install")
+    os.system("gmake NOGAC=yes OPTIMIZE=yes INSTALL_ROOT=" + installDir + " install")
     os.chdir(cwd)
     
 def shlibExtensions(versionString, versionInt):
@@ -298,8 +308,9 @@ def strip(files):
     if getPlatform() == "macosx":
         stripCmd = stripCmd + "-x "
     for f in files:
-        print "Stripping " + f
-        os.system(stripCmd + f)
+	if not f.endswith(".dll"):
+	    print "Stripping " + f
+	    os.system(stripCmd + f)
 
 def usage():
     """Print usage/help information"""
