@@ -55,10 +55,10 @@ public class IncomingConnectionFactory extends EventHandler
 	//
 	// Now we wait until each connection is in holding state.
 	//
-	java.util.ListIterator iter = _connections.listIterator();
-	while(iter.hasNext())
+	java.util.ListIterator p = _connections.listIterator();
+	while(p.hasNext())
 	{
-	    Connection connection = (Connection)iter.next();
+	    Connection connection = (Connection)p.next();
 	    connection.waitUntilHolding();
 	}
     }
@@ -84,10 +84,10 @@ public class IncomingConnectionFactory extends EventHandler
 	// Now we wait for until the destruction of each connection is
 	// finished.
 	//
-	java.util.ListIterator iter = _connections.listIterator();
-	while(iter.hasNext())
+	java.util.ListIterator p = _connections.listIterator();
+	while(p.hasNext())
 	{
-	    Connection connection = (Connection)iter.next();
+	    Connection connection = (Connection)p.next();
 	    connection.waitUntilFinished();
 	}
 	
@@ -124,10 +124,10 @@ public class IncomingConnectionFactory extends EventHandler
 	//
 	// Only copy connections which have not been destroyed.
 	//
-        java.util.ListIterator iter = _connections.listIterator();
-        while(iter.hasNext())
+        java.util.ListIterator p = _connections.listIterator();
+        while(p.hasNext())
         {
-            Connection connection = (Connection)iter.next();
+            Connection connection = (Connection)p.next();
             if(!connection.isDestroyed())
             {
                 connections.add(connection);
@@ -171,13 +171,13 @@ public class IncomingConnectionFactory extends EventHandler
 	    //
 	    // Reap connections for which destruction has completed.
 	    //
-	    java.util.ListIterator iter = _connections.listIterator();
-	    while(iter.hasNext())
+	    java.util.ListIterator p = _connections.listIterator();
+	    while(p.hasNext())
 	    {
-		Connection con = (Connection)iter.next();
+		Connection con = (Connection)p.next();
 		if(con.isFinished())
 		{
-		    iter.remove();
+		    p.remove();
 		}
 	    }
 
@@ -366,10 +366,10 @@ public class IncomingConnectionFactory extends EventHandler
                 }
                 registerWithPool();
 
-                java.util.ListIterator iter = _connections.listIterator();
-                while(iter.hasNext())
+                java.util.ListIterator p = _connections.listIterator();
+                while(p.hasNext())
                 {
-                    Connection connection = (Connection)iter.next();
+                    Connection connection = (Connection)p.next();
                     connection.activate();
                 }
                 break;
@@ -383,10 +383,10 @@ public class IncomingConnectionFactory extends EventHandler
                 }
                 unregisterWithPool();
 
-                java.util.ListIterator iter = _connections.listIterator();
-                while(iter.hasNext())
+                java.util.ListIterator p = _connections.listIterator();
+                while(p.hasNext())
                 {
-                    Connection connection = (Connection)iter.next();
+                    Connection connection = (Connection)p.next();
                     connection.hold();
                 }
                 break;
@@ -404,10 +404,10 @@ public class IncomingConnectionFactory extends EventHandler
                 }
                 unregisterWithPool();
 
-                java.util.ListIterator iter = _connections.listIterator();
-                while(iter.hasNext())
+                java.util.ListIterator p = _connections.listIterator();
+                while(p.hasNext())
                 {   
-                    Connection connection = (Connection)iter.next();
+                    Connection connection = (Connection)p.next();
                     connection.destroy(Connection.ObjectAdapterDeactivated);
                 }
 		break;

@@ -27,9 +27,15 @@ public class OutgoingConnectionFactory
         java.util.Iterator p = _connections.values().iterator();
         while(p.hasNext())
         {
-            Connection connection = (Connection)p.next();
-            connection.destroy(Connection.CommunicatorDestroyed);
-        }
+	    java.util.LinkedList connectionList = (java.util.LinkedList)p.next();
+		
+	    java.util.Iterator q = connectionList.iterator();
+	    while(q.hasNext())
+	    {
+		Connection connection = (Connection)q.next();
+		connection.destroy(Connection.CommunicatorDestroyed);
+	    }
+	}
 
         _destroyed = true;
     }
@@ -58,8 +64,16 @@ public class OutgoingConnectionFactory
         java.util.Iterator p = _connections.values().iterator();
         while(p.hasNext())
         {
-            Connection connection = (Connection)p.next();
-            connection.waitUntilFinished();
+	    java.util.LinkedList connectionList = (java.util.LinkedList)p.next();
+		
+	    java.util.Iterator q = connectionList.iterator();
+	    while(q.hasNext())
+	    {
+		Connection connection = (Connection)q.next();
+		connection.waitUntilFinished();
+	    }
+
+	    connectionList.clear();
         }
 
 	//
@@ -86,8 +100,19 @@ public class OutgoingConnectionFactory
 	    java.util.Iterator p = _connections.values().iterator();
 	    while(p.hasNext())
 	    {
-		Connection con = (Connection)p.next();
-		if(con.isFinished())
+		java.util.LinkedList connectionList = (java.util.LinkedList)p.next();
+		
+		java.util.Iterator q = connectionList.iterator();
+		while(q.hasNext())
+		{
+		    Connection con = (Connection)q.next();
+		    if(con.isFinished())
+		    {
+			q.remove();
+		    }
+		}
+
+		if(connectionList.isEmpty())
 		{
 		    p.remove();
 		}
@@ -110,16 +135,23 @@ public class OutgoingConnectionFactory
 	    //
 	    for(int i = 0; i < endpoints.length; i++)
 	    {
-		Connection connection = (Connection)_connections.get(endpoints[i]);
-		if(connection != null)
+		java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(endpoints[i]);
+		if(connectionList != null)
 		{
-		    //
-		    // Don't return connections for which destruction
-		    // has been initiated.
-		    //
-		    if(!connection.isDestroyed())
+		    java.util.Iterator q = connectionList.iterator();
+			
+		    while(q.hasNext())
 		    {
-			return connection;
+			Connection connection = (Connection)q.next();
+			
+			//
+			// Don't return connections for which destruction
+			// has been initiated.
+			//
+			if(!connection.isDestroyed())
+			{
+			    return connection;
+			}
 		    }
 		}
 	    }
@@ -171,16 +203,23 @@ public class OutgoingConnectionFactory
 	    {
 		for(int i = 0; i < endpoints.length; i++)
 		{
-		    Connection connection = (Connection)_connections.get(endpoints[i]);
-		    if(connection != null)
+		    java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(endpoints[i]);
+		    if(connectionList != null)
 		    {
-			//
-			// Don't return connections for which
-			// destruction has been initiated.
-			//
-			if(!connection.isDestroyed())
+			java.util.Iterator q = connectionList.iterator();
+			
+			while(q.hasNext())
 			{
-			    return connection;
+			    Connection connection = (Connection)q.next();
+			    
+			    //
+			    // Don't return connections for which
+			    // destruction has been initiated.
+			    //
+			    if(!connection.isDestroyed())
+			    {
+				return connection;
+			    }
 			}
 		    }
 		}
@@ -261,7 +300,13 @@ public class OutgoingConnectionFactory
 	    }
 	    else
 	    {
-		_connections.put(connection.endpoint(), connection);
+		java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(connection.endpoint());
+		if(connectionList == null)
+		{
+		    connectionList = new java.util.LinkedList();
+		    _connections.put(connection.endpoint(), connectionList);
+		}
+		connectionList.add(connection);
 
 		if(_destroyed)
 		{
@@ -308,10 +353,16 @@ public class OutgoingConnectionFactory
 		    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 		}
 
-                Connection connection = (Connection)_connections.get(endpoint);
-                if(connection != null)
-                {
-                    connection.setAdapter(adapter);
+		java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(endpoints[i]);
+		if(connectionList != null)
+		{
+		    java.util.Iterator p = connectionList.iterator();
+		    
+		    while(p.hasNext())
+		    {
+			Connection connection = (Connection)p.next();
+			connection.setAdapter(adapter);
+		    }
                 }
             }
         }
@@ -328,12 +379,18 @@ public class OutgoingConnectionFactory
         java.util.Iterator p = _connections.values().iterator();
         while(p.hasNext())
         {
-            Connection connection = (Connection)p.next();
-            if(connection.getAdapter() == adapter)
-            {
-                connection.setAdapter(null);
-            }
-        }
+	    java.util.LinkedList connectionList = (java.util.LinkedList)p.next();
+		
+	    java.util.Iterator q = connectionList.iterator();
+	    while(q.hasNext())
+	    {
+		Connection connection = (Connection)q.next();
+		if(connection.getAdapter() == adapter)
+		{
+		    connection.setAdapter(null);
+		}
+	    }
+	}
     }
 
     //
