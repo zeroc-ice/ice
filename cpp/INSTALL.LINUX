@@ -20,8 +20,8 @@ C++ compiler
 - GCC 2.96 with STLport 4.5
 
 The STL (Standard Template Library) that is included with GCC 2.96 is
-not supported! You must use STLport 4.5 with GCC 2.96. You can
-download STLport 4.5 from:
+not supported! You must use STLport 4.5 (or later) with GCC 2.96. You
+can download STLport from:
 
 http://www.stlport.org/download.html
 
@@ -29,8 +29,8 @@ For STLport installation instructions, please see:
 
 http://www.stlport.org/doc/install.html
 
-For GCC 3.x or ICC 8.0, you can use the included STL library. Downloading 
-and installing STLport is not required for these compilers.
+For GCC 3.x or ICC 8.0, you can use the included STL library. The use
+of STLport is not required for these compilers.
 
 
 Third-party libraries
@@ -154,6 +154,7 @@ To build Ice in 64 bit mode, you need to:
   $ export LP64=yes
 
 - Build and test as described above (with gcc).
+
 
 ======================================================================
 Installation
