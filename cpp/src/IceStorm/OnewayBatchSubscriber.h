@@ -17,6 +17,7 @@
 
 #include <IceStorm/OnewaySubscriber.h>
 #include <IceStorm/Flushable.h>
+#include <IceStorm/QueuedProxy.h>
 
 namespace IceStorm
 {
@@ -31,7 +32,7 @@ class OnewayBatchSubscriber : public OnewaySubscriber, public Flushable
 {
 public:
 
-    OnewayBatchSubscriber(const TraceLevelsPtr&, const FlusherPtr&, const Ice::ObjectPrx&);
+    OnewayBatchSubscriber(const SubscriberFactoryPtr&, const TraceLevelsPtr&, const FlusherPtr&, const QueuedProxyPtr&);
     ~OnewayBatchSubscriber();
 
     virtual void unsubscribe();

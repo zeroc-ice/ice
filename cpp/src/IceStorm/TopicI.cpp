@@ -173,7 +173,7 @@ IceStorm::TopicSubscribers::remove(const Ice::ObjectPrx& obj)
 // subscriber list iterations.
 //
 void
-IceStorm::TopicSubscribers::publish(const Event& event)
+IceStorm::TopicSubscribers::publish(const EventPtr& event)
 {
     //
     // Copy of the subscriber list so that event publishing can
@@ -254,21 +254,21 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
 {
     const Ice::Context& context = current.ctx;
 
-    Event event;
-    event.forwarded = false;
+    EventPtr event = new Event;
+    event->forwarded = false;
     Ice::Context::const_iterator p = context.find("cost");
     if(p != context.end())
     {
-        event.cost = atoi(p->second.c_str());
+        event->cost = atoi(p->second.c_str());
     }
     else
     {
-        event.cost = 0; // TODO: Default comes from property?
+        event->cost = 0; // TODO: Default comes from property?
     }
-    event.op = current.operation;
-    event.mode = current.mode;
-    event.data = inParams;
-    event.context = context;
+    event->op = current.operation;
+    event->mode = current.mode;
+    event->data = inParams;
+    event->context = context;
 
     _subscribers->publish(event);
 
@@ -282,13 +282,13 @@ void
 TopicLinkI::forward(const string& op, Ice::OperationMode mode, const ByteSeq& data, const ContextData& context,
                     const Ice::Current& current)
 {
-    Event event;
-    event.forwarded = true;
-    event.cost = 0;
-    event.op = op;
-    event.mode = mode;
-    event.data = data;
-    event.context = context;
+    EventPtr event = new Event;
+    event->forwarded = true;
+    event->cost = 0;
+    event->op = op;
+    event->mode = mode;
+    event->data = data;
+    event->context = context;
 
     _subscribers->publish(event);
 }

@@ -44,7 +44,10 @@ SERVICE_OBJS	= IceStorm.o \
 		  IdentityLinkDict.o \
 		  LinkDB.o \
 		  IceStormInternal.o \
-		  Service.o
+		  Service.o \
+		  QueuedProxy.o \
+		  OnewayProxy.o \
+		  LinkProxy.o
 
 AOBJS		= Admin.o \
 		  Grammar.o \

@@ -20,9 +20,9 @@
 using namespace IceStorm;
 using namespace std;
 
-OnewayBatchSubscriber::OnewayBatchSubscriber(const TraceLevelsPtr& traceLevels, const FlusherPtr& flusher,
-					     const Ice::ObjectPrx& obj) :
-    OnewaySubscriber(traceLevels, obj),
+OnewayBatchSubscriber::OnewayBatchSubscriber(const SubscriberFactoryPtr& factory, const TraceLevelsPtr& traceLevels,
+                                             const FlusherPtr& flusher, const QueuedProxyPtr& obj) :
+    OnewaySubscriber(factory, traceLevels, obj),
     _flusher(flusher)
 {
     _flusher->add(this);
@@ -41,7 +41,7 @@ OnewayBatchSubscriber::unsubscribe()
     if(_traceLevels->subscriber > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	out << "Unsubscribe " << _obj->ice_getIdentity();
+	out << "Unsubscribe " << id();
     }
 
     //
@@ -60,7 +60,7 @@ OnewayBatchSubscriber::replace()
     if(_traceLevels->subscriber > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-	out << "Replace " << _obj->ice_getIdentity();
+	out << "Replace " << id();
     }
 
     //
@@ -81,7 +81,7 @@ OnewayBatchSubscriber::flush()
 {
     try
     {
-	_obj->ice_flush();
+	_obj->proxy()->ice_flush();
     }
     catch(const Ice::LocalException& e)
     {
@@ -96,7 +96,7 @@ OnewayBatchSubscriber::flush()
 	    if(_traceLevels->subscriber > 0)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->subscriberCat);
-		out << _obj->ice_getIdentity() << ": flush failed: " << e;
+		out << id() << ": flush failed: " << e;
 	    }
 	    _state = StateError;
 	}

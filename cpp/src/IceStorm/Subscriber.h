@@ -16,8 +16,8 @@
 #define SUBSCRIBER_H
 
 #include <IceUtil/Mutex.h>
-#include <Ice/Current.h> // For Ice::Context
 #include <Ice/Identity.h>
+#include <IceStorm/Event.h>
 
 #include <vector>
 
@@ -29,23 +29,6 @@ namespace IceStorm
 //
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
-
-//
-// Note that at present this requires to copy the event which isn't
-// nice. If this indeed becomes a bottleneck then either the event can
-// carry a reference to the blob, context & op (while event itself
-// isn't copied), or the op, blob & context can be passed along as
-// arguments (or do copy on write, or some such trick).
-//
-struct Event
-{
-    bool forwarded;
-    int cost;
-    std::string op;
-    Ice::OperationMode mode;
-    std::vector< Ice::Byte> data;
-    Ice::Context context;
-};
 
 //
 // Subscriber interface.
@@ -89,7 +72,7 @@ public:
     // Publish the given event. Mark the state as Error in the event of
     // a problem.
     //
-    virtual void publish(const Event&) = 0;
+    virtual void publish(const EventPtr&) = 0;
 
 protected:
 

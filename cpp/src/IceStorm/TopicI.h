@@ -24,7 +24,8 @@
 namespace IceStorm
 {
 
-struct Event;
+class Event;
+typedef IceUtil::Handle<Event> EventPtr;
 
 class TopicSubscribers;
 typedef IceUtil::Handle<TopicSubscribers> TopicSubscribersPtr;
@@ -49,7 +50,7 @@ public:
 
     void add(const SubscriberPtr&);
     void remove(const Ice::ObjectPrx&);
-    void publish(const Event& event);
+    void publish(const EventPtr&);
     SubscriberList clearErrorList();
 
 private:

@@ -16,6 +16,9 @@
 #define SUBSCRIBER_FACTORY_H
 
 #include <IceStorm/IceStormInternal.h> // For QoS, TopicLink
+#include <IceStorm/QueuedProxy.h>
+#include <IceUtil/RecMutex.h>
+#include <map>
 
 namespace IceStorm
 {
@@ -53,10 +56,33 @@ public:
     //
     SubscriberPtr createSubscriber(const QoS&, const Ice::ObjectPrx&);
 
+    //
+    // Increment the usage count of a queued proxy.
+    //
+    void incProxyUsageCount(const QueuedProxyPtr&);
+
+    //
+    // Decrement the usage count of a queued proxy.
+    //
+    void decProxyUsageCount(const QueuedProxyPtr&);
+
 private:
+
+    //
+    // SubscriberFactory maps all subscriber proxies to queued proxies.
+    // Only one queued proxy is created for a subscriber's proxy,
+    // regardless of how many topics it subscribes to.
+    //
+    struct ProxyInfo
+    {
+        QueuedProxyPtr proxy;
+        Ice::Int count;
+    };
 
     TraceLevelsPtr _traceLevels;
     FlusherPtr _flusher;
+    IceUtil::RecMutex _proxiesMutex;
+    std::map<Ice::ObjectPrx, ProxyInfo> _proxies;
 };
 
 typedef IceUtil::Handle<SubscriberFactory> SubscriberFactoryPtr;
