@@ -972,9 +972,6 @@ Package=<4>
     Project_Dep_Name freezeScriptEvictor
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name slice2cs
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name sliceexAMDS
     End Project Dependency
     Begin Project Dependency
