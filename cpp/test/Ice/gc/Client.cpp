@@ -63,13 +63,10 @@ public:
 
     virtual void run()
     {
-	static ::IceUtil::Time noTime = ::IceUtil::Time::microSeconds(0);
-
 	while(true)
 	{
 	    {
 		::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
-		timedWait(noTime);
 		if(_stop)
 		{
 		    return;
