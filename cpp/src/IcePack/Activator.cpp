@@ -84,20 +84,20 @@ IcePack::Activator::destroy()
     setInterrupt();
 }
 
-void
+bool
 IcePack::Activator::activate(const ServerDescriptionPtr& desc)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
     if (_destroy)
     {
-	return;
+	return false;
     }
 
     string path = desc->path;
     if (path.empty())
     {
-	return;
+	return false;
     }
 
     //
@@ -118,7 +118,7 @@ IcePack::Activator::activate(const ServerDescriptionPtr& desc)
     //
     if (_processes.count(path))
     {
-	return;
+	return false;
     }
 
     //
@@ -186,6 +186,8 @@ IcePack::Activator::activate(const ServerDescriptionPtr& desc)
 	
 	setInterrupt();
     }
+
+    return true;
 }
 
 void
@@ -259,7 +261,8 @@ IcePack::Activator::terminationListener()
 		    else if(ret == 0)
 		    {
 			//
-			// If the pipe was closed, the process has terminated
+			// If the pipe was closed, the process has
+			// terminated
 			//
 			map<string, Process>::iterator q = p;
 			++p;

@@ -26,7 +26,7 @@ public:
 
     virtual void run();
     void destroy();
-    void activate(const IcePack::ServerDescriptionPtr&);
+    bool activate(const IcePack::ServerDescriptionPtr&);
 
 private:
 
