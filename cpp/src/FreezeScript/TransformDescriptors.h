@@ -94,8 +94,6 @@ private:
     NodePtr _value;
     std::string _valueStr;
     Slice::TypePtr _type;
-    NodePtr _length;
-    std::string _lengthStr;
     bool _convert;
 };
 

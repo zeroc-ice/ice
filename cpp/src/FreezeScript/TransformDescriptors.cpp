@@ -18,7 +18,6 @@
 #include <FreezeScript/Functions.h>
 #include <FreezeScript/Exception.h>
 #include <FreezeScript/Util.h>
-#include <IceUtil/UUID.h>
 #include <db_cxx.h>
 
 using namespace std;
@@ -419,12 +418,6 @@ FreezeScript::DefineDescriptor::DefineDescriptor(const DescriptorPtr& parent, in
         _valueStr = p->second;
     }
 
-    p = attributes.find("length");
-    if(p != attributes.end())
-    {
-        _lengthStr = p->second;
-    }
-
     p = attributes.find("convert");
     if(p != attributes.end())
     {
@@ -434,11 +427,6 @@ FreezeScript::DefineDescriptor::DefineDescriptor(const DescriptorPtr& parent, in
     if(!_valueStr.empty())
     {
         _value = parse(_valueStr);
-    }
-
-    if(!_lengthStr.empty())
-    {
-        _length = parse(_lengthStr);
     }
 }
 
@@ -474,46 +462,7 @@ FreezeScript::DefineDescriptor::execute(const SymbolTablePtr& sym, TransformInfo
         }
     }
 
-    DataPtr length;
-    if(_length)
-    {
-        SequenceDataPtr seq = SequenceDataPtr::dynamicCast(data);
-        if(!seq)
-        {
-            _errorReporter->error("length attribute specified but type is not a sequence");
-        }
-
-        try
-        {
-            length = _length->evaluate(sym);
-        }
-        catch(const EvaluateException& ex)
-        {
-            _errorReporter->error("evaluation of length `" + _lengthStr + "' failed:\n" + ex.reason());
-        }
-
-        DataList& elements = seq->getElements();
-        Ice::Long l = length->integerValue();
-        if(l < 0 || l > INT_MAX)
-        {
-            _errorReporter->error("sequence length " + length->toString() + " is out of range");
-        }
-
-        DataList::size_type len = static_cast<DataList::size_type>(l);
-        Slice::SequencePtr seqType = Slice::SequencePtr::dynamicCast(seq->getType());
-        assert(seqType);
-        Slice::TypePtr elemType = seqType->type();
-        for(DataList::size_type i = elements.size(); i < len; ++i)
-        {
-            DataPtr v = _factory->create(elemType, false);
-            if(value)
-            {
-                assignOrTransform(v, value, _convert, _factory, _errorReporter, info);
-            }
-            elements.push_back(v);
-        }
-    }
-    else if(value)
+    if(value)
     {
         assignOrTransform(data, value, _convert, _factory, _errorReporter, info);
     }

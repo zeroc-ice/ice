@@ -25,7 +25,7 @@ namespace FreezeScript
 {
 
 //
-// TransformVisitor visits the old definitions and compares them with
+// AnalyzeTransformVisitor visits the old definitions and compares them with
 // the new definitions.
 //
 class AnalyzeTransformVisitor : public ParserVisitor
@@ -82,7 +82,7 @@ private:
 }
 
 ////////////////////////////////////
-// TransformVisitor
+// AnalyzeTransformVisitor
 ////////////////////////////////////
 
 FreezeScript::AnalyzeTransformVisitor::AnalyzeTransformVisitor(XMLOutput& out, const UnitPtr& newUnit,
