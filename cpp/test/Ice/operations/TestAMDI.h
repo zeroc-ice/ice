@@ -23,7 +23,6 @@ class MyDerivedClassI : public Test::MyDerivedClass
 public:
 
     MyDerivedClassI(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
-    virtual ~MyDerivedClassI();
     
     virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,
 				const Ice::Current&);

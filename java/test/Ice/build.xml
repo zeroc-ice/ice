@@ -22,6 +22,7 @@ the Free Software Foundation.
         <ant dir="location"/>
         <ant dir="objects"/>
         <ant dir="operations"/>
+        <ant dir="operationsAMD"/>
     </target>
 
     <target name="clean">
@@ -33,6 +34,7 @@ the Free Software Foundation.
         <ant dir="location" target="clean"/>
         <ant dir="objects" target="clean"/>
         <ant dir="operations" target="clean"/>
+        <ant dir="operationsAMD" target="clean"/>
     </target>
 
 </project>

@@ -14,7 +14,7 @@
 
 package Ice;
 
-class PropertiesI extends LocalObjectImpl implements Properties
+final class PropertiesI extends LocalObjectImpl implements Properties
 {
     public synchronized String
     getProperty(String key)

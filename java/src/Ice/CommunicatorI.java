@@ -14,7 +14,7 @@
 
 package Ice;
 
-class CommunicatorI extends LocalObjectImpl implements Communicator
+final class CommunicatorI extends LocalObjectImpl implements Communicator
 {
     public void
     destroy()

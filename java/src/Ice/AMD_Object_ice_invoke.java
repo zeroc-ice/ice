@@ -14,7 +14,7 @@
 
 package Ice;
 
-interface AMD_Object_ice_invoke
+public interface AMD_Object_ice_invoke
 {
     void ice_response(boolean ok, byte[] outParams);
     void ice_exception(java.lang.Exception ex);

@@ -40,10 +40,6 @@ MyDerivedClassI::MyDerivedClassI(const Ice::ObjectAdapterPtr& adapter, const Ice
 {
 }
 
-MyDerivedClassI::~MyDerivedClassI()
-{
-}
-
 void
 MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const Ice::Current&)
 {

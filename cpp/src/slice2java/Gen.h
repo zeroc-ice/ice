@@ -34,15 +34,15 @@ protected:
     // Compose the parameter lists for an operation.
     //
     std::string getParams(const OperationPtr&, const std::string&);
-    std::string getParamsAMI(const OperationPtr&, const std::string&);
-    std::string getParamsAMICB(const OperationPtr&, const std::string&);
+    std::string getParamsAsync(const OperationPtr&, const std::string&, bool);
+    std::string getParamsAsyncCB(const OperationPtr&, const std::string&);
 
     //
     // Compose the argument lists for an operation.
     //
     std::string getArgs(const OperationPtr&);
-    std::string getArgsAMI(const OperationPtr&);
-    std::string getArgsAMICB(const OperationPtr&);
+    std::string getArgsAsync(const OperationPtr&);
+    std::string getArgsAsyncCB(const OperationPtr&);
 
     //
     // Generate a throws clause containing only non-local exceptions.

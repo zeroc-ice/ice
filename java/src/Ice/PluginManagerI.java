@@ -14,7 +14,7 @@
 
 package Ice;
 
-public final class PluginManagerI extends LocalObjectImpl implements PluginManager
+final class PluginManagerI extends LocalObjectImpl implements PluginManager
 {
     private static String _kindOfObject = "plug-in";
 

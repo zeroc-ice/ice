@@ -14,7 +14,7 @@
 
 package Ice;
 
-public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
+final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 {
     public String
     getName()

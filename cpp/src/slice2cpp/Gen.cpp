@@ -3542,7 +3542,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	C.dec();
 	C << sb;
 	C << eb;
-
 	C << sp << nl << "void" << nl << "::IceAsync" << classScopedAMD << '_' << name << "::ice_response("
 	  << paramsDecl << ')';
 	C << sb;
@@ -3561,7 +3560,6 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	}
 	C << nl << "__response(true);";
 	C << eb;
-
 	C << sp << nl << "void" << nl << "::IceAsync" << classScopedAMD << '_' << name
 	  << "::ice_exception(const ::Ice::Exception& ex)";
 	C << sb;
@@ -3590,13 +3588,11 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	    C << eb;
 	}
 	C << eb;
-
 	C << sp << nl << "void" << nl << "::IceAsync" << classScopedAMD << '_' << name
 	  << "::ice_exception(const ::std::exception& ex)";
 	C << sb;
 	C << nl << "__exception(ex);";
 	C << eb;
-
 	C << sp << nl << "void" << nl << "::IceAsync" << classScopedAMD << '_' << name
 	  << "::ice_exception()";
 	C << sb;

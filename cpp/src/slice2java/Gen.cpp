@@ -89,15 +89,15 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& scope)
 }
 
 string
-Slice::JavaVisitor::getParamsAMI(const OperationPtr& op, const string& scope)
+Slice::JavaVisitor::getParamsAsync(const OperationPtr& op, const string& scope, bool amd)
 {
     string name = fixKwd(op->name());
 
     ContainerPtr container = op->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    string classNameAMI = "AMI_" + fixKwd(cl->name());
+    string classNameAsync = (amd ? "AMD_" : "AMI_") + fixKwd(cl->name());
 
-    string params = classNameAMI + '_' + name + " __cb";
+    string params = classNameAsync + '_' + name + " __cb";
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
@@ -114,7 +114,7 @@ Slice::JavaVisitor::getParamsAMI(const OperationPtr& op, const string& scope)
 }
 
 string
-Slice::JavaVisitor::getParamsAMICB(const OperationPtr& op, const string& scope)
+Slice::JavaVisitor::getParamsAsyncCB(const OperationPtr& op, const string& scope)
 {
     string params;
     TypePtr ret = op->returnType();
@@ -159,7 +159,7 @@ Slice::JavaVisitor::getArgs(const OperationPtr& op)
 }
 
 string
-Slice::JavaVisitor::getArgsAMI(const OperationPtr& op)
+Slice::JavaVisitor::getArgsAsync(const OperationPtr& op)
 {
     string args = "__cb";
     ParamDeclList paramList = op->parameters();
@@ -175,7 +175,7 @@ Slice::JavaVisitor::getArgsAMI(const OperationPtr& op)
 }
 
 string
-Slice::JavaVisitor::getArgsAMICB(const OperationPtr& op)
+Slice::JavaVisitor::getArgsAsyncCB(const OperationPtr& op)
 {
     string args;
     TypePtr ret = op->returnType();
@@ -441,21 +441,40 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    << " __obj, IceInternal.Incoming __in, Ice.Current __current)";
         out << sb;
 
-        TypePtr ret = op->returnType();
+	bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
+
+        TypePtr ret;
+	if(!amd)
+	{
+	    ret = op->returnType();
+	}
 
         TypeStringList inParams;
         TypeStringList outParams;
 	ParamDeclList paramList = op->parameters();
 	for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
 	{
-	    TypeStringList &listref = (*pli)->isOutParam() ? outParams : inParams;
-	    listref.push_back(make_pair((*pli)->type(), (*pli)->name()));
+	    if((*pli)->isOutParam())
+	    {
+		if(!amd)
+		{
+		    outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+		}
+	    }
+	    else
+	    {
+		inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+	    }
 	}
 
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-        remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal));
+        ExceptionList throws;
+	if(!amd)
+	{
+	    throws = op->throws();
+	    throws.sort();
+	    throws.unique();
+	    remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal));
+	}
 
         TypeStringList::const_iterator q;
         int iter;
@@ -470,7 +489,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         }
 
         //
-        // Unmarshal 'in' params
+        // Unmarshal 'in' parameters.
         //
         iter = 0;
         for(q = inParams.begin(); q != inParams.end(); ++q)
@@ -481,7 +500,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         }
 
         //
-        // Create holders for 'out' params
+        // Create holders for 'out' parameters.
         //
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
@@ -489,22 +508,27 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             out << nl << typeS << ' ' << fixKwd(q->second) << " = new " << typeS << "();";
         }
 
+        //
+        // Call on the servant.
+        //
         if(!throws.empty())
         {
             out << nl << "try";
             out << sb;
         }
-
-        //
-        // Call servant
-        //
+	if(amd)
+	{
+	    string classNameAMD = "AMD_" + fixKwd(p->name());
+	    out << nl << classNameAMD << '_' << opName << " __cb = new _" << classNameAMD << '_' << opName
+		<< "(__in);";
+	}
         out << nl;
         if(ret)
         {
 	    string retS = typeToString(ret, TypeModeReturn, scope);
             out << retS << " __ret = ";
         }
-        out << "__obj." << opName << '(';
+        out << "__obj." << opName << (amd ? "_async(__cb, " : "(");
         for(q = inParams.begin(); q != inParams.end(); ++q)
         {
             out << fixKwd(q->second) << ", ";
@@ -516,24 +540,20 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << "__current);";
 
         //
-        // Marshal 'out' params
+        // Marshal 'out' parameters and return value.
         //
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
             writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), true, iter, true);
         }
-        //
-        // Marshal result
-        //
         if(ret)
         {
             writeMarshalUnmarshalCode(out, scope, ret, "__ret", true, iter);
         }
-
         out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
 
         //
-        // User exceptions
+        // Handle user exceptions.
         //
         if(!throws.empty())
         {
@@ -813,29 +833,43 @@ Slice::Gen::OpsVisitor::visitOperation(const OperationPtr& p)
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
     string scope = cl->scope();
 
-    TypePtr ret = p->returnType();
+    TypePtr ret;
+    string params;
+
+    bool amd = !cl->isLocal() && (cl->hasMetaData("amd") || p->hasMetaData("amd"));
+
+    if(amd)
+    {
+	params = getParamsAsync(p, scope, true);
+    }
+    else
+    {
+	params = getParams(p, scope);
+	ret = p->returnType();
+    }
+
     string retS = typeToString(ret, TypeModeReturn, scope);
-
-    string params = getParams(p, scope);
-
+    
     Output& out = output();
-
+    
     out << sp;
-    out << nl << retS << ' ' << name << '(' << params;
+    out << nl << retS << ' ' << name << (amd ? "_async(" : "(") << params;
     if(!cl->isLocal())
     {
-        if(!params.empty())
-        {
-            out << ", ";
-        }
-        out << "Ice.Current current";
+	if(!params.empty())
+	{
+	    out << ", ";
+	}
+	out << "Ice.Current current";
     }
     out << ')';
-
-    ExceptionList throws = p->throws();
-    throws.sort();
-    throws.unique();
-    writeThrowsClause(scope, throws);
+    if(!amd)
+    {
+	ExceptionList throws = p->throws();
+	throws.sort();
+	throws.unique();
+	writeThrowsClause(scope, throws);
+    }
     out << ';';
 }
 
@@ -2047,8 +2081,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
 	{
-	    string paramsAMI = getParamsAMI(op, scope);
-	    string argsAMI = getArgsAMI(op);
+	    string paramsAMI = getParamsAsync(op, scope, false);
+	    string argsAMI = getArgsAsync(op);
 	    
 	    //
 	    // Write two versions of the operation - with and without a
@@ -2795,7 +2829,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {
-	string paramsAMI = getParamsAMI(p, scope);
+	string paramsAMI = getParamsAsync(p, scope, false);
 
 	//
 	// Write two versions of the operation - with and without a
@@ -2883,7 +2917,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
 	{
-	    string paramsAMI = getParamsAMI(op, scope);
+	    string paramsAMI = getParamsAsync(op, scope, false);
 	    
 	    out << sp;
 	    out << nl << "void " << opName << "_async(" << paramsAMI << ", java.util.Map __context);";
@@ -2941,8 +2975,14 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	ParamDeclList paramList = op->parameters();
 	for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
 	{
-	    TypeStringList &listref = (*pli)->isOutParam() ? outParams : inParams;
-	    listref.push_back(make_pair((*pli)->type(), (*pli)->name()));
+	    if((*pli)->isOutParam())
+	    {
+		outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+	    }
+	    else
+	    {
+		inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+	    }
 	}
 
         TypeStringList::const_iterator q;
@@ -3052,7 +3092,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
 	{
-	    string paramsAMI = getParamsAMI(op, scope);
+	    string paramsAMI = getParamsAsync(op, scope, false);
 	    
 	    out << sp;
 	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ", java.util.Map __context)";
@@ -3190,7 +3230,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
 	{
-	    string paramsAMI = getParamsAMI(op, scope);
+	    string paramsAMI = getParamsAsync(op, scope, false);
 	    
 	    out << sp;
 	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ", java.util.Map __context)";
@@ -3543,22 +3583,18 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         TypeStringList::const_iterator q;
         int iter;
 
-	string paramsAMI = getParamsAMICB(p, classScope);
-	string argsAMI = getArgsAMICB(p);
+	string paramsAMI = getParamsAsyncCB(p, classScope);
+	string argsAMI = getArgsAsyncCB(p);
 
 	out << sp << nl << "public abstract class " << classNameAMI << '_' << name
 	    << " extends IceInternal.OutgoingAsync";
 	out << sb;
-
 	out << sp << nl << "public abstract void ice_response(" << paramsAMI << ");";
-
 	out << sp << nl << "public abstract void ice_exception(Ice.LocalException ex);";
-
 	if(!throws.empty())
 	{
 	    out << sp << nl << "public abstract void ice_exception(Ice.UserException ex);";
 	}
-
 	out << sp << nl << "protected final void __response(boolean __ok)";
 	out << sb;
 	out << nl << "try";
@@ -3645,9 +3681,64 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << eb;
 	}
 	out << eb;
-
-	out << eb;
+	out << eb << ';';
 
 	close();
+    }
+
+    if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
+    {
+	string classNameAMD = "AMD_" + fixKwd(cl->name());
+	string classScopedAMD = classScope + classNameAMD;
+	string absoluteAMD = getAbsolute(classScopedAMD);
+
+	string classNameAMDI = "_AMD_" + fixKwd(cl->name());
+	string classScopedAMDI = classScope + classNameAMDI;
+	string absoluteAMDI = getAbsolute(classScopedAMDI);
+
+	string paramsAMD = getParamsAsyncCB(p, classScope);
+
+	{
+	    if(!open(absoluteAMD + '_' + name))
+	    {
+		return;
+	    }
+
+	    Output& out = output();
+	    
+	    out << sp << nl << "public interface " << classNameAMD << '_' << name;
+	    out << sb;
+	    out << sp << nl << "void ice_response(" << paramsAMD << ");";
+	    out << sp << nl << "void ice_exception(java.lang.Exception ex);";
+	    out << eb << ';';
+	    
+	    close();
+	}
+	
+	{
+	    if(!open(absoluteAMDI + '_' + name))
+	    {
+		return;
+	    }
+	    
+	    Output& out = output();
+	    
+	    out << sp << nl << "final class " << classNameAMDI << '_' << name
+		<< " extends IceInternal.IncomingAsync implements " << classNameAMD << '_' << name;
+	    out << sb;
+	    out << sp << nl << "public" << nl << classNameAMDI << '_' << name << "(IceInternal.Incoming in)";
+	    out << sb;
+	    out << nl << "super(in);";
+	    out << eb;
+	    out << sp << nl << "public void" << nl << "ice_response(" << paramsAMD << ")";
+	    out << sb;
+	    out << eb;
+	    out << sp << nl << "public void" << nl << "ice_exception(java.lang.Exception ex)";
+	    out << sb;
+	    out << eb;
+	    out << eb << ';';
+	    
+	    close();
+	}
     }
 }
