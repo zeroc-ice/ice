@@ -44,13 +44,18 @@ def clientServerTest(toplevel, name):
     
     print "starting client...",
     clientPipe = os.popen(os.path.join(testdir, "client"))
-    output = clientPipe.read().strip()
+    output = clientPipe.readline()
     if not output:
-        print "failed!"
-        killServers()
-        sys.exit(0)
+	print "failed!"
+	TestUtil.killServers()
+	sys.exit(0)
     print "ok"
-    print output
+    print output,
+    while 1:
+	output = clientPipe.readline()
+	if not output:
+	    break;
+	print output,
 
 def collocatedTest(toplevel, name):
 

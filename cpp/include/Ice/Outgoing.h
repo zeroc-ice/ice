@@ -30,7 +30,7 @@ namespace IceInternal
 // that failed due to an exception is not repeatable if "at-most-once"
 // semantics must be guaranteed.
 //
-class NonRepeatable
+class ICE_API NonRepeatable
 {
 public:
 
