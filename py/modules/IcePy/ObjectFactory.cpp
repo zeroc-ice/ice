@@ -32,7 +32,7 @@ IcePy::ObjectFactory::create(const string& id)
     //
     // Get the type information.
     //
-    ClassInfoPtr info = ClassInfoPtr::dynamicCast(getTypeInfo(id));
+    ClassInfoPtr info = lookupClassInfo(id);
     if(!info)
     {
         return 0;

@@ -17,17 +17,6 @@
 namespace IcePy
 {
 
-const int TYPE_BOOL         = 0;
-const int TYPE_BYTE         = 1;
-const int TYPE_SHORT        = 2;
-const int TYPE_INT          = 3;
-const int TYPE_LONG         = 4;
-const int TYPE_FLOAT        = 5;
-const int TYPE_DOUBLE       = 6;
-const int TYPE_STRING       = 7;
-const int TYPE_OBJECT       = 8;
-const int TYPE_OBJECT_PROXY = 9;
-
 class ExceptionInfo;
 typedef IceUtil::Handle<ExceptionInfo> ExceptionInfoPtr;
 typedef std::vector<ExceptionInfoPtr> ExceptionInfoList;
@@ -263,6 +252,7 @@ public:
     ClassInfoList interfaces;
     DataMemberList members;
     PyObjectHandle pythonType;
+    PyObjectHandle typeObj;
 };
 
 //
@@ -279,9 +269,11 @@ public:
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
 
+    virtual void destroy();
+
     std::string id;
-    ClassInfoPtr _class;
     PyObjectHandle pythonType;
+    PyObjectHandle typeObj;
 };
 typedef IceUtil::Handle<ProxyInfo> ProxyInfoPtr;
 
@@ -346,11 +338,16 @@ private:
 };
 typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
 
-TypeInfoPtr getTypeInfo(const std::string&);
-ExceptionInfoPtr getExceptionInfo(const std::string&);
-TypeInfoPtr convertType(PyObject*);
+ClassInfoPtr lookupClassInfo(const std::string&);
+ExceptionInfoPtr lookupExceptionInfo(const std::string&);
 
 bool initTypes(PyObject*);
+
+PyObject* createType(const TypeInfoPtr&);
+TypeInfoPtr getType(PyObject*);
+
+PyObject* createException(const ExceptionInfoPtr&);
+ExceptionInfoPtr getException(PyObject*);
 
 }
 

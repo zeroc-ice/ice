@@ -94,8 +94,8 @@ def createTempClass():
 #
 # Forward declarations.
 #
-IcePy.declareClass('::Ice::Object')
-IcePy.declareProxy('::Ice::Object')
+IcePy._t_Object = IcePy.declareClass('::Ice::Object')
+IcePy._t_ObjectPrx = IcePy.declareProxy('::Ice::Object')
 
 #
 # Import Ice types.
@@ -117,13 +117,13 @@ import ApplicationImpl
 #
 # Define Ice::Object and Ice::ObjectPrx.
 #
-IcePy.defineClass('::Ice::Object', Object, False, '', (), ())
-IcePy.defineProxy('::Ice::Object', ObjectPrx)
+IcePy._t_Object = IcePy.defineClass('::Ice::Object', Object, False, None, (), ())
+IcePy._t_ObjectPrx = IcePy.defineProxy('::Ice::Object', ObjectPrx)
 
-Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Nonmutating, (IcePy.T_STRING,), (), IcePy.T_BOOL, ())
-Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Nonmutating, (), (), None, ())
-Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Nonmutating, (), (), '::Ice::StringSeq', ())
-Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Nonmutating, (), (), IcePy.T_STRING, ())
+Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Nonmutating, False, (IcePy._t_string,), (), IcePy._t_bool, ())
+Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Nonmutating, False, (), (), None, ())
+Object._op_ice_ids = IcePy.Operation('ice_ids', OperationMode.Nonmutating, False, (), (), _t_StringSeq, ())
+Object._op_ice_id = IcePy.Operation('ice_id', OperationMode.Nonmutating, False, (), (), IcePy._t_string, ())
 
 #
 # Annotate Ice::Identity.
@@ -134,7 +134,7 @@ Identity.__str__ = Identity__str__
 del Identity__str__
 
 def Identity__hash__(self):
-    return 5 * hash(self.category) + hash(self.name)
+    return (5 * hash(self.category) + hash(self.name)) % 0x7fffffff
 Identity.__hash__ = Identity__hash__
 del Identity__hash__
 

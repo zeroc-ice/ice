@@ -17,25 +17,25 @@
 using namespace std;
 using namespace IcePy;
 
-// TODO: Destroyer for maps?
+typedef map<string, ClassInfoPtr> ClassInfoMap;
+static ClassInfoMap _classInfoMap;
 
-typedef map<string, TypeInfoPtr> TypeInfoMap;
-static TypeInfoMap _typeInfoMap;
+typedef map<string, ProxyInfoPtr> ProxyInfoMap;
+static ProxyInfoMap _proxyInfoMap;
 
 typedef map<string, ExceptionInfoPtr> ExceptionInfoMap;
 static ExceptionInfoMap _exceptionInfoMap;
 
-static PrimitiveInfoPtr _boolType;
-static PrimitiveInfoPtr _byteType;
-static PrimitiveInfoPtr _shortType;
-static PrimitiveInfoPtr _intType;
-static PrimitiveInfoPtr _longType;
-static PrimitiveInfoPtr _floatType;
-static PrimitiveInfoPtr _doubleType;
-static PrimitiveInfoPtr _stringType;
-
 namespace IcePy
 {
+
+class InfoMapDestroyer
+{
+public:
+
+    ~InfoMapDestroyer();
+};
+static InfoMapDestroyer infoMapDestroyer;
 
 class ReadObjectCallback : public Ice::ReadObjectCallback
 {
@@ -54,17 +54,107 @@ private:
     void* _closure;
 };
 
+struct TypeInfoObject
+{
+    PyObject_HEAD
+    IcePy::TypeInfoPtr* info;
+};
+
+struct ExceptionInfoObject
+{
+    PyObject_HEAD
+    IcePy::ExceptionInfoPtr* info;
+};
+
+extern PyTypeObject TypeInfoType;
+extern PyTypeObject ExceptionInfoType;
+
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static TypeInfoObject*
+typeInfoNew(PyObject* /*arg*/)
+{
+    TypeInfoObject* self = PyObject_New(TypeInfoObject, &TypeInfoType);
+    if (self == NULL)
+    {
+        return NULL;
+    }
+    self->info = 0;
+    return self;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static void
+typeInfoDealloc(TypeInfoObject* self)
+{
+    delete self->info;
+    PyObject_Del(self);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static ExceptionInfoObject*
+exceptionInfoNew(PyObject* /*arg*/)
+{
+    ExceptionInfoObject* self = PyObject_New(ExceptionInfoObject, &ExceptionInfoType);
+    if (self == NULL)
+    {
+        return NULL;
+    }
+    self->info = 0;
+    return self;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static void
+exceptionInfoDealloc(ExceptionInfoObject* self)
+{
+    delete self->info;
+    PyObject_Del(self);
 }
 
 //
-// addTypeInfo()
+// addClassInfo()
 //
 static void
-addTypeInfo(const string& id, const TypeInfoPtr& info)
+addClassInfo(const string& id, const ClassInfoPtr& info)
 {
-    TypeInfoMap::iterator p = _typeInfoMap.find(id);
-    assert(p == _typeInfoMap.end());
-    _typeInfoMap.insert(TypeInfoMap::value_type(id, info));
+    ClassInfoMap::iterator p = _classInfoMap.find(id);
+    assert(p == _classInfoMap.end());
+    _classInfoMap.insert(ClassInfoMap::value_type(id, info));
+}
+
+//
+// addProxyInfo()
+//
+static void
+addProxyInfo(const string& id, const ProxyInfoPtr& info)
+{
+    ProxyInfoMap::iterator p = _proxyInfoMap.find(id);
+    assert(p == _proxyInfoMap.end());
+    _proxyInfoMap.insert(ProxyInfoMap::value_type(id, info));
+}
+
+//
+// lookupProxyInfo()
+//
+static IcePy::ProxyInfoPtr
+lookupProxyInfo(const string& id)
+{
+    ProxyInfoMap::iterator p = _proxyInfoMap.find(id);
+    if(p != _proxyInfoMap.end())
+    {
+        return p->second;
+    }
+    return 0;
 }
 
 //
@@ -1217,8 +1307,11 @@ IcePy::SequenceInfo::unmarshaled(PyObject* val, PyObject* target, void* closure)
 void
 IcePy::SequenceInfo::destroy()
 {
-    elementType->destroy();
-    elementType = 0;
+    if(elementType)
+    {
+        elementType->destroy();
+        elementType = 0;
+    }
 }
 
 //
@@ -1337,10 +1430,16 @@ IcePy::DictionaryInfo::KeyCallback::unmarshaled(PyObject* val, PyObject*, void*)
 void
 IcePy::DictionaryInfo::destroy()
 {
-    keyType->destroy();
-    keyType = 0;
-    valueType->destroy();
-    valueType = 0;
+    if(keyType)
+    {
+        keyType->destroy();
+        keyType = 0;
+    }
+    if(valueType)
+    {
+        valueType->destroy();
+        valueType = 0;
+    }
 }
 
 //
@@ -1397,7 +1496,7 @@ IcePy::ClassInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap
         }
         assert(PyString_Check(id.get()));
         char* str = PyString_AS_STRING(id.get());
-        ClassInfoPtr info = ClassInfoPtr::dynamicCast(getTypeInfo(str));
+        ClassInfoPtr info = lookupClassInfo(str);
         if(!info)
         {
             PyErr_Format(PyExc_ValueError, "unknown class type %s", str);
@@ -1435,11 +1534,16 @@ IcePy::ClassInfo::destroy()
 {
     base = 0;
     interfaces.clear();
-    for(DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
+    if(!members.empty())
     {
-        (*p)->type->destroy();
+        DataMemberList ml = members;
+        members.clear();
+        for(DataMemberList::iterator p = ml.begin(); p != ml.end(); ++p)
+        {
+            (*p)->type->destroy();
+        }
     }
-    members.clear();
+    typeObj = NULL; // Break circular reference.
 }
 
 //
@@ -1494,6 +1598,12 @@ IcePy::ProxyInfo::unmarshal(const Ice::InputStreamPtr& is, const UnmarshalCallba
 
     PyObjectHandle p = createProxy(proxy, is->communicator(), pythonType.get());
     cb->unmarshaled(p.get(), target, closure);
+}
+
+void
+IcePy::ProxyInfo::destroy()
+{
+    typeObj = NULL; // Break circular reference.
 }
 
 //
@@ -1651,6 +1761,26 @@ IcePy::ObjectReader::getObject() const
 }
 
 //
+// InfoMapDestroyer implementation.
+//
+IcePy::InfoMapDestroyer::~InfoMapDestroyer()
+{
+    {
+        for(ProxyInfoMap::iterator p = _proxyInfoMap.begin(); p != _proxyInfoMap.end(); ++p)
+        {
+            p->second->destroy();
+        }
+    }
+    {
+        for(ClassInfoMap::iterator p = _classInfoMap.begin(); p != _classInfoMap.end(); ++p)
+        {
+            p->second->destroy();
+        }
+    }
+    _exceptionInfoMap.clear();
+}
+
+//
 // ReadObjectCallback implementation.
 //
 IcePy::ReadObjectCallback::ReadObjectCallback(const ClassInfoPtr& info, const UnmarshalCallbackPtr& cb,
@@ -1771,13 +1901,13 @@ IcePy::ExceptionInfo::unmarshal(const Ice::InputStreamPtr& is)
 }
 
 //
-// getTypeInfo()
+// lookupClassInfo()
 //
-IcePy::TypeInfoPtr
-IcePy::getTypeInfo(const string& id)
+IcePy::ClassInfoPtr
+IcePy::lookupClassInfo(const string& id)
 {
-    TypeInfoMap::iterator p = _typeInfoMap.find(id);
-    if(p != _typeInfoMap.end())
+    ClassInfoMap::iterator p = _classInfoMap.find(id);
+    if(p != _classInfoMap.end())
     {
         return p->second;
     }
@@ -1785,10 +1915,10 @@ IcePy::getTypeInfo(const string& id)
 }
 
 //
-// getExceptionInfo()
+// lookupExceptionInfo()
 //
 IcePy::ExceptionInfoPtr
-IcePy::getExceptionInfo(const string& id)
+IcePy::lookupExceptionInfo(const string& id)
 {
     ExceptionInfoMap::iterator p = _exceptionInfoMap.find(id);
     if(p != _exceptionInfoMap.end())
@@ -1798,108 +1928,239 @@ IcePy::getExceptionInfo(const string& id)
     return 0;
 }
 
-IcePy::TypeInfoPtr
-IcePy::convertType(PyObject* obj)
+namespace IcePy
 {
-    if(PyInt_Check(obj))
-    {
-        int i = static_cast<int>(PyInt_AS_LONG(obj));
-        switch(i)
-        {
-        case TYPE_BOOL:
-            return _boolType;
-        case TYPE_BYTE:
-            return _byteType;
-        case TYPE_SHORT:
-            return _shortType;
-        case TYPE_INT:
-            return _intType;
-        case TYPE_LONG:
-            return _longType;
-        case TYPE_FLOAT:
-            return _floatType;
-        case TYPE_DOUBLE:
-            return _doubleType;
-        case TYPE_STRING:
-            return _stringType;
-        case TYPE_OBJECT:
-            return getTypeInfo("::Ice::Object");
-        case TYPE_OBJECT_PROXY:
-            return getTypeInfo("::Ice::ObjectPrx");
-        }
-    }
-    else
-    {
-        assert(PyString_Check(obj));
-        char* id = PyString_AS_STRING(obj);
-        return getTypeInfo(id);
-    }
 
-    assert(false);
-    return 0;
+PyTypeObject TypeInfoType =
+{
+    /* The ob_type field must be initialized in the module init function
+     * to be portable to Windows without using C++. */
+    PyObject_HEAD_INIT(NULL)
+    0,                               /* ob_size */
+    "IcePy.TypeInfo",                /* tp_name */
+    sizeof(TypeInfoObject),          /* tp_basicsize */
+    0,                               /* tp_itemsize */
+    /* methods */
+    (destructor)typeInfoDealloc,     /* tp_dealloc */
+    0,                               /* tp_print */
+    0,                               /* tp_getattr */
+    0,                               /* tp_setattr */
+    0,                               /* tp_compare */
+    0,                               /* tp_repr */
+    0,                               /* tp_as_number */
+    0,                               /* tp_as_sequence */
+    0,                               /* tp_as_mapping */
+    0,                               /* tp_hash */
+    0,                               /* tp_call */
+    0,                               /* tp_str */
+    0,                               /* tp_getattro */
+    0,                               /* tp_setattro */
+    0,                               /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,              /* tp_flags */
+    0,                               /* tp_doc */
+    0,                               /* tp_traverse */
+    0,                               /* tp_clear */
+    0,                               /* tp_richcompare */
+    0,                               /* tp_weaklistoffset */
+    0,                               /* tp_iter */
+    0,                               /* tp_iternext */
+    0,                               /* tp_methods */
+    0,                               /* tp_members */
+    0,                               /* tp_getset */
+    0,                               /* tp_base */
+    0,                               /* tp_dict */
+    0,                               /* tp_descr_get */
+    0,                               /* tp_descr_set */
+    0,                               /* tp_dictoffset */
+    0,                               /* tp_init */
+    0,                               /* tp_alloc */
+    (newfunc)typeInfoNew,            /* tp_new */
+    0,                               /* tp_free */
+    0,                               /* tp_is_gc */
+};
+
+PyTypeObject ExceptionInfoType =
+{
+    /* The ob_type field must be initialized in the module init function
+     * to be portable to Windows without using C++. */
+    PyObject_HEAD_INIT(NULL)
+    0,                               /* ob_size */
+    "IcePy.ExceptionInfo",           /* tp_name */
+    sizeof(ExceptionInfoObject),     /* tp_basicsize */
+    0,                               /* tp_itemsize */
+    /* methods */
+    (destructor)exceptionInfoDealloc,/* tp_dealloc */
+    0,                               /* tp_print */
+    0,                               /* tp_getattr */
+    0,                               /* tp_setattr */
+    0,                               /* tp_compare */
+    0,                               /* tp_repr */
+    0,                               /* tp_as_number */
+    0,                               /* tp_as_sequence */
+    0,                               /* tp_as_mapping */
+    0,                               /* tp_hash */
+    0,                               /* tp_call */
+    0,                               /* tp_str */
+    0,                               /* tp_getattro */
+    0,                               /* tp_setattro */
+    0,                               /* tp_as_buffer */
+    Py_TPFLAGS_DEFAULT,              /* tp_flags */
+    0,                               /* tp_doc */
+    0,                               /* tp_traverse */
+    0,                               /* tp_clear */
+    0,                               /* tp_richcompare */
+    0,                               /* tp_weaklistoffset */
+    0,                               /* tp_iter */
+    0,                               /* tp_iternext */
+    0,                               /* tp_methods */
+    0,                               /* tp_members */
+    0,                               /* tp_getset */
+    0,                               /* tp_base */
+    0,                               /* tp_dict */
+    0,                               /* tp_descr_get */
+    0,                               /* tp_descr_set */
+    0,                               /* tp_dictoffset */
+    0,                               /* tp_init */
+    0,                               /* tp_alloc */
+    (newfunc)exceptionInfoNew,       /* tp_new */
+    0,                               /* tp_free */
+    0,                               /* tp_is_gc */
+};
+
 }
 
 bool
 IcePy::initTypes(PyObject* module)
 {
-    _boolType = new PrimitiveInfo;
-    _boolType->kind = PrimitiveInfo::KindBool;
-    _byteType = new PrimitiveInfo;
-    _byteType->kind = PrimitiveInfo::KindByte;
-    _shortType = new PrimitiveInfo;
-    _shortType->kind = PrimitiveInfo::KindShort;
-    _intType = new PrimitiveInfo;
-    _intType->kind = PrimitiveInfo::KindInt;
-    _longType = new PrimitiveInfo;
-    _longType->kind = PrimitiveInfo::KindLong;
-    _floatType = new PrimitiveInfo;
-    _floatType->kind = PrimitiveInfo::KindFloat;
-    _doubleType = new PrimitiveInfo;
-    _doubleType->kind = PrimitiveInfo::KindDouble;
-    _stringType = new PrimitiveInfo;
-    _stringType->kind = PrimitiveInfo::KindString;
+    if(PyType_Ready(&TypeInfoType) < 0)
+    {
+        return false;
+    }
+    if(PyModule_AddObject(module, "TypeInfo", (PyObject*)&TypeInfoType) < 0)
+    {
+        return false;
+    }
 
-    if(!PyModule_AddIntConstant(module, "T_BOOL", TYPE_BOOL) < 0)
+    if(PyType_Ready(&ExceptionInfoType) < 0)
     {
         return false;
     }
-    if(!PyModule_AddIntConstant(module, "T_BYTE", TYPE_BYTE) < 0)
+    if(PyModule_AddObject(module, "ExceptionInfo", (PyObject*)&ExceptionInfoType) < 0)
     {
         return false;
     }
-    if(!PyModule_AddIntConstant(module, "T_SHORT", TYPE_SHORT) < 0)
+
+    PrimitiveInfoPtr boolType = new PrimitiveInfo;
+    boolType->kind = PrimitiveInfo::KindBool;
+    PyObjectHandle boolTypeObj = createType(boolType);
+    if(PyModule_AddObject(module, "_t_bool", boolTypeObj.get()) < 0)
     {
         return false;
     }
-    if(!PyModule_AddIntConstant(module, "T_INT", TYPE_INT) < 0)
+    boolTypeObj.release(); // PyModule_AddObject steals a reference.
+
+    PrimitiveInfoPtr byteType = new PrimitiveInfo;
+    byteType->kind = PrimitiveInfo::KindByte;
+    PyObjectHandle byteTypeObj = createType(byteType);
+    if(PyModule_AddObject(module, "_t_byte", byteTypeObj.get()) < 0)
     {
         return false;
     }
-    if(!PyModule_AddIntConstant(module, "T_LONG", TYPE_LONG) < 0)
+    byteTypeObj.release(); // PyModule_AddObject steals a reference.
+
+    PrimitiveInfoPtr shortType = new PrimitiveInfo;
+    shortType->kind = PrimitiveInfo::KindShort;
+    PyObjectHandle shortTypeObj = createType(shortType);
+    if(PyModule_AddObject(module, "_t_short", shortTypeObj.get()) < 0)
     {
         return false;
     }
-    if(!PyModule_AddIntConstant(module, "T_FLOAT", TYPE_FLOAT) < 0)
+    shortTypeObj.release(); // PyModule_AddObject steals a reference.
+
+    PrimitiveInfoPtr intType = new PrimitiveInfo;
+    intType->kind = PrimitiveInfo::KindInt;
+    PyObjectHandle intTypeObj = createType(intType);
+    if(PyModule_AddObject(module, "_t_int", intTypeObj.get()) < 0)
     {
         return false;
     }
-    if(!PyModule_AddIntConstant(module, "T_DOUBLE", TYPE_DOUBLE) < 0)
+    intTypeObj.release(); // PyModule_AddObject steals a reference.
+
+    PrimitiveInfoPtr longType = new PrimitiveInfo;
+    longType->kind = PrimitiveInfo::KindLong;
+    PyObjectHandle longTypeObj = createType(longType);
+    if(PyModule_AddObject(module, "_t_long", longTypeObj.get()) < 0)
     {
         return false;
     }
-    if(!PyModule_AddIntConstant(module, "T_STRING", TYPE_STRING) < 0)
+    longTypeObj.release(); // PyModule_AddObject steals a reference.
+
+    PrimitiveInfoPtr floatType = new PrimitiveInfo;
+    floatType->kind = PrimitiveInfo::KindFloat;
+    PyObjectHandle floatTypeObj = createType(floatType);
+    if(PyModule_AddObject(module, "_t_float", floatTypeObj.get()) < 0)
     {
         return false;
     }
-    if(!PyModule_AddIntConstant(module, "T_OBJECT", TYPE_OBJECT) < 0)
+    floatTypeObj.release(); // PyModule_AddObject steals a reference.
+
+    PrimitiveInfoPtr doubleType = new PrimitiveInfo;
+    doubleType->kind = PrimitiveInfo::KindDouble;
+    PyObjectHandle doubleTypeObj = createType(doubleType);
+    if(PyModule_AddObject(module, "_t_double", doubleTypeObj.get()) < 0)
     {
         return false;
     }
-    if(!PyModule_AddIntConstant(module, "T_OBJECT_PROXY", TYPE_OBJECT_PROXY) < 0)
+    doubleTypeObj.release(); // PyModule_AddObject steals a reference.
+
+    PrimitiveInfoPtr stringType = new PrimitiveInfo;
+    stringType->kind = PrimitiveInfo::KindString;
+    PyObjectHandle stringTypeObj = createType(stringType);
+    if(PyModule_AddObject(module, "_t_string", stringTypeObj.get()) < 0)
     {
         return false;
     }
+    stringTypeObj.release(); // PyModule_AddObject steals a reference.
+
     return true;
+}
+
+IcePy::TypeInfoPtr
+IcePy::getType(PyObject* obj)
+{
+    assert(PyObject_IsInstance(obj, (PyObject*)&TypeInfoType));
+    TypeInfoObject* p = (TypeInfoObject*)obj;
+    return *p->info;
+}
+
+PyObject*
+IcePy::createType(const TypeInfoPtr& info)
+{
+    TypeInfoObject* obj = typeInfoNew(NULL);
+    if(obj != NULL)
+    {
+        obj->info = new IcePy::TypeInfoPtr(info);
+    }
+    return (PyObject*)obj;
+}
+
+IcePy::ExceptionInfoPtr
+IcePy::getException(PyObject* obj)
+{
+    assert(PyObject_IsInstance(obj, (PyObject*)&ExceptionInfoType));
+    ExceptionInfoObject* p = (ExceptionInfoObject*)obj;
+    return *p->info;
+}
+
+PyObject*
+IcePy::createException(const ExceptionInfoPtr& info)
+{
+    ExceptionInfoObject* obj = exceptionInfoNew(NULL);
+    if(obj != NULL)
+    {
+        obj->info = new IcePy::ExceptionInfoPtr(info);
+    }
+    return (PyObject*)obj;
 }
 
 extern "C"
@@ -1931,10 +2192,7 @@ IcePy_defineEnum(PyObject*, PyObject* args)
         info->enumerators.push_back(e);
     }
 
-    addTypeInfo(id, info);
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    return createType(info);
 }
 
 extern "C"
@@ -1968,14 +2226,11 @@ IcePy_defineStruct(PyObject*, PyObject* args)
         PyObject* t = PyTuple_GET_ITEM(m, 1); // Member type.
         DataMemberPtr member = new DataMember;
         member->name = PyString_AS_STRING(s);
-        member->type = convertType(t);
+        member->type = getType(t);
         info->members.push_back(member);
     }
 
-    addTypeInfo(id, info);
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    return createType(info);
 }
 
 extern "C"
@@ -1991,12 +2246,9 @@ IcePy_defineSequence(PyObject*, PyObject* args)
 
     SequenceInfoPtr info = new SequenceInfo;
     info->id = id;
-    info->elementType = convertType(elementType);
+    info->elementType = getType(elementType);
 
-    addTypeInfo(id, info);
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    return createType(info);
 }
 
 extern "C"
@@ -2013,13 +2265,10 @@ IcePy_defineDictionary(PyObject*, PyObject* args)
 
     DictionaryInfoPtr info = new DictionaryInfo;
     info->id = id;
-    info->keyType = convertType(keyType);
-    info->valueType = convertType(valueType);
+    info->keyType = getType(keyType);
+    info->valueType = getType(valueType);
 
-    addTypeInfo(id, info);
-
-    Py_INCREF(Py_None);
-    return Py_None;
+    return createType(info);
 }
 
 extern "C"
@@ -2035,22 +2284,17 @@ IcePy_declareProxy(PyObject*, PyObject* args)
     string proxyId = id;
     proxyId += "Prx";
 
-    TypeInfoPtr ti = getTypeInfo(proxyId);
-    if(!ti)
+    ProxyInfoPtr info = lookupProxyInfo(proxyId);
+    if(!info)
     {
-        ProxyInfoPtr info = new ProxyInfo;
+        info = new ProxyInfo;
         info->id = proxyId;
-        info->_class = ClassInfoPtr::dynamicCast(getTypeInfo(id));
-        assert(info->_class);
-        addTypeInfo(proxyId, info);
-    }
-    else
-    {
-        assert(ProxyInfoPtr::dynamicCast(ti));
+        info->typeObj = createType(info);
+        addProxyInfo(proxyId, info);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_INCREF(info->typeObj.get());
+    return info->typeObj.get();
 }
 
 extern "C"
@@ -2069,19 +2313,20 @@ IcePy_defineProxy(PyObject*, PyObject* args)
     string proxyId = id;
     proxyId += "Prx";
 
-    ProxyInfoPtr info = ProxyInfoPtr::dynamicCast(getTypeInfo(proxyId));
+    ProxyInfoPtr info = lookupProxyInfo(proxyId);
     if(!info)
     {
         info = new ProxyInfo;
         info->id = proxyId;
-        addTypeInfo(proxyId, info);
+        info->typeObj = createType(info);
+        addProxyInfo(proxyId, info);
     }
 
     info->pythonType = type;
     Py_INCREF(type);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_INCREF(info->typeObj.get());
+    return info->typeObj.get();
 }
 
 extern "C"
@@ -2094,20 +2339,17 @@ IcePy_declareClass(PyObject*, PyObject* args)
         return NULL;
     }
 
-    TypeInfoPtr ti = getTypeInfo(id);
-    if(!ti)
+    ClassInfoPtr info = lookupClassInfo(id);
+    if(!info)
     {
-        ClassInfoPtr info = new ClassInfo;
+        info = new ClassInfo;
         info->id = id;
-        addTypeInfo(id, info);
-    }
-    else
-    {
-        assert(ClassInfoPtr::dynamicCast(ti));
+        info->typeObj = createType(info);
+        addClassInfo(id, info);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    Py_INCREF(info->typeObj.get());
+    return info->typeObj.get();
 }
 
 extern "C"
@@ -2117,10 +2359,10 @@ IcePy_defineClass(PyObject*, PyObject* args)
     char* id;
     PyObject* type;
     int isAbstract;
-    char* baseId;
+    PyObject* base;
     PyObject* interfaces;
     PyObject* members;
-    if(!PyArg_ParseTuple(args, "sOisOO", &id, &type, &isAbstract, &baseId, &interfaces, &members))
+    if(!PyArg_ParseTuple(args, "sOiOOO", &id, &type, &isAbstract, &base, &interfaces, &members))
     {
         return NULL;
     }
@@ -2129,32 +2371,31 @@ IcePy_defineClass(PyObject*, PyObject* args)
     assert(PyTuple_Check(interfaces));
     assert(PyTuple_Check(members));
 
-    ClassInfoPtr info = ClassInfoPtr::dynamicCast(getTypeInfo(id));
+    ClassInfoPtr info = lookupClassInfo(id);
     if(!info)
     {
         info = new ClassInfo;
         info->id = id;
-        addTypeInfo(id, info);
+        info->typeObj = createType(info);
+        addClassInfo(id, info);
     }
 
     info->isAbstract = isAbstract ? true : false;
-    if(strlen(baseId) > 0)
+
+    if(base != Py_None)
     {
-        TypeInfoPtr t = getTypeInfo(baseId);
-        assert(t);
-        info->base = ClassInfoPtr::dynamicCast(t);
+        info->base = ClassInfoPtr::dynamicCast(getType(base));
         assert(info->base);
     }
-    info->pythonType = type;
-    Py_INCREF(type);
 
     int i, sz;
     sz = PyTuple_GET_SIZE(interfaces);
     for(i = 0; i < sz; ++i)
     {
         PyObject* o = PyTuple_GET_ITEM(interfaces, i);
-        assert(PyString_Check(o));
-        info->interfaces.push_back(ClassInfoPtr::dynamicCast(convertType(o)));
+        ClassInfoPtr iface = ClassInfoPtr::dynamicCast(getType(o));
+        assert(iface);
+        info->interfaces.push_back(iface);
     }
 
     sz = PyTuple_GET_SIZE(members);
@@ -2168,12 +2409,15 @@ IcePy_defineClass(PyObject*, PyObject* args)
         PyObject* t = PyTuple_GET_ITEM(m, 1); // Member type.
         DataMemberPtr member = new DataMember;
         member->name = PyString_AS_STRING(s);
-        member->type = convertType(t);
+        member->type = getType(t);
         info->members.push_back(member);
     }
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    info->pythonType = type;
+    Py_INCREF(type);
+
+    Py_INCREF(info->typeObj.get());
+    return info->typeObj.get();
 }
 
 extern "C"
@@ -2182,10 +2426,10 @@ IcePy_defineException(PyObject*, PyObject* args)
 {
     char* id;
     PyObject* type;
-    char* baseId;
+    PyObject* base;
     PyObject* members;
     int usesClasses;
-    if(!PyArg_ParseTuple(args, "sOsOi", &id, &type, &baseId, &members, &usesClasses))
+    if(!PyArg_ParseTuple(args, "sOOOi", &id, &type, &base, &members, &usesClasses))
     {
         return NULL;
     }
@@ -2195,14 +2439,14 @@ IcePy_defineException(PyObject*, PyObject* args)
 
     ExceptionInfoPtr info = new ExceptionInfo;
     info->id = id;
-    if(strlen(baseId) > 0)
+
+    if(base != Py_None)
     {
-        info->base = getExceptionInfo(baseId);
+        info->base = ExceptionInfoPtr::dynamicCast(getException(base));
         assert(info->base);
     }
+
     info->usesClasses = usesClasses ? true : false;
-    info->pythonType = type;
-    Py_INCREF(type);
 
     int sz = PyTuple_GET_SIZE(members);
     for(int i = 0; i < sz; ++i)
@@ -2215,12 +2459,14 @@ IcePy_defineException(PyObject*, PyObject* args)
         PyObject* t = PyTuple_GET_ITEM(m, 1); // Member type.
         DataMemberPtr member = new DataMember;
         member->name = PyString_AS_STRING(s);
-        member->type = convertType(t);
+        member->type = getType(t);
         info->members.push_back(member);
     }
 
+    info->pythonType = type;
+    Py_INCREF(type);
+
     addExceptionInfo(id, info);
 
-    Py_INCREF(Py_None);
-    return Py_None;
+    return createException(info);
 }

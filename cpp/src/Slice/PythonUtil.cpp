@@ -84,6 +84,11 @@ protected:
     //
     void writeDefaultValue(const TypePtr&);
 
+    //
+    // Converts a scoped name into a type name (e.g., ::M::Foo -> M._t_Foo).
+    //
+    string scopedToType(const string&);
+
     struct ExceptionDataMember
     {
         string fixedName;
@@ -95,6 +100,7 @@ protected:
 
     Output& _out;
     list<string> _moduleStack;
+    set<string> _classHistory;
 };
 
 }
@@ -231,11 +237,13 @@ Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     //
     // Emit forward declarations.
     //
-    if(!p->isLocal())
+    string scoped = p->scoped();
+    if(!p->isLocal() && _classHistory.count(scoped) == 0)
     {
-        string scoped = p->scoped();
-        _out << sp << nl << "IcePy.declareClass('" << scoped << "')";
-        _out << nl << "IcePy.declareProxy('" << scoped << "')";
+        string type = scopedToType(scoped);
+        _out << sp << nl << "_M_" << type << " = IcePy.declareClass('" << scoped << "')";
+        _out << nl << "_M_" << type << "Prx = IcePy.declareProxy('" << scoped << "')";
+        _classHistory.insert(scoped); // Avoid extra declarations.
     }
 }
 
@@ -243,110 +251,12 @@ bool
 Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string scoped = p->scoped();
+    string type = scopedToType(scoped);
     string fixedScoped = scopedToName(scoped);
     string fixedName = fixIdent(p->name());
     ClassList bases = p->bases();
     OperationList ops = p->operations();
     OperationList::iterator oli;
-
-    if(!p->isLocal())
-    {
-        //
-        // Define the proxy class.
-        //
-        _out << sp << nl << "_M_" << fixedScoped << "Prx = Ice.createTempClass()";
-        _out << nl << "class " << fixedName << "Prx(";
-        if(bases.empty())
-        {
-            _out << "IcePy.ObjectPrx";
-        }
-        else
-        {
-            ClassList::const_iterator q = bases.begin();
-            while(q != bases.end())
-            {
-                _out << getSymbol(*q) << "Prx";
-                if(++q != bases.end())
-                {
-                    _out << ", ";
-                }
-            }
-        }
-        _out << "):";
-        _out.inc();
-
-        for(oli = ops.begin(); oli != ops.end(); ++oli)
-        {
-            string fixedOpName = fixIdent((*oli)->name());
-            TypePtr ret = (*oli)->returnType();
-            ParamDeclList paramList = (*oli)->parameters();
-            string inParams;
-
-            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
-            {
-                if(!(*q)->isOutParam())
-                {
-                    if(!inParams.empty())
-                    {
-                        inParams.append(", ");
-                    }
-                    inParams.append(fixIdent((*q)->name()));
-                }
-            }
-
-            _out << sp << nl << "def " << fixedOpName << "(self";
-            if(!inParams.empty())
-            {
-                _out << ", " << inParams;
-            }
-            _out << ", ctx=None):";
-            _out.inc();
-            _out << nl << "return _M_" << fixedScoped << "._op_" << (*oli)->name() << ".invoke(self, (" << inParams;
-            if(!inParams.empty() && inParams.find(',') == string::npos)
-            {
-                _out << ", ";
-            }
-            _out << "), ctx)";
-            _out.dec();
-
-            if(p->hasMetaData("ami") || (*oli)->hasMetaData("ami"))
-            {
-                _out << sp << nl << "def " << fixedOpName << "_async(self, _cb";
-                if(!inParams.empty())
-                {
-                    _out << ", " << inParams;
-                }
-                _out << ", ctx=None):";
-                _out.inc();
-                _out << nl << "return _M_" << fixedScoped << "._op_" << (*oli)->name() << ".invokeAsync(self, _cb, ("
-                     << inParams;
-                if(!inParams.empty() && inParams.find(',') == string::npos)
-                {
-                    _out << ", ";
-                }
-                _out << "), ctx)";
-                _out.dec();
-            }
-        }
-
-        _out << sp << nl << "def checkedCast(proxy, facet=''):";
-        _out.inc();
-        _out << nl << "return _M_" << fixedScoped << "Prx.ice_checkedCast(proxy, '" << scoped << "', facet)";
-        _out.dec();
-        _out << nl << "checkedCast = staticmethod(checkedCast)";
-
-        _out << sp << nl << "def uncheckedCast(proxy, facet=''):";
-        _out.inc();
-        _out << nl << "return _M_" << fixedScoped << "Prx.ice_uncheckedCast(proxy, facet)";
-        _out.dec();
-        _out << nl << "uncheckedCast = staticmethod(uncheckedCast)";
-
-        _out.dec();
-
-        _out << sp << nl << "IcePy.defineProxy('" << scoped << "', " << fixedName << "Prx)";
-
-        registerName(fixedName + "Prx");
-    }
 
     //
     // Define the class.
@@ -442,39 +352,178 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         for(oli = ops.begin(); oli != ops.end(); ++oli)
         {
             string fixedOpName = fixIdent((*oli)->name());
-            _out << sp << nl << "def " << fixedOpName << "(self";
-
-            ParamDeclList params = (*oli)->parameters();
-
-            for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
+            if(!p->isLocal() && (p->hasMetaData("amd") || (*oli)->hasMetaData("amd")))
             {
-                if(!(*pli)->isOutParam())
+                _out << sp << nl << "def " << fixedOpName << "_async(self, _cb";
+
+                ParamDeclList params = (*oli)->parameters();
+
+                for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
                 {
-                    _out << ", " << fixIdent((*pli)->name());
+                    if(!(*pli)->isOutParam())
+                    {
+                        _out << ", " << fixIdent((*pli)->name());
+                    }
                 }
+                if(!p->isLocal())
+                {
+                    _out << ", current=None";
+                }
+                _out << "):";
+                _out.inc();
+                _out << nl << "raise RuntimeError(\"operation `" << fixedOpName << "_async' not implemented\")";
+                _out.dec();
             }
-            if(!p->isLocal())
+            else
             {
-                _out << ", current=None";
+                _out << sp << nl << "def " << fixedOpName << "(self";
+
+                ParamDeclList params = (*oli)->parameters();
+
+                for(ParamDeclList::iterator pli = params.begin(); pli != params.end(); ++pli)
+                {
+                    if(!(*pli)->isOutParam())
+                    {
+                        _out << ", " << fixIdent((*pli)->name());
+                    }
+                }
+                if(!p->isLocal())
+                {
+                    _out << ", current=None";
+                }
+                _out << "):";
+                _out.inc();
+                _out << nl << "raise RuntimeError(\"operation `" << fixedOpName << "' not implemented\")";
+                _out.dec();
             }
-            _out << "):";
-            _out.inc();
-            _out << nl << "raise RuntimeError(\"operation `" << fixedOpName << "' not implemented\")";
-            _out.dec();
         }
     }
     _out.dec();
+
+    //
+    // Define the proxy class.
+    //
+    if(!p->isLocal())
+    {
+        _out << sp << nl << "_M_" << fixedScoped << "Prx = Ice.createTempClass()";
+        _out << nl << "class " << fixedName << "Prx(";
+        if(bases.empty())
+        {
+            _out << "IcePy.ObjectPrx";
+        }
+        else
+        {
+            ClassList::const_iterator q = bases.begin();
+            while(q != bases.end())
+            {
+                _out << getSymbol(*q) << "Prx";
+                if(++q != bases.end())
+                {
+                    _out << ", ";
+                }
+            }
+        }
+        _out << "):";
+        _out.inc();
+
+        for(oli = ops.begin(); oli != ops.end(); ++oli)
+        {
+            string fixedOpName = fixIdent((*oli)->name());
+            TypePtr ret = (*oli)->returnType();
+            ParamDeclList paramList = (*oli)->parameters();
+            string inParams;
+
+            for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+            {
+                if(!(*q)->isOutParam())
+                {
+                    if(!inParams.empty())
+                    {
+                        inParams.append(", ");
+                    }
+                    inParams.append(fixIdent((*q)->name()));
+                }
+            }
+
+            _out << sp << nl << "def " << fixedOpName << "(self";
+            if(!inParams.empty())
+            {
+                _out << ", " << inParams;
+            }
+            _out << ", ctx=None):";
+            _out.inc();
+            _out << nl << "return _M_" << fixedScoped << "._op_" << (*oli)->name() << ".invoke(self, (" << inParams;
+            if(!inParams.empty() && inParams.find(',') == string::npos)
+            {
+                _out << ", ";
+            }
+            _out << "), ctx)";
+            _out.dec();
+
+            if(p->hasMetaData("ami") || (*oli)->hasMetaData("ami"))
+            {
+                _out << sp << nl << "def " << fixedOpName << "_async(self, _cb";
+                if(!inParams.empty())
+                {
+                    _out << ", " << inParams;
+                }
+                _out << ", ctx=None):";
+                _out.inc();
+                _out << nl << "return _M_" << fixedScoped << "._op_" << (*oli)->name() << ".invokeAsync(self, _cb, ("
+                     << inParams;
+                if(!inParams.empty() && inParams.find(',') == string::npos)
+                {
+                    _out << ", ";
+                }
+                _out << "), ctx)";
+                _out.dec();
+            }
+        }
+
+        _out << sp << nl << "def checkedCast(proxy, facet=''):";
+        _out.inc();
+        _out << nl << "return _M_" << fixedScoped << "Prx.ice_checkedCast(proxy, '" << scoped << "', facet)";
+        _out.dec();
+        _out << nl << "checkedCast = staticmethod(checkedCast)";
+
+        _out << sp << nl << "def uncheckedCast(proxy, facet=''):";
+        _out.inc();
+        _out << nl << "return _M_" << fixedScoped << "Prx.ice_uncheckedCast(proxy, facet)";
+        _out.dec();
+        _out << nl << "uncheckedCast = staticmethod(uncheckedCast)";
+
+        _out.dec();
+
+        _out << sp << nl << "_M_" << type << "Prx = IcePy.defineProxy('" << scoped << "', " << fixedName << "Prx)";
+    }
 
     //
     // Emit the type information for a non-local class.
     //
     if(!p->isLocal())
     {
+        if(_classHistory.count(scoped) == 0 && p->canBeCyclic())
+        {
+            //
+            // Emit a forward declaration for the class in case a data member refers to this type.
+            //
+            _out << sp << nl << "_M_" << type << " = IcePy.declareClass('" << scoped << "')";
+        }
+
         DataMemberList members = p->dataMembers();
-        _out << sp << nl << "IcePy.defineClass('" << scoped << "', " << fixedName << ", ";
-        _out << (p->isAbstract() ? "True" : "False") << ", '" << baseScoped << "', (";
+        _out << sp << nl << "_M_" << type << " = IcePy.defineClass('" << scoped << "', " << fixedName << ", "
+             << (p->isAbstract() ? "True" : "False") << ", ";
+        if(baseScoped.empty())
+        {
+            _out << "None";
+        }
+        else
+        {
+            _out << "_M_" << scopedToType(baseScoped);
+        }
+        _out << ", (";
         //
-        // InterfaceIds
+        // Interfaces
         //
         int interfaceCount = 0;
         for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
@@ -485,7 +534,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     _out << ", ";
                 }
-                _out << "'" << (*q)->scoped() << "'";
+                _out << "_M_" << scopedToType((*q)->scoped());
                 ++interfaceCount;
             }
         }
@@ -560,7 +609,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 _out << "Ice.OperationMode.Idempotent";
                 break;
             }
-            _out << ", (";
+            _out << ", " << ((p->hasMetaData("amd") || (*s)->hasMetaData("amd")) ? "True" : "False") << ", (";
             for(t = params.begin(), count = 0; t != params.end(); ++t)
             {
                 if(!(*t)->isOutParam())
@@ -612,7 +661,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     _out << ", ";
                 }
-                _out << "'" << (*u)->scoped() << "'";
+                _out << "_M_" << scopedToType((*u)->scoped());
             }
             if(exceptions.size() == 1)
             {
@@ -623,6 +672,11 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     registerName(fixedName);
+
+    if(!p->isLocal())
+    {
+        registerName(fixedName + "Prx");
+    }
 
     return false;
 }
@@ -716,7 +770,17 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IcePy.defineException('" << scoped << "', " << fixedName << ", '" << baseScoped << "', (";
+        _out << sp << nl << "_M_" << scopedToType(scoped) << " = IcePy.defineException('" << scoped << "', "
+             << fixedName << ", ";
+        if(baseScoped.empty())
+        {
+            _out << "None";
+        }
+        else
+        {
+             _out << "_M_" << scopedToType(baseScoped);
+        }
+        _out << ", (";
         if(members.size() > 1)
         {
             _out.inc();
@@ -789,7 +853,8 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IcePy.defineStruct('" << scoped << "', " << fixedName << ", (";
+        _out << sp << nl << "_M_" << scopedToType(scoped) << " = IcePy.defineStruct('" << scoped << "', "
+             << fixedName << ", (";
         //
         // Data members are represented as a tuple:
         //
@@ -837,7 +902,8 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IcePy.defineSequence('" << p->scoped() << "', ";
+        string scoped = p->scoped();
+        _out << sp << nl << "_M_" << scopedToType(scoped) << " = IcePy.defineSequence('" << scoped << "', ";
         writeType(p->type());
         _out << ")";
     }
@@ -851,7 +917,8 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IcePy.defineDictionary('" << p->scoped() << "', ";
+        string scoped = p->scoped();
+        _out << sp << nl << "_M_" << scopedToType(scoped) << " = IcePy.defineDictionary('" << scoped << "', ";
         writeType(p->keyType());
         _out << ", ";
         writeType(p->valueType());
@@ -923,7 +990,8 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IcePy.defineEnum('" << scoped << "', " << fixedName << ", (";
+        _out << sp << nl << "_M_" << scopedToType(scoped) << " = IcePy.defineEnum('" << scoped << "', " << fixedName
+             << ", (";
         for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
         {
             if(q != enums.begin())
@@ -1131,52 +1199,52 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
         {
             case Builtin::KindBool:
             {
-                _out << "IcePy.T_BOOL";
+                _out << "IcePy._t_bool";
                 break;
             }
             case Builtin::KindByte:
             {
-                _out << "IcePy.T_BYTE";
+                _out << "IcePy._t_byte";
                 break;
             }
             case Builtin::KindShort:
             {
-                _out << "IcePy.T_SHORT";
+                _out << "IcePy._t_short";
                 break;
             }
             case Builtin::KindInt:
             {
-                _out << "IcePy.T_INT";
+                _out << "IcePy._t_int";
                 break;
             }
             case Builtin::KindLong:
             {
-                _out << "IcePy.T_LONG";
+                _out << "IcePy._t_long";
                 break;
             }
             case Builtin::KindFloat:
             {
-                _out << "IcePy.T_FLOAT";
+                _out << "IcePy._t_float";
                 break;
             }
             case Builtin::KindDouble:
             {
-                _out << "IcePy.T_DOUBLE";
+                _out << "IcePy._t_double";
                 break;
             }
             case Builtin::KindString:
             {
-                _out << "IcePy.T_STRING";
+                _out << "IcePy._t_string";
                 break;
             }
             case Builtin::KindObject:
             {
-                _out << "IcePy.T_OBJECT";
+                _out << "IcePy._t_Object";
                 break;
             }
             case Builtin::KindObjectProxy:
             {
-                _out << "IcePy.T_OBJECT_PROXY";
+                _out << "IcePy._t_ObjectPrx";
                 break;
             }
             case Builtin::KindLocalObject:
@@ -1191,13 +1259,13 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
     ProxyPtr prx = ProxyPtr::dynamicCast(p);
     if(prx)
     {
-        _out << "'" << prx->_class()->scoped() << "Prx'";
+        _out << "_M_" << scopedToType(prx->_class()->scoped()) << "Prx";
         return;
     }
 
     ContainedPtr cont = ContainedPtr::dynamicCast(p);
     assert(cont);
-    _out << "'" << cont->scoped() << "'";
+    _out << "_M_" << scopedToType(cont->scoped());
 }
 
 void
@@ -1259,6 +1327,16 @@ Slice::Python::CodeVisitor::writeDefaultValue(const TypePtr& p)
     }
 
     _out << "None";
+}
+
+string
+Slice::Python::CodeVisitor::scopedToType(const string& scoped)
+{
+    string result = scopedToName(scoped);
+    string::size_type pos = result.rfind('.');
+    assert(pos != string::npos);
+    result.insert(pos + 1, "_t_");
+    return result;
 }
 
 void
