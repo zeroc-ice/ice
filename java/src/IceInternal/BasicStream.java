@@ -1023,7 +1023,7 @@ public class BasicStream
     private byte[] _stringBytes; // Reusable array for reading strings
     private char[] _stringChars; // Reusable array for reading strings
 
-    private static class ReadEncaps
+    private static final class ReadEncaps
     {
         int start;
         byte encoding;
@@ -1031,7 +1031,7 @@ public class BasicStream
         ReadEncaps next;
     }
 
-    private static class WriteEncaps
+    private static final class WriteEncaps
     {
         int start;
         byte encoding;

@@ -364,7 +364,7 @@ public final class Network
         return host;
     }
 
-    public static class SocketPair
+    public static final class SocketPair
     {
         public java.nio.channels.spi.AbstractSelectableChannel source;
         public java.nio.channels.WritableByteChannel sink;

@@ -164,7 +164,7 @@ public class IntMap
         return new EntryIterator();
     }
 
-    public static class Entry
+    public static final class Entry
     {
         int key;
         Object value;

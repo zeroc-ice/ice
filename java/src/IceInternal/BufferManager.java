@@ -118,7 +118,7 @@ final class BufferManager
         }
     }
 
-    private static class BufferNode
+    private static final class BufferNode
     {
         java.nio.ByteBuffer buf;
         int capacity;
