@@ -238,7 +238,7 @@ IceUtil::Thread::start(size_t stackSize)
     //
     __incRef();
     
-    _handle->handle = (HANDLE)_beginthreadex(0, stack_size, (unsigned int (__stdcall*)(void*))startHook, (LPVOID)this, 0, &_id);
+    _handle->handle = (HANDLE)_beginthreadex(0, stackSize, (unsigned int (__stdcall*)(void*))startHook, (LPVOID)this, 0, &_id);
     if(_handle->handle == 0)
     {
 	__decRef();
