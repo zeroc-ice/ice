@@ -1,17 +1,17 @@
-// **********************************************************************
-//
-// Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
-//
-// **********************************************************************
+/************************************************************************
+ *
+ * Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+ *
+ * This copy of Ice is licensed to you under the terms described in the
+ * ICE_LICENSE file included in this distribution.
+ *
+ ************************************************************************/
 
 #ifndef PHP_ICE_H
 #define PHP_ICE_H
 
 #define ICEPHP_STRING_VERSION "1.1.1"
-#define ICEPHP_INT_VERSION 10101      // AABBCC, with AA=major, BB=minor, CC=patch
+#define ICEPHP_INT_VERSION 10101      /* AABBCC, with AA=major, BB=minor, CC=patch */
 
 /*
  * This file may be included by PHP's build system, therefore we have

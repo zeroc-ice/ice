@@ -9,6 +9,7 @@
 # **********************************************************************
 
 import os, sys
+import getopt
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -19,6 +20,30 @@ else:
 
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
+
+def runTests(tests, num = 0):
+
+    #
+    # Run each of the tests.
+    #
+    for i in tests:
+
+	i = os.path.normpath(i)
+	dir = os.path.join(toplevel, "test", i)
+
+	print
+	if(num > 0):
+	    print "[" + str(num) + "]",
+	print "*** running tests in " + dir,
+	print
+
+        status = os.system(os.path.join(dir, "run.py"))
+
+	if status and not (sys.platform.startswith("aix") and status == 256):
+	    if(num > 0):
+		print "[" + str(num) + "]",
+	    print "test in " + dir + " failed with exit status", status,
+	    sys.exit(status)
 
 #
 # List of all basic tests.
@@ -33,32 +58,27 @@ tests = [ \
     "Ice/slicing/objects", \
     ]
 
-#
-# The user can supply a subset of tests on the command line.
-#
-if sys.argv[1:]:
-    print "limiting tests"
-    newtests = []
-    for i in tests:
-	if i in sys.argv[1:]:
-	    newtests.append(i)
-    tests = newtests
+def usage():
+    print "usage: " + sys.argv[0] + " [-l]"
+    sys.exit(2)
 
-#
-# Run each of the tests.
-#
-for i in tests:
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "l")
+except getopt.GetoptError:
+    usage()
 
-    i = os.path.normpath(i)
-    dir = os.path.join(toplevel, "test", i)
+if(args):
+    usage()
 
-    print
-    print "*** running tests in " + dir + ":"
-    print
-
-    try:
-        execfile(os.path.join(dir, "run.py"))
-    except SystemExit, (status,):
-        if status:
-            print "test failed with exit status", status
-            sys.exit(status)
+loop = 0
+for o, a in opts:
+    if o == "-l":
+        loop = 1
+    
+if loop:
+    num = 1
+    while 1:
+	runTests(tests, num)
+	num += 1
+else:
+    runTests(tests)

@@ -8,7 +8,7 @@ Requirements
 
 
 =========================================================================
-Building PHP with the Ice extension (Linux/Solaris/HP-UX/MacOS X)
+Building PHP with the Ice extension (Linux/Solaris/HP-UX/MacOS X/AIX)
 =========================================================================
 
 PHP's build system can create several versions of the PHP interpreter.
@@ -87,7 +87,7 @@ Please refer to the PHP documentation for more information.
 Source patches
 --------------
 
-Co source patches are necessary to compile PHP 5.0.0 on the supported
+No source patches are necessary to compile PHP 5.0.0 on the supported
 platforms.
 
 Platform-specific Issues
@@ -203,6 +203,39 @@ the file <phpdir>/Makefile and make the following changes:
 - If a Web server module is being built, search for the line beginning
   with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
   well as in the rule for "libs/libphp5.bundle" below.
+
+
+
+=========================================================================
+Additional Requirements for AIX with VisualAge 6.0
+=========================================================================
+
+The Ice extension currently cannot be used in a dynamic configuration.
+To build the Ice extension in a static configuration:
+
+- Edit the file <phpdir>/libtool, search for the line beginning with
+  "archive_cmds=", and change \$LD to \$CXX.
+
+- Edit the file <phpdir>/Makefile and make the following changes:
+
+  - Add a definition for EXTRA_CXXFLAGS. For 32-bit platforms, use the
+    following setting:
+
+    EXTRA_CXXFLAGS = -brtl -qrtti=all -qstaticinline -D_LARGE_FILES
+
+    For 64-bit platforms, use this setting:
+
+    EXTRA_CXXFLAGS = -brtl -qrtti=all -qstaticinline
+
+  - If the command-line interpreter is being built, search for the
+    definition of the BUILD_CLI variable and change "$(CC)" to "$(CXX)".
+
+  - If the CGI interpreter is being built, search for the definition of
+    the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
+
+  - If a Web server module is being built, search for the line beginning
+    with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
+    well as in the rule for "libs/libphp5.bundle" below.
 
 
 
