@@ -1124,6 +1124,7 @@ Transform::InitVisitor::visitEnum(const EnumPtr& v)
     }
 
     _out.nl();
+    _out.nl();
     _out << "<!-- enum " << scoped << " -->";
     _out << se("init") << attr("type", scoped);
     _out << ee;
