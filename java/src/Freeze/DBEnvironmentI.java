@@ -33,50 +33,28 @@ class DBEnvironmentI extends Ice.LocalObjectImpl implements DBEnvironment, com.s
     synchronized public DB
     openDB(String name, boolean create)
     {
-	if(_dbEnv == null)
-	{
-	    DBException ex = new DBException();
-	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
-	    throw ex;
-	}
-
-	DB p = (DB)_dbMap.get(name);
-	if(p != null)
-	{
-	    return p;
-	}
-
-	com.sleepycat.db.Db db;
-	
-	try
-	{
-	    db = new com.sleepycat.db.Db(_dbEnv, 0);
-	}
-	catch(com.sleepycat.db.DbException e)
-	{
-	    DBException ex = new DBException();
-	    ex.initCause(e);
-	    ex.message = _errorPrefix + "Db.Db: " + e.getMessage();
-	    throw ex;
-	}
-	
-	try
-	{
-	    return new DBI(_communicator, this, db, name, create);
-	}
-	catch(DBException e)
-	{
-	    try
-	    {
-		db.close(0);
-	    }
-	    catch(com.sleepycat.db.DbException ignore)
-	    {
-	    }
-	    throw e;
-	}
+	return openDBImpl(null, name, create);
     }
 
+    synchronized public DB
+    openDBWithTxn(DBTransaction t, String name, boolean create)
+    {
+	DBTransaction txn = t;
+	if(t == null)
+	{
+	    txn = startTransaction();
+	}
+
+	DB db = openDBImpl(((DBTransactionI)txn).getTxnId(), name, create);
+
+	if(t == null)
+	{
+	    txn.commit();
+	}
+
+	return db;
+    }
+    
     public DBTransaction
     startTransaction()
     {
@@ -146,6 +124,53 @@ class DBEnvironmentI extends Ice.LocalObjectImpl implements DBEnvironment, com.s
 	{
             DB db = (DB)p.next();
 	    db.sync();
+	}
+    }
+
+    protected DB
+    openDBImpl(com.sleepycat.db.DbTxn txn, String name, boolean create)
+    {
+	if(_dbEnv == null)
+	{
+	    DBException ex = new DBException();
+	    ex.message = _errorPrefix + "\"" + _name + "\" has been closed";
+	    throw ex;
+	}
+
+	DB p = (DB)_dbMap.get(name);
+	if(p != null)
+	{
+	    return p;
+	}
+
+	com.sleepycat.db.Db db;
+	
+	try
+	{
+	    db = new com.sleepycat.db.Db(_dbEnv, 0);
+	}
+	catch(com.sleepycat.db.DbException e)
+	{
+	    DBException ex = new DBException();
+	    ex.initCause(e);
+	    ex.message = _errorPrefix + "Db.Db: " + e.getMessage();
+	    throw ex;
+	}
+	
+	try
+	{
+	    return new DBI(_communicator, this, db, txn, name, create);
+	}
+	catch(DBException e)
+	{
+	    try
+	    {
+		db.close(0);
+	    }
+	    catch(com.sleepycat.db.DbException ignore)
+	    {
+	    }
+	    throw e;
 	}
     }
 

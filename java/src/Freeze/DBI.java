@@ -97,36 +97,42 @@ class DBI extends Ice.LocalObjectImpl implements DB
     synchronized public DBCursor
     getCursorWithTxn(DBTransaction txn)
     {
+	assert txn != null;
 	return getCursorImpl(((DBTransactionI)txn).getTxnId());
     }
     
     synchronized public DBCursor
     getCursorAtKeyWithTxn(DBTransaction txn, byte[] key)
     {
+	assert txn != null;
 	return getCursorAtKeyImpl(((DBTransactionI)txn).getTxnId(), key);
     }
 
     synchronized public void
     putWithTxn(DBTransaction txn, byte[] key, byte[] value)
     {
+	assert txn != null;
 	putImpl(((DBTransactionI)txn).getTxnId(), key, value);
     }
 
     synchronized public boolean
     containsWithTxn(DBTransaction txn, byte[] key)
     {
+	assert txn != null;
 	return containsImpl(((DBTransactionI)txn).getTxnId(), key);
     }
 
     synchronized public byte[]
     getWithTxn(DBTransaction txn, byte[] key)
     {
+	assert txn != null;
 	return getImpl(((DBTransactionI)txn).getTxnId(), key);
     }
 
     synchronized public void
     delWithTxn(DBTransaction txn, byte[] key)
     {
+	assert txn != null;
 	delImpl(((DBTransactionI)txn).getTxnId(), key);
     }
 
@@ -267,7 +273,8 @@ class DBI extends Ice.LocalObjectImpl implements DB
 	return new EvictorI(this, persistenceMode);
     }
 
-    DBI(Ice.Communicator communicator, DBEnvironmentI dbEnvObj, com.sleepycat.db.Db db, String name, boolean create)
+    DBI(Ice.Communicator communicator, DBEnvironmentI dbEnvObj, com.sleepycat.db.Db db, com.sleepycat.db.DbTxn txn,
+	String name, boolean create)
     {
 	_communicator = communicator;
 	_dbEnvObj = dbEnvObj;
@@ -303,7 +310,7 @@ class DBI extends Ice.LocalObjectImpl implements DB
                 types[4] = Integer.TYPE;
                 types[5] = Integer.TYPE;
                 args = new Object[6];
-                args[0] = null;
+                args[0] = txn;
                 args[1] = _name;
                 args[2] = null;
                 args[3] = new Integer(com.sleepycat.db.Db.DB_BTREE);

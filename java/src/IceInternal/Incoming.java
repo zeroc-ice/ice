@@ -300,12 +300,7 @@ public class Incoming
 
 	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		String s = "dispatch exception: unknown local exception:\n" + sw.toString();
-		_os.instance().logger().warning(s);
+		warning("dispatch exception: unknown local exception:", ex);
 	    }
 
 	    return;
@@ -335,12 +330,7 @@ public class Incoming
 	    
 	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 	    {
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		String s = "dispatch exception: unknown exception\n" + sw.toString();
-		_os.instance().logger().warning(s);
+		warning("dispatch exception: unknown exception:", ex);
 	    }
 
 	    return;
@@ -390,6 +380,24 @@ public class Incoming
     os()
     {
         return _os;
+    }
+
+    private void
+    warning(String s, Exception ex)
+    {
+	java.io.StringWriter sw = new java.io.StringWriter();
+	java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+	out.setUseTab(false);
+	out.print(s);
+	out.print("\nidentity: " + Ice.Util.identityToString(_current.id));
+	out.print("\nfacet: ");
+	IceInternal.ValueWriter.write(_current.facet, out);
+	out.print("\noperation: " + _current.operation);
+	out.print("\n");
+	ex.printStackTrace(pw);
+	pw.flush();
+	_os.instance().logger().warning(sw.toString());
     }
 
     private BasicStream _is;
