@@ -17,6 +17,32 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
 
+class CalcCB : public GetFileInfoSeqCB
+{
+public:
+
+    virtual bool
+    remove(const string& path)
+    {
+	cout << "removing: " << path << endl;
+	return true;
+    }
+
+    virtual bool
+    checksum(const string& path)
+    {
+	cout << "checksum: " << path << endl;
+	return true;
+    }
+
+    virtual bool
+    compress(const string& path)
+    {
+	cout << "compress: " << path << endl;
+	return true;
+    }
+};
+
 void
 usage(const char* appName)
 {
@@ -25,7 +51,8 @@ usage(const char* appName)
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
-        "-z, --bzip2          Compress files.\n"
+        "-z, --compress       Always compress files.\n"
+        "-Z, --no-compress    Never compress files.\n"
         "-V, --verbose        Verbose mode.\n"
         ;
 }
@@ -34,7 +61,7 @@ int
 main(int argc, char* argv[])
 {
     string dataDir;
-    bool compress = false;
+    int mode = 1;
     bool verbose = false;
 
     int i;
@@ -50,9 +77,13 @@ main(int argc, char* argv[])
             cout << ICE_STRING_VERSION << endl;
             return EXIT_SUCCESS;
         }
-        else if(strcmp(argv[i], "-z") == 0 || strcmp(argv[i], "--bzip2") == 0)
+        else if(strcmp(argv[i], "-z") == 0 || strcmp(argv[i], "--compress") == 0)
         {
-            compress = true;
+            mode = 2;
+        }
+        else if(strcmp(argv[i], "-Z") == 0 || strcmp(argv[i], "--no-compress") == 0)
+        {
+            mode = 0;
         }
         else if(strcmp(argv[i], "-V") == 0 || strcmp(argv[i], "--verbose") == 0)
         {
@@ -93,21 +124,33 @@ main(int argc, char* argv[])
 	{
 	    char cwd[_MAX_PATH];
 	    if(_getcwd(cwd, _MAX_PATH) == NULL)
+y	    {
+		throw "cannot get the current directory:\n" + lastError();
+	    }
+	    
+	    dataDir = string(cwd) + '/' + dataDir;
+	}
 #else
 	if(dataDir[0] != '/')
 	{
 	    char cwd[PATH_MAX];
 	    if(getcwd(cwd, PATH_MAX) == NULL)
-#endif
 	    {
 		throw "cannot get the current directory:\n" + lastError();
 	    }
 	    
 	    dataDir = string(cwd) + '/' + dataDir;
 	}
+#endif
 
 	FileInfoSeq infoSeq;
-	getFileInfoSeq(dataDir, infoSeq, true, compress, verbose);
+
+	CalcCB calcCB;
+	if(!getFileInfoSeq(dataDir, mode, verbose ? &calcCB : 0, infoSeq))
+	{
+	    return EXIT_FAILURE;
+	}
+
 	saveFileInfoSeq(dataDir, infoSeq);
     }
     catch(const string& ex)

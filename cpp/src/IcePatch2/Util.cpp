@@ -652,11 +652,10 @@ IcePatch2::decompressFile(const string& pa)
     fclose(stdioFileBZ2);
 }
 
-static void
-getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileInfoSeq& infoSeq,
-		       bool size, bool compress, bool verbose)
+static bool
+getFileInfoSeqInt(const string& basePath, const string& relPath, int mode, GetFileInfoSeqCB* cb, FileInfoSeq& infoSeq)
 {
-    const string path = basePath + '/' + relativePath;
+    const string path = basePath + '/' + relPath;
 
     if(ignoreSuffix(path))
     {
@@ -664,13 +663,12 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
 
 	if(ignoreSuffix(pathWithoutSuffix))
 	{
-	    if(verbose)
+	    if(cb && !cb->remove(relPath))
 	    {
-		cout << path << ": removing " << getSuffix(path) << " file for "
-		     << getSuffix(pathWithoutSuffix) << " file" << endl;
+		return false;
 	    }
 
-	    remove(path);
+	    remove(path); // Removing file with suffix for another file that already has a suffix.
 	}
 	else
 	{
@@ -679,11 +677,12 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
 	    {
 		if(errno == ENOENT)
 		{
-		    if(verbose)
+		    if(cb && !cb->remove(relPath))
 		    {
-			cout << path << ": removing orphaned " << getSuffix(path) << " file" << endl;
+			return false;
 		    }
-		    remove(path);
+
+		    remove(path); // Removing orphaned file.
 		}
 		else
 		{
@@ -692,152 +691,151 @@ getFileInfoSeqInternal(const string& basePath, const string& relativePath, FileI
 	    }
 	    else if(buf.st_size == 0)
 	    {
-		if(verbose)
+		if(cb && !cb->remove(relPath))
 		{
-		    cout << path << ": removing " << getSuffix(path) << " file for empty file" << endl;
-		}
-		remove(path);
-	    }
-	}
-
-	return;
-    }
-
-    struct stat buf;
-    if(stat(path.c_str(), &buf) == -1)
-    {
-	throw "cannot stat `" + path + "':\n" + lastError();
-    }
-
-    if(S_ISDIR(buf.st_mode))
-    {
-	FileInfo info;
-	info.path = relativePath;
-	info.size = -1;
-
-	ByteSeq bytes(relativePath.size());
-	copy(relativePath.begin(), relativePath.end(), bytes.begin());
-
-	ByteSeq bytesSHA(20);
-	if(!bytes.empty())
-	{
-	    SHA1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(),
-		 reinterpret_cast<unsigned char*>(&bytesSHA[0]));
-	}
-	else
-	{
-	    fill(bytesSHA.begin(), bytesSHA.end(), 0);
-	}
-	info.checksum.swap(bytesSHA);
-
-	infoSeq.push_back(info);
-
-	StringSeq content = readDirectory(path);
-	for(StringSeq::const_iterator p = content.begin(); p != content.end() ; ++p)
-	{
-	    getFileInfoSeqInternal(basePath, normalize(relativePath + '/' + *p), infoSeq, size, compress, verbose);
-	}
-    }
-    else if(S_ISREG(buf.st_mode))
-    {
-	FileInfo info;
-	info.path = relativePath;
-	info.size = 0;
-
-	ByteSeq bytes(relativePath.size() + buf.st_size);
-	copy(relativePath.begin(), relativePath.end(), bytes.begin());
-
-	if(buf.st_size != 0)
-	{
-	    if(verbose)
-	    {
-		if(compress)
-		{
-		    cout << path << ": calculating checksum and compressing file" << endl;
-		}
-		else
-		{
-		    cout << path << ": calculating checksum" << endl;
-		}
-	    }
-
-#ifdef _WIN32
-	    int fd = open(path.c_str(), _O_RDONLY | _O_BINARY);
-#else
-	    int fd = open(path.c_str(), O_RDONLY);
-#endif
-	    if(fd == -1)
-	    {
-		throw "cannot open `" + path + "' for reading:\n" + lastError();
-	    }
-
-	    if(read(fd, &bytes[relativePath.size()], buf.st_size) == -1)
-	    {
-		close(fd);
-		throw "cannot read from `" + path + "':\n" + lastError();
-	    }
-
-	    close(fd);
-
-	    if(compress)
-	    {
-		string pathBZ2 = path + ".bz2";
-		compressBytesToFile(pathBZ2, bytes, relativePath.size());
-	    }
-
-	    if(size)
-	    {
-		string pathBZ2 = path + ".bz2";
-
-		struct stat bufBZ2;
-		if(stat(pathBZ2.c_str(), &bufBZ2) == -1)
-		{
-		    throw "cannot stat `" + pathBZ2 + "':\n" + lastError();
+		    return false;
 		}
 
-		info.size = bufBZ2.st_size;
+		remove(path); // Removing file with suffix for empty file.
 	    }
 	}
-	else
-	{
-	    if(verbose)
-	    {
-		cout << path << ": calculating checksum for empty file" << endl;
-	    }
-	}
-
-	ByteSeq bytesSHA(20);
-	if(!bytes.empty())
-	{
-	    SHA1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(),
-		 reinterpret_cast<unsigned char*>(&bytesSHA[0]));
-	}
-	else
-	{
-	    fill(bytesSHA.begin(), bytesSHA.end(), 0);
-	}
-	info.checksum.swap(bytesSHA);
-
-	infoSeq.push_back(info);
     }
     else
     {
-	if(verbose)
+	struct stat buf;
+	if(stat(path.c_str(), &buf) == -1)
 	{
-	    cout << path << ": ignoring unknown file type" << endl;
+	    throw "cannot stat `" + path + "':\n" + lastError();
+	}
+
+	if(S_ISDIR(buf.st_mode))
+	{
+	    FileInfo info;
+	    info.path = relPath;
+	    info.size = -1;
+
+	    ByteSeq bytes(relPath.size());
+	    copy(relPath.begin(), relPath.end(), bytes.begin());
+
+	    ByteSeq bytesSHA(20);
+	    if(!bytes.empty())
+	    {
+		SHA1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(),
+		     reinterpret_cast<unsigned char*>(&bytesSHA[0]));
+	    }
+	    else
+	    {
+		fill(bytesSHA.begin(), bytesSHA.end(), 0);
+	    }
+	    info.checksum.swap(bytesSHA);
+
+	    infoSeq.push_back(info);
+
+	    StringSeq content = readDirectory(path);
+	    for(StringSeq::const_iterator p = content.begin(); p != content.end() ; ++p)
+	    {
+		if(!getFileInfoSeqInt(basePath, normalize(relPath + '/' + *p), mode, cb, infoSeq))
+		{
+		    return false;
+		}
+	    }
+	}
+	else if(S_ISREG(buf.st_mode))
+	{
+	    FileInfo info;
+	    info.path = relPath;
+	    info.size = 0;
+
+	    ByteSeq bytes(relPath.size() + buf.st_size);
+	    copy(relPath.begin(), relPath.end(), bytes.begin());
+
+	    if(buf.st_size != 0)
+	    {
+#ifdef _WIN32
+		int fd = open(path.c_str(), _O_RDONLY | _O_BINARY);
+#else
+		int fd = open(path.c_str(), O_RDONLY);
+#endif
+		if(fd == -1)
+		{
+		    throw "cannot open `" + path + "' for reading:\n" + lastError();
+		}
+
+		if(read(fd, &bytes[relPath.size()], buf.st_size) == -1)
+		{
+		    close(fd);
+		    throw "cannot read from `" + path + "':\n" + lastError();
+		}
+
+		close(fd);
+
+		//
+		// mode == 0: Never compress.
+		// mode == 1: Compress if necessary.
+		// mode >= 2: Always compress.
+		//
+		if(mode > 0)
+		{
+		    string pathBZ2 = path + ".bz2";
+		    struct stat bufBZ2;
+
+		    if(mode >= 2 || stat(pathBZ2.c_str(), &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
+		    {
+			if(cb && !cb->compress(relPath))
+			{
+			    return false;
+			}
+			
+			compressBytesToFile(pathBZ2, bytes, relPath.size());
+			
+			if(stat(pathBZ2.c_str(), &bufBZ2) == -1)
+			{
+			    throw "cannot stat `" + pathBZ2 + "':\n" + lastError();
+			}
+		    }
+
+		    info.size = bufBZ2.st_size;
+		}
+	    }
+
+	    if(cb && !cb->checksum(relPath))
+	    {
+		return false;
+	    }
+
+	    ByteSeq bytesSHA(20);
+	    if(!bytes.empty())
+	    {
+		SHA1(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(),
+		     reinterpret_cast<unsigned char*>(&bytesSHA[0]));
+	    }
+	    else
+	    {
+		fill(bytesSHA.begin(), bytesSHA.end(), 0);
+	    }
+	    info.checksum.swap(bytesSHA);
+
+	    infoSeq.push_back(info);
 	}
     }
+
+    return true;
 }
 
-void
-IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool size, bool compress, bool verbose)
+bool
+IcePatch2::getFileInfoSeq(const string& pa, int mode, GetFileInfoSeqCB* cb, FileInfoSeq& infoSeq)
 {
     const string path = normalize(pa);
 
-    getFileInfoSeqInternal(path, ".", infoSeq, size, compress, verbose);
+    if(!getFileInfoSeqInt(path, ".", mode, cb, infoSeq))
+    {
+	return false;
+    }
 
     sort(infoSeq.begin(), infoSeq.end(), FileInfoLess());
     infoSeq.erase(unique(infoSeq.begin(), infoSeq.end(), FileInfoEqual()), infoSeq.end());
+
+    return true;
 }
 
 void

@@ -248,6 +248,7 @@ IcePatch2:
     Directory
     Endpoints
     PublishedEndpoints
+    Remove
     Thorough
     ThreadPool.Size
     ThreadPool.SizeMax

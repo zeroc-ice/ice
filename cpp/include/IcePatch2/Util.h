@@ -103,7 +103,18 @@ struct FileInfoLess: public std::binary_function<const FileInfo&, const FileInfo
     }
 };
 
-ICE_PATCH2_API void getFileInfoSeq(const std::string&, FileInfoSeq&, bool, bool, bool);
+class ICE_PATCH2_API GetFileInfoSeqCB
+{
+public:
+
+    virtual ~GetFileInfoSeqCB() { }
+
+    virtual bool remove(const std::string&) = 0;
+    virtual bool checksum(const std::string&) = 0;
+    virtual bool compress(const std::string&) = 0;
+};
+
+ICE_PATCH2_API bool getFileInfoSeq(const std::string&, int mode, GetFileInfoSeqCB*, FileInfoSeq&);
 ICE_PATCH2_API void saveFileInfoSeq(const std::string&, const FileInfoSeq&);
 ICE_PATCH2_API void loadFileInfoSeq(const std::string&, FileInfoSeq&);
 

@@ -144,7 +144,8 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
     _feedback(feedback),
     _dataDir(normalize(communicator->getProperties()->getProperty("IcePatch2.Directory"))),
     _thorough(communicator->getProperties()->getPropertyAsInt("IcePatch2.Thorough") > 0),
-    _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100000))
+    _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100000)),
+    _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.Remove", 1))
 {
     if(_dataDir.empty())
     {
@@ -199,6 +200,38 @@ IcePatch2::Patcher::~Patcher()
 {
 }
 
+class PatcherGetFileInfoSeqCB : public GetFileInfoSeqCB
+{
+public:
+
+    PatcherGetFileInfoSeqCB(const PatcherFeedbackPtr& feedback) :
+	_feedback(feedback)
+    {
+    }
+
+    virtual bool
+    remove(const string&)
+    {
+	return true;
+    }
+
+    virtual bool
+    checksum(const string& path)
+    {
+	return _feedback->checksumProgress(path);
+    }
+
+    virtual bool compress(const string&)
+    {
+	assert(false); // Nothing must get compressed when we are patching.
+	return true;
+    }
+
+private:
+    
+    const PatcherFeedbackPtr _feedback;
+};
+
 bool
 IcePatch2::Patcher::prepare()
 {
@@ -224,7 +257,22 @@ IcePatch2::Patcher::prepare()
     
     if(thorough)
     {
-	getFileInfoSeq(_dataDir, _localFiles, false, false, false);
+	if(!_feedback->checksumStart())
+	{
+	    return false;
+	}
+
+	PatcherGetFileInfoSeqCB cb(_feedback);
+	if(!getFileInfoSeq(_dataDir, 0, &cb, _localFiles))
+	{
+	    return false;
+	}
+
+	if(!_feedback->checksumEnd())
+	{
+	    return false;	   
+	}
+
 	saveFileInfoSeq(_dataDir, _localFiles);
     }
 
@@ -381,10 +429,25 @@ IcePatch2::Patcher::finish()
 bool
 IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
 {
+    if(_remove < 1)
+    {
+	return true;
+    }
+
     for(FileInfoSeq::const_reverse_iterator p = files.rbegin(); p != files.rend(); ++p)
     {
-	remove(_dataDir + '/' + p->path);
-	_log << '-' << *p << endl;
+	try
+	{
+	    remove(_dataDir + '/' + p->path);
+	    _log << '-' << *p << endl;
+	}
+	catch(...)
+	{
+	    if(_remove < 2) // We ignore errors if IcePatch2.Remove >= 2.
+	    {
+		throw;
+	    }
+	}
     }
     
     FileInfoSeq newLocalFiles;

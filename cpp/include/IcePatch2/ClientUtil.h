@@ -24,6 +24,10 @@ public:
 
     virtual bool noFileSummary(const std::string&) = 0;
 
+    virtual bool checksumStart() = 0;
+    virtual bool checksumProgress(const std::string&) = 0;
+    virtual bool checksumEnd() = 0;
+
     virtual bool fileListStart() = 0;
     virtual bool fileListProgress(Ice::Int) = 0;
     virtual bool fileListEnd() = 0;
@@ -72,6 +76,7 @@ private:
     const std::string _dataDir;
     const bool _thorough;
     const Ice::Int _chunkSize;
+    const Ice::Int _remove;
     const FileServerPrx _serverCompress;
     const FileServerPrx _serverNoCompress;
 
