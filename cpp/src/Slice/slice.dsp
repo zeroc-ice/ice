@@ -166,6 +166,10 @@ SOURCE=..\..\incluce\Slice\CsUtil.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Slice\DotNetNames.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Grammar.h
 # End Source File
 # Begin Source File

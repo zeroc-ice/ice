@@ -541,7 +541,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 			}
 			else
 			{
-			    out << typeToString(seq);
+			    out << typeToString(seq) << "(__len);";
 			}
 			out << nl << "for(int __i = 0; __i < __len; ++__i)";
 			out << sb;
@@ -556,7 +556,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 			}
 			else
 			{
-			    out << typeToString(seq);
+			    out << typeToString(seq) << "(__len);";
 			}
 			out << nl << "for(int __i = 0; __i < __len; ++__i)";
 			out << sb;
@@ -662,7 +662,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    }
 	    else
 	    {
-		out << typeS << "(sz)";
+		out << fixId(seq->scoped()) << "(sz)";
 	    }
 	    out << ';';
 	    out << nl << "for(int __i = 0; __i < " << param << '.' << limitID << "; ++__i)";
