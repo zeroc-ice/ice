@@ -13,8 +13,7 @@ package IceInternal;
 public final class Outgoing
 {
     public
-    Outgoing(Connection connection, Reference ref, String operation,
-             boolean nonmutating, java.util.Map context)
+    Outgoing(Connection connection, Reference ref, String operation, boolean nonmutating, java.util.Map context)
     {
         _connection = connection;
         _reference = ref;
@@ -22,54 +21,17 @@ public final class Outgoing
         _is = new BasicStream(ref.instance);
         _os = new BasicStream(ref.instance);
 
-        switch (_reference.mode)
-        {
-            case Reference.ModeTwoway:
-            case Reference.ModeOneway:
-            case Reference.ModeDatagram:
-            {
-                _connection.prepareRequest(this);
-                break;
-            }
+        writeHeader(operation, nonmutating, context);
+    }
 
-            case Reference.ModeBatchOneway:
-            case Reference.ModeBatchDatagram:
-            {
-                _connection.prepareBatchRequest(this);
-                break;
-            }
-        }
+    public void
+    reset(String operation, boolean nonmutating, java.util.Map context)
+    {
+        _state = StateUnsent;
+        _is.reset();
+        _os.reset();
 
-        _reference.identity.__write(_os);
-        _os.writeString(_reference.facet);
-        _os.writeString(operation);
-        _os.writeBool(nonmutating);
-        if (context == null)
-        {
-            _os.writeSize(0);
-        }
-        else
-        {
-            final int sz = context.size();
-            _os.writeSize(sz);
-            if (sz > 0)
-            {
-                java.util.Iterator i = context.entrySet().iterator();
-                while (i.hasNext())
-                {
-                    java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
-                    _os.writeString((String)entry.getKey());
-                    _os.writeString((String)entry.getValue());
-                }
-            }
-        }
-
-        //
-        // Input and output parameters are always sent in an
-        // encapsulation, which makes it possible to forward requests as
-        // blobs.
-        //
-        _os.startWriteEncaps();
+        writeHeader(operation, nonmutating, context);
     }
 
     public void
@@ -320,6 +282,59 @@ public final class Outgoing
         return _os;
     }
 
+    private void
+    writeHeader(String operation, boolean nonmutating, java.util.Map context)
+    {
+        switch (_reference.mode)
+        {
+            case Reference.ModeTwoway:
+            case Reference.ModeOneway:
+            case Reference.ModeDatagram:
+            {
+                _connection.prepareRequest(this);
+                break;
+            }
+
+            case Reference.ModeBatchOneway:
+            case Reference.ModeBatchDatagram:
+            {
+                _connection.prepareBatchRequest(this);
+                break;
+            }
+        }
+
+        _reference.identity.__write(_os);
+        _os.writeString(_reference.facet);
+        _os.writeString(operation);
+        _os.writeBool(nonmutating);
+        if (context == null)
+        {
+            _os.writeSize(0);
+        }
+        else
+        {
+            final int sz = context.size();
+            _os.writeSize(sz);
+            if (sz > 0)
+            {
+                java.util.Iterator i = context.entrySet().iterator();
+                while (i.hasNext())
+                {
+                    java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
+                    _os.writeString((String)entry.getKey());
+                    _os.writeString((String)entry.getValue());
+                }
+            }
+        }
+
+        //
+        // Input and output parameters are always sent in an
+        // encapsulation, which makes it possible to forward requests as
+        // blobs.
+        //
+        _os.startWriteEncaps();
+    }
+
     private Connection _connection;
     private Reference _reference;
     private Ice.LocalException _exception;
@@ -334,4 +349,6 @@ public final class Outgoing
 
     private BasicStream _is;
     private BasicStream _os;
+
+    public Outgoing next; // For use by Ice._ObjectDelM
 }

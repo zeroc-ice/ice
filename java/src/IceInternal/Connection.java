@@ -54,19 +54,20 @@ public final class Connection extends EventHandler
         }
     }
 
+    private final static byte[] _requestHdr =
+    {
+        Protocol.protocolVersion,
+        Protocol.encodingVersion,
+        Protocol.requestMsg,
+        (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder)
+        (byte)0, (byte)0, (byte)0, (byte)0  // Request ID (placeholder)
+    };
+
     public void
     prepareRequest(Outgoing out)
     {
         BasicStream os = out.os();
-        final byte[] arr =
-        {
-            Protocol.protocolVersion,
-            Protocol.encodingVersion,
-            Protocol.requestMsg,
-            (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder)
-            (byte)0, (byte)0, (byte)0, (byte)0  // Request ID (placeholder)
-        };
-        os.writeBlob(arr);
+        os.writeBlob(_requestHdr);
     }
 
     public void
@@ -117,7 +118,7 @@ public final class Connection extends EventHandler
             //
             if (!_endpoint.datagram() && !oneway)
             {
-                _requests.put(new Integer(requestId), out);
+                _requests.put(requestId, out);
             }
         }
         finally
@@ -125,6 +126,14 @@ public final class Connection extends EventHandler
             _mutex.unlock();
         }
     }
+
+    private final static byte[] _batchRequestHdr =
+    {
+        Protocol.protocolVersion,
+        Protocol.encodingVersion,
+        Protocol.requestBatchMsg,
+        (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder)
+    };
 
     public void
     prepareBatchRequest(Outgoing out)
@@ -145,14 +154,7 @@ public final class Connection extends EventHandler
 
         if (_batchStream.size() == 0)
         {
-            final byte[] arr =
-            {
-                Protocol.protocolVersion,
-                Protocol.encodingVersion,
-                Protocol.requestBatchMsg,
-                (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder)
-            };
-            _batchStream.writeBlob(arr);
+            _batchStream.writeBlob(_batchRequestHdr);
         }
 
         //
@@ -306,10 +308,18 @@ public final class Connection extends EventHandler
         _transceiver.read(stream, 0);
     }
 
+    private final static byte[] _replyHdr =
+    {
+        Protocol.protocolVersion,
+        Protocol.encodingVersion,
+        Protocol.replyMsg,
+        (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder)
+    };
+
     public void
     message(BasicStream stream)
     {
-        boolean invoke = false;
+        Incoming in = null;
         boolean batch = false;
 
         _mutex.lock();
@@ -343,7 +353,7 @@ public final class Connection extends EventHandler
                         else
                         {
                             TraceUtil.traceRequest("received request", stream, _logger, _traceLevels);
-                            invoke = true;
+                            in = getIncoming();
                         }
                         break;
                     }
@@ -359,7 +369,7 @@ public final class Connection extends EventHandler
                         else
                         {
                             TraceUtil.traceBatchRequest("received batch request", stream, _logger, _traceLevels);
-                            invoke = true;
+                            in = getIncoming();
                             batch = true;
                         }
                         break;
@@ -369,7 +379,7 @@ public final class Connection extends EventHandler
                     {
                         TraceUtil.traceReply("received reply", stream, _logger, _traceLevels);
                         int requestId = stream.readInt();
-                        Outgoing out = (Outgoing)_requests.remove(new Integer(requestId));
+                        Outgoing out = (Outgoing)_requests.remove(requestId);
                         if (out == null)
                         {
                             throw new Ice.UnknownRequestIdException();
@@ -420,9 +430,8 @@ public final class Connection extends EventHandler
         // Method invocation must be done outside the thread
         // synchronization, so that nested callbacks are possible.
         //
-        if (invoke)
+        if (in != null)
         {
-            Incoming in = new Incoming(_instance, _adapter);
             try
             {
                 BasicStream is = in.is();
@@ -440,14 +449,7 @@ public final class Connection extends EventHandler
                         {
                             response = true;
                             ++_responseCount;
-                            final byte[] arr =
-                            {
-                                Protocol.protocolVersion,
-                                Protocol.encodingVersion,
-                                Protocol.replyMsg,
-                                (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder)
-                            };
-                            os.writeBlob(arr);
+                            os.writeBlob(_replyHdr);
                             os.writeInt(requestId);
                         }
                     }
@@ -461,6 +463,8 @@ public final class Connection extends EventHandler
                         catch (Ice.LocalException ex)
                         {
                             _mutex.lock();
+                            reclaimIncoming(in);
+                            in = null;
                             try
                             {
                                 if (_warn)
@@ -476,6 +480,8 @@ public final class Connection extends EventHandler
                         catch (Exception ex)
                         {
                             _mutex.lock();
+                            reclaimIncoming(in);
+                            in = null;
                             try
                             {
                                 if (_warn)
@@ -494,6 +500,8 @@ public final class Connection extends EventHandler
                 catch (Ice.LocalException ex)
                 {
                     _mutex.lock();
+                    reclaimIncoming(in);
+                    in = null;
                     try
                     {
                         setState(StateClosed, ex);
@@ -542,13 +550,23 @@ public final class Connection extends EventHandler
                     }
                     finally
                     {
+                        if (in != null)
+                        {
+                            reclaimIncoming(in);
+                            in = null;
+                        }
                         _mutex.unlock();
                     }
                 }
             }
             finally
             {
-                in.destroy();
+                if (in != null)
+                {
+                    _mutex.lock();
+                    reclaimIncoming(in);
+                    _mutex.unlock();
+                }
             }
         }
     }
@@ -707,10 +725,11 @@ public final class Connection extends EventHandler
             }
         }
 
-        java.util.Iterator i = _requests.values().iterator();
+        java.util.Iterator i = _requests.entryIterator();
         while (i.hasNext())
         {
-            Outgoing out = (Outgoing)i.next();
+            IntMap.Entry e = (IntMap.Entry)i.next();
+            Outgoing out = (Outgoing)e.getValue();
             out.finished(_exception);
         }
         _requests.clear();
@@ -828,6 +847,31 @@ public final class Connection extends EventHandler
         _logger.warning(s);
     }
 
+    private Incoming
+    getIncoming()
+    {
+        Incoming in;
+        if (_incomingCache == null)
+        {
+            in = new Incoming(_instance, _adapter);
+        }
+        else
+        {
+            in = _incomingCache;
+            _incomingCache = _incomingCache.next;
+            in.next = null;
+            in.reset();
+        }
+        return in;
+    }
+
+    private void
+    reclaimIncoming(Incoming in)
+    {
+        in.next = _incomingCache;
+        _incomingCache = in;
+    }
+
     private Transceiver _transceiver;
     private Endpoint _endpoint;
     private Ice.ObjectAdapter _adapter;
@@ -835,11 +879,12 @@ public final class Connection extends EventHandler
     private Ice.Logger _logger;
     private TraceLevels _traceLevels;
     private int _nextRequestId;
-    private java.util.HashMap _requests = new java.util.HashMap();
+    private IntMap _requests = new IntMap();
     private Ice.LocalException _exception;
     private BasicStream _batchStream;
     private int _responseCount;
     private int _state;
     private boolean _warn;
     private RecursiveMutex _mutex = new RecursiveMutex();
+    private Incoming _incomingCache;
 }

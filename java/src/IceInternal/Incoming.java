@@ -18,27 +18,28 @@ public class Incoming
         _adapter = adapter;
         _is = new BasicStream(instance);
         _os = new BasicStream(instance);
+        _current = new Ice.Current();
+        _current.identity = new Ice.Identity();
+        _cookie = new Ice.LocalObjectHolder();
     }
 
     public void
     invoke(boolean response)
     {
-        Ice.Current current = new Ice.Current();
-        current.identity = new Ice.Identity();
-        current.identity.__read(_is);
-        current.facet = _is.readString();
-        current.operation = _is.readString();
-        current.nonmutating = _is.readBool();
+        _current.identity.__read(_is);
+        _current.facet = _is.readString();
+        _current.operation = _is.readString();
+        _current.nonmutating = _is.readBool();
         int sz = _is.readSize();
         while (sz-- > 0)
         {
             String first = _is.readString();
             String second = _is.readString();
-            if (current.context == null)
+            if (_current.context == null)
             {
-                current.context = new java.util.HashMap();
+                _current.context = new java.util.HashMap();
             }
-            current.context.put(first, second);
+            _current.context.put(first, second);
         }
 
         int statusPos = 0;
@@ -61,20 +62,20 @@ public class Incoming
 
         Ice.Object servant = null;
         Ice.ServantLocator locator = null;
-        Ice.LocalObjectHolder cookie = new Ice.LocalObjectHolder();
+        _cookie.value = null;
 
         try
         {
             if (_adapter != null)
             {
-                servant = _adapter.identityToServant(current.identity);
+                servant = _adapter.identityToServant(_current.identity);
 
-                if (servant == null && current.identity.category.length() > 0)
+                if (servant == null && _current.identity.category.length() > 0)
                 {
-                    locator = _adapter.findServantLocator(current.identity.category);
+                    locator = _adapter.findServantLocator(_current.identity.category);
                     if (locator != null)
                     {
-                        servant = locator.locate(_adapter, current, cookie);
+                        servant = locator.locate(_adapter, _current, _cookie);
                     }
                 }
 
@@ -83,7 +84,7 @@ public class Incoming
                     locator = _adapter.findServantLocator("");
                     if (locator != null)
                     {
-                        servant = locator.locate(_adapter, current, cookie);
+                        servant = locator.locate(_adapter, _current, _cookie);
                     }
                 }
             }
@@ -96,28 +97,28 @@ public class Incoming
             }
             else
             {
-                if (current.facet.length() > 0)
+                if (_current.facet.length() > 0)
                 {
-                    Ice.Object facetServant = servant.ice_findFacet(current.facet);
+                    Ice.Object facetServant = servant.ice_findFacet(_current.facet);
                     if (facetServant == null)
                     {
                         status = DispatchStatus.DispatchFacetNotExist;
                     }
                     else
                     {
-                        status = facetServant.__dispatch(this, current);
+                        status = facetServant.__dispatch(this, _current);
                     }
                 }
                 else
                 {
-                    status = servant.__dispatch(this, current);
+                    status = servant.__dispatch(this, _current);
                 }
             }
 
             if (locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, current, servant, cookie.value);
+                locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -144,7 +145,7 @@ public class Incoming
             if (locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, current, servant, cookie.value);
+                locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -161,7 +162,7 @@ public class Incoming
             if (locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, current, servant, cookie.value);
+                locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -177,7 +178,7 @@ public class Incoming
             if (locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, current, servant, cookie.value);
+                locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -193,7 +194,7 @@ public class Incoming
             if (locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, current, servant, cookie.value);
+                locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -209,7 +210,7 @@ public class Incoming
             if (locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, current, servant, cookie.value);
+                locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -229,7 +230,7 @@ public class Incoming
             if (locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, current, servant, cookie.value);
+                locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -249,7 +250,7 @@ public class Incoming
             if (locator != null && servant != null)
             {
                 assert(_adapter != null);
-                locator.finished(_adapter, current, servant, cookie.value);
+                locator.finished(_adapter, _current, servant, _cookie.value);
             }
 
             _is.endReadEncaps();
@@ -276,6 +277,23 @@ public class Incoming
         return _os;
     }
 
+    //
+    // reset() allows this object to be reused, rather than reallocated
+    //
+    public void
+    reset()
+    {
+        _is.reset();
+        _os.reset();
+        if (_current.context != null)
+        {
+            _current.context.clear();
+        }
+    }
+
+    //
+    // Reclaim resources
+    //
     public void
     destroy()
     {
@@ -286,4 +304,8 @@ public class Incoming
     private Ice.ObjectAdapter _adapter;
     private BasicStream _is;
     private BasicStream _os;
+    private Ice.Current _current;
+    private Ice.LocalObjectHolder _cookie;
+
+    Incoming next; // For use by Connection
 }

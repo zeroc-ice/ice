@@ -28,10 +28,10 @@ public class BasicStream
         _writeEncapsCache = null;
     }
 
-    /*
-     * Do NOT use a finalizer for BasicStream - this causes a
-     * severe performance penalty!
-     *
+/*
+ * Do NOT use a finalizer for BasicStream - this causes a
+ * severe performance penalty!
+ *
     protected void
     finalize()
         throws Throwable
@@ -43,7 +43,23 @@ public class BasicStream
 
         super.finalize();
     }
-    */
+*/
+
+    public void
+    reset()
+    {
+        _limit = 0;
+        _buf.limit(_capacity);
+        _buf.position(0);
+
+        if (_readEncapsStack != null)
+        {
+            assert(_readEncapsStack.next == null);
+            _readEncapsStack.next = _readEncapsCache;
+            _readEncapsCache = _readEncapsStack;
+            _readEncapsStack = null;
+        }
+    }
 
     //
     // Must be called in order to reclaim the buffer
@@ -169,6 +185,10 @@ public class BasicStream
         _writeEncapsStack = curr.next;
         curr.next = _writeEncapsCache;
         _writeEncapsCache = curr;
+        if (_writeEncapsCache.objectsWritten != null)
+        {
+            _writeEncapsCache.objectsWritten.clear();
+        }
         final int sz = _buf.position() - start;
         _buf.putInt(start - 4, sz);
     }
@@ -206,6 +226,10 @@ public class BasicStream
         _readEncapsStack = curr.next;
         curr.next = _readEncapsCache;
         _readEncapsCache = curr;
+        if (_readEncapsCache.objectsRead != null)
+        {
+            _readEncapsCache.objectsRead.clear();
+        }
         final int sz = _buf.getInt(start - 4);
         try
         {
@@ -701,18 +725,38 @@ public class BasicStream
         {
             try
             {
-                /* TODO: Performance review
-                char[] arr = new char[len];
+                //
+                // We reuse the _stringBytes array to avoid creating
+                // excessive garbage
+                //
+                if (_stringBytes == null || len > _stringBytes.length)
+                {
+                    _stringBytes = new byte[len];
+                    _stringChars = new char[len];
+                }
+                _buf.get(_stringBytes, 0, len);
+
+                //
+                // It's more efficient to construct a string using a
+                // character array instead of a byte array, because
+                // byte arrays require conversion.
+                //
                 for (int i = 0; i < len; i++)
                 {
-                    arr[i] = (char)_buf.get();
+                    if (_stringBytes[i] < 0)
+                    {
+                        //
+                        // Multi-byte character found - we must
+                        // use conversion
+                        //
+                        return new String(_stringBytes, 0, len, "UTF8");
+                    }
+                    else
+                    {
+                        _stringChars[i] = (char)_stringBytes[i];
+                    }
                 }
-                String v = new String(arr);
-                */
-                byte[] arr = new byte[len];
-                _buf.get(arr);
-                String v = new String(arr, "UTF8");
-                return v;
+                return new String(_stringChars, 0, len);
             }
             catch (java.io.UnsupportedEncodingException ex)
             {
@@ -960,6 +1004,8 @@ public class BasicStream
     private java.nio.ByteBuffer _buf;
     private int _capacity; // Cache capacity to avoid excessive method calls
     private int _limit; // Cache limit to avoid excessive method calls
+    private byte[] _stringBytes; // Reusable array for reading strings
+    private char[] _stringChars; // Reusable array for reading strings
 
     private static class ReadEncaps
     {

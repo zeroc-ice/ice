@@ -149,8 +149,8 @@ public class Instance
             _servantFactoryManager = new ObjectFactoryManager();
             _userExceptionFactoryManager = new UserExceptionFactoryManager();
             _objectAdapterFactory = new ObjectAdapterFactory(this);
+            _bufferManager = new BufferManager(); // Must be created before the ThreadPool
             _threadPool = new ThreadPool(this);
-            _bufferManager = new BufferManager();
         }
         catch (Ice.LocalException ex)
         {

@@ -16,8 +16,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_isA(String __id, java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__connection, __reference, "ice_isA", true, __context);
+        IceInternal.Outgoing __out = getOutgoing("ice_isA", true, __context);
         try
         {
             IceInternal.BasicStream __is = __out.is();
@@ -31,7 +30,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            __out.destroy();
+            reclaimOutgoing(__out);
         }
     }
 
@@ -39,8 +38,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_ping(java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__connection, __reference, "ice_ping", true, __context);
+        IceInternal.Outgoing __out = getOutgoing("ice_ping", true, __context);
         try
         {
             if (!__out.invoke())
@@ -50,7 +48,7 @@ public class _ObjectDelM implements _ObjectDel
         }
         finally
         {
-            __out.destroy();
+            reclaimOutgoing(__out);
         }
     }
 
@@ -367,4 +365,52 @@ public class _ObjectDelM implements _ObjectDel
         }
     }
     private static EndpointComparator __comparator = new EndpointComparator();
+
+    protected IceInternal.Outgoing
+    getOutgoing(String operation, boolean nonmutating, java.util.Map context)
+    {
+        IceInternal.Outgoing out;
+
+        synchronized (__outgoingMutex)
+        {
+            if (__outgoingCache == null)
+            {
+                out = new IceInternal.Outgoing(__connection, __reference, operation, nonmutating, context);
+            }
+            else
+            {
+                out = __outgoingCache;
+                __outgoingCache = __outgoingCache.next;
+                out.reset(operation, nonmutating, context);
+            }
+        }
+
+        return out;
+    }
+
+    protected void
+    reclaimOutgoing(IceInternal.Outgoing out)
+    {
+        synchronized (__outgoingMutex)
+        {
+            out.next = __outgoingCache;
+            __outgoingCache = out;
+        }
+    }
+
+    protected void
+    finalize()
+        throws Throwable
+    {
+        while (__outgoingCache != null)
+        {
+            IceInternal.Outgoing next = __outgoingCache.next;
+            __outgoingCache.destroy();
+            __outgoingCache.next = null;
+            __outgoingCache = next;
+        }
+    }
+
+    private IceInternal.Outgoing __outgoingCache;
+    private java.lang.Object __outgoingMutex = new java.lang.Object();
 }

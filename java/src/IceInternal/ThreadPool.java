@@ -354,8 +354,12 @@ catch (RuntimeException ex)
         }
     }
 
+    //
+    // Each thread supplies a BasicStream, to avoid creating excessive
+    // garbage (Java only)
+    //
     private void
-    run()
+    run(BasicStream stream)
     {
         boolean shutdown = false;
         final int timeoutMillis = _timeout * 1000;
@@ -591,7 +595,6 @@ catch (RuntimeException ex)
                 // as readable although nothing can be read.  We want to
                 // ignore the event in this case.
                 //
-                BasicStream stream = new BasicStream(_instance);
                 try
                 {
                     if (handler.readable())
@@ -622,7 +625,7 @@ catch (RuntimeException ex)
                 }
                 finally
                 {
-                    stream.destroy();
+                    stream.reset();
                 }
 
                 break;
@@ -753,9 +756,11 @@ catch (RuntimeException ex)
         public void
         run()
         {
+            BasicStream stream = new BasicStream(_pool._instance);
+
             try
             {
-                _pool.run();
+                _pool.run(stream);
             }
             catch (Ice.LocalException ex)
             {
@@ -798,6 +803,8 @@ catch (RuntimeException ex)
 //System.out.println("ThreadPool - run() terminated - promoting follower");
             _pool.promoteFollower();
             _pool = null; // Break cyclic dependency.
+
+            stream.destroy();
         }
 
         private ThreadPool _pool;
