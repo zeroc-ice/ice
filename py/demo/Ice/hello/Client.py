@@ -8,8 +8,8 @@
 # **********************************************************************
 
 import sys, Ice
-Ice.loadSlice('Hello.ice')
 
+Ice.loadSlice('Hello.ice')
 import Demo
 
 def menu():
@@ -33,13 +33,13 @@ def run(args, communicator):
     refProperty = 'Hello.Proxy'
     proxy = properties.getProperty(refProperty)
     if len(proxy) == 0:
-        print args[0] + ": property `" + refPropert + "' not set"
+        print args[0] + ": property `" + refProperty + "' not set"
         return False
 
     base = communicator.stringToProxy(proxy)
     twoway = Demo.HelloPrx.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(False))
     if not twoway:
-        print "invalid proxy"
+        print args[0] + ": invalid proxy"
         return False
 
     oneway = Demo.HelloPrx.uncheckedCast(twoway.ice_oneway())
