@@ -145,10 +145,20 @@ static void lockingCallback(int mode, int type, const char *file, int line)
 static unsigned long
 idFunction()
 {
-#ifdef _WIN32
+#if defined(_WIN32)
     return static_cast<unsigned long>(GetCurrentThreadId());
-#else
+#elif defined(__FreeBSD__)
+    //
+    // On FreeBSD, pthread_t is a pointer to a per-thread structure
+    // 
+    return reinterpret_cast<unsigned long>(pthread_self());
+#elif (defined(__linux) || defined(__sun))
+    //
+    // On Linux and Solaris, pthread_t is an integer
+    //
     return static_cast<unsigned long>(pthread_self());
+#else
+#   error "Unknown platform"
 #endif
 }
 }

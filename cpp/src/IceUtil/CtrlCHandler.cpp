@@ -130,6 +130,14 @@ sigwaitThread(void*)
     {
 	int signal = 0;
 	int rc = sigwait(&ctrlCLikeSignals, &signal);
+	//
+	// Some sigwait() implementations incorrectly return EINTR
+	// when interrupted by an unblocked caught signal
+	//
+	if(rc == EINTR)
+	{
+	    continue;
+	}
 	assert(rc == 0);
 	
 	rc = pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, 0);
