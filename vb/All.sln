@@ -89,21 +89,6 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "throughputS", "demo\Ice\thr
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionC", "demo\Glacier\session\sessionC.vbproj", "{CC142EEC-2308-45AB-969E-9D49A02DEFB9}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionCommon", "demo\Glacier\session\sessionCommon.vbproj", "{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
-	EndProjectSection
-EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "sessionS", "demo\Glacier\session\sessionS.vbproj", "{5C6B61FD-439A-47CF-8704-574B04F7AB7C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
-	EndProjectSection
-EndProject
 Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "generate", "generate\generate.vbproj", "{0EFCB594-52A9-44DE-8508-7446F3E7A529}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
@@ -265,18 +250,6 @@ Global
 		{145A53FE-422A-4B83-8B3E-2EA96758435B}.Debug.Build.0 = Debug|.NET
 		{145A53FE-422A-4B83-8B3E-2EA96758435B}.Release.ActiveCfg = Release|.NET
 		{145A53FE-422A-4B83-8B3E-2EA96758435B}.Release.Build.0 = Release|.NET
-		{CC142EEC-2308-45AB-969E-9D49A02DEFB9}.Debug.ActiveCfg = Debug|.NET
-		{CC142EEC-2308-45AB-969E-9D49A02DEFB9}.Debug.Build.0 = Debug|.NET
-		{CC142EEC-2308-45AB-969E-9D49A02DEFB9}.Release.ActiveCfg = Release|.NET
-		{CC142EEC-2308-45AB-969E-9D49A02DEFB9}.Release.Build.0 = Release|.NET
-		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}.Debug.ActiveCfg = Debug|.NET
-		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}.Debug.Build.0 = Debug|.NET
-		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}.Release.ActiveCfg = Release|.NET
-		{3027C39E-5369-4C7B-A6AA-9FC7CAFFC330}.Release.Build.0 = Release|.NET
-		{5C6B61FD-439A-47CF-8704-574B04F7AB7C}.Debug.ActiveCfg = Debug|.NET
-		{5C6B61FD-439A-47CF-8704-574B04F7AB7C}.Debug.Build.0 = Debug|.NET
-		{5C6B61FD-439A-47CF-8704-574B04F7AB7C}.Release.ActiveCfg = Release|.NET
-		{5C6B61FD-439A-47CF-8704-574B04F7AB7C}.Release.Build.0 = Release|.NET
 		{0EFCB594-52A9-44DE-8508-7446F3E7A529}.Debug.ActiveCfg = Debug|.NET
 		{0EFCB594-52A9-44DE-8508-7446F3E7A529}.Debug.Build.0 = Debug|.NET
 		{0EFCB594-52A9-44DE-8508-7446F3E7A529}.Release.ActiveCfg = Release|.NET

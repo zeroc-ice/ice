@@ -78,7 +78,7 @@ Public Class HelloFactoryI
             ' 
             Dim admin As IcePack.AdminPrx = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"))
             Try
-                admin.removeObject(communicator.stringToProxy(name))
+                admin.removeObject(Ice.Util.stringToIdentity(name))
             Catch e As IcePack.ObjectNotExistException
                 Debug.Assert(False)
             End Try

@@ -32,7 +32,7 @@ Public Class IcePackHelloI
         ' 
         Dim admin As IcePack.AdminPrx = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"))
         Try
-            admin.removeObject(adapter.createProxy(current.id))
+            admin.removeObject(current.id)
         Catch ex As IcePack.ObjectNotExistException
             Debug.Assert(False)
         End Try
