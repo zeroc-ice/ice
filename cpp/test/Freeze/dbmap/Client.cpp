@@ -99,7 +99,7 @@ run(int argc, char* argv[], const DBPtr& db)
     CharIntMap::iterator p;
     CharIntMap::iterator cp;
 
-    cout << "Testing populate... ";
+    cout << "testing populate... ";
     //
     // First try non-const iterator
     //
@@ -120,7 +120,7 @@ run(int argc, char* argv[], const DBPtr& db)
     }
     cout << "ok" << endl;
 
-    cout << "Testing map::find... ";
+    cout << "testing map::find... ";
     j = find(alphabet.begin(), alphabet.end(), 'n');
     
     cp = m.find(*j);
@@ -131,7 +131,7 @@ run(int argc, char* argv[], const DBPtr& db)
     }
     cout << "ok" << endl;
 
-    cout << "Testing erase... ";
+    cout << "testing erase... ";
 
     j = alphabet.begin();
     for (p = m.begin() ; p != m.end() ; ++j)
@@ -156,12 +156,12 @@ run(int argc, char* argv[], const DBPtr& db)
     //
     // Get a iterator for the deleted element - this should fail.
     //
-    cout << "Testing map::find (again)... ";
+    cout << "testing map::find (again)... ";
     cp = m.find('a');
     test(cp == m.end());
     cout << "ok" << endl;
 
-    cout << "Testing iterators... ";
+    cout << "testing iterators... ";
     p = m.begin();
     CharIntMap::iterator p2 = p;
 
@@ -205,7 +205,7 @@ run(int argc, char* argv[], const DBPtr& db)
 
     cout << "ok" << endl;
 
-    cout << "Testing operator[]... ";
+    cout << "testing operator[]... ";
     test(m['d'] == 3);
     test(m.find('a') == m.end());
     test(m['a'] == 0);
@@ -221,7 +221,7 @@ run(int argc, char* argv[], const DBPtr& db)
     //
     populateDB(m);
 
-    cout << "Testing algorithms... ";
+    cout << "testing algorithms... ";
 
     void ForEachTest(const CharIntMap::value_type&);
     for_each(m.begin(), m.end(), ForEachTest);

@@ -121,7 +121,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     DBCursorPtr cursor, clone;
     vector<char>::const_iterator j;
 
-    cout << "Testing populate... ";
+    cout << "testing populate... ";
     cursor = db->getCursor();
     j = alphabet.begin();
     try
@@ -142,7 +142,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     cursor->close();
     cout << "ok" << endl;
 
-    cout << "Testing DB::getCursorAKey... ";
+    cout << "testing DB::getCursorAKey... ";
     k = KeyCodec::write('n', instance);
     j = find(alphabet.begin(), alphabet.end(), 'n');
     cursor = db->getCursorAtKey(k);
@@ -164,7 +164,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     cursor->close();
     cout << "ok" << endl;
 
-    cout << "Testing remove... ";
+    cout << "testing remove... ";
     cursor = db->getCursor();
     j = alphabet.begin();
 
@@ -210,7 +210,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     //
     // Get a cursor for the deleted element - this should fail.
     //
-    cout << "Testing DB::getCursorAtKey (again)... ";
+    cout << "testing DB::getCursorAtKey (again)... ";
     try
     {
 	k = KeyCodec::write('a', instance);
@@ -223,7 +223,7 @@ run(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     }
     cout << "ok" << endl;
 
-    cout << "Testing clone... ";
+    cout << "testing clone... ";
     cursor = db->getCursor();
     clone = cursor->clone();
 
