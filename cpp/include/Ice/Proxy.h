@@ -92,7 +92,7 @@ public:
 
     virtual bool ice_isA(const std::string&, const ::Ice::Context&) = 0;
     virtual void ice_ping(const ::Ice::Context&) = 0;
-    virtual void ice_invoke(const std::string&,  const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
+    virtual void ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
 			    const ::Ice::Context&) = 0;
     virtual void ice_flush() = 0;
 };
@@ -108,7 +108,7 @@ public:
 
     virtual bool ice_isA(const std::string&, const ::Ice::Context&);
     virtual void ice_ping(const ::Ice::Context&);
-    virtual void ice_invoke(const std::string&, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
+    virtual void ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
 			    const ::Ice::Context&);
     virtual void ice_flush();
 
@@ -134,7 +134,7 @@ public:
 
     virtual bool ice_isA(const std::string&, const ::Ice::Context&);
     virtual void ice_ping(const ::Ice::Context&);
-    virtual void ice_invoke(const std::string&, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
+    virtual void ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
 			    const ::Ice::Context&);
     virtual void ice_flush();
 
@@ -143,7 +143,7 @@ protected:
     ::Ice::ObjectAdapterPtr __adapter;
     ::IceInternal::ReferencePtr __reference;
 
-    void __initCurrent(::Ice::Current&, const std::string&, const ::Ice::Context&);
+    void __initCurrent(::Ice::Current&, const std::string&, bool, const ::Ice::Context&);
     void __initCurrentProxy(::Ice::Current&);
 
 private:

@@ -136,7 +136,7 @@ public:
 
 
     void
-    publish(const string& op, const vector< Ice::Byte>& blob)
+    publish(const string& op, bool nonmutating, const vector< Ice::Byte>& blob)
     {
 	JTCSyncT<JTCMutex> sync(*this);
 
@@ -157,7 +157,7 @@ public:
 
 	for (SubscriberList::iterator i = _subscribers.begin(); i != _subscribers.end(); ++i)
 	{
-	    (*i)->publish(op, blob);
+	    (*i)->publish(op, nonmutating, blob);
 	}
 	//for_each(_subscribers.begin(), _subscribers.end(), Ice::memFun(&Subscriber::publish));
     }
@@ -177,7 +177,7 @@ private:
 void
 BlobjectI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byte>& outParam, const Ice::Current& current)
 {
-    _subscribers->publish(current.operation, inParams);
+    _subscribers->publish(current.operation, current.nonmutating, inParams);
 }
 
 TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& traceLevels, const Ice::LoggerPtr& logger,

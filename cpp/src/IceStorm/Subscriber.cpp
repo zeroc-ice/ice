@@ -122,11 +122,10 @@ Subscriber::flush()
 }
 
 void
-Subscriber::publish(const string& op, const std::vector< ::Ice::Byte>& blob)
+Subscriber::publish(const string& op, bool nonmutating, const std::vector< ::Ice::Byte>& blob)
 {
     try
     {
-	bool nonmutating = true;
 	std::vector< ::Ice::Byte> dummy;
 	_obj->ice_invoke(op, nonmutating, blob, dummy);
     }

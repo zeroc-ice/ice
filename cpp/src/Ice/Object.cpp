@@ -127,16 +127,6 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
     return DispatchOperationNotExist;
 }
 
-bool
-Ice::Object::__isMutating(const std::string& s)
-{
-    //
-    // None of the Ice::Object operations accessible via __dispatch()
-    // is mutating.
-    //
-    return false;
-}
-
 void
 Ice::Object::__write(::IceInternal::BasicStream* __os) const
 {

@@ -30,7 +30,7 @@ void
 IceInternal::Incoming::invoke()
 {
     Current current;
-    Byte gotProxy;
+    bool gotProxy;
     _is.read(gotProxy);
     if (gotProxy)
     {
@@ -44,6 +44,7 @@ IceInternal::Incoming::invoke()
 	_is.read(current.facet);
     }
     _is.read(current.operation);
+    _is.read(current.nonmutating);
     Int sz;
     _is.read(sz);
     while (sz--)

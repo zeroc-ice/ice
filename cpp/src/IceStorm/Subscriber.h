@@ -35,7 +35,7 @@ public:
     void unsubscribe();
 
     void flush();
-    void publish(const std::string&, const std::vector< ::Ice::Byte>&);
+    void publish(const std::string&, bool, const std::vector< ::Ice::Byte>&);
 
     std::string id() const;
 

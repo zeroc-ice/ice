@@ -287,7 +287,7 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const Current& current,
     //
     if (_persistenceMode == SaveAfterMutatingOperation)
     {
-	if (servant->__isMutating(current.operation))
+	if (!current.nonmutating)
 	{
 	    _db->putServant(current.identity, servant);
 	}

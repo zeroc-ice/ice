@@ -164,7 +164,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    __del->ice_invoke(operation, inParams, outParams, __context);
+	    __del->ice_invoke(operation, nonmutating, inParams, outParams, __context);
 	    return;
 	}
 	catch (const LocationForward& __ex)
@@ -518,7 +518,7 @@ IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
     {
 	try
 	{
-	    Outgoing __out(__emitter, __reference, __sendProxy, "ice_isA", __context);
+	    Outgoing __out(__emitter, __reference, __sendProxy, "ice_isA", true, __context);
 	    BasicStream* __is = __out.is();
 	    BasicStream* __os = __out.os();
 	    __os->write(__id);
@@ -545,7 +545,7 @@ IceDelegateM::Ice::Object::ice_ping(const Context& __context)
     {
 	try
 	{
-	    Outgoing __out(__emitter, __reference, __sendProxy, "ice_ping", __context);
+	    Outgoing __out(__emitter, __reference, __sendProxy, "ice_ping", true, __context);
 	    if (!__out.invoke())
 	    {
 		throw ::Ice::UnknownUserException(__FILE__, __LINE__);
@@ -561,6 +561,7 @@ IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 
 void
 IceDelegateM::Ice::Object::ice_invoke(const string& operation,
+				      bool nonmutating,
 				      const vector<Byte>& inParams,
 				      vector<Byte>& outParams,
 				      const Context& __context)
@@ -570,7 +571,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
     {
 	try
 	{
-	    Outgoing __out(__emitter, __reference, __sendProxy, operation.c_str(), __context);
+	    Outgoing __out(__emitter, __reference, __sendProxy, operation.c_str(), nonmutating, __context);
 	    BasicStream* __os = __out.os();
 	    __os->writeBlob(inParams);
 	    __out.invoke();
@@ -652,7 +653,7 @@ bool
 IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     Current __current;
-    __initCurrent(__current, "ice_isA", __context);
+    __initCurrent(__current, "ice_isA", true, __context);
     while (true)
     {
 	Direct __direct(__adapter, __current);
@@ -683,7 +684,7 @@ void
 IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
 {
     Current __current;
-    __initCurrent(__current, "ice_ping", __context);
+    __initCurrent(__current, "ice_ping", true, __context);
     while (true)
     {
 	Direct __direct(__adapter, __current);
@@ -713,12 +714,13 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
 
 void
 IceDelegateD::Ice::Object::ice_invoke(const string& operation,
+				      bool nonmutating,
 				      const vector<Byte>& inParams,
 				      vector<Byte>& outParams,
 				      const ::Ice::Context& context)
 {
     Current __current;
-    __initCurrent(__current, operation, context);
+    __initCurrent(__current, operation, nonmutating, context);
     while (true)
     {
 	Direct __direct(__adapter, __current);
@@ -758,11 +760,12 @@ IceDelegateD::Ice::Object::ice_flush()
 }
 
 void
-IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, const Context& context)
+IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, bool nonmutating, const Context& context)
 {
     current.identity = __reference->identity;
     current.facet = __reference->facet;
     current.operation = op;
+    current.nonmutating = nonmutating;
     current.context = context;
 }
 

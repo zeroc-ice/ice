@@ -50,7 +50,7 @@ class ICE_API Outgoing : public ::IceUtil::noncopyable, public JTCMonitorT< JTCM
 {
 public:
 
-    Outgoing(const EmitterPtr&, const ReferencePtr&, bool, const char*, const ::Ice::Context&);
+    Outgoing(const EmitterPtr&, const ReferencePtr&, bool, const char*, bool, const ::Ice::Context&);
     ~Outgoing();
 
     bool invoke();

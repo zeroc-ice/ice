@@ -81,7 +81,6 @@ public:
 
     static const char* __all[];
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
-    virtual bool __isMutating(const std::string&);
 
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*);

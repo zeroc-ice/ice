@@ -60,6 +60,14 @@ module Ice
 
     /**
      *
+     * Set to true if the operation is nonmutating.
+     *
+     *
+     **/
+    bool \nonmutating;
+
+    /**
+     *
      * The request context, as received from the client.
      *
      * @see Context;

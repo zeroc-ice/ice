@@ -39,7 +39,7 @@ IceInternal::NonRepeatable::get() const
 }
 
 IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& ref, bool sendProxy,
-				const char* operation, const Context& context) :
+				const char* operation, bool nonmutating, const Context& context) :
     _emitter(emitter),
     _reference(ref),
     _state(StateUnsent),
@@ -64,19 +64,19 @@ IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& r
 	}
     }
 
+    _os.write(sendProxy);
     if (sendProxy)
     {
-	_os.write(Byte(1));
 	ObjectPrx proxy = _reference->instance->proxyFactory()->referenceToProxy(_reference);
 	_os.write(proxy);
     }
     else
     {
-	_os.write(Byte(0));
 	_os.write(_reference->identity);
 	_os.write(_reference->facet);
     }
     _os.write(operation);
+    _os.write(nonmutating);
     _os.write(Int(context.size()));
     Context::const_iterator p;
     for (p = context.begin(); p != context.end(); ++p)
