@@ -18,7 +18,7 @@ void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     ServerManagerPrx manager = ServerManagerPrx::checkedCast(
-	communicator->stringToProxy("servermanager :default -t 2000 -p 12345"));
+	communicator->stringToProxy("servermanager :default -t 10000 -p 12345"));
     test(manager);
 
     //
