@@ -169,7 +169,7 @@ public final class ThreadPool
 	assert(_handlerMap.isEmpty());
 	assert(_changes.isEmpty());
         _destroyed = true;
-        setInterrupt(0);
+        setInterrupt();
     }
 
     public synchronized void
@@ -181,7 +181,7 @@ public final class ThreadPool
         }
 	assert(!_destroyed);
         _changes.add(new FdHandlerPair(fd, handler));
-        setInterrupt(0);
+        setInterrupt();
     }
 
     public synchronized void
@@ -212,7 +212,7 @@ public final class ThreadPool
 
 	assert(!_destroyed);
         _changes.add(new FdHandlerPair(fd, null));
-        setInterrupt(0);
+        setInterrupt();
     }
 
     public void
@@ -265,17 +265,6 @@ public final class ThreadPool
     }
 
     public void
-    initiateShutdown()
-    {
-        if(TRACE_SHUTDOWN)
-        {
-            trace("initiate server shutdown");
-        }
-
-        setInterrupt(1);
-    }
-
-    public void
     joinWithAllThreads()
     {
 	//
@@ -304,7 +293,7 @@ public final class ThreadPool
         }
     }
     
-    private boolean
+    private void
     clearInterrupt()
     {
         if(TRACE_INTERRUPT)
@@ -349,24 +338,16 @@ public final class ThreadPool
         {
             Ice.SocketException se = new Ice.SocketException();
             se.initCause(ex);
-            //throw se;
-	    java.io.StringWriter sw = new java.io.StringWriter();
-	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	    se.printStackTrace(pw);
-	    pw.flush();
-	    String s = "exception in `" + _prefix + "':\n" + sw.toString();
-	    _instance.logger().error(s);
+            throw se;
         }
-
-        return b == (byte)1; // Return true if shutdown has been initiated.
     }
 
     private void
-    setInterrupt(int b)
+    setInterrupt()
     {
         if(TRACE_INTERRUPT)
         {
-            trace("setInterrupt(" + b + ")");
+            trace("setInterrupt()");
             if(TRACE_STACK_TRACE)
             {
                 try
@@ -381,7 +362,7 @@ public final class ThreadPool
         }
 
         java.nio.ByteBuffer buf = java.nio.ByteBuffer.allocate(1);
-        buf.put(0, (byte)b);
+        buf.put(0, (byte)0);
         while(buf.hasRemaining())
         {
             try
@@ -392,13 +373,7 @@ public final class ThreadPool
             {
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
-                //throw se;
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		se.printStackTrace(pw);
-		pw.flush();
-		String s = "exception in `" + _prefix + "':\n" + sw.toString();
-		_instance.logger().error(s);
+                throw se;
             }
         }
     }
@@ -449,75 +424,74 @@ public final class ThreadPool
 	    }
 	    
 	    select();
-	    if(_keys.size() == 0) // We initiate a shutdown if there is a thread pool timeout.
-	    {
-		if(TRACE_SELECT)
-		{
-		    trace("timeout");
-		}
-		
-		assert(_timeout > 0);
-		_timeout = 0;
-		initiateShutdown();
-		continue;
-	    }
-	    
+
 	    EventHandler handler = null;
 	    boolean finished = false;
 	    boolean shutdown = false;
-	    
+
 	    synchronized(this)
 	    {
-		if(_keys.contains(_fdIntrReadKey) && _fdIntrReadKey.isReadable())
+		if(_keys.size() == 0) // We initiate a shutdown if there is a thread pool timeout.
 		{
-		    if(TRACE_SELECT || TRACE_INTERRUPT)
+		    if(TRACE_SELECT)
 		    {
-			trace("detected interrupt");
+			trace("timeout");
 		    }
 		    
-		    //
-		    // There are three possibilities for an interrupt:
-		    //
-		    // - The thread pool has been destroyed.
-		    //
-		    // - Server shutdown has been initiated.
-		    //
-		    // - An event handler was registered or unregistered.
-		    //
-		    
-		    //
-		    // Thread pool destroyed?
-		    //
-		    if(_destroyed)
+		    assert(_timeout > 0);
+		    _timeout = 0;
+		    shutdown = true;
+		}
+		else
+		{
+		    if(_keys.contains(_fdIntrReadKey) && _fdIntrReadKey.isReadable())
 		    {
-			if(TRACE_SHUTDOWN)
+			if(TRACE_SELECT || TRACE_INTERRUPT)
 			{
-			    trace("destroyed, thread id = " + Thread.currentThread());
+			    trace("detected interrupt");
 			}
-
+			
 			//
-			// Don't clear the interrupt fd if destroyed,
-			// so that the other threads exit as well.
+			// There are two possiblities for an interrupt:
 			//
-			return true;
-		    }
-
-		    //
-		    // Remove the interrupt channel from the selected key set.
-		    //
-		    _keys.remove(_fdIntrReadKey);
-
-		    shutdown = clearInterrupt();
-
-		    if(!shutdown)
-		    {
+			// 1. The thread pool has been destroyed.
+			//
+			// 2. An event handler was registered or unregistered.
+			//
+			
+			//
+			// Thread pool destroyed?
+			//
+			if(_destroyed)
+			{
+			    if(TRACE_SHUTDOWN)
+			    {
+				trace("destroyed, thread id = " + Thread.currentThread());
+			    }
+			    
+			    //
+			    // Don't clear the interrupt fd if
+			    // destroyed, so that the other threads
+			    // exit as well.
+			    //
+			    return true;
+			}
+			
+			//
+			// Remove the interrupt channel from the
+			// selected key set.
+			//
+			_keys.remove(_fdIntrReadKey);
+			
+			clearInterrupt();
+			
 			//
 			// An event handler must have been registered
 			// or unregistered.
 			//
 			assert(!_changes.isEmpty());
 			FdHandlerPair change = (FdHandlerPair)_changes.removeFirst();
-			    
+			
 			if(change.handler != null) // Addition if handler is set.
 			{
 			    int op;
@@ -568,53 +542,58 @@ public final class ThreadPool
 			    // outside the thread synchronization.
 			}
 		    }
-		}
-		else
-		{
-		    java.nio.channels.SelectionKey key = null;
-		    java.util.Iterator iter = _keys.iterator();
-		    while(iter.hasNext())
+		    else
 		    {
-			//
-			// Ignore selection keys that have been cancelled
-			//
-			java.nio.channels.SelectionKey k = (java.nio.channels.SelectionKey)iter.next();
-			iter.remove();
-			if(k.isValid() && key != _fdIntrReadKey)
+			java.nio.channels.SelectionKey key = null;
+			java.util.Iterator iter = _keys.iterator();
+			while(iter.hasNext())
+			{
+			    //
+			    // Ignore selection keys that have been cancelled
+			    //
+			    java.nio.channels.SelectionKey k = (java.nio.channels.SelectionKey)iter.next();
+			    iter.remove();
+			    if(k.isValid() && key != _fdIntrReadKey)
+			    {
+				if(TRACE_SELECT)
+				{
+				    trace("found a key: " + keyToString(k));
+				}
+				
+				key = k;
+				break;
+			    }
+			}
+			
+			if(key == null)
 			{
 			    if(TRACE_SELECT)
 			    {
-				trace("found a key: " + keyToString(k));
+				trace("didn't find a valid key");
 			    }
-
-			    key = k;
-			    break;
+			    
+			    continue;
 			}
+			
+			handler = (EventHandler)key.attachment();
 		    }
-
-		    if(key == null)
-		    {
-			if(TRACE_SELECT)
-			{
-			    trace("didn't find a valid key");
-			}
-
-			continue;
-		    }
-
-		    handler = (EventHandler)key.attachment();
 		}
 	    }
 
-	    assert(handler != null || shutdown);
-
-	    if(shutdown) // Shutdown has been initiated.
+	    //
+	    // Now we are outside the thread synchronization.
+	    //
+	    
+	    if(shutdown)
 	    {
 		if(TRACE_SHUTDOWN)
 		{
 		    trace("shutdown detected");
 		}
-
+		
+		//
+		// Initiate server shutdown.
+		//
 		ObjectAdapterFactory factory;
 		try
 		{
@@ -636,6 +615,8 @@ public final class ThreadPool
 	    }
 	    else
 	    {
+		assert(handler != null);
+
 		if(finished)
 		{
 		    //
@@ -969,6 +950,7 @@ public final class ThreadPool
 		pw.flush();
 		String s = "exception in `" + _prefix + "':\n" + sw.toString();
 		_instance.logger().error(s);
+		continue;
             }
         }
     }
@@ -1022,6 +1004,7 @@ public final class ThreadPool
 		pw.flush();
 		String s = "exception in `" + _prefix + "':\n" + sw.toString();
 		_instance.logger().error(s);
+		continue;
             }
 
             if(TRACE_SELECT)
