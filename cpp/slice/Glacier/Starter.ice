@@ -45,6 +45,9 @@ exception InvalidPasswordException
  **/
 exception CannotStartRouterException
 {
+    /**
+     * Details as to why the router could not be started.
+     **/
     string reason;
 };
 

@@ -21,7 +21,7 @@ module IceSSL
 /**
  *
  * This exception represents the base of all security related exceptions
- * in &Ice;. It is a local exception since usually a problem with security
+ * in &Ice;. It is a local exception because, usually, a problem with security
  * precludes a proper secure connection over which to transmit exceptions.
  * In addition, many exceptions would contain information that is of no use
  * to external clients/servers.
@@ -185,7 +185,7 @@ local exception ContextException extends SslException
 
 /**
  *
- * Indicates a problem occurred while initializing the context structure
+ * Indicates that a problem occurred while initializing the context structure
  * of the underlying SSL implementation.
  *
  **/
@@ -195,7 +195,7 @@ local exception ContextInitializationException extends ContextException
 
 /**
  *
- * This exception is raised when an attempt is made to make use a
+ * This exception is raised when an attempt is made to make use of a
  * <literal>Context</literal> that has not been configured yet.
  *
  **/
@@ -215,7 +215,7 @@ local exception UnsupportedContextException extends ContextException
 
 /**
  *
- * Indicates a problem occurred while loading a certificate
+ * Indicates that a problem occurred while loading a certificate
  * into a <literal>Context</literal> from either a memory buffer
  * or from a file.
  *
@@ -226,7 +226,7 @@ local exception CertificateLoadException extends ContextException
 
 /**
  *
- * Indicates a problem occurred while loading a private key
+ * Indicates that a problem occurred while loading a private key
  * into a <literal>Context</literal> from either a memory buffer
  * or from a file.
  *
@@ -237,7 +237,7 @@ local exception PrivateKeyLoadException extends ContextException
 
 /**
  *
- * When loading a Public and Private key pair into a
+ * When loading a public and private key pair into a
  * <literal>Context</literal>, the load succeeded, but the private
  * key and public key (certificate) did not match.
  *

@@ -217,7 +217,7 @@ IceInternal::Connection::validate()
 		assert(is.i == is.b.end());
 		assert(is.i - is.b.begin() >= headerSize);
 		is.i = is.b.begin();
-		MagicBytes m(sizeof(magic), 0);
+		ByteSeq m(sizeof(magic), 0);
 		is.readBlob(m, static_cast<Int>(sizeof(magic)));
 		if(!equal(m.begin(), m.end(), magic))
 		{
@@ -968,7 +968,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    assert(stream.i == stream.b.end());
 	    stream.i = stream.b.begin();
 
-	    MagicBytes m(sizeof(magic), 0);
+	    ByteSeq m(sizeof(magic), 0);
 	    stream.readBlob(m, static_cast<Int>(sizeof(magic)));
 	    if(!equal(m.begin(), m.end(), magic))
 	    {

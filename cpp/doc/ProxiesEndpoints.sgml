@@ -121,7 +121,7 @@ as can the backslash itself (<literal>\\</literal>).
 <para>
 If endpoints are specified, they must be separated with a colon
 (<literal>:</literal>) and formatted as described in
-<link linkend="endpoints" endterm="endpoints.title"></link>. The order of
+<link linkend="endpoints" endterm="endpoints.title">Endpoints</link>. The order of
 endpoints in the stringified proxy is not necessarily the order in
 which connections are attempted during binding: when a stringified proxy is
 converted into a proxy instance, the endpoint list is randomized as a form

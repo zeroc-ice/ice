@@ -17,6 +17,7 @@
 
 #include <Ice/Identity.ice>
 #include <Ice/Facet.ice>
+#include <Ice/BuiltinSequences.ice>
 
 module Ice
 {
@@ -391,13 +392,6 @@ local exception ProtocolException
 };
 
 /**
- * TODO: ML: Seems a bit like an overkill to me. Why not use ByteSeq from BuiltinSequence.ice?
- * A sequence containing the first four
- * bytes of a message with a bad magic number.
- **/
-sequence<byte> MagicBytes;
-
-/**
  *
  * This exception is a specialization of [ProtocolException],
  * indicating that a message did not start with the expected
@@ -411,7 +405,7 @@ local exception BadMagicException extends ProtocolException
      * A sequence containing the first four bytes of the incorrect message.
      *
      **/
-    MagicBytes badMagic;
+    ByteSeq badMagic;
 };
 
 /**

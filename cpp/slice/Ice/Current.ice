@@ -72,8 +72,8 @@ enum OperationMode
      * example, <literal>x = 1</literal> is an idempotent statement,
      * whereas <literal>x += 1</literal> is not. For idempotent
      * operations, the Ice run-time uses the same retry behavior
-     * operations as for nonmutating operations in case of a
-     * potentially recoverable error.
+     * as for nonmutating operations in case of a potentially
+     * recoverable error.
      */
     \Idempotent
 };
