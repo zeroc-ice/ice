@@ -18,6 +18,7 @@ public class BasicStream
         _instance = instance;
         _bufferManager = instance.bufferManager();
         _buf = _bufferManager.allocate(1500);
+        assert(_buf != null);
         _capacity = _buf.capacity();
         _limit = 0;
         assert(_buf.limit() == _capacity);
@@ -124,6 +125,7 @@ public class BasicStream
             _buf.limit(_limit);
             _buf.position(0);
             _buf = _bufferManager.reallocate(_buf, newCapacity);
+            assert(_buf != null);
             _capacity = _buf.capacity();
         }
         //
@@ -1000,6 +1002,7 @@ public class BasicStream
                 int pos = _buf.position();
                 _buf.position(0);
                 _buf = _bufferManager.reallocate(_buf, newCapacity);
+                assert(_buf != null);
                 _capacity = _buf.capacity();
                 _buf.limit(_capacity);
                 _buf.position(pos);
