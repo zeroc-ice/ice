@@ -172,6 +172,7 @@ module_def
 '{' definitions '}'
 {
     unit->popContainer();
+    $$ = $3;
 }
 ;
 
@@ -208,6 +209,7 @@ exception_def
 '{' exception_exports '}'
 {
     unit->popContainer();
+    $$ = $4;
 }
 | ICE_EXCEPTION keyword exception_extends
 {
@@ -297,6 +299,7 @@ struct_def
 '{' struct_exports '}'
 {
     unit->popContainer();
+    $$ = $3;
 }
 | ICE_STRUCT keyword
 {
@@ -381,6 +384,7 @@ class_def
 '{' class_exports '}'
 {
     unit->popContainer();
+    $$ = $5;
 }
 | ICE_CLASS keyword class_extends implements
 {
@@ -518,6 +522,7 @@ interface_def
 '{' interface_exports '}'
 {
     unit->popContainer();
+    $$ = $4;
 }
 | ICE_INTERFACE keyword interface_extends
 {
@@ -736,6 +741,7 @@ enum_def
 	EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
 	en->setEnumerators(enumerators->v);
     }
+    $$ = $3;
 }
 | ICE_ENUM keyword
 {

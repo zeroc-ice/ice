@@ -21,13 +21,14 @@ TARGETS		= $(NAME) $(VERSIONED_NAME)
 OBJS		= Scanner.o \
 		  Grammar.o \
 		  Parser.o \
-		  CPlusPlusUtil.o
+		  CPlusPlusUtil.o \
+		  XsdVisitor.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DYYDEBUG=1
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
