@@ -12,6 +12,7 @@
 
 #include <Slice/CPlusPlusUtil.h> // TODO: ???
 #include <Gen.h>
+#include <Slice/OutputUtil.h>
 
 using namespace std;
 using namespace Slice;
@@ -19,12 +20,12 @@ using namespace Slice;
 static const string internalId = "_internal.";
 
 Slice::Gen::Gen(const string& name, const string& base, const string& include,
-		const vector<string>& includePaths, const string& dir,
-		const ClassDefPtr& classDef) :
+		const vector<string>& includePaths, const string& dir) :
+    _name(name),
     _base(base),
     _include(include),
     _includePaths(includePaths),
-    _classDef(classDef)
+    _dir(dir)
 {
     _orgName = "http://www.noorg.org"; // TODO: argument!
     for (vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
@@ -40,23 +41,6 @@ Slice::Gen::Gen(const string& name, const string& base, const string& include,
     {
 	_base.erase(0, pos + 1);
     }
-
-    //string fileO = _base + ".wsdl";
-    string fileO = containedToId(classDef) + classDef->name() + ".wsdl";
-    if (!dir.empty())
-    {
-	fileO = dir + '/' + fileO;
-    }
-
-    O.open(fileO.c_str());
-    if (!O)
-    {
-	cerr << name << ": can't open `" << fileO << "' for writing: " << strerror(errno) << endl;
-	return;
-    }
-
-    printHeader();
-    O << "\n<!-- Generated from file `" << changeInclude(_base, _includePaths) << ".ice' -->\n";
 }
 
 Slice::Gen::~Gen()
@@ -64,61 +48,72 @@ Slice::Gen::~Gen()
 }
 
 bool
-Slice::Gen::operator!() const
+Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 {
-    return !O;
-}
+    Output O;
 
-void
-Slice::Gen::generate(const UnitPtr& unit)
-{
-    unit->mergeModules();
+    //string fileO = _base + ".wsdl";
+    string fileO = containedToId(p) + p->name() + ".wsdl";
+    if (!_dir.empty())
+    {
+	fileO = _dir + '/' + fileO;
+    }
 
-    string scopeId = containedToId(_classDef);
+    O.open(fileO.c_str());
+    if (!O)
+    {
+	cerr << _name << ": can't open `" << fileO << "' for writing: " << strerror(errno) << endl;
+	return false;
+    }
+
+    printHeader(O);
+    O << "\n<!-- Generated from file `" << changeInclude(_base, _includePaths) << ".ice' -->\n";
+
+    string scopeId = containedToId(p);
 
     //
     // TODO: It would be better if start() aligned the attributes
     // correctly.
     //
     ostringstream os;
-    os << "wsdl:definitions name=\"" << scopeId << _classDef->name() << "\""
+    os << "wsdl:definitions name=\"" << scopeId << p->name() << "\""
        << "\n                 xmlns:wsdl=\"http://schemas.xmlsoap.org/wsdl/\""
        << "\n                 xmlns:xsd1=\"" << _orgName << "/schemas\""
        << "\n                 xmlns:tns=\"" << _orgName << "/definitions\""
        << "\n                 targetNamespace=\"" << _orgName << "/definitions\"";
 
-    start(os.str());
+    start(O, os.str());
 
     // TODO: schemaLocation?
     O << sp << nl << "<wsdl:import namespace=\"" << _orgName << "/schemas\" location=\"" << _base << ".xsd\"/>";
 
 
-    OperationList ops = _classDef->allOperations();
+    OperationList ops = p->allOperations();
     for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
     {
-	emitMessage(*q);
+	emitMessage(O, *q);
     }
 
     O << sp;
 
     os.str("");
     os << "wsdl:portType name=\"" << scopeId << "PortType\"";
-    start(os.str());
+    start(O, os.str());
 
     for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
     {
-	emitOperation(*r);
+	emitOperation(O, *r);
     }
 
-    end(); // PortType
+    end(O); // PortType
 
-    end(); // definitions
+    end(O); // definitions
 
-    O << nl;
+    return false;
 }
 
 void
-Slice::Gen::emitMessage(const OperationPtr& p)
+Slice::Gen::emitMessage(Output& O, const OperationPtr& p)
 {
     O << sp;
 
@@ -126,38 +121,38 @@ Slice::Gen::emitMessage(const OperationPtr& p)
     
     ostringstream os;
     os << "wsdl:message name=\"input." << p->name() << "\"";
-    start(os.str());
+    start(O, os.str());
 
     O << nl << "<wsdl:part name=\"body\" element=\"xsd1:" << scopeId << "request." << p->name() << "\"/>";
 
-    end(); // message
+    end(O); // message
 
     os.str("");
     os << "wsdl:message name=\"output." << p->name() << "\"";
-    start(os.str());
+    start(O, os.str());
 
     O << nl << "<wsdl:part name=\"body\" element=\"xsd1:" << scopeId << "request." << p->name() << "\"/>";
 
-    end(); // message
+    end(O); // message
 }
 
 void
-Slice::Gen::emitOperation(const OperationPtr& p)
+Slice::Gen::emitOperation(Output& O, const OperationPtr& p)
 {
     string scopeId = containedToId(p);
     
     ostringstream os;
     os << "wsdl:operation name=\"" << p->name() << "\"";
-    start(os.str());
+    start(O, os.str());
 
     O << nl << "<wsdl:input message=\"tns:input." << p->name() << "\">";
     O << nl << "<wsdl:output message=\"tns:output." << p->name() << "\">";
 
-    end(); // operation
+    end(O); // operation
 }
 
 void
-Slice::Gen::printHeader()
+Slice::Gen::printHeader(Output& O)
 {
     static const char* header =
 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -181,7 +176,7 @@ Slice::Gen::printHeader()
 
 
 void
-Slice::Gen::start(const std::string& element)
+Slice::Gen::start(Output& O, const std::string& element)
 {
     O << nl << '<' << element << '>';
     O.inc();
@@ -198,7 +193,7 @@ Slice::Gen::start(const std::string& element)
 }
 
 void
-Slice::Gen::end()
+Slice::Gen::end(Output& O)
 {
     string element = _elementStack.top();
     _elementStack.pop();
@@ -236,92 +231,4 @@ Slice::Gen::containedToId(const ContainedPtr& contained)
     }
 
     return id;
-}
-
-string
-Slice::Gen::toString(const SyntaxTreeBasePtr& p)
-{
-    string tag;
-    string linkend;
-    string s;
-
-    static const char* builtinTable[] =
-    {
-	"xs:byte",
-	"xs:boolean",
-	"xs;short",
-	"xs:int",
-	"xs:long",
-	"xs:float",
-	"xs:double",
-	"xs:string",
-	"ice:_internal.reference", /* Object */
-	"ice:_internal.proxyType", /* Object* */
-	"???" /* LocalObject */
-    };
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-    if (builtin)
-    {
-	s = builtinTable[builtin->kind()];
-	//tag = "type";
-    }
-
-    ProxyPtr proxy = ProxyPtr::dynamicCast(p);
-    if (proxy)
-    {
-	s = "ice:_internal.proxyType";
-    }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
-    if (cl)
-    {
-	string scopeId = containedToId(cl);
-	//s = "tns:" + internalId + scopeId + cl->name() + "Type";
-	s = "ice:_internal.reference";
-    }
-
-    ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
-    if (ex)
-    {
-	string scopeId = containedToId(ex);
-	s = "tns:" + internalId + scopeId + ex->name() + "Type";
-    }
-
-    StructPtr st = StructPtr::dynamicCast(p);
-    if (st)
-    {
-	string scopeId = containedToId(st);
-	s = "tns:" + internalId + scopeId + st->name() + "Type";
-    }
-
-    EnumeratorPtr en = EnumeratorPtr::dynamicCast(p);
-    if (en)
-    {
-	string scopeId = containedToId(en);
-	s = "tns:" + internalId + scopeId + en->name() + "Type";
-    }
-
-    SequencePtr sq = SequencePtr::dynamicCast(p);
-    if (sq)
-    {
-	string scopeId = containedToId(sq);
-	s = "tns:" + internalId + scopeId + sq->name() + "Type";
-    }
-
-    DictionaryPtr di = DictionaryPtr::dynamicCast(p);
-    if (di)
-    {
-	string scopeId = containedToId(di);
-	s = "tns:" + internalId + scopeId + di->name() + "Type";
-    }
-
-    EnumPtr em = EnumPtr::dynamicCast(p);
-    if (em)
-    {
-	string scopeId = containedToId(em);
-	s = "tns:" + internalId + scopeId + em->name() + "Type";
-    }
-
-    return s;
 }

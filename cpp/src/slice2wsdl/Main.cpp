@@ -17,7 +17,7 @@ using namespace Slice;
 void
 usage(const char* n)
 {
-    cerr << "Usage: " << n << " [options] slice-file type-id\n";
+    cerr << "Usage: " << n << " [options] slice-file [type-id ...]\n";
     cerr <<
 	"Options:\n"
 	"-h, --help	      Show this message.\n"
@@ -133,14 +133,13 @@ main(int argc, char* argv[])
 	}
     }
 
-    if (argc != 3)
+    if (argc < 2)
     {
 	usage(argv[0]);
 	return EXIT_FAILURE;
     }
 
     string sourceFile = argv[1];
-    string typeId = argv[2];
 
     int status = EXIT_SUCCESS;
 
@@ -196,23 +195,30 @@ main(int argc, char* argv[])
     }
     else
     {
-	ContainedList contained = unit->findContents(typeId);
-	if (contained.empty() || contained.front()->containedType() != Contained::ContainedTypeClass)
+	Gen gen(argv[0], base, include, includePaths, output);
+
+	if (argc > 2)
 	{
-	    cerr << argv[0] << ": invalid type: " << typeId << endl;
-	    status = EXIT_FAILURE;
+	    for (idx = 2 ; idx < argc; ++idx)
+	    {
+		ClassDeclPtr classDecl;
+		TypeList classTypes = unit->lookupType(argv[idx], false);
+		if (!classTypes.empty())
+		{
+		    classDecl = ClassDeclPtr::dynamicCast(classTypes.front());
+		}
+		if (!classDecl)
+		{
+		    cerr << argv[0] << ": invalid type: " << argv[idx] << endl;
+		    status = EXIT_FAILURE;
+		    break;
+		}
+		gen.visitClassDefStart(classDecl->definition());
+	    }
 	}
 	else
 	{
-	    ClassDefPtr p = ClassDefPtr::dynamicCast(contained.front());
-	    assert(p);
-	    Gen gen(argv[0], base, include, includePaths, output, p);
-	    if (!gen)
-	    {
-		unit->destroy();
-		return EXIT_FAILURE;
-	    }
-	    gen.generate(unit);
+	    unit->visit(&gen);
 	}
     }
     
