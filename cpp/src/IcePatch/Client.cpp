@@ -11,6 +11,7 @@
 #include <Ice/Application.h>
 #include <IcePatch/FileDescFactory.h>
 #include <IcePatch/Util.h>
+#include <IcePatch/ClientUtil.h>
 #include <Glacier/Glacier.h>
 #include <IceUtil/Base64.h>
 #include <IceSSL/Plugin.h>
@@ -33,8 +34,11 @@ public:
     void usage();
     virtual int run(int, char*[]);
 
-    static string pathToName(const string&);
-    static void patch(const FileDescSeq&, const string&);
+private:
+
+    void patch(const DirectoryDescPtr&, const string&) const;
+
+    bool _remove;
 };
 
 };
@@ -191,13 +195,52 @@ IcePatch::Client::run(int argc, char* argv[])
 	    }
         }
         
+	//
+	// Check whether we have to patch at all.
+	//
+	Identity infoIdentity = pathToIdentity(".icepatch");
+	ObjectPrx infoObj = communicator()->stringToProxy(identityToString(infoIdentity) + ':' + endpoints);
+	InfoPrx info = InfoPrx::checkedCast(infoObj);
+	assert(info);
+	Long remoteStamp = info->getStamp();
+	Long localStamp = readStamp();
+	if(remoteStamp != localStamp)
+	{
+	    localStamp = remoteStamp;
+	    writeStamp(localStamp);
+	}
+	else if(!(properties->getPropertyAsInt("IcePatch.PatchAlways") > 0))
+	{
+	    cout << "You are up-to-date. No patching is necessary." << endl;
+	    return EXIT_SUCCESS;
+	}
+
+	//
+	// Check whether we want to remove orphaned files.
+	//
+	_remove = properties->getPropertyAsInt("IcePatch.RemoveOrphaned") > 0;
+	if(_remove)
+	{
+	    char cwd[PATH_MAX];
+	    getcwd(cwd, PATH_MAX);
+	    cout << "WARNING: All orphaned files in `" << cwd << "' will be removed." << endl;
+	    cout << "Do you want to proceed? (yes/no)" << endl;
+	    string answer;
+	    cin >> answer;
+	    transform(answer.begin(), answer.end(), answer.begin(), tolower);
+	    if(answer != "yes")
+	    {
+		return EXIT_SUCCESS;
+	    }
+	}	
+
         //
         // Create and install the node description factory.
         //
         ObjectFactoryPtr factory = new FileDescFactory;
         communicator()->addObjectFactory(factory, "::IcePatch::DirectoryDesc");
         communicator()->addObjectFactory(factory, "::IcePatch::RegularDesc");
-        
+
 	//
 	// Patch all subdirectories.
 	//
@@ -205,20 +248,30 @@ IcePatch::Client::run(int argc, char* argv[])
 	{
 	    Identity identity = pathToIdentity(*p);
 	    ObjectPrx topObj = communicator()->stringToProxy(identityToString(identity) + ':' + endpoints);
+	    
 	    FilePrx top = FilePrx::checkedCast(topObj);
-	    assert(top);
-	    DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
-	    assert(topDesc);
-	    string path = identityToPath(topDesc->directory->ice_getIdentity());
-	    string::size_type pos = 0;
-	    while(pos < path.size())
+	    if(!top)
 	    {
-		string::size_type pos2 = path.find('/', pos);
+		cerr << appName() << ": `" << *p << "' does not exist" << endl;
+		return EXIT_FAILURE;
+	    }
+
+	    DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
+	    if(!topDesc)
+	    {
+		cerr << appName() << ": `" << *p << "' is not a directory" << endl;
+		return EXIT_FAILURE;
+	    }
+
+	    string::size_type pos = 0;
+	    while(pos < p->size())
+	    {
+		string::size_type pos2 = p->find('/', pos);
 		if(pos2 == string::npos)
 		{
-		    pos2 = path.size();
+		    pos2 = p->size();
 		}
-		string subPath = path.substr(0, pos2);
+		string subPath = p->substr(0, pos2);
 		FileInfo subPathInfo = getFileInfo(subPath, false);
 		if(subPathInfo.type == FileTypeNotExist)
 		{
@@ -227,9 +280,11 @@ IcePatch::Client::run(int argc, char* argv[])
 		}
 		pos = pos2 + 1;		    
 	    }
-	    cout << pathToName(path) << endl;
+
+	    cout << pathToName(*p) << endl;
 	    cout << "|" << endl;
-	    patch(topDesc->directory->getContents(), "");
+	    
+	    patch(topDesc, "");
 	}
     }
     catch(const FileAccessException& ex)
@@ -268,20 +323,6 @@ IcePatch::Client::run(int argc, char* argv[])
     }
 
     return EXIT_SUCCESS;
-}
-
-string
-IcePatch::Client::pathToName(const string& path)
-{
-    string::size_type pos = path.rfind('/');
-    if(pos == string::npos)
-    {
-	return path;
-    }
-    else
-    {
-	return path.substr(pos + 1);
-    }
 }
 
 class MyProgressCB : public ProgressCB
@@ -325,37 +366,49 @@ public:
 };
 
 void
-IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
+IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) const
 {
+    FileDescSeq fileDescSeq = dirDesc->directory->getContents();
+
+    StringSeq orphaned;
+    if(_remove)
+    {
+	StringSeq fullDirectoryListing = readDirectory(identityToPath(dirDesc->directory->ice_getIdentity()));
+	orphaned.reserve(fullDirectoryListing);
+	for(StringSeq::const_iterator p = fullDirectoryListing.begin(); p != fullDirectoryListing.end(); ++p)
+	{
+	    if(*p != ".icepatch" && getSuffix(*p) != "md5")
+	    {
+		orphaned.push_back(*p);
+	    }
+	}
+    }
+    
     for(unsigned int i = 0; i < fileDescSeq.size(); ++i)
     {
 	string path;
-	DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(fileDescSeq[i]);
-	RegularDescPtr regularDesc;
-	if(directoryDesc)
+	DirectoryDescPtr subDirDesc = DirectoryDescPtr::dynamicCast(fileDescSeq[i]);
+	RegularDescPtr regDesc;
+	if(subDirDesc)
 	{
-	    path = identityToPath(directoryDesc->directory->ice_getIdentity());
+	    path = identityToPath(subDirDesc->directory->ice_getIdentity());
 	}
 	else
 	{
-	    regularDesc = RegularDescPtr::dynamicCast(fileDescSeq[i]);
-	    assert(regularDesc);
-	    path = identityToPath(regularDesc->regular->ice_getIdentity());
+	    regDesc = RegularDescPtr::dynamicCast(fileDescSeq[i]);
+	    assert(regDesc);
+	    path = identityToPath(regDesc->regular->ice_getIdentity());
 	}
 
-	bool last = (i == fileDescSeq.size() - 1);
-	
-	if(directoryDesc)
+	if(_remove)
 	{
-	    string newIndent;
-	    if(last)
-	    {
-		newIndent = indent + "  ";
-	    }
-	    else
-	    {
-		newIndent = indent + "| ";
-	    }
+	    orphaned.erase(remove(orphaned.begin(), orphaned.end(), path), orphaned.end());
+	}
+
+	bool last = (i == fileDescSeq.size() - 1) && orphaned.empty();
+	
+	if(subDirDesc)
+	{
 	    cout << indent << "+-" << pathToName(path) << ":";
 
 	    FileInfo info = getFileInfo(path, false);
@@ -383,12 +436,21 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 		}
 	    }
 
-	    cout << newIndent << "|" << endl;
-	    patch(directoryDesc->directory->getContents(), newIndent);
+	    string newIndent;
+	    if(last)
+	    {
+		newIndent = indent + "  ";
+	    }
+	    else
+	    {
+		newIndent = indent + "| ";
+	    }
+
+	    patch(subDirDesc, newIndent);
 	}
 	else
 	{
-	    assert(regularDesc);
+	    assert(regDesc);
 	    cout << indent << "+-" << pathToName(path) << ":";
 
 	    MyProgressCB progressCB;
@@ -398,14 +460,14 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 	    {
 		case FileTypeNotExist:
 		{
-		    getRegular(regularDesc->regular, progressCB);
+		    getRegular(regDesc->regular, progressCB);
 		    break;
 		}
 
 		case FileTypeDirectory:
 		{
 		    removeRecursive(path);
-		    getRegular(regularDesc->regular, progressCB);
+		    getRegular(regDesc->regular, progressCB);
 		    break;
 		}
 
@@ -420,10 +482,10 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 			md5 = getMD5(path);
 		    }
 
-		    if(md5 != regularDesc->md5)
+		    if(md5 != regDesc->md5)
 		    {
 			removeRecursive(path);
-			getRegular(regularDesc->regular, progressCB);
+			getRegular(regDesc->regular, progressCB);
 		    }
 		    else
 		    {
@@ -433,10 +495,22 @@ IcePatch::Client::patch(const FileDescSeq& fileDescSeq, const string& indent)
 		    break;
 		}
 	    }
+	}
+    }
 
-	    if(last)
+    if(!orphaned.empty())
+    {
+	for(StringSeq::const_iterator p = orphaned.begin(); p != orphaned.end(); ++p)
+	{
+	    cout << indent << "+-" << pathToName(*p) << ": removing orphaned file" << endl;
+	    removeRecursive(*p);
+	    try
 	    {
-		cout << indent << endl;
+		removeRecursive(*p + ".md5");
+	    }
+	    catch(const FileAccessException&);
+	    {
+		// Ignore, the MD5 file might not exist.
 	    }
 	}
     }
