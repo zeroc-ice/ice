@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
+#include <Ice/Application.h>
 #include <IceStorm/Parser.h>
 #include <fstream>
 
@@ -16,10 +16,25 @@ using namespace std;
 using namespace Ice;
 using namespace IceStorm;
 
-void
-usage(const char* n)
+class Client : public Application
 {
-    cerr << "Usage: " << n << " [options] [file...]\n";
+public:
+
+    void usage();
+    virtual int run(int, char*[]);
+};
+
+int
+main(int argc, char* argv[])
+{
+    Client app;
+    return app.main(argc, argv);
+}
+
+void
+Client::usage()
+{
+    cerr << "Usage: " << appName() << " [options] [file...]\n";
     cerr <<	
 	"Options:\n"
 	"-h, --help           Show this message.\n"
@@ -34,7 +49,7 @@ usage(const char* n)
 }
 
 int
-run(int argc, char* argv[], const CommunicatorPtr& communicator)
+Client::run(int argc, char* argv[])
 {
     string cpp("cpp");
     string commands;
@@ -67,7 +82,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	}
 	else if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
 	{
-	    usage(argv[0]);
+	    usage();
 	    return EXIT_SUCCESS;
 	}
 	else if (strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
@@ -79,8 +94,8 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	{
 	    if (idx + 1 >= argc)
             {
-		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
-		usage(argv[0]);
+		cerr << appName() << ": argument expected for`" << argv[idx] << "'" << endl;
+		usage();
 		return EXIT_FAILURE;
             }
 	    
@@ -104,8 +119,8 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	}
 	else if (argv[idx][0] == '-')
 	{
-	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
-	    usage(argv[0]);
+	    cerr << appName() << ": unknown option `" << argv[idx] << "'" << endl;
+	    usage();
 	    return EXIT_FAILURE;
 	}
 	else
@@ -116,29 +131,29 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     if (argc >= 2 && !commands.empty())
     {
-	cerr << argv[0] << ": `-e' option cannot be used if input files are given" << endl;
-	usage(argv[0]);
+	cerr << appName() << ": `-e' option cannot be used if input files are given" << endl;
+	usage();
 	return EXIT_FAILURE;
     }
 
-    PropertiesPtr properties = communicator->getProperties();
+    PropertiesPtr properties = communicator()->getProperties();
     const char* managerProperty = "IceStorm.TopicManager";
     string managerRef = properties->getProperty(managerProperty);
     if (managerRef.empty())
     {
-	cerr << argv[0] << ": " << managerProperty << " is not set" << endl;
+	cerr << appName() << ": " << managerProperty << " is not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    ObjectPrx base = communicator->stringToProxy(managerRef);
+    ObjectPrx base = communicator()->stringToProxy(managerRef);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if (!manager)
     {
-	cerr << argv[0] << ": `" << managerProperty << "' is not running" << endl;
+	cerr << appName() << ": `" << managerProperty << "' is not running" << endl;
 	return EXIT_FAILURE;
     }
 
-    ParserPtr parser = Parser::createParser(communicator, manager);
+    ParserPtr parser = Parser::createParser(communicator(), manager);
     int status = EXIT_SUCCESS;
 
     if (argc < 2) // No files given
@@ -167,7 +182,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	    ifstream test(argv[idx]);
 	    if (!test)
 	    {
-		cerr << argv[0] << ": can't open `" << argv[idx] << "' for reading: " << strerror(errno) << endl;
+		cerr << appName() << ": can't open `" << argv[idx] << "' for reading: " << strerror(errno) << endl;
 		return EXIT_FAILURE;
 	    }
 	    test.close();
@@ -180,7 +195,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 #endif
 	    if (cppHandle == NULL)
 	    {
-		cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
+		cerr << appName() << ": can't run C++ preprocessor: " << strerror(errno) << endl;
 		return EXIT_FAILURE;
 	    }
 	    
@@ -196,39 +211,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	    {
 		status = EXIT_FAILURE;
 	    }
-	}
-    }
-
-    return status;
-}
-
-int
-main(int argc, char* argv[])
-{
-    int status;
-    CommunicatorPtr communicator;
-
-    try
-    {
-	communicator = initialize(argc, argv);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if (communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
 	}
     }
 

@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
+#include <Ice/Application.h>
 #include <IcePack/AdminI.h>
 #include <IcePack/Forward.h>
 
@@ -16,10 +16,25 @@ using namespace std;
 using namespace Ice;
 using namespace IcePack;
 
-void
-usage(const char* n)
+class Server : public Application
 {
-    cerr << "Usage: " << n << " [options]\n";
+public:
+
+    void usage();
+    virtual int run(int, char*[]);
+};
+
+int
+main(int argc, char* argv[])
+{
+    Server app;
+    return app.main(argc, argv);
+}
+
+void
+Server::usage()
+{
+    cerr << "Usage: " << appName() << " [options]\n";
     cerr <<	
 	"Options:\n"
 	"-h, --help           Show this message.\n"
@@ -29,14 +44,14 @@ usage(const char* n)
 }
 
 int
-run(int argc, char* argv[], const CommunicatorPtr& communicator)
+Server::run(int argc, char* argv[])
 {
     bool nowarn = false;
     for (int i = 1; i < argc; ++i)
     {
 	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
 	{
-	    usage(argv[0]);
+	    usage();
 	    return EXIT_SUCCESS;
 	}
 	else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
@@ -50,19 +65,19 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	}
 	else
 	{
-	    cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
-	    usage(argv[0]);
+	    cerr << appName() << ": unknown option `" << argv[i] << "'" << endl;
+	    usage();
 	    return EXIT_FAILURE;
 	}
     }
 
-    PropertiesPtr properties = communicator->getProperties();
+    PropertiesPtr properties = communicator()->getProperties();
 
     const char* adminEndpointsProperty = "Ice.Adapter.Admin.Endpoints";
     string adminEndpoints = properties->getProperty(adminEndpointsProperty);
     if (!adminEndpoints.empty() && !nowarn)
     {
-	cerr << argv[0] << ": warning: administrative endpoints property `" << adminEndpointsProperty << "' enabled"
+	cerr << appName() << ": warning: administrative endpoints property `" << adminEndpointsProperty << "' enabled"
 	     << endl;
     }
 
@@ -70,57 +85,24 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     string forwardEndpoints = properties->getProperty(forwardEndpointsProperty);
     if (forwardEndpoints.empty())
     {
-	cerr << argv[0] << ": property `" << forwardEndpointsProperty << "' is not set" << endl;
+	cerr << appName() << ": property `" << forwardEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
 
-    AdminPtr admin = new AdminI(communicator);
-    ServantLocatorPtr forward = new Forward(communicator, admin);
+    AdminPtr admin = new AdminI(communicator());
+    ServantLocatorPtr forward = new Forward(communicator(), admin);
 
     if (adminEndpoints.length() != 0)
     {
-	ObjectAdapterPtr adminAdapter = communicator->createObjectAdapter("Admin");
+	ObjectAdapterPtr adminAdapter = communicator()->createObjectAdapter("Admin");
 	adminAdapter->add(admin, "admin");
 	adminAdapter->activate();
     }
 
-    ObjectAdapterPtr forwardAdapter = communicator->createObjectAdapter("Forward");
+    ObjectAdapterPtr forwardAdapter = communicator()->createObjectAdapter("Forward");
     forwardAdapter->addServantLocator(forward, "");
     forwardAdapter->activate();
 
-    communicator->waitForShutdown();
+    communicator()->waitForShutdown();
     return EXIT_SUCCESS;
-}
-
-int
-main(int argc, char* argv[])
-{
-    int status;
-    CommunicatorPtr communicator;
-
-    try
-    {
-	communicator = initialize(argc, argv);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if (communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
 }

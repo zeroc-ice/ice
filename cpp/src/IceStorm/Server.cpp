@@ -8,16 +8,33 @@
 //
 // **********************************************************************
 
-#include <Ice/Ice.h>
+#include <Ice/Application.h>
 #include <IceStorm/TopicManagerI.h>
 #include <IceStorm/TraceLevels.h>
 
 using namespace std;
+using namespace Ice;
+using namespace IceStorm;
+
+class Server : public Application
+{
+public:
+
+    void usage();
+    virtual int run(int, char*[]);
+};
+
+int
+main(int argc, char* argv[])
+{
+    Server app;
+    return app.main(argc, argv);
+}
 
 void
-usage(const char* n)
+Server::usage()
 {
-    cerr << "Usage: " << n << " [options]\n";
+    cerr << "Usage: " << appName() << " [options]\n";
     cerr <<	
 	"Options:\n"
 	"-h, --help           Show this message.\n"
@@ -26,13 +43,13 @@ usage(const char* n)
 }
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+Server::run(int argc, char* argv[])
 {
     for (int i = 1; i < argc; ++i)
     {
 	if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
 	{
-	    usage(argv[0]);
+	    usage();
 	    return EXIT_SUCCESS;
 	}
 	else if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--version") == 0)
@@ -42,52 +59,19 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
 	else
 	{
-	    cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
-	    usage(argv[0]);
+	    cerr << appName() << ": unknown option `" << argv[i] << "'" << endl;
+	    usage();
 	    return EXIT_FAILURE;
 	}
     }
 
-    //PropertiesPtr properties = communicator->getProperties();
+    //PropertiesPtr properties = communicator()->getProperties();
 
-    IceStorm::TraceLevelsPtr traceLevels = new IceStorm::TraceLevels(communicator->getProperties());
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TopicManager");
-    Ice::ObjectPtr object = new IceStorm::TopicManagerI(communicator, adapter, traceLevels);
+    TraceLevelsPtr traceLevels = new TraceLevels(communicator()->getProperties());
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TopicManager");
+    ObjectPtr object = new TopicManagerI(communicator(), adapter, traceLevels);
     adapter->add(object, "TopicManager");
     adapter->activate();
-    communicator->waitForShutdown();
+    communicator()->waitForShutdown();
     return EXIT_SUCCESS;
-}
-
-int
-main(int argc, char* argv[])
-{
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-	communicator = Ice::initialize(argc, argv);
-	status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-	cerr << ex << endl;
-	status = EXIT_FAILURE;
-    }
-
-    if (communicator)
-    {
-	try
-	{
-	    communicator->destroy();
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-    }
-
-    return status;
 }
