@@ -123,6 +123,10 @@ SOURCE=.\RWRecMutexTest.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\StartTest.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\TestBase.cpp
 # End Source File
 # Begin Source File
@@ -160,6 +164,10 @@ SOURCE=.\RecMutexTest.h
 # Begin Source File
 
 SOURCE=.\RWRecMutexTest.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\StartTest.h
 # End Source File
 # Begin Source File
 
