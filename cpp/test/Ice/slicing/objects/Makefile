@@ -16,8 +16,9 @@ top_srcdir	= ../../../..
 
 CLIENT		= client
 SERVER		= server
+SERVERAMD	= serveramd
 
-TARGETS		= $(CLIENT) $(SERVER)
+TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD)
 
 COBJS		= Test.o \
 		  ClientPrivate.o \
@@ -31,10 +32,17 @@ SOBJS		= Test.o \
 		  Server.o \
 		  Forward.o
 
-SRCS		= $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+SAMDOBJS	= TestAMD.o \
+    		  ServerPrivateAMD.o \
+		  TestAMDI.o \
+		  ServerAMD.o \
+		  Forward.o
 
-SLICE_SRCS	= Test.ice ClientPrivate.ice ServerPrivate.ice Forward.ice
+SRCS		= $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp) \
+		  $(SAMDOBJS:.o=.cpp)
+
+SLICE_SRCS	= Test.ice TestAMD.ice ClientPrivate.ice ServerPrivate.ice ServerPrivateAMD.ice Forward.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -49,5 +57,9 @@ $(CLIENT): $(COBJS)
 $(SERVER): $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+
+$(SERVERAMD): $(SAMDOBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(SAMDOBJS) $(LIBS)
 
 include .depend

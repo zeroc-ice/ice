@@ -462,13 +462,181 @@ class AMI_Test_paramTest4I : public AMI_Test_paramTest4, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_paramTest4I> AMI_Test_paramTest4IPtr;
 
+class AMI_Test_sequenceTestI : public AMI_Test_sequenceTest, public CallbackBase
+{
+    virtual void
+    ice_response(const SS& ss)
+    {
+	r = ss;
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+
+public:
+
+    SS r;
+};
+
+typedef IceUtil::Handle<AMI_Test_sequenceTestI> AMI_Test_sequenceTestIPtr;
+
+class AMI_Test_dictionaryTestI : public AMI_Test_dictionaryTest, public CallbackBase
+{
+    virtual void
+    ice_response(const BDict& r, const BDict& bout)
+    {
+	this->r = r;
+	this->bout = bout;
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+
+public:
+
+    BDict bout;
+    BDict r;
+};
+
+typedef IceUtil::Handle<AMI_Test_dictionaryTestI> AMI_Test_dictionaryTestIPtr;
+
+class AMI_Test_throwBaseAsBaseI : public AMI_Test_throwBaseAsBase, public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const ::Ice::Exception& ex)
+    {
+	test(ex.ice_name() == "BaseException");
+	const BaseException& e = dynamic_cast<const BaseException&>(ex);
+	test(e.sbe == "sbe");
+	test(e.pb);
+	test(e.pb->sb == "sb");
+	test(e.pb->pb == e.pb);
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_throwBaseAsBaseI> AMI_Test_throwBaseAsBaseIPtr;
+
+class AMI_Test_throwDerivedAsBaseI : public AMI_Test_throwDerivedAsBase, public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const ::Ice::Exception& ex)
+    {
+	test(ex.ice_name() == "DerivedException");
+	const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
+	test(e.sbe == "sbe");
+	test(e.pb);
+	test(e.pb->sb == "sb1");
+	test(e.pb->pb == e.pb);
+	test(e.sde == "sde1");
+	test(e.pd1);
+	test(e.pd1->sb == "sb2");
+	test(e.pd1->pb == e.pd1);
+	test(e.pd1->sd1 == "sd2");
+	test(e.pd1->pd1 == e.pd1);
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_throwDerivedAsBaseI> AMI_Test_throwDerivedAsBaseIPtr;
+
+class AMI_Test_throwDerivedAsDerivedI : public AMI_Test_throwDerivedAsDerived, public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const ::Ice::Exception& ex)
+    {
+	test(ex.ice_name() == "DerivedException");
+	const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
+	test(e.sbe == "sbe");
+	test(e.pb);
+	test(e.pb->sb == "sb1");
+	test(e.pb->pb == e.pb);
+	test(e.sde == "sde1");
+	test(e.pd1);
+	test(e.pd1->sb == "sb2");
+	test(e.pd1->pb == e.pd1);
+	test(e.pd1->sd1 == "sd2");
+	test(e.pd1->pd1 == e.pd1);
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_throwDerivedAsDerivedI> AMI_Test_throwDerivedAsDerivedIPtr;
+
+class AMI_Test_throwUnknownDerivedAsBaseI : public AMI_Test_throwUnknownDerivedAsBase, public CallbackBase
+{
+    virtual void
+    ice_response()
+    {
+	test(false);
+    }
+
+    virtual void
+    ice_exception(const ::Ice::Exception& ex)
+    {
+	test(ex.ice_name() == "BaseException");
+	const BaseException& e = dynamic_cast<const BaseException&>(ex);
+	test(e.sbe == "sbe");
+	test(e.pb);
+	test(e.pb->sb == "sb d2");
+	test(e.pb->pb == e.pb);
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_throwUnknownDerivedAsBaseI> AMI_Test_throwUnknownDerivedAsBaseIPtr;
+
+class AMI_Test_useForwardI : public AMI_Test_useForward, public CallbackBase
+{
+    virtual void
+    ice_response(const ForwardPtr& f)
+    {
+	test(f);
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_useForwardI> AMI_Test_useForwardIPtr;
+
 TestPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectPrx obj = communicator->stringToProxy("Test:default -p 12345");
     TestPrx test = TestPrx::checkedCast(obj);
 
-    cout << "testing base as Object... " << flush;
+    cout << "base as Object... " << flush;
     {
 	Ice::ObjectPtr o;
 	try
@@ -487,7 +655,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing base as Object with AMI... " << flush;
+    cout << "base as Object (AMI)... " << flush;
     {
 	AMI_Test_SBaseAsObjectIPtr cb = new AMI_Test_SBaseAsObjectI;
 	test->SBaseAsObject_async(cb);
@@ -495,7 +663,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing base as base... " << flush;
+    cout << "base as base... " << flush;
     {
 	SBasePtr sb;
 	try
@@ -510,7 +678,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing base as base with AMI... " << flush;
+    cout << "base as base (AMI)... " << flush;
     {
 	AMI_Test_SBaseAsSBaseIPtr cb = new AMI_Test_SBaseAsSBaseI;
 	test->SBaseAsSBase_async(cb);
@@ -518,7 +686,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing base with known derived as base... " << flush;
+    cout << "base with known derived as base... " << flush;
     {
 	SBasePtr sb;
 	try
@@ -536,7 +704,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing base with known derived as base with AMI... " << flush;
+    cout << "base with known derived as base (AMI)... " << flush;
     {
 	AMI_Test_SBSKnownDerivedAsSBaseIPtr cb = new AMI_Test_SBSKnownDerivedAsSBaseI;
 	test->SBSKnownDerivedAsSBase_async(cb);
@@ -544,7 +712,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing base with known derived as known derived... " << flush;
+    cout << "base with known derived as known derived... " << flush;
     {
 	SBSKnownDerivedPtr sbskd;
 	try
@@ -559,7 +727,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing base with known derived as known derived with AMI... " << flush;
+    cout << "base with known derived as known derived (AMI)... " << flush;
     {
 	AMI_Test_SBSKnownDerivedAsSBSKnownDerivedIPtr cb = new AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI;
 	test->SBSKnownDerivedAsSBSKnownDerived_async(cb);
@@ -567,7 +735,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing base with unknown derived as base... " << flush;
+    cout << "base with unknown derived as base... " << flush;
     {
 	SBasePtr sb;
 	try
@@ -582,7 +750,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing base with unknown derived as base with AMI... " << flush;
+    cout << "base with unknown derived as base (AMI)... " << flush;
     {
 	AMI_Test_SBSUnknownDerivedAsSBaseIPtr cb = new AMI_Test_SBSUnknownDerivedAsSBaseI;
 	test->SBSUnknownDerivedAsSBase_async(cb);
@@ -590,7 +758,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing unknown with Object as Object... " << flush;
+    cout << "unknown with Object as Object... " << flush;
     {
 	Ice::ObjectPtr o;
 	try
@@ -605,7 +773,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing unknown with Object as Object with AMI... " << flush;
+    cout << "unknown with Object as Object (AMI)... " << flush;
     {
 	AMI_Test_SUnknownAsObjectIPtr cb = new AMI_Test_SUnknownAsObjectI;
 	test->SUnknownAsObject_async(cb);
@@ -613,7 +781,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing one-element cycle... " << flush;
+    cout << "one-element cycle... " << flush;
     {
 	try
 	{
@@ -630,7 +798,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing one-element cycle with AMI... " << flush;
+    cout << "one-element cycle (AMI)... " << flush;
     {
 	AMI_Test_oneElementCycleIPtr cb = new AMI_Test_oneElementCycleI;
 	test->oneElementCycle_async(cb);
@@ -638,7 +806,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing two-element cycle... " << flush;
+    cout << "two-element cycle... " << flush;
     {
 	try
 	{
@@ -660,7 +828,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing two-element cycle with AMI... " << flush;
+    cout << "two-element cycle (AMI)... " << flush;
     {
 	AMI_Test_twoElementCycleIPtr cb = new AMI_Test_twoElementCycleI;
 	test->twoElementCycle_async(cb);
@@ -668,7 +836,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing known derived pointer slicing as base... " << flush;
+    cout << "known derived pointer slicing as base... " << flush;
     {
 	try
 	{
@@ -699,7 +867,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing known derived pointer slicing as base with AMI... " << flush;
+    cout << "known derived pointer slicing as base (AMI)... " << flush;
     {
 	AMI_Test_D1AsBIPtr cb = new AMI_Test_D1AsBI;
 	test->D1AsB_async(cb);
@@ -707,7 +875,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing known derived pointer slicing as derived... " << flush;
+    cout << "known derived pointer slicing as derived... " << flush;
     {
 	try
 	{
@@ -732,7 +900,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing known derived pointer slicing as derived with AMI... " << flush;
+    cout << "known derived pointer slicing as derived (AMI)... " << flush;
     {
 	AMI_Test_D1AsD1IPtr cb = new AMI_Test_D1AsD1I;
 	test->D1AsD1_async(cb);
@@ -740,7 +908,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing unknown derived pointer slicing as base... " << flush;
+    cout << "unknown derived pointer slicing as base... " << flush;
     {
 	try
 	{
@@ -769,7 +937,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing unknown derived pointer slicing as base with AMI... " << flush;
+    cout << "unknown derived pointer slicing as base (AMI)... " << flush;
     {
 	AMI_Test_D2AsBIPtr cb = new AMI_Test_D2AsBI;
 	test->D2AsB_async(cb);
@@ -777,7 +945,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing parameter pointer slicing with known first... " << flush;
+    cout << "param ptr slicing with known first... " << flush;
     {
 	try
 	{
@@ -806,7 +974,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing parameter pointer slicing with known first with AMI... " << flush;
+    cout << "param ptr slicing with known first (AMI)... " << flush;
     {
 	AMI_Test_paramTest1IPtr cb = new AMI_Test_paramTest1I;
 	test->paramTest1_async(cb);
@@ -814,7 +982,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing parameter pointer slicing with unknown first... " << flush;
+    cout << "param ptr slicing with unknown first... " << flush;
     {
 	try
 	{
@@ -843,7 +1011,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing return value identity with known first... " << flush;
+    cout << "return value identity with known first... " << flush;
     {
 	try
 	{
@@ -859,7 +1027,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing return value identity with known first with AMI... " << flush;
+    cout << "return value identity with known first (AMI)... " << flush;
     {
 	AMI_Test_returnTest1IPtr cb = new AMI_Test_returnTest1I;
 	test->returnTest1_async(cb);
@@ -867,7 +1035,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing return value identity with unknown first... " << flush;
+    cout << "return value identity with unknown first... " << flush;
     {
 	try
 	{
@@ -883,7 +1051,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing return value identity with unknown first with AMI... " << flush;
+    cout << "return value identity with unknown first (AMI)... " << flush;
     {
 	AMI_Test_returnTest2IPtr cb = new AMI_Test_returnTest2I;
 	test->returnTest2_async(cb);
@@ -891,7 +1059,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing return value identity for input params known first... " << flush;
+    cout << "return value identity for input params known first... " << flush;
     {
 	try
 	{
@@ -936,7 +1104,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing return value identity for input params known first with AMI... " << flush;
+    cout << "return value identity for input params known first (AMI)... " << flush;
     {
 	try
 	{
@@ -984,7 +1152,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing return value identity for input params unknown first... " << flush;
+    cout << "return value identity for input params unknown first... " << flush;
     {
 	try
 	{
@@ -1029,7 +1197,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing return value identity for input params unknown first with AMI... " << flush;
+    cout << "return value identity for input params unknown first (AMI)... " << flush;
     {
 	try
 	{
@@ -1077,7 +1245,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing remainder unmarshaling (3 instances)... " << flush;
+    cout << "remainder unmarshaling (3 instances)... " << flush;
     {
 	try
 	{
@@ -1107,37 +1275,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing remainder unmarshaling (3 instances)... " << flush;
-    {
-	try
-	{
-	    BPtr p1;
-	    BPtr p2;
-	    BPtr ret = test->paramTest3(p1, p2);
-
-	    test(p1);
-	    test(p1->sb == "D2.sb (p1 1)");
-	    test(p1->pb == 0);
-	    test(p1->ice_id() == "::B");
-
-	    test(p2);
-	    test(p2->sb == "D2.sb (p2 1)");
-	    test(p2->pb == 0);
-	    test(p2->ice_id() == "::B");
-
-	    test(ret);
-	    test(ret->sb == "D1.sb (p2 2)");
-	    test(ret->pb == 0);
-	    test(ret->ice_id() == "::D1");
-	}
-	catch(...)
-	{
-	    test(0);
-	}
-    }
-    cout << "ok" << endl;
-
-    cout << "testing remainder unmarshaling (3 instances) with AMI... " << flush;
+    cout << "remainder unmarshaling (3 instances) (AMI)... " << flush;
     {
 	AMI_Test_paramTest3IPtr cb = new AMI_Test_paramTest3I;
 	test->paramTest3_async(cb);
@@ -1145,7 +1283,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing remainder unmarshaling (4 instances)... " << flush;
+    cout << "remainder unmarshaling (4 instances)... " << flush;
     {
 	try
 	{
@@ -1169,7 +1307,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing remainder unmarshaling (4 instances) with AMI... " << flush;
+    cout << "remainder unmarshaling (4 instances) (AMI)... " << flush;
     {
 	BPtr b;
 	AMI_Test_paramTest4IPtr cb = new AMI_Test_paramTest4I;
@@ -1178,7 +1316,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing parameter pointer slicing with first instance marshaled in unknown derived as base... " << flush;
+    cout << "param ptr slicing, instance marshaled in unknown derived as base... " << flush;
     {
 	try
 	{
@@ -1210,7 +1348,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing parameter pointer slicing with first instance marshaled in unknown derived as base with AMI... " << flush;
+    cout << "param ptr slicing, instance marshaled in unknown derived as base (AMI)... " << flush;
     {
 	try
 	{
@@ -1245,7 +1383,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing parameter pointer slicing with first instance marshaled in unknown derived as derived... "
+    cout << "param ptr slicing, instance marshaled in unknown derived as derived... "
 	 << flush;
     {
 	try
@@ -1280,7 +1418,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing parameter pointer slicing with first instance marshaled in unknown derived as derived with AMI... "
+    cout << "param ptr slicing, instance marshaled in unknown derived as derived (AMI)... "
 	 << flush;
     {
 	try
@@ -1318,7 +1456,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing sequence slicing... " << flush;
+    cout << "sequence slicing... " << flush;
     {
 	try
 	{
@@ -1405,7 +1543,97 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing dictionary slicing... " << flush;
+    cout << "sequence slicing (AMI)... " << flush;
+    {
+	try
+	{
+	    SS ss;
+	    {
+		BPtr ss1b = new B;
+		ss1b->sb = "B.sb";
+		ss1b->pb = ss1b;
+
+		D1Ptr ss1d1 = new D1;
+		ss1d1->sb = "D1.sb";
+		ss1d1->sd1 = "D1.sd1";
+		ss1d1->pb = ss1b;
+
+		D3Ptr ss1d3 = new D3;
+		ss1d3->sb = "D3.sb";
+		ss1d3->sd3 = "D3.sd3";
+		ss1d3->pb = ss1b;
+
+		BPtr ss2b = new B;
+		ss2b->sb = "B.sb";
+		ss2b->pb = ss1b;
+
+		D1Ptr ss2d1 = new D1;
+		ss2d1->sb = "D1.sb";
+		ss2d1->sd1 = "D1.sd1";
+		ss2d1->pb = ss2b;
+
+		D3Ptr ss2d3 = new D3;
+		ss2d3->sb = "D3.sb";
+		ss2d3->sd3 = "D3.sd3";
+		ss2d3->pb = ss2b;
+
+		ss1d1->pd1 = ss2b;
+		ss1d3->pd3 = ss2d1;
+
+		ss2d1->pd1 = ss1d3;
+		ss2d3->pd3 = ss1d1;
+
+		SS1Ptr ss1 = new SS1;
+		ss1->s.push_back(ss1b);
+		ss1->s.push_back(ss1d1);
+		ss1->s.push_back(ss1d3);
+
+		SS2Ptr ss2 = new SS2;
+		ss2->s.push_back(ss2b);
+		ss2->s.push_back(ss2d1);
+		ss2->s.push_back(ss2d3);
+
+		AMI_Test_sequenceTestIPtr cb = new AMI_Test_sequenceTestI;
+		test->sequenceTest_async(cb, ss1, ss2);
+		test(cb->check());
+		ss = cb->r;
+	    }
+
+	    test(ss.c1);
+	    BPtr ss1b = ss.c1->s[0];
+	    BPtr ss1d1 = ss.c1->s[1];
+	    test(ss.c2);
+	    BPtr ss1d3 = ss.c1->s[2];
+
+	    test(ss.c2);
+	    BPtr ss2b = ss.c2->s[0];
+	    BPtr ss2d1 = ss.c2->s[1];
+	    BPtr ss2d3 = ss.c2->s[2];
+
+	    test(ss1b->pb == ss1b);
+	    test(ss1d1->pb == ss1b);
+	    test(ss1d3->pb == ss1b);
+
+	    test(ss2b->pb == ss1b);
+	    test(ss2d1->pb == ss2b);
+	    test(ss2d3->pb == ss2b);
+
+	    test(ss1b->ice_id() == "::B");
+	    test(ss1d1->ice_id() == "::D1");
+	    test(ss1d3->ice_id() == "::B");
+
+	    test(ss2b->ice_id() == "::B");
+	    test(ss2d1->ice_id() == "::D1");
+	    test(ss2d3->ice_id() == "::B");
+	}
+	catch(const ::Ice::Exception&)
+	{
+	    test(0);
+	}
+    }
+    cout << "ok" << endl;
+
+    cout << "dictionary slicing... " << flush;
     {
 	try
 	{
@@ -1462,7 +1690,68 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing base exception thrown as base exception... " << flush;
+    cout << "dictionary slicing (AMI)... " << flush;
+    {
+	try
+	{
+	    BDict bin;
+	    BDict bout;
+	    BDict r;
+	    int i;
+	    for(i = 0; i < 10; ++i)
+	    {
+		ostringstream s;
+		s << "D1." << i;
+		D1Ptr d1 = new D1;
+		d1->sb = s.str();
+		d1->pb = d1;
+		d1->sd1 = s.str();
+		bin[i] = d1;
+	    }
+
+	    AMI_Test_dictionaryTestIPtr cb = new AMI_Test_dictionaryTestI;
+	    test->dictionaryTest_async(cb, bin);
+	    test(cb->check());
+	    bout = cb->bout;
+	    r = cb->r;
+
+	    test(bout.size() == 10);
+	    for(i = 0; i < 10; ++i)
+	    {
+		BPtr b = bout.find(i * 10)->second;
+		test(b);
+		std::ostringstream s;
+		s << "D1." << i;
+		test(b->sb == s.str());
+		test(b->pb);
+		test(b->pb != b);
+		test(b->pb->sb == s.str());
+		test(b->pb->pb == b->pb);
+	    }
+
+	    test(r.size() == 10);
+	    for(i = 0; i < 10; ++i)
+	    {
+		BPtr b = r.find(i * 20)->second;
+		test(b);
+		std::ostringstream s;
+		s << "D1." << i * 20;
+		test(b->sb == s.str());
+		test(b->pb == (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second));
+		D1Ptr d1 = D1Ptr::dynamicCast(b);
+		test(d1);
+		test(d1->sd1 == s.str());
+		test(d1->pd1 == d1);
+	    }
+	}
+	catch(const ::Ice::Exception&)
+	{
+	    test(0);
+	}
+    }
+    cout << "ok" << endl;
+
+    cout << "base exception thrown as base exception... " << flush;
     {
 	try
 	{
@@ -1484,7 +1773,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing derived exception thrown as base exception... " << flush;
+    cout << "base exception thrown as base exception (AMI)... " << flush;
+    {
+	AMI_Test_throwBaseAsBaseIPtr cb = new AMI_Test_throwBaseAsBaseI;
+	test->throwBaseAsBase_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "derived exception thrown as base exception... " << flush;
     {
 	try
 	{
@@ -1512,7 +1809,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing derived exception thrown as derived exception... " << flush;
+    cout << "derived exception thrown as base exception (AMI)... " << flush;
+    {
+	AMI_Test_throwDerivedAsBaseIPtr cb = new AMI_Test_throwDerivedAsBaseI;
+	test->throwDerivedAsBase_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "derived exception thrown as derived exception... " << flush;
     {
 	try
 	{
@@ -1540,7 +1845,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing unknown derived exception thrown as base exception... " << flush;
+    cout << "derived exception thrown as derived exception (AMI)... " << flush;
+    {
+	AMI_Test_throwDerivedAsDerivedIPtr cb = new AMI_Test_throwDerivedAsDerivedI;
+	test->throwDerivedAsDerived_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "unknown derived exception thrown as base exception... " << flush;
     {
 	try
 	{
@@ -1562,7 +1875,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing forward-declared class... " << flush;
+    cout << "unknown derived exception thrown as base exception (AMI)... " << flush;
+    {
+	AMI_Test_throwUnknownDerivedAsBaseIPtr cb = new AMI_Test_throwUnknownDerivedAsBaseI;
+	test->throwUnknownDerivedAsBase_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
+    cout << "forward-declared class... " << flush;
     {
 	try
 	{
@@ -1574,6 +1895,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(0);
 	}
+    }
+    cout << "ok" << endl;
+
+    cout << "forward-declared class (AMI)... " << flush;
+    {
+	AMI_Test_useForwardIPtr cb = new AMI_Test_useForwardI;
+	test->useForward_async(cb);
+	test(cb->check());
     }
     cout << "ok" << endl;
 
