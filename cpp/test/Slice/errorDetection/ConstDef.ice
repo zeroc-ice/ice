@@ -61,10 +61,13 @@ const long r1 = 9223372036854775807;	// LLONG_MAX, OK
 const long r2 = -9223372036854775807;	// -LLONG_MAX, OK
 
 //
-// The following should work -- it's 0xffffffffffffffff. But strtoll()
-// has a bug and won't convert that (legal) value.
+// TODO: This should work, but doesn't. STLport can't handle inserting
+// LLONG_MIN onto a stream and inserts garbage. We can periodically try
+// this again as new versions of STLport come out...
 //
-const long r3 = -9223372036854775808;	// LLONG_MIN
+// const long r3 = -9223372036854775808;	// LLONG_MIN, OK
+//
+
 const long r4 = -9223372036854775809;	// underflow
 const long r5 = +9223372036854775808;	// overflow
 

@@ -37,22 +37,26 @@ namespace Slice
 #   define STRTOLL(a, b, c) _atoi64(a)
     typedef __int64 Long;
     typedef double Double;
-    const Long INT32_MIN = -0x80000000i64;
+    const Long INT64_MAX =  0x7fffffffffffffffi64;
+    const Long INT64_MIN = -INT64_MAX - 1i64;
     const Long INT32_MAX =  0x7fffffffi64;
+    const Long INT32_MIN = -INT32_MAX - 1i64;
 #elif(__linux__) && defined(i386)
 #   define STRTOLL(a, b, c) strtoll((a), (b), (c))
     typedef long long Long;
     typedef double Double;
-    const Long INT32_MIN = -0x80000000LL;
+    const Long INT64_MAX =  0x7fffffffffffffffLL;
+    const Long INT64_MIN = -INT64_MAX - 1LL;
     const Long INT32_MAX =  0x7fffffffLL;
+    const Long INT32_MIN = -INT32_MAX - 1LL;
 #else
 #   error "Unsupported operating system or platform!"
 #endif
 
-const Long BYTE_MIN = 0x00;
-const Long BYTE_MAX = 0xff;
-const Long INT16_MIN = -0x8000;
 const Long INT16_MAX =  0x7fff;
+const Long INT16_MIN = -INT16_MAX - 1;
+const Long BYTE_MAX = 0xff;
+const Long BYTE_MIN = 0x00;
 
 class GrammarBase;
 class SyntaxTreeBase;

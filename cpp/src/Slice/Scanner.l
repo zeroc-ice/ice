@@ -317,7 +317,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent
     }
 #else
     itp->v = strtoll(yytext, 0, 0);
-    if(errno == ERANGE)
+    if(errno == ERANGE && (itp->v == INT64_MIN || itp->v == INT64_MAX))
     {
 	string msg = "integer constant `";
 	msg += yytext;

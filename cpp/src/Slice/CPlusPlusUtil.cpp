@@ -88,6 +88,26 @@ Slice::printVersionCheck(Output& out)
 }
 
 void
+Slice::printDefInt64Macro(Output& out)
+{
+    out << "\n";
+    out << "\n#if defined(_WIN32)";
+    out << "\n#    define INT64LITERAL(n) n##i64";
+    out << "\n#elif defined(__linux__) && defined(i386)";
+    out << "\n#    define INT64LITERAL(n) n##LL";
+    out << "\n#else";
+    out << "\n#    error \"Unsupported operating system or platform!\"";
+    out << "\n#endif";
+}
+
+void
+Slice::printUndefInt64Macro(Output& out)
+{
+    out << "\n";
+    out << "\n#undef INT64LITERAL";
+}
+
+void
 Slice::printDllExportStuff(Output& out, const string& dllExport)
 {
     if(dllExport.size())

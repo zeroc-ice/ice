@@ -214,6 +214,8 @@ Slice::Gen::generate(const UnitPtr& unit)
 	_dllExport += " ";
     }
 
+    printDefInt64Macro(H);
+
     ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
     unit->visit(&proxyDeclVisitor);
 
@@ -263,6 +265,8 @@ Slice::Gen::generate(const UnitPtr& unit)
         ImplVisitor implVisitor(implH, implC, _dllExport);
         unit->visit(&implVisitor);
     }
+
+    printUndefInt64Macro(H);
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllExport) :
@@ -935,11 +939,7 @@ Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
     H << nl << "const " << typeToString(p->type()) << " " << p->name() << " = ";
 
     BuiltinPtr bp = BuiltinPtr::dynamicCast(p->type());
-    if(bp && bp->kind() != Builtin::KindString)
-    {
-	H << p->value();
-    }
-    else
+    if(bp && bp->kind() == Builtin::KindString)
     {
 	//
 	// Expand strings into the basic source character set. We can't use isalpha() and the like
@@ -980,6 +980,14 @@ Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
 	H.flags(originalFlags);
 
 	H << "\"";					// Closing "
+    }
+    else if(bp && bp->kind() == Builtin::KindLong)
+    {
+	H << "INT64LITERAL(" << p->value() << ")";
+    }
+    else
+    {
+	H << p->value();
     }
 
     H << ";";
