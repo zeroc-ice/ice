@@ -163,26 +163,33 @@ TopicManagerI::reap()
     TopicIMap::iterator i = _topicIMap.begin();
     while(i != _topicIMap.end())
     {
-	if(i->second->destroyed())
-	{
-	    if(_traceLevels->topicMgr > 0)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
-		out << "Reaping " << i->first;
-	    }
+        if(i->second->destroyed())
+        {
+            if(_traceLevels->topicMgr > 0)
+            {
+                Ice::Trace out(_traceLevels->logger, _traceLevels->topicMgrCat);
+                out << "Reaping " << i->first;
+            }
 
-	    _topics.erase(i->first);
+            _topics.erase(i->first);
 
-            Ice::Identity id;
-            id.name = i->first;
-            _topicAdapter->remove(id);
+            try
+            {
+                Ice::Identity id;
+                id.name = i->first;
+                _topicAdapter->remove(id);
+            }
+            catch(const Ice::ObjectAdapterDeactivatedException&)
+            {
+                // Ignore
+            }
 
-	    _topicIMap.erase(i++);
-	}
-	else
-	{
-	    ++i;
-	}
+            _topicIMap.erase(i++);
+        }
+        else
+        {
+            ++i;
+        }
     }
 }
 
