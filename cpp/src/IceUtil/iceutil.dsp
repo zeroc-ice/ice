@@ -130,11 +130,11 @@ SOURCE=.\GCRecMutex.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\InputUtil.cpp
+SOURCE=.\GCShared.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ObjectBase.cpp
+SOURCE=.\InputUtil.cpp
 # End Source File
 # Begin Source File
 
@@ -214,6 +214,10 @@ SOURCE=..\..\include\IceUtil\GCRecMutex.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\IceUtil\GCShared.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\IceUtil\Handle.h
 # End Source File
 # Begin Source File
@@ -235,10 +239,6 @@ SOURCE=..\..\include\IceUtil\Monitor.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\Mutex.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IceUtil\ObjectBase.h
 # End Source File
 # Begin Source File
 
