@@ -50,7 +50,8 @@ IcePatch::FileLocator::locate(const Current& current, LocalObjectPtr&)
 	return 0;
     }
 
-    if(path.size() >= 2 && tolower(path[0]) >= 'a' && tolower(path[0]) <= 'z' && path[1] == ':') // Example: c:\blah
+    if(path.size() >= 2 &&
+       ::tolower(path[0]) >= 'a' && ::tolower(path[0]) <= 'z' && path[1] == ':') // Example: c:\blah
     {
 	return 0;
     }

@@ -31,7 +31,7 @@ Unit* unit;
 static void
 toLower(string& s)
 {
-    transform(s.begin(), s.end(), s.begin(), tolower);
+    transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
 // ----------------------------------------------------------------------
@@ -1442,9 +1442,9 @@ Slice::Container::checkPrefix(const string& name) const
 	if(name.size() >= 3)
 	{
 	    string prefix3;
-	    prefix3 += tolower(name[0]);
-	    prefix3 += tolower(name[1]);
-	    prefix3 += tolower(name[2]);
+	    prefix3 += ::tolower(name[0]);
+	    prefix3 += ::tolower(name[1]);
+	    prefix3 += ::tolower(name[2]);
 	    if(prefix3 == "ice")
 	    {
 		_unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
@@ -2765,6 +2765,16 @@ Slice::Dictionary::legalSimpleKeyType(const TypePtr& type)
 		return true;
 		break;
 	    }
+
+	    case Builtin::KindFloat:
+	    case Builtin::KindDouble:
+	    case Builtin::KindObject:
+	    case Builtin::KindObjectProxy:
+	    case Builtin::KindLocalObject:
+	    {
+		return false;
+		break;
+	    }
 	}
     }
 
@@ -2992,7 +3002,16 @@ Slice::ConstDef::typesAreCompatible(const string& name, const TypePtr& constType
 		}
 		break;
 	    }
+
+	    case Builtin::KindObject:
+	    case Builtin::KindObjectProxy:
+	    case Builtin::KindLocalObject:
+	    {
+		assert(false);
+		break;
+	    }
 	}
+
 	string msg = "initializer of type `" + lt->kindAsString();
 	msg += "' is incompatible with the type `" + ct->kindAsString() + "' of constant `" + name + "'";
 	unit->error(msg);
@@ -3032,7 +3051,9 @@ Slice::ConstDef::isInRange(const string& name, const TypePtr& constType, const s
 {
     BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
     if (!ct)
-	return true;	// Enums are checked elsewhere
+    {
+	return true; // Enums are checked elsewhere
+    }
 
     switch(ct->kind())
     {
@@ -3069,8 +3090,13 @@ Slice::ConstDef::isInRange(const string& name, const TypePtr& constType, const s
 	    }
 	    break;
 	}
+
+	default:
+	{
+	    break;
+	}
     }
-    return true;	// Everything else is either in range or doesn't need checking
+    return true; // Everything else is either in range or doesn't need checking
 }
 
 Slice::ConstDef::ConstDef(const ContainerPtr& container, const string& name,
@@ -3279,8 +3305,6 @@ Slice::Operation::uses(const ContainedPtr& contained) const
 	    return true;
 	}
     }
-
-    TypeStringList::const_iterator p;
 
     ExceptionList::const_iterator q;
 
@@ -3937,7 +3961,7 @@ Slice::CICompare::operator()(const string& s1, const string& s2) const
 {
     string::const_iterator p1 = s1.begin();
     string::const_iterator p2 = s2.begin();
-    while(p1 != s1.end() && p2 != s2.end() && tolower(*p1) == tolower(*p2))
+    while(p1 != s1.end() && p2 != s2.end() && ::tolower(*p1) == ::tolower(*p2))
     {
 	++p1;
 	++p2;
@@ -3956,6 +3980,6 @@ Slice::CICompare::operator()(const string& s1, const string& s2) const
     }
     else
     {
-	return tolower(*p1) < tolower(*p2);
+	return ::tolower(*p1) < ::tolower(*p2);
     }
 };

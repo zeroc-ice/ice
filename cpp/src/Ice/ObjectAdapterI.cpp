@@ -467,7 +467,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _locatorMapHint(_locatorMap.end())
 {
     string s(endpts);
-    transform(s.begin(), s.end(), s.begin(), tolower);
+    transform(s.begin(), s.end(), s.begin(), ::tolower);
 
     __setNoDelete(true);
     try

@@ -16,19 +16,26 @@
 // STLport library. This is done by setting _STLP_DEBUG before any
 // STLport header files are included.
 //
-#   if !defined(NDEBUG) && !defined(_STLP_DEBUG)
-#       define _STLP_DEBUG
-#   endif
+#if !defined(NDEBUG) && !defined(_STLP_DEBUG)
+#   define _STLP_DEBUG
+#endif
 
+//
+// For some reason setting _STLP_USE_NEWALLOC together with
+// _STLP_DEBUG makes GCC 3.2 compiled programs seg fault on program
+// exit.
+//
+#if !defined(__GNUC__) || __GNUC__ < 3
 //
 // For STLport. If we compile in debug mode, we want to use the debug
 // memory allocation, so that purify doesn't report bogus memory
-// leaks. This is done by setting _STLP_USE_MALLOC before any STLport
-// header files are included.
+// leaks. This is done by setting _STLP_USE_NEWALLOC before any
+// STLport header files are included.
 //
-#   if !defined(NDEBUG) && !defined(_STLP_USE_MALLOC)
-#       define _STLP_USE_MALLOC
+#   if !defined(NDEBUG) && !defined(_STLP_USE_NEWALLOC)
+#       define _STLP_USE_NEWALLOC
 #   endif
+#endif
 
 #if defined(_WIN32)
 
@@ -119,18 +126,18 @@ private:
     noncopyable(const noncopyable&);
     const noncopyable& operator=(const noncopyable&);
 };
-//
+
 //
 // Some definitions for 64-bit integers
 //
 #if defined(_WIN32)
-    typedef __int64 Int64;
-    const Int64 Int64Min = -9223372036854775808i64;
-    const Int64 Int64Max =  9223372036854775807i64;
+typedef __int64 Int64;
+const Int64 Int64Min = -9223372036854775808i64;
+const Int64 Int64Max =  9223372036854775807i64;
 #elif defined(__linux__) && defined(i386)
-    typedef long long Int64;
-    const Int64 Int64Min = LONGLONG_MIN;
-    const Int64 Int64Max = LONGLONG_MAX;
+typedef long long Int64;
+const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
+const Int64 Int64Max = 0x7fffffffffffffffLL;
 #endif
 
 }

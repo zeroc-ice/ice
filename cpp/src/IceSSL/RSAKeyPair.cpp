@@ -24,16 +24,16 @@ using Ice::ByteSeq;
 using IceUtil::Base64;
 
 IceSSL::RSAKeyPair::RSAKeyPair(const string& key, const string& cert) :
-                            _privateKey(new RSAPrivateKey(key)),
-                            _publicKey(new RSAPublicKey(cert))
+    _privateKey(new RSAPrivateKey(key)),
+    _publicKey(new RSAPublicKey(cert))
 {
     assert(_privateKey != 0);
     assert(_publicKey != 0);
 }
 
 IceSSL::RSAKeyPair::RSAKeyPair(const ByteSeq& keySeq, const ByteSeq& certSeq) :
-                            _privateKey(new RSAPrivateKey(keySeq)),
-                            _publicKey(new RSAPublicKey(certSeq))
+    _privateKey(new RSAPrivateKey(keySeq)),
+    _publicKey(new RSAPublicKey(certSeq))
 {
     assert(_privateKey != 0);
     assert(_publicKey != 0);
@@ -80,8 +80,8 @@ IceSSL::RSAKeyPair::getX509PublicKey() const
 }
 
 IceSSL::RSAKeyPair::RSAKeyPair(const RSAPrivateKeyPtr& rsa, const RSAPublicKeyPtr& x509) :
-                            _privateKey(rsa),
-                            _publicKey(x509)
+    _privateKey(rsa),
+    _publicKey(x509)
 {
 }
 

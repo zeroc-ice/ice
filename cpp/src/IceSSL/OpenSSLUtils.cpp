@@ -9,8 +9,10 @@
 // **********************************************************************
 
 #include <IceUtil/Mutex.h>
-#include <IceSSL/OpenSSLUtils.h>
+
 #include <IceSSL/OpenSSLPluginI.h>
+#include <IceSSL/OpenSSLUtils.h>
+
 #include <openssl/err.h>
 
 using namespace std;
@@ -507,9 +509,10 @@ verifyCallback(int ok, X509_STORE_CTX* ctx)
 {
     assert(ctx != 0);
 
-    // Tricky method to get access to our connection.  I would use SSL_get_ex_data() to get
-    // the Connection object, if only I had some way to retrieve the index of the object
-    // in this function.  Hence, we have to invent our own reference system here.
+    // Tricky method to get access to our connection.  I would use
+    // SSL_get_ex_data() to get the Connection object, if only I had
+    // some way to retrieve the index of the object in this function.
+    // Hence, we have to invent our own reference system here.
     SSL* sslConnection = static_cast<SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
     assert(sslConnection != 0);
 

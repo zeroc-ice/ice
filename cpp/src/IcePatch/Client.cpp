@@ -216,7 +216,7 @@ IcePatch::Client::run(int argc, char* argv[])
 	    {
 		cout << "Do you want to proceed? (yes/no)" << endl;
 		cin >> answer;
-		transform(answer.begin(), answer.end(), answer.begin(), tolower);
+		transform(answer.begin(), answer.end(), answer.begin(), ::tolower);
 		if(answer == "no")
 		{
 		    return EXIT_SUCCESS;

@@ -128,7 +128,7 @@ IceSSL::GeneralConfig::parseVerifyMode(string& value)
     const string delim = " |\t\n\r";
 
     string s(value);
-    transform(s.begin(), s.end(), s.begin(), tolower);
+    transform(s.begin(), s.end(), s.begin(), ::tolower);
 
     string::size_type beg;
     string::size_type end = 0;

@@ -45,7 +45,7 @@ public:
     // Construction from X509 structure (simple initialization).
     RSAPublicKey(X509*);
 
-    ~RSAPublicKey();
+    virtual ~RSAPublicKey();
 
     // Conversion to Base64 encoding.
     void certToBase64(std::string&);

@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <IceUtil/Config.h>
+
 #include <openssl/ssl.h>
 
 namespace IceSSL

@@ -162,7 +162,7 @@ main(int argc, char* argv[])
     if(pos != string::npos)
     {
 	suffix = docbook.substr(pos);
-	transform(suffix.begin(), suffix.end(), suffix.begin(), tolower);
+	transform(suffix.begin(), suffix.end(), suffix.begin(), ::tolower);
     }
     if(suffix != ".sgml")
     {
@@ -189,7 +189,7 @@ main(int argc, char* argv[])
 	if(pos != string::npos)
 	{
 	    suffix = file.substr(pos);
-	    transform(suffix.begin(), suffix.end(), suffix.begin(), tolower);
+	    transform(suffix.begin(), suffix.end(), suffix.begin(), ::tolower);
 	}
 	if(suffix != ".ice")
 	{
