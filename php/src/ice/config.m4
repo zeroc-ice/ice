@@ -52,6 +52,6 @@ if test "$PHP_ICE" != "no"; then
            proxy.cpp \
            util.cpp"
 
-  PHP_NEW_EXTENSION(ice, $sources, $ext_shared,,,yes)
   PHP_SUBST(ICE_SHARED_LIBADD)
+  PHP_NEW_EXTENSION(ice, $sources, $ext_shared,,,yes)
 fi
