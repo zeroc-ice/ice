@@ -798,7 +798,7 @@ namespace Ice
 		endpoints = new IceInternal.Endpoint[sz + _routerEndpoints.Count];
 		for(int i = 0; i < sz; ++i)
 		{
-		    endpoints[i] = _publishedEndpoints[i];
+		    endpoints[i] = (IceInternal.Endpoint)_publishedEndpoints[i];
 		}
 	    }
 	    else
@@ -808,7 +808,7 @@ namespace Ice
 		for(int i = 0; i < sz; ++i)
 		{
 		    IceInternal.IncomingConnectionFactory factory =
-			(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.[i];
+			(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories[i];
 		    endpoints[i] = factory.endpoint();
 		}
 	    }
@@ -889,7 +889,7 @@ namespace Ice
 		}
 
 		string s = endpts.Substring(beg, (end) - (beg));
-		IceInternal.Endpoint endp = instance.endpointFactoryManager().create(s);
+		IceInternal.Endpoint endp = _instance.endpointFactoryManager().create(s);
 		endpoints.Add(endp);
 
 		++end;
