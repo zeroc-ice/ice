@@ -112,3 +112,21 @@ ice_lowercase(const string& s)
     transform(result.begin(), result.end(), result.begin(), ::tolower);
     return result;
 }
+
+string
+ice_flatten(const string& str)
+{
+    string result = str;
+    if(result.find("::") == 0)
+    {
+        result.erase(0, 2);
+    }
+
+    string::size_type pos;
+    while((pos = result.find("::")) != string::npos)
+    {
+        result.replace(pos, 2, "_");
+    }
+
+    return result;
+}

@@ -18,6 +18,7 @@
 
 #include "marshal.h"
 #include "proxy.h"
+#include "struct.h"
 #include "util.h"
 
 #include <IceUtil/InputUtil.h>
@@ -78,20 +79,6 @@ private:
     MarshalerPtr _marshaler;
 };
 
-class StructMarshaler : public Marshaler
-{
-public:
-    StructMarshaler(const Slice::StructPtr&);
-    ~StructMarshaler();
-
-    virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
-    virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
-
-private:
-    Slice::StructPtr _type;
-    vector<MarshalerPtr> _members;
-};
-
 //
 // Marshaler implementation.
 //
@@ -146,6 +133,12 @@ Marshaler::createMarshaler(const Slice::TypePtr& type)
         return new ProxyMarshaler(type);
     }
 
+    Slice::StructPtr st = Slice::StructPtr::dynamicCast(type);
+    if(st)
+    {
+        return Struct_create_marshaler(st);
+    }
+
 #if 0
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
@@ -159,6 +152,18 @@ Marshaler::createMarshaler(const Slice::TypePtr& type)
 #endif
 
     return 0;
+}
+
+MarshalerPtr
+Marshaler::createMemberMarshaler(const string& name, const Slice::TypePtr& type)
+{
+    MarshalerPtr result;
+    MarshalerPtr m = createMarshaler(type);
+    if(m)
+    {
+        result = new MemberMarshaler(name, m);
+    }
+    return result;
 }
 
 std::string
@@ -657,60 +662,6 @@ MemberMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
     {
         zend_error(E_ERROR, "unable to set member `%s'", _name.c_str());
         return false;
-    }
-
-    return true;
-}
-
-StructMarshaler::StructMarshaler(const Slice::StructPtr& type) :
-    _type(type)
-{
-    Slice::DataMemberList members = type->dataMembers();
-    for(Slice::DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
-    {
-        MarshalerPtr m = new MemberMarshaler((*p)->name(), createMarshaler((*p)->type()));
-        _members.push_back(m);
-    }
-}
-
-StructMarshaler::~StructMarshaler()
-{
-}
-
-bool
-StructMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
-{
-    if(Z_TYPE_P(zv) != IS_OBJECT)
-    {
-        string s = zendTypeToString(Z_TYPE_P(zv));
-        zend_error(E_ERROR, "expected struct value but received %s", s.c_str());
-        return false;
-    }
-
-    // TODO: Compare class types
-    ice_object* obj = ice_object_get(zv TSRMLS_CC);
-    assert(obj);
-
-    for(vector<MarshalerPtr>::iterator p = _members.begin(); p != _members.end(); ++p)
-    {
-        if(!(*p)->marshal(zv, os))
-        {
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool
-StructMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
-{
-    for(vector<MarshalerPtr>::iterator p = _members.begin(); p != _members.end(); ++p)
-    {
-        if(!(*p)->unmarshal(zv, is))
-        {
-            return false;
-        }
     }
 
     return true;

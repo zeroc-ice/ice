@@ -54,4 +54,9 @@ bool ice_split_string(const std::string&, std::vector<std::string>&);
 //
 std::string ice_lowercase(const std::string&);
 
+//
+// Flatten a scoped name.
+//
+std::string ice_flatten(const std::string&);
+
 #endif

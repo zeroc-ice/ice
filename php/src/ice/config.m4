@@ -64,5 +64,5 @@ if test "$PHP_ICE" != "no"; then
   PHP_ADD_LIBRARY(Slice, 1, ICE_SHARED_LIBADD)
   PHP_ADD_LIBRARY(IceUtil, 1, ICE_SHARED_LIBADD)
   PHP_ADD_LIBRARY(stdc++, 1, ICE_SHARED_LIBADD)
-  PHP_NEW_EXTENSION(ice, ice.cpp communicator.cpp exception.cpp marshal.cpp proxy.cpp slice.cpp util.cpp, $ext_shared)
+  PHP_NEW_EXTENSION(ice, ice.cpp communicator.cpp exception.cpp marshal.cpp proxy.cpp slice.cpp struct.cpp util.cpp, $ext_shared)
 fi

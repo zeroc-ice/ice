@@ -34,6 +34,7 @@ public:
     virtual ~Marshaler();
 
     static MarshalerPtr createMarshaler(const Slice::TypePtr&);
+    static MarshalerPtr createMemberMarshaler(const std::string&, const Slice::TypePtr&);
 
     virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC) = 0;
     virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC) = 0;
