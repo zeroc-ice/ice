@@ -31,7 +31,6 @@ tests = [ \
     "Ice/locationForward", \
     "Ice/location", \
     "IceXML/encoding", \
-    "IcePack/simple", \
     "Freeze/cursor", \
     "Freeze/dbmap", \
     "Freeze/complex", \
@@ -46,6 +45,7 @@ tests = [ \
 if sys.platform != "win32" and sys.platform[:6] != "cygwin":
     tests += [ \
         "Glacier/starter", \
+        "IcePack/simple", \
         ]
 
 #
