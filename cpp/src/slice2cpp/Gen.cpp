@@ -2178,9 +2178,10 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << eb << ';';
 
 	C << sp;
-	C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(const ::std::string& s, const ::Ice::Current&) const";
+	C << nl << "bool" << nl << scoped.substr(2)
+          << "::ice_isA(const ::std::string& _s, const ::Ice::Current&) const";
 	C << sb;
-	C << nl << "return ::std::binary_search(__ids, __ids + " << ids.size() << ", s);";
+	C << nl << "return ::std::binary_search(__ids, __ids + " << ids.size() << ", _s);";
 	C << eb;
 
 	C << sp;
