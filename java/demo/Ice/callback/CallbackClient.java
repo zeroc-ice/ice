@@ -22,6 +22,7 @@ class CallbackClient extends Ice.Application
             "d: send callback as datagram\n" +
             "D: send callback as batch datagram\n" +
             "f: flush all batch requests\n" +
+	    "S: switch secure mode on/off\n" +
             "s: shutdown server\n" +
             "x: exit\n" +
             "?: help\n");
@@ -61,6 +62,9 @@ class CallbackClient extends Ice.Application
         CallbackReceiverPrx onewayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_oneway());
         CallbackReceiverPrx datagramR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_datagram());
 
+	boolean secure = false;
+	String secureStr = "";
+
         menu();
 
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
@@ -91,12 +95,50 @@ class CallbackClient extends Ice.Application
                 }
                 else if(line.equals("d"))
                 {
-                    datagram.initiateCallback(datagramR);
+		    if(secure)
+		    {
+			System.out.println("secure datagrams are not supported");
+		    }
+		    else
+		    {
+			datagram.initiateCallback(datagramR);
+		    }
                 }
                 else if(line.equals("D"))
                 {
-		    batchDatagram.initiateCallback(datagramR);
+		    if(secure)
+		    {
+			System.out.println("secure datagrams are not supported");
+		    }
+		    else
+		    {
+			batchDatagram.initiateCallback(datagramR);
+		    }
                 }
+		else if(line.equals("S"))
+		{
+		    secure = !secure;
+		    secureStr = secure ? "s" : "";
+
+		    twoway = CallbackPrxHelper.uncheckedCast(twoway.ice_secure(secure));
+		    oneway = CallbackPrxHelper.uncheckedCast(oneway.ice_secure(secure));
+		    batchOneway = CallbackPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
+		    datagram = CallbackPrxHelper.uncheckedCast(datagram.ice_secure(secure));
+		    batchDatagram = CallbackPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
+
+		    twowayR = CallbackReceiverPrxHelper.uncheckedCast(twowayR.ice_secure(secure));
+		    onewayR = CallbackReceiverPrxHelper.uncheckedCast(onewayR.ice_secure(secure));
+		    datagramR = CallbackReceiverPrxHelper.uncheckedCast(datagramR.ice_secure(secure));
+
+		    if(secure)
+		    {
+			System.out.println("secure mode is now on");
+		    }
+		    else
+		    {
+			System.out.println("secure mode is now off");
+		    }
+		}
                 else if(line.equals("f"))
                 {
 		    communicator().flushBatchRequests();

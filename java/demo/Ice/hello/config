@@ -2,14 +2,14 @@
 # The client reads this property to create the reference to the
 # "hello" object in the server.
 #
-Hello.Proxy=hello:tcp -p 10000:udp -p 10000
+Hello.Proxy=hello:tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # The server creates one single object adapter with the name
 # "helloadapater". The following line sets the endpoints for this
 # adapter
 #
-Hello.Endpoints=tcp -p 10000:udp -p 10000
+Hello.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
 # Warn about connection exceptions
@@ -46,4 +46,10 @@ Ice.Trace.Protocol=0
 # 1 = trace warning messages
 # 2 = config file parsing warnings
 #
-#Ice.Trace.Security=2
+IceSSL.Trace.Security=0
+
+#
+# SSL Configuration
+#
+Ice.Plugin.IceSSL=IceSSL.PluginFactory
+Ice.ThreadPerConnection=1
