@@ -68,7 +68,7 @@ namespace Ice
 	    }
 	}
 	
-	public virtual StringSeq ice_ids(Ice.Context __context)
+	public virtual string[] ice_ids(Ice.Context __context)
 	{
 	    IceInternal.Outgoing __out = getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
 	    try
@@ -143,7 +143,7 @@ namespace Ice
 	    }
 	}
 	
-	public virtual bool ice_invoke(string operation, OperationMode mode, ByteSeq inParams, out ByteSeq outParams,
+	public virtual bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
 	                               Ice.Context __context)
 	{
 	    IceInternal.Outgoing __out = getOutgoing(operation, mode, __context);

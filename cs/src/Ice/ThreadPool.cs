@@ -717,7 +717,7 @@ namespace IceInternal
 	       m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
 	    {
 		Ice.BadMagicException ex = new Ice.BadMagicException();
-		ex.badMagic = new Ice.ByteSeq(m);
+		ex.badMagic = m;
 		throw ex;
 	    }
 	    

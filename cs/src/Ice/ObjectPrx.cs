@@ -23,19 +23,19 @@ namespace Ice
 	bool ice_isA(string __id, Context __context);
 	void ice_ping();
 	void ice_ping(Context __context);
-	StringSeq ice_ids();
-	StringSeq ice_ids(Context __context);
+	string[] ice_ids();
+	string[] ice_ids(Context __context);
 	string ice_id();
 	string ice_id(Context __context);
 	FacetPath ice_facets();
 	FacetPath ice_facets(Context __context);
 
 	// Returns true if ok, false if user exception.
-	bool ice_invoke(string operation, OperationMode mode, ByteSeq inParams, out ByteSeq outParams);
-	bool ice_invoke(string operation, OperationMode mode, ByteSeq inParams, out ByteSeq outParams,
+	bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams);
+	bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
 			Context __context);
-	void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, ByteSeq inParams);
-	void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, ByteSeq inParams,
+	void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams);
+	void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
 			      Context context);
 	Identity ice_getIdentity();
 	ObjectPrx ice_newIdentity(Identity newIdentity);

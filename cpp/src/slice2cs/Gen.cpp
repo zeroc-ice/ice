@@ -154,16 +154,14 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     }
     _out << eb << ";";
 
-    _out << sp << nl << "private static readonly Ice.StringSeq __idSeq = new Ice.StringSeq(__ids);";
-
     _out << sp << nl << "public override bool ice_isA(string s, Ice.Current __current)";
     _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s, _System.Collections.Comparer.DefaultInvariant) >= 0;";
     _out << eb;
 
-    _out << sp << nl << "public override Ice.StringSeq ice_ids(Ice.Current __current)";
+    _out << sp << nl << "public override string[] ice_ids(Ice.Current __current)";
     _out << sb;
-    _out << nl << "return __idSeq;";
+    _out << nl << "return __ids;";
     _out << eb;
 
     _out << sp << nl << "public override string ice_id(Ice.Current __current)";
@@ -550,6 +548,9 @@ Slice::Gen::operator!() const
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
+
+    CsGenerator::validateMetaData(p);
+
     TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor);
 
@@ -1059,6 +1060,14 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 void
 Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
+    //
+    // No need to generate anything if the sequence is mapped as an array.
+    //
+    if(p->hasMetaData("cs:array"))
+    {
+        return;
+    }
+
     string name = fixId(p->name());
     string s = typeToString(p->type());
     bool isValue = isValueType(p->type());
@@ -2527,7 +2536,16 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "public static " << typeS << " read(IceInternal.BasicStream __is)";
     _out << sb;
-    _out << nl << typeS << " __v = new " << typeS << "();";
+    bool isArray = p->hasMetaData("cs:array");
+    _out << nl << typeS << " __v";
+    if(!isArray)
+    {
+        _out << " = new " << typeS << "();";
+    }
+    else
+    {
+        _out << ";";
+    }
     writeSequenceMarshalUnmarshalCode(_out, p, "__v", false, false);
     _out << nl << "return __v;";
     _out << eb;

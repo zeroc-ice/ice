@@ -25,6 +25,14 @@ class SLICE_API CsGenerator : public ::IceUtil::noncopyable
 {
 public:
 
+    virtual ~CsGenerator() {};
+
+    //
+    // Validate all metadata in the unit with a "cs:" prefix.
+    //
+    static void validateMetaData(const UnitPtr&);
+
+protected:
     static std::string fixId(const std::string&);
     static std::string typeToString(const TypePtr&);
     static bool isValueType(const TypePtr&);
@@ -35,60 +43,31 @@ public:
                                    bool = false, const std::string& = "");
     void writeSequenceMarshalUnmarshalCode(::IceUtil::Output&, const SequencePtr&, const std::string&, bool, bool);
 
-#if 0
-protected:
-
-    //
-    // Check a symbol against any of the Java keywords. If a
-    // match is found, return the symbol with a leading underscore.
-    //
-
-    //
-    // Convert a scoped name into a Java class name. If an optional
-    // scope is provided, the scope will be removed from the result.
-    //
-    std::string getAbsolute(const std::string&,
-                            const std::string& = std::string(),
-                            const std::string& = std::string(),
-                            const std::string& = std::string()) const;
-
-    //
-    // Get the Java name for a type. If an optional scope is provided,
-    // the scope will be removed from the result if possible.
-    //
-    enum TypeMode
-    {
-        TypeModeIn,
-        TypeModeOut,
-        TypeModeMember,
-        TypeModeReturn
-    };
-    std::string typeToString(const TypePtr&, TypeMode mode,
-                             const std::string& = std::string(),
-                             const std::list<std::string>& = std::list<std::string>()) const;
-
-    //
-    // Generate code to marshal or unmarshal a type
-    //
-    void writeMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&, const std::string&,
-                                   bool, int&, bool = false, const std::list<std::string>& = std::list<std::string>(),
-				   const std::string& patchParams = "");
-
-    //
-    // Generate code to marshal or unmarshal a sequence type
-    //
-    void writeSequenceMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const SequencePtr&,
-                                           const std::string&, bool, int&, bool,
-                                           const std::list<std::string>& = std::list<std::string>());
-
-protected:
-
-    static std::string findMetaData(const std::list<std::string>&);
-    IceUtil::Output& _out;
-
 private:
-#endif
 
+    class MetaDataVisitor : public ParserVisitor
+    {
+    public:
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitClassDecl(const ClassDeclPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
+        virtual bool visitStructStart(const StructPtr&);
+        virtual void visitOperation(const OperationPtr&);
+        virtual void visitParamDecl(const ParamDeclPtr&);
+        virtual void visitDataMember(const DataMemberPtr&);
+        virtual void visitSequence(const SequencePtr&);
+        virtual void visitDictionary(const DictionaryPtr&);
+        virtual void visitEnum(const EnumPtr&);
+        virtual void visitConst(const ConstPtr&);
+
+    private:
+
+        void validate(const ContainedPtr&);
+
+        StringSet _history;
+    };
 };
 
 }

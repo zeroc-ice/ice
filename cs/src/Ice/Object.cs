@@ -19,7 +19,7 @@ namespace Ice
 	int ice_hash();
 	bool ice_isA(string s, Current current);
 	void ice_ping(Current current);
-	StringSeq ice_ids(Current current);
+	string[] ice_ids(Current current);
 	string ice_id(Current current);
 	FacetPath ice_facets(Current current);
 	void ice_preMarshal();

@@ -16,22 +16,22 @@ public sealed class ThroughputI : Throughput_Disp
 {
     public ThroughputI()
     {
-        _seq = new ByteSeq(new byte[seqSize.value]);
+        _seq = new byte[seqSize.value];
     }
     
-    public override ByteSeq echoByteSeq(ByteSeq seq, Ice.Current current)
+    public override byte[] echoByteSeq(byte[] seq, Ice.Current current)
     {
         return seq;
     }
     
-    public override ByteSeq recvByteSeq(Ice.Current current)
+    public override byte[] recvByteSeq(Ice.Current current)
     {
         return _seq;
     }
     
-    public override void sendByteSeq(ByteSeq seq, Ice.Current current)
+    public override void sendByteSeq(byte[] seq, Ice.Current current)
     {
     }
     
-    private ByteSeq _seq;
+    private byte[] _seq;
 }

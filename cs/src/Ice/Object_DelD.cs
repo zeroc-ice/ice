@@ -56,7 +56,7 @@ namespace Ice
 	    }
 	}
 	
-	public virtual StringSeq ice_ids(Ice.Context __context)
+	public virtual string[] ice_ids(Ice.Context __context)
 	{
 	    Current __current = new Current();
 	    __initCurrent(__current, "ice_ids", OperationMode.Nonmutating, __context);
@@ -110,8 +110,8 @@ namespace Ice
 	    }
 	}
 	
-	public virtual bool ice_invoke(string operation, Ice.OperationMode mode, Ice.ByteSeq inParams,
-	                               out Ice.ByteSeq outParams, Ice.Context context)
+	public virtual bool ice_invoke(string operation, Ice.OperationMode mode, byte[] inParams,
+	                               out byte[] outParams, Ice.Context context)
 	{
 	    throw new CollocationOptimizationException();
 	}

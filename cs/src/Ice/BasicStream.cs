@@ -465,12 +465,6 @@ namespace IceInternal
 	    expand(v.Length);
 	    _buf.put(v);
 	}
-
-	public virtual void writeBlob(Ice.ByteSeq v)
-	{
-	    expand(v.Count);
-	    _buf.put(v.ToArray());
-	}
 	
 	public virtual void readBlob(byte[] v)
 	{
@@ -484,13 +478,13 @@ namespace IceInternal
 	    }
 	}
 
-	public virtual Ice.ByteSeq readBlob(int sz)
+	public virtual byte[] readBlob(int sz)
 	{
 	    byte[] v = new byte[sz];
 	    try
 	    {
 		_buf.get(v);
-		return new Ice.ByteSeq(v);
+		return v;
 	    }
 	    catch(InvalidOperationException ex)
 	    {
@@ -864,22 +858,6 @@ namespace IceInternal
 		}
 	    }
 	}
-
-	public virtual void writeStringSeq(Ice.StringSeq v)
-	{
-	    if(v == null)
-	    {
-		writeSize(0);
-	    }
-	    else
-	    {
-		writeSize(v.Count);
-		for(int i = 0; i < v.Count; i++)
-		{
-		    writeString(v[i]);
-		}
-	    }
-	}
 	
 	public virtual void writeStringSeq(Ice.FacetPath v)
 	{
@@ -930,13 +908,13 @@ namespace IceInternal
 	    }
 	}
 	
-	public virtual Ice.StringSeq readStringSeq()
+	public virtual string[] readStringSeq()
 	{
 	    int sz = readSize();
-	    Ice.StringSeq v = new Ice.StringSeq();
+	    string[] v = new string[sz];
 	    for(int i = 0; i < sz; i++)
 	    {
-		v.Add(readString());
+		v[i] = readString();
 	    }
 	    return v;
 	}

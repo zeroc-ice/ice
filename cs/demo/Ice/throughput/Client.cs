@@ -47,7 +47,7 @@ public class Client
         }
         ThroughputPrx throughputOneway = ThroughputPrxHelper.uncheckedCast(throughput.ice_oneway());
         
-        ByteSeq seq = new ByteSeq(new byte[seqSize.value]);
+        byte[] seq = new byte[seqSize.value];
         
         menu();
         
@@ -67,7 +67,7 @@ public class Client
                 // Initial ping to setup the connection.
                 throughput.ice_ping();
                 
-                long tmsec = System.DateTime.Now.Ticks / 10;
+                long tmsec = System.DateTime.Now.Ticks / 10000;
 
                 int repetitions = 100;
                 
@@ -138,15 +138,15 @@ public class Client
                             }
                     }
                     
-                    double dmsec = System.DateTime.Now.Ticks / 10 - tmsec;
-                    Console.Out.WriteLine("time for " + repetitions + " sequences: " + dmsec + "ms");
-                    Console.Out.WriteLine("time per sequence: " + dmsec / repetitions + "ms");
+                    double dmsec = System.DateTime.Now.Ticks / 10000 - tmsec;
+                    Console.Out.WriteLine("time for " + repetitions + " sequences: " + dmsec.ToString("F") + "ms");
+                    Console.Out.WriteLine("time per sequence: " + ((double)(dmsec / repetitions)).ToString("F") + "ms");
                     double mbit = repetitions * seqSize.value * 8.0 / dmsec / 1000.0;
                     if(c == 'e')
                     {
                         mbit *= 2;
                     }
-                    Console.Out.WriteLine("throughput: " + mbit + " MBit/s");
+                    Console.Out.WriteLine("throughput: " + mbit.ToString("F") + "MBit/s");
                 }
                 else if(line.Equals("x"))
                 {

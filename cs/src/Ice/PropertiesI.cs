@@ -99,7 +99,7 @@ namespace Ice
 		if(dotPos != -1)
 		{
 		    string prefix = key.Substring(0, dotPos);
-		    string[] validProps = (string[])ValidProps._vp[prefix];
+		    string[] validProps = (string[])(ValidProps._vp[prefix]);
 		    if(validProps != null)
 		    {
 			string suffix = key.Substring(dotPos + 1, key.Length - dotPos - 1);
@@ -143,20 +143,21 @@ namespace Ice
 	    }
 	}
 	
-	public StringSeq getCommandLineOptions()
+	public string[] getCommandLineOptions()
 	{
 	    lock(this)
 	    {
-		StringSeq result = new StringSeq();
+		string[] result = new string[_properties.Count];
+                int i = 0;
 		foreach(DictionaryEntry entry in _properties)
 		{
-		    result.Add("--" + entry.Key + "=" + entry.Value);
+		    result[i++] = "--" + entry.Key + "=" + entry.Value;
 		}
 		return result;
 	    }
 	}
 
-	public StringSeq parseCommandLineOptions(string pfx, StringSeq options)
+	public string[] parseCommandLineOptions(string pfx, string[] options)
 	{
 	    lock(this)
 	    {
@@ -167,8 +168,8 @@ namespace Ice
 		}
 		pfx = "--" + pfx;
 		
-		StringSeq result = new StringSeq();
-		for(int i = 0; i < options.Count; i++)
+		ArrayList result = new ArrayList();
+		for(int i = 0; i < options.Length; i++)
 		{
 		    string opt = options[i];
 		    if(opt.StartsWith(pfx))
@@ -185,15 +186,17 @@ namespace Ice
 			result.Add(opt);
 		    }
 		}
-		return result;
+                string[] arr = new string[result.Count];
+                result.CopyTo(arr);
+		return arr;
 	    }
 	}
 	
-	public StringSeq parseIceCommandLineOptions(StringSeq options)
+	public string[] parseIceCommandLineOptions(string[] options)
 	{
 	    lock(this)
 	    {
-		StringSeq args = parseCommandLineOptions("Ice", options);
+		string[] args = parseCommandLineOptions("Ice", options);
 		args = parseCommandLineOptions("Freeze", args);
 		args = parseCommandLineOptions("Glacier", args);
 		args = parseCommandLineOptions("IceBox", args);
@@ -267,8 +270,7 @@ namespace Ice
 	    
 	    loadConfig();
 	    
-	    StringSeq argSeq = new StringSeq(args);
-	    args = parseIceCommandLineOptions(argSeq).ToArray(); 
+	    args = parseIceCommandLineOptions(args); 
 	}
 	
 	private void parse(System.IO.StreamReader input)

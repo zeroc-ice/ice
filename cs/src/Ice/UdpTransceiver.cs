@@ -33,7 +33,6 @@ namespace IceInternal
 	{
 	    if(_traceLevels.network >= 1)
 	    {
-		//UPGRADE_TODO: The equivalent in .NET for method 'java.Object.toString' may return a different value. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1043"' // TODO
 		string s = "closing udp connection\n" + ToString();
 		_logger.trace(_traceLevels.networkCat, s);
 	    }
@@ -267,7 +266,6 @@ namespace IceInternal
 		
 		if(_traceLevels.network >= 1)
 		{
-		    //UPGRADE_TODO: The equivalent in .NET for method 'java.Object.toString' may return a different value. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1043"'
 		    string s = "starting to send udp packets\n" + ToString();
 		    _logger.trace(_traceLevels.networkCat, s);
 		}
@@ -305,7 +303,6 @@ namespace IceInternal
 		
 		if(_traceLevels.network >= 1)
 		{
-		    //UPGRADE_TODO: The equivalent in .NET for method 'java.Object.toString' may return a different value. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1043"'
 		    string s = "starting to receive udp packets\n" + ToString();
 		    _logger.trace(_traceLevels.networkCat, s);
 		}
@@ -360,7 +357,8 @@ namespace IceInternal
 		    if(sizeRequested > messageSizeMax + _udpOverhead)
 		    {
 			int newSize = System.Math.Min(messageSizeMax, _maxPacketSize) + _udpOverhead;
-			_logger.warning("UDP " + direction + " buffer size: request size of " + sizeRequested + " adjusted to " + newSize + " (Ice.MessageSizeMax takes precendence)");
+			_logger.warning("UDP " + direction + " buffer size: request size of " + sizeRequested + " adjusted to "
+                                        + newSize + " (Ice.MessageSizeMax takes precendence)");
 			sizeRequested = newSize;
 		    }
 		    

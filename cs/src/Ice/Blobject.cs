@@ -17,12 +17,12 @@ namespace Ice
     public abstract class Blobject : Ice.ObjectImpl
     {
 	// Returns true if ok, false if user exception.
-	public abstract bool ice_invoke(ByteSeq inParams, out ByteSeq outParams, Current current);
+	public abstract bool ice_invoke(byte[] inParams, out byte[] outParams, Current current);
 	
 	public override IceInternal.DispatchStatus __dispatch(IceInternal.Incoming inc, Current current)
 	{
-	    ByteSeq inParams;
-	    ByteSeq outParams;
+	    byte[] inParams;
+	    byte[] outParams;
 	    int sz = inc.istr().getReadEncapsSize();
 	    inParams = inc.istr().readBlob(sz);
 	    bool ok = ice_invoke(inParams, out outParams, current);

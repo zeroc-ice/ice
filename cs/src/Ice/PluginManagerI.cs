@@ -134,17 +134,14 @@ namespace Ice
 		// convert the options from the plug-in configuration, then
 		// we convert the options from the application command-line.
 		//
-		StringSeq argSeq = new StringSeq(args);
-		argSeq = properties.parseCommandLineOptions(name, argSeq);
-		StringSeq cmdSeq = new StringSeq(cmdArgs);
-		cmdSeq = properties.parseCommandLineOptions(name, cmdSeq);
-		cmdArgs = cmdSeq.ToArray();
+		args = properties.parseCommandLineOptions(name, args);
+		cmdArgs = properties.parseCommandLineOptions(name, cmdArgs);
 		
-		loadPlugin(name, className, argSeq);
+		loadPlugin(name, className, args);
 	    }
 	}
 	
-	private void loadPlugin(string name, string className, StringSeq args)
+	private void loadPlugin(string name, string className, string[] args)
 	{
 	    Debug.Assert(_communicator != null);
 	    

@@ -50,8 +50,6 @@ namespace Ice
 	}
 
 	public static readonly string[] __ids = new string[] { "::Ice::Object" };
-
-	private static readonly StringSeq __idSeq = new StringSeq(__ids);
 	
 	public virtual bool ice_isA(string s, Current current)
 	{
@@ -81,9 +79,9 @@ namespace Ice
 	    return IceInternal.DispatchStatus.DispatchOK;
 	}
 	
-	public virtual StringSeq ice_ids(Current current)
+	public virtual string[] ice_ids(Current current)
 	{
-	    return __idSeq;
+	    return __ids;
 	}
 	
 	public static IceInternal.DispatchStatus ___ice_ids(Ice.Object __obj, IceInternal.Incoming __in,

@@ -84,12 +84,12 @@ namespace Ice
 	    }
 	}
 	
-	public virtual StringSeq ice_ids()
+	public virtual string[] ice_ids()
 	{
 	    return ice_ids(null);
 	}
 	
-	public virtual StringSeq ice_ids(Context __context)
+	public virtual string[] ice_ids(Context __context)
 	{
 	    int __cnt = 0;
 	    while(true)
@@ -165,12 +165,12 @@ namespace Ice
 	    }
 	}
 	
-	public bool ice_invoke(string operation, OperationMode mode, ByteSeq inParams, out ByteSeq outParams)
+	public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams)
 	{
 	    return ice_invoke(operation, mode, inParams, out outParams, null);
 	}
 	
-	public bool ice_invoke(string operation, OperationMode mode, ByteSeq inParams, out ByteSeq outParams,
+	public bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
 	                       Context context)
 	{
 	    int __cnt = 0;
@@ -199,12 +199,12 @@ namespace Ice
 	    }
 	}
 	
-	public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, ByteSeq inParams)
+	public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams)
 	{
 	    ice_invoke_async(cb, operation, mode, inParams, null);
 	}
 	
-	public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, ByteSeq inParams,
+	public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
 			             Context context)
 	{
 	    __checkTwowayOnly("ice_invoke_async");

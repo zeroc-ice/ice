@@ -18,10 +18,10 @@ namespace Ice
     {
 	bool ice_isA(string id, Ice.Context context);
 	void ice_ping(Ice.Context context);
-	StringSeq ice_ids(Ice.Context context);
+	string[] ice_ids(Ice.Context context);
 	string ice_id(Ice.Context context);
 	FacetPath ice_facets(Ice.Context context);
-	bool ice_invoke(string operation, Ice.OperationMode mode, Ice.ByteSeq inParams, out Ice.ByteSeq outParams,
+	bool ice_invoke(string operation, Ice.OperationMode mode, byte[] inParams, out byte[] outParams,
 			Ice.Context context);
     }
 

@@ -16,11 +16,11 @@ namespace Ice
 
     public abstract class AMI_Object_ice_invoke : IceInternal.OutgoingAsync
     {
-	public abstract void ice_response(bool ok, ByteSeq outParams);
+	public abstract void ice_response(bool ok, byte[] outParams);
 	public abstract override void ice_exception(Ice.LocalException ex);
 
 	public void __invoke(IceInternal.Reference r, string operation, OperationMode mode,
-		             ByteSeq inParams, Ice.Context context)
+		             byte[] inParams, Ice.Context context)
 	{
 	    try
 	    {
@@ -38,7 +38,7 @@ namespace Ice
 
 	protected internal override void __response(bool ok) // ok == true means no user exception.
 	{
-	    ByteSeq outParams;
+	    byte[] outParams;
 	    try
 	    {
 		int sz = __is.getReadEncapsSize();

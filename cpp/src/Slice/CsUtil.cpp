@@ -172,6 +172,12 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
         return fixId(proxy->_class()->scoped() + "Prx");
     }
 
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq && seq->hasMetaData("cs:array"))
+    {
+	return typeToString(seq->type()) + "[]";
+    }
+
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
@@ -487,10 +493,10 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
 
 void
 Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
-                                                        const SequencePtr& seq,
-                                                        const string& param,
-                                                        bool marshal,
-							bool isSeq)
+                                                      const SequencePtr& seq,
+                                                      const string& param,
+                                                      bool marshal,
+						      bool isSeq)
 {
     string stream = marshal ? "__os" : "__is";
 
@@ -560,14 +566,28 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	    {
 		string typeS = typeToString(type);
 		typeS[0] = toupper(typeS[0]);
+		bool isArray = seq->hasMetaData("cs:array");
 		if(marshal)
 		{
-		    out << nl << stream << ".write" << typeS << "Seq(" << param << ".ToArray());";
+		    out << nl << stream << ".write" << typeS << "Seq(" << param;
+		    if(!isArray)
+		    {
+		        out << ".ToArray()";
+		    }
+		    out << ");";
 		}
 		else
 		{
-		    out << nl << param << startAssign << "new " << fixId(seq->scoped()) << "(" << stream
-		        << ".read" << typeS << "Seq())" << endAssign << ";";
+		    out << nl << param << startAssign;
+		    if(!isArray)
+		    {
+			out << "new " << fixId(seq->scoped()) << "(" << stream << ".read" << typeS << "Seq())";
+		    }
+		    else
+		    {
+		        out << stream << ".read" << typeS << "Seq()";
+		    }
+		    out << endAssign << ";";
 		}
 		break;
 	    }
@@ -672,4 +692,144 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     }
 
     return;
+}
+
+void
+Slice::CsGenerator::validateMetaData(const UnitPtr& unit)
+{
+    MetaDataVisitor visitor;
+    unit->visit(&visitor);
+}
+
+bool
+Slice::CsGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
+{
+    validate(p);
+    return false;
+}
+
+void
+Slice::CsGenerator::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
+{
+    validate(p);
+}
+
+bool
+Slice::CsGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    validate(p);
+    return false;
+}
+
+bool
+Slice::CsGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    validate(p);
+    return false;
+}
+
+bool
+Slice::CsGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
+{
+    validate(p);
+    return false;
+}
+
+void
+Slice::CsGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::CsGenerator::MetaDataVisitor::visitParamDecl(const ParamDeclPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::CsGenerator::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::CsGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::CsGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::CsGenerator::MetaDataVisitor::visitEnum(const EnumPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::CsGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
+{
+    DefinitionContextPtr dc = cont->definitionContext();
+    assert(dc);
+    StringList globalMetaData = dc->getMetaData();
+    string file = dc->filename();
+
+    StringList localMetaData = cont->getMetaData();
+
+    StringList::const_iterator p;
+    static const string prefix = "cs:";
+
+    for(p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
+    {
+        string s = *p;
+        if(_history.count(s) == 0)
+        {
+            if(s.find(prefix) == 0)
+            {
+		cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+            }
+            _history.insert(s);
+        }
+    }
+
+    for(p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    {
+	string s = *p;
+        if(_history.count(s) == 0)
+        {
+	    bool valid = true;
+            if(s.find(prefix) == 0)
+            {
+	    	if(SequencePtr::dynamicCast(cont))
+		{
+		    if(s.substr(prefix.size()) != "array")
+		    {
+			cerr << "2" << endl;
+			valid = false;
+		    }
+		}
+		else
+		{
+		    cerr << "3" << endl;
+		    valid = false;
+		}
+            }
+	    if(!valid)
+	    {
+		cout << file << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+	    }
+            _history.insert(s);
+        }
+    }
 }

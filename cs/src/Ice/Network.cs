@@ -351,6 +351,10 @@ namespace IceInternal
 
 	public static void doConnect(Socket socket, EndPoint addr, int timeout)
 	{
+            //
+            // Set larger send buffer size to avoid performance problems on
+            // WIN32.
+            //
 	    setSendBufferSize(socket, 64 * 1024);
 
 	repeatConnect:
