@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/ConnectionI.h>
+#include <Ice/Connection.h>
 #include <Ice/Instance.h>
 #include <Ice/Logger.h>
 #include <Ice/Properties.h>
@@ -21,24 +21,25 @@
 #include <Ice/Incoming.h>
 #include <Ice/Exception.h>
 #include <Ice/Protocol.h>
-#include <Ice/Functional.h>
-#include <Ice/SecurityException.h> // TODO: bandaid, see below.
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
-			      const TransceiverPtr& transceiver,
-			      const EndpointPtr& endpoint,
-			      const ObjectAdapterPtr& adapter) :
+void IceInternal::incRef(Connection* p) { p->__incRef(); }
+void IceInternal::decRef(Connection* p) { p->__decRef(); }
+
+IceInternal::Connection::Connection(const InstancePtr& instance,
+				    const TransceiverPtr& transceiver,
+				    const EndpointPtr& endpoint,
+				    const ObjectAdapterPtr& adapter) :
     EventHandler(instance),
     _transceiver(transceiver),
     _endpoint(endpoint),
     _adapter(adapter),
+    _threadPool(instance->threadPool()),
     _logger(instance->logger()),
     _traceLevels(instance->traceLevels()),
-    _threadPool(instance->threadPool()),
     _nextRequestId(1),
     _requestsHint(_requests.end()),
     _batchStream(instance),
@@ -48,34 +49,34 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     _warn = atoi(_instance->properties()->getProperty("Ice.ConnectionWarnings").c_str()) > 0 ? true : false;
 }
 
-Ice::ConnectionI::~ConnectionI()
+IceInternal::Connection::~Connection()
 {
     assert(_state == StateClosed);
 }
 
 bool
-Ice::ConnectionI::destroyed() const
+IceInternal::Connection::destroyed() const
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     return _state >= StateClosing;
 }
 
 void
-Ice::ConnectionI::hold()
+IceInternal::Connection::hold()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     setState(StateHolding);
 }
 
 void
-Ice::ConnectionI::activate()
+IceInternal::Connection::activate()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     setState(StateActive);
 }
 
 void
-Ice::ConnectionI::prepareRequest(Outgoing* out)
+IceInternal::Connection::prepareRequest(Outgoing* out)
 {
     BasicStream* os = out->os();
     os->write(protocolVersion);
@@ -86,7 +87,7 @@ Ice::ConnectionI::prepareRequest(Outgoing* out)
 }
 
 void
-Ice::ConnectionI::sendRequest(Outgoing* out, bool oneway)
+IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
 
@@ -141,7 +142,7 @@ Ice::ConnectionI::sendRequest(Outgoing* out, bool oneway)
 }
 
 void
-Ice::ConnectionI::prepareBatchRequest(Outgoing* out)
+IceInternal::Connection::prepareBatchRequest(Outgoing* out)
 {
     lock();
 
@@ -173,7 +174,7 @@ Ice::ConnectionI::prepareBatchRequest(Outgoing* out)
 }
 
 void
-Ice::ConnectionI::finishBatchRequest(Outgoing* out)
+IceInternal::Connection::finishBatchRequest(Outgoing* out)
 {
     if (_exception.get())
     {
@@ -187,14 +188,14 @@ Ice::ConnectionI::finishBatchRequest(Outgoing* out)
 }
 
 void
-Ice::ConnectionI::abortBatchRequest()
+IceInternal::Connection::abortBatchRequest()
 {
     setState(StateClosed, AbortBatchRequestException(__FILE__, __LINE__));
     unlock(); // Give the Connection back
 }
 
 void
-Ice::ConnectionI::flushBatchRequest()
+IceInternal::Connection::flushBatchRequest()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
 
@@ -238,31 +239,31 @@ Ice::ConnectionI::flushBatchRequest()
 }
 
 int
-Ice::ConnectionI::timeout() const
+IceInternal::Connection::timeout() const
 {
     return _endpoint->timeout();
 }
 
 bool
-Ice::ConnectionI::server() const
+IceInternal::Connection::server() const
 {
     return _adapter;
 }
 
 bool
-Ice::ConnectionI::readable() const
+IceInternal::Connection::readable() const
 {
     return true;
 }
 
 void
-Ice::ConnectionI::read(BasicStream& stream)
+IceInternal::Connection::read(BasicStream& stream)
 {
     _transceiver->read(stream, 0);
 }
 
 void
-Ice::ConnectionI::message(BasicStream& stream)
+IceInternal::Connection::message(BasicStream& stream)
 {
     bool invoke = false;
     bool batch = false;
@@ -415,7 +416,7 @@ Ice::ConnectionI::message(BasicStream& stream)
 		{
 		    in.invoke();
 		}
-		catch (const Exception& ex)
+		catch (const LocalException& ex)
 		{
 		    JTCSyncT<JTCRecursiveMutex> sync(*this);
 		    warning(ex);
@@ -476,14 +477,14 @@ Ice::ConnectionI::message(BasicStream& stream)
 }
 
 void
-Ice::ConnectionI::exception(const LocalException& ex)
+IceInternal::Connection::exception(const LocalException& ex)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     setState(StateClosed, ex);
 }
 
 void
-Ice::ConnectionI::finished()
+IceInternal::Connection::finished()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     assert(_state == StateClosed);
@@ -492,7 +493,7 @@ Ice::ConnectionI::finished()
 
 /*
 bool
-Ice::ConnectionI::tryDestroy()
+IceInternal::Connection::tryDestroy()
 {
     bool isLocked = trylock();
     if(!isLocked)
@@ -517,29 +518,8 @@ Ice::ConnectionI::tryDestroy()
 }
 */
 
-InternetAddress
-Ice::ConnectionI::getLocalAddress()
-{
-    assert(false); // TODO: Not implemented yet.
-    return InternetAddress();
-}
-
-InternetAddress
-Ice::ConnectionI::getRemoteAddress()
-{
-    assert(false); // TODO: Not implemented yet.
-    return InternetAddress();
-}
-
-ProtocolInfoPtr
-Ice::ConnectionI::getProtocolInfo()
-{
-    assert(false); // TODO: Not implemented yet.
-    return 0;
-}
-
 void
-Ice::ConnectionI::setState(State state, const LocalException& ex)
+IceInternal::Connection::setState(State state, const LocalException& ex)
 {
     if (_state == state) // Don't switch twice
     {
@@ -572,7 +552,7 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
 }
 
 void
-Ice::ConnectionI::setState(State state)
+IceInternal::Connection::setState(State state)
 {
     if (_state == state) // Don't switch twice
     {
@@ -648,7 +628,7 @@ Ice::ConnectionI::setState(State state)
 }
 
 void
-Ice::ConnectionI::closeConnection()
+IceInternal::Connection::closeConnection()
 {
     BasicStream os(_instance);
     os.write(protocolVersion);
@@ -662,12 +642,12 @@ Ice::ConnectionI::closeConnection()
 }
 
 void
-Ice::ConnectionI::warning(const Exception& ex) const
+IceInternal::Connection::warning(const LocalException& ex) const
 {
     if (_warn)
     {
 	ostringstream s;
-	s << "server exception:\n" << ex << '\n' << _transceiver->toString();
+	s << "connection exception:\n" << ex << '\n' << _transceiver->toString();
 	_logger->warning(s.str());
     }
 }
