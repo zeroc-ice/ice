@@ -1,10 +1,18 @@
 <application>
 
-   <server name="Yellow" descriptor="yellow_icebox.xml"/>
+   <!-- The base directory for the node is the same as this file base
+   directory. This is because the node and the registry are started in
+   the same directory -->
 
-   <server name="IceBox1" descriptor="icebox.xml"/>
-   <server name="IceBox2" descriptor="icebox.xml"/>
-   <server name="Server1" descriptor="server.xml"/>
-   <server name="Server2" descriptor="server.xml"/>
+   <node name="localnode" basedir="${basedir}">
+
+     <server name="Yellow" descriptor="yellow_icebox.xml"/>
+
+     <server name="IceBox1" descriptor="icebox.xml"/>
+     <server name="IceBox2" descriptor="icebox.xml"/>
+     <server name="Server1" descriptor="server.xml"/>
+     <server name="Server2" descriptor="server.xml"/>
+
+   </node>
 
 </application>

@@ -37,12 +37,13 @@ name = os.path.join("IcePack", "simple")
 #
 additionalOptions = " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\""
 
-TestUtil.cleanDbDir(os.path.join(testdir, "data/db"))
+if os.path.exists(os.path.join(testdir, "db/registry/db")):
+    TestUtil.cleanDbDir(os.path.join(testdir, "db/registry/db"))
 
 #
-# Start IcePack
+# Start IcePack registry
 # 
-icePackPipe = IcePackAdmin.startIcePack(ice_home, "12346", testdir)
+icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(ice_home, "12346", testdir)
 
 #
 # Test client/server, collocated w/o automatic activation.
@@ -51,10 +52,17 @@ TestUtil.mixedClientServerTestWithOptions(toplevel, name, additionalOptions, add
 TestUtil.collocatedTestWithOptions(toplevel, name, additionalOptions)
 
 #
-# Remove the adapter (registered by the server) before deploying the
-# server.
+# Shutdown the registry.
 #
-IcePackAdmin.removeAdapter(ice_home, "TestAdapter")
+IcePackAdmin.shutdownIcePackRegistry(ice_home, icePackRegistryPipe)
+
+TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
+
+if os.path.exists(os.path.join(testdir, "db/node/db")):
+    TestUtil.cleanDbDir(os.path.join(testdir, "db/node/db"))
+
+icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(ice_home, "12346", testdir)
+icePackNodePipe = IcePackAdmin.startIcePackNode(ice_home, testdir)
 
 #
 # Test client/server with on demand activation.
@@ -90,6 +98,7 @@ print "unregister server with icepack...",
 IcePackAdmin.removeServer(ice_home, "server");
 print "ok"
     
-IcePackAdmin.shutdownIcePack(ice_home, icePackPipe)
+IcePackAdmin.shutdownIcePackNode(ice_home, icePackNodePipe)
+IcePackAdmin.shutdownIcePackRegistry(ice_home, icePackRegistryPipe)
 
 sys.exit(0)

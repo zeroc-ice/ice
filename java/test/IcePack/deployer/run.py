@@ -65,9 +65,15 @@ else:
 
 #
 # Start IcePack.
-# 
-TestUtil.cleanDbDir(os.path.join(testdir, "db/db"))
-icePackPipe = IcePackAdmin.startIcePack(ice_home, "12346", testdir)
+#
+if os.path.exists(os.path.join(testdir, "db/registry")):
+    TestUtil.cleanDbDir(os.path.join(testdir, "db/registry"))
+    
+if os.path.exists(os.path.join(testdir, "db/node/db")):
+    TestUtil.cleanDbDir(os.path.join(testdir, "db/node/db"))
+
+icePackRegistryPipe = IcePackAdmin.startIcePackRegistry(ice_home, "12346", testdir)
+icePackNodePipe = IcePackAdmin.startIcePackNode(ice_home, testdir)
 
 #
 # Deploy the application, run the client and remove the application.
@@ -87,7 +93,8 @@ print "ok"
 # client to test targets (-t options) and remove the application.
 #
 print "deploying application with target...",
-IcePackAdmin.addApplication(ice_home, os.path.join(testdir, "application.xml"), targets + " debug Server1.manual");
+IcePackAdmin.addApplication(ice_home, os.path.join(testdir, "application.xml"),
+                            targets + " debug localnode.Server1.manual");
 print "ok"
 
 startClient("-t")
@@ -99,6 +106,7 @@ print "ok"
 #
 # Shutdown IcePack.
 #
-IcePackAdmin.shutdownIcePack(ice_home, icePackPipe)
+IcePackAdmin.shutdownIcePackNode(ice_home, icePackNodePipe)
+IcePackAdmin.shutdownIcePackRegistry(ice_home, icePackRegistryPipe)
 
 sys.exit(0)
