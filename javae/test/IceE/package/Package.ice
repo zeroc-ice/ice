@@ -9,16 +9,6 @@
 
 [["java:package:testpkg"]]
 
-class Test2GlobalClass
-{
-    int i;
-};
-
-exception Test2GlobalException
-{
-    int i;
-};
-
 module Test2
 {
 class C1

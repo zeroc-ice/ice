@@ -7,16 +7,6 @@
 //
 // **********************************************************************
 
-class Test1GlobalClass
-{
-    int i;
-};
-
-exception Test1GlobalException
-{
-    int i;
-};
-
 module Test1
 {
 class C1

@@ -7,21 +7,8 @@
 //
 // **********************************************************************
 
-public final class InitialI extends _InitialDisp
+public final class InitialI extends Test._InitialDisp
 {
-    public Test1GlobalClass
-    getTest1GlobalClass(Ice.Current __current)
-    {
-        return new Test1GlobalClass();
-    }
-
-    public void
-    throwTest1GlobalException(Ice.Current __current)
-        throws Test1GlobalException
-    {
-        throw new Test1GlobalException();
-    }
-
     public Ice.Object
     getTest1C2AsObject(Ice.Current __current)
     {
@@ -59,19 +46,6 @@ public final class InitialI extends _InitialDisp
         throws Test1._notify
     {
         throw new Test1._notify();
-    }
-
-    public testpkg.Test2GlobalClass
-    getTest2GlobalClass(Ice.Current __current)
-    {
-        return new testpkg.Test2GlobalClass();
-    }
-
-    public void
-    throwTest2GlobalException(Ice.Current __current)
-        throws testpkg.Test2GlobalException
-    {
-        throw new testpkg.Test2GlobalException();
     }
 
     public Ice.Object

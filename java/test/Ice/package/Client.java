@@ -12,7 +12,7 @@ public class Client
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        InitialPrx initial = AllTests.allTests(communicator);
+        Test.InitialPrx initial = AllTests.allTests(communicator);
         initial.shutdown();
         return 0;
     }

@@ -44,7 +44,7 @@ public class AllTests
         private boolean _invoked = false;
     }
 
-    public static InitialPrx
+    public static Test.InitialPrx
     allTests(Ice.Communicator communicator)
     {
         System.out.print("testing stringToProxy... ");
@@ -56,33 +56,14 @@ public class AllTests
 
         System.out.print("testing checked cast... ");
         System.out.flush();
-        InitialPrx initial = InitialPrxHelper.checkedCast(base);
+        Test.InitialPrx initial = Test.InitialPrxHelper.checkedCast(base);
         test(initial != null);
         test(initial.equals(base));
         System.out.println("ok");
 
         {
-            System.out.print("testing global types without package... ");
-            System.out.flush();
-            Test1GlobalClass c = initial.getTest1GlobalClass();
-            test(c != null);
-            try
-            {
-                initial.throwTest1GlobalException();
-                test(false);
-            }
-            catch(Test1GlobalException ex)
-            {
-                // Nothing to do
-            }
-            System.out.println("ok");
-        }
-
-        {
             System.out.print("testing types without package... ");
             System.out.flush();
-            Ice.Object o = initial.getTest1C2AsObject();
-            test(o != null);
             Test1.C1 c1 = initial.getTest1C2AsC1();
             test(c1 != null);
             test(c1 instanceof Test1.C2);
@@ -116,51 +97,6 @@ public class AllTests
                 // Expected
             }
             System.out.println("ok");
-        }
-
-        {
-            System.out.print("testing global types with package... ");
-            System.out.flush();
-            try
-            {
-                testpkg.Test2GlobalClass c = initial.getTest2GlobalClass();
-                test(false);
-            }
-            catch(Ice.NoObjectFactoryException ex)
-            {
-                // Expected
-            }
-            try
-            {
-                initial.throwTest2GlobalException();
-                test(false);
-            }
-            catch(Ice.MarshalException ex)
-            {
-                // Expected
-            }
-            catch(testpkg.Test2GlobalException ex)
-            {
-                test(false);
-            }
-
-            //
-            // Define Ice.Default.Package=testpkg and try again.
-            //
-            communicator.getProperties().setProperty("Ice.Default.Package", "testpkg");
-            testpkg.Test2GlobalClass c = initial.getTest2GlobalClass();
-            test(c != null);
-            try
-            {
-                initial.throwTest2GlobalException();
-                test(false);
-            }
-            catch(testpkg.Test2GlobalException ex)
-            {
-                // Expected
-            }
-            System.out.println("ok");
-            communicator.getProperties().setProperty("Ice.Default.Package", "");
         }
 
         {
