@@ -56,12 +56,9 @@ private:
 void
 createLock(const string& name)
 {
-#ifdef _WIN32
-    int ret = _open(name.c_str(), O_CREAT | O_WRONLY | O_EXCL);
-#else
-    int ret = open(name.c_str(), O_CREAT | O_WRONLY | O_EXCL);
-#endif
-    assert(ret != -1);
+    int fd = open(name.c_str(), O_CREAT | O_WRONLY | O_EXCL, 0777);
+    assert(fd != -1);
+    close(fd);
 }
 
 void
