@@ -5,7 +5,7 @@
 // Billerica, MA, USA
 //
 // All Rights Reserved.
-//
+//d
 // Ice is free software; you can redistribute it and/or modify it under
 // the terms of the GNU General Public License version 2 as published by
 // the Free Software Foundation.
@@ -1121,14 +1121,14 @@ Freeze::EvictorI::deactivate(const string&)
     Lock sync(*this);
 	
     if(!_deactivated)
-    {
-	saveNowNoSync();
-       	
+    { 	
 	if(_trace >= 1)
 	{
 	    Trace out(_communicator->getLogger(), "Freeze.Evictor");
 	    out << "deactivating, saving unsaved Ice objects to the database";
 	}
+
+	saveNowNoSync();
 	
 	//
 	// Set the evictor size to zero, meaning that we will evict
@@ -1247,6 +1247,7 @@ Freeze::EvictorI::run()
 		    }   
 		    case destroyed:
 		    {
+			facet->status = dead;
 			size_t index = streamedObjectQueue.size();
 			streamedObjectQueue.resize(index + 1);
 			StreamedObject& obj = streamedObjectQueue[index];
