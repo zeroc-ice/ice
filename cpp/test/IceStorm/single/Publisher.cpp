@@ -12,20 +12,19 @@
 #include <IceStorm/IceStorm.h>
 #include <Single.h>
 
+using namespace std;
 using namespace Ice;
 using namespace IceStorm;
-using namespace std;
 
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
     PropertiesPtr properties = communicator->getProperties();
-
     const char* managerEndpointsProperty = "IceStorm.TopicManager.Endpoints";
     string managerEndpoints = properties->getProperty(managerEndpointsProperty);
     if (managerEndpoints.empty())
     {
-	cerr << argv[0] << ": " << managerEndpointsProperty << " is not set" << endl;
+	cerr << argv[0] << ": property `" << managerEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
 
@@ -70,15 +69,15 @@ int
 main(int argc, char* argv[])
 {
     int status;
-    Ice::CommunicatorPtr communicator;
+    CommunicatorPtr communicator;
 
     try
     {
 	addArgumentPrefix("IceStorm");
-	communicator = Ice::initialize(argc, argv);
+	communicator = initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }
-    catch(const Ice::Exception& ex)
+    catch(const Exception& ex)
     {
 	cerr << ex << endl;
 	status = EXIT_FAILURE;
@@ -90,7 +89,7 @@ main(int argc, char* argv[])
 	{
 	    communicator->destroy();
 	}
-	catch(const Ice::Exception& ex)
+	catch(const Exception& ex)
 	{
 	    cerr << ex << endl;
 	    status = EXIT_FAILURE;

@@ -142,7 +142,7 @@ Client::run(int argc, char* argv[])
     string managerEndpoints = properties->getProperty(managerEndpointsProperty);
     if (managerEndpoints.empty())
     {
-	cerr << appName() << ": " << managerEndpointsProperty << " is not set" << endl;
+	cerr << appName() << ": property `" << managerEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
 

@@ -41,8 +41,7 @@ iceStormEndpoint=' --IceStorm.TopicManager.Endpoints="default -p 12345"'
 #
 # TODO: --dbdir is a hack
 #
-command = iceStorm + updatedClientServerOptions + \
-          iceStormEndpoint + \
+command = iceStorm + updatedClientServerOptions + iceStormEndpoint + \
           r' --dbdir ' + os.path.join(testdir, "db")
 
 print "starting icestorm...",

@@ -14,12 +14,12 @@
 #include <fstream>
 
 #ifdef WIN32
-#include <io.h>
+#   include <io.h>
 #endif
 
+using namespace std;
 using namespace Ice;
 using namespace IceStorm;
-using namespace std;
 
 class SingleI : public Single
 {
@@ -31,7 +31,7 @@ public:
     {
     }
 
-    virtual void event(const Ice::Current&)
+    virtual void event(const Current&)
     {
 	++_count;
 	if (_count == 10)
@@ -55,7 +55,7 @@ createLock(const string& name)
 void
 deleteLock(const string& name)
 {
-#ifdef HAVE__UNLINK
+#ifdef WIN32
     _unlink(name.c_str());
 #else
     unlink(name.c_str());
@@ -63,7 +63,7 @@ deleteLock(const string& name)
 }
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
     string lockfile = "subscriber.lock";
 
@@ -78,7 +78,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     string managerEndpoints = properties->getProperty(managerEndpointsProperty);
     if (managerEndpoints.empty())
     {
-	cerr << argv[0] << ": " << managerEndpointsProperty << " is not set" << endl;
+	cerr << argv[0] << ": property `" << managerEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
 
@@ -90,9 +90,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ClockAdapter", "default");
-    Ice::ObjectPtr single = new SingleI(communicator);
-    Ice::ObjectPrx object = adapter->add(single, Ice::stringToIdentity("events#single"));
+    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ClockAdapter", "default");
+    ObjectPtr single = new SingleI(communicator);
+    ObjectPrx object = adapter->add(single, stringToIdentity("events#single"));
 
     //
     // The set of topics to which to subscribe
@@ -125,15 +125,15 @@ int
 main(int argc, char* argv[])
 {
     int status;
-    Ice::CommunicatorPtr communicator;
+    CommunicatorPtr communicator;
 
     try
     {
 	addArgumentPrefix("IceStorm");
-	communicator = Ice::initialize(argc, argv);
+	communicator = initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }
-    catch(const Ice::Exception& ex)
+    catch(const Exception& ex)
     {
 	cerr << ex << endl;
 	status = EXIT_FAILURE;
@@ -145,7 +145,7 @@ main(int argc, char* argv[])
 	{
 	    communicator->destroy();
 	}
-	catch(const Ice::Exception& ex)
+	catch(const Exception& ex)
 	{
 	    cerr << ex << endl;
 	    status = EXIT_FAILURE;
@@ -154,4 +154,3 @@ main(int argc, char* argv[])
 
     return status;
 }
-
