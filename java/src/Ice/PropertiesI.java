@@ -96,6 +96,45 @@ final class PropertiesI extends LocalObjectImpl implements Properties
     public synchronized void
     setProperty(String key, String value)
     {
+	//
+	// Check if the property is legal. (We write to System.err instead of using
+	// a logger because no logger may be established at the time the property
+	// is parsed.)
+	//
+        int dotPos = key.indexOf('.');
+	if(dotPos != -1)
+	{
+	    String prefix = key.substring(0, dotPos);
+	    String[] validProps = (String[])_vp._validProps.get(prefix);
+	    if(validProps != null)
+	    {
+	        String suffix = key.substring(dotPos + 1, key.length());
+		boolean found = false;
+		for(int j = 0; j < validProps.length && !found; ++j)
+		{
+		    int starPos = validProps[j].indexOf('*');
+		    if(starPos == -1)
+		    {
+		        found = validProps[j].equals(suffix);
+		    }
+		    else
+		    {
+		        int max = java.lang.Math.min(suffix.length(), starPos);
+			String s1 = suffix.substring(0, max);
+			String s2 = validProps[j].substring(0, max);
+			found = s1.equals(s2);
+		    }
+		}
+		if(!found)
+		{
+		    System.err.println("warning: unknown property: " + key);
+		}
+	    }
+	}
+
+	//
+	// Set or clear the property.
+	//
 	if(key != null && key.length() > 0)
 	{
 	    if(value != null && value.length() > 0)
@@ -321,4 +360,174 @@ final class PropertiesI extends LocalObjectImpl implements Properties
     }
 
     private java.util.HashMap _properties = new java.util.HashMap();
+
+//
+// Valid properties for each application.
+// A '*' character is a wildcard. If used, it must appear at the end of the string.
+// Examples: "Ice.Foo.*" allows all properties with that prefix, such as "Ice.Foo.Bar".
+//           "Ice.Foo*" allows properties such as "Ice.Foo.Bar" and "Ice.FooBar".
+//
+    private static final String _iceProps[] = {
+						    "ChangeUser",
+						    "Config",
+						    "ConnectionIdleTime",
+						    "Daemon",
+						    "DaemonNoChdir",
+						    "DaemonNoClose",
+						    "Default.Host",
+						    "Default.Locator",
+						    "Default.Protocol",
+						    "Default.Router",
+						    "Logger.Timestamp",
+						    "MonitorConnections",
+						    "NullHandleAbort",
+						    "Override.Compress",
+						    "Override.Timeout",
+						    "Plugin.*",
+						    "PrintAdapterReady",
+						    "PrintProcessId",
+						    "ProgramName",
+						    "RetryIntervals",
+						    "ServerIdleTime",
+						    "ThreadPool.Client.Size",
+						    "ThreadPool.Client.SizeMax",
+						    "ThreadPool.Client.SizeWarn",
+						    "ThreadPool.Server.Size",
+						    "Trace.Network",
+						    "Trace.Protocol",
+						    "Trace.Retry",
+						    "UseSyslog",
+						    "Warn.AMICallback",
+						    "Warn.Connections",
+						    "Warn.Dispatch",
+						    "Warn.Leaks"
+				              };
+
+    private static final String _iceSSLProps[] = {
+						    "Client.CertificateVerifier",
+						    "Client.CertPath.*",
+						    "Client.Config",
+						    "Client.Handshake.Retries",
+						    "Client.Overrides.CACertificate",
+						    "Client.Overrides.DSA.Certificate",
+						    "Client.Overrides.DSA.PrivateKey",
+						    "Client.Overrides.RSA.Certificate",
+						    "Client.Overrides.RSA.PrivateKey",
+						    "Client.Passphrase.Retries",
+						    "Server.CertificateVerifier",
+						    "Server.CertPath.*",
+						    "Server.Config",
+						    "Server.Overrides.CACertificate",
+						    "Server.Overrides.DSA.Certificate",
+						    "Server.Overrides.DSA.PrivateKey",
+						    "Server.Overrides.RSA.Certificate",
+						    "Server.Overrides.RSA.PrivateKey",
+						    "Server.Passphrase.Retries",
+						    "Trace.Security"
+					         };
+
+    private static final String _iceBoxProps[] = {
+						    "DBEnvName.*",
+						    "PrintServicesReady",
+						    "Service.*",
+						    "ServiceManager.AdapterId",
+						    "ServiceManager.Endpoints",
+						    "ServiceManager.Identity",
+						    "UseSharedCommunicator.*"
+					         };
+
+    private static final String _icePackProps[] = {
+						    "Node.AdapterId",
+						    "Node.CollocateRegistry",
+						    "Node.Data",
+						    "Node.Endpoints",
+						    "Node.Name",
+						    "Node.PropertiesOverride",
+						    "Node.Trace.Activator",
+						    "Node.Trace.Adapter",
+						    "Node.Trace.Server",
+						    "Node.WaitTime",
+						    "Registry.Admin.AdapterId",
+						    "Registry.Admin.Endpoints",
+						    "Registry.Client.Endpoints",
+						    "Registry.Data",
+						    "Registry.DynamicRegistration",
+						    "Registry.Internal.AdapterId",
+						    "Registry.Internal.Endpoints",
+						    "Registry.Server.Endpoints",
+						    "Registry.Trace.AdapterRegistry",
+						    "Registry.Trace.NodeRegistry",
+						    "Registry.Trace.ObjectRegistry",
+						    "Registry.Trace.ServerRegistry"
+					          };
+
+    private static final String _iceStormProps[] = {
+						    "Flush.Timeout",
+						    "Publish.Endpoints",
+						    "TopicManager.Endpoints",
+						    "TopicManager.Proxy",
+						    "Trace.Flush",
+						    "Trace.Subscriber",
+						    "Trace.Topic",
+						    "Trace.TopicManager"
+					           };
+
+    private static final String _glacierProps[] = {
+						    "Router.AcceptCert",
+						    "Router.AllowCategories",
+						    "Router.Client.BatchSleepTime",
+						    "Router.Client.Endpoints",
+						    "Router.Client.ForwardContext",
+						    "Router.Endpoints",
+						    "Router.Identity",
+						    "Router.PrintProxyOnFd",
+						    "Router.Server.BatchSleepTime",
+						    "Router.Server.Endpoints",
+						    "Router.Server.ForwardContext",
+						    "Router.SessionManager",
+						    "Router.Trace.Client",
+						    "Router.Trace.RoutingTable",
+						    "Router.Trace.Server",
+						    "Router.UserId",
+						    "Starter.AddUserToAllowCategories",
+						    "Starter.Certificate.BitStrength",
+						    "Starter.Certificate.CommonName",
+						    "Starter.Certificate.Country",
+						    "Starter.Certificate.IssuedAdjust",
+						    "Starter.Certificate.Locality",
+						    "Starter.Certificate.Organization",
+						    "Starter.Certificate.OrganizationalUnit",
+						    "Starter.Certificate.SecondsValid",
+						    "Starter.Certificate.StateProvince",
+						    "Starter.CryptPasswords",
+						    "Starter.Endpoints",
+						    "Starter.PasswordVerifier",
+						    "Starter.PropertiesOverride",
+						    "Starter.RouterPath",
+						    "Starter.StartupTimeout",
+						    "Starter.Trace"
+					          };
+
+    private static final String _freezeProps[] = {
+						    "Trace.DB",
+						    "Trace.Evictor"
+					         };
+
+    private static final class ValidProps
+    {
+        ValidProps()
+	{
+	    _validProps.put("Freeze", _freezeProps);
+	    _validProps.put("Glacier", _glacierProps);
+	    _validProps.put("IceBox", _iceBoxProps);
+	    _validProps.put("Ice", _iceProps);
+	    _validProps.put("IcePack", _icePackProps);
+	    _validProps.put("IceSSL", _iceSSLProps);
+	    _validProps.put("IceStorm", _iceStormProps);
+	}
+
+        public static java.util.HashMap _validProps = new java.util.HashMap();
+    }
+
+    private static final ValidProps _vp = new ValidProps();
 }

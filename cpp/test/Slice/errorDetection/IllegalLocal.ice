@@ -77,3 +77,17 @@ interface i5
     void op(en p);
     LocalObject op2();
 };
+
+exception E
+{
+};
+
+local interface i6
+{
+    void op() throws E;			// error
+};
+
+local class c7
+{
+    void op() throws E;			// error
+};

@@ -43,7 +43,7 @@ local interface ObjectStore
      * @throws DBException Raised if a database failure occurred.
      *
      **/
-    void save(Ice::Identity ident, Object servant) throws DBException;
+    void save(Ice::Identity ident, Object servant);
 };
 
 /**
@@ -110,7 +110,7 @@ local interface PersistenceStrategy
      * @see Evictor::destroyObject
      *
      **/
-    void evictedObject(ObjectStore store, Ice::Identity ident, Object servant, LocalObject cookie) throws DBException;
+    void evictedObject(ObjectStore store, Ice::Identity ident, Object servant, LocalObject cookie);
 
     /**
      *
@@ -128,8 +128,7 @@ local interface PersistenceStrategy
      * @param cookie The strategy's private state associated with the &Ice; object.
      *
      **/
-    void preOperation(ObjectStore store, Ice::Identity ident, Object servant, bool mutating, LocalObject cookie)
-        throws DBException;
+    void preOperation(ObjectStore store, Ice::Identity ident, Object servant, bool mutating, LocalObject cookie);
 
     /**
      *
@@ -147,8 +146,7 @@ local interface PersistenceStrategy
      * @param cookie The strategy's private state associated with the &Ice; object.
      *
      **/
-    void postOperation(ObjectStore store, Ice::Identity ident, Object servant, bool mutating, LocalObject cookie)
-        throws DBException;
+    void postOperation(ObjectStore store, Ice::Identity ident, Object servant, bool mutating, LocalObject cookie);
 
     /**
      *

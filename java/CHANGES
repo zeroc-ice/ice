@@ -1,6 +1,11 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added a test to the property parsing code to print a warning on System.err
+  if a property is not recognized. This prevents silly typos, such as
+  "Ice.config=MyFile" (instead of "Ice.Config=MyFile") from slipping through
+  undetected.
+
 Changes since version 1.0.1
 ---------------------------
 

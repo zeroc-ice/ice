@@ -97,8 +97,7 @@ local interface Service extends ServiceBase
      * @throws FailureException Raised if [start] failed.
      *
      **/
-    void start(string name, Ice::Communicator communicator, Ice::StringSeq args)
-        throws FailureException;
+    void start(string name, Ice::Communicator communicator, Ice::StringSeq args);
 };
 
 /**
@@ -135,8 +134,7 @@ local interface FreezeService extends ServiceBase
      * @throws FailureException Raised if [start] failed.
      *
      **/
-    void start(string name, Ice::Communicator communicator, Ice::StringSeq args, Freeze::DBEnvironment dbEnv)
-        throws FailureException;
+    void start(string name, Ice::Communicator communicator, Ice::StringSeq args, Freeze::DBEnvironment dbEnv);
 };
 
 /**

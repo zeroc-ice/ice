@@ -86,7 +86,7 @@ local interface DBEnvironment
      * @see DB::close
      *
      **/
-    DB openDB(string name, bool create) throws DBException;
+    DB openDB(string name, bool create);
 
     /**
      *
@@ -114,7 +114,7 @@ local interface DBEnvironment
      * @see DB::close
      *
      **/
-    DB openDBWithTxn(DBTransaction txn, string name, bool create) throws DBException;
+    DB openDBWithTxn(DBTransaction txn, string name, bool create);
 
     /**
      *
@@ -128,7 +128,7 @@ local interface DBEnvironment
      * @see DBTransaction
      *
      **/
-    DBTransaction startTransaction() throws DBException;
+    DBTransaction startTransaction();
 
     /**
      *
@@ -142,7 +142,7 @@ local interface DBEnvironment
      * @see DB::close
      *
      **/
-    void close() throws DBException;
+    void close();
 
     /**
      *
@@ -153,7 +153,7 @@ local interface DBEnvironment
      * @see DB::sync
      *
      **/
-    void sync() throws DBException;
+    void sync();
 };
 
 /**
@@ -172,7 +172,7 @@ local interface DBTransaction
      * @throws DBException Raised if a database failure occurred.
      *
      **/
-    void commit() throws DBException;
+    void commit();
 
     /**
      *
@@ -181,7 +181,7 @@ local interface DBTransaction
      * @throws DBException Raised if a database failure occurred.
      *
      **/
-    void abort() throws DBException;
+    void abort();
 };
 
 /**
@@ -236,7 +236,7 @@ local interface DBCursor
      * occurred.
      *
      **/
-    void curr(out Key k, out Value v) throws DBException;
+    void curr(out Key k, out Value v);
 
     /**
      *
@@ -250,7 +250,7 @@ local interface DBCursor
      * occurred.
      *
      **/
-    void set(Value v) throws DBException;
+    void set(Value v);
 
     /**
      *
@@ -265,7 +265,7 @@ local interface DBCursor
      * occurred.
      *
      **/
-    bool next() throws DBException;
+    bool next();
 
     /**
      *
@@ -280,7 +280,7 @@ local interface DBCursor
      * occurred.
      *
      **/
-    bool prev() throws DBException;
+    bool prev();
 
     /**
      *
@@ -296,7 +296,7 @@ local interface DBCursor
      * occurred.
      *
      **/
-    void del() throws DBException;
+    void del();
 
     /**
      *
@@ -307,7 +307,7 @@ local interface DBCursor
      * @throws DBException Raised if a database failure occurred.
      *
      **/
-    DBCursor clone() throws DBException;
+    DBCursor clone();
 
     /**
      *
@@ -316,7 +316,7 @@ local interface DBCursor
      * @throws DBException Raised if a database failure occurred.
      *
      **/
-    void close() throws DBException;
+    void close();
 };
 
 /**
@@ -357,7 +357,7 @@ local interface DB
      * @throws DBException Raised if the database has been closed.
      *
      **/
-    long getNumberOfRecords() throws DBException;
+    long getNumberOfRecords();
 
     /**
      *
@@ -377,7 +377,7 @@ local interface DB
      * @see getCursorAtKey
      *
      **/
-    DBCursor getCursor() throws DBException;
+    DBCursor getCursor();
 
     /**
      *
@@ -404,7 +404,7 @@ local interface DB
      * @see getCursor
      *
      **/
-    DBCursor getCursorAtKey(Key k) throws DBException;
+    DBCursor getCursorAtKey(Key k);
 
     /**
      *
@@ -424,7 +424,7 @@ local interface DB
      * @see del
      *
      **/
-    void put(Key k, Value v) throws DBException;
+    void put(Key k, Value v);
 
     /**
      *
@@ -446,7 +446,7 @@ local interface DB
      * @see del
      *
      **/
-    bool contains(Key k) throws DBException;
+    bool contains(Key k);
 
     /**
      *
@@ -468,7 +468,7 @@ local interface DB
      * @see del
      *
      **/
-    Value get(Key k) throws DBException;
+    Value get(Key k);
 
     /**
      *
@@ -489,7 +489,7 @@ local interface DB
      * @see get
      *
      **/
-    void del(Key k) throws DBException;
+    void del(Key k);
 
     /**
      *
@@ -516,7 +516,7 @@ local interface DB
      * @see getCursorAtKeyWithTxn
      *
      **/
-    DBCursor getCursorWithTxn(DBTransaction txn) throws DBException;
+    DBCursor getCursorWithTxn(DBTransaction txn);
 
     /**
      *
@@ -550,7 +550,7 @@ local interface DB
      * @see getCursorWithTxn
      *
      **/
-    DBCursor getCursorAtKeyWithTxn(DBTransaction txn, Key k) throws DBException;
+    DBCursor getCursorAtKeyWithTxn(DBTransaction txn, Key k);
 
     /**
      *
@@ -573,7 +573,7 @@ local interface DB
      * @see delWithTxn
      *
      **/
-    void putWithTxn(DBTransaction txn, Key k, Value v) throws DBException;
+    void putWithTxn(DBTransaction txn, Key k, Value v);
 
     /**
      *
@@ -598,7 +598,7 @@ local interface DB
      * @see delWithTxn
      *
      **/
-    bool containsWithTxn(DBTransaction txn, Key k) throws DBException;
+    bool containsWithTxn(DBTransaction txn, Key k);
 
     /**
      *
@@ -623,7 +623,7 @@ local interface DB
      * @see delWithTxn
      *
      **/
-    Value getWithTxn(DBTransaction txn, Key k) throws DBException;
+    Value getWithTxn(DBTransaction txn, Key k);
 
     /**
      *
@@ -647,7 +647,7 @@ local interface DB
      * @see getWithTxn
      *
      **/
-    void delWithTxn(DBTransaction txn, Key k) throws DBException;
+    void delWithTxn(DBTransaction txn, Key k);
 
     /**
      *
@@ -656,7 +656,7 @@ local interface DB
      * @throws DBException Raised if a database failure occurred.
      * 
      **/
-    void clear() throws DBException;
+    void clear();
 
     /**
      *
@@ -670,7 +670,7 @@ local interface DB
      * @see remove
      *
      **/
-    void close() throws DBException;
+    void close();
 
     /**
      *
@@ -684,7 +684,7 @@ local interface DB
      * @see close
      *
      **/
-    void remove() throws DBException;
+    void remove();
 
     /**
      *
@@ -700,7 +700,7 @@ local interface DB
      * @see DB::sync
      *
      **/
-    void sync() throws DBException;
+    void sync();
 
     /**
      *
@@ -747,7 +747,7 @@ local interface DB
      * @see EvictorPersistenceMode
      *
      **/
-    Evictor createEvictor(PersistenceStrategy strategy) throws DBException;
+    Evictor createEvictor(PersistenceStrategy strategy);
 };
 
 };

@@ -101,7 +101,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
 
-    std::string certPath = properties->getProperty("IceSSL.Test.Server.CertPath");
+    std::string certPath = properties->getProperty("IceSSL.Server.CertPath.Test");
     properties->setProperty("IceSSL.Server.CertPath", certPath);
 
     properties->setProperty("Ice.Warn.Connections", "0");

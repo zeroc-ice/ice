@@ -1,6 +1,14 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added a test to the Slice parser to complain if an operation on a local
+  interface or class has an exception specification.
+
+- Added a test to the property parsing code to print a warning on stderr
+  if a property is not recognized. This prevents silly typos, such as
+  "Ice.config=MyFile" (instead of "Ice.Config=MyFile") from slipping through
+  undetected.
+
 - Changed the mapping of the Slice byte type: ::Ice::Byte is now a typedef
   for unsigned char. (Previously, ::Ice::Byte was a typedef to char.) This
   change guarantees that byte values are always in the range 0..255 (instead

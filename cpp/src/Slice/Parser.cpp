@@ -3620,6 +3620,21 @@ Slice::Operation::setExceptionList(const ExceptionList& el)
     _throws = el;
 
     //
+    // Local interfaces and classes cannot have an exception specification.
+    //
+    if(el.size() != 0) {
+	ClassDefPtr parent = ClassDefPtr::dynamicCast(container());
+	assert(parent);
+	if(parent->isLocal())
+	{
+	    string msg = "operation `" + name() + "' cannot have a throws clause because it is an operation on a ";
+	    msg += parent->kindOf();
+	    _unit->error(msg);
+	    return;
+	}
+    }
+
+    //
     // Check that no exception occurs more than once in the throws clause
     //
     ExceptionList uniqueExceptions = el;

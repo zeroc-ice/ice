@@ -44,8 +44,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::PropertiesPtr properties = communicator->getProperties();
 
     // Use test related paths - override values in TestUtil.py
-    std::string clientCertPath = properties->getProperty("IceSSL.Test.Client.CertPath");
-    std::string serverCertPath = properties->getProperty("IceSSL.Test.Server.CertPath");
+    std::string clientCertPath = properties->getProperty("IceSSL.Client.CertPath.Test");
+    std::string serverCertPath = properties->getProperty("IceSSL.Server.CertPath.Test");
     properties->setProperty("IceSSL.Client.CertPath", clientCertPath);
     properties->setProperty("IceSSL.Server.CertPath", serverCertPath);
 

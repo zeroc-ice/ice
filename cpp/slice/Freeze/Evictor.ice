@@ -98,7 +98,7 @@ local interface EvictorIterator
      * occurred.
      *
      **/
-    Ice::Identity next() throws DBException;
+    Ice::Identity next();
 
     /**
      *
@@ -150,7 +150,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see DB::createEvictor
      *
      **/
-    DB getDB() throws EvictorDeactivatedException;
+    DB getDB();
 
     /**
      *
@@ -164,7 +164,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see DB::createEvictor
      *
      **/
-    PersistenceStrategy getPersistenceStrategy() throws EvictorDeactivatedException;
+    PersistenceStrategy getPersistenceStrategy();
 
     /**
      *
@@ -188,7 +188,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see getSize
      *
      **/
-    void setSize(int sz) throws DBException, EvictorDeactivatedException;
+    void setSize(int sz);
 
     /**
      *
@@ -202,7 +202,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see setSize
      *
      **/
-    int getSize() throws EvictorDeactivatedException;
+    int getSize();
 
     /**
      *
@@ -223,7 +223,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see destroyObject
      *
      **/
-    void createObject(Ice::Identity identity, Object servant) throws DBException, EvictorDeactivatedException;
+    void createObject(Ice::Identity identity, Object servant);
 
     /**
      *
@@ -242,7 +242,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see createObject
      *
      **/
-    void destroyObject(Ice::Identity identity) throws DBException, EvictorDeactivatedException;
+    void destroyObject(Ice::Identity identity);
 
     /**
      *
@@ -258,7 +258,7 @@ local interface Evictor extends Ice::ServantLocator
      * been deactivated.
      *
      **/
-    void installServantInitializer(ServantInitializer initializer) throws EvictorDeactivatedException;
+    void installServantInitializer(ServantInitializer initializer);
 
     /**
      *
@@ -270,7 +270,7 @@ local interface Evictor extends Ice::ServantLocator
      * been deactivated.
      *
      **/
-    EvictorIterator getIterator() throws EvictorDeactivatedException;
+    EvictorIterator getIterator();
 
     /**
      *
@@ -285,7 +285,7 @@ local interface Evictor extends Ice::ServantLocator
      * been deactivated.
      *
      **/
-    bool hasObject(Ice::Identity ident) throws EvictorDeactivatedException, DBException;
+    bool hasObject(Ice::Identity ident);
 };
 
 };

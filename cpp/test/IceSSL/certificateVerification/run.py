@@ -34,13 +34,13 @@ testOptions = " --IceSSL.Client.CertPath=" + os.path.join(toplevel, "test", "Ice
               " --IceSSL.Server.CertPath=" + os.path.join(toplevel, "test", "IceSSL", "certs") + \
               " --IceSSL.Server.Config= "
 
-TestUtil.clientOptions += " --IceSSL.Test.Client.CertPath=" + \
+TestUtil.clientOptions += " --IceSSL.Client.CertPath.Test=" + \
                           os.path.join(toplevel, "test", "IceSSL", "certs")
-TestUtil.serverOptions += " --IceSSL.Test.Server.CertPath=" + \
+TestUtil.serverOptions += " --IceSSL.Server.CertPath.Test=" + \
                           os.path.join(toplevel, "test", "IceSSL", "certs")
-TestUtil.clientServerOptions += " --IceSSL.Test.Client.CertPath=" + \
+TestUtil.clientServerOptions += " --IceSSL.Client.CertPath.Test=" + \
                                 os.path.join(toplevel, "test", "IceSSL", "certs") + \
-                                " --IceSSL.Test.Server.CertPath=" + \
+                                " --IceSSL.Server.CertPath.Test=" + \
                                 os.path.join(toplevel, "test", "IceSSL", "certs")
 
 name = os.path.join("IceSSL", "certificateVerification")
