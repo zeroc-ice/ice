@@ -14,14 +14,24 @@
 #include <openssl/md5.h>
 #include <bzlib.h>
 
-#ifndef _WIN32
-#   include <unistd.h>
-#   include <dirent.h>
-#else
+#ifdef _WIN32
 #   include <direct.h>
 #   include <io.h>
 #   define S_ISDIR(mode) ((mode) & _S_IFDIR)
 #   define S_ISREG(mode) ((mode) & _S_IFREG)
+#else
+#   include <unistd.h>
+#   include <dirent.h>
+#endif
+
+//
+// Stupid Visual C++ defines min and max as macros :-(
+//
+#ifdef min
+#   undef min
+#endif
+#ifdef max
+#   undef max
 #endif
 
 using namespace std;
@@ -622,7 +632,6 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	{
 	    break;
 	}
-	sleep(1);
 	
 	posBZ2 += bytesBZ2.size();
 	
