@@ -374,7 +374,7 @@ IceInternal::UdpTransceiver::setBufSize(const InstancePtr& instance)
 	if(sizeRequested < _udpOverhead)
 	{
 	    Warning out(_logger);
-	    out << "Invalid " << prop << " of " << sizeRequested << " adjusted to " << dfltSize;
+	    out << "Invalid " << prop << " value of " << sizeRequested << " adjusted to " << dfltSize;
 	    sizeRequested = dfltSize;
 	}
 
