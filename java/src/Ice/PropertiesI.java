@@ -183,19 +183,7 @@ class PropertiesI implements Properties
             }
         }
 
-        String file = getProperty("Ice.Config");
-
-        if (file.equals("1"))
-        {
-            file = "";
-        }
-
-        if (file.length() > 0)
-        {
-            load(file);
-        }
-
-        setProperty("Ice.Config", file);
+        loadConfig();
     }
 
     PropertiesI(StringSeqHolder args)
@@ -220,19 +208,7 @@ class PropertiesI implements Properties
             }
         }
 
-        String file = getProperty("Ice.Config");
-
-        if (file.equals("1"))
-        {
-            file = "";
-        }
-
-        if (file.length() > 0)
-        {
-            load(file);
-        }
-
-        setProperty("Ice.Config", file);
+        loadConfig();
     }
 
     private void
@@ -302,6 +278,28 @@ class PropertiesI implements Properties
         }
 
         setProperty(key, value);
+    }
+
+    private void
+    loadConfig()
+    {
+        String value = getProperty("Ice.Config");
+
+        if (value.equals("1"))
+        {
+            value = "";
+        }
+
+        if (value.length() > 0)
+        {
+            String[] files = value.split(",");
+            for (int i = 0; i < files.length; i++)
+            {
+                load(files[i]);
+            }
+        }
+
+        setProperty("Ice.Config", value);
     }
 
     private java.util.HashMap _properties = new java.util.HashMap();

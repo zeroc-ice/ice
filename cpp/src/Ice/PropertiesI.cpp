@@ -167,12 +167,7 @@ Ice::PropertiesI::clone()
 
 Ice::PropertiesI::PropertiesI()
 {
-    const char* s = getenv("ICE_CONFIG");
-    if (s && *s != '\0')
-    {
-        load(s);
-        setProperty("Ice.Config", s);
-    }
+    loadConfig();
 }
 
 Ice::PropertiesI::PropertiesI(StringSeq& args)
@@ -196,23 +191,7 @@ Ice::PropertiesI::PropertiesI(StringSeq& args)
         }
     }
 
-    string file = getProperty("Ice.Config");
-
-    if (file.empty() || file == "1")
-    {
-        const char* s = getenv("ICE_CONFIG");
-        if (s && *s != '\0')
-        {
-            file = s;
-        }
-    }
-
-    if (!file.empty())
-    {
-        load(file);
-    }
-
-    setProperty("Ice.Config", file);
+    loadConfig();
 }
 
 Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
@@ -235,23 +214,7 @@ Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
         }
     }
 
-    string file = getProperty("Ice.Config");
-
-    if (file.empty() || file == "1")
-    {
-        const char* s = getenv("ICE_CONFIG");
-        if (s && *s != '\0')
-        {
-            file = s;
-        }
-    }
-
-    if (!file.empty())
-    {
-        load(file);
-    }
-
-    setProperty("Ice.Config", file);
+    loadConfig();
 
     if (argc > 0)
     {
@@ -311,4 +274,43 @@ Ice::PropertiesI::parseLine(const string& line)
     }
     
     setProperty(key, value);
+}
+
+void
+Ice::PropertiesI::loadConfig()
+{
+    string value = getProperty("Ice.Config");
+
+    if (value.empty() || value == "1")
+    {
+        const char* s = getenv("ICE_CONFIG");
+        if (s && *s != '\0')
+        {
+            value = s;
+        }
+    }
+
+    if (!value.empty())
+    {
+        static const string delim = " \t\r\n";
+        string::size_type beg = value.find_first_not_of(delim);
+        while (beg != string::npos)
+        {
+            string::size_type end = value.find(",", beg);
+            string file;
+            if (end == string::npos)
+            {
+                file = value.substr(beg);
+                beg = end;
+            }
+            else
+            {
+                file = value.substr(beg, end - beg);
+                beg = value.find_first_not_of("," + delim, end);
+            }
+            load(file);
+        }
+    }
+
+    setProperty("Ice.Config", value);
 }

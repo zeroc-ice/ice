@@ -44,6 +44,8 @@ private:
 
     void parseLine(const std::string&);
 
+    void loadConfig();
+
     std::map<std::string, std::string> _properties;
 };
 
