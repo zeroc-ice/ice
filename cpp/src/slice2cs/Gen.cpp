@@ -289,7 +289,18 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	    ExceptionList throws = op->throws();
 	    throws.sort();
 	    throws.unique();
-	    remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal));
+
+	    //
+	    // Arrange exceptions into most-derived to least-derived order. If we don't
+	    // do this, a base exception handler can appear before a derived exception
+	    // handler, causing compiler warnings and resulting in the base exception
+	    // being marshaled instead of the derived exception.
+	    //
+#if defined(__SUNPRO_CC)
+	    throws.sort(Slice::derivedToBaseCompare);
+#else
+	    throws.sort(Slice::DerivedToBaseCompare());
+#endif
 
 	    TypeStringList::const_iterator q;
 	    
@@ -3155,7 +3166,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	ExceptionList throws = op->throws();
 	throws.sort();
 	throws.unique();
-	throws.erase(remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal)), throws.end());
 
 	//
 	// Arrange exceptions into most-derived to least-derived order. If we don't
@@ -3358,11 +3368,6 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr ret = op->returnType();
         string retS = typeToString(ret);
 	ClassDefPtr containingClass = ClassDefPtr::dynamicCast(op->container());
-
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-        throws.erase(remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal)), throws.end());
 
         vector<string> params = getParams(op);
         vector<string> args = getArgs(op);
@@ -3599,6 +3604,18 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         throws.sort();
         throws.unique();
 
+	//
+	// Arrange exceptions into most-derived to least-derived order. If we don't
+	// do this, a base exception handler can appear before a derived exception
+	// handler, causing compiler warnings and resulting in the base exception
+	// being marshaled instead of the derived exception.
+	//
+#if defined(__SUNPRO_CC)
+	throws.sort(Slice::derivedToBaseCompare);
+#else
+	throws.sort(Slice::DerivedToBaseCompare());
+#endif
+
         TypeStringList::const_iterator q;
 
 	vector<string> params = getParamsAsyncCB(p);
@@ -3763,6 +3780,18 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	ExceptionList throws = p->throws();
 	throws.sort();
 	throws.unique();
+
+	//
+	// Arrange exceptions into most-derived to least-derived order. If we don't
+	// do this, a base exception handler can appear before a derived exception
+	// handler, causing compiler warnings and resulting in the base exception
+	// being marshaled instead of the derived exception.
+	//
+#if defined(__SUNPRO_CC)
+	throws.sort(Slice::derivedToBaseCompare);
+#else
+	throws.sort(Slice::DerivedToBaseCompare());
+#endif
 
 	TypeStringList::const_iterator q;
 	_out << sp << nl << "class " << classNameAMDI << '_' << name

@@ -212,14 +212,8 @@ Slice::JavaVisitor::getArgsAsyncCB(const OperationPtr& op)
 void
 Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList& throws)
 {
-    //
-    // Don't include local exceptions in the throws clause.
-    //
-    ExceptionList::size_type localCount = ice_count_if(throws.begin(), throws.end(),
-						       IceUtil::constMemFun(&Exception::isLocal));
-
     Output& out = output();
-    if(throws.size() - localCount > 0)
+    if(throws.size() > 0)
     {
         out.inc();
         out << nl << "throws ";
@@ -228,15 +222,12 @@ Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList
         int count = 0;
         for(r = throws.begin(); r != throws.end(); ++r)
         {
-            if(!(*r)->isLocal())
-            {
-                if(count > 0)
-                {
-                    out << "," << nl;
-                }
-                out << getAbsolute(*r, package);
-                count++;
-            }
+	    if(count > 0)
+	    {
+		out << "," << nl;
+	    }
+	    out << getAbsolute(*r, package);
+	    count++;
         }
         out.restoreIndent();
         out.dec();
@@ -252,17 +243,11 @@ Slice::JavaVisitor::writeDelegateThrowsClause(const string& package, const Excep
     out.useCurrentPosAsIndent();
     out << "IceInternal.NonRepeatable";
 
-    //
-    // Don't include local exceptions in the throws clause
-    //
     ExceptionList::const_iterator r;
     for(r = throws.begin(); r != throws.end(); ++r)
     {
-        if(!(*r)->isLocal())
-        {
-            out << "," << nl;
-            out << getAbsolute(*r, package);
-        }
+	out << "," << nl;
+	out << getAbsolute(*r, package);
     }
     out.restoreIndent();
     out.dec();
@@ -487,14 +472,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	ExceptionList throws = op->throws();
 	throws.sort();
 	throws.unique();
-	remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal));
 
-#if defined(__SUNPRO_CC)
-	throws.sort(Slice::derivedToBaseCompare);
-#else
-	throws.sort(Slice::DerivedToBaseCompare());
-#endif
-	
 	//
 	// Only generate a "no current" version of the operation if it hasn't been done in a base
 	// class already, because the "no current" version is final.
@@ -600,7 +578,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    ExceptionList throws = op->throws();
 	    throws.sort();
 	    throws.unique();
-	    remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal));
 
 	    //
 	    // Arrange exceptions into most-derived to least-derived order. If we don't
@@ -3256,7 +3233,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
-        throws.erase(remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal)), throws.end());
 
 	//
 	// Arrange exceptions into most-derived to least-derived order. If we don't
@@ -3414,7 +3390,6 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
-        throws.erase(remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal)), throws.end());
 
         vector<string> params = getParams(op, package);
         vector<string> args = getArgs(op);
@@ -3754,17 +3729,6 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
         throws.sort();
         throws.unique();
 
-	//
-	// Arrange exceptions into most-derived to least-derived order. If we don't
-	// do this, a base exception handler can appear before a derived exception
-	// handler, causing compiler warnings and resulting in the base exception
-	// being marshaled instead of the derived exception.
-	//
-#if defined(__SUNPRO_CC)
-	throws.sort(Slice::derivedToBaseCompare);
-#else
-	throws.sort(Slice::DerivedToBaseCompare());
-#endif
         writeThrowsClause(package, throws);
 
         out << sb;
@@ -4196,6 +4160,18 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    ExceptionList throws = p->throws();
 	    throws.sort();
 	    throws.unique();
+
+	    //
+	    // Arrange exceptions into most-derived to least-derived order. If we don't
+	    // do this, a base exception handler can appear before a derived exception
+	    // handler, causing compiler warnings and resulting in the base exception
+	    // being marshaled instead of the derived exception.
+	    //
+#if defined(__SUNPRO_CC)
+	    throws.sort(Slice::derivedToBaseCompare);
+#else
+	    throws.sort(Slice::DerivedToBaseCompare());
+#endif
 
 	    int iter;
 
