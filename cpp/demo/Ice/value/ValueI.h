@@ -21,7 +21,7 @@ class InitialI : public Initial
 {
 public:
 
-    InitialI(const Ice::ObjectAdapterPtr&);
+    InitialI(::Ice::ObjectAdapterPtr);
 
     virtual SimplePtr getSimple(const Ice::Current&);
     virtual ::Ice::ObjectPtr getPrinterAsObject(const Ice::Current&);
@@ -31,7 +31,6 @@ public:
 
 private:
 
-    Ice::ObjectAdapterPtr _adapter;
     SimplePtr _simple;
     PrinterPtr _printer;
     PrinterPrx _printerProxy;

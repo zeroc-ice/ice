@@ -17,8 +17,7 @@
 
 using namespace std;
 
-InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
-    _adapter(adapter)
+InitialI::InitialI(::Ice::ObjectAdapterPtr adapter)
 {
     _simple = new Simple;
     _simple->message = "a message 4 u";
