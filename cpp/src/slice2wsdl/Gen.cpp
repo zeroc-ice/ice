@@ -136,6 +136,18 @@ Slice::Gen::emitMessage(XMLOutput& O, const OperationPtr& p)
     O << nl << "<wsdl:part name=\"body\" element=\"xsd1:" << scopeId << "reply." << p->name() << "\"/>";
 
     O << ee; // message
+
+    os.str("");
+    os << "wsdl:message name=\"metadata." << p->name() << "\"";
+    O << se(os.str());
+
+    list<string> metaData = p->getMetaData();
+    for (list<string>::iterator iter = metaData.begin(); iter != metaData.end(); ++iter)
+    {
+        O << nl << "<wsdl:part name=\"" << *iter << "\"/>";
+    }
+
+    O << ee; // message
 }
 
 void
