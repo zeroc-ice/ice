@@ -22,6 +22,9 @@ namespace __Ice
 
 class Stream;
 
+void write(Stream*, const ::Ice::ObjectProxy&);
+void read(Stream*, ::Ice::ObjectProxy&);
+
 }
 
 namespace __IceProxy { namespace Ice
@@ -94,9 +97,6 @@ class ICE_API Object : virtual public ::__IceDelegate::Ice::Object
 public:
 
     virtual bool _implements(const std::string&);
-
-    static void __write(::__Ice::Stream*, const ::Ice::ObjectProxy&);
-    static void __read(::__Ice::Stream*, ::Ice::ObjectProxy&);
 
 protected:
 

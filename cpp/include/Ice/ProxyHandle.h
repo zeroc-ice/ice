@@ -11,15 +11,11 @@
 #ifndef ICE_PROXY_HANDLE_H
 #define ICE_PROXY_HANDLE_H
 
-#include <Ice/ProxyF.h>
+#include <Ice/Proxy.h>
 
 namespace __Ice
 {
 
-//
-// Special handle class for proxies, which supports the static cast
-// operations.
-//
 template<typename T>
 class ProxyHandle : public Handle<T>
 {
@@ -37,14 +33,14 @@ public:
     static ProxyHandle<T> checkedCast(::__IceProxy::Ice::Object* from)
     {
 	T* to;
-	_checkedCast(from, to);
+	::__Ice::checkedCast(from, to);
 	return ProxyHandle<T>(to);
     }
 
     static ProxyHandle<T> uncheckedCast(::__IceProxy::Ice::Object* from)
     {
 	T* to;
-	_uncheckedCast(from, to);
+	::__Ice::uncheckedCast(from, to);
 	return ProxyHandle<T>(to);
     }
 };

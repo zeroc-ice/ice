@@ -32,6 +32,7 @@ public:
     
     typedef T element_type;
     typedef T I;
+    typedef T S;
     
     Handle(T* p = 0)
 	: ptr_(p)
