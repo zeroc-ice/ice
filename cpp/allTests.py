@@ -93,15 +93,8 @@ tests = [ \
     "FreezeScript/evictor", \
     "Glacier/starter", \
     "IcePack/simple", \
+    "IcePack/deployer", \
     ]
-
-#
-# TODO: find out why the deployer test doesn't work on Windows.
-#
-if TestUtil.isWin32() == 0:
-    tests += [ \
-        "IcePack/deployer", \
-        ]
 
 def usage():
     print "usage: " + sys.argv[0] + " [-l]"
