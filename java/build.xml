@@ -72,6 +72,7 @@
                 <include name="ServantLocator.ice" />
                 <include name="SliceChecksumDict.ice" />
                 <include name="Stats.ice" />
+                <include name="TransportInfo.ice" />
             </fileset>
             <fileset dir="${slice.dir}/Freeze">
                 <include name="DB.ice" />
