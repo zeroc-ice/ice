@@ -55,6 +55,7 @@ tests = [ \
     "Ice/adapterDeactivation", \
     "Ice/slicing/exceptions", \
     "Ice/slicing/objects", \
+    "Ice/checksum", \
     ]
 
 def usage():

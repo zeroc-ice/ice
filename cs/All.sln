@@ -176,6 +176,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sliceobAMDS", "test\Ice\sli
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "checksumC", "test\Ice\checksum\client\checksumC.csproj", "{48793CAD-9A98-45C4-A99D-2763734C4D50}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "checksumS", "test\Ice\checksum\server\checksumS.csproj", "{FDA9A357-C076-4791-8D92-162FACB513B5}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -358,6 +366,14 @@ Global
 		{89F9A40B-CB79-4EF8-9553-5E86A6375245}.Debug.Build.0 = Debug|.NET
 		{89F9A40B-CB79-4EF8-9553-5E86A6375245}.Release.ActiveCfg = Release|.NET
 		{89F9A40B-CB79-4EF8-9553-5E86A6375245}.Release.Build.0 = Release|.NET
+		{48793CAD-9A98-45C4-A99D-2763734C4D50}.Debug.ActiveCfg = Debug|.NET
+		{48793CAD-9A98-45C4-A99D-2763734C4D50}.Debug.Build.0 = Debug|.NET
+		{48793CAD-9A98-45C4-A99D-2763734C4D50}.Release.ActiveCfg = Release|.NET
+		{48793CAD-9A98-45C4-A99D-2763734C4D50}.Release.Build.0 = Release|.NET
+		{FDA9A357-C076-4791-8D92-162FACB513B5}.Debug.ActiveCfg = Debug|.NET
+		{FDA9A357-C076-4791-8D92-162FACB513B5}.Debug.Build.0 = Debug|.NET
+		{FDA9A357-C076-4791-8D92-162FACB513B5}.Release.ActiveCfg = Release|.NET
+		{FDA9A357-C076-4791-8D92-162FACB513B5}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

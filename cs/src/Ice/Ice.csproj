@@ -89,6 +89,11 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "AssemblyUtil.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "BasicStream.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -290,6 +295,11 @@
                 />
                 <File
                     RelPath = "Set.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "SliceChecksums.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -515,6 +525,11 @@
                 />
                 <File
                     RelPath = "generated\ServantLocatorF.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "generated\SliceChecksumDict.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

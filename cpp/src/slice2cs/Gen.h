@@ -54,6 +54,7 @@ public:
     void generateTie(const UnitPtr&);
     void generateImpl(const UnitPtr&);
     void generateImplTie(const UnitPtr&);
+    void generateChecksums(const UnitPtr&);
 
 private:
 

@@ -21,9 +21,9 @@ namespace Generate
 	static void Main(string[] args)
 	{
 	    string progName = AppDomain.CurrentDomain.FriendlyName;
-	    if(args.Length != 3)
+	    if(args.Length < 3)
 	    {
-		Console.Error.WriteLine("usage: {0} solution_dir project_dir project_name", progName);
+		Console.Error.WriteLine("usage: {0} solution_dir project_dir project_name [args]", progName);
 		Environment.Exit(1);
 	    }
 
@@ -96,6 +96,17 @@ namespace Generate
 
 	    string outputDir = Path.Combine(projDir, "generated");
 	    string cmdArgs = "--ice -I. " + includes + " --output-dir " + outputDir;
+	    for(int i = 3; i < args.Length; ++i)
+	    {
+		if(args[i].IndexOf(' ') != -1)
+		{
+		    cmdArgs += " \"" + args[i] + "\"";
+		}
+		else
+		{
+		    cmdArgs += " " + args[i];
+		}
+	    }
 
 	    bool needCompile = false;
 	    foreach(string sliceFile in sliceFiles)

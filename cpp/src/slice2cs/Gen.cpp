@@ -18,6 +18,8 @@
 #endif
 #include <IceUtil/Algorithm.h>
 #include <IceUtil/Iterator.h>
+#include <IceUtil/UUID.h>
+#include <Slice/Checksum.h>
 
 using namespace std;
 using namespace Slice;
@@ -877,6 +879,49 @@ Slice::Gen::generateImplTie(const UnitPtr& p)
 {
     ImplTieVisitor implTieVisitor(_impl);
     p->visit(&implTieVisitor);
+}
+
+void
+Slice::Gen::generateChecksums(const UnitPtr& p)
+{
+    ChecksumMap map = createChecksums(p);
+    if(!map.empty())
+    {
+        string className = "_" + IceUtil::generateUUID();
+        for(string::size_type pos = 1; pos < className.size(); ++pos)
+        {
+            if(!isalnum(className[pos]))
+            {
+                className[pos] = '_';
+            }
+        }
+
+        _out << sp << nl << "namespace IceInternal";
+        _out << sb;
+        _out << nl << "namespace SliceChecksums";
+        _out << sb;
+        _out << nl << "public sealed class " << className;
+        _out << sb;
+        _out << nl << "public readonly static System.Collections.Hashtable map = new System.Collections.Hashtable();";
+        _out << sp << nl << "static " << className << "()";
+        _out << sb;
+        for(ChecksumMap::const_iterator p = map.begin(); p != map.end(); ++p)
+        {
+            _out << nl << "map.Add(\"" << p->first << "\", \"";
+            ostringstream str;
+            str.flags(ios_base::hex);
+            str.fill('0');
+            for(vector<unsigned char>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+            {
+                str << (int)(*q);
+            }
+            _out << str.str() << "\");";
+        }
+        _out << eb;
+        _out << eb << ';';
+        _out << eb;
+        _out << eb;
+    }
 }
 
 void
