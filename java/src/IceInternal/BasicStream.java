@@ -24,7 +24,30 @@ public class BasicStream
 
         _currentReadEncaps = null;
         _currentWriteEncaps = null;
-        _updateStringReadTable = true;
+    }
+
+    //
+    // Copy constructor only for special cases (e.g., tracing)
+    //
+    public
+    BasicStream(BasicStream stream)
+    {
+        _instance = stream._instance;
+        _bufferManager = _instance.bufferManager();
+        //
+        // NOTE: Using duplicate() is more efficient because the
+        // new buffer shares the same underlying storage as the
+        // old one. However, this means any modifications by
+        // either buffer will be seen by both buffers.
+        //
+        _buf = stream._buf.duplicate();
+        _buf.order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        _capacity = _buf.capacity();
+        _limit = stream._limit;
+        _buf.position(0);
+
+        _currentReadEncaps = null;
+        _currentWriteEncaps = null;
     }
 
     protected void
@@ -1005,18 +1028,6 @@ public class BasicStream
         throw new Ice.NoUserExceptionFactoryException();
     }
 
-    public void
-    disableStringReadTableUpdates()
-    {
-        _updateStringReadTable = false;
-    }
-
-    public void
-    enableStringReadTableUpdates()
-    {
-        _updateStringReadTable = true;
-    }
-
     int
     pos()
     {
@@ -1079,5 +1090,4 @@ public class BasicStream
     private java.util.LinkedList _writeEncapsStack = new java.util.LinkedList();
     private ReadEncaps _currentReadEncaps;
     private WriteEncaps _currentWriteEncaps;
-    private boolean _updateStringReadTable;
 }

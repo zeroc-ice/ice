@@ -13,32 +13,26 @@ package IceInternal;
 final class TraceUtil
 {
     static void
-    traceHeader(String heading, BasicStream stream, Ice.Logger logger,
+    traceHeader(String heading, BasicStream str, Ice.Logger logger,
                 TraceLevels tl)
     {
         if (tl.protocol >= 1)
         {
-            stream.disableStringReadTableUpdates();
-            int pos = stream.pos();
-            stream.pos(0);
+            BasicStream stream = new BasicStream(str);
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
             printHeader(s, stream);
             logger.trace(tl.protocolCat, s.toString());
-            stream.pos(pos);
-            stream.enableStringReadTableUpdates();
         }
     }
 
     static void
-    traceRequest(String heading, BasicStream stream, Ice.Logger logger,
+    traceRequest(String heading, BasicStream str, Ice.Logger logger,
                  TraceLevels tl)
     {
         if (tl.protocol >= 1)
         {
-            stream.disableStringReadTableUpdates();
-            int pos = stream.pos();
-            stream.pos(0);
+            BasicStream stream = new BasicStream(str);
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
             printHeader(s, stream);
@@ -50,25 +44,21 @@ final class TraceUtil
             }
             printRequestHeader(s, stream);
             logger.trace(tl.protocolCat, s.toString());
-            stream.pos(pos);
-            stream.enableStringReadTableUpdates();
         }
     }
 
     static void
-    traceBatchRequest(String heading, BasicStream stream, Ice.Logger logger,
+    traceBatchRequest(String heading, BasicStream str, Ice.Logger logger,
                       TraceLevels tl)
     {
         if (tl.protocol >= 1)
         {
-            stream.disableStringReadTableUpdates();
-            int pos = stream.pos();
-            stream.pos(0);
+            BasicStream stream = new BasicStream(str);
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
             printHeader(s, stream);
             int cnt = 0;
-            while (stream.pos() != pos)
+            while (stream.pos() != stream.size())
             {
                 s.write("\nrequest #" + cnt + ':');
                 cnt++;
@@ -76,20 +66,16 @@ final class TraceUtil
                 stream.skipEncaps();
             }
             logger.trace(tl.protocolCat, s.toString());
-            stream.pos(pos);
-            stream.enableStringReadTableUpdates();
         }
     }
 
     static void
-    traceReply(String heading, BasicStream stream, Ice.Logger logger,
+    traceReply(String heading, BasicStream str, Ice.Logger logger,
                TraceLevels tl)
     {
         if (tl.protocol >= 1)
         {
-            stream.disableStringReadTableUpdates();
-            int pos = stream.pos();
-            stream.pos(0);
+            BasicStream stream = new BasicStream(str);
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
             printHeader(s, stream);
@@ -141,8 +127,6 @@ final class TraceUtil
                 }
             }
             logger.trace(tl.protocolCat, s.toString());
-            stream.pos(pos);
-            stream.enableStringReadTableUpdates();
         }
     }
 
