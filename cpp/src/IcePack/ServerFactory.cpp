@@ -39,7 +39,7 @@ class ServerFactoryServantInitializer : public Freeze::ServantInitializer
 public:
 
     virtual void 
-    initialize(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity, const Ice::ObjectPtr& servant)
+    initialize(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity, const string& facet, const Ice::ObjectPtr& servant)
     {
 	//
 	// Add the servant to the adapter active object map. This will
@@ -74,16 +74,14 @@ IcePack::ServerFactory::ServerFactory(const Ice::ObjectAdapterPtr& adapter,
     //
     // Create and install the freeze evictor for server objects.
     //
-    _serverEvictor = Freeze::createEvictor(_adapter->getCommunicator(), envName, "servers");
+    _serverEvictor = Freeze::createEvictor(_adapter, envName, "servers", initializer);
     _serverEvictor->setSize(10000);
-    _serverEvictor->installServantInitializer(initializer);
 
     //
     // Create and install the freeze evictor for server adapter objects.
     //
-    _serverAdapterEvictor = Freeze::createEvictor(_adapter->getCommunicator(), envName, "serveradapters");
+    _serverAdapterEvictor = Freeze::createEvictor(_adapter, envName, "serveradapters", initializer);
     _serverAdapterEvictor->setSize(10000);
-    _serverAdapterEvictor->installServantInitializer(initializer);
 
     //
     // Install the server object factory.
@@ -170,7 +168,7 @@ IcePack::ServerFactory::createServerAndAdapters(const ServerDescription& descrip
 
     _adapter->add(serverI, id);
     
-    _serverEvictor->createObject(id, serverI);
+    _serverEvictor->add(serverI, id);
 
     if(_traceLevels->server > 0)
     {
@@ -204,7 +202,7 @@ IcePack::ServerFactory::createServerAdapter(const string& adapterId, const Serve
 
     _adapter->add(adapterI, id);
     
-    _serverAdapterEvictor->createObject(id, adapterI);
+    _serverAdapterEvictor->add(adapterI, id);
 
     if(_traceLevels->adapter > 0)
     {
@@ -220,7 +218,7 @@ IcePack::ServerFactory::destroy(const ServerPtr& server, const Ice::Identity& id
 {
     try
     {
-	_serverEvictor->destroyObject(ident);
+	_serverEvictor->remove(ident);
 
 	if(_traceLevels->server > 0)
 	{
@@ -247,7 +245,7 @@ IcePack::ServerFactory::destroy(const ServerAdapterPtr& adapter, const Ice::Iden
 {
     try
     {
-	_serverAdapterEvictor->destroyObject(ident);
+	_serverAdapterEvictor->remove(ident);
 
 	if(_traceLevels->adapter > 0)
 	{

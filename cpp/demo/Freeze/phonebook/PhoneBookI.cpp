@@ -71,7 +71,7 @@ ContactI::destroy(const Ice::Current& c)
     IceUtil::RWRecMutex::RLock sync(*this);
     try
     {
-	_factory->getEvictor()->destroyObject(c.id);
+	_factory->getEvictor()->remove(c.id);
     }
     catch(const Freeze::DatabaseException& ex)
     {
@@ -127,7 +127,7 @@ PhoneBookI::createContact(const Ice::Current& c)
     // Create a new Ice Object in the evictor, using the new identity
     // and the new Servant.
     //
-    _evictor->createObject(ident, contact);
+    _evictor->add(contact, ident);
 
     
     //

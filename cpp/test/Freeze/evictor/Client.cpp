@@ -41,6 +41,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::Int i;
     
     Test::RemoteEvictorPrx evictor = factory->createEvictor("Test");
+    
     evictor->setSize(size);
     
     //
@@ -163,32 +164,41 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
     }
 
-    //
-    // Remove a facet that does exist
-    //
-    servants[0]->removeFacet("facet1");
-    Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[0], "facet1");
-    test(facet1 == 0);
-    
+   
     //
     // Remove all facets
     //
     for(i = 0; i < size; i++)
     {
-	servants[i]->removeAllFacets();
+	servants[i]->removeFacet("facet1");
+	servants[i]->removeFacet("facet2");
     }
+    
+    //
+    // Check they are all gone
+    //
+    for(i = 0; i < size; i++)
+    {
+	Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
+	test(facet1 == 0);
+	Test::FacetPrx facet2 = Test::FacetPrx::checkedCast(servants[i], "facet2");
+	test(facet2 == 0);
+    }
+
 
     evictor->setSize(0);
     evictor->setSize(size);
+
+   
 
     for(i = 0; i < size; i++)
     {
 	test(servants[i]->getValue() == i + 300);
 
-	facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
+	Test::FacetPrx facet1 = Test::FacetPrx::checkedCast(servants[i], "facet1");
 	test(facet1 == 0);
     }
-    
+
     //
     // Destroy servants and verify ObjectNotExistException.
     //
@@ -219,12 +229,16 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	servants.push_back(evictor->createServant(i, i));
     }
     
+    /*
     //
     // Deactivate and recreate evictor, to ensure that servants
     // are restored properly after database close and reopen.
     //
     evictor->deactivate();
+    
     evictor = factory->createEvictor("Test");
+    */
+
     evictor->setSize(size);
     for(i = 0; i < size; i++)
     {
@@ -235,7 +249,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     //
     // Clean up.
     //
-    evictor->destroyAllServants();
+    evictor->destroyAllServants("");
+    evictor->destroyAllServants("facet1");
+    evictor->destroyAllServants("facet2");
+
     for(i = 0; i < size; i++)
     {
 	try
@@ -249,7 +266,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
     }
 
-    evictor->deactivate();
+    // evictor->deactivate();
     cout << "ok" << endl;
 
     factory->shutdown();

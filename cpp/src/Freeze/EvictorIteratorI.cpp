@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003
+// Copyright (c) 2003-2004
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -13,6 +13,7 @@
 // **********************************************************************
 
 #include <Freeze/EvictorIteratorI.h>
+#include <Freeze/ObjectStore.h>
 #include <Freeze/EvictorI.h>
 #include <Freeze/Util.h>
 
@@ -21,17 +22,13 @@ using namespace Freeze;
 using namespace Ice;
 
 
-Freeze::EvictorIteratorI::EvictorIteratorI(EvictorI& evictor, Int batchSize, bool loadServants) :
-    _evictor(evictor),
+Freeze::EvictorIteratorI::EvictorIteratorI(ObjectStore* store, Int batchSize) :
+    _store(store),
     _batchSize(static_cast<size_t>(batchSize)),
-    _loadServants(loadServants),
     _key(1024),
-    _more(true)
+    _more(store != 0),
+    _initialized(false)
 {
-    if(loadServants)
-    {
-	_value.resize(1024);
-    }
     _batchIterator = _batch.end();
 }
 
@@ -74,14 +71,14 @@ Freeze::EvictorIteratorI::nextBatch()
 	return _batch.end();
     }
 
-    vector<EvictorI::EvictorElementPtr> evictorElements;
+    vector<EvictorElementPtr> evictorElements;
     evictorElements.reserve(_batchSize);
      
     Key firstKey;
     firstKey = _key;
-   
-    int loadedGeneration = 0;
 
+    CommunicatorPtr communicator = _store->communicator();
+   
     try
     {
 	for(;;)
@@ -93,15 +90,8 @@ Freeze::EvictorIteratorI::nextBatch()
 	    initializeOutDbt(_key, dbKey);
 
 	    Dbt dbValue;
-	    if(_loadServants)
-	    {
-		initializeOutDbt(_value, dbValue);
-	    }
-	    else
-	    {
-		dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
-	    }
-
+	    dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+	   
 	    Dbc* dbc = 0;
 	    try
 	    {
@@ -109,7 +99,8 @@ Freeze::EvictorIteratorI::nextBatch()
 		// Move to the first record
 		// 
 		u_int32_t flags = DB_NEXT;
-		if(_key.size() > 0)
+
+		if(_initialized)
 		{
 		    //
 		    // _key represents the next element not yet returned
@@ -123,48 +114,47 @@ Freeze::EvictorIteratorI::nextBatch()
 		    dbKey.set_size(static_cast<u_int32_t>(firstKey.size()));
 		}
 		
-		if(_loadServants)
-		{
-		    loadedGeneration = _evictor.currentGeneration();
-		}
+		_store->db()->cursor(0, &dbc, 0);
 
-		_evictor.db()->cursor(0, &dbc, 0);
-		
-		for(;;)
+		bool done = false;
+		do
 		{
-		    try
+		    for(;;)
 		    {
-			_more = (dbc->get(&dbKey, &dbValue, flags) == 0);
-			if(_more)
+			try
 			{
-			    _key.resize(dbKey.get_size());
-			    //
-			    // No need to resize data as we never use it as input
-			    //
+			    _more = (dbc->get(&dbKey, &dbValue, flags) == 0);
+			    if(_more)
+			    {
+				_key.resize(dbKey.get_size());
+				_initialized = true;
+
+				flags = DB_NEXT;
+		    
+				Ice::Identity ident;
+				ObjectStore::unmarshal(ident, _key, communicator);
+				if(_batch.size() < _batchSize)
+				{
+				    _batch.push_back(ident);
+				}
+				else
+				{
+				    //
+				    // Keep the last element in _key
+				    //
+				    done = true;
+				}
+			    }
+			    break;
 			}
-			break;
-		    }
-		    catch(const DbMemoryException& dx)
-		    {
-			handleMemoryException(dx, _key, dbKey, _value, dbValue);
-		    }
-		}
-		
-		while(_batch.size() < _batchSize && _more)
-		{
-		    //
-		    // Even when count is 0, we read one more record (unless we reach the end)
-		    //
-		    if(_loadServants)
-		    {
-			_more = _evictor.load(dbc, _key, _value, _batch, evictorElements);
-		    }
-		    else
-		    {
-			_more = _evictor.load(dbc, _key, _batch);
+			catch(const DbMemoryException& dx)
+			{
+			    handleMemoryException(dx, _key, dbKey);
+			}
 		    }
 		}
-		
+		while(!done && _more);
+
 		Dbc* toClose = dbc;
 		dbc = 0;
 		toClose->close();
@@ -222,10 +212,6 @@ Freeze::EvictorIteratorI::nextBatch()
     }
     else
     {
-	if(_loadServants)
-	{
-	    _evictor.insert(_batch, evictorElements, loadedGeneration);
-	}
 	return _batch.begin();
     }
 }

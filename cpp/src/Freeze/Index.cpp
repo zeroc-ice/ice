@@ -24,9 +24,23 @@ Freeze::Index::~Index()
     delete _impl;
 }
 
-Freeze::Index::Index(const string& name) :
-    _impl(new IndexI(*this, name))
+Freeze::Index::Index(const string& name, const string& facet) :
+    _name(name),
+    _facet(facet),
+    _impl(new IndexI(*this))
 {
+}
+
+const string&
+Freeze::Index::name() const
+{
+    return _name;
+}
+
+const string&
+Freeze::Index::facet() const
+{
+    return _facet;
 }
   
 vector<Identity>

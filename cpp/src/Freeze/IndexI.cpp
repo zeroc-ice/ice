@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003
+// Copyright (c) 2003-2004
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -14,6 +14,7 @@
 
 #include <Freeze/IndexI.h>
 #include <Freeze/Util.h>
+#include <Freeze/ObjectStore.h>
 
 using namespace Freeze;
 using namespace Ice;
@@ -30,10 +31,9 @@ callback(Db* secondary, const Dbt* key, const Dbt* value, Dbt* result)
 }
 
 
-Freeze::IndexI::IndexI(Index& index, const string& name) :
+Freeze::IndexI::IndexI(Index& index) :
     _index(index),
-    _name(name),
-    _evictor(0)
+    _store(0)
 {
 }
  
@@ -51,13 +51,12 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
     Key pkey(1024);
     Dbt pdbKey;
     initializeOutDbt(pkey, pdbKey);
-    
+
     Dbt dbValue;
     dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
-   
-    Ice::CommunicatorPtr communicator = _evictor->communicator();
-    _evictor->saveNow();
+    Ice::CommunicatorPtr communicator = _store->communicator();
+    _store->evictor()->saveNow();
 
     vector<Identity> identities;
 
@@ -67,53 +66,32 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
 	{
 	    Dbc* dbc = 0;
 	    identities.clear();
-	    
+
 	    try
 	    {
 		//
 		// Move to the first record
 		// 
 		_db->cursor(0, &dbc, 0);
-		bool more;
+		u_int32_t flags = DB_SET;
+
+		bool found;
 		
-		for(;;)
+		do
 		{
-		    try
-		    {
-			more = (dbc->pget(&dbKey, &pdbKey, &dbValue, DB_SET) == 0);
-			if(more)
-			{
-			    pkey.resize(pdbKey.get_size());
-			}
-			break; // for(;;)
-		    }
-		    catch(const DbMemoryException& dx)
-		    {
-			handleMemoryException(dx, pkey, pdbKey);
-		    }
-		}
-		    
-		while((firstN <= 0 || identities.size() < static_cast<size_t>(firstN)) && more)
-		{
-		    EvictorStorageKey esk;
-		    EvictorI::unmarshal(esk, pkey, communicator);
-		    
-		    if(esk.facet.size() == 0)
-		    {
-			identities.push_back(esk.identity);
-		    }
-		    //
-		    // Else skip "orphan" facet (could be just a temporary inconsistency
-		    // on disk)
-		    //
 		    for(;;)
 		    {
 			try
 			{
-			    more = (dbc->pget(&dbKey, &pdbKey, &dbValue, DB_NEXT_DUP) == 0);
-			    if(more)
+			    found = (dbc->pget(&dbKey, &pdbKey, &dbValue, flags) == 0);
+			    if(found)
 			    {
 				pkey.resize(pdbKey.get_size());
+				
+				Ice::Identity ident;
+				ObjectStore::unmarshal(ident, pkey, communicator);
+				identities.push_back(ident);
+				flags = DB_NEXT_DUP;
 			    }
 			    break; // for(;;)
 			}
@@ -122,7 +100,9 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
 			    handleMemoryException(dx, pkey, pdbKey);
 			}
 		    }
-		}
+		}		    
+		while((firstN <= 0 || identities.size() < static_cast<size_t>(firstN)) && found);
+
 		Dbc* toClose = dbc;
 		dbc = 0;
 		toClose->close();
@@ -144,11 +124,11 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
 		    }
 		}
 
-		if(_evictor->deadlockWarning())
+		if(_store->evictor()->deadlockWarning())
 		{
-		    Warning out(_evictor->communicator()->getLogger());
+		    Warning out(_store->communicator()->getLogger());
 		    out << "Deadlock in Freeze::IndexI::untypedFindFirst while searching \"" 
-			<< _evictor->dbName() << "\"; retrying ...";
+			<< _filename << "\"; retrying ...";
 		}
 
 		//
@@ -200,7 +180,7 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
     Dbt dbValue;
     dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
-    _evictor->saveNow();
+    _store->evictor()->saveNow();
     Int result = 0;
     
     try
@@ -245,11 +225,11 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
 		    }
 		}
 
-		if(_evictor->deadlockWarning())
+		if(_store->evictor()->deadlockWarning())
 		{
-		    Warning out(_evictor->communicator()->getLogger());
+		    Warning out(_store->communicator()->getLogger());
 		    out << "Deadlock in Freeze::IndexI::untypedCount while searching \"" 
-			<< _evictor->dbName() << "\"; retrying ...";
+			<< _filename << "\"; retrying ...";
 		}
 
 		//
@@ -286,14 +266,14 @@ Freeze::IndexI::untypedCount(const Key& bytes) const
 }
 
 void
-Freeze::IndexI::associate(EvictorI* evictor, DbTxn* txn, 
+Freeze::IndexI::associate(ObjectStore* store, DbTxn* txn, 
 			  bool createDb, bool populateIndex)
 {
     assert(txn != 0);
-    _evictor = evictor;
-    _index._communicator = evictor->communicator();
+    _store = store;
+    _index._communicator = store->communicator();
     
-    _db.reset(new Db(evictor->dbEnv(), 0));
+    _db.reset(new Db(store->evictor()->dbEnv(), 0));
     _db->set_flags(DB_DUP | DB_DUPSORT);
     _db->set_app_private(this);
 
@@ -302,50 +282,52 @@ Freeze::IndexI::associate(EvictorI* evictor, DbTxn* txn,
     {
 	flags = DB_CREATE;
     }
-    _db->open(txn, (evictor->dbName() + "." + _name).c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
+
+    _filename = store->filename() + "." + _index.name();
+
+    _db->open(txn, _filename.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
 
     flags = 0;
     if(populateIndex)
     {
 	flags = DB_CREATE;
     }
-    evictor->db()->associate(txn, _db.get(), callback, flags);
+    store->db()->associate(txn, _db.get(), callback, flags);
 }
 
 int
 Freeze::IndexI::secondaryKeyCreate(Db* secondary, const Dbt* dbKey, 
 				   const Dbt* dbValue, Dbt* result)
 {
-    Ice::CommunicatorPtr communicator = _evictor->communicator();
+    Ice::CommunicatorPtr communicator = _store->communicator();
 
-    EvictorStorageKey esk;
+    Ice::Identity ident;
     Byte* first = static_cast<Byte*>(dbKey->get_data());
     Key key(first, first + dbKey->get_size());
-    EvictorI::unmarshal(esk, key, communicator);
+    ObjectStore::unmarshal(ident, key, communicator);
 
-    if(esk.facet.size() == 0)
+    ObjectRecord rec;
+    first = static_cast<Byte*>(dbValue->get_data());
+    Value value(first, first + dbValue->get_size());
+    ObjectStore::unmarshal(rec, value, communicator);
+
+    Key bytes;
+    if(_index.marshalKey(rec.servant, bytes))
     {
-	ObjectRecord rec;
-	first = static_cast<Byte*>(dbValue->get_data());
-	Value value(first, first + dbValue->get_size());
-	EvictorI::unmarshal(rec, value, communicator);
-
-	Key bytes;
-	if(_index.marshalKey(rec.servant, bytes))
-	{
-	    result->set_flags(DB_DBT_APPMALLOC);
-	    void* data = malloc(bytes.size());
-	    memcpy(data, &bytes[0], bytes.size());
-	    result->set_data(data);
-	    result->set_size(static_cast<u_int32_t>(bytes.size()));
-	    return 0;
-	}
+	result->set_flags(DB_DBT_APPMALLOC);
+	void* data = malloc(bytes.size());
+	memcpy(data, &bytes[0], bytes.size());
+	result->set_data(data);
+	result->set_size(static_cast<u_int32_t>(bytes.size()));
+	return 0;
     }
-    
-    //
-    // Don't want to index this one
-    //
-    return DB_DONOTINDEX;
+    else
+    {
+	//
+	// Don't want to index this one
+	//
+	return DB_DONOTINDEX;
+    }
 }
 
 void

@@ -21,6 +21,7 @@ class TestI : public Test
 {
 public:
 
+    virtual void transient(const Ice::Current&);
     virtual void deactivate(const Ice::Current&);
 };
 

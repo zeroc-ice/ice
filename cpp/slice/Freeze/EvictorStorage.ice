@@ -22,17 +22,6 @@ module Freeze
 
 /**
  *
- * The key of the Evictor persistent map.
- *
- **/
-struct EvictorStorageKey
-{
-    Ice::Identity identity;
-    string facet;
-};
-
-/**
- *
  * The evictor maintains statistics about each object.
  *
  **/
@@ -62,7 +51,7 @@ struct Statistics
 
 /**
  *
- * The evictor uses a map of [EvictorStorageKey] to [ObjectRecord] as its
+ * The evictor uses a number of maps [Ice::Identity] to [ObjectRecord] as its
  * persistent storage.
  *
  **/

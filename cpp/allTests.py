@@ -84,8 +84,8 @@ tests = [ \
     "IceStorm/single", \
     "IceStorm/federation", \
     "IceStorm/federation2", \
-    "FreezeScript/dbmap", \
-    "FreezeScript/evictor", \
+#    "FreezeScript/dbmap", \
+#    "FreezeScript/evictor", \
     "Glacier/starter", \
     ]
 

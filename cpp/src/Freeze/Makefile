@@ -28,12 +28,14 @@ OBJS		= DB.o \
 		  EvictorStorage.o \
                   Connection.o \
                   ConnectionF.o \
+                  FacetRegistry.o \
                   ConnectionI.o \
                   Transaction.o \
                   TransactionI.o \
                   SharedDb.o \
 	  	  MapI.o \
                   Util.o \
+                  ObjectStore.o \
 		  EvictorI.o \
                   EvictorIteratorI.o \
                   Index.o \
@@ -59,6 +61,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DFREEZE_API_EXPORTS $(DB_FLAGS) 
 SLICE2CPPFLAGS	:= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
+SLICE2FREEZECMD := $(SLICE2FREEZE) --ice --include-dir Freeze $(ICECPPFLAGS)
 LINKWITH	:= -lIce -lIceUtil $(DB_LIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
@@ -72,6 +75,13 @@ $(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
 $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
+
+FacetRegistry.h FacetRegistry.cpp: $(SLICE2FREEZE)
+	rm -f FacetRegistry.h FacetRegistry.cpp
+	$(SLICE2FREEZECMD) --dict Freeze::FacetRegistry,string,bool FacetRegistry
+
+clean::
+	rm -f FacetRegistry.h FacetRegistry.cpp
 
 install:: all
 	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)

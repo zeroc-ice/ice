@@ -33,6 +33,10 @@ allTests(const CommunicatorPtr& communicator)
     test(obj == base);
     cout << "ok" << endl;
 
+    cout << "creating, activating and deactivating a new object adapter in one operation... " << flush;
+    obj->transient();
+    cout << "ok" << endl;
+
     cout << "deactivating object adapter in the server... " << flush;
     obj->deactivate();
     cout << "ok" << endl;

@@ -47,13 +47,16 @@ int
 LibraryCollocated::run(int argc, char* argv[])
 {
     PropertiesPtr properties = communicator()->getProperties();
-    string value;
     
     //
-    // Create an Evictor for books.
-    //    
-    Freeze::EvictorPtr evictor = Freeze::createEvictor(communicator(), _envName, "books");
+    // Create an object adapter
+    //
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Library");
 
+    //
+    // Create an evictor for books.
+    //
+    Freeze::EvictorPtr evictor = Freeze::createEvictor(adapter, _envName, "books");
     Int evictorSize = properties->getPropertyAsInt("Library.EvictorSize");
     if(evictorSize > 0)
     {
@@ -61,9 +64,8 @@ LibraryCollocated::run(int argc, char* argv[])
     }
     
     //
-    // Create an Object Adapter, use the Evictor as Servant Locator.
+    // Use the evictor as servant Locator.
     //
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Library");
     adapter->addServantLocator(evictor, "book");
     
     //
@@ -73,7 +75,7 @@ LibraryCollocated::run(int argc, char* argv[])
     adapter->add(library, stringToIdentity("library"));
     
     //
-    // Create and install a factory and initializer for books.
+    // Create and install a factory for books.
     //
     ObjectFactoryPtr bookFactory = new BookFactory(library);
     communicator()->addObjectFactory(bookFactory, "::Book");

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003
+// Copyright (c) 2003-2004
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -17,9 +17,10 @@
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-#include <Freeze/Evictor.h>
+#include <Freeze/Freeze.h>
+#include <Freeze/ObjectStore.h>
 #include <Freeze/SharedDbEnv.h>
-#include <Freeze/EvictorStorage.h>
+#include <Freeze/FacetRegistry.h>
 #include <Freeze/Index.h>
 #include <Freeze/DB.h>
 #include <list>
@@ -34,29 +35,27 @@ class EvictorI : public Evictor,  public IceUtil::Monitor<IceUtil::Mutex>, publi
 {
 public:
 
-    EvictorI(const Ice::CommunicatorPtr, const std::string&, const std::string&, 
-	     const std::vector<Freeze::IndexPtr>&, bool);
+    EvictorI(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&, 
+	     const ServantInitializerPtr&, const std::vector<IndexPtr>&, bool);
 
-    EvictorI(const Ice::CommunicatorPtr, const std::string&,  DbEnv&, const std::string&, 
-	     const std::vector<Freeze::IndexPtr>&, bool);
+    EvictorI(const Ice::ObjectAdapterPtr&, const std::string&, DbEnv&, const std::string&, 
+	     const ServantInitializerPtr&, const std::vector<IndexPtr>&, bool);
 
     virtual ~EvictorI();
 
     virtual void setSize(Ice::Int);
     virtual Ice::Int getSize();
+   
+    virtual Ice::ObjectPrx add(const Ice::ObjectPtr&, const Ice::Identity&);
+    virtual Ice::ObjectPrx addFacet(const Ice::ObjectPtr&, const Ice::Identity&, const std::string&);
 
-    virtual void saveNow();
+    virtual void remove(const Ice::Identity&);
+    virtual void removeFacet(const Ice::Identity&, const std::string&);
     
-    virtual void createObject(const Ice::Identity&, const Ice::ObjectPtr&);
-    virtual void addFacet(const Ice::Identity&, const Ice::FacetPath&, const Ice::ObjectPtr&);
-    
-    virtual void destroyObject(const Ice::Identity&);
-    virtual Ice::ObjectPtr removeFacet(const Ice::Identity&, const Ice::FacetPath&);
-    virtual void removeAllFacets(const Ice::Identity&);
-
-    virtual void installServantInitializer(const ServantInitializerPtr&);
-    virtual EvictorIteratorPtr getIterator(Ice::Int, bool);
     virtual bool hasObject(const Ice::Identity&);
+    virtual bool hasFacet(const Ice::Identity&, const std::string&);
+
+    virtual EvictorIteratorPtr getIterator(const std::string&, Ice::Int);
 
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
     virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&);
@@ -67,204 +66,81 @@ public:
     //
     virtual void run();
 
-
     //
-    // For the iterator:
+    // Accessors for other classes
     //
-    const Ice::CommunicatorPtr&
-    communicator() const;
+    void saveNow();
 
-    Db*
-    db() const;
+    const Ice::CommunicatorPtr& communicator() const;
+    DbEnv* dbEnv() const;
+    bool deadlockWarning() const;
 
-    DbEnv*
-    dbEnv() const;
+    void initialize(const Ice::Identity&, const std::string&, const Ice::ObjectPtr&);
 
-    const std::string&
-    dbName() const;
-
-    int
-    currentGeneration() const;
-
-    //
-    // Should be private, but the Sun C++ compiler forces us to
-    // make them public
-    //
-    struct EvictorElement;
-    typedef IceUtil::Handle<EvictorElement> EvictorElementPtr;
-    typedef std::map<Ice::Identity, EvictorElementPtr> EvictorMap;
-
-    struct Facet;
-    typedef IceUtil::Handle<Facet> FacetPtr;
-    typedef std::map<Ice::FacetPath, FacetPtr> FacetMap;
-
-    struct Facet : public Ice::LocalObject
-    {
-	Facet(EvictorElement*);
-
-	IceUtil::Mutex mutex;
-	Ice::Byte status;  
-	ObjectRecord rec; // 64 bit alignment
-	EvictorElement* const element;
-
-	//
-	// Position in element->facets
-	//
-	FacetMap::iterator position;
-    };
     
-    struct EvictorElement : public IceUtil::Shared
-    {
-	EvictorElement();
-	~EvictorElement();
-	
-	std::list<EvictorMap::iterator>::iterator position;
-	int usageCount;
-	FacetMap facets;
-	const Ice::Identity* identity;
-	FacetPtr mainObject;
-    };
-
-    //
-    // For the iterator:
-    //
-    bool
-    load(Dbc*, Key&, Value&, std::vector<Ice::Identity>&, std::vector<EvictorElementPtr>&);
-
-    bool
-    load(Dbc*, Key&, std::vector<Ice::Identity>&);
-
-    void 
-    insert(const std::vector<Ice::Identity>&, const std::vector<EvictorElementPtr>&, int);
-
-
-    //
-    // marshaling/unmarshaling functions
-    //
-    static void
-    marshalRoot(const Ice::Identity&, Freeze::Key&, const Ice::CommunicatorPtr&);
-
-    static void
-    marshal(const Freeze::EvictorStorageKey&, Freeze::Key& bytes, const Ice::CommunicatorPtr&);
-
-    static void
-    unmarshal(Freeze::EvictorStorageKey&, const Freeze::Key&, const Ice::CommunicatorPtr&);
-
-    static void
-    marshal(const Freeze::ObjectRecord&, Freeze::Value&, const Ice::CommunicatorPtr&);
-
-    static void
-    unmarshal(Freeze::ObjectRecord&, const Freeze::Value&, const Ice::CommunicatorPtr&);
-
-    //
-    // Streamed objects
-    //
     struct StreamedObject
     {
 	Key key;
 	Value value;
 	Ice::Byte status;
+	ObjectStore* store;
     };
-
-#if defined(_MSC_VER) && (_MSC_VER <= 1200)
-
-    enum 
-    { 
-      clean = 0,
-      created = 1,
-      modified = 2,
-      destroyed = 3,
-      dead = 4
-    };
-    
-#else 
-    //
-    // Clean object; can become modified or destroyed
-    //
-    static const Ice::Byte clean = 0;
-
-    //
-    // New objects; can become clean, dead or destroyed
-    //
-    static const Ice::Byte created = 1;
-
-    //
-    // Modified object; can become clean or destroyed
-    //
-    static const Ice::Byte modified = 2;
-
-    //
-    // Being saved. Can become dead or created
-    //
-    static const Ice::Byte destroyed = 3;
-
-    //
-    // Exists only in the Evictor; for example the object was created
-    // and later destroyed (without a save in between), or it was
-    // destroyed on disk but is still in use. Can become created.
-    //
-    static const Ice::Byte dead = 4;
-
-#endif
-
-    bool
-    deadlockWarning() const;
 
 private:
 
-    void init(const std::string& envName, bool createDb);
+    void init(const std::string& envName, const std::vector<IndexPtr>&);
+
+    Ice::ObjectPtr locateImpl(const Ice::Current&, Ice::LocalObjectPtr&);
 
     void evict();
-    bool dbHasObject(const Ice::Identity&);
-    bool getObject(const Ice::Identity&, ObjectRecord&);
-    void addToModifiedQueue(const FacetPtr&);
-    void streamFacet(const FacetPtr&, const Ice::FacetPath&, Ice::Byte, Ice::Long, StreamedObject&);
+    void evict(const EvictorElementPtr&);
+    void addToModifiedQueue(const EvictorElementPtr&);
+    void fixEvictPosition(const EvictorElementPtr&);
 
+    void stream(const EvictorElementPtr&, Ice::Long, StreamedObject&);
     void saveNowNoSync();
 
-    EvictorElementPtr load(const Ice::Identity&);
-    EvictorMap::iterator insertElement(const Ice::ObjectAdapterPtr&, const Ice::Identity&, const EvictorElementPtr&);
-  
-    void addFacetImpl(EvictorElementPtr&, const Ice::ObjectPtr&, const Ice::FacetPath&, bool);
-    void removeFacetImpl(FacetMap&,  const Ice::FacetPath&);
-    Ice::ObjectPtr destroyFacetImpl(const FacetPtr& facet);
+    ObjectStore* findStore(const std::string&) const;
 
-    void buildFacetMap(const FacetMap&);
     
-    inline void writeObjectRecordToValue(Ice::Long, ObjectRecord&, Value&);
-
-    EvictorMap _evictorMap;
+    typedef std::map<std::string, ObjectStore*> StoreMap;
+    StoreMap _storeMap;
 
     //
     // The _evictorList contains a list of all objects we keep,
-    // with the most recently used first
+    // with the most recently used first.
     //
-    // Note: relies on the stability of iterators in a std::map
-    //
-    std::list<EvictorMap::iterator> _evictorList;
-    EvictorMap::size_type _evictorSize;
+    std::list<EvictorElementPtr> _evictorList;
+    std::list<EvictorElementPtr>::size_type _evictorSize;
+    std::list<EvictorElementPtr>::size_type _currentEvictorSize;
 
     //
     // The _modifiedQueue contains a queue of all modified objects
     // Each element in the queue "owns" a usage count, to ensure the
-    // element containing the pointed element remains in the evictor
-    // map.
+    // element containing the pointed element remains in the cache.
     //
-    std::deque<FacetPtr> _modifiedQueue;
+    std::deque<EvictorElementPtr> _modifiedQueue;
 
     bool _deactivated;
-  
+
+    Ice::ObjectAdapterPtr _adapter;
     Ice::CommunicatorPtr _communicator;
 
+    //
+    // The facet registry maintains all the known facets
+    //
+    ConnectionPtr _connection;
+    FacetRegistry _facetRegistry;       
+
+    ServantInitializerPtr _initializer;
+    
     DbEnv* _dbEnv;
     SharedDbEnvPtr _dbEnvHolder;
 
     std::string _dbName;
+    bool _createDb;
 
-    std::auto_ptr<Db> _db;
-    ServantInitializerPtr _initializer;
-
-    std::vector<Freeze::IndexPtr> _indices;
+    
 
     Ice::Int _trace;
 
@@ -277,21 +153,6 @@ private:
     Ice::Int _saveSizeTrigger;
     Ice::Int _maxTxSize;
     IceUtil::Time _savePeriod;
-    IceUtil::Time _lastSave;
-
-    //
-    // _generation is incremented after committing changes
-    // to disk, when releasing the usage count of the element
-    // that contains the created/modified/destroyed facets. 
-    // Like the usage count, it is protected by the Evictor mutex.
-    //
-    // It is used to detect updates when loading an element and its
-    // facets without holding the Evictor mutex. If the generation
-    // is the same before the loading and later when the Evictor
-    // mutex is locked again, and the map still does not contain 
-    // this element, then the loaded value is current.
-    //
-    int _generation;
 
     bool _deadlockWarning;
 };
@@ -302,61 +163,16 @@ EvictorI::communicator() const
     return _communicator;
 }
 
-inline Db*
-EvictorI::db() const
-{
-    return _db.get();
-}
-
 inline DbEnv*
 EvictorI::dbEnv() const
 {
     return _dbEnv;
 }
 
-inline const std::string&
-EvictorI::dbName() const
-{
-    return _dbName;
-}
-
-inline int
-EvictorI::currentGeneration() const
-{
-    Lock sync(*this);
-    return _generation;
-}
-
 inline bool
 EvictorI::deadlockWarning() const
 {
     return _deadlockWarning;
-}
-
-inline bool 
-startWith(const Key& key, const Key& root)
-{
-    if(root.size() > key.size())
-    {
-	return false;
-    }
-    return memcmp(&root[0], &key[0], root.size()) == 0;
-}
-
-inline Ice::Trace&
-operator<<(Ice::Trace& os, const std::vector<std::string>& facetPath)
-{
-    os << '"';
-    for(size_t i = 0; i < facetPath.size(); i++)
-    {
-	os << facetPath[i];
-	if(i != facetPath.size() - 1)
-	{
-	    os << '.';
-	}
-    }
-    os << '"';
-    return os;
 }
 
 }

@@ -20,6 +20,18 @@ using namespace std;
 using namespace Ice;
 
 void
+TestI::transient(const Current& current)
+{
+    CommunicatorPtr communicator = current.adapter->getCommunicator();
+    
+    ObjectAdapterPtr adapter =
+	communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999");
+    adapter->activate();
+    adapter->deactivate();
+    adapter->waitForDeactivate();
+}
+
+void
 TestI::deactivate(const Current& current)
 {
     current.adapter->deactivate();

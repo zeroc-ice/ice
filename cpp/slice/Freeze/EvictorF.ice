@@ -18,6 +18,7 @@
 module Freeze
 {
 
+local interface ServantInitializer;
 local interface Evictor;
 
 };

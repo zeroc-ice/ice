@@ -1,7 +1,7 @@
-Freeze.Evictor.db.Test.SaveSizeTrigger=3
+Freeze.Evictor.db.Test.SaveSizeTrigger=6
 Freeze.Evictor.db.Test.SavePeriod=2
 
-#Freeze.Trace.Evictor=3
-#Freeze.Trace.DbEnv=3
+Freeze.Trace.Evictor=3
+Freeze.Trace.DbEnv=3
 
 

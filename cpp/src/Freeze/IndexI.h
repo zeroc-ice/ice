@@ -22,23 +22,22 @@
 namespace Freeze
 {
 
+class ObjectStore;
+
 class IndexI
 {
 public:
     
-    IndexI(Index&, const std::string&);
+    IndexI(Index&);
 
-    std::vector<Ice::Identity>
-    untypedFindFirst(const Freeze::Key&, Ice::Int) const;
+    std::vector<Ice::Identity> untypedFindFirst(const Key&, Ice::Int) const;
     
-    std::vector<Ice::Identity>
-    untypedFind(const Freeze::Key&) const;
+    std::vector<Ice::Identity> untypedFind(const Key&) const;
     
-    Ice::Int
-    untypedCount(const Freeze::Key&) const;
+    Ice::Int untypedCount(const Key&) const;
     
     void
-    associate(EvictorI* evictor, DbTxn* txn, bool createDb, bool populateIndex);
+    associate(ObjectStore* store, DbTxn* txn, bool createDb, bool populateIndex);
 
     int
     secondaryKeyCreate(Db*, const Dbt*, const Dbt*, Dbt*);
@@ -46,14 +45,14 @@ public:
     void
     close();
     
-   
-
 private:
 
+   
+
     Index& _index;
-    std::string _name;
+    std::string _filename;
     std::auto_ptr<Db> _db;
-    EvictorI* _evictor;
+    ObjectStore* _store;
 };
 
 }

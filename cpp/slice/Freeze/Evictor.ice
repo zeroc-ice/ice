@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003
+// Copyright (c) 2003-2004
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -47,12 +47,15 @@ local interface ServantInitializer
      * @param identity The identity of the &Ice; object for which the
      * servant was created.
      *
+     * @param facet The facet. An empty facet means the default
+     * facet.
+     *
      * @param servant The servant to initialize.
      *
      * @see Ice::Identity
      *
      **/
-    void initialize(Ice::ObjectAdapter adapter, Ice::Identity identity, Object servant);
+    void initialize(Ice::ObjectAdapter adapter, Ice::Identity identity, string facet, Object servant);
 };
 
 
@@ -114,15 +117,6 @@ local exception EvictorDeactivatedException
 {
 };
 
-/**
- *
- * This exception is raised if an empty facet is passed to
- * [Evictor::addFacet] or [Evictor::removeFacet].
- *
- **/
-local exception EmptyFacetException
-{
-};
 
 /**
  *
@@ -178,156 +172,122 @@ local interface Evictor extends Ice::ServantLocator
      **/
     int getSize();
 
-    /**
-     *
-     * Create a new &Ice; object for this evictor. The state of the
-     * servant passed to this operation is saved in the evictor's
-     * persistent store.
-     * If the object already exists, it is updated.
-     *
-     * @param identity The identity of the &Ice; object to create.
-     *
-     * @param servant The servant for the &Ice; object.
-     *
-     * @throws DatabaseException Raised if a database failure occurred.
-     *
-     * @throws EvictorDeactivatedException Raised if a the evictor has
-     * been deactivated.
-     *
-     * @see Ice::Identity
-     * @see destroyObject
-     *
-     **/
-    void createObject(Ice::Identity identity, Object servant);
-
 
     /**
      *
-     * Adds a new persistent facet to this object.
+     * Add a servant to this evictor. The state of the servant passed to 
+     * this operation will be saved in the evictor's persistent store.
      *
-     * @param identity The identity of the target &Ice; object
+     * @param servant The servant to add.
      *
-     * @param facet The facet path.
+     * @param id The identity of the &Ice; object that is implemented by 
+     * the servant.
      *
-     * @param servant The servant for the &Ice; object.
+     * @return A proxy that matches the given identity and this evictor's
+     * object adapter.
+     *
+     * @throws AlreadyRegisteredException Raised if the evictor already has
+     * an object with this identity.
      *
      * @throws DatabaseException Raised if a database failure occurred.
      *
-     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * @throws EvictorDeactivatedException Raised if the evictor has
      * been deactivated.
      *
-     * @throws EmptyFacetException Raised if the facet path is
-     * empty.
-     *
-     *
-     * @see Ice::Identity
+     * @see addFacet
+     * @see remove
      * @see removeFacet
      *
      **/
-    void addFacet(Ice::Identity identity, string facet, Object servant);
+    Object* add(Object servant, Ice::Identity id);
 
     /**
      *
-     * Permanently destroy an &Ice; object by removing it from the
-     * evictor's persistent store. If the object does not exist,
-     * this operation does nothing.
+     * Like [add], but with a facet. Calling <code>add(servant,
+     * id)</code> is equivalent to calling [addFacet] with an empty
+     * facet.
      *
-     * @param identity The identity of the &Ice; object to destroy.
+     * @param servant The servant to add.
+     *
+     * @param id The identity of the &Ice; object that is implemented by 
+     * the servant.
+     *
+     * @param facet The facet. An empty facet means the default
+     * facet.
+     *
+     * @return A proxy that matches the given identity and this evictor's
+     * object adapter.
+     *
+     * @throws AlreadyRegisteredException Raised if the evictor already has
+     * an object with this identity.
      *
      * @throws DatabaseException Raised if a database failure occurred.
      *
-     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * @throws EvictorDeactivatedException Raised if the evictor has
      * been deactivated.
      *
-     * @see Ice::Identity
-     * @see createObject
+     * @see add
+     * @see remove
+     * @see removeFacet
      *
      **/
-    void destroyObject(Ice::Identity identity);
+    Object* addFacet(Object servant, Ice::Identity id, string facet);
 
-    
+    //
+    // Note: no UUID operation as we don't know the category or 
+    // categories this evictor was registered with.
+    //
+
     /**
      *
-     * Permanently remove this facet from the object.
+     * Permanently destroy an &Ice; object.
      *
-     * @param identity The identity of the target &Ice; object.
+     * @param id The identity of the &Ice; object.
      *
-     * @param facet The facet path.
-     *
-     * @return The removed facet.
+     * @throws NotRegisteredException Raised if this identity was not 
+     * registered with the evictor.
      *
      * @throws DatabaseException Raised if a database failure occurred.
      *
-     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * @throws EvictorDeactivatedException Raised if the evictor has
      * been deactivated.
      *
-     * @throws EmptyFacetException Raised if the facet path is
-     * empty.
+     * @see add
+     * @see removeFacet
      *
-     * @see Ice::Identity
+     **/
+    void remove(Ice::Identity id);
+
+
+    /**
+     *
+     * Like [remove], but with a facet. Calling <code>remove(id)</code> 
+     * is equivalent to calling [removeFacet] with an empty facet.
+     *
+     * @param id The identity of the &Ice; object.
+     *
+     * @param facet The facet. An empty facet means the default
+     * facet.
+     *
+     * @throws NotRegisteredException Raised if this identity was not 
+     * registered with the evictor.
+     *
+     * @throws DatabaseException Raised if a database failure occurred.
+     *
+     * @throws EvictorDeactivatedException Raised if the evictor has
+     * been deactivated.
+     *
+     * @see remove
      * @see addFacet
      *
      **/
-    Object removeFacet(Ice::Identity identity, string facet);
-    
-
-    /**
-     *
-     * Permanently remove all the facets from the object.
-     *
-     * @param identity The identity of the target &Ice; object.
-     *
-     * @throws DatabaseException Raised if a database failure occurred.
-     *
-     * @throws EvictorDeactivatedException Raised if a the evictor has
-     * been deactivated.
-     *
-     * @see Ice::Identity
-     * @see removeFacet
-     *
-     **/
-    void removeAllFacets(Ice::Identity identity);
+    void removeFacet(Ice::Identity id, string facet);
 
 
     /**
      *
-     * Install a servant initializer for this evictor.
-     *
-     * @param initializer The servant initializer to install.
-     * Subsequent calls overwrite any previously set value. A null
-     * value removes an existing servant initializer.
-     *
-     * @see ServantInitializer
-     *
-     * @throws EvictorDeactivatedException Raised if a the evictor has
-     * been deactivated.
-     *
-     **/
-    void installServantInitializer(ServantInitializer initializer);
-
-    /**
-     *
-     * Get an iterator for the identities managed by the evictor.
-     *
-     * @param batchSize Internally, the Iterator retrieves the
-     * identities in batches of size batchSize. Selecting a small batchSize
-     * can have an adverse effect on performance.
-     *
-     * @param loadServants If true, attempt to load the corresponding 
-     * servants in the Evictor. The servants may not be loaded if a
-     * save occurs while the batch is retrieved.
-     *
-     * @return A new iterator.
-     *
-     * @throws EvictorDeactivatedException Raised if a the evictor has
-     * been deactivated.
-     *
-     **/
-    EvictorIterator getIterator(int batchSize, bool loadServants);
-
-    /**
-     *
-     * Returns true if the given identity is managed by the evictor.
+     * Returns true if the given identity is managed by the evictor
+     * with the default facet.
      *
      * @return true if the identity is managed by the evictor, false
      * otherwise.
@@ -338,7 +298,43 @@ local interface Evictor extends Ice::ServantLocator
      * been deactivated.
      *
      **/
-    bool hasObject(Ice::Identity ident);
+    bool hasObject(Ice::Identity id);
+
+    /**
+     * 
+     * Like [hasObject], but with a facet. Calling <code>hasObject(id)
+     * </code> is equivalent to calling [hasFacet] with an empty
+     * facet.
+     *
+     * @return true if the identity is managed by the evictor for the
+     * given facet, false otherwise.
+     *
+     * @throws DatabaseException Raised if a database failure occurred.
+     *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
+     **/
+    bool hasFacet(Ice::Identity id, string facet);  
+
+    /**
+     *
+     * Get an iterator for the identities managed by the evictor.
+     *
+     * @param facet The facet. An empty facet means the default
+     * facet.
+     *
+     * @param batchSize Internally, the Iterator retrieves the
+     * identities in batches of size batchSize. Selecting a small batchSize
+     * can have an adverse effect on performance.
+     *
+     * @return A new iterator.
+     *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
+     **/
+    EvictorIterator getIterator(string facet, int batchSize);
 };
 
 };

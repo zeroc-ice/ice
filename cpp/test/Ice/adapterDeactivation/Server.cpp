@@ -39,6 +39,7 @@ TestServer::run(int argc, char* argv[])
     communicator()->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
     ServantLocatorPtr locator = new ServantLocatorI;
+    
     adapter->addServantLocator(locator, "");
     adapter->activate();
     adapter->waitForDeactivate();

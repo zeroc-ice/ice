@@ -203,7 +203,7 @@ LibraryI::createBook(const ::BookDescription& description, const Ice::Current& c
     // internal error). The exception is currently ignored.
     //
     Ice::Identity ident = createBookIdentity(description.isbn);
-    _evictor->createObject(ident, bookI);
+    _evictor->add(bookI, ident);
 
     //
     // Add the isbn number to the authors map.
@@ -328,7 +328,7 @@ LibraryI::remove(const BookDescription& description)
 	// This can throw EvictorDeactivatedException (which indicates
 	// an internal error). The exception is currently ignored.
 	//
-	_evictor->destroyObject(createBookIdentity(description.isbn));
+	_evictor->remove(createBookIdentity(description.isbn));
     }
     catch(const Freeze::DatabaseException& ex)
     {

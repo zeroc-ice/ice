@@ -63,23 +63,22 @@ PhoneBookCollocated::run(int argc, char* argv[])
     indices.push_back(index);
 
     //
-    // Create an Evictor for contacts.
+    // Create an object adapter, use the evictor as servant locator.
     //
-    Freeze::EvictorPtr evictor = Freeze::createEvictor(communicator(), _envName, "contacts", indices);
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PhoneBook");
+
+    //
+    // Create an evictor for contacts.
+    //
+    Freeze::EvictorPtr evictor = Freeze::createEvictor(adapter, _envName, "contacts", 0, indices);
+    adapter->addServantLocator(evictor, "contact");
 
     Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
     if(evictorSize > 0)
     {
 	evictor->setSize(evictorSize);
     }
-    
     contactFactory->setEvictor(evictor);
-
-    //
-    // Create an Object Adapter, use the Evictor as Servant Locator.
-    //
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PhoneBook");
-    adapter->addServantLocator(evictor, "contact");
     
     //
     // Create the phonebook, and add it to the Object Adapter.

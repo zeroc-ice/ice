@@ -28,16 +28,18 @@ class DbEnv;
 namespace Freeze
 {
 
-FREEZE_API EvictorPtr createEvictor(const Ice::CommunicatorPtr& communicator,
+FREEZE_API EvictorPtr createEvictor(const Ice::ObjectAdapterPtr& adapter,
 				    const std::string& envName, 
 				    const std::string& dbName,
+				    const ServantInitializerPtr& initializer = 0,
 				    const std::vector<Freeze::IndexPtr>& indices = std::vector<Freeze::IndexPtr>(),
 				    bool createDb = true);
 
-FREEZE_API EvictorPtr createEvictor(const Ice::CommunicatorPtr& communicator,
+FREEZE_API EvictorPtr createEvictor(const Ice::ObjectAdapterPtr& adapter,
 				    const std::string& envName,
 				    DbEnv& dbEnv, 
-				    const std::string& dbName, 
+				    const std::string& dbName,
+				    const ServantInitializerPtr& initializer = 0,
 				    const std::vector<Freeze::IndexPtr>& indices = std::vector<Freeze::IndexPtr>(),
 				    bool createDb = true);
 

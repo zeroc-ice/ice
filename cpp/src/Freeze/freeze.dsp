@@ -130,6 +130,14 @@ SOURCE=.\Evictor.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\FacetRegistry.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ObjectStore.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\EvictorI.cpp
 # End Source File
 # Begin Source File
@@ -231,6 +239,10 @@ SOURCE=..\..\include\Freeze\EvictorF.h
 # Begin Source File
 
 SOURCE=..\..\include\Freeze\Index.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ObjectStore.h
 # End Source File
 # Begin Source File
 
@@ -489,38 +501,54 @@ SOURCE=..\..\slice\Freeze\Evictor.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
-USERDEP__EVICT="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+USERDEP__EVICT="..\..\bin\slice2freeze.exe" "..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\Evictor.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Evictor.ice \
 	move Evictor.h ..\..\include\Freeze \
+	..\..\bin\slice2freeze.exe --include-dir Freeze  -I../../slice --dict Freeze::FacetRegistry,string,bool FacetRegistry \
 	
 
 "..\..\include\Freeze\Evictor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
+"FacetRegistry.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
 "Evictor.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
+
+"FacetRegistry.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
 
-USERDEP__EVICT="..\..\bin\slice2cpp.exe"	
+USERDEP__EVICT="..\..\bin\slice2freeze.exe" "..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\Evictor.ice
 
 BuildCmds= \
 	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Evictor.ice \
 	move Evictor.h ..\..\include\Freeze \
+	..\..\bin\slice2freeze.exe --include-dir Freeze  -I../../slice --dict Freeze::FacetRegistry,string,bool FacetRegistry \
 	
 
 "..\..\include\Freeze\Evictor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
+"FacetRegistry.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
 "Evictor.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
+
+"FacetRegistry.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
 # End Custom Build
 
 !ENDIF 

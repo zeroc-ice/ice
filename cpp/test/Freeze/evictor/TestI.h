@@ -50,8 +50,6 @@ public:
 
     virtual void removeFacet(const std::string&, const Ice::Current& = Ice::Current()) const;
 
-    virtual void removeAllFacets(const Ice::Current& = Ice::Current()) const;
-
     virtual void destroy(const Ice::Current& = Ice::Current());
 
 protected:
@@ -81,7 +79,7 @@ class RemoteEvictorI : virtual public RemoteEvictor
 {
 public:
 
-    RemoteEvictorI(const Ice::ObjectAdapterPtr&, const std::string&, const Freeze::EvictorPtr&);
+    RemoteEvictorI(const Ice::ObjectAdapterPtr&, const std::string&, const std::string&);
 
     virtual void setSize(::Ice::Int, const Ice::Current&);
 
@@ -91,7 +89,7 @@ public:
 
     virtual void deactivate(const Ice::Current&);
 
-    virtual void destroyAllServants(const Ice::Current&);
+    virtual void destroyAllServants(const std::string&, const Ice::Current&);
 
 private:
 

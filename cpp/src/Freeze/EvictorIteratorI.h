@@ -16,20 +16,19 @@
 #define FREEZE_EVICTOR_ITERATOR_I_H
 
 #include <Ice/Ice.h>
-#include <Freeze/Evictor.h>
-#include <Freeze/DB.h>
+#include <Freeze/Freeze.h>
 #include <vector>
 
 namespace Freeze
 {
 
-class EvictorI;
+class ObjectStore;
 
 class EvictorIteratorI : public EvictorIterator
 {
 public:
 
-    EvictorIteratorI(EvictorI&, Ice::Int, bool);
+    EvictorIteratorI(ObjectStore*, Ice::Int);
 
     virtual bool hasNext();
     virtual Ice::Identity next();
@@ -39,15 +38,14 @@ private:
     std::vector<Ice::Identity>::const_iterator
     nextBatch();
 
-    EvictorI& _evictor;
+    ObjectStore* _store;
     size_t _batchSize;
-    bool _loadServants;
     std::vector<Ice::Identity>::const_iterator _batchIterator;
 
     Key _key;
-    Value _value;
     std::vector<Ice::Identity> _batch;
     bool _more;
+    bool _initialized;
 };
 
 }
