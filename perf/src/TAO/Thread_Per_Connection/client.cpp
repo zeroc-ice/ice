@@ -2,6 +2,7 @@
 
 #include "Roundtrip.h"
 #include "Roundtrip_Handler.h"
+#include "Worker_Thread.h"
 #include "ace/Get_Opt.h"
 #include "ace/High_Res_Timer.h"
 #include "ace/Sched_Params.h"
@@ -196,6 +197,12 @@ main (int argc, char *argv[])
 
 	poa_manager->activate (ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
+
+	if(ami)
+	{
+	    Worker_Thread *worker = new Worker_Thread(orb.in ());
+	    worker->activate (THR_NEW_LWP | THR_JOINABLE, 1, 1);
+	}
 
 #ifdef WIN32
         struct _timeb tb;

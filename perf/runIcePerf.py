@@ -43,8 +43,8 @@ def usage():
 #
 # Ice configuration properties.
 #
-threadPoolOne = " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=1 --Ice.ThreadPool.Server.SizeWarn=1"
-threadPoolFour = " --Ice.ThreadPool.Server.Size=4 --Ice.ThreadPool.Server.SizeMax=4 --Ice.ThreadPool.Server.SizeWarn=0"
+threadPoolOne = " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=1 --Ice.ThreadPool.Server.SizeWarn=2"
+threadPoolFour = " --Ice.ThreadPool.Server.Size=4 --Ice.ThreadPool.Server.SizeMax=4 --Ice.ThreadPool.Server.SizeWarn=5"
 threadPerConnection = " --Ice.ThreadPerConnection"
 
 def runIcePerfs(expr, results, i):
@@ -101,10 +101,10 @@ def runTAOPerfs(expr, results, i):
     test.run("4tp", "Thread_Pool", "latency oneway", "4")
     test.run("tpc", "Thread_Per_Connection", "latency oneway", "")
     
-    #test = TestUtil.Test(expr, results, i, "TAO", "latency twoway AMI")
-    #test.run("1tp", "Thread_Pool", "latency twoway ami", "1")
-    #test.run("4tp", "Thread_Pool", "latency twoway ami", "4")
-    #test.run("tpc", "Thread_Per_Connection", "latency twoway ami", "")
+    test = TestUtil.Test(expr, results, i, "TAO", "latency twoway AMI")
+    test.run("1tp", "Thread_Pool", "latency twoway ami", "1")
+    test.run("4tp", "Thread_Pool", "latency twoway ami", "4")
+    test.run("tpc", "Thread_Per_Connection", "latency twoway ami", "")
 
     test = TestUtil.Test(expr, results, i, "TAO", "throughput byte")
     test.run("1tp", "Thread_Pool", "throughput byte", "1")

@@ -14,7 +14,7 @@ BIN = client server
 
 SRC = $(addsuffix .cpp, $(BIN) Roundtrip) $(IDL_SRC)
 
-CLIENT_OBJS = client.o Roundtrip_Handler.o $(IDL_SRC:.cpp=.o)
+CLIENT_OBJS = client.o Roundtrip_Handler.o Worker_Thread.o $(IDL_SRC:.cpp=.o)
 SERVER_OBJS = server.o Roundtrip.o Worker_Thread.o $(IDL_SRC:.cpp=.o)
 
 TAO_IDLFLAGS += -Ge 1 -GC
