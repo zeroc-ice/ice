@@ -14,7 +14,7 @@
 
 #include <Ice/Ice.h>
 #include <TestCommon.h>
-#include <Test.h>
+#include <TestI.h>
 
 using namespace std;
 
@@ -26,15 +26,15 @@ public:
     {
 	if(type == "::B")
 	{
-	    return new B;
+	    return new BI;
 	}
 	else if(type == "::C")
 	{
-	    return new C;
+	    return new CI;
 	}
 	else if(type == "::D")
 	{
-	    return new D;
+	    return new DI;
 	}
 	assert(false); // Should never be reached
 	return 0;

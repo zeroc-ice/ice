@@ -17,6 +17,54 @@
 
 #include <Test.h>
 
+class BI : public B
+{
+public:
+
+    BI();
+
+    virtual bool postUnmarshalInvoked(const Ice::Current&);
+
+    virtual void ice_preMarshal();
+    virtual void ice_postUnmarshal();
+
+private:
+
+    bool _postUnmarshalInvoked;
+};
+
+class CI : public C
+{
+public:
+
+    CI();
+
+    virtual bool postUnmarshalInvoked(const Ice::Current&);
+
+    virtual void ice_preMarshal();
+    virtual void ice_postUnmarshal();
+
+private:
+
+    bool _postUnmarshalInvoked;
+};
+
+class DI : public D
+{
+public:
+
+    DI();
+
+    virtual bool postUnmarshalInvoked(const Ice::Current&);
+
+    virtual void ice_preMarshal();
+    virtual void ice_postUnmarshal();
+
+private:
+
+    bool _postUnmarshalInvoked;
+};
+
 class InitialI : public Initial
 {
 public:

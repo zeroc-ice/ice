@@ -1,8 +1,15 @@
 Changes since version 1.2.0
 ---------------------------
 
-- Connections are now not closed anymore when that last proxy using
-  the connection is destroyed. Doing so is error prone:
+- Added the methods ice_preMarshal and ice_postUnmarshal to Ice.Object.
+  The default implementations do nothing, but subclasses may override
+  them to take special action before marshaling and after unmarshaling,
+  respectively.
+
+- Added the demo/IcePack/simple example.
+
+- Connections are no longer closed when the last proxy using the
+  connection is destroyed. Doing so is error prone:
 
   * Quite often, proxies are created on the fly, resulting in
     connections being opened and closed all the time. This is
@@ -15,8 +22,8 @@ Changes since version 1.2.0
   * It doesn't work well with AMI requests, because the AMI callback
     objects keep track of connections directly. This would mean that
     if a process only uses AMI requests, a connection is opened and
-    closed for each such request, as each request typically has its
-    own AMI callback object.
+    closed for each request, as each request typically has its own
+    AMI callback object.
 
   Instead, ACM (Automatic Connection Management) is now enabled by
   default, with a default value of one minute. This means that idle
@@ -47,7 +54,7 @@ Changes since version 1.2.0
   messages are sent rapidly in parallel, using separate threads or
   AMI.
 
-- Ported IcePack demo from C++.
+- Ported demo/IcePack/hello from C++.
 
 - Added new mechanism for generating Java code into packages.
   The global metadata prefix "java:package:" now specifies the

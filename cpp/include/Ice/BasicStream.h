@@ -189,6 +189,8 @@ public:
     typedef std::map<Ice::ObjectPtr, Ice::Int> PtrToIndexMap;
     typedef std::map<std::string, Ice::Int> TypeIdWriteMap;
 
+    typedef std::vector<Ice::ObjectPtr> ObjectList;
+
 private:
 
     //
@@ -260,6 +262,8 @@ private:
     bool _sliceObjects;
 
     const Container::size_type _messageSizeMax;
+
+    ObjectList* _objectList;
 };
 
 }

@@ -25,6 +25,7 @@
 #include <Ice/FactoryTable.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/TraceLevels.h>
+#include <Ice/LoggerUtil.h>
 
 template<typename InputIter, typename OutputIter>
 inline void
@@ -55,7 +56,8 @@ IceInternal::BasicStream::BasicStream(Instance* instance) :
     _traceSlicing(-1),
     _marshalFacets(true),
     _sliceObjects(true),
-    _messageSizeMax(_instance->messageSizeMax()) // Cached for efficiency.
+    _messageSizeMax(_instance->messageSizeMax()), // Cached for efficiency.
+    _objectList(0)
 {
 }
 
@@ -74,6 +76,8 @@ IceInternal::BasicStream::~BasicStream()
 	_currentWriteEncaps = _currentWriteEncaps->previous;
 	delete oldEncaps;
     }
+
+    delete _objectList;
 }
 
 Instance*
@@ -91,6 +95,7 @@ IceInternal::BasicStream::swap(BasicStream& other)
     std::swap(i, other.i);
     std::swap(_currentReadEncaps, other._currentReadEncaps);
     std::swap(_currentWriteEncaps, other._currentWriteEncaps);
+    std::swap(_objectList, other._objectList);
 }
 
 void
@@ -1312,6 +1317,16 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 	IndexToPtrMap::const_iterator unmarshaledPos =
 			    _currentReadEncaps->unmarshaledMap->insert(make_pair(index, v)).first;
 
+        //
+        // Record each object instance so that readPendingObjects can invoke ice_postUnmarshal
+        // after all objects have been unmarshaled.
+        //
+        if(!_objectList)
+        {
+            _objectList = new ObjectList;
+        }
+        _objectList->push_back(v);
+
 	v->__read(this, false);
 	patchPointers(index, unmarshaledPos, _currentReadEncaps->patchMap->end());
 	return;
@@ -1449,6 +1464,37 @@ IceInternal::BasicStream::readPendingObjects()
 	}
     }
     while(num);
+
+    //
+    // Iterate over the object list and invoke ice_postUnmarshal on each object.
+    // We must do this after all objects have been unmarshaled in order to ensure
+    // that any object data members have been properly patched.
+    //
+    if(_objectList)
+    {
+        for(ObjectList::iterator p = _objectList->begin(); p != _objectList->end(); ++p)
+        {
+            try
+            {
+                (*p)->ice_postUnmarshal();
+            }
+            catch(const Ice::Exception& ex)
+            {
+                Ice::Warning out(_instance->logger());
+                out << "Ice::Exception raised by ice_postUnmarshal:\n" << ex;
+            }
+            catch(const std::exception& ex)
+            {
+                Ice::Warning out(_instance->logger());
+                out << "std::exception raised by ice_postUnmarshal:\n" << ex.what();
+            }
+            catch(...)
+            {
+                Ice::Warning out(_instance->logger());
+                out << "unknown exception raised by ice_postUnmarshal";
+            }
+        }
+    }
 }
 
 void
@@ -1479,6 +1525,25 @@ void
 IceInternal::BasicStream::writeInstance(const ObjectPtr& v, Int index)
 {
     write(index);
+    try
+    {
+        v->ice_preMarshal();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        Ice::Warning out(_instance->logger());
+        out << "Ice::Exception raised by ice_preMarshal:\n" << ex;
+    }
+    catch(const std::exception& ex)
+    {
+        Ice::Warning out(_instance->logger());
+        out << "std::exception raised by ice_preMarshal:\n" << ex.what();
+    }
+    catch(...)
+    {
+        Ice::Warning out(_instance->logger());
+        out << "unknown exception raised by ice_preMarshal";
+    }
     v->__write(this, _marshalFacets);
 }
 

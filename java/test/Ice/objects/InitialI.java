@@ -18,10 +18,10 @@ public final class InitialI extends Initial
     InitialI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-        _b1 = new B();
-        _b2 = new B();
-        _c = new C();
-        _d = new D();
+        _b1 = new BI();
+        _b2 = new BI();
+        _c = new CI();
+        _d = new DI();
 
         _b1.theA = _b2; // Cyclic reference to another B
         _b1.theB = _b1; // Self reference.
@@ -50,6 +50,10 @@ public final class InitialI extends Initial
     public void
     getAll(BHolder b1, BHolder b2, CHolder c, DHolder d, Ice.Current current)
     {
+        _b1.preMarshalInvoked = false;
+        _b2.preMarshalInvoked = false;
+        _c.preMarshalInvoked = false;
+        _d.preMarshalInvoked = false;
         b1.value = _b1;
         b2.value = _b2;
         c.value = _c;
@@ -59,24 +63,37 @@ public final class InitialI extends Initial
     public B
     getB1(Ice.Current current)
     {
+        _b1.preMarshalInvoked = false;
+        _b2.preMarshalInvoked = false;
+        _c.preMarshalInvoked = false;
         return _b1;
     }
 
     public B
     getB2(Ice.Current current)
     {
+        _b1.preMarshalInvoked = false;
+        _b2.preMarshalInvoked = false;
+        _c.preMarshalInvoked = false;
         return _b2;
     }
 
     public C
     getC(Ice.Current current)
     {
+        _b1.preMarshalInvoked = false;
+        _b2.preMarshalInvoked = false;
+        _c.preMarshalInvoked = false;
         return _c;
     }
 
     public D
     getD(Ice.Current current)
     {
+        _b1.preMarshalInvoked = false;
+        _b2.preMarshalInvoked = false;
+        _c.preMarshalInvoked = false;
+        _d.preMarshalInvoked = false;
         return _d;
     }
 

@@ -38,6 +38,8 @@ public class BasicStream
         _sliceObjects = true;
 
 	_messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
+
+        _objectList = null;
     }
 
     //
@@ -69,6 +71,11 @@ public class BasicStream
             _readEncapsStack.next = _readEncapsCache;
             _readEncapsCache = _readEncapsStack;
             _readEncapsStack = null;
+        }
+
+        if(_objectList != null)
+        {
+            _objectList.clear();
         }
     }
 
@@ -118,6 +125,10 @@ public class BasicStream
 	int tmpWriteSlice = other._writeSlice;
 	other._writeSlice = _writeSlice;
 	_writeSlice = tmpWriteSlice;
+
+        java.util.ArrayList tmpObjectList = other._objectList;
+        other._objectList = _objectList;
+        _objectList = tmpObjectList;
     }
 
     public void
@@ -1190,6 +1201,17 @@ public class BasicStream
 
 	    Integer i = new Integer(index);
 	    _readEncapsStack.unmarshaledMap.put(i, v);
+
+            //
+            // Record each object instance so that readPendingObjects can invoke ice_postUnmarshal
+            // after all objects have been unmarshaled.
+            //
+            if(_objectList == null)
+            {
+                _objectList = new java.util.ArrayList();
+            }
+            _objectList.add(v);
+
 	    v.__read(this, false);
 	    patchReferences(i, null);
 	    return;
@@ -1321,6 +1343,33 @@ public class BasicStream
 	    }
 	}
         while(num > 0);
+
+        //
+        // Iterate over unmarshaledMap and invoke ice_postUnmarshal on each object.
+        // We must do this after all objects in this encapsulation have been
+        // unmarshaled in order to ensure that any object data members have been
+        // properly patched.
+        //
+        java.util.Iterator e = _objectList.iterator();
+        while(e.hasNext())
+        {
+            Ice.Object obj = (Ice.Object)e.next();
+            try
+            {
+                obj.ice_postUnmarshal();
+            }
+            catch(Exception ex)
+            {
+                java.io.StringWriter sw = new java.io.StringWriter();
+                java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+                out.setUseTab(false);
+                out.print("exception raised by ice_postUnmarshal:\n");
+                ex.printStackTrace(pw);
+                pw.flush();
+                _instance.logger().warning(sw.toString());
+            }
+        }
     }
 
     public void
@@ -1339,6 +1388,21 @@ public class BasicStream
     writeInstance(Ice.Object v, Integer index)
     {
         writeInt(index.intValue());
+        try
+        {
+            v.ice_preMarshal();
+        }
+        catch(Exception ex)
+        {
+            java.io.StringWriter sw = new java.io.StringWriter();
+            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+            IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+            out.setUseTab(false);
+            out.print("exception raised by ice_preMarshal:\n");
+            ex.printStackTrace(pw);
+            pw.flush();
+            _instance.logger().warning(sw.toString());
+        }
         v.__write(this, _marshalFacets);
     }
 
@@ -1673,4 +1737,6 @@ public class BasicStream
     private boolean _sliceObjects;
 
     private int _messageSizeMax;
+
+    private java.util.ArrayList _objectList;
 }

@@ -147,6 +147,16 @@ public class ObjectImpl implements Object, java.lang.Cloneable
         return __ids[0];
     }
 
+    public void
+    ice_preMarshal()
+    {
+    }
+
+    public void
+    ice_postUnmarshal()
+    {
+    }
+
     private final static String[] __all =
     {
         "ice_facets",

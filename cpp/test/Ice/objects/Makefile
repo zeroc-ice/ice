@@ -21,15 +21,14 @@ COLLOCATED	= collocated
 TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
 
 OBJS		= Test.o \
+                  TestI.o
 
 COBJS		= Client.o \
 		  AllTests.o
 
-SOBJS		= TestI.o \
-		  Server.o
+SOBJS		= Server.o
 
-COLOBJS		= TestI.o \
-		  Collocated.o \
+COLOBJS		= Collocated.o \
 		  AllTests.o
 
 SRCS		= $(OBJS:.o=.cpp) \

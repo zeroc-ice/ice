@@ -79,6 +79,15 @@ public class AllTests
         test(((B)b1.theA).theB == b1);
         test(((B)b1.theA).theC instanceof C);
         test(((C)(((B)b1.theA).theC)).theB == b1.theA);
+        if(!collocated)
+        {   
+            test(b1.preMarshalInvoked);
+            test(b1.postUnmarshalInvoked(null));
+            test(b1.theA.preMarshalInvoked);
+            test(b1.theA.postUnmarshalInvoked(null));
+            test(((B)b1.theA).theC.preMarshalInvoked);
+            test(((B)b1.theA).theC.postUnmarshalInvoked(null));
+        }
         // More tests possible for b2 and d, but I think this is already
         // sufficient.
         test(b2.theA == b2);
@@ -150,6 +159,17 @@ public class AllTests
         test(d.theA == b1);
         test(d.theB == b2);
         test(d.theC == null);
+        if(!collocated)
+        {   
+            test(d.preMarshalInvoked);
+            test(d.postUnmarshalInvoked(null));
+            test(d.theA.preMarshalInvoked);
+            test(d.theA.postUnmarshalInvoked(null)); 
+            test(d.theB.preMarshalInvoked);
+            test(d.theB.postUnmarshalInvoked(null));
+            test(d.theB.theC.preMarshalInvoked);
+            test(d.theB.theC.postUnmarshalInvoked(null));
+        }
         System.out.println("ok");
 
         //

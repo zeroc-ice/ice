@@ -15,12 +15,81 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
+BI::BI() :
+    _postUnmarshalInvoked(false)
+{
+}
+
+bool
+BI::postUnmarshalInvoked(const Ice::Current&)
+{
+    return _postUnmarshalInvoked;
+}
+
+void
+BI::ice_preMarshal()
+{
+    preMarshalInvoked = true;
+}
+
+void
+BI::ice_postUnmarshal()
+{
+    _postUnmarshalInvoked = true;
+}
+
+CI::CI() :
+    _postUnmarshalInvoked(false)
+{
+}
+
+bool
+CI::postUnmarshalInvoked(const Ice::Current&)
+{
+    return _postUnmarshalInvoked;
+}
+
+void
+CI::ice_preMarshal()
+{
+    preMarshalInvoked = true;
+}
+
+void
+CI::ice_postUnmarshal()
+{
+    _postUnmarshalInvoked = true;
+}
+
+DI::DI() :
+    _postUnmarshalInvoked(false)
+{
+}
+
+bool
+DI::postUnmarshalInvoked(const Ice::Current&)
+{
+    return _postUnmarshalInvoked;
+}
+
+void
+DI::ice_preMarshal()
+{
+    preMarshalInvoked = true;
+}
+
+void
+DI::ice_postUnmarshal()
+{
+    _postUnmarshalInvoked = true;
+}
+
 InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter),
-    _b1(new B),
-    _b2(new B),
-    _c(new C),
-    _d(new D)
+    _b1(new BI),
+    _b2(new BI),
+    _c(new CI),
+    _d(new DI)
 {
     _b1->theA = _b2; // Cyclic reference to another B
     _b1->theB = _b1; // Self reference.
@@ -64,30 +133,47 @@ InitialI::shutdown(const Ice::Current&)
 BPtr
 InitialI::getB1(const Ice::Current&)
 {
+    _b1->preMarshalInvoked = false;
+    _b2->preMarshalInvoked = false;
+    _c->preMarshalInvoked = false;
     return _b1;
 }
 
 BPtr
 InitialI::getB2(const Ice::Current&)
 {
+    _b1->preMarshalInvoked = false;
+    _b2->preMarshalInvoked = false;
+    _c->preMarshalInvoked = false;
     return _b2;
 }
 
 CPtr
 InitialI::getC(const Ice::Current&)
 {
+    _b1->preMarshalInvoked = false;
+    _b2->preMarshalInvoked = false;
+    _c->preMarshalInvoked = false;
     return _c;
 }
 
 DPtr
 InitialI::getD(const Ice::Current&)
 {
+    _b1->preMarshalInvoked = false;
+    _b2->preMarshalInvoked = false;
+    _c->preMarshalInvoked = false;
+    _d->preMarshalInvoked = false;
     return _d;
 }
 
 void
 InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Ice::Current&)
 {
+    _b1->preMarshalInvoked = false;
+    _b2->preMarshalInvoked = false;
+    _c->preMarshalInvoked = false;
+    _d->preMarshalInvoked = false;
     b1 = _b1;
     b2 = _b2;
     c = _c;

@@ -22,6 +22,9 @@ class A
 {
     B theB;
     C theC;
+
+    bool preMarshalInvoked;
+    bool postUnmarshalInvoked();
 };
 
 class B extends A
@@ -32,6 +35,9 @@ class B extends A
 class C
 {
     B theB;
+
+    bool preMarshalInvoked;
+    bool postUnmarshalInvoked();
 };
 
 class D
@@ -39,6 +45,9 @@ class D
     A theA;
     B theB;
     C theC;    
+
+    bool preMarshalInvoked;
+    bool postUnmarshalInvoked();
 };
 
 class Initial

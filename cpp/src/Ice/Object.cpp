@@ -122,6 +122,16 @@ Ice::Object::ice_clone() const
     return __p;
 }
 
+void
+Ice::Object::ice_preMarshal()
+{
+}
+
+void
+Ice::Object::ice_postUnmarshal()
+{
+}
+
 DispatchStatus
 Ice::Object::___ice_isA(Incoming& __in, const Current& __current)
 {

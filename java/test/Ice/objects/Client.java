@@ -14,13 +14,41 @@
 
 public class Client
 {
+    private static class MyObjectFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
+    {
+        public Ice.Object
+        create(String type)
+        {
+            if(type.equals("::B"))
+            {
+                return new BI();
+            }
+            else if(type.equals("::C"))
+            {
+                return new CI();
+            }
+            else if(type.equals("::D"))
+            {
+                return new DI();
+            }
+            assert(false); // Should never be reached
+            return null;
+        }
+
+        public void
+        destroy()
+        {
+            // Nothing to do
+        }
+    }
+
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        //
-        // NOTE: Factories do not need to be explicitly installed
-        // in Java.
-        //
+        Ice.ObjectFactory factory = new MyObjectFactory();
+        communicator.addObjectFactory(factory, "::B");
+        communicator.addObjectFactory(factory, "::C");
+        communicator.addObjectFactory(factory, "::D");
 
         InitialPrx initial = AllTests.allTests(communicator, false);
         initial.shutdown();

@@ -32,6 +32,9 @@ public interface Object
 
     String[] ice_facets(Current current);
 
+    void ice_preMarshal();
+    void ice_postUnmarshal();
+
     IceInternal.DispatchStatus __dispatch(IceInternal.Incoming in, Current current);
 
     void __write(IceInternal.BasicStream __os, boolean __marshalFacets);
