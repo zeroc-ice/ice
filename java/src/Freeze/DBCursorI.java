@@ -310,5 +310,5 @@ class DBCursorI implements DBCursor
     private String _name;
     private String _errorPrefix;
 
-    com.sleepycat.db.Dbc _cursor;
+    private com.sleepycat.db.Dbc _cursor;
 }

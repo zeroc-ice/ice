@@ -12,7 +12,8 @@ package Freeze;
 
 public abstract class Map extends java.util.AbstractMap
 {
-    public Map(DB db)
+    public
+    Map(DB db)
     {
 	_db = db;
     }
@@ -143,61 +144,61 @@ public abstract class Map extends java.util.AbstractMap
         if (_entrySet == null)
 	{
             _entrySet = new java.util.AbstractSet()
+	    {
+		public java.util.Iterator
+		iterator()
 		{
-		    public java.util.Iterator
-		    iterator()
-		    {
-			EntryIterator p = new EntryIterator();
-			_iterators.add(p);
-			return p;
-		    }
+		    EntryIterator p = new EntryIterator();
+		    _iterators.add(p);
+		    return p;
+		}
 		
-		    public boolean
-		    contains(Object o)
+		public boolean
+		contains(Object o)
+		{
+		    if (!(o instanceof Map.Entry))
 		    {
-			if (!(o instanceof Map.Entry))
-			{
-			    return false;
-			}
-			Map.Entry entry = (Map.Entry)o;
-			Object value = entry.getValue();
-		    
-			Entry p = getEntry(entry.getKey());
-			return p != null && valEquals(p.getValue(), value);
-		    }
-		
-		    public boolean
-		    remove(Object o)
-		    {
-			if (!(o instanceof Map.Entry))
-			{
-			    return false;
-			}
-			Map.Entry entry = (Map.Entry)o;
-			Object value = entry.getValue();
-
-			Entry p = getEntry(entry.getKey());
-			if (p != null && valEquals(p.getValue(), value))
-			{
-			    closeIterators();
-			    byte[] k = encodeKey(p.getKey(), _db.getCommunicator());
-			    _db.del(k);
-			    return true;
-			}
 			return false;
 		    }
+		    Map.Entry entry = (Map.Entry)o;
+		    Object value = entry.getValue();
+		    
+		    Entry p = getEntry(entry.getKey());
+		    return p != null && valEquals(p.getValue(), value);
+		}
 		
-		    public int
-		    size()
+		public boolean
+		remove(Object o)
+		{
+		    if (!(o instanceof Map.Entry))
 		    {
-			return Map.this.size();
+			return false;
 		    }
+		    Map.Entry entry = (Map.Entry)o;
+		    Object value = entry.getValue();
+
+		    Entry p = getEntry(entry.getKey());
+		    if (p != null && valEquals(p.getValue(), value))
+		    {
+			closeIterators();
+			byte[] k = encodeKey(p.getKey(), _db.getCommunicator());
+			_db.del(k);
+			return true;
+		    }
+		    return false;
+		}
 		
-		    public void
-		    clear()
-		    {
-			Map.this.clear();
-		    }
+		public int
+		size()
+		{
+		    return Map.this.size();
+		}
+		
+		public void
+		clear()
+		{
+		    Map.this.clear();
+		}
 		};
         }
 
@@ -219,10 +220,14 @@ public abstract class Map extends java.util.AbstractMap
 	while (p.hasNext())
 	{
 	    EntryIterator q = (EntryIterator)p.next();
-	    p.remove();
 	    q.close();
 	}
-	assert(_iterators.isEmpty());
+
+	//
+	// This is more efficient than removing the list items element
+	// by element in the iteration loop.
+	//
+	_iterators.clear();
     }
 
     private Entry
@@ -246,7 +251,7 @@ public abstract class Map extends java.util.AbstractMap
 
     class EntryIterator implements java.util.Iterator
     {
-        EntryIterator()
+	EntryIterator()
 	{
 	    try
 	    {
@@ -268,33 +273,33 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		throw e;
 	    }
-        }
-
-        public boolean
+	}
+	
+	public boolean
 	hasNext()
 	{
-            return _next != null;
-        }
-
-        public Object
+	    return _next != null;
+	}
+	
+	public Object
 	next()
 	{
-            return nextEntry();
-        }
-
-        public void
+	    return nextEntry();
+	}
+	
+	public void
 	remove()
 	{
-            if (_current == null)
+	    if (_current == null)
 	    {
-                throw new IllegalStateException();
+		throw new IllegalStateException();
 	    }
-
+	    
 	    //
 	    // Clone the cursor so that error handling is simpler.
 	    //
 	    DBCursor clone = _cursor._clone();
-
+	    
 	    try
 	    {
 		//
@@ -305,7 +310,7 @@ public abstract class Map extends java.util.AbstractMap
 		{
 		    clone.prev();
 		}
-
+		
 		clone.del();
 	    }
 	    finally
@@ -322,35 +327,35 @@ public abstract class Map extends java.util.AbstractMap
 		    }
 		}
 	    }
-
-            _current = null;
-        }
-
+	    
+	    _current = null;
+	}
+	
 	protected void
 	close()
 	{
 	    DBCursor copy = _cursor;
-
+	    
 	    //
 	    // Clear the internal iterator state.
 	    //
 	    _cursor = null;
 	    _next = null;
 	    _current = null;
-
+	    
 	    copy.close();
 	}
-
-        private Entry
+	
+	private Entry
 	nextEntry()
 	{
-            if (_next == null)
+	    if (_next == null)
 	    {
-                throw new java.util.NoSuchElementException();
+		throw new java.util.NoSuchElementException();
 	    }
-
-            _current = _next;
-
+	    
+	    _current = _next;
+	    
 	    if (_cursor.next())
 	    {
 		_next = getCurr();
@@ -359,61 +364,61 @@ public abstract class Map extends java.util.AbstractMap
 	    {
 		_next = null;
 	    }
-
-            return _current;
-        }
-
+	    
+	    return _current;
+	}
+	
 	private Entry
 	getCurr()
 	{
 	    Freeze.KeyHolder k = new Freeze.KeyHolder();
 	    Freeze.ValueHolder v = new Freeze.ValueHolder();
 	    _cursor.curr(k, v);
-
+	    
 	    Object key = decodeKey(k.value, _db.getCommunicator());
 	    Object value = decodeValue(v.value, _db.getCommunicator());
 	    return new Entry(key, value);
 	}
-
-	DBCursor _cursor = null;
-        Entry _next;
-	Entry _current;
+	
+	private DBCursor _cursor = null;
+	private Entry _next;
+	private Entry _current;
     }
-
+    
     static class Entry implements java.util.Map.Entry 
     {
 	public
 	Entry(Object key, Object value)
 	{
 	    _key = key;
-            _value = value;
+	    _value = value;
 	}
-
+	
 	public
 	Entry(Map.Entry e)
 	{
 	    _key = e.getKey();
-            _value = e.getValue();
+	    _value = e.getValue();
 	}
-
+	
 	public Object
 	getKey()
 	{
 	    return _key;
 	}
-
+	
 	public Object
 	getValue()
 	{
 	    return _value;
 	}
-
+	
 	public Object
 	setValue(Object value)
 	{
 	    throw new UnsupportedOperationException();
 	}
-
+	
 	public boolean
 	equals(Object o)
 	{
@@ -424,31 +429,31 @@ public abstract class Map extends java.util.AbstractMap
 	    Map.Entry e = (Map.Entry)o;
 	    return eq(_key, e.getKey()) &&  eq(_value, e.getValue());
 	}
-
+	
 	public int
 	hashCode()
 	{
 	    Object v;
-	    return ((_key   == null)   ? 0 :   _key.hashCode()) ^
-	    ((_value == null)   ? 0 : _value.hashCode());
+	    return ((_key   == null) ? 0 : _key.hashCode()) ^
+	           ((_value == null) ? 0 : _value.hashCode());
 	}
-
+	
 	public String
 	toString()
 	{
 	    return _key + "=" + _value;
 	}
-
-        private /*static*/ boolean
+	
+	private /*static*/ boolean
 	eq(Object o1, Object o2)
 	{
-            return (o1 == null ? o2 == null : o1.equals(o2));
-        }
-
-	Object _key;
-	Object _value;
+	    return (o1 == null ? o2 == null : o1.equals(o2));
+	}
+	
+	private Object _key;
+	private Object _value;
     }
-
+    
     private java.util.Set _entrySet;
     private DB _db;
     private java.util.List _iterators = new java.util.LinkedList();

@@ -289,7 +289,7 @@ class EvictorI implements Evictor
 	}
     }
 
-    void
+    private void
     evict()
     {
 	java.util.Iterator p = _evictorList.riterator();
@@ -407,12 +407,10 @@ class EvictorI implements Evictor
     //
     // This is a list of Ice.Identity.
     //
-    LinkedList _evictorList = new LinkedList();
+    private LinkedList _evictorList = new LinkedList();
 
     private int _evictorSize = 10;
-
     private boolean _deactivated = false;
-
     private IdentityObjectDict _dict;
 
     private DB _db;

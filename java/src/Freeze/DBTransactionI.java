@@ -82,7 +82,7 @@ class DBTransactionI implements DBTransaction
 	_tid = null;
     }
 
-    protected DBTransactionI(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv, String name)
+    DBTransactionI(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv, String name)
     {
 	_communicator = communicator;
 	_name = name;

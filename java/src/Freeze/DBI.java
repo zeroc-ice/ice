@@ -495,7 +495,6 @@ class DBI implements DB
 	return new EvictorI(this, persistenceMode);
     }
 
-    protected
     DBI(Ice.Communicator communicator, DBEnvironmentI dbEnvObj, com.sleepycat.db.Db db, String name, boolean create)
     {
 	_communicator = communicator;

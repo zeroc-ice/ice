@@ -195,7 +195,6 @@ class DBEnvironmentI implements DBEnvironment
 	}
     }
 
-    protected
     DBEnvironmentI(Ice.Communicator communicator, String name)
     {
 	_communicator = communicator;
