@@ -14,7 +14,7 @@ Class CallbackClient
     Inherits Ice.Application
 
     Private Sub menu()
-	Console.Out.WriteLine("usage:\n")
+	Console.Out.WriteLine("usage:")
 	Console.Out.WriteLine("t: send callback as twoway")
 	Console.Out.WriteLine("o: send callback as oneway")
 	Console.Out.WriteLine("O: send callback as batch oneway")

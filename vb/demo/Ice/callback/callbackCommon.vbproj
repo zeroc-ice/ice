@@ -68,7 +68,6 @@
                 />
             </References>
             <Imports>
-                <Import Namespace = "Microsoft.VisualBasic" />
                 <Import Namespace = "System" />
             </Imports>
         </Build>

@@ -2616,7 +2616,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     string name = fixId(p->name());
     _out << sp << nl << "Public NotInheritable Class " << name;
     _out.inc();
-    _out << nl << "ReadOnly " << name << " As " << typeToString(p->type()) << " = ";
+    _out << nl << "Public Const value As " << typeToString(p->type()) << " = ";
     BuiltinPtr bp = BuiltinPtr::dynamicCast(p->type());
     if(bp && bp->kind() == Builtin::KindString)
     {
