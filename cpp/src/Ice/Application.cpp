@@ -222,14 +222,12 @@ Ice::interruptHandler(int)
     // Don't use Application::communicator(), this is not signal-safe.
     //
     assert(Application::_communicator);
-cerr << "Caught signal, shutting down" << endl;
     Application::_communicator->shutdown();
 }
 
 void
 Ice::Application::shutdownOnInterrupt()
 {
-cerr << "Setting handler" << endl;
     struct sigaction action;
     memset(&action, 0, sizeof(action));
     action.sa_handler = interruptHandler;
@@ -241,7 +239,6 @@ cerr << "Setting handler" << endl;
     sigaction(SIGHUP, &action, 0);
     sigaction(SIGINT, &action, 0);
     sigaction(SIGTERM, &action, 0);
-cerr << "Done Setting handler" << endl;
 }
 
 void
