@@ -815,6 +815,10 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
+    out << sp << nl << "public" << nl << name << "Tie()";
+    out << sb;
+    out << eb;
+
     out << sp << nl << "public" << nl << name << "Tie(" << name << "Operations delegate)";
     out << sb;
     out << nl << "_ice_delegate = delegate;";
