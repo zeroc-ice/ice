@@ -9,6 +9,9 @@
 // **********************************************************************
 
 #include <IcePatch/NodeI.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include <dirent.h>
 
 using namespace std;
@@ -55,14 +58,17 @@ IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :
 {
 }
 
-Nodes
-IcePatch::DirectoryI::getNodes(const Ice::Current& current)
+NodeDescPtr
+IcePatch::DirectoryI::describe(const Ice::Current& current)
 {
-    //
-    // No synchronization necessary, this servant is completely
-    // stateless.
-    //
+    DirectoryDescPtr desc = new DirectoryDesc;
+    desc->directory = DirectoryPrx::uncheckedCast(_adapter->createProxy(current.identity));
+    return desc;
+}
 
+NodeDescSeq
+IcePatch::DirectoryI::getContents(const Ice::Current& current)
+{
     string path = normalizePath(current.identity.name);
 
     struct dirent **namelist;
@@ -74,23 +80,56 @@ IcePatch::DirectoryI::getNodes(const Ice::Current& current)
 	throw ex;
     }
 
-    Nodes result;
+    NodeDescSeq result;
     result.reserve(n - 2);
 
-    Identity identity;
-    identity.category = "IcePatch";
+    int i;
 
-    while(n--)
+    try
     {
-	if (strcmp(namelist[n]->d_name, "..") != 0 && strcmp(namelist[n]->d_name, ".") != 0)
+	Identity identity;
+	identity.category = "IcePatch";
+	
+	for (i = 0; i < n; ++i)
 	{
-	    identity.name = path + '/' + namelist[n]->d_name;
-	    result.push_back(NodePrx::uncheckedCast(_adapter->createProxy(identity)));
-	}
-	free(namelist[n]);
-    }
-    free(namelist);
+	    string name = namelist[i]->d_name;
 
+	    if (name != ".." && name != ".")
+	    {
+		identity.name = path + '/' + name;
+		NodePrx node = NodePrx::uncheckedCast(_adapter->createProxy(identity));
+		try
+		{
+		    result.push_back(node->describe());
+		}
+		catch (const ObjectNotExistException&)
+		{
+		    //
+		    // Ignore. This can for example happen if the node
+		    // locator cannot call stat() on the file.
+		    //
+		}
+	    }
+	}
+
+	for (i = 0; i < n; ++i)
+	{
+	    free(namelist[i]);
+	}
+	free(namelist);
+
+    }
+    catch (...)
+    {
+	for (i = 0; i < n; ++i)
+	{
+	    free(namelist[i]);
+	}
+	free(namelist);
+
+	throw;
+    }
+	
     return result;
 }
 
@@ -98,15 +137,18 @@ IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter) :
     NodeI(adapter)
 {
 }
+
+NodeDescPtr
+IcePatch::FileI::describe(const Ice::Current& current)
+{
+    FileDescPtr desc = new FileDesc;
+    desc->file = FilePrx::uncheckedCast(_adapter->createProxy(current.identity));
+    return desc;
+}
+
 ByteSeq
 IcePatch::FileI::getBytes(Int startPos, Int howMuch, const Ice::Current& current)
 {
-    //
-    // No synchronization necessary, this servant is completely
-    // stateless.
-    //
-
     string path = normalizePath(current.identity.name);
-
     return ByteSeq();
 }

@@ -24,8 +24,7 @@ public:
 
     void usage();
     virtual int run(int, char*[]);
-    void printNode(const NodePrx&);
-    void printNodes(const Nodes&, const string&);
+    void printNodeDescSeq(const NodeDescSeq&, const string&);
 };
 
 };
@@ -96,49 +95,44 @@ IcePatch::Client::run(int argc, char* argv[])
     //
     ObjectPrx topObj = communicator()->stringToProxy("IcePatch/.:" + endpoints);
     NodePrx top = NodePrx::checkedCast(topObj);
-    printNode(top);
+    NodeDescPtr nodeDesc = top->describe();
+    NodeDescSeq nodeDescSeq;
+    nodeDescSeq.push_back(nodeDesc);
+    printNodeDescSeq(nodeDescSeq, "");
 
     return EXIT_SUCCESS;
 }
 
 void
-IcePatch::Client::printNode(const NodePrx& node)
+IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string& indent)
 {
-    string name = node->ice_getIdentity().name;
-    string::size_type pos = name.rfind('/');
-    if (pos != string::npos)
+    for (unsigned int i = 0; i < nodeDescSeq.size(); ++i)
     {
-	name.erase(0, pos + 1);
-    }
-
-    cout << name << endl;
-    
-    DirectoryPrx directory = DirectoryPrx::checkedCast(node);
-    if (directory)
-    {
-	printNodes(directory->getNodes(), "");
-    }
-}
-
-void
-IcePatch::Client::printNodes(const Nodes& nodes, const string& indent)
-{
-    for (unsigned int i = 0; i < nodes.size(); ++i)
-    {
-	string name = nodes[i]->ice_getIdentity().name;
+	string name;
+	DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(nodeDescSeq[i]);
+	if (directoryDesc)
+	{
+	    name = directoryDesc->directory->ice_getIdentity().name;
+	}
+	else
+	{
+	    FileDescPtr fileDesc = FileDescPtr::dynamicCast(nodeDescSeq[i]);
+	    assert(fileDesc);
+	    name = fileDesc->file->ice_getIdentity().name;
+	}
+	
 	string::size_type pos = name.rfind('/');
 	if (pos != string::npos)
 	{
 	    name.erase(0, pos + 1);
 	}
-    
-	cout << indent << "+-" << name << endl;
 	
-	DirectoryPrx directory = DirectoryPrx::checkedCast(nodes[i]);
-	if (directory)
+	cout << "+-" << name << endl;
+	
+	if (directoryDesc)
 	{
 	    string newIndent;
-	    if (i < nodes.size() - 1)
+	    if (i < nodeDescSeq.size() - 1)
 	    {
 		newIndent = indent + "| ";
 	    }
@@ -147,7 +141,7 @@ IcePatch::Client::printNodes(const Nodes& nodes, const string& indent)
 		newIndent = indent + "  ";
 	    }
 
-	    printNodes(directory->getNodes(), newIndent);
+	    printNodeDescSeq(directoryDesc->directory->getContents(), newIndent);
 	}
     }
 }
