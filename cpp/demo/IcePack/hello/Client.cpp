@@ -123,7 +123,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		{
 		    hello = HelloPrx::checkedCast(factory->find(name));
 		}
-		catch(const NameNotExistException& ex)
+		catch(const NameNotExistException&)
 		{
 		    cout << "This name doesn't exist" << endl;
 		}
