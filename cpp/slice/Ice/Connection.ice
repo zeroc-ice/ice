@@ -10,6 +10,7 @@
 #ifndef ICE_CONNECTION_ICE
 #define ICE_CONNECTION_ICE
 
+#include <Ice/ObjectAdapterF.ice>
 #include <Ice/Identity.ice>
 
 module Ice
@@ -38,32 +39,65 @@ local interface Connection
 
     /**
      *
-     * Flush any pending batch requests for this connection. This
-     * causes all batch requests that were sent via proxies that use
-     * this connection to be sent to the server.
-     *
-     **/
-    void flushBatchRequests();
-
-    /**
-     *
-     * Create a proxy that always uses this connection. This is
-     * typically used for reverse communications using connections
-     * that have been established from a client to an object adapter.
-     *
-     * <note><para> This operation is intended to be used by special
-     * services, such as [Router] implementations. Regular user code
-     * should not attempt to use this operation. </para></note>
+     * Create a special proxy that always uses this connection. This
+     * can be used for callbacks from a server to a client if the
+     * server cannot directly establish a connection to the client,
+     * for example because of firewalls. In this case, the server
+     * would create a proxy using an already established connection
+     * from the client.
      *
      * @param id The identity for which a proxy is to be created.
      *
      * @return A proxy that matches the given identity and uses this
      * connection.
      *
-     * @see Identity
+     * @see setAdapter
      *
      **/
     nonmutating Object* createProxy(Identity id);
+
+    /**
+     *
+     * Explicitly set an object adapter that dispatches requests that
+     * are received over this connection. A client can invoke an
+     * operation on a server using a proxy, and then set an object
+     * adapter for the outgoing connection that is used by the proxy
+     * in order to receive callbacks. This is useful if the server
+     * cannot establish a connection back to the client, for example
+     * because of firewalls.
+     *
+     * @param adapter The object adapter that should be used by this
+     * connection to dispatch requests. The object adapter must be
+     * activated. When the object adapter is deactivated, it is
+     * automatically removed from the connection.
+     *
+     * @see createProxy
+     * @see setAdapter
+     *
+     **/
+    void setAdapter(ObjectAdapter adapter);
+
+    /**
+     *
+     * Get the object adapter that dispatches requests for this
+     * connection.
+     *
+     * @return The object adapter that dispatches requests for the
+     * connection, or null if no adapter is set.
+     *
+     * @see setAdapter
+     *
+     **/
+    nonmutating ObjectAdapter getAdapter();
+
+    /**
+     *
+     * Flush any pending batch requests for this connection. This
+     * causes all batch requests that were sent via proxies that use
+     * this connection to be sent to the server.
+     *
+     **/
+    void flushBatchRequests();
 
     /**
      *

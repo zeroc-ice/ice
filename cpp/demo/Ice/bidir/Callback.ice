@@ -7,17 +7,24 @@
 //
 // **********************************************************************
 
-#ifndef CALLBACK_I_H
-#define CALLBACK_I_H
+#ifndef CALLBACK_ICE
+#define CALLBACK_ICE
 
-#include <Callback.h>
+#include <Ice/Identity.ice>
 
-class CallbackI : public Demo::Callback
+module Demo
 {
-public:
 
-    virtual void initiateCallback(const Demo::CallbackReceiverPrx&, const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+interface CallbackReceiver
+{
+    void callback(int num);
+};
+
+interface CallbackSender
+{
+    void addClient(Ice::Identity ident);
+};
+
 };
 
 #endif

@@ -76,8 +76,8 @@ public:
 
     IceInternal::EndpointPtr endpoint() const;
 
-    void setAdapter(const ObjectAdapterPtr&);
-    ObjectAdapterPtr getAdapter() const;
+    virtual void setAdapter(const ObjectAdapterPtr&); // From Connection.
+    virtual ObjectAdapterPtr getAdapter() const; // From Connection.
     virtual ObjectPrx createProxy(const Identity& ident) const; // From Connection.
 
     //

@@ -8,11 +8,21 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#include <CallbackI.h>
+#include <Callback.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Demo;
+
+class CallbackReceiverI : public CallbackReceiver
+{
+public:
+
+    virtual void callback(const Current&)
+    {
+	cout << "received callback" << endl;
+    }
+};
 
 class CallbackClient : public Application
 {
@@ -49,7 +59,7 @@ int
 CallbackClient::run(int argc, char* argv[])
 {
     PropertiesPtr properties = communicator()->getProperties();
-    const char* proxyProperty = "Callback.Client.Callback";
+    const char* proxyProperty = "Callback.Client.CallbackServer";
     std::string proxy = properties->getProperty(proxyProperty);
     if(proxy.empty())
     {

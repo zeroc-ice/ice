@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="callbackC" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="bidirS" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=callbackC - Win32 Debug
+CFG=bidirS - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "callbackC.mak".
+!MESSAGE NMAKE /f "bidirS.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "callbackC.mak" CFG="callbackC - Win32 Debug"
+!MESSAGE NMAKE /f "bidirS.mak" CFG="bidirS - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "callbackC - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "callbackC - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "bidirS - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "bidirS - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=callbackC - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "callbackC - Win32 Release"
+!IF  "$(CFG)" == "bidirS - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -51,10 +51,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 Ice.lib IceUtil.lib /nologo /subsystem:console /machine:I386 /out:"client.exe" /libpath:"../../../lib"
+# ADD LINK32 Ice.lib IceUtil.lib /nologo /subsystem:console /machine:I386 /out:"server.exe" /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "callbackC - Win32 Debug"
+!ELSEIF  "$(CFG)" == "bidirS - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -77,15 +77,15 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 Iced.lib IceUtild.lib /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 Iced.lib IceUtild.lib /nologo /subsystem:console /debug /machine:I386 /out:"server.exe" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /nodefaultlib
 
 !ENDIF 
 
 # Begin Target
 
-# Name "callbackC - Win32 Release"
-# Name "callbackC - Win32 Debug"
+# Name "bidirS - Win32 Release"
+# Name "bidirS - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
@@ -95,7 +95,11 @@ SOURCE=.\Callback.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Client.cpp
+SOURCE=.\CallbackI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Server.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -105,6 +109,10 @@ SOURCE=.\Client.cpp
 
 SOURCE=.\Callback.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\CallbackI.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
@@ -113,14 +121,14 @@ SOURCE=.\Callback.h
 
 SOURCE=.\Callback.ice
 
-!IF  "$(CFG)" == "callbackC - Win32 Release"
+!IF  "$(CFG)" == "bidirS - Win32 Release"
 
 USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
 InputPath=.\Callback.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Callback.ice
+	..\..\..\bin\slice2cpp.exe  -I../../../slice  Callback.ice
 
 "Callback.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -129,14 +137,14 @@ BuildCmds= \
    $(BuildCmds)
 # End Custom Build
 
-!ELSEIF  "$(CFG)" == "callbackC - Win32 Debug"
+!ELSEIF  "$(CFG)" == "bidirS - Win32 Debug"
 
 USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
 InputPath=.\Callback.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Callback.ice
+	..\..\..\bin\slice2cpp.exe  -I../../../slice  Callback.ice
 
 "Callback.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

@@ -1113,6 +1113,13 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
+    if(_exception.get())
+    {
+	_exception->ice_throw();
+    }
+    
+    assert(_state < StateClosing);
+
     //
     // Before we set an adapter (or reset it) we wait until the
     // dispatch count with any old adapter is zero.

@@ -518,6 +518,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name icepatch2S
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name bidirC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name bidirS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -533,6 +539,42 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name freeze
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "bidirC"=.\demo\Ice\bidir\bidirC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name iceutil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "bidirS"=.\demo\Ice\bidir\bidirS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
     Begin Project Dependency
     Project_Dep_Name ice
     End Project Dependency
