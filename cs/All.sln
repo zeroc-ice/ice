@@ -196,6 +196,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "starterS", "test\Glacier\st
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionC", "demo\Glacier\session\sessionC.csproj", "{03E6AFE2-0E79-453A-8730-B71E60416A22}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionS", "demo\Glacier\session\sessionS.csproj", "{AD2E0549-5502-427A-82AC-FBB4EF4D22C1}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -398,6 +406,14 @@ Global
 		{6DDFD0AD-F9EE-49E3-A3AB-6E8DAAB62EA8}.Debug.Build.0 = Debug|.NET
 		{6DDFD0AD-F9EE-49E3-A3AB-6E8DAAB62EA8}.Release.ActiveCfg = Release|.NET
 		{6DDFD0AD-F9EE-49E3-A3AB-6E8DAAB62EA8}.Release.Build.0 = Release|.NET
+		{03E6AFE2-0E79-453A-8730-B71E60416A22}.Debug.ActiveCfg = Debug|.NET
+		{03E6AFE2-0E79-453A-8730-B71E60416A22}.Debug.Build.0 = Debug|.NET
+		{03E6AFE2-0E79-453A-8730-B71E60416A22}.Release.ActiveCfg = Release|.NET
+		{03E6AFE2-0E79-453A-8730-B71E60416A22}.Release.Build.0 = Release|.NET
+		{AD2E0549-5502-427A-82AC-FBB4EF4D22C1}.Debug.ActiveCfg = Debug|.NET
+		{AD2E0549-5502-427A-82AC-FBB4EF4D22C1}.Debug.Build.0 = Debug|.NET
+		{AD2E0549-5502-427A-82AC-FBB4EF4D22C1}.Release.ActiveCfg = Release|.NET
+		{AD2E0549-5502-427A-82AC-FBB4EF4D22C1}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

@@ -1,0 +1,1 @@
+HelloSession.cs: ./HelloSession.ice ../../../../ice/slice/Glacier/Session.ice
