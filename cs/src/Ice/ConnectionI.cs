@@ -1701,8 +1701,22 @@ namespace Ice
 		    }
 		    else
 		    {
+			//
+			// Otherwise we first must make sure that we are
+			// registered, then we unregister, and let finished()
+			// do the close.
+			//
 			registerWithPool();
 			unregisterWithPool();
+
+			//
+			// We must prevent any further writes when _state == StateClosed.
+			// However, functions such as sendResponse cannot acquire the main
+			// mutex in order to check _state. Therefore we shut down the write
+			// end of the transceiver, which causes subsequent write attempts
+			// to fail with an exception.
+			//
+			_transceiver.shutdownWrite();
 		    }
 		    break;
 		}
