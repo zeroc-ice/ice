@@ -214,7 +214,27 @@ public final class Connection extends EventHandler
     public synchronized boolean
     isFinished()
     {
-	return _transceiver == null && _dispatchCount == 0;
+	if(_transceiver == null && _dispatchCount == 0)
+	{
+	    //
+	    // We must destroy the incoming cache. It is now not
+	    // needed anymore.
+	    //
+	    synchronized(_incomingCacheMutex)
+	    {
+		while(_incomingCache != null)
+		{
+		    _incomingCache.__destroy();
+		    _incomingCache = _incomingCache.next;
+		}
+	    }
+
+	    return true;
+	}
+	else
+	{
+	    return false;
+	}
     }
 
     public synchronized void
@@ -303,6 +323,19 @@ public final class Connection extends EventHandler
 	}
 
 	assert(_state == StateClosed);
+
+	//
+	// We must destroy the incoming cache. It is now not
+	// needed anymore.
+	//
+	synchronized(_incomingCacheMutex)
+	{
+	    while(_incomingCache != null)
+	    {
+		_incomingCache.__destroy();
+		_incomingCache = _incomingCache.next;
+	    }
+	}
     }
 
     public synchronized void
@@ -1227,17 +1260,6 @@ public final class Connection extends EventHandler
 		    
 		    _transceiver = null;
 		    notifyAll();
-		}
-
-		//
-		// We must destroy the incoming cache. It is now not
-		// needed anymore.
-		//
-		synchronized(_incomingCacheMutex)
-		{
-		    assert(_dispatchCount == 0);
-		    in = _incomingCache;
-		    _incomingCache = null;
 		}
 	    }
 
