@@ -229,6 +229,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     {
 
 #ifdef __linux
+	//
 	// Create a process group for this child, to be able to send 
 	// a signal to all the thread-processes with killpg
 	//
@@ -374,7 +375,9 @@ IcePack::ActivatorI::deactivate(const ServerPtr& server)
     //
 
 #ifdef __linux
+    //
     // Use process groups on Linux instead of processes
+    //
     int ret = ::killpg(static_cast<pid_t>(pid), SIGTERM);
 #else
     int ret = ::kill(static_cast<pid_t>(pid), SIGTERM);
