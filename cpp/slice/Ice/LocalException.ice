@@ -431,6 +431,17 @@ local exception AbortBatchRequestException extends ProtocolException
 {
 };
 
+/**
+ *
+ * This exception is a specialization of [ProtocolException],
+ * indicating that the message size is illegal, i.e., it is
+ * less than the minimum required size.
+ *
+ **/
+local exception IllegalMessageSizeException extends ProtocolException
+{
+};
+
 };
 
 #endif

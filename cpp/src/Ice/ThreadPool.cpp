@@ -520,6 +520,10 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 	stream.read(messageType);
 	Int size;
 	stream.read(size);
+        if (size < headerSize)
+        {
+            throw IllegalMessageSizeException(__FILE__, __LINE__);
+        }
 	if (size > 1024 * 1024) // TODO: configurable
 	{
 	    throw MemoryLimitException(__FILE__, __LINE__);
