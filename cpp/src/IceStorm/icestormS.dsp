@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
-# SUBTRACT CPP /Z<none> /Fr
+# SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -93,6 +93,30 @@ SOURCE=.\Flusher.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\IceStormInternal.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\IdentityLinkDict.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\LinkInfo.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\LinkSubscriber.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\OnewayBatchSubscriber.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\OnewaySubscriber.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Server.cpp
 # End Source File
 # Begin Source File
@@ -102,6 +126,10 @@ SOURCE=.\StringBoolDict.cpp
 # Begin Source File
 
 SOURCE=.\Subscriber.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\SubscriberFactory.cpp
 # End Source File
 # Begin Source File
 
@@ -121,15 +149,39 @@ SOURCE=.\TraceLevels.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
+SOURCE=.\Flushable.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Flusher.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\FlusherF.h
+SOURCE=.\IceStormI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\IceStormI.h
+SOURCE=.\IceStormInternal.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\IdentityLinkDict.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LinkInfo.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LinkSubscriber.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\OnewayBatchSubscriber.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\OnewaySubscriber.h
 # End Source File
 # Begin Source File
 
@@ -141,15 +193,11 @@ SOURCE=.\Subscriber.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\SubscriberF.h
+SOURCE=.\SubscriberFactory.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\TopicI.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\TopicIF.h
 # End Source File
 # Begin Source File
 
@@ -158,10 +206,6 @@ SOURCE=.\TopicManagerI.h
 # Begin Source File
 
 SOURCE=.\TraceLevels.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\TraceLevelsF.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -202,6 +246,129 @@ BuildCmds= \
    $(BuildCmds)
 
 "StringBoolDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\dummy2.ice
+
+!IF  "$(CFG)" == "IceStormS - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\dummy2.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2freeze.exe --include-dir IceStorm  -I.. -I..\..\slice --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkInfo IdentityLinkDict LinkInfo.ice \
+	
+
+"IdentityLinkDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IdentityLinkDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\dummy2.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2freeze.exe --include-dir IceStorm  -I.. -I..\..\slice --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkInfo IdentityLinkDict LinkInfo.ice \
+	
+
+"IdentityLinkDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IdentityLinkDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\IceStormInternal.ice
+
+!IF  "$(CFG)" == "IceStormS - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\IceStormInternal.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --include-dir IceStorm -I../../slice IceStormInternal.ice \
+	
+
+"IceStormInternal.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IceStormInternal.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\IceStormInternal.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --include-dir IceStorm -I../../slice IceStormInternal.ice \
+	
+
+"IceStormInternal.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IceStormInternal.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\LinkInfo.ice
+
+!IF  "$(CFG)" == "IceStormS - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\LinkInfo.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --include-dir IceStorm -I../../slice -I.. LinkInfo.ice \
+	
+
+"LinkInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"LinkInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\LinkInfo.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --include-dir IceStorm -I../../slice -I.. LinkInfo.ice \
+	
+
+"LinkInfo.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"LinkInfo.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
