@@ -185,14 +185,14 @@ public class ObjectPrxHelper implements ObjectPrx
         }
     }
 
-    public final byte[]
-    ice_invoke(String operation, boolean nonmutating, byte[] inParams)
+    public final boolean
+    ice_invoke(String operation, boolean nonmutating, byte[] inParams, ByteSeqHolder outParams)
     {
-        return ice_invoke(operation, nonmutating, inParams, null);
+        return ice_invoke(operation, nonmutating, inParams, outParams, null);
     }
 
-    public final byte[]
-    ice_invoke(String operation, boolean nonmutating, byte[] inParams,
+    public final boolean
+    ice_invoke(String operation, boolean nonmutating, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map __context)
     {
         int __cnt = 0;
@@ -201,8 +201,7 @@ public class ObjectPrxHelper implements ObjectPrx
             try
             {
                 _ObjectDel __del = __getDelegate();
-                return __del.ice_invoke(operation, nonmutating, inParams,
-                                        __context);
+                return __del.ice_invoke(operation, nonmutating, inParams, outParams, __context);
             }
             catch (LocationForward __ex)
             {

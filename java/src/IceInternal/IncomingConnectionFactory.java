@@ -122,14 +122,14 @@ public class IncomingConnectionFactory extends EventHandler
         /*
         catch (IceSecurity.SecurityException ex)
         {
-            warning(ex);
+            // TODO: bandaid. Takes care of SSL Handshake problems during
+            // creation of a Transceiver. Ignore, nothing we can do here.
         }
         */
         catch (Ice.SocketException ex)
         {
             // TODO: bandaid. Takes care of SSL Handshake problems during
             // creation of a Transceiver. Ignore, nothing we can do here.
-            warning(ex);
         }
         catch (Ice.TimeoutException ex)
         {
@@ -137,7 +137,10 @@ public class IncomingConnectionFactory extends EventHandler
         }
         catch (Ice.LocalException ex)
         {
-            warning(ex);
+            if (_warn)
+            {
+                warning(ex);
+            }
             setState(StateClosed);
         }
 
@@ -346,12 +349,12 @@ public class IncomingConnectionFactory extends EventHandler
     private void
     warning(Ice.LocalException ex)
     {
-        if (_warn)
-        {
-            String s = "connection exception:\n" + ex + '\n' +
-                _acceptor.toString();
-            _instance.logger().warning(s);
-        }
+        java.io.StringWriter sw = new java.io.StringWriter();
+        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+        ex.printStackTrace(pw);
+        pw.flush();
+        String s = "connection exception:\n" + sw.toString() + '\n' + _acceptor.toString();
+        _instance.logger().warning(s);
     }
 
     private Endpoint _endpoint;

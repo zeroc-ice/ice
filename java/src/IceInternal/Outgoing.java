@@ -86,6 +86,7 @@ public final class Outgoing
         super.finalize();
     }
 
+    // Returns true if ok, false if user exception.
     public boolean
     invoke()
         throws Ice.LocationForward, NonRepeatable
@@ -161,7 +162,7 @@ public final class Outgoing
                     throw new NonRepeatable(_exception);
                 }
 
-                if (_state == StateException)
+                if (_state == StateUserException)
                 {
                     return false;
                 }
@@ -233,7 +234,7 @@ public final class Outgoing
                     // oneway requests as blobs.
                     //
                     _is.startReadEncaps();
-                    _state = StateException;
+                    _state = StateUserException;
                     break;
                 }
 
@@ -326,8 +327,8 @@ public final class Outgoing
     private static final int StateUnsent = 0;
     private static final int StateInProgress = 1;
     private static final int StateOK = 2;
-    private static final int StateException = 3;
-    private static final int StateLocationForward = 4;
+    private static final int StateLocationForward = 3;
+    private static final int StateUserException = 4;
     private static final int StateLocalException = 5;
     private int _state;
 

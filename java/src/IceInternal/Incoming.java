@@ -263,9 +263,7 @@ public class Incoming
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
             }
 
-            Ice.UnknownException ue = new Ice.UnknownException();
-            ue.initCause(ex);
-            throw ue;
+            throw ex;
         }
     }
 

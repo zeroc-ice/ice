@@ -188,8 +188,8 @@ public class _ObjectDelD implements _ObjectDel
         }
     }
 
-    public byte[]
-    ice_invoke(String operation, boolean nonmutating, byte[] inParams,
+    public boolean
+    ice_invoke(String operation, boolean nonmutating, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
@@ -211,7 +211,7 @@ public class _ObjectDelD implements _ObjectDel
                 }
                 try
                 {
-                    return __servant.ice_invoke(inParams, __current);
+                    return __servant.ice_invoke(inParams, outParams, __current);
                 }
                 catch (LocalException ex)
                 {

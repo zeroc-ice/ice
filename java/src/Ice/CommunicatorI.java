@@ -62,20 +62,19 @@ class CommunicatorI implements Communicator
         return _instance.proxyFactory().proxyToString(proxy);
     }
 
-    public ObjectAdapter
+    public synchronized ObjectAdapter
     createObjectAdapter(String name)
     {
-        ObjectAdapter adapter =
-            createObjectAdapterFromProperty(name, "Ice.Adapter." + name +
-                                            ".Endpoints");
-        String router =
-            _instance.properties().getProperty("Ice.Adapter." + name +
-                                               ".Router");
+        if (_instance == null)
+        {
+            throw new CommunicatorDestroyedException();
+        }
+
+        ObjectAdapter adapter = createObjectAdapterFromProperty(name, "Ice.Adapter." + name + ".Endpoints");
+        String router = _instance.properties().getProperty("Ice.Adapter." + name + ".Router");
         if (router != null)
         {
-            adapter.addRouter(
-                RouterPrxHelper.uncheckedCast(
-                    _instance.proxyFactory().stringToProxy(router)));
+            adapter.addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
         }
         return adapter;
     }
@@ -98,8 +97,7 @@ class CommunicatorI implements Communicator
         {
             throw new CommunicatorDestroyedException();
         }
-        return _instance.objectAdapterFactory().createObjectAdapter(
-            name, endpts);
+        return _instance.objectAdapterFactory().createObjectAdapter(name, endpts);
     }
 
     public synchronized void

@@ -17,8 +17,7 @@ public class _ObjectDelM implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__connection, __reference, "ice_isA",
-                                     true, __context);
+            new IceInternal.Outgoing(__connection, __reference, "ice_isA", true, __context);
         IceInternal.BasicStream __is = __out.is();
         IceInternal.BasicStream __os = __out.os();
         __os.writeString(__id);
@@ -34,8 +33,7 @@ public class _ObjectDelM implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__connection, __reference, "ice_ping",
-                                     true, __context);
+            new IceInternal.Outgoing(__connection, __reference, "ice_ping", true, __context);
         if (!__out.invoke())
         {
             throw new UnknownUserException();
@@ -47,8 +45,7 @@ public class _ObjectDelM implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__connection, __reference, "ice_ids",
-                                     true, __context);
+            new IceInternal.Outgoing(__connection, __reference, "ice_ids", true, __context);
         IceInternal.BasicStream __is = __out.is();
         IceInternal.BasicStream __os = __out.os();
         if (!__out.invoke())
@@ -63,8 +60,7 @@ public class _ObjectDelM implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__connection, __reference, "ice_id",
-                                     true, __context);
+            new IceInternal.Outgoing(__connection, __reference, "ice_id", true, __context);
         IceInternal.BasicStream __is = __out.is();
         IceInternal.BasicStream __os = __out.os();
         if (!__out.invoke())
@@ -79,8 +75,7 @@ public class _ObjectDelM implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__connection, __reference, "ice_facets",
-                                     true, __context);
+            new IceInternal.Outgoing(__connection, __reference, "ice_facets", true, __context);
         IceInternal.BasicStream __is = __out.is();
         IceInternal.BasicStream __os = __out.os();
         if (!__out.invoke())
@@ -90,24 +85,23 @@ public class _ObjectDelM implements _ObjectDel
         return __is.readStringSeq();
     }
 
-    public byte[]
-    ice_invoke(String operation, boolean nonmutating, byte[] inParams,
+    public boolean
+    ice_invoke(String operation, boolean nonmutating, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__connection, __reference, operation,
-                                     nonmutating, __context);
+            new IceInternal.Outgoing(__connection, __reference, operation, nonmutating, __context);
         IceInternal.BasicStream __os = __out.os();
         __os.writeBlob(inParams);
-        __out.invoke();
+        boolean ok = __out.invoke();
         if (__reference.mode == IceInternal.Reference.ModeTwoway)
         {
             IceInternal.BasicStream __is = __out.is();
             int sz = __is.getReadEncapsSize();
-            return __is.readBlob(sz);
+            outParams.value = __is.readBlob(sz);
         }
-        return null;
+        return ok;
     }
 
     public void

@@ -12,18 +12,26 @@ package Ice;
 
 public abstract class Blobject extends Ice.Object
 {
-    public abstract byte[]
-    ice_invoke(byte[] inParams, Current current);
+    // Returns true if ok, false if user exception.
+    public abstract boolean
+    ice_invoke(byte[] inParams, ByteSeqHolder outParams, Current current);
 
     public IceInternal.DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
         byte[] inParams;
-        byte[] outParams;
+        ByteSeqHolder outParams = new ByteSeqHolder();
         int sz = in.is().getReadEncapsSize();
         inParams = in.is().readBlob(sz);
-        outParams = ice_invoke(inParams, current);
-        in.os().writeBlob(outParams);
-        return IceInternal.DispatchStatus.DispatchOK;
+        boolean ok = ice_invoke(inParams, outParams, current);
+        in.os().writeBlob(outParams.value);
+        if (ok)
+        {
+            return IceInternal.DispatchStatus.DispatchOK;
+        }
+        else
+        {
+            return IceInternal.DispatchStatus.DispatchUserException;
+        }
     }
 }

@@ -459,7 +459,10 @@ public final class Connection extends EventHandler
                         _mutex.lock();
                         try
                         {
-                            warning(ex);
+                            if (_warn)
+                            {
+                                warning("connection exception", ex);
+                            }
                         }
                         finally
                         {
@@ -468,7 +471,18 @@ public final class Connection extends EventHandler
                     }
                     catch (Exception ex)
                     {
-                        assert(false); // Should not happen
+                        _mutex.lock();
+                        try
+                        {
+                            if (_warn)
+                            {
+                                warning("unknown exception", ex);
+                            }
+                        }
+                        finally
+                        {
+                            _mutex.unlock();
+                        }
                     }
                 }
                 while (batch && is.pos() < is.size());
@@ -671,16 +685,19 @@ public final class Connection extends EventHandler
         {
             _exception = ex;
 
-            //
-            // Don't warn about certain expected exceptions.
-            //
-            if (!(ex instanceof Ice.CloseConnectionException ||
-                  ex instanceof Ice.CommunicatorDestroyedException ||
-                  ex instanceof Ice.ObjectAdapterDeactivatedException ||
-                  (ex instanceof Ice.ConnectionLostException &&
-                   _state == StateClosing)))
+            if (_warn)
             {
-                warning(ex);
+                //
+                // Don't warn about certain expected exceptions.
+                //
+                if (!(ex instanceof Ice.CloseConnectionException ||
+                      ex instanceof Ice.CommunicatorDestroyedException ||
+                      ex instanceof Ice.ObjectAdapterDeactivatedException ||
+                      (ex instanceof Ice.ConnectionLostException &&
+                       _state == StateClosing)))
+                {
+                    warning("connection exception", ex);
+                }
             }
         }
 
@@ -796,18 +813,14 @@ public final class Connection extends EventHandler
     }
 
     private void
-    warning(Ice.LocalException ex)
+    warning(String msg, Exception ex)
     {
-        if (_warn)
-        {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-            ex.printStackTrace(pw);
-            pw.flush();
-            String s = "connection exception:\n" + sw.toString() + '\n' +
-                _transceiver.toString();
-            _logger.warning(s);
-        }
+        java.io.StringWriter sw = new java.io.StringWriter();
+        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+        ex.printStackTrace(pw);
+        pw.flush();
+        String s = msg + ":\n" + sw.toString() + '\n' + _transceiver.toString();
+        _logger.warning(s);
     }
 
     private Transceiver _transceiver;
