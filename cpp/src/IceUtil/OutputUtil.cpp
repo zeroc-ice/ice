@@ -251,7 +251,8 @@ IceUtil::XMLOutput::XMLOutput() :
 
 IceUtil::XMLOutput::XMLOutput(ostream& os) :
     OutputBase(os),
-    _printed(true)
+    _printed(true),
+    _sgml(false)
 {
 }
 
