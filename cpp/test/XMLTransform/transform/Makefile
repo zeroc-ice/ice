@@ -54,7 +54,8 @@ SRCS		= $(POPULATE_OBJS:.o=.cpp) \
 		  $(VALIDATE_OBJS:.o=.cpp)
 
 SCHEMAS		= TestOld.xsd \
-		  TestNew.xsd
+		  TestNew.xsd \
+		  Identity.xsd
 
 include $(top_srcdir)/config/Make.rules
 
@@ -162,6 +163,9 @@ TestOld.xsd: TestOld.ice $(SLICE2XSD)
 
 TestNew.xsd: TestNew.ice $(SLICE2XSD)
 	$(SLICE2XSD) TestNew.ice
+
+Identity.xsd: $(top_srcdir)/slice/Ice/Identity.ice $(SLICE2XSD)
+	$(SLICE2XSD) --ice -I$(top_srcdir)/slice $(top_srcdir)/slice/Ice/Identity.ice
 
 TestOld.h TestOld.cpp: TestOld.ice
 	rm -f TestOld.h TestOld.cpp

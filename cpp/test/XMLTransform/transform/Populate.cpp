@@ -80,6 +80,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
 
     DBPtr db;
     XMLTransform::DBTransformer transformer;
+    StringSeq dummy;
 
     cout << "transforming primitives... " << flush;
 
@@ -100,7 +101,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("xs:byte", "xs:short");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -119,7 +120,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("xs:short", "xs:int");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -138,7 +139,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("xs:int", "xs:long");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -157,7 +158,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("xs:long", "xs:byte");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -176,7 +177,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("xs:float", "xs:double");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -201,7 +202,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
 
         try
         {
-            transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+            transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
             test(false);
         }
         catch(const XMLTransform::IllegalTransform&)
@@ -232,7 +233,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
 
         try
         {
-            transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+            transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
             test(false);
         }
         catch(const XMLTransform::IllegalTransform&)
@@ -263,7 +264,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
 
         try
         {
-            transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+            transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
             test(false);
         }
         catch(const XMLTransform::IllegalTransform&)
@@ -298,6 +299,7 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
 
     DBPtr db;
     XMLTransform::DBTransformer transformer;
+    StringSeq dummy;
 
     cout << "transforming primitive sequences... " << flush;
 
@@ -320,7 +322,7 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("tns:_internal.Test.Seq1Type", "tns:_internal.Test.Seq1Type");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -341,7 +343,7 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("tns:_internal.Test.Seq2Type", "tns:_internal.Test.Seq2Type");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -362,7 +364,7 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("tns:_internal.Test.Seq3Type", "tns:_internal.Test.Seq3Type");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -383,7 +385,7 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("tns:_internal.Test.Seq4Type", "tns:_internal.Test.Seq4Type");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -410,7 +412,7 @@ transformPrimitiveSequence(const DBEnvironmentPtr& dbEnv)
 
         try
         {
-            transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+            transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
             test(false);
         }
         catch(const XMLTransform::IllegalTransform&)
@@ -443,6 +445,7 @@ transformEnum(const DBEnvironmentPtr& dbEnv)
 {
     DBPtr db;
     XMLTransform::DBTransformer transformer;
+    StringSeq dummy;
 
     cout << "transforming enumerations... " << flush;
 
@@ -461,7 +464,7 @@ transformEnum(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("tns:_internal.Test.E1Type", "tns:_internal.Test.E1Type");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -482,7 +485,7 @@ transformEnum(const DBEnvironmentPtr& dbEnv)
 
         try
         {
-            transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+            transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
             test(false);
         }
         catch(const XMLTransform::IllegalTransform&)
@@ -515,6 +518,7 @@ transformDictionary(const DBEnvironmentPtr& dbEnv)
 {
     DBPtr db;
     XMLTransform::DBTransformer transformer;
+    StringSeq dummy;
 
     cout << "transforming dictionaries... " << flush;
 
@@ -535,7 +539,7 @@ transformDictionary(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("tns:_internal.Test.D1Type", "tns:_internal.Test.D1Type");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -558,7 +562,7 @@ transformDictionary(const DBEnvironmentPtr& dbEnv)
 
         try
         {
-            transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+            transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
             test(false);
         }
         catch(const XMLTransform::IllegalTransform&)
@@ -591,6 +595,7 @@ transformStruct(const DBEnvironmentPtr& dbEnv)
 {
     DBPtr db;
     XMLTransform::DBTransformer transformer;
+    StringSeq dummy;
 
     cout << "transforming structs... " << flush;
 
@@ -617,7 +622,7 @@ transformStruct(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("tns:_internal.Test.S1Type", "tns:_internal.Test.S1Type");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -645,7 +650,7 @@ transformStruct(const DBEnvironmentPtr& dbEnv)
 
         try
         {
-            transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+            transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
             test(false);
         }
         catch(const XMLTransform::IllegalTransform&)
@@ -678,6 +683,7 @@ transformClass(const DBEnvironmentPtr& dbEnv)
 {
     DBPtr db;
     XMLTransform::DBTransformer transformer;
+    StringSeq dummy;
 
     cout << "transforming classes... " << flush;
 
@@ -756,7 +762,7 @@ transformClass(const DBEnvironmentPtr& dbEnv)
         }
 
         emitSchemas("tns:_internal.Test.C1Type", "tns:_internal.Test.C1Type");
-        transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+        transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
         db->close();
         db = 0;
 
@@ -800,7 +806,188 @@ transformClass(const DBEnvironmentPtr& dbEnv)
 
         try
         {
-            transformer.transform(dbEnv, db, paths, oldSchema, newSchema);
+            transformer.transform(dbEnv, db, dummy, dummy, paths, paths, oldSchema, newSchema);
+            test(false);
+        }
+        catch(const XMLTransform::IllegalTransform&)
+        {
+            // Expected.
+        }
+        db->close();
+        db = 0;
+
+        cout << "ok" << endl;
+    }
+    catch(...)
+    {
+        cout << "failed" << endl;
+        if(db)
+        {
+            db->close();
+        }
+        throw;
+    }
+
+    if(db)
+    {
+        db->close();
+    }
+}
+
+static void
+transformEvictor(const DBEnvironmentPtr& dbEnv)
+{
+    DBPtr db;
+    XMLTransform::DBTransformer transformer;
+    StringSeq loadOld, loadNew;
+    Identity ident;
+    EvictorPtr evictor;
+
+    loadOld.push_back("TestOld.xsd");
+    loadOld.push_back("Identity.xsd");
+    loadNew.push_back("TestNew.xsd");
+    loadNew.push_back("Identity.xsd");
+
+    static string evictorSchema =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+        "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
+        "           elementFormDefault=\"qualified\""
+        "           xmlns:tns=\"http://www.noorg.org/schemas\""
+        "           xmlns:ice=\"http://www.mutablerealms.com/schemas\""
+        "           targetNamespace=\"http://www.noorg.org/schemas\">"
+        "    <xs:import namespace=\"http://www.mutablerealms.com/schemas\" schemaLocation=\"ice.xsd\"/>"
+        "    <xs:element name=\"Key\" type=\"_internal.Ice.IdentityType\"/>"
+        "    <xs:element name=\"Value\" type=\"ice:_internal.objectType\"/></xs:schema>";
+
+    cout << "transforming evictor map... " << flush;
+
+    try
+    {
+        //
+        // Transform C2
+        //
+        db = dbEnv->openDB("evictor", true);
+        db->clear();
+        evictor = db->createEvictor(SaveUponEviction);
+
+        {
+            Test::C2Ptr c2;
+            c2 = new Test::C2;
+            c2->s = "0";
+            c2->f = 0;
+            c2->b = 0;
+            c2->i = 0;
+            c2->l = 0;
+            c2->d = 0;
+            ident.name = "0";
+            evictor->createObject(ident, c2);
+            c2 = new Test::C2;
+            c2->s = "1";
+            c2->f = 1;
+            c2->b = 1;
+            c2->i = 1;
+            c2->l = 1;
+            c2->d = 1;
+            ident.name = "1";
+            evictor->createObject(ident, c2);
+            c2 = new Test::C2;
+            c2->s = "2";
+            c2->f = 2;
+            c2->b = 2;
+            c2->i = 2;
+            c2->l = 2;
+            c2->d = 2;
+            ident.name = "2";
+            evictor->createObject(ident, c2);
+
+            //
+            // Add an object with facets.
+            //
+            Test::C1Ptr c1Facet;
+            Test::C2Ptr c2Facet;
+            c2 = new Test::C2;
+            c2->s = "3";
+            c2->f = 3;
+            c2->b = 3;
+            c2->i = 3;
+            c2->l = 3;
+            c2->d = 3;
+            c1Facet = new Test::C1;
+            c1Facet->s = "c1-0";
+            c1Facet->f = 0;
+            c1Facet->b = 0;
+            c2->ice_addFacet(c1Facet, "c1-0");
+            c1Facet = new Test::C1;
+            c1Facet->s = "c1-1";
+            c1Facet->f = 1;
+            c1Facet->b = 1;
+            c2->ice_addFacet(c1Facet, "c1-1");
+            c2Facet = new Test::C2;
+            c2Facet->s = "c1-2";
+            c2Facet->f = 2;
+            c2Facet->b = 2;
+            c2Facet->i = 2;
+            c2Facet->l = 2;
+            c2Facet->d = 2;
+            c1Facet = new Test::C1;
+            c1Facet->s = "c2-0";
+            c1Facet->f = 0;
+            c1Facet->b = 0;
+            c2Facet->ice_addFacet(c1Facet, "c2-0"); // Nested facet
+            c2->ice_addFacet(c2Facet, "c1-2");
+            ident.name = "3";
+            evictor->createObject(ident, c2);
+        }
+
+        evictor->deactivate();
+        transformer.transform(dbEnv, db, loadOld, loadNew, paths, paths, evictorSchema);
+        db->close();
+        db = 0;
+
+        //
+        // Transform C2 (should fail)
+        //
+        db = dbEnv->openDB("failure", true);
+        db->clear();
+        evictor = db->createEvictor(SaveUponEviction);
+
+        {
+            Test::C2Ptr c2;
+            c2 = new Test::C2;
+            c2->s = "0";
+            c2->f = 0;
+            c2->b = 0;
+            c2->i = 0;
+            c2->l = INT_MIN;
+            c2->d = 0;
+            ident.name = "0";
+            evictor->createObject(ident, c2);
+            c2 = new Test::C2;
+            c2->s = "1";
+            c2->f = 1;
+            c2->b = 1;
+            c2->i = 1;
+            c2->l = INT_MAX;
+            c2->d = 1;
+            ident.name = "1";
+            evictor->createObject(ident, c2);
+            c2 = new Test::C2;
+            c2->s = "2";
+            c2->f = 2;
+            c2->b = 2;
+            c2->i = 2;
+            c2->l = INT_MAX;
+            c2->l++; // Out of range for int
+            c2->d = 2;
+            ident.name = "2";
+            evictor->createObject(ident, c2);
+        }
+
+        evictor->deactivate();
+
+        try
+        {
+            transformer.transform(dbEnv, db, loadOld, loadNew, paths, paths, evictorSchema);
             test(false);
         }
         catch(const XMLTransform::IllegalTransform&)
@@ -889,6 +1076,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         transformDictionary(dbEnv);
         transformStruct(dbEnv);
         transformClass(dbEnv);
+        transformEvictor(dbEnv);
     }
     catch(...)
     {

@@ -23,6 +23,16 @@
 
 #include <sys/stat.h>
 
+#ifdef _WIN32
+#   include <direct.h>
+#   include <io.h>
+#   define S_ISDIR(mode) ((mode) & _S_IFDIR)
+#   define S_ISREG(mode) ((mode) & _S_IFREG)
+#else
+#   include <unistd.h>
+#   include <dirent.h>
+#endif
+
 using namespace std;
 using namespace Freeze;
 using namespace XMLTransform;
@@ -1071,10 +1081,11 @@ class TransformFactory
 {
 public:
 
-    TransformFactory(const Ice::StringSeq&);
+    TransformFactory();
     ~TransformFactory();
 
-    void create(DOMDocument*, DOMDocument*, TransformMap*, TransformMap*);
+    void create(DOMDocument*, DOMDocument*, const Ice::StringSeq&, const Ice::StringSeq&,
+                const Ice::StringSeq&, const Ice::StringSeq&, TransformMap*, TransformMap*);
 
 private:
 
@@ -1095,10 +1106,15 @@ private:
     };
 
     //
+    // Load all schemas in a list of directories.
+    //
+    void load(DocumentMap&, const string&, const Ice::StringSeq&);
+
+    //
     // Schema import handling.
     //
-    void import(DocumentMap&, const string&, const string&);
-    void processImport(DOMDocument*, DocumentMap&);
+    void import(DocumentMap&, const string&, const string&, const Ice::StringSeq&);
+    void processImport(DOMDocument*, DocumentMap&, const Ice::StringSeq&);
 
     //
     // Element processing.
@@ -1153,11 +1169,6 @@ private:
     // Utility routines.
     //
     DOMNode* findSchemaRoot(DOMDocument*);
-
-    //
-    // Search paths for importing schemas.
-    //
-    Ice::StringSeq _paths;
 
     //
     // Map of local@uri class transforms (based on static type). This information cached for creation of the
@@ -1247,8 +1258,7 @@ const TransformFactory::StringTypeTable* TransformFactory::itemsByNameEnd = &ite
 //
 // Constructor & destructor.
 //
-XMLTransform::TransformFactory::TransformFactory(const Ice::StringSeq& paths) :
-    _paths(paths)
+XMLTransform::TransformFactory::TransformFactory()
 {
 }
 
@@ -1265,8 +1275,10 @@ XMLTransform::TransformFactory::~TransformFactory()
 // maps: A map of local@uri -> element transform and a map of transforms for specific class types.
 //
 void
-XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc, TransformMap* elements,
-                                       TransformMap* staticClassTransforms)
+XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc,
+                                       const Ice::StringSeq& loadFrom, const Ice::StringSeq& loadTo,
+                                       const Ice::StringSeq& pathFrom, const Ice::StringSeq& pathTo,
+                                       TransformMap* elements, TransformMap* staticClassTransforms)
 {
     //
     // Setup member state.
@@ -1277,6 +1289,19 @@ XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc,
     _toDocs.clear();
     _types.clear();
     _defaultInitializedTransforms.clear();
+
+    //
+    // Load schemas.
+    //
+    Ice::StringSeq::size_type i;
+    for(i = 0; i < loadFrom.size(); i++)
+    {
+        load(_fromDocs, loadFrom[i], pathFrom);
+    }
+    for(i = 0; i < loadTo.size(); i++)
+    {
+        load(_toDocs, loadTo[i], pathTo);
+    }
 
     //
     // Create both of the document infos for the old & new schemas.
@@ -1296,8 +1321,8 @@ XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc,
     //
     // Process the import declarations for the source schema documents.
     //
-    processImport(fromDoc, _fromDocs);
-    processImport(toDoc, _toDocs);
+    processImport(fromDoc, _fromDocs, pathFrom);
+    processImport(toDoc, _toDocs, pathTo);
 
     //
     // Finally process each element from the old schema document.
@@ -1309,7 +1334,128 @@ XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc,
 }
 
 void
-XMLTransform::TransformFactory::import(DocumentMap& documents, const string& ns, const string& loc)
+XMLTransform::TransformFactory::load(DocumentMap& documents, const string& path, const Ice::StringSeq& paths)
+{
+    struct stat buf;
+    if(::stat(path.c_str(), &buf) == -1)
+    {
+        InvalidSchema ex(__FILE__, __LINE__);
+        ex.reason = "cannot stat `" + path + "': " + strerror(errno);
+        throw ex;
+    }
+
+    if(S_ISREG(buf.st_mode) && path.rfind(".xsd") != string::npos)
+    {
+        import(documents, "", path, paths);
+    }
+    else if(S_ISDIR(buf.st_mode))
+    {
+#ifdef _WIN32
+
+        struct _finddata_t data;
+        long h = _findfirst((path + "/*").c_str(), &data);
+        if(h == -1)
+        {
+            InvalidSchema ex(__FILE__, __LINE__);
+            ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
+            throw ex;
+        }
+        
+        while(true)
+        {
+            string name = data.name;
+            assert(!name.empty());
+
+            string fullPath = path + '/' + name;
+            if(::stat(fullPath.c_str(), &buf) == -1)
+            {
+                InvalidSchema ex(__FILE__, __LINE__);
+                ex.reason = "cannot stat `" + fullPath + "': " + strerror(errno);
+                throw ex;
+            }
+
+            if(S_ISDIR(buf.st_mode))
+            {
+                if(name != ".." && name != ".")
+                {
+                    load(documents, fullPath, paths); // Recurse through subdirectories
+                }
+            }
+            else if(S_ISREG(buf.st_mode) && name.rfind(".xsd") != string::npos)
+            {
+                import(documents, "", fullPath, paths);
+            }
+
+            if(_findnext(h, &data) == -1)
+            {
+                if(errno == ENOENT)
+                {
+                    break;
+                }
+
+                InvalidSchema ex(__FILE__, __LINE__);
+                ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
+                _findclose(h);
+                throw ex;
+            }
+        }
+
+        _findclose(h);
+
+#else
+
+        struct dirent **namelist;
+        int n = ::scandir(path.c_str(), &namelist, 0, alphasort);
+        if(n < 0)
+        {
+            InvalidSchema ex(__FILE__, __LINE__);
+            ex.reason = "cannot read directory `" + path + "': " + strerror(errno);
+            throw ex;
+        }
+
+        for(int i = 0; i < n; ++i)
+        {
+            string name = namelist[i]->d_name;
+            assert(!name.empty());
+
+            free(namelist[i]);
+
+            string fullPath = path + '/' + name;
+            if(::stat(fullPath.c_str(), &buf) == -1)
+            {
+                InvalidSchema ex(__FILE__, __LINE__);
+                ex.reason = "cannot stat `" + fullPath + "': " + strerror(errno);
+                throw ex;
+            }
+
+            if(S_ISDIR(buf.st_mode))
+            {
+                if(name != ".." && name != ".")
+                {
+                    load(documents, fullPath, paths); // Recurse through subdirectories
+                }
+            }
+            else if(S_ISREG(buf.st_mode) && name.rfind(".xsd") != string::npos)
+            {
+                import(documents, "", fullPath, paths);
+            }
+        }
+        
+        free(namelist);
+
+#endif
+    }
+    else
+    {
+        InvalidSchema ex(__FILE__, __LINE__);
+        ex.reason = "cannot load schema from `" + path + "'";
+        throw ex;
+    }
+}
+
+void
+XMLTransform::TransformFactory::import(DocumentMap& documents, const string& ns, const string& loc,
+                                       const Ice::StringSeq& paths)
 {
     DOMTreeErrorReporter errorReporter;
     XercesDOMParser parser;
@@ -1319,7 +1465,7 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, const string& ns,
 
     try
     {
-        string file = findFile(loc, _paths);
+        string file = findFile(loc, paths);
         parser.parse(file.c_str());
 	if(errorReporter.getSawErrors())
 	{
@@ -1363,11 +1509,11 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, const string& ns,
     //
     // Process any imports in the imported document.
     //
-    processImport(document, documents);
+    processImport(document, documents, paths);
 }
 
 void
-XMLTransform::TransformFactory::processImport(DOMDocument* parent, DocumentMap& documents)
+XMLTransform::TransformFactory::processImport(DOMDocument* parent, DocumentMap& documents, const Ice::StringSeq& paths)
 {
     DOMNode* schema = findSchemaRoot(parent);
     assert(schema);
@@ -1381,7 +1527,7 @@ XMLTransform::TransformFactory::processImport(DOMDocument* parent, DocumentMap& 
 	    string ns = getAttributeByName(child, "namespace");
 	    string loc = getAttributeByName(child, "schemaLocation");
 	    
-	    import(documents, ns, loc);
+	    import(documents, ns, loc, paths);
 	}
 	child = child->getNextSibling();
     }
@@ -1435,6 +1581,11 @@ XMLTransform::TransformFactory::processElements(const DocumentInfoPtr& info)
 	fullElementName += '@';
 	fullElementName += info->getTargetNamespace();
 	
+/*
+ * We need to allow redefinitions, otherwise importing
+ * will fail. For example, this occurs if we import two
+ * schemas which both internally import the same schema.
+ *
 	//
 	// Redefinitions of elements is not permitted.
 	//
@@ -1444,6 +1595,7 @@ XMLTransform::TransformFactory::processElements(const DocumentInfoPtr& info)
             ex.reason = "redefinition of element " + nameAttr;
 	    throw ex;
 	}
+ */
 	
 	string fromTypeName = getTypeAttribute(child);
 	string toTypeName = getTypeAttribute(to);
@@ -2254,11 +2406,12 @@ XMLTransform::TransformFactory::findSchemaRoot(DOMDocument* root)
 }
 
 
-XMLTransform::Transformer::Transformer(const Ice::StringSeq& paths, DOMDocument* fromDoc,
-                                       DOMDocument* toDoc)
+XMLTransform::Transformer::Transformer(const Ice::StringSeq& loadFrom, const Ice::StringSeq& loadTo,
+                                       const Ice::StringSeq& pathFrom, const Ice::StringSeq& pathTo,
+                                       DOMDocument* fromDoc, DOMDocument* toDoc)
 {
-    TransformFactory factory(paths);
-    factory.create(fromDoc, toDoc, &_elements, &_staticClassTransforms);
+    TransformFactory factory;
+    factory.create(fromDoc, toDoc, loadFrom, loadTo, pathFrom, pathTo, &_elements, &_staticClassTransforms);
 }
 
 XMLTransform::Transformer::~Transformer()
@@ -2337,8 +2490,10 @@ XMLTransform::DBTransformer::~DBTransformer()
 }
 
 void
-XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPtr& db, const Ice::StringSeq& paths,
-                                       const string& oldSchemaFile, const string& newSchemaFile)
+XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPtr& db,
+                                       const Ice::StringSeq& loadOld, const Ice::StringSeq& loadNew,
+                                       const Ice::StringSeq& pathOld, const Ice::StringSeq& pathNew,
+                                       DOMDocument* oldSchema, DOMDocument* newSchema)
 {
     DOMTreeErrorReporter errReporter;
 
@@ -2347,47 +2502,20 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
     parser.setDoNamespaces(true);
     parser.setErrorHandler(&errReporter);
 
-    DOMDocument* oldSchema;
-    DOMDocument* newSchema;
-
-    try
-    {
-        parser.parse(oldSchemaFile.c_str());
-        oldSchema = parser.getDocument();
-
-        parser.parse(newSchemaFile.c_str());
-        newSchema = parser.getDocument();
-    }
-    catch(const XMLException& ex)
-    {
-        InvalidSchema e(__FILE__, __LINE__);
-        e.reason = "XML exception: " + toString(ex.getMessage());
-        throw e;
-    }   
-    catch(const SAXException& ex)
-    {
-        InvalidSchema e(__FILE__, __LINE__);
-        e.reason = "SAX exception: " + toString(ex.getMessage());
-        throw e;
-    }
-    catch(...)
-    {   
-        InvalidSchema e(__FILE__, __LINE__);
-        e.reason = "Unexpected exception";
-        throw e;
-    }
-
     DBCursorPtr cursor;
     DBTransactionPtr txn;
     string reason;
     try
     {
-        Transformer transformer(paths, oldSchema, newSchema);
+        Transformer transformer(loadOld, loadNew, pathOld, pathNew, oldSchema, newSchema);
 
+        //
+        // Header and footer for instance documents.
+        //
         const string header = "<ice:data xmlns=\"http://www.noorg.org/schemas\""
                               " xmlns:ice=\"http://www.mutablerealms.com/schemas\""
                               " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
-                              " xsi:schemaLocation=\"http://www.noorg.org/schemas " + oldSchemaFile + "\">";
+                              " xsi:schemaLocation=\"http://www.noorg.org/schemas Dummy.xsd\">";
         const string footer = "</ice:data>";
 
         //
@@ -2524,4 +2652,93 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
         ex.reason = reason;
         throw ex;
     }
+}
+
+void
+XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPtr& db,
+                                       const Ice::StringSeq& loadOld, const Ice::StringSeq& loadNew,
+                                       const Ice::StringSeq& pathOld, const Ice::StringSeq& pathNew,
+                                       const string& oldSchemaFile, const string& newSchemaFile)
+{
+    DOMTreeErrorReporter errReporter;
+
+    XercesDOMParser parser;
+    parser.setValidationScheme(AbstractDOMParser::Val_Auto);
+    parser.setDoNamespaces(true);
+    parser.setErrorHandler(&errReporter);
+
+    DOMDocument* oldSchema;
+    DOMDocument* newSchema;
+
+    try
+    {
+        parser.parse(oldSchemaFile.c_str());
+        oldSchema = parser.getDocument();
+
+        parser.parse(newSchemaFile.c_str());
+        newSchema = parser.getDocument();
+    }
+    catch(const XMLException& ex)
+    {
+        InvalidSchema e(__FILE__, __LINE__);
+        e.reason = "XML exception: " + toString(ex.getMessage());
+        throw e;
+    }   
+    catch(const SAXException& ex)
+    {
+        InvalidSchema e(__FILE__, __LINE__);
+        e.reason = "SAX exception: " + toString(ex.getMessage());
+        throw e;
+    }
+    catch(...)
+    {   
+        InvalidSchema e(__FILE__, __LINE__);
+        e.reason = "Unexpected exception";
+        throw e;
+    }
+
+    transform(dbEnv, db, loadOld, loadNew, pathOld, pathNew, oldSchema, newSchema);
+}
+
+void
+XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPtr& db,
+                                       const Ice::StringSeq& loadOld, const Ice::StringSeq& loadNew,
+                                       const Ice::StringSeq& pathOld, const Ice::StringSeq& pathNew,
+                                       const string& schemaStr)
+{
+    DOMTreeErrorReporter errReporter;
+
+    XercesDOMParser parser;
+    parser.setValidationScheme(AbstractDOMParser::Val_Auto);
+    parser.setDoNamespaces(true);
+    parser.setErrorHandler(&errReporter);
+
+    DOMDocument* schema;
+
+    try
+    {
+        MemBufInputSource source((const XMLByte*)schemaStr.data(), schemaStr.size(), "schema");
+        parser.parse(source);
+        schema = parser.getDocument();
+    }
+    catch(const XMLException& ex)
+    {
+        InvalidSchema e(__FILE__, __LINE__);
+        e.reason = "XML exception: " + toString(ex.getMessage());
+        throw e;
+    }   
+    catch(const SAXException& ex)
+    {
+        InvalidSchema e(__FILE__, __LINE__);
+        e.reason = "SAX exception: " + toString(ex.getMessage());
+        throw e;
+    }
+    catch(...)
+    {   
+        InvalidSchema e(__FILE__, __LINE__);
+        e.reason = "Unexpected exception";
+        throw e;
+    }
+
+    transform(dbEnv, db, loadOld, loadNew, pathOld, pathNew, schema, schema);
 }

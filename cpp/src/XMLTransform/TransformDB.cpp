@@ -18,9 +18,15 @@ static void
 usage(const string& appName)
 {
     cerr << "Usage: " << appName << " [options] db-env db old-schema new-schema\n";
+    cerr << "       " << appName << " [options] --evictor db-env db\n";
+    cerr << "\n";
     cerr <<        
         "Options:\n"
-        "-IDIR                Add directory DIR to the schema include path.\n"
+        "-e,--evictor         Use the Freeze Evictor schema.\n"
+        "--load-old DIR       Load all old schema files in directory DIR.\n"
+        "--load-new DIR       Load all new schema files in directory DIR.\n"
+        "--path-old DIR       Add directory DIR to the old schema import search path.\n"
+        "--path-new DIR       Add directory DIR to the new schema import search path.\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
         ;
@@ -38,22 +44,83 @@ main(int argc, char* argv[])
     {
         communicator = Ice::initialize(argc, argv);
 
-        Ice::StringSeq paths;
+        bool evictor = false;
+        Ice::StringSeq loadOld, loadNew;
+        Ice::StringSeq pathOld, pathNew;
 
         int idx = 1;
         while(idx < argc)
         {
-            if(strncmp(argv[idx], "-I", 2) == 0)
+            if(strcmp(argv[idx], "--load-old") == 0)
             {
-                if(strlen(argv[idx]) == 2)
+                if(idx + 1 >= argc)
                 {
+                    cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
                     usage(argv[0]);
                     return EXIT_FAILURE;
                 }
-                paths.push_back(argv[idx] + 2);
-                for(int j = idx; j + 1 < argc; ++j)
+
+                loadOld.push_back(argv[idx + 1]);
+                for(int i = idx ; i + 2 < argc ; ++i)
                 {
-                    argv[j] = argv[j + 1];
+                    argv[i] = argv[i + 2];
+                }
+                argc -= 2;
+            }
+            else if(strcmp(argv[idx], "--load-new") == 0)
+            {
+                if(idx + 1 >= argc)
+                {
+                    cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
+                    usage(argv[0]);
+                    return EXIT_FAILURE;
+                }
+
+                loadNew.push_back(argv[idx + 1]);
+                for(int i = idx ; i + 2 < argc ; ++i)
+                {
+                    argv[i] = argv[i + 2];
+                }
+                argc -= 2;
+            }
+            else if(strcmp(argv[idx], "--path-old") == 0)
+            {
+                if(idx + 1 >= argc)
+                {
+                    cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
+                    usage(argv[0]);
+                    return EXIT_FAILURE;
+                }
+
+                pathOld.push_back(argv[idx + 1]);
+                for(int i = idx ; i + 2 < argc ; ++i)
+                {
+                    argv[i] = argv[i + 2];
+                }
+                argc -= 2;
+            }
+            else if(strcmp(argv[idx], "--path-new") == 0)
+            {
+                if(idx + 1 >= argc)
+                {
+                    cerr << argv[0] << ": argument expected for `" << argv[idx] << "'" << endl;
+                    usage(argv[0]);
+                    return EXIT_FAILURE;
+                }
+
+                pathNew.push_back(argv[idx + 1]);
+                for(int i = idx ; i + 2 < argc ; ++i)
+                {
+                    argv[i] = argv[i + 2];
+                }
+                argc -= 2;
+            }
+            else if(strcmp(argv[idx], "-e") == 0 || strcmp(argv[idx], "--evictor") == 0)
+            {
+                evictor = true;
+                for(int i = idx ; i + 1 < argc ; ++i)
+                {
+                    argv[i] = argv[i + 1];
                 }
                 --argc;
             }
@@ -76,7 +143,7 @@ main(int argc, char* argv[])
             idx++;
         }
 
-        if(argc < 5)
+        if((evictor && argc != 3) || (!evictor && argc != 5))
         {
             usage(argv[0]);
             return EXIT_FAILURE;
@@ -88,7 +155,33 @@ main(int argc, char* argv[])
             db = dbEnv->openDB(argv[2], false);
 
             XMLTransform::DBTransformer transformer;
-            transformer.transform(dbEnv, db, paths, argv[3], argv[4]);
+
+            if(evictor)
+            {
+                //
+                // This is the schema definition for the database used by the
+                // Freeze Evictor (a map of Ice::Identity to Ice::Object).
+                // Note that this requires that a schema file be created for
+                // Identity.ice, and that it be loaded using --load-old and
+                // --load-new.
+                //
+                static string schema =
+                    "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                    "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
+                    "           elementFormDefault=\"qualified\""
+                    "           xmlns:tns=\"http://www.noorg.org/schemas\""
+                    "           xmlns:ice=\"http://www.mutablerealms.com/schemas\""
+                    "           targetNamespace=\"http://www.noorg.org/schemas\">"
+                    "    <xs:import namespace=\"http://www.mutablerealms.com/schemas\" schemaLocation=\"ice.xsd\"/>"
+                    "    <xs:element name=\"Key\" type=\"_internal.Ice.IdentityType\"/>"
+                    "    <xs:element name=\"Value\" type=\"ice:_internal.objectType\"/></xs:schema>";
+
+                transformer.transform(dbEnv, db, loadOld, loadNew, pathOld, pathNew, schema);
+            }
+            else
+            {
+                transformer.transform(dbEnv, db, loadOld, loadNew, pathOld, pathNew, argv[3], argv[4]);
+            }
         }
         catch(const Freeze::DBNotFoundException&)
         {

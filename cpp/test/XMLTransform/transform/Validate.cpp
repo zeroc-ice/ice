@@ -490,6 +490,117 @@ validateClass(const DBEnvironmentPtr& dbEnv)
         throw;
     }
 
+    communicator->removeObjectFactory(Test::C1::ice_staticId());
+    communicator->removeObjectFactory(Test::C2::ice_staticId());
+
+    if(db)
+    {
+        db->close();
+    }
+}
+
+static void
+validateEvictor(const DBEnvironmentPtr& dbEnv)
+{
+    DBPtr db;
+    EvictorPtr evictor;
+
+    CommunicatorPtr communicator = dbEnv->getCommunicator();
+    communicator->addObjectFactory(Test::C1::ice_factory(), Test::C1::ice_staticId());
+    communicator->addObjectFactory(Test::C2::ice_factory(), Test::C2::ice_staticId());
+
+    cout << "validating evictor transformations... " << flush;
+
+    try
+    {
+        //
+        // Validate C2
+        //
+        db = dbEnv->openDB("evictor", false);
+        evictor = db->createEvictor(SaveUponEviction);
+
+        {
+            EvictorIteratorPtr iter = evictor->getIterator();
+            while(iter->hasNext())
+            {
+                Current current;
+                LocalObjectPtr cookie;
+
+                current.id = iter->next();
+
+                ObjectPtr obj = evictor->locate(current, cookie);
+                test(obj);
+
+                Test::C2Ptr c2 = Test::C2Ptr::dynamicCast(obj);
+                test(c2);
+                test(c2->s.size() == 1 && c2->s == current.id.name);
+                int i = current.id.name[0] - '0';
+                test(c2->b == i);
+                test(c2->l == i);
+                test(c2->i == i);
+                if(c2->s == "3")
+                {
+                    //
+                    // Test facets
+                    //
+                    Ice::ObjectPtr obj;
+                    Test::C1Ptr c1;
+
+                    obj = c2->ice_findFacet("c1-0");
+                    test(obj);
+                    c1 = Test::C1Ptr::dynamicCast(obj);
+                    test(c1);
+                    test(c1->s == "c1-0");
+                    test(c1->b == 0);
+
+                    obj = c2->ice_findFacet("c1-1");
+                    test(obj);
+                    c1 = Test::C1Ptr::dynamicCast(obj);
+                    test(c1);
+                    test(c1->s == "c1-1");
+                    test(c1->b == 1);
+
+                    obj = c2->ice_findFacet("c1-2");
+                    test(obj);
+                    Test::C2Ptr c2Facet = Test::C2Ptr::dynamicCast(obj);
+                    test(c2Facet);
+                    test(c2Facet->s == "c1-2");
+                    test(c2Facet->b == 2);
+                    test(c2Facet->i == 2);
+                    test(c2Facet->l == 2);
+
+                    obj = c2Facet->ice_findFacet("c2-0");
+                    test(obj);
+                    c1 = Test::C1Ptr::dynamicCast(obj);
+                    test(c1);
+                    test(c1->s == "c2-0");
+                    test(c1->b == 0);
+                }
+
+                evictor->finished(current, obj, cookie);
+            }
+            iter->destroy();
+        }
+
+        evictor->deactivate();
+        db->close();
+        db = 0;
+
+        cout << "ok" << endl;
+    }
+    catch(...)
+    {
+        cout << "failed" << endl;
+        if(db)
+        {
+            db->close();
+        }
+        throw;
+    }
+
+    communicator->removeObjectFactory(Test::C1::ice_staticId());
+    communicator->removeObjectFactory(Test::C2::ice_staticId());
+
     if(db)
     {
         db->close();
@@ -543,6 +654,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         validateDictionary(dbEnv);
         validateStruct(dbEnv);
         validateClass(dbEnv);
+        validateEvictor(dbEnv);
     }
     catch(...)
     {

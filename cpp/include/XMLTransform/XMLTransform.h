@@ -173,7 +173,8 @@ class XML_TRANSFORM_API Transformer
 {
 public:
 
-    Transformer(const Ice::StringSeq&, DOMDocument*, DOMDocument*);
+    Transformer(const Ice::StringSeq&, const Ice::StringSeq&, const Ice::StringSeq&, const Ice::StringSeq&,
+                DOMDocument*, DOMDocument*);
     ~Transformer();
 
     void transform(::IceUtil::XMLOutput&, DOMDocument*, bool = true);
@@ -195,13 +196,28 @@ private:
 
 class XML_TRANSFORM_API DBTransformer
 {
+    void transform(const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&, const Ice::StringSeq&, const Ice::StringSeq&,
+                   const Ice::StringSeq&, const Ice::StringSeq&, DOMDocument*, DOMDocument*);
+
 public:
 
     DBTransformer();
     ~DBTransformer();
 
-    void transform(const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&, const Ice::StringSeq&, const std::string&,
-                   const std::string&);
+    //
+    // This version allows the caller to specify the filenames for the
+    // old and new schemas.
+    //
+    void transform(const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&, const Ice::StringSeq&, const Ice::StringSeq&,
+                   const Ice::StringSeq&, const Ice::StringSeq&, const std::string&, const std::string&);
+
+    //
+    // This version allows the caller to specify a single schema for
+    // transformation. This is commonly used for schemas whose formal
+    // types don't change, but whose actual (instance) types do change.
+    //
+    void transform(const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&, const Ice::StringSeq&, const Ice::StringSeq&,
+                   const Ice::StringSeq&, const Ice::StringSeq&, const std::string&);
 };
 
 } // End namespace XMLTransform
