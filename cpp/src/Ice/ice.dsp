@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 ws2_32.lib libbz2.lib /nologo /dll /machine:I386 /out:"Release/ice12.dll" /implib:"Release/ice.lib" /entry:"Ice_DLL_Main"
+# ADD LINK32 ws2_32.lib libbz2.lib advapi32.lib /nologo /entry:"Ice_DLL_Main" /dll /machine:I386 /out:"Release/ice12.dll" /implib:"Release/ice.lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
@@ -87,7 +87,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 ws2_32.lib libbz2d.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice12d.dll" /implib:"Debug/iced.lib" /entry:"Ice_DLL_Main"
+# ADD LINK32 ws2_32.lib libbz2d.lib advapi32.lib /nologo /entry:"Ice_DLL_Main" /dll /debug /machine:I386 /out:"Debug/ice12d.dll" /implib:"Debug/iced.lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
@@ -158,11 +158,11 @@ SOURCE=.\Direct.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\DynamicLibrary.cpp
+SOURCE=.\DLLMain.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\DLLMain.cpp
+SOURCE=.\DynamicLibrary.cpp
 # End Source File
 # Begin Source File
 
@@ -1086,6 +1086,7 @@ SOURCE=.\EventLoggerMsg.mc
 
 # Begin Custom Build
 InputPath=.\EventLoggerMsg.mc
+InputName=EventLoggerMsg
 
 BuildCmds= \
 	mc $(InputPath) \
@@ -1103,6 +1104,7 @@ BuildCmds= \
 
 # Begin Custom Build
 InputPath=.\EventLoggerMsg.mc
+InputName=EventLoggerMsg
 
 BuildCmds= \
 	mc $(InputPath) \
