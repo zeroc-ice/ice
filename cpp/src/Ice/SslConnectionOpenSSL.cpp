@@ -540,22 +540,9 @@ IceSecurity::Ssl::OpenSSL::Connection::readSSL(Buffer& buf, int timeout)
 
                 case SSL_ERROR_ZERO_RETURN:
                 {
-                    // string errorString = "SSL_ERROR_ZERO_RETURN";
-                    // ICE_EXCEPTION(errorString);
-                    // throw ShutdownException(errorString.c_str(), __FILE__, __LINE__);
-
-                    if (connectionLost())
-	            {
-		        ConnectionLostException ex(__FILE__, __LINE__);
-		        ex.error = getSocketErrno();
-		        throw ex;
-	            }
-	            else
-	            {
-		        SocketException ex(__FILE__, __LINE__);
-		        ex.error = getSocketErrno();
-		        throw ex;
-	            }
+		    ConnectionLostException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
                 }
             }
         }

@@ -423,18 +423,9 @@ IceSecurity::Ssl::OpenSSL::ClientConnection::write(Buffer& buf, int timeout)
                 {
                     ICE_EXCEPTION("SSL_ERROR_ZERO_RETURN");
 
-                    if (connectionLost())
-	            {
-		        ConnectionLostException ex(__FILE__, __LINE__);
-		        ex.error = getSocketErrno();
-		        throw ex;
-	            }
-	            else
-	            {
-		        SocketException ex(__FILE__, __LINE__);
-		        ex.error = getSocketErrno();
-		        throw ex;
-	            }
+		    ConnectionLostException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
                 }
             }
         }
