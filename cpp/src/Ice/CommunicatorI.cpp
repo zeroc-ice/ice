@@ -247,7 +247,6 @@ Ice::CommunicatorI::findObjectFactory(const string& id) const
 PropertiesPtr
 Ice::CommunicatorI::getProperties() const
 {
-    RecMutex::Lock sync(*this);
     //
     // No check for destruction. It must be possible to access the
     // properties after destruction.
@@ -258,7 +257,6 @@ Ice::CommunicatorI::getProperties() const
 LoggerPtr
 Ice::CommunicatorI::getLogger() const
 {
-    RecMutex::Lock sync(*this);
     //
     // No check for destruction. It must be possible to access the
     // logger after destruction.
@@ -269,7 +267,6 @@ Ice::CommunicatorI::getLogger() const
 void
 Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
 {
-    RecMutex::Lock sync(*this);
     //
     // No check for destruction. It must be possible to set the logger
     // after destruction (needed by logger plugins for example to

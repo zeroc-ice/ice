@@ -106,7 +106,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
 	return _instance.objectAdapterFactory().createObjectAdapter(name);
     }
 
-    public synchronized ObjectAdapter
+    public ObjectAdapter
     createObjectAdapterWithEndpoints(String name, String endpoints)
     {
 	getProperties().setProperty(name + ".Endpoints", endpoints);
@@ -143,7 +143,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         return _instance.servantFactoryManager().find(id);
     }
 
-    public synchronized Properties
+    public Properties
     getProperties()
     {
 	//
@@ -153,7 +153,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         return _instance.properties();
     }
 
-    public synchronized Logger
+    public Logger
     getLogger()
     {
 	//
@@ -163,7 +163,7 @@ public final class CommunicatorI extends LocalObjectImpl implements Communicator
         return _instance.logger();
     }
 
-    public synchronized void
+    public void
     setLogger(Logger logger)
     {
 	//

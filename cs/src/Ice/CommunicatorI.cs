@@ -112,11 +112,8 @@ namespace Ice
 	
 	public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints)
 	{
-	    lock(this)
-	    {
-		getProperties().setProperty(name + ".Endpoints", endpoints);
-		return createObjectAdapter(name);
-	    }
+	    getProperties().setProperty(name + ".Endpoints", endpoints);
+	    return createObjectAdapter(name);
 	}
 	
 	public void addObjectFactory(ObjectFactory factory, string id)
@@ -157,40 +154,31 @@ namespace Ice
 	
 	public Properties getProperties()
 	{
-	    lock(this)
-	    {
-		//
-		// No check for destruction. It must be possible to access the
-		// properties after destruction.
-		//
-		return _instance.properties();
-	    }
+	    //
+	    // No check for destruction. It must be possible to access the
+	    // properties after destruction.
+	    //
+	    return _instance.properties();
 	}
 
 	
 	public Logger getLogger()
 	{
-	    lock(this)
-	    {
-		//
-		// No check for destruction. It must be possible to access the
-		// logger after destruction.
-		//
-		return _instance.logger();
-	    }
+	    //
+	    // No check for destruction. It must be possible to access the
+	    // logger after destruction.
+	    //
+	    return _instance.logger();
 	}
 
 	public void setLogger(Logger logger)
 	{
-	    lock(this)
-	    {
-		//
-		// No check for destruction. It must be possible to set the
-		// logger after destruction (needed by logger plugins for
-		// example to unset the logger).
-		//
-		_instance.logger(logger);
-	    }
+	    //
+	    // No check for destruction. It must be possible to set the
+	    // logger after destruction (needed by logger plugins for
+	    // example to unset the logger).
+	    //
+	    _instance.logger(logger);
 	}
 	    
 	public Stats getStats()
