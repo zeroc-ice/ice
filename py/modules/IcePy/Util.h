@@ -114,6 +114,29 @@ void throwPythonException(PyObject* = NULL);
 //
 void handleSystemExit();
 
+//
+// Create a Python instance of Ice.Identity.
+//
+PyObject* createIdentity(const Ice::Identity&);
+
+//
+// Verify that the object is Ice.Identity.
+//
+bool checkIdentity(PyObject*);
+
+//
+// Assign values to members of an instance of Ice.Identity.
+//
+bool setIdentity(PyObject*, const Ice::Identity&);
+
+//
+// Extract the members of Ice.Identity.
+//
+bool getIdentity(PyObject*, Ice::Identity&);
+
 }
+
+extern "C" PyObject* Ice_identityToString(PyObject*, PyObject*);
+extern "C" PyObject* Ice_stringToIdentity(PyObject*, PyObject*);
 
 #endif

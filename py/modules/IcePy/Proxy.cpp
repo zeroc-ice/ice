@@ -9,7 +9,6 @@
 
 #include <Proxy.h>
 #include <structmember.h>
-#include <Identity.h>
 #include <Operation.h>
 #include <Util.h>
 #include <Ice/LocalException.h>

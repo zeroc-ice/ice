@@ -10,7 +10,6 @@
 #include <ObjectAdapter.h>
 #include <Communicator.h>
 #include <Current.h>
-#include <Identity.h>
 #include <Operation.h>
 #include <Proxy.h>
 #include <Util.h>
