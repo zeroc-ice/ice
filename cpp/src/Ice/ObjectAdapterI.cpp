@@ -316,7 +316,7 @@ Ice::ObjectAdapterI::addFacetWithUUID(const ObjectPtr& object, const string& fac
 {
     Identity ident;
     ident.name = IceUtil::generateUUID();
-    return add(object, ident);
+    return addFacet(object, ident, facet);
 }
 
 void
