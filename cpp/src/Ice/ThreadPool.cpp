@@ -200,13 +200,14 @@ IceInternal::ThreadPool::joinWithAllThreads()
     // threads would never terminate.)
     //
     assert(_destroyed);
-    for_each(_threads.begin(), _threads.end(), mem_fun_ref(&IceUtil::ThreadControl::join));
-/*
+#if defined(_MSC_VER) && _MSC_VER <= 1200 // The mem_fun_ref below does not work with VC++ 6.0
     for(vector<IceUtil::ThreadControl>::iterator p = _threads.begin(); p != _threads.end(); ++p)
     {
 	p->join();
     }
-*/
+#else
+    for_each(_threads.begin(), _threads.end(), mem_fun_ref(&IceUtil::ThreadControl::join));
+#endif
 }
 
 bool
@@ -566,10 +567,17 @@ IceInternal::ThreadPool::run()
 		    assert(_running <= sz);
 		    if(_running < sz)
 		    {
-			vector<IceUtil::ThreadControl>::iterator p =
+			vector<IceUtil::ThreadControl>::iterator start =
 			    partition(_threads.begin(), _threads.end(), mem_fun_ref(&IceUtil::ThreadControl::isAlive));
-			for_each(p, _threads.end(), mem_fun_ref(&IceUtil::ThreadControl::join));
-			_threads.erase(p, _threads.end());
+#if defined(_MSC_VER) && _MSC_VER <= 1200 // The mem_fun_ref below does not work with VC++ 6.0
+			for(vector<IceUtil::ThreadControl>::iterator p = start; p != _threads.end(); ++p)
+			{
+			    p->join();
+			}
+#else
+			for_each(start, _threads.end(), mem_fun_ref(&IceUtil::ThreadControl::join));
+#endif
+			_threads.erase(start, _threads.end());
 		    }
 		    
 		    //
