@@ -7,11 +7,7 @@ OS
 
 A recent Linux distribution for Intel x86 or AMD Opteron (x86-64).
 
-Note that Ice is not currently compatible with the "NPTL" threading
-model used by default on RedHat 9. You will need to set the following
-environment variable to use Ice successfully on this platform:
-
-export LD_ASSUME_KERNEL=2.4.1
+If you are using RedHat 9, see "Notes for RedHat 9 Users" below.
 
 
 C++ compiler
@@ -142,6 +138,43 @@ To build Ice in 64 bit mode, you need to:
    $ export LP64=yes
  - Build and test as described above.
 
+
+======================================================================
+Notes for RedHat 9 Users
+======================================================================
+
+Ice is not currently compatible with the "NPTL" threading model used by
+default on RedHat 9, causing Ice programs to hang indefinitely. Until
+this issue is resolved, you will need to set the following environment
+variable:
+
+export LD_ASSUME_KERNEL=2.4.1
+
+Also note that BerkeleyDB is sensitive to this environment variable,
+requiring you to build BerkeleyDB from source with this environment
+variable defined. Otherwise, a program that uses BerkeleyDB will fail
+with the error code ENOSYS ("Function not implemented") when this
+environment variable is set.
+
+Unfortunately, this means you cannot use the version of BerkeleyDB
+that is supplied by RedHat 9 with Ice, because it was not built properly
+for use with LD_ASSUME_KERNEL. We recommend downloading the latest
+release from the URL shown above.
+
+The steps for building BerkeleyDB are straightforward:
+
+$ tar xzf db-X.Y.Z.tar.gz
+$ export LD_ASSUME_KERNEL=2.4.1
+$ cd db-X.Y.Z/build_unix
+$ ../dist/configure --enable-java --prefix=/opt/db-X.Y.Z
+$ make
+
+The --enable-java option is necessary if you plan to use Ice for Java.
+The --prefix option overrides the default installation directory.
+
+Please refer to the BerkeleyDB documentation if you need more information.
+
+
 ======================================================================
 Installation
 ======================================================================
@@ -159,4 +192,3 @@ with the -L option.
 If LP64 is set to yes, the libraries are installed in <prefix>/lib64 
 and the programs are installed in <prefix>/bin64. Other files are 
 identical for 32 and 64 bit.
-
