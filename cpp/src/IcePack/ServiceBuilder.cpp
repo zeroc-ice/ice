@@ -156,7 +156,9 @@ IcePack::ServiceBuilder::setDBEnv(const string& dir)
     {
 	path = toLocation(dir);
     }
-    _serverBuilder.addProperty("IceBox.DBEnvName." + getVariable("name"), path);
+    _serverBuilder.addProperty("IceBox.DBEnvName." + getVariable("name"), getVariable("name"));
+    addProperty("Freeze.DbEnv." + getVariable("name") + ".DbHome", path);
+    
 }
 
 //
