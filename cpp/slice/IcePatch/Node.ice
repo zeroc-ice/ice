@@ -13,6 +13,9 @@
 
 #include <Ice/BuiltinSequences.ice>
 
+module IcePatch
+{
+
 exception NodeAccessException
 {
     string reason;
@@ -20,10 +23,9 @@ exception NodeAccessException
 
 interface Node
 {
-    string getPath();
 };
 
-sequence<Node> Nodes;
+sequence<Node*> Nodes;
 
 interface Directory extends Node
 {
@@ -33,8 +35,10 @@ interface Directory extends Node
 
 interface File extends Node
 {
-    Ice::ByteSeq getChunk(int chunkSize, int n)
+    Ice::ByteSeq getBytes(int startPos, int howMuch)
 	throws NodeAccessException;
+};
+
 };
 
 #endif
