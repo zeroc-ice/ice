@@ -92,59 +92,6 @@ IceInternal::Reference::changeSecure(bool newSecure) const
     return r;
 }
 
-ReferencePtr
-IceInternal::Reference::changeCollocationOptimization(bool newCollocationOptimization) const
-{
-    // TODO: See comments in header.
-    if(newCollocationOptimization == collocationOptimization)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    ReferencePtr r = instance->referenceFactory()->clone(this);
-    r->collocationOptimization = newCollocationOptimization;
-    return r;
-}
-
-ReferencePtr
-IceInternal::Reference::changeRouter(const RouterPrx&) const
-{
-    // TODO: I suggest to make this pure virtual, and to move this
-    // implementation to FixedReference.
-    return ReferencePtr(const_cast<Reference*>(this));
-}
-
-ReferencePtr
-IceInternal::Reference::changeLocator(const LocatorPrx&) const
-{
-    // TODO: I suggest to make this pure virtual, and to move this
-    // implementation to FixedReference.
-    return ReferencePtr(const_cast<Reference*>(this));
-}
-
-ReferencePtr
-IceInternal::Reference::changeDefault() const
-{
-    // TODO: This operation should either be pure virtual, or it
-    // should change the default values and be used by the overrides.
-    return ReferencePtr(const_cast<Reference*>(this));
-}
-
-ReferencePtr
-IceInternal::Reference::changeCompress(bool) const
-{
-    // TODO: I suggest to make this pure virtual, and to move this
-    // implementation to FixedReference.
-    return ReferencePtr(const_cast<Reference*>(this));
-}
-
-ReferencePtr
-IceInternal::Reference::changeTimeout(int) const
-{
-    // TODO: I suggest to make it pure virtual, and to move this
-    // implementation to FixedReference.
-    return ReferencePtr(const_cast<Reference*>(this));
-}
-
 Int
 Reference::hash() const
 {
@@ -339,11 +286,6 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
-    if(collocationOptimization != r.collocationOptimization)
-    {
-	return false;
-    }
-
     return true;
 }
 
@@ -405,15 +347,6 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
     
-    if(!collocationOptimization && r.collocationOptimization)
-    {
-	return true;
-    }
-    else if(r.collocationOptimization < collocationOptimization)
-    {
-	return false;
-    }
-
     return false;
 }
 
@@ -439,90 +372,27 @@ public:
     }
 };
 
-vector<ConnectionIPtr>
-IceInternal::Reference::filterConnections(const vector<ConnectionIPtr>& allConnections) const
-{
-    vector<ConnectionIPtr> connections = allConnections;
-
-    switch(mode)
-    {
-	case ModeTwoway:
-	case ModeOneway:
-	case ModeBatchOneway:
-	{
-	    //
-	    // Filter out datagram connections.
-	    //
-            connections.erase(remove_if(connections.begin(), connections.end(), ConnectionIsDatagram()),
-			      connections.end());
-	    break;
-	}
-	
-	case ModeDatagram:
-	case ModeBatchDatagram:
-	{
-	    //
-	    // Filter out non-datagram connections.
-	    //
-            connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsDatagram())),
-			      connections.end());
-	    break;
-	}
-    }
-    
-    //
-    // Randomize the order of connections.
-    //
-    random_shuffle(connections.begin(), connections.end());
-    
-    //
-    // If a secure connection is requested, remove all non-secure
-    // connections. Otherwise make non-secure connections preferred over
-    // secure connections by partitioning the connection vector, so that
-    // non-secure connections come first.
-    //
-    if(secure)
-    {
-	connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsSecure())),
-			  connections.end());
-    }
-    else
-    {
-	//
-	// We must use stable_partition() instead of just simply
-	// partition(), because otherwise some STL implementations
-	// order our now randomized connections.
-	//
-	stable_partition(connections.begin(), connections.end(), not1(ConnectionIsSecure()));
-    }
-    
-    return connections;
-}
-
 IceInternal::Reference::Reference(const InstancePtr& inst, const Ice::Identity& ident, const Ice::Context& ctx,
-                                  const std::string& fs, Mode md, bool sec, bool collocationOpt)
+                                  const std::string& fs, Mode md, bool sec)
     : instance(inst),
       mode(md),
       identity(ident),
       context(ctx),
       facet(fs),
       secure(sec),
-      collocationOptimization(collocationOpt),
       hashInitialized(false)
 {
 }
 
 IceInternal::Reference::Reference(const Reference& r)
+    : instance(r.instance),
+      mode(r.mode),
+      identity(r.identity),
+      context(r.context),
+      facet(r.facet),
+      secure(r.secure),
+      hashInitialized(false)
 {
-    // TODO: Use initializer list.
-    instance = r.instance;
-    mode = r.mode;
-    identity = r.identity;
-    context = r.context;
-    facet = r.facet;
-    secure = r.secure;
-    collocationOptimization = r.collocationOptimization;
-    hashInitialized = false;
 }
 
 void IceInternal::incRef(IceInternal::FixedReference* p) { p->__incRef(); }
@@ -530,9 +400,8 @@ void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
 
 IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const Ice::Identity& ident,
 						  const Ice::Context& ctx, const std::string& fs, Mode md,
-						  bool sec, bool collocationOpt,
-						  const vector<Ice::ConnectionIPtr>& fixedConns)
-    : Reference(inst, ident, ctx, fs, md, sec, collocationOpt),
+						  bool sec, const vector<Ice::ConnectionIPtr>& fixedConns)
+    : Reference(inst, ident, ctx, fs, md, sec),
       fixedConnections(fixedConns)
 {
 }
@@ -540,8 +409,6 @@ IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const Ice::
 vector<EndpointPtr>
 IceInternal::FixedReference::getEndpoints() const
 {
-    // TODO: Remove implementation, it doesn't do anything. The
-    // overrides are all that is needed.
     return vector<EndpointPtr>();
 }
 
@@ -556,7 +423,7 @@ IceInternal::FixedReference::streamWrite(BasicStream* s) const
 ConnectionIPtr
 IceInternal::FixedReference::getConnection(bool& compress) const
 {
-    vector<ConnectionIPtr> filteredConns = filterConnections(fixedConnections);
+    vector<ConnectionIPtr> filteredConns = filterConnections(fixedConnections, getMode(), getSecure());
     if(filteredConns.empty())
     {
 	NoEndpointException ex(__FILE__, __LINE__);
@@ -569,6 +436,42 @@ IceInternal::FixedReference::getConnection(bool& compress) const
     compress = connection->endpoint()->compress();
 
     return connection;
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeRouter(const RouterPrx&) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeLocator(const LocatorPrx&) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeDefault() const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeCollocationOptimization(bool) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeCompress(bool) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
+}
+
+ReferencePtr
+IceInternal::FixedReference::changeTimeout(int) const
+{
+    return FixedReferencePtr(const_cast<FixedReference*>(this));
 }
 
 bool
@@ -621,9 +524,9 @@ IceInternal::FixedReference::clone() const
 }
 
 IceInternal::FixedReference::FixedReference(const FixedReference& r)
-    : Reference(r)
+    : Reference(r),
+      fixedConnections(r.fixedConnections)
 {
-    fixedConnections = r.fixedConnections;
 }
 
 void IceInternal::incRef(IceInternal::RoutableReference* p) { p->__incRef(); }
@@ -666,17 +569,15 @@ IceInternal::RoutableReference::changeDefault() const
 }
 
 ReferencePtr
-IceInternal::RoutableReference::changeCompress(bool newCompress) const
+IceInternal::RoutableReference::changeCollocationOptimization(bool newCollocationOptimization) const
 {
-    // TODO: Remove this implementation, it doesn't add anything.
-    return RoutableReferencePtr(const_cast<RoutableReference*>(this));
-}
-
-ReferencePtr
-IceInternal::RoutableReference::changeTimeout(int newTimeout) const
-{
-    // TODO: Remove this implementation, it doesn't add anything.
-    return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+    if(newCollocationOptimization == collocationOptimization)
+    {
+	return RoutableReferencePtr(const_cast<RoutableReference*>(this));
+    }
+    RoutableReferencePtr r = RoutableReferencePtr::dynamicCast(getInstance()->referenceFactory()->clone(this));
+    r->collocationOptimization = newCollocationOptimization;
+    return r;
 }
 
 bool
@@ -690,6 +591,10 @@ IceInternal::RoutableReference::operator==(const Reference& r) const
     if(!rhs || !Reference::operator==(r))
     {
         return false;
+    }
+    if(collocationOptimization != rhs->collocationOptimization)
+    {
+	return false;
     }
     return routerInfo == rhs->routerInfo;
 }
@@ -716,6 +621,14 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
         const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
         if(rhs)
         {
+	    if(!collocationOptimization && rhs->collocationOptimization)
+	    {
+		return true;
+	    }
+	    else if(rhs->collocationOptimization < collocationOptimization)
+	    {
+		return false;
+	    }
             return routerInfo < rhs->routerInfo;
         }
     }
@@ -725,15 +638,17 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Ice::Identity& ident,
 						  const Ice::Context& ctx, const std::string& fs, Mode md,
 						  bool sec, const RouterInfoPtr& rtrInfo, bool collocationOpt)
-    : Reference(inst, ident, ctx, fs, md, sec, collocationOpt),
-      routerInfo(rtrInfo)
+    : Reference(inst, ident, ctx, fs, md, sec),
+      routerInfo(rtrInfo),
+      collocationOptimization(collocationOpt)
 {
 }
 
 IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
-    : Reference(r)
+    : Reference(r),
+      routerInfo(r.routerInfo),
+      collocationOptimization(r.collocationOptimization)
 {
-    routerInfo = r.routerInfo;
 }
 
 void IceInternal::incRef(IceInternal::DirectReference* p) { p->__incRef(); }
@@ -767,9 +682,21 @@ IceInternal::DirectReference::changeEndpoints(const vector<EndpointPtr>& newEndp
 }
 
 ReferencePtr
+IceInternal::DirectReference::changeLocator(const LocatorPrx&) const
+{
+    return DirectReferencePtr(const_cast<DirectReference*>(this));
+}
+
+ReferencePtr
+IceInternal::DirectReference::changeDefault() const
+{
+    return DirectReferencePtr(const_cast<DirectReference*>(this));
+}
+
+ReferencePtr
 IceInternal::DirectReference::changeCompress(bool newCompress) const
 {
-    DirectReferencePtr r = DirectReferencePtr::dynamicCast(RoutableReference::changeCompress(newCompress));
+    DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->clone(this));
     vector<EndpointPtr> newEndpoints;
     vector<EndpointPtr>::const_iterator p;
     for(p = endpoints.begin(); p != endpoints.end(); ++p)
@@ -783,7 +710,7 @@ IceInternal::DirectReference::changeCompress(bool newCompress) const
 ReferencePtr
 IceInternal::DirectReference::changeTimeout(int newTimeout) const
 {
-    DirectReferencePtr r = DirectReferencePtr::dynamicCast(RoutableReference::changeTimeout(newTimeout));
+    DirectReferencePtr r = DirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->clone(this));
     vector<EndpointPtr> newEndpoints;
     vector<EndpointPtr>::const_iterator p;
     for(p = endpoints.begin(); p != endpoints.end(); ++p)
@@ -909,9 +836,9 @@ IceInternal::DirectReference::clone() const
 }
 
 IceInternal::DirectReference::DirectReference(const DirectReference& r)
-    : RoutableReference(r)
+    : RoutableReference(r),
+      endpoints(r.endpoints)
 {
-    endpoints = r.endpoints;
 }
 
 
@@ -932,18 +859,6 @@ vector<EndpointPtr>
 IceInternal::IndirectReference::getEndpoints() const
 {
     return vector<EndpointPtr>();
-}
-
-IndirectReferencePtr
-IceInternal::IndirectReference::changeAdapterId(const string& newAdapterId) const
-{
-    if(newAdapterId == adapterId)
-    {
-	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
-    }
-    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->clone(this));
-    r->adapterId = adapterId;
-    return r;
 }
 
 ReferencePtr
@@ -971,7 +886,7 @@ IceInternal::IndirectReference::changeDefault() const
 ReferencePtr
 IceInternal::IndirectReference::changeCompress(bool newCompress) const
 {
-    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(RoutableReference::changeCompress(newCompress));
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->clone(this));
     if(locatorInfo)
     {
 	LocatorPrx newLocator = LocatorPrx::uncheckedCast(locatorInfo->getLocator()->ice_compress(newCompress));
@@ -983,7 +898,7 @@ IceInternal::IndirectReference::changeCompress(bool newCompress) const
 ReferencePtr
 IceInternal::IndirectReference::changeTimeout(int newTimeout) const
 {
-    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(RoutableReference::changeTimeout(newTimeout));
+    IndirectReferencePtr r = IndirectReferencePtr::dynamicCast(getInstance()->referenceFactory()->clone(this));
     LocatorInfoPtr newLocatorInfo;
     if(locatorInfo)
     {
@@ -1160,10 +1075,10 @@ IceInternal::IndirectReference::clone() const
 }
 
 IceInternal::IndirectReference::IndirectReference(const IndirectReference& r)
-    : RoutableReference(r)
+    : RoutableReference(r),
+      adapterId(r.adapterId),
+      locatorInfo(r.locatorInfo)
 {
-    adapterId = r.adapterId;
-    locatorInfo = r.locatorInfo;
 }
 
 vector<EndpointPtr>
@@ -1233,3 +1148,62 @@ IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints, Reference:
     return endpoints;
 }
 
+vector<ConnectionIPtr>
+IceInternal::filterConnections(const vector<ConnectionIPtr>& allConnections, Reference::Mode m, bool secure)
+{
+    vector<ConnectionIPtr> connections = allConnections;
+
+    switch(m)
+    {
+	case Reference::ModeTwoway:
+	case Reference::ModeOneway:
+	case Reference::ModeBatchOneway:
+	{
+	    //
+	    // Filter out datagram connections.
+	    //
+            connections.erase(remove_if(connections.begin(), connections.end(), ConnectionIsDatagram()),
+			      connections.end());
+	    break;
+	}
+	
+	case Reference::ModeDatagram:
+	case Reference::ModeBatchDatagram:
+	{
+	    //
+	    // Filter out non-datagram connections.
+	    //
+            connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsDatagram())),
+			      connections.end());
+	    break;
+	}
+    }
+    
+    //
+    // Randomize the order of connections.
+    //
+    random_shuffle(connections.begin(), connections.end());
+    
+    //
+    // If a secure connection is requested, remove all non-secure
+    // connections. Otherwise make non-secure connections preferred over
+    // secure connections by partitioning the connection vector, so that
+    // non-secure connections come first.
+    //
+    if(secure)
+    {
+	connections.erase(remove_if(connections.begin(), connections.end(), not1(ConnectionIsSecure())),
+			  connections.end());
+    }
+    else
+    {
+	//
+	// We must use stable_partition() instead of just simply
+	// partition(), because otherwise some STL implementations
+	// order our now randomized connections.
+	//
+	stable_partition(connections.begin(), connections.end(), not1(ConnectionIsSecure()));
+    }
+    
+    return connections;
+}

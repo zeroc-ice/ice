@@ -128,8 +128,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    return new FixedReference(_instance, ident, context, facet, mode, secure,
-			      collocationOptimization, fixedConnections);
+    return new FixedReference(_instance, ident, context, facet, mode, secure, fixedConnections);
 }
 
 ReferencePtr
