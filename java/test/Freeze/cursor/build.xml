@@ -1,0 +1,25 @@
+<project name="test_Freeze_cursor" default="all" basedir=".">
+
+    <!-- set global properties for this build -->
+    <property name="top.dir" value="../../.."/>
+    <property name="lib.dir" value="${top.dir}/lib"/>
+    <property name="class.dir" value="classes"/>
+
+    <target name="init">
+        <!-- Create the time stamp -->
+        <tstamp/>
+    </target>
+
+    <target name="compile">
+        <mkdir dir="${class.dir}"/>
+        <javac srcdir="." destdir="${class.dir}" source="1.4"
+            classpath="${lib.dir}" debug="${debug}"/>
+    </target>
+
+    <target name="all" depends="compile"/>
+
+    <target name="clean">
+        <delete dir="${class.dir}"/>
+    </target>
+
+</project>

@@ -3,11 +3,13 @@
     <target name="all">
         <ant dir="Ice"/>
         <ant dir="IceXML"/>
+        <ant dir="Freeze"/>
     </target>
 
     <target name="clean">
         <ant dir="Ice" target="clean"/>
         <ant dir="IceXML" target="clean"/>
+        <ant dir="Freeze" target="clean"/>
     </target>
 
 </project>

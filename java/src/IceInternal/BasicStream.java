@@ -100,13 +100,13 @@ public class BasicStream
         _limit = total;
     }
 
-    java.nio.ByteBuffer
+    public java.nio.ByteBuffer
     prepareRead()
     {
         return _buf;
     }
 
-    java.nio.ByteBuffer
+    public java.nio.ByteBuffer
     prepareWrite()
     {
         _buf.limit(_limit);
