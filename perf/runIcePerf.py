@@ -47,81 +47,105 @@ threadPoolOne = " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax
 threadPoolFour = " --Ice.ThreadPool.Server.Size=4 --Ice.ThreadPool.Server.SizeMax=4 --Ice.ThreadPool.Server.SizeWarn=5"
 threadPerConnection = " --Ice.ThreadPerConnection"
 
+class ClientServerTest(TestUtil.Test) :
+
+    def run(self, name, directory, serverOptions, clientOptions):
+
+        TestUtil.Test.run(self, name, { "client" : clientOptions, "server" : serverOptions, "directory" : directory })
+
+    def execute(self, options):
+        
+        cwd = os.getcwd()
+        os.chdir(os.path.join(toplevel, "src", self.product, options["directory"]))
+
+        serverPipe = os.popen(os.path.join(".", "server") + " " + options["server"])
+        TestUtil.getAdapterReady(serverPipe)
+
+        clientPipe = os.popen(os.path.join(".", "client") + " " + options["client"])
+        result = float(clientPipe.read())
+
+        clientPipe.close()
+        serverPipe.close()        
+
+        os.chdir(cwd)
+
+        return result
+    
 def runIcePerfs(expr, results, i):
 
-    test = TestUtil.Test(expr, results, i, "Ice", "latency twoway")
+    test = ClientServerTest(expr, results, i, "Ice", "latency twoway")
     test.run("1tp", "latency", "twoway", threadPoolOne)
     test.run("4tp", "latency", "twoway", threadPoolFour)
     test.run("tpc", "latency", "twoway " + threadPerConnection, threadPerConnection)
     
-    test = TestUtil.Test(expr, results, i, "Ice", "latency oneway")
+    test = ClientServerTest(expr, results, i, "Ice", "latency oneway")
     test.run("1tp", "latency", "oneway", threadPoolOne)
     test.run("4tp", "latency", "oneway", threadPoolFour)
     test.run("tpc", "latency", "oneway " + threadPerConnection, threadPerConnection)
     
-    test = TestUtil.Test(expr, results, i, "Ice", "latency oneway")
+    test = ClientServerTest(expr, results, i, "Ice", "latency oneway")
     test.run("1tp (batch)", "latency", "batch", threadPoolOne)
     test.run("4tp (batch)", "latency", "batch", threadPoolFour)
     test.run("tpc (batch)", "latency", "batch " + threadPerConnection, threadPerConnection)
 
-    test = TestUtil.Test(expr, results, i, "Ice", "latency twoway AMI")
+    test = ClientServerTest(expr, results, i, "Ice", "latency twoway AMI")
     test.run("1tp", "latency", "twoway ami", threadPoolOne)
     test.run("4tp", "latency", "twoway ami", threadPoolFour)
     test.run("tpc", "latency", "twoway ami " + threadPerConnection, threadPerConnection)
 
-    test = TestUtil.Test(expr, results, i, "Ice", "throughput byte")
+    test = ClientServerTest(expr, results, i, "Ice", "throughput byte")
     test.run("1tp", "throughput", "byte", threadPoolOne)
     test.run("4tp", "throughput", "byte", threadPoolFour)
     test.run("tpc", "throughput", "byte " + threadPerConnection, threadPerConnection)
     
-    test = TestUtil.Test(expr, results, i, "Ice", "throughput string seq")
+    test = ClientServerTest(expr, results, i, "Ice", "throughput string seq")
     test.run("1tp", "throughput", "stringSeq", threadPoolOne)
     test.run("4tp", "throughput", "stringSeq", threadPoolFour)
     test.run("tpc", "throughput", "stringSeq " + threadPerConnection, threadPerConnection)
     
-    test = TestUtil.Test(expr, results, i, "Ice", "throughput long string seq")
+    test = ClientServerTest(expr, results, i, "Ice", "throughput long string seq")
     test.run("1tp", "throughput", "longStringSeq", threadPoolOne)
     test.run("4tp", "throughput", "longStringSeq", threadPoolFour)
     test.run("tpc", "throughput", "longStringSeq " + threadPerConnection, threadPerConnection)
     
-    test = TestUtil.Test(expr, results, i, "Ice", "throughput struct seq")
+    test = ClientServerTest(expr, results, i, "Ice", "throughput struct seq")
     test.run("1tp", "throughput", "structSeq", threadPoolOne)
     test.run("4tp", "throughput", "structSeq", threadPoolFour)
     test.run("tpc", "throughput", "structSeq " + threadPerConnection, threadPerConnection)
 
 def runTAOPerfs(expr, results, i):
 
-    test = TestUtil.Test(expr, results, i, "TAO", "latency twoway")
+    test = ClientServerTest(expr, results, i, "TAO", "latency twoway")
     test.run("1tp", "Thread_Pool", "latency twoway", "1")
     test.run("4tp", "Thread_Pool", "latency twoway", "4")
     test.run("tpc", "Thread_Per_Connection", "latency twoway", "")
 
-    test = TestUtil.Test(expr, results, i, "TAO", "latency oneway")
+    test = ClientServerTest(expr, results, i, "TAO", "latency oneway")
     test.run("1tp", "Thread_Pool", "latency oneway", "1")
     test.run("4tp", "Thread_Pool", "latency oneway", "4")
     test.run("tpc", "Thread_Per_Connection", "latency oneway", "")
     
-    test = TestUtil.Test(expr, results, i, "TAO", "latency twoway AMI")
+    test = ClientServerTest(expr, results, i, "TAO", "latency twoway AMI")
     test.run("1tp", "Thread_Pool", "latency twoway ami", "1")
     test.run("4tp", "Thread_Pool", "latency twoway ami", "4")
     test.run("tpc", "Thread_Per_Connection", "latency twoway ami", "")
 
-    test = TestUtil.Test(expr, results, i, "TAO", "throughput byte")
+    test = ClientServerTest(expr, results, i, "TAO", "throughput byte")
     test.run("1tp", "Thread_Pool", "throughput byte", "1")
     test.run("4tp", "Thread_Pool", "throughput byte", "4")
     test.run("tpc", "Thread_Per_Connection", "throughput byte", "")
     
-    test = TestUtil.Test(expr, results, i, "TAO", "throughput string seq")
+    test = ClientServerTest(expr, results, i, "TAO", "throughput string seq")
     test.run("1tp", "Thread_Pool", "throughput string", "1")
     test.run("4tp", "Thread_Pool", "throughput string", "4")
     test.run("tpc", "Thread_Per_Connection", "throughput string", "")
     
-    test = TestUtil.Test(expr, results, i, "TAO", "throughput long string seq")
+    test = ClientServerTest(expr, results, i, "TAO", "throughput long string seq")
     test.run("1tp", "Thread_Pool", "throughput longString", "1")
     test.run("4tp", "Thread_Pool", "throughput longString", "4")
     test.run("tpc", "Thread_Per_Connection", "throughput longString", "")
     
-    test = TestUtil.Test(expr, results, i, "TAO", "throughput struct seq")
+    test = ClientServerTest(expr, results, i, "TAO", "throughput struct seq")
     test.run("1tp", "Thread_Pool", "throughput struct", "1")
     test.run("4tp", "Thread_Pool", "throughput struct", "4")
     test.run("tpc", "Thread_Per_Connection", "throughput struct", "")
@@ -181,4 +205,4 @@ print "\n"
 print "All results:"
 all = TestUtil.AllResults()
 all.add(results)
-all.printAll(False)
+all.printAll(TestUtil.ValuesMeanAndBest(), False)

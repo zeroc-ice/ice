@@ -60,7 +60,7 @@ Subscriber::run(int argc, char* argv[])
 	{
 	    ordered = true;
 	}
-	if(strcmp(argv[i], "-p") == 0)
+	if(strcmp(argv[i], "-c") == 0)
 	{
 	    nPublishers = atoi(argv[++i]);
 	}

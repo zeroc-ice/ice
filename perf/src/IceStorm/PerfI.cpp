@@ -26,7 +26,7 @@ PingI::PingI(int nExpectedTicks, int nPublishers) :
 void
 PingI::tick(long long time, Perf::AEnum, int, const Perf::AStruct&, const Perf::IntfPrx&, const Ice::Current& current)
 {
-    if(time > 0)
+    if(time > 0 && _nStartedPublishers == _nPublishers)
     {
 	add(time);
     }
@@ -46,7 +46,7 @@ PingI::tick(long long time, Perf::AEnum, int, const Perf::AStruct&, const Perf::
 void
 PingI::tickVoid(long long time, const Ice::Current& current)
 {
-    if(time > 0)
+    if(time > 0 && _nStartedPublishers == _nPublishers)
     {
 	add(time);
     }
@@ -76,7 +76,7 @@ PingI::stopped()
     {
 	if(_nStartedPublishers < _nPublishers)
 	{
-	    // TODO: ERROR
+	    cerr << "Some publishers are already finished while others aren't even started" << endl;
 	}
 	_stopTime = IceUtil::Time::now();
     }
@@ -114,10 +114,12 @@ PingI::calc()
 	total = (*p - mean) * (*p - mean);
     }
     deviation = sqrt(total / (_results.size() - 1));
-    
+
     cout << mean << " " << deviation << " " 
 	 << static_cast<double>(_results.size()) / (_stopTime - _startTime).toMicroSeconds() * 1000000.0 
 	 << " " << flush;
 
     _results.clear();    
+    _nStartedPublishers = 0;
+    _nStoppedPublishers = 0;
 }

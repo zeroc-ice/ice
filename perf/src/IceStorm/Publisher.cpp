@@ -106,7 +106,10 @@ Publisher::run(int argc, char* argv[])
     for(int i = 0; i < repetitions; ++i)
     {
 	ping->tickVoid(IceUtil::Time::now().toMicroSeconds());
-	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
+	if(period > 0)
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
+	}
     }
     ping->tickVoid(-1);
 
@@ -116,7 +119,10 @@ Publisher::run(int argc, char* argv[])
 	AStruct s;
 	s.s = "TEST";
 	ping->tick(IceUtil::Time::now().toMicroSeconds(), A, 10, s, 0);
-	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
+	if(period > 0)
+	{
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
+	}
     }
     ping->tick(-1, A, 10, AStruct(), 0);
 

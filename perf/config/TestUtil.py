@@ -307,7 +307,7 @@ class Test :
         self.product = product
         self.test = test
 
-    def run(self, name, directory, clientOpts, serverOpts):
+    def run(self, name, options):
 
         match = len(self.expr) == 0
         for e in self.expr:
@@ -318,22 +318,17 @@ class Test :
         if not match:
             return
 
-        cwd = os.getcwd()
-        os.chdir(os.path.join(toplevel, "src", self.product, directory))
-
         print str(self.iteration) + ": " + self.product + " " + self.test + " " + name + "...",
         sys.stdout.flush()
-    
-        serverPipe = os.popen(os.path.join(".", "server") + " " + serverOpts)
-        getAdapterReady(serverPipe)
 
-        clientPipe = os.popen(os.path.join(".", "client") + " " + clientOpts)
-        result = float(clientPipe.read())
-        clientPipe.close()
-        
-        os.chdir(cwd)
+        result = self.execute(options)
         
         self.results.add(self.product, self.test, name, result)
     
         print result
+    
+    def execute(self, options):
+
+        return
+
     
