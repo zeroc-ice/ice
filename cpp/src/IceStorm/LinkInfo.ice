@@ -12,7 +12,6 @@
 #define LINK_INFO_ICE
 
 #include <IceStorm/IceStormInternal.ice>
-#include <Ice/Identity.ice>
 
 module IceStorm
 {

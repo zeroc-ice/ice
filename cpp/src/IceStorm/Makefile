@@ -105,7 +105,7 @@ clean::
 IdentityLinkDict.h IdentityLinkDict.cpp: $(SLICE2FREEZE)
 	rm -f IdentityLinkDict.h IdentityLinkDict.cpp
 	$(SLICE2FREEZECMD) --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkInfo IdentityLinkDict \
-	LinkInfo.ice
+	../IceStorm/LinkInfo.ice $(slicedir)/Ice/Identity.ice
 
 clean::
 	rm -f IdentityLinkDict.h IdentityLinkDict.cpp
