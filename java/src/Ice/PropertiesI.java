@@ -116,7 +116,27 @@ class PropertiesI implements Properties
     public synchronized String[]
     parseCommandLineOptions(String prefix, String[] options)
     {
-        return null;
+        java.util.ArrayList result = new java.util.ArrayList();
+        for (int i = 0; i < options.length; i++)
+        {
+            String opt = options[i];
+            if (opt.startsWith("--" + prefix + "."))
+            {
+                if (opt.indexOf('=') == -1)
+                {
+                    opt += "=1";
+                }
+
+                parseLine(opt.substring(2));
+            }
+            else
+            {
+                result.add(opt);
+            }
+        }
+        String[] arr = new String[result.size()];
+        result.toArray(arr);
+        return arr;
     }
 
     public synchronized void
@@ -144,76 +164,11 @@ class PropertiesI implements Properties
         return p;
     }
 
-    static void
-    addArgumentPrefix(String prefix)
+    PropertiesI()
     {
-        _argumentPrefixes.add(prefix);
     }
 
     PropertiesI(String[] args)
-    {
-        String file = getConfigFile(args);
-
-        if (file.length() > 0)
-        {
-            load(file);
-        }
-
-        StringSeqHolder argsH = new StringSeqHolder();
-        argsH.value = args;
-        parseArgs(argsH);
-        setProperty("Ice.Config", file);
-    }
-
-    PropertiesI(StringSeqHolder args)
-    {
-        String file = getConfigFile(args.value);
-
-        if (file.length() > 0)
-        {
-            load(file);
-        }
-
-        parseArgs(args);
-        setProperty("Ice.Config", file);
-    }
-
-    PropertiesI(String[] args, String file)
-    {
-        if (file == null)
-        {
-            file = "";
-        }
-
-        if (file.length() > 0)
-        {
-            load(file);
-        }
-
-        StringSeqHolder argsH = new StringSeqHolder();
-        argsH.value = args;
-        parseArgs(argsH);
-        setProperty("Ice.Config", file);
-    }
-
-    PropertiesI(StringSeqHolder args, String file)
-    {
-        if (file == null)
-        {
-            file = "";
-        }
-
-        if (file.length() > 0)
-        {
-            load(file);
-        }
-
-        parseArgs(args);
-        setProperty("Ice.Config", file);
-    }
-
-    private String
-    getConfigFile(String[] args)
     {
         for (int i = 0; i < args.length; i++)
         {
@@ -235,63 +190,46 @@ class PropertiesI implements Properties
             file = "";
         }
 
-        return file;
+        if (file.length() > 0)
+        {
+            load(file);
+        }
+
+        setProperty("Ice.Config", file);
     }
 
-    private void
-    parseArgs(StringSeqHolder args)
+    PropertiesI(StringSeqHolder args)
     {
-        int idx = 0;
-        while (idx < args.value.length)
+        for (int i = 0; i < args.value.length; i++)
         {
-            boolean match = false;
-            String arg = args.value[idx];
-            int beg = arg.indexOf("--");
-            if (beg == 0)
+            if (args.value[i].startsWith("--Ice.Config"))
             {
-                String rest = arg.substring(2);
-                if (rest.startsWith("Ice."))
+                String line = args.value[i];
+                if (line.indexOf('=') == -1)
                 {
-                    match = true;
+                    line += "=1";
                 }
-                else
-                {
-                    java.util.Iterator p = _argumentPrefixes.iterator();
-                    while (p.hasNext())
-                    {
-                        String prefix = (String)p.next();
-                        if (rest.startsWith(prefix + '.'))
-                        {
-                            match = true;
-                            break;
-                        }
-                    }
-                }
-
-                if (match)
-                {
-                    String[] arr = new String[args.value.length - 1];
-                    System.arraycopy(args.value, 0, arr, 0, idx);
-                    if (idx < args.value.length - 1)
-                    {
-                        System.arraycopy(args.value, idx + 1, arr, idx, args.value.length - idx - 1);
-                    }
-                    args.value = arr;
-
-                    if (arg.indexOf('=') == -1)
-                    {
-                        arg += "=1";
-                    }
-
-                    parseLine(arg.substring(2));
-                }
-            }
-
-            if (!match)
-            {
-                idx++;
+                parseLine(line.substring(2));
+                String[] arr = new String[args.value.length - 1];
+                System.arraycopy(args.value, 0, arr, 0, i);
+                System.arraycopy(args.value, i + 1, arr, i, args.value.length - i);
+                args.value = arr;
             }
         }
+
+        String file = getProperty("Ice.Config");
+
+        if (file.equals("1"))
+        {
+            file = "";
+        }
+
+        if (file.length() > 0)
+        {
+            load(file);
+        }
+
+        setProperty("Ice.Config", file);
     }
 
     private void

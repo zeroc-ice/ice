@@ -13,12 +13,6 @@ package IceInternal;
 abstract class EventHandler
 {
     //
-    // Returns true if the event handler belongs to the server-side of
-    // an application. Client-side otherwise.
-    //
-    abstract boolean server();
-
-    //
     // Return true if read() must be called before calling message().
     //
     abstract boolean readable();
@@ -39,14 +33,14 @@ abstract class EventHandler
     //
     // A complete message has been received.
     //
-    abstract void message(BasicStream stream);
+    abstract void message(BasicStream stream, ThreadPool threadPool);
 
     //
     // Will be called if the event handler is finally
     // unregistered. (Calling unregister() does not unregister
     // immediately.)
     //
-    abstract void finished();
+    abstract void finished(ThreadPool threadPool);
 
     //
     // Propagate an exception to the event handler.
@@ -58,7 +52,7 @@ abstract class EventHandler
     // handler cannot be destroyed because it is in use, or true
     // otherwise.
     //
-//    abstract boolean tryDestroy();
+//    abstract boolean tryDestroy(ThreadPool threadPool);
 
     protected
     EventHandler(Instance instance)

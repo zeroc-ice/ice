@@ -225,7 +225,7 @@ public final class ReferenceFactory
             }
 
             String es = s.substring(beg, end);
-            Endpoint endp = Endpoint.endpointFromString(_instance, es);
+            Endpoint endp = _instance.endpointFactoryManager().create(es);
 
             if (orig)
             {
@@ -281,7 +281,7 @@ public final class ReferenceFactory
         origEndpoints = new Endpoint[sz];
         for (int i = 0; i < sz; i++)
         {
-            origEndpoints[i] = Endpoint.streamRead(s);
+            origEndpoints[i] = _instance.endpointFactoryManager().read(s);
         }
 
         boolean same = s.readBool();
@@ -295,7 +295,7 @@ public final class ReferenceFactory
             endpoints = new Endpoint[sz];
             for (int i = 0; i < sz; i++)
             {
-                endpoints[i] = Endpoint.streamRead(s);
+                endpoints[i] = _instance.endpointFactoryManager().read(s);
             }
         }
 

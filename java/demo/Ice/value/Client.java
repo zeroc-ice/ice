@@ -182,8 +182,9 @@ public class Client
 
         try
         {
-            Ice.Properties properties = Ice.Util.createPropertiesFromFile(args, "config");
-            communicator = Ice.Util.initializeWithProperties(properties);
+            Ice.Properties properties = Ice.Util.createProperties(args);
+            properties.load("config");
+            communicator = Ice.Util.initializeWithProperties(args, properties);
             status = run(args, communicator);
         }
         catch (Ice.LocalException ex)

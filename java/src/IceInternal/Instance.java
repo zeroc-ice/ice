@@ -101,9 +101,43 @@ public class Instance
     }
 
     public synchronized ThreadPool
-    threadPool()
+    clientThreadPool()
     {
-        return _threadPool;
+        if (_communicator != null) // Not destroyed?
+        {
+            if (_clientThreadPool == null) // Lazy initialization.
+            {
+                _clientThreadPool = new ThreadPool(this, false);
+            }
+        }
+
+        return _clientThreadPool;
+    }
+
+    public synchronized ThreadPool
+    serverThreadPool()
+    {
+        if (_communicator != null) // Not destroyed?
+        {
+            if (_serverThreadPool == null) // Lazy initialization.
+            {
+                _serverThreadPool = new ThreadPool(this, false);
+            }
+        }
+
+        return _serverThreadPool;
+    }
+
+    public synchronized EndpointFactoryManager
+    endpointFactoryManager()
+    {
+        return _endpointFactoryManager;
+    }
+
+    public synchronized Ice.PluginManager
+    pluginManager()
+    {
+        return _pluginManager;
     }
 
     public BufferManager
@@ -117,10 +151,15 @@ public class Instance
     // Only for use by Ice.CommunicatorI
     //
     public
-    Instance(Ice.Communicator communicator, Ice.Properties properties)
+    Instance(Ice.Communicator communicator, Ice.StringSeqHolder args, Ice.Properties properties)
     {
         _communicator = communicator;
         _properties = properties;
+
+        //
+        // Convert command-line options beginning with --Ice. to properties.
+        //
+        args.value = properties.parseCommandLineOptions("Ice", args.value);
 
         try
         {
@@ -135,6 +174,18 @@ public class Instance
             _routerManager = new RouterManager();
             _referenceFactory = new ReferenceFactory(this);
             _proxyFactory = new ProxyFactory(this);
+
+            //
+            // Install TCP and UDP endpoint factories.
+            //
+            _endpointFactoryManager = new EndpointFactoryManager(this);
+            EndpointFactory tcpEndpointFactory = new TcpEndpointFactory(this);
+            _endpointFactoryManager.add(tcpEndpointFactory);
+            EndpointFactory udpEndpointFactory = new UdpEndpointFactory(this);
+            _endpointFactoryManager.add(udpEndpointFactory);
+
+            _pluginManager = new Ice.PluginManagerI(this);
+
             String router = _properties.getProperty("Ice.DefaultRouter");
             if (router.length() > 0)
             {
@@ -146,7 +197,6 @@ public class Instance
             _userExceptionFactoryManager = new UserExceptionFactoryManager();
             _objectAdapterFactory = new ObjectAdapterFactory(this);
             _bufferManager = new BufferManager(); // Must be created before the ThreadPool
-            _threadPool = new ThreadPool(this);
         }
         catch (Ice.LocalException ex)
         {
@@ -166,10 +216,28 @@ public class Instance
         assert(_servantFactoryManager == null);
         assert(_userExceptionFactoryManager == null);
         assert(_objectAdapterFactory == null);
-        assert(_threadPool == null);
+        assert(_clientThreadPool == null);
+        assert(_serverThreadPool == null);
         assert(_routerManager == null);
+        assert(_endpointFactoryManager == null);
+        assert(_pluginManager == null);
 
         super.finalize();
+    }
+
+    public void
+    finishSetup(Ice.StringSeqHolder args)
+    {
+        //
+        // Load plug-ins.
+        //
+        //pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
+        //pluginManagerImpl.loadPlugins(args);
+
+        //
+        // Thread pool initialization is now lazy initialization in
+        // clientThreadPool() and serverThreadPool().
+        //
     }
 
     //
@@ -178,7 +246,9 @@ public class Instance
     public void
     destroy()
     {
-	ThreadPool threadPool;
+        ThreadPool clientThreadPool;
+        ThreadPool serverThreadPool;
+        Ice.PluginManager pluginManager;
 
 	synchronized(this)
 	{
@@ -231,26 +301,52 @@ public class Instance
 		_outgoingConnectionFactory.destroy();
 		_outgoingConnectionFactory = null;
 	    }
-	    
+
 	    if (_routerManager != null)
 	    {
 		_routerManager.destroy();
 		_routerManager = null;
 	    }
 
-	    //
-	    // We destroy the thread pool outside the thread
-	    // synchronization.
-	    //
-	    threadPool = _threadPool;
-	    _threadPool = null;
-	}
-	
-        if (threadPool != null)
+            if (_endpointFactoryManager != null)
+            {
+                _endpointFactoryManager.destroy();
+                _endpointFactoryManager = null;
+            }
+
+            //
+            // We destroy the thread pool outside the thread
+            // synchronization.
+            //  
+            clientThreadPool = _clientThreadPool;
+            _clientThreadPool = null;
+            serverThreadPool = _serverThreadPool;
+            _serverThreadPool = null;
+            
+            //  
+            // We destroy the plugin manager after the thread pools.
+            //  
+            pluginManager = _pluginManager;
+            _pluginManager = null;
+        }   
+
+        if (clientThreadPool != null)
+        {       
+            clientThreadPool.waitUntilFinished();
+            clientThreadPool.destroy();
+            clientThreadPool.joinWithAllThreads();
+        }   
+
+        if (serverThreadPool != null)
         {   
-            threadPool.waitUntilFinished();
-            threadPool.destroy();
-            threadPool.joinWithAllThreads();
+            serverThreadPool.waitUntilFinished();
+            serverThreadPool.destroy();
+            serverThreadPool.joinWithAllThreads();
+        }
+
+        if (pluginManager != null)
+        {
+            pluginManager.destroy();
         }
     }
 
@@ -265,8 +361,11 @@ public class Instance
     private ObjectFactoryManager _servantFactoryManager;
     private UserExceptionFactoryManager _userExceptionFactoryManager;
     private ObjectAdapterFactory _objectAdapterFactory;
-    private ThreadPool _threadPool;
+    private ThreadPool _clientThreadPool;
+    private ThreadPool _serverThreadPool;
     private String _defaultProtocol; // Immutable, not reset by destroy().
     private String _defaultHost; // Immutable, not reset by destroy().
+    private EndpointFactoryManager _endpointFactoryManager;
+    private Ice.PluginManager _pluginManager;
     private BufferManager _bufferManager; // Immutable, not reset by destroy().
 }

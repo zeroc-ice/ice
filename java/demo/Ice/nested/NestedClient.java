@@ -36,9 +36,9 @@ class NestedClient extends Ice.Application
         adapter.activate();
 
         System.out.println("Note: The maximum nesting level is (sz - 1) * 2, with sz");
-        System.out.println("being the number of threads in the thread pool. if you");
-        System.out.println("specify a value higher than that, the application will block");
-        System.out.println("or timeout.");
+        System.out.println("being the number of threads in the server thread pool. If");
+        System.out.println("you specify a value higher than that, the application will");
+        System.out.println("block or timeout.");
         System.out.println();
 
         java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));

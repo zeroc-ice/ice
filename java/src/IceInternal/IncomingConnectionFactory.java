@@ -68,12 +68,6 @@ public class IncomingConnectionFactory extends EventHandler
     // Operations from EventHandler.
     //
     public boolean
-    server()
-    {
-        return true;
-    }
-
-    public boolean
     readable()
     {
         return false;
@@ -93,9 +87,9 @@ public class IncomingConnectionFactory extends EventHandler
     }
 
     public synchronized void
-    message(BasicStream unused)
+    message(BasicStream unused, ThreadPool threadPool)
     {
-        _threadPool.promoteFollower();
+        threadPool.promoteFollower();
 
         if (_state != StateActive)
         {
@@ -153,16 +147,16 @@ public class IncomingConnectionFactory extends EventHandler
     }
 
     public synchronized void
-    finished()
+    finished(ThreadPool threadPool)
     {
-        assert(_state == StateClosed || _state == StateHolding);
+        threadPool.promoteFollower();
 
-        _threadPool.promoteFollower();
-
-        if (_state == StateClosed)
+        if (_state == StateActive)
         {
-            assert(_connections.isEmpty());
-
+            registerWithPool();
+        }
+        else if (_state == StateClosed)
+        {
             try
             {
                 //
@@ -203,7 +197,7 @@ public class IncomingConnectionFactory extends EventHandler
 
     /*
     public boolean
-    tryDestroy()
+    tryDestroy(ThreadPool threadPool)
     {
         //
         // Do nothing. We don't want collector factories to be closed by
@@ -241,7 +235,6 @@ public class IncomingConnectionFactory extends EventHandler
                 _endpoint = h.value;
                 assert(_acceptor != null);
                 _acceptor.listen();
-                _threadPool = _instance.threadPool();
             }
         }
         catch (RuntimeException ex)
@@ -285,11 +278,7 @@ public class IncomingConnectionFactory extends EventHandler
                 {
                     return;
                 }
-
-                if (_threadPool != null)
-                {
-                    _threadPool._register(_acceptor.fd(), this);
-                }
+                registerWithPool();
 
                 java.util.ListIterator iter = _connections.listIterator();
                 while (iter.hasNext())
@@ -306,11 +295,7 @@ public class IncomingConnectionFactory extends EventHandler
                 {
                     return;
                 }
-
-                if (_threadPool != null)
-                {
-                    _threadPool.unregister(_acceptor.fd());
-                }
+                unregisterWithPool();
 
                 java.util.ListIterator iter = _connections.listIterator();
                 while (iter.hasNext())
@@ -323,18 +308,15 @@ public class IncomingConnectionFactory extends EventHandler
 
             case StateClosed:
             {
-                if (_threadPool != null)
+                //
+                // If we come from holding state, we first need to
+                // register again before we unregister.
+                //
+                if (_state == StateHolding)
                 {
-                    //
-                    // If we come from holding state, we first need to
-                    // register again before we unregister.
-                    //
-                    if (_state == StateHolding)
-                    {
-                        _threadPool._register(_acceptor.fd(), this);
-                    }
-                    _threadPool.unregister(_acceptor.fd());
+                    registerWithPool();
                 }
+                unregisterWithPool();
 
                 java.util.ListIterator iter = _connections.listIterator();
                 while (iter.hasNext())
@@ -344,11 +326,37 @@ public class IncomingConnectionFactory extends EventHandler
                 }
                 _connections.clear();
 
+                super._stream.destroy();
+
                 break;
             }
         }
 
         _state = state;
+    }
+
+    private void
+    registerWithPool()
+    {
+        if (_acceptor != null)
+        {
+            if (_serverThreadPool == null)
+            {
+                _serverThreadPool = _instance.serverThreadPool();
+                assert(_serverThreadPool != null);
+            }
+            _serverThreadPool._register(_acceptor.fd(), this);
+        }
+    }
+
+    private void
+    unregisterWithPool()
+    {
+        if (_acceptor != null)
+        {
+            assert(_serverThreadPool != null);
+            _serverThreadPool.unregister(_acceptor.fd());
+        }
     }
 
     private void
@@ -364,9 +372,9 @@ public class IncomingConnectionFactory extends EventHandler
 
     private Endpoint _endpoint;
     private Ice.ObjectAdapter _adapter;
-    private ThreadPool _threadPool;
     private Acceptor _acceptor;
     private Transceiver _transceiver;
+    private ThreadPool _serverThreadPool;
     private java.util.LinkedList _connections = new java.util.LinkedList();
     private int _state;
     private boolean _warn;

@@ -29,9 +29,9 @@ class CommunicatorI implements Communicator
 	//
 	// No mutex locking here!
 	//
-	if (_threadPool != null)
+	if (_serverThreadPool != null)
 	{
-	    _threadPool.initiateServerShutdown();
+	    _serverThreadPool.initiateShutdown();
 	}
     }
 
@@ -42,9 +42,9 @@ class CommunicatorI implements Communicator
         // No mutex locking here, otherwise the communicator is blocked
         // while waiting for shutdown.
         //
-	if (_threadPool != null)
+	if (_serverThreadPool != null)
 	{
-	    _threadPool.waitUntilServerFinished();
+	    _serverThreadPool.waitUntilFinished();
 	}
     }
 
@@ -84,9 +84,9 @@ class CommunicatorI implements Communicator
             adapter.addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
         }
 
-	if (_threadPool == null) // Lazy initialization of _threadPool.
+	if (_serverThreadPool == null) // Lazy initialization of _serverThreadPool.
 	{
-	    _threadPool = _instance.threadPool();
+	    _serverThreadPool = _instance.serverThreadPool();
 	}
 
         return adapter;
@@ -115,9 +115,9 @@ class CommunicatorI implements Communicator
 
         ObjectAdapter adapter = _instance.objectAdapterFactory().createObjectAdapter(name, endpts);
 
-	if (_threadPool == null) // Lazy initialization of _threadPool.
+	if (_serverThreadPool == null) // Lazy initialization of _serverThreadPool.
 	{
-	    _threadPool = _instance.threadPool();
+	    _serverThreadPool = _instance.serverThreadPool();
 	}
 
 	return adapter;
@@ -225,9 +225,9 @@ class CommunicatorI implements Communicator
         return null;
     }
 
-    CommunicatorI(Properties properties)
+    CommunicatorI(StringSeqHolder args, Properties properties)
     {
-        _instance = new IceInternal.Instance(this, properties);
+        _instance = new IceInternal.Instance(this, args, properties);
     }
 
     protected void
@@ -243,6 +243,16 @@ class CommunicatorI implements Communicator
     }
 
     //
+    // Certain initialization tasks need to be completed after the
+    // constructor.
+    //
+    void
+    finishSetup(StringSeqHolder args)
+    {
+        _instance.finishSetup(args);
+    }
+
+    //
     // For use by Util.getInstance()
     //
     IceInternal.Instance
@@ -252,5 +262,13 @@ class CommunicatorI implements Communicator
     }
 
     private IceInternal.Instance _instance;
-    private IceInternal.ThreadPool _threadPool;
+
+    //
+    // We need _serverThreadPool directly in CommunicatorI. That's
+    // because the shutdown() operation is signal-safe, and thus must
+    // not access any mutex locks or _instance. It may only access
+    // _serverThreadPool->initiateShutdown(), which is signal-safe as
+    // well.
+    //
+    private IceInternal.ThreadPool _serverThreadPool;
 }

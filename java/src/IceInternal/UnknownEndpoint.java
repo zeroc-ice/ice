@@ -10,7 +10,7 @@
 
 package IceInternal;
 
-public final class UnknownEndpoint extends Endpoint
+final class UnknownEndpoint implements Endpoint
 {
     public
     UnknownEndpoint(short type, BasicStream s)

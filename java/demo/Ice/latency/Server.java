@@ -13,8 +13,7 @@ public class Server
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        Ice.ObjectAdapter adapter =
-            communicator.createObjectAdapter("LatencyAdapter");
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("LatencyAdapter");
         Ice.Object object = new Ping();
         adapter.add(object, Ice.Util.stringToIdentity("ping"));
         adapter.activate();
@@ -30,9 +29,9 @@ public class Server
 
         try
         {
-            Ice.Properties properties =
-                Ice.Util.createPropertiesFromFile(args, "config");
-            communicator = Ice.Util.initializeWithProperties(properties);
+            Ice.Properties properties = Ice.Util.createProperties(args);
+            properties.load("config");
+            communicator = Ice.Util.initializeWithProperties(args, properties);
             status = run(args, communicator);
         }
         catch(Ice.LocalException ex)

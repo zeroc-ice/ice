@@ -10,8 +10,10 @@
 
 package IceInternal;
 
-public final class TcpEndpoint extends Endpoint
+final class TcpEndpoint implements Endpoint
 {
+    final static short TYPE = 1;
+
     public
     TcpEndpoint(Instance instance, String ho, int po, int ti)
     {
@@ -137,7 +139,7 @@ public final class TcpEndpoint extends Endpoint
     public void
     streamWrite(BasicStream s)
     {
-        s.writeShort(TcpEndpointType);
+        s.writeShort(TYPE);
         s.startWriteEncaps();
         s.writeString(_host);
         s.writeInt(_port);
@@ -165,7 +167,7 @@ public final class TcpEndpoint extends Endpoint
     public short
     type()
     {
-        return TcpEndpointType;
+        return TYPE;
     }
 
     //

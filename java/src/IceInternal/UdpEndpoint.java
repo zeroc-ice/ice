@@ -10,8 +10,10 @@
 
 package IceInternal;
 
-public final class UdpEndpoint extends Endpoint
+final class UdpEndpoint implements Endpoint
 {
+    final static short TYPE = 3;
+
     public
     UdpEndpoint(Instance instance, String ho, int po)
     {
@@ -131,7 +133,7 @@ public final class UdpEndpoint extends Endpoint
     public void
     streamWrite(BasicStream s)
     {
-        s.writeShort(UdpEndpointType);
+        s.writeShort(TYPE);
         s.startWriteEncaps();
         s.writeString(_host);
         s.writeInt(_port);
@@ -160,7 +162,7 @@ public final class UdpEndpoint extends Endpoint
     public short
     type()
     {
-        return UdpEndpointType;
+        return TYPE;
     }
 
     //

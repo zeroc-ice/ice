@@ -13,6 +13,16 @@ package Ice;
 public final class Util
 {
     public static Properties
+    getDefaultProperties()
+    {
+        if (_defaultProperties == null)
+        {
+            _defaultProperties = createProperties();
+        }
+        return _defaultProperties;
+    }
+
+    public static Properties
     getDefaultProperties(String[] args)
     {
         if (_defaultProperties == null)
@@ -33,6 +43,12 @@ public final class Util
     }
 
     public static Properties
+    createProperties()
+    {
+        return new PropertiesI();
+    }
+
+    public static Properties
     createProperties(String[] args)
     {
         return new PropertiesI(args);
@@ -44,40 +60,40 @@ public final class Util
         return new PropertiesI(args);
     }
 
-    public static Properties
-    createPropertiesFromFile(String[] args, String file)
-    {
-        return new PropertiesI(args, file);
-    }
-
-    public static Properties
-    createPropertiesFromFile(StringSeqHolder args, String file)
-    {
-        return new PropertiesI(args, file);
-    }
-
     public static Communicator
     initialize(String[] args)
     {
-        return new CommunicatorI(getDefaultProperties(args));
+        StringSeqHolder argsH = new StringSeqHolder(args);
+        Properties defaultProperties = getDefaultProperties(argsH);
+        CommunicatorI result = new CommunicatorI(argsH, defaultProperties);
+        result.finishSetup(argsH);
+        return result;
     }
 
     public static Communicator
     initialize(StringSeqHolder args)
     {
-        return new CommunicatorI(getDefaultProperties(args));
+        Properties defaultProperties = getDefaultProperties(args);
+        CommunicatorI result = new CommunicatorI(args, defaultProperties);
+        result.finishSetup(args);
+        return result;
     }
 
     public static Communicator
-    initializeWithProperties(Properties properties)
+    initializeWithProperties(String[] args, Properties properties)
     {
-        return new CommunicatorI(properties);
+        StringSeqHolder argsH = new StringSeqHolder(args);
+        CommunicatorI result = new CommunicatorI(argsH, properties);
+        result.finishSetup(argsH);
+        return result;
     }
 
-    public static void
-    addArgumentPrefix(String prefix)
+    public static Communicator
+    initializeWithProperties(StringSeqHolder args, Properties properties)
     {
-        PropertiesI.addArgumentPrefix(prefix);
+        CommunicatorI result = new CommunicatorI(args, properties);
+        result.finishSetup(args);
+        return result;
     }
 
     public static IceInternal.Instance

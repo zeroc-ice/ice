@@ -340,7 +340,7 @@ public class ObjectAdapterI implements ObjectAdapter
                 // might change it, for example, to fill in the real port
                 // number if a zero port number is given.
                 //
-                IceInternal.Endpoint endp = IceInternal.Endpoint.endpointFromString(instance, es);
+                IceInternal.Endpoint endp = instance.endpointFactoryManager().create(es);
                 _incomingConnectionFactories.add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
 
                 if (end == s.length())

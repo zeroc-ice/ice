@@ -29,6 +29,10 @@ public final class Admin
         public int
         run(String[] args)
         {
+            Ice.Properties properties = communicator().getProperties();
+
+            args = properties.parseCommandLineOptions("IceBox", args);
+
             java.util.ArrayList commands = new java.util.ArrayList();
 
             int idx = 0;
@@ -58,7 +62,6 @@ public final class Admin
                 return 0;
             }
 
-            Ice.Properties properties = communicator().getProperties();
             final String managerEndpointsProperty = "IceBox.ServiceManager.Endpoints";
             String managerEndpoints = properties.getProperty(managerEndpointsProperty);
             if (managerEndpoints.length() == 0)
@@ -97,8 +100,6 @@ public final class Admin
     public static void
     main(String[] args)
     {
-        Ice.Util.addArgumentPrefix("IceBox");
-
         Client app = new Client();
         int rc = app.main("IceBox.Admin", args);
 
