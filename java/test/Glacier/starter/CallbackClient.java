@@ -53,7 +53,7 @@ class CallbackClient extends Ice.Application
 
         System.out.print("starting up glacier router... ");
         System.out.flush();
-        Ice.RouterPrx router;
+        Glacier.RouterPrx router;
         try
         {
             router = starter.startRouter("dummy", "abc123", privateKey, publicKey, routerCert);

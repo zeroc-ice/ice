@@ -44,7 +44,10 @@
                 <include name="Stream.ice" />
             </fileset>
             <fileset dir="${slice.dir}/Glacier">
-                <include name="Glacier.ice" />
+                <include name="Router.ice" />
+                <include name="Starter.ice" />
+                <include name="Session.ice" />
+                <include name="SessionManager.ice" />
             </fileset>
             <fileset dir="${slice.dir}/Freeze">
                 <include name="DB.ice" />
