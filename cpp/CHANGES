@@ -1,14 +1,14 @@
 Changes since version 1.3.0
 ---------------------------
 
-- Facets have been redesigned.
+- Facets have been significantly redesigned.
 
-  * Facets are now not hierarchical anymore. As a result, FacetPath
-    (which was a sequence of strings) is now simply a string. This is
+  * Facets are no longer hierarchical. As a result, FacetPath (which
+    was a sequence of strings) is now simply a string. This is
     reflected in all APIs that used FacetPath.
 
-  * There is no active facet map (AFM) in Ice::Object anymore. As a
-    result, the follwing operations have been removed:
+  * There is no longer an active facet map in Ice::Object. As a
+    result, the following operations have been removed:
 
     + On proxies: ice_facets, ice_appendFacet.
 
@@ -21,25 +21,23 @@ Changes since version 1.3.0
     Ice::ObjectAdapter: addFacet, addFacetWithUUID, removeFacet, and
     findFacet.
 
-    Please see the reference manual fore more information. For naming
+    Please see the reference manual for more information. For naming
     consistency, the following object adapter operations have been
     renamed:
 
     + identityToFacet has been renamed to find.
     + proxyToFacet has been renamed to findByProxy.
 
-  * This object model design change means that if you transfer an
-    object by value, then no facets are transferred along with the
-    object, because plain objects don't have facets anymore.
+  * This object model design change means that facets are no longer
+    transferred with an object sent by value.
 
-  * If your application receives an objects with facets from an older
-    version of Ice, a MarshalException is raised. Unfortunately, there
-    is no way around this, not even with protocol or encoding
-    versioning. That's because the object model has changed, not just
-    the way objects are transferred or encoded.
+  * If your application receives an object with facets from an older
+    version of Ice, a MarshalException is raised. This is unavoidable
+    because it is a change to the object model, and not just to the
+    way objects are transferred or encoded.
 
-- Ice does now not retry operation calls on RequestFailedException
-  anymore. (ObjectNotExistException, OperationNotExistException, and
+- Ice no longer retries operation calls on RequestFailedException.
+  (ObjectNotExistException, OperationNotExistException, and
   FacetNotExistException are derived from RequestFailedException.)
 
 - Fixed link errors when building Ice without BerkeleyDB in the
@@ -47,7 +45,7 @@ Changes since version 1.3.0
 
 - Added ConnectionRefusedException as a specialization of
   ConnectFailedException, to indicate if a connection fails because a
-  server actively refuses such connection.
+  server actively refuses the connection.
 
 - The documentation claimed that the Ice.ProgramName property was
   initialized to the value of argv[0], but that initialization was in
