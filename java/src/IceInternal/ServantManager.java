@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public final class ServantManager extends Thread
+public final class ServantManager
 {
     public synchronized void
     addServant(Ice.Object servant, Ice.Identity ident, String facet)

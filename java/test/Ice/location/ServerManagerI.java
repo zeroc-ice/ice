@@ -12,7 +12,7 @@ public class ServerManagerI extends _ServerManagerDisp
     ServerManagerI(Ice.ObjectAdapter adapter)
     {
 	_adapter = adapter;
-	_communicators = new java.Util.ArrayList();
+	_communicators = new java.util.ArrayList();
     }
 
     public void
