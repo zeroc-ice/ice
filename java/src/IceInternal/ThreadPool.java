@@ -596,6 +596,52 @@ public final class ThreadPool
         }
     }
 
+    private static void
+    dumpBuffer(java.nio.ByteBuffer buf)
+    {
+        final int inc = 8;
+
+        byte[] data = new byte[buf.remaining()];
+        int pos = buf.position();
+        buf.get(data);
+        buf.position(pos);
+
+        for(int i = 0; i < data.length; i += inc)
+        {
+            for(int j = i ; j - i < inc ; j++)
+            {
+                if(j < data.length)
+                {
+                    int n = (int)data[j];
+                    if(n < 0)
+                        n += 256;
+                    String s;
+                    if(n < 10)
+                        s = "  " + n;
+                    else if(n < 100)
+                        s = " " + n;
+                    else
+                        s = "" + n;
+                    System.out.print(s + " ");
+                }
+                else
+                    System.out.print("    ");
+            }
+
+            System.out.print('"');
+
+            for(int j = i; j < data.length && j - i < inc; j++)
+            {
+                if(data[j] >= (byte)32 && data[j] < (byte)127)
+                    System.out.print((char)data[j]);
+                else
+                    System.out.print('.');
+            }
+
+            System.out.println('"');
+        }
+    }
+
     private static final class HandlerInfo
     {
         java.nio.channels.SelectableChannel fd;
