@@ -1453,8 +1453,8 @@ FreezeScript::SymbolTableI::SymbolTableI(const DataFactoryPtr& factory, const Sl
 void
 FreezeScript::SymbolTableI::add(const string& name, const DataPtr& data)
 {
-    DataPtr d = findValue(name);
-    if(d)
+    DataMap::const_iterator p = _dataMap.find(name);
+    if(p != _dataMap.end())
     {
         _errorReporter->error("`" + name + "' is already defined");
     }

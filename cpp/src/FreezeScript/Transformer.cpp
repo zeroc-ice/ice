@@ -2205,8 +2205,8 @@ FreezeScript::SymbolTableI::SymbolTableI(const TransformInfoIPtr& info, const Sy
 void
 FreezeScript::SymbolTableI::add(const string& name, const DataPtr& data)
 {
-    DataPtr d = findValue(name);
-    if(d)
+    DataMap::const_iterator p = _dataMap.find(name);
+    if(p != _dataMap.end())
     {
         _info->errorReporter->error("`" + name + "' is already defined");
     }
