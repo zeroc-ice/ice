@@ -108,7 +108,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	//
 	// Reap connections for which destruction has completed.
 	//
-	std::map<EndpointPtr, ConnectionPtr>::iterator p = _connections.begin();
+	std::multimap<EndpointPtr, ConnectionPtr>::iterator p = _connections.begin();
 	while(p != _connections.end())
 	{
 	    if(p->second->isFinished())
