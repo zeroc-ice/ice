@@ -21,6 +21,7 @@
 #include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
@@ -92,6 +93,15 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 void
 IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, int& cnt) const
 {
+    //
+    // We don't retry *NotExistException, which are all derived from
+    // RequestFailedException.
+    //
+    if(dynamic_cast<const RequestFailedException*>(&ex))
+    {
+	ex.ice_throw();
+    }
+
     ++cnt;
     
     TraceLevelsPtr traceLevels = _instance->traceLevels();

@@ -1,6 +1,10 @@
 Changes since version 1.3.0
 ---------------------------
 
+- Ice does now not retry operation calls on RequestFailedException
+  anymore. (ObjectNotExistException, OperationNotExistException, and
+  FacetNotExistException are derived from RequestFailedException.)
+
 - Fixed link errors when building Ice without BerkeleyDB in the
   shared library search path.
 
