@@ -300,8 +300,8 @@ local interface ObjectAdapter
      *
      * <note><para> Like the [Router] interface, this operation is
      * intended to be used by router implementations. Regular user
-     * code should not attempt to use this operation
-     * directly. </para></note>
+     * code should not attempt to use this operation.
+     * </para></note>
      *
      * @param identity The identity for which a Proxy is to be created.
      *

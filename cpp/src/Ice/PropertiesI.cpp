@@ -38,6 +38,19 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
     _properties[key] = value;
 }
 
+StringSeq
+Ice::PropertiesI::getCommandLineOptions()
+{
+    StringSeq result;
+    result.reserve(_properties.size());
+    map<string, string>::const_iterator p;
+    for (p = _properties.begin(); p != _properties.end(); ++p)
+    {
+	result.push_back("--" + p->first + "=" + p->second);
+    }
+    return result;
+}
+
 PropertiesPtr
 Ice::PropertiesI::clone()
 {

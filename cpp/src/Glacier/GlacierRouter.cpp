@@ -180,7 +180,7 @@ Glacier::Router::run(int argc, char* argv[])
     string routerIdentity = properties->getProperty(routerIdentityProperty);
     if (routerIdentity.empty())
     {
-	routerIdentity = "router";
+	routerIdentity = "Glacier#router";
     }
 
     ObjectAdapterPtr routerAdapter =
@@ -189,11 +189,33 @@ Glacier::Router::run(int argc, char* argv[])
     routerAdapter->add(router, stringToIdentity(routerIdentity));
     routerAdapter->activate();
 
+#ifndef WIN32
+    //
+    // Print the stringified router proxy on a filedescriptor
+    // specified in the properties, if so requested.
+    //
+    string outputFd = properties->getProperty("Glacier.Router.PrintProxyOnFd");
+    if (!outputFd.empty())
+    {
+	int fd = atoi(outputFd.c_str());
+	string ref = communicator()->proxyToString(routerAdapter->createProxy(stringToIdentity(routerIdentity)));
+	ref += "\n";
+	string::size_type sz = static_cast<string::size_type>(write(fd, ref.c_str(), ref.length()));
+	if (sz != ref.length())
+	{
+	    cerr << appName() << ": cannot write stringified router proxy to filedescriptor " << fd << ": "
+		 << strerror(errno) << endl;
+	    return EXIT_FAILURE;
+	}
+
+	close(fd);
+    }
+#endif
+
     //
     // We're done, let's wait for shutdown.
     //
     communicator()->waitForShutdown();
-    return EXIT_SUCCESS;
 
     //
     // Destroy the router. The client and server blobjects get
@@ -202,6 +224,8 @@ Glacier::Router::run(int argc, char* argv[])
     RouterI* rtr = dynamic_cast<RouterI*>(router.get());
     assert(rtr);
     rtr->destroy();
+
+    return EXIT_SUCCESS;
 }
 
 int

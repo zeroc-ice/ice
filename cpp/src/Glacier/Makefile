@@ -19,7 +19,7 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 ROUTER		= $(top_srcdir)/bin/glacier
 STARTER		= $(top_srcdir)/bin/glacierstarter
 
-TARGETS		= $(NAME) $(VERSIONED_NAME) $(ROUTER) $(STARTER)
+TARGETS		= $(NAME) $(VERSIONED_NAME) $(ROUTER) #$(STARTER)
 
 OBJS		= Glacier.o
 
@@ -28,7 +28,8 @@ ROBJS		= GlacierRouter.o \
 		  ClientBlobject.o \
 		  ServerBlobject.o
 
-SOBJS		= GlacierStarter.o
+SOBJS		= GlacierStarter.o \
+		  GlacierI.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(ROBJS:.o=.cpp) \
@@ -56,7 +57,7 @@ $(ROUTER): $(ROBJS)
 
 $(STARTER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier $(LIBS)
 
 $(HDIR)/Glacier.h Glacier.cpp: $(SDIR)/Glacier.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Glacier.h Glacier.cpp

@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
+#include <Glacier/GlacierI.h>
 
 using namespace std;
 using namespace Ice;
@@ -76,6 +77,8 @@ Glacier::Router::run(int argc, char* argv[])
 
     ObjectAdapterPtr starterAdapter = communicator()->createObjectAdapterFromProperty("Starter",
 										      starterEndpointsProperty);
+    StarterPtr starter = new StarterI;
+    starterAdapter->add(starter, stringToIdentity("Glacier#starter"));
     starterAdapter->activate();
 
     //

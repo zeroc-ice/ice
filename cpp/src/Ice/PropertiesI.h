@@ -23,6 +23,7 @@ public:
     
     virtual std::string getProperty(const std::string&);
     virtual void setProperty(const std::string&, const std::string&);
+    virtual StringSeq getCommandLineOptions();
     virtual PropertiesPtr clone();
     static void addArgumentPrefix(const std::string&);
 

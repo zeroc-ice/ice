@@ -136,8 +136,6 @@ IcePack::Activator::activate(const ServerDescription& desc)
     }
     if (pid == 0) // Child process
     {
-	close(fds[0]);
-
 	//
 	// Close all filedescriptors, except for standard input,
 	// standard output, standard error output, and the write side

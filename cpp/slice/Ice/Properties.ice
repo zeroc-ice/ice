@@ -11,6 +11,8 @@
 #ifndef ICE_PROPERTIES_ICE
 #define ICE_PROPERTIES_ICE
 
+#include <Ice/BuiltinSequences.ice>
+
 module Ice
 {
 
@@ -49,6 +51,16 @@ local interface Properties
      *
      **/
     void setProperty(string key, string value);
+
+    /**
+     *
+     * Get a sequence of command line options that is equivalent to
+     * this property set.
+     *
+     * @return The command line options for this property set.
+     *
+     **/
+    StringSeq getCommandLineOptions();
 
     /**
      *

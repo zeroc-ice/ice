@@ -711,6 +711,25 @@ default value <literal>router</literal> is used.
 </section>
 </section>
 
+<section><title>Glacier.Router.PrintProxyOnFd</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Router.PrintProxyOnFd=<replaceable>fd</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If set, print the stringified router proxy on the filedescriptor
+<replaceable>fd</replaceable>, and close this filedescriptor. (Unix
+only.)
+<note><para> This operation is intended to be used by the &Glacier;
+router starter only. It should not be set manually.
+</para></note>
+</para>
+</section>
+</section>
+
 <section><title>Glacier.Trace.Client</title>
 <section><title>Synopsis</title>
 <synopsis>
