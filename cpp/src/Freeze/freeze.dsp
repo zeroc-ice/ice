@@ -403,7 +403,7 @@ InputPath=..\..\slice\Ice\Identity.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2freeze.exe --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice \
+	..\..\bin\slice2freeze.exe --ice --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice \
 	
 
 "IdentityObjectDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -421,7 +421,7 @@ InputPath=..\..\slice\Ice\Identity.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2freeze.exe --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice \
+	..\..\bin\slice2freeze.exe --ice --include-dir Freeze -I../../slice --dict Freeze::IdentityObjectDict,Ice::Identity,Object IdentityObjectDict ../../slice/Ice/Identity.ice \
 	
 
 "IdentityObjectDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

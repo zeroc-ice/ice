@@ -281,7 +281,7 @@ InputPath=.\IceStormInternal.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --include-dir IceStorm -I../../slice IceStormInternal.ice \
+	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice IceStormInternal.ice \
 	
 
 "IceStormInternal.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -299,7 +299,7 @@ InputPath=.\IceStormInternal.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --include-dir IceStorm -I../../slice IceStormInternal.ice \
+	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice IceStormInternal.ice \
 	
 
 "IceStormInternal.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -324,8 +324,8 @@ InputPath=.\LinkDB.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --include-dir IceStorm -I../../slice -I.. LinkDB.ice \
-	..\..\bin\slice2freeze.exe --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkDB IdentityLinkDict ../IceStorm/LinkDB.ice ../../slice/Ice/Identity.ice \
+	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice -I.. LinkDB.ice \
+	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkDB IdentityLinkDict ../IceStorm/LinkDB.ice ../../slice/Ice/Identity.ice \
 	
 
 "LinkDB.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -349,8 +349,8 @@ InputPath=.\LinkDB.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --include-dir IceStorm -I../../slice -I.. LinkDB.ice \
-	..\..\bin\slice2freeze.exe --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkDB IdentityLinkDict ../IceStorm/LinkDB.ice ../../slice/Ice/Identity.ice \
+	..\..\bin\slice2cpp.exe --ice --include-dir IceStorm -I../../slice -I.. LinkDB.ice \
+	..\..\bin\slice2freeze.exe --ice --include-dir IceStorm  -I../../slice -I.. --dict IceStorm::IdentityLinkDict,Ice::Identity,IceStorm::LinkDB IdentityLinkDict ../IceStorm/LinkDB.ice ../../slice/Ice/Identity.ice \
 	
 
 "LinkDB.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

@@ -130,7 +130,7 @@ InputPath=..\..\slice\IceBox\IceBox.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_BOX_API --include-dir IceBox -I../../slice ../../slice/IceBox/IceBox.ice \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_BOX_API --include-dir IceBox -I../../slice ../../slice/IceBox/IceBox.ice \
 	move IceBox.h ..\..\include\IceBox \
 	
 
@@ -149,7 +149,7 @@ InputPath=..\..\slice\IceBox\IceBox.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_BOX_API --include-dir IceBox -I../../slice ../../slice/IceBox/IceBox.ice \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_BOX_API --include-dir IceBox -I../../slice ../../slice/IceBox/IceBox.ice \
 	move IceBox.h ..\..\include\IceBox \
 	
 

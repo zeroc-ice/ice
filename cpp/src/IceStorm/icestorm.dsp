@@ -130,7 +130,7 @@ InputPath=..\..\slice\IceStorm\IceStorm.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_STORM_API --include-dir IceStorm -I../../slice ../../slice/IceStorm/IceStorm.ice \
+	..\..\bin\slice2cpp.exe -ice --dll-export ICE_STORM_API --include-dir IceStorm -I../../slice ../../slice/IceStorm/IceStorm.ice \
 	move IceStorm.h ..\..\include\IceStorm \
 	
 
@@ -149,7 +149,7 @@ InputPath=..\..\slice\IceStorm\IceStorm.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_STORM_API --include-dir IceStorm -I../../slice ../../slice/IceStorm/IceStorm.ice \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_STORM_API --include-dir IceStorm -I../../slice ../../slice/IceStorm/IceStorm.ice \
 	move IceStorm.h ..\..\include\IceStorm \
 	
 

@@ -146,7 +146,7 @@ InputPath=..\..\slice\IcePatch\IcePatch.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/IcePatch.ice \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/IcePatch.ice \
 	move IcePatch.h ..\..\include\IcePatch \
 	
 
@@ -165,7 +165,7 @@ InputPath=..\..\slice\IcePatch\IcePatch.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/IcePatch.ice \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/IcePatch.ice \
 	move IcePatch.h ..\..\include\IcePatch \
 	
 
