@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2001
+# Copyright (c) 2002
 # ZeroC, Inc.
 # Billerica, MA, USA
 #

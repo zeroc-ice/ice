@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2001
+// Copyright (c) 2002
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -23,7 +23,7 @@ using namespace std;
 static string header =
 "<ice:data xmlns=\"http://www.noorg.org/schemas\""
 " xmlns:ice=\"http://www.zeroc.com/schemas\""
-" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+" xmlns:xsi=\"http://www.w3.org/2002/XMLSchema-instance\""
 " xsi:schemaLocation=\"http://www.noorg.org/schemas Test.xsd\">";
 
 static string footer =

@@ -393,7 +393,7 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
         out.useCurrentPosAsIndent();
         out << "\"<ice:data xmlns=\\\"http://www.noorg.org/schemas\\\"\" +"
             << nl << "\" xmlns:ice=\\\"http://www.zeroc.com/schemas\\\"\" +"
-            << nl << "\" xmlns:xsi=\\\"http://www.w3.org/2001/XMLSchema-instance\\\"\" +"
+            << nl << "\" xmlns:xsi=\\\"http://www.w3.org/2002/XMLSchema-instance\\\"\" +"
             << nl << "\" xsi:schemaLocation=\\\"http://www.noorg.org/schemas " << name << ".xsd\\\">\";";
         out.restoreIndent();
         out << nl << "private static final String _footer = \"</ice:data>\";";

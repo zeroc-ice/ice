@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2001
+// Copyright (c) 2002
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -730,7 +730,7 @@ Slice::Gen::printHeader()
     static const char* header =
 "<!--\n"
 "**********************************************************************\n"
-"Copyright (c) 2001\n"
+"Copyright (c) 2002\n"
 "ZeroC, Inc.\n"
 "Billerica, MA, USA\n"
 "\n"

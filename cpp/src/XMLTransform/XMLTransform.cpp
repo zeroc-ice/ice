@@ -422,7 +422,7 @@ convertQName(const string& qname, const DocumentInfoPtr& info)
 // TODO: These cannot be allocated as static strings since xerces API calls cannot be made until
 // XMLPlatformUtils::Initialize has been called.
 //
-//static DOMString schemaURI("http://www.w3.org/2001/XMLSchema");
+//static DOMString schemaURI("http://www.w3.org/2002/XMLSchema");
 //static DOMString schemaElementName("schema");
 
 //
@@ -2393,7 +2393,7 @@ XMLTransform::TransformFactory::createDefaultInitializedSequenceElementTransform
 DOMNode*
 XMLTransform::TransformFactory::findSchemaRoot(DOMDocument* root)
 {
-    ArrayJanitor<XMLCh> schemaURI(XMLString::transcode("http://www.w3.org/2001/XMLSchema"));
+    ArrayJanitor<XMLCh> schemaURI(XMLString::transcode("http://www.w3.org/2002/XMLSchema"));
     ArrayJanitor<XMLCh> schemaLocalName(XMLString::transcode("schema"));
 
     DOMNodeList* nodes = root->getElementsByTagNameNS(schemaURI.get(), schemaLocalName.get());
@@ -2515,7 +2515,7 @@ XMLTransform::DBTransformer::transform(const DBEnvironmentPtr& dbEnv, const DBPt
         //
         const string header = "<ice:data xmlns=\"http://www.noorg.org/schemas\""
                               " xmlns:ice=\"http://www.zeroc.com/schemas\""
-                              " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\""
+                              " xmlns:xsi=\"http://www.w3.org/2002/XMLSchema-instance\""
                               " xsi:schemaLocation=\"http://www.noorg.org/schemas Dummy.xsd\">";
         const string footer = "</ice:data>";
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 **********************************************************************
-Copyright (c) 2001
+Copyright (c) 2002
 ZeroC, Inc.
 Billerica, MA, USA
 
@@ -12,7 +12,7 @@ the terms of the GNU General Public License version 2 as published by
 the Free Software Foundation.
 **********************************************************************
 -->
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+<xs:schema xmlns:xs="http://www.w3.org/2002/XMLSchema"
            elementFormDefault="qualified"
 	   xmlns:tns="http://www.zeroc.com/schemas"
 	   targetNamespace="http://www.zeroc.com/schemas">

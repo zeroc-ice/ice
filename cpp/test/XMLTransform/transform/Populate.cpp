@@ -61,7 +61,7 @@ emitSchema(const string& file, const string& import, const string& valueType)
     test(out.good());
 
     out << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl
-        << "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"" << endl
+        << "<xs:schema xmlns:xs=\"http://www.w3.org/2002/XMLSchema\"" << endl
         << "           elementFormDefault=\"qualified\"" << endl
         << "           xmlns:tns=\"http://www.noorg.org/schemas\"" << endl
         << "           targetNamespace=\"http://www.noorg.org/schemas\">" << endl
@@ -854,7 +854,7 @@ transformEvictor(const DBEnvironmentPtr& dbEnv)
 
     static string evictorSchema =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-        "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
+        "<xs:schema xmlns:xs=\"http://www.w3.org/2002/XMLSchema\""
         "           elementFormDefault=\"qualified\""
         "           xmlns:tns=\"http://www.noorg.org/schemas\""
         "           xmlns:ice=\"http://www.zeroc.com/schemas\""

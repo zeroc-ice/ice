@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2001
+// Copyright (c) 2002
 // ZeroC, Inc.
 // Billerica, MA, USA
 //
@@ -81,7 +81,7 @@ Slice::Gen::generate(const UnitPtr& unit)
     //
     ostringstream os;
     os << "xs:schema"
-       << " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
+       << " xmlns:xs=\"http://www.w3.org/2002/XMLSchema\""
        << "\n           elementFormDefault=\"qualified\""
        << "\n           xmlns:ice=\"http://www.zeroc.com/schemas\""
        << "\n           xmlns:tns=\"" << _orgName << "/schemas\""
