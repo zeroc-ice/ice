@@ -8,26 +8,26 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SKELETON_F_H
-#define ICE_SKELETON_F_H
+#ifndef ICE_OBJECT_F_H
+#define ICE_OBJECT_F_H
 
 #include <Ice/Handle.h>
 
-namespace IceServant { namespace Ice { class ObjectS; } }
+namespace Ice { class ObjectS; }
 
 namespace __Ice
 {
 
-void ICE_API incRef(::IceServant::Ice::ObjectS*);
-void ICE_API decRef(::IceServant::Ice::ObjectS*);
+void ICE_API incRef(::Ice::ObjectS*);
+void ICE_API decRef(::Ice::ObjectS*);
 
 }
 
-namespace IceServant { namespace Ice
+namespace Ice
 {
 
 typedef __Ice::Handle< ObjectS > Object;
 
-} }
+}
 
 #endif

@@ -8,18 +8,18 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBJECT_FACTORY_F_H
-#define ICE_OBJECT_FACTORY_F_H
+#ifndef ICE_PROXY_FACTORY_F_H
+#define ICE_PROXY_FACTORY_F_H
 
 #include <Ice/Handle.h>
 
 namespace __Ice
 {
 
-class ObjectFactoryI;
-void ICE_API incRef(ObjectFactoryI*);
-void ICE_API decRef(ObjectFactoryI*);
-typedef __Ice::Handle<ObjectFactoryI> ObjectFactory;
+class ProxyFactoryI;
+void ICE_API incRef(ProxyFactoryI*);
+void ICE_API decRef(ProxyFactoryI*);
+typedef __Ice::Handle<ProxyFactoryI> ProxyFactory;
 
 }
 

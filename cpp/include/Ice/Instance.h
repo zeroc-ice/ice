@@ -16,7 +16,7 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
-#include <Ice/ObjectFactoryF.h>
+#include <Ice/ProxyFactoryF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/EmitterF.h>
 #include <Ice/CollectorF.h>
@@ -34,7 +34,7 @@ public:
     ::Ice::Logger logger();
     void logger(const ::Ice::Logger&);
     TraceLevels traceLevels();
-    ObjectFactory objectFactory();
+    ProxyFactory proxyFactory();
     ThreadPool threadPool();
     EmitterFactory emitterFactory();
     
@@ -49,7 +49,7 @@ private:
     ::Ice::Properties properties_;
     ::Ice::Logger logger_;
     TraceLevels traceLevels_;
-    ObjectFactory objectFactory_;
+    ProxyFactory proxyFactory_;
     ThreadPool threadPool_;
     EmitterFactory emitterFactory_;
 

@@ -8,10 +8,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBJECT_HANDLE_H
-#define ICE_OBJECT_HANDLE_H
+#ifndef ICE_PROXY_HANDLE_H
+#define ICE_PROXY_HANDLE_H
 
-#include <Ice/StubF.h>
+#include <Ice/ObjectF.h>
 
 namespace __Ice
 {
@@ -34,14 +34,14 @@ public:
 	return *this;
     }
 
-    static ObjectHandle<T> checkedCast(::__IceIntf::Ice::Object* from)
+    static ObjectHandle<T> checkedCast(::__IceProxy::Ice::Object* from)
     {
 	T* to;
 	_checkedCast(from, to);
 	return ObjectHandle<T>(to);
     }
 
-    static ObjectHandle<T> uncheckedCast(::__IceIntf::Ice::Object* from)
+    static ObjectHandle<T> uncheckedCast(::__IceProxy::Ice::Object* from)
     {
 	T* to;
 	_uncheckedCast(from, to);

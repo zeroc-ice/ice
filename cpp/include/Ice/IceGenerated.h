@@ -8,10 +8,16 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ICE_SKELETON_H
-#define ICE_ICE_SKELETON_H
+#ifndef ICE_GENERATED_H
+#define ICE_GENERATED_H
 
-#include <Ice/Skeleton.h>
+// Include file for generated code
+
+#include <Ice/LocalException.h>
+#include <Ice/Object.h>
+#include <Ice/ObjectHandle.h>
+#include <Ice/Object.h>
+#include <Ice/Outgoing.h>
 #include <Ice/Incoming.h>
 
 #endif

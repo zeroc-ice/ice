@@ -13,7 +13,7 @@
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/StubF.h>
+#include <Ice/ProxyF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
@@ -31,7 +31,7 @@ public:
     void shutdown();
     void waitForShutdown();
 
-    Object stringToObject(const std::string&);
+    ObjectProxy stringToProxy(const std::string&);
 
     ObjectAdapter createObjectAdapter(const std::string&);
     ObjectAdapter createObjectAdapter(const std::string&, const std::string&);

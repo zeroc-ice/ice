@@ -8,10 +8,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SKELETON_H
-#define ICE_SKELETON_H
+#ifndef ICE_OBJECT_H
+#define ICE_OBJECT_H
 
-#include <Ice/SkeletonF.h>
+#include <Ice/ObjectF.h>
 #include <Ice/Shared.h>
 
 namespace __Ice
@@ -21,10 +21,10 @@ class Incoming;
 
 }
 
-namespace IceServant { namespace Ice
+namespace Ice
 {
 
-// No virtual inheritance for servants
+// No virtual inheritance for ice objects
 class ICE_API ObjectS : public ::__Ice::Shared
 {
 public:
@@ -41,6 +41,6 @@ public:
     virtual bool __dispatch(::__Ice::Incoming&, const std::string&);
 };
 
-} }
+}
 
 #endif
