@@ -49,8 +49,9 @@ IceInternal::OutgoingAsync::__setup(const ConnectionPtr& connection, const Refer
 {
     _connection = connection;
     _compress = ref->compress;
-    assert(!_is && !_os);
     _instance = ref->instance;
+    delete _is;
+    delete _os;
     _is = new BasicStream(_instance);
     _os = new BasicStream(_instance);
 
