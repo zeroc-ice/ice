@@ -331,7 +331,7 @@ Test::IntS
 MyDerivedClassI::opIntS(const Test::IntS& s, const Ice::Current&)
 {
     Test::IntS r;
-    transform(s.begin(), s.end(), back_inserter(r), std::negate<int>());
+    std::transform(s.begin(), s.end(), std::back_inserter(r), std::negate<int>());
     return r;
 }
 

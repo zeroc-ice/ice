@@ -353,7 +353,7 @@ void
 MyDerivedClassI::opIntS_async(const ::Test::AMD_MyClass_opIntSPtr& cb, const Test::IntS& s, const Ice::Current&)
 {
     Test::IntS r;
-    transform(s.begin(), s.end(), back_inserter(r), std::negate<int>());
+    std::transform(s.begin(), s.end(), std::back_inserter(r), std::negate<int>());
     cb->ice_response(r);
 }
 
