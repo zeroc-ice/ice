@@ -330,7 +330,7 @@ IceInternal::Connection::monitor()
     //
     for(map<Int, AsyncRequest>::iterator p = _asyncRequests.begin(); p != _asyncRequests.end(); ++p)
     {
-	if(p->second.t > IceUtil::Time() && p->second.t < IceUtil::Time::now())
+	if(p->second.t > IceUtil::Time() && p->second.t <= IceUtil::Time::now())
 	{
 	    setState(StateClosed, TimeoutException(__FILE__, __LINE__));
 	    return;
@@ -567,7 +567,10 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
 	//
 	struct AsyncRequest asyncRequest;
 	asyncRequest.p = out;
-	asyncRequest.t = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_endpoint->timeout());
+	if(_endpoint->timeout() > 0)
+	{
+	    asyncRequest.t = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_endpoint->timeout());
+	}
 	_asyncRequestsHint = _asyncRequests.insert(_asyncRequests.end(),
 						   pair<const Int, AsyncRequest>(requestId, asyncRequest));
 	
