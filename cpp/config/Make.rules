@@ -13,9 +13,9 @@
 # **********************************************************************
 
 #
-# The values below can be overwritten by defining them as environment
+# The values below can be overridden by defining them as environment
 # variables. For example, if you are using a bourne shell or
-# compatible, you can overwrite the location of STLport like this:
+# compatible, you can override the location of STLport like this:
 #
 # export STLPORT_HOME=/usr/local/STLport-4.5
 #

@@ -70,8 +70,8 @@ Linux distribution includes this, so there should be no problem.
 Python 2
 --------
 
-To run the automated test suite, you require Python 2. Other than for
-running the test scripts, Python is not required.
+To run the automated test suite, you will need Python 2. If you have
+no interest in running the test scripts, Python is not required.
 
 
 ======================================================================

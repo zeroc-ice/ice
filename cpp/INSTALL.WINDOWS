@@ -6,9 +6,9 @@ Requirements
 Windows version
 ---------------
 
-Ice has been extensively tested with Windows XP. Ice will most likely
-also work on Windows 2000 and Windows NT. Windows 95/98/ME is not
-supported.
+Ice has been extensively tested with Windows XP and Windows 2000.
+Ice will most likely also work on Windows NT. Windows 95/98/ME is
+not supported.
 
 
 C++ compiler
@@ -66,9 +66,9 @@ http://sources.redhat.com/bzip2
 Python 2
 --------
 
-To run the automated test suite, you require Python 2. Other than for
-running the test scripts, Python is not required. You can download a
-Python distribution for Windows from:
+To run the automated test suite, you will need Python 2. If you have
+no interest in running the test scripts, Python is not required. You
+can download a Python distribution for Windows from:
 
 http://www.activestate.com
 
@@ -78,11 +78,11 @@ Compilation and Testing
 ======================================================================
 
 
-Using your favorite Zip tool, unzip the Ice archive in anywhere you
+Using your favorite Zip tool, unzip the Ice archive anywhere you
 like. Then start the Microsoft Visual C++ IDE.
 
 First, you must make sure that your compiler finds all the required
-third-party packages: Include files, libraries, and DLLs:
+third-party packages (include files, libraries, and DLLs):
 
 - In the IDE, choose:
   * Visual C++ 6.0: Tools->Options->Directories
@@ -93,8 +93,8 @@ third-party packages: Include files, libraries, and DLLs:
 - Add the include directories for Xerces-C++, Berekeley DB, OpenSSL,
   bzip2.
 
-- If you're using STLport, also add the include files for
-  STLport. (Note that you must add the include\stlport directory, not
+- If you're using STLport, also add the include files for STLport.
+  (Note that you must add the include\stlport directory, not
   just "include".)
 
 - Select "Library files".
@@ -122,7 +122,7 @@ To start the compilation, use Build->Build for Visual C++ 6.0, or
 Build->Build all/minimal for Visual C++ .NET, respectively.
 
 If you built the tests with "all", you can run the test suite,
-provided that you installed Python 2. Open a command prompt, and
+provided that you have installed Python 2. Open a command prompt, and
 change to the directory Ice-<version>. At the command prompt, execute:
 
 python allTests.py
