@@ -14,17 +14,50 @@
   <variable name="ice.dir" value="../../.."/>
 
   <application name="Simple">
- 
-     <!-- =========================================================== -->
-     <!-- Deploy two servers, the first one is defined in the         --> 
-     <!-- server.xml file and is a regular C++ server, the second one -->
-     <!-- is defined in the icebox.xml file and is a C++ IceBox       -->
-     <!-- server. The servers are deployed on the node named 'node'.  -->
-     <!-- =========================================================== -->
 
      <node name="node">
-       <include descriptor="server.xml" name="Server1"/>
-       <include descriptor="icebox.xml" name="IceBox1"/>
+
+       <!-- First, we deploy the regular server --> 
+       <server name="Server" kind="cpp" exe="${ice.dir}/demo/IcePack/simple/server" activation="on-demand">
+ 
+         <adapters>
+           <adapter name="Hello" endpoints="tcp:udp:ssl" register="true">
+             <object identity="hello1" type="::Demo::Hello"/>
+           </adapter>
+         </adapters>
+  
+         <properties>
+	   <property name="Identity" value="hello1"/>
+           <property name="Ice.Plugin.IceSSL" value="IceSSL:create"/>
+           <property name="IceSSL.Server.CertPath" value="${ice.dir}/certs"/>
+           <property name="IceSSL.Server.Config" value="sslconfig.xml"/>
+         </properties>
+       </server>
+ 
+       <!-- Then, we deploy the IceBox server which will instantiate the HelloService service -->
+       <server name="IceBox" kind="cpp-icebox" endpoints="default" activation="on-demand">
+
+         <service name="Hello" entry="HelloService:create">
+           <adapters>
+             <adapter name="Hello" endpoints="tcp:udp:ssl">
+               <object identity="hello2" type="::Demo::Hello"/>
+             </adapter>
+           </adapters>
+
+           <properties>
+             <property name="Identity" value="hello2"/>
+           </properties>    
+         </service>
+
+         <properties>
+           <property name="IceBox.UseSharedCommunicator.Hello" value="1"/>
+           <property name="Ice.Plugin.IceSSL" value="IceSSL:create"/>
+           <property name="IceSSL.Server.Config" value="sslconfig.xml"/>
+           <property name="IceSSL.Server.CertPath" value="${ice.dir}/certs"/>
+         </properties>
+ 
+       </server>
+
      </node>
 
   </application>

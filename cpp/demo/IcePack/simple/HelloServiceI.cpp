@@ -42,7 +42,7 @@ HelloServiceI::start(const string& name,
 {
     string id = communicator->getProperties()->getProperty("Identity");
 
-    _adapter = communicator->createObjectAdapter(name);
+    _adapter = communicator->createObjectAdapter("Hello");
     ::Ice::ObjectPtr object = new HelloI;
     _adapter->add(object, Ice::stringToIdentity(id));
     _adapter->activate();
