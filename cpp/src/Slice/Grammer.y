@@ -13,7 +13,7 @@
 #include <Parser.h>
 
 using namespace std;
-using namespace IceLang;
+using namespace Slice;
 
 void
 yyerror(const char* s)

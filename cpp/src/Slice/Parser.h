@@ -27,7 +27,7 @@ void yyerror(const char* s);
 // Type_ptr declarations, reference counting, and handle types
 // ----------------------------------------------------------------------
 
-namespace IceLang
+namespace Slice
 {
 
 class Token;
@@ -54,46 +54,46 @@ class Parser;
 namespace __Ice
 {
 
-void incRef(::IceLang::Token*);
-void decRef(::IceLang::Token*);
-void incRef(::IceLang::String*);
-void decRef(::IceLang::String*);
-void incRef(::IceLang::Parameters*);
-void decRef(::IceLang::Parameters*);
-void incRef(::IceLang::Throws*);
-void decRef(::IceLang::Throws*);
-void incRef(::IceLang::SyntaxTreeBase*);
-void decRef(::IceLang::SyntaxTreeBase*);
-void incRef(::IceLang::Type*);
-void decRef(::IceLang::Type*);
-void incRef(::IceLang::Builtin*);
-void decRef(::IceLang::Builtin*);
-void incRef(::IceLang::Contained*);
-void decRef(::IceLang::Contained*);
-void incRef(::IceLang::Container*);
-void decRef(::IceLang::Container*);
-void incRef(::IceLang::Module*);
-void decRef(::IceLang::Module*);
-void incRef(::IceLang::Constructed*);
-void decRef(::IceLang::Constructed*);
-void incRef(::IceLang::ClassDecl*);
-void decRef(::IceLang::ClassDecl*);
-void incRef(::IceLang::ClassDef*);
-void decRef(::IceLang::ClassDef*);
-void incRef(::IceLang::Proxy*);
-void decRef(::IceLang::Proxy*);
-void incRef(::IceLang::Operation*);
-void decRef(::IceLang::Operation*);
-void incRef(::IceLang::DataMember*);
-void decRef(::IceLang::DataMember*);
-void incRef(::IceLang::Vector*);
-void decRef(::IceLang::Vector*);
-void incRef(::IceLang::Parser*);
-void decRef(::IceLang::Parser*);
+void incRef(::Slice::Token*);
+void decRef(::Slice::Token*);
+void incRef(::Slice::String*);
+void decRef(::Slice::String*);
+void incRef(::Slice::Parameters*);
+void decRef(::Slice::Parameters*);
+void incRef(::Slice::Throws*);
+void decRef(::Slice::Throws*);
+void incRef(::Slice::SyntaxTreeBase*);
+void decRef(::Slice::SyntaxTreeBase*);
+void incRef(::Slice::Type*);
+void decRef(::Slice::Type*);
+void incRef(::Slice::Builtin*);
+void decRef(::Slice::Builtin*);
+void incRef(::Slice::Contained*);
+void decRef(::Slice::Contained*);
+void incRef(::Slice::Container*);
+void decRef(::Slice::Container*);
+void incRef(::Slice::Module*);
+void decRef(::Slice::Module*);
+void incRef(::Slice::Constructed*);
+void decRef(::Slice::Constructed*);
+void incRef(::Slice::ClassDecl*);
+void decRef(::Slice::ClassDecl*);
+void incRef(::Slice::ClassDef*);
+void decRef(::Slice::ClassDef*);
+void incRef(::Slice::Proxy*);
+void decRef(::Slice::Proxy*);
+void incRef(::Slice::Operation*);
+void decRef(::Slice::Operation*);
+void incRef(::Slice::DataMember*);
+void decRef(::Slice::DataMember*);
+void incRef(::Slice::Vector*);
+void decRef(::Slice::Vector*);
+void incRef(::Slice::Parser*);
+void decRef(::Slice::Parser*);
 
 }
 
-namespace IceLang
+namespace Slice
 {
 
 typedef ::__Ice::Handle<Token> Token_ptr;
@@ -117,7 +117,7 @@ typedef ::__Ice::Handle<Parser> Parser_ptr;
 
 }
 
-namespace IceLang
+namespace Slice
 {
 
 typedef std::list<Type_ptr> TypeList;
@@ -153,7 +153,7 @@ class Token : virtual public ::__Ice::SimpleShared
 {
 };
 
-#define YYSTYPE IceLang::Token_ptr
+#define YYSTYPE Slice::Token_ptr
 
 // ----------------------------------------------------------------------
 // String

@@ -12,9 +12,9 @@
 #include <Parser.h>
 
 using namespace std;
-using namespace IceLang;
+using namespace Slice;
 
-namespace IceLang
+namespace Slice
 {
 
 Parser* parser;
@@ -63,23 +63,23 @@ void __Ice::decRef(Parser* p) { p -> __decRef(); }
 // ----------------------------------------------------------------------
 
 void
-IceLang::SyntaxTreeBase::destroy()
+Slice::SyntaxTreeBase::destroy()
 {
     parser_ = 0;
 }
 
 Parser_ptr
-IceLang::SyntaxTreeBase::parser()
+Slice::SyntaxTreeBase::parser()
 {
     return parser_;
 }
 
 void
-IceLang::SyntaxTreeBase::visit(ParserVisitor*)
+Slice::SyntaxTreeBase::visit(ParserVisitor*)
 {
 }
 
-IceLang::SyntaxTreeBase::SyntaxTreeBase(const Parser_ptr& parser)
+Slice::SyntaxTreeBase::SyntaxTreeBase(const Parser_ptr& parser)
     : parser_(parser)
 {
 }
@@ -88,7 +88,7 @@ IceLang::SyntaxTreeBase::SyntaxTreeBase(const Parser_ptr& parser)
 // Type
 // ----------------------------------------------------------------------
 
-IceLang::Type::Type(const Parser_ptr& parser)
+Slice::Type::Type(const Parser_ptr& parser)
     : SyntaxTreeBase(parser)
 {
 }
@@ -97,13 +97,13 @@ IceLang::Type::Type(const Parser_ptr& parser)
 // Builtin
 // ----------------------------------------------------------------------
 
-IceLang::Builtin::Kind
-IceLang::Builtin::kind()
+Slice::Builtin::Kind
+Slice::Builtin::kind()
 {
     return kind_;
 }
 
-IceLang::Builtin::Builtin(const Parser_ptr& parser, Kind kind)
+Slice::Builtin::Builtin(const Parser_ptr& parser, Kind kind)
     : Type(parser),
       SyntaxTreeBase(parser),
       kind_(kind)
@@ -115,32 +115,32 @@ IceLang::Builtin::Builtin(const Parser_ptr& parser, Kind kind)
 // ----------------------------------------------------------------------
 
 Container_ptr
-IceLang::Contained::container()
+Slice::Contained::container()
 {
     return container_;
 }
 
 string
-IceLang::Contained::name()
+Slice::Contained::name()
 {
     return name_;
 }
 
 string
-IceLang::Contained::scoped()
+Slice::Contained::scoped()
 {
     return scoped_;
 }
 
 string
-IceLang::Contained::scope()
+Slice::Contained::scope()
 {
     string::size_type idx = scoped_.rfind("::");
     assert(idx != string::npos);
     return string(scoped_, 0, idx);
 }
 
-IceLang::Contained::Contained(const Container_ptr& container,
+Slice::Contained::Contained(const Container_ptr& container,
 			      const string& name)
     : SyntaxTreeBase(container -> parser()),
       container_(container),
@@ -155,13 +155,13 @@ IceLang::Contained::Contained(const Container_ptr& container,
 }
 
 bool
-IceLang::operator<(Contained& l, Contained& r)
+Slice::operator<(Contained& l, Contained& r)
 {
     return l.name() < r.name();
 }
 
 bool
-IceLang::operator==(Contained& l, Contained& r)
+Slice::operator==(Contained& l, Contained& r)
 {
     return l.name() == r.name();
 }
@@ -171,7 +171,7 @@ IceLang::operator==(Contained& l, Contained& r)
 // ----------------------------------------------------------------------
 
 void
-IceLang::Container::destroy()
+Slice::Container::destroy()
 {
     for(vector<Contained_ptr>::iterator p = contents_.begin();
 	p != contents_.end();
@@ -185,7 +185,7 @@ IceLang::Container::destroy()
 }
 
 Module_ptr
-IceLang::Container::createModule(const string& name)
+Slice::Container::createModule(const string& name)
 {
     vector<Contained_ptr> matches =
 	parser_ -> findContents(thisScope() + name);
@@ -206,7 +206,7 @@ IceLang::Container::createModule(const string& name)
 }
 
 ClassDef_ptr
-IceLang::Container::createClassDef(const string& name,
+Slice::Container::createClassDef(const string& name,
 				   const ClassDef_ptr& base,
 				   bool local)
 {
@@ -244,7 +244,7 @@ IceLang::Container::createClassDef(const string& name,
 }
 
 ClassDecl_ptr
-IceLang::Container::createClassDecl(const string& name, bool local)
+Slice::Container::createClassDecl(const string& name, bool local)
 {
     ClassDef_ptr def;
 
@@ -298,7 +298,7 @@ IceLang::Container::createClassDecl(const string& name, bool local)
 }
 
 Vector_ptr
-IceLang::Container::createVector(const string& name, const Type_ptr& type)
+Slice::Container::createVector(const string& name, const Type_ptr& type)
 {
     vector<Contained_ptr> matches =
 	parser_ -> findContents(thisScope() + name);
@@ -310,7 +310,7 @@ IceLang::Container::createVector(const string& name, const Type_ptr& type)
 }
 
 vector<Type_ptr>
-IceLang::Container::lookupType(const string& scoped)
+Slice::Container::lookupType(const string& scoped)
 {
     assert(!scoped.empty());
 
@@ -346,13 +346,13 @@ IceLang::Container::lookupType(const string& scoped)
 }
 
 int
-IceLang::Container::includeLevel()
+Slice::Container::includeLevel()
 {
     return includeLevel_;
 }
 
 bool
-IceLang::Container::hasProxies()
+Slice::Container::hasProxies()
 {
     for(vector<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
@@ -371,7 +371,7 @@ IceLang::Container::hasProxies()
 }
 
 bool
-IceLang::Container::hasClassDecls()
+Slice::Container::hasClassDecls()
 {
     for(vector<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
@@ -389,7 +389,7 @@ IceLang::Container::hasClassDecls()
 }
 
 bool
-IceLang::Container::hasClassDefs()
+Slice::Container::hasClassDefs()
 {
     for(vector<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
@@ -407,7 +407,7 @@ IceLang::Container::hasClassDefs()
 }
 
 bool
-IceLang::Container::hasOtherConstructedTypes()
+Slice::Container::hasOtherConstructedTypes()
 {
     for(vector<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
@@ -427,7 +427,7 @@ IceLang::Container::hasOtherConstructedTypes()
 }
 
 string
-IceLang::Container::thisScope()
+Slice::Container::thisScope()
 {
     string s;
     Contained_ptr contained = Contained_ptr::dynamicCast(this);
@@ -438,7 +438,7 @@ IceLang::Container::thisScope()
 }
 
 void
-IceLang::Container::visit(ParserVisitor* visitor)
+Slice::Container::visit(ParserVisitor* visitor)
 {
     for(vector<Contained_ptr>::const_iterator p = contents_.begin();
 	p != contents_.end();
@@ -448,7 +448,7 @@ IceLang::Container::visit(ParserVisitor* visitor)
     }
 }
 
-IceLang::Container::Container(const Parser_ptr& parser)
+Slice::Container::Container(const Parser_ptr& parser)
     : SyntaxTreeBase(parser)
 {
     if(parser_)
@@ -462,7 +462,7 @@ IceLang::Container::Container(const Parser_ptr& parser)
 // ----------------------------------------------------------------------
 
 void
-IceLang::Module::visit(ParserVisitor* visitor)
+Slice::Module::visit(ParserVisitor* visitor)
 {
     if(includeLevel_ > 0)
 	return;
@@ -472,7 +472,7 @@ IceLang::Module::visit(ParserVisitor* visitor)
     visitor -> visitModuleEnd(this);
 }
 
-IceLang::Module::Module(const Container_ptr& container,
+Slice::Module::Module(const Container_ptr& container,
 			const string& name)
     : Contained(container, name),
       Container(container -> parser()),
@@ -484,7 +484,7 @@ IceLang::Module::Module(const Container_ptr& container,
 // Constructed
 // ----------------------------------------------------------------------
 
-IceLang::Constructed::Constructed(const Container_ptr& container,
+Slice::Constructed::Constructed(const Container_ptr& container,
 				  const string& name)
     : Type(container -> parser()),
       Contained(container, name),
@@ -497,24 +497,24 @@ IceLang::Constructed::Constructed(const Container_ptr& container,
 // ----------------------------------------------------------------------
 
 ClassDef_ptr
-IceLang::ClassDecl::definition()
+Slice::ClassDecl::definition()
 {
     return definition_;
 }
 
 bool
-IceLang::ClassDecl::local()
+Slice::ClassDecl::local()
 {
     return local_;
 }
 
 void
-IceLang::ClassDecl::visit(ParserVisitor* visitor)
+Slice::ClassDecl::visit(ParserVisitor* visitor)
 {
     visitor -> visitClassDecl(this);
 }
 
-IceLang::ClassDecl::ClassDecl(const Container_ptr& container,
+Slice::ClassDecl::ClassDecl(const Container_ptr& container,
 			      const string& name,
 			      bool local)
     : Constructed(container, name),
@@ -530,14 +530,14 @@ IceLang::ClassDecl::ClassDecl(const Container_ptr& container,
 // ----------------------------------------------------------------------
 
 void
-IceLang::ClassDef::destroy()
+Slice::ClassDef::destroy()
 {
     base_ = 0;
     Container::destroy();
 }
 
 Operation_ptr
-IceLang::ClassDef::createOperation(const string& name,
+Slice::ClassDef::createOperation(const string& name,
 				   const Type_ptr& returnType,
 				   const TypeNameList& inParams,
 				   const TypeNameList& outParams,
@@ -554,7 +554,7 @@ IceLang::ClassDef::createOperation(const string& name,
 }
 
 DataMember_ptr
-IceLang::ClassDef::createDataMember(const string& name, const Type_ptr& type)
+Slice::ClassDef::createDataMember(const string& name, const Type_ptr& type)
 {
     vector<Contained_ptr> matches =
 	parser_ -> findContents(thisScope() + name);
@@ -566,19 +566,19 @@ IceLang::ClassDef::createDataMember(const string& name, const Type_ptr& type)
 }
 
 ClassDef_ptr
-IceLang::ClassDef::base()
+Slice::ClassDef::base()
 {
     return base_;
 }
 
 void
-IceLang::ClassDef::base(const ClassDef_ptr& cl)
+Slice::ClassDef::base(const ClassDef_ptr& cl)
 {
     base_ = cl;
 }
 
 vector<Operation_ptr>
-IceLang::ClassDef::operations()
+Slice::ClassDef::operations()
 {
     vector<Operation_ptr> result;
     for(vector<Contained_ptr>::const_iterator p = contents_.begin();
@@ -593,7 +593,7 @@ IceLang::ClassDef::operations()
 }
 
 vector<DataMember_ptr>
-IceLang::ClassDef::dataMembers()
+Slice::ClassDef::dataMembers()
 {
     vector<DataMember_ptr> result;
     for(vector<Contained_ptr>::const_iterator p = contents_.begin();
@@ -608,7 +608,7 @@ IceLang::ClassDef::dataMembers()
 }
 
 bool
-IceLang::ClassDef::abstract()
+Slice::ClassDef::abstract()
 {
     if(base_ && base_ -> abstract())
 	return true;
@@ -625,13 +625,13 @@ IceLang::ClassDef::abstract()
 }
 
 bool
-IceLang::ClassDef::local()
+Slice::ClassDef::local()
 {
     return local_;
 }
 
 void
-IceLang::ClassDef::visit(ParserVisitor* visitor)
+Slice::ClassDef::visit(ParserVisitor* visitor)
 {
     if(includeLevel_ > 0)
 	return;
@@ -641,7 +641,7 @@ IceLang::ClassDef::visit(ParserVisitor* visitor)
     visitor -> visitClassDefEnd(this);
 }
 
-IceLang::ClassDef::ClassDef(const Container_ptr& container,
+Slice::ClassDef::ClassDef(const Container_ptr& container,
 			    const string& name,
 			    const ClassDef_ptr& base,
 			    bool local)
@@ -658,12 +658,12 @@ IceLang::ClassDef::ClassDef(const Container_ptr& container,
 // ----------------------------------------------------------------------
 
 ClassDecl_ptr
-IceLang::Proxy::_class()
+Slice::Proxy::_class()
 {
     return class_;
 }
 
-IceLang::Proxy::Proxy(const ClassDecl_ptr& cl)
+Slice::Proxy::Proxy(const ClassDecl_ptr& cl)
     : Type(cl -> parser()),
       SyntaxTreeBase(cl -> parser()),
       class_(cl)
@@ -675,36 +675,36 @@ IceLang::Proxy::Proxy(const ClassDecl_ptr& cl)
 // ----------------------------------------------------------------------
 
 Type_ptr
-IceLang::Operation::returnType()
+Slice::Operation::returnType()
 {
     return returnType_;
 }
 
 TypeNameList
-IceLang::Operation::inputParameters()
+Slice::Operation::inputParameters()
 {
     return inParams_;
 }
 
 TypeNameList
-IceLang::Operation::outputParameters()
+Slice::Operation::outputParameters()
 {
     return outParams_;
 }
 
 TypeList
-IceLang::Operation::throws()
+Slice::Operation::throws()
 {
     return throws_;
 }
 
 void
-IceLang::Operation::visit(ParserVisitor* visitor)
+Slice::Operation::visit(ParserVisitor* visitor)
 {
     visitor -> visitOperation(this);
 }
 
-IceLang::Operation::Operation(const Container_ptr& container,
+Slice::Operation::Operation(const Container_ptr& container,
 			      const string& name,
 			      const Type_ptr& returnType,
 			      const TypeNameList& inParams,
@@ -724,17 +724,17 @@ IceLang::Operation::Operation(const Container_ptr& container,
 // ----------------------------------------------------------------------
 
 Type_ptr
-IceLang::DataMember::type()
+Slice::DataMember::type()
 {
     return type_;
 }
 void
-IceLang::DataMember::visit(ParserVisitor* visitor)
+Slice::DataMember::visit(ParserVisitor* visitor)
 {
     visitor -> visitDataMember(this);
 }
 
-IceLang::DataMember::DataMember(const Container_ptr& container,
+Slice::DataMember::DataMember(const Container_ptr& container,
 				const string& name,
 				const Type_ptr& type)
     : Contained(container, name),
@@ -748,18 +748,18 @@ IceLang::DataMember::DataMember(const Container_ptr& container,
 // ----------------------------------------------------------------------
 
 Type_ptr
-IceLang::Vector::type()
+Slice::Vector::type()
 {
     return type_;
 }
 
 void
-IceLang::Vector::visit(ParserVisitor* visitor)
+Slice::Vector::visit(ParserVisitor* visitor)
 {
     visitor -> visitVector(this);
 }
 
-IceLang::Vector::Vector(const Container_ptr& container,
+Slice::Vector::Vector(const Container_ptr& container,
 			const string& name,
 			const Type_ptr& type)
     : Constructed(container, name),
@@ -775,19 +775,19 @@ IceLang::Vector::Vector(const Container_ptr& container,
 // ----------------------------------------------------------------------
 
 Parser_ptr
-IceLang::Parser::createParser()
+Slice::Parser::createParser()
 {
     return new Parser;
 }
 
 void
-IceLang::Parser::nextLine()
+Slice::Parser::nextLine()
 {
     currentLine_++;
 }
 
 void
-IceLang::Parser::scanPosition(const char* s)
+Slice::Parser::scanPosition(const char* s)
 {
     string line(s);
     string::size_type idx;
@@ -850,52 +850,52 @@ IceLang::Parser::scanPosition(const char* s)
 }
 
 int
-IceLang::Parser::currentIncludeLevel()
+Slice::Parser::currentIncludeLevel()
 {
     return currentIncludeLevel_;
 }
 
 void
-IceLang::Parser::error(const char* s)
+Slice::Parser::error(const char* s)
 {
     cerr << currentFile_ << ':' << currentLine_ << " error: " << s << endl;
     yynerrs++;
 }
 
 void
-IceLang::Parser::warning(const char* s)
+Slice::Parser::warning(const char* s)
 {
     cerr << currentFile_ << ':' << currentLine_ << " warning: " << s << endl;
 }
 
 Container_ptr
-IceLang::Parser::currentContainer()
+Slice::Parser::currentContainer()
 {
     assert(!containerStack_.empty());
     return containerStack_.top();
 }
 
 void
-IceLang::Parser::pushContainer(const Container_ptr& cont)
+Slice::Parser::pushContainer(const Container_ptr& cont)
 {
     containerStack_.push(cont);    
 }
 
 void
-IceLang::Parser::popContainer()
+Slice::Parser::popContainer()
 {
     assert(!containerStack_.empty());
     containerStack_.pop();
 }
 
 void
-IceLang::Parser::addContent(const Contained_ptr& contained)
+Slice::Parser::addContent(const Contained_ptr& contained)
 {
     contentMap_[contained -> scoped()].push_back(contained);
 }
 
 vector<Contained_ptr>
-IceLang::Parser::findContents(const string& scoped)
+Slice::Parser::findContents(const string& scoped)
 {
     assert(!scoped.empty());
     assert(scoped[0] == ':');
@@ -910,16 +910,16 @@ IceLang::Parser::findContents(const string& scoped)
 }
 
 vector<string>
-IceLang::Parser::includeFiles()
+Slice::Parser::includeFiles()
 {
     return includeFiles_;
 }
 
 int
-IceLang::Parser::parse(FILE* file)
+Slice::Parser::parse(FILE* file)
 {
-    assert(!IceLang::parser);
-    IceLang::parser = this;
+    assert(!Slice::parser);
+    Slice::parser = this;
 
     currentLine_ = 1;
     currentIncludeLevel_ = 0;
@@ -935,19 +935,19 @@ IceLang::Parser::parse(FILE* file)
     assert(containerStack_.size() == 1);
     popContainer();
 
-    IceLang::parser = 0;
+    Slice::parser = 0;
     return status;
 }
 
 void
-IceLang::Parser::destroy()
+Slice::Parser::destroy()
 {
     builtins_.clear();
     Container::destroy();
 }
 
 void
-IceLang::Parser::visit(ParserVisitor* visitor)
+Slice::Parser::visit(ParserVisitor* visitor)
 {
     visitor -> visitUnitStart(this);
     Container::visit(visitor);
@@ -955,7 +955,7 @@ IceLang::Parser::visit(ParserVisitor* visitor)
 }
 
 Builtin_ptr
-IceLang::Parser::builtin(Builtin::Kind kind)
+Slice::Parser::builtin(Builtin::Kind kind)
 {
     map<Builtin::Kind, Builtin_ptr>::iterator p = builtins_.find(kind);
     if(p != builtins_.end())
@@ -965,7 +965,7 @@ IceLang::Parser::builtin(Builtin::Kind kind)
     return builtin;
 }
 
-IceLang::Parser::Parser()
+Slice::Parser::Parser()
     : SyntaxTreeBase(0),
       Container(0)
 {

@@ -14,7 +14,7 @@
 #include <Grammer.h>
 
 using namespace std;
-using namespace IceLang;
+using namespace Slice;
 
 %}
 

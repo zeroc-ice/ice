@@ -8,13 +8,13 @@
 //
 // **********************************************************************
 
-#include <GenCPlusPlusUtil.h>
+#include <GenUtil.h>
 
 using namespace std;
-using namespace IceLang;
+using namespace Slice;
 
 string
-IceLang::typeToString(const Type_ptr& type)
+Slice::typeToString(const Type_ptr& type)
 {
     static const char* builtinTable[] =
     {
@@ -52,7 +52,7 @@ IceLang::typeToString(const Type_ptr& type)
 }
 
 string
-IceLang::returnTypeToString(const Type_ptr& type)
+Slice::returnTypeToString(const Type_ptr& type)
 {
     if(!type)
 	return "void";
@@ -61,7 +61,7 @@ IceLang::returnTypeToString(const Type_ptr& type)
 }
 
 string
-IceLang::inputTypeToString(const Type_ptr& type)
+Slice::inputTypeToString(const Type_ptr& type)
 {
     static const char* inputBuiltinTable[] =
     {
@@ -99,7 +99,7 @@ IceLang::inputTypeToString(const Type_ptr& type)
 }
 
 string
-IceLang::outputTypeToString(const Type_ptr& type)
+Slice::outputTypeToString(const Type_ptr& type)
 {
     static const char* outputBuiltinTable[] =
     {
@@ -137,7 +137,7 @@ IceLang::outputTypeToString(const Type_ptr& type)
 }
 
 void
-IceLang::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
+Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 				   const string& param, bool marshal)
 {
     const char* func = marshal ? "write(" : "read(";
@@ -212,7 +212,7 @@ IceLang::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 }
 
 void
-IceLang::writeMarshalCode(Output& out,
+Slice::writeMarshalCode(Output& out,
 			  const list<pair<Type_ptr, string> >& params,
 			  const Type_ptr& ret)
 {
@@ -224,7 +224,7 @@ IceLang::writeMarshalCode(Output& out,
 }
 
 void
-IceLang::writeUnmarshalCode(Output& out,
+Slice::writeUnmarshalCode(Output& out,
 			    const list<pair<Type_ptr, string> >& params,
 			    const Type_ptr& ret)
 {
@@ -236,7 +236,7 @@ IceLang::writeUnmarshalCode(Output& out,
 }
 
 void
-IceLang::writeAllocateCode(Output& out,
+Slice::writeAllocateCode(Output& out,
 			   const list<pair<Type_ptr, string> >& params,
 			   const Type_ptr& ret)
 {

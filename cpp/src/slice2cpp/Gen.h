@@ -8,25 +8,25 @@
 //
 // **********************************************************************
 
-#ifndef GEN_C_PLUS_PLUS_H
-#define GEN_C_PLUS_PLUS_H
+#ifndef GEN_H
+#define GEN_H
 
 #include <Parser.h>
 #include <OutputUtil.h>
 
-namespace IceLang
+namespace Slice
 {
 
-class GenCPlusPlus : ::__Ice::noncopyable
+class Gen : ::__Ice::noncopyable
 {
 public:
 
-    GenCPlusPlus(const std::string&,
-		 const std::string&,
-		 const std::string&,
-		 const std::vector<std::string>&,
-		 const std::string&);
-    ~GenCPlusPlus();
+    Gen(const std::string&,
+	const std::string&,
+	const std::string&,
+	const std::vector<std::string>&,
+	const std::string&);
+    ~Gen();
 
     bool operator!() const; // Returns true if there was a constructor error
 

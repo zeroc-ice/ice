@@ -9,11 +9,11 @@
 // **********************************************************************
 
 #include <Ice/Functional.h>
-#include <GenCPlusPlus.h>
-#include <GenCPlusPlusUtil.h>
+#include <Gen.h>
+#include <GenUtil.h>
 
 using namespace std;
-using namespace IceLang;
+using namespace Slice;
 
 struct ToIfdef
 {
@@ -26,15 +26,11 @@ struct ToIfdef
     }
 };
 
-// ----------------------------------------------------------------------
-// GenCPlusPlus
-// ----------------------------------------------------------------------
-
-IceLang::GenCPlusPlus::GenCPlusPlus(const string& name,
-				    const string& base,
-				    const string& include,
-				    const vector<string>& includePaths,
-				    const string& dllExport)
+Slice::Gen::Gen(const string& name,
+		const string& base,
+		const string& include,
+		const vector<string>& includePaths,
+		const string& dllExport)
     : base_(base),
       include_(include),
       includePaths_(includePaths),
@@ -83,20 +79,20 @@ IceLang::GenCPlusPlus::GenCPlusPlus(const string& name,
     H << '\n';
 }
 
-IceLang::GenCPlusPlus::~GenCPlusPlus()
+Slice::Gen::~Gen()
 {
     H << "\n\n#endif\n";
     C << '\n';
 }
 
 bool
-IceLang::GenCPlusPlus::operator!() const
+Slice::Gen::operator!() const
 {
     return !H || !C;
 }
 
 void
-IceLang::GenCPlusPlus::generate(const Parser_ptr& parser)
+Slice::Gen::generate(const Parser_ptr& parser)
 {
     C << "\n#include <";
     if(include_.length())
@@ -157,7 +153,7 @@ IceLang::GenCPlusPlus::generate(const Parser_ptr& parser)
 }
 
 string
-IceLang::GenCPlusPlus::changeInclude(const string& orig)
+Slice::Gen::changeInclude(const string& orig)
 {
     string file = orig;
     for(vector<string>::iterator p = includePaths_.begin();
@@ -180,7 +176,7 @@ IceLang::GenCPlusPlus::changeInclude(const string& orig)
 }
 
 void
-IceLang::GenCPlusPlus::printHeader(Output& out)
+Slice::Gen::printHeader(Output& out)
 {
     static const char* header = 
 "// **********************************************************************\n"
@@ -199,19 +195,14 @@ IceLang::GenCPlusPlus::printHeader(Output& out)
     out << '\n';
 }
 
-// ----------------------------------------------------------------------
-// TypesVisitor
-// ----------------------------------------------------------------------
-
-IceLang::GenCPlusPlus::TypesVisitor::TypesVisitor(
-    Output& h, Output& c, const string& dllExport)
+Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c,
+				       const string& dllExport)
     : H(h), C(c), dllExport_(dllExport)
 {
 }
 
 void
-IceLang::GenCPlusPlus::TypesVisitor::visitModuleStart(
-    const Module_ptr& p)
+Slice::Gen::TypesVisitor::visitModuleStart(const Module_ptr& p)
 {
     if(!p -> hasOtherConstructedTypes())
 	return;
@@ -223,8 +214,7 @@ IceLang::GenCPlusPlus::TypesVisitor::visitModuleStart(
 }
 
 void
-IceLang::GenCPlusPlus::TypesVisitor::visitModuleEnd(
-    const Module_ptr& p)
+Slice::Gen::TypesVisitor::visitModuleEnd(const Module_ptr& p)
 {
     if(!p -> hasOtherConstructedTypes())
 	return;
@@ -234,8 +224,7 @@ IceLang::GenCPlusPlus::TypesVisitor::visitModuleEnd(
 }
 
 void
-IceLang::GenCPlusPlus::TypesVisitor::visitVector(
-    const Vector_ptr& p)
+Slice::Gen::TypesVisitor::visitVector(const Vector_ptr& p)
 {
     string name = p -> name();
     Type_ptr subtype = p -> type();
@@ -296,19 +285,14 @@ IceLang::GenCPlusPlus::TypesVisitor::visitVector(
     }
 }
 
-// ----------------------------------------------------------------------
-// ProxyDeclVisitor
-// ----------------------------------------------------------------------
-
-IceLang::GenCPlusPlus::ProxyDeclVisitor::ProxyDeclVisitor(
-    Output& h, Output& c, const string& dllExport)
+Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output& c,
+					       const string& dllExport)
     : H(h), C(c), dllExport_(dllExport)
 {
 }
 
 void
-IceLang::GenCPlusPlus::ProxyDeclVisitor::visitUnitStart(
-    const Parser_ptr& p)
+Slice::Gen::ProxyDeclVisitor::visitUnitStart(const Parser_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -318,8 +302,7 @@ IceLang::GenCPlusPlus::ProxyDeclVisitor::visitUnitStart(
 }
 
 void
-IceLang::GenCPlusPlus::ProxyDeclVisitor::visitUnitEnd(
-    const Parser_ptr& p)
+Slice::Gen::ProxyDeclVisitor::visitUnitEnd(const Parser_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -329,8 +312,7 @@ IceLang::GenCPlusPlus::ProxyDeclVisitor::visitUnitEnd(
 }
     
 void
-IceLang::GenCPlusPlus::ProxyDeclVisitor::visitModuleStart(
-    const Module_ptr& p)
+Slice::Gen::ProxyDeclVisitor::visitModuleStart(const Module_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -342,8 +324,7 @@ IceLang::GenCPlusPlus::ProxyDeclVisitor::visitModuleStart(
 }
 
 void
-IceLang::GenCPlusPlus::ProxyDeclVisitor::visitModuleEnd(
-    const Module_ptr& p)
+Slice::Gen::ProxyDeclVisitor::visitModuleEnd(const Module_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -353,8 +334,7 @@ IceLang::GenCPlusPlus::ProxyDeclVisitor::visitModuleEnd(
 }
 
 void
-IceLang::GenCPlusPlus::ProxyDeclVisitor::visitClassDecl(
-    const ClassDecl_ptr& p)
+Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDecl_ptr& p)
 {
     if(p -> local())
 	return;
@@ -365,19 +345,14 @@ IceLang::GenCPlusPlus::ProxyDeclVisitor::visitClassDecl(
     H << nl << "class " << name << ';';
 }
 
-// ----------------------------------------------------------------------
-// ProxyVisitor
-// ----------------------------------------------------------------------
-
-IceLang::GenCPlusPlus::ProxyVisitor::ProxyVisitor(
-    Output& h, Output& c, const string& dllExport)
+Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c,
+				       const string& dllExport)
     : H(h), C(c), dllExport_(dllExport)
 {
 }
 
 void
-IceLang::GenCPlusPlus::ProxyVisitor::visitUnitStart(
-    const Parser_ptr& p)
+Slice::Gen::ProxyVisitor::visitUnitStart(const Parser_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -387,8 +362,7 @@ IceLang::GenCPlusPlus::ProxyVisitor::visitUnitStart(
 }
 
 void
-IceLang::GenCPlusPlus::ProxyVisitor::visitUnitEnd(
-    const Parser_ptr& p)
+Slice::Gen::ProxyVisitor::visitUnitEnd(const Parser_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -398,8 +372,7 @@ IceLang::GenCPlusPlus::ProxyVisitor::visitUnitEnd(
 }
     
 void
-IceLang::GenCPlusPlus::ProxyVisitor::visitModuleStart(
-    const Module_ptr& p)
+Slice::Gen::ProxyVisitor::visitModuleStart(const Module_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -411,8 +384,7 @@ IceLang::GenCPlusPlus::ProxyVisitor::visitModuleStart(
 }
 
 void
-IceLang::GenCPlusPlus::ProxyVisitor::visitModuleEnd(
-    const Module_ptr& p)
+Slice::Gen::ProxyVisitor::visitModuleEnd(const Module_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -422,8 +394,7 @@ IceLang::GenCPlusPlus::ProxyVisitor::visitModuleEnd(
 }
 
 void
-IceLang::GenCPlusPlus::ProxyVisitor::visitClassDefStart(
-    const ClassDef_ptr& p)
+Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDef_ptr& p)
 {
     if(p -> local())
 	return;
@@ -447,8 +418,7 @@ IceLang::GenCPlusPlus::ProxyVisitor::visitClassDefStart(
 }
 
 void
-IceLang::GenCPlusPlus::ProxyVisitor::visitClassDefEnd(
-    const ClassDef_ptr& p)
+Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDef_ptr& p)
 {
     if(p -> local())
 	return;
@@ -472,8 +442,7 @@ IceLang::GenCPlusPlus::ProxyVisitor::visitClassDefEnd(
 }
 
 void
-IceLang::GenCPlusPlus::ProxyVisitor::visitOperation(
-    const Operation_ptr& p)
+Slice::Gen::ProxyVisitor::visitOperation(const Operation_ptr& p)
 {
     Container_ptr container = p -> container();
     ClassDef_ptr cl = ClassDef_ptr::dynamicCast(container);
@@ -552,19 +521,14 @@ IceLang::GenCPlusPlus::ProxyVisitor::visitOperation(
     C << eb;
 }
 
-// ----------------------------------------------------------------------
-// DelegateVisitor
-// ----------------------------------------------------------------------
-
-IceLang::GenCPlusPlus::DelegateVisitor::DelegateVisitor(
-    Output& h, Output& c, const string& dllExport)
+Slice::Gen::DelegateVisitor::DelegateVisitor(Output& h, Output& c,
+					     const string& dllExport)
     : H(h), C(c), dllExport_(dllExport)
 {
 }
 
 void
-IceLang::GenCPlusPlus::DelegateVisitor::visitUnitStart(
-    const Parser_ptr& p)
+Slice::Gen::DelegateVisitor::visitUnitStart(const Parser_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -574,8 +538,7 @@ IceLang::GenCPlusPlus::DelegateVisitor::visitUnitStart(
 }
 
 void
-IceLang::GenCPlusPlus::DelegateVisitor::visitUnitEnd(
-    const Parser_ptr& p)
+Slice::Gen::DelegateVisitor::visitUnitEnd(const Parser_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -585,8 +548,7 @@ IceLang::GenCPlusPlus::DelegateVisitor::visitUnitEnd(
 }
     
 void
-IceLang::GenCPlusPlus::DelegateVisitor::visitModuleStart(
-    const Module_ptr& p)
+Slice::Gen::DelegateVisitor::visitModuleStart(const Module_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -598,8 +560,7 @@ IceLang::GenCPlusPlus::DelegateVisitor::visitModuleStart(
 }
 
 void
-IceLang::GenCPlusPlus::DelegateVisitor::visitModuleEnd(
-    const Module_ptr& p)
+Slice::Gen::DelegateVisitor::visitModuleEnd(const Module_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -609,8 +570,7 @@ IceLang::GenCPlusPlus::DelegateVisitor::visitModuleEnd(
 }
 
 void
-IceLang::GenCPlusPlus::DelegateVisitor::visitClassDefStart(
-    const ClassDef_ptr& p)
+Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDef_ptr& p)
 {
     if(p -> local())
 	return;
@@ -633,8 +593,7 @@ IceLang::GenCPlusPlus::DelegateVisitor::visitClassDefStart(
 }
 
 void
-IceLang::GenCPlusPlus::DelegateVisitor::visitClassDefEnd(
-    const ClassDef_ptr& p)
+Slice::Gen::DelegateVisitor::visitClassDefEnd(const ClassDef_ptr& p)
 {
     if(p -> local())
 	return;
@@ -643,8 +602,7 @@ IceLang::GenCPlusPlus::DelegateVisitor::visitClassDefEnd(
 }
 
 void
-IceLang::GenCPlusPlus::DelegateVisitor::visitOperation(
-    const Operation_ptr& p)
+Slice::Gen::DelegateVisitor::visitOperation(const Operation_ptr& p)
 {
     Container_ptr container = p -> container();
     ClassDef_ptr cl = ClassDef_ptr::dynamicCast(container);
@@ -698,19 +656,14 @@ IceLang::GenCPlusPlus::DelegateVisitor::visitOperation(
     H << nl << "virtual " << retS << ' ' << name << params << " = 0;";
 }
 
-// ----------------------------------------------------------------------
-// DelegateMVisitor
-// ----------------------------------------------------------------------
-
-IceLang::GenCPlusPlus::DelegateMVisitor::DelegateMVisitor(
-    Output& h, Output& c, const string& dllExport)
+Slice::Gen::DelegateMVisitor::DelegateMVisitor(Output& h, Output& c,
+					       const string& dllExport)
     : H(h), C(c), dllExport_(dllExport)
 {
 }
 
 void
-IceLang::GenCPlusPlus::DelegateMVisitor::visitUnitStart(
-    const Parser_ptr& p)
+Slice::Gen::DelegateMVisitor::visitUnitStart(const Parser_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -720,8 +673,7 @@ IceLang::GenCPlusPlus::DelegateMVisitor::visitUnitStart(
 }
 
 void
-IceLang::GenCPlusPlus::DelegateMVisitor::visitUnitEnd(
-    const Parser_ptr& p)
+Slice::Gen::DelegateMVisitor::visitUnitEnd(const Parser_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -731,8 +683,7 @@ IceLang::GenCPlusPlus::DelegateMVisitor::visitUnitEnd(
 }
     
 void
-IceLang::GenCPlusPlus::DelegateMVisitor::visitModuleStart(
-    const Module_ptr& p)
+Slice::Gen::DelegateMVisitor::visitModuleStart(const Module_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -744,8 +695,7 @@ IceLang::GenCPlusPlus::DelegateMVisitor::visitModuleStart(
 }
 
 void
-IceLang::GenCPlusPlus::DelegateMVisitor::visitModuleEnd(
-    const Module_ptr& p)
+Slice::Gen::DelegateMVisitor::visitModuleEnd(const Module_ptr& p)
 {
     if(!p -> hasProxies())
 	return;
@@ -755,8 +705,7 @@ IceLang::GenCPlusPlus::DelegateMVisitor::visitModuleEnd(
 }
 
 void
-IceLang::GenCPlusPlus::DelegateMVisitor::visitClassDefStart(
-    const ClassDef_ptr& p)
+Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDef_ptr& p)
 {
     if(p -> local())
 	return;
@@ -784,8 +733,7 @@ IceLang::GenCPlusPlus::DelegateMVisitor::visitClassDefStart(
 }
 
 void
-IceLang::GenCPlusPlus::DelegateMVisitor::visitClassDefEnd(
-    const ClassDef_ptr& p)
+Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDef_ptr& p)
 {
     if(p -> local())
 	return;
@@ -794,8 +742,7 @@ IceLang::GenCPlusPlus::DelegateMVisitor::visitClassDefEnd(
 }
 
 void
-IceLang::GenCPlusPlus::DelegateMVisitor::visitOperation(
-    const Operation_ptr& p)
+Slice::Gen::DelegateMVisitor::visitOperation(const Operation_ptr& p)
 {
     Container_ptr container = p -> container();
     ClassDef_ptr cl = ClassDef_ptr::dynamicCast(container);
@@ -910,19 +857,14 @@ IceLang::GenCPlusPlus::DelegateMVisitor::visitOperation(
     C << eb;
 }
 
-// ----------------------------------------------------------------------
-// ObjectDeclVisitor
-// ----------------------------------------------------------------------
-
-IceLang::GenCPlusPlus::ObjectDeclVisitor::ObjectDeclVisitor(
-    Output& h, Output& c, const string& dllExport)
+Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& h, Output& c,
+						 const string& dllExport)
     : H(h), C(c), dllExport_(dllExport)
 {
 }
 
 void
-IceLang::GenCPlusPlus::ObjectDeclVisitor::visitModuleStart(
-    const Module_ptr& p)
+Slice::Gen::ObjectDeclVisitor::visitModuleStart(const Module_ptr& p)
 {
     if(!p -> hasClassDecls())
 	return;
@@ -934,8 +876,7 @@ IceLang::GenCPlusPlus::ObjectDeclVisitor::visitModuleStart(
 }
 
 void
-IceLang::GenCPlusPlus::ObjectDeclVisitor::visitModuleEnd(
-    const Module_ptr& p)
+Slice::Gen::ObjectDeclVisitor::visitModuleEnd(const Module_ptr& p)
 {
     if(!p -> hasClassDecls())
 	return;
@@ -945,8 +886,7 @@ IceLang::GenCPlusPlus::ObjectDeclVisitor::visitModuleEnd(
 }
 
 void
-IceLang::GenCPlusPlus::ObjectDeclVisitor::visitClassDecl(
-    const ClassDecl_ptr& p)
+Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDecl_ptr& p)
 {
     string name = p -> name();
     
@@ -954,19 +894,14 @@ IceLang::GenCPlusPlus::ObjectDeclVisitor::visitClassDecl(
     H << nl << "class " << name << ';';
 }
 
-// ----------------------------------------------------------------------
-// ObjectVisitor
-// ----------------------------------------------------------------------
-
-IceLang::GenCPlusPlus::ObjectVisitor::ObjectVisitor(
-    Output& h, Output& c, const string& dllExport)
+Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c,
+					 const string& dllExport)
     : H(h), C(c), dllExport_(dllExport)
 {
 }
 
 void
-IceLang::GenCPlusPlus::ObjectVisitor::visitModuleStart(
-    const Module_ptr& p)
+Slice::Gen::ObjectVisitor::visitModuleStart(const Module_ptr& p)
 {
     if(!p -> hasClassDefs())
 	return;
@@ -978,8 +913,7 @@ IceLang::GenCPlusPlus::ObjectVisitor::visitModuleStart(
 }
 
 void
-IceLang::GenCPlusPlus::ObjectVisitor::visitModuleEnd(
-    const Module_ptr& p)
+Slice::Gen::ObjectVisitor::visitModuleEnd(const Module_ptr& p)
 {
     if(!p -> hasClassDefs())
 	return;
@@ -989,8 +923,7 @@ IceLang::GenCPlusPlus::ObjectVisitor::visitModuleEnd(
 }
 
 void
-IceLang::GenCPlusPlus::ObjectVisitor::visitClassDefStart(
-    const ClassDef_ptr& p)
+Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDef_ptr& p)
 {
     bool local = p -> local();
     string name = p -> name();
@@ -1073,8 +1006,7 @@ IceLang::GenCPlusPlus::ObjectVisitor::visitClassDefStart(
 }
     
 void
-IceLang::GenCPlusPlus::ObjectVisitor::visitClassDefEnd(
-    const ClassDef_ptr& p)
+Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDef_ptr& p)
 {
     string name = p -> name();
     string scoped = p -> scoped();
@@ -1211,8 +1143,7 @@ IceLang::GenCPlusPlus::ObjectVisitor::visitClassDefEnd(
 }
 
 void
-IceLang::GenCPlusPlus::ObjectVisitor::visitOperation(
-    const Operation_ptr& p)
+Slice::Gen::ObjectVisitor::visitOperation(const Operation_ptr& p)
 {
     Container_ptr container = p -> container();
     ClassDef_ptr cl = ClassDef_ptr::dynamicCast(container);
@@ -1320,8 +1251,7 @@ IceLang::GenCPlusPlus::ObjectVisitor::visitOperation(
 }
 
 void
-IceLang::GenCPlusPlus::ObjectVisitor::visitDataMember(
-    const DataMember_ptr& p)
+Slice::Gen::ObjectVisitor::visitDataMember(const DataMember_ptr& p)
 {
     string name = p -> name();
     string s = typeToString(p -> type());
@@ -1329,19 +1259,14 @@ IceLang::GenCPlusPlus::ObjectVisitor::visitDataMember(
     H << nl << s << ' ' << name << ';';
 }
 
-// ----------------------------------------------------------------------
-// IceVisitor
-// ----------------------------------------------------------------------
-
-IceLang::GenCPlusPlus::IceVisitor::IceVisitor(
-    Output& h, Output& c, const string& dllExport)
+Slice::Gen::IceVisitor::IceVisitor(Output& h, Output& c,
+				   const string& dllExport)
     : H(h), C(c), dllExport_(dllExport)
 {
 }
 
 void
-IceLang::GenCPlusPlus::IceVisitor::visitUnitStart(
-    const Parser_ptr& p)
+Slice::Gen::IceVisitor::visitUnitStart(const Parser_ptr& p)
 {
     if(!p -> hasClassDecls())
 	return;
@@ -1351,8 +1276,7 @@ IceLang::GenCPlusPlus::IceVisitor::visitUnitStart(
 }
 
 void
-IceLang::GenCPlusPlus::IceVisitor::visitUnitEnd(
-    const Parser_ptr& p)
+Slice::Gen::IceVisitor::visitUnitEnd(const Parser_ptr& p)
 {
     if(!p -> hasClassDecls())
 	return;
@@ -1362,8 +1286,7 @@ IceLang::GenCPlusPlus::IceVisitor::visitUnitEnd(
 }
     
 void
-IceLang::GenCPlusPlus::IceVisitor::visitClassDecl(
-    const ClassDecl_ptr& p)
+Slice::Gen::IceVisitor::visitClassDecl(const ClassDecl_ptr& p)
 {
     string scoped = p -> scoped();
     
@@ -1388,8 +1311,7 @@ IceLang::GenCPlusPlus::IceVisitor::visitClassDecl(
 }
 
 void
-IceLang::GenCPlusPlus::IceVisitor::visitClassDefStart(
-    const ClassDef_ptr& p)
+Slice::Gen::IceVisitor::visitClassDefStart(const ClassDef_ptr& p)
 {
     string scoped = p -> scoped();
     
@@ -1431,19 +1353,14 @@ IceLang::GenCPlusPlus::IceVisitor::visitClassDefStart(
     }
 }
 
-// ----------------------------------------------------------------------
-// HandleVisitor
-// ----------------------------------------------------------------------
-
-IceLang::GenCPlusPlus::HandleVisitor::HandleVisitor(
-    Output& h, Output& c, const string& dllExport)
+Slice::Gen::HandleVisitor::HandleVisitor(Output& h, Output& c,
+					 const string& dllExport)
     : H(h), C(c), dllExport_(dllExport)
 {
 }
 
 void
-IceLang::GenCPlusPlus::HandleVisitor::visitModuleStart(
-    const Module_ptr& p)
+Slice::Gen::HandleVisitor::visitModuleStart(const Module_ptr& p)
 {
     if(!p -> hasClassDecls())
 	return;
@@ -1455,8 +1372,7 @@ IceLang::GenCPlusPlus::HandleVisitor::visitModuleStart(
 }
 
 void
-IceLang::GenCPlusPlus::HandleVisitor::visitModuleEnd(
-    const Module_ptr& p)
+Slice::Gen::HandleVisitor::visitModuleEnd(const Module_ptr& p)
 {
     if(!p -> hasClassDecls())
 	return;
@@ -1466,8 +1382,7 @@ IceLang::GenCPlusPlus::HandleVisitor::visitModuleEnd(
 }
 
 void
-IceLang::GenCPlusPlus::HandleVisitor::visitClassDecl(
-    const ClassDecl_ptr& p)
+Slice::Gen::HandleVisitor::visitClassDecl(const ClassDecl_ptr& p)
 {
     string name = p -> name();
     string scoped = p -> scoped();
@@ -1488,8 +1403,7 @@ IceLang::GenCPlusPlus::HandleVisitor::visitClassDecl(
 }
 
 void
-IceLang::GenCPlusPlus::HandleVisitor::visitClassDefStart(
-    const ClassDef_ptr& p)
+Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDef_ptr& p)
 {
     if(p -> local())
 	return;

@@ -14,8 +14,8 @@ NAME		= $(top_srcdir)/bin/slice2cpp
 
 TARGETS		= $(NAME)
 
-OBJS		= GenCPlusPlus.o \
-		  GenCPlusPlusUtil.o \
+OBJS		= Gen.o \
+		  GenUtil.o \
 		  Main.o
 
 SRCS		= $(OBJS:.o=.cpp)

@@ -14,7 +14,7 @@
 #include <fstream>
 #include <sstream>
 
-namespace IceLang
+namespace Slice
 {
 
 class NextLine { };

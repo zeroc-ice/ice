@@ -12,9 +12,9 @@
 #include <OutputUtil.h>
 
 using namespace std;
-using namespace IceLang;
+using namespace Slice;
 
-namespace IceLang
+namespace Slice
 {
 
 NextLine nl;
@@ -28,7 +28,7 @@ Separator sp;
 // Output
 // ----------------------------------------------------------------------
 
-IceLang::Output::Output()
+Slice::Output::Output()
     : pos_(0),
       indent_(0),
       indentSave_(-1),
@@ -37,13 +37,13 @@ IceLang::Output::Output()
 }
 
 void
-IceLang::Output::open(const char* s)
+Slice::Output::open(const char* s)
 {
     out_.open(s);
 }
 
 void
-IceLang::Output::print(const char* s)
+Slice::Output::print(const char* s)
 {
     for(unsigned int i = 0; i < strlen(s); ++i)
     {
@@ -57,14 +57,14 @@ IceLang::Output::print(const char* s)
 }
 
 void
-IceLang::Output::inc()
+Slice::Output::inc()
 {
     indent_ += 4;
     separator_ = true;
 }
 
 void
-IceLang::Output::dec()
+Slice::Output::dec()
 {
     assert(indent_ >= 4);
     indent_ -= 4;
@@ -72,7 +72,7 @@ IceLang::Output::dec()
 }
 
 void
-IceLang::Output::useCurrentPosAsIndent()
+Slice::Output::useCurrentPosAsIndent()
 {
     assert(indentSave_ == -1);
     indentSave_ = indent_;
@@ -80,7 +80,7 @@ IceLang::Output::useCurrentPosAsIndent()
 }
 
 void
-IceLang::Output::zeroIndent()
+Slice::Output::zeroIndent()
 {
     assert(indentSave_ == -1);
     indentSave_ = indent_;
@@ -88,7 +88,7 @@ IceLang::Output::zeroIndent()
 }
 
 void
-IceLang::Output::restoreIndent()
+Slice::Output::restoreIndent()
 {
     assert(indentSave_ != -1);
     indent_ = indentSave_;
@@ -96,7 +96,7 @@ IceLang::Output::restoreIndent()
 }
 
 void
-IceLang::Output::nl()
+Slice::Output::nl()
 {
     out_ << '\n';
     pos_ = 0;
@@ -122,7 +122,7 @@ IceLang::Output::nl()
 }
 
 void
-IceLang::Output::sb()
+Slice::Output::sb()
 {
     nl();
     out_ << '{';
@@ -132,7 +132,7 @@ IceLang::Output::sb()
 }
 
 void
-IceLang::Output::eb()
+Slice::Output::eb()
 {
     dec();
     nl();
@@ -141,41 +141,41 @@ IceLang::Output::eb()
 }
 
 void
-IceLang::Output::sp()
+Slice::Output::sp()
 {
     if(separator_)
 	out_ << '\n';
 }
 
 bool
-IceLang::Output::operator!() const
+Slice::Output::operator!() const
 {
     return !out_;
 }
 
 Output&
-IceLang::operator<<(Output& o, const NextLine&)
+Slice::operator<<(Output& o, const NextLine&)
 {
     o.nl();
     return o;
 }
 
 Output&
-IceLang::operator<<(Output& o, const StartBlock&)
+Slice::operator<<(Output& o, const StartBlock&)
 {
     o.sb();
     return o;
 }
 
 Output&
-IceLang::operator<<(Output& o, const EndBlock&)
+Slice::operator<<(Output& o, const EndBlock&)
 {
     o.eb();
     return o;
 }
 
 Output&
-IceLang::operator<<(Output& o, const Separator&)
+Slice::operator<<(Output& o, const Separator&)
 {
     o.sp();
     return o;

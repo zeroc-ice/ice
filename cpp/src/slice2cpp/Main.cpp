@@ -8,11 +8,11 @@
 //
 // **********************************************************************
 
-#include <GenCPlusPlus.h>
+#include <Gen.h>
 #include <fstream>
 
 using namespace std;
-using namespace IceLang;
+using namespace Slice;
 
 void
 usage(const char* n)
@@ -180,7 +180,7 @@ main(int argc, char* argv[])
 	if(status == EXIT_FAILURE)
 	    return status;
 
-	GenCPlusPlus gen(argv[0], base, include, includePaths, dllExport);
+	Gen gen(argv[0], base, include, includePaths, dllExport);
 	if(!gen)
 	    return EXIT_FAILURE;
 	gen.generate(parser);
