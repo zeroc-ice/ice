@@ -25,6 +25,7 @@ module IceBox
  * unable to load a service executable.
  *
  **/
+// ML: Shouldn't this be local?
 exception FailureException
 {
     /**
@@ -148,6 +149,7 @@ interface ServiceManager
      * invoked on all configured services.
      *
      **/
+    // ML: I don't like the name shutdown. Shouldn't this be stopAll(), as below?
     void shutdown();
 
 #if 0
