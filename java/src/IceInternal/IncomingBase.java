@@ -17,13 +17,14 @@ package IceInternal;
 public class IncomingBase
 {
     protected
-    IncomingBase(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response)
+    IncomingBase(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
     {
         _current = new Ice.Current();
         _current.id = new Ice.Identity();
         _current.adapter = adapter;
         _cookie = new Ice.LocalObjectHolder();
 	_response = response;
+        _compress = compress;
         _is = new BasicStream(instance);
         _os = new BasicStream(instance);
 	_connection = connection;
@@ -49,7 +50,7 @@ public class IncomingBase
     // reallocated.
     //
     public void
-    reset(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response)
+    reset(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
     {
         _current.adapter = adapter;
         if(_current.ctx != null)
@@ -60,6 +61,7 @@ public class IncomingBase
 	_locator = null;
         _cookie.value = null;
 	_response = response;
+        _compress = compress;
 	if(_is == null)
 	{
 	    _is = new BasicStream(instance);
@@ -121,7 +123,7 @@ public class IncomingBase
 	//
 	if(_response)
 	{
-	    _connection.sendResponse(_os);
+	    _connection.sendResponse(_os, _compress);
 	}
 	else
 	{
@@ -156,6 +158,7 @@ public class IncomingBase
     protected Ice.LocalObjectHolder _cookie;
 
     protected boolean _response;
+    protected byte _compress;
 
     protected BasicStream _is;
     protected BasicStream _os;

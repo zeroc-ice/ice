@@ -9,6 +9,11 @@ Changes since version 1.0.1
   stoping a service and destroying its communicator, services are now
   all stopped first and then their communicators are destroyed.
 
+- Modified the Ice protocol to fix a problem with compression. The
+  message types for compressed messages have been removed, and a
+  field has been added to the message header indicating compression
+  status.
+
 - Added version negotiation to the Ice protocol. This permits future
   protocol extensions to be added without breaking interoperability
   with older deployed clients and servers. Unfortunately, doing this

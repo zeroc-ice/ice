@@ -126,24 +126,6 @@ printHeader(ostream& s, BasicStream& stream)
 	    break;
 	}
 
-	case compressedRequestMsg:
-	{
-	    s << "(compressed request)";
-	    break;
-	}
-
-	case compressedRequestBatchMsg:
-	{
-	    s << "(compressed batch request)";
-	    break;
-	}
-
-	case compressedReplyMsg:
-	{
-	    s << "(compressed reply)";
-	    break;
-	}
-
 	case closeConnectionMsg:
 	{
 	    s << "(close connection)";
@@ -155,6 +137,38 @@ printHeader(ostream& s, BasicStream& stream)
 	    s << "(validate connection)";
 	    break;
 	}
+
+	default:
+	{
+	    s << "(unknown)";
+	    break;
+	}
+    }
+
+    Byte compress;
+    stream.read(compress);
+    s << "\ncompression status = "  << static_cast<int>(compress) << ' ';
+
+    switch(compress)
+    {
+	case 0:
+	{
+	    s << "(compression not used, not supported by sender)";
+	    break;
+	}
+
+	case 1:
+	{
+	    s << "(compression not used, supported by sender)";
+	    break;
+	}
+
+	case 2:
+	{
+	    s << "(compression used, supported by sender)";
+	    break;
+	}
+
 	default:
 	{
 	    s << "(unknown)";

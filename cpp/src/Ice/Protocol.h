@@ -29,9 +29,10 @@ namespace IceInternal
 // Encoding version major (Byte)
 // Encoding version minor (Byte)
 // Message type (Byte)
+// Compression status (Byte)
 // Message size (Int)
 //
-const ::Ice::Int headerSize = 13;
+const ::Ice::Int headerSize = 14;
 
 //
 // The magic number at the front of each message
@@ -54,9 +55,6 @@ const ::Ice::Byte requestBatchMsg = 1;
 const ::Ice::Byte replyMsg = 2;
 const ::Ice::Byte validateConnectionMsg = 3;
 const ::Ice::Byte closeConnectionMsg = 4;
-const ::Ice::Byte compressedRequestMsg = 5;
-const ::Ice::Byte compressedRequestBatchMsg = 6;
-const ::Ice::Byte compressedReplyMsg = 7;
 
 }
 

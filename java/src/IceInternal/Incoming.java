@@ -17,9 +17,9 @@ package IceInternal;
 final public class Incoming extends IncomingBase
 {
     public
-    Incoming(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response)
+    Incoming(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
     {
-	super(instance, connection, adapter, response);
+	super(instance, connection, adapter, response, compress);
     }
 
     public void

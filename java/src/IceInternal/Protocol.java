@@ -25,9 +25,10 @@ final class Protocol
     // Encoding version major (Byte)
     // Encoding version minor (Byte)
     // Message type (Byte)
+    // Compression status (Byte)
     // Message size (Int)
     //
-    final static int headerSize = 13;
+    final static int headerSize = 14;
 
     //
     // The magic number at the front of each message
@@ -50,7 +51,4 @@ final class Protocol
     final static byte replyMsg = 2;
     final static byte validateConnectionMsg = 3;
     final static byte closeConnectionMsg = 4;
-    final static byte compressedRequestMsg = 5;
-    final static byte compressedRequestBatchMsg = 6;
-    final static byte compressedReplyMsg = 7;
 }

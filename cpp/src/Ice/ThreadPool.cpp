@@ -618,6 +618,8 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
     }
     Byte messageType;
     stream.read(messageType);
+    Byte compress;
+    stream.read(compress);
     Int size;
     stream.read(size);
     if(size < headerSize)

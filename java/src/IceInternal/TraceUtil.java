@@ -388,6 +388,35 @@ final class TraceUtil
                 }
             }
 
+            byte compress = stream.readByte();
+            out.write("\ncompression status = " + (int)compress + ' ');
+            switch(compress)
+            {
+                case (byte)0:
+                {
+                    out.write("(compression not used, not supported by sender)");
+                    break;
+                }
+
+                case (byte)1:
+                {
+                    out.write("(compression not used, supported by sender)");
+                    break;
+                }
+
+                case (byte)2:
+                {
+                    out.write("(compression used, supported by sender)");
+                    break;
+                }
+
+                default:
+                {
+                    out.write("(unknown)");
+                    break;
+                }
+            }
+
             int size = stream.readInt();
             out.write("\nmessage size = " + size);
         }

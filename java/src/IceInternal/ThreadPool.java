@@ -757,6 +757,7 @@ public final class ThreadPool
 	}
 
         byte messageType = stream.readByte();
+        byte compress = stream.readByte();
         int size = stream.readInt();
         if(size < Protocol.headerSize)
         {

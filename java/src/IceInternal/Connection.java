@@ -167,6 +167,7 @@ public final class Connection extends EventHandler
 		    os.writeByte(Protocol.encodingMajor);
 		    os.writeByte(Protocol.encodingMinor);
 		    os.writeByte(Protocol.validateConnectionMsg);
+		    os.writeByte((byte)0); // Compression status.
 		    os.writeInt(Protocol.headerSize); // Message size.
 		    TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
 		    _transceiver.write(os, _endpoint.timeout());
@@ -174,7 +175,7 @@ public final class Connection extends EventHandler
 		else
 		{
 		    //
-		    // Outgoing connection play the passive role with
+		    // Outgoing connections play the passive role with
 		    // respect to connection validation.
 		    //
 		    BasicStream is = new BasicStream(_instance);
@@ -244,6 +245,13 @@ public final class Connection extends EventHandler
 		    {
 			throw new Ice.ConnectionNotValidatedException();
 		    }
+
+                    byte compress = is.readByte();
+                    if(compress == (byte)2)
+                    {
+                        throw new Ice.CompressionNotSupportedException();
+                    }
+
 		    int size = is.readInt();
 		    if(size != Protocol.headerSize)
 		    {
@@ -323,6 +331,7 @@ public final class Connection extends EventHandler
         Protocol.encodingMajor,
         Protocol.encodingMinor,
         Protocol.requestMsg,
+        (byte)0, // Compression status.
         (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
         (byte)0, (byte)0, (byte)0, (byte)0  // Request ID (placeholder).
     };
@@ -347,7 +356,7 @@ public final class Connection extends EventHandler
 	try
 	{
 	    BasicStream os = out.os();
-	    os.pos(9);
+	    os.pos(10);
 	    
 	    //
 	    // Fill in the message size and request ID.
@@ -406,7 +415,7 @@ public final class Connection extends EventHandler
 	try
 	{
 	    BasicStream os = out.__os();
-	    os.pos(9);
+	    os.pos(10);
 	    
 	    //
 	    // Fill in the message size and request ID.
@@ -455,6 +464,7 @@ public final class Connection extends EventHandler
         Protocol.encodingMajor,
         Protocol.encodingMinor,
         Protocol.requestBatchMsg,
+        0, // Compression status.
         (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
         (byte)0, (byte)0, (byte)0, (byte)0  // Number of requests in batch (placeholder).
     };
@@ -561,7 +571,7 @@ public final class Connection extends EventHandler
 	
 	try
 	{
-	    _batchStream.pos(9);
+	    _batchStream.pos(10);
 	    
 	    //
 	    // Fill in the message size.
@@ -600,7 +610,7 @@ public final class Connection extends EventHandler
     }
 
     public synchronized void
-    sendResponse(BasicStream os)
+    sendResponse(BasicStream os, byte compress)
     {
 	try
 	{
@@ -617,7 +627,7 @@ public final class Connection extends EventHandler
 	    //
 	    // Fill in the message size.
 	    //
-	    os.pos(9);
+	    os.pos(10);
 	    final int sz = os.size();
 	    os.writeInt(sz);
 	    
@@ -758,6 +768,7 @@ public final class Connection extends EventHandler
         Protocol.encodingMajor,
         Protocol.encodingMinor,
         Protocol.replyMsg,
+        (byte)0, // Compression status.
         (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
     };
 
@@ -768,6 +779,7 @@ public final class Connection extends EventHandler
 
 	int invoke = 0;
 	int requestId = 0;
+        byte compress = 0;
 
         synchronized(this)
         {
@@ -827,17 +839,17 @@ public final class Connection extends EventHandler
 		}
 
                 byte messageType = stream.readByte();
+                compress = stream.readByte();
+
+                if(compress == (byte)2)
+                {
+                    throw new Ice.CompressionNotSupportedException();
+                }
+
                 stream.pos(Protocol.headerSize);
 
                 switch(messageType)
                 {
-		    case Protocol.compressedRequestMsg:
-		    case Protocol.compressedRequestBatchMsg:
-		    case Protocol.compressedReplyMsg:
-		    {
-			throw new Ice.CompressionNotSupportedException();
-		    }
-			
                     case Protocol.requestMsg:
                     {
                         if(_state == StateClosing)
@@ -977,7 +989,7 @@ public final class Connection extends EventHandler
 		// Prepare the invocation.
 		//
 		boolean response = !_endpoint.datagram() && requestId != 0;
-		in = getIncoming(response);
+		in = getIncoming(response, compress);
                 BasicStream is = in.is();
                 stream.swap(is);
 		BasicStream os = in.os();
@@ -1288,6 +1300,7 @@ public final class Connection extends EventHandler
 	    os.writeByte(Protocol.encodingMajor);
 	    os.writeByte(Protocol.encodingMinor);
 	    os.writeByte(Protocol.closeConnectionMsg);
+	    os.writeByte((byte)0); // Compression status.
 	    os.writeInt(Protocol.headerSize); // Message size.
 	    _transceiver.write(os, _endpoint.timeout());
 	    _transceiver.shutdown();
@@ -1364,7 +1377,7 @@ public final class Connection extends EventHandler
     }
 
     private Incoming
-    getIncoming(boolean response)
+    getIncoming(boolean response, byte compress)
     {
         Incoming in = null;
 
@@ -1372,14 +1385,14 @@ public final class Connection extends EventHandler
         {
             if(_incomingCache == null)
             {
-                in = new Incoming(_instance, this, _adapter, response);
+                in = new Incoming(_instance, this, _adapter, response, compress);
             }
             else
             {
                 in = _incomingCache;
                 _incomingCache = _incomingCache.next;
                 in.next = null;
-                in.reset(_instance, this, _adapter, response);
+                in.reset(_instance, this, _adapter, response, compress);
             }
         }
 

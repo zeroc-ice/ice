@@ -32,8 +32,9 @@ using namespace IceInternal;
 
 IceInternal::IncomingBase::IncomingBase(Instance* instance, Connection* connection, 
 					const ObjectAdapterPtr& adapter,
-					bool response) :
+					bool response, Byte compress) :
     _response(response),
+    _compress(compress),
     _is(instance),
     _os(instance),
     _connection(connection)
@@ -47,6 +48,7 @@ IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
     _locator(in._locator),
     _cookie(in._cookie),
     _response(in._response),
+    _compress(in._compress),
     _is(in._is.instance()),
     _os(in._os.instance()),
     _connection(in._connection)
@@ -79,7 +81,7 @@ IceInternal::IncomingBase::__finishInvoke(bool success)
     //
     if(_response)
     {
-	_connection->sendResponse(&_os);
+	_connection->sendResponse(&_os, _compress);
     }
     else
     {
@@ -120,8 +122,8 @@ IceInternal::IncomingBase::__warning(const string& msg) const
 
 IceInternal::Incoming::Incoming(Instance* instance, Connection* connection, 
 				const ObjectAdapterPtr& adapter,
-				bool response) :
-    IncomingBase(instance, connection, adapter, response)
+				bool response, Byte compress) :
+    IncomingBase(instance, connection, adapter, response, compress)
 {
 }
 

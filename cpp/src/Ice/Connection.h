@@ -77,7 +77,7 @@ public:
     void abortBatchRequest();
     void flushBatchRequest();
 
-    void sendResponse(BasicStream*);
+    void sendResponse(BasicStream*, Ice::Byte);
     void sendNoResponse();
 
     int timeout() const;
