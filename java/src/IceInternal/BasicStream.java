@@ -232,8 +232,8 @@ public class BasicStream
 	if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
 	{
 	    Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-	    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-	    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+	    e.badMajor = eMajor < 0 ? eMajor + 256 : eMajor;
+	    e.badMinor = eMinor < 0 ? eMinor + 256 : eMinor;
 	    e.major = Protocol.encodingMajor;
 	    e.minor = Protocol.encodingMinor;
 	    throw e;
@@ -432,7 +432,7 @@ public class BasicStream
     writeTypeId(String id)
     {
 	Integer index = (Integer)_writeEncapsStack.typeIdMap.get(id);
-	if(id == null)
+	if(index != null)
 	{
 	    writeBool(true);
 	    writeSize(index.intValue());
@@ -1023,8 +1023,8 @@ public class BasicStream
 
 	if(_writeEncapsStack.toBeMarshaledMap == null)	// Lazy initialization
 	{
-	    _writeEncapsStack.toBeMarshaledMap = new java.util.HashMap();
-	    _writeEncapsStack.marshaledMap = new java.util.HashMap();
+	    _writeEncapsStack.toBeMarshaledMap = new java.util.IdentityHashMap();
+	    _writeEncapsStack.marshaledMap = new java.util.IdentityHashMap();
 	    _writeEncapsStack.typeIdMap = new java.util.TreeMap();
 	}
 	if(v != null)
@@ -1137,10 +1137,11 @@ public class BasicStream
                 }
 		if(v == null)
 		{
-		    skipSlice();
+		    skipSlice();    // Slice off this derived part -- we don't understand it.
 		    continue;
 		}
 	    }
+
 	    Integer i = new Integer(index);
 	    _readEncapsStack.unmarshaledMap.put(i, v);
 	    v.__read(this, false);
@@ -1170,6 +1171,9 @@ public class BasicStream
 
 	while(!id.equals(""))
 	{
+            //
+            // Look for a factory for this ID.
+            //
 	    Ice.UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
 	    if(factory == null)
 	    {
@@ -1178,6 +1182,10 @@ public class BasicStream
 
 	    if(factory != null)
 	    {
+                //
+                // Got factory -- get the factory to instantiate the exception, initialize the
+                // exception members, and throw the exception.
+                //
 		try
 		{
 		    factory.createAndThrow();
@@ -1211,8 +1219,7 @@ public class BasicStream
     {
 	while(_writeEncapsStack.toBeMarshaledMap.size() > 0)
 	{
-	    java.util.HashMap savedMap = new java.util.HashMap();
-	    savedMap.putAll(_writeEncapsStack.toBeMarshaledMap);
+	    java.util.IdentityHashMap savedMap = new java.util.IdentityHashMap(_writeEncapsStack.toBeMarshaledMap);
 	    writeSize(savedMap.size());
 	    for(java.util.Iterator p = savedMap.entrySet().iterator(); p.hasNext(); )
 	    {
@@ -1225,23 +1232,25 @@ public class BasicStream
 	        _writeEncapsStack.marshaledMap.put(e.getKey(), e.getValue());
 		writeInstance((Ice.Object)e.getKey(), (Integer)e.getValue());
 	    }
+
 	    //
 	    // We have marshaled all the instances for this pass, substract what we have
 	    // marshaled from the toBeMarshaledMap.
 	    //
-	    for(java.util.Iterator p = savedMap.keySet().iterator();  p.hasNext(); )
+	    for(java.util.Iterator p = savedMap.keySet().iterator(); p.hasNext(); )
 	    {
 	        _writeEncapsStack.toBeMarshaledMap.remove(p.next());
 	    }
 	}
-	writeSize(0);
+	writeSize(0);   // Zero marker indicates end of sequence of sequences of instances.
     }
 
     public void
     readPendingObjects()
     {
 	int num;
-	do {
+	do
+        {
 	    num = readSize();
 	    for(int k = num; k > 0; --k)
 	    {
@@ -1261,6 +1270,12 @@ public class BasicStream
     void
     patchReferences(Integer instanceIndex, Integer patchIndex)
     {
+        //
+        // Called whenever we have unmarshaled a new instance. The instanceIndex is the index of the instance just
+        // unmarshaled and patchIndex is the index just unmarshaled. (Either may be null, in which case we search
+        // the patch map and/or the unmarshaled map.)
+        // Patch any pointers in the patch map with the new address.
+        //
 	assert((patchIndex != null && instanceIndex == null) || (patchIndex == null && instanceIndex != null));
 
 	java.util.LinkedList patchlist;
@@ -1280,13 +1295,13 @@ public class BasicStream
 	}
 	else
 	{
-	   //
-	   // We have just unmarshaled an index -- check if we have unmarshaled an instance for that index.
-	   //
+	    //
+	    // We have just unmarshaled an index -- check if we have unmarshaled an instance for that index.
+	    //
 	    v = (Ice.Object)_readEncapsStack.unmarshaledMap.get(patchIndex);
 	    if(v == null)
 	    {
-	       return; // We don't have unmarshaled the instance for this index yet
+	       return; // We haven't unmarshaled the instance for this index yet
 	    }
 	    patchlist = (java.util.LinkedList)_readEncapsStack.patchMap.get(patchIndex);
 	}
@@ -1296,7 +1311,8 @@ public class BasicStream
 	for(java.util.Iterator i = patchlist.iterator(); i.hasNext(); )
 	{
 	    Ice.Patcher p = (Ice.Patcher)i.next();
-	    try {
+	    try
+            {
 		p.patch(v);
 	    }
 	    catch(ClassCastException ex)
@@ -1542,8 +1558,8 @@ public class BasicStream
     {
         int start;
 	int writeIndex;
-	java.util.HashMap toBeMarshaledMap;
-	java.util.HashMap marshaledMap;
+	java.util.IdentityHashMap toBeMarshaledMap;
+	java.util.IdentityHashMap marshaledMap;
 	int typeIdIndex;
 	java.util.TreeMap typeIdMap;
         WriteEncaps next;
