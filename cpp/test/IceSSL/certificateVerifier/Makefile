@@ -14,7 +14,7 @@ CLIENT		= certificateVerifier
 
 TARGETS		= $(CLIENT)
 
-OBJS		= certificateVerifier.o
+OBJS		= CertificateVerifier.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
