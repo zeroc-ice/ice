@@ -223,6 +223,7 @@ print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("ice", "makedist.py"), \
     os.path.join("ice", "makebindist.py"), \
+    os.path.join("ice", "newmakebindist.py"), \
     os.path.join("ice", "fixCopyright.py"), \
     ]
 filesToRemove.extend(find("ice", ".dummy"))
