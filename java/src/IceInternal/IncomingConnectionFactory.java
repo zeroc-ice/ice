@@ -202,6 +202,14 @@ public class IncomingConnectionFactory extends EventHandler
                 _endpoint = h.value;
                 Connection connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
                 _connections.add(connection);
+
+		//
+		// We don't need an adapter anymore if we don't use an
+		// acceptor. So we break cyclic object dependency
+		// now. This is necessary, because the object adapter
+		// never clears the list of incoming connections it keeps.
+		//
+		_adapter = null;
             }
             else
             {
@@ -244,7 +252,7 @@ public class IncomingConnectionFactory extends EventHandler
     public synchronized void
     waitUntilFinished()
     {
-	while(_adapter != null)
+	while(_state != StateClosed || _adapter != null)
 	{
 	    try
 	    {
@@ -323,6 +331,8 @@ public class IncomingConnectionFactory extends EventHandler
                     connection.destroy(Connection.ObjectAdapterDeactivated);
                 }
                 _connections.clear();
+
+		notifyAll(); // For waitUntilFinished().
 
                 break;
             }

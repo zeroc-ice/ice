@@ -46,6 +46,7 @@ private:
 class LocatorAdapterTable : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
+
     LocatorAdapterTable();
     
     bool get(const std::string&, ::std::vector<EndpointPtr>&) const;

@@ -211,7 +211,6 @@ final class TcpTransceiver implements Transceiver
     //
     TcpTransceiver(Instance instance, java.nio.channels.SocketChannel fd)
     {
-        _instance = instance;
         _fd = fd;
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
@@ -237,7 +236,6 @@ final class TcpTransceiver implements Transceiver
         super.finalize();
     }
 
-    private Instance _instance;
     private java.nio.channels.SocketChannel _fd;
     private java.nio.channels.Selector _selector;
     private TraceLevels _traceLevels;

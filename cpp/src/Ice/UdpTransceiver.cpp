@@ -219,7 +219,6 @@ IceInternal::UdpTransceiver::setProtocolName(const string& protocolName)
 
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port,
                                             const string& protocolName) :
-    _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
     _incoming(false),
@@ -252,7 +251,6 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port,
 					    bool connect, const string& protocolName) :
-    _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
     _incoming(true),

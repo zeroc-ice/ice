@@ -179,7 +179,6 @@ final class UdpTransceiver implements Transceiver
     //
     UdpTransceiver(Instance instance, String host, int port)
     {
-        _instance = instance;
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
         _incoming = false;
@@ -211,7 +210,6 @@ final class UdpTransceiver implements Transceiver
     //
     UdpTransceiver(Instance instance, String host, int port, boolean connect)
     {
-        _instance = instance;
         _traceLevels = instance.traceLevels();
         _logger = instance.logger();
         _incoming = true;
@@ -245,7 +243,6 @@ final class UdpTransceiver implements Transceiver
         super.finalize();
     }
 
-    private Instance _instance;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
     private boolean _incoming;

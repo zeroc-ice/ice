@@ -234,7 +234,6 @@ IceInternal::OutgoingConnectionFactory::destroy()
     {
 	return;
     }
-
 #ifdef _STLP_BEGIN_NAMESPACE
     // voidbind2nd is an STLport extension for broken compilers in IceUtil/Functional.h
     for_each(_connections.begin(), _connections.end(),
@@ -435,6 +434,14 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	{
 	    ConnectionPtr connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
 	    _connections.push_back(connection);
+
+	    //
+	    // We don't need an adapter anymore if we don't use an
+	    // acceptor. So we break cyclic object dependency
+	    // now. This is necessary, because the object adapter
+	    // never clears the list of incoming connections it keeps.
+	    //
+	    _adapter = 0;
 	}
 	else
 	{
@@ -468,7 +475,7 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 {
     ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
 
-    while(_adapter)
+    while(_state != StateClosed || _adapter)
     {
 	wait();
     }

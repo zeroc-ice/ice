@@ -35,7 +35,6 @@ Ice::CommunicatorI::destroy()
 	_instance->objectAdapterFactory()->shutdown();
 	_instance->destroy();
 	_instance = 0;
-	    
     }
 }
 

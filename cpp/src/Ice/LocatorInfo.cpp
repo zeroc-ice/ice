@@ -294,3 +294,4 @@ IceInternal::LocatorInfo::clearCache(const ReferencePtr& ref)
 	}
     }
 }
+

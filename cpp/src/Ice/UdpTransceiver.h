@@ -52,7 +52,6 @@ private:
 //    friend class SUdpEndpoint; // TODO: Remove as soon as SUdpEndpoint uses SUdpTransceiver.
 //    friend class SUdpTransceiver;
 
-    InstancePtr _instance;
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
     bool _incoming;

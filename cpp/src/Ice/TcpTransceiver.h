@@ -40,7 +40,6 @@ private:
     friend class TcpConnector;
     friend class TcpAcceptor;
 
-    InstancePtr _instance;
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
     SOCKET _fd;
