@@ -47,13 +47,13 @@ private:
     // We need a separate InstancePtr, because _is and _os only hold a
     // Instance* for optimization.
     //
-    InstancePtr _instance;
+    InstancePtr _instanceCopy;
 
     //
     // We need a separate ConnectionPtr, because IncomingBase only
     // holds a Connection* for optimization.
     //
-    ConnectionPtr _connection;
+    ConnectionPtr _connectionCopy;
 };
 
 }

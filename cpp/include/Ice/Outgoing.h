@@ -56,8 +56,7 @@ class ICE_API Outgoing : public ::IceUtil::noncopyable, public IceUtil::Monitor<
 {
 public:
 
-    Outgoing(const ConnectionPtr&, const ReferencePtr&, const std::string&, ::Ice::OperationMode,
-	     const ::Ice::Context&);
+    Outgoing(Connection*, Reference*, const std::string&, ::Ice::OperationMode, const ::Ice::Context&);
     ~Outgoing();
 
     bool invoke(); // Returns true if ok, false if user exception.
@@ -70,11 +69,11 @@ public:
 private:
 
     //
-    // Optimization. The connection and the reference may not be deleted
-    // while a stack-allocated Incoming still holds it.
+    // Optimization. The connection and the reference may not be
+    // deleted while a stack-allocated Outgoing still holds it.
     //
-    const ConnectionPtr& _connection;
-    const ReferencePtr& _reference;
+    Connection* _connection;
+    Reference* _reference;
 
     std::auto_ptr< ::Ice::LocalException> _exception;
 

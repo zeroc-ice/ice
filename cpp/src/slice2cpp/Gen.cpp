@@ -1658,7 +1658,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << paramsDecl;
     C << sb;
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
-    C << nl << "::IceInternal::Outgoing __out(__connection, __reference, __operation, "
+    C << nl << "::IceInternal::Outgoing __out(__connection.get(), __reference.get(), __operation, "
       << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context);";
     if(ret || !outParams.empty() || !throws.empty())
     {

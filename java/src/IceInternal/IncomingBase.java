@@ -17,7 +17,7 @@ package IceInternal;
 public class IncomingBase
 {
     protected
-    IncomingBase(Instance instance, Ice.ObjectAdapter adapter, Connection connection, boolean response)
+    IncomingBase(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response)
     {
         _current = new Ice.Current();
         _current.id = new Ice.Identity();

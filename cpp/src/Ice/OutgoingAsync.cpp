@@ -52,8 +52,8 @@ IceInternal::OutgoingAsync::__setup(const ConnectionPtr& connection, const Refer
     _instance = ref->instance;
     delete _is;
     delete _os;
-    _is = new BasicStream(_instance);
-    _os = new BasicStream(_instance);
+    _is = new BasicStream(_instance.get());
+    _os = new BasicStream(_instance.get());
 
     _connection->prepareRequest(_os);
     

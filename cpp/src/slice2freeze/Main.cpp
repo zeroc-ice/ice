@@ -113,7 +113,7 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, O
     if(binary)
     {
         C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
-        C << nl << "IceInternal::BasicStream stream(instance);";
+        C << nl << "IceInternal::BasicStream stream(instance.get());";
         writeMarshalUnmarshalCode(C, type, "v", true, "stream", false);
         C << nl << "bytes = stream.b;";
     }
@@ -135,7 +135,7 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, O
     if(binary)
     {
         C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
-        C << nl << "IceInternal::BasicStream stream(instance);";
+        C << nl << "IceInternal::BasicStream stream(instance.get());";
         C << nl << "stream.b = bytes;";
         C << nl << "stream.i = stream.b.begin();";
         writeMarshalUnmarshalCode(C, type, "v", false, "stream", false);

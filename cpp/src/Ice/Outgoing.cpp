@@ -39,13 +39,13 @@ IceInternal::NonRepeatable::get() const
     return _ex.get();
 }
 
-IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const ReferencePtr& ref, const string& operation,
+IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const string& operation,
 				OperationMode mode, const Context& context) :
     _connection(connection),
     _reference(ref),
     _state(StateUnsent),
-    _is(ref->instance),
-    _os(ref->instance)
+    _is(ref->instance.get()),
+    _os(ref->instance.get())
 {
     switch(_reference->mode)
     {

@@ -60,7 +60,7 @@ private:
 
     //
     // We need a separate InstancePtr, because _is and _os only hold a
-    // const InstancePtr& for optimization.
+    // Instance* for optimization.
     //
     InstancePtr _instance;
 

@@ -29,8 +29,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::Incoming::Incoming(const InstancePtr& instance, const ObjectAdapterPtr& adapter, Connection* connection,
-				bool response, bool compress) :
+IceInternal::IncomingBase::IncomingBase(Instance* instance, Connection* connection, const ObjectAdapterPtr& adapter,
+					bool response, bool compress) :
     _connection(connection),
     _response(response),
     _compress(compress),
@@ -38,6 +38,83 @@ IceInternal::Incoming::Incoming(const InstancePtr& instance, const ObjectAdapter
     _os(instance)
 {
     _current.adapter = adapter;
+}
+
+IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
+    _current(in._current),
+    _servant(in._servant),
+    _locator(in._locator),
+    _cookie(in._cookie),
+    _connection(in._connection),
+    _response(in._response),
+    _compress(in._compress),
+    _is(in._is.instance()),
+    _os(in._os.instance())
+{
+    _is.swap(in._is);
+    _os.swap(in._os);
+}
+
+void
+IceInternal::IncomingBase::__finishInvoke()
+{
+    if(_locator && _servant)
+    {
+	_locator->finished(_current, _servant, _cookie);
+    }
+
+    _is.endReadEncaps();
+
+    //
+    // Send a response if necessary. If we don't need to send a
+    // response, we still need to tell the connection that we're
+    // finished with dispatching.
+    //
+    if(_response)
+    {
+	_connection->sendResponse(&_os, _compress);
+    }
+    else
+    {
+	_connection->sendNoResponse();
+    }
+}
+
+void
+IceInternal::IncomingBase::__warning(const Exception& ex) const
+{
+    ostringstream str;
+    str << ex;
+    __warning(str.str());
+}
+
+void
+IceInternal::IncomingBase::__warning(const string& msg) const
+{
+    if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+    {
+	Warning out(_os.instance()->logger());
+	
+	out << "dispatch exception: " << msg;
+	out << "\nidentity: " << _current.id;
+	out << "\nfacet: ";
+	vector<string>::const_iterator p = _current.facet.begin();
+	while(p != _current.facet.end())
+	{
+	    out << encodeString(*p++, "/");
+	    if(p != _current.facet.end())
+	    {
+		out << '/';
+	    }
+	}
+	out << "\noperation: " << _current.operation;
+    }
+}
+
+IceInternal::Incoming::Incoming(Instance* instance, Connection* connection, const ObjectAdapterPtr& adapter,
+				bool response, bool compress) :
+    IncomingBase(instance, connection, adapter, response, compress)
+{
 }
 
 void
@@ -131,7 +208,7 @@ IceInternal::Incoming::invoke()
 	    {
 		//
 		// If this was an asynchronous dispatch, we're done
-		// here.  We do *not* call finishInvoke(), because the
+		// here.  We do *not* call __finishInvoke(), because the
 		// call is not finished yet.
 		//
 		assert(status == DispatchOK);
@@ -156,7 +233,7 @@ IceInternal::Incoming::invoke()
 	    ex.operation = _current.operation;
 	}
 
-	warning(ex);
+	__warning(ex);
 
 	if(_response)
 	{
@@ -183,12 +260,12 @@ IceInternal::Incoming::invoke()
 	    _os.write(ex.operation);
 	}
 
-	finishInvoke();
+	__finishInvoke();
 	return;
     }
     catch(const LocalException& ex)
     {
-	warning(ex);
+	__warning(ex);
 
 	if(_response)
 	{
@@ -200,12 +277,12 @@ IceInternal::Incoming::invoke()
 	    _os.write(str.str());
 	}
 
-	finishInvoke();
+	__finishInvoke();
 	return;
     }
     catch(const UserException& ex)
     {
-	warning(ex);
+	__warning(ex);
 
 	if(_response)
 	{
@@ -217,12 +294,12 @@ IceInternal::Incoming::invoke()
 	    _os.write(str.str());
 	}
 
-	finishInvoke();
+	__finishInvoke();
 	return;
     }
     catch(const Exception& ex)
     {
-	warning(ex);
+	__warning(ex);
 
 	if(_response)
 	{
@@ -234,12 +311,12 @@ IceInternal::Incoming::invoke()
 	    _os.write(str.str());
 	}
 
-	finishInvoke();
+	__finishInvoke();
 	return;
     }
     catch(const std::exception& ex)
     {
-	warning(string("std::exception: ") + ex.what());
+	__warning(string("std::exception: ") + ex.what());
 
 	if(_response)
 	{
@@ -251,12 +328,12 @@ IceInternal::Incoming::invoke()
 	    _os.write(str.str());
 	}
 
-	finishInvoke();
+	__finishInvoke();
 	return;
     }
     catch(...)
     {
-	warning("unknown c++ exception");
+	__warning("unknown c++ exception");
 
 	if(_response)
 	{
@@ -267,7 +344,7 @@ IceInternal::Incoming::invoke()
 	    _os.write(reason);
 	}
 
-	finishInvoke();
+	__finishInvoke();
 	return;
     }
 
@@ -300,7 +377,7 @@ IceInternal::Incoming::invoke()
 	}
     }
 
-    finishInvoke();
+    __finishInvoke();
 }
 
 BasicStream*
@@ -313,60 +390,4 @@ BasicStream*
 IceInternal::Incoming::os()
 {
     return &_os;
-}
-
-void
-IceInternal::Incoming::finishInvoke()
-{
-    if(_locator && _servant)
-    {
-	_locator->finished(_current, _servant, _cookie);
-    }
-
-    _is.endReadEncaps();
-
-    //
-    // Send a response if necessary. If we don't need to send a
-    // response, we still need to tell the connection that we're
-    // finished with dispatching.
-    //
-    if(_response)
-    {
-	_connection->sendResponse(&_os, _compress);
-    }
-    else
-    {
-	_connection->sendNoResponse();
-    }
-}
-
-void
-IceInternal::Incoming::warning(const Exception& ex) const
-{
-    ostringstream str;
-    str << ex;
-    warning(str.str());
-}
-
-void
-IceInternal::Incoming::warning(const string& msg) const
-{
-    if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
-    {
-	Warning out(_os.instance()->logger());
-	
-	out << "dispatch exception: " << msg;
-	out << "\nidentity: " << _current.id;
-	out << "\nfacet: ";
-	vector<string>::const_iterator p = _current.facet.begin();
-	while(p != _current.facet.end())
-	{
-	    out << encodeString(*p++, "/");
-	    if(p != _current.facet.end())
-	    {
-		out << '/';
-	    }
-	}
-	out << "\noperation: " << _current.operation;
-    }
 }

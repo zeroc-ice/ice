@@ -31,7 +31,7 @@ public:
     static Freeze::Key
     write(const char& key, const IceInternal::InstancePtr& instance)
     {
-	IceInternal::BasicStream keyStream(instance);
+	IceInternal::BasicStream keyStream(instance.get());
 	keyStream.write(key);
 	return keyStream.b;
     }
@@ -39,7 +39,7 @@ public:
     static void
     read(char& key, const Freeze::Key& bytes, const IceInternal::InstancePtr& instance)
     {
-	IceInternal::BasicStream valueStream(instance);
+	IceInternal::BasicStream valueStream(instance.get());
 	valueStream.b = bytes;
 	valueStream.i = valueStream.b.begin();
 	valueStream.read(key);
@@ -55,7 +55,7 @@ public:
     static Freeze::Value
     write(const Ice::Int& value, const IceInternal::InstancePtr& instance)
     {
-	IceInternal::BasicStream valueStream(instance);
+	IceInternal::BasicStream valueStream(instance.get());
 	valueStream.write(value);
 	return valueStream.b;
     }
@@ -63,7 +63,7 @@ public:
     static void
     read(Ice::Int& value, const Freeze::Value& bytes, const IceInternal::InstancePtr& instance)
     {
-	IceInternal::BasicStream valueStream(instance);
+	IceInternal::BasicStream valueStream(instance.get());
 	valueStream.b = bytes;
 	valueStream.i = valueStream.b.begin();
 	valueStream.read(value);

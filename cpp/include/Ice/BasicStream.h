@@ -35,13 +35,13 @@ class ICE_API BasicStream : public Buffer
 {
 public:
 
-    BasicStream(const InstancePtr&);
+    BasicStream(Instance*);
 
     //
-    // Must return const InstancePtr&, because we don't hold an
-    // InstancePtr for optimization reasons (see comments below).
+    // Must return Instance*, because we don't hold an InstancePtr for
+    // optimization reasons (see comments below).
     //
-    const InstancePtr& instance() const;
+    Instance* instance() const;
 
     void swap(BasicStream&);
 
@@ -125,9 +125,9 @@ private:
 
     //
     // Optimization. The instance may not be deleted while a
-    // stack-allocated Incoming still holds it.
+    // stack-allocated BasicStream still holds it.
     //
-    const InstancePtr& _instance;
+    Instance* _instance;
 
     struct ReadEncaps
     {

@@ -479,7 +479,7 @@ IceInternal::ThreadPool::run()
 		// If the handler is "readable", try to read a
 		// message.
 		//
-		BasicStream stream(_instance);
+		BasicStream stream(_instance.get());
 		if(handler->readable())
 		{
 		    try

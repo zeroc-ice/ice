@@ -17,9 +17,9 @@ package IceInternal;
 final public class Incoming extends IncomingBase
 {
     public
-    Incoming(Instance instance, Ice.ObjectAdapter adapter, Connection connection, boolean response)
+    Incoming(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response)
     {
-	super(instance, adapter, connection, response);
+	super(instance, connection, adapter, response);
     }
 
     //
@@ -27,7 +27,7 @@ final public class Incoming extends IncomingBase
     // reallocated.
     //
     public void
-    reset(Instance instance, Ice.ObjectAdapter adapter, Connection connection, boolean response)
+    reset(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response)
     {
         _current.adapter = adapter;
         if(_current.ctx != null)

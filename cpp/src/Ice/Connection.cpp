@@ -124,7 +124,7 @@ IceInternal::Connection::validate()
 		// Incoming connections play the active role with respect to
 		// connection validation.
 		//
-		BasicStream os(_instance);
+		BasicStream os(_instance.get());
 		os.write(protocolVersion);
 		os.write(encodingVersion);
 		os.write(validateConnectionMsg);
@@ -139,7 +139,7 @@ IceInternal::Connection::validate()
 		// Outgoing connection play the passive role with respect to
 		// connection validation.
 		//
-		BasicStream is(_instance);
+		BasicStream is(_instance.get());
 		is.b.resize(headerSize);
 		is.i = is.b.begin();
 		_transceiver->read(is, _endpoint->timeout());
@@ -270,7 +270,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool compress)
 	    //
 	    // Do compression.
 	    //
-	    BasicStream cstream(_instance);
+	    BasicStream cstream(_instance.get());
 	    doCompress(*os, cstream);
 	    
 	    //
@@ -368,7 +368,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out, bool comp
 	    //
 	    // Do compression.
 	    //
-	    BasicStream cstream(_instance);
+	    BasicStream cstream(_instance.get());
 	    doCompress(*os, cstream);
 	    
 	    //
@@ -510,7 +510,7 @@ IceInternal::Connection::flushBatchRequest(bool compress)
 	    //
 	    // Do compression.
 	    //
-	    BasicStream cstream(_instance);
+	    BasicStream cstream(_instance.get());
 	    doCompress(_batchStream, cstream);
 	    
 	    //
@@ -543,7 +543,7 @@ IceInternal::Connection::flushBatchRequest(bool compress)
 	// Reset _batchStream and _batchRequestNum, so that new batch
 	// messages can be sent.
 	//
-	BasicStream dummy(_instance);
+	BasicStream dummy(_instance.get());
 	_batchStream.swap(dummy);
 	assert(_batchStream.b.empty());
 	_batchRequestNum = 0;
@@ -590,7 +590,7 @@ IceInternal::Connection::sendResponse(BasicStream* os, bool compress)
 	    //
 	    // Do compression.
 	    //
-	    BasicStream cstream(_instance);
+	    BasicStream cstream(_instance.get());
 	    doCompress(*os, cstream);
 	    
 	    //
@@ -763,7 +763,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	       messageType == compressedRequestBatchMsg ||
 	       messageType == compressedReplyMsg)
 	    {
-		BasicStream ustream(_instance);
+		BasicStream ustream(_instance.get());
 		doUncompress(stream, ustream);
 		stream.b.swap(ustream.b);
 		compress = true;
@@ -1003,7 +1003,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	// Prepare the invocation.
 	//
 	bool response = !_endpoint->datagram() && requestId != 0;
-	Incoming in(_instance, _adapter, this, response, compress);
+	Incoming in(_instance.get(), this, _adapter, response, compress);
 	BasicStream* is = in.is();
 	stream.swap(*is);
 	BasicStream* os = in.os();
@@ -1094,7 +1094,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _nextRequestId(1),
     _requestsHint(_requests.end()),
     _asyncRequestsHint(_asyncRequests.end()),
-    _batchStream(_instance),
+    _batchStream(_instance.get()),
     _batchRequestNum(0),
     _dispatchCount(0),
     _proxyCount(0),
@@ -1269,7 +1269,7 @@ IceInternal::Connection::initiateShutdown() const
 	//
 	// Before we shut down, we send a close connection message.
 	//
-	BasicStream os(_instance);
+	BasicStream os(_instance.get());
 	os.write(protocolVersion);
 	os.write(encodingVersion);
 	os.write(closeConnectionMsg);

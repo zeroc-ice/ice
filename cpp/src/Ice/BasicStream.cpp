@@ -31,14 +31,14 @@ const string IceInternal::BasicStream::_emptyString;
 const string IceInternal::BasicStream::_iceObjectId("::Ice::Object");
 const string IceInternal::BasicStream::_userExceptionId("::Ice::UserException");
 
-IceInternal::BasicStream::BasicStream(const InstancePtr& instance) :
+IceInternal::BasicStream::BasicStream(Instance* instance) :
     _instance(instance),
     _currentReadEncaps(0),
     _currentWriteEncaps(0)
 {
 }
 
-const InstancePtr&
+Instance*
 IceInternal::BasicStream::instance() const
 {
     return _instance;
@@ -47,7 +47,7 @@ IceInternal::BasicStream::instance() const
 void
 IceInternal::BasicStream::swap(BasicStream& other)
 {
-    assert(_instance.get() == other._instance.get());
+    assert(_instance == other._instance);
 
     b.swap(other.b);
     std::swap(i, other.i);
