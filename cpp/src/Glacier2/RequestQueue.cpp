@@ -102,10 +102,16 @@ Glacier2::Request::override(const RequestPtr& other) const
     return _override == other->_override;
 }
 
-const ObjectPrx&
-Glacier2::Request::getProxy() const
+bool
+Glacier2::Request::isBatch() const
 {
-    return _proxy;
+    return _proxy->ice_batchOneway() || _proxy->ice_batchDatagram();
+}
+
+ConnectionPtr
+Glacier2::Request::getConnection() const
+{
+    return _proxy->ice_connection();
 }
 
 Glacier2::RequestQueue::RequestQueue(const IceUtil::Time& sleepTime) :
@@ -176,7 +182,7 @@ Glacier2::RequestQueue::addRequest(const RequestPtr& request)
     return false;
 }
 
-void 
+void
 Glacier2::RequestQueue::run()
 {
     while(true)
@@ -212,11 +218,9 @@ Glacier2::RequestQueue::run()
 	
 	for(vector<RequestPtr>::const_iterator p = requests.begin(); p != requests.end(); ++p)
 	{
-	    const ObjectPrx& proxy = (*p)->getProxy();
-	    
-	    if(proxy->ice_batchOneway() || proxy->ice_batchDatagram())
+	    if((*p)->isBatch())
 	    {
-		flushSet.insert(proxy->ice_connection());
+		flushSet.insert((*p)->getConnection());
 	    }
 	    
 	    (*p)->invoke();

@@ -29,7 +29,8 @@ public:
     
     void invoke();
     bool override(const RequestPtr&) const;
-    const Ice::ObjectPrx& getProxy() const;
+    bool isBatch() const;
+    Ice::ConnectionPtr getConnection() const;
 
 private:
 
