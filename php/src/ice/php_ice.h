@@ -10,7 +10,7 @@
 #ifndef PHP_ICE_H
 #define PHP_ICE_H
 
-#define ICEPHP_STRING_VERSION "1.1.1"
+#define ICEPHP_STRING_VERSION "1.1.2"
 #define ICEPHP_INT_VERSION 10102      /* AABBCC, with AA=major, BB=minor, CC=patch */
 
 /*
