@@ -92,6 +92,7 @@ PhoneBookCollocated::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& d
     int runParser(int, char*[], const CommunicatorPtr&);
     int status = runParser(argc, argv, communicator());
     adapter->deactivate();
+    adapter->waitForDeactivate();
 
     return status;
 }
