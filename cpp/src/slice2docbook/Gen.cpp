@@ -117,7 +117,7 @@ void
 Slice::Gen::visitContainer(const ContainerPtr& p)
 {
     ModuleList modules = p->modules();
-    modules.erase(remove_if(modules.begin(), modules.end(), ::IceUtil::memFun(&Contained::includeLevel)),
+    modules.erase(remove_if(modules.begin(), modules.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		  modules.end());
 
     if(!modules.empty())
@@ -141,14 +141,14 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 
     ClassList classesAndInterfaces = p->classes();
     classesAndInterfaces.erase(remove_if(classesAndInterfaces.begin(), classesAndInterfaces.end(),
-					 ::IceUtil::memFun(&Contained::includeLevel)),
+					 ::IceUtil::constMemFun(&Contained::includeLevel)),
 			       classesAndInterfaces.end());
     ClassList classes;
     ClassList interfaces;
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(classes),
-		   ::IceUtil::memFun(&ClassDef::isInterface));
+		   ::IceUtil::constMemFun(&ClassDef::isInterface));
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(interfaces),
-		   not1(::IceUtil::memFun(&ClassDef::isInterface)));
+		   not1(::IceUtil::constMemFun(&ClassDef::isInterface)));
 
     if(!classes.empty())
     {
@@ -189,7 +189,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     }
 
     ExceptionList exceptions = p->exceptions();
-    exceptions.erase(remove_if(exceptions.begin(), exceptions.end(), ::IceUtil::memFun(&Contained::includeLevel)),
+    exceptions.erase(remove_if(exceptions.begin(), exceptions.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		     exceptions.end());
 
     if(!exceptions.empty())
@@ -212,7 +212,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     }
 
     StructList structs = p->structs();
-    structs.erase(remove_if(structs.begin(), structs.end(), ::IceUtil::memFun(&Contained::includeLevel)),
+    structs.erase(remove_if(structs.begin(), structs.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		  structs.end());
 
     if(!structs.empty())
@@ -235,7 +235,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     }
 
     SequenceList sequences = p->sequences();
-    sequences.erase(remove_if(sequences.begin(), sequences.end(), ::IceUtil::memFun(&Contained::includeLevel)),
+    sequences.erase(remove_if(sequences.begin(), sequences.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		    sequences.end());
 
     if(!sequences.empty())
@@ -259,7 +259,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 
     DictionaryList dictionaries = p->dictionaries();
     dictionaries.erase(remove_if(dictionaries.begin(), dictionaries.end(),
-				 ::IceUtil::memFun(&Contained::includeLevel)),
+				 ::IceUtil::constMemFun(&Contained::includeLevel)),
 		       dictionaries.end());
 
     if(!dictionaries.empty())
@@ -282,7 +282,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     }
 
     EnumList enums = p->enums();
-    enums.erase(remove_if(enums.begin(), enums.end(), ::IceUtil::memFun(&Contained::includeLevel)),
+    enums.erase(remove_if(enums.begin(), enums.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		enums.end());
 
     if(!enums.empty())

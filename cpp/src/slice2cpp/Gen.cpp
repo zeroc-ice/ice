@@ -376,7 +376,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	ExceptionList allBases = p->allBases();
 	StringList exceptionIds;
 	transform(allBases.begin(), allBases.end(), back_inserter(exceptionIds),
-		  ::IceUtil::memFun(&Exception::scoped));
+		  ::IceUtil::constMemFun(&Exception::scoped));
 	exceptionIds.push_front(scoped);
 	exceptionIds.push_back("::Ice::UserException");
 	
@@ -1874,7 +1874,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
 	ClassList allBases = p->allBases();
 	StringList ids;
-	transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::memFun(&ClassDef::scoped));
+	transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&ClassDef::scoped));
 	StringList other;
 	other.push_back(scoped);
 	other.push_back("::Ice::Object");
@@ -1970,7 +1970,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	if(!allOps.empty())
 	{
 	    StringList allOpNames;
-	    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::memFun(&Operation::name));
+	    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
+		      ::IceUtil::constMemFun(&Operation::name));
 	    allOpNames.push_back("ice_facets");
 	    allOpNames.push_back("ice_id");
 	    allOpNames.push_back("ice_ids");

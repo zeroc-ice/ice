@@ -215,7 +215,7 @@ public:
 	KindObjectProxy,
 	KindLocalObject
     };
-    Kind kind();
+    Kind kind() const;
 
 protected:
 
@@ -234,13 +234,13 @@ class SLICE_API Contained : virtual public SyntaxTreeBase
 public:
 
     ContainerPtr container() const;
-    std::string name();
-    std::string scoped();
+    std::string name() const;
+    std::string scoped() const;
     std::string scope() const;
     std::string file() const;
     std::string comment() const;
 
-    int includeLevel();
+    int includeLevel() const;
     void updateIncludeLevel();
 
     std::list<std::string> getMetaData() const;
@@ -386,8 +386,8 @@ class SLICE_API ClassDecl : virtual public Constructed
 public:
 
     virtual void destroy();
-    ClassDefPtr definition();
-    bool isInterface();
+    ClassDefPtr definition() const;
+    bool isInterface() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual void visit(ParserVisitor*);
@@ -430,8 +430,8 @@ public:
     OperationList allOperations() const;
     DataMemberList dataMembers() const;
     DataMemberList allDataMembers() const;
-    bool isAbstract();
-    bool isInterface();
+    bool isAbstract() const;
+    bool isInterface() const;
     bool isLocal() const;
     bool hasDataMembers() const;
     virtual ContainedType containedType() const;
@@ -459,7 +459,7 @@ class SLICE_API Proxy : virtual public Type
 {
 public:
 
-    ClassDeclPtr _class();
+    ClassDeclPtr _class() const;
 
     Proxy(const ClassDeclPtr&);
 
@@ -506,7 +506,7 @@ class SLICE_API Struct : virtual public Container, virtual public Constructed
 public:
 
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
-    DataMemberList dataMembers();
+    DataMemberList dataMembers() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
@@ -527,7 +527,7 @@ class SLICE_API Sequence : virtual public Constructed
 {
 public:
 
-    TypePtr type();
+    TypePtr type() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
@@ -550,8 +550,8 @@ class SLICE_API Dictionary : virtual public Constructed
 {
 public:
 
-    TypePtr keyType();
-    TypePtr valueType();
+    TypePtr keyType() const;
+    TypePtr valueType() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
@@ -646,7 +646,7 @@ class SLICE_API DataMember : virtual public Contained
 {
 public:
 
-    TypePtr type();
+    TypePtr type() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
@@ -675,7 +675,7 @@ public:
     bool ignRedefs() const;
 
     void setComment(const std::string&);
-    std::string currentComment();
+    std::string currentComment(); // Not const, as this function removes the current comment.
     std::string currentFile() const;
     int currentLine() const;
 
@@ -683,11 +683,11 @@ public:
     void scanPosition(const char*);
     int currentIncludeLevel() const;
 
-    void error(const char*);
-    void error(const std::string&);
+    void error(const char*); // Not const, because error count is increased.
+    void error(const std::string&); // Ditto.
 
-    void warning(const char*);
-    void warning(const std::string&);
+    void warning(const char*) const;
+    void warning(const std::string&) const;
 
     ContainerPtr currentContainer() const;
     void pushContainer(const ContainerPtr&);
@@ -710,7 +710,7 @@ public:
     virtual void destroy();
     virtual void visit(ParserVisitor*);
 
-    BuiltinPtr builtin(Builtin::Kind);
+    BuiltinPtr builtin(Builtin::Kind); // Not const, as builtins are created on the fly. (Lazy initialization.)
 
 private:
 

@@ -75,7 +75,7 @@ Slice::Type::Type(const UnitPtr& unit) :
 // ----------------------------------------------------------------------
 
 Builtin::Kind
-Slice::Builtin::kind()
+Slice::Builtin::kind() const
 {
     return _kind;
 }
@@ -98,13 +98,13 @@ Slice::Contained::container() const
 }
 
 string
-Slice::Contained::name()
+Slice::Contained::name() const
 {
     return _name;
 }
 
 string
-Slice::Contained::scoped()
+Slice::Contained::scoped() const
 {
     return _scoped;
 }
@@ -130,7 +130,7 @@ Slice::Contained::comment() const
 }
 
 int
-Slice::Contained::includeLevel()
+Slice::Contained::includeLevel() const
 {
     return _includeLevel;
 }
@@ -1444,13 +1444,13 @@ Slice::ClassDecl::destroy()
 }
 
 ClassDefPtr
-Slice::ClassDecl::definition()
+Slice::ClassDecl::definition() const
 {
     return _definition;
 }
 
 bool
-Slice::ClassDecl::isInterface()
+Slice::ClassDecl::isInterface() const
 {
     return _interface;
 }
@@ -1838,7 +1838,7 @@ Slice::ClassDef::allDataMembers() const
 }
 
 bool
-Slice::ClassDef::isAbstract()
+Slice::ClassDef::isAbstract() const
 {
     if(isInterface() || _bases.size() > 1) // Is this an interface, or does it derive from interfaces?
     {
@@ -1862,7 +1862,7 @@ Slice::ClassDef::isAbstract()
 }
 
 bool
-Slice::ClassDef::isInterface()
+Slice::ClassDef::isInterface() const
 {
     return _interface;
 }
@@ -1945,7 +1945,7 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, boo
 // ----------------------------------------------------------------------
 
 ClassDeclPtr
-Slice::Proxy::_class()
+Slice::Proxy::_class() const
 {
     return __class;
 }
@@ -2210,7 +2210,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type)
 }
 
 DataMemberList
-Slice::Struct::dataMembers()
+Slice::Struct::dataMembers() const
 {
     DataMemberList result;
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
@@ -2277,7 +2277,7 @@ Slice::Struct::Struct(const ContainerPtr& container, const string& name, bool lo
 // ----------------------------------------------------------------------
 
 TypePtr
-Slice::Sequence::type()
+Slice::Sequence::type() const
 {
     return _type;
 }
@@ -2337,13 +2337,13 @@ Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, con
 // ----------------------------------------------------------------------
 
 TypePtr
-Slice::Dictionary::keyType()
+Slice::Dictionary::keyType() const
 {
     return _keyType;
 }
 
 TypePtr
-Slice::Dictionary::valueType()
+Slice::Dictionary::valueType() const
 {
     return _valueType;
 }
@@ -2611,7 +2611,7 @@ Slice::Operation::Operation(const ContainerPtr& container, const string& name, c
 // ----------------------------------------------------------------------
 
 TypePtr
-Slice::DataMember::type()
+Slice::DataMember::type() const
 {
     return _type;
 }
@@ -2832,13 +2832,13 @@ Slice::Unit::error(const string& s)
 }
 
 void
-Slice::Unit::warning(const char* s)
+Slice::Unit::warning(const char* s) const
 {
     cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
 }
 
 void
-Slice::Unit::warning(const string& s)
+Slice::Unit::warning(const string& s) const
 {
     warning(s.c_str());
 }

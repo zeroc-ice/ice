@@ -112,7 +112,7 @@ Slice::JavaVisitor::writeThrowsClause(const string& scope,
 
     //
     // MSVC gets confused if
-    // ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used hence
+    // ::IceUtil::constMemFun(&::Slice::Exception::isLocal)); is used hence
     // the exceptionIsLocal function.
     //
     localCount = count_if(throws.begin(), throws.end(),	exceptionIsLocal);
@@ -291,7 +291,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
     ClassList allBases = p->allBases();
     StringList ids;
-    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::memFun(&ClassDef::scoped));
+    transform(allBases.begin(), allBases.end(), back_inserter(ids), ::IceUtil::constMemFun(&ClassDef::scoped));
     StringList other;
     other.push_back(scoped);
     other.push_back("::Ice::Object");
@@ -386,7 +386,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
 	//
 	// MSVC gets confused if
-	// ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
+	// ::IceUtil::constMemFun(&::Slice::Exception::isLocal)); is used
 	// hence the exceptionIsLocal function.
 	//
         remove_if(throws.begin(), throws.end(), exceptionIsLocal);
@@ -491,7 +491,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     {
         StringList allOpNames;
         transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
-                  ::IceUtil::memFun(&Operation::name));
+                  ::IceUtil::constMemFun(&Operation::name));
         allOpNames.push_back("ice_facets");
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
@@ -1291,7 +1291,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         StringList exceptionIds;
         transform(allBases.begin(), allBases.end(),
                   back_inserter(exceptionIds),
-                  ::IceUtil::memFun(&Exception::scoped));
+                  ::IceUtil::constMemFun(&Exception::scoped));
         exceptionIds.push_front(scoped);
         exceptionIds.push_back("::Ice::UserException");
 
@@ -2924,7 +2924,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	//
 	// MSVC gets confused if
-	// ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
+	// ::IceUtil::constMemFun(&::Slice::Exception::isLocal)); is used
 	// hence the exceptionIsLocal function.
 	//
         throws.erase(remove_if(throws.begin(), throws.end(), exceptionIsLocal), throws.end());
@@ -3093,7 +3093,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	//
 	// MSVC gets confused if
-	// ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
+	// ::IceUtil::constMemFun(&::Slice::Exception::isLocal)); is used
 	// hence the exceptionIsLocal function.
 	//
         throws.erase(remove_if(throws.begin(), throws.end(), exceptionIsLocal), throws.end());
