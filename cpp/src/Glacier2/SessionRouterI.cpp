@@ -157,8 +157,23 @@ Glacier2::SessionRouterI::destroy()
     // We destroy the routers outside the thread synchronization, to
     // avoid deadlocks.
     //
-    for_each(routers.begin(), routers.end(),
-	     IceUtil::secondVoidMemFun<const ConnectionPtr, RouterI>(&RouterI::destroy));
+    for(map<ConnectionPtr, RouterIPtr>::iterator p = routers.begin(); p != routers.end(); ++p)
+    {
+	RouterIPtr router = p->second;
+	
+	try
+	{
+	    router->destroy();
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    if(_traceLevel >= 1)
+	    {
+		Trace out(_logger, "Glacier2");
+		out << "exception while destroying session\n" << ex;
+	    }
+	}
+    }
 
     if(_sessionThread)
     {
@@ -198,11 +213,30 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
     // Check the user-id and password.
     //
     string reason;
-    if(!_verifier->checkPermissions(userId, password, reason))
+    bool ok;
+
+    try
     {
-	PermissionDeniedException ex;
-	ex.reason = reason;
-	throw ex;
+	ok = _verifier->checkPermissions(userId, password, reason);
+    }
+    catch(const Ice::Exception& ex)
+    {
+	if(_traceLevel >= 1)
+	{
+	    Trace out(_logger, "Glacier2");
+	    out << "exception while verifying password\n" << ex;
+	}
+	
+	PermissionDeniedException exc;
+	exc.reason = "internal server error";
+	throw exc;
+    }
+
+    if(!ok)
+    {
+	PermissionDeniedException exc;
+	exc.reason = reason;
+	throw exc;
     }
 
     //
@@ -221,9 +255,9 @@ Glacier2::SessionRouterI::createSession(const std::string& userId, const std::st
 
     if(p != _routersByConnection.end())
     {
-	SessionExistsException ex;
-	ex.existingSession = p->second->getSession();
-	throw ex;
+	SessionExistsException exc;
+	exc.existingSession = p->second->getSession();
+	throw exc;
     }
 
     //
@@ -286,8 +320,8 @@ Glacier2::SessionRouterI::destroySession(const Current& current)
 	
 	if(p == _routersByConnection.end())
 	{
-	    SessionNotExistException ex;
-	    throw ex;
+	    SessionNotExistException exc;
+	    throw exc;
 	}
 	
 	router = p->second;
@@ -324,9 +358,7 @@ Glacier2::SessionRouterI::destroySession(const Current& current)
 	if(_traceLevel >= 1)
 	{
 	    Trace out(_logger, "Glacier2");
-	    out << "exception while destroying session\n";
-	    out << ex;
-	    ex.ice_throw();
+	    out << "exception while destroying session\n" << ex;
 	}
     }
 }
@@ -467,9 +499,7 @@ Glacier2::SessionRouterI::run()
 		if(_traceLevel >= 1)
 		{
 		    Trace out(_logger, "Glacier2");
-		    out << "exception while expiring session\n";
-		    out << ex;
-		    ex.ice_throw();
+		    out << "exception while expiring session\n" << ex;
 		}
 	    }
 	}
