@@ -276,6 +276,19 @@ IceSSL:
     Server.Overrides.RSA.PrivateKey
     Server.Passphrase.Retries
     Trace.Security
+    Client.Certs
+    Client.CertsPassword
+    Client.Ciphers
+    Client.KeyStore
+    Client.KeyStorePassword
+    Client.Password
+    Server.Certs
+    Server.CertsPassword
+    Server.Ciphers
+    Server.ClientAuth
+    Server.KeyStore
+    Server.KeyStorePassword
+    Server.Password
 
 IceStorm:
     Flush.Timeout

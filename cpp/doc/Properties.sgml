@@ -1217,12 +1217,12 @@ The SSL plug-in trace level:
 </row>
 <row>
 <entry>1</entry>
-<entry>Trace security warnings.</entry>
+<entry>Trace security warnings (C++), and display the list of selected ciphersuites (Java).</entry>
 </row>
 <row>
 <entry>2</entry>
 <entry>Like 1, but more verbose, including warnings during
-configuration file parsing.
+configuration file parsing (C++).
 </entry>
 </row>
 </tbody>
@@ -1244,7 +1244,7 @@ IceSSL.Server.CertPath=<replaceable>path</replaceable>
 <para>
 Defines the path (relative or absolute) where the SSL plug-in can
 find PEM format certificate files (RSA and DSA) and Diffie-Hellman group
-parameter files.
+parameter files. (C++ only)
 </para>
 <para>
 If <literal>IceSSL.Client.Config</literal> or
@@ -1270,9 +1270,11 @@ IceSSL.Server.Config=<replaceable>config_file</replaceable>
 <title>Description</title>
 <para>
 Defines the XML-based configuration file from which the SSL plug-in
-loads initialization information and certificates. If the property
-specifies a relative path, the path is interpreted relative to
-the certificate path defined by <literal>IceSSL.Client.CertPath</literal>
+loads initialization information and certificates. (C++ only)
+</para>
+<para>
+If the property specifies a relative path, the path is interpreted
+relative to the certificate path defined by <literal>IceSSL.Client.CertPath</literal>
 and <literal>IceSSL.Server.CertPath</literal>, respectively.
 </para>
 <para>
@@ -1297,10 +1299,10 @@ IceSSL.Client.Handshake.Retries=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 IceSSL clients attempt to perform an entire SSL handshake in the connection
-phase. When attempting this handshake, it is possible that the client
-times out while waiting for a response from the server. This property specifies
+phase. When attempting this handshake, it is possible for the client to
+time out while waiting for a response from the server. This property specifies
 the number of handshake retries the client attempts before throwing a
-<literal>Ice::ConnectionFailedException</literal>.
+<literal>Ice::ConnectionFailedException</literal>. (C++ only)
 </para>
 <para>
 If not specified, the default value for this property is 10 retries.
@@ -1322,7 +1324,7 @@ When &IceSSL; is directed to use a private key in a PEM file that has
 been encrypted, a prompt is displayed <literal>Enter PEM pass
 phrase:</literal>. If the passphrase is entered incorrectly, these
 properties determine how many retries the user is allowed before
-&IceSSL; shuts down.
+&IceSSL; shuts down. (C++ only)
 </para>
 <para>
 If not specified, the default value for these properties is 5 retries.
@@ -1343,7 +1345,7 @@ IceSSL.Server.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</
 These properties override the RSA private key and public key (certificate)
 specified in the config file (<literal>IceSSL.Server.Config</literal>) for
 the Server context. The value must be the DER representation of the private
-and public keys, base64 encoded.
+and public keys, base64 encoded. (C++ only)
 </para>
 <para>
 There are no default values for these properties.
@@ -1364,7 +1366,7 @@ IceSSL.Server.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</
 These properties override the DSA private key and public key (certificate)
 specified in the config file (<literal>IceSSL.Server.Config</literal>) for
 the Server context. The value must be the DER representation of the private
-and public keys, base64 encoded.
+and public keys, base64 encoded. (C++ only)
 </para>
 <para>
 There are no default values for these properties.
@@ -1382,10 +1384,10 @@ IceSSL.Client.Overrides.RSA.Certificate=<replaceable>Base64 encoded DER string</
 <section>
 <title>Description</title>
 <para>
-These properties provides a method by which the RSA private key and public key (certificate)
-used by the Client context may be overridden from those specified in the config file
-(specified in <literal>IceSSL.Client.Config</literal>).  The value must be
-the DER representation of the private and public keys, base64 encoded.
+These properties override the RSA private key and public key (certificate)
+specified in the config file (<literal>IceSSL.Client.Config</literal>) for
+the Client context. The value must be the DER representation of the private
+and public keys, base64 encoded. (C++ only)
 </para>
 <para>
 There are no default values for these properties.
@@ -1403,10 +1405,10 @@ IceSSL.Client.Overrides.DSA.Certificate=<replaceable>Base64 encoded DER string</
 <section>
 <title>Description</title>
 <para>
-These properties override the RSA private key and public key (certificate)
+These properties override the DSA private key and public key (certificate)
 specified in the config file (<literal>IceSSL.Client.Config</literal>) for
 the Client context. The value must be the DER representation of the private
-and public keys, base64 encoded.
+and public keys, base64 encoded. (C++ only)
 </para>
 <para>
 There are no default values for these properties.
@@ -1427,7 +1429,7 @@ IceSSL.Server.Overrides.CACertificate=<replaceable>Base64 encoded DER string</re
 These properties override any trusted Certificate Authority (CA) certificates
 specified in <literal>IceSSL.Server.Config</literal> or
 <literal>IceSSL.Client.Config</literal>. The new certificate is represented
-as the base64 encoding of the DER binary representation of the certificate.
+as the base64 encoding of the DER binary representation of the certificate. (C++ only)
 </para>
 <para>
 There are no default values for these properties.
@@ -1446,9 +1448,211 @@ IceSSL.Server.IgnoreValidPeriod=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If set to 1, these properties cause the default certificate verifier to ignore the
-certificate validity period on peer certificates. The
-default value for these properties is 0, meaning that the certificate
-validity period is not ignored.
+certificate validity period on peer certificates. The default value for these
+properties is 0, meaning that the certificate validity period is not ignored. (C++ only)
+</para>
+</section>
+</section>
+
+<section><title>IceSSL.Client.Certs, IceSSL.Server.Certs</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Client.Certs=<replaceable>keystore</replaceable>
+IceSSL.Server.Certs=<replaceable>keystore</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the filename of a Java keystore containing trusted certificates.
+If <replaceable>keystore</replaceable> is a relative pathname, it is
+relative to the program's current working directory.
+</para>
+<para>
+If a password is provided in <literal>IceSSL.Client.CertsPassword</literal>
+or <literal>IceSSL.Server.CertsPassword</literal>, it is used to verify the
+integrity of the keystore.
+</para>
+<para>
+If not specified, the plug-in uses an empty keystore.
+</para>
+</section>
+</section>
+
+<section><title>IceSSL.Client.CertsPassword, IceSSL.Server.CertsPassword</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Client.CertsPassword=<replaceable>password</replaceable>
+IceSSL.Server.CertsPassword=<replaceable>password</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the password used to verify the integrity of the Java keystore provided
+by <literal>IceSSL.Client.Certs</literal> or <literal>IceSSL.Server.Certs</literal>.
+</para>
+<para>
+If not specified, the plug-in does not verify the keystore's integrity.
+</para>
+</section>
+</section>
+
+<section><title>IceSSL.Client.Ciphers, IceSSL.Server.Ciphers</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Client.Ciphers=<replaceable>cipher-list</replaceable>
+IceSSL.Server.Ciphers=<replaceable>cipher-list</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the ciphersuites enabled by the Java plug-in.
+</para>
+<para>
+The property value is interpreted as a list of tokens delimited by whitespace.
+The plug-in executes the tokens in the order of appearance in order to assemble
+the list of enabled ciphersuites. The table below describes the tokens:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry><literal>NONE</literal></entry>
+<entry>
+Disables all ciphersuites. If specified, it must be the first token in the list.
+</entry>
+</row>
+<row>
+<entry><literal>ALL</literal></entry>
+<entry>
+Enables all supported ciphersuites. If specified, it must be the first token
+in the list. This token should be used with caution, as it may enable low-security
+ciphersuites.
+</entry>
+</row>
+<row>
+<entry><literal><replaceable>NAME</replaceable></literal></entry>
+<entry>Enables the ciphersuite matching the given name.</entry>
+</row>
+<row>
+<entry><literal>!<replaceable>NAME</replaceable></literal></entry>
+<entry>Disables the ciphersuite matching the given name.</entry>
+</row>
+<row>
+<entry><literal>(<replaceable>EXP</replaceable>)</literal></entry>
+<entry>Enables ciphersuites whose names contain the regular expression
+<replaceable>EXP</replaceable>.</entry>
+</row>
+<row>
+<entry><literal>!(<replaceable>EXP</replaceable>)</literal></entry>
+<entry>Disables ciphersuites whose names contain the regular expression
+<replaceable>EXP</replaceable>.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+<para>
+If not specified, the plug-in uses the security provider's default ciphersuites.
+</para>
+</section>
+</section>
+
+<section><title>IceSSL.Client.KeyStore, IceSSL.Server.KeyStore</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Client.KeyStore=<replaceable>keystore</replaceable>
+IceSSL.Server.KeyStore=<replaceable>keystore</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the filename of a Java keystore containing the private key(s)
+and corresponding certificate(s). If <replaceable>keystore</replaceable>
+is a relative pathname, it is relative to the program's current working
+directory.
+</para>
+<para>
+A password for the private key is defined by <literal>IceSSL.Client.Password</literal>
+or <literal>IceSSL.Server.Password</literal>. A password used to verify
+the integrity of the keystore is defined by <literal>IceSSL.Client.KeyStorePassword</literal>
+or <literal>IceSSL.Server.KeyStorePassword</literal>.
+</para>
+<para>
+If not specified, the plug-in uses an empty keystore.
+</para>
+</section>
+</section>
+
+<section><title>IceSSL.Client.KeyStorePassword, IceSSL.Server.KeyStorePassword</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Client.KeyStorePassword=<replaceable>password</replaceable>
+IceSSL.Server.KeyStorePassword=<replaceable>password</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the password used to verify the integrity of the Java keystore provided
+by <literal>IceSSL.Client.KeyStore</literal> or <literal>IceSSL.Server.KeyStore</literal>.
+</para>
+<para>
+If not specified, the plug-in does not verify the keystore's integrity.
+</para>
+</section>
+</section>
+
+<section><title>IceSSL.Client.Password, IceSSL.Server.Password</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Client.Password=<replaceable>password</replaceable>
+IceSSL.Server.Password=<replaceable>password</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the password of the private key in the Java keystore specified
+by <literal>IceSSL.Client.KeyStore</literal> or <literal>IceSSL.Server.KeyStore</literal>.
+</para>
+<note><para> All of the keys in the keystore must use the same password. </para></note>
+<para>
+If not specified, the plug-in uses an empty string.
+</para>
+</section>
+</section>
+
+<section><title>IceSSL.Server.ClientAuth</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceSSL.Server.ClientAuth=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines how a Java server authenticates a client:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No certificate is requested from the client. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>A certificate is requested but is not required.</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>A certificate is required.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
 </para>
 </section>
 </section>
