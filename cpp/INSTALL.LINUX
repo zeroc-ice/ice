@@ -1,5 +1,7 @@
+======================================================================
 Requirements
-============
+======================================================================
+
 
 C++ compiler
 ------------
@@ -21,11 +23,6 @@ http://www.stlport.org/doc/install.html
 For GCC 3.2, you can use the included STL library. Downloading and
 installing STLport is not required for this compiler version.
 
-Python 2
---------
-
-To run the automated test suite, you require Python 2. Other than for
-running the test scripts, Python is not required.
 
 Third-party libraries
 ---------------------
@@ -53,9 +50,9 @@ openssl-devel-0.9.6b-29
 e2fsprogs-devel-1.27-9
 bzip2-devel-1.0.2-5
 
-If you don't have them, you can download Berkeley DB from :
+If you don't have them, you can download Berkeley DB from:
 
-http://www.sleepycat.com/update/index.html
+http://www.sleepycat.com/download.html
 
 And OpenSSL from:
 
@@ -65,7 +62,53 @@ And bzip2 from:
 
 http://sources.redhat.com/bzip2
 
-Sorry, but we are not aware of any download possibilities for
-e2fsprogs (or the UUID routines included in this package). But to our
-knowledge, every Linux distribution includes this, so there should be
-no problem.
+We are not aware of any download possibilities for e2fsprogs (or the
+UUID routines included in this package). But to our knowledge, every
+Linux distribution includes this, so there should be no problem.
+
+
+Python 2
+--------
+
+To run the automated test suite, you require Python 2. Other than for
+running the test scripts, Python is not required.
+
+
+======================================================================
+Installation
+======================================================================
+
+Extract the Ice archive, for example, in your home directory:
+
+$ tar xvfz Ice-<version>.tar.gz
+
+Change the working directory to Ice-<version>:
+
+$ cd Ice-<version>
+
+Edit the file config/Make.rules according to the comments in this
+file. Make sure that the paths for the third-party libraries are set
+correctly if they are not installed in the default location /usr/lib
+and /usr/include.
+
+Now you're ready to build Ice:
+
+$ make
+
+This will build the Ice core library, all add-ons, all tests, and all
+examples. After a successful build, you can run the test suite,
+provided that you installed Python 2:
+
+$ make test
+
+This is equivalent to:
+
+$ python allTests.py
+
+Note that on some Linux distributions (like Redhat 7.x), Python 2 is
+available as "python2", in which case you must use:
+
+$ python2 allTests.py
+
+If everything worked out well, you should see lots of "ok". In case of
+a failure, the tests abort with "failed".
