@@ -130,7 +130,6 @@ if platform == "win32":
         "slice2docbook.exe",\
         "slice2freezej.exe",\
         "slice2java.exe",\
-        "slice2py.exe",\
         "iceutil" + winver + debug + ".dll",\
         "slice" + winver + debug + ".dll",\
     ]
@@ -143,7 +142,6 @@ else:
         "slice2docbook",\
         "slice2freezej",\
         "slice2java",\
-        "slice2py",\
     ]
     libraries = [ \
         "libIceUtil",\
