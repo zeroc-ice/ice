@@ -1633,6 +1633,15 @@ SOURCE=..\..\slice\Ice\SecureUdpF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
+# Begin Custom Build
+InputPath=..\..\slice\Ice\SecureUdpF.ice
+
+"../../include/Ice/SecureUdpF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --include-dir Ice -I../../slice ../../slice/Ice/SecureUdpF.ice 
+	
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
 # Begin Custom Build
