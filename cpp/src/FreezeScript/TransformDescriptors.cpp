@@ -2058,8 +2058,8 @@ FreezeScript::SymbolTableI::EntityVisitor::getCurrent() const
 //
 // ObjectVisitor
 //
-FreezeScript::ObjectVisitor::ObjectVisitor(ObjectDataMap& map) :
-    _map(map)
+FreezeScript::ObjectVisitor::ObjectVisitor(ObjectDataMap& objectDataMap) :
+    _map(objectDataMap)
 {
 }
 

@@ -162,7 +162,8 @@ FreezeScript::AssignVisitor::visitEnum(const EnumDataPtr& dest)
     {
         if(_convert)
         {
-            if(!dest->setValue(i->integerValue()))
+            Ice::Long l = i->integerValue();
+            if(l < 0 || l > INT_MAX || !dest->setValue(static_cast<Ice::Int>(l)))
             {
                 rangeError(i->toString(), type);
             }
