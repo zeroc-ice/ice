@@ -14,24 +14,30 @@
 #include <Ice/Shared.h>
 #include <Ice/Handle.h>
 
+namespace _IceIntf { namespace Ice { class Object; } }
+namespace _IceStub { namespace Ice { class Object; } }
+namespace _IceStubM { namespace Ice { class Object; } }
+
 namespace Ice
 {
 
-class Object;
-void _incRef(Object*);
-void _decRef(Object*);
-typedef Handle<Object> ObjectHandle;
+void _incRef(::_IceIntf::Ice::Object*);
+void _decRef(::_IceIntf::Ice::Object*);
 
-class Stub;
-void _incRef(Stub*);
-void _decRef(Stub*);
-typedef Handle<Stub> StubHandle;
+void _incRef(::_IceStub::Ice::Object*);
+void _decRef(::_IceStub::Ice::Object*);
 
-// ----------------------------------------------------------------------
-// Object
-// ----------------------------------------------------------------------
+void _incRef(::_IceStubM::Ice::Object*);
+void _decRef(::_IceStubM::Ice::Object*);
 
-class ICE_API Object : virtual public SimpleShared
+typedef Handle< ::_IceIntf::Ice::Object > Object;
+
+}
+
+namespace _IceIntf { namespace Ice
+{
+
+class ICE_API Object : virtual public ::Ice::SimpleShared
 {
 public:
 
@@ -46,25 +52,46 @@ private:
     void operator=(const Object&);
 };
 
-// ----------------------------------------------------------------------
-// Stub
-// ----------------------------------------------------------------------
+} }
 
-class ICE_API Stub : virtual public SimpleShared
+namespace _IceStub { namespace Ice
+{
+
+class ICE_API Object : virtual public ::Ice::SimpleShared
 {
 public:
 
 protected:
 
-    Stub();
-    virtual ~Stub();
+    Object();
+    virtual ~Object();
 
 private:
 
-    Stub(const Stub&);
-    void operator=(const Stub&);
+    Object(const Object&);
+    void operator=(const Object&);
 };
 
-}
+} }
+
+namespace _IceStubM { namespace Ice
+{
+
+class ICE_API Object : virtual public ::Ice::SimpleShared
+{
+public:
+
+protected:
+
+    Object();
+    virtual ~Object();
+
+private:
+
+    Object(const Object&);
+    void operator=(const Object&);
+};
+
+} }
 
 #endif

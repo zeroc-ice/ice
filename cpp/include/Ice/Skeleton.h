@@ -14,32 +14,39 @@
 #include <Ice/Shared.h>
 #include <Ice/Handle.h>
 
+#include <Ice/Shared.h>
+#include <Ice/Handle.h>
+
+namespace IceServant { namespace Ice { class ServantS; } }
+
 namespace Ice
 {
 
-class Servant;
-void _incRef(Servant*);
-void _decRef(Servant*);
-typedef Handle<Servant> ServantHandle;
+void _incRef(::IceServant::Ice::ServantS*);
+void _decRef(::IceServant::Ice::ServantS*);
 
-// ----------------------------------------------------------------------
-// Servant
-// ----------------------------------------------------------------------
+typedef Handle< ::IceServant::Ice::ServantS > Servant;
 
-class ICE_API Servant : virtual public SimpleShared
+}
+
+namespace IceServant { namespace Ice
+{
+
+class ICE_API ServantS : virtual public ::Ice::SimpleShared
 {
 public:
 
 protected:
 
-    Servant();
+    ServantS();
+    virtual ~ServantS();
 
 private:
 
-    Servant(const Servant&);
-    void operator=(const Servant&);
+    ServantS(const ServantS&);
+    void operator=(const ServantS&);
 };
 
-}
+} }
 
 #endif
