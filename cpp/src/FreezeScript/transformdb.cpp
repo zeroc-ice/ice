@@ -525,8 +525,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     DbEnv dbEnvNew(0);
     DbTxn* txn = 0;
     DbTxn* txnNew = 0;
-    Db* db = 0;
-    Db* dbNew = 0;
     int status = EXIT_SUCCESS;
     try
     {
@@ -539,7 +537,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
 #endif
 
         //
-        // Open the old database environment. Use DB_RECOVER_FATAL if -c is specified.
+        // Open the old database environment and start a transaction. Use DB_RECOVER_FATAL if -c is specified.
         //
         {
             u_int32_t flags = DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_CREATE;
@@ -553,40 +551,95 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             }
             dbEnv.open(dbEnvName.c_str(), flags, FREEZE_SCRIPT_DB_MODE);
         }
+        dbEnv.txn_begin(0, &txn, 0);
 
         //
-        // Open the new database environment.
+        // Open the new database environment and start a transaction.
         //
         {
             u_int32_t flags = DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN | DB_RECOVER | DB_CREATE;
             dbEnvNew.open(dbEnvNameNew.c_str(), flags, FREEZE_SCRIPT_DB_MODE);
         }
-
-        //
-        // Open the old database in a transaction.
-        //
-        db = new Db(&dbEnv, 0);
-        dbEnv.txn_begin(0, &txn, 0);
-        db->open(txn, dbName.c_str(), 0, DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
-
-        //
-        // Open the new database in a transaction.
-        //
-        dbNew = new Db(&dbEnvNew, 0);
         dbEnvNew.txn_begin(0, &txnNew, 0);
-        dbNew->open(txnNew, dbName.c_str(), 0, DB_BTREE, DB_CREATE | DB_EXCL, FREEZE_SCRIPT_DB_MODE);
 
-        //
-        // Execute the transformation descriptors.
-        //
-        istringstream istr(descriptors);
-        FreezeScript::transformDatabase(communicator, oldUnit, newUnit, db, txn, dbNew, txnNew, purgeObjects, cerr,
-                                        suppress, istr);
+        if(evictor)
+        {
+            //
+            // Open the old database in a transaction and collect the names of the embedded databases.
+            //
+            vector<string> dbNames;
+            {
+                Db db(&dbEnv, 0);
+                db.open(txn, dbName.c_str(), 0, DB_UNKNOWN, DB_RDONLY, 0);
+                Dbt dbKey, dbValue;
+                dbKey.set_flags(DB_DBT_MALLOC);
+                dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
-        //
-        // Checkpoint to migrate changes from the log to the database.
-        //
-        dbEnvNew.txn_checkpoint(0, 0, DB_FORCE);
+                Dbc* dbc = 0;
+                db.cursor(0, &dbc, 0);
+
+                while(dbc->get(&dbKey, &dbValue, DB_NEXT) == 0)
+                {
+                    string s(static_cast<char*>(dbKey.get_data()), dbKey.get_size());
+                    if(s.find("$index:") != 0)
+                    {
+                        dbNames.push_back(s);
+                    }
+                    free(dbKey.get_data());
+                }
+
+                dbc->close();
+                db.close(0);
+            }
+
+            for(vector<string>::iterator p = dbNames.begin(); p != dbNames.end(); ++p)
+            {
+                Db db(&dbEnv, 0);
+                db.open(txn, dbName.c_str(), p->c_str(), DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
+
+                Db dbNew(&dbEnvNew, 0);
+                dbNew.open(txnNew, dbName.c_str(), p->c_str(), DB_BTREE, DB_CREATE | DB_EXCL,
+                           FREEZE_SCRIPT_DB_MODE);
+
+                //
+                // Execute the transformation descriptors.
+                //
+                istringstream istr(descriptors);
+                FreezeScript::transformDatabase(communicator, oldUnit, newUnit, &db, txn, &dbNew, txnNew,
+                                                purgeObjects, cerr, suppress, istr);
+
+                //
+                // Checkpoint to migrate changes from the log to the database.
+                //
+                dbEnvNew.txn_checkpoint(0, 0, DB_FORCE);
+
+                db.close(0);
+                dbNew.close(0);
+            }
+        }
+        else
+        {
+            Db db(&dbEnv, 0);
+            db.open(txn, dbName.c_str(), 0, DB_BTREE, DB_RDONLY, FREEZE_SCRIPT_DB_MODE);
+
+            Db dbNew(&dbEnvNew, 0);
+            dbNew.open(txnNew, dbName.c_str(), 0, DB_BTREE, DB_CREATE | DB_EXCL, FREEZE_SCRIPT_DB_MODE);
+
+            //
+            // Execute the transformation descriptors.
+            //
+            istringstream istr(descriptors);
+            FreezeScript::transformDatabase(communicator, oldUnit, newUnit, &db, txn, &dbNew, txnNew,
+                                            purgeObjects, cerr, suppress, istr);
+
+            //
+            // Checkpoint to migrate changes from the log to the database.
+            //
+            dbEnvNew.txn_checkpoint(0, 0, DB_FORCE);
+
+            db.close(0);
+            dbNew.close(0);
+        }
     }
     catch(const DbException& ex)
     {
@@ -599,19 +652,9 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         {
             txn->abort();
         }
-        if(db)
-        {
-            db->close(0);
-            delete db;
-        }
         if(txnNew)
         {
             txnNew->abort();
-        }
-        if(dbNew)
-        {
-            dbNew->close(0);
-            delete dbNew;
         }
         dbEnv.close(0);
         dbEnvNew.close(0);
@@ -621,11 +664,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     if(txn)
     {
         txn->abort();
-    }
-    if(db)
-    {
-        db->close(0);
-        delete db;
     }
     if(txnNew)
     {
@@ -637,11 +675,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         {
             txnNew->commit(0);
         }
-    }
-    if(dbNew)
-    {
-        dbNew->close(0);
-        delete dbNew;
     }
     dbEnv.close(0);
     dbEnvNew.close(0);

@@ -57,7 +57,7 @@ checkxml = os.path.join(directory, "check.xml")
 print "executing evictor transformations... ",
 sys.stdout.flush()
 
-command = transformdb + " -p --old " + testold + " --new " + testnew + " -f " + transformxml + " " + dbdir + " evictor.db " + check_dbdir
+command = transformdb + " -e -p --old " + testold + " --new " + testnew + " -f " + transformxml + " " + dbdir + " evictor.db " + check_dbdir
 stdin, stdout, stderr = os.popen3(command)
 stderr.readlines()
 
@@ -66,7 +66,7 @@ print "ok"
 print "validating database... ",
 sys.stdout.flush()
 
-command = transformdb + " --old " + testnew + " --new " + testnew + " -f " + checkxml + " " + check_dbdir + " evictor.db " + tmp_dbdir
+command = transformdb + " -e --old " + testnew + " --new " + testnew + " -f " + checkxml + " " + check_dbdir + " evictor.db " + tmp_dbdir
 os.system(command)
 
 print "ok"
