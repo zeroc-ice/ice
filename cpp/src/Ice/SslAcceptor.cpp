@@ -30,14 +30,12 @@ IceInternal::SslAcceptor::fd()
 void
 IceInternal::SslAcceptor::close()
 {
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "stopping to accept ssl connections at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif	
 
     int fd = _fd;
     _fd = INVALID_SOCKET;
@@ -47,14 +45,12 @@ IceInternal::SslAcceptor::close()
 void
 IceInternal::SslAcceptor::shutdown()
 {
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 2)
     {
 	ostringstream s;
 	s << "shutting down accepting ssl connections at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif	
 
     ::shutdown(_fd, SHUT_RD); // Shutdown socket for reading
 }
@@ -72,28 +68,26 @@ IceInternal::SslAcceptor::listen()
 	throw;
     }
 
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "accepting ssl connections at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif
 }
 
 TransceiverPtr
 IceInternal::SslAcceptor::accept(int timeout)
 {
     int fd = doAccept(_fd, timeout);
-#ifndef ICE_NO_TRACE
+
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "accepted ssl connection\n" << fdToString(fd);
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif	
+
     return new SslTransceiver(_instance, fd);
 }
 
@@ -120,13 +114,10 @@ IceInternal::SslAcceptor::equivalent(const string& host, int port) const
 
 IceInternal::SslAcceptor::SslAcceptor(const InstancePtr& instance, int port) :
     _instance(instance),
+    _traceLevels(instance->traceLevels()),
+    _logger(instance->logger()),
     _backlog(0)
 {
-#ifndef ICE_NO_TRACE
-    _traceLevels = _instance->traceLevels();
-    _logger = _instance->logger();
-#endif
-
     if (_backlog <= 0)
     {
         _backlog = 5;

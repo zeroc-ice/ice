@@ -30,7 +30,6 @@ IceInternal::UdpTransceiver::fd()
 void
 IceInternal::UdpTransceiver::close()
 {
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
@@ -44,7 +43,6 @@ IceInternal::UdpTransceiver::close()
 	}
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif	
 
     int fd = _fd;
     _fd = INVALID_SOCKET;
@@ -77,14 +75,12 @@ repeat:
 	throw SocketException(__FILE__, __LINE__);
     }
 
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 3)
     {
 	ostringstream s;
 	s << "sent " << ret << " bytes via udp to " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif	
     
     assert(ret == static_cast<int>(buf.b.size()));
     buf.i = buf.b.end();
@@ -113,14 +109,12 @@ repeat:
 	throw SocketException(__FILE__, __LINE__);
     }
     
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 3)
     {
 	ostringstream s;
 	s << "received " << ret << " bytes via udp at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif	
 
     buf.b.resize(ret);
     buf.i = buf.b.end();
@@ -154,13 +148,10 @@ IceInternal::UdpTransceiver::equivalent(const string& host, int port) const
 
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port) :
     _instance(instance),
+    _traceLevels(instance->traceLevels()),
+    _logger(instance->logger()),
     _sender(true)
 {
-#ifndef ICE_NO_TRACE
-    _traceLevels = _instance->traceLevels();
-    _logger = _instance->logger();
-#endif
-
     try
     {
 	getAddress(host.c_str(), port, _addr);
@@ -168,14 +159,12 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 	_fd = createSocket(true);
 	doConnect(_fd, _addr, -1);
 	
-#ifndef ICE_NO_TRACE
 	if (_traceLevels->network >= 1)
 	{
 	    ostringstream s;
 	    s << "starting to send udp packets to " << toString();
 	    _logger->trace(_traceLevels->networkCat, s.str());
 	}
-#endif	
     }
     catch(...)
     {
@@ -186,13 +175,10 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, int port) :
     _instance(instance),
+    _traceLevels(instance->traceLevels()),
+    _logger(instance->logger()),
     _sender(false)
 {
-#ifndef ICE_NO_TRACE
-    _traceLevels = _instance->traceLevels();
-    _logger = _instance->logger();
-#endif
-
     try
     {
 	memset(&_addr, 0, sizeof(_addr));
@@ -203,14 +189,12 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, int por
 	_fd = createSocket(true);
 	doBind(_fd, _addr);
 	    
-#ifndef ICE_NO_TRACE
 	if (_traceLevels->network >= 1)
 	{
 	    ostringstream s;
 	    s << "starting to receive udp packets at " << toString();
 	    _logger->trace(_traceLevels->networkCat, s.str());
 	}
-#endif	
     }
     catch(...)
     {

@@ -317,14 +317,11 @@ IceInternal::Collector::Collector(const InstancePtr& instance,
     _adapter(adapter),
     _transceiver(transceiver),
     _endpoint(endpoint),
+    _traceLevels(instance->traceLevels()),
+    _logger(instance->logger()),
     _responseCount(0),
     _state(StateHolding)
 {
-#ifndef ICE_NO_TRACE
-    _traceLevels = _instance->traceLevels();
-    _logger = _instance->logger();
-#endif
-
     _threadPool = _instance->threadPool();
 }
 
@@ -579,13 +576,10 @@ IceInternal::CollectorFactory::CollectorFactory(const InstancePtr& instance,
     EventHandler(instance),
     _adapter(adapter),
     _endpoint(endpoint),
+    _traceLevels(instance->traceLevels()),
+    _logger(instance->logger()),
     _state(StateHolding)
 {
-#ifndef ICE_NO_TRACE
-    _traceLevels = _instance->traceLevels();
-    _logger = _instance->logger();
-#endif
-
     try
     {
 	_transceiver = endpoint->serverTransceiver(_instance);

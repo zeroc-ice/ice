@@ -64,8 +64,9 @@ local interface Evictor extends Ice::ServantLocator
     /**
      *
      * Set the Evictor Servant queue size. This is the number of
-     * Servants the Evictor will hold in memory. Queue sizes smaller
-     * than one are illegal and result in undefined behavior.
+     * Servants the Evictor will hold in memory. Requests to set the
+     * queue size to a value smaller or equal to zero is not
+     * permissible and is ignored.
      *
      * @param sz The Evictor Servant queue size. If the Evictor
      * currently holds more Servants in its queue, Servants will be

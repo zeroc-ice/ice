@@ -31,8 +31,18 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const string& name, const 
     _name(name),
     _dbenvObj(dbenvObj),
     _dbenv(dbenv),
-    _db(db)
+    _db(db),
+    _logger(communicator->getLogger()),
+    _trace(0)
 {
+    PropertiesPtr properties = _communicator->getProperties();
+    string value;
+
+    value = properties->getProperty("Freeze.Trace.DB");
+    if (!value.empty())
+    {
+	_trace = atoi(value.c_str());
+    }
 }
 
 Freeze::DBI::~DBI()
@@ -56,7 +66,7 @@ Freeze::DBI::put(const string& key, const ObjectPtr& servant)
     //
     JTCSyncT<JTCMutex> sync(*this);
 
-    if(!_db)
+    if (!_db)
     {
 	ostringstream s;
 	s << "Freeze::DB(\"" << _name << "\"): ";
@@ -88,7 +98,15 @@ Freeze::DBI::put(const string& key, const ObjectPtr& servant)
 
     while (true)
     {
+	if (_trace >= 2)
+	{
+	    ostringstream s;
+	    s << "starting transaction for database \"" << _name << "\"";
+	    _logger->trace("DB", s.str());
+	}
+
 	ret = txn_begin(_dbenv, 0, &tid, 0);
+
 	if (ret != 0)
 	{
 	    ostringstream s;
@@ -99,7 +117,15 @@ Freeze::DBI::put(const string& key, const ObjectPtr& servant)
 	    throw ex;
 	}
 	
+	if (_trace >= 1)
+	{
+	    ostringstream s;
+	    s << "writing value for key \"" << key << "\" in database \"" << _name << "\"";
+	    _logger->trace("DB", s.str());
+	}
+
 	ret = _db->put(_db, tid, &dbKey, &dbData, 0);
+
 	switch (ret)
 	{
 	    case 0:
@@ -107,7 +133,15 @@ Freeze::DBI::put(const string& key, const ObjectPtr& servant)
 		//
 		// Everything ok, commit the transaction
 		//
+		if (_trace >= 2)
+		{
+		    ostringstream s;
+		    s << "committing transaction for database \"" << _name << "\"";
+		    _logger->trace("DB", s.str());
+		}
+
 		ret = txn_commit(tid, 0);
+
 		if (ret != 0)
 		{
 		    ostringstream s;
@@ -125,7 +159,15 @@ Freeze::DBI::put(const string& key, const ObjectPtr& servant)
 		//
 		// Deadlock, abort the transaction and retry
 		//
+		if (_trace >= 2)
+		{
+		    ostringstream s;
+		    s << "aborting transaction for database \"" << _name << "\" due to deadlock";
+		    _logger->trace("DB", s.str());
+		}
+
 		ret = txn_abort(tid);
+
 		if (ret != 0)
 		{
 		    ostringstream s;
@@ -164,7 +206,7 @@ Freeze::DBI::get(const string& key)
     //
     JTCSyncT<JTCMutex> sync(*this);
 
-    if(!_db)
+    if (!_db)
     {
 	ostringstream s;
 	s << "Freeze::DB(\"" << _name << "\"): ";
@@ -186,7 +228,15 @@ Freeze::DBI::get(const string& key)
     dbKey.size = key.size();
     dbData.flags = DB_DBT_MALLOC;
 
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "reading value for key \"" << key << "\" in database \"" << _name << "\"";
+	_logger->trace("DB", s.str());
+    }
+    
     ret = _db->get(_db, 0, &dbKey, &dbData, 0);
+
     switch (ret)
     {
 	case 0:
@@ -249,7 +299,7 @@ Freeze::DBI::del(const string& key)
     //
     JTCSyncT<JTCMutex> sync(*this);
 
-    if(!_db)
+    if (!_db)
     {
 	ostringstream s;
 	s << "Freeze::DB(\"" << _name << "\"): ";
@@ -269,7 +319,15 @@ Freeze::DBI::del(const string& key)
     dbKey.data = const_cast<void*>(static_cast<const void*>(key.c_str()));
     dbKey.size = key.size();
 
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "deleting value for key \"" << key << "\" in database \"" << _name << "\"";
+	_logger->trace("DB", s.str());
+    }
+    
     ret = _db->del(_db, 0, &dbKey, 0);
+
     switch (ret)
     {
 	case 0:
@@ -302,8 +360,16 @@ Freeze::DBI::close()
 	return;
     }
 
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "closing database \"" << _name << "\"";
+	_logger->trace("DB", s.str());
+    }
+    
     int ret = _db->close(_db, 0);
-    if(ret != 0)
+
+    if (ret != 0)
     {
 	ostringstream s;
 	s << "Freeze::DB(\"" << _name << "\"): ";
@@ -324,7 +390,7 @@ Freeze::DBI::createEvictor()
 {
     JTCSyncT<JTCMutex> sync(*this);
 
-    if(!_db)
+    if (!_db)
     {
 	ostringstream s;
 	s << "Freeze::DB(\"" << _name << "\"): ";
@@ -334,17 +400,29 @@ Freeze::DBI::createEvictor()
 	throw ex;
     }
 
-    return new EvictorI(this);
+    return new EvictorI(this, _communicator);
 }
 
 Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const string& directory) :
     _communicator(communicator),
     _directory(directory),
-    _dbenv(0)
+    _dbenv(0),
+    _logger(communicator->getLogger()),
+    _trace(0)
 {
+    PropertiesPtr properties = _communicator->getProperties();
+    string value;
+
+    value = properties->getProperty("Freeze.Trace.DB");
+    if (!value.empty())
+    {
+	_trace = atoi(value.c_str());
+    }
+
     int ret;
 
     ret = db_env_create(&_dbenv, 0);
+
     if (ret != 0)
     {
 	ostringstream s;
@@ -353,6 +431,13 @@ Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const string& direct
 	DBException ex;
 	ex.message = s.str();
 	throw ex;
+    }
+
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "opening database environment \"" << _directory << "\"";
+	_logger->trace("DB", s.str());
     }
 
     ret = _dbenv->open(_dbenv, _directory.c_str(),
@@ -391,7 +476,7 @@ Freeze::DBEnvI::open(const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
 
-    if(!_dbenv)
+    if (!_dbenv)
     {
 	ostringstream s;
 	s << "Freeze::DBEnv(\"" << _directory << "\"): ";
@@ -411,7 +496,8 @@ Freeze::DBEnvI::open(const string& name)
 
     ::DB* db;
     ret = db_create(&db, _dbenv, 0);
-    if(ret != 0)
+
+    if (ret != 0)
     {
 	ostringstream s;
 	s << "Freeze::DBEnv(\"" << _directory << "\"): ";
@@ -421,8 +507,16 @@ Freeze::DBEnvI::open(const string& name)
 	throw ex;
     }
 
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "opening database \"" << name << "\" in environment \"" << _directory << "\"";
+	_logger->trace("DB", s.str());
+    }
+    
     ret = db->open(db, name.c_str(), 0, DB_BTREE, DB_CREATE | DB_THREAD, FREEZE_DB_MODE);
-    if(ret != 0)
+
+    if (ret != 0)
     {
 	ostringstream s;
 	s << "Freeze::DBEnv(\"" << _directory << "\"): ";
@@ -452,8 +546,16 @@ Freeze::DBEnvI::close()
 	_dbmap.begin()->second->close();
     }
 
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "closing database environment \"" << _directory << "\"";
+	_logger->trace("DB", s.str());
+    }
+
     int ret = _dbenv->close(_dbenv, 0);
-    if(ret != 0)
+
+    if (ret != 0)
     {
 	ostringstream s;
 	s << "Freeze::DBEnv(\"" << _directory << "\"): ";

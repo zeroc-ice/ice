@@ -327,32 +327,26 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	++cnt;
     }
 
-#ifndef ICE_NO_TRACE
     TraceLevelsPtr traceLevels = _reference->instance->traceLevels();
     LoggerPtr logger = _reference->instance->logger();
-#endif
 
     if(cnt > max)
     {
-#ifndef ICE_NO_TRACE
 	if (traceLevels->retry >= 1)
 	{
 	    ostringstream s;
 	    s << "cannot retry operation call because retry limit has been exceeded\n" << ex;
 	    logger->trace(traceLevels->retryCat, s.str());
 	}
-#endif	
 	ex.raise();
     }
 
-#ifndef ICE_NO_TRACE
     if (traceLevels->retry >= 1)
     {
 	ostringstream s;
 	s << "re-trying operation call because of exception\n" << ex;
 	logger->trace(traceLevels->retryCat, s.str());
     }
-#endif
 
     //
     // Reset the endpoints to the original endpoints upon retry
@@ -375,7 +369,6 @@ IceProxy::Ice::Object::__locationForward(const LocationForward& ex)
     _reference = _reference->changeEndpoints(ex._prx->_reference->endpoints);
 
 /*
-#ifndef ICE_NO_TRACE
     TraceLevelsPtr traceLevels = _reference->instance->traceLevels();
     LoggerPtr logger = _reference->instance->logger();
 
@@ -385,7 +378,6 @@ IceProxy::Ice::Object::__locationForward(const LocationForward& ex)
 	s << "location forward for object with identity `" << _reference.identity << "'";
 	logger->trace(traceLevels->locationForwardCat, s.str());
     }
-#endif
 */
 }
 

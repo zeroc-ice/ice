@@ -115,6 +115,71 @@ The request retry tracing level:
 </section>
 </section>
 
+<section><title>Freeze.Trace.DB</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Trace.DB=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The &Freeze; database activity tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>no database activity tracing</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>trace database activity</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>trace also database transactions</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>Freeze.Trace.Evictor</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Trace.Evictor=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The &Freeze; Evictor activity tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>no Evictor activity tracing</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>trace Ice Object creation and destruction, as well as
+Evictor deactivation</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>trace also Evictor queue activity</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
 </section>
 
 <!-- ********************************************************************** -->

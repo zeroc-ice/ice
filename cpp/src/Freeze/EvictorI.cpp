@@ -15,10 +15,20 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-Freeze::EvictorI::EvictorI(const DBPtr& db) :
+Freeze::EvictorI::EvictorI(const DBPtr& db, const CommunicatorPtr& communicator) :
     _db(db),
-    _evictorSize(static_cast<map<string, EvictorElement>::size_type>(10))
+    _evictorSize(static_cast<map<string, EvictorElement>::size_type>(10)),
+    _logger(communicator->getLogger()),
+    _trace(0)
 {
+    PropertiesPtr properties = communicator->getProperties();
+    string value;
+
+    value = properties->getProperty("Freeze.Trace.Evictor");
+    if(!value.empty())
+    {
+	_trace = atoi(value.c_str());
+    }
 }
 
 void
@@ -27,21 +37,23 @@ Freeze::EvictorI::setSize(Int evictorSize)
     JTCSyncT<JTCMutex> sync(*this);
 
     //
-    // The minimum size is one.
+    // Ignore requests to set the evictor size to values smaller or
+    // equal to zero.
     //
-    if (evictorSize < 1)
+    if (evictorSize <= 0)
     {
-	evictorSize = 1;
+	return;
     }
+
+    //
+    // Update the evictor size.
+    //
     _evictorSize = static_cast<map<string, EvictorElement>::size_type>(evictorSize);
 
     //
-    // Evict elements if necessary
+    // Evict as many elements as necessary.
     //
-    if (_evictorMap.size() > _evictorSize)
-    {
-	evict();
-    }
+    evict();
 }
 
 Int
@@ -61,13 +73,14 @@ Freeze::EvictorI::createObject(const string& identity, const ObjectPtr& servant)
     // Save the new Ice Object to the database.
     //
     _db->put(identity, servant);
-
-    //
-    // Evict one element, if necessary, to make room for a new
-    // one. Then add the new Ice Object to the evictor.
-    //
-    evict();
     add(identity, servant);
+
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "created \"" << identity << "\"";
+	_logger->trace("Evictor", s.str());
+    }
 }
 
 void
@@ -79,15 +92,13 @@ Freeze::EvictorI::destroyObject(const string& identity)
     // Delete the Ice Object from the database.
     //
     _db->del(identity);
+    remove(identity);
 
-    //
-    // If the Ice Object is currently in the evictor, remove it.
-    //
-    map<string, EvictorElement>::iterator p = _evictorMap.find(identity);
-    if (p != _evictorMap.end())
+    if (_trace >= 1)
     {
-	_evictorList.erase(p->second.position);
-	_evictorMap.erase(p);
+	ostringstream s;
+	s << "destroyed \"" << identity << "\"";
+	_logger->trace("Evictor", s.str());
     }
 }
 
@@ -107,6 +118,13 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity
     map<string, EvictorElement>::iterator p = _evictorMap.find(identity);
     if (p != _evictorMap.end())
     {
+	if (_trace >= 2)
+	{
+	    ostringstream s;
+	    s << "found \"" << identity << "\" in queue";
+	    _logger->trace("Evictor", s.str());
+	}
+
 	//
 	// Ice Object found in evictor map. Push it to the front of
 	// the evictor list, so that it will be evicted last.
@@ -122,25 +140,28 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity
     }
     else
     {
-	//
-	// Evict one element, if necessary, to make room for a new
-	// one.
-	//
-	evict();
+	if (_trace >= 2)
+	{
+	    ostringstream s;
+	    s << "couldn't find \"" << identity << "\" in queue\n"
+	      << "loading \"" << identity << "\" from database";
+	    _logger->trace("Evictor", s.str());
+	}
 
 	//
-	// Find the Ice Object in the database and create a servant
-	// for it.
+	// Load the Ice Object from database and create and add a
+	// Servant for it.
 	//
 	ObjectPtr servant = _db->get(identity);
 	if (!servant)
 	{
 	    //
-            // Ice object with the given identity does not exist,
+            // Ice Object with the given identity does not exist,
             // client will get an ObjectNotExistException.
 	    //
 	    return 0;
 	}
+	add(identity, servant);
 
 	//
 	// If an initializer is installed, call it now.
@@ -149,11 +170,6 @@ Freeze::EvictorI::locate(const ObjectAdapterPtr& adapter, const string& identity
 	{
 	    _initializer->initialize(adapter, identity, servant);
 	}
-
-	//
-	// Add the new Ice Object and its Servant
-	//
-	add(identity, servant);
 
 	//
 	// Return the new servant for the Ice Object from the database.
@@ -172,6 +188,13 @@ void
 Freeze::EvictorI::deactivate()
 {
     JTCSyncT<JTCMutex> sync(*this);
+
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "deactivating, saving all Ice Objects in queue in database";
+	_logger->trace("Evictor", s.str());
+    }
 
     //
     // Save all Ice Objects in the database upon deactivation, and
@@ -192,36 +215,50 @@ Freeze::EvictorI::evict()
     // With most STL implementations, _evictorMap.size() is faster
     // than _evictorList.size().
     //
-    if (_evictorMap.size() > _evictorSize)
+    while (_evictorMap.size() > _evictorSize)
     {
 	//
-	// EvictorI size exceeded. Remove last element from the evictor list.
+	// Get the last element of the Evictor queue.
 	//
 	string identity = _evictorList.back();
-	_evictorList.pop_back();
-
-	//
-	// Find corresponding element in the evictor map
-	//
 	map<string, EvictorElement>::iterator p = _evictorMap.find(identity);
 	assert(p != _evictorMap.end());
+	ObjectPtr servant = p->second.servant;
+	assert(servant);
+
+	//
+	// Remove last element from the evictor queue.
+	//
+	_evictorMap.erase(identity);
+	_evictorList.pop_back();
+	assert(_evictorMap.size() == _evictorSize);
 
 	//
 	// Save the evicted Ice Object to the database.
 	//
-	_db->put(identity, p->second.servant);
+	_db->put(identity, servant);
 
-	//
-	// Remove the element from the evictor map.
-	//
-	_evictorMap.erase(identity);
-	assert(_evictorMap.size() == _evictorSize);
+	if (_trace >= 2)
+	{
+	    ostringstream s;
+	    s << "evicted \"" << identity << "\" from queue\n"
+	      << "number of elements in queue: " << _evictorMap.size();
+	    _logger->trace("Evictor", s.str());
+	}
     }
 }
 
 void
 Freeze::EvictorI::add(const string& identity, const ObjectPtr& servant)
 {
+    //
+    // Ignore the request if the Ice Object is already in the queue.
+    //
+    if(_evictorMap.find(identity) != _evictorMap.end())
+    {
+	return;
+    }    
+
     //
     // Add an Ice Object with its Servant to the evictor list and
     // evictor map.
@@ -231,4 +268,23 @@ Freeze::EvictorI::add(const string& identity, const ObjectPtr& servant)
     evictorElement.servant = servant;
     evictorElement.position = _evictorList.begin();
     _evictorMap[identity] = evictorElement;
+
+    //
+    // Evict as many elements as necessary.
+    //
+    evict();
+}
+
+void
+Freeze::EvictorI::remove(const string& identity)
+{
+    //
+    // If the Ice Object is currently in the evictor, remove it.
+    //
+    map<string, EvictorElement>::iterator p = _evictorMap.find(identity);
+    if (p != _evictorMap.end())
+    {
+	_evictorList.erase(p->second.position);
+	_evictorMap.erase(p);
+    }
 }

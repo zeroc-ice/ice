@@ -46,13 +46,11 @@ private:
     friend class UdpEndpoint;
 
     InstancePtr _instance;
+    TraceLevelsPtr _traceLevels;
+    ::Ice::LoggerPtr _logger;
     bool _sender;
     int _fd;
     struct sockaddr_in _addr;
-#ifndef ICE_NO_TRACE
-    TraceLevelsPtr _traceLevels;
-    ::Ice::LoggerPtr _logger;
-#endif
 };
 
 }

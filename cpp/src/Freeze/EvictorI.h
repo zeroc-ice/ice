@@ -11,7 +11,6 @@
 #ifndef FREEZE_EVICTOR_I_H
 #define FREEZE_EVICTOR_I_H
 
-#include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <Freeze/DB.h>
 #include <Freeze/Evictor.h>
@@ -20,14 +19,11 @@
 namespace Freeze
 {
 
-class EvictorI;
-typedef IceUtil::Handle<EvictorI> EvictorIPtr;
-
 class EvictorI : public Evictor, public JTCMutex
 {
 public:
 
-    EvictorI(const Freeze::DBPtr&);
+    EvictorI(const Freeze::DBPtr&, const Ice::CommunicatorPtr&);
     
     virtual void setSize(Ice::Int);
     virtual Ice::Int getSize();
@@ -46,6 +42,7 @@ private:
 
     void evict();
     void add(const std::string&, const Ice::ObjectPtr&);
+    void remove(const std::string&);
 
     Freeze::DBPtr _db;
 
@@ -59,6 +56,9 @@ private:
     std::map<std::string, EvictorElement>::size_type _evictorSize;
 
     ServantInitializerPtr _initializer;
+
+    ::Ice::LoggerPtr _logger;
+    int _trace;
 };
 
 }

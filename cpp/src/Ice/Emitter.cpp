@@ -338,10 +338,8 @@ IceInternal::Emitter::Emitter(const InstancePtr& instance,
     _batchStream(instance),
     _state(StateActive)
 {
-#ifndef ICE_NO_TRACE
     _traceLevels = _instance->traceLevels();
     _logger = _instance->logger();
-#endif
 
     if (!_endpoint->oneway())
     {
@@ -440,10 +438,8 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
     //
     // No emitters exist, try to create one
     //
-#ifndef ICE_NO_TRACE
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     LoggerPtr logger = _instance->logger();
-#endif
 
     EmitterPtr emitter;
     auto_ptr<LocalException> exception;
@@ -475,7 +471,6 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
 
 	++q;
 
-#ifndef ICE_NO_TRACE
 	if (traceLevels->retry >= 2)
 	{
 	    ostringstream s;
@@ -491,7 +486,6 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
 	    s << *exception.get();
 	    logger->trace(traceLevels->retryCat, s.str());
 	}
-#endif	
     }
 
     if (!emitter)

@@ -30,14 +30,12 @@ IceInternal::TcpAcceptor::fd()
 void
 IceInternal::TcpAcceptor::close()
 {
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "stopping to accept tcp connections at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif	
 
     int fd = _fd;
     _fd = INVALID_SOCKET;
@@ -47,14 +45,12 @@ IceInternal::TcpAcceptor::close()
 void
 IceInternal::TcpAcceptor::shutdown()
 {
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 2)
     {
 	ostringstream s;
 	s << "shutting down accepting tcp connections at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif	
 
     ::shutdown(_fd, SHUT_RD); // Shutdown socket for reading
 }
@@ -72,28 +68,26 @@ IceInternal::TcpAcceptor::listen()
 	throw;
     }
 
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "accepting tcp connections at " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif
 }
 
 TransceiverPtr
 IceInternal::TcpAcceptor::accept(int timeout)
 {
     int fd = doAccept(_fd, timeout);
-#ifndef ICE_NO_TRACE
+
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "accepted tcp connection\n" << fdToString(fd);
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif	
+
     return new TcpTransceiver(_instance, fd);
 }
 
@@ -120,13 +114,10 @@ IceInternal::TcpAcceptor::equivalent(const string& host, int port) const
 
 IceInternal::TcpAcceptor::TcpAcceptor(const InstancePtr& instance, int port) :
     _instance(instance),
+    _traceLevels(instance->traceLevels()),
+    _logger(instance->logger()),
     _backlog(0)
 {
-#ifndef ICE_NO_TRACE
-    _traceLevels = _instance->traceLevels();
-    _logger = _instance->logger();
-#endif
-
     if (_backlog <= 0)
     {
         _backlog = 5;

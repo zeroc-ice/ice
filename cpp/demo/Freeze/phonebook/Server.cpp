@@ -86,6 +86,9 @@ run(int argc, char* argv[], const DBEnvPtr& dbenv)
     cout << "starting up..." << endl;
     ignoreInterrupt();
 
+    PropertiesPtr properties = communicator->getProperties();
+    string value;
+
     //
     // Open the phonebook database.
     //
@@ -95,7 +98,11 @@ run(int argc, char* argv[], const DBEnvPtr& dbenv)
     // Create an Evictor.
     //
     EvictorPtr evictor = db->createEvictor();
-    evictor->setSize(3);
+    value = properties->getProperty("PhoneBook.EvictorSize");
+    if(!value.empty())
+    {
+	evictor->setSize(atoi(value.c_str()));
+    }
 
     //
     // Create an Object Adapter, use the Evictor as Servant Locator.

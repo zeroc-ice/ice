@@ -24,26 +24,22 @@ using namespace IceInternal;
 TransceiverPtr
 IceInternal::SslConnector::connect(int timeout)
 {
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 2)
     {
 	ostringstream s;
 	s << "trying to establish ssl connection to " << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif
 
     int fd = createSocket(false);
     doConnect(fd, _addr, timeout);
 
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "ssl connection established\n" << fdToString(fd);
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif	
 
     return new SslTransceiver(_instance, fd);
 }
@@ -55,13 +51,10 @@ IceInternal::SslConnector::toString() const
 }
 
 IceInternal::SslConnector::SslConnector(const InstancePtr& instance, const string& host, int port) :
-    _instance(instance)
+    _instance(instance),
+    _traceLevels(instance->traceLevels()),
+    _logger(instance->logger())
 {
-#ifndef ICE_NO_TRACE
-    _traceLevels = _instance->traceLevels();
-    _logger = _instance->logger();
-#endif
-
     getAddress(host.c_str(), port, _addr);
 }
 

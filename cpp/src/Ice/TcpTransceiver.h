@@ -42,12 +42,10 @@ private:
 
     InstancePtr _instance;
     int _fd;
-    fd_set rFdSet;
-    fd_set wFdSet;
-#ifndef ICE_NO_TRACE
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
-#endif
+    fd_set _rFdSet;
+    fd_set _wFdSet;
 };
 
 }

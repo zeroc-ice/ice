@@ -75,16 +75,14 @@ private:
 
     TransceiverPtr _transceiver;
     EndpointPtr _endpoint;
+    TraceLevelsPtr _traceLevels;
+    ::Ice::LoggerPtr _logger;
     ThreadPoolPtr _threadPool;
     ::Ice::Int _nextRequestId;
     std::map< ::Ice::Int, Outgoing*> _requests;
     std::auto_ptr< ::Ice::LocalException> _exception;
     Stream _batchStream;
     State _state;
-#ifndef ICE_NO_TRACE
-    TraceLevelsPtr _traceLevels;
-    ::Ice::LoggerPtr _logger;
-#endif
 };
 
 class EmitterFactory : public ::IceUtil::Shared, public JTCMutex

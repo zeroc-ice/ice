@@ -79,13 +79,11 @@ private:
     ::Ice::ObjectAdapterPtr _adapter;
     TransceiverPtr _transceiver;
     EndpointPtr _endpoint;
+    TraceLevelsPtr _traceLevels;
+    ::Ice::LoggerPtr _logger;
     ThreadPoolPtr _threadPool;
     int _responseCount;
     State _state;
-#ifndef ICE_NO_TRACE
-    TraceLevelsPtr _traceLevels;
-    ::Ice::LoggerPtr _logger;
-#endif
 };
 
 class CollectorFactory : public EventHandler, public JTCMutex
@@ -132,13 +130,11 @@ private:
     AcceptorPtr _acceptor;
     TransceiverPtr _transceiver;
     EndpointPtr _endpoint;
+    TraceLevelsPtr _traceLevels;
+    ::Ice::LoggerPtr _logger;
     ThreadPoolPtr _threadPool;
     std::list<CollectorPtr> _collectors;
     State _state;
-#ifndef ICE_NO_TRACE
-    TraceLevelsPtr _traceLevels;
-    ::Ice::LoggerPtr _logger;
-#endif
 };
 
 }

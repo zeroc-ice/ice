@@ -46,13 +46,11 @@ private:
     friend class SslEndpoint;
 
     InstancePtr _instance;
+    TraceLevelsPtr _traceLevels;
+    ::Ice::LoggerPtr _logger;
     int _fd;
     int _backlog;
     struct sockaddr_in _addr;
-#ifndef ICE_NO_TRACE
-    TraceLevelsPtr _traceLevels;
-    ::Ice::LoggerPtr _logger;
-#endif
 };
 
 }

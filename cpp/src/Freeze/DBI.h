@@ -42,6 +42,8 @@ private:
     DBEnvIPtr _dbenvObj;
     ::DB_ENV* _dbenv;
     ::DB* _db;
+    ::Ice::LoggerPtr _logger;
+    int _trace;
 };
 
 class DBEnvI : public DBEnv, public JTCRecursiveMutex
@@ -62,6 +64,8 @@ private:
     std::string _directory;
     ::DB_ENV* _dbenv;
     std::map<std::string, DBPtr> _dbmap;
+    ::Ice::LoggerPtr _logger;
+    int _trace;
 };
 
 }

@@ -40,11 +40,9 @@ private:
     friend class TcpEndpoint;
 
     InstancePtr _instance;
-    struct sockaddr_in _addr;
-#ifndef ICE_NO_TRACE
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
-#endif
+    struct sockaddr_in _addr;
 };
 
 }

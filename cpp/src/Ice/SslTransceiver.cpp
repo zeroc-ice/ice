@@ -30,14 +30,12 @@ IceInternal::SslTransceiver::fd()
 void
 IceInternal::SslTransceiver::close()
 {
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
 	s << "closing ssl connection\n" << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif	
 
     int fd = _fd;
     _fd = INVALID_SOCKET;
@@ -48,14 +46,12 @@ IceInternal::SslTransceiver::close()
 void
 IceInternal::SslTransceiver::shutdown()
 {
-#ifndef ICE_NO_TRACE
     if (_traceLevels->network >= 2)
     {
 	ostringstream s;
 	s << "shutting down ssl connection\n" << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
-#endif	
 
     ::shutdown(_fd, SHUT_WR); // Shutdown socket for writing
 }
@@ -109,17 +105,17 @@ IceInternal::SslTransceiver::write(Buffer& buf, int timeout)
 		{
 		repeatSelect:
 		    int ret;
-		    FD_SET(fd, &wFdSet);
+		    FD_SET(fd, &_wFdSet);
 		    if (timeout >= 0)
 		    {
 			struct timeval tv;
 			tv.tv_sec = timeout / 1000;
 			tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-			ret = ::select(fd + 1, 0, &wFdSet, 0, &tv);
+			ret = ::select(fd + 1, 0, &_wFdSet, 0, &tv);
 		    }
 		    else
 		    {
-			ret = ::select(fd + 1, 0, &wFdSet, 0, 0);
+			ret = ::select(fd + 1, 0, &_wFdSet, 0, 0);
 		    }
 		    
 		    if (ret == SOCKET_ERROR)
@@ -151,14 +147,12 @@ IceInternal::SslTransceiver::write(Buffer& buf, int timeout)
 	    }
 	}
 
-#ifndef ICE_NO_TRACE
 	if (_traceLevels->network >= 3)
 	{
 	    ostringstream s;
 	    s << "sent " << ret << " of " << packetSize << " bytes via ssl\n" << toString();
 	    _logger->trace(_traceLevels->networkCat, s.str());
 	}
-#endif	
 
 	buf.i += ret;
 
@@ -208,17 +202,17 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 		{
 		repeatSelect:
 		    int ret;
-		    FD_SET(fd, &rFdSet);
+		    FD_SET(fd, &_rFdSet);
 		    if (timeout >= 0)
 		    {
 			struct timeval tv;
 			tv.tv_sec = timeout / 1000;
 			tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-			ret = ::select(fd + 1, &rFdSet, 0, 0, &tv);
+			ret = ::select(fd + 1, &_rFdSet, 0, 0, &tv);
 		    }
 		    else
 		    {
-			ret = ::select(fd + 1, &rFdSet, 0, 0, 0);
+			ret = ::select(fd + 1, &_rFdSet, 0, 0, 0);
 		    }
 		    
 		    if (ret == SOCKET_ERROR)
@@ -250,14 +244,12 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 	    }
 	}
 
-#ifndef ICE_NO_TRACE
 	if (_traceLevels->network >= 3)
 	{
 	    ostringstream s;
 	    s << "received " << ret << " of " << packetSize << " bytes via ssl\n" << toString();
 	    _logger->trace(_traceLevels->networkCat, s.str());
 	}
-#endif	
 
 	buf.i += ret;
 
@@ -276,15 +268,12 @@ IceInternal::SslTransceiver::toString() const
 
 IceInternal::SslTransceiver::SslTransceiver(const InstancePtr& instance, int fd) :
     _instance(instance),
-    _fd(fd)
+    _fd(fd),
+    _traceLevels(instance->traceLevels()),
+    _logger(instance->logger())
 {
-    FD_ZERO(&rFdSet);
-    FD_ZERO(&wFdSet);
-
-#ifndef ICE_NO_TRACE
-    _traceLevels = _instance->traceLevels();
-    _logger = _instance->logger();
-#endif
+    FD_ZERO(&_rFdSet);
+    FD_ZERO(&_wFdSet);
 }
 
 IceInternal::SslTransceiver::~SslTransceiver()
