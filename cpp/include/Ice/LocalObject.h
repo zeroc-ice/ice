@@ -14,6 +14,13 @@
 #include <Ice/LocalObjectF.h>
 #include <Ice/Shared.h>
 
+namespace __Ice
+{
+
+class Stream;
+
+}
+
 namespace Ice
 {
 
@@ -24,6 +31,9 @@ public:
 
     LocalObject();
     virtual ~LocalObject();
+
+    virtual void __write(::__Ice::Stream*) = 0;
+    virtual void __read(::__Ice::Stream*) = 0;
 };
 
 }

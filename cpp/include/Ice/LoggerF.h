@@ -8,33 +8,32 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOGGER_F_H
-#define ICE_LOGGER_F_H
+// Generated from file `Logger.ice'
+
+#ifndef __LoggerF_h__
+#define __LoggerF_h__
 
 #include <Ice/Handle.h>
 
 namespace Ice
 {
-    class Logger;
-    class StderrLogger;
+
+class Logger;
+
 }
 
 namespace __Ice
 {
 
-void ICE_API incRef(::Ice::Logger*);
-void ICE_API decRef(::Ice::Logger*);
-
-void ICE_API incRef(::Ice::StderrLogger*);
-void ICE_API decRef(::Ice::StderrLogger*);
+void incRef(::Ice::Logger*);
+void decRef(::Ice::Logger*);
 
 }
 
 namespace Ice
 {
 
-typedef __Ice::Handle<Logger> Logger_ptr;
-typedef __Ice::Handle<StderrLogger> StderrLogger_ptr;
+typedef ::__Ice::Handle< ::Ice::Logger> Logger_ptr;
 
 }
 

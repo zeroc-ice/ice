@@ -8,34 +8,29 @@
 //
 // **********************************************************************
 
-#ifndef ICE_LOGGER_H
-#define ICE_LOGGER_H
+// Generated from file `Logger.ice'
+
+#ifndef __Logger_h__
+#define __Logger_h__
 
 #include <Ice/LoggerF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/Shared.h>
+#include <Ice/LocalObject.h>
 
 namespace Ice
 {
 
-class ICE_API Logger : public ::__Ice::Shared
+class Logger : public ::Ice::LocalObject
 {
-public:
-    
-    Logger() { }
-    virtual void trace(const std::string&, const std::string&) = 0;
-    virtual void warning(const std::string&) = 0;
-    virtual void error(const std::string&) = 0;
-};
+public: 
 
-class ICE_API StderrLogger : public Logger, public JTCMutex
-{
-public:
+    virtual void trace(const ::std::string&, const ::std::string&) = 0;
 
-    StderrLogger();
-    virtual void trace(const std::string&, const std::string&);
-    virtual void warning(const std::string&);
-    virtual void error(const std::string&);
+    virtual void warning(const ::std::string&) = 0;
+
+    virtual void error(const ::std::string&) = 0;
+
+    virtual void __write(::__Ice::Stream*);
+    virtual void __read(::__Ice::Stream*);
 };
 
 }
