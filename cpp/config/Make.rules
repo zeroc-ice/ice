@@ -76,6 +76,7 @@ SLICE2XSD	= $(bindir)/slice2xsd
 SLICE2FREEZE	= $(bindir)/slice2freeze
 SLICE2DOCBOOK	= $(bindir)/slice2docbook
 
+
 EVERYTHING	= all depend clean
 
 .SUFFIXES:
@@ -89,10 +90,15 @@ EVERYTHING	= all depend clean
 
 all:: $(SRCS) $(TARGETS)
 
-depend:: $(SRCS)
+depend:: $(SRCS) $(SLICE_SRCS)
+	-rm -f .depend
 	if test -n "$(SRCS)" ; then \
 	    $(CXX) -DMAKEDEPEND -M $(CXXFLAGS) $(CPPFLAGS) $(SRCS) | \
-	    $(top_srcdir)/config/makedepend.py > .depend; \
+	    $(top_srcdir)/config/makedepend.py >> .depend; \
+	fi
+	if test -n "$(SLICE_SRCS)" ; then \
+	    $(SLICE2CPP) --depend $(SLICE2CPPFLAGS) $(SLICE_SRCS) | \
+	    $(top_srcdir)/config/makedepend.py >> .depend; \
 	fi
 
 clean::

@@ -75,11 +75,15 @@ SRCS		= $(LIB_OBJS:.o=.cpp) \
 		  IcePackNode.cpp \
 		  IcePackRegistry.cpp
 
+SLICE_SRCS	= $(SDIR)/Admin.ice \
+		  Internal.ice
+
 HDIR		= $(includedir)/IcePack
 LOCAL_HDIR	= ../IcePack
 SDIR		= $(slicedir)/IcePack
-SLICECMD	= $(SLICE2CPP) --ice --include-dir IcePack --dll-export ICE_PACK_API -I$(slicedir)
-SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IcePack -I$(slicedir) -I..
+SLICE2CPPFLAGS	= -I.. -I$(slicedir)
+SLICE2CPPCMD    = $(SLICE2CPP) --ice --include-dir IcePack --dll-export ICE_PACK_API $(SLICE2CPPFLAGS)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IcePack -I.. -I$(slicedir)
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)
@@ -124,7 +128,7 @@ clean::
 
 $(HDIR)/Admin.h Admin.cpp: $(SDIR)/Admin.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Admin.h Admin.cpp
-	$(SLICECMD) $(SDIR)/Admin.ice
+	$(SLICE2CPPCMD) $(SDIR)/Admin.ice
 	mv Admin.h $(HDIR)
 
 clean::
@@ -132,7 +136,7 @@ clean::
 
 $(LOCAL_HDIR)/Internal.h Internal.cpp: Internal.ice $(SLICE2CPP)
 	rm -f Internal.h Internal.cpp
-	$(SLICECMD) -I.. Internal.ice
+	$(SLICE2CPPCMD) Internal.ice
 
 clean::
 	rm -f Internal.h Internal.cpp
@@ -152,4 +156,6 @@ $(LOCAL_HDIR)/StringObjectProxyDict.h StringObjectProxyDict.cpp: $(SLICE2FREEZE)
 clean::
 	rm -f StringObjectProxyDict.h StringObjectProxySeq.cpp
 
+
 include .depend
+include .slicedepend

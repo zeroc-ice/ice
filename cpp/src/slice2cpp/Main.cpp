@@ -46,6 +46,7 @@ main(int argc, char* argv[])
     bool impl = false;
     bool debug = false;
     bool ice = false;
+    bool depend = false;
 
     int idx = 1;
     while(idx < argc)
@@ -163,6 +164,15 @@ main(int argc, char* argv[])
 	    }
 	    --argc;
 	}
+	else if(strcmp(argv[idx], "--depend") == 0)
+	{
+	    depend = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
 	else if(argv[idx][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
@@ -209,43 +219,65 @@ main(int argc, char* argv[])
 	}
 	test.close();
 
-	string cmd = cpp + " " + argv[idx];
-#ifdef _WIN32
-	FILE* cppHandle = _popen(cmd.c_str(), "r");
-#else
-	FILE* cppHandle = popen(cmd.c_str(), "r");
-#endif
-	if(cppHandle == 0)
+	if(depend)
 	{
-	    cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
-	    return EXIT_FAILURE;
-	}
-	
-	UnitPtr unit = Unit::createUnit(false, false, ice);
-	int parseStatus = unit->parse(cppHandle, debug);
-	
+	    string::size_type pos = base.rfind('/');
+	    if(pos != string::npos)
+	    {
+		base.erase(0, pos + 1);
+	    }
+
+	    string cmd = cpp + " -M -MT " + base + ".cpp " + argv[idx];
+
 #ifdef _WIN32
-	_pclose(cppHandle);
+	    FILE* cppHandle = _popen(cmd.c_str(), "w");
+	    _pclose(cppHandle);
 #else
-	pclose(cppHandle);
+	    FILE* cppHandle = popen(cmd.c_str(), "w");
+	    pclose(cppHandle);
 #endif
-	
-	if(parseStatus == EXIT_FAILURE)
-	{
-	    status = EXIT_FAILURE;
 	}
 	else
 	{
-	    Gen gen(argv[0], base, include, includePaths, dllExport, output, impl);
-	    if(!gen)
+	    string cmd = cpp + " " + argv[idx];
+
+#ifdef _WIN32
+	    FILE* cppHandle = _popen(cmd.c_str(), "r");
+#else
+	    FILE* cppHandle = popen(cmd.c_str(), "r");
+#endif
+	    if(cppHandle == 0)
 	    {
-		unit->destroy();
+		cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
 		return EXIT_FAILURE;
 	    }
-	    gen.generate(unit);
-	}
+	
+	    UnitPtr unit = Unit::createUnit(false, false, ice);
+	    int parseStatus = unit->parse(cppHandle, debug);
+	
+#ifdef _WIN32
+	    _pclose(cppHandle);
+#else
+	    pclose(cppHandle);
+#endif
 
-	unit->destroy();
+	    if(parseStatus == EXIT_FAILURE)
+	    {
+		status = EXIT_FAILURE;
+	    }
+	    else
+	    {
+		Gen gen(argv[0], base, include, includePaths, dllExport, output, impl);
+		if(!gen)
+		{
+		    unit->destroy();
+		    return EXIT_FAILURE;
+		}
+		gen.generate(unit);
+	    }
+
+	    unit->destroy();
+	}
     }
 
     return status;

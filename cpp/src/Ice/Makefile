@@ -88,9 +88,38 @@ OBJS		= Initialize.o \
 
 SRCS		= $(OBJS:.o=.cpp)
 
+SLICE_SRCS	= $(SDIR)/LocalException.ice \
+		  $(SDIR)/Communicator.ice \
+		  $(SDIR)/CommunicatorF.ice \
+		  $(SDIR)/Logger.ice \
+		  $(SDIR)/LoggerF.ice \
+		  $(SDIR)/Stream.ice \
+		  $(SDIR)/StreamF.ice \
+		  $(SDIR)/BuiltinSequences.ice \
+		  $(SDIR)/ObjectAdapter.ice \
+		  $(SDIR)/ObjectAdapterF.ice \
+		  $(SDIR)/ServantLocator.ice \
+		  $(SDIR)/ServantLocatorF.ice \
+		  $(SDIR)/Properties.ice \
+		  $(SDIR)/PropertiesF.ice \
+		  $(SDIR)/ObjectFactory.ice \
+		  $(SDIR)/ObjectFactoryF.ice \
+		  $(SDIR)/UserExceptionFactory.ice \
+		  $(SDIR)/UserExceptionFactoryF.ice \
+		  $(SDIR)/Identity.ice \
+		  $(SDIR)/Facet.ice \
+		  $(SDIR)/Current.ice \
+		  $(SDIR)/Router.ice \
+		  $(SDIR)/RouterF.ice \
+		  $(SDIR)/Plugin.ice \
+		  $(SDIR)/PluginF.ice \
+		  $(SDIR)/Locator.ice \
+		  $(SDIR)/LocatorF.ice
+
 HDIR		= $(includedir)/Ice
 SDIR		= $(slicedir)/Ice
-SLICECMD	= $(SLICE2CPP) --ice --include-dir Ice --dll-export ICE_API -I$(slicedir)
+SLICE2CPPFLAGS  = -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --ice --include-dir Ice --dll-export ICE_API $(SLICE2CPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
