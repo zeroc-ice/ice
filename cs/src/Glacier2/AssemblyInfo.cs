@@ -19,7 +19,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright("Copyright (c) 2003-2004, ZeroC, Inc.")]
 [assembly: AssemblyTrademark("Ice")]
 [assembly: AssemblyCulture("")]		
-[assembly: AssemblyVersion("2.0.0")]
+[assembly: AssemblyVersion("2.1.0")]
 [assembly: AssemblyDelaySign(false)]
 #if __MonoCS__
 [assembly: AssemblyKeyFile("Glacier2csKey.snk")] // mcs uses different search algorithm.
