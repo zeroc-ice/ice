@@ -1227,6 +1227,24 @@ Package=<4>
 
 ###############################################################################
 
+Project: "exceptionsAMDS"=.\test\Ice\exceptions\exceptionsAMDS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "exceptionsC"=.\test\Ice\exceptions\exceptionsC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1915,6 +1933,24 @@ Package=<4>
 ###############################################################################
 
 Project: "objectsS"=.\test\Ice\objects\objectsS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "operationsAMDS"=.\test\Ice\operations\operationsAMDS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

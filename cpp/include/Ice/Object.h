@@ -20,6 +20,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/StreamF.h>
+#include <Ice/IncomingAsyncF.h>
 #include <Ice/Current.h>
 
 namespace IceInternal
@@ -37,7 +38,14 @@ enum DispatchStatus
     DispatchOperationNotExist,
     DispatchUnknownLocalException,
     DispatchUnknownUserException,
-    DispatchUnknownException
+    DispatchUnknownException,
+
+    //
+    // This is a pseudo dispatch code. Not transmitted over the wire,
+    // but only used in the Ice core internally, to indicate that a
+    // method should be dispatched asynchronously.
+    //
+    DispatchAsync
 };
 
 }
@@ -107,6 +115,15 @@ public:
 
     // Returns true if ok, false if user exception.
     virtual bool ice_invoke(const std::vector<Byte>&, std::vector<Byte>&, const Current&) = 0;
+    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
+};
+
+class ICE_API BlobjectAsync : virtual public Object
+{
+public:
+
+    // Returns true if ok, false if user exception.
+    virtual bool ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::vector<Byte>&, const Current&) = 0;
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
 };
 

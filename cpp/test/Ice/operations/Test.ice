@@ -93,7 +93,7 @@ dictionary<string, MyEnum> StringMyEnumD;
     MyClass* opMyClass(MyClass* p1, out MyClass* p2, out MyClass* p3);
 
     Structure opStruct(Structure p1, Structure p2,
-		    out Structure p3);
+		       out Structure p3);
 
     ByteS opByteS(ByteS p1, ByteS p2,
 		  out ByteS p3);

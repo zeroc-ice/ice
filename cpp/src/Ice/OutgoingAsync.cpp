@@ -28,8 +28,8 @@ using namespace IceInternal;
 void IceInternal::incRef(OutgoingAsync* p) { p->__incRef(); }
 void IceInternal::decRef(OutgoingAsync* p) { p->__decRef(); }
 
-void IceInternal::incRef(Object_ice_invoke* p) { p->__incRef(); }
-void IceInternal::decRef(Object_ice_invoke* p) { p->__decRef(); }
+void IceInternal::incRef(AMI_Object_ice_invoke* p) { p->__incRef(); }
+void IceInternal::decRef(AMI_Object_ice_invoke* p) { p->__decRef(); }
 
 IceInternal::OutgoingAsync::OutgoingAsync() :
     _is(0),
@@ -50,8 +50,9 @@ IceInternal::OutgoingAsync::__setup(const ConnectionPtr& connection, const Refer
     _connection = connection;
     _compress = ref->compress;
     assert(!_is && !_os);
-    _is = new BasicStream(ref->instance);
-    _os = new BasicStream(ref->instance);
+    _instance = ref->instance;
+    _is = new BasicStream(_instance);
+    _os = new BasicStream(_instance);
 
     _connection->prepareRequest(_os);
     
@@ -188,31 +189,19 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
     }
     catch(const Exception& ex)
     {
-	if(_os->instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-	{
-	    Warning out(_os->instance()->logger());
-	    out << "Ice::Exception raised by AMI callback:\n" << ex;
-	}
+	warnException(ex);
 	_connection->decUsageCount();
 	return;
     }
     catch(const std::exception& ex)
     {
-	if(_os->instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-	{
-	    Warning out(_os->instance()->logger());
-	    out << "std::exception raised by AMI callback:\n" << ex.what();
-	}
+	warnException(ex);
 	_connection->decUsageCount();
 	return;
     }
     catch(...)
     {
-	if(_os->instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-	{
-	    Warning out(_os->instance()->logger());
-	    out << "unknown exception raised by AMI callback";
-	}
+	warnException();
 	_connection->decUsageCount();
 	return;
     }
@@ -229,31 +218,19 @@ IceInternal::OutgoingAsync::__finished(const LocalException& ex)
     }
     catch(const Exception& ex)
     {
-	if(_os->instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-	{
-	    Warning out(_os->instance()->logger());
-	    out << "Ice::Exception raised by AMI callback:\n" << ex;
-	}
+	warnException(ex);
 	_connection->decUsageCount();
 	return;
     }
     catch(const std::exception& ex)
     {
-	if(_os->instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-	{
-	    Warning out(_os->instance()->logger());
-	    out << "std::exception raised by AMI callback:\n" << ex.what();
-	}
+	warnException(ex);
 	_connection->decUsageCount();
 	return;
     }
     catch(...)
     {
-	if(_os->instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
-	{
-	    Warning out(_os->instance()->logger());
-	    out << "unknown exception raised by AMI callback";
-	}
+	warnException(ex);
 	_connection->decUsageCount();
 	return;
     }
@@ -274,7 +251,37 @@ IceInternal::OutgoingAsync::__os()
 }
 
 void
-Ice::Object_ice_invoke::__response(bool ok) // ok == true means no user exception.
+IceInternal::OutgoingAsync::warnException(const Exception& ex) const
+{
+    if(_instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+    {
+	Warning out(_instance->logger());
+	out << "Ice::Exception raised by AMI callback:\n" << ex;
+    }
+}
+
+void
+IceInternal::OutgoingAsync::warnException(const std::exception& ex) const
+{
+    if(_instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+    {
+	Warning out(_instance->logger());
+	out << "std::exception raised by AMI callback:\n" << ex.what();
+    }
+}
+
+void
+IceInternal::OutgoingAsync::warnException() const
+{
+    if(_instance->properties()->getPropertyAsIntWithDefault("Ice.Warn.AMICallback", 1) > 0)
+    {
+	Warning out(_instance->logger());
+	out << "unknown exception raised by AMI callback";
+    }
+}
+
+void
+Ice::AMI_Object_ice_invoke::__response(bool ok) // ok == true means no user exception.
 {
     vector<Byte> outParams;
     try
@@ -290,3 +297,4 @@ Ice::Object_ice_invoke::__response(bool ok) // ok == true means no user exceptio
     }
     ice_response(ok, outParams);
 }
+

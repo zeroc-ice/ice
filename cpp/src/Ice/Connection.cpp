@@ -202,9 +202,9 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool comp)
 	}
 	else
 	{
-	    if(_defaultsAndOverrides->overrideComppress)
+	    if(_defaultsAndOverrides->overrideCompress)
 	    {
-		comp = _defaultsAndOverrides->overrideComppressValue;
+		comp = _defaultsAndOverrides->overrideCompressValue;
 	    }
 	}
 
@@ -300,9 +300,9 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out, bool comp
 	}
 	else
 	{
-	    if(_defaultsAndOverrides->overrideComppress)
+	    if(_defaultsAndOverrides->overrideCompress)
 	    {
-		comp = _defaultsAndOverrides->overrideComppressValue;
+		comp = _defaultsAndOverrides->overrideCompressValue;
 	    }
 	}
 
@@ -434,9 +434,9 @@ IceInternal::Connection::flushBatchRequest(bool comp)
 	}
 	else
 	{
-	    if(_defaultsAndOverrides->overrideComppress)
+	    if(_defaultsAndOverrides->overrideCompress)
 	    {
-		comp = _defaultsAndOverrides->overrideComppressValue;
+		comp = _defaultsAndOverrides->overrideCompressValue;
 	    }
 	}
 
@@ -491,6 +491,83 @@ IceInternal::Connection::flushBatchRequest(bool comp)
 	setState(StateClosed, ex);
 	assert(_exception.get());
 	_exception->ice_throw();
+    }
+}
+
+void
+IceInternal::Connection::sendResponse(BasicStream* os, bool comp)
+{
+    IceUtil::RecMutex::Lock sync(*this);
+    
+    try
+    {
+	if(_state == StateClosed)
+	{
+	    return;
+	}
+	
+	if(os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
+	{
+	    comp = false;
+	}
+	else
+	{
+	    if(_defaultsAndOverrides->overrideCompress)
+	    {
+		comp = _defaultsAndOverrides->overrideCompressValue;
+	    }
+	}
+	
+	if(comp)
+	{
+	    //
+	    // Change message type.
+	    //
+	    os->b[2] = compressedReplyMsg;
+	    
+	    //
+	    // Do compression.
+	    //
+	    BasicStream cstream(_instance);
+	    compress(*os, cstream);
+	    
+	    //
+	    // Send the reply.
+	    //
+	    os->i = os->b.begin();
+	    traceReply("sending compressed reply", *os, _logger, _traceLevels);
+	    cstream.i = cstream.b.begin();
+	    _transceiver->write(cstream, _endpoint->timeout());
+	}
+	else
+	{
+	    //
+	    // No compression, just fill in the message size.
+	    //
+	    const Byte* p;
+	    Int sz = os->b.size();
+	    p = reinterpret_cast<const Byte*>(&sz);
+	    copy(p, p + sizeof(Int), os->b.begin() + 3);
+	    
+	    //
+	    // Send the reply.
+	    //
+	    os->i = os->b.begin();
+	    traceReply("sending reply", *os, _logger, _traceLevels);
+	    _transceiver->write(*os, _endpoint->timeout());
+	}
+	
+	--_responseCount;
+	
+	if(_state == StateClosing && _responseCount == 0 && !_endpoint->datagram())
+	{
+	    closeConnection();
+	}
+    }
+    catch(const LocalException& ex)
+    {
+	setState(StateClosed, ex);
+	return;
     }
 }
 
@@ -819,32 +896,36 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
     if(invoke)
     {
 	//
+	// If this is not a batch request, get the request id.
+	//
+	Int requestId = 0;
+	if(!batch)
+	{
+	    stream.read(requestId);
+	}
+	bool response = !_endpoint->datagram() && requestId != 0;
+
+	//
 	// Prepare the invocation.
 	//
-	Incoming in(_instance, _adapter);
+	Incoming in(_instance, _adapter, response ? this : 0, comp);
 	BasicStream* is = in.is();
 	stream.swap(*is);
-	BasicStream* os = 0;
+	BasicStream* os = in.os();
 
 	try
 	{
 	    //
 	    // Prepare the response if necessary.
 	    //
-	    if(!batch)
+	    if(response)
 	    {
-		Int requestId;
-		is->read(requestId);
-		if(!_endpoint->datagram() && requestId != 0) // 0 means oneway.
-		{
-		    ++_responseCount;
-		    os = in.os();
-		    os->write(protocolVersion);
-		    os->write(encodingVersion);
-		    os->write(replyMsg);
-		    os->write(Int(0)); // Message size (placeholder).
-		    os->write(requestId);
-		}
+		++_responseCount;
+		os->write(protocolVersion);
+		os->write(encodingVersion);
+		os->write(replyMsg);
+		os->write(Int(0)); // Message size (placeholder).
+		os->write(requestId);
 	    }
 	    
 	    //
@@ -853,7 +934,15 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    //
 	    do
 	    {
-		in.invoke(os != 0);
+		if(in.invoke())
+		{
+		    //
+		    // If invoke() returned true, the operation was
+		    // dispatched asynchronously, meaning that we
+		    // don't send a response below.
+		    //
+		    response = false;
+		}
 	    }
 	    while(batch && is->i < is->b.end());
 	}
@@ -867,80 +956,9 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	//
 	// Send a response if necessary.
 	//
-	if(os != 0)
+	if(response)
 	{
-	    IceUtil::RecMutex::Lock sync(*this);
-	    
-	    try
-	    {
-		if(_state == StateClosed)
-		{
-		    return;
-		}
-		
-		if(os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
-		{
-		    comp = false;
-		}
-		else
-		{
-		    if(_defaultsAndOverrides->overrideComppress)
-		    {
-			comp = _defaultsAndOverrides->overrideComppressValue;
-		    }
-		}
-		
-		if(comp)
-		{
-		    //
-		    // Change message type.
-		    //
-		    os->b[2] = compressedReplyMsg;
-		    
-		    //
-		    // Do compression.
-		    //
-		    BasicStream cstream(_instance);
-		    compress(*os, cstream);
-		    
-		    //
-		    // Send the reply.
-		    //
-		    os->i = os->b.begin();
-		    traceReply("sending compressed reply", *os, _logger, _traceLevels);
-		    cstream.i = cstream.b.begin();
-		    _transceiver->write(cstream, _endpoint->timeout());
-		}
-		else
-		{
-		    //
-		    // No compression, just fill in the message size.
-		    //
-		    const Byte* p;
-		    Int sz = os->b.size();
-		    p = reinterpret_cast<const Byte*>(&sz);
-		    copy(p, p + sizeof(Int), os->b.begin() + 3);
-		    
-		    //
-		    // Send the reply.
-		    //
-		    os->i = os->b.begin();
-		    traceReply("sending reply", *os, _logger, _traceLevels);
-		    _transceiver->write(*os, _endpoint->timeout());
-		}
-		
-		--_responseCount;
-		
-		if(_state == StateClosing && _responseCount == 0 && !_endpoint->datagram())
-		{
-		    closeConnection();
-		}
-	    }
-	    catch(const LocalException& ex)
-	    {
-		setState(StateClosed, ex);
-		return;
-	    }
+	    sendResponse(os, comp);
 	}
     }
 }

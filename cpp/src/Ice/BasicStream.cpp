@@ -38,7 +38,7 @@ IceInternal::BasicStream::BasicStream(const InstancePtr& instance) :
 {
 }
 
-InstancePtr
+const InstancePtr&
 IceInternal::BasicStream::instance() const
 {
     return _instance;

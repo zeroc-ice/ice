@@ -110,7 +110,7 @@ private:
     bool _called;
 };
 
-class Thrower_throwAasAI : public Thrower_throwAasA, public CallbackBase
+class AMI_Thrower_throwAasAI : public AMI_Thrower_throwAasA, public CallbackBase
 {
 public:
 
@@ -137,9 +137,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwAasAI> Thrower_throwAasAIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwAasAI> AMI_Thrower_throwAasAIPtr;
 
-class Thrower_throwAasAObjectNotExistI : public Thrower_throwAasA, public CallbackBase
+class AMI_Thrower_throwAasAObjectNotExistI : public AMI_Thrower_throwAasA, public CallbackBase
 {
 public:
 
@@ -167,9 +167,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwAasAObjectNotExistI> Thrower_throwAasAObjectNotExistIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwAasAObjectNotExistI> AMI_Thrower_throwAasAObjectNotExistIPtr;
 
-class Thrower_throwAasAFacetNotExistI : public Thrower_throwAasA, public CallbackBase
+class AMI_Thrower_throwAasAFacetNotExistI : public AMI_Thrower_throwAasA, public CallbackBase
 {
 public:
 
@@ -197,9 +197,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwAasAFacetNotExistI> Thrower_throwAasAFacetNotExistIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwAasAFacetNotExistI> AMI_Thrower_throwAasAFacetNotExistIPtr;
 
-class Thrower_throwAasAFacetNotExist2I : public Thrower_throwAasA, public CallbackBase
+class AMI_Thrower_throwAasAFacetNotExist2I : public AMI_Thrower_throwAasA, public CallbackBase
 {
 public:
 
@@ -228,9 +228,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwAasAFacetNotExist2I> Thrower_throwAasAFacetNotExist2IPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwAasAFacetNotExist2I> AMI_Thrower_throwAasAFacetNotExist2IPtr;
 
-class Thrower_throwAorDasAorDI : public Thrower_throwAorDasAorD, public CallbackBase
+class AMI_Thrower_throwAorDasAorDI : public AMI_Thrower_throwAorDasAorD, public CallbackBase
 {
 public:
 
@@ -261,9 +261,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwAorDasAorDI> Thrower_throwAorDasAorDIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwAorDasAorDI> AMI_Thrower_throwAorDasAorDIPtr;
 
-class Thrower_throwBasANoFactoryI : public Thrower_throwBasA, public CallbackBase
+class AMI_Thrower_throwBasANoFactoryI : public AMI_Thrower_throwBasA, public CallbackBase
 {
 public:
 
@@ -289,9 +289,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwBasANoFactoryI> Thrower_throwBasANoFactoryIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwBasANoFactoryI> AMI_Thrower_throwBasANoFactoryIPtr;
 
-class Thrower_throwBasAI : public Thrower_throwBasA, public CallbackBase
+class AMI_Thrower_throwBasAI : public AMI_Thrower_throwBasA, public CallbackBase
 {
 public:
 
@@ -319,9 +319,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwBasAI> Thrower_throwBasAIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwBasAI> AMI_Thrower_throwBasAIPtr;
 
-class Thrower_throwCasANoFactoryI : public Thrower_throwCasA, public CallbackBase
+class AMI_Thrower_throwCasANoFactoryI : public AMI_Thrower_throwCasA, public CallbackBase
 {
 public:
 
@@ -347,9 +347,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwCasANoFactoryI> Thrower_throwCasANoFactoryIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwCasANoFactoryI> AMI_Thrower_throwCasANoFactoryIPtr;
 
-class Thrower_throwCasAI : public Thrower_throwCasA, public CallbackBase
+class AMI_Thrower_throwCasAI : public AMI_Thrower_throwCasA, public CallbackBase
 {
 public:
 
@@ -378,9 +378,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwCasAI> Thrower_throwCasAIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwCasAI> AMI_Thrower_throwCasAIPtr;
 
-class Thrower_throwBasBI : public Thrower_throwBasB, public CallbackBase
+class AMI_Thrower_throwBasBI : public AMI_Thrower_throwBasB, public CallbackBase
 {
 public:
 
@@ -408,9 +408,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwBasBI> Thrower_throwBasBIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwBasBI> AMI_Thrower_throwBasBIPtr;
 
-class Thrower_throwCasBNoFactoryI : public Thrower_throwCasB, public CallbackBase
+class AMI_Thrower_throwCasBNoFactoryI : public AMI_Thrower_throwCasB, public CallbackBase
 {
 public:
 
@@ -436,9 +436,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwCasBNoFactoryI> Thrower_throwCasBNoFactoryIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwCasBNoFactoryI> AMI_Thrower_throwCasBNoFactoryIPtr;
 
-class Thrower_throwCasBI : public Thrower_throwCasB, public CallbackBase
+class AMI_Thrower_throwCasBI : public AMI_Thrower_throwCasB, public CallbackBase
 {
 public:
 
@@ -467,9 +467,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwCasBI> Thrower_throwCasBIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwCasBI> AMI_Thrower_throwCasBIPtr;
 
-class Thrower_throwCasCI : public Thrower_throwCasC, public CallbackBase
+class AMI_Thrower_throwCasCI : public AMI_Thrower_throwCasC, public CallbackBase
 {
 public:
 
@@ -498,9 +498,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwCasCI> Thrower_throwCasCIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwCasCI> AMI_Thrower_throwCasCIPtr;
 
-class Thrower_throwUndeclaredAI : public Thrower_throwUndeclaredA, public CallbackBase
+class AMI_Thrower_throwUndeclaredAI : public AMI_Thrower_throwUndeclaredA, public CallbackBase
 {
 public:
 
@@ -526,9 +526,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwUndeclaredAI> Thrower_throwUndeclaredAIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwUndeclaredAI> AMI_Thrower_throwUndeclaredAIPtr;
 
-class Thrower_throwUndeclaredBI : public Thrower_throwUndeclaredB, public CallbackBase
+class AMI_Thrower_throwUndeclaredBI : public AMI_Thrower_throwUndeclaredB, public CallbackBase
 {
 public:
 
@@ -554,9 +554,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwUndeclaredBI> Thrower_throwUndeclaredBIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwUndeclaredBI> AMI_Thrower_throwUndeclaredBIPtr;
 
-class Thrower_throwUndeclaredCI : public Thrower_throwUndeclaredC, public CallbackBase
+class AMI_Thrower_throwUndeclaredCI : public AMI_Thrower_throwUndeclaredC, public CallbackBase
 {
 public:
 
@@ -582,9 +582,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwUndeclaredCI> Thrower_throwUndeclaredCIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwUndeclaredCI> AMI_Thrower_throwUndeclaredCIPtr;
 
-class Thrower_throwLocalExceptionI : public Thrower_throwLocalException, public CallbackBase
+class AMI_Thrower_throwLocalExceptionI : public AMI_Thrower_throwLocalException, public CallbackBase
 {
 public:
 
@@ -610,9 +610,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwLocalExceptionI> Thrower_throwLocalExceptionIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwLocalExceptionI> AMI_Thrower_throwLocalExceptionIPtr;
 
-class Thrower_throwNonIceExceptionI : public Thrower_throwNonIceException, public CallbackBase
+class AMI_Thrower_throwNonIceExceptionI : public AMI_Thrower_throwNonIceException, public CallbackBase
 {
 public:
 
@@ -638,9 +638,9 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::Thrower_throwNonIceExceptionI> Thrower_throwNonIceExceptionIPtr;
+typedef ::IceUtil::Handle< ::AMI_Thrower_throwNonIceExceptionI> AMI_Thrower_throwNonIceExceptionIPtr;
 
-class WrongOperation_noSuchOperationI : public WrongOperation_noSuchOperation, public CallbackBase
+class AMI_WrongOperation_noSuchOperationI : public AMI_WrongOperation_noSuchOperation, public CallbackBase
 {
 public:
 
@@ -667,7 +667,7 @@ public:
     }
 };
 
-typedef ::IceUtil::Handle< ::WrongOperation_noSuchOperationI> WrongOperation_noSuchOperationIPtr;
+typedef ::IceUtil::Handle< ::AMI_WrongOperation_noSuchOperationI> AMI_WrongOperation_noSuchOperationIPtr;
 
 ThrowerPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
@@ -808,6 +808,11 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     catch(const A& ex)
     {
 	test(ex.aMem == 1);
+    }
+    catch(const Ice::Exception& ex)
+    {
+	cout << ex << endl;
+	test(false);
     }
     catch(...)
     {
@@ -1211,31 +1216,34 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
     cout << "ok" << endl;
     
-    cout << "catching unknown non-Ice exception... " << flush;
+    if(thrower->supportsNonIceExceptions())
+    {
+	cout << "catching unknown non-Ice exception... " << flush;
 
-    try
-    {
-	thrower->throwNonIceException();
-	test(false);
-    }
-    catch(const Ice::UnknownException&)
-    {
-	//
-	// We get the an unknown exception without collocation
-	// optimization.
-	//
-	assert(!collocated);
-    }
-    catch(...)
-    {
-	//
-	// We get the original exception with collocation
-	// optimization.
-	//
-	assert(collocated);
-    }
+	try
+	{
+	    thrower->throwNonIceException();
+	    test(false);
+	}
+	catch(const Ice::UnknownException&)
+	{
+	    //
+	    // We get the an unknown exception without collocation
+	    // optimization.
+	    //
+	    assert(!collocated);
+	}
+	catch(...)
+	{
+	    //
+	    // We get the original exception with collocation
+	    // optimization.
+	    //
+	    assert(collocated);
+	}
 
-    cout << "ok" << endl;
+	cout << "ok" << endl;
+    }
 
     if(!collocated) // If the server is collocated, exception factories are not needed.
     {
@@ -1250,31 +1258,31 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	cout << "catching exact types with AMI... " << flush;
 
 	{
-	    Thrower_throwAasAIPtr cb = new Thrower_throwAasAI;
+	    AMI_Thrower_throwAasAIPtr cb = new AMI_Thrower_throwAasAI;
 	    thrower->throwAasA_async(cb, 1);
 	    test(cb->check());
 	}
 	
 	{
-	    Thrower_throwAorDasAorDIPtr cb = new Thrower_throwAorDasAorDI;
+	    AMI_Thrower_throwAorDasAorDIPtr cb = new AMI_Thrower_throwAorDasAorDI;
 	    thrower->throwAorDasAorD_async(cb, 1);
 	    test(cb->check());
 	}
 	
 	{
-	    Thrower_throwAorDasAorDIPtr cb = new Thrower_throwAorDasAorDI;
+	    AMI_Thrower_throwAorDasAorDIPtr cb = new AMI_Thrower_throwAorDasAorDI;
 	    thrower->throwAorDasAorD_async(cb, -1);
 	    test(cb->check());
 	}
 	
 	{
-	    Thrower_throwBasBIPtr cb = new Thrower_throwBasBI;
+	    AMI_Thrower_throwBasBIPtr cb = new AMI_Thrower_throwBasBI;
 	    thrower->throwBasB_async(cb, 1, 2);
 	    test(cb->check());
 	}
 	
 	{
-	    Thrower_throwCasCIPtr cb = new Thrower_throwCasCI;
+	    AMI_Thrower_throwCasCIPtr cb = new AMI_Thrower_throwCasCI;
 	    thrower->throwCasC_async(cb, 1, 2, 3);
 	    test(cb->check());
 	}
@@ -1284,19 +1292,19 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	cout << "catching derived types w/o exception factories with AMI... " << flush;
 	
 	{
-	    Thrower_throwBasANoFactoryIPtr cb = new Thrower_throwBasANoFactoryI;
+	    AMI_Thrower_throwBasANoFactoryIPtr cb = new AMI_Thrower_throwBasANoFactoryI;
 	    thrower->throwBasA_async(cb, 1, 2);
 	    test(cb->check());
 	}
 
 	{
-	    Thrower_throwCasANoFactoryIPtr cb = new Thrower_throwCasANoFactoryI;
+	    AMI_Thrower_throwCasANoFactoryIPtr cb = new AMI_Thrower_throwCasANoFactoryI;
 	    thrower->throwCasA_async(cb, 1, 2, 3);
 	    test(cb->check());
 	}
 	
 	{
-	    Thrower_throwCasBNoFactoryIPtr cb = new Thrower_throwCasBNoFactoryI;
+	    AMI_Thrower_throwCasBNoFactoryIPtr cb = new AMI_Thrower_throwCasBNoFactoryI;
 	    thrower->throwCasB_async(cb, 1, 2, 3);
 	    test(cb->check());
 	}
@@ -1312,19 +1320,19 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	communicator->addUserExceptionFactory(factory, "::D");
 	
 	{
-	    Thrower_throwBasAIPtr cb = new Thrower_throwBasAI;
+	    AMI_Thrower_throwBasAIPtr cb = new AMI_Thrower_throwBasAI;
 	    thrower->throwBasA_async(cb, 1, 2);
 	    test(cb->check());
 	}
 
 	{
-	    Thrower_throwCasAIPtr cb = new Thrower_throwCasAI;
+	    AMI_Thrower_throwCasAIPtr cb = new AMI_Thrower_throwCasAI;
 	    thrower->throwCasA_async(cb, 1, 2, 3);
 	    test(cb->check());
 	}
 	
 	{
-	    Thrower_throwCasBIPtr cb = new Thrower_throwCasBI;
+	    AMI_Thrower_throwCasBIPtr cb = new AMI_Thrower_throwCasBI;
 	    thrower->throwCasB_async(cb, 1, 2, 3);
 	    test(cb->check());
 	}
@@ -1336,19 +1344,19 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	    cout << "catching unknown user exception with AMI... " << flush;
 	    
 	    {
-		Thrower_throwUndeclaredAIPtr cb = new Thrower_throwUndeclaredAI;
+		AMI_Thrower_throwUndeclaredAIPtr cb = new AMI_Thrower_throwUndeclaredAI;
 		thrower->throwUndeclaredA_async(cb, 1);
 		test(cb->check());
 	    }
 
 	    {
-		Thrower_throwUndeclaredBIPtr cb = new Thrower_throwUndeclaredBI;
+		AMI_Thrower_throwUndeclaredBIPtr cb = new AMI_Thrower_throwUndeclaredBI;
 		thrower->throwUndeclaredB_async(cb, 1, 2);
 		test(cb->check());
 	    }
 
 	    {
-		Thrower_throwUndeclaredCIPtr cb = new Thrower_throwUndeclaredCI;
+		AMI_Thrower_throwUndeclaredCIPtr cb = new AMI_Thrower_throwUndeclaredCI;
 		thrower->throwUndeclaredC_async(cb, 1, 2, 3);
 		test(cb->check());
 	    }
@@ -1361,7 +1369,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	{
 	    Ice::Identity id = Ice::stringToIdentity("does not exist");
 	    ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_newIdentity(id));
-	    Thrower_throwAasAObjectNotExistIPtr cb = new Thrower_throwAasAObjectNotExistI;
+	    AMI_Thrower_throwAasAObjectNotExistIPtr cb = new AMI_Thrower_throwAasAObjectNotExistI;
 	    thrower2->throwAasA_async(cb, 1);
 	    test(cb->check());
 	}
@@ -1372,14 +1380,14 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
 	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower, "no such facet");
 	{
-	    Thrower_throwAasAFacetNotExistIPtr cb = new Thrower_throwAasAFacetNotExistI;
+	    AMI_Thrower_throwAasAFacetNotExistIPtr cb = new AMI_Thrower_throwAasAFacetNotExistI;
 	    thrower2->throwAasA_async(cb, 1);
 	    test(cb->check());
 	}
 
 	ThrowerPrx thrower3 = ThrowerPrx::uncheckedCast(thrower2, "no such facet either");
 	{
-	    Thrower_throwAasAFacetNotExist2IPtr cb = new Thrower_throwAasAFacetNotExist2I;
+	    AMI_Thrower_throwAasAFacetNotExist2IPtr cb = new AMI_Thrower_throwAasAFacetNotExist2I;
 	    thrower3->throwAasA_async(cb, 1);
 	    test(cb->check());
 	}
@@ -1389,7 +1397,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	cout << "catching operation not exist exception with AMI... " << flush;
 
 	{
-	    WrongOperation_noSuchOperationIPtr cb = new WrongOperation_noSuchOperationI;
+	    AMI_WrongOperation_noSuchOperationIPtr cb = new AMI_WrongOperation_noSuchOperationI;
 	    WrongOperationPrx thrower2 = WrongOperationPrx::uncheckedCast(thrower);
 	    thrower2->noSuchOperation_async(cb);
 	    test(cb->check());
@@ -1400,23 +1408,24 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	cout << "catching unknown local exception with AMI... " << flush;
 
 	{
-	    Thrower_throwLocalExceptionIPtr cb = new Thrower_throwLocalExceptionI;
+	    AMI_Thrower_throwLocalExceptionIPtr cb = new AMI_Thrower_throwLocalExceptionI;
 	    thrower->throwLocalException_async(cb);
 	    test(cb->check());
 	}
 	
 	cout << "ok" << endl;
 
-	cout << "catching unknown non-Ice exception with AMI... " << flush;
-
+	if(thrower->supportsNonIceExceptions())
 	{
-	    Thrower_throwNonIceExceptionIPtr cb = new Thrower_throwNonIceExceptionI;
+	    cout << "catching unknown non-Ice exception with AMI... " << flush;
+
+	    AMI_Thrower_throwNonIceExceptionIPtr cb = new AMI_Thrower_throwNonIceExceptionI;
 	    thrower->throwNonIceException_async(cb);
 	    test(cb->check());
+
+	    cout << "ok" << endl;
 	}
 	
-	cout << "ok" << endl;
-
 	communicator->removeUserExceptionFactory("::A");
 	communicator->removeUserExceptionFactory("::B");
 	communicator->removeUserExceptionFactory("::C");

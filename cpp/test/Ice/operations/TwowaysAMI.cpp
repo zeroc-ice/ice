@@ -70,7 +70,7 @@ private:
     bool _called;
 };
 
-class MyClass_opVoidI : public Test::MyClass_opVoid, public CallbackBase
+class AMI_MyClass_opVoidI : public Test::AMI_MyClass_opVoid, public CallbackBase
 {
 public:
 
@@ -79,15 +79,15 @@ public:
 	called();
     }
 
-    virtual void ice_exception(const ::Ice::Exception&)
+    virtual void ice_exception(const ::Ice::Exception& ex)
     {
 	test(false);
     }
 };
 
-typedef IceUtil::Handle<MyClass_opVoidI> MyClass_opVoidIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opVoidI> AMI_MyClass_opVoidIPtr;
 
-class MyClass_opByteI : public Test::MyClass_opByte, public CallbackBase
+class AMI_MyClass_opByteI : public Test::AMI_MyClass_opByte, public CallbackBase
 {
 public:
 
@@ -104,9 +104,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opByteI> MyClass_opByteIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opByteI> AMI_MyClass_opByteIPtr;
 
-class MyClass_opBoolI : public Test::MyClass_opBool, public CallbackBase
+class AMI_MyClass_opBoolI : public Test::AMI_MyClass_opBool, public CallbackBase
 {
 public:
 
@@ -123,9 +123,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opBoolI> MyClass_opBoolIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opBoolI> AMI_MyClass_opBoolIPtr;
 
-class MyClass_opShortIntLongI : public Test::MyClass_opShortIntLong, public CallbackBase
+class AMI_MyClass_opShortIntLongI : public Test::AMI_MyClass_opShortIntLong, public CallbackBase
 {
 public:
 
@@ -144,9 +144,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opShortIntLongI> MyClass_opShortIntLongIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opShortIntLongI> AMI_MyClass_opShortIntLongIPtr;
 
-class MyClass_opFloatDoubleI : public Test::MyClass_opFloatDouble, public CallbackBase
+class AMI_MyClass_opFloatDoubleI : public Test::AMI_MyClass_opFloatDouble, public CallbackBase
 {
 public:
 
@@ -164,9 +164,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opFloatDoubleI> MyClass_opFloatDoubleIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opFloatDoubleI> AMI_MyClass_opFloatDoubleIPtr;
 
-class MyClass_opStringI : public Test::MyClass_opString, public CallbackBase
+class AMI_MyClass_opStringI : public Test::AMI_MyClass_opString, public CallbackBase
 {
 public:
 
@@ -183,9 +183,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opStringI> MyClass_opStringIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opStringI> AMI_MyClass_opStringIPtr;
 
-class MyClass_opMyEnumI : public Test::MyClass_opMyEnum, public CallbackBase
+class AMI_MyClass_opMyEnumI : public Test::AMI_MyClass_opMyEnum, public CallbackBase
 {
 public:
 
@@ -202,9 +202,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opMyEnumI> MyClass_opMyEnumIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opMyEnumI> AMI_MyClass_opMyEnumIPtr;
 
-class MyClass_opMyClassI : public Test::MyClass_opMyClass, public CallbackBase
+class AMI_MyClass_opMyClassI : public Test::AMI_MyClass_opMyClass, public CallbackBase
 {
 public:
 
@@ -232,9 +232,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opMyClassI> MyClass_opMyClassIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opMyClassI> AMI_MyClass_opMyClassIPtr;
 
-class MyClass_opStructI : public Test::MyClass_opStruct, public CallbackBase
+class AMI_MyClass_opStructI : public Test::AMI_MyClass_opStruct, public CallbackBase
 {
 public:
 
@@ -255,9 +255,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opStructI> MyClass_opStructIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opStructI> AMI_MyClass_opStructIPtr;
 
-class MyClass_opByteSI : public Test::MyClass_opByteS, public CallbackBase
+class AMI_MyClass_opByteSI : public Test::AMI_MyClass_opByteS, public CallbackBase
 {
 public:
 
@@ -286,9 +286,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opByteSI> MyClass_opByteSIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opByteSI> AMI_MyClass_opByteSIPtr;
 
-class MyClass_opBoolSI : public Test::MyClass_opBoolS, public CallbackBase
+class AMI_MyClass_opBoolSI : public Test::AMI_MyClass_opBoolS, public CallbackBase
 {
 public:
 
@@ -312,9 +312,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opBoolSI> MyClass_opBoolSIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opBoolSI> AMI_MyClass_opBoolSIPtr;
 
-class MyClass_opShortIntLongSI : public Test::MyClass_opShortIntLongS, public CallbackBase
+class AMI_MyClass_opShortIntLongSI : public Test::AMI_MyClass_opShortIntLongS, public CallbackBase
 {
 public:
 
@@ -350,9 +350,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opShortIntLongSI> MyClass_opShortIntLongSIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opShortIntLongSI> AMI_MyClass_opShortIntLongSIPtr;
 
-class MyClass_opFloatDoubleSI : public Test::MyClass_opFloatDoubleS, public CallbackBase
+class AMI_MyClass_opFloatDoubleSI : public Test::AMI_MyClass_opFloatDoubleS, public CallbackBase
 {
 public:
 
@@ -380,9 +380,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opFloatDoubleSI> MyClass_opFloatDoubleSIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opFloatDoubleSI> AMI_MyClass_opFloatDoubleSIPtr;
 
-class MyClass_opStringSI : public Test::MyClass_opStringS, public CallbackBase
+class AMI_MyClass_opStringSI : public Test::AMI_MyClass_opStringS, public CallbackBase
 {
 public:
 
@@ -406,9 +406,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opStringSI> MyClass_opStringSIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opStringSI> AMI_MyClass_opStringSIPtr;
 
-class MyClass_opByteSSI : public Test::MyClass_opByteSS, public CallbackBase
+class AMI_MyClass_opByteSSI : public Test::AMI_MyClass_opByteSS, public CallbackBase
 {
 public:
 
@@ -442,9 +442,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opByteSSI> MyClass_opByteSSIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opByteSSI> AMI_MyClass_opByteSSIPtr;
 
-class MyClass_opBoolSSI : public Test::MyClass_opBoolSS, public CallbackBase
+class AMI_MyClass_opBoolSSI : public Test::AMI_MyClass_opBoolSS, public CallbackBase
 {
 public:
 
@@ -459,9 +459,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opBoolSSI> MyClass_opBoolSSIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opBoolSSI> AMI_MyClass_opBoolSSIPtr;
 
-class MyClass_opShortIntLongSSI : public Test::MyClass_opShortIntLongSS, public CallbackBase
+class AMI_MyClass_opShortIntLongSSI : public Test::AMI_MyClass_opShortIntLongSS, public CallbackBase
 {
 public:
 
@@ -477,9 +477,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opShortIntLongSSI> MyClass_opShortIntLongSSIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opShortIntLongSSI> AMI_MyClass_opShortIntLongSSIPtr;
 
-class MyClass_opFloatDoubleSSI : public Test::MyClass_opFloatDoubleSS, public CallbackBase
+class AMI_MyClass_opFloatDoubleSSI : public Test::AMI_MyClass_opFloatDoubleSS, public CallbackBase
 {
 public:
 
@@ -514,9 +514,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opFloatDoubleSSI> MyClass_opFloatDoubleSSIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opFloatDoubleSSI> AMI_MyClass_opFloatDoubleSSIPtr;
 
-class MyClass_opStringSSI : public Test::MyClass_opStringSS, public CallbackBase
+class AMI_MyClass_opStringSSI : public Test::AMI_MyClass_opStringSS, public CallbackBase
 {
 public:
 
@@ -546,9 +546,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opStringSSI> MyClass_opStringSSIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opStringSSI> AMI_MyClass_opStringSSIPtr;
 
-class MyClass_opByteBoolDI : public Test::MyClass_opByteBoolD, public CallbackBase
+class AMI_MyClass_opByteBoolDI : public Test::AMI_MyClass_opByteBoolD, public CallbackBase
 {
 public:
 
@@ -576,9 +576,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opByteBoolDI> MyClass_opByteBoolDIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opByteBoolDI> AMI_MyClass_opByteBoolDIPtr;
 
-class MyClass_opShortIntDI : public Test::MyClass_opShortIntD, public CallbackBase
+class AMI_MyClass_opShortIntDI : public Test::AMI_MyClass_opShortIntD, public CallbackBase
 {
 public:
 
@@ -606,9 +606,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opShortIntDI> MyClass_opShortIntDIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opShortIntDI> AMI_MyClass_opShortIntDIPtr;
 
-class MyClass_opLongFloatDI : public Test::MyClass_opLongFloatD, public CallbackBase
+class AMI_MyClass_opLongFloatDI : public Test::AMI_MyClass_opLongFloatD, public CallbackBase
 {
 public:
 
@@ -636,9 +636,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opLongFloatDI> MyClass_opLongFloatDIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opLongFloatDI> AMI_MyClass_opLongFloatDIPtr;
 
-class MyClass_opStringStringDI : public Test::MyClass_opStringStringD, public CallbackBase
+class AMI_MyClass_opStringStringDI : public Test::AMI_MyClass_opStringStringD, public CallbackBase
 {
 public:
 
@@ -666,9 +666,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opStringStringDI> MyClass_opStringStringDIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opStringStringDI> AMI_MyClass_opStringStringDIPtr;
 
-class MyClass_opStringMyEnumDI : public Test::MyClass_opStringMyEnumD, public CallbackBase
+class AMI_MyClass_opStringMyEnumDI : public Test::AMI_MyClass_opStringMyEnumD, public CallbackBase
 {
 public:
 
@@ -696,9 +696,9 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyClass_opStringMyEnumDI> MyClass_opStringMyEnumDIPtr;
+typedef IceUtil::Handle<AMI_MyClass_opStringMyEnumDI> AMI_MyClass_opStringMyEnumDIPtr;
 
-class MyDerivedClass_opDerivedI : public Test::MyDerivedClass_opDerived, public CallbackBase
+class AMI_MyDerivedClass_opDerivedI : public Test::AMI_MyDerivedClass_opDerived, public CallbackBase
 {
 public:
 
@@ -713,55 +713,55 @@ public:
     }
 };
 
-typedef IceUtil::Handle<MyDerivedClass_opDerivedI> MyDerivedClass_opDerivedIPtr;
+typedef IceUtil::Handle<AMI_MyDerivedClass_opDerivedI> AMI_MyDerivedClass_opDerivedIPtr;
 
 void
 twowaysAMI(const Test::MyClassPrx& p)
 {
     {
-	MyClass_opVoidIPtr cb = new MyClass_opVoidI;
+	AMI_MyClass_opVoidIPtr cb = new AMI_MyClass_opVoidI;
 	p->opVoid_async(cb);
 	test(cb->check());
     }
 
     {
-	MyClass_opByteIPtr cb = new MyClass_opByteI;
+	AMI_MyClass_opByteIPtr cb = new AMI_MyClass_opByteI;
 	p->opByte_async(cb, Ice::Byte(0xff), Ice::Byte(0x0f));
 	test(cb->check());
     }
 
     {
-	MyClass_opBoolIPtr cb = new MyClass_opBoolI;
+	AMI_MyClass_opBoolIPtr cb = new AMI_MyClass_opBoolI;
 	p->opBool_async(cb, true, false);
 	test(cb->check());
     }
 
     {
-	MyClass_opShortIntLongIPtr cb = new MyClass_opShortIntLongI;
+	AMI_MyClass_opShortIntLongIPtr cb = new AMI_MyClass_opShortIntLongI;
 	p->opShortIntLong_async(cb, 10, 11, 12);
 	test(cb->check());
     }
 
     {
-	MyClass_opFloatDoubleIPtr cb = new MyClass_opFloatDoubleI;
+	AMI_MyClass_opFloatDoubleIPtr cb = new AMI_MyClass_opFloatDoubleI;
 	p->opFloatDouble_async(cb, Ice::Float(3.14), Ice::Double(1.1E10));
 	test(cb->check());
     }
 
     {
-	MyClass_opStringIPtr cb = new MyClass_opStringI;
+	AMI_MyClass_opStringIPtr cb = new AMI_MyClass_opStringI;
 	p->opString_async(cb, "hello", "world");
 	test(cb->check());
     }
 
     {
-	MyClass_opMyEnumIPtr cb = new MyClass_opMyEnumI;
+	AMI_MyClass_opMyEnumIPtr cb = new AMI_MyClass_opMyEnumI;
 	p->opMyEnum_async(cb, Test::enum2);
 	test(cb->check());
     }
 
     {
-	MyClass_opMyClassIPtr cb = new MyClass_opMyClassI;
+	AMI_MyClass_opMyClassIPtr cb = new AMI_MyClass_opMyClassI;
 	p->opMyClass_async(cb, p);
 	test(cb->check());
     }
@@ -776,7 +776,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 	si2.e = Test::enum2;
 	si2.s.s = "def";
 	
-	MyClass_opStructIPtr cb = new MyClass_opStructI;
+	AMI_MyClass_opStructIPtr cb = new AMI_MyClass_opStructI;
 	p->opStruct_async(cb, si1, si2);
 	test(cb->check());
     }
@@ -795,7 +795,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 	bsi2.push_back(Ice::Byte(0xf3));
 	bsi2.push_back(Ice::Byte(0xf4));
 
-	MyClass_opByteSIPtr cb = new MyClass_opByteSI;
+	AMI_MyClass_opByteSIPtr cb = new AMI_MyClass_opByteSI;
 	p->opByteS_async(cb, bsi1, bsi2);
 	test(cb->check());
     }
@@ -810,7 +810,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 
 	bsi2.push_back(false);
 
-	MyClass_opBoolSIPtr cb = new MyClass_opBoolSI;
+	AMI_MyClass_opBoolSIPtr cb = new AMI_MyClass_opBoolSI;
 	p->opBoolS_async(cb, bsi1, bsi2);
 	test(cb->check());
     }
@@ -833,7 +833,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 	lsi.push_back(30);
 	lsi.push_back(20);
 
-	MyClass_opShortIntLongSIPtr cb = new MyClass_opShortIntLongSI;
+	AMI_MyClass_opShortIntLongSIPtr cb = new AMI_MyClass_opShortIntLongSI;
 	p->opShortIntLongS_async(cb, ssi, isi, lsi);
 	test(cb->check());
     }
@@ -849,7 +849,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 	dsi.push_back(Ice::Double(1.2E10));
 	dsi.push_back(Ice::Double(1.3E10));
 
-	MyClass_opFloatDoubleSIPtr cb = new MyClass_opFloatDoubleSI;
+	AMI_MyClass_opFloatDoubleSIPtr cb = new AMI_MyClass_opFloatDoubleSI;
 	p->opFloatDoubleS_async(cb, fsi, dsi);
 	test(cb->check());
     }
@@ -864,7 +864,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 
 	ssi2.push_back("xyz");
 
-	MyClass_opStringSIPtr cb = new MyClass_opStringSI;
+	AMI_MyClass_opStringSIPtr cb = new AMI_MyClass_opStringSI;
 	p->opStringS_async(cb, ssi1, ssi2);
 	test(cb->check());
     }
@@ -884,7 +884,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 	bsi2[1].push_back(Ice::Byte(0xf2));
 	bsi2[1].push_back(Ice::Byte(0xf1));
 
-	MyClass_opByteSSIPtr cb = new MyClass_opByteSSI;
+	AMI_MyClass_opByteSSIPtr cb = new AMI_MyClass_opByteSSI;
 	p->opByteSS_async(cb, bsi1, bsi2);
 	test(cb->check());
     }
@@ -902,7 +902,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 	dsi[0].push_back(Ice::Double(1.2E10));
 	dsi[0].push_back(Ice::Double(1.3E10));
 
-	MyClass_opFloatDoubleSSIPtr cb = new MyClass_opFloatDoubleSSI;
+	AMI_MyClass_opFloatDoubleSSIPtr cb = new AMI_MyClass_opFloatDoubleSSI;
 	p->opFloatDoubleSS_async(cb, fsi, dsi);
 	test(cb->check());
     }
@@ -919,7 +919,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 
 	ssi2[2].push_back("xyz");
 
-	MyClass_opStringSSIPtr cb = new MyClass_opStringSSI;
+	AMI_MyClass_opStringSSIPtr cb = new AMI_MyClass_opStringSSI;
 	p->opStringSS_async(cb, ssi1, ssi2);
 	test(cb->check());
     }
@@ -933,7 +933,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 	di2[11] = false;
 	di2[101] = true;
 
-	MyClass_opByteBoolDIPtr cb = new MyClass_opByteBoolDI;
+	AMI_MyClass_opByteBoolDIPtr cb = new AMI_MyClass_opByteBoolDI;
 	p->opByteBoolD_async(cb, di1, di2);
 	test(cb->check());
     }
@@ -947,7 +947,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 	di2[111] = -100;
 	di2[1101] = 0;
 
-	MyClass_opShortIntDIPtr cb = new MyClass_opShortIntDI;
+	AMI_MyClass_opShortIntDIPtr cb = new AMI_MyClass_opShortIntDI;
 	p->opShortIntD_async(cb, di1, di2);
 	test(cb->check());
     }
@@ -961,7 +961,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 	di2[999999111] = Ice::Float(-100.4);
 	di2[9999991101] = Ice::Float(0.5);
 
-	MyClass_opLongFloatDIPtr cb = new MyClass_opLongFloatDI;
+	AMI_MyClass_opLongFloatDIPtr cb = new AMI_MyClass_opLongFloatDI;
 	p->opLongFloatD_async(cb, di1, di2);
 	test(cb->check());
     }
@@ -975,7 +975,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 	di2["FOO"] = "abc -100.4";
 	di2["BAR"] = "abc 0.5";
 
-	MyClass_opStringStringDIPtr cb = new MyClass_opStringStringDI;
+	AMI_MyClass_opStringStringDIPtr cb = new AMI_MyClass_opStringStringDI;
 	p->opStringStringD_async(cb, di1, di2);
 	test(cb->check());
     }
@@ -989,7 +989,7 @@ twowaysAMI(const Test::MyClassPrx& p)
 	di2["qwerty"] = Test::enum3;
 	di2["Hello!!"] = Test::enum2;
 
-	MyClass_opStringMyEnumDIPtr cb = new MyClass_opStringMyEnumDI;
+	AMI_MyClass_opStringMyEnumDIPtr cb = new AMI_MyClass_opStringMyEnumDI;
 	p->opStringMyEnumD_async(cb, di1, di2);
 	test(cb->check());
     }
@@ -997,7 +997,7 @@ twowaysAMI(const Test::MyClassPrx& p)
     {
 	Test::MyDerivedClassPrx derived = Test::MyDerivedClassPrx::checkedCast(p);
 	test(derived);
-	MyDerivedClass_opDerivedIPtr cb = new MyDerivedClass_opDerivedI;
+	AMI_MyDerivedClass_opDerivedIPtr cb = new AMI_MyDerivedClass_opDerivedI;
 	derived->opDerived_async(cb);
 	test(cb->check());
     }

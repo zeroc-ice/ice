@@ -166,19 +166,20 @@ serverOptions = serverProtocol + defaultHost + commonServerOptions
 clientServerOptions = clientServerProtocol + defaultHost + commonServerOptions
 collocatedOptions = clientServerProtocol + defaultHost
 
-def clientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
+def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, \
+                                        serverName, clientName):
 
     testdir = os.path.join(toplevel, "test", name)
-    server = os.path.join(testdir, "server")
-    client = os.path.join(testdir, "client")
+    server = os.path.join(testdir, serverName)
+    client = os.path.join(testdir, clientName)
 
-    print "starting server...",
+    print "starting " + serverName + "...",
     serverPipe = os.popen(server + serverOptions + additionalServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
-    print "starting client...",
+    print "starting " + clientName + "...",
     clientPipe = os.popen(client + clientOptions + additionalClientOptions)
     print "ok"
 
@@ -191,6 +192,10 @@ def clientServerTestWithOptions(name, additionalServerOptions, additionalClientO
     if clientStatus or serverStatus:
 	killServers()
 	sys.exit(1)
+
+def clientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
+
+    clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions, "server", "client")
 
 def clientServerTest(name):
 

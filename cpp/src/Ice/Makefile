@@ -70,6 +70,7 @@ OBJS		= Initialize.o \
 		  Outgoing.o \
 		  OutgoingAsync.o \
 		  Incoming.o \
+		  IncomingAsync.o \
 		  Direct.o \
 		  Network.o \
 	          ThreadPool.o \

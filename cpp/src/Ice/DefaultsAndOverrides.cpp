@@ -26,8 +26,8 @@ void IceInternal::decRef(DefaultsAndOverrides* p) { p->__decRef(); }
 IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties) :
     overrideTimeout(false),
     overrideTimeoutValue(-1),
-    overrideComppress(false),
-    overrideComppressValue(false)
+    overrideCompress(false),
+    overrideCompressValue(false)
 {
     const_cast<string&>(defaultProtocol) = properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
@@ -51,8 +51,8 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
     value = properties->getProperty("Ice.Override.Compress");
     if(!value.empty())
     {
-	const_cast<bool&>(overrideComppress) = true;
-	const_cast<bool&>(overrideComppressValue) = properties->getPropertyAsInt("Ice.Override.Compress");
+	const_cast<bool&>(overrideCompress) = true;
+	const_cast<bool&>(overrideCompressValue) = properties->getPropertyAsInt("Ice.Override.Compress");
     }
 
     const_cast<string&>(defaultLocator) = properties->getProperty("Ice.Default.Locator");

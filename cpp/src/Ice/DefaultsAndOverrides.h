@@ -35,8 +35,8 @@ public:
 
     bool overrideTimeout;
     Ice::Int overrideTimeoutValue;
-    bool overrideComppress;
-    bool overrideComppressValue;
+    bool overrideCompress;
+    bool overrideCompressValue;
 };
 
 }

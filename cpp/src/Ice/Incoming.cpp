@@ -22,32 +22,24 @@
 #include <Ice/IdentityUtil.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/StringUtil.h>
+#include <Ice/Protocol.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::Incoming::Incoming(const InstancePtr& instance, const ObjectAdapterPtr& adapter) :
+IceInternal::Incoming::Incoming(const InstancePtr& instance, const ObjectAdapterPtr& adapter,
+				Connection* connection, bool compress) :
+    _connection(connection),
+    _compress(compress),
     _is(instance),
     _os(instance)
 {
     _current.adapter = adapter;
-    if(_current.adapter)
-    {
-	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->incUsageCount();
-    }
 }
 
-IceInternal::Incoming::~Incoming()
-{
-    if(_current.adapter)
-    {
-	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
-    }
-}
-
-void
-IceInternal::Incoming::invoke(bool response)
+bool
+IceInternal::Incoming::invoke()
 {
     //
     // Read the current.
@@ -70,21 +62,13 @@ IceInternal::Incoming::invoke(bool response)
 
     _is.startReadEncaps();
 
-    BasicStream::Container::size_type statusPos;
-    if(response)
+    if(_connection) // Response expected?
     {
-	statusPos = _os.b.size();
+	assert(_os.b.size() == headerSize + 4); // Dispatch status position.
 	_os.write(static_cast<Byte>(0));
 	_os.startWriteEncaps();
     }
-    else
-    {
-	statusPos = 0; // Initialize, to keep the compiler happy.
-    }
 
-    ObjectPtr servant;
-    ServantLocatorPtr locator;
-    LocalObjectPtr cookie;
     DispatchStatus status;
 
     //
@@ -97,28 +81,30 @@ IceInternal::Incoming::invoke(bool response)
     {
 	if(_current.adapter)
 	{
-	    servant = _current.adapter->identityToServant(_current.id);
+	    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->incUsageCount();
+
+	    _servant = _current.adapter->identityToServant(_current.id);
 	    
-	    if(!servant && !_current.id.category.empty())
+	    if(!_servant && !_current.id.category.empty())
 	    {
-		locator = _current.adapter->findServantLocator(_current.id.category);
-		if(locator)
+		_locator = _current.adapter->findServantLocator(_current.id.category);
+		if(_locator)
 		{
-		    servant = locator->locate(_current, cookie);
+		    _servant = _locator->locate(_current, _cookie);
 		}
 	    }
 	    
-	    if(!servant)
+	    if(!_servant)
 	    {
-		locator = _current.adapter->findServantLocator("");
-		if(locator)
+		_locator = _current.adapter->findServantLocator("");
+		if(_locator)
 		{
-		    servant = locator->locate(_current, cookie);
+		    _servant = _locator->locate(_current, _cookie);
 		}
 	    }
 	}
 	    
-	if(!servant)
+	if(!_servant)
 	{
 	    status = DispatchObjectNotExist;
 	}
@@ -126,7 +112,7 @@ IceInternal::Incoming::invoke(bool response)
 	{
 	    if(!_current.facet.empty())
 	    {
-		ObjectPtr facetServant = servant->ice_findFacetPath(_current.facet, 0);
+		ObjectPtr facetServant = _servant->ice_findFacetPath(_current.facet, 0);
 		if(!facetServant)
 		{
 		    status = DispatchFacetNotExist;
@@ -138,23 +124,28 @@ IceInternal::Incoming::invoke(bool response)
 	    }
 	    else
 	    {
-		status = servant->__dispatch(*this, _current);
+		status = _servant->__dispatch(*this, _current);
+	    }
+
+	    if(status == DispatchAsync)
+	    {
+		//
+		// This was a asynchronous dispatch, we're done here.
+		// We do *not* call finishInvoke(), because the call is
+		// not finished yet.
+		//
+		return true; // Asynchronous dispatch.
 	    }
 	}
     }
     catch(RequestFailedException& ex)
     {
-	if(locator && servant)
-	{
-	    locator->finished(_current, servant, cookie);
-	}
+	finishInvoke();
 
-	_is.endReadEncaps();
-
-	if(response)
+	if(_connection) // Response expected?
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(statusPos);
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    if(dynamic_cast<ObjectNotExistException*>(&ex))
 	    {
 		_os.write(static_cast<Byte>(DispatchObjectNotExist));
@@ -226,21 +217,16 @@ IceInternal::Incoming::invoke(bool response)
 	    out << "dispatch exception:\n" << ex;
 	}
 	
-	return;
+	return false; // Regular, non-asynchronous dispatch.
     }
     catch(const LocalException& ex)
     {
-	if(locator && servant)
-	{
-	    locator->finished(_current, servant, cookie);
-	}
+	finishInvoke();
 
-	_is.endReadEncaps();
-
-	if(response)
+	if(_connection) // Response expected?
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(statusPos);
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
 	    ostringstream str;
 	    str << ex;
@@ -254,21 +240,16 @@ IceInternal::Incoming::invoke(bool response)
 	    warning("dispatch exception: unknown local exception:", str.str());
 	}
 	
-	return;
+	return false; // Regular, non-asynchronous dispatch.
     }
     catch(const UserException& ex)
     {
-	if(locator && servant)
-	{
-	    locator->finished(_current, servant, cookie);
-	}
+	finishInvoke();
 
-	_is.endReadEncaps();
-
-	if(response)
+	if(_connection) // Response expected?
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(statusPos);
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
 	    ostringstream str;
 	    str << ex;
@@ -282,21 +263,16 @@ IceInternal::Incoming::invoke(bool response)
 	    warning("dispatch exception: unknown user exception:", str.str());
 	}
 
-	return;
+	return false; // Regular, non-asynchronous dispatch.
     }
     catch(const Exception& ex)
     {
-	if(locator && servant)
-	{
-	    locator->finished(_current, servant, cookie);
-	}
+	finishInvoke();
 
-	_is.endReadEncaps();
-
-	if(response)
+	if(_connection) // Response expected?
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(statusPos);
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    ostringstream str;
 	    str << ex;
@@ -310,21 +286,16 @@ IceInternal::Incoming::invoke(bool response)
 	    warning("dispatch exception: unknown exception:", str.str());
 	}
 
-	return;
+	return false; // Regular, non-asynchronous dispatch.
     }
     catch(const std::exception& ex)
     {
-	if(locator && servant)
-	{
-	    locator->finished(_current, servant, cookie);
-	}
-	
-	_is.endReadEncaps();
+	finishInvoke();
 
-	if(response)
+	if(_connection) // Response expected?
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(statusPos);
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    ostringstream str;
 	    str << "std::exception: " << ex.what();
@@ -336,21 +307,16 @@ IceInternal::Incoming::invoke(bool response)
 	    warning("dispatch exception: unknown std::exception:", ex.what());
 	}
 
-	return;
+	return false; // Regular, non-asynchronous dispatch.
     }
     catch(...)
     {
-	if(locator && servant)
-	{
-	    locator->finished(_current, servant, cookie);
-	}
+	finishInvoke();
 
-	_is.endReadEncaps();
-
-	if(response)
+	if(_connection) // Response expected?
 	{
 	    _os.endWriteEncaps();
-	    _os.b.resize(statusPos);
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    string reason = "unknown c++ exception";
 	    _os.write(reason);
@@ -361,9 +327,8 @@ IceInternal::Incoming::invoke(bool response)
 	    warning("dispatch exception: unknown c++ exception:", "");
 	}
 
-	return;
+	return false; // Regular, non-asynchronous dispatch.
     }
-
 
     //
     // Don't put the code below into the try block above. Exceptions
@@ -371,14 +336,9 @@ IceInternal::Incoming::invoke(bool response)
     // the caller of this operation.
     //
 
-    if(locator && servant)
-    {
-	locator->finished(_current, servant, cookie);
-    }
+    finishInvoke();
 
-    _is.endReadEncaps();
-
-    if(response)
+    if(_connection) // Response expected?
     {
 	_os.endWriteEncaps();
 	
@@ -388,7 +348,7 @@ IceInternal::Incoming::invoke(bool response)
 		   status == DispatchFacetNotExist ||
 		   status == DispatchOperationNotExist);
 	    
-	    _os.b.resize(statusPos);
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(status));
 	    
 	    _current.id.__write(&_os);
@@ -397,9 +357,11 @@ IceInternal::Incoming::invoke(bool response)
 	}
 	else
 	{
-	    *(_os.b.begin() + statusPos) = static_cast<Byte>(status);
+	    *(_os.b.begin() + headerSize + 4) = static_cast<Byte>(status); // Dispatch status position.
 	}
     }
+
+    return false; // Regular, non-asynchronous dispatch.
 }
 
 BasicStream*
@@ -415,27 +377,52 @@ IceInternal::Incoming::os()
 }
 
 void
-IceInternal::Incoming::warning(const string& msg, const string& ex)
+IceInternal::Incoming::finishInvoke()
 {
-    ostringstream str;
-    str << msg;
+    if(_locator && _servant)
+    {
+	try
+	{
+	    _locator->finished(_current, _servant, _cookie);
+	}
+	catch(...)
+	{
+	    if(_current.adapter)
+	    {
+		dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
+	    }
+	    throw;
+	}
+    }
+    
+    if(_current.adapter)
+    {
+	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
+    }
+    
+    _is.endReadEncaps();
+}
+
+void
+IceInternal::Incoming::warning(const string& msg, const string& ex) const
+{
+    Warning out(_os.instance()->logger());
+
+    out << msg;
     if(!ex.empty())
     {
-	str << "\n" << ex;
+	out << "\n" << ex;
     }
-    str << "\nidentity: " << _current.id;
-    str << "\nfacet: ";
+    out << "\nidentity: " << _current.id;
+    out << "\nfacet: ";
     vector<string>::const_iterator p = _current.facet.begin();
     while(p != _current.facet.end())
     {
-	str << encodeString(*p++, "/");
+	out << encodeString(*p++, "/");
 	if(p != _current.facet.end())
 	{
-	    str << '/';
+	    out << '/';
 	}
     }
-    str << "\noperation: " << _current.operation;
-
-    Warning out(_os.instance()->logger());
-    out << str.str();
+    out << "\noperation: " << _current.operation;
 }

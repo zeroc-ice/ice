@@ -14,7 +14,7 @@
 
 #include <Ice/Object.h>
 #include <Ice/Incoming.h>
-#include <Ice/Current.h>
+#include <Ice/IncomingAsync.h>
 #include <Ice/Stream.h>
 #include <Ice/LocalException.h>
 
@@ -428,4 +428,15 @@ Ice::Blobject::__dispatch(Incoming& in, const Current& current)
     {
 	return ::IceInternal::DispatchUserException;
     }
+}
+
+DispatchStatus
+Ice::BlobjectAsync::__dispatch(Incoming& in, const Current& current)
+{
+    vector<Byte> inParams;
+    Int sz = in.is()->getReadEncapsSize();
+    in.is()->readBlob(inParams, sz);
+    AMD_Object_ice_invokePtr cb = new AMD_Object_ice_invoke(in);
+    ice_invoke_async(cb, inParams, current);
+    return ::IceInternal::DispatchAsync;
 }

@@ -59,6 +59,7 @@ public:
     void finishBatchRequest(BasicStream*);
     void abortBatchRequest();
     void flushBatchRequest(bool);
+    void sendResponse(BasicStream*, bool);
     int timeout() const;
     EndpointPtr endpoint() const;
     void setAdapter(const ::Ice::ObjectAdapterPtr&);

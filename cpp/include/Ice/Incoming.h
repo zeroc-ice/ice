@@ -16,6 +16,9 @@
 #define ICE_INCOMING_H
 
 #include <Ice/InstanceF.h>
+#include <Ice/ConnectionF.h>
+#include <Ice/ServantLocatorF.h>
+#include <Ice/IncomingAsyncF.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Current.h>
 
@@ -26,19 +29,42 @@ class ICE_API Incoming : public ::IceUtil::noncopyable
 {
 public:
 
-    Incoming(const InstancePtr&, const ::Ice::ObjectAdapterPtr&);
-    ~Incoming();
+    Incoming(const InstancePtr&, const ::Ice::ObjectAdapterPtr&, Connection*, bool);
 
-    void invoke(bool);
+    bool invoke(); // Returns true, if the method invocation was asynchronous.
 
     BasicStream* is();
     BasicStream* os();
 
 private:
+    
+    void finishInvoke();
+    void warning(const std::string&, const std::string&) const;
 
-    void warning(const std::string&, const std::string&);
+    //
+    // IncomingAsync needs access to the various data members
+    // below. Without making IncomingAsync a friend class, we would
+    // have to write lots of otherwise useless accessors.
+    //
+    friend class IncomingAsync;
 
     Ice::Current _current;
+    Ice::ObjectPtr _servant;
+    Ice::ServantLocatorPtr _locator;
+    Ice::LocalObjectPtr _cookie;
+
+    //
+    // If null, no response is expected. Other than determining
+    // whether a response is expected or not, _connection is only
+    // needed for IncomingAsync. For performance reasons, a plain
+    // pointer is used instead of a handle.
+    //
+    Connection* _connection;
+
+    //
+    // Compression flag, only needed for IncomingAsync.
+    //
+    bool _compress;
 
     BasicStream _is;
     BasicStream _os;

@@ -67,7 +67,7 @@ public:
     // Get a textual representation of the event handler.
     //
     virtual std::string toString() const = 0;
-    
+
 protected:
     
     EventHandler(const InstancePtr&);

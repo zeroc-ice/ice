@@ -16,25 +16,31 @@ top_srcdir	= ../../..
 
 CLIENT		= client
 SERVER		= server
+SERVERAMD	= serveramd
 COLLOCATED	= collocated
 
-TARGETS		= $(CLIENT) $(SERVER) $(COLLOCATED)
+TARGETS		= $(CLIENT) $(SERVER) $(SERVERAMD) $(COLLOCATED)
 
-OBJS		= Test.o \
-
-COBJS		= Client.o \
+COBJS		= Test.o \
+		  Client.o \
 		  AllTests.o
 
-SOBJS		= TestI.o \
+SOBJS		= Test.o \
+		  TestI.o \
 		  Server.o
 
-COLOBJS		= TestI.o \
+SAMDOBJS	= TestAMD.o \
+		  TestAMDI.o \
+		  ServerAMD.o
+
+COLOBJS		= Test.o \
+		  TestI.o \
 		  Collocated.o \
 		  AllTests.o
 
-SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
+SRCS		= $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
+		  $(SAMDOBJS:.o=.cpp) \
 		  $(COLOBJS:.o=.cpp)
 
 SLICE_SRCS	= Test.ice
@@ -43,16 +49,20 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
-$(CLIENT): $(OBJS) $(COBJS)
+$(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) $(LIBS)
 
-$(SERVER): $(OBJS) $(SOBJS)
+$(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) $(LIBS)
 
-$(COLLOCATED): $(OBJS) $(COLOBJS)
+$(SERVERAMD): $(SAMDOBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SAMDOBJS) $(LIBS)
+
+$(COLLOCATED): $(COLOBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(COLOBJS) $(LIBS)
 
 include .depend

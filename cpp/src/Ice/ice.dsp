@@ -194,6 +194,10 @@ SOURCE=.\Incoming.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\IncomingAsync.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Initialize.cpp
 # End Source File
 # Begin Source File
@@ -523,6 +527,14 @@ SOURCE=..\..\include\Ice\IdentityUtil.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Incoming.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\IncomingAsync.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\IncomingAsyncF.h
 # End Source File
 # Begin Source File
 

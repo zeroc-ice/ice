@@ -26,6 +26,18 @@ ThrowerI::shutdown(const Ice::Current&)
     _adapter->getCommunicator()->shutdown();
 }
 
+bool
+ThrowerI::supportsUndeclaredExceptions(const Ice::Current&)
+{
+    return true;
+}
+
+bool
+ThrowerI::supportsNonIceExceptions(const Ice::Current&)
+{
+    return true;
+}
+
 void
 ThrowerI::throwAasA(Ice::Int a, const Ice::Current&)
 {
@@ -86,12 +98,6 @@ ThrowerI::throwCasC(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
     ex.bMem = b;
     ex.cMem = c;
     throw ex;
-}
-
-bool
-ThrowerI::supportsUndeclaredExceptions(const Ice::Current&)
-{
-    return true;
 }
 
 void

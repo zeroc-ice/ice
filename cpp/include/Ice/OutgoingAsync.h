@@ -18,11 +18,13 @@
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/ReferenceF.h>
-#include <Ice/BasicStream.h>
+#include <Ice/InstanceF.h>
 #include <Ice/Current.h>
 
 namespace IceInternal
 {
+
+class BasicStream;
 
 class ICE_API OutgoingAsync : public ::IceUtil::Shared
 {
@@ -47,9 +49,18 @@ public:
 
 private:
 
-    ConnectionPtr _connection;
+    void warnException(const ::Ice::Exception&) const;
+    void warnException(const ::std::exception&) const;
+    void warnException() const;
 
+    ConnectionPtr _connection;
     bool _compress;
+
+    //
+    // We need a separate InstancePtr, because _is and _os only hold a
+    // const InstancePtr& for optimization.
+    //
+    InstancePtr _instance;
 
     BasicStream* _is;
     BasicStream* _os;
@@ -60,7 +71,7 @@ private:
 namespace Ice
 {
 
-class ICE_API Object_ice_invoke : public ::IceInternal::OutgoingAsync
+class ICE_API AMI_Object_ice_invoke : public ::IceInternal::OutgoingAsync
 {
 public:
 

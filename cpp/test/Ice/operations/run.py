@@ -27,6 +27,10 @@ import TestUtil
 
 name = os.path.join("Ice", "operations")
 
+print "tests with regular server."
 TestUtil.clientServerTest(name)
+print "tests with AMD server."
+TestUtil.clientServerTestWithOptionsAndNames(name, "", "", "serveramd", "client")
+print "tests with collocated server."
 TestUtil.collocatedTest(name)
 sys.exit(0)

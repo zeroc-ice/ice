@@ -37,7 +37,11 @@ public:
 
     BasicStream(const InstancePtr&);
 
-    InstancePtr instance() const;
+    //
+    // Must return const InstancePtr&, because we don't hold an
+    // InstancePtr for optimization reasons (see comments below).
+    //
+    const InstancePtr& instance() const;
 
     void swap(BasicStream&);
 

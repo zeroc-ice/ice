@@ -93,7 +93,7 @@ public:
     bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 	            ::std::vector< ::Ice::Byte>&,
 		    const ::Ice::Context& = ::Ice::Context()); // Returns true if ok, false if user exception.
-    void ice_invoke_async(const ::Ice::Object_ice_invokePtr&,
+    void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
 			  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			  const ::Ice::Context& = ::Ice::Context());
 
@@ -155,7 +155,7 @@ public:
     virtual ::Ice::FacetPath ice_facets(const ::Ice::Context&) = 0;
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&) = 0;
-    virtual void ice_invoke_async(const ::Ice::Object_ice_invokePtr&,
+    virtual void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
 				  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 				  const ::Ice::Context&) = 0;
     virtual void ice_flush() = 0;
@@ -179,7 +179,7 @@ public:
     virtual ::Ice::FacetPath ice_facets(const ::Ice::Context&);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
-    virtual void ice_invoke_async(const ::Ice::Object_ice_invokePtr&,
+    virtual void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
 				  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 				  const ::Ice::Context&);
     virtual void ice_flush();
@@ -216,7 +216,7 @@ public:
     virtual ::Ice::FacetPath ice_facets(const ::Ice::Context&);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
-    virtual void ice_invoke_async(const ::Ice::Object_ice_invokePtr&,
+    virtual void ice_invoke_async(const ::Ice::AMI_Object_ice_invokePtr&,
 				  const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 				  const ::Ice::Context&);
     virtual void ice_flush();

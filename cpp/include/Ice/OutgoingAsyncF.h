@@ -30,22 +30,22 @@ typedef IceInternal::Handle<OutgoingAsync> OutgoingAsyncPtr;
 namespace Ice
 {
 
-class Object_ice_invoke;
+class AMI_Object_ice_invoke;
 
 }
 
 namespace IceInternal
 {
 
-ICE_API void incRef(::Ice::Object_ice_invoke*);
-ICE_API void decRef(::Ice::Object_ice_invoke*);
+ICE_API void incRef(::Ice::AMI_Object_ice_invoke*);
+ICE_API void decRef(::Ice::AMI_Object_ice_invoke*);
 
 }
 
 namespace Ice
 {
 
-typedef IceInternal::Handle< Object_ice_invoke > Object_ice_invokePtr;
+typedef IceInternal::Handle<AMI_Object_ice_invoke> AMI_Object_ice_invokePtr;
 
 }
 

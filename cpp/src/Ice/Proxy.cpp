@@ -266,7 +266,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 }
 
 void
-IceProxy::Ice::Object::ice_invoke_async(const Object_ice_invokePtr& cb,
+IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 					const string& operation,
 					OperationMode mode,
 					const vector<Byte>& inParams,
@@ -816,7 +816,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 }
 
 void
-IceDelegateM::Ice::Object::ice_invoke_async(const Object_ice_invokePtr& cb,
+IceDelegateM::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 					    const string& operation,
 					    OperationMode mode,
 					    const vector<Byte>& inParams,
@@ -1123,7 +1123,7 @@ IceDelegateD::Ice::Object::ice_invoke(const string&,
 }
 
 void
-IceDelegateD::Ice::Object::ice_invoke_async(const Object_ice_invokePtr&,
+IceDelegateD::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr&,
 					    const string&,
 					    OperationMode,
 					    const vector<Byte>&,
