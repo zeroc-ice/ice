@@ -86,7 +86,6 @@ IceUtil::RWRecMutex::timedTryReadlock(const Time& timeout) const
     _count++;
 }
 
-#include <iostream.h>
 void
 IceUtil::RWRecMutex::writelock() const
 {
