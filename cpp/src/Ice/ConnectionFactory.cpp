@@ -68,27 +68,34 @@ IceInternal::OutgoingConnectionFactory::destroy()
 void
 IceInternal::OutgoingConnectionFactory::waitUntilFinished()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    multimap<EndpointPtr, ConnectionPtr> connections;
 
-    //
-    // First we wait until the factory is destroyed.
-    //
-    while(!_destroyed || !_pending.empty())
     {
-	wait();
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	//
+	// First we wait until the factory is destroyed. We also wait
+	// until there are no pending connections anymore. Only then
+	// we can be sure the _connections contains all connections.
+	//
+	while(!_destroyed || !_pending.empty())
+	{
+	    wait();
+	}
+	
+	//
+	// We want to wait until all connections are finished outside the
+	// thread synchronization.
+	//
+	connections.swap(_connections);
     }
 
     //
     // Now we wait until the destruction of each connection has
     // finished.
     //
-    for_each(_connections.begin(), _connections.end(),
+    for_each(connections.begin(), connections.end(),
 	     Ice::secondVoidMemFun<const EndpointPtr, Connection>(&Connection::waitUntilFinished));
-
-    //
-    // We're done, now we can throw away all connections.
-    //
-    _connections.clear();
 }
 
 ConnectionPtr
@@ -294,7 +301,8 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	}
 	else
 	{
-	    _connections.insert(_connections.end(), pair<const EndpointPtr, ConnectionPtr>(connection->endpoint(), connection));
+	    _connections.insert(_connections.end(),
+				pair<const EndpointPtr, ConnectionPtr>(connection->endpoint(), connection));
 
 	    if(_destroyed)
 	    {
@@ -445,46 +453,61 @@ IceInternal::IncomingConnectionFactory::destroy()
 void
 IceInternal::IncomingConnectionFactory::waitUntilHolding() const
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    list<ConnectionPtr> connections;
 
-    //
-    // First we wait until the connection factory itself is in holding
-    // state.
-    //
-    while(_state < StateHolding)
     {
-	wait();
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	//
+	// First we wait until the connection factory itself is in holding
+	// state.
+	//
+	while(_state < StateHolding)
+	{
+	    wait();
+	}
+
+	//
+	// We want to wait until all connections are in holding state
+	// outside the thread synchronization.
+	//
+	connections = _connections;
     }
 
     //
     // Now we wait until each connection is in holding state.
     //
-    for_each(_connections.begin(), _connections.end(), Ice::constVoidMemFun(&Connection::waitUntilHolding));
+    for_each(connections.begin(), connections.end(), Ice::constVoidMemFun(&Connection::waitUntilHolding));
 }
 
 void
 IceInternal::IncomingConnectionFactory::waitUntilFinished()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    list<ConnectionPtr> connections;
 
-    //
-    // First we wait until the factory is destroyed.
-    //
-    while(_acceptor)
     {
-	wait();
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	//
+	// First we wait until the factory is destroyed.
+	//
+	while(_acceptor)
+	{
+	    wait();
+	}
+	
+	//
+	// We want to wait until all connections are finished outside the
+	// thread synchronization.
+	//
+	connections.swap(_connections);
     }
 
     //
     // Now we wait until the destruction of each connection has
     // finished.
     //
-    for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&Connection::waitUntilFinished));
-
-    //
-    // We're done, now we can throw away all connections.
-    //
-    _connections.clear();
+    for_each(connections.begin(), connections.end(), Ice::voidMemFun(&Connection::waitUntilFinished));
 }
 
 EndpointPtr
