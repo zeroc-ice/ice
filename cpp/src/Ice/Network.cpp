@@ -466,7 +466,7 @@ repeatConnect:
 	    //
 	    Sleep(0);
 #endif
-	    socklen_t len = static_cast<socklen_t>(sizeof(socklen_t));
+	    socklen_t len = static_cast<socklen_t>(sizeof(int));
 	    int val;
 	    if(getsockopt(fd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&val), &len) == SOCKET_ERROR)
 	    {
