@@ -498,7 +498,9 @@ final class PropertiesI extends LocalObjectImpl implements Properties
     {
 	"Flush.Timeout",
 	"Publish.Endpoints",
+	"Publish.AdapterId",
 	"TopicManager.Endpoints",
+	"TopicManager.AdapterId",
 	"TopicManager.Proxy",
 	"Trace.Flush",
 	"Trace.Subscriber",

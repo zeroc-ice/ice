@@ -229,7 +229,9 @@ static const string iceStormProps[] =
 {
     "Flush.Timeout",
     "Publish.Endpoints",
+    "Publish.AdapterId",
     "TopicManager.Endpoints",
+    "TopicManager.AdapterId",
     "TopicManager.Proxy",
     "Trace.Flush",
     "Trace.Subscriber",
