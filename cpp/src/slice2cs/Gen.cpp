@@ -171,14 +171,29 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     }
     _out << eb << ";";
 
+    _out << sp << nl << "public override bool ice_isA(string s)";
+    _out << sb;
+    _out << nl << "return _System.Array.BinarySearch(__ids, s, _System.Collections.Comparer.DefaultInvariant) >= 0;";
+    _out << eb;
+
     _out << sp << nl << "public override bool ice_isA(string s, Ice.Current __current)";
     _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s, _System.Collections.Comparer.DefaultInvariant) >= 0;";
     _out << eb;
 
+    _out << sp << nl << "public override string[] ice_ids()";
+    _out << sb;
+    _out << nl << "return __ids;";
+    _out << eb;
+
     _out << sp << nl << "public override string[] ice_ids(Ice.Current __current)";
     _out << sb;
     _out << nl << "return __ids;";
+    _out << eb;
+
+    _out << sp << nl << "public override string ice_id()";
+    _out << sb;
+    _out << nl << "return __ids[" << scopedPos << "];";
     _out << eb;
 
     _out << sp << nl << "public override string ice_id(Ice.Current __current)";
@@ -194,7 +209,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     _out << sp << nl << "#endregion"; // Slice type-related members
 
     OperationList ops = p->operations();
-    if(ops.size() != 0)
+    if(!p->isInterface() || ops.size() != 0)
     {
 	_out << sp << nl << "#region Operation dispatch";
     }
@@ -267,6 +282,15 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	    if(op->sendsClasses())
 	    {
 		_out << nl << "__is.readPendingObjects();";
+	    }
+	    for(q = inParams.begin(); q != inParams.end(); ++q)
+	    {
+		StructPtr st = StructPtr::dynamicCast(q->first);
+		bool patchStruct = st && !st->hasMetaData("cs:class") && st->classDataMembers().size() != 0;
+		if(patchStruct)
+		{
+		    _out << nl << fixId(q->second) << ".__patch();";
+		}
 	    }
 	    
 	    for(q = outParams.begin(); q != outParams.end(); ++q)
@@ -386,6 +410,15 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	    if(op->sendsClasses())
 	    {
 		_out << nl << "__is.readPendingObjects();";
+	    }
+	    for(q = inParams.begin(); q != inParams.end(); ++q)
+	    {
+		StructPtr st = StructPtr::dynamicCast(q->first);
+		bool patchStruct = st && !st->hasMetaData("cs:class") && st->classDataMembers().size() != 0;
+		if(patchStruct)
+		{
+		    _out << nl << fixId(q->second) << ".__patch();";
+		}
 	    }
 	    
 	    //
@@ -540,7 +573,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
 	_out << eb;
     }
 
-    if(ops.size() != 0)
+    if(!p->isInterface() || ops.size() != 0)
     {
 	_out << sp << nl << "#endregion"; // Operation dispatch
     }
@@ -1720,11 +1753,8 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     string name = fixId(p->name());
 
-#if 1
-    _out << sp << nl << "public class " << name << " : _System.ICloneable";
-#else
-    _out << sp << nl << "public struct " << name;
-#endif
+    _out << sp << nl << "public " << (p->hasMetaData("cs:class") ? "class " : "struct ")
+	 << name << " : _System.ICloneable";
     _out << sb;
 
     _out << sp << nl << "#region Slice data members";
@@ -1742,7 +1772,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp << nl << "#endregion"; // Slice data members
 
-#if 1
     _out << sp << nl << "#region ICloneable members";
 
     _out << sp << nl << "public object Clone()";
@@ -1838,7 +1867,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << eb;
 
     _out << sp << nl << "#endregion"; // Comparison members
-#endif
 
     if(!p->isLocal())
     {
@@ -1854,11 +1882,18 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
 	DataMemberList classMembers = p->classDataMembers();
 
+	bool patchStruct = !p->hasMetaData("cs:class") && classMembers.size() != 0;
+
 	if(classMembers.size() != 0)
 	{
 	    _out << sp << nl << "public sealed class __Patcher : IceInternal.Patcher";
 	    _out << sb;
-	    _out << sp << nl << "internal __Patcher(" << name << " instance";
+	    _out << sp << nl << "internal __Patcher(" << name;
+	    if(patchStruct)
+	    {
+	        _out << ".__PatchMembers";
+	    }
+	    _out << " instance";
 	    if(classMembers.size() > 1)
 	    {
 	    	_out << ", int member";
@@ -1888,8 +1923,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		    _out << nl << "case " << memberCount << ":";
 		    _out.inc();
 		}
-		string memberName = fixId((*q)->name());
 		string memberType = typeToString((*q)->type());
+		string memberName = fixId((*q)->name());
 		_out << nl << "_type = typeof(" << memberType << ");";
 		_out << nl << "_instance." << memberName << " = (" << memberType << ")v;";
 		if(classMembers.size() > 1)
@@ -1904,21 +1939,54 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    }
 	    _out << eb;
 
-	    _out << sp << nl << "private " << name << " _instance;";
+	    _out << sp << nl << "private " << name;
+	    if(patchStruct)
+	    {
+	        _out << ".__PatchMembers";
+	    }
+	    _out << " _instance;";
 	    if(classMembers.size() > 1)
 	    {
 		_out << nl << "private int _member;";
 	    }
 	    _out << eb;
+
+	    if(patchStruct)
+	    {
+		_out << sp << nl << "internal class __PatchMembers";
+		_out << sb;
+		for(q = classMembers.begin(); q != classMembers.end(); ++q)
+		{
+		    string memberType = typeToString((*q)->type());
+		    string memberName = fixId((*q)->name());
+		    _out << nl << "internal " << memberType << ' ' << memberName << ';';
+		}
+		_out << eb;
+
+		_out << sp << nl << "private __PatchMembers _pm;";
+
+		_out << sp << nl << "public void __patch()";
+		_out << sb;
+		for(q = classMembers.begin(); q != classMembers.end(); ++q)
+		{
+		    string memberName = fixId((*q)->name());
+		    _out << nl << memberName << " = _pm." << memberName << ';';
+		}
+		_out << eb;
+	    }
 	}
 
         _out << sp << nl << "public void __read(IceInternal.BasicStream __is)";
         _out << sb;
+	if(patchStruct)
+	{
+	    _out << nl << "_pm = new __PatchMembers();";
+	}
 	int classMemberCount = 0;
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
 	    ostringstream patchParams;
-	    patchParams << "this";
+	    patchParams << (patchStruct ? "_pm" : "this");
 	    BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
 	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
 	    {
@@ -3121,12 +3189,21 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    _out << nl << "__is.readPendingObjects();";
 	    for(q = outParams.begin(); q != outParams.end(); ++q)
 	    {
+		string param = fixId(q->second);
 	        BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
 		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
-		{
-		    string param = fixId(q->second);
+		{	    
 		    string type = typeToString(q->first);
 		    _out << nl << param << " = (" << type << ")" << param << "_PP.value;";
+		}
+		else
+		{
+		    StructPtr st = StructPtr::dynamicCast(q->first);
+		    bool patchStruct = st && !st->hasMetaData("cs:class") && st->classDataMembers().size() != 0;
+		    if(patchStruct)
+		    {
+			_out << nl << param << ".__patch();";
+		    }
 		}
 	    }
 	}
@@ -3136,6 +3213,15 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
 	    {
 		_out << nl << "__ret = (" << retS << ")__ret_PP.value;";
+	    }
+	    else
+	    {
+		StructPtr st = StructPtr::dynamicCast(ret);
+		bool patchStruct = st && !st->hasMetaData("cs:class") && st->classDataMembers().size() != 0;
+		if(patchStruct)
+		{
+		    _out << nl << "__ret.__patch();";
+		}
 	    }
 	    _out << nl << "return __ret;";
 	}
@@ -3437,7 +3523,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out << sp;
 	_out << nl << "public abstract void ice_response" << spar << params << epar << ';';
 	
-	_out << sp << nl << "public void" << nl << "__invoke" << spar << "Ice.ObjectPrx __prx"
+	_out << sp << nl << "public void __invoke" << spar << "Ice.ObjectPrx __prx"
 	    << paramsInvoke << "Ice.Context __ctx" << epar;
 	_out << sb;
 	_out << nl << "try";
@@ -3462,7 +3548,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	_out << nl << "__send();";
 	_out << eb;
 
-	_out << sp << nl << "protected override void" << nl << "__response(bool __ok)";
+	_out << sp << nl << "protected override void __response(bool __ok)";
 	_out << sb;
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
@@ -3506,12 +3592,21 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	}
 	for(q = outParams.begin(); q != outParams.end(); ++q)
 	{
+	    string param = fixId(q->second);
 	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
 	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
 	    {
-		string param = fixId(q->second);
 		string type = typeToString(q->first);
 		_out << nl << param << " = (" << type << ")" << param << "_PP.value;";
+	    }
+	    else
+	    {
+		StructPtr st = StructPtr::dynamicCast(q->first);
+		bool patchStruct = st && !st->hasMetaData("cs:class") && st->classDataMembers().size() != 0;
+		if(patchStruct)
+		{
+		    _out << nl << param << ".__patch();";
+		}
 	    }
 	}
 	if(ret)
@@ -3521,6 +3616,15 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    {
 		string type = typeToString(ret);
 		_out << nl << "__ret = (" << retS << ")__ret_PP.value;";
+	    }
+	    else
+	    {
+		StructPtr st = StructPtr::dynamicCast(ret);
+		bool patchStruct = st && !st->hasMetaData("cs:class") && st->classDataMembers().size() != 0;
+		if(patchStruct)
+		{
+		    _out << nl << "__ret.__patch();";
+		}
 	    }
 	}
    	_out << eb;

@@ -204,6 +204,11 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
 	    }
 	}
    }
+   StructPtr s = StructPtr::dynamicCast(type);
+   if(s)
+   {
+       return !s->hasMetaData("cs:class");
+   }
    if(EnumPtr::dynamicCast(type))
    {
        return true;
@@ -871,6 +876,13 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 		    if(s.substr(prefix.size()) == "collection")
 		    {
 			continue;
+		    }
+		}
+		if(StructPtr::dynamicCast(cont))
+		{
+		    if(s.substr(prefix.size()) == "class")
+		    {
+		        continue;
 		    }
 		}
 		cout << file << ": warning: ignoring invalid metadata `" << s << "'" << endl;
