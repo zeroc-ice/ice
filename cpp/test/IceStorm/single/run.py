@@ -36,6 +36,7 @@ print "starting icestorm...",
 dbEnvName = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbEnvName)
 command = iceStorm + updatedClientServerOptions + iceStormEndpoint + " --IceStorm.DBEnvName=" + dbEnvName
+print command
 iceStormPipe = os.popen(command)
 TestUtil.getServerPid(iceStormPipe)
 TestUtil.getAdapterReady(iceStormPipe)

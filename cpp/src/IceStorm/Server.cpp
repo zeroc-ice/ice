@@ -37,8 +37,17 @@ public:
 int
 main(int argc, char* argv[])
 {
-    addArgumentPrefix("IceStorm");
-    PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
+    try
+    {
+	addArgumentPrefix("IceStorm");
+	PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
+    }
+    catch(const Exception& ex)
+    {
+	cerr << argv[0] << ": " << ex << endl;
+	return EXIT_FAILURE;
+    }
+
     string dbEnvName = defaultProperties->getProperty("IceStorm.DBEnvName");
     if (dbEnvName.empty())
     {
