@@ -197,6 +197,10 @@ Parser::printCurrent()
 	    cout << "no current book" << endl;
 	}
     }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        cout << "current book no longer exists" << endl;
+    }
     catch(const Exception& ex)
     {
 	ostringstream s;

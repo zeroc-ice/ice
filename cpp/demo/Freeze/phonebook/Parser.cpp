@@ -137,6 +137,10 @@ Parser::printCurrent()
 	    cout << "no current contact" << endl;
 	}
     }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        cout << "current contact no longer exists" << endl;
+    }
     catch(const DatabaseException& ex)
     {
 	error(ex.message);
