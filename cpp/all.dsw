@@ -20,6 +20,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name slice2freeze
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -476,6 +479,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name Freeze
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -818,6 +824,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1006,6 +1015,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
     End Project Dependency
 }}}
 
@@ -1541,6 +1553,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1561,6 +1576,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
     End Project Dependency
 }}}
 
@@ -1871,6 +1889,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1891,6 +1912,9 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
     End Project Dependency
 }}}
 
