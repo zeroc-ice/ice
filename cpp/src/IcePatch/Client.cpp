@@ -120,6 +120,25 @@ IcePatch::Client::run(int argc, char* argv[])
 		return EXIT_FAILURE;
 	    }
 
+            //
+            // Validate checksums of the Glacier Slice definitions.
+            //
+            Ice::SliceChecksumDict starterChecksums = starter->getSliceChecksums();
+            Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
+            for(Ice::SliceChecksumDict::const_iterator q = starterChecksums.begin(); q != starterChecksums.end(); ++q)
+            {
+                Ice::SliceChecksumDict::const_iterator r = localChecksums.find(q->first);
+                if(r == localChecksums.end())
+                {
+                    cerr << appName() << ": Glacier starter is using unknown Slice type `" << q->first << "'" << endl;
+                }
+                else if(q->second != r->second)
+                {
+                    cerr << appName() << ": Glacier starter is using a different Slice definition of `" << q->first
+                         << "'" << endl;
+                }
+            }
+
 	    ByteSeq privateKey;
 	    ByteSeq publicKey;
 	    ByteSeq routerCert;
@@ -267,14 +286,24 @@ IcePatch::Client::run(int argc, char* argv[])
 		return EXIT_FAILURE;
 	    }
 
+            //
+            // Validate Slice checksums. Note that the client contains more checksums
+            // than the server because the client is linked with Glacier, therefore
+            // we iterate over the server's checksums.
+            //
             Ice::SliceChecksumDict serverChecksums = top->getSliceChecksums();
             Ice::SliceChecksumDict localChecksums = Ice::sliceChecksums();
-            for(Ice::SliceChecksumDict::const_iterator q = localChecksums.begin(); q != localChecksums.end(); ++q)
+            for(Ice::SliceChecksumDict::const_iterator q = serverChecksums.begin(); q != serverChecksums.end(); ++q)
             {
-                Ice::SliceChecksumDict::const_iterator r = serverChecksums.find(q->first);
-                if(r == serverChecksums.end() || q->second != r->second)
+                Ice::SliceChecksumDict::const_iterator r = localChecksums.find(q->first);
+                if(r == localChecksums.end())
                 {
-                    cerr << appName() << ": server is using different Slice definitions" << endl;
+                    cerr << appName() << ": server is using unknown Slice type `" << q->first << "'" << endl;
+                }
+                else if(q->second != r->second)
+                {
+                    cerr << appName() << ": server is using a different Slice definition of `" << q->first << "'"
+                         << endl;
                 }
             }
 
