@@ -29,7 +29,7 @@ public:
 
     void add(const ::Ice::ObjectFactoryPtr&, const std::string&);
     void remove(const std::string&);
-    ::Ice::ObjectFactoryPtr find(const std::string&);
+    ::Ice::ObjectFactoryPtr find(const std::string&) const;
 
 private:
 
@@ -38,8 +38,7 @@ private:
     friend class Instance;
 
     std::map<std::string, ::Ice::ObjectFactoryPtr> _factoryMap;
-    std::map<std::string, ::Ice::ObjectFactoryPtr>::iterator _factoryMapHint;
-    static const char * const _kindOfObject;
+    mutable std::map<std::string, ::Ice::ObjectFactoryPtr>::iterator _factoryMapHint;
 };
 
 }

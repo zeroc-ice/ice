@@ -21,8 +21,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-const char * const IceInternal::ObjectFactoryManager::_kindOfObject = "object factory";
-
 void IceInternal::incRef(ObjectFactoryManager* p) { p->__incRef(); }
 void IceInternal::decRef(ObjectFactoryManager* p) { p->__decRef(); }
 
@@ -35,7 +33,7 @@ IceInternal::ObjectFactoryManager::add(const ObjectFactoryPtr& factory, const st
        || _factoryMap.find(id) != _factoryMap.end())
     {
 	AlreadyRegisteredException ex(__FILE__, __LINE__);
-	ex.kindOfObject = _kindOfObject;
+	ex.kindOfObject = "object factory";
 	ex.id = id;
 	throw ex;
     }
@@ -48,8 +46,7 @@ IceInternal::ObjectFactoryManager::remove(const string& id)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    map<string, ::Ice::ObjectFactoryPtr>::iterator p = _factoryMap.end();
-    
+    map<string, ObjectFactoryPtr>::iterator p = _factoryMap.end();
     if(_factoryMapHint != _factoryMap.end())
     {
 	if(_factoryMapHint->first == id)
@@ -64,7 +61,7 @@ IceInternal::ObjectFactoryManager::remove(const string& id)
 	if(p == _factoryMap.end())
 	{
 	    NotRegisteredException ex(__FILE__, __LINE__);
-	    ex.kindOfObject = _kindOfObject;
+	    ex.kindOfObject = "object factory";
 	    ex.id = id;
 	    throw ex;
 	}
@@ -85,12 +82,11 @@ IceInternal::ObjectFactoryManager::remove(const string& id)
 }
 
 ObjectFactoryPtr
-IceInternal::ObjectFactoryManager::find(const string& id)
+IceInternal::ObjectFactoryManager::find(const string& id) const
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    map<string, ::Ice::ObjectFactoryPtr>::iterator p = _factoryMap.end();
-    
+    map<string, ObjectFactoryPtr>::iterator p = const_cast<map<string, ObjectFactoryPtr>&>(_factoryMap).end();
     if(_factoryMapHint != _factoryMap.end())
     {
 	if(_factoryMapHint->first == id)
@@ -101,7 +97,7 @@ IceInternal::ObjectFactoryManager::find(const string& id)
     
     if(p == _factoryMap.end())
     {
-	p = _factoryMap.find(id);
+	p = const_cast<map<string, ObjectFactoryPtr>&>(_factoryMap).find(id);
     }
     
     if(p != _factoryMap.end())
@@ -124,6 +120,7 @@ void
 IceInternal::ObjectFactoryManager::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
+
     for_each(_factoryMap.begin(), _factoryMap.end(),
 	     Ice::secondVoidMemFun<const string, ObjectFactory>(&ObjectFactory::destroy));
     _factoryMap.clear();

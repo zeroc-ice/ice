@@ -167,11 +167,12 @@ IceInternal::ServantManager::addServantLocator(const ServantLocatorPtr& locator,
 
     assert(_instance); // Must not be called after destruction.
 
-    if(_locatorMap.find(category) != _locatorMap.end())
+    if((_locatorMapHint != _locatorMap.end() && _locatorMapHint->first == category)
+       || _locatorMap.find(category) != _locatorMap.end())
     {
 	AlreadyRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "servant locator";
-	ex.id = category;
+	ex.id = IceUtil::escapeString(category, "");
 	throw ex;
     }
     
@@ -185,17 +186,21 @@ IceInternal::ServantManager::findServantLocator(const string& category) const
     
     assert(_instance); // Must not be called after destruction.
 
-    if(_locatorMap.end() != _locatorMapHint)
+    map<string, ServantLocatorPtr>::iterator p = const_cast<map<string, ServantLocatorPtr>&>(_locatorMap).end();
+    if(_locatorMapHint != _locatorMap.end())
     {
 	if(_locatorMapHint->first == category)
 	{
-	    return _locatorMapHint->second;
+	    p = _locatorMapHint;
 	}
     }
     
-    map<string, ServantLocatorPtr>::iterator p =
-	const_cast<map<string, ServantLocatorPtr>&>(_locatorMap).find(category);
-    if(_locatorMap.end() != p)
+    if(p == _locatorMap.end())
+    {
+	p = const_cast<map<string, ServantLocatorPtr>&>(_locatorMap).find(category);
+    }
+    
+    if(p != _locatorMap.end())
     {
 	_locatorMapHint = p;
 	return p->second;
@@ -204,7 +209,6 @@ IceInternal::ServantManager::findServantLocator(const string& category) const
     {
 	return 0;
     }
-
 }
 
 IceInternal::ServantManager::ServantManager(const InstancePtr& instance, const string& adapterName)
