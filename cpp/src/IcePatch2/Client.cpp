@@ -108,7 +108,7 @@ IcePatch2::Client::run(int argc, char* argv[])
 	char cwd[_MAX_PATH];
 	if(_getcwd(cwd, _MAX_PATH) == NULL)
 #else
-	    char cwd[PATH_MAX];
+	char cwd[PATH_MAX];
 	if(getcwd(cwd, PATH_MAX) == NULL)
 #endif
 	{
@@ -208,17 +208,6 @@ IcePatch2::Client::run(int argc, char* argv[])
 	sort(removeFiles.begin(), removeFiles.end(), FileInfoCompare());
 	sort(updateFiles.begin(), updateFiles.end(), FileInfoCompare());
 
-	//
-	// We remove the summary file, so that if something goes wrong
-	// during patching, the next run has to be done with the
-	// thorough option. Otherwise there could be inconsistencies
-	// between the summary file and the real content.
-	//
-	if(!dry)
-	{
-	    removeRecursive(dataDir + ".sum");
-	}
-
 	FileInfoSeq::const_iterator p;
 
 	p = removeFiles.begin();
@@ -232,7 +221,7 @@ IcePatch2::Client::run(int argc, char* argv[])
 		{
 		    removeRecursive(p->path);
 		}
-		catch(...)
+		catch(const string&)
 		{
 		}
 	    }
@@ -243,7 +232,7 @@ IcePatch2::Client::run(int argc, char* argv[])
 	    {
 		++p;
 	    }
-	    while(p->path.compare(0, dir.size(), dir) == 0);
+	    while(p != removeFiles.end() && p->path.size() > dir.size() && p->path.compare(0, dir.size(), dir) == 0);
 	}
 
 	Long total = 0;
@@ -270,12 +259,30 @@ IcePatch2::Client::run(int argc, char* argv[])
 	    }
 	    else // Regular file.
 	    {
+		string pathBZ2 = p->path + ".bz2";
+		ofstream os;
+
 		if(!dry)
 		{
-		    string dir = getDirname(p->path);
+		    string dir = getDirname(pathBZ2);
 		    if(!dir.empty())
 		    {
 			createDirectoryRecursive(dir);
+		    }
+
+		    try
+		    {
+			removeRecursive(pathBZ2);
+		    }
+		    catch(...)
+		    {
+		    }
+
+		    os.open(pathBZ2.c_str(), ios::binary);
+		    if(!os)
+		    {
+			cerr << argv[0] << ": cannot open `" + pathBZ2 + "' for writing: " + strerror(errno);
+			return EXIT_FAILURE;
 		    }
 		}
 		    
@@ -302,6 +309,17 @@ IcePatch2::Client::run(int argc, char* argv[])
 			return EXIT_FAILURE;
 		    }
 
+		    if(!dry)
+		    {
+			os.write(reinterpret_cast<char*>(&bytes[0]), bytes.size());
+
+			if(!os.good())
+			{
+			    cerr << argv[0] << ": cannot write `" + pathBZ2 + "': " + strerror(errno);
+			    return EXIT_FAILURE;
+			}
+		    }
+
 		    pos += bytes.size();
 		    updated += bytes.size();
 
@@ -315,24 +333,18 @@ IcePatch2::Client::run(int argc, char* argv[])
 		    cout << progress << flush;
 		}
 
-/*
 		if(!dry)
 		{
+		    os.close();
+
 		    try
 		    {
-			removeRecursive(p->path);
+//			removeRecursive(p->path);
 		    }
 		    catch(...)
 		    {
 		    }
-
-		    ofstream os(p->path.c_str());
-		    if(!os)
-		    {
-			throw "cannot open `" + p->path + "' for writing: " + strerror(errno);
-		    }
 		}
-*/
 	    }
 	    
 	    cout << endl;

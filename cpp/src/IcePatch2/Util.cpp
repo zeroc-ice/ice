@@ -273,7 +273,7 @@ IcePatch2::removeRecursive(const string& pa)
 	StringSeq paths = readDirectory(path);
         for(StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
 	{
-	    removeRecursive(*p);
+	    removeRecursive(path + '/' + *p);
 	}
 	
 #ifdef _WIN32
@@ -388,16 +388,18 @@ IcePatch2::createDirectoryRecursive(const string& pa)
 }
 
 void
-IcePatch2::compressToFile(const string& path, const ByteSeq& bytes, Int pos)
+IcePatch2::compressToFile(const string& pa, const ByteSeq& bytes, Int pos)
 {
-    FILE* stdioFileBZ2 = fopen(path.c_str(), "wb");
-    if(!stdioFileBZ2)
+    const string path = normalize(pa);
+
+    FILE* stdioFile = fopen(path.c_str(), "wb");
+    if(!stdioFile)
     {
 	throw "cannot open `" + path + "' for writing: " + strerror(errno);
     }
     
     int bzError;
-    BZFILE* bzFile = BZ2_bzWriteOpen(&bzError, stdioFileBZ2, 5, 0, 0);
+    BZFILE* bzFile = BZ2_bzWriteOpen(&bzError, stdioFile, 5, 0, 0);
     if(bzError != BZ_OK)
     {
 	string ex = "BZ2_bzWriteOpen failed";
@@ -405,7 +407,7 @@ IcePatch2::compressToFile(const string& path, const ByteSeq& bytes, Int pos)
 	{
 	    ex += string(": ") + strerror(errno);
 	}
-	fclose(stdioFileBZ2);
+	fclose(stdioFile);
 	throw ex;
     }
     
@@ -418,7 +420,7 @@ IcePatch2::compressToFile(const string& path, const ByteSeq& bytes, Int pos)
 	    ex += string(": ") + strerror(errno);
 	}
 	BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
-	fclose(stdioFileBZ2);
+	fclose(stdioFile);
 	throw ex;
     }
     
@@ -430,61 +432,17 @@ IcePatch2::compressToFile(const string& path, const ByteSeq& bytes, Int pos)
 	{
 	    ex += string(": ") + strerror(errno);
 	}
-	fclose(stdioFileBZ2);
+	fclose(stdioFile);
 	throw ex;
     }
     
-    fclose(stdioFileBZ2);
+    fclose(stdioFile);
 }
 
 void
-IcePatch2::uncompressToFile(const string& path, const ByteSeq& bytes, Int pos)
+IcePatch2::uncompressToFile(const string& pa, const ByteSeq& bytes, Int pos)
 {
-    FILE* stdioFileBZ2 = fopen(path.c_str(), "wb");
-    if(!stdioFileBZ2)
-    {
-	throw "cannot open `" + path + "' for writing: " + strerror(errno);
-    }
-    
-    int bzError;
-    BZFILE* bzFile = BZ2_bzWriteOpen(&bzError, stdioFileBZ2, 5, 0, 0);
-    if(bzError != BZ_OK)
-    {
-	string ex = "BZ2_bzWriteOpen failed";
-	if(bzError == BZ_IO_ERROR)
-	{
-	    ex += string(": ") + strerror(errno);
-	}
-	fclose(stdioFileBZ2);
-	throw ex;
-    }
-    
-    BZ2_bzWrite(&bzError, bzFile, const_cast<Byte*>(&bytes[pos]), bytes.size() - pos);
-    if(bzError != BZ_OK)
-    {
-	string ex = "BZ2_bzWrite failed";
-	if(bzError == BZ_IO_ERROR)
-	{
-	    ex += string(": ") + strerror(errno);
-	}
-	BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
-	fclose(stdioFileBZ2);
-	throw ex;
-    }
-    
-    BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
-    if(bzError != BZ_OK)
-    {
-	string ex = "BZ2_bzWriteClose failed";
-	if(bzError == BZ_IO_ERROR)
-	{
-	    ex += string(": ") + strerror(errno);
-	}
-	fclose(stdioFileBZ2);
-	throw ex;
-    }
-    
-    fclose(stdioFileBZ2);
+    const string path = normalize(pa);
 }
 
 void
