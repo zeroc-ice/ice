@@ -17,7 +17,7 @@
 
 /**
  *
- * The Ice module for publish/subscribe.
+ * The &Ice; module for publish/subscribe.
  *
  **/
 module IceStorm
@@ -261,7 +261,7 @@ interface TopicManager
 
     /**
      *
-     * Shutdown the IceStorm instance.
+     * Shutdown the &IceStorm; instance.
      *
      **/
     idempotent void shutdown();

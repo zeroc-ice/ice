@@ -25,8 +25,8 @@ module IcePack
 
 /**
  *
- * The IcePack query interface. This interface is accessible to
- * Ice clients to lookup objects.
+ * The &IcePack; query interface. This interface is accessible to
+ * &Ice; clients to lookup objects.
  *
  **/
 interface Query

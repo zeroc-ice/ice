@@ -22,7 +22,7 @@
 
 /**
  *
- * The Ice module for object persistence.
+ * The &Ice; module for object persistence.
  *
  **/
 module Freeze

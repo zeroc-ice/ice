@@ -48,10 +48,10 @@ local exception UnknownException
  *
  * This exception is raised if an operation call on a server raises a
  * local exception. Because local exceptions are not transmitted by
- * the Ice protocol, the client receives all local exceptions raised
+ * the &Ice; protocol, the client receives all local exceptions raised
  * by the server as [UnknownLocalException]. The only exception to this
  * rule are all exceptions derived from [RequestFailedException],
- * which are transmitted by the Ice protocol even though they are
+ * which are transmitted by the &Ice; protocol even though they are
  * declared [local].
  *
  **/
@@ -64,7 +64,7 @@ local exception UnknownLocalException extends UnknownException
  * This exception is raised if an operation call on a server raises a
  * user exception which is not declared in the exception's
  * <literal>throws</literal> clause. Such undeclared exceptions are
- * not transmitted from the server to the client by the Ice protocol,
+ * not transmitted from the server to the client by the &Ice; protocol,
  * but instead the client just gets an [UnknownUserException]. This is
  * necessary in order to not violate the contract established by an
  * operation's signature: Only local exceptions and user exceptions
@@ -77,8 +77,8 @@ local exception UnknownUserException extends UnknownException
 
 /**
  *
- * This exception is raised if the Ice library version doesn't match
- * the Ice header files version.
+ * This exception is raised if the &Ice; library version doesn't match
+ * the &Ice; header files version.
  *
  **/
 local exception VersionMismatchException
@@ -215,7 +215,7 @@ local exception IllegalIdentityException
  *
  * This exception is raised if a request failed. This exception, and
  * all exceptions derived from [RequestFailedException], is
- * transmitted by the Ice protocol, even though it is declared
+ * transmitted by the &Ice; protocol, even though it is declared
  * [local].
  *
  **/
@@ -474,7 +474,7 @@ local exception IllegalMessageSizeException extends ProtocolException
  *
  * This exception is a specialization of [ProtocolException], which is
  * raised if a compressed protocol message has been received by an
- * Ice version which does not support compression.
+ * &Ice; version which does not support compression.
  *
  **/
 local exception CompressionNotSupportedException extends ProtocolException
