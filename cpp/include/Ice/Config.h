@@ -55,6 +55,8 @@ const bool bigendian = false;
 
 }
 
+#   define _UNICODE
+
 #elif defined(__linux__) && defined(i386)
 
 #   define ICE_API /**/
