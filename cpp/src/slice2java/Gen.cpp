@@ -194,7 +194,8 @@ Slice::JavaVisitor::writeThrowsClause(const string& scope, const ExceptionList& 
     //
     // Don't include local exceptions in the throws clause
     //
-    ExceptionList::size_type localCount = 0;
+    ExceptionList::size_type localCount = count_if(throws.begin(), throws.end(),
+						   IceUtil::constMemFun(&Exception::isLocal));
 
     Output& out = output();
     if(throws.size() - localCount > 0)
@@ -444,6 +445,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
+        remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal));
 
         TypeStringList::const_iterator q;
         int iter;
@@ -2938,6 +2940,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
+        throws.erase(remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal)), throws.end());
 
         string params = getParams(op, scope);
 
@@ -3109,6 +3112,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
+        throws.erase(remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal)), throws.end());
 
         string params = getParams(op, scope);
         string args = getArgs(op);
