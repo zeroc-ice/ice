@@ -13,11 +13,14 @@
 
 #include <Ice/Ice.h>
 #include <IcePatch/IcePatch.h>
+#include <IceUtil/Exception.h>
 
 namespace IcePatch
 {
 
-ICE_PATCH_API std::string pathToName(const std::string&);
+class ICE_PATCH_API AbortException : public IceUtil::Exception
+{
+};
 
 class ICE_PATCH_API ProgressCB : public IceUtil::Mutex
 {
@@ -41,6 +44,7 @@ public:
     bool _aborted;
 };
 
+ICE_PATCH_API std::string pathToName(const std::string&);
 ICE_PATCH_API void getRegular(const IcePatch::RegularPrx&, ProgressCB&);
 
 }

@@ -16,10 +16,6 @@
 module IcePatch
 {
 
-exception AbortException
-{
-};
-
 exception FileAccessException
 {
     string reason;
