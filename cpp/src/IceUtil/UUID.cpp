@@ -29,7 +29,12 @@ IceUtil::generateUUID()
     UUID uuid;
     UuidCreate(&uuid);
 
+#if _MSC_VER == 1200
     unsigned char* str;
+#else
+    unsigned short* str;    // Type has changed for some reason in VC++ 2002 (but doc still
+#endif			    // says it's unsigned char *...)
+
     UuidToString(&uuid, &str);
 
     string result(reinterpret_cast<char*>(str));

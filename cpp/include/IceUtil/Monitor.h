@@ -24,7 +24,7 @@ namespace IceUtil
 // unlocked.
 //
 template <class T>
-class ICE_UTIL_API Monitor
+class Monitor
 {
 public:
 

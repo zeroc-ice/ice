@@ -68,7 +68,8 @@ create(const CommunicatorPtr& communicator, const string& name, const StringSeq&
     catch (...)
     {
         Ice::PluginPtr ptr = plugin; // Reclaim the plug-in instance
-        throw;
+        // TODO: can't throw from an extern "C" function
+	// throw;
     }
 
     //

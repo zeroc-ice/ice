@@ -15,6 +15,7 @@
 #include <IceUtil/Mutex.h>
 #include <Ice/RoutingTableF.h>
 #include <Ice/ProxyF.h>
+#include <Ice/Identity.h>
 
 namespace Ice
 {

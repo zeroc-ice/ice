@@ -172,7 +172,7 @@ transformPrimitive(const DBEnvironmentPtr& dbEnv)
             IntFloatMap map(db);
             for(i = 0; i < NUM_KEYS; i++)
             {
-                map.insert(make_pair(i, i));
+                map.insert(make_pair(i, static_cast<float>(i)));
             }
         }
 

@@ -743,8 +743,8 @@ IceInternal::errorToString(int error)
 	if(ok)
 	{
 	    LPCTSTR msg = (LPCTSTR)lpMsgBuf;
-	    assert(msg && strlen(msg) > 0);
-	    string result = msg;
+	    assert(msg && strlen((const char*)msg) > 0);
+	    string result = (const char*)msg;
 	    LocalFree(lpMsgBuf);
 	    return result;
 	}

@@ -50,7 +50,7 @@ IceUtil::ThreadSyscallException::ice_print(ostream& os) const
 	if(ok)
 	{
 	    LPCTSTR msg = (LPCTSTR)lpMsgBuf;
-	    assert(msg && strlen(msg) > 0);
+	    assert(msg && strlen((char*)msg) > 0);
 	    os << msg;
 	    LocalFree(lpMsgBuf);
 	}
