@@ -84,27 +84,26 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
 
         _readTimeout = timeout > _handshakeReadTimeout ? timeout : _handshakeReadTimeout;
 
-        if (_initWantRead)
-        {
-            i = readSelect(_readTimeout);
-        }
-        else if (_initWantWrite)
+        if (_initWantWrite)
         {
             i = writeSelect(timeout);
-        }
 
-        if (_initWantRead && i == 0)
+            if (i == 0)
+            {
+                return 0;
+            }
+
+            _initWantWrite = 0;
+        }
+        else
         {
-            return 0;
-        }
+            i = readSelect(_readTimeout);
 
-        if (_initWantWrite && i == 0)
-        {
-            return 0;
+            if (i == 0)
+            {
+                return 0;
+            }
         }
-
-        _initWantRead = 0;
-        _initWantWrite = 0;
 
         int result = accept();
 
@@ -144,18 +143,13 @@ IceSSL::OpenSSL::ServerConnection::init(int timeout)
         // Find out what the error was (if any).
         switch (getLastError())
         {
-            case SSL_ERROR_WANT_READ:
-            {
-                _initWantRead = 1;
-                break;
-            }
-
             case SSL_ERROR_WANT_WRITE:
             {
                 _initWantWrite = 1;
                 break;
             }
             
+            case SSL_ERROR_WANT_READ:
             case SSL_ERROR_NONE:
             case SSL_ERROR_WANT_X509_LOOKUP:
             {

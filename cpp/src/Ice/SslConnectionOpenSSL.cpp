@@ -445,7 +445,7 @@ IceSSL::OpenSSL::Connection::read(Buffer& buf, int timeout)
             continue;
         }
 
-        // initReturn must be > 0, so we're okay to try a write
+        // initReturn must be > 0, so we're okay to try a read
 
         bytesPending = pending();
 
