@@ -360,7 +360,7 @@ IceXML::Parser::parse(istream& in, Handler& handler)
             {
                 isFinal = 1;
             }
-            if(XML_Parse(parser, buff, in.gcount(), isFinal) != XML_STATUS_OK)
+            if(XML_Parse(parser, buff, in.gcount(), isFinal) != 1)
             {
                 handler.error(XML_ErrorString(XML_GetErrorCode(parser)), XML_GetCurrentLineNumber(parser),
                               XML_GetCurrentColumnNumber(parser));

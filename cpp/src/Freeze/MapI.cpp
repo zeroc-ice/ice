@@ -32,10 +32,22 @@ namespace
 {
 
 inline void 
-initializeDbt(vector<Ice::Byte>& v, Dbt& dbt)
+initializeInDbt(const vector<Ice::Byte>& v, Dbt& dbt)
 {
-    dbt.set_data(&v[0]);
+    dbt.set_data(const_cast<Ice::Byte*>(&v[0]));
     dbt.set_size(v.size());
+    dbt.set_ulen(0);
+    dbt.set_dlen(0);
+    dbt.set_doff(0);
+    dbt.set_flags(DB_DBT_USERMEM);
+}
+
+inline void 
+initializeOutDbt(vector<Ice::Byte>& v, Dbt& dbt)
+{
+    v.resize(v.capacity());
+    dbt.set_data(&v[0]);
+    dbt.set_size(0);
     dbt.set_ulen(v.size());
     dbt.set_dlen(0);
     dbt.set_doff(0);
@@ -207,7 +219,7 @@ bool
 Freeze::DBIteratorHelperI::find(const Key& key) const
 {
     Dbt dbKey;
-    initializeDbt(const_cast<Key&>(key), dbKey);
+    initializeInDbt(key, dbKey);
 
     //
     // Keep 0 length since we're not interested in the data
@@ -263,8 +275,9 @@ Freeze::DBIteratorHelperI::get(const Key*& key, const Value*& value) const
 	keySize = 1024;
     }
     _key.resize(keySize);
+
     Dbt dbKey;
-    initializeDbt(_key, dbKey);
+    initializeOutDbt(_key, dbKey);
     
     size_t valueSize = _value.capacity();
     if(valueSize < 1024)
@@ -273,7 +286,7 @@ Freeze::DBIteratorHelperI::get(const Key*& key, const Value*& value) const
     }
     _value.resize(valueSize);
     Dbt dbValue;
-    initializeDbt(_value, dbValue);
+    initializeOutDbt(_value, dbValue);
 
     for(;;)
     {
@@ -309,7 +322,7 @@ Freeze::DBIteratorHelperI::get(const Key*& key, const Value*& value) const
 		// Let's resize key
 		//
 		_key.resize(dbKey.get_size());
-		initializeDbt(_key, dbKey);
+		initializeOutDbt(_key, dbKey);
 		resizing = true;
 	    }
 	    
@@ -319,7 +332,7 @@ Freeze::DBIteratorHelperI::get(const Key*& key, const Value*& value) const
 		// Let's resize value
 		//
 		_value.resize(dbValue.get_size());
-		initializeDbt(_value, dbValue);
+		initializeOutDbt(_value, dbValue);
 		resizing = true;
 	    }
 	    
@@ -362,8 +375,9 @@ Freeze::DBIteratorHelperI::get() const
 	keySize = 1024;
     }
     _key.resize(keySize);
+
     Dbt dbKey;
-    initializeDbt(_key, dbKey);
+    initializeOutDbt(_key, dbKey);
     
     //
     // Keep 0 length since we're not interested in the data
@@ -403,7 +417,7 @@ Freeze::DBIteratorHelperI::get() const
 		// Let's resize key
 		//
 		_key.resize(dbKey.get_size());
-		initializeDbt(_key, dbKey);
+		initializeOutDbt(_key, dbKey);
 	    }
 	    else
 	    {
@@ -445,7 +459,7 @@ Freeze::DBIteratorHelperI::set(const Value& value)
     dbKey.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
     Dbt dbValue;
-    initializeDbt(const_cast<Value&>(value), dbValue);
+    initializeInDbt(value, dbValue);
 
     try
     {
@@ -782,8 +796,8 @@ Freeze::DBMapHelperI::put(const Key& key, const Value& value)
 {
     Dbt dbKey;
     Dbt dbValue;
-    initializeDbt(const_cast<Key&>(key), dbKey);
-    initializeDbt(const_cast<Value&>(value), dbValue);
+    initializeInDbt(key, dbKey);
+    initializeInDbt(value, dbValue);
  
     for(;;)
     {
@@ -822,7 +836,7 @@ size_t
 Freeze::DBMapHelperI::erase(const Key& key)
 {
     Dbt dbKey;
-    initializeDbt(const_cast<Key&>(key), dbKey);
+    initializeInDbt(key, dbKey);
 
     for(;;)
     {
@@ -863,7 +877,7 @@ size_t
 Freeze::DBMapHelperI::count(const Key& key) const
 {
     Dbt dbKey;
-    initializeDbt(const_cast<Key&>(key), dbKey);
+    initializeInDbt(key, dbKey);
     
     //
     // Keep 0 length since we're not interested in the data

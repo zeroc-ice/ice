@@ -68,11 +68,23 @@ struct StreamedObject
 };
 
 inline void 
-initializeDbt(vector<Ice::Byte>& v, Dbt& dbt)
+initializeInDbt(const vector<Ice::Byte>& v, Dbt& dbt)
 {
-    dbt.set_data(&v[0]);
+    dbt.set_data(const_cast<Ice::Byte*>(&v[0]));
     dbt.set_size(v.size());
-    dbt.set_ulen(v.capacity());
+    dbt.set_ulen(0);
+    dbt.set_dlen(0);
+    dbt.set_doff(0);
+    dbt.set_flags(DB_DBT_USERMEM);
+}
+
+inline void 
+initializeOutDbt(vector<Ice::Byte>& v, Dbt& dbt)
+{
+    v.resize(v.capacity());
+    dbt.set_data(&v[0]);
+    dbt.set_size(0);
+    dbt.set_ulen(v.size());
     dbt.set_dlen(0);
     dbt.set_doff(0);
     dbt.set_flags(DB_DBT_USERMEM);
@@ -98,7 +110,7 @@ marshalRoot(const EvictorStorageKey& v, Key& bytes, const CommunicatorPtr& commu
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
     v.identity.__write(&stream);
-    bytes = stream.b;
+    bytes.swap(stream.b);
 }
 
 void
@@ -107,7 +119,7 @@ marshal(const EvictorStorageKey& v, Key& bytes, const CommunicatorPtr& communica
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
     v.__write(&stream);
-    bytes = stream.b;
+    bytes.swap(stream.b);
 }
 
 void
@@ -128,7 +140,7 @@ marshal(const ObjectRecord& v, Value& bytes, const CommunicatorPtr& communicator
     stream.marshalFacets(false);
     v.__write(&stream);
     stream.writePendingObjects();
-    bytes = stream.b;
+    bytes.swap(stream.b);
 }
 
 void
@@ -1254,8 +1266,8 @@ Freeze::EvictorI::run()
 				{
 				    Dbt dbKey;
 				    Dbt dbValue;
-				    initializeDbt(obj.key, dbKey);
-				    initializeDbt(obj.value, dbValue);
+				    initializeInDbt(obj.key, dbKey);
+				    initializeInDbt(obj.value, dbValue);
 				    u_int32_t flags = (obj.status == created) ? DB_NOOVERWRITE : 0;
 				    int err = _db->put(tx, &dbKey, &dbValue, flags);
 				    if(err != 0)
@@ -1267,7 +1279,7 @@ Freeze::EvictorI::run()
 				case destroyed:
 				{
 				    Dbt dbKey;
-				    initializeDbt(obj.key, dbKey);
+				    initializeInDbt(obj.key, dbKey);
 				    int err = _db->del(tx, &dbKey, 0);
 				    if(err != 0)
 				    {
@@ -1396,7 +1408,7 @@ Freeze::EvictorI::dbHasObject(const Ice::Identity& ident)
     Key key;    
     marshal(esk, key, _communicator);
     Dbt dbKey;
-    initializeDbt(key, dbKey);
+    initializeInDbt(key, dbKey);
     
     //
     // Keep 0 length since we're not interested in the data
@@ -1502,8 +1514,9 @@ Freeze::EvictorI::load(const Identity& ident)
     rootEsk.identity = ident;
     marshalRoot(rootEsk, root, _communicator);
 
+    Key key(root);
     const size_t defaultKeySize = 1024;
-    Key key(defaultKeySize);
+    key.resize(defaultKeySize);
 
     const size_t defaultValueSize = 1024;
     Value value(defaultValueSize);
@@ -1528,11 +1541,11 @@ Freeze::EvictorI::load(const Identity& ident)
             // We position the cursor at the key for the main object.
             //
 	    Dbt dbKey;
-            marshal(rootEsk, key, _communicator);
-	    initializeDbt(key, dbKey);
+	    initializeOutDbt(key, dbKey);
+	    dbKey.set_size(root.size());
 
 	    Dbt dbValue;
-	    initializeDbt(value, dbValue);
+	    initializeOutDbt(value, dbValue);
 
 	    //
 	    // Get first pair
@@ -1541,25 +1554,13 @@ Freeze::EvictorI::load(const Identity& ident)
 	    {
 		try
 		{
-		    rs = dbc->get(&dbKey, &dbValue, DB_SET);
+		    rs = dbc->get(&dbKey, &dbValue, DB_SET_RANGE);
 
 		    if(rs == 0)
 		    {
 			key.resize(dbKey.get_size());
 			value.resize(dbValue.get_size());
-		    }
-                    else
-		    {
-			dbc->close();
-
-			if(_trace >= 2)
-			{
-			    Trace out(_communicator->getLogger(), "Evictor");
-			    out << "could not find \"" << ident << "\" in the database";
-			}
-			return 0;
-		    }
-		    
+		    } 
 		    break;
 		}
 		catch(const ::DbMemoryException& dx)
@@ -1567,15 +1568,23 @@ Freeze::EvictorI::load(const Identity& ident)
 		    bool resized = false;
 		    if(dbKey.get_size() > dbKey.get_ulen())
 		    {
-			key.reserve(dbKey.get_size());
-			initializeDbt(key, dbKey);
+			assert(startWith(key, root));
+			key.resize(dbKey.get_size());
+			initializeOutDbt(key, dbKey);
+
+			//
+			// Not really necessary, as a sequence of n bytes each containing 0 
+			// is smaller or equal than any sequence of bytes with the same length.
+			// But this is cleaner.
+			//
+			dbKey.set_size(root.size());
 			resized = true;
 		    }
 		   
 		    if(dbValue.get_size() > dbValue.get_ulen())
 		    {
-			value.reserve(dbValue.get_size());
-			initializeDbt(value, dbValue);
+			value.resize(dbValue.get_size());
+			initializeOutDbt(value, dbValue);
 			resized = true;
 		    }
 
@@ -1591,7 +1600,7 @@ Freeze::EvictorI::load(const Identity& ident)
 		}
 	    }
 
-	    do
+	    while(rs == 0 && startWith(key, root))
 	    {
 		//
 		// Unmarshal key and data and insert it into result's facet map
@@ -1625,29 +1634,30 @@ Freeze::EvictorI::load(const Identity& ident)
 		    }
 		}
        
+		//
+		// The Ice encoding of Ice::Identity is such that startWith(key, root)
+		// implies esk.identity == ident
+		//
+		assert(esk.identity == ident);
+	
 		FacetPtr facet = new Facet(result.get());
 		facet->status = clean;
 		unmarshal(facet->rec, value, _communicator);
-	
+		
 		pair<FacetMap::iterator, bool> pair = result->facets.insert(FacetMap::value_type(esk.facet, facet));
 		assert(pair.second);
-
+		
 		if(esk.facet.size() == 0)
 		{
 		    result->mainObject = facet;
 		}
 		
-		Dbt dbKey;
-                key.resize(key.capacity());
-		initializeDbt(key, dbKey);
-
-		Dbt dbValue;
-                value.resize(value.capacity());
-		initializeDbt(value, dbValue);
-
 		//
 		// Next facet
-		//					    
+		//
+		initializeOutDbt(key, dbKey);
+		initializeOutDbt(value, dbValue);
+						    
 		for(;;)
 		{
 		    try
@@ -1665,15 +1675,15 @@ Freeze::EvictorI::load(const Identity& ident)
 			bool resized = false;
 			if(dbKey.get_size() > dbKey.get_ulen())
 			{
-			    key.reserve(dbKey.get_size());
-			    initializeDbt(key, dbKey);
+			    key.resize(dbKey.get_size());
+			    initializeOutDbt(key, dbKey);
 			    resized = true;
 			}
 
 			if(dbValue.get_size() > dbValue.get_ulen())
 			{
-			    value.reserve(dbValue.get_size());
-			    initializeDbt(value, dbValue);
+			    value.resize(dbValue.get_size());
+			    initializeOutDbt(value, dbValue);
 			    resized = true;
 			}
 			
@@ -1689,7 +1699,6 @@ Freeze::EvictorI::load(const Identity& ident)
 		    }
 		}
 	    }
-            while(rs == 0 && startWith(key, root));
 
 	    dbc->close();
 	    break; // for (;;)
@@ -1738,6 +1747,16 @@ Freeze::EvictorI::load(const Identity& ident)
 	    }
 	    throw;
 	}
+    }
+
+    if(result->facets.size() == 0)
+    {
+	if(_trace >= 2)
+	{
+	    Trace out(_communicator->getLogger(), "Evictor");
+	    out << "could not find \"" << ident << "\" in the database";
+	}
+	return 0;
     }
 
     //
@@ -2030,13 +2049,8 @@ Freeze::EvictorIteratorI::hasNext()
 	
 	for(;;)
 	{
-	    if(_key.size() < _key.capacity())
-	    {
-		_key.resize(_key.capacity());
-	    }
-
 	    Dbt dbKey;
-	    initializeDbt(_key, dbKey);
+	    initializeOutDbt(_key, dbKey);
 
 	    try
 	    {
@@ -2067,7 +2081,7 @@ Freeze::EvictorIteratorI::hasNext()
 		    // Let's resize _key
 		    //
 		    _key.resize(dbKey.get_size());
-		    initializeDbt(_key, dbKey);
+		    initializeOutDbt(_key, dbKey);
 		}
 		else
 		{
