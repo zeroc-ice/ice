@@ -168,6 +168,12 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, co
     {
         Error out(_instance->logger());
         out << "PluginManager: exception in entry point `" << entryPoint << "': " << ex.ice_name();
+        throw;
+    }
+    catch (...)
+    {
+        Error out(_instance->logger());
+        out << "PluginManager: unknown exception in entry point `" << entryPoint << "'";
         SystemException e(__FILE__, __LINE__);
         e.error = 0;
         throw e;
