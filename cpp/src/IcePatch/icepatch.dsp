@@ -57,6 +57,7 @@ LINK32=link.exe
 # ADD LINK32 libeay32.lib ssleay32.lib libbz2.lib /nologo /dll /machine:I386 /out:"Release/icepatch001.dll" /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Release
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\icepatch001.* ..\..\lib
 # End Special Build Tool
@@ -89,6 +90,7 @@ LINK32=link.exe
 # ADD LINK32 libeay32.lib ssleay32.lib libbz2d.lib /nologo /dll /debug /machine:I386 /out:"Debug/icepatch001d.dll" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
+OutDir=.\Debug
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\icepatch001d.* ..\..\lib
 # End Special Build Tool
@@ -102,6 +104,10 @@ PostBuild_Cmds=copy $(OutDir)\icepatch001d.* ..\..\lib
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
+# Begin Source File
+
+SOURCE=.\ClientUtil.cpp
+# End Source File
 # Begin Source File
 
 SOURCE=.\FileDescFactory.cpp
@@ -118,6 +124,10 @@ SOURCE=.\Util.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=..\..\include\IcePatch\ClientUtil.h
+# End Source File
 # Begin Source File
 
 SOURCE=..\..\include\IcePatch\FileDescFactory.h

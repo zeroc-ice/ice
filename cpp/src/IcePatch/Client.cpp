@@ -221,8 +221,13 @@ IcePatch::Client::run(int argc, char* argv[])
 	_remove = properties->getPropertyAsInt("IcePatch.RemoveOrphaned") > 0;
 	if(_remove)
 	{
+#ifdef _WIN32
+	    char cwd[_MAX_PATH];
+	    _getcwd(cwd, _MAX_PATH);
+#else
 	    char cwd[PATH_MAX];
 	    getcwd(cwd, PATH_MAX);
+#endif
 	    cout << "WARNING: All orphaned files in `" << cwd << "' will be removed." << endl;
 	    cout << "Do you want to proceed? (yes/no)" << endl;
 	    string answer;

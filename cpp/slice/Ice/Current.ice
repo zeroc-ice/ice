@@ -33,7 +33,7 @@ local dictionary<string, string> Context;
  * signature (for C++), as well as the retry
  * behavior of the Ice run time for an operation
  * invocation in case of a (potentially) recoverable
- * error..
+ * error.
  *
  **/
 //
