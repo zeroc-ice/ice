@@ -65,6 +65,18 @@ IceInternal::UnknownEndpoint::timeout(Int) const
 }
 
 bool
+IceInternal::UnknownEndpoint::compress() const
+{
+    return false;
+}
+
+EndpointPtr
+IceInternal::UnknownEndpoint::compress(bool) const
+{
+    return const_cast<UnknownEndpoint*>(this);
+}
+
+bool
 IceInternal::UnknownEndpoint::datagram() const
 {
     return false;

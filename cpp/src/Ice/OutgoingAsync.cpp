@@ -48,7 +48,6 @@ IceInternal::OutgoingAsync::__setup(const ConnectionPtr& connection, const Refer
 				    const string& operation, OperationMode mode, const Context& context)
 {
     _connection = connection;
-    _compress = ref->compress;
     _instance = ref->instance;
     delete _is;
     delete _os;
@@ -80,7 +79,7 @@ IceInternal::OutgoingAsync::__setup(const ConnectionPtr& connection, const Refer
 void
 IceInternal::OutgoingAsync::__invoke()
 {
-    _connection->sendAsyncRequest(this, _compress);
+    _connection->sendAsyncRequest(this);
     if(_connection->timeout() >= 0)
     {
 	_absoluteTimeout = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_connection->timeout());

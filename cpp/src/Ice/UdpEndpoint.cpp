@@ -24,18 +24,20 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string& ho, Int po) :
+IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string& ho, Int po, bool co) :
     _instance(instance),
     _host(ho),
     _port(po),
-    _connect(false)
+    _connect(false),
+    _compress(co)
 {
 }
 
 IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string& str) :
     _instance(instance),
     _port(0),
-    _connect(false)
+    _connect(false),
+    _compress(false)
 {
     const string delim = " \t\n\r";
 
@@ -115,6 +117,18 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 		break;
 	    }
 
+	    case 'z':
+	    {
+		if(!argument.empty())
+		{
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
+		}
+		const_cast<bool&>(_compress) = true;
+		break;
+	    }
+
 	    default:
 	    {
 		EndpointParseException ex(__FILE__, __LINE__);
@@ -133,13 +147,15 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 IceInternal::UdpEndpoint::UdpEndpoint(BasicStream* s) :
     _instance(s->instance()),
     _port(0),
-    _connect(false)
+    _connect(false),
+    _compress(false)    
 {
     s->startReadEncaps();
     s->read(const_cast<string&>(_host));
     s->read(const_cast<Int&>(_port));
     // Not transmitted.
     //s->read(const_cast<bool&>(_connect));
+    s->read(const_cast<bool&>(_compress));
     s->endReadEncaps();
 }
 
@@ -152,6 +168,7 @@ IceInternal::UdpEndpoint::streamWrite(BasicStream* s) const
     s->write(_port);
     // Not transmitted.
     //s->write(_connect);
+    s->write(_compress);
     s->endWriteEncaps();
 }
 
@@ -163,6 +180,10 @@ IceInternal::UdpEndpoint::toString() const
     if(_connect)
     {
 	s << " -c";
+    }
+    if(_compress)
+    {
+	s << " -z";
     }
     return s.str();
 }
@@ -183,6 +204,25 @@ EndpointPtr
 IceInternal::UdpEndpoint::timeout(Int) const
 {
     return const_cast<UdpEndpoint*>(this);
+}
+
+bool
+IceInternal::UdpEndpoint::compress() const
+{
+    return _compress;
+}
+
+EndpointPtr
+IceInternal::UdpEndpoint::compress(bool compress) const
+{
+    if(compress == _compress)
+    {
+	return const_cast<UdpEndpoint*>(this);
+    }
+    else
+    {
+	return new UdpEndpoint(_instance, _host, _port, compress);
+    }
 }
 
 bool
@@ -213,7 +253,7 @@ TransceiverPtr
 IceInternal::UdpEndpoint::serverTransceiver(EndpointPtr& endp) const
 {
     UdpTransceiver* p = new UdpTransceiver(_instance, _host, _port, _connect);
-    endp = new UdpEndpoint(_instance, _host, p->effectivePort());
+    endp = new UdpEndpoint(_instance, _host, p->effectivePort(), _compress);
     return p;
 }
 
@@ -266,6 +306,11 @@ IceInternal::UdpEndpoint::operator==(const Endpoint& r) const
 	return false;
     }
 
+    if(_compress != p->_compress)
+    {
+	return false;
+    }
+
     if(_connect != p->_connect)
     {
 	return false;
@@ -311,6 +356,15 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
 	return true;
     }
     else if(p->_port < _port)
+    {
+	return false;
+    }
+
+    if(!_compress && p->_compress)
+    {
+	return true;
+    }
+    else if(p->_compress < _compress)
     {
 	return false;
     }

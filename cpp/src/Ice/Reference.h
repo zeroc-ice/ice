@@ -68,7 +68,6 @@ public:
     const Ice::FacetPath facet;
     const Mode mode;
     const bool secure;
-    const bool compress;
     const std::string adapterId;
     const std::vector<EndpointPtr> endpoints;
     const RouterInfoPtr routerInfo; // Null if no router is used.
@@ -96,7 +95,7 @@ public:
  
 private:
 
-    Reference(const InstancePtr&, const Ice::Identity&, const Ice::FacetPath&, Mode, bool, bool,
+    Reference(const InstancePtr&, const Ice::Identity&, const Ice::FacetPath&, Mode, bool,
 	      const std::string&, const std::vector<EndpointPtr>&,
 	      const RouterInfoPtr&, const LocatorInfoPtr&, const Ice::ObjectAdapterPtr&, bool);
     friend class ReferenceFactory;

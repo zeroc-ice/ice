@@ -132,6 +132,11 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	    {
 		*q = (*q)->timeout(defaultsAndOverrides->overrideTimeoutValue);
 	    }
+
+	    if(defaultsAndOverrides->overrideCompress)
+	    {
+		*q = (*q)->compress(defaultsAndOverrides->overrideCompressValue);
+	    }
 	}
 
 	//
@@ -334,9 +339,15 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	for(p = proxy->__reference()->endpoints.begin(); p != proxy->__reference()->endpoints.end(); ++p)
 	{
 	    EndpointPtr endpoint = *p;
+
 	    if(defaultsAndOverrides->overrideTimeout)
 	    {
 		endpoint = endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
+	    }
+
+	    if(defaultsAndOverrides->overrideCompress)
+	    {
+		endpoint = endpoint->compress(defaultsAndOverrides->overrideCompressValue);
 	    }
 
 	    pair<multimap<EndpointPtr, ConnectionPtr>::const_iterator,
@@ -645,9 +656,15 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     _state(StateHolding)
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
+
     if(defaultsAndOverrides->overrideTimeout)
     {
 	const_cast<EndpointPtr&>(_endpoint) = _endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
+    }
+
+    if(defaultsAndOverrides->overrideCompress)
+    {
+	const_cast<EndpointPtr&>(_endpoint) = _endpoint->compress(defaultsAndOverrides->overrideCompressValue);
     }
 
     const_cast<TransceiverPtr&>(_transceiver) = _endpoint->serverTransceiver(const_cast<EndpointPtr&>(_endpoint));

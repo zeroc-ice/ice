@@ -28,7 +28,6 @@
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/OutgoingAsyncF.h>
-#include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/EventHandler.h>
 
 namespace Ice
@@ -70,15 +69,15 @@ public:
     void decProxyCount();
 
     void prepareRequest(BasicStream*);
-    void sendRequest(Outgoing*, bool, bool);
-    void sendAsyncRequest(const OutgoingAsyncPtr&, bool);
+    void sendRequest(Outgoing*, bool);
+    void sendAsyncRequest(const OutgoingAsyncPtr&);
 
     void prepareBatchRequest(BasicStream*);
     void finishBatchRequest(BasicStream*);
     void abortBatchRequest();
-    void flushBatchRequest(bool);
+    void flushBatchRequest();
 
-    void sendResponse(BasicStream*, bool);
+    void sendResponse(BasicStream*);
     void sendNoResponse();
 
     int timeout() const;
@@ -139,7 +138,6 @@ private:
 
     const Ice::LoggerPtr _logger;
     const TraceLevelsPtr _traceLevels;
-    const DefaultsAndOverridesPtr _defaultsAndOverrides;
 
     bool _registeredWithPool;
 

@@ -923,7 +923,7 @@ IceDelegateM::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 void
 IceDelegateM::Ice::Object::ice_flush()
 {
-    __connection->flushBatchRequest(__reference->compress);
+    __connection->flushBatchRequest();
 }
 
 void
@@ -1289,7 +1289,22 @@ IceDelegateD::Ice::Object::setup(const ReferencePtr& ref, const ObjectAdapterPtr
 bool
 Ice::proxyIdentityLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    return lhs->ice_getIdentity() < rhs->ice_getIdentity();
+    if(!lhs && !rhs)
+    {
+	return false;
+    }
+    else if(!lhs && rhs)
+    {
+	return true;
+    }
+    else if(lhs && !rhs)
+    {
+	return false;
+    }
+    else
+    {
+	return lhs->ice_getIdentity() < rhs->ice_getIdentity();
+    }
 }
 
 bool
@@ -1301,31 +1316,46 @@ Ice::proxyIdentityEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
 bool
 Ice::proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
 {
-    Identity lhsIdentity = lhs->ice_getIdentity();
-    Identity rhsIdentity = rhs->ice_getIdentity();
-
-    if(lhsIdentity < rhsIdentity)
-    {
-	return true;
-    }
-    else if(rhsIdentity < lhsIdentity)
+    if(!lhs && !rhs)
     {
 	return false;
     }
-
-    FacetPath lhsFacet = lhs->ice_getFacet();
-    FacetPath rhsFacet = rhs->ice_getFacet();
-
-    if(lhsFacet < rhsFacet)
+    else if(!lhs && rhs)
     {
 	return true;
     }
-    else if(rhsFacet < lhsFacet)
+    else if(lhs && !rhs)
     {
 	return false;
     }
-    
-    return false;
+    else
+    {
+	Identity lhsIdentity = lhs->ice_getIdentity();
+	Identity rhsIdentity = rhs->ice_getIdentity();
+	
+	if(lhsIdentity < rhsIdentity)
+	{
+	    return true;
+	}
+	else if(rhsIdentity < lhsIdentity)
+	{
+	    return false;
+	}
+	
+	FacetPath lhsFacet = lhs->ice_getFacet();
+	FacetPath rhsFacet = rhs->ice_getFacet();
+	
+	if(lhsFacet < rhsFacet)
+	{
+	    return true;
+	}
+	else if(rhsFacet < lhsFacet)
+	{
+	    return false;
+	}
+	
+	return false;
+    }
 }
 
 bool

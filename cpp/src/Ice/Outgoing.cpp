@@ -108,7 +108,7 @@ IceInternal::Outgoing::invoke()
 	    {
 		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 		
-		_connection->sendRequest(this, false, _reference->compress);
+		_connection->sendRequest(this, false);
 		_state = StateInProgress;
 		
 		Int timeout = _connection->timeout();
@@ -175,7 +175,7 @@ IceInternal::Outgoing::invoke()
 	case Reference::ModeOneway:
 	case Reference::ModeDatagram:
 	{
-	    _connection->sendRequest(this, true, _reference->compress);
+	    _connection->sendRequest(this, true);
 	    _state = StateInProgress;
 	    break;
 	}

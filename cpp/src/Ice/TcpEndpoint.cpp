@@ -26,18 +26,20 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string& ho, Int po, Int ti) :
+IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string& ho, Int po, Int ti, bool co) :
     _instance(instance),
     _host(ho),
     _port(po),
-    _timeout(ti)
+    _timeout(ti),
+    _compress(co)
 {
 }
 
 IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string& str) :
     _instance(instance),
     _port(0),
-    _timeout(-1)
+    _timeout(-1),
+    _compress(false)
 {
     const string delim = " \t\n\r";
 
@@ -117,6 +119,18 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 		break;
 	    }
 
+	    case 'z':
+	    {
+		if(!argument.empty())
+		{
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "tcp " + str;
+		    throw ex;
+		}
+		const_cast<bool&>(_compress) = true;
+		break;
+	    }
+
 	    default:
 	    {
 		EndpointParseException ex(__FILE__, __LINE__);
@@ -135,12 +149,14 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 IceInternal::TcpEndpoint::TcpEndpoint(BasicStream* s) :
     _instance(s->instance()),
     _port(0),
-    _timeout(-1)
+    _timeout(-1),
+    _compress(false)
 {
     s->startReadEncaps();
     s->read(const_cast<string&>(_host));
     s->read(const_cast<Int&>(_port));
     s->read(const_cast<Int&>(_timeout));
+    s->read(const_cast<bool&>(_compress));
     s->endReadEncaps();
 }
 
@@ -152,6 +168,7 @@ IceInternal::TcpEndpoint::streamWrite(BasicStream* s) const
     s->write(_host);
     s->write(_port);
     s->write(_timeout);
+    s->write(_compress);
     s->endWriteEncaps();
 }
 
@@ -163,6 +180,10 @@ IceInternal::TcpEndpoint::toString() const
     if(_timeout != -1)
     {
 	s << " -t " << _timeout;
+    }
+    if(_compress)
+    {
+	s << " -z";
     }
     return s.str();
 }
@@ -188,7 +209,26 @@ IceInternal::TcpEndpoint::timeout(Int timeout) const
     }
     else
     {
-	return new TcpEndpoint(_instance, _host, _port, timeout);
+	return new TcpEndpoint(_instance, _host, _port, timeout, _compress);
+    }
+}
+
+bool
+IceInternal::TcpEndpoint::compress() const
+{
+    return _compress;
+}
+
+EndpointPtr
+IceInternal::TcpEndpoint::compress(bool compress) const
+{
+    if(compress == _compress)
+    {
+	return const_cast<TcpEndpoint*>(this);
+    }
+    else
+    {
+	return new TcpEndpoint(_instance, _host, _port, _timeout, compress);
     }
 }
 
@@ -233,7 +273,7 @@ AcceptorPtr
 IceInternal::TcpEndpoint::acceptor(EndpointPtr& endp) const
 {
     TcpAcceptor* p = new TcpAcceptor(_instance, _host, _port);
-    endp = new TcpEndpoint(_instance, _host, p->effectivePort(), _timeout);
+    endp = new TcpEndpoint(_instance, _host, p->effectivePort(), _timeout, _compress);
     return p;
 }
 
@@ -274,6 +314,11 @@ IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
     }
 
     if(_timeout != p->_timeout)
+    {
+	return false;
+    }
+
+    if(_compress != p->_compress)
     {
 	return false;
     }
@@ -327,6 +372,15 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
 	return true;
     }
     else if(p->_timeout < _timeout)
+    {
+	return false;
+    }
+
+    if(!_compress && p->_compress)
+    {
+	return true;
+    }
+    else if(p->_compress < _compress)
     {
 	return false;
     }

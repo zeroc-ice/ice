@@ -126,9 +126,9 @@ twoways(const Test::MyClassPrx& p)
 	Test::MyClassPrx r;
 	
 	r = p->opMyClass(p, c1, c2);
-	test(c1 == p);
-	test(c2 != p);
-	//test(r == p);
+	test(Ice::proxyIdentityAndFacetEqual(c1, p));
+	test(!Ice::proxyIdentityAndFacetEqual(c2, p));
+	test(Ice::proxyIdentityAndFacetEqual(r, p));
 	test(c1->ice_getIdentity() == Ice::stringToIdentity("test"));
 	test(c2->ice_getIdentity() == Ice::stringToIdentity("noSuchIdentity"));
 	test(r->ice_getIdentity() == Ice::stringToIdentity("test"));
@@ -146,7 +146,7 @@ twoways(const Test::MyClassPrx& p)
 	r = p->opMyClass(0, c1, c2);
 	test(c1 == 0);
 	test(c2 != 0);
-	test(r == p);
+	test(Ice::proxyIdentityAndFacetEqual(r, p));
 	r->opVoid();
 // TODO: For some reasons this test sometimes doesn't work on linux
 #ifdef _WIN32

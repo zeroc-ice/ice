@@ -21,21 +21,23 @@
 namespace IceInternal
 {
 
-const ::Ice::Short UdpEndpointType = 3;
+const Ice::Short UdpEndpointType = 3;
 
 class UdpEndpoint : public Endpoint
 {
 public:
 
-    UdpEndpoint(const InstancePtr&, const std::string&, ::Ice::Int);
+    UdpEndpoint(const InstancePtr&, const std::string&, Ice::Int, bool);
     UdpEndpoint(const InstancePtr&, const std::string&);
     UdpEndpoint(BasicStream*);
 
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
-    virtual ::Ice::Short type() const;
-    virtual ::Ice::Int timeout() const;
-    virtual EndpointPtr timeout(::Ice::Int) const;
+    virtual Ice::Short type() const;
+    virtual Ice::Int timeout() const;
+    virtual EndpointPtr timeout(Ice::Int) const;
+    virtual bool compress() const;
+    virtual EndpointPtr compress(bool) const;
     virtual bool datagram() const;
     virtual bool secure() const;
     virtual bool unknown() const;
@@ -57,8 +59,9 @@ private:
     //
     const InstancePtr _instance;
     const std::string _host;
-    const ::Ice::Int _port;
+    const Ice::Int _port;
     const bool _connect;
+    const bool _compress;
 };
 
 class UdpEndpointFactory : public EndpointFactory
@@ -67,8 +70,8 @@ public:
 
     virtual ~UdpEndpointFactory();
 
-    virtual ::Ice::Short type() const;
-    virtual ::std::string protocol() const;
+    virtual Ice::Short type() const;
+    virtual std::string protocol() const;
     virtual EndpointPtr create(const std::string&) const;
     virtual EndpointPtr read(BasicStream*) const;
     virtual void destroy();

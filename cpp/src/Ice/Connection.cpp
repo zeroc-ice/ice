@@ -17,7 +17,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 #include <Ice/TraceUtil.h>
-#include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Transceiver.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ConnectionMonitor.h>
@@ -300,7 +299,7 @@ IceInternal::Connection::prepareRequest(BasicStream* os)
 }
 
 void
-IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool compress)
+IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -332,16 +331,14 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool compress)
 	    copy(p, p + sizeof(Int), os->b.begin() + headerSize);
 	}
 
+	bool compress;
 	if(os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
 	{
 	    compress = false;
 	}
 	else
 	{
-	    if(_defaultsAndOverrides->overrideCompress)
-	    {
-		compress = _defaultsAndOverrides->overrideCompressValue;
-	    }
+	    compress = _endpoint->compress();
 	}
 
 	if(compress)
@@ -406,7 +403,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool compress)
 }
 
 void
-IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out, bool compress)
+IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -435,16 +432,14 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out, bool comp
 	p = reinterpret_cast<const Byte*>(&requestId);
 	copy(p, p + sizeof(Int), os->b.begin() + headerSize);
 
+	bool compress;
 	if(os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
 	{
 	    compress = false;
 	}
 	else
 	{
-	    if(_defaultsAndOverrides->overrideCompress)
-	    {
-		compress = _defaultsAndOverrides->overrideCompressValue;
-	    }
+	    compress = _endpoint->compress();
 	}
 
 	if(compress)
@@ -561,7 +556,7 @@ IceInternal::Connection::abortBatchRequest()
 }
 
 void
-IceInternal::Connection::flushBatchRequest(bool compress)
+IceInternal::Connection::flushBatchRequest()
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
@@ -587,16 +582,14 @@ IceInternal::Connection::flushBatchRequest(bool compress)
 	p = reinterpret_cast<const Byte*>(&_batchRequestNum);
 	copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
 
+	bool compress;
 	if(_batchStream.b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
 	{
 	    compress = false;
 	}
 	else
 	{
-	    if(_defaultsAndOverrides->overrideCompress)
-	    {
-		compress = _defaultsAndOverrides->overrideCompressValue;
-	    }
+	    compress = _endpoint->compress();
 	}
 
 	if(compress)
@@ -661,7 +654,7 @@ IceInternal::Connection::flushBatchRequest(bool compress)
 }
 
 void
-IceInternal::Connection::sendResponse(BasicStream* os, bool compress)
+IceInternal::Connection::sendResponse(BasicStream* os)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
@@ -677,16 +670,14 @@ IceInternal::Connection::sendResponse(BasicStream* os, bool compress)
 	    return;
 	}
 	
+	bool compress;
 	if(os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
 	{
 	    compress = false;
 	}
 	else
 	{
-	    if(_defaultsAndOverrides->overrideCompress)
-	    {
-		compress = _defaultsAndOverrides->overrideCompressValue;
-	    }
+	    compress = _endpoint->compress();
 	}
 	
 	if(compress)
@@ -853,7 +844,6 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 
     Int invoke = 0;
     Int requestId = 0;
-    bool compress = false;
 
     {
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -889,7 +879,6 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		BasicStream ustream(_instance.get());
 		doUncompress(stream, ustream);
 		stream.b.swap(ustream.b);
-		compress = true;
 	    }
 	    
 	    stream.i = stream.b.begin() + headerSize;
@@ -1138,7 +1127,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	// Prepare the invocation.
 	//
 	bool response = !_endpoint->datagram() && requestId != 0;
-	Incoming in(_instance.get(), this, _adapter, response, compress);
+	Incoming in(_instance.get(), this, _adapter, response);
 	BasicStream* is = in.is();
 	stream.swap(*is);
 	BasicStream* os = in.os();
@@ -1238,7 +1227,6 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _adapter(adapter),
     _logger(_instance->logger()), // Chached for better performance.
     _traceLevels(_instance->traceLevels()), // Chached for better performance.
-    _defaultsAndOverrides(_instance->defaultsAndOverrides()), // Chached for better performance.
     _registeredWithPool(false),
     _warn(false),
     _acmTimeout(0),

@@ -27,7 +27,7 @@ namespace IceInternal
 
 class BasicStream;
 
-class ICE_PROTOCOL_API Endpoint : public ::IceUtil::Shared
+class ICE_PROTOCOL_API Endpoint : public IceUtil::Shared
 {
 public:
 
@@ -44,20 +44,33 @@ public:
     //
     // Return the endpoint type.
     //
-    virtual ::Ice::Short type() const = 0;
+    virtual Ice::Short type() const = 0;
     
     //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
-    virtual ::Ice::Int timeout() const = 0;
+    virtual Ice::Int timeout() const = 0;
 
     //
     // Return a new endpoint with a different timeout value, provided
     // that timeouts are supported by the endpoint. Otherwise the same
     // endpoint is returned.
     //
-    virtual EndpointPtr timeout(::Ice::Int) const = 0;
+    virtual EndpointPtr timeout(Ice::Int) const = 0;
+
+    //
+    // Return true if the endpoints support bzip2 compress, or false
+    // otherwise.
+    //
+    virtual bool compress() const = 0;
+
+    //
+    // Return a new endpoint with a different compression value,
+    // provided that compression is supported by the
+    // endpoint. Otherwise the same endpoint is returned.
+    //
+    virtual EndpointPtr compress(bool) const = 0;
 
     //
     // Return true if the endpoint is datagram-based.

@@ -21,21 +21,23 @@
 namespace IceInternal
 {
 
-const ::Ice::Short TcpEndpointType = 1;
+const Ice::Short TcpEndpointType = 1;
 
 class TcpEndpoint : public Endpoint
 {
 public:
 
-    TcpEndpoint(const InstancePtr&, const std::string&, ::Ice::Int, ::Ice::Int);
+    TcpEndpoint(const InstancePtr&, const std::string&, Ice::Int, Ice::Int, bool);
     TcpEndpoint(const InstancePtr&, const std::string&);
     TcpEndpoint(BasicStream*);
 
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
-    virtual ::Ice::Short type() const;
-    virtual ::Ice::Int timeout() const;
-    virtual EndpointPtr timeout(::Ice::Int) const;
+    virtual Ice::Short type() const;
+    virtual Ice::Int timeout() const;
+    virtual EndpointPtr timeout(Ice::Int) const;
+    virtual bool compress() const;
+    virtual EndpointPtr compress(bool) const;
     virtual bool datagram() const;
     virtual bool secure() const;
     virtual bool unknown() const;
@@ -57,8 +59,9 @@ private:
     //
     const InstancePtr _instance;
     const std::string _host;
-    const ::Ice::Int _port;
-    const ::Ice::Int _timeout;
+    const Ice::Int _port;
+    const Ice::Int _timeout;
+    const bool _compress;
 };
 
 class TcpEndpointFactory : public EndpointFactory
@@ -67,8 +70,8 @@ public:
 
     virtual ~TcpEndpointFactory();
 
-    virtual ::Ice::Short type() const;
-    virtual ::std::string protocol() const;
+    virtual Ice::Short type() const;
+    virtual std::string protocol() const;
     virtual EndpointPtr create(const std::string&) const;
     virtual EndpointPtr read(BasicStream*) const;
     virtual void destroy();

@@ -59,7 +59,6 @@ private:
     void warning() const;
 
     ConnectionPtr _connection;
-    bool _compress;
 
     //
     // We need a separate InstancePtr, because _is and _os only hold a

@@ -35,7 +35,6 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const vector<string>& facet,
 				      Reference::Mode mode,
 				      bool secure,
-				      bool compress,
 				      const string& adapterId,
 				      const vector<EndpointPtr>& endpoints,
 				      const RouterInfoPtr& routerInfo,
@@ -58,7 +57,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    ReferencePtr ref = new Reference(_instance, ident, facet, mode, secure, compress, adapterId,
+    ReferencePtr ref = new Reference(_instance, ident, facet, mode, secure, adapterId,
 				     endpoints, routerInfo, locatorInfo, reverseAdapter, collocationOptimization);
 
     //
@@ -210,7 +209,6 @@ IceInternal::ReferenceFactory::create(const string& str)
     vector<string> facet;
     Reference::Mode mode = Reference::ModeTwoway;
     bool secure = false;
-    bool compress = false;
     string adapter;
 
     while(true)
@@ -422,18 +420,6 @@ IceInternal::ReferenceFactory::create(const string& str)
 		break;
 	    }
 
-	    case 'c':
-	    {
-		if(!argument.empty())
-		{
-		    ProxyParseException ex(__FILE__, __LINE__);
-		    ex.str = str;
-		    throw ex;
-		}
-		compress = true;
-		break;
-	    }
-
 	    default:
 	    {
 		ProxyParseException ex(__FILE__, __LINE__);
@@ -506,7 +492,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
     LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
-    return create(ident, facet, mode, secure, compress, adapter, endpoints, routerInfo, locatorInfo, 0, true);
+    return create(ident, facet, mode, secure, adapter, endpoints, routerInfo, locatorInfo, 0, true);
 }
 
 ReferencePtr
@@ -536,9 +522,6 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     bool secure;
     s->read(secure);
 
-    bool compress;
-    s->read(compress);
-
     vector<EndpointPtr> endpoints;
     string adapterId;
 
@@ -561,7 +544,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
     LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
-    return create(ident, facet, mode, secure, compress, adapterId, endpoints, routerInfo, locatorInfo, 0, true);
+    return create(ident, facet, mode, secure, adapterId, endpoints, routerInfo, locatorInfo, 0, true);
 }
 
 void

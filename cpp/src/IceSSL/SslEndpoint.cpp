@@ -26,18 +26,20 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& ho, Int po, Int ti) :
+IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& ho, Int po, Int ti, bool co) :
     _plugin(plugin),
     _host(ho),
     _port(po),
-    _timeout(ti)
+    _timeout(ti),
+    _compress(co)
 {
 }
 
 IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& str) :
     _plugin(plugin),
     _port(0),
-    _timeout(-1)
+    _timeout(-1),
+    _compress(false)
 {
     const string delim = " \t\n\r";
 
@@ -117,6 +119,18 @@ IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& 
 		break;
 	    }
 
+	    case 'z':
+	    {
+		if(!argument.empty())
+		{
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "ssl " + str;
+		    throw ex;
+		}
+		const_cast<bool&>(_compress) = true;
+		break;
+	    }
+
 	    default:
 	    {
 		EndpointParseException ex(__FILE__, __LINE__);
@@ -135,12 +149,14 @@ IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& 
 IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, BasicStream* s) :
     _plugin(plugin),
     _port(0),
-    _timeout(-1)
+    _timeout(-1),
+    _compress(false)
 {
     s->startReadEncaps();
     s->read(const_cast<string&>(_host));
     s->read(const_cast<Int&>(_port));
     s->read(const_cast<Int&>(_timeout));
+    s->read(const_cast<bool&>(_compress));
     s->endReadEncaps();
 }
 
@@ -152,6 +168,7 @@ IceSSL::SslEndpoint::streamWrite(BasicStream* s) const
     s->write(_host);
     s->write(_port);
     s->write(_timeout);
+    s->write(_compress);
     s->endWriteEncaps();
 }
 
@@ -163,6 +180,10 @@ IceSSL::SslEndpoint::toString() const
     if(_timeout != -1)
     {
 	s << " -t " << _timeout;
+    }
+    if(_compress)
+    {
+	s << " -z";
     }
     return s.str();
 }
@@ -188,7 +209,26 @@ IceSSL::SslEndpoint::timeout(Int timeout) const
     }
     else
     {
-	return new SslEndpoint(_plugin, _host, _port, timeout);
+	return new SslEndpoint(_plugin, _host, _port, timeout, _compress);
+    }
+}
+
+bool
+IceSSL::SslEndpoint::compress() const
+{
+    return _compress;
+}
+
+EndpointPtr
+IceSSL::SslEndpoint::compress(bool compress) const
+{
+    if(compress == _compress)
+    {
+	return const_cast<SslEndpoint*>(this);
+    }
+    else
+    {
+	return new SslEndpoint(_plugin, _host, _port, _timeout, compress);
     }
 }
 
@@ -233,7 +273,7 @@ AcceptorPtr
 IceSSL::SslEndpoint::acceptor(EndpointPtr& endp) const
 {
     SslAcceptor* p = new SslAcceptor(_plugin, _host, _port);
-    endp = new SslEndpoint(_plugin, _host, p->effectivePort(), _timeout);
+    endp = new SslEndpoint(_plugin, _host, p->effectivePort(), _timeout, _compress);
     return p;
 }
 
@@ -274,6 +314,11 @@ IceSSL::SslEndpoint::operator==(const Endpoint& r) const
     }
 
     if(_timeout != p->_timeout)
+    {
+	return false;
+    }
+
+    if(_compress != p->_compress)
     {
 	return false;
     }
@@ -327,6 +372,15 @@ IceSSL::SslEndpoint::operator<(const Endpoint& r) const
 	return true;
     }
     else if(p->_timeout < _timeout)
+    {
+	return false;
+    }
+
+    if(!_compress && p->_compress)
+    {
+	return true;
+    }
+    else if(p->_compress < _compress)
     {
 	return false;
     }

@@ -23,7 +23,6 @@ All Rights Reserved
 <arg>-d</arg>
 <arg>-D</arg>
 <arg>-s</arg>
-<arg>-c</arg>
 </group>
 <group>
 <arg choice=plain> @ <replaceable>adapter_id</replaceable></arg>
@@ -73,10 +72,6 @@ Proxy options configure the invocation mode:
 <row>
 <entry>-s</entry>
 <entry>Configures the proxy for secure invocations.</entry>
-</row>
-<row>
-<entry>-c</entry>
-<entry>Configures the proxy for protocol compression. (C++ only)</entry>
 </row>
 </tbody>
 </tgroup>
@@ -202,6 +197,7 @@ follow.
 <arg>-h <replaceable>host</replaceable></arg>
 <arg>-p <replaceable>port</replaceable></arg>
 <arg>-t <replaceable>timeout</replaceable></arg>
+<arg>-z</arg>
 </cmdsynopsis>
 </section>
 
@@ -248,6 +244,14 @@ occurs, the application receives <literal>Ice::TimeoutException</literal>.
 <entry>Determines the default timeout that is advertised in proxies
 created by the object adapter.</entry>
 </row>
+<row>
+<entry>-z</entry>
+<entry>Specifies bzip2 compression.</entry>
+<entry>Determines whether compressed requests are sent.</entry>
+<entry>Determines whether compressed responses are sent, as well as
+whether compression is advertised in proxies created by the
+adapter.</entry>
+</row>
 </tbody>
 </tgroup>
 </informaltable>
@@ -266,6 +270,7 @@ created by the object adapter.</entry>
 <arg>-h <replaceable>host</replaceable></arg>
 <arg>-p <replaceable>port</replaceable></arg>
 <arg>-c</arg>
+<arg>-z</arg>
 </cmdsynopsis>
 </section>
 
@@ -308,6 +313,13 @@ is not specified or <replaceable>port</replaceable> is zero.</entry>
 <entry>Causes the server to connect to the socket of the first peer
 that sends a datagram to this endpoint.</entry>
 </row>
+<row>
+<entry>-z</entry>
+<entry>Specifies bzip2 compression.</entry>
+<entry>Determines whether compressed requests are sent.</entry>
+<entry>Determines whether compression is advertised in proxies created
+by the adapter.</entry>
+</row>
 </tbody>
 </tgroup>
 </informaltable>
@@ -326,6 +338,7 @@ that sends a datagram to this endpoint.</entry>
 <arg>-h <replaceable>host</replaceable></arg>
 <arg>-p <replaceable>port</replaceable></arg>
 <arg>-t <replaceable>timeout</replaceable></arg>
+<arg>-z</arg>
 </cmdsynopsis>
 </section>
 
@@ -371,6 +384,14 @@ occurs, the application receives <literal>Ice::TimeoutException</literal>.
 </entry>
 <entry>Determines the default timeout that is advertised in proxies
 created by the object adapter.</entry>
+</row>
+<row>
+<entry>-z</entry>
+<entry>Specifies bzip2 compression.</entry>
+<entry>Determines whether compressed requests are sent.</entry>
+<entry>Determines whether compressed responses are sent, as well as
+whether compression is advertised in proxies created by the
+adapter.</entry>
 </row>
 </tbody>
 </tgroup>
