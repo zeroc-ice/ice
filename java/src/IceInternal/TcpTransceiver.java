@@ -66,11 +66,9 @@ final class TcpTransceiver implements Transceiver
     public void
     write(BasicStream stream, int timeout)
     {
-	// TODO: Timeouts are ignored!!
-
         java.nio.ByteBuffer buf = stream.prepareWrite();
 
-	java.nio.channels.Selector selector = null; // TODO: Very inefficient!!
+	java.nio.channels.Selector selector = null;
 
 	try
 	{
@@ -166,7 +164,7 @@ final class TcpTransceiver implements Transceiver
             remaining = buf.remaining();
         }
 
-	java.nio.channels.Selector selector = null; // TODO: Very inefficient!!
+	java.nio.channels.Selector selector = null;
 
 	try
 	{

@@ -60,7 +60,7 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
     {
 	if(_communicator != null)
 	{
-	    java.util.Iterator i = _plugins.entrySet().iterator();
+	    java.util.Iterator i = _plugins.values().iterator();
 	    while(i.hasNext())
 	    {
 		Plugin p = (Plugin)i.next();
@@ -77,7 +77,7 @@ public final class PluginManagerI extends LocalObjectImpl implements PluginManag
         _communicator = communicator;
     }
 
-    private void
+    public void
     loadPlugins(StringSeqHolder cmdArgs)
     {
 	assert(_communicator != null);

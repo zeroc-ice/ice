@@ -1,6 +1,13 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Fixed a bug with connections being closed even though they have
+  outstanding batch requests.
+
+- The "unknown" field in UnknownLocalException and UnknownException
+  now contains the whole exception stack trace instead of just the
+  exception name.
+
 - Replaced the Freeze::EvictorPersistenceMode enumeration with the
   interface Freeze::PersistenceStrategy.
 
@@ -9,15 +16,16 @@ Changes since version 1.0.1
   connection, and continues.
 
 - Added dynamic thread pools, i.e., thread pools that grow and shrink
-  based on a calculated load factor. Please see the section about
-  thread pools in the manual for further details.
+  based on a calculated load factor. Please see the section about thread
+  pools in the manual for further details.
 
 - Structs and sequences which hold other structs or sequences are now
-  legal dictionary key types, as long as such nested structs or
-  sequences are (recursively) legal.
+  legal dictionary key types, as long as such nested structs or sequences
+  are (recursively) legal.
 
 - The connection timeout is now also used when connections are
-  closed. This avoid hanging processes if the peer misbehaves.
+  closed. This avoids hanging processes if the peer misbehaves, or if
+  asynchronous method invocations do not return.
 
 - In some cases, communicator destruction could result in a
   java.lang.NullPointerException. This has been fixed. Now a

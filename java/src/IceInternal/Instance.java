@@ -351,8 +351,8 @@ public class Instance
         //
         // Load plug-ins.
         //
-        //pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
-        //pluginManagerImpl.loadPlugins(args);
+	Ice.PluginManagerI pluginManagerImpl = (Ice.PluginManagerI)_pluginManager;
+        pluginManagerImpl.loadPlugins(args);
 
 	//
 	// Get default router and locator proxies. Don't move this

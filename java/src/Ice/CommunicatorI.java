@@ -209,10 +209,11 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
     public synchronized void
     setLogger(Logger logger)
     {
-        if(_destroyed)
-        {
-            throw new CommunicatorDestroyedException();
-        }
+	//
+	// No check for destruction. It must be possible to set the
+	// logger after destruction (needed by logger plugins for
+	// example to unset the logger).
+	//
         _instance.logger(logger);
     }
 

@@ -94,6 +94,7 @@ public final class Connection extends EventHandler
 		    if(System.currentTimeMillis() >= absoluteTimeoutMillis)
 		    {
 			setState(StateClosed, new Ice.CloseTimeoutException());
+			assert(_dispatchCount == 0);
 			// No return here, we must still wait until _transceiver becomes null.
 		    }
 		}
@@ -136,10 +137,7 @@ public final class Connection extends EventHandler
 	//
 	// Active connection management for idle connections.
 	//
-	if(_acmTimeout > 0 &&
-	   _requests.isEmpty() && _asyncRequests.isEmpty() &&
-	   !_batchStreamInUse && _batchStream.isEmpty() &&
-	   _dispatchCount == 0)
+	if(_acmTimeout > 0 && closeOK())
 	{
 	    if(System.currentTimeMillis() >= _acmAbsoluteTimeoutMillis)
 	    {
@@ -322,15 +320,8 @@ public final class Connection extends EventHandler
 	assert(_proxyCount > 0);
 	--_proxyCount;
 
-	//
-	// We close the connection if
-	// - no proxy uses this connection anymore; and
-	// - there are not outstanding asynchronous requests; and
-	// - this is an outgoing connection only.
-	//
-	if(_proxyCount == 0 && _asyncRequests.isEmpty() && _adapter == null)
+	if(_proxyCount == 0 && _adapter == null && closeOK())
 	{
-	    assert(_requests.isEmpty());
 	    setState(StateClosing, new Ice.CloseConnectionException());
 	}
     }
@@ -573,54 +564,57 @@ public final class Connection extends EventHandler
 	    }
 	}
 
-	if(_batchStream.isEmpty())
-	{
-	    return; // Nothing to send.
-	}
-	    
 	if(_exception != null)
 	{
 	    throw _exception;
 	}
 	assert(_state > StateNotValidated && _state < StateClosing);
 	
-	try
+	if(!_batchStream.isEmpty())
 	{
-	    _batchStream.pos(10);
+	    try
+	    {
+		_batchStream.pos(10);
+		
+		//
+		// Fill in the message size.
+		//
+		_batchStream.writeInt(_batchStream.size());
+		
+		//
+		// Fill in the number of requests in the batch.
+		//
+		_batchStream.writeInt(_batchRequestNum);
+		
+		//
+		// Send the batch request.
+		//
+		TraceUtil.traceBatchRequest("sending batch request", _batchStream, _logger, _traceLevels);
+		_transceiver.write(_batchStream, _endpoint.timeout());
+		
+		//
+		// Reset _batchStream so that new batch messages can be sent.
+		//
+		_batchStream.destroy();
+		_batchStream = new BasicStream(_instance);
+		_batchRequestNum = 0;
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		setState(StateClosed, ex);
+		assert(_exception != null);
+		throw _exception;
+	    }
 	    
-	    //
-	    // Fill in the message size.
-	    //
-	    _batchStream.writeInt(_batchStream.size());
-
-	    //
-	    // Fill in the number of requests in the batch.
-	    //
-	    _batchStream.writeInt(_batchRequestNum);
-	    
-	    //
-	    // Send the batch request.
-	    //
-	    TraceUtil.traceBatchRequest("sending batch request", _batchStream, _logger, _traceLevels);
-	    _transceiver.write(_batchStream, _endpoint.timeout());
-	    
-	    //
-	    // Reset _batchStream so that new batch messages can be sent.
-	    //
-	    _batchStream.destroy();
-	    _batchStream = new BasicStream(_instance);
-	    _batchRequestNum = 0;
+	    if(_acmTimeout > 0)
+	    {
+		_acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+	    }
 	}
-	catch(Ice.LocalException ex)
-	{
-	    setState(StateClosed, ex);
-	    assert(_exception != null);
-	    throw _exception;
-	}
 
-	if(_acmTimeout > 0)
+	if(_proxyCount == 0 && _adapter == null && closeOK())
 	{
-	    _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+	    setState(StateClosing, new Ice.CloseConnectionException());
 	}
     }
 
@@ -629,16 +623,17 @@ public final class Connection extends EventHandler
     {
 	try
 	{
+	    if(_state == StateClosed)
+	    {
+		assert(_dispatchCount == 0);
+		return;
+	    }
+
 	    if(--_dispatchCount == 0)
 	    {
 		notifyAll();
 	    }
 
-	    if(_state == StateClosed)
-	    {
-		return;
-	    }
-	    
 	    //
 	    // Fill in the message size.
 	    //
@@ -673,6 +668,12 @@ public final class Connection extends EventHandler
     {
 	try
 	{
+	    if(_state == StateClosed)
+	    {
+		assert(_dispatchCount == 0);
+		return;
+	    }
+
 	    if(--_dispatchCount == 0)
 	    {
 		notifyAll();
@@ -921,15 +922,8 @@ public final class Connection extends EventHandler
 				throw new Ice.UnknownRequestIdException();
 			    }
 
-			    //
-			    // We close the connection if
-			    // - no proxy uses this connection anymore; and
-			    // - there are not outstanding asynchronous requests; and
-			    // - this is an outgoing connection only.
-			    //
-			    if(_proxyCount == 0 && _asyncRequests.isEmpty() && _adapter == null)
+			    if(_proxyCount == 0 && _adapter == null && closeOK())
 			    {
-				assert(_requests.isEmpty());
 				setState(StateClosing, new Ice.CloseConnectionException());
 			    }
                         }
@@ -1272,6 +1266,12 @@ public final class Connection extends EventHandler
             case StateClosed:
             {
 		//
+		// If we do a hard close, all outstanding requests are
+		// disregarded.
+		//
+		_dispatchCount = 0;
+
+		//
 		// If we change from not validated, we can close right
 		// away. Otherwise we first must make sure that we are
 		// registered, then we unregister, and let finished()
@@ -1455,6 +1455,17 @@ public final class Connection extends EventHandler
             in.__destroy();
             in = in.next;
         }
+    }
+
+    private boolean
+    closeOK()
+    {
+	return
+	    _requests.isEmpty() &&
+	    _asyncRequests.isEmpty() &&
+	    !_batchStreamInUse &&
+	    _batchStream.isEmpty() &&
+	    _dispatchCount == 0;
     }
 
     private Transceiver _transceiver;
