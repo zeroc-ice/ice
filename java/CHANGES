@@ -1,6 +1,10 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Added dynamic thread pools, i.e., thread pools that grow and shrink
+  based on a calculated load factory. Please see the section about
+  thread pools in the manual for further details.
+
 - Structs and sequences which hold other structs or sequences are now
   legal dictionary key types, as long as such nested structs or
   sequences are (recursively) legal.

@@ -291,25 +291,6 @@ in undefined behavior. The default value is no router. </para></note>
 </section>
 </section>
 
-<section><title><replaceable>name</replaceable>.ThreadPool.Size</title>
-<section><title>Synopsis</title>
-<synopsis>
-<replaceable>name</replaceable>.ThreadPool.Size=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-the object adapter creates its own, private thread pool with
-<replaceable>num</replaceable> threads for dispatching requests. This
-is useful to ensure that a minimum number of threads is available for
-dispatching requests on certain &Ice; objects, in order to avoid
-deadlocks because of thread starvation.
-</para>
-</section>
-</section>
-
 <section><title>Ice.PrintAdapterReady</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -372,25 +353,81 @@ In Java, <replaceable>entry_point</replaceable> is the name of a class.
 <section><title>&Ice; Thread Pool Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>Ice.ThreadPool.Client.Size, Ice.ThreadPool.Server.Size</title>
+<section><title><replaceable>name</replaceable>.Size</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.ThreadPool.Client.Size=<replaceable>num</replaceable>
-Ice.ThreadPool.Server.Size=<replaceable>num</replaceable>
+<replaceable>name</replaceable>.Size=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The number of threads in the client and server thread pools. Default
-is one thread for the client thread pool, and 10 threads for the
-server thread pool. The number of threads in each pool must be larger
-than zero. <note><para>Multiple threads for the client side thread
-pool are only required for nested AMI invocations. If AMI is not used, or
-AMI calls are not nested (i.e., AMI callbacks do not call any other
-methods on Ice objects), then there is no need to set the number of
-threads in the client thread pool to a value larger than
-one. </para></note>
+<replaceable>name</replaceable> is the name of the thread pool. The
+name of the client-side thread pool is
+<literal>Ice.ThreadPool.Client</literal>, the name of the default
+server-side thread pool is
+<literal>Ice.ThreadPool.Server</literal>. In addition, individual
+object adapters can have separate thread pools. In this case, the name
+of the thread pool is
+<replaceable>adapter_name</replaceable><literal>.ThreadPool</literal>.
+Having a separate thread pool for an object adapter is useful to
+ensure that a minimum number of threads is available for dispatching
+requests on certain &Ice; objects, in order to avoid deadlocks because
+of thread starvation.
+</para>
+<para>
+<replaceable>num</replaceable> is the initial and also minimum number
+of threads in the thread pool. The default is one thread for
+<literal>Ice.ThreadPool.Client</literal>, five threads for
+<literal>Ice.ThreadPool.Server</literal>, and zero threads for object
+adapter thread pools, meaning that by default, object adapters use the
+default server-side thread pool.  <note><para>Multiple threads for the
+client side thread pool are only required for nested AMI
+invocations. If AMI is not used, or AMI calls are not nested (i.e.,
+AMI callbacks do not call any other methods on Ice objects), then
+there is no need to set the number of threads in the client thread
+pool to a value larger than one. </para></note>
+</para>
+</section>
+</section>
+
+<section><title><replaceable>name</replaceable>.SizeMax</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.SizeMax=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+<replaceable>num</replaceable> is the maximum number of threads for the
+thread pool <replaceable>name</replaceable>. Thread pools in Ice grow
+and shrink dynamically, based on an average load factor. Thread
+pools do not grow larger than the parameter specified by
+<literal>SizeMax</literal>, and they won't shrink to a number of
+threads smaller than the value specified by <literal>Size</literal>.
+</para>
+<para>
+The default value for for <literal>SizeMax</literal> is one for the
+client-side thread pool. For all other thread pools, it is 10 times
+the value of <literal>Size</literal>.
+</para>
+</section>
+</section>
+
+<section><title><replaceable>name</replaceable>.SizeWarn</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.SizeWarn=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Whenever <replaceable>num</replaceable> threads are active in a thread
+pool, a "low on threads" warning is printed. The default value for for
+<literal>SizeWarn</literal> is 80% of the value specified by
+<literal>SizeMax</literal>.
 </para>
 </section>
 </section>
