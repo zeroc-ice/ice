@@ -12,21 +12,21 @@ package IceInternal;
 
 public final class ThreadPool
 {
-    private final static boolean DEBUG_REGISTRATION = false;
-    private final static boolean DEBUG_INTERRUPT = false;
-    private final static boolean DEBUG_SHUTDOWN = false;
-    private final static boolean DEBUG_SELECT = false;
-    private final static boolean DEBUG_EXCEPTION = false;
-    private final static boolean DEBUG_THREAD = false;
-    private final static boolean DEBUG_STACK_TRACE = false;
+    private final static boolean TRACE_REGISTRATION = false;
+    private final static boolean TRACE_INTERRUPT = false;
+    private final static boolean TRACE_SHUTDOWN = false;
+    private final static boolean TRACE_SELECT = false;
+    private final static boolean TRACE_EXCEPTION = false;
+    private final static boolean TRACE_THREAD = false;
+    private final static boolean TRACE_STACK_TRACE = false;
 
     public synchronized void
     _register(java.nio.channels.SelectableChannel fd, EventHandler handler)
     {
-        if (DEBUG_REGISTRATION)
+        if (TRACE_REGISTRATION)
         {
-            System.err.println("ThreadPool - adding handler of type " + handler.getClass().getName() +
-                               " for channel " + fd + ", handler count = " + (_handlers + 1));
+            trace("adding handler of type " + handler.getClass().getName() + " for channel " + fd +
+                  ", handler count = " + (_handlers + 1));
         }
 
         ++_handlers;
@@ -37,9 +37,27 @@ public final class ThreadPool
     public synchronized void
     unregister(java.nio.channels.SelectableChannel fd)
     {
-        if (DEBUG_REGISTRATION)
+        if (TRACE_REGISTRATION)
         {
-            System.err.println("ThreadPool - removing handler for channel " + fd);
+            if (TRACE_STACK_TRACE)
+            {
+                java.io.StringWriter sw = new java.io.StringWriter();
+                try
+                {
+                    throw new RuntimeException();
+                }
+                catch (RuntimeException ex)
+                {
+                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                    ex.printStackTrace(pw);
+                    pw.flush();
+                }
+                trace("removing handler for channel " + fd + "\n" + sw.toString());
+            }
+            else
+            {
+                trace("removing handler for channel " + fd);
+            }
         }
 
         _changes.add(new FdHandlerPair(fd, null));
@@ -58,9 +76,9 @@ public final class ThreadPool
     public void
     initiateShutdown()
     {
-        if (DEBUG_SHUTDOWN)
+        if (TRACE_SHUTDOWN)
         {
-            System.err.println("ThreadPool - initiate server shutdown");
+            trace("initiate server shutdown");
         }
 
         setInterrupt(1);
@@ -69,9 +87,9 @@ public final class ThreadPool
     public synchronized void
     waitUntilFinished()
     {
-        if (DEBUG_SHUTDOWN)
+        if (TRACE_SHUTDOWN)
         {
-            System.err.println("ThreadPool - waiting until finished...");
+            trace("waiting until finished...");
         }
 
         while (_handlers != 0 && _threadNum != 0)
@@ -87,7 +105,7 @@ public final class ThreadPool
 
         if (_handlers != 0)
         {
-            _instance.logger().error("can't wait for graceful server termination in thread pool\n" +
+            _instance.logger().error("can't wait for graceful application termination in thread pool\n" +
                                      "since all threads have vanished");
         }
         else
@@ -95,9 +113,9 @@ public final class ThreadPool
             assert(_handlerMap.isEmpty());
         }
 
-        if (DEBUG_SHUTDOWN)
+        if (TRACE_SHUTDOWN)
         {
-            System.err.println("ThreadPool - finished.");
+            trace("finished.");
         }
     }
 
@@ -129,13 +147,14 @@ public final class ThreadPool
     //
     // Only for use by Instance
     //
-    ThreadPool(Instance instance, boolean server)
+    ThreadPool(Instance instance, boolean server, String name)
     {
         _instance = instance;
         _destroyed = false;
         _handlers = 0;
         _timeout = 0;
         _multipleThreads = false;
+        _name = name;
 
         Network.SocketPair pair = Network.createPipe();
         _fdIntrRead = (java.nio.channels.ReadableByteChannel)pair.source;
@@ -186,7 +205,7 @@ public final class ThreadPool
             _threads = new EventHandlerThread[_threadNum];
             for (int i = 0; i < _threadNum; i++)
             {
-                _threads[i] = new EventHandlerThread();
+                _threads[i] = new EventHandlerThread(_name + "-" + i);
                 _threads[i].start();
             }
         }
@@ -250,9 +269,9 @@ public final class ThreadPool
     synchronized void
     destroy()
     {
-        if (DEBUG_SHUTDOWN)
+        if (TRACE_SHUTDOWN)
         {
-            System.err.println("ThreadPool - destroy");
+            trace("destroy");
         }
 
         assert(!_destroyed);
@@ -263,10 +282,10 @@ public final class ThreadPool
     private boolean
     clearInterrupt()
     {
-        if (DEBUG_INTERRUPT)
+        if (TRACE_INTERRUPT)
         {
-            System.err.println("ThreadPool - clearInterrupt");
-            if (DEBUG_STACK_TRACE)
+            trace("clearInterrupt");
+            if (TRACE_STACK_TRACE)
             {
                 try
                 {
@@ -292,9 +311,9 @@ public final class ThreadPool
                     break;
                 }
 
-                if (DEBUG_INTERRUPT)
+                if (TRACE_INTERRUPT)
                 {
-                    System.err.println("  - got byte " + (int)buf.get(0));
+                    trace("clearInterrupt got byte " + (int)buf.get(0));
                 }
 
                 b = buf.get(0);
@@ -314,10 +333,10 @@ public final class ThreadPool
     private void
     setInterrupt(int b)
     {
-        if (DEBUG_INTERRUPT)
+        if (TRACE_INTERRUPT)
         {
-            System.err.println("ThreadPool - setInterrupt(" + b + ")");
-            if (DEBUG_STACK_TRACE)
+            trace("setInterrupt(" + b + ")");
+            if (TRACE_STACK_TRACE)
             {
                 try
                 {
@@ -362,9 +381,9 @@ public final class ThreadPool
             {
                 _threadMutex.lock();
 
-                if (DEBUG_THREAD)
+                if (TRACE_THREAD)
                 {
-                    System.err.println("ThreadPool - thread " + Thread.currentThread() + " has the lock");
+                    trace("thread " + Thread.currentThread() + " has the lock");
                 }
             }
 
@@ -374,9 +393,9 @@ public final class ThreadPool
             {
                 if (shutdown) // Shutdown has been initiated.
                 {
-                    if (DEBUG_SHUTDOWN)
+                    if (TRACE_SHUTDOWN)
                     {
-                        System.err.println("ThreadPool - shutdown detected");
+                        trace("shutdown detected");
                     }
 
                     shutdown = false;
@@ -387,15 +406,15 @@ public final class ThreadPool
                     }
                 }
 
-                if (DEBUG_REGISTRATION)
+                if (TRACE_REGISTRATION)
                 {
                     java.util.Set keys = _selector.keys();
-                    System.err.println("ThreadPool - selecting on " + keys.size() + " channels:");
+                    trace("selecting on " + keys.size() + " channels:");
                     java.util.Iterator i = keys.iterator();
                     while (i.hasNext())
                     {
                         java.nio.channels.SelectionKey key = (java.nio.channels.SelectionKey)i.next();
-                        System.err.println("  " + key.channel());
+                        trace("  " + key.channel());
                     }
                 }
 
@@ -428,20 +447,13 @@ public final class ThreadPool
                     int ret = select();
                     if (ret == 0) // Timeout.
                     {
-                        if (DEBUG_SELECT)
+                        if (TRACE_SELECT)
                         {
-                            System.err.println("ThreadPool - timeout");
+                            trace("timeout");
                         }
 
                         _timeout = 0;
                         shutdown = true;
-                    }
-                }
-                else
-                {
-                    if (DEBUG_SELECT)
-                    {
-                        System.err.println("ThreadPool - still have selected keys");
                     }
                 }
 
@@ -452,9 +464,9 @@ public final class ThreadPool
                 {
                     if (_keys.contains(_fdIntrReadKey) && _fdIntrReadKey.isReadable())
                     {
-                        if (DEBUG_SELECT || DEBUG_INTERRUPT)
+                        if (TRACE_SELECT || TRACE_INTERRUPT)
                         {
-                            System.err.println("ThreadPool - detected interrupt");
+                            trace("detected interrupt");
                         }
 
                         //
@@ -472,9 +484,9 @@ public final class ThreadPool
                         //
                         if (_destroyed)
                         {
-                            if (DEBUG_SHUTDOWN)
+                            if (TRACE_SHUTDOWN)
                             {
-                                System.err.println("ThreadPool - destroyed, thread id = " + Thread.currentThread());
+                                trace("destroyed, thread id = " + Thread.currentThread());
                             }
 
                             //
@@ -529,10 +541,10 @@ public final class ThreadPool
                             }
                             _handlerMap.put(change.fd, new HandlerKeyPair(change.handler, key));
 
-                            if (DEBUG_REGISTRATION)
+                            if (TRACE_REGISTRATION)
                             {
-                                System.err.println("ThreadPool - added handler (" +
-                                                   change.handler.getClass().getName() + ") for fd " + change.fd);
+                                trace("added handler (" + change.handler.getClass().getName() + ") for fd " +
+                                      change.fd);
                             }
 
                             continue repeatSelect;
@@ -545,10 +557,9 @@ public final class ThreadPool
                             finished = true;
                             pair.key.cancel();
 
-                            if (DEBUG_REGISTRATION)
+                            if (TRACE_REGISTRATION)
                             {
-                                System.err.println("ThreadPool - removed handler (" + handler.getClass().getName() +
-                                                   ") for fd " + change.fd);
+                                trace("removed handler (" + handler.getClass().getName() + ") for fd " + change.fd);
                             }
 
                             // Don't goto repeatSelect; we have to call
@@ -569,9 +580,9 @@ public final class ThreadPool
                             iter.remove();
                             if (k.isValid() && key != _fdIntrReadKey)
                             {
-                                if (DEBUG_SELECT)
+                                if (TRACE_SELECT)
                                 {
-                                    System.err.println("ThreadPool - found a key");
+                                    trace("found a key: " + keyToString(k));
                                 }
 
                                 key = k;
@@ -581,9 +592,9 @@ public final class ThreadPool
 
                         if (key == null)
                         {
-                            if (DEBUG_SELECT)
+                            if (TRACE_SELECT)
                             {
-                                System.err.println("ThreadPool - didn't find a valid key");
+                                trace("didn't find a valid key");
                             }
 
                             continue repeatSelect;
@@ -629,9 +640,9 @@ public final class ThreadPool
                             {
                                 if (!read(handler)) // No data available.
                                 {
-                                    if (DEBUG_SELECT)
+                                    if (TRACE_SELECT)
                                     {
-                                        System.err.println("ThreadPool - no input");
+                                        trace("no input");
                                     }
 
                                     continue repeatSelect;
@@ -643,10 +654,10 @@ public final class ThreadPool
                             }
                             catch (Ice.LocalException ex)
                             {
-                                if (DEBUG_EXCEPTION)
+                                if (TRACE_EXCEPTION)
                                 {
-                                    System.err.println("ThreadPool - informing handler (" +
-                                                       handler.getClass().getName() + ") about exception " + ex);
+                                    trace("informing handler (" + handler.getClass().getName() +
+                                          ") about exception " + ex);
                                     ex.printStackTrace();
                                 }
 
@@ -747,13 +758,28 @@ public final class ThreadPool
         {
             try
             {
-                if (DEBUG_SELECT)
+                if (TRACE_SELECT)
                 {
-                    System.err.println("ThreadPool - non-blocking select on " + _selector.keys().size() +
-                                       " keys, thread id = " + Thread.currentThread());
+                    trace("non-blocking select on " + _selector.keys().size() + " keys, thread id = " +
+                          Thread.currentThread());
                 }
 
                 _selector.selectNow();
+
+                if (TRACE_SELECT)
+                {
+                    if (_keys.size() > 0)
+                    {
+                        trace("after selectNow, there are " + _keys.size() + " selected keys:");
+                        java.util.Iterator i = _keys.iterator();
+                        while (i.hasNext())
+                        {
+                            java.nio.channels.SelectionKey key = (java.nio.channels.SelectionKey)i.next();
+                            trace("  " + keyToString(key));
+                        }
+                    }
+                }
+
                 break;
             }
             catch (java.io.InterruptedIOException ex)
@@ -799,10 +825,9 @@ public final class ThreadPool
         {
             try
             {
-                if (DEBUG_SELECT)
+                if (TRACE_SELECT)
                 {
-                    System.err.println("ThreadPool - select on " + _selector.keys().size() +
-                                       " keys, thread id = " + Thread.currentThread());
+                    trace("select on " + _selector.keys().size() + " keys, thread id = " + Thread.currentThread());
                 }
 
                 if (_timeout > 0 && nextTimeout == 0)
@@ -834,9 +859,9 @@ public final class ThreadPool
                 throw se;
             }
 
-            if (DEBUG_SELECT)
+            if (TRACE_SELECT)
             {
-                System.err.println("ThreadPool - select() returned " + ret + ", _keys.size() = " + _keys.size());
+                trace("select() returned " + ret + ", _keys.size() = " + _keys.size());
             }
 
             if (ret == 0) // Potential timeout.
@@ -850,9 +875,9 @@ public final class ThreadPool
                     }
                     timeoutMillis -= (nextTimeout - now);
 
-                    if (DEBUG_SELECT)
+                    if (TRACE_SELECT)
                     {
-                        System.err.println("ThreadPool - timeout workaround");
+                        trace("timeout workaround");
                     }
                 }
 
@@ -863,6 +888,36 @@ public final class ThreadPool
         }
 
         return ret;
+    }
+
+    private void
+    trace(String msg)
+    {
+        System.err.println(_name + ": " + msg);
+    }
+
+    private String
+    keyToString(java.nio.channels.SelectionKey key)
+    {
+        String ops = "[";
+        if (key.isAcceptable())
+        {
+            ops += " OP_ACCEPT";
+        }
+        if (key.isReadable())
+        {
+            ops += " OP_READ";
+        }
+        if (key.isConnectable())
+        {
+            ops += " OP_CONNECT";
+        }
+        if (key.isWritable())
+        {
+            ops += " OP_WRITE";
+        }
+        ops += " ]";
+        return key.channel() + " " + ops;
     }
 
     private static final class FdHandlerPair
@@ -903,9 +958,15 @@ public final class ThreadPool
     private int _timeoutMillis;
     private RecursiveMutex _threadMutex = new RecursiveMutex();
     private boolean _multipleThreads;
+    private String _name;
 
     private final class EventHandlerThread extends Thread
     {
+        EventHandlerThread(String name)
+        {
+            super(name);
+        }
+
         public void
         run()
         {
@@ -930,7 +991,7 @@ public final class ThreadPool
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                 ex.printStackTrace(pw);
                 pw.flush();
-                String s = "unknown exception in thread pool:\n" + sw.toString();
+                String s = "unknown exception in thread pool thread " + getName() + ":\n" + sw.toString();
                 _instance.logger().error(s);
             }
 
@@ -953,9 +1014,9 @@ public final class ThreadPool
                 }
             }
 
-            if (DEBUG_THREAD)
+            if (TRACE_THREAD)
             {
-                System.err.println("ThreadPool - run() terminated - promoting follower");
+                trace("run() terminated - promoting follower");
             }
 
             promoteFollower();
