@@ -200,8 +200,13 @@ local interface DBCursor
      * @return Returns true if the cursor has more elements, false
      * otherwise.
      *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
      **/
-    bool hasNext();
+    bool hasNext() throws DBException;
 
     /**
      *
@@ -212,6 +217,11 @@ local interface DBCursor
      *
      * @throws DBNotFoundException If there are no further elements in
      * the database.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
      *
      **/
     void next(; Key key, Value value) throws DBException;
@@ -225,6 +235,11 @@ local interface DBCursor
      * called, or the [remove] method has already been called after the
      * last call to the [next] method.
      *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
      **/
     void remove() throws DBException;
 
@@ -234,8 +249,10 @@ local interface DBCursor
      *
      * @return The cloned cursor.
      *
+     * @throws DBException Raised if the cursor has been closed.
+     *
      **/
-    DBCursor clone();
+    DBCursor clone() throws DBException;
 
     /**
      *
@@ -289,11 +306,14 @@ local interface DB
      *
      * @return A database cursor.
      *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
      * @see DBCursor
      * @see getCursorForKey
      *
      **/
-    DBCursor getCursor();
+    DBCursor getCursor() throws DBException;
 
     /**
      *
@@ -304,6 +324,11 @@ local interface DB
      *
      * @throws DBNotFoundException If the key was not found in the
      * database.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
      *
      * @see DBCursor
      * @see getCursor
