@@ -118,7 +118,7 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, O
     {
         C << nl << "stream.writePendingObjects();";
     }
-    C << nl << "bytes = stream.b;";
+    C << nl << "bytes.swap(stream.b);";
     C << eb;
 
 
