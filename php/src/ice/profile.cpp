@@ -364,10 +364,10 @@ IcePHP::profileInit(TSRMLS_D)
     // The default profile is configured using ice.config, ice.options and ice.slice. Named profiles
     // are contained in a separate INI file, whose name is defined by ice.profiles.
     //
-    char* config = INI_STR("ice.config");
-    char* options = INI_STR("ice.options");
-    char* profiles = INI_STR("ice.profiles");
-    char* slice = INI_STR("ice.slice");
+    const char* config = INI_STR("ice.config");
+    const char* options = INI_STR("ice.options");
+    const char* profiles = INI_STR("ice.profiles");
+    const char* slice = INI_STR("ice.slice");
 
     if(!createProfile(_defaultProfileName, config, options, slice))
     {
