@@ -996,6 +996,12 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             string typeS = getAbsolute(seq->scoped(), scope);
             if(marshal)
             {
+                out << nl << "if(" << v << " == null)";
+                out << sb;
+                out << nl << stream << ".writeSize(0);";
+                out << eb;
+                out << nl << "else";
+                out << sb;
                 out << nl << stream << ".writeSize(" << v << ".size());";
                 ostringstream o;
                 o << "__i" << iter;
@@ -1006,7 +1012,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 out << sb;
                 out << nl << origContentS << " __elem = (" << origContentS << ")" << it << ".next();";
                 writeMarshalUnmarshalCode(out, scope, seq->type(), "__elem", true, iter, false);
-                out << eb;
+                out << eb; // while
+                out << eb; // else
             }
             else
             {
@@ -1783,6 +1790,13 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
             string typeS = getAbsolute(seq->scoped(), scope);
             if(marshal)
             {
+                out << nl << "if(" << v << " == null)";
+                out << sb;
+                out << nl << stream << ".startWriteSequence(" << name << ", 0);";
+                out << nl << stream << ".endWriteSequence();";
+                out << eb;
+                out << nl << "else";
+                out << sb;
                 out << nl << stream << ".startWriteSequence(" << name << ", " << v << ".size());";
                 ostringstream o;
                 o << "__i" << iter;
@@ -1793,8 +1807,9 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
                 out << sb;
                 out << nl << origContentS << " __elem = (" << origContentS << ")" << it << ".next();";
                 writeGenericMarshalUnmarshalCode(out, scope, seq->type(), "\"e\"", "__elem", true, iter, false);
-                out << eb;
+                out << eb; // while
                 out << nl << stream << ".endWriteSequence();";
+                out << eb; // else
             }
             else
             {
