@@ -1,7 +1,7 @@
 Latency.Ping=ping:default -p 10000
 Ice.Adapter.LatencyAdapter.Endpoints=default -p 10000
 
-Ice.Plugin.IceSSL=IceSSL:create
+#Ice.Plugin.IceSSL=IceSSL:create
 IceSSL.Client.CertPath=../../../certs
 IceSSL.Client.Config=./sslconfig.xml
 IceSSL.Server.CertPath=../../../certs

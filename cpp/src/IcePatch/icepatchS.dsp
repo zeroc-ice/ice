@@ -91,11 +91,11 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\IcePatchI.cpp
+SOURCE=.\FileLocator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\FileLocator.cpp
+SOURCE=.\IcePatchI.cpp
 # End Source File
 # Begin Source File
 
@@ -107,11 +107,11 @@ SOURCE=.\Server.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\IcePatchI.h
+SOURCE=.\FileLocator.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\FileLocator.h
+SOURCE=.\IcePatchI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
