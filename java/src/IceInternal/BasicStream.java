@@ -1110,6 +1110,12 @@ public class BasicStream
                         // Multi-byte character found - we must
                         // use conversion
                         //
+			// TODO: If the string contains garbage bytes that won't
+			//       correctly decode as UTF, the behavior of this
+			//       constructor is undefined. It would be better to
+			//       explicitly decode using java.nio.charset.CharsetDecoder
+			//       and to throw MarshalException if the string won't decode.
+			//
                         return new String(_stringBytes, 0, len, "UTF8");
                     }
                     else
