@@ -1030,6 +1030,9 @@ Slice::Gen::generate(const UnitPtr& unit)
 
     DelegateMVisitor delegateMVisitor(_dir, _package);
     unit->visit(&delegateMVisitor);
+
+    DispatcherVisitor dispatcherVisitor(_dir, _package);
+    unit->visit(&dispatcherVisitor);
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(const string& dir,
@@ -1213,6 +1216,14 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sp << nl << "public String[]" << nl << "__getClassIds()";
         out << sb;
         out << nl << "return __classIds;";
+        out << eb;
+
+        //
+        // __dispatcher
+        //
+        out << sp << nl << "public Ice.Dispatcher" << nl << "__dispatcher()";
+        out << sb;
+        out << nl << "return new _" << name << "Disp(this);";
         out << eb;
 
         DataMemberList members = p->dataMembers();
@@ -2694,7 +2705,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeDelegateThrowsClause(scope, throws);
         out << sb;
         out << nl << "IceInternal.Outgoing __out = new "
-            << "IceInternal.Outgoing(__emitter, __reference, false, \""
+            << "IceInternal.Outgoing(__connection, __reference, false, \""
             << op->name() << "\", " << (op->nonmutating() ? "true" : "false")
             << ", __context);";
         if (!inParams.empty())
@@ -2780,6 +2791,271 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         out << eb;
     }
+
+    out << eb;
+    close();
+
+    return false;
+}
+
+Slice::Gen::DispatcherVisitor::DispatcherVisitor(const string& dir,
+                                                 const string& package) :
+    JavaVisitor(dir, package)
+{
+}
+
+bool
+Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if (p->isLocal())
+    {
+        return false;
+    }
+
+    string name = fixKwd(p->name());
+    string scoped = p->scoped();
+    ClassList bases = p->bases();
+    string scope = p->scope();
+    string absolute = getAbsolute(scoped, "", "_", "Disp");
+
+    if (!open(absolute))
+    {
+        return false;
+    }
+
+    Output& out = output();
+
+    out << sp << nl << "public final class _" << name
+        << "Disp extends Ice._ObjectDisp";
+    out << sb;
+
+    out << nl << "public"
+        << nl << '_' << name << "Disp(" << name << " __d)";
+    out << sb;
+    out << nl << "_delegate = __d;";
+    out << eb;
+
+    OperationList ops = p->operations();
+
+    OperationList::const_iterator r;
+    for (r = ops.begin(); r != ops.end(); ++r)
+    {
+        OperationPtr op = (*r);
+        ContainerPtr container = op->container();
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+        assert(cl);
+
+        string opName = fixKwd(op->name());
+        out << sp << nl << "public static IceInternal.DispatchStatus"
+            << nl << opName << "(" << name
+            << " __obj, IceInternal.Incoming __in, Ice.Current __current)";
+        out << sb;
+
+        TypePtr ret = op->returnType();
+        string retS = typeToString(ret, TypeModeReturn, scope);
+        int iter;
+
+        TypeStringList inParams = op->inputParameters();
+        TypeStringList outParams = op->outputParameters();
+        TypeStringList::const_iterator q;
+
+        ExceptionList throws = op->throws();
+        throws.sort();
+        throws.unique();
+
+        remove_if(throws.begin(), throws.end(),
+                  ::IceUtil::memFun(&Exception::isLocal));
+
+        if (!inParams.empty())
+        {
+            out << nl << "IceInternal.BasicStream __is = __in.is();";
+        }
+        if (!outParams.empty() || ret || throws.size() > 0)
+        {
+            out << nl << "IceInternal.BasicStream __os = __in.os();";
+        }
+
+        //
+        // Unmarshal 'in' params
+        //
+        iter = 0;
+        for (q = inParams.begin(); q != inParams.end(); ++q)
+        {
+            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second),
+                                      false, iter);
+        }
+
+        //
+        // Create holders for 'out' params
+        //
+        for (q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            string typeS = typeToString(q->first, TypeModeOut, scope);
+            out << nl << typeS << ' ' << fixKwd(q->second) << " = new "
+                << typeS << "();";
+        }
+
+        if (!throws.empty())
+        {
+            out << nl << "try";
+            out << sb;
+        }
+
+        //
+        // Call servant
+        //
+        out << nl;
+        if (ret)
+        {
+            out << retS << " __ret = ";
+        }
+        out << "__obj." << opName << '(';
+        for (q = inParams.begin(); q != inParams.end(); ++q)
+        {
+            out << fixKwd(q->second) << ", ";
+        }
+        for (q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            out << fixKwd(q->second) << ", ";
+        }
+        out << "__current);";
+
+        //
+        // Marshal 'out' params
+        //
+        for (q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second),
+                                      true, iter, true);
+        }
+        //
+        // Marshal result
+        //
+        if (ret)
+        {
+            writeMarshalUnmarshalCode(out, scope, ret, "__ret", true, iter);
+        }
+
+        out << nl << "return IceInternal.DispatchStatus.DispatchOK;";
+
+        //
+        // User exceptions
+        //
+        if (!throws.empty())
+        {
+            out << eb;
+            ExceptionList::const_iterator r;
+            for (r = throws.begin(); r != throws.end(); ++r)
+            {
+                string exS = getAbsolute((*r)->scoped(), scope);
+                out << nl << "catch (" << exS << " ex)";
+                out << sb;
+                out << nl << "__os.writeUserException(ex);";
+                out << nl << "return IceInternal.DispatchStatus."
+                    << "DispatchUserException;";
+                out << eb;
+            }
+        }
+
+        out << eb;
+    }
+
+    //
+    // __dispatch
+    //
+    OperationList allOps = p->allOperations();
+    if (!allOps.empty())
+    {
+        StringList allOpNames;
+        transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
+                  ::IceUtil::memFun(&Operation::name));
+        allOpNames.push_back("ice_isA");
+        allOpNames.push_back("ice_ping");
+        allOpNames.sort();
+        allOpNames.unique();
+
+        StringList::const_iterator q;
+
+        out << sp << nl << "private final static String[] __all =";
+        out << sb;
+        q = allOpNames.begin();
+        while (q != allOpNames.end())
+        {
+            out << nl << '"' << *q << '"';
+            if (++q != allOpNames.end())
+            {
+                out << ',';
+            }
+        }
+        out << eb << ';';
+
+        out << sp << nl << "public IceInternal.DispatchStatus"
+            << nl << "__dispatch(IceInternal.Incoming in, Ice.Current current)";
+        out << sb;
+        out << nl << "int pos = java.util.Arrays.binarySearch(__all, "
+            << "current.operation);";
+        out << nl << "if (pos < 0)";
+        out << sb;
+        out << nl << "return IceInternal.DispatchStatus."
+            << "DispatchOperationNotExist;";
+        out << eb;
+        out << sp << nl << "switch (pos)";
+        out << sb;
+        int i = 0;
+        for (q = allOpNames.begin(); q != allOpNames.end(); ++q)
+        {
+            string opName = fixKwd(*q);
+
+            out << nl << "case " << i++ << ':';
+            out << sb;
+            if (opName == "ice_isA")
+            {
+                out << nl << "return ice_isA(_delegate, in, current);";
+            }
+            else if (opName == "ice_ping")
+            {
+                out << nl << "return ice_ping(_delegate, in, current);";
+            }
+            else
+            {
+                //
+                // There's probably a better way to do this
+                //
+                for (OperationList::const_iterator r = allOps.begin();
+                     r != allOps.end();
+                     ++r)
+                {
+                    if ((*r)->name() == (*q))
+                    {
+                        ContainerPtr container = (*r)->container();
+                        ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+                        assert(cl);
+                        if (cl->name() == p->name())
+                        {
+                            out << nl << "return " << opName
+                                << "(_delegate, in, current);";
+                        }
+                        else
+                        {
+                            out << nl << "return "
+                                << getAbsolute(cl->scoped(), scope, "_", "Disp")
+                                << '.' << opName
+                                << "(_delegate, in, current);";
+                        }
+                        break;
+                    }
+                }
+            }
+            out << eb;
+        }
+        out << eb;
+        out << sp << nl << "assert(false);";
+        out << nl << "return IceInternal.DispatchStatus."
+            << "DispatchOperationNotExist;";
+        out << eb;
+    }
+
+    out << sp << nl << "private " << name << " _delegate;";
 
     out << eb;
     close();

@@ -10,9 +10,44 @@
 
 package IceInternal;
 
-public final class EmitterFactory
+public class OutgoingConnectionFactory
 {
-    public synchronized Emitter
+    //
+    // Only for use by Instance
+    //
+    OutgoingConnectionFactory(Instance instance)
+    {
+        _instance = instance;
+    }
+
+    protected void
+    finalize()
+        throws Throwable
+    {
+        assert(_instance == null);
+
+        super.finalize();
+    }
+
+    public synchronized void
+    destroy()
+    {
+        if (_instance == null)
+        {
+            return;
+        }
+
+        java.util.Iterator p = _connections.values().iterator();
+        while (p.hasNext())
+        {
+            Connection connection = (Connection)p.next();
+            connection.destroy(Connection.CommunicatorDestroyed);
+        }
+        _connections.clear();
+        _instance = null;
+    }
+
+    public synchronized Connection
     create(Endpoint[] endpoints)
     {
         if (_instance == null)
@@ -23,34 +58,37 @@ public final class EmitterFactory
         assert(endpoints.length > 0);
 
         //
-        // First reap destroyed emitters
+        // First reap destroyed connections
         //
-        java.util.Iterator p = _emitters.values().iterator();
+        java.util.Iterator p = _connections.values().iterator();
         while (p.hasNext())
         {
-            Emitter emitter = (Emitter)p.next();
-            if (emitter.destroyed())
+            Connection connection = (Connection)p.next();
+            if (connection.destroyed())
             {
                 p.remove();
             }
         }
 
+        //
+        // Search for existing connections
+        //
         for (int i = 0; i < endpoints.length; i++)
         {
-            Emitter emitter = (Emitter)_emitters.get(endpoints[i]);
-            if (emitter != null)
+            Connection connection = (Connection)_connections.get(endpoints[i]);
+            if (connection != null)
             {
-                return emitter;
+                return connection;
             }
         }
 
         //
-        // No emitters exist, try to create one
+        // No connections exist, try to create one
         //
         TraceLevels traceLevels = _instance.traceLevels();
         Ice.Logger logger = _instance.logger();
 
-        Emitter emitter = null;
+        Connection connection = null;
         Ice.LocalException exception = null;
         for (int i = 0; i < endpoints.length; i++)
         {
@@ -64,8 +102,10 @@ public final class EmitterFactory
                     transceiver = connector.connect(endpoints[i].timeout());
                     assert(transceiver != null);
                 }
-                emitter = new Emitter(_instance, transceiver, endpoints[i]);
-                _emitters.put(endpoints[i], emitter);
+                connection = new Connection(_instance, transceiver,
+                                            endpoints[i], null);
+                connection.activate();
+                _connections.put(endpoints[i], connection);
                 break;
             }
             catch (Ice.SocketException ex)
@@ -104,49 +144,15 @@ public final class EmitterFactory
             }
         }
 
-        if (emitter == null)
+        if (connection == null)
         {
             assert(exception != null);
             throw exception;
         }
 
-        return emitter;
-    }
-
-    //
-    // For use by Instance
-    //
-    EmitterFactory(Instance instance)
-    {
-        _instance = instance;
-    }
-
-    protected void
-    finalize()
-        throws Throwable
-    {
-        assert(_instance == null);
-
-        super.finalize();
-    }
-
-    synchronized void
-    destroy()
-    {
-        if (_instance == null)
-        {
-            return;
-        }
-
-        java.util.Iterator p = _emitters.values().iterator();
-        while (p.hasNext())
-        {
-            Emitter emitter = (Emitter)p.next();
-            emitter.destroy();
-        }
-        _emitters.clear();
+        return connection;
     }
 
     private Instance _instance;
-    private java.util.HashMap _emitters = new java.util.HashMap();
+    private java.util.HashMap _connections = new java.util.HashMap();
 }

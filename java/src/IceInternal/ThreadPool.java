@@ -293,9 +293,7 @@ public final class ThreadPool
                 if (shutdown) // Shutdown has been initiated.
                 {
                     shutdown = false;
-                    /* TODO: Server
                     _instance.objectAdapterFactory().shutdown();
-                    */
                 }
 
                 _selector.selectedKeys().clear();

@@ -123,11 +123,6 @@ public abstract class Endpoint
     public abstract short type();
 
     //
-    // Return true if the endpoint only supports oneway operations.
-    //
-    public abstract boolean oneway();
-
-    //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //

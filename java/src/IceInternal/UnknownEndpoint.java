@@ -48,15 +48,6 @@ public final class UnknownEndpoint extends Endpoint
     }
 
     //
-    // Return true if the endpoint only supports oneway operations.
-    //
-    public boolean
-    oneway()
-    {
-        return false;
-    }
-
-    //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //

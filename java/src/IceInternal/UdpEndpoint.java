@@ -131,15 +131,6 @@ public final class UdpEndpoint extends Endpoint
     }
 
     //
-    // Return true if the endpoint only supports oneway operations.
-    //
-    public boolean
-    oneway()
-    {
-        return true;
-    }
-
-    //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
@@ -198,12 +189,9 @@ public final class UdpEndpoint extends Endpoint
     public Transceiver
     serverTransceiver(EndpointHolder endpoint)
     {
-        /* TODO: Server
         UdpTransceiver p = new UdpTransceiver(_instance, _port);
         endpoint.value = new UdpEndpoint(_instance, _host, p.effectivePort());
         return p;
-        */
-        return null;
     }
 
     //

@@ -22,10 +22,8 @@ public class BasicStream
         _limit = 0;
         assert(_buf.limit() == _capacity);
 
-        Encaps enc = new Encaps();
-        enc.encoding = 0;
-        enc.start = 0;
-        _encapsStack.add(enc);
+        _currentReadEncaps = null;
+        _currentWriteEncaps = null;
     }
 
     protected void
@@ -60,9 +58,12 @@ public class BasicStream
         other._limit = _limit;
         _limit = tmpLimit;
 
-        java.util.LinkedList tmpStack = other._encapsStack;
-        other._encapsStack = _encapsStack;
-        _encapsStack = tmpStack;
+        java.util.LinkedList tmpStack = other._readEncapsStack;
+        other._readEncapsStack = _readEncapsStack;
+        _readEncapsStack = tmpStack;
+        tmpStack = other._writeEncapsStack;
+        other._writeEncapsStack = _writeEncapsStack;
+        _writeEncapsStack = tmpStack;
     }
 
     private static final int MAX = 1024 * 1024; // TODO: Configurable
@@ -116,18 +117,28 @@ public class BasicStream
     {
         writeInt(0); // Encoding
         writeInt(0); // Placeholder for the encapsulation length
-        Encaps enc = new Encaps();
-        enc.encoding = 0;
-        enc.start = _buf.position();
-        _encapsStack.add(enc);
+        _currentWriteEncaps = new WriteEncaps();
+        _currentWriteEncaps.encoding = 0;
+        _currentWriteEncaps.start = _buf.position();
+        _writeEncapsStack.add(_currentWriteEncaps);
     }
 
     public void
     endWriteEncaps()
     {
-        Encaps enc = (Encaps)_encapsStack.removeLast();
-        final int sz = _buf.position() - enc.start;
-        _buf.putInt(enc.start - 4, sz);
+        assert(_currentWriteEncaps != null);
+        final int start = _currentWriteEncaps.start;
+        _writeEncapsStack.removeLast();
+        if (_writeEncapsStack.isEmpty())
+        {
+            _currentWriteEncaps = null;
+        }
+        else
+        {
+            _currentWriteEncaps = (WriteEncaps)_writeEncapsStack.getLast();
+        }
+        final int sz = _buf.position() - start;
+        _buf.putInt(start - 4, sz);
     }
 
     public void
@@ -139,20 +150,30 @@ public class BasicStream
             throw new Ice.UnsupportedEncodingException();
         }
         int sz = readInt();
-        Encaps enc = new Encaps();
-        enc.encoding = (byte)encoding;
-        enc.start = _buf.position();
-        _encapsStack.add(enc);
+        _currentReadEncaps = new ReadEncaps();
+        _currentReadEncaps.encoding = (byte)encoding;
+        _currentReadEncaps.start = _buf.position();
+        _readEncapsStack.add(_currentReadEncaps);
     }
 
     public void
     endReadEncaps()
     {
-        Encaps enc = (Encaps)_encapsStack.removeLast();
-        int sz = _buf.getInt(enc.start - 4);
+        assert(_currentReadEncaps != null);
+        final int start = _currentReadEncaps.start;
+        _readEncapsStack.removeLast();
+        if (_readEncapsStack.isEmpty())
+        {
+            _currentReadEncaps = null;
+        }
+        else
+        {
+            _currentReadEncaps = (ReadEncaps)_readEncapsStack.getLast();
+        }
+        final int sz = _buf.getInt(start - 4);
         try
         {
-            _buf.position(enc.start + sz);
+            _buf.position(start + sz);
         }
         catch (IllegalArgumentException ex)
         {
@@ -163,9 +184,9 @@ public class BasicStream
     public void
     checkReadEncaps()
     {
-        Encaps enc = (Encaps)_encapsStack.getLast();
-        int sz = _buf.getInt(enc.start - 4);
-        if (sz != _buf.position() - enc.start)
+        assert(_currentReadEncaps != null);
+        final int sz = _buf.getInt(_currentReadEncaps.start - 4);
+        if (sz != _buf.position() - _currentReadEncaps.start)
         {
             throw new Ice.EncapsulationException();
         }
@@ -174,8 +195,8 @@ public class BasicStream
     public int
     getReadEncapsSize()
     {
-        Encaps enc = (Encaps)_encapsStack.getLast();
-        return _buf.getInt(enc.start - 4);
+        assert(_currentReadEncaps != null);
+        return _buf.getInt(_currentReadEncaps.start - 4);
     }
 
     public void
@@ -561,11 +582,16 @@ public class BasicStream
     public void
     writeString(String v)
     {
-        Encaps enc = (Encaps)_encapsStack.getLast();
-        Integer pos = null;
-        if (enc.stringsWritten != null) // Lazy creation
+        if (_currentWriteEncaps == null) // Lazy initialization
         {
-            pos = (Integer)enc.stringsWritten.get(v);
+            _currentWriteEncaps = new WriteEncaps();
+            _writeEncapsStack.add(_currentWriteEncaps);
+        }
+
+        Integer pos = null;
+        if (_currentWriteEncaps.stringsWritten != null) // Lazy creation
+        {
+            pos = (Integer)_currentWriteEncaps.stringsWritten.get(v);
         }
         if (pos != null)
         {
@@ -577,12 +603,14 @@ public class BasicStream
             writeInt(len);
             if (len > 0)
             {
-                if (enc.stringsWritten == null)
+                if (_currentWriteEncaps.stringsWritten == null)
                 {
-                    enc.stringsWritten = new java.util.HashMap();
+                    _currentWriteEncaps.stringsWritten =
+                        new java.util.HashMap();
                 }
-                int num = enc.stringsWritten.size();
-                enc.stringsWritten.put(v, new Integer(-(num + 1)));
+                int num = _currentWriteEncaps.stringsWritten.size();
+                _currentWriteEncaps.stringsWritten.put(
+                    v, new Integer(-(num + 1)));
                 final char[] arr = v.toCharArray();
                 expand(len);
                 for (int i = 0; i < len; i++)
@@ -608,15 +636,20 @@ public class BasicStream
     {
         final int len = readInt();
 
+        if (_currentReadEncaps == null) // Lazy initialization
+        {
+            _currentReadEncaps = new ReadEncaps();
+            _readEncapsStack.add(_currentReadEncaps);
+        }
+
         if (len < 0)
         {
-            Encaps enc = (Encaps)_encapsStack.getLast();
-            if (enc.stringsRead == null || // Lazy creation
-                -(len + 1) >= enc.stringsRead.size())
+            if (_currentReadEncaps.stringsRead == null || // Lazy creation
+                -(len + 1) >= _currentReadEncaps.stringsRead.size())
             {
                 throw new Ice.IllegalIndirectionException();
             }
-            return (String)enc.stringsRead.get(-(len + 1));
+            return (String)_currentReadEncaps.stringsRead.get(-(len + 1));
         }
         else
         {
@@ -639,12 +672,12 @@ public class BasicStream
                     byte[] arr = new byte[len];
                     _buf.get(arr);
                     String v = new String(arr, "ISO-8859-1");
-                    Encaps enc = (Encaps)_encapsStack.getLast();
-                    if (enc.stringsRead == null)
+                    if (_currentReadEncaps.stringsRead == null)
                     {
-                        enc.stringsRead = new java.util.ArrayList(10);
+                        _currentReadEncaps.stringsRead =
+                            new java.util.ArrayList(10);
                     }
-                    enc.stringsRead.add(v);
+                    _currentReadEncaps.stringsRead.add(v);
                     return v;
                 }
                 catch (java.io.UnsupportedEncodingException ex)
@@ -677,11 +710,16 @@ public class BasicStream
     public void
     writeWString(String v)
     {
-        Encaps enc = (Encaps)_encapsStack.getLast();
-        Integer pos = null;
-        if (enc.wstringsWritten != null) // Lazy creation
+        if (_currentWriteEncaps == null) // Lazy initialization
         {
-            pos = (Integer)enc.wstringsWritten.get(v);
+            _currentWriteEncaps = new WriteEncaps();
+            _writeEncapsStack.add(_currentWriteEncaps);
+        }
+
+        Integer pos = null;
+        if (_currentWriteEncaps.wstringsWritten != null) // Lazy creation
+        {
+            pos = (Integer)_currentWriteEncaps.wstringsWritten.get(v);
         }
         if (pos != null)
         {
@@ -693,12 +731,14 @@ public class BasicStream
             writeInt(len);
             if (len > 0)
             {
-                if (enc.wstringsWritten == null)
+                if (_currentWriteEncaps.wstringsWritten == null)
                 {
-                    enc.wstringsWritten = new java.util.HashMap();
+                    _currentWriteEncaps.wstringsWritten =
+                        new java.util.HashMap();
                 }
-                int num = enc.wstringsWritten.size();
-                enc.wstringsWritten.put(v, new Integer(-(num + 1)));
+                int num = _currentWriteEncaps.wstringsWritten.size();
+                _currentWriteEncaps.wstringsWritten.put(
+                    v, new Integer(-(num + 1)));
                 final int sz = len * 2;
                 expand(sz);
                 java.nio.CharBuffer charBuf = _buf.asCharBuffer();
@@ -723,15 +763,20 @@ public class BasicStream
     {
         final int len = readInt();
 
+        if (_currentReadEncaps == null) // Lazy initialization
+        {
+            _currentReadEncaps = new ReadEncaps();
+            _readEncapsStack.add(_currentReadEncaps);
+        }
+
         if (len < 0)
         {
-            Encaps enc = (Encaps)_encapsStack.getLast();
-            if (enc.wstringsRead == null || // Lazy creation
-                -(len + 1) >= enc.wstringsRead.size())
+            if (_currentReadEncaps.wstringsRead == null || // Lazy creation
+                -(len + 1) >= _currentReadEncaps.wstringsRead.size())
             {
                 throw new Ice.IllegalIndirectionException();
             }
-            return (String)enc.wstringsRead.get(-(len + 1));
+            return (String)_currentReadEncaps.wstringsRead.get(-(len + 1));
         }
         else
         {
@@ -747,12 +792,12 @@ public class BasicStream
                     java.nio.CharBuffer charBuf = _buf.asCharBuffer();
                     charBuf.get(arr);
                     String v = new String(arr);
-                    Encaps enc = (Encaps)_encapsStack.getLast();
-                    if (enc.wstringsRead == null)
+                    if (_currentReadEncaps.wstringsRead == null)
                     {
-                        enc.wstringsRead = new java.util.ArrayList(10);
+                        _currentReadEncaps.wstringsRead =
+                            new java.util.ArrayList(10);
                     }
-                    enc.wstringsRead.add(v);
+                    _currentReadEncaps.wstringsRead.add(v);
                     _buf.position(_buf.position() + len * 2);
                     return v;
                 }
@@ -793,11 +838,16 @@ public class BasicStream
     public void
     writeObject(Ice.Object v)
     {
-        Encaps enc = (Encaps)_encapsStack.getLast();
-        Integer pos = null;
-        if (enc.objectsWritten != null) // Lazy creation
+        if (_currentWriteEncaps == null) // Lazy initialization
         {
-            pos = (Integer)enc.objectsWritten.get(v);
+            _currentWriteEncaps = new WriteEncaps();
+            _writeEncapsStack.add(_currentWriteEncaps);
+        }
+
+        Integer pos = null;
+        if (_currentWriteEncaps.objectsWritten != null) // Lazy creation
+        {
+            pos = (Integer)_currentWriteEncaps.objectsWritten.get(v);
         }
         if (pos != null)
         {
@@ -809,12 +859,13 @@ public class BasicStream
 
             if (v != null)
             {
-                if (enc.objectsWritten == null)
+                if (_currentWriteEncaps.objectsWritten == null)
                 {
-                    enc.objectsWritten = new java.util.HashMap();
+                    _currentWriteEncaps.objectsWritten =
+                        new java.util.HashMap();
                 }
-                int num = enc.objectsWritten.size();
-                enc.objectsWritten.put(v, new Integer(num));
+                int num = _currentWriteEncaps.objectsWritten.size();
+                _currentWriteEncaps.objectsWritten.put(v, new Integer(num));
                 writeString(v.__getClassIds()[0]);
                 v.__write(this);
             }
@@ -831,17 +882,22 @@ public class BasicStream
     public boolean
     readObject(String signatureType, Ice.ObjectHolder v)
     {
+        if (_currentReadEncaps == null) // Lazy initialization
+        {
+            _currentReadEncaps = new ReadEncaps();
+            _readEncapsStack.add(_currentReadEncaps);
+        }
+
         final int pos = readInt();
 
         if (pos >= 0)
         {
-            Encaps enc = (Encaps)_encapsStack.getLast();
-            if (enc.objectsRead == null || // Lazy creation
-                pos >= enc.objectsRead.size())
+            if (_currentReadEncaps.objectsRead == null || // Lazy creation
+                pos >= _currentReadEncaps.objectsRead.size())
             {
                 throw new Ice.IllegalIndirectionException();
             }
-            v.value = (Ice.Object)enc.objectsRead.get(pos);
+            v.value = (Ice.Object)_currentReadEncaps.objectsRead.get(pos);
             return true;
         }
         else
@@ -861,12 +917,6 @@ public class BasicStream
             }
             else
             {
-                Encaps enc = (Encaps)_encapsStack.getLast();
-                if (enc.objectsRead == null)
-                {
-                    enc.objectsRead = new java.util.ArrayList(10);
-                }
-
                 Ice.ObjectFactory factory =
                     _instance.servantFactoryManager().find(id);
                 if (factory != null)
@@ -893,12 +943,16 @@ public class BasicStream
     readObject(Ice.Object v)
     {
         assert(v != null);
-        Encaps enc = (Encaps)_encapsStack.getLast();
-        if (enc.objectsRead == null) // Lazy creation
+        if (_currentReadEncaps == null) // Lazy initialization
         {
-            enc.objectsRead = new java.util.ArrayList(10);
+            _currentReadEncaps = new ReadEncaps();
+            _readEncapsStack.add(_currentReadEncaps);
         }
-        enc.objectsRead.add(v);
+        if (_currentReadEncaps.objectsRead == null) // Lazy creation
+        {
+            _currentReadEncaps.objectsRead = new java.util.ArrayList(10);
+        }
+        _currentReadEncaps.objectsRead.add(v);
         v.__read(this);
     }
 
@@ -988,17 +1042,26 @@ public class BasicStream
     private int _capacity; // Cache capacity to avoid excessive method calls
     private int _limit; // Cache limit to avoid excessive method calls
 
-    private static class Encaps
+    private static class ReadEncaps
     {
         int start;
         byte encoding;
         java.util.ArrayList stringsRead;
-        java.util.HashMap stringsWritten;
         java.util.ArrayList wstringsRead;
-        java.util.HashMap wstringsWritten;
         java.util.ArrayList objectsRead;
+    }
+
+    private static class WriteEncaps
+    {
+        int start;
+        byte encoding;
+        java.util.HashMap stringsWritten;
+        java.util.HashMap wstringsWritten;
         java.util.HashMap objectsWritten;
     }
 
-    private java.util.LinkedList _encapsStack = new java.util.LinkedList();
+    private java.util.LinkedList _readEncapsStack = new java.util.LinkedList();
+    private java.util.LinkedList _writeEncapsStack = new java.util.LinkedList();
+    private ReadEncaps _currentReadEncaps;
+    private WriteEncaps _currentWriteEncaps;
 }

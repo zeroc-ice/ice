@@ -73,8 +73,9 @@ final class TcpTransceiver implements Transceiver
     }
 
     public void
-    write(java.nio.ByteBuffer buf, int timeout)
+    write(BasicStream stream, int timeout)
     {
+        java.nio.ByteBuffer buf = stream.prepareWrite();
         while (buf.hasRemaining())
         {
             try
@@ -109,8 +110,9 @@ final class TcpTransceiver implements Transceiver
     }
 
     public void
-    read(java.nio.ByteBuffer buf, int timeout)
+    read(BasicStream stream, int timeout)
     {
+        java.nio.ByteBuffer buf = stream.prepareRead();
         while (buf.hasRemaining())
         {
             try

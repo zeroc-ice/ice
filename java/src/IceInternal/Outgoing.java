@@ -13,10 +13,10 @@ package IceInternal;
 public final class Outgoing
 {
     public
-    Outgoing(Emitter emitter, Reference ref, boolean sendProxy,
+    Outgoing(Connection connection, Reference ref, boolean sendProxy,
              String operation, boolean nonmutating, java.util.HashMap context)
     {
-        _emitter = emitter;
+        _connection = connection;
         _reference = ref;
         _state = StateUnsent;
         _is = new BasicStream(ref.instance);
@@ -28,14 +28,14 @@ public final class Outgoing
             case Reference.ModeOneway:
             case Reference.ModeDatagram:
             {
-                _emitter.prepareRequest(this);
+                _connection.prepareRequest(this);
                 break;
             }
 
             case Reference.ModeBatchOneway:
             case Reference.ModeBatchDatagram:
             {
-                _emitter.prepareBatchRequest(this);
+                _connection.prepareBatchRequest(this);
                 break;
             }
         }
@@ -90,7 +90,7 @@ public final class Outgoing
             (_reference.mode == Reference.ModeBatchOneway ||
              _reference.mode == Reference.ModeBatchDatagram))
         {
-            _emitter.abortBatchRequest();
+            _connection.abortBatchRequest();
         }
 
         super.finalize();
@@ -110,10 +110,10 @@ public final class Outgoing
 
                 synchronized(this)
                 {
-                    _emitter.sendRequest(this, false);
+                    _connection.sendRequest(this, false);
                     _state = StateInProgress;
 
-                    int timeout = _emitter.timeout();
+                    int timeout = _connection.timeout();
                     while (_state == StateInProgress)
                     {
                         try
@@ -145,7 +145,7 @@ public final class Outgoing
                     // Must be called outside the synchronization of
                     // this object
                     //
-                    _emitter.exception(_exception);
+                    _connection.exception(_exception);
                 }
 
                 if (_exception != null)
@@ -189,7 +189,7 @@ public final class Outgoing
             case Reference.ModeOneway:
             case Reference.ModeDatagram:
             {
-                _emitter.sendRequest(this, true);
+                _connection.sendRequest(this, true);
                 _state = StateInProgress;
                 break;
             }
@@ -206,7 +206,7 @@ public final class Outgoing
                 // illegal.
                 //
                 _state = StateInProgress;
-                _emitter.finishBatchRequest(this);
+                _connection.finishBatchRequest(this);
                 break;
             }
         }
@@ -329,7 +329,7 @@ public final class Outgoing
         return _os;
     }
 
-    private Emitter _emitter;
+    private Connection _connection;
     private Reference _reference;
     private Ice.LocalException _exception;
 

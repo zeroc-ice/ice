@@ -53,8 +53,10 @@ final class UdpTransceiver implements Transceiver
     }
 
     public void
-    write(java.nio.ByteBuffer buf, int timeout)
+    write(BasicStream stream, int timeout)
     {
+        java.nio.ByteBuffer buf = stream.prepareWrite();
+
         assert(_sender);
         assert(buf.position() == 0);
         final int packetSize = 64 * 1024; // TODO: configurable
@@ -90,15 +92,43 @@ final class UdpTransceiver implements Transceiver
     }
 
     public void
-    read(java.nio.ByteBuffer buf, int timeout)
+    read(BasicStream stream, int timeout)
     {
-        assert(false);
+        assert(!_sender);
+        assert(stream.pos() == 0);
+        final int packetSize = 64 * 1024; // TODO: configurable
+        stream.resize(packetSize);
 
-        //
-        // TODO: Server
-        //
-        // Note: A ByteBuffer cannot be resized!
-        //
+        java.nio.ByteBuffer buf = stream.prepareRead();
+        while (true)
+        {
+            try
+            {
+                java.net.SocketAddress source = _fd.receive(buf);
+                int tot = buf.position();
+
+                if (_traceLevels.network >= 3)
+                {
+                    String s = "received " + tot + " bytes via udp at " +
+                        toString();
+                    _logger.trace(_traceLevels.networkCat, s);
+                }
+
+                stream.resize(tot);
+                stream.pos(tot);
+                break;
+            }
+            catch (java.io.InterruptedIOException ex)
+            {
+                continue;
+            }
+            catch (java.io.IOException ex)
+            {
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+        }
     }
 
     public String
@@ -161,7 +191,6 @@ final class UdpTransceiver implements Transceiver
         }
     }
 
-    /* TODO: Server
     //
     // Only for use by UdpEndpoint
     //
@@ -190,7 +219,6 @@ final class UdpTransceiver implements Transceiver
             throw ex;
         }
     }
-    */
 
     protected void
     finalize()

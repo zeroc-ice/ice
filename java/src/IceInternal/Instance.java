@@ -48,10 +48,10 @@ public class Instance
         return _proxyFactory;
     }
 
-    public synchronized EmitterFactory
-    emitterFactory()
+    public synchronized OutgoingConnectionFactory
+    outgoingConnectionFactory()
     {
-        return _emitterFactory;
+        return _outgoingConnectionFactory;
     }
 
     public synchronized ObjectFactoryManager
@@ -66,13 +66,11 @@ public class Instance
         return _userExceptionFactoryManager;
     }
 
-    /* TODO: Server
     public synchronized ObjectAdapterFactory
     objectAdapterFactory()
     {
         return _objectAdapterFactory;
     }
-    */
 
     public synchronized ThreadPool
     threadPool()
@@ -114,12 +112,10 @@ public class Instance
             _logger = new Ice.LoggerI();
             _traceLevels = new TraceLevels(_properties);
             _proxyFactory = new ProxyFactory(this);
-            _emitterFactory = new EmitterFactory(this);
+            _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
             _servantFactoryManager = new ObjectFactoryManager();
             _userExceptionFactoryManager = new UserExceptionFactoryManager();
-            /* TODO: Server
             _objectAdapterFactory = new ObjectAdapterFactory(this);
-            */
             _threadPool = new ThreadPool(this);
             _defaultProtocol = _properties.getProperty("Ice.DefaultProtocol");
             if (_defaultProtocol == null)
@@ -149,12 +145,10 @@ public class Instance
         assert(_logger == null);
         assert(_traceLevels == null);
         assert(_proxyFactory == null);
-        assert(_emitterFactory == null);
+        assert(_outgoingConnectionFactory == null);
         assert(_servantFactoryManager == null);
         assert(_userExceptionFactoryManager == null);
-        /* TODO: Server
         assert(_objectAdapterFactory == null);
-        */
         assert(_threadPool == null);
 
         super.finalize();
@@ -205,10 +199,10 @@ public class Instance
             _proxyFactory = null;
         }
 
-        if (_emitterFactory != null)
+        if (_outgoingConnectionFactory != null)
         {
-            _emitterFactory.destroy();
-            _emitterFactory = null;
+            _outgoingConnectionFactory.destroy();
+            _outgoingConnectionFactory = null;
         }
 
         if (_servantFactoryManager != null)
@@ -223,14 +217,12 @@ public class Instance
             _userExceptionFactoryManager = null;
         }
 
-        /* TODO: Server
         if (_objectAdapterFactory != null)
         {
             _objectAdapterFactory.shutdown(); // ObjectAdapterFactory has
                                               // shutdown(), not destroy()
             _objectAdapterFactory = null;
         }
-        */
 
         if (_threadPool != null)
         {   
@@ -252,12 +244,10 @@ public class Instance
     private Ice.Logger _logger;
     private TraceLevels _traceLevels;
     private ProxyFactory _proxyFactory;
-    private EmitterFactory _emitterFactory;
+    private OutgoingConnectionFactory _outgoingConnectionFactory;
     private ObjectFactoryManager _servantFactoryManager;
     private UserExceptionFactoryManager _userExceptionFactoryManager;
-    /* TODO: Server
     private ObjectAdapterFactory _objectAdapterFactory;
-    */
     private ThreadPool _threadPool;
     private String _defaultProtocol;
     private String _defaultHost;

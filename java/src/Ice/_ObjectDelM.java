@@ -17,8 +17,8 @@ public class _ObjectDelM implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__emitter, __reference, false, "ice_isA",
-                                     true, __context);
+            new IceInternal.Outgoing(__connection, __reference, false,
+                                     "ice_isA", true, __context);
         IceInternal.BasicStream __is = __out.is();
         IceInternal.BasicStream __os = __out.os();
         __os.writeString(__id);
@@ -34,8 +34,8 @@ public class _ObjectDelM implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__emitter, __reference, false, "ice_ping",
-                                     true, __context);
+            new IceInternal.Outgoing(__connection, __reference, false,
+                                     "ice_ping", true, __context);
         if (!__out.invoke())
         {
             throw new UnknownUserException();
@@ -48,8 +48,8 @@ public class _ObjectDelM implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
-            new IceInternal.Outgoing(__emitter, __reference, false, operation,
-                                     nonmutating, __context);
+            new IceInternal.Outgoing(__connection, __reference, false,
+                                     operation, nonmutating, __context);
         IceInternal.BasicStream __os = __out.os();
         __os.writeBlob(inParams);
         __out.invoke();
@@ -65,10 +65,10 @@ public class _ObjectDelM implements _ObjectDel
     public void
     ice_flush()
     {
-        __emitter.flushBatchRequest();
+        __connection.flushBatchRequest();
     }
 
-    protected IceInternal.Emitter __emitter;
+    protected IceInternal.Connection __connection;
     protected IceInternal.Reference __reference;
 
     //
@@ -83,7 +83,7 @@ public class _ObjectDelM implements _ObjectDel
         //
         __reference = ref;
 
-        java.util.LinkedList endpoints = new java.util.LinkedList();
+        java.util.ArrayList endpoints = new java.util.ArrayList();
         switch (__reference.mode)
         {
             case IceInternal.Reference.ModeTwoway:
@@ -114,9 +114,22 @@ public class _ObjectDelM implements _ObjectDel
             }
         }
 
+        //
+        // Randomize the order of endpoints.
+        //
+        random_shuffle(endpoints);
+
+        IceInternal.Endpoint[] arr;
+
+        //
+        // If a secure connection is requested, remove all non-secure
+        // endpoints. Otherwise make non-secure endpoints preferred over
+        // secure endpoints by partitioning the endpoint vector, so that
+        // non-secure endpoints come first.
+        //
         if (__reference.secure)
         {
-            java.util.ListIterator i = endpoints.listIterator();
+            java.util.Iterator i = endpoints.iterator();
             while (i.hasNext())
             {
                 IceInternal.Endpoint endpoint = (IceInternal.Endpoint)i.next();
@@ -125,55 +138,64 @@ public class _ObjectDelM implements _ObjectDel
                     i.remove();
                 }
             }
+            arr = new IceInternal.Endpoint[endpoints.size()];
+            endpoints.toArray(arr);
         }
-        //
-        // We allow secure connections also if they are not explicitly
-        // required.
-        //
-        /*
         else
         {
-            java.util.ListIterator i = endpoints.listIterator();
-            while (i.hasNext())
-            {
-                IceInternal.Endpoint endpoint = (IceInternal.Endpoint)i.next();
-                if (endpoint.secure())
-                {
-                    i.remove();
-                }
-            }
+            arr = new IceInternal.Endpoint[endpoints.size()];
+            endpoints.toArray(arr);
+            java.util.Arrays.sort((java.lang.Object[])arr, __comparator);
         }
-        */
 
-        final int sz = endpoints.size();
-        if (sz == 0)
+        if (arr.length == 0)
         {
             throw new NoEndpointException();
         }
 
-        IceInternal.Endpoint[] arr =
-            new IceInternal.Endpoint[endpoints.size()];
-        endpoints.toArray(arr);
-
-        random_shuffle(arr);
-
-        IceInternal.EmitterFactory factory =
-            __reference.instance.emitterFactory();
-        __emitter = factory.create(arr);
-        assert(__emitter != null);
+        IceInternal.OutgoingConnectionFactory factory =
+            __reference.instance.outgoingConnectionFactory();
+        __connection = factory.create(arr);
+        assert(__connection != null);
     }
+
+    private static class EndpointComparator implements java.util.Comparator
+    {
+        public int
+        compare(java.lang.Object l, java.lang.Object r)
+        {
+            IceInternal.Endpoint le = (IceInternal.Endpoint)l;
+            IceInternal.Endpoint re = (IceInternal.Endpoint)r;
+            boolean ls = le.secure();
+            boolean rs = re.secure();
+            if ((ls && rs) || (!ls && !rs))
+            {
+                return 0;
+            }
+            else if (!ls && rs)
+            {
+                return -1;
+            }
+            else
+            {
+                return 1;
+            }
+        }
+    }
+    private static EndpointComparator __comparator = new EndpointComparator();
 
     private static java.util.Random __random = new java.util.Random();
 
     private static void
-    random_shuffle(IceInternal.Endpoint[] arr)
+    random_shuffle(java.util.ArrayList arr)
     {
-        for (int i = 0; i < arr.length; i++)
+        final int sz = arr.size();
+        for (int i = 0; i < sz; i++)
         {
-            int pos = Math.abs(__random.nextInt() % arr.length);
-            IceInternal.Endpoint tmp = arr[pos];
-            arr[pos] = arr[i];
-            arr[i] = tmp;
+            int pos = Math.abs(__random.nextInt() % sz);
+            java.lang.Object tmp = arr.get(pos);
+            arr.set(pos, arr.get(i));
+            arr.set(i, tmp);
         }
     }
 }

@@ -33,12 +33,73 @@ public final class Network
         }
     }
 
+    public static java.nio.channels.ServerSocketChannel
+    createTcpServerSocket()
+    {
+        try
+        {
+            java.nio.channels.ServerSocketChannel fd =
+                java.nio.channels.ServerSocketChannel.open();
+            //
+            // It's not possible to set TCP_NODELAY or KEEP_ALIVE
+            // on a server socket in Java
+            //
+            //java.net.Socket socket = fd.socket();
+            //socket.setTcpNoDelay(true);
+            //socket.setKeepAlive(true);
+            fd.configureBlocking(false);
+            return fd;
+        }
+        catch (java.io.IOException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+    }
+
     public static java.nio.channels.DatagramChannel
     createUdpSocket()
     {
         try
         {
             return java.nio.channels.DatagramChannel.open();
+        }
+        catch (java.io.IOException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+    }
+
+    public static java.net.InetSocketAddress
+    doBind(java.nio.channels.ServerSocketChannel fd,
+           java.net.InetSocketAddress addr)
+    {
+        try
+        {
+            java.net.ServerSocket sock = fd.socket();
+            sock.bind(addr);
+            return (java.net.InetSocketAddress)sock.getLocalSocketAddress();
+        }
+        catch (java.io.IOException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+    }
+
+    public static java.net.InetSocketAddress
+    doBind(java.nio.channels.DatagramChannel fd,
+           java.net.InetSocketAddress addr)
+    {
+        try
+        {
+            java.net.DatagramSocket sock = fd.socket();
+            sock.bind(addr);
+            return (java.net.InetSocketAddress)sock.getLocalSocketAddress();
         }
         catch (java.io.IOException ex)
         {
@@ -151,6 +212,113 @@ public final class Network
             se.initCause(ex);
             throw se;
         }
+    }
+
+    public static java.nio.channels.SocketChannel
+    doAccept(java.nio.channels.ServerSocketChannel fd, int timeout)
+    {
+        java.nio.channels.SocketChannel result = null;
+        while (result == null)
+        {
+            try
+            {
+                result = fd.accept();
+                if (result == null)
+                {
+                    java.nio.channels.Selector selector =
+                        java.nio.channels.Selector.open();
+
+                    try
+                    {
+                        while (true)
+                        {
+                            try
+                            {
+                                java.nio.channels.SelectionKey key =
+                                    fd.register(selector,
+                                        java.nio.channels.SelectionKey.
+                                        OP_ACCEPT);
+                                int n;
+                                if (timeout > 0)
+                                {
+                                    n = selector.select(timeout);
+                                }
+                                else if (timeout == 0)
+                                {
+                                    n = selector.selectNow();
+                                }
+                                else
+                                {
+                                    n = selector.select();
+                                }
+
+                                if (n == 0)
+                                {
+                                    throw new Ice.TimeoutException();
+                                }
+
+                                break;
+                            }
+                            catch (java.io.InterruptedIOException ex)
+                            {
+                                continue;
+                            }
+                            catch (java.io.IOException ex)
+                            {
+                                Ice.SocketException se =
+                                    new Ice.SocketException();
+                                se.initCause(ex);
+                                throw se;
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        try
+                        {
+                            selector.close();
+                        }
+                        catch (java.io.IOException ex)
+                        {
+                            // Ignore
+                        }
+                    }
+                }
+            }
+            catch (java.io.InterruptedIOException ex)
+            {
+                continue;
+            }
+            catch (java.io.IOException ex)
+            {
+                try
+                {
+                    fd.close();
+                }
+                catch (java.io.IOException e)
+                {
+                    // Ignore
+                }
+                Ice.SocketException se = new Ice.SocketException();
+                se.initCause(ex);
+                throw se;
+            }
+        }
+
+        try
+        {
+            java.net.Socket socket = result.socket();
+            socket.setTcpNoDelay(true);
+            socket.setKeepAlive(true);
+        }
+        catch (java.net.SocketException ex)
+        {
+            Ice.SocketException se = new Ice.SocketException();
+            se.initCause(ex);
+            throw se;
+        }
+
+        return result;
     }
 
     public static java.net.InetSocketAddress

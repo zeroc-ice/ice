@@ -154,15 +154,6 @@ public final class TcpEndpoint extends Endpoint
     }
 
     //
-    // Return true if the endpoint only supports oneway operations.
-    //
-    public boolean
-    oneway()
-    {
-        return false;
-    }
-
-    //
     // Return the timeout for the endpoint in milliseconds. 0 means
     // non-blocking, -1 means no timeout.
     //
@@ -252,13 +243,10 @@ public final class TcpEndpoint extends Endpoint
     public Acceptor
     acceptor(EndpointHolder endpoint)
     {
-        /* TODO - implement
         TcpAcceptor p = new TcpAcceptor(_instance, _port);
         endpoint.value = new TcpEndpoint(_instance, _host, p.effectivePort(),
                                          _timeout);
         return p;
-        */
-        return null;
     }
 
     //

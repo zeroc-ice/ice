@@ -35,7 +35,7 @@ abstract class EventHandler
     abstract void message(BasicStream stream);
 
     //
-    // Signal exception during reading or unmarshaling.
+    // Propagate an exception to the event handler.
     //
     abstract void exception(Ice.LocalException ex);
 
@@ -51,7 +51,7 @@ abstract class EventHandler
     // handler cannot be destroyed because it is in use, or true
     // otherwise.
     //
-    abstract boolean tryDestroy();
+//    abstract boolean tryDestroy();
 
     protected
     EventHandler(Instance instance)

@@ -75,11 +75,8 @@ class CommunicatorI implements Communicator
         {
             throw new CommunicatorDestroyedException();
         }
-        /* TODO: Server
         String endpts = _instance.properties().getProperty(property);
         return createObjectAdapterWithEndpoints(name, endpts);
-        */
-        return null;
     }
 
     public synchronized ObjectAdapter
@@ -89,11 +86,8 @@ class CommunicatorI implements Communicator
         {
             throw new CommunicatorDestroyedException();
         }
-        /* TODO: Server
         return _instance.objectAdapterFactory().createObjectAdapter(
             name, endpts);
-        */
-        return null;
     }
 
     public synchronized void

@@ -199,6 +199,15 @@ private:
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
     };
+
+    class DispatcherVisitor : public JavaVisitor
+    {
+    public:
+
+        DispatcherVisitor(const std::string&, const std::string&);
+
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
 };
 
 }

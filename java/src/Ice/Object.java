@@ -15,9 +15,24 @@ public class Object
     public
     Object()
     {
+        _dispatcher = null;
     }
 
-    public final int
+    public boolean
+    equals(java.lang.Object rhs)
+    {
+        try
+        {
+            Object r = (Object)rhs;
+            return this == r;
+        }
+        catch (ClassCastException ex)
+        {
+        }
+        return false;
+    }
+
+    public int
     ice_hash()
     {
         return hashCode();
@@ -46,56 +61,25 @@ public class Object
         // Nothing to do.
     }
 
-    /* TODO: Server
-    public final IceInternal.DispatchStatus
-    ___ice_isA(IceInternal.Incoming __in, Current __current)
+    public Dispatcher
+    __dispatcher()
     {
-        IceInternal.BasicStream __is = __in.is();
-        IceInternal.BasicStream __os = __in.os();
-        String __id = __is.readString();
-        boolean __ret = ice_isA(__id, __current);
-        __os.writeBool(__ret);
-        return IceInternal.DispatchStatus.DispatchOK;
+        return new _ObjectDisp(this);
     }
 
     public final IceInternal.DispatchStatus
-    ___ice_ping(IceInternal.Incoming __in, Current __current)
-    {
-        ice_ping(__current);
-        return IceInternal.DispatchStatus.DispatchOK;
-    }
-
-    public static String[] __all =
-    {
-        "ice_isA",
-        "ice_ping"
-    };
-
-    public IceInternal.DispatchStatus
     __dispatch(IceInternal.Incoming in, Current current)
     {
-        int pos = java.util.Arrays.binarySearch(__all, current.operation);
-        if (pos < 0)
+        synchronized (this)
         {
-            return IceInternal.DispatchStatus.DispatchOperationNotExist;
-        }
-
-        switch (pos)
-        {
-            case 0:
+            if (_dispatcher == null)
             {
-                return ___ice_isA(in, current);
-            }
-            case 1:
-            {
-                return ___ice_ping(in, current);
+                _dispatcher = __dispatcher();
             }
         }
 
-        assert(false);
-        return IceInternal.DispatchStatus.DispatchOperationNotExist;
+        return _dispatcher.__dispatch(in, current);
     }
-    */
 
     public void
     __write(IceInternal.BasicStream __os)
@@ -173,4 +157,5 @@ public class Object
 
     private java.util.HashMap _activeFacetMap = new java.util.HashMap();
     private java.lang.Object _activeFacetMapMutex = new java.lang.Object();
+    private Dispatcher _dispatcher;
 }
