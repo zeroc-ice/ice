@@ -372,6 +372,28 @@ proxyIceNewContext(ProxyObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+proxyIceDefaultContext(ProxyObject* self)
+{
+    assert(self->proxy);
+
+    Ice::ObjectPrx newProxy;
+    try
+    {
+        newProxy = (*self->proxy)->ice_defaultContext();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return createProxy(newProxy, *self->communicator);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 proxyIceGetFacet(ProxyObject* self)
 {
     assert(self->proxy);
@@ -1058,6 +1080,8 @@ static PyMethodDef ProxyMethods[] =
         PyDoc_STR("ice_getContext() -> dict") },
     { "ice_newContext", (PyCFunction)proxyIceNewContext, METH_VARARGS,
         PyDoc_STR("ice_newContext(dict) -> Ice.ObjectPrx") },
+    { "ice_defaultContext", (PyCFunction)proxyIceDefaultContext, METH_NOARGS,
+        PyDoc_STR("ice_defaultContext() -> Ice.ObjectPrx") },
     { "ice_getFacet", (PyCFunction)proxyIceGetFacet, METH_NOARGS,
         PyDoc_STR("ice_getFacet() -> string") },
     { "ice_newFacet", (PyCFunction)proxyIceNewFacet, METH_VARARGS,

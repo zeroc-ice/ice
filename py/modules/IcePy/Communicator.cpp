@@ -529,6 +529,71 @@ communicatorFindObjectFactory(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
+communicatorSetDefaultContext(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* dict;
+    if(!PyArg_ParseTuple(args, "O!", &PyDict_Type, &dict))
+    {
+        return NULL;
+    }
+
+    Ice::Context ctx;
+    if(!dictionaryToContext(dict, ctx))
+    {
+	return NULL;
+    }
+
+    try
+    {
+        (*self->communicator)->setDefaultContext(ctx);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorGetDefaultContext(CommunicatorObject* self)
+{
+    Ice::Context ctx;
+    try
+    {
+        ctx = (*self->communicator)->getDefaultContext();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+
+    }
+
+    PyObjectHandle dict = PyDict_New();
+    if(dict.get() == NULL)
+    {
+	return NULL;
+    }
+
+    if(!contextToDictionary(ctx, dict.get()))
+    {
+	return NULL;
+    }
+
+    return dict.release();
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorCreateObjectAdapter(CommunicatorObject* self, PyObject* args)
 {
     char* name;
@@ -734,6 +799,10 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR("removeObjectFactory(id) -> None") },
     { "findObjectFactory", (PyCFunction)communicatorFindObjectFactory, METH_VARARGS,
         PyDoc_STR("findObjectFactory(id) -> Ice.ObjectFactory") },
+    { "setDefaultContext", (PyCFunction)communicatorSetDefaultContext, METH_VARARGS,
+        PyDoc_STR("setDefaultContext(ctx) -> None") },
+    { "getDefaultContext", (PyCFunction)communicatorGetDefaultContext, METH_NOARGS,
+        PyDoc_STR("getDefaultContext() -> Ice.Context") },
     { "getProperties", (PyCFunction)communicatorGetProperties, METH_NOARGS,
         PyDoc_STR("getProperties() -> Ice.Properties") },
     { "getLogger", (PyCFunction)communicatorGetLogger, METH_NOARGS,
