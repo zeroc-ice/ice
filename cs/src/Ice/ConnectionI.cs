@@ -888,6 +888,7 @@ namespace Ice
 	
 	public void sendResponse(IceInternal.BasicStream os, byte compress)
 	{
+	    IceInternal.BasicStream stream = null;
 	    try
 	    {
 		lock(_sendMutex)
@@ -898,7 +899,7 @@ namespace Ice
 			throw _exception; // The exception is immutable at this point.
 		    }
 
-		    IceInternal.BasicStream stream = doCompress(os, compress != 0);
+		    stream = doCompress(os, compress != 0);
 
 		    //
 		    // Send the reply.
@@ -912,6 +913,13 @@ namespace Ice
 		lock(this)
 		{
 		    setState(StateClosed, ex);
+		}
+	    }
+	    finally
+	    {
+	        if(stream != null && !Object.ReferenceEquals(os, stream))
+		{
+		    stream.destroy();
 		}
 	    }
 
