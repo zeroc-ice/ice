@@ -36,9 +36,11 @@ class Constructed;
 class ClassDecl;
 class ClassDef;
 class Proxy;
+class Struct;
 class Operation;
 class DataMember;
 class Vector;
+class Map;
 class Enum;
 class Enumerator;
 class Native;
@@ -71,12 +73,16 @@ void ICE_API incRef(::Slice::ClassDef*);
 void ICE_API decRef(::Slice::ClassDef*);
 void ICE_API incRef(::Slice::Proxy*);
 void ICE_API decRef(::Slice::Proxy*);
+void ICE_API incRef(::Slice::Struct*);
+void ICE_API decRef(::Slice::Struct*);
 void ICE_API incRef(::Slice::Operation*);
 void ICE_API decRef(::Slice::Operation*);
 void ICE_API incRef(::Slice::DataMember*);
 void ICE_API decRef(::Slice::DataMember*);
 void ICE_API incRef(::Slice::Vector*);
 void ICE_API decRef(::Slice::Vector*);
+void ICE_API incRef(::Slice::Map*);
+void ICE_API decRef(::Slice::Map*);
 void ICE_API incRef(::Slice::Enum*);
 void ICE_API decRef(::Slice::Enum*);
 void ICE_API incRef(::Slice::Enumerator*);
@@ -102,9 +108,11 @@ typedef ::IceInternal::Handle<Constructed> ConstructedPtr;
 typedef ::IceInternal::Handle<ClassDecl> ClassDeclPtr;
 typedef ::IceInternal::Handle<ClassDef> ClassDefPtr;
 typedef ::IceInternal::Handle<Proxy> ProxyPtr;
+typedef ::IceInternal::Handle<Struct> StructPtr;
 typedef ::IceInternal::Handle<Operation> OperationPtr;
 typedef ::IceInternal::Handle<DataMember> DataMemberPtr;
 typedef ::IceInternal::Handle<Vector> VectorPtr;
+typedef ::IceInternal::Handle<Map> MapPtr;
 typedef ::IceInternal::Handle<Enum> EnumPtr;
 typedef ::IceInternal::Handle<Enumerator> EnumeratorPtr;
 typedef ::IceInternal::Handle<Native> NativePtr;
@@ -122,7 +130,9 @@ typedef std::list<TypeString> TypeStringList;
 typedef std::list<ContainedPtr> ContainedList;
 typedef std::list<ModulePtr> ModuleList;
 typedef std::list<ClassDefPtr> ClassList;
+typedef std::list<StructPtr> StructList;
 typedef std::list<VectorPtr> VectorList;
+typedef std::list<MapPtr> MapList;
 typedef std::list<EnumPtr> EnumList;
 typedef std::list<NativePtr> NativeList;
 typedef std::list<OperationPtr> OperationList;
@@ -144,9 +154,12 @@ public:
     virtual void visitClassDecl(const ClassDeclPtr&) { }
     virtual void visitClassDefStart(const ClassDefPtr&) { }
     virtual void visitClassDefEnd(const ClassDefPtr&) { }
+    virtual void visitStructStart(const StructPtr&) { }
+    virtual void visitStructEnd(const StructPtr&) { }
     virtual void visitOperation(const OperationPtr&) { }
     virtual void visitDataMember(const DataMemberPtr&) { }
     virtual void visitVector(const VectorPtr&) { }
+    virtual void visitMap(const MapPtr&) { }
     virtual void visitEnum(const EnumPtr&) { }
     virtual void visitNative(const NativePtr&) { }
 };
@@ -243,11 +256,13 @@ public:
     enum ContainedType
     {
 	ContainedTypeVector,
+	ContainedTypeMap,
 	ContainedTypeEnum,
 	ContainedTypeEnumerator,
 	ContainedTypeNative,
 	ContainedTypeModule,
 	ContainedTypeClass,
+	ContainedTypeStruct,
 	ContainedTypeOperation,
 	ContainedTypeDataMember
     };
@@ -279,7 +294,9 @@ public:
     ModulePtr createModule(const std::string&);
     ClassDefPtr createClassDef(const std::string&, bool, bool, const ClassList&);
     ClassDeclPtr createClassDecl(const std::string&, bool, bool);
+    StructPtr createStruct(const std::string&);
     VectorPtr createVector(const std::string&, const TypePtr&);
+    MapPtr createMap(const std::string&, const TypePtr&, const TypePtr&);
     EnumPtr createEnum(const std::string&, const StringList&);
     EnumeratorPtr createEnumerator(const std::string&);
     NativePtr createNative(const std::string&);
@@ -288,7 +305,9 @@ public:
     ContainedList lookupContained(const std::string&, bool = true);
     ModuleList modules();
     ClassList classes();
+    StructList structs();
     VectorList vectors();
+    MapList maps();
     EnumList enums();
     NativeList natives();
     int includeLevel();
@@ -417,6 +436,25 @@ protected:
 };
 
 // ----------------------------------------------------------------------
+// Struct
+// ----------------------------------------------------------------------
+
+class ICE_API Struct : virtual public Container, virtual public Constructed
+{
+public:
+
+    DataMemberPtr createDataMember(const std::string&, const TypePtr&);
+    DataMemberList dataMembers();
+    virtual ContainedType containedType();
+    virtual void visit(ParserVisitor*);
+
+protected:
+
+    Struct(const ContainerPtr&, const std::string&);
+    friend class ICE_API Container;
+};
+
+// ----------------------------------------------------------------------
 // Operation
 // ----------------------------------------------------------------------
 
@@ -461,6 +499,7 @@ protected:
     
     DataMember(const ContainerPtr&, const std::string&, const TypePtr&);
     friend class ICE_API ClassDef;
+    friend class ICE_API Struct;
 
     TypePtr _type;
 };
@@ -483,6 +522,28 @@ protected:
     friend class ICE_API Container;
 
     TypePtr _type;
+};
+
+// ----------------------------------------------------------------------
+// Map
+// ----------------------------------------------------------------------
+
+class ICE_API Map : virtual public Constructed
+{
+public:
+
+    TypePtr keyType();
+    TypePtr valueType();
+    virtual ContainedType containedType();
+    virtual void visit(ParserVisitor*);
+
+protected:
+
+    Map(const ContainerPtr&, const std::string&, const TypePtr&, const TypePtr&);
+    friend class ICE_API Container;
+
+    TypePtr _keyType;
+    TypePtr _valueType;
 };
 
 // ----------------------------------------------------------------------

@@ -28,6 +28,7 @@ yyerror(const char* s)
 %token ICE_LOCAL
 %token ICE_CLASS
 %token ICE_INTERFACE
+%token ICE_STRUCT
 %token ICE_EXTENDS
 %token ICE_IMPLEMENTS
 %token ICE_THROWS
@@ -45,6 +46,7 @@ yyerror(const char* s)
 %token ICE_LOCAL_OBJECT
 %token ICE_NATIVE
 %token ICE_VECTOR
+%token ICE_MAP
 %token ICE_ENUM
 %token ICE_NONMUTATING
 %token ICE_IDENTIFIER
@@ -97,10 +99,16 @@ definition
 | interface_def
 {
 }
+| struct_def
+{
+}
 | native_def
 {
 }
 | vector_def
+{
+}
+| map_def
 {
 }
 | enum_def
@@ -159,6 +167,52 @@ interface_exports
 interface_export
 // ----------------------------------------------------------------------
 : operation
+{
+}
+;
+
+// ----------------------------------------------------------------------
+struct_def
+// ----------------------------------------------------------------------
+: ICE_STRUCT ICE_IDENTIFIER
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    ContainerPtr cont = unit->currentContainer();
+    StructPtr st = cont->createStruct(ident->v);
+    if (!st)
+    {
+	YYERROR; // Can't continue, jump to next yyerrok
+    }
+    unit->pushContainer(st);
+}
+'{' struct_exports '}'
+{
+    unit->popContainer();
+}
+;
+
+// ----------------------------------------------------------------------
+struct_exports
+// ----------------------------------------------------------------------
+: struct_export ';' struct_exports
+{
+}
+| error ';' struct_exports
+{
+}
+| struct_export
+{
+    unit->error("`;' missing after definition");
+}
+|
+{
+}
+;
+
+// ----------------------------------------------------------------------
+struct_export
+// ----------------------------------------------------------------------
+: data_member
 {
 }
 ;
@@ -506,8 +560,17 @@ data_member
     TypePtr type = TypePtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    assert(!cl->isInterface());
-    cl->createDataMember(ident->v, type);
+    if (cl)
+    {
+	assert(!cl->isInterface());
+	cl->createDataMember(ident->v, type);
+    }
+    else
+    {
+	StructPtr st = StructPtr::dynamicCast(unit->currentContainer());
+	assert(st);
+	st->createDataMember(ident->v, type);
+    }
 }
 ;
 
@@ -651,6 +714,19 @@ vector_def
     TypePtr type = TypePtr::dynamicCast($3);
     ContainerPtr cont = unit->currentContainer();
     cont->createVector(ident->v, type);
+}
+;
+
+// ----------------------------------------------------------------------
+map_def
+// ----------------------------------------------------------------------
+: ICE_MAP '<' type ',' type '>' ICE_IDENTIFIER
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($7);
+    TypePtr keyType = TypePtr::dynamicCast($3);
+    TypePtr valueType = TypePtr::dynamicCast($5);
+    ContainerPtr cont = unit->currentContainer();
+    cont->createMap(ident->v, keyType, valueType);
 }
 ;
 

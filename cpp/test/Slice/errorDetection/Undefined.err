@@ -1,10 +1,11 @@
 Undefined.ice:11: `Foo' is not defined
 Undefined.ice:12: `Foo' is not defined
 Undefined.ice:13: `Foo' is not defined
-Undefined.ice:14: `Foo3' is not defined
-Undefined.ice:14: `Foo2' is not defined
-Undefined.ice:14: `Foo1' is not defined
-Undefined.ice:15: `Foo' is not defined
+Undefined.ice:14: `Foo' is not defined
 Undefined.ice:15: `Foo3' is not defined
 Undefined.ice:15: `Foo2' is not defined
 Undefined.ice:15: `Foo1' is not defined
+Undefined.ice:16: `Foo' is not defined
+Undefined.ice:16: `Foo3' is not defined
+Undefined.ice:16: `Foo2' is not defined
+Undefined.ice:16: `Foo1' is not defined

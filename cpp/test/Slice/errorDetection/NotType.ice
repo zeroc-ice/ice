@@ -15,6 +15,7 @@ module Module
 {
 
 vector<Module> Vector;
+map<int, Module> Map;
 interface BarIntf extends Module { };
 class BarClass1 extends Module { };
 class BarClass2 implements Module1, Module2, Module3 { };

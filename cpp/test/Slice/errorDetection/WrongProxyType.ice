@@ -9,10 +9,15 @@
 // **********************************************************************
 
 vector<int> Vector;
+map<Vector, int> Map;
 
 interface I
 {
     Vector* f1();
     void f2(Vector*);
-    void f3(;Vector*);
+    void f3(; Vector*);
+
+    Map* f1();
+    void f2(Map*);
+    void f3(; Map*);
 };

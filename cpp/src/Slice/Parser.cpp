@@ -43,12 +43,16 @@ void IceInternal::incRef(ClassDef* p) { p->__incRef(); }
 void IceInternal::decRef(ClassDef* p) { p->__decRef(); }
 void IceInternal::incRef(Proxy* p) { p->__incRef(); }
 void IceInternal::decRef(Proxy* p) { p->__decRef(); }
+void IceInternal::incRef(Struct* p) { p->__incRef(); }
+void IceInternal::decRef(Struct* p) { p->__decRef(); }
 void IceInternal::incRef(Operation* p) { p->__incRef(); }
 void IceInternal::decRef(Operation* p) { p->__decRef(); }
 void IceInternal::incRef(DataMember* p) { p->__incRef(); }
 void IceInternal::decRef(DataMember* p) { p->__decRef(); }
 void IceInternal::incRef(Vector* p) { p->__incRef(); }
 void IceInternal::decRef(Vector* p) { p->__decRef(); }
+void IceInternal::incRef(Map* p) { p->__incRef(); }
+void IceInternal::decRef(Map* p) { p->__decRef(); }
 void IceInternal::incRef(Enum* p) { p->__incRef(); }
 void IceInternal::decRef(Enum* p) { p->__decRef(); }
 void IceInternal::incRef(Enumerator* p) { p->__incRef(); }
@@ -369,6 +373,39 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
     return cl;
 }
 
+StructPtr
+Slice::Container::createStruct(const string& name)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if (!matches.empty())
+    {
+	StructPtr p = StructPtr::dynamicCast(matches.front());
+	if (p)
+	{
+	    if (_unit->ignRedefs())
+	    {
+		return p;
+	    }
+
+	    string msg = "redefinition of struct `";
+	    msg += name;
+	    msg += "'";
+	    _unit->error(msg);
+	    return 0;
+	}
+	
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as struct";
+	_unit->error(msg);
+	return 0;
+    }
+
+    StructPtr p = new Struct(this, name);
+    _contents.push_back(p);
+    return p;
+}
+
 VectorPtr
 Slice::Container::createVector(const string& name, const TypePtr& type)
 {
@@ -398,6 +435,39 @@ Slice::Container::createVector(const string& name, const TypePtr& type)
     }
 
     VectorPtr p = new Vector(this, name, type);
+    _contents.push_back(p);
+    return p;
+}
+
+MapPtr
+Slice::Container::createMap(const string& name, const TypePtr& keyType, const TypePtr& valueType)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if (!matches.empty())
+    {
+	MapPtr p = MapPtr::dynamicCast(matches.front());
+	if (p)
+	{
+	    if (_unit->ignRedefs())
+	    {
+		return p;
+	    }
+
+	    string msg = "redefinition of map `";
+	    msg += name;
+	    msg += "'";
+	    _unit->error(msg);
+	    return 0;
+	}
+	
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as map";
+	_unit->error(msg);
+	return 0;
+    }
+
+    MapPtr p = new Map(this, name, keyType, valueType);
     _contents.push_back(p);
     return p;
 }
@@ -662,6 +732,21 @@ Slice::Container::classes()
     return result;
 }
 
+StructList
+Slice::Container::structs()
+{
+    StructList result;
+    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	StructPtr q = StructPtr::dynamicCast(*p);
+	if (q)
+	{
+	    result.push_back(q);
+	}
+    }
+    return result;
+}
+
 VectorList
 Slice::Container::vectors()
 {
@@ -669,6 +754,21 @@ Slice::Container::vectors()
     for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
 	VectorPtr q = VectorPtr::dynamicCast(*p);
+	if (q)
+	{
+	    result.push_back(q);
+	}
+    }
+    return result;
+}
+
+MapList
+Slice::Container::maps()
+{
+    MapList result;
+    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	MapPtr q = MapPtr::dynamicCast(*p);
 	if (q)
 	{
 	    result.push_back(q);
@@ -1337,6 +1437,104 @@ Slice::Proxy::Proxy(const ClassDeclPtr& cl) :
 }
 
 // ----------------------------------------------------------------------
+// Struct
+// ----------------------------------------------------------------------
+
+DataMemberPtr
+Slice::Struct::createDataMember(const string& name, const TypePtr& type)
+{
+    ContainedList matches = _unit->findContents(thisScope() + name);
+    if (!matches.empty())
+    {
+	DataMemberPtr p = DataMemberPtr::dynamicCast(matches.front());
+	if (p)
+	{
+	    if (_unit->ignRedefs())
+	    {
+		return p;
+	    }
+
+	    string msg = "redefinition of data member `";
+	    msg += name;
+	    msg += "'";
+	    _unit->error(msg);
+	    return 0;
+	}
+	
+	string msg = "redefinition of `";
+	msg += name;
+	msg += "' as data member";
+	_unit->error(msg);
+	return 0;
+    }
+
+    if (name == this->name())
+    {
+	string msg = "struct name `";
+	msg += name;
+	msg += "' can not be used as data member";
+	_unit->error(msg);
+	return 0;
+    }
+
+    if (type.get() == this)
+    {
+	string msg = "struct `";
+	msg += name;
+	msg += "' can not contain itself";
+	_unit->error(msg);
+	return 0;
+    }
+
+    DataMemberPtr p = new DataMember(this, name, type);
+    _contents.push_back(p);
+    return p;
+}
+
+DataMemberList
+Slice::Struct::dataMembers()
+{
+    DataMemberList result;
+    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
+	if (q)
+	{
+	    result.push_back(q);
+	}
+    }
+    return result;
+}
+
+Slice::Contained::ContainedType
+Slice::Struct::containedType()
+{
+    return ContainedTypeStruct;
+}
+
+void
+Slice::Struct::visit(ParserVisitor* visitor)
+{
+    if (_includeLevel > 0)
+    {
+	return;
+    }
+
+    visitor->visitStructStart(this);
+    Container::visit(visitor);
+    visitor->visitStructEnd(this);
+}
+
+Slice::Struct::Struct(const ContainerPtr& container, const string& name) :
+    Container(container->unit()),
+    Constructed(container, name),
+    Type(container->unit()),
+    Contained(container, name),
+    SyntaxTreeBase(container->unit())
+{
+}
+
+// ----------------------------------------------------------------------
 // Operation
 // ----------------------------------------------------------------------
 
@@ -1443,7 +1641,7 @@ Slice::Native::visit(ParserVisitor* visitor)
 Slice::Native::Native(const ContainerPtr& container, const string& name) :
     Constructed(container, name),
     Type(container->unit()),
-    Contained(container,  name),
+    Contained(container, name),
     SyntaxTreeBase(container->unit())
 {
 }
@@ -1473,9 +1671,47 @@ Slice::Vector::visit(ParserVisitor* visitor)
 Slice::Vector::Vector(const ContainerPtr& container, const string& name, const TypePtr& type) :
     Constructed(container, name),
     Type(container->unit()),
-    Contained(container,  name),
+    Contained(container, name),
     SyntaxTreeBase(container->unit()),
     _type(type)
+{
+}
+
+// ----------------------------------------------------------------------
+// Map
+// ----------------------------------------------------------------------
+
+TypePtr
+Slice::Map::keyType()
+{
+    return _keyType;
+}
+
+TypePtr
+Slice::Map::valueType()
+{
+    return _valueType;
+}
+
+Slice::Contained::ContainedType
+Slice::Map::containedType()
+{
+    return ContainedTypeMap;
+}
+
+void
+Slice::Map::visit(ParserVisitor* visitor)
+{
+    visitor->visitMap(this);
+}
+
+Slice::Map::Map(const ContainerPtr& container, const string& name, const TypePtr& keyType, const TypePtr& valueType) :
+    Constructed(container, name),
+    Type(container->unit()),
+    Contained(container, name),
+    SyntaxTreeBase(container->unit()),
+    _keyType(keyType),
+    _valueType(valueType)
 {
 }
 
@@ -1504,7 +1740,7 @@ Slice::Enum::visit(ParserVisitor* visitor)
 Slice::Enum::Enum(const ContainerPtr& container, const string& name, const StringList& enumerators) :
     Constructed(container, name),
     Type(container->unit()),
-    Contained(container,  name),
+    Contained(container, name),
     SyntaxTreeBase(container->unit()),
     _enumerators(enumerators)
 {

@@ -1,0 +1,4 @@
+NameCanNotBeUsed.ice:13: class name `Foo' can not be used as operation
+NameCanNotBeUsed.ice:18: interface name `IFoo' can not be used as operation
+NameCanNotBeUsed.ice:23: class name `Bar' can not be used as data member
+NameCanNotBeUsed.ice:28: struct name `SBar' can not be used as data member

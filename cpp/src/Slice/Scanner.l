@@ -109,6 +109,10 @@ L	[a-zA-Z_]
     return ICE_INTERFACE;
 }
 
+"struct" {
+    return ICE_STRUCT;
+}
+
 "local" {
     return ICE_LOCAL;
 }
@@ -179,6 +183,10 @@ L	[a-zA-Z_]
 
 "vector" {
     return ICE_VECTOR;
+}
+
+"map" {
+    return ICE_MAP;
 }
 
 "enum" {
