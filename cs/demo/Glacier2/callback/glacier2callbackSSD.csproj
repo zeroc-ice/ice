@@ -70,14 +70,14 @@
                     HintPath = "..\..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.dll"
                 />
                 <Reference
-                    Name = "icecs"
-                    AssemblyName = "icecs"
-                    HintPath = "..\..\bin\icecs.dll"
-                />
-                <Reference
                     Name = "glacier2cs"
                     AssemblyName = "glacier2cs"
                     HintPath = "..\..\bin\glacier2cs.dll"
+                />
+                <Reference
+                    Name = "icecs"
+                    AssemblyName = "icecs"
+                    HintPath = "..\..\..\bin\icecs.dll"
                 />
             </References>
         </Build>
