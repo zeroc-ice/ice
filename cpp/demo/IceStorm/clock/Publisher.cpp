@@ -35,12 +35,18 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    IceStorm::TopicPrx topic = manager->retrieve("time");
-    if (!topic)
+    IceStorm::TopicPrx topic;
+    try
     {
-	cerr << argv[0] << ": No topic `time'" << endl;
-	return EXIT_FAILURE;
+	topic = manager->retrieve("time");
     }
+    catch(const IceStorm::NoSuchTopic& e)
+    {
+	cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
+	return EXIT_FAILURE;
+	
+    }
+    assert(topic);
 
     //
     // Get a publisher object, create a oneway proxy and then cast to

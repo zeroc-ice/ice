@@ -41,11 +41,28 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     Ice::ObjectPrx object = adapter->createProxy(id);
 
+    //
+    // The set of topics to which to subscribe
+    //
     IceStorm::StringSeq topics;
     topics.push_back("time");
+
+    //
+    // The requested quality of service. This requests "reliability" =
+    // "batch". This asks IceStorm to send events to the subscriber in
+    // batches at regular intervals.
+    //
     IceStorm::QoS qos;
     qos["reliability"] = "batch";
-    manager->subscribe("events", qos, topics, object);
+    try
+    {
+	manager->subscribe("events", qos, topics, object);
+    }
+    catch(const IceStorm::NoSuchTopic& e)
+    {
+	cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
+	return EXIT_FAILURE;
+    }
 
     adapter->activate();
 

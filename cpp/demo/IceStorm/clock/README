@@ -1,0 +1,21 @@
+To run the demo:
+
+export ICE_CONFIG=config
+
+or use --Ice.Config=config for all subsequent commands.
+
+Start the IceStorm daemon:
+
+../../bin/icestorm
+
+In a seperate window:
+
+../../bin/icestormadmin create time
+./subscriber
+
+In another window:
+
+./publisher
+
+For each run of the publisher 10 "tick" messages should be displayed
+in the subscriber window.

@@ -5,19 +5,47 @@
 IceStorm.TopicManager=TopicManager:tcp -h localhost -p 10000
 
 #
-# Network Tracing
+# This property sets the endpoint for the TopicManager. The port
+# number must match the above.
 #
-# 0 = no network tracing
-# 1 = trace connection establishment and closure
-# 2 = like 1, but more detailed
-# 3 = like 2, but also trace data transfer
-#
-#Ice.Trace.Network=1
+Ice.Adapter.TopicManager.Endpoints=tcp -p 10000
 
 #
-# Protocol Tracing
+# TopicManager Tracing
 #
-# 0 = no protocol tracing
-# 1 = trace protocol messages
+# 0 = no tracing
+# 1 = trace topic creation, subscription, unsubscription
+# 2 = like 1, but with more detailed subscription information
 #
-#Ice.Trace.Protocol=1
+IceStorm.Trace.TopicManager=2
+
+#
+# Topic Tracing
+#
+# 0 = no tracing
+# 1 = trace unsubscription diagnostics
+#
+IceStorm.Trace.Topic=1
+
+#
+# Subscriber Tracing
+#
+# 0 = no tracing
+# 1 = subscriber diagnostics (subscription, unsubscription, event
+#     propagation failures)
+#
+IceStorm.Trace.Subscriber=1
+
+#
+# Flush Tracing (for batch mode transfer flushing)
+#
+# 0 = no tracing
+# 1 = trace activity of flusher thread
+#
+IceStorm.Trace.Flush=1
+
+#
+# Amount of time in milliseconds between flushes for batch mode
+# transfer. The minimum allowable value is 100ms.
+#
+IceStorm.Flush.Timeout = 2000
