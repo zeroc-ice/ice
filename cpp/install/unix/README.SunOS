@@ -40,6 +40,7 @@ version 5.4.
 
 This distribution was built using the following Solaris 9 binary 
 packages from www.sunfreeware.com:
+
 - expat 1.95.5
 - openssl 0.9.7e
 - libgcc 3.3
@@ -53,6 +54,7 @@ distribution as part of the SUNWbzip package. Apply Sun patch
 This distribution includes Berkeley DB 4.2.52, configured with
 --enable-cxx and --enable-java, and built with Sun CC 5.4.
 
+
 Java
 ----
 
@@ -65,10 +67,9 @@ Python
 
 The Ice extension for Python included in this distribution requires
 Python 2.3.3. It was built using the python 2.3.3 binary package
-from http://www.sunfreeware.com.
-If you prefer to use Python 2.4, you can download the Ice for Python 
-source code from the ZeroC web site at 
-http://www.zeroc.com/download.html.
+from http://www.sunfreeware.com. If you prefer to use Python 2.4,
+you can download the Ice for Python source code from the ZeroC web
+site at http://www.zeroc.com/download.html.
 
 
 ======================================================================
@@ -108,7 +109,7 @@ to the compiler with the -I option, and $ICE_HOME/lib with the -L
 option. Furthermore, a C++ program needs to link with at least libIce
 and libIceUtil, so a typical link command would look like this:
 
-$ c++ -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
+$ CC -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
 
 Additional libraries are necessary if you are using an Ice service
 such as IcePack or Glacier2.
@@ -127,7 +128,7 @@ In order to use Freeze, you must add db.jar to your CLASSPATH. In
 addition, the JVM requires the directory containing the Berkeley DB
 libraries to be listed in java.library.path, therefore you must add
 this directory to your LD_LIBRARY_PATH (even if the libraries reside
-in /usr/lib).
+in a default directory like /usr/lib).
 
 
 Python

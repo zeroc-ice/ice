@@ -38,26 +38,30 @@ Requirements
 This binary distribution was compiled on AIX 5.2 using IBM VisualAge 
 version 6 with the April 2004 PTF.
 
-This distribution was built using the following AIX binary packages 
-from 
-http://www.ibm.com/servers/aix/products/aixos/linux/ezinstall.html:
+This distribution was built using the following AIX binary packages:
+
 - bzip2-1.0.2-2.aix4.3.ppc.rpm
 - expat-1.95.7-1.aix5.1.ppc.rpm 
 - expat-devel-1.95.7-1.aix5.1.ppc.rpm (not required to use Ice)
 - openssl-0.9.7d-1.aix5.1.ppc.rpm
 - openssl-devel-0.9.7d-1.aix5.1.ppc.rpm
 
-We recommend that you install these packages to use Ice.
+We recommend that you install these packages to use Ice. They can
+be downloaded from
+
+http://www.ibm.com/servers/aix/products/aixos/linux/ezinstall.html
 
 This distribution includes Berkeley DB 4.2.52 binaries. Berkeley DB
 was configured with --enable-cxx and --enable-java, and built using
 IBM VisualAge 6.
+
 
 Java
 ----
 
 Ice for Java requires J2SE 1.4.2 or 1.5.0. Java for AIX is available 
 from IBM at:
+
 http://www-128.ibm.com/developerworks/java/jdk/aix/
 
 
@@ -98,7 +102,7 @@ to the compiler with the -I option, and $ICE_HOME/lib with the -L
 option. Furthermore, a C++ program needs to link with at least libIce
 and libIceUtil, so a typical link command would look like this:
 
-$ c++ -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
+$ xlC_r -o myprogram myprogram.o -L$ICE_HOME/lib -lIce -lIceUtil
 
 Additional libraries are necessary if you are using an Ice service
 such as IcePack or Glacier2.
@@ -116,8 +120,8 @@ Note that the Freeze component of Ice for Java requires Berkeley DB.
 In order to use Freeze, you must add db.jar to your CLASSPATH. In
 addition, the JVM requires the directory containing the Berkeley DB
 libraries to be listed in java.library.path, therefore you must add
-this directory to your LIBPATH (even if the libraries reside in 
-/usr/lib).
+this directory to your LIBPATH (even if the libraries reside in a
+default directory such as /usr/lib).
 
 
 ======================================================================
