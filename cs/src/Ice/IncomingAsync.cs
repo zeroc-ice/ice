@@ -58,6 +58,10 @@ namespace IceInternal
 		_os.pos(save);
 	    }
 	    
+	    //
+	    // Must be called last, so that if an exception is raised,
+	    // this function is definitely *not* called.
+	    //
 	    __finishInvoke();
 	}
 	
@@ -176,6 +180,10 @@ namespace IceInternal
 		}
 	    }
 	    
+	    //
+	    // Must be called last, so that if an exception is raised,
+	    // this function is definitely *not* called.
+	    //
 	    __finishInvoke();
 	}
 	

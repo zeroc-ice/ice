@@ -296,20 +296,23 @@ namespace Ice
 
 	public ObjectPrx addFacet(Ice.Object obj, Identity ident, string facet)
 	{
-	    checkForDeactivation();
-	    checkIdentity(ident);
+	    lock(this)
+	    {
+		checkForDeactivation();
+		checkIdentity(ident);
 
-	    //
-	    // Create a copy of the Identity argument, in case the caller
-	    // reuses it.
-	    //
-	    Identity id = new Identity();
-	    id.category = ident.category;
-	    id.name = ident.name;
+		//
+		// Create a copy of the Identity argument, in case the caller
+		// reuses it.
+		//
+		Identity id = new Identity();
+		id.category = ident.category;
+		id.name = ident.name;
 
-	    _servantManager.addServant(obj, id, facet);
+		_servantManager.addServant(obj, id, facet);
 
-	    return newProxy(id);
+		return newProxy(id);
+	    }
 	}
 	
 	public ObjectPrx addWithUUID(Ice.Object obj)
@@ -711,7 +714,7 @@ namespace Ice
 		
 		while(end < endpts.Length)
 		{
-		    beg = IceInternal.StringUtil.findFirstNotOf(endpts, delim, end);
+		    beg = IceUtil.StringUtil.findFirstNotOf(endpts, delim, end);
 		    if(beg == -1)
 		    {
 			break;

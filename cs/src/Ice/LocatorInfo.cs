@@ -91,7 +91,7 @@ namespace IceInternal
 			obj = _locator.findAdapterById(r.adapterId);
 			if(obj != null)
 			{
-			    endpoints = ((Ice.ObjectPrxHelper)obj).__reference().endpoints;
+			    endpoints = ((Ice.ObjectPrxHelperBase)obj).__reference().endpoints;
 			    
 			    if(endpoints != null && endpoints.Length > 0)
 			    {
@@ -112,13 +112,13 @@ namespace IceInternal
 		    
 		    if(obj != null)
 		    {
-			if(((Ice.ObjectPrxHelper) obj).__reference().endpoints.Length > 0)
+			if(((Ice.ObjectPrxHelperBase) obj).__reference().endpoints.Length > 0)
 			{
-			    endpoints = ((Ice.ObjectPrxHelper)obj).__reference().endpoints;
+			    endpoints = ((Ice.ObjectPrxHelperBase)obj).__reference().endpoints;
 			}
-			else if(((Ice.ObjectPrxHelper)obj).__reference().adapterId.Length > 0)
+			else if(((Ice.ObjectPrxHelperBase)obj).__reference().adapterId.Length > 0)
 			{
-			    endpoints = getEndpoints(((Ice.ObjectPrxHelper)obj).__reference(), out cached);
+			    endpoints = getEndpoints(((Ice.ObjectPrxHelperBase)obj).__reference(), out cached);
 			}
 		    }
 		    
@@ -187,7 +187,7 @@ namespace IceInternal
 		Ice.ObjectPrx obj = _table.removeProxy(rf.identity);
 		if(obj != null && rf.instance.traceLevels().location >= 2)
 		{
-		    Reference r = ((Ice.ObjectPrxHelper)obj).__reference();
+		    Reference r = ((Ice.ObjectPrxHelperBase)obj).__reference();
 		    if(r.endpoints.Length > 0)
 		    {
 			trace("removed endpoints from locator table", rf, r.endpoints);
@@ -212,7 +212,7 @@ namespace IceInternal
 		Ice.ObjectPrx obj = _table.removeProxy(rf.identity);
 		if(obj != null)
 		{
-		    Reference r = ((Ice.ObjectPrxHelper)obj).__reference();
+		    Reference r = ((Ice.ObjectPrxHelperBase)obj).__reference();
 		    if(r.adapterId.Length > 0)
 		    {
 			clearCache(r);

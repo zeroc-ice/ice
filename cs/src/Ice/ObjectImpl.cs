@@ -24,6 +24,11 @@ namespace Ice
 	    return GetHashCode();
 	}
 
+	public object Clone()
+	{
+	    return MemberwiseClone();
+	}
+
 	public static readonly string[] __ids = new string[] { "::Ice::Object" };
 	
 	public virtual bool ice_isA(string s, Current current)

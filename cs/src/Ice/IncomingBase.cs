@@ -152,8 +152,7 @@ namespace IceInternal
 	    output.setUseTab(false);
 	    output.print("dispatch exception:");
 	    output.print("\nidentity: " + Ice.Util.identityToString(_current.id));
-	    output.print("\nfacet: ");
-	    IceInternal.ValueWriter.write(_current.facet, output);
+	    output.print("\nfacet: " + IceUtil.StringUtil.escapeString(_current.facet, ""));
 	    output.print("\noperation: " + _current.operation);
 	    output.print("\n");
 	    output.print(ex.ToString());

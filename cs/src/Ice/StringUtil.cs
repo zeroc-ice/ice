@@ -9,7 +9,7 @@
 
 using System.Diagnostics;
 
-namespace IceInternal
+namespace IceUtil
 {
 
     public sealed class StringUtil

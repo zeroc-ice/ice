@@ -291,13 +291,9 @@ namespace IceInternal
 		
 		string[] facet = stream.readStringSeq();
 		o.Write("\nfacet = ");
-		for(int i = 0; i < facet.Length; i++)
+		if(facet.Length > 0)
 		{
-		    o.Write(StringUtil.escapeString(facet[i], "/"));
-		    if(i < facet.Length - 1)
-		    {
-			o.Write('/');
-		    }
+		    o.Write(IceUtil.StringUtil.escapeString(facet[0], ""));
 		}
 		
 		string operation = stream.readString();

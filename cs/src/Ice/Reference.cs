@@ -171,7 +171,7 @@ namespace IceInternal
 	    // the identity string in quotes.
 	    //
 	    string id = Ice.Util.identityToString(identity);
-	    if(StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
+	    if(IceUtil.StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
 	    {
 		s.Append('"');
 		s.Append(id);
@@ -190,8 +190,8 @@ namespace IceInternal
 		// the facet string in quotes.
 		//
 		s.Append(" -f ");
-		string fs = StringUtil.escapeString(facet, "");
-		if(StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
+		string fs = IceUtil.StringUtil.escapeString(facet, "");
+		if(IceUtil.StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
 		{
 		    s.Append('"');
 		    s.Append(fs);
@@ -257,14 +257,14 @@ namespace IceInternal
 	    }
 	    else
 	    {
-		string a = StringUtil.escapeString(adapterId, null);
+		string a = IceUtil.StringUtil.escapeString(adapterId, null);
 		//
 		// If the encoded adapter id string contains characters which
 		// the reference parser uses as separators, then we enclose
 		// the adapter id string in quotes.
 		//
 		s.Append(" @ ");
-		if(StringUtil.findFirstOf(a, " \t\n\r") != -1)
+		if(IceUtil.StringUtil.findFirstOf(a, " \t\n\r") != -1)
 		{
 		    s.Append('"');
 		    s.Append(a);

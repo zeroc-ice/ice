@@ -104,26 +104,39 @@ namespace IceInternal
 		    }
 		    
 		    case DispatchStatus.DispatchUnknownException:
-		    {
-			Ice.UnknownException ex = new Ice.UnknownException();
-			ex.unknown = __is.readString();
-			throw ex;
-		    }
-		    
 		    case DispatchStatus.DispatchUnknownLocalException:
-		    {
-			Ice.UnknownLocalException ex = new Ice.UnknownLocalException();
-			ex.unknown = __is.readString();
-			throw ex;
-		    }
-		    
 		    case DispatchStatus.DispatchUnknownUserException:
 		    {
-			Ice.UnknownUserException ex = new Ice.UnknownUserException();
-			ex.unknown = __is.readString();
+		        string unknown = __is.readString();
+
+			Ice.UnknownException ex = null;
+		        switch(status)
+			{
+			    case DispatchStatus.DispatchUnknownException:
+			    {
+			        ex = new Ice.UnknownException();
+				break;
+			    }
+			    case DispatchStatus.DispatchUnknownLocalException:
+			    {
+			        ex = new Ice.UnknownLocalException();
+				break;
+			    }
+			    case DispatchStatus.DispatchUnknownUserException:
+			    {
+			        ex = new Ice.UnknownUserException();
+				break;
+			    }
+			    default:
+			    {
+			        Debug.Assert(false);
+				break;
+			    }
+			}
+			ex.unknown = unknown;
 			throw ex;
 		    }
-		    
+
 		    default:
 		    {
 			throw new Ice.UnknownReplyStatusException();
@@ -172,7 +185,7 @@ namespace IceInternal
 		// sending a close connection message, the server
 		// guarantees that all outstanding requests can safely
 		// be repeated. Otherwise, we can also retry if the
-		// operation mode Nonmutating or Idempotent.
+		// operation mode is Nonmutating or Idempotent.
 		//
 		if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent ||
 		   exc is Ice.CloseConnectionException)
@@ -234,7 +247,7 @@ namespace IceInternal
 	    }
 	}
 
-	protected void __prepare(Reference r, string operation, Ice.OperationMode mode, Ice.Context context)
+	protected void __prepare(Ice.ObjectPrx prx, string operation, Ice.OperationMode mode, Ice.Context context)
 	{
 	    System.Threading.Monitor.Enter(this);
 
@@ -254,7 +267,7 @@ namespace IceInternal
 		    }
 		}
 		
-		_reference = r;
+		_reference = ((Ice.ObjectPrxHelperBase)prx).__reference();;
 		Debug.Assert(_connection == null);
 		_connection = _reference.getConnection();
 		_cnt = 0;
@@ -264,9 +277,17 @@ namespace IceInternal
 		Debug.Assert(__os == null);
 		__os = new BasicStream(_reference.instance);
 		
+                //
+                // If we are using a router, then add the proxy to the router info object.
+                //
+                if(_reference.routerInfo != null)
+                {
+                    _reference.routerInfo.addProxy(prx);
+                }
+
 		_connection.prepareRequest(__os);
 		
-		r.identity.__write(__os);
+		_reference.identity.__write(__os);
 
                 //
                 // For compatibility with the old FacetPath.

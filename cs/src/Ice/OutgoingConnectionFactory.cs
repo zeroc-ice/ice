@@ -344,7 +344,7 @@ namespace IceInternal
 		    Ice.ObjectPrx proxy = routerInfo.getClientProxy();
 		    Ice.ObjectAdapter adapter = routerInfo.getAdapter();
 		    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-		    Endpoint[] endpoints = ((Ice.ObjectPrxHelper) proxy).__reference().endpoints;
+		    Endpoint[] endpoints = ((Ice.ObjectPrxHelperBase)proxy).__reference().endpoints;
 		    for(int i = 0; i < endpoints.Length; i++)
 		    {
 			Endpoint endpoint = endpoints[i];

@@ -24,7 +24,7 @@ namespace IceInternal
 		{
 		    Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
 		    ex.id = id;
-		    ex.kindOfObject = "user exception factory";
+		    ex.kindOfObject = "object factory";
 		    throw ex;
 		}
 		_factoryMap[id] = factory;
@@ -40,9 +40,12 @@ namespace IceInternal
 		{
 		    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 		    ex.id = id;
-		    ex.kindOfObject = "user exception factory";
+		    ex.kindOfObject = "object factory";
 		    throw ex;
 		}
+
+		((Ice.ObjectFactory)o).destroy();
+
 		_factoryMap.Remove(id);
 	    }
 	}
@@ -65,11 +68,14 @@ namespace IceInternal
 	
 	internal void destroy()
 	{
-	    foreach(Ice.ObjectFactory factory in _factoryMap.Values)
+	    lock(this)
 	    {
-		factory.destroy();
+		foreach(Ice.ObjectFactory factory in _factoryMap.Values)
+		{
+		    factory.destroy();
+		}
+		_factoryMap.Clear();
 	    }
-	    _factoryMap.Clear();
 	}
 	
 	private Hashtable _factoryMap;

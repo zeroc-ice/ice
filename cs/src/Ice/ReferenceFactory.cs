@@ -60,7 +60,7 @@ namespace IceInternal
 	    int beg;
 	    int end = 0;
 	    
-	    beg = StringUtil.findFirstNotOf(s, delim, end);
+	    beg = IceUtil.StringUtil.findFirstNotOf(s, delim, end);
 	    if(beg == -1)
 	    {
 		Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -73,7 +73,7 @@ namespace IceInternal
 	    // or double quotation marks.
 	    //
 	    string idstr = null;
-	    end = StringUtil.checkQuote(s, beg);
+	    end = IceUtil.StringUtil.checkQuote(s, beg);
 	    if(end == -1)
 	    {
 		Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -82,7 +82,7 @@ namespace IceInternal
 	    }
 	    else if(end == 0)
 	    {
-		end = StringUtil.findFirstOf(s, delim + ":@", beg);
+		end = IceUtil.StringUtil.findFirstOf(s, delim + ":@", beg);
 		if(end == -1)
 		{
 		    end = s.Length;
@@ -126,7 +126,7 @@ namespace IceInternal
 		// a null proxy, but only if nothing follows the
 		// quotes.
 		//
-		else if(StringUtil.findFirstNotOf(s, delim, end) != -1)
+		else if(IceUtil.StringUtil.findFirstNotOf(s, delim, end) != -1)
 		{
 		    Ice.ProxyParseException e = new Ice.ProxyParseException();
 		    e.str = s;
@@ -145,7 +145,7 @@ namespace IceInternal
 	    
 	    while(true)
 	    {
-		beg = StringUtil.findFirstNotOf(s, delim, end);
+		beg = IceUtil.StringUtil.findFirstNotOf(s, delim, end);
 		if(beg == -1)
 		{
 		    break;
@@ -156,7 +156,7 @@ namespace IceInternal
 		    break;
 		}
 		
-		end = StringUtil.findFirstOf(s, delim + ":@", beg);
+		end = IceUtil.StringUtil.findFirstOf(s, delim + ":@", beg);
 		if(end == -1)
 		{
 		    end = s.Length;
@@ -181,14 +181,14 @@ namespace IceInternal
 		// quotation marks.
 		//
 		string argument = null;
-		int argumentBeg = StringUtil.findFirstNotOf(s, delim, end);
+		int argumentBeg = IceUtil.StringUtil.findFirstNotOf(s, delim, end);
 		if(argumentBeg != -1)
 		{
 		    char ch = s[argumentBeg];
 		    if(ch != '@' && ch != ':' && ch != '-')
 		    {
 			beg = argumentBeg;
-			end = StringUtil.checkQuote(s, beg);
+			end = IceUtil.StringUtil.checkQuote(s, beg);
 			if(end == -1)
 			{
 			    Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -197,7 +197,7 @@ namespace IceInternal
 			}
 			else if(end == 0)
 			{
-			    end = StringUtil.findFirstOf(s, delim + ":@", beg);
+			    end = IceUtil.StringUtil.findFirstOf(s, delim + ":@", beg);
 			    if(end == -1)
 			    {
 					end = s.Length;
@@ -228,7 +228,7 @@ namespace IceInternal
 			    throw e;
 			}
 			
-			if(!IceInternal.StringUtil.unescapeString(argument, 0, argument.Length, out facet))
+			if(!IceUtil.StringUtil.unescapeString(argument, 0, argument.Length, out facet))
 			{
 			    Ice.ProxyParseException e = new Ice.ProxyParseException();
 			    e.str = s;
@@ -342,7 +342,7 @@ namespace IceInternal
 		}
 		else if(s[beg] == '@')
 		{
-		    beg = StringUtil.findFirstNotOf(s, delim, beg + 1);
+		    beg = IceUtil.StringUtil.findFirstNotOf(s, delim, beg + 1);
 		    if(beg == -1)
 		    {
 			Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -350,7 +350,7 @@ namespace IceInternal
 			throw e;
 		    }
 		    
-		    end = StringUtil.checkQuote(s, beg);
+		    end = IceUtil.StringUtil.checkQuote(s, beg);
 		    if(end == -1)
 		    {
 			Ice.ProxyParseException e = new Ice.ProxyParseException();
@@ -359,7 +359,7 @@ namespace IceInternal
 		    }
 		    else if(end == 0)
 		    {
-			end = StringUtil.findFirstOf(s, delim, beg);
+			end = IceUtil.StringUtil.findFirstOf(s, delim, beg);
 			if(end == -1)
 			{
 			    end = s.Length;
@@ -371,7 +371,7 @@ namespace IceInternal
 		    }
 		    
 		    string token;
-		    if(!IceInternal.StringUtil.unescapeString(s, beg, end, out token) || token.Length == 0)
+		    if(!IceUtil.StringUtil.unescapeString(s, beg, end, out token) || token.Length == 0)
 		    {
 			Ice.ProxyParseException e = new Ice.ProxyParseException();
 			e.str = s;

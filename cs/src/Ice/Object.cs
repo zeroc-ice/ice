@@ -11,7 +11,7 @@
 namespace Ice
 {
 
-    public interface Object
+    public interface Object : System.ICloneable
     {
 	int ice_hash();
 	bool ice_isA(string s, Current current);

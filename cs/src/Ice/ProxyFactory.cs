@@ -75,6 +75,15 @@ namespace IceInternal
 	
 	public int checkRetryAfterException(Ice.LocalException ex, int cnt)
 	{
+	    //
+	    // We don't retry *NotExistException, which are all derived from
+	    // RequestFailedException.
+	    //
+	    if(ex is Ice.RequestFailedException)
+	    {
+		throw ex;
+	    }
+
 	    ++cnt;
 
 	    TraceLevels traceLevels = _instance.traceLevels();

@@ -156,6 +156,8 @@ namespace IceInternal
 	    }
 	    catch(Ice.RequestFailedException ex)
 	    {
+	        _is.endReadEncaps();
+
 		if(ex.id == null)
 		{
 		    ex.id = _current.id;
@@ -214,12 +216,17 @@ namespace IceInternal
 		    _os.writeString(ex.operation);
 		}
 		
+		//
+		// Must be called last, so that if an exception is raised,
+		// this function is definitely *not* called.
+		//
 		__finishInvoke();
-		_is.endReadEncaps();
 		return;
 	    }
 	    catch(Ice.LocalException ex)
 	    {
+	        _is.endReadEncaps();
+		
 		if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
 		{
 		    __warning(ex);
@@ -233,8 +240,11 @@ namespace IceInternal
 		    _os.writeString(ex.ToString());
 		}
 		
+		//
+		// Must be called last, so that if an exception is raised,
+		// this function is definitely *not* called.
+		//
 		__finishInvoke();
-		_is.endReadEncaps();
 		return;
 	    }
 
@@ -325,8 +335,11 @@ namespace IceInternal
 		}
 	    }
 	    
+	    //
+	    // Must be called last, so that if an exception is raised,
+	    // this function is definitely *not* called.
+	    //
 	    __finishInvoke();
-	    _is.endReadEncaps();
 	}
 	
 	public BasicStream istr()

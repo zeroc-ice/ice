@@ -15,12 +15,12 @@ namespace Ice
 	public abstract void ice_response(bool ok, byte[] outParams);
 	public abstract override void ice_exception(Ice.LocalException ex);
 
-	public void __invoke(IceInternal.Reference r, string operation, OperationMode mode,
+	public void __invoke(Ice.ObjectPrx prx, string operation, OperationMode mode,
 		             byte[] inParams, Ice.Context context)
 	{
 	    try
 	    {
-	        __prepare(r, operation, mode, context);
+	        __prepare(prx, operation, mode, context);
 		__os.writeBlob(inParams);
 		__os.endWriteEncaps();
 	    }

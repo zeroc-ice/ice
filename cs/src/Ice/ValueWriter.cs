@@ -68,10 +68,10 @@ namespace IceInternal
 			    writeValue(elem + "value", entry.Value, objectTable, output);
 			}
 		    }
-		    else if(val is Ice.ObjectPrxHelper)
+		    else if(val is Ice.ObjectPrxHelperBase)
 		    {
 			writeName(name, output);
-			Ice.ObjectPrxHelper proxy = (Ice.ObjectPrxHelper)val;
+			Ice.ObjectPrxHelperBase proxy = (Ice.ObjectPrxHelperBase)val;
 			output.print(proxy.__reference().ToString());
 		    }
 		    else if(val is Ice.Object)

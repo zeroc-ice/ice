@@ -40,7 +40,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
                     ex.kindOfObject = "servant";
                     if(facet.Length > 0)
                     {
-                        ex.id += " -f " + IceInternal.StringUtil.escapeString(facet, "");
+                        ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
                     }
                     throw ex;
                 }
@@ -70,7 +70,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
 		ex.kindOfObject = "servant";
 		if(facet.Length > 0)
 		{
-		    ex.id += " -f " + IceInternal.StringUtil.escapeString(facet, "");
+		    ex.id += " -f " + IceUtil.StringUtil.escapeString(facet, "");
 		}
 		throw ex;
 	    }
@@ -171,7 +171,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
 	    if(l != null)
 	    {
 		Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-		ex.id = category;
+		ex.id = IceUtil.StringUtil.escapeString(category, "");
 		ex.kindOfObject = "servant locator";
 		throw ex;
 	    }

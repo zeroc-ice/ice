@@ -150,8 +150,6 @@ namespace IceInternal
 				{
 				}
 			    }
-			    
-			    Debug.Assert(_exception != null);
 			}
 		    }
 		    
@@ -240,7 +238,7 @@ namespace IceInternal
 			// oneway requests as blobs.
 			//
 			_is.startReadEncaps();
-			_state = StateOK;
+			_state = StateOK; // The state must be set last, in case there is an exception.
 			break;
 		    }
     		
@@ -252,7 +250,7 @@ namespace IceInternal
 			// oneway requests as blobs.
 			//
 			_is.startReadEncaps();
-			_state = StateUserException;
+			_state = StateUserException; // The state must be set last, in case there is an exception.
 			break;
 		    }
     		
@@ -260,8 +258,6 @@ namespace IceInternal
 		    case DispatchStatus.DispatchFacetNotExist:
 		    case DispatchStatus.DispatchOperationNotExist:
 		    {
-			_state = StateLocalException;
-    		    
 			Ice.RequestFailedException ex = null;
 			switch(status)
 			{
