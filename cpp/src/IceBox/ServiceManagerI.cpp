@@ -136,7 +136,7 @@ IceBox::ServiceManagerI::run()
         }
 
 	//
-	// Don't move after the adapter activation. This allow
+	// Don't move after the adapter activation. This allows
 	// applications to wait for the service manager to be
 	// reachable before sending a signal to shutdown the
 	// IceBox.
@@ -185,9 +185,9 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 {
     //
     // Create the service property set from the service arguments and
-    // the server arguments. The service property set will be use to
-    // create a new communicator or we be added to the shared
-    // communicator depending on the value of the
+    // the server arguments. The service property set will be used to
+    // create a new communicator, or will be added to the shared
+    // communicator, depending on the value of the
     // IceBox.UseSharedCommunicator property.
     //
     StringSeq serviceArgs;
@@ -249,7 +249,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     try
     {
 	//
-	// If Ice.UseSharedCommunicator.<name> is defined create a
+	// If Ice.UseSharedCommunicator.<name> is defined, create a
 	// communicator for the service. The communicator inherits
 	// from the shared communicator properties. If it's not
 	// defined, add the service properties to the shared
@@ -296,7 +296,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    //
 	    // IceBox::FreezeService
 	    //
-	    // Either open the database environment or if it has already been opened
+	    // Either open the database environment, or if it has already been opened,
 	    // retrieve it from the map.
 	    //
             FreezeServicePtr fs = FreezeServicePtr::dynamicCast(info.service);
