@@ -1009,10 +1009,14 @@ Ice.Nohup=<replaceable>num</replaceable>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-the C++ <literal>Ice::Application</literal> class ignores <literal>SIGHUP</literal>
+the C++ classes <literal>Ice::Application</literal> and
+<literal>Ice::Service</literal> ignore <literal>SIGHUP</literal>
 (for UNIX) and <literal>CTRL_LOGOFF_EVENT</literal> (for Windows). As a
 result, an application that sets <literal>Ice.Nohup</literal> continues
-to run if the user that started the application logs off. (C++ only.)
+to run if the user that started the application logs off. The default
+value for <literal>Ice::Application</literal> is <literal>0</literal>,
+and the default value for <literal>Ice::Service</literal> is
+<literal>1</literal> (C++ only.)
 </para>
 </section>
 </section>
