@@ -1,5 +1,6 @@
 Changes since version 1.5.1
 ---------------------------
+
 - New properties Ice.StdErr and Ice.StdOut to redirect the standard
   error and output streams of a process.
 
@@ -14,8 +15,8 @@ Changes since version 1.5.0
 - Fixed a bug in the slice2cs code generator: classes with multiple
   sequence members caused incorrect code to be generated.
 
-- Fixed a bug that sometimes prevented correct connection establishment
-  under Windows.
+- Fixed a bug that sometimes prevented correct connection
+  establishment under Windows.
 
 Changes since Alpha 2
 ---------------------
