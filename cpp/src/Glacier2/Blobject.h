@@ -17,29 +17,6 @@
 namespace Glacier
 {
 
-class TwowayThrottle : public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    TwowayThrottle(const Ice::CommunicatorPtr&, bool);
-    ~TwowayThrottle();
-
-    void twowayStarted(const Ice::ObjectPrx&, const Ice::Current&);
-    void twowayFinished();
-
-private:
-
-    const Ice::CommunicatorPtr _communicator;
-    const bool _reverse;
-
-    const Ice::PropertiesPtr _properties;
-    const Ice::LoggerPtr _logger;
-    const int _traceLevel;
-    const int _max;
-
-    int _count;
-};
-
 class Blobject : public Ice::BlobjectAsync
 {
 public:
@@ -53,19 +30,11 @@ public:
 
 protected:
 
-    Ice::CommunicatorPtr _communicator;
-    const bool _reverse;
-
-    const Ice::PropertiesPtr _properties;
     const Ice::LoggerPtr _logger;
-    const int _traceLevel;
 
 private:
 
     void modifyProxy(Ice::ObjectPrx&, const Ice::Current&) const;
-
-    const bool _forwardContext;
-    const IceUtil::Time _sleepTime;
 
     RequestQueuePtr _requestQueue;
     IceUtil::ThreadControl _requestQueueControl;

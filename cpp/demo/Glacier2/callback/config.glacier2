@@ -1,13 +1,23 @@
 Glacier2.Client.Endpoints=ssl -p 10005
 Glacier2.Server.Endpoints=tcp -h 127.0.0.1
-Glacier2.Trace.Session=1
-Glacier2.Trace.Client=2
-Glacier2.Trace.Server=2
-Glacier2.Trace.RoutingTable=1
-Glacier2.Server.ForwardContext=1
+
 Glacier2.Client.ForwardContext=1
-#Glacier2.Server.SleepTime=2000
-#Glacier2.Client.SleepTime=2000
+Glacier2.Server.ForwardContext=1
+
+Glacier2.Client.SleepTime=500
+Glacier2.Server.SleepTime=500
+
+Glacier2.Client.Trace.Request=1
+Glacier2.Server.Trace.Request=1
+
+Glacier2.Client.Trace.Override=1
+Glacier2.Server.Trace.Override=1
+
+Glacier2.Client.Trace.Reject=1
+
+Glacier2.Trace.Session=1
+
+Glacier2.Trace.RoutingTable=1
 
 #Ice.Trace.Network=1
 #Ice.Trace.Protocol=1

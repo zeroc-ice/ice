@@ -24,11 +24,11 @@ class Request : virtual public IceUtil::Shared
 {
 public:
 
-    Request(const Ice::ObjectPrx&, const std::vector<Ice::Byte>&, const Ice::Current&, bool,
+    Request(const Ice::ObjectPrx&, const std::vector<Ice::Byte>&, const Ice::Current&,
 	    const Ice::AMI_Object_ice_invokePtr&);
     
-    void invoke();
-    bool override(const RequestPtr&);
+    void invoke(bool);
+    bool override(const RequestPtr&) const;
     const Ice::ObjectPrx& getProxy() const;
     const Ice::Current& getCurrent() const;
 
@@ -49,21 +49,23 @@ class RequestQueue : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mu
 {
 public:
 
-    RequestQueue(const Ice::CommunicatorPtr&, int, bool, const IceUtil::Time&);
+    RequestQueue(const Ice::CommunicatorPtr&, bool);
     virtual ~RequestQueue();
     
     void destroy();
     void addRequest(const RequestPtr&);
-    void addBatchRequest(const RequestPtr&);
 
     virtual void run();
 
 private:
 
-    Ice::CommunicatorPtr _communicator;
+    void traceRequest(const RequestPtr&, const std::string&) const;
+
     const Ice::LoggerPtr _logger;
-    const int _traceLevel;
     const bool _reverse;
+    const int _traceLevelRequest;
+    const int _traceLevelOverride;
+    const bool _forwardContext;
     const IceUtil::Time _sleepTime;
 
     std::vector<RequestPtr> _requests;

@@ -17,11 +17,14 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
+static const string clientTraceReject = "Glacier2.Client.Trace.Reject";
+
 Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
 					const IceInternal::RoutingTablePtr& routingTable,
 					const string& allowCategories) :
     Glacier::Blobject(communicator, false),
-    _routingTable(routingTable)
+    _routingTable(routingTable),
+    _traceLevelReject(communicator->getProperties()->getPropertyAsInt(clientTraceReject))
 {
     const string ws = " \t";
     string::size_type current = allowCategories.find_first_not_of(ws, 0);
@@ -52,8 +55,6 @@ void
 Glacier::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
 					  const Current& current)
 {
-    assert(_communicator); // Destroyed?
-
     //
     // If there is an _allowCategories set then enforce it.
     //
@@ -61,9 +62,9 @@ Glacier::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& a
     {
 	if(!binary_search(_allowCategories.begin(), _allowCategories.end(), current.id.category))
 	{
-	    if(_traceLevel >= 1)
+	    if(_traceLevelReject >= 1)
 	    {
-		Trace out(_logger, "Glacier");
+		Trace out(current.adapter->getCommunicator()->getLogger(), "Glacier");
 		out << "rejecting request\n";
 		out << "identity: " << identityToString(current.id);
 	    }
@@ -73,6 +74,7 @@ Glacier::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& a
 	}
     }
 
+    assert(_routingTable); // Destroyed?
     ObjectPrx proxy = _routingTable->get(current.id);
     if(!proxy)
     {

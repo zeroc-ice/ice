@@ -13,64 +13,15 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
-#ifdef __HP_aCC
-//
-// Compiler bug!
-// The conditional in Glacier::Blobject::Blobject below result in a
-// std::exception "thread synchronization error" at runtime
-// when using string literals (looks like a RogueWave bug)
-// The work around is to use static strings:
-//
-
-static const string traceServer = "Glacier2.Trace.Server";
-static const string traceClient = "Glacier2.Trace.Client";
-
-static const string serverForwardContext = "Glacier2.Server.ForwardContext";
-static const string clientForwardContext = "Glacier2.Client.ForwardContext";
-
-static const string serverSleepTime = "Glacier2.Server.SleepTime";
-static const string clientSleepTime = "Glacier2.Client.SleepTime";
-#endif
-
 Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
-    _communicator(communicator),
-    _reverse(reverse),
-    _properties(_communicator->getProperties()),
-    _logger(_communicator->getLogger()),
-
-#ifdef __HP_aCC
-    // 
-    // Compiler bug, see above
-    //
-    _traceLevel(_reverse ?
-		_properties->getPropertyAsInt(traceServer) :
-		_properties->getPropertyAsInt(traceClient)),
-    _forwardContext(_reverse ?
-		    _properties->getPropertyAsInt(serverForwardContext) > 0 :
-		    _properties->getPropertyAsInt(clientForwardContext) > 0),
-    _sleepTime(_reverse ?
-	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(serverSleepTime)) :
-	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(clientSleepTime)))
-
-#else
-    _traceLevel(_reverse ?
-		_properties->getPropertyAsInt("Glacier2.Trace.Server") :
-		_properties->getPropertyAsInt("Glacier2.Trace.Client")),
-    _forwardContext(_reverse ?
-		    _properties->getPropertyAsInt("Glacier2.Server.ForwardContext") > 0 :
-		    _properties->getPropertyAsInt("Glacier2.Client.ForwardContext") > 0),
-    _sleepTime(_reverse ?
-	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt("Glacier2.Server.SleepTime")) :
-	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt("Glacier2.Client.SleepTime")))
-#endif   
+    _logger(communicator->getLogger())
 {
-    _requestQueue = new RequestQueue(_communicator, _traceLevel, _reverse, _sleepTime);
+    _requestQueue = new RequestQueue(communicator, reverse);
     _requestQueueControl = _requestQueue->start();
 }
 
 Glacier::Blobject::~Blobject()
 {
-    assert(!_communicator);
     assert(!_requestQueue);
 }
 
@@ -81,8 +32,6 @@ Glacier::Blobject::destroy()
     // No mutex protection necessary, destroy is only called after all
     // object adapters have shut down.
     //
-    _communicator = 0;
-
     _requestQueue->destroy();
     _requestQueueControl.join();
     _requestQueue = 0;
@@ -118,38 +67,19 @@ void
 Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
 			  const Current& current)
 {
-    try
+    modifyProxy(proxy, current);
+    
+    if(proxy->ice_isTwoway())
     {
-	modifyProxy(proxy, current);
-
-	if(proxy->ice_isTwoway())
-	{
-	    AMI_Object_ice_invokePtr amiCB = new GlacierCB(amdCB);
-	    _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, amiCB));
-	}
-	else
-	{
-	    vector<Byte> dummy;
-	    amdCB->ice_response(true, dummy);
-	    _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, 0));
-	}
+	AMI_Object_ice_invokePtr amiCB = new GlacierCB(amdCB);
+	_requestQueue->addRequest(new Request(proxy, inParams, current, amiCB));
     }
-    catch(const Exception& ex)
+    else
     {
-	if(_traceLevel >= 1)
-	{
-	    Trace out(_logger, "Glacier");
-	    if(_reverse)
-	    {
-		out << "reverse ";
-	    }
-	    out << "routing exception:\n" << ex;
-	}
-
-	ex.ice_throw();
+	vector<Byte> dummy;
+	amdCB->ice_response(true, dummy);
+	_requestQueue->addRequest(new Request(proxy, inParams, current, 0));
     }
-
-    return;
 }
 
 void

@@ -33,6 +33,7 @@ private:
 
     IceInternal::RoutingTablePtr _routingTable;
     std::vector<std::string> _allowCategories;
+    const int _traceLevelReject;
 };
 
 }
