@@ -37,7 +37,11 @@ main(int argc, char* argv[])
     {
         communicator = initialize(argc, argv);
 
-	/*
+        PropertiesPtr properties = communicator->getProperties();
+        StringSeq args = argsToStringSeq(argc, argv);
+        args = properties->parseCommandLineOptions("IceBox", args);
+        stringSeqToArgs(args, argc, argv);
+
         for (int i = 1; i < argc; ++i)
         {
             if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0)
@@ -50,19 +54,13 @@ main(int argc, char* argv[])
                 cout << ICE_STRING_VERSION << endl;
                 return EXIT_SUCCESS;
             }
-            else
+            else if (strncmp(argv[i], "--", 2) != 0)
             {
                 cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
                 usage(argv[0]);
                 return EXIT_FAILURE;
             }
         }
-	*/
-
-        PropertiesPtr properties = communicator->getProperties();
-        StringSeq args = argsToStringSeq(argc, argv);
-        args = properties->parseCommandLineOptions("IceBox", args);
-        stringSeqToArgs(args, argc, argv);
 
         ServiceManagerI* serviceManagerImpl = new ServiceManagerI(communicator, argc, argv);
         serviceManager = serviceManagerImpl;
