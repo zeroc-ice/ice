@@ -47,24 +47,27 @@ Parser::usage()
     cout <<
         "help                        Print this message.\n"
         "exit, quit                  Exit this program.\n"
-        "create TOPICS               Add TOPICS.\n"
+        "create TOPIC TYPE           Add TOPIC with TYPE.\n"
         "destroy TOPICS              Remove TOPICS.\n"
         "link FROM TO COST           Link FROM to TO with the given COST.\n"
         "unlink FROM TO              Unlink TO from FROM.\n"
         "graph DATA COST             Construct the link graph as described in DATA with COST\n"
         "list [TOPICS]               Display information on TOPICS or all topics.\n"
-        "shutdown                    Shut the IceStorm server down.\n";
+        ;
 }
 
 void
 Parser::create(const list<string>& args)
 {
+    if(args.size() != 2)
+    {
+        error("`create' requires exactly two arguments (type `help' for more info)");
+        return;
+    }
+
     try
     {
-	for(list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
-	{
-	    _admin->create(*i);
-	}
+        _admin->create(args.front(), args.back());
     }
     catch(const Exception& ex)
     {
@@ -272,7 +275,6 @@ Parser::graph(const list<string>& _args)
 	return;
     }
     
-
     try
     {
 	WeightedGraph graph;
@@ -282,7 +284,6 @@ Parser::graph(const list<string>& _args)
 	    return;
 	}
 	
-
 	//
 	// Compute the new edge set.
 	//
@@ -363,21 +364,6 @@ Parser::graph(const list<string>& _args)
 	    }
 	}
 	cout << "graph: " << links << " new or changed links. " << unlinks << " unlinks." << endl;
-    }
-    catch(const Exception& ex)
-    {
-	ostringstream s;
-	s << ex;
-	error(s.str());
-    }
-}
-
-void
-Parser::shutdown()
-{
-    try
-    {
-	_admin->shutdown();
     }
     catch(const Exception& ex)
     {
