@@ -37,8 +37,8 @@ SRCS		= ApplicationImpl.py \
 		  ServantLocatorF_ice.py \
 		  Stats_ice.py \
 		  StatsF_ice.py \
-		  TransportInfo_ice.py \
-		  TransportInfoF_ice.py
+		  Connection_ice.py \
+		  ConnectionF_ice.py
 
 SLICE_SRCS	= $(SDIR)/LocalException.ice \
 		  $(SDIR)/Communicator.ice \
@@ -66,8 +66,9 @@ SLICE_SRCS	= $(SDIR)/LocalException.ice \
                   $(SDIR)/Stats.ice \
                   $(SDIR)/Process.ice \
                   $(SDIR)/ProcessF.ice \
-		  $(SDIR)/TransportInfo.ice \
-		  $(SDIR)/TransportInfoF.ice
+                  $(SDIR)/FacetMap.ice \
+		  $(SDIR)/Connection.ice \
+		  $(SDIR)/ConnectionF.ice
 
 SDIR		= $(slicedir)/Ice
 
