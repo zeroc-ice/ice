@@ -18,6 +18,7 @@
 
 #include "marshal.h"
 #include "proxy.h"
+#include "util.h"
 
 #include <IceUtil/InputUtil.h>
 
@@ -29,7 +30,6 @@ public:
     PrimitiveMarshaler(const Slice::BuiltinPtr&);
     ~PrimitiveMarshaler();
 
-    virtual std::string getArgType() const;
     virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
     virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
 
@@ -43,7 +43,6 @@ public:
     SequenceMarshaler(const Slice::SequencePtr&);
     ~SequenceMarshaler();
 
-    virtual std::string getArgType() const;
     virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
     virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
 
@@ -58,12 +57,39 @@ public:
     ProxyMarshaler(const Slice::TypePtr&);
     ~ProxyMarshaler();
 
-    virtual std::string getArgType() const;
     virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
     virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
 
 private:
     Slice::TypePtr _type;
+};
+
+class MemberMarshaler : public Marshaler
+{
+public:
+    MemberMarshaler(const string&, const MarshalerPtr&);
+    ~MemberMarshaler();
+
+    virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+    virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+
+private:
+    string _name;
+    MarshalerPtr _marshaler;
+};
+
+class StructMarshaler : public Marshaler
+{
+public:
+    StructMarshaler(const Slice::StructPtr&);
+    ~StructMarshaler();
+
+    virtual bool marshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+    virtual bool unmarshal(zval*, IceInternal::BasicStream& TSRMLS_DC);
+
+private:
+    Slice::StructPtr _type;
+    vector<MarshalerPtr> _members;
 };
 
 //
@@ -103,7 +129,7 @@ Marshaler::createMarshaler(const Slice::TypePtr& type)
             return new ProxyMarshaler(type);
 
         case Slice::Builtin::KindLocalObject:
-            php_error(E_ERROR, "unexpected local type");
+            zend_error(E_ERROR, "unexpected local type");
             return 0;
         }
     }
@@ -190,38 +216,6 @@ PrimitiveMarshaler::~PrimitiveMarshaler()
 {
 }
 
-string
-PrimitiveMarshaler::getArgType() const
-{
-    string result;
-
-    switch(_type->kind())
-    {
-    case Slice::Builtin::KindBool:
-        result = "b";
-        break;
-    case Slice::Builtin::KindByte:
-    case Slice::Builtin::KindShort:
-    case Slice::Builtin::KindInt:
-    case Slice::Builtin::KindLong:
-        result = "l";
-        break;
-    case Slice::Builtin::KindFloat:
-    case Slice::Builtin::KindDouble:
-        result = "d";
-        break;
-    case Slice::Builtin::KindString:
-        result = "s";
-        break;
-    case Slice::Builtin::KindObject:
-    case Slice::Builtin::KindObjectProxy:
-    case Slice::Builtin::KindLocalObject:
-        assert(false);
-    }
-
-    return result;
-}
-
 bool
 PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
@@ -239,7 +233,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
         if(Z_TYPE_P(zv) != IS_BOOL)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            php_error(E_ERROR, "expected boolean value but received %s", s.c_str());
+            zend_error(E_ERROR, "expected boolean value but received %s", s.c_str());
             return false;
         }
         os.write(Z_BVAL_P(zv) ? true : false);
@@ -250,13 +244,13 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
         if(Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            php_error(E_ERROR, "expected byte value but received %s", s.c_str());
+            zend_error(E_ERROR, "expected byte value but received %s", s.c_str());
             return false;
         }
         long val = Z_LVAL_P(zv);
         if(val < 0 || val > 255)
         {
-            php_error(E_ERROR, "value %l is out of range for a byte", val);
+            zend_error(E_ERROR, "value %ld is out of range for a byte", val);
             return false;
         }
         os.write((Ice::Byte)val);
@@ -267,13 +261,13 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
         if(Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            php_error(E_ERROR, "expected short value but received %s", s.c_str());
+            zend_error(E_ERROR, "expected short value but received %s", s.c_str());
             return false;
         }
         long val = Z_LVAL_P(zv);
         if(val < SHRT_MIN || val > SHRT_MAX)
         {
-            php_error(E_ERROR, "value %l is out of range for a short", val);
+            zend_error(E_ERROR, "value %ld is out of range for a short", val);
             return false;
         }
         os.write((Ice::Short)val);
@@ -284,13 +278,13 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
         if(Z_TYPE_P(zv) != IS_LONG)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            php_error(E_ERROR, "expected int value but received %s", s.c_str());
+            zend_error(E_ERROR, "expected int value but received %s", s.c_str());
             return false;
         }
         long val = Z_LVAL_P(zv);
         if(val < INT_MIN || val > INT_MAX)
         {
-            php_error(E_ERROR, "value %l is out of range for an int", val);
+            zend_error(E_ERROR, "value %ld is out of range for an int", val);
             return false;
         }
         os.write((Ice::Int)val);
@@ -305,7 +299,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
         if(Z_TYPE_P(zv) != IS_LONG && Z_TYPE_P(zv) != IS_STRING)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            php_error(E_ERROR, "expected long value but received %s", s.c_str());
+            zend_error(E_ERROR, "expected long value but received %s", s.c_str());
             return false;
         }
         Ice::Long val;
@@ -319,7 +313,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
             string::size_type pos;
             if(!IceUtil::stringToInt64(sval, val, pos))
             {
-                php_error(E_ERROR, "invalid long value `%s'", Z_STRVAL_P(zv));
+                zend_error(E_ERROR, "invalid long value `%s'", Z_STRVAL_P(zv));
                 return false;
             }
         }
@@ -331,7 +325,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
         if(Z_TYPE_P(zv) != IS_DOUBLE)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            php_error(E_ERROR, "expected float value but received %s", s.c_str());
+            zend_error(E_ERROR, "expected float value but received %s", s.c_str());
             return false;
         }
         double val = Z_DVAL_P(zv);
@@ -343,7 +337,7 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
         if(Z_TYPE_P(zv) != IS_DOUBLE)
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            php_error(E_ERROR, "expected double value but received %s", s.c_str());
+            zend_error(E_ERROR, "expected double value but received %s", s.c_str());
             return false;
         }
         double val = Z_DVAL_P(zv);
@@ -352,14 +346,21 @@ PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     }
     case Slice::Builtin::KindString:
     {
-        if(Z_TYPE_P(zv) != IS_STRING)
+        if(Z_TYPE_P(zv) == IS_STRING)
+        {
+            string val(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
+            os.write(val);
+        }
+        else if(Z_TYPE_P(zv) == IS_NULL)
+        {
+            os.write("");
+        }
+        else
         {
             string s = zendTypeToString(Z_TYPE_P(zv));
-            php_error(E_ERROR, "expected string value but received %s", s.c_str());
+            zend_error(E_ERROR, "expected string value but received %s", s.c_str());
             return false;
         }
-        string val(Z_STRVAL_P(zv), Z_STRLEN_P(zv));
-        os.write(val);
         break;
     }
 
@@ -499,19 +500,13 @@ SequenceMarshaler::~SequenceMarshaler()
 {
 }
 
-string
-SequenceMarshaler::getArgType() const
-{
-    return "a";
-}
-
 bool
 SequenceMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_ARRAY)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        php_error(E_ERROR, "expected array value but received %s", s.c_str());
+        zend_error(E_ERROR, "expected array value but received %s", s.c_str());
         return false;
     }
 
@@ -570,19 +565,13 @@ ProxyMarshaler::~ProxyMarshaler()
 {
 }
 
-string
-ProxyMarshaler::getArgType() const
-{
-    return "o!";
-}
-
 bool
 ProxyMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
     if(Z_TYPE_P(zv) != IS_OBJECT && Z_TYPE_P(zv) != IS_NULL)
     {
         string s = zendTypeToString(Z_TYPE_P(zv));
-        php_error(E_ERROR, "expected proxy value but received %s", s.c_str());
+        zend_error(E_ERROR, "expected proxy value but received %s", s.c_str());
         return false;
     }
 
@@ -626,6 +615,102 @@ ProxyMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
     if(!Ice_ObjectPrx_create(zv, proxy, decl TSRMLS_CC))
     {
         return false;
+    }
+
+    return true;
+}
+
+MemberMarshaler::MemberMarshaler(const string& name, const MarshalerPtr& marshaler) :
+    _name(name), _marshaler(marshaler)
+{
+}
+
+MemberMarshaler::~MemberMarshaler()
+{
+}
+
+bool
+MemberMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+{
+    zval** val;
+    if(zend_hash_find(Z_OBJPROP_P(zv), const_cast<char*>(_name.c_str()), _name.length() + 1, (void**)&val) == FAILURE)
+    {
+        zend_error(E_ERROR, "unable to find member `%s'", _name.c_str());
+        return false;
+    }
+
+    return _marshaler->marshal(*val, os TSRMLS_CC);;
+}
+
+bool
+MemberMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+{
+    zval* val;
+    MAKE_STD_ZVAL(val);
+
+    if(!_marshaler->unmarshal(val, is TSRMLS_CC))
+    {
+        return false;
+    }
+
+    if(add_property_zval(zv, const_cast<char*>(_name.c_str()), val) == FAILURE)
+    {
+        zend_error(E_ERROR, "unable to set member `%s'", _name.c_str());
+        return false;
+    }
+
+    return true;
+}
+
+StructMarshaler::StructMarshaler(const Slice::StructPtr& type) :
+    _type(type)
+{
+    Slice::DataMemberList members = type->dataMembers();
+    for(Slice::DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    {
+        MarshalerPtr m = new MemberMarshaler((*p)->name(), createMarshaler((*p)->type()));
+        _members.push_back(m);
+    }
+}
+
+StructMarshaler::~StructMarshaler()
+{
+}
+
+bool
+StructMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
+{
+    if(Z_TYPE_P(zv) != IS_OBJECT)
+    {
+        string s = zendTypeToString(Z_TYPE_P(zv));
+        zend_error(E_ERROR, "expected struct value but received %s", s.c_str());
+        return false;
+    }
+
+    // TODO: Compare class types
+    ice_object* obj = ice_object_get(zv TSRMLS_CC);
+    assert(obj);
+
+    for(vector<MarshalerPtr>::iterator p = _members.begin(); p != _members.end(); ++p)
+    {
+        if(!(*p)->marshal(zv, os))
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool
+StructMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
+{
+    for(vector<MarshalerPtr>::iterator p = _members.begin(); p != _members.end(); ++p)
+    {
+        if(!(*p)->unmarshal(zv, is))
+        {
+            return false;
+        }
     }
 
     return true;
