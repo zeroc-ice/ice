@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Ice/System.h>
 #include <HelloI.h>
 
 using namespace std;
@@ -17,6 +18,10 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("HelloAdapter");
+
+    IceSSL::SystemPtr sslSystem = communicator->getSslSystem();
+    sslSystem->configure(IceSSL::Server);
+
     Ice::ObjectPtr object = new HelloI(communicator);
     adapter->add(object, Ice::stringToIdentity("hello"));
     adapter->activate();
