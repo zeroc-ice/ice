@@ -164,8 +164,8 @@ Note that PHP 5 cannot be compiled using Sun CC 5.3.
 Additional Requirements for HP-UX with aCC
 =========================================================================
 
-The Ice extension currently supports only the static configuration on
-HP-UX.
+The Ice extension currently cannot be used in a dynamic configuration.
+To build the Ice extension in a static configuration:
 
 - Edit the file <phpdir>/libtool, search for the line beginning with
   "archive_cmds=", and change \$LD to \$CXX.
@@ -192,33 +192,6 @@ HP-UX.
   - If a Web server module is being built, search for the line beginning
     with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
     well as in the rule for "libs/libphp5.bundle" below.
-
-
-If you are building the Ice extension in a dynamic configuration:
-
-- Edit the file <phpdir>/libtool, search for the line beginning with
-  "archive_cmds=", and make the following changes:
-
-  - Replace \$LD with \$CXX
-
-  - Replace "+h \$soname" with "-Wl,+h\$soname"
-
-  - Replace "+b \$install_libdir" with "-Wl,+b\$install_libdir"
-
-- Edit the file <phpdir>/Makefile and make the following changes:
-
-  - Add a definition for EXTRA_CXXFLAGS. For 32-bit platforms, use the
-    following setting:
-
-    EXTRA_CXXFLAGS = -AA +Z -mt +DA2.0N
-
-    For 64-bit platforms, use this setting:
-
-    EXTRA_CXXFLAGS = -AA +Z -mt +DD64
-
-  - Append "$(EXTRA_CXXFLAGS)" to the value of ICE_SHARED_LIBADD
-
-  - Modify EXTRA_LDFLAGS_PROGRAM to append "-Wl,+s"
 
 
 
