@@ -23,13 +23,16 @@ public class ListPatcher implements Patcher
     public void
     patch(Ice.Object v)
     {
-        //
-        // Raise ClassCastException if the element doesn't match the expected type.
-        //
-        if(!_cls.isInstance(v))
+        if(v != null)
         {
-            throw new ClassCastException("expected element of type " + _cls.getName() + " but received " +
-                                         v.getClass().getName());
+            //
+            // Raise ClassCastException if the element doesn't match the expected type.
+            //
+            if(!_cls.isInstance(v))
+            {
+                throw new ClassCastException("expected element of type " + _cls.getName() + " but received " +
+                                             v.getClass().getName());
+            }
         }
 
         //

@@ -1,6 +1,9 @@
 Changes since version 1.4.0
 ---------------------------
 
+- Fixed a bug that could cause a NullPointerException while
+  unmarshaling a sequence of objects containing a null element.
+
 - Changed the mapping for tie classes, which now implement the
   interface Ice.TieBase. This interface defines the ice_delegate
   methods and changes the delegate type from _FooOperations to
