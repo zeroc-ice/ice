@@ -18,6 +18,9 @@ using namespace std;
 using namespace Ice;
 using namespace IcePack;
 
+#include <readline/readline.h>
+#include <readline/history.h>
+
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 
 %}
