@@ -204,6 +204,14 @@ SOURCE=.\LocalObject.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Locator.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\LocatorInfo.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Logger.cpp
 # End Source File
 # Begin Source File
@@ -521,6 +529,22 @@ SOURCE=..\..\include\Ice\LocalObject.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\LocalObjectF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Locator.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\LocatorF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LocatorInfo.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\LocatorInfoF.h
 # End Source File
 # Begin Source File
 
@@ -1047,6 +1071,55 @@ BuildCmds= \
 
 "LocalException.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\Locator.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Locator.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Locator.ice \
+	move Locator.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Locator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Locator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\LocatorF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+# Begin Custom Build
+InputPath=..\..\slice\Ice\LocatorF.ice
+
+"..\..\include\Ice\LocatorF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/LocatorF.ice 
+	move LocatorF.h ..\..\include\Ice 
+	del LocatorF.cpp 
+	
 # End Custom Build
 
 !ENDIF 

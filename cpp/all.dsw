@@ -671,6 +671,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name libraryS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name locationC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name locationS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1446,6 +1452,24 @@ Package=<4>
 
 ###############################################################################
 
+Project: "locationC"=.\test\Ice\location\locationC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "locationForwardC"=.\test\Ice\locationForward\locationForwardC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1465,6 +1489,24 @@ Package=<4>
 ###############################################################################
 
 Project: "locationForwardS"=.\test\Ice\locationForward\locationForwardS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "locationS"=.\test\Ice\location\locationS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
