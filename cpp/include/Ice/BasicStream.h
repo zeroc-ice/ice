@@ -44,6 +44,7 @@ public:
     void endWriteEncaps();
     void startReadEncaps();
     void endReadEncaps();
+    void checkReadEncaps();
     void skipEncaps();
 
     void write(Ice::Byte v) { b.push_back(v); }

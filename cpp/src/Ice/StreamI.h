@@ -29,6 +29,7 @@ public:
     virtual void endWriteEncaps();
     virtual void startReadEncaps();
     virtual void endReadEncaps();
+    virtual void checkReadEncaps();
     virtual void skipEncaps();
     virtual void writeByte(Byte);
     virtual void writeByteSeq(const ByteSeq&);

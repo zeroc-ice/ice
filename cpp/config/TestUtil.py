@@ -13,15 +13,16 @@ import sys, os
 
 protocol = "ssl"
 
-serverOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=30" + \
-                " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=server_sslconfig.xml" + \
-		" --Ice.Protocol=" + protocol
+serverOptions = \
+" --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.WarnAboutServerExceptions=1 --Ice.ServerIdleTime=30" + \
+" --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=server_sslconfig.xml --Ice.Protocol=" + protocol
 
-clientOptions = " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=client_sslconfig.xml" + \
-		" --Ice.Protocol=" + protocol
+clientOptions = \
+" --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=client_sslconfig.xml --Ice.Protocol=" + protocol
 
-collocatedOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=sslconfig.xml" + \
-		    " --Ice.Protocol=" + protocol
+collocatedOptions = \
+" --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.WarnAboutServerExceptions=1 --Ice.ServerIdleTime=30" + \
+" --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=sslconfig.xml --Ice.Protocol=" + protocol
 
 serverPids = []
 

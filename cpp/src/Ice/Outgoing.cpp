@@ -35,7 +35,7 @@ IceInternal::NonRepeatable::get() const
     return _ex.get();
 }
 
-IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& ref) :
+IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& ref, const char* operation) :
     _emitter(emitter),
     _reference(ref),
     _state(StateUnsent),
@@ -62,6 +62,13 @@ IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& r
 
     _os.write(_reference->identity);
     _os.write(_reference->facet);
+    _os.write(operation);
+
+    //
+    // Input parameters are always sent in an encapsulation, which
+    // makes it possible to forward oneway requests as blobs.
+    //
+    _os.startWriteEncaps();
 }
 
 IceInternal::Outgoing::~Outgoing()
@@ -76,6 +83,8 @@ IceInternal::Outgoing::~Outgoing()
 bool
 IceInternal::Outgoing::invoke()
 {
+    _os.endWriteEncaps();
+    
     switch (_reference->mode)
     {
 	case Reference::ModeTwoway:
@@ -173,7 +182,15 @@ IceInternal::Outgoing::invoke()
 	case Reference::ModeBatchOneway:
 	case Reference::ModeBatchDatagram:
 	{
-	    _state = StateInProgress; // Must be set to StateInProgress before finishBatchRequest()
+	    //
+	    // The state must be set to StateInProgress before calling
+	    // finishBatchRequest, because otherwise if
+	    // finishBatchRequest raises an exception, the destructor
+	    // of this class will call abortBatchRequest, and calling
+	    // both finishBatchRequest and abortBatchRequest is
+	    // illegal.
+	    //
+	    _state = StateInProgress;
 	    _emitter->finishBatchRequest(this);
 	    break;
 	}

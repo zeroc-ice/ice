@@ -138,8 +138,6 @@ IceInternal::Emitter::prepareBatchRequest(Outgoing* out)
 	_batchStream.write(Int(0)); // Message size (placeholder)
     }
 
-    _batchStream.startWriteEncaps();
-
     //
     // Give the batch stream to `out', until finishBatchRequest() is
     // called.
@@ -159,8 +157,6 @@ IceInternal::Emitter::finishBatchRequest(Outgoing* out)
 
     _batchStream.swap(*out->os()); // Get the batch stream back 
     unlock(); // Give the Emitter back
-
-    _batchStream.endWriteEncaps();
 }
 
 void

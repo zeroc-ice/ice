@@ -80,6 +80,9 @@ local interface Stream
     /** End reading an encapsulation. */
     void endReadEncaps();
     
+    /** Check whether an encapsulation is valid before calling [endReadEncaps]. */
+    void checkReadEncaps();
+    
     /** Skip an encapsulation. */
     void skipEncaps();
 

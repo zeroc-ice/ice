@@ -84,7 +84,9 @@ void
 IceInternal::Collector::message(BasicStream& stream)
 {
     Incoming in(_instance, _adapter);
+    BasicStream* is = in.is();
     BasicStream* os = in.os();
+    stream.swap(*is);
     bool invoke = false;
     bool batch = false;
     bool response = false;
@@ -101,18 +103,18 @@ IceInternal::Collector::message(BasicStream& stream)
 	
 	try
 	{
-	    assert(stream.i == stream.b.end());
-	    stream.i = stream.b.begin() + 2;
+	    assert(is->i == is->b.end());
+	    is->i = is->b.begin() + 2;
 	    Byte messageType;
-	    stream.read(messageType);
-	    stream.i = stream.b.begin() + headerSize;
+	    is->read(messageType);
+	    is->i = is->b.begin() + headerSize;
 
 	    //
 	    // Write partial message header
 	    //
 	    os->write(protocolVersion);
 	    os->write(encodingVersion);
-	    
+
 	    switch (messageType)
 	    {
 		case requestMsg:
@@ -121,15 +123,15 @@ IceInternal::Collector::message(BasicStream& stream)
 		    {
 			traceRequest("received request during closing\n"
 				     "(ignored by server, client will retry)",
-				     stream, _logger, _traceLevels);
+				     *is, _logger, _traceLevels);
 		    }
 		    else
 		    {
 			traceRequest("received request",
-				     stream, _logger, _traceLevels);
+				     *is, _logger, _traceLevels);
 			invoke = true;
 			Int requestId;
-			stream.read(requestId);
+			is->read(requestId);
 			if (!_endpoint->oneway() && requestId != 0) // 0 means oneway
 			{
 			    response = true;
@@ -148,12 +150,12 @@ IceInternal::Collector::message(BasicStream& stream)
 		    {
 			traceBatchRequest("received batch request during closing\n"
 					  "(ignored by server, client will retry)",
-					  stream, _logger, _traceLevels);
+					  *is, _logger, _traceLevels);
 		    }
 		    else
 		    {
 			traceBatchRequest("received batch request",
-					  stream, _logger, _traceLevels);
+					  *is, _logger, _traceLevels);
 			invoke = true;
 			batch = true;
 		    }
@@ -164,7 +166,7 @@ IceInternal::Collector::message(BasicStream& stream)
 		{
 		    traceReply("received reply on server side\n"
 			       "(invalid, closing connection)",
-			       stream, _logger, _traceLevels);
+			       *is, _logger, _traceLevels);
 		    throw InvalidMessageException(__FILE__, __LINE__);
 		    break;
 		}
@@ -173,7 +175,7 @@ IceInternal::Collector::message(BasicStream& stream)
 		{
 		    traceHeader("received close connection on server side\n"
 				"(invalid, closing connection)",
-				stream, _logger, _traceLevels);
+				*is, _logger, _traceLevels);
 		    throw InvalidMessageException(__FILE__, __LINE__);
 		    break;
 		}
@@ -182,7 +184,7 @@ IceInternal::Collector::message(BasicStream& stream)
 		{
 		    traceHeader("received unknown message\n"
 				"(invalid, closing connection)",
-				stream, _logger, _traceLevels);
+				*is, _logger, _traceLevels);
 		    throw UnknownMessageException(__FILE__, __LINE__);
 		    break;
 		}
@@ -200,25 +202,14 @@ IceInternal::Collector::message(BasicStream& stream)
 	    return;
 	}
     }
-    
+
     if (invoke)
     {
 	do
 	{
 	    try
 	    {
-		if (batch)
-		{
-		    stream.startReadEncaps();
-		}
-
-		in.invoke(stream);
-
-		if (batch)
-		{
-		    stream.swap(*in.is()); // If we're in batch mode, we need the input stream back
-		    stream.endReadEncaps();
-		}
+		in.invoke();
 	    }
 	    catch (const Exception& ex)
 	    {
@@ -230,7 +221,7 @@ IceInternal::Collector::message(BasicStream& stream)
 		assert(false); // Should not happen
 	    }
 	}
-	while (batch && stream.i < stream.b.end());
+	while (batch && is->i < is->b.end());
     }
 
     if (response)

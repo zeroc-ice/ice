@@ -23,9 +23,8 @@ class ICE_API Incoming : public ::IceUtil::noncopyable
 public:
 
     Incoming(const InstancePtr&, const ::Ice::ObjectAdapterPtr&);
-    ~Incoming();
 
-    void invoke(BasicStream&);
+    void invoke();
 
     BasicStream* is();
     BasicStream* os();

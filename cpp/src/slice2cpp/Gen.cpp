@@ -321,9 +321,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	}
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
 	C << sb;
-//	C << nl << "__os->startWriteEncaps();";
 	writeMarshalCode(C, memberList, 0);
-//	C << nl << "__os->endWriteEncaps();";
 	if (base)
 	{
 	    C.zeroIndent();
@@ -341,9 +339,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	C << eb;
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
 	C << sb;
-//	C << nl << "__is->startReadEncaps();";
 	writeUnmarshalCode(C, memberList, 0);
-//	C << nl << "__is->endReadEncaps();";
 	if (base)
 	{
 	    C.zeroIndent();
@@ -1131,13 +1127,15 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     H << sp << nl << "virtual " << retS << ' ' << name << params << ';';
     C << sp << nl << retS << nl << "IceDelegateM" << scoped << paramsDecl;
     C << sb;
-    C << nl << "::IceInternal::Outgoing __out(__emitter, __reference);";
+    C << nl << "::IceInternal::Outgoing __out(__emitter, __reference, \"" << name << "\");";
     if (ret || !outParams.empty() || !throws.empty())
     {
 	C << nl << "::IceInternal::BasicStream* __is = __out.is();";
     }
-    C << nl << "::IceInternal::BasicStream* __os = __out.os();";
-    C << nl << "__os->write(\"" << name << "\");";
+    if (!inParams.empty())
+    {
+	C << nl << "::IceInternal::BasicStream* __os = __out.os();";
+    }
     writeMarshalCode(C, inParams, 0);
     C << nl << "if (!__out.invoke())";
     C << sb;
@@ -1724,9 +1722,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << sp;
 	C << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::BasicStream* __os) const";
 	C << sb;
-//	C << nl << "__os->startWriteEncaps();";
 	writeMarshalCode(C, memberList, 0);
-//	C << nl << "__os->endWriteEncaps();";
 	if (base)
 	{
 	    C.zeroIndent();
@@ -1759,9 +1755,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << sp;
 	C << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
 	C << sb;
-//	C << nl << "__is->startReadEncaps();";
 	writeUnmarshalCode(C, memberList, 0);
-//	C << nl << "__is->endReadEncaps();";
 	if (base)
 	{
 	    C.zeroIndent();

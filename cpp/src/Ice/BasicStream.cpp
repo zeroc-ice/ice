@@ -120,6 +120,14 @@ IceInternal::BasicStream::endReadEncaps()
 {
     int start = _encapsStack.back().start;
     _encapsStack.pop_back();
+    i = b.begin() + start - sizeof(Int);
+    skipEncaps();
+}
+
+void
+IceInternal::BasicStream::checkReadEncaps()
+{
+    int start = _encapsStack.back().start;
     Container::iterator save = i;
     i = b.begin() + start - sizeof(Int);
     Int sz;

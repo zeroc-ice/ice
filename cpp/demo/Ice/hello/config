@@ -12,6 +12,11 @@ Hello.Hello=hello:tcp -h localhost -p 10000:udp -h localhost -p 10000:ssl -h loc
 Ice.Adapter.HelloAdapter.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #
+# Warn about server exceptions
+#
+Ice.WarnAboutServerExceptions=1
+
+#
 # Network Tracing
 #
 # 0 = no network tracing

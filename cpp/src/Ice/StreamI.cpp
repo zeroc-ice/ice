@@ -56,6 +56,12 @@ Ice::StreamI::endReadEncaps()
 }
 
 void
+Ice::StreamI::checkReadEncaps()
+{
+    _stream.checkReadEncaps();
+}
+
+void
 Ice::StreamI::skipEncaps()
 {
     _stream.skipEncaps();

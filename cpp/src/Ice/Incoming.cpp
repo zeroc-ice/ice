@@ -25,14 +25,9 @@ IceInternal::Incoming::Incoming(const InstancePtr& instance, const ObjectAdapter
 {
 }
 
-IceInternal::Incoming::~Incoming()
-{
-}
-
 void
-IceInternal::Incoming::invoke(BasicStream& is)
+IceInternal::Incoming::invoke()
 {
-    _is.swap(is);
     string identity;
     _is.read(identity);
     string facet;
@@ -45,9 +40,15 @@ IceInternal::Incoming::invoke(BasicStream& is)
     ObjectPtr servant;
     ServantLocatorPtr locator;
     LocalObjectPtr cookie;
-
     try
     {
+	//
+	// Input parameters are always sent in an encapsulation,
+	// which makes it possible to forward oneway requests as
+	// blobs.
+	//
+	_is.startReadEncaps();
+
 	servant = _adapter->identityToServant(identity);
 
 	if (!servant)
@@ -89,6 +90,7 @@ IceInternal::Incoming::invoke(BasicStream& is)
 		{
 		    _os.write(static_cast<Byte>(DispatchOK));
 		    DispatchStatus status = facetServant->__dispatch(*this, operation);
+		    _is.checkReadEncaps();
 		    *(_os.b.begin() + statusPos) = static_cast<Byte>(status);
 		}
 	    }
@@ -96,10 +98,12 @@ IceInternal::Incoming::invoke(BasicStream& is)
 	    {
 		_os.write(static_cast<Byte>(DispatchOK));
 		DispatchStatus status = servant->__dispatch(*this, operation);
+		_is.checkReadEncaps();
 		*(_os.b.begin() + statusPos) = static_cast<Byte>(status);
 	    }
 	}
 
+	_is.endReadEncaps();
 	if (locator && servant)
 	{
 	    locator->finished(_adapter, identity, operation, servant, cookie);
@@ -107,6 +111,7 @@ IceInternal::Incoming::invoke(BasicStream& is)
     }
     catch (const LocationForward& ex)
     {
+	_is.endReadEncaps();
 	if (locator && servant)
 	{
 	    locator->finished(_adapter, identity, operation, servant, cookie);
@@ -118,6 +123,7 @@ IceInternal::Incoming::invoke(BasicStream& is)
     }
     catch (const LocalException& ex)
     {
+	_is.endReadEncaps();
 	if (locator && servant)
 	{
 	    locator->finished(_adapter, identity, operation, servant, cookie);
@@ -128,6 +134,7 @@ IceInternal::Incoming::invoke(BasicStream& is)
     }
     catch (const UserException& ex)
     {
+	_is.endReadEncaps();
 	if (locator && servant)
 	{
 	    locator->finished(_adapter, identity, operation, servant, cookie);
@@ -138,6 +145,7 @@ IceInternal::Incoming::invoke(BasicStream& is)
     }
     catch (...)
     {
+	_is.endReadEncaps();
 	if (locator && servant)
 	{
 	    locator->finished(_adapter, identity, operation, servant, cookie);
