@@ -61,6 +61,17 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	{
 	    try
 	    {
+		int timeout;
+		IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+		if(defaultsAndOverrides.overrideConnectTimeout)
+		{
+		    timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
+		}
+		else
+		{
+		    timeout = _endpoint.timeout();
+		}
+
 		if(_adapter != null)
 		{
 		    synchronized(_sendMutex)
@@ -80,7 +91,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 			os.writeInt(IceInternal.Protocol.headerSize); // Message size.
 			IceInternal.TraceUtil.traceHeader("sending validate connection", 
 							  os, _logger, _traceLevels);
-			_transceiver.write(os, _endpoint.timeout());
+			try
+			{
+			    _transceiver.write(os, timeout);
+			}
+			catch(Ice.TimeoutException ex)
+			{
+			    throw new Ice.ConnectTimeoutException();
+			}
 		    }
 		}
 		else
@@ -92,7 +110,14 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    IceInternal.BasicStream is = new IceInternal.BasicStream(_instance);
 		    is.resize(IceInternal.Protocol.headerSize, true);
 		    is.pos(0);
-		    _transceiver.read(is, _endpoint.timeout());
+		    try
+		    {
+			_transceiver.read(is, timeout);
+		    }
+		    catch(Ice.TimeoutException ex)
+		    {
+			throw new Ice.ConnectTimeoutException();
+		    }
 		    assert(is.pos() == IceInternal.Protocol.headerSize);
 		    is.pos(0);
 		    byte[] m = is.readBlob(4);
