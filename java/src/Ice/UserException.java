@@ -23,6 +23,7 @@ public abstract class UserException extends Exception
         IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
         out.setUseTab(false);
         out.print(getClass().getName());
+        out.inc();
         IceInternal.ValueWriter.write(this, out);
         pw.flush();
         return sw.toString();

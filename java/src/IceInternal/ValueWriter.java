@@ -15,14 +15,15 @@ public final class ValueWriter
     public static void
     write(java.lang.Object obj, IceUtil.OutputBase out)
     {
-        writeValue(obj, true, null, out);
+        writeValue(null, obj, null, out);
     }
 
     private static void
-    writeValue(java.lang.Object value, boolean outer, java.util.Map objectTable, IceUtil.OutputBase out)
+    writeValue(String name, java.lang.Object value, java.util.Map objectTable, IceUtil.OutputBase out)
     {
         if(value == null)
         {
+            writeName(name, out);
             out.print("(null)");
         }
         else
@@ -31,10 +32,12 @@ public final class ValueWriter
             if(c.equals(Byte.class) || c.equals(Short.class) || c.equals(Integer.class) || c.equals(Long.class) ||
                c.equals(Double.class) || c.equals(Float.class) || c.equals(Boolean.class))
             {
+                writeName(name, out);
                 out.print(value.toString());
             }
             else if(c.equals(String.class))
             {
+                writeName(name, out);
                 out.print("\"");
                 out.print(value.toString());
                 out.print("\"");
@@ -42,43 +45,28 @@ public final class ValueWriter
             else if(c.isArray())
             {
                 int n = java.lang.reflect.Array.getLength(value);
-                out.print("[ ");
                 for(int i = 0; i < n; i++)
                 {
-                    if(i > 0)
-                    {
-                        out.print(", ");
-                    }
-                    writeValue(java.lang.reflect.Array.get(value, i), false, objectTable, out);
+                    String elem = (name != null ? name : "");
+                    elem += "[" + i + "]";
+                    writeValue(elem, java.lang.reflect.Array.get(value, i), objectTable, out);
                 }
-                out.print(" ]");
             }
             else if(value instanceof java.util.Map)
             {
-                if(!outer)
-                {
-                    out.print("{");
-                }
-                out.inc();
                 java.util.Map map = (java.util.Map)value;
                 java.util.Iterator i = map.entrySet().iterator();
                 while(i.hasNext())
                 {
                     java.util.Map.Entry entry = (java.util.Map.Entry)i.next();
-                    out.nl();
-                    writeValue(entry.getKey(), false, objectTable, out);
-                    out.print(" => ");
-                    writeValue(entry.getValue(), false, objectTable, out);
-                }
-                out.dec();
-                if(!outer)
-                {
-                    out.nl();
-                    out.print("}");
+                    String elem = (name != null ? name + "." : "");
+                    writeValue(elem + "key", entry.getKey(), objectTable, out);
+                    writeValue(elem + "value", entry.getValue(), objectTable, out);
                 }
             }
             else if(value instanceof Ice.ObjectPrxHelper)
             {
+                writeName(name, out);
                 Ice.ObjectPrxHelper proxy = (Ice.ObjectPrxHelper)value;
                 out.print(proxy.__reference().toString());
             }
@@ -89,6 +77,7 @@ public final class ValueWriter
                 //
                 if(objectTable != null && objectTable.containsKey(value))
                 {
+                    writeName(name, out);
                     out.print("(recursive)");
                 }
                 else
@@ -98,18 +87,7 @@ public final class ValueWriter
                         objectTable = new java.util.IdentityHashMap();
                     }
                     objectTable.put(value, null);
-                    if(!outer)
-                    {
-                        out.print("{");
-                    }
-                    out.inc();
-                    writeFields(value, c, objectTable, out);
-                    out.dec();
-                    if(!outer)
-                    {
-                        out.nl();
-                        out.print("}");
-                    }
+                    writeFields(name, value, c, objectTable, out);
                 }
             }
             else
@@ -154,6 +132,7 @@ public final class ValueWriter
                                fields[i].getName().startsWith("_") &&
                                fields[i].get(null).equals(val))
                             {
+                                writeName(name, out);
                                 out.print(fields[i].getName().substring(1));
                                 return;
                             }
@@ -178,31 +157,20 @@ public final class ValueWriter
                 //
                 // Must be struct.
                 //
-                if(!outer)
-                {
-                    out.print("{");
-                }
-                out.inc();
-                writeFields(value, c, objectTable, out);
-                out.dec();
-                if(!outer)
-                {
-                    out.nl();
-                    out.print("}");
-                }
+                writeFields(name, value, c, objectTable, out);
             }
         }
     }
 
     private static void
-    writeFields(java.lang.Object obj, Class c, java.util.Map objectTable, IceUtil.OutputBase out)
+    writeFields(String name, java.lang.Object obj, Class c, java.util.Map objectTable, IceUtil.OutputBase out)
     {
         if(!c.equals(java.lang.Object.class))
         {
             //
             // Write the superclass first.
             //
-            writeFields(obj, c.getSuperclass(), objectTable, out);
+            writeFields(name, obj, c.getSuperclass(), objectTable, out);
 
             //
             // Write the declared fields of the given class.
@@ -216,14 +184,12 @@ public final class ValueWriter
                 int mods = fields[i].getModifiers();
                 if(java.lang.reflect.Modifier.isPublic(mods) && !java.lang.reflect.Modifier.isStatic(mods))
                 {
-                    out.nl();
-                    out.print(fields[i].getName());
-                    out.print(" = ");
+                    String fieldName = (name != null ? name + '.' + fields[i].getName() : fields[i].getName());
 
                     try
                     {
                         java.lang.Object value = fields[i].get(obj);
-                        writeValue(value, false, objectTable, out);
+                        writeValue(fieldName, value, objectTable, out);
                     }
                     catch(IllegalAccessException ex)
                     {
@@ -231,6 +197,16 @@ public final class ValueWriter
                     }
                 }
             }
+        }
+    }
+
+    private static void
+    writeName(String name, IceUtil.OutputBase out)
+    {
+        if(name != null)
+        {
+            out.nl();
+            out.print(name + " = ");
         }
     }
 }
