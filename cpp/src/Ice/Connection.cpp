@@ -890,28 +890,9 @@ IceInternal::Connection::setAdapter(const ObjectAdapterPtr& adapter)
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     //
-    // We are registered with a thread pool in active and closing
-    // mode. However, we only change subscription if we're in active
-    // mode, and thus ignore closing mode here.
+    // We never change the thread pool with which we were initially
+    // registered, even if we add or remove an object adapter.
     //
-    if(_state == StateActive)
-    {
-	if(adapter && !_adapter)
-	{
-	    //
-	    // Client is now server.
-	    //
-	    unregisterWithPool();
-	}
-	
-	if(!adapter && _adapter)
-	{
-	    //
-	    // Server is now client.
-	    //
-	    unregisterWithPool();
-	}
-    }
 
     _adapter = adapter;
     if(_adapter)
@@ -1299,6 +1280,7 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
     {
 	_transceiver->close();
 	_transceiver = 0;
+	_threadPool = 0; // We don't need the thread pool anymore.
 	notifyAll();
     }
 }
@@ -1363,10 +1345,12 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
 {
     if(_adapter)
     {
+	_threadPool = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool();
 	_servantManager = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getServantManager();
     }
     else
     {
+	_threadPool = _instance->clientThreadPool();
 	_servantManager = 0;
     }
 
@@ -1405,8 +1389,6 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     replyHdr[7] = encodingMinor;
     replyHdr[8] = replyMsg;
     replyHdr[9] = 1; // Default compression status: compression supported but not used.
-
-    _warnUdp = _instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 }
 
 IceInternal::Connection::~Connection()
@@ -1606,15 +1588,8 @@ IceInternal::Connection::registerWithPool()
 {
     if(!_registeredWithPool)
     {
-	if(_adapter)
-	{
-	    dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->_register(_transceiver->fd(), this);
-	}
-	else
-	{
-	    _instance->clientThreadPool()->_register(_transceiver->fd(), this);
-	}
-
+	assert(_threadPool);
+	_threadPool->_register(_transceiver->fd(), this);
 	_registeredWithPool = true;
 
 	ConnectionMonitorPtr connectionMonitor = _instance->connectionMonitor();
@@ -1630,15 +1605,8 @@ IceInternal::Connection::unregisterWithPool()
 {
     if(_registeredWithPool)
     {
-	if(_adapter)
-	{
-	    dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->unregister(_transceiver->fd());
-	}
-	else
-	{
-	    _instance->clientThreadPool()->unregister(_transceiver->fd());
-	}
-
+	assert(_threadPool);
+	_threadPool->unregister(_transceiver->fd());
 	_registeredWithPool = false;
 
 	ConnectionMonitorPtr connectionMonitor = _instance->connectionMonitor();

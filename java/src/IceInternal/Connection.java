@@ -743,28 +743,10 @@ public final class Connection extends EventHandler
     setAdapter(Ice.ObjectAdapter adapter)
     {
 	//
-	// We are registered with a thread pool in active and closing
-	// mode. However, we only change subscription if we're in active
-	// mode, and thus ignore closing mode here.
+	// We never change the thread pool with which we were
+	// initially registered, even if we add or remove an object
+	// adapter.
 	//
-	if(_state == StateActive)
-	{
-	    if(adapter != null && _adapter == null)
-	    {
-		//
-		// Client is now server.
-		//
-		unregisterWithPool();
-	    }
-	    
-	    if(adapter == null && _adapter != null)
-	    {
-		//
-		// Server is now client.
-		//
-		unregisterWithPool();
-	    }
-	}
 	
 	_adapter = adapter;
 	if(_adapter != null)
@@ -1116,6 +1098,7 @@ public final class Connection extends EventHandler
 	{
 	    _transceiver.close();
 	    _transceiver = null;
+	    _threadPool = null; // We don't need the thread pool anymore.
 	    notifyAll();
 	}
     }
@@ -1155,10 +1138,12 @@ public final class Connection extends EventHandler
 
 	if(_adapter != null)
 	{
+	    _threadPool = ((Ice.ObjectAdapterI)_adapter).getThreadPool();
 	    _servantManager = ((Ice.ObjectAdapterI)_adapter).getServantManager();
 	}
 	else
 	{
+	    _threadPool = _instance.clientThreadPool();
 	    _servantManager = null;
 	}
     }
@@ -1382,15 +1367,8 @@ public final class Connection extends EventHandler
     {
 	if(!_registeredWithPool)
 	{
-	    if(_adapter != null)
-	    {
-		((Ice.ObjectAdapterI)_adapter).getThreadPool()._register(_transceiver.fd(), this);
-	    }
-	    else
-	    {
-		_instance.clientThreadPool()._register(_transceiver.fd(), this);
-	    }
-
+	    assert(_threadPool != null);
+	    _threadPool._register(_transceiver.fd(), this);
 	    _registeredWithPool = true;
 
 	    ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
@@ -1406,15 +1384,8 @@ public final class Connection extends EventHandler
     {
 	if(_registeredWithPool)
 	{
-	    if(_adapter != null)
-	    {
-		((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(_transceiver.fd());
-	    }
-	    else
-	    {
-		_instance.clientThreadPool().unregister(_transceiver.fd());
-	    }
-
+	    assert(_threadPool != null);
+	    _threadPool.unregister(_transceiver.fd());
 	    _registeredWithPool = false;	
 
 	    ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
@@ -1521,6 +1492,7 @@ public final class Connection extends EventHandler
     private final TraceLevels _traceLevels;
 
     private boolean _registeredWithPool;
+    private ThreadPool _threadPool;
 
     private boolean _warn;
 

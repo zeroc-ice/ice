@@ -1120,5 +1120,5 @@ public final class ThreadPool
 
     private boolean _promote;
 
-    private boolean _warnUdp;
+    private final boolean _warnUdp;
 }

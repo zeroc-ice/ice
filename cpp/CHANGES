@@ -1,11 +1,14 @@
 Changes since version 1.1.1
 ---------------------------
 
+- Bi-directional connections are now handled by the client-side thread
+  pool instead of the server-side thread pool.
+
 - Fixed a bug in the generated code that caused "at-most-once"
   semantics to be ignored for collocated invocations.
 
-- Removed all Ice dependencies on Xerces. Added a simple C++
-  wrapper around the expat XML parser as IceXML/Parser.h.
+- Removed all Ice dependencies on Xerces. Added a simple C++ wrapper
+  around the expat XML parser as IceXML/Parser.h.
 
 - Implemented TwowayOnlyException. That exception is raised if an
   attempt is made to invoke an operation that has a return value,

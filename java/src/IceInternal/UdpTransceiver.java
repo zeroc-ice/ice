@@ -367,7 +367,7 @@ final class UdpTransceiver implements Transceiver
     private Ice.Logger _logger;
     private boolean _incoming;
     private boolean _connect;
-    private boolean _warn;
+    private final boolean _warn;
     private int _rcvSize;
     private int _sndSize;
     private java.nio.channels.DatagramChannel _fd;

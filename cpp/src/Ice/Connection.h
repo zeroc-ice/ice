@@ -144,9 +144,9 @@ private:
     const TraceLevelsPtr _traceLevels;
 
     bool _registeredWithPool;
+    ThreadPoolPtr _threadPool;
 
     bool _warn;
-    bool _warnUdp;
 
     int _acmTimeout;
     IceUtil::Time _acmAbsoluteTimeout;

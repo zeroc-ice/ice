@@ -128,15 +128,15 @@ IceInternal::UdpTransceiver::read(Buffer& buf, int)
     const int packetSize = min(_maxPacketSize, _rcvSize - _udpOverhead);
     if(packetSize < static_cast<int>(buf.b.size()))
     {
-	    //
-	    // We log a warning here because this is the server side -- without the
-	    // the warning, there would only be silence.
-	    //
-	    if(_warn)
-	    {
-		Warning out(_logger);
-		out << "DatagramLimitException: maximum size of " << packetSize << " exceeded";
-	    }
+	//
+	// We log a warning here because this is the server side -- without the
+	// the warning, there would only be silence.
+	//
+	if(_warn)
+	{
+	    Warning out(_logger);
+	    out << "DatagramLimitException: maximum size of " << packetSize << " exceeded";
+	}
 	throw Ice::DatagramLimitException(__FILE__, __LINE__);
     }
     buf.b.resize(packetSize);
@@ -261,7 +261,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
     _incoming(false),
-    _connect(true)
+    _connect(true),
+    _warn(instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0)
 {
     try
     {

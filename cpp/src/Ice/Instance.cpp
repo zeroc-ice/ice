@@ -365,12 +365,19 @@ IceInternal::Instance::flushBatchRequests()
 {
     OutgoingConnectionFactoryPtr connectionFactory;
     ObjectAdapterFactoryPtr adapterFactory;
+
     {
 	IceUtil::RecMutex::Lock sync(*this);
+
+	if(_destroyed)
+	{
+	    throw CommunicatorDestroyedException(__FILE__, __LINE__);
+	}
 
 	connectionFactory = _outgoingConnectionFactory;
 	adapterFactory = _objectAdapterFactory;
     }
+
     connectionFactory->flushBatchRequests();
     adapterFactory->flushBatchRequests();
 }

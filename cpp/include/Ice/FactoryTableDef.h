@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_FACTORYTABLEDEF_H
-#define ICE_FACTORYTABLEDEF_H
+#ifndef ICE_FACTORY_TABLE_DEF_H
+#define ICE_FACTORY_TABLE_DEF_H
 
 #include <IceUtil/StaticMutex.h>
 #include <IceUtil/Mutex.h>

@@ -263,11 +263,19 @@ public class Instance
     {
 	OutgoingConnectionFactory connectionFactory;
 	ObjectAdapterFactory adapterFactory;
+
 	synchronized(this)
 	{
+	    
+	    if(_destroyed)
+	    {
+		throw new Ice.CommunicatorDestroyedException();
+	    }
+	    
 	    connectionFactory = _outgoingConnectionFactory;
 	    adapterFactory = _objectAdapterFactory;
 	}
+
 	connectionFactory.flushBatchRequests();
 	adapterFactory.flushBatchRequests();
     }

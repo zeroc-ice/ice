@@ -69,7 +69,7 @@ private:
     bool _connect;
     int _rcvSize;
     int _sndSize;
-    bool _warn;
+    const bool _warn;
     static const int _udpOverhead;
     static const int _maxPacketSize;
 };

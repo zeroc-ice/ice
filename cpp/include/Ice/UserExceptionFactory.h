@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_USEREXCEPTIONFACTORY_H
-#define ICE_USEREXCEPTIONFACTORY_H
+#ifndef ICE_USER_EXCEPTION_FACTORY_H
+#define ICE_USER_EXCEPTION_FACTORY_H
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
