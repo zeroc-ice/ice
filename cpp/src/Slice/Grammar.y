@@ -60,6 +60,9 @@ yyerror(const char* s)
 %token ICE_OBJECT
 %token ICE_LOCAL_OBJECT
 %token ICE_LOCAL
+%token ICE_CONST
+%token ICE_FALSE
+%token ICE_TRUE
 
 //
 // Other tokens.
@@ -67,6 +70,8 @@ yyerror(const char* s)
 %token ICE_SCOPE_DELIMITOR
 %token ICE_IDENTIFIER
 %token ICE_STRING_LITERAL
+%token ICE_INTEGER_LITERAL
+%token ICE_FLOATING_POINT_LITERAL
 
 //
 // One shift/reduce conflict is caused by the presence of ICE_OUT
@@ -102,10 +107,6 @@ meta_data
 : '[' string_list ']'
 {
     $$ = $2;
-}
-| '[' ']'
-{
-    $$ = new StringListTok;
 }
 |
 {
@@ -175,6 +176,9 @@ definition
 {
 }
 | enum_def
+{
+}
+| const_def
 {
 }
 ;
@@ -1236,16 +1240,30 @@ type
 ;
 
 // ----------------------------------------------------------------------
+string_literal
+// ----------------------------------------------------------------------
+: ICE_STRING_LITERAL string_literal // Adjacent string literals are concatenated
+{
+    StringTokPtr str1 = StringTokPtr::dynamicCast($1);
+    StringTokPtr str2 = StringTokPtr::dynamicCast($2);
+    str1->v += str2->v;
+}
+| ICE_STRING_LITERAL
+{
+}
+;
+
+// ----------------------------------------------------------------------
 string_list
 // ----------------------------------------------------------------------
-: ICE_STRING_LITERAL ',' string_list
+: string_literal ',' string_list
 {
     StringTokPtr str = StringTokPtr::dynamicCast($1);
     StringListTokPtr stringList = StringListTokPtr::dynamicCast($3);
     stringList->v.push_back(str->v);
     $$ = stringList;
 }
-| ICE_STRING_LITERAL
+| string_literal
 {
     StringTokPtr str = StringTokPtr::dynamicCast($1);
     StringListTokPtr stringList = new StringListTok;
@@ -1268,6 +1286,131 @@ local
     BoolTokPtr local = new BoolTok;
     local->v = false;
     $$ = local;
+}
+;
+
+// ----------------------------------------------------------------------
+const_type
+// ----------------------------------------------------------------------
+: ICE_BYTE
+{
+}
+//
+// Note ICE_BOOL is deal with in const_def
+//
+| ICE_SHORT
+{
+}
+| ICE_INT
+{
+}
+| ICE_LONG
+{
+}
+| ICE_FLOAT
+{
+}
+| ICE_DOUBLE
+{
+}
+| ICE_STRING
+{
+}
+| ICE_ENUM
+{
+}
+;
+
+// ----------------------------------------------------------------------
+unary_plus_minus
+// ----------------------------------------------------------------------
+: '+'
+{
+    IntegerTokPtr itp = new IntegerTok;
+    itp->v = 1;
+    $$ = itp;
+}
+| '-'
+{
+    IntegerTokPtr itp = new IntegerTok;
+    itp->v = -1;
+    $$ = itp;
+}
+|
+{
+    IntegerTokPtr itp = new IntegerTok;
+    itp->v = 1;
+    $$ = itp;
+}
+;
+
+// ----------------------------------------------------------------------
+numeric_literal
+// ----------------------------------------------------------------------
+: ICE_INTEGER_LITERAL
+{
+}
+| ICE_FLOATING_POINT_LITERAL
+{
+}
+;
+
+// ----------------------------------------------------------------------
+const_literal
+// ----------------------------------------------------------------------
+: unary_plus_minus numeric_literal
+{
+    IntegerTokPtr sign = IntegerTokPtr::dynamicCast($1);
+    IntegerTokPtr integer = IntegerTokPtr::dynamicCast($2);
+    if(integer)
+    {
+    	if(sign->v == -1)
+	{
+	    if(integer->v < 0 && integer->v == LONG_MIN)
+	    {
+		string msg = "integer constant `" + integer->v;
+		msg += "' is too large in magnitude to convert to a positive number";
+		unit->error(msg);
+	    }
+	    integer->v *= -1;
+	}
+    }
+    else
+    {
+    	FloatingTokPtr floating = FloatingTokPtr::dynamicCast($2);
+	assert(floating);
+	floating->v *= sign->v;
+    }
+    $$ = $2;
+}
+| enumerator
+{
+}
+| ICE_STRING_LITERAL
+{
+}
+;
+
+// ----------------------------------------------------------------------
+const_def
+// ----------------------------------------------------------------------
+: ICE_CONST const_type ICE_IDENTIFIER '=' const_literal
+{
+    //
+    //TODO: createConst, including semantic checks
+    //
+}
+| ICE_CONST ICE_BOOL ICE_IDENTIFIER '=' ICE_FALSE
+{
+    //
+    //TODO: createConst, including semantic checks
+    //
+}
+| ICE_CONST ICE_BOOL ICE_IDENTIFIER '=' ICE_TRUE
+{
+    //
+    //TODO: createConst, including semantic checks
+    //
 }
 ;
 
@@ -1344,6 +1487,15 @@ keyword
 {
 }
 | ICE_LOCAL
+{
+}
+| ICE_CONST
+{
+}
+| ICE_FALSE
+{
+}
+| ICE_TRUE
 {
 }
 ;

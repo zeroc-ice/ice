@@ -12,6 +12,7 @@
 
 #include <Slice/GrammarUtil.h> // Before Grammer.h, so that YYSTYPE is defined
 #include <Slice/Grammar.h>
+#include <math.h>
 
 using namespace std;
 using namespace Slice;
@@ -35,6 +36,11 @@ void initScanner();
 
 %option noyywrap
 %option never-interactive
+
+integer_constant	(\+|-)?(0[0-7]+)|(0x[[:xdigit:]]+)|([[:digit:]]+)
+fractional_constant	([[:digit:]]*\.[[:digit:]]+)|([[:digit:]]+\.)
+exponent_part		(e|E)(\+|-)?[[:digit:]]+
+floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent_part}))[fFlL]?
 
 %%
 
@@ -114,15 +120,17 @@ void initScanner();
 
 \\?[[:alpha:]_][[:alnum:]_]* {
     StringTokPtr ident = new StringTok;
-    if (*yytext == '\\')
+    if(*yytext == '\\')			// Backslash escapes keyword meaning
     {
 	ident->v = yytext + 1;
+	*yylvalp = ident;
+	return ICE_IDENTIFIER;
     }
     else
     {
 	ident->v = yytext;
+	*yylvalp = ident;
     }
-    *yylvalp = ident;
 
     StringTokenMap::const_iterator pos = keywordMap.find(ident->v);
     if(pos != keywordMap.end())
@@ -141,7 +149,6 @@ void initScanner();
 }
 
 \" {
-    // "..."-type strings
     StringTokPtr str = new StringTok;
     while(true)
     {
@@ -152,13 +159,12 @@ void initScanner();
 	}
 	else if(c == EOF)
 	{
-	    unit->warning("EOF in string");
+	    unit->error("EOF in string");
 	    break;
 	}
 	else if(c == '\n')
 	{
-	    str->v += c;
-	    unit->nextLine();
+	    unit->error("newline in string");
 	}
 	else if(c == '\\')
 	{
@@ -167,6 +173,7 @@ void initScanner();
 	    {
 		case '\\':
 		case '"':
+		case '\'':
 		{
 		    str->v += next;
 		    break;
@@ -201,6 +208,77 @@ void initScanner();
 		    str->v += '\f';
 		    break;
 		}
+
+		case 'a':
+		{
+		    str->v += '\a';
+		    break;
+		}
+
+		case 'b':
+		{
+		    str->v += '\b';
+		    break;
+		}
+
+		case '?':
+		{
+		    str->v += '\?';
+		    break;
+		}
+
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		{
+		    static string octalDigits = "01234567";
+		    unsigned short us = next - '0';
+		    if(octalDigits.find_first_of(next = static_cast<char>(yyinput())) != string::npos)
+		    {
+		    	us = us * 8 + next - '0';
+			if(octalDigits.find_first_of(next = static_cast<char>(yyinput())) != string::npos)
+			{
+			    us = us * 8 + next - '0';
+			}
+			else
+			{
+			    unput(next);
+			}
+		    }
+		    else
+		    {
+		    	unput(next);
+		    }
+		    str->v += static_cast<char>(us);
+		    break;
+		}
+		case 'x':
+		{
+		    unsigned long ul = 0;
+		    next = static_cast<char>(yyinput());
+		    if(isxdigit(next))
+		    {
+			ul *= 16;
+		    	if(isdigit(next))
+			{
+		    	    ul += next - '0';
+			}
+			else if(islower(next))
+			{
+			    ul += next - 'a';
+			}
+			else
+			{
+			    ul += next - 'A';
+			}
+		    }
+		    unput(next);
+		    str->v += static_cast<char>(ul);
+		    break;
+		}
+	
+		// TODO: add universal character names
 	    
 		default:
 		{
@@ -218,33 +296,50 @@ void initScanner();
     return ICE_STRING_LITERAL;
 }
 
-\' {
-    // '...'-type strings
-    StringTokPtr str = new StringTok;
-    while(true)
+{integer_constant} {
+    IntegerTokPtr itp = new IntegerTok;
+    *yylvalp = itp;
+    errno = 0;
+    itp->v = strtol(yytext, 0, 0);
+//
+// TODO: strtol() is broken under gcc: it returns an error for -2147483648 (but shouldn't)
+//
+    if(errno == ERANGE && (itp->v == LONG_MAX || itp->v == LONG_MIN))
     {
-	char c = static_cast<char>(yyinput());
-	if(c == '\'')
-	{
-	    break;
-	}
-	else if(c == EOF)
-	{
-	    unit->warning("EOF in string");
-	    break;
-	}
-	else if(c == '\n')
-	{
-	    str->v += c;
-	    unit->nextLine();
-	}
-	else
-	{
-	    str->v += c;
-	}
+    	string msg = "integer constant `";
+	msg += yytext;
+	msg += "' too ";
+	msg += itp->v == LONG_MAX ? "large (overflow)" : "small (underflow)";
+	unit->error(msg);
     }
-    *yylvalp = str;
-    return ICE_STRING_LITERAL;
+    return ICE_INTEGER_LITERAL;
+}
+
+{floating_literal} {
+    FloatingTokPtr ftp = new FloatingTok;
+    *yylvalp = ftp;
+    errno = 0;
+    ftp->v = strtod(yytext, 0);
+    //
+    // TODO: think about what to do with infinity and NaN. Probably nothing because the slice compiler
+    // doesn't necessarily run on the same architecture as the compiled stubs/skeletons, but NaN and INF are
+    // architecture dependent...
+    //
+    if((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
+    {
+	string msg = "floating-point constant `";
+	msg += yytext;
+	msg += "' too large (overflow)";
+	unit->error(msg);
+    }
+    else if(ftp->v == 0 && errno == ERANGE)
+    {
+	string msg = "floating-point constant `";
+	msg += yytext;
+	msg += "' too small (underflow)";
+	unit->error(msg);
+    }
+    return ICE_FLOATING_POINT_LITERAL;
 }
 
 [[:space:]] {
@@ -295,6 +390,9 @@ initScanner()
     keywordMap["Object"] = ICE_OBJECT;
     keywordMap["LocalObject"] = ICE_LOCAL_OBJECT;
     keywordMap["local"] = ICE_LOCAL;
+    keywordMap["const"] = ICE_CONST;
+    keywordMap["false"] = ICE_FALSE;
+    keywordMap["true"] = ICE_TRUE;
 }
 
 }
