@@ -26,6 +26,17 @@ def usage():
     print
     print "If no tag is specified, HEAD is used."
 
+def getIceVersion(file):
+    config = open(file, "r")
+    return re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
+
+def getIceSoVersion(file):
+    config = open(file, "r")
+    intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
+    majorVersion = intVersion / 10000
+    minorVersion = intVersion / 100 - 100 * majorVersion
+    return '%d' % (majorVersion * 10 + minorVersion)
+
 #
 # Check arguments
 #
@@ -64,14 +75,13 @@ os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice/inc
 #
 # Get Ice version.
 #
-config = open("ice/include/IceUtil/Config.h", "r")
-version = re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
+version = getIceVersion("ice/include/IceUtil/Config.h")
+intVer = getIceSoVersion("ice/include/IceUtil/Config.h")
 
 #
 # Verify Ice version in CVS export matches the one in ICE_HOME.
 #
-config = open(os.environ["ICE_HOME"] + "/include/IceUtil/Config.h", "r")
-version2 = re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
+version2 = getIceVersion(os.environ["ICE_HOME"] + "/include/IceUtil/Config.h")
 
 shutil.rmtree("ice")
 
@@ -142,11 +152,13 @@ for x in executables:
     shutil.copyfile(icehome + "/bin/" + x, bindir + "/" + x)
 
 if symlinks:
-    for x in libraries:
-        libname = x + '.' + version
-        shutil.copyfile(icehome + "/lib/" + libname, libdir + "/" + libname)
+    for so in libraries:
+        soVer = so + '.' + version
+        soInt = so + '.' + intVer
+        shutil.copyfile(icehome + "/lib/" + soVer, libdir + "/" + soVer)
         os.chdir(libdir)
-        os.symlink(libname, x)
+        os.symlink(soVer, soInt)
+        os.symlink(soInt, so)
         os.chdir(cwd)
 else:
     for x in libraries:
