@@ -162,9 +162,13 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    ex.error = getSystemErrno();
 	    throw ex;
 	}
+
 	pid = fork();
+
 	if(pid == -1)
 	{
+	    close(fds[0]);
+	    close(fds[1]);
 	    SyscallException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();
 	    throw ex;
@@ -313,13 +317,13 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     }
     else // Parent process.
     {
+	//
+	// Close the write side of the newly created pipe.
+	//
+	close(fds[1]);
+
 	try
 	{
-	    //
-	    // Close the write side of the newly created pipe.
-	    //
-	    close(fds[1]);
-	    
 	    //
 	    // Wait until data can be read from the newly started router,
 	    // with timeout.
@@ -390,6 +394,8 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 
 	    if(strncmp(buf, uuid.c_str(), uuid.length()) == 0)
 	    {
+		close(fds[0]);
+
 		//
 		// We got the stringified router proxy.
 		//
@@ -415,6 +421,8 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	}
 	catch(const CannotStartRouterException& ex)
 	{
+	    close(fds[0]);
+
 	    if(_traceLevel >= 1)
 	    {
 		Trace out(_logger, "Glacier");
@@ -425,6 +433,8 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	}
 	catch(const Exception& ex)
 	{
+	    close(fds[0]);
+
 	    Error out(_logger);
 	    out << ex;
 	    ex.ice_throw();

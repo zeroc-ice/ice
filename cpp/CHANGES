@@ -1,6 +1,8 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Fixed filedescriptor leak in the Glacier router starter.
+
 - Inlined most operators in IceUtil::Time for performance reasons.
 
 - Added IceUtil::ThreadControl::isAlive(). This function is useful for

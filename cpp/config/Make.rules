@@ -24,7 +24,7 @@ prefix			= /opt/Ice-$(VERSION)
 # optimization. Otherwise Ice is build with debug information.
 #
 
-OPTIMIZE		= no
+#OPTIMIZE		= yes
 
 #
 # The values below can be overridden by defining them as environment
