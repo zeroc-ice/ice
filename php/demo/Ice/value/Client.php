@@ -69,7 +69,7 @@ try
 
     $obj = $initial->getPrinterAsObject();
     echo "==> The type ID of the received object is \"",get_class($obj),"\"\n";
-    assert(get_class($obj) == "ice_objectimpl");
+    assert(get_class($obj) == "Ice_ObjectImpl");
 
     echo "\n";
     echo "Yes, this worked. Now let's try to transfer an object for a class\n";
