@@ -113,6 +113,10 @@ SOURCE=.\Callback.h
 
 SOURCE=.\CallbackI.h
 # End Source File
+# Begin Source File
+
+SOURCE=.\DummyPermissionsVerifierI.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
