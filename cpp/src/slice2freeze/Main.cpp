@@ -87,30 +87,36 @@ writeCodecH(const TypePtr& type, const string& name, const string& freezeType, O
     H << sp;
     H.inc();
     H << nl << "static Freeze::" << freezeType << " write(" << inputTypeToString(type)
-      << ", const IceInternal::InstancePtr& instance);";
-    H << nl << "static void read(" << typeToString(type) << "&, const Freeze::" << freezeType << "& bytes, "
-      << "const IceInternal::InstancePtr& instance);";
+      << ", const ::Ice::CommunicatorPtr&);";
+    H << nl << "static void read(" << typeToString(type) << "&, const Freeze::" << freezeType << "&, "
+      << "const ::Ice::CommunicatorPtr&);";
     H << eb << ';';
 }
 
 void
 writeCodecC(const TypePtr& type, const string& name, const string& freezeType, Output& C)
 {
+    string tagName = "\"";
+    tagName += freezeType;
+    tagName += "\"";
+
     C << sp << nl << "Freeze::" << freezeType << nl << name << "::write(" << inputTypeToString(type) << " v, "
-      << "const IceInternal::InstancePtr& instance)";
+      << "const ::Ice::CommunicatorPtr& communicator)";
     C << sb;
-    C << nl << "IceInternal::BasicStream stream(instance);";
-    writeMarshalUnmarshalCode(C, type, "v", true, "stream", false);
-    C << nl << "return stream.b;";
+    C << nl << "::std::ostringstream os;";
+    C << nl << "::Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, os);";
+    writeGenericMarshalUnmarshalCode(C, type, "v", true, tagName, "stream", true);
+    
+    C << nl << "return Freeze::" << freezeType << "(os.str().begin(), os.str().end());";
     C << eb;
 
     C << sp << nl << "void" << nl << name << "::read(" << typeToString(type) << "& v, "
-      << "const Freeze::" << freezeType << "& bytes, const IceInternal::InstancePtr& instance)";
+      << "const Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator)";
     C << sb;
-    C << nl << "IceInternal::BasicStream stream(instance);";
-    C << nl << "stream.b = bytes;";
-    C << nl << "stream.i = stream.b.begin();";
-    writeMarshalUnmarshalCode(C, type, "v", false, "stream", false);
+    C << nl << "::std::string data(bytes.begin(), bytes.end());";
+    C << nl << "::std::istringstream is(data);";
+    C << nl << "::Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, is);";
+    writeGenericMarshalUnmarshalCode(C, type, "v", false, tagName, "stream", true);
     C << eb;
 }
 
@@ -495,6 +501,7 @@ main(int argc, char* argv[])
 	}
 
 	C << "\n#include <Ice/BasicStream.h>";
+	C << "\n#include <IceXML/StreamI.h>";
 	C << "\n#include <";
 	if (include.size())
 	{

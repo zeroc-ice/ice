@@ -161,8 +161,7 @@ public:
     //
     void set(const mapped_type& value)
     {
-	IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());
-	Freeze::Value v = ValueCodec::write(value, instance);
+	Freeze::Value v = ValueCodec::write(value, _db->getCommunicator());
 	_cursor->set(v);
     }
 
@@ -190,9 +189,9 @@ private:
 	
 	_cursor->curr(k, v);
 
-	IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());
-	KeyCodec::read(key, k, instance);
-	ValueCodec::read(value, v, instance);
+	::Ice::CommunicatorPtr communicator = _db->getCommunicator();
+	KeyCodec::read(key, k, communicator);
+	ValueCodec::read(value, v, communicator);
     }
 
     friend class ConstDBIterator<key_type, mapped_type, KeyCodec, ValueCodec>;
@@ -375,9 +374,9 @@ private:
 	
 	_cursor->curr(k, v);
 
-	IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());
-	KeyCodec::read(key, k, instance);
-	ValueCodec::read(value, v, instance);
+	::Ice::CommunicatorPtr communicator = _db->getCommunicator();
+	KeyCodec::read(key, k, communicator);
+	ValueCodec::read(value, v, communicator);
     }
 
     friend class DBMap<key_type, mapped_type, KeyCodec, ValueCodec>;
@@ -594,12 +593,12 @@ public:
 	//
 	// position is ignored.
 	//
-	IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());
+	::Ice::CommunicatorPtr communicator = _db->getCommunicator();
 
 	Freeze::Key k;
 	Freeze::Value v;
-	k = KeyCodec::write(key.first, instance);
-	v = ValueCodec::write(key.second, instance);
+	k = KeyCodec::write(key.first, communicator);
+	v = ValueCodec::write(key.second, communicator);
 
 	_db->put(k, v);
 	DBCursorPtr cursor = _db->getCursorAtKey(k);
@@ -609,12 +608,12 @@ public:
 
     std::pair<iterator, bool> insert(const value_type& key)
     {
-	IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());
+	::Ice::CommunicatorPtr communicator = _db->getCommunicator();
 
 	Freeze::Key k;
 	Freeze::Value v;
-	k = KeyCodec::write(key.first, instance);
-	v = ValueCodec::write(key.second, instance);
+	k = KeyCodec::write(key.first, communicator);
+	v = ValueCodec::write(key.second, communicator);
 
 	DBCursorPtr cursor;
 	bool inserted;
@@ -676,9 +675,7 @@ public:
 
     size_type erase(const key_type& key)
     {
-	IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());
-
-	Freeze::Key k = KeyCodec::write(key, instance);
+	Freeze::Key k = KeyCodec::write(key, _db->getCommunicator());
 
 	try
 	{
@@ -708,10 +705,8 @@ public:
 
     iterator find(const key_type& key)
     {
-	IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());
-
 	Freeze::Key k;
-	k = KeyCodec::write(key, instance);
+	k = KeyCodec::write(key, _db->getCommunicator());
 
 	try
 	{
@@ -729,10 +724,8 @@ public:
 
     const_iterator find(const key_type& key) const
     {
-	IceInternal::InstancePtr instance = IceInternal::getInstance(_db->getCommunicator());
-
 	Freeze::Key k;
-	k = KeyCodec::write(key, instance);
+	k = KeyCodec::write(key, _db->getCommunicator());
 
 	try
 	{
