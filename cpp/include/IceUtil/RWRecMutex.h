@@ -26,7 +26,7 @@ public:
     RLock(const T& mutex) :
 	_mutex(mutex)
     {
-	_mutex.readLock();
+	_mutex.readlock();
     }
 
     ~RLock()
@@ -34,9 +34,16 @@ public:
 	_mutex.unlock();
     }
 
-    void upgrade()
+    void
+    upgrade()
     {
 	_mutex.upgrade();
+    }
+
+    void
+    timedUpgrade(int timeout)
+    {
+	_mutex.timedUpgrade(timeout);
     }
 
 private:
@@ -52,7 +59,13 @@ public:
     TryRLock(const T& mutex) :
 	_mutex(mutex)
     {
-	_mutex.tryReadLock();
+	_mutex.tryReadlock();
+    }
+
+    TryRLock(const T& mutex, int timeout) :
+	_mutex(mutex)
+    {
+	_mutex.timedTryReadlock(timeout);
     }
 
     ~TryRLock()
@@ -60,9 +73,16 @@ public:
 	_mutex.unlock();
     }
 
-    void upgrade()
+    void
+    upgrade()
     {
 	_mutex.upgrade();
+    }
+
+    void
+    timedUpgrade(int timeout)
+    {
+	_mutex.timedUpgrade(timeout);
     }
 
 private:
@@ -78,7 +98,7 @@ public:
     WLock(const T& mutex) :
 	_mutex(mutex)
     {
-	_mutex.writeLock();
+	_mutex.writelock();
     }
 
     ~WLock()
@@ -99,7 +119,13 @@ public:
     TryWLock(const T& mutex) :
 	_mutex(mutex)
     {
-	_mutex.tryWriteLock();
+	_mutex.tryWritelock();
+    }
+
+    TryWLock(const T& mutex, int timeout) :
+	_mutex(mutex)
+    {
+	_mutex.timedTryWritelock(timeout);
     }
 
     ~TryWLock()
@@ -138,29 +164,39 @@ public:
     ~RWRecMutex();
 
     //
-    // Note that readLock/writeLock & unlock in general should not be
+    // Note that readlock/writelock & unlock in general should not be
     // used directly. Instead use RLock & WLock.
     //
 
     //
     // Acquire a read lock.
     //
-    void readLock() const;
+    void readlock() const;
 
     //
     // Try to acquire a read lock.
     //
-    void tryReadLock() const;
+    void tryReadlock() const;
+
+    //
+    // Try to acquire a read lock for up to timeout milliseconds.
+    //
+    void timedTryReadlock(int) const;
 
     //
     // Acquire a write lock.
     //
-    void writeLock() const;
+    void writelock() const;
 
     //
     // Acquire a write lock.
     //
-    void tryWriteLock() const;
+    void tryWritelock() const;
+
+    //
+    // Acquire a write lock for up to timeout milliseconds.
+    //
+    void timedTryWritelock(int) const;
 
     //
     // Unlock the reader/writer lock.
@@ -172,6 +208,13 @@ public:
     // can only be called if the reader lock is not held recursively.
     //
     void upgrade() const;
+
+    //
+    // Upgrade the read lock to a writer lock for up to timeout
+    // milliseconds.  Note that this method can only be called if the
+    // reader lock is not held recursively.
+    //
+    void timedUpgrade(int) const;
 
 private:
 

@@ -111,7 +111,7 @@ public:
     template <typename Lock> inline bool
     timedwait(const Lock& lock, long msec) const
     {
-	timedwaitImpl(lock._mutex, msec);
+	return timedwaitImpl(lock._mutex, msec);
     }
 
 private:

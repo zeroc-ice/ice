@@ -24,7 +24,7 @@ IceUtil::RWRecMutex::~RWRecMutex()
 }
 
 void
-IceUtil::RWRecMutex::readLock() const
+IceUtil::RWRecMutex::readlock() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -40,7 +40,7 @@ IceUtil::RWRecMutex::readLock() const
 }
 
 void
-IceUtil::RWRecMutex::tryReadLock() const
+IceUtil::RWRecMutex::tryReadlock() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -56,7 +56,29 @@ IceUtil::RWRecMutex::tryReadLock() const
 }
 
 void
-IceUtil::RWRecMutex::writeLock() const
+IceUtil::RWRecMutex::timedTryReadlock(int timeout) const
+{
+    Mutex::Lock lock(_mutex);
+
+    //
+    // Wait while a writer holds the lock or while writers are waiting
+    // to get the lock.
+    //
+    // TODO: This needs to check the time after each notify...
+    //
+    while (_count < 0 || _waitingWriters != 0)
+    {
+	if (!_readers.timedwait(lock, timeout))
+	{
+	    throw LockedException(__FILE__, __LINE__);
+	}
+    }
+
+    _count++;
+}
+
+void
+IceUtil::RWRecMutex::writelock() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -96,7 +118,7 @@ IceUtil::RWRecMutex::writeLock() const
 }
 
 void
-IceUtil::RWRecMutex::tryWriteLock() const
+IceUtil::RWRecMutex::tryWritelock() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -116,6 +138,57 @@ IceUtil::RWRecMutex::tryWriteLock() const
     if (_count != 0)
     {
 	throw LockedException(__FILE__, __LINE__);
+    }
+
+    //
+    // Got the lock, indicate it's held by a writer.
+    //
+    _count = -1;
+}
+
+void
+IceUtil::RWRecMutex::timedTryWritelock(int timeout) const
+{
+    Mutex::Lock lock(_mutex);
+
+    //
+    // If the mutex is already write locked by this writer then
+    // decrement _count, and return.
+    //
+    if (_count < 0 && _writerControl == ThreadControl())
+    {
+	--_count;
+	return;
+    }
+
+    //
+    // Wait for the lock to become available and increment the number
+    // of waiting writers.
+    //
+    // TODO: This needs to check the time after each notify...
+    //
+    if (_count != 0)
+    {
+	_waitingWriters++;
+	bool timedout;
+	try
+	{
+	    timedout = !_writers.timedwait(lock, timeout);
+	}
+	catch(...)
+	{
+	    --_waitingWriters;
+	    throw;
+	}
+	_waitingWriters--;
+
+	//
+	// If a timeout occurred then the lock wasn't acquired.
+	//
+	if (timedout)
+	{
+	    throw LockedException(__FILE__, __LINE__);
+	}
     }
 
     //
@@ -221,6 +294,54 @@ IceUtil::RWRecMutex::upgrade() const
 	_waitingWriters--;
 
 	
+    }
+
+    //
+    // Got the lock, indicate it's held by a writer.
+    //
+    _count = -1;
+}
+
+void
+IceUtil::RWRecMutex::timedUpgrade(int timeout) const
+{
+    Mutex::Lock lock(_mutex);
+
+    //
+    // Reader called unlock
+    //
+    assert(_count > 0);
+    --_count;
+
+    //
+    // Wait to acquire the write lock.
+    //
+    // TODO: This needs to check the time after each notify...
+    //
+    while (_count != 0)
+    {
+	_waitingWriters++;
+	bool timedout;
+	try
+	{
+	    timedout = !_writers.timedwait(lock, timeout);
+	}
+	catch(...)
+	{
+	    --_waitingWriters;
+	    throw;
+	}
+	_waitingWriters--;
+
+	//
+	// If a timeout occurred then the lock wasn't acquired. Ensure
+	// that the _count is increased again before returning.
+	//
+	if (timedout)
+	{
+	    ++_count;
+	    throw LockedException(__FILE__, __LINE__);
+	}
     }
 
     //
