@@ -1,0 +1,1 @@
+local class C {};
