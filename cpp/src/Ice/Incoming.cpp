@@ -233,6 +233,27 @@ IceInternal::Incoming::invoke(bool response)
 
 	return;
     }
+    catch(const Exception& ex)
+    {
+	if(locator && servant)
+	{
+	    locator->finished(_current, servant, cookie);
+	}
+
+	_is.endReadEncaps();
+
+	if(response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(statusPos);
+	    _os.write(static_cast<Byte>(DispatchUnknownException));
+	    ostringstream str;
+	    str << ex;
+	    _os.write(str.str());
+	}
+
+	return;
+    }
     catch(const std::exception& ex)
     {
 	if(locator && servant)
