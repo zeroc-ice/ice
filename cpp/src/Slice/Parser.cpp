@@ -2270,9 +2270,9 @@ Slice::ClassDef::allClassDataMembers() const
     //
     // Append this class's class members.
     //
-    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    for(ContainedList::const_iterator it = _contents.begin(); it != _contents.end(); ++it)
     {
-	DataMemberPtr q = DataMemberPtr::dynamicCast(*p);
+	DataMemberPtr q = DataMemberPtr::dynamicCast(*it);
 	if(q)
 	{
 	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
