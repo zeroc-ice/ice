@@ -1,0 +1,11 @@
+<project name="test_IceXML" default="all" basedir=".">
+
+    <target name="all">
+        <ant dir="encoding"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="encoding" target="clean"/>
+    </target>
+
+</project>
