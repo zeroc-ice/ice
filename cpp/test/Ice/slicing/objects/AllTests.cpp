@@ -19,6 +19,449 @@
 
 using namespace std;
 
+class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    CallbackBase() :
+	_called(false)
+    {
+    }
+
+    virtual ~CallbackBase()
+    {
+    }
+
+    bool check()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	while(!_called)
+	{
+	    if(!timedWait(IceUtil::Time::seconds(5)))
+	    {
+		return false;
+	    }
+	}
+	_called = false;
+	return true;
+    }
+
+protected:
+
+    void called()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	assert(!_called);
+	_called = true;
+	notify();
+    }
+
+private:
+
+    bool _called;
+};
+
+class AMI_Test_SBaseAsObjectI : public AMI_Test_SBaseAsObject, public CallbackBase
+{
+    virtual void
+    ice_response(const ::Ice::ObjectPtr& o)
+    {
+	test(o);
+	test(o->ice_id() == "::SBase");
+	SBasePtr sb = SBasePtr::dynamicCast(o);
+	test(sb);
+	test(sb->sb == "SBase.sb");
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_SBaseAsObjectI> AMI_Test_SBaseAsObjectIPtr;
+
+class AMI_Test_SBaseAsSBaseI : public AMI_Test_SBaseAsSBase, public CallbackBase
+{
+    virtual void
+    ice_response(const SBasePtr& sb)
+    {
+	test(sb->sb == "SBase.sb");
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_SBaseAsSBaseI> AMI_Test_SBaseAsSBaseIPtr;
+
+class AMI_Test_SBSKnownDerivedAsSBaseI : public AMI_Test_SBSKnownDerivedAsSBase, public CallbackBase
+{
+    virtual void
+    ice_response(const SBasePtr& sb)
+    {
+	SBSKnownDerivedPtr sbskd = SBSKnownDerivedPtr::dynamicCast(sb);
+	test(sbskd);
+	test(sbskd->sbskd == "SBSKnownDerived.sbskd");
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_SBSKnownDerivedAsSBaseI> AMI_Test_SBSKnownDerivedAsSBaseIPtr;
+
+class AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI : public AMI_Test_SBSKnownDerivedAsSBSKnownDerived, public CallbackBase
+{
+    virtual void
+    ice_response(const SBSKnownDerivedPtr& sbskd)
+    {
+	test(sbskd->sbskd == "SBSKnownDerived.sbskd");
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI> AMI_Test_SBSKnownDerivedAsSBSKnownDerivedIPtr;
+
+class AMI_Test_SBSUnknownDerivedAsSBaseI : public AMI_Test_SBSUnknownDerivedAsSBase, public CallbackBase
+{
+    virtual void
+    ice_response(const SBasePtr& sb)
+    {
+	test(sb->sb == "SBSUnknownDerived.sb");
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_SBSUnknownDerivedAsSBaseI> AMI_Test_SBSUnknownDerivedAsSBaseIPtr;
+
+class AMI_Test_SUnknownAsObjectI : public AMI_Test_SUnknownAsObject, public CallbackBase
+{
+    virtual void
+    ice_response(const Ice::ObjectPtr& o)
+    {
+	test(o->ice_id() == "::Ice::Object");
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_SUnknownAsObjectI> AMI_Test_SUnknownAsObjectIPtr;
+
+class AMI_Test_oneElementCycleI : public AMI_Test_oneElementCycle, public CallbackBase
+{
+    virtual void
+    ice_response(const BPtr& b)
+    {
+	test(b);
+	test(b->ice_id() == "::B");
+	test(b->sb == "B1.sb");
+	test(b->pb == b);
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_oneElementCycleI> AMI_Test_oneElementCycleIPtr;
+
+class AMI_Test_twoElementCycleI : public AMI_Test_twoElementCycle, public CallbackBase
+{
+    virtual void
+    ice_response(const BPtr& b1)
+    {
+	test(b1);
+	test(b1->ice_id() == "::B");
+	test(b1->sb == "B1.sb");
+
+	BPtr b2 = b1->pb;
+	test(b2);
+	test(b2->ice_id() == "::B");
+	test(b2->sb == "B2.sb");
+	test(b2->pb == b1);
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_twoElementCycleI> AMI_Test_twoElementCycleIPtr;
+
+class AMI_Test_D1AsBI : public AMI_Test_D1AsB, public CallbackBase
+{
+    virtual void
+    ice_response(const BPtr& b1)
+    {
+	test(b1);
+	test(b1->ice_id() == "::D1");
+	test(b1->sb == "D1.sb");
+	test(b1->pb);
+	test(b1->pb != b1);
+	D1Ptr d1 = D1Ptr::dynamicCast(b1);
+	test(d1);
+	test(d1->sd1 == "D1.sd1");
+	test(d1->pd1);
+	test(d1->pd1 != b1);
+	test(b1->pb == d1->pd1);
+
+	BPtr b2 = b1->pb;
+	test(b2);
+	test(b2->pb == b1);
+	test(b2->sb == "D2.sb");
+	test(b2->ice_id() == "::B");
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_D1AsBI> AMI_Test_D1AsBIPtr;
+
+class AMI_Test_D1AsD1I : public AMI_Test_D1AsD1, public CallbackBase
+{
+    virtual void
+    ice_response(const D1Ptr& d1)
+    {
+	test(d1);
+	test(d1->ice_id() == "::D1");
+	test(d1->sb == "D1.sb");
+	test(d1->pb);
+	test(d1->pb != d1);
+
+	BPtr b2 = d1->pb;
+	test(b2);
+	test(b2->ice_id() == "::B");
+	test(b2->sb == "D2.sb");
+	test(b2->pb == d1);
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_D1AsD1I> AMI_Test_D1AsD1IPtr;
+
+class AMI_Test_D2AsBI : public AMI_Test_D2AsB, public CallbackBase
+{
+    virtual void
+    ice_response(const BPtr& b2)
+    {
+	test(b2);
+	test(b2->ice_id() == "::B");
+	test(b2->sb == "D2.sb");
+	test(b2->pb);
+	test(b2->pb != b2);
+
+	BPtr b1 = b2->pb;
+	test(b1);
+	test(b1->ice_id() == "::D1");
+	test(b1->sb == "D1.sb");
+	test(b1->pb == b2);
+	D1Ptr d1 = D1Ptr::dynamicCast(b1);
+	test(d1);
+	test(d1->sd1 == "D1.sd1");
+	test(d1->pd1 == b2);
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_D2AsBI> AMI_Test_D2AsBIPtr;
+
+class AMI_Test_paramTest1I : public AMI_Test_paramTest1, public CallbackBase
+{
+    virtual void
+    ice_response(const BPtr& b1, const BPtr& b2)
+    {
+	test(b1);
+	test(b1->ice_id() == "::D1");
+	test(b1->sb == "D1.sb");
+	test(b1->pb == b2);
+	D1Ptr d1 = D1Ptr::dynamicCast(b1);
+	test(d1);
+	test(d1->sd1 == "D1.sd1");
+	test(d1->pd1 == b2);
+
+	test(b2);
+	test(b2->ice_id() == "::B");	// No factory, must be sliced
+	test(b2->sb == "D2.sb");
+	test(b2->pb == b1);
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_paramTest1I> AMI_Test_paramTest1IPtr;
+
+class AMI_Test_returnTest1I : public AMI_Test_returnTest1, public CallbackBase
+{
+    virtual void
+    ice_response(const BPtr& r, const BPtr& p1, const BPtr& p2)
+    {
+	test(r == p1);
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_returnTest1I> AMI_Test_returnTest1IPtr;
+
+class AMI_Test_returnTest2I : public AMI_Test_returnTest2, public CallbackBase
+{
+    virtual void
+    ice_response(const BPtr& r, const BPtr& p1, const BPtr& p2)
+    {
+	test(r == p1);
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_returnTest2I> AMI_Test_returnTest2IPtr;
+
+class AMI_Test_returnTest3I : public AMI_Test_returnTest3, public CallbackBase
+{
+public:
+    virtual void
+    ice_response(const BPtr& b)
+    {
+	r = b;
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+
+    BPtr r;
+};
+
+typedef IceUtil::Handle<AMI_Test_returnTest3I> AMI_Test_returnTest3IPtr;
+
+typedef IceUtil::Handle<AMI_Test_paramTest1I> AMI_Test_paramTest1IPtr;
+
+class AMI_Test_paramTest3I : public AMI_Test_paramTest3, public CallbackBase
+{
+    virtual void
+    ice_response(const BPtr& ret, const BPtr& p1, const BPtr& p2)
+    {
+	test(p1);
+	test(p1->sb == "D2.sb (p1 1)");
+	test(p1->pb == 0);
+	test(p1->ice_id() == "::B");
+
+	test(p2);
+	test(p2->sb == "D2.sb (p2 1)");
+	test(p2->pb == 0);
+	test(p2->ice_id() == "::B");
+
+	test(ret);
+	test(ret->sb == "D1.sb (p2 2)");
+	test(ret->pb == 0);
+	test(ret->ice_id() == "::D1");
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_paramTest3I> AMI_Test_paramTest3IPtr;
+
+class AMI_Test_paramTest4I : public AMI_Test_paramTest4, public CallbackBase
+{
+    virtual void
+    ice_response(const BPtr& ret, const BPtr& b)
+    {
+	test(b);
+	test(b->sb == "D4.sb (1)");
+	test(b->pb == 0);
+	test(b->ice_id() == "::B");
+
+	test(ret);
+	test(ret->sb == "B.sb (2)");
+	test(ret->pb == 0);
+	test(ret->ice_id() == "::B");
+	called();
+    }
+
+    virtual void
+    ice_exception(const Ice::Exception& exc)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_paramTest4I> AMI_Test_paramTest4IPtr;
+
 TestPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
@@ -44,6 +487,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing base as Object with AMI... " << flush;
+    {
+	AMI_Test_SBaseAsObjectIPtr cb = new AMI_Test_SBaseAsObjectI;
+	test->SBaseAsObject_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
     cout << "testing base as base... " << flush;
     {
 	SBasePtr sb;
@@ -56,6 +507,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(0);
 	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing base as base with AMI... " << flush;
+    {
+	AMI_Test_SBaseAsSBaseIPtr cb = new AMI_Test_SBaseAsSBaseI;
+	test->SBaseAsSBase_async(cb);
+	test(cb->check());
     }
     cout << "ok" << endl;
 
@@ -77,6 +536,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing base with known derived as base with AMI... " << flush;
+    {
+	AMI_Test_SBSKnownDerivedAsSBaseIPtr cb = new AMI_Test_SBSKnownDerivedAsSBaseI;
+	test->SBSKnownDerivedAsSBase_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
     cout << "testing base with known derived as known derived... " << flush;
     {
 	SBSKnownDerivedPtr sbskd;
@@ -89,6 +556,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(0);
 	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing base with known derived as known derived with AMI... " << flush;
+    {
+	AMI_Test_SBSKnownDerivedAsSBSKnownDerivedIPtr cb = new AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI;
+	test->SBSKnownDerivedAsSBSKnownDerived_async(cb);
+	test(cb->check());
     }
     cout << "ok" << endl;
 
@@ -107,6 +582,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing base with unknown derived as base with AMI... " << flush;
+    {
+	AMI_Test_SBSUnknownDerivedAsSBaseIPtr cb = new AMI_Test_SBSUnknownDerivedAsSBaseI;
+	test->SBSUnknownDerivedAsSBase_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
     cout << "testing unknown with Object as Object... " << flush;
     {
 	Ice::ObjectPtr o;
@@ -119,6 +602,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(0);
 	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing unknown with Object as Object with AMI... " << flush;
+    {
+	AMI_Test_SUnknownAsObjectIPtr cb = new AMI_Test_SUnknownAsObjectI;
+	test->SUnknownAsObject_async(cb);
+	test(cb->check());
     }
     cout << "ok" << endl;
 
@@ -136,6 +627,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(0);
 	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing one-element cycle with AMI... " << flush;
+    {
+	AMI_Test_oneElementCycleIPtr cb = new AMI_Test_oneElementCycleI;
+	test->oneElementCycle_async(cb);
+	test(cb->check());
     }
     cout << "ok" << endl;
 
@@ -158,6 +657,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(0);
 	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing two-element cycle with AMI... " << flush;
+    {
+	AMI_Test_twoElementCycleIPtr cb = new AMI_Test_twoElementCycleI;
+	test->twoElementCycle_async(cb);
+	test(cb->check());
     }
     cout << "ok" << endl;
 
@@ -192,6 +699,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing known derived pointer slicing as base with AMI... " << flush;
+    {
+	AMI_Test_D1AsBIPtr cb = new AMI_Test_D1AsBI;
+	test->D1AsB_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
     cout << "testing known derived pointer slicing as derived... " << flush;
     {
 	try
@@ -214,6 +729,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(0);
 	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing known derived pointer slicing as derived with AMI... " << flush;
+    {
+	AMI_Test_D1AsD1IPtr cb = new AMI_Test_D1AsD1I;
+	test->D1AsD1_async(cb);
+	test(cb->check());
     }
     cout << "ok" << endl;
 
@@ -246,6 +769,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing unknown derived pointer slicing as base with AMI... " << flush;
+    {
+	AMI_Test_D2AsBIPtr cb = new AMI_Test_D2AsBI;
+	test->D2AsB_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
     cout << "testing parameter pointer slicing with known first... " << flush;
     {
 	try
@@ -272,6 +803,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(0);
 	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing parameter pointer slicing with known first with AMI... " << flush;
+    {
+	AMI_Test_paramTest1IPtr cb = new AMI_Test_paramTest1I;
+	test->paramTest1_async(cb);
+	test(cb->check());
     }
     cout << "ok" << endl;
 
@@ -320,6 +859,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing return value identity with known first with AMI... " << flush;
+    {
+	AMI_Test_returnTest1IPtr cb = new AMI_Test_returnTest1I;
+	test->returnTest1_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
     cout << "testing return value identity with unknown first... " << flush;
     {
 	try
@@ -333,6 +880,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(0);
 	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing return value identity with unknown first with AMI... " << flush;
+    {
+	AMI_Test_returnTest2IPtr cb = new AMI_Test_returnTest2I;
+	test->returnTest2_async(cb);
+	test(cb->check());
     }
     cout << "ok" << endl;
 
@@ -352,6 +907,54 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    d1->pd1 = d3;
 
 	    BPtr b1 = test->returnTest3(d1, d3);
+
+	    test(b1);
+	    test(b1->sb == "D1.sb");
+	    test(b1->ice_id() == "::D1");
+	    D1Ptr p1 = D1Ptr::dynamicCast(b1);
+	    test(p1);
+	    test(p1->sd1 == "D1.sd1");
+	    test(p1->pd1 == b1->pb);
+
+	    BPtr b2 = b1->pb;
+	    test(b2);
+	    test(b2->sb == "D3.sb");
+	    test(b2->ice_id() == "::B");	// Sliced by server
+	    test(b2->pb == b1);
+	    D3Ptr p3 = D3Ptr::dynamicCast(b2);
+	    test(!p3);
+
+	    test(b1 != d1);
+	    test(b1 != d3);
+	    test(b2 != d1);
+	    test(b2 != d3);
+	}
+	catch(...)
+	{
+	    test(0);
+	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing return value identity for input params known first with AMI... " << flush;
+    {
+	try
+	{
+	    D1Ptr d1 = new D1;
+	    d1->sb = "D1.sb";
+	    d1->sd1 = "D1.sd1";
+	    D3Ptr d3 = new D3;
+	    d3->pb = d1;
+	    d3->sb = "D3.sb";
+	    d3->sd3 = "D3.sd3";
+	    d3->pd3 = d1;
+	    d1->pb = d3;
+	    d1->pd1 = d3;
+
+	    AMI_Test_returnTest3IPtr cb = new AMI_Test_returnTest3I;
+	    test->returnTest3_async(cb, d1, d3);
+	    test(cb->check());
+	    BPtr b1 = cb->r;
 
 	    test(b1);
 	    test(b1->sb == "D1.sb");
@@ -426,6 +1029,54 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing return value identity for input params unknown first with AMI... " << flush;
+    {
+	try
+	{
+	    D1Ptr d1 = new D1;
+	    d1->sb = "D1.sb";
+	    d1->sd1 = "D1.sd1";
+	    D3Ptr d3 = new D3;
+	    d3->pb = d1;
+	    d3->sb = "D3.sb";
+	    d3->sd3 = "D3.sd3";
+	    d3->pd3 = d1;
+	    d1->pb = d3;
+	    d1->pd1 = d3;
+
+	    AMI_Test_returnTest3IPtr cb = new AMI_Test_returnTest3I;
+	    test->returnTest3_async(cb, d3, d1);
+	    test(cb->check());
+	    BPtr b1 = cb->r;
+
+	    test(b1);
+	    test(b1->sb == "D3.sb");
+	    test(b1->ice_id() == "::B");	// Sliced by server
+	    D3Ptr p1 = D3Ptr::dynamicCast(b1);
+	    test(!p1);
+
+	    BPtr b2 = b1->pb;
+	    test(b2);
+	    test(b2->sb == "D1.sb");
+	    test(b2->ice_id() == "::D1");
+	    test(b2->pb == b1);
+	    D1Ptr p3 = D1Ptr::dynamicCast(b2);
+	    test(p3);
+	    test(p3->sd1 == "D1.sd1");
+	    test(p3->pd1 == b1);
+
+	    test(b1 != d1);
+	    test(b1 != d3);
+	    test(b2 != d1);
+	    test(b2 != d3);
+	}
+	catch(...)
+	{
+	    test(0);
+	}
+    }
+    cout << "ok" << endl;
+
     cout << "testing remainder unmarshaling (3 instances)... " << flush;
     {
 	try
@@ -456,6 +1107,44 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing remainder unmarshaling (3 instances)... " << flush;
+    {
+	try
+	{
+	    BPtr p1;
+	    BPtr p2;
+	    BPtr ret = test->paramTest3(p1, p2);
+
+	    test(p1);
+	    test(p1->sb == "D2.sb (p1 1)");
+	    test(p1->pb == 0);
+	    test(p1->ice_id() == "::B");
+
+	    test(p2);
+	    test(p2->sb == "D2.sb (p2 1)");
+	    test(p2->pb == 0);
+	    test(p2->ice_id() == "::B");
+
+	    test(ret);
+	    test(ret->sb == "D1.sb (p2 2)");
+	    test(ret->pb == 0);
+	    test(ret->ice_id() == "::D1");
+	}
+	catch(...)
+	{
+	    test(0);
+	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing remainder unmarshaling (3 instances) with AMI... " << flush;
+    {
+	AMI_Test_paramTest3IPtr cb = new AMI_Test_paramTest3I;
+	test->paramTest3_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
     cout << "testing remainder unmarshaling (4 instances)... " << flush;
     {
 	try
@@ -480,6 +1169,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
+    cout << "testing remainder unmarshaling (4 instances) with AMI... " << flush;
+    {
+	BPtr b;
+	AMI_Test_paramTest4IPtr cb = new AMI_Test_paramTest4I;
+	test->paramTest4_async(cb);
+	test(cb->check());
+    }
+    cout << "ok" << endl;
+
     cout << "testing parameter pointer slicing with first instance marshaled in unknown derived as base... " << flush;
     {
 	try
@@ -499,6 +1197,41 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    b2->pb = b1;
 
 	    BPtr r = test->returnTest3(d3, b2);
+
+	    test(r);
+	    test(r->ice_id() == "::B");
+	    test(r->sb == "D3.sb");
+	    test(r->pb = r);
+	}
+	catch(...)
+	{
+	    test(0);
+	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing parameter pointer slicing with first instance marshaled in unknown derived as base with AMI... " << flush;
+    {
+	try
+	{
+	    BPtr b1 = new B;
+	    b1->sb = "B.sb(1)";
+	    b1->pb = b1;
+
+	    D3Ptr d3 = new D3;
+	    d3->sb = "D3.sb";
+	    d3->pb = d3;
+	    d3->sd3 = "D3.sd3";
+	    d3->pd3 = b1;
+
+	    BPtr b2 = new B;
+	    b2->sb = "B.sb(2)";
+	    b2->pb = b1;
+
+	    AMI_Test_returnTest3IPtr cb = new AMI_Test_returnTest3I;
+	    test->returnTest3_async(cb, d3, b2);
+	    test(cb->check());
+	    BPtr r = cb->r;
 
 	    test(r);
 	    test(r->ice_id() == "::B");
@@ -535,6 +1268,44 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    d12->pd1 = d11;
 
 	    BPtr r = test->returnTest3(d3, d12);
+	    test(r);
+	    test(r->ice_id() == "::B");
+	    test(r->sb == "D3.sb");
+	    test(r->pb = r);
+	}
+	catch(...)
+	{
+	    test(0);
+	}
+    }
+    cout << "ok" << endl;
+
+    cout << "testing parameter pointer slicing with first instance marshaled in unknown derived as derived with AMI... "
+	 << flush;
+    {
+	try
+	{
+	    D1Ptr d11 = new D1;
+	    d11->sb = "D1.sb(1)";
+	    d11->pb = d11;
+	    d11->sd1 = "D1.sd1(1)";
+
+	    D3Ptr d3 = new D3;
+	    d3->sb = "D3.sb";
+	    d3->pb = d3;
+	    d3->sd3 = "D3.sd3";
+	    d3->pd3 = d11;
+
+	    D1Ptr d12 = new D1;
+	    d12->sb = "D1.sb(2)";
+	    d12->pb = d12;
+	    d12->sd1 = "D1.sd1(2)";
+	    d12->pd1 = d11;
+
+	    AMI_Test_returnTest3IPtr cb = new AMI_Test_returnTest3I;
+	    test->returnTest3_async(cb, d3, d12);
+	    test(cb->check());
+	    BPtr r = cb->r;
 	    test(r);
 	    test(r->ice_id() == "::B");
 	    test(r->sb == "D3.sb");
