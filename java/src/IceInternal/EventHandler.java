@@ -49,6 +49,12 @@ public abstract class EventHandler
     //
     abstract public String toString();
 
+    public IceInternal.Instance
+    instance()
+    {
+        return _instance;
+    }
+
     protected
     EventHandler(Instance instance)
     {

@@ -9,8 +9,21 @@
 
 package Ice;
 
-public final class ConnectionI extends IceInternal.EventHandler
+public final class ConnectionI extends IceInternal.EventHandler implements Connection
 {
+    public java.lang.Object
+    clone()
+        throws java.lang.CloneNotSupportedException
+    {
+        return super.clone();
+    }
+
+    public int
+    ice_hash()
+    {
+        return hashCode();
+    }
+
     public synchronized void
     validate()
     {
@@ -691,7 +704,7 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     public void
-    flushBatchRequest()
+    flushBatchRequests()
     {
 	synchronized(this)
 	{
@@ -938,6 +951,22 @@ public final class ConnectionI extends IceInternal.EventHandler
     getAdapter()
     {
 	return _adapter;
+    }
+
+    public synchronized ObjectPrx
+    createProxy(Identity ident)
+    {
+        //
+        // Create a reference and return a reverse proxy for this
+        // reference.
+        //
+        IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
+        ConnectionI[] connections = new ConnectionI[1];
+        connections[0] = this;
+        IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.HashMap(), "",
+                                                                        IceInternal.Reference.ModeTwoway, false, "",
+                                                                        endpoints, null, null, connections, true);
+        return _instance.proxyFactory().referenceToProxy(ref);
     }
 
     //
@@ -1341,7 +1370,19 @@ public final class ConnectionI extends IceInternal.EventHandler
     }
 
     public String
+    type()
+    {
+        return _type;
+    }
+
+    public String
     toString()
+    {
+	return _toString();
+    }
+
+    public String
+    _toString()
     {
 	return _desc; // No mutex lock, _desc is immutable.
     }
@@ -1352,6 +1393,7 @@ public final class ConnectionI extends IceInternal.EventHandler
         super(instance);
         _transceiver = transceiver;
 	_desc = transceiver.toString();
+        _type = transceiver.type();
         _endpoint = endpoint;
         _adapter = adapter;
         _logger = instance.logger(); // Cached for better performance.
@@ -1696,6 +1738,7 @@ public final class ConnectionI extends IceInternal.EventHandler
 
     private IceInternal.Transceiver _transceiver;
     private final String _desc;
+    private final String _type;
     private final IceInternal.Endpoint _endpoint;
 
     private ObjectAdapter _adapter;

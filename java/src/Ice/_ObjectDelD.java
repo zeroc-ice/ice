@@ -100,6 +100,12 @@ public class _ObjectDelD implements _ObjectDel
 	throw new CollocationOptimizationException();
     }
 
+    public Connection
+    ice_getConnection()
+    {
+	throw new CollocationOptimizationException();
+    }
+
     //
     // Only for use by ObjectPrx.
     //

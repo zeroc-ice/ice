@@ -21,7 +21,7 @@ public final class ReferenceFactory
            Endpoint[] endpoints,
            RouterInfo routerInfo,
            LocatorInfo locatorInfo,
-           Ice.ObjectAdapter reverseAdapter,
+           Ice.ConnectionI[] fixedConnections,
 	   boolean collocationOptimization)
     {
         if(_instance == null)
@@ -38,7 +38,7 @@ public final class ReferenceFactory
         // Create a new reference
         //
         Reference ref = new Reference(_instance, ident, context, facet, mode, secure, adapterId,
-				      endpoints, routerInfo, locatorInfo, reverseAdapter, collocationOptimization);
+				      endpoints, routerInfo, locatorInfo, fixedConnections, collocationOptimization);
 
         //
         // If we already have an equivalent reference, use such equivalent
@@ -415,7 +415,7 @@ public final class ReferenceFactory
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
         LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
         return create(ident, new java.util.HashMap(), facet, mode, secure, adapter, endp, routerInfo, locatorInfo,
-                      null, true);
+                      new Ice.ConnectionI[0], true);
     }
 
     public Reference
@@ -478,7 +478,7 @@ public final class ReferenceFactory
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
         LocatorInfo locatorInfo = _instance.locatorManager().get(getDefaultLocator());
         return create(ident, new java.util.HashMap(), facet, mode, secure,
-	              adapterId, endpoints, routerInfo, locatorInfo, null, true);
+	              adapterId, endpoints, routerInfo, locatorInfo, new Ice.ConnectionI[0], true);
     }
 
     public synchronized void

@@ -131,7 +131,7 @@ final class TcpTransceiver implements Transceiver
 
                     if(_stats != null)
                     {
-                        _stats.bytesSent("tcp", ret);
+                        _stats.bytesSent(type(), ret);
                     }
 		}
 		catch(java.io.InterruptedIOException ex)
@@ -236,7 +236,7 @@ final class TcpTransceiver implements Transceiver
 
                         if(_stats != null)
                         {
-                            _stats.bytesReceived("tcp", ret);
+                            _stats.bytesReceived(type(), ret);
                         }
                     }
 		}
@@ -273,6 +273,12 @@ final class TcpTransceiver implements Transceiver
 		}
 	    }
 	}
+    }
+
+    public String
+    type()
+    {
+        return "tcp";
     }
 
     public String

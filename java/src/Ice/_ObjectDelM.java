@@ -143,6 +143,12 @@ public class _ObjectDelM implements _ObjectDel
         }
     }
 
+    public Connection
+    ice_getConnection()
+    {
+	return __connection;
+    }
+
     //
     // Only for use by ObjectPrx
     //

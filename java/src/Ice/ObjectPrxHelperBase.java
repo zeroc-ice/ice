@@ -480,6 +480,24 @@ public class ObjectPrxHelperBase implements ObjectPrx
         }
     }
 
+    public final Connection
+    ice_getConnection()
+    {
+        int __cnt = 0;
+        while(true)
+        {
+            try
+            {
+                _ObjectDel __del = __getDelegate();
+                return __del.ice_getConnection();
+            }
+            catch(LocalException __ex)
+            {
+                __cnt = __handleException(__ex, __cnt);
+            }
+        }
+    }
+
     public final boolean
     equals(java.lang.Object r)
     {

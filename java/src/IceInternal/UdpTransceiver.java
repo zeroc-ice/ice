@@ -75,7 +75,7 @@ final class UdpTransceiver implements Transceiver
 
                 if(_stats != null)
                 {
-                    _stats.bytesSent("udp", ret);
+                    _stats.bytesSent(type(), ret);
                 }
 
                 assert(ret == buf.limit());
@@ -182,11 +182,17 @@ final class UdpTransceiver implements Transceiver
 
         if(_stats != null)
         {
-            _stats.bytesReceived("udp", ret);
+            _stats.bytesReceived(type(), ret);
         }
 
         stream.resize(ret, true);
         stream.pos(ret);
+    }
+
+    public String
+    type()
+    {
+        return "udp";
     }
 
     public String

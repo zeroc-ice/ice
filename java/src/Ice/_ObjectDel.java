@@ -26,4 +26,6 @@ public interface _ObjectDel
     boolean ice_invoke(String operation, Ice.OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                        java.util.Map context)
         throws IceInternal.NonRepeatable;
+
+    Connection ice_getConnection();
 }

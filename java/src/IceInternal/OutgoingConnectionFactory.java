@@ -33,6 +33,7 @@ public class OutgoingConnectionFactory
 	}
 
         _destroyed = true;
+        notifyAll();
     }
 
     public void
@@ -438,7 +439,7 @@ public class OutgoingConnectionFactory
 	    {
 		try
 		{
-		    conn.flushBatchRequest();
+		    conn.flushBatchRequests();
 		}
 		catch(Ice.LocalException ex)
 		{

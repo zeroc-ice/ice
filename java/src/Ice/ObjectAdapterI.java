@@ -422,10 +422,33 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	checkForDeactivation();
         checkIdentity(ident);
 
-	// TODO
-	assert(false);
+        //
+        // Get all incoming connections for this object adapter.
+        //
+        java.util.LinkedList connections = new java.util.LinkedList();
+        final int sz = _incomingConnectionFactories.size();
+        for(int i = 0; i < sz; ++i)
+        {
+            IceInternal.IncomingConnectionFactory factory =
+                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+            ConnectionI[] conns = factory.connections();
+            for(int j = 0; j < conns.length; ++j)
+            {
+                connections.add(conns[j]);
+            }
+        }
 
-        return null;
+        //
+        // Create a reference and return a reverse proxy for this
+        // reference.
+        //
+        IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
+        ConnectionI[] arr = new ConnectionI[connections.size()];
+        connections.toArray(arr);
+        IceInternal.Reference ref = _instance.referenceFactory().create(ident, new java.util.HashMap(), "",
+                                                                        IceInternal.Reference.ModeTwoway,
+                                                                        false, "", endpoints, null, null, arr, true);
+        return _instance.proxyFactory().referenceToProxy(ref);
     }
 
     public synchronized void
@@ -548,28 +571,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         return false;
     }
 
-    public synchronized ConnectionI[]
-    getIncomingConnections()
-    {
-	checkForDeactivation();
-
-        java.util.ArrayList connections = new java.util.ArrayList();
-        final int sz = _incomingConnectionFactories.size();
-        for(int i = 0; i < sz; ++i)
-        {
-            IceInternal.IncomingConnectionFactory factory =
-                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-            ConnectionI[] cons = factory.connections();
-            for(int j = 0; j < cons.length; j++)
-            {
-                connections.add(cons[j]);
-            }
-        }
-        ConnectionI[] arr = new ConnectionI[connections.size()];
-        connections.toArray(arr);
-        return arr;
-    }
-    
     public void
     flushBatchRequests()
     {
@@ -772,10 +773,11 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // proxy for the reference.
 	    //
 	    IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
+            ConnectionI[] connections = new ConnectionI[0];
 	    IceInternal.Reference reference =
 		_instance.referenceFactory().create(ident, new java.util.HashMap(), "",
-		                                    IceInternal.Reference.ModeTwoway, false,
-						    _id, endpoints, null, _locatorInfo, null, true);
+		                                    IceInternal.Reference.ModeTwoway, false, _id, endpoints, null,
+                                                    _locatorInfo, connections, true);
 	    return _instance.proxyFactory().referenceToProxy(reference);
 	}
     }
@@ -812,10 +814,10 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         //
         // Create a reference and return a proxy for this reference.
         //
+        ConnectionI[] connections = new ConnectionI[0];
         IceInternal.Reference reference =
-	    _instance.referenceFactory().create(ident, new java.util.HashMap(), "",
-	                                        IceInternal.Reference.ModeTwoway, false,
-						"", endpoints, null, _locatorInfo, null, true);
+	    _instance.referenceFactory().create(ident, new java.util.HashMap(), "", IceInternal.Reference.ModeTwoway,
+                                                false, "", endpoints, null, _locatorInfo, connections, true);
         return _instance.proxyFactory().referenceToProxy(reference);
     }
 

@@ -15,19 +15,18 @@ public class IncomingBase
     IncomingBase(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response,
                  byte compress)
     {
+	_response = response;
+        _compress = compress;
+        _os = new BasicStream(instance);
+	_connection = connection;
+
         _current = new Ice.Current();
         _current.id = new Ice.Identity();
         _current.adapter = adapter;
+        _current.con = _connection;
 
         _cookie = new Ice.LocalObjectHolder();
 
-	_response = response;
-
-        _compress = compress;
-
-        _os = new BasicStream(instance);
-
-	_connection = connection;
     }
 
     protected
@@ -85,6 +84,7 @@ public class IncomingBase
         _current = new Ice.Current();
         _current.id = new Ice.Identity();
         _current.adapter = adapter;
+        _current.con = connection;
 
 	_servant = null;
 

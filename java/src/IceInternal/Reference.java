@@ -101,7 +101,8 @@ public final class Reference
             return false;
         }
 
-        if(reverseAdapter != r.reverseAdapter)
+        if(fixedConnections != null && r.fixedConnections != null &&
+           !java.util.Arrays.equals(fixedConnections, r.fixedConnections))
         {
             return false;
         }
@@ -291,10 +292,10 @@ public final class Reference
     final public int mode;
     final public boolean secure;
     final public String adapterId;
-    final public Endpoint[] endpoints; // Actual endpoints, changed by a location forward.
+    final public Endpoint[] endpoints;
     final public RouterInfo routerInfo; // Null if no router is used.
     final public LocatorInfo locatorInfo; // Null if no locator is used.
-    final public Ice.ObjectAdapter reverseAdapter; // For reverse comm. using the adapter's incoming connections.
+    final public Ice.ConnectionI[] fixedConnections; // For using fixed connections, otherwise empty.
     final public boolean collocationOptimization;
     final public int hashValue;
 
@@ -312,7 +313,7 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(newIdentity, context, facet, mode, secure, adapterId,
- 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+ 						      endpoints, routerInfo, locatorInfo, fixedConnections,
 						      collocationOptimization);
         }
     }
@@ -327,7 +328,7 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, newContext, facet, mode, secure, adapterId,
- 						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+ 						      endpoints, routerInfo, locatorInfo, fixedConnections,
 						      collocationOptimization);
         }
     }
@@ -342,7 +343,7 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, context, newFacet, mode, secure, adapterId,
-						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      endpoints, routerInfo, locatorInfo, fixedConnections,
 						      collocationOptimization);
         }
     }
@@ -393,7 +394,7 @@ public final class Reference
 	}
 
         return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId, 
-						  newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter,
+						  newEndpoints, newRouterInfo, newLocatorInfo, fixedConnections,
 						  collocationOptimization);
     }
 
@@ -407,7 +408,7 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, context, facet, newMode, secure, adapterId,
-						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      endpoints, routerInfo, locatorInfo, fixedConnections,
 						      collocationOptimization);
         }
     }
@@ -422,7 +423,7 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, context, facet, mode, newSecure, adapterId,
-						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      endpoints, routerInfo, locatorInfo, fixedConnections,
 						      collocationOptimization);
         }
     }
@@ -473,7 +474,7 @@ public final class Reference
 	}
 
         return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId, 
-						  newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter,
+						  newEndpoints, newRouterInfo, newLocatorInfo, fixedConnections,
 						  collocationOptimization);
     }
 
@@ -487,7 +488,7 @@ public final class Reference
 	else
 	{
 	    return instance.referenceFactory().create(identity, context, facet, mode, secure, newAdapterId,
-						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      endpoints, routerInfo, locatorInfo, fixedConnections,
 						      collocationOptimization);
 	}
     }
@@ -502,7 +503,7 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
-						      newEndpoints, routerInfo, locatorInfo, reverseAdapter,
+						      newEndpoints, routerInfo, locatorInfo, fixedConnections,
 						      collocationOptimization);
         }
     }
@@ -520,7 +521,7 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
-						      endpoints, newRouterInfo, locatorInfo, reverseAdapter,
+						      endpoints, newRouterInfo, locatorInfo, fixedConnections,
 						      collocationOptimization);
         }
     }
@@ -538,7 +539,7 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
-						      endpoints, routerInfo, newLocatorInfo, reverseAdapter,
+						      endpoints, routerInfo, newLocatorInfo, fixedConnections,
 						      collocationOptimization);
         }
     }
@@ -553,7 +554,7 @@ public final class Reference
         else
         {
             return instance.referenceFactory().create(identity, context, facet, mode, secure, adapterId,
-						      endpoints, routerInfo, locatorInfo, reverseAdapter,
+						      endpoints, routerInfo, locatorInfo, fixedConnections,
 						      newCollocationOptimization);
         }
     }
@@ -565,7 +566,7 @@ public final class Reference
         LocatorInfo locatorInfo = instance.locatorManager().get(instance.referenceFactory().getDefaultLocator());
 
         return instance.referenceFactory().create(identity, context, "", ModeTwoway, false, adapterId,
-						  endpoints, routerInfo, locatorInfo, null, true);
+						  endpoints, routerInfo, locatorInfo, new Ice.ConnectionI[0], true);
     }
 
     //
@@ -576,39 +577,20 @@ public final class Reference
     {
 	Ice.ConnectionI connection;
 
-        if(reverseAdapter != null)
+        //
+        // If we have a fixed connection, we return such fixed connection.
+        //
+        if(fixedConnections.length > 0)
         {
-            //
-            // If we have a reverse object adapter, we use the incoming
-            // connections from such object adapter.
-            //
-            Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)reverseAdapter;
-            Ice.ConnectionI[] connections = adapter.getIncomingConnections();
-
-            Endpoint[] endpoints = new Endpoint[connections.length];
-            for(int i = 0; i < connections.length; i++)
-            {
-                endpoints[i] = connections[i].endpoint();
-            }
-            endpoints = filterEndpoints(endpoints);
-
-            if(endpoints.length == 0)
+            Ice.ConnectionI[] filteredConns = filterConnections(fixedConnections);
+            if(filteredConns.length == 0)
             {
                 Ice.NoEndpointException e = new Ice.NoEndpointException();
 		e.proxy = toString();
 		throw e;
             }
 
-            int j;
-            for(j = 0; j < connections.length; j++)
-            {
-                if(connections[j].endpoint().equals(endpoints[0]))
-                {
-                    break;
-                }
-            }
-            assert(j < connections.length);
-            connection = connections[j];
+            connection = filteredConns[0];
         }
         else
         {
@@ -624,8 +606,8 @@ public final class Reference
 		    // If we route, we send everything to the router's client
 		    // proxy endpoints.
 		    //
-		    Ice.ObjectPrx proxy = routerInfo.getClientProxy();
-		    endpts = ((Ice.ObjectPrxHelperBase)proxy).__reference().endpoints;
+		    Ice.ObjectPrx clientProxy = routerInfo.getClientProxy();
+		    endpts = ((Ice.ObjectPrxHelperBase)clientProxy).__reference().endpoints;
 		}
 		else if(endpoints.length > 0)
 		{
@@ -783,7 +765,7 @@ public final class Reference
         }
         else
         {
-            java.util.Collections.sort(endpoints, _comparator);
+            java.util.Collections.sort(endpoints, _endpointComparator);
         }
 
         Endpoint[] arr = new Endpoint[endpoints.size()];
@@ -815,7 +797,112 @@ public final class Reference
 	}
     }
     
-    private static EndpointComparator _comparator = new EndpointComparator();
+    private static EndpointComparator _endpointComparator = new EndpointComparator();
+
+    //
+    // Filter connections based on criteria from this reference.
+    //
+    public Ice.ConnectionI[]
+    filterConnections(Ice.ConnectionI[] allConnections)
+    {
+        java.util.ArrayList connections = new java.util.ArrayList(allConnections.length);
+
+        switch(mode)
+        {
+            case Reference.ModeTwoway:
+            case Reference.ModeOneway:
+            case Reference.ModeBatchOneway:
+            {
+                //
+                // Filter out datagram connections.
+                //
+                for(int i = 0; i < allConnections.length; ++i)
+                {
+                    if(!allConnections[i].endpoint().datagram())
+                    {
+                        connections.add(allConnections[i]);
+                    }
+                }
+
+                break;
+            }
+
+            case Reference.ModeDatagram:
+            case Reference.ModeBatchDatagram:
+            {
+                //
+                // Filter out non-datagram connections.
+                //
+                for(int i = 0; i < allConnections.length; i++)
+                {
+                    if(allConnections[i].endpoint().datagram())
+                    {
+                        connections.add(allConnections[i]);
+                    }
+                }
+
+                break;
+            }
+        }
+
+        //
+        // Randomize the order of connections.
+        //
+        java.util.Collections.shuffle(connections);
+
+        //
+        // If a secure connection is requested, remove all non-secure
+        // endpoints. Otherwise make non-secure endpoints preferred over
+        // secure endpoints by partitioning the endpoint vector, so that
+        // non-secure endpoints come first.
+        //
+        if(secure)
+        {
+            java.util.Iterator i = connections.iterator();
+            while(i.hasNext())
+            {
+                Ice.ConnectionI connection = (Ice.ConnectionI)i.next();
+                if(!connection.endpoint().secure())
+                {
+                    i.remove();
+                }
+            }
+        }
+        else
+        {
+            java.util.Collections.sort(connections, _connectionComparator);
+        }
+
+        Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.size()];
+        connections.toArray(arr);
+        return arr;
+    }
+
+    static class ConnectionComparator implements java.util.Comparator
+    {
+	public int
+	compare(java.lang.Object l, java.lang.Object r)
+	{
+	    Ice.ConnectionI lc = (Ice.ConnectionI)l;
+	    Ice.ConnectionI rc = (Ice.ConnectionI)r;
+	    boolean ls = lc.endpoint().secure();
+	    boolean rs = rc.endpoint().secure();
+	    if((ls && rs) || (!ls && !rs))
+	    {
+		return 0;
+	    }
+	    else if(!ls && rs)
+	    {
+		return -1;
+	    }
+	    else
+	    {
+		return 1;
+	    }
+	}
+    }
+    
+    private static ConnectionComparator _connectionComparator = new ConnectionComparator();
 
     //
     // Only for use by ReferenceFactory
@@ -830,7 +917,7 @@ public final class Reference
               Endpoint[] endpts,
               RouterInfo rtrInfo,
 	      LocatorInfo locInfo,
-              Ice.ObjectAdapter rvAdapter,
+              Ice.ConnectionI[] fixedConns,
 	      boolean collocationOpt)
     {
         //
@@ -856,7 +943,7 @@ public final class Reference
         endpoints = endpts;
         routerInfo = rtrInfo;
         locatorInfo = locInfo;
-        reverseAdapter = rvAdapter;
+        fixedConnections = fixedConns;
 	collocationOptimization = collocationOpt;
 
         int h = 0;

@@ -160,7 +160,7 @@ public class IncomingConnectionFactory extends EventHandler
 	{
 	    try
 	    {
-		c[i].flushBatchRequest();
+		c[i].flushBatchRequests();
 	    }
 	    catch(Ice.LocalException ex)
 	    {
