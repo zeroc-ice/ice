@@ -5,11 +5,11 @@ To run the demo:
 
 Start the server:
 
-$ ./server
+$ ./server.exe
 
 In a separate window, start the session server:
 
-$ ./sessionserver
+$ ./sessionserver.exe
 
 In a separate window, start the Glacier2 router:
 
@@ -17,4 +17,4 @@ $ glacier2router --Ice.Config=config.glacier2
 
 In a separate window, start the client:
 
-$ ./client
+$ ./client.exe

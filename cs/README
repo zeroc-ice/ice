@@ -16,9 +16,6 @@ Supported environments:
 
 - Mono
 
-  Currently, Ice for C# does not work with Mono under Windows, due to a
-  bug in the Mono .NET class libraries.
-
 See INSTALL.VISUAL_C# for how to compile and install using Visual C#.
 
 See INSTALL.MONO for how to compile and install using Mono.

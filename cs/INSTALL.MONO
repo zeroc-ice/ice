@@ -21,11 +21,49 @@ $ make depend; make
 in the top-level directory.
 
 
+Configuring Linux to recognize Mono binaries
+--------------------------------------------
+
+Mono binaries are interpreted so, given a binary
+called "foo", you have to run the Mono interpreter
+with an argument "foo" to execute that binary, like so:
+
+	$ mono foo
+
+If you want to avoid having to explictly invoke the Mono
+interpreter, you can run the following commands (as root)
+to make your kernel recognized Mono binaries and automatically
+launch the interpreter. (Replace /opt/mono/bin/mono with
+the location of your mono interpreter in the commands below.)
+
+    if [ ! -e /proc/sys/fs/binfmt_misc/register ]; then
+	/sbin/modprobe binfmt_misc mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
+    fi 
+    if [ -e /proc/sys/fs/binfmt_misc/register ]; then
+	echo ':CLR:M::MZ::/usr/bin/mono:' > /proc/sys/fs/binfmt_misc/register
+    else
+	echo "No binfmt_misc support" exit 1
+    fi 
+
+With this change, assuming that the execute bit is set on the binary,
+you can execute the binary directly:
+
+	$ foo
+
+This does not change your kernel, but the modules that are loaded when
+you boot your system, so you will not lose the change if you upgrade
+the kernel or Mono.
+
+
 Running the tests
 -----------------
 
 You must add icecs/bin to your MONO_PATH. (Don't forget to export
-MONO_PATH).
+MONO_PATH). Alternatively, you can install the Ice DLLs (in
+the bin directory) in the Global Assembly Cache (GAC), using
+gacutil -i <name>. For example:
+
+$ gacutil -i icecs.dll
 
 To run the tests, you will need Python:
 
