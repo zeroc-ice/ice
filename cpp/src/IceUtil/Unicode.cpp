@@ -18,7 +18,7 @@
 #if defined(_WIN32)
 #   define SIZEOF_WCHAR_T 2
 #elif (defined(__sun) && defined(__sparc)) || \
-      ((defined(__linux) || defined(__FreeBSD__)) && defined (__i386))
+      ((defined(__linux) || defined(__FreeBSD__)) && (defined(__i386) || defined(__x86_64)))
 #   define SIZEOF_WCHAR_T 4
 #endif
 

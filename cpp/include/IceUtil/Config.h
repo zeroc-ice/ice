@@ -21,7 +21,7 @@
 // Most CPUs support only one endianness, with the notable exceptions
 // of Itanium (IA64) and MIPS.
 //
-#if defined(__i386) || defined(_M_IX86)
+#if defined(__i386) || defined(_M_IX86) || defined (__x86_64)
 #   define ICE_LITTLE_ENDIAN
 #elif defined(__sparc)
 #   define ICE_BIG_ENDIAN
@@ -32,7 +32,7 @@
 //
 // 32 or 64 bit mode?
 //
-#if (defined(__sun) && defined(__sparcv9))
+#if (defined(__sun) && defined(__sparcv9)) || (defined(__linux) && defined(__x86_64))
 #   define ICE_64
 #else
 #   define ICE_32

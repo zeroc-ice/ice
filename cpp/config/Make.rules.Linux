@@ -16,8 +16,20 @@
 # This file is included by Make.rules when uname is Linux.
 #
 
+MACHINE                 = $(shell uname -m)
+
 CXX			= c++
-CXXFLAGS		= -ftemplate-depth-128 -fPIC -Wall -D_REENTRANT
+
+ifeq ($(MACHINE),x86_64)
+
+    ifneq ($(LP64),yes)
+        CXXARCHFLAGS    := -m32
+    endif    
+
+    lp64dir             := lib64
+endif
+
+CXXFLAGS		= $(CXXARCHFLAGS) -ftemplate-depth-128 -fPIC -Wall -D_REENTRANT
 
 ifeq ($(OPTIMIZE),yes)
      CXXFLAGS		:= -O2 -DNDEBUG $(CXXFLAGS)
