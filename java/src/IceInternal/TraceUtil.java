@@ -398,19 +398,19 @@ final class TraceUtil
             {
                 case (byte)0:
                 {
-                    out.write("(compression not supported)");
+                    out.write("(not compressed; do not compress response, if any)");
                     break;
                 }
 
                 case (byte)1:
                 {
-                    out.write("(not compressed)");
+                    out.write("(not compressed; compress response, if any)");
                     break;
                 }
 
                 case (byte)2:
                 {
-                    out.write("(compressed)");
+                    out.write("(compressed; compress response, if any)");
                     break;
                 }
 
