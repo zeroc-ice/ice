@@ -220,7 +220,7 @@ main(int argc, char* argv[])
 
 	string absDataDirWithSlash = absDataDir + '/';
 	
-	for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
+	for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
 	{
 	    if(p->compare(0, absDataDirWithSlash.size(), absDataDirWithSlash) != 0)
 	    {
@@ -244,7 +244,7 @@ main(int argc, char* argv[])
 	{
 	    loadFileInfoSeq(absDataDir, infoSeq);
 
-	    for(StringSeq::const_iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
+	    for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
 	    {
 		FileInfoSeq partialInfoSeq;
 
