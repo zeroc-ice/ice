@@ -12,6 +12,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/InputUtil.h>
 #include <Ice/Ice.h>
 #include <XMLTransform/XMLTransform.h>
 #include <XMLTransform/ErrorReporter.h>
@@ -670,11 +671,12 @@ public:
 	    throw SchemaViolation(__FILE__, __LINE__);
 	}
 	string value = toString(child->getNodeValue());
-#ifdef WIN32
-        Ice::Long v = _atoi64(value.c_str());
-#else
-        Ice::Long v = atoll(value.c_str());
-#endif
+
+	string::size_type p;
+	Ice::Long v;
+	bool rc = IceUtil::stringToInt64(value, v, p);
+	assert(rc);
+
 	if(_to == "xs:byte")
 	{
 	    if(v < SCHAR_MIN || v > SCHAR_MAX)
@@ -1468,12 +1470,6 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, const string& ns,
     {
         string file = findFile(loc, paths);
         parser.parse(file.c_str());
-	if(errorReporter.getSawErrors())
-	{
-	    InvalidSchema ex(__FILE__, __LINE__);
-            ex.reason = errorReporter.getErrors();
-            throw ex;
-	}
     }
     catch(const XMLException& ex)
     {
@@ -1492,6 +1488,13 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, const string& ns,
 	InvalidSchema e(__FILE__, __LINE__);
         e.reason = "unknown exception while importing " + loc;
 	throw e;
+    }
+
+    if(errorReporter.getSawErrors())
+    {
+	InvalidSchema ex(__FILE__, __LINE__);
+	ex.reason = errorReporter.getErrors();
+	throw ex;
     }
 
     DOMDocument* document = parser.getDocument();
