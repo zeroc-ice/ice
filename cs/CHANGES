@@ -1,6 +1,11 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed a bug with AMD exception handling, where it was possible that
+  certain exceptions propagate out of ice_response() or
+  ice_exception(), and therefore such exceptions were not handled
+  properly.
+
 - Exceptions raised while marshaling data for batch requests resulted
   in a connection deadlock. This has been fixed.
 

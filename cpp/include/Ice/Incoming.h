@@ -27,7 +27,6 @@ protected:
     IncomingBase(Instance*, Ice::ConnectionI*, const Ice::ObjectAdapterPtr&, bool, Ice::Byte);
     IncomingBase(IncomingBase& in); // Adopts the argument. It must not be used afterwards.
     
-    void __finishInvoke();
     void __warning(const Ice::Exception&) const;
     void __warning(const std::string&) const;
 
@@ -40,12 +39,6 @@ protected:
     Ice::Byte _compress;
 
     BasicStream _os;
-
-//
-// Cannot be private. IncomingAsync needs _connection to initialize a
-// ConnectionIPtr.
-//
-//private:
 
     //
     // Optimization. The connection may not be deleted while a

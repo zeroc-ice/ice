@@ -116,30 +116,7 @@ public class IncomingBase
     }
 
     final protected void
-    __finishInvoke()
-    {
-	if(_locator != null && _servant != null)
-	{
-	    _locator.finished(_current, _servant, _cookie.value);
-	}
-	
-	//
-	// Send a response if necessary. If we don't need to send a
-	// response, we still need to tell the connection that we're
-	// finished with dispatching.
-	//
-	if(_response)
-	{
-	    _connection.sendResponse(_os, _compress);
-	}
-	else
-	{
-	    _connection.sendNoResponse();
-	}
-    }
-
-    final protected void
-    __warning(Exception ex)
+    __warning(java.lang.Exception ex)
     {
 	assert(_os != null);
 
@@ -167,5 +144,5 @@ public class IncomingBase
 
     protected BasicStream _os;
 
-    private Ice.ConnectionI _connection;
+    protected Ice.ConnectionI _connection;
 }

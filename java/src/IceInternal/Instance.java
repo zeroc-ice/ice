@@ -596,7 +596,7 @@ public class Instance
             {
                 Class.forName(className);
             }
-            catch(Exception ex)
+            catch(java.lang.Exception ex)
             {
                 _logger.warning("unable to validate package: " + key + "=" + pkg);
             }

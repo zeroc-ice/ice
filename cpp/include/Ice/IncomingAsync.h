@@ -36,10 +36,6 @@ protected:
     // Inlined for speed optimization.
     BasicStream* __os() { return &_os; }
 
-protected:
-
-    bool _finished;
-
 private:
 
     //

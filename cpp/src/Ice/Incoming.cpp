@@ -51,29 +51,6 @@ IceInternal::IncomingBase::IncomingBase(IncomingBase& in) :
 }
 
 void
-IceInternal::IncomingBase::__finishInvoke()
-{
-    if(_locator && _servant)
-    {
-	_locator->finished(_current, _servant, _cookie);
-    }
-    
-    //
-    // Send a response if necessary. If we don't need to send a
-    // response, we still need to tell the connection that we're
-    // finished with dispatching.
-    //
-    if(_response)
-    {
-	_connection->sendResponse(&_os, _compress);
-    }
-    else
-    {
-	_connection->sendNoResponse();
-    }
-}
-
-void
 IceInternal::IncomingBase::__warning(const Exception& ex) const
 {
     ostringstream str;
@@ -159,43 +136,60 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 
     try
     {
-	if(servantManager)
+	try
 	{
-	    _servant = servantManager->findServant(_current.id, _current.facet);
-	    
-	    if(!_servant && !_current.id.category.empty())
+	    if(servantManager)
 	    {
-		_locator = servantManager->findServantLocator(_current.id.category);
-		if(_locator)
+		_servant = servantManager->findServant(_current.id, _current.facet);
+		
+		if(!_servant && !_current.id.category.empty())
 		{
-		    _servant = _locator->locate(_current, _cookie);
+		    _locator = servantManager->findServantLocator(_current.id.category);
+		    if(_locator)
+		    {
+			_servant = _locator->locate(_current, _cookie);
+		    }
+		}
+		
+		if(!_servant)
+		{
+		    _locator = servantManager->findServantLocator("");
+		    if(_locator)
+		    {
+			_servant = _locator->locate(_current, _cookie);
+		    }
 		}
 	    }
 	    
 	    if(!_servant)
 	    {
-		_locator = servantManager->findServantLocator("");
-		if(_locator)
+		if(servantManager && servantManager->hasServant(_current.id))
 		{
-		    _servant = _locator->locate(_current, _cookie);
+		    status = DispatchFacetNotExist;
 		}
-	    }
-	}
-	    
-	if(!_servant)
-	{
-	    if(servantManager && servantManager->hasServant(_current.id))
-	    {
-		status = DispatchFacetNotExist;
+		else
+		{
+		    status = DispatchObjectNotExist;
+		}
 	    }
 	    else
 	    {
-		status = DispatchObjectNotExist;
+		status = _servant->__dispatch(*this, _current);
 	    }
 	}
-	else
+	catch(...)
 	{
-	    status = _servant->__dispatch(*this, _current);
+	    if(_locator && _servant && status != DispatchAsync)
+	    {
+		_locator->finished(_current, _servant, _cookie);
+	    }
+
+	    throw;
+	}
+	
+	if(_locator && _servant && status != DispatchAsync)
+	{
+	    _locator->finished(_current, _servant, _cookie);
 	}
     }
     catch(RequestFailedException& ex)
@@ -260,13 +254,14 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    }
 
 	    _os.write(ex.operation);
+	    
+	    _connection->sendResponse(&_os, _compress);
 	}
-
-	//
-	// Must be called last, so that if an exception is raised,
-	// this function is definitely *not* called.
-	//
-	__finishInvoke();
+	else
+	{
+	    _connection->sendNoResponse();
+	}
+	
 	return;
     }
     catch(const UnknownLocalException& ex)
@@ -284,13 +279,13 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
 	    _os.write(ex.unknown);
+	    _connection->sendResponse(&_os, _compress);
+	}
+	else
+	{
+	    _connection->sendNoResponse();
 	}
 
-	//
-	// Must be called last, so that if an exception is raised,
-	// this function is definitely *not* called.
-	//
-	__finishInvoke();
 	return;
     }
     catch(const UnknownUserException& ex)
@@ -308,13 +303,13 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
 	    _os.write(ex.unknown);
+	    _connection->sendResponse(&_os, _compress);
+	}
+	else
+	{
+	    _connection->sendNoResponse();
 	}
 
-	//
-	// Must be called last, so that if an exception is raised,
-	// this function is definitely *not* called.
-	//
-	__finishInvoke();
 	return;
     }
     catch(const UnknownException& ex)
@@ -332,13 +327,13 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.b.resize(headerSize + 4); // Dispatch status position.
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    _os.write(ex.unknown);
+	    _connection->sendResponse(&_os, _compress);
+	}
+	else
+	{
+	    _connection->sendNoResponse();
 	}
 
-	//
-	// Must be called last, so that if an exception is raised,
-	// this function is definitely *not* called.
-	//
-	__finishInvoke();
 	return;
     }
     catch(const LocalException& ex)
@@ -358,13 +353,13 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    ostringstream str;
 	    str << ex;
 	    _os.write(str.str());
+	    _connection->sendResponse(&_os, _compress);
+	}
+	else
+	{
+	    _connection->sendNoResponse();
 	}
 
-	//
-	// Must be called last, so that if an exception is raised,
-	// this function is definitely *not* called.
-	//
-	__finishInvoke();
 	return;
     }
     catch(const UserException& ex)
@@ -384,13 +379,13 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    ostringstream str;
 	    str << ex;
 	    _os.write(str.str());
+	    _connection->sendResponse(&_os, _compress);
+	}
+	else
+	{
+	    _connection->sendNoResponse();
 	}
 
-	//
-	// Must be called last, so that if an exception is raised,
-	// this function is definitely *not* called.
-	//
-	__finishInvoke();
 	return;
     }
     catch(const Exception& ex)
@@ -410,13 +405,13 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    ostringstream str;
 	    str << ex;
 	    _os.write(str.str());
+	    _connection->sendResponse(&_os, _compress);
+	}
+	else
+	{
+	    _connection->sendNoResponse();
 	}
 
-	//
-	// Must be called last, so that if an exception is raised,
-	// this function is definitely *not* called.
-	//
-	__finishInvoke();
 	return;
     }
     catch(const std::exception& ex)
@@ -436,13 +431,13 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    ostringstream str;
 	    str << "std::exception: " << ex.what();
 	    _os.write(str.str());
+	    _connection->sendResponse(&_os, _compress);
+	}
+	else
+	{
+	    _connection->sendNoResponse();
 	}
 
-	//
-	// Must be called last, so that if an exception is raised,
-	// this function is definitely *not* called.
-	//
-	__finishInvoke();
 	return;
     }
     catch(...)
@@ -461,13 +456,13 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    string reason = "unknown c++ exception";
 	    _os.write(reason);
+	    _connection->sendResponse(&_os, _compress);
+	}
+	else
+	{
+	    _connection->sendNoResponse();
 	}
 
-	//
-	// Must be called last, so that if an exception is raised,
-	// this function is definitely *not* called.
-	//
-	__finishInvoke();
 	return;
     }
 
@@ -486,9 +481,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     if(status == DispatchAsync)
     {
 	//
-	// If this was an asynchronous dispatch, we're done here.  We
-	// do *not* call __finishInvoke(), because the call is not
-	// finished yet.
+	// If this was an asynchronous dispatch, we're done here.
 	//
 	return;
     }
@@ -528,11 +521,11 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	{
 	    *(_os.b.begin() + headerSize + 4) = static_cast<Byte>(status); // Dispatch status position.
 	}
-    }
 
-    //
-    // Must be called last, so that if an exception is raised,
-    // this function is definitely *not* called.
-    //
-    __finishInvoke();
+	_connection->sendResponse(&_os, _compress);
+    }
+    else
+    {
+	_connection->sendNoResponse();
+    }
 }

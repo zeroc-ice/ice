@@ -81,7 +81,7 @@ namespace Ice
 			    if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
 			       m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
 			    {
-				Ice.BadMagicException ex = new Ice.BadMagicException();
+				BadMagicException ex = new BadMagicException();
 				ex.badMagic = m;
 				throw ex;
 			    }
@@ -89,7 +89,7 @@ namespace Ice
 			    byte pMinor = ins.readByte();
 			    if(pMajor != IceInternal.Protocol.protocolMajor)
 			    {
-				Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
+				UnsupportedProtocolException e = new UnsupportedProtocolException();
 				e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
 				e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
 				e.major = IceInternal.Protocol.protocolMajor;
@@ -100,7 +100,7 @@ namespace Ice
 			    byte eMinor = ins.readByte();
 			    if(eMajor != IceInternal.Protocol.encodingMajor)
 			    {
-				Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
+				UnsupportedEncodingException e = new UnsupportedEncodingException();
 				e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
 				e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
 				e.major = IceInternal.Protocol.encodingMajor;
@@ -110,19 +110,19 @@ namespace Ice
 			    byte messageType = ins.readByte();
 			    if(messageType != IceInternal.Protocol.validateConnectionMsg)
 			    {
-				throw new Ice.ConnectionNotValidatedException();
+				throw new ConnectionNotValidatedException();
 			    }
 			    byte compress = ins.readByte(); // Ignore compression status for validate connection.
 			    int size = ins.readInt();
 			    if(size != IceInternal.Protocol.headerSize)
 			    {
-				throw new Ice.IllegalMessageSizeException();
+				throw new IllegalMessageSizeException();
 			    }
 			    IceInternal.TraceUtil.traceHeader("received validate connection", ins, _logger, 
 							      _traceLevels);
 			}
 		    }
-		    catch(Ice.LocalException ex)
+		    catch(LocalException ex)
 		    {
 			setState(StateClosed, ex);
 			Debug.Assert(_exception != null);
@@ -170,13 +170,13 @@ namespace Ice
 		{
 		    case ObjectAdapterDeactivated: 
 		    {
-			setState(StateClosing, new Ice.ObjectAdapterDeactivatedException());
+			setState(StateClosing, new ObjectAdapterDeactivatedException());
 			break;
 		    }
 		    
 		    case CommunicatorDestroyed: 
 		    {
-			setState(StateClosing, new Ice.CommunicatorDestroyedException());
+			setState(StateClosing, new CommunicatorDestroyedException());
 			break;
 		    }
 		}
@@ -274,7 +274,7 @@ namespace Ice
 			    Monitor.Wait(this, waitTime);
 			    if(System.DateTime.Now.Ticks / 10 >= absoluteWaitTime)
 			    {
-				setState(StateClosed, new Ice.CloseTimeoutException());
+				setState(StateClosed, new CloseTimeoutException());
 			    }
 			}
 			else
@@ -283,7 +283,7 @@ namespace Ice
 			    // We already waited long enough, so let's
 			    // close this connection!
 			    //
-			    setState(StateClosed, new Ice.CloseTimeoutException());
+			    setState(StateClosed, new CloseTimeoutException());
 			}
 
 			//
@@ -330,7 +330,7 @@ namespace Ice
 		{
 		    if(og.__timedOut())
 		    {
-			setState(StateClosed, new Ice.TimeoutException());
+			setState(StateClosed, new TimeoutException());
 			return;
 		    }
 		}
@@ -346,7 +346,7 @@ namespace Ice
 		{
 		    if(System.DateTime.Now.Ticks / 10 >= _acmAbsoluteTimeoutMillis)
 		    {
-			setState(StateClosing, new Ice.ConnectionTimeoutException());
+			setState(StateClosing, new ConnectionTimeoutException());
 			return;
 		    }
 		}
@@ -484,7 +484,7 @@ namespace Ice
 		    _transceiver.write(stream, _endpoint.timeout());
 		}
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(LocalException ex)
 	    {
 		lock(this)
 		{
@@ -588,7 +588,7 @@ namespace Ice
 		    _transceiver.write(stream, _endpoint.timeout());
 		}
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(LocalException ex)
 	    {
 		lock(this)
 		{
@@ -656,7 +656,7 @@ namespace Ice
 		    {
 			_batchStream.writeBlob(_requestBatchHdr);
 		    }
-		    catch(Ice.LocalException ex)
+		    catch(LocalException ex)
 		    {
 			setState(StateClosed, ex);
 			throw ex;
@@ -795,7 +795,7 @@ namespace Ice
 		    _transceiver.write(stream, _endpoint.timeout());
 		}
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(LocalException ex)
 	    {
 		lock(this)
 		{
@@ -864,7 +864,7 @@ namespace Ice
 		    _transceiver.write(stream, _endpoint.timeout());
 		}
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(LocalException ex)
 	    {
 		lock(this)
 		{
@@ -893,7 +893,7 @@ namespace Ice
 			_acmAbsoluteTimeoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
 		    }
 		}
-		catch(Ice.LocalException ex)
+		catch(LocalException ex)
 		{
 		    setState(StateClosed, ex);
 		}
@@ -918,7 +918,7 @@ namespace Ice
 			initiateShutdown();
 		    }
 		}
-		catch(Ice.LocalException ex)
+		catch(LocalException ex)
 		{
 		    setState(StateClosed, ex);
 		}
@@ -931,7 +931,7 @@ namespace Ice
 	    return _endpoint;
 	}
 
-	public void setAdapter(Ice.ObjectAdapter adapter)
+	public void setAdapter(ObjectAdapter adapter)
 	{
 	    lock(this)
 	    {
@@ -964,7 +964,7 @@ namespace Ice
 		    _adapter = adapter;
 		    if(_adapter != null)
 		    {
-			_servantManager = ((Ice.ObjectAdapterI) _adapter).getServantManager();
+			_servantManager = ((ObjectAdapterI) _adapter).getServantManager();
 		    }
 		    else
 		    {
@@ -974,7 +974,7 @@ namespace Ice
 	    }
 	}
 
-	public Ice.ObjectAdapter getAdapter()
+	public ObjectAdapter getAdapter()
 	{
 	    lock(this)
 	    {
@@ -1071,7 +1071,7 @@ namespace Ice
 			}
 			else
 			{
-			    throw new Ice.CompressionNotSupportedException();
+			    throw new CompressionNotSupportedException();
 			}
 		    }
 		    stream.pos(IceInternal.Protocol.headerSize);
@@ -1089,7 +1089,7 @@ namespace Ice
 			    }
 			    else
 			    {
-				setState(StateClosed, new Ice.CloseConnectionException());
+				setState(StateClosed, new CloseConnectionException());
 			    }
 			    break;
 			}
@@ -1128,7 +1128,7 @@ namespace Ice
 				invokeNum = stream.readInt();
 				if(invokeNum < 0)
 				{
-				    throw new Ice.NegativeSizeException();
+				    throw new NegativeSizeException();
 				}
 				servantManager = _servantManager;
 				adapter = _adapter;
@@ -1153,7 +1153,7 @@ namespace Ice
 				_asyncRequests.Remove(requestId);
 				if(outAsync == null)
 				{
-				    throw new Ice.UnknownRequestIdException();
+				    throw new UnknownRequestIdException();
 				}
 			    }
 			    break;
@@ -1175,11 +1175,11 @@ namespace Ice
 			    IceInternal.TraceUtil.traceHeader("received unknown message\n" +
 							      "(invalid, closing connection)",
 							      stream, _logger, _traceLevels);
-			    throw new Ice.UnknownMessageException();
+			    throw new UnknownMessageException();
 			}
 		    }
 		}
-		catch(Ice.LocalException ex)
+		catch(LocalException ex)
 		{
 		    setState(StateClosed, ex);
 		    return;
@@ -1242,10 +1242,8 @@ namespace Ice
 		    inc = null;
 		}
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(LocalException ex)
 	    {
-		Debug.Assert(invokeNum > 0);
-
 		lock(this)
 		{
 		    setState(StateClosed, ex);
@@ -1253,15 +1251,11 @@ namespace Ice
 	    }
 	    catch(System.Exception ex)
 	    {
-		//
-		// For other errors, we don't kill the whole
-		// process, but just print the stack trace and close the
-		// connection.
-		//
-		warning("closing connection", ex);
 		lock(this)
 		{
-		    setState(StateClosed, new Ice.UnknownException());
+		    UnknownException uex = new UnknownException();
+		    uex.unknown = ex.ToString();
+		    setState(StateClosed, uex);
 		}
 	    }
 	    finally
@@ -1270,33 +1264,33 @@ namespace Ice
 		{
 		    reclaimIncoming(inc);
 		}
-
-		//
-		// If invoke() above raised an exception, and therefore
-		// neither sendResponse() nor sendNoResponse() has been
-		// called, then we must decrement _dispatchCount here.
-		//
-		if(invokeNum > 0)
+	    }
+	    
+	    //
+	    // If invoke() above raised an exception, and therefore
+	    // neither sendResponse() nor sendNoResponse() has been
+	    // called, then we must decrement _dispatchCount here.
+	    //
+	    if(invokeNum > 0)
+	    {
+		lock(this)
 		{
-		    lock(this)
+		    Debug.Assert(_dispatchCount > 0);
+		    _dispatchCount -= invokeNum;
+		    Debug.Assert(_dispatchCount >= 0);
+		    if(_dispatchCount == 0)
 		    {
-			Debug.Assert(_dispatchCount > 0);
-			_dispatchCount -= invokeNum;
-			Debug.Assert(_dispatchCount >= 0);
-			if(_dispatchCount == 0)
-			{
-			    Monitor.PulseAll(this);
-			}
+			Monitor.PulseAll(this);
 		    }
 		}
 	    }
 	}
-	
+
 	public override void finished(IceInternal.ThreadPool threadPool)
 	{
 	    threadPool.promoteFollower();
 	    
-	    Ice.LocalException exception = null;
+	    LocalException exception = null;
 
 	    Hashtable requests = null;
 	    Hashtable asyncRequests = null;
@@ -1320,7 +1314,7 @@ namespace Ice
 			{
 			    _transceiver.close();
 			}
-			catch(Ice.LocalException ex)
+			catch(LocalException ex)
 			{
 			    exception = ex;
 			}
@@ -1368,7 +1362,7 @@ namespace Ice
 	    }
 	}
 	
-	public override void exception(Ice.LocalException ex)
+	public override void exception(LocalException ex)
 	{
 	    lock(this)
 	    {
@@ -1402,7 +1396,7 @@ namespace Ice
 	}
 
 	internal ConnectionI(IceInternal.Instance instance, IceInternal.Transceiver transceiver,
-			    IceInternal.Endpoint endpoint, Ice.ObjectAdapter adapter)
+			    IceInternal.Endpoint endpoint, ObjectAdapter adapter)
 	    : base(instance)
 	{
 	    _transceiver = transceiver;
@@ -1427,8 +1421,8 @@ namespace Ice
 	    
 	    if(_adapter != null)
 	    {
-		_threadPool = ((Ice.ObjectAdapterI) _adapter).getThreadPool();
-		_servantManager = ((Ice.ObjectAdapterI) _adapter).getServantManager();
+		_threadPool = ((ObjectAdapterI) _adapter).getThreadPool();
+		_servantManager = ((ObjectAdapterI) _adapter).getServantManager();
 	    }
 	    else
 	    {
@@ -1456,7 +1450,7 @@ namespace Ice
 	private const int StateClosing = 3;
 	private const int StateClosed = 4;
 	
-	private void setState(int state, Ice.LocalException ex)
+	private void setState(int state, LocalException ex)
 	{
 	    //
 	    // If setState() is called with an exception, then only closed
@@ -1483,11 +1477,11 @@ namespace Ice
 			//
 			// Don't warn about certain expected exceptions.
 			//
-			if(!(_exception is Ice.CloseConnectionException ||
-			      _exception is Ice.ConnectionTimeoutException ||
-			      _exception is Ice.CommunicatorDestroyedException ||
-			      _exception is Ice.ObjectAdapterDeactivatedException ||
-			      (_exception is Ice.ConnectionLostException && _state == StateClosing)))
+			if(!(_exception is CloseConnectionException ||
+			      _exception is ConnectionTimeoutException ||
+			      _exception is CommunicatorDestroyedException ||
+			      _exception is ObjectAdapterDeactivatedException ||
+			      (_exception is ConnectionLostException && _state == StateClosing)))
 			{
 			    warning("connection exception", _exception);
 			}
@@ -1590,7 +1584,7 @@ namespace Ice
 			    {
 				_transceiver.close();
 			    }
-			    catch(Ice.LocalException)
+			    catch(LocalException)
 			    {
 				// Here we ignore any exceptions in close().
 			    }
@@ -1618,7 +1612,7 @@ namespace Ice
 		{
 		    initiateShutdown();
 		}
-		catch(Ice.LocalException ex)
+		catch(LocalException ex)
 		{
 		    setState(StateClosed, ex);
 		}
@@ -1742,10 +1736,10 @@ namespace Ice
 	private volatile string _type;
 	private volatile IceInternal.Endpoint _endpoint;
 	
-	private Ice.ObjectAdapter _adapter;
+	private ObjectAdapter _adapter;
 	private IceInternal.ServantManager _servantManager;
 	
-	private volatile Ice.Logger _logger;
+	private volatile Logger _logger;
 	private volatile IceInternal.TraceLevels _traceLevels;
 	
 	private bool _registeredWithPool;
@@ -1760,7 +1754,7 @@ namespace Ice
 	private Hashtable _requests = new Hashtable();
 	private Hashtable _asyncRequests = new Hashtable();
 	
-	private Ice.LocalException _exception;
+	private LocalException _exception;
 
 	private IceInternal.BasicStream _batchStream;
 	private bool _batchStreamInUse;

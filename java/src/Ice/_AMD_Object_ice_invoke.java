@@ -29,7 +29,6 @@ final class _AMD_Object_ice_invoke extends IceInternal.IncomingAsync implements 
 	    __exception(ex);
 	    return;
 	}
-	
 	__response(ok);
     }
 

@@ -140,7 +140,7 @@ public final class ConnectionMonitor extends Thread
 			_instance.logger().error(s);
 		    }
 		}
-		catch(Exception ex)
+		catch(java.lang.Exception ex)
 		{
 		    synchronized(this)
 		    {

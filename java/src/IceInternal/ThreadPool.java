@@ -1116,7 +1116,7 @@ public final class ThreadPool
                 _instance.logger().error(s);
 		promote = true;
             }
-            catch(Exception ex)
+            catch(java.lang.Exception ex)
             {
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);

@@ -71,7 +71,7 @@ public abstract class Application
             ex.printStackTrace();
             status = 1;
         }
-        catch(Exception ex)
+        catch(java.lang.Exception ex)
         {
             System.err.println(_appName + ": unknown exception");
             ex.printStackTrace();
@@ -90,7 +90,7 @@ public abstract class Application
                 ex.printStackTrace();
                 status = 1;
             }
-            catch(Exception ex)
+            catch(java.lang.Exception ex)
             {
                 System.err.println(_appName + ": unknown exception");
                 ex.printStackTrace();

@@ -174,7 +174,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
     if(_unbuffered)
     {
 	//
-	// If we are in unbuffered mode, we sent the request directly.
+	// If we are in unbuffered mode, we send the request directly.
 	//
 
 	if(_requestTraceLevel >= 1)

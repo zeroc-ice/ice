@@ -30,8 +30,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(Ice::ConnectionI* p) { p->__incRef(); }
-void IceInternal::decRef(Ice::ConnectionI* p) { p->__decRef(); }
+void IceInternal::incRef(ConnectionI* p) { p->__incRef(); }
+void IceInternal::decRef(ConnectionI* p) { p->__decRef(); }
 
 void
 Ice::ConnectionI::validate()
@@ -2069,7 +2069,7 @@ Ice::ConnectionI::invokeAll(BasicStream& stream, Int invokeNum, Int requestId, B
 		//
 		os->write(requestId);
 	    }
-	    
+
 	    in.invoke(servantManager);
 	    
 	    //
@@ -2085,13 +2085,30 @@ Ice::ConnectionI::invokeAll(BasicStream& stream, Int invokeNum, Int requestId, B
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	setState(StateClosed, ex);
+    }
+    catch(const std::exception& ex)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	UnknownException uex(__FILE__, __LINE__);
+	uex.unknown = string("std::exception: ") + ex.what();
+	setState(StateClosed, uex);
+    }
+    catch(...)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	UnknownException uex(__FILE__, __LINE__);
+	uex.unknown = "unknown c++ exception";
+	setState(StateClosed, uex);
+    }
 
-	//
-	// If invoke() above raised an exception, and therefore
-	// neither sendResponse() nor sendNoResponse() has been
-	// called, then we must decrement _dispatchCount here.
-	//
-	assert(invokeNum > 0);
+    //
+    // If invoke() above raised an exception, and therefore neither
+    // sendResponse() nor sendNoResponse() has been called, then we
+    // must decrement _dispatchCount here.
+    //
+    if(invokeNum > 0)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	assert(_dispatchCount > 0);
 	_dispatchCount -= invokeNum;
 	assert(_dispatchCount >= 0);

@@ -167,7 +167,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             stopAll();
             return 1;
         }
-        catch(Exception ex)
+        catch(java.lang.Exception ex)
         {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -327,7 +327,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         {
             throw ex;
         }
-        catch(Exception ex)
+        catch(java.lang.Exception ex)
         {
             FailureException e = new FailureException();
             e.reason = "ServiceManager: exception while starting service " + service + ": " + ex;
@@ -353,7 +353,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	    {
 		info.service.stop();
 	    }
-	    catch(Exception e)
+	    catch(java.lang.Exception e)
 	    {
                 java.io.StringWriter sw = new java.io.StringWriter();
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -389,7 +389,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		    // the communicator for its own reasons.
 		    //
 		}
-		catch(Exception e)
+		catch(java.lang.Exception e)
 		{
 		    java.io.StringWriter sw = new java.io.StringWriter();
 		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -405,7 +405,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		{
 		    info.communicator.destroy();
 		}
-		catch(Exception e)
+		catch(java.lang.Exception e)
 		{
 		    java.io.StringWriter sw = new java.io.StringWriter();
 		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);

@@ -103,7 +103,8 @@ final public class Incoming extends IncomingBase
             _os.startWriteEncaps();
         }
 
-	DispatchStatus status;
+	// Initialize status to some value, to keep the compiler happy.
+	DispatchStatus status = DispatchStatus.DispatchOK;
 	
 	//
 	// Don't put the code above into the try block below. Exceptions
@@ -113,49 +114,59 @@ final public class Incoming extends IncomingBase
 
         try
         {
-	    if(servantManager != null)
+	    try
 	    {
-		_servant = servantManager.findServant(_current.id, _current.facet);
-		
-		if(_servant == null && _current.id.category.length() > 0)
+		if(servantManager != null)
 		{
-		    _locator = servantManager.findServantLocator(_current.id.category);
-		    if(_locator != null)
+		    _servant = servantManager.findServant(_current.id, _current.facet);
+		    
+		    if(_servant == null && _current.id.category.length() > 0)
 		    {
-			_servant = _locator.locate(_current, _cookie);
+			_locator = servantManager.findServantLocator(_current.id.category);
+			if(_locator != null)
+			{
+			    _servant = _locator.locate(_current, _cookie);
+			}
+		    }
+		    
+		    if(_servant == null)
+		    {
+			_locator = servantManager.findServantLocator("");
+			if(_locator != null)
+			{
+			    _servant = _locator.locate(_current, _cookie);
+			}
 		    }
 		}
 		
 		if(_servant == null)
 		{
-		    _locator = servantManager.findServantLocator("");
-		    if(_locator != null)
+		    if(servantManager != null && servantManager.hasServant(_current.id))
 		    {
-			_servant = _locator.locate(_current, _cookie);
+			status = DispatchStatus.DispatchFacetNotExist;
+		    }
+		    else
+		    {
+			status = DispatchStatus.DispatchObjectNotExist;
 		    }
 		}
+		else
+		{
+		    status = _servant.__dispatch(this, _current);
+		}
 	    }
-
-            if(_servant == null)
-            {
-                if(servantManager != null && servantManager.hasServant(_current.id))
-                {
-                    status = DispatchStatus.DispatchFacetNotExist;
-                }
-                else
-                {
-                    status = DispatchStatus.DispatchObjectNotExist;
-                }
-            }
-            else
-            {
-                status = _servant.__dispatch(this, _current);
-            }
-        }
-        catch(Ice.RequestFailedException ex)
-        {
+	    finally
+	    {
+		if(_locator != null && _servant != null && status != DispatchStatus.DispatchAsync)
+		{
+		    _locator.finished(_current, _servant, _cookie.value);
+		}
+	    }
+	}
+	catch(Ice.RequestFailedException ex)
+	{
 	    _is.endReadEncaps();
-
+	    
 	    if(ex.id == null)
 	    {
 		ex.id = _current.id;
@@ -212,13 +223,14 @@ final public class Incoming extends IncomingBase
                 }
 
 		_os.writeString(ex.operation);
-            }
 
-	    //
-	    // Must be called last, so that if an exception is raised,
-	    // this function is definitely *not* called.
-	    //
-	    __finishInvoke();
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
+
 	    return;
         }
         catch(Ice.UnknownLocalException ex)
@@ -236,13 +248,13 @@ final public class Incoming extends IncomingBase
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
 		_os.writeString(ex.unknown);
-            }
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
 
-	    //
-	    // Must be called last, so that if an exception is raised,
-	    // this function is definitely *not* called.
-	    //
-	    __finishInvoke();
 	    return;
         }
         catch(Ice.UnknownUserException ex)
@@ -260,13 +272,13 @@ final public class Incoming extends IncomingBase
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
 		_os.writeString(ex.unknown);
-            }
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
 
-	    //
-	    // Must be called last, so that if an exception is raised,
-	    // this function is definitely *not* called.
-	    //
-	    __finishInvoke();
 	    return;
         }
         catch(Ice.UnknownException ex)
@@ -284,13 +296,13 @@ final public class Incoming extends IncomingBase
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
 		_os.writeString(ex.unknown);
-            }
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
 
-	    //
-	    // Must be called last, so that if an exception is raised,
-	    // this function is definitely *not* called.
-	    //
-	    __finishInvoke();
 	    return;
         }
         catch(Ice.LocalException ex)
@@ -307,18 +319,19 @@ final public class Incoming extends IncomingBase
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+		//_os.writeString(ex.toString());
 		java.io.StringWriter sw = new java.io.StringWriter();
 		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 		ex.printStackTrace(pw);
 		pw.flush();
 		_os.writeString(sw.toString());
-            }
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
 
-	    //
-	    // Must be called last, so that if an exception is raised,
-	    // this function is definitely *not* called.
-	    //
-	    __finishInvoke();
 	    return;
         }
         /* Not possible in Java - UserExceptions are checked exceptions
@@ -327,7 +340,7 @@ final public class Incoming extends IncomingBase
 	// ...
 	}
 	*/
-        catch(Exception ex)
+        catch(java.lang.Exception ex)
         {
 	    _is.endReadEncaps();
 
@@ -341,18 +354,19 @@ final public class Incoming extends IncomingBase
                 _os.endWriteEncaps();
                 _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+		//_os.writeString(ex.toString());
 		java.io.StringWriter sw = new java.io.StringWriter();
 		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 		ex.printStackTrace(pw);
 		pw.flush();
 		_os.writeString(sw.toString());
-            }
-	    
-	    //
-	    // Must be called last, so that if an exception is raised,
-	    // this function is definitely *not* called.
-	    //
-	    __finishInvoke();
+		_connection.sendResponse(_os, _compress);
+	    }
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
+
 	    return;
         }
 	
@@ -371,9 +385,7 @@ final public class Incoming extends IncomingBase
 	if(status == DispatchStatus.DispatchAsync)
 	{
 	    //
-	    // If this was an asynchronous dispatch, we're done
-	    // here.  We do *not* call __finishInvoke(), because
-	    // the call is not finished yet.
+	    // If this was an asynchronous dispatch, we're done here.
 	    //
 	    return;
 	}
@@ -415,13 +427,13 @@ final public class Incoming extends IncomingBase
 		_os.writeByte((byte)status.value());
 		_os.pos(save);
 	    }
-	}
 
-	//
-	// Must be called last, so that if an exception is raised,
-	// this function is definitely *not* called.
-	//
-	__finishInvoke();
+	    _connection.sendResponse(_os, _compress);
+	}
+	else
+	{
+	    _connection.sendNoResponse();
+	}
     }
 
     public BasicStream

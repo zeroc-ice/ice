@@ -1505,7 +1505,7 @@ public class BasicStream
                 {
                     obj.ice_postUnmarshal();
                 }
-                catch(Exception ex)
+                catch(java.lang.Exception ex)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -1534,7 +1534,7 @@ public class BasicStream
         {
             v.ice_preMarshal();
         }
-        catch(Exception ex)
+        catch(java.lang.Exception ex)
         {
             java.io.StringWriter sw = new java.io.StringWriter();
             java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -1680,7 +1680,7 @@ public class BasicStream
             {
                 return (Ice.Object)_class.newInstance();
             }
-            catch(Exception ex)
+            catch(java.lang.Exception ex)
             {
                 Ice.SyscallException e = new Ice.SyscallException();
                 e.initCause(ex);
@@ -1763,7 +1763,7 @@ public class BasicStream
             {
                 throw ex;
             }
-            catch(Exception ex)
+            catch(java.lang.Exception ex)
             {
                 Ice.SyscallException e = new Ice.SyscallException();
                 e.initCause(ex);

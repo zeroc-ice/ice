@@ -3861,8 +3861,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
 	_out << sp << nl << "public void ice_response" << spar << paramsAMD << epar;
 	_out << sb;
-	_out << nl << "if(!_finished)";
-	_out << sb;
 	if(ret || !outParams.empty())
 	{
 	    _out << nl << "try";
@@ -3890,11 +3888,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	}
 	_out << nl << "__response(true);";
 	_out << eb;
-	_out << eb;
 
 	_out << sp << nl << "public void ice_exception(_System.Exception ex)";
-	_out << sb;
-	_out << nl << "if(!_finished)";
 	_out << sb;
 	if(throws.empty())
 	{
@@ -3921,7 +3916,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    _out << nl << "__exception(__ex);";
 	    _out << eb;
 	}
-	_out << eb;
 	_out << eb;
 
 	_out << eb;

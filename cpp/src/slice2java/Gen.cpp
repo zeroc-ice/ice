@@ -4834,8 +4834,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
 	    out << sp << nl << "public void" << nl << "ice_response" << spar << paramsAMD << epar;
 	    out << sb;
-	    out << nl << "if(!_finished)";
-	    out << sb;
             iter = 0;
 	    if(ret || !outParams.empty())
 	    {
@@ -4866,11 +4864,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    }
 	    out << nl << "__response(true);";
 	    out << eb;
-	    out << eb;
 
 	    out << sp << nl << "public void" << nl << "ice_exception(java.lang.Exception ex)";
-	    out << sb;
-	    out << nl << "if(!_finished)";
 	    out << sb;
 	    if(throws.empty())
 	    {
@@ -4897,7 +4892,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 		out << nl << "__exception(__ex);";
 		out << eb;
 	    }
-	    out << eb;
 	    out << eb;
 
 	    out << eb;

@@ -110,28 +110,6 @@ namespace IceInternal
 	    _connection = connection;
 	}
 	
-	protected internal void __finishInvoke()
-	{
-	    if(_locator != null && _servant != null)
-	    {
-		_locator.finished(_current, _servant, _cookie);
-	    }
-	    
-	    //
-	    // Send a response if necessary. If we don't need to send a
-	    // response, we still need to tell the connection that we're
-	    // finished with dispatching.
-	    //
-	    if(_response)
-	    {
-		_connection.sendResponse(_os, _compress);
-	    }
-	    else
-	    {
-		_connection.sendNoResponse();
-	    }
-	}
-	
 	protected internal void __warning(System.Exception ex)
 	{
 	    Debug.Assert(_os != null);
@@ -158,7 +136,7 @@ namespace IceInternal
 	
 	protected internal BasicStream _os;
 	
-	private Ice.ConnectionI _connection;
+	protected Ice.ConnectionI _connection;
     }
 	
     sealed public class Incoming : IncomingBase
@@ -262,44 +240,54 @@ namespace IceInternal
 	    
 	    try
 	    {
-		if(servantManager != null)
+		try
 		{
-		    _servant = servantManager.findServant(_current.id, _current.facet);
-		    
-		    if(_servant == null && _current.id.category.Length > 0)
+		    if(servantManager != null)
 		    {
-			_locator = servantManager.findServantLocator(_current.id.category);
-			if(_locator != null)
+			_servant = servantManager.findServant(_current.id, _current.facet);
+			
+			if(_servant == null && _current.id.category.Length > 0)
 			{
-			    _servant = _locator.locate(_current, out _cookie);
+			    _locator = servantManager.findServantLocator(_current.id.category);
+			    if(_locator != null)
+			    {
+				_servant = _locator.locate(_current, out _cookie);
+			    }
+			}
+			
+			if(_servant == null)
+			{
+			    _locator = servantManager.findServantLocator("");
+			    if(_locator != null)
+			    {
+				_servant = _locator.locate(_current, out _cookie);
+			    }
 			}
 		    }
 		    
 		    if(_servant == null)
 		    {
-			_locator = servantManager.findServantLocator("");
-			if(_locator != null)
+			if(servantManager != null && servantManager.hasServant(_current.id))
 			{
-			    _servant = _locator.locate(_current, out _cookie);
+			    status = DispatchStatus.DispatchFacetNotExist;
+			}
+			else
+			{
+			    status = DispatchStatus.DispatchObjectNotExist;
 			}
 		    }
+		    else
+		    {
+			status = _servant.__dispatch(this, _current);
+		    }		
 		}
-		
-		if(_servant == null)
+		finally
 		{
-                    if(servantManager != null && servantManager.hasServant(_current.id))
-                    {
-                        status = DispatchStatus.DispatchFacetNotExist;
-                    }
-                    else
-                    {
-                        status = DispatchStatus.DispatchObjectNotExist;
-                    }
-                }
-                else
-                {
-                    status = _servant.__dispatch(this, _current);
-                }		
+		    if(_locator != null && _servant != null && status != DispatchStatus.DispatchAsync)
+		    {
+			_locator.finished(_current, _servant, _cookie.value);
+		    }
+		}
 	    }
 	    catch(Ice.RequestFailedException ex)
 	    {
@@ -361,13 +349,14 @@ namespace IceInternal
                     }
 
 		    _os.writeString(ex.operation);
+
+		    _connection.sendResponse(_os, _compress);
 		}
-		
-		//
-		// Must be called last, so that if an exception is raised,
-		// this function is definitely *not* called.
-		//
-		__finishInvoke();
+		else
+		{
+		    _connection.sendNoResponse();
+		}
+
 		return;
 	    }
 	    catch(Ice.UnknownLocalException ex)
@@ -385,13 +374,13 @@ namespace IceInternal
 		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 		    _os.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
 		    _os.writeString(ex.unknown);
+		    _connection.sendResponse(_os, _compress);
 		}
-		
-		//
-		// Must be called last, so that if an exception is raised,
-		// this function is definitely *not* called.
-		//
-		__finishInvoke();
+		else
+		{
+		    _connection.sendNoResponse();
+		}
+
 		return;
 	    }
 	    catch(Ice.UnknownUserException ex)
@@ -409,13 +398,13 @@ namespace IceInternal
 		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 		    _os.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
 		    _os.writeString(ex.unknown);
+		    _connection.sendResponse(_os, _compress);
 		}
-		
-		//
-		// Must be called last, so that if an exception is raised,
-		// this function is definitely *not* called.
-		//
-		__finishInvoke();
+		else
+		{
+		    _connection.sendNoResponse();
+		}
+
 		return;
 	    }
 	    catch(Ice.UnknownException ex)
@@ -433,13 +422,13 @@ namespace IceInternal
 		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 		    _os.writeByte((byte)DispatchStatus.DispatchUnknownException);
 		    _os.writeString(ex.unknown);
+		    _connection.sendResponse(_os, _compress);
 		}
-		
-		//
-		// Must be called last, so that if an exception is raised,
-		// this function is definitely *not* called.
-		//
-		__finishInvoke();
+		else
+		{
+		    _connection.sendNoResponse();
+		}
+
 		return;
 	    }
 	    catch(Ice.LocalException ex)
@@ -457,13 +446,13 @@ namespace IceInternal
 		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 		    _os.writeByte((byte)DispatchStatus.DispatchUnknownLocalException);
 		    _os.writeString(ex.ToString());
+		    _connection.sendResponse(_os, _compress);
 		}
-		
-		//
-		// Must be called last, so that if an exception is raised,
-		// this function is definitely *not* called.
-		//
-		__finishInvoke();
+		else
+		{
+		    _connection.sendNoResponse();
+		}
+
 		return;
 	    }
 
@@ -482,13 +471,13 @@ namespace IceInternal
 		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 		    _os.writeByte((byte)DispatchStatus.DispatchUnknownUserException);
 		    _os.writeString(ex.ToString());
+		    _connection.sendResponse(_os, _compress);
 		}
-		
-		//
-		// Must be called last, so that if an exception is raised,
-		// this function is definitely *not* called.
-		//
-		__finishInvoke();
+		else
+		{
+		    _connection.sendNoResponse();
+		}
+
 		return;
 	    }
 
@@ -507,13 +496,13 @@ namespace IceInternal
 		    _os.resize(Protocol.headerSize + 4, false); // Dispatch status position.
 		    _os.writeByte((byte) DispatchStatus.DispatchUnknownException);
 		    _os.writeString(ex.ToString());
+		    _connection.sendResponse(_os, _compress);
 		}
-		
-		//
-		// Must be called last, so that if an exception is raised,
-		// this function is definitely *not* called.
-		//
-		__finishInvoke();
+		else
+		{
+		    _connection.sendNoResponse();
+		}
+
 		return;
 	    }
 	    
@@ -533,8 +522,7 @@ namespace IceInternal
 	    {
 		//
 		// If this was an asynchronous dispatch, we're done
-		// here.  We do *not* call __finishInvoke(), because
-		// the call is not finished yet.
+		// here.
 		//
 		return;
 	    }
@@ -576,13 +564,13 @@ namespace IceInternal
 		    _os.writeByte((byte)status);
 		    _os.pos(save);
 		}
+
+		_connection.sendResponse(_os, _compress);
 	    }
-	    
-	    //
-	    // Must be called last, so that if an exception is raised,
-	    // this function is definitely *not* called.
-	    //
-	    __finishInvoke();
+	    else
+	    {
+		_connection.sendNoResponse();
+	    }
 	}
 	
 	public BasicStream istr()

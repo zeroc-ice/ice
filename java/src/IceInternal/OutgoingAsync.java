@@ -157,7 +157,7 @@ public abstract class OutgoingAsync
 	    {
 		__response(status == DispatchStatus._DispatchOK);
 	    }
-	    catch(Exception ex)
+	    catch(java.lang.Exception ex)
 	    {
 		warning(ex);
 	    }
@@ -225,7 +225,7 @@ public abstract class OutgoingAsync
 	    {
 		ice_exception(exc);
 	    }
-	    catch(Exception ex)
+	    catch(java.lang.Exception ex)
 	    {
 		warning(ex);
 	    }
@@ -413,7 +413,7 @@ public abstract class OutgoingAsync
     protected abstract void __response(boolean ok);
 
     private final void
-    warning(Exception ex)
+    warning(java.lang.Exception ex)
     {
 	if(_reference != null) // Don't print anything if cleanup() was already called.
 	{

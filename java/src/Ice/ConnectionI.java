@@ -1207,32 +1207,41 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	}
 	catch(LocalException ex)
 	{
-	    assert(invokeNum > 0);
-
 	    synchronized(this)
 	    {
 		setState(StateClosed, ex);
 	    }
 	}
-	catch(AssertionError ex)
+	catch(java.lang.AssertionError ex) // Upon assertion, we print the stack trace.
 	{
-	    assert(invokeNum > 0);
-
-	    //
-	    // Java only: Upon an assertion, we don't kill the whole
-	    // process, but just print the stack trace and close the
-	    // connection.
-	    //
 	    synchronized(this)
 	    {
+		UnknownException uex = new UnknownException();
+		//uex.unknown = ex.toString();
 		java.io.StringWriter sw = new java.io.StringWriter();
 		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 		ex.printStackTrace(pw);
 		pw.flush();
-		UnknownException exc = new UnknownException();
-		exc.unknown = sw.toString();
-		_logger.error(exc.unknown);
-		setState(StateClosed, exc);
+		uex.unknown = sw.toString();
+		if(ex instanceof java.lang.AssertionError)
+		{
+		    _logger.error(uex.unknown);
+		}
+		setState(StateClosed, uex);
+	    }
+	}
+	catch(java.lang.Exception ex)
+	{
+	    synchronized(this)
+	    {
+		UnknownException uex = new UnknownException();
+		//uex.unknown = ex.toString();
+		java.io.StringWriter sw = new java.io.StringWriter();
+		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+		ex.printStackTrace(pw);
+		pw.flush();
+		uex.unknown = sw.toString();
+		setState(StateClosed, uex);
 	    }
 	}
 	finally
@@ -1241,23 +1250,23 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    {
 		reclaimIncoming(in);
 	    }
-
-	    //
-	    // If invoke() above raised an exception, and therefore
-	    // neither sendResponse() nor sendNoResponse() has been
-	    // called, then we must decrement _dispatchCount here.
-	    //
-	    if(invokeNum > 0)
+	}
+		
+	//
+	// If invoke() above raised an exception, and therefore
+	// neither sendResponse() nor sendNoResponse() has been
+	// called, then we must decrement _dispatchCount here.
+	//
+	if(invokeNum > 0)
+	{
+	    synchronized(this)
 	    {
-		synchronized(this)
+		assert(_dispatchCount > 0);
+		_dispatchCount -= invokeNum;
+		assert(_dispatchCount >= 0);
+		if(_dispatchCount == 0)
 		{
-		    assert(_dispatchCount > 0);
-		    _dispatchCount -= invokeNum;
-		    assert(_dispatchCount >= 0);
-		    if(_dispatchCount == 0)
-		    {
-			notifyAll();
-		    }
+		    notifyAll();
 		}
 	    }
 	}
