@@ -1,6 +1,10 @@
 Changes since version 1.4.0
 ---------------------------
 
+- Added support for generating checksums of Slice definitions,
+  enabling peers to verify that they share the same client-server
+  contract. See the manual for more information.
+
 - Fixed a bug that could cause an assert or exception in some rare
   circumstances, if an operation is invoked after the object adapter
   for the Ice object has been deactivated.
