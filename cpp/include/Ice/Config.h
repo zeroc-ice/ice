@@ -59,6 +59,9 @@ const bool bigendian = false;
 
 #elif defined(__linux__) && defined(i386)
 
+#   include <sys/types.h>
+#   include <unistd.h>
+
 #   define ICE_API /**/
 
 namespace Ice

@@ -1,58 +1,67 @@
+#!/usr/bin/env python
+# **********************************************************************
+#
+# Copyright (c) 2002
+# MutableRealms, Inc.
+# Huntsville, AL, USA
+#
+# All Rights Reserved
+#
+# **********************************************************************
+
 import sys, os, string
 
-def start(path):
-    pipein, pipeout = os.pipe()
-    pid = os.fork()
-    if(pid == 0):
-        os.close(pipein)
-        os.dup2(pipeout, sys.stdout.fileno())
-        os.execv(path, [])
-    else:
-        os.close(pipeout)
-        return os.fdopen(pipein), pid
+serverPids = []
 
-pids = []
-def terminate(status):
-    for pid in pids:
-        if(os.name == "nt"):
+def killServers():
+
+    global serverPids
+
+    for pid in serverPids:
+        if os.name == "nt":
             import win32api
             handle = win32api.OpenProcess(1, 0, pid)
             return (0 != win32api.TerminateProcess(handle, 0))
         else:
             os.kill(pid, 9)
-    sys.exit(status)
 
-def server():
+    serverPids = []
+
+def clientServerTest(toplevel, name):
+
+    testdir = os.path.join(toplevel, "test", name)
+    server = os.path.join(testdir, "server")
+    client = os.path.join(testdir, "client")
+
     print "starting server...",
-    server, pid = start("./server")
-    pids.append(pid)
-    ready = string.strip(server.readline())
-    if ready != "ready":
+    serverPipe = os.popen(os.path.join(testdir, "server --pid"))
+    output = serverPipe.readline().strip()
+    if not output:
         print "failed!"
-        terminate(0)
-    else:
-        print "ok"
-
-def client():
+        sys.exit(0)
+    serverPids.append(int(output))
+    print "ok"
+    
     print "starting client...",
-    client, pid = start("./client")
-    pids.append(pid)
-    output = client.read()
+    clientPipe = os.popen(os.path.join(testdir, "client"))
+    output = clientPipe.read().strip()
     if not output:
         print "failed!"
-        terminate(0)
-    else:
-        print "ok"
-    print output,
+        killServers()
+        sys.exit(0)
+    print "ok"
+    print output
 
-def collocated():
+def collocatedTest(toplevel, name):
+
+    testdir = os.path.join(toplevel, "test", name)
+    collocated = os.path.join(testdir, "collocated")
+
     print "starting collocated...",
-    client, pid = start("./collocated")
-    pids.append(pid)
-    output = client.read()
+    collocatedPipe = os.popen(os.path.join(testdir, "collocated"))
+    output = collocatedPipe.read().strip()
     if not output:
         print "failed!"
-        terminate(0)
-    else:
-        print "ok"
-    print output,
+        sys.exit(0)
+    print "ok"
+    print output
