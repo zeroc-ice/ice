@@ -3104,7 +3104,9 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << nl << "catch (ClassCastException __ex)";
         out << sb;
-        out << nl << "throw new Ice.OperationNotExistException();";
+        out << nl << "Ice.OperationNotExistException __opEx = new Ice.OperationNotExistException();";
+	out << nl << "__opEx.operation = __current.operation;";
+	out << nl << "throw __opEx;";
         out << eb;
         out << nl << "try";
         out << sb;

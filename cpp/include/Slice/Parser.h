@@ -307,6 +307,7 @@ public:
     DictionaryList dictionaries();
     EnumList enums();
     bool hasProxies();
+    bool hasNonLocals();
     bool hasClassDecls();
     bool hasClassDefs();
     bool hasOtherConstructedOrExceptions(); // Exceptions or constructed types other than classes.

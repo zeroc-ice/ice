@@ -18,7 +18,7 @@
 #include <Ice/Endpoint.h>
 #include <Ice/ConnectionFactory.h>
 #include <Ice/RouterInfo.h>
-#include <Ice/Exception.h>
+#include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/Functional.h>
 

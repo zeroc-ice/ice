@@ -11,7 +11,7 @@
 #include <Ice/ThreadPool.h>
 #include <Ice/EventHandler.h>
 #include <Ice/Network.h>
-#include <Ice/Exception.h>
+#include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>

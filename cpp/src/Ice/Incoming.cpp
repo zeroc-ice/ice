@@ -12,7 +12,7 @@
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/Object.h>
-#include <Ice/Exception.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
@@ -126,10 +126,24 @@ IceInternal::Incoming::invoke(bool response)
 	if (response)
 	{
 	    _os.endWriteEncaps();
+
 	    if (status != DispatchOK && status != DispatchUserException)
 	    {
 		_os.b.resize(statusPos);
 		_os.write(static_cast<Byte>(status));
+
+		if (status == DispatchObjectNotExist)
+		{
+		    current.identity.__write(&_os);
+		}
+		else if(status == DispatchFacetNotExist)
+		{
+		    _os.write(current.facet);
+		}
+		else if(status == DispatchOperationNotExist)
+		{
+		    _os.write(current.operation);
+		}
 	    }
 	    else
 	    {
@@ -154,7 +168,7 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.write(ex._prx);
 	}
     }
-    catch (const ObjectNotExistException&)
+    catch (const ObjectNotExistException& ex)
     {
 	if (locator && servant)
 	{
@@ -168,9 +182,12 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
 	    _os.write(static_cast<Byte>(DispatchObjectNotExist));
+            // Not current.identity.__write(_os), so that the identity
+            // can be overwritten.
+	    ex.identity.__write(&_os);
 	}
     }
-    catch (const FacetNotExistException&)
+    catch (const FacetNotExistException& ex)
     {
 	if (locator && servant)
 	{
@@ -184,9 +201,12 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
 	    _os.write(static_cast<Byte>(DispatchFacetNotExist));
+	    // Not _os.write(current.facet), so that the identity can
+	    // be overwritten.
+	    _os.write(ex.facet);
 	}
     }
-    catch (const OperationNotExistException&)
+    catch (const OperationNotExistException& ex)
     {
 	if (locator && servant)
 	{
@@ -200,6 +220,9 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
 	    _os.write(static_cast<Byte>(DispatchOperationNotExist));
+	    // Not _os.write(current.operation), so that the identity
+	    // can be overwritten.
+	    _os.write(ex.operation);
 	}
     }
     catch (const LocalException& ex)

@@ -159,7 +159,6 @@ Slice::Gen::operator!() const
 void
 Slice::Gen::generate(const UnitPtr& unit)
 {
-    C << "\n#include <Ice/Stream.h>";
     C << "\n#include <";
     if (_include.size())
     {
@@ -167,32 +166,38 @@ Slice::Gen::generate(const UnitPtr& unit)
     }
     C << _base << ".h>";
 
+    H << "\n#include <Ice/LocalObjectF.h>";
     H << "\n#include <Ice/ProxyF.h>";
     H << "\n#include <Ice/ObjectF.h>";
-    H << "\n#include <Ice/LocalObjectF.h>";
-    H << "\n#include <Ice/Exception.h>";
-    //
-    // TODO: ObjectFactory is only necessary if there are non-abstract
-    // objects - so it's not necessary to always include this.
-    //
-    H << "\n#include <Ice/ObjectFactoryF.h>";
+
     if (unit->hasProxies())
     {
+	H << "\n#include <Ice/Exception.h>";
+	H << "\n#include <Ice/LocalObject.h>";
 	H << "\n#include <Ice/Proxy.h>";
 	H << "\n#include <Ice/Object.h>";
 	H << "\n#include <Ice/Outgoing.h>";
 	H << "\n#include <Ice/Incoming.h>";
 	H << "\n#include <Ice/Direct.h>";
+
+	C << "\n#include <Ice/LocalException.h>";
+	C << "\n#include <Ice/ObjectFactory.h>";
+	C << "\n#include <Ice/BasicStream.h>";
+	C << "\n#include <Ice/Stream.h>";
+    }
+    else if(unit->hasNonLocals())
+    {
+	H << "\n#include <Ice/Exception.h>";
+	H << "\n#include <Ice/LocalObject.h>";
+
+	C << "\n#include <Ice/BasicStream.h>";
+	C << "\n#include <Ice/Stream.h>";
     }
     else
     {
+	H << "\n#include <Ice/Exception.h>";
 	H << "\n#include <Ice/LocalObject.h>";
-	C << "\n#include <Ice/BasicStream.h>";
-	C << "\n#include <Ice/Proxy.h>";
-	C << "\n#include <Ice/Object.h>";
     }
-    C << "\n#include <Ice/ObjectFactory.h>";
-
 
     StringList includes = unit->includeFiles();
     for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
@@ -1719,7 +1724,9 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << nl << cl->scoped() << "* __servant = dynamic_cast< " << cl->scoped() << "*>(__direct.facetServant().get());";
     C << nl << "if (!__servant)";
     C << sb;
-    C << nl << "throw ::Ice::OperationNotExistException(__FILE__, __LINE__);";
+    C << nl << "::Ice::OperationNotExistException __opEx(__FILE__, __LINE__);";
+    C << nl << "__opEx.operation = __current.operation;";
+    C << nl << "throw __opEx;";
     C << eb;
     C << nl << "try";
     C << sb;

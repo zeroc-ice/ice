@@ -16,9 +16,7 @@ public class Server
         Ice.Properties properties = communicator.getProperties();
         properties.setProperty("Ice.ConnectionWarnings", "0");
         String endpts = "default -p 12345 -t 2000";
-        Ice.ObjectAdapter adapter =
-            communicator.createObjectAdapterWithEndpoints("TestAdapter",
-                                                          endpts);
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TestAdapter", endpts);
         Ice.Object object = new ThrowerI(adapter);
         adapter.add(object, Ice.Util.stringToIdentity("thrower"));
         adapter.activate();

@@ -24,7 +24,7 @@
 #include <Ice/Connection.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/BasicStream.h>
-#include <Ice/Exception.h>
+#include <Ice/LocalException.h>
 #include <Ice/Functional.h>
 #include <Ice/SslException.h> // TODO: bandaid, see below.
 
@@ -1087,19 +1087,21 @@ IceDelegateD::Ice::Object::ice_invoke(const string& operation,
 				      vector<Byte>& outParams,
 				      const ::Ice::Context& context)
 {
-    Current __current;
-    __initCurrent(__current, operation, nonmutating, context);
+    Current current;
+    __initCurrent(current, operation, nonmutating, context);
     while (true)
     {
-	Direct __direct(__adapter, __current);
+	Direct __direct(__adapter, current);
 	Blobject* __servant = dynamic_cast<Blobject*>(__direct.facetServant().get());
 	if (!__servant)
 	{
-	    throw OperationNotExistException(__FILE__, __LINE__);
+	    OperationNotExistException ex(__FILE__, __LINE__);
+	    ex.operation = current.operation;
+	    throw ex;
 	}
 	try
 	{
-	    return __servant->ice_invoke(inParams, outParams, __current);
+	    return __servant->ice_invoke(inParams, outParams, current);
 	}
 	catch (const LocalException&)
 	{

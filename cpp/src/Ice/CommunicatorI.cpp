@@ -18,7 +18,7 @@
 #include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/Exception.h>
+#include <Ice/LocalException.h>
 #include <Ice/SslExtensionInternal.h>
 #include <Ice/SystemInternal.h>
 

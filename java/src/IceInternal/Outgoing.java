@@ -222,7 +222,10 @@ public final class Outgoing
                 case DispatchStatus._DispatchObjectNotExist:
                 {
                     _state = StateLocalException;
-                    _exception = new Ice.ObjectNotExistException();
+                    Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
+		    ex.identity = new Ice.Identity();
+		    ex.identity.__read(_is);
+		    _exception = ex;
                     _fillStackTrace = true;
                     break;
                 }
@@ -230,7 +233,9 @@ public final class Outgoing
                 case DispatchStatus._DispatchFacetNotExist:
                 {
                     _state = StateLocalException;
-                    _exception = new Ice.FacetNotExistException();
+                    Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
+		    ex.facet = _is.readString();
+		    _exception = ex;
                     _fillStackTrace = true;
                     break;
                 }
@@ -238,7 +243,9 @@ public final class Outgoing
                 case DispatchStatus._DispatchOperationNotExist:
                 {
                     _state = StateLocalException;
-                    _exception = new Ice.OperationNotExistException();
+                    Ice.OperationNotExistException ex = new Ice.OperationNotExistException();
+		    ex.operation = _is.readString();
+		    _exception = ex;
                     _fillStackTrace = true;
                     break;
                 }

@@ -935,6 +935,33 @@ Slice::Container::hasProxies()
 }
 
 bool
+Slice::Container::hasNonLocals()
+{
+    for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+	ConstructedPtr constructed = ConstructedPtr::dynamicCast(*p);
+	if (constructed && constructed->isLocal())
+	{
+	    return true;
+	}
+
+	ExceptionPtr exception = ExceptionPtr::dynamicCast(*p);
+	if (exception && exception->isLocal())
+	{
+	    return true;
+	}
+
+	ContainerPtr container = ContainerPtr::dynamicCast(*p);
+	if (container && container->hasNonLocals())
+	{
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+bool
 Slice::Container::hasClassDecls()
 {
     for (ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)

@@ -130,6 +130,19 @@ public class Incoming
                 {
                     _os.resize(statusPos, false);
                     _os.writeByte((byte)status.value());
+
+		    if (status == DispatchStatus.DispatchObjectNotExist)
+		    {
+			_current.identity.__write(_os);
+		    }
+		    else if(status == DispatchStatus.DispatchFacetNotExist)
+		    {
+			_os.writeString(_current.facet);
+		    }
+		    else if(status == DispatchStatus.DispatchOperationNotExist)
+		    {
+			_os.writeString(_current.operation);
+		    }
                 }
                 else
                 {
@@ -171,6 +184,9 @@ public class Incoming
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
                 _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
+		// Not current.identity.__write(_os), so that the
+		// identity can be overwritten.
+		ex.identity.__write(_os);
             }
         }
         catch (Ice.FacetNotExistException ex)
@@ -187,6 +203,9 @@ public class Incoming
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
                 _os.writeByte((byte)DispatchStatus._DispatchFacetNotExist);
+		// Not _os.write(current.facet), so that the identity
+		// can be overwritten.
+		_os.writeString(ex.facet);
             }
         }
         catch (Ice.OperationNotExistException ex)
@@ -203,6 +222,9 @@ public class Incoming
                 _os.endWriteEncaps();
                 _os.resize(statusPos, false);
                 _os.writeByte((byte)DispatchStatus._DispatchOperationNotExist);
+		// Not _os.write(current.operation), so that the
+		// identity can be overwritten.
+		_os.writeString(ex.operation);
             }
         }
         catch (Ice.LocalException ex)

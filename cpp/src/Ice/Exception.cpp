@@ -9,8 +9,10 @@
 // **********************************************************************
 
 #include <Ice/Exception.h>
+#include <Ice/LocalException.h>
 #include <Ice/Network.h>
 #include <Ice/Stream.h>
+#include <Ice/IdentityUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -103,21 +105,21 @@ void
 Ice::ObjectNotExistException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nobject does not exist";
+    out << ":\nobject `" << identityToString(identity) << "' does not exist";
 }
 
 void
 Ice::FacetNotExistException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nfacet does not exist";
+    out << ":\nfacet `" << facet << "' does not exist";
 }
 
 void
 Ice::OperationNotExistException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\noperation does not exist";
+    out << ":\noperation `" << operation << "' does not exist";
 }
 
 void

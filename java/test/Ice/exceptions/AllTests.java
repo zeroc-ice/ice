@@ -339,6 +339,67 @@ public class AllTests
             System.out.println("ok");
         }
 
+        System.out.print("catching object not exist exception... ");
+        System.out.flush();
+
+	Ice.Identity id = Ice.Util.stringToIdentity("does not exist");
+        try
+        {
+	    ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower.ice_newIdentity(id));
+	    thrower2.ice_ping();
+	    test(false);
+        }
+        catch (Ice.ObjectNotExistException ex)
+        {
+	    test(ex.identity.equals(id));
+        }
+        catch (Exception ex)
+        {
+            test(false);
+        }
+
+        System.out.println("ok");
+
+        System.out.print("catching facet not exist exception... ");
+        System.out.flush();
+
+        try
+        {
+	    ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(thrower, "no such facet");
+	    thrower2.ice_ping();
+	    test(false);
+        }
+        catch (Ice.FacetNotExistException ex)
+        {
+	    test(ex.facet.equals("no such facet"));
+        }
+        catch (Exception ex)
+        {
+            test(false);
+        }
+
+        System.out.println("ok");
+
+        System.out.print("catching operation not exist exception... ");
+        System.out.flush();
+
+        try
+        {
+	    WrongOperationPrx thrower2 = WrongOperationPrxHelper.uncheckedCast(thrower);
+	    thrower2.noSuchOperation();
+	    test(false);
+        }
+        catch (Ice.OperationNotExistException ex)
+        {
+	    test(ex.operation.equals("noSuchOperation"));
+        }
+        catch (Exception ex)
+        {
+            test(false);
+        }
+
+        System.out.println("ok");
+
         System.out.print("catching unknown local exception... ");
         System.out.flush();
 

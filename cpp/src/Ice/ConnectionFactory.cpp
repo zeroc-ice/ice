@@ -22,7 +22,7 @@
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
 #include <Ice/RouterInfo.h>
-#include <Ice/Exception.h>
+#include <Ice/LocalException.h>
 #include <Ice/Functional.h>
 #include <Ice/SslException.h> // TODO: bandaid, see below.
 

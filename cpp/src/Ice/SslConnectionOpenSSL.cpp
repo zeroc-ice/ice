@@ -22,6 +22,7 @@
 #include <sstream>
 #include <Ice/Network.h>
 #include <Ice/OpenSSL.h>
+#include <Ice/LocalException.h>
 #include <Ice/SslException.h>
 #include <Ice/SslFactory.h>
 #include <Ice/SslConnection.h>

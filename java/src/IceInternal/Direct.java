@@ -47,7 +47,9 @@ public final class Direct
                 _facetServant = _servant.ice_findFacet(_current.facet);
                 if (_facetServant == null)
                 {
-                    throw new Ice.FacetNotExistException();
+		    Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
+		    ex.facet = _current.facet;
+		    throw ex;
                 }
             }
         }
@@ -62,7 +64,9 @@ public final class Direct
 
         if (_servant == null)
         {
-            throw new Ice.ObjectNotExistException();
+            Ice.ObjectNotExistException ex = new Ice.ObjectNotExistException();
+	    ex.identity = _current.identity;
+	    throw ex;
         }
     }
 

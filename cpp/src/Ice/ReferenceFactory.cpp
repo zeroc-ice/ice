@@ -10,6 +10,7 @@
 
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
+#include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/IdentityUtil.h>
 #include <Ice/Endpoint.h>

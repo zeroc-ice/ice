@@ -328,6 +328,64 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         cout << "ok" << endl;
     }
     
+    cout << "catching object not exist exception... " << flush;
+
+    Ice::Identity id = Ice::stringToIdentity("does not exist");
+    try
+    {
+	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_newIdentity(id));
+	thrower2->ice_ping();
+	test(false);
+    }
+    catch (const Ice::ObjectNotExistException& ex)
+    {
+	test(ex.identity == id);
+    }
+    catch (...)
+    {
+	test(false);
+    }
+
+    cout << "ok" << endl;
+    
+    cout << "catching facet not exist exception... " << flush;
+
+    try
+    {
+	ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower, "no such facet");
+	thrower2->ice_ping();
+	test(false);
+    }
+    catch (const Ice::FacetNotExistException& ex)
+    {
+	test(ex.facet == "no such facet");
+    }
+    catch (...)
+    {
+	test(false);
+    }
+
+    cout << "ok" << endl;
+    
+    cout << "catching operation not exist exception... " << flush;
+
+    try
+    {
+	WrongOperationPrx thrower2 = WrongOperationPrx::uncheckedCast(thrower);
+	thrower2->noSuchOperation();
+	test(false);
+    }
+    catch (const Ice::OperationNotExistException& ex)
+    {
+	test(ex.operation == "noSuchOperation");
+    }
+    catch (...)
+    {
+	test(false);
+    }
+
+    cout << "ok" << endl;
+    
     cout << "catching unknown local exception... " << flush;
 
     try

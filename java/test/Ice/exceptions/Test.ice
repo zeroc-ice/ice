@@ -51,4 +51,9 @@ interface Thrower
     void throwNonIceException();
 };
 
+interface WrongOperation
+{
+    void noSuchOperation();
+};
+
 #endif

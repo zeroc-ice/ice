@@ -189,15 +189,14 @@ public class _ObjectDelD implements _ObjectDel
     }
 
     public boolean
-    ice_invoke(String operation, boolean nonmutating, byte[] inParams, ByteSeqHolder outParams,
-               java.util.Map __context)
+    ice_invoke(String operation, boolean nonmutating, byte[] inParams, ByteSeqHolder outParams, java.util.Map context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        Current __current = new Current();
-        __initCurrent(__current, operation, nonmutating, __context);
+        Current current = new Current();
+        __initCurrent(current, operation, nonmutating, context);
         while (true)
         {
-            IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
+            IceInternal.Direct __direct = new IceInternal.Direct(__adapter, current);
             try
             {
                 Blobject __servant = null;
@@ -207,11 +206,13 @@ public class _ObjectDelD implements _ObjectDel
                 }
                 catch (ClassCastException ex)
                 {
-                    throw new OperationNotExistException();
+                    OperationNotExistException opEx = new OperationNotExistException();
+		    opEx.operation = current.operation;
+		    throw opEx;
                 }
                 try
                 {
-                    return __servant.ice_invoke(inParams, outParams, __current);
+                    return __servant.ice_invoke(inParams, outParams, current);
                 }
                 catch (LocalException ex)
                 {

@@ -72,6 +72,4 @@ public:
 
 }
 
-#include <Ice/LocalException.h>
-
 #endif

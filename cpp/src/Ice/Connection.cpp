@@ -19,7 +19,7 @@
 #include <Ice/Endpoint.h>
 #include <Ice/Outgoing.h>
 #include <Ice/Incoming.h>
-#include <Ice/Exception.h>
+#include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
 
 using namespace std;

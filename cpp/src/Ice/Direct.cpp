@@ -13,7 +13,7 @@
 #include <Ice/ServantLocator.h>
 #include <Ice/Reference.h>
 #include <Ice/Object.h>
-#include <Ice/Exception.h>
+#include <Ice/LocalException.h>
 
 using namespace std;
 using namespace Ice;
@@ -50,7 +50,9 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const Current& curr
 	    _facetServant = _servant->ice_findFacet(_current.facet);
 	    if (!_facetServant)
 	    {
-		throw FacetNotExistException(__FILE__, __LINE__);
+		FacetNotExistException ex(__FILE__, __LINE__);
+		ex.facet = _current.facet;
+		throw ex;
 	    }
 	}
     }
@@ -65,7 +67,9 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const Current& curr
 
     if(!_servant)
     {
-	throw ObjectNotExistException(__FILE__, __LINE__);
+	ObjectNotExistException ex(__FILE__, __LINE__);
+	ex.identity = _current.identity;
+	throw ex;
     }
 }
 

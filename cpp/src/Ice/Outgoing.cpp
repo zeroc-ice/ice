@@ -12,7 +12,7 @@
 #include <Ice/Object.h>
 #include <Ice/Connection.h>
 #include <Ice/Reference.h>
-#include <Ice/Exception.h>
+#include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 
 using namespace std;
@@ -249,21 +249,39 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    case DispatchObjectNotExist:
 	    {
 		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(new ObjectNotExistException(__FILE__, __LINE__));
+                // Don't do ex->identity.read(_is), as this operation
+                // might throw exceptions. In such case ex would leak.
+		Identity ident;
+		ident.__read(&_is);
+		ObjectNotExistException* ex = new ObjectNotExistException(__FILE__, __LINE__);
+		ex->identity = ident;
+		_exception = auto_ptr<LocalException>(ex);
 		break;
 	    }
 	    
 	    case DispatchFacetNotExist:
 	    {
 		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(new FacetNotExistException(__FILE__, __LINE__));
+                // Don't do _is.read(ex->facet), as this operation
+                // might throw exceptions. In such case ex would leak.
+		string facet;
+		_is.read(facet);
+		FacetNotExistException* ex = new FacetNotExistException(__FILE__, __LINE__);
+		ex->facet = facet;
+		_exception = auto_ptr<LocalException>(ex);
 		break;
 	    }
 	    
 	    case DispatchOperationNotExist:
 	    {
 		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(new OperationNotExistException(__FILE__, __LINE__));
+                // Don't do _is.read(ex->operation), as this operation
+                // might throw exceptions. In such case ex would leak.
+		string operation;
+		_is.read(operation);
+		OperationNotExistException* ex = new OperationNotExistException(__FILE__, __LINE__);
+		ex->operation = operation;
+		_exception = auto_ptr<LocalException>(ex);
 		break;
 	    }
 	    

@@ -11,6 +11,8 @@
 #ifndef ICE_LOCAL_EXCEPTION_ICE
 #define ICE_LOCAL_EXCEPTION_ICE
 
+#include <Ice/Identity.ice>
+
 module Ice
 {
 
@@ -141,6 +143,8 @@ local exception ReferenceIdentityException
  **/
 local exception ObjectNotExistException
 {
+    /** The identity of the object that does exist. */
+    Identity identity;
 };
 
 /**
@@ -151,6 +155,8 @@ local exception ObjectNotExistException
  **/
 local exception FacetNotExistException
 {
+    /** The name of the facet that does exist. */
+    string facet;
 };
 
 /**
@@ -162,6 +168,8 @@ local exception FacetNotExistException
  **/
 local exception OperationNotExistException
 {
+    /** The operation name that does exist. */
+    string operation;
 };
 
 /**

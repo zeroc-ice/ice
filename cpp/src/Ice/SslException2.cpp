@@ -17,6 +17,7 @@
 #pragma warning(disable:4786)
 #endif
 
+#include <Ice/LocalException.h>
 #include <Ice/SslException.h>
 
 using Ice::SocketException;

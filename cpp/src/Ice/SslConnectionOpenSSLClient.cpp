@@ -13,6 +13,7 @@
 #include <Ice/OpenSSLUtils.h>
 #include <Ice/Network.h>
 #include <Ice/OpenSSL.h>
+#include <Ice/LocalException.h>
 #include <Ice/SslException.h>
 #include <Ice/OpenSSLJanitors.h>
 #include <Ice/SslConnectionOpenSSLClient.h>
