@@ -1131,7 +1131,7 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
 	    throw UnknownException(__FILE__, __LINE__);
 	}
     }
-    return false; // To keep VC++ compiler happy.
+    return vector<string>(); // To keep VC++ compiler happy.
 }
 
 string
@@ -1187,7 +1187,7 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 	    throw UnknownException(__FILE__, __LINE__);
 	}
     }
-    return false; // To keep VC++ compiler happy.
+    return vector<string>(); // To keep VC++ compiler happy.
 }
 
 bool
