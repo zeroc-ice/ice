@@ -87,7 +87,7 @@ MutexTest::run()
 	// TEST: TryLock
 	try
 	{
-	    Mutex::TryLock lock(mutex);
+	    Mutex::TryLock lock2(mutex);
 	    test(false);
 	}
 	catch(const LockedException&)

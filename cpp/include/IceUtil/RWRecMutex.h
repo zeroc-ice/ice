@@ -1,8 +1,8 @@
 // **********************************************************************
 //
 // Copyright (c) 2001
-// IONA Technologies, Inc.
-// Waltham, MA, USA
+// MutableRealms, Inc.
+// Huntsville, AL, USA
 //
 // All Rights Reserved
 //
@@ -13,6 +13,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Cond.h>
+#include <IceUtil/Thread.h>
 
 namespace IceUtil
 {
@@ -31,6 +32,11 @@ public:
     ~RLock()
     {
 	_mutex.unlock();
+    }
+
+    void upgrade()
+    {
+	_mutex.upgrade();
     }
 
 private:
@@ -52,6 +58,11 @@ public:
     ~TryRLock()
     {
 	_mutex.unlock();
+    }
+
+    void upgrade()
+    {
+	_mutex.upgrade();
     }
 
 private:
@@ -107,6 +118,10 @@ private:
 // structure is not strictly fair in that there is no absolute queue
 // of waiting writers - that is managed by a condition variable.
 //
+// Both Reader & Writer mutexes can be recursively locked. Calling
+// WLock (or TryWLock) while holding a read lock promotes the reader
+// to a writer lock.
+//
 class ICE_UTIL_API RWRecMutex
 {
 public:
@@ -152,6 +167,12 @@ public:
     //
     void unlock() const;
 
+    //
+    // Upgrade the read lock to a writer lock. Note that this method
+    // can only be called if the reader lock is not held recursively.
+    //
+    void upgrade() const;
+
 private:
 
     // noncopyable
@@ -159,10 +180,16 @@ private:
     void operator=(const RWRecMutex&);
 
     //
-    // Number of readers holding the lock. -1 means a writer has the
-    // lock.
+    // Number of readers holding the lock. A positive number indicates
+    // readers are active. A negative number means that a writer is
+    // active.
     //
     mutable int _count;
+
+    //
+    // If there is an active writer this is a control for thread.
+    //
+    mutable ThreadControl _writerControl;
 
     //
     // Number of waiting writers.

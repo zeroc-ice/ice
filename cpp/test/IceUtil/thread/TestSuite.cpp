@@ -21,7 +21,7 @@ std::list<TestBasePtr> allTests;
 void
 initializeTestSuite()
 {
-    allTests.push_back(new CreateTest);
+    //allTests.push_back(new CreateTest);
     allTests.push_back(new MutexTest);
     allTests.push_back(new RecMutexTest);
     allTests.push_back(new RWRecMutexTest);

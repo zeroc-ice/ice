@@ -1,8 +1,8 @@
 // **********************************************************************
 //
 // Copyright (c) 2001
-// IONA Technologies, Inc.
-// Waltham, MA, USA
+// MutableRealms, Inc.
+// Huntsville, AL, USA
 //
 // All Rights Reserved
 //
@@ -61,6 +61,16 @@ IceUtil::RWRecMutex::writeLock() const
     Mutex::Lock lock(_mutex);
 
     //
+    // If the mutex is already write locked by this writer then
+    // decrement _count, and return.
+    //
+    if (_count < 0 && _writerControl == ThreadControl())
+    {
+	--_count;
+	return;
+    }
+
+    //
     // Wait for the lock to become available and increment the number
     // of waiting writers.
     //
@@ -89,6 +99,16 @@ void
 IceUtil::RWRecMutex::tryWriteLock() const
 {
     Mutex::Lock lock(_mutex);
+
+    //
+    // If the mutex is already write locked by this writer then
+    // decrement _count, and return.
+    //
+    if (_count < 0 && _writerControl == ThreadControl())
+    {
+	--_count;
+	return;
+    }
 
     //
     // If there are readers or other writers then the call would block.
@@ -124,7 +144,15 @@ IceUtil::RWRecMutex::unlock() const
 	    //
 	    // Writer called unlock
 	    //
-	    _count = 0;
+	    ++_count;
+
+	    //
+	    // If the write lock wasn't totally released we're done.
+	    //
+	    if (_count != 0)
+	    {
+		return;
+	    }
 	}
 	else
 	{
@@ -162,4 +190,41 @@ IceUtil::RWRecMutex::unlock() const
 	//
 	_readers.broadcast();
     }
+}
+
+void
+IceUtil::RWRecMutex::upgrade() const
+{
+    Mutex::Lock lock(_mutex);
+
+    //
+    // Reader called unlock
+    //
+    assert(_count > 0);
+    --_count;
+
+    //
+    // Wait to acquire the write lock.
+    //
+    while (_count != 0)
+    {
+	_waitingWriters++;
+	try
+	{
+	    _writers.wait(lock);
+	}
+	catch(...)
+	{
+	    --_waitingWriters;
+	    throw;
+	}
+	_waitingWriters--;
+
+	
+    }
+
+    //
+    // Got the lock, indicate it's held by a writer.
+    //
+    _count = -1;
 }
