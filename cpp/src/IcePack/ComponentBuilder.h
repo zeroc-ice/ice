@@ -157,8 +157,15 @@ public:
     void createDirectory(const std::string&, bool = false);
     void createConfigFile(const std::string&);
     void addProperty(const std::string&, const std::string&);
+    void addVariable(const std::string&, const std::string&);
     void addObject(const std::string&, const std::string&, const std::string&);
     void overrideBaseDir(const std::string&);
+
+    const std::string& getVariable(const std::string&) const;
+    void setVariable(const std::string&, const std::string&);
+    bool findVariable(const std::string&) const;
+    void pushVariables();
+    void popVariables();
 
     virtual std::string getDefaultAdapterId(const std::string&);
     std::string toLocation(const std::string&) const;
@@ -172,7 +179,7 @@ protected:
     ObjectRegistryPrx _objectRegistry;
 
     Ice::PropertiesPtr _properties;
-    std::map<std::string, std::string> _variables;
+    std::vector< std::map<std::string, std::string> > _variables;
     std::vector<TaskPtr> _tasks;
     std::string _configFile;
     std::vector<std::string> _targets;

@@ -264,5 +264,5 @@ IcePack::ApplicationBuilder::addServer(const string& name,
 void
 IcePack::ApplicationBuilder::setBaseDir(const string& basedir)
 {
-    _variables["basedir"] = basedir;
+    setVariable("basedir", basedir);
 }

@@ -91,7 +91,7 @@ IceUtil::NullHandleException::NullHandleException(const char* file, int line) :
 {
     if(nullHandleAbort)
     {
-	assert(false);
+	abort();
     }
 }
 

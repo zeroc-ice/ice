@@ -335,12 +335,12 @@ IcePack::ServerBuilder::ServerBuilder(const NodeInfoPtr& nodeInfo,
     ComponentBuilder(nodeInfo->getCommunicator(), variables, targets),
     _nodeInfo(nodeInfo)
 {
-    assert(_variables.find("parent") != _variables.end());
-    assert(_variables.find("name") != _variables.end());
-    assert(_variables.find("fqn") != _variables.end());
-    assert(_variables.find("datadir") != _variables.end());
-    assert(_variables.find("binpath") != _variables.end());
-    assert(_variables.find("libpath") != _variables.end());
+    assert(_variables.back().find("parent") != _variables.back().end());
+    assert(_variables.back().find("name") != _variables.back().end());
+    assert(_variables.back().find("fqn") != _variables.back().end());
+    assert(_variables.back().find("datadir") != _variables.back().end());
+    assert(_variables.back().find("binpath") != _variables.back().end());
+    assert(_variables.back().find("libpath") != _variables.back().end());
 
     //
     // Required for the component builder.
@@ -350,9 +350,9 @@ IcePack::ServerBuilder::ServerBuilder(const NodeInfoPtr& nodeInfo,
     //
     // Begin to populate the server description.
     //
-    _description.name = _variables["name"];
-    _description.path = _variables["binpath"];
-    _libraryPath = _variables["libpath"];
+    _description.name = getVariable("name");
+    _description.path = getVariable("binpath");
+    _libraryPath = getVariable("libpath");
     _description.node = nodeInfo->getNode()->getName();
     _description.targets = targets;
 }
@@ -374,7 +374,7 @@ IcePack::ServerBuilder::parse(const std::string& descriptor)
     _description.descriptor = descriptor;
 
     Ice::PropertiesPtr props = _nodeInfo->getCommunicator()->getProperties();
-    _properties->setProperty("Ice.ProgramName", _variables["name"]);
+    _properties->setProperty("Ice.ProgramName", getVariable("name"));
 
     if(_kind == ServerKindJavaServer || _kind == ServerKindJavaIceBox)
     {
@@ -531,7 +531,7 @@ IcePack::ServerBuilder::setWorkingDirectory(const string& pwd)
 void
 IcePack::ServerBuilder::registerServer()
 { 
-    _tasks.push_back(new RegisterServerTask(_nodeInfo->getServerRegistry(), _variables["name"], *this));
+    _tasks.push_back(new RegisterServerTask(_nodeInfo->getServerRegistry(), getVariable("name"), *this));
 }
 
 void
@@ -592,10 +592,17 @@ IcePack::ServerBuilder::addService(const string& name, const string& descriptor,
     //
     // Setup new variables for the service, overides the name value.
     //
-    std::map<std::string, std::string> variables = _variables;
-    variables["parent"] = _variables["name"];
+    std::map<std::string, std::string> variables;
+    vector< map< string, string> >::reverse_iterator p = _variables.rbegin();
+    while(p != _variables.rend())
+    {
+	variables.insert(p->begin(), p->end());
+	++p;
+    }
+
+    variables["parent"] = getVariable("name");
     variables["name"] = name;
-    variables["fqn"] = _variables["fqn"] + "." + name;
+    variables["fqn"] = getVariable("fqn") + "." + name;
 
     vector<string> targets = toTargets(additionalTargets);
     copy(_targets.begin(), _targets.end(), back_inserter(targets));
@@ -661,7 +668,7 @@ IcePack::ServerBuilder::setKind(ServerBuilder::ServerKind kind)
 	
 	_description.serviceManager = IceBox::ServiceManagerPrx::uncheckedCast(
 	    _nodeInfo->getCommunicator()->stringToProxy(
-		_variables["name"] + "/ServiceManager @ IceBox.ServiceManager-" + _variables["name"]));
+		getVariable("name") + "/ServiceManager @ IceBox.ServiceManager-" + getVariable("name")));
 
 	_className = "IceBox.Server";
 
@@ -676,7 +683,7 @@ IcePack::ServerBuilder::setKind(ServerBuilder::ServerKind kind)
 
 	_description.serviceManager = IceBox::ServiceManagerPrx::uncheckedCast(
 	    _nodeInfo->getCommunicator()->stringToProxy(
-		_variables["name"] + "/ServiceManager @ IceBox.ServiceManager-" + _variables["name"]));
+		getVariable("name") + "/ServiceManager @ IceBox.ServiceManager-" + getVariable("name")));
 
 	break;
     }

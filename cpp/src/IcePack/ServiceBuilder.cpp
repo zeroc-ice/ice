@@ -94,10 +94,10 @@ IcePack::ServiceBuilder::ServiceBuilder(const NodeInfoPtr& nodeInfo,
     _nodeInfo(nodeInfo),
     _serverBuilder(serverBuilder)
 {
-    assert(_variables.find("parent") != _variables.end());
-    assert(_variables.find("name") != _variables.end());
-    assert(_variables.find("fqn") != _variables.end());
-    assert(_variables.find("datadir") != _variables.end());
+    assert(_variables.back().find("parent") != _variables.back().end());
+    assert(_variables.back().find("name") != _variables.back().end());
+    assert(_variables.back().find("fqn") != _variables.back().end());
+    assert(_variables.back().find("datadir") != _variables.back().end());
 
     //
     // Required for the component builder.
@@ -129,7 +129,7 @@ void
 IcePack::ServiceBuilder::setEntryPoint(const string& entry)
 {
     assert(!_configFile.empty());
-    _serverBuilder.addProperty("IceBox.Service." + _variables["name"], entry + " --Ice.Config=" + _configFile);
+    _serverBuilder.addProperty("IceBox.Service." + getVariable("name"), entry + " --Ice.Config=" + _configFile);
 }
 
 void
@@ -151,14 +151,14 @@ IcePack::ServiceBuilder::setDBEnv(const string& dir)
 	// environments and then it's the responsabilility of the user
 	// to manage the database environment directory.
 	//
-	createDirectory("/dbs/" + _variables["name"], true);
-	path = _variables["datadir"] + "/dbs/" + _variables["name"];
+	createDirectory("/dbs/" + getVariable("name"), true);
+	path = getVariable("datadir") + "/dbs/" + getVariable("name");
     }
     else
     {
 	path = toLocation(dir);
     }
-    _serverBuilder.addProperty("IceBox.DBEnvName." + _variables["name"], path);
+    _serverBuilder.addProperty("IceBox.DBEnvName." + getVariable("name"), path);
 }
 
 //
@@ -170,5 +170,5 @@ IcePack::ServiceBuilder::getDefaultAdapterId(const string& name)
     //
     // Concatenate the server and service name to the adapter name.
     //
-    return name + "-" + _variables["parent"] + "." + _variables["name"];
+    return name + "-" + getVariable("parent") + "." + getVariable("name");
 }

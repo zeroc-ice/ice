@@ -202,11 +202,13 @@ IcePatch::Updater::run()
 	    // Just loop if we're busy.
 	    //
 	}
-	catch(const Exception&)
+	catch(const Exception& ex)
 	{
 	    //
 	    // Bail out on any other exception.
 	    //
+	    Error out(_logger);
+	    out << "exception during update:\n" << ex;
 	    break;
 	}
 

@@ -329,11 +329,6 @@ main(int argc, char* argv[])
     action.sa_flags = 0;
     sigaction(SIGCHLD, &action, 0);
 
-    // Handles CTRL+C like signals
-    // Initially, just ignore them
-    IceUtil::CtrlCHandler ctrlCHandler;
-    _ctrlCHandler = &ctrlCHandler;
-
     //
     // Initialize Xerces.
     //
@@ -357,6 +352,12 @@ main(int argc, char* argv[])
 	// Initialize the communicator.
 	//
 	communicator = Ice::initialize(argc, argv);
+
+	//
+	// Handles CTRL+C like signals. Initially, just ignore them
+	//
+	IceUtil::CtrlCHandler ctrlCHandler;
+	_ctrlCHandler = &ctrlCHandler;
 	
 	Ice::PropertiesPtr properties = communicator->getProperties();
 

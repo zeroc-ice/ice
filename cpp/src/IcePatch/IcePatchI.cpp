@@ -51,7 +51,7 @@ IcePatch::FileI::readMD5(const Current& current) const
 
     FileInfo info = getFileInfo(path, true, _fileTraceLogger);
     FileInfo infoMD5 = getFileInfo(path + ".md5", false, _fileTraceLogger);
-    
+
     if(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
     {
 	if(!sync.timedUpgrade(_busyTimeout))

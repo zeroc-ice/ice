@@ -1203,50 +1203,52 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
     }
 
     //
-    // Method invocation must be done outside the thread
-    // synchronization, so that nested calls are possible.
+    // Method invocation (or multiple invocations for batch messages)
+    // must be done outside the thread synchronization, so that nested
+    // calls are possible.
     //
-    if(invoke > 0)
+    try
     {
-	//
-	// Prepare the invocation.
-	//
-	bool response = !_endpoint->datagram() && requestId != 0;
-	Incoming in(_instance.get(), this, _adapter, response, compress);
-	BasicStream* is = in.is();
-	stream.swap(*is);
-	BasicStream* os = in.os();
-
-	try
+	while(invoke-- > 0)
 	{
+	    //
+	    // Prepare the invocation.
+	    //
+	    bool response = !_endpoint->datagram() && requestId != 0;
+	    Incoming in(_instance.get(), this, _adapter, response, compress);
+	    BasicStream* is = in.is();
+	    stream.swap(*is);
+	    BasicStream* os = in.os();
+	    
 	    //
 	    // Prepare the response if necessary.
 	    //
 	    if(response)
 	    {
-		assert(invoke == 1);
+		assert(invoke == 0); // No further invocations if a response is expected.
 		os->writeBlob(_replyHdr);
-
+		
 		//
 		// Add the request ID.
 		//
 		os->write(requestId);
 	    }
 	    
+	    in.invoke(_servantManager);
+	    
 	    //
-	    // Do the invocation, or multiple invocations for batch
-	    // messages.
+	    // If there are more invocations, we need the stream back.
 	    //
-	    while(invoke-- > 0)
+	    if(invoke > 0)
 	    {
-		in.invoke(_servantManager);
+		stream.swap(*is);
 	    }
 	}
-	catch(const LocalException& ex)
-	{
-	    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-	    setState(StateClosed, ex);
-	}
+    }
+    catch(const LocalException& ex)
+    {
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	setState(StateClosed, ex);
     }
 }
 

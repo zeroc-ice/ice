@@ -1,5 +1,7 @@
 <server kind="cpp">
 
+  <variable name="var0" value="val0"/>
+
   <option>--Test.Test=2</option>
   <option>--Test.Test1=0</option>
 
@@ -15,6 +17,8 @@
   </adapters>
 
   <properties>
+    <variable name="var0" value="val0prop"/>
+    <property name="Variable" value="${var0}"/>
     <property name="Type" value="Server"/>
     <property name="Name" value="${name}"/>
     <property name="Ice.Warn.Connections" value="1"/>
@@ -22,12 +26,16 @@
 
   <target name="target1">
     <properties>
+      <variable name="var0" value="val0target1"/>
+      <property name="Variable1" value="${var0}"/>
       <property name="Target1" value="1"/>
     </properties>    
   </target>
 
   <target name="target2">
     <properties>
+      <variable name="var0" value="val0target2"/>
+      <property name="Variable2" value="${var0}"/>
       <property name="Target2" value="1"/>
     </properties>    
   </target>

@@ -1,5 +1,7 @@
 <server kind="java-icebox" endpoints="default">
 
+  <variable name="inheritedvar" value="inherited"/>
+
   <service name="Service1" descriptor="service.xml"/>
   <service name="Service2" descriptor="freezeservice.xml"/>
 

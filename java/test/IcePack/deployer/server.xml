@@ -1,5 +1,7 @@
 <server kind="java">
 
+  <variable name="var0" value="val0"/>
+
   <classname>Server</classname>
 
   <option>--Test.Test=2</option>
@@ -17,6 +19,8 @@
   </adapters>
 
   <properties>
+    <variable name="var0" value="val0prop"/>
+    <property name="Variable" value="${var0}"/>
     <property name="Type" value="Server"/>
     <property name="Name" value="${name}"/>
     <property name="Ice.Warn.Connections" value="1"/>

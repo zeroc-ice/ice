@@ -40,7 +40,7 @@ const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
 #   include <csignal>
 #endif
 
-
+//
 // CtrlCHandler callbacks
 //
 
@@ -175,11 +175,6 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	_condVar.reset(new Cond);
     }
 
-
-    // Ignore signals for a little while
-    //
-    _ctrlCHandler.reset(new IceUtil::CtrlCHandler);
-
     int status;
 
     try
@@ -194,12 +189,17 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	{
 	    _communicator = initialize(argc, argv);
 	}
-
+	
+	//
+	// Ignore signals for a little while
+	//
+	_ctrlCHandler.reset(new IceUtil::CtrlCHandler);
+	
 	//
 	// Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.
 	//
 	_nohup = (_communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0);
-	
+
 	//
 	// The default is to destroy when a signal is received.
 	//
@@ -235,6 +235,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 
     if(_communicator)
     {
+	//
 	// We don't want to handle signals anymore
 	//
 	ignoreInterrupt(); // will release any signal still held

@@ -53,6 +53,8 @@ Changes since version 1.1.0
 - Changed the python code for printing output from test clients, so that
   you get each line as it comes.
 
+- Fixed server side bug with batch oneways or batch datagrams.
+
 Changes since version 1.0.1
 ---------------------------
 

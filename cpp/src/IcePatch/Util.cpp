@@ -238,6 +238,10 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist, const Ice::L
 	{
 	    break;
 	}
+
+	//
+	// Modification time is in the future.
+	//
 	
 	if(logger)
 	{
@@ -246,16 +250,10 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist, const Ice::L
 	    out << "setting modification time to the current time.";
 	}
 
-	if(::utime(path.c_str(), 0) == -1)
-	{
-	    if(errno != ENOENT)
-	    {
-		FileAccessException ex;
-		ex.reason = "cannot utime `" + path + "': " + strerror(errno);
-		throw ex;
-	    }
-	}
-	
+	//
+	// First we remove .md5 and .bz2 files, which might be wrong
+	// if the original file is in the future.
+	//
 	if(!ignoreSuffix(path))
 	{
 	    try
@@ -274,6 +272,23 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist, const Ice::L
 	    {
 	    }
 	}
+
+	//
+	// Now we reset the time of the file to the current time.
+	//
+	if(::utime(path.c_str(), 0) == -1)
+	{
+	    if(errno != ENOENT)
+	    {
+		FileAccessException ex;
+		ex.reason = "cannot utime `" + path + "': " + strerror(errno);
+		throw ex;
+	    }
+	}
+
+	//
+	// Now we do the loop again.
+	//
     }
 
     if(S_ISDIR(buf.st_mode))

@@ -154,6 +154,10 @@ public class AllTests
 	test(obj.getProperty("Type").equals("Server"));
 	test(obj.getProperty("Name").equals("Server1"));
 
+	test(obj.getProperty("Variable").equals("val0prop"));
+	test(obj.getProperty("Variable1").equals(""));
+	test(obj.getProperty("Variable2").equals(""));
+
 	System.out.println("ok");
 
 	System.out.print("testing service configuration... ");
@@ -163,6 +167,8 @@ public class AllTests
 	test(obj.getProperty("Service1.Type").equals("standard"));
 	test(obj.getProperty("Service1.ServiceName").equals("Service1"));
     
+	test(obj.getProperty("Service1.InheritedVariable").equals("inherited"));
+
 	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
 	test(obj.getProperty("Service2.Type").equals("freeze"));
 	test(obj.getProperty("Service2.ServiceName").equals("Service2"));

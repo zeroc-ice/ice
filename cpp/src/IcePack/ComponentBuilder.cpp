@@ -88,7 +88,7 @@ public:
 
 	    DIR* dir = opendir(_name.c_str());
 	    
-	    if (dir == 0)
+	    if(dir == 0)
 	    {
 		// TODO: log a warning, throw an exception?
 		return;
@@ -310,7 +310,6 @@ void
 IcePack::ComponentErrorHandler::warning(const ICE_XERCES_NS SAXParseException& exception)
 {
     string s = toString(exception.getMessage());
-    cerr << "warning: " << s << endl;
 }
 
 void
@@ -357,6 +356,18 @@ IcePack::ComponentHandler::startElement(const XMLCh *const name, ICE_XERCES_NS A
     }
 
     string str = toString(name);
+
+    if(str == "variable")
+    {
+	string value = getAttributeValueWithDefault(attrs, "value", "");
+	if(value.empty())
+	{
+	    value = _builder.toLocation(getAttributeValueWithDefault(attrs, "location", ""));
+	}
+	_builder.addVariable(getAttributeValue(attrs, "name"), value);
+    }
+
+    _builder.pushVariables();
 
     if(str == "property")
     {
@@ -415,6 +426,7 @@ IcePack::ComponentHandler::endElement(const XMLCh *const name)
 
     if(isCurrentTargetDeployable())
     {
+	_builder.popVariables();
 	if(str == "adapter")
 	{
 	    _currentAdapterId = "";
@@ -511,9 +523,9 @@ IcePack::ComponentBuilder::ComponentBuilder(const Ice::CommunicatorPtr& communic
 					    const vector<string>& targets) :
     _communicator(communicator),
     _properties(Ice::createProperties()),
-    _variables(variables),
     _targets(targets)
 {
+    _variables.push_back(variables);
 }
 
 void 
@@ -526,12 +538,12 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
     string::size_type end = xmlFile.find_last_of('/');
     if(end != string::npos)
     {
-	_variables["basedir"] = xmlFile.substr(0, end);
+	setVariable("basedir", xmlFile.substr(0, end));
     }
 
-    if(_variables["basedir"].empty())
+    if(getVariable("basedir").empty())
     {
-	_variables["basedir"] = ".";
+	setVariable("basedir", ".");
     }
     
     ICE_XERCES_NS SAXParser* parser = new ICE_XERCES_NS SAXParser;
@@ -558,7 +570,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	os << xmlFile << ":" << e.getLineNumber() << ": " << toString(e.getMessage());
 
 	ParserDeploymentException ex;
-	ex.component = _variables["fqn"];
+	ex.component = getVariable("fqn");
 	ex.reason = os.str();
 	throw ex;
     }
@@ -570,7 +582,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	os << xmlFile << ": SAXException: " << toString(e.getMessage());
 
 	ParserDeploymentException ex;
-	ex.component = _variables["fqn"];
+	ex.component = getVariable("fqn");
 	ex.reason = os.str();
 	throw ex;
     }
@@ -582,7 +594,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	os << xmlFile << ": XMLException: " << toString(e.getMessage());
 
 	ParserDeploymentException ex;
-	ex.component = _variables["fqn"];
+	ex.component = getVariable("fqn");
 	ex.reason = os.str();
 	throw ex;
     }
@@ -594,7 +606,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	os << xmlFile << ": unknown exception while parsing file";
 
 	ParserDeploymentException ex;
-	ex.component = _variables["fqn"];
+	ex.component = getVariable("fqn");
 	ex.reason = os.str();
 	throw ex;
     }
@@ -605,7 +617,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
     if(rc > 0)
     {
 	ParserDeploymentException ex;
-	ex.component = _variables["fqn"];
+	ex.component = getVariable("fqn");
 	ex.reason = xmlFile + ": parse error";
 	throw ex;
     }
@@ -620,9 +632,7 @@ IcePack::ComponentBuilder::setDocumentLocator(const ICE_XERCES_NS Locator* locat
 bool
 IcePack::ComponentBuilder::isTargetDeployable(const string& target) const
 {
-    map<string, string>::const_iterator q = _variables.find("fqn");
-    assert(q != _variables.end());
-    const string fqn = q->second;
+    const string fqn = getVariable("fqn");
 
     for(vector<string>::const_iterator p = _targets.begin(); p != _targets.end(); ++p)
     {
@@ -677,7 +687,7 @@ IcePack::ComponentBuilder::execute()
 	{
 	    if(ex.component.empty())
 	    {
-		ex.component = _variables["fqn"];
+		ex.component = getVariable("fqn");
 	    }
 	    undoFrom(p);
 	    throw;
@@ -697,7 +707,8 @@ IcePack::ComponentBuilder::undo()
 	catch(const DeploymentException& ex)
 	{
 	    ostringstream os;
-	    os << "exception while removing component " << (ex.component.empty() ? _variables["fqn"] : ex.component);
+	    os << "exception while removing component ";
+	    os << (ex.component.empty() ? getVariable("fqn") : ex.component);
 	    os << ":\n" << ex << ": " << ex.reason;
 
 	    _communicator->getLogger()->warning(os.str());
@@ -708,7 +719,7 @@ IcePack::ComponentBuilder::undo()
 void
 IcePack::ComponentBuilder::createDirectory(const string& name, bool force)
 {
-    string path = _variables["datadir"] + (name.empty() || name[0] == '/' ? name : "/" + name);
+    string path = getVariable("datadir") + (name.empty() || name[0] == '/' ? name : "/" + name);
     _tasks.push_back(new CreateDirectory(path, force));
 }
 
@@ -716,7 +727,7 @@ void
 IcePack::ComponentBuilder::createConfigFile(const string& name)
 {
     assert(!name.empty());
-    _configFile = _variables["datadir"] + (name[0] == '/' ? name : "/" + name);
+    _configFile = getVariable("datadir") + (name[0] == '/' ? name : "/" + name);
     _tasks.push_back(new GenerateConfiguration(_configFile, _properties));
 }
 
@@ -724,6 +735,12 @@ void
 IcePack::ComponentBuilder::addProperty(const string& name, const string& value)
 {
     _properties->setProperty(name, value);
+}
+
+void
+IcePack::ComponentBuilder::addVariable(const string& name, const string& value)
+{
+    setVariable(name, value);
 }
 
 void
@@ -744,12 +761,64 @@ IcePack::ComponentBuilder::overrideBaseDir(const string& basedir)
 {    
     if(basedir[0] == '/')
     {
-	_variables["basedir"] = basedir;
+	setVariable("basedir", basedir);
     }
     else
     {
-	_variables["basedir"] += "/" + basedir;
+	setVariable("basedir", getVariable("basedir") + "/" + basedir);
     }
+}
+
+const string&
+IcePack::ComponentBuilder::getVariable(const string& name) const
+{
+    static const string empty;
+
+    vector< map< string, string> >::const_reverse_iterator p = _variables.rbegin();
+    while(p != _variables.rend())
+    {
+	map<string, string>::const_iterator q = p->find(name);
+	if(q != p->end())
+	{
+	    return q->second;
+	}
+	++p;
+    }
+    return empty;
+}
+
+void
+IcePack::ComponentBuilder::setVariable(const string& name, const string& value)
+{
+    _variables.back()[name] = value;
+}
+
+bool
+IcePack::ComponentBuilder::findVariable(const string& name) const
+{
+    vector< map< string, string> >::const_reverse_iterator p = _variables.rbegin();
+    while(p != _variables.rend())
+    {
+	map<string, string>::const_iterator q = p->find(name);
+	if(q != p->end())
+	{
+	    return true;
+	}
+	++p;
+    }
+    return false;
+}
+
+void
+IcePack::ComponentBuilder::pushVariables()
+{
+    _variables.push_back(map<string, string>());
+}
+
+void
+IcePack::ComponentBuilder::popVariables()
+{
+    _variables.pop_back();
 }
 
 //
@@ -761,7 +830,7 @@ IcePack::ComponentBuilder::getDefaultAdapterId(const string& name)
     //
     // Concatenate the component name to the adapter name.
     //
-    return name + "-" + _variables["name"];
+    return name + "-" + getVariable("name");
 }
 
 //
@@ -776,9 +845,7 @@ IcePack::ComponentBuilder::toLocation(const string& path) const
 	return "";
     }
 
-    map<string, string>::const_iterator p = _variables.find("basedir");
-    assert(p != _variables.end());
-    return path[0] != '/' ? p->second + "/" + path : path;
+    return path[0] != '/' ? getVariable("basedir") + "/" + path : path;
 }
 
 //
@@ -802,13 +869,12 @@ IcePack::ComponentBuilder::substitute(const string& v) const
 
 	
 	string name = value.substr(beg + 2, end - beg - 2);
-	map<string, string>::const_iterator p = _variables.find(name);
-	if(p == _variables.end())
+	if(!findVariable(name))
 	{
 	    throw DeploySAXParseException("unknown variable name in the '" + value + "' value", _locator);
 	}
 
-	value.replace(beg, end - beg + 1, p->second);
+	value.replace(beg, end - beg + 1, getVariable(name));
     }
 
     return value;
@@ -856,7 +922,8 @@ IcePack::ComponentBuilder::undoFrom(vector<TaskPtr>::iterator p)
 	    catch(const DeploymentException& ex)
 	    {
 		ostringstream os;
-		os << "exception while removing component " << _variables["fqn"] << ": " << ex.reason << ":" << endl;
+		os << "exception while removing component " << getVariable("fqn") << ": ";
+		os << ex.reason << ":" << endl;
 		os << ex;
 		
 		_communicator->getLogger()->warning(os.str());

@@ -1,9 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
-- Added Ice.MessageSizeMax property. This property controls the maximum
-  message size accepted by the Ice protocol in kiloBytes. The default value
-  is 1024 (1 MB).
+- Added Ice.MessageSizeMax property. This property controls the
+  maximum message size accepted by the Ice protocol in kiloBytes. The
+  default value is 1024 (1 MB).
 
 - Fixed a number of incorrect property settings in the config files
   for the demos.
@@ -69,6 +69,14 @@ Changes since version 1.1.0
 
 - Changed the python code for printing output from test clients, so
   that you get each line as it comes.
+
+- Fixed a bug where daemonized Ice::Application wouldn't shutdown
+  properly.
+
+- Added support for user defined variables in IcePack service and
+  server descriptors.
+
+- Fixed server side bug with batch oneways or batch datagrams.
 
 Changes since version 1.0.1
 ---------------------------

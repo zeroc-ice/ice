@@ -987,83 +987,81 @@ public final class Connection extends EventHandler
 	    outAsync.__finished(stream);
 	}
 
-        //
-        // Method invocation must be done outside the thread
-        // synchronization, so that nested calls are possible.
-        //
-        if(invoke > 0)
-        {
-	    Incoming in = null;
-
-            try
-            {
+	//
+	// Method invocation (or multiple invocations for batch messages)
+	// must be done outside the thread synchronization, so that nested
+	// calls are possible.
+	//
+	Incoming in = null;
+	try
+	{
+	    while(invoke-- > 0)
+	    {
+		
 		//
 		// Prepare the invocation.
 		//
 		boolean response = !_endpoint.datagram() && requestId != 0;
 		in = getIncoming(response, compress);
-                BasicStream is = in.is();
-                stream.swap(is);
+		BasicStream is = in.is();
+		stream.swap(is);
 		BasicStream os = in.os();
-
-                try
-                {
-		    //
-		    // Prepare the response if necessary.
-		    //
-                    if(response)
-                    {
-			assert(invoke == 1);
-			os.writeBlob(_replyHdr);
-
-			//
-			// Fill in the request ID.
-			//
-			os.writeInt(requestId);
-                    }
+		
+		//
+		// Prepare the response if necessary.
+		//
+		if(response)
+		{
+		    assert(invoke == 0); // No further invocations if a response is expected.
+		    os.writeBlob(_replyHdr);
 		    
 		    //
-		    // Do the invocation, or multiple invocations for batch
-		    // messages.
+		    // Fill in the request ID.
 		    //
-		    while(invoke-- > 0)
-                    {
-			in.invoke(_servantManager);
-                    }
-                }
-                catch(Ice.LocalException ex)
-                {
-                    reclaimIncoming(in); // Must be called outside the synchronization.
-                    in = null;
-                    synchronized(this)
-                    {
-                        setState(StateClosed, ex);
-                    }
-                }
-		catch(AssertionError ex)
-		{
-		    //
-		    // Java only: Upon an assertion, we don't kill the
-		    // whole process, but just print the stack trace
-		    // and close the connection.
-		    //
-		    ex.printStackTrace();
-                    reclaimIncoming(in); // Must be called outside the synchronization.
-                    in = null;
-                    synchronized(this)
-                    {
-                        setState(StateClosed, new Ice.UnknownException());
-                    }
+		    os.writeInt(requestId);
 		}
-            }
-            finally
-            {
-                if(in != null)
-                {
-                    reclaimIncoming(in); // Must be called outside the synchronization.
+		
+		in.invoke(_servantManager);
+		
+		//
+		// If there are more invocations, we need the stream back.
+		//
+		if(invoke > 0)
+		{
+		    stream.swap(is);
                 }
-            }
-        }
+
+		reclaimIncoming(in);
+		in = null;
+	    }
+	}
+	catch(Ice.LocalException ex)
+	{
+	    synchronized(this)
+	    {
+		setState(StateClosed, ex);
+	    }
+	}
+	catch(AssertionError ex)
+	{
+	    //
+	    // Java only: Upon an assertion, we don't kill the whole
+	    // process, but just print the stack trace and close the
+	    // connection.
+	    //
+	    ex.printStackTrace();
+	    synchronized(this)
+	    {
+		setState(StateClosed, new Ice.UnknownException());
+	    }
+	}
+	finally
+	{
+	    if(in != null)
+	    {
+		reclaimIncoming(in);
+	    }
+	}
     }
 
     public synchronized void
@@ -1442,6 +1440,8 @@ public final class Connection extends EventHandler
         }
     }
 
+// TODO: This function doesn't seem to be needed?t
+/*
     private void
     destroyIncomingCache()
     {
@@ -1459,6 +1459,7 @@ public final class Connection extends EventHandler
             in = in.next;
         }
     }
+*/
 
     private boolean
     closeOK()
