@@ -71,7 +71,7 @@ public:
     void join();
 
     //
-    // Sleep for msec milliseconds.
+    // Sleep for n milliseconds.
     //
     static void sleep(long);
 

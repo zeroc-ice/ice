@@ -42,6 +42,7 @@ start
 {
     parser->setResult($$);
 }
+;
 
 expr
 : TOK_NUMBER
@@ -61,4 +62,5 @@ expr
     $$ = new Complex::MultiplyNodeI($1, $3);
 }
 ;
+
 %%

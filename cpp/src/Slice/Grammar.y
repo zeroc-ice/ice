@@ -12,6 +12,12 @@
 
 #include <Slice/GrammarUtil.h>
 
+#ifdef WIN32
+// I get this warning from some bison version:
+// warning C4102: 'yyoverflowlab' : unreferenced label
+#   pragma warning( disable : 4102 )
+#endif
+
 using namespace std;
 using namespace Slice;
 
@@ -868,6 +874,7 @@ output_parameters
 {
     $$ = new TypeStringListTok;
 }
+;
 
 // ----------------------------------------------------------------------
 throws

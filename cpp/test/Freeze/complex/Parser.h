@@ -31,6 +31,22 @@ YY_DECL;
 int yyparse();
 
 //
+// I must set the initial stack depth to the maximum stack depth to
+// disable bison stack resizing. The bison stack resizing routines use
+// simple malloc/alloc/memcpy calls, which do not work for the
+// YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
+// assignment operator, etc.
+//
+#define YYMAXDEPTH  20000 // 20000 should suffice. Bison default is 10000 as maximum.
+#define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
+
+//
+// Newer bison versions allow to disable stack resizing by defining
+// yyoverflow.
+//
+#define yyoverflow
+
+//
 // unput() isn't needed. This prevents the function being defined, and
 // the resulting compiler warning.
 //

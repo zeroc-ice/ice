@@ -42,6 +42,12 @@ int yyparse();
 #define YYMAXDEPTH  20000 // 20000 should suffice. Bison default is 10000 as maximum.
 #define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
 
+//
+// Newer bison versions allow to disable stack resizing by defining
+// yyoverflow.
+//
+#define yyoverflow
+
 namespace IcePack
 {
 
