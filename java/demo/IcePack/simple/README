@@ -7,16 +7,20 @@ ICE_LICENSE file included in this distribution.
 
 **********************************************************************
 
-To run the demo:
+The IcePack node starts Java server processes, therefore prior to
+starting the node you must set the CLASSPATH environment variable
+to contain at least Ice.jar and the classes subdirectory, as shown
+in the Unix example below:
 
-Start the IcePack service:
+$ export CLASSPATH=<Ice-directory>/lib/Ice.jar:classes
+
+To run the demo, first start the IcePack service:
 
 $ icepacknode --Ice.Config=config --warn
 
 In a separate window:
 
-$ icepackadmin --Ice.Config=config \
-  -e "application add 'application.xml'"
+$ icepackadmin --Ice.Config=config -e "application add 'application.xml'"
 $ java Client
 
 This will deploy the servers described in the file "application.xml"

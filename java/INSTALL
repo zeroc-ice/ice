@@ -43,10 +43,10 @@ link below for more information:
 
 http://www.hp.com/products1/unix/java/java2/sdkrte14/downloads/index_pa-risc.html
 
-With the Ice for Java SSL plugin, you may experience occasional hangs.
-The most common reason is that  your system's entropy pool is empty. The 
-work-around is to edit <java.home>/lib/security/java.security to use 
-/dev/urandom instead of /dev/random.  
+When using the Ice for Java SSL plugin, you may experience occasional
+hangs. The most common reason is that your system's entropy pool is
+empty. A workaround is to edit <java.home>/lib/security/java.security
+to use /dev/urandom instead of /dev/random.  
 
 
 Slice to Java translator
@@ -64,7 +64,7 @@ Other Ice utilities
 -------------------
 
 Some of the Ice for Java tests and demonstration programs require
-additional Ice for C++ utilities, such as IcePack and Glacier. For
+additional Ice for C++ utilities, such as IcePack and Glacier2. For
 space reasons, the pre-compiled archives ZeroC supplies for Unix
 platforms contain only the Slice-to-Java translator (slice2java),
 the Slice-to-Freeze translator (slice2freezej), and the documentation
@@ -75,8 +75,8 @@ be run without building Ice for C++ yourself.
 Berkeley DB
 -----------
 
-Freeze for Java uses Berkeley DB as its underlying database. It requires
-Berkeley DB 4.2.52.
+Freeze for Java uses Berkeley DB as its underlying database. It
+requires Berkeley DB 4.2.52.
 
 Even though Berkeley DB is included with many Linux distributions, the 
 Java files for Berkeley DB are usually not available. This means that
@@ -96,10 +96,10 @@ http://www.sleepycat.com/docs/index.html
 On AIX with Java 1.4.2, you also need the non-public "java-globalrefs"
 patch for Berkeley DB 4.2.52.
 
-Make sure to add db.jar to your CLASSPATH, and verify that the Berkeley
-DB shared libraries are in your java.library.path. On Linux, this can
-be achieved by adding <Berkeley DB home>/lib to your LD_LIBRARY_PATH,
-for example:
+Make sure to add db.jar to your CLASSPATH, and verify that the
+Berkeley DB shared libraries are in your java.library.path. On Linux,
+this can be achieved by adding <Berkeley DB home>/lib to your
+LD_LIBRARY_PATH, for example:
 
 $ export LD_LIBRARY_PATH=/opt/db4/lib:$LD_LIBRARY_PATH
 
@@ -143,19 +143,14 @@ installed Python:
 
 python allTests.py
 
-Note that on some Linux distributions (like Redhat 7.x), Python 2.2 is
-available as "python2", in which case you must use:
-
-python2 allTests.py
-
-If everything worked out, you should see lots of "ok". In case of a
-failure, the tests abort with "failed".
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
 
 If you want to try out any of the demos, make sure to add lib/Ice.jar
-and "classes" to to your CLASSPATH. Then change to the desired demo
-directory and follow the instructions in the README file. If no README
-file is present the demo can be run by entering the following command 
-to start the server:
+and "classes" to your CLASSPATH. Then change to the desired demo
+directory and follow the instructions in the README file. If no
+README file is present, the demo can be run by entering the following
+command to start the server:
 
 $ java Server
 
@@ -178,8 +173,8 @@ utility, version 1.6.2 or later, which is available here:
 
 http://ant.apache.org/
 
-You must also install ant's "optional tasks" (optional.jar) in the same
-directory as ant.jar.
+You must also install ant's "optional tasks" (optional.jar) in the
+same directory as ant.jar.
 
 After installing ant, run the following commands to completely rebuild
 the Ice for Java source code:
