@@ -115,10 +115,13 @@ if TestUtil.isWin32() == 0:
         print output,
 
     clientStatus = clientPipe.close()
-
     if clientStatus:
 	TestUtil.killServers()
 	sys.exit(1)
+
+    print "unregister server with icepack...",
+    IcePackAdmin.removeServer(toplevel, "server");
+    print "ok"
     
 IcePackAdmin.shutdownIcePack(ice_home, icePackPipe)
 
