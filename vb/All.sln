@@ -161,6 +161,21 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "invokeS", "demo\Ice\invoke\
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIcePackC", "demo\IcePack\hello\helloIcePackC.vbproj", "{9F71D496-8B9B-4AF1-AE9D-687C314C60F5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FEFE3D05-5FB8-4198-8C39-046A5197C012} = {FEFE3D05-5FB8-4198-8C39-046A5197C012}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIcePackCommon", "demo\IcePack\hello\helloIcePackCommon.vbproj", "{FEFE3D05-5FB8-4198-8C39-046A5197C012}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "helloIcePackS", "demo\IcePack\hello\helloIcePackS.vbproj", "{FCC590BC-B784-445E-AC2F-C0A4AE84A1B4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FEFE3D05-5FB8-4198-8C39-046A5197C012} = {FEFE3D05-5FB8-4198-8C39-046A5197C012}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -299,6 +314,18 @@ Global
 		{E5D81FA4-161C-4E40-8614-69533E1D720D}.Debug.Build.0 = Debug|.NET
 		{E5D81FA4-161C-4E40-8614-69533E1D720D}.Release.ActiveCfg = Release|.NET
 		{E5D81FA4-161C-4E40-8614-69533E1D720D}.Release.Build.0 = Release|.NET
+		{9F71D496-8B9B-4AF1-AE9D-687C314C60F5}.Debug.ActiveCfg = Debug|.NET
+		{9F71D496-8B9B-4AF1-AE9D-687C314C60F5}.Debug.Build.0 = Debug|.NET
+		{9F71D496-8B9B-4AF1-AE9D-687C314C60F5}.Release.ActiveCfg = Release|.NET
+		{9F71D496-8B9B-4AF1-AE9D-687C314C60F5}.Release.Build.0 = Release|.NET
+		{FEFE3D05-5FB8-4198-8C39-046A5197C012}.Debug.ActiveCfg = Debug|.NET
+		{FEFE3D05-5FB8-4198-8C39-046A5197C012}.Debug.Build.0 = Debug|.NET
+		{FEFE3D05-5FB8-4198-8C39-046A5197C012}.Release.ActiveCfg = Release|.NET
+		{FEFE3D05-5FB8-4198-8C39-046A5197C012}.Release.Build.0 = Release|.NET
+		{FCC590BC-B784-445E-AC2F-C0A4AE84A1B4}.Debug.ActiveCfg = Debug|.NET
+		{FCC590BC-B784-445E-AC2F-C0A4AE84A1B4}.Debug.Build.0 = Debug|.NET
+		{FCC590BC-B784-445E-AC2F-C0A4AE84A1B4}.Release.ActiveCfg = Release|.NET
+		{FCC590BC-B784-445E-AC2F-C0A4AE84A1B4}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

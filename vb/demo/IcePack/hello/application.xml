@@ -1,0 +1,17 @@
+<icepack>
+
+  <variable name="ice.dir" value="../../.."/>
+
+  <application name="hello">
+
+     <!-- ============================================================ -->
+     <!-- Deploy a server on the node named 'node'.                    -->
+     <!-- ============================================================ -->
+
+     <node name="node">
+       <include name="Server1" descriptor="server.xml"/>
+     </node>
+
+  </application>
+
+</icepack>
