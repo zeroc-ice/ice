@@ -916,6 +916,9 @@ Slice::Gen::generate(const UnitPtr& p)
     OpsVisitor opsVisitor(_dir);
     p->visit(&opsVisitor, false);
 
+    PackageVisitor packageVisitor(_dir);
+    p->visit(&packageVisitor, false);
+
     TypesVisitor typesVisitor(_dir);
     p->visit(&typesVisitor, false);
 
@@ -1306,6 +1309,45 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "private " << '_' << name << opIntfName << " _ice_delegate;";
     out << eb;
     close();
+
+    return false;
+}
+
+Slice::Gen::PackageVisitor::PackageVisitor(const string& dir) :
+    JavaVisitor(dir)
+{
+}
+
+bool
+Slice::Gen::PackageVisitor::visitModuleStart(const ModulePtr& p)
+{
+    DefinitionContextPtr dc = p->definitionContext();
+    assert(dc);
+    StringList globalMetaData = dc->getMetaData();
+
+    static const string packagePrefix = "java:package:";
+
+    for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end(); ++q)
+    {
+        string s = *q;
+        if(s.find(packagePrefix) == 0)
+        {
+            string markerClass = s.substr(packagePrefix.size()) + "." + fixKwd(p->name()) + "._Marker";
+
+            if(!open(markerClass))
+            {
+                cerr << "can't open class `" << markerClass << "' for writing: " << strerror(errno) << endl;
+                return false;
+            }
+
+            Output& out = output();
+            out << sp << nl << "interface _Marker";
+            out << sb;
+            out << eb;
+
+            close();
+        }
+    }
 
     return false;
 }

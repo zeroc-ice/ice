@@ -110,6 +110,15 @@ private:
         virtual bool visitClassDefStart(const ClassDefPtr&);
     };
 
+    class PackageVisitor : public JavaVisitor
+    {
+    public:
+
+        PackageVisitor(const std::string&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+    };
+
     class TypesVisitor : public JavaVisitor
     {
     public:
