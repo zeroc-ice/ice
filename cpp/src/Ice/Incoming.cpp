@@ -96,14 +96,24 @@ IceInternal::Incoming::invoke(BasicStream& is)
 	_os.write(p._prx);
 	return;
     }
-    catch(const Exception&)
+    catch(const LocalException&)
     {
 	if (locator && servant)
 	{
 	    locator->finished(_adapter, identity, servant, operation, cookie);
 	}
 	_os.b.resize(statusPos);
-	_os.write(static_cast<Byte>(DispatchLocalException));
+	_os.write(static_cast<Byte>(DispatchUnknownLocalException));
+	throw;
+    }
+    catch(const UserException&)
+    {
+	if (locator && servant)
+	{
+	    locator->finished(_adapter, identity, servant, operation, cookie);
+	}
+	_os.b.resize(statusPos);
+	_os.write(static_cast<Byte>(DispatchUnknownUserException));
 	throw;
     }
     catch(...)

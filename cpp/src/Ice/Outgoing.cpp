@@ -225,10 +225,17 @@ IceInternal::Outgoing::finished(BasicStream& is)
 		break;
 	    }
 	    
-	    case DispatchLocalException:
+	    case DispatchUnknownLocalException:
 	    {
 		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(new LocalException(__FILE__, __LINE__));
+		_exception = auto_ptr<LocalException>(new UnknownLocalException(__FILE__, __LINE__));
+		break;
+	    }
+
+	    case DispatchUnknownUserException:
+	    {
+		_state = StateLocalException;
+		_exception = auto_ptr<LocalException>(new UnknownUserException(__FILE__, __LINE__));
 		break;
 	    }
 

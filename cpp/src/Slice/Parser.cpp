@@ -1568,6 +1568,18 @@ Slice::Exception::base()
     return _base;
 }
 
+ExceptionList
+Slice::Exception::allBases()
+{
+    ExceptionList result;
+    if (_base)
+    {
+	result = _base->allBases();
+	result.push_front(_base);
+    }
+    return result;
+}
+
 bool
 Slice::Exception::isLocal()
 {

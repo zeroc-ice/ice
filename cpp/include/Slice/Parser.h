@@ -439,6 +439,7 @@ public:
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     DataMemberList dataMembers();
     ExceptionPtr base();
+    ExceptionList allBases();
     bool isLocal();
     virtual ContainedType containedType();
     virtual bool uses(const ConstructedPtr&);

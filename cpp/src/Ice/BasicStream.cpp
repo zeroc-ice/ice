@@ -848,3 +848,69 @@ IceInternal::BasicStream::read(ObjectPtr& v, const string& type)
     
     throw ServantUnmarshalException(__FILE__, __LINE__);
 }
+
+void
+IceInternal::BasicStream::write(const UserException& v)
+{
+    const string* exceptionIds = v._exceptionIds();
+    Int sz = 0;
+    while (exceptionIds[sz] != "::Ice::UserException")
+    {
+	++sz;
+    }
+    write(sz);
+    for (int i = 0; i < sz; i++)
+    {
+	write(exceptionIds[i]);
+    }
+    v.__write(this);
+}
+
+void
+IceInternal::BasicStream::read(UserException*& v, const string& type)
+{
+/*
+    vector<string> exceptionIds;
+    read(exceptionIds);
+    exceptionIds.push_back("::Ice::UserException");
+    vector<string>::const_iterator p;
+    for (p = exceptionIds.begin(); p != exceptionIds.end(); ++p)
+    {
+	UserExceptionFactoryPtr factory = _instance->userExceptionFactoryManager()->find(*p);
+	
+	if (factory)
+	{
+	    v = factory->create(*p);
+	    try
+	    {
+		v->__read(this);
+	    }
+	    catch(...)
+	    {
+		delete v;
+		throw;
+	    }
+	    
+	    for (; p != exceptionIds.end(); ++p)
+	    {
+		if (*p == type)
+		{
+		    return;
+		}
+	    }
+	    
+	    delete v;
+	    throw UserExceptionUnmarshalException(__FILE__, __LINE__);
+	}
+	
+	if (*p == type)
+	{
+	    return;
+	}
+	
+	skipEncaps();
+    }
+
+    throw UserExceptionUnmarshalException(__FILE__, __LINE__);
+*/
+}

@@ -14,6 +14,13 @@
 #include <IceUtil/Exception.h>
 #include <Ice/Config.h>
 
+namespace IceInternal
+{
+
+class BasicStream;
+
+}
+
 namespace Ice
 {
 
@@ -26,10 +33,10 @@ public:
     LocalException(const char*, int);
     LocalException(const LocalException&);
     LocalException& operator=(const LocalException&);
-    virtual std::string _name() const;
-    virtual std::ostream& _print(std::ostream&) const;
-    virtual Exception* _clone() const;
-    virtual void _throw() const;
+    virtual std::string _name() const = 0;
+    virtual std::ostream& _print(std::ostream&) const = 0;
+    virtual Exception* _clone() const = 0;
+    virtual void _throw() const = 0;
 };
 
 class ICE_API UserException : public IceUtil::Exception
@@ -39,12 +46,18 @@ public:
     UserException();
     UserException(const UserException&);
     UserException& operator=(const UserException&);
-    virtual std::string _name() const;
-    virtual std::ostream& _print(std::ostream&) const;
-    virtual Exception* _clone() const;
-    virtual void _throw() const;
+    virtual std::string _name() const = 0;
+    virtual std::ostream& _print(std::ostream&) const = 0;
+    virtual Exception* _clone() const = 0;
+    virtual void _throw() const = 0;
+
+    virtual const std::string* _exceptionIds() const = 0;
+    virtual void __write(::IceInternal::BasicStream*) const = 0;
+    virtual void __read(::IceInternal::BasicStream*) = 0;
 };
 
+class UnknownLocalException;
+class UnknownUserException;
 class UnknownException;
 class VersionMismatchException;
 class CommunicatorDestroyedException;
@@ -82,8 +95,8 @@ class AbortBatchRequestException;
 namespace IceUtil
 {
 
-std::ostream& printException(std::ostream&, const Ice::LocalException&);
-std::ostream& printException(std::ostream&, const Ice::UserException&);
+std::ostream& printException(std::ostream&, const Ice::UnknownLocalException&);
+std::ostream& printException(std::ostream&, const Ice::UnknownUserException&);
 std::ostream& printException(std::ostream&, const Ice::UnknownException&);
 std::ostream& printException(std::ostream&, const Ice::VersionMismatchException&);
 std::ostream& printException(std::ostream&, const Ice::CommunicatorDestroyedException&);

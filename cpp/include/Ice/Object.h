@@ -28,7 +28,8 @@ enum DispatchStatus
     DispatchLocationForward,
     DispatchObjectNotExist,
     DispatchOperationNotExist,
-    DispatchLocalException,
+    DispatchUnknownLocalException,
+    DispatchUnknownUserException,
     DispatchUnknownException
 };
 
@@ -68,7 +69,7 @@ public:
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const std::string&);
     virtual bool __isMutating(const std::string&);
 
-    virtual void __write(::IceInternal::BasicStream*) = 0;
+    virtual void __write(::IceInternal::BasicStream*) const = 0;
     virtual void __read(::IceInternal::BasicStream*) = 0;
 };
 

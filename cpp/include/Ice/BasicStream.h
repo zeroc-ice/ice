@@ -16,6 +16,13 @@
 #include <Ice/ProxyF.h>
 #include <Ice/Buffer.h>
 
+namespace Ice
+{
+
+class UserException;
+
+}
+
 namespace IceInternal
 {
 
@@ -91,6 +98,9 @@ public:
 
     void write(const ::Ice::ObjectPtr&);
     void read(::Ice::ObjectPtr&, const std::string&);
+
+    void write(const ::Ice::UserException&);
+    void read(::Ice::UserException*&, const std::string&);
 
 private:
 

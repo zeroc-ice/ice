@@ -32,30 +32,6 @@ Ice::LocalException::operator=(const LocalException& ex)
     return *this;
 }
 
-string
-Ice::LocalException::_name() const
-{
-    return "Ice::LocalException";
-}
-
-ostream&
-Ice::LocalException::_print(ostream& out) const
-{
-    return IceUtil::printException(out, *this);
-}
-
-Exception*
-Ice::LocalException::_clone() const
-{
-    return new LocalException(*this);
-}
-
-void
-Ice::LocalException::_throw() const
-{
-    throw *this;
-}
-
 Ice::UserException::UserException()
 {
 }
@@ -72,39 +48,15 @@ Ice::UserException::operator=(const UserException& ex)
     return *this;
 }
 
-string
-Ice::UserException::_name() const
-{
-    return "Ice::UserException";
-}
-
 ostream&
-Ice::UserException::_print(ostream& out) const
-{
-    return IceUtil::printException(out, *this);
-}
-
-Exception*
-Ice::UserException::_clone() const
-{
-    return new UserException(*this);
-}
-
-void
-Ice::UserException::_throw() const
-{
-    throw *this;
-}
-
-ostream&
-IceUtil::printException(ostream& out, const LocalException& ex)
+IceUtil::printException(ostream& out, const UnknownLocalException& ex)
 {
     IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
     return out << ": unknown local exception";
 }
 
 ostream&
-IceUtil::printException(ostream& out, const UserException& ex)
+IceUtil::printException(ostream& out, const UnknownUserException& ex)
 {
     IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
     return out << ": unknown user exception";

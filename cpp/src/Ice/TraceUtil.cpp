@@ -173,9 +173,14 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const ::Ice
 		s << "(operation not exist)";
 		break;
 	    }
-	    case DispatchLocalException:
+	    case DispatchUnknownLocalException:
 	    {
-		s << "(local exception)";
+		s << "(unknown local exception)";
+		break;
+	    }
+	    case DispatchUnknownUserException:
+	    {
+		s << "(unknown user exception)";
 		break;
 	    }
 	    case DispatchUnknownException:
