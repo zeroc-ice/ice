@@ -33,7 +33,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "exceptionsC"=.\test\exceptions\exceptionsC.dsp - Package Owner=<4>
+Project: "exceptionsC"=.\test\Ice\exceptions\exceptionsC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -48,7 +48,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "exceptionsCOL"=.\test\exceptions\exceptionsCOL.dsp - Package Owner=<4>
+Project: "exceptionsCOL"=.\test\Ice\exceptions\exceptionsCOL.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -63,7 +63,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "exceptionsS"=.\test\exceptions\exceptionsS.dsp - Package Owner=<4>
+Project: "exceptionsS"=.\test\Ice\exceptions\exceptionsS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -78,7 +78,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "faultToleranceC"=.\test\faultTolerance\faultToleranceC.dsp - Package Owner=<4>
+Project: "faultToleranceC"=.\test\Ice\faultTolerance\faultToleranceC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -93,7 +93,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "faultToleranceS"=.\test\faultTolerance\faultToleranceS.dsp - Package Owner=<4>
+Project: "faultToleranceS"=.\test\Ice\faultTolerance\faultToleranceS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -108,7 +108,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "helloC"=.\demo\hello\helloC.dsp - Package Owner=<4>
+Project: "helloC"=.\demo\Ice\hello\helloC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -126,7 +126,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "helloS"=.\demo\hello\helloS.dsp - Package Owner=<4>
+Project: "helloS"=.\demo\Ice\hello\helloS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -249,7 +249,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "inheritanceC"=.\test\inheritance\inheritanceC.dsp - Package Owner=<4>
+Project: "inheritanceC"=.\test\Ice\inheritance\inheritanceC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -264,7 +264,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "inheritanceCOL"=.\test\inheritance\inheritanceCOL.dsp - Package Owner=<4>
+Project: "inheritanceCOL"=.\test\Ice\inheritance\inheritanceCOL.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -279,7 +279,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "inheritanceS"=.\test\inheritance\inheritanceS.dsp - Package Owner=<4>
+Project: "inheritanceS"=.\test\Ice\inheritance\inheritanceS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -294,7 +294,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "latencyC"=.\demo\latency\latencyC.dsp - Package Owner=<4>
+Project: "latencyC"=.\demo\Ice\latency\latencyC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -312,7 +312,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "latencyS"=.\demo\latency\latencyS.dsp - Package Owner=<4>
+Project: "latencyS"=.\demo\Ice\latency\latencyS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -345,7 +345,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "locationForwardC"=.\test\locationForward\locationForwardC.dsp - Package Owner=<4>
+Project: "locationForwardC"=.\test\Ice\locationForward\locationForwardC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -360,7 +360,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "locationForwardS"=.\test\locationForward\locationForwardS.dsp - Package Owner=<4>
+Project: "locationForwardS"=.\test\Ice\locationForward\locationForwardS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -375,7 +375,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "operationsC"=.\test\operations\operationsC.dsp - Package Owner=<4>
+Project: "operationsC"=.\test\Ice\operations\operationsC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -390,7 +390,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "operationsCOL"=.\test\operations\operationsCOL.dsp - Package Owner=<4>
+Project: "operationsCOL"=.\test\Ice\operations\operationsCOL.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -405,7 +405,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "operationsS"=.\test\operations\operationsS.dsp - Package Owner=<4>
+Project: "operationsS"=.\test\Ice\operations\operationsS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -432,7 +432,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "pickleR"=.\demo\pickle\pickleR.dsp - Package Owner=<4>
+Project: "pickleR"=.\demo\Ice\pickle\pickleR.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -450,7 +450,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "pickleW"=.\demo\pickle\pickleW.dsp - Package Owner=<4>
+Project: "pickleW"=.\demo\Ice\pickle\pickleW.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -483,7 +483,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "valueC"=.\demo\value\valueC.dsp - Package Owner=<4>
+Project: "valueC"=.\demo\Ice\value\valueC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -501,7 +501,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "valueS"=.\demo\value\valueS.dsp - Package Owner=<4>
+Project: "valueS"=.\demo\Ice\value\valueS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
