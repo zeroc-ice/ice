@@ -13,13 +13,13 @@
 // **********************************************************************
 
 #include <ContactFactory.h>
+#include <PhoneBookI.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-ContactFactory::ContactFactory(const Freeze::EvictorPtr& evictor) :
-    _evictor(evictor)
+ContactFactory::ContactFactory()
 {
 }
 
@@ -27,7 +27,7 @@ ObjectPtr
 ContactFactory::create(const string& type)
 {
     assert(type == "::Contact");
-    return new ContactI(_evictor);
+    return new ContactI(this);
 }
 
 void
@@ -38,3 +38,16 @@ ContactFactory::destroy()
     //
     _evictor = 0;
 }
+
+void
+ContactFactory::setEvictor(const Freeze::EvictorPtr& evictor)
+{
+    _evictor = evictor;
+}
+    
+const Freeze::EvictorPtr&
+ContactFactory::getEvictor() const
+{
+    return _evictor;
+}
+

@@ -15,14 +15,13 @@
 #ifndef CONTACT_FACTORY_H
 #define CONTACT_FACTORY_H
 
-#include <PhoneBookI.h>
-#include <NameIndex.h>
+#include <Freeze/Freeze.h>
 
 class ContactFactory : virtual public Ice::ObjectFactory
 {
 public:
 
-    ContactFactory(const Freeze::EvictorPtr&);
+    ContactFactory();
 
     //
     // Operations from ObjectFactory
@@ -30,9 +29,18 @@ public:
     virtual Ice::ObjectPtr create(const std::string&);
     virtual void destroy();
 
+    void
+    setEvictor(const Freeze::EvictorPtr&);
+    
+    const Freeze::EvictorPtr&
+    getEvictor() const;
+    
+
 private:
 
     Freeze::EvictorPtr _evictor;
 };
+
+typedef IceUtil::Handle<ContactFactory> ContactFactoryPtr;
 
 #endif

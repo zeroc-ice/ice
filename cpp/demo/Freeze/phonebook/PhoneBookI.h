@@ -20,6 +20,7 @@
 #include <Freeze/Freeze.h>
 #include <PhoneBook.h>
 #include <NameIndex.h>
+#include <ContactFactory.h>
 
 class PhoneBookI;
 typedef IceUtil::Handle<PhoneBookI> PhoneBookIPtr;
@@ -32,7 +33,7 @@ class ContactI : public Contact,
 {
 public:
 
-    ContactI(const Freeze::EvictorPtr&);
+    ContactI(const ContactFactoryPtr&);
 
     virtual std::string getName(const Ice::Current&) const;
     virtual void setName(const std::string&, const Ice::Current&);
@@ -47,14 +48,14 @@ public:
 
 private:
 
-    Freeze::EvictorPtr _evictor;
+    ContactFactoryPtr _factory;
 };
 
 class PhoneBookI : public PhoneBook
 {
 public: 
 
-    PhoneBookI(const Freeze::EvictorPtr& evictor, const NameIndexPtr& index);
+    PhoneBookI(const Freeze::EvictorPtr& evictor, const ContactFactoryPtr& factory, const NameIndexPtr& index);
 
     virtual ContactPrx createContact(const Ice::Current&);
     virtual Contacts findContacts(const std::string&, const Ice::Current&) const;
@@ -64,6 +65,7 @@ public:
 private:
 
     Freeze::EvictorPtr _evictor;
+    ContactFactoryPtr _contactFactory;
     NameIndexPtr _index;
 };
 

@@ -18,8 +18,8 @@
 using namespace std;
 using namespace Ice;
 
-ContactI::ContactI(const Freeze::EvictorPtr& evictor) :
-    _evictor(evictor)
+ContactI::ContactI(const ContactFactoryPtr& contactFactory) :
+    _factory(contactFactory)
 {
 }
 
@@ -71,7 +71,7 @@ ContactI::destroy(const Ice::Current& c)
     IceUtil::RWRecMutex::RLock sync(*this);
     try
     {
-	_evictor->destroyObject(c.id);
+	_factory->getEvictor()->destroyObject(c.id);
     }
     catch(const Freeze::DatabaseException& ex)
     {
@@ -81,8 +81,10 @@ ContactI::destroy(const Ice::Current& c)
     }
 }
 
-PhoneBookI::PhoneBookI(const Freeze::EvictorPtr& evictor, const NameIndexPtr& index) :
+PhoneBookI::PhoneBookI(const Freeze::EvictorPtr& evictor, const ContactFactoryPtr& contactFactory,
+		       const NameIndexPtr& index) :
     _evictor(evictor),
+    _contactFactory(contactFactory),
     _index(index)
 {
 }
@@ -119,7 +121,7 @@ PhoneBookI::createContact(const Ice::Current& c)
     //
     // Create a new Contact Servant.
     //
-    ContactIPtr contact = new ContactI(_evictor);
+    ContactIPtr contact = new ContactI(_contactFactory);
     
     //
     // Create a new Ice Object in the evictor, using the new identity

@@ -14,6 +14,8 @@
 
 #include <Ice/Application.h>
 #include <ContactFactory.h>
+#include <NameIndex.h>
+#include <PhoneBookI.h>
 
 using namespace std;
 using namespace Ice;
@@ -47,6 +49,12 @@ PhoneBookServer::run(int argc, char* argv[])
     PropertiesPtr properties = communicator()->getProperties();
     
     //
+    // Create and install a factory for contacts.
+    //
+    ContactFactoryPtr contactFactory = new ContactFactory();
+    communicator()->addObjectFactory(contactFactory, "::Contact");
+    
+    //
     // Create the name index.
     //
     NameIndexPtr index = new NameIndex("name");
@@ -63,6 +71,8 @@ PhoneBookServer::run(int argc, char* argv[])
     {
 	evictor->setSize(evictorSize);
     }
+
+    contactFactory->setEvictor(evictor);
     
     //
     // Create an object adapter, use the evictor as servant locator.
@@ -73,14 +83,8 @@ PhoneBookServer::run(int argc, char* argv[])
     //
     // Create the phonebook, and add it to the object adapter.
     //
-    PhoneBookIPtr phoneBook = new PhoneBookI(evictor, index);
+    PhoneBookIPtr phoneBook = new PhoneBookI(evictor, contactFactory, index);
     adapter->add(phoneBook, stringToIdentity("phonebook"));
-    
-    //
-    // Create and install a factory for contacts.
-    //
-    ObjectFactoryPtr contactFactory = new ContactFactory(evictor);
-    communicator()->addObjectFactory(contactFactory, "::Contact");
     
     //
     // Everything ok, let's go.
