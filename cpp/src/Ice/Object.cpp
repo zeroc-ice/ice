@@ -245,8 +245,8 @@ Ice::Object::__marshal(const ::Ice::StreamPtr& __os) const
     for(map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
     {
 	__os->startWriteDictionaryElement();
-	__os->writeString("key", p->first);
-	__os->writeObject("value", p->second);
+	__os->writeString("ice:key", p->first);
+	__os->writeObject("ice:value", p->second);
 	__os->endWriteDictionaryElement();
     }
     __os->endWriteDictionary();
@@ -259,8 +259,8 @@ Ice::Object::__unmarshal(const ::Ice::StreamPtr& __is)
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
  
     static const string facetsName = "ice:facets";
-    static const string keyName = "key";
-    static const string valueName = "value";
+    static const string keyName = "ice:key";
+    static const string valueName = "ice:value";
 
     Int sz = __is->startReadDictionary(facetsName);
     
