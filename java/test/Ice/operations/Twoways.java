@@ -102,15 +102,6 @@ class Twoways
         }
 
         {
-            Ice.StringHolder s = new Ice.StringHolder();
-            String r;
-
-            r = p.opWString("hello", "world", s);
-            test(s.value.equals("world hello"));
-            test(r.equals("hello world"));
-        }
-
-        {
             Test.MyEnumHolder e = new Test.MyEnumHolder();
             Test.MyEnum r;
 
@@ -308,25 +299,6 @@ class Twoways
         }
 
         {
-            final String[] ssi1 = { "abc", "de", "fghi" };
-            final String[] ssi2 = { "xyz" };
-
-            Test.WStringSHolder sso = new Test.WStringSHolder();
-            String[] rso;
-
-            rso = p.opWStringS(ssi1, ssi2, sso);
-            test(sso.value.length == 4);
-            test(sso.value[0].equals("abc"));
-            test(sso.value[1].equals("de"));
-            test(sso.value[2].equals("fghi"));
-            test(sso.value[3].equals("xyz"));
-            test(rso.length == 3);
-            test(rso[0].equals("fghi"));
-            test(rso[1].equals("de"));
-            test(rso[2].equals("abc"));
-        }
-
-        {
             final byte[][] bsi1 =
             {
                 { (byte)0x01, (byte)0x11, (byte)0x12 },
@@ -419,40 +391,6 @@ class Twoways
             String[][] rso;
 
             rso = p.opStringSS(ssi1, ssi2, sso);
-            test(sso.value.length == 5);
-            test(sso.value[0].length == 1);
-            test(sso.value[0][0].equals("abc"));
-            test(sso.value[1].length == 2);
-            test(sso.value[1][0].equals("de"));
-            test(sso.value[1][1].equals("fghi"));
-            test(sso.value[2].length == 0);
-            test(sso.value[3].length == 0);
-            test(sso.value[4].length == 1);
-            test(sso.value[4][0].equals("xyz"));
-            test(rso.length == 3);
-            test(rso[0].length == 1);
-            test(rso[0][0].equals("xyz"));
-            test(rso[1].length == 0);
-            test(rso[2].length == 0);
-        }
-
-        {
-            final String[][] ssi1 =
-            {
-                { "abc" },
-                { "de", "fghi" }
-            };
-            final String[][] ssi2 =
-            {
-                { },
-                { },
-                { "xyz" }
-            };
-
-            Test.WStringSSHolder sso = new Test.WStringSSHolder();
-            String[][] rso;
-
-            rso = p.opWStringSS(ssi1, ssi2, sso);
             test(sso.value.length == 5);
             test(sso.value[0].length == 1);
             test(sso.value[0][0].equals("abc"));
@@ -579,8 +517,8 @@ class Twoways
             di2.put("qwerty", Test.MyEnum.enum3);
             di2.put("Hello!!", Test.MyEnum.enum2);
 
-            Test.WStringMyEnumDHolder _do = new Test.WStringMyEnumDHolder();
-            java.util.Map ro = p.opWStringMyEnumD(di1, di2, _do);
+            Test.StringMyEnumDHolder _do = new Test.StringMyEnumDHolder();
+            java.util.Map ro = p.opStringMyEnumD(di1, di2, _do);
 
             test(_do.value.equals(di1));
             test(ro.size() == 4);
