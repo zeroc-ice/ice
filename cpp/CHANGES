@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Fixed a problem with servers not shutting down properly under
+  certain circumstances.
+
 - IceUtil::Thread now calls srand() in each new thread (Windows only).
 
 - When unmarshaling a string sequence parameter, Ice was not clearing

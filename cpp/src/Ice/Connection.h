@@ -170,7 +170,8 @@ private:
 
     int _proxyCount;
 
-    State _state;
+    State _state; // The current state.
+    IceUtil::Time _stateTime; // The time when the state was changed the last time.
 
     //
     // We need a special mutex for the isDestroyed() and isFinished()

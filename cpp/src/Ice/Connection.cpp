@@ -278,12 +278,13 @@ IceInternal::Connection::waitUntilFinished()
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 
     //
-    // We wait indefinitely until all outstanding requests are
-    // completed. Otherwise we couldn't guarantee that there are no
-    // outstanding calls when deactivate() is called on the servant
-    // locators.
+    // We wait indefinitely until connection closing has been
+    // initiated. We also wait indefinitely until all outstanding
+    // requests are completed. Otherwise we couldn't guarantee that
+    // there are no outstanding calls when deactivate() is called on
+    // the servant locators.
     //
-    while(_dispatchCount > 0)
+    while(_state < StateClosing || _dispatchCount > 0)
     {
 	wait();
     }
@@ -294,13 +295,35 @@ IceInternal::Connection::waitUntilFinished()
     //
     while(_transceiver)
     {
-	if(_endpoint->timeout() >= 0)
+	if(_state != StateClosed && _endpoint->timeout() >= 0)
 	{
-	    if(!timedWait(IceUtil::Time::milliSeconds(_endpoint->timeout())))
+	    IceUtil::Time timeout = IceUtil::Time::milliSeconds(_endpoint->timeout());
+	    IceUtil::Time waitTime = _stateTime + timeout - IceUtil::Time::now();
+	    
+	    if(waitTime > IceUtil::Time())
 	    {
-		setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
-		// No return here, we must still wait until _transceiver becomes null.
+		//
+		// We must wait a bit longer until we close this
+		// connection.
+		//
+		if(!timedWait(IceUtil::Time::milliSeconds(waitTime)))
+		{
+		    setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
+		}
 	    }
+	    else
+	    {
+		//
+		// We already waited long enough, so let's close this
+		// connection!
+		//
+		setState(StateClosed, CloseTimeoutException(__FILE__, __LINE__));
+	    }
+
+	    //
+	    // No return here, we must still wait until _transceiver
+	    // becomes null.
+	    //
 	}
 	else
 	{
@@ -1409,7 +1432,8 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _batchRequestNum(0),
     _dispatchCount(0),
     _proxyCount(0),
-    _state(StateNotValidated)
+    _state(StateNotValidated),
+    _stateTime(IceUtil::Time::now())
 {
     if(_adapter)
     {
@@ -1649,6 +1673,7 @@ IceInternal::Connection::setState(State state)
 	// See _queryMutex comment in header file.
 	IceUtil::Mutex::Lock sync(_queryMutex);
 	_state = state;
+	_stateTime = IceUtil::Time::now();
     }
 
     notifyAll();

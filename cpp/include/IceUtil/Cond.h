@@ -93,7 +93,7 @@ public:
     template <typename Lock> inline void
     wait(const Lock& lock) const
     {
-	if (!lock.acquired())
+	if(!lock.acquired())
 	{
 	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
@@ -110,7 +110,7 @@ public:
     template <typename Lock> inline bool
     timedWait(const Lock& lock, const Time& timeout) const
     {
-	if (!lock.acquired())
+	if(!lock.acquired())
 	{
 	    throw ThreadLockedException(__FILE__, __LINE__);
 	}

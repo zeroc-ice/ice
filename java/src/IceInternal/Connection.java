@@ -272,12 +272,13 @@ public final class Connection extends EventHandler
     waitUntilFinished()
     {
 	//
-	// We wait indefinitely until all outstanding requests are
-	// completed. Otherwise we couldn't guarantee that there are
-	// no outstanding calls when deactivate() is called on the
-	// servant locators.
+	// We wait indefinitely until connection closing has been
+	// initiated. We also wait indefinitely until all outstanding
+	// requests are completed. Otherwise we couldn't guarantee
+	// that there are no outstanding calls when deactivate() is
+	// called on the servant locators.
 	//
-	while(_dispatchCount > 0)
+	while(_state < StateClosing || _dispatchCount > 0)
 	{
 	    try
 	    {
@@ -286,7 +287,6 @@ public final class Connection extends EventHandler
 	    catch(InterruptedException ex)
 	    {
 	    }
-	    
 	}
 	
 	//
@@ -297,17 +297,36 @@ public final class Connection extends EventHandler
 	{
 	    try
 	    {
-		if(_endpoint.timeout() >= 0)
+		if(_state != StateClosed && _endpoint.timeout() >= 0)
 		{
-		    long absoluteTimeoutMillis = System.currentTimeMillis() + _endpoint.timeout();
+		    long absoluteWaitTime = _stateTime + _endpoint.timeout();
+		    long waitTime = absoluteWaitTime - System.currentTimeMillis();
 		    
-		    wait(_endpoint.timeout());
-		    
-		    if(System.currentTimeMillis() >= absoluteTimeoutMillis)
+		    if(waitTime > 0)
 		    {
-			setState(StateClosed, new Ice.CloseTimeoutException());
-			// No return here, we must still wait until _transceiver becomes null.
+			//
+			// We must wait a bit longer until we close
+			// this connection.
+			//
+			wait(waitTime);
+			if(System.currentTimeMillis() >= absoluteWaitTime)
+			{
+			    setState(StateClosed, new Ice.CloseTimeoutException());
+			}
 		    }
+		    else
+		    {
+			//
+			// We already waited long enough, so let's close this
+			// connection!
+			//
+			setState(StateClosed, new Ice.CloseTimeoutException());
+		    }
+
+		    //
+		    // No return here, we must still wait until _transceiver
+		    // becomes null.
+		    //
 		}
 		else
 		{
@@ -1229,6 +1248,7 @@ public final class Connection extends EventHandler
         _dispatchCount = 0;
 	_proxyCount = 0;
         _state = StateNotValidated;
+	_stateTime = System.currentTimeMillis();
 
 	if(_adapter != null)
 	{
@@ -1437,6 +1457,7 @@ public final class Connection extends EventHandler
         }
 
         _state = state;
+	_stateTime = System.currentTimeMillis();
 	notifyAll();
 
         if(_state == StateClosing && _dispatchCount == 0)
@@ -1632,7 +1653,8 @@ public final class Connection extends EventHandler
 
     private int _proxyCount;
 
-    private volatile int _state; // Must be volatile, see comment in isDestroyed().
+    private volatile int _state; // The current state. Must be volatile, see comment in isDestroyed().
+    private long _stateTime; // The time when the state was changed the last time.
 
     private Incoming _incomingCache;
     private java.lang.Object _incomingCacheMutex = new java.lang.Object();
