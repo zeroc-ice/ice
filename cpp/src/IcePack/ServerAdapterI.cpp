@@ -25,7 +25,7 @@ public:
  
     WaitForAdapterActivation(const ServerAdapterPtr& adapter, 
 			     const TraceLevelsPtr traceLevels,
-			     const AMD_Adapter_getDirectProxyPtr& cb) : 
+			     const AMD_Adapter_activatePtr& cb) : 
 	WaitItem(adapter),
 	_adapter(adapter),
 	_traceLevels(traceLevels),
@@ -35,7 +35,18 @@ public:
     
     virtual void execute()
     {
-	_adapter->getDirectProxy_async(_cb, false);
+	try
+	{
+	    _cb->ice_response(_adapter->getDirectProxy());
+	}
+	catch(const AdapterNotActiveException&)
+	{
+	    _cb->ice_response(0);
+	}
+	catch(const Ice::LocalException&)
+	{
+	    _cb->ice_response(0);
+	}
     }
 
     virtual void expired(bool destroyed)
@@ -50,14 +61,14 @@ public:
 
 private:
     
-    ServerAdapterPtr _adapter;
-    TraceLevelsPtr _traceLevels;
-    AMD_Adapter_getDirectProxyPtr _cb;
+    const ServerAdapterPtr _adapter;
+    const TraceLevelsPtr _traceLevels;
+    const AMD_Adapter_activatePtr _cb;
 };
 
 }
 
-IcePack::ServerAdapterI::ServerAdapterI(const ServerFactoryPtr& factory, const TraceLevelsPtr& traceLevels, 
+ServerAdapterI::ServerAdapterI(const ServerFactoryPtr& factory, const TraceLevelsPtr& traceLevels, 
 					Ice::Int waitTime) :
     _factory(factory),
     _traceLevels(traceLevels),
@@ -65,24 +76,22 @@ IcePack::ServerAdapterI::ServerAdapterI(const ServerFactoryPtr& factory, const T
 {
 }
 
-IcePack::ServerAdapterI::~ServerAdapterI()
+ServerAdapterI::~ServerAdapterI()
 {
 }
 
 string
-IcePack::ServerAdapterI::getId(const Ice::Current&)
+ServerAdapterI::getId(const Ice::Current&)
 {
     return id;
 }
 
 void
-IcePack::ServerAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPtr& cb,
-					      bool activate, 
-					      const Ice::Current& current)
+ServerAdapterI::activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Current& current)
 {
     {
-	::IceUtil::Mutex::Lock sync(*this);
-	if(_proxy || !activate)
+	Lock sync(*this);
+	if(_proxy)
 	{
 	    //
 	    // Return the adapter direct proxy.
@@ -111,7 +120,7 @@ IcePack::ServerAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPt
 	    // Now that the server is activated, wait for the adapter
 	    // direct proxy to be set.
 	    //
-	    ::IceUtil::Mutex::Lock sync(*this);
+	    Lock sync(*this);
 	    if(!_proxy)
 	    {
 		_factory->getWaitQueue()->add(new WaitForAdapterActivation(this, _traceLevels, cb), _waitTime);
@@ -122,10 +131,9 @@ IcePack::ServerAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPt
     catch(const Ice::ObjectNotExistException&)
     {
 	//
-	// The server associated to this adapter doesn't exist
-	// anymore. Somehow the database is inconsistent if this
-	// happens. The best thing to do is to destroy the adapter
-	// and throw an ObjectNotExist exception.
+	// The server associated to this adapter doesn't exist anymore. Somehow the database is 
+	// inconsistent if this happens. The best thing to do is to destroy the adapter and throw
+	// an ObjectNotExist exception.
 	//
 	destroy(current);
 
@@ -139,7 +147,7 @@ IcePack::ServerAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPt
     // adapter proxy.
     //
     {
-	::IceUtil::Mutex::Lock sync(*this);
+	Lock sync(*this);
 	if(_traceLevels->adapter > 1)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
@@ -150,10 +158,33 @@ IcePack::ServerAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPt
     }   
 }
 
-void
-IcePack::ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current& current)
+Ice::ObjectPrx
+ServerAdapterI::getDirectProxy(const Ice::Current& current) const
 {
-    ::IceUtil::Mutex::Lock sync(*this);
+    Lock sync(*this);
+
+    //
+    // Return the adapter direct proxy if it's set. Otherwise, throw. The caller can eventually
+    // activate the adapter if it's activatable.
+    //
+    if(_proxy)
+    {
+	return _proxy;
+    }
+    else
+    {
+	AdapterNotActiveException ex;
+	ServerState state = svr->getState();
+	ex.activatable = svr->getActivationMode() == OnDemand || state == Activating || state == Active;
+	ex.timeout = _waitTime.toMilliSeconds();
+	throw ex;
+    }
+}
+
+void
+ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current& current)
+{
+    Lock sync(*this);
 
     //
     // If the adapter proxy is not null the given proxy can only be null. We don't allow to overide an 
@@ -191,7 +222,7 @@ IcePack::ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Cu
 }
 
 void
-IcePack::ServerAdapterI::destroy(const Ice::Current& current)
+ServerAdapterI::destroy(const Ice::Current& current)
 {
     _factory->destroy(this, current.id);
 }

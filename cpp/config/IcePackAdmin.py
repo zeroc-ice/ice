@@ -56,7 +56,8 @@ def startIcePackRegistry(port, testdir):
 
     print "starting icepack registry...",
     command = icePack + TestUtil.clientServerOptions + ' --nowarn ' + \
-              r' --IcePack.Registry.Client.Endpoints="default -p ' + icePackPort + '  -t 5000" ' + \
+              r' --IcePack.Registry.Client.Endpoints="default -p ' + icePackPort + ' -t 5000" ' + \
+              r' --Ice.Warn.Connections=0' + \
               r' --IcePack.Registry.Server.Endpoints=default' + \
               r' --IcePack.Registry.Internal.Endpoints=default' + \
               r' --IcePack.Registry.Admin.Endpoints=default' + \
@@ -89,12 +90,14 @@ def startIcePackNode(testdir):
         os.mkdir(dataDir)
 
     overrideOptions = '"' + TestUtil.clientServerOptions.replace("--", "") + \
-	              ' Ice.PrintProcessId=0 Ice.PrintAdapterReady=0' + '"'
+	              ' Ice.ServerIdleTime=0 Ice.PrintProcessId=0 Ice.PrintAdapterReady=0' + '"'
 
     print "starting icepack node...",
     command = icePack + TestUtil.clientServerOptions + ' --nowarn ' + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
+              r' --Ice.Warn.Connections=0' + \
               r' --IcePack.Node.Endpoints=default' + \
+              r' --IcePack.Node.WaitTime=30' + \
               r' --IcePack.Node.Data=' + dataDir + \
               r' --IcePack.Node.Name=localnode' + \
               r' --IcePack.Node.PropertiesOverride=' + overrideOptions + \

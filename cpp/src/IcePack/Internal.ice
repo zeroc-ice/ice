@@ -81,23 +81,40 @@ exception AdapterActiveException
 {
 };
 
+exception AdapterNotActiveException
+{
+    /** True if the adapter can be activated on demand. */
+    bool activatable;
+    
+    /** How long to wait for the adapter to become active. */
+    int timeout;
+};
+
 interface Adapter
 {
+    /**
+     *
+     * Activate this adapter. If this adapter can be activated, this 
+     * will activate the adapter and return the direct proxy of the 
+     * adapter once it's active. If this adapter can be activated on
+     * demand, this will return 0 if the adapter is inactive or the
+     * adapter direct proxy it's active.
+     *
+     **/
+    ["ami", "amd"] Object* activate();    
+
     /**
      *
      * Get the adapter direct proxy. The adapter direct proxy is a
      * proxy created with the object adapter. The proxy contains the
      * last known adapter endpoints.
      *
-     * @param activate If true and if the adapter is not active,
-     * [getDirectProxy] will activate the adapter and wait for its
-     * activation.
-     *
      * @return A direct proxy containing the last known adapter
-     * endpoints.
+     * endpoints if the adapter is already active.
      *
      **/
-    ["amd", "ami"] Object* getDirectProxy(bool activate);
+     ["ami"] nonmutating Object* getDirectProxy()
+	throws AdapterNotActiveException;
 
     /**
      *

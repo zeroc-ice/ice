@@ -32,7 +32,8 @@ public:
 
     virtual std::string getId(const Ice::Current&);
 
-    virtual void getDirectProxy_async(const AMD_Adapter_getDirectProxyPtr& cb, bool, const Ice::Current&);
+    virtual void activate_async(const AMD_Adapter_activatePtr& cb, const Ice::Current&);
+    virtual Ice::ObjectPrx getDirectProxy(const Ice::Current&) const;
     virtual void setDirectProxy(const ::Ice::ObjectPrx&, const ::Ice::Current&);
     virtual void destroy(const ::Ice::Current&);
 

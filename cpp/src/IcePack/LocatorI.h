@@ -16,7 +16,7 @@
 namespace IcePack
 {
 
-class LocatorI : public Ice::Locator
+class LocatorI : public Ice::Locator, public IceUtil::Mutex
 {
 public:
 
@@ -30,12 +30,23 @@ public:
 
     virtual ::Ice::LocatorRegistryPrx getRegistry(const ::Ice::Current&) const;
 
-private:
+    bool getDirectProxyRequest(const ::Ice::AMD_Locator_findAdapterByIdPtr&, const AdapterPrx&);
+    void getDirectProxyException(const AdapterPrx&, const std::string&, const Ice::Exception&);
+    void getDirectProxyCallback(const Ice::Identity&, const Ice::ObjectPrx&);
     
+protected:
+
     const AdapterRegistryPtr _adapterRegistry;
     const ObjectRegistryPtr _objectRegistry;
     const Ice::LocatorRegistryPrx _locatorRegistry;
+
+    typedef std::vector<Ice::AMD_Locator_findAdapterByIdPtr> PendingRequests;
+    typedef std::map<Ice::Identity, PendingRequests> PendingRequestsMap;
+
+    PendingRequestsMap _pendingRequests;
 };
+
+typedef IceUtil::Handle<LocatorI> LocatorIPtr;
 
 }
 
