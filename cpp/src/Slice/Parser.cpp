@@ -1407,7 +1407,7 @@ Slice::ClassDef::dataMembers()
 bool
 Slice::ClassDef::isAbstract()
 {
-    if (isInterface())
+    if (isInterface() || _bases.size() > 1) // Is this an interface, or does it derive from interfaces?
     {
 	return true;
     }

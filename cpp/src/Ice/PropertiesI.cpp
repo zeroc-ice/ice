@@ -234,7 +234,7 @@ Ice::PropertiesI::parseLine(const string& line)
     }
     
     string value;
-    beg = s.find_first_not_of(delim + "=", end);
+    beg = s.find_first_not_of(delim, end);
     if (beg != string::npos)
     {
 	end = s.length();
