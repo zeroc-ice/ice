@@ -1587,33 +1587,50 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, Membe
 }
 
 static string
-changeInclude(const string& orig, const vector<string>& includePaths)
+normalizePath(const string& path)
 {
-    string file = orig;
-    replace(file.begin(), file.end(), '\\', '/');
+    string result = path;
+    replace(result.begin(), result.end(), '\\', '/');
+    string::size_type pos;
+    while((pos = result.find("//")) != string::npos)
+    {
+        result.replace(pos, 2, "/");
+    }
+    return result;
+}
 
+static string
+changeInclude(const string& inc, const vector<string>& includePaths)
+{
+    string orig = normalizePath(inc);
+    string curr = orig; // The current shortest pathname.
+
+    //
+    // Compare the pathname of the included file against each of the include directories.
+    // If any of the include directories match the leading part of the included file,
+    // then select the include directory whose removal results in the shortest pathname.
+    //
     for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
         string includePath = *p;
-        replace(includePath.begin(), includePath.end(), '\\', '/');
 
-        if(orig.compare(0, includePath.length(), *p) == 0)
+        if(orig.compare(0, p->size(), *p) == 0)
         {
-            string s = orig.substr(includePath.length());
-            if(s.size() < file.size())
+            string s = orig.substr(p->size());
+            if(s.size() < curr.size())
             {
-                file = s;
+                curr = s;
             }
         }
     }
 
-    string::size_type pos = file.rfind('.');
+    string::size_type pos = curr.rfind('.');
     if(pos != string::npos)
     {
-        file.erase(pos);
+        curr.erase(pos);
     }
 
-    return file;
+    return curr;
 }
 
 void
@@ -1626,10 +1643,11 @@ Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector
         vector<string> paths = includePaths;
         for(vector<string>::iterator p = paths.begin(); p != paths.end(); ++p)
         {
-            if(p->length() && (*p)[p->length() - 1] != '/')
+            if(p->size() && (*p)[p->size() - 1] != '/')
             {
                 *p += '/';
             }
+            *p = normalizePath(*p);
         }
 
         StringList includes = un->includeFiles();
