@@ -21,6 +21,7 @@ public final class UnknownEndpoint extends Endpoint
         int sz = s.getReadEncapsSize();
         _rawBytes = s.readBlob(sz);
         s.endReadEncaps();
+        calcHashValue();
     }
 
     //
@@ -164,6 +165,12 @@ public final class UnknownEndpoint extends Endpoint
     {
         return false;
     }
+
+    public int
+    hashCode()
+    {
+        return _hashCode;
+    }
     
     //
     // Compare endpoints for sorting purposes
@@ -225,7 +232,18 @@ public final class UnknownEndpoint extends Endpoint
         return 0;
     }
 
+    private void
+    calcHashValue()
+    {
+        _hashCode = _type;
+        for (int i = 0; i < _rawBytes.length; i++)
+        {
+            _hashCode = 5 * _hashCode + _rawBytes[i];
+        }
+    }
+
     private Instance _instance;
     private short _type;
     private byte[] _rawBytes;
+    private int _hashCode;
 }

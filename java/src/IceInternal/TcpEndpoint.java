@@ -19,6 +19,7 @@ public final class TcpEndpoint extends Endpoint
         _host = ho;
         _port = po;
         _timeout = ti;
+        calcHashValue();
     }
 
     public
@@ -114,6 +115,8 @@ public final class TcpEndpoint extends Endpoint
         {
             _host = _instance.defaultHost();
         }
+
+        calcHashValue();
     }
 
     public
@@ -125,6 +128,7 @@ public final class TcpEndpoint extends Endpoint
         _port = s.readInt();
         _timeout = s.readInt();
         s.endReadEncaps();
+        calcHashValue();
     }
 
     //
@@ -294,6 +298,12 @@ public final class TcpEndpoint extends Endpoint
         return tcpAcceptor.equivalent(_host, _port);
     }
 
+    public int
+    hashCode()
+    {
+        return _hashCode;
+    }
+
     //
     // Compare endpoints for sorting purposes
     //
@@ -368,8 +378,17 @@ public final class TcpEndpoint extends Endpoint
         return 0;
     }
 
+    private void
+    calcHashValue()
+    {
+        _hashCode = _host.hashCode();
+        _hashCode = 5 * _hashCode + _port;
+        _hashCode = 5 * _hashCode + _timeout;
+    }
+
     private Instance _instance;
     private String _host;
     private int _port;
     private int _timeout;
+    private int _hashCode;
 }

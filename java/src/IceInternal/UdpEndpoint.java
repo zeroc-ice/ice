@@ -19,6 +19,7 @@ public final class UdpEndpoint extends Endpoint
         _host = ho;
         _port = po;
         _connect = false;
+        calcHashValue();
     }
 
     public
@@ -106,6 +107,8 @@ public final class UdpEndpoint extends Endpoint
         {
             _host = instance.defaultHost();
         }
+
+        calcHashValue();
     }
 
     public
@@ -119,6 +122,7 @@ public final class UdpEndpoint extends Endpoint
         //_connect = s.readBool();
         _connect = false;
         s.endReadEncaps();
+        calcHashValue();
     }
 
     //
@@ -281,6 +285,12 @@ public final class UdpEndpoint extends Endpoint
         return false;
     }
 
+    public int
+    hashCode()
+    {
+        return _hashCode;
+    }
+
     //
     // Compare endpoints for sorting purposes
     //
@@ -355,8 +365,17 @@ public final class UdpEndpoint extends Endpoint
         return 0;
     }
 
+    private void
+    calcHashValue()
+    {
+        _hashCode = _host.hashCode();
+        _hashCode = 5 * _hashCode + _port;
+        _hashCode = 5 * _hashCode + (_connect ? 1 : 0);
+    }
+
     private Instance _instance;
     private String _host;
     private int _port;
     private boolean _connect;
+    private int _hashCode;
 }
