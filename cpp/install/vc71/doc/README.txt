@@ -51,7 +51,7 @@ The C++ demos are in the demo directory.
 
 To build a C++ demo, start Visual Studio .NET and open the solution
 demo\demo.sln. Right click on the desired demo in the Solution
-Explorer window and select "Build". 
+Explorer window and select "Build".
 
 To run these demos, you need to add the Ice bin directory to your
 PATH, as shown below:
@@ -68,9 +68,9 @@ are necessary.
 
 Note that extra steps may be required when running the IceBox demo,
 depending on how you compiled the demos. If you used the Release
-configuration, then no extra steps are necessary. However, if you
-used the Debug configuration, you will need to use the debug
-version of icebox.exe located in the bin\debug subdirectory.
+configuration, then no extra steps are necessary. However, if you used
+the Debug configuration, you will need to use the debug version of
+icebox.exe located in the bin\debug subdirectory.
 
 
 Building and running the Java demos
@@ -119,7 +119,7 @@ are necessary.
 
 
 Building and running the C# demos
------------------------------------
+---------------------------------
 
 The C# demos are in the democs directory.
 
@@ -128,7 +128,7 @@ and .NET 1.1, build 4322 or later.
 
 To build a C# demo, start Visual Studio .NET and open the solution
 democs\demo.sln. Right click on the desired demo in the Solution
-Explorer window and select "Build". 
+Explorer window and select "Build".
 
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and type 'server.exe' to start the server. In a separate
@@ -143,12 +143,12 @@ Building and running the Visual Basic demos
 
 The Visual Basic demos are in the demovb directory.
 
-To build the Visual Basic demos, you need Visual Basic .NET 2003
-and .NET 1.1, build 4322 or later.
+To build the Visual Basic demos, you need Visual Basic .NET 2003 and
+.NET 1.1, build 4322 or later.
 
 To build a Visual Basic demo, start Visual Studio .NET and open the
 solution demovb\demo.sln. Right click on the desired demo in the
-Solution Explorer window and select "Build". 
+Solution Explorer window and select "Build".
 
 To run a demo, open a Command Prompt, change to the desired demo
 directory, and type 'server.exe' to start the server. In a separate
@@ -187,15 +187,15 @@ client.
 Running the PHP demos
 ---------------------
 
-Two PHP demos are provided in the demophp directory. 
+Two PHP demos are provided in the demophp directory.
 
 To run the PHP demos, you need PHP 5.0.3. It can be downloaded from:
 
 http://www.php.net/downloads.php
 
-The example in demophp/Ice/hello demonstrates the use of the
-Ice extension for PHP in a dynamic Web page. The example in
+The example in demophp/Ice/hello demonstrates the use of the Ice
+extension for PHP in a dynamic Web page. The example in
 demophp/Ice/value is used with PHP's command line interpreter. Both
 examples require that an Ice server be available; a matching server
-from any of the other language mappings can be used. A README file
-is provided in each of the example directories.
+from any of the other language mappings can be used. A README file is
+provided in each of the example directories.

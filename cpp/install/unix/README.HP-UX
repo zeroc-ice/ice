@@ -37,10 +37,10 @@ PA-RISC and includes the following components:
 Requirements
 ======================================================================
 
-This binary distribution was compiled on HP-UX 11.11 using HP aC++ 
+This binary distribution was compiled on HP-UX 11.11 using HP aC++
 version A.03.37.
 
-The following HP-UX 11i binary packages, available from 
+The following HP-UX 11i binary packages, available from
 http://hpux.cs.utah.edu, are required to use this distribution:
 
 - bzip2 1.0.2
@@ -51,8 +51,8 @@ http://hpux.cs.utah.edu, are required to use this distribution:
 Java
 ----
 
-Ice for Java requires J2SE 1.4.2 or 1.5.0. Java for HP-UX is
-available from HP at http://www.hp.com/products1/unix/java
+Ice for Java requires J2SE 1.4.2 or 1.5.0. Java for HP-UX is available
+from HP at http://www.hp.com/products1/unix/java
 
 
 Python
@@ -69,8 +69,8 @@ Berkeley DB
 ======================================================================
 
 This distribution includes the C++ and Java run time for Berkeley DB
-4.2.52. The C++ run time was built using HP aC++ version A.03.37. 
-The Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
+4.2.52. The C++ run time was built using HP aC++ version A.03.37.  The
+Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
 
 
 ======================================================================
@@ -94,8 +94,8 @@ General
 The discussion below assumes you have defined the ICE_HOME variable
 with the directory of your Ice installation.
 
-In order to use Ice services and tools such as Slice translators,
-you need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
+In order to use Ice services and tools such as Slice translators, you
+need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
 SHLIB_PATH, as shown in the bash commands below:
 
 $ export PATH=$ICE_HOME/bin:$PATH
@@ -119,7 +119,7 @@ such as IcePack or Glacier2.
 Java
 ----
 
-To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar and 
+To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar and
 $ICE_HOME/lib/db.jar to your CLASSPATH, as shown below:
 
 $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$ICE_HOME/lib/db.jar:$CLASSPATH
@@ -128,8 +128,8 @@ $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$ICE_HOME/lib/db.jar:$CLASSPATH
 Python
 ------
 
-To use Ice for Python, the PYTHONPATH environment variable must
-be updated so that the interpreter can load the Ice extension and
+To use Ice for Python, the PYTHONPATH environment variable must be
+updated so that the interpreter can load the Ice extension and
 supporting Python files:
 
 $ export PYTHONPATH=$ICE_HOME/python:$ICE_HOME/lib:$PYTHONPATH

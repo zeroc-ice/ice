@@ -27,12 +27,13 @@ Ice has dependencies on a number of third-party libraries:
   You can download the Berkeley DB source distribution from
   http://www.sleepycat.com/download
 
-  Note that Ice for Java is not compatible with version 4.3,
-  therefore if you intend to use Ice for Java with Berkeley DB,
-  you must use version 4.2.52 and the option --enable-java.
+  Note that Ice for Java is not compatible with version 4.3, therefore
+  if you intend to use Ice for Java with Berkeley DB, you must use
+  version 4.2.52 and the option --enable-java.
 
-  If you are using RedHat 9 and do not want to use NTPL, set
-  LD_ASSUME_KERNEL=2.4.1 before running configure.
+  If you are using RedHat 9 and do not want to use NPTL (New Posix
+  Thread Library), set LD_ASSUME_KERNEL=2.4.1 before running
+  configure.
 
 - expat 1.9x
 
@@ -43,7 +44,7 @@ Ice has dependencies on a number of third-party libraries:
 - readline and ncurses (optional, but used unless you set USE_READLINE
   to no in config/Make.rules)
 
-expat, OpenSSL, bzip2, readline and ncurses are usually included with 
+expat, OpenSSL, bzip2, readline and ncurses are usually included with
 your Linux distribution, or you can download them from the following
 locations:
 
@@ -54,11 +55,12 @@ readline       http://cnswww.cns.cwru.edu/php/chet/readline/rltop.html
 ncurses        http://www.gnu.org/software/ncurses/ncurses.html
 
 
-Python 2.2
-----------
+Python
+------
 
-To run the automated test suite, you will need Python 2.2. If you have
-no interest in running the test scripts, Python is not required.
+To run the automated test suite, you will need Python 2.2 or a newer
+version. If you have no interest in running the test scripts, Python
+is not required.
 
 
 ======================================================================
@@ -102,8 +104,8 @@ $ python allTests.py
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".
 
-If you want to try out any of the demos, make sure to update your
-PATH environment variable to add the "bin" directory, and your
+If you want to try out any of the demos, make sure to update your PATH
+environment variable to add the "bin" directory, and your
 LD_LIBRARY_PATH environment variable to add the "lib" directory:
 
 $ export PATH=`pwd`/bin:$PATH
@@ -142,5 +144,5 @@ with the -I option, and the location of the <prefix>/lib directory
 with the -L option.
 
 If LP64 is set to yes, the libraries are installed in <prefix>/lib64
-and the programs are installed in <prefix>/bin64. No other changes
-are necessary.
+and the programs are installed in <prefix>/bin64. No other changes are
+necessary.

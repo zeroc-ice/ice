@@ -21,13 +21,13 @@ contact sales@zeroc.com for more information about licensing Ice.
 About this distribution
 ======================================================================
 
-This distribution is a binary release of Ice 2.1.0 for AIX 5.2, and 
+This distribution is a binary release of Ice 2.1.0 for AIX 5.2, and
 includes the following components:
 
 - The Ice run time, including executables for the Ice services, HTML
   documentation and Slice files.
 
-- Run time libraries for C++ and Java. These libraries enable you to 
+- Run time libraries for C++ and Java. These libraries enable you to
   execute Ice applications.
 
 - Tools and libraries for developing Ice applications.
@@ -37,10 +37,10 @@ includes the following components:
 Requirements
 ======================================================================
 
-This binary distribution was compiled on AIX 5.2 using IBM VisualAge 
+This binary distribution was compiled on AIX 5.2 using IBM VisualAge
 version 6 with the April 2004 PTF.
 
-The following binary RPMs, available from 
+The following binary RPMs, available from
 http://www.ibm.com/servers/aix/products/aixos/linux/ezinstall.html,
 are required to use this distribution:
 
@@ -50,10 +50,11 @@ are required to use this distribution:
 - openssl-devel-0.9.7d-1.aix5.1.ppc.rpm (only required when
   building C++ applications)
 
+
 Java
 ----
 
-Ice for Java requires J2SE 1.4.2 or 1.5.0. Java for AIX is available 
+Ice for Java requires J2SE 1.4.2 or 1.5.0. Java for AIX is available
 from IBM at http://www-128.ibm.com/developerworks/java/jdk/aix
 
 
@@ -62,8 +63,8 @@ Berkeley DB
 ======================================================================
 
 This distribution includes the C++ and Java run time for Berkeley DB
-4.2.52. The C++ runtime was built using IBM VisualAge 6. The
-Berkeley DB license is provided in the file THIRD_PARTY_LICENSE.
+4.2.52. The C++ runtime was built using IBM VisualAge 6. The Berkeley
+DB license is provided in the file THIRD_PARTY_LICENSE.
 
 
 ======================================================================
@@ -87,8 +88,8 @@ General
 The discussion below assumes you have defined the ICE_HOME variable
 with the directory of your Ice installation.
 
-In order to use Ice services and tools such as Slice translators,
-you need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
+In order to use Ice services and tools such as Slice translators, you
+need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
 LIBPATH, as shown in the bash commands below:
 
 $ export PATH=$ICE_HOME/bin:$PATH
@@ -112,11 +113,10 @@ such as IcePack or Glacier2.
 Java
 ----
 
-To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar and 
+To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar and
 $ICE_HOME/lib/db.jar to your CLASSPATH, as shown below:
 
 $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$ICE_HOME/lib/db.jar:$CLASSPATH
-
 
 
 ======================================================================

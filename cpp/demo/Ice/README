@@ -1,12 +1,3 @@
-**********************************************************************
-
-Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
-
-**********************************************************************
-
 Demos in this directory:
 
 - MFC
@@ -50,9 +41,10 @@ Demos in this directory:
 
 - throughput
 
-  A simple throughput demo that allows you to send sequences of various
-  types between client and server and to measure the maximum bandwidth
-  that can be achieved using serialized synchronous requests.
+  A simple throughput demo that allows you to send sequences of
+  various types between client and server and to measure the maximum
+  bandwidth that can be achieved using serialized synchronous
+  requests.
 
 - value
 

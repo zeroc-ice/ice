@@ -63,16 +63,16 @@ ncurses        ncurses
 libgcc         libgcc
 libstdc++      libstdc++
 
-If you prefer to install the third-party libraries yourself, be
-aware that Berkeley DB must be configured with --enable-cxx and
+If you prefer to install the third-party libraries yourself, be aware
+that Berkeley DB must be configured with --enable-cxx and
 --enable-java.
 
 
 Java
 ----
 
-Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained
-from JavaSoft at http://www.javasoft.com/j2se.
+Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained from
+JavaSoft at http://www.javasoft.com/j2se.
 
 
 Python
@@ -87,8 +87,8 @@ code from the ZeroC web site at http://www.zeroc.com/download.html.
 C#
 --
 
-Ice for C# requires Mono 1.0.6. The following RPM can be downloaded
-at http://www.mono-project.com/Downloads:
+Ice for C# requires Mono 1.0.6. The following RPM can be downloaded at
+http://www.mono-project.com/Downloads:
 
 mono-core-1.0.6-1.novell.9.1.i386.rpm
 
@@ -118,8 +118,8 @@ General
 The discussion below assumes you have defined the ICE_HOME variable
 with the directory of your Ice installation.
 
-In order to use Ice services and tools such as Slice translators,
-you need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
+In order to use Ice services and tools such as Slice translators, you
+need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
 LD_LIBRARY_PATH, as shown in the bash commands below:
 
 $ export PATH=$ICE_HOME/bin:$PATH
@@ -159,8 +159,8 @@ in /usr/lib).
 Python
 ------
 
-To use Ice for Python, the PYTHONPATH environment variable must
-be updated so that the interpreter can load the Ice extension and
+To use Ice for Python, the PYTHONPATH environment variable must be
+updated so that the interpreter can load the Ice extension and
 supporting Python files:
 
 $ export PYTHONPATH=$ICE_HOME/python:$ICE_HOME/lib:$PYTHONPATH
@@ -184,8 +184,8 @@ relative path, but not an absolute one.)
 
 The instructions for running the demos assume that you have configured
 your kernel to automatically execute the Mono interpreter. To do this,
-run the following commands as root (replace /usr/bin/mono with
-the location of your mono interpreter):
+run the following commands as root (replace /usr/bin/mono with the
+location of your mono interpreter):
 
     if [ ! -e /proc/sys/fs/binfmt_misc/register ]; then
 	/sbin/modprobe binfmt_misc mount -t binfmt_misc none /proc/sys/fs/binfmt_misc

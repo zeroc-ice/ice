@@ -40,8 +40,8 @@ libraries, and executables.
 
 - Select "Include files"
 
-- Add <Ice installation root directory>\include and
-  <Ice installation root directory>\include\stlport
+- Add <Ice installation root directory>\include and <Ice installation
+  root directory>\include\stlport
 
   Move the stlport include directory to the top of the list, or at
   least before the Visual C++ include directories. This is necessary
@@ -63,9 +63,8 @@ Building and running the C++ demos
 The C++ demos are in the demo directory.
 
 To build the C++ demos, start Visual Studio and open the workspace
-demo\demo.dsw. Set your active project to "all" using
-Project->Set Active Project, then start the compilation using
-Build->Build.
+demo\demo.dsw. Set your active project to "all" using Project->Set
+Active Project, then start the compilation using Build->Build.
 
 To run these demos, you need to add the Ice bin directory to your
 PATH, as shown below:
@@ -82,6 +81,6 @@ are necessary.
 
 Note that extra steps may be required when running the IceBox demo,
 depending on how you compiled the demos. If you used the Release
-configuration, then no extra steps are necessary. However, if you
-used the Debug configuration, you will need to use the debug
-version of icebox.exe located in the bin\debug subdirectory.
+configuration, then no extra steps are necessary. However, if you used
+the Debug configuration, you will need to use the debug version of
+icebox.exe located in the bin\debug subdirectory.

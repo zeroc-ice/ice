@@ -27,7 +27,7 @@ SPARC and includes the following components:
 - The Ice run time, including executables for the Ice services, HTML
   documentation and Slice files.
 
-- Run time libraries for C++, Java, and Python. These libraries enable 
+- Run time libraries for C++, Java, and Python. These libraries enable
   you to execute Ice applications.
 
 - Tools and libraries for developing Ice applications.
@@ -37,10 +37,10 @@ SPARC and includes the following components:
 Requirements
 ======================================================================
 
-This binary distribution was compiled on Solaris 9 using Sun CC 
+This binary distribution was compiled on Solaris 9 using Sun CC
 version 5.4.
 
-The following Solaris 9 binary packages, available from 
+The following Solaris 9 binary packages, available from
 http://www.sunfreeware.com, are required to use this distribution:
 
 - expat 1.95.5
@@ -57,18 +57,18 @@ You also need the bzip2 library version 1.0.2:
 Java
 ----
 
-Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained
-from JavaSoft at http://www.javasoft.com/j2se
+Ice for Java requires J2SE 1.4.2 or 1.5.0. RPMs can be obtained from
+JavaSoft at http://www.javasoft.com/j2se
 
 
 Python
 ------
 
 The Ice extension for Python included in this distribution requires
-Python 2.3.3. It was built using the python 2.3.3 binary package
-from http://www.sunfreeware.com. If you prefer to use Python 2.4,
-you can download the Ice for Python source code from the ZeroC web
-site at http://www.zeroc.com/download.html.
+Python 2.3.3. It was built using the python 2.3.3 binary package from
+http://www.sunfreeware.com. If you prefer to use Python 2.4, you can
+download the Ice for Python source code from the ZeroC web site at
+http://www.zeroc.com/download.html.
 
 
 ======================================================================
@@ -101,8 +101,8 @@ General
 The discussion below assumes you have defined the ICE_HOME variable
 with the directory of your Ice installation.
 
-In order to use Ice services and tools such as Slice translators,
-you need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
+In order to use Ice services and tools such as Slice translators, you
+need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
 LD_LIBRARY_PATH, as shown in the bash commands below:
 
 $ export PATH=$ICE_HOME/bin:$PATH
@@ -126,7 +126,7 @@ such as IcePack or Glacier2.
 Java
 ----
 
-To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar and 
+To use Ice for Java, you must add $ICE_HOME/lib/Ice.jar and
 $ICE_HOME/lib/db.jar to your CLASSPATH, as shown below:
 
 $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$ICE_HOME/lib/db.jar:$CLASSPATH
@@ -135,8 +135,8 @@ $ export CLASSPATH=$ICE_HOME/lib/Ice.jar:$ICE_HOME/lib/db.jar:$CLASSPATH
 Python
 ------
 
-To use Ice for Python, the PYTHONPATH environment variable must
-be updated so that the interpreter can load the Ice extension and
+To use Ice for Python, the PYTHONPATH environment variable must be
+updated so that the interpreter can load the Ice extension and
 supporting Python files:
 
 $ export PYTHONPATH=$ICE_HOME/python:$ICE_HOME/lib:$PYTHONPATH

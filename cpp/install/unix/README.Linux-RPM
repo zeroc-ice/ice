@@ -66,8 +66,8 @@ installation of the Ice for C++ development kit.
 Java
 ----
 
-To use Ice for Java, you must add Ice.jar to your CLASSPATH, as
-shown in the following bash command:
+To use Ice for Java, you must add Ice.jar to your CLASSPATH, as shown
+in the following bash command:
 
 $ export CLASSPATH=/usr/lib/Ice-2.1.0/Ice.jar:$CLASSPATH
 
@@ -75,8 +75,8 @@ Note that the Freeze component of Ice for Java requires Berkeley DB.
 In order to use Freeze, you must add db.jar to your CLASSPATH. In
 addition, the JVM requires the directory containing the Berkeley DB
 libraries to be listed in java.library.path, therefore you must add
-this directory to your LD_LIBRARY_PATH. Assuming you are using the
-RPM installation of Berkeley DB, the bash command is shown below:
+this directory to your LD_LIBRARY_PATH. Assuming you are using the RPM
+installation of Berkeley DB, the bash command is shown below:
 
 $ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 
@@ -84,8 +84,8 @@ $ export LD_LIBRARY_PATH=/usr/lib:$LD_LIBRARY_PATH
 Python
 ------
 
-To use Ice for Python, the PYTHONPATH environment variable must
-be updated so that the interpreter can load the Ice extension and
+To use Ice for Python, the PYTHONPATH environment variable must be
+updated so that the interpreter can load the Ice extension and
 supporting Python files:
 
 $ export PYTHONPATH=/usr/lib/Ice-2.1.0/python:$PYTHONPATH
@@ -100,8 +100,8 @@ necessary to locate the assemblies.
 
 The instructions for running the demos assume that you have configured
 your kernel to automatically execute the Mono interpreter. To do this,
-run the following commands as root (replace /usr/bin/mono with
-the location of your mono interpreter):
+run the following commands as root (replace /usr/bin/mono with the
+location of your mono interpreter):
 
     if [ ! -e /proc/sys/fs/binfmt_misc/register ]; then
 	/sbin/modprobe binfmt_misc mount -t binfmt_misc none /proc/sys/fs/binfmt_misc

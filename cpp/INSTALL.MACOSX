@@ -12,7 +12,7 @@ MacOS X 10.3.x
 C++ compiler
 ------------
 
-- GCC 3.3
+GCC 3.3
 
 
 Third-party libraries
@@ -25,9 +25,9 @@ Ice has dependencies on a number of third-party libraries:
   You can download the Berkeley DB source distribution from
   http://www.sleepycat.com/download
 
-  Note that Ice for Java is not compatible with version 4.3,
-  therefore if you intend to use Ice for Java with Berkeley DB,
-  you must use version 4.2.52 and the option --enable-java.
+  Note that Ice for Java is not compatible with version 4.3, therefore
+  if you intend to use Ice for Java with Berkeley DB, you must use
+  version 4.2.52 and the option --enable-java.
 
 - expat 1.9x. You can download expat from
   http://sourceforge.net/projects/expat/
@@ -68,8 +68,8 @@ $ python allTests.py
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".
 
-If you want to try out any of the demos, make sure to update your
-PATH environment variable to add the "bin" directory, and your
+If you want to try out any of the demos, make sure to update your PATH
+environment variable to add the "bin" directory, and your
 DYLD_LIBRARY_PATH environment variable to add the "lib" directory:
 
 $ export PATH=`pwd`/bin:$PATH

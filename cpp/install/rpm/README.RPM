@@ -29,4 +29,4 @@ In order to build the RPMs, you need to download each source
 distribution and copy or move them to your system's RPM sources
 directory. For example, /usr/src/redhat/SOURCES.
 
-This RPM specification file was tested with RPM version 4.3.2. 
+This RPM specification file was tested with RPM version 4.3.2.

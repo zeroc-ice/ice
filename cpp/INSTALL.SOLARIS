@@ -36,12 +36,12 @@ Third-party libraries
 
 Ice has dependencies on a number of third-party libraries:
 
-- Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx, and built 
+- Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx, and built
   with a C++ compiler compatible with the one you are using.
 
-  Note that Ice for Java is not compatible with version 4.3,
-  therefore if you intend to use Ice for Java with Berkeley DB,
-  you must use version 4.2.52 and the option --enable-java.
+  Note that Ice for Java is not compatible with version 4.3, therefore
+  if you intend to use Ice for Java with Berkeley DB, you must use
+  version 4.2.52 and the option --enable-java.
 
 - expat 1.9x
 
@@ -70,12 +70,14 @@ GNU Make 3.80 is required to build Ice on SPARC/Solaris. You can
 download GNU Make from http://www.sunfreeware.com.
 
 
-Python 2.x
-----------
+Python
+------
 
-To run the automated test suite, you will need Python 2.2 or greater.
-If you have no interest in running the test scripts, Python is not 
-required. You can download Python from http://www.sunfreeware.com.
+To run the automated test suite, you will need Python 2.2 or a newer
+version. If you have no interest in running the test scripts, Python
+is not required.
+
+You can download Python from http://www.sunfreeware.com.
 
 
 ======================================================================
@@ -98,8 +100,8 @@ party libraries.
 
 If you want to build with g++ instead of Sun CC, edit the file
 config/Make.rules.SunOS and change or comment out the CXX = <compiler>
-line (at the top of the file). The default value for CXX with GNU
-make is g++.
+line (at the top of the file). The default value for CXX with GNU make
+is g++.
 
 Now you're ready to build Ice:
 
@@ -118,10 +120,10 @@ $ python allTests.py
 If everything worked out, you should see lots of "ok" messages. In
 case of a failure, the tests abort with "failed".
 
-If you want to try out any of the demos, make sure to update your
-PATH environment variable to add the "bin" directory, and your
-LD_LIBRARY_PATH environment variable to add the "lib" directory.
-For 64 bit builds, add "lib" to LD_LIBRARY_PATH_64:
+If you want to try out any of the demos, make sure to update your PATH
+environment variable to add the "bin" directory, and your
+LD_LIBRARY_PATH environment variable to add the "lib" directory.  For
+64 bit builds, add "lib" to LD_LIBRARY_PATH_64:
 
 $ export PATH=`pwd`/bin:$PATH
 $ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH

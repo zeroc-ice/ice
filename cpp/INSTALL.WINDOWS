@@ -7,14 +7,14 @@ Windows version
 ---------------
 
 Ice has been extensively tested with Windows XP, Windows 2000 and
-Windows 98 SE. Ice is also expected to work on Windows 98, Windows
-ME, Windows NT 3.51, Windows NT 4.0 and Windows Server 2003.
+Windows 98 SE. Ice is also expected to work on Windows 98, Windows ME,
+Windows NT 3.51, Windows NT 4.0 and Windows Server 2003.
 
 Ice binary distributions for Visual Studio 6.0 and .NET 2003 are
 available from http://www.zeroc.com/download.html. These binary
 distributions include everything necessary to build Ice applications
-and require Windows NT 4.0, Windows 2000, Windows XP or Windows
-Server 2003.
+and require Windows NT 4.0, Windows 2000, Windows XP or Windows Server
+2003.
 
 
 C++ compiler
@@ -45,13 +45,13 @@ Ice has dependencies on a number of third-party libraries:
 - bzip2 1.0
 
 If you have downloaded an Ice binary installer, you already have all
-of the required third-party libraries and do not need to download
-any additional packages, nor do you need to compile the Ice source
-code.
+of the required third-party libraries and do not need to download any
+additional packages, nor do you need to compile the Ice source code.
 
 If you use Visual C++ .NET 2003 and wish to compile the Ice source
 code, you can download an installer containing binaries for all of the
-required third-party libraries from http://www.zeroc.com/download.html.
+required third-party libraries from
+http://www.zeroc.com/download.html.
 
 Finally, if you prefer to download and install the third-party
 dependencies yourself, you can find them at the following locations:
@@ -72,32 +72,37 @@ library to "libbz2d.lib". This is also what the Ice project files
 expect if you build a debug version of Ice.
 
 If you compile the third-party libraries from source code, we
-recommend that you use the same Visual C++ version to build all
-of the third-party libraries.
+recommend that you use the same Visual C++ version to build all of the
+third-party libraries.
 
 Users of Visual C++ 6.0 must configure Visual Studio to use STLPort
 before building Berkeley DB:
 
 - In the Visual C++ 6.0 IDE, choose Tools->Options->Directories
+
 - Select "Include files"
-- Add the include directory for STLport first in the list. (Note 
-  that you must add the "include\stlport" directory, not just 
-  "include".)
+
+- Add the include directory for STLport first in the list. (Note that
+  you must add the "include\stlport" directory, not just "include".)
+
 - Select "Library files"
+
 - Add the lib directory for STLport.
 
 
-Python 2.3
-----------
+Python
+------
 
-To run the automated test suite, you will need Python 2.3. If you have
-no interest in running the test scripts, Python is not required. You
-can download a Python distribution for Windows from:
+To run the automated test suite, you will need Python 2.2 or a newer
+version. If you have no interest in running the test scripts, Python
+is not required.
 
-http://www.activestate.com
+You can download a Python distribution for Windows from
+http://www.activestate.com.
 
 Important note for Windows 98, Windows 98 SE and Windows ME users:
-the Windows 9x shell is too limited to run the Ice test suite. For
+
+The Windows 9x shell is too limited to run the Ice test suite. For
 these versions of Windows, you need Cygwin and the python interpreter
 that comes with Cygwin in order to run the test suite. Cygwin can be
 downloaded from:
@@ -116,7 +121,9 @@ First, you must make sure that your compiler finds all of the required
 third-party packages (include files, libraries, and DLLs):
 
 - In Visual Studio, choose:
+
   * Visual C++ 6.0: Tools->Options->Directories
+
   * Visual C++ .NET: Tools->Options->Projects->VC++ Directories
 
 - Select "Include files".
@@ -127,10 +134,10 @@ third-party packages (include files, libraries, and DLLs):
   If you used the binary installer for expat, then the proper include
   directory is C:\Expat-1.95.6\Source\lib.
 
-  For Visual C++ 6.0, also add the include directory for
-  STLport. Note that you must add the "include\stlport" directory,
-  not just "include" and that (This directory must precede any of
-  the Visual C++ include directories.)
+  For Visual C++ 6.0, also add the include directory for STLport. Note
+  that you must add the "include\stlport" directory, not just
+  "include" and that (This directory must precede any of the Visual
+  C++ include directories.)
 
 - Select "Library files".
 
@@ -165,8 +172,8 @@ level Ice directory. At the command prompt, execute:
 
 python allTests.py
 
-If everything worked out, you should see lots of "ok" messages. In case
-of a failure, the tests abort with "failed".
+If everything worked out, you should see lots of "ok" messages. In
+case of a failure, the tests abort with "failed".
 
 If you want to try out any of the demos, make sure to update your PATH
 environment variable to add the "bin" directory, which contains the
@@ -197,9 +204,10 @@ include\IceUtil\Config.h and remove the following lines:
 #   endif
 
 On Windows 98, Windows 98 SE and Windows ME, we also recommend that
-you increase the number of connections supported by TCP/IP (to 500
-for example). See MaxConnections at
+you increase the number of connections supported by TCP/IP (to 500 for
+example). See MaxConnections at
 http://support.microsoft.com/default.aspx?scid=kb;EN-US;158474
+
 
 ======================================================================
 Installation
