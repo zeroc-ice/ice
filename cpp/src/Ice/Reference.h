@@ -42,12 +42,12 @@ public:
 	ModeLast = ModeBatchDatagram
     };
 
-    Mode getMode() const { return mode; }
-    const Ice::Identity& getIdentity() const { return identity; }
-    const Ice::Context& getContext() const { return context; }
-    const std::string& getFacet() const { return facet; }
-    bool getSecure() const { return secure; }
-    const InstancePtr& getInstance() const { return instance; }
+    Mode getMode() const { return _mode; }
+    const Ice::Identity& getIdentity() const { return _identity; }
+    const Ice::Context& getContext() const { return _context; }
+    const std::string& getFacet() const { return _facet; }
+    bool getSecure() const { return _secure; }
+    const InstancePtr& getInstance() const { return _instance; }
 
     virtual std::vector<EndpointPtr> getEndpoints() const = 0;
     virtual bool getCollocationOptimization() const = 0;
@@ -70,8 +70,7 @@ public:
     virtual ReferencePtr changeTimeout(int) const = 0;
     virtual ReferencePtr changeCollocationOptimization(bool) const = 0;
 
-    // TODO: Why virtual?
-    virtual int hash() const; // Conceptually const.
+    int hash() const; // Conceptually const.
 
     //
     // Marshal the reference.
@@ -101,18 +100,17 @@ protected:
 
 private:
 
-    // TODO: Add leading underscore for private members.
-    InstancePtr instance;
+    InstancePtr _instance;
 
-    Mode mode;
-    Ice::Identity identity;
-    Ice::Context context;
-    std::string facet;
-    bool secure;
+    Mode _mode;
+    Ice::Identity _identity;
+    Ice::Context _context;
+    std::string _facet;
+    bool _secure;
 
-    IceUtil::Mutex hashMutex; // For lazy initialization of hash value.
-    mutable Ice::Int hashValue;
-    mutable bool hashInitialized;
+    IceUtil::Mutex _hashMutex; // For lazy initialization of hash value.
+    mutable Ice::Int _hashValue;
+    mutable bool _hashInitialized;
 };
 
 class FixedReference : public Reference
@@ -122,12 +120,11 @@ public:
     FixedReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode, bool,
 	           const std::vector<Ice::ConnectionIPtr>&);
 
-    const std::vector<Ice::ConnectionIPtr>& getFixedConnections() const { return fixedConnections; }
+    const std::vector<Ice::ConnectionIPtr>& getFixedConnections() const { return _fixedConnections; }
 
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
-    // TODO: Virtual functions shouldn't be inlined.
-    virtual bool getCollocationOptimization() const { return false; }
+    virtual bool getCollocationOptimization() const;
 
     virtual void streamWrite(BasicStream*) const;
     virtual Ice::ConnectionIPtr getConnection(bool&) const;
@@ -151,18 +148,16 @@ protected:
 
 private:
 
-    // TODO: Add leading underscore for private members.
-    std::vector<Ice::ConnectionIPtr> fixedConnections;
+    std::vector<Ice::ConnectionIPtr> _fixedConnections;
 };
 
 class RoutableReference : public Reference
 {
 public:
 
-    const RouterInfoPtr& getRouterInfo() const { return routerInfo; }
+    const RouterInfoPtr& getRouterInfo() const { return _routerInfo; }
     std::vector<EndpointPtr> getRoutedEndpoints() const;
-    // TODO: Virtual functions shouldn't be inlined.
-    virtual bool getCollocationOptimization() const { return collocationOptimization; }
+    virtual bool getCollocationOptimization() const;
 
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
     virtual ReferencePtr changeDefault() const;
@@ -185,9 +180,8 @@ protected:
 
 private:
 
-    // TODO: Add leading underscore for private members.
-    RouterInfoPtr routerInfo; // Null if no router is used.
-    bool collocationOptimization;
+    RouterInfoPtr _routerInfo; // Null if no router is used.
+    bool _collocationOptimization;
 };
 
 class DirectReference : public RoutableReference
@@ -222,8 +216,7 @@ protected:
 
 private:
 
-    // TODO: Add leading underscore for private members.
-    std::vector<EndpointPtr> endpoints;
+    std::vector<EndpointPtr> _endpoints;
 };
 
 class IndirectReference : public RoutableReference
@@ -233,8 +226,8 @@ public:
     IndirectReference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&,
                       Mode, bool, const std::string&, const RouterInfoPtr&, const LocatorInfoPtr&, bool);
 
-    const std::string& getAdapterId() const { return adapterId; }
-    const LocatorInfoPtr& getLocatorInfo() const { return locatorInfo; }
+    const std::string& getAdapterId() const { return _adapterId; }
+    const LocatorInfoPtr& getLocatorInfo() const { return _locatorInfo; }
 
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
@@ -259,9 +252,8 @@ protected:
 
 private:
 
-    // TODO: Add leading underscore for private members.
-    std::string adapterId;
-    LocatorInfoPtr locatorInfo; // Null if no locator is used.
+    std::string _adapterId;
+    LocatorInfoPtr _locatorInfo;
 };
 
 std::vector<EndpointPtr> filterEndpoints(const std::vector<EndpointPtr>&, Reference::Mode, bool);

@@ -85,7 +85,7 @@ public:
 
 private:
 
-    void trace(const std::string&, const ReferencePtr&, const std::vector<EndpointPtr>&);
+    void trace(const std::string&, const IndirectReferencePtr&, const std::vector<EndpointPtr>&);
 
     const Ice::LocatorPrx _locator;
     Ice::LocatorRegistryPrx _locatorRegistry;

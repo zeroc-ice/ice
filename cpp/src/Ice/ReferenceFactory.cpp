@@ -27,7 +27,7 @@ void IceInternal::incRef(::IceInternal::ReferenceFactory* p) { p->__incRef(); }
 void IceInternal::decRef(::IceInternal::ReferenceFactory* p) { p->__decRef(); }
 
 ReferencePtr
-IceInternal::ReferenceFactory::clone(const Reference* r) const
+IceInternal::ReferenceFactory::copy(const Reference* r) const
 {
     Mutex::Lock sync(*this);
 

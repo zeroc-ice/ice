@@ -417,11 +417,7 @@ IceInternal::LocatorInfo::clearCache(const IndirectReferencePtr& ref)
 	    {
 	        if(!oir->getAdapterId().empty())
 		{
-		    IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(object->__reference());
-		    if(ir)
-		    {
-			clearCache(ir);
-		    }
+		    clearCache(oir);
 		}
 	    }
 	    else
@@ -436,18 +432,19 @@ IceInternal::LocatorInfo::clearCache(const IndirectReferencePtr& ref)
 }
 
 void
-IceInternal::LocatorInfo::trace(const string& msg, const ReferencePtr& ref, const vector<EndpointPtr>& endpoints)
+IceInternal::LocatorInfo::trace(const string& msg,
+	                        const IndirectReferencePtr& ref,
+				const vector<EndpointPtr>& endpoints)
 {
     Trace out(ref->getInstance()->logger(), ref->getInstance()->traceLevels()->locationCat);
     out << msg << '\n';
-    IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);
-    if(!ir)
+    if(!ref->getAdapterId().empty())
     {
-	out << "object = "  << identityToString(ref->getIdentity()) << '\n';
+	out << "adapter = "  << ref->getAdapterId() << '\n';
     }
     else
     {
-	out << "adapter = "  << ir->getAdapterId() << '\n';
+	out << "object = "  << identityToString(ref->getIdentity()) << '\n';
     }
 
     const char* sep = endpoints.size() > 1 ? ":" : "";

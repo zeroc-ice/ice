@@ -26,7 +26,7 @@ public:
     //
     // Make a polymorphic copy of a reference.
     //
-    ReferencePtr clone(const Reference* r) const;
+    ReferencePtr copy(const Reference* r) const;
 
     //
     // Create a direct reference.
