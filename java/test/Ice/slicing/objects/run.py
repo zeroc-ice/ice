@@ -25,11 +25,9 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-name = os.path.join("Ice", "slicing", "exceptions")
+name = os.path.join("Ice", "slicing", "objects")
 testdir = os.path.join(toplevel, "test", name)
 
-classpath = os.getenv("CLASSPATH", "")
-os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + classpath
-TestUtil.clientServerTest()
+TestUtil.clientServerTestWithClasspath(os.path.join(testdir, "sclasses"), os.path.join(testdir, "cclasses"))
 
 sys.exit(0)

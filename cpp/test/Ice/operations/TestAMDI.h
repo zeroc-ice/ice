@@ -122,6 +122,8 @@ public:
 				       const Test::StringMyEnumD&, const Test::StringMyEnumD&,
 				       const Ice::Current&);
 
+    virtual void opIntS_async(const ::Test::AMD_MyClass_opIntSPtr&, const Test::IntS&, const Ice::Current&);
+
     virtual void opDerived_async(const Test::AMD_MyDerivedClass_opDerivedPtr&,
 				 const Ice::Current&);
     

@@ -815,6 +815,40 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
+    private static class AMI_MyClass_opIntSI extends Test.AMI_MyClass_opIntS
+    {
+        AMI_MyClass_opIntSI(int l)
+	{
+	    _l = l;
+	}
+
+	public void
+	ice_response(int[] r)
+	{
+	    test(r.length == _l);
+	    for(int j = 0; j < r.length; ++j)
+	    {
+	        test(r[j] == -j);
+	    }
+	    callback.called();
+	}
+
+	public void
+	ice_exception(Ice.LocalException ex)
+	{
+	    test(false);
+	}
+
+	public boolean
+	check()
+	{
+	    return callback.check();
+	}
+
+	private int _l;
+	private Callback callback = new Callback();
+    };
+
     private static class AMI_MyDerivedClass_opDerivedI extends Test.AMI_MyDerivedClass_opDerived
     {
 	public void
@@ -1084,6 +1118,22 @@ class TwowaysAMI
 	    AMI_MyClass_opStringMyEnumDI cb = new AMI_MyClass_opStringMyEnumDI();
 	    p.opStringMyEnumD_async(cb, di1, di2);
 	    test(cb.check());
+	}
+
+	{
+	    int[] lengths = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+
+	    for(int l = 0; l < lengths.length; ++l)
+	    {
+	        int[] s = new int[lengths[l]];
+		for(int i = 0; i < s.length; ++i)
+		{
+		    s[i] = i;
+		}
+		AMI_MyClass_opIntSI cb = new AMI_MyClass_opIntSI(lengths[l]);
+		p.opIntS_async(cb, s);
+		test(cb.check());
+	    }
 	}
 
 	{

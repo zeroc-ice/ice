@@ -325,6 +325,17 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
     }
 
     public void
+    opIntS_async(Test.AMD_MyClass_opIntS cb, int[] s, Ice.Current current)
+    {
+	int[] r = new int[s.length];
+	for(int i = 0; i < r.length; ++i)
+	{
+	    r[i] = -s[i];
+	}
+        cb.ice_response(r);
+    }
+
+    public void
     opStringS_async(Test.AMD_MyClass_opStringS cb,
 		    String[] p1, String[] p2,
 		    Ice.Current current)

@@ -287,6 +287,17 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return r;
     }
 
+    public int[]
+    opIntS(int[] s, Ice.Current current)
+    {
+	int[] r = new int[s.length];
+	for(int i = 0; i < r.length; ++i)
+	{
+	    r[i] = -s[i];
+	}
+        return r;
+    }
+
     public String[]
     opStringS(String[] p1, String[] p2,
 	      Test.StringSHolder p3,

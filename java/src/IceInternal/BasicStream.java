@@ -389,7 +389,7 @@ public class BasicStream
     public void
     writeSize(int v)
     {
-	if(v > 127)
+	if(v > 254)
 	{
 	    expand(5);
 	    _buf.put((byte)-1);
@@ -408,7 +408,7 @@ public class BasicStream
         try
         {
 	    byte b = _buf.get();
-	    if(b < 0)
+	    if(b == -1)
 	    {
 		int v = _buf.getInt();
 		if(v < 0)
@@ -419,7 +419,7 @@ public class BasicStream
 	    }
 	    else
 	    {
-		return (int)b;
+		return (int)(b < 0 ? b + 256 : b);
 	    }
         }
         catch(java.nio.BufferUnderflowException ex)
@@ -1029,40 +1029,31 @@ public class BasicStream
 	}
 	if(v != null)
 	{
-System.err.println("writeObject: checking maps");
 	    //
 	    // Look for this instance in the to-be-marshaled map.
 	    //
 	    Integer p = (Integer)_writeEncapsStack.toBeMarshaledMap.get(v);
 	    if(p == null)
 	    {
-System.err.println("writeObject: not in to be marshaled map");
 	        //
 		// Didn't find it, try the marshaled map next.
 		//
 	        Integer q = (Integer)_writeEncapsStack.marshaledMap.get(v);
 		if(q == null)
 		{
-System.err.println("writeObject: not in marshaled map");
 		    //
 		    // We haven't seen this instance previously, create a new index, and
 		    // insert it into the to-be-marshaled map.
 		    //
 		    q = new Integer(++_writeEncapsStack.writeIndex);
-System.err.print("Adding new entry to toBeMarshaledMap at index ");
-System.err.println(q.toString());
 		    _writeEncapsStack.toBeMarshaledMap.put(v, q);
-System.err.println("done Adding new entry to toBeMarshaledMap");
 		}
 		p = q;
 	    }
-System.err.print("writeObject: writing index ");
-System.err.println(-p.intValue());
 	    writeInt(-p.intValue());
 	}
 	else
 	{
-System.err.println("Writing null reference");
 	    writeInt(0);	// Write null reference
 	}
     }
@@ -1110,8 +1101,6 @@ System.err.println("Writing null reference");
 		// We have no outstanding instances to be patched for this index, so make a new entry
 		// in the patch map.
 		//
-System.err.print("Adding an empty patch list to patch map at index ");
-System.err.println(-index);
 		patchlist = new java.util.LinkedList();
 	        _readEncapsStack.patchMap.put(i, patchlist);
 	    }
@@ -1119,24 +1108,8 @@ System.err.println(-index);
 	    // Append a patcher for this instance and see if we can patch the instance. (The instance
 	    // may have been unmarshaled previously.)
 	    //
-System.err.print("Adding patcher ");
-System.err.print(patcher.toString());
-System.err.print(" at index ");
-System.err.println(-index);
 	    patchlist.add(patcher);
-
-java.util.LinkedList pl = (java.util.LinkedList)_readEncapsStack.patchMap.get(i);
-System.err.println("Checking patchlist...");
-if(pl == null)
-{
-    System.err.println("patchlist is null!!!");
-}
-System.err.print("Patchlist size: ");
-System.err.println(pl.size());
-
-System.err.println("Calling patchReferences");
 	    patchReferences(null, i);
-System.err.println("Done calling patchReferences");
 	    return;
 	}
 
@@ -1167,16 +1140,12 @@ System.err.println("Done calling patchReferences");
 		    skipSlice();
 		    continue;
 		}
-	        
-		Integer i = new Integer(index);
-System.err.println("Adding " + v.toString() + " to unmarshaled map at index " + index);
-		_readEncapsStack.unmarshaledMap.put(i, v);
-		v.__read(this, false);
-System.err.println("got an instance, calling patchReferences");
-		patchReferences(i, null);
-System.err.println("done calling patchReferences");
-		return;
 	    }
+	    Integer i = new Integer(index);
+	    _readEncapsStack.unmarshaledMap.put(i, v);
+	    v.__read(this, false);
+	    patchReferences(i, null);
+	    return;
 	}
     }
 
@@ -1240,13 +1209,10 @@ System.err.println("done calling patchReferences");
     public void
     writePendingObjects()
     {
-System.err.println("Entering writePendingObjects()");
 	while(_writeEncapsStack.toBeMarshaledMap.size() > 0)
 	{
 	    java.util.HashMap savedMap = new java.util.HashMap();
 	    savedMap.putAll(_writeEncapsStack.toBeMarshaledMap);
-System.err.print("savedMap.size() = ");
-System.err.println(savedMap.size());
 	    writeSize(savedMap.size());
 	    for(java.util.Iterator p = savedMap.entrySet().iterator(); p.hasNext(); )
 	    {
@@ -1256,11 +1222,8 @@ System.err.println(savedMap.size());
 		// by the classes marshaled are added to toBeMarshaledMap.
 		//
 	        java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-System.err.println("Adding instance to marshaled map");
 	        _writeEncapsStack.marshaledMap.put(e.getKey(), e.getValue());
-System.err.println("Calling writeInstance");
 		writeInstance((Ice.Object)e.getKey(), (Integer)e.getValue());
-System.err.println("Done calling writeInstance");
 	    }
 	    //
 	    // We have marshaled all the instances for this pass, substract what we have
@@ -1271,9 +1234,7 @@ System.err.println("Done calling writeInstance");
 	        _writeEncapsStack.toBeMarshaledMap.remove(p.next());
 	    }
 	}
-System.err.println("writing zero end marker");
 	writeSize(0);
-System.err.println("Leaving writePendingObjects()");
     }
 
     public void
@@ -1282,13 +1243,9 @@ System.err.println("Leaving writePendingObjects()");
 	int num;
 	do {
 	    num = readSize();
-System.err.print("readPending: num = ");
-System.err.println(num);
 	    for(int k = num; k > 0; --k)
 	    {
-System.err.println("readPending: calling readObject");
 		readObject(null);
-System.err.println("readPending: done calling readObject");
 	    }
 	}
         while(num > 0);
@@ -1297,18 +1254,13 @@ System.err.println("readPending: done calling readObject");
     void
     writeInstance(Ice.Object v, Integer index)
     {
-System.err.print("writeInstance, writing index ");
-System.err.println(index.intValue());
         writeInt(index.intValue());
-System.err.println("writeInstance, instance = " + v.toString());
         v.__write(this);
-System.err.println("writeInstance, done calling v.__write()");
     }
 
     void
     patchReferences(Integer instanceIndex, Integer patchIndex)
     {
-System.err.println("Entering patchReferences");
 	assert((patchIndex != null && instanceIndex == null) || (patchIndex == null && instanceIndex != null));
 
 	java.util.LinkedList patchlist;
@@ -1318,13 +1270,9 @@ System.err.println("Entering patchReferences");
 	    //
 	    // We have just unmarshaled an instance -- check if something needs patching for that instance.
 	    //
-System.err.println("patchIndex == null");
-System.err.print("instanceIndex = ");
-System.err.println(instanceIndex.intValue());
 	    patchlist = (java.util.LinkedList)_readEncapsStack.patchMap.get(instanceIndex);
 	    if(patchlist == null)
 	    {
-System.err.println("Leaving patchReferences");
 	        return;	// We don't have anything to patch for the instance just unmarshaled
 	    }
 	    v = (Ice.Object)_readEncapsStack.unmarshaledMap.get(instanceIndex);
@@ -1335,16 +1283,11 @@ System.err.println("Leaving patchReferences");
 	   //
 	   // We have just unmarshaled an index -- check if we have unmarshaled an instance for that index.
 	   //
-System.err.println("instanceIndex == null");
-System.err.print("patchIndex = ");
-System.err.println(patchIndex.intValue());
 	    v = (Ice.Object)_readEncapsStack.unmarshaledMap.get(patchIndex);
 	    if(v == null)
 	    {
-System.err.println("Leaving patchReferences");
 	       return; // We don't have unmarshaled the instance for this index yet
 	    }
-System.err.println("found instance in unmarshaled map: " + v.toString());
 	    patchlist = (java.util.LinkedList)_readEncapsStack.patchMap.get(patchIndex);
 	}
 	assert(patchlist != null && patchlist.size() > 0);
@@ -1354,7 +1297,6 @@ System.err.println("found instance in unmarshaled map: " + v.toString());
 	{
 	    Ice.Patcher p = (Ice.Patcher)i.next();
 	    try {
-System.err.println("patching an instance");
 		p.patch(v);
 	    }
 	    catch(ClassCastException ex)
@@ -1363,7 +1305,6 @@ System.err.println("patching an instance");
 	    }
 	}
 	_readEncapsStack.patchMap.remove(patchIndex);
-System.err.println("Leaving patchReferences");
     }
 
     int

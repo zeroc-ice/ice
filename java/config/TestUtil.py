@@ -147,6 +147,34 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
 	killServers()
 	sys.exit(1)
 
+def clientServerTestWithClasspath(serverClasspath, clientClasspath):
+
+    classpath = os.getenv("CLASSPATH", "")
+    scp = serverClasspath + sep + classpath
+    ccp = clientClasspath + sep + classpath
+
+    server = "java -ea -cp " + scp + " Server --Ice.ProgramName=Server"
+    client = "java -ea -cp " + ccp + " Client --Ice.ProgramName=Client"
+
+    print "starting server...",
+    serverPipe = os.popen(server + serverOptions)
+    getAdapterReady(serverPipe)
+    print "ok"
+    
+    print "starting client...",
+    clientPipe = os.popen(client + clientOptions)
+    print "ok"
+
+    for output in clientPipe.xreadlines():
+	print output,
+
+    clientStatus = clientPipe.close()
+    serverStatus = serverPipe.close()
+
+    if clientStatus or serverStatus:
+	killServers()
+	sys.exit(1)
+
 def clientServerTest():
 
     clientServerTestWithOptions("", "")

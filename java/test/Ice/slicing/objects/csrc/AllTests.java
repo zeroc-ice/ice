@@ -136,7 +136,7 @@ public class AllTests
 	    try
 	    {
 		o = test.SUnknownAsObject();
-		test(o.ice_id(null).equals("::Ice.Object"));
+		test(o.ice_id(null).equals("::Ice::Object"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -533,7 +533,8 @@ public class AllTests
 	}
 	System.out.println("ok");
 
-	System.out.print("testing parameter pointer slicing with first instance marshaled in unknown derived as base... ");
+	System.out.print("testing parameter pointer slicing with first instance marshaled in"
+	                 + " unknown derived as base... ");
 	System.out.flush();
 	{
 	    try
@@ -566,7 +567,8 @@ public class AllTests
 	}
 	System.out.println("ok");
 
-	System.out.print("testing parameter pointer slicing with first instance marshaled in unknown derived as derived... ");
+	System.out.print("testing parameter pointer slicing with first instance marshaled in"
+	                 + " unknown derived as derived... ");
 	System.out.flush();
 	{
 	    try
@@ -683,44 +685,6 @@ public class AllTests
 		test(ss2b.ice_id(null).equals("::B"));
 		test(ss2d1.ice_id(null).equals("::D1"));
 		test(ss2d3.ice_id(null).equals("::B"));
-	    }
-	    catch(Exception ex)
-	    {
-		test(false);
-	    }
-	}
-	System.out.println("ok");
-
-	System.out.print("testing UnknownUserException with known exception... ");
-	System.out.flush();
-	{
-	    try
-	    {
-		test.throwKnown();
-		test(false);
-	    }
-	    catch(Ice.UnknownUserException e)
-	    {
-		test(e.ice_name().equals("Ice.UnknownUserException"));
-	    }
-	    catch(Exception ex)
-	    {
-		test(false);
-	    }
-	}
-	System.out.println("ok");
-
-	System.out.print("testing UnknownUserException with unknown exception... ");
-	System.out.flush();
-	{
-	    try
-	    {
-		test.throwUnknown();
-		test(false);
-	    }
-	    catch(Ice.UnknownUserException e)
-	    {
-		test(e.ice_name().equals("Ice.UnknownUserException"));
 	    }
 	    catch(Exception ex)
 	    {

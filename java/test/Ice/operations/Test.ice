@@ -141,6 +141,8 @@ dictionary<string, MyEnum> StringMyEnumD;
     StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2,
 				  out StringMyEnumD p3);
 
+    IntS opIntS(IntS s);
+
 };
 
 ["ami"] class MyDerivedClass extends MyClass

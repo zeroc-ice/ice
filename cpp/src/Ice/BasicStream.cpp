@@ -400,9 +400,10 @@ IceInternal::BasicStream::skipSlice()
 void
 IceInternal::BasicStream::writeSize(Int v)
 {
-    if(v > 127)
+    assert(v >= 0);
+    if(v > 254)
     {
-	write(Byte(-1));
+	write(Byte(255));
 	write(v);
     }
     else
@@ -416,7 +417,8 @@ IceInternal::BasicStream::readSize(Ice::Int& v)
 {
     Byte byte;
     read(byte);
-    if(byte < 0)
+    unsigned val = static_cast<unsigned char>(byte);
+    if(val == 255)
     {
 	read(v);
 	if(v < 0)
@@ -426,7 +428,7 @@ IceInternal::BasicStream::readSize(Ice::Int& v)
     }
     else
     {
-	v = static_cast<Int>(byte);
+	v = static_cast<Int>(static_cast<unsigned char>(byte));
     }
 }
 

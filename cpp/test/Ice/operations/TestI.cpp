@@ -14,6 +14,7 @@
 
 #include <Ice/Ice.h>
 #include <TestI.h>
+#include <functional>
 
 MyDerivedClassI::MyDerivedClassI(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity) :
     _adapter(adapter),
@@ -323,6 +324,14 @@ MyDerivedClassI::opStringMyEnumD(const Test::StringMyEnumD& p1,
     p3 = p1;
     Test::StringMyEnumD r = p1;
     std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
+    return r;
+}
+
+Test::IntS
+MyDerivedClassI::opIntS(const Test::IntS& s, const Ice::Current&)
+{
+    Test::IntS r;
+    transform(s.begin(), s.end(), back_inserter(r), std::negate<int>());
     return r;
 }
 

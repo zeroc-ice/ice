@@ -247,32 +247,6 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    throwKnown(Ice.Current current)
-        throws BaseException
-    {
-	BaseException be = new BaseException();
-	be.sbe = "sbe";
-	be.pb = new B();
-	be.pb.sb = "sb";
-	be.pb.pb = be.pb;
-	throw be;
-    }
-
-    public void
-    throwUnknown(Ice.Current current)
-        throws BaseException
-    {
-	UnknownDerivedException ude = new UnknownDerivedException();
-	ude.sude = "sude";
-	ude.pd2 = new D2();
-	ude.pd2.sb = "sb";
-	ude.pd2.pb = ude.pd2;
-	ude.pd2.sd2 = "sd2";
-	ude.pd2.pd2 = ude.pd2;
-	throw ude;
-    }
-
-    public void
     throwBaseAsBase(Ice.Current current)
         throws BaseException
     {

@@ -146,6 +146,8 @@ public:
 						Test::StringMyEnumD&,
 						const Ice::Current&);
 
+    virtual Test::IntS opIntS(const Test::IntS&, const Ice::Current&);
+
     virtual void opDerived(const Ice::Current&);
 
 private:

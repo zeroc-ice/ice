@@ -14,6 +14,7 @@
 
 #include <Ice/Ice.h>
 #include <TestAMDI.h>
+#include <functional>
 
 class Thread_opVoid : public IceUtil::Thread
 {
@@ -346,6 +347,14 @@ MyDerivedClassI::opStringMyEnumD_async(const Test::AMD_MyClass_opStringMyEnumDPt
     Test::StringMyEnumD r = p1;
     std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
     cb->ice_response(r, p3);
+}
+
+void
+MyDerivedClassI::opIntS_async(const ::Test::AMD_MyClass_opIntSPtr& cb, const Test::IntS& s, const Ice::Current&)
+{
+    Test::IntS r;
+    transform(s.begin(), s.end(), back_inserter(r), std::negate<int>());
+    cb->ice_response(r);
 }
 
 void

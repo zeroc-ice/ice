@@ -696,6 +696,34 @@ public:
     }
 };
 
+class AMI_MyClass_opIntSI : public Test::AMI_MyClass_opIntS, public CallbackBase
+{
+public:
+
+    AMI_MyClass_opIntSI(int l) : _l(l) {}
+
+    virtual void ice_response(const Test::IntS& r)
+    {
+	test(r.size() == static_cast<size_t>(_l));
+	for(int j = 0; j < _l; ++j)
+	{
+	    test(r[j] == -j);
+	}
+	called();
+    }
+
+    virtual void ice_exception(const ::Ice::Exception&)
+    {
+	test(false);
+    }
+
+private:
+
+    int _l;
+};
+
+typedef IceUtil::Handle<AMI_MyClass_opIntSI> AMI_MyClass_opIntSIPtr;
+
 typedef IceUtil::Handle<AMI_MyClass_opStringMyEnumDI> AMI_MyClass_opStringMyEnumDIPtr;
 
 class AMI_MyDerivedClass_opDerivedI : public Test::AMI_MyDerivedClass_opDerived, public CallbackBase
@@ -992,6 +1020,22 @@ twowaysAMI(const Test::MyClassPrx& p)
 	AMI_MyClass_opStringMyEnumDIPtr cb = new AMI_MyClass_opStringMyEnumDI;
 	p->opStringMyEnumD_async(cb, di1, di2);
 	test(cb->check());
+    }
+
+    {
+	const int lengths[] = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+
+	for(int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
+	{
+	    Test::IntS s;
+	    for(int i = 0; i < lengths[l]; ++i)
+	    {
+		s.push_back(i);
+	    }
+	    AMI_MyClass_opIntSIPtr cb = new AMI_MyClass_opIntSI(lengths[l]);
+	    p->opIntS_async(cb, s);
+	    test(cb->check());
+	}
     }
 
     {
