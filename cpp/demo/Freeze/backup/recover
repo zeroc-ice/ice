@@ -3,21 +3,22 @@
 case $1 in
   "full" | "incremental") echo "Performing $1 recovery"
           echo "====== Save current logs ======"
-          tar zcvf db/logs.tar.gz db/logs --exclude db/logs/CVS --exclude db/logs/.dummy
+          if [ ! -d db/logs/save ] ; then mkdir db/logs/save; fi
+          \cp db/logs/log.* db/logs/save
 
-          echo "====== Restore last full backup ======" 
-          tar xzvf full/data.tar.gz
-          tar xzvf full/logs.tar.gz
-
+          echo "====== Restore last full backup ======"
+          \cp full/data/IntLongMap db/data
+	  \cp full/logs/log.* db/logs
+         
           if [ $1 == "incremental" ]
           then
              echo "====== Restore last incremental backup ======" 
-             tar xzvf incremental/logs.tar.gz
+              \cp incremental/logs/log.* db/logs
           fi
 
           echo "====== Restore 'current' logs ======"
-          tar xzvf db/logs.tar.gz
-          mv db/logs.tar.gz db/logs-`date +%T`.tar.gz
+          \cp db/logs/save/log.* db/logs
+          \rm -r db/logs/save
 
           echo "====== Please run now ======"
           echo "% db_recover -c -h db"

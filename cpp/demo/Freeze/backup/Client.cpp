@@ -35,7 +35,7 @@ main(int argc, char* argv[])
 
     CommunicatorPtr communicator = initializeWithProperties(argc, argv, properties);
 
-    Freeze::ConnectionPtr connection = createConnection(communicator, "db");
+    Freeze::ConnectionPtr connection = createConnection(communicator, "backup");
     IntLongMap m(connection, "IntLongMap", true);
     
     const size_t size = 10000;
@@ -80,8 +80,8 @@ main(int argc, char* argv[])
 	    count++;
 	} while(++p != m.end());
 
-	cout << "Switching from " << Time::milliSeconds(oldMs).toString() 
-	     << " to " << time.toString() << " ... " << flush;
+	cout << "Read " << Time::milliSeconds(oldMs).toString() << " in all records;" 
+	     << " updating with " << time.toString() << " ... " << flush;
 	  
 	txHolder.commit();
 	cout << "done" << endl;

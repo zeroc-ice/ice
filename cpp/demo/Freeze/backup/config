@@ -1,17 +1,27 @@
 #
+# Home directory
+#
+Freeze.DbEnv.backup.DbHome=db
+
+#
 # Keep logs
 #
-Freeze.DbEnv.db.OldLogsAutoDelete=0
+Freeze.DbEnv.backup.OldLogsAutoDelete=0
 
 #
 # Allows another process (db_archive) to access this environment
 #
-Freeze.DbEnv.db.DbPrivate=0
+Freeze.DbEnv.backup.DbPrivate=0
+
+#
+# Disable checkpoints
+#
+Freeze.DbEnv.backup.CheckpointPeriod=-1
 
 #
 # "Fatal" recovery
 #
-#Freeze.DbEnv.db.DbRecoverFatal=1
+#Freeze.DbEnv.backup.DbRecoverFatal=1
 
 
 

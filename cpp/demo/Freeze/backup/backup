@@ -1,5 +1,11 @@
 #!/bin/sh
 
+#
+# See "Selecting a page size" in the Berkeley DB Reference Guide. 
+#
+pagesize=4096
+
+
 case $1 in
   "full" | "incremental") echo "Performing $1 backup"
           echo "====== Checkpoint ======"
@@ -9,10 +15,16 @@ case $1 in
           if [ $1 = "full" ]
           then
              echo "====== Data backup ======"
-             tar zcvf $1/data.tar.gz db/data/IntLongMap
+             if [ ! -d $1/data ] ; then mkdir $1/data ; fi
+             dd if=db/data/IntLongMap of=$1/data/IntLongMap bs=$pagesize
           fi
           echo "====== Log backup ====="
-          tar zcvf $1/logs.tar.gz db/logs/log.*
+          if [ ! -d $1/logs ] ; then mkdir $1/logs ; fi
+          \rm -f db/logs/logs.*
+          for i in db/logs/log.*
+          do
+             dd if=$i of=$1${i#db} bs=$pagesize
+          done
           echo "===== Remove old logs ====="
           for i in $oldLogs
           do
