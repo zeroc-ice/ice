@@ -275,13 +275,13 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     client = os.path.join(testdir, "client")
 
     print "starting server...",
-    (serverPipeIn, serverPipe) = os.popen4(server + serverOptions + additionalServerOptions)
+    (serverPipeIn, serverPipe) = os.popen4(server + clientServerOptions + additionalServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    (clientPipeIn, clientPipe) = os.popen4(client + clientOptions + additionalClientOptions)
+    (clientPipeIn, clientPipe) = os.popen4(client + clientServerOptions + additionalClientOptions)
     getServerPid(clientPipe)
     getAdapterReady(clientPipe)
     print "ok"
