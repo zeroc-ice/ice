@@ -110,11 +110,12 @@ public:
 	    }
 	    else
 	    {
-		_size = std::max(n, static_cast<size_type>(240));
+		_size = n;
 
 		if(_size > _capacity)
 		{
 		    _capacity = std::max(_size, 2 * _capacity);
+		    _capacity = std::max(static_cast<size_type>(240), _capacity);
 
 		    if(_buf)
 		    {
