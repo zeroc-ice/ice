@@ -248,7 +248,7 @@ IceInternal::ThreadPool::run()
 	    ObjectAdapterFactoryPtr factory = _instance->objectAdapterFactory();
 	    if (factory)
 	    {
-		_instance->objectAdapterFactory()->shutdown();
+		factory->shutdown();
 	    }
 	}
 	
