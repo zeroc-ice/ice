@@ -42,7 +42,7 @@ This distribution depends on a number of third-party libraries:
 
 - Berkeley DB 4.2.52
 - expat 1.95
-- OpenSSL 0.97
+- OpenSSL 0.9.7
 - bzip2 1.0.2
 - readline 4.3
 - ncurses 5.4
