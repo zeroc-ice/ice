@@ -28,7 +28,10 @@ public abstract class Blobject extends Ice.ObjectImpl
         int sz = in.is().getReadEncapsSize();
         inParams = in.is().readBlob(sz);
         boolean ok = ice_invoke(inParams, outParams, current);
-        in.os().writeBlob(outParams.value);
+        if(outParams.value != null)
+        {
+            in.os().writeBlob(outParams.value);
+        }
         if(ok)
         {
             return IceInternal.DispatchStatus.DispatchOK;
