@@ -19,7 +19,7 @@ using namespace std;
 namespace IceUtil
 {
 
-bool nullHandleAbort = false;
+bool ICE_UTIL_API nullHandleAbort = false;
 
 };
 

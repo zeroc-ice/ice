@@ -61,7 +61,7 @@ string Instance::_identForOpenlog;
 namespace IceUtil
 {
 
-extern bool nullHandleAbort;
+extern bool ICE_UTIL_API nullHandleAbort;
 
 };
 
