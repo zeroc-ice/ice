@@ -1306,8 +1306,8 @@ Ice::Service::runDaemon(int argc, char* argv[])
                     continue;
                 }
 
-                cerr << argv[0] << ": " << strerror(errno) << endl;
-                return EXIT_FAILURE;
+                cerr << argv[0] << ": " << strerror(errno) << endl << flush;
+                _exit(EXIT_FAILURE);
             }
             break;
         }
@@ -1330,17 +1330,17 @@ Ice::Service::runDaemon(int argc, char* argv[])
                     }
 
                     cerr << argv[0] << ": I/O error while reading error message from child:" << endl
-                         << strerror(errno) << endl;
-                    return EXIT_FAILURE;
+                         << strerror(errno) << endl << flush;
+                    _exit(EXIT_FAILURE);
                 }
                 pos += n;
                 break;
             }
-            cerr << argv[0] << ": failure occurred in daemon:" << endl << msg << endl;
-            return EXIT_FAILURE;
+            cerr << argv[0] << ": failure occurred in daemon:" << endl << msg << endl << flush;
+            _exit(EXIT_FAILURE);
         }
 
-        return EXIT_SUCCESS;
+        _exit(EXIT_SUCCESS);
     }
 
     //
