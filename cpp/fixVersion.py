@@ -152,11 +152,10 @@ if icephp_home:
                          ("ICEPHP_INT_VERSION ([0-9]*)", intVersion(version))])
     
 #
-# Fix version in IcePHP
+# Fix version in IcePy
 #
 icephp_home = findSourceTree("icepy", os.path.join("modules", "IcePy", "Config.h"))
 if icephp_home:
     fileMatchAndReplace(os.path.join(icephp_home, "config", "Make.rules"),
                         [("^VERSION[ \t]+=[^\d]*([\d\.]+)", version),
                          ("^SOVERSION[\t\s]*= ([0-9]*)", soVersion(version))])
-    
