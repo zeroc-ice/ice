@@ -165,6 +165,7 @@ private:
 
     BasicStream _batchStream;
     int _batchRequestNum;
+    bool _batchFlushInProgress;
 
     int _dispatchCount;
 

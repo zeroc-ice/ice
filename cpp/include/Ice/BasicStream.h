@@ -37,7 +37,7 @@ public:
 
     typedef void (*PatchFunc)(void*, Ice::ObjectPtr&);
 
-    BasicStream(Instance *);
+    BasicStream(Instance*);
     ~BasicStream();
 
     //

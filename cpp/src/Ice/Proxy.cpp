@@ -770,7 +770,10 @@ IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
 void
 IceProxy::Ice::Object::__checkTwowayOnly(const char* name) const
 {
-    IceUtil::Mutex::Lock sync(*this);
+    //
+    // No mutex lock necessary, there is nothing mutable in this
+    // operation.
+    //
 
     if(!ice_isTwoway())
     {
