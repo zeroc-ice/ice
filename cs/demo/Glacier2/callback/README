@@ -12,11 +12,11 @@ implementation of a Glacier2 session server.
 
 To run the demo, first start the server:
 
-$ ./server.exe
+$ server.exe
 
 In a separate window, start the session server:
 
-$ ./sessionserver.exe
+$ sessionserver.exe
 
 In a separate window, start the Glacier2 router:
 
@@ -24,4 +24,4 @@ $ glacier2router --Ice.Config=config.glacier2
 
 In a separate window, start the client:
 
-$ ./client.exe
+$ client.exe
