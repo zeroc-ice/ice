@@ -26,7 +26,7 @@ endif
 #
 CXXLIBS			=
 
-LDPLATFORMFLAGS		= -Wl,-bind_at_load -Wl,-executable_path,$(top_srcdir)/bin
+LDPLATFORMFLAGS		= -Wl,-executable_path,$(top_srcdir)/bin
 
 shlibldflags		= $(CXXFLAGS) -L$(libdir)
 
@@ -35,7 +35,7 @@ mksoname           	= $(if $(2),lib$(1).$(2).dylib,lib$(1).dylib)
 
 mklibname           	= lib$(1).dylib
 
-mkshlib                 = $(CXX) -dynamiclib $(shlibldflags) -o $(1) -install_name @executable_path/../lib/$(2) $(3) $(4)
+mkshlib                 = $(CXX) -single_module -dynamiclib $(shlibldflags) -o $(1) -install_name @executable_path/../lib/$(2) $(3) $(4)
 
 BASELIBS		= -lIceUtil -lpthread 
 LIBS			= -lIce $(BASELIBS)
