@@ -871,7 +871,7 @@ IceInternal::BasicStream::write(Double v)
     resize(pos + sizeof(Double));
     Byte* dest = &b[pos];
 #ifdef ICE_BIG_ENDIAN
-    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Int);
+    const Byte* src = reinterpret_cast<const Byte*>(&v) + sizeof(Double);
     *dest++ = *--src;
     *dest++ = *--src;
     *dest++ = *--src;
