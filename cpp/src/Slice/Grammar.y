@@ -797,6 +797,7 @@ exception
 // ML: Not sure if these should be treated as builtin by the
 // parser. They have no meaning in a Slice definition, so why make
 // them builtin, if they cannot be used anywhere in Slice?
+// MH: Agree -- I don't think anything needs doing here.
 : scoped_name
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);

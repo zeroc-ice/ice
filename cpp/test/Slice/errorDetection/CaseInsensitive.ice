@@ -159,9 +159,11 @@ enum en3 { EN1 };
 enum en4 { m1 };
 enum en5 { M1 };
 
-module xxx {
+module xxx
+{
 
-module xx {
+module xx
+{
 
 interface Base { void op(); };
 
@@ -187,4 +189,23 @@ struct s2 {
 
 };
 
+};
+
+interface Foo {
+    void op(long param, string Param);
+    void op2() throws e1;
+    void op3() throws E1;
+};
+
+module CI
+{
+    interface base1 {
+    	void op();
+    };
+
+    interface base2 {
+    	void OP();
+    };
+
+    interface derived extends base1, base2 {};
 };

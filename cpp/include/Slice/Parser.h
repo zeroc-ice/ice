@@ -53,6 +53,7 @@ class Dictionary;
 class Enum;
 class Enumerator;
 class Unit;
+class CICompare;
 
 typedef ::IceUtil::Handle<GrammarBase> GrammarBasePtr;
 typedef ::IceUtil::Handle<SyntaxTreeBase> SyntaxTreeBasePtr;
@@ -114,9 +115,6 @@ typedef std::list<ContainedPtr> ContainedList;
 typedef std::list<ModulePtr> ModuleList;
 typedef std::list<ConstructedPtr> ConstructedList;
 typedef std::list<ClassDefPtr> ClassList;
-typedef std::list<ClassList> GraphPartitionList; // TODO: ML: Can't this be a private typedef for Container?
-typedef std::set<std::string> StringSet;
-typedef std::list<StringSet> StringSetList;
 typedef std::list<ExceptionPtr> ExceptionList;
 typedef std::list<StructPtr> StructList;
 typedef std::list<SequencePtr> SequenceList;
@@ -331,12 +329,15 @@ protected:
 
 private:
 
+    typedef std::list<ClassList> GraphPartitionList;
+    typedef std::list<StringList> StringPartitionList;
+
     bool isInList(const GraphPartitionList&, const ClassDefPtr) const;
     void addPartition(GraphPartitionList&,
 		      GraphPartitionList::reverse_iterator,
 		      const ClassDefPtr) const;
-    StringSetList toStringSetList(const GraphPartitionList&) const;
-    StringList unionOfAllPairIntersections(const StringSetList&) const;
+    StringPartitionList toStringPartitionList(const GraphPartitionList&) const;
+    void checkPairIntersections(const StringPartitionList&, const std::string&) const;
 };
 
 // ----------------------------------------------------------------------
@@ -731,6 +732,17 @@ private:
 };
 
 extern SLICE_API Unit* unit; // The current parser for bison/flex
+
+// ----------------------------------------------------------------------
+// CICompare -- function object to do case-insensitive string comparison.
+// ----------------------------------------------------------------------
+
+class CICompare : public std::binary_function<std::string, std::string, bool>
+{
+public:
+
+    bool operator()(const std::string&, const std::string&) const;
+};
 
 }
 

@@ -326,31 +326,14 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 	// set containing the names of operations and data members defined in
 	// the classes in each partition.
 	//
-	StringSetList spl = toStringSetList(gpl);
+	StringPartitionList spl = toStringPartitionList(gpl);
 
 	//
 	// Multiple inheritance is legal if no two partitions contain a common
 	// name (that is, if the union of the intersections of all possible pairs
-	// of partitions is empty.
+	// of partitions is empty).
 	//
-	StringList clashes = unionOfAllPairIntersections(spl);
-	
-	//
-	// The strings in the clashes list are those operations or data members
-	// that prevent the multiple inheritance hierarchies about to the
-	// current class to be joined.
-	//
-	for(StringList::const_iterator q = clashes.begin(); q != clashes.end(); ++q)
-	{
-	    string msg = "ambiguous multiple inheritance: `";
-	    msg += *q + "' is defined in two or more base classes";
-	    _unit->error(msg);
-	}
-	//
-	// We do *not* return 0 here; otherwise, we get lots of spurious
-	// "Parse error" messsages and end up with lots of follow-up errors
-	// about this class not being defined.
-	//
+	checkPairIntersections(spl, name);
     }
 
     ClassDefPtr def = new ClassDef(this, name, intf, bases, local);
@@ -1347,28 +1330,23 @@ Slice::Container::addPartition(GraphPartitionList& gpl,
 
 //
 // Convert the list of partitions of class definitions into a
-// list of sets, with each set containing the operation and member
-// names defined by the classes in each partition.
+// list of lists, with each member list containing the operation
+// names defined by the interfaces in each partition.
 // 
-StringSetList
-Slice::Container::toStringSetList(const GraphPartitionList& gpl) const
+Slice::Container::StringPartitionList
+Slice::Container::toStringPartitionList(const GraphPartitionList& gpl) const
 {
-    StringSetList spl;
+    StringPartitionList spl;
     for(GraphPartitionList::const_iterator i = gpl.begin(); i != gpl.end(); ++i)
     {
-	StringSet ss;
-	spl.push_back(ss);
+	StringList sl;
+	spl.push_back(sl);
 	for(ClassList::const_iterator j = i->begin(); j != i->end(); ++j)
 	{
 	    OperationList operations = (*j)->operations();
-	    DataMemberList members = (*j)->dataMembers();
 	    for(OperationList::const_iterator l = operations.begin(); l != operations.end(); ++l)
 	    {
-		spl.rbegin()->insert((*l)->name());
-	    }
-	    for(DataMemberList::const_iterator m = members.begin(); m != members.end(); ++m)
-	    {
-		spl.rbegin()->insert((*m)->name());
+		spl.rbegin()->push_back((*l)->name());
 	    }
 	}
     }
@@ -1376,24 +1354,44 @@ Slice::Container::toStringSetList(const GraphPartitionList& gpl) const
 }
 
 //
-// Return the union of the intersections of all possible pairs of sets of strings.
+// For all (unique) pairs of string lists, check whether an identifier in one list occurs
+// in the other and, if so, complain.
 //
-StringList
-Slice::Container::unionOfAllPairIntersections(const StringSetList& l) const
+void
+Slice::Container::checkPairIntersections(const StringPartitionList& l, const string& name) const
 {
-    StringList result;
-    for(StringSetList::const_iterator i = l.begin(); i != l.end(); ++i)
+    set<string> reported;
+    for(StringPartitionList::const_iterator i = l.begin(); i != l.end(); ++i)
     {
-	StringSetList::const_iterator cursor = i;
+	StringPartitionList::const_iterator cursor = i;
 	++cursor;
-	for(StringSetList::const_iterator j = cursor; j != l.end(); ++j)
+	for(StringPartitionList::const_iterator j = cursor; j != l.end(); ++j)
 	{
-	    set_intersection(i->begin(), i->end(), j->begin(), j->end(), back_inserter(result));
+	    for(StringList::const_iterator s1 = i->begin(); s1 != i->end(); ++s1)
+	    {
+		for (StringList::const_iterator s2 = j->begin(); s2 != j->end(); ++s2)
+		{
+		    if((*s1) == (*s2) && reported.find(*s1) == reported.end())
+		    {
+			string msg = "ambiguous multiple inheritance: `" + name;
+			msg += "' inherits operation `" + *s1 + "' from two or more unrelated base interfaces";
+			_unit->error(msg);
+			reported.insert(*s1);
+		    }
+		    else if(!CICompare()(*s1, *s2) && !CICompare()(*s2, *s1) &&
+			     reported.find(*s1) == reported.end() && reported.find(*s2) == reported.end())
+		    {
+			string msg = "ambiguous multiple inheritance: `" + name;
+			msg += "' inherits operations `" + *s1 + "' and `" + *s2;
+			msg += "', which differ only in capitalization, from unrelated base interfaces";
+			_unit->error(msg);
+			reported.insert(*s1);
+			reported.insert(*s2);
+		    }
+		}
+	    }
 	}
     }
-    result.sort();
-    result.unique();
-    return result;
 }
 
 // ----------------------------------------------------------------------
@@ -1412,7 +1410,7 @@ Slice::Module::uses(const ContainedPtr&) const
     return false;
 }
 
-std::string
+string
 Slice::Module::kindOf() const
 {
     return "module";
@@ -1501,7 +1499,7 @@ Slice::ClassDecl::uses(const ContainedPtr&) const
     return false;
 }
 
-std::string
+string
 Slice::ClassDecl::kindOf() const
 {
     string s = _interface ? "interface" : "class";
@@ -1927,7 +1925,7 @@ Slice::ClassDef::uses(const ContainedPtr&) const
     return false;
 }
 
-std::string
+string
 Slice::ClassDef::kindOf() const
 {
     string s;
@@ -2142,7 +2140,7 @@ Slice::Exception::uses(const ContainedPtr&) const
     return false;
 }
 
-std::string
+string
 Slice::Exception::kindOf() const
 {
     return "exception";
@@ -2268,7 +2266,7 @@ Slice::Struct::uses(const ContainedPtr&) const
     return false;
 }
 
-std::string
+string
 Slice::Struct::kindOf() const
 {
     return "struct";
@@ -2332,7 +2330,7 @@ Slice::Sequence::uses(const ContainedPtr& contained) const
     return false;
 }
 
-std::string
+string
 Slice::Sequence::kindOf() const
 {
     return "sequence";
@@ -2408,7 +2406,7 @@ Slice::Dictionary::uses(const ContainedPtr& contained) const
     return false;
 }
 
-std::string
+string
 Slice::Dictionary::kindOf() const
 {
     return "dictionary";
@@ -2481,7 +2479,7 @@ Slice::Enum::uses(const ContainedPtr&) const
     return false;
 }
 
-std::string
+string
 Slice::Enum::kindOf() const
 {
     return "enumeration";
@@ -2523,7 +2521,7 @@ Slice::Enumerator::uses(const ContainedPtr&) const
     return false;
 }
 
-std::string
+string
 Slice::Enumerator::kindOf() const
 {
     return "enumerator";
@@ -2614,7 +2612,7 @@ Slice::Operation::uses(const ContainedPtr& contained) const
     return false;
 }
 
-std::string
+string
 Slice::Operation::kindOf() const
 {
     return "operation";
@@ -2666,7 +2664,7 @@ Slice::DataMember::uses(const ContainedPtr& contained) const
     return false;
 }
 
-std::string
+string
 Slice::DataMember::kindOf() const
 {
     return "data member";
@@ -3151,3 +3149,35 @@ Slice::Unit::Unit(bool ignRedefs, bool all) :
 {
     _unit = this;
 }
+
+// ----------------------------------------------------------------------
+// CICompare
+// ----------------------------------------------------------------------
+
+bool
+Slice::CICompare::operator()(const string& s1, const string& s2) const
+{
+    string::const_iterator p1 = s1.begin();
+    string::const_iterator p2 = s2.begin();
+    while(p1 != s1.end() && p2 != s2.end() && tolower(*p1) == tolower(*p2))
+    {
+	++p1;
+	++p2;
+    }
+    if(p1 == s1.end() && p2 == s2.end())
+    {
+	return false;
+    }
+    else if(p1 == s1.end())
+    {
+	return true;
+    }
+    else if(p2 == s2.end())
+    {
+	return false;
+    }
+    else
+    {
+	return tolower(*p1) < tolower(*p2);
+    }
+};

@@ -44,10 +44,13 @@ CaseInsensitive.ice:157: redefinition of enumeration `en1' as enumerator
 CaseInsensitive.ice:158: warning: enumerator `EN1' differs only in capitalization from enumeration `en1'
 CaseInsensitive.ice:159: redefinition of module `m1' as enumerator
 CaseInsensitive.ice:160: warning: enumerator `M1' differs only in capitalization from module `m1'
-CaseInsensitive.ice:170: warning: type name `base' is capitalized inconsistently with its previous name: `::xxx::xx::Base'
-CaseInsensitive.ice:170: redefinition of interface `Derived'
-CaseInsensitive.ice:174: warning: exception name `E1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
-CaseInsensitive.ice:178: warning: type name `S1' is capitalized inconsistently with its previous name: `::xxx::xx::s1'
-CaseInsensitive.ice:179: `xx::S1' is not defined
-CaseInsensitive.ice:180: warning: type name `XX::s1' is capitalized inconsistently with its previous name: `::xxx::xx::s1'
-CaseInsensitive.ice:185: warning: type name `derived' is capitalized inconsistently with its previous name: `::xxx::xx::Derived'
+CaseInsensitive.ice:172: warning: type name `base' is capitalized inconsistently with its previous name: `::xxx::xx::Base'
+CaseInsensitive.ice:172: redefinition of interface `Derived'
+CaseInsensitive.ice:176: warning: exception name `E1' is capitalized inconsistently with its previous name: `::xxx::xx::e1'
+CaseInsensitive.ice:180: warning: type name `S1' is capitalized inconsistently with its previous name: `::xxx::xx::s1'
+CaseInsensitive.ice:181: `xx::S1' is not defined
+CaseInsensitive.ice:182: warning: type name `XX::s1' is capitalized inconsistently with its previous name: `::xxx::xx::s1'
+CaseInsensitive.ice:187: warning: type name `derived' is capitalized inconsistently with its previous name: `::xxx::xx::Derived'
+CaseInsensitive.ice:195: warning: parameter `param' differs only in capitalization from parameter `Param'
+CaseInsensitive.ice:197: warning: exception name `E1' is capitalized inconsistently with its previous name: `::e1'
+CaseInsensitive.ice:210: ambiguous multiple inheritance: `derived' inherits operations `op' and `OP', which differ only in capitalization, from unrelated base interfaces
