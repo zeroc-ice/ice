@@ -95,11 +95,11 @@ SOURCE=.\Client.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Complex.cpp
+SOURCE=.\complex.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ComplexDict.cpp
+SOURCE=.\complexDict.cpp
 # End Source File
 # Begin Source File
 
@@ -135,29 +135,29 @@ SOURCE=.\Parser.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Complex.ice
+SOURCE=.\complex.ice
 
 !IF  "$(CFG)" == "complex - Win32 Release"
 
 USERDEP__COMPL="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
 # Begin Custom Build
-InputPath=.\Complex.ice
+InputPath=.\complex.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Complex.ice \
-	..\..\..\bin\slice2freeze.exe --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice \
+	..\..\..\bin\slice2cpp.exe complex.ice \
+	..\..\..\bin\slice2freeze.exe --dict complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice \
 	
 
-"Complex.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"complex.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Complex.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"complex.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ComplexDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"complexDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ComplexDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"complexDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -165,23 +165,23 @@ BuildCmds= \
 
 USERDEP__COMPL="..\..\..\bin\slice2freeze.exe"	"..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
 # Begin Custom Build
-InputPath=.\Complex.ice
+InputPath=.\complex.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2cpp.exe Complex.ice \
-	..\..\..\bin\slice2freeze.exe --dict Complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice \
+	..\..\..\bin\slice2cpp.exe complex.ice \
+	..\..\..\bin\slice2freeze.exe --dict complex::ComplexDict,Complex::Key,Complex::Node ComplexDict Complex.ice \
 	
 
-"Complex.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"complex.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"Complex.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"complex.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ComplexDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"complexDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ComplexDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"complexDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
