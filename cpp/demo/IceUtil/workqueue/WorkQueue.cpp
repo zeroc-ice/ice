@@ -36,7 +36,7 @@ public:
 	    }
 
 	    cout << "work item: " << item << endl;
-	    IceUtil::ThreadControl::sleep(1000);
+	    IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
 	}
     }
 
