@@ -137,8 +137,6 @@ local struct Current
      *
      * The request context, as received from the client.
      *
-     * @see Context;
-     *
      **/
     Context ctx;
 };

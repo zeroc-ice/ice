@@ -27,13 +27,6 @@ All Rights Reserved
 <book><?dbhtml filename="index.html">
 <bookinfo>
 <title>Ice Reference Manual</title>
-<subtitle>A Guide to the Internet Communications Engine</subtitle>
-<authorgroup>
-<author>
-<firstname>Marc</firstname>
-<surname>Laukien</surname>
-</author>
-</authorgroup>
 <publisher>
 <publishername>ZeroC, Inc.</publishername>
 <address>
@@ -43,17 +36,11 @@ All Rights Reserved
 </address>
 </publisher>
 <releaseinfo>Version 0.0.1</releaseinfo>
-<pubdate>Date to be inserted here...</pubdate>
-<legalnotice>
-<para>Legal stuff to be inserted here...</para>
-</legalnotice>
 <copyright>
 <year>2002</year>
 <holder>ZeroC, Inc. All rights reserved.</holder>
 </copyright>
 </bookinfo>
-<part>
-<title>Reference</title>
 <chapter>
 <title>Slice Documentation</title>
 &SliceDoc;
@@ -66,5 +53,4 @@ All Rights Reserved
 <title>Proxies and Endpoints</title>
 &ProxiesEndpoints;
 </chapter>
-</part>
 </book>
