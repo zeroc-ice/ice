@@ -1,3 +1,9 @@
+For this demo to work properly using Mono on Linux, you must configure
+Linux to recognize Mono binaries. Configuration instructions are
+provided in INSTALL.MONO at the top level of the Ice for C# source
+distribution or, if you have installed the demos from the Ice demo
+package, in README.DEMOS.
+
 To run the demo, first start the IcePack service:
 
 $ icepacknode --Ice.Config=config --warn
