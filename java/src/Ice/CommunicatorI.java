@@ -26,10 +26,13 @@ class CommunicatorI implements Communicator
     public void
     shutdown()
     {
-        //
-        // No mutex locking here!
-        //
-        _threadPool.initiateServerShutdown();
+	//
+	// No mutex locking here!
+	//
+	if (_threadPool != null)
+	{
+	    _threadPool.initiateServerShutdown();
+	}
     }
 
     public void
@@ -39,7 +42,10 @@ class CommunicatorI implements Communicator
         // No mutex locking here, otherwise the communicator is blocked
         // while waiting for shutdown.
         //
-        _threadPool.waitUntilServerFinished();
+	if (_threadPool != null)
+	{
+	    _threadPool.waitUntilServerFinished();
+	}
     }
 
     public synchronized Ice.ObjectPrx
@@ -71,11 +77,18 @@ class CommunicatorI implements Communicator
         }
 
         ObjectAdapter adapter = createObjectAdapterFromProperty(name, "Ice.Adapter." + name + ".Endpoints");
+
         String router = _instance.properties().getProperty("Ice.Adapter." + name + ".Router");
         if (router.length() > 0)
         {
             adapter.addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
         }
+
+	if (_threadPool == null) // Lazy initialization of _threadPool.
+	{
+	    _threadPool = _instance.threadPool();
+	}
+
         return adapter;
     }
 
@@ -86,7 +99,9 @@ class CommunicatorI implements Communicator
         {
             throw new CommunicatorDestroyedException();
         }
+
         String endpts = _instance.properties().getProperty(property);
+
         return createObjectAdapterWithEndpoints(name, endpts);
     }
 
@@ -97,7 +112,15 @@ class CommunicatorI implements Communicator
         {
             throw new CommunicatorDestroyedException();
         }
-        return _instance.objectAdapterFactory().createObjectAdapter(name, endpts);
+
+        ObjectAdapter adapter = _instance.objectAdapterFactory().createObjectAdapter(name, endpts);
+
+	if (_threadPool == null) // Lazy initialization of _threadPool.
+	{
+	    _threadPool = _instance.threadPool();
+	}
+
+	return adapter;
     }
 
     public synchronized void
@@ -205,7 +228,6 @@ class CommunicatorI implements Communicator
     CommunicatorI(Properties properties)
     {
         _instance = new IceInternal.Instance(this, properties);
-        _threadPool = _instance.threadPool();
     }
 
     protected void

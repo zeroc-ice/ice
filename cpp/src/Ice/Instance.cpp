@@ -425,6 +425,10 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
     // installed. For example, an SSL plug-in might want to
     // read a passphrase from standard input.
     //
+    // TODO: This is a problem for plug-ins that open files, create
+    // threads, etc. Perhaps we need a two-stage plug-in
+    // initialization?
+    //
     if (_properties->getPropertyAsInt("Ice.Daemon") > 0)
     {
         int noclose = _properties->getPropertyAsInt("Ice.DaemonNoClose");

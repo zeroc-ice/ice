@@ -43,7 +43,10 @@ Ice::CommunicatorI::shutdown()
     //
     // No mutex locking here! This operation must be signal-safe.
     //
-    _serverThreadPool->initiateShutdown();
+    if (_serverThreadPool)
+    {
+	_serverThreadPool->initiateShutdown();
+    }
 }
 
 void
@@ -53,7 +56,10 @@ Ice::CommunicatorI::waitForShutdown()
     // No mutex locking here, otherwise the communicator is blocked
     // while waiting for shutdown.
     //
-    _serverThreadPool->waitUntilFinished();
+    if (_serverThreadPool)
+    {
+	_serverThreadPool->waitUntilFinished();
+    }
 }
 
 ObjectPrx
@@ -95,6 +101,11 @@ Ice::CommunicatorI::createObjectAdapter(const string& name)
 	adapter->addRouter(RouterPrx::uncheckedCast(_instance->proxyFactory()->stringToProxy(router)));
     }
 
+    if (!_serverThreadPool) // Lazy initialization of _serverThreadPool.
+    {
+	_serverThreadPool = _instance->serverThreadPool();
+    }
+
     return adapter;
 }
 
@@ -108,6 +119,7 @@ Ice::CommunicatorI::createObjectAdapterFromProperty(const string& name, const st
     }
 
     string endpts = _instance->properties()->getProperty(property);
+
     return createObjectAdapterWithEndpoints(name, endpts);
 }
 
@@ -120,7 +132,14 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
 	throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    return _instance->objectAdapterFactory()->createObjectAdapter(name, endpts);
+    ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->createObjectAdapter(name, endpts);
+
+    if (!_serverThreadPool) // Lazy initialization of _serverThreadPool.
+    {
+	_serverThreadPool = _instance->serverThreadPool();
+    }
+
+    return adapter;
 }
 
 void
@@ -252,12 +271,6 @@ Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& 
 	throw;
     }
     __setNoDelete(false);
-
-    //
-    // See the comments in the header file for an explanation of why we
-    // need _serverThreadPool directly in CommunicatorI.
-    //
-    _serverThreadPool = _instance->serverThreadPool();
 }
 
 Ice::CommunicatorI::~CommunicatorI()
