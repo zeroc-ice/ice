@@ -1231,7 +1231,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Default factory for non-abstract classes.
     //
-    if(!p->isAbstract())
+    if(!p->isAbstract() && !p->isLocal())
     {
         out << sp;
         out << nl << "private static class __F extends Ice.LocalObjectImpl implements Ice.ObjectFactory";
