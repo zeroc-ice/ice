@@ -380,6 +380,7 @@ namespace Ice
 	    "ConnectionIdleTime",
 	    "Default.Host",
 	    "Default.Locator",
+	    "Default.Package",                  // Not used by C# but left here to suppress warnings.
 	    "Default.Protocol",
 	    "Default.Router",
 	    "GC.Interval",			// Not used by C# but left here to suppress warnings.
@@ -391,6 +392,7 @@ namespace Ice
 	    "Override.Compress",
 	    "Override.ConnectTimeout",
 	    "Override.Timeout",
+	    "Package.*",                        // Not used by C# but left here to suppress warnings.
 	    "Plugin.*",
 	    "PrintAdapterReady",
 	    "PrintProcessId",

@@ -103,7 +103,8 @@ static const string iceProps[] =
     "ConnectionIdleTime",
     "Default.Host",
     "Default.Locator",
-    "Default.Protocol",
+    "Default.Package",
+    "Default.Protocol",                 // Not used by C++ but left here to suppress warnings.
     "Default.Router",
     "GC.Interval",
     "Logger.Timestamp",
@@ -114,6 +115,7 @@ static const string iceProps[] =
     "Override.Compress",
     "Override.ConnectTimeout",
     "Override.Timeout",
+    "Package.*",                        // Not used by C++ but left here to suppress warnings.
     "Plugin.*",
     "PrintAdapterReady",
     "PrintProcessId",

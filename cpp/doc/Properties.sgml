@@ -1113,6 +1113,43 @@ is smaller than the UDP receive or send buffer size, the corresponding UDP buffe
 </section>
 </section>
 
+<section><title>Ice.Package.<replaceable>module</replaceable></title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Package.<replaceable>module</replaceable>=<replaceable>package</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Associates a top-level Slice module with a Java package. If global metadata
+is used to enclose generated Java classes in a user-defined package, the
+Ice run time must be configured in order to successfully unmarshal exceptions
+and concrete class types. If all top-level modules are generated into the
+same user-defined package, it is easier to use <literal>Ice.Default.Package</literal>
+instead.
+</para>
+</section>
+</section>
+
+<section><title>Ice.Default.Package</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Default.Package=<replaceable>package</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies a default package to use if other attempts by the Ice run time to
+dynamically load a generated class have failed. If global metadata is used to
+enclose generated Java classes in a user-defined package, the Ice run time must
+be configured in order to successfully unmarshal exceptions and concrete class
+types. Also see Ice.Package.<replaceable>module</replaceable>.
+</para>
+</section>
+</section>
+
 </section>
 
 <!-- ********************************************************************** -->
