@@ -20,126 +20,134 @@ namespace Generate
     {
 	static void Main(string[] args)
 	{   
-            const string slice2csName = "slice2cs";
-            string iceHome = Environment.GetEnvironmentVariable("ICE_HOME");
-
-	    string progName = AppDomain.CurrentDomain.FriendlyName;
-	    if(args.Length < 3)
+	    try
 	    {
-		Console.Error.WriteLine("usage: {0} solution_dir project_dir project_name [args]", progName);
-		Environment.Exit(1);
-	    }
+		const string slice2csName = "slice2cs";
+		string iceHome = Environment.GetEnvironmentVariable("ICE_HOME");
 
-	    string solDir = args[0];
-	    string projDir = args[1];
-	    string projName = args[2];
-
-	    Directory.SetCurrentDirectory(projDir);
-
-	    const string slicePat = @"*.ice";
-	    string sliceDir = projDir;
-	    string[] sliceFiles = Directory.GetFiles(projDir, slicePat);
-
-	    string includes = "";
-	    if(Directory.Exists(Path.Combine(solDir, "slice")))
-	    {
-		includes = "-I" + Path.Combine(solDir, "slice");
-	    }
-	    if(iceHome != null)
-	    {
-		if(Directory.Exists(Path.Combine(iceHome, "slice")))
+		string progName = AppDomain.CurrentDomain.FriendlyName;
+		if(args.Length < 3)
 		{
-		    includes += " -I" + Path.Combine(iceHome, "slice");
+		    Console.Error.WriteLine("usage: {0} solution_dir project_dir project_name [args]", progName);
+		    Environment.Exit(1);
 		}
-	    }
 
-	    if(sliceFiles.Length == 0)
-	    {
-		sliceDir = Path.Combine(Path.Combine(solDir, "slice"), projName);
-		if(Directory.Exists(sliceDir))
+		string solDir = args[0];
+		string projDir = args[1];
+		string projName = args[2];
+
+		Directory.SetCurrentDirectory(projDir);
+
+		const string slicePat = @"*.ice";
+		string sliceDir = projDir;
+		string[] sliceFiles = Directory.GetFiles(projDir, slicePat);
+
+		string includes = "";
+		if(Directory.Exists(Path.Combine(solDir, "slice")))
 		{
-		    sliceFiles = Directory.GetFiles(sliceDir, slicePat);
+		    includes = "-I" + Path.Combine(solDir, "slice");
 		}
-	    }
-	    if(sliceFiles.Length == 0)
-	    {
 		if(iceHome != null)
 		{
-		    sliceDir = Path.Combine(Path.Combine(iceHome, "slice"), projName);
+		    if(Directory.Exists(Path.Combine(iceHome, "slice")))
+		    {
+			includes += " -I" + Path.Combine(iceHome, "slice");
+		    }
+		}
+
+		if(sliceFiles.Length == 0)
+		{
+		    sliceDir = Path.Combine(Path.Combine(solDir, "slice"), projName);
 		    if(Directory.Exists(sliceDir))
 		    {
 			sliceFiles = Directory.GetFiles(sliceDir, slicePat);
 		    }
 		}
-	    }
-	    if(sliceFiles.Length == 0)
-	    {
-		Console.Error.WriteLine(progName + ": no Slice files found");
-		Environment.Exit(1);
-	    }
-
-	    string slice2cs = Path.Combine(Path.Combine(solDir, "bin"), slice2csName);
-	    if(!File.Exists(slice2cs) && !File.Exists(slice2cs + ".exe"))
-	    {
-		if(iceHome != null)
+		if(sliceFiles.Length == 0)
 		{
-		    slice2cs = Path.Combine(Path.Combine(iceHome, "bin"), slice2csName);
-		    if(!File.Exists(slice2cs) && !File.Exists(slice2cs + ".exe"))
+		    if(iceHome != null)
+		    {
+			sliceDir = Path.Combine(Path.Combine(iceHome, "slice"), projName);
+			if(Directory.Exists(sliceDir))
+			{
+			    sliceFiles = Directory.GetFiles(sliceDir, slicePat);
+			}
+		    }
+		}
+		if(sliceFiles.Length == 0)
+		{
+		    Console.Error.WriteLine(progName + ": no Slice files found");
+		    Environment.Exit(1);
+		}
+
+		string slice2cs = Path.Combine(Path.Combine(solDir, "bin"), slice2csName);
+		if(!File.Exists(slice2cs) && !File.Exists(slice2cs + ".exe"))
+		{
+		    if(iceHome != null)
+		    {
+			slice2cs = Path.Combine(Path.Combine(iceHome, "bin"), slice2csName);
+			if(!File.Exists(slice2cs) && !File.Exists(slice2cs + ".exe"))
+			{
+			    slice2cs = slice2csName;
+			}
+		    }
+		    else
 		    {
 			slice2cs = slice2csName;
 		    }
 		}
-		else
-		{
-		    slice2cs = slice2csName;
-		}
-	    }
 
-	    string outputDir = Path.Combine(projDir, "generated");
-	    string cmdArgs = "--ice -I. " + includes + " --output-dir " + outputDir;
-	    for(int i = 3; i < args.Length; ++i)
-	    {
-		if(args[i].IndexOf(' ') != -1)
+		string outputDir = Path.Combine(projDir, "generated");
+		string cmdArgs = "--ice -I. " + includes + " --output-dir " + outputDir;
+		for(int i = 3; i < args.Length; ++i)
 		{
-		    cmdArgs += " \"" + args[i] + "\"";
+		    if(args[i].IndexOf(' ') != -1)
+		    {
+			cmdArgs += " \"" + args[i] + "\"";
+		    }
+		    else
+		    {
+			cmdArgs += " " + args[i];
+		    }
 		}
-		else
+
+		bool needCompile = false;
+		foreach(string sliceFile in sliceFiles)
 		{
-		    cmdArgs += " " + args[i];
+		    DateTime sliceTime = File.GetLastWriteTime(sliceFile);
+		    string csFile = Path.Combine(outputDir, Path.ChangeExtension(Path.GetFileName(sliceFile), ".cs"));
+		    if(!File.Exists(csFile) || sliceTime > File.GetLastWriteTime(csFile))
+		    {	  
+			cmdArgs += " " + sliceFile;
+			Console.Out.WriteLine(Path.GetFileName(sliceFile));
+			needCompile = true;
+		    }
 		}
-	    }
 
-	    bool needCompile = false;
-	    foreach(string sliceFile in sliceFiles)
-	    {
-		DateTime sliceTime = File.GetLastWriteTime(sliceFile);
-		string csFile = Path.Combine(outputDir, Path.ChangeExtension(Path.GetFileName(sliceFile), ".cs"));
-		if(!File.Exists(csFile) || sliceTime > File.GetLastWriteTime(csFile))
-		{	  
-		    cmdArgs += " " + sliceFile;
-		    Console.Out.WriteLine(Path.GetFileName(sliceFile));
-		    needCompile = true;
+		if(needCompile)
+		{
+		    ProcessStartInfo info = new ProcessStartInfo(slice2cs, cmdArgs);
+		    info.CreateNoWindow = true;
+		    info.UseShellExecute = false;
+		    info.RedirectStandardOutput = true;
+		    info.RedirectStandardError = true;
+		    p = Process.Start(info);
+		    Thread t1 = new Thread (new ThreadStart(RedirectStandardOutput));
+		    Thread t2 = new Thread(new ThreadStart(RedirectStandardError));
+		    t1.Start();
+		    t2.Start();
+		    p.WaitForExit();
+		    t1.Join();
+		    t2.Join();
+		    Environment.Exit(p.ExitCode);
 		}
+		Environment.Exit(0);
 	    }
-
-	    if(needCompile)
+	    catch(System.Exception ex)
 	    {
-		ProcessStartInfo info = new ProcessStartInfo(slice2cs, cmdArgs);
-		info.CreateNoWindow = true;
-		info.UseShellExecute = false;
-		info.RedirectStandardOutput = true;
-		info.RedirectStandardError = true;
-		p = Process.Start(info);
-		Thread t1 = new Thread (new ThreadStart(RedirectStandardOutput));
-		Thread t2 = new Thread(new ThreadStart(RedirectStandardError));
-		t1.Start();
-		t2.Start();
-		p.WaitForExit();
-		t1.Join();
-		t2.Join();
-		Environment.Exit(p.ExitCode);
+	        Console.Error.WriteLine(ex);
+		Environment.Exit(1);
 	    }
-	    Environment.Exit(0);
 	}
 
 	static volatile Process p;
