@@ -203,7 +203,7 @@ class LibraryI extends _LibraryDisp
 		//
 		String[] newIsbnSeq = new String[isbnSeq.length-1];
 		System.arraycopy(isbnSeq, 0, newIsbnSeq, 0, i);
-		if(i < newIsbnSeq.length - 1)
+		if(i < isbnSeq.length - 1)
 		{
 		    System.arraycopy(isbnSeq, i+1, newIsbnSeq, i, isbnSeq.length - i - 1);
 		}

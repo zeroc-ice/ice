@@ -30,7 +30,7 @@ class PhoneBookI extends _PhoneBookDisp
 	contact.setIdentity(ident);
     
 	//
-	// Create a new Ice Object in the evictor, using the new //
+	// Create a new Ice Object in the evictor, using the new
 	// identity and the new Servant.
 	//
 	// This can throw EvictorDeactivatedException (which indicates
@@ -293,15 +293,11 @@ class PhoneBookI extends _PhoneBookDisp
 	{
 	    Ice.Identity[] newIdents = new Ice.Identity[identities.length-1];
 	    System.arraycopy(identities, 0, newIdents, 0, i);
-	    if(i < newIdents.length - 1)
+	    if(i < identities.length - 1)
 	    {
 		System.arraycopy(identities, i+1, newIdents, i, identities.length - i - 1);
 	    }
 	    
-	    //
-	    // See the comment in getNewIdentity why the prefix "N" is
-	    // needed.
-	    //
 	    _nameIdentitiesDict.fastPut(key, newIdents);
 	}
     }
