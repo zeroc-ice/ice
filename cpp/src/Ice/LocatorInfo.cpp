@@ -17,7 +17,6 @@
 #include <Ice/Reference.h>
 #include <Ice/Functional.h>
 #include <Ice/IdentityUtil.h>
-
 #include <iterator>
 
 using namespace std;
@@ -185,7 +184,6 @@ void
 IceInternal::LocatorTable::addProxy(const Identity& id, const ObjectPrx& proxy)
 {
     IceUtil::Mutex::Lock sync(*this);
-    
     _objectMap.insert(make_pair(id, proxy));
 }
 
@@ -201,9 +199,7 @@ IceInternal::LocatorTable::removeProxy(const Identity& id)
     }
 
     ObjectPrx proxy = p->second;
-
     _objectMap.erase(p);
-    
     return proxy;
 }
 
@@ -294,18 +290,20 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& ca
 	}
 	else
 	{
+	    bool objectCached = true;
 	    if(!_table->getProxy(ref->getIdentity(), object))
 	    {
-		cached = false;
-		
+		objectCached = false;
 		object = _locator->findObjectById(ref->getIdentity());
 	    }
 
+	    bool endpointsCached = true;
 	    if(object)
 	    {
 		DirectReferencePtr odr = DirectReferencePtr::dynamicCast(object->__reference());
 		if(odr)
 		{
+		    endpointsCached = false;
 		    endpoints = odr->getEndpoints();
 		}
 		else
@@ -314,15 +312,17 @@ IceInternal::LocatorInfo::getEndpoints(const IndirectReferencePtr& ref, bool& ca
 		    assert(oir);
 		    if(!oir->getAdapterId().empty())
 		    {
-			endpoints = getEndpoints(oir, cached);
+			endpoints = getEndpoints(oir, endpointsCached);
 		    }
 		}
 	    }
 
-	    if(!cached && !endpoints.empty())
+	    if(!objectCached && !endpoints.empty())
 	    {
 		_table->addProxy(ref->getIdentity(), object);
 	    }
+
+	    cached = objectCached || endpointsCached;
 	}
     }
     catch(const AdapterNotFoundException&)

@@ -27,9 +27,6 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ServerManager");
 
-    Ice::ObjectPtr object = new ServerManagerI(adapter);
-    adapter->add(object, Ice::stringToIdentity("ServerManager"));
-
     //
     // We also register a sample server locator which implements the
     // locator interface, this locator is used by the clients and the
@@ -37,7 +34,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     //
     ServerLocatorRegistryPtr registry = new ServerLocatorRegistry();
     registry->addObject(adapter->createProxy(Ice::stringToIdentity("ServerManager")));
-    registry->addObject(communicator->stringToProxy("test@TestAdapter"));
+    Ice::ObjectPtr object = new ServerManagerI(adapter, registry);
+    adapter->add(object, Ice::stringToIdentity("ServerManager"));
 
     Ice::LocatorRegistryPrx registryPrx = 
 	Ice::LocatorRegistryPrx::uncheckedCast(adapter->add(registry, Ice::stringToIdentity("registry")));

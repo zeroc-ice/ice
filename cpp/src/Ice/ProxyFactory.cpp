@@ -13,6 +13,7 @@
 #include <Ice/Instance.h>
 #include <Ice/Proxy.h>
 #include <Ice/ReferenceFactory.h>
+#include <Ice/LocatorInfo.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Properties.h>
 #include <Ice/LoggerUtil.h>
@@ -87,13 +88,23 @@ IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 }
 
 void
-IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, int& cnt) const
+IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, const ReferencePtr& ref, int& cnt) const
 {
     //
-    // We don't retry *NotExistException, which are all derived from
-    // RequestFailedException.
+    // We retry ObjectNotExistException if the reference is
+    // indirect. Otherwise, we don't retry other *NotExistException,
+    // which are all derived from RequestFailedException.
     //
-    if(dynamic_cast<const RequestFailedException*>(&ex))
+    if(dynamic_cast<const ObjectNotExistException*>(&ex))
+    {
+	IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(ref);
+	if(!ir || !ir->getLocatorInfo())
+	{
+	    ex.ice_throw();
+	}
+	ir->getLocatorInfo()->clearObjectCache(ir);
+    }
+    else if(dynamic_cast<const RequestFailedException*>(&ex))
     {
 	ex.ice_throw();
     }

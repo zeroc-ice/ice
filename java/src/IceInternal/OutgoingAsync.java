@@ -175,15 +175,6 @@ public abstract class OutgoingAsync
 	{
 	    if(_reference != null)
 	    {
-		try
-		{
-		    IndirectReference ir = (IndirectReference)_reference;
-		    ir.getLocatorInfo().clearObjectCache(ir);
-		}
-		catch(ClassCastException ex)
-		{
-		}
-		
 		boolean doRetry = false;
 		
 		//
@@ -195,15 +186,18 @@ public abstract class OutgoingAsync
 		// be repeated. Otherwise, we can also retry if the
 		// operation mode is Nonmutating or Idempotent.
 		//
+		// An ObjectNotExistException can always be retried as
+		// well without violating "at-most-once".
+		//
 		if(_mode == Ice.OperationMode.Nonmutating || _mode == Ice.OperationMode.Idempotent ||
-		   exc instanceof Ice.CloseConnectionException)
+		   exc instanceof Ice.CloseConnectionException || exc instanceof Ice.ObjectNotExistException)
 		{
 		    try
 		    {
 			ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
 			if(proxyFactory != null)
 			{
-			    _cnt = proxyFactory.checkRetryAfterException(exc, _cnt);
+			    _cnt = proxyFactory.checkRetryAfterException(exc, _reference, _cnt);
 			}
 			else
 			{
@@ -396,23 +390,11 @@ public abstract class OutgoingAsync
 			return;
 		    }
 		    catch(Ice.LocalException ex)
-		    {
-			try
-			{
-			    IndirectReference ir = (IndirectReference)_reference;
-			    if(ir != null && ir.getLocatorInfo() != null)
-			    {
-			        ir.getLocatorInfo().clearObjectCache(ir);
-			    }
-			}
-			catch(ClassCastException e)
-			{
-			}
-			
+		    {			
 			ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
 			if(proxyFactory != null)
 			{
-			    _cnt = proxyFactory.checkRetryAfterException(ex, _cnt);
+			    _cnt = proxyFactory.checkRetryAfterException(ex, _reference, _cnt);
 			}
 			else
 			{

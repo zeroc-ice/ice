@@ -74,6 +74,7 @@ public sealed class ServantManager
 		}
 		throw ex;
 	    }
+	    obj = m[facet];
 	    m.Remove(facet);
 	    
 	    if(m.Count == 0)

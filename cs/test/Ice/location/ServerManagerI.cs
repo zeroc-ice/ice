@@ -12,9 +12,10 @@ using Test;
 
 public class ServerManagerI : _ServerManagerDisp
 {
-    internal ServerManagerI(Ice.ObjectAdapter adapter)
+    internal ServerManagerI(Ice.ObjectAdapter adapter, ServerLocatorRegistry registry)
     {
         _adapter = adapter;
+	_registry = registry;
 	_communicators = new ArrayList();
     }
     
@@ -35,13 +36,21 @@ public class ServerManagerI : _ServerManagerDisp
         serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
         serverCommunicator.getProperties().setProperty("TestAdapter.AdapterId", "TestAdapter");
         Ice.ObjectAdapter adapter = serverCommunicator.createObjectAdapter("TestAdapter");
+
+        serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", "default");
+        serverCommunicator.getProperties().setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+        Ice.ObjectAdapter adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
         
         Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:default -p 12345 -t 30000");
         adapter.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
+        adapter2.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
         
-        Ice.Object @object = new TestI(adapter);
-        Ice.ObjectPrx proxy = adapter.add(@object, Ice.Util.stringToIdentity("test"));
+	Ice.Object @object = new TestI(adapter, adapter2, _registry);
+	_registry.addObject(adapter.add(@object, Ice.Util.stringToIdentity("test")));
+	_registry.addObject(adapter.add(@object, Ice.Util.stringToIdentity("test2")));
+
         adapter.activate();
+        adapter2.activate();
     }
 
     public override void shutdown(Ice.Current current)
@@ -55,5 +64,6 @@ public class ServerManagerI : _ServerManagerDisp
     }
     
     private Ice.ObjectAdapter _adapter;
+    private ServerLocatorRegistry _registry;
     private ArrayList _communicators;
 }

@@ -688,12 +688,6 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	_delegate = 0;
     }
 
-    IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(_reference);
-    if(ir && ir->getLocatorInfo())
-    {
-	ir->getLocatorInfo()->clearObjectCache(ir);
-    }
-
     if(ice_isOneway() || ice_isBatchOneway())
     {
 	//
@@ -712,7 +706,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     ProxyFactoryPtr proxyFactory = _reference->getInstance()->proxyFactory();
     if(proxyFactory)
     {
-	proxyFactory->checkRetryAfterException(ex, cnt);
+	proxyFactory->checkRetryAfterException(ex, _reference, cnt);
     }
     else
     {
@@ -732,12 +726,6 @@ IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
     {
 	IceUtil::Mutex::Lock sync(*this);
 	_delegate = 0;
-    }
-
-    IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(_reference);
-    if(ir && ir->getLocatorInfo())
-    {
-	ir->getLocatorInfo()->clearObjectCache(ir);
     }
 
     ex.ice_throw();

@@ -153,7 +153,10 @@ namespace IceInternal
 			// guarantees that all outstanding requests can safely
 			// be repeated.
 			//
-			if(_exception is Ice.CloseConnectionException)
+			// An ObjectNotExistException can always be retried as
+			// well without violating "at-most-once".
+			//
+			if(_exception is Ice.CloseConnectionException || _exception is Ice.ObjectNotExistException)
 			{
 			    throw _exception;
 			}

@@ -204,12 +204,6 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 
     if(_reference)
     {
-	IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(_reference);
-	if(ir && ir->getLocatorInfo())
-	{
-	    ir->getLocatorInfo()->clearObjectCache(ir);
-	}
-	
 	bool doRetry = false;
 	
 	//
@@ -221,14 +215,18 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 	// can also retry if the operation mode is Nonmutating or
 	// Idempotent.
 	//
-	if(_mode == Nonmutating || _mode == Idempotent || dynamic_cast<const CloseConnectionException*>(&exc))
+	// An ObjectNotExistException can always be retried as
+	// well without violating "at-most-once".
+	//
+	if(_mode == Nonmutating || _mode == Idempotent || dynamic_cast<const CloseConnectionException*>(&exc) ||
+	   dynamic_cast<const ObjectNotExistException*>(&exc))
 	{
 	    try
 	    {
 		ProxyFactoryPtr proxyFactory = _reference->getInstance()->proxyFactory();
 		if(proxyFactory)
 		{
-		    proxyFactory->checkRetryAfterException(exc, _cnt);
+		    proxyFactory->checkRetryAfterException(exc, _reference, _cnt);
 		}
 		else
 		{
@@ -373,16 +371,10 @@ IceInternal::OutgoingAsync::__send()
 	    }
 	    catch(const LocalException& ex)
 	    {
-		IndirectReferencePtr ir = IndirectReferencePtr::dynamicCast(_reference);
-		if(ir && ir->getLocatorInfo())
-		{
-		    ir->getLocatorInfo()->clearObjectCache(ir);
-		}
-		
 		ProxyFactoryPtr proxyFactory = _reference->getInstance()->proxyFactory();
 		if(proxyFactory)
 		{
-		    proxyFactory->checkRetryAfterException(ex, _cnt);
+		    proxyFactory->checkRetryAfterException(ex, _reference, _cnt);
 		}
 		else
 		{

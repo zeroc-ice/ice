@@ -609,18 +609,6 @@ namespace Ice
                 _delegate = null;
             }
 
-            try
-            {
-                IceInternal.IndirectReference ir = (IceInternal.IndirectReference)_reference;
-                if(ir != null && ir.getLocatorInfo() != null)
-                {
-                    ir.getLocatorInfo().clearObjectCache(ir);
-                }
-            }
-            catch(InvalidCastException)
-            {
-            }
-
 	    if(ice_isOneway() || ice_isBatchOneway())
 	    {
 		//
@@ -640,7 +628,7 @@ namespace Ice
             IceInternal.ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
             if(proxyFactory != null)
             {
-                return proxyFactory.checkRetryAfterException(ex, cnt);
+                return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
             }
             else
             {
@@ -657,19 +645,6 @@ namespace Ice
             lock(this)
             {
                 _delegate = null;
-
-                try
-                {
-                    IceInternal.IndirectReference ir = (IceInternal.IndirectReference)_reference;
-                    if(ir != null && ir.getLocatorInfo() != null)
-                    {
-                        ir.getLocatorInfo().clearObjectCache(ir);
-                    }
-                }
-                catch(InvalidCastException)
-                {
-                }
-
                 throw ex;
             }
         }

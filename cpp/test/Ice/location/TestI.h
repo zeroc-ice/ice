@@ -12,11 +12,13 @@
 
 #include <Test.h>
 #include <vector>
+#include <ServerLocator.h>
 
 class ServerManagerI : public Test::ServerManager
 {
 public:
-    ServerManagerI(const Ice::ObjectAdapterPtr&);
+
+    ServerManagerI(const Ice::ObjectAdapterPtr&, const ServerLocatorRegistryPtr&);
     
     virtual void startServer(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
@@ -25,6 +27,7 @@ private:
 
     Ice::ObjectAdapterPtr _adapter;
     std::vector<Ice::CommunicatorPtr> _communicators;
+    ServerLocatorRegistryPtr _registry;
 };
 
 class HelloI : public Test::Hello
@@ -38,14 +41,18 @@ class TestI : public Test::TestIntf
 {
 public:
 
-    TestI(const Ice::ObjectAdapterPtr&);
+    TestI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const ServerLocatorRegistryPtr&);
 
     virtual void shutdown(const Ice::Current&);
     virtual ::Test::HelloPrx getHello(const Ice::Current&);
+    virtual void migrateHello(const Ice::Current&);
 
 private:
 
-    Ice::ObjectAdapterPtr _adapter;
+    Ice::ObjectAdapterPtr _adapter1;
+    Ice::ObjectAdapterPtr _adapter2;
+    ServerLocatorRegistryPtr _registry;
+
 };
 
 #endif

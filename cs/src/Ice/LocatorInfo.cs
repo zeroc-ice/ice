@@ -104,20 +104,23 @@ namespace IceInternal
 		}
 		else
 		{
+		    bool objectCached = true;
 		    obj = _table.getProxy(identity);
 		    if(obj == null)
 		    {
-			cached = false;
+			objectCached = false;
 		    
 			obj = _locator.findObjectById(identity);
 		    }
 		    
+		    bool endpointsCached = true;
 		    if(obj != null)
 		    {
                         Reference r = ((Ice.ObjectPrxHelperBase)obj).__reference();
                         if(r is DirectReference)
                         {
                             DirectReference odr = (DirectReference)r;
+			    endpointsCached = false;
                             endpoints = odr.getEndpoints();
                         }
                         else
@@ -125,15 +128,17 @@ namespace IceInternal
                             IndirectReference oir = (IndirectReference)r;
                             if(oir.getAdapterId().Length > 0)
                             {
-                                endpoints = getEndpoints(oir, out cached);
+                                endpoints = getEndpoints(oir, out endpointsCached);
                             }
                         }
                     }
 		    
-		    if(!cached && endpoints != null && endpoints.Length > 0)
+		    if(!objectCached && endpoints != null && endpoints.Length > 0)
 		    {
 			_table.addProxy(identity, obj);
 		    }
+
+		    cached = objectCached || endpointsCached;
 		}
 	    }
 	    catch(Ice.AdapterNotFoundException ex)
@@ -195,7 +200,7 @@ namespace IceInternal
 		Ice.ObjectPrx obj = _table.removeProxy(rf.getIdentity());
 		if(obj != null)
 		{
-		    if(obj is IndirectReference)
+		    if(((Ice.ObjectPrxHelperBase)obj).__reference() is IndirectReference)
                     {
                         IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)obj).__reference();
                         if(oir.getAdapterId().Length > 0)
@@ -231,7 +236,7 @@ namespace IceInternal
 		Ice.ObjectPrx obj = _table.removeProxy(rf.getIdentity());
 		if(obj != null)
 		{
-		    if(obj is IndirectReference)
+		    if(((Ice.ObjectPrxHelperBase)obj).__reference() is IndirectReference)
                     {
                         IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)obj).__reference();
                         if(oir.getAdapterId().Length > 0)

@@ -32,6 +32,7 @@ public class AllTests
         Ice.ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
         Ice.ObjectPrx base3 = communicator.stringToProxy("test");
         Ice.ObjectPrx base4 = communicator.stringToProxy("ServerManager");
+	Ice.ObjectPrx base5 = communicator.stringToProxy("test2");
         Console.Out.WriteLine("ok");
         
         //
@@ -54,26 +55,14 @@ public class AllTests
         test(obj3 != null);
         ServerManagerPrx obj4 = ServerManagerPrxHelper.checkedCast(base4);
         test(obj4 != null);
+	TestIntfPrx obj5 = TestIntfPrxHelper.checkedCast(base5);
+	test(obj5 != null);
         Console.Out.WriteLine("ok");
         
-        Console.Out.Write("testing object reference from server... ");
-        Console.Out.Flush();
-        HelloPrx hello = obj.getHello();
-        hello.sayHello();
-        Console.Out.WriteLine("ok");
-        
-        Console.Out.Write("shutdown server... ");
+        Console.Out.Write("testing id@AdapterId indirect proxy... ");
         Console.Out.Flush();
         obj.shutdown();
-        Console.Out.WriteLine("ok");
-
-        Console.Out.Write("restarting server... ");
-        Console.Out.Flush();
         manager.startServer();
-        Console.Out.WriteLine("ok");
-        
-        Console.Out.Write("testing whether server is still reachable... ");
-        Console.Out.Flush();
         try
         {
             obj2.ice_ping();
@@ -84,11 +73,83 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-        Console.Out.Write("testing object reference from server... ");
+        Console.Out.Write("testing identity indirect proxy... ");
         Console.Out.Flush();
-        hello.sayHello();
+        obj.shutdown();
+        manager.startServer();
+	try
+	{
+	    obj3 = TestIntfPrxHelper.checkedCast(base3);
+	    obj3.ice_ping();
+	}
+	catch(Ice.LocalException)
+	{
+	    test(false);
+	}
+	try
+	{
+	    obj2 = TestIntfPrxHelper.checkedCast(base2);
+	    obj2.ice_ping();
+	}
+	catch(Ice.LocalException)
+	{
+	    test(false);
+	}
+	obj.shutdown();
+	manager.startServer();
+	try
+	{
+	    obj2 = TestIntfPrxHelper.checkedCast(base2);
+	    obj2.ice_ping();
+	}
+	catch(Ice.LocalException)
+	{
+	    test(false);
+	}
+	try
+	{
+	    obj3 = TestIntfPrxHelper.checkedCast(base3);
+	    obj3.ice_ping();
+	}
+	catch(Ice.LocalException)
+	{
+	    test(false);
+	}
+	obj.shutdown();
+	manager.startServer();
+	try
+	{
+	    obj2 = TestIntfPrxHelper.checkedCast(base2);
+	    obj2.ice_ping();
+	}
+	catch(Ice.LocalException)
+	{
+	    test(false);
+	}
+	obj.shutdown();
+	manager.startServer();
+	try
+	{
+	    obj3 = TestIntfPrxHelper.checkedCast(base2);
+	    obj3.ice_ping();
+	}
+	catch(Ice.LocalException)
+	{
+	    test(false);
+	}
+	obj.shutdown();
+	manager.startServer();
+	try
+	{
+	    obj5 = TestIntfPrxHelper.checkedCast(base5);
+	    obj5.ice_ping();
+	}
+	catch(Ice.LocalException)
+	{
+	    test(false);
+	}
         Console.Out.WriteLine("ok");
-        
+
         Console.Out.Write("testing reference with unknown identity... ");
         Console.Out.Flush();
         try
@@ -119,13 +180,33 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-        Console.Out.Write("shutdown server... ");
+        Console.Out.Write("testing object reference from server... ");
         Console.Out.Flush();
-        obj.shutdown();
+        HelloPrx hello = obj.getHello();
+        hello.sayHello();
         Console.Out.WriteLine("ok");
         
+	Console.Out.Write("testing object reference from server after shutdown... ");
+        Console.Out.Flush();
+	obj.shutdown();
+	manager.startServer();
+	hello.sayHello();
+	Console.Out.WriteLine("ok");
+
+	Console.Out.Write("testing object migration...");
+	Console.Out.Flush();
+	hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
+ 	obj.migrateHello();
+	hello.sayHello();
+ 	obj.migrateHello();
+ 	hello.sayHello();
+ 	obj.migrateHello();
+ 	hello.sayHello();
+	Console.Out.WriteLine("ok");
+
         Console.Out.Write("testing whether server is gone... ");
         Console.Out.Flush();
+        obj.shutdown();
         try
         {
             obj2.ice_ping();

@@ -24,7 +24,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     Ice::ObjectPrx base = communicator->stringToProxy("test @ TestAdapter");
     Ice::ObjectPrx base2 = communicator->stringToProxy("test @ TestAdapter");
     Ice::ObjectPrx base3 = communicator->stringToProxy("test");
-    Ice::ObjectPrx base4 = communicator->stringToProxy("ServerManager");
+    Ice::ObjectPrx base4 = communicator->stringToProxy("ServerManager"); 
+    Ice::ObjectPrx base5 = communicator->stringToProxy("test2");
     cout << "ok" << endl;
 
     cout << "starting server... " << flush;
@@ -43,22 +44,13 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     test(obj3);
     ServerManagerPrx obj4 = ServerManagerPrx::checkedCast(base4);
     test(obj4);
+    TestIntfPrx obj5 = TestIntfPrx::checkedCast(base5);
+    test(obj5);
     cout << "ok" << endl;
  
-    cout << "testing object reference from server... " << flush;
-    HelloPrx hello = obj->getHello();
-    hello->sayHello();
-    cout << "ok" << endl;
-
-    cout << "shutdown server... " << flush;
+    cout << "testing id@AdapterId indirect proxy... " << flush;
     obj->shutdown();
-    cout << "ok" << endl;
-
-    cout << "restarting server... " << flush;
     manager->startServer();
-    cout << "ok" << endl;
-
-    cout << "testing whether server is still reachable... " << flush;
     try
     {
 	obj2 = TestIntfPrx::checkedCast(base2);
@@ -70,8 +62,93 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     }
     cout << "ok" << endl;    
     
-    cout << "testing object reference from server... " << flush;
-    hello->sayHello();
+    cout << "testing identity indirect proxy... " << flush;
+    obj->shutdown();
+    manager->startServer();
+    try
+    {
+	obj3 = TestIntfPrx::checkedCast(base3);
+	obj3->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
+    try
+    {
+	obj2 = TestIntfPrx::checkedCast(base2);
+	obj2->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
+    obj->shutdown();
+    manager->startServer();
+    try
+    {
+	obj2 = TestIntfPrx::checkedCast(base2);
+	obj2->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
+    try
+    {
+	obj3 = TestIntfPrx::checkedCast(base3);
+	obj3->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
+    obj->shutdown();
+    manager->startServer();
+
+    try
+    {
+	obj2 = TestIntfPrx::checkedCast(base2);
+	obj2->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
+    obj->shutdown();
+    manager->startServer();
+    try
+    {
+	obj3 = TestIntfPrx::checkedCast(base3);
+	obj3->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
+    obj->shutdown();
+    manager->startServer();
+    try
+    {
+	obj2 = TestIntfPrx::checkedCast(base2);
+	obj2->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
+    obj->shutdown();
+    manager->startServer();
+
+    try
+    {
+	obj5 = TestIntfPrx::checkedCast(base5);
+	obj5->ice_ping();
+    }
+    catch(const Ice::LocalException&)
+    {
+	test(false);
+    }
     cout << "ok" << endl;
 
     cout << "testing reference with unknown identity... " << flush;
@@ -102,6 +179,27 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     }
     cout << "ok" << endl;
 
+    cout << "testing object reference from server... " << flush;
+    HelloPrx hello = obj->getHello();
+    hello->sayHello();
+    cout << "ok" << endl;
+
+    cout << "testing object reference from server after shutdown... " << flush;
+    obj->shutdown();
+    manager->startServer();
+    hello->sayHello();
+    cout << "ok" << endl;
+
+    cout << "testing object migration... " << flush;
+    hello = HelloPrx::checkedCast(communicator->stringToProxy("hello"));
+    obj->migrateHello();
+    hello->sayHello();
+    obj->migrateHello();
+    hello->sayHello();
+    obj->migrateHello();
+    hello->sayHello();
+    cout << "ok" << endl;
+
     cout << "shutdown server... " << flush;
     obj->shutdown();
     cout << "ok" << endl;
@@ -114,8 +212,24 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     }
     catch(const Ice::LocalException&)
     {
-	cout << "ok" << endl;
     }
+    try
+    {
+	obj3->ice_ping();
+	test(false);
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+    try
+    {
+	obj5->ice_ping();
+	test(false);
+    }
+    catch(const Ice::LocalException&)
+    {
+    }
+    cout << "ok" << endl;
 
     cout << "shutdown server manager... " << flush;
     manager->shutdown();

@@ -588,18 +588,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	    _delegate = null;
 	}
 
-	try
-	{
-	    IceInternal.IndirectReference ir = (IceInternal.IndirectReference)_reference;
-	    if(ir != null && ir.getLocatorInfo() != null)
-	    {
-	        ir.getLocatorInfo().clearObjectCache(ir);
-	    }
-	}
-	catch(ClassCastException e)
-	{
-	}
-
 	if(ice_isOneway() || ice_isBatchOneway())
 	{
 	    //
@@ -618,7 +606,7 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	IceInternal.ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
 	if(proxyFactory != null)
 	{
-	    return proxyFactory.checkRetryAfterException(ex, cnt);
+	    return proxyFactory.checkRetryAfterException(ex, _reference, cnt);
 	}
 	else
 	{
@@ -634,19 +622,6 @@ public class ObjectPrxHelperBase implements ObjectPrx
     __rethrowException(LocalException ex)
     {
         _delegate = null;
-
-	try
-	{
-	    IceInternal.IndirectReference ir = (IceInternal.IndirectReference)_reference;
-	    if(ir != null && ir.getLocatorInfo() != null)
-	    {
-	        ir.getLocatorInfo().clearObjectCache(ir);
-	    }
-	}
-	catch(ClassCastException e)
-	{
-	}
-
         throw ex;
     }
 

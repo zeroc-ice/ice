@@ -72,13 +72,30 @@ namespace IceInternal
 	    }
 	}
 	
-	public int checkRetryAfterException(Ice.LocalException ex, int cnt)
+	public int checkRetryAfterException(Ice.LocalException ex, Reference @ref, int cnt)
 	{
 	    //
-	    // We don't retry *NotExistException, which are all derived from
-	    // RequestFailedException.
+	    // We retry ObjectNotExistException if the reference is
+	    // indirect. Otherwise, we don't retry other *NotExistException,
+	    // which are all derived from RequestFailedException.
 	    //
-	    if(ex is Ice.RequestFailedException)
+	    if(ex is Ice.ObjectNotExistException)
+	    {
+		try
+		{
+		    IndirectReference ir = (IndirectReference)@ref;
+		    if(ir.getLocatorInfo() == null)
+		    {
+			throw ex;
+		    }
+		    ir.getLocatorInfo().clearObjectCache(ir);
+		}
+		catch(System.InvalidCastException)
+		{
+		    throw ex;
+		}
+	    }
+	    else if(ex is Ice.RequestFailedException)
 	    {
 		throw ex;
 	    }

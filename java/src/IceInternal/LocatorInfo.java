@@ -111,19 +111,22 @@ public final class LocatorInfo
 	    }
 	    else
 	    {
+		boolean objectCached = true;
 		object = _table.getProxy(identity);
 		if(object == null)
 		{
-		    cached.value = false;
+		    objectCached = false;
 
 		    object = _locator.findObjectById(identity);
 		}
-
+		
+		boolean endpointsCached = true;
 		if(object != null)
 		{
 		    Reference r = ((Ice.ObjectPrxHelperBase)object).__reference();
 		    if(r instanceof DirectReference)
 		    {
+			endpointsCached = false;
 			DirectReference odr = (DirectReference)r;
 			endpoints = odr.getEndpoints();
 		    }
@@ -132,15 +135,19 @@ public final class LocatorInfo
 		        IndirectReference oir = (IndirectReference)r;
 			if(oir.getAdapterId().length() > 0)
 			{
-			    endpoints = getEndpoints(oir, cached);
+			    Ice.BooleanHolder c = new Ice.BooleanHolder();
+			    endpoints = getEndpoints(oir, c);
+			    endpointsCached = c.value;
 			}
 		    }
 		}
 		
-		if(!cached.value && endpoints != null && endpoints.length > 0)
+		if(!objectCached && endpoints != null && endpoints.length > 0)
 		{
 		    _table.addProxy(identity, object);
 		}
+
+		cached.value = objectCached || endpointsCached;
 	    }
 	}
 	catch(Ice.AdapterNotFoundException ex)
@@ -204,7 +211,7 @@ public final class LocatorInfo
 	    Ice.ObjectPrx object = _table.removeProxy(ref.getIdentity());
 	    if(object != null)
 	    {
-		if(object instanceof IndirectReference)
+		if(((Ice.ObjectPrxHelperBase)object).__reference() instanceof IndirectReference)
 		{
 		    IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)object).__reference();
 		    if(oir.getAdapterId().length() > 0)
@@ -241,7 +248,7 @@ public final class LocatorInfo
 	    Ice.ObjectPrx object = _table.removeProxy(ref.getIdentity());
 	    if(object != null)
 	    {
-		if(object instanceof IndirectReference)
+		if(((Ice.ObjectPrxHelperBase)object).__reference() instanceof IndirectReference)
 		{
 		    IndirectReference oir = (IndirectReference)((Ice.ObjectPrxHelperBase)object).__reference();
 		    if(oir.getAdapterId().length() > 0)
