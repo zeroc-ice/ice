@@ -38,6 +38,7 @@ ZEND_BEGIN_MODULE_GLOBALS(ice)
     zval* communicator;
     void* typeMap;
     void* objectMap;
+    void* patchList;
 ZEND_END_MODULE_GLOBALS(ice)
 
 #ifdef ZTS
