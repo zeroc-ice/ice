@@ -146,7 +146,7 @@ class CallbackClient extends Ice.Application
         System.out.flush();
         twoway.shutdown();
         // No ping, otherwise the glacier router prints a warning
-        // message if it's started with --Ice.Warn.Connection.
+        // message if it's started with --Ice.Warn.Connections.
         System.out.println("ok");
         /*
         try

@@ -12,7 +12,7 @@ IceBox.DBEnvName.IceStorm=db
 #
 # Warn about connection exceptions
 #
-#Ice.Warn.Connection=1
+#Ice.Warn.Connections=1
 
 #
 # Network Tracing

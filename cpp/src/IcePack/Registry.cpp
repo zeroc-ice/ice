@@ -250,7 +250,7 @@ IcePack::Registry::start(bool nowarn)
     // (_communicator).
     //
     _locatorComm = Ice::initializeWithProperties(argc, argv, _communicator->getProperties());
-    _locatorComm->getProperties()->setProperty("Ice.Warn.Leak", "0");
+    _locatorComm->getProperties()->setProperty("Ice.Warn.Leaks", "0");
     _locatorComm->getProperties()->setProperty(
 	"Ice.ServerThreadPool.Size", 
 	properties->getPropertyWithDefault("IcePack.Registry.Locator.ServerThreadPool.Size", "6"));

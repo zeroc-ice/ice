@@ -121,10 +121,10 @@ The request retry tracing level:
 <section><title>&Ice; Warning Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>Ice.Warn.Connection</title>
+<section><title>Ice.Warn.Connections</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Warn.Connection=<replaceable>num</replaceable>
+Ice.Warn.Connections=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -178,10 +178,10 @@ and C++ exceptions. (default)</entry>
 </section>
 </section>
 
-<section><title>Ice.Warn.Leak</title>
+<section><title>Ice.Warn.Leaks</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Warn.Leak=<replaceable>num</replaceable>
+Ice.Warn.Leaks=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>

@@ -16,7 +16,7 @@
   <properties>
     <property name="Type" value="Server"/>
     <property name="Name" value="${name}"/>
-    <property name="Ice.Warn.Connection" value="1"/>
+    <property name="Ice.Warn.Connections" value="1"/>
   </properties>
 
 </server>

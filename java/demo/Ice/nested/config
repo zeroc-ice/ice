@@ -5,7 +5,7 @@ Ice.ServerThreadPool.Size=50
 #Ice.Trace.Security=2
 #Ice.Trace.Network=1
 #Ice.Trace.Protocol=1
-#Ice.Warn.Connection=1
+#Ice.Warn.Connections=1
 
 Glacier.Router.Endpoints=default -p 10005
 Glacier.Client.Endpoints=default

@@ -8,7 +8,7 @@ Callback.Client.Endpoints=
 
 #Ice.Trace.Network=1
 #Ice.Trace.Protocol=1
-Ice.Warn.Connection=1
+Ice.Warn.Connections=1
 
 Ice.Plugin.IceSSL=IceSSL:create
 IceSSL.Client.CertPath=../../../certs

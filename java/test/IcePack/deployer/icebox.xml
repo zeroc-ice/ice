@@ -4,7 +4,7 @@
   <service name="Service2" descriptor="freezeservice.xml"/>
 
   <properties>
-    <property name="Ice.Warn.Connection" value="1"/>
+    <property name="Ice.Warn.Connections" value="1"/>
   </properties>
 
 </server>

@@ -159,7 +159,7 @@ else:
     defaultHost = ""
 
 commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerThreadPool.Size=3" + \
-                      " --Ice.Warn.Connection --Ice.ServerIdleTime=30"
+                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30"
 
 clientOptions = clientProtocol + defaultHost
 serverOptions = serverProtocol + defaultHost + commonServerOptions
