@@ -552,6 +552,19 @@ Slice::Container::createEnumerator(const string& name)
 TypeList
 Slice::Container::lookupType(const string& scoped, bool printError)
 {
+    //
+    // Remove whitespace.
+    //
+    string sc = scoped;
+    string::size_type pos;
+    while((pos = sc.find_first_of(" \t\r\n")) != string::npos)
+    {
+	sc.erase(pos, 1);
+    }
+
+    //
+    // Check for builtin type.
+    //
     static const char* builtinTable[] =
     {
 	"byte",
@@ -569,7 +582,7 @@ Slice::Container::lookupType(const string& scoped, bool printError)
 
     for (unsigned int i = 0; i < sizeof(builtinTable) / sizeof(const char*); ++i)
     {
-	if (scoped == builtinTable[i])
+	if (sc == builtinTable[i])
 	{
 	    TypeList result;
 	    result.push_back(_unit->builtin(static_cast<Builtin::Kind>(i)));
@@ -577,37 +590,40 @@ Slice::Container::lookupType(const string& scoped, bool printError)
 	}
     }
 
+    //
+    // Not a builtin type, try to look up a constructed type.
+    //
     return lookupTypeNoBuiltin(scoped, printError);
 }
 
 TypeList
 Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 {
-    if (scoped.size() >= 2 && scoped[0] == ':')
+    //
+    // Remove whitespace.
+    //
+    string sc = scoped;
+    string::size_type pos;
+    while((pos = sc.find_first_of(" \t\r\n")) != string::npos)
     {
-	return _unit->lookupTypeNoBuiltin(scoped.substr(2), printError);
+	sc.erase(pos, 1);
     }
-    
-    ContainedList matches = _unit->findContents(thisScope() + scoped);
-    if (matches.empty())
+
+    //
+    // Absolute scoped name?
+    //
+    if (sc.size() >= 2 && sc[0] == ':')
     {
-	ContainedPtr contained = ContainedPtr::dynamicCast(this);
-	if (!contained)
-	{
-	    if (printError)
-	    {
-		string msg = "`";
-		msg += scoped;
-		msg += "' is not defined";
-		_unit->error(msg);
-	    }
-	    return TypeList();
-	}
-	return contained->container()->lookupTypeNoBuiltin(scoped, printError);
+	return _unit->lookupTypeNoBuiltin(sc.substr(2), printError);
     }
-    else
+
+    TypeList results;
+    if (sc.rfind('*') == sc.length() - 1)
     {
-	TypeList results;
+	//
+	// Proxies.
+	//
+	ContainedList matches = _unit->findContents(thisScope() + sc.substr(0, sc.length() - 1));
 	for (ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
 	{
 	    ClassDefPtr def = ClassDefPtr::dynamicCast(*p);
@@ -616,26 +632,55 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 		continue; // Ignore class definitions
 	    }
 
+	    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
+	    if (!cl)
+	    {
+		if (printError)
+		{
+		    string msg = "`";
+		    msg += sc;
+		    msg += "' must be class or interface";
+		    _unit->error(msg);
+		}
+		return TypeList();
+	    }
+	    results.push_back(new Proxy(cl));
+	}
+    }
+    else
+    {
+	//
+	// Non-Proxies.
+	//
+	ContainedList matches = _unit->findContents(thisScope() + sc);
+	for (ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
+	{
+	    ClassDefPtr def = ClassDefPtr::dynamicCast(*p);
+	    if (def)
+	    {
+		continue; // Ignore class definitions
+	    }
+	    
 	    ExceptionPtr ex = ExceptionPtr::dynamicCast(*p);
 	    if (ex)
 	    {
 		if (printError)
 		{
 		    string msg = "`";
-		    msg += scoped;
+		    msg += sc;
 		    msg += "' is an exception, which cannot be used as a type";
 		    _unit->error(msg);
 		}
 		return TypeList();
 	    }
-
+	    
 	    TypePtr type = TypePtr::dynamicCast(*p);
 	    if (!type)
 	    {
 		if (printError)
 		{
 		    string msg = "`";
-		    msg += scoped;
+		    msg += sc;
 		    msg += "' is not a type";
 		    _unit->error(msg);
 		}
@@ -643,20 +688,9 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 	    }
 	    results.push_back(type);
 	}
-	return results;
-    }
-}
-
-ContainedList
-Slice::Container::lookupContained(const string& scoped, bool printError)
-{
-    if (scoped.size() >= 2 && scoped[0] == ':')
-    {
-	return _unit->lookupContained(scoped.substr(2), printError);
     }
     
-    ContainedList matches = _unit->findContents(thisScope() + scoped);
-    if (matches.empty())
+    if (results.empty())
     {
 	ContainedPtr contained = ContainedPtr::dynamicCast(this);
 	if (!contained)
@@ -664,24 +698,69 @@ Slice::Container::lookupContained(const string& scoped, bool printError)
 	    if (printError)
 	    {
 		string msg = "`";
-		msg += scoped;
+		msg += sc;
+		msg += "' is not defined";
+		_unit->error(msg);
+	    }
+	    return TypeList();
+	}
+	return contained->container()->lookupTypeNoBuiltin(sc, printError);
+    }
+    else
+    {
+	return results;
+    }
+}
+
+ContainedList
+Slice::Container::lookupContained(const string& scoped, bool printError)
+{
+    //
+    // Remove whitespace.
+    //
+    string sc = scoped;
+    string::size_type pos;
+    while((pos = sc.find_first_of(" \t\r\n")) != string::npos)
+    {
+	sc.erase(pos, 1);
+    }
+
+    //
+    // Absolute scoped name?
+    //
+    if (sc.size() >= 2 && sc[0] == ':')
+    {
+	return _unit->lookupContained(sc.substr(2), printError);
+    }
+    
+    ContainedList matches = _unit->findContents(thisScope() + sc);
+    ContainedList results;
+    for (ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
+    {
+	if (!ClassDefPtr::dynamicCast(*p)) // Ignore class definitions
+	{
+	    results.push_back(*p);
+	}
+    }
+
+    if (results.empty())
+    {
+	ContainedPtr contained = ContainedPtr::dynamicCast(this);
+	if (!contained)
+	{
+	    if (printError)
+	    {
+		string msg = "`";
+		msg += sc;
 		msg += "' is not defined";
 		_unit->error(msg);
 	    }
 	    return ContainedList();
 	}
-	return contained->container()->lookupContained(scoped, printError);
+	return contained->container()->lookupContained(sc, printError);
     }
     else
     {
-	ContainedList results;
-	for (ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
-	{
-	    if (!ClassDefPtr::dynamicCast(*p)) // Ignore class definitions
-	    {
-		results.push_back(*p);
-	    }
-	}
 	return results;
     }
 }
