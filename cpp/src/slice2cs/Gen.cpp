@@ -1025,6 +1025,41 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scoped = fixId(p->scoped());
     ClassList bases = p->bases();
 
+    if(!p->isLocal())
+    {
+        _out << sp << nl << "public sealed class " << name << "Helper";
+	_out << sb;
+
+	_out << sp << nl << "public " << name << "Helper(Ice.InputStream __in)";
+	_out << sb;
+	_out << nl << "_in = __in;";
+	_out << nl << "_pp = new IceInternal.ParamPatcher(typeof(" << scoped << "));";
+	_out << eb;
+
+	_out << sp << nl << "public static void write(Ice.OutputStream __out, " << fixId(name) << " __v)";
+	_out << sb;
+	_out << nl << "__out.writeObject(__v);";
+	_out << eb;
+
+	_out << sp << nl << "public void read()";
+	_out << sb;
+	_out << nl << "_in.readObject(_pp);";
+	_out << eb;
+
+	_out << sp << nl << "public " << scoped << " value";
+	_out << sb;
+	_out << nl << "get";
+	_out << sb;
+	_out << nl << "return (" << scoped << ")_pp.value;";
+	_out << eb;
+	_out << eb;
+
+	_out << sp << nl << "private Ice.InputStream _in;";
+	_out << nl << "private IceInternal.ParamPatcher _pp;";
+
+	_out << eb;
+    }
+
     if(p->isInterface())
     {
         _out << sp << nl << "public interface " << fixId(name) << " : ";
@@ -1946,6 +1981,26 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     string name = fixId(p->name());
 
+    if(!p->isLocal())
+    {
+        _out << sp << nl << "public sealed class " << p->name() << "Helper";
+	_out << sb;
+
+	_out << sp << nl << "public static void write(Ice.OutputStream __out, " << name << " __v)";
+	_out << sb;
+	_out << nl << "__v.__write(__out);";
+	_out << eb;
+
+	_out << sp << nl << "public static " << name << " read(Ice.InputStream __in)";
+	_out << sb;
+	_out << nl << name << " __v = new " << name << "();";
+	_out << nl << "__v.__read(__in);";
+	_out << nl << "return __v;";
+	_out << eb;
+
+	_out << eb;
+    }
+
     if(p->hasMetaData("cs:class"))
     {
 	_out << sp << nl << "public class " << name << " : _System.ICloneable";
@@ -2520,7 +2575,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
     _out << eb;
 
-    _out << sp << nl << "public class " << name << "Helper";
+    _out << sp << nl << "public sealed class " << name << "Helper";
     _out << sb;
 
     _out << sp << nl << "public static void write(Ice.OutputStream __out, " << scoped << " __v)";
@@ -3191,7 +3246,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp << nl << "public sealed class " << name << "Helper";
     _out << sb;
 
-    _out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << name << " __v)";
+    _out << nl << "public static void write(IceInternal.BasicStream __os, " << name << " __v)";
     _out << sb;
     _out << nl << "if(__v == null)";
     _out << sb;
@@ -3259,7 +3314,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "return __r;";
     _out << eb;
 
-    _out << nl << "public static void" << nl << "write(Ice.OutputStream __out, " << name << " __v)";
+    _out << nl << "public static void write(Ice.OutputStream __out, " << name << " __v)";
     _out << sb;
     _out << nl << "if(__v == null)";
     _out << sb;
