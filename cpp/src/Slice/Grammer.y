@@ -457,6 +457,16 @@ parameters
     parms->v.push_front(make_pair(type, ident->v));
     $$ = parms;
 }
+| type ',' parameters
+{
+    unit->error("missing declarator");
+    $$ = $3
+}
+| type
+{
+    unit->error("missing declarator");
+    $$ = new TypeStringListTok;
+}
 |
 {
     $$ = new TypeStringListTok;

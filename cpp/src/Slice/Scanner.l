@@ -46,9 +46,7 @@ L	[a-zA-Z_]
 
 "//" {
     // C++-style comment
-    
     int c;
-    
     do
     {
 	c = yyinput();
@@ -62,13 +60,11 @@ L	[a-zA-Z_]
 
 "/*" {
     // C-style comment
-   
     string comment = yytext + 2;
     while (true)
     {
 	int c = yyinput();
 	comment += static_cast<char>(c);
-	
 	if (c == '\n')
 	{
 	    unit->nextLine();
@@ -76,11 +72,14 @@ L	[a-zA-Z_]
 	else if (c == '*')
 	{
 	    int next = yyinput();
-	    
 	    if (next == '/')
+	    {
 		break;
+	    }
 	    else
+	    {
 		unput(next);
+	    }
 	}
 	else if (c == EOF)
 	{
@@ -88,7 +87,6 @@ L	[a-zA-Z_]
 	    break;
 	}
     }
-
     if (comment[0] == '*')
     {
 	unit->setComment(comment);

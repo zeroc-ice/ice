@@ -72,7 +72,7 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
     }
 
     AdminPtr admin = new AdminI(communicator);
-    ObjectLocatorPtr forward = new Forward(admin);
+    ObjectLocatorPtr forward = new Forward(communicator, admin);
 
     if (adminEndpoints.length() != 0)
     {

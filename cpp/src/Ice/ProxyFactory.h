@@ -27,6 +27,8 @@ class ProxyFactory : public Shared
 public:
     
     ::Ice::ObjectPrx stringToProxy(const std::string&);
+    std::string proxyToString(const ::Ice::ObjectPrx&);
+
     ::Ice::ObjectPrx streamToProxy(Stream*);
     ::Ice::ObjectPrx referenceToProxy(const ReferencePtr&);
     void proxyToStream(const ::Ice::ObjectPrx&, Stream*);

@@ -16,9 +16,17 @@ using namespace std;
 using namespace Ice;
 using namespace IcePack;
 
-IcePack::Forward::Forward(const AdminPtr& admin) :
+IcePack::Forward::Forward(const CommunicatorPtr& communicator, const AdminPtr& admin) :
+    _communicator(communicator),
     _admin(admin)
 {
+    _activator = new Activator(_communicator);
+    _activator->start();
+}
+
+IcePack::Forward::~Forward()
+{
+    _activator->destroy();
 }
 
 ObjectPtr
@@ -29,6 +37,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
     if (desc)
     {
 	assert(desc->object);
+	_activator->activate(desc);
 	throw LocationForward(desc->object);
     }
     return 0;

@@ -72,6 +72,17 @@ Ice::CommunicatorI::stringToProxy(const string& s)
     return _instance->proxyFactory()->stringToProxy(s);
 }
 
+string
+Ice::CommunicatorI::proxyToString(const ObjectPrx& proxy)
+{
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
+    if (!_instance)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
+    return _instance->proxyFactory()->proxyToString(proxy);
+}
+
 ObjectAdapterPtr
 Ice::CommunicatorI::createObjectAdapter(const string& name)
 {

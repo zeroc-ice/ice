@@ -37,7 +37,7 @@ class ServerDescription
     /**
      *
      * The server object or object template. Any non-administrative
-     * IcePack request that matches the identity of
+     * &IcePack; request that matches the identity of
      * <literal>object</literal> will be forwarded to
      * <literal>object</literal>. If <literal>regex</literal> is set
      * to <literal>true</literal>, <literal>object</literal>'s
@@ -93,8 +93,15 @@ class ServerDescription
 
 /**
  *
- * The IcePack administrative interface. <warning><para>Allowing
- * access to this interface is a security risk! Please see the IcePack
+ * A vector of server descriptions.
+ *
+ **/
+vector<ServerDescription> ServerDescriptions;
+
+/**
+ *
+ * The &IcePack; administrative interface. <warning><para>Allowing
+ * access to this interface is a security risk! Please see the &IcePack;
  * documentation for further information.</para></warning>
  *
  **/
@@ -102,7 +109,7 @@ class Admin
 {
     /**
      *
-     * Add a server and objects implemented by that server to IcePack.
+     * Add a server and objects implemented by that server to &IcePack;.
      *
      * @param description The server's description.
      *
@@ -113,7 +120,7 @@ class Admin
 
     /**
      *
-     * Remove a server and objects implemented by that server from IcePack.
+     * Remove a server and objects implemented by that server from &IcePack;.
      *
      * @param object Must match the field <literal>object</literal> of
      * the <literal>ServerDescription</literal> data to remove.
@@ -125,7 +132,7 @@ class Admin
 
     /**
      *
-     * Find a server and objects implemented by that server from IcePack.
+     * Find a server and objects implemented by that server from &IcePack;.
      *
      * @param object Must match the field <literal>object</literal> of
      * the <literal>ServerDescription</literal> data to find.
@@ -139,7 +146,16 @@ class Admin
 
     /**
      *
-     * Shut down IcePack.
+     * Get all server descriptions in &IcePack;.
+     *
+     * @return The descriptions of all servers.
+     *
+     **/
+    ServerDescriptions getAll();
+
+    /**
+     *
+     * Shut down &IcePack;.
      *
      **/
     void shutdown();

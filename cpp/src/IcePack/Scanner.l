@@ -178,9 +178,7 @@ L	[a-zA-Z_]
 
 "//" {
     // C++-style comment
-    
     int c;
-    
     do
     {
 	c = yyinput();
@@ -194,11 +192,9 @@ L	[a-zA-Z_]
 
 "/*" {
     // C-style comment
-   
     while (true)
     {
 	int c = yyinput();
-	
 	if (c == '\n')
 	{
 	    parser->nextLine();
@@ -206,11 +202,14 @@ L	[a-zA-Z_]
 	else if (c == '*')
 	{
 	    int next = yyinput();
-	    
 	    if (next == '/')
+	    {
 		break;
+	    }
 	    else
+	    {
 		unput(next);
+	    }
 	}
 	else if (c == EOF)
 	{
@@ -218,6 +217,115 @@ L	[a-zA-Z_]
 	    break;
 	}
     }
+}
+
+\" {
+    // "..."-type string
+    string s;
+    while (true)
+    {
+	char c = static_cast<char>(yyinput());
+	if (c == '"')
+	{
+	    break;
+	}
+	else if (c == EOF)
+	{
+	    parser->warning("EOF in string");
+	    break;
+	}
+	else if (c == '\n')
+	{
+	    s += c;
+	    parser->nextLine();
+	}
+	else if (c == '\\')
+	{
+	    char next = static_cast<char>(yyinput());
+	    switch (next)
+	    {
+		case '\\':
+		case '"':
+		{
+		    s += next;
+		    break;
+		}
+	    
+		case 'n':
+		{
+		    s += '\n';
+		    break;
+		}
+	    
+		case 'r':
+		{
+		    s += '\r';
+		    break;
+		}
+
+		case 't':
+		{
+		    s += '\t';
+		    break;
+		}
+	    
+		case 'v':
+		{
+		    s += '\v';
+		    break;
+		}
+	    
+		case 'f':
+		{
+		    s += '\f';
+		    break;
+		}
+	    
+		default:
+		{
+		    s += c;
+		    unput(next);
+		}
+	    }
+	}
+	else
+	{
+	    s += c;
+	}
+    }
+    yylval.clear();
+    yylval.push_back(s);
+    return ICE_PACK_STRING;
+}
+
+\' {
+    // '...'-type string
+    string s;
+    while (true)
+    {
+	char c = static_cast<char>(yyinput());
+	if (c == '\'')
+	{
+	    break;
+	}
+	else if (c == EOF)
+	{
+	    parser->warning("EOF in string");
+	    break;
+	}
+	else if (c == '\n')
+	{
+	    s += c;
+	    parser->nextLine();
+	}
+	else
+	{
+	    s += c;
+	}
+    }
+    yylval.clear();
+    yylval.push_back(s);
+    return ICE_PACK_STRING;
 }
 
 "quit"|"exit" {
@@ -232,14 +340,12 @@ L	[a-zA-Z_]
     return ICE_PACK_REMOVE;
 }
 
-"shutdown" {
-    return ICE_PACK_SHUTDOWN;
+"list" {
+    return ICE_PACK_LIST;
 }
 
-\[[^\[\]{NL}]+(:[^\[\]{NL}]+)+\] {
-    yylval.empty();
-    yylval.push_back(yytext);
-    return ICE_PACK_REFERENCE;
+"shutdown" {
+    return ICE_PACK_SHUTDOWN;
 }
 
 {WS}*(\\{WS}*{NL})? {

@@ -45,36 +45,84 @@ IcePack::Parser::createParser(const CommunicatorPtr& communicator, const AdminPr
 }
 
 void
-IcePack::Parser::add(const list<string>& references)
+IcePack::Parser::add(const list<string>& args)
 {
-    for (list<string>::const_iterator p = references.begin(); p != references.end(); ++p)
+    if (args.empty())
     {
-	try
+	error("`add' requires at least an object reference as argument");
+	return;
+    }
+
+    try
+    {
+	ServerDescriptionPtr desc = new ServerDescription;
+	list<string>::const_iterator p = args.begin();
+	desc->object = _communicator->stringToProxy(*p);
+	desc->regex = false;
+	if (++p != args.end())
 	{
-	    ServerDescriptionPtr desc = new ServerDescription;
-	    desc->object = _communicator->stringToProxy(*p);
-	    _admin->add(desc);
+	    desc->path = *p;
+	    while (++p != args.end())
+	    {
+		desc->args.push_back(*p);
+	    }
 	}
-	catch(const LocalException& ex)
-	{
-	    error(ex.toString());
-	}
+	_admin->add(desc);
+
+    }
+    catch(const LocalException& ex)
+    {
+	error(ex.toString());
     }
 }
 
 void
-IcePack::Parser::remove(const list<string>& references)
+IcePack::Parser::remove(const list<string>& args)
 {
-    for (list<string>::const_iterator p = references.begin(); p != references.end(); ++p)
+    if (args.size() != 1)
     {
-	try
+	error("`remove' takes exactly one object reference as argument");
+	return;
+    }
+
+    try
+    {
+	_admin->remove(_communicator->stringToProxy(args.front()));
+    }
+    catch(const LocalException& ex)
+    {
+	error(ex.toString());
+    }
+}
+
+void
+IcePack::Parser::getAll()
+{
+    try
+    {
+	ServerDescriptions descriptions = _admin->getAll();
+	ServerDescriptions::iterator p = descriptions.begin();
+	while(p != descriptions.end())
 	{
-	    _admin->remove(_communicator->stringToProxy(*p));
+	    cout << "object = " << _communicator->proxyToString((*p)->object) << endl;
+	    cout << "regex = " << boolalpha << (*p)->regex << endl;
+	    cout << "host = " << (*p)->host << endl;
+	    cout << "path = " << (*p)->path << endl;
+	    cout << "args =";
+	    for (Args::iterator q = (*p)->args.begin(); q != (*p)->args.end(); ++q)
+	    {
+		cout << ' ' << *q;
+	    }
+	    cout << endl;
+	    if (++p != descriptions.end())
+	    {
+		cout << endl;
+	    }
 	}
-	catch(const LocalException& ex)
-	{
-	    error(ex.toString());
-	}
+    }
+    catch(const LocalException& ex)
+    {
+	error(ex.toString());
     }
 }
 
@@ -89,7 +137,6 @@ IcePack::Parser::shutdown()
     {
 	error(ex.toString());
     }
-
 }
 
 void

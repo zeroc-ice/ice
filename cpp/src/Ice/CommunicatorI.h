@@ -27,6 +27,7 @@ public:
     virtual void waitForShutdown();
 
     virtual ObjectPrx stringToProxy(const std::string&);
+    virtual std::string proxyToString(const ObjectPrx&);
 
     virtual ObjectAdapterPtr createObjectAdapter(const std::string&);
     virtual ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);

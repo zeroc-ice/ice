@@ -98,8 +98,23 @@ local class Communicator
      *
      * @return The Proxy.
      *
+     * @see proxyToString
+     *
      **/
     Object* stringToProxy(string str);
+
+    /**
+     *
+     * Convert a Proxy into a string.
+     *
+     * @param obj The Proxy to turn into a string.
+     *
+     * @return The "stringified" Proxy.
+     *
+     * @see stringToProxy
+     *
+     **/
+    string proxyToString(Object* obj);
 
     /**
      *

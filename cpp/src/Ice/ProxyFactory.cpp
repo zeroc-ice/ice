@@ -29,6 +29,12 @@ IceInternal::ProxyFactory::stringToProxy(const string& s)
     return referenceToProxy(reference);
 }
 
+string
+IceInternal::ProxyFactory::proxyToString(const ObjectPrx& proxy)
+{
+    return "blahblah"; // TODO
+}
+
 ObjectPrx
 IceInternal::ProxyFactory::streamToProxy(Stream* s)
 {

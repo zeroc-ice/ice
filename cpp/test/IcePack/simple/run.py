@@ -37,7 +37,7 @@ print "ok"
 print "registering server with icepack...",
 icePackAdminPipe = os.popen(icePackAdmin + \
                             r' "--Ice.Adapter.Admin.Endpoints=tcp -p 12347 -t 2000"' + \
-                            r' -e "add [test:tcp -p 12345 -t 2000]"')
+                            r' -e "add \"test:tcp -p 12345 -t 2000\""')
 icePackAdminPipe.close()
 print "ok"
 

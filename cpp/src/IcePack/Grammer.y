@@ -25,11 +25,12 @@ yyerror(const char* s)
 
 %}
 
+%token ICE_PACK_STRING
 %token ICE_PACK_EXIT
 %token ICE_PACK_ADD
 %token ICE_PACK_REMOVE
+%token ICE_PACK_LIST
 %token ICE_PACK_SHUTDOWN
-%token ICE_PACK_REFERENCE
 
 %%
 
@@ -62,13 +63,17 @@ command
 {
     return 0;
 }
-| ICE_PACK_ADD references ';'
+| ICE_PACK_ADD strings ';'
 {
     parser->add($2);
 }
-| ICE_PACK_REMOVE references ';'
+| ICE_PACK_REMOVE strings ';'
 {
     parser->remove($2);
+}
+| ICE_PACK_LIST ';'
+{
+    parser->getAll();
 }
 | ICE_PACK_SHUTDOWN ';'
 {
@@ -84,19 +89,15 @@ command
 ;
 
 // ----------------------------------------------------------------------
-references
+strings
 // ----------------------------------------------------------------------
-: ICE_PACK_REFERENCE references
+: ICE_PACK_STRING strings
 {
-    $1.front().erase(0, 1);
-    $1.front().erase($1.front().size() - 2);
     $$ = $2;
     $$.push_front($1.front());
 }
-| ICE_PACK_REFERENCE
+| ICE_PACK_STRING
 {
-    $1.front().erase(0, 1);
-    $1.front().erase($1.front().size() - 2);
     $$ = $1
 }
 ;

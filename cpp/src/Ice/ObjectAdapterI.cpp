@@ -257,59 +257,66 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 {
     string s(endpts);
     transform(s.begin(), s.end(), s.begin(), tolower);
-    
+
     string::size_type beg = 0;
     string::size_type end;
     
-    while (true)
+    //
+    // Set the "no delete" flag to true, meaning that this object will
+    // not be deleted, even if the reference count drops to zero. This
+    // is needed because if the constructor of the CollectorFactory
+    // throws an exception, or if the CollectorFactories are destroyed
+    // with "deactivate" from within this constructor, all
+    // ObjectAdapterPtrs for this object will be destroyed, and thus
+    // this object would be deleted if the "no delete" flag is not
+    // set.
+    //
+    __setNoDelete(true);
+
+    try
     {
-	end = s.find(':', beg);
-	if (end == string::npos)
+	while (true)
 	{
-	    end = s.length();
-	}
-	
-	if (end == beg)
-	{
-	    throw EndpointParseException(__FILE__, __LINE__);
-	}
-	
-	string es = s.substr(beg, end - beg);
-
-	// Don't store the endpoint in the adapter. The Collector
-	// might change it, for example, to fill in the real port
-	// number if a zero port number is given.
-	EndpointPtr endp = Endpoint::endpointFromString(es);
-	try
-	{
-	    // Set the "no delete" flag to true, meaning that this
-	    // object will not be deleted, even if the reference count
-	    // drops to zero. This is needed because if the
-	    // constructor of the CollectorFactory throws an
-	    // exception, the only CollectorFactoryPtr reference for
-	    // this object will be the one that is temporarily
-	    // constructed for passing the "this" parameter below. And
-	    // then this temporary reference is destroyed, this object
-	    // would be deleted if we don't set the "no delete" flag.
-	    __setNoDelete(true);
+	    end = s.find(':', beg);
+	    if (end == string::npos)
+	    {
+		end = s.length();
+	    }
+	    
+	    if (end == beg)
+	    {
+		throw EndpointParseException(__FILE__, __LINE__);
+	    }
+	    
+	    string es = s.substr(beg, end - beg);
+	    
+	    // Don't store the endpoint in the adapter. The Collector
+	    // might change it, for example, to fill in the real port
+	    // number if a zero port number is given.
+	    EndpointPtr endp = Endpoint::endpointFromString(es);
 	    _collectorFactories.push_back(new CollectorFactory(instance, this, endp));
-	    __setNoDelete(false);
+	    
+	    if (end == s.length())
+	    {
+		break;
+	    }
+	    
+	    beg = end + 1;
 	}
-	catch(...)
+    }
+    catch(...)
+    {
+	if (!_collectorFactories.empty())
 	{
-	    __setNoDelete(false);
-	    throw;
+	    deactivate();
 	}
-
-	if (end == s.length())
-	{
-	    break;
-	}
-
-	beg = end + 1;
+	__setNoDelete(false);
+	throw;
     }
 
-    if (!_collectorFactories.size())
+    __setNoDelete(false);
+    
+    if (_collectorFactories.empty())
     {
 	throw EndpointParseException(__FILE__, __LINE__);
     }

@@ -54,6 +54,7 @@ public:
 
     void add(const std::list<std::string>&);
     void remove(const std::list<std::string>&);
+    void getAll();
     void shutdown();
 
     void nextLine();

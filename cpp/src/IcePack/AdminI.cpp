@@ -65,6 +65,18 @@ IcePack::AdminI::find(const ObjectPrx& p)
     }
 }
 
+ServerDescriptions
+IcePack::AdminI::getAll()
+{
+    ServerDescriptions result;
+    result.reserve(_map.size());
+    for (map<ObjectPrx, ServerDescriptionPtr>::iterator p = _map.begin(); p != _map.end(); ++p)
+    {
+	result.push_back(p->second);
+    }
+    return result;
+}
+
 void
 IcePack::AdminI::shutdown()
 {

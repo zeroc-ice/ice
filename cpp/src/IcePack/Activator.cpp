@@ -73,7 +73,7 @@ IcePack::Activator::run()
 void
 IcePack::Activator::destroy()
 {
-    JTCSyncT<JTCMonitor> sync(*this);
+    JTCSyncT<JTCMutex> sync(*this);
 
     if (_destroy) // Don't destroy twice
     {
@@ -87,7 +87,7 @@ IcePack::Activator::destroy()
 void
 IcePack::Activator::activate(const ServerDescriptionPtr& desc)
 {
-    JTCSyncT<JTCMonitor> sync(*this);
+    JTCSyncT<JTCMutex> sync(*this);
 
     if (_destroy)
     {
@@ -199,7 +199,7 @@ IcePack::Activator::terminationListener()
 	FD_SET(_fdIntrRead, &fdSet);
 	
 	{
-	    JTCSyncT<JTCMonitor> sync(*this);
+	    JTCSyncT<JTCMutex> sync(*this);
 
 	    if (_destroy)
 	    {
@@ -232,7 +232,7 @@ IcePack::Activator::terminationListener()
 	}
 	
 	{
-	    JTCSyncT<JTCMonitor> sync(*this);
+	    JTCSyncT<JTCMutex> sync(*this);
 	    
 	    if (FD_ISSET(_fdIntrRead, &fdSet))
 	    {

@@ -17,7 +17,7 @@
 namespace IcePack
 {
 
-class Activator : public JTCThread, public JTCMonitor
+class Activator : public JTCThread, public JTCMutex
 {
 public:
 
