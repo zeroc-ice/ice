@@ -55,12 +55,6 @@ Parser::usage()
 void
 Parser::create(const list<string>& args)
 {
-    if (args.empty())
-    {
-	error("`create' requires at least one argument (type `help' for more info)");
-	return;
-    }
-
     try
     {
 	for (list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
@@ -79,12 +73,6 @@ Parser::create(const list<string>& args)
 void
 Parser::destroy(const list<string>& args)
 {
-    if (args.empty())
-    {
-	error("`destroy' requires exactly one argument (type `help' for more info)");
-	return;
-    }
-
     try
     {
 	for (list<string>::const_iterator i = args.begin(); i != args.end() ; ++i)
