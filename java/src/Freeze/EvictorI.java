@@ -302,7 +302,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("Freeze.Evictor",
-					    "added facet to \"" + Ice.Util.identityToString(ident) + "\"");
+					    "added facet " + facetPathToString(facetPath) 
+					    + " to \"" + Ice.Util.identityToString(ident) + "\"");
 	}
     }
 
@@ -485,7 +486,8 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	if(_trace >= 1)
 	{
 	    _communicator.getLogger().trace("Freeze.Evictor",
-					    "removed facet from \"" + Ice.Util.identityToString(ident) + "\"");
+					    "removed facet " + facetPathToString(facetPath)
+					    + " from \"" + Ice.Util.identityToString(ident) + "\"");
 	}
 	return result;
     }
@@ -786,7 +788,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		{
 		    _communicator.getLogger().trace(
 			"Freeze.Evictor",
-			"couldn't find \"" + Ice.Util.identityToString(ident) + "\" in the queue\n"
+			"couldn't find \"" + Ice.Util.identityToString(ident) + "\" in the queue; "
 			+ "loading \"" + Ice.Util.identityToString(ident) + "\" from the database");
 		}
 		
@@ -1294,7 +1296,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 
 	    if(root == null)
 	    {
-		assert(esk.facet.length == 0);
+		if(esk.facet.length != 0)
+		{
+		    _communicator.getLogger().warning
+			("Found orphan facet \"" + Ice.Util.identityToString(esk.identity) 
+			 + "\" " + facetPathToString(esk.facet));
+		    assert(false);
+		}
+
 		identities.add(esk.identity);
 		root = marshalRootKey(esk.identity, _communicator);
 		elt.mainObject = facet;
@@ -1315,7 +1324,15 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	throws com.sleepycat.db.DbException
     {
 	EvictorStorageKey esk = unmarshalKey(key.get_data(), _communicator);
-	assert(esk.facet.length == 0);
+
+	if(esk.facet.length != 0)
+	{
+	    _communicator.getLogger().warning
+		("Found orphan facet \"" + Ice.Util.identityToString(esk.identity) 
+		 + "\" " + facetPathToString(esk.facet));
+	    assert(false);
+	}
+	
 	identities.add(esk.identity);
 	byte[] root = marshalRootKey(esk.identity, _communicator);
 
@@ -1590,7 +1607,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    _communicator.getLogger().trace(
 			"Freeze.Evictor", 
 			"evicted \"" + Ice.Util.identityToString(ident) +
-			"\" from the queue\n" + "number of elements in the queue: " +
+			"\" from the queue; " + "number of elements in the queue: " +
 			_evictorMap.size());
 		}
 	    }
@@ -1920,6 +1937,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    {
 			case clean:
 			{
+			    if(_trace >= 3)
+			    {
+				_communicator.getLogger().trace(
+				    "Freeze.Evictor", 
+				    "addFacetImpl \"" + Ice.Util.identityToString(element.identity) +
+				    "\" " + facetPathToString(facetPath) + ": clean -> modified");
+			    }
+
 			    facet.status = modified;
 			    addToModifiedQueue(facet);
 			    break;
@@ -1927,6 +1952,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			case created:
 			case modified:
 			{
+			    if(_trace >= 3)
+			    {
+				_communicator.getLogger().trace(
+				    "Freeze.Evictor", 
+				    "addFacetImpl \"" + Ice.Util.identityToString(element.identity) +
+				    "\" " + facetPathToString(facetPath) + ": created or modified (unchanged)");
+			    }
+
 			    //
 			    // Nothing to do.
 			    // No need to push it on the modified queue as a created resp
@@ -1937,6 +1970,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			}
 			case destroyed:
 			{
+			    if(_trace >= 3)
+			    {
+				_communicator.getLogger().trace(
+				    "Freeze.Evictor", 
+				    "addFacetImpl \"" + Ice.Util.identityToString(element.identity) +
+				    "\" " + facetPathToString(facetPath) + ": destroyed -> modified");
+			    }
+			    
 			    facet.status = modified;
 			    //
 			    // No need to push it on the modified queue, as a destroyed facet
@@ -1947,6 +1988,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			}
 			case dead:
 			{
+			    if(_trace >= 3)
+			    {
+				_communicator.getLogger().trace(
+				    "Freeze.Evictor", 
+				    "addFacetImpl \"" + Ice.Util.identityToString(element.identity) +
+				    "\" " + facetPathToString(facetPath) + ": dead -> created");
+			    }
+
 			    facet.status = created;
 			    addToModifiedQueue(facet);
 			    break;			    
@@ -1965,6 +2014,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	
 	if(insertIt)
 	{
+	    if(_trace >= 3)
+	    {
+		_communicator.getLogger().trace(
+		    "Freeze.Evictor", 
+		    "addFacetImpl \"" + Ice.Util.identityToString(element.identity) +
+		    "\" " + facetPathToString(facetPath) + ": new facet (created)");
+	    }
+
 	    Facet facet = new Facet(element);
 	    facet.status = created;
 	    facet.path = facetPath;
@@ -2042,17 +2099,42 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    {
 		case clean:
 		{
+		    if(_trace >= 3)
+		    {
+			_communicator.getLogger().trace(
+			    "Freeze.Evictor", 
+			    "destroyFacetImpl \"" + Ice.Util.identityToString(facet.element.identity) +
+			    "\" " + facetPathToString(facet.path) + ": clean -> destroyed");
+		    }
+
 		    facet.status = destroyed;
 		    addToModifiedQueue(facet);
 		    break;
 		}
 		case created:
 		{
+		    if(_trace >= 3)
+		    {
+			_communicator.getLogger().trace(
+			    "Freeze.Evictor", 
+			    "destroyFacetImpl \"" + Ice.Util.identityToString(facet.element.identity) +
+			    "\" " + facetPathToString(facet.path) + ": created -> dead");
+		    }
+
 		    facet.status = dead;
 		    break;
 		}
 		case modified:
 		{
+		    if(_trace >= 3)
+		    {
+			_communicator.getLogger().trace(
+			    "Freeze.Evictor", 
+			    "destroyFacetImpl \"" + Ice.Util.identityToString(facet.element.identity) +
+			    "\" " + facetPathToString(facet.path) + ": modified -> destroyed");
+		    }
+
+
 		    facet.status = destroyed;
 		    //
 		    // Not necessary to push it on the modified queue, as a modified
@@ -2064,10 +2146,18 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		case destroyed:
 		case dead:
 		{
-		    //
-		    // Nothing to do!
-		    //
-		    break;
+		   if(_trace >= 3)
+		   {
+		       _communicator.getLogger().trace(
+			   "Freeze.Evictor", 
+			   "destroyFacetImpl \"" + Ice.Util.identityToString(facet.element.identity) +
+			   "\" " + facetPathToString(facet.path) + ": was already dead or destroyed");
+		   }
+		   
+		   //
+		   // Nothing to do!
+		   //
+		   break;
 		}
 		default:
 		{
@@ -2171,6 +2261,26 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
 	
 	String[] array;
+    }
+
+
+    static String
+    facetPathToString(String[] facetPath)
+    {
+	String result = "";
+	if(facetPath.length == 0)
+	{
+	    result = "(main object)";
+	}
+	else
+	{
+	    for(int i = 0; i < facetPath.length - 1; ++i)
+	    {
+		result += facetPath[i] + '/';
+	    }
+	    result += facetPath[facetPath.length - 1];
+	}
+	return result;
     }
 
     //
