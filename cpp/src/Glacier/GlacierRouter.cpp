@@ -146,7 +146,7 @@ Glacier::Router::run(int argc, char* argv[])
     sslSystem->setCertificateVerifier(contextType, sslExtension->getSingleCertVerifier(clientCert));
 
     // Add the Client's certificate as a trusted certificate.
-    sslSystem->addTrustedCertificate(contextType, clientCertBase64);
+    sslSystem->addTrustedCertificateBase64(contextType, clientCertBase64);
 
     //
     // Create routing table

@@ -97,7 +97,7 @@ CallbackClient::run(int argc, char* argv[])
     // Set the keys overrides.
     sslSystem->setRSAKeysBase64(IceSSL::ClientServer, privateKeyBase64, publicKeyBase64);
 
-    sslSystem->addTrustedCertificate(IceSSL::ClientServer, routerCertString);
+    sslSystem->addTrustedCertificateBase64(IceSSL::ClientServer, routerCertString);
 
     test(router);
     cout << "ok" << endl;
