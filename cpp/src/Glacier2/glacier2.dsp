@@ -54,12 +54,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/glacier215.dll" /implib:"Release/glacier2.lib"
+# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/glacier220.dll" /implib:"Release/glacier2.lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\glacier2.lib ..\..\lib	copy $(OutDir)\glacier215.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\glacier2.lib ..\..\lib	copy $(OutDir)\glacier220.dll ..\..\bin
 # End Special Build Tool
 
 !ELSEIF  "$(CFG)" == "Glacier2 - Win32 Debug"
@@ -87,12 +87,12 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/glacier215d.dll" /implib:"Debug/glacier2d.lib"
+# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/glacier220d.dll" /implib:"Debug/glacier2d.lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\glacier2d.lib ..\..\lib	copy $(OutDir)\glacier215d.pdb ..\..\bin	copy $(OutDir)\glacier215d.dll ..\..\bin
+PostBuild_Cmds=copy $(OutDir)\glacier2d.lib ..\..\lib	copy $(OutDir)\glacier220d.pdb ..\..\bin	copy $(OutDir)\glacier220d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
