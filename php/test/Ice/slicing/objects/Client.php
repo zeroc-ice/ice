@@ -785,15 +785,7 @@ function allTests()
     return $test;
 }
 
-try
-{
-    $test = allTests();
-    $test->shutdown();
-    exit();
-}
-catch(Ice_LocalException $ex)
-{
-    echo "Caught exception:\n";
-    print_r($ex);
-}
+$test = allTests();
+$test->shutdown();
+exit();
 ?>

@@ -80,32 +80,58 @@ private:
 // necessary to IcePHP::throwException.
 //
 static const char* _coreTypes =
-    "define(\"ICE_STRING_VERSION\", \"1.1.0\");\n"
-    "define(\"ICE_INT_VERSION\", 10100);\n"
+    "define(\"ICE_STRING_VERSION\", \"1.2.0\");\n"
+    "define(\"ICE_INT_VERSION\", 10200);\n"
     "\n"
-    "abstract class Ice_Exception\n"
+    "abstract class Ice_Exception extends Exception\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Exception::__construct($message);\n"
+    "    }\n"
     "}\n"
     "\n"
     "abstract class Ice_LocalException extends Ice_Exception\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_Exception::__construct($message);\n"
+    "    }\n"
     "}\n"
     "\n"
     "class Ice_UnknownException extends Ice_LocalException\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_LocalException::__construct($message);\n"
+    "    }\n"
+    "\n"
     "    var $unknown;\n"
     "}\n"
     "\n"
     "class Ice_UnknownLocalException extends Ice_UnknownException\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_UnknownException::__construct($message);\n"
+    "    }\n"
     "}\n"
     "\n"
     "class Ice_UnknownUserException extends Ice_UnknownException\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_UnknownException::__construct($message);\n"
+    "    }\n"
     "}\n"
     "\n"
     "class Ice_RequestFailedException extends Ice_LocalException\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_LocalException::__construct($message);\n"
+    "    }\n"
+    "\n"
     "    var $id;\n"
     "    var $facet;\n"
     "    var $operation;\n"
@@ -113,31 +139,60 @@ static const char* _coreTypes =
     "\n"
     "class Ice_ObjectNotExistException extends Ice_RequestFailedException\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_RequestFailedException::__construct($message);\n"
+    "    }\n"
     "}\n"
     "\n"
     "class Ice_FacetNotExistException extends Ice_RequestFailedException\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_RequestFailedException::__construct($message);\n"
+    "    }\n"
     "}\n"
     "\n"
     "class Ice_OperationNotExistException extends Ice_RequestFailedException\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_RequestFailedException::__construct($message);\n"
+    "    }\n"
     "}\n"
     "\n"
     "class Ice_ProtocolException extends Ice_LocalException\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_LocalException::__construct($message);\n"
+    "    }\n"
     "}\n"
     "\n"
     "class Ice_MarshalException extends Ice_ProtocolException\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_ProtocolException::__construct($message);\n"
+    "    }\n"
     "}\n"
     "\n"
     "class Ice_NoObjectFactoryException extends Ice_MarshalException\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_MarshalException::__construct($message);\n"
+    "    }\n"
+    "\n"
     "    var $type;\n"
     "}\n"
     "\n"
     "abstract class Ice_UserException extends Ice_Exception\n"
     "{\n"
+    "    function __construct($message = '')\n"
+    "    {\n"
+    "        Ice_Exception::__construct($message);\n"
+    "    }\n"
     "}\n"
     "\n"
     "interface Ice_LocalObject\n"
@@ -775,23 +830,29 @@ IcePHP::CodeVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
     Slice::ExceptionPtr base = p->base();
 
     _out << "class " << flat << " extends ";
+    string baseName;
     if(!base)
     {
         if(p->isLocal())
         {
-            _out << "Ice_LocalException";
+            baseName = "Ice_LocalException";
         }
         else
         {
-            _out << "Ice_UserException";
+            baseName = "Ice_UserException";
         }
     }
     else
     {
-        _out << flatten(base->scoped());
+        baseName = flatten(base->scoped());
     }
 
-    _out << endl << '{' << endl;
+    _out << baseName << endl << '{' << endl;
+
+    _out << "function __construct($message = '')" << endl;
+    _out << "{" << endl;
+    _out << "    " << baseName << "::__construct($message);" << endl;
+    _out << "}" << endl;
 
     return true;
 }

@@ -236,7 +236,7 @@ public:
     ObjectWriter(zval*, const Slice::SyntaxTreeBasePtr& TSRMLS_DC);
     ~ObjectWriter();
 
-    virtual void __write(::IceInternal::BasicStream*) const;
+    virtual void __write(::IceInternal::BasicStream*, bool) const;
     virtual void __read(::IceInternal::BasicStream*, bool = true);
 
 private:
@@ -253,7 +253,7 @@ public:
     ObjectReader(zval*, const Slice::ClassDefPtr& TSRMLS_DC);
     ~ObjectReader();
 
-    virtual void __write(::IceInternal::BasicStream*) const;
+    virtual void __write(::IceInternal::BasicStream*, bool) const;
     virtual void __read(::IceInternal::BasicStream*, bool = true);
 
     void setValue(zend_class_entry*, zval*);
@@ -1462,7 +1462,7 @@ IcePHP::ObjectWriter::~ObjectWriter()
 }
 
 void
-IcePHP::ObjectWriter::__write(IceInternal::BasicStream* os) const
+IcePHP::ObjectWriter::__write(IceInternal::BasicStream* os, bool) const
 {
     MarshalerMap* marshalerMap = static_cast<MarshalerMap*>(ICE_G(marshalerMap));
 
@@ -1546,7 +1546,7 @@ IcePHP::ObjectReader::~ObjectReader()
 }
 
 void
-IcePHP::ObjectReader::__write(IceInternal::BasicStream* os) const
+IcePHP::ObjectReader::__write(IceInternal::BasicStream* os, bool) const
 {
     zend_error(E_ERROR, "ObjectReader::__write should never be called");
 }
@@ -1846,16 +1846,25 @@ IcePHP::PHPObjectFactory::create(const string& scoped)
         zval* id;
         MAKE_STD_ZVAL(id);
         ZVAL_STRINGL(id, const_cast<char*>(scoped.c_str()), scoped.length(), 1);
-
-        zval* create;
-        MAKE_STD_ZVAL(create);
-        ZVAL_STRINGL(create, "create", sizeof("create") - 1, 1);
-
         args[0] = &id;
-        zval* zresult = NULL;
-        int status = call_user_function_ex(NULL, &p->second, create, &zresult, 1, args, 0, NULL TSRMLS_CC);
 
-        zval_ptr_dtor(&create);
+        zval* zresult = NULL;
+
+        zend_fcall_info fci;
+        fci.size = sizeof(fci);
+        fci.function_table = NULL;
+        MAKE_STD_ZVAL(fci.function_name);
+        ZVAL_STRINGL(fci.function_name, "create", sizeof("create") - 1, 1);
+        fci.symbol_table = NULL;
+        fci.retval_ptr_ptr = &zresult;
+        fci.param_count = 1;
+        fci.params = args;
+        fci.object_pp = &p->second;
+        fci.no_separation = 0;
+
+        int status = zend_call_function(&fci, NULL TSRMLS_CC);
+
+        zval_ptr_dtor(&fci.function_name);
         zval_ptr_dtor(&id);
 
         AutoDestroy destroyResult(zresult);
@@ -1951,14 +1960,23 @@ IcePHP::PHPObjectFactory::destroy()
     //
     for(map<string, zval*>::iterator p = _factories.begin(); p != _factories.end(); ++p)
     {
-        zval* funcName;
-        MAKE_STD_ZVAL(funcName);
-        ZVAL_STRINGL(funcName, "destroy", sizeof("destroy") - 1, 1);
-
         zval* result = NULL;
-        int status = call_user_function_ex(NULL, &p->second, funcName, &result, 0, NULL, 0, NULL TSRMLS_CC);
 
-        zval_ptr_dtor(&funcName);
+        zend_fcall_info fci;
+        fci.size = sizeof(fci);
+        fci.function_table = NULL;
+        MAKE_STD_ZVAL(fci.function_name);
+        ZVAL_STRINGL(fci.function_name, "destroy", sizeof("destroy") - 1, 1);
+        fci.symbol_table = NULL;
+        fci.retval_ptr_ptr = &result;
+        fci.param_count = 0;
+        fci.params = NULL;
+        fci.object_pp = &p->second;
+        fci.no_separation = 0;
+
+        int status = zend_call_function(&fci, NULL TSRMLS_CC);
+
+        zval_ptr_dtor(&fci.function_name);
         if(result)
         {
             zval_ptr_dtor(&result);

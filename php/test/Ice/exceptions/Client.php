@@ -283,15 +283,7 @@ function allTests()
     return $thrower;
 }
 
-try
-{
-    $thrower = allTests();
-    $thrower->shutdown();
-    exit();
-}
-catch(Ice_LocalException $ex)
-{
-    echo "Caught exception:\n";
-    print_r($ex);
-}
+$thrower = allTests();
+$thrower->shutdown();
+exit();
 ?>

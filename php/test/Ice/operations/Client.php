@@ -404,28 +404,20 @@ function allTests()
     return $cl;
 }
 
+$myClass = allTests();
+
+echo "testing server shutdown... ";
+flush();
+$myClass->shutdown();
 try
 {
-    $myClass = allTests();
-
-    echo "testing server shutdown... ";
-    flush();
-    $myClass->shutdown();
-    try
-    {
-        $myClass->opVoid();
-        test(false);
-    }
-    catch(Ice_LocalException $ex)
-    {
-        echo "ok\n";
-    }
-
-    exit();
+    $myClass->opVoid();
+    test(false);
 }
 catch(Ice_LocalException $ex)
 {
-    echo "Caught exception:\n";
-    print_r($ex);
+    echo "ok\n";
 }
+
+exit();
 ?>

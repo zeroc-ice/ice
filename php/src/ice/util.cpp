@@ -143,10 +143,9 @@ IcePHP::createIdentity(zval* zv, const Ice::Identity& id TSRMLS_DC)
         return false;
     }
 
-    add_property_stringl_ex(zv, "name", sizeof("name"), const_cast<char*>(id.name.c_str()),
-                            id.name.length(), 1 TSRMLS_CC);
-    add_property_stringl_ex(zv, "category", sizeof("category"), const_cast<char*>(id.category.c_str()),
-                            id.category.length(), 1 TSRMLS_CC);
+    zend_update_property_string(cls, zv, "name", sizeof("name") - 1, const_cast<char*>(id.name.c_str()) TSRMLS_CC);
+    zend_update_property_string(cls, zv, "category", sizeof("category") - 1,
+                                const_cast<char*>(id.category.c_str()) TSRMLS_CC);
 
     return true;
 }
@@ -287,15 +286,8 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         // Set the unknown member.
         //
-        zval* unknown;
-        MAKE_STD_ZVAL(unknown);
-        ZVAL_STRINGL(unknown, const_cast<char*>(e.unknown.c_str()), e.unknown.length(), 1);
-        if(add_property_zval(zex, "unknown", unknown) == FAILURE)
-        {
-            zend_error(E_ERROR, "unable to set unknown member of %s", cls->name);
-            return;
-        }
-        zval_ptr_dtor(&unknown); // add_property_zval increments the refcount
+        zend_update_property_string(cls, zex, "unknown", sizeof("unknown") - 1,
+                                    const_cast<char*>(e.unknown.c_str()) TSRMLS_CC);
 
         //
         // Throw the exception.
@@ -329,12 +321,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         {
             return;
         }
-        if(add_property_zval(zex, "id", id) == FAILURE)
-        {
-            zend_error(E_ERROR, "unable to set id member of %s", cls->name);
-            return;
-        }
-        zval_ptr_dtor(&id); // add_property_zval increments the refcount
+        zend_update_property(cls, zex, "id", sizeof("id") - 1, id TSRMLS_CC);
 
         //
         // Set the facet member.
@@ -351,25 +338,13 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
             ZVAL_STRINGL(val, const_cast<char*>(f.c_str()), f.length(), 1);
             add_index_zval(facet, i, val);
         }
-        if(add_property_zval(zex, "facet", facet) == FAILURE)
-        {
-            zend_error(E_ERROR, "unable to set facet member of %s", cls->name);
-            return;
-        }
-        zval_ptr_dtor(&facet); // add_property_zval increments the refcount
+        zend_update_property(cls, zex, "facet", sizeof("facet") - 1, facet TSRMLS_CC);
 
         //
         // Set the operation member.
         //
-        zval* op;
-        MAKE_STD_ZVAL(op);
-        ZVAL_STRINGL(op, const_cast<char*>(e.operation.c_str()), e.operation.length(), 1);
-        if(add_property_zval(zex, "operation", op) == FAILURE)
-        {
-            zend_error(E_ERROR, "unable to set operation member of %s", cls->name);
-            return;
-        }
-        zval_ptr_dtor(&op); // add_property_zval increments the refcount
+        zend_update_property_string(cls, zex, "operation", sizeof("operation") - 1,
+                                    const_cast<char*>(e.operation.c_str()) TSRMLS_CC);
 
         //
         // Throw the exception.
@@ -397,15 +372,7 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
         //
         // Set the type member.
         //
-        zval* type;
-        MAKE_STD_ZVAL(type);
-        ZVAL_STRINGL(type, const_cast<char*>(e.type.c_str()), e.type.length(), 1);
-        if(add_property_zval(zex, "type", type) == FAILURE)
-        {
-            zend_error(E_ERROR, "unable to set type member of %s", cls->name);
-            return;
-        }
-        zval_ptr_dtor(&type); // add_property_zval increments the refcount
+        zend_update_property_string(cls, zex, "type", sizeof("type") - 1, const_cast<char*>(e.type.c_str()) TSRMLS_CC);
 
         //
         // Throw the exception.
@@ -448,18 +415,11 @@ IcePHP::throwException(const IceUtil::Exception& ex TSRMLS_DC)
             //
             // Set the unknown member.
             //
-            zval* unknown;
-            MAKE_STD_ZVAL(unknown);
             ostringstream ostr;
             e.ice_print(ostr);
             string str = ostr.str();
-            ZVAL_STRINGL(unknown, const_cast<char*>(str.c_str()), str.length(), 1);
-            if(add_property_zval(zex, "unknown", unknown) == FAILURE)
-            {
-                zend_error(E_ERROR, "unable to set unknown member of %s", cls->name);
-                return;
-            }
-            zval_ptr_dtor(&unknown); // add_property_zval increments the refcount
+            zend_update_property_string(cls, zex, "unknown", sizeof("unknown") - 1,
+                                        const_cast<char*>(str.c_str()) TSRMLS_CC);
         }
 
         //

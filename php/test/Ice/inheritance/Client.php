@@ -219,15 +219,7 @@ function allTests()
     return $initial;
 }
 
-try
-{
-    $initial = allTests();
-    $initial->shutdown();
-    exit();
-}
-catch(Ice_LocalException $ex)
-{
-    echo "Caught exception:\n";
-    print_r($ex);
-}
+$initial = allTests();
+$initial->shutdown();
+exit();
 ?>

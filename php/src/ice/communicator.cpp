@@ -57,6 +57,7 @@ static function_entry _methods[] =
     {"addObjectFactory",    PHP_FN(Ice_Communicator_addObjectFactory),    NULL},
     {"removeObjectFactory", PHP_FN(Ice_Communicator_removeObjectFactory), NULL},
     {"findObjectFactory",   PHP_FN(Ice_Communicator_findObjectFactory),   NULL},
+    {"flushBatchRequests",  PHP_FN(Ice_Communicator_flushBatchRequests),  NULL},
     {NULL, NULL, NULL}
 };
 
@@ -346,6 +347,31 @@ ZEND_FUNCTION(Ice_Communicator_findObjectFactory)
     assert(phpFactory);
 
     phpFactory->findObjectFactory(id, return_value TSRMLS_CC);
+}
+
+ZEND_FUNCTION(Ice_Communicator_flushBatchRequests)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ice_object* obj = getObject(getThis() TSRMLS_CC);
+    if(!obj)
+    {
+        RETURN_NULL();
+    }
+    assert(obj->ptr);
+    Ice::CommunicatorPtr* _this = static_cast<Ice::CommunicatorPtr*>(obj->ptr);
+
+    try
+    {
+        (*_this)->flushBatchRequests();;
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+    }
 }
 
 #ifdef WIN32

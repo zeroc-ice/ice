@@ -2,8 +2,8 @@
 Requirements
 =========================================================================
 
-- PHP5 (http://www.php.net/downloads.php)
-- Ice 1.1.1
+- PHP5.0.0b2 (http://www.php.net/downloads.php)
+- Ice 1.2.0
 
 
 
@@ -68,13 +68,6 @@ $ ./configure --with-ice=shared,$ICE_HOME ...
 Note that additional configuration options are generally necessary.
 Please refer to the PHP documentation for more information.
 
-If you are building PHP version 5.0.0b1, you will need to manually
-edit one of the PHP source files to avoid a compiler error. Open the
-file php-5.0.0b1/Zend/zend_operators.h and modify line 206 to add a
-cast, as shown below:
-
-    return zend_str_tolower_copy((char*)emalloc(length+1), source, length);
-
 If you are using Solaris with Sun CC, please refer to the section
 titled "Additional Requirements for Solaris with Sun CC" before
 proceeding any further.
@@ -134,7 +127,7 @@ to do the following:
 2) Have a suitable Ice development environment.
 
 3) Configure the include and library paths in Visual C++ for PHP and
-   Ice.  Assuming that you've extracted the PHP5 sources into C:\PHP5,
+   Ice. Assuming that you've extracted the PHP5 sources into C:\PHP5,
    and installed Ice into C:\Ice, then the following paths must be
    configured:
 
@@ -152,14 +145,7 @@ to do the following:
    If you are using Visual C++ 6.0, then you must also be sure to
    include the appropriate paths for STLport.
 
-4) If you are using PHP version 5.0.0b1, you will need to manually
-   edit one of the PHP header files to avoid a compiler error. Open the
-   file C:\PHP5\Zend\zend_operators.h and modify line 206 to add a
-   cast, as shown below:
-
-    return zend_str_tolower_copy((char*)emalloc(length+1), source, length);
-
-5) Open the workspace icephp.dsw, select the Debug or Release
+4) Open the workspace icephp.dsw, select the Debug or Release
    configuration, and build php_ice.dll. Note that the Ice extension
    must be compiled using the same Debug/Release configuration as PHP
    itself. If you are linking against the dynamic libraries included
@@ -172,21 +158,21 @@ to do the following:
 Installing a Dynamic Extension
 =========================================================================
 
-If you are using the dynamic Ice extension, then the shared library
-must be moved into a directory where PHP can find it. This directory
-is determined by the PHP configuration directive "extension_dir". You
-can determine the default value for this directive by running the
-command- line version of PHP with the -i option.
+If you are using the dynamic Ice extension, you must move the
+extension's shared library into PHP's extension directory. This
+directory is determined by the PHP configuration directive
+"extension_dir". You can determine the default value for this directive
+by running the command-line version of PHP with the -i option.
 
 After compiling the dynamic extension on Linux and Solaris, the shared
 library can be found in the "modules" subdirectory of the PHP source
-tree. If you've compiled the dynamic Ice extension on Windows, the DLL
-is located in bin/Debug/php_ice.dll or bin/Release/php_ice.dll,
+tree. If you've compiled the dynamic Ice extension on Windows, the
+DLL is located in bin/Debug/php_ice.dll or bin/Release/php_ice.dll,
 depending on the build configuration you selected.
 
 Once you've copied the dynamic extension to PHP's extension directory,
-you will need to enable the extension in PHP configuration. In
-php.ini, use the following directive on Linux and Solaris:
+you will need to enable the extension in PHP configuration. In php.ini,
+use the following directive on Linux and Solaris:
 
 extension = ice.so
 
@@ -200,13 +186,13 @@ extension = php_ice.dll
 Dependencies
 =========================================================================
 
-Whether you build a dynamic or static Ice extension, PHP will need to
-be able to locate the Ice run-time libraries "Ice", "Slice" and
-"IceUtil").  In general, these libraries must reside in a directory of
+Whether you build a dynamic or static Ice extension, PHP will need
+to be able to locate the Ice run-time libraries "Ice", "Slice" and
+"IceUtil". In general, these libraries must reside in a directory of
 the user's PATH.
 
 For Web servers, the libraries may need to reside in a system
-directory.  For example, on Linux you can add the directory containing
+directory. For example, on Linux you can add the directory containing
 the Ice run-time libraries to /etc/ld.so.conf and run ldconfig. On
 Windows, you can copy the DLLs to the C:\WINDOWS\system32 directory.
 
@@ -218,8 +204,7 @@ Note that if you want to use IceSSL from the Ice extension, then PHP
 will also need access to the shared libraries for IceSSL and Xerces.
 
 Finally, the Ice extension will need to execute the Ice preprocessor
-(icecpp), therefore this binary must reside in an accessible
-directory.
+(icecpp), therefore this binary must reside in an accessible directory.
 
 
 
@@ -228,13 +213,13 @@ Running the Tests
 =========================================================================
 
 The test subdirectory contains PHP implementations of the core Ice
-test suite. In order to run these tests, you must have Python 2.2 or
-later, and the Ice for C++ tests must be built in the directory
+test suite. In order to run these tests, you must have Python 2.2
+or later, and the Ice for C++ tests must be built in the directory
 specified by the ICE_HOME environment variable.
 
 The test scripts require that the CLI version of the PHP interpreter
-be available in your PATH, and assume that the Ice extension was built
-in a static configuration.
+be available in your PATH, and assume that the Ice extension was
+built in a static configuration.
 
 To run all of the tests, do the following:
 
@@ -245,9 +230,9 @@ and running this command:
 
 $ python run.py
 
-In order to run the tests using a dynamic Ice extension, you will need
-to edit the php.ini files in each test directory and add the following
-configuration directives:
+In order to run the tests using a dynamic Ice extension, you will
+need to edit the php.ini files in each test directory and add the
+following configuration directives:
 
 extension_dir=<phpdir>/modules
 extension=ice.so
@@ -266,8 +251,8 @@ If you are using the Ice extension in a PHP-CGI executable, or in a
 PHP Apache module, then you must ensure that the environment variable
 LD_ASSUME_KERNEL has the value "2.4.1".
 
-For the CGI case, you can set this variable in the Apache
-configuration with the following directive:
+For the CGI case, you can set this variable in the Apache configuration
+with the following directive:
 
 SetEnv LD_ASSUME_KERNEL 2.4.1
 

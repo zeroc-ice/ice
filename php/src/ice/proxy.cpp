@@ -166,7 +166,6 @@ static function_entry _methods[] =
     {"ice_compress",        PHP_FN(Ice_ObjectPrx_ice_compress),        NULL},
     {"ice_timeout",         PHP_FN(Ice_ObjectPrx_ice_timeout),         NULL},
     {"ice_default",         PHP_FN(Ice_ObjectPrx_ice_default),         NULL},
-    {"ice_flush",           PHP_FN(Ice_ObjectPrx_ice_flush),           NULL},
     {"ice_uncheckedCast",   PHP_FN(Ice_ObjectPrx_ice_uncheckedCast),   NULL},
     {"ice_checkedCast",     PHP_FN(Ice_ObjectPrx_ice_checkedCast),     NULL},
     {NULL, NULL, NULL}
@@ -988,27 +987,6 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_default)
     }
 }
 
-ZEND_FUNCTION(Ice_ObjectPrx_ice_flush)
-{
-    if(ZEND_NUM_ARGS() != 0)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
-    ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(getThis() TSRMLS_CC));
-    assert(obj->ptr);
-    Proxy* _this = static_cast<Proxy*>(obj->ptr);
-
-    try
-    {
-        _this->getProxy()->ice_flush();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-    }
-}
-
 static void
 do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 {
@@ -1162,14 +1140,12 @@ IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, co
 
     //
     // Create an array that indicates how arguments are passed to the operation.
-    // The first element in the array determines how many follow it.
     //
-    zend_uchar* argTypes = new zend_uchar[params.size() + 1];
-    argTypes[0] = static_cast<zend_uchar>(params.size());
+    zend_arg_info* argInfo = new zend_arg_info[params.size()];
 
     int i;
     Slice::ParamDeclList::const_iterator p;
-    for(p = params.begin(), i = 1; p != params.end(); ++p, ++i)
+    for(p = params.begin(), i = 0; p != params.end(); ++p, ++i)
     {
         MarshalerPtr m = Marshaler::createMarshaler((*p)->type() TSRMLS_CC);
         if(!m)
@@ -1177,24 +1153,30 @@ IcePHP::Operation::Operation(const Ice::ObjectPrx& proxy, const string& name, co
             break;
         }
         _paramNames.push_back((*p)->name());
+        argInfo[i].name = NULL;
+        argInfo[i].class_name = NULL;
+        argInfo[i].allow_null = 1;
         if((*p)->isOutParam())
         {
-            argTypes[i] = BYREF_FORCE;
+            argInfo[i].pass_by_reference = 1;
             _outParams.push_back(m);
         }
         else
         {
-            argTypes[i] = BYREF_NONE;
+            argInfo[i].pass_by_reference = 0;
             _inParams.push_back(m);
         }
     }
 
     _zendFunction = static_cast<zend_internal_function*>(emalloc(sizeof(zend_internal_function)));
     _zendFunction->type = ZEND_INTERNAL_FUNCTION;
-    _zendFunction->arg_types = argTypes;
     _zendFunction->function_name = estrndup(const_cast<char*>(name.c_str()), name.length());
     _zendFunction->scope = proxyClassEntry;
     _zendFunction->fn_flags = ZEND_ACC_PUBLIC;
+    _zendFunction->prototype = 0;
+    _zendFunction->num_args = static_cast<zend_uint>(params.size());
+    _zendFunction->arg_info = argInfo;
+    _zendFunction->pass_rest_by_reference = 0;
     _zendFunction->handler = ZEND_FN(Ice_ObjectPrx_call);
 }
 
@@ -1202,7 +1184,7 @@ IcePHP::Operation::~Operation()
 {
     if(_zendFunction)
     {
-        delete []_zendFunction->arg_types;
+        delete []_zendFunction->arg_info;
         efree(_zendFunction->function_name);
         efree(_zendFunction);
     }

@@ -1,0 +1,14 @@
+Changes since version 1.0.0
+---------------------------
+
+- Minor fixes for compatibility with PHP 5.0.0b2.
+
+- Fixes for Ice 1.2.0 API changes. The ice_flush operation has been
+  removed from proxies, and the operation flushBatchRequests has been
+  added to the communicator.
+
+- The base Ice exception class (Ice_Exception) now derives from the PHP
+  base exception class (Exception). Also, the mapping for exceptions now
+  supports an optional string argument to constructors. This argument
+  represents the exception "message" and is passed to the base Exception
+  constructor unmodified.
