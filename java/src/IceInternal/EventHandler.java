@@ -45,7 +45,7 @@ abstract class EventHandler
     // immediately.)
     //
     abstract void finished();
-    
+
     //
     // Try to destroy the event handler. Returns false if the event
     // handler cannot be destroyed because it is in use, or true
