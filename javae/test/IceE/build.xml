@@ -1,0 +1,52 @@
+<!--
+ **********************************************************************
+
+ Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+ This copy of Ice is licensed to you under the terms described in the
+ ICE_LICENSE file included in this distribution.
+
+ **********************************************************************
+-->
+
+<project name="test_Ice" default="all" basedir=".">
+
+    <target name="all">
+        <ant dir="adapterDeactivation"/>
+        <ant dir="exceptions"/>
+        <ant dir="exceptionsAMD"/>
+        <ant dir="facets"/>
+        <ant dir="faultTolerance"/>
+        <ant dir="inheritance"/>
+        <ant dir="location"/>
+        <ant dir="objects"/>
+        <ant dir="operations"/>
+        <ant dir="operationsAMD"/>
+        <ant dir="slicing"/>
+        <ant dir="custom"/>
+        <ant dir="translator"/>
+        <ant dir="checksum"/>
+        <ant dir="package"/>
+       <ant dir="stream"/>
+    </target>
+
+    <target name="clean">
+        <ant dir="adapterDeactivation" target="clean"/>
+        <ant dir="exceptions" target="clean"/>
+        <ant dir="exceptionsAMD" target="clean"/>
+        <ant dir="facets" target="clean"/>
+        <ant dir="faultTolerance" target="clean"/>
+        <ant dir="inheritance" target="clean"/>
+        <ant dir="location" target="clean"/>
+        <ant dir="objects" target="clean"/>
+        <ant dir="operations" target="clean"/>
+        <ant dir="operationsAMD" target="clean"/>
+        <ant dir="slicing" target="clean"/>
+        <ant dir="custom" target="clean"/>
+        <ant dir="translator" target="clean"/>
+        <ant dir="checksum" target="clean"/>
+        <ant dir="package" target="clean"/>
+        <ant dir="stream" target="clean"/>
+    </target>
+
+</project>
