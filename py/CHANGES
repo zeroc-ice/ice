@@ -1,6 +1,8 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Added support for Mac OS X 10.3.x
+
 - Added support for stringifying generated types.
 
 - Added support for Ice::Connection, which is accessible to servants

@@ -12,7 +12,8 @@
 #
 
 #
-# Override Make.rules defaults.
+# Make sure that we're using by default the Python framework installed with 
+# the system.
 #
 PYTHON_HOME		= /System/Library/Frameworks/Python.framework/Versions/Current
 PYTHON_LIBS		= -F$(PYTHON_LIB_DIR) -framework Python
