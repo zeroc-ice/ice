@@ -91,6 +91,13 @@ def getAdapterReady(serverPipe):
         killServers()
         sys.exit(1)
 
+def printOutputFromPipe(pipe):
+    while 1:
+        line = pipe.readline()
+        if not line:
+            break
+        os.write(1, line)
+
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
@@ -137,8 +144,7 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
     clientPipe = os.popen(client + clientOptions + additionalClientOptions)
     print "ok"
 
-    for output in clientPipe.xreadlines():
-	print output,
+    printOutputFromPipe(clientPipe)
 
     clientStatus = clientPipe.close()
     serverStatus = serverPipe.close()
@@ -165,8 +171,7 @@ def clientServerTestWithClasspath(serverClasspath, clientClasspath):
     clientPipe = os.popen(client + clientOptions)
     print "ok"
 
-    for output in clientPipe.xreadlines():
-	print output,
+    printOutputFromPipe(clientPipe)
 
     clientStatus = clientPipe.close()
     serverStatus = serverPipe.close()
@@ -193,8 +198,7 @@ def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOp
     clientPipe = os.popen(client + clientOptions + additionalClientOptions)
     print "ok"
 
-    for output in clientPipe.xreadlines():
-	print output,
+    printOutputFromPipe(clientPipe)
 
     clientStatus = clientPipe.close()
     serverStatus = serverPipe.close()
@@ -215,8 +219,7 @@ def collocatedTestWithOptions(additionalOptions):
     collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions)
     print "ok"
 
-    for output in collocatedPipe.xreadlines():
-	print output,
+    printOutputFromPipe(collocatedPipe)
 
     collocatedStatus = collocatedPipe.close()
 
