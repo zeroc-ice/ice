@@ -8,12 +8,8 @@
 
  **********************************************************************
 -->
-<project name="common" basedir="." default="...">
-    <property environment="env"/>
 
-    <dirname property="common.basedir" file="${ant.file.common}"/>
-    
-    <property name="top.dir" value="${common.basedir}/.."/>
+    <property environment="env"/>
 
     <!-- Figure out install type -->
 
@@ -54,7 +50,107 @@
 	</condition>
     </fail>
 
-    <import file="${common.basedir}/common.${installtype}.xml"/>
-    <property file="${common.basedir}/build.properties"/>
+    <condition property="is-cvs">
+	<and>
+	    <isset property="installtype"/>
+	    <equals arg1="cvs" arg2="${installtype}"/>
+	</and>
+    </condition>
+
+    <condition property="is-opt">
+	<and>
+	    <isset property="installtype"/>
+	    <equals arg1="opt" arg2="${installtype}"/>
+	</and>
+    </condition>
+
+    <condition property="is-rpm">
+	<and>
+	    <isset property="installtype"/>
+	    <equals arg1="rpm" arg2="${installtype}"/>
+	</and>
+    </condition>
+
+    <condition property="is-src">
+	<and>
+	    <isset property="installtype"/>
+	    <equals arg1="src" arg2="${installtype}"/>
+	</and>
+    </condition>
+
+    <target name="properties-cvs" if="is-cvs">
+	<fail message="ICE_HOME is not set to a valid directory">
+	    <condition>
+		<not>
+		     <available file="${env.ICE_HOME}/slice" />
+		</not>
+	    </condition>
+	</fail>
+	<property name="slice.dir" value="${env.ICE_HOME}/slice"/>
+	<property name="lib.dir" value="${top.dir}/lib" />
+	<taskdef name="slice2java" classpath="${top.dir}/ant" classname="Slice2JavaTask"/>
+	<taskdef name="slice2freezej" classpath="${top.dir}/ant" classname="Slice2FreezeJTask" />
+	      
+	<!-- Ice classpath -->
+	<path id="ice.classpath">
+	    <fileset dir="${lib.dir}">
+		<include name="*.jar"/>
+	    </fileset>
+	</path>
+    </target>
+
+    <target name="properties-opt" if="is-opt">
+	<fail message="ICE_HOME is not set to a valid directory">
+	    <condition>
+		<not>
+		     <available file="${env.ICE_HOME}/lib" />
+		 </not>
+	     </condition>
+	 </fail>
+
+	 <property name="lib.dir" value="${env.ICE_HOME}/lib" />
 	
-</project>
+	 <property name="slice.dir" value="${env.ICE_HOME}/slice"/>
+	 <taskdef name="slice2java" classpath="${env.ICE_HOME}/ant" classname="Slice2JavaTask"/>
+	 <taskdef name="slice2freezej" classpath="${env.ICE_HOME}/ant" classname="Slice2FreezeJTask" />
+		  
+	<!-- Ice classpath -->
+	<path id="ice.classpath">
+	    <fileset dir="${lib.dir}">
+		<include name="*.jar"/>
+	    </fileset>
+	</path>
+    </target>
+
+    <target name="properties-src" if="is-src">
+	<property name="lib.dir" value="${top.dir}/lib" />
+	<property name="slice.dir" value="${top.dir}/slice"/>
+	<taskdef name="slice2java" classpath="${top.dir}/ant" classname="Slice2JavaTask"/>
+	<taskdef name="slice2freezej" classpath="${top.dir}/ant" classname="Slice2FreezeJTask"/>
+	
+	<!-- Ice classpath -->
+	<path id="ice.classpath">
+	    <fileset dir="${lib.dir}">
+		<include name="*.jar"/>
+	    </fileset>
+	</path>
+    </target>
+
+    <target name="properties-rpm" if="is-rpm">
+	<property name="lib.dir" value="/usr/lib/Ice-ICE_VERSION" />
+	<property name="slice.dir" value="/usr/share/slice"/>
+	<taskdef name="slice2java" classpath="${lib.dir}/ant" classname="Slice2JavaTask"/>
+	<taskdef name="slice2freezej" classpath="${lib.dir}/ant" classname="Slice2FreezeJTask"/>
+	
+	<!-- Ice classpath -->
+	<path id="ice.classpath">
+	    <fileset dir="${lib.dir}">
+		<include name="*.jar"/>
+	    </fileset>
+	</path>
+    </target>
+    
+    <target name="config-init" depends="properties-cvs,properties-opt,properties-src,properties-rpm">
+    </target>
+
+    <property file="${common.basedir}/build.properties"/>

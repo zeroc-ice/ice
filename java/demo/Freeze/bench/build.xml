@@ -9,22 +9,22 @@
  **********************************************************************
 -->
 
+<!DOCTYPE project [
+<!ENTITY common SYSTEM "file:../../../config/common.xml">
+]>
+
 <project name="demo_Freeze_bench" default="all" basedir=".">
-
-    <!-- get access to env variables globally -->
-    <property environment="env" />
-
-    <!-- set global properties for this build -->
 
     <!-- Check if we are building in CVS -->
     <property name="top.dir" value= "../../.." />
 
-    <import file="${top.dir}/config/common.xml" />
+    <!-- Include common definitions -->
+    &common;
 	
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
 
-    <target name="init">
+    <target name="init" depends="config-init">
         <!-- Create the time stamp -->
         <tstamp/>
     </target>

@@ -9,18 +9,22 @@
  **********************************************************************
 -->
 
-<project name="demo_Freeze_phonebook" default="all" basedir=".">
+<!DOCTYPE project [
+<!ENTITY common SYSTEM "file:../../../config/common.xml">
+]>
 
-    <!-- get access to env variables globally -->
-    <property environment="env" />
+<project name="demo_Freeze_phonebook" default="all" basedir=".">
 
     <!-- set global properties for this build -->
     <property name="top.dir" value="../../.."/>
-    <import file="${top.dir}/config/common.xml"/>
+
+    <!-- Include common definitions -->
+    &common;
+
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
 
-    <target name="init">
+    <target name="init" depends="config-init">
         <!-- Create the time stamp -->
         <tstamp/>
     </target>
