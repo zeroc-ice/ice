@@ -36,6 +36,7 @@ public:
     virtual bool visitClassDefStart(const ClassDefPtr&);
     virtual bool visitExceptionStart(const ExceptionPtr&);
     virtual bool visitStructStart(const StructPtr&);
+    virtual void visitOperation(const OperationPtr&);
     virtual void visitEnum(const EnumPtr&);
     virtual void visitSequence(const SequencePtr&);
     virtual void visitDictionary(const DictionaryPtr&);

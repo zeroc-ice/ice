@@ -81,18 +81,19 @@ Slice::Gen::generate(const UnitPtr& unit)
     // TODO: It would be better if start() aligned the attributes
     // correctly.
     //
-    string startString = "xs:schema";
-    startString += " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"";
-    startString += "\n           elementFormDefault=\"qualified\"";
-    startString += "\n           xmlns:ice=\"http://www.mutablerealms.com\"";
-    startString += "\n           xmlns:tns=\"";
-    startString += _orgName;
-    startString += "\"";
-    startString += "\n           targetNamespace=\"";
-    startString += _orgName;
-    startString += "\"";
+    ostringstream os;
+    os << "xs:schema"
+       << " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\""
+       << "\n           elementFormDefault=\"qualified\""
+       << "\n           xmlns:ice=\"http://www.mutablerealms.com\""
+       << "\n           xmlns:tns=\""
+       << _orgName
+       << "\""
+       << "\n           targetNamespace=\""
+       << _orgName
+       << "\"";
 
-    start(startString);
+    start(os.str());
     // TODO: schemaLocation?
     O << nl << "<xs:import namespace=\"http://www.mutablerealms.com\" schemaLocation=\"ice.xsd\"/>";
 
@@ -119,14 +120,9 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     //
     // Emit class-name-type
     //
-    string startString = "xs:complexType";
-    startString += " name=\"";
-    startString += internalId + scopeId + p->name();
-    startString += "Type\"";
-    startString += " id=\"";
-    startString += p->scoped();
-    startString += "\"";
-    start(startString);
+    ostringstream os;
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    start(os.str());
 
     start("xs:annotation");
     start("xs:appinfo");
@@ -189,14 +185,9 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     //
     // Emit exception-name-type
     //
-    string startString = "xs:complexType";
-    startString += " name=\"";
-    startString += internalId + scopeId + p->name();
-    startString += "Type\"";
-    startString += " id=\"";
-    startString += p->scoped();
-    startString += "\"";
-    start(startString);
+    ostringstream os;
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    start(os.str());
 
     start("xs:annotation");
     start("xs:appinfo");
@@ -261,14 +252,9 @@ Slice::Gen::visitStructStart(const StructPtr& p)
 
     string scopeId = containedToId(p);
 
-    string startString = "xs:complexType";
-    startString += " name=\"";
-    startString += internalId + scopeId + p->name();
-    startString += "Type\"";
-    startString += " id=\"";
-    startString += p->scoped();
-    startString += "\"";
-    start(startString);
+    ostringstream os;
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    start(os.str());
 
     // TODO: refactor into method
     start("xs:annotation");
@@ -305,20 +291,91 @@ Slice::Gen::visitStructStart(const StructPtr& p)
 }
 
 void
+Slice::Gen::visitOperation(const OperationPtr& p)
+{
+    TypeStringList in = p->inputParameters();
+    TypeStringList out = p->outputParameters();
+    TypePtr ret = p->returnType();
+    string scopeId = containedToId(p);
+    ostringstream os;
+
+    O << sp;
+
+    os << "xs:element name=\"" << scopeId << "request." << p->name() << "\"";
+    start(os.str());
+    start("xs:complexType");
+
+    start("xs:annotation");
+    start("xs:appinfo");
+    O << nl << "<type>operation</type>";
+    end(); // xs:annotation
+    end(); // xs:appinfo
+
+    if (!in.empty())
+    {
+	start("xs:sequence");
+	for (TypeStringList::const_iterator q = in.begin(); q != in.end(); ++q)
+	{
+	    O << nl << "<xs:element name=\"" << q->second << "\" type=\"";
+	    O << toString(q->first);
+	    O << "\"/>";
+	}
+	end(); // xs:sequence
+    }
+    else
+    {
+	O << nl << "<xs:sequence/>";
+    }
+    end(); // xs:complexType
+    end(); // xs:element
+
+    os.str(""); // Reset stream
+
+    O << sp;
+
+    os << "xs:element name=\"" << scopeId << "reply." << p->name() << "\"";
+    start(os.str());
+    start("xs:complexType");
+
+    start("xs:annotation");
+    start("xs:appinfo");
+    O << nl << "<type>operation</type>";
+    end(); // xs:annotation
+    end(); // xs:appinfo
+
+    if (ret || !out.empty())
+    {
+	start("xs:sequence");
+	if (ret)
+	{
+	    O << nl << "<xs:element name=\"__return\" type=\"" << toString(ret) << "\"/>";
+	}
+	for (TypeStringList::const_iterator q = out.begin(); q != out.end(); ++q)
+	{
+	    O << nl << "<xs:element name=\"" << q->second << "\" type=\"";
+	    O << toString(q->first);
+	    O << "\"/>";
+	}
+	end(); // xs:sequence
+    }
+    else
+    {
+	O << nl << "<xs:sequence/>";
+    }
+    end(); // xs:complexType
+    end(); // xs:element
+}
+
+void
 Slice::Gen::visitEnum(const EnumPtr& p)
 {
     string scopeId = containedToId(p);
 
     O << sp;
 
-    string startString = "xs:simpleType";
-    startString += " name=\"";
-    startString += internalId + scopeId + p->name();
-    startString += "Type\"";
-    startString += " id=\"";
-    startString += p->scoped();
-    startString += "\"";
-    start(startString);
+    ostringstream os;
+    os << "xs:simpleType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    start(os.str());
 
     start("xs:annotation");
     start("xs:appinfo");
@@ -352,14 +409,10 @@ Slice::Gen::visitSequence(const SequencePtr& p)
 
     string scopeId = containedToId(p);
 
-    string startString = "xs:complexType";
-    startString += " name=\"";
-    startString += internalId + scopeId + p->name();
-    startString += "Type\"";
-    startString += " id=\"";
-    startString += p->scoped();
-    startString += "\"";
-    start(startString);
+    ostringstream os;
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+
+    start(os.str());
 
     start("xs:annotation");
     start("xs:appinfo");
@@ -394,11 +447,10 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     //
     // First the dictionary content.
     //
-    string startString = "xs:complexType";
-    startString += " name=\"";
-    startString += internalId + scopeId + p->name();
-    startString += "ContentType\"";
-    start(startString);
+    ostringstream os;
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "ContentType\"";
+    start(os.str());
+
     start("xs:sequence");
 
     O.inc();
@@ -414,14 +466,9 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     //
     // Next the dictionary sequence data.
     //
-    startString = "xs:complexType";
-    startString += " name=\"";
-    startString += internalId + scopeId + p->name();
-    startString += "Type\"";
-    startString += " id=\"";
-    startString += p->scoped();
-    startString += "\"";
-    start(startString);
+    os.str("");
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    start(os.str());
 
     start("xs:annotation");
     start("xs:appinfo");
