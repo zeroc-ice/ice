@@ -1346,7 +1346,7 @@ Ice::Service::runDaemon(int argc, char* argv[])
             size_t pos = 0;
             while(pos < sizeof(msg))
             {
-                int n = read(fds[0], &msg[pos], static_cast<int>(sizeof(msg) - pos));
+                ssize_t n = read(fds[0], &msg[pos], sizeof(msg) - pos);
                 if(n == -1)
                 {
                     if(IceInternal::interrupted())
@@ -1596,7 +1596,7 @@ Ice::Service::runDaemon(int argc, char* argv[])
         size_t pos = 0;
         while(len > 0)
         {
-            int n = write(fds[1], &msg[pos], static_cast<int>(len));
+            ssize_t n = write(fds[1], &msg[pos], len);
             if(n == -1)
             {
                 if(IceInternal::interrupted())
