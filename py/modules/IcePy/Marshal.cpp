@@ -30,7 +30,7 @@ public:
 
     PrimitiveMarshaler(const PrimitiveInfoPtr&);
 
-    virtual bool marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
+    virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual PyObject* unmarshal(const Ice::CommunicatorPtr&, const Ice::InputStreamPtr&);
 
     virtual void destroy();
@@ -46,7 +46,7 @@ public:
 
     SequenceMarshaler(const SequenceInfoPtr&);
 
-    virtual bool marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
+    virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual PyObject* unmarshal(const Ice::CommunicatorPtr&, const Ice::InputStreamPtr&);
 
     virtual void destroy();
@@ -57,7 +57,7 @@ private:
     {
     public:
 
-        SequenceReceiver(PyObject*, int);
+        SequenceReceiver(const ClassInfoPtr&, PyObject*, int);
 
         virtual void setObject(PyObject*);
 
@@ -67,6 +67,7 @@ private:
         int _index;
     };
 
+    ClassInfoPtr _elementClassInfo; // Nil unless the element type is a class.
     MarshalerPtr _elementMarshaler;
 };
 
@@ -76,7 +77,7 @@ public:
 
     ProxyMarshaler(const ProxyInfoPtr&);
 
-    virtual bool marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
+    virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual PyObject* unmarshal(const Ice::CommunicatorPtr&, const Ice::InputStreamPtr&);
 
     virtual void destroy();
@@ -90,7 +91,7 @@ class ObjectMemberReceiver : public ObjectReceiver
 {
 public:
 
-    ObjectMemberReceiver(PyObject*, const string&);
+    ObjectMemberReceiver(const ClassInfoPtr&, PyObject*, const string&);
 
     virtual void setObject(PyObject*);
 
@@ -106,7 +107,7 @@ public:
 
     StructMarshaler(const StructInfoPtr&);
 
-    virtual bool marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
+    virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual PyObject* unmarshal(const Ice::CommunicatorPtr&, const Ice::InputStreamPtr&);
 
     virtual void destroy();
@@ -115,6 +116,7 @@ private:
 
     StructInfoPtr _info;
     vector<MarshalerPtr> _members;
+    vector<ClassInfoPtr> _memberClassInfo; // For use when unmarshaling class members.
 };
 
 class EnumMarshaler : public Marshaler
@@ -123,7 +125,7 @@ public:
 
     EnumMarshaler(const EnumInfoPtr&);
 
-    virtual bool marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
+    virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual PyObject* unmarshal(const Ice::CommunicatorPtr&, const Ice::InputStreamPtr&);
 
     virtual void destroy();
@@ -139,7 +141,7 @@ public:
 
     NativeDictionaryMarshaler(const DictionaryInfoPtr&);
 
-    virtual bool marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
+    virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual PyObject* unmarshal(const Ice::CommunicatorPtr&, const Ice::InputStreamPtr&);
 
     virtual void destroy();
@@ -150,7 +152,7 @@ private:
     {
     public:
 
-        ValueReceiver(PyObject*, PyObject*);
+        ValueReceiver(const ClassInfoPtr&, PyObject*, PyObject*);
 
         virtual void setObject(PyObject*);
 
@@ -160,6 +162,7 @@ private:
         PyObjectHandle _key;
     };
 
+    DictionaryInfoPtr _info;
     MarshalerPtr _keyMarshaler;
     MarshalerPtr _valueMarshaler;
 };
@@ -170,7 +173,7 @@ public:
 
     ExceptionMarshaler(const ExceptionInfoPtr&);
 
-    virtual bool marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
+    virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual PyObject* unmarshal(const Ice::CommunicatorPtr&, const Ice::InputStreamPtr&);
 
     virtual void destroy();
@@ -178,23 +181,6 @@ public:
 private:
 
     ExceptionInfoPtr _info;
-};
-
-//
-// ReadObjectCallback is glue between an InputStream callback and an ObjectReceiver.
-//
-class ReadObjectCallback : public Ice::ReadObjectCallback
-{
-public:
-
-    ReadObjectCallback(const ClassInfoPtr&, const ObjectReceiverPtr&);
-
-    virtual void invoke(const ::Ice::ObjectPtr&);
-
-private:
-
-    ClassInfoPtr _info;
-    ObjectReceiverPtr _receiver;
 };
 
 }
@@ -275,7 +261,7 @@ IcePy::PrimitiveMarshaler::PrimitiveMarshaler(const PrimitiveInfoPtr& info) :
 {
 }
 
-bool
+void
 IcePy::PrimitiveMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*)
 {
     switch(_info->kind)
@@ -285,7 +271,7 @@ IcePy::PrimitiveMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, 
         int isTrue = PyObject_IsTrue(p);
         if(isTrue < 0)
         {
-            return false;
+            throw AbortMarshaling();
         }
         os->writeBool(isTrue ? true : false);
         break;
@@ -304,13 +290,13 @@ IcePy::PrimitiveMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, 
         else
         {
             PyErr_Format(PyExc_ValueError, "expected byte value");
-            return false;
+            throw AbortMarshaling();
         }
 
         if(val < 0 || val > 255)
         {
             PyErr_Format(PyExc_ValueError, "value %ld is out of range for a byte", val);
-            return false;
+            throw AbortMarshaling();
         }
         os->writeByte(static_cast<Ice::Byte>(val));
         break;
@@ -329,13 +315,13 @@ IcePy::PrimitiveMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, 
         else
         {
             PyErr_Format(PyExc_ValueError, "expected short value");
-            return false;
+            throw AbortMarshaling();
         }
 
         if(val < SHRT_MIN || val > SHRT_MAX)
         {
             PyErr_Format(PyExc_ValueError, "value %ld is out of range for a short", val);
-            return false;
+            throw AbortMarshaling();
         }
         os->writeShort(static_cast<Ice::Short>(val));
         break;
@@ -354,13 +340,13 @@ IcePy::PrimitiveMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, 
         else
         {
             PyErr_Format(PyExc_ValueError, "expected int value");
-            return false;
+            throw AbortMarshaling();
         }
 
         if(val < INT_MIN || val > INT_MAX)
         {
             PyErr_Format(PyExc_ValueError, "value %ld is out of range for an int", val);
-            return false;
+            throw AbortMarshaling();
         }
         os->writeInt(static_cast<Ice::Int>(val));
         break;
@@ -388,13 +374,13 @@ IcePy::PrimitiveMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, 
             if(!IceUtil::stringToInt64(sval, val, pos))
             {
                 PyErr_Format(PyExc_ValueError, "invalid long value `%s'", sval);
-                return false;
+                throw AbortMarshaling();
             }
         }
         else
         {
             PyErr_Format(PyExc_ValueError, "expected long value");
-            return false;
+            throw AbortMarshaling();
         }
 
         os->writeLong(val);
@@ -410,7 +396,7 @@ IcePy::PrimitiveMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, 
         else
         {
             PyErr_Format(PyExc_ValueError, "expected float value");
-            return false;
+            throw AbortMarshaling();
         }
 
         os->writeFloat(val);
@@ -426,7 +412,7 @@ IcePy::PrimitiveMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, 
         else
         {
             PyErr_Format(PyExc_ValueError, "expected double value");
-            return false;
+            throw AbortMarshaling();
         }
 
         os->writeDouble(val);
@@ -442,14 +428,13 @@ IcePy::PrimitiveMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, 
         else if(p != Py_None)
         {
             PyErr_Format(PyExc_ValueError, "expected string value");
-            return false;
+            throw AbortMarshaling();
         }
 
         os->writeString(val);
         break;
     }
     }
-    return true;
 }
 
 PyObject*
@@ -538,10 +523,11 @@ IcePy::PrimitiveMarshaler::destroy()
 //
 IcePy::SequenceMarshaler::SequenceMarshaler(const SequenceInfoPtr& info)
 {
+    _elementClassInfo = ClassInfoPtr::dynamicCast(info);
     _elementMarshaler = createMarshaler(info->elementType);
 }
 
-bool
+void
 IcePy::SequenceMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap)
 {
     if(PyList_Check(p))
@@ -553,12 +539,9 @@ IcePy::SequenceMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, O
             PyObject* item = PyList_GetItem(p, i);
             if(item == NULL)
             {
-                return false;
+                throw AbortMarshaling();
             }
-            if(!_elementMarshaler->marshal(item, os, objectMap))
-            {
-                return false;
-            }
+            _elementMarshaler->marshal(item, os, objectMap);
         }
     }
     else if(PyTuple_Check(p))
@@ -570,12 +553,9 @@ IcePy::SequenceMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, O
             PyObject* item = PyTuple_GetItem(p, i);
             if(item == NULL)
             {
-                return false;
+                throw AbortMarshaling();
             }
-            if(!_elementMarshaler->marshal(item, os, objectMap))
-            {
-                return false;
-            }
+            _elementMarshaler->marshal(item, os, objectMap);
         }
     }
     else if(p == Py_None)
@@ -585,10 +565,8 @@ IcePy::SequenceMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, O
     else
     {
         PyErr_Format(PyExc_ValueError, "expected sequence value");
-        return false;
+        throw AbortMarshaling();
     }
-
-    return true;
 }
 
 PyObject*
@@ -603,12 +581,13 @@ IcePy::SequenceMarshaler::unmarshal(const Ice::CommunicatorPtr& communicator, co
 
     // TODO: Optimize for certain sequence types (e.g., bytes)?
 
-    ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(_elementMarshaler);
-    if(om)
+    if(_elementClassInfo)
     {
+        ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(_elementMarshaler);
+        assert(om);
         for(Ice::Int i = 0; i < sz; ++i)
         {
-            om->unmarshalObject(communicator, is, new SequenceReceiver(result.get(), i));
+            om->unmarshalObject(communicator, is, new SequenceReceiver(_elementClassInfo, result.get(), i));
         }
     }
     else
@@ -627,8 +606,8 @@ IcePy::SequenceMarshaler::unmarshal(const Ice::CommunicatorPtr& communicator, co
     return result.release();
 }
 
-IcePy::SequenceMarshaler::SequenceReceiver::SequenceReceiver(PyObject* seq, int index) :
-    _seq(seq), _index(index)
+IcePy::SequenceMarshaler::SequenceReceiver::SequenceReceiver(const ClassInfoPtr& info, PyObject* seq, int index) :
+    ObjectReceiver(info), _seq(seq), _index(index)
 {
     Py_INCREF(seq);
     assert(PyList_Check(seq));
@@ -657,7 +636,7 @@ IcePy::ProxyMarshaler::ProxyMarshaler(const ProxyInfoPtr& info) :
 {
 }
 
-bool
+void
 IcePy::ProxyMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*)
 {
     if(p == Py_None)
@@ -671,10 +650,8 @@ IcePy::ProxyMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obje
     else
     {
         PyErr_Format(PyExc_ValueError, "expected proxy value");
-        return false;
+        throw AbortMarshaling();
     }
-
-    return true;
 }
 
 PyObject*
@@ -705,8 +682,8 @@ IcePy::ProxyMarshaler::destroy()
 //
 // ObjectMemberReceiver implementation.
 //
-IcePy::ObjectMemberReceiver::ObjectMemberReceiver(PyObject* target, const string& member) :
-    _target(target), _member(member)
+IcePy::ObjectMemberReceiver::ObjectMemberReceiver(const ClassInfoPtr& info, PyObject* target, const string& member) :
+    ObjectReceiver(info), _target(target), _member(member)
 {
     Py_INCREF(target);
 }
@@ -735,18 +712,18 @@ IcePy::StructMarshaler::StructMarshaler(const StructInfoPtr& info) :
     }
 }
 
-bool
+void
 IcePy::StructMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap)
 {
     int n = PyObject_IsInstance(p, _info->pythonType.get());
     if(n < 0)
     {
-        return false;
+        throw AbortMarshaling();
     }
     else if(n == 0)
     {
         PyErr_Format(PyExc_ValueError, "expected %s value", _info->name.c_str());
-        return false;
+        throw AbortMarshaling();
     }
 
     int i = 0;
@@ -756,16 +733,11 @@ IcePy::StructMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obj
         PyObjectHandle attr = PyObject_GetAttrString(p, memberName);
         if(attr.get() == NULL)
         {
-            return false;
+            throw AbortMarshaling();
         }
 
-        if(!_members[i]->marshal(attr.get(), os, objectMap))
-        {
-            return false;
-        }
+        _members[i]->marshal(attr.get(), os, objectMap);
     }
-
-    return true;
 }
 
 PyObject*
@@ -779,14 +751,22 @@ IcePy::StructMarshaler::unmarshal(const Ice::CommunicatorPtr& communicator, cons
         return NULL;
     }
 
+    if(_memberClassInfo.empty()) // Lazy initialization.
+    {
+        for(DataMemberList::iterator q = _info->members.begin(); q != _info->members.end(); ++q)
+        {
+            _memberClassInfo.push_back(ClassInfoPtr::dynamicCast(q->type));
+        }
+    }
+
     int i = 0;
     for(DataMemberList::iterator q = _info->members.begin(); q != _info->members.end(); ++q, ++i)
     {
-        // TODO: Optimize? if(q->type->isClass()) ?
-        ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(_members[i]);
-        if(om)
+        if(_memberClassInfo[i])
         {
-            om->unmarshalObject(communicator, is, new ObjectMemberReceiver(p.get(), q->name));
+            ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(_members[i]);
+            assert(om);
+            om->unmarshalObject(communicator, is, new ObjectMemberReceiver(_memberClassInfo[i], p.get(), q->name));
         }
         else
         {
@@ -812,6 +792,8 @@ IcePy::StructMarshaler::destroy()
 {
     vector<MarshalerPtr> members = _members;
     _members.clear();
+    _memberClassInfo.clear();
+
     for(vector<MarshalerPtr>::iterator p = members.begin(); p != members.end(); ++p)
     {
         (*p)->destroy();
@@ -826,18 +808,18 @@ IcePy::EnumMarshaler::EnumMarshaler(const EnumInfoPtr& info) :
 {
 }
 
-bool
+void
 IcePy::EnumMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap*)
 {
     int n = PyObject_IsInstance(p, _info->pythonType.get());
     if(n < 0)
     {
-        return false;
+        throw AbortMarshaling();
     }
     else if(n == 0)
     {
         PyErr_Format(PyExc_ValueError, "expected %s value", _info->name.c_str());
-        return false;
+        throw AbortMarshaling();
     }
 
     //
@@ -846,19 +828,19 @@ IcePy::EnumMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     PyObjectHandle val = PyObject_GetAttrString(p, "value");
     if(val.get() == NULL)
     {
-        return false;
+        throw AbortMarshaling();
     }
     if(!PyInt_Check(val.get()))
     {
         PyErr_Format(PyExc_ValueError, "value for enum %s is not an int", _info->name.c_str());
-        return false;
+        throw AbortMarshaling();
     }
     int ival = static_cast<int>(PyInt_AsLong(val.get()));
     int count = static_cast<int>(_info->enumerators.size());
     if(ival < 0 || ival >= count)
     {
         PyErr_Format(PyExc_ValueError, "value %d is out of range for enum %s", ival, _info->name.c_str());
-        return false;
+        throw AbortMarshaling();
     }
 
     if(count <= 127)
@@ -873,8 +855,6 @@ IcePy::EnumMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Objec
     {
         os->writeInt(ival);
     }
-
-    return true;
 }
 
 PyObject*
@@ -915,24 +895,25 @@ IcePy::EnumMarshaler::destroy()
 //
 // NativeDictionaryMarshaler implementation.
 //
-IcePy::NativeDictionaryMarshaler::NativeDictionaryMarshaler(const DictionaryInfoPtr& info)
+IcePy::NativeDictionaryMarshaler::NativeDictionaryMarshaler(const DictionaryInfoPtr& info) :
+    _info(info)
 {
     _keyMarshaler = createMarshaler(info->keyType);
     _valueMarshaler = createMarshaler(info->valueType);
 }
 
-bool
+void
 IcePy::NativeDictionaryMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap)
 {
     if(p == Py_None)
     {
         os->writeSize(0);
-        return true;
+        return;
     }
     else if(!PyDict_Check(p))
     {
         PyErr_Format(PyExc_ValueError, "expected dictionary value");
-        return false;
+        throw AbortMarshaling();
     }
 
     int sz = PyDict_Size(p);
@@ -943,13 +924,9 @@ IcePy::NativeDictionaryMarshaler::marshal(PyObject* p, const Ice::OutputStreamPt
     PyObject* value;
     while(PyDict_Next(p, &pos, &key, &value))
     {
-        if(!_keyMarshaler->marshal(key, os, objectMap) || !_valueMarshaler->marshal(value, os, objectMap))
-        {
-            return false;
-        }
+        _keyMarshaler->marshal(key, os, objectMap);
+        _valueMarshaler->marshal(value, os, objectMap);
     }
-
-    return true;
 }
 
 PyObject*
@@ -961,6 +938,7 @@ IcePy::NativeDictionaryMarshaler::unmarshal(const Ice::CommunicatorPtr& communic
         return NULL;
     }
 
+    ClassInfoPtr valueClassInfo = ClassInfoPtr::dynamicCast(_info->valueType);
     ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(_valueMarshaler);
 
     Ice::Int sz = is->readSize();
@@ -972,9 +950,10 @@ IcePy::NativeDictionaryMarshaler::unmarshal(const Ice::CommunicatorPtr& communic
             return NULL;
         }
 
-        if(om)
+        if(valueClassInfo)
         {
-            om->unmarshalObject(communicator, is, new ValueReceiver(p.get(), key.get()));
+            assert(om);
+            om->unmarshalObject(communicator, is, new ValueReceiver(valueClassInfo, p.get(), key.get()));
         }
         else
         {
@@ -1003,8 +982,9 @@ IcePy::NativeDictionaryMarshaler::destroy()
     _valueMarshaler = 0;
 }
 
-IcePy::NativeDictionaryMarshaler::ValueReceiver::ValueReceiver(PyObject* dict, PyObject* key) :
-    _dict(dict), _key(key)
+IcePy::NativeDictionaryMarshaler::ValueReceiver::ValueReceiver(const ClassInfoPtr& info, PyObject* dict,
+                                                               PyObject* key) :
+    ObjectReceiver(info), _dict(dict), _key(key)
 {
     Py_INCREF(dict);
     Py_INCREF(key);
@@ -1028,13 +1008,13 @@ IcePy::ExceptionMarshaler::ExceptionMarshaler(const ExceptionInfoPtr& info) :
 {
 }
 
-bool
+void
 IcePy::ExceptionMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap)
 {
     if(!PyInstance_Check(p) || !PyObject_IsInstance(p, _info->pythonType.get()))
     {
         PyErr_Format(PyExc_ValueError, "expected exception %s", _info->name.c_str());
-        return false;
+        throw AbortMarshaling();
     }
 
     os->writeBool(_info->usesClasses);
@@ -1052,20 +1032,15 @@ IcePy::ExceptionMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, 
             PyObjectHandle val = PyObject_GetAttrString(p, const_cast<char*>(q->name.c_str()));
             if(val.get() == NULL)
             {
-                return false;
+                throw AbortMarshaling();
             }
 
-            if(!marshaler->marshal(val.get(), os, objectMap))
-            {
-                return false;
-            }
+            marshaler->marshal(val.get(), os, objectMap);
         }
         os->endSlice();
 
         info = info->base;
     }
-
-    return true;
 }
 
 PyObject*
@@ -1086,7 +1061,9 @@ IcePy::ExceptionMarshaler::unmarshal(const Ice::CommunicatorPtr& communicator, c
             ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(marshaler);
             if(om)
             {
-                om->unmarshalObject(communicator, is, new ObjectMemberReceiver(p.get(), q->name));
+                ClassInfoPtr cls = ClassInfoPtr::dynamicCast(q->type);
+                assert(cls);
+                om->unmarshalObject(communicator, is, new ObjectMemberReceiver(cls, p.get(), q->name));
             }
             else
             {
@@ -1122,38 +1099,17 @@ IcePy::ExceptionMarshaler::destroy()
 //
 // ObjectReceiver implementation.
 //
+IcePy::ObjectReceiver::ObjectReceiver(const ClassInfoPtr& info) :
+    _info(info)
+{
+}
+
 IcePy::ObjectReceiver::~ObjectReceiver()
 {
 }
 
-//
-// TupleReceiver implementation.
-//
-IcePy::TupleReceiver::TupleReceiver(PyObject* tuple, int index) :
-    _tuple(tuple), _index(index)
-{
-    Py_INCREF(tuple);
-    assert(PyTuple_Check(tuple));
-    assert(_index < PyTuple_GET_SIZE(tuple));
-}
-
 void
-IcePy::TupleReceiver::setObject(PyObject* p)
-{
-    Py_INCREF(p); // PyTuple_SET_ITEM steals a reference.
-    PyTuple_SET_ITEM(_tuple.get(), _index, p);
-}
-
-//
-// ReadObjectCallback implementation.
-//
-IcePy::ReadObjectCallback::ReadObjectCallback(const ClassInfoPtr& info, const ObjectReceiverPtr& receiver) :
-    _info(info), _receiver(receiver)
-{
-}
-
-void
-IcePy::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
+IcePy::ObjectReceiver::invoke(const Ice::ObjectPtr& p)
 {
     if(p)
     {
@@ -1171,12 +1127,30 @@ IcePy::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
             throw ex;
         }
 
-        _receiver->setObject(obj);
+        setObject(obj);
     }
     else
     {
-        _receiver->setObject(Py_None);
+        setObject(Py_None);
     }
+}
+
+//
+// TupleReceiver implementation.
+//
+IcePy::TupleReceiver::TupleReceiver(const ClassInfoPtr& info, PyObject* tuple, int index) :
+    ObjectReceiver(info), _tuple(tuple), _index(index)
+{
+    Py_INCREF(tuple);
+    assert(PyTuple_Check(tuple));
+    assert(_index < PyTuple_GET_SIZE(tuple));
+}
+
+void
+IcePy::TupleReceiver::setObject(PyObject* p)
+{
+    Py_INCREF(p); // PyTuple_SET_ITEM steals a reference.
+    PyTuple_SET_ITEM(_tuple.get(), _index, p);
 }
 
 //
@@ -1191,26 +1165,25 @@ IcePy::ObjectMarshaler::~ObjectMarshaler()
 {
 }
 
-bool
+void
 IcePy::ObjectMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap)
 {
     if(p == Py_None)
     {
         os->writeObject(0);
-        return true;
+        return;
     }
 
     if(_info->pythonType.get() == NULL)
     {
         PyErr_Format(PyExc_RuntimeError, "class %s is declared but not defined", _info->name.c_str());
-        //throw AbortMarshaling();
-        return false;
+        throw AbortMarshaling();
     }
 
     if(!PyObject_IsInstance(p, _info->pythonType.get()))
     {
         PyErr_Format(PyExc_ValueError, "expected value of type %s", _info->name.c_str());
-        return false;
+        throw AbortMarshaling();
     }
 
     //
@@ -1227,7 +1200,7 @@ IcePy::ObjectMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obj
         PyObjectHandle id = PyObject_CallMethod(p, "ice_id", NULL);
         if(id.get() == NULL)
         {
-            return false;
+            throw AbortMarshaling();
         }
         assert(PyString_Check(id.get()));
         char* str = PyString_AS_STRING(id.get());
@@ -1235,7 +1208,7 @@ IcePy::ObjectMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obj
         if(!info)
         {
             PyErr_Format(PyExc_ValueError, "unknown class type %s", str);
-            return false;
+            throw AbortMarshaling();
         }
         writer = new ObjectWriter(info, p, objectMap);
         objectMap->insert(ObjectMap::value_type(p, writer));
@@ -1249,8 +1222,6 @@ IcePy::ObjectMarshaler::marshal(PyObject* p, const Ice::OutputStreamPtr& os, Obj
     // Give the writer to the stream. The stream will eventually call write() on it.
     //
     os->writeObject(writer);
-
-    return true;
 }
 
 PyObject*
@@ -1264,11 +1235,6 @@ IcePy::ObjectMarshaler::unmarshal(const Ice::CommunicatorPtr& communicator, cons
 }
 
 void
-IcePy::ObjectMarshaler::destroy()
-{
-}
-
-void
 IcePy::ObjectMarshaler::unmarshalObject(const Ice::CommunicatorPtr&, const Ice::InputStreamPtr& is,
                                         const ObjectReceiverPtr& receiver)
 {
@@ -1278,7 +1244,18 @@ IcePy::ObjectMarshaler::unmarshalObject(const Ice::CommunicatorPtr&, const Ice::
         throw AbortMarshaling();
     }
 
-    is->readObject(new ReadObjectCallback(_info, receiver));
+    is->readObject(receiver);
+}
+
+void
+IcePy::ObjectMarshaler::destroy()
+{
+}
+
+IcePy::ClassInfoPtr
+IcePy::ObjectMarshaler::info() const
+{
+    return _info;
 }
 
 //
@@ -1314,10 +1291,7 @@ IcePy::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
                 throw AbortMarshaling();
             }
 
-            if(!marshaler->marshal(val.get(), os, _map))
-            {
-                throw AbortMarshaling();
-            }
+            marshaler->marshal(val.get(), os, _map);
         }
         os->endSlice();
 
@@ -1373,7 +1347,9 @@ IcePy::ObjectReader::read(const Ice::InputStreamPtr& is, bool rid)
                 ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(marshaler);
                 if(om)
                 {
-                    om->unmarshalObject(_communicator, is, new ObjectMemberReceiver(_object, p->name));
+                    ClassInfoPtr cls = ClassInfoPtr::dynamicCast(p->type);
+                    assert(cls);
+                    om->unmarshalObject(_communicator, is, new ObjectMemberReceiver(cls, _object, p->name));
                 }
                 else
                 {

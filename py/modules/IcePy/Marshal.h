@@ -22,6 +22,13 @@ typedef IceUtil::Handle<Marshaler> MarshalerPtr;
 
 typedef std::map<PyObject*, Ice::ObjectPtr> ObjectMap;
 
+//
+// This class is raised as an exception when object marshaling needs to be aborted.
+//
+class AbortMarshaling
+{
+};
+
 class Marshaler : public IceUtil::Shared
 {
 public:
@@ -31,7 +38,11 @@ public:
     static MarshalerPtr createMarshaler(const TypeInfoPtr&);
     static MarshalerPtr createExceptionMarshaler(const ExceptionInfoPtr&);
 
-    virtual bool marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*) = 0;
+    //
+    // The marshal and unmarshal functions can raise Ice exceptions, and may raise
+    // AbortMarshaling if an error occurs.
+    //
+    virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*) = 0;
     virtual PyObject* unmarshal(const Ice::CommunicatorPtr&, const Ice::InputStreamPtr&) = 0;
 
     virtual void destroy() = 0;
@@ -49,13 +60,26 @@ protected:
 // unmarshaled. Various subclasses are necessary to address the contexts in which
 // objects are unmarshaled (e.g., sequences, dictionaries, data members, etc.).
 //
-class ObjectReceiver : public IceUtil::Shared
+class ObjectReceiver : public Ice::ReadObjectCallback
 {
 public:
 
     virtual ~ObjectReceiver();
 
     virtual void setObject(PyObject*) = 0;
+
+protected:
+
+    ObjectReceiver(const ClassInfoPtr&);
+
+private:
+
+    //
+    // Inherited from Ice::ReadObjectCallback.
+    //
+    virtual void invoke(const Ice::ObjectPtr&);
+
+    ClassInfoPtr _info;
 };
 typedef IceUtil::Handle<ObjectReceiver> ObjectReceiverPtr;
 
@@ -67,7 +91,7 @@ class TupleReceiver : public ObjectReceiver
 {
 public:
 
-    TupleReceiver(PyObject*, int);
+    TupleReceiver(const ClassInfoPtr&, PyObject*, int);
 
     virtual void setObject(PyObject*);
 
@@ -89,7 +113,7 @@ public:
     ObjectMarshaler(const ClassInfoPtr&);
     ~ObjectMarshaler();
 
-    virtual bool marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
+    virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
 
     //
     // Not implemented.
@@ -103,18 +127,13 @@ public:
 
     virtual void destroy();
 
+    ClassInfoPtr info() const;
+
 private:
 
     ClassInfoPtr _info; // The formal type.
 };
 typedef IceUtil::Handle<ObjectMarshaler> ObjectMarshalerPtr;
-
-//
-// This class is raised as an exception when object marshaling needs to be aborted.
-//
-class AbortMarshaling
-{
-};
 
 class ObjectWriter : public Ice::ObjectWriter
 {

@@ -174,7 +174,7 @@ IcePy::Dispatcher::dispatch(PyObject* servant, const vector<Ice::Byte>& inParams
             ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(*p);
             if(om)
             {
-                om->unmarshalObject(communicator, is, new TupleReceiver(inArgs.get(), i));
+                om->unmarshalObject(communicator, is, new TupleReceiver(om->info(), inArgs.get(), i));
             }
             else
             {
@@ -271,10 +271,7 @@ IcePy::Dispatcher::dispatch(PyObject* servant, const vector<Ice::Byte>& inParams
                     assert(marshaler);
 
                     ObjectMap objectMap;
-                    if(!marshaler->marshal(ex.get(), os, &objectMap))
-                    {
-                        throwPythonException();
-                    }
+                    marshaler->marshal(ex.get(), os, &objectMap);
                     os->finished(outParams);
                 }
                 catch(const AbortMarshaling&)
@@ -328,10 +325,7 @@ IcePy::Dispatcher::dispatch(PyObject* servant, const vector<Ice::Byte>& inParams
                     assert(_outParams.size() == 1);
                 }
 
-                if(!(*q)->marshal(arg, os, &objectMap))
-                {
-                    return false;
-                }
+                (*q)->marshal(arg, os, &objectMap);
             }
 
             if(_resultMarshaler)
@@ -346,10 +340,7 @@ IcePy::Dispatcher::dispatch(PyObject* servant, const vector<Ice::Byte>& inParams
                     assert(_outParams.size() == 0);
                     res = result.get();
                 }
-                if(!_resultMarshaler->marshal(res, os, &objectMap))
-                {
-                    return false;
-                }
+                _resultMarshaler->marshal(res, os, &objectMap);
             }
 
             os->finished(outParams);

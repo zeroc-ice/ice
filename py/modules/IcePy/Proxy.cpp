@@ -150,10 +150,7 @@ IcePy::Operation::invoke(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr
         for(vector<MarshalerPtr>::iterator p = _inParams.begin(); p != _inParams.end(); ++p, ++i)
         {
             PyObject* arg = PyTuple_GET_ITEM(args, i);
-            if(!(*p)->marshal(arg, os, &objectMap))
-            {
-                return NULL;
-            }
+            (*p)->marshal(arg, os, &objectMap);
         }
 
         Ice::ByteSeq params;
@@ -214,7 +211,7 @@ IcePy::Operation::invoke(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr
                     ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(*q);
                     if(om)
                     {
-                        om->unmarshalObject(communicator, is, new TupleReceiver(results.get(), i));
+                        om->unmarshalObject(communicator, is, new TupleReceiver(om->info(), results.get(), i));
                     }
                     else
                     {
@@ -232,7 +229,7 @@ IcePy::Operation::invoke(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr
                     ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(_resultMarshaler);
                     if(om)
                     {
-                        om->unmarshalObject(communicator, is, new TupleReceiver(results.get(), 0));
+                        om->unmarshalObject(communicator, is, new TupleReceiver(om->info(), results.get(), 0));
                     }
                     else
                     {
