@@ -301,7 +301,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << ", ctx=None):";
             _out.inc();
-            _out << nl << "return self.ice_operation('" << (*oli)->name() << "', '" << scoped << "', (" << inParams;
+            _out << nl << "return _M_" << fixedScoped << "._op_" << (*oli)->name() << ".invoke(self, (" << inParams;
             if(!inParams.empty())
             {
                 _out << ", ";
@@ -458,7 +458,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         DataMemberList members = p->dataMembers();
         _out << sp << nl << "IcePy.defineClass('" << scoped << "', " << fixedName << ", ";
-        _out << (p->isInterface() ? "True" : "False") << ", '" << baseScoped << "', (";
+        _out << (p->isAbstract() ? "True" : "False") << ", '" << baseScoped << "', (";
         //
         // InterfaceIds
         //
@@ -513,40 +513,37 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out.dec();
             _out << nl;
         }
-        _out << "), {";
+        _out << "))";
+
         //
-        // OperationDict
+        // Define each operation. The arguments to the IcePy.Operation constructor are:
         //
-        // Each operation in OperationDict is described as follows:
-        //
-        // 'opName': (Mode, (InParams), (OutParams), ReturnType, (Exceptions))
+        // 'opName', Mode, (InParams), (OutParams), ReturnType, (Exceptions)
         //
         // where InParams and OutParams are tuples of type descriptions, and Exceptions
-        // is a tuple of Python exception types.
+        // is a tuple of exception type ids.
         //
-        _out.inc();
+        if(!ops.empty())
+        {
+            _out << sp;
+        }
         for(OperationList::iterator s = ops.begin(); s != ops.end(); ++s)
         {
             ParamDeclList params = (*s)->parameters();
             ParamDeclList::iterator t;
             int count;
 
-            if(s != ops.begin())
-            {
-                _out << ',';
-            }
-
-            _out << nl << "'" << (*s)->name() << "': (";
+            _out << nl << fixedName << "._op_" << (*s)->name() << " = IcePy.Operation('" << (*s)->name() << "', ";
             switch((*s)->mode())
             {
             case Operation::Normal:
-                _out << "IcePy.OP_NORMAL";
+                _out << "Ice.OperationMode.Normal";
                 break;
             case Operation::Nonmutating:
-                _out << "IcePy.OP_NONMUTATING";
+                _out << "Ice.OperationMode.Nonmutating";
                 break;
             case Operation::Idempotent:
-                _out << "IcePy.OP_IDEMPOTENT";
+                _out << "Ice.OperationMode.Idempotent";
                 break;
             }
             _out << ", (";
@@ -609,12 +606,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << "))";
         }
-        _out.dec();
-        if(!ops.empty())
-        {
-            _out << nl;
-        }
-        _out << "})";
     }
 
     registerName(fixedName);
