@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "DumpDB"=.\src\FreezeScript\DumpDB.dsp - Package Owner=<4>
+Project: "DumpDB"=.\src\FreezeScript\dumpdb.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -30,7 +30,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Freeze"=.\src\Freeze\Freeze.dsp - Package Owner=<4>
+Project: "Freeze"=.\src\Freeze\freeze.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -51,7 +51,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Glacier"=.\src\Glacier\Glacier.dsp - Package Owner=<4>
+Project: "Glacier"=.\src\Glacier\glacier.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -72,7 +72,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Glacier2"=.\src\Glacier2\Glacier2.dsp - Package Owner=<4>
+Project: "Glacier2"=.\src\Glacier2\glacier2.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -90,7 +90,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Glacier2Router"=.\src\Glacier2\Glacier2Router.dsp - Package Owner=<4>
+Project: "Glacier2Router"=.\src\Glacier2\glacier2router.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -111,7 +111,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "GlacierRouter"=.\src\Glacier\GlacierRouter.dsp - Package Owner=<4>
+Project: "GlacierRouter"=.\src\Glacier\glacierrouter.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -135,7 +135,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "GlacierStarter"=.\src\Glacier\GlacierStarter.dsp - Package Owner=<4>
+Project: "GlacierStarter"=.\src\Glacier\glacierstarter.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -159,7 +159,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Ice"=.\src\Ice\Ice.dsp - Package Owner=<4>
+Project: "Ice"=.\src\Ice\ice.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -177,7 +177,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceBox"=.\src\IceBox\IceBox.dsp - Package Owner=<4>
+Project: "IceBox"=.\src\IceBox\icebox.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -195,28 +195,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceBoxC"=.\src\IceBox\IceBoxC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceBox
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "IceBoxS"=.\src\IceBox\IceBoxS.dsp - Package Owner=<4>
+Project: "IceBoxC"=.\src\IceBox\iceboxc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -237,7 +216,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePack"=.\src\IcePack\IcePack.dsp - Package Owner=<4>
+Project: "IceBoxS"=.\src\IceBox\iceboxs.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -258,7 +237,28 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePackC"=.\src\IcePack\IcePackC.dsp - Package Owner=<4>
+Project: "IcePack"=.\src\IcePack\icepack.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBox
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "IcePackC"=.\src\IcePack\icepackc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -285,7 +285,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePackNode"=.\src\IcePack\IcePackNode.dsp - Package Owner=<4>
+Project: "IcePackNode"=.\src\IcePack\icepacknode.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -315,7 +315,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePackRegistry"=.\src\IcePack\IcePackRegistry.dsp - Package Owner=<4>
+Project: "IcePackRegistry"=.\src\IcePack\icepackregistry.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -345,7 +345,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePatch"=.\src\IcePatch\IcePatch.dsp - Package Owner=<4>
+Project: "IcePatch"=.\src\IcePatch\icepatch.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -363,7 +363,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePatch2"=.\src\IcePatch2\IcePatch2.dsp - Package Owner=<4>
+Project: "IcePatch2"=.\src\IcePatch2\icepatch2.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -381,28 +381,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePatch2C"=.\src\IcePatch2\IcePatch2C.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePatch2
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "IcePatch2Calc"=.\src\IcePatch2\IcePatch2Calc.dsp - Package Owner=<4>
+Project: "IcePatch2C"=.\src\IcePatch2\icepatch2c.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -423,7 +402,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePatch2S"=.\src\IcePatch2\IcePatch2S.dsp - Package Owner=<4>
+Project: "IcePatch2Calc"=.\src\IcePatch2\icepatch2calc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -444,7 +423,28 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePatchC"=.\src\IcePatch\IcePatchC.dsp - Package Owner=<4>
+Project: "IcePatch2S"=.\src\IcePatch2\icepatch2s.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePatch2
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "IcePatchC"=.\src\IcePatch\icepatchc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -471,7 +471,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IcePatchS"=.\src\IcePatch\IcePatchS.dsp - Package Owner=<4>
+Project: "IcePatchS"=.\src\IcePatch\icepatchs.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -492,7 +492,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceSSL"=.\src\IceSSL\IceSSL.dsp - Package Owner=<4>
+Project: "IceSSL"=.\src\IceSSL\icessl.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -513,7 +513,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStorm"=.\src\IceStorm\IceStorm.dsp - Package Owner=<4>
+Project: "IceStorm"=.\src\IceStorm\icestorm.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -531,7 +531,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStormC"=.\src\IceStorm\IceStormC.dsp - Package Owner=<4>
+Project: "IceStormC"=.\src\IceStorm\icestormc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -555,7 +555,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceStormS"=.\src\IceStorm\IceStormS.dsp - Package Owner=<4>
+Project: "IceStormS"=.\src\IceStorm\icestorms.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -582,7 +582,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceUtil"=.\src\IceUtil\IceUtil.dsp - Package Owner=<4>
+Project: "IceUtil"=.\src\IceUtil\iceutil.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -594,7 +594,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "IceXML"=.\src\IceXML\IceXML.dsp - Package Owner=<4>
+Project: "IceXML"=.\src\IceXML\icexml.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -609,7 +609,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Slice"=.\src\Slice\Slice.dsp - Package Owner=<4>
+Project: "Slice"=.\src\Slice\slice.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -627,7 +627,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "TransformDB"=.\src\FreezeScript\TransformDB.dsp - Package Owner=<4>
+Project: "TransformDB"=.\src\FreezeScript\transformdb.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -654,7 +654,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "adapterDeactivationC"=.\test\Ice\adapterDeactivation\adapterDeactivationC.dsp - Package Owner=<4>
+Project: "adapterDeactivationC"=.\test\Ice\adapterDeactivation\adapterdeactivationc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -672,7 +672,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "adapterDeactivationCOL"=.\test\Ice\adapterDeactivation\adapterDeactivationCOL.dsp - Package Owner=<4>
+Project: "adapterDeactivationCOL"=.\test\Ice\adapterDeactivation\adapterdeactivationcol.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -690,7 +690,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "adapterDeactivationS"=.\test\Ice\adapterDeactivation\adapterDeactivationS.dsp - Package Owner=<4>
+Project: "adapterDeactivationS"=.\test\Ice\adapterDeactivation\adapterdeactivations.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1203,7 +1203,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "callbackC"=.\demo\Ice\callback\callbackC.dsp - Package Owner=<4>
+Project: "callbackC"=.\demo\Ice\callback\callbackc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1224,7 +1224,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "callbackS"=.\demo\Ice\callback\callbackS.dsp - Package Owner=<4>
+Project: "callbackS"=.\demo\Ice\callback\callbacks.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1245,7 +1245,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "certificateAndKeyParsing"=.\test\IceSSL\certificateAndKeyParsing\certificateAndKeyParsing.dsp - Package Owner=<4>
+Project: "certificateAndKeyParsing"=.\test\IceSSL\certificateAndKeyParsing\certificateandkeyparsing.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1266,7 +1266,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "certificateVerificationC"=.\test\IceSSL\certificateVerification\certificateVerificationC.dsp - Package Owner=<4>
+Project: "certificateVerificationC"=.\test\IceSSL\certificateVerification\certificateverificationc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1287,7 +1287,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "certificateVerificationS"=.\test\IceSSL\certificateVerification\certificateVerificationS.dsp - Package Owner=<4>
+Project: "certificateVerificationS"=.\test\IceSSL\certificateVerification\certificateverifications.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1308,7 +1308,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "certificateVerifier"=.\test\IceSSL\certificateVerifier\certificateVerifier.dsp - Package Owner=<4>
+Project: "certificateVerifier"=.\test\IceSSL\certificateVerifier\certificateverifier.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1329,7 +1329,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "checksumC"=.\test\Ice\checksum\client\checksumC.dsp - Package Owner=<4>
+Project: "checksumC"=.\test\Ice\checksum\client\checksumc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1347,7 +1347,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "checksumS"=.\test\Ice\checksum\server\checksumS.dsp - Package Owner=<4>
+Project: "checksumS"=.\test\Ice\checksum\server\checksums.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1365,7 +1365,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "clockC"=.\demo\IceStorm\clock\clockC.dsp - Package Owner=<4>
+Project: "clockC"=.\demo\IceStorm\clock\clockc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1386,7 +1386,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "clockS"=.\demo\IceStorm\clock\clockS.dsp - Package Owner=<4>
+Project: "clockS"=.\demo\IceStorm\clock\clocks.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1449,7 +1449,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "ctrlCHandler"=.\test\IceUtil\ctrlCHandler\ctrlCHandler.dsp - Package Owner=<4>
+Project: "ctrlCHandler"=.\test\IceUtil\ctrlCHandler\ctrlchandler.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1485,7 +1485,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "deployerC"=.\test\IcePack\deployer\deployerC.dsp - Package Owner=<4>
+Project: "deployerC"=.\test\IcePack\deployer\deployerc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1509,7 +1509,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "deployerS"=.\test\IcePack\deployer\deployerS.dsp - Package Owner=<4>
+Project: "deployerS"=.\test\IcePack\deployer\deployers.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1527,7 +1527,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "deployerSvc"=.\test\IcePack\deployer\deployerSvc.dsp - Package Owner=<4>
+Project: "deployerSvc"=.\test\IcePack\deployer\deployersvc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1551,7 +1551,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "evictorC"=.\test\Freeze\evictor\evictorC.dsp - Package Owner=<4>
+Project: "evictorC"=.\test\Freeze\evictor\evictorc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1572,7 +1572,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "evictorS"=.\test\Freeze\evictor\evictorS.dsp - Package Owner=<4>
+Project: "evictorS"=.\test\Freeze\evictor\evictors.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1596,7 +1596,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "exceptionsAMDS"=.\test\Ice\exceptions\exceptionsAMDS.dsp - Package Owner=<4>
+Project: "exceptionsAMDS"=.\test\Ice\exceptions\exceptionsamds.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1614,7 +1614,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "exceptionsC"=.\test\Ice\exceptions\exceptionsC.dsp - Package Owner=<4>
+Project: "exceptionsC"=.\test\Ice\exceptions\exceptionsc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1632,7 +1632,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "exceptionsCOL"=.\test\Ice\exceptions\exceptionsCOL.dsp - Package Owner=<4>
+Project: "exceptionsCOL"=.\test\Ice\exceptions\exceptionscol.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1650,7 +1650,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "exceptionsS"=.\test\Ice\exceptions\exceptionsS.dsp - Package Owner=<4>
+Project: "exceptionsS"=.\test\Ice\exceptions\exceptionss.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1668,7 +1668,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "facetsC"=.\test\Ice\facets\facetsC.dsp - Package Owner=<4>
+Project: "facetsC"=.\test\Ice\facets\facetsc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1686,7 +1686,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "facetsCOL"=.\test\Ice\facets\facetsCOL.dsp - Package Owner=<4>
+Project: "facetsCOL"=.\test\Ice\facets\facetscol.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1704,7 +1704,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "facetsS"=.\test\Ice\facets\facetsS.dsp - Package Owner=<4>
+Project: "facetsS"=.\test\Ice\facets\facetss.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1722,7 +1722,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "faultToleranceC"=.\test\Ice\faultTolerance\faultToleranceC.dsp - Package Owner=<4>
+Project: "faultToleranceC"=.\test\Ice\faultTolerance\faulttolerancec.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1740,7 +1740,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "faultToleranceS"=.\test\Ice\faultTolerance\faultToleranceS.dsp - Package Owner=<4>
+Project: "faultToleranceS"=.\test\Ice\faultTolerance\faulttolerances.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1758,28 +1758,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "federationC"=.\test\IceStorm\federation\federationC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceStorm
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "federationS"=.\test\IceStorm\federation\federationS.dsp - Package Owner=<4>
+Project: "federationC"=.\test\IceStorm\federation\federationc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1800,7 +1779,28 @@ Package=<4>
 
 ###############################################################################
 
-Project: "freezeScriptDbmap"=.\test\FreezeScript\dbmap\freezeScriptDbmap.dsp - Package Owner=<4>
+Project: "federationS"=.\test\IceStorm\federation\federations.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceStorm
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "freezeScriptDbmap"=.\test\FreezeScript\dbmap\freezescriptdbmap.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1821,7 +1821,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "freezeScriptEvictor"=.\test\FreezeScript\evictor\freezeScriptEvictor.dsp - Package Owner=<4>
+Project: "freezeScriptEvictor"=.\test\FreezeScript\evictor\freezescriptevictor.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1842,7 +1842,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "gcC"=.\test\Ice\gc\gcC.dsp - Package Owner=<4>
+Project: "gcC"=.\test\Ice\gc\gcc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1860,7 +1860,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "glacier2CallbackC"=.\demo\Glacier2\callback\glacier2CallbackC.dsp - Package Owner=<4>
+Project: "glacier2CallbackC"=.\demo\Glacier2\callback\glacier2callbackc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1881,7 +1881,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "glacier2CallbackS"=.\demo\Glacier2\callback\glacier2CallbackS.dsp - Package Owner=<4>
+Project: "glacier2CallbackS"=.\demo\Glacier2\callback\glacier2callbacks.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1899,7 +1899,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "glacier2CallbackSS"=.\demo\Glacier2\callback\glacier2CallbackSS.dsp - Package Owner=<4>
+Project: "glacier2CallbackSS"=.\demo\Glacier2\callback\glacier2callbackss.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1920,7 +1920,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "helloC"=.\demo\Ice\hello\helloC.dsp - Package Owner=<4>
+Project: "helloC"=.\demo\Ice\hello\helloc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1941,7 +1941,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "helloIceBoxC"=.\demo\IceBox\hello\helloIceBoxC.dsp - Package Owner=<4>
+Project: "helloIceBoxC"=.\demo\IceBox\hello\helloiceboxc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1965,7 +1965,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "helloIceBoxS"=.\demo\IceBox\hello\helloIceBoxS.dsp - Package Owner=<4>
+Project: "helloIceBoxS"=.\demo\IceBox\hello\helloiceboxs.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -1992,7 +1992,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "helloIcePackC"=.\demo\IcePack\hello\helloIcePackC.dsp - Package Owner=<4>
+Project: "helloIcePackC"=.\demo\IcePack\hello\helloicepackc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2016,7 +2016,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "helloIcePackS"=.\demo\IcePack\hello\helloIcePackS.dsp - Package Owner=<4>
+Project: "helloIcePackS"=.\demo\IcePack\hello\helloicepacks.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2040,7 +2040,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "helloIcePackSvc"=.\demo\IcePack\hello\helloIcePackSvc.dsp - Package Owner=<4>
+Project: "helloIcePackSvc"=.\demo\IcePack\hello\helloicepacksvc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2067,7 +2067,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "helloS"=.\demo\Ice\hello\helloS.dsp - Package Owner=<4>
+Project: "helloS"=.\demo\Ice\hello\hellos.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2100,7 +2100,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "inheritanceC"=.\test\Ice\inheritance\inheritanceC.dsp - Package Owner=<4>
+Project: "inheritanceC"=.\test\Ice\inheritance\inheritancec.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2118,7 +2118,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "inheritanceCOL"=.\test\Ice\inheritance\inheritanceCOL.dsp - Package Owner=<4>
+Project: "inheritanceCOL"=.\test\Ice\inheritance\inheritancecol.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2136,7 +2136,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "inheritanceS"=.\test\Ice\inheritance\inheritanceS.dsp - Package Owner=<4>
+Project: "inheritanceS"=.\test\Ice\inheritance\inheritances.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2154,7 +2154,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "inputUtil"=.\test\IceUtil\inputUtil\inputUtil.dsp - Package Owner=<4>
+Project: "inputUtil"=.\test\IceUtil\inputUtil\inpututil.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2169,25 +2169,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "invokeC"=.\demo\Ice\invoke\invokeC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "invokeS"=.\demo\Ice\invoke\invokeS.dsp - Package Owner=<4>
+Project: "invokeC"=.\demo\Ice\invoke\invokec.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2205,7 +2187,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "latencyC"=.\demo\Ice\latency\latencyC.dsp - Package Owner=<4>
+Project: "invokeS"=.\demo\Ice\invoke\invokes.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2219,14 +2201,11 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceSSL
-    End Project Dependency
 }}}
 
 ###############################################################################
 
-Project: "latencyS"=.\demo\Ice\latency\latencyS.dsp - Package Owner=<4>
+Project: "latencyC"=.\demo\Ice\latency\latencyc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2247,70 +2226,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "libraryC"=.\demo\Freeze\library\libraryC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "libraryCOL"=.\demo\Freeze\library\libraryCOL.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "libraryS"=.\demo\Freeze\library\libraryS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "loadPEM"=.\test\IceSSL\loadPEM\loadPEM.dsp - Package Owner=<4>
+Project: "latencyS"=.\demo\Ice\latency\latencys.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2331,7 +2247,91 @@ Package=<4>
 
 ###############################################################################
 
-Project: "locationC"=.\test\Ice\location\locationC.dsp - Package Owner=<4>
+Project: "libraryC"=.\demo\Freeze\library\libraryc.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libraryCOL"=.\demo\Freeze\library\librarycol.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "libraryS"=.\demo\Freeze\library\librarys.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "loadPEM"=.\test\IceSSL\loadPEM\loadpem.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceSSL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "locationC"=.\test\Ice\location\locationc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2349,7 +2349,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "locationS"=.\test\Ice\location\locationS.dsp - Package Owner=<4>
+Project: "locationS"=.\test\Ice\location\locations.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2367,7 +2367,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "mfcHelloC"=.\demo\Ice\MFC\client\mfcHelloC.dsp - Package Owner=<4>
+Project: "mfcHelloC"=.\demo\Ice\MFC\client\mfchelloc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2385,7 +2385,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "mfcHelloS"=.\demo\Ice\MFC\server\mfcHelloS.dsp - Package Owner=<4>
+Project: "mfcHelloS"=.\demo\Ice\MFC\server\mfchellos.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2439,7 +2439,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "nestedC"=.\demo\Ice\nested\nestedC.dsp - Package Owner=<4>
+Project: "nestedC"=.\demo\Ice\nested\nestedc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2460,7 +2460,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "nestedS"=.\demo\Ice\nested\nestedS.dsp - Package Owner=<4>
+Project: "nestedS"=.\demo\Ice\nested\nesteds.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2481,7 +2481,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "objectsC"=.\test\Ice\objects\objectsC.dsp - Package Owner=<4>
+Project: "objectsC"=.\test\Ice\objects\objectsc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2499,7 +2499,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "objectsCOL"=.\test\Ice\objects\objectsCOL.dsp - Package Owner=<4>
+Project: "objectsCOL"=.\test\Ice\objects\objectscol.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2517,7 +2517,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "objectsS"=.\test\Ice\objects\objectsS.dsp - Package Owner=<4>
+Project: "objectsS"=.\test\Ice\objects\objectss.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2535,7 +2535,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "operationsAMDS"=.\test\Ice\operations\operationsAMDS.dsp - Package Owner=<4>
+Project: "operationsAMDS"=.\test\Ice\operations\operationsamds.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2553,7 +2553,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "operationsC"=.\test\Ice\operations\operationsC.dsp - Package Owner=<4>
+Project: "operationsC"=.\test\Ice\operations\operationsc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2571,7 +2571,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "operationsCOL"=.\test\Ice\operations\operationsCOL.dsp - Package Owner=<4>
+Project: "operationsCOL"=.\test\Ice\operations\operationscol.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2589,7 +2589,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "operationsS"=.\test\Ice\operations\operationsS.dsp - Package Owner=<4>
+Project: "operationsS"=.\test\Ice\operations\operationss.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2607,28 +2607,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "phonebookC"=.\demo\Freeze\phonebook\phonebookC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "phonebookCOL"=.\demo\Freeze\phonebook\phonebookCOL.dsp - Package Owner=<4>
+Project: "phonebookC"=.\demo\Freeze\phonebook\phonebookc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2649,7 +2628,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "phonebookS"=.\demo\Freeze\phonebook\phonebookS.dsp - Package Owner=<4>
+Project: "phonebookCOL"=.\demo\Freeze\phonebook\phonebookcol.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2670,7 +2649,28 @@ Package=<4>
 
 ###############################################################################
 
-Project: "printerC"=.\demo\book\printer\printerC.dsp - Package Owner=<4>
+Project: "phonebookS"=.\demo\Freeze\phonebook\phonebooks.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Freeze
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "printerC"=.\demo\book\printer\printerc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2688,7 +2688,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "printerS"=.\demo\book\printer\PrinterS.dsp - Package Owner=<4>
+Project: "printerS"=.\demo\book\printer\printers.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2706,7 +2706,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "routerC"=.\test\Glacier2\router\routerC.dsp - Package Owner=<4>
+Project: "routerC"=.\test\Glacier2\router\routerc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2727,7 +2727,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "routerS"=.\test\Glacier2\router\routerS.dsp - Package Owner=<4>
+Project: "routerS"=.\test\Glacier2\router\routers.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2745,7 +2745,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sessionC"=.\demo\Glacier\session\sessionC.dsp - Package Owner=<4>
+Project: "sessionC"=.\demo\Glacier\session\sessionc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2769,7 +2769,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sessionS"=.\demo\Glacier\session\sessionS.dsp - Package Owner=<4>
+Project: "sessionS"=.\demo\Glacier\session\sessions.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2790,7 +2790,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "simpleC"=.\test\IcePack\simple\simpleC.dsp - Package Owner=<4>
+Project: "simpleC"=.\test\IcePack\simple\simplec.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2811,7 +2811,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "simpleFSC"=.\demo\book\simple_filesystem\simpleFSC.dsp - Package Owner=<4>
+Project: "simpleFSC"=.\demo\book\simple_filesystem\simplefsc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2829,7 +2829,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "simpleFSS"=.\demo\book\simple_filesystem\simpleFSS.dsp - Package Owner=<4>
+Project: "simpleFSS"=.\demo\book\simple_filesystem\simplefss.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2847,7 +2847,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "simpleIcePackC"=.\demo\IcePack\simple\simpleIcePackC.dsp - Package Owner=<4>
+Project: "simpleIcePackC"=.\demo\IcePack\simple\simpleicepackc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2868,7 +2868,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "simpleIcePackS"=.\demo\IcePack\simple\simpleIcePackS.dsp - Package Owner=<4>
+Project: "simpleIcePackS"=.\demo\IcePack\simple\simpleicepacks.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2886,7 +2886,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "simpleIcePackSvc"=.\demo\IcePack\simple\simpleIcePackSvc.dsp - Package Owner=<4>
+Project: "simpleIcePackSvc"=.\demo\IcePack\simple\simpleicepacksvc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2910,7 +2910,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "simpleS"=.\test\IcePack\simple\simpleS.dsp - Package Owner=<4>
+Project: "simpleS"=.\test\IcePack\simple\simples.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2928,7 +2928,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "singleC"=.\test\IceStorm\single\singleC.dsp - Package Owner=<4>
+Project: "singleC"=.\test\IceStorm\single\singlec.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2949,7 +2949,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "singleS"=.\test\IceStorm\single\singleS.dsp - Package Owner=<4>
+Project: "singleS"=.\test\IceStorm\single\singles.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3114,7 +3114,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sliceexAMDS"=.\test\Ice\slicing\exceptions\sliceexAMDS.dsp - Package Owner=<4>
+Project: "sliceexAMDS"=.\test\Ice\slicing\exceptions\sliceexamds.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3132,7 +3132,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sliceexC"=.\test\Ice\slicing\exceptions\sliceexC.dsp - Package Owner=<4>
+Project: "sliceexC"=.\test\Ice\slicing\exceptions\sliceexc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3150,7 +3150,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sliceexS"=.\test\Ice\slicing\exceptions\sliceexS.dsp - Package Owner=<4>
+Project: "sliceexS"=.\test\Ice\slicing\exceptions\sliceexs.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3168,7 +3168,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sliceobAMDS"=.\test\Ice\slicing\objects\sliceobAMDS.dsp - Package Owner=<4>
+Project: "sliceobAMDS"=.\test\Ice\slicing\objects\sliceobamds.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3186,7 +3186,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sliceobC"=.\test\Ice\slicing\objects\sliceobC.dsp - Package Owner=<4>
+Project: "sliceobC"=.\test\Ice\slicing\objects\sliceobc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3204,7 +3204,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sliceobS"=.\test\Ice\slicing\objects\sliceobS.dsp - Package Owner=<4>
+Project: "sliceobS"=.\test\Ice\slicing\objects\sliceobs.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3222,7 +3222,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "starterC"=.\test\Glacier\starter\starterC.dsp - Package Owner=<4>
+Project: "starterC"=.\test\Glacier\starter\starterc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3252,7 +3252,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "starterS"=.\test\Glacier\starter\starterS.dsp - Package Owner=<4>
+Project: "starterS"=.\test\Glacier\starter\starters.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3270,7 +3270,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "streamC"=.\test\Ice\stream\streamC.dsp - Package Owner=<4>
+Project: "streamC"=.\test\Ice\stream\streamc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3303,7 +3303,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "throughputC"=.\demo\Ice\throughput\throughputC.dsp - Package Owner=<4>
+Project: "throughputC"=.\demo\Ice\throughput\throughputc.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3321,7 +3321,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "throughputS"=.\demo\Ice\throughput\throughputS.dsp - Package Owner=<4>
+Project: "throughputS"=.\demo\Ice\throughput\throughputs.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3369,7 +3369,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "valueC"=.\demo\Ice\value\valueC.dsp - Package Owner=<4>
+Project: "valueC"=.\demo\Ice\value\valuec.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -3390,7 +3390,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "valueS"=.\demo\Ice\value\valueS.dsp - Package Owner=<4>
+Project: "valueS"=.\demo\Ice\value\values.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
