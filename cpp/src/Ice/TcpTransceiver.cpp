@@ -47,7 +47,7 @@ IceInternal::TcpTransceiver::close()
 	closeSocket(_fd);
 	_fd = INVALID_SOCKET;
     }
-    catch(const SocketException& ex)
+    catch(const SocketException&)
     {
 	_fd = INVALID_SOCKET;
 	throw;
