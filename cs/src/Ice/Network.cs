@@ -362,6 +362,7 @@ namespace IceInternal
 	repeatConnect:
 	    try
 	    {
+
 		socket.Connect(addr);
 	    }
 	    catch(SocketException ex)
@@ -387,6 +388,23 @@ namespace IceInternal
 		    doSelect(null, writeList, errorList, timeout);
 		    ready = writeList.Count != 0;
 		    error = errorList.Count != 0;
+
+		    //
+		    // TODO: Mono 1.0 bug: Under Linux/Mono, dual-CPU machine, we see Select() return
+		    // a writable socket after a non-blocking connect has thrown a SocketException with
+		    // NativeErrorCode 10036 (WSAEWOULDBLOCK). The call to Select() that follows returns
+		    // the socket as writable, indicating that the socket is now connected. In addition,
+		    // retrieving the error status with GetSocketOption returns zero. But calling
+		    // Connected() at that point returns false, and any subsequent call to read()
+		    // on that socket fails with WSAECONNREFUSED.
+		    //
+		    // The only fix appears to be to restart the call to Connect() -- the second attempt
+		    // works and establishes the connection.
+		    //
+		    if(ready && !socket.Connected)
+		    {
+			goto repeatConnect;
+		    }
 		    Debug.Assert(!(ready && error));
 		}
 		catch(SocketException e)

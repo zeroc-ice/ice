@@ -70,7 +70,7 @@ correctly without having to set environment variables.
 Known issues
 ------------
 
-On non-Windows platforms, the faultTolerance and location tests fail.
+On non-Windows platforms, the faultTolerance test fails.
 In addition, the slicing/exceptions test fails intermittently.
 (These tests pass with Mono on Windows.) We are actively working
 with the Mono developers to get this fixed.
