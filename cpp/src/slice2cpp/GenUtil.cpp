@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <GenUtil.h>
+#include <limits>
 
 using namespace std;
 using namespace Slice;
@@ -91,6 +92,10 @@ Slice::inputTypeToString(const Type_ptr& type)
     if(proxy)
 	return "const " + proxy -> _class() -> scoped() + "_prx&";
 	    
+    Enum_ptr en = Enum_ptr::dynamicCast(type);
+    if(en)
+	return en -> scoped();
+	    
     Native_ptr native = Native_ptr::dynamicCast(type);
     if(native)
 	return native -> scoped();
@@ -146,7 +151,7 @@ Slice::outputTypeToString(const Type_ptr& type)
 
 void
 Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
-				   const string& param, bool marshal)
+				 const string& param, bool marshal)
 {
     const char* func = marshal ? "write(" : "read(";
     const char* stream = marshal ? "__os" : "__is";
@@ -156,16 +161,6 @@ Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 	out << nl << stream << " -> " << func << param << ");";
 	return;
     }
-    
-    Vector_ptr vector = Vector_ptr::dynamicCast(type);
-    if(vector && Builtin_ptr::dynamicCast(vector -> type()))
-    {
-	out << nl << stream << " -> " << func << param << ");";
-	return;
-    }
-    
-    Native_ptr native = Native_ptr::dynamicCast(type);
-    assert(!native); // TODO
     
     ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(type);
     if(cl)
@@ -210,6 +205,21 @@ Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 	return;
     }
     
+    Vector_ptr vec = Vector_ptr::dynamicCast(type);
+    if(vec)
+    {
+	if(Builtin_ptr::dynamicCast(vec -> type()))
+	    out << nl << stream << " -> " << func << param << ");";
+	else
+	    out << nl << vec -> scope() << "::__" << func << stream\
+		<< ", "	<< param << ", " << vec -> scope()
+		<< "::__U__" << vec -> name() << "());";
+	return;
+    }
+    
+    Native_ptr native = Native_ptr::dynamicCast(type);
+    assert(!native); // TODO
+    
     Constructed_ptr constructed = Constructed_ptr::dynamicCast(type);
     if(!constructed)
     {
@@ -224,8 +234,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 
 void
 Slice::writeMarshalCode(Output& out,
-			  const list<pair<Type_ptr, string> >& params,
-			  const Type_ptr& ret)
+			const list<pair<Type_ptr, string> >& params,
+			const Type_ptr& ret)
 {
     list<pair<Type_ptr, string> >::const_iterator p;
     for(p = params.begin(); p != params.end(); ++p)
@@ -248,8 +258,8 @@ Slice::writeUnmarshalCode(Output& out,
 
 void
 Slice::writeAllocateCode(Output& out,
-			   const list<pair<Type_ptr, string> >& params,
-			   const Type_ptr& ret)
+			 const list<pair<Type_ptr, string> >& params,
+			 const Type_ptr& ret)
 {
     list<pair<Type_ptr, string> > ps = params;
     if(ret)

@@ -171,6 +171,10 @@ L			[a-zA-Z_]
     return ICE_VECTOR;
 }
 
+"enum" {
+    return ICE_ENUM;
+}
+
 "\\"?{L}({L}|{D})* {
     char* s = yytext;
     

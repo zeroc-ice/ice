@@ -27,6 +27,8 @@ void __Ice::incRef(String* p) { p -> __incRef(); }
 void __Ice::decRef(String* p) { p -> __decRef(); }
 void __Ice::incRef(Parameters* p) { p -> __incRef(); }
 void __Ice::decRef(Parameters* p) { p -> __decRef(); }
+void __Ice::incRef(Enumerators* p) { p -> __incRef(); }
+void __Ice::decRef(Enumerators* p) { p -> __decRef(); }
 void __Ice::incRef(Throws* p) { p -> __incRef(); }
 void __Ice::decRef(Throws* p) { p -> __decRef(); }
 void __Ice::incRef(DataMember* p) { p -> __incRef(); }
@@ -53,10 +55,14 @@ void __Ice::incRef(Proxy* p) { p -> __incRef(); }
 void __Ice::decRef(Proxy* p) { p -> __decRef(); }
 void __Ice::incRef(Operation* p) { p -> __incRef(); }
 void __Ice::decRef(Operation* p) { p -> __decRef(); }
-void __Ice::incRef(Native* p) { p -> __incRef(); }
-void __Ice::decRef(Native* p) { p -> __decRef(); }
 void __Ice::incRef(Vector* p) { p -> __incRef(); }
 void __Ice::decRef(Vector* p) { p -> __decRef(); }
+void __Ice::incRef(Enum* p) { p -> __incRef(); }
+void __Ice::decRef(Enum* p) { p -> __decRef(); }
+void __Ice::incRef(Enumerator* p) { p -> __incRef(); }
+void __Ice::decRef(Enumerator* p) { p -> __decRef(); }
+void __Ice::incRef(Native* p) { p -> __incRef(); }
+void __Ice::decRef(Native* p) { p -> __decRef(); }
 void __Ice::incRef(Parser* p) { p -> __incRef(); }
 void __Ice::decRef(Parser* p) { p -> __decRef(); }
 
@@ -313,27 +319,6 @@ Slice::Container::createClassDecl(const string& name, bool local)
     return cl;
 }
 
-Native_ptr
-Slice::Container::createNative(const string& name)
-{
-    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
-    if(!matches.empty())
-    {
-	if(parser_ -> ignRedefs())
-	{
-	    Native_ptr p = Native_ptr::dynamicCast(matches.front());
-	    if(p)
-		return p;
-	}
-	
-	assert(false); // TODO: Already exits
-    }
-
-    Native_ptr p = new Native(this, name);
-    contents_.push_back(p);
-    return p;
-}
-
 Vector_ptr
 Slice::Container::createVector(const string& name, const Type_ptr& type)
 {
@@ -351,6 +336,69 @@ Slice::Container::createVector(const string& name, const Type_ptr& type)
     }
 
     Vector_ptr p = new Vector(this, name, type);
+    contents_.push_back(p);
+    return p;
+}
+
+Enum_ptr
+Slice::Container::createEnum(const string& name, const StringList& enumerators)
+{
+    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    if(!matches.empty())
+    {
+	if(parser_ -> ignRedefs())
+	{
+	    Enum_ptr p = Enum_ptr::dynamicCast(matches.front());
+	    if(p)
+		return p;
+	}
+	
+	assert(false); // TODO: Already exits
+    }
+
+    Enum_ptr p = new Enum(this, name, enumerators);
+    contents_.push_back(p);
+    return p;
+}
+
+Enumerator_ptr
+Slice::Container::createEnumerator(const std::string& name)
+{
+    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    if(!matches.empty())
+    {
+	if(parser_ -> ignRedefs())
+	{
+	    Enumerator_ptr p = Enumerator_ptr::dynamicCast(matches.front());
+	    if(p)
+		return p;
+	}
+	
+	assert(false); // TODO: Already exits
+    }
+
+    Enumerator_ptr p = new Enumerator(this, name);
+    contents_.push_back(p);
+    return p;
+}
+
+Native_ptr
+Slice::Container::createNative(const string& name)
+{
+    list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
+    if(!matches.empty())
+    {
+	if(parser_ -> ignRedefs())
+	{
+	    Native_ptr p = Native_ptr::dynamicCast(matches.front());
+	    if(p)
+		return p;
+	}
+	
+	assert(false); // TODO: Already exits
+    }
+
+    Native_ptr p = new Native(this, name);
     contents_.push_back(p);
     return p;
 }
@@ -652,10 +700,10 @@ Slice::ClassDef::destroy()
 
 Operation_ptr
 Slice::ClassDef::createOperation(const string& name,
-				   const Type_ptr& returnType,
-				   const TypeNameList& inParams,
-				   const TypeNameList& outParams,
-				   const TypeList& throws)
+				 const Type_ptr& returnType,
+				 const TypeStringList& inParams,
+				 const TypeStringList& outParams,
+				 const TypeList& throws)
 {
     list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
     if(!matches.empty())
@@ -812,13 +860,13 @@ Slice::Operation::returnType()
     return returnType_;
 }
 
-TypeNameList
+TypeStringList
 Slice::Operation::inputParameters()
 {
     return inParams_;
 }
 
-TypeNameList
+TypeStringList
 Slice::Operation::outputParameters()
 {
     return outParams_;
@@ -843,11 +891,11 @@ Slice::Operation::visit(ParserVisitor* visitor)
 }
 
 Slice::Operation::Operation(const Container_ptr& container,
-			      const string& name,
-			      const Type_ptr& returnType,
-			      const TypeNameList& inParams,
-			      const TypeNameList& outParams,
-			      const TypeList& throws)
+			    const string& name,
+			    const Type_ptr& returnType,
+			    const TypeStringList& inParams,
+			    const TypeStringList& outParams,
+			    const TypeList& throws)
     : Contained(container, name),
       SyntaxTreeBase(container -> parser()),
       returnType_(returnType),
@@ -936,13 +984,63 @@ Slice::Vector::visit(ParserVisitor* visitor)
 }
 
 Slice::Vector::Vector(const Container_ptr& container,
-			const string& name,
-			const Type_ptr& type)
+		      const string& name,
+		      const Type_ptr& type)
     : Constructed(container, name),
       Type(container -> parser()),
       Contained(container,  name),
       SyntaxTreeBase(container -> parser()),
       type_(type)
+{
+}
+
+// ----------------------------------------------------------------------
+// Enum
+// ----------------------------------------------------------------------
+
+Slice::StringList
+Slice::Enum::enumerators()
+{
+    return enumerators_;
+}
+
+Slice::Contained::ContainedType
+Slice::Enum::containedType()
+{
+    return ContainedTypeEnum;
+}
+
+void
+Slice::Enum::visit(ParserVisitor* visitor)
+{
+    visitor -> visitEnum(this);
+}
+
+Slice::Enum::Enum(const Container_ptr& container,
+		  const string& name,
+		  const StringList& enumerators)
+    : Constructed(container, name),
+      Type(container -> parser()),
+      Contained(container,  name),
+      SyntaxTreeBase(container -> parser()),
+      enumerators_(enumerators)
+{
+}
+
+// ----------------------------------------------------------------------
+// Enumerator
+// ----------------------------------------------------------------------
+
+Slice::Contained::ContainedType
+Slice::Enumerator::containedType()
+{
+    return ContainedTypeEnumerator;
+}
+
+Slice::Enumerator::Enumerator(const Container_ptr& container,
+			      const string& name)
+    : Contained(container, name),
+      SyntaxTreeBase(container -> parser())
 {
 }
 

@@ -43,6 +43,7 @@ yyerror(const char* s)
 %token ICE_LOCAL_OBJECT
 %token ICE_NATIVE
 %token ICE_VECTOR
+%token ICE_ENUM
 %token ICE_IDENTIFIER
 %token ICE_OP_IDENTIFIER
 
@@ -78,19 +79,22 @@ definitions
 // ----------------------------------------------------------------------
 definition
 // ----------------------------------------------------------------------
-: module
+: module_def
 {
 }
-| class
+| class_def
 {
 }
 | class_decl
 {
 }
-| native
+| native_def
 {
 }
-| vector
+| vector_def
+{
+}
+| enum_def
 {
 }
 ;
@@ -125,7 +129,7 @@ export
 ;
 
 // ----------------------------------------------------------------------
-module
+module_def
 // ----------------------------------------------------------------------
 : ICE_MODULE ICE_IDENTIFIER
 {
@@ -141,7 +145,7 @@ module
 ;
 
 // ----------------------------------------------------------------------
-class
+class_def
 // ----------------------------------------------------------------------
 : ICE_CLASS ICE_IDENTIFIER extends
 {
@@ -417,7 +421,7 @@ return_type
 ;
 
 // ----------------------------------------------------------------------
-native
+native_def
 // ----------------------------------------------------------------------
 : ICE_NATIVE ICE_IDENTIFIER
 {
@@ -428,7 +432,7 @@ native
 ;
 
 // ----------------------------------------------------------------------
-vector
+vector_def
 // ----------------------------------------------------------------------
 : ICE_VECTOR '<' type '>' ICE_IDENTIFIER
 {
@@ -436,6 +440,41 @@ vector
     Type_ptr type = Type_ptr::dynamicCast($3);
     Container_ptr cont = parser -> currentContainer();
     cont -> createVector(ident -> v, type);
+}
+;
+
+// ----------------------------------------------------------------------
+enum_def
+// ----------------------------------------------------------------------
+: ICE_ENUM ICE_IDENTIFIER '{' enumerators '}'
+{
+    String_ptr ident = String_ptr::dynamicCast($2);
+    Enumerators_ptr enumerators = Enumerators_ptr::dynamicCast($4);
+    Container_ptr cont = parser -> currentContainer();
+    Enum_ptr en = cont -> createEnum(ident -> v, enumerators -> v);
+}
+;
+
+// ----------------------------------------------------------------------
+enumerators
+// ----------------------------------------------------------------------
+: ICE_IDENTIFIER ',' enumerators
+{
+    String_ptr ident = String_ptr::dynamicCast($1);
+    Container_ptr cont = parser -> currentContainer();
+    Enumerator_ptr en = cont -> createEnumerator(ident -> v);
+    Enumerators_ptr ens = Enumerators_ptr::dynamicCast($3);
+    ens -> v.push_front(ident -> v);
+    $$ = ens;
+}
+| ICE_IDENTIFIER
+{
+    String_ptr ident = String_ptr::dynamicCast($1);
+    Container_ptr cont = parser -> currentContainer();
+    Enumerator_ptr en = cont -> createEnumerator(ident -> v);
+    Enumerators_ptr ens = new Enumerators;
+    ens -> v.push_front(ident -> v);
+    $$ = ens;
 }
 ;
 

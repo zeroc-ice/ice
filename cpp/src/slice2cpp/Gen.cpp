@@ -244,13 +244,15 @@ Slice::Gen::TypesVisitor::visitVector(const Vector_ptr& p)
 	    scope.erase(0, 2);
 
 	H << sp;
+	H << nl << "class __U__" << name << " { };";
 	H << nl << "void" << dllExport_ << " __write(::__Ice::Stream*, const "
-	  << name << "&);";
+	  << name << "&, __U__" << name << ");";
 	H << nl << "void" << dllExport_ << " __read(::__Ice::Stream*, "
-	  << name << "&);";
+	  << name << "&, __U__" << name << ");";
 	C << sp;
 	C << nl << "void" << nl << scope
-	  << "::__write(::__Ice::Stream* __os, const " << scoped << "& v)";
+	  << "::__write(::__Ice::Stream* __os, const " << scoped << "& v, ::"
+	  << scope << "::__U__" << name << ')';
 	C << sb;
 	C << nl << "__os -> write(::Ice::Int(v.size()));";
 	C << nl << scoped << "::const_iterator p;";
@@ -261,7 +263,8 @@ Slice::Gen::TypesVisitor::visitVector(const Vector_ptr& p)
 	C << eb;
 	C << sp;
 	C << nl << "void" << nl << scope
-	  << "::__read(::__Ice::Stream* __is, " << scoped << "& v)";
+	  << "::__read(::__Ice::Stream* __is, " << scoped << "& v, ::"
+	  << scope << "::__U__" << name << ')';
 	C << sb;
 	C << nl << "::Ice::Int sz;";
 	C << nl << "__is -> read(sz);";
@@ -284,6 +287,79 @@ Slice::Gen::TypesVisitor::visitVector(const Vector_ptr& p)
 	C << eb;
 	C << eb;
     }
+}
+
+void
+Slice::Gen::TypesVisitor::visitEnum(const Enum_ptr& p)
+{
+    string name = p -> name();
+    StringList enumerators = p -> enumerators();
+    H << sp;
+    H << nl << "enum " << name;
+    H << sb;
+    StringList::iterator en = enumerators.begin();
+    while(en != enumerators.end())
+    {
+	H << nl << *en;
+	if(++en != enumerators.end())
+	    H << ',';
+    }
+    H << eb << ';';
+
+    string scoped = p -> scoped();
+    string scope = p -> scope();
+    if(scope.length())
+	scope.erase(0, 2);
+
+    int sz = enumerators.size();
+    
+    H << sp;
+    H << nl << "void" << dllExport_ << " __write(::__Ice::Stream*, " << name
+      << ");";
+    H << nl << "void" << dllExport_ << " __read(::__Ice::Stream*, " << name
+      << "&);";
+    C << sp;
+    C << nl << "void" << nl << scope
+      << "::__write(::__Ice::Stream* __os, " << scoped << " v)";
+    C << sb;
+    if(sz <= numeric_limits<Ice::Byte>::max())
+	C << nl << "__os -> write(static_cast< ::Ice::Byte>(v));";
+    else if(sz <= numeric_limits<Ice::Short>::max())
+	C << nl << "__os -> write(static_cast< ::Ice::Short>(v));";
+    else if(sz <= numeric_limits<Ice::Int>::max())
+	C << nl << "__os -> write(static_cast< ::Ice::Int>(v));";
+    else
+	C << nl << "__os -> write(static_cast< ::Ice::Long>(v));";
+    C << eb;
+    C << sp;
+    C << nl << "void" << nl << scope << "::__read(::__Ice::Stream* __is, "
+      << scoped << "& v)";
+    C << sb;
+    if(sz <= numeric_limits<Ice::Byte>::max())
+    {
+	C << nl << "::Ice::Byte val;";
+	C << nl << "__is -> read(val);";
+	C << nl << "v = static_cast< " << scoped << ">(val);";
+    }
+    else if(sz <= numeric_limits<Ice::Short>::max())
+    {
+	C << nl << "::Ice::Short val;";
+	C << nl << "__is -> read(val);";
+	C << nl << "v = static_cast< " << scoped << ">(val);";
+    }
+    else if(sz <= numeric_limits<Ice::Int>::max())
+    {
+	C << nl << "::Ice::Int val;";
+	C << nl << "__is -> read(val);";
+	C << nl << "v = static_cast< " << scoped << ">(val);";
+    }
+    else
+    {
+	C << nl << "::Ice::Long val;";
+	C << nl << "__is -> read(val);";
+	C << nl << "v = static_cast< " << scoped << ">(val);";
+    }
+    C << eb;
 }
 
 void
@@ -466,9 +542,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const Operation_ptr& p)
     Type_ptr ret = p -> returnType();
     string retS = returnTypeToString(ret);
 
-    TypeNameList inParams = p -> inputParameters();
-    TypeNameList outParams = p -> outputParameters();
-    TypeNameList::iterator q;
+    TypeStringList inParams = p -> inputParameters();
+    TypeStringList outParams = p -> outputParameters();
+    TypeStringList::iterator q;
 
     string params = "(";
     string paramsDecl = "("; // With declarators
@@ -624,9 +700,9 @@ Slice::Gen::DelegateVisitor::visitOperation(const Operation_ptr& p)
     Type_ptr ret = p -> returnType();
     string retS = returnTypeToString(ret);
 
-    TypeNameList inParams = p -> inputParameters();
-    TypeNameList outParams = p -> outputParameters();
-    TypeNameList::iterator q;
+    TypeStringList inParams = p -> inputParameters();
+    TypeStringList outParams = p -> outputParameters();
+    TypeStringList::iterator q;
 
     string params = "(";
     string args = "(";
@@ -766,9 +842,9 @@ Slice::Gen::DelegateMVisitor::visitOperation(const Operation_ptr& p)
     Type_ptr ret = p -> returnType();
     string retS = returnTypeToString(ret);
 
-    TypeNameList inParams = p -> inputParameters();
-    TypeNameList outParams = p -> outputParameters();
-    TypeNameList::iterator q;
+    TypeStringList inParams = p -> inputParameters();
+    TypeStringList outParams = p -> outputParameters();
+    TypeStringList::iterator q;
 
     string params = "(";
     string paramsDecl = "("; // With declarators
@@ -840,7 +916,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const Operation_ptr& p)
 	    C.dec();
 	    C << nl << "case " << cnt++ << ':';
 	    C.sb();
-	    TypeNameList li;
+	    TypeStringList li;
 	    li.push_back(make_pair(*r, string("__ex")));
 	    writeAllocateCode(C, li, 0);
 	    writeUnmarshalCode(C, li, 0);
@@ -860,7 +936,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const Operation_ptr& p)
 	  << "throw ::Ice::UnknownUserException(__FILE__, __LINE__);";
 	C.dec();
     }
-    writeAllocateCode(C, TypeNameList(), ret);
+    writeAllocateCode(C, TypeStringList(), ret);
     writeUnmarshalCode(C, outParams, ret);
     if(ret)
 	C << nl << "return __ret;";
@@ -1103,7 +1179,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDef_ptr& p)
     H << nl << "virtual void __write(::__Ice::Stream*);";
     H << nl << "virtual void __read(::__Ice::Stream*);";
     H << eb << ';';
-    TypeNameList memberList;
+    TypeStringList memberList;
     list<DataMember_ptr> dataMembers = p -> dataMembers();
     list<DataMember_ptr>::const_iterator q;
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -1166,9 +1242,9 @@ Slice::Gen::ObjectVisitor::visitOperation(const Operation_ptr& p)
     Type_ptr ret = p -> returnType();
     string retS = returnTypeToString(ret);
 
-    TypeNameList inParams = p -> inputParameters();
-    TypeNameList outParams = p -> outputParameters();
-    TypeNameList::iterator q;
+    TypeStringList inParams = p -> inputParameters();
+    TypeStringList outParams = p -> outputParameters();
+    TypeStringList::iterator q;
 
     string params = "(";
     string paramsDecl = "("; // With declarators

@@ -54,6 +54,7 @@ private:
 	virtual void visitModuleStart(const Module_ptr&);
 	virtual void visitModuleEnd(const Module_ptr&);
 	virtual void visitVector(const Vector_ptr&);
+	virtual void visitEnum(const Enum_ptr&);
 	virtual void visitNative(const Native_ptr&);
 
     private:

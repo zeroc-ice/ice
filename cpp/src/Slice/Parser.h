@@ -33,6 +33,7 @@ namespace Slice
 class Token;
 class String;
 class Parameters;
+class Enumerators;
 class Throws;
 class SyntaxTreeBase;
 class Type;
@@ -46,8 +47,10 @@ class ClassDef;
 class Proxy;
 class Operation;
 class DataMember;
-class Native;
 class Vector;
+class Enum;
+class Enumerator;
+class Native;
 class Parser;
 
 }
@@ -61,6 +64,8 @@ void ICE_API incRef(::Slice::String*);
 void ICE_API decRef(::Slice::String*);
 void ICE_API incRef(::Slice::Parameters*);
 void ICE_API decRef(::Slice::Parameters*);
+void ICE_API incRef(::Slice::Enumerators*);
+void ICE_API decRef(::Slice::Enumerators*);
 void ICE_API incRef(::Slice::Throws*);
 void ICE_API decRef(::Slice::Throws*);
 void ICE_API incRef(::Slice::SyntaxTreeBase*);
@@ -87,10 +92,14 @@ void ICE_API incRef(::Slice::Operation*);
 void ICE_API decRef(::Slice::Operation*);
 void ICE_API incRef(::Slice::DataMember*);
 void ICE_API decRef(::Slice::DataMember*);
-void ICE_API incRef(::Slice::Native*);
-void ICE_API decRef(::Slice::Native*);
 void ICE_API incRef(::Slice::Vector*);
 void ICE_API decRef(::Slice::Vector*);
+void ICE_API incRef(::Slice::Enum*);
+void ICE_API decRef(::Slice::Enum*);
+void ICE_API incRef(::Slice::Enumerator*);
+void ICE_API decRef(::Slice::Enumerator*);
+void ICE_API incRef(::Slice::Native*);
+void ICE_API decRef(::Slice::Native*);
 void ICE_API incRef(::Slice::Parser*);
 void ICE_API decRef(::Slice::Parser*);
 
@@ -102,6 +111,7 @@ namespace Slice
 typedef ::__Ice::Handle<Token> Token_ptr;
 typedef ::__Ice::Handle<String> String_ptr;
 typedef ::__Ice::Handle<Parameters> Parameters_ptr;
+typedef ::__Ice::Handle<Enumerators> Enumerators_ptr;
 typedef ::__Ice::Handle<Throws> Throws_ptr;
 typedef ::__Ice::Handle<SyntaxTreeBase> SyntaxTreeBase_ptr;
 typedef ::__Ice::Handle<Type> Type_ptr;
@@ -115,8 +125,10 @@ typedef ::__Ice::Handle<ClassDef> ClassDef_ptr;
 typedef ::__Ice::Handle<Proxy> Proxy_ptr;
 typedef ::__Ice::Handle<Operation> Operation_ptr;
 typedef ::__Ice::Handle<DataMember> DataMember_ptr;
-typedef ::__Ice::Handle<Native> Native_ptr;
 typedef ::__Ice::Handle<Vector> Vector_ptr;
+typedef ::__Ice::Handle<Enum> Enum_ptr;
+typedef ::__Ice::Handle<Enumerator> Enumerator_ptr;
+typedef ::__Ice::Handle<Native> Native_ptr;
 typedef ::__Ice::Handle<Parser> Parser_ptr;
 
 }
@@ -125,8 +137,9 @@ namespace Slice
 {
 
 typedef std::list<Type_ptr> TypeList;
-typedef std::pair<Type_ptr, std::string> TypeName;
-typedef std::list<TypeName> TypeNameList;
+typedef std::list<std::string> StringList;
+typedef std::pair<Type_ptr, std::string> TypeString;
+typedef std::list<TypeString> TypeStringList;
 
 // ----------------------------------------------------------------------
 // ParserVisitor
@@ -147,6 +160,7 @@ public:
     virtual void visitOperation(const Operation_ptr&) { };
     virtual void visitDataMember(const DataMember_ptr&) { };
     virtual void visitVector(const Vector_ptr&) { };
+    virtual void visitEnum(const Enum_ptr&) { };
     virtual void visitNative(const Native_ptr&) { };
 };
 
@@ -181,7 +195,19 @@ class ICE_API Parameters : virtual public Token
 public:
 
     Parameters() { }
-    TypeNameList v;
+    TypeStringList v;
+};
+
+// ----------------------------------------------------------------------
+// Enumerators
+// ----------------------------------------------------------------------
+
+class ICE_API Enumerators : virtual public Token
+{
+public:
+
+    Enumerators() { }
+    StringList v;
 };
 
 // ----------------------------------------------------------------------
@@ -278,6 +304,8 @@ public:
     enum ContainedType
     {
 	ContainedTypeVector,
+	ContainedTypeEnum,
+	ContainedTypeEnumerator,
 	ContainedTypeNative,
 	ContainedTypeModule,
 	ContainedTypeClass,
@@ -314,6 +342,8 @@ public:
     ClassDef_ptr createClassDef(const std::string&, const ClassDef_ptr&, bool);
     ClassDecl_ptr createClassDecl(const std::string&, bool);
     Vector_ptr createVector(const std::string&, const Type_ptr&);
+    Enum_ptr createEnum(const std::string&, const StringList&);
+    Enumerator_ptr createEnumerator(const std::string&);
     Native_ptr createNative(const std::string&);
     std::list<Type_ptr> lookupType(const std::string&);
     int includeLevel();
@@ -402,7 +432,7 @@ public:
 
     virtual void destroy();
     Operation_ptr createOperation(const std::string&, const Type_ptr&,
-				  const TypeNameList&, const TypeNameList&,
+				  const TypeStringList&, const TypeStringList&,
 				  const TypeList&);
     DataMember_ptr createDataMember(const std::string&, const Type_ptr&);
     ClassDef_ptr base();
@@ -451,8 +481,8 @@ class ICE_API Operation : virtual public Contained
 public:
 
     Type_ptr returnType();
-    TypeNameList inputParameters();
-    TypeNameList outputParameters();
+    TypeStringList inputParameters();
+    TypeStringList outputParameters();
     TypeList throws();
     virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
@@ -462,14 +492,14 @@ protected:
     Operation(const Container_ptr&,
 	      const std::string&,
 	      const Type_ptr&,
-	      const TypeNameList&,
-	      const TypeNameList&,
+	      const TypeStringList&,
+	      const TypeStringList&,
 	      const TypeList&);
     friend class ICE_API ClassDef;
 
     Type_ptr returnType_;
-    TypeNameList inParams_;
-    TypeNameList outParams_;
+    TypeStringList inParams_;
+    TypeStringList outParams_;
     TypeList throws_;
 };
 
@@ -496,24 +526,6 @@ protected:
 };
 
 // ----------------------------------------------------------------------
-// Native
-// ----------------------------------------------------------------------
-
-class Native : virtual public Constructed
-{
-public:
-
-    virtual ContainedType containedType();
-    virtual void visit(ParserVisitor*);
-
-protected:
-
-    Native(const Container_ptr&,
-	   const std::string&);
-    friend class Container;
-};
-
-// ----------------------------------------------------------------------
 // Vector
 // ----------------------------------------------------------------------
 
@@ -533,6 +545,63 @@ protected:
     friend class ICE_API Container;
 
     Type_ptr type_;
+};
+
+// ----------------------------------------------------------------------
+// Enum
+// ----------------------------------------------------------------------
+
+class ICE_API Enum : virtual public Constructed
+{
+public:
+
+    StringList enumerators();
+    virtual ContainedType containedType();
+    virtual void visit(ParserVisitor*);
+
+protected:
+
+    Enum(const Container_ptr&,
+	 const std::string&,
+	 const StringList&);
+    friend class ICE_API Container;
+    
+    StringList enumerators_;
+};
+
+// ----------------------------------------------------------------------
+// Enumerator
+// ----------------------------------------------------------------------
+
+class ICE_API Enumerator : virtual public Contained
+{
+public:
+
+    virtual ContainedType containedType();
+
+protected:
+
+    Enumerator(const Container_ptr&,
+	       const std::string&);
+    friend class ICE_API Container;
+};
+
+// ----------------------------------------------------------------------
+// Native
+// ----------------------------------------------------------------------
+
+class Native : virtual public Constructed
+{
+public:
+
+    virtual ContainedType containedType();
+    virtual void visit(ParserVisitor*);
+
+protected:
+
+    Native(const Container_ptr&,
+	   const std::string&);
+    friend class Container;
 };
 
 // ----------------------------------------------------------------------
