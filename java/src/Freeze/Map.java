@@ -30,20 +30,9 @@ public abstract class Map extends java.util.AbstractMap
     public void
     close()
     {
-	if(_db != null)
-	{
-	    closeAllIterators();
-	    try
-	    {
-		_db.close();
-	    }
-	    finally
-	    {
-		_db = null;
-	    }
-	}
+	close(false);
     }
-
+	
     //
     // A concrete implementation of a Freeze.Map must provide
     // implementations of the following to encode & decode the
@@ -418,23 +407,39 @@ public abstract class Map extends java.util.AbstractMap
     public void
     closeAllIterators()
     {
-	closeAllIteratorsExcept(null);
+	closeAllIteratorsExcept(null, false);
     }
     
     void
-    closeAllIteratorsExcept(Object except)
+    closeAllIteratorsExcept(Object except, boolean finalizing)
     {
 	java.util.Iterator p = _iteratorList.iterator();
-	while(p.hasNext())
+	int count = 0;
+
+	if(_connection.keepIterators())
 	{
-	    Object o = ((java.lang.ref.WeakReference) p.next()).get();
-	    if(o != except && o != null)
+	    while(p.hasNext())
 	    {
-		((EntryIterator) o).close();
+		Object o = p.next();
+		if(o != except)
+		{
+		    ((EntryIterator) o).close(finalizing);
+		}
 	    }
-	    if(o == null || o != except)
+	}
+	else
+	{
+	    while(p.hasNext())
 	    {
-		p.remove();
+		Object o = ((java.lang.ref.WeakReference) p.next()).get();
+		if(o != except && o != null)
+		{
+		    ((EntryIterator) o).close(finalizing);
+		}
+		if(o == null || o != except)
+		{
+		    p.remove();
+		}
 	    }
 	}
     }
@@ -442,9 +447,36 @@ public abstract class Map extends java.util.AbstractMap
     protected void
     finalize()
     {
-	close();
+	close(true);
     }
 
+    
+    //
+    // The synchronization is only needed when finalizing is true
+    // The extra runtime cost is not worth the added complexity
+    // of synchronizing only when finalizing is true.
+    //
+    void 
+    close(boolean finalizing)
+    {
+	synchronized(_connection)
+	{
+	    if(_db != null)
+	    {
+		closeAllIteratorsExcept(null, finalizing);
+		try
+		{
+		    _db.close();
+		}
+		finally
+		{
+		    _db = null;
+		    _connection.unregisterMap(this);
+		}
+	    }
+	}
+    }
+	
     private static boolean
     valEquals(Object o1, Object o2)
     {
@@ -693,7 +725,14 @@ public abstract class Map extends java.util.AbstractMap
 		throw ex;
 	    }
 
-	    _iteratorList.add(new java.lang.ref.WeakReference(this));
+	    if(_connection.keepIterators())
+	    {
+		_iteratorList.add(this);
+	    }
+	    else
+	    {
+		_iteratorList.add(new java.lang.ref.WeakReference(this));
+	    }
         }
 
         public boolean
@@ -762,7 +801,7 @@ public abstract class Map extends java.util.AbstractMap
         {
 	    if(_txn != null)
 	    {
-		closeAllIteratorsExcept(this);
+		closeAllIteratorsExcept(this, false);
 	    }
 
 	    //
@@ -859,6 +898,26 @@ public abstract class Map extends java.util.AbstractMap
         public void
         close()
         {
+	    close(false);
+	}
+
+	//
+	// The synchronized is needed because this method can be called 
+	// concurrently by Connection, Map and Map.EntryIterator finalizers.
+	//
+
+	synchronized void
+	close(boolean finalizing)
+	{
+	    if(finalizing && (_cursor != null || _txn != null))
+	    {
+		_connection.communicator().getLogger().warning
+		    ("finalize() closing a live iterator on Map \"" + _db.dbName() + "\"; the application "
+		     + "should have closed it earlier by calling Map.EntryIterator.close(), "
+		     + "Map.closeAllIterators(), Map.close(), Connection.close(), or (if also "
+		     + "leaking a transaction) Transaction.commit() or Transaction.rollback()");
+	    }
+	    
 	    if(_cursor != null)	
 	    {
 		com.sleepycat.db.Dbc cursor = _cursor;
@@ -899,11 +958,34 @@ public abstract class Map extends java.util.AbstractMap
 	    }   
 	}
 	
+	//
+	// An alias for close()
+	//
+	public void
+	destroy()
+	{
+	    close();
+	}
 
 	protected void
         finalize()
         {
-            close();
+	    //
+	    // finalizing denotes the finalization of the containing
+	    // Map and/or Connection.
+	    // When keepIterators is true, the only way this iterator
+	    // can be finalized is when the containing Map (and indirectly
+	    // Connection) is also finalizable, so we set finalizing 
+	    // to true.
+	    // When iterators are kept as weak-references (i.e. keepIterators
+	    // is false), we can't issue finalization warnings because
+	    // early finalization, for example before an explicit Map.close(),
+	    // is actually a good thing since it releases locks earlier, 
+	    // improving concurrency.
+	    //
+	    boolean finalizing = _connection.keepIterators();
+	  
+            close(finalizing);
         }
 
 	void
@@ -911,7 +993,7 @@ public abstract class Map extends java.util.AbstractMap
 	{
 	    if(_txn != null)
 	    {
-		closeAllIteratorsExcept(this);
+		closeAllIteratorsExcept(this, false);
 	    }
 
 	    //

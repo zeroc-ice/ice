@@ -570,7 +570,8 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"Trace.Evictor",
 	"Trace.DbEnv",
 	"Evictor.*",
-	"DbEnv.*"
+	"DbEnv.*",
+	"Map.KeepIterators"
     };
 
     private static final class ValidProps

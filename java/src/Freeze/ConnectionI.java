@@ -38,44 +38,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
     public void
     close()
     {
-	if(_transaction != null)
-	{
-	    try
-	    {
-		_transaction.rollback();
-	    }
-	    catch(Freeze.DatabaseException dx)
-	    {
-		//
-		// Ignored
-		//
-	    }
-	}
-
-	java.util.Iterator p = _mapList.iterator();
-	while(p.hasNext())
-	{
-	    Object o = ((java.lang.ref.WeakReference) p.next()).get();
-	    if(o != null)
-	    {
-		((Map) o).close();
-	    }
-	}
-	_mapList.clear();
-	
-	_dbEnv = null;
-
-	if(_dbEnvHolder != null)
-	{
-	    try
-	    {
-		_dbEnvHolder.close();
-	    }
-	    finally
-	    {
-		_dbEnvHolder = null;
-	    }
-	}
+	close(false);
     }
 
     public Ice.Communicator
@@ -93,7 +56,54 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
     protected void
     finalize()
     {
-	close();
+	close(true);
+    }
+
+    void
+    close(boolean finalizing)
+    {
+	if(_transaction != null)
+	{
+	    if(finalizing)
+	    {
+		_communicator.getLogger().warning
+		    ("Finalizing Connection on DbEnv \"" +  _envName + "\" with active transaction");
+	    }
+	    
+	    try
+	    {
+		_transaction.rollback();
+	    }
+	    catch(Freeze.DatabaseException dx)
+	    {
+		//
+		// Ignored
+		//
+	    }
+	}
+
+	
+	synchronized(this)
+	{
+	    while(!_mapList.isEmpty())
+	    {
+		((Map) _mapList.get(0)).close(finalizing);
+	    }
+	}
+	
+	_dbEnv = null;
+
+	if(_dbEnvHolder != null)
+	{
+	    try
+	    {
+		_dbEnvHolder.close();
+	    }
+	    finally
+	    {
+		_dbEnvHolder = null;
+	    }
+	}
     }
 
     ConnectionI(Ice.Communicator communicator, String envName)
@@ -103,7 +113,10 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	_dbEnv = _dbEnvHolder;
 	_envName = envName;
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
-	_deadlockWarning = _communicator.getProperties().getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
+	Ice.Properties properties = _communicator.getProperties();
+
+	_deadlockWarning = properties.getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
+	_keepIterators = properties.getPropertyAsInt("Freeze.Map.KeepIterators") != 0;
     }
 
     ConnectionI(Ice.Communicator communicator, String envName, com.sleepycat.db.DbEnv dbEnv)
@@ -114,28 +127,30 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
     }
 
-    void
+    //
+    // The synchronization is only needed only during finalization
+    //
+
+    synchronized void
     closeAllIterators()
     {
 	java.util.Iterator p = _mapList.iterator();
 	while(p.hasNext())
 	{
-	    Object o = ((java.lang.ref.WeakReference) p.next()).get();
-	    if(o != null)
-	    {
-		((Map) o).closeAllIterators();
-	    }
-	    else
-	    {
-		p.remove();
-	    }
+	    ((Map) p.next()).closeAllIterators();
 	}
     }
 
-    void
+    synchronized void
     registerMap(Map map)
     {
-	_mapList.add(new java.lang.ref.WeakReference(map));
+	_mapList.add(map);
+    }
+
+    synchronized void
+    unregisterMap(Map map)
+    {
+	_mapList.remove(map);
     }
 
     void
@@ -175,16 +190,22 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	return _communicator;
     }
 
-    int
+    final int
     trace()
     {
 	return _trace;
     }
 
-    boolean
+    final boolean
     deadlockWarning()
     {
 	return _deadlockWarning;
+    }
+
+    final boolean
+    keepIterators()
+    {
+	return _keepIterators;
     }
 
     private Ice.Communicator _communicator;
@@ -195,4 +216,5 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
     private java.util.List _mapList = new java.util.LinkedList();
     private int _trace;
     private boolean _deadlockWarning;
+    private boolean _keepIterators;
 }

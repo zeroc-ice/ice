@@ -1,6 +1,26 @@
 Changes since version 1.2.0
 ---------------------------
 
+- New Freeze warning issued when a live iterator is closed by the 
+  finalizer of Freeze.Map or Freeze.ConnectionI;
+  new Freeze property: Freeze.Map.KeepIterators. When 0 (the default),
+  Maps keep their iterators as weak references. In this way, a JVM 
+  with aggressive garbage collection may release iterators before an 
+  explicit close(), closeAllIterators() or similar call on the 
+  enclosing Map or Connection, resulting in better concurrency (since
+  iterators keep locks).
+  Otherwise, when Freeze.Map.KeepIterators is != 0, the Maps keep
+  their iterators are regular Java references. Then when an iterator
+  finalize method closes a live iterator, a warning is issued since
+  this means that the enclosing map is also ready to be garbage
+  collected. During development, it is recommended to set this
+  variable to 1.
+
+  To see these Freeze warnings in programs that do not run very long 
+  or create a large number of objects, it may be necessary to 
+  explicitely call the JVM garbage collector with:
+   System.gc();
+
 - Added property Ice.Override.ConnectTimeout. See the manual for
   details.
 

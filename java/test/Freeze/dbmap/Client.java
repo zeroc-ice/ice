@@ -473,8 +473,8 @@ public class Client
 
 	    System.out.println("ok");
 	}
-
 	connection.close();
+	
 	return 0;
     }
 
@@ -531,6 +531,7 @@ public class Client
 	    }
 	}
 
+	System.gc();
 	System.exit(status);
     }
 }
