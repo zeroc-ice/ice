@@ -79,57 +79,72 @@ IcePack::ServerAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPt
 					      bool activate, 
 					      const Ice::Current& current)
 {
-    ::IceUtil::Mutex::Lock sync(*this);
-
-    if(!_proxy && activate)
     {
-	//
-	// Try to start the server and wait for the adapter proxy to
-	// be changed.
-	//
+	::IceUtil::Mutex::Lock sync(*this);
+	if(_proxy || !activate)
+	{
+	    //
+	    // Return the adapter direct proxy.
+	    //
+	    cb->ice_response(_proxy);
+	    return;
+	}
 
 	if(_traceLevels->adapter > 2)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 	    out << "waiting for activation of server adapter `" << id << "'";
 	}
-	
-	try
+    }
+    
+
+    //
+    // Try to start the server. Note that we start the server outside
+    // the synchronization block since start() can block and callback
+    // on this adapter (when the server is deactivating for example).
+    //
+    try
+    {
+	if(svr->start(OnDemand))
 	{
-	    if(svr->start(OnDemand))
+	    //
+	    // Now that the server is activated, wait for the adapter
+	    // direct proxy to be set.
+	    //
+	    ::IceUtil::Mutex::Lock sync(*this);
+	    if(!_proxy)
 	    {
 		_factory->getWaitQueue()->add(new WaitForAdapterActivation(this, _traceLevels, cb), _waitTime);
-		return;
 	    }
-	    else
-	    {
-		if(_traceLevels->adapter > 1)
-		{
-		    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-		    out << "server adapter `" << id << "' activation failed, couldn't start the server";
-		}
-	    }
+	    return;
 	}
-	catch(const Ice::ObjectNotExistException&)
+	else
 	{
-	    //
-	    // The server associated to this adapter doesn't exist
-	    // anymore. Somehow the database is inconsistent if this
-	    // happens. The best thing to do is to destroy the adapter
-	    // and throw an ObjectNotExist exception.
-	    //
-	    destroy(current);
+	    ::IceUtil::Mutex::Lock sync(*this);
 
-	    Ice::ObjectNotExistException ex(__FILE__,__LINE__);
-	    ex.id = current.id;
-	    throw ex;
+	    if(_traceLevels->adapter > 1)
+	    {
+		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+		out << "server adapter `" << id << "' activation failed, couldn't start the server";
+	    }
+	    cb->ice_response(_proxy);
+	    return;
 	}
     }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	//
+	// The server associated to this adapter doesn't exist
+	// anymore. Somehow the database is inconsistent if this
+	// happens. The best thing to do is to destroy the adapter
+	// and throw an ObjectNotExist exception.
+	//
+	destroy(current);
 
-    //
-    // Return the adapter direct proxy.
-    //
-    cb->ice_response(_proxy);
+	Ice::ObjectNotExistException ex(__FILE__,__LINE__);
+	ex.id = current.id;
+	throw ex;
+    }
 }
 
 void
