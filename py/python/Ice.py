@@ -2,7 +2,7 @@
 Ice module
 """
 
-import sys, exceptions, string, imp, os
+import sys, exceptions, string, imp, os, threading
 import IcePy
 
 #
@@ -132,7 +132,13 @@ class CommunicatorI(Communicator):
         self._impl.shutdown()
 
     def waitForShutdown(self):
-        self._impl.waitForShutdown()
+        #
+        # If invoked by the main thread, waitForShutdown only blocks for
+        # the specified timeout in order to give us a chance to handle
+        # signals.
+        #
+        while not self._impl.waitForShutdown(1000):
+            pass
 
     def stringToProxy(self, str):
         return self._impl.stringToProxy(str)
@@ -227,13 +233,25 @@ class ObjectAdapterI(ObjectAdapter):
         self._impl.hold()
 
     def waitForHold(self):
-        self._impl.waitForHold()
+        #
+        # If invoked by the main thread, waitForHold only blocks for
+        # the specified timeout in order to give us a chance to handle
+        # signals.
+        #
+        while not self._impl.waitForHold(1000):
+            pass
 
     def deactivate(self):
         self._impl.deactivate()
 
     def waitForDeactivate(self):
-        self._impl.waitForDeactivate()
+        #
+        # If invoked by the main thread, waitForDeactivate only blocks for
+        # the specified timeout in order to give us a chance to handle
+        # signals.
+        #
+        while not self._impl.waitForDeactivate(1000):
+            pass
 
     def add(self, servant, id):
         return self._impl.add(servant, id)
@@ -361,7 +379,7 @@ _previousCallback = None
 #
 # Application class.
 #
-import threading, signal
+import signal, traceback
 class Application(object):
 
     def main(self, args, configFile=None):
@@ -400,23 +418,9 @@ class Application(object):
             #
             Application.destroyOnInterrupt()
 
-            #
-            # Don't call run() from the main thread. Instead, start a new thread and
-            # let it invoke run(). Because Python only delivers signals to the main
-            # thread, we have to make sure the main thread isn't busy (which it would
-            # be if the run() method invoked a blocking C function such as
-            # waitForShutdown()).
-            #
-            t = Application.RunThread(self, args)
-            t.start()
-            while t.isAlive():
-                t.join(1)
-            status = t.status
-        except Exception, ex:
-            print Application._appName + ": " + str(ex)
-            status = 1
-        except exceptions.Exception, ex:
-            print Application._appName + ": " + str(ex)
+            status = self.run(args)
+        except:
+            traceback.print_exc()
             status = 1
 
         if Application._communicator:
@@ -427,8 +431,8 @@ class Application(object):
 
             try:
                 Application._communicator.destroy()
-            except Exception, ex:
-                print Application._appName + ": " + str(ex)
+            except:
+                traceback.print_exc()
                 status = 1
 
             Application._communicator = None
@@ -547,8 +551,9 @@ class Application(object):
 
         try:
             Application._communicator.destroy()
-        except exceptions.Exception, ex:
-            print Application._appName + " (while destroying in response to signal " + str(sig) + "): " + str(ex)
+        except:
+            print Application._appName + " (while destroying in response to signal " + str(sig) + "):"
+            traceback.print_exc()
     destroyOnInterruptCallback = staticmethod(destroyOnInterruptCallback)
 
     def shutdownOnInterruptCallback(sig):
@@ -561,25 +566,15 @@ class Application(object):
 
         try:
             Application._communicator.shutdown()
-        except exceptions.Exception, ex:
-            print Application._appName + " (while shutting down in response to signal " + str(sig) + "): " + str(ex)
+        except:
+            print Application._appName + " (while shutting down in response to signal " + str(sig) + "):"
+            traceback.print_exc()
     shutdownOnInterruptCallback = staticmethod(shutdownOnInterruptCallback)
-
-    class RunThread(threading.Thread):
-        def __init__(self, app, args):
-            threading.Thread.__init__(self)
-            self.app = app
-            self.args = args
-            self.status = 0
-
-        def run(self):
-            self.status = self.app.run(self.args)
 
     _appName = None
     _communicator = None
     _interrupted = False
     _released = False
-    _mutex = threading.Lock()
     _condVar = threading.Condition()
 
 #
@@ -587,6 +582,7 @@ class Application(object):
 #
 IcePy._t_Object = IcePy.defineClass('::Ice::Object', Object, False, None, (), ())
 IcePy._t_ObjectPrx = IcePy.defineProxy('::Ice::Object', ObjectPrx)
+Object.ice_type = IcePy._t_Object
 
 Object._op_ice_isA = IcePy.Operation('ice_isA', OperationMode.Nonmutating, False, (IcePy._t_string,), (), IcePy._t_bool, ())
 Object._op_ice_ping = IcePy.Operation('ice_ping', OperationMode.Nonmutating, False, (), (), None, ())
@@ -648,12 +644,35 @@ Identity.__ge__ = Identity__ge__
 del Identity__ge__
 
 #
-# Annotate Ice::SyscallException.
+# Annotate some exceptions.
 #
 def SyscallException__str__(self):
     return "Ice.SyscallException:\n" + os.strerror(self.error)
 SyscallException.__str__ = SyscallException__str__
 del SyscallException__str__
+
+def SocketException__str__(self):
+    return "Ice.SocketException:\n" + os.strerror(self.error)
+SocketException.__str__ = SocketException__str__
+del SocketException__str__
+
+def ConnectFailedException__str__(self):
+    return "Ice.ConnectFailedException:\n" + os.strerror(self.error)
+ConnectFailedException.__str__ = ConnectFailedException__str__
+del ConnectFailedException__str__
+
+def ConnectionRefusedException__str__(self):
+    return "Ice.ConnectionRefusedException:\n" + os.strerror(self.error)
+ConnectionRefusedException.__str__ = ConnectionRefusedException__str__
+del ConnectionRefusedException__str__
+
+def ConnectionLostException__str__(self):
+    if self.error == 0:
+        return "Ice.ConnectionLostException:\nrecv() returned zero"
+    else:
+        return "Ice.ConnectionLostException:\n" + os.strerror(self.error)
+ConnectionLostException.__str__ = ConnectionLostException__str__
+del ConnectionLostException__str__
 
 #
 # Proxy comparison functions.
