@@ -376,11 +376,11 @@ public class IncomingConnectionFactory extends EventHandler
     {
         if (_acceptor != null)
         {
-	    if (!_registeredWithPool)
+	    if (_registeredWithPool)
 	    {
 		assert(_serverThreadPool != null);
 		_serverThreadPool.unregister(_acceptor.fd());
-		_registeredWithPool = true;
+		_registeredWithPool = false;
 	    }
         }
     }
