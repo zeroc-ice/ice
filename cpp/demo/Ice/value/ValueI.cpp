@@ -27,7 +27,7 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _derivedPrinter = new DerivedPrinterI;
     _derivedPrinter->_message = _printer->_message;
     _derivedPrinter->_derivedMessage = "Coming soon: the ultimate online game from MutableRealms!";
-    adapter->addTemporary(_printer);
+    adapter->addTemporary(_derivedPrinter);
 }
 
 SimplePtr
