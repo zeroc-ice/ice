@@ -21,7 +21,7 @@
 namespace Ice
 {
 
-class ICE_API CommunicatorI : public ::__Ice::Shared, public JTCMutex
+class ICE_API CommunicatorI : public ::__Ice::Shared, public JTCRecursiveMutex
 {
 public:
     
