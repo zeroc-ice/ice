@@ -44,8 +44,7 @@ public:
     virtual void read(Buffer&, int);
     virtual std::string toString() const;
 
-    virtual bool equivalent(const std::string&, int) const;
-    
+    bool equivalent(const std::string&, int) const;
     int effectivePort();
 
     // Server Channel Implementation methods
@@ -62,7 +61,7 @@ public:
 private:
 
     SUdpTransceiver(const InstancePtr&, const std::string&, int);
-    SUdpTransceiver(const InstancePtr&, int);
+    SUdpTransceiver(const InstancePtr&, int, bool);
     virtual ~SUdpTransceiver();
 
     friend class SUdpEndpoint;
@@ -77,7 +76,6 @@ private:
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
-    bool _sender;
 };
 
 }

@@ -37,8 +37,7 @@ public:
     virtual TransceiverPtr accept(int);
     virtual std::string toString() const;
 
-    virtual bool equivalent(const std::string&, int) const;
-
+    bool equivalent(const std::string&, int) const;
     int effectivePort();
 
 private:

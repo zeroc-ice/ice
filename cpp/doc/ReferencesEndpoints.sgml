@@ -16,13 +16,14 @@ All Rights Reserved
 <cmdsynopsis>
 <arg choice=plain><replaceable>identity</replaceable></arg>
 <group>
+<arg>-f <replaceable>facet</replaceable></arg>
 <arg>-t</arg>
 <arg>-o</arg>
 <arg>-O</arg>
 <arg>-d</arg>
 <arg>-D</arg>
-</group>
 <arg>-s</arg>
+</group>
 <arg choice=plain> : <replaceable>endpoints</replaceable></arg>
 </cmdsynopsis>
 </section>
@@ -53,7 +54,7 @@ TBD
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>TCP/IP Endpoint</title>
+<section><title>Tcp Endpoint</title>
 <!-- ********************************************************************** -->
 
 <section><title>Synopsis</title>
@@ -74,7 +75,7 @@ TBD
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>UDP/IP Endpoint</title>
+<section><title>Udp Endpoint</title>
 <!-- ********************************************************************** -->
 
 <section><title>Synopsis</title>
@@ -82,6 +83,7 @@ TBD
 <command>udp</command>
 <arg>-h <replaceable>host</replaceable></arg>
 <arg>-p <replaceable>port</replaceable></arg>
+<arg>-c</arg>
 </cmdsynopsis>
 </section>
 
@@ -94,7 +96,7 @@ TBD
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>SSL Endpoint</title>
+<section><title>Ssl Endpoint</title>
 <!-- ********************************************************************** -->
 
 <section><title>Synopsis</title>
@@ -103,6 +105,27 @@ TBD
 <arg>-h <replaceable>host</replaceable></arg>
 <arg>-p <replaceable>port</replaceable></arg>
 <arg>-t <replaceable>timeout</replaceable></arg>
+</cmdsynopsis>
+</section>
+
+<section><title>Description</title>
+<para>
+TBD
+</para>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
+<section><title>SUdp Endpoint</title>
+<!-- ********************************************************************** -->
+
+<section><title>Synopsis</title>
+<cmdsynopsis>
+<command>sudp</command>
+<arg>-h <replaceable>host</replaceable></arg>
+<arg>-p <replaceable>port</replaceable></arg>
+<arg>-c</arg>
 </cmdsynopsis>
 </section>
 

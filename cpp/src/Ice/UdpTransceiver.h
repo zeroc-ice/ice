@@ -38,16 +38,14 @@ public:
     virtual void read(Buffer&, int);
     virtual std::string toString() const;
 
-    virtual bool equivalent(const std::string&, int) const;
-    
+    bool equivalent(const std::string&, int) const;
     int effectivePort();
-
     void setProtocolName(const std::string&);
 
 private:
 
     UdpTransceiver(const InstancePtr&, const std::string&, int, const std::string& protocolName = "udp");
-    UdpTransceiver(const InstancePtr&, int, const std::string& protocolName = "udp");
+    UdpTransceiver(const InstancePtr&, int, bool, const std::string& protocolName = "udp");
     virtual ~UdpTransceiver();
 
     friend class UdpEndpoint;
@@ -57,7 +55,8 @@ private:
     InstancePtr _instance;
     TraceLevelsPtr _traceLevels;
     ::Ice::LoggerPtr _logger;
-    bool _sender;
+    bool _incoming;
+    bool _connect;
     SOCKET _fd;
     struct sockaddr_in _addr;
     std::string _protocolName;

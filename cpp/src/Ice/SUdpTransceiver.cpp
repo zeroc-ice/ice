@@ -113,19 +113,17 @@ IceInternal::SUdpTransceiver::SUdpTransceiver(const InstancePtr& instance, const
     _udpTransceiver(instance, host, port, "sudp"),
     _instance(instance),
     _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
-    _sender(true)
+    _logger(instance->logger())
 {
     // Perform our handshake with the server
     connectControlChannel(host, port);
 }
 
-IceInternal::SUdpTransceiver::SUdpTransceiver(const InstancePtr& instance, int port) :
-    _udpTransceiver(instance, port, "sudp"),
+IceInternal::SUdpTransceiver::SUdpTransceiver(const InstancePtr& instance, int port, bool connect) :
+    _udpTransceiver(instance, port, connect, "sudp"),
     _instance(instance),
     _traceLevels(instance->traceLevels()),
-    _logger(instance->logger()),
-    _sender(false)
+    _logger(instance->logger())
 {
     // Build our control channel
     createControlChannel(port);

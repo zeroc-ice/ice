@@ -184,9 +184,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    throw ReferenceParseException(__FILE__, __LINE__);
 		}
-
 		facet = argument;
 		break;
 	    }
@@ -195,9 +194,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (!argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    throw ReferenceParseException(__FILE__, __LINE__);
 		}
-
 		mode = Reference::ModeTwoway;
 		break;
 	    }
@@ -206,9 +204,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (!argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    throw ReferenceParseException(__FILE__, __LINE__);
 		}
-
 		mode = Reference::ModeOneway;
 		break;
 	    }
@@ -217,9 +214,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (!argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    throw ReferenceParseException(__FILE__, __LINE__);
 		}
-
 		mode = Reference::ModeBatchOneway;
 		break;
 	    }
@@ -228,9 +224,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (!argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    throw ReferenceParseException(__FILE__, __LINE__);
 		}
-
 		mode = Reference::ModeDatagram;
 		break;
 	    }
@@ -239,9 +234,8 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (!argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    throw ReferenceParseException(__FILE__, __LINE__);
 		}
-
 		mode = Reference::ModeBatchDatagram;
 		break;
 	    }
@@ -250,20 +244,14 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (!argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    throw ReferenceParseException(__FILE__, __LINE__);
 		}
-
 		secure = true;
 		break;
 	    }
 
 	    default:
 	    {
-		if (!argument.empty())
-		{
-		    throw EndpointParseException(__FILE__, __LINE__);
-		}
-
 		throw ReferenceParseException(__FILE__, __LINE__);
 	    }
 	}

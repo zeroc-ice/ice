@@ -32,14 +32,7 @@ IceInternal::UdpTransceiver::close()
     if (_traceLevels->network >= 1)
     {
 	ostringstream s;
-	if (_sender)
-	{
-	    s << "stopping to send " << _protocolName << " packets to " << toString();
-	}
-	else
-	{
-	    s << "stopping to receive " << _protocolName << " packets at " << toString();
-	}
+	s << "closing udp connection\n" << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
@@ -56,7 +49,6 @@ IceInternal::UdpTransceiver::shutdown()
 void
 IceInternal::UdpTransceiver::write(Buffer& buf, int)
 {
-    assert(_sender);
     assert(buf.i == buf.b.begin());
 #ifndef NDEBUG
     const int packetSize = 64 * 1024; // TODO: configurable
@@ -81,7 +73,7 @@ repeat:
     if (_traceLevels->network >= 3)
     {
 	ostringstream s;
-	s << "sent " << ret << " bytes via " << _protocolName << " to " << toString();
+	s << "sent " << ret << " bytes via " << _protocolName << "\n" << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
     
@@ -92,7 +84,6 @@ repeat:
 void
 IceInternal::UdpTransceiver::read(Buffer& buf, int)
 {
-    assert(!_sender);
     assert(buf.i == buf.b.begin());
     const int packetSize = 64 * 1024; // TODO: configurable
     assert(packetSize >= static_cast<int>(buf.b.size())); // TODO: exception
@@ -100,7 +91,27 @@ IceInternal::UdpTransceiver::read(Buffer& buf, int)
     buf.i = buf.b.begin();
 
 repeat:
-    int ret = ::recv(_fd, buf.b.begin(), packetSize, 0);
+    int ret;
+    if (_connect)
+    {
+	//
+	// If we must connect, then we connect to the first peer that
+	// sends us a packet.
+	//
+	struct sockaddr_in peerAddr;
+	memset(&peerAddr, 0, sizeof(struct sockaddr_in));
+	socklen_t len = sizeof(peerAddr);
+	ret = recvfrom(_fd, buf.b.begin(), packetSize, 0, reinterpret_cast<struct sockaddr*>(&peerAddr), &len);
+	if (ret != SOCKET_ERROR)
+	{
+	    doConnect(_fd, peerAddr, -1);
+	    _connect = false; // We're connected now
+	}
+    }
+    else
+    {
+	ret = ::recv(_fd, buf.b.begin(), packetSize, 0);
+    }
     
     if (ret == SOCKET_ERROR)
     {
@@ -117,7 +128,7 @@ repeat:
     if (_traceLevels->network >= 3)
     {
 	ostringstream s;
-	s << "received " << ret << " bytes via " << _protocolName << " at " << toString();
+	s << "received " << ret << " bytes via " << _protocolName << "\n" << toString();
 	_logger->trace(_traceLevels->networkCat, s.str());
     }
 
@@ -128,16 +139,13 @@ repeat:
 string
 IceInternal::UdpTransceiver::toString() const
 {
-    return addrToString(_addr);
+    return fdToString(_fd);
 }
 
 bool
 IceInternal::UdpTransceiver::equivalent(const string& host, int port) const
 {
-    if (_sender)
-    {
-	return false;
-    }
+    assert(_incoming); // This equivalence test is only valid for incoming connections.
 
     struct sockaddr_in addr;
     getAddress(host.c_str(), port, addr);
@@ -170,7 +178,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
-    _sender(true),
+    _incoming(false),
+    _connect(true),
     _protocolName(protocolName)
 {
     try
@@ -179,11 +188,12 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
 
 	_fd = createSocket(true);
 	doConnect(_fd, _addr, -1);
+	_connect = false; // We're connected now
 	
 	if (_traceLevels->network >= 1)
 	{
 	    ostringstream s;
-	    s << "starting to send " << _protocolName << " packets to " << toString();
+	    s << "starting to send " << _protocolName << " packets\n" << toString();
 	    _logger->trace(_traceLevels->networkCat, s.str());
 	}
     }
@@ -194,11 +204,13 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
     }
 }
 
-IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, int port, const string& protocolName) :
+IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, int port, bool connect,
+					    const string& protocolName) :
     _instance(instance),
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
-    _sender(false),
+    _incoming(true),
+    _connect(connect),
     _protocolName(protocolName)
 {
     try
@@ -214,7 +226,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, int por
 	if (_traceLevels->network >= 1)
 	{
 	    ostringstream s;
-	    s << "starting to receive " << _protocolName << " packets at " << toString();
+	    s << "starting to receive " << _protocolName << " packets\n" << toString();
 	    _logger->trace(_traceLevels->networkCat, s.str());
 	}
     }

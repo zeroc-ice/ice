@@ -318,7 +318,6 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 		{
 		    throw EndpointParseException(__FILE__, __LINE__);
 		}
-
 		const_cast<string&>(_host) = argument;
 		break;
 	    }
@@ -329,7 +328,6 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 		{
 		    throw EndpointParseException(__FILE__, __LINE__);
 		}
-
 		const_cast<Int&>(_port) = atoi(argument.c_str());
 		break;
 	    }
@@ -340,7 +338,6 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 		{
 		    throw EndpointParseException(__FILE__, __LINE__);
 		}
-
 		const_cast<Int&>(_timeout) = atoi(argument.c_str());
 		break;
 	    }
@@ -385,7 +382,11 @@ string
 IceInternal::TcpEndpoint::toString() const
 {
     ostringstream s;
-    s << "tcp -h " << _host << " -p " << _port << " -t " << _timeout;
+    s << "tcp -h " << _host << " -p " << _port;
+    if (_timeout != -1)
+    {
+	s << " -t " << _timeout;
+    }
     return s.str();
 }
 
@@ -494,13 +495,19 @@ IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
 	return false;
     }
 
-    struct sockaddr_in laddr;
-    struct sockaddr_in raddr;
-    getAddress(_host.c_str(), _port, laddr);
-    getAddress(p->_host.c_str(), p->_port, raddr);
-    if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
+    if (_host != p->_host)
     {
-	return false;
+	//
+	// We do the most time-consuming part of the comparison last.
+	//
+	struct sockaddr_in laddr;
+	struct sockaddr_in raddr;
+	getAddress(_host.c_str(), _port, laddr);
+	getAddress(p->_host.c_str(), p->_port, raddr);
+	if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
+	{
+	    return false;
+	}
     }
 
     return true;
@@ -548,19 +555,6 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
 	return false;
     }
 
-    struct sockaddr_in laddr;
-    struct sockaddr_in raddr;
-    getAddress(_host.c_str(), _port, laddr);
-    getAddress(p->_host.c_str(), p->_port, raddr);
-    if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
-    {
-	return true;
-    }
-    else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
-    {
-	return false;
-    }
-
     if (_port < p->_port)
     {
 	return true;
@@ -577,6 +571,25 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
     else if (p->_timeout < _timeout)
     {
 	return false;
+    }
+
+    if (_host != p->_host)
+    {
+	//
+	// We do the most time-consuming part of the comparison last.
+	//
+	struct sockaddr_in laddr;
+	struct sockaddr_in raddr;
+	getAddress(_host.c_str(), _port, laddr);
+	getAddress(p->_host.c_str(), p->_port, raddr);
+	if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
+	{
+	    return true;
+	}
+	else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
+	{
+	    return false;
+	}
     }
 
     return false;
@@ -620,36 +633,47 @@ IceInternal::SslEndpoint::SslEndpoint(const InstancePtr& instance, const string&
 	    throw EndpointParseException(__FILE__, __LINE__);
 	}
 
-	beg = str.find_first_not_of(delim, end);
-	if (beg == string::npos)
+	string argument;
+	string::size_type argumentBeg = str.find_first_not_of(delim, end);
+	if (argumentBeg != string::npos && str[argumentBeg] != '-')
 	{
-	    throw EndpointParseException(__FILE__, __LINE__);
+	    beg = argumentBeg;
+	    end = str.find_first_of(delim, beg);
+	    if (end == string::npos)
+	    {
+		end = str.length();
+	    }
+	    argument = str.substr(beg, end - beg);
 	}
-	
-	end = str.find_first_of(delim, beg);
-	if (end == string::npos)
-	{
-	    end = str.length();
-	}
-	
-	string argument = str.substr(beg, end - beg);
 
 	switch (option[1])
 	{
 	    case 'h':
 	    {
+		if (argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
 		const_cast<string&>(_host) = argument;
 		break;
 	    }
 
 	    case 'p':
 	    {
+		if (argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
 		const_cast<Int&>(_port) = atoi(argument.c_str());
 		break;
 	    }
 
 	    case 't':
 	    {
+		if (argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
 		const_cast<Int&>(_timeout) = atoi(argument.c_str());
 		break;
 	    }
@@ -694,7 +718,11 @@ string
 IceInternal::SslEndpoint::toString() const
 {
     ostringstream s;
-    s << "ssl -h " << _host << " -p " << _port << " -t " << _timeout;
+    s << "ssl -h " << _host << " -p " << _port;
+    if (_timeout != -1)
+    {
+	s << " -t " << _timeout;
+    }
     return s.str();
 }
 
@@ -803,13 +831,19 @@ IceInternal::SslEndpoint::operator==(const Endpoint& r) const
 	return false;
     }
 
-    struct sockaddr_in laddr;
-    struct sockaddr_in raddr;
-    getAddress(_host.c_str(), _port, laddr);
-    getAddress(p->_host.c_str(), p->_port, raddr);
-    if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
+    if (_host != p->_host)
     {
-	return false;
+	//
+	// We do the most time-consuming part of the comparison last.
+	//
+	struct sockaddr_in laddr;
+	struct sockaddr_in raddr;
+	getAddress(_host.c_str(), _port, laddr);
+	getAddress(p->_host.c_str(), p->_port, raddr);
+	if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
+	{
+	    return false;
+	}
     }
 
     return true;
@@ -857,19 +891,6 @@ IceInternal::SslEndpoint::operator<(const Endpoint& r) const
 	return false;
     }
 
-    struct sockaddr_in laddr;
-    struct sockaddr_in raddr;
-    getAddress(_host.c_str(), _port, laddr);
-    getAddress(p->_host.c_str(), p->_port, raddr);
-    if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
-    {
-	return true;
-    }
-    else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
-    {
-	return false;
-    }
-
     if (_port < p->_port)
     {
 	return true;
@@ -888,19 +909,40 @@ IceInternal::SslEndpoint::operator<(const Endpoint& r) const
 	return false;
     }
 
+    if (_host != p->_host)
+    {
+	//
+	// We do the most time-consuming part of the comparison last.
+	//
+	struct sockaddr_in laddr;
+	struct sockaddr_in raddr;
+	getAddress(_host.c_str(), _port, laddr);
+	getAddress(p->_host.c_str(), p->_port, raddr);
+	if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
+	{
+	    return true;
+	}
+	else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
+	{
+	    return false;
+	}
+    }
+
     return false;
 }
 
 IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string& ho, Int po) :
     _instance(instance),
     _host(ho),
-    _port(po)
+    _port(po),
+    _connect(false)
 {
 }
 
 IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string& str) :
     _instance(instance),
-    _port(0)
+    _port(0),
+    _connect(false)
 {
     static const string delim = " \t\n\r";
 
@@ -927,31 +969,48 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 	    throw EndpointParseException(__FILE__, __LINE__);
 	}
 
-	beg = str.find_first_not_of(delim, end);
-	if (beg == string::npos)
+	string argument;
+	string::size_type argumentBeg = str.find_first_not_of(delim, end);
+	if (argumentBeg != string::npos && str[argumentBeg] != '-')
 	{
-	    throw EndpointParseException(__FILE__, __LINE__);
+	    beg = argumentBeg;
+	    end = str.find_first_of(delim + ":", beg);
+	    if (end == string::npos)
+	    {
+		end = str.length();
+	    }
+	    argument = str.substr(beg, end - beg);
 	}
-	
-	end = str.find_first_of(delim, beg);
-	if (end == string::npos)
-	{
-	    end = str.length();
-	}
-	
-	string argument = str.substr(beg, end - beg);
 
 	switch (option[1])
 	{
 	    case 'h':
 	    {
+		if (argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
 		const_cast<string&>(_host) = argument;
 		break;
 	    }
 
 	    case 'p':
 	    {
+		if (argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
 		const_cast<Int&>(_port) = atoi(argument.c_str());
+		break;
+	    }
+
+	    case 'c':
+	    {
+		if (!argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+		const_cast<bool&>(_connect) = true;
 		break;
 	    }
 
@@ -970,11 +1029,13 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 
 IceInternal::UdpEndpoint::UdpEndpoint(BasicStream* s) :
     _instance(s->instance()),
-    _port(0)
+    _port(0),
+    _connect(false)
 {
     s->startReadEncaps();
     s->read(const_cast<string&>(_host));
     s->read(const_cast<Int&>(_port));
+    s->read(const_cast<bool&>(_connect));
     s->endReadEncaps();
 }
 
@@ -985,6 +1046,7 @@ IceInternal::UdpEndpoint::streamWrite(BasicStream* s) const
     s->startWriteEncaps();
     s->write(_host);
     s->write(_port);
+    s->write(_connect);
     s->endWriteEncaps();
 }
 
@@ -993,6 +1055,10 @@ IceInternal::UdpEndpoint::toString() const
 {
     ostringstream s;
     s << "udp -h " << _host << " -p " << _port;
+    if (_connect)
+    {
+	s << " -c";
+    }
     return s.str();
 }
 
@@ -1035,7 +1101,7 @@ IceInternal::UdpEndpoint::clientTransceiver() const
 TransceiverPtr
 IceInternal::UdpEndpoint::serverTransceiver(EndpointPtr& endp) const
 {
-    UdpTransceiver* p = new UdpTransceiver(_instance, _port);
+    UdpTransceiver* p = new UdpTransceiver(_instance, _port, _connect);
     endp = new UdpEndpoint(_instance, _host, p->effectivePort());
     return p;
 }
@@ -1089,13 +1155,24 @@ IceInternal::UdpEndpoint::operator==(const Endpoint& r) const
 	return false;
     }
 
-    struct sockaddr_in laddr;
-    struct sockaddr_in raddr;
-    getAddress(_host.c_str(), _port, laddr);
-    getAddress(p->_host.c_str(), p->_port, raddr);
-    if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
+    if (_connect != p->_connect)
     {
 	return false;
+    }
+
+    if (_host != p->_host)
+    {
+	//
+	// We do the most time-consuming part of the comparison last.
+	//
+	struct sockaddr_in laddr;
+	struct sockaddr_in raddr;
+	getAddress(_host.c_str(), _port, laddr);
+	getAddress(p->_host.c_str(), p->_port, raddr);
+	if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
+	{
+	    return false;
+	}
     }
 
     return true;
@@ -1143,19 +1220,6 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
 	return false;
     }
 
-    struct sockaddr_in laddr;
-    struct sockaddr_in raddr;
-    getAddress(_host.c_str(), _port, laddr);
-    getAddress(p->_host.c_str(), p->_port, raddr);
-    if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
-    {
-	return true;
-    }
-    else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
-    {
-	return false;
-    }
-
     if (_port < p->_port)
     {
 	return true;
@@ -1165,19 +1229,49 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
 	return false;
     }
 
+    if (!_connect && p->_connect)
+    {
+	return true;
+    }
+    else if (!p->_connect && _connect)
+    {
+	return false;
+    }
+
+    if (_host != p->_host)
+    {
+	//
+	// We do the most time-consuming part of the comparison last.
+	//
+	struct sockaddr_in laddr;
+	struct sockaddr_in raddr;
+	getAddress(_host.c_str(), _port, laddr);
+	getAddress(p->_host.c_str(), p->_port, raddr);
+	if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
+	{
+	    return true;
+	}
+	else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
+	{
+	    return false;
+	}
+    }
+
     return false;
 }
 
 IceInternal::SUdpEndpoint::SUdpEndpoint(const InstancePtr& instance, const string& ho, Int po) :
     _instance(instance),
     _host(ho),
-    _port(po)
+    _port(po),
+    _connect(false)
 {
 }
 
 IceInternal::SUdpEndpoint::SUdpEndpoint(const InstancePtr& instance, const string& str) :
     _instance(instance),
-    _port(0)
+    _port(0),
+    _connect(false)
 {
     static const string delim = " \t\n\r";
 
@@ -1204,31 +1298,48 @@ IceInternal::SUdpEndpoint::SUdpEndpoint(const InstancePtr& instance, const strin
 	    throw EndpointParseException(__FILE__, __LINE__);
 	}
 
-	beg = str.find_first_not_of(delim, end);
-	if (beg == string::npos)
+	string argument;
+	string::size_type argumentBeg = str.find_first_not_of(delim, end);
+	if (argumentBeg != string::npos && str[argumentBeg] != '-')
 	{
-	    throw EndpointParseException(__FILE__, __LINE__);
+	    beg = argumentBeg;
+	    end = str.find_first_of(delim + ":", beg);
+	    if (end == string::npos)
+	    {
+		end = str.length();
+	    }
+	    argument = str.substr(beg, end - beg);
 	}
-	
-	end = str.find_first_of(delim, beg);
-	if (end == string::npos)
-	{
-	    end = str.length();
-	}
-	
-	string argument = str.substr(beg, end - beg);
 
 	switch (option[1])
 	{
 	    case 'h':
 	    {
+		if (argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
 		const_cast<string&>(_host) = argument;
 		break;
 	    }
 
 	    case 'p':
 	    {
+		if (argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
 		const_cast<Int&>(_port) = atoi(argument.c_str());
+		break;
+	    }
+
+	    case 'c':
+	    {
+		if (!argument.empty())
+		{
+		    throw EndpointParseException(__FILE__, __LINE__);
+		}
+		const_cast<bool&>(_connect) = true;
 		break;
 	    }
 
@@ -1247,11 +1358,13 @@ IceInternal::SUdpEndpoint::SUdpEndpoint(const InstancePtr& instance, const strin
 
 IceInternal::SUdpEndpoint::SUdpEndpoint(BasicStream* s) :
     _instance(s->instance()),
-    _port(0)
+    _port(0),
+    _connect(false)
 {
     s->startReadEncaps();
     s->read(const_cast<string&>(_host));
     s->read(const_cast<Int&>(_port));
+    s->read(const_cast<bool&>(_connect));
     s->endReadEncaps();
 }
 
@@ -1262,6 +1375,7 @@ IceInternal::SUdpEndpoint::streamWrite(BasicStream* s) const
     s->startWriteEncaps();
     s->write(_host);
     s->write(_port);
+    s->write(_connect);
     s->endWriteEncaps();
 }
 
@@ -1270,6 +1384,10 @@ IceInternal::SUdpEndpoint::toString() const
 {
     ostringstream s;
     s << "sudp -h " << _host << " -p " << _port;
+    if (_connect)
+    {
+	s << " -c";
+    }
     return s.str();
 }
 
@@ -1313,8 +1431,8 @@ IceInternal::SUdpEndpoint::clientTransceiver() const
 TransceiverPtr
 IceInternal::SUdpEndpoint::serverTransceiver(EndpointPtr& endp) const
 {
-//    SUdpTransceiver* p = new SUdpTransceiver(_instance, _port);
-    UdpTransceiver* p = new UdpTransceiver(_instance, _port);
+//    SUdpTransceiver* p = new SUdpTransceiver(_instance, _port, _connect);
+    UdpTransceiver* p = new UdpTransceiver(_instance, _port, _connect);
     endp = new SUdpEndpoint(_instance, _host, p->effectivePort());
     return p;
 }
@@ -1370,13 +1488,24 @@ IceInternal::SUdpEndpoint::operator==(const Endpoint& r) const
 	return false;
     }
 
-    struct sockaddr_in laddr;
-    struct sockaddr_in raddr;
-    getAddress(_host.c_str(), _port, laddr);
-    getAddress(p->_host.c_str(), p->_port, raddr);
-    if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
+    if (_connect != p->_connect)
     {
 	return false;
+    }
+
+    if (_host != p->_host)
+    {
+	//
+	// We do the most time-consuming part of the comparison last.
+	//
+	struct sockaddr_in laddr;
+	struct sockaddr_in raddr;
+	getAddress(_host.c_str(), _port, laddr);
+	getAddress(p->_host.c_str(), p->_port, raddr);
+	if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
+	{
+	    return false;
+	}
     }
 
     return true;
@@ -1422,19 +1551,6 @@ IceInternal::SUdpEndpoint::operator<(const Endpoint& r) const
 	return false;
     }
 
-    struct sockaddr_in laddr;
-    struct sockaddr_in raddr;
-    getAddress(_host.c_str(), _port, laddr);
-    getAddress(p->_host.c_str(), p->_port, raddr);
-    if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
-    {
-	return true;
-    }
-    else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
-    {
-	return false;
-    }
-
     if (_port < p->_port)
     {
 	return true;
@@ -1442,6 +1558,34 @@ IceInternal::SUdpEndpoint::operator<(const Endpoint& r) const
     else if (p->_port < _port)
     {
 	return false;
+    }
+
+    if (!_connect && p->_connect)
+    {
+	return true;
+    }
+    else if (!p->_connect && _connect)
+    {
+	return false;
+    }
+
+    if (_host != p->_host)
+    {
+	//
+	// We do the most time-consuming part of the comparison last.
+	//
+	struct sockaddr_in laddr;
+	struct sockaddr_in raddr;
+	getAddress(_host.c_str(), _port, laddr);
+	getAddress(p->_host.c_str(), p->_port, raddr);
+	if (laddr.sin_addr.s_addr < raddr.sin_addr.s_addr)
+	{
+	    return true;
+	}
+	else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
+	{
+	    return false;
+	}
     }
 
     return false;

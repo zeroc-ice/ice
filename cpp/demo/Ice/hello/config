@@ -59,6 +59,6 @@ Ice.Security.Ssl.Config=sslconfig.xml
 #
 # If we use a router
 #
-Glacier.Router.Endpoints=tcp -p 10005
-Glacier.Client.Endpoints=tcp -p 10010:udp -p 10010:ssl -p 10011
-Ice.DefaultRouter=router:default -p 10005
+#Glacier.Router.Endpoints=tcp -p 10005
+#Glacier.Client.Endpoints=tcp -p 10010:udp -p 10010:ssl -p 10011
+#Ice.DefaultRouter=router:default -p 10005

@@ -267,6 +267,7 @@ private:
     const InstancePtr _instance;
     const std::string _host;
     const ::Ice::Int _port;
+    const bool _connect;
 };
 
 class SUdpEndpoint : public Endpoint
@@ -303,6 +304,7 @@ private:
     const InstancePtr _instance;
     const std::string _host;
     const ::Ice::Int _port;
+    const bool _connect;
 };
 
 }
