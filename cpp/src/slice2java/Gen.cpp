@@ -20,7 +20,7 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
-static string					// Should be an anonymous namespace, but VC++ 6 can't handle that.
+static string // Should be an anonymous namespace, but VC++ 6 can't handle that.
 sliceModeToIceMode(const OperationPtr& op)
 {
     string mode;
@@ -79,7 +79,59 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& scope)
 }
 
 string
-Slice::JavaVisitor::getArgs(const OperationPtr& op, const string& scope)
+Slice::JavaVisitor::getParamsAMI(const OperationPtr& op, const string& scope)
+{
+    ContainerPtr container = op->container();
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    string classNameAMI = "AMI_" + fixKwd(cl->name());
+
+    string params = classNameAMI + " __cb";
+    ParamDeclList paramList = op->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    {
+	if(!(*q)->isOutParam())
+	{
+	    string typeString = typeToString((*q)->type(), TypeModeIn, scope);
+	    params += ", ";
+	    params += typeString;
+	    params += ' ';
+	    params += fixKwd((*q)->name());
+	}
+    }
+    return params;
+}
+
+string
+Slice::JavaVisitor::getParamsAMICB(const OperationPtr& op, const string& scope)
+{
+    string params;
+    TypePtr ret = op->returnType();
+    if(ret)
+    {
+	string retS = typeToString(ret, TypeModeIn, scope);
+	params += retS;
+	params += " __ret";
+    }
+    ParamDeclList paramList = op->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    {
+	if((*q)->isOutParam())
+	{
+	    if(!params.empty())
+	    {
+		params += ", ";
+	    }
+	    string typeString = typeToString((*q)->type(), TypeModeIn, scope);
+	    params += typeString;
+	    params += ' ';
+	    params += fixKwd((*q)->name());
+	}
+    }
+    return params;
+}
+
+string
+Slice::JavaVisitor::getArgs(const OperationPtr& op)
 {
     string args;
     ParamDeclList paramList = op->parameters();
@@ -90,6 +142,46 @@ Slice::JavaVisitor::getArgs(const OperationPtr& op, const string& scope)
             args += ", ";
         }
         args += fixKwd((*q)->name());
+    }
+    return args;
+}
+
+string
+Slice::JavaVisitor::getArgsAMI(const OperationPtr& op)
+{
+    string args = "__cb";
+    ParamDeclList paramList = op->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    {
+	if(!(*q)->isOutParam())
+	{
+            args += ", ";
+	    args += fixKwd((*q)->name());
+	}
+    }
+    return args;
+}
+
+string
+Slice::JavaVisitor::getArgsAMICB(const OperationPtr& op)
+{
+    string args;
+    TypePtr ret = op->returnType();
+    if(ret)
+    {
+	args += "__ret";
+    }
+    ParamDeclList paramList = op->parameters();
+    for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    {
+	if((*q)->isOutParam())
+	{
+	    if(!args.empty())
+	    {
+		args += ", ";
+	    }
+	    args += fixKwd((*q)->name());
+	}
     }
     return args;
 }
@@ -119,8 +211,7 @@ Slice::JavaVisitor::writeThrowsClause(const string& scope, const ExceptionList& 
     if(throws.size() - localCount > 0)
     {
         out.inc();
-        out << nl;
-        out << "throws ";
+        out << nl << "throws ";
         out.useCurrentPosAsIndent();
         ExceptionList::const_iterator r;
         int count = 0;
@@ -146,8 +237,7 @@ Slice::JavaVisitor::writeDelegateThrowsClause(const string& scope, const Excepti
 {
     Output& out = output();
     out.inc();
-    out << nl;
-    out << "throws ";
+    out << nl << "throws ";
     out.useCurrentPosAsIndent();
     out << "IceInternal.NonRepeatable";
 
@@ -195,14 +285,12 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
             }
             case Builtin::KindFloat:
             {
-                out << nl << "__h = 5 * __h + "
-                    << "java.lang.Float.floatToIntBits(" << name << ");";
+                out << nl << "__h = 5 * __h + java.lang.Float.floatToIntBits(" << name << ");";
                 break;
             }
             case Builtin::KindDouble:
             {
-                out << nl << "__h = 5 * __h + (int)"
-                    << "java.lang.Double.doubleToLongBits(" << name << ");";
+                out << nl << "__h = 5 * __h + (int)java.lang.Double.doubleToLongBits(" << name << ");";
                 break;
             }
             case Builtin::KindString:
@@ -260,8 +348,8 @@ Slice::JavaVisitor::writeHashCode(Output& out, const TypePtr& type, const string
         }
         else
         {
-            out << nl << "for(int __i" << iter << " = 0; __i" << iter
-                << " < " << name << ".length; __i" << iter << "++)";
+            out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < " << name << ".length; __i" << iter
+		<< "++)";
             out << sb;
             ostringstream elem;
             elem << name << "[__i" << iter << ']';
@@ -314,36 +402,21 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     }
     out << eb << ';';
 
-    //
-    // ice_isA
-    //
-    out << sp << nl << "public boolean"
-        << nl << "ice_isA(String s, Ice.Current current)";
+    out << sp << nl << "public boolean" << nl << "ice_isA(String s, Ice.Current current)";
     out << sb;
     out << nl << "return java.util.Arrays.binarySearch(__ids, s) >= 0;";
     out << eb;
 
-    //
-    // ice_ids
-    //
-    out << sp << nl << "public String[]"
-        << nl << "ice_ids(Ice.Current current)";
+    out << sp << nl << "public String[]" << nl << "ice_ids(Ice.Current current)";
     out << sb;
     out << nl << "return __ids;";
     out << eb;
 
-    //
-    // ice_id
-    //
-    out << sp << nl << "public String"
-        << nl << "ice_id(Ice.Current current)";
+    out << sp << nl << "public String" << nl << "ice_id(Ice.Current current)";
     out << sb;
     out << nl << "return __ids[" << scopedPos << "];";
     out << eb;
 
-    //
-    // ice_staticId
-    //
     out << sp << nl << "public static String" << nl << "ice_staticId()";
     out << sb;
     out << nl << "return __ids[" << scopedPos << "];";
@@ -358,14 +431,14 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     OperationList::const_iterator r;
     for(r = ops.begin(); r != ops.end(); ++r)
     {
-        OperationPtr op = (*r);
+        OperationPtr op = *r;
         ContainerPtr container = op->container();
         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
         assert(cl);
 
         string opName = fixKwd(op->name());
-        out << sp << nl << "public static IceInternal.DispatchStatus"
-            << nl << "___" << opName << "(" << name << " __obj, IceInternal.Incoming __in, Ice.Current __current)";
+        out << sp << nl << "public static IceInternal.DispatchStatus" << nl << "___" << opName << '(' << name
+	    << " __obj, IceInternal.Incoming __in, Ice.Current __current)";
         out << sb;
 
         TypePtr ret = op->returnType();
@@ -486,9 +559,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << eb;
     }
 
-    //
-    // __dispatch
-    //
     OperationList allOps = p->allOperations();
     if(!allOps.empty())
     {
@@ -517,8 +587,8 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         }
         out << eb << ';';
 
-        out << sp << nl << "public IceInternal.DispatchStatus"
-            << nl << "__dispatch(IceInternal.Incoming in, Ice.Current current)";
+        out << sp << nl << "public IceInternal.DispatchStatus" << nl
+	    << "__dispatch(IceInternal.Incoming in, Ice.Current current)";
         out << sb;
         out << nl << "int pos = java.util.Arrays.binarySearch(__all, current.operation);";
         out << nl << "if(pos < 0)";
@@ -644,6 +714,9 @@ Slice::Gen::generate(const UnitPtr& unit)
 
     DispatcherVisitor dispatcherVisitor(_dir, _package);
     unit->visit(&dispatcherVisitor);
+
+    AsyncVisitor asyncVisitor(_dir, _package);
+    unit->visit(&asyncVisitor);
 }
 
 void
@@ -754,8 +827,7 @@ Slice::Gen::OpsVisitor::visitOperation(const OperationPtr& p)
     Output& out = output();
 
     out << sp;
-    out << nl;
-    out << retS << ' ' << name << '(' << params;
+    out << nl << retS << ' ' << name << '(' << params;
     if(!cl->isLocal())
     {
         if(!params.empty())
@@ -871,11 +943,10 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         string retS = typeToString(ret, TypeModeReturn, scope);
 
         string params = getParams((*r), scope);
-        string args = getArgs((*r), scope);
+        string args = getArgs(*r);
 
         out << sp;
-        out << nl;
-        out << "public " << retS << nl << opName << '(' << params;
+        out << nl << "public " << retS << nl << opName << '(' << params;
         if(!p->isLocal())
         {
             if(!params.empty())
@@ -1056,8 +1127,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         if(p->hasDataMembers() || baseHasDataMembers)
         {
-            out << sp << nl << "public int"
-                << nl << "hashCode()";
+            out << sp << nl << "public int" << nl << "hashCode()";
             out << sb;
             if(p->hasDataMembers())
             {
@@ -1117,20 +1187,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     if(!p->isInterface() && !p->isLocal())
     {
-        //
-        // __dispatch, etc.
-        //
         writeDispatch(out, p);
 
         DataMemberList members = p->dataMembers();
         DataMemberList::const_iterator d;
         int iter;
 
-        //
-        // __write
-        //
-        out << sp << nl << "public void"
-            << nl << "__write(IceInternal.BasicStream __os)";
+        out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
         out << sb;
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
@@ -1141,11 +1204,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "super.__write(__os);";
         out << eb;
 
-        //
-        // __read
-        //
-        out << sp << nl << "public void"
-            << nl << "__read(IceInternal.BasicStream __is)";
+        out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";
         out << sb;
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
@@ -1156,9 +1215,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "super.__read(__is);";
         out << eb;
 
-        //
-        // __marshal
-        //
         out << sp << nl << "public void" << nl << "__marshal(Ice.Stream __os)";
         out << sb;
         out << nl << "super.__marshal(__os);"; // Base must come first (due to schema rules).
@@ -1172,9 +1228,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         out << eb;
 
-        //
-        // __unmarshal
-        //
         out << sp << nl << "public void" << nl << "__unmarshal(Ice.Stream __is)";
         out << sb;
         out << nl << "super.__unmarshal(__is);"; // Base must come first (due to schema rules).
@@ -1188,9 +1241,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         out << eb;
 
-        //
-        // ice_unmarshal
-        //
         out << sp << nl << "public static Ice.Object" << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
         out << sb;
         out << nl << name << " __val;";
@@ -1300,11 +1350,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         DataMemberList::const_iterator d;
         int iter;
 
-        //
-        // __write
-        //
-        out << sp << nl << "public void"
-            << nl << "__write(IceInternal.BasicStream __os)";
+        out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
         out << sb;
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
@@ -1318,11 +1364,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         out << eb;
 
-        //
-        // __read
-        //
-        out << sp << nl << "public void"
-            << nl << "__read(IceInternal.BasicStream __is)";
+        out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";
         out << sb;
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
@@ -1336,11 +1378,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         out << eb;
 
-        //
-        // __marshal
-        //
-        out << sp << nl << "public void"
-            << nl << "__marshal(Ice.Stream __os)";
+        out << sp << nl << "public void" << nl << "__marshal(Ice.Stream __os)";
         out << sb;
         if(base)
         {
@@ -1356,11 +1394,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         out << eb;
 
-        //
-        // __unmarshal
-        //
-        out << sp << nl << "public void"
-            << nl << "__unmarshal(Ice.Stream __is)";
+        out << sp << nl << "public void" << nl << "__unmarshal(Ice.Stream __is)";
         out << sb;
         if(base)
         {
@@ -1376,9 +1410,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
         out << eb;
 
-        //
-        // ice_unmarshal
-        //
         out << sp << nl << "public void" << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
         out << sb;
         out << nl << "__is.startReadException(__name);";
@@ -1424,11 +1455,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     string typeS = typeToString(p, TypeModeIn, scope);
 
-    //
-    // equals
-    //
-    out << sp << nl << "public boolean"
-        << nl << "equals(java.lang.Object rhs)";
+    out << sp << nl << "public boolean" << nl << "equals(java.lang.Object rhs)";
     out << sb;
     out << nl << typeS << " _r = null;";
     out << nl << "try";
@@ -1456,7 +1483,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
                 case Builtin::KindFloat:
                 case Builtin::KindDouble:
                 {
-                    out << nl << "if(" << memberName << " != _r." << memberName << ")";
+                    out << nl << "if(" << memberName << " != _r." << memberName << ')';
                     out << sb;
                     out << nl << "return false;";
                     out << eb;
@@ -1489,11 +1516,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << sp << nl << "return false;";
     out << eb;
 
-    //
-    // hashCode
-    //
-    out << sp << nl << "public int"
-        << nl << "hashCode()";
+    out << sp << nl << "public int" << nl << "hashCode()";
     out << sb;
     out << nl << "int __h = 0;";
     iter = 0;
@@ -1506,11 +1529,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << nl << "return __h;";
     out << eb;
 
-    //
-    // clone - need to override it to make it public
-    //
-    out << sp << nl << "public java.lang.Object"
-        << nl << "clone()";
+    out << sp << nl << "public java.lang.Object" << nl << "clone()";
     out.inc();
     out << nl << "throws java.lang.CloneNotSupportedException";
     out.dec();
@@ -1520,10 +1539,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     if(!p->isLocal())
     {
-        //
-        // __write
-        //
-        out << sp << nl << "public final void" << nl << "__write(IceInternal.BasicStream __os)";
+        out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
         out << sb;
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
@@ -1533,10 +1549,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         out << eb;
 
-        //
-        // __read
-        //
-        out << sp << nl << "public final void" << nl << "__read(IceInternal.BasicStream __is)";
+        out << sp << nl << "public void" << nl << "__read(IceInternal.BasicStream __is)";
         out << sb;
         iter = 0;
         for(d = members.begin(); d != members.end(); ++d)
@@ -1546,11 +1559,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         out << eb;
 
-        //
-        // ice_marshal
-        //
-        out << sp << nl << "public final void"
-            << nl << "ice_marshal(String __name, Ice.Stream __os)";
+        out << sp << nl << "public void" << nl << "ice_marshal(String __name, Ice.Stream __os)";
         out << sb;
         out << nl << "__os.startWriteStruct(__name);";
         iter = 0;
@@ -1564,11 +1573,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << nl << "__os.endWriteStruct();";
         out << eb;
 
-        //
-        // ice_unmarshal
-        //
-        out << sp << nl << "public final void"
-            << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
+        out << sp << nl << "public void" << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
         out << sb;
         out << nl << "__is.startReadStruct(__name);";
         iter = 0;
@@ -1618,18 +1623,15 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp << nl << "public final class " << name;
     out << sb;
-    out << nl << "private static " << name << "[] __values = new "
-        << name << "[" << sz << "];";
+    out << nl << "private static " << name << "[] __values = new " << name << "[" << sz << "];";
     out << nl << "private int __value;";
     out << sp;
     int n;
     for(en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
     {
         string member = fixKwd((*en)->name());
-        out << nl << "public static final int _" << member << " = "
-            << n << ';';
-        out << nl << "public static final " << name << ' ' << member
-            << " = new " << name << "(_" << member << ");";
+        out << nl << "public static final int _" << member << " = " << n << ';';
+        out << nl << "public static final " << name << ' ' << member << " = new " << name << "(_" << member << ");";
     }
 
     out << sp << nl << "public static " << name << nl << "convert(int val)";
@@ -1651,11 +1653,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     if(!p->isLocal())
     {
-        //
-        // __write
-        //
-        out << sp << nl << "public final void" << nl
-            << "__write(IceInternal.BasicStream __os)";
+        out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
         out << sb;
         if(sz <= 0x7f)
         {
@@ -1671,11 +1669,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         }
         out << eb;
 
-        //
-        // __read
-        //
-        out << sp << nl << "public static " << name << nl
-            << "__read(IceInternal.BasicStream __is)";
+        out << sp << nl << "public static " << name << nl << "__read(IceInternal.BasicStream __is)";
         out << sb;
         if(sz <= 0x7f)
         {
@@ -1705,17 +1699,11 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         }
         out << eb << ';';
 
-        //
-        // ice_marshal
-        //
-        out << sp << nl << "public final void" << nl << "ice_marshal(String __name, Ice.Stream __os)";
+        out << sp << nl << "public void" << nl << "ice_marshal(String __name, Ice.Stream __os)";
         out << sb;
         out << nl << "__os.writeEnum(__name, __T, __value);";
         out << eb;
 
-        //
-        // ice_unmarshal
-        //
         out << sp << nl << "public static " << name << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
         out << sb;
         out << nl << "int __val = __is.readEnum(__name, __T);";
@@ -1843,7 +1831,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     {
 	out << p->value();
     }
-    out << ";" << eb;
+    out << ';' << eb;
     close();
 }
 
@@ -1971,8 +1959,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     // proxy interface, and provides static helper methods for use
     // by applications (e.g., checkedCast, etc.)
     //
-    out << sp << nl << "public final class " << name
-        << "PrxHelper extends Ice.ObjectPrxHelper implements " << name
+    out << sp << nl << "public final class " << name << "PrxHelper extends Ice.ObjectPrxHelper implements " << name
         << "Prx";
 
     out << sb;
@@ -1982,13 +1969,13 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     OperationList::const_iterator r;
     for(r = ops.begin(); r != ops.end(); ++r)
     {
-        OperationPtr op = (*r);
+        OperationPtr op = *r;
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, scope);
 
         string params = getParams(op, scope);
-        string args = getArgs(op, scope);
+        string args = getArgs(op);
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -1999,9 +1986,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         // context parameter
         //
         out << sp;
-        out << nl;
-        out << "public final " << retS << nl << opName << '(' << params
-            << ")";
+        out << nl << "public " << retS << nl << opName << '(' << params << ')';
         writeThrowsClause(scope, throws);
         out << sb;
         out << nl;
@@ -2018,8 +2003,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
 
         out << sp;
-        out << nl;
-        out << "public final " << retS << nl << opName << '(' << params;
+        out << nl << "public " << retS << nl << opName << '(' << params;
         if(!params.empty())
         {
             out << ", ";
@@ -2033,8 +2017,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "try";
         out << sb;
         out << nl << "Ice._ObjectDel __delBase = __getDelegate();";
-        out << nl << '_' << name << "Del __del = (_" << name
-            << "Del)__delBase;";
+        out << nl << '_' << name << "Del __del = (_" << name << "Del)__delBase;";
         out << nl;
         if(ret)
         {
@@ -2068,13 +2051,46 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << eb;
         out << eb;
+
+	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
+	{
+	    string paramsAMI = getParamsAMI(op, scope);
+	    string argsAMI = getArgsAMI(op);
+	    
+	    //
+	    // Write two versions of the operation - with and without a
+	    // context parameter
+	    //
+	    out << sp;
+	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ')';
+	    out << sb;
+	    out << nl << opName << "_async(" << argsAMI << ", null);";
+	    out << eb;
+
+	    out << sp;
+	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ", java.util.Map __context)";
+	    out << sb;
+	    out << nl << "int __cnt = 0;";
+	    out << nl << "while(true)";
+	    out << sb;
+	    out << nl << "try";
+	    out << sb;
+	    out << nl << "Ice._ObjectDel __delBase = __getDelegate();";
+	    out << nl << '_' << name << "Del __del = (_" << name
+		<< "Del)__delBase;";
+	    out << nl << "__del." << opName << "_async(" << argsAMI << ", __context);";
+            out << nl << "return;";
+	    out << eb;
+	    out << nl << "catch(Ice.LocalException __ex)";
+	    out << sb;
+	    out << nl << "__cnt = __handleException(__ex, __cnt);";
+	    out << eb;
+	    out << eb;
+	    out << eb;
+	}
     }
 
-    //
-    // checkedCast
-    //
-    out << sp << nl << "public static " << name << "Prx"
-        << nl << "checkedCast(Ice.ObjectPrx b)";
+    out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx b)";
     out << sb;
     out << nl << name << "Prx d = null;";
     out << nl << "if(b != null)";
@@ -2096,8 +2112,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return d;";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx"
-        << nl << "checkedCast(Ice.ObjectPrx b, String f)";
+    out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx b, String f)";
     out << sb;
     out << nl << name << "Prx d = null;";
     out << nl << "if(b != null)";
@@ -2119,11 +2134,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return d;";
     out << eb;
 
-    //
-    // uncheckedCast
-    //
-    out << sp << nl << "public static " << name << "Prx"
-        << nl << "uncheckedCast(Ice.ObjectPrx b)";
+    out << sp << nl << "public static " << name << "Prx" << nl << "uncheckedCast(Ice.ObjectPrx b)";
     out << sb;
     out << nl << name << "Prx d = null;";
     out << nl << "if(b != null)";
@@ -2135,8 +2146,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return d;";
     out << eb;
 
-    out << sp << nl << "public static " << name << "Prx"
-        << nl << "uncheckedCast(Ice.ObjectPrx b, String f)";
+    out << sp << nl << "public static " << name << "Prx" << nl << "uncheckedCast(Ice.ObjectPrx b, String f)";
     out << sb;
     out << nl << name << "Prx d = null;";
     out << nl << "if(b != null)";
@@ -2149,38 +2159,22 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return d;";
     out << eb;
 
-    //
-    // __createDelegateM
-    //
-    out << sp << nl << "protected Ice._ObjectDelM"
-        << nl << "__createDelegateM()";
+    out << sp << nl << "protected Ice._ObjectDelM" << nl << "__createDelegateM()";
     out << sb;
     out << nl << "return new _" << name << "DelM();";
     out << eb;
 
-    //
-    // __createDelegateD
-    //
-    out << sp << nl << "protected Ice._ObjectDelD"
-        << nl << "__createDelegateD()";
+    out << sp << nl << "protected Ice._ObjectDelD" << nl << "__createDelegateD()";
     out << sb;
     out << nl << "return new _" << name << "DelD();";
     out << eb;
 
-    //
-    // __write
-    //
-    out << sp << nl << "public static void"
-        << nl << "__write(IceInternal.BasicStream __os, " << name << "Prx v)";
+    out << sp << nl << "public static void" << nl << "__write(IceInternal.BasicStream __os, " << name << "Prx v)";
     out << sb;
     out << nl << "__os.writeProxy(v);";
     out << eb;
 
-    //
-    // __read
-    //
-    out << sp << nl << "public static " << name << "Prx"
-        << nl << "__read(IceInternal.BasicStream __is)";
+    out << sp << nl << "public static " << name << "Prx" << nl << "__read(IceInternal.BasicStream __is)";
     out << sb;
     out << nl << "Ice.ObjectPrx proxy = __is.readProxy();";
     out << nl << "if(proxy != null)";
@@ -2192,20 +2186,13 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return null;";
     out << eb;
 
-    //
-    // ice_marshal
-    //
-    out << sp << nl << "public static void"
-        << nl << "ice_marshal(String __name, Ice.Stream __os, " << name << "Prx v)";
+    out << sp << nl << "public static void" << nl << "ice_marshal(String __name, Ice.Stream __os, " << name
+	<< "Prx v)";
     out << sb;
     out << nl << "__os.writeProxy(__name, v);";
     out << eb;
 
-    //
-    // ice_unmarshal
-    //
-    out << sp << nl << "public static " << name << "Prx"
-        << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
+    out << sp << nl << "public static " << name << "Prx" << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
     out << sb;
     out << nl << "Ice.ObjectPrx proxy = __is.readProxy(__name);";
     out << nl << "if(proxy != null)";
@@ -2248,21 +2235,13 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         out << sp << nl << "public final class " << name << "Helper";
         out << sb;
 
-        //
-        // write
-        //
-        out << nl << "public static void"
-            << nl << "write(IceInternal.BasicStream __os, " << typeS << " __v)";
+        out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << typeS << " __v)";
         out << sb;
         iter = 0;
         writeSequenceMarshalUnmarshalCode(out, scope, p, "__v", true, iter, false);
         out << eb;
 
-        //
-        // read
-        //
-        out << sp << nl << "public static " << typeS
-            << nl << "read(IceInternal.BasicStream __is)";
+        out << sp << nl << "public static " << typeS << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << typeS << " __v;";
         iter = 0;
@@ -2270,21 +2249,14 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         out << nl << "return __v;";
         out << eb;
 
-        //
-        // ice_marshal
-        //
-        out << sp << nl << "public static void"
-            << nl << "ice_marshal(String __name, Ice.Stream __os, " << typeS << " __v)";
+        out << sp << nl << "public static void" << nl << "ice_marshal(String __name, Ice.Stream __os, " << typeS
+	    << " __v)";
         out << sb;
         iter = 0;
         writeGenericSequenceMarshalUnmarshalCode(out, scope, p, "__name", "__v", true, iter, false);
         out << eb;
 
-        //
-        // ice_unmarshal
-        //
-        out << sp << nl << "public static " << typeS
-            << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
+        out << sp << nl << "public static " << typeS << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
         out << sb;
         out << nl << typeS << " __v;";
         iter = 0;
@@ -2327,9 +2299,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << sp << nl << "public final class " << name << "Helper";
         out << sb;
 
-        //
-        // write
-        //
         out << nl << "public static void" << nl << "write(IceInternal.BasicStream __os, " << "java.util.Map __v)";
         out << sb;
         out << nl << "if(__v == null)";
@@ -2416,7 +2385,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
             if(val.empty())
             {
-                val = "((" + typeToString(type, TypeModeIn, scope) + ")" + arg + ")";
+                val = "((" + typeToString(type, TypeModeIn, scope) + ')' + arg + ')';
             }
             writeMarshalUnmarshalCode(out, scope, type, val, true, iter, false);
         }
@@ -2424,11 +2393,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << eb;
         out << eb;
 
-        //
-        // read
-        //
-        out << sp << nl << "public static java.util.Map"
-            << nl << "read(IceInternal.BasicStream __is)";
+        out << sp << nl << "public static java.util.Map" << nl << "read(IceInternal.BasicStream __is)";
         out << sb;
         out << nl << "int __sz = __is.readSize();";
         out << nl << "java.util.Map __r = new java.util.HashMap(__sz);";
@@ -2524,9 +2489,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << nl << "return __r;";
         out << eb;
 
-        //
-        // ice_marshal
-        //
         out << nl << "public static void" << nl << "ice_marshal(String __name, Ice.Stream __os, java.util.Map __v)";
         out << sb;
         out << nl << "if(__v == null)";
@@ -2618,7 +2580,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
             if(val.empty())
             {
-                val = "((" + typeToString(type, TypeModeIn, scope) + ")" + arg + ")";
+                val = "((" + typeToString(type, TypeModeIn, scope) + ')' + arg + ')';
             }
             writeGenericMarshalUnmarshalCode(out, scope, type, tag, val, true, iter, false);
         }
@@ -2628,9 +2590,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
         out << eb;
         out << eb;
 
-        //
-        // ice_unmarshal
-        //
         out << sp << nl << "public static java.util.Map" << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
         out << sb;
         out << nl << "int __sz = __is.startReadDictionary(__name);";
@@ -2664,44 +2623,44 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
                 {
                     case Builtin::KindByte:
                     {
-                        out << nl << "java.lang.Byte " << arg
-                            << " = new java.lang.Byte(__is.readByte(" << tag << "));";
+                        out << nl << "java.lang.Byte " << arg << " = new java.lang.Byte(__is.readByte(" << tag
+			    << "));";
                         break;
                     }
                     case Builtin::KindBool:
                     {
-                        out << nl << "java.lang.Boolean " << arg
-                            << " = new java.lang.Boolean(__is.readBool(" << tag << "));";
+                        out << nl << "java.lang.Boolean " << arg << " = new java.lang.Boolean(__is.readBool(" << tag
+			    << "));";
                         break;
                     }
                     case Builtin::KindShort:
                     {
-                        out << nl << "java.lang.Short " << arg
-                            << " = new java.lang.Short(__is.readShort(" << tag << "));";
+                        out << nl << "java.lang.Short " << arg << " = new java.lang.Short(__is.readShort(" << tag
+			    << "));";
                         break;
                     }
                     case Builtin::KindInt:
                     {
-                        out << nl << "java.lang.Integer " << arg
-                            << " = new java.lang.Integer(__is.readInt(" << tag << "));";
+                        out << nl << "java.lang.Integer " << arg << " = new java.lang.Integer(__is.readInt(" << tag
+			    << "));";
                         break;
                     }
                     case Builtin::KindLong:
                     {
-                        out << nl << "java.lang.Long " << arg
-                            << " = new java.lang.Long(__is.readLong(" << tag << "));";
+                        out << nl << "java.lang.Long " << arg << " = new java.lang.Long(__is.readLong(" << tag
+			    << "));";
                         break;
                     }
                     case Builtin::KindFloat:
                     {
-                        out << nl << "java.lang.Float " << arg
-                            << " = new java.lang.Float(__is.readFloat(" << tag << "));";
+                        out << nl << "java.lang.Float " << arg << " = new java.lang.Float(__is.readFloat(" << tag
+			    << "));";
                         break;
                     }
                     case Builtin::KindDouble:
                     {
-                        out << nl << "java.lang.Double " << arg
-                            << " = new java.lang.Double(__is.readDouble(" << tag << "));";
+                        out << nl << "java.lang.Double " << arg << " = new java.lang.Double(__is.readDouble(" << tag
+			    << "));";
                         break;
                     }
                     case Builtin::KindString:
@@ -2815,28 +2774,24 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
     string scope = cl->scope();
 
-    TypePtr ret = p->returnType();
-    string retS = typeToString(ret, TypeModeReturn, scope);
-
-    string params = getParams(p, scope);
-
     Output& out = output();
 
+    TypePtr ret = p->returnType();
+    string retS = typeToString(ret, TypeModeReturn, scope);
+    string params = getParams(p, scope);
     ExceptionList throws = p->throws();
     throws.sort();
     throws.unique();
 
     //
     // Write two versions of the operation - with and without a
-    // context parameter
+    // context parameter.
     //
     out << sp;
-    out << nl;
-    out << "public " << retS << ' ' << name << '(' << params << ")";
+    out << nl << "public " << retS << ' ' << name << '(' << params << ')';
     writeThrowsClause(scope, throws);
     out << ';';
-    out << nl;
-    out << "public " << retS << ' ' << name << '(' << params;
+    out << nl << "public " << retS << ' ' << name << '(' << params;
     if(!params.empty())
     {
         out << ", ";
@@ -2844,6 +2799,19 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     out << "java.util.Map __context)";
     writeThrowsClause(scope, throws);
     out << ';';
+
+    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
+    {
+	string paramsAMI = getParamsAMI(p, scope);
+
+	//
+	// Write two versions of the operation - with and without a
+	// context parameter.
+	//
+	out << sp;
+	out << nl << "public void " << name << "_async(" << paramsAMI << ");";
+	out << nl << "public void " << name << "_async(" << paramsAMI << ", java.util.Map __context);";
+    }
 }
 
 Slice::Gen::DelegateVisitor::DelegateVisitor(const string& dir, const string& package) :
@@ -2872,8 +2840,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     Output& out = output();
 
-    out << sp << nl << "public interface _" << name
-        << "Del extends ";
+    out << sp << nl << "public interface _" << name << "Del extends ";
     if(bases.empty())
     {
         out << "Ice._ObjectDel";
@@ -2900,7 +2867,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
     OperationList::const_iterator r;
     for(r = ops.begin(); r != ops.end(); ++r)
     {
-        OperationPtr op = (*r);
+        OperationPtr op = *r;
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, scope);
@@ -2912,8 +2879,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.unique();
 
         out << sp;
-        out << nl;
-        out << retS << ' ' << opName << '(' << params;
+        out << nl << retS << ' ' << opName << '(' << params;
         if(!params.empty())
         {
             out << ", ";
@@ -2921,6 +2887,14 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << "java.util.Map __context)";
         writeDelegateThrowsClause(scope, throws);
         out << ';';
+
+	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
+	{
+	    string paramsAMI = getParamsAMI(op, scope);
+	    
+	    out << sp;
+	    out << nl << "void " << opName << "_async(" << paramsAMI << ", java.util.Map __context);";
+	}
     }
 
     out << eb;
@@ -2955,8 +2929,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     Output& out = output();
 
-    out << sp << nl << "public final class _" << name
-        << "DelM extends Ice._ObjectDelM implements _" << name << "Del";
+    out << sp << nl << "public final class _" << name << "DelM extends Ice._ObjectDelM implements _" << name << "Del";
     out << sb;
 
     OperationList ops = p->allOperations();
@@ -2964,7 +2937,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     OperationList::const_iterator r;
     for(r = ops.begin(); r != ops.end(); ++r)
     {
-        OperationPtr op = (*r);
+        OperationPtr op = *r;
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, scope);
@@ -2995,8 +2968,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         string params = getParams(op, scope);
 
         out << sp;
-        out << nl;
-        out << "public " << retS << nl << opName << '(' << params;
+        out << nl << "public " << retS << nl << opName << '(' << params;
         if(!params.empty())
         {
             out << ", ";
@@ -3005,8 +2977,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         writeDelegateThrowsClause(scope, throws);
         out << sb;
 	list<string> metaData = op->getMetaData();
-        out << nl << "IceInternal.Outgoing __out = getOutgoing(\"" << op->name() << "\", "
-	    << sliceModeToIceMode(op) << ", __context);";
+        out << nl << "IceInternal.Outgoing __out = getOutgoing(\"" << op->name() << "\", " << sliceModeToIceMode(op)
+	    << ", __context);";
         out << nl << "try";
         out << sb;
         if(!inParams.empty())
@@ -3095,6 +3067,17 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
 
         out << eb;
+
+	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
+	{
+	    string paramsAMI = getParamsAMI(op, scope);
+	    
+	    out << sp;
+	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ", java.util.Map __context)";
+	    out << sb;
+	    out << nl << "throw new Ice.CollocationOptimizationException();";
+	    out << eb;
+	}
     }
 
     out << eb;
@@ -3129,8 +3112,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     Output& out = output();
 
-    out << sp << nl << "public final class _" << name
-        << "DelD extends Ice._ObjectDelD implements _" << name << "Del";
+    out << sp << nl << "public final class _" << name << "DelD extends Ice._ObjectDelD implements _" << name << "Del";
     out << sb;
 
     OperationList ops = p->allOperations();
@@ -3138,7 +3120,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     OperationList::const_iterator r;
     for(r = ops.begin(); r != ops.end(); ++r)
     {
-        OperationPtr op = (*r);
+        OperationPtr op = *r;
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, scope);
@@ -3155,11 +3137,10 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.erase(remove_if(throws.begin(), throws.end(), exceptionIsLocal), throws.end());
 
         string params = getParams(op, scope);
-        string args = getArgs(op, scope);
+        string args = getArgs(op);
 
         out << sp;
-        out << nl;
-        out << "public " << retS << nl << opName << '(' << params;
+        out << nl << "public " << retS << nl << opName << '(' << params;
         if(!params.empty())
         {
             out << ", ";
@@ -3169,8 +3150,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
 	list<string> metaData = op->getMetaData();
         out << nl << "Ice.Current __current = new Ice.Current();";
-        out << nl << "__initCurrent(__current, \"" << op->name() << "\", "
-	    << sliceModeToIceMode(op) << ", __context);";
+        out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << sliceModeToIceMode(op)
+	    << ", __context);";
         out << nl << "while(true)";
         out << sb;
         out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current);";
@@ -3211,6 +3192,17 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << eb;
         out << eb;
+
+	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
+	{
+	    string paramsAMI = getParamsAMI(op, scope);
+	    
+	    out << sp;
+	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ", java.util.Map __context)";
+	    out << sb;
+	    out << nl << "throw new Ice.CollocationOptimizationException();";
+	    out << eb;
+	}
     }
 
     out << eb;
@@ -3245,15 +3237,10 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     Output& out = output();
 
-    out << sp << nl << "public abstract class _" << name
-        << "Disp extends Ice.ObjectImpl implements " << name;
+    out << sp << nl << "public abstract class _" << name << "Disp extends Ice.ObjectImpl implements " << name;
     out << sb;
 
-    //
-    // ice_copyStateFrom
-    //
-    out << sp << nl << "protected void"
-        << nl << "ice_copyStateFrom(Ice.Object __obj)";
+    out << sp << nl << "protected void" << nl << "ice_copyStateFrom(Ice.Object __obj)";
     out.inc();
     out << nl << "throws java.lang.CloneNotSupportedException";
     out.dec();
@@ -3337,7 +3324,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& scope, co
     string retS = typeToString(ret, TypeModeReturn, scope);
     string params = getParams(op, scope);
 
-    out << sp << nl << "public " << retS << nl << opName << "(" << params;
+    out << sp << nl << "public " << retS << nl << opName << '(' << params;
     if(!local)
     {
         if(!params.empty())
@@ -3508,4 +3495,55 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
     close();
 
     return false;
+}
+
+Slice::Gen::AsyncVisitor::AsyncVisitor(const string& dir, const string& package) :
+    JavaVisitor(dir, package)
+{
+}
+
+void
+Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
+{
+    ContainerPtr container = p->container();
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    
+    if(cl->isLocal())
+    {
+	return;
+    }
+
+    string name = fixKwd(p->name());
+    string classScope = fixKwd(cl->scope());
+    
+    if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
+    {
+	string classNameAMI = "AMI_" + fixKwd(cl->name());
+	string classScopedAMI = classScope + classNameAMI;
+	string absoluteAMI = getAbsolute(classScopedAMI);
+
+	if(!open(absoluteAMI))
+	{
+	    return;
+	}
+	
+	Output& out = output();
+
+	string paramsAMI = getParamsAMICB(p, classScope);
+
+	out << sp << nl << "public abstract class " << classNameAMI << " extends IceInternal.OutgoingAsync";
+	out << sb;
+
+	out << sp << nl << "public abstract void ice_response(" << paramsAMI << ");";
+
+	out << sp << nl << "public abstract void ice_exception(Ice.LocalException ex);";
+
+	out << sp << nl << "protected final void __response(boolean __ok)";
+	out << sb;
+	out << eb;
+
+	out << eb;
+
+	close();
+    }
 }

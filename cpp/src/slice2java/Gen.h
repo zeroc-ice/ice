@@ -31,34 +31,38 @@ protected:
     JavaVisitor(const std::string&, const std::string&);
 
     //
-    // Compose the parameter list for an operation
+    // Compose the parameter lists for an operation.
     //
     std::string getParams(const OperationPtr&, const std::string&);
+    std::string getParamsAMI(const OperationPtr&, const std::string&);
+    std::string getParamsAMICB(const OperationPtr&, const std::string&);
 
     //
-    // Compose the argument list for an operation
+    // Compose the argument lists for an operation.
     //
-    std::string getArgs(const OperationPtr&, const std::string&);
+    std::string getArgs(const OperationPtr&);
+    std::string getArgsAMI(const OperationPtr&);
+    std::string getArgsAMICB(const OperationPtr&);
 
     //
-    // Generate a throws clause containing only non-local exceptions
+    // Generate a throws clause containing only non-local exceptions.
     //
     void writeThrowsClause(const std::string&, const ExceptionList&);
 
     //
     // Generate a throws clause for delegate operations containing only
-    // non-local exceptions
+    // non-local exceptions.
     //
     void writeDelegateThrowsClause(const std::string&, const ExceptionList&);
 
     //
-    // Generate code to compute a hash code for a type
+    // Generate code to compute a hash code for a type.
     //
     void writeHashCode(::IceUtil::Output&, const TypePtr&, const std::string&, int&,
                        const std::list<std::string>& = std::list<std::string>());
 
     //
-    // Generate dispatch methods for a class or interface
+    // Generate dispatch methods for a class or interface.
     //
     void writeDispatch(::IceUtil::Output&, const ClassDefPtr&);
 };
@@ -202,21 +206,21 @@ private:
 
     class BaseImplVisitor : public JavaVisitor
     {
+    public:
+
+        BaseImplVisitor(const std::string&, const std::string&);
+
     protected:
 
         //
-        // Generate code to return a value
+        // Generate code to return a value.
         //
         void writeReturn(::IceUtil::Output&, const TypePtr&);
 
         //
-        // Generate an operation
+        // Generate an operation.
         //
         void writeOperation(::IceUtil::Output&, const std::string&, const OperationPtr&, bool);
-
-    public:
-
-        BaseImplVisitor(const std::string&, const std::string&);
     };
 
     class ImplVisitor : public BaseImplVisitor
@@ -235,6 +239,15 @@ private:
         ImplTieVisitor(const std::string&, const std::string&);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
+    class AsyncVisitor : public JavaVisitor
+    {
+    public:
+
+        AsyncVisitor(const std::string&, const std::string&);
+
+        virtual void visitOperation(const OperationPtr&);
     };
 };
 

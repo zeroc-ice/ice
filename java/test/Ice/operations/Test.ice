@@ -67,10 +67,10 @@ dictionary<long, float> LongFloatD;
 dictionary<string, string> StringStringD;
 dictionary<string, MyEnum> StringMyEnumD;
 
-class MyClass
+["ami"] class MyClass
 {
     void shutdown();
- 
+
     void opVoid();
     
     byte opByte(byte p1, byte p2,
@@ -140,9 +140,10 @@ class MyClass
 
     StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2,
 				  out StringMyEnumD p3);
+
 };
 
-class MyDerivedClass extends MyClass
+["ami"] class MyDerivedClass extends MyClass
 {
     void opDerived();
 };
