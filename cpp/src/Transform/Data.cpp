@@ -48,7 +48,7 @@ public:
 
     ObjectReader(const DataFactoryPtr&, const Slice::TypePtr&);
 
-    virtual void __write(IceInternal::BasicStream*) const;
+    virtual void __write(IceInternal::BasicStream*, bool) const;
     virtual void __read(IceInternal::BasicStream*, bool = true);
 
     ObjectDataPtr getValue() const;
@@ -128,7 +128,7 @@ Transform::ObjectReader::ObjectReader(const DataFactoryPtr& factory, const Slice
 }
 
 void
-Transform::ObjectReader::__write(IceInternal::BasicStream*) const
+Transform::ObjectReader::__write(IceInternal::BasicStream*, bool) const
 {
     assert(false);
 }
