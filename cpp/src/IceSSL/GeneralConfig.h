@@ -51,12 +51,12 @@ protected:
 template<class Stream> inline
 Stream& operator << (Stream& target, const GeneralConfig& generalConfig)
 {
-    target << "Protocol:     " << generalConfig.getProtocol() << std::endl;
-    target << "Verify Mode:  " << generalConfig.getVerifyMode() << std::endl;
-    target << "Verify Depth: " << generalConfig.getVerifyDepth() << std::endl;
-    target << "Context:      " << generalConfig.getContext() << std::endl;
-    target << "Cipher List:  " << generalConfig.getCipherList() << std::endl;
-    target << "Random Bytes: " << generalConfig.getRandomBytesFiles() << std::endl;
+    target << "Protocol:     " << generalConfig.getProtocol() << "\n";
+    target << "Verify Mode:  " << generalConfig.getVerifyMode() << "\n";
+    target << "Verify Depth: " << generalConfig.getVerifyDepth() << "\n";
+    target << "Context:      " << generalConfig.getContext() << "\n";
+    target << "Cipher List:  " << generalConfig.getCipherList() << "\n";
+    target << "Random Bytes: " << generalConfig.getRandomBytesFiles() << "\n";
 
     return target;
 }

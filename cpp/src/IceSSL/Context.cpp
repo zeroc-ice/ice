@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 
 #include <IceSSL/DefaultCertificateVerifier.h>
@@ -186,12 +186,9 @@ IceSSL::Context::getSslMethod(SslProtocol sslVersion)
         {
             if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
             { 
-                string errorString;
-
-                errorString = "ssl version ";
-                errorString += sslVersion;
-                errorString += " not supported (defaulting to SSL_V23)";
-                _logger->trace(_traceLevels->securityCat, "WRN " + errorString);
+                Trace out(_logger, _traceLevels->securityCat);
+                out << "WRN ssl version " << sslVersion;
+                out << " not supported (defaulting to SSL_V23)";
             }
 
             sslMethod = SSLv23_method();
@@ -258,7 +255,8 @@ IceSSL::Context::loadCertificateAuthority(const CertificateAuthority& certAuth)
     { 
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
-            _logger->trace(_traceLevels->securityCat, "WRN unable to load certificate authorities.");
+            Trace out(_logger, _traceLevels->securityCat);
+            out << "WRN unable to load certificate authorities.";
         }
     }
     else
@@ -268,7 +266,8 @@ IceSSL::Context::loadCertificateAuthority(const CertificateAuthority& certAuth)
 
         if(!setDefaultVerifyPathsRet && (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
         { 
-            _logger->trace(_traceLevels->securityCat, "WRN unable to verify certificate authorities.");
+            Trace out(_logger, _traceLevels->securityCat);
+            out << "WRN unable to verify certificate authorities.";
         }
     }
 
@@ -393,7 +392,8 @@ IceSSL::Context::addKeyCert(const CertificateFile& privateKey, const Certificate
         {
             if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
             { 
-                _logger->trace(_traceLevels->securityCat, "WRN no private key specified -- using the certificate");
+                Trace out(_logger, _traceLevels->securityCat);
+                out << "WRN no private key specified -- using the certificate";
             }
 
             privKeyFile = publicFile;
@@ -559,7 +559,8 @@ IceSSL::Context::addKeyCert(const Ice::ByteSeq& privateKey, const Ice::ByteSeq& 
     {
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         { 
-            _logger->trace(_traceLevels->securityCat, "WRN no private key specified -- using the certificate");
+            Trace out(_logger, _traceLevels->securityCat);
+            out << "WRN no private key specified -- using the certificate";
         }
 
         privKey = publicKey;
@@ -578,7 +579,8 @@ IceSSL::Context::addKeyCert(const string& privateKey, const string& publicKey)
     {
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         { 
-            _logger->trace(_traceLevels->securityCat, "WRN no private key specified -- using the certificate");
+            Trace out(_logger, _traceLevels->securityCat);
+            out << "WRN no private key specified -- using the certificate";
         }
 
         privKey = publicKey;
@@ -620,9 +622,9 @@ IceSSL::Context::setCipherList(const string& cipherList)
     if(!cipherList.empty() && (!SSL_CTX_set_cipher_list(_sslContext, cipherList.c_str())) &&
         (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
     {
-        string errorString = "WRN error setting cipher list " + cipherList + " -- using default list\n";
-        errorString += sslGetErrors();
-        _logger->trace(_traceLevels->securityCat, errorString);
+        Trace out(_logger, _traceLevels->securityCat);
+        out << "WRN error setting cipher list " << cipherList << " -- using default list" << "\n";
+        out << sslGetErrors();
     }
 }
 
@@ -644,8 +646,8 @@ IceSSL::Context::setDHParams(const BaseCertificates& baseCerts)
     {
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         { 
-            _logger->trace(_traceLevels->securityCat,
-                           "WRN Could not load Diffie-Hellman params, generating a temporary 512bit key.");
+            Trace out(_logger, _traceLevels->securityCat);
+            out << "WRN Could not load Diffie-Hellman params, generating a temporary 512bit key.";
         }
 
         dh = getTempDH512();

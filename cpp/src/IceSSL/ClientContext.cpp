@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 
 #include <IceSSL/Exception.h>
 #include <IceSSL/ClientContext.h>
@@ -29,23 +29,23 @@ IceSSL::ClientContext::configure(const GeneralConfig& generalConfig,
 
     if(_traceLevels->security >= SECURITY_PROTOCOL)
     {
-        ostringstream s;
+        Trace out(_logger, _traceLevels->securityCat);
 
-        s << endl;
-        s << "general configuration (client)" << endl;
-        s << "------------------------------" << endl;
-        s << generalConfig << endl << endl;
+        out << "\n";
+        out << "general configuration (client)\n";
+        out << "------------------------------\n";
+        IceSSL::operator<<(out,  generalConfig);
+        out << "\n\n";
 
-        s << "certificate authority (client)" << endl;
-        s << "------------------------------" << endl;
-        s << "file: " << certificateAuthority.getCAFileName() << endl;
-        s << "path: " << certificateAuthority.getCAPath() << endl;
+        out << "certificate authority (client)\n";
+        out << "------------------------------\n";
+        out << "file: " << certificateAuthority.getCAFileName() << "\n";
+        out << "path: " << certificateAuthority.getCAPath() << "\n";
 
-        s << "base certificates (client)" << endl;
-        s << "--------------------------" << endl;
-        s << baseCertificates << endl;
-
-        _logger->trace(_traceLevels->securityCat, s.str());
+        out << "base certificates (client)\n";
+        out << "--------------------------\n";
+        IceSSL::operator<<(out, baseCertificates);
+        out << "\n";
     }
 }
 

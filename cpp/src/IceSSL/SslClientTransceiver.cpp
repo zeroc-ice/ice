@@ -8,16 +8,13 @@
 //
 // **********************************************************************
 
-#include <Ice/Logger.h>
 #include <Ice/LoggerUtil.h>
-#include <Ice/Buffer.h>
 #include <Ice/Network.h>
+#include <Ice/LocalException.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/SslClientTransceiver.h>
 #include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/TraceLevels.h>
-
-#include <Ice/LocalException.h>
 #include <IceSSL/OpenSSLUtils.h>
 #include <IceSSL/Exception.h>
 #include <IceSSL/OpenSSLJanitors.h>
@@ -80,10 +77,9 @@ IceSSL::SslClientTransceiver::write(Buffer& buf, int timeout)
                 {
                     if(_traceLevels->network >= 3)
                     {
-                        ostringstream s;
-                        s << "sent " << bytesWritten << " of " << packetSize;
-                        s << " bytes via ssl\n" << fdToString(SSL_get_fd(_sslConnection));
-                       _logger->trace(_traceLevels->networkCat, s.str());
+                        Trace out(_logger, _traceLevels->networkCat);
+                        out << "sent " << bytesWritten << " of " << packetSize;
+                        out << " bytes via ssl\n" << fdToString(SSL_get_fd(_sslConnection));
                     }
 
                     totalBytesWritten += bytesWritten;

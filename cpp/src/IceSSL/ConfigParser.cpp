@@ -78,7 +78,7 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
         ostringstream s;
-        s << "while parsing " << _configFile << ":" << endl;
+        s << "while parsing " << _configFile << ":\n";
 	s << "xerces-c init exception: " << toString(toCatch.getMessage());
 
         configEx.message = s.str();
@@ -148,7 +148,7 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
         ostringstream s;
-        s << "while parsing " << _configFile << ":" << endl;
+        s << "while parsing " << _configFile << ":\n";
 	s << "xerces-c parsing error: " << toString(e.getMessage());
 
         configEx.message = s.str();
@@ -160,7 +160,7 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
 	ostringstream s;
-        s << "while parsing " << _configFile << ":" << endl;
+        s << "while parsing " << _configFile << ":\n";
 	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
@@ -224,7 +224,7 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
         ConfigParseException configEx(__FILE__, __LINE__);
 
 	ostringstream s;
-        s << "while loading client configuration:" << endl;
+        s << "while loading client configuration:\n";
 	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 
@@ -262,7 +262,7 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
         ConfigParseException configEx(__FILE__, __LINE__);
 
 	ostringstream s;
-        s << "while loading server configuration:" << endl;
+        s << "while loading server configuration:\n";
 	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
 

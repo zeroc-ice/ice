@@ -41,23 +41,23 @@ inline Stream& operator << (Stream& target, const BaseCertificates& baseCerts)
 {
     if(baseCerts.getRSACert().getKeySize() != 0)
     {
-        target << "RSA\n{" << std::endl;
-        target << baseCerts.getRSACert();
-        target << "}\n" << std::endl;
+        target << "RSA\n{\n";
+	IceSSL::operator<<(target, baseCerts.getRSACert());
+        target << "}\n\n";
     }
 
     if(baseCerts.getDSACert().getKeySize() != 0)
     {
-        target << "DSA\n{" << std::endl;
-        target << baseCerts.getDSACert();
-        target << "}\n" << std::endl;
+        target << "DSA\n{\n";
+	IceSSL::operator<<(target, baseCerts.getDSACert());
+        target << "}\n\n";
     }
 
     if(baseCerts.getDHParams().getKeySize() != 0)
     {
-        target << "DH\n{" << std::endl;
-        target << baseCerts.getDHParams();
-        target << "}\n" << std::endl;
+        target << "DH\n{\n";
+	IceSSL::operator<<(target, baseCerts.getDHParams());
+        target << "}\n\n";
     }
 
     return target;

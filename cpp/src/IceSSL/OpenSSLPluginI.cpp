@@ -10,7 +10,7 @@
 
 #include <IceUtil/Mutex.h>
 
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 #include <Ice/ProtocolPluginFacade.h>
 #include <Ice/Communicator.h>
@@ -391,13 +391,11 @@ IceSSL::OpenSSLPluginI::loadConfig(ContextType contextType,
 
             if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
             {
-                ostringstream s;
+                Trace out(_logger, _traceLevels->securityCat);
 
-                s << "temporary certificates (server)" << endl;
-                s << "-------------------------------" << endl;
-                s << serverTempCerts << endl;
-
-                _logger->trace(_traceLevels->securityCat, s.str());
+                out << "temporary certificates (server)\n";
+                out << "-------------------------------\n";
+                out << serverTempCerts << "\n";
             }
         }
     }
@@ -484,12 +482,8 @@ IceSSL::OpenSSLPluginI::getRSAKey(int isExport, int keyLength)
         }
         else if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
-            ostringstream errorMsg;
-
-            errorMsg << "WRN Unable to obtain a " << dec << keyLength;
-            errorMsg << "-bit RSA key." << endl;
-
-            _logger->trace(_traceLevels->securityCat, errorMsg.str());
+            Trace out(_logger, _traceLevels->securityCat);
+            out << "WRN Unable to obtain a " << dec << keyLength << "-bit RSA key.\n";
         }
     }
 
@@ -564,12 +558,8 @@ IceSSL::OpenSSLPluginI::getDHParams(int isExport, int keyLength)
         }
         else if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
-            ostringstream errorMsg;
-
-            errorMsg << "WRN Unable to obtain a " << dec << keyLength;
-            errorMsg << "-bit Diffie-Hellman parameter group." << endl;
-
-            _logger->trace(_traceLevels->securityCat, errorMsg.str());
+            Trace out(_logger, _traceLevels->securityCat);
+            out << "WRN Unable to obtain a " << dec << keyLength << "-bit Diffie-Hellman parameter group.\n";
         }
     }
 
@@ -802,8 +792,8 @@ IceSSL::OpenSSLPluginI::initRandSystem(const string& randBytesFiles)
         // In this case, there are two options open to us - specify a random data file using the
         // RANDFILE environment variable, or specify additional random data files in the
         // SSL configuration file.
-        _logger->trace(_traceLevels->securityCat,
-                       "WRN there is a lack of random data, consider specifying additional random data files");
+        Trace out(_logger, _traceLevels->securityCat);
+        out << "WRN there is a lack of random data, consider specifying additional random data files";
     }
 
     _randSeeded = (randBytesLoaded > 0 ? 1 : 0);

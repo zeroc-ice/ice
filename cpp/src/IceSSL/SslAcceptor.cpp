@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/Network.h>
 
 #include <IceSSL/OpenSSLPluginI.h>
@@ -31,9 +31,8 @@ IceSSL::SslAcceptor::close()
 {
     if(_traceLevels->network >= 1)
     {
-	ostringstream s;
-	s << "stopping to accept ssl connections at " << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "stopping to accept ssl connections at " << toString();
     }
 
     SOCKET fd = _fd;
@@ -56,9 +55,8 @@ IceSSL::SslAcceptor::listen()
 
     if(_traceLevels->network >= 1)
     {
-	ostringstream s;
-	s << "accepting ssl connections at " << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "accepting ssl connections at " << toString();
     }
 }
 
@@ -70,9 +68,8 @@ IceSSL::SslAcceptor::accept(int timeout)
 
     if(_traceLevels->network >= 1)
     {
-	ostringstream s;
-	s << "accepted ssl connection\n" << fdToString(fd);
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "accepted ssl connection\n" << fdToString(fd);
     }
 
     return _plugin->createTransceiver(IceSSL::Server, fd);

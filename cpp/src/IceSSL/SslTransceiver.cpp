@@ -11,15 +11,11 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
+#include <Ice/LocalException.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/SslTransceiver.h>
 #include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/TraceLevels.h>
-
-// Added
-#include <Ice/Logger.h>
-#include <Ice/LocalException.h>
-
 #include <IceSSL/Exception.h>
 #include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/CertificateVerifierOpenSSL.h>
@@ -28,7 +24,6 @@
 #include <openssl/err.h>
 
 #include <sstream>
-// Added
 
 using namespace std;
 using namespace Ice;
@@ -143,7 +138,8 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
             // Nothing is left to read (according to SSL).
             if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
             {
-                _logger->trace(_traceLevels->securityCat, "no pending application-level bytes");
+ 	        Trace out(_logger, _traceLevels->securityCat);
+                out << "no pending application-level bytes";
             }
 
             // We're done here.
@@ -162,10 +158,9 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
                 {
                     if(_traceLevels->network >= 3)
                     {
-                        ostringstream s;
-                        s << "received " << bytesRead << " of " << packetSize;
-                        s << " bytes via ssl\n" << fdToString(SSL_get_fd(_sslConnection));
-                        _logger->trace(_traceLevels->networkCat, s.str());
+ 	                Trace out(_logger, _traceLevels->networkCat);
+                        out << "received " << bytesRead << " of " << packetSize;
+                        out << " bytes via ssl\n" << fdToString(SSL_get_fd(_sslConnection));
                     }
 
                     totalBytesRead += bytesRead;
@@ -319,12 +314,9 @@ IceSSL::SslTransceiver::verifyCertificate(int preVerifyOkay, X509_STORE_CTX* x50
         {
             if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
             {
-                ostringstream s;
-
-                s << "WRN exception during certificate verification: " << std::endl;
-                s << localEx << flush;
-
-                _logger->trace(_traceLevels->securityCat, s.str());
+ 	        Trace out(_logger, _traceLevels->networkCat);
+                out << "WRN exception during certificate verification: \n";
+                out << localEx;
             }
 
             preVerifyOkay = 0;
@@ -337,19 +329,17 @@ IceSSL::SslTransceiver::verifyCertificate(int preVerifyOkay, X509_STORE_CTX* x50
 
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         {
-            string errorString;
+ 	    Trace out(_logger, _traceLevels->networkCat);
 
             if(_certificateVerifier.get())
             {
-                errorString = "WRN improper CertificateVerifier type";
+                out << "WRN improper CertificateVerifier type";
             }
             else
             {
                 // NOTE: This should NEVER be able to happen, but just in case.
-                errorString = "WRN CertificateVerifier not set";
+                out << "WRN CertificateVerifier not set";
             }
-
-            _logger->trace(_traceLevels->securityCat, errorString);
         }
     }
 

@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 
 #include <IceSSL/Exception.h>
 #include <IceSSL/ServerContext.h>
@@ -52,21 +52,21 @@ IceSSL::ServerContext::configure(const GeneralConfig& generalConfig,
 
     if(_traceLevels->security >= SECURITY_PROTOCOL)
     {
-        ostringstream s;
+        Trace out(_logger, _traceLevels->securityCat);
 
-        s << endl;
-        s << "general configuration (server)" << endl;
-        s << "------------------------------" << endl;
-        s << generalConfig   << endl << endl;
+        out << "\n";
+        out << "general configuration (server)\n";
+        out << "------------------------------\n";
+	IceSSL::operator<<(out, generalConfig);
+        out << "\n\n";
 
-        s << "CA file: " << certificateAuthority.getCAFileName() << endl;
-        s << "CA path: " << certificateAuthority.getCAPath() << endl;
+        out << "CA file: " << certificateAuthority.getCAFileName() << "\n";
+        out << "CA path: " << certificateAuthority.getCAPath() << "\n";
 
-        s << "base certificates (server)" << endl;
-        s << "--------------------------" << endl;
-        s << baseCertificates << endl << endl;
-
-        _logger->trace(_traceLevels->securityCat, s.str());
+        out << "base certificates (server)\n";
+        out << "--------------------------\n";
+	IceSSL::operator<<(out, baseCertificates);
+        out << "\n\n";
     }
 }
 
@@ -125,9 +125,9 @@ IceSSL::ServerContext::loadCertificateAuthority(const CertificateAuthority& cert
     {
         if(_traceLevels->security >= SECURITY_WARNINGS)
         {
-            string errorString = "unable to load certificate authorities certificate names from " + caFile + "\n";
-            errorString += sslGetErrors();
-            _logger->trace(_traceLevels->securityCat, "WRN " + errorString);
+            Trace out(_logger, _traceLevels->securityCat);
+            out << "WRN unable to load certificate authorities certificate names from " << caFile << "\n";
+            out << sslGetErrors();
         }
     }
     else

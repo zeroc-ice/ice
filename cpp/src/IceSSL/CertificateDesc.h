@@ -94,8 +94,10 @@ inline Stream& operator << (Stream& target, const DiffieHellmanParamsFile& dhPar
 {
     if(dhParams.getKeySize() != 0)
     {
-        target << "Keysize: " << dhParams.getKeySize() << std::endl;
-        target << "File:    " << ((CertificateFile&)dhParams) << std::endl;
+        target << "Keysize: " << dhParams.getKeySize() << "\n";
+        target << "File:    ";
+        IceSSL::operator<<(target, ((CertificateFile&)dhParams));
+        target << "\n";
     }
 
     return target;
@@ -106,9 +108,13 @@ inline Stream& operator << (Stream& target, const CertificateDesc& certDesc)
 {
     if(certDesc.getKeySize() != 0)
     {
-        target << "Keysize: " << certDesc.getKeySize() << std::endl;
-        target << "Public:  " << certDesc.getPublic()  << std::endl;
-        target << "Private: " << certDesc.getPrivate() << std::endl;
+        target << "Keysize: " << certDesc.getKeySize() << "\n";
+        target << "Public:  ";
+        IceSSL::operator<<(target,  certDesc.getPublic());
+        target << "\n";
+        target << "Private: ";
+        IceSSL::operator<<(target, certDesc.getPrivate());
+        target << "\n";
     }
 
     return target;

@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/DefaultCertificateVerifier.h>
 #include <IceSSL/OpenSSLUtils.h>
@@ -60,14 +60,14 @@ IceSSL::DefaultCertificateVerifier::verify(int preVerifyOkay, X509_STORE_CTX* x5
 
         X509_NAME_oneline(X509_get_subject_name(err_cert), buf, sizeof(buf));
 
-        ostringstream outStringStream;
+	Ice::Trace out(_logger, _traceLevels->securityCat);
 
-        outStringStream << "depth = " << dec << errorDepth << ":" << buf << std::endl;
+        out << "depth = " << dec << errorDepth << ":" << buf << "\n";
 
         if(!preVerifyOkay)
         {
-            outStringStream << "verify error: num = " << verifyError << " : " 
-			    << X509_verify_cert_error_string(verifyError) << endl;
+            out << "verify error: num = " << verifyError << " : " 
+                << X509_verify_cert_error_string(verifyError) << "\n";
 
         }
 
@@ -76,28 +76,26 @@ IceSSL::DefaultCertificateVerifier::verify(int preVerifyOkay, X509_STORE_CTX* x5
             case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
             {
                 X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, sizeof(buf));
-                outStringStream << "issuer = " << buf << endl;
+                out << "issuer = " << buf << "\n";
                 break;
             }
 
             case X509_V_ERR_CERT_NOT_YET_VALID:
             case X509_V_ERR_ERROR_IN_CERT_NOT_BEFORE_FIELD:
             {
-                outStringStream << "notBefore = " << getASN1time(X509_get_notBefore(err_cert)) << endl;
+                out << "notBefore = " << getASN1time(X509_get_notBefore(err_cert)) << "\n";
                 break;
             }
 
             case X509_V_ERR_CERT_HAS_EXPIRED:
             case X509_V_ERR_ERROR_IN_CERT_NOT_AFTER_FIELD:
             {
-                outStringStream << "notAfter = " << getASN1time(X509_get_notAfter(err_cert)) << endl;
+                out << "notAfter = " << getASN1time(X509_get_notAfter(err_cert)) << "\n";
                 break;
             }
         }
 
-        outStringStream << "verify return = " << preVerifyOkay << endl;
-
-        _logger->trace(_traceLevels->securityCat, outStringStream.str());
+        out << "verify return = " << preVerifyOkay << "\n";
     }
 
     return preVerifyOkay;

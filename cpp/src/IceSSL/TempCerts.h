@@ -43,9 +43,9 @@ inline Stream& operator << (Stream& target, TempCertificates& tmpCerts)
 
     while(iRSA != eRSA)
     {
-        target << "RSA" << std::endl << "{" << std::endl;
-        target << *iRSA;
-        target << "}" << std::endl << std::endl;
+        target << "RSA\n{\n";
+	IceSSL::operator<<(target, *iRSA);
+        target << "}\n\n";
         iRSA++;
     }
 
@@ -54,9 +54,9 @@ inline Stream& operator << (Stream& target, TempCertificates& tmpCerts)
 
     while(iDHP != eDHP)
     {
-        target << "DH" << std::endl << "{" << std::endl;
-        target << *iDHP;
-        target << "}" << std::endl << std::endl;
+        target << "DH\n{\n";
+	IceSSL::operator<<(target, *iDHP);
+        target << "}\n\n";
         iDHP++;
     }
     

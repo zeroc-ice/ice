@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <IceSSL/ConfigParserErrorReporter.h>
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/TraceLevels.h>
@@ -48,15 +48,13 @@ IceSSL::ConfigParserErrorReporter::warning(const SAXParseException& toCatch)
 {
     if(_traceLevels->security >= IceSSL::SECURITY_PARSE_WARNINGS)
     {
-	ostringstream s;
+        Ice::Trace out(_logger, _traceLevels->securityCat);
 
-        s << "ssl configuration file parse error" << endl
-          << toString(toCatch.getSystemId())
-          << ", line " << toCatch.getLineNumber()
-          << ", column " << toCatch.getColumnNumber() << endl
-          << "Message " << toString(toCatch.getMessage()) << endl;
-
-        _logger->trace(_traceLevels->securityCat, "PWN " + s.str());
+        out << "ssl configuration file parse error" << "\n"
+            << toString(toCatch.getSystemId())
+            << ", line " << toCatch.getLineNumber()
+            << ", column " << toCatch.getColumnNumber() << "\n"
+            << "Message " << toString(toCatch.getMessage()) << "\n";
     }
 }
 
