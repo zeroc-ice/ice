@@ -1,6 +1,9 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed a deadlock that could occur if a server cannot send data
+  during connection validation.
+
 - Fixed bug where marshalling would fail for sequences of integral
   types on big endian platforms.
 

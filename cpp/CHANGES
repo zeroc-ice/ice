@@ -1,6 +1,9 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed a deadlock that could occur if a server cannot send data
+  during connection validation.
+
 - Glacier2 could hang if a server is not running. This has been fixed.
 
 - Added support for g++ builds on Solaris.

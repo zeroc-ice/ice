@@ -37,32 +37,44 @@ void IceInternal::decRef(ConnectionI* p) { p->__decRef(); }
 void
 Ice::ConnectionI::validate()
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    bool active;
 
-    if(_instance->threadPerConnection() &&
-       _threadPerConnection->getThreadControl() != IceUtil::ThreadControl())
     {
-	//
-	// In thread per connection mode, this connection's thread
-	// will take care of connection validation. Therefore all we
-	// have to do here is to wait until this thread has completed
-	// validation.
-	//
-	while(_state == StateNotValidated)
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	if(_instance->threadPerConnection() && _threadPerConnection->getThreadControl() != IceUtil::ThreadControl())
 	{
-	    wait();
+	    //
+	    // In thread per connection mode, this connection's thread
+	    // will take care of connection validation. Therefore all we
+	    // have to do here is to wait until this thread has completed
+	    // validation.
+	    //
+	    while(_state == StateNotValidated)
+	    {
+		wait();
+	    }
+	    
+	    if(_state >= StateClosing)
+	    {
+		assert(_exception.get());
+		_exception->ice_throw();
+	    }
+	    
+	    return;
 	}
 
-	if(_state >= StateClosing)
-	{
-	    assert(_exception.get());
-	    _exception->ice_throw();
-	}
+	assert(_state == StateNotValidated);
 
-	return;
+	if(_adapter)
+	{
+	    active = true; // The server side has the active role for connection validation.
+	}
+	else
+	{
+	    active = false; // The client side has the passive role for connection validation.
+	}	    
     }
-
-    assert(_state == StateNotValidated);
     
     if(!_endpoint->datagram()) // Datagram connections are always implicitly validated.
     {
@@ -78,14 +90,8 @@ Ice::ConnectionI::validate()
 		timeout = _endpoint->timeout();
 	    }
 	    
-	    if(_adapter)
+	    if(active)
 	    {
-		IceUtil::Mutex::Lock sendSync(_sendMutex);
-
-		//
-		// Incoming connections play the active role with respect to
-		// connection validation.
-		//
 		BasicStream os(_instance.get());
 		os.writeBlob(magic, sizeof(magic));
 		os.write(protocolMajor);
@@ -108,10 +114,6 @@ Ice::ConnectionI::validate()
 	    }
 	    else
 	    {
-		//
-		// Outgoing connections play the passive role with respect to
-		// connection validation.
-		//
 		BasicStream is(_instance.get());
 		is.b.resize(headerSize);
 		is.i = is.b.begin();
@@ -178,21 +180,26 @@ Ice::ConnectionI::validate()
 	}
 	catch(const LocalException& ex)
 	{
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	    setState(StateClosed, ex);
 	    assert(_exception.get());
 	    _exception->ice_throw();
 	}
     }
 
-    if(_acmTimeout > 0)
     {
-	_acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	if(_acmTimeout > 0)
+	{
+	    _acmAbsoluteTimeout = IceUtil::Time::now() + IceUtil::Time::seconds(_acmTimeout);
+	}
+	
+	//
+	// We start out in holding state.
+	//
+	setState(StateHolding);
     }
-
-    //
-    // We start out in holding state.
-    //
-    setState(StateHolding);
 }
 
 void

@@ -28,138 +28,142 @@ namespace Ice
 
 	public void validate()
 	{
+	    bool active;
+
 	    lock(this)
 	    {
 		Debug.Assert(_state == StateNotValidated);
 
-		if(!endpoint().datagram()) // Datagram connections are always implicitly validated.
+		if(_adapter != null)
 		{
-		    try
-		    {
-			int timeout;
-			IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
-			if(defaultsAndOverrides.overrideConnectTimeout)
-			{
-			    timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
-			}
-			else
-			{
-			    timeout = _endpoint.timeout();
-			}
+		    active = true; // The server side has the active role for connection validation.
+		}
+		else
+		{
+		    active = false; // The client side has the passive role for connection validation.
+		}
+	    }
 
-			if(_adapter != null)
+	    if(!endpoint().datagram()) // Datagram connections are always implicitly validated.
+	    {
+		try
+		{
+		    int timeout;
+		    IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+		    if(defaultsAndOverrides.overrideConnectTimeout)
+		    {
+			timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
+		    }
+		    else
+		    {
+			timeout = _endpoint.timeout();
+		    }
+		    
+		    if(active)
+		    {
+			IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
+			os.writeByte(IceInternal.Protocol.magic[0]);
+			os.writeByte(IceInternal.Protocol.magic[1]);
+			os.writeByte(IceInternal.Protocol.magic[2]);
+			os.writeByte(IceInternal.Protocol.magic[3]);
+			os.writeByte(IceInternal.Protocol.protocolMajor);
+			os.writeByte(IceInternal.Protocol.protocolMinor);
+			os.writeByte(IceInternal.Protocol.encodingMajor);
+			os.writeByte(IceInternal.Protocol.encodingMinor);
+			os.writeByte(IceInternal.Protocol.validateConnectionMsg);
+			os.writeByte((byte)0); // Compression status (always zero for validate connection).
+			os.writeInt(IceInternal.Protocol.headerSize); // Message size.
+			IceInternal.TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
+			try
 			{
-			    lock(_sendMutex)
-			    {
-				//
-				// Incoming connections play the active role with
-				// respect to connection validation.
-				//
-				IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
-				os.writeByte(IceInternal.Protocol.magic[0]);
-				os.writeByte(IceInternal.Protocol.magic[1]);
-				os.writeByte(IceInternal.Protocol.magic[2]);
-				os.writeByte(IceInternal.Protocol.magic[3]);
-				os.writeByte(IceInternal.Protocol.protocolMajor);
-				os.writeByte(IceInternal.Protocol.protocolMinor);
-				os.writeByte(IceInternal.Protocol.encodingMajor);
-				os.writeByte(IceInternal.Protocol.encodingMinor);
-				os.writeByte(IceInternal.Protocol.validateConnectionMsg);
-				os.writeByte((byte)0); // Compression status (always zero for validate connection).
-				os.writeInt(IceInternal.Protocol.headerSize); // Message size.
-				IceInternal.TraceUtil.traceHeader("sending validate connection", os, _logger, 
-								  _traceLevels);
-				try
-				{
-				    _transceiver.write(os, timeout);
-				}
-				catch(TimeoutException)
-				{
-				    throw new ConnectTimeoutException("Connect timed out after " + timeout + " msec");
-				}
-			    }
+			    _transceiver.write(os, timeout);
 			}
-			else
+			catch(TimeoutException)
 			{
-			    //
-			    // Outgoing connections play the passive role with
-			    // respect to connection validation.
-			    //
-			    IceInternal.BasicStream ins = new IceInternal.BasicStream(_instance);
-			    ins.resize(IceInternal.Protocol.headerSize, true);
-			    ins.pos(0);
-			    try
-			    {
-			        _transceiver.read(ins, timeout);
-			    }
-			    catch(TimeoutException)
-			    {
-			        throw new ConnectTimeoutException("Connect timed out after " + timeout + " msec");
-			    }
-			    Debug.Assert(ins.pos() == IceInternal.Protocol.headerSize);
-			    ins.pos(0);
-			    byte[] m = new byte[4];
-			    m[0] = ins.readByte();
-			    m[1] = ins.readByte();
-			    m[2] = ins.readByte();
-			    m[3] = ins.readByte();
-			    if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
-			       m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
-			    {
-				BadMagicException ex = new BadMagicException();
-				ex.badMagic = m;
-				throw ex;
-			    }
-			    byte pMajor = ins.readByte();
-			    byte pMinor = ins.readByte();
-			    if(pMajor != IceInternal.Protocol.protocolMajor)
-			    {
-				UnsupportedProtocolException e = new UnsupportedProtocolException();
-				e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
-				e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-				e.major = IceInternal.Protocol.protocolMajor;
-				e.minor = IceInternal.Protocol.protocolMinor;
-				throw e;
-			    }
-			    byte eMajor = ins.readByte();
-			    byte eMinor = ins.readByte();
-			    if(eMajor != IceInternal.Protocol.encodingMajor)
-			    {
-				UnsupportedEncodingException e = new UnsupportedEncodingException();
-				e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
-				e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-				e.major = IceInternal.Protocol.encodingMajor;
-				e.minor = IceInternal.Protocol.encodingMinor;
-				throw e;
-			    }
-			    byte messageType = ins.readByte();
-			    if(messageType != IceInternal.Protocol.validateConnectionMsg)
-			    {
-				throw new ConnectionNotValidatedException();
-			    }
-			    byte compress = ins.readByte(); // Ignore compression status for validate connection.
-			    int size = ins.readInt();
-			    if(size != IceInternal.Protocol.headerSize)
-			    {
-				throw new IllegalMessageSizeException();
-			    }
-			    IceInternal.TraceUtil.traceHeader("received validate connection", ins, _logger, 
-							      _traceLevels);
+			    throw new ConnectTimeoutException("Connect timed out after " + timeout + " msec");
 			}
 		    }
-		    catch(LocalException ex)
+		    else
+		    {
+			IceInternal.BasicStream ins = new IceInternal.BasicStream(_instance);
+			ins.resize(IceInternal.Protocol.headerSize, true);
+			ins.pos(0);
+			try
+			{
+			    _transceiver.read(ins, timeout);
+			}
+			catch(TimeoutException)
+			{
+			    throw new ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+			}
+			Debug.Assert(ins.pos() == IceInternal.Protocol.headerSize);
+			ins.pos(0);
+			byte[] m = new byte[4];
+			m[0] = ins.readByte();
+			m[1] = ins.readByte();
+			m[2] = ins.readByte();
+			m[3] = ins.readByte();
+			if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1] ||
+			   m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
+			{
+			    BadMagicException ex = new BadMagicException();
+			    ex.badMagic = m;
+			    throw ex;
+			}
+			byte pMajor = ins.readByte();
+			byte pMinor = ins.readByte();
+			if(pMajor != IceInternal.Protocol.protocolMajor)
+			{
+			    UnsupportedProtocolException e = new UnsupportedProtocolException();
+			    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
+			    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
+			    e.major = IceInternal.Protocol.protocolMajor;
+			    e.minor = IceInternal.Protocol.protocolMinor;
+			    throw e;
+			}
+			byte eMajor = ins.readByte();
+			byte eMinor = ins.readByte();
+			if(eMajor != IceInternal.Protocol.encodingMajor)
+			{
+			    UnsupportedEncodingException e = new UnsupportedEncodingException();
+			    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+			    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
+			    e.major = IceInternal.Protocol.encodingMajor;
+			    e.minor = IceInternal.Protocol.encodingMinor;
+			    throw e;
+			}
+			byte messageType = ins.readByte();
+			if(messageType != IceInternal.Protocol.validateConnectionMsg)
+			{
+			    throw new ConnectionNotValidatedException();
+			}
+			byte compress = ins.readByte(); // Ignore compression status for validate connection.
+			int size = ins.readInt();
+			if(size != IceInternal.Protocol.headerSize)
+			{
+			    throw new IllegalMessageSizeException();
+			}
+			IceInternal.TraceUtil.traceHeader("received validate connection", ins, _logger, _traceLevels);
+		    }
+		}
+		catch(LocalException ex)
+		{
+		    lock(this)
 		    {
 			setState(StateClosed, ex);
 			Debug.Assert(_exception != null);
 			throw _exception;
 		    }
 		}
+	    }
 		
+	    lock(this)
+	    {
 		if(_acmTimeout > 0)
 		{
 		    long _acmAbsolutetimoutMillis = System.DateTime.Now.Ticks / 10 + _acmTimeout * 1000;
 		}
-
+		
 		//
 		// We start out in holding state.
 		//

@@ -1,6 +1,9 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed a deadlock that could occur if a server cannot send data
+  during connection validation.
+
 - Metadata is now allowed for dictionary types.
 
 - Added support for SSL. The Java plug-in uses the SSL capabilities

@@ -24,39 +24,53 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
         return hashCode();
     }
 
-    public synchronized void
+    public void
     validate()
     {
-	if(_instance.threadPerConnection() && _threadPerConnection != Thread.currentThread())
+	boolean active;
+
+	synchronized(this)
 	{
-	    //
-	    // In thread per connection mode, this connection's thread
-	    // will take care of connection validation. Therefore all we
-	    // have to do here is to wait until this thread has completed
-	    // validation.
-	    //
-	    while(_state == StateNotValidated)
+	    if(_instance.threadPerConnection() && _threadPerConnection != Thread.currentThread())
 	    {
-		try
+		//
+		// In thread per connection mode, this connection's thread
+		// will take care of connection validation. Therefore all we
+		// have to do here is to wait until this thread has completed
+		// validation.
+		//
+		while(_state == StateNotValidated)
 		{
-		    wait();
+		    try
+		    {
+			wait();
+		    }
+		    catch(InterruptedException ex)
+		    {
+		    }
 		}
-		catch(InterruptedException ex)
+		
+		if(_state >= StateClosing)
 		{
+		    assert(_exception != null);
+		    throw _exception;
 		}
+		
+		return;
 	    }
 
-	    if(_state >= StateClosing)
-	    {
-		assert(_exception != null);
-		throw _exception;
-	    }
+	    assert(_state == StateNotValidated);
 
-	    return;
+	    if(_adapter != null)
+	    {
+		active = true; // The server side has the active role for connection validation.
+	    }
+	    else
+	    {
+		active = false; // The client side has the passive role for connection validation.
+	    }	    
 	}
-
-	assert(_state == StateNotValidated);
-
+	    
 	if(!_endpoint.datagram()) // Datagram connections are always implicitly validated.
 	{
 	    try
@@ -72,41 +86,29 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 		    timeout = _endpoint.timeout();
 		}
 
-		if(_adapter != null)
+		if(active)
 		{
-		    synchronized(_sendMutex)
+		    IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
+		    os.writeBlob(IceInternal.Protocol.magic);
+		    os.writeByte(IceInternal.Protocol.protocolMajor);
+		    os.writeByte(IceInternal.Protocol.protocolMinor);
+		    os.writeByte(IceInternal.Protocol.encodingMajor);
+		    os.writeByte(IceInternal.Protocol.encodingMinor);
+		    os.writeByte(IceInternal.Protocol.validateConnectionMsg);
+		    os.writeByte((byte)0); // Compression status (always zero for validate connection).
+		    os.writeInt(IceInternal.Protocol.headerSize); // Message size.
+		    IceInternal.TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
+		    try
 		    {
-			//
-			// Incoming connections play the active role
-			// with respect to connection validation.
-			//
-			IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
-			os.writeBlob(IceInternal.Protocol.magic);
-			os.writeByte(IceInternal.Protocol.protocolMajor);
-			os.writeByte(IceInternal.Protocol.protocolMinor);
-			os.writeByte(IceInternal.Protocol.encodingMajor);
-			os.writeByte(IceInternal.Protocol.encodingMinor);
-			os.writeByte(IceInternal.Protocol.validateConnectionMsg);
-			os.writeByte((byte)0); // Compression status (always zero for validate connection).
-			os.writeInt(IceInternal.Protocol.headerSize); // Message size.
-			IceInternal.TraceUtil.traceHeader("sending validate connection", 
-							  os, _logger, _traceLevels);
-			try
-			{
-			    _transceiver.write(os, timeout);
-			}
-			catch(Ice.TimeoutException ex)
-			{
-			    throw new Ice.ConnectTimeoutException();
-			}
+			_transceiver.write(os, timeout);
+		    }
+		    catch(Ice.TimeoutException ex)
+		    {
+			throw new Ice.ConnectTimeoutException();
 		    }
 		}
 		else
 		{
-		    //
-		    // Outgoing connections play the passive role with
-		    // respect to connection validation.
-		    //
 		    IceInternal.BasicStream is = new IceInternal.BasicStream(_instance);
 		    is.resize(IceInternal.Protocol.headerSize, true);
 		    is.pos(0);
@@ -166,21 +168,27 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    }
 	    catch(LocalException ex)
 	    {
-		setState(StateClosed, ex);
-		assert(_exception != null);
-		throw _exception;
+		synchronized(this)
+		{
+		    setState(StateClosed, ex);
+		    assert(_exception != null);
+		    throw _exception;
+		}
 	    }
 	}
 	
-	if(_acmTimeout > 0)
+	synchronized(this)
 	{
-	    _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+	    if(_acmTimeout > 0)
+	    {
+		_acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+	    }
+	    
+	    //
+	    // We start out in holding state.
+	    //
+	    setState(StateHolding);
 	}
-
-	//
-	// We start out in holding state.
-	//
-	setState(StateHolding);
     }
 
     public synchronized void
