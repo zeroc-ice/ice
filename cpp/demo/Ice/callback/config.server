@@ -2,7 +2,7 @@ Callback.Server.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 
 #Ice.Trace.Network=1
 #Ice.Trace.Protocol=1
-Ice.ConnectionWarnings=1
+Ice.Warn.Connection=1
 
 Ice.Plugin.IceSSL=IceSSL:create
 IceSSL.Client.CertPath=../../../certs

@@ -17,6 +17,9 @@
 #include <Ice/ServantLocator.h>
 #include <Ice/Object.h>
 #include <Ice/LocalException.h>
+#include <Ice/Instance.h>
+#include <Ice/Properties.h>
+#include <Ice/LoggerUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -156,7 +159,7 @@ IceInternal::Incoming::invoke(bool response)
 
 	return;
     }
-    catch(const RequestFailedException& ex)
+    catch(RequestFailedException& ex)
     {
 	if(locator && servant)
 	{
@@ -169,15 +172,15 @@ IceInternal::Incoming::invoke(bool response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
-	    if(dynamic_cast<const ObjectNotExistException*>(&ex))
+	    if(dynamic_cast<ObjectNotExistException*>(&ex))
 	    {
 		_os.write(static_cast<Byte>(DispatchObjectNotExist));
 	    }
-	    else if(dynamic_cast<const FacetNotExistException*>(&ex))
+	    else if(dynamic_cast<FacetNotExistException*>(&ex))
 	    {
 		_os.write(static_cast<Byte>(DispatchFacetNotExist));
 	    }
-	    else if(dynamic_cast<const OperationNotExistException*>(&ex))
+	    else if(dynamic_cast<OperationNotExistException*>(&ex))
 	    {
 		_os.write(static_cast<Byte>(DispatchOperationNotExist));
 	    }
@@ -185,14 +188,61 @@ IceInternal::Incoming::invoke(bool response)
 	    {
 		assert(false);
 	    }
-            // Write the data from the exception, not from _current,
-            // so that a RequestFailedException can override the
-            // information from _current.
-	    ex.id.__write(&_os);
-	    _os.write(ex.facet);
-	    _os.write(ex.operation);
+	    
+	    //
+            // Write the data from the exception if set so that a
+            // RequestFailedException can override the information
+            // from _current.
+	    //
+	    if(!ex.id.name.empty())
+	    {
+		ex.id.__write(&_os);
+	    }
+	    else
+	    {
+		_current.id.__write(&_os);
+	    }
+
+	    if(!ex.facet.empty())
+	    {
+		_os.write(ex.facet);
+	    }
+	    else
+	    {
+		_os.write(_current.facet);
+	    }
+
+	    if(ex.operation.empty())
+	    {
+		_os.write(ex.operation);
+	    }
+	    else
+	    {
+		_os.write(_current.operation);
+	    }
 	}
 
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+	{
+	    if(ex.id.name.empty())
+	    {
+		ex.id = _current.id;
+	    }
+
+	    if(ex.facet.empty() && !_current.facet.empty())
+	    {
+		ex.facet = _current.facet;
+	    }
+	    
+	    if(ex.operation.empty() && !_current.operation.empty())
+	    {
+		ex.operation = _current.operation;
+	    }
+
+	    Warning out(_os.instance()->logger());
+	    out << "dispatch exception:\n" << ex;
+	}
+	
 	return;
     }
     catch(const LocalException& ex)
@@ -214,6 +264,12 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.write(str.str());
 	}
 
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    Warning out(_os.instance()->logger());
+	    out << "dispatch exception: unknown local exception:\n" << ex;
+	}
+	
 	return;
     }
     catch(const UserException& ex)
@@ -233,6 +289,12 @@ IceInternal::Incoming::invoke(bool response)
 	    ostringstream str;
 	    str << ex;
 	    _os.write(str.str());
+	}
+
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    Warning out(_os.instance()->logger());
+	    out << "dispatch exception: unknown user exception:\n" << ex;
 	}
 
 	return;
@@ -256,6 +318,12 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.write(str.str());
 	}
 
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    Warning out(_os.instance()->logger());
+	    out << "dispatch exception: unknown exception:\n" << ex;
+	}
+
 	return;
     }
     catch(const std::exception& ex)
@@ -277,6 +345,12 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.write(str.str());
 	}
 
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    Warning out(_os.instance()->logger());
+	    out << "dispatch exception: unknown std::exception: " << ex.what();
+	}
+
 	return;
     }
     catch(...)
@@ -295,6 +369,12 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	    string reason = "unknown c++ exception";
 	    _os.write(reason);
+	}
+
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    Warning out(_os.instance()->logger());
+	    out << "dispatch exception: unknown c++ exception";
 	}
 
 	return;

@@ -303,12 +303,12 @@ Ice::CommunicatorI::~CommunicatorI()
     if(_instance->__getRef() > 1)
     {
 	PropertiesPtr properties = _instance->properties();
-	if(properties->getPropertyAsIntWithDefault("Ice.LeakWarnings", 1) > 0)
+	if(properties->getPropertyAsIntWithDefault("Ice.Warn.Leak", 1) > 0)
 	{
 	    Warning warn(_instance->logger());
 	    warn <<
 		"The communicator is not the last Ice object that is deleted.  (You can\n"
-		"disable this warning by setting the property `Ice.LeakWarnings' to 0.)";
+		"disable this warning by setting the property `Ice.Warn.Leak' to 0.)";
 	}
     }
 }

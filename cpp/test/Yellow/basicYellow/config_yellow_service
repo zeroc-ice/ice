@@ -1,6 +1,6 @@
 #Ice.Trace.Network=1
 
-Ice.ConnectionWarnings=1
+Ice.Warn.Connection=1
 
 IceBox.Service.Yellow=YellowService:create --Ice.Config=config_yellow
 IceBox.DBEnvName.Yellow=db

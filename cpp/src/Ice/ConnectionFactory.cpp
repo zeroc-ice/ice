@@ -438,7 +438,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     EventHandler(instance),
     _endpoint(endpoint),
     _adapter(adapter),
-    _warn(_instance->properties()->getPropertyAsInt("Ice.ConnectionWarnings") > 0),
+    _warn(_instance->properties()->getPropertyAsInt("Ice.Warn.Connection") > 0),
     _state(StateHolding),
     _registeredWithPool(false)    
 {

@@ -1,4 +1,4 @@
-Ice.ConnectionWarnings=1
+Ice.Warn.Connection=1
 #Ice.Trace.Network=3
 #Ice.Trace.Protocol=1
 

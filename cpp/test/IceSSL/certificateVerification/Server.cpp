@@ -104,7 +104,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     std::string certPath = properties->getProperty("IceSSL.Test.Server.CertPath");
     properties->setProperty("IceSSL.Server.CertPath", certPath);
 
-    properties->setProperty("Ice.ConnectionWarnings", "0");
+    properties->setProperty("Ice.Warn.Connection", "0");
     properties->setProperty("IceSSL.Server.Config", "sslconfig_8.xml");
 
     Ice::PluginPtr plugin = communicator->getPluginManager()->getPlugin("IceSSL");

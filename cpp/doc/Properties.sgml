@@ -118,6 +118,86 @@ The request retry tracing level:
 </section>
 
 <!-- ********************************************************************** -->
+<section><title>&Ice; Warning Properties</title>
+<!-- ********************************************************************** -->
+
+<section><title>Ice.Warn.Connection</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Warn.Connection=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+Ice applications will print warning messages for certain exceptional
+conditions in connections. The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>Ice.Warn.Dispatch</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Warn.Dispatch=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+Ice applications will print warning messages for certain exceptional
+conditions occuring while an incoming request is dispatched. The
+default value is 1.
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No warnings.</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Print warnings for unexpected
+<literal>Ice::LocalException</literal>, <literal>Ice::UserException</literal>
+and C++ exceptions. (default)</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>Like 1, but more verbose, includes warnings for
+<literal>Ice::ObjectNotExistException</literal>,
+<literal>Ice::FacetNotExistException</literal> and
+<literal>Ice::OperationNotExistException</literal> exceptions.
+</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>Ice.Warn.Leak</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Warn.Leak=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the <literal>Ice::Communicator</literal> destructor will print a
+warning if some other Ice related C++ objects are still in memory. The
+default value is 1. (C++ only.)
+</para>
+</section>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
 <section><title>&Ice; Object Adapter Properties</title>
 <!-- ********************************************************************** -->
 
@@ -519,39 +599,6 @@ If <replaceable>num</replaceable> is set to a value larger than zero,
 a special logger is installed, which logs to the syslog facility
 instead of to standard error output. The identfier for syslog is the
 value of <literal>Ice.ProgramName</literal>. (Unix only.)
-</para>
-</section>
-</section>
-
-<section><title>Ice.ConnectionWarnings</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.ConnectionWarnings=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-Ice applications will print warning messages for certain exceptional
-conditions in connections.
-</para>
-</section>
-</section>
-
-<section><title>Ice.LeakWarnings</title>
-<section><title>Synopsis</title>
-<synopsis>
-Ice.LeakWarnings=<replaceable>num</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-If <replaceable>num</replaceable> is set to a value larger than zero,
-the <literal>Ice::Communicator</literal> destructor will print a
-warning if some other Ice related C++ objects are still in memory. The
-default value is 1. (C++ only.)
 </para>
 </section>
 </section>
