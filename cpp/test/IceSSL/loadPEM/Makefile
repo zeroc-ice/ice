@@ -14,7 +14,7 @@ CLIENT		= loadPEM
 
 TARGETS		= $(CLIENT)
 
-OBJS		= loadPEM.o
+OBJS		= LoadPEM.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
