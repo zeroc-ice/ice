@@ -290,10 +290,18 @@ to do the following:
    in the binary PHP distribution, you must use the Release
    configuration when compiling the Ice extension.
 
-NOTE: The Ice extension for PHP does not work correctly with Apache2
-      when compiled with Visual C++ 6.0 due to a problem in the run
-      time library. If you need to use Ice with Apache2, you must
-      use a version compiled with Visual C++ .NET (2002 or later).
+NOTE:
+
+  When compiled with Visual C++ 6.0, the Ice extension for PHP is
+  compatible with Apache 1.x. Due to a problem in the C++ run time
+  library, the Ice extension for PHP is not compatible with Apache
+  2.x.
+
+  In order to use the Ice extension for PHP with Apache 2.x, you
+  must obtain a version of the extension that is compiled using
+  Visual C++ .NET 2003.
+
+
 
 
 =========================================================================
