@@ -28,7 +28,8 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& ident, 
     mode(md),
     secure(sec),
     origEndpoints(origEndpts),
-    endpoints(endpts)
+    endpoints(endpts),
+    hashValue(0)
 {
     calcHashValue();
 }
@@ -36,7 +37,8 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& ident, 
 IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
     instance(inst),
     mode(ModeTwoway),
-    secure(false)
+    secure(false),
+    hashValue(0)
 {
     const string delim = " \t\n\r";
 
@@ -244,7 +246,8 @@ IceInternal::Reference::Reference(const string& ident, BasicStream* s) :
     instance(s->instance()),
     identity(ident),
     mode(ModeTwoway),
-    secure(false)
+    secure(false),
+    hashValue(0)
 {
     //
     // Don't read the identity here. Operations calling this
@@ -304,12 +307,12 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     // write the identity.
     //
 
-//    s->write(facet);
-
-//    s->write(static_cast<Byte>(mode));
-
-//    s->write(secure);
-
+    s->write(facet);
+    
+    s->write(static_cast<Byte>(mode));
+    
+    s->write(secure);
+    
     vector<EndpointPtr>::const_iterator p;
 
     s->write(Ice::Int(origEndpoints.size()));

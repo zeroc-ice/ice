@@ -127,7 +127,6 @@ twoways(const Test::MyClassPrx& p)
 
     {
 	Test::MyClassPrx c1;
-	c1->_getIdentity();
 	Test::MyClassPrx c2;
 	Test::MyClassPrx r;
 	

@@ -43,12 +43,10 @@ IceInternal::ProxyFactory::streamToProxy(BasicStream* s)
 
     if (identity.empty())
     {
-	cout << "read empty identity" << endl;
 	return 0;
     }
     else
     {
-	cout << "read identity " << identity << endl;
 	ReferencePtr reference = new Reference(identity, s);
 	return referenceToProxy(reference);
     }
@@ -67,13 +65,11 @@ IceInternal::ProxyFactory::proxyToStream(const ObjectPrx& proxy, BasicStream* s)
 {
     if (proxy)
     {
-	cout << "wrote identity " << proxy->__reference()->identity << endl;
 	s->write(proxy->__reference()->identity);
 	proxy->__reference()->streamWrite(s);
     }
     else
     {
-	cout << "wrote empty identity" << endl;
 	s->write("");
     }
 }

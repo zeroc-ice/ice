@@ -128,6 +128,7 @@ SOURCE=..\..\slice\IcePack\Admin.ice
 
 !IF  "$(CFG)" == "IcePack - Win32 Release"
 
+USERDEP__ADMIN="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\IcePack\Admin.ice
 
@@ -146,6 +147,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IcePack - Win32 Debug"
 
+USERDEP__ADMIN="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\IcePack\Admin.ice
 
@@ -171,6 +173,7 @@ SOURCE=..\..\slice\IcePack\AdminF.ice
 
 !IF  "$(CFG)" == "IcePack - Win32 Release"
 
+USERDEP__ADMINF="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\IcePack\AdminF.ice
 
@@ -184,6 +187,7 @@ InputPath=..\..\slice\IcePack\AdminF.ice
 
 !ELSEIF  "$(CFG)" == "IcePack - Win32 Debug"
 
+USERDEP__ADMINF="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\IcePack\AdminF.ice
 
