@@ -10,6 +10,7 @@
 
 namespace Ice
 {
+    using System;
     using System.Collections;
     using System.Diagnostics;
     using System.Threading;
@@ -381,7 +382,7 @@ namespace Ice
 	};
 	
 	//
-	// TODO:  Should not be a member function of ConnectionI.
+	// TODO: Should not be a member function of ConnectionI.
 	//
 	public void prepareRequest(IceInternal.BasicStream os)
 	{
@@ -398,7 +399,7 @@ namespace Ice
 		    // Do compression.
 		    //
 		    IceInternal.BasicStream cstream = null;
-		    if(uncompressed.compress(ref cstream))
+		    if(uncompressed.compress(ref cstream, IceInternal.Protocol.headerSize))
 		    {
 			//
 			// Set compression status.
@@ -407,19 +408,26 @@ namespace Ice
 			cstream.writeByte((byte)2);
 
 			//
+			// Write the size of the compressed stream into the header.
+			//
+			cstream.pos(10);
+			cstream.writeInt(cstream.size());       
+
+			//
 			// Write the compression status and size of the compressed stream into the header of the
 			// uncompressed stream -- we need this to trace requests correctly.
 			//
 			uncompressed.pos(9);
 			uncompressed.writeByte((byte)2);
 			uncompressed.writeInt(cstream.size());
+
 			return cstream;
 		    }
 		}
 	    }
 	    
 	    uncompressed.pos(9);
-	    uncompressed.writeByte((byte)(compress ? 1 : 0));
+	    uncompressed.writeByte((byte)((_compressionSupported && compress) ? 1 : 0));
 
 	    //
 	    // Not compressed, fill in the message size.
@@ -632,6 +640,13 @@ namespace Ice
 			Debug.Assert(o == og);
 			throw _exception;
 		    }
+		}
+	    }
+	    finally
+	    {
+	        if(!Object.ReferenceEquals(os, stream))
+		{
+		    stream.destroy();
 		}
 	    }
 	}
@@ -1082,7 +1097,10 @@ namespace Ice
 		    {
 			if(_compressionSupported)
 			{
-			    stream = stream.uncompress();
+			    IceInternal.BasicStream uncompressedStream
+				= stream.uncompress(IceInternal.Protocol.headerSize);
+			    stream.destroy();
+			    stream = uncompressedStream;
 			}
 			else
 			{

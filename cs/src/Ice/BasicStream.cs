@@ -1622,7 +1622,7 @@ namespace IceInternal
                                                    int verbosity,
                                                    int workFactor);
 
-        public bool compress(ref BasicStream cstream)
+        public bool compress(ref BasicStream cstream, int headerSize)
         {
             if(!_bzlibInstalled)
             {
@@ -1633,8 +1633,8 @@ namespace IceInternal
             //
             // Compress the message body, but not the header.
             //
-            int uncompressedLen = size() - Protocol.headerSize;
-            byte[] uncompressed = _buf.rawBytes(Protocol.headerSize, uncompressedLen);
+            int uncompressedLen = size() - headerSize;
+            byte[] uncompressed = _buf.rawBytes(headerSize, uncompressedLen);
             int compressedLen = (int)(uncompressedLen * 1.01 + 600);
             byte[] compressed = new byte[compressedLen];
 
@@ -1661,14 +1661,14 @@ namespace IceInternal
             }
 
             cstream = new BasicStream(_instance);
-            cstream.resize(Protocol.headerSize + 4 + compressedLen, false);
+            cstream.resize(headerSize + 4 + compressedLen, false);
             cstream.pos(0);
             
             //
             // Copy the header from the uncompressed stream to the
             // compressed one.
             //
-            cstream._buf.put(_buf.rawBytes(0, Protocol.headerSize));
+            cstream._buf.put(_buf.rawBytes(0, headerSize));
 
             //
             // Add the size of the uncompressed stream before the
@@ -1681,13 +1681,6 @@ namespace IceInternal
             //
             cstream._buf.put(compressed, 0, compressedLen);
 
-            //
-            // Write the size of the compressed stream into the
-            // header.
-            //
-            cstream.pos(10);
-            cstream.writeInt(cstream.size());       
-            
             return true;
         }
 
@@ -1699,24 +1692,23 @@ namespace IceInternal
                                                      int small,
                                                      int verbosity);
 
-        public BasicStream uncompress()
+        public BasicStream uncompress(int headerSize)
         {
             if(!_bzlibInstalled)
             {
                 return this;
             }
 
-            pos(Protocol.headerSize);
+            pos(headerSize);
             int uncompressedSize = readInt();
-            if(uncompressedSize <= Protocol.headerSize)
+            if(uncompressedSize <= headerSize)
             {
                 throw new Ice.IllegalMessageSizeException("compressed size <= header size");
             }
-            //resize(uncompressedSize, true);
 
-            int compressedLen = size() - Protocol.headerSize - 4;
-            byte[] compressed = _buf.rawBytes(Protocol.headerSize + 4, compressedLen);
-            int uncompressedLen = uncompressedSize - Protocol.headerSize;
+            int compressedLen = size() - headerSize - 4;
+            byte[] compressed = _buf.rawBytes(headerSize + 4, compressedLen);
+            int uncompressedLen = uncompressedSize - headerSize;
             byte[] uncompressed = new byte[uncompressedLen];
             int rc = BZ2_bzBuffToBuffDecompress(uncompressed, ref uncompressedLen, compressed, compressedLen, 0, 0);
             if(rc < 0)
@@ -1728,7 +1720,7 @@ namespace IceInternal
             BasicStream ucStream = new BasicStream(_instance);
             ucStream.resize(uncompressedSize, false);
             ucStream.pos(0);
-            ucStream._buf.put(_buf.rawBytes(0, Protocol.headerSize));
+            ucStream._buf.put(_buf.rawBytes(0, headerSize));
             ucStream._buf.put(uncompressed, 0, uncompressedLen);
             return ucStream;
         }
