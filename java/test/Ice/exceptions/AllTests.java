@@ -59,7 +59,7 @@ public class AllTests
     allTests(Ice.Communicator communicator, boolean collocated)
     {
         {
-	    System.out.print("testing AlreadyRegisteredException and NotRegisteredException for servant... ");
+	    System.out.print("testing servant registration exceptions... ");
 	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
 	    Ice.Object obj = new EmptyI();
 	    adapter.add(obj, Ice.Util.stringToIdentity("x"));
@@ -90,7 +90,7 @@ public class AllTests
 	}
 
 	{
-	    System.out.print("testing AlreadyRegisteredException and NotRegisteredException for servant locator... ");
+	    System.out.print("testing servant locator registration exceptions... ");
 	    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
 	    Ice.ServantLocator loc = new ServantLocatorI();
 	    adapter.addServantLocator(loc, "x");
@@ -121,7 +121,7 @@ public class AllTests
 	}
 
 	{
-	    System.out.print("testing AlreadyRegisteredException and NotRegisteredException for object factory... ");
+	    System.out.print("testing object factory registration exceptions... ");
 	    Ice.ObjectFactory of = new ObjectFactoryI();
 	    communicator.addObjectFactory(of, "::x");
 	    boolean gotException = false;
@@ -150,8 +150,7 @@ public class AllTests
 	}
 
 	{
-	    System.out.print("testing AlreadyRegisteredException and NotRegisteredException");
-	    System.out.print(" for user exception factory... ");
+	    System.out.print("testing user exception factory registration exceptions... ");
 	    Ice.UserExceptionFactory f = new MyExceptionFactory();
 	    communicator.addUserExceptionFactory(f, "::x");
 	    boolean gotException = false;

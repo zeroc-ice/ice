@@ -117,6 +117,12 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
         }
     }
 
+    public synchronized void
+    waitForHold()
+    {
+	// TODO: Not implemented yet.
+    } 
+
     public void
     deactivate()
     {
@@ -495,15 +501,11 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     public synchronized void
     incUsageCount()
     {
-	//
-	// Don't check whether deactivation has been initiated. This
-	// operation might be called (e.g., from Incoming or Direct)
-	// after deactivation has been initiated, but before
-	// deactivation has been completed.
-	//
-	/*
-	assert(_instance != null);
-	*/
+	if(_instance == null)
+	{
+	    throw new ObjectAdapterDeactivatedException();
+	}
+
 	assert(_usageCount >= 0);
 	++_usageCount;
     }
@@ -512,13 +514,14 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     decUsageCount()
     {
 	//
-	// The object adapter may already be deactivated when the
-	// usage count is decremented, thus no check for prior
-	// deactivation.
+	// The object adapter may already have been deactivated when
+	// the usage count is decremented, thus there is no check for
+	// prior deactivation.
 	//
 
 	assert(_usageCount > 0);
 	--_usageCount;
+
 	if(_usageCount == 0)
 	{
 	    _activeServantMap.clear();
@@ -543,8 +546,8 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
                     _logger.error(s);
                 }
 	    }
+
 	    _locatorMap.clear();
-            _logger = null;
 
 	    notifyAll();
         }

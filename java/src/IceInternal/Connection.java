@@ -653,9 +653,9 @@ public final class Connection extends EventHandler
 
                             --_responseCount;
 
-                            if(_state == StateClosing && _responseCount == 0 && !_endpoint.datagram())
+                            if(_state == StateClosing && _responseCount == 0)
                             {
-                                closeConnection();
+                                initiateShutdown();
                             }
                         }
                         catch(Ice.LocalException ex)
@@ -908,11 +908,11 @@ public final class Connection extends EventHandler
 
         _state = state;
 
-        if(_state == StateClosing && _responseCount == 0 && !_endpoint.datagram())
+        if(_state == StateClosing && _responseCount == 0)
         {
             try
             {
-                closeConnection();
+                initiateShutdown();
             }
             catch(Ice.LocalException ex)
             {
@@ -922,20 +922,25 @@ public final class Connection extends EventHandler
     }
 
     private void
-    closeConnection()
+    initiateShutdown()
     {
-        BasicStream os = new BasicStream(_instance);
-        os.writeByte(Protocol.protocolVersion);
-        os.writeByte(Protocol.encodingVersion);
-        os.writeByte(Protocol.closeConnectionMsg);
-        os.writeInt(Protocol.headerSize); // Message size.
-        _transceiver.write(os, _endpoint.timeout());
+	assert(_state == StateClosing);
+	assert(_responseCount == 0);
 
-	//
-	// A close connection is always followed by a connection
-	// shutdown.
-	//
-        _transceiver.shutdown();
+	if(!_endpoint.datagram())
+	{
+	    //
+	    // Before we shut down, we send a close connection
+	    // message.
+	    //
+	    BasicStream os = new BasicStream(_instance);
+	    os.writeByte(Protocol.protocolVersion);
+	    os.writeByte(Protocol.encodingVersion);
+	    os.writeByte(Protocol.closeConnectionMsg);
+	    os.writeInt(Protocol.headerSize); // Message size.
+	    _transceiver.write(os, _endpoint.timeout());
+	    _transceiver.shutdown();
+	}
     }
 
     private void
