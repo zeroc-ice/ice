@@ -476,6 +476,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceXML
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name encoding
+    End Project Dependency
 }}}
 
 ###############################################################################
