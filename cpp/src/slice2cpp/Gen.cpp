@@ -803,8 +803,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-	C << nl << "_delegate = 0;";
-	C << nl << "__ex.raise();";
+	C << nl << "__rethrowException(*__ex.get());";
     }
     C << eb;
     C << nl << "catch (const ::Ice::LocalException& __ex)";
@@ -1118,7 +1117,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sp;
     C << nl << retS << nl << "IceDelegateM" << scoped << paramsDecl;
     C << sb;
-    C << nl << "::IceInternal::Outgoing __out(__emitter(), __reference());";
+    C << nl << "::IceInternal::Outgoing __out(__emitter, __reference);";
     if (ret || !outParams.empty() || !throws.empty())
     {
 	C << nl << "::IceInternal::Stream* __is = __out.is();";

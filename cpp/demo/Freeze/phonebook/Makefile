@@ -13,7 +13,7 @@ top_srcdir	= ../../..
 CLIENT		= client
 SERVER		= server
 
-TARGETS		= $(CLIENT) $(SERVER) db
+TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= PhoneBook.o
 
@@ -63,11 +63,5 @@ PhoneBook.h PhoneBook.cpp: PhoneBook.ice $(SLICE)
 
 clean::
 	rm -f PhoneBook.h PhoneBook.cpp
-
-db:
-	mkdir db
-
-clean::
-	rm -rf db
 
 include .depend

@@ -389,6 +389,16 @@ IceProxy::Ice::Object::__locationForward(const LocationForward& ex)
 */
 }
 
+void
+IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    _delegate = 0;
+
+    ex.raise();
+}
+
 IceProxy::Ice::Object::Object()
 {
 }
@@ -457,7 +467,7 @@ IceDelegate::Ice::Object::setup(const ReferencePtr&)
 bool
 IceDelegateM::Ice::Object::_isA(const string& s)
 {
-    Outgoing __out(__emitter(), __reference());
+    Outgoing __out(__emitter, __reference);
     Stream* __is = __out.is();
     Stream* __os = __out.os();
     __os->write("_isA");
@@ -474,7 +484,7 @@ IceDelegateM::Ice::Object::_isA(const string& s)
 void
 IceDelegateM::Ice::Object::_ping()
 {
-    Outgoing __out(__emitter(), __reference());
+    Outgoing __out(__emitter, __reference);
     Stream* __os = __out.os();
     __os->write("_ping");
     if (!__out.invoke())
@@ -486,7 +496,7 @@ IceDelegateM::Ice::Object::_ping()
 void
 IceDelegateM::Ice::Object::_flush()
 {
-    __emitter()->flushBatchRequest();
+    __emitter->flushBatchRequest();
 }
 
 IceDelegateM::Ice::Object::Object()
@@ -497,19 +507,6 @@ IceDelegateM::Ice::Object::~Object()
 {
 }
 
-const EmitterPtr&
-IceDelegateM::Ice::Object::__emitter()
-{
-    assert(_emitter);
-    return _emitter;
-}
-
-const ReferencePtr&
-IceDelegateM::Ice::Object::__reference()
-{
-    return _reference;
-}
-
 void
 IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
 {
@@ -517,16 +514,16 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
     // No need to synchronize, as this operation is only called
     // upon initial initialization.
     //
-    _reference = reference;
+    __reference = reference;
 
     vector<EndpointPtr> endpoints;
-    switch (_reference->mode)
+    switch (__reference->mode)
     {
 	case Reference::ModeTwoway:
 	case Reference::ModeOneway:
 	case Reference::ModeBatchOneway:
 	{
-	    remove_copy_if(_reference->endpoints.begin(), _reference->endpoints.end(), back_inserter(endpoints), 
+	    remove_copy_if(__reference->endpoints.begin(), __reference->endpoints.end(), back_inserter(endpoints), 
 			   ::IceInternal::constMemFun(&Endpoint::datagram));
 	    break;
 	}
@@ -534,13 +531,13 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
 	case Reference::ModeDatagram:
 	case Reference::ModeBatchDatagram:
 	{
-	    remove_copy_if(_reference->endpoints.begin(), _reference->endpoints.end(), back_inserter(endpoints),
+	    remove_copy_if(__reference->endpoints.begin(), __reference->endpoints.end(), back_inserter(endpoints),
 			   not1(::IceInternal::constMemFun(&Endpoint::datagram)));
 	    break;
 	}
     }
 
-    if (_reference->secure)
+    if (__reference->secure)
     {
 	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
 				  not1(::IceInternal::constMemFun(&Endpoint::secure))),
@@ -560,7 +557,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
 
     random_shuffle(endpoints.begin(), endpoints.end());
 
-    EmitterFactoryPtr factory = _reference->instance->emitterFactory();
-    _emitter = factory->create(endpoints);
-    assert(_emitter);
+    EmitterFactoryPtr factory = __reference->instance->emitterFactory();
+    __emitter = factory->create(endpoints);
+    assert(__emitter);
 }

@@ -36,7 +36,6 @@ public:
 
     NonRepeatable(const NonRepeatable&);
     NonRepeatable(const ::Ice::LocalException&);
-    void raise() const;
     const ::Ice::LocalException* get() const;
 
 private:

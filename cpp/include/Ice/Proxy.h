@@ -71,6 +71,7 @@ public:
     ::IceInternal::ReferencePtr __reference() const;
     void __copyTo(::IceProxy::Ice::Object*) const;
     void __handleException(const ::Ice::LocalException&, int&);
+    void __rethrowException(const ::Ice::LocalException&);
     void __locationForward(const ::Ice::LocationForward&);
 
 protected:
@@ -82,13 +83,12 @@ protected:
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate();
     virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();
 
-    ::IceInternal::Handle< ::IceDelegate::Ice::Object> _delegate;
-
 private:
 
     void setup(const ::IceInternal::ReferencePtr&);
 
     ::IceInternal::ReferencePtr _reference;
+    ::IceInternal::Handle< ::IceDelegate::Ice::Object> _delegate;
 };
 
 } }
@@ -134,15 +134,10 @@ protected:
     virtual ~Object();
     friend class ::IceProxy::Ice::Object;
 
-    const ::IceInternal::EmitterPtr& __emitter(); // const...& for performance
-    const ::IceInternal::ReferencePtr& __reference(); // const...& for performance
-
-private:
-
-    ::IceInternal::EmitterPtr _emitter;
-    ::IceInternal::ReferencePtr _reference;
-
     virtual void setup(const ::IceInternal::ReferencePtr&);
+
+    ::IceInternal::EmitterPtr __emitter;
+    ::IceInternal::ReferencePtr __reference;
 };
 
 } }

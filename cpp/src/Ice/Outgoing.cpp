@@ -28,13 +28,6 @@ IceInternal::NonRepeatable::NonRepeatable(const ::Ice::LocalException& ex)
     _ex = auto_ptr<LocalException>(ex.clone());
 }
 
-void
-IceInternal::NonRepeatable::raise() const
-{
-    assert(_ex.get());
-    _ex.get()->raise();
-}
-
 const ::Ice::LocalException*
 IceInternal::NonRepeatable::get() const
 {
