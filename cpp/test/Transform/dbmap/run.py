@@ -37,6 +37,8 @@ for file in os.listdir(os.path.join(directory, "fail")):
     if(regex1.search(file)):
         files.append(file)
 
+regex2 = re.compile(r"^.*transformdb(\.exe)?")
+
 print "testing error detection... ",
 sys.stdout.flush()
 
@@ -61,8 +63,8 @@ for oldfile in files:
     
     i = 0
     while i < len(lines1):
-        line1 = lines1[i].replace(transformdb, "")
-        line2 = lines2[i].replace("transformdb", "")
+        line1 = regex2.sub("", lines1[i]).strip()
+        line2 = regex2.sub("", lines2[i]).strip()
         if line1 != line2:
             print "failed!"
             sys.exit(1)

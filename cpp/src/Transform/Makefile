@@ -55,7 +55,7 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
 
-$(TRANSFORMDB): $(TRANSFORM_OBJS)
+$(TRANSFORMDB): $(TRANSFORM_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(TRANSFORM_OBJS) -lTransform -lSlice -lIceXML $(LIBS) $(DB_LIBS)
 
