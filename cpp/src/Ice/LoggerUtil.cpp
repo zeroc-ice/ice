@@ -33,7 +33,7 @@ Ice::Warning::flush()
     {
 	_logger->warning(s);
     }
-    _str.clear();
+    _str.str("");
 }
 
 ostringstream&
@@ -67,7 +67,7 @@ Ice::Error::flush()
     {
 	_logger->error(s);
     }
-    _str.clear();
+    _str.str("");
 }
 
 ostringstream&
@@ -102,7 +102,7 @@ Ice::Trace::flush()
     {
 	_logger->trace(s, _category);
     }
-    _str.clear();
+    _str.str("");
 }
 
 ostringstream&
