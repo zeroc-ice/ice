@@ -101,7 +101,7 @@ class TestResults :
                     if refbest < 0.0:
                         refbest = best
 
-                    results[self.test][n][p][id] = "%#.6f (%#1.3f)" % (best, best / refbest)
+                    results[self.test][n][p][id] = (best, best / refbest)
 
     def calcMeanAndBest(self, values):
 
@@ -171,7 +171,7 @@ class AllResults :
         else:
             self.results[results.id] = results
             
-    def printAll(self):
+    def printAll(self, csv):
 
         results = { }
         tests = [ ]
@@ -180,7 +180,35 @@ class AllResults :
         products = [ ]
         for r in self.results.itervalues():
             r.addToResults(results, tests, names, products, hosts)
-        
+
+        if csv:
+            self.printAllAsCsv(results, tests, names, hosts, products)
+        else:
+            self.printAllAsText(results, tests, names, hosts, products)
+
+    def printAllAsCsv(self, results, tests, names, hosts, products):
+
+        print "Product, Test, Configuration, ",
+        for host in hosts:
+            print host + ",",
+        print ""
+
+        for product in products:
+            for test in tests:
+                for name in names:
+                    if results[test].has_key(name):
+                        if results[test][name].has_key(product):
+                            print product + "," + test + "," + name + ",",
+                            for host in hosts:
+                                if not results[test][name][product].has_key(host):
+                                    print ",",
+                                else:
+                                    (m, r) = results[test][name][product][host]
+                                    print  str(m) + ",",
+                            print ""
+
+    def printAllAsText(self, results, tests, names, hosts, products):
+
         for test in tests:
             print test + ": "
             sep = "==========================="
@@ -208,7 +236,7 @@ class AllResults :
                                 if not results[test][name][product].has_key(host):
                                     print "| %-18s" % "",
                                 else:
-                                    print "| %-18s" % results[test][name][product][host],
+                                    print "| %10.6f (%#1.3f)" % results[test][name][product][host],
                             print ""
                 if hasTest:
                     print " ---------------",

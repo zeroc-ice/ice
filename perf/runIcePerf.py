@@ -176,4 +176,4 @@ print "\n"
 print "All results:"
 all = TestUtil.AllResults()
 all.add(results)
-all.printAll()
+all.printAll(False)
