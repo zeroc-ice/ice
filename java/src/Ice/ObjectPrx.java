@@ -30,8 +30,8 @@ public interface ObjectPrx
     String[] ice_facets(java.util.Map __context);
 
     // Returns true if ok, false if user exception.
-    boolean ice_invoke(String operation, boolean nonmutating, byte[] inParams, ByteSeqHolder outParams);
-    boolean ice_invoke(String operation, boolean nonmutating, byte[] inParams, ByteSeqHolder outParams,
+    boolean ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams);
+    boolean ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                        java.util.Map __context);
 
     Identity ice_getIdentity();

@@ -37,7 +37,7 @@ IceInternal::NonRepeatable::get() const
 }
 
 IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const ReferencePtr& ref, const string& operation,
-				bool idempotent, const Context& context) :
+				OperationMode mode, const Context& context) :
     _connection(connection),
     _reference(ref),
     _state(StateUnsent),
@@ -65,7 +65,7 @@ IceInternal::Outgoing::Outgoing(const ConnectionPtr& connection, const Reference
     _reference->identity.__write(&_os);
     _os.write(_reference->facet);
     _os.write(operation);
-    _os.write(idempotent);
+    _os.write(static_cast<Byte>(mode));
     _os.writeSize(Int(context.size()));
     Context::const_iterator p;
     for(p = context.begin(); p != context.end(); ++p)

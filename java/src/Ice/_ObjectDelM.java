@@ -16,7 +16,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_isA(String __id, java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out = getOutgoing("ice_isA", true, __context);
+        IceInternal.Outgoing __out = getOutgoing("ice_isA", OperationMode.Nonmutating, __context);
         try
         {
             IceInternal.BasicStream __is = __out.is();
@@ -38,7 +38,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_ping(java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out = getOutgoing("ice_ping", true, __context);
+        IceInternal.Outgoing __out = getOutgoing("ice_ping", OperationMode.Nonmutating, __context);
         try
         {
             if(!__out.invoke())
@@ -56,7 +56,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_ids(java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out = getOutgoing("ice_ids", true, __context);
+        IceInternal.Outgoing __out = getOutgoing("ice_ids", OperationMode.Nonmutating, __context);
         try
         {
             IceInternal.BasicStream __is = __out.is();
@@ -76,7 +76,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_id(java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out = getOutgoing("ice_id", true, __context);
+        IceInternal.Outgoing __out = getOutgoing("ice_id", OperationMode.Nonmutating, __context);
         try
         {
             IceInternal.BasicStream __is = __out.is();
@@ -96,7 +96,7 @@ public class _ObjectDelM implements _ObjectDel
     ice_facets(java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out = getOutgoing("ice_facets", true, __context);
+        IceInternal.Outgoing __out = getOutgoing("ice_facets", OperationMode.Nonmutating, __context);
         try
         {
             IceInternal.BasicStream __is = __out.is();
@@ -113,11 +113,11 @@ public class _ObjectDelM implements _ObjectDel
     }
 
     public boolean
-    ice_invoke(String operation, boolean nonmutating, byte[] inParams, ByteSeqHolder outParams,
+    ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
-        IceInternal.Outgoing __out = getOutgoing(operation, nonmutating, __context);
+        IceInternal.Outgoing __out = getOutgoing(operation, OperationMode.Nonmutating, __context);
         try
         {
             IceInternal.BasicStream __os = __out.os();
@@ -409,7 +409,7 @@ public class _ObjectDelM implements _ObjectDel
     private static EndpointComparator __comparator = new EndpointComparator();
 
     protected IceInternal.Outgoing
-    getOutgoing(String operation, boolean nonmutating, java.util.Map context)
+    getOutgoing(String operation, OperationMode mode, java.util.Map context)
     {
         IceInternal.Outgoing out;
 
@@ -417,13 +417,13 @@ public class _ObjectDelM implements _ObjectDel
         {
             if(__outgoingCache == null)
             {
-                out = new IceInternal.Outgoing(__connection, __reference, operation, nonmutating, context);
+                out = new IceInternal.Outgoing(__connection, __reference, operation, mode, context);
             }
             else
             {
                 out = __outgoingCache;
                 __outgoingCache = __outgoingCache.next;
-                out.reset(operation, nonmutating, context);
+                out.reset(operation, mode, context);
             }
         }
 

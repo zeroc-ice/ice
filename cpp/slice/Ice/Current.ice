@@ -29,6 +29,22 @@ local dictionary<string, string> Context;
 
 /**
  *
+ * The [OperationMode] indicates whether an operation
+ * is an ordinary (mutating) operation, a nonmutating
+ * (const) operation, or an idempotent (safely
+ * reinvocable) operation.
+ *
+ **/
+
+//
+// Note: The order of definitions here *must* match
+//       the order of defininitions for
+//       ::Slice::Operation::Mode in Slice/Parser.h!
+//
+enum OperationMode { Normal, \Nonmutating, \Idempotent };
+
+/**
+ *
  * Information about the current method invocation for servers. Each
  * method on the server has a [Current] as last parameter
  * implicitly. [Current] is mostly used for &Ice; services, such as
@@ -63,10 +79,10 @@ local struct Current
 
     /**
      *
-     * Set to true if the operation is idempotent.
+     * The mode of the operation.
      *
      **/
-    bool \idempotent;
+    OperationMode mode;
 
     /**
      *

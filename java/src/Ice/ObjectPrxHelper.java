@@ -186,13 +186,13 @@ public class ObjectPrxHelper implements ObjectPrx
     }
 
     public final boolean
-    ice_invoke(String operation, boolean nonmutating, byte[] inParams, ByteSeqHolder outParams)
+    ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams)
     {
-        return ice_invoke(operation, nonmutating, inParams, outParams, null);
+        return ice_invoke(operation, mode, inParams, outParams, null);
     }
 
     public final boolean
-    ice_invoke(String operation, boolean nonmutating, byte[] inParams, ByteSeqHolder outParams,
+    ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map __context)
     {
         int __cnt = 0;
@@ -201,7 +201,7 @@ public class ObjectPrxHelper implements ObjectPrx
             try
             {
                 _ObjectDel __del = __getDelegate();
-                return __del.ice_invoke(operation, nonmutating, inParams, outParams, __context);
+                return __del.ice_invoke(operation, mode, inParams, outParams, __context);
             }
             catch(LocationForward __ex)
             {
@@ -209,7 +209,7 @@ public class ObjectPrxHelper implements ObjectPrx
             }
             catch(IceInternal.NonRepeatable __ex)
             {
-                if(nonmutating)
+                if(mode == OperationMode.Nonmutating || mode == OperationMode.Idempotent)
                 {
                     __cnt = __handleException(__ex.get(), __cnt);
                 }

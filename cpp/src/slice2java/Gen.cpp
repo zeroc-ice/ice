@@ -16,6 +16,39 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
+namespace	// anonymous
+{
+
+string
+sliceModeToIceMode(const OperationPtr& op)
+{
+    string mode;
+    switch(op->mode())
+    {
+	case Operation::Normal:
+	    {
+		mode = "Ice.OperationMode.Normal";
+		break;
+	    }
+	case Operation::Nonmutating:
+	    {
+		mode = "Ice.OperationMode.Nonmutating";
+		break;
+	    }
+	case Operation::Idempotent:
+	    {
+		mode = "Ice.OperationMode.Idempotent";
+		break;
+	    }
+	default:
+	    {
+		assert("Impossible operation mode!");
+		break;
+	    }
+    }
+    return mode;
+}
+
 Slice::JavaVisitor::JavaVisitor(const string& dir, const string& package) :
     JavaGenerator(dir, package)
 {
@@ -2067,7 +2100,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << nl << "catch(IceInternal.NonRepeatable __ex)";
         out << sb;
-        if(op->idempotent())
+        if(op->mode() == Operation::Idempotent || op->mode() == Operation::Nonmutating)
         {
             out << nl << "__cnt = __handleException(__ex.get(), __cnt);";
         }
@@ -3005,7 +3038,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
 	list<string> metaData = op->getMetaData();
         out << nl << "IceInternal.Outgoing __out = getOutgoing(\"" << op->name() << "\", "
-            << (op->idempotent() ? "true" : "false") << ", __context);";
+	    << sliceModeToIceMode(op) << ", __context);";
         out << nl << "try";
         out << sb;
         if(!inParams.empty())
@@ -3109,6 +3142,8 @@ Slice::Gen::DelegateDVisitor::DelegateDVisitor(const string& dir, const string& 
 {
 }
 
+}
+
 bool
 Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
@@ -3170,8 +3205,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
 	list<string> metaData = op->getMetaData();
         out << nl << "Ice.Current __current = new Ice.Current();";
-        out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << (op->idempotent() ? "true" : "false")
-            << ", __context);";
+        out << nl << "__initCurrent(__current, \"" << op->name() << "\", "
+	    << sliceModeToIceMode(op) << ", __context);";
         out << nl << "while(true)";
         out << sb;
         out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);";

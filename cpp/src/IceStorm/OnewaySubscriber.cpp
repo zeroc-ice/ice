@@ -63,7 +63,7 @@ OnewaySubscriber::publish(const Event& event)
     try
     {
 	std::vector< ::Ice::Byte> dummy;
-	_obj->ice_invoke(event.op, event.idempotent, event.data, dummy, event.context);
+	_obj->ice_invoke(event.op, ::Ice::Idempotent, event.data, dummy, event.context);
     }
     catch(const Ice::LocalException& e)
     {

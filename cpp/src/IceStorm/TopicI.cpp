@@ -73,7 +73,7 @@ public:
     {
     }
 
-    virtual void forward(const string&, bool, const ByteSeq&, const ContextData&, const Ice::Current&);
+    virtual void forward(const string&, ::Ice::OperationMode, const ByteSeq&, const ContextData&, const Ice::Current&);
 
 private:
 
@@ -294,7 +294,7 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
 	event.cost = 0; // TODO: Default comes from property?
     }
     event.op = current.operation;
-    event.idempotent = current.idempotent;
+    event.mode = current.mode;
     event.data = inParams;
     event.context = context;
 
@@ -307,14 +307,14 @@ PublisherProxyI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byt
 // Incoming events from linked topics.
 //
 void
-TopicLinkI::forward(const string& op, bool idempotent, const ByteSeq& data, const ContextData& context,
+TopicLinkI::forward(const string& op, Ice::OperationMode mode, const ByteSeq& data, const ContextData& context,
                     const Ice::Current& current)
 {
     Event event;
     event.forwarded = true;
     event.cost = 0;
     event.op = op;
-    event.idempotent = idempotent;
+    event.mode = mode;
     event.data = data;
     event.context = context;
 

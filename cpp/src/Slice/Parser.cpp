@@ -3044,6 +3044,12 @@ Slice::Operation::returnType() const
     return _returnType;
 }
 
+Operation::Mode
+Slice::Operation::mode() const
+{
+    return _mode;
+}
+
 ParamDeclPtr
 Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam)
 {
@@ -3146,18 +3152,6 @@ ExceptionList
 Slice::Operation::throws() const
 {
     return _throws;
-}
-
-bool
-Slice::Operation::nonmutating() const
-{
-    return _mode == Nonmutating;
-}
-
-bool
-Slice::Operation::idempotent() const
-{
-    return _mode == Nonmutating || _mode == Idempotent;
 }
 
 void

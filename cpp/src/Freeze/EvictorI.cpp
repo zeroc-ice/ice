@@ -317,12 +317,9 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const Current& current,
     // If we are in SaveAfterMutatingOperation mode, we must save the
     // Ice Object if this was a mutating call.
     //
-    // TODO: ML: Badly broken now, we don't save if an operation is
-    // mutating and idempotent!!!
-    //
     if(_persistenceMode == SaveAfterMutatingOperation)
     {
-	if(!current.idempotent)
+	if(current.mode != ::Ice::Nonmutating)
 	{
 	    _dict.insert(make_pair(current.id, servant));
 	}

@@ -30,6 +30,12 @@ public final class TestI extends _TestDisp
         System.exit(1);
     }
 
+    public void
+    nonmutatingAbort(Ice.Current current)
+    {
+        System.exit(1);
+    }
+
     public int
     pid(Ice.Current current)
     {

@@ -269,12 +269,9 @@ class EvictorI implements Evictor
 	// If we are in SaveAfterMutatingOperation mode, we must save the
 	// Ice Object if this was a mutating call.
 	//
-	// TODO: ML: Badly broken now, we don't save if an operation
-	// is mutating and idempotent!!!
-	//
 	if(_persistenceMode == EvictorPersistenceMode.SaveAfterMutatingOperation)
 	{
-	    if(!current.idempotent)
+	    if(current.mode != Ice.OperationMode.Nonmutating)
 	    {
 		_dict.put(current.id, servant);
 	    }

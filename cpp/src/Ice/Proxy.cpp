@@ -249,7 +249,7 @@ IceProxy::Ice::Object::ice_facets(const Context& __context)
 
 bool
 IceProxy::Ice::Object::ice_invoke(const string& operation,
-				  bool idempotent,
+				  OperationMode mode,
 				  const vector<Byte>& inParams,
 				  vector<Byte>& outParams,
 				  const Context& context)
@@ -260,7 +260,7 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    return __del->ice_invoke(operation, idempotent, inParams, outParams, context);
+	    return __del->ice_invoke(operation, mode, inParams, outParams, context);
 	}
 	catch(const LocationForward& __ex)
 	{
@@ -268,7 +268,8 @@ IceProxy::Ice::Object::ice_invoke(const string& operation,
 	}
 	catch(const NonRepeatable& __ex)
 	{
-	    if(idempotent)
+	    bool canRetry = mode == Nonmutating || mode == Idempotent;
+	    if(canRetry)
 	    {
 		__handleException(*__ex.get(), __cnt);
 	    }
@@ -746,7 +747,7 @@ bool
 IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     static const string __operation("ice_isA");
-    Outgoing __out(__connection, __reference, __operation, true, __context);
+    Outgoing __out(__connection, __reference, __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __out.is();
     BasicStream* __os = __out.os();
     __os->write(__id);
@@ -763,7 +764,7 @@ void
 IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 {
     static const string __operation("ice_ping");
-    Outgoing __out(__connection, __reference, __operation, true, __context);
+    Outgoing __out(__connection, __reference, __operation, ::Ice::Nonmutating, __context);
     if(!__out.invoke())
     {
 	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
@@ -774,7 +775,7 @@ vector<string>
 IceDelegateM::Ice::Object::ice_ids(const Context& __context)
 {
     static const string __operation("ice_ids");
-    Outgoing __out(__connection, __reference, __operation, true, __context);
+    Outgoing __out(__connection, __reference, __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __out.is();
     if(!__out.invoke())
     {
@@ -789,7 +790,7 @@ string
 IceDelegateM::Ice::Object::ice_id(const Context& __context)
 {
     static const string __operation("ice_id");
-    Outgoing __out(__connection, __reference, __operation, true, __context);
+    Outgoing __out(__connection, __reference, __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __out.is();
     if(!__out.invoke())
     {
@@ -804,7 +805,7 @@ vector<string>
 IceDelegateM::Ice::Object::ice_facets(const Context& __context)
 {
     static const string __operation("ice_facets");
-    Outgoing __out(__connection, __reference, __operation, true, __context);
+    Outgoing __out(__connection, __reference, __operation, ::Ice::Nonmutating, __context);
     BasicStream* __is = __out.is();
     if(!__out.invoke())
     {
@@ -817,12 +818,12 @@ IceDelegateM::Ice::Object::ice_facets(const Context& __context)
 
 bool
 IceDelegateM::Ice::Object::ice_invoke(const string& operation,
-				      bool idempotent,
+                                      ::Ice::OperationMode mode,
 				      const vector<Byte>& inParams,
 				      vector<Byte>& outParams,
 				      const Context& context)
 {
-    Outgoing __out(__connection, __reference, operation, idempotent, context);
+    Outgoing __out(__connection, __reference, operation, mode, context);
     BasicStream* __os = __out.os();
     __os->writeBlob(inParams);
     bool ok = __out.invoke();
@@ -1054,7 +1055,7 @@ bool
 IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     Current __current;
-    __initCurrent(__current, "ice_isA", true, __context);
+    __initCurrent(__current, "ice_isA", ::Ice::Nonmutating, __context);
     while(true)
     {
 	Direct __direct(__adapter, __current);
@@ -1082,7 +1083,7 @@ void
 IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
 {
     Current __current;
-    __initCurrent(__current, "ice_ping", true, __context);
+    __initCurrent(__current, "ice_ping", ::Ice::Nonmutating, __context);
     while(true)
     {
 	Direct __direct(__adapter, __current);
@@ -1110,7 +1111,7 @@ vector<string>
 IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
 {
     Current __current;
-    __initCurrent(__current, "ice_ids", true, __context);
+    __initCurrent(__current, "ice_ids", ::Ice::Nonmutating, __context);
     while(true)
     {
 	Direct __direct(__adapter, __current);
@@ -1138,7 +1139,7 @@ string
 IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
 {
     Current __current;
-    __initCurrent(__current, "ice_id", true, __context);
+    __initCurrent(__current, "ice_id", ::Ice::Nonmutating, __context);
     while(true)
     {
 	Direct __direct(__adapter, __current);
@@ -1166,7 +1167,7 @@ vector<string>
 IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 {
     Current __current;
-    __initCurrent(__current, "ice_facets", true, __context);
+    __initCurrent(__current, "ice_facets", ::Ice::Nonmutating, __context);
     while(true)
     {
 	Direct __direct(__adapter, __current);
@@ -1192,13 +1193,13 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 
 bool
 IceDelegateD::Ice::Object::ice_invoke(const string& operation,
-				      bool idempotent,
+				      ::Ice::OperationMode mode,
 				      const vector<Byte>& inParams,
 				      vector<Byte>& outParams,
 				      const ::Ice::Context& context)
 {
     Current current;
-    __initCurrent(current, operation, idempotent, context);
+    __initCurrent(current, operation, mode, context);
     while(true)
     {
 	Direct __direct(__adapter, current);
@@ -1253,12 +1254,13 @@ IceDelegateD::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
 }
 
 void
-IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, bool idempotent, const Context& context)
+IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, ::Ice::OperationMode mode,
+					 const Context& context)
 {
     current.id = __reference->identity;
     current.facet = __reference->facet;
     current.operation = op;
-    current.idempotent = idempotent;
+    current.mode = mode;
     current.ctx = context;
 }
 

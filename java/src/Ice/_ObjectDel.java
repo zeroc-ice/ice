@@ -27,7 +27,7 @@ public interface _ObjectDel
     String[] ice_facets(java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable;
 
-    boolean ice_invoke(String operation, boolean nonmutating, byte[] inParams, ByteSeqHolder outParams,
+    boolean ice_invoke(String operation, Ice.OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                        java.util.Map context)
         throws LocationForward, IceInternal.NonRepeatable;
 

@@ -456,14 +456,18 @@ class SLICE_API Operation : virtual public Contained, virtual public Container
 {
 public:
     
+    //
+    // Note: The order of definitions here *must* match
+    //       the order of definitions of ::Ice::OperationMode
+    //       in Ice/Current.ice!
+    //
     enum Mode { Normal, Nonmutating, Idempotent };
 
     TypePtr returnType() const;
+    Mode mode() const;
     ParamDeclPtr createParamDecl(const std::string&, const TypePtr&, bool);
     ParamDeclList parameters() const;
     ExceptionList throws() const;
-    bool nonmutating() const;
-    bool idempotent() const;
     void setExceptionList(const ExceptionList&);
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;

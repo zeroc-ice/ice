@@ -1276,7 +1276,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << eb;
     C << nl << "catch(const ::IceInternal::NonRepeatable& __ex)";
     C << sb;
-    if(p->idempotent())
+    if(p->mode() == Operation::Idempotent || p->mode() == Operation::Nonmutating)
     {
 	C << nl << "__handleException(*__ex.get(), __cnt);";
     }
@@ -1547,7 +1547,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
     C << nl << "::IceInternal::Outgoing __out(__connection, __reference, __operation, "
-      << (p->idempotent() ? "true" : "false") << ", __context);";
+      << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context);";
     if(ret || !outParams.empty() || !throws.empty())
     {
 	C << nl << "::IceInternal::BasicStream* __is = __out.is();";
@@ -1732,8 +1732,8 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << sp << nl << retS << nl << "IceDelegateD" << scoped << paramsDecl;
     C << sb;
     C << nl << "::Ice::Current __current;";
-    C << nl << "__initCurrent(__current, \"" << p->name() << "\", " << (p->idempotent() ? "true" : "false")
-      << ", __context);";
+    C << nl << "__initCurrent(__current, \"" << p->name()
+      << "\", static_cast< ::Ice::OperationMode>(" << p->mode() << "), __context);";
     C << nl << "while(true)";
     C << sb;
     C << nl << "::IceInternal::Direct __direct(__adapter, __current);";
@@ -2280,7 +2280,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	}
     }
 
-    bool nonmutating = p->nonmutating();
+    bool nonmutating = p->mode() == Operation::Nonmutating;
 
     H << sp;
     H << nl << exp2 << "virtual " << retS << ' ' << name << params << (nonmutating ? " const" : "") << " = 0;";
@@ -2832,7 +2832,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         H.restoreIndent();
 
-	bool nonmutating = op->nonmutating();
+	bool nonmutating = op->mode() == Operation::Nonmutating;
 
         H << ")" << (nonmutating ? " const" : "") << ";";
 

@@ -17,7 +17,7 @@ public class _ObjectDelD implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         Current __current = new Current();
-        __initCurrent(__current, "ice_isA", true, __context);
+        __initCurrent(__current, "ice_isA", OperationMode.Nonmutating, __context);
         while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
@@ -52,7 +52,7 @@ public class _ObjectDelD implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         Current __current = new Current();
-        __initCurrent(__current, "ice_ping", true, __context);
+        __initCurrent(__current, "ice_ping", OperationMode.Nonmutating, __context);
         while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
@@ -88,7 +88,7 @@ public class _ObjectDelD implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         Current __current = new Current();
-        __initCurrent(__current, "ice_ids", true, __context);
+        __initCurrent(__current, "ice_ids", OperationMode.Nonmutating, __context);
         while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
@@ -123,7 +123,7 @@ public class _ObjectDelD implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         Current __current = new Current();
-        __initCurrent(__current, "ice_id", true, __context);
+        __initCurrent(__current, "ice_id", OperationMode.Nonmutating, __context);
         while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
@@ -158,7 +158,7 @@ public class _ObjectDelD implements _ObjectDel
         throws LocationForward, IceInternal.NonRepeatable
     {
         Current __current = new Current();
-        __initCurrent(__current, "ice_facets", true, __context);
+        __initCurrent(__current, "ice_facets", OperationMode.Nonmutating, __context);
         while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, __current);
@@ -189,11 +189,12 @@ public class _ObjectDelD implements _ObjectDel
     }
 
     public boolean
-    ice_invoke(String operation, boolean idempotent, byte[] inParams, ByteSeqHolder outParams, java.util.Map context)
+    ice_invoke(String operation, Ice.OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
+               java.util.Map context)
         throws LocationForward, IceInternal.NonRepeatable
     {
         Current current = new Current();
-        __initCurrent(current, operation, idempotent, context);
+        __initCurrent(current, operation, mode, context);
         while(true)
         {
             IceInternal.Direct __direct = new IceInternal.Direct(__adapter, current);
@@ -264,12 +265,12 @@ public class _ObjectDelD implements _ObjectDel
     protected IceInternal.Reference __reference;
 
     protected final void
-    __initCurrent(Current current, String op, boolean idempotent, java.util.Map context)
+    __initCurrent(Current current, String op, Ice.OperationMode mode, java.util.Map context)
     {
         current.id = __reference.identity;
         current.facet = __reference.facet;
         current.operation = op;
-        current.idempotent = idempotent;
+        current.mode = mode;
         current.ctx = context;
     }
 

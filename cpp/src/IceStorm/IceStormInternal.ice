@@ -12,6 +12,7 @@
 #define ICE_STORM_INTERNAL_ICE
 
 #include <IceStorm/IceStorm.ice>
+#include <Ice/Current.ice>
 
 module IceStorm
 {
@@ -55,7 +56,7 @@ interface TopicLink
      * originating request.
      *
      **/
-    void forward(string op, bool \idempotent, ByteSeq data, ContextData context);
+    void forward(string op, Ice::OperationMode mode, ByteSeq data, ContextData context);
 };
 
 /**
