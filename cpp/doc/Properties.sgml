@@ -2147,6 +2147,34 @@ The routing table trace level:
 </section>
 </section>
 
+<section><title>Glacier.Router.Trace.Throttle</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Router.Trace.Throttle=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The request throttle trace level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No request throttle tracing. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace throttled requests.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
 <section><title>Glacier.Router.Client.ForwardContext, Glacier.Router.Server.ForwardContext</title>
 <section><title>Synopsis</title>
 <synopsis>

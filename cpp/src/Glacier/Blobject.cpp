@@ -19,11 +19,17 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
-Glacier::TwowayThrottle::TwowayThrottle(int max) :
-    _max(max),
+Glacier::TwowayThrottle::TwowayThrottle(const CommunicatorPtr& communicator, bool reverse) :
+    _communicator(communicator),
+    _reverse(reverse),
+    _properties(_communicator->getProperties()),
+    _logger(_communicator->getLogger()),
+    _traceLevel(_properties->getPropertyAsInt("Glacier.Router.Trace.Throttle")),
+    _max(_reverse ?
+	 _properties->getPropertyAsInt("Glacier.Router.Server.Throttle.Twoways") :
+	 _properties->getPropertyAsInt("Glacier.Router.Client.Throttle.Twoways")),
     _count(0)
 {
-    assert(_max >= 0);
 }
 
 Glacier::TwowayThrottle::~TwowayThrottle()
@@ -32,9 +38,9 @@ Glacier::TwowayThrottle::~TwowayThrottle()
 }
 
 void
-Glacier::TwowayThrottle::twowayStarted()
+Glacier::TwowayThrottle::twowayStarted(const Ice::ObjectPrx& proxy, const Ice::Current& current)
 {
-    if(_max == 0)
+    if(_max <= 0)
     {
 	return;
     }
@@ -46,6 +52,20 @@ Glacier::TwowayThrottle::twowayStarted()
 	
 	while(_count == _max)
 	{
+	    if(_traceLevel >= 1)
+	    {
+		Trace out(_logger, "Glacier");
+		out << "throttling ";
+		if(_reverse)
+		{
+		    out << "reverse ";
+		}
+		out << "twoway call:";
+		out << "\nnumber of calls = " << _count;
+		out << "\nproxy = " << _communicator->proxyToString(proxy);
+		out << "\noperation = " << current.operation;
+	    }
+
 	    wait();
 	}
 	
@@ -56,7 +76,7 @@ Glacier::TwowayThrottle::twowayStarted()
 void
 Glacier::TwowayThrottle::twowayFinished()
 {
-    if(_max == 0)
+    if(_max <= 0)
     {
 	return;
     }
@@ -87,14 +107,9 @@ Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
 		    _properties->getPropertyAsInt("Glacier.Router.Server.ForwardContext") > 0 :
 		    _properties->getPropertyAsInt("Glacier.Router.Client.ForwardContext") > 0),
     _sleepTime(_reverse ?
-		    IceUtil::Time::milliSeconds(
-			_properties->getPropertyAsInt("Glacier.Router.Server.SleepTime")) :
-		    IceUtil::Time::milliSeconds(
-			_properties->getPropertyAsInt("Glacier.Router.Client.SleepTime"))),
-    _twowayThrottle(_reverse ?
-		    _properties->getPropertyAsInt("Glacier.Router.Server.Throttle.Twoways") :
-		    _properties->getPropertyAsInt("Glacier.Router.Client.Throttle.Twoways"))
-		    
+	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt("Glacier.Router.Server.SleepTime")) :
+	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt("Glacier.Router.Client.SleepTime"))),
+    _twowayThrottle(_communicator, _reverse)
 {
     _requestQueue = new RequestQueue(_communicator, _traceLevel, _reverse, _sleepTime);
     _requestQueueControl = _requestQueue->start();
@@ -128,7 +143,6 @@ public:
 	_cb(cb),
 	_twowayThrottle(twowayThrottle)
     {
-	_twowayThrottle.twowayStarted();
     }
 
     virtual
@@ -177,6 +191,7 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdC
 	    if(proxy->ice_isTwoway())
 	    {
 		amiCB = new GlacierCB(amdCB, _twowayThrottle);
+		_twowayThrottle.twowayStarted(proxy, current);
 	    }
 	    else
 	    {

@@ -26,15 +26,22 @@ class TwowayThrottle : public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    TwowayThrottle(int);
+    TwowayThrottle(const Ice::CommunicatorPtr&, bool);
     ~TwowayThrottle();
 
-    void twowayStarted();
+    void twowayStarted(const Ice::ObjectPrx&, const Ice::Current&);
     void twowayFinished();
 
 private:
 
+    const Ice::CommunicatorPtr _communicator;
+    const bool _reverse;
+
+    const Ice::PropertiesPtr _properties;
+    const Ice::LoggerPtr _logger;
+    const int _traceLevel;
     const int _max;
+
     int _count;
 };
 

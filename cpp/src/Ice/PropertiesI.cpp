@@ -260,6 +260,7 @@ static const string glacierProps[] =
     "Router.Trace.Client",
     "Router.Trace.RoutingTable",
     "Router.Trace.Server",
+    "Router.Trace.Throttle",
     "Router.UserId",
     "Starter.AddUserToAllowCategories",
     "Starter.Certificate.BitStrength",

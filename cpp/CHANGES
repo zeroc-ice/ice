@@ -3,7 +3,8 @@ Changes since version 1.2.0
 
 - Added twoway-throtteling to Glacier. See the descriptions of the
   properties Glacier.Router.Server.Throttle.Twoways and
-  Glacier.Router.Server.Throttle.Twoways for details.
+  Glacier.Router.Server.Throttle.Twoways for details. To trace
+  throttling, set the property Glacier.Router.Trace.Throttle.
 
 - The properties Glacier.Router.Client.BatchSleepTime and
   Glacier.Router.Server.BatchSleepTime has been replace with

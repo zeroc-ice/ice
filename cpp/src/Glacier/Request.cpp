@@ -209,10 +209,9 @@ Glacier::RequestQueue::run()
 				out << "reverse ";
 			    }
 
-			    out << "batch routing to:\n"
-				<< "proxy = " << _communicator->proxyToString(proxy) << '\n'
-				<< "operation = " << current.operation << '\n'
-				<< "mode = " << current.mode;
+			    out << "batch routing to:"
+				<< "\nproxy = " << _communicator->proxyToString(proxy)
+				<< "\noperation = " << current.operation;
 			}
 			
 			(*p)->invoke();
@@ -257,9 +256,8 @@ Glacier::RequestQueue::run()
 
 		    }
 		    out << "routing to:\n"
-			<< "proxy = " << _communicator->proxyToString(proxy) << '\n'
-			<< "operation = " << current.operation << '\n'
-			<< "mode = " << current.mode;
+			<< "\nproxy = " << _communicator->proxyToString(proxy)
+			<< "\noperation = " << current.operation;
 		}
 
 		(*p)->invoke();
