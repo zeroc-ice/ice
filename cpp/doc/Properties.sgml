@@ -379,6 +379,26 @@ than zero, compression is enabled. If zero, compression is disabled.
 <section><title>&Ice; Miscellaneous Properties</title>
 <!-- ********************************************************************** -->
 
+<section><title>Ice.RetryIntervals</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.RetryIntervals=<replaceable>num [num ...]</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+This property defines the number of time an operation is re-tried and
+the delay between each retry. For example, if the property is set to
+<replaceable>0 100 500</replaceable>, the operation will be re-tried 3
+times: immediatly re-tried upon the first failure, after waiting 100
+(ms) upon the second failure, after waiting 500 (ms) upon the third
+failure. The default value is to retry once immediatly (0). If set to
+-1, no retry will occur.
+</para>
+</section>
+</section>
+
 <section><title>Ice.Daemon, Ice.DaemonNoClose, Ice.DaemonNoChdir</title>
 <section><title>Synopsis</title>
 <synopsis>
