@@ -16,7 +16,6 @@
 #include <IceUtil/Exception.h>
 #include <IceUtil/Time.h>
 
-#include <assert.h>
 
 IceUtil::RWRecMutex::RWRecMutex() :
     _count(0),
@@ -45,7 +44,7 @@ IceUtil::RWRecMutex::readlock() const
     _count++;
 }
 
-void
+bool
 IceUtil::RWRecMutex::tryReadlock() const
 {
     Mutex::Lock lock(_mutex);
@@ -56,12 +55,13 @@ IceUtil::RWRecMutex::tryReadlock() const
     //
     if(_count < 0 || _waitingWriters != 0)
     {
-	throw ThreadLockedException(__FILE__, __LINE__);
+	return false;
     }
     _count++;
+    return true;
 }
 
-void
+bool
 IceUtil::RWRecMutex::timedTryReadlock(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
@@ -80,11 +80,12 @@ IceUtil::RWRecMutex::timedTryReadlock(const Time& timeout) const
 	}
 	else
 	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
+	    return false;
 	}
     }
 
     _count++;
+    return true;
 }
 
 void
@@ -128,7 +129,7 @@ IceUtil::RWRecMutex::writelock() const
     _writerId = ThreadControl().id();
 }
 
-void
+bool
 IceUtil::RWRecMutex::tryWritelock() const
 {
     Mutex::Lock lock(_mutex);
@@ -140,7 +141,7 @@ IceUtil::RWRecMutex::tryWritelock() const
     if(_count < 0 && _writerId == ThreadControl().id())
     {
 	--_count;
-	return;
+	return true;
     }
 
     //
@@ -148,7 +149,7 @@ IceUtil::RWRecMutex::tryWritelock() const
     //
     if(_count != 0)
     {
-	throw ThreadLockedException(__FILE__, __LINE__);
+	return false;
     }
 
     //
@@ -156,9 +157,10 @@ IceUtil::RWRecMutex::tryWritelock() const
     //
     _count = -1;
     _writerId = ThreadControl().id();
+    return true;
 }
 
-void
+bool
 IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
@@ -169,7 +171,7 @@ IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
     if(_count < 0 && _writerId == ThreadControl().id())
     {
 	--_count;
-	return;
+	return true;
     }
 
     //
@@ -196,7 +198,7 @@ IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
 	}
 	else
 	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
+	    return false;
 	}
     }
 
@@ -205,6 +207,7 @@ IceUtil::RWRecMutex::timedTryWritelock(const Time& timeout) const
     //
     _count = -1;
     _writerId = ThreadControl().id();
+    return true;
 }
 
 void

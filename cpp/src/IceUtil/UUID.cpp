@@ -20,8 +20,6 @@
 // (/dev/random) to generate "version 4" UUIDs, as described in 
 // http://www.ietf.org/internet-drafts/draft-mealling-uuid-urn-00.txt
 
-#include <assert.h>
-
 #ifdef _WIN32
 #   include <rpc.h>
 #else
@@ -59,7 +57,8 @@ inline void bytesToHex(unsigned char* bytes, int len, char*& hexBuffer)
 
 IceUtil::UUIDGenerationException::UUIDGenerationException(const char* file, int line) :
     Exception(file, line)
-{}
+{
+}
 
 string
 IceUtil::UUIDGenerationException::ice_name() const

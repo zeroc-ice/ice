@@ -44,7 +44,7 @@ public:
     //
     void lock() const;
     void unlock() const;
-    void trylock() const;
+    bool trylock() const;
 
     void wait() const;
     bool timedWait(const Time&) const;
@@ -91,7 +91,8 @@ IceUtil::Monitor<T>::~Monitor()
 template <class T> inline void
 IceUtil::Monitor<T>::lock() const
 {
-    if(_mutex.lock())
+    _mutex.lock();
+    if(_mutex.willUnlock())
     {
 	//
 	// On the first mutex acquisition reset the number pending
@@ -125,10 +126,11 @@ IceUtil::Monitor<T>::unlock() const
 */
 }
 
-template <class T> inline void
+template <class T> inline bool
 IceUtil::Monitor<T>::trylock() const
 {
-    if(_mutex.trylock())
+    bool result = _mutex.trylock();
+    if(result && _mutex.willUnlock())
     {
 	//
 	// On the first mutex acquisition reset the number pending
@@ -136,6 +138,7 @@ IceUtil::Monitor<T>::trylock() const
 	//
 	_nnotify = 0;
     }
+    return result;
 }
 
 template <class T> inline void

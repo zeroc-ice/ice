@@ -16,6 +16,7 @@
 #define ICE_UTIL_LOCK_H
 
 #include <IceUtil/Config.h>
+#include <IceUtil/ThreadException.h>
 
 namespace IceUtil
 {
@@ -25,9 +26,15 @@ namespace IceUtil
 //
 class Cond;
 
-//
+
+// LockT and TryLockT are the preferred construct to lock/trylock/unlock
+// simple and recursive mutexes. You typically allocate them on the
+// stack to hold a lock on a mutex.
+// LockT and TryLockT are not recursive: you cannot acquire several times 
+// in a row a lock with the same Lock or TryLock object.
+// 
 // We must name this LockT instead of Lock, because otherwise some
-// compilers (such as Sun Forte 6.2) have problems with constructs
+// compilers (such as Sun C++ 5.4) have problems with constructs
 // such as:
 //
 // class Foo
@@ -45,16 +52,71 @@ public:
 	_mutex(mutex)
     {
 	_mutex.lock();
+	_acquired = true;
     }
 
     ~LockT()
     {
+	if (_acquired)
+	{
+	    _mutex.unlock();
+	}
+    }
+    
+    void acquire() const
+    {
+	if (_acquired)
+	{
+	    throw ThreadLockedException(__FILE__, __LINE__);
+	}
+	_mutex.lock();
+	_acquired = true;
+    }
+
+
+    bool tryAcquire() const
+    {
+	if (_acquired)
+	{
+	    throw ThreadLockedException(__FILE__, __LINE__);
+	}
+	_acquired = _mutex.trylock();
+	return _acquired;
+    }
+
+    void release() const
+    {
+	if (!_acquired)
+	{
+	    throw ThreadLockedException(__FILE__, __LINE__);
+	}
 	_mutex.unlock();
+	_acquired = false;
+    }
+
+    bool acquired() const
+    {
+	return _acquired;
+    }
+   
+protected:
+    
+    // TryLockT's contructor
+    LockT(const T& mutex, bool) :
+	_mutex(mutex)
+    {
+	_acquired = _mutex.trylock();
     }
 
 private:
+    
+    // Not implemented; prevents accidental use.
+    //
+    LockT(const LockT&);
+    LockT& operator=(const LockT&);
 
     const T& _mutex;
+    mutable bool _acquired;
 
     friend class Cond;
 };
@@ -64,26 +126,13 @@ private:
 // an explanation.
 //
 template <typename T>
-class TryLockT
+class TryLockT : public LockT<T>
 {
 public:
 
     TryLockT(const T& mutex) :
-	_mutex(mutex)
-    {
-	_mutex.trylock();
-    }
-    
-    ~TryLockT()
-    {
-	_mutex.unlock();
-    }
-
-private:
-
-    const T& _mutex;
-
-    friend class Cond;
+	LockT<T>(mutex, true)
+    {}
 };
 
 } // End namespace IceUtil

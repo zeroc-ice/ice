@@ -72,7 +72,7 @@
 
 #   define SIZEOF_WCHAR_T 2
 
-#elif (defined(__linux__) || defined(__FreeBSD__)) && defined(i386)
+#elif (defined(__linux) || defined(__FreeBSD__)) && defined(__i386)
 
 #   define ICE_UTIL_API /**/
 #   define HAVE_READLINE
@@ -107,9 +107,6 @@
 #include <sstream>
 
 #ifndef _WIN32
-#   ifndef _REENTRANT
-#       define _REENTRANT 1
-#   endif
 #   include <pthread.h>
 #   include <errno.h>
 #endif

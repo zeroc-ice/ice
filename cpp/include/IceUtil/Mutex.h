@@ -54,37 +54,24 @@ public:
     // Note that lock/trylock & unlock in general should not be used
     // directly. Instead use Lock & TryLock.
     //
+ 
+    void lock() const;
 
     //
-    // The boolean values are for the Monitor implementation which
-    // needs to know whether the Mutex has been locked for the first
-    // time, or unlocked for the last time (that is another thread is
-    // able to acquire the mutex).
-    //
-
-    //
-    // Return true if the mutex has been locked for the first time.
-    //
-    bool lock() const;
-
-    //
-    // Throw ThreadLockedException in the case that the lock call would
-    // block (that is the mutex is already owned by some other
-    // thread). Returns true if the mutex has been locked for the
-    // first time.
+    // Returns true if the lock was acquired, and false otherwise.
     //
     bool trylock() const;
 
-    //
-    // Returns true if the mutex has been unlocked for the last time
-    // (false otherwise).
-    //
-    bool unlock() const;
+    void unlock() const;
 
     //
     // Returns true if the mutex will unlock when calling unlock()
     // (false otherwise). For non-recursive mutexes, this will always
-    // return true.
+    // return true. 
+    // This function is used by the Monitor implementation to know whether 
+    // the Mutex has been locked for the first time, or unlocked for the 
+    // last time (that is another thread is able to acquire the mutex).
+    // Pre-condition: the mutex must be locked.
     //
     bool willUnlock() const;
 
@@ -139,7 +126,7 @@ Mutex::~Mutex()
     DeleteCriticalSection(&_mutex);
 }
 
-inline bool
+inline void
 Mutex::lock() const
 {
     EnterCriticalSection(&_mutex);
@@ -148,7 +135,6 @@ Mutex::lock() const
     // member (like the UNIX implementation of RecMutex).
     //
     assert(_mutex.RecursionCount == 1);
-    return true;
 }
 
 inline bool
@@ -156,22 +142,21 @@ Mutex::trylock() const
 {
     if(!TryEnterCriticalSection(&_mutex))
     {
-	throw ThreadLockedException(__FILE__, __LINE__);
+	return false;
     }
     if(_mutex.RecursionCount > 1)
     {
 	LeaveCriticalSection(&_mutex);
-	throw ThreadLockedException(__FILE__, __LINE__);
+	return false;
     }
     return true;
 }
 
-inline bool
+inline void
 Mutex::unlock() const
 {
     assert(_mutex.RecursionCount == 1);
     LeaveCriticalSection(&_mutex);
-    return true;
 }
 
 inline void
@@ -191,10 +176,33 @@ Mutex::lock(LockState&) const
 inline
 Mutex::Mutex()
 {
+#ifdef NDEBUG
     int rc = pthread_mutex_init(&_mutex, 0);
+#else
+
+    int rc;
+#if defined(__linux) && !defined(__USE_UNIX98)
+    const pthread_mutexattr_t attr = { PTHREAD_MUTEX_ERRORCHECK_NP };
+#else
+    pthread_mutexattr_t attr;
+    rc = pthread_mutexattr_init(&attr);
+    assert(rc == 0);
+    rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
+    assert(rc == 0);
+#endif
+    rc = pthread_mutex_init(&_mutex, &attr);
+
+#if defined(__linux) && !defined(__USE_UNIX98)
+// Nothing to do
+#else
+    rc = pthread_mutexattr_destroy(&attr);
+    assert(rc == 0);
+#endif
+#endif
+
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 
@@ -206,41 +214,35 @@ Mutex::~Mutex()
     assert(rc == 0);
 }
 
-inline bool
+inline void
 Mutex::lock() const
 {
     int rc = pthread_mutex_lock(&_mutex);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
-    return true;
 }
 
 inline bool
 Mutex::trylock() const
 {
     int rc = pthread_mutex_trylock(&_mutex);
-    if(rc != 0)
+    if(rc != 0 && rc != EBUSY)
     {
-	if(rc == EBUSY)
-	{
-	    throw ThreadLockedException(__FILE__, __LINE__);
-	}
-	throw ThreadSyscallException(__FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
-    return true;
+    return (rc == 0);
 }
 
-inline bool
+inline void
 Mutex::unlock() const
 {
     int rc = pthread_mutex_unlock(&_mutex);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
-    return true;
 }
 
 inline void

@@ -66,17 +66,13 @@ public:
     virtual void
     run()
     {
-	try
+	RWRecMutex::TryRLock tlock(_mutex);
+	test(tlock.acquired());
+	
 	{
-	    RWRecMutex::TryRLock lock(_mutex);
-	    // Expected
+	    Mutex::Lock lock(_trylockMutex);
+	    _trylock = true;
 	}
-	catch(const ThreadLockedException&)
-	{
-	    test(false);
-	}
-
-	_trylock = true;
 	_trylockCond.signal();
 
 	RWRecMutex::RLock lock(_mutex);
@@ -95,17 +91,14 @@ public:
     virtual void
     run()
     {
-	try
-	{
-	    RWRecMutex::TryRLock lock(_mutex);
-	    test(false);
-	}
-	catch(const ThreadLockedException&)
-	{
-	    // Expected
-	}
+	
+	RWRecMutex::TryRLock tlock(_mutex);
+	test(!tlock.acquired());
 
-	_trylock = true;
+	{
+	    Mutex::Lock lock(_trylockMutex);
+	    _trylock = true;
+	}
 	_trylockCond.signal();
 
 	RWRecMutex::RLock lock(_mutex);
@@ -257,17 +250,14 @@ public:
     virtual void
     run()
     {
-	try
-	{
-	    RWRecMutex::TryWLock lock(_mutex);
-	    test(false);
-	}
-	catch(const ThreadLockedException&)
-	{
-	    // Expected
-	}
+	
+	RWRecMutex::TryWLock tlock(_mutex);
+	test(!tlock.acquired());
 
-	_trylock = true;
+	{
+	    Mutex::Lock lock(_trylockMutex);
+	    _trylock = true;
+	}
 	_trylockCond.signal();
 
 	RWRecMutex::WLock lock(_mutex);
@@ -290,79 +280,114 @@ RWRecMutexTest::run()
     // TEST: TryLock (read)
     {
 	RWRecMutex::RLock rlock(mutex);
+
+	// RLock testing
+	test(rlock.acquired());
+	
+	try
+	{
+	    rlock.acquire();
+	    test(false);
+	}
+	catch(const ThreadLockedException&)
+	{
+	    // Expected
+	}
+
+	try
+	{
+	    rlock.tryAcquire();
+	    test(false);
+	}
+	catch(const ThreadLockedException&)
+	{
+	    // Expected
+	}
+
+	test(rlock.acquired());
+	rlock.release();
+	test(!rlock.acquired());
+
+	try
+	{
+	    rlock.release();
+	    test(false);
+	}
+	catch(const ThreadLockedException&)
+	{
+	    // Expected
+	}
+		
+	test(rlock.tryAcquire() == true);
+	test(rlock.acquired());	
+
 	RWRecMutex::RLock rlock2(mutex);
+	
+	RWRecMutex::TryRLock trlock(mutex);
+	test(trlock.acquired());
 
-	try
-	{
-	    RWRecMutex::TryRLock rlock2(mutex);
-	}
-	catch(const ThreadLockedException&)
-	{
-	    test(false);
-	}
+	RWRecMutex::TryWLock twlock(mutex);
+	test(!twlock.acquired());
 
-	try
-	{
-	    RWRecMutex::TryWLock wlock(mutex);
-	    test(false);
-	}
-	catch(const ThreadLockedException&)
-	{
-	    // Expected
-	}
-
-	try
-	{
-	    RWRecMutex::TryWLock wlock(mutex, Time::milliSeconds(10));
-	    test(false);
-	}
-	catch(const ThreadLockedException&)
-	{
-	    // Expected
-	}
+	RWRecMutex::TryWLock twlock2(mutex, Time::milliSeconds(10));
+	test(!twlock2.acquired());
     }
 
     // TEST: TryLock (write)
     {
 	RWRecMutex::WLock wlock(mutex);
+
+	// WLock testing
+	test(wlock.acquired());
 	
-	// TEST: TryLock
 	try
 	{
-	    RWRecMutex::TryRLock rlock(mutex);
+	    wlock.acquire();
 	    test(false);
 	}
 	catch(const ThreadLockedException&)
 	{
 	    // Expected
 	}
+
 	try
 	{
-	    RWRecMutex::TryRLock rlock(mutex, Time::milliSeconds(10));
+	    wlock.tryAcquire();
 	    test(false);
 	}
 	catch(const ThreadLockedException&)
 	{
 	    // Expected
 	}
+
+	test(wlock.acquired());
+	wlock.release();
+	test(!wlock.acquired());
+
 	try
 	{
-	    RWRecMutex::TryWLock wlock(mutex);
-	    // Expected
+	    wlock.release();
+	    test(false);
 	}
 	catch(const ThreadLockedException&)
 	{
-	    test(false);
-	}
-	try
-	{
-	    RWRecMutex::TryWLock wlock(mutex, Time::milliSeconds(10));
 	    // Expected
 	}
-	catch(const ThreadLockedException&)
-	{
-	    test(false);
-	}
+		
+	test(wlock.tryAcquire() == true);
+	test(wlock.acquired());	
+
+	RWRecMutex::TryRLock trlock(mutex);
+	test(!trlock.acquired());
+	
+	RWRecMutex::TryRLock trlock2(mutex, Time::milliSeconds(10));
+	test(!trlock2.acquired());
+	
+	RWRecMutex::TryWLock twlock(mutex);
+	test(twlock.acquired());
+	
+	RWRecMutex::TryWLock twlock2(mutex, Time::milliSeconds(10));
+	test(twlock2.acquired());
     }
 
     // TEST: read lock
@@ -417,15 +442,8 @@ RWRecMutexTest::run()
 	// thread is actually waiting on a write lock.
 	ThreadControl::sleep(Time::seconds(1));
 
-	try
-	{
-	    RWRecMutex::TryRLock rlock2(mutex);
-	    test(false);
-	}
-	catch(const ThreadLockedException&)
-	{
-	    // Expected
-	}
+	RWRecMutex::TryRLock trlock(mutex);
+	test(!trlock.acquired());
     }
 
     //
@@ -495,29 +513,17 @@ RWRecMutexTest::run()
 	//
 	// A read lock at this point should fail.
 	//
-	try
-	{
-	    RWRecMutex::TryRLock rlock2(mutex);
-	    test(false);
-	}
-	catch(const ThreadLockedException&)
-	{
-	    // Expected
-	}
 
+	RWRecMutex::TryRLock trlock(mutex);
+	test(!trlock.acquired());
+	
 	//
 	// As should a write lock.
 	//
-	try
-	{
-	    RWRecMutex::TryWLock rlock2(mutex);
-	    test(false);
-	}
-	catch(const ThreadLockedException&)
-	{
-	    // Expected
-	}
-
+	
+	RWRecMutex::TryWLock twlock(mutex);
+	test(!twlock.acquired());
+	
 	//
 	// Once the read lock is released then the upgrade should
 	// succeed & the thread should terminate.

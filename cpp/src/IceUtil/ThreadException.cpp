@@ -16,13 +16,9 @@
 
 using namespace std;
 
-IceUtil::ThreadSyscallException::ThreadSyscallException(const char* file, int line) : 
+IceUtil::ThreadSyscallException::ThreadSyscallException(const char* file, int line, int err ): 
     Exception(file, line),
-#ifdef _WIN32
-    _error(GetLastError())
-#else
-    _error(errno)
-#endif
+    _error(err)
 {
 }
     
@@ -79,6 +75,13 @@ IceUtil::ThreadSyscallException::ice_throw() const
 {
     throw *this;
 }
+
+int
+IceUtil::ThreadSyscallException::error() const
+{
+    return _error;
+}
+
 
 IceUtil::ThreadLockedException::ThreadLockedException(const char* file, int line) :
     Exception(file, line)

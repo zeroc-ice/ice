@@ -34,17 +34,14 @@ public:
 
     virtual void run()
     {
-	try
+	
+	RecMutex::TryLock tlock(_mutex);
+	test(!tlock.acquired());
+	
 	{
-	    RecMutex::TryLock lock(_mutex);
-	    test(false);
+	    Mutex::Lock lock(_trylockMutex);
+	    _trylock = true;
 	}
-	catch(const ThreadLockedException&)
-	{
-	    // Expected
-	}
-
-	_trylock = true;
 	_trylockCond.signal();
 
 	RecMutex::Lock lock(_mutex);
@@ -90,9 +87,10 @@ RecMutexTest::run()
 	
 	// TEST: lock twice
 	RecMutex::Lock lock2(mutex);
-	
+
 	// TEST: TryLock
 	RecMutex::TryLock lock3(mutex);
+	test(lock3.acquired());
 	
 	// TEST: Start thread, try to acquire the mutex.
 	t = new RecMutexTestThread(mutex);
@@ -100,11 +98,14 @@ RecMutexTest::run()
 	
 	// TEST: Wait until the trylock has been tested.
 	t->waitTrylock();
+	
     }
 
     //
     // TEST: Once the recursive mutex has been released, the thread
     // should acquire the mutex and then terminate.
     //
+
     control.join();
+   
 }

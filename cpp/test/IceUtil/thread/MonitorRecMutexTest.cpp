@@ -32,17 +32,14 @@ public:
 
     virtual void run()
     {
-	try
+	
+	Monitor<RecMutex>::TryLock tlock(_monitor);
+	test(!tlock.acquired());
+	
 	{
-	    Monitor<RecMutex>::TryLock lock(_monitor);
-	    test(false);
+	    Mutex::Lock lock(_trylockMutex);
+	    _trylock = true;
 	}
-	catch(const ThreadLockedException&)
-	{
-	    // Expected
-	}
-
-	_trylock = true;
 	_trylockCond.signal();
 
 	Monitor<RecMutex>::Lock lock(_monitor);
@@ -119,16 +116,12 @@ MonitorRecMutexTest::run()
 	Monitor<RecMutex>::Lock lock(monitor);
 
 	Monitor<RecMutex>::TryLock lock2(monitor);
+	test(lock2.acquired());
 	
 	// TEST: TryLock
-	try
-	{
-	    Monitor<RecMutex>::TryLock lock(monitor);
-	}
-	catch(const ThreadLockedException&)
-	{
-	    test(false);
-	}
+	
+	Monitor<RecMutex>::TryLock tlock(monitor);
+	test(tlock.acquired());
 	
 	// TEST: Start thread, try to acquire the mutex.
 	t = new MonitorRecMutexTestThread(monitor);

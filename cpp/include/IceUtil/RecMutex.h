@@ -47,37 +47,25 @@ public:
     // Note that lock/trylock & unlock in general should not be used
     // directly. Instead use Lock & TryLock.
     //
+    
+    void lock() const;
 
     //
-    // The boolean values are for the Monitor implementation which
-    // needs to know whether the Mutex has been locked for the first
-    // time, or unlocked for the last time (that is another thread is
-    // able to acquire the mutex).
-    //
-
-    //
-    // Return true if the mutex has been locked for the first time.
-    //
-    bool lock() const;
-
-    //
-    // Throw ThreadLockedException in the case that the lock call would
-    // block (that is the mutex is already owned by some other
-    // thread). Returns true if the mutex has been locked for the
-    // first time.
+    // Returns true if the lock was acquired, and false otherwise.
     //
     bool trylock() const;
 
-    //
-    // Returns true if the mutex has been unlocked for the last time
-    // (false otherwise).
-    //
-    bool unlock() const;
+    
+    void unlock() const;
 
     //
     // Returns true if the mutex will unlock when calling unlock()
     // (false otherwise). For non-recursive mutexes, this will always
-    // return true.
+    // return true. 
+    // This function is used by the Monitor implementation to know whether 
+    // the Mutex has been locked for the first time, or unlocked for the 
+    // last time (that is another thread is able to acquire the mutex).
+    // Pre-condition: the mutex must be locked.
     //
     bool willUnlock() const;
 

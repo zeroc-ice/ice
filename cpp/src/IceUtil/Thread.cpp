@@ -30,7 +30,7 @@ IceUtil::ThreadControl::ThreadControl()
     int rc = DuplicateHandle(proc, current, proc, &_handle->handle, SYNCHRONIZE, TRUE, 0);
     if(rc == 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 }
 
@@ -114,7 +114,7 @@ IceUtil::ThreadControl::join()
     int rc = WaitForSingleObject(handle->handle, INFINITE);
     if(rc != WAIT_OBJECT_0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 }
 
@@ -236,7 +236,7 @@ IceUtil::Thread::start()
     if(_handle->handle == 0)
     {
 	__decRef();
-	throw ThreadSyscallException(__FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
 
     _started = true;
@@ -384,7 +384,7 @@ IceUtil::ThreadControl::join()
     int rc = pthread_join(id, &ignore);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 
@@ -399,7 +399,7 @@ IceUtil::ThreadControl::detach()
     int rc = pthread_detach(id);
     if(rc != 0)
     {
-	throw ThreadSyscallException(__FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 }
 
@@ -475,6 +475,10 @@ startHook(void* arg)
 	cerr << "IceUtil::Thread::run(): uncaught exception: ";
 	cerr << e << endl;
     }
+    catch(...)
+    {
+	cerr << "IceUtil::Thread::run(): uncaught exception" << endl;
+    }
     return 0;
 }
 }
@@ -503,7 +507,7 @@ IceUtil::Thread::start()
     if(rc != 0)
     {
 	__decRef();
-	throw ThreadSyscallException(__FILE__, __LINE__);
+	throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 
     _started = true;
