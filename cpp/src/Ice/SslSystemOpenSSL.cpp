@@ -1156,7 +1156,23 @@ IceSecurity::Ssl::OpenSSL::System::byteSeqToX509(ByteSeq& byteSeq)
 
     if (!x509)
     {
-        cout << "X509 returned as NULL" << endl;
+        SSLerr(SSL_F_SSL_CTX_USE_CERTIFICATE_FILE, ERR_R_PEM_LIB);
+
+        ContextException contextEx(__FILE__, __LINE__);
+
+        contextEx._message = "Unable to load Public Key from memory buffer.";
+        string sslError = sslGetErrors();
+
+        if (!sslError.empty())
+        {
+            contextEx._message += "\n";
+            contextEx._message += sslError;
+        }
+
+
+        ICE_EXCEPTION(contextEx._message);
+
+        throw contextEx;
     }
 
     BIO_free(memoryBio);
@@ -1173,11 +1189,25 @@ IceSecurity::Ssl::OpenSSL::System::byteSeqToKey(ByteSeq& byteSeq)
 
     RSA* rsa = PEM_read_bio_RSAPrivateKey(memoryBio, 0, 0, 0);
 
-    // TODO: if rsa comes back as 0, we should find out why here.
-
     if (!rsa)
     {
-        cout << "RSA returned as NULL" << endl;
+        SSLerr(SSL_F_SSL_CTX_USE_PRIVATEKEY_FILE, ERR_R_PEM_LIB);
+
+        ContextException contextEx(__FILE__, __LINE__);
+
+        contextEx._message = "Unable to load Private Key from memory buffer.";
+        string sslError = sslGetErrors();
+
+        if (!sslError.empty())
+        {
+            contextEx._message += "\n";
+            contextEx._message += sslError;
+        }
+
+
+        ICE_EXCEPTION(contextEx._message);
+
+        throw contextEx;
     }
 
     BIO_free(memoryBio);
