@@ -13,7 +13,6 @@
 
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/EndpointF.h>
 #include <Ice/CollectorF.h>
 #include <Ice/SkeletonF.h>
 #include <Ice/LocalException.h>
@@ -41,8 +40,7 @@ public:
 
 private:
 
-    ObjectAdapterI(const ::__Ice::Instance&,
-		   const std::vector< ::__Ice::Endpoint>&);
+    ObjectAdapterI(const ::__Ice::Instance&);
     virtual ~ObjectAdapterI();
     friend CommunicatorI; // May create ObjectAdapterIs
 

@@ -61,8 +61,7 @@ private:
     CollectorI(const CollectorI&);
     void operator=(const CollectorI&);
 
-    CollectorI(const ::Ice::ObjectAdapter&, const Endpoint&,
-	       const Transceiver&);
+    CollectorI(const ::Ice::ObjectAdapter&, const Transceiver&, int, bool);
     virtual ~CollectorI();
     friend class CollectorFactoryI; // May create CollectorIs
 
@@ -79,8 +78,9 @@ private:
     void warning(const ::Ice::LocalException&) const;
 
     ::Ice::ObjectAdapter adapter_;
-    Endpoint endpoint_;
     Transceiver transceiver_;
+    int timeout_;
+    bool oneway_;
     ThreadPool threadPool_;
     int responseCount_;
     State state_;
@@ -113,7 +113,8 @@ private:
     CollectorFactoryI(const CollectorFactoryI&);
     void operator=(const CollectorFactoryI&);
 
-    CollectorFactoryI(const ::Ice::ObjectAdapter&, const Endpoint&);
+    CollectorFactoryI(const ::Ice::ObjectAdapter&, const TcpEndpoint&);
+    CollectorFactoryI(const ::Ice::ObjectAdapter&, const UdpEndpoint&);
     virtual ~CollectorFactoryI();
     friend class ::Ice::ObjectAdapterI; // May create CollectorFactoryIs
 
@@ -130,8 +131,9 @@ private:
     void warning(const ::Ice::LocalException&) const;
 
     ::Ice::ObjectAdapter adapter_;
-    Endpoint endpoint_;
     Acceptor acceptor_;
+    int timeout_;
+    bool oneway_;
     ThreadPool threadPool_;
     std::list<Collector> collectors_;
     State state_;

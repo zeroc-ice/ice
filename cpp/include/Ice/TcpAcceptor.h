@@ -30,12 +30,12 @@ class TcpAcceptorI : public AcceptorI
 {
 public:
 
-    int fd();
-    void close();
-    void shutdown();
-    Transceiver initialize();
-    Transceiver accept(int);
-    std::string toString() const;
+    virtual int fd();
+    virtual void close();
+    virtual void shutdown();
+    virtual Transceiver initialize();
+    virtual Transceiver accept(int);
+    virtual std::string toString() const;
 
 private:
 

@@ -17,28 +17,49 @@
 namespace __Ice
 {
 
-class ICE_API EndpointI : public Shared
+class ICE_API TcpEndpointI : public Shared
 {
 public:
 
-    EndpointI(const std::string&, int, int, bool);
+    TcpEndpointI(const std::string&, int, int);
 
     //
-    // All  members are const, because Endpoints are immutable.
+    // All  members are const, because TcpEndpoints are immutable.
     //
     const std::string host;
     const int port;
     const int timeout;
-    bool udp;
 
-    bool operator==(const EndpointI&) const;
-    bool operator!=(const EndpointI&) const;
-    bool operator<(const EndpointI&) const;
+    bool operator==(const TcpEndpointI&) const;
+    bool operator!=(const TcpEndpointI&) const;
+    bool operator<(const TcpEndpointI&) const;
 
 private:
 
-    EndpointI(const EndpointI&);
-    void operator=(const EndpointI&);
+    TcpEndpointI(const TcpEndpointI&);
+    void operator=(const TcpEndpointI&);
+};
+
+class ICE_API UdpEndpointI : public Shared
+{
+public:
+
+    UdpEndpointI(const std::string&, int);
+
+    //
+    // All  members are const, because UdpEndpoints are immutable.
+    //
+    const std::string host;
+    const int port;
+
+    bool operator==(const UdpEndpointI&) const;
+    bool operator!=(const UdpEndpointI&) const;
+    bool operator<(const UdpEndpointI&) const;
+
+private:
+
+    UdpEndpointI(const UdpEndpointI&);
+    void operator=(const UdpEndpointI&);
 };
 
 }

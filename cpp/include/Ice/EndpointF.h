@@ -16,10 +16,20 @@
 namespace __Ice
 {
 
-class EndpointI;
-void ICE_API incRef(EndpointI*);
-void ICE_API decRef(EndpointI*);
-typedef __Ice::Handle<EndpointI> Endpoint;
+class TcpEndpointI;
+void ICE_API incRef(TcpEndpointI*);
+void ICE_API decRef(TcpEndpointI*);
+typedef __Ice::Handle<TcpEndpointI> TcpEndpoint;
+
+class SslEndpointI;
+void ICE_API incRef(SslEndpointI*);
+void ICE_API decRef(SslEndpointI*);
+typedef __Ice::Handle<SslEndpointI> SslEndpoint;
+
+class UdpEndpointI;
+void ICE_API incRef(UdpEndpointI*);
+void ICE_API decRef(UdpEndpointI*);
+typedef __Ice::Handle<UdpEndpointI> UdpEndpoint;
 
 }
 

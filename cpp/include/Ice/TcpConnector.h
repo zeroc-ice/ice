@@ -30,15 +30,15 @@ class TcpConnectorI : public ConnectorI
 {
 public:
     
-    Transceiver initialize();
-    Transceiver connect(int);
-    std::string toString() const;
+    virtual Transceiver initialize();
+    virtual Transceiver connect(int);
+    virtual std::string toString() const;
     
 private:
-
+    
     TcpConnectorI(const TcpConnectorI&);
     void operator=(const TcpConnectorI&);
-
+    
     TcpConnectorI(Instance, const std::string&, int);
     virtual ~TcpConnectorI();
     friend class EmitterFactoryI; // May create TcpConnectorIs

@@ -24,7 +24,8 @@ class ICE_API ReferenceI : public Shared
 public:
 
     ReferenceI(const Instance&, const std::string&,
-	       const std::vector<Endpoint>&);
+	       const std::vector<TcpEndpoint>&,
+	       const std::vector<UdpEndpoint>&);
     virtual ~ReferenceI();
 
     //
@@ -32,22 +33,25 @@ public:
     //
     const Instance instance;
     const std::string identity;
-    const std::vector<Endpoint> endpoints;
 
     enum Mode
     {
 	ModeTwoway,
 	ModeOneway,
+	ModeSecure,
 	ModeDatagram
     };
     const Mode mode;
+
+    const std::vector<TcpEndpoint> tcpEndpoints;
+    const std::vector<UdpEndpoint> udpEndpoints;
 
     //
     // Get a new reference, based on the existing one, overwriting
     // certain values.
     //
-    Reference changeMode(Mode) const;
     Reference changeTimeout(int) const;
+    Reference changeMode(Mode) const;
  
     bool operator==(const ReferenceI&) const;
     bool operator!=(const ReferenceI&) const;

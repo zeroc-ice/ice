@@ -26,12 +26,12 @@ class TcpTransceiverI : public TransceiverI
 {
 public:
 
-    int fd();
-    void close();
-    void shutdown();
-    void write(Buffer&, int);
-    void read(Buffer&, int);
-    std::string toString() const;
+    virtual int fd();
+    virtual void close();
+    virtual void shutdown();
+    virtual void write(Buffer&, int);
+    virtual void read(Buffer&, int);
+    virtual std::string toString() const;
     
 private:
 

@@ -30,9 +30,9 @@ class UdpConnectorI : public ConnectorI
 {
 public:
     
-    Transceiver initialize();
-    Transceiver connect(int);
-    std::string toString() const;
+    virtual Transceiver initialize();
+    virtual Transceiver connect(int);
+    virtual std::string toString() const;
     
 private:
 
