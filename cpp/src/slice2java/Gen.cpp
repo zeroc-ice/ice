@@ -97,8 +97,7 @@ exceptionIsLocal(const ::Slice::ExceptionPtr exception)
 }
 
 void
-Slice::JavaVisitor::writeThrowsClause(const string& scope,
-                                      const ExceptionList& throws)
+Slice::JavaVisitor::writeThrowsClause(const string& scope, const ExceptionList& throws)
 {
     //
     // Don't include local exceptions in the throws clause
@@ -139,8 +138,7 @@ Slice::JavaVisitor::writeThrowsClause(const string& scope,
 }
 
 void
-Slice::JavaVisitor::writeDelegateThrowsClause(const string& scope,
-                                              const ExceptionList& throws)
+Slice::JavaVisitor::writeDelegateThrowsClause(const string& scope, const ExceptionList& throws)
 {
     Output& out = output();
     out.inc();
