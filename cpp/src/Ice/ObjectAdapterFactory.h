@@ -12,12 +12,12 @@
 #define ICE_OBJECT_ADAPTER_FACTORY_H
 
 #include <Ice/ObjectAdapterI.h>
-#include <IceUtil/RecMutex.h>
+#include <IceUtil/Mutex.h>
 
 namespace IceInternal
 {
 
-class ObjectAdapterFactory : public ::IceUtil::Shared, public ::IceUtil::RecMutex
+class ObjectAdapterFactory : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 
