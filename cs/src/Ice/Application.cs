@@ -58,7 +58,7 @@ namespace Ice
 	    {
 		if(configFile != null)
 		{
-		    Properties properties = Util.createProperties(ref args);
+		    Properties properties = Util.createProperties();
 		    properties.load(configFile);
 		    _communicator = Util.initializeWithProperties(ref args, properties);
 		}
