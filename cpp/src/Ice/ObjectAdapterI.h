@@ -74,7 +74,7 @@ public:
     
     bool isLocal(const ObjectPrx&) const;
 
-    std::list<IceInternal::ConnectionPtr> getIncomingConnections() const;
+//    std::list<IceInternal::ConnectionPtr> getIncomingConnections() const;
 
     void flushBatchRequests();
 

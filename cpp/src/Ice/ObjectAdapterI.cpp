@@ -15,6 +15,7 @@
 #include <Ice/ReferenceFactory.h>
 #include <Ice/Endpoint.h>
 #include <Ice/EndpointFactoryManager.h>
+#include <Ice/Connection.h> // For Connection::getTransportInfo()
 #include <Ice/ConnectionFactory.h>
 #include <Ice/ServantManager.h>
 #include <Ice/RouterInfo.h>
@@ -451,12 +452,40 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident, const TransportIn
     checkIdentity(ident);
 
     //
+    // If no connection is specified, we use the first connection of
+    // this object adapter.
+    //
+    TransportInfoPtr tr = transport;
+    if(!tr)
+    {
+	vector<IncomingConnectionFactoryPtr>::const_iterator p;
+	for(p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
+	{
+	    list<ConnectionPtr> connections = (*p)->connections();
+	    if(!connections.empty())
+	    {
+		tr = (*connections.begin())->getTransportInfo();
+		break;
+	    }
+	}
+
+	//
+	// If there is no incoming connection for the object adapter,
+	// we return a null proxy.
+	//
+	if(!tr)
+	{
+	    return 0;
+	}
+    }
+
+    //
     // Create a reference and return a reverse proxy for this
     // reference.
     //
     vector<EndpointPtr> endpoints;
     ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
-							     false, "", endpoints, 0, 0, this, transport, true);
+							     false, "", endpoints, 0, 0, tr, true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
@@ -575,6 +604,7 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     return false;
 }
 
+/*
 list<ConnectionPtr>
 Ice::ObjectAdapterI::getIncomingConnections() const
 {
@@ -591,6 +621,7 @@ Ice::ObjectAdapterI::getIncomingConnections() const
     }
     return connections;
 }
+*/
 
 void
 Ice::ObjectAdapterI::flushBatchRequests()
@@ -792,7 +823,7 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 	vector<EndpointPtr> endpoints;
 	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "",
 								 Reference::ModeTwoway, false, _id,
-								 endpoints, 0, _locatorInfo, 0, 0, true);
+								 endpoints, 0, _locatorInfo, 0, true);
 
 	//
 	// Return a proxy for the reference. 
@@ -824,7 +855,7 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
     // Create a reference and return a proxy for this reference.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
-							     false, "", endpoints, 0, _locatorInfo, 0, 0, true);
+							     false, "", endpoints, 0, _locatorInfo, 0, true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
 }

@@ -69,7 +69,6 @@ private:
     const IceUtil::Time _sleepTime;
 
     std::vector<RequestPtr> _requests;
-    std::vector<RequestPtr> _batchRequests;
     bool _destroy;
 };
 

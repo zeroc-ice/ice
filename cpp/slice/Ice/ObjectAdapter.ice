@@ -490,13 +490,15 @@ local interface ObjectAdapter
      * @param id The identity for which a proxy is to be created.
      *
      * @param transport The transport that should be used, or null if
-     * all available connections to this object adapater should be
-     * used.
+     * the first available connection to this object adapater should
+     * be used.
      *
      * @return A "reverse proxy" that matches the given identity and
-     * this object adapter.
+     * this object adapter. If no connections have been established to
+     * this object adapter, a null proxy is returned.
      *
      * @see Identity
+     * @see TransportInfo
      *
      **/
     Object* createReverseProxy(Identity id, TransportInfo transport);

@@ -13,8 +13,14 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
+static const string serverAlwaysBatch = "Glacier2.Server.AlwaysBatch";
+static const string clientAlwaysBatch = "Glacier2.Client.AlwaysBatch";
+
 Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
-    _logger(communicator->getLogger())
+    _logger(communicator->getLogger()),
+    _alwaysBatch(reverse ?
+		 communicator->getProperties()->getPropertyAsInt(serverAlwaysBatch) > 0 :
+		 communicator->getProperties()->getPropertyAsInt(clientAlwaysBatch) > 0)
 {
     _requestQueue = new RequestQueue(communicator, reverse);
     _requestQueueControl = _requestQueue->start();

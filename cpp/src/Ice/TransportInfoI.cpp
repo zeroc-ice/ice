@@ -39,3 +39,10 @@ Ice::TransportInfoI::setConnection(const ConnectionPtr& connection)
     IceUtil::Mutex::Lock sync(_connectionMutex);
     _connection = connection;
 }
+
+ConnectionPtr
+Ice::TransportInfoI::getConnection() const
+{
+    IceUtil::Mutex::Lock sync(_connectionMutex);
+    return _connection;
+}

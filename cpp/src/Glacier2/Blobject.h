@@ -36,6 +36,7 @@ private:
 
     void modifyProxy(Ice::ObjectPrx&, const Ice::Current&) const;
 
+    const bool _alwaysBatch;
     RequestQueuePtr _requestQueue;
     IceUtil::ThreadControl _requestQueueControl;
 };

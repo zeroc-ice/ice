@@ -119,16 +119,16 @@ static const string clientSleepTime = "Glacier2.Client.SleepTime";
 Glacier::RequestQueue::RequestQueue(const Ice::CommunicatorPtr& communicator, bool reverse) :
     _logger(communicator->getLogger()),
     _reverse(reverse),
-    _traceLevelRequest(_reverse ?
+    _traceLevelRequest(reverse ?
 		       communicator->getProperties()->getPropertyAsInt(serverTraceRequest) :
 		       communicator->getProperties()->getPropertyAsInt(clientTraceRequest)),
-    _traceLevelOverride(_reverse ?
+    _traceLevelOverride(reverse ?
 			communicator->getProperties()->getPropertyAsInt(serverTraceOverride) :
 			communicator->getProperties()->getPropertyAsInt(clientTraceOverride)),
-    _forwardContext(_reverse ?
+    _forwardContext(reverse ?
 		    communicator->getProperties()->getPropertyAsInt(serverForwardContext) > 0 :
 		    communicator->getProperties()->getPropertyAsInt(clientForwardContext) > 0),
-    _sleepTime(_reverse ?
+    _sleepTime(reverse ?
 	       IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsInt(serverSleepTime)) :
 	       IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsInt(clientSleepTime))),
     _destroy(false)
