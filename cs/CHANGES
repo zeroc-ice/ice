@@ -1,9 +1,12 @@
 Changes since version 1.5.1
 ---------------------------
 
-- Fixed a bug in slice2cs: the generated code was incorrect
-  for dictionaries and structures containing a sequenc,
-  if that sequence was mapped to an array.
+- Exceptions raised while marshaling data for batch requests resulted
+  in a connection deadlock. This has been fixed.
+
+- Fixed a bug in slice2cs: the generated code was incorrect for
+  dictionaries and structures containing a sequenc, if that sequence
+  was mapped to an array.
 
 - Fixed tracing of operation mode.
 

@@ -30,9 +30,9 @@ namespace IceInternal
 	}
 	
 	//
-	// Do NOT use a finalizer, this would cause a severe performance
-	// penalty! We must make sure that destroy() is called instead,
-	// to reclaim resources.
+	// Do NOT use a finalizer, this would cause a severe
+	// performance penalty! We must make sure that destroy() is
+	// called instead, to reclaim resources.
 	//
 	public void destroy()
 	{
@@ -66,6 +66,8 @@ namespace IceInternal
 	// Returns true if ok, false if user exception.
 	public bool invoke()
 	{
+	    assert(_state == StateUnsent);
+
 	    _os.endWriteEncaps();
 	    
 	    switch(_reference.mode)
@@ -178,14 +180,15 @@ namespace IceInternal
 		case Reference.ModeDatagram: 
 		{
 		    //
-		    // For oneway and datagram requests, the connection
-		    // object never calls back on this object. Therefore
-		    // we don't need to lock the mutex, keep track of
-		    // state, or save exceptions. We simply let all
-		    // exceptions from sending propagate to the caller,
-		    // because such exceptions can be retried without
-		    // violating "at-most-once".
+		    // For oneway and datagram requests, the
+		    // connection object never calls back on this
+		    // object. Therefore we don't need to lock the
+		    // mutex or save exceptions. We simply let all
+		    // exceptions from sending propagate to the
+		    // caller, because such exceptions can be retried
+		    // without violating "at-most-once".
 		    //
+		    _state = StateInProgress;
 		    _connection.sendRequest(_os, null, _compress);
 		    break;
 		}
@@ -194,10 +197,11 @@ namespace IceInternal
 		case Reference.ModeBatchDatagram: 
 		{
 		    //
-		    // For batch oneways and datagrams, the same rules as for
-		    // regular oneways and datagrams (see comment above)
-		    // apply.
+		    // For batch oneways and datagrams, the same rules
+		    // as for regular oneways and datagrams (see
+		    // comment above) apply.
 		    //
+		    _state = StateInProgress;
 		    _connection.finishBatchRequest(_os, _compress);
 		    break;
 		}
@@ -206,6 +210,31 @@ namespace IceInternal
 	    return true;
 	}
 	
+	public void abort(Ice.LocalException ex)
+	{
+	    assert(_state == StateUnsent);
+	    
+	    //
+	    // If we didn't finish a batch oneway or datagram request,
+	    // we must notify the connection about that we give up
+	    // ownership of the batch stream.
+	    //
+	    if(_reference.mode == Reference.ModeBatchOneway || _reference.mode == Reference.ModeBatchDatagram)
+	    {
+		_connection.abortBatchRequest();
+ 
+		//
+		// If we abort a batch requests, we cannot retry,
+		// because not only the batch request that caused the
+		// problem will be aborted, but all other requests in
+		// the batch as well.
+		//
+		throw new NonRepeatable(ex);
+	    }
+	    
+	    throw ex;
+	}
+
 	public void finished(BasicStream istr)
 	{
 	    lock(this)

@@ -667,8 +667,9 @@ namespace Ice
 		_batchStream.swap(os);
 		
 		//
-		// _batchStream now belongs to the caller, until
-		// finishBatchRequest() is called.
+		// The batch stream now belongs to the caller, until
+		// finishBatchRequest() or abortBatchRequest() is
+		// called.
 		//
 	    }
 	}
@@ -677,27 +678,24 @@ namespace Ice
 	{
 	    lock(this)
 	    {
-		if(_exception != null)
-		{
-		    throw _exception;
-		}
+		//
+		// Get the batch stream back and increment the number of
+		// requests in the batch.
+		//
+		_batchStream.swap(os);
+		++_batchRequestNum;
 
-		Debug.Assert(_state > StateNotValidated);
-		Debug.Assert(_state < StateClosing);
-		
-		_batchStream.swap(os); // Get the batch stream back.
-		++_batchRequestNum; // Increment the number of requests in the batch.
-
-		// We compress the whole batch if there is at least one compressed
-		// message.
+		//
+		// We compress the whole batch if there is at least
+		// one compressed message.
 		//
 		if(compress)
 		{
 		    _batchRequestCompress = true;
 		}
-		
+
 		//
-		// Give the Ice.ConnectionI back.
+		// Notify about the batch stream not being in use anymore.
 		//
 		Debug.Assert(_batchStreamInUse);
 		_batchStreamInUse = false;
@@ -705,6 +703,31 @@ namespace Ice
 	    }
 	}
 	
+	public void abortBatchRequest()
+	{
+	    lock(this)
+	    {
+		//
+		// Destroy and reset the batch stream and batch
+		// count. We cannot safe old requests in the batch
+		// stream, as they might be corrupted due to
+		// incomplete marshaling.
+		//
+		_batchStream.destroy();
+		_batchStream = new IceInternal.BasicStream(_instance);
+		_batchRequestNum = 0;
+		_batchRequestCompress = false;
+		
+		//
+		// Notify about the batch stream not being in use
+		// anymore.
+		//
+		Debug.Assert(_batchStreamInUse);
+		_batchStreamInUse = false;
+		Monitor.PulseAll(this);
+	    }
+	}
+
 	public void flushBatchRequests()
 	{
 	    IceInternal.BasicStream stream;
