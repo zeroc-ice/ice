@@ -1,23 +1,23 @@
 To run the demo:
 
-export ICE_CONFIG=config
+$ export ICE_CONFIG=config
 
-or use --Ice.Config=config for all subsequent commands.
+Or use --Ice.Config=config for all subsequent commands.
 
 Start the IceStorm service:
 
-../../../bin/icebox --Ice.Config=config_service
+$ ../../../bin/icebox --Ice.Config=config_service
 
 This currently assumes there is a directory called db in the cwd.
 
 In a seperate window:
 
-../../../bin/icestormadmin -e "create time"
-./subscriber
+$ ../../../bin/icestormadmin -e "create time"
+$ ./subscriber
 
 In another window:
 
-./publisher
+$ ./publisher
 
 For each run of the publisher 10 "tick" messages should be displayed
 in the subscriber window.
