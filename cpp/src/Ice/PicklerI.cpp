@@ -46,14 +46,10 @@ Ice::PicklerI::unpickle(std::istream& in)
     }
 
     s.i = s.b.begin();	    
-    bool bigendian;
-    s.read(bigendian);
-    s.pushBigendian(bigendian);
     Byte encVer;
     s.read(encVer);
     Int sz;
     s.read(sz);
-    s.popBigendian();
 
     // Don't use s.b.resize() here, otherwise no size sanity checks
     // will be done
