@@ -26,7 +26,8 @@ public final class ThreadPool
     public synchronized void
     unregister(java.nio.channels.SelectableChannel fd)
     {
-        _removes.add(fd);
+        java.nio.channels.SelectionKey key = fd.keyFor(_selector);
+        _removes.add(key);
         setInterrupt();
     }
 
@@ -378,7 +379,7 @@ public final class ThreadPool
                     boolean interrupt = false;
                     if (_fdIntrReadKey.isReadable())
                     {
-                        shutdown = clearInterrup();
+                        shutdown = clearInterrupt();
                         interrupt = true;
                     }
 
@@ -415,21 +416,17 @@ public final class ThreadPool
                         java.util.ListIterator p = _adds.listIterator();
                         while (p.hasNext())
                         {
-                            //java.nio.channels.SelectionKey key =
-                            //    (java.nio.channels.SelectionKey)p.next();
-                            java.nio.channels.SelectableChannel fd =
-                                (java.nio.channels.SelectableChannel)p.next();
                             java.nio.channels.SelectionKey key =
-                                fd.keyFor(_selector);
+                                (java.nio.channels.SelectionKey)p.next();
                             key.cancel();
-                            handler = (EventHandler)key.attach();
+                            handler = (EventHandler)key.attachment();
                             assert(handler != null);
                             handler.finished();
                             if (handler.server())
                             {
                                 --_servers;
                             }
-                            _reapList.remove(fd);
+                            _reapList.remove(key.channel());
                         }
                         _removes.clear();
 
@@ -464,10 +461,11 @@ public final class ThreadPool
                         {
                             java.nio.channels.SelectionKey key =
                                 (java.nio.channels.SelectionKey)i.next();
-                            if (key.isValid() && key != _fdIntrReadKey)
+                            if (key != _fdIntrReadKey)
                             {
-                                handler = (EventHandler)key.attach();
+                                handler = (EventHandler)key.attachment();
                             }
+                            i.remove();
                         }
                         assert(handler != null);
 
