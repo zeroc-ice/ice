@@ -73,8 +73,8 @@ class EvictorI implements Evictor
 	// Copy the identity. This is necessary for add().
 	//
 	Ice.Identity identCopy = new Ice.Identity();
-	identCopy.name = new String(ident.name);
-	identCopy.category = new String(ident.category);
+	identCopy.name = ident.name;
+	identCopy.category = ident.category;
 
 	//
 	// Save the new Ice Object to the database.
@@ -143,8 +143,8 @@ class EvictorI implements Evictor
 	// potentially the map).
 	//
 	Ice.Identity ident = new Ice.Identity();
-	ident.name = new String(current.identity.name);
-	ident.category = new String(current.identity.category);
+	ident.name = current.identity.name;
+	ident.category = current.identity.category;
 	
 	EvictorElement element = (EvictorElement)_evictorMap.get(ident);
 	if (element != null)
