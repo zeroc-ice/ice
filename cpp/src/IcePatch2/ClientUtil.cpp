@@ -83,6 +83,8 @@ IcePatch2::Patcher::patch()
    
     bool thorough = _thorough;
 
+    cout << "--- 1 ---" << endl;
+
     if(!thorough)
     {
 	try
@@ -105,9 +107,11 @@ IcePatch2::Patcher::patch()
 	saveFileInfoSeq(_dataDir, infoSeq);
     }
         
+    cout << "--- 2 ---" << endl;
     FileTree0 tree0;
     getFileTree0(infoSeq, tree0);
     
+    cout << "--- 3 ---" << endl;
     FileInfoSeq removeFileSeq;
     FileInfoSeq updateFileSeq;
     
@@ -162,8 +166,12 @@ IcePatch2::Patcher::patch()
 	}
     }
     
+    cout << "--- 4 ---" << endl;
+
     sort(removeFileSeq.begin(), removeFileSeq.end(), FileInfoLess());
     sort(updateFileSeq.begin(), updateFileSeq.end(), FileInfoLess());
+
+    cout << "--- 5 ---" << endl;
 
     if(!removeFileSeq.empty())
     {

@@ -128,6 +128,8 @@ IceUtil::unescapeString(const string& s, string::size_type start, string::size_t
     assert(end <= s.size());
     assert(start <= end);
 
+    result.reserve(end - start);
+
     while(start < end)
     {
         char ch = s[start];
