@@ -101,7 +101,7 @@
 // set, because that means windows.h has already been included and
 // therefore it's too late to change it here.
 //
-#   ifndef FS_SETSIZE
+#   ifndef FD_SETSIZE
 #      define FD_SETSIZE 1024
 #   endif
 
