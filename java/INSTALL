@@ -12,10 +12,10 @@ Requirements
 Operating systems
 -----------------
 
-Ice for Java has been tested under Linux, Solaris, HP-UX, MacOS X,
-AIX and Windows 2000/XP, but due to the portability of Java, it is
-very likely that it will also work on other platforms for which a
-suitable Java implementation is available.
+Ice for Java has been tested under Linux, Solaris, HP-UX, MacOS X, AIX
+and Windows 2000/XP, but due to the portability of Java, it is very
+likely that it will also work on other platforms for which a suitable
+Java implementation is available.
 
 Note, however, that you will need the Slice to Java translator (see
 below). ZeroC provides translator binaries for supported platforms.
@@ -46,7 +46,7 @@ http://www.hp.com/products1/unix/java/java2/sdkrte14/downloads/index_pa-risc.htm
 When using the Ice for Java SSL plugin, you may experience occasional
 hangs. The most common reason is that your system's entropy pool is
 empty. A workaround is to edit <java.home>/lib/security/java.security
-to use /dev/urandom instead of /dev/random.  
+to use /dev/urandom instead of /dev/random.
 
 
 Slice to Java translator
@@ -66,8 +66,8 @@ Other Ice utilities
 Some of the Ice for Java tests and demonstration programs require
 additional Ice for C++ utilities, such as IcePack and Glacier2. For
 space reasons, the pre-compiled archives ZeroC supplies for Unix
-platforms contain only the Slice-to-Java translator (slice2java),
-the Slice-to-Freeze translator (slice2freezej), and the documentation
+platforms contain only the Slice-to-Java translator (slice2java), the
+Slice-to-Freeze translator (slice2freezej), and the documentation
 generator (slice2docbook). Therefore, not all Ice for Java tests can
 be run without building Ice for C++ yourself.
 
@@ -78,7 +78,7 @@ Berkeley DB
 Freeze for Java uses Berkeley DB as its underlying database. It
 requires Berkeley DB 4.2.52.
 
-Even though Berkeley DB is included with many Linux distributions, the 
+Even though Berkeley DB is included with many Linux distributions, the
 Java files for Berkeley DB are usually not available. This means that
 you must build Berkeley DB manually.
 
@@ -113,9 +113,9 @@ bzip2
 Ice for Java supports protocol compression using the bzip2 classes
 included with Apache Ant (see "Compiling the Source" below).
 
-Compression is automatically enabled if the classes are present in
-the CLASSPATH. You can either add ant.jar to your CLASSPATH, or
-download only the bzip2 classes from
+Compression is automatically enabled if the classes are present in the
+CLASSPATH. You can either add ant.jar to your CLASSPATH, or download
+only the bzip2 classes from
 
 http://www.kohsuke.org/bzip2/
 
@@ -148,9 +148,9 @@ case of a failure, the tests abort with "failed".
 
 If you want to try out any of the demos, make sure to add lib/Ice.jar
 and "classes" to your CLASSPATH. Then change to the desired demo
-directory and follow the instructions in the README file. If no
-README file is present, the demo can be run by entering the following
-command to start the server:
+directory and follow the instructions in the README file. If no README
+file is present, the demo can be run by entering the following command
+to start the server:
 
 $ java Server
 
@@ -182,10 +182,10 @@ the Ice for Java source code:
 $ ant clean
 $ ant
 
-NOTE: If you use cygwin, be aware that ant 1.6.2 has a bug that
-causes it to misinterpret CLASSPATH entries having forward slashes.
-The workaround is to change your CLASSPATH to use backslashes, or
-revert to ant 1.6.1.
+NOTE: If you use cygwin, be aware that ant 1.6.2 has a bug that causes
+it to misinterpret CLASSPATH entries having forward slashes.  The
+workaround is to change your CLASSPATH to use backslashes, or revert
+to ant 1.6.1.
 
 
 ======================================================================
@@ -204,5 +204,5 @@ MacOS X Notes
 On MacOS X, an Ice server may not correctly detect the closure of
 client connections, which can lead to a hang during server shutdown.
 This appears to be caused by a problem in the JVM implementation, but
-we are still looking into this issue. Until we resolve this matter,
-We recommend the use of timeouts in object adapter endpoints.
+we are still looking into this issue. Until we resolve this matter, We
+recommend the use of timeouts in object adapter endpoints.

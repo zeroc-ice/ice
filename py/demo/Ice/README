@@ -36,9 +36,10 @@ Demos in this directory:
 
 - throughput
 
-  A simple throughput demo that allows you to send sequences of various
-  types between client and server and to measure the maximum bandwidth that
-  can be achieved using serialized synchronous requests.
+  A simple throughput demo that allows you to send sequences of
+  various types between client and server and to measure the maximum
+  bandwidth that can be achieved using serialized synchronous
+  requests.
 
 - value
 

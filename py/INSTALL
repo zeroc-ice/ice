@@ -12,8 +12,8 @@ If you have downloaded a source distribution of Ice for Python, see
 the build instructions below.
 
 If you have downloaded a binary distribution of Ice for Python, you
-have everything you need to use Ice in Python; it is not necessary
-to download and build Ice for C++. See the section "Configuring your
+have everything you need to use Ice in Python; it is not necessary to
+download and build Ice for C++. See the section "Configuring your
 Environment" below.
 
 
@@ -35,8 +35,8 @@ Follow these steps to build the Ice extension for Python:
 3) Run 'make'.
 
 4) Upon successful completion, run 'make install'. You may need
-   additional user priveleges to install in the directory specified
-   by config/Make.rules.
+   additional user priveleges to install in the directory specified by
+   config/Make.rules.
 
 5) See "Configuring your Environment" below.
 
@@ -58,14 +58,14 @@ Follow these steps to build the Ice extension for Python:
    C:\Python24\include as the include directory and C:\Python24\libs
    as the library directory.
 
-2) Open the "all.dsw" workspace. If you are using Visual C++ .NET,
-   the project files will first need to be converted from the Visual
-   C++ 6.0 format.
+2) Open the "all.dsw" workspace. If you are using Visual C++ .NET, the
+   project files will first need to be converted from the Visual C++
+   6.0 format.
 
 3) Set your active project to "IcePy". Note that the default
    configuration is a Debug build, which requires that the debug
-   libraries be available for Python and Ice. (The debug library
-   is not included in the binary distribution from python.org.)
+   libraries be available for Python and Ice. (The debug library is
+   not included in the binary distribution from python.org.)
 
    The project assumes you are building an extension for Python 2.4.
    If you are using Python 2.3, you will need to modify the project
@@ -77,11 +77,11 @@ Follow these steps to build the Ice extension for Python:
 
 NOTES:
 
- * When compiling the Python interpreter from sources using
-   Microsoft Visual C++ 6.0, the presence of the STLport header
-   files causes a compilation error. The solution is to temporarily
-   remove or rename the STLport include directory in your Visual C++
-   settings using Tools/Options/Directories/Include files.
+ * When compiling the Python interpreter from sources using Microsoft
+   Visual C++ 6.0, the presence of the STLport header files causes a
+   compilation error. The solution is to temporarily remove or rename
+   the STLport include directory in your Visual C++ settings using
+   Tools/Options/Directories/Include files.
 
 
 =========================================================================
@@ -90,9 +90,9 @@ Configuring your Environment
 
 Unix:
 
-   Modify your PYTHONPATH environment variable to include the Ice
-   for Python extension. Assuming you installed the extension in
-   the default directory (/opt/IcePy-2.1.0), you would modify your
+   Modify your PYTHONPATH environment variable to include the Ice for
+   Python extension. Assuming you installed the extension in the
+   default directory (/opt/IcePy-2.1.0), you would modify your
    environment as shown below:
 
    export ICEPY_HOME=/opt/IcePy-2.1.0
@@ -100,11 +100,11 @@ Unix:
 
 Windows:
 
-   Modify your environment to allow Python to find the Ice for
-   Python extension. The interpreter must be able to locate
-   the extension DLL as well as the Python source files in the
-   "python" subdirectory. This is normally accomplished by setting
-   the PYTHONPATH environment variable to contain the necessary
+   Modify your environment to allow Python to find the Ice for Python
+   extension. The interpreter must be able to locate the extension DLL
+   as well as the Python source files in the "python"
+   subdirectory. This is normally accomplished by setting the
+   PYTHONPATH environment variable to contain the necessary
    subdirectories. For example, if the Ice for Python extension is
    installed in C:\IcePy-2.1.0, you could configure your environment
    as follows:
@@ -134,7 +134,7 @@ $ python run.py
 Python Platform Notes (HP-UX)
 =========================================================================
 
-The Python sources need to be compiled with the following options
-in order to successfully load the Ice extension:
+The Python sources need to be compiled with the following options in
+order to successfully load the Ice extension:
 
 ./configure --enable-shared --with-cxx="aCC -AA +DAportable" ...

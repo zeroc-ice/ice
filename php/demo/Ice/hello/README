@@ -16,9 +16,9 @@ directory.
 Alternatively, if you're using CGI, then you will need to make this
 script executable, add a line at the top of the script to indicate the
 path to the PHP CGI binary, and copy the script to your cgi-bin
-directory. On Linux or Solaris, the line at the top of the file
-should look something like this, where /opt/php5 is the PHP5
-installation directory:
+directory. On Linux or Solaris, the line at the top of the file should
+look something like this, where /opt/php5 is the PHP5 installation
+directory:
 
 #! /opt/php5/bin/php
 

@@ -12,9 +12,9 @@ This is a PHP version of the Ice "value" demo client.
 First, review the comments in the php.ini file to determine whether
 any changes are needed for your environment.
 
-Next, start the value demo server, using any of the supported
-language mappings, on this host. Finally, run the PHP client with
-the following command:
+Next, start the value demo server, using any of the supported language
+mappings, on this host. Finally, run the PHP client with the following
+command:
 
 $ php -c php.ini -f Client.php
 

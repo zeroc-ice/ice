@@ -8,9 +8,9 @@ ICE_LICENSE file included in this distribution.
 **********************************************************************
 
 The IcePack node starts Java server processes, therefore prior to
-starting the node you must set the CLASSPATH environment variable
-to contain at least Ice.jar and the classes subdirectory, as shown
-in the Unix example below:
+starting the node you must set the CLASSPATH environment variable to
+contain at least Ice.jar and the classes subdirectory, as shown in the
+Unix example below:
 
 $ export CLASSPATH=<Ice-directory>/lib/Ice.jar:classes
 

@@ -11,14 +11,14 @@ Demos in this directory:
 
 - evictor
 
-  This is the source code for the evictor implementation described
-  in the advanced server chapter. You can copy and modify this code
-  to suit your needs.
+  This is the source code for the evictor implementation described in
+  the advanced server chapter. You can copy and modify this code to
+  suit your needs.
 
 - printer
 
-  An implementation of the simple printer example at the beginning
-  of the book.
+  An implementation of the simple printer example at the beginning of
+  the book.
 
 - simple_filesystem
 

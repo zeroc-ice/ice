@@ -15,12 +15,12 @@ must be in your path as well, as must be the Ice for C++ run-time
 libraries iceutil and slice.
 
 Open icevb/All.sln in Visual Basic# and build the "All" solution (both
-debug and release builds are supported). Note that Ice for Visual Basic
-is just a language mapping on top of Ice for C# -- the actual run-time
-support is provided by icecs.dll. The build environment expects
-icecs.dll to be installed in $(solutiondir)/icecs/bin. Alternatively,
-you can install icecs.dll in the GAC. (See Ice for C# for details of
-how to do this.)
+debug and release builds are supported). Note that Ice for Visual
+Basic is just a language mapping on top of Ice for C# -- the actual
+run-time support is provided by icecs.dll. The build environment
+expects icecs.dll to be installed in $(solutiondir)/icecs/bin.
+Alternatively, you can install icecs.dll in the GAC. (See Ice for C#
+for details of how to do this.)
 
 Please let us know about any bugs, comments, or feedback in the Ice
 forum at http://www.zeroc.com/vbulletin/.

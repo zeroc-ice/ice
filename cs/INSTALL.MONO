@@ -11,8 +11,8 @@ distribution. Make sure that slice2cs is in your PATH or,
 alternatively, place the slice2cs executable into the bin directory of
 the Ice for C# distribution. You also must ensure that the dynamic
 libraries that are required by slice2cs (iceutil and slice) are in
-your path. In addition, slice2cs calls icecpp.exe, which must also
-be in your path, as must be the Ice for C++ run-time libraries iceutil
+your path. In addition, slice2cs calls icecpp.exe, which must also be
+in your path, as must be the Ice for C++ run-time libraries iceutil
 and slice.
 
 To build Ice for C#, run
@@ -29,7 +29,7 @@ Mono binaries are interpreted so, given a binary called "foo", you
 have to run the Mono interpreter with an argument "foo" to execute
 that binary, like so:
 
-	$ mono foo
+$ mono foo
 
 If you want to avoid having to explictly invoke the Mono interpreter,
 you can run the following commands (as root) to make your kernel
@@ -49,7 +49,7 @@ in the commands below.)
 With this change, assuming that the execute bit is set on the binary,
 you can execute the binary directly:
 
-	$ foo
+$ foo
 
 This does not change your kernel, but the modules that are loaded when
 you boot your system, so you will not lose the change if you upgrade
@@ -60,9 +60,9 @@ Running the tests
 -----------------
 
 You must add icecs/bin to your MONO_PATH. (Don't forget to export
-MONO_PATH). Alternatively, you can install the Ice DLLs (from
-the bin directory) in the Global Assembly Cache (GAC), using
-gacutil -i <name>. For example:
+MONO_PATH). Alternatively, you can install the Ice DLLs (from the bin
+directory) in the Global Assembly Cache (GAC), using gacutil -i
+<name>. For example:
 
 $ gacutil -i icecs.dll
 
@@ -86,9 +86,8 @@ Running the demos
 -----------------
 
 To run the demos, you need to have icecs/bin in your MONO_PATH (or
-install the Ice DLLs in the GAC, as for running the tests).
-See the README file in each demo directory for a description of each
-demo.
+install the Ice DLLs in the GAC, as for running the tests).  See the
+README file in each demo directory for a description of each demo.
 
 
 Installation
