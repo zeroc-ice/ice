@@ -28,7 +28,6 @@ public:
 	const std::vector<std::string>&,
 	const std::string&,
 	const std::string&,
-        bool,
         bool);
     ~Gen();
 
@@ -51,7 +50,6 @@ private:
     std::vector<std::string> _includePaths;
     std::string _dllExport;
     bool _impl;
-    bool _checksum;
 
     class TypesVisitor : public ::IceUtil::noncopyable, public ParserVisitor
     {

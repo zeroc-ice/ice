@@ -34,7 +34,6 @@ usage(const char* n)
 	"--depend                Generate Makefile dependencies.\n"
         "-d, --debug             Print debug messages.\n"
         "--ice                   Permit `Ice' prefix (for building Ice source code only)\n"
-        "--checksum CLASS        Generate checksums for Slice definitions into CLASS.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }
@@ -52,7 +51,6 @@ main(int argc, char* argv[])
     bool depend;
     bool debug;
     bool ice;
-    string checksumClass;
     bool caseSensitive;
 
     IceUtil::Options opts;
@@ -69,7 +67,6 @@ main(int argc, char* argv[])
     opts.addOpt("", "depend");
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
-    opts.addOpt("", "checksum", IceUtil::Options::NeedArg);
     opts.addOpt("", "case-sensitive");
 
     vector<string>args;
@@ -129,10 +126,6 @@ main(int argc, char* argv[])
     depend = opts.isSet("depend");
     debug = opts.isSet("d") || opts.isSet("debug");
     ice = opts.isSet("ice");
-    if(opts.isSet("checksum"))
-    {
-	checksumClass = opts.optArg("checksum");
-    }
     caseSensitive = opts.isSet("case-sensitive");
 
     if(args.empty())
@@ -150,8 +143,6 @@ main(int argc, char* argv[])
     }
 
     int status = EXIT_SUCCESS;
-
-    ChecksumMap checksums;
 
     for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
     {
@@ -221,23 +212,10 @@ main(int argc, char* argv[])
 		    {
 			gen.generateImplTie(p);
 		    }
-		    if(!checksumClass.empty())
-		    {
-			//
-			// Calculate checksums for the Slice definitions in the unit.
-			//
-			ChecksumMap m = createChecksums(p);
-			copy(m.begin(), m.end(), inserter(checksums, checksums.begin()));
-		    }
 		}
 		p->destroy();
 	    }
 	}
-    }
-
-    if(!checksumClass.empty())
-    {
-        Gen::writeChecksumClass(checksumClass, output, checksums);
     }
 
     return status;

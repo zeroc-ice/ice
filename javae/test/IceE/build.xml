@@ -21,7 +21,6 @@
         <ant dir="operations"/>
 	<ant dir="slicing"/> 
 	<!-- XXX refactor  <ant dir="translator"/> -->
-        <ant dir="checksum"/>
     </target>
 
     <target name="clean">
@@ -34,7 +33,6 @@
         <ant dir="operations" target="clean"/>
 	<ant dir="slicing" target="clean"/> 
 	<!-- XXX refactor <ant dir="translator" target="clean"/> -->
-        <ant dir="checksum" target="clean"/>
     </target>
 
 </project>

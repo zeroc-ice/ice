@@ -64,7 +64,6 @@ tests = [
     "Ice/location", 
     "Ice/adapterDeactivation", 
     "Ice/slicing/exceptions", 
-    "Ice/checksum", 
     ]
 
 #

@@ -12,7 +12,6 @@
 
 #include <Slice/Parser.h>
 #include <Slice/JavaUtil.h>
-#include <Slice/Checksum.h>
 
 namespace Slice
 {
@@ -76,8 +75,6 @@ public:
     void generateTie(const UnitPtr&);
     void generateImpl(const UnitPtr&);
     void generateImplTie(const UnitPtr&);
-
-    static void writeChecksumClass(const std::string&, const std::string&, const ChecksumMap&);
 
 private:
 

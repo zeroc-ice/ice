@@ -65,7 +65,6 @@
                 <include name="Properties.ice" />
                 <include name="Router.ice" />
                 <include name="ServantLocator.ice" />
-                <include name="SliceChecksumDict.ice" />
                 <include name="Connection.ice" />
             </fileset>
         </slice2javae>
