@@ -338,11 +338,12 @@
 		<col def="S0">ISDotNetInstallerArgsCommit</col>
 		<col def="S0">ISDotNetInstallerArgsUninstall</col>
 		<col def="S0">ISDotNetInstallerArgsRollback</col>
-		<row><td>GAC_glacier2cs</td><td>{FEC3532C-7323-4158-9E7E-5DF09630AFAE}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>glacier2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icecs</td><td>{C3F958D8-5F24-4437-B912-4CCAF3309A55}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>icecs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icepackcs</td><td>{104E4B7B-4703-4688-8343-8F199BF881C4}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>icepackcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icepatch2cs</td><td>{8F2DE27A-B0F5-4FE0-A27C-A6DD3C9FCA2B}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>icepatch2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
-		<row><td>GAC_icestormcs</td><td>{1E8D7135-C067-4CE8-943C-D21F1760E6C5}</td><td>GlobalAssemblyCache</td><td>8</td><td/><td>icestormcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_glacier2cs</td><td>{FEC3532C-7323-4158-9E7E-5DF09630AFAE}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>glacier2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icecs</td><td>{C3F958D8-5F24-4437-B912-4CCAF3309A55}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icecs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icepackcs</td><td>{104E4B7B-4703-4688-8343-8F199BF881C4}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icepackcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icepatch2cs</td><td>{8F2DE27A-B0F5-4FE0-A27C-A6DD3C9FCA2B}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icepatch2cs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_icestormcs</td><td>{1E8D7135-C067-4CE8-943C-D21F1760E6C5}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td>icestormcs.dll</td><td>9</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>GAC_registry</td><td>{A1BE4221-A631-4347-A8CA-3ED0AE81448A}</td><td>GlobalAssemblyCache</td><td>8</td><td>AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322"</td><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCSharpDemo</td><td>{A4BB2878-87EF-462B-B1D0-EF5A859702FA}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCSharpDev</td><td>{A7182719-2C34-4246-8C00-C0673BE6EBF4}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCSharpRuntime</td><td>{4CA76E20-D92E-476E-A858-C93C152AC964}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -368,6 +369,8 @@
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="i2">Level</col>
 		<col def="S255">Condition</col>
+		<row><td>ice_csharp</td><td>200</td><td>Not (AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322")</td></row>
+		<row><td>ice_vbasic</td><td>200</td><td>Not (AdminUser And MsiNetAssemblySupport &gt;  "1.1.4322")</td></row>
 	</table>
 
 	<table name="Control">
@@ -732,7 +735,7 @@
 		<row><td>SetupType</td><td>BannerLine</td><td>Line</td><td>0</td><td>44</td><td>374</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>SetupType</td><td>Branding1</td><td>Text</td><td>4</td><td>229</td><td>50</td><td>13</td><td>3</td><td/><td>##IDS_INSTALLSHIELD_FORMATTED##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>SetupType</td><td>Branding2</td><td>Text</td><td>3</td><td>228</td><td>50</td><td>13</td><td>65537</td><td/><td>##IDS_INSTALLSHIELD##</td><td/><td/><td>0</td><td/><td/><td/></row>
-		<row><td>SetupType</td><td>Cancel</td><td>PushButton</td><td>301</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_CANCEL##</td><td>RadioGroup</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>SetupType</td><td>Cancel</td><td>PushButton</td><td>301</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_CANCEL##</td><td>Text1</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>SetupType</td><td>CompText</td><td>Text</td><td>80</td><td>94</td><td>246</td><td>35</td><td>3</td><td/><td>##IDS__IsSetupTypeMinDlg_AllFeatures##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>SetupType</td><td>CompleteIco</td><td>Icon</td><td>34</td><td>94</td><td>24</td><td>24</td><td>5242881</td><td/><td/><td/><td/><td>0</td><td/><td/><td>NewBinary10</td></row>
 		<row><td>SetupType</td><td>CustText</td><td>Text</td><td>80</td><td>154</td><td>246</td><td>35</td><td>3</td><td/><td>##IDS__IsSetupTypeMinDlg_ChooseFeatures##</td><td/><td/><td>0</td><td/><td/><td/></row>
@@ -742,7 +745,8 @@
 		<row><td>SetupType</td><td>DlgText</td><td>Text</td><td>21</td><td>51</td><td>326</td><td>10</td><td>3</td><td/><td>##IDS__IsSetupTypeMinDlg_SelectSetupType##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>SetupType</td><td>DlgTitle</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td/><td>##IDS__IsSetupTypeMinDlg_SetupType##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>SetupType</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_NEXT##</td><td>Cancel</td><td/><td>0</td><td/><td/><td/></row>
-		<row><td>SetupType</td><td>RadioGroup</td><td>RadioButtonGroup</td><td>21</td><td>79</td><td>264</td><td>120</td><td>3</td><td>_IsSetupTypeMin</td><td>##IDS__IsSetupTypeMinDlg_13##</td><td>Back</td><td/><td>0</td><td/><td/><td/></row>
+		<row><td>SetupType</td><td>RadioGroup</td><td>RadioButtonGroup</td><td>21</td><td>79</td><td>264</td><td>120</td><td>3</td><td>_IsSetupTypeMin</td><td>##IDS__IsSetupTypeMinDlg_13##</td><td>Back</td><td/><td>0</td><td>0</td><td/><td/></row>
+		<row><td>SetupType</td><td>Text1</td><td>Text</td><td>21</td><td>196</td><td>316</td><td>27</td><td>65539</td><td>AdminWarning</td><td>##ID_STRING23##</td><td>RadioGroup</td><td/><td>0</td><td>11</td><td/><td/></row>
 		<row><td>SplashBitmap</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>1</td><td/><td>##IDS_BACK##</td><td>Next</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>SplashBitmap</td><td>Branding1</td><td>Text</td><td>4</td><td>229</td><td>50</td><td>13</td><td>3</td><td/><td>##IDS_INSTALLSHIELD_FORMATTED##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>SplashBitmap</td><td>Branding2</td><td>Text</td><td>3</td><td>228</td><td>50</td><td>13</td><td>65537</td><td/><td>##IDS_INSTALLSHIELD##</td><td/><td/><td>0</td><td/><td/><td/></row>
@@ -970,6 +974,7 @@
 	<table name="CreateFolder">
 		<col key="yes" def="s72">Directory_</col>
 		<col key="yes" def="s72">Component_</col>
+		<row><td>GlobalAssemblyCache</td><td>GAC_registry</td></row>
 	</table>
 
 	<table name="CustomAction">
@@ -1287,7 +1292,7 @@
 		<row><td>ice_cpp</td><td/><td>##ID_STRING2##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 		<row><td>ice_cpp_demo</td><td>ice_cpp_dev</td><td>##ID_STRING4##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_cpp_dev</td><td>ice_cpp</td><td>##ID_STRING3##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
-		<row><td>ice_csharp</td><td/><td>##ID_STRING17##</td><td/><td>6</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_csharp</td><td/><td>##ID_STRING17##</td><td>##ID_STRING22##</td><td>6</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_csharp_demo</td><td>ice_csharp</td><td>##ID_STRING18##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_doc</td><td/><td>##ID_STRING21##</td><td/><td>16</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_java</td><td/><td>##ID_STRING6##</td><td/><td>8</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
@@ -1298,7 +1303,7 @@
 		<row><td>ice_python</td><td/><td>##ID_STRING8##</td><td/><td>12</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_python_demo</td><td>ice_python_dev</td><td>##ID_STRING9##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_python_dev</td><td>ice_python</td><td>##ID_STRING13##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
-		<row><td>ice_vbasic</td><td/><td>##ID_STRING19##</td><td/><td>14</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_vbasic</td><td/><td>##ID_STRING19##</td><td>##ID_STRING22##</td><td>14</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_vbasic_demo</td><td>ice_vbasic</td><td>##ID_STRING20##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>packages</td><td>ice_cpp</td><td>##ID_STRING1##</td><td/><td>0</td><td>1</td><td>INSTALLDIR</td><td>24</td><td/><td/><td/><td/></row>
 	</table>
@@ -1315,6 +1320,7 @@
 		<row><td>ice_csharp</td><td>GAC_icepackcs</td></row>
 		<row><td>ice_csharp</td><td>GAC_icepatch2cs</td></row>
 		<row><td>ice_csharp</td><td>GAC_icestormcs</td></row>
+		<row><td>ice_csharp</td><td>GAC_registry</td></row>
 		<row><td>ice_csharp</td><td>IceCSharpDev</td></row>
 		<row><td>ice_csharp</td><td>IceCSharpRuntime</td></row>
 		<row><td>ice_csharp_demo</td><td>IceCSharpDemo</td></row>
@@ -1332,6 +1338,7 @@
 		<row><td>ice_vbasic</td><td>GAC_icepackcs</td></row>
 		<row><td>ice_vbasic</td><td>GAC_icepatch2cs</td></row>
 		<row><td>ice_vbasic</td><td>GAC_icestormcs</td></row>
+		<row><td>ice_vbasic</td><td>GAC_registry</td></row>
 		<row><td>ice_vbasic</td><td>IceCSharpRuntime</td></row>
 		<row><td>ice_vbasic</td><td>IceVBasicDev</td></row>
 		<row><td>ice_vbasic_demo</td><td>IceVBasicDemo</td></row>
@@ -1512,6 +1519,7 @@
 		<row><td>GAC_icepackcs</td><td/><td/><td>_72EC117B_5915_4A1F_A08E_E956F2DC75FD_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_icepatch2cs</td><td/><td/><td>_4148F83B_B26E_4415_A51D_5580DE431AFC_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>GAC_icestormcs</td><td/><td/><td>_74B66A95_80BE_43A1_9A2E_508B6CBB795E_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>GAC_registry</td><td/><td/><td>_BD3CFD91_5B86_4986_8C18_2B0C4639FCA8_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCSharpDemo</td><td/><td/><td>_7DD0A005_2547_4846_B573_62AFE1194756_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCSharpDev</td><td/><td/><td>_3471DDA3_D6D8_440C_837A_1DF61C7914ED_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCSharpRuntime</td><td/><td/><td>_6805EC31_B95D_4271_9CAF_B0A3E38CF543_FILTER</td><td/><td/><td/><td/></row>
@@ -2434,6 +2442,8 @@
 		<row><td>ID_STRING2</td><td>1033</td><td>Ice for C++</td><td>0</td><td/><td>-1457961558</td></row>
 		<row><td>ID_STRING20</td><td>1033</td><td>Visual Basic Demos</td><td>0</td><td/><td>-1055272690</td></row>
 		<row><td>ID_STRING21</td><td>1033</td><td>HTML Documentation</td><td>0</td><td/><td>161051760</td></row>
+		<row><td>ID_STRING22</td><td>1033</td><td>NOTE: You must be an Admin user and have the .NET 1.1 Framework installed in order to correctly install this feature.</td><td>0</td><td/><td>1100583370</td></row>
+		<row><td>ID_STRING23</td><td>1033</td><td/><td>0</td><td/><td>1100571498</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>-1457951318</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>
 		<row><td>ID_STRING5</td><td>1033</td><td>Third Party Development Packages</td><td>0</td><td/><td>-1457924662</td></row>
@@ -2819,6 +2829,7 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<col def="S255">ISComments</col>
 		<row><td>ARPPRODUCTICON</td><td>ARPPRODUCTICON.exe</td><td/></row>
 		<row><td>ARPURLINFOABOUT</td><td>##ID_STRING14##</td><td/></row>
+		<row><td>AdminWarning</td><td>0</td><td/></row>
 		<row><td>AgreeToLicense</td><td>No</td><td/></row>
 		<row><td>ApplicationUsers</td><td>AllUsers</td><td/></row>
 		<row><td>DWUSINTERVAL</td><td>30</td><td/></row>
@@ -2884,8 +2895,8 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<row><td>_IsMaintenance</td><td>1</td><td>Change</td><td>0</td><td>0</td><td>290</td><td>14</td><td>##IDS__IsMaintenanceDlg_Modify##</td><td/><td/></row>
 		<row><td>_IsMaintenance</td><td>2</td><td>Reinstall</td><td>0</td><td>60</td><td>290</td><td>14</td><td>##IDS__IsMaintenanceDlg_Repair##</td><td/><td/></row>
 		<row><td>_IsMaintenance</td><td>3</td><td>Remove</td><td>0</td><td>120</td><td>290</td><td>14</td><td>##IDS__IsMaintenanceDlg_Remove##</td><td/><td/></row>
-		<row><td>_IsSetupTypeMin</td><td>1</td><td>Typical</td><td>0</td><td>0</td><td>264</td><td>14</td><td>##IDS__IsSetupTypeMinDlg_Complete##</td><td/><td/></row>
-		<row><td>_IsSetupTypeMin</td><td>2</td><td>Custom</td><td>0</td><td>60</td><td>264</td><td>14</td><td>##IDS__IsSetupTypeMinDlg_Custom##</td><td/><td/></row>
+		<row><td>_IsSetupTypeMin</td><td>1</td><td>Typical</td><td>0</td><td>0</td><td>264</td><td>14</td><td>##IDS__IsSetupTypeMinDlg_Complete##</td><td/><td>0</td></row>
+		<row><td>_IsSetupTypeMin</td><td>2</td><td>Custom</td><td>0</td><td>60</td><td>264</td><td>14</td><td>##IDS__IsSetupTypeMinDlg_Custom##</td><td>##ID_STRING23##</td><td>0</td></row>
 	</table>
 
 	<table name="RegLocator">
@@ -2904,8 +2915,8 @@ SQBDAEUAXwBNAFMASQABAFoARQBSAE8AQwA=
 		<col def="S0">Value</col>
 		<col def="s72">Component_</col>
 		<col def="I4">ISAttributes</col>
-		<row><td>Registry2</td><td>2</td><td>SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders</td><td/><td/><td>IceCSharpRuntime</td><td>0</td></row>
-		<row><td>Registry6</td><td>2</td><td>SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders\Ice 2.1.0</td><td/><td>[INSTALLDIR]bin</td><td>IceCSharpRuntime</td><td>0</td></row>
+		<row><td>Registry1</td><td>2</td><td>SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders</td><td/><td/><td>GAC_registry</td><td>0</td></row>
+		<row><td>Registry3</td><td>2</td><td>SOFTWARE\Microsoft\VisualStudio\7.1\AssemblyFolders\Ice 2.1.0</td><td/><td>[INSTALLDIR]bin</td><td>GAC_registry</td><td>0</td></row>
 	</table>
 
 	<table name="RemoveFile">

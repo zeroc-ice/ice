@@ -58,7 +58,7 @@
 		<comments>Contact:  Your local administrator</comments>
 		<template>Intel;1033</template>
 		<lastauthor>Administrator</lastauthor>
-		<revnumber>{A10323D6-03EB-4C7B-8897-6E4EE77E4D65}</revnumber>
+		<revnumber>{BABFE0D5-5CA9-4A31-A0C7-1D6213DEB426}</revnumber>
 		<lastprinted/>
 		<createdtm>06/21/1999 04:30</createdtm>
 		<lastsavedtm>07/14/2000 08:20</lastsavedtm>
@@ -1476,6 +1476,7 @@
 		<col key="yes" def="i2">Language_</col>
 		<row><td>packages</td><td>BZip2DevKit.VC71.2AF16623_EA4A_40B4_A1BD_E23902A8B1D5</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBDevKit.VC71.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>0</td></row>
+		<row><td>packages</td><td>BerkeleyDBJava.VC71.CC493666_BB82_45C2_8473_B4A1F034D4FE</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBRuntime.VC71.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatDevKit.VC71.1B17ED1C_CE0F_436F_B74A_83CE49EE05B2</td><td>0</td></row>
 		<row><td>packages</td><td>ExpatRuntime.VC71.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td></row>
@@ -1565,6 +1566,7 @@
 		<col def="I4">ISAttributes</col>
 		<row><td>BZip2DevKit.VC71.2AF16623_EA4A_40B4_A1BD_E23902A8B1D5</td><td>0</td><td>BZip2 Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBDevKit.VC71.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>0</td><td>BerkeleyDB Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>BerkeleyDBJava.VC71.CC493666_BB82_45C2_8473_B4A1F034D4FE</td><td>0</td><td>BerkeleyDBJava.VC71.CC493666_BB82_45C2_8473_B4A1F034D4FE:0</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBRuntime.VC71.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td><td>BerkeleyDB Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatDevKit.VC71.1B17ED1C_CE0F_436F_B74A_83CE49EE05B2</td><td>0</td><td>Expat Dev Kit for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>ExpatRuntime.VC71.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td><td>Expat Runtime for Visual Studio .NET 2003</td><td>[INSTALLDIR]</td><td/></row>
@@ -2707,7 +2709,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>InstallChoice</td><td>AR</td><td/></row>
 		<row><td>Manufacturer</td><td>##COMPANY_NAME##</td><td/></row>
 		<row><td>PIDTemplate</td><td>12345&lt;###-%%%%%%%&gt;@@@@@</td><td/></row>
-		<row><td>ProductCode</td><td>{7956BAD4-4218-4F31-968D-895BA0118EED}</td><td/></row>
+		<row><td>ProductCode</td><td>{454F1EF1-C95A-4469-BB5A-53E446610101}</td><td/></row>
 		<row><td>ProductID</td><td>none</td><td/></row>
 		<row><td>ProductLanguage</td><td>1033</td><td/></row>
 		<row><td>ProductName</td><td>Ice 2.1.0 Third Party Packages for Visual Studio .NET 2003</td><td/></row>
@@ -2720,7 +2722,7 @@ VABIAEkAUgBEAF8AUABBAFIAVABZAF8ATQBTAEkAAQBaAEUAUgBPAEMA
 		<row><td>ReinstallModeText</td><td>omus</td><td/></row>
 		<row><td>SHOWLAUNCHPROGRAM</td><td>0</td><td/></row>
 		<row><td>SetupType</td><td>Typical</td><td/></row>
-		<row><td>UpgradeCode</td><td>{A9548E16-7997-479D-9309-342F4D185907}</td><td/></row>
+		<row><td>UpgradeCode</td><td>{8C830C1F-1C1E-42CE-AC0D-464737A59DE9}</td><td/></row>
 		<row><td>_IsMaintenance</td><td>Change</td><td/></row>
 		<row><td>_IsSetupTypeMin</td><td>Typical</td><td/></row>
 	</table>

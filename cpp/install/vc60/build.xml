@@ -39,6 +39,7 @@
 	<delete dir="BZip2DevKit"/>
 	<delete dir="BerkeleyDBDevKit"/>
 	<delete dir="BerkeleyDBRuntime"/>
+	<delete dir="BerkeleyDBJava"/>
 	<delete dir="ExpatDevKit"/>
 	<delete dir="ExpatRuntime"/>
 	<delete dir="OpenSSLDevKit"/>
@@ -136,13 +137,6 @@
 	    </fileset>
 	</copy>
 
-	<mkdir dir="${install.dir}/ice-cpp/runtime/bin/debug"/>
-	<copy todir="${install.dir}/ice-cpp/runtime/bin/debug">
-	    <fileset dir="${ice.dir}/src/IceBox/Debug">
-		<include name="icebox.exe"/>
-	    </fileset>
-	</copy>
-
 	<!-- Certificates -->
 	<mkdir dir="${install.dir}/ice-cpp/runtime/certs"/>
 	<copy todir="${install.dir}/ice-cpp/runtime/certs">
@@ -183,7 +177,13 @@
 		<include name="slice21d.*"/>
 		<include name="slice2cpp.exe"/>
 		<include name="slice2freeze.exe"/>
-		<include name="slice2freezej.exe"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${install.dir}/ice-cpp/dev/bin/debug"/>
+	<copy todir="${install.dir}/ice-cpp/dev/bin/debug">
+	    <fileset dir="${ice.dir}/src/IceBox/Debug">
+		<include name="icebox.exe"/>
 	    </fileset>
 	</copy>
 
@@ -272,6 +272,7 @@
 	<copy todir="${install.dir}/ice-java/dev/bin">
 	    <fileset dir="${ice.dir}/bin">
 		<include name="slice2java.exe"/>
+		<include name="slice2freezej.exe"/>
 	    </fileset>
 	</copy>
 
@@ -421,11 +422,24 @@
 		<include name="db_stat.exe"/>
 		<include name="db_upgrade.exe"/>
 		<include name="db_verify.exe"/>
+		<exclude name="*java*.dll"/>
 	    </fileset>
 	</copy>
 
-	<mkdir dir="${install.dir}/berkeley/runtime/lib"/>
-	<copy todir="${install.dir}/berkeley/runtime/lib">
+    </target>
+
+    <!-- Berkeley DB Java Runtime -->
+    <target name="berkeley-java" depends="setup">
+
+	<mkdir dir="${install.dir}/berkeley/java/bin"/>
+	<copy todir="${install.dir}/berkeley/java/bin">
+	    <fileset dir="${berkeley.dir}/build_win32/Release">
+		<include name="*java*.dll"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${install.dir}/berkeley/java/lib"/>
+	<copy todir="${install.dir}/berkeley/java/lib">
 	    <fileset dir="${berkeley.dir}/build_win32/Release">
 		<include name="db.jar"/>
 	    </fileset>
@@ -564,6 +578,7 @@
             depends="packages-common,
 		     berkeley-dev,
 		     berkeley-runtime,
+		     berkeley-java,
 		     bzip2-dev,
 		     expat-dev,
 		     expat-runtime,
@@ -580,6 +595,13 @@
             depends="ice-common,
 		     ice-cpp-runtime,
 		     ice-cpp-dev,
+		     ice-cpp-demo"/>
+
+    <!--
+    <target name="ice" 
+            depends="ice-common,
+		     ice-cpp-runtime,
+		     ice-cpp-dev,
 		     ice-cpp-demo,
 		     ice-java-runtime,
 		     ice-java-dev,
@@ -589,6 +611,7 @@
 		     ice-python-demo,
 		     ice-php-extension,
 		     ice-php-demo"/>
+     -->
 
     <target name="merge-modules" depends="packages">
 
@@ -597,6 +620,9 @@
 	</exec>
 	<exec dir="." executable="ISCmdBld.exe">
 	    <arg line="-p BerkeleyDBRuntime.ism -c COMP -a ZEROC -R BERKELEYDB_RUNTIME"/>
+	</exec>
+	<exec dir="." executable="ISCmdBld.exe">
+	    <arg line="-p BerkeleyDBJava.ism -c COMP -a ZEROC -R BERKELEYDB_JAVA"/>
 	</exec>
 	<exec dir="." executable="ISCmdBld.exe">
 	    <arg line="-p BZip2DevKit.ism -c COMP -a ZEROC -R BZIP2_DEV_KIT"/>
@@ -623,6 +649,7 @@
 	<zip destfile="${install.dir}/ThirdPartyMergeModules-2.1.0-VC60.zip">
 	    <zipfileset dir="BerkeleyDBDevKit/ZEROC/BERKELEYDB_DEV_KIT/DiskImages/DISK1" includes="*.msm"/>
 	    <zipfileset dir="BerkeleyDBRuntime/ZEROC/BERKELEYDB_RUNTIME/DiskImages/DISK1" includes="*.msm"/>
+	    <zipfileset dir="BerkeleyDBJava/ZEROC/BERKELEYDB_JAVA/DiskImages/DISK1" includes="*.msm"/>
 	    <zipfileset dir="BZip2DevKit/ZEROC/BZIP2_DEV_KIT/DiskImages/DISK1" includes="*.msm"/>
 	    <zipfileset dir="ExpatDevKit/ZEROC/EXPAT_DEV_KIT/DiskImages/DISK1" includes="*.msm"/>
 	    <zipfileset dir="ExpatRuntime/ZEROC/EXPAT_RUNTIME/DiskImages/DISK1" includes="*.msm"/>

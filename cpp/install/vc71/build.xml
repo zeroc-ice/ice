@@ -41,6 +41,7 @@
 	<delete dir="BZip2DevKit"/>
 	<delete dir="BerkeleyDBDevKit"/>
 	<delete dir="BerkeleyDBRuntime"/>
+	<delete dir="BerkeleyDBJava"/>
 	<delete dir="ExpatDevKit"/>
 	<delete dir="ExpatRuntime"/>
 	<delete dir="OpenSSLDevKit"/>
@@ -516,11 +517,24 @@
 		<include name="db_stat.exe"/>
 		<include name="db_upgrade.exe"/>
 		<include name="db_verify.exe"/>
+		<exclude name="*java*.dll"/>
 	    </fileset>
 	</copy>
 
-	<mkdir dir="${install.dir}/berkeley/runtime/lib"/>
-	<copy todir="${install.dir}/berkeley/runtime/lib">
+    </target>
+
+    <!-- Berkeley DB Java Runtime -->
+    <target name="berkeley-java" depends="setup">
+
+	<mkdir dir="${install.dir}/berkeley/java/bin"/>
+	<copy todir="${install.dir}/berkeley/java/bin">
+	    <fileset dir="${berkeley.dir}/build_win32/Release">
+		<include name="*java*.dll"/>
+	    </fileset>
+	</copy>
+
+	<mkdir dir="${install.dir}/berkeley/java/lib"/>
+	<copy todir="${install.dir}/berkeley/java/lib">
 	    <fileset dir="${berkeley.dir}/build_win32/Release">
 		<include name="db.jar"/>
 	    </fileset>
@@ -659,6 +673,7 @@
             depends="packages-common,
 		     berkeley-dev,
 		     berkeley-runtime,
+		     berkeley-java,
 		     bzip2-dev,
 		     expat-dev,
 		     expat-runtime,
@@ -697,6 +712,9 @@
 	    <arg line="-p BerkeleyDBRuntime.ism -c COMP -a ZEROC -R BERKELEYDB_RUNTIME"/>
 	</exec>
 	<exec dir="." executable="ISCmdBld.exe">
+	    <arg line="-p BerkeleyDBJava.ism -c COMP -a ZEROC -R BERKELEYDB_JAVA"/>
+	</exec>
+	<exec dir="." executable="ISCmdBld.exe">
 	    <arg line="-p BZip2DevKit.ism -c COMP -a ZEROC -R BZIP2_DEV_KIT"/>
 	</exec>
 	<exec dir="." executable="ISCmdBld.exe">
@@ -715,6 +733,7 @@
 	<zip destfile="${install.dir}/ThirdPartyMergeModules-2.1.0-VC71.zip">
 	    <zipfileset dir="BerkeleyDBDevKit/ZEROC/BERKELEYDB_DEV_KIT/DiskImages/DISK1" includes="*.msm"/>
 	    <zipfileset dir="BerkeleyDBRuntime/ZEROC/BERKELEYDB_RUNTIME/DiskImages/DISK1" includes="*.msm"/>
+	    <zipfileset dir="BerkeleyDBJava/ZEROC/BERKELEYDB_JAVA/DiskImages/DISK1" includes="*.msm"/>
 	    <zipfileset dir="BZip2DevKit/ZEROC/BZIP2_DEV_KIT/DiskImages/DISK1" includes="*.msm"/>
 	    <zipfileset dir="ExpatDevKit/ZEROC/EXPAT_DEV_KIT/DiskImages/DISK1" includes="*.msm"/>
 	    <zipfileset dir="ExpatRuntime/ZEROC/EXPAT_RUNTIME/DiskImages/DISK1" includes="*.msm"/>
