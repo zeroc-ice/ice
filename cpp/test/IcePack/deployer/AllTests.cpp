@@ -136,10 +136,9 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
 
     cout << "pinging server objects... " << flush;
 
-    //
-    // Application is deployed with Server1.manual which disables on demand activation.
-    //
     TestPrx obj;
+
+    admin->setServerActivation("Server1", IcePack::Manual);
     try
     {
 	obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server-Server1"));

@@ -165,6 +165,16 @@ public class AllTests
 	//
 	// Application is deployed with Server1.manual which disables on demand activation.
 	//
+	try
+	{
+	    admin.setServerActivation("Server1", IcePack.ServerActivation.Manual);
+	}
+	catch(IcePack.ServerNotExistException ex)
+	{
+	    test(false);
+	}
+
+
 	TestPrx obj;
 	try
 	{
