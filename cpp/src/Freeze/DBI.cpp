@@ -402,11 +402,10 @@ Freeze::DBEnvI::close()
 	return;
     }
 
-    for (map<string, DBPtr>::iterator p = _dbmap.begin(); p != _dbmap.end(); ++p)
+    while(!_dbmap.empty())
     {
-	p->second->close();
+	_dbmap.begin()->second->close();
     }
-    _dbmap.clear();
 
     int ret = _dbenv->close(_dbenv, 0);
     if(ret != 0)

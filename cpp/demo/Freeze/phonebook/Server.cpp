@@ -20,20 +20,21 @@ interruptHandler(DWORD)
 {
     assert(communicator);
     communicator->shutdown();
+    return TRUE;
 }
 
 static void
 shutdownOnInterrupt()
 {
-    BOOL b = SetConsoleHandler(interruptHandler, TRUE);
-    assert(b);
+    SetConsoleCtrlHandler(NULL, FALSE);
+    SetConsoleCtrlHandler(interruptHandler, TRUE);
 }
 
 static void
 ignoreInterrupt()
 {
-    BOOL b = SetConsoleHandler(interruptHandler, FASLSE);
-    assert(b);
+    SetConsoleCtrlHandler(NULL, TRUE);
+    SetConsoleCtrlHandler(interruptHandler, FALSE);
 }
 
 #else
@@ -83,8 +84,8 @@ using namespace std;
 int
 run(int argc, char* argv[], const DBEnvPtr& dbenv)
 {
-    ignoreInterrupt();
     cout << "starting up..." << endl;
+    ignoreInterrupt();
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapter("PhoneBookAdapter");
     DBPtr db = dbenv->open("phonebook");
@@ -114,8 +115,8 @@ run(int argc, char* argv[], const DBEnvPtr& dbenv)
 
     shutdownOnInterrupt();
     communicator->waitForShutdown();
-    ignoreInterrupt();
     cout << "shutting down..." << endl;
+    ignoreInterrupt();
 
     db->put("phonebook", phoneBook);
 
