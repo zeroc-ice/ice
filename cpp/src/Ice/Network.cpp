@@ -790,11 +790,11 @@ IceInternal::createPipe(SOCKET fds[2])
     catch(...)
     {
 	::closesocket(fd);
-	::closeSocket(fds[0]);
+	::closesocket(fds[0]);
 	throw;
     }
 
-    ::closeSocket(fd);
+    ::closesocket(fd);
 	
     try
     {

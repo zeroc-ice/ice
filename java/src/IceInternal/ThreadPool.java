@@ -48,7 +48,7 @@ public final class ThreadPool
 	    _programNamePrefix = "";
 	}
 
-        Network.SocketPair pair = Network.createPipe();
+	Network.SocketPair pair = Network.createPipe();
         _fdIntrRead = (java.nio.channels.ReadableByteChannel)pair.source;
         _fdIntrWrite = pair.sink;
 
@@ -129,36 +129,32 @@ public final class ThreadPool
     {
         assert(_destroyed);
 
-        if(_selector != null)
-        {
-            try
-            {
+	try
+	{
+	    if(_selector != null)
+	    {
                 _selector.close();
             }
-            catch(java.io.IOException ex)
-            {
-            }
-        }
-        if(_fdIntrWrite != null)
-        {
-            try
+
+	    if(_fdIntrWrite != null)
             {
                 _fdIntrWrite.close();
             }
-            catch(java.io.IOException ex)
-            {
-            }
-        }
-        if(_fdIntrRead != null)
-        {
-            try
+
+	    if(_fdIntrRead != null)
             {
                 _fdIntrRead.close();
             }
-            catch(java.io.IOException ex)
-            {
-            }
-        }
+	}
+	catch(java.io.IOException ex)
+	{
+	    java.io.StringWriter sw = new java.io.StringWriter();
+	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	    ex.printStackTrace(pw);
+	    pw.flush();
+	    String s = "exception in `" + _prefix + "' while calling close():\n" + sw.toString();
+	    _instance.logger().error(s);
+	}
 
         super.finalize();
     }

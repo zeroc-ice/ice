@@ -116,8 +116,16 @@ IceInternal::ThreadPool::~ThreadPool()
 {
     assert(_destroyed);
 
-    closeSocket(_fdIntrWrite);
-    closeSocket(_fdIntrRead);
+    try
+    {
+	closeSocket(_fdIntrWrite);
+	closeSocket(_fdIntrRead);
+    }
+    catch(const LocalException& ex)
+    {
+	Error out(_instance->logger());
+	out << "exception in `" << _prefix << "' while calling closeSocket():\n" << ex;
+    }
 }
 
 void
