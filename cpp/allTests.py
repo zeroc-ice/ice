@@ -58,7 +58,7 @@ tests = [ \
     ]
 
 #
-# Certain tests only work on Linux.
+# Certain tests only work on Linux and Solaris
 #
 if TestUtil.isWin32() == 0:
     tests += [ \

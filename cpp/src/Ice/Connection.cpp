@@ -391,7 +391,11 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 	    }
 	    const Byte* p;
 	    p = reinterpret_cast<const Byte*>(&requestId);
+#ifdef ICE_UTIL_BIGENDIAN
+	    reverse_copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+#else
 	    copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+#endif
 	}
 
 	bool compress;
@@ -433,8 +437,11 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 	    const Byte* p;
 	    Int sz = os->b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
+#ifdef ICE_UTIL_BIGENDIAN
+	    reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
+#else
 	    copy(p, p + sizeof(Int), os->b.begin() + 10);
-
+#endif
 	    //
 	    // Send the request.
 	    //
@@ -493,7 +500,12 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 	}
 	const Byte* p;
 	p = reinterpret_cast<const Byte*>(&requestId);
+
+#ifdef ICE_UTIL_BIGENDIAN
+	reverse_copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+#else
 	copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+#endif
 
 	bool compress;
 	if(os->b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
@@ -534,8 +546,11 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 	    const Byte* p;
 	    Int sz = os->b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
+#ifdef ICE_UTIL_BIGENDIAN
+	    reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
+#else
 	    copy(p, p + sizeof(Int), os->b.begin() + 10);
-
+#endif
 	    //
 	    // Send the request.
 	    //
@@ -643,7 +658,12 @@ IceInternal::Connection::flushBatchRequest()
 	//
 	const Byte* p;
 	p = reinterpret_cast<const Byte*>(&_batchRequestNum);
+
+#ifdef ICE_UTIL_BIGENDIAN
+	reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
+#else
 	copy(p, p + sizeof(Int), _batchStream.b.begin() + headerSize);
+#endif
 
 	bool compress;
 	if(_batchStream.b.size() < 100) // Don't compress if message size is smaller than 100 bytes.
@@ -684,8 +704,12 @@ IceInternal::Connection::flushBatchRequest()
 	    const Byte* p;
 	    Int sz = _batchStream.b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
-	    copy(p, p + sizeof(Int), _batchStream.b.begin() + 10);
 
+#ifdef ICE_UTIL_BIGENDIAN
+	    reverse_copy(p, p + sizeof(Int), _batchStream.b.begin() + 10);
+#else
+	    copy(p, p + sizeof(Int), _batchStream.b.begin() + 10);
+#endif
 	    //
 	    // Send the batch request.
 	    //
@@ -772,8 +796,12 @@ IceInternal::Connection::sendResponse(BasicStream* os, Byte compressFlag)
 	    const Byte* p;
 	    Int sz = os->b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
+
+#ifdef ICE_UTIL_BIGENDIAN
+	    reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
+#else
 	    copy(p, p + sizeof(Int), os->b.begin() + 10);
-	    
+#endif    
 	    //
 	    // Send the reply.
 	    //
@@ -1669,16 +1697,25 @@ IceInternal::Connection::doCompress(BasicStream& uncompressed, BasicStream& comp
     //
     Int compressedSize = compressed.b.size();
     p = reinterpret_cast<const Byte*>(&compressedSize);
-    copy(p, p + sizeof(Int), uncompressed.b.begin() + 10);
 
+#ifdef ICE_UTIL_BIGENDIAN
+    reverse_copy(p, p + sizeof(Int), uncompressed.b.begin() + 10);
+#else
+    copy(p, p + sizeof(Int), uncompressed.b.begin() + 10);
+#endif
     //
     // Add the size of the uncompressed stream before the message body
     // of the compressed stream.
     //
     Int uncompressedSize = uncompressed.b.size();
     p = reinterpret_cast<const Byte*>(&uncompressedSize);
+
+#ifdef ICE_UTIL_BIGENDIAN
+    reverse_copy(p, p + sizeof(Int), compressed.b.begin() + headerSize);
+#else
     copy(p, p + sizeof(Int), compressed.b.begin() + headerSize);
-    
+#endif
+
     //
     // Copy the header from the uncompressed stream to the compressed one.
     //

@@ -24,10 +24,13 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-static Byte alphabetChars[] = "abcdefghijklmnopqrstuvwxyz";
+// The following variable is extern instead of static due to 
+// a Sun C++ 5.4 template bug
+extern Byte alphabetChars[] = "abcdefghijklmnopqrstuvwxyz";
+
 vector<Byte> alphabet;
 
-// The extern in the following function is due to a Sun C++ template bug
+// The extern in the following function is due to a Sun C++ 5.4 template bug
 //
 extern void
 ForEachTest(const pair<const Byte, const Int>&)

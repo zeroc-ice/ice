@@ -26,7 +26,7 @@ template<class ForwardIterator>
 inline typename ForwardIterator::difference_type
 ice_distance(ForwardIterator first, ForwardIterator last)
 {
-    ForwardIterator::difference_type result;
+    ForwardIterator::difference_type result = 0;
     std::distance(first, last, result);
     return result;
 }

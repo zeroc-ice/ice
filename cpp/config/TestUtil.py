@@ -65,6 +65,13 @@ def isWin32():
         return 1
     else:
         return 0
+
+def isSolaris():
+
+    if sys.platform == "sunos5":
+        return 1
+    else:
+        return 0
         
 serverPids = []
 def killServers():

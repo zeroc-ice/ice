@@ -15,6 +15,16 @@
 #ifndef ICE_UTIL_CONFIG_H
 #define ICE_UTIL_CONFIG_H
 
+
+//
+// Endianness: define ICE_UTIL_BIGENDIAN on big endian platforms,
+// nothing on little endian platforms.
+
+#if defined(__sparc)
+#define ICE_UTIL_BIGENDIAN
+#endif
+
+
 //
 // For STLport. If we compile in debug mode, we want to use the debug
 // STLport library. This is done by setting _STLP_DEBUG before any
@@ -87,6 +97,7 @@
 #   error "unsupported operating system or platform"
 
 #endif
+
 
 //
 // Some include files we need almost everywhere.

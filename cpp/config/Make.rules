@@ -93,7 +93,6 @@ KERBEROS_HOME		?= /usr/kerberos
 #
 #
 
-USE_READLINE            := 1
 #READLINE_HOME		?= /opt/readline
 
 
@@ -122,6 +121,15 @@ INSTALL_LIBRARY		= ${INSTALL} -m 644
 INSTALL_DATA		= ${INSTALL} -m 644
 
 UNAME                   := $(shell uname)
+
+#
+# TODO: synchronize properly USE_READLINE here and HAS_READLINE
+# in include/IceUtil/Config.h
+#
+
+ifeq ($(UNAME),Linux)
+USE_READLINE            := 1
+endif
 
 ifneq ($(STLPORT_HOME),)
     STLPORT_FLAGS	= -I$(STLPORT_HOME)/include/stlport
