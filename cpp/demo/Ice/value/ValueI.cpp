@@ -21,8 +21,7 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
 
     _printer = new PrinterI;
     _printer->_message = "Ice rulez!";
-    adapter->addTemporary(_printer);
-    _printerProxy = PrinterPrx::uncheckedCast(adapter->objectToProxy(_printer));
+    _printerProxy = PrinterPrx::uncheckedCast(adapter->addTemporary(_printer));
 
     _derivedPrinter = new DerivedPrinterI;
     _derivedPrinter->_message = _printer->_message;

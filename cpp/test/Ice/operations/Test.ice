@@ -92,7 +92,7 @@ class MyClass
 
     MyEnum opMyEnum(MyEnum p1; MyEnum p2);
 
-    MyClass* opMyClass(MyClass* p1; MyClass* p2);
+    MyClass* opMyClass(MyClass* p1; MyClass* p2, MyClass* p3);
 
     Struct opStruct(Struct p1, Struct p2;
 		    Struct p3);

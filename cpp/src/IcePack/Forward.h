@@ -19,7 +19,7 @@
 namespace IcePack
 {
 
-class Forward : public Ice::ObjectLocator
+class Forward : public Ice::ServantLocator
 {
 public:
 

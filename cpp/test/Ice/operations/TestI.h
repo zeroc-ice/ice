@@ -17,7 +17,7 @@ class MyDerivedClassI : public Test::MyDerivedClass
 {
 public:
 
-    MyDerivedClassI(const Ice::ObjectAdapterPtr&);
+    MyDerivedClassI(const Ice::ObjectAdapterPtr&, const std::string&);
 
     virtual void shutdown();
 
@@ -55,7 +55,7 @@ public:
 				  Test::MyEnum&);
 
     virtual Test::MyClassPrx opMyClass(const Test::MyClassPrx&,
-				       Test::MyClassPrx&);
+				       Test::MyClassPrx&, Test::MyClassPrx&);
 
     virtual Test::Struct opStruct(const Test::Struct&, const Test::Struct&,
 				  Test::Struct&);
@@ -141,6 +141,7 @@ public:
 private:
 
     Ice::ObjectAdapterPtr _adapter;
+    std::string _identity;
 };
 
 #endif

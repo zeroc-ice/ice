@@ -22,7 +22,7 @@ module Ice
     
 /**
  *
- * The central Ice object. One or more Communicators can be
+ * The central object in Ice. One or more Communicators can be
  * instantiated for an Ice application. Communicator instantiation is
  * language specific, and not specified in Slice code.
  *
@@ -118,13 +118,13 @@ local class Communicator
 
     /**
      *
-     * Create a new object adapter. The endpoints for the object
-     * adapter are taken from the property
+     * Create a new Object Adapter. The endpoints for the Object
+     * Adapter are taken from the property
      * <literal>ice.adapter.<replaceable>name</replaceable>.endpoints</literal>,
      * with <replaceable>name</replaceable> being the name of the
-     * object adapter.
+     * Object Adapter.
      *
-     * @param name The name to use for the object adapter. This name
+     * @param name The name to use for the Object Adapter. This name
      * must be unique for the Communicator.
      *
      * @return The new Object Adapter.
@@ -137,14 +137,14 @@ local class Communicator
 
     /**
      *
-     * Create a new object adapter with a list of endpoints. In
+     * Create a new Object Adapter with a list of endpoints. In
      * contrast to <literal>createObjectAdapter</literal>, the endpoints to
      * use are passed explicitly as a parameter.
      *
-     * @param name The name to use for the object adapter. This name
+     * @param name The name to use for the Object Adapter. This name
      * must be unique for the Communicator.
      *
-     * @param endpts The list of endpoints for the object adapter.
+     * @param endpts The list of endpoints for the Object Adapter.
      *
      * @return The new Object Adapter.
      *

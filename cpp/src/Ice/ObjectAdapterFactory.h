@@ -26,9 +26,8 @@ class ObjectAdapterFactory : public ::IceUtil::Shared, public JTCMutex
 public:
 
     void shutdown();
-    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&,
-						 const std::string&);
-    ::Ice::ObjectPtr proxyToObject(const ::Ice::ObjectPrx&);
+    ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&, const std::string&);
+    ::Ice::ObjectPtr proxyToServant(const ::Ice::ObjectPrx&);
 
 private:
 

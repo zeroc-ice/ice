@@ -111,14 +111,20 @@ Ice::Object::__dispatch(Incoming& in, const string& name)
     string* e = __names + sizeof(__names) / sizeof(string);
     pair<string*, string*> r = equal_range(b, e, name);
     if (r.first == r.second)
+    {
 	return DispatchOperationNotExist;
+    }					     
 
     switch (r.first - __names)
     {
-    case 0:
-	return ____isA(in);
-    case 1:
-	return ____ping(in);
+	case 0:
+	{
+	    return ____isA(in);
+	}
+	case 1:
+	{
+	    return ____ping(in);
+	}
     }
 
     assert(false);

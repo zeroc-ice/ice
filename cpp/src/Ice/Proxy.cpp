@@ -401,7 +401,7 @@ IceProxy::Ice::Object::__getDelegate()
     JTCSyncT<JTCMutex> sync(*this);
     if (!_delegate)
     {
-	ObjectPtr obj = _reference->instance->objectAdapterFactory()->proxyToObject(this);
+	ObjectPtr obj = _reference->instance->objectAdapterFactory()->proxyToServant(this);
 
 	if (obj)
 	{

@@ -83,11 +83,11 @@ Ice::ObjectAdapterI::deactivate()
     for_each(_collectorFactories.begin(), _collectorFactories.end(),
 	     ::IceInternal::voidMemFun(& CollectorFactory::destroy));
     _collectorFactories.clear();
-    _aom.clear();
-    _aomHint = _aom.begin();
+    _asm.clear();
+    _asmHint = _asm.begin();
 }
 
-void
+ObjectPrx
 Ice::ObjectAdapterI::add(const ObjectPtr& object, const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
@@ -97,10 +97,12 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const string& ident)
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    _aomHint = _aom.insert(_aomHint, make_pair(ident, object));
+    _asmHint = _asm.insert(_asmHint, make_pair(ident, object));
+
+    return newProxy(ident);
 }
 
-void
+ObjectPrx
 Ice::ObjectAdapterI::addTemporary(const ObjectPtr& object)
 {
     JTCSyncT<JTCMutex> sync(*this);
@@ -122,7 +124,9 @@ Ice::ObjectAdapterI::addTemporary(const ObjectPtr& object)
     s << hex << '.' << tv.tv_sec << '.' << tv.tv_usec / 1000 << '.' << rand();
 #endif
 
-    _aomHint = _aom.insert(_aomHint, make_pair(s.str(), object));
+    _asmHint = _asm.insert(_asmHint, make_pair(s.str(), object));
+
+    return newProxy(s.str());
 }
 
 void
@@ -135,31 +139,31 @@ Ice::ObjectAdapterI::remove(const string& ident)
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    _aom.erase(ident);
-    _aomHint = _aom.begin();
+    _asm.erase(ident);
+    _asmHint = _asm.begin();
 }
 
 void
-Ice::ObjectAdapterI::setObjectLocator(const ObjectLocatorPtr& locator)
+Ice::ObjectAdapterI::setServantLocator(const ServantLocatorPtr& locator)
 {
     JTCSyncT<JTCMutex> sync(*this);
     _locator = locator;
 }
 
-ObjectLocatorPtr
-Ice::ObjectAdapterI::getObjectLocator()
+ServantLocatorPtr
+Ice::ObjectAdapterI::getServantLocator()
 {
     JTCSyncT<JTCMutex> sync(*this);
     return _locator;
 }
 
 ObjectPtr
-Ice::ObjectAdapterI::identityToObject(const string& ident)
+Ice::ObjectAdapterI::identityToServant(const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
-    map<string, ObjectPtr>::const_iterator p = _aom.find(ident);
-    if (p != _aom.end())
+    map<string, ObjectPtr>::const_iterator p = _asm.find(ident);
+    if (p != _asm.end())
     {
 	return p->second;
     }
@@ -169,30 +173,8 @@ Ice::ObjectAdapterI::identityToObject(const string& ident)
     }
 }
 
-string
-Ice::ObjectAdapterI::objectToIdentity(const ObjectPtr& object)
-{
-    JTCSyncT<JTCMutex> sync(*this);
-
-    if (_collectorFactories.empty())
-    {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
-    }
-
-    map<string, ObjectPtr>::const_iterator p;
-    for (p = _aom.begin(); p != _aom.end(); ++p)
-    {
-	if (object.get() == p->second.get())
-	{
-	    return p->first;
-	}
-    }
-
-    return string();
-}
-
 ObjectPtr
-Ice::ObjectAdapterI::proxyToObject(const ObjectPrx& proxy)
+Ice::ObjectAdapterI::proxyToServant(const ObjectPrx& proxy)
 {
     //
     // We must first check whether at least one endpoint contained in
@@ -211,7 +193,7 @@ Ice::ObjectAdapterI::proxyToObject(const ObjectPrx& proxy)
 		// OK, endpoints and object adapter match. Let's find
 		// the object.
 		//
-		return identityToObject(ref->identity);
+		return identityToServant(ref->identity);
 	    }
 	}
     }
@@ -220,20 +202,7 @@ Ice::ObjectAdapterI::proxyToObject(const ObjectPrx& proxy)
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::objectToProxy(const ObjectPtr& object)
-{
-    string identity = objectToIdentity(object);
-    
-    if (identity.empty())
-    {
-	throw WrongObjectAdapterException(__FILE__, __LINE__);
-    }
-    
-    return identityToProxy(identity);
-}
-
-ObjectPrx
-Ice::ObjectAdapterI::identityToProxy(const string& ident)
+Ice::ObjectAdapterI::createProxy(const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
     
@@ -242,24 +211,13 @@ Ice::ObjectAdapterI::identityToProxy(const string& ident)
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
     
-    vector<EndpointPtr> endpoints;
-    transform(_collectorFactories.begin(), _collectorFactories.end(), back_inserter(endpoints),
-	      ::IceInternal::constMemFun(&CollectorFactory::endpoint));
-
-    ReferencePtr reference = new Reference(_instance, ident, Reference::ModeTwoway, false, endpoints, endpoints);
-    return _instance->proxyFactory()->referenceToProxy(reference);
-}
-
-string
-Ice::ObjectAdapterI::proxyToIdentity(const ObjectPrx& proxy)
-{
-    return proxy->__reference()->identity;
+    return newProxy(ident);
 }
 
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& name, const string& endpts) :
     _instance(instance),
     _name(name),
-    _aomHint(_aom.begin())
+    _asmHint(_asm.begin())
 {
     string s(endpts);
     transform(s.begin(), s.end(), s.begin(), tolower);
@@ -340,4 +298,15 @@ Ice::ObjectAdapterI::~ObjectAdapterI()
     {
 	deactivate();
     }
+}
+
+ObjectPrx
+Ice::ObjectAdapterI::newProxy(const string& ident)
+{
+    vector<EndpointPtr> endpoints;
+    transform(_collectorFactories.begin(), _collectorFactories.end(), back_inserter(endpoints),
+	      ::IceInternal::constMemFun(&CollectorFactory::endpoint));
+
+    ReferencePtr reference = new Reference(_instance, ident, Reference::ModeTwoway, false, endpoints, endpoints);
+    return _instance->proxyFactory()->referenceToProxy(reference);
 }

@@ -62,37 +62,14 @@ I_C_I::ic(const M_A::I_CPrx& p)
 InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {
-    Ice::ObjectPtr cai = new C_A_I;
-    _adapter->addTemporary(cai);
-    _ca = M_A::C_APrx::uncheckedCast(_adapter->objectToProxy(cai));
-
-    Ice::ObjectPtr cbi = new C_B_I;
-    _adapter->addTemporary(cbi);
-    _cb = M_B::C_BPrx::uncheckedCast(_adapter->objectToProxy(cbi));
-
-    Ice::ObjectPtr cci = new C_C_I;
-    _adapter->addTemporary(cci);
-    _cc = M_A::C_CPrx::uncheckedCast(_adapter->objectToProxy(cci));
-
-    Ice::ObjectPtr cdi = new C_D_I;
-    _adapter->addTemporary(cdi);
-    _cd = M_A::C_DPrx::uncheckedCast(_adapter->objectToProxy(cdi));
-
-    Ice::ObjectPtr iai = new I_A_I;
-    _adapter->addTemporary(iai);
-    _ia = M_A::I_APrx::uncheckedCast(_adapter->objectToProxy(iai));
-
-    Ice::ObjectPtr ib1i = new I_B1_I;
-    _adapter->addTemporary(ib1i);
-    _ib1 = M_B::I_B1Prx::uncheckedCast(_adapter->objectToProxy(ib1i));
-
-    Ice::ObjectPtr ib2i = new I_B2_I;
-    _adapter->addTemporary(ib2i);
-    _ib2 = M_B::I_B2Prx::uncheckedCast(_adapter->objectToProxy(ib2i));
-
-    Ice::ObjectPtr ici = new I_C_I;
-    _adapter->addTemporary(ici);
-    _ic = M_A::I_CPrx::uncheckedCast(_adapter->objectToProxy(ici));
+    _ca = M_A::C_APrx::uncheckedCast(_adapter->addTemporary(new C_A_I));
+    _cb = M_B::C_BPrx::uncheckedCast(_adapter->addTemporary(new C_B_I));
+    _cc = M_A::C_CPrx::uncheckedCast(_adapter->addTemporary(new C_C_I));
+    _cd = M_A::C_DPrx::uncheckedCast(_adapter->addTemporary(new C_D_I));
+    _ia = M_A::I_APrx::uncheckedCast(_adapter->addTemporary(new I_A_I));
+    _ib1 = M_B::I_B1Prx::uncheckedCast(_adapter->addTemporary(new I_B1_I));
+    _ib2 = M_B::I_B2Prx::uncheckedCast(_adapter->addTemporary(new I_B2_I));
+    _ic = M_A::I_CPrx::uncheckedCast(_adapter->addTemporary(new I_C_I));
 }
 
 void

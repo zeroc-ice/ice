@@ -11,8 +11,9 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
-MyDerivedClassI::MyDerivedClassI(const Ice::ObjectAdapterPtr& adapter) :
-    _adapter(adapter)
+MyDerivedClassI::MyDerivedClassI(const Ice::ObjectAdapterPtr& adapter, const std::string& identity) :
+    _adapter(adapter),
+    _identity(identity)
 {
 }
 
@@ -98,10 +99,11 @@ MyDerivedClassI::opMyEnum(Test::MyEnum p1,
 
 Test::MyClassPrx
 MyDerivedClassI::opMyClass(const Test::MyClassPrx& p1,
-			   Test::MyClassPrx& p2)
+			   Test::MyClassPrx& p2, Test::MyClassPrx& p3)
 {
     p2 = p1;
-    return Test::MyClassPrx::uncheckedCast(_adapter->objectToProxy(this));
+    p3 = Test::MyClassPrx::uncheckedCast(_adapter->createProxy("noSuchIdentity"));
+    return Test::MyClassPrx::uncheckedCast(_adapter->createProxy(_identity));
 }
 
 Test::Struct
@@ -330,7 +332,7 @@ Test::MyClassStringD
 MyDerivedClassI::opMyClassStringD(const Test::MyClassStringD& p1, const Test::MyClassStringD& p2,
 				  Test::MyClassStringD& p3)
 {
-    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(_adapter->objectToProxy(this));
+    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(_adapter->createProxy(_identity));
     p3 = p1;
     Test::MyClassStringD r;
     std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
@@ -395,7 +397,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 	case 10:
 	{
 	    Test::Struct ex;
-	    ex.p = Test::MyClassPrx::uncheckedCast(_adapter->objectToProxy(this));
+	    ex.p = Test::MyClassPrx::uncheckedCast(_adapter->createProxy(_identity));
 	    ex.e = Test::enum2;
 	    ex.s.s = "xxx";
 	    throw ex;
@@ -632,7 +634,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 
 	case 34:
 	{
-	    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(_adapter->objectToProxy(this));
+	    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(_adapter->createProxy(_identity));
 	    Test::MyClassStringD ex;
 	    ex[0] = "null";
 	    ex[p] = "MyClass";
@@ -641,7 +643,7 @@ MyDerivedClassI::opEx(Ice::Int p)
 
 	case 35:
 	{
-	    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(_adapter->objectToProxy(this));
+	    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(_adapter->createProxy(_identity));
 	    p->_throw();
 	}
     }

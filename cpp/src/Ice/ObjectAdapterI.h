@@ -35,35 +35,32 @@ public:
     virtual void hold();
     virtual void deactivate();
 
-    virtual void add(const ObjectPtr&, const std::string&);
-    virtual void addTemporary(const ObjectPtr&);
+    virtual ObjectPrx add(const ObjectPtr&, const std::string&);
+    virtual ObjectPrx addTemporary(const ObjectPtr&);
     virtual void remove(const std::string&);
 
-    virtual void setObjectLocator(const ObjectLocatorPtr&);
-    virtual ObjectLocatorPtr getObjectLocator();
+    virtual void setServantLocator(const ServantLocatorPtr&);
+    virtual ServantLocatorPtr getServantLocator();
 
-    virtual ObjectPtr identityToObject(const std::string&);
-    virtual std::string objectToIdentity(const ObjectPtr&);
+    virtual ObjectPtr identityToServant(const ::std::string&);
+    virtual ObjectPtr proxyToServant(const ObjectPrx&);
 
-    virtual ObjectPtr proxyToObject(const ObjectPrx&);
-    virtual ObjectPrx objectToProxy(const ObjectPtr&);
-
-    virtual ObjectPrx identityToProxy(const std::string&);
-    virtual std::string proxyToIdentity(const ObjectPrx&);
+    virtual ObjectPrx createProxy(const ::std::string&);
 
 private:
 
-    ObjectAdapterI(const ::IceInternal::InstancePtr&, const std::string&,
-		   const std::string&);
+    ObjectAdapterI(const ::IceInternal::InstancePtr&, const std::string&, const std::string&);
     virtual ~ObjectAdapterI();
     friend ::IceInternal::ObjectAdapterFactory;
     
+    ObjectPrx newProxy(const ::std::string&);
+
     ::IceInternal::InstancePtr _instance;
     std::string _name;
     std::vector< IceInternal::CollectorFactoryPtr> _collectorFactories;
-    std::map<std::string, ObjectPtr> _aom;
-    std::map<std::string, ObjectPtr>::iterator _aomHint;
-    ::Ice::ObjectLocatorPtr _locator;
+    std::map<std::string, ObjectPtr> _asm;
+    std::map<std::string, ObjectPtr>::iterator _asmHint;
+    ServantLocatorPtr _locator;
 };
 
 }

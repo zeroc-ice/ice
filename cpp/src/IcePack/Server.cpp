@@ -72,7 +72,7 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
     }
 
     AdminPtr admin = new AdminI(communicator);
-    ObjectLocatorPtr forward = new Forward(communicator, admin);
+    ServantLocatorPtr forward = new Forward(communicator, admin);
 
     if (adminEndpoints.length() != 0)
     {
@@ -82,7 +82,7 @@ run(int argc, char* argv[], CommunicatorPtr communicator)
     }
 
     ObjectAdapterPtr forwardAdapter = communicator->createObjectAdapter("Forward");
-    forwardAdapter->setObjectLocator(forward);
+    forwardAdapter->setServantLocator(forward);
     forwardAdapter->activate();
 
     communicator->waitForShutdown();

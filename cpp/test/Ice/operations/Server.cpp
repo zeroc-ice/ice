@@ -18,7 +18,7 @@ run(int argc, char* argv[], Ice::CommunicatorPtr communicator)
 {
     string endpts("tcp -p 12345 -t 2000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
-    Ice::ObjectPtr object = new MyDerivedClassI(adapter);
+    Ice::ObjectPtr object = new MyDerivedClassI(adapter, "test");
     adapter->add(object, "test");
     adapter->activate();
     communicator->waitForShutdown();

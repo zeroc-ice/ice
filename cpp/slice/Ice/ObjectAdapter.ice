@@ -16,18 +16,18 @@
 module Ice
 {
 
-local class ObjectLocator;
+local class ServantLocator;
 
 /**
  *
  * The Object Adapter, which is responsible for receiving requests
- * from Endpoints, and for mapping between Objects, Identities, and
+ * from Endpoints, and for mapping between Servant, Identities, and
  * Proxies. Object Adapters are created with the Communicator's
  * <literal>createObjectAdapter</literal> and
  * <literal>createObjectAdapterWithEndpoints</literal> operations.
  *
  * @see Communicator
- * @see ObjectLocator
+ * @see ServantLocator
  *
  **/
 local class ObjectAdapter
@@ -97,42 +97,52 @@ local class ObjectAdapter
 
     /**
      *
-     * Add a new Object to this Object Adapter's Active Object Map.
+     * Add a Servant to this Object Adapter's Active Servant Map. Note
+     * that one Servant can implement several Ice Objects by
+     * registering the Servant with multiple identities.
      *
-     * @param object The Object to add.
+     * @param servant The Servant to add.
      *
-     * @param identity The Object's identity.
+     * @param identity The identity of the Ice Object that is
+     * implemented by the Servant.
      *
-     * @see addTemporary
-     * @see remove
-     *
-     **/
-    void add(Object object, string identity);
-
-    /**
-     *
-     * Add a new temporary Object to this Object Adapter's Active
-     * Object Map. "Temporary" means that the Object does not have a
-     * fixed identity. Instead, a temporary identity is assigned by
-     * the Object Adapter. Such temporary identity is only valid for
-     * the lifetime of this Object Adapter, or until the Object is
-     * removed with <literal>remove</literal>.
-     *
-     * @param object The Object to add.
-     *
-     * @param identity The Object's identity.
+     * @return A Proxy that matches the given identity and this Object
+     * Adapter.
      *
      * @see addTemporary
      * @see remove
      *
      **/
-    void addTemporary(Object object);
+    Object* add(Object servant, string identity);
 
     /**
      *
-     * Remove an Object from the Object Adapter's Active Object Map.
+     * Add a temporary Servant to this Object Adapter's Active Servant
+     * Map. "Temporary" means that the Ice Object implemented by the
+     * Servant does not have a fixed identity. Instead, a temporary
+     * identity is assigned by the Object Adapter. Such temporary
+     * identity is only valid for the lifetime of this Object Adapter,
+     * or until the Servant is removed with <literal>remove</literal>.
      *
-     * @param identity The Object's identity that is to be removed.
+     * @param servant The Servant to add.
+     *
+     * @return A Proxy that matches the temporary identity and this
+     * Object Adapter.
+     *
+     * @see add
+     * @see remove
+     *
+     **/
+    Object* addTemporary(Object servant);
+
+    /**
+     *
+     * Remove a Servant from the Object Adapter's Active Servant Map.
+     *
+     * @param identity The identity of the Ice Object that is
+     * implemented by the Servant. If the Servant implements multiple
+     * Ice Objects, <literal>remove</literal> has to be called for all
+     * such Ice Objects.
      *
      * @see add
      * @see addTemporary
@@ -142,90 +152,58 @@ local class ObjectAdapter
 
     /**
      *
-     * Set an Object Locator for this Object Adapter.
+     * Set a Servant Locator for this Object Adapter.
      *
-     * @param locator The locator to set.     
+     * @param locator The Servant Locator to set.     
      *
-     * @see ObjectLocator
-     * @see getObjectLocator
+     * @see ServantLocator
+     * @see getServantLocator
      *
      **/
-    void setObjectLocator(ObjectLocator locator);
+    void setServantLocator(ServantLocator locator);
 
     /**
      *
      * Get the Object Locator for this Object Adapter.
      *
-     * @return The locator for this Object Adapter. If no locator is
-     * set, null is returned.
+     * @return The Servant Locator for this Object Adapter. If no
+     * Servant Locator is set, null is returned.
      *
-     * @see ObjectLocator
-     * @see setObjectLocator
+     * @see ServantLocator
+     * @see setServantLocator
      *
      **/
-    ObjectLocator getObjectLocator();
+    ServantLocator getServantLocator();
 
     /**
      *
-     * Look up an Object in this Object Adapter's Active Object Map by
-     * its identity.
+     * Look up a Servant in this Object Adapter's Active Servant Map by
+     * the identity of the Ice Object it implements.
      *
-     * @param identity The identity for which the Object should be
-     * returned.
+     * @param identity The identity of the Ice Object for which the
+     * Servant should be returned.
      *
-     * @return The Object that matches the identity.
+     * @return The Servant that implements the Ice Object with the
+     * given identity.
      *
-     * see proxyToObject
-     * see objectToIdentity
+     * see proxyToServant
      *
      **/
-    Object identityToObject(string identity);
+    Object identityToServant(string identity);
 
     /**
      *
-     * Loop up the identity for an Object in this Object Adapter's
-     * Active Object Map.
-     *
-     * @param object The Object for which the identity should be
-     * returned.
-     *
-     * @return The identity that matches this Object.
-     *
-     * see identityToObject
-     * see identityToProxy
-     *
-     **/
-    string objectToIdentity(Object object);
-
-    /**
-     *
-     * Look up an Object in this Object Adapter's Active Object Map
+     * Look up a Servant in this Object Adapter's Active Servant Map,
      * given a Proxy.
      *
-     * @param Proxy A proxy for which the Object should be returned.
+     * @param Proxy A proxy for which the Servant should be returned.
      *
-     * @return The Object that matches the Proxy.
+     * @return The Servant that matches the Proxy.
      *
-     * see objectToProxy
-     * see identityToObject
-     *
-     **/
-    Object proxyToObject(Object* proxy);
-
-    /**
-     *
-     * Create a Proxy for an Object in this Object Adapter's Active
-     * Object Map.
-     *
-     * @param object The Object for which a Proxy is to be created.
-     *
-     * @return A Proxy for the Object.
-     *
-     * see proxyToObject
-     * see objectToIdentity
+     * see identityToServant
      *
      **/
-    Object* objectToProxy(Object object);
+    Object proxyToServant(Object* proxy);
 
     /**
      *
@@ -234,61 +212,45 @@ local class ObjectAdapter
      *
      * @param identity The identity for which a Proxy is to be created.
      *
-     * @return A Proxy that matches the identity and this Object
+     * @return A Proxy that matches the given identity and this Object
      * Adapter.
      *
-     * see identityToObject
-     * see proxyToIdentity
-     *
      **/
-    Object* identityToProxy(string identity);
-
-    /**
-     *
-     * Extract the identity from a Proxy.
-     *
-     * @param proxy The Proxy from which the identity is to be extracted.
-     *
-     * @return The Proxy's identity.
-     *
-     * see proxyToObject
-     * see identityToProxy
-     *
-     **/
-    string proxyToIdentity(Object* proxy);
+    Object* createProxy(string identity);
 };
 
 /**
  *
- * The Object Locator, which is called by the Object Adapter to locate
- * objects, which it doesn't find in its Active Object Map. The
- * locator must be set with the Object Adapter's
- * <literal>setObjectLocator</literal> operation.
+ * The Servant Locator, which is called by the Object Adapter to
+ * locate Servants, which it doesn't find in its Active Servant
+ * Map. The Servant Locator must be set with the Object Adapter's
+ * <literal>setServantLocator</literal> operation.
  *
  * @see ObjectAdapter
- * @see ObjectAdapter::setObjectLocator
- * @see ObjectAdapter::getObjectLocator
+ * @see ObjectAdapter::setServantLocator
+ * @see ObjectAdapter::getServantLocator
  *
  **/
-local class ObjectLocator
+local class ServantLocator
 {
     /**
      *
-     * Called by the Object Adapter before a request, if an object
-     * cannot be found in the Object Adapter's Active Object Map. Note
-     * that the Object Adapter does not automatically insert the
-     * returned object into it's Active Object Map. This must be done
-     * by the locator if desired.
+     * Called by the Object Adapter before a request, in case a
+     * Servant cannot be found in the Object Adapter's Active Servant
+     * Map. Note that the Object Adapter does not automatically insert
+     * the returned Servant into it's Active Servant Map. This must be
+     * done by the Servant Locator's implementation, if desired.
      *
-     * @param adapter The Object Adapter that calls the locator.
+     * @param adapter The Object Adapter that calls the Servant Locator.
      *
-     * @param identity The identity of the object to locate.
+     * @param identity The identity of the Ice Object to locate a
+     * Servant for.
      *
      * @param cookie A "cookie", which is returned to
      * <literal>finished</literal>.
      *
-     * @return The located object, or null if no object has been
-     * found.
+     * @return The located Servant, or null if no suitable Servant has
+     * been found.
      *
      * @see ObjectAdapter
      * @see finished
@@ -304,12 +266,12 @@ local class ObjectLocator
      * <literal>LocationForward</literal> exception. This operation
      * can be used for cleanup after a request.
      *
-     * @param adapter The Object Adapter that calls the locator.
+     * @param adapter The Object Adapter that calls the Servant Locator.
      *
-     * @param identity The identity of the object that was located by
-     * <literal>locate</literal>.
+     * @param identity The identity of the Ice Object for which a
+     * Servant was located by <literal>locate</literal>.
      *
-     * @param object The object that was returned by
+     * @param servant The Servant that was returned by
      * <literal>locate</literal>.
      *
      * @param cookie The cookie that was returned by
@@ -319,7 +281,7 @@ local class ObjectLocator
      * @see locate
      *
      **/
-    void finished(ObjectAdapter adapter, string identity, Object object, Object cookie);
+    void finished(ObjectAdapter adapter, string identity, Object servant, Object cookie);
 };
 
 };

@@ -126,17 +126,31 @@ twoways(Test::MyClassPrx p)
     }
 
     {
-	Test::MyClassPrx c;
+	Test::MyClassPrx c1;
+	Test::MyClassPrx c2;
 	Test::MyClassPrx r;
 	
-	r = p->opMyClass(p, c);
-	test(c == p);
+	r = p->opMyClass(p, c1, c2);
+	test(c1 == p);
+	test(c2 != p);
 	test(r == p);
-	c->opVoid();
+	test(c1->_getIdentity() == "test");
+	test(c2->_getIdentity() == "noSuchIdentity");
+	test(r->_getIdentity() == "test");
 	r->opVoid();
+	c1->opVoid();
+	try
+	{
+	    c2->opVoid();
+	    test(false);
+	}
+	catch(const Ice::ObjectNotExistException&)
+	{
+	}
 
-	r = p->opMyClass(0, c);
-	test(c == 0);
+	r = p->opMyClass(0, c1, c2);
+	test(c1 == 0);
+	test(c2 != 0);
 	test(r == p);
 	r->opVoid();
     }

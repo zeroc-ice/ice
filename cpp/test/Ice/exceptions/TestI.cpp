@@ -14,17 +14,9 @@
 ThrowerI::ThrowerI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {
-    APtr a = new A;
-    _adapter->addTemporary(a);
-    _a = APrx::uncheckedCast(_adapter->objectToProxy(a));
-
-    BPtr b = new B;
-    _adapter->addTemporary(b);
-    _b = BPrx::uncheckedCast(_adapter->objectToProxy(b));
-
-    CPtr c = new C;
-    _adapter->addTemporary(c);
-    _c = CPrx::uncheckedCast(_adapter->objectToProxy(c));
+    _a = APrx::uncheckedCast(_adapter->addTemporary(new A));
+    _b = BPrx::uncheckedCast(_adapter->addTemporary(new B));
+    _c = CPrx::uncheckedCast(_adapter->addTemporary(new C));
 }
 
 void
