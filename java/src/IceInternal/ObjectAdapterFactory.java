@@ -21,6 +21,7 @@ public final class ObjectAdapterFactory
             Ice.ObjectAdapter adapter = (Ice.ObjectAdapter)i.next();
             adapter.deactivate();
         }
+
         _adapters.clear();
     }
 
@@ -38,7 +39,7 @@ public final class ObjectAdapterFactory
         return adapter;
     }
 
-    public Ice.ObjectAdapter
+    public synchronized Ice.ObjectAdapter
     findObjectAdapter(Ice.ObjectPrx proxy)
     {
         java.util.Iterator i = _adapters.values().iterator();

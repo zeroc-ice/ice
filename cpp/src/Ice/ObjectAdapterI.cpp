@@ -127,6 +127,13 @@ Ice::ObjectAdapterI::deactivate()
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::destroy));
 
+    //
+    // Don't do a _incomingConnectionFactories.clear()!
+    // _incomingConnectionFactories is immutable. Even if all elements
+    // are destroyed, the elements are still needed by
+    // waitForDeactivate().
+    //
+
     _instance->outgoingConnectionFactory()->removeAdapter(this);
 	
     _activeServantMap.clear();

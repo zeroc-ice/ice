@@ -24,8 +24,10 @@ void
 IceInternal::ObjectAdapterFactory::shutdown()
 {
     IceUtil::RecMutex::Lock sync(*this);
+
     for_each(_adapters.begin(), _adapters.end(),
 	     Ice::secondVoidMemFun<string, ObjectAdapter>(&ObjectAdapter::deactivate));
+
     _adapters.clear();
 }
 
@@ -33,6 +35,7 @@ ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const string& endpts)
 {
     IceUtil::RecMutex::Lock sync(*this);
+
     map<string, ObjectAdapterIPtr>::iterator p = _adapters.find(name);
     if(p != _adapters.end())
     {
@@ -47,6 +50,8 @@ IceInternal::ObjectAdapterFactory::createObjectAdapter(const string& name, const
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
 {
+    IceUtil::RecMutex::Lock sync(*this);
+
     for(map<string, ObjectAdapterIPtr>::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
     {
 	if(p->second->isLocal(proxy))

@@ -106,6 +106,13 @@ public class ObjectAdapterI implements ObjectAdapter
             factory.destroy();
         }
 
+	//
+	// Don't do a _incomingConnectionFactories.clear()!
+	// _incomingConnectionFactories is immutable. Even if all
+	// elements are destroyed, the elements are still needed by
+	// waitForDeactivate().
+	//
+
 	_instance.outgoingConnectionFactory().removeAdapter(this);
 
 	_activeServantMap.clear();
