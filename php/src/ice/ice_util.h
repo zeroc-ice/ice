@@ -38,6 +38,21 @@ ice_object* ice_newObject(zend_class_entry* TSRMLS_DC);
 ice_object* ice_getObject(zval* TSRMLS_DC);
 
 //
+// Convert the given exception into a PHP equivalent and "throw" it.
+//
+void ice_throwException(const IceUtil::Exception& TSRMLS_DC);
+
+//
+// Find the class entry for a flattened type name.
+//
+zend_class_entry* ice_findClass(const std::string& TSRMLS_DC);
+
+//
+// Find the class entry for a scoped type with suffix.
+//
+zend_class_entry* ice_findClassScoped(const std::string&, const std::string& TSRMLS_DC);
+
+//
 // Split a string into a vector of arguments. Quoted arguments are supported.
 //
 bool ice_splitString(const std::string&, std::vector<std::string>&);

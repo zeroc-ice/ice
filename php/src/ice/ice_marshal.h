@@ -18,9 +18,7 @@
 #include "ice_common.h"
 #include <Slice/Parser.h>
 
-void Marshal_preOperation(TSRMLS_D);
-void Marshal_postOperation(TSRMLS_D);
-void Marshal_registerFactories(const Ice::CommunicatorPtr& TSRMLS_DC);
+void Marshal_initCommunicator(const Ice::CommunicatorPtr& TSRMLS_DC);
 
 class Marshaler;
 typedef IceUtil::Handle<Marshaler> MarshalerPtr;
@@ -41,6 +39,46 @@ public:
 
 protected:
     Marshaler();
+};
+
+//
+// Associates a scoped type id to its marshaler.
+//
+typedef std::map<std::string, MarshalerPtr> MarshalerMap;
+
+//
+// We must subclass BasicStream in order to associate some information with it.
+//
+class PHPStream : public IceInternal::BasicStream
+{
+public:
+    PHPStream(IceInternal::Instance*);
+    ~PHPStream();
+
+    //
+    // The object map associates a Zend object handle to an Ice object.
+    //
+    typedef std::map<unsigned int, Ice::ObjectPtr> ObjectMap;
+
+    //
+    // Types for the patch list.
+    //
+    struct PatchInfo
+    {
+        zend_class_entry* ce; // The formal type
+        zval* zv;             // The destination zval
+    };
+    typedef std::vector<PatchInfo*> PatchInfoList;
+
+    ObjectMap* objectMap;
+    PatchInfoList* patchList;
+};
+
+//
+// This class is raised as an exception when object marshaling needs to be aborted.
+//
+class AbortMarshaling
+{
 };
 
 #endif

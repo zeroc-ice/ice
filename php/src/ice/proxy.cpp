@@ -19,7 +19,6 @@
 #include "ice_proxy.h"
 #include "ice_communicator.h"
 #include "ice_identity.h"
-#include "ice_exception.h"
 #include "ice_marshal.h"
 #include "ice_slice.h"
 #include "ice_util.h"
@@ -290,7 +289,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETVAL_FALSE;
     }
 }
@@ -312,7 +311,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ping)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
     }
 
     RETURN_NULL();
@@ -336,7 +335,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_id)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -364,7 +363,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ids)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -392,7 +391,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_facets)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -422,13 +421,12 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity)
     assert(obj->ptr);
     Proxy* _this = static_cast<Proxy*>(obj->ptr);
 
-    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-    TypeMap::iterator p = typeMap->find("::Ice::Identity");
-    assert(p != typeMap->end());
+    zend_class_entry* cls = ice_findClass("Ice_Identity" TSRMLS_CC);
+    assert(cls);
 
     zval *zid;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, p->second) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, cls) == FAILURE)
     {
         RETURN_NULL();
     }
@@ -446,7 +444,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newIdentity)
         }
         catch(const IceUtil::Exception& ex)
         {
-            ice_throw_exception(ex TSRMLS_CC);
+            ice_throwException(ex TSRMLS_CC);
             RETURN_NULL();
         }
     }
@@ -475,7 +473,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_getFacet)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -524,7 +522,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_newFacet)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -560,7 +558,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_appendFacet)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -586,7 +584,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_twoway)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -609,7 +607,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isTwoway)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_FALSE;
     }
 }
@@ -635,7 +633,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_oneway)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -658,7 +656,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isOneway)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_FALSE;
     }
 }
@@ -684,7 +682,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_batchOneway)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -707,7 +705,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isBatchOneway)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_FALSE;
     }
 }
@@ -733,7 +731,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_datagram)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -756,7 +754,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isDatagram)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_FALSE;
     }
 }
@@ -782,7 +780,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_batchDatagram)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -805,7 +803,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isBatchDatagram)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_FALSE;
     }
 }
@@ -837,7 +835,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_secure)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -868,7 +866,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_compress)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -900,7 +898,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_timeout)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -926,7 +924,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_default)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -948,7 +946,7 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_flush)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
     }
 }
 
@@ -1021,6 +1019,16 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
             RETURN_NULL();
         }
 
+        //
+        // Verify that the script has compiled the Slice definition for this type.
+        //
+        if(ice_findClassScoped(decl->scoped(), "" TSRMLS_CC) == 0)
+        {
+            zend_error(E_ERROR, "%s(): the Slice definition for type %s has not been compiled",
+                       get_active_function_name(TSRMLS_C), id);
+            RETURN_NULL();
+        }
+
         Ice::ObjectPrx prx = _this->getProxy();
         if(facet)
         {
@@ -1046,7 +1054,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETVAL_FALSE;
     }
 }
@@ -1178,12 +1186,10 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
 
     try
     {
-        Marshal_preOperation(TSRMLS_C);
-
         //
         // Marshal the arguments.
         //
-        IceInternal::BasicStream os(_instance.get());
+        PHPStream os(_instance.get());
         vector<MarshalerPtr>::iterator p;
         for(i = 0, p = _inParams.begin(); p != _inParams.end(); ++i, ++p)
         {
@@ -1201,7 +1207,7 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         //
         // Invoke the operation. Don't use _name here.
         //
-        IceInternal::BasicStream is(_instance.get());
+        PHPStream is(_instance.get());
         bool status = _proxy->ice_invoke(_op->name(), mode, os.b, is.b);
 
         //
@@ -1247,13 +1253,10 @@ Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
             //
             throwException(is TSRMLS_CC);
         }
-
-        Marshal_postOperation(TSRMLS_C);
     }
     catch(const IceUtil::Exception& ex)
     {
-        Marshal_postOperation(TSRMLS_C);
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
     }
 }
 

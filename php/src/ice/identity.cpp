@@ -17,21 +17,17 @@
 #endif
 
 #include "ice_identity.h"
-#include "ice_exception.h"
 #include "ice_util.h"
 
 using namespace std;
 
-ZEND_EXTERN_MODULE_GLOBALS(ice)
-
 bool
 Ice_Identity_create(zval* zv, const Ice::Identity& id TSRMLS_DC)
 {
-    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-    TypeMap::iterator p = typeMap->find("::Ice::Identity");
-    assert(p != typeMap->end());
+    zend_class_entry* cls = ice_findClass("Ice_Identity" TSRMLS_CC);
+    assert(cls);
 
-    if(object_init_ex(zv, p->second) != SUCCESS)
+    if(object_init_ex(zv, cls) != SUCCESS)
     {
         zend_error(E_ERROR, "unable to initialize Ice::Identity in %s()", get_active_function_name(TSRMLS_C));
         return false;
@@ -54,20 +50,13 @@ Ice_Identity_extract(zval* zv, Ice::Identity& id TSRMLS_DC)
         return false;
     }
 
-    zend_object* obj = static_cast<zend_object*>(zend_object_store_get_object(zv TSRMLS_CC));
-    if(!obj)
-    {
-        zend_error(E_ERROR, "object not found in object store");
-        return false;
-    }
+    zend_class_entry* cls = ice_findClass("Ice_Identity" TSRMLS_CC);
+    assert(cls);
 
-    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-    TypeMap::iterator p = typeMap->find("::Ice::Identity");
-    assert(p != typeMap->end());
-
-    if(obj->ce != p->second)
+    zend_class_entry* ce = Z_OBJCE_P(zv);
+    if(ce != cls)
     {
-        zend_error(E_ERROR, "expected an identity but received %s", obj->ce->name);
+        zend_error(E_ERROR, "expected an identity but received %s", ce->name);
         return false;
     }
 
@@ -90,7 +79,7 @@ Ice_Identity_extract(zval* zv, Ice::Identity& id TSRMLS_DC)
         return false;
     }
 
-    if(categoryVal && Z_TYPE_PP(categoryVal) != IS_STRING)
+    if(categoryVal && Z_TYPE_PP(categoryVal) != IS_STRING && Z_TYPE_PP(categoryVal) != IS_NULL)
     {
         string s = ice_zendTypeToString(Z_TYPE_PP(categoryVal));
         zend_error(E_ERROR, "expected a string value for identity member `category' but received %s", s.c_str());
@@ -98,7 +87,7 @@ Ice_Identity_extract(zval* zv, Ice::Identity& id TSRMLS_DC)
     }
 
     id.name = Z_STRVAL_PP(nameVal);
-    if(categoryVal)
+    if(categoryVal && Z_TYPE_PP(categoryVal) == IS_STRING)
     {
         id.category = Z_STRVAL_PP(categoryVal);
     }
@@ -132,7 +121,7 @@ ZEND_FUNCTION(Ice_stringToIdentity)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
     }
 }
 
@@ -143,13 +132,12 @@ ZEND_FUNCTION(Ice_identityToString)
         WRONG_PARAM_COUNT;
     }
 
-    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-    TypeMap::iterator p = typeMap->find("::Ice::Identity");
-    assert(p != typeMap->end());
+    zend_class_entry* cls = ice_findClass("Ice_Identity" TSRMLS_CC);
+    assert(cls);
 
     zval *zid;
 
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, p->second) == FAILURE)
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "O", &zid, cls) == FAILURE)
     {
         RETURN_NULL();
     }

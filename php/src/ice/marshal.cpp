@@ -233,7 +233,7 @@ private:
 class ObjectWriter : public Ice::Object
 {
 public:
-    ObjectWriter(zval*, zend_class_entry* TSRMLS_DC);
+    ObjectWriter(zval*, const Slice::SyntaxTreeBasePtr& TSRMLS_DC);
     ~ObjectWriter();
 
     virtual void __write(::IceInternal::BasicStream*) const;
@@ -241,7 +241,7 @@ public:
 
 private:
     zval* _value;
-    zend_class_entry* _class;
+    Slice::ClassDefPtr _type; // nil if type is ::Ice::Object
 #ifdef ZTS
     TSRMLS_D;
 #endif
@@ -250,7 +250,7 @@ private:
 class ObjectReader : public Ice::Object
 {
 public:
-    ObjectReader(zend_class_entry* TSRMLS_DC);
+    ObjectReader(zend_class_entry*, const Slice::ClassDefPtr& TSRMLS_DC);
     ~ObjectReader();
 
     virtual void __write(::IceInternal::BasicStream*) const;
@@ -260,10 +260,11 @@ public:
 
 private:
     zend_class_entry* _class;
-    zval* _value;
+    Slice::ClassDefPtr _type; // nil if type is ::Ice::Object
 #ifdef ZTS
     TSRMLS_D;
 #endif
+    zval* _value;
 };
 typedef IceUtil::Handle<ObjectReader> ObjectReaderPtr;
 
@@ -278,6 +279,7 @@ public:
     virtual void destroy();
 
 private:
+    Slice::ClassDefPtr _def;
     zend_class_entry* _class; // The static class type.
 };
 
@@ -288,83 +290,25 @@ private:
 class PHPObjectFactory : public Ice::ObjectFactory
 {
 public:
-    PHPObjectFactory(TypeMap& TSRMLS_DC);
+    PHPObjectFactory(TSRMLS_D);
 
     virtual Ice::ObjectPtr create(const string&);
     virtual void destroy();
 
 private:
-    TypeMap& _typeMap;
 #ifdef ZTS
     TSRMLS_D;
 #endif
 };
 
-//
-// FactoryVisitor descends the Slice parse tree and registers an object factory for each
-// non-abstract class.
-//
-class FactoryVisitor : public Slice::ParserVisitor
-{
-public:
-    FactoryVisitor(const Ice::CommunicatorPtr&, TypeMap& TSRMLS_DC);
-
-    virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
-
-private:
-    Ice::CommunicatorPtr _communicator;
-    Ice::ObjectFactoryPtr _factory;
-};
-
-//
-// Typedef for the "global" object map.
-//
-typedef map<unsigned int, Ice::ObjectPtr> ObjectMap;
-
-//
-// Types for the "global" patch list.
-//
-struct PatchInfo
-{
-    zend_class_entry* ce; // The formal type
-    zval* zv;             // The destination zval
-};
-typedef vector<PatchInfo*> PatchList;
-
 void
-Marshal_preOperation(TSRMLS_D)
+Marshal_initCommunicator(const Ice::CommunicatorPtr& communicator TSRMLS_DC)
 {
-    ICE_G(objectMap) = 0; // Lazy initialization - see ObjectWriter::__write
-    ICE_G(patchList) = 0; // Lazy initialization - see ObjectMarshaler::unmarshal
-}
-
-void
-Marshal_postOperation(TSRMLS_D)
-{
-    if(ICE_G(objectMap))
-    {
-        delete static_cast<ObjectMap*>(ICE_G(objectMap));
-        ICE_G(objectMap) = 0;
-    }
-    if(ICE_G(patchList))
-    {
-        PatchList* pl = static_cast<PatchList*>(ICE_G(patchList));
-        for(PatchList::iterator p = pl->begin(); p != pl->end(); ++p)
-        {
-            delete (*p);
-        }
-        delete pl;
-        ICE_G(patchList) = 0;
-    }
-}
-
-void
-Marshal_registerFactories(const Ice::CommunicatorPtr& communicator TSRMLS_DC)
-{
-    Slice::UnitPtr unit = Slice_getUnit();
-    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-    FactoryVisitor visitor(communicator, *typeMap TSRMLS_CC);
-    unit->visit(&visitor);
+    //
+    // Register our default object factory with the communicator.
+    //
+    Ice::ObjectFactoryPtr factory = new PHPObjectFactory(TSRMLS_C);
+    communicator->addObjectFactory(factory, "");
 }
 
 //
@@ -424,21 +368,20 @@ Marshaler::createMarshaler(const Slice::TypePtr& type TSRMLS_DC)
     if(st)
     {
         //
-        // Check to see if a marshaler is cached in the class entry. If not, create
-        // one and cache it in the class entry.
+        // Check to see if a marshaler for this type has already been created. If not, create
+        // one and cache it in the marshaler map for future use.
         //
-        TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-        TypeMap::iterator p = typeMap->find(st->scoped());
-        assert(p != typeMap->end());
-        ice_class_entry* ce = (ice_class_entry*)p->second;
-        if(ce->marshaler)
+        string scoped = st->scoped();
+        MarshalerMap* marshalerMap = static_cast<MarshalerMap*>(ICE_G(marshalerMap));
+        MarshalerMap::iterator p = marshalerMap->find(scoped);
+        if(p != marshalerMap->end())
         {
-            return *(static_cast<MarshalerPtr*>(ce->marshaler));
+            return p->second;
         }
         else
         {
             MarshalerPtr result = new StructMarshaler(st TSRMLS_CC);
-            ce->marshaler = new MarshalerPtr(result);
+            marshalerMap->insert(pair<string, MarshalerPtr>(scoped, result));
             return result;
         }
     }
@@ -462,7 +405,7 @@ Marshaler::createMarshaler(const Slice::TypePtr& type TSRMLS_DC)
     if(cl)
     {
         //
-        // Don't cache ObjectMarshaler in the class entry - we cache ObjectSliceMarshaler instead.
+        // Don't cache ObjectMarshaler - we cache ObjectSliceMarshaler instead.
         //
         Slice::ClassDefPtr def = cl->definition();
         if(!def)
@@ -507,13 +450,6 @@ PrimitiveMarshaler::PrimitiveMarshaler(const Slice::BuiltinPtr& type) :
 bool
 PrimitiveMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 {
-    //
-    // TODO: Use convert_to_XXX functions? For example, this would allow users to provide a stringified 
-    // bool or number which is converted into the required type (if possible). This might result in
-    // some unusual behavior, so this is not currently supported.
-    //
-    // See http://www.php.net/manual/en/zend.arguments.access.php
-    //
     switch(_type->kind())
     {
     case Slice::Builtin::KindBool:
@@ -905,7 +841,7 @@ MemberMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     zval** val;
     if(zend_hash_find(Z_OBJPROP_P(zv), const_cast<char*>(_name.c_str()), _name.length() + 1, (void**)&val) == FAILURE)
     {
-        zend_error(E_ERROR, "unable to find member `%s'", _name.c_str());
+        zend_error(E_ERROR, "member `%s' is not defined", _name.c_str());
         return false;
     }
 
@@ -946,10 +882,8 @@ MemberMarshaler::destroy()
 StructMarshaler::StructMarshaler(const Slice::StructPtr& type TSRMLS_DC) :
     _type(type)
 {
-    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-    TypeMap::iterator p = typeMap->find(type->scoped());
-    assert(p != typeMap->end());
-    _class = p->second;
+    _class = ice_findClassScoped(type->scoped(), "" TSRMLS_CC);
+    assert(_class);
 
     Slice::DataMemberList members = type->dataMembers();
     for(Slice::DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
@@ -973,16 +907,10 @@ StructMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     //
     // Compare class entries.
     //
-    zend_object* obj = static_cast<zend_object*>(zend_object_store_get_object(zv TSRMLS_CC));
-    if(!obj)
+    zend_class_entry* ce = Z_OBJCE_P(zv);
+    if(ce != _class)
     {
-        zend_error(E_ERROR, "object not found in object store");
-        return false;
-    }
-
-    if(obj->ce != _class)
-    {
-        zend_error(E_ERROR, "expected struct value of type %s but received %s", _class->name, obj->ce->name);
+        zend_error(E_ERROR, "expected struct value of type %s but received %s", _class->name, ce->name);
         return false;
     }
 
@@ -1033,10 +961,8 @@ StructMarshaler::destroy()
 //
 EnumMarshaler::EnumMarshaler(const Slice::EnumPtr& type TSRMLS_DC)
 {
-    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-    TypeMap::iterator p = typeMap->find(type->scoped());
-    assert(p != typeMap->end());
-    _class = p->second;
+    _class = ice_findClassScoped(type->scoped(), "" TSRMLS_CC);
+    assert(_class);
     _count = static_cast<long>(type->getEnumerators().size());
 }
 
@@ -1284,10 +1210,8 @@ NativeDictionaryMarshaler::destroy()
 ExceptionMarshaler::ExceptionMarshaler(const Slice::ExceptionPtr& ex TSRMLS_DC) :
     _ex(ex)
 {
-    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-    TypeMap::iterator p = typeMap->find(ex->scoped());
-    assert(p != typeMap->end());
-    _class = p->second;
+    _class = ice_findClassScoped(ex->scoped(), "" TSRMLS_CC);
+    assert(_class);
 }
 
 bool
@@ -1348,6 +1272,9 @@ ExceptionMarshaler::destroy()
 //
 IceObjectSliceMarshaler::IceObjectSliceMarshaler(TSRMLS_D)
 {
+    //
+    // Create a marshaler for the ice_facets member.
+    //
     Slice::UnitPtr unit = Slice_getUnit();
     Slice::TypePtr keyType = unit->builtin(Slice::Builtin::KindString);
     Slice::TypePtr valueType = unit->builtin(Slice::Builtin::KindObject);
@@ -1468,7 +1395,7 @@ ObjectSliceMarshaler::destroy()
 static void
 patchObject(void* addr, Ice::ObjectPtr& v)
 {
-    PatchInfo* info = static_cast<PatchInfo*>(addr);
+    PHPStream::PatchInfo* info = static_cast<PHPStream::PatchInfo*>(addr);
 
     if(v)
     {
@@ -1486,9 +1413,11 @@ patchObject(void* addr, Ice::ObjectPtr& v)
 //
 // ObjectWriter implementation.
 //
-ObjectWriter::ObjectWriter(zval* value, zend_class_entry* cls TSRMLS_DC) :
-    _value(value), _class(cls)
+ObjectWriter::ObjectWriter(zval* value, const Slice::SyntaxTreeBasePtr& type TSRMLS_DC) :
+    _value(value)
 {
+    _type = Slice::ClassDefPtr::dynamicCast(type);
+
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
 #endif
@@ -1504,41 +1433,58 @@ ObjectWriter::~ObjectWriter()
 void
 ObjectWriter::__write(IceInternal::BasicStream* os) const
 {
-    ice_class_entry* ce = (ice_class_entry*)_class;
+    MarshalerMap* marshalerMap = static_cast<MarshalerMap*>(ICE_G(marshalerMap));
 
-    while(ce)
+    Slice::ClassDefPtr def = _type;
+    while(true)
     {
-        //
-        // For class types, the marshaler member of ice_class_entry must contain an instance
-        // of ObjectSliceMarshaler or IceObjectSliceMarshaler. If the class entry does not
-        // have a value, we create one and cache it in the class entry.
-        //
+        string scoped = def->scoped();
         MarshalerPtr slice;
-        if(ce->marshaler)
+        MarshalerMap::iterator p = marshalerMap->find(scoped);
+        if(p != marshalerMap->end())
         {
-            slice = *(static_cast<MarshalerPtr*>(ce->marshaler));
+            slice = p->second;
         }
         else
         {
-            Slice::SyntaxTreeBasePtr* base = static_cast<Slice::SyntaxTreeBasePtr*>(ce->syntaxTreeBase);
-            Slice::ClassDefPtr def = Slice::ClassDefPtr::dynamicCast(*base);
-            if(def)
-            {
-                slice = new ObjectSliceMarshaler(ce->scoped, def->dataMembers() TSRMLS_CC);
-            }
-            else
-            {
-                slice = new IceObjectSliceMarshaler(TSRMLS_C); // Type must be ::Ice::Object
-            }
-            ce->marshaler = new MarshalerPtr(slice);
+            slice = new ObjectSliceMarshaler(scoped, def->dataMembers() TSRMLS_CC);
+            marshalerMap->insert(pair<string, MarshalerPtr>(scoped, slice));
         }
 
         if(!slice->marshal(_value, *os TSRMLS_CC))
         {
-            return;
+            throw AbortMarshaling();
         }
 
-        ce = (ice_class_entry*)ce->ce.parent;
+        Slice::ClassList bases = def->bases();
+        if(!bases.empty() && !bases.front()->isInterface())
+        {
+            def = bases.front();
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    //
+    // Marshal the Ice::Object slice.
+    //
+    MarshalerPtr slice;
+    MarshalerMap::iterator p = marshalerMap->find(Ice::Object::ice_staticId());
+    if(p != marshalerMap->end())
+    {
+        slice = p->second;
+    }
+    else
+    {
+        slice = new IceObjectSliceMarshaler(TSRMLS_C);
+        marshalerMap->insert(pair<string, MarshalerPtr>(Ice::Object::ice_staticId(), slice));
+    }
+
+    if(!slice->marshal(_value, *os TSRMLS_CC))
+    {
+        throw AbortMarshaling();
     }
 }
 
@@ -1551,8 +1497,8 @@ ObjectWriter::__read(IceInternal::BasicStream* is, bool rid)
 //
 // ObjectReader implementation.
 //
-ObjectReader::ObjectReader(zend_class_entry* cls TSRMLS_DC) :
-    _class(cls)
+ObjectReader::ObjectReader(zend_class_entry* cls, const Slice::ClassDefPtr& type TSRMLS_DC) :
+    _class(cls), _type(type)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
@@ -1584,49 +1530,81 @@ ObjectReader::__write(IceInternal::BasicStream* os) const
 void
 ObjectReader::__read(IceInternal::BasicStream* is, bool rid)
 {
-    ice_class_entry* ce = (ice_class_entry*)_class;
+    MarshalerMap* marshalerMap = static_cast<MarshalerMap*>(ICE_G(marshalerMap));
 
-    while(ce)
+    //
+    // Unmarshal the slices of a user-defined type.
+    //
+    if(_type)
     {
-        if(rid)
+        Slice::ClassDefPtr def = _type;
+        while(true)
         {
-            string myId;
-            is->readTypeId(myId);
-        }
-
-        //
-        // For class types, the marshaler member of ice_class_entry must contain an instance
-        // of ObjectSliceMarshaler or IceObjectSliceMarshaler. If the class entry does not
-        // have a value, we create one and cache it in the class entry.
-        //
-        MarshalerPtr slice;
-        if(ce->marshaler)
-        {
-            slice = *(static_cast<MarshalerPtr*>(ce->marshaler));
-        }
-        else
-        {
-            Slice::SyntaxTreeBasePtr* base = static_cast<Slice::SyntaxTreeBasePtr*>(ce->syntaxTreeBase);
-            Slice::ClassDefPtr def = Slice::ClassDefPtr::dynamicCast(*base);
-            if(def)
+            string scoped;
+            if(rid)
             {
-                slice = new ObjectSliceMarshaler(ce->scoped, def->dataMembers() TSRMLS_CC);
+                is->readTypeId(scoped);
             }
             else
             {
-                slice = new IceObjectSliceMarshaler(TSRMLS_C); // Type must be ::Ice::Object
+                scoped = def->scoped();
             }
-            ce->marshaler = new MarshalerPtr(slice);
+
+            MarshalerPtr slice;
+            MarshalerMap::iterator p = marshalerMap->find(scoped);
+            if(p != marshalerMap->end())
+            {
+                slice = p->second;
+            }
+            else
+            {
+                slice = new ObjectSliceMarshaler(scoped, def->dataMembers() TSRMLS_CC);
+                marshalerMap->insert(pair<string, MarshalerPtr>(scoped, slice));
+            }
+
+            if(!slice->unmarshal(_value, *is TSRMLS_CC))
+            {
+                throw AbortMarshaling();
+            }
+
+            rid = true;
+
+            Slice::ClassList bases = def->bases();
+            if(!bases.empty() && !bases.front()->isInterface())
+            {
+                def = bases.front();
+            }
+            else
+            {
+                break;
+            }
         }
+    }
 
-        if(!slice->unmarshal(_value, *is TSRMLS_CC))
-        {
-            return;
-        }
+    //
+    // Unmarshal the Ice::Object slice.
+    //
+    if(rid)
+    {
+        string myId;
+        is->readTypeId(myId);
+    }
 
-        ce = (ice_class_entry*)ce->ce.parent;
+    MarshalerPtr slice;
+    MarshalerMap::iterator p = marshalerMap->find(Ice::Object::ice_staticId());
+    if(p != marshalerMap->end())
+    {
+        slice = p->second;
+    }
+    else
+    {
+        slice = new IceObjectSliceMarshaler(TSRMLS_C);
+        marshalerMap->insert(pair<string, MarshalerPtr>(Ice::Object::ice_staticId(), slice));
+    }
 
-        rid = true;
+    if(!slice->unmarshal(_value, *is TSRMLS_CC))
+    {
+        throw AbortMarshaling();
     }
 }
 
@@ -1666,25 +1644,23 @@ ObjectReader::setValue(zend_class_entry* ce, zval* zv)
 //
 // ObjectMarshaler implementation.
 //
-ObjectMarshaler::ObjectMarshaler(const Slice::ClassDefPtr& type TSRMLS_DC)
+ObjectMarshaler::ObjectMarshaler(const Slice::ClassDefPtr& def TSRMLS_DC) :
+    _def(def)
 {
     //
     // Find the class entry for this type.
     //
-    string scoped;
-    if(type)
+    if(def)
     {
-        scoped = type->scoped();
+        string scoped = def->scoped();
+        _class = ice_findClassScoped(scoped, "" TSRMLS_CC);
     }
     else
     {
-        scoped = Ice::Object::ice_staticId();
+        _class = ice_findClass("Ice_ObjectImpl" TSRMLS_CC);
     }
 
-    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-    TypeMap::iterator p = typeMap->find(scoped);
-    assert(p != typeMap->end());
-    _class = p->second;
+    assert(_class);
 }
 
 bool
@@ -1705,35 +1681,28 @@ ObjectMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     }
 
     //
-    // Retrieve the Zend object from the object store.
-    //
-    zend_object* obj = static_cast<zend_object*>(zend_object_store_get_object(zv TSRMLS_CC));
-    if(!obj)
-    {
-        zend_error(E_ERROR, "object not found in object store");
-        return false;
-    }
-
-    //
     // Compare the class entries.
     //
-    if(obj->ce != _class)
+    zend_class_entry* ce = Z_OBJCE_P(zv);
+    if(ce != _class)
     {
         //
         // Check for inheritance.
         //
-        zend_class_entry* ce = obj->ce->parent;
-        while(ce && ce != _class)
+        zend_class_entry* parent = ce->parent;
+        while(parent && parent != _class)
         {
-            ce = ce->parent;
+            parent = parent->parent;
         }
 
-        if(ce == NULL)
+        if(parent == NULL)
         {
-            zend_error(E_ERROR, "expected object value of type %s but received %s", _class->name, obj->ce->name);
+            zend_error(E_ERROR, "expected object value of type %s but received %s", _class->name, ce->name);
             return false;
         }
     }
+
+    PHPStream* po = static_cast<PHPStream*>(&os);
 
     //
     // ObjectWriter is a subclass of Ice::Object that wraps a PHP object for marshaling. It is
@@ -1744,23 +1713,26 @@ ObjectMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
     Ice::ObjectPtr writer;
 
     //
+    // Retrieve the ClassDef for the actual type. This may fail if the type is Ice::Object.
+    //
+    Slice::ClassDefPtr def = Slice_getClassDef(ce->name);
+
+    //
     // Initialize the object map if necessary.
     //
-    ObjectMap* objectMap = static_cast<ObjectMap*>(ICE_G(objectMap));
-    if(objectMap == 0)
+    if(po->objectMap == 0)
     {
-        objectMap = new ObjectMap;
-        ICE_G(objectMap) = objectMap;
-        writer = new ObjectWriter(zv, obj->ce TSRMLS_CC);
-        objectMap->insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), writer));
+        po->objectMap = new PHPStream::ObjectMap;
+        writer = new ObjectWriter(zv, def TSRMLS_CC);
+        po->objectMap->insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), writer));
     }
     else
     {
-        ObjectMap::iterator p = objectMap->find(Z_OBJ_HANDLE_P(zv));
-        if(p == objectMap->end())
+        PHPStream::ObjectMap::iterator p = po->objectMap->find(Z_OBJ_HANDLE_P(zv));
+        if(p == po->objectMap->end())
         {
-            writer = new ObjectWriter(zv, obj->ce TSRMLS_CC);
-            objectMap->insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), writer));
+            writer = new ObjectWriter(zv, def TSRMLS_CC);
+            po->objectMap->insert(pair<unsigned int, Ice::ObjectPtr>(Z_OBJ_HANDLE_P(zv), writer));
         }
         else
         {
@@ -1779,23 +1751,23 @@ ObjectMarshaler::marshal(zval* zv, IceInternal::BasicStream& os TSRMLS_DC)
 bool
 ObjectMarshaler::unmarshal(zval* zv, IceInternal::BasicStream& is TSRMLS_DC)
 {
+    PHPStream* pi = static_cast<PHPStream*>(&is);
+
     //
     // Allocate patch information and store it in the patch list for later destruction.
     // We cannot simply destroy this in the patch callback function because it might
     // never be called if an exception occurs.
     //
-    PatchInfo* info = new PatchInfo;
+    PHPStream::PatchInfo* info = new PHPStream::PatchInfo;
     info->ce = _class;
     info->zv = zv;
 
-    PatchList* pl = static_cast<PatchList*>(ICE_G(patchList));
-    if(!pl)
+    if(!pi->patchList)
     {
-        pl = new PatchList;
-        ICE_G(patchList) = pl;
+        pi->patchList = new PHPStream::PatchInfoList;
     }
 
-    pl->push_back(info);
+    pi->patchList->push_back(info);
 
     //
     // Invoke read(), passing our patch callback function and the patch information. When
@@ -1815,8 +1787,7 @@ ObjectMarshaler::destroy()
 //
 // PHPObjectFactory implementation.
 //
-PHPObjectFactory::PHPObjectFactory(TypeMap& typeMap TSRMLS_DC) :
-    _typeMap(typeMap)
+PHPObjectFactory::PHPObjectFactory(TSRMLS_D)
 {
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
@@ -1826,16 +1797,30 @@ PHPObjectFactory::PHPObjectFactory(TypeMap& typeMap TSRMLS_DC) :
 Ice::ObjectPtr
 PHPObjectFactory::create(const string& scoped)
 {
-    //
-    // Lookup the type in the type map in order to obtain the class entry.
-    //
-    TypeMap::iterator p = _typeMap.find(scoped);
-    assert(p != _typeMap.end());
+    Ice::ObjectPtr result;
 
     //
-    // Return the object reader.
+    // Attempt to find a class entry for the given type id. If no class entry is
+    // found, or the class is abstract, then we return nil and the stream will skip
+    // the slice and try again.
     //
-    return new ObjectReader(p->second TSRMLS_CC);
+    zend_class_entry* cls = NULL;
+    Slice::ClassDefPtr def;
+    if(scoped == Ice::Object::ice_staticId())
+    {
+        cls = ice_findClass("Ice_ObjectImpl" TSRMLS_CC);
+    }
+    else
+    {
+        cls = ice_findClassScoped(scoped, "" TSRMLS_CC);
+    }
+    if(cls && (cls->ce_flags & ZEND_CE_ABSTRACT) == 0)
+    {
+        def = Slice_getClassDef(cls->name);
+        result = new ObjectReader(cls, def TSRMLS_CC);
+    }
+
+    return result;
 }
 
 void
@@ -1844,24 +1829,22 @@ PHPObjectFactory::destroy()
 }
 
 //
-// FactoryVisitor registers the same PHPObjectFactory instance for each non-abstract class.
+// PHPStream implementation.
 //
-FactoryVisitor::FactoryVisitor(const Ice::CommunicatorPtr& communicator, TypeMap& typeMap TSRMLS_DC) :
-    _communicator(communicator), _factory(new PHPObjectFactory(typeMap TSRMLS_CC))
+PHPStream::PHPStream(IceInternal::Instance* instance) :
+    IceInternal::BasicStream(instance), objectMap(0), patchList(0)
 {
-    //
-    // Intercept the creation of Ice::Object.
-    //
-    _communicator->addObjectFactory(_factory, Ice::Object::ice_staticId());
 }
 
-bool
-FactoryVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
+PHPStream::~PHPStream()
 {
-    if(!p->isAbstract())
+    delete objectMap;
+    if(patchList)
     {
-        _communicator->addObjectFactory(_factory, p->scoped());
+        for(PatchInfoList::iterator p = patchList->begin(); p != patchList->end(); ++p)
+        {
+            delete (*p);
+        }
+        delete patchList;
     }
-
-    return false;
 }

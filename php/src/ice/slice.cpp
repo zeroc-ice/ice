@@ -27,62 +27,44 @@ using namespace std;
 ZEND_EXTERN_MODULE_GLOBALS(ice)
 
 //
-// PHP has two types of classes: internal and user. Internal classes are intended to be
-// implemented by extensions, whereas user classes are generally created while parsing
-// class definitions in a script. The lifetimes of these two types of classes are different:
-// user classes are destroyed after each request, whereas internal classes survive until
-// module shutdown. PHP also requires the use of different allocation schemes for creating
-// internal and user classes, which has additional implications.
-//
 // In order for a script to have access to Slice types, the classes for those types must be
 // defined prior to script execution. We initially tried creating internal classes for
 // the Slice types, because we would only have to create them once, during module startup.
 // However, we eventually realized that these classes should not be internal classes - the
 // extension is not implementing these classes, it is simply defining them. In other words,
-// the extension needs to create classes just like PHP's parser does, as if the Slice
-// definitions had first been translated into PHP code, and then parsed by the interpreter.
+// the extension needs to create classes just like PHP's parser does.
 //
-// Therefore, we now create user classes from the Slice definitions for every request.
-// Note that we encountered problems when trying to create function prototypes for class or
-// interface operations, so we do not attempt that.
-//
-// For structs, classes and exceptions, we create "default properties" in the class
-// definition taht correspond to the type's data members. When a new instance of the class
-// is created, the interpreter copies these default properties to the new instance so that
-// the data members have default values. It's not technically necessary to do this, but it
-// does resolve a usability issue. Namely, the marshaling code expects all data members to
-// be defined. If we did not supply default properties, then the user would be required to
-// ensure that each data member was defined before attempting to marshal it.
+// To do this, we descend the Slice parse tree immediately after parsing and "generate" PHP
+// code into a string. Eventually, the script will invoke the Ice_compileSlice global function,
+// at which point we "compile" all of the code we generated previously by having the PHP
+// interpreter evaluate it.
 //
 
 //
-// PHPVisitor descends the Slice parse tree and creates PHP classes for certain Slice types.
+// CodeVisitor descends the Slice parse tree and generates PHP code for certain Slice types.
 //
-class PHPVisitor : public Slice::ParserVisitor
+class CodeVisitor : public Slice::ParserVisitor
 {
 public:
-    PHPVisitor(TypeMap&, int TSRMLS_DC);
+    CodeVisitor(ostream&);
 
     virtual void visitClassDecl(const Slice::ClassDeclPtr&);
     virtual bool visitClassDefStart(const Slice::ClassDefPtr&);
+    virtual void visitClassDefEnd(const Slice::ClassDefPtr&);
     virtual bool visitExceptionStart(const Slice::ExceptionPtr&);
+    virtual void visitExceptionEnd(const Slice::ExceptionPtr&);
     virtual bool visitStructStart(const Slice::StructPtr&);
+    virtual void visitStructEnd(const Slice::StructPtr&);
+    virtual void visitOperation(const Slice::OperationPtr&);
     virtual void visitDataMember(const Slice::DataMemberPtr&);
     virtual void visitDictionary(const Slice::DictionaryPtr&);
     virtual void visitEnum(const Slice::EnumPtr&);
     virtual void visitConst(const Slice::ConstPtr&);
 
 private:
-    zend_class_entry* findClass(const string&);
-    bool getDefaultValue(zval*, const Slice::TypePtr&);
+    string getTypeHint(const Slice::TypePtr&);
 
-    TypeMap& _typeMap;
-    int _module;
-#ifdef ZTS
-    TSRMLS_D;
-#endif
-    zend_class_entry* _iceObjectClass;
-    zend_class_entry* _currentClass;
+    ostream& _out;
 };
 
 //
@@ -90,6 +72,80 @@ private:
 // when the module is loaded.
 //
 static Slice::UnitPtr _unit;
+
+//
+// The code we've generated from the Slice definitions.
+//
+static string _code;
+
+//
+// This map associates a flattened type id to a ClassDef. It is populated by CodeVisitor.
+//
+static map<string, Slice::ClassDefPtr> _classDefs;
+
+//
+// This PHP code defines the core types we need. We supply a few of the common
+// local exception subclasses; all other local exceptions are mapped to
+// UnknownLocalException. We don't define Ice::Identity here because it's
+// possible the user will have included its definition (see Slice_init).
+//
+static const char* _coreTypes =
+    "define(\"ICE_STRING_VERSION\", \"1.1.0\");\n"
+    "define(\"ICE_INT_VERSION\", 10100);\n"
+    "\n"
+    "abstract class Ice_LocalException\n"
+    "{\n"
+    "}\n"
+    "\n"
+    "class Ice_UnknownException extends Ice_LocalException\n"
+    "{\n"
+    "    var $unknown;\n"
+    "}\n"
+    "\n"
+    "class Ice_UnknownLocalException extends Ice_UnknownException\n"
+    "{\n"
+    "}\n"
+    "\n"
+    "class Ice_UnknownUserException extends Ice_UnknownException\n"
+    "{\n"
+    "}\n"
+    "\n"
+    "class Ice_RequestFailedException extends Ice_LocalException\n"
+    "{\n"
+    "    var $id;\n"
+    "    var $facet;\n"
+    "    var $operation;\n"
+    "}\n"
+    "\n"
+    "class Ice_ObjectNotExistException extends Ice_RequestFailedException\n"
+    "{\n"
+    "}\n"
+    "\n"
+    "class Ice_FacetNotExistException extends Ice_RequestFailedException\n"
+    "{\n"
+    "}\n"
+    "\n"
+    "class Ice_OperationNotExistException extends Ice_RequestFailedException\n"
+    "{\n"
+    "}\n"
+    "\n"
+    "abstract class Ice_UserException\n"
+    "{\n"
+    "}\n"
+    "\n"
+    "interface Ice_LocalObject\n"
+    "{\n"
+    "}\n"
+    "\n"
+    "interface Ice_Object\n"
+    "{\n"
+    "}\n"
+    "\n"
+    "class Ice_ObjectImpl implements Ice_Object\n"
+    "{\n"
+    "    var $ice_facets = array();\n"
+    "}\n"
+;
 
 //
 // Parse the Slice files that define the types and operations available to a PHP script.
@@ -182,27 +238,6 @@ parseSlice(const string& argStr)
     return status;
 }
 
-static zend_class_entry*
-allocClass(const string& scoped, const Slice::SyntaxTreeBasePtr& p TSRMLS_DC)
-{
-    ice_class_entry* result = static_cast<ice_class_entry*>(emalloc(sizeof(ice_class_entry)));
-
-    string flat = ice_lowerCase(ice_flatten(scoped));
-
-    result->ce.type = ZEND_USER_CLASS;
-    result->ce.name = estrndup(const_cast<char*>(flat.c_str()), flat.length());
-    result->ce.name_length = flat.length();
-
-    zend_initialize_class_data((zend_class_entry*)result, 1 TSRMLS_CC);
-
-    result->ce.ce_flags |= ZEND_ACC_PUBLIC;
-    result->scoped = estrndup(const_cast<char*>(scoped.c_str()), scoped.length());
-    result->syntaxTreeBase = new Slice::SyntaxTreeBasePtr(p);
-    result->marshaler = 0;
-
-    return (zend_class_entry*)result;
-}
-
 bool
 Slice_init(TSRMLS_D)
 {
@@ -227,7 +262,7 @@ Slice_init(TSRMLS_D)
 
     //
     // Create the Slice definition for Ice::Identity if it doesn't exist. The PHP class will
-    // be created automatically by PHPVisitor.
+    // be created automatically by CodeVisitor.
     //
     string scoped = "::Ice::Identity";
     Slice::TypeList l = _unit->lookupTypeNoBuiltin(scoped, false);
@@ -254,6 +289,14 @@ Slice_init(TSRMLS_D)
         identity->createDataMember("name", str);
     }
 
+    //
+    // Descend the parse tree, create PHP code, and store it in the _code map.
+    //
+    ostringstream out;
+    CodeVisitor visitor(out);
+    _unit->visit(&visitor);
+    _code = out.str();
+
     return true;
 }
 
@@ -275,56 +318,6 @@ Slice_shutdown(TSRMLS_D)
             return false;
         }
     }
-
-    return true;
-}
-
-bool
-Slice_createClasses(int module TSRMLS_DC)
-{
-    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-    assert(typeMap->empty());
-
-    //
-    // Create the class Ice_Object.
-    //
-    {
-        string scoped = Ice::Object::ice_staticId();
-        Slice::TypePtr p = _unit->builtin(Slice::Builtin::KindObject);
-        zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
-        zval* facetMap;
-        MAKE_STD_ZVAL(facetMap);
-        array_init(facetMap);
-        zend_hash_add(&cls->default_properties, "ice_facets", sizeof("ice_facets"), (void**)&facetMap, sizeof(zval*),
-                      NULL);
-        zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*),
-                         NULL);
-        (*typeMap)[scoped] = cls;
-    }
-
-    //
-    // Descend the parse tree and create PHP classes.
-    //
-    PHPVisitor visitor(*typeMap, module TSRMLS_CC);
-    _unit->visit(&visitor);
-
-    return true;
-}
-
-bool
-Slice_destroyClasses(TSRMLS_D)
-{
-    TypeMap* typeMap = static_cast<TypeMap*>(ICE_G(typeMap));
-
-    for(TypeMap::iterator p = typeMap->begin(); p != typeMap->end(); ++p)
-    {
-        ice_class_entry* ice = (ice_class_entry*)p->second;
-        efree(ice->scoped);
-        delete static_cast<Slice::SyntaxTreeBasePtr*>(ice->syntaxTreeBase);
-        delete static_cast<MarshalerPtr*>(ice->marshaler);
-    }
-
-    typeMap->clear();
 
     return true;
 }
@@ -367,18 +360,38 @@ Slice_isNativeKey(const Slice::TypePtr& type)
     return false;
 }
 
-PHPVisitor::PHPVisitor(TypeMap& typeMap, int module TSRMLS_DC) :
-    _typeMap(typeMap), _module(module), _currentClass(0)
+Slice::ClassDefPtr
+Slice_getClassDef(const string& flat)
 {
-#ifdef ZTS
-    this->TSRMLS_C = TSRMLS_C;
-#endif
-    _iceObjectClass = findClass("::Ice::Object");
-    assert(_iceObjectClass);
+    return _classDefs[ice_lowerCase(flat)];
+}
+
+ZEND_FUNCTION(Ice_compileSlice)
+{
+    if(!ICE_G(coreTypesLoaded))
+    {
+        if(zend_eval_string(const_cast<char*>(_coreTypes), NULL, "__core" TSRMLS_CC) == FAILURE)
+        {
+            zend_error(E_ERROR, "unable to create core types");
+            return;
+        }
+        ICE_G(coreTypesLoaded) = 1;
+    }
+
+    if(zend_eval_string(const_cast<char*>(_code.c_str()), NULL, "__slice" TSRMLS_CC) == FAILURE)
+    {
+        zend_error(E_ERROR, "unable to create Slice types:\n%s", _code.c_str());
+        return;
+    }
+}
+
+CodeVisitor::CodeVisitor(ostream& out) :
+    _out(out)
+{
 }
 
 void
-PHPVisitor::visitClassDecl(const Slice::ClassDeclPtr& p)
+CodeVisitor::visitClassDecl(const Slice::ClassDeclPtr& p)
 {
     Slice::ClassDefPtr def = p->definition();
     if(!def)
@@ -390,136 +403,172 @@ PHPVisitor::visitClassDecl(const Slice::ClassDeclPtr& p)
 }
 
 bool
-PHPVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
+CodeVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
 {
-    //
-    // Collect the base class and interfaces.
-    //
-    zend_class_entry* parent = NULL;
-    zend_class_entry** interfaces = NULL;
-    zend_uint numInterfaces = 0;
+    string flat = ice_flatten(p->scoped());
+
+    _classDefs[ice_lowerCase(flat)] = p;
+
     Slice::ClassList bases = p->bases();
-    if(!bases.empty())
-    {
-        if(!bases.front()->isInterface())
-        {
-            parent = findClass(bases.front()->scoped());
-            if(parent == NULL)
-            {
-                return false;
-            }
-            bases.pop_front();
-            assert((parent->ce_flags & ZEND_ACC_INTERFACE) == 0);
-        }
 
-        if(!bases.empty())
-        {
-            interfaces = static_cast<zend_class_entry**>(emalloc(bases.size() * sizeof(zend_class_entry*)));
-            for(Slice::ClassList::iterator q = bases.begin(); q != bases.end(); ++q, ++numInterfaces)
-            {
-                interfaces[numInterfaces] = findClass((*q)->scoped());
-                if(interfaces[numInterfaces] == NULL)
-                {
-                    return false;
-                }
-                assert(interfaces[numInterfaces]->ce_flags & ZEND_ACC_INTERFACE);
-            }
-        }
-    }
-
-    if(parent == NULL && !p->isInterface())
-    {
-        parent = _iceObjectClass;
-    }
-
-    string scoped = p->scoped();
-    zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
     if(p->isInterface())
     {
-        cls->ce_flags |= ZEND_ACC_INTERFACE;
-    }
-    else if(p->isAbstract())
-    {
-        cls->ce_flags |= ZEND_ACC_ABSTRACT;
-    }
-    if(parent)
-    {
-        zend_do_inheritance(cls, parent);
-    }
-    cls->interfaces = interfaces;
-    cls->num_interfaces = numInterfaces;
-    for(zend_uint i = 0; i < numInterfaces; ++i)
-    {
-        zend_do_implement_interface(cls, interfaces[i]);
-    }
-    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
-    _typeMap[scoped] = cls;
-    _currentClass = cls;
-
-    return true;
-}
-
-bool
-PHPVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
-{
-    //
-    // Get the class entry for the base exception (if any).
-    //
-    zend_class_entry* parent = NULL;
-    Slice::ExceptionPtr base = p->base();
-    if(base)
-    {
-        parent = findClass(base->scoped());
-        if(parent == NULL)
+        _out << "interface " << flat << " implements ";
+        if(!bases.empty())
         {
-            return false;
+            for(Slice::ClassList::iterator q = bases.begin(); q != bases.end(); ++q)
+            {
+                if(q != bases.begin())
+                {
+                    _out << ",";
+                }
+                _out << ice_flatten((*q)->scoped());
+            }
+        }
+        else
+        {
+            _out << "Ice_Object";
+        }
+    }
+    else
+    {
+        if(p->isAbstract())
+        {
+            _out << "abstract ";
+        }
+        _out << "class " << flat << " extends ";
+        if(!bases.empty() && !bases.front()->isInterface())
+        {
+            _out << ice_flatten(bases.front()->scoped());
+            bases.pop_front();
+        }
+        else
+        {
+            _out << "Ice_ObjectImpl";
+        }
+        if(!bases.empty())
+        {
+            _out << " implements ";
+            for(Slice::ClassList::iterator q = bases.begin(); q != bases.end(); ++q)
+            {
+                if(q != bases.begin())
+                {
+                    _out << ",";
+                }
+                _out << ice_flatten((*q)->scoped());
+            }
         }
     }
 
-    string scoped = p->scoped();
-    zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
-    if(parent)
-    {
-        zend_do_inheritance(cls, parent);
-    }
-    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
-    _typeMap[scoped] = cls;
-    _currentClass = cls;
+    _out << endl << '{' << endl;
 
     return true;
+}
+
+void
+CodeVisitor::visitClassDefEnd(const Slice::ClassDefPtr& p)
+{
+    _out << '}' << endl;
 }
 
 bool
-PHPVisitor::visitStructStart(const Slice::StructPtr& p)
+CodeVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
 {
-    string scoped = p->scoped();
+    string flat = ice_flatten(p->scoped());
+    Slice::ExceptionPtr base = p->base();
 
-    zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
-    cls->ce_flags |= ZEND_ACC_FINAL;
-    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
-    _typeMap[scoped] = cls;
-    _currentClass = cls;
+    _out << "class " << flat << " extends ";
+    if(!base)
+    {
+        if(p->isLocal())
+        {
+            _out << "Ice_LocalException";
+        }
+        else
+        {
+            _out << "Ice_UserException";
+        }
+    }
+    else
+    {
+        _out << ice_flatten(base->scoped());
+    }
+
+    _out << endl << '{' << endl;
 
     return true;
 }
 
 void
-PHPVisitor::visitDataMember(const Slice::DataMemberPtr& p)
+CodeVisitor::visitExceptionEnd(const Slice::ExceptionPtr& p)
 {
-    assert(_currentClass);
+    _out << '}' << endl;
+}
 
-    zval* zv;
-    MAKE_STD_ZVAL(zv);
-    if(getDefaultValue(zv, p->type()))
-    {
-        string name = ice_fixIdent(p->name());
-        zend_hash_add(&_currentClass->default_properties, const_cast<char*>(name.c_str()), name.length() + 1,
-                      (void**)&zv, sizeof(zval*), NULL);
-    }
+bool
+CodeVisitor::visitStructStart(const Slice::StructPtr& p)
+{
+    string flat = ice_flatten(p->scoped());
+
+    _out << "class " << ice_flatten(p->scoped()) << endl;
+    _out << '{' << endl;
+
+    return true;
 }
 
 void
-PHPVisitor::visitDictionary(const Slice::DictionaryPtr& p)
+CodeVisitor::visitStructEnd(const Slice::StructPtr& p)
+{
+    _out << '}' << endl;
+}
+
+void
+CodeVisitor::visitOperation(const Slice::OperationPtr& p)
+{
+    string name = ice_fixIdent(p->name());
+
+    Slice::ParamDeclList params = p->parameters();
+
+    Slice::ClassDefPtr cl = Slice::ClassDefPtr::dynamicCast(p->container());
+    assert(cl);
+
+    if(!cl->isInterface())
+    {
+        _out << "abstract public ";
+    }
+    _out << "function " << name << '(';
+    for(Slice::ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
+    {
+        Slice::ParamDeclPtr param = *q;
+        if(q != params.begin())
+        {
+            _out << ", ";
+        }
+        if(param->isOutParam())
+        {
+            _out << '&';
+        }
+        else
+        {
+            string hint = getTypeHint(param->type());
+            if(!hint.empty())
+            {
+                _out << hint << ' ';
+            }
+        }
+        _out << '$' << ice_fixIdent(param->name());
+    }
+    _out << ");" << endl;
+}
+
+void
+CodeVisitor::visitDataMember(const Slice::DataMemberPtr& p)
+{
+    _out << "var $" << ice_fixIdent(p->name()) << ';' << endl;
+}
+
+void
+CodeVisitor::visitDictionary(const Slice::DictionaryPtr& p)
 {
     Slice::TypePtr keyType = p->keyType();
     if(!Slice_isNativeKey(keyType))
@@ -533,15 +582,12 @@ PHPVisitor::visitDictionary(const Slice::DictionaryPtr& p)
 }
 
 void
-PHPVisitor::visitEnum(const Slice::EnumPtr& p)
+CodeVisitor::visitEnum(const Slice::EnumPtr& p)
 {
-    string scoped = p->scoped();
+    string flat = ice_flatten(p->scoped());
 
-    //
-    // Enum values are represented as integers, however we define a class in order
-    // to hold constants that symbolically identify the enumerators.
-    //
-    zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
+    _out << "class " << flat << endl;
+    _out << '{' << endl;
 
     //
     // Create a class constant for each enumerator.
@@ -552,74 +598,104 @@ PHPVisitor::visitEnum(const Slice::EnumPtr& p)
     for(q = l.begin(), i = 0; q != l.end(); ++q, ++i)
     {
         string name = ice_fixIdent((*q)->name());
-        zval* en;
-        MAKE_STD_ZVAL(en);
-        ZVAL_LONG(en, i);
-        zend_hash_update(&cls->constants_table, const_cast<char*>(name.c_str()), name.length() + 1, (void**)&en,
-                         sizeof(zval*), NULL);
+        _out << "const " << ice_fixIdent((*q)->name()) << " = " << i << ';' << endl;
     }
-    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
-    _typeMap[scoped] = cls;
+
+    _out << '}' << endl;
 }
 
 void
-PHPVisitor::visitConst(const Slice::ConstPtr& p)
+CodeVisitor::visitConst(const Slice::ConstPtr& p)
 {
-    string name = ice_flatten(p->scoped()); // Don't convert to lower case; constant names are case sensitive.
-    char* cname = const_cast<char*>(name.c_str());
-    uint cnameLen = name.length() + 1;
-    string value = p->value();
-    const int flags = CONST_CS; // Case sensitive
-
+    string flat = ice_flatten(p->scoped());
     Slice::TypePtr type = p->type();
+    string value = p->value();
+
+    _out << "define(\"" << flat << "\", ";
+
     Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
     if(b)
     {
         switch(b->kind())
         {
         case Slice::Builtin::KindBool:
-        {
-            long l = (value == "true" ? 1 : 0);
-            zend_register_long_constant(cname, cnameLen, l, flags, _module TSRMLS_CC);
-            break;
-        }
-
         case Slice::Builtin::KindByte:
         case Slice::Builtin::KindShort:
         case Slice::Builtin::KindInt:
+        case Slice::Builtin::KindFloat:
+        case Slice::Builtin::KindDouble:
+            _out << value;
+            break;
+
         case Slice::Builtin::KindLong:
         {
-            Ice::Long l;
+            IceUtil::Int64 l;
             string::size_type pos;
             IceUtil::stringToInt64(value, l, pos);
             //
             // The platform's 'long' type may not be 64 bits, so we store 64-bit
             // values as a string.
             //
-            if(sizeof(Ice::Long) > sizeof(long) && (l < LONG_MIN || l > LONG_MAX))
+            if(sizeof(IceUtil::Int64) > sizeof(long) && (l < LONG_MIN || l > LONG_MAX))
             {
-                char* cvalue = estrndup(const_cast<char*>(value.c_str()), value.length());
-                zend_register_stringl_constant(cname, cnameLen, cvalue, value.length(), flags, _module TSRMLS_CC);
+                _out << "\"" << value << "\";";
             }
             else
             {
-                zend_register_long_constant(cname, cnameLen, static_cast<long>(l), flags, _module TSRMLS_CC);
+                _out << value;
             }
             break;
         }
 
         case Slice::Builtin::KindString:
         {
-            char* cvalue = estrndup(const_cast<char*>(value.c_str()), value.length());
-            zend_register_stringl_constant(cname, cnameLen, cvalue, value.length(), flags, _module TSRMLS_CC);
-            break;
-        }
+            //
+            // Expand strings into the basic source character set. We can't use isalpha() and the like
+            // here because they are sensitive to the current locale.
+            //
+            static const string basicSourceChars = "abcdefghijklmnopqrstuvwxyz"
+                                                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                                                   "0123456789"
+                                                   "_{}[]#()<>%:;,?*+=/^&|~!=,\\' \t";
+            static const set<char> charSet(basicSourceChars.begin(), basicSourceChars.end());
 
-        case Slice::Builtin::KindFloat:
-        case Slice::Builtin::KindDouble:
-        {
-            double d = atof(value.c_str());
-            zend_register_double_constant(cname, cnameLen, d, flags, _module TSRMLS_CC);
+            _out << "\"";                                        // Opening "
+
+            ios_base::fmtflags originalFlags = _out.flags();        // Save stream state
+            streamsize originalWidth = _out.width();
+            ostream::char_type originalFill = _out.fill();
+
+            for(string::const_iterator c = value.begin(); c != value.end(); ++c)
+            {
+                if(*c == '$')
+                {
+                    _out << "\\$";
+                }
+                else if(*c == '"')
+                {
+                    _out << "\\\"";
+                }
+                else if(charSet.find(*c) == charSet.end())
+                {
+                    unsigned char uc = *c;                    // char may be signed, so make it positive
+                    _out << "\\";                                // Print as octal if not in basic source character set
+                    _out.flags(ios_base::oct);
+                    _out.width(3);
+                    _out.fill('0');
+                    _out << static_cast<unsigned>(uc);
+                }
+                else
+                {
+                    _out << *c;                                  // Print normally if in basic source character set
+                }
+            }
+
+            _out.fill(originalFill);                             // Restore stream state
+            _out.width(originalWidth);
+            _out.flags(originalFlags);
+
+            _out << "\"";                                        // Closing "
+
             break;
         }
 
@@ -629,107 +705,44 @@ PHPVisitor::visitConst(const Slice::ConstPtr& p)
             assert(false);
         }
 
+        _out << ");" << endl;
         return;
     }
 
     Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
     if(en)
     {
+        string::size_type colon = value.rfind(':');
+        if(colon != string::npos)
+        {
+            value = value.substr(colon + 1);
+        }
         Slice::EnumeratorList l = en->getEnumerators();
         Slice::EnumeratorList::iterator q;
-        long i;
-        for(q = l.begin(), i = 0; q != l.end(); ++q, ++i)
+        for(q = l.begin(); q != l.end(); ++q)
         {
             if((*q)->name() == value)
             {
-                zend_register_long_constant(cname, cnameLen, i, flags, _module TSRMLS_CC);
+                _out << ice_flatten(en->scoped()) << "::" << ice_fixIdent(value) << ");" << endl;
                 return;
             }
         }
         assert(false); // No match found.
     }
-
-    //
-    // No other constant types are allowed.
-    //
-    assert(false);
 }
 
-zend_class_entry*
-PHPVisitor::findClass(const string& scoped)
+string
+CodeVisitor::getTypeHint(const Slice::TypePtr& type)
 {
-    zend_class_entry* result = NULL;
-
-    TypeMap::iterator p = _typeMap.find(scoped);
-    if(p != _typeMap.end())
+    //
+    // Currently, the Zend engine does not allow an argument with a type hint to have
+    // a value of null, therefore we can only use type hints for structs.
+    //
+    Slice::StructPtr st = Slice::StructPtr::dynamicCast(type);
+    if(st)
     {
-        result = static_cast<zend_class_entry*>(p->second);
-    }
-    else
-    {
-        zend_error(E_ERROR, "no class found for type %s", scoped.c_str());
+        return ice_flatten(st->scoped());
     }
 
-    return result;
-}
-
-bool
-PHPVisitor::getDefaultValue(zval* zv, const Slice::TypePtr& type)
-{
-    Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
-    if(b)
-    {
-        switch(b->kind())
-        {
-        case Slice::Builtin::KindBool:
-            ZVAL_FALSE(zv);
-            return true;
-
-        case Slice::Builtin::KindByte:
-        case Slice::Builtin::KindShort:
-        case Slice::Builtin::KindInt:
-        case Slice::Builtin::KindLong:
-            ZVAL_LONG(zv, 0);
-            return true;
-
-        case Slice::Builtin::KindString:
-            ZVAL_EMPTY_STRING(zv);
-            return true;
-
-        case Slice::Builtin::KindFloat:
-        case Slice::Builtin::KindDouble:
-            ZVAL_DOUBLE(zv, 0.0);
-            return true;
-
-        case Slice::Builtin::KindObject:
-        case Slice::Builtin::KindObjectProxy:
-        case Slice::Builtin::KindLocalObject:
-            ZVAL_NULL(zv);
-            return true;
-        }
-    }
-
-    Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
-    if(en)
-    {
-        ZVAL_LONG(zv, 0);
-        return true;
-    }
-
-    Slice::SequencePtr seq = Slice::SequencePtr::dynamicCast(type);
-    if(seq)
-    {
-        array_init(zv);
-        return true;
-    }
-
-    Slice::DictionaryPtr dict = Slice::DictionaryPtr::dynamicCast(type);
-    if(dict)
-    {
-        array_init(zv);
-        return true;
-    }
-
-    ZVAL_NULL(zv);
-    return true;
+    return string();
 }

@@ -17,6 +17,7 @@
 #endif
 
 #include "ice_util.h"
+#include "ice_identity.h"
 #include <algorithm>
 #include <ctype.h>
 
@@ -125,6 +126,194 @@ ice_getObject(zval* zv TSRMLS_DC)
     }
 
     return obj;
+}
+
+void
+ice_throwException(const IceUtil::Exception& ex TSRMLS_DC)
+{
+    try
+    {
+        ex.ice_throw();
+    }
+    catch(const Ice::UnknownException& e)
+    {
+        string name = e.ice_name();
+        zend_class_entry* cls = ice_findClassScoped(name, "" TSRMLS_CC);
+        if(!cls)
+        {
+            zend_error(E_ERROR, "unable to find class %s", name.c_str());
+            return;
+        }
+
+        zval* zex;
+        MAKE_STD_ZVAL(zex);
+        if(object_init_ex(zex, cls) != SUCCESS)
+        {
+            zend_error(E_ERROR, "unable to create exception %s", cls->name);
+            return;
+        }
+
+        //
+        // Set the unknown member.
+        //
+        zval* unknown;
+        MAKE_STD_ZVAL(unknown);
+        ZVAL_STRINGL(unknown, const_cast<char*>(e.unknown.c_str()), e.unknown.length(), 1);
+        if(add_property_zval(zex, "unknown", unknown) == FAILURE)
+        {
+            zend_error(E_ERROR, "unable to set unknown member of %s", cls->name);
+            return;
+        }
+        zval_ptr_dtor(&unknown); // add_property_zval increments the refcount
+
+        //
+        // Throw the exception.
+        //
+        EG(exception) = zex;
+    }
+    catch(const Ice::RequestFailedException& e)
+    {
+        string name = e.ice_name();
+        zend_class_entry* cls = ice_findClassScoped(name, "" TSRMLS_CC);
+        if(!cls)
+        {
+            zend_error(E_ERROR, "unable to find class %s", name.c_str());
+            return;
+        }
+
+        zval* zex;
+        MAKE_STD_ZVAL(zex);
+        if(object_init_ex(zex, cls) != SUCCESS)
+        {
+            zend_error(E_ERROR, "unable to create exception %s", cls->name);
+            return;
+        }
+
+        //
+        // Set the id member.
+        //
+        zval* id;
+        MAKE_STD_ZVAL(id);
+        if(!Ice_Identity_create(id, e.id TSRMLS_CC))
+        {
+            return;
+        }
+        if(add_property_zval(zex, "id", id) == FAILURE)
+        {
+            zend_error(E_ERROR, "unable to set id member of %s", cls->name);
+            return;
+        }
+        zval_ptr_dtor(&id); // add_property_zval increments the refcount
+
+        //
+        // Set the facet member.
+        //
+        zval* facet;
+        MAKE_STD_ZVAL(facet);
+        array_init(facet);
+        Ice::Int i = 0;
+        for(Ice::FacetPath::const_iterator p = e.facet.begin(); p != e.facet.end(); ++p, ++i)
+        {
+            string f = *p;
+            zval* val;
+            MAKE_STD_ZVAL(val);
+            ZVAL_STRINGL(val, const_cast<char*>(f.c_str()), f.length(), 1);
+            add_index_zval(facet, i, val);
+        }
+        if(add_property_zval(zex, "facet", facet) == FAILURE)
+        {
+            zend_error(E_ERROR, "unable to set facet member of %s", cls->name);
+            return;
+        }
+        zval_ptr_dtor(&facet); // add_property_zval increments the refcount
+
+        //
+        // Set the operation member.
+        //
+        zval* op;
+        MAKE_STD_ZVAL(op);
+        ZVAL_STRINGL(op, const_cast<char*>(e.operation.c_str()), e.operation.length(), 1);
+        if(add_property_zval(zex, "operation", op) == FAILURE)
+        {
+            zend_error(E_ERROR, "unable to set operation member of %s", cls->name);
+            return;
+        }
+        zval_ptr_dtor(&op); // add_property_zval increments the refcount
+
+        //
+        // Throw the exception.
+        //
+        EG(exception) = zex;
+    }
+    catch(const Ice::LocalException& e)
+    {
+        //
+        // All other local exceptions are raised as UnknownLocalException.
+        //
+        zend_class_entry* cls = ice_findClass("Ice_UnknownLocalException" TSRMLS_CC);
+        if(!cls)
+        {
+            zend_error(E_ERROR, "unable to find class Ice_UnknownLocalException");
+            return;
+        }
+
+        zval* zex;
+        MAKE_STD_ZVAL(zex);
+        if(object_init_ex(zex, cls) != SUCCESS)
+        {
+            zend_error(E_ERROR, "unable to create exception %s", cls->name);
+            return;
+        }
+
+        //
+        // Set the unknown member.
+        //
+        zval* unknown;
+        MAKE_STD_ZVAL(unknown);
+        ostringstream ostr;
+        e.ice_print(ostr);
+        string str = ostr.str();
+        ZVAL_STRINGL(unknown, const_cast<char*>(str.c_str()), str.length(), 1);
+        if(add_property_zval(zex, "unknown", unknown) == FAILURE)
+        {
+            zend_error(E_ERROR, "unable to set unknown member of %s", cls->name);
+            return;
+        }
+        zval_ptr_dtor(&unknown); // add_property_zval increments the refcount
+
+        //
+        // Throw the exception.
+        //
+        EG(exception) = zex;
+    }
+    catch(const Ice::UserException&)
+    {
+        assert(false);
+    }
+    catch(const IceUtil::Exception& e)
+    {
+        ostringstream ostr;
+        e.ice_print(ostr);
+        zend_error(E_ERROR, "exception: %s", ostr.str().c_str());
+    }
+}
+
+zend_class_entry*
+ice_findClass(const string& flat TSRMLS_DC)
+{
+    zend_class_entry** result;
+    string lower = ice_lowerCase(flat);
+    if(zend_lookup_class(const_cast<char*>(lower.c_str()), lower.length(), &result TSRMLS_CC) == FAILURE)
+    {
+        return 0;
+    }
+    return *result;
+}
+
+zend_class_entry*
+ice_findClassScoped(const string& scoped, const string& suffix TSRMLS_DC)
+{
+    return ice_findClass(ice_flatten(scoped) + suffix TSRMLS_CC);
 }
 
 bool

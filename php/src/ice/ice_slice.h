@@ -20,9 +20,19 @@
 
 bool Slice_init(TSRMLS_D);
 bool Slice_shutdown(TSRMLS_D);
-bool Slice_createClasses(int TSRMLS_DC);
-bool Slice_destroyClasses(TSRMLS_D);
 Slice::UnitPtr Slice_getUnit();
 bool Slice_isNativeKey(const Slice::TypePtr&);
+Slice::ClassDefPtr Slice_getClassDef(const std::string&);
+
+//
+// Global functions.
+//
+extern "C"
+{
+ZEND_FUNCTION(Ice_compileSlice);
+}
+
+#define ICE_PHP_SLICE_FUNCTIONS \
+    ZEND_FE(Ice_compileSlice, NULL)
 
 #endif

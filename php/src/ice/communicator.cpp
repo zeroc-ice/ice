@@ -19,7 +19,6 @@
 #include "ice_communicator.h"
 #include "ice_proxy.h"
 #include "ice_marshal.h"
-#include "ice_exception.h"
 #include "ice_util.h"
 
 using namespace std;
@@ -179,7 +178,7 @@ ZEND_FUNCTION(Ice_Communicator_stringToProxy)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 
@@ -224,7 +223,7 @@ ZEND_FUNCTION(Ice_Communicator_proxyToString)
     }
     catch(const IceUtil::Exception& ex)
     {
-        ice_throw_exception(ex TSRMLS_CC);
+        ice_throwException(ex TSRMLS_CC);
         RETURN_EMPTY_STRING();
     }
 }
@@ -306,7 +305,7 @@ handleGetMethod(zval* zv, char* method, int len TSRMLS_DC)
             }
             catch(const IceUtil::Exception& ex)
             {
-                ice_throw_exception(ex TSRMLS_CC);
+                ice_throwException(ex TSRMLS_CC);
             }
         }
     }
@@ -336,7 +335,7 @@ initCommunicator(ice_object* obj TSRMLS_DC)
     obj->ptr = new Ice::CommunicatorPtr(communicator);
 
     //
-    // Register factories in the communicator.
+    // Allow the marshaling code to prepare the communicator.
     //
-    Marshal_registerFactories(communicator TSRMLS_CC);
+    Marshal_initCommunicator(communicator TSRMLS_CC);
 }

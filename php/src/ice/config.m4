@@ -39,7 +39,6 @@ if test "$PHP_ICE" != "no"; then
 
   sources="ice.cpp \
            communicator.cpp \
-           exception.cpp \
            identity.cpp \
            marshal.cpp \
            proxy.cpp \

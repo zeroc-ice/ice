@@ -31,23 +31,4 @@ extern "C"
 
 #include "php_ice.h"
 
-//
-// Extension of zend_class_entry that stores some extra data.
-// This only works for user class entries, not internal class
-// entries, because Zend makes a private copy of internal class
-// entries.
-//
-struct ice_class_entry
-{
-    zend_class_entry ce;
-    char* scoped;
-    void* syntaxTreeBase;
-    void* marshaler;
-};
-
-//
-// Map from scoped name to zend_class_entry*.
-//
-typedef std::map<std::string, zend_class_entry*> TypeMap;
-
 #endif

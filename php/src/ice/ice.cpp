@@ -19,8 +19,8 @@
 #include "ice_communicator.h"
 #include "ice_identity.h"
 #include "ice_proxy.h"
-#include "ice_exception.h"
 #include "ice_slice.h"
+#include "ice_marshal.h"
 #include "ice_util.h"
 
 using namespace std;
@@ -28,14 +28,14 @@ using namespace std;
 ZEND_DECLARE_MODULE_GLOBALS(ice)
 
 //
-// Function entries for all objects.
+// Entries for all object methods and global functions.
 //
 function_entry ice_functions[] =
 {
     ICE_PHP_COMMUNICATOR_FUNCTIONS
     ICE_PHP_IDENTITY_FUNCTIONS
     ICE_PHP_PROXY_FUNCTIONS
-    ICE_PHP_LOCAL_EXCEPTION_FUNCTIONS
+    ICE_PHP_SLICE_FUNCTIONS
     {NULL, NULL, NULL}
 };
 
@@ -80,11 +80,6 @@ ZEND_MINIT_FUNCTION(ice)
         return FAILURE;
     }
 
-    if(!Ice_LocalException_init(TSRMLS_C))
-    {
-        return FAILURE;
-    }
-
     if(!Slice_init(TSRMLS_C))
     {
         return FAILURE;
@@ -110,20 +105,15 @@ ZEND_MSHUTDOWN_FUNCTION(ice)
 ZEND_RINIT_FUNCTION(ice)
 {
     ICE_G(communicator) = NULL;
-    ICE_G(typeMap) = new TypeMap;
+    ICE_G(marshalerMap) = new MarshalerMap;
+    ICE_G(coreTypesLoaded) = 0;
 
     //
-    // Create a new communicator for each request, storing it in the global variable "ICE".
+    // Create the global variable "ICE" to hold the communicator for this request. The
+    // communicator won't actually be created until the script uses this global variable
+    // for the first time.
     //
     if(!Ice_Communicator_create(TSRMLS_C))
-    {
-        return FAILURE;
-    }
-
-    //
-    // Define the PHP classes for Slice types.
-    //
-    if(!Slice_createClasses(module_number TSRMLS_CC))
     {
         return FAILURE;
     }
@@ -133,9 +123,7 @@ ZEND_RINIT_FUNCTION(ice)
 
 ZEND_RSHUTDOWN_FUNCTION(ice)
 {
-    Slice_destroyClasses(TSRMLS_C);
-
-    delete static_cast<TypeMap*>(ICE_G(typeMap));
+    delete static_cast<MarshalerMap*>(ICE_G(marshalerMap));
 
     return SUCCESS;
 }
