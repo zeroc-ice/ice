@@ -21,14 +21,8 @@ class HelloI : public Hello
 {
 public:
 
-    HelloI(const Ice::CommunicatorPtr&);
-
     virtual void sayHello(const Ice::Current&) const;
     virtual void shutdown(const Ice::Current&);
-
-private:
-
-    Ice::CommunicatorPtr _communicator;
 };
 
 #endif
