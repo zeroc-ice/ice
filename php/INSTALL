@@ -105,6 +105,9 @@ the file <phpdir>/Makefile and make the following changes:
 - If the command-line interpreter is being built, search for the
   definition of the BUILD_CLI variable and change "$(CC)" to "$(CXX)".
 
+- If the CGI interpreter is being built, search for the definition of
+  the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
+
 - If a Web server module is being built, search for the line beginning
   with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
   well as in the rule for "libs/libphp5.bundle" below.
