@@ -790,7 +790,6 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 		// compress == 1: Compress if necessary.
 		// compress >= 2: Always compress.
 		//
-		cerr << "compress = " << compress << endl;
 		if(compress > 0)
 		{
 		    if(compress >= 2 && cb && !cb->compress(relPath))
