@@ -23,7 +23,7 @@ class TwowaysAMI
         }
     }
 
-    static class Callback
+    private static class Callback
     {
 	Callback()
 	{
@@ -64,7 +64,7 @@ class TwowaysAMI
 	private boolean _called;
     };
 
-    static class AMI_MyClass_opVoidI extends Test.AMI_MyClass_opVoid
+    private static class AMI_MyClass_opVoidI extends Test.AMI_MyClass_opVoid
     {
 	public void
 	ice_response()
@@ -87,7 +87,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opByteI extends Test.AMI_MyClass_opByte
+    private static class AMI_MyClass_opByteI extends Test.AMI_MyClass_opByte
     {
 	public void
 	ice_response(byte r, byte b)
@@ -112,7 +112,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opBoolI extends Test.AMI_MyClass_opBool
+    private static class AMI_MyClass_opBoolI extends Test.AMI_MyClass_opBool
     {
 	public void
 	ice_response(boolean r, boolean b)
@@ -137,7 +137,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opShortIntLongI extends Test.AMI_MyClass_opShortIntLong
+    private static class AMI_MyClass_opShortIntLongI extends Test.AMI_MyClass_opShortIntLong
     {
 	public void
 	ice_response(long r, short s, int i, long l)
@@ -164,7 +164,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opFloatDoubleI extends Test.AMI_MyClass_opFloatDouble
+    private static class AMI_MyClass_opFloatDoubleI extends Test.AMI_MyClass_opFloatDouble
     {
 	public void
 	ice_response(double r, float f, double d)
@@ -190,7 +190,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opStringI extends Test.AMI_MyClass_opString
+    private static class AMI_MyClass_opStringI extends Test.AMI_MyClass_opString
     {
 	public void
 	ice_response(String r, String s)
@@ -215,7 +215,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opMyEnumI extends Test.AMI_MyClass_opMyEnum
+    private static class AMI_MyClass_opMyEnumI extends Test.AMI_MyClass_opMyEnum
     {
 	public void
 	ice_response(Test.MyEnum r, Test.MyEnum e)
@@ -240,7 +240,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opMyClassI extends Test.AMI_MyClass_opMyClass
+    private static class AMI_MyClass_opMyClassI extends Test.AMI_MyClass_opMyClass
     {
 	public void
 	ice_response(Test.MyClassPrx r, Test.MyClassPrx c1, Test.MyClassPrx c2)
@@ -276,7 +276,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opStructI extends Test.AMI_MyClass_opStruct
+    private static class AMI_MyClass_opStructI extends Test.AMI_MyClass_opStruct
     {
 	public void
 	ice_response(Test.Structure rso, Test.Structure so)
@@ -305,7 +305,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opByteSI extends Test.AMI_MyClass_opByteS
+    private static class AMI_MyClass_opByteSI extends Test.AMI_MyClass_opByteS
     {
 	public void
 	ice_response(byte[] rso, byte[] bso)
@@ -342,7 +342,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opBoolSI extends Test.AMI_MyClass_opBoolS
+    private static class AMI_MyClass_opBoolSI extends Test.AMI_MyClass_opBoolS
     {
 	public void
 	ice_response(boolean[] rso, boolean[] bso)
@@ -374,7 +374,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opShortIntLongSI extends Test.AMI_MyClass_opShortIntLongS
+    private static class AMI_MyClass_opShortIntLongSI extends Test.AMI_MyClass_opShortIntLongS
     {
 	public void
 	ice_response(long[] rso, short[] sso, int[] iso,
@@ -418,7 +418,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opFloatDoubleSI extends Test.AMI_MyClass_opFloatDoubleS
+    private static class AMI_MyClass_opFloatDoubleSI extends Test.AMI_MyClass_opFloatDoubleS
     {
 	public void
 	ice_response(double[] rso, float[] fso, double[] dso)
@@ -454,7 +454,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opStringSI extends Test.AMI_MyClass_opStringS
+    private static class AMI_MyClass_opStringSI extends Test.AMI_MyClass_opStringS
     {
 	public void
 	ice_response(String[] rso, String[] sso)
@@ -486,7 +486,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opByteSSI extends Test.AMI_MyClass_opByteSS
+    private static class AMI_MyClass_opByteSSI extends Test.AMI_MyClass_opByteSS
     {
 	public void
 	ice_response(byte[][] rso, byte[][] bso)
@@ -528,7 +528,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opBoolSSI extends Test.AMI_MyClass_opBoolSS
+    private static class AMI_MyClass_opBoolSSI extends Test.AMI_MyClass_opBoolSS
     {
 	public void
 	ice_response(boolean[][] rso, boolean[][] bso)
@@ -551,7 +551,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opShortIntLongSSI extends Test.AMI_MyClass_opShortIntLongSS
+    private static class AMI_MyClass_opShortIntLongSSI extends Test.AMI_MyClass_opShortIntLongSS
     {
 	public void
 	ice_response(long[][] rso, short[][] sso, int[][] iso, long[][] lso)
@@ -574,7 +574,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opFloatDoubleSSI extends Test.AMI_MyClass_opFloatDoubleSS
+    private static class AMI_MyClass_opFloatDoubleSSI extends Test.AMI_MyClass_opFloatDoubleSS
     {
 	public void
 	ice_response(double[][] rso, float[][] fso, double[][] dso)
@@ -617,7 +617,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opStringSSI extends Test.AMI_MyClass_opStringSS
+    private static class AMI_MyClass_opStringSSI extends Test.AMI_MyClass_opStringSS
     {
 	public void
 	ice_response(String[][] rso, String[][] sso)
@@ -655,7 +655,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opByteBoolDI extends Test.AMI_MyClass_opByteBoolD
+    private static class AMI_MyClass_opByteBoolDI extends Test.AMI_MyClass_opByteBoolD
     {
 	public void
 	ice_response(java.util.Map ro, java.util.Map _do)
@@ -687,7 +687,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opShortIntDI extends Test.AMI_MyClass_opShortIntD
+    private static class AMI_MyClass_opShortIntDI extends Test.AMI_MyClass_opShortIntD
     {
 	public void
 	ice_response(java.util.Map ro, java.util.Map _do)
@@ -719,7 +719,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opLongFloatDI extends Test.AMI_MyClass_opLongFloatD
+    private static class AMI_MyClass_opLongFloatDI extends Test.AMI_MyClass_opLongFloatD
     {
 	public void
 	ice_response(java.util.Map ro, java.util.Map _do)
@@ -751,7 +751,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opStringStringDI extends Test.AMI_MyClass_opStringStringD
+    private static class AMI_MyClass_opStringStringDI extends Test.AMI_MyClass_opStringStringD
     {
 	public void
 	ice_response(java.util.Map ro, java.util.Map _do)
@@ -783,7 +783,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyClass_opStringMyEnumDI extends Test.AMI_MyClass_opStringMyEnumD
+    private static class AMI_MyClass_opStringMyEnumDI extends Test.AMI_MyClass_opStringMyEnumD
     {
 	public void
 	ice_response(java.util.Map ro, java.util.Map _do)
@@ -815,7 +815,7 @@ class TwowaysAMI
 	private Callback callback = new Callback();
     };
 
-    static class AMI_MyDerivedClass_opDerivedI extends Test.AMI_MyDerivedClass_opDerived
+    private static class AMI_MyDerivedClass_opDerivedI extends Test.AMI_MyDerivedClass_opDerived
     {
 	public void
 	ice_response()

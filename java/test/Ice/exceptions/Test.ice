@@ -41,9 +41,11 @@ exception D
     int dMem;
 };
 
-interface Thrower
+["ami"] interface Thrower
 {
     void shutdown();
+    bool supportsUndeclaredExceptions();
+
     void throwAasA(int a) throws A;
     void throwAorDasAorD(int a) throws A, D;
     void throwBasA(int a, int b) throws A;
@@ -51,7 +53,6 @@ interface Thrower
     void throwBasB(int a, int b) throws B;
     void throwCasB(int a, int b, int c) throws B;
     void throwCasC(int a, int b, int c) throws C;
-    bool supportsUndeclaredExceptions();
     void throwUndeclaredA(int a);
     void throwUndeclaredB(int a, int b);
     void throwUndeclaredC(int a, int b, int c);
@@ -59,7 +60,7 @@ interface Thrower
     void throwNonIceException();
 };
 
-interface WrongOperation
+["ami"] interface WrongOperation
 {
     void noSuchOperation();
 };

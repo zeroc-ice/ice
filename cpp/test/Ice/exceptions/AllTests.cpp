@@ -26,15 +26,15 @@ class ServantLocatorI : virtual public Ice::ServantLocator
 {
 public:
 
-    virtual ::Ice::ObjectPtr locate(const ::Ice::Current&, ::Ice::LocalObjectPtr&) { return 0; }
-    virtual void finished(const ::Ice::Current&, const ::Ice::ObjectPtr&, const ::Ice::LocalObjectPtr&) {}
+    virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&) { return 0; }
+    virtual void finished(const Ice::Current&, const Ice::ObjectPtr&, const Ice::LocalObjectPtr&) {}
     virtual void deactivate() {}
 };
 
 class ObjectFactoryI : virtual public Ice::ObjectFactory
 {
 public:
-    virtual ::Ice::ObjectPtr create(const string&) { return 0; }
+    virtual Ice::ObjectPtr create(const string&) { return 0; }
     virtual void destroy() {}
 };
 
@@ -119,7 +119,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -148,7 +148,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -178,7 +178,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -208,7 +208,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -239,7 +239,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -272,7 +272,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -300,7 +300,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -330,7 +330,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -358,7 +358,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -389,7 +389,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -419,7 +419,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -447,7 +447,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -478,7 +478,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -509,7 +509,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -537,7 +537,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -565,7 +565,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -593,7 +593,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -621,7 +621,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -649,7 +649,7 @@ public:
 	test(false);
     }
 
-    virtual void ice_exception(const ::Ice::Exception& exc)
+    virtual void ice_exception(const Ice::Exception& exc)
     {
 	try
 	{
@@ -1250,7 +1250,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     
     cout << "ok" << endl;
 
-    if(!collocated) // If the server is collocated, exception factories are not needed.
+    if(!collocated) // Remove exception factories if they have been installed before.
     {
 	communicator->removeUserExceptionFactory("::A");
 	communicator->removeUserExceptionFactory("::B");
