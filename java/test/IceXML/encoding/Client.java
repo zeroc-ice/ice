@@ -447,6 +447,46 @@ public class Client
     }
 
     private static void
+    TestFacets(Ice.Communicator communicator)
+    {
+        final String element = "Test.Class2";
+        Test.Class2 in = new Test.Class2();
+        in.c = Test.Color.Blue;
+        in.name = "Blue";
+        Test.Class2 in2 = new Test.Class2();
+        in2.c = Test.Color.Green;
+        in2.name = "Green";
+        in2.r = in;
+        in.r = in2;
+
+        Test.Class1 facet = new Test.Class1();
+        facet.c = Test.Color.Red;
+        facet.name = "Red";
+        in.ice_addFacet(facet, "red");
+
+        java.io.StringWriter sw = new java.io.StringWriter();
+        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+        pw.print(header);
+        Ice.Stream ostream = new IceXML.StreamI(communicator, pw);
+        in.ice_marshal(element, ostream);
+        pw.print(footer);
+        pw.flush();
+
+        java.io.StringReader sr = new java.io.StringReader(sw.toString());
+        Ice.Stream istream = new IceXML.StreamI(communicator, sr);
+        Test.Class2 out = (Test.Class2)Test.Class2.ice_unmarshal(element, istream);
+        test(out.r != null);
+        test(out.r.r != null);
+        test(in.c == out.c && in.name.equals(out.name));
+        test(in.r.c == out.r.c && in.r.name.equals(out.r.name));
+        test(in == in.r.r);
+        Ice.Object obj = out.ice_findFacet("red");
+        test(obj != null);
+        Test.Class1 outFacet = (Test.Class1)obj;
+        test(facet.c == outFacet.c && facet.name.equals(outFacet.name));
+    }
+
+    private static void
     TestException1(Ice.Communicator communicator)
     {
         final String element = "Test.Exception1";
@@ -549,6 +589,7 @@ public class Client
 
         TestClass3(communicator);
         TestClass3Rec(communicator);
+        TestFacets(communicator);
         System.out.println("ok");
 
         System.out.print("testing exception... ");
