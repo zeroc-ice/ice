@@ -30,7 +30,8 @@ SUBDIRS		= IceUtil \
 		  Yellow \
 		  IcePack \
 		  Glacier \
-		  IcePatch
+		  IcePatch \
+		  XMLTransform
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

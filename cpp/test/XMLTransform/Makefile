@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2001
+# Copyright (c) 2002
 # Mutable Realms, Inc.
 # Huntsville, AL, USA
 #
@@ -8,20 +8,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= IceUtil \
-		  Ice \
-                  IceSSL \
-		  IceXML \
-		  IceStorm \
-		  Yellow \
-		  IcePack \
-		  Freeze \
-		  Glacier \
-		  XMLTransform
+SUBDIRS		= transform
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
