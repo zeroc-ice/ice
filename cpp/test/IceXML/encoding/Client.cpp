@@ -393,7 +393,7 @@ public:
     virtual ::Ice::ObjectPtr
     create(const ::std::string& type)
     {
-	test(type == ::Test::Class3::ice_id());
+	test(type == ::Test::Class3::ice_staticId());
 	return new Class3I;
     }
 
@@ -550,7 +550,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
     }
 
-    communicator->addObjectFactory(new Class3Factory, ::Test::Class3::ice_id());
+    communicator->addObjectFactory(new Class3Factory, ::Test::Class3::ice_staticId());
 
     TestClass3(communicator);
     TestClass3Rec(communicator);
