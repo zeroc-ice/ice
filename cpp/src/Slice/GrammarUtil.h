@@ -98,7 +98,7 @@ class SLICE_API IntegerTok : public GrammarBase
 public:
 
     IntegerTok() { }
-    Long v;
+    IceUtil::Int64 v;
 };
 
 // ----------------------------------------------------------------------

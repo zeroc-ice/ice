@@ -13,6 +13,7 @@
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
+#include <IceUtil/InputUtil.h>
 #include <string>
 #include <vector>
 #include <list>
@@ -34,29 +35,21 @@ namespace Slice
 {
 
 #if defined(_WIN32)
-#   define STRTOLL(a, b, c) _atoi64(a)
-    typedef __int64 Long;
     typedef double Double;
-    const Long INT64_MAX =  0x7fffffffffffffffi64;
-    const Long INT64_MIN = -INT64_MAX - 1i64;
-    const Long INT32_MAX =  0x7fffffffi64;
-    const Long INT32_MIN = -INT32_MAX - 1i64;
+    const IceUtil::Int64 INT32MAX =  0x7fffffffi64;
+    const IceUtil::Int64 INT32MIN = -INT32MAX - 1i64;
 #elif(__linux__) && defined(i386)
-#   define STRTOLL(a, b, c) strtoll((a), (b), (c))
-    typedef long long Long;
     typedef double Double;
-    const Long INT64_MAX =  0x7fffffffffffffffLL;
-    const Long INT64_MIN = -INT64_MAX - 1LL;
-    const Long INT32_MAX =  0x7fffffffLL;
-    const Long INT32_MIN = -INT32_MAX - 1LL;
+    const IceUtil::Int64 INT32MAX =  0x7fffffffLL;
+    const IceUtil::Int64 INT32MIN = -INT32MAX - 1LL;
 #else
 #   error "Unsupported operating system or platform!"
 #endif
 
-const Long INT16_MAX =  0x7fff;
-const Long INT16_MIN = -INT16_MAX - 1;
-const Long BYTE_MAX = 0xff;
-const Long BYTE_MIN = 0x00;
+const IceUtil::Int64 INT16MAX =  0x7fff;
+const IceUtil::Int64 INT16MIN = -INT16MAX - 1;
+const IceUtil::Int64 BYTEMAX = 0xff;
+const IceUtil::Int64 BYTEMIN = 0x00;
 
 class GrammarBase;
 class SyntaxTreeBase;

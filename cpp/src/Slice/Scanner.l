@@ -12,6 +12,7 @@
 
 #include <Slice/GrammarUtil.h>	// Before Grammer.h, so that YYSTYPE is defined
 #include <Slice/Grammar.h>
+#include <IceUtil/InputUtil.h>
 
 #include <stdlib.h>
 #include <math.h>
@@ -257,7 +258,7 @@ floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent
 		}
 		case 'x':
 		{
-		    Long ull = 0;
+		    IceUtil::Int64 ull = 0;
 		    while(isxdigit(next = static_cast<char>(yyinput())))
 		    {
 			ull *= 16;
@@ -301,30 +302,14 @@ floating_literal	(({fractional_constant}{exponent_part}?)|([[:digit:]]+{exponent
     IntegerTokPtr itp = new IntegerTok;
     *yylvalp = itp;
     errno = 0;
-#if defined(_WIN32)
-    itp->v = _atoi64(yytext);
-    if(itp->v == 0)			// Poor error reporting for _atoi64(), so we have to do it the hard way...
-    {
-	errno = 0;
-    	long l = strtol(yytext, 0, 0);
-	if(l != 0 || errno != 0)	// _atoi64() returned zero even though yytext wasn't all zeros
-	{
-	    string msg = "integer constant `";
-	    msg += yytext;
-	    msg += "' out of range";
-	    unit->error(msg);
-	}
-    }
-#else
-    itp->v = strtoll(yytext, 0, 0);
-    if(errno == ERANGE && (itp->v == INT64_MIN || itp->v == INT64_MAX))
+    itp->v = IceUtil::strToInt64(yytext, 0, 0);
+    if(errno == ERANGE && (itp->v == IceUtil::INT64MIN || itp->v == IceUtil::INT64MAX))
     {
 	string msg = "integer constant `";
 	msg += yytext;
 	msg += "' out of range";
 	unit->error(msg);
     }
-#endif
     return ICE_INTEGER_LITERAL;
 }
 

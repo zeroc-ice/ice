@@ -1594,8 +1594,8 @@ Slice::Container::checkRange(const string& name, const TypePtr& constType, const
     {
 	case Builtin::KindByte:
 	{
-	    Long l = STRTOLL(value.c_str(), 0, 0);
-	    if(l < BYTE_MIN || l > BYTE_MAX)
+	    IceUtil::Int64 l = IceUtil::strToInt64(value.c_str(), 0, 0);
+	    if(l < BYTEMIN || l > BYTEMAX)
 	    {
 		string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type byte";
 		_unit->error(msg);
@@ -1605,8 +1605,8 @@ Slice::Container::checkRange(const string& name, const TypePtr& constType, const
 	}
 	case Builtin::KindShort:
 	{
-	    Long l = STRTOLL(value.c_str(), 0, 0);
-	    if(l < INT16_MIN || l > INT16_MAX)
+	    IceUtil::Int64 l = IceUtil::strToInt64(value.c_str(), 0, 0);
+	    if(l < INT16MIN || l > INT16MAX)
 	    {
 		string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type short";
 		_unit->error(msg);
@@ -1616,8 +1616,8 @@ Slice::Container::checkRange(const string& name, const TypePtr& constType, const
 	}
 	case Builtin::KindInt:
 	{
-	    Long l = STRTOLL(value.c_str(), 0, 0);
-	    if(l < INT32_MIN || l > INT32_MAX)
+	    IceUtil::Int64 l = IceUtil::strToInt64(value.c_str(), 0, 0);
+	    if(l < INT32MIN || l > INT32MAX)
 	    {
 		string msg = "initializer `" + value + "' for constant `" + name + "' out of range for type int";
 		_unit->error(msg);
