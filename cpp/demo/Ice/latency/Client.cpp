@@ -36,7 +36,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // Initial ping to setup the connection.
     ping->ice_ping();
 
-    IceUtil::Time tm = IceUtil::Time::now();
+    IceUtil::Time tsec = IceUtil::Time::now();
 
     const int repetitions = 100000;
     cout << "pinging server " << repetitions << " times (this may take a while)" << endl;
@@ -45,13 +45,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	ping->ice_ping();
     }
 
-    tm = IceUtil::Time::now() - tm;
+    tsec = IceUtil::Time::now() - tsec;
 
-    double total = tm / 1000.0;
-    double perPing = total / repetitions;
+    double tmsec = tsec * 1000.0;
     
-    cout << "time for " << repetitions << " pings: " << total  << "ms" << endl;
-    cout << "time per ping: " << perPing << "ms" << endl;
+    cout << "time for " << repetitions << " pings: " << tmsec  << "ms" << endl;
+    cout << "time per ping: " << tmsec / repetitions << "ms" << endl;
 
     return EXIT_SUCCESS;
 }
