@@ -45,6 +45,17 @@ Glacier2.PermissionsVerifier=verifier:tcp -h 127.0.0.1 -p 10001
 Glacier2.SessionTimeout=30
 
 #
+# Glacier can forward requests buffered or unbuffered. Unbuffered
+# means fewer resources, as buffered forwarding means one additional
+# thread per connected client or server. However, without buffering,
+# messages cannot be batched, and message overriding doesn't work
+# either. Also, if requests are forwarded unbuffered, the caller
+# thread will be blocked while forwarding.
+#
+Glacier2.Client.Unbuffered=1
+Glacier2.Server.Unbuffered=0
+
+#
 # These two lines instruct Glacier2 to forward contexts both for
 # regular routing, as well as for callbacks (reverse routing).
 #
