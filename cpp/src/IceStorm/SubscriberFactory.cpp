@@ -120,10 +120,6 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
     //
     // Check if a queued proxy already exists, or create one if necessary.
     //
-    // TODO: a twoway unordered and a twoway ordered proxy will be
-    // cached with the same entry in the _proxies map. Does this need
-    // to be fixed?
-    //
     QueuedProxyPtr proxy;
     map<Ice::ObjectPrx, ProxyInfo>::iterator p = _proxies.find(newObj);
     if(p != _proxies.end())

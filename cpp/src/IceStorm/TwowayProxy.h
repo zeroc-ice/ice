@@ -50,9 +50,6 @@ protected:
     virtual void deliver(const EventPtr&);
     void send(IceUtil::Mutex::Lock&);
 
-private:
-    
-    const Ice::AMI_Object_ice_invokePtr _amiCB;
 };
 
 typedef IceUtil::Handle<OrderedTwowayProxy> OrderedTwowayProxyPtr;

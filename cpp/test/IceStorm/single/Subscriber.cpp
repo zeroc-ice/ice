@@ -173,7 +173,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     {
 	subscribers.push_back(new SingleI(communicator, "twoway ordered", true)); // Ordered
 	IceStorm::QoS qos;
-	qos["reliability"] = "twoway-ordered";
+	qos["reliability"] = "twoway ordered";
 	topic->subscribe(qos, adapter->addWithUUID(subscribers.back()));
     }
 
