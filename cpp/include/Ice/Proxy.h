@@ -14,7 +14,7 @@
 #include <IceUtil/Mutex.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ProxyFactoryF.h>
-#include <Ice/ConnectionF.h>
+#include <Ice/ConnectionIF.h>
 #include <Ice/EndpointF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ObjectAdapterF.h>
@@ -192,7 +192,7 @@ public:
 protected:
 
     ::IceInternal::ReferencePtr __reference;
-    ::IceInternal::ConnectionPtr __connection;
+    ::Ice::ConnectionIPtr __connection;
     bool __compress;
 
 private:

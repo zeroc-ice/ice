@@ -11,7 +11,7 @@
 #define ICE_INCOMING_H
 
 #include <Ice/InstanceF.h>
-#include <Ice/ConnectionF.h>
+#include <Ice/ConnectionIF.h>
 #include <Ice/ServantLocatorF.h>
 #include <Ice/ServantManagerF.h>
 #include <Ice/BasicStream.h>
@@ -24,7 +24,8 @@ class ICE_API IncomingBase : public IceUtil::noncopyable
 {
 protected:
 
-    IncomingBase(Instance*, Connection*, const Ice::ObjectAdapterPtr&, const Ice::TransportInfoPtr&, bool, Ice::Byte);
+    IncomingBase(Instance*, Ice::ConnectionI*, const Ice::ObjectAdapterPtr&, 
+		 const Ice::TransportInfoPtr&, bool, Ice::Byte);
     IncomingBase(IncomingBase& in); // Adopts the argument. It must not be used afterwards.
     
     void __finishInvoke();
@@ -43,7 +44,7 @@ protected:
 
 //
 // Cannot be private. IncomingAsync needs _connection to initialize a
-// ConnectionPtr.
+// ConnectionIPtr.
 //
 //private:
 
@@ -51,14 +52,15 @@ protected:
     // Optimization. The connection may not be deleted while a
     // stack-allocated Incoming still holds it.
     //
-    Connection* _connection;
+    Ice::ConnectionI* _connection;
 };
 
 class ICE_API Incoming : public IncomingBase
 {
 public:
 
-    Incoming(Instance*, Connection*, const Ice::ObjectAdapterPtr&, const Ice::TransportInfoPtr&, bool, Ice::Byte);
+    Incoming(Instance*, Ice::ConnectionI*, const Ice::ObjectAdapterPtr&, 
+	     const Ice::TransportInfoPtr&, bool, Ice::Byte);
 
     void invoke(const ServantManagerPtr&);
 

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/ConnectionMonitor.h>
-#include <Ice/Connection.h>
+#include <Ice/ConnectionI.h>
 #include <Ice/LocalException.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Instance.h>
@@ -38,7 +38,7 @@ IceInternal::ConnectionMonitor::destroy()
 }
 
 void
-IceInternal::ConnectionMonitor::add(const ConnectionPtr& connection)
+IceInternal::ConnectionMonitor::add(const ConnectionIPtr& connection)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     assert(_instance);
@@ -46,7 +46,7 @@ IceInternal::ConnectionMonitor::add(const ConnectionPtr& connection)
 }
 
 void
-IceInternal::ConnectionMonitor::remove(const ConnectionPtr& connection)
+IceInternal::ConnectionMonitor::remove(const ConnectionIPtr& connection)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     assert(_instance);
@@ -74,7 +74,7 @@ IceInternal::ConnectionMonitor::run()
 
     while(true)
     {
-	set<ConnectionPtr> connections;
+	set<ConnectionIPtr> connections;
 	
 	{
 	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -99,7 +99,7 @@ IceInternal::ConnectionMonitor::run()
 	// Monitor connections outside the thread synchronization, so
 	// that connections can be added or removed during monitoring.
 	//
-	for(set<ConnectionPtr>::const_iterator p = connections.begin(); p != connections.end(); ++p)
+	for(set<ConnectionIPtr>::const_iterator p = connections.begin(); p != connections.end(); ++p)
 	{
 	    try
 	    {	       

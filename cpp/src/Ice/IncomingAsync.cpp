@@ -10,7 +10,7 @@
 #include <Ice/IncomingAsync.h>
 #include <Ice/ServantLocator.h>
 #include <Ice/Object.h>
-#include <Ice/Connection.h>
+#include <Ice/ConnectionI.h>
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
 #include <Ice/Instance.h>

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/TransportInfoI.h>
-#include <Ice/Connection.h>
+#include <Ice/ConnectionI.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/Instance.h>
@@ -20,7 +20,7 @@ using namespace IceInternal;
 void
 Ice::TransportInfoI::flushBatchRequests()
 {
-    ConnectionPtr connection;
+    ConnectionIPtr connection;
 
     {
 	IceUtil::Mutex::Lock sync(_connectionMutex);
@@ -46,7 +46,7 @@ Ice::TransportInfoI::createProxy(const Identity& ident) const
     // reference.
     //
     vector<EndpointPtr> endpoints;
-    vector<ConnectionPtr> connections;
+    vector<ConnectionIPtr> connections;
     connections.push_back(_connection);
     ReferencePtr ref = _connection->instance()->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
 									   false, "", endpoints, 0, 0,
@@ -55,7 +55,7 @@ Ice::TransportInfoI::createProxy(const Identity& ident) const
 }
 
 void
-Ice::TransportInfoI::setConnection(const ConnectionPtr& connection)
+Ice::TransportInfoI::setConnection(const ConnectionIPtr& connection)
 {
     IceUtil::Mutex::Lock sync(_connectionMutex);
     _connection = connection;

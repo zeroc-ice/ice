@@ -21,7 +21,7 @@
 #include <Ice/LocatorInfo.h>
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
-#include <Ice/Connection.h> // For __connection->getTransportInfo();
+#include <Ice/ConnectionI.h> // For __connection->getTransportInfo();
 
 using namespace std;
 using namespace Ice;

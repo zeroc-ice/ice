@@ -14,7 +14,7 @@
 #include <IceUtil/RecMutex.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/ReferenceF.h>
-#include <Ice/ConnectionF.h>
+#include <Ice/ConnectionIF.h>
 #include <Ice/Current.h>
 
 namespace IceInternal
@@ -57,7 +57,7 @@ private:
     void cleanup();
 
     ReferencePtr _reference;
-    ConnectionPtr _connection;
+    ::Ice::ConnectionIPtr _connection;
     int _cnt;
     Ice::OperationMode _mode;
     bool _compress;

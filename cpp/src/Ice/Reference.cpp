@@ -19,7 +19,7 @@
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
 #include <Ice/Functional.h>
-#include <Ice/Connection.h>
+#include <Ice/ConnectionI.h>
 #include <Ice/ConnectionFactory.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
@@ -637,20 +637,20 @@ IceInternal::Reference::changeDefault() const
 
     return instance->referenceFactory()->create(identity, context, "", ModeTwoway, false, adapterId,
 						endpoints, defaultRouterInfo, defaultLocatorInfo,
-						vector<ConnectionPtr>(), true);
+						vector<ConnectionIPtr>(), true);
 }
 
-ConnectionPtr
+ConnectionIPtr
 IceInternal::Reference::getConnection(bool& compress) const
 {
-    ConnectionPtr connection;
+    ConnectionIPtr connection;
 
     //
     // If we have a fixed connection, we return such fixed connection.
     //
     if(!fixedConnections.empty())
     {
-	vector<ConnectionPtr> filteredConns = filterConnections(fixedConnections);
+	vector<ConnectionIPtr> filteredConns = filterConnections(fixedConnections);
 	if(filteredConns.empty())
 	{
 	    NoEndpointException ex(__FILE__, __LINE__);
@@ -811,32 +811,32 @@ IceInternal::Reference::filterEndpoints(const vector<EndpointPtr>& allEndpoints)
     return endpoints;
 }
 
-class ConnectionIsDatagram : public unary_function<ConnectionPtr, bool>
+class ConnectionIsDatagram : public unary_function<ConnectionIPtr, bool>
 {
 public:
 
     bool
-    operator()(ConnectionPtr p) const
+    operator()(ConnectionIPtr p) const
     {
 	return p->endpoint()->datagram();
     }
 };
 
-class ConnectionIsSecure : public unary_function<ConnectionPtr, bool>
+class ConnectionIsSecure : public unary_function<ConnectionIPtr, bool>
 {
 public:
 
     bool
-    operator()(ConnectionPtr p) const
+    operator()(ConnectionIPtr p) const
     {
 	return p->endpoint()->secure();
     }
 };
 
-vector<ConnectionPtr>
-IceInternal::Reference::filterConnections(const vector<ConnectionPtr>& allConnections) const
+vector<ConnectionIPtr>
+IceInternal::Reference::filterConnections(const vector<ConnectionIPtr>& allConnections) const
 {
-    vector<ConnectionPtr> connections = allConnections;
+    vector<ConnectionIPtr> connections = allConnections;
 
     switch(mode)
     {
@@ -903,7 +903,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
 				  const vector<EndpointPtr>& endpts,
 				  const RouterInfoPtr& rtrInfo,
 				  const LocatorInfoPtr& locInfo,
-				  const vector<ConnectionPtr>& fixedConns,
+				  const vector<ConnectionIPtr>& fixedConns,
 				  bool collocationOpt) :
     instance(inst),
     identity(ident),

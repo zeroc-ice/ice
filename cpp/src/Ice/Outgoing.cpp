@@ -18,7 +18,7 @@
 
 #include <Ice/Outgoing.h>
 #include <Ice/Object.h>
-#include <Ice/Connection.h>
+#include <Ice/ConnectionI.h>
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
 #include <Ice/LocalException.h>
@@ -44,7 +44,7 @@ IceInternal::NonRepeatable::get() const
     return _ex.get();
 }
 
-IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const string& operation,
+IceInternal::Outgoing::Outgoing(ConnectionI* connection, Reference* ref, const string& operation,
 				OperationMode mode, const Context& context, bool compress) :
     _connection(connection),
     _reference(ref),

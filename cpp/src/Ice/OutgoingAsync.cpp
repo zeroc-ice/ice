@@ -9,7 +9,7 @@
 
 #include <Ice/OutgoingAsync.h>
 #include <Ice/Object.h>
-#include <Ice/Connection.h>
+#include <Ice/ConnectionI.h>
 #include <Ice/Reference.h>
 #include <Ice/Instance.h>
 #include <Ice/LocalException.h>

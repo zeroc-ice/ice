@@ -35,7 +35,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const vector<EndpointPtr>& endpoints,
 				      const RouterInfoPtr& routerInfo,
 				      const LocatorInfoPtr& locatorInfo,
-				      const vector<ConnectionPtr>& fixedConnections,
+				      const vector<ConnectionIPtr>& fixedConnections,
 				      bool collocationOptimization)
 {
     Mutex::Lock sync(*this);
@@ -455,7 +455,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
     LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
     return create(ident, Context(), facet, mode, secure, adapter, endpoints, routerInfo, locatorInfo,
-		  vector<ConnectionPtr>(), true);
+		  vector<ConnectionIPtr>(), true);
 }
 
 ReferencePtr
@@ -520,7 +520,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
     LocatorInfoPtr locatorInfo = _instance->locatorManager()->get(getDefaultLocator());
     return create(ident, Context(), facet, mode, secure, adapterId, endpoints, routerInfo, locatorInfo,
-		  vector<ConnectionPtr>(), true);
+		  vector<ConnectionIPtr>(), true);
 }
 
 void

@@ -453,11 +453,11 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident) const
     //
     // Get all incoming connections for this object adapter.
     //
-    vector<ConnectionPtr> connections;
+    vector<ConnectionIPtr> connections;
     vector<IncomingConnectionFactoryPtr>::const_iterator p;
     for(p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
     {
-	list<ConnectionPtr> cons = (*p)->connections();
+	list<ConnectionIPtr> cons = (*p)->connections();
 	copy(cons.begin(), cons.end(), back_inserter(connections));
     }
 
@@ -789,7 +789,7 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "",
 								 Reference::ModeTwoway, false, _id,
 								 endpoints, 0, _locatorInfo,
-								 vector<ConnectionPtr>(), true);
+								 vector<ConnectionIPtr>(), true);
 
 	//
 	// Return a proxy for the reference. 
@@ -822,7 +822,7 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
     //
     ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
 							     false, "", endpoints, 0, _locatorInfo,
-							     vector<ConnectionPtr>(), true);
+							     vector<ConnectionIPtr>(), true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
 }

@@ -13,7 +13,7 @@
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
 #include <Ice/ConnectionFactoryF.h>
-#include <Ice/ConnectionF.h>
+#include <Ice/ConnectionIF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/EndpointF.h>
@@ -43,7 +43,7 @@ public:
 
     void waitUntilFinished();
 
-    ConnectionPtr create(const std::vector<EndpointPtr>&, bool&);
+    Ice::ConnectionIPtr create(const std::vector<EndpointPtr>&, bool&);
     void setRouter(const ::Ice::RouterPrx&);
     void removeAdapter(const ::Ice::ObjectAdapterPtr&);
     void flushBatchRequests();
@@ -56,7 +56,7 @@ private:
 
     const InstancePtr _instance;
     bool _destroyed;
-    std::multimap<EndpointPtr, ConnectionPtr> _connections;
+    std::multimap<EndpointPtr, Ice::ConnectionIPtr> _connections;
     std::set<EndpointPtr> _pending; // Endpoints for which connection establishment is pending.
 };
 
@@ -73,7 +73,7 @@ public:
 
     EndpointPtr endpoint() const;
     bool equivalent(const EndpointPtr&) const;
-    std::list<ConnectionPtr> connections() const;
+    std::list<Ice::ConnectionIPtr> connections() const;
     void flushBatchRequests();
 
     //
@@ -114,7 +114,7 @@ private:
 
     const bool _warn;
 
-    std::list<ConnectionPtr> _connections;
+    std::list<Ice::ConnectionIPtr> _connections;
 
     State _state;
 };

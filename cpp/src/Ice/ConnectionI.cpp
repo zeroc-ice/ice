@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Connection.h>
+#include <Ice/ConnectionI.h>
 #include <Ice/Instance.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
@@ -29,11 +29,11 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(Connection* p) { p->__incRef(); }
-void IceInternal::decRef(Connection* p) { p->__decRef(); }
+void IceInternal::incRef(Ice::ConnectionI* p) { p->__incRef(); }
+void IceInternal::decRef(Ice::ConnectionI* p) { p->__decRef(); }
 
 void
-IceInternal::Connection::validate()
+Ice::ConnectionI::validate()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -184,21 +184,21 @@ IceInternal::Connection::validate()
 }
 
 void
-IceInternal::Connection::activate()
+Ice::ConnectionI::activate()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateActive);
 }
 
 void
-IceInternal::Connection::hold()
+Ice::ConnectionI::hold()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateHolding);
 }
 
 void
-IceInternal::Connection::destroy(DestructionReason reason)
+Ice::ConnectionI::destroy(DestructionReason reason)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -219,28 +219,28 @@ IceInternal::Connection::destroy(DestructionReason reason)
 }
 
 bool
-IceInternal::Connection::isValidated() const
+Ice::ConnectionI::isValidated() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     return _state > StateNotValidated;
 }
 
 bool
-IceInternal::Connection::isDestroyed() const
+Ice::ConnectionI::isDestroyed() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     return _state >= StateClosing;
 }
 
 bool
-IceInternal::Connection::isFinished() const
+Ice::ConnectionI::isFinished() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     return _transceiver == 0 && _dispatchCount == 0;
 }
 
 void
-IceInternal::Connection::waitUntilHolding() const
+Ice::ConnectionI::waitUntilHolding() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -251,7 +251,7 @@ IceInternal::Connection::waitUntilHolding() const
 }
 
 void
-IceInternal::Connection::waitUntilFinished()
+Ice::ConnectionI::waitUntilFinished()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -313,7 +313,7 @@ IceInternal::Connection::waitUntilFinished()
 }
 
 void
-IceInternal::Connection::monitor()
+Ice::ConnectionI::monitor()
 {
     IceUtil::Monitor<IceUtil::Mutex>::TryLock sync(*this);
 
@@ -359,13 +359,13 @@ IceInternal::Connection::monitor()
 // TODO: Should not be a member function of Connection.
 //
 void
-IceInternal::Connection::prepareRequest(BasicStream* os)
+Ice::ConnectionI::prepareRequest(BasicStream* os)
 {
     os->writeBlob(_requestHdr);
 }
 
 void
-IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out, bool compress)
+Ice::ConnectionI::sendRequest(BasicStream* os, Outgoing* out, bool compress)
 {
     Int requestId;
 
@@ -525,7 +525,7 @@ IceInternal::Connection::sendRequest(BasicStream* os, Outgoing* out, bool compre
 }
 
 void
-IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPtr& out, bool compress)
+Ice::ConnectionI::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPtr& out, bool compress)
 {
     Int requestId;
 
@@ -679,7 +679,7 @@ IceInternal::Connection::sendAsyncRequest(BasicStream* os, const OutgoingAsyncPt
 }
 
 void
-IceInternal::Connection::prepareBatchRequest(BasicStream* os)
+Ice::ConnectionI::prepareBatchRequest(BasicStream* os)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -722,7 +722,7 @@ IceInternal::Connection::prepareBatchRequest(BasicStream* os)
 }
 
 void
-IceInternal::Connection::finishBatchRequest(BasicStream* os, bool compress)
+Ice::ConnectionI::finishBatchRequest(BasicStream* os, bool compress)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -755,7 +755,7 @@ IceInternal::Connection::finishBatchRequest(BasicStream* os, bool compress)
 }
 
 void
-IceInternal::Connection::flushBatchRequest()
+Ice::ConnectionI::flushBatchRequest()
 {
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -892,7 +892,7 @@ IceInternal::Connection::flushBatchRequest()
 }
 
 void
-IceInternal::Connection::sendResponse(BasicStream* os, Byte compressFlag)
+Ice::ConnectionI::sendResponse(BasicStream* os, Byte compressFlag)
 {
     try
     {
@@ -994,7 +994,7 @@ IceInternal::Connection::sendResponse(BasicStream* os, Byte compressFlag)
 }
 
 void
-IceInternal::Connection::sendNoResponse()
+Ice::ConnectionI::sendNoResponse()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
@@ -1019,19 +1019,19 @@ IceInternal::Connection::sendNoResponse()
 }
 
 int
-IceInternal::Connection::timeout() const
+Ice::ConnectionI::timeout() const
 {
     return _endpoint->timeout(); // No mutex protection necessary, _endpoint is immutable.
 }
 
 EndpointPtr
-IceInternal::Connection::endpoint() const
+Ice::ConnectionI::endpoint() const
 {
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
 }
 
 void
-IceInternal::Connection::setAdapter(const ObjectAdapterPtr& adapter)
+Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -1073,32 +1073,32 @@ IceInternal::Connection::setAdapter(const ObjectAdapterPtr& adapter)
 }
 
 ObjectAdapterPtr
-IceInternal::Connection::getAdapter() const
+Ice::ConnectionI::getAdapter() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     return _adapter;
 }
 
 TransportInfoPtr
-IceInternal::Connection::getTransportInfo() const
+Ice::ConnectionI::getTransportInfo() const
 {
     return _info; // No mutex lock, _info is immutable.
 }
 
 bool
-IceInternal::Connection::datagram() const
+Ice::ConnectionI::datagram() const
 {
     return _endpoint->datagram(); // No mutex protection necessary, _endpoint is immutable.
 }
 
 bool
-IceInternal::Connection::readable() const
+Ice::ConnectionI::readable() const
 {
     return true;
 }
 
 void
-IceInternal::Connection::read(BasicStream& stream)
+Ice::ConnectionI::read(BasicStream& stream)
 {
     _transceiver->read(stream, 0);
 
@@ -1110,7 +1110,7 @@ IceInternal::Connection::read(BasicStream& stream)
 }
 
 void
-IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threadPool)
+Ice::ConnectionI::message(BasicStream& stream, const ThreadPoolPtr& threadPool)
 {
     ServantManagerPtr servantManager;
     OutgoingAsyncPtr outAsync;
@@ -1395,7 +1395,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 }
 
 void
-IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
+Ice::ConnectionI::finished(const ThreadPoolPtr& threadPool)
 {
     threadPool->promoteFollower();
 
@@ -1461,37 +1461,37 @@ IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
 }
 
 void
-IceInternal::Connection::exception(const LocalException& ex)
+Ice::ConnectionI::exception(const LocalException& ex)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     setState(StateClosed, ex);
 }
 
 string
-IceInternal::Connection::toString() const
+Ice::ConnectionI::toString() const
 {
     return _info->toString(); // No mutex lock, _info is immutable.
 }
 
 bool
-IceInternal::Connection::operator==(const Connection& r) const
+Ice::ConnectionI::operator==(const ConnectionI& r) const
 {
     return this == &r;
 }
 
 bool
-IceInternal::Connection::operator!=(const Connection& r) const
+Ice::ConnectionI::operator!=(const ConnectionI& r) const
 {
     return this != &r;
 }
 
 bool
-IceInternal::Connection::operator<(const Connection& r) const
+Ice::ConnectionI::operator<(const ConnectionI& r) const
 {
     return this < &r;
 }
 
-IceInternal::Connection::Connection(const InstancePtr& instance,
+Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
 				    const TransceiverPtr& transceiver,
 				    const EndpointPtr& endpoint,
 				    const ObjectAdapterPtr& adapter) :
@@ -1567,7 +1567,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     replyHdr[9] = 0;
 }
 
-IceInternal::Connection::~Connection()
+Ice::ConnectionI::~ConnectionI()
 {
     assert(_state == StateClosed);
     assert(!_transceiver);
@@ -1575,7 +1575,7 @@ IceInternal::Connection::~Connection()
 }
 
 void
-IceInternal::Connection::setState(State state, const LocalException& ex)
+Ice::ConnectionI::setState(State state, const LocalException& ex)
 {
     //
     // If setState() is called with an exception, then only closed and
@@ -1629,7 +1629,7 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 }
 
 void
-IceInternal::Connection::setState(State state)
+Ice::ConnectionI::setState(State state)
 {
     //
     // We don't want to send close connection messages if the endpoint
@@ -1753,7 +1753,7 @@ IceInternal::Connection::setState(State state)
 }
 
 void
-IceInternal::Connection::initiateShutdown() const
+Ice::ConnectionI::initiateShutdown() const
 {
     assert(_state == StateClosing);
     assert(_dispatchCount == 0);
@@ -1786,7 +1786,7 @@ IceInternal::Connection::initiateShutdown() const
 }
 
 void
-IceInternal::Connection::registerWithPool()
+Ice::ConnectionI::registerWithPool()
 {
     if(!_registeredWithPool)
     {
@@ -1802,7 +1802,7 @@ IceInternal::Connection::registerWithPool()
 }
 
 void
-IceInternal::Connection::unregisterWithPool()
+Ice::ConnectionI::unregisterWithPool()
 {
     if(_registeredWithPool)
     {
@@ -1879,7 +1879,7 @@ getBZ2Error(int bzError)
 }
 
 void
-IceInternal::Connection::doCompress(BasicStream& uncompressed, BasicStream& compressed)
+Ice::ConnectionI::doCompress(BasicStream& uncompressed, BasicStream& compressed)
 {
     const Byte* p;
 
@@ -1934,7 +1934,7 @@ IceInternal::Connection::doCompress(BasicStream& uncompressed, BasicStream& comp
 }
 
 void
-IceInternal::Connection::doUncompress(BasicStream& compressed, BasicStream& uncompressed)
+Ice::ConnectionI::doUncompress(BasicStream& compressed, BasicStream& uncompressed)
 {
     Int uncompressedSize;
     compressed.i = compressed.b.begin() + headerSize;

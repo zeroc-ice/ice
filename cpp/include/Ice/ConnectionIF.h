@@ -7,18 +7,30 @@
 //
 // **********************************************************************
 
-#ifndef ICE_CONNECTION_F_H
-#define ICE_CONNECTION_F_H
+#ifndef ICE_CONNECTIONI_F_H
+#define ICE_CONNECTIONI_F_H
 
 #include <Ice/Handle.h>
+
+namespace Ice
+{
+
+class ConnectionI;
+
+}
 
 namespace IceInternal
 {
 
-class Connection;
-ICE_API void incRef(Connection*);
-ICE_API void decRef(Connection*);
-typedef IceInternal::Handle<Connection> ConnectionPtr;
+ICE_API void incRef(Ice::ConnectionI*);
+ICE_API void decRef(Ice::ConnectionI*);
+
+}
+
+namespace Ice
+{
+
+typedef IceInternal::Handle<ConnectionI> ConnectionIPtr;
 
 }
 

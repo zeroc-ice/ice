@@ -11,7 +11,7 @@
 #define ICE_TRANSPORT_INFO_I_H
 
 #include <IceUtil/Mutex.h>
-#include <Ice/ConnectionF.h>
+#include <Ice/ConnectionIF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/TransportInfo.h>
 
@@ -28,10 +28,10 @@ public:
 private:
 
     // This method is for IceInternal::Connection only.
-    friend class IceInternal::Connection;
-    void setConnection(const IceInternal::ConnectionPtr&);
+    friend class ConnectionI;
+    void setConnection(const ConnectionIPtr&);
 
-    IceInternal::ConnectionPtr _connection;
+    ConnectionIPtr _connection;
     IceUtil::Mutex _connectionMutex;
 };
 

@@ -130,7 +130,7 @@ SOURCE=.\CommunicatorI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Connection.cpp
+SOURCE=.\ConnectionI.cpp
 # End Source File
 # Begin Source File
 
@@ -474,11 +474,11 @@ SOURCE=..\..\include\Ice\Config.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Connection.h
+SOURCE=.\ConnectionI.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\ConnectionF.h
+SOURCE=..\..\include\Ice\ConnectionIF.h
 # End Source File
 # Begin Source File
 

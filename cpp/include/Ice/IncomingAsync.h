@@ -49,10 +49,10 @@ private:
     const InstancePtr _instanceCopy;
 
     //
-    // We need a separate ConnectionPtr, because IncomingBase only
-    // holds a Connection* for optimization.
+    // We need a separate ConnectionIPtr, because IncomingBase only
+    // holds a ConnectionI* for optimization.
     //
-    const ConnectionPtr _connectionCopy;
+    const ::Ice::ConnectionIPtr _connectionCopy;
 };
 
 }

@@ -12,7 +12,7 @@
 #include <Ice/ServantLocator.h>
 #include <Ice/ServantManager.h>
 #include <Ice/Object.h>
-#include <Ice/Connection.h>
+#include <Ice/ConnectionI.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
@@ -25,7 +25,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::IncomingBase::IncomingBase(Instance* instance, Connection* connection, 
+IceInternal::IncomingBase::IncomingBase(Instance* instance, ConnectionI* connection, 
 					const ObjectAdapterPtr& adapter,
 					const TransportInfoPtr& transport,
 					bool response, Byte compress) :
@@ -93,7 +93,7 @@ IceInternal::IncomingBase::__warning(const string& msg) const
     out << "\noperation: " << _current.operation;
 }
 
-IceInternal::Incoming::Incoming(Instance* instance, Connection* connection, 
+IceInternal::Incoming::Incoming(Instance* instance, ConnectionI* connection, 
 				const ObjectAdapterPtr& adapter,
 				const TransportInfoPtr& transport,
 				bool response, Byte compress) :

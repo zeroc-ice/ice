@@ -14,7 +14,7 @@
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Thread.h>
 #include <Ice/ConnectionMonitorF.h>
-#include <Ice/ConnectionF.h>
+#include <Ice/ConnectionIF.h>
 #include <Ice/InstanceF.h>
 #include <set>
 
@@ -27,8 +27,8 @@ public:
 
     void destroy();
 
-    void add(const ConnectionPtr&);
-    void remove(const ConnectionPtr&);
+    void add(const Ice::ConnectionIPtr&);
+    void remove(const Ice::ConnectionIPtr&);
 
 private:
 
@@ -40,7 +40,7 @@ private:
 
     InstancePtr _instance;
     const Ice::Int _interval;
-    std::set<ConnectionPtr> _connections;
+    std::set<Ice::ConnectionIPtr> _connections;
 };
 
 }

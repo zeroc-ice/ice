@@ -55,7 +55,7 @@ OBJS		= Initialize.o \
 		  Router.o \
 		  RouterInfo.o \
 		  RoutingTable.o \
-		  Connection.o \
+		  ConnectionI.o \
 		  ConnectionFactory.o \
 		  ConnectionMonitor.o \
 		  LocalObject.o \
