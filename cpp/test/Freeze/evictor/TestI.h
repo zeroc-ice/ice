@@ -103,6 +103,8 @@ public:
 
     virtual ::Test::ServantPrx getServant(::Ice::Int, const Ice::Current&);
 
+    virtual void saveNow(const Ice::Current&);
+
     virtual void deactivate(const Ice::Current&);
 
     virtual void destroyAllServants(const std::string&, const Ice::Current&);

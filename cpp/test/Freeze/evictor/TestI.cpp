@@ -308,6 +308,12 @@ Test::RemoteEvictorI::getServant(Int id, const Current&)
 
 
 void
+Test::RemoteEvictorI::saveNow(const Current& current)
+{
+    _evictor->getIterator("", 1);
+}
+
+void
 Test::RemoteEvictorI::deactivate(const Current& current)
 {
     _evictorAdapter->deactivate();

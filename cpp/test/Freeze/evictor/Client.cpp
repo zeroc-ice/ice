@@ -90,7 +90,7 @@ public:
 		    test(_servants[i]->slowGetValue() == i);
 		}
 	    }
-	    catch(const Ice::ConnectionRefusedException&)
+	    catch(const Ice::SocketException&)
 	    {
 		//
 		// Expected
@@ -470,13 +470,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     
     //
-    // Create and destroy 100 servants to make sure we save and evict
+    // Evict all
     //
-    for(i = 0; i < 100; i++)
-    {
-	Test::ServantPrx servant = evictor->createServant(size + i, size + i);
-	servant->destroy();
-    }
+    evictor->saveNow();
+    evictor->setSize(0);
+    evictor->setSize(size);
     
     //
     // Check the transient value
@@ -495,15 +493,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	servants[i]->keepInCache();
 	servants[i]->setTransientValue(i);
     }
-
-    //
-    // Create and destroy 100 servants to make sure we save and evict
-    //
-    for(i = 0; i < 100; i++)
-    {
-	Test::ServantPrx servant = evictor->createServant(size + i, size + i);
-	servant->destroy();
-    }
+    evictor->saveNow();
+    evictor->setSize(0);
+    evictor->setSize(size);
+   
     
     //
     // Check the transient value
@@ -520,11 +513,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	servants[i]->release();
     }
-    for(i = 0; i < 100; i++)
-    {
-	Test::ServantPrx servant = evictor->createServant(size + i, size + i);
-	servant->destroy();
-    }
+    evictor->saveNow();
+    evictor->setSize(0);
+    evictor->setSize(size);
     for(i = 0; i < size; i++)
     {
 	test(servants[i]->getTransientValue() == i);
@@ -537,11 +528,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	servants[i]->release();
     }
-    for(i = 0; i < 100; i++)
-    {
-	Test::ServantPrx servant = evictor->createServant(size + i, size + i);
-	servant->destroy();
-    }
+    evictor->saveNow();
+    evictor->setSize(0);
+    evictor->setSize(size);
     for(i = 0; i < size; i++)
     {
 	test(servants[i]->getTransientValue() == -1);
