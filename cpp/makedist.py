@@ -13,7 +13,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, fnmatch, re
+import os, sys, shutil, fnmatch, re, glob
 
 #
 # Program usage.
@@ -25,7 +25,7 @@ def usage():
     print "-h    Show this message."
     print "-d    Skip SGML documentation conversion."
     print
-    print "If no tag is given, HEAD is used."
+    print "If no tag is specified, HEAD is used."
 
 #
 # Find files matching a pattern.
@@ -85,6 +85,51 @@ def fixMakefile(file, target):
     os.remove(origfile)
 
 #
+# Comment out rules in VC project.
+#
+def fixProject(file, target):
+    origfile = file + ".orig"
+    os.rename(file, origfile)
+    oldProject = open(origfile, "r")
+    newProject = open(file, "w")
+    origLines = oldProject.readlines()
+
+    #
+    # Find a Source File declaration containing SOURCE=<target>
+    # and comment out the entire declaration.
+    #
+    expr = re.compile("SOURCE=.*" + target.replace(".", "\\.") + ".*")
+    inSource = 0
+    doComment = 0
+    newLines = []
+    source = []
+    for x in origLines:
+        if x.startswith("# Begin Source File"):
+            inSource = 1
+
+        if inSource:
+            if not doComment and expr.match(x) != None:
+                doComment = 1
+            source.append(x)
+        else:
+            newLines.append(x)
+
+        if x.startswith("# End Source File"):
+            inSource = 0
+            for s in source:
+                if doComment:
+                    newLines.append('#' + s)
+                else:
+                    newLines.append(s)
+            doComment = 0
+            source = []
+
+    newProject.writelines(newLines)
+    newProject.close()
+    oldProject.close()
+    os.remove(origfile)
+
+#
 # Check arguments
 #
 tag = "-rHEAD"
@@ -96,7 +141,8 @@ for x in sys.argv[1:]:
     elif x == "-d":
         skipDocs = 1
     elif x.startswith("-"):
-        print "Unknown option `" + x + "'"
+        print sys.argv[0] + ": unknown option `" + x + "'"
+        print
         usage()
         sys.exit(1)
     else:
@@ -148,6 +194,11 @@ for x in grammars:
     # Edit the Makefile to comment out the grammar rules.
     #
     fixMakefile("Makefile", base)
+    #
+    # Edit the project file(s) to comment out the grammar rules.
+    #
+    for p in glob.glob("*.dsp"):
+        fixProject(p, file)
     os.chdir(cwd)
 
 #
@@ -169,6 +220,11 @@ for x in scanners:
     # Edit the Makefile to comment out the flex rules.
     #
     fixMakefile("Makefile", base)
+    #
+    # Edit the project file(s) to comment out the flex rules.
+    #
+    for p in glob.glob("*.dsp"):
+        fixProject(p, file)
     os.chdir(cwd)
 
 #
