@@ -24,4 +24,4 @@ manual.pdf: manual.sgml
 	db2pdf manual.sgml
 
 clean::
-	rm -rf manual
+	rm -rf manual manual.out manual.texi
