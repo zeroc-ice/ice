@@ -151,7 +151,7 @@ IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 void
 IceProxy::Ice::Object::ice_ping()
 {
-    return ice_ping(_reference->context);
+    ice_ping(_reference->context);
 }
 
 void
@@ -310,7 +310,7 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 					OperationMode mode,
 					const vector<Byte>& inParams)
 {
-    return ice_invoke_async(cb, operation, mode, inParams, _reference->context);
+    ice_invoke_async(cb, operation, mode, inParams, _reference->context);
 }
 
 void
