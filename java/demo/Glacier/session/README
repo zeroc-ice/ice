@@ -22,7 +22,3 @@ If no data is received from the client for a period of 60 seconds
 (this timeout is configurable) the glacier session will be terminated.
 In order to send more data, you will need to start a new session by
 restarting the client and logging in again.
-
-NOTE: The glacierstarter executable is not currently available on
-Windows. You can still use this demo if you have a supported platform
-on which to run glacierstarter.
