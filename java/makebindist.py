@@ -53,6 +53,26 @@ if not os.environ.has_key("ICE_HOME"):
     sys.exit(1)
 
 #
+# Get platform.
+#
+platform = ""
+if sys.platform.startswith("win") or sys.platform.startswith("cygwin"):
+    platform = "win32"
+elif sys.platform.startswith("linux"):
+    platform = "linux"
+elif sys.platform.startswith("sunos"):
+    platform = "solaris"
+elif sys.platform.startswith("hp"):
+    platform = "hpux"
+elif sys.platform.startswith("darwin"):
+    platform = "macosx"
+elif sys.platform.startswith("aix"):
+    platform = "aix"
+else:
+    print "unknown platform (" + sys.platform + ")!"
+    sys.exit(1)
+
+#
 # Remove any existing distribution directory and create a new one.
 #
 distdir = "bindist"
@@ -65,7 +85,11 @@ cwd = os.getcwd()
 #
 # Export Config.h from CVS.
 #
-os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice/include/IceUtil/Config.h")
+if platform == "aix":
+    os.environ["LIBPATH"] = ""
+    os.system("cvs -d cvsint.mutablerealms.com:/home/cvsroot export " + tag + " ice/include/IceUtil/Config.h")
+else:
+    os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice/include/IceUtil/Config.h")
 
 #
 # Get Ice version.
@@ -86,24 +110,6 @@ if version != version2:
 
 icever = "Ice-" + version
 os.mkdir(icever)
-
-#
-# Get platform.
-#
-platform = ""
-if sys.platform.startswith("win") or sys.platform.startswith("cygwin"):
-    platform = "win32"
-elif sys.platform.startswith("linux"):
-    platform = "linux"
-elif sys.platform.startswith("sunos"):
-    platform = "solaris"
-elif sys.platform.startswith("hp"):
-    platform = "hpux"
-elif sys.platform.startswith("darwin"):
-    platform = "macosx"
-else:
-    print "unknown platform (" + sys.platform + ")!"
-    sys.exit(1)
 
 #
 # Copy executables and libraries.
@@ -139,7 +145,8 @@ else:
         "libIceUtil",\
         "libSlice",\
     ]
-    symlinks = 1
+    if platform != "aix":
+	symlinks = 1
     strip = 1
 
 bindir = icever + "/bin"
@@ -173,8 +180,11 @@ if symlinks:
         os.symlink(soInt, soLib)
         os.chdir(cwd)
 else:
-    for x in libraries:
-        shutil.copyfile(icehome + "/lib/" + x, libdir + "/" + x)
+    for lib in libraries:
+	if platform == "aix":
+	    shutil.copyfile(icehome + "/lib/" + lib + ".a", libdir + "/" + lib + ".a")
+	else:
+	    shutil.copyfile(icehome + "/lib/" + lib, libdir + "/" + lib)
 
 if platform == "win32":
     if not os.environ["WINDIR"]:
@@ -207,6 +217,8 @@ if strip:
             soLib = x + ".sl"
 	elif platform == "macosx":
             soLib = x + ".dylib"
+	elif platform == "aix":
+            soLib = x + ".a"
         else:
             soLib = x + ".so"
         os.system("strip " + stripOpts + " " + libdir + "/" + soLib)
