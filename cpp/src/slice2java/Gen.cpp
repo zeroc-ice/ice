@@ -3719,7 +3719,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << nl << "public abstract void ice_exception(Ice.UserException ex);";
 	}
 	
-	out << sp << nl << "protected final void" << nl << "__invoke" << spar << "IceInternal.Reference __ref"
+	out << sp << nl << "public final void" << nl << "__invoke" << spar << "IceInternal.Reference __ref"
 	    << paramsInvoke << "java.util.Map __ctx" << epar;
 	out << sb;
 	out << nl << "try";
