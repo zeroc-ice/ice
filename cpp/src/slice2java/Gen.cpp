@@ -489,12 +489,22 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
 		string typeS = typeToString(q->first, TypeModeIn, scope);
-		out << nl << typeS << ' ' << fixKwd(q->second) << ';';
-		writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter);
-		if(op->sendsClasses())
+		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
 		{
-		    out << nl << "__is.readPendingObjects();";
+		    out << nl << typeS << "Holder " << fixKwd(q->second) << " = new " << typeS << "Holder();";
+		    writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter, true,
+					      std::list<std::string>(), std::string());
 		}
+		else
+		{
+		    out << nl << typeS << ' ' << fixKwd(q->second) << ';';
+		    writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter);
+		}
+	    }
+	    if(op->sendsClasses())
+	    {
+		out << nl << "__is.readPendingObjects();";
 	    }
 	    
 	    //
@@ -523,7 +533,13 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    out << "__obj." << opName << '(';
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
-		out << fixKwd(q->second) << ", ";
+		out << fixKwd(q->second);
+		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+		{
+		    out << ".value";
+		}
+		out << ", ";
 	    }
 	    for(q = outParams.begin(); q != outParams.end(); ++q)
 	    {
@@ -595,12 +611,22 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
 		string typeS = typeToString(q->first, TypeModeIn, scope);
-		out << nl << typeS << ' ' << fixKwd(q->second) << ';';
-		writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter);
-		if(op->sendsClasses())
+		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
 		{
-		    out << nl << "__is.readPendingObjects();";
+		    out << nl << typeS << "Holder " << fixKwd(q->second) << " = new " << typeS << "Holder();";
+		    writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter, true,
+					      std::list<std::string>(), std::string());
 		}
+		else
+		{
+		    out << nl << typeS << ' ' << fixKwd(q->second) << ';';
+		    writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter);
+		}
+	    }
+	    if(op->sendsClasses())
+	    {
+		out << nl << "__is.readPendingObjects();";
 	    }
 	    
 	    //
@@ -614,7 +640,13 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    out << nl << "__obj." << opName << (amd ? "_async(__cb, " : "(");
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
-		out << fixKwd(q->second) << ", ";
+		out << fixKwd(q->second);
+		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
+		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+		{
+		    out << ".value";
+		}
+		out << ", ";
 	    }
 	    out << "__current);";
 	    out << eb;
@@ -1185,6 +1217,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
+#if 0
     //
     // hashCode
     //
@@ -1235,6 +1268,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << eb;
         }
     }
+#endif
 
     //
     // Default factory for non-abstract classes.
@@ -1301,6 +1335,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
 	    out << sb;
+out << nl << "System.err.print(\"patch: patcher is \");";
+out << nl << "System.err.print(this.toString());";
+out << nl << "System.err.print(\" instance is \");";
+out << nl << "if(v == null)";
+out << nl << "System.err.println(\"0\");";
+out << nl << "else";
+out << nl << "System.err.println(v.toString());";
 	    if(allClassMembers.size() > 1)
 	    {
 		out << nl << "switch(__member)";
@@ -2232,6 +2273,13 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
 	    out << nl << "public void";
 	    out << nl << "patch(Ice.Object v)";
 	    out << sb;
+out << nl << "System.err.print(\"patch: patcher is \");";
+out << nl << "System.err.print(this.toString());";
+out << nl << "System.err.print(\" instance is \");";
+out << nl << "if(v == null)";
+out << nl << "System.err.println(\"0\");";
+out << nl << "else";
+out << nl << "System.err.println(v.toString());";
 	    out << nl << "value = (" << typeS << ")v;";
 	    out << eb;
 	    out << eb;

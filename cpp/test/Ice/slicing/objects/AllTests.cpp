@@ -121,7 +121,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing one-element cycle... " << flush;	// Fails with == 1 in readPending
+    cout << "testing one-element cycle... " << flush;
     {
 	try
 	{
@@ -138,7 +138,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    cout << "testing two-element cycle... " << flush;	// Fails with == 0 in readPending
+    cout << "testing two-element cycle... " << flush;
     {
 	try
 	{
