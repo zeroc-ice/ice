@@ -54,6 +54,19 @@ private:
 
     void printHeader();
 
+    class OpsVisitor : public CsVisitor
+    {
+    public:
+
+        OpsVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual void visitOperation(const OperationPtr&);
+    };
+
     class TypesVisitor : public CsVisitor
     {
     public:
@@ -74,6 +87,19 @@ private:
 	virtual void visitEnum(const EnumPtr&);
 	virtual void visitConst(const ConstPtr&);
 	virtual void visitDataMember(const DataMemberPtr&);
+    };
+
+    class ProxyVisitor : public CsVisitor
+    {
+    public:
+
+        ProxyVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual void visitOperation(const OperationPtr&);
     };
 };
 

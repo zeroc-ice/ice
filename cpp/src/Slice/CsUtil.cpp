@@ -104,7 +104,9 @@ splitScopedName(const string& scoped)
 // but with all components that are C# keywords replaced by
 // their "@"-prefixed version; otherwise, if the passed name is
 // not scoped, but a C# keyword, return the "@"-prefixed name;
-// otherwise, return the name unchanged.
+// otherwise, return the name unchanged. For the first component
+// of a scoped name, also escape the reserved "Microsoft" and
+// "System" namespaces.
 //
 string
 Slice::CsGenerator::fixKwd(const string& name)
@@ -122,21 +124,18 @@ Slice::CsGenerator::fixKwd(const string& name)
     stringstream result;
     for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
     {
-	if(i != ids.begin())
-	{
-	    result << '.';
-	}
-	else
+	if(i == ids.begin())
 	{
 	    if(*i == "Microsoft" || *i == "System")
 	    {
-	        result << "_cs_" + *i;
-	    }
-	    else
-	    {
-		result << *i;
+		result << "_cs_";
 	    }
 	}
+	else
+	{
+	    result << '.';
+	}
+	result << *i;
     }
     return result.str();
 }
@@ -144,6 +143,11 @@ Slice::CsGenerator::fixKwd(const string& name)
 string
 Slice::CsGenerator::typeToString(const TypePtr& type)
 {
+    if(!type)
+    {
+        return "void";
+    }
+
     static const char* builtinTable[] =
     {
         "byte",
@@ -178,6 +182,32 @@ Slice::CsGenerator::typeToString(const TypePtr& type)
     }
 
     return "???";
+}
+
+bool
+Slice::CsGenerator::isValueType(const TypePtr& type)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        switch(builtin->kind())
+	{
+	    case Builtin::KindString:
+	    case Builtin::KindObject:
+	    case Builtin::KindObjectProxy:
+	    case Builtin::KindLocalObject:
+	    {
+	        return false;
+		break;
+	    }
+	}
+	return true;
+   }
+   if(EnumPtr::dynamicCast(type))
+   {
+       return true;
+   }
+   return false;
 }
 
 #if 0

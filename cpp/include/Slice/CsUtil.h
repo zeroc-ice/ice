@@ -28,6 +28,7 @@ public:
     static std::string fixGlobal(const ContainedPtr&);
     static std::string fixKwd(const std::string&);
     static std::string typeToString(const TypePtr&);
+    static bool isValueType(const TypePtr&);
 
 #if 0
 protected:
