@@ -300,6 +300,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	catch(const LocalException& ex)
 	{
 	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+	    connection = 0; // Necessary for the case where validate() fails.
 	}
 	
 	TraceLevelsPtr traceLevels = _instance->traceLevels();

@@ -320,6 +320,7 @@ public class OutgoingConnectionFactory
 	    catch(Ice.LocalException ex)
 	    {
 		exception = ex;
+		connection = null; // Necessary for the case where validate() fails.
 	    }
 	    
 	    TraceLevels traceLevels = _instance.traceLevels();
