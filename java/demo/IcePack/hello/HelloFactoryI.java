@@ -94,7 +94,7 @@ public class HelloFactoryI extends _HelloFactoryDisp
             IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"));
             try
             {
-                admin.removeObject(communicator.stringToProxy(name));	
+                admin.removeObject(Ice.Util.stringToIdentity(name));
             }
             catch(IcePack.ObjectNotExistException e)
             {
