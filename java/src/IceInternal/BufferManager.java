@@ -28,7 +28,8 @@ final class BufferManager
         java.nio.ByteBuffer buf = getBuffer(size);
         if (buf == null)
         {
-            buf = java.nio.ByteBuffer.allocateDirect(size);
+            //buf = java.nio.ByteBuffer.allocateDirect(size);
+            buf = java.nio.ByteBuffer.allocate(size);
             buf.order(java.nio.ByteOrder.LITTLE_ENDIAN);
         }
         return buf;
@@ -40,7 +41,8 @@ final class BufferManager
         java.nio.ByteBuffer buf = getBuffer(size);
         if (buf == null)
         {
-            buf = java.nio.ByteBuffer.allocateDirect(size);
+            //buf = java.nio.ByteBuffer.allocateDirect(size);
+            buf = java.nio.ByteBuffer.allocate(size);
             buf.order(java.nio.ByteOrder.LITTLE_ENDIAN);
         }
         buf.put(old);
