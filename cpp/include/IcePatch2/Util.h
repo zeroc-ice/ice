@@ -16,6 +16,9 @@
 namespace IcePatch2
 {
 
+ICE_PATCH2_API extern const char* checksumFile;
+ICE_PATCH2_API extern const char* logFile;
+
 ICE_PATCH2_API std::string lastError();
 
 ICE_PATCH2_API std::string bytesToString(const Ice::ByteSeq&);
@@ -105,6 +108,15 @@ struct FileInfoLess: public std::binary_function<const FileInfo&, const FileInfo
     }
 };
 
+struct PathLess: public std::binary_function<const FileInfo&, const FileInfo&, bool>
+{
+    bool
+    operator()(const FileInfo& lhs, const FileInfo& rhs)
+    {
+        return lhs.path < rhs.path;
+    }
+};
+
 class ICE_PATCH2_API GetFileInfoSeqCB
 {
 public:
@@ -117,7 +129,6 @@ public:
 };
 
 ICE_PATCH2_API bool getFileInfoSeq(const std::string&, int, GetFileInfoSeqCB*, FileInfoSeq&);
-ICE_PATCH2_API bool getFileInfoSeqSubDir(const std::string&, const std::string&, int, GetFileInfoSeqCB*, FileInfoSeq&);
 
 ICE_PATCH2_API void saveFileInfoSeq(const std::string&, const FileInfoSeq&);
 ICE_PATCH2_API void loadFileInfoSeq(const std::string&, FileInfoSeq&);

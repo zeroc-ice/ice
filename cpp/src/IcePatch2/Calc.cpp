@@ -174,68 +174,35 @@ main(int argc, char* argv[])
         usage(argv[0]);
         return EXIT_FAILURE;
     }
-    dataDir = normalize(args[0]);
-
-    for(vector<string>::size_type i = 1; i < args.size(); ++i)
-    {
-        fileSeq.push_back(normalize(args[i]));
-    }
 
     try
     {
-	StringSeq::iterator p;
-	string absDataDir = dataDir;
-    
-#ifdef _WIN32
-	char cwd[_MAX_PATH];
-	if(_getcwd(cwd, _MAX_PATH) == NULL)
+	//
+	// Make working directory the data directory *before* calling normalize() for
+	// for the first time (because normalize caches the current working directory).
+	//
+	if(chdir(args[0].c_str()) != 0)
 	{
-	    throw "cannot get the current directory:\n" + lastError();
+	    string msg = "cannot change working directory to `" + args[0] + "': " + lastError();
+	    throw msg;
 	}
-	
-	if(absDataDir[0] != '/' && !(absDataDir.size() > 1 && isalpha(absDataDir[0]) && absDataDir[1] == ':'))
-	{
-	    absDataDir = string(cwd) + '/' + absDataDir;
-	}
-	
-	for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
-	{
-	    if((*p)[0] != '/' && !(p->size() > 1 && isalpha((*p)[0]) && (*p)[1] == ':'))
-	    {
-		*p = string(cwd) + '/' + *p;
-	    }
-	}
-#else
-	char cwd[PATH_MAX];
-	if(getcwd(cwd, PATH_MAX) == NULL)
-	{
-	    throw "cannot get the current directory:\n" + lastError();
-	}
-	
-	if(absDataDir[0] != '/')
-	{
-	    absDataDir = string(cwd) + '/' + absDataDir;
-	}
-	
-	for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
-	{
-	    if((*p)[0] != '/')
-	    {
-		*p = string(cwd) + '/' + *p;
-	    }
-	}
-#endif
+	dataDir = normalize(".");
+	string dataDirWithSlash = dataDir + "/";
 
-	string absDataDirWithSlash = absDataDir + '/';
-	
+	for(vector<string>::size_type i = 1; i < args.size(); ++i)
+	{
+	    fileSeq.push_back(normalize(args[i]));
+	}
+
+	StringSeq::iterator p;
 	for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
 	{
-	    if(p->compare(0, absDataDirWithSlash.size(), absDataDirWithSlash) != 0)
+	    if(p->compare(0, dataDirWithSlash.size(), dataDirWithSlash) != 0)
 	    {
 		throw "`" + *p + "' is not a path in `" + dataDir + "'";
 	    }
 	    
-	    p->erase(0, absDataDirWithSlash.size());
+	    p->erase(0, dataDirWithSlash.size());
 	}
     
 	FileInfoSeq infoSeq;
@@ -243,21 +210,21 @@ main(int argc, char* argv[])
 	if(fileSeq.empty())
 	{
 	    CalcCB calcCB;
-	    if(!getFileInfoSeq(absDataDir, compress, verbose ? &calcCB : 0, infoSeq))
+	    if(!getFileInfoSeq(".", compress, verbose ? &calcCB : 0, infoSeq))
 	    {
 		return EXIT_FAILURE;
 	    }
 	}
 	else
 	{
-	    loadFileInfoSeq(absDataDir, infoSeq);
+	    loadFileInfoSeq(".", infoSeq);
 
 	    for(p = fileSeq.begin(); p != fileSeq.end(); ++p)
 	    {
 		FileInfoSeq partialInfoSeq;
 
 		CalcCB calcCB;
-		if(!getFileInfoSeqSubDir(absDataDir, *p, compress, verbose ? &calcCB : 0, partialInfoSeq))
+		if(!getFileInfoSeq(*p, compress, verbose ? &calcCB : 0, partialInfoSeq))
 		{
 		    return EXIT_FAILURE;
 		}
@@ -312,7 +279,7 @@ main(int argc, char* argv[])
 	    }
 	}
 
-	saveFileInfoSeq(absDataDir, infoSeq);
+	saveFileInfoSeq(dataDir, infoSeq);
     }
     catch(const string& ex)
     {

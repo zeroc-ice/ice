@@ -23,31 +23,32 @@ using namespace Ice;
 using namespace IcePatch2;
 
 IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const FileInfoSeq& infoSeq) :
-    _dataDir(dataDir)
+    _dataDir(normalize(dataDir)),
+    _dataDirWithSlash(_dataDir + "/")
 {
     FileTree0& tree0 = const_cast<FileTree0&>(_tree0);
     getFileTree0(infoSeq, tree0);
 }
 
 FileInfoSeq
-IcePatch2::FileServerI::getFileInfo1Seq(Int node0, const Current&) const
+IcePatch2::FileServerI::getFileInfoSeq(Int node, const Current&) const
 {
-    if(node0 < 0 || node0 > 255)
+    if(node < 0 || node > 255)
     {
 	throw NodeOutOfRangeException();
     }
 
-    return _tree0.nodes[node0].files;
+    return _tree0.nodes[node].files;
 }
 
 ByteSeqSeq
-IcePatch2::FileServerI::getChecksum0Seq(const Current&) const
+IcePatch2::FileServerI::getChecksumSeq(const Current&) const
 {
     ByteSeqSeq checksums(256);
 
-    for(int node0 = 0; node0 < 256; ++node0)
+    for(int node = 0; node < 256; ++node)
     {
-	checksums[node0] = _tree0.nodes[node0].checksum;
+	checksums[node] = _tree0.nodes[node].checksum;
     }
 
     return checksums;
@@ -62,8 +63,13 @@ IcePatch2::FileServerI::getChecksum(const Current&) const
 ByteSeq
 IcePatch2::FileServerI::getFileCompressed(const string& pa, Int pos, Int num, const Current&) const
 {
-    string path = normalize(_dataDir + '/' + pa);
-    path += ".bz2";
+    string path = normalize(pa) + ".bz2";
+    if(path.compare(0, _dataDirWithSlash.size(), _dataDirWithSlash) != 0)
+    {
+	FileAccessException ex;
+	ex.reason = "`" + pa + "' is not a path in `" + _dataDir + "'";
+	throw ex;
+    }
 
     if(num <= 0 || pos < 0)
     {

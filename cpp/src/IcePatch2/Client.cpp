@@ -14,6 +14,7 @@
 
 #ifdef _WIN32
 #   include <conio.h>
+#   include <direct.h>
 #else
 #   include <fcntl.h>
 #   include <termios.h>
@@ -253,10 +254,24 @@ Client::run(int argc, char* argv[])
 	usage(argv[0]);
 	return EXIT_FAILURE;
     }
-    if(args.size() == 1)
+    if(args.empty())
     {
-	properties->setProperty("IcePatch2.Directory", args[0]);
+	cerr << argv[0] << ": no data directory specified" << endl;
+	usage(argv[0]);
+	return EXIT_FAILURE;
     }
+
+    //
+    // Make working directory the data directory *before* calling normalize() for
+    // for the first time (because normalize caches the current working directory).
+    //
+    if(chdir(args[0].c_str()) != 0)
+    {
+	string msg = "cannot change working directory to `" + args[0] + "': " + lastError();
+	throw msg;
+    }
+
+    properties->setProperty("IcePatch2.Directory", normalize("."));
 
     bool aborted = false;
 
@@ -269,7 +284,7 @@ Client::run(int argc, char* argv[])
 
 	if(!aborted)
 	{
-	    aborted = !patcher->patch("");
+	    aborted = !patcher->patch(".");
 	}
 
 	if(!aborted)
@@ -303,7 +318,7 @@ Client::usage(const string& appName)
 	"-v, --version        Display the Ice version.\n"
 	"-t, --thorough       Recalculate all checksums.";
 
-    cerr << "Usage: " << appName << " [options] [DIR]" << endl;
+    cerr << "Usage: " << appName << " [options] DIR" << endl;
     cerr << options << endl;
 }
 

@@ -114,8 +114,8 @@ public:
 	
 	    try
 	    {
-		decompressFile(_dataDir + '/' + info.path);
-		remove(_dataDir + '/' + info.path + ".bz2");
+		decompressFile(info.path);
+		remove(info.path + ".bz2");
 	    }
 	    catch(const string& ex)
 	    {
@@ -157,30 +157,6 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
 	const_cast<Int&>(_chunkSize) = 1;
     }
 
-#ifdef _WIN32
-    if(_dataDir[0] != '/' && !(_dataDir.size() > 1 && isalpha(_dataDir[0]) && _dataDir[1] == ':'))
-    {
-	char cwd[_MAX_PATH];
-	if(_getcwd(cwd, _MAX_PATH) == NULL)
-	{
-	    throw "cannot get the current directory:\n" + lastError();
-	}
-    
-	const_cast<string&>(_dataDir) = string(cwd) + '/' + _dataDir;
-    }
-#else
-    if(_dataDir[0] != '/')
-    {
-	char cwd[PATH_MAX];
-	if(getcwd(cwd, PATH_MAX) == NULL)
-	{
-	    throw "cannot get the current directory:\n" + lastError();
-	}
-    
-	const_cast<string&>(_dataDir) = string(cwd) + '/' + _dataDir;
-    }
-#endif
-	
     PropertiesPtr properties = communicator->getProperties();
 
     const char* endpointsProperty = "IcePatch2.Endpoints";
@@ -238,17 +214,17 @@ private:
     const PatcherFeedbackPtr _feedback;
 };
 
-class AMIGetFileInfo1Seq : public AMI_FileServer_getFileInfo1Seq, public IceUtil::Monitor<IceUtil::Mutex>
+class AMIGetFileInfoSeq : public AMI_FileServer_getFileInfoSeq, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
-    AMIGetFileInfo1Seq() :
+    AMIGetFileInfoSeq() :
 	_done(false)
     {
     }
 
     FileInfoSeq
-    getFileInfo1Seq()
+    getFileInfoSeq()
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -296,7 +272,7 @@ private:
     auto_ptr<Exception> _exception;
 };
 
-typedef IceUtil::Handle<AMIGetFileInfo1Seq> AMIGetFileInfo1SeqPtr;
+typedef IceUtil::Handle<AMIGetFileInfoSeq> AMIGetFileInfoSeqPtr;
 
 bool
 IcePatch2::Patcher::prepare()
@@ -329,7 +305,7 @@ IcePatch2::Patcher::prepare()
 	}
 
 	PatcherGetFileInfoSeqCB cb(_feedback);
-	if(!getFileInfoSeq(_dataDir, 0, &cb, _localFiles))
+	if(!getFileInfoSeq(".", 0, &cb, _localFiles))
 	{
 	    return false;
 	}
@@ -352,25 +328,25 @@ IcePatch2::Patcher::prepare()
 	    return false;
 	}
 	
-	ByteSeqSeq checksum0Seq = _serverCompress->getChecksum0Seq();
-	if(checksum0Seq.size() != 256)
+	ByteSeqSeq checksumSeq = _serverCompress->getChecksumSeq();
+	if(checksumSeq.size() != 256)
 	{
 	    throw string("server returned illegal value");
 	}
 	
-	AMIGetFileInfo1SeqPtr curCB;
-	AMIGetFileInfo1SeqPtr nxtCB;
+	AMIGetFileInfoSeqPtr curCB;
+	AMIGetFileInfoSeqPtr nxtCB;
 
 	for(int node0 = 0; node0 < 256; ++node0)
 	{
-	    if(tree0.nodes[node0].checksum != checksum0Seq[node0])
+	    if(tree0.nodes[node0].checksum != checksumSeq[node0])
 	    {
 		if(!curCB)
 		{
 		    assert(!nxtCB);
-		    curCB = new AMIGetFileInfo1Seq;
-		    nxtCB = new AMIGetFileInfo1Seq;
-		    _serverCompress->getFileInfo1Seq_async(curCB, node0);
+		    curCB = new AMIGetFileInfoSeq;
+		    nxtCB = new AMIGetFileInfoSeq;
+		    _serverCompress->getFileInfoSeq_async(curCB, node0);
 		}
 		else
 		{
@@ -384,14 +360,14 @@ IcePatch2::Patcher::prepare()
 		{
 		    ++node0Nxt;
 		}
-		while(node0Nxt < 256 && tree0.nodes[node0Nxt].checksum == checksum0Seq[node0Nxt]);
+		while(node0Nxt < 256 && tree0.nodes[node0Nxt].checksum == checksumSeq[node0Nxt]);
 
 		if(node0Nxt < 256)
 		{
-		    _serverNoCompress->getFileInfo1Seq_async(nxtCB, node0Nxt);
+		    _serverNoCompress->getFileInfoSeq_async(nxtCB, node0Nxt);
 		}
 
-		FileInfoSeq files = curCB->getFileInfo1Seq();
+		FileInfoSeq files = curCB->getFileInfoSeq();
 		
 		sort(files.begin(), files.end(), FileInfoLess());
 		files.erase(unique(files.begin(), files.end(), FileInfoEqual()), files.end());
@@ -423,10 +399,19 @@ IcePatch2::Patcher::prepare()
 	}
     }
     
-    sort(_removeFiles.begin(), _removeFiles.end(), FileInfoLess());
     sort(_updateFiles.begin(), _updateFiles.end(), FileInfoLess());
+    sort(_removeFiles.begin(), _removeFiles.end(), FileInfoLess());
 
-    string pathLog = _dataDir + ".log";
+    //
+    // Remove the data dir itself from the list of files to be removed.
+    //
+    FileInfo fi;
+    fi.path = _dataDir;
+    pair<FileInfoSeq::iterator, FileInfoSeq::iterator> p
+        = equal_range(_removeFiles.begin(), _removeFiles.end(), fi, PathLess());
+    _removeFiles.erase(p.first, p.second);
+
+    string pathLog = _dataDir + "/" + logFile;
     _log.open(pathLog.c_str());
     if(!_log)
     {
@@ -441,7 +426,7 @@ IcePatch2::Patcher::patch(const string& d)
 {
     string dir = normalize(d);
 
-    if(dir.empty() || dir == ".")
+    if(dir == _dataDir)
     {
 	if(!_removeFiles.empty())
 	{
@@ -533,7 +518,7 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
     {
 	try
 	{
-	    remove(_dataDir + '/' + p->path);
+	    remove(p->path);
 	    _log << '-' << *p << endl;
 	}
 	catch(...)
@@ -682,7 +667,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
     {
 	if(p->size < 0) // Directory?
 	{
-	    createDirectoryRecursive(_dataDir + '/' + p->path);
+	    createDirectoryRecursive(p->path);
 	    _log << '+' << *p << endl;
 	}
 	else // Regular file.
@@ -694,18 +679,14 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
 	    if(p->size == 0)
 	    {
-		string path = _dataDir + '/' + p->path;
-		ofstream file(path.c_str(), ios::binary);
+		ofstream file(p->path.c_str(), ios::binary);
 	    }
 	    else
 	    {
-		string pathBZ2 = _dataDir + '/' + p->path + ".bz2";
+		string pathBZ2 = p->path + ".bz2";
 	    
 		string dir = getDirname(pathBZ2);
-		if(!dir.empty())
-		{
-		    createDirectoryRecursive(dir);
-		}
+		createDirectoryRecursive(dir);
 		
 		try
 		{

@@ -104,14 +104,14 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 	usage(argv[0]);
 	return false;
     }
-    if(args.size() == 1)
-    {
-        dataDir = args[0];
-    }
 
     PropertiesPtr properties = communicator()->getProperties();
 
-    if(dataDir.empty())
+    if(!args.empty())
+    {
+        dataDir = args[0];
+    }
+    else
     {
 	dataDir = properties->getProperty("IcePatch2.Directory");
 	if(dataDir.empty())
@@ -126,23 +126,16 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 
     try
     {
-#ifdef _WIN32
-	if(dataDir[0] != '/' && !(dataDir.size() > 1 && isalpha(dataDir[0]) && dataDir[1] == ':'))
+	//
+	// Make working directory the data directory *before* calling normalize() for
+	// for the first time (because normalize caches the current working directory).
+	//
+	if(chdir(dataDir.c_str()) != 0)
 	{
-	    char cwd[_MAX_PATH];
-	    if(_getcwd(cwd, _MAX_PATH) == NULL)
-#else
-	if(dataDir[0] != '/')
-	{
-	    char cwd[PATH_MAX];
-	    if(getcwd(cwd, PATH_MAX) == NULL)
-#endif
-	    {
-		throw "cannot get the current directory:\n" + lastError();
-	    }
-	    
-	    dataDir = string(cwd) + '/' + dataDir;
+	    string msg = "cannot change working directory to `" + dataDir + "': " + lastError();
+	    throw msg;
 	}
+	dataDir = normalize(".");
 
 	loadFileInfoSeq(dataDir, infoSeq);
     }
@@ -240,7 +233,8 @@ IcePatch2::PatcherService::usage(const string& appName)
         "\n"
         "--daemon             Run as a daemon.\n"
         "--noclose            Do not close open file descriptors.\n"
-        "--nochdir            Do not change the current working directory."
+
+	// --nochdir is intentionally not shown here. (See the comment in main().)
     );
 #endif
     cerr << "Usage: " << appName << " [options] [DIR]" << endl;
@@ -251,5 +245,52 @@ int
 main(int argc, char* argv[])
 {
     IcePatch2::PatcherService svc;
-    return svc.main(argc, argv);
+    int status = EXIT_FAILURE;
+
+#ifdef _WIN32
+    status = svc.main(argc, argv);
+#else
+    //
+    // For UNIX, force --nochdir option, so the service isn't started with /
+    // as the working directory. That way, if the data directory is
+    // specified as a relative path, we don't misinterpret that path.
+    //
+    char** v = new char*[argc + 2];
+    char** vsave = new char*[argc + 2]; // We need to keep a copy of the vector because svc.main modifies argv.
+
+    v[0] = new char[strlen(argv[0]) + 1];
+    strcpy(v[0], argv[0]);
+    vsave[0] = v[0];
+
+    v[1] = new char[sizeof("--nochdir")];
+    strcpy(v[1], "--nochdir");
+    vsave[1] = v[1];
+
+    int i;
+    for(i = 1; i < argc; ++i)
+    {
+        v[i + 1] = new char[strlen(argv[i]) + 1];
+        strcpy(v[i + 1], argv[i]);
+	vsave[i + 1] = v[i + 1];
+    }
+    v[argc + 1] = 0;
+
+    try
+    {
+        status = svc.main(argc + 1, v);
+    }
+    catch(...)
+    {
+        // Ignore exceptions -- the only thing left to do is to free memory.
+    }
+
+    for(i = 0; i < argc + 1; ++i)
+    {
+        delete[] vsave[i];
+    }
+    delete[] v;
+    delete[] vsave;
+#endif
+
+    return status;
 }

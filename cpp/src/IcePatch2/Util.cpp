@@ -100,6 +100,9 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
 
+const char* IcePatch2::checksumFile = "IcePatch2.sum";
+const char* IcePatch2::logFile = "IcePatch2.log";
+
 string
 IcePatch2::lastError()
 {
@@ -213,11 +216,21 @@ IcePatch2::stringToBytes(const string& str)
 string
 IcePatch2::normalize(const string& path)
 {
-    string result = path;
+    static string cwd;
+    static string drive;
 
+    string result = path;
     string::size_type pos;
 
+    if(result.empty())
+    {
+        throw "Invalid empty path";
+    }
+
 #ifdef _WIN32
+    //
+    // Turn backslashes into forward slashes.
+    //
     for(pos = 0; pos < result.size(); ++pos)
     {
 	if(result[pos] == '\\')
@@ -227,66 +240,147 @@ IcePatch2::normalize(const string& path)
     }
 #endif
 
+    //
+    // Get current working directory the first time we come through here.
+    //
+    {
+	static bool cwdDone = false;
+	static IceUtil::StaticMutex m = ICE_STATIC_MUTEX_INITIALIZER;
+
+        IceUtil::StaticMutex::Lock sync(m);
+
+        if(!cwdDone)
+	{
+#ifdef _WIN32
+	    char buf[MAX_PATH];
+	    if(_getcwd(buf, sizeof(buf)) == NULL)
+#else
+	    char buf[PATH_MAX];
+	    if(getcwd(buf, sizeof(buf)) == NULL)
+#endif
+	    {
+		throw "cannot get the current directory:\n" + lastError();
+	    }
+#ifdef _WIN32
+	    for(pos = 0; buf[pos] != '\0'; ++pos)
+	    {
+	        if(buf[pos] == '\\')
+		{
+		    buf[pos] = '/';
+		}
+	    }
+#endif
+	    cwd = buf;
+	    drive = cwd.substr(0, 2);
+	    cwdDone = true;
+	}
+    }
+
+    //
+    // Create absolute path. For Windows, we make sure that there always is a drive letter.
+    // Otherwise, if the data directory is specified as C:/, and we ask for a file /a, we
+    // end up with C:/a. This avoids erroneously concluding that C:/a is not the same file as /a.
+    //
+    bool isAbsolute;
+#ifdef _WIN32
+    isAbsolute = result[0] == '/' || (result.size() > 1 && isalpha(result[0]) && result[1] == ':');
+    if(result[0] == '/')
+    {
+        result = drive + result;
+    }
+#else
+    isAbsolute = result[0] == '/';
+#endif
+    if(!isAbsolute)
+    {
+        result = cwd + "/" + result;
+    }
+    
+    //
+    // Get rid of multiple adjacent slashes.
+    //
     pos = 0;
     while((pos = result.find("//", pos)) != string::npos)
     {
 	result.erase(pos, 1);
     }
 
+    //
+    // Split out the path components and put them into a vector.
+    //
+#ifdef _WIN32
+    pos = 2; // Slash follows the drive letter and colon.
+#else
     pos = 0;
-    while((pos = result.find("/./", pos)) != string::npos)
+#endif
+    vector<string> vec;
+    while(pos != string::npos)
     {
-	result.erase(pos, 2);
+        string::size_type end = result.find('/', pos + 1);
+	string component;
+	if(end != string::npos)
+	{
+	    component = result.substr(pos + 1, end - (pos + 1));
+	}
+	else
+	{
+	    component = result.substr(pos + 1);
+	}
+
+	if(component.empty())
+	{
+	    ; // Ignore empty component caused by trailing slash in original path.
+	}
+	else if(component == ".")
+	{
+	    ; // Ignore '.'
+	}
+	else if(component == "..")
+	{
+	    if(!vec.empty())
+	    {
+	        vec.erase(vec.end() - 1); // Jump up one level, except at the root.
+	    }
+	}
+	else
+	{
+	    vec.push_back(component);
+	}
+
+	pos = end;
     }
 
-    if(result.substr(0, 2) == "./")
-    {
-	result.erase(0, 2);
-    }
+#ifdef _WIN32
+    result = drive;
+#else
+    result.clear();
+#endif
 
-    if(result.size() >= 2 && result.substr(result.size() - 2, 2) == "/.")
+    for(vector<string>::const_iterator i = vec.begin(); i != vec.end(); ++i)
     {
-	result.erase(result.size() - 2, 2);
+        result += "/" + *i;
     }
-
-    if(result.size() >= 1 && result[result.size() - 1] == '/')
-    {
-	result.erase(result.size() - 1);
-    }
-
     return result;
 }
 
 string
 IcePatch2::getSuffix(const string& pa)
 {
-    const string path = normalize(pa);
-
-    string::size_type pos = path.rfind('.');
-    if(pos == string::npos)
-    {
-	return string();
-    }
-    else
-    {
-	return path.substr(pos + 1);
-    }
+    const string name = getBasename(pa);
+    string::size_type pos = name.rfind('.'); // '.' must appear in final path component.
+    return pos == string::npos ? string() : name.substr(pos + 1);
 }
 
 string
 IcePatch2::getWithoutSuffix(const string& pa)
 {
     const string path = normalize(pa);
-
+    if(getBasename(pa).rfind('.') == string::npos) // '.' must appear in final path component.
+    {
+        return path;
+    }
     string::size_type pos = path.rfind('.');
-    if(pos == string::npos)
-    {
-	return path;
-    }
-    else
-    {
-	return path.substr(0, pos);
-    }
+    return path.substr(0, pos);
 }
 
 bool
@@ -299,36 +393,52 @@ IcePatch2::ignoreSuffix(const string& path)
 	|| suffix == "bz2temp";
 }
 
+static bool
+isRoot(const string& pa)
+{
+#ifdef _WIN32
+    if(pa.size() == 3 && isalpha(pa[0]) && pa[1] == ':' && pa[2] == '/')
+    {
+        return true;
+    }
+#endif
+    return pa == "/";
+}
+
 string
 IcePatch2::getBasename(const string& pa)
 {
     const string path = normalize(pa);
-
+    if(isRoot(path))
+    {
+        return path;
+    }
     string::size_type pos = path.rfind('/');
-    if(pos == string::npos)
-    {
-	return path;
-    }
-    else
-    {
-	return path.substr(pos + 1);
-    }
+    return path.substr(pos + 1);
 }
 
 string
 IcePatch2::getDirname(const string& pa)
 {
-    const string path = normalize(pa);
-
+    string path = normalize(pa);
+    if(isRoot(path))
+    {
+        return path;
+    }
     string::size_type pos = path.rfind('/');
-    if(pos == string::npos)
+    path = path.substr(0, pos);
+#ifdef _WIN32
+    if(path.size() == 2 && isalpha(path[0]) && path[1] == ':')
     {
-	return string();
+	return path + "/";
     }
-    else
+#else
+    if(path.isEmpty())
     {
-	return path.substr(0, pos);
+	return "/";
     }
+#endif
+    return path;
 }
 
 void
@@ -513,7 +623,7 @@ IcePatch2::createDirectoryRecursive(const string& pa)
     const string path = normalize(pa);
 
     string dir = getDirname(path);
-    if(!dir.empty())
+    if(!isRoot(dir))
     {
 	createDirectoryRecursive(dir);
     }
@@ -668,10 +778,13 @@ IcePatch2::decompressFile(const string& pa)
 }
 
 static bool
-getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, GetFileInfoSeqCB* cb,
-		  FileInfoSeq& infoSeq)
+getFileInfoSeqInt(const string& path, int compress, GetFileInfoSeqCB* cb, FileInfoSeq& infoSeq)
 {
-    const string path = basePath + '/' + relPath;
+    string basename = getBasename(path);
+    if(basename == checksumFile || basename == logFile) // Don't transmit these.
+    {
+	return true;
+    }
 
     if(ignoreSuffix(path))
     {
@@ -679,7 +792,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 
 	if(ignoreSuffix(pathWithoutSuffix))
 	{
-	    if(cb && !cb->remove(relPath))
+	    if(cb && !cb->remove(path))
 	    {
 		return false;
 	    }
@@ -693,7 +806,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 	    {
 		if(errno == ENOENT)
 		{
-		    if(cb && !cb->remove(relPath))
+		    if(cb && !cb->remove(path))
 		    {
 			return false;
 		    }
@@ -707,7 +820,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 	    }
 	    else if(buf.st_size == 0)
 	    {
-		if(cb && !cb->remove(relPath))
+		if(cb && !cb->remove(path))
 		{
 		    return false;
 		}
@@ -724,14 +837,14 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 	    throw "cannot stat `" + path + "':\n" + lastError();
 	}
 
+	FileInfo info;
+	info.path = path;
 	if(S_ISDIR(buf.st_mode))
 	{
-	    FileInfo info;
-	    info.path = relPath;
 	    info.size = -1;
 
-	    ByteSeq bytes(relPath.size());
-	    copy(relPath.begin(), relPath.end(), bytes.begin());
+	    ByteSeq bytes(path.size());
+	    copy(path.begin(), path.end(), bytes.begin());
 
 	    ByteSeq bytesSHA(20);
 	    if(!bytes.empty())
@@ -750,7 +863,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 	    StringSeq content = readDirectory(path);
 	    for(StringSeq::const_iterator p = content.begin(); p != content.end() ; ++p)
 	    {
-		if(!getFileInfoSeqInt(basePath, normalize(relPath + '/' + *p), compress, cb, infoSeq))
+		if(!getFileInfoSeqInt(path + "/" + *p, compress, cb, infoSeq))
 		{
 		    return false;
 		}
@@ -758,12 +871,10 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 	}
 	else if(S_ISREG(buf.st_mode))
 	{
-	    FileInfo info;
-	    info.path = relPath;
 	    info.size = 0;
 
-	    ByteSeq bytes(relPath.size() + buf.st_size);
-	    copy(relPath.begin(), relPath.end(), bytes.begin());
+	    ByteSeq bytes(path.size() + buf.st_size);
+	    copy(path.begin(), path.end(), bytes.begin());
 
 	    if(buf.st_size != 0)
 	    {
@@ -777,7 +888,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 		    throw "cannot open `" + path + "' for reading:\n" + lastError();
 		}
 
-		if(read(fd, &bytes[relPath.size()], buf.st_size) == -1)
+		if(read(fd, &bytes[path.size()], buf.st_size) == -1)
 		{
 		    close(fd);
 		    throw "cannot read from `" + path + "':\n" + lastError();
@@ -797,7 +908,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 
 		    if(compress >= 2 || stat(pathBZ2.c_str(), &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
 		    {
-			if(cb && !cb->compress(relPath))
+			if(cb && !cb->compress(path))
 			{
 			    return false;
 			}
@@ -810,7 +921,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 			//
 			const string pathBZ2Temp = path + ".bz2temp";
 
-			compressBytesToFile(pathBZ2Temp, bytes, relPath.size());
+			compressBytesToFile(pathBZ2Temp, bytes, path.size());
 			
 			rename(pathBZ2Temp, pathBZ2);
 
@@ -824,7 +935,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 		}
 	    }
 
-	    if(cb && !cb->checksum(relPath))
+	    if(cb && !cb->checksum(path))
 	    {
 		return false;
 	    }
@@ -849,20 +960,9 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 }
 
 bool
-IcePatch2::getFileInfoSeq(const string& basePath, int compress, GetFileInfoSeqCB* cb,
-			  FileInfoSeq& infoSeq)
+IcePatch2::getFileInfoSeq(const string& path, int compress, GetFileInfoSeqCB* cb, FileInfoSeq& infoSeq)
 {
-    return getFileInfoSeqSubDir(basePath, ".", compress, cb, infoSeq);
-}
-
-bool
-IcePatch2::getFileInfoSeqSubDir(const string& basePa, const string& relPa, int compress, GetFileInfoSeqCB* cb,
-				FileInfoSeq& infoSeq)
-{
-    const string basePath = normalize(basePa);
-    const string relPath = normalize(relPa);
-
-    if(!getFileInfoSeqInt(basePath, relPath, compress, cb, infoSeq))
+    if(!getFileInfoSeqInt(path, compress, cb, infoSeq))
     {
 	return false;
     }
@@ -877,7 +977,7 @@ void
 IcePatch2::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
 {
     {
-	const string path = normalize(pa + ".sum");
+	const string path = normalize(pa + "/" + checksumFile);
 	
 	ofstream os(path.c_str());
 	if(!os)
@@ -892,7 +992,7 @@ IcePatch2::saveFileInfoSeq(const string& pa, const FileInfoSeq& infoSeq)
     }
 
     {
-	const string pathLog = normalize(pa + ".log");
+	const string pathLog = normalize(pa + "/" + logFile);
 
 	try
 	{
@@ -908,7 +1008,7 @@ void
 IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
 {
     {
-	const string path = normalize(pa + ".sum");
+	const string path = normalize(pa + "/" + checksumFile);
 
 	ifstream is(path.c_str());
 	if(!is)
@@ -932,7 +1032,7 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
     }
 
     {
-	const string pathLog = normalize(pa + ".log");
+	const string pathLog = normalize(pa + "/" + logFile);
 
 	ifstream is(pathLog.c_str());
 	if(is)

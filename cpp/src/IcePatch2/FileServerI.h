@@ -22,9 +22,9 @@ public:
 
     FileServerI(const std::string&, const FileInfoSeq&);
 
-    FileInfoSeq getFileInfo1Seq(Ice::Int, const Ice::Current&) const;
+    FileInfoSeq getFileInfoSeq(Ice::Int, const Ice::Current&) const;
 
-    ByteSeqSeq getChecksum0Seq(const Ice::Current&) const;
+    ByteSeqSeq getChecksumSeq(const Ice::Current&) const;
 
     Ice::ByteSeq getChecksum(const Ice::Current&) const;
 
@@ -33,6 +33,7 @@ public:
 private:
 
     const std::string _dataDir;
+    const std::string _dataDirWithSlash;
     const FileTree0 _tree0;
 };
 
