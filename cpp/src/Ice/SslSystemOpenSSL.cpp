@@ -12,9 +12,10 @@
 #endif
 
 //
-// This needs to be first since the openssl headers redefine _WIN32_WINNT.
+// This needs to be first since <openssl/e_os.h> #include <windows.h>
+// without our configuration settings.
 //
-#include <IceUtil/Mutex.h>
+#include <IceUtil/Config.h>
 
 #include <sstream>
 #include <IceUtil/Mutex.h>
