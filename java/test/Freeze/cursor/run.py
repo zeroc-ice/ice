@@ -21,29 +21,17 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
-testdir = os.path.join(toplevel,"test", "Freeze", "complex")
+testdir = os.path.join(toplevel,"test", "Freeze", "cursor")
 
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
 classpath = os.path.join(toplevel, "lib") + TestUtil.sep + os.path.join(testdir, "classes") + \
     TestUtil.sep + os.environ['CLASSPATH']
-client = "java -classpath \"" + classpath + "\" Client --dbdir " + testdir
+client = "java -classpath \"" + classpath + "\" Client " + testdir
 
-print "starting populate...",
-clientPipe = os.popen(client + " populate")
-output = clientPipe.read().strip()
-if not output:
-    print "failed!"
-    clientPipe.close()
-    sys.exit(1)
-print "ok"
-print output,
-
-clientPipe.close()
-
-print "starting validate...",
-clientPipe = os.popen(client + " validate")
+print "starting client...",
+clientPipe = os.popen(client)
 output = clientPipe.read().strip()
 if not output:
     print "failed!"
