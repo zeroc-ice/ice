@@ -79,7 +79,7 @@ public:
 	called();
     }
 
-    virtual void ice_exception(const ::Ice::Exception& ex)
+    virtual void ice_exception(const ::Ice::Exception&)
     {
 	test(false);
     }
@@ -1001,5 +1001,4 @@ twowaysAMI(const Test::MyClassPrx& p)
 	derived->opDerived_async(cb);
 	test(cb->check());
     }
-
 }

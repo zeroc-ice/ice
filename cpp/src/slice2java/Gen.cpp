@@ -81,11 +81,13 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& scope)
 string
 Slice::JavaVisitor::getParamsAMI(const OperationPtr& op, const string& scope)
 {
+    string name = fixKwd(op->name());
+
     ContainerPtr container = op->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
     string classNameAMI = "AMI_" + fixKwd(cl->name());
 
-    string params = classNameAMI + " __cb";
+    string params = classNameAMI + '_' + name + " __cb";
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
@@ -186,12 +188,6 @@ Slice::JavaVisitor::getArgsAMICB(const OperationPtr& op)
     return args;
 }
 
-static bool
-exceptionIsLocal(const ::Slice::ExceptionPtr exception)
-{
-    return exception->isLocal();
-}
-
 void
 Slice::JavaVisitor::writeThrowsClause(const string& scope, const ExceptionList& throws)
 {
@@ -199,13 +195,6 @@ Slice::JavaVisitor::writeThrowsClause(const string& scope, const ExceptionList& 
     // Don't include local exceptions in the throws clause
     //
     ExceptionList::size_type localCount = 0;
-
-    //
-    // MSVC gets confused if
-    // ::IceUtil::constMemFun(&::Slice::Exception::isLocal)); is used hence
-    // the exceptionIsLocal function.
-    //
-    localCount = count_if(throws.begin(), throws.end(),	exceptionIsLocal);
 
     Output& out = output();
     if(throws.size() - localCount > 0)
@@ -442,8 +431,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << sb;
 
         TypePtr ret = op->returnType();
-        string retS = typeToString(ret, TypeModeReturn, scope);
-        int iter;
 
         TypeStringList inParams;
         TypeStringList outParams;
@@ -454,24 +441,18 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    listref.push_back(make_pair((*pli)->type(), (*pli)->name()));
 	}
 
-        TypeStringList::const_iterator q;
-
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
 
-	//
-	// MSVC gets confused if
-	// ::IceUtil::constMemFun(&::Slice::Exception::isLocal)); is used
-	// hence the exceptionIsLocal function.
-	//
-        remove_if(throws.begin(), throws.end(), exceptionIsLocal);
+        TypeStringList::const_iterator q;
+        int iter;
 
         if(!inParams.empty())
         {
             out << nl << "IceInternal.BasicStream __is = __in.is();";
         }
-        if(!outParams.empty() || ret || throws.size() > 0)
+        if(!outParams.empty() || ret || !throws.empty())
         {
             out << nl << "IceInternal.BasicStream __os = __in.os();";
         }
@@ -508,6 +489,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << nl;
         if(ret)
         {
+	    string retS = typeToString(ret, TypeModeReturn, scope);
             out << retS << " __ret = ";
         }
         out << "__obj." << opName << '(';
@@ -1133,10 +1115,9 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 DataMemberList members = p->dataMembers();
                 DataMemberList::const_iterator d;
-                int iter;
 
                 out << nl << "int __h = 0;";
-                iter = 0;
+                int iter = 0;
                 for(d = members.begin(); d != members.end(); ++d)
                 {
                     string memberName = fixKwd((*d)->name());
@@ -2958,13 +2939,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.sort();
         throws.unique();
 
-	//
-	// MSVC gets confused if
-	// ::IceUtil::constMemFun(&::Slice::Exception::isLocal)); is used
-	// hence the exceptionIsLocal function.
-	//
-        throws.erase(remove_if(throws.begin(), throws.end(), exceptionIsLocal), throws.end());
-
         string params = getParams(op, scope);
 
         out << sp;
@@ -2985,23 +2959,22 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "IceInternal.BasicStream __os = __out.os();";
         }
-        if(!outParams.empty() || ret || throws.size() > 0)
+        if(!outParams.empty() || ret || !throws.empty())
         {
             out << nl << "IceInternal.BasicStream __is = __out.is();";
         }
         iter = 0;
         for(q = inParams.begin(); q != inParams.end(); ++q)
         {
-            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second),
-                                      true, iter);
+            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), true, iter);
         }
         out << nl << "if(!__out.invoke())";
         out << sb;
-        if(throws.size() > 0)
+        if(!throws.empty())
         {
             //
             // The try/catch block is necessary because throwException()
-            // can raise UserException
+            // can raise UserException.
             //
             out << nl << "try";
             out << sb;
@@ -3047,25 +3020,21 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         out << nl << "throw new Ice.UnknownUserException();";
         out << eb;
-
         for(q = outParams.begin(); q != outParams.end(); ++q)
         {
             writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), false, iter, true);
         }
-
         if(ret)
         {
             out << nl << retS << " __ret;";
             writeMarshalUnmarshalCode(out, scope, ret, "__ret", false, iter);
             out << nl << "return __ret;";
         }
-
         out << eb;
         out << nl << "finally";
         out << sb;
         out << nl << "reclaimOutgoing(__out);";
         out << eb;
-
         out << eb;
 
 	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
@@ -3075,7 +3044,19 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << sp;
 	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ", java.util.Map __context)";
 	    out << sb;
-	    out << nl << "throw new Ice.CollocationOptimizationException();";
+	    list<string> metaData = op->getMetaData();
+	    out << nl << "__cb.__setup(__connection, __reference, \"" << op->name() << "\", " << sliceModeToIceMode(op)
+		<< ", __context);";
+	    if(!inParams.empty())
+	    {
+		out << nl << "IceInternal.BasicStream __os = __cb.__os();";
+	    }
+	    iter = 0;
+	    for(q = inParams.begin(); q != inParams.end(); ++q)
+	    {
+		writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second), true, iter);
+	    }
+	    out << nl << "__cb.__invoke();";
 	    out << eb;
 	}
     }
@@ -3128,13 +3109,6 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         ExceptionList throws = op->throws();
         throws.sort();
         throws.unique();
-
-	//
-	// MSVC gets confused if
-	// ::IceUtil::constMemFun(&::Slice::Exception::isLocal)); is used
-	// hence the exceptionIsLocal function.
-	//
-        throws.erase(remove_if(throws.begin(), throws.end(), exceptionIsLocal), throws.end());
 
         string params = getParams(op, scope);
         string args = getArgs(op);
@@ -3522,24 +3496,133 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	string classScopedAMI = classScope + classNameAMI;
 	string absoluteAMI = getAbsolute(classScopedAMI);
 
-	if(!open(absoluteAMI))
+	if(!open(absoluteAMI + '_' + name))
 	{
 	    return;
 	}
 	
 	Output& out = output();
 
-	string paramsAMI = getParamsAMICB(p, classScope);
+        TypePtr ret = p->returnType();
 
-	out << sp << nl << "public abstract class " << classNameAMI << " extends IceInternal.OutgoingAsync";
+        TypeStringList outParams;
+	ParamDeclList paramList = p->parameters();
+	for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+	{
+	    if((*pli)->isOutParam())
+	    {
+		outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+	    }
+	}
+
+        ExceptionList throws = p->throws();
+        throws.sort();
+        throws.unique();
+
+        TypeStringList::const_iterator q;
+        int iter;
+
+	string paramsAMI = getParamsAMICB(p, classScope);
+	string argsAMI = getArgsAMICB(p);
+
+	out << sp << nl << "public abstract class " << classNameAMI << '_' << name
+	    << " extends IceInternal.OutgoingAsync";
 	out << sb;
 
 	out << sp << nl << "public abstract void ice_response(" << paramsAMI << ");";
 
 	out << sp << nl << "public abstract void ice_exception(Ice.LocalException ex);";
 
+	if(!throws.empty())
+	{
+	    out << sp << nl << "public abstract void ice_exception(Ice.UserException ex);";
+	}
+
 	out << sp << nl << "protected final void __response(boolean __ok)";
 	out << sb;
+	out << nl << "try";
+	out << sb;
+	if(ret || !outParams.empty() || !throws.empty())
+	{
+	    out << nl << "IceInternal.BasicStream __is = this.__is();";
+	}
+	out << nl << "if(!__ok)";
+        out << sb;
+        if(!throws.empty())
+        {
+            //
+            // The try/catch block is necessary because throwException()
+            // can raise UserException.
+            //
+            out << nl << "try";
+            out << sb;
+            out << nl << "final String[] __throws =";
+            out << sb;
+            ExceptionList::const_iterator r;
+            for(r = throws.begin(); r != throws.end(); ++r)
+            {
+                if(r != throws.begin())
+                {
+                    out << ",";
+                }
+                out << nl << "\"" << (*r)->scoped() << "\"";
+            }
+            out << eb;
+            out << ';';
+            out << nl << "switch(__is.throwException(__throws))";
+            out << sb;
+            int count = 0;
+            for(r = throws.begin(); r != throws.end(); ++r)
+            {
+                out << nl << "case " << count << ':';
+                out << sb;
+                string abs = getAbsolute((*r)->scoped(), classScope);
+                out << nl << abs << " __ex = new " << abs << "();";
+                out << nl << "__ex.__read(__is);";
+                out << nl << "throw __ex;";
+                out << eb;
+                count++;
+            }
+            out << eb;
+            out << eb;
+            for(r = throws.begin(); r != throws.end(); ++r)
+            {
+                out << nl << "catch(" << getAbsolute((*r)->scoped(), classScope) << " __ex)";
+                out << sb;
+                out << nl << "throw __ex;";
+                out << eb;
+            }
+            out << nl << "catch(Ice.UserException __ex)";
+            out << sb;
+            out << eb;
+        }
+        out << nl << "throw new Ice.UnknownUserException();";
+        out << eb;
+        for(q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            string typeS = typeToString(q->first, TypeModeIn, classScope);
+            out << nl << typeS << ' ' << fixKwd(q->second) << ';';
+            writeMarshalUnmarshalCode(out, classScope, q->first, fixKwd(q->second), false, iter);
+        }
+        if(ret)
+        {
+	    string retS = typeToString(ret, TypeModeIn, classScope);
+            out << nl << retS << " __ret;";
+            writeMarshalUnmarshalCode(out, classScope, ret, "__ret", false, iter);
+        }
+	out << nl << "ice_response(" << argsAMI << ");";
+   	out << eb;
+	out << nl << "catch(Ice.LocalException __ex)";
+	out << sb;
+	out << nl << "ice_exception(__ex);";
+	out << eb;
+	if(!throws.empty())
+	{
+	    out << nl << "catch(Ice.UserException __ex)";
+	    out << sb;
+	    out << nl << "ice_exception(__ex);";
+	    out << eb;
+	}
 	out << eb;
 
 	out << eb;
