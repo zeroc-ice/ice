@@ -29,8 +29,8 @@ compress = 1
 # thread per connection mode.
 #
 
-threadPerConnection = 0
-#threadPerConnection = 1
+#threadPerConnection = 0
+threadPerConnection = 1
 
 #
 # If you don't set "host" below, then the Ice library will try to find
@@ -227,11 +227,6 @@ if compress:
     serverProtocol += " --Ice.Override.Compress"
     clientServerProtocol += " --Ice.Override.Compress"
 
-if threadPerConnection:
-    clientProtocol += " --Ice.ThreadPerConnection"
-    serverProtocol += " --Ice.ThreadPerConnection"
-    clientServerProtocol += " --Ice.ThreadPerConnection"
-
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host
 else:
@@ -240,9 +235,7 @@ else:
 commonClientOptions = " --Ice.NullHandleAbort --Ice.Warn.Connections"
 
 commonServerOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.NullHandleAbort" + \
-                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30" + \
-                      " --Ice.ThreadPool.Server.Size=1 --Ice.ThreadPool.Server.SizeMax=3" + \
-                      " --Ice.ThreadPool.Server.SizeWarn=0"
+                      " --Ice.Warn.Connections --Ice.ServerIdleTime=30"
 
 clientOptions = clientProtocol + defaultHost + commonClientOptions
 serverOptions = serverProtocol + defaultHost + commonServerOptions

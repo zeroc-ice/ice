@@ -130,28 +130,16 @@ Ice:
     ServerIdleTime
     StdErr
     StdOut
-    ThreadPerConnection
     ThreadPerConnection.StackSize
-    ThreadPool.Client.Size
-    ThreadPool.Client.SizeMax
-    ThreadPool.Client.SizeWarn
-    ThreadPool.Client.StackSize
-    ThreadPool.Server.Size
-    ThreadPool.Server.SizeMax
-    ThreadPool.Server.SizeWarn
-    ThreadPool.Server.StackSize
     Trace.GC
     Trace.Location
     Trace.Network
     Trace.Protocol
     Trace.Retry
     Trace.Slicing
-    UDP.RcvSize
-    UDP.SndSize
     UseEventLog
     UseSyslog
     Warn.AMICallback
     Warn.Connections
-    Warn.Datagrams
     Warn.Dispatch
     Warn.Leaks
