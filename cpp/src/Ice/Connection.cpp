@@ -57,7 +57,7 @@ IceInternal::Connection::validate()
 		os.write(encodingMajor);
 		os.write(encodingMinor);
 		os.write(validateConnectionMsg);
-		os.write(static_cast<Byte>(1)); // Compression status.
+		os.write(static_cast<Byte>(0)); // Compression status (always zero for validate connection).
 		os.write(headerSize); // Message size.
 		os.i = os.b.begin();
 		traceHeader("sending validate connection", os, _logger, _traceLevels);
@@ -146,7 +146,7 @@ IceInternal::Connection::validate()
 		}
 
                 Byte compress;
-                is.read(compress);
+                is.read(compress); // Ignore compression status for validate connection.
 
 		Int size;
 		is.read(size);
