@@ -1233,17 +1233,41 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 	string id;
 	readTypeId(id);
 
+        //
+        // Try to find a factory registered for the specific type.
+        //
         ObjectFactoryPtr userFactory = _instance->servantFactoryManager()->find(id);
         if(userFactory)
         {
             v = userFactory->create(id);
         }
 
+        //
+        // If that fails, invoke the default factory if one has been registered.
+        //
+        if(!v)
+        {
+            userFactory = _instance->servantFactoryManager()->find("");
+            if(userFactory)
+            {
+                v = userFactory->create(id);
+            }
+        }
+
+        //
+        // There isn't a static factory for Ice::Object, so check for that case now.
+        // We do this *after* the factory inquiries above so that a factory could be
+        // registered for "::Ice::Object".
+        //
         if(!v && id == Ice::Object::ice_staticId())
         {
             v = new ::Ice::Object;
         }
 
+        //
+        // Last chance: check the table of static factories (i.e., automatically generated
+        // factories for concrete classes).
+        //
         if(!v)
         {
             ObjectFactoryPtr of = Ice::factoryTable->getObjectFactory(id);
