@@ -480,16 +480,55 @@ public class ObjectPrxHelper implements ObjectPrx
         }
     }
 
-    public final synchronized void
-    __checkTwowayOnly(String name)
+    /*
+    public static ObjectPrx
+    checkedCast(Ice.ObjectPrx b)
     {
-        if(!ice_isTwoway())
-	{
-	    TwowayOnlyException ex = new TwowayOnlyException();
-	    ex.operation = name;
-	    throw ex;
-	}
+	return b;
     }
+
+    public static ObjectPrx
+    checkedCast(Ice.ObjectPrx b, String f)
+    {
+	ObjectPrx d = null;
+	if(b != null)
+	{
+	    Ice.ObjectPrx bb = b.ice_newFacet(f);
+	    try
+	    {
+		boolean ok = bb.ice_isA("::Object");
+		assert(ok);
+		ObjectPrxHelper h = new ObjectPrxHelper();
+		h.__copyFrom(bb);
+		d = h;
+	    }
+	    catch(Ice.FacetNotExistException ex)
+	    {
+	    }
+	}
+	return d;
+    }
+
+    public static ObjectPrx
+    uncheckedCast(Ice.ObjectPrx b)
+    {
+	return b;
+    }
+
+    public static ObjectPrx
+    uncheckedCast(Ice.ObjectPrx b, String f)
+    {
+	ObjectPrx d = null;
+	if(b != null)
+	{
+	    Ice.ObjectPrx bb = b.ice_newFacet(f);
+	    ObjectPrxHelper h = new ObjectPrxHelper();
+	    h.__copyFrom(bb);
+	    d = h;
+	}
+	return d;
+    }
+    */
 
     public final boolean
     equals(java.lang.Object r)
@@ -593,6 +632,22 @@ public class ObjectPrxHelper implements ObjectPrx
 	}
 
         throw ex;
+    }
+
+    public final void
+    __checkTwowayOnly(String name)
+    {
+	//
+	// No mutex lock necessary, there is nothing mutable in this
+	// operation.
+	//
+
+        if(!ice_isTwoway())
+	{
+	    TwowayOnlyException ex = new TwowayOnlyException();
+	    ex.operation = name;
+	    throw ex;
+	}
     }
 
     public final synchronized _ObjectDel
