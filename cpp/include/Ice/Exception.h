@@ -55,7 +55,6 @@ class ReferenceParseException;
 class ReferenceIdentityException;
 class ObjectNotExistException;
 class OperationNotExistException;
-class NoServantFactoryException;
 class SystemException;
 class SocketException;
 class TimeoutException;

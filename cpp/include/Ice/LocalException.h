@@ -147,19 +147,6 @@ public:
     virtual void _throw() const;
 };
 
-class ICE_API NoServantFactoryException : public LocalException
-{
-public:    
-
-    NoServantFactoryException(const char*, int);
-    NoServantFactoryException(const NoServantFactoryException&);
-    NoServantFactoryException& operator=(const NoServantFactoryException&);
-    virtual std::string _name() const;
-    virtual std::ostream& _print(std::ostream&) const;
-    virtual LocalException* _clone() const;
-    virtual void _throw() const;
-};
-
 class ICE_API SystemException : public LocalException
 {
 public:    

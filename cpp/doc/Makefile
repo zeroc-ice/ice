@@ -17,7 +17,8 @@ SGMLFILES	= manual.sgml \
 		  Properties.sgml \
 		  ReferencesEndpoints.sgml
 
-SLICEFILES	= ../slice/Ice/Communicator.ice \
+SLICEFILES	= ../slice/Ice/LocalException.ice \
+		  ../slice/Ice/Communicator.ice \
 		  ../slice/Ice/Logger.ice \
 		  ../slice/Ice/Stream.ice \
 		  ../slice/Ice/ObjectAdapter.ice \

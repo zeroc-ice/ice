@@ -425,47 +425,6 @@ Ice::OperationNotExistException::_throw() const
     throw *this;
 }
 
-Ice::NoServantFactoryException::NoServantFactoryException(const char* file, int line) :
-    LocalException(file, line)
-{
-}
-
-Ice::NoServantFactoryException::NoServantFactoryException(const NoServantFactoryException& ex) :
-    LocalException(ex)
-{
-}
-
-NoServantFactoryException&
-Ice::NoServantFactoryException::operator=(const NoServantFactoryException& ex)
-{
-    LocalException::operator=(ex);
-    return *this;
-}
-
-string
-Ice::NoServantFactoryException::_name() const
-{
-    return "Ice::NoServantFactoryException";
-}
-
-ostream&
-Ice::NoServantFactoryException::_print(ostream& out) const
-{
-    return IceUtil::printException(out, *this);
-}
-
-LocalException*
-Ice::NoServantFactoryException::_clone() const
-{
-    return new NoServantFactoryException(*this);
-}
-
-void
-Ice::NoServantFactoryException::_throw() const
-{
-    throw *this;
-}
-
 Ice::SystemException::SystemException(const char* file, int line) :
     LocalException(file, line)
 {

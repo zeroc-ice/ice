@@ -541,7 +541,7 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     {
 	O << "local ";
     }
-    O << "exception <exceptionname>" << p->name() << "</exceptionname>";
+    O << "exception <classname>" << p->name() << "</classname>";
     ExceptionPtr base = p->base();
     if (base)
     {
@@ -1187,7 +1187,7 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
     {
 	linkend = containedToId(ex);
 	s = getScopedMinimized(ex, container);
-	tag = "exceptionname";
+	tag = "classname";
     }
 
     StructPtr st = StructPtr::dynamicCast(p);

@@ -182,13 +182,6 @@ IceUtil::printException(ostream& out, const OperationNotExistException& ex)
 }
 
 ostream&
-IceUtil::printException(ostream& out, const NoServantFactoryException& ex)
-{
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ": no servant factory found for the requested servant type";
-}
-
-ostream&
 IceUtil::printException(ostream& out, const SystemException& ex)
 {
     IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
@@ -256,7 +249,7 @@ ostream&
 IceUtil::printException(ostream& out, const ServantUnmarshalException& ex)
 {
     IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ": protocol error: servant type does not match signature";
+    return out << ": protocol error: no suitable servant factory available";
 }
 
 ostream&
