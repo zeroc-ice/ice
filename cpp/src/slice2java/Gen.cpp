@@ -1664,6 +1664,9 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         StringList allOpNames;
         transform(allOps.begin(), allOps.end(), back_inserter(allOpNames),
                   ::IceUtil::memFun(&Operation::name));
+        allOpNames.push_back("ice_facets");
+        allOpNames.push_back("ice_id");
+        allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
         allOpNames.push_back("ice_ping");
         allOpNames.sort();
@@ -1687,12 +1690,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << sp << nl << "public IceInternal.DispatchStatus"
             << nl << "__dispatch(IceInternal.Incoming in, Ice.Current current)";
         out << sb;
-        out << nl << "int pos = java.util.Arrays.binarySearch(__all, "
-            << "current.operation);";
+        out << nl << "int pos = java.util.Arrays.binarySearch(__all, current.operation);";
         out << nl << "if (pos < 0)";
         out << sb;
-        out << nl << "return IceInternal.DispatchStatus."
-            << "DispatchOperationNotExist;";
+        out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
         out << eb;
         out << sp << nl << "switch (pos)";
         out << sb;
@@ -1703,7 +1704,19 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
             out << nl << "case " << i++ << ':';
             out << sb;
-            if (opName == "ice_isA")
+            if (opName == "ice_facets")
+            {
+                out << nl << "return ___ice_facets(this, in, current);";
+            }
+            else if (opName == "ice_id")
+            {
+                out << nl << "return ___ice_id(this, in, current);";
+            }
+            else if (opName == "ice_ids")
+            {
+                out << nl << "return ___ice_ids(this, in, current);";
+            }
+            else if (opName == "ice_isA")
             {
                 out << nl << "return ___ice_isA(this, in, current);";
             }
@@ -1716,9 +1729,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                 //
                 // There's probably a better way to do this
                 //
-                for (OperationList::const_iterator r = allOps.begin();
-                     r != allOps.end();
-                     ++r)
+                for (OperationList::const_iterator r = allOps.begin(); r != allOps.end(); ++r)
                 {
                     if ((*r)->name() == (*q))
                     {
@@ -1727,23 +1738,20 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                         assert(cl);
                         if (cl->name() == p->name())
                         {
-                            out << nl << "return ___" << opName
-                                << "(this, in, current);";
+                            out << nl << "return ___" << opName << "(this, in, current);";
                         }
                         else
                         {
                             string base;
                             if (cl->isInterface())
                             {
-                                base = getAbsolute(cl->scoped(), scope, "_",
-                                                   "Disp");
+                                base = getAbsolute(cl->scoped(), scope, "_", "Disp");
                             }
                             else
                             {
                                 base = getAbsolute(cl->scoped(), scope);
                             }
-                            out << nl << "return " << base << ".___" << opName
-                                << "(this, in, current);";
+                            out << nl << "return " << base << ".___" << opName << "(this, in, current);";
                         }
                         break;
                     }
@@ -1753,8 +1761,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         }
         out << eb;
         out << sp << nl << "assert(false);";
-        out << nl << "return IceInternal.DispatchStatus."
-            << "DispatchOperationNotExist;";
+        out << nl << "return IceInternal.DispatchStatus.DispatchOperationNotExist;";
         out << eb;
     }
 }
