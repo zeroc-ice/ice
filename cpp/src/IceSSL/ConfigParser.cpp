@@ -27,7 +27,6 @@
 
 using namespace std;
 using namespace IceSSL;
-ICE_XERCES_NS_USE
 
 #ifdef WINDOWS
     #define CURRENTDIR ".\\"
@@ -69,7 +68,7 @@ IceSSL::ConfigParser::~ConfigParser()
         _root->release();
     }
 
-    XMLPlatformUtils::Terminate();
+    ICE_XERCES_NS XMLPlatformUtils::Terminate();
 }
 
 void
@@ -77,9 +76,9 @@ IceSSL::ConfigParser::process()
 {
     try
     {
-        XMLPlatformUtils::Initialize();
+        ICE_XERCES_NS XMLPlatformUtils::Initialize();
     }
-    catch(const XMLException& toCatch)
+    catch(const ICE_XERCES_NS XMLException& toCatch)
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
@@ -99,8 +98,8 @@ IceSSL::ConfigParser::process()
     // Create our parser, then attach an error handler to the parser.
     // The parser will call back to methods of the ConfigParserErrorHandler
     // if it discovers errors during the course of parsing the XML document.
-    XercesDOMParser parser;
-    parser.setValidationScheme(AbstractDOMParser::Val_Auto);
+    ICE_XERCES_NS XercesDOMParser parser;
+    parser.setValidationScheme(ICE_XERCES_NS AbstractDOMParser::Val_Auto);
     parser.setDoNamespaces(false);
     parser.setDoSchema(false);
     parser.setCreateEntityReferenceNodes(false);
@@ -124,19 +123,19 @@ IceSSL::ConfigParser::process()
             }
 #endif
 
-            XMLCh* xmlConfigPath = XMLString::transcode(_configPath.c_str());
-            XMLCh* xmlConfigFile = XMLString::transcode(_configFile.c_str());
-            ArrayJanitor<XMLCh> janPath(xmlConfigPath);
-            ArrayJanitor<XMLCh> janFile(xmlConfigFile);
-            LocalFileInputSource configSource(xmlConfigPath, xmlConfigFile);
+            XMLCh* xmlConfigPath = ICE_XERCES_NS XMLString::transcode(_configPath.c_str());
+            XMLCh* xmlConfigFile = ICE_XERCES_NS XMLString::transcode(_configFile.c_str());
+            ICE_XERCES_NS ArrayJanitor<XMLCh> janPath(xmlConfigPath);
+            ICE_XERCES_NS ArrayJanitor<XMLCh> janFile(xmlConfigFile);
+            ICE_XERCES_NS LocalFileInputSource configSource(xmlConfigPath, xmlConfigFile);
 
             parser.parse(configSource);
         }
         else
         {
-            XMLCh* xmlConfigFile = XMLString::transcode(_configFile.c_str());
-            ArrayJanitor<XMLCh> janFile(xmlConfigFile);
-            LocalFileInputSource configSource(xmlConfigFile);
+            XMLCh* xmlConfigFile = ICE_XERCES_NS XMLString::transcode(_configFile.c_str());
+            ICE_XERCES_NS ArrayJanitor<XMLCh> janFile(xmlConfigFile);
+            ICE_XERCES_NS LocalFileInputSource configSource(xmlConfigFile);
 
             parser.parse(configSource);
         }
@@ -149,7 +148,7 @@ IceSSL::ConfigParser::process()
             _root = parser.adoptDocument();
         }
     }
-    catch(const XMLException& e)
+    catch(const ICE_XERCES_NS XMLException& e)
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
@@ -161,7 +160,7 @@ IceSSL::ConfigParser::process()
 
         throw configEx;
     }
-    catch(const DOMException& e)
+    catch(const ICE_XERCES_NS DOMException& e)
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
@@ -212,7 +211,7 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
                                        BaseCertificates& baseCerts)
 {
     string clientSectionString("SSLConfig:client");
-    DOMNode* clientSection = find(clientSectionString);
+    ICE_XERCES_NS DOMNode* clientSection = find(clientSectionString);
 
     try
     {
@@ -225,7 +224,7 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
             return true;
         }
     }
-    catch(const DOMException& e)
+    catch(const ICE_XERCES_NS DOMException& e)
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
@@ -249,7 +248,7 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
                                        TempCertificates& tempCerts)
 {
     string serverSectionString("SSLConfig:server");
-    DOMNode* serverSection = find(serverSectionString);
+    ICE_XERCES_NS DOMNode* serverSection = find(serverSectionString);
 
     try
     {
@@ -263,7 +262,7 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
             return true;
         }
     }
-    catch(const DOMException& e)
+    catch(const ICE_XERCES_NS DOMException& e)
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
@@ -302,17 +301,17 @@ IceSSL::ConfigParser::popRoot(string& path, string& root, string& tail)
     }
 }
 
-DOMNode*
+ICE_XERCES_NS DOMNode*
 IceSSL::ConfigParser::find(string& nodePath)
 {
     return find(_root, nodePath);
 }
 
-DOMNode*
-IceSSL::ConfigParser::find(DOMNode* rootNode, string& nodePath)
+ICE_XERCES_NS DOMNode*
+IceSSL::ConfigParser::find(ICE_XERCES_NS DOMNode* rootNode, string& nodePath)
 {
     // The target node that we're looking for.
-    DOMNode* tNode = 0;
+    ICE_XERCES_NS DOMNode* tNode = 0;
 
     if(rootNode == 0)
     {
@@ -325,12 +324,12 @@ IceSSL::ConfigParser::find(DOMNode* rootNode, string& nodePath)
     // Pop the root off the path.
     popRoot(nodePath, rootNodeName, tailNodes);
 
-    DOMNode* child = rootNode->getFirstChild();
+    ICE_XERCES_NS DOMNode* child = rootNode->getFirstChild();
 
     while(child != 0)
     {
         // Ignore any other node types - we're only interested in ELEMENT_NODEs.
-        if(child->getNodeType() == DOMNode::ELEMENT_NODE)
+        if(child->getNodeType() == ICE_XERCES_NS DOMNode::ELEMENT_NODE)
         {
             string nodeName = toString(child->getNodeName());
 
@@ -356,7 +355,7 @@ IceSSL::ConfigParser::find(DOMNode* rootNode, string& nodePath)
 }
 
 void
-IceSSL::ConfigParser::getGeneral(DOMNode* rootNode, GeneralConfig& generalConfig)
+IceSSL::ConfigParser::getGeneral(ICE_XERCES_NS DOMNode* rootNode, GeneralConfig& generalConfig)
 {
     if(rootNode == 0)
     {
@@ -364,15 +363,15 @@ IceSSL::ConfigParser::getGeneral(DOMNode* rootNode, GeneralConfig& generalConfig
     }
 
     string generalString("general");
-    DOMNode* general = find(rootNode, generalString);
+    ICE_XERCES_NS DOMNode* general = find(rootNode, generalString);
 
-    DOMNamedNodeMap* attributes = general->getAttributes();
+    ICE_XERCES_NS DOMNamedNodeMap* attributes = general->getAttributes();
 
     int attrCount = attributes->getLength();
 
     for(int i = 0; i < attrCount; i++)
     {
-        DOMNode* attribute = attributes->item(i);
+        ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
         string nodeName = toString(attribute->getNodeName());
         string nodeValue = toString(attribute->getNodeValue());
 
@@ -382,7 +381,7 @@ IceSSL::ConfigParser::getGeneral(DOMNode* rootNode, GeneralConfig& generalConfig
 }
 
 void
-IceSSL::ConfigParser::getCertAuth(DOMNode* rootNode, CertificateAuthority& certAuth)
+IceSSL::ConfigParser::getCertAuth(ICE_XERCES_NS DOMNode* rootNode, CertificateAuthority& certAuth)
 {
     if(rootNode == 0)
     {
@@ -390,20 +389,20 @@ IceSSL::ConfigParser::getCertAuth(DOMNode* rootNode, CertificateAuthority& certA
     }
 
     string nodeName = "certauthority";
-    DOMNode* certAuthNode = find(rootNode, nodeName);
+    ICE_XERCES_NS DOMNode* certAuthNode = find(rootNode, nodeName);
 
     if(certAuthNode == 0)
     {
         return;
     }
 
-    DOMNamedNodeMap* attributes = certAuthNode->getAttributes();
+    ICE_XERCES_NS DOMNamedNodeMap* attributes = certAuthNode->getAttributes();
 
     int attrCount = attributes->getLength();
 
     for(int i = 0; i < attrCount; i++)
     {
-        DOMNode* attribute = attributes->item(i);
+        ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
         string nodeName = toString(attribute->getNodeName());
         string nodeValue = toString(attribute->getNodeValue());
 
@@ -427,7 +426,7 @@ IceSSL::ConfigParser::getCertAuth(DOMNode* rootNode, CertificateAuthority& certA
 }
 
 void
-IceSSL::ConfigParser::getBaseCerts(DOMNode* rootNode, BaseCertificates& baseCerts)
+IceSSL::ConfigParser::getBaseCerts(ICE_XERCES_NS DOMNode* rootNode, BaseCertificates& baseCerts)
 {
     if(rootNode == 0)
     {
@@ -435,7 +434,7 @@ IceSSL::ConfigParser::getBaseCerts(DOMNode* rootNode, BaseCertificates& baseCert
     }
 
     string nodeName = "basecerts";
-    DOMNode* baseCertsRoot = find(rootNode, nodeName);
+    ICE_XERCES_NS DOMNode* baseCertsRoot = find(rootNode, nodeName);
 
     if(baseCertsRoot == 0)
     {
@@ -459,7 +458,7 @@ IceSSL::ConfigParser::getBaseCerts(DOMNode* rootNode, BaseCertificates& baseCert
 }
 
 void
-IceSSL::ConfigParser::getTempCerts(DOMNode* rootNode, TempCertificates& tempCerts)
+IceSSL::ConfigParser::getTempCerts(ICE_XERCES_NS DOMNode* rootNode, TempCertificates& tempCerts)
 {
     if(rootNode == 0)
     {
@@ -467,14 +466,14 @@ IceSSL::ConfigParser::getTempCerts(DOMNode* rootNode, TempCertificates& tempCert
     }
 
     string nodeName = "tempcerts";
-    DOMNode* tempCertsRoot = find(rootNode, nodeName);
+    ICE_XERCES_NS DOMNode* tempCertsRoot = find(rootNode, nodeName);
 
     if(tempCertsRoot == 0)
     {
         return;
     }
 
-    DOMNode* child = tempCertsRoot->getFirstChild();
+    ICE_XERCES_NS DOMNode* child = tempCertsRoot->getFirstChild();
 
     while(child != 0)
     {
@@ -494,7 +493,7 @@ IceSSL::ConfigParser::getTempCerts(DOMNode* rootNode, TempCertificates& tempCert
 }
 
 void
-IceSSL::ConfigParser::loadDHParams(DOMNode* rootNode, TempCertificates& tempCerts)
+IceSSL::ConfigParser::loadDHParams(ICE_XERCES_NS DOMNode* rootNode, TempCertificates& tempCerts)
 {
     DiffieHellmanParamsFile dhParams;
 
@@ -504,7 +503,7 @@ IceSSL::ConfigParser::loadDHParams(DOMNode* rootNode, TempCertificates& tempCert
 }
 
 void
-IceSSL::ConfigParser::loadRSACert(DOMNode* rootNode, TempCertificates& tempCerts)
+IceSSL::ConfigParser::loadRSACert(ICE_XERCES_NS DOMNode* rootNode, TempCertificates& tempCerts)
 {
     CertificateDesc rsaCert;
 
@@ -514,7 +513,7 @@ IceSSL::ConfigParser::loadRSACert(DOMNode* rootNode, TempCertificates& tempCerts
 }
 
 void
-IceSSL::ConfigParser::getCert(DOMNode* rootNode, CertificateDesc& certDesc)
+IceSSL::ConfigParser::getCert(ICE_XERCES_NS DOMNode* rootNode, CertificateDesc& certDesc)
 {
     if(rootNode == 0)
     {
@@ -525,12 +524,12 @@ IceSSL::ConfigParser::getCert(DOMNode* rootNode, CertificateDesc& certDesc)
     CertificateFile privateFile;
     int keySize = 0;
 
-    DOMNamedNodeMap* attributes = rootNode->getAttributes();
+    ICE_XERCES_NS DOMNamedNodeMap* attributes = rootNode->getAttributes();
     int attrCount = attributes->getLength();
 
     for(int i = 0; i < attrCount; i++)
     {
-        DOMNode* attribute = attributes->item(i);
+        ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
         string nodeName = toString(attribute->getNodeName());
         string nodeValue = toString(attribute->getNodeValue());
 
@@ -551,7 +550,7 @@ IceSSL::ConfigParser::getCert(DOMNode* rootNode, CertificateDesc& certDesc)
 }
 
 void
-IceSSL::ConfigParser::getDHParams(DOMNode* rootNode, DiffieHellmanParamsFile& dhParams)
+IceSSL::ConfigParser::getDHParams(ICE_XERCES_NS DOMNode* rootNode, DiffieHellmanParamsFile& dhParams)
 {
     if(rootNode == 0)
     {
@@ -561,13 +560,13 @@ IceSSL::ConfigParser::getDHParams(DOMNode* rootNode, DiffieHellmanParamsFile& dh
     CertificateFile certFile;
     loadCertificateFile(rootNode, certFile);
 
-    DOMNamedNodeMap* attributes = rootNode->getAttributes();
+    ICE_XERCES_NS DOMNamedNodeMap* attributes = rootNode->getAttributes();
     int keySize = 0;
     int attrCount = attributes->getLength();
 
     for(int i = 0; i < attrCount; i++)
     {
-        DOMNode* attribute = attributes->item(i);
+        ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
         string nodeName = toString(attribute->getNodeName());
         string nodeValue = toString(attribute->getNodeValue());
 
@@ -581,7 +580,7 @@ IceSSL::ConfigParser::getDHParams(DOMNode* rootNode, DiffieHellmanParamsFile& dh
 }
 
 void
-IceSSL::ConfigParser::loadCertificateFile(DOMNode* rootNode, CertificateFile& certFile)
+IceSSL::ConfigParser::loadCertificateFile(ICE_XERCES_NS DOMNode* rootNode, CertificateFile& certFile)
 {
     if(rootNode == 0)
     {
@@ -591,12 +590,12 @@ IceSSL::ConfigParser::loadCertificateFile(DOMNode* rootNode, CertificateFile& ce
     string filename;
     int encoding = 0; // Initialize, to keep the compiler from complaining.
 
-    DOMNamedNodeMap* attributes = rootNode->getAttributes();
+    ICE_XERCES_NS DOMNamedNodeMap* attributes = rootNode->getAttributes();
     int attrCount = attributes->getLength();
 
     for(int i = 0; i < attrCount; i++)
     {
-        DOMNode* attribute = attributes->item(i);
+        ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
         string nodeName = toString(attribute->getNodeName());
         string nodeValue = toString(attribute->getNodeValue());
 
@@ -657,7 +656,7 @@ IceSSL::ConfigParser::parseEncoding(string& encodingString)
 string
 IceSSL::ConfigParser::toString(const XMLCh* s)
 {
-    char* t = XMLString::transcode(s);
+    char* t = ICE_XERCES_NS XMLString::transcode(s);
     string r(t);
     delete[] t;
     return r;

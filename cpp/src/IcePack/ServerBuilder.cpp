@@ -22,7 +22,6 @@
 
 using namespace std;
 using namespace IcePack;
-ICE_XERCES_NS_USE
 
 namespace IcePack
 {
@@ -194,7 +193,7 @@ public:
 
     ServerHandler(ServerBuilder&);
 
-    virtual void startElement(const XMLCh *const, AttributeList &);
+    virtual void startElement(const XMLCh *const, ICE_XERCES_NS AttributeList &);
     virtual void endElement(const XMLCh *const);
     virtual void startDocument();
 
@@ -223,7 +222,7 @@ IcePack::ServerHandler::startDocument()
 }
 
 void 
-IcePack::ServerHandler::startElement(const XMLCh *const name, AttributeList &attrs)
+IcePack::ServerHandler::startElement(const XMLCh *const name, ICE_XERCES_NS AttributeList &attrs)
 {
     ComponentHandler::startElement(name, attrs);
     if(!isCurrentTargetDeployable())

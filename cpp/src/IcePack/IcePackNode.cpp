@@ -37,7 +37,6 @@
 
 using namespace std;
 using namespace IcePack;
-ICE_XERCES_NS_USE
 
 //
 // The activator needs to be global since it's used by the interupt
@@ -353,9 +352,9 @@ main(int argc, char* argv[])
     //
     try
     {
-	XMLPlatformUtils::Initialize();
+	ICE_XERCES_NS XMLPlatformUtils::Initialize();
     }
-    catch(const XMLException& e)
+    catch(const ICE_XERCES_NS XMLException& e)
     {
 	cout << e.getMessage() << endl;
 	return EXIT_FAILURE;
@@ -545,7 +544,7 @@ main(int argc, char* argv[])
 	communicator = 0;
     }
 
-    XMLPlatformUtils::Terminate();
+    ICE_XERCES_NS XMLPlatformUtils::Terminate();
 
     return status;
 }

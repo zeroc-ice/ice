@@ -18,10 +18,8 @@
 #include <xercesc/util/XercesDefs.hpp>
 
 #if _XERCES_VERSION >= 20200
-#   define ICE_XERCES_NS_USE XERCES_CPP_NAMESPACE_USE
 #   define ICE_XERCES_NS XERCES_CPP_NAMESPACE_QUALIFIER
 #else
-#   define ICE_XERCES_NS_USE
 #   define ICE_XERCES_NS
 #endif
 

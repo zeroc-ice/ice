@@ -17,7 +17,6 @@
 
 using namespace std;
 using namespace IcePack;
-ICE_XERCES_NS_USE
 
 namespace IcePack
 {
@@ -106,7 +105,7 @@ public:
 
     ApplicationHandler(ApplicationBuilder&);
 
-    virtual void startElement(const XMLCh*, AttributeList&); 
+    virtual void startElement(const XMLCh*, ICE_XERCES_NS AttributeList&); 
     virtual void endElement(const XMLCh*);
     
 private:
@@ -126,7 +125,7 @@ IcePack::ApplicationHandler::ApplicationHandler(ApplicationBuilder& builder) :
 }
 
 void 
-IcePack::ApplicationHandler::startElement(const XMLCh* name, AttributeList& attrs)
+IcePack::ApplicationHandler::startElement(const XMLCh* name, ICE_XERCES_NS AttributeList& attrs)
 {
     ComponentHandler::startElement(name, attrs);
     if(!isCurrentTargetDeployable())

@@ -29,7 +29,6 @@
 
 using namespace std;
 using namespace IcePack;
-ICE_XERCES_NS_USE
 
 namespace IcePack
 {
@@ -37,7 +36,7 @@ namespace IcePack
 static string
 toString(const XMLCh* ch)
 {
-    char* t = XMLString::transcode(ch);
+    char* t = ICE_XERCES_NS XMLString::transcode(ch);
     string s(t);
     delete[] t;
     return s;
@@ -280,8 +279,9 @@ private:
 
 }
 
-IcePack::DeploySAXParseException::DeploySAXParseException(const string& msg, const Locator*const locator)
-    : SAXParseException(XMLString::transcode(msg.c_str()), *locator)
+IcePack::DeploySAXParseException::DeploySAXParseException(const string& msg,
+                                                          const ICE_XERCES_NS Locator*const locator)
+    : SAXParseException(ICE_XERCES_NS XMLString::transcode(msg.c_str()), *locator)
 {
 }
 
@@ -302,14 +302,14 @@ IcePack::ComponentErrorHandler::ComponentErrorHandler(ComponentBuilder& builder)
 }
 
 void
-IcePack::ComponentErrorHandler::warning(const SAXParseException& exception)
+IcePack::ComponentErrorHandler::warning(const ICE_XERCES_NS SAXParseException& exception)
 {
     string s = toString(exception.getMessage());
     cerr << "warning: " << s << endl;
 }
 
 void
-IcePack::ComponentErrorHandler::error(const SAXParseException& exception)
+IcePack::ComponentErrorHandler::error(const ICE_XERCES_NS SAXParseException& exception)
 {
     throw exception;
 //    string s = toString(exception.getMessage());
@@ -317,7 +317,7 @@ IcePack::ComponentErrorHandler::error(const SAXParseException& exception)
 }
 
 void
-IcePack::ComponentErrorHandler::fatalError(const SAXParseException& exception)
+IcePack::ComponentErrorHandler::fatalError(const ICE_XERCES_NS SAXParseException& exception)
 {
     throw exception;
 //    string s = toString(exception.getMessage());
@@ -342,7 +342,7 @@ IcePack::ComponentHandler::characters(const XMLCh *const chars, const unsigned i
 }
 
 void
-IcePack::ComponentHandler::startElement(const XMLCh *const name, AttributeList &attrs)
+IcePack::ComponentHandler::startElement(const XMLCh *const name, ICE_XERCES_NS AttributeList &attrs)
 {
     _elements.push("");
 
@@ -443,7 +443,7 @@ IcePack::ComponentHandler::endDocument()
 }
 
 void 
-IcePack::ComponentHandler::setDocumentLocator(const Locator *const locator)
+IcePack::ComponentHandler::setDocumentLocator(const ICE_XERCES_NS Locator *const locator)
 {
     _builder.setDocumentLocator(locator);
 
@@ -451,9 +451,9 @@ IcePack::ComponentHandler::setDocumentLocator(const Locator *const locator)
 }
 
 string
-IcePack::ComponentHandler::getAttributeValue(const AttributeList& attrs, const string& name) const
+IcePack::ComponentHandler::getAttributeValue(const ICE_XERCES_NS AttributeList& attrs, const string& name) const
 {
-    XMLCh* n = XMLString::transcode(name.c_str());
+    XMLCh* n = ICE_XERCES_NS XMLString::transcode(name.c_str());
     const XMLCh* value = attrs.getValue(n);
     delete[] n;
     
@@ -466,10 +466,10 @@ IcePack::ComponentHandler::getAttributeValue(const AttributeList& attrs, const s
 }
 
 string
-IcePack::ComponentHandler::getAttributeValueWithDefault(const AttributeList& attrs, const string& name, 
+IcePack::ComponentHandler::getAttributeValueWithDefault(const ICE_XERCES_NS AttributeList& attrs, const string& name, 
 							const string& def) const
 {
-    XMLCh* n = XMLString::transcode(name.c_str());
+    XMLCh* n = ICE_XERCES_NS XMLString::transcode(name.c_str());
     const XMLCh* value = attrs.getValue(n);
     delete[] n;
     
@@ -529,10 +529,10 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	_variables["basedir"] = ".";
     }
     
-    SAXParser* parser = new SAXParser;
+    ICE_XERCES_NS SAXParser* parser = new ICE_XERCES_NS SAXParser;
     try
     {
-	parser->setValidationScheme(SAXParser::Val_Never);
+	parser->setValidationScheme(ICE_XERCES_NS SAXParser::Val_Never);
 	ComponentErrorHandler err(*this);
 	parser->setDocumentHandler(&handler);
 	parser->setErrorHandler(&err);
@@ -545,7 +545,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	//
 	ex.throwParserDeploymentException();
     }
-    catch(const SAXParseException& e)
+    catch(const ICE_XERCES_NS SAXParseException& e)
     {
 	delete parser;
 
@@ -557,7 +557,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	ex.reason = os.str();
 	throw ex;
     }
-    catch(const SAXException& e)
+    catch(const ICE_XERCES_NS SAXException& e)
     {
 	delete parser;
 
@@ -569,7 +569,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	ex.reason = os.str();
 	throw ex;
     }
-    catch(const XMLException& e)
+    catch(const ICE_XERCES_NS XMLException& e)
     {
 	delete parser;
 
@@ -607,7 +607,7 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 }
 
 void
-IcePack::ComponentBuilder::setDocumentLocator(const Locator* locator)
+IcePack::ComponentBuilder::setDocumentLocator(const ICE_XERCES_NS Locator* locator)
 {
     _locator = locator;
 }

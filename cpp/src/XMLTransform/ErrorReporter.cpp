@@ -21,14 +21,13 @@
 
 using namespace std;
 using namespace XMLTransform;
-ICE_XERCES_NS_USE
 
 DOMTreeErrorReporter::DOMTreeErrorReporter()
 {
 }
 
 void
-DOMTreeErrorReporter::warning(const SAXParseException& ex)
+DOMTreeErrorReporter::warning(const ICE_XERCES_NS SAXParseException& ex)
 {
     ostringstream out;
     out << "Warning at file \"" << toString(ex.getSystemId())
@@ -39,7 +38,7 @@ DOMTreeErrorReporter::warning(const SAXParseException& ex)
 }
 
 void
-DOMTreeErrorReporter::error(const SAXParseException& ex)
+DOMTreeErrorReporter::error(const ICE_XERCES_NS SAXParseException& ex)
 {
     ostringstream out;
     out << "Error at file \"" << toString(ex.getSystemId())
@@ -50,7 +49,7 @@ DOMTreeErrorReporter::error(const SAXParseException& ex)
 }
 
 void
-DOMTreeErrorReporter::fatalError(const SAXParseException& ex)
+DOMTreeErrorReporter::fatalError(const ICE_XERCES_NS SAXParseException& ex)
 {
     ostringstream out;
     out << "Fatal at file \"" << toString(ex.getSystemId())
@@ -83,7 +82,7 @@ DOMTreeErrorReporter::toString(const XMLCh* s)
 {
     if(s)
     {
-	char* t = XMLString::transcode(s);
+	char* t = ICE_XERCES_NS XMLString::transcode(s);
 	string r(t);
 	delete[] t;
 	return r;

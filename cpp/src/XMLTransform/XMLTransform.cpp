@@ -45,7 +45,6 @@
 using namespace std;
 using namespace Freeze;
 using namespace XMLTransform;
-ICE_XERCES_NS_USE
 
 //
 // Implementation of exception types.
@@ -241,7 +240,7 @@ toString(const XMLCh* s)
     //
     if(s)
     {
-        char* t = XMLString::transcode(s);
+        char* t = ICE_XERCES_NS XMLString::transcode(s);
         string r(t);
         delete[] t;
         return r;
@@ -255,13 +254,13 @@ toString(const XMLCh* s)
 //
 // Helpers for finding named child nodes.
 //
-static DOMNode*
-findChild(DOMNode* parent, const string& namespaceURI, const string& localname)
+static ICE_XERCES_NS DOMNode*
+findChild(ICE_XERCES_NS DOMNode* parent, const string& namespaceURI, const string& localname)
 {
-    DOMNodeList* children = parent->getChildNodes();
+    ICE_XERCES_NS DOMNodeList* children = parent->getChildNodes();
     for(unsigned int i = 0; i < children->getLength(); ++i)
     {
-	DOMNode* child = children->item(i);
+	ICE_XERCES_NS DOMNode* child = children->item(i);
 	if(toString(child->getNamespaceURI()) == namespaceURI && toString(child->getLocalName()) == localname)
 	{
 	    return child;
@@ -271,13 +270,13 @@ findChild(DOMNode* parent, const string& namespaceURI, const string& localname)
     return 0;
 }
 
-static DOMNode*
-findChild(DOMNode* parent, const string& name)
+static ICE_XERCES_NS DOMNode*
+findChild(ICE_XERCES_NS DOMNode* parent, const string& name)
 {
-    DOMNodeList* children = parent->getChildNodes();
+    ICE_XERCES_NS DOMNodeList* children = parent->getChildNodes();
     for(unsigned int i = 0; i < children->getLength(); ++i)
     {
-	DOMNode* child = children->item(i);
+	ICE_XERCES_NS DOMNode* child = children->item(i);
 	if(toString(child->getNodeName()) == name)
 	{
 	    return child;
@@ -291,12 +290,12 @@ findChild(DOMNode* parent, const string& name)
 // Helpers to retrieve a named attribute.
 //
 static string
-getAttributeByName(DOMNode* node, const string& name)
+getAttributeByName(ICE_XERCES_NS DOMNode* node, const string& name)
 {
-    DOMNamedNodeMap* attributes = node->getAttributes();
+    ICE_XERCES_NS DOMNamedNodeMap* attributes = node->getAttributes();
     string value;
-    ArrayJanitor<XMLCh> s(XMLString::transcode(name.c_str()));
-    DOMNode* n = attributes->getNamedItem(s.get());
+    ICE_XERCES_NS ArrayJanitor<XMLCh> s(ICE_XERCES_NS XMLString::transcode(name.c_str()));
+    ICE_XERCES_NS DOMNode* n = attributes->getNamedItem(s.get());
     if(n)
     {
 	value = toString(n->getNodeValue());
@@ -309,13 +308,13 @@ getAttributeByName(DOMNode* node, const string& name)
 // Helpers for specific attributes.
 //
 static string
-getTypeAttribute(DOMNode* node)
+getTypeAttribute(ICE_XERCES_NS DOMNode* node)
 {
     return getAttributeByName(node, "type");
 }
 
 static string
-getNameAttribute(DOMNode* node)
+getNameAttribute(ICE_XERCES_NS DOMNode* node)
 {
     return getAttributeByName(node, "name");
 }
@@ -358,17 +357,17 @@ typedef multimap< string, DocumentInfoPtr> DocumentMap;
 // Document info holds the DOM root of the document, a map of prefix to namespace URI & the documents
 // targetNamespace.
 //
-XMLTransform::DocumentInfo::DocumentInfo(DOMDocument* document, bool releaseDocument, DOMNode* root,
-                                         const string& targetNamespace) :
+XMLTransform::DocumentInfo::DocumentInfo(ICE_XERCES_NS DOMDocument* document, bool releaseDocument,
+                                         ICE_XERCES_NS DOMNode* root, const string& targetNamespace) :
     _document(document),
     _releaseDocument(releaseDocument),
     _targetNamespace(targetNamespace)
 {
-    DOMNamedNodeMap* attributes = root->getAttributes();
+    ICE_XERCES_NS DOMNamedNodeMap* attributes = root->getAttributes();
     unsigned int max = attributes->getLength();
     for(unsigned int i = 0; i < max; ++i)
     {
-	DOMNode* attribute = attributes->item(i);
+	ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
 	string attrName = toString(attribute->getNodeName());
 	if(attrName.substr(0, 5) == "xmlns")
 	{
@@ -395,7 +394,7 @@ XMLTransform::DocumentInfo::~DocumentInfo()
     }
 }
 
-DOMDocument*
+ICE_XERCES_NS DOMDocument*
 XMLTransform::DocumentInfo::getDocument() const
 {
     return _document;
@@ -491,27 +490,27 @@ XMLTransform::Transform::~Transform()
 }
 
 static ::IceUtil::XMLOutput&
-operator<<(::IceUtil::XMLOutput& os, DOMNode* node)
+operator<<(::IceUtil::XMLOutput& os, ICE_XERCES_NS DOMNode* node)
 {
     switch(node->getNodeType())
     {
-    case DOMNode::TEXT_NODE:
+    case ICE_XERCES_NS DOMNode::TEXT_NODE:
     {
 	os << ::IceUtil::startEscapes << toString(node->getNodeValue()) << ::IceUtil::endEscapes;
 	break;
     }
 
-    case DOMNode::ELEMENT_NODE:
+    case ICE_XERCES_NS DOMNode::ELEMENT_NODE:
     {
 	os << ::IceUtil::se(toString(node->getNodeName()));
-	DOMNamedNodeMap* attributes = node->getAttributes();
+	ICE_XERCES_NS DOMNamedNodeMap* attributes = node->getAttributes();
 	for(unsigned int i = 0; i < attributes->getLength(); ++i)
 	{
-	    DOMNode* attribute = attributes->item(i);
+	    ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
 	    os << ::IceUtil::attr(toString(attribute->getNodeName()), toString(attribute->getNodeValue()));
 	}
 
-	DOMNode* child = node->getFirstChild();
+	ICE_XERCES_NS DOMNode* child = node->getFirstChild();
 	while(child)
 	{
 	    os << child;
@@ -543,7 +542,8 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode* node, const MissingTypeMap&)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, ICE_XERCES_NS DOMNode* node,
+              const MissingTypeMap&)
     {
 	if(node == 0)
 	{
@@ -575,7 +575,8 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput&, const DocumentInfoPtr&, const string&, DOMNode*, const MissingTypeMap&)
+    transform(::IceUtil::XMLOutput&, const DocumentInfoPtr&, const string&, ICE_XERCES_NS DOMNode*,
+              const MissingTypeMap&)
     {
         throw SchemaViolation(__FILE__, __LINE__);
     }
@@ -608,7 +609,8 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode*, const MissingTypeMap&)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, ICE_XERCES_NS DOMNode*,
+              const MissingTypeMap&)
     {
     }
 
@@ -637,14 +639,14 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string&, DOMNode* node,
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string&, ICE_XERCES_NS DOMNode* node,
               const MissingTypeMap& map)
     {
 	_transform->transform(os, info, _name, node, map);
     }
 
     virtual void
-    checkMissingTypes(const DocumentInfoPtr& info, DOMNode* node, const MissingTypeMap& map)
+    checkMissingTypes(const DocumentInfoPtr& info, ICE_XERCES_NS DOMNode* node, const MissingTypeMap& map)
     {
         _transform->checkMissingTypes(info, node, map);
     }
@@ -684,15 +686,16 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode* node, const MissingTypeMap&)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, ICE_XERCES_NS DOMNode* node,
+              const MissingTypeMap&)
     {
 	if(node == 0)
 	{
 	    throw SchemaViolation(__FILE__, __LINE__);
 	}
 
-	DOMNode* child = node->getFirstChild();
-	if(child == 0 || child->getNodeType() != DOMNode::TEXT_NODE)
+	ICE_XERCES_NS DOMNode* child = node->getFirstChild();
+	if(child == 0 || child->getNodeType() != ICE_XERCES_NS DOMNode::TEXT_NODE)
 	{
 	    throw SchemaViolation(__FILE__, __LINE__);
 	}
@@ -732,15 +735,16 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode* node, const MissingTypeMap&)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, ICE_XERCES_NS DOMNode* node,
+              const MissingTypeMap&)
     {
 	if(node == 0)
 	{
 	    throw SchemaViolation(__FILE__, __LINE__);
 	}
 
-	DOMNode* child = node->getFirstChild();
-	if(child == 0 || child->getNodeType() != DOMNode::TEXT_NODE)
+	ICE_XERCES_NS DOMNode* child = node->getFirstChild();
+	if(child == 0 || child->getNodeType() != ICE_XERCES_NS DOMNode::TEXT_NODE)
 	{
 	    throw SchemaViolation(__FILE__, __LINE__);
 	}
@@ -808,15 +812,16 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, DOMNode* node, const MissingTypeMap&)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string&, ICE_XERCES_NS DOMNode* node,
+              const MissingTypeMap&)
     {
 	if(node == 0)
 	{
 	    throw SchemaViolation(__FILE__, __LINE__);
 	}
 
-	DOMNode* child = node->getFirstChild();
-	if(child == 0 || child->getNodeType() != DOMNode::TEXT_NODE)
+	ICE_XERCES_NS DOMNode* child = node->getFirstChild();
+	if(child == 0 || child->getNodeType() != ICE_XERCES_NS DOMNode::TEXT_NODE)
 	{
 	    throw SchemaViolation(__FILE__, __LINE__);
 	}
@@ -851,7 +856,7 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string&, DOMNode* node,
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string&, ICE_XERCES_NS DOMNode* node,
               const MissingTypeMap& map)
     {
 	if(node == 0)
@@ -868,12 +873,12 @@ public:
         // that element will be skipped. We have to do this in
         // advance in order to properly compute the sequence length.
         //
-	DOMNodeList* children = node->getChildNodes();
+	ICE_XERCES_NS DOMNodeList* children = node->getChildNodes();
         unsigned int i;
 	for(i = 0; i < children->getLength(); ++i)
 	{
-	    DOMNode* child = children->item(i);
-	    if(child->getNodeType() != DOMNode::ELEMENT_NODE)
+	    ICE_XERCES_NS DOMNode* child = children->item(i);
+	    if(child->getNodeType() != ICE_XERCES_NS DOMNode::ELEMENT_NODE)
 	    {
 		continue;
 	    }
@@ -900,8 +905,8 @@ public:
 	{
 	    for(i = 0; i < children->getLength(); ++i)
 	    {
-		DOMNode* child = children->item(i);
-		if(child->getNodeType() != DOMNode::ELEMENT_NODE)
+		ICE_XERCES_NS DOMNode* child = children->item(i);
+		if(child->getNodeType() != ICE_XERCES_NS DOMNode::ELEMENT_NODE)
 		{
 		    continue;
 		}
@@ -929,17 +934,17 @@ public:
     }
 
     virtual void
-    checkMissingTypes(const DocumentInfoPtr& info, DOMNode* node, const MissingTypeMap& map)
+    checkMissingTypes(const DocumentInfoPtr& info, ICE_XERCES_NS DOMNode* node, const MissingTypeMap& map)
     {
 	if(node == 0)
 	{
 	    throw SchemaViolation(__FILE__, __LINE__);
 	}
-	DOMNodeList* children = node->getChildNodes();
+	ICE_XERCES_NS DOMNodeList* children = node->getChildNodes();
 	for(unsigned int i = 0; i < children->getLength(); ++i)
 	{
-	    DOMNode* child = children->item(i);
-	    if(child->getNodeType() != DOMNode::ELEMENT_NODE)
+	    ICE_XERCES_NS DOMNode* child = children->item(i);
+	    if(child->getNodeType() != ICE_XERCES_NS DOMNode::ELEMENT_NODE)
 	    {
 		continue;
 	    }
@@ -988,7 +993,7 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string&, DOMNode* node,
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string&, ICE_XERCES_NS DOMNode* node,
               const MissingTypeMap& map)
     {
 	if(node == 0)
@@ -996,16 +1001,16 @@ public:
 	    throw SchemaViolation(__FILE__, __LINE__);
 	}
 	os << ::IceUtil::se(toString(node->getNodeName()));
-	DOMNamedNodeMap* attributes = node->getAttributes();
+	ICE_XERCES_NS DOMNamedNodeMap* attributes = node->getAttributes();
 	for(unsigned int i = 0; i < attributes->getLength(); ++i)
 	{
-	    DOMNode* attribute = attributes->item(i);
+	    ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
 	    os << ::IceUtil::attr(toString(attribute->getNodeName()), toString(attribute->getNodeValue()));
 	}
 
 	for(vector<ElementTransformPtr>::const_iterator p = _transforms.begin(); p != _transforms.end(); ++p)
 	{
-	    DOMNode* child = findChild(node, (*p)->namespaceURI(), (*p)->name());
+	    ICE_XERCES_NS DOMNode* child = findChild(node, (*p)->namespaceURI(), (*p)->name());
             (*p)->transform(os, info, (*p)->name(), child, map);
 	}
 
@@ -1013,7 +1018,7 @@ public:
     }
 
     virtual void
-    checkMissingTypes(const DocumentInfoPtr& info, DOMNode* node, const MissingTypeMap& map)
+    checkMissingTypes(const DocumentInfoPtr& info, ICE_XERCES_NS DOMNode* node, const MissingTypeMap& map)
     {
 	if(node == 0)
 	{
@@ -1022,7 +1027,7 @@ public:
 
 	for(vector<ElementTransformPtr>::const_iterator p = _transforms.begin(); p != _transforms.end(); ++p)
 	{
-	    DOMNode* child = findChild(node, (*p)->namespaceURI(), (*p)->name());
+	    ICE_XERCES_NS DOMNode* child = findChild(node, (*p)->namespaceURI(), (*p)->name());
 	    (*p)->checkMissingTypes(info, child, map);
 	}
     }
@@ -1061,7 +1066,7 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string& name, DOMNode* node,
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string& name, ICE_XERCES_NS DOMNode* node,
               const MissingTypeMap& map)
     {
 	//
@@ -1108,7 +1113,7 @@ public:
     }
 
     virtual void
-    collectMissingTypes(const DocumentInfoPtr& info, DOMNode* node, MissingTypeMap& map)
+    collectMissingTypes(const DocumentInfoPtr& info, ICE_XERCES_NS DOMNode* node, MissingTypeMap& map)
     {
 	//
 	// Check if the object is null.
@@ -1172,7 +1177,7 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string& name, DOMNode* node,
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string& name, ICE_XERCES_NS DOMNode* node,
               const MissingTypeMap& map)
     {
         //
@@ -1212,7 +1217,7 @@ public:
     }
 
     virtual void
-    checkMissingTypes(const DocumentInfoPtr& info, DOMNode* node, const MissingTypeMap& map)
+    checkMissingTypes(const DocumentInfoPtr& info, ICE_XERCES_NS DOMNode* node, const MissingTypeMap& map)
     {
         //
         // First check for the "href" attribute, which indicates a
@@ -1260,12 +1265,12 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string& name, DOMNode* node,
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr& info, const string& name, ICE_XERCES_NS DOMNode* node,
               const MissingTypeMap& map)
     {
 	os << ::IceUtil::se(name);
 
-	DOMNode* child = 0; // Nil
+	ICE_XERCES_NS DOMNode* child = 0; // Nil
 
 	for(vector<ElementTransformPtr>::const_iterator p = _transforms.begin(); p != _transforms.end(); ++p)
 	{
@@ -1307,7 +1312,8 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string& name, DOMNode*, const MissingTypeMap&)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string& name, ICE_XERCES_NS DOMNode*,
+              const MissingTypeMap&)
     {
 	os << ::IceUtil::se(name);
 	os << ::IceUtil::startEscapes << _s << ::IceUtil::endEscapes;
@@ -1342,7 +1348,8 @@ public:
     }
 
     virtual void
-    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string& name, DOMNode*, const MissingTypeMap&)
+    transform(::IceUtil::XMLOutput& os, const DocumentInfoPtr&, const string& name, ICE_XERCES_NS DOMNode*,
+              const MissingTypeMap&)
     {
 	os << ::IceUtil::se(name);
         os << ::IceUtil::attr(_attrName, _attrValue);
@@ -1376,7 +1383,7 @@ public:
     TransformFactory();
     ~TransformFactory();
 
-    void create(DOMDocument*, DOMDocument*, const Ice::StringSeq&, const Ice::StringSeq&,
+    void create(ICE_XERCES_NS DOMDocument*, ICE_XERCES_NS DOMDocument*, const Ice::StringSeq&, const Ice::StringSeq&,
                 const Ice::StringSeq&, const Ice::StringSeq&, TransformMap*, TransformMap*);
 
 private:
@@ -1407,7 +1414,7 @@ private:
     // Schema import/include handling.
     //
     void import(DocumentMap&, set<string>&, const string&, const string&, const Ice::StringSeq&);
-    void processImport(DOMDocument*, DocumentMap&, set<string>&, const Ice::StringSeq&);
+    void processImport(ICE_XERCES_NS DOMDocument*, DocumentMap&, set<string>&, const Ice::StringSeq&);
 
     //
     // Element processing.
@@ -1417,11 +1424,12 @@ private:
     //
     // Type searching primitives.
     //
-    bool findTypeInDocument(DOMDocument*, const string&, DOMNode*&);
-    bool findType(const DocumentMap&, const DocumentInfoPtr&, const string&, DOMNode*&, DocumentInfoPtr&);
+    bool findTypeInDocument(ICE_XERCES_NS DOMDocument*, const string&, ICE_XERCES_NS DOMNode*&);
+    bool findType(const DocumentMap&, const DocumentInfoPtr&, const string&, ICE_XERCES_NS DOMNode*&, DocumentInfoPtr&);
 
-    Type getType(DOMNode*);
-    Type getTypeByName(const DocumentMap&, const DocumentInfoPtr&, const string&, DOMNode*&, DocumentInfoPtr&);
+    Type getType(ICE_XERCES_NS DOMNode*);
+    Type getTypeByName(const DocumentMap&, const DocumentInfoPtr&, const string&, ICE_XERCES_NS DOMNode*&,
+                       DocumentInfoPtr&);
 
     //
     // Top-level transform creation routine.
@@ -1432,18 +1440,18 @@ private:
     //
     // Subsequent creation routines.
     //
-    TransformPtr createComplexTypeTransform(DOMNode*, DOMNode*);
-    TransformPtr createSimpleTypeTransform(DOMNode*, DOMNode*);
+    TransformPtr createComplexTypeTransform(ICE_XERCES_NS DOMNode*, ICE_XERCES_NS DOMNode*);
+    TransformPtr createSimpleTypeTransform(ICE_XERCES_NS DOMNode*, ICE_XERCES_NS DOMNode*);
 
-    TransformPtr createStaticClassTransform(DOMNode*, DOMNode*);
-    void createEnumValues(DOMNode*, vector< string>&);
-    TransformPtr createEnumerationTransform(DOMNode*);
+    TransformPtr createStaticClassTransform(ICE_XERCES_NS DOMNode*, ICE_XERCES_NS DOMNode*);
+    void createEnumValues(ICE_XERCES_NS DOMNode*, vector< string>&);
+    TransformPtr createEnumerationTransform(ICE_XERCES_NS DOMNode*);
 
-    void createSequenceElementTransform(const DocumentInfoPtr&, DOMNode*,
-					const DocumentInfoPtr&, DOMNode*,
+    void createSequenceElementTransform(const DocumentInfoPtr&, ICE_XERCES_NS DOMNode*,
+					const DocumentInfoPtr&, ICE_XERCES_NS DOMNode*,
 					vector<ElementTransformPtr>&);
-    void createClassContentTransform(const DocumentInfoPtr&, DOMNode*,
-				     const DocumentInfoPtr&, DOMNode*,
+    void createClassContentTransform(const DocumentInfoPtr&, ICE_XERCES_NS DOMNode*,
+				     const DocumentInfoPtr&, ICE_XERCES_NS DOMNode*,
 				     vector<ElementTransformPtr>&);
 
     //
@@ -1455,13 +1463,13 @@ private:
     //
     // Subsequent creation routines for new datatypes.
     //
-    void createDefaultInitializedSequenceElementTransform(const DocumentInfoPtr&, DOMNode*,
+    void createDefaultInitializedSequenceElementTransform(const DocumentInfoPtr&, ICE_XERCES_NS DOMNode*,
 							  vector<ElementTransformPtr>&);
 
     //
     // Utility routines.
     //
-    DOMNode* findSchemaRoot(DOMDocument*);
+    ICE_XERCES_NS DOMNode* findSchemaRoot(ICE_XERCES_NS DOMDocument*);
 
     //
     // Map of local@uri class transforms (based on static type). This information cached for creation of the
@@ -1575,7 +1583,7 @@ XMLTransform::TransformFactory::~TransformFactory()
 // maps: A map of local@uri -> element transform and a map of transforms for specific class types.
 //
 void
-XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc,
+XMLTransform::TransformFactory::create(ICE_XERCES_NS DOMDocument* fromDoc, ICE_XERCES_NS DOMDocument* toDoc,
                                        const Ice::StringSeq& loadFrom, const Ice::StringSeq& loadTo,
                                        const Ice::StringSeq& pathFrom, const Ice::StringSeq& pathTo,
                                        TransformMap* elements, TransformMap* staticClassTransforms)
@@ -1607,11 +1615,11 @@ XMLTransform::TransformFactory::create(DOMDocument* fromDoc, DOMDocument* toDoc,
     // Create both of the document infos for the old & new schemas.
     // Add the root documents to the document map.
     //
-    DOMNode* fromSchema = findSchemaRoot(fromDoc);
+    ICE_XERCES_NS DOMNode* fromSchema = findSchemaRoot(fromDoc);
     assert(fromSchema);
     DocumentInfoPtr fromInfo = new DocumentInfo(fromDoc, false, fromSchema);
 
-    DOMNode* toSchema = findSchemaRoot(toDoc);
+    ICE_XERCES_NS DOMNode* toSchema = findSchemaRoot(toDoc);
     assert(toSchema);
     DocumentInfoPtr toInfo = new DocumentInfo(toDoc, false, toSchema);
     
@@ -1761,8 +1769,8 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, set<string>& impo
     string file = findFile(loc, paths);
 
     DOMTreeErrorReporter errorReporter;
-    XercesDOMParser parser;
-    parser.setValidationScheme(AbstractDOMParser::Val_Never);
+    ICE_XERCES_NS XercesDOMParser parser;
+    parser.setValidationScheme(ICE_XERCES_NS AbstractDOMParser::Val_Never);
     parser.setDoNamespaces(true);
     parser.setErrorHandler(&errorReporter);
 
@@ -1770,8 +1778,8 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, set<string>& impo
 
     try
     {
-	ArrayJanitor<XMLCh> s(XMLString::transcode(file.c_str()));
-	LocalFileInputSource source(s.get());
+	ICE_XERCES_NS ArrayJanitor<XMLCh> s(ICE_XERCES_NS XMLString::transcode(file.c_str()));
+	ICE_XERCES_NS LocalFileInputSource source(s.get());
 
 	systemId = toString(source.getSystemId());
 
@@ -1785,13 +1793,13 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, set<string>& impo
 
         parser.parse(source);
     }
-    catch(const XMLException& ex)
+    catch(const ICE_XERCES_NS XMLException& ex)
     {
 	InvalidSchema e(__FILE__, __LINE__);
         e.reason = "XML exception while importing " + loc + ":\n" + toString(ex.getMessage());
 	throw e;
     }
-    catch(const SAXParseException& ex)
+    catch(const ICE_XERCES_NS SAXParseException& ex)
     {
 	InvalidSchema e(__FILE__, __LINE__);
         e.reason = "SAX exception while importing " + loc + ":\n" + toString(ex.getMessage());
@@ -1811,8 +1819,8 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, set<string>& impo
 	throw ex;
     }
 
-    DOMDocument* document = parser.getDocument();
-    DOMNode* schema = findSchemaRoot(document);
+    ICE_XERCES_NS DOMDocument* document = parser.getDocument();
+    ICE_XERCES_NS DOMNode* schema = findSchemaRoot(document);
 
     //
     // For exception safety, we don't call adoptDocument() until after findSchemaRoot().
@@ -1836,13 +1844,13 @@ XMLTransform::TransformFactory::import(DocumentMap& documents, set<string>& impo
 }
 
 void
-XMLTransform::TransformFactory::processImport(DOMDocument* parent, DocumentMap& documents, 
+XMLTransform::TransformFactory::processImport(ICE_XERCES_NS DOMDocument* parent, DocumentMap& documents, 
 					      set<string>& importedFiles, const Ice::StringSeq& paths)
 {
-    DOMNode* schema = findSchemaRoot(parent);
+    ICE_XERCES_NS DOMNode* schema = findSchemaRoot(parent);
     assert(schema);
 
-    DOMNode* child = schema->getFirstChild();
+    ICE_XERCES_NS DOMNode* child = schema->getFirstChild();
     while(child)
     {
 	string nodeName = toString(child->getNodeName());
@@ -1866,13 +1874,13 @@ XMLTransform::TransformFactory::processImport(DOMDocument* parent, DocumentMap& 
 void
 XMLTransform::TransformFactory::processElements(const DocumentInfoPtr& info)
 {
-    DOMNode* schema = findSchemaRoot(info->getDocument());
+    ICE_XERCES_NS DOMNode* schema = findSchemaRoot(info->getDocument());
 
-    DOMNodeList* children = schema->getChildNodes();
+    ICE_XERCES_NS DOMNodeList* children = schema->getChildNodes();
     for(unsigned int i = 0; i < children->getLength(); ++i)
     {
-	DOMNode* child = children->item(i);
-	if(child->getNodeType() != DOMNode::ELEMENT_NODE)
+	ICE_XERCES_NS DOMNode* child = children->item(i);
+	if(child->getNodeType() != ICE_XERCES_NS DOMNode::ELEMENT_NODE)
 	{
 	    continue;
 	}
@@ -1889,7 +1897,7 @@ XMLTransform::TransformFactory::processElements(const DocumentInfoPtr& info)
 	string nameAttr = getNameAttribute(child);
 	assert(nameAttr.find(':') == string::npos);
 
-	DOMNode* to;
+	ICE_XERCES_NS DOMNode* to;
 	DocumentInfoPtr toNodeInfo; // Overrides the top-level toInfo.
 	if(!findType(_toDocs, info, nameAttr, to, toNodeInfo))
 	{
@@ -1961,16 +1969,17 @@ XMLTransform::TransformFactory::processElements(const DocumentInfoPtr& info)
 // Search for a type in a particular document. Return true if the type is present, false otherwise.
 //
 bool
-XMLTransform::TransformFactory::findTypeInDocument(DOMDocument* doc, const string& local, DOMNode*& target)
+XMLTransform::TransformFactory::findTypeInDocument(ICE_XERCES_NS DOMDocument* doc, const string& local,
+                                                   ICE_XERCES_NS DOMNode*& target)
 {
-    DOMNode* schema = findSchemaRoot(doc);
+    ICE_XERCES_NS DOMNode* schema = findSchemaRoot(doc);
 
-    DOMNodeList* children = schema->getChildNodes();
+    ICE_XERCES_NS DOMNodeList* children = schema->getChildNodes();
     unsigned int i;
     for(i = 0; i < children->getLength(); ++i)
     {
-	DOMNode* child = children->item(i);
-	if(child->getNodeType() == DOMNode::ELEMENT_NODE)
+	ICE_XERCES_NS DOMNode* child = children->item(i);
+	if(child->getNodeType() == ICE_XERCES_NS DOMNode::ELEMENT_NODE)
 	{
 	    string na = getNameAttribute(child);
 	    if(na == local)
@@ -1991,7 +2000,7 @@ XMLTransform::TransformFactory::findTypeInDocument(DOMDocument* doc, const strin
 //
 bool
 XMLTransform::TransformFactory::findType(const DocumentMap& docs, const DocumentInfoPtr& info, const string& type,
-                                         DOMNode*& n, DocumentInfoPtr& nInfo)
+                                         ICE_XERCES_NS DOMNode*& n, DocumentInfoPtr& nInfo)
 {
     string uri;
     string local;
@@ -2033,7 +2042,7 @@ XMLTransform::TransformFactory::findType(const DocumentMap& docs, const Document
 }
 
 TransformFactory::Type
-XMLTransform::TransformFactory::getType(DOMNode* node)
+XMLTransform::TransformFactory::getType(ICE_XERCES_NS DOMNode* node)
 {
     //
     // Check the appinfo element for the actual type.
@@ -2043,7 +2052,7 @@ XMLTransform::TransformFactory::getType(DOMNode* node)
     //
     // Locate the annotation/appinfo/type node.
     //
-    DOMNode* child = findChild(node, annotationElementName);
+    ICE_XERCES_NS DOMNode* child = findChild(node, annotationElementName);
     if(child)
     {
 	child = findChild(child, appinfoElementName);
@@ -2074,7 +2083,7 @@ XMLTransform::TransformFactory::getType(DOMNode* node)
 
 TransformFactory::Type
 XMLTransform::TransformFactory::getTypeByName(const DocumentMap& docs, const DocumentInfoPtr& info, const string& type,
-                                              DOMNode*& n, DocumentInfoPtr& nInfo)
+                                              ICE_XERCES_NS DOMNode*& n, DocumentInfoPtr& nInfo)
 {
     //
     // First check to see if the type is a primitive schema type.
@@ -2100,11 +2109,11 @@ TransformPtr
 XMLTransform::TransformFactory::createTransform(const DocumentInfoPtr& fromTypeInfo, const string& fromTypeName,
                                                 const DocumentInfoPtr& toTypeInfo, const string& toTypeName)
 {
-    DOMNode* from;
+    ICE_XERCES_NS DOMNode* from;
     DocumentInfoPtr fromInfo;
     Type fromType = getTypeByName(_fromDocs, fromTypeInfo, fromTypeName, from, fromInfo);
 
-    DOMNode* to;
+    ICE_XERCES_NS DOMNode* to;
     DocumentInfoPtr toInfo;
     Type toType = getTypeByName(_toDocs, toTypeInfo, toTypeName, to, toInfo);
 
@@ -2220,8 +2229,8 @@ XMLTransform::TransformFactory::createTransform(const DocumentInfoPtr& fromTypeI
 		throw ex;
 	    }
 
-	    DOMNode* fromSeq = findChild(from, sequenceElementName);
-	    DOMNode* toSeq = findChild(to, sequenceElementName);
+	    ICE_XERCES_NS DOMNode* fromSeq = findChild(from, sequenceElementName);
+	    ICE_XERCES_NS DOMNode* toSeq = findChild(to, sequenceElementName);
 	    if(fromSeq == 0 || toSeq == 0)
 	    {
 		InvalidSchema ex(__FILE__, __LINE__);
@@ -2232,8 +2241,8 @@ XMLTransform::TransformFactory::createTransform(const DocumentInfoPtr& fromTypeI
 	    //
 	    // Sequences have one element - which contains the type of the sequence.
 	    //
-	    DOMNode* fromElement = findChild(fromSeq, elementElementName);
-	    DOMNode* toElement = findChild(toSeq, elementElementName);
+	    ICE_XERCES_NS DOMNode* fromElement = findChild(fromSeq, elementElementName);
+	    ICE_XERCES_NS DOMNode* toElement = findChild(toSeq, elementElementName);
 	    if(fromElement == 0 || toElement == 0)
 	    {
 		InvalidSchema ex(__FILE__, __LINE__);
@@ -2345,8 +2354,10 @@ XMLTransform::TransformFactory::createTransform(const DocumentInfoPtr& fromTypeI
 }
 
 void
-XMLTransform::TransformFactory::createSequenceElementTransform(const DocumentInfoPtr& fromInfo, DOMNode* from,
-                                                               const DocumentInfoPtr& toInfo, DOMNode* to,
+XMLTransform::TransformFactory::createSequenceElementTransform(const DocumentInfoPtr& fromInfo,
+                                                               ICE_XERCES_NS DOMNode* from,
+                                                               const DocumentInfoPtr& toInfo,
+                                                               ICE_XERCES_NS DOMNode* to,
                                                                vector<ElementTransformPtr>& v)
 {
     //
@@ -2365,8 +2376,8 @@ XMLTransform::TransformFactory::createSequenceElementTransform(const DocumentInf
     // * Node moved.
     //
 
-    DOMNodeList* fromSeqChildren = from->getChildNodes();
-    DOMNodeList* toSeqChildren = to->getChildNodes();
+    ICE_XERCES_NS DOMNodeList* fromSeqChildren = from->getChildNodes();
+    ICE_XERCES_NS DOMNodeList* toSeqChildren = to->getChildNodes();
 
     //
     // First run through the to set. This loop handles the node
@@ -2376,8 +2387,8 @@ XMLTransform::TransformFactory::createSequenceElementTransform(const DocumentInf
     for(unsigned int i = 0; i < toSeqChildren->getLength(); ++i)
     {
 	ElementTransformPtr transform;
-	DOMNode* toChild = toSeqChildren->item(i);
-	if(toChild->getNodeType() != DOMNode::ELEMENT_NODE)
+	ICE_XERCES_NS DOMNode* toChild = toSeqChildren->item(i);
+	if(toChild->getNodeType() != ICE_XERCES_NS DOMNode::ELEMENT_NODE)
 	{
 	    continue;
 	}
@@ -2397,9 +2408,9 @@ XMLTransform::TransformFactory::createSequenceElementTransform(const DocumentInf
 	//
 	for(unsigned int j = 0; j < fromSeqChildren->getLength(); ++j)
 	{
-	    DOMNode* fromChild = fromSeqChildren->item(j);
+	    ICE_XERCES_NS DOMNode* fromChild = fromSeqChildren->item(j);
 
-	    if(fromChild->getNodeType() != DOMNode::ELEMENT_NODE)
+	    if(fromChild->getNodeType() != ICE_XERCES_NS DOMNode::ELEMENT_NODE)
 	    {
 		// Skip non element nodes.
 		continue;
@@ -2437,12 +2448,14 @@ XMLTransform::TransformFactory::createSequenceElementTransform(const DocumentInf
 }
 
 void
-XMLTransform::TransformFactory::createClassContentTransform(const DocumentInfoPtr& fromInfo, DOMNode* from,
-                                                            const DocumentInfoPtr& toInfo, DOMNode* to,
+XMLTransform::TransformFactory::createClassContentTransform(const DocumentInfoPtr& fromInfo,
+                                                            ICE_XERCES_NS DOMNode* from,
+                                                            const DocumentInfoPtr& toInfo,
+                                                            ICE_XERCES_NS DOMNode* to,
                                                             vector<ElementTransformPtr>& v)
 {
-    DOMNode* fromContent = findChild(from, complexContentElementName);
-    DOMNode* toContent = findChild(to, complexContentElementName);
+    ICE_XERCES_NS DOMNode* fromContent = findChild(from, complexContentElementName);
+    ICE_XERCES_NS DOMNode* toContent = findChild(to, complexContentElementName);
 
     if(fromContent == 0 && toContent == 0)
     {
@@ -2460,8 +2473,8 @@ XMLTransform::TransformFactory::createClassContentTransform(const DocumentInfoPt
 	throw InvalidSchema(__FILE__, __LINE__);
     }
 
-    DOMNode* fromExtension = findChild(fromContent, extensionElementName);
-    DOMNode* toExtension = findChild(toContent, extensionElementName);
+    ICE_XERCES_NS DOMNode* fromExtension = findChild(fromContent, extensionElementName);
+    ICE_XERCES_NS DOMNode* toExtension = findChild(toContent, extensionElementName);
 
     if(fromExtension == 0 || toExtension == 0)
     {
@@ -2481,7 +2494,7 @@ XMLTransform::TransformFactory::createClassContentTransform(const DocumentInfoPt
 	throw ex;
     }
 
-    DOMNode* fromBaseNode;
+    ICE_XERCES_NS DOMNode* fromBaseNode;
     DocumentInfoPtr fromBaseInfo;
     if(!findType(_fromDocs, fromInfo, fromBaseName, fromBaseNode, fromBaseInfo))
     {
@@ -2491,7 +2504,7 @@ XMLTransform::TransformFactory::createClassContentTransform(const DocumentInfoPt
     }
     assert(fromBaseNode && fromBaseInfo);
 
-    DOMNode* toBaseNode;
+    ICE_XERCES_NS DOMNode* toBaseNode;
     DocumentInfoPtr toBaseInfo;
     if(!findType(_toDocs, toInfo, toBaseName, toBaseNode, toBaseInfo))
     {
@@ -2511,9 +2524,9 @@ XMLTransform::TransformFactory::createClassContentTransform(const DocumentInfoPt
 }
 
 void
-XMLTransform::TransformFactory::createEnumValues(DOMNode* to, vector<string>& values)
+XMLTransform::TransformFactory::createEnumValues(ICE_XERCES_NS DOMNode* to, vector<string>& values)
 {
-    DOMNode* toRes = findChild(to, restrictionElementName);
+    ICE_XERCES_NS DOMNode* toRes = findChild(to, restrictionElementName);
     if(toRes == 0)
     {
 	InvalidSchema ex(__FILE__, __LINE__);
@@ -2524,13 +2537,13 @@ XMLTransform::TransformFactory::createEnumValues(DOMNode* to, vector<string>& va
     //
     // Gather up a list of allowable values.
     //
-    DOMNodeList* toResChildren = toRes->getChildNodes();
+    ICE_XERCES_NS DOMNodeList* toResChildren = toRes->getChildNodes();
 
     for(unsigned int i = 0; i < toResChildren->getLength(); ++i)
     {
-	DOMNode* toChild = toResChildren->item(i);
+	ICE_XERCES_NS DOMNode* toChild = toResChildren->item(i);
 
-	if(toChild->getNodeType() != DOMNode::ELEMENT_NODE)
+	if(toChild->getNodeType() != ICE_XERCES_NS DOMNode::ELEMENT_NODE)
 	{
 	    continue;
 	}
@@ -2555,7 +2568,7 @@ XMLTransform::TransformFactory::createEnumValues(DOMNode* to, vector<string>& va
 }
 
 TransformPtr
-XMLTransform::TransformFactory::createEnumerationTransform(DOMNode* to)
+XMLTransform::TransformFactory::createEnumerationTransform(ICE_XERCES_NS DOMNode* to)
 {
     vector<string> values;
     createEnumValues(to, values);
@@ -2576,7 +2589,7 @@ XMLTransform::TransformFactory::createDefaultInitializedTransform(const Document
 	return p->second;
     }
 
-    DOMNode* n;
+    ICE_XERCES_NS DOMNode* n;
     DocumentInfoPtr nInfo;
     Type type = getTypeByName(_toDocs, info, typeName, n, nInfo);
 
@@ -2624,7 +2637,7 @@ XMLTransform::TransformFactory::createDefaultInitializedTransform(const Document
 	    throw InvalidSchema(__FILE__, __LINE__);
 	}
 
-	DOMNode* seq = findChild(n, sequenceElementName);
+	ICE_XERCES_NS DOMNode* seq = findChild(n, sequenceElementName);
 	if(seq == 0)
 	{
 	    InvalidSchema ex(__FILE__, __LINE__);
@@ -2674,7 +2687,7 @@ XMLTransform::TransformFactory::createDefaultInitializedTransform(const Document
 
 void
 XMLTransform::TransformFactory::createDefaultInitializedSequenceElementTransform(const DocumentInfoPtr& info,
-                                                                                 DOMNode* node,
+                                                                                 ICE_XERCES_NS DOMNode* node,
                                                                                  vector<ElementTransformPtr>& v)
 {
     //
@@ -2685,11 +2698,11 @@ XMLTransform::TransformFactory::createDefaultInitializedSequenceElementTransform
     // * Node moved.
     //
 
-    DOMNodeList* seqChild = node->getChildNodes();
+    ICE_XERCES_NS DOMNodeList* seqChild = node->getChildNodes();
     for(unsigned int i = 0; i < seqChild->getLength(); ++i)
     {
-	DOMNode* child = seqChild->item(i);
-	if(child->getNodeType() != DOMNode::ELEMENT_NODE)
+	ICE_XERCES_NS DOMNode* child = seqChild->item(i);
+	if(child->getNodeType() != ICE_XERCES_NS DOMNode::ELEMENT_NODE)
 	{
 	    continue;
 	}
@@ -2706,13 +2719,13 @@ XMLTransform::TransformFactory::createDefaultInitializedSequenceElementTransform
     }
 }
 
-DOMNode*
-XMLTransform::TransformFactory::findSchemaRoot(DOMDocument* root)
+ICE_XERCES_NS DOMNode*
+XMLTransform::TransformFactory::findSchemaRoot(ICE_XERCES_NS DOMDocument* root)
 {
-    ArrayJanitor<XMLCh> schemaURI(XMLString::transcode("http://www.w3.org/2002/XMLSchema"));
-    ArrayJanitor<XMLCh> schemaLocalName(XMLString::transcode("schema"));
+    ICE_XERCES_NS ArrayJanitor<XMLCh> schemaURI(ICE_XERCES_NS XMLString::transcode("http://www.w3.org/2002/XMLSchema"));
+    ICE_XERCES_NS ArrayJanitor<XMLCh> schemaLocalName(ICE_XERCES_NS XMLString::transcode("schema"));
 
-    DOMNodeList* nodes = root->getElementsByTagNameNS(schemaURI.get(), schemaLocalName.get());
+    ICE_XERCES_NS DOMNodeList* nodes = root->getElementsByTagNameNS(schemaURI.get(), schemaLocalName.get());
     if(nodes->getLength() != 1)
     {
         InvalidSchema ex(__FILE__, __LINE__);
@@ -2725,7 +2738,7 @@ XMLTransform::TransformFactory::findSchemaRoot(DOMDocument* root)
 
 XMLTransform::Transformer::Transformer(const Ice::StringSeq& loadFrom, const Ice::StringSeq& loadTo,
                                        const Ice::StringSeq& pathFrom, const Ice::StringSeq& pathTo,
-                                       DOMDocument* fromDoc, DOMDocument* toDoc)
+                                       ICE_XERCES_NS DOMDocument* fromDoc, ICE_XERCES_NS DOMDocument* toDoc)
 {
     TransformFactory factory;
     factory.create(fromDoc, toDoc, loadFrom, loadTo, pathFrom, pathTo, &_elements, &_staticClassTransforms);
@@ -2736,27 +2749,27 @@ XMLTransform::Transformer::~Transformer()
 }
 
 void
-XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, DOMDocument* doc, const string& primaryElement,
-                                     bool force, bool emitRoot)
+XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, ICE_XERCES_NS DOMDocument* doc,
+                                     const string& primaryElement, bool force, bool emitRoot)
 {
-    DOMNode* root = doc->getFirstChild();
+    ICE_XERCES_NS DOMNode* root = doc->getFirstChild();
 
     unsigned int i;
 
     if(emitRoot)
     {
         os << ::IceUtil::se(toString(root->getNodeName()));
-        DOMNamedNodeMap* attributes = root->getAttributes();
+        ICE_XERCES_NS DOMNamedNodeMap* attributes = root->getAttributes();
         for(i = 0; i < attributes->getLength(); ++i)
         {
-            DOMNode* attribute = attributes->item(i);
+            ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
             os << ::IceUtil::attr(toString(attribute->getNodeName()), toString(attribute->getNodeValue()));
         }
     }
 
     DocumentInfoPtr info = new DocumentInfo(doc, false, root);
     
-    DOMNodeList* children = root->getChildNodes();
+    ICE_XERCES_NS DOMNodeList* children = root->getChildNodes();
 
     //
     // Collect the missing types from all elements before
@@ -2765,8 +2778,8 @@ XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, DOMDocument* doc,
     Transform::MissingTypeMap map;
     for(i = 0; i < children->getLength(); ++i)
     {
-	DOMNode* child = children->item(i);
-	if(child->getNodeType() != DOMNode::ELEMENT_NODE)
+	ICE_XERCES_NS DOMNode* child = children->item(i);
+	if(child->getNodeType() != ICE_XERCES_NS DOMNode::ELEMENT_NODE)
 	{
 	    continue;
 	}
@@ -2816,8 +2829,8 @@ XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, DOMDocument* doc,
     //
     for(i = 0; i < children->getLength(); ++i)
     {
-	DOMNode* child = children->item(i);
-	if(child->getNodeType() != DOMNode::ELEMENT_NODE)
+	ICE_XERCES_NS DOMNode* child = children->item(i);
+	if(child->getNodeType() != ICE_XERCES_NS DOMNode::ELEMENT_NODE)
 	{
 	    continue;
 	}
@@ -2870,9 +2883,9 @@ XMLTransform::DBTransformer::DBTransformer(const DBEnvironmentPtr& dbEnv, const 
 {
     try
     {
-        XMLPlatformUtils::Initialize();
+        ICE_XERCES_NS XMLPlatformUtils::Initialize();
     }
-    catch(const XMLException& ex)
+    catch(const ICE_XERCES_NS XMLException& ex)
     {
         cerr << "Error during xerces initialization: " << toString(ex.getMessage()) << endl;
         throw Ice::SyscallException(__FILE__, __LINE__); // TODO: Better exception?
@@ -2881,16 +2894,16 @@ XMLTransform::DBTransformer::DBTransformer(const DBEnvironmentPtr& dbEnv, const 
 
 XMLTransform::DBTransformer::~DBTransformer()
 {
-    XMLPlatformUtils::Terminate();
+    ICE_XERCES_NS XMLPlatformUtils::Terminate();
 }
 
 void
-XMLTransform::DBTransformer::transform(DOMDocument* oldSchema, DOMDocument* newSchema)
+XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE_XERCES_NS DOMDocument* newSchema)
 {
     DOMTreeErrorReporter errReporter;
 
-    XercesDOMParser parser;
-    parser.setValidationScheme(AbstractDOMParser::Val_Auto);
+    ICE_XERCES_NS XercesDOMParser parser;
+    parser.setValidationScheme(ICE_XERCES_NS AbstractDOMParser::Val_Auto);
     parser.setDoNamespaces(true);
     parser.setErrorHandler(&errReporter);
 
@@ -2944,9 +2957,9 @@ XMLTransform::DBTransformer::transform(DOMDocument* oldSchema, DOMDocument* newS
                 fullKey.append(header);
                 fullKey.append(&k[0], k.size());
                 fullKey.append(footer);
-                MemBufInputSource keySource((const XMLByte*)fullKey.data(), fullKey.size(), "key");
+                ICE_XERCES_NS MemBufInputSource keySource((const XMLByte*)fullKey.data(), fullKey.size(), "key");
                 parser.parse(keySource);
-                DOMDocument* keyDoc = parser.getDocument();
+                ICE_XERCES_NS DOMDocument* keyDoc = parser.getDocument();
 
                 ostringstream keyStream;
                 IceUtil::XMLOutput keyOut(keyStream);
@@ -2965,9 +2978,10 @@ XMLTransform::DBTransformer::transform(DOMDocument* oldSchema, DOMDocument* newS
                 fullValue.append(header);
                 fullValue.append(&value[0], value.size());
                 fullValue.append(footer);
-                MemBufInputSource valueSource((const XMLByte*)fullValue.data(), fullValue.size(), "value");
+                ICE_XERCES_NS MemBufInputSource valueSource((const XMLByte*)fullValue.data(), fullValue.size(),
+                                                            "value");
                 parser.parse(valueSource);
-                DOMDocument* valueDoc = parser.getDocument();
+                ICE_XERCES_NS DOMDocument* valueDoc = parser.getDocument();
 
                 ostringstream valueStream;
                 IceUtil::XMLOutput valueOut(valueStream);
@@ -3019,15 +3033,15 @@ XMLTransform::DBTransformer::transform(DOMDocument* oldSchema, DOMDocument* newS
     {
         // Database is empty
     }
-    catch(const XMLException& ex)
+    catch(const ICE_XERCES_NS XMLException& ex)
     {
         reason = "XML exception: " + toString(ex.getMessage());
     }   
-    catch(const SAXException& ex)
+    catch(const ICE_XERCES_NS SAXException& ex)
     {
         reason = "SAX exception: " + toString(ex.getMessage());
     }
-    catch(DOMException& ex)
+    catch(ICE_XERCES_NS DOMException& ex)
     {
         ostringstream out;
         out << "DOM exception (" << ex.code << ") " << toString(ex.msg);
@@ -3069,13 +3083,13 @@ XMLTransform::DBTransformer::transform(const string& oldSchemaFile, const string
 {
     DOMTreeErrorReporter errReporter;
 
-    XercesDOMParser parser;
-    parser.setValidationScheme(AbstractDOMParser::Val_Auto);
+    ICE_XERCES_NS XercesDOMParser parser;
+    parser.setValidationScheme(ICE_XERCES_NS AbstractDOMParser::Val_Auto);
     parser.setDoNamespaces(true);
     parser.setErrorHandler(&errReporter);
 
-    DOMDocument* oldSchema;
-    DOMDocument* newSchema;
+    ICE_XERCES_NS DOMDocument* oldSchema;
+    ICE_XERCES_NS DOMDocument* newSchema;
 
     try
     {
@@ -3085,13 +3099,13 @@ XMLTransform::DBTransformer::transform(const string& oldSchemaFile, const string
         parser.parse(newSchemaFile.c_str());
         newSchema = parser.getDocument();
     }
-    catch(const XMLException& ex)
+    catch(const ICE_XERCES_NS XMLException& ex)
     {
         InvalidSchema e(__FILE__, __LINE__);
         e.reason = "XML exception: " + toString(ex.getMessage());
         throw e;
     }   
-    catch(const SAXException& ex)
+    catch(const ICE_XERCES_NS SAXException& ex)
     {
         InvalidSchema e(__FILE__, __LINE__);
         e.reason = "SAX exception: " + toString(ex.getMessage());
@@ -3112,26 +3126,26 @@ XMLTransform::DBTransformer::transform(const string& schemaStr)
 {
     DOMTreeErrorReporter errReporter;
 
-    XercesDOMParser parser;
-    parser.setValidationScheme(AbstractDOMParser::Val_Auto);
+    ICE_XERCES_NS XercesDOMParser parser;
+    parser.setValidationScheme(ICE_XERCES_NS AbstractDOMParser::Val_Auto);
     parser.setDoNamespaces(true);
     parser.setErrorHandler(&errReporter);
 
-    DOMDocument* schema;
+    ICE_XERCES_NS DOMDocument* schema;
 
     try
     {
-        MemBufInputSource source((const XMLByte*)schemaStr.data(), schemaStr.size(), "schema");
+        ICE_XERCES_NS MemBufInputSource source((const XMLByte*)schemaStr.data(), schemaStr.size(), "schema");
         parser.parse(source);
         schema = parser.getDocument();
     }
-    catch(const XMLException& ex)
+    catch(const ICE_XERCES_NS XMLException& ex)
     {
         InvalidSchema e(__FILE__, __LINE__);
         e.reason = "XML exception: " + toString(ex.getMessage());
         throw e;
     }   
-    catch(const SAXException& ex)
+    catch(const ICE_XERCES_NS SAXException& ex)
     {
         InvalidSchema e(__FILE__, __LINE__);
         e.reason = "SAX exception: " + toString(ex.getMessage());

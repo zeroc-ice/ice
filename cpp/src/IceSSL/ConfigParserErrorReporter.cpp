@@ -23,7 +23,6 @@
 #include <sstream>
 
 using namespace std;
-ICE_XERCES_NS_USE
 
 //
 // Utility to make the usage of xerces easier.
@@ -31,7 +30,7 @@ ICE_XERCES_NS_USE
 static string
 toString(const XMLCh* s)
 {
-    char* t = XMLString::transcode(s);
+    char* t = ICE_XERCES_NS XMLString::transcode(s);
     string r(t);
     delete[] t;
     return r;
@@ -50,7 +49,7 @@ IceSSL::ConfigParserErrorReporter::~ConfigParserErrorReporter()
 }
 
 void
-IceSSL::ConfigParserErrorReporter::warning(const SAXParseException& toCatch)
+IceSSL::ConfigParserErrorReporter::warning(const ICE_XERCES_NS SAXParseException& toCatch)
 {
     if(_traceLevels->security >= IceSSL::SECURITY_PARSE_WARNINGS)
     {
@@ -65,7 +64,7 @@ IceSSL::ConfigParserErrorReporter::warning(const SAXParseException& toCatch)
 }
 
 void
-IceSSL::ConfigParserErrorReporter::error(const SAXParseException& toCatch)
+IceSSL::ConfigParserErrorReporter::error(const ICE_XERCES_NS SAXParseException& toCatch)
 {
     _errorCount++;
 
@@ -77,7 +76,7 @@ IceSSL::ConfigParserErrorReporter::error(const SAXParseException& toCatch)
 }
 
 void
-IceSSL::ConfigParserErrorReporter::fatalError(const SAXParseException& toCatch)
+IceSSL::ConfigParserErrorReporter::fatalError(const ICE_XERCES_NS SAXParseException& toCatch)
 {
     _errorCount++;
 

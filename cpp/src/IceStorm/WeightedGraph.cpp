@@ -24,12 +24,11 @@
 
 using namespace std;
 using namespace IceStorm;
-ICE_XERCES_NS_USE
 
 static string
 toString(const XMLCh* ch)
 {
-    char* t = XMLString::transcode(ch);
+    char* t = ICE_XERCES_NS XMLString::transcode(ch);
     string s(t);
     delete[] t;
     return s;
@@ -38,26 +37,26 @@ toString(const XMLCh* ch)
 namespace IceStorm
 {
 
-class SAXErrorHandler : public ErrorHandler
+class SAXErrorHandler : public ICE_XERCES_NS ErrorHandler
 {
 public:
 
     void
-    warning(const SAXParseException& exception)
+    warning(const ICE_XERCES_NS SAXParseException& exception)
     {
 	string s = toString(exception.getMessage());
 	cerr << "warning: " << s << endl;
     }
 
     void
-    error(const SAXParseException& exception)
+    error(const ICE_XERCES_NS SAXParseException& exception)
     {
 	string s = toString(exception.getMessage());
 	cerr << "error: " << s << endl;
     }
 
     void
-    fatalError(const SAXParseException& exception)
+    fatalError(const ICE_XERCES_NS SAXParseException& exception)
     {
 	string s = toString(exception.getMessage());
 	cerr << "fatal:" << s << endl;
@@ -73,7 +72,7 @@ public:
 #    pragma warning(disable:4786)
 #endif
 
-class SAXGraphHandler : public DocumentHandler
+class SAXGraphHandler : public ICE_XERCES_NS DocumentHandler
 {
 public:
 
@@ -92,9 +91,9 @@ public:
     virtual void ignorableWhitespace(const XMLCh *const chars, const unsigned int length) { }
     virtual void processingInstruction(const XMLCh *const target, const XMLCh *const data) { }
     virtual void resetDocument() { }
-    virtual void setDocumentLocator(const Locator *const locator) { }
+    virtual void setDocumentLocator(const ICE_XERCES_NS Locator *const locator) { }
     virtual void startDocument() { }
-    virtual void startElement(const XMLCh *const name, AttributeList &attrs); 
+    virtual void startElement(const XMLCh *const name, ICE_XERCES_NS AttributeList &attrs); 
 
 private:
 
@@ -112,7 +111,7 @@ struct WeightedGraphParseException
 } // End namespace IceStorm
 
 void
-SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs) 
+SAXGraphHandler::startElement(const XMLCh *const name, ICE_XERCES_NS AttributeList &attrs) 
 {
     string str = toString(name);
     
@@ -120,7 +119,7 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
     {
 	if(str == "vertex")
 	{
-	    XMLCh* n = XMLString::transcode("name");
+	    XMLCh* n = ICE_XERCES_NS XMLString::transcode("name");
 	    const XMLCh* value = attrs.getValue(n);
 	    delete[] n;
 	    if(value == 0)
@@ -136,7 +135,7 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 	}
 	else if(str == "edge")
 	{
-	    XMLCh* n = XMLString::transcode("source");
+	    XMLCh* n = ICE_XERCES_NS XMLString::transcode("source");
 	    const XMLCh* value = attrs.getValue(n);
 	    delete[] n;
 	    if(value == 0)
@@ -148,7 +147,7 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 
 	    string source = toString(value);
 
-	    n = XMLString::transcode("target");
+	    n = ICE_XERCES_NS XMLString::transcode("target");
 	    value = attrs.getValue(n);
 	    delete[] n;
 	    if(value == 0)
@@ -159,7 +158,7 @@ SAXGraphHandler::startElement(const XMLCh *const name, AttributeList &attrs)
 	    }
 
 	    string target = toString(value);
-	    n = XMLString::transcode("cost");
+	    n = ICE_XERCES_NS XMLString::transcode("cost");
 	    value = attrs.getValue(n);
 	    delete[] n;
 
@@ -208,8 +207,8 @@ bool
 WeightedGraph::parse(const string& xmlFile)
 {
     _error = 0;
-    SAXParser* parser = new SAXParser;
-    parser->setValidationScheme(SAXParser::Val_Never);
+    ICE_XERCES_NS SAXParser* parser = new ICE_XERCES_NS SAXParser;
+    parser->setValidationScheme(ICE_XERCES_NS SAXParser::Val_Never);
 
     try
     {
@@ -219,7 +218,7 @@ WeightedGraph::parse(const string& xmlFile)
 	parser->setErrorHandler(&err);
 	parser->parse(xmlFile.c_str());
     }
-    catch(const XMLException& e)
+    catch(const ICE_XERCES_NS XMLException& e)
     {
 	cerr << e.getMessage() << endl;
     }
