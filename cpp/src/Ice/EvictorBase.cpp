@@ -93,7 +93,6 @@ Ice::EvictorBase::locate(const Current& c, LocalObjectPtr& cookie)
 		out << "category`" << c.id.category << "'";
 	    }
 	    out << ": cache hit for name `" << c.id.name << "'";
-	    out.flush();
 	}
     }
     else
@@ -125,7 +124,6 @@ Ice::EvictorBase::locate(const Current& c, LocalObjectPtr& cookie)
 		out << "category`" << c.id.category << "'";
 	    }
 	    out << ": cache miss for name `" << c.id.name << "'";
-	    out.flush();
 	}
     }
 
@@ -187,7 +185,6 @@ Ice::EvictorBase::deactivate(const string& category)
 	double total = (double)_hits + (double)_misses;
 	double ratio = total == 0 ? 100 : ((double)_hits * 100 / total);
 	out << ", %hits = " << fixed << setprecision(2) << ratio << "%";
-	out.flush();
     }
 
     _size = 0;
@@ -221,7 +218,6 @@ Ice::EvictorBase::evictServants()
 		    out << "category `" << (*p)->second->id.category << "'";
 		}
 		out << ": evicting `" << (*p)->second->id.name << "'";
-		out.flush();
 	    }
 
 	    evict((*p)->second->id,

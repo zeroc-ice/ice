@@ -34,27 +34,7 @@ public class BasicStream
 	
 	_traceSlicing = -1;
 
-	synchronized(bufSize)
-	{
-	    if(bufSize.value == 0)
-	    {
-		final int defaultSize = 1024; // Default size in kilobytes.
-		int num = _instance.properties().getPropertyAsInt("Ice.MessageSizeMax");
-		if(num < 1)
-		{
-		    bufSize.value = defaultSize;
-		}
-		else if(num > 0x7fffffff / 1024)
-		{
-		    bufSize.value = 0x7fffffff/ 1024;
-		}
-		else
-		{
-		    bufSize.value = num;
-		}
-		bufSize.value *= 1024;	// Property value is in kilobytes, bufSize in bytes.
-	    }
-	}
+	_messageSizeMax = _instance.messageSizeMax(); // Cached for efficiency.
     }
 
 /*
@@ -143,12 +123,10 @@ public class BasicStream
 	_writeSlice = tmpWriteSlice;
     }
 
-    private static Ice.IntHolder bufSize = new Ice.IntHolder(0);
-
     public void
     resize(int total, boolean reading)
     {
-        if(total > bufSize.value)
+        if(total > _messageSizeMax)
         {
             throw new Ice.MemoryLimitException();
         }
@@ -1413,7 +1391,7 @@ public class BasicStream
         {
             int oldLimit = _limit;
             _limit += size;
-            if(_limit > bufSize.value)
+            if(_limit > _messageSizeMax)
             {
                 throw new Ice.MemoryLimitException();
             }
@@ -1638,4 +1616,6 @@ public class BasicStream
 
     private int _traceSlicing;
     private String _slicingCat;
+
+    private int _messageSizeMax;
 }

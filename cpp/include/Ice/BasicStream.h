@@ -20,7 +20,6 @@
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/Buffer.h>
-#include <Ice/Logger.h>
 #include <list>
 
 namespace Ice
@@ -211,6 +210,8 @@ private:
 
     int _traceSlicing;
     const char* _slicingCat;
+
+    size_t _messageSizeMax;
 };
 
 }

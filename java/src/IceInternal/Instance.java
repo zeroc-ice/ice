@@ -251,6 +251,13 @@ public class Instance
         return _pluginManager;
     }
 
+    public int
+    messageSizeMax()
+    {
+        // No mutex lock, immutable.
+	return _messageSizeMax;
+    }
+
     public BufferManager
     bufferManager()
     {
@@ -289,6 +296,21 @@ public class Instance
             _traceLevels = new TraceLevels(_properties);
 
             _defaultsAndOverrides = new DefaultsAndOverrides(_properties);
+
+	    final int defaultMessageSizeMax = 1024;
+	    final int num = _properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+	    if(num < 1)
+	    {
+		_messageSizeMax = defaultMessageSizeMax; // Ignore stupid values.
+	    }
+	    else if(num > 0x7fffffff / 1024)
+	    {
+		_messageSizeMax = 0x7fffffff;
+	    }
+	    else
+	    {
+		_messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+	    }
 
             _routerManager = new RouterManager();
 
@@ -479,6 +501,7 @@ public class Instance
     private Ice.Stats _stats; // Not reset by destroy().
     private final TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
+    private final int _messageSizeMax; // Immutable, not reset by destroy().
     private RouterManager _routerManager;
     private LocatorManager _locatorManager;
     private ReferenceFactory _referenceFactory;

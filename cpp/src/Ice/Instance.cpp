@@ -353,6 +353,13 @@ IceInternal::Instance::pluginManager()
     return _pluginManager;
 }
 
+size_t
+IceInternal::Instance::messageSizeMax() const
+{
+    // No mutex lock, immutable.
+    return _messageSizeMax;
+}
+
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, char* argv[],
                                 const PropertiesPtr& properties) :
     _destroyed(false),
@@ -460,6 +467,21 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 	const_cast<TraceLevelsPtr&>(_traceLevels) = new TraceLevels(_properties);
 
 	const_cast<DefaultsAndOverridesPtr&>(_defaultsAndOverrides) = new DefaultsAndOverrides(_properties);
+
+	static const int defaultMessageSizeMax = 1024;
+	Int num = _properties->getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+	if(num < 1)
+	{
+	    _messageSizeMax = defaultMessageSizeMax; // Ignore stupid values.
+	}
+	else if(static_cast<size_t>(num) > (size_t)(0x7fffffff / 1024))
+	{
+	    _messageSizeMax = static_cast<size_t>(0x7fffffff);
+	}
+	else
+	{
+	    _messageSizeMax = static_cast<size_t>(num) * 1024; // Property is in kilobytes, _messageSizeMax in bytes.
+	}
 
 	_routerManager = new RouterManager;
 

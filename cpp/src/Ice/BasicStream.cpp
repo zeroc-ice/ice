@@ -20,12 +20,10 @@
 #include <Ice/ObjectFactory.h>
 #include <Ice/ObjectFactoryManager.h>
 #include <Ice/LocalException.h>
-#include <Ice/Properties.h>
 #include <Ice/Protocol.h>
 #include <Ice/FactoryTable.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/TraceLevels.h>
-#include <IceUtil/StaticMutex.h>
 
 template<typename InputIter, typename OutputIter>
 void
@@ -49,34 +47,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-static IceUtil::StaticMutex initMutex = ICE_STATIC_MUTEX_INITIALIZER;
-static size_t bufSize = 0;
-
 IceInternal::BasicStream::BasicStream(Instance* instance) :
     _instance(instance),
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
-    _traceSlicing(-1)
+    _traceSlicing(-1),
+    _messageSizeMax(_instance->messageSizeMax()) // Cached for efficiency.
 {
-    IceUtil::StaticMutex::Lock lock(initMutex);
-    if(bufSize == 0)
-    {
-	const size_t defaultSize = 1024; // Default size in kilobytes.
-	Int num = _instance->properties()->getPropertyAsInt("Ice.MessageSizeMax");
-	if(num < 1)
-	{
-	    bufSize = defaultSize;
-	}
-	else if(static_cast<size_t>(num) > (size_t)(0xffffffff / 1024))
-	{
-	    bufSize = static_cast<size_t>(0xffffffff / 1024);
-	}
-	else
-	{
-	    bufSize = static_cast<size_t>(num);
-	}
-	bufSize *= 1024;	// Property value is in kilobytes, bufSize in bytes.
-    }
 }
 
 Instance*
@@ -99,9 +76,9 @@ IceInternal::BasicStream::swap(BasicStream& other)
 }
 
 void inline
-inlineResize(Buffer* buffer, size_t total)
+inlineResize(Buffer* buffer, size_t total, size_t maxSize)
 {
-    if(total > bufSize)
+    if(total > maxSize)
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }
@@ -118,13 +95,13 @@ inlineResize(Buffer* buffer, size_t total)
 void
 IceInternal::BasicStream::resize(int total)
 {
-    inlineResize(this, total);
+    inlineResize(this, total, _messageSizeMax);
 }
 
 void
 IceInternal::BasicStream::reserve(size_t total)
 {
-    if(total > bufSize)
+    if(total > _messageSizeMax)
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }
@@ -435,7 +412,7 @@ void
 IceInternal::BasicStream::writeBlob(const vector<Byte>& v)
 {
     size_t pos = b.size();
-    inlineResize(this, pos + v.size());
+    inlineResize(this, pos + v.size(), _messageSizeMax);
     ice_copy(v.begin(), v.end(), b.begin() + pos);
 }
 
@@ -456,7 +433,7 @@ void
 IceInternal::BasicStream::writeBlob(const Ice::Byte* v, size_t len)
 {
     size_t pos = b.size();
-    inlineResize(this, pos + len);
+    inlineResize(this, pos + len, _messageSizeMax);
     ice_copy(&v[0], &v[0 + len], b.begin() + pos);
 }
 
@@ -478,7 +455,7 @@ IceInternal::BasicStream::write(const vector<Byte>& v)
     Int sz = static_cast<Int>(v.size());
     writeSize(sz);
     size_t pos = b.size();
-    inlineResize(this, pos + sz);
+    inlineResize(this, pos + sz, _messageSizeMax);
     ice_copy(v.begin(), v.end(), b.begin() + pos);
 }
 
@@ -513,7 +490,7 @@ IceInternal::BasicStream::write(const vector<bool>& v)
     Int sz = static_cast<Int>(v.size());
     writeSize(sz);
     size_t pos = b.size();
-    inlineResize(this, pos + sz);
+    inlineResize(this, pos + sz, _messageSizeMax);
     ice_copy(v.begin(), v.end(), b.begin() + pos);
 }
 
@@ -546,7 +523,7 @@ void
 IceInternal::BasicStream::write(Short v)
 {
     size_t pos = b.size();
-    inlineResize(this, pos + sizeof(Short));
+    inlineResize(this, pos + sizeof(Short), _messageSizeMax);
     const Byte* p = reinterpret_cast<const Byte*>(&v);
 #ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(Short), b.begin() + pos);
@@ -563,7 +540,7 @@ IceInternal::BasicStream::write(const vector<Short>& v)
     if(sz > 0)
     {
 	size_t pos = b.size();
-	inlineResize(this, pos + sz * sizeof(Short));
+	inlineResize(this, pos + sz * sizeof(Short), _messageSizeMax);
 	const Byte* p = reinterpret_cast<const Byte*>(&v[0]);
 #ifdef ICE_BIG_ENDIAN
 	for(int j = 0 ; j < sz ; ++j)
@@ -625,7 +602,7 @@ void
 IceInternal::BasicStream::write(Int v)
 {
     size_t pos = b.size();
-    inlineResize(this, pos + sizeof(Int));
+    inlineResize(this, pos + sizeof(Int), _messageSizeMax);
     const Byte* p = reinterpret_cast<const Byte*>(&v);
 #ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(Int), b.begin() + pos);
@@ -642,7 +619,7 @@ IceInternal::BasicStream::write(const vector<Int>& v)
     if(sz > 0)
     {
 	size_t pos = b.size();
-	inlineResize(this, pos + sz * sizeof(Int));
+	inlineResize(this, pos + sz * sizeof(Int), _messageSizeMax);
 	const Byte* p = reinterpret_cast<const Byte*>(&v[0]);
 #ifdef ICE_BIG_ENDIAN
 	for(int j = 0 ; j < sz ; ++j)
@@ -704,7 +681,7 @@ void
 IceInternal::BasicStream::write(Long v)
 {
     size_t pos = b.size();
-    inlineResize(this, pos + sizeof(Long));
+    inlineResize(this, pos + sizeof(Long), _messageSizeMax);
     const Byte* p = reinterpret_cast<const Byte*>(&v);
 #ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(Long), b.begin() + pos);
@@ -721,7 +698,7 @@ IceInternal::BasicStream::write(const vector<Long>& v)
     if(sz > 0)
     {
 	size_t pos = b.size();
-	inlineResize(this, pos + sz * sizeof(Long));
+	inlineResize(this, pos + sz * sizeof(Long), _messageSizeMax);
 	const Byte* p = reinterpret_cast<const Byte*>(&v[0]);
 #ifdef ICE_BIG_ENDIAN
 	for(int j = 0 ; j < sz ; ++j)
@@ -783,7 +760,7 @@ void
 IceInternal::BasicStream::write(Float v)
 {
     size_t pos = b.size();
-    inlineResize(this, pos + sizeof(Float));
+    inlineResize(this, pos + sizeof(Float), _messageSizeMax);
     const Byte* p = reinterpret_cast<const Byte*>(&v);
 #ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(Float), b.begin() + pos);
@@ -800,7 +777,7 @@ IceInternal::BasicStream::write(const vector<Float>& v)
     if(sz > 0)
     {
 	size_t pos = b.size();
-	inlineResize(this, pos + sz * sizeof(Float));
+	inlineResize(this, pos + sz * sizeof(Float), _messageSizeMax);
 	const Byte* p = reinterpret_cast<const Byte*>(&v[0]);
 #ifdef ICE_BIG_ENDIAN
 	for(int j = 0 ; j < sz ; ++j)
@@ -862,7 +839,7 @@ void
 IceInternal::BasicStream::write(Double v)
 {
     size_t pos = b.size();
-    inlineResize(this, pos + sizeof(Double));
+    inlineResize(this, pos + sizeof(Double), _messageSizeMax);
     const Byte* p = reinterpret_cast<const Byte*>(&v);
 #ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(Double), b.begin() + pos);
@@ -879,7 +856,7 @@ IceInternal::BasicStream::write(const vector<Double>& v)
     if(sz > 0)
     {
 	size_t pos = b.size();
-	inlineResize(this, pos + sz * sizeof(Double));
+	inlineResize(this, pos + sz * sizeof(Double), _messageSizeMax);
 	const Byte* p = reinterpret_cast<const Byte*>(&v[0]);
 #ifdef ICE_BIG_ENDIAN
 	for(int j = 0 ; j < sz ; ++j)
@@ -945,7 +922,7 @@ IceInternal::BasicStream::write(const string& v)
     if(len > 0)
     {
 	size_t pos = b.size();
-	inlineResize(this, pos + len);
+	inlineResize(this, pos + len, _messageSizeMax);
 	ice_copy(v.begin(), v.end(), b.begin() + pos);
     }
 }
