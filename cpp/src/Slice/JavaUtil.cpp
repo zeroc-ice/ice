@@ -364,7 +364,11 @@ Slice::JavaGenerator::getAbsolute(const ContainedPtr& cont,
                                   const string& prefix,
                                   const string& suffix) const
 {
-    string name = fixKwd(cont->name());
+    string name = cont->name();
+    if(prefix == "" && suffix == "")
+    {
+        name = fixKwd(name);
+    }
     string contPkg = getPackage(cont);
     if(contPkg == package)
     {

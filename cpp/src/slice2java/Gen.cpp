@@ -92,7 +92,7 @@ Slice::JavaVisitor::getParamsAsync(const OperationPtr& op, const string& package
 {
     vector<string> params;
 
-    string name = fixKwd(op->name());
+    string name = op->name();
     ContainerPtr container = op->container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
     string classNameAsync = getAbsolute(cl, package, amd ? "AMD_" : "AMI_", '_' + name);
@@ -458,7 +458,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
 	OperationPtr op = *r;
-        string opName = fixKwd(op->name());
+        string opName = op->name();
 
         ContainerPtr container = op->container();
         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
@@ -478,6 +478,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	}
 	else
 	{
+	    opName = fixKwd(opName);
 	    ret = op->returnType();
 	    params = getParams(op, package);
 	    args = getArgs(op);
@@ -570,12 +571,12 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
 	assert(cl);
 
-        string opName = fixKwd(op->name());
+        string opName = op->name();
         out << sp << nl << "public static IceInternal.DispatchStatus" << nl << "___" << opName << '(' << name
 	    << " __obj, IceInternal.Incoming __in, Ice.Current __current)";
         out << sb;
 
-	bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
+	bool amd = cl->hasMetaData("amd") || op->hasMetaData("amd");
 	if(!amd)
 	{
 	    TypePtr ret = op->returnType();
@@ -675,7 +676,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 		string retS = typeToString(ret, TypeModeReturn, package, opMetaData);
 		out << retS << " __ret = ";
 	    }
-	    out << "__obj." << opName << '(';
+	    out << "__obj." << fixKwd(opName) << '(';
 	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
 	    {
                 TypePtr paramType = (*pli)->type();
@@ -782,12 +783,12 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    //
 	    // Call on the servant.
 	    //
-	    string classNameAMD = "AMD_" + fixKwd(p->name());
+	    string classNameAMD = "AMD_" + p->name();
 	    out << nl << classNameAMD << '_' << opName << " __cb = new _" << classNameAMD << '_' << opName
 		<< "(__in);";
             out << nl << "try";
             out << sb;
-	    out << nl << "__obj." << opName << (amd ? "_async(__cb, " : "(");
+	    out << nl << "__obj." << (amd ? opName + "_async" : fixKwd(opName)) << (amd ? "(__cb, " : "(");
 	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
 	    {
                 TypePtr paramType = (*pli)->type();
@@ -851,7 +852,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         int i = 0;
         for(q = allOpNames.begin(); q != allOpNames.end(); ++q)
         {
-            string opName = fixKwd(*q);
+            string opName = *q;
 
             out << nl << "case " << i++ << ':';
             out << sb;
@@ -1071,7 +1072,7 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 {
-    string name = fixKwd(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
     string operationsInterfaceName = "Operations";
@@ -1131,12 +1132,14 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
 	OperationPtr op = *r;
-	string name = fixKwd(op->name());
+        ContainerPtr container = op->container();
+	ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+	string name = op->name();
 
 	TypePtr ret;
 	vector<string> params;
 
-	bool amd = !p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd"));
+	bool amd = !p->isLocal() && (cl->hasMetaData("amd") || op->hasMetaData("amd"));
 
 	if(amd)
 	{
@@ -1155,7 +1158,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 	throws.unique();
 	if(!noCurrent)
 	{
-	    out << sp << nl << retS << ' ' << name << (amd ? "_async" : "") << spar << params;
+	    out << sp << nl << retS << ' ' << (amd ? name + "_async" : fixKwd(name)) << spar << params;
 	    if(!p->isLocal())
 	    {
 		out << "Ice.Current __current";
@@ -1168,7 +1171,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 	{
 	    if(!p->isLocal())
 	    {
-		out << sp << nl << retS << ' ' << name << (amd ? "_async" : "") << spar << params << epar;
+		out << sp << nl << retS << ' ' << (amd ? name + "_async" : fixKwd(name)) << spar << params << epar;
 		writeThrowsClause(package, throws);
 		out << ';';
 	    }
@@ -1188,7 +1191,7 @@ Slice::Gen::TieVisitor::TieVisitor(const string& dir) :
 bool
 Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    string name = fixKwd(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "_", "Tie");
@@ -1216,7 +1219,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if(p->isLocal())
         {
-            out << " implements " << name << ", Ice.TieBase";
+            out << " implements " << fixKwd(name) << ", Ice.TieBase";
         }
         else
         {
@@ -1225,7 +1228,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        out << " extends " << name << " implements Ice.TieBase";
+        out << " extends " << fixKwd(name) << " implements Ice.TieBase";
     }
 
     out << sb;
@@ -1271,13 +1274,10 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     OperationList::const_iterator r;
     for(r = ops.begin(); r != ops.end(); ++r)
     {
-	bool hasAMD = p->hasMetaData("amd") || (*r)->hasMetaData("amd");
-        string opName = fixKwd((*r)->name());
-        if(hasAMD)
-        {
-            opName += "_async";
-        }
-
+	ContainerPtr container = (*r)->container();
+	ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+	bool hasAMD = cl->hasMetaData("amd") || (*r)->hasMetaData("amd");
+        string opName = hasAMD ? (*r)->name() + "_async" : fixKwd((*r)->name());
         TypePtr ret = (*r)->returnType();
         string retS = typeToString(ret, TypeModeReturn, package, (*r)->getMetaData());
 
@@ -1336,7 +1336,7 @@ Slice::Gen::TypesVisitor::TypesVisitor(const string& dir) :
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    string name = fixKwd(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
     string absolute = getAbsolute(p);
@@ -1353,7 +1353,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     if(p->isInterface())
     {
-        out << sp << nl << "public interface " << name << " extends ";
+        out << sp << nl << "public interface " << fixKwd(name) << " extends ";
         out.useCurrentPosAsIndent();
         if(p->isLocal())
         {
@@ -1382,7 +1382,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << "abstract ";
         }
-        out << "class " << name;
+        out << "class " << fixKwd(name);
         out.useCurrentPosAsIndent();
         if(bases.empty() || bases.front()->isInterface())
         {
@@ -1457,7 +1457,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "public Ice.Object" << nl << "create(String type)";
         out << sb;
         out << nl << "assert(type.equals(ice_staticId()));";
-        out << nl << "return new " << name << "();";
+        out << nl << "return new " << fixKwd(name) << "();";
         out << eb;
         out << sp << nl << "public void" << nl << "destroy()";
         out << sb;
@@ -2090,7 +2090,8 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     {
         string member = fixKwd((*en)->name());
         out << nl << "public static final int _" << member << " = " << n << ';';
-        out << nl << "public static final " << name << ' ' << member << " = new " << name << "(_" << member << ");";
+        out << nl << "public static final " << name << ' ' << fixKwd(member)
+	    << " = new " << name << "(_" << member << ");";
     }
 
     out << sp << nl << "public static " << name << nl << "convert(int val)";
@@ -2310,7 +2311,7 @@ Slice::Gen::HolderVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isLocal())
     {
-        string name = fixKwd(p->name());
+        string name = p->name();
         string absolute = getAbsolute(p, "", "", "PrxHolder");
 
         if(open(absolute))
@@ -2364,7 +2365,7 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
 {
     ContainedPtr contained = ContainedPtr::dynamicCast(p);
     assert(contained);
-    string name = fixKwd(contained->name());
+    string name = contained->name();
     string absolute = getAbsolute(contained, "", "", "Holder");
 
     if(open(absolute))
@@ -2428,13 +2429,13 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Proxy helper
     //
-    string name = fixKwd(p->name());
+    string name = p->name();
     string scoped = p->scoped();
     ClassList bases = p->bases();
     string package = getPackage(p);
     string absolute = getAbsolute(p);
 
-    if(!open(absolute + "PrxHelper"))
+    if(!open(getAbsolute(p, "", "", "PrxHelper")))
     {
         return false;
     }
@@ -2457,6 +2458,8 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = *r;
+	ContainerPtr container = op->container();
+	ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
@@ -2528,7 +2531,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
         out << eb;
 
-	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
+	if(cl->hasMetaData("ami") || op->hasMetaData("ami"))
 	{
 	    vector<string> paramsAMI = getParamsAsync(op, package, false);
 	    vector<string> argsAMI = getArgsAsync(op);
@@ -2538,13 +2541,13 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    // context parameter
 	    //
 	    out << sp;
-	    out << nl << "public void" << nl << opName << "_async" << spar << paramsAMI << epar;
+	    out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << epar;
 	    out << sb;
-	    out << nl << opName << "_async" << spar << argsAMI << "__defaultContext()" << epar << ';';
+	    out << nl << op->name() << "_async" << spar << argsAMI << "__defaultContext()" << epar << ';';
 	    out << eb;
 
 	    out << sp;
-	    out << nl << "public void" << nl << opName << "_async" << spar << paramsAMI << "java.util.Map __ctx"
+	    out << nl << "public void" << nl << op->name() << "_async" << spar << paramsAMI << "java.util.Map __ctx"
 		<< epar;
 	    out << sb;
 	    // Async requests may only be sent twoway.
@@ -2667,9 +2670,9 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         return;
     }
 
-    string name = fixKwd(p->name());
+    string name = p->name();
     string absolute = getAbsolute(p);
-    string helper = absolute + "Helper";
+    string helper = getAbsolute(p, "", "", "Helper");
     string package = getPackage(p);
     string typeS = typeToString(p, TypeModeIn, package);
 
@@ -2715,12 +2718,12 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     TypePtr value = p->valueType();
 
     string absolute = getAbsolute(p);
-    string helper = absolute + "Helper";
+    string helper = getAbsolute(p, "", "", "Helper");
 
     if(open(helper))
     {
         Output& out = output();
-        string name = fixKwd(p->name());
+        string name = p->name();
         string package = getPackage(p);
         string keyS = typeToString(key, TypeModeIn, package);
         string valueS = typeToString(value, TypeModeIn, package);
@@ -3027,7 +3030,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    string name = fixKwd(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "", "Prx");
@@ -3113,8 +3116,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	// context parameter.
 	//
 	out << sp;
-	out << nl << "public void " << name << "_async" << spar << paramsAMI << epar << ';';
-	out << nl << "public void " << name << "_async" << spar << paramsAMI << "java.util.Map __ctx" << epar << ';';
+	out << nl << "public void " << p->name() << "_async" << spar << paramsAMI << epar << ';';
+	out << nl << "public void " << p->name() << "_async" << spar << paramsAMI << "java.util.Map __ctx"
+	    << epar << ';';
     }
 }
 
@@ -3131,7 +3135,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    string name = fixKwd(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "_", "Del");
@@ -3206,7 +3210,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    string name = fixKwd(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "_", "DelM");
@@ -3380,7 +3384,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    string name = fixKwd(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "_", "DelD");
@@ -3401,6 +3405,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = *r;
+	ContainerPtr container = op->container();
+	ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
@@ -3417,7 +3423,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "public " << retS << nl << opName << spar << params << "java.util.Map __ctx" << epar;
         writeDelegateThrowsClause(package, throws);
         out << sb;
-	if(p->hasMetaData("amd") || op->hasMetaData("amd"))
+	if(cl->hasMetaData("amd") || op->hasMetaData("amd"))
 	{
 	    out << nl << "throw new Ice.CollocationOptimizationException();";
 	}
@@ -3432,10 +3438,10 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << nl << "IceInternal.Direct __direct = new IceInternal.Direct(__current);";
 	    out << nl << "try";
 	    out << sb;
-	    out << nl << name << " __servant = null;";
+	    out << nl << fixKwd(name) << " __servant = null;";
 	    out << nl << "try";
 	    out << sb;
-	    out << nl << "__servant = (" << name << ")__direct.servant();";
+	    out << nl << "__servant = (" << fixKwd(name) << ")__direct.servant();";
 	    out << eb;
 	    out << nl << "catch(ClassCastException __ex)";
 	    out << sb;
@@ -3491,7 +3497,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    string name = fixKwd(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
     string absolute = getAbsolute(p, "", "_", "Disp");
 
@@ -3502,7 +3508,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     Output& out = output();
 
-    out << sp << nl << "public abstract class _" << name << "Disp extends Ice.ObjectImpl implements " << name;
+    out << sp << nl << "public abstract class _" << name << "Disp extends Ice.ObjectImpl implements " << fixKwd(name);
     out << sb;
 
     out << sp << nl << "protected void" << nl << "ice_copyStateFrom(Ice.Object __obj)";
@@ -3656,7 +3662,7 @@ Slice::Gen::BaseImplVisitor::writeReturn(Output& out, const TypePtr& type)
 void
 Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, const OperationPtr& op, bool local)
 {
-    string opName = fixKwd(op->name());
+    string opName = op->name();
 
     TypePtr ret = op->returnType();
     StringList opMetaData = op->getMetaData();
@@ -3668,7 +3674,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
 
     if(!local && (cl->hasMetaData("amd") || op->hasMetaData("amd")))
     {
-	vector<string> paramsAMD = getParamsAsync(op, package, false);
+	vector<string> paramsAMD = getParamsAsync(op, package, true);
 
         out << sp << nl << "public void" << nl << opName << "_async" << spar << paramsAMD << "Ice.Current __current"
 	    << epar;
@@ -3737,7 +3743,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
     }
     else
     {
-        out << sp << nl << "public " << retS << nl << opName << spar << params;
+        out << sp << nl << "public " << retS << nl << fixKwd(opName) << spar << params;
         if(!local)
         {
             out << "Ice.Current __current";
@@ -3788,7 +3794,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    string name = fixKwd(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "", "I");
@@ -3805,7 +3811,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if(p->isLocal())
         {
-            out << " extends Ice.LocalObjectImpl implements " << name;
+            out << " extends Ice.LocalObjectImpl implements " << fixKwd(name);
         }
         else
         {
@@ -3814,7 +3820,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        out << " extends " << name;
+        out << " extends " << fixKwd(name);
     }
     out << sb;
 
@@ -3849,7 +3855,7 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
         return false;
     }
 
-    string name = fixKwd(p->name());
+    string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
     string absolute = getAbsolute(p, "", "", "I");
@@ -3873,7 +3879,15 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp << nl << "public class " << name << 'I';
     if(inheritImpl)
     {
-        out << " extends " << fixKwd(bases.front()->name()) << 'I';
+	out << " extends ";
+        if(bases.front()->isAbstract())
+	{
+	    out << bases.front()->name() << 'I';
+	}
+	else
+	{
+	    out << fixKwd(bases.front()->name());
+	}
     }
     out << " implements " << '_' << name << "Operations";
     out << sb;
@@ -3899,7 +3913,7 @@ Slice::Gen::ImplTieVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << sp;
             out << nl << "/*";
-            out << nl << " * Implemented by " << fixKwd(bases.front()->name()) << 'I';
+            out << nl << " * Implemented by " << bases.front()->name() << 'I';
             out << nl << " *";
             writeOperation(out, package, *r, p->isLocal());
             out << sp;
@@ -3933,13 +3947,13 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	return;
     }
 
-    string name = fixKwd(p->name());
+    string name = p->name();
     string classPkg = getPackage(cl);
     StringList opMetaData = p->getMetaData();
     
     if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {
-	string classNameAMI = "AMI_" + fixKwd(cl->name());
+	string classNameAMI = "AMI_" + cl->name();
 	string absoluteAMI = getAbsolute(cl, "", "AMI_", "_" + name);
 
 	if(!open(absoluteAMI))
@@ -4133,10 +4147,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
     if(cl->hasMetaData("amd") || p->hasMetaData("amd"))
     {
-	string classNameAMD = "AMD_" + fixKwd(cl->name());
+	string classNameAMD = "AMD_" + cl->name();
 	string absoluteAMD = getAbsolute(cl, "", "AMD_", "_" + name);
 
-	string classNameAMDI = "_AMD_" + fixKwd(cl->name());
+	string classNameAMDI = "_AMD_" + cl->name();
 	string absoluteAMDI = getAbsolute(cl, "", "_AMD_", "_" + name);
 
 	vector<string> paramsAMD = getParamsAsyncCB(p, classPkg);
