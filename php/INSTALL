@@ -47,6 +47,13 @@ If you want to build a dynamic Ice extension, use this version of the
 
 $ ./configure --with-ice=shared,$ICE_HOME ...
 
+If you are building PHP version 5.0.0b1, you will need to manually edit
+one of the PHP source files to avoid a compiler error. Open the file
+php-5.0.0b1/Zend/zend_operators.h and modify line 206 to add a cast, as
+shown below:
+
+    return zend_str_tolower_copy((char*)emalloc(length+1), source, length);
+
 Finally, run make:
 
 $ make
