@@ -118,7 +118,7 @@ Ice_loadSlice(PyObject* /*self*/, PyObject* args)
         //
         ostringstream codeStream;
         IceUtil::Output out(codeStream);
-        generate(unit, out);
+        generate(unit, all, out);
         unit->destroy();
 
         string code = codeStream.str();
