@@ -20,12 +20,10 @@ create(::Ice::CommunicatorPtr communicator)
 
 HelloServiceI::HelloServiceI()
 {
-    cout << "HelloServiceI()" << endl;
 }
 
 HelloServiceI::~HelloServiceI()
 {
-    cout << "~HelloServiceI()" << endl;
 }
 
 void
@@ -43,12 +41,10 @@ HelloServiceI::init(const string& name,
 void
 HelloServiceI::start()
 {
-    cout << "HelloServiceI::start" << endl;
 }
 
 void
 HelloServiceI::stop()
 {
-    cout << "HelloServiceI::stop" << endl;
     _adapter->deactivate();
 }
