@@ -10,8 +10,13 @@
 #include <Ice/Application.h>
 #include <IcePatch2/Util.h>
 #include <IcePatch2/ClientUtil.h>
-#include <fcntl.h>
-#include <termios.h>
+
+#ifdef _WIN32
+#   include <conio.h>
+#else
+#   include <fcntl.h>
+#   include <termios.h>
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -40,6 +45,7 @@ public:
 
     TextPatcherFeedback()
     {
+#ifndef _WIN32
 	tcgetattr(0, &_savedTerm);
 	termios term;
 	memcpy(&term, &_savedTerm, sizeof(termios));
@@ -52,12 +58,15 @@ public:
 	int flags = _savedFlags;
 	flags |= O_NONBLOCK;
 	fcntl(0, F_SETFL, flags);
+#endif
     }
 
     virtual ~TextPatcherFeedback()
     {
+#ifndef _WIN32
 	tcsetattr(0, TCSANOW, &_savedTerm);
 	fcntl(0, F_SETFL, _savedFlags);
+#endif
     }
 
     virtual bool
@@ -76,6 +85,7 @@ public:
 	    }
 	}
 	while(answer != "yes");
+	cout << "Calculating checksums -- please wait, this might take awhile..." << endl;
 	return true;
     }
 
@@ -146,17 +156,28 @@ private:
     keyPressed()
     {
 	bool pressed = false;
+#ifdef _WIN32
+	while(_kbhit())
+	{
+	    pressed = true;
+	    _getch();
+	}
+#else
 	char c;
 	while(read(0, &c, 1) > 0)
 	{
 	    pressed = true;
 	}
+#endif
 	return pressed;
     }
 
     string _lastProgress;
+
+#ifndef _WIN32
     termios _savedTerm;
     int _savedFlags;
+#endif
 };
 
 int
@@ -205,7 +226,7 @@ IcePatch2::Client::run(int argc, char* argv[])
         }
     }
 
-    bool patchComplete;
+    bool patchComplete = false;
 
     try
     {
