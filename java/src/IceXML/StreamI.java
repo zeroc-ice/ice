@@ -350,7 +350,7 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     {
         if(value == null)
         {
-            startWriteSequence(name, value.length);
+            startWriteSequence(name, 0);
             endWriteSequence();
         }
         else
@@ -431,7 +431,7 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     {
         if(value == null)
         {
-            startWriteSequence(name, value.length);
+            startWriteSequence(name, 0);
             endWriteSequence();
         }
         else
@@ -500,7 +500,7 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     {
         if(value == null)
         {
-            startWriteSequence(name, value.length);
+            startWriteSequence(name, 0);
             endWriteSequence();
         }
         else
@@ -579,7 +579,7 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     {
         if(value == null)
         {
-            startWriteSequence(name, value.length);
+            startWriteSequence(name, 0);
             endWriteSequence();
         }
         else
@@ -658,7 +658,7 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     {
         if(value == null)
         {
-            startWriteSequence(name, value.length);
+            startWriteSequence(name, 0);
             endWriteSequence();
         }
         else
@@ -737,7 +737,7 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     {
         if(value == null)
         {
-            startWriteSequence(name, value.length);
+            startWriteSequence(name, 0);
             endWriteSequence();
         }
         else
@@ -816,7 +816,7 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     {
         if(value == null)
         {
-            startWriteSequence(name, value.length);
+            startWriteSequence(name, 0);
             endWriteSequence();
         }
         else
@@ -900,7 +900,7 @@ public class StreamI extends Ice.LocalObjectImpl implements Ice.Stream
     {
         if(value == null)
         {
-            startWriteSequence(name, value.length);
+            startWriteSequence(name, 0);
             endWriteSequence();
         }
         else
