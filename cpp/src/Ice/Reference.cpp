@@ -25,6 +25,11 @@
 #include <Ice/Locator.h>
 #include <Ice/StringUtil.h>
 #include <Ice/Functional.h>
+#include <Ice/ObjectAdapterI.h> // For getIncomingConnections().
+#include <Ice/Connection.h>
+#include <Ice/ConnectionFactory.h>
+#include <Ice/LoggerUtil.h>
+#include <Ice/TraceLevels.h>
 
 using namespace std;
 using namespace Ice;
@@ -638,8 +643,130 @@ IceInternal::Reference::changeDefault() const
 						endpoints, defaultRouterInfo, defaultLocatorInfo, 0, true);
 }
 
+ConnectionPtr
+IceInternal::Reference::getConnection() const
+{
+    ConnectionPtr connection;
+
+    if(reverseAdapter)
+    {
+	//
+	// If we have a reverse object adapter, we use the incoming
+	// connections from such object adapter.
+	//
+	ObjectAdapterIPtr adapter = ObjectAdapterIPtr::dynamicCast(reverseAdapter);
+	assert(adapter);
+	list<ConnectionPtr> connections = adapter->getIncomingConnections();
+
+	vector<EndpointPtr> endpts;
+	endpts.reserve(connections.size());
+	transform(connections.begin(), connections.end(), back_inserter(endpts),
+		  ::Ice::constMemFun(&Connection::endpoint));
+	endpts = filterEndpoints(endpts);
+	
+	if(endpts.empty())
+	{
+	    NoEndpointException ex(__FILE__, __LINE__);
+	    ex.proxy = toString();
+	    throw ex;
+	}
+
+	list<ConnectionPtr>::iterator p;
+	for(p = connections.begin(); p != connections.end(); ++p)
+	{
+	    if((*p)->endpoint() == endpts.front())
+	    {
+		break;
+	    }
+	}
+	assert(p != connections.end());
+	connection = *p;
+    }
+    else
+    {	
+	while(true)
+	{
+	    bool cached;
+	    vector<EndpointPtr> endpts;
+
+	    if(routerInfo)
+	    {
+		//
+		// If we route, we send everything to the router's client
+		// proxy endpoints.
+		//
+		ObjectPrx clientProxy = routerInfo->getClientProxy();
+		endpts = clientProxy->__reference()->endpoints;
+	    }
+	    else if(!endpoints.empty())
+	    {
+		endpts = endpoints;
+	    }
+	    else if(locatorInfo)
+	    {
+		ReferencePtr self = const_cast<Reference*>(this);
+		endpts = locatorInfo->getEndpoints(self, cached);
+	    }
+
+	    vector<EndpointPtr> filteredEndpts = filterEndpoints(endpts);
+	    if(filteredEndpts.empty())
+	    {
+		NoEndpointException ex(__FILE__, __LINE__);
+		ex.proxy = toString();
+		throw ex;
+	    }
+
+	    try
+	    {
+		OutgoingConnectionFactoryPtr factory = instance->outgoingConnectionFactory();
+		connection = factory->create(filteredEndpts);
+		assert(connection);
+	    }
+	    catch(const LocalException& ex)
+	    {
+		if(!routerInfo && endpoints.empty())
+		{	
+		    assert(locatorInfo);
+		    ReferencePtr self = const_cast<Reference*>(this);
+		    locatorInfo->clearCache(self);
+		    
+		    if(cached)
+		    {
+			TraceLevelsPtr traceLevels = instance->traceLevels();
+			LoggerPtr logger = instance->logger();
+			if(traceLevels->retry >= 2)
+			{
+			    Trace out(logger, traceLevels->retryCat);
+			    out << "connection to cached endpoints failed\n"
+				<< "removing endpoints from cache and trying one more time\n" << ex;
+			}
+			continue;
+		    }
+		}
+		
+		throw;
+	    }
+
+	    break;
+	}
+
+	//
+	// If we have a router, set the object adapter for this router
+	// (if any) to the new connection, so that callbacks from the
+	// router can be received over this new connection.
+	//
+	if(routerInfo)
+	{
+	    connection->setAdapter(routerInfo->getAdapter());
+	}
+    }
+
+    assert(connection);
+    return connection;
+}
+
 vector<EndpointPtr>
-IceInternal::Reference::filterEndpoints(const vector<EndpointPtr>& allEndpoints)
+IceInternal::Reference::filterEndpoints(const vector<EndpointPtr>& allEndpoints) const
 {
     vector<EndpointPtr> endpoints = allEndpoints;
 

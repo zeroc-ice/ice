@@ -18,7 +18,6 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/Object.h>
 #include <Ice/ObjectAdapterFactory.h>
-#include <Ice/ObjectAdapterI.h> // For getIncomingConnections().
 #include <Ice/Outgoing.h>
 #include <Ice/OutgoingAsync.h>
 #include <Ice/Direct.h>
@@ -27,13 +26,11 @@
 #include <Ice/Instance.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
-#include <Ice/ConnectionFactory.h>
 #include <Ice/Connection.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/LocatorInfo.h>
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
-#include <Ice/Functional.h>
 
 using namespace std;
 using namespace Ice;
@@ -1043,119 +1040,8 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
     assert(!__connection);
 
     __reference = ref;
-
-    if(__reference->reverseAdapter)
-    {
-	//
-	// If we have a reverse object adapter, we use the incoming
-	// connections from such object adapter.
-	//
-	ObjectAdapterIPtr adapter = ObjectAdapterIPtr::dynamicCast(__reference->reverseAdapter);
-	assert(adapter);
-	list<ConnectionPtr> connections = adapter->getIncomingConnections();
-
-	vector<EndpointPtr> endpoints;
-	endpoints.reserve(connections.size());
-	transform(connections.begin(), connections.end(), back_inserter(endpoints),
-		  ::Ice::constMemFun(&Connection::endpoint));
-	endpoints = __reference->filterEndpoints(endpoints);
-	
-	if(endpoints.empty())
-	{
-	    NoEndpointException ex(__FILE__, __LINE__);
-	    ex.proxy = __reference->toString();
-	    throw ex;
-	}
-
-	list<ConnectionPtr>::iterator p;
-	for(p = connections.begin(); p != connections.end(); ++p)
-	{
-	    if((*p)->endpoint() == endpoints.front())
-	    {
-		break;
-	    }
-	}
-	assert(p != connections.end());
-	__connection = *p;
-	__connection->incProxyCount();
-    }
-    else
-    {	
-	while(true)
-	{
-	    bool cached;
-	    vector<EndpointPtr> endpoints;
-
-	    if(__reference->routerInfo)
-	    {
-		//
-		// If we route, we send everything to the router's client
-		// proxy endpoints.
-		//
-		ObjectPrx proxy = ref->routerInfo->getClientProxy();
-		endpoints = proxy->__reference()->endpoints;
-	    }
-	    else if(!__reference->endpoints.empty())
-	    {
-		endpoints = __reference->endpoints;
-	    }
-	    else if(__reference->locatorInfo)
-	    {
-		endpoints = __reference->locatorInfo->getEndpoints(__reference, cached);
-	    }
-
-	    vector<EndpointPtr> filteredEndpoints = __reference->filterEndpoints(endpoints);
-	    if(filteredEndpoints.empty())
-	    {
-		NoEndpointException ex(__FILE__, __LINE__);
-		ex.proxy = __reference->toString();
-		throw ex;
-	    }
-
-	    try
-	    {
-		OutgoingConnectionFactoryPtr factory = __reference->instance->outgoingConnectionFactory();
-		__connection = factory->create(filteredEndpoints);
-		assert(__connection);
-		__connection->incProxyCount();
-	    }
-	    catch(const LocalException& ex)
-	    {
-		if(!__reference->routerInfo && __reference->endpoints.empty())
-		{	
-		    assert(__reference->locatorInfo);
-		    __reference->locatorInfo->clearCache(__reference);
-		    
-		    if(cached)
-		    {
-			TraceLevelsPtr traceLevels = __reference->instance->traceLevels();
-			LoggerPtr logger = __reference->instance->logger();
-			if(traceLevels->retry >= 2)
-			{
-			    Trace out(logger, traceLevels->retryCat);
-			    out << "connection to cached endpoints failed\n"
-				<< "removing endpoints from cache and trying one more time\n" << ex;
-			}
-			continue;
-		    }
-		}
-		
-		throw;
-	    }
-
-	    break;
-	}
-
-	//
-	// If we have a router, set the object adapter for this router
-	// (if any) to the new connection, so that callbacks from the
-	// router can be received over this new connection.
-	//
-	if(__reference->routerInfo)
-	{
-	    __connection->setAdapter(__reference->routerInfo->getAdapter());
-	}
-    }
+    __connection = __reference->getConnection();
+    __connection->incProxyCount();
 }
 
 bool

@@ -25,6 +25,7 @@
 #include <Ice/RouterInfoF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ObjectAdapterF.h>
+#include <Ice/ConnectionF.h>
 #include <Ice/Identity.h>
 
 namespace IceInternal
@@ -51,12 +52,12 @@ public:
     bool operator<(const Reference&) const;
 
     //
-    // Marshal the reference
+    // Marshal the reference.
     //
     void streamWrite(BasicStream*) const;
 
     //
-    // Convert the reference to its string form
+    // Convert the reference to its string form.
     //
     std::string toString() const;
 
@@ -96,9 +97,14 @@ public:
     ReferencePtr changeDefault() const;
  
     //
+    // Get a suitable connection for this reference.
+    //
+    ConnectionPtr getConnection() const;
+
+    //
     // Filter endpoints based on criteria from this reference.
     //
-    std::vector<EndpointPtr> filterEndpoints(const std::vector<EndpointPtr>&);
+    std::vector<EndpointPtr> filterEndpoints(const std::vector<EndpointPtr>&) const;
 
 private:
 
