@@ -68,7 +68,7 @@ public sealed class ProxyFactory
     {
 	if(proxy != null)
 	{
-	    Ice.ObjectPrxHelper h = (Ice.ObjectPrxHelper) proxy;
+	    Ice.ObjectPrxHelper h = (Ice.ObjectPrxHelper)proxy;
 	    Reference r = h.__reference();
 	    r.identity.__write(s);
 	    r.streamWrite(s);

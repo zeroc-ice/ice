@@ -2203,6 +2203,7 @@ Slice::ClassDef::createOperation(const string& name,
 	_unit->error(msg);
     }
     
+    _hasOperations = true;
     OperationPtr op = new Operation(this, name, returnType, mode);
     _contents.push_back(op);
     return op;
@@ -2521,6 +2522,12 @@ Slice::ClassDef::hasDataMembers() const
     return _hasDataMembers;
 }
 
+bool
+Slice::ClassDef::hasOperations() const
+{
+    return _hasOperations;
+}
+
 Contained::ContainedType
 Slice::ClassDef::containedType() const
 {
@@ -2564,6 +2571,7 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, boo
     SyntaxTreeBase(container->unit()),
     _interface(intf),
     _hasDataMembers(false),
+    _hasOperations(false),
     _bases(bases),
     _local(local)
 {

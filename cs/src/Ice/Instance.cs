@@ -455,14 +455,22 @@ public class Instance
 	//
 	if(_defaultsAndOverrides.defaultRouter.Length > 0)
 	{
-	    _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper._uncheckedCast(_proxyFactory.stringToProxy(_defaultsAndOverrides.defaultRouter)));
+	    _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(_proxyFactory.stringToProxy(_defaultsAndOverrides.defaultRouter)));
 	}
 	
 	if(_defaultsAndOverrides.defaultLocator.Length > 0)
 	{
-	    _referenceFactory.setDefaultLocator(Ice.LocatorPrxHelper._uncheckedCast(_proxyFactory.stringToProxy(_defaultsAndOverrides.defaultLocator)));
+	    _referenceFactory.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(_proxyFactory.stringToProxy(_defaultsAndOverrides.defaultLocator)));
 	}
 	
+	//
+	// Show process id if requested.
+	//
+	if(_properties.getPropertyAsInt("Ice.PrintProcessId") > 0)
+	{
+	    System.Console.WriteLine(Process.GetCurrentProcess().Id);
+	}
+
 	//
 	// Connection monitor initializations must be done after
 	// daemon() is called, since daemon() forks.

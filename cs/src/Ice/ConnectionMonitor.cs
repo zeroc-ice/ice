@@ -82,7 +82,6 @@ public sealed class ConnectionMonitor : SupportClass.ThreadClass
 	{
 		threadName += "-";
 	}
-	//UPGRADE_NOTE: The Name property of a Thread in C# is write-once. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1140"'
 	Name = threadName + "Ice.ConnectionMonitor";
 	
 	Debug.Assert(_interval > 0);
@@ -93,8 +92,6 @@ public sealed class ConnectionMonitor : SupportClass.ThreadClass
     {
 	Debug.Assert(_instance == null);
 	Debug.Assert(_connections.Count == 0);
-	    
-	//UPGRADE_NOTE: Call to 'super.finalize()' was removed. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1124"'
     }
     
     //UPGRADE_TODO: The equivalent of method 'java.lang.Thread.run' is not an override method. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1143"'

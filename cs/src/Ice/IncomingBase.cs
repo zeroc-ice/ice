@@ -72,7 +72,7 @@ public class IncomingBase
     public virtual void 
     reset(Instance instance, Connection connection, Ice.ObjectAdapter adapter, bool response, byte compress)
     {
-	if (_current == null)
+	if(_current == null)
 	{
 	    _current = new Ice.Current();
 	    _current.id = new Ice.Identity();
@@ -83,7 +83,7 @@ public class IncomingBase
 	    Debug.Assert(_current.id != null);
 	    _current.adapter = adapter;
 	    
-	    if (_current.ctx != null)
+	    if(_current.ctx != null)
 	    {
 		_current.ctx.Clear();
 	    }
@@ -99,7 +99,7 @@ public class IncomingBase
 	
 	_compress = compress;
 	
-	if (_os == null)
+	if(_os == null)
 	{
 	    _os = new BasicStream(instance);
 	}
@@ -117,7 +117,7 @@ public class IncomingBase
     public virtual void
     __destroy()
     {
-	if (_os != null)
+	if(_os != null)
 	{
 	    _os.destroy();
 	    _os = null;
@@ -127,7 +127,7 @@ public class IncomingBase
     protected internal void
     __finishInvoke()
     {
-	if (_locator != null && _servant != null)
+	if(_locator != null && _servant != null)
 	{
 	    _locator.finished(_current, _servant, _cookie);
 	}
@@ -137,7 +137,7 @@ public class IncomingBase
 	// response, we still need to tell the connection that we're
 	// finished with dispatching.
 	//
-	if (_response)
+	if(_response)
 	{
 	    _connection.sendResponse(_os, _compress);
 	}

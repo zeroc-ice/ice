@@ -251,6 +251,7 @@ sealed class PropertiesI : LocalObjectImpl, Properties
     PropertiesI(ref string[] args)
     {
 	_properties = new PropertyDict();
+	setProperty("Ice.ProgramName", System.AppDomain.CurrentDomain.FriendlyName);
 	for(int i = 0; i < args.Length; i++)
 	{
 	    if(args[i].StartsWith("--Ice.Config"))
@@ -319,7 +320,7 @@ sealed class PropertiesI : LocalObjectImpl, Properties
 		break;
 	    }
 	}
-	if(end == - 1)
+	if(end == -1)
 	{
 	    return ;
 	}
@@ -327,7 +328,7 @@ sealed class PropertiesI : LocalObjectImpl, Properties
 	string key = s.Substring(0, end);
 	
 	end = s.IndexOf('=', end);
-	if(end == - 1)
+	if(end == -1)
 	{
 	    return;
 	}
@@ -347,9 +348,13 @@ sealed class PropertiesI : LocalObjectImpl, Properties
     {
 	string val = getProperty("Ice.Config");
 	
-	if(val.Equals("1"))
+	if(val.Length == 0 || val.Equals("1"))
 	{
-	    val = "";
+	    string s = System.Environment.GetEnvironmentVariable("ICE_CONFIG");
+	    if(s != null && s.Length != 0)
+	    {
+		val = s;
+	    }
 	}
 	
 	if(val.Length > 0)

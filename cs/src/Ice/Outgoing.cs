@@ -378,10 +378,10 @@ public class Outgoing
 	    _os.writeSize(sz);
 	    if(sz > 0)
 	    {
-		foreach(DictionaryEntry i in context)
+		foreach(DictionaryEntry e in context)
 		{
-		    _os.writeString((string)i.Key);
-		    _os.writeString((string)i.Value);
+		    _os.writeString((string)e.Key);
+		    _os.writeString((string)e.Value);
 		}
 	    }
 	}

@@ -28,7 +28,7 @@ sealed class _AMD_Object_ice_invoke : IceInternal.IncomingAsync, AMD_Object_ice_
 	{
 	    __os().writeBlob(outParams);
 	}
-	catch (Ice.LocalException ex)
+	catch(Ice.LocalException ex)
 	{
 	    __exception(ex);
 	    return ;

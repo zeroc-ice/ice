@@ -374,7 +374,7 @@ public sealed class Reference
 	{
 	    try
 	    {
-		Ice.RouterPrx newRouter = Ice.RouterPrxHelper._uncheckedCast(routerInfo.getRouter().ice_timeout(newTimeout));
+		Ice.RouterPrx newRouter = Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_timeout(newTimeout));
 		Ice.ObjectPrx newClientProxy = routerInfo.getClientProxy().ice_timeout(newTimeout);
 		newRouterInfo = instance.routerManager().get(newRouter);
 		newRouterInfo.setClientProxy(newClientProxy);
@@ -392,7 +392,7 @@ public sealed class Reference
 	LocatorInfo newLocatorInfo = null;
 	if(locatorInfo != null)
 	{
-	    Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper._uncheckedCast(locatorInfo.getLocator().ice_timeout(newTimeout));
+	    Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(locatorInfo.getLocator().ice_timeout(newTimeout));
 	    newLocatorInfo = instance.locatorManager().get(newLocator);
 	}
 	
@@ -452,7 +452,7 @@ public sealed class Reference
 	{
 	    try
 	    {
-		Ice.RouterPrx newRouter = Ice.RouterPrxHelper._uncheckedCast(routerInfo.getRouter().ice_compress(newCompress));
+		Ice.RouterPrx newRouter = Ice.RouterPrxHelper.uncheckedCast(routerInfo.getRouter().ice_compress(newCompress));
 		Ice.ObjectPrx newClientProxy = routerInfo.getClientProxy().ice_compress(newCompress);
 		newRouterInfo = instance.routerManager().get(newRouter);
 		newRouterInfo.setClientProxy(newClientProxy);
@@ -470,7 +470,7 @@ public sealed class Reference
 	LocatorInfo newLocatorInfo = null;
 	if(locatorInfo != null)
 	{
-	    Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper._uncheckedCast(
+	    Ice.LocatorPrx newLocator = Ice.LocatorPrxHelper.uncheckedCast(
 					    locatorInfo.getLocator().ice_compress(newCompress));
 	    newLocatorInfo = instance.locatorManager().get(newLocator);
 	}

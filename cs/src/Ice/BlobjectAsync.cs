@@ -28,7 +28,7 @@ public abstract class BlobjectAsync : Ice.ObjectImpl
 	{
 	    ice_invoke_async(cb, inParams, current);
 	}
-	catch (System.Exception ex)
+	catch(System.Exception ex)
 	{
 	    cb.ice_exception(ex);
 	}

@@ -20,7 +20,7 @@ public class AllTests
     {
 	if (!b)
 	{
-	    throw new SystemException();
+	    throw new Exception();
 	}
     }
     
@@ -35,9 +35,9 @@ public class AllTests
 	
 	Console.Out.Write("testing checked cast... ");
 	Console.Out.Flush();
-	Test.MyClassPrx cl = Test.MyClassPrxHelper._checkedCast(baseProxy);
+	Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
 	test(cl != null);
-	Test.MyDerivedClassPrx derivedProxy = Test.MyDerivedClassPrxHelper._checkedCast(cl);
+	Test.MyDerivedClassPrx derivedProxy = Test.MyDerivedClassPrxHelper.checkedCast(cl);
 	test(derivedProxy != null);
 	test(cl.Equals(baseProxy));
 	test(derivedProxy.Equals(baseProxy));

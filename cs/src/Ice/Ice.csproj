@@ -16,7 +16,7 @@
                 DefaultTargetSchema = "IE50"
                 DelaySign = "false"
                 OutputType = "Library"
-                PreBuildEvent = "$(SolutionDir)compileSlice.bat $(SolutionDir) $(ProjectName)"
+                PreBuildEvent = "$(SolutionDir)generate/generate $(SolutionDir) $(ProjectDir) $(ProjectName)"
                 PostBuildEvent = ""
                 RootNamespace = "Ice"
                 RunPostBuildEvent = "OnBuildSuccess"
@@ -71,8 +71,8 @@
                 />
                 <Reference
                     Name = "IceUtil"
-                    AssemblyName = "IceUtil"
-                    HintPath = "..\..\lib\IceUtil.dll"
+                    Project = "{4ACBB09B-D203-4A37-A529-16BCF49A02BE}"
+                    Package = "{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}"
                 />
             </References>
         </Build>
@@ -80,21 +80,6 @@
             <Include>
                 <File
                     RelPath = "_AMD_Object_ice_invoke.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "_ObjectDel.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "_ObjectDelD.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "_ObjectDelM.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -284,6 +269,21 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "Object_Del.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Object_DelD.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Object_DelM.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "ObjectAdapterFactory.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
@@ -380,11 +380,6 @@
                 />
                 <File
                     RelPath = "RoutingTable.cs"
-                    SubType = "Code"
-                    BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "SequencePatcher.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -494,127 +489,127 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\BuiltinSequences.cs"
+                    RelPath = "generated\BuiltinSequences.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\Communicator.cs"
+                    RelPath = "generated\Communicator.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\CommunicatorF.cs"
+                    RelPath = "generated\CommunicatorF.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\Current.cs"
+                    RelPath = "generated\Current.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\Facet.cs"
+                    RelPath = "generated\Facet.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\Identity.cs"
+                    RelPath = "generated\Identity.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\LocalException.cs"
+                    RelPath = "generated\LocalException.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\Locator.cs"
+                    RelPath = "generated\Locator.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\LocatorF.cs"
+                    RelPath = "generated\LocatorF.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\Logger.cs"
+                    RelPath = "generated\Logger.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\LoggerF.cs"
+                    RelPath = "generated\LoggerF.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\ObjectAdapter.cs"
+                    RelPath = "generated\ObjectAdapter.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\ObjectAdapterF.cs"
+                    RelPath = "generated\ObjectAdapterF.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\ObjectFactory.cs"
+                    RelPath = "generated\ObjectFactory.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\ObjectFactoryF.cs"
+                    RelPath = "generated\ObjectFactoryF.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\Plugin.cs"
+                    RelPath = "generated\Plugin.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\PluginF.cs"
+                    RelPath = "generated\PluginF.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\Properties.cs"
+                    RelPath = "generated\Properties.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\PropertiesF.cs"
+                    RelPath = "generated\PropertiesF.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\Router.cs"
+                    RelPath = "generated\Router.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\RouterF.cs"
+                    RelPath = "generated\RouterF.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\ServantLocator.cs"
+                    RelPath = "generated\ServantLocator.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\ServantLocatorF.cs"
+                    RelPath = "generated\ServantLocatorF.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\Stats.cs"
+                    RelPath = "generated\Stats.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Generated\StatsF.cs"
+                    RelPath = "generated\StatsF.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

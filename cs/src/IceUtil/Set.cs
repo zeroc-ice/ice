@@ -217,10 +217,12 @@ public class Set : ICollection, ICloneable
 	Entry[] newTable = new Entry[_capacity];
 	foreach(Entry e in _table)
 	{
-	    while(e != null)
+	    Entry cursor = e;
+	    while(cursor != null)
 	    {
 		int hash = System.Math.Abs(e.value.GetHashCode()) % _capacity;
 		newTable[hash] = new Entry(e.value, newTable[hash]);
+		cursor = cursor.next;
 	    }
 	}
 	_table = newTable;

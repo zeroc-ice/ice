@@ -216,13 +216,15 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
 					      const TypePtr& type,
 					      const string& param,
 					      bool marshal,
-					      bool seqElem)
+					      bool isSeq,
+					      bool isOutParam,
+					      const string& patchParams)
 {
     string stream = marshal ? "__os" : "__is";
 
     string startAssign;
     string endAssign;
-    if(seqElem)
+    if(isSeq)
     {
         startAssign = ".Add(";
         endAssign = ")";
@@ -334,7 +336,6 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                 }
                 break;
             }
-#if 0
             case Builtin::KindObject:
             {
                 if(marshal)
@@ -343,25 +344,19 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                 }
                 else
                 {
-		    if(holder)
+		    if(isOutParam)
 		    {
-			out << nl << stream << ".readObject(" << param << ".getPatcher());";
+			out << nl << "IceInternal.ParamPatcher " << param
+			    << "_PP = new IceInternal.ParamPatcher(typeof(Ice.Object));";
+			out << nl << stream << ".readObject(" << param << "_PP);";
 		    }
 		    else
 		    {
-                        if(patchParams.empty())
-                        {
-                            out << nl << stream << ".readObject(new Patcher());";
-                        }
-                        else
-                        {
-                            out << nl << stream << ".readObject(" << patchParams << ");";
-                        }
+			out << nl << stream << ".readObject(new __Patcher(" << patchParams << "));";
 		    }
                 }
                 break;
             }
-#endif
             case Builtin::KindObjectProxy:
             {
 		string typeS = typeToString(type);
@@ -408,7 +403,16 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         else
         {
-	    out << nl << param << " = " << stream << ".readObject(new Patcher());";
+	    if(isOutParam)
+	    {
+		out << nl << "IceInternal.ParamPatcher " << param
+		    << "_PP = new IceInternal.ParamPatcher(typeof(" << typeToString(type) << "));";
+		out << nl << stream << ".readObject(" << param << "_PP);";
+	    }
+	    else
+	    {
+		out << nl << stream << ".readObject(new __Patcher(" << patchParams << "));";
+	    }
         }
         return;
     }
@@ -464,7 +468,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        writeSequenceMarshalUnmarshalCode(out, seq, param, marshal, seqElem);
+        writeSequenceMarshalUnmarshalCode(out, seq, param, marshal, isSeq);
         return;
     }
 
@@ -486,13 +490,13 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                                                         const SequencePtr& seq,
                                                         const string& param,
                                                         bool marshal,
-							bool seqElem)
+							bool isSeq)
 {
     string stream = marshal ? "__os" : "__is";
 
     string startAssign;
     string endAssign;
-    if(seqElem)
+    if(isSeq)
     {
         startAssign = ".Add(";
 	endAssign = ")";
@@ -537,7 +541,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 		       out << nl << "for(int __i = 0; __i < __len; ++__i)";
 		       out << sb;
 		       out << nl << stream << ".readObject(new IceInternal.SequencePatcher("
-		           << param << ", typeof(Ice.Object), Ice.ObjectImpl.ice_staticId(), __i));";
+		           << param << ", typeof(Ice.Object), __i));";
 		       out << eb;
 		   }
 		   else
@@ -570,6 +574,32 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
 	}
 	return;
     }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    if(cl)
+    {
+        if(marshal)
+        {
+	    out << nl << stream << ".writeSize(" << param << ".Count);";
+	    out << nl << "for(int __i = 0; __i < " << param << ".Count; ++__i)";
+	    out << sb;
+            out << nl << stream << ".writeObject(" << param << "[__i]);";
+	    out << eb;
+        }
+        else
+        {
+	    out << nl << "int sz = " << stream << ".readSize();";
+	    out << nl << param << " = new " << fixId(seq->scoped()) << "(sz);";
+	    out << nl << "for(int i = 0; i < sz; ++i)";
+	    out << sb;
+	    out << nl << "IceInternal.SequencePatcher sp = new IceInternal.SequencePatcher("
+		<< param << ", " << "typeof(" << typeToString(type) << "), i);";
+	    out << nl << stream << ".readObject(sp);";
+	    out << eb;
+        }
+        return;
+    }
+
 
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)

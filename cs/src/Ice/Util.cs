@@ -282,7 +282,30 @@ public sealed class Util
 	    {
 		return n;
 	    }
-	    return lhs.ice_getFacet().CompareTo(rhs.ice_getFacet());
+
+	    FacetPath lhsFacet = lhs.ice_getFacet();
+	    FacetPath rhsFacet = rhs.ice_getFacet();
+	    for(int i = 0; i < lhsFacet.Count && i < rhsFacet.Count; ++i)
+	    {
+	        if((n = lhsFacet[i].CompareTo(rhsFacet[i])) != 0)
+		{
+		    return n;
+		}
+	    }
+
+	    if(lhsFacet.Count == rhsFacet.Count)
+	    {
+	        return 0;
+	    }
+	    else if(lhsFacet.Count < rhsFacet.Count)
+	    {
+	        return -1;
+
+	    }
+	    else
+	    {
+	        return 1;
+	    }
 	}
     }
     

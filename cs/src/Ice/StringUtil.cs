@@ -242,7 +242,7 @@ namespace IceInternal
 		start++;
 		int len = s.Length;
 		int pos;
-		while (start < len && (pos = s.IndexOf(quoteChar, start)) != -1)
+		while(start < len && (pos = s.IndexOf(quoteChar, start)) != -1)
 		{
 		    if(s[pos - 1] != '\\')
 		    {

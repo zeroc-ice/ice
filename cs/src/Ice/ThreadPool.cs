@@ -16,12 +16,12 @@
 // Uncomment these definitions as needed. (We use #define here instead
 // of constants to stop the compiler from complaining about unreachable code.)
 //
-#define TRACE_REGISTRATION
-#define TRACE_INTERRUPT
-#define TRACE_SHUTDOWN
-#define TRACE_SELECT
-#define TRACE_EXCEPTION
-#define TRACE_THREAD
+//#define TRACE_REGISTRATION
+//#define TRACE_INTERRUPT
+//#define TRACE_SHUTDOWN
+//#define TRACE_SELECT
+//#define TRACE_EXCEPTION
+//#define TRACE_THREAD
 //#define TRACE_STACK_TRACE
 
 namespace IceInternal
@@ -42,7 +42,7 @@ public sealed class ThreadPool
 	_destroyed = false;
 	_prefix = prefix;
 	_handlerMap = new Hashtable();
-	_timeout = timeout > 0 ? timeout * 1000000 : -1;
+	_timeout = timeout > 0 ? timeout * 1000 : -1;
 	_threadIndex = 0;
 	_running = 0;
 	_inUse = 0;
@@ -98,7 +98,7 @@ public sealed class ThreadPool
 		++_running;
 	    }
 	}
-	catch(SystemException ex)
+	catch(System.Exception ex)
 	{
 	    string s = "cannot create thread for `" + _prefix + "':\n" + ex;
 	    _instance.logger().error(s);
@@ -155,9 +155,9 @@ public sealed class ThreadPool
 		#if TRACE_STACK_TRACE
 		    try
 		    {
-			throw new SystemException();
+			throw new System.Exception();
 		    }
-		    catch(SystemException ex)
+		    catch(System.Exception ex)
 		    {
 			trace("removing handler for channel " + fd.Handle + "\n" + ex);
 		    }
@@ -208,7 +208,7 @@ public sealed class ThreadPool
 			    thread.Start();
 			    ++_running;
 			}
-			catch(SystemException ex)
+			catch(System.Exception ex)
 			{
 			    string s = "cannot create thread for `" + _prefix + "':\n" + ex;
 			    _instance.logger().error(s);
@@ -263,9 +263,9 @@ public sealed class ThreadPool
 	    #if TRACE_STACK_TRACE
 		try
 		{
-		    throw new System.SystemException();
+		    throw new System.Exception();
 		}
-		catch(System.SystemException ex)
+		catch(System.Exception ex)
 		{
 		    SupportClass.WriteStackTrace(ex, Console.Error);
 		}
@@ -298,9 +298,9 @@ public sealed class ThreadPool
 	    #if TRACE_STACK_TRACE
 		try
 		{
-		    throw new System.SystemException();
+		    throw new System.Exception();
 		}
-		catch(System.SystemException ex)
+		catch(System.Exception ex)
 		{
 		    Console.Error.WriteLine(ex);
 		}
@@ -369,11 +369,11 @@ public sealed class ThreadPool
 		}
 	    #endif
 	    
-	    ArrayList selectList = new ArrayList(_handlerMap.Count + 1);
-	    selectList.Add(_fdIntrRead);
-	    selectList.AddRange(_handlerMap.Keys);
-	    Network.doSelect(selectList, null, null, _timeout);
-	    if(selectList.Count == 0) // We initiate a shutdown if there is a thread pool timeout.
+	    ArrayList readList = new ArrayList(_handlerMap.Count + 1);
+	    readList.Add(_fdIntrRead);
+	    readList.AddRange(_handlerMap.Keys);
+	    Network.doSelect(readList, null, null, _timeout);
+	    if(readList.Count == 0) // We initiate a shutdown if there is a thread pool timeout.
 	    {
 		#if TRACE_SELECT
 		    trace("timeout");
@@ -393,7 +393,7 @@ public sealed class ThreadPool
 		#if TRACE_SELECT || TRACE_INTERRUPT
 		    System.Text.StringBuilder sb = new System.Text.StringBuilder();
 		    sb.Append("readable sockets:");
-		    foreach(Socket s in selectList)
+		    foreach(Socket s in readList)
 		    {
 		        sb.Append(" " + s.Handle);
 			    if(_handlerMap[s] != null)
@@ -404,11 +404,10 @@ public sealed class ThreadPool
 		    trace("readable sockets: " + sb.ToString());
 		#endif
 
-		if(selectList.Contains(_fdIntrRead))
+		if(readList.Contains(_fdIntrRead))
 		{
 		    #if TRACE_SELECT || TRACE_INTERRUPT
 			trace("detected interrupt");
-			trace("available = " + _fdIntrRead.Available);
 		    #endif
 		    
 		    //
@@ -480,7 +479,7 @@ public sealed class ThreadPool
 		}
 		else
 		{
-		    Socket fd = (Socket)selectList[0];
+		    Socket fd = (Socket)readList[0];
 		    #if TRACE_SELECT
 			trace("found a readable socket: " + fd.Handle);
 		    #endif
@@ -528,7 +527,6 @@ public sealed class ThreadPool
 		    //
 		    try
 		    {
-System.Console.WriteLine("calling handler.finished");
 			handler.finished(this);
 		    }
 		    catch(Ice.LocalException ex)

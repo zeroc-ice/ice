@@ -145,7 +145,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
 		{
 		    locator.deactivate((string)p.Key);
 		}
-		catch (System.Exception ex)
+		catch(System.Exception ex)
 		{
 		    string s = "exception during locator deactivation:\n" + "object adapter: `" + _adapterName + "'\n" + "locator prefix: `" + p.Key + "'\n" + ex;
 		    _instance.logger().error(s);

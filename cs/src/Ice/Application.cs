@@ -73,7 +73,9 @@ public abstract class Application
 		_communicator = Util.initialize(ref args);
 	    }
 	    
-	    _nohup = _communicator.getProperties().getPropertyAsInt("Ice.Nohup") != 0;
+	    Properties props = _communicator.getProperties();
+	    _nohup = props.getPropertyAsInt("Ice.Nohup") != 0;
+	    _appName = props.getProperty("Ice.ProgramName");
 
 	    //
 	    // The default is to destroy when a signal is received.
@@ -332,7 +334,7 @@ public abstract class Application
     private static Callback _callback; // Current callback
     private static Callback _previousCallback; // Remembers prev. callback when signals are held
 
-    private static readonly string _appName = Process.GetCurrentProcess().ProcessName;
+    private static volatile string _appName = AppDomain.CurrentDomain.FriendlyName;
     private static Communicator _communicator;
 }
 

@@ -147,7 +147,7 @@ public:
 // most-derived to least-derived order.
 // ----------------------------------------------------------------------
 
-class DerivedToBaseCompare : public std::binary_function<std::string, std::string, bool>
+class SLICE_API DerivedToBaseCompare : public std::binary_function<std::string, std::string, bool>
 {
 public:
 

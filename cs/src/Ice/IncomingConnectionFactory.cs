@@ -376,7 +376,7 @@ public class IncomingConnectionFactory : EventHandler
 		_acceptor.listen();
 	    }
 	}
-	catch(System.SystemException ex)
+	catch(System.Exception ex)
 	{
 	    _state = StateClosed;
 	    _acceptor = null;
@@ -389,12 +389,6 @@ public class IncomingConnectionFactory : EventHandler
 	Debug.Assert(_state == StateClosed);
 	Debug.Assert(_acceptor == null);
 	Debug.Assert(_connections.Count == 0);
-	
-	//
-	// Destroy the EventHandler's stream, so that its buffer
-	// can be reclaimed.
-	//
-	base._stream.destroy();
     }
     
     private const int StateActive = 0;

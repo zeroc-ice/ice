@@ -21,22 +21,6 @@ public abstract class LocalObjectImpl : LocalObject
     {
 	return GetHashCode();
     }
-
-    public int
-    CompareTo(object other)
-    {
-	if(other == null)
-	{
-	    return 1;
-	}
-	if(!(other is Ice.LocalObject))
-	{
-	    throw new System.ArgumentException("expected object of type Ice.LocalObject", "other");
-	}
-	int thisHash = GetHashCode();
-	int otherHash = other.GetHashCode();
-	return thisHash < otherHash ? -1 : (thisHash > otherHash ? 1 : 0);
-    }
 }
 
 }

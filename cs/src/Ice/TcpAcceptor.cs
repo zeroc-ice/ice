@@ -45,7 +45,7 @@ class TcpAcceptor : Acceptor
 	    {
 		fd.Close();
 	    }
-	    catch(SystemException)
+	    catch(System.Exception)
 	    {
 		// Ignore.
 	    }
@@ -123,7 +123,7 @@ class TcpAcceptor : Acceptor
 	    }
 	    _addr = Network.doBind(_fd, _addr);
 	}
-	catch(System.SystemException ex)
+	catch(System.Exception ex)
 	{
 	    _fd = null;
 	    throw ex;

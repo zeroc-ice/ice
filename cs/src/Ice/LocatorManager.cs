@@ -54,7 +54,7 @@ public sealed class LocatorManager
 	//
 	// The locator can't be located.
 	//
-	Ice.LocatorPrx locator = Ice.LocatorPrxHelper._uncheckedCast(loc.ice_locator(null));
+	Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(loc.ice_locator(null));
 	
 	//
 	// TODO: reap unused locator info objects?

@@ -17,7 +17,7 @@ namespace Ice
 using System.Collections;
 using System.Diagnostics;
 
-public class _ObjectDelD : _ObjectDel
+public class Object_DelD : Object_Del
 {
     public virtual bool
     ice_isA(string __id, Ice.Context __context)
@@ -133,7 +133,7 @@ public class _ObjectDelD : _ObjectDel
     // Only for use by ObjectPrx.
     //
     internal void
-    __copyFrom(_ObjectDelD from)
+    __copyFrom(Object_DelD from)
     {
 	//
 	// No need to synchronize "from", as the delegate is immutable

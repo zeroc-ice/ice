@@ -111,8 +111,8 @@ public sealed class Connection : EventHandler
 			if(pMajor != Protocol.protocolMajor)
 			{
 			    Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
-			    e.badMajor = pMajor < 0?pMajor + 255:pMajor;
-			    e.badMinor = pMinor < 0?pMinor + 255:pMinor;
+			    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
+			    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
 			    e.major = Protocol.protocolMajor;
 			    e.minor = Protocol.protocolMinor;
 			    throw e;
@@ -129,8 +129,8 @@ public sealed class Connection : EventHandler
 			if(eMajor != Protocol.encodingMajor)
 			{
 			    Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-			    e.badMajor = eMajor < 0?eMajor + 255:eMajor;
-			    e.badMinor = eMinor < 0?eMinor + 255:eMinor;
+			    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+			    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
 			    e.major = Protocol.encodingMajor;
 			    e.minor = Protocol.encodingMinor;
 			    throw e;
@@ -926,8 +926,8 @@ public sealed class Connection : EventHandler
 		if(pMajor != Protocol.protocolMajor || pMinor > Protocol.protocolMinor)
 		{
 		    Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
-		    e.badMajor = pMajor < 0?pMajor + 255:pMajor;
-		    e.badMinor = pMinor < 0?pMinor + 255:pMinor;
+		    e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
+		    e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
 		    e.major = Protocol.protocolMajor;
 		    e.minor = Protocol.protocolMinor;
 		    throw e;
@@ -938,8 +938,8 @@ public sealed class Connection : EventHandler
 		if(eMajor != Protocol.encodingMajor || eMinor > Protocol.encodingMinor)
 		{
 		    Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
-		    e.badMajor = eMajor < 0?eMajor + 255:eMajor;
-		    e.badMinor = eMinor < 0?eMinor + 255:eMinor;
+		    e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
+		    e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
 		    e.major = Protocol.encodingMajor;
 		    e.minor = Protocol.encodingMinor;
 		    throw e;
@@ -1064,7 +1064,7 @@ public sealed class Connection : EventHandler
 	    catch(Ice.LocalException ex)
 	    {
 		setState(StateClosed, ex);
-		return ;
+		return;
 	    }
 	}
 	
@@ -1228,13 +1228,11 @@ public sealed class Connection : EventHandler
     
     ~Connection()
     {
-	Debug.Assert(_state == StateClosed);
-	Debug.Assert(_transceiver == null);
-	Debug.Assert(_dispatchCount == 0);
-	Debug.Assert(_proxyCount == 0);
-	Debug.Assert(_incomingCache == null);
-	
-	_batchStream.destroy();
+	Debug.Assert(_state == StateClosed, "~Connection(): _state != StateClosed");
+	Debug.Assert(_transceiver == null, "~Connection(): _tranceiver != null");
+	Debug.Assert(_dispatchCount == 0, "~Connection(): _dispatchCount != 0");
+	Debug.Assert(_proxyCount == 0, "~Connection(): _proxyCount != 0");
+	Debug.Assert(_incomingCache == null, "~Connection(): _incomingCache != null");
     }
     
     private const int StateNotValidated = 0;

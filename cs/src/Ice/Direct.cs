@@ -83,7 +83,7 @@ public sealed class Direct
 		}
 	    }
 	}
-	catch(System.SystemException ex)
+	catch(System.Exception ex)
 	{
 	    try
 	    {

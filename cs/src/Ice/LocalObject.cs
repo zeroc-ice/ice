@@ -14,7 +14,7 @@
 namespace Ice
 {
 
-public interface LocalObject : System.IComparable
+public interface LocalObject
 {
     int ice_hash();
 }

@@ -406,7 +406,7 @@ sealed class TcpEndpoint : Endpoint
 	
 	if(_port < p._port)
 	{
-	    return - 1;
+	    return -1;
 	}
 	else if(p._port < _port)
 	{
@@ -415,7 +415,7 @@ sealed class TcpEndpoint : Endpoint
 	
 	if(_timeout < p._timeout)
 	{
-	    return - 1;
+	    return -1;
 	}
 	else if(p._timeout < _timeout)
 	{
@@ -424,7 +424,7 @@ sealed class TcpEndpoint : Endpoint
 	
 	if(!_compress && p._compress)
 	{
-	    return - 1;
+	    return -1;
 	}
 	else if(!p._compress && _compress)
 	{

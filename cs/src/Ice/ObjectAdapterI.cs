@@ -679,13 +679,13 @@ public sealed class ObjectAdapterI : LocalObjectImpl, ObjectAdapter
 	    string router = _instance.properties().getProperty(name + ".Router");
 	    if(router.Length > 0)
 	    {
-		addRouter(RouterPrxHelper._uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
+		addRouter(RouterPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(router)));
 	    }
 	    
 	    string locator = _instance.properties().getProperty(name + ".Locator");
 	    if(locator.Length > 0)
 	    {
-		setLocator(LocatorPrxHelper._uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
+		setLocator(LocatorPrxHelper.uncheckedCast(_instance.proxyFactory().stringToProxy(locator)));
 	    }
 	    else
 	    {

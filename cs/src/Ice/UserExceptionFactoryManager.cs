@@ -25,7 +25,7 @@ public sealed class UserExceptionFactoryManager
 	lock(this)
 	{
 	    object o = _factoryMap[id];
-	    if (o != null)
+	    if(o != null)
 	    {
 		Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
 		ex.id = id;
@@ -42,7 +42,7 @@ public sealed class UserExceptionFactoryManager
 	lock(this)
 	{
 	    object o = _factoryMap[id];
-	    if (o == null)
+	    if(o == null)
 	    {
 		Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 		ex.id = id;

@@ -82,7 +82,7 @@ public abstract class OutgoingAsync
 	    //
 	    _os.startWriteEncaps();
 	}
-	catch(System.SystemException ex)
+	catch(System.Exception ex)
 	{
 	    destroy();
 	    throw ex;
@@ -104,7 +104,7 @@ public abstract class OutgoingAsync
 		                         + _connection.timeout();
 	    }
 	}
-	catch(System.SystemException ex)
+	catch(System.Exception ex)
 	{
 	    destroy();
 	    throw ex;

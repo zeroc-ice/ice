@@ -205,7 +205,7 @@ public class SupportClass
 				tempPacket = new PacketSupport(data_in, data_in.Length);
 				tempPacket.IPEndPoint = remoteIpEndPoint;
 			}
-			catch ( System.Exception e )
+			catch( System.Exception e )
 			{
 				throw new System.Exception(e.Message); 
 			}

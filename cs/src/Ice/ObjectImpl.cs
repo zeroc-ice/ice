@@ -25,22 +25,6 @@ public class ObjectImpl : Object, System.ICloneable
 	_activeFacetMap = new Hashtable();
     }
 
-    public virtual int
-    CompareTo(object other)
-    {
-	if(other == null)
-	{
-	    return 1;
-	}
-	if(!(other is Ice.Object))
-	{
-	    throw new System.ArgumentException("expected object of type Ice.Object", "other");
-	}
-	int thisHash = GetHashCode();
-	int otherHash = other.GetHashCode();
-	return thisHash < otherHash ? -1 : (thisHash > otherHash ? 1 : 0);
-    }
-
     public object
     Clone()
     {
@@ -61,13 +45,13 @@ public class ObjectImpl : Object, System.ICloneable
 	
 	return result;
     }
-    
+
     public virtual int
     ice_hash()
     {
 	return GetHashCode();
     }
-    
+
     public static readonly string[] __ids = new string[] { "::Ice::Object" };
 
     private static readonly StringSeq __idSeq = new StringSeq(__ids);
@@ -355,7 +339,7 @@ public class ObjectImpl : Object, System.ICloneable
 	    return f;
 	}
     }
-    
+  
     private Hashtable _activeFacetMap;
 }
 

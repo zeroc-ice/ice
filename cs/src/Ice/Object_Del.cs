@@ -14,7 +14,7 @@
 namespace Ice
 {
 	
-public interface _ObjectDel
+public interface Object_Del
 {
     bool ice_isA(string id, Ice.Context context);
     void  ice_ping(Ice.Context context);

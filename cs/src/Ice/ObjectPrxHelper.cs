@@ -31,22 +31,6 @@ public class ObjectPrxHelper : ObjectPrx
 	return _reference.hashValue;
     }
     
-    public int
-    CompareTo(object other)
-    {
-	if(other == null)
-	{
-	    return 1;
-	}
-	if(!(other is ObjectPrxHelper))
-	{
-	    throw new System.ArgumentException("expected object of type ObjectPrxHelper", "other");
-	}
-	int thisHash = GetHashCode();
-	int otherHash = other.GetHashCode();
-	return thisHash < otherHash ? -1 : (thisHash > otherHash ? 1 : 0);
-    }
-
     public bool
     ice_isA(string __id)
     {
@@ -62,7 +46,7 @@ public class ObjectPrxHelper : ObjectPrx
 	    try
 	    {
 		__checkTwowayOnly("ice_isA");
-		_ObjectDel __del = __getDelegate();
+		Object_Del __del = __getDelegate();
 		return __del.ice_isA(__id, __context);
 	    }
 	    catch(IceInternal.NonRepeatable __ex)
@@ -91,7 +75,7 @@ public class ObjectPrxHelper : ObjectPrx
 	    try
 	    {
 		__checkTwowayOnly("ice_ping");
-		_ObjectDel __del = __getDelegate();
+		Object_Del __del = __getDelegate();
 		__del.ice_ping(__context);
 		return ;
 	    }
@@ -121,7 +105,7 @@ public class ObjectPrxHelper : ObjectPrx
 	    try
 	    {
 		__checkTwowayOnly("ice_ids");
-		_ObjectDel __del = __getDelegate();
+		Object_Del __del = __getDelegate();
 		return __del.ice_ids(__context);
 	    }
 	    catch(IceInternal.NonRepeatable __ex)
@@ -150,7 +134,7 @@ public class ObjectPrxHelper : ObjectPrx
 	    try
 	    {
 		__checkTwowayOnly("ice_id");
-		_ObjectDel __del = __getDelegate();
+		Object_Del __del = __getDelegate();
 		return __del.ice_id(__context);
 	    }
 	    catch(IceInternal.NonRepeatable __ex)
@@ -179,7 +163,7 @@ public class ObjectPrxHelper : ObjectPrx
 	    try
 	    {
 		__checkTwowayOnly("ice_facets");
-		_ObjectDel __del = __getDelegate();
+		Object_Del __del = __getDelegate();
 		return __del.ice_facets(__context);
 	    }
 	    catch(IceInternal.NonRepeatable __ex)
@@ -207,7 +191,7 @@ public class ObjectPrxHelper : ObjectPrx
 	{
 	    try
 	    {
-		_ObjectDel __del = __getDelegate();
+		Object_Del __del = __getDelegate();
 		return __del.ice_invoke(operation, mode, inParams, out outParams, context);
 	    }
 	    catch(IceInternal.NonRepeatable __ex)
@@ -243,7 +227,7 @@ public class ObjectPrxHelper : ObjectPrx
 	{
 	    try
 	    {
-		_ObjectDel __del = __getDelegate();
+		Object_Del __del = __getDelegate();
 		__del.ice_invoke_async(cb, operation, mode, inParams, context);
 		return ;
 	    }
@@ -566,7 +550,7 @@ public class ObjectPrxHelper : ObjectPrx
     public override bool
     Equals(object r)
     {
-	ObjectPrxHelper rhs = (ObjectPrxHelper) r;
+	ObjectPrxHelper rhs = (ObjectPrxHelper)r;
 	return _reference.Equals(rhs._reference);
     }
     
@@ -581,22 +565,22 @@ public class ObjectPrxHelper : ObjectPrx
     {
 	ObjectPrxHelper h = (ObjectPrxHelper) from;
 	IceInternal.Reference rf = null;
-	_ObjectDelM delegateM = null;
-	_ObjectDelD delegateD = null;
+	Object_DelM delegateM = null;
+	Object_DelD delegateD = null;
 	
 	lock(from)
 	{
 	    rf = h._reference;
 	    try
 	    {
-		delegateM = (_ObjectDelM) h._delegate;
+		delegateM = (Object_DelM)h._delegate;
 	    }
 	    catch(System.InvalidCastException)
 	    {
 	    }
 	    try
 	    {
-		delegateD = (_ObjectDelD) h._delegate;
+		delegateD = (Object_DelD)h._delegate;
 	    }
 	    catch(System.InvalidCastException)
 	    {
@@ -615,13 +599,13 @@ public class ObjectPrxHelper : ObjectPrx
 	
 	if(delegateD != null)
 	{
-	    _ObjectDelD @delegate = __createDelegateD();
+	    Object_DelD @delegate = __createDelegateD();
 	    @delegate.__copyFrom(delegateD);
 	    _delegate = @delegate;
 	}
 	else if(delegateM != null)
 	{
-	    _ObjectDelM @delegate = __createDelegateM();
+	    Object_DelM @delegate = __createDelegateM();
 	    @delegate.__copyFrom(delegateM);
 	    _delegate = @delegate;
 	}
@@ -720,7 +704,7 @@ public class ObjectPrxHelper : ObjectPrx
 	}
     }
     
-    public _ObjectDel
+    public Object_Del
     __getDelegate()
     {
 	lock(this)
@@ -732,7 +716,7 @@ public class ObjectPrxHelper : ObjectPrx
 		    ObjectAdapter adapter = _reference.instance.objectAdapterFactory().findObjectAdapter(this);
 		    if(adapter != null)
 		    {
-			_ObjectDelD @delegate = __createDelegateD();
+			Object_DelD @delegate = __createDelegateD();
 			@delegate.setup(_reference, adapter);
 			_delegate = @delegate;
 		    }
@@ -740,7 +724,7 @@ public class ObjectPrxHelper : ObjectPrx
 		
 		if(_delegate == null)
 		{
-		    _ObjectDelM @delegate = __createDelegateM();
+		    Object_DelM @delegate = __createDelegateM();
 		    @delegate.setup(_reference);
 		    _delegate = @delegate;
 		    
@@ -760,16 +744,16 @@ public class ObjectPrxHelper : ObjectPrx
 	}
     }
     
-    protected virtual _ObjectDelM
+    protected virtual Object_DelM
     __createDelegateM()
     {
-	return new _ObjectDelM();
+	return new Object_DelM();
     }
     
-    protected virtual _ObjectDelD
+    protected virtual Object_DelD
     __createDelegateD()
     {
-	return new _ObjectDelD();
+	return new Object_DelD();
     }
     
     protected internal virtual Context
@@ -796,7 +780,7 @@ public class ObjectPrxHelper : ObjectPrx
     }
     
     private IceInternal.Reference _reference;
-    private _ObjectDel _delegate;
+    private Object_Del _delegate;
 }
 
 }

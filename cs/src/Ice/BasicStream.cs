@@ -15,8 +15,11 @@
 namespace IceInternal
 {
 
+using System;
 using System.Collections;
 using System.Diagnostics;
+using System.Reflection;
+using System.Threading;
 
 public class BasicStream
 {
@@ -278,7 +281,7 @@ public class BasicStream
 	{
 	    _buf.position(start + sz);
 	}
-	catch(System.ArgumentOutOfRangeException ex)
+	catch(ArgumentOutOfRangeException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -320,7 +323,7 @@ public class BasicStream
 	{
 	    _buf.position(_buf.position() + sz - 4);
 	}
-	catch(System.ArgumentOutOfRangeException ex)
+	catch(ArgumentOutOfRangeException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -368,7 +371,7 @@ public class BasicStream
 	{
 	    _buf.position(_buf.position() + sz - 4);
 	}
-	catch(System.ArgumentOutOfRangeException ex)
+	catch(ArgumentOutOfRangeException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -410,7 +413,7 @@ public class BasicStream
 		return (int) (b < 0?b + 256:b);
 	    }
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -419,15 +422,15 @@ public class BasicStream
     public virtual void
     writeTypeId(string id)
     {
-	int index = (int)_writeEncapsStack.typeIdMap[id];
-	if((System.Object) index != null)
+	object o = _writeEncapsStack.typeIdMap[id];
+	if(o != null)
 	{
 	    writeBool(true);
-	    writeSize(index);
+	    writeSize((int)o);
 	}
 	else
 	{
-	    index = ++_writeEncapsStack.typeIdIndex;
+	    int index = ++_writeEncapsStack.typeIdIndex;
 	    _writeEncapsStack.typeIdMap[id] = index;
 	    writeBool(false);
 	    writeString(id);
@@ -479,7 +482,7 @@ public class BasicStream
 	{
 	    _buf.get(v);
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -494,7 +497,7 @@ public class BasicStream
 	    _buf.get(v);
 	    return new Ice.ByteSeq(v);
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -529,7 +532,7 @@ public class BasicStream
 	{
 	    return _buf.get();
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -538,14 +541,18 @@ public class BasicStream
     public virtual byte[]
     readByteSeq()
     {
+	Console.WriteLine("readbytesSeq start");
 	try
 	{
 	    int sz = readSize();
+Console.WriteLine("readBytesSeq: read size of " + sz);
 	    byte[] v = new byte[sz];
+Console.WriteLine("calling array read");
 	    _buf.get(v);
+	    Console.WriteLine("done calling array read");
 	    return v;
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -580,7 +587,7 @@ public class BasicStream
 	{
 	    return _buf.get() == 1;
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -596,7 +603,7 @@ public class BasicStream
 	    _buf.getBoolSeq(v);
 	    return v;
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -631,7 +638,7 @@ public class BasicStream
 	{
 	    return _buf.getShort();
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -647,7 +654,7 @@ public class BasicStream
 	    _buf.getShortSeq(v);
 	    return v;
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -682,7 +689,7 @@ public class BasicStream
 	{
 	    return _buf.getInt();
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -698,7 +705,7 @@ public class BasicStream
 	    _buf.getIntSeq(v);
 	    return v;
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -733,7 +740,7 @@ public class BasicStream
 	{
 	    return _buf.getLong();
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -749,7 +756,7 @@ public class BasicStream
 	    _buf.getLongSeq(v);
 	    return v;
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -784,7 +791,7 @@ public class BasicStream
 	{
 	    return _buf.getFloat();
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -800,7 +807,7 @@ public class BasicStream
 	    _buf.getFloatSeq(v);
 	    return v;
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -835,7 +842,7 @@ public class BasicStream
 	{
 	    return _buf.getDouble();
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -851,7 +858,7 @@ public class BasicStream
 	    _buf.getDoubleSeq(v);
 	    return v;
 	}
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
@@ -874,7 +881,7 @@ public class BasicStream
 	    expand(arr.Length);
 	    _buf.put(arr);
 	}
-	catch(System.Exception)
+	catch(Exception)
 	{
 	    Debug.Assert(false);
 	}
@@ -952,14 +959,13 @@ public class BasicStream
 		_stringBytes = new byte[len];
 	    }
 	    _buf.get(_stringBytes, 0, len);
-
-	    return utf8.GetString(_stringBytes);
+	    return utf8.GetString(_stringBytes, 0, len);
 	}    
-	catch(System.InvalidOperationException ex)
+	catch(InvalidOperationException ex)
 	{
 	    throw new Ice.UnmarshalOutOfBoundsException(ex);
 	}
-	catch(System.Exception)
+	catch(Exception)
 	{
 	    Debug.Assert(false);
 	    return "";
@@ -973,7 +979,7 @@ public class BasicStream
 	Ice.StringSeq v = new Ice.StringSeq();
 	for(int i = 0; i < sz; i++)
 	{
-	    v[i] = readString();
+	    v.Add(readString());
 	}
 	return v;
     }
@@ -985,7 +991,7 @@ public class BasicStream
 	Ice.FacetPath v = new Ice.FacetPath();
 	for(int i = 0; i < sz; i++)
 	{
-	    v[i] = readString();
+	    v.Add(readString());
 	}
 	return v;
     }
@@ -1331,11 +1337,11 @@ public class BasicStream
 	// just unmarshaled. (Exactly one of the two parameters must be null.)
 	// Patch any pointers in the patch map with the new address.
 	//
-	Debug.Assert(((System.Object) instanceIndex != null && (System.Object) patchIndex == null) || ((System.Object) instanceIndex == null && (System.Object) patchIndex != null));
+	Debug.Assert(((object)instanceIndex != null && (object)patchIndex == null) || ((object)instanceIndex == null && (object)patchIndex != null));
 	
 	IceUtil.LinkedList patchlist;
 	Ice.Object v;
-	if((System.Object) instanceIndex != null)
+	if((object)instanceIndex != null)
 	{
 	    //
 	    // We have just unmarshaled an instance -- check if something needs patching for that instance.
@@ -1372,7 +1378,7 @@ public class BasicStream
 	    {
 	        patcher.patch(v);
 	    }
-	    catch(System.InvalidCastException ex)
+	    catch(InvalidCastException ex)
 	    {
 		Ice.NoObjectFactoryException nof = new Ice.NoObjectFactoryException(ex);
 		nof.type = patcher.type();
@@ -1441,7 +1447,7 @@ public class BasicStream
     private sealed class DynamicObjectFactory : Ice.LocalObjectImpl, Ice.ObjectFactory
     {
 	internal
-	DynamicObjectFactory(System.Type c)
+	DynamicObjectFactory(Type c)
 	{
 	    _class = c;
 	}
@@ -1451,9 +1457,9 @@ public class BasicStream
 	{
 	    try
 	    {
-		return (Ice.Object) SupportClass.CreateNewInstance(_class);
+		return (Ice.Object)SupportClass.CreateNewInstance(_class);
 	    }
-	    catch(System.Exception ex)
+	    catch(Exception ex)
 	    {
 		throw new Ice.SyscallException(ex);
 	    }
@@ -1464,19 +1470,101 @@ public class BasicStream
 	{
 	}
 	
-	private System.Type _class;
+	private Type _class;
     }
-    
+ 
+    //
+    // Make sure that all assemblies that are referenced by this process
+    // are actually loaded. This is necessary so we can use reflection
+    // on any type in any assembly (because the type we are after will
+    // most likely not be in the current assembly and, worse, may be
+    // in an assembly that has not been loaded yet. (Type.GetType()
+    // is no good because it looks only in the calling object's assembly
+    // and mscorlib.dll.)
+    //
+    private static void loadAssemblies()
+    {
+	if(!_assembliesLoaded) // Lazy initialization
+	{
+	    _assemblyMutex.WaitOne();
+	    try 
+	    {
+		if(!_assembliesLoaded) // Double-checked locking
+		{
+		    Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
+		    foreach(Assembly a in assemblies)
+		    {
+			_loadedAssemblies[a.FullName] = a;
+		    }
+		    foreach(Assembly a in assemblies)
+		    {
+			loadReferencedAssemblies(a);
+		    }
+		    _assembliesLoaded = true;
+		}
+	    }
+	    catch(Exception)
+	    {
+	        Debug.Assert(false);
+	    }
+	    finally
+	    {
+		_assemblyMutex.ReleaseMutex();
+	    }
+	}
+    }
+
+    private static void loadReferencedAssemblies(Assembly a)
+    {
+	AssemblyName[] names = a.GetReferencedAssemblies();
+	foreach(AssemblyName name in names)
+	{
+	    if(!_loadedAssemblies.Contains(name.FullName))
+	    {
+		Assembly ra = Assembly.Load(name);
+		_loadedAssemblies[ra.FullName] = ra;
+		loadReferencedAssemblies(ra);
+	    }
+	}
+    }
+
+    private static Type findTypeForId(string id)
+    {
+	_assemblyMutex.WaitOne();
+	try {
+	    string csharpId = typeToClass(id);
+	    Type t = (Type)_typeTable[id];
+	    if(t != null)
+	    {
+		return t;
+	    }
+	    foreach(Assembly a in _loadedAssemblies.Values)
+	    {
+		if((t = a.GetType(csharpId)) != null)
+		{
+		    _typeTable[csharpId] = t;
+		    return t;
+		}
+	    }
+	}
+	finally
+	{
+	    _assemblyMutex.ReleaseMutex();
+	}
+	return null;
+    }
+
     private Ice.ObjectFactory
     loadObjectFactory(string id)
     {
 	Ice.ObjectFactory factory = null;
 	
-	//UPGRADE_NOTE: Exception 'java.lang.ClassNotFoundException' was converted to 'System.Exception' which has different behavior. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1100"'
+	//UPGRADE_NOTE: Exception 'java.lang.ClassNotFoundException' was converted to 'Exception' which has different behavior. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1100"'
 	try
 	{
-	    //UPGRADE_TODO: Format of parameters of method 'java.lang.Class.forName' are different in the equivalent in .NET. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1092"'
-	    System.Type c = System.Type.GetType(typeToClass(id));
+	    loadAssemblies(); // Lazy initialization
+	    
+	    Type c = findTypeForId(id);
 	    if(c == null)
 	    {
 		return null;
@@ -1512,7 +1600,7 @@ public class BasicStream
 		}
 	    }
 	}
-	catch(System.Exception ex)
+	catch(Exception ex)
 	{
 		Ice.NoObjectFactoryException e = new Ice.NoObjectFactoryException(ex);
 		e.type = id;
@@ -1525,7 +1613,7 @@ public class BasicStream
     private sealed class DynamicUserExceptionFactory : Ice.LocalObjectImpl, UserExceptionFactory
     {
 	internal
-	DynamicUserExceptionFactory(System.Type c)
+	DynamicUserExceptionFactory(Type c)
 	{
 	    _class = c;
 	}
@@ -1541,7 +1629,7 @@ public class BasicStream
 	    {
 		throw ex;
 	    }
-	    catch(System.Exception ex)
+	    catch(Exception ex)
 	    {
 		throw new Ice.SyscallException(ex);
 	    }
@@ -1552,7 +1640,7 @@ public class BasicStream
 	{
 	}
 	
-	private System.Type _class;
+	private Type _class;
     }
     
     private UserExceptionFactory
@@ -1562,7 +1650,9 @@ public class BasicStream
 
 	try
 	{
-	    System.Type c = System.Type.GetType(typeToClass(id));
+	    loadAssemblies(); // Lazy initialization
+
+	    Type c = findTypeForId(id);
 	    if(c == null)
 	    {
 		return null;
@@ -1574,7 +1664,7 @@ public class BasicStream
 	    factory = new DynamicUserExceptionFactory(c);
 	    _instance.userExceptionFactoryManager().add(factory, id);
 	}
-	catch(System.Exception ex)
+	catch(Exception ex)
 	{
 	    throw new Ice.UnknownUserException(ex);
 	}
@@ -1582,7 +1672,7 @@ public class BasicStream
 	return factory;
     }
     
-    private string
+    private static string
     typeToClass(string id)
     {
 	if(!id.StartsWith("::"))
@@ -1640,6 +1730,11 @@ public class BasicStream
     private bool _marshalFacets;
     
     private int _messageSizeMax;
+
+    private static volatile bool _assembliesLoaded = false;
+    private static Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs
+    private static Hashtable _typeTable = new Hashtable(); // <type name, Type> pairs
+    private static Mutex _assemblyMutex = new Mutex(); // Protects the above three members
 }
 
 }

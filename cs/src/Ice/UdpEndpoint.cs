@@ -541,7 +541,7 @@ sealed class UdpEndpoint : Endpoint
 	
 	if(_port < p._port)
 	{
-	    return - 1;
+	    return -1;
 	}
 	else if(p._port < _port)
 	{
@@ -550,7 +550,7 @@ sealed class UdpEndpoint : Endpoint
 	
 	if(!_connect && p._connect)
 	{
-	    return - 1;
+	    return -1;
 	}
 	else if(!p._connect && _connect)
 	{
@@ -559,7 +559,7 @@ sealed class UdpEndpoint : Endpoint
 	
 	if(!_compress && p._compress)
 	{
-	    return - 1;
+	    return -1;
 	}
 	else if(!p._compress && _compress)
 	{
@@ -568,7 +568,7 @@ sealed class UdpEndpoint : Endpoint
 	
 	if(_protocolMajor < p._protocolMajor)
 	{
-	    return - 1;
+	    return -1;
 	}
 	else if(p._protocolMajor < _protocolMajor)
 	{
@@ -577,7 +577,7 @@ sealed class UdpEndpoint : Endpoint
 	
 	if(_protocolMinor < p._protocolMinor)
 	{
-	    return - 1;
+	    return -1;
 	}
 	else if(p._protocolMinor < _protocolMinor)
 	{
@@ -586,7 +586,7 @@ sealed class UdpEndpoint : Endpoint
 	
 	if(_encodingMajor < p._encodingMajor)
 	{
-	    return - 1;
+	    return -1;
 	}
 	else if(p._encodingMajor < _encodingMajor)
 	{
@@ -595,7 +595,7 @@ sealed class UdpEndpoint : Endpoint
 	
 	if(_encodingMinor < p._encodingMinor)
 	{
-	    return - 1;
+	    return -1;
 	}
 	else if(p._encodingMinor < _encodingMinor)
 	{

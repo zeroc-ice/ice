@@ -19,24 +19,28 @@ using System;
 public class ByteBuffer
 {
 
-    public ByteBuffer()
+    public
+    ByteBuffer()
     {
         _order = ByteOrder.BIG_ENDIAN;
     }
 
     public enum ByteOrder { BIG_ENDIAN, LITTLE_ENDIAN };
     
-    public static ByteOrder nativeOrder()
+    public static ByteOrder
+    nativeOrder()
     {
         return NO._o;
     }
 
-    public ByteOrder order()
+    public ByteOrder
+    order()
     {
         return _order;
     }
 
-    public ByteBuffer order(ByteOrder bo)
+    public ByteBuffer
+    order(ByteOrder bo)
     {
         _order = bo;
 	return this;
@@ -127,15 +131,19 @@ public class ByteBuffer
     public byte[]
     toArray()
     {
-	byte[] rc = new byte[_limit - _position];
-	Buffer.BlockCopy(_bytes, 0, rc, 0, _limit - _position);
+	int len = remaining();
+	byte[] rc = new byte[len];
+	Buffer.BlockCopy(_bytes, 0, rc, 0, len);
 	return rc;
     }
 
     public ByteBuffer
     put(ByteBuffer buf)
     {
-	Buffer.BlockCopy(buf._bytes, buf._position, _bytes, _position, buf._limit);
+	int len = buf.remaining();
+	checkOverflow(len);
+	Buffer.BlockCopy(buf._bytes, buf._position, _bytes, _position, len);
+	_position += len;
 	return this;
     }
 
@@ -159,15 +167,12 @@ public class ByteBuffer
 	{
 	    throw new ArgumentOutOfRangeException("offset", offset, "offset must be non-negative");
 	}
-	if(offset > _limit)
+	if(offset + length > Buffer.ByteLength(b))
 	{
-	    throw new ArgumentOutOfRangeException("offset", offset, "offset must be less than buffer limit");
+	    throw new ArgumentOutOfRangeException("length", length, "insufficient room beyond given offset in destination array");
 	}
-	if(offset + length > _limit)
-	{
-	    throw new InvalidOperationException("buffer underflow");
-	}
-	Buffer.BlockCopy(_bytes, _position, b, 0, length);
+	checkUnderflow(length);
+	Buffer.BlockCopy(_bytes, _position, b, offset, length);
 	_position += length;
 	return this;
     }
@@ -183,7 +188,7 @@ public class ByteBuffer
     public ByteBuffer
     put(byte[] b)
     {
-	return put(b, _position, Buffer.ByteLength(b));
+	return put(b, 0, Buffer.ByteLength(b));
     }
 
     public ByteBuffer
@@ -193,15 +198,12 @@ public class ByteBuffer
 	{
 	    throw new ArgumentOutOfRangeException("offset", offset, "offset must be non-negative");
 	}
-	if(offset > _limit)
+	if(offset + length > Buffer.ByteLength(b))
 	{
-	    throw new ArgumentOutOfRangeException("offset", offset, "offset must be less than buffer limit");
+	    throw new ArgumentOutOfRangeException("length", length, "insufficient data beyond given offset in source array");
 	}
-	if(offset + length > _limit)
-	{
-	    throw new InvalidOperationException("buffer overflow");
-	}
-	Buffer.BlockCopy(b, 0, _bytes, offset, length);
+	checkOverflow(length);
+	Buffer.BlockCopy(b, offset, _bytes, _position, length);
 	_position += length;
 	return this;
     }
@@ -381,7 +383,9 @@ public class ByteBuffer
     public ByteBuffer
     putInt(int val)
     {
-	return putInt(_position, val);
+	putInt(_position, val);
+	_position += 4;
+	return this;
     }
 
     public unsafe ByteBuffer
@@ -401,15 +405,14 @@ public class ByteBuffer
 	    {
 		*((int*)p) = val;
 	    }	
-	    _position += 4;
 	}
 	else
 	{
 	    byte* p = (byte*)&val;
-	    Buffer.SetByte(_bytes, _position++, *(p + 3));
-	    Buffer.SetByte(_bytes, _position++, *(p + 2));
-	    Buffer.SetByte(_bytes, _position++, *(p + 1));
-	    Buffer.SetByte(_bytes, _position++, *p);
+	    Buffer.SetByte(_bytes, pos, *(p + 3));
+	    Buffer.SetByte(_bytes, pos + 1, *(p + 2));
+	    Buffer.SetByte(_bytes, pos + 2, *(p + 1));
+	    Buffer.SetByte(_bytes, pos + 3, *p);
 	}
 	return this;
     }
@@ -613,7 +616,7 @@ public class ByteBuffer
 	    {
 		*((float*)p) = val;
 	    }
-	    _position += 2;
+	    _position += 4;
 	}
 	else
 	{

@@ -16,7 +16,7 @@ namespace Ice
 	
 using System.Collections;
 
-public interface ObjectPrx : System.IComparable
+public interface ObjectPrx
 {
     int ice_hash();
     bool ice_isA(string __id);

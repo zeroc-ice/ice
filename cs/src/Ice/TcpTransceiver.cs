@@ -167,46 +167,31 @@ sealed class TcpTransceiver : Transceiver
 	
 	try
 	{
-	    ArrayList readList = new ArrayList();
-	    readList.Add(_fd);
-	    Network.doSelect(readList, null, null, timeout);
-
 	    while(remaining > 0)
 	    {
 		Debug.Assert(_fd != null);
-
-		int ret;
-		byte[] bytes = new byte[remaining];
-		int available = _fd.Available;
-		if(available == 0)
+		ArrayList readList = new ArrayList();
+		readList.Add(_fd);
+		Network.doSelect(readList, null, null, timeout);
+		if(readList.Count != 0 && _fd.Available == 0)
 		{
-		    if(timeout == 0)
-		    {
-			throw new Ice.TimeoutException();
-		    }
-		    ArrayList recvList = new ArrayList();
-		    recvList.Add(_fd);
-		    ArrayList errorList = new ArrayList();
-		    errorList.Add(_fd);
-		    Network.doSelect(recvList, null, errorList, timeout);
-		    if(errorList.Count != 0)
-		    {
-			throw new Ice.ConnectionLostException();
-		    }
-		    if(recvList.Count == 0)
-		    {
-			if(timeout >= 0)
-			{
-			    throw new Ice.TimeoutException();
-			}
-			else
-			{
-			    throw new Ice.ConnectionLostException();
-			}
-		    }	
+		    throw new Ice.ConnectionLostException();
 		}
-		ret = _fd.Receive(bytes);
+		else if(readList.Count == 0 && timeout >= 0)
+		{
+		    throw new Ice.TimeoutException();
+		}
+		Debug.Assert(readList.Count != 0);
 		
+		if(_bytes.Length < remaining) // Go easy on the garbage collector, if possible
+		{
+		    _bytes = new byte[remaining];
+		}
+		int ret = _fd.Receive(_bytes, 0, remaining, SocketFlags.None);
+		if(ret == 0) // Need to re-test here because the connection can go down in between the Select() and the Receive().
+		{
+		    throw new Ice.ConnectionLostException();
+		}
 		if(_traceLevels.network >= 3)
 		{
 		    string s = "received " + ret + " of " + remaining + " bytes via tcp\n" + ToString();
@@ -218,7 +203,7 @@ sealed class TcpTransceiver : Transceiver
 		    _stats.bytesReceived("tcp", ret);
 		}
 
-		buf.put(bytes, buf.position(), ret);
+		buf.put(_bytes, 0, ret);
 		remaining -= ret;
 	    }
 	}
@@ -257,6 +242,7 @@ sealed class TcpTransceiver : Transceiver
 	_logger = instance.logger();
 	_stats = instance.stats();
 	_desc = Network.fdToString(_fd);
+	_bytes = new byte[Protocol.headerSize];
     }
     
     ~TcpTransceiver()
@@ -269,6 +255,7 @@ sealed class TcpTransceiver : Transceiver
     private Ice.Logger _logger;
     private Ice.Stats _stats;
     private string _desc;
+    private byte[] _bytes;
 }
 
 }

@@ -26,7 +26,7 @@ public class Client
 	try
 	{
 	    myClass.opVoid();
-	    throw new SystemException();
+	    throw new System.Exception();
 	}
 	catch(Ice.LocalException)
 	{
@@ -49,7 +49,7 @@ public class Client
 	    communicator = Ice.Util.initialize(ref args);
 	    status = run(args, communicator);
 	}
-	catch(Ice.LocalException ex)
+	catch(System.Exception ex)
 	{
 	    Console.Error.WriteLine(ex);
 	    status = 1;

@@ -145,7 +145,7 @@ public sealed class Network
 		setTcpNoDelay(socket);
 		socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
 	    }
-	    catch(SystemException ex)
+	    catch(System.Exception ex)
 	    {
 		throw new Ice.SocketException("Cannot set socket options", ex);
 	    }
@@ -183,7 +183,7 @@ public sealed class Network
 	{
 	    socket.SetSocketOption(SocketOptionLevel.Tcp, SocketOptionName.NoDelay, 1);
 	}
-	catch(SystemException ex)
+	catch(System.Exception ex)
 	{
 	    throw new Ice.SocketException("Cannot set NoDelay option", ex);
 	}
@@ -196,7 +196,7 @@ public sealed class Network
 	{
 	    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
 	}
-	catch(SystemException ex)
+	catch(System.Exception ex)
 	{
 	    throw new Ice.SocketException("Cannot set KeepAlive option", ex);
 	}
@@ -209,7 +209,7 @@ public sealed class Network
 	{
 	    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer, sz);
 	}
-	catch(SystemException ex)
+	catch(System.Exception ex)
 	{
 	    throw new Ice.SocketException("Cannot set send buffer size", ex);
 	}
@@ -223,7 +223,7 @@ public sealed class Network
 	{
 	    sz = (int)socket.GetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendBuffer);
 	}
-	catch(SystemException ex)
+	catch(System.Exception ex)
 	{
 	    throw new Ice.SocketException("Cannot read send buffer size", ex);
 	}
@@ -237,7 +237,7 @@ public sealed class Network
 	{
 	    socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReceiveBuffer, sz);
 	}
-	catch(SystemException ex)
+	catch(System.Exception ex)
 	{
 	    throw new Ice.SocketException("Cannot set receive buffer size", ex);
 	}
@@ -295,7 +295,7 @@ public sealed class Network
 	    socket.Bind(addr);
 	    return (IPEndPoint)socket.LocalEndPoint;
 	}
-	catch(SystemException ex)
+	catch(System.Exception ex)
 	{
 	    throw new Ice.SocketException("Cannot bind", ex);
 	}
@@ -320,7 +320,7 @@ public sealed class Network
 	    {
 	        socket.Close();
 	    }
-	    catch(SystemException)
+	    catch(System.Exception)
 	    {
 	        // ignore
 	    }
@@ -415,7 +415,7 @@ public sealed class Network
 		{
 		    doSelect(readList, null, null, timeout);
 		}
-		catch(SystemException se)
+		catch(System.Exception se)
 		{
 		    if(interrupted(ex))
 		    {
@@ -447,9 +447,7 @@ public sealed class Network
 	{
 	    return null;
 	}
-	ArrayList copy = new ArrayList();
-	copy.AddRange(list);
-        return copy;
+	return new ArrayList(list);;
     }
 
     private static void
@@ -515,7 +513,7 @@ public sealed class Network
 	          ((cw == null) || cw.Count == 0) &&
 	          ((ce == null) || ce.Count == 0))
 	    {
-	        cr = copyList(checkError);
+	        cr = copyList(checkRead);
 		cw = copyList(checkWrite);
 		ce = copyList(checkError);
 		try
@@ -564,7 +562,7 @@ public sealed class Network
 	    e.host = host;
 	    throw e;
 	}
-	catch(SystemException ex)
+	catch(System.Exception ex)
 	{
 	    Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
 	    e.host = host;
@@ -593,7 +591,7 @@ public sealed class Network
 	    Ice.DNSException e = new Ice.DNSException("GetHostName failed", ex);
 	    throw e;
 	}
-	catch(SystemException ex)
+	catch(System.Exception ex)
 	{
 	    Ice.DNSException e = new Ice.DNSException("GetHostName failed", ex);
 	    throw e;
@@ -619,7 +617,7 @@ public sealed class Network
 		e.host = hostname;
 		throw e;
 	    }
-	    catch(SystemException ex)
+	    catch(System.Exception ex)
 	    {
 		Ice.DNSException e = new Ice.DNSException("GetHostByName failed", ex);
 		e.host = hostname;
@@ -655,7 +653,7 @@ public sealed class Network
 		{
 		    sink.Close();
 		}
-		catch(SystemException)
+		catch(System.Exception)
 		{
 		    // ignore
 		}

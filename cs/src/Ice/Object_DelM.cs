@@ -18,10 +18,10 @@ using System.Collections;
 using System.Diagnostics;
 using IceUtil;
 	
-public class _ObjectDelM : _ObjectDel
+public class Object_DelM : Object_Del
 {
     public
-    _ObjectDelM()
+    Object_DelM()
     {
 	__outgoingMutex = new System.Object();
     }
@@ -194,7 +194,7 @@ public class _ObjectDelM : _ObjectDel
     // Only for use by ObjectPrx
     //
     internal void
-    __copyFrom(_ObjectDelM from)
+    __copyFrom(Object_DelM from)
     {
 	//
 	// No need to synchronize "from", as the delegate is immutable
@@ -214,7 +214,7 @@ public class _ObjectDelM : _ObjectDel
 	    from.__connection.incProxyCount();
 	}
 	
-	// Can not happen, __connection must be null.
+	// Cannot happen, __connection must be null.
 	/*
 	if(__connection != null)
 	{
@@ -522,7 +522,7 @@ public class _ObjectDelM : _ObjectDel
 	}
     }
     
-    ~_ObjectDelM()
+    ~Object_DelM()
     {
 	if(__connection != null)
 	{
@@ -540,7 +540,7 @@ public class _ObjectDelM : _ObjectDel
     
     private IceInternal.Outgoing __outgoingCache;
     private System.Object __outgoingMutex;
-    static _ObjectDelM()
+    static Object_DelM()
     {
 	// __comparator = new EndpointComparator(); // TODO
     }

@@ -70,7 +70,7 @@ public sealed class LocatorInfo
 		//
 		// The locator registry can't be located.
 		//
-		_locatorRegistry = Ice.LocatorRegistryPrxHelper._uncheckedCast(_locatorRegistry.ice_locator(null));
+		_locatorRegistry = Ice.LocatorRegistryPrxHelper.uncheckedCast(_locatorRegistry.ice_locator(null));
 	    }
 	    
 	    return _locatorRegistry;
