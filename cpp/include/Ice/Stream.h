@@ -113,6 +113,7 @@ private:
     public:
 	CmpPosString(const Container&);
 	bool operator()(int, const std::string&) const;
+	bool operator()(const std::string&, int) const;
     private:
 	const Container& cont_;
     };

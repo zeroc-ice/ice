@@ -13,8 +13,34 @@
 #ifndef __Communicator_h__
 #define __Communicator_h__
 
-#include <Ice/CommunicatorF.h>
 #include <Ice/LocalObject.h>
+#include <Ice/LoggerF.h>
+#include <Ice/ObjectAdapterF.h>
+#include <Ice/PicklerF.h>
+#include <Ice/PropertiesF.h>
+#include <Ice/ValueFactoryF.h>
+
+namespace Ice
+{
+
+class Communicator;
+
+}
+
+namespace __Ice
+{
+
+void ICE_API incRef(::Ice::Communicator*);
+void ICE_API decRef(::Ice::Communicator*);
+
+}
+
+namespace Ice
+{
+
+typedef ::__Ice::Handle< ::Ice::Communicator> Communicator_ptr;
+
+}
 
 namespace Ice
 {

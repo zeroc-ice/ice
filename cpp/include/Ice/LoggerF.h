@@ -8,12 +8,12 @@
 //
 // **********************************************************************
 
-// Generated from file `Logger.ice'
+// Generated from file `LoggerF.ice'
 
 #ifndef __LoggerF_h__
 #define __LoggerF_h__
 
-#include <Ice/LocalObjectF.h>
+#include <Ice/LocalObject.h>
 
 namespace Ice
 {
@@ -34,6 +34,11 @@ namespace Ice
 {
 
 typedef ::__Ice::Handle< ::Ice::Logger> Logger_ptr;
+
+}
+
+namespace Ice
+{
 
 }
 

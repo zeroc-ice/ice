@@ -8,12 +8,19 @@
 //
 // **********************************************************************
 
-#ifndef ICE_VALUE_FACTORY_F_H
-#define ICE_VALUE_FACTORY_F_H
+// Generated from file `ValueFactoryF.ice'
 
-#include <Ice/Handle.h>
+#ifndef __ValueFactoryF_h__
+#define __ValueFactoryF_h__
 
-namespace Ice { class ValueFactory; }
+#include <Ice/LocalObject.h>
+
+namespace Ice
+{
+
+class ValueFactory;
+
+}
 
 namespace __Ice
 {
@@ -26,7 +33,12 @@ void ICE_API decRef(::Ice::ValueFactory*);
 namespace Ice
 {
 
-typedef __Ice::Handle<ValueFactory> ValueFactory_ptr;
+typedef ::__Ice::Handle< ::Ice::ValueFactory> ValueFactory_ptr;
+
+}
+
+namespace Ice
+{
 
 }
 

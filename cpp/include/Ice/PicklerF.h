@@ -8,12 +8,19 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PICKLER_F_H
-#define ICE_PICKLER_F_H
+// Generated from file `PicklerF.ice'
 
-#include <Ice/Handle.h>
+#ifndef __PicklerF_h__
+#define __PicklerF_h__
 
-namespace Ice { class Pickler; }
+#include <Ice/LocalObject.h>
+
+namespace Ice
+{
+
+class Pickler;
+
+}
 
 namespace __Ice
 {
@@ -26,7 +33,12 @@ void ICE_API decRef(::Ice::Pickler*);
 namespace Ice
 {
 
-typedef __Ice::Handle<Pickler> Pickler_ptr;
+typedef ::__Ice::Handle< ::Ice::Pickler> Pickler_ptr;
+
+}
+
+namespace Ice
+{
 
 }
 

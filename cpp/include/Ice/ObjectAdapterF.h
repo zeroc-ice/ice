@@ -8,12 +8,19 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBJECT_ADAPTER_F_H
-#define ICE_OBJECT_ADAPTER_F_H
+// Generated from file `ObjectAdapterF.ice'
 
-#include <Ice/Handle.h>
+#ifndef __ObjectAdapterF_h__
+#define __ObjectAdapterF_h__
 
-namespace Ice { class ObjectAdapter; }
+#include <Ice/LocalObject.h>
+
+namespace Ice
+{
+
+class ObjectAdapter;
+
+}
 
 namespace __Ice
 {
@@ -26,7 +33,12 @@ void ICE_API decRef(::Ice::ObjectAdapter*);
 namespace Ice
 {
 
-typedef __Ice::Handle<ObjectAdapter> ObjectAdapter_ptr;
+typedef ::__Ice::Handle< ::Ice::ObjectAdapter> ObjectAdapter_ptr;
+
+}
+
+namespace Ice
+{
 
 }
 

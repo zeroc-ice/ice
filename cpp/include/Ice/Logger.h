@@ -13,8 +13,29 @@
 #ifndef __Logger_h__
 #define __Logger_h__
 
-#include <Ice/LoggerF.h>
 #include <Ice/LocalObject.h>
+
+namespace Ice
+{
+
+class Logger;
+
+}
+
+namespace __Ice
+{
+
+void ICE_API incRef(::Ice::Logger*);
+void ICE_API decRef(::Ice::Logger*);
+
+}
+
+namespace Ice
+{
+
+typedef ::__Ice::Handle< ::Ice::Logger> Logger_ptr;
+
+}
 
 namespace Ice
 {

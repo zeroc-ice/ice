@@ -8,12 +8,19 @@
 //
 // **********************************************************************
 
-#ifndef ICE_PROPERTIES_F_H
-#define ICE_PROPERTIES_F_H
+// Generated from file `PropertiesF.ice'
 
-#include <Ice/Handle.h>
+#ifndef __PropertiesF_h__
+#define __PropertiesF_h__
 
-namespace Ice { class Properties; }
+#include <Ice/LocalObject.h>
+
+namespace Ice
+{
+
+class Properties;
+
+}
 
 namespace __Ice
 {
@@ -26,7 +33,12 @@ void ICE_API decRef(::Ice::Properties*);
 namespace Ice
 {
 
-typedef __Ice::Handle<Properties> Properties_ptr;
+typedef ::__Ice::Handle< ::Ice::Properties> Properties_ptr;
+
+}
+
+namespace Ice
+{
 
 }
 
