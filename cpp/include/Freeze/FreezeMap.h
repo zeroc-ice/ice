@@ -16,8 +16,6 @@
 #include <Ice/BasicStream.h>
 #include <Ice/Initialize.h>
 
-#include <db.h>
-
 #include <iterator>
 
 namespace Freeze
@@ -191,7 +189,7 @@ class DbIterator : public DbIteratorBase
 {
 public:
 
-    typedef u_int32_t difference_type;
+    typedef ptrdiff_t difference_type;
 
     //
     // NOTE:
@@ -356,7 +354,7 @@ class ConstDbIterator : public DbIteratorBase
 {
 public:
 
-    typedef u_int32_t difference_type;
+    typedef ptrdiff_t difference_type;
 
     //
     // NOTE:
@@ -566,8 +564,8 @@ public:
     typedef std::pair<const key_type&, mapped_type>* pointer;
     typedef const std::pair<const key_type&, mapped_type>* const_pointer;
 
-    typedef u_int32_t size_type;
-    typedef u_int32_t difference_type;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
 
     //
     // Special type similar to DbIterator::value_type_reference
