@@ -258,8 +258,8 @@ public class ObjectImpl implements Object, java.lang.Cloneable
             for(int i = 0; i < sz; i++)
             {
                 __os.startWriteDictionaryElement();
-                __os.writeString("key", keys[i]);
-                __os.writeObject("value", (Object)_activeFacetMap.get(keys[i]));
+                __os.writeString("ice:key", keys[i]);
+                __os.writeObject("ice:value", (Object)_activeFacetMap.get(keys[i]));
                 __os.endWriteDictionaryElement();
             }
             __os.endWriteDictionary();
