@@ -149,8 +149,8 @@ private:
 // of waiting writers - that is managed by a condition variable.
 //
 // Both Reader & Writer mutexes can be recursively locked. Calling
-// WLock (or TryWLock) while holding a read lock promotes the reader
-// to a writer lock.
+// upgrade() or timedUpgrade() while holding a read lock promotes
+// the reader to a writer lock.
 //
 class ICE_UTIL_API RWRecMutex
 {
