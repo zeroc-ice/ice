@@ -272,7 +272,7 @@ MyDerivedClassI::opByteBoolD(const Test::ByteBoolD& p1, const Test::ByteBoolD& p
 {
     p3 = p1;
     Test::ByteBoolD r = p1;
-    r.insert(p2.begin(), p2.end());
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
     return r;
 }
 
@@ -282,7 +282,7 @@ MyDerivedClassI::opShortIntD(const Test::ShortIntD& p1, const Test::ShortIntD& p
 {
     p3 = p1;
     Test::ShortIntD r = p1;
-    r.insert(p2.begin(), p2.end());
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
     return r;
 }
 
@@ -292,7 +292,7 @@ MyDerivedClassI::opLongFloatD(const Test::LongFloatD& p1, const Test::LongFloatD
 {
     p3 = p1;
     Test::LongFloatD r = p1;
-    r.insert(p2.begin(), p2.end());
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
     return r;
 }
 
@@ -302,7 +302,7 @@ MyDerivedClassI::opDoubleStringD(const Test::DoubleStringD& p1, const Test::Doub
 {
     p3 = p1;
     Test::DoubleStringD r = p1;
-    r.insert(p2.begin(), p2.end());
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
     return r;
 }
 
@@ -312,7 +312,7 @@ MyDerivedClassI::opWStringMyEnumD(const Test::WStringMyEnumD& p1, const Test::WS
 {
     p3 = p1;
     Test::WStringMyEnumD r = p1;
-    r.insert(p2.begin(), p2.end());
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
     return r;
 }
 
@@ -321,8 +321,8 @@ MyDerivedClassI::opMyClassStringD(const Test::MyClassStringD& p1, const Test::My
 				  Test::MyClassStringD& p3)
 {
     p3 = p1;
-    Test::MyClassStringD r = p1;
-    r.insert(p2.begin(), p2.end());
+    Test::MyClassStringD r;
+    std::set_union(p1.begin(), p1.end(), p2.begin(), p2.end(), std::inserter(r, r.end()));
     return r;
 }
 

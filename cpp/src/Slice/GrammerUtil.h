@@ -39,7 +39,7 @@ namespace Slice
 // StringTok
 // ----------------------------------------------------------------------
 
-class ICE_API StringTok : public GrammerBase
+class SLICE_API StringTok : public GrammerBase
 {
 public:
 
@@ -51,7 +51,7 @@ public:
 // TypeStringListTok
 // ----------------------------------------------------------------------
 
-class ICE_API TypeStringListTok : public GrammerBase
+class SLICE_API TypeStringListTok : public GrammerBase
 {
 public:
 
@@ -63,7 +63,7 @@ public:
 // StringListTok
 // ----------------------------------------------------------------------
 
-class ICE_API StringListTok : public GrammerBase
+class SLICE_API StringListTok : public GrammerBase
 {
 public:
 
@@ -75,7 +75,7 @@ public:
 // BoolTok
 // ----------------------------------------------------------------------
 
-class ICE_API BoolTok : public GrammerBase
+class SLICE_API BoolTok : public GrammerBase
 {
 public:
 
@@ -87,7 +87,7 @@ public:
 // TypeListTok
 // ----------------------------------------------------------------------
 
-class ICE_API TypeListTok : public GrammerBase
+class SLICE_API TypeListTok : public GrammerBase
 {
 public:
 
@@ -99,7 +99,7 @@ public:
 // ClassListTok
 // ----------------------------------------------------------------------
 
-class ICE_API ClassListTok : public GrammerBase
+class SLICE_API ClassListTok : public GrammerBase
 {
 public:
 
