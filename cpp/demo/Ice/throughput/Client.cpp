@@ -17,6 +17,19 @@
 
 using namespace std;
 
+void
+menu()
+{
+    cout <<
+	"usage:\n"
+	"s: send byte sequence\n"
+	"o: send byte sequence as oneway\n"
+	"r: receive byte sequence\n"
+	"e: echo (send and receive) byte sequence\n"
+	"x: exit\n"
+	"?: help\n";
+}
+
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
@@ -36,28 +49,119 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	cerr << argv[0] << ": invalid proxy" << endl;
 	return EXIT_FAILURE;
     }
+    ThroughputPrx throughputOneway = ThroughputPrx::uncheckedCast(throughput->ice_oneway());
 
-    // Initial ping to setup the connection.
-    throughput->ice_ping();
-
-    IceUtil::Time tsec = IceUtil::Time::now();
-
-    const int repetitions = 100;
-
-    cout << "sending and receiving " << repetitions << " sequences of size " << seqSize
-	 << " (this may take a while)" << endl;
     ByteSeq seq(seqSize, 0);
-    for(int i = 0; i < repetitions; ++i)
+
+    menu();
+
+    char c;
+    do
     {
-	throughput->echoByteSeq(seq);
+	try
+	{
+	    cout << "==> ";
+	    cin >> c;
+
+	    throughput->ice_ping(); // Initial ping to setup the connection.
+
+	    IceUtil::Time tsec = IceUtil::Time::now();
+	    const int repetitions = 100;
+
+	    if(c == 's' || c == 'o' || c == 'r' || c == 'e')
+	    {
+		switch(c)
+		{
+		    case 's':
+		    case 'o':
+		    {
+			cout << "sending";
+			break;
+		    }
+
+		    case 'r':
+		    {
+			cout << "receiving";
+			break;
+		    }
+
+		    case 'e':
+		    {
+			cout << "sending and receiving";
+			break;
+		    }
+		}
+
+		cout << ' ' << repetitions << " sequences of size " << seqSize;
+
+		if(c == 'o')
+		{
+		    cout << " as oneway";
+		}
+		
+		cout << "..." << endl;
+		
+		for(int i = 0; i < repetitions; ++i)
+		{
+		    switch(c)
+		    {
+			case 's':
+			{
+			    throughput->sendByteSeq(seq);
+			    break;
+			}
+			
+			case 'o':
+			{
+			    throughputOneway->sendByteSeq(seq);
+			    break;
+			}
+			
+			case 'r':
+			{
+			    throughput->recvByteSeq();
+			    break;
+			}
+			
+			case 'e':
+			{
+			    throughput->echoByteSeq(seq);
+			    break;
+			}
+		    }
+		}
+
+		tsec = IceUtil::Time::now() - tsec;
+		double tmsec = tsec * 1000.0L;
+		cout << "time for " << repetitions << " sequences: " << tmsec  << "ms" << endl;
+		cout << "time per sequence: " << tmsec / repetitions << "ms" << endl;
+		double mbit = repetitions * seqSize * 8.0 / tsec / 1000000.0;
+		if(c == 'e')
+		{
+		    mbit *= 2;
+		}
+		cout << "throughput: " << mbit << " MBit/s" << endl;
+	    }
+	    else if(c == 'x')
+	    {
+		// Nothing to do
+	    }
+	    else if(c == '?')
+	    {
+		menu();
+	    }
+	    else
+	    {
+		cout << "unknown command `" << c << "'" << endl;
+		menu();
+	    }
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    cerr << ex << endl;
+	}
     }
-
-    tsec = IceUtil::Time::now() - tsec;
-
-    double tmsec = tsec * 1000.0L;
-    
-    cout << "time for " << repetitions << " sequences: " << tmsec  << "ms" << endl;
-    cout << "time per sequence: " << tmsec / repetitions << "ms" << endl;
+    while(cin.good() && c != 'x');
 
     return EXIT_SUCCESS;
 }
