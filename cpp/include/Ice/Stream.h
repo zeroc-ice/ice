@@ -11,6 +11,7 @@
 #ifndef ICE_STREAM_H
 #define ICE_STREAM_H
 
+#include <Ice/InstanceF.h>
 #include <Ice/Buffer.h>
 
 namespace _Ice
@@ -20,10 +21,12 @@ class ICE_API Stream : public Buffer
 {
 public:
 
-    Stream();
+    Stream(const Instance&);
 
-    void swap(bool);
-    bool swap() const;
+    Instance instance() const;
+
+    void bigendian(bool);
+    bool bigendian() const;
 
     void swap(Stream&);
 
@@ -57,7 +60,8 @@ private:
     Stream(const Stream&);
     void operator=(const Stream&);
 
-    bool swap_;
+    Instance instance_;
+    bool bigendian_;
 };
 
 }

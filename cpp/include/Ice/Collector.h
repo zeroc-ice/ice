@@ -35,6 +35,7 @@ class ICE_API CollectorI : public EventHandlerI, public JTCRecursiveMutex
 {
 public:
 
+    Instance instance() const;
     bool destroyed() const;
 
     //

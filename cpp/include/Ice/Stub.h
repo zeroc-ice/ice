@@ -91,11 +91,12 @@ protected:
     virtual ~ObjectI();
 
     ::_Ice::Emitter _emitter();
+    const std::string& _identity();
 
 private:
 
-    ::_Ice::ReferenceData referenceData_;
     ::_Ice::EmitterFactory factory_;
+    ::_Ice::ReferenceData referenceData_;
 
     ObjectI(const ObjectI&);
     void operator=(const ObjectI&);

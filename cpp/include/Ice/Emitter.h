@@ -30,6 +30,7 @@ class ICE_API EmitterI : public EventHandlerI, public JTCMutex
 {
 public:
 
+    Instance instance() const;
     void prepareRequest(Outgoing*);
     void sendRequest(Outgoing*);
 
@@ -54,6 +55,7 @@ private:
     ThreadPool threadPool_;
     Transceiver transceiver_;
     int fd_;
+    Ice::Int nextId_; // The next request ID
 };
 
 class ICE_API EmitterFactoryI : public Shared, public JTCMutex

@@ -21,24 +21,22 @@ class ICE_API Outgoing
 {
 public:
 
-    Outgoing(const Emitter&, const char*);
+    Outgoing(const Emitter&);
     ~Outgoing();
 
     void invoke();
 
-    Stream* os() { return &os_; }
-    Stream* is() { return &is_; }
-    const char* operation() const { return operation_; }
+    Stream* os();
+    Stream* is();
 
 private:
 
     Outgoing(const Outgoing&);
     void operator=(const Outgoing&);
 
-    const Emitter& emitter_;
-    const char* operation_;
-    Stream os_;
+    Emitter emitter_;
     Stream is_;
+    Stream os_;
 };
 
 }

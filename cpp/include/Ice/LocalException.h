@@ -83,11 +83,39 @@ class ICE_API ProtocolException : public LocalException
 {
 };
 
-class ICE_API UnmarshalException : public ProtocolException
+class ICE_API UnmarshalOutOfBoundsException : public ProtocolException
 {
+public:    
+
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
 };
 
-class ICE_API OutOfBoundsUnmarshalException : public UnmarshalException
+class ICE_API UnsupportedProtocolException : public ProtocolException
+{
+public:    
+
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+};
+
+class ICE_API UnsupportedEncodingException : public ProtocolException
+{
+public:    
+
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+};
+
+class ICE_API InvalidMessageException : public ProtocolException
+{
+public:    
+
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+};
+
+class ICE_API UnknownMessageException : public ProtocolException
 {
 public:    
 
