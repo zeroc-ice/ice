@@ -164,7 +164,7 @@ distribution already contains the class files for the Ice core, Ice
 services, examples and tests.
 
 If you want to rebuild the source code, you will need the 'ant'
-utility, version 1.5.4 or later, which is available here:
+utility, version 1.6.2 or later, which is available here:
 
 http://ant.apache.org/
 
