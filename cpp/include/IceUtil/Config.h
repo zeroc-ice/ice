@@ -68,6 +68,14 @@
 #   define HAVE_READLINE
 #   define SIZEOF_WCHAR_T 4
 
+//
+// The ISO C99 standard specifies that in C++ implementations the
+// macros for minimum/maximum integer values should only be defined if
+// explicitly requested with __STDC_LIMIT_MACROS.
+//
+#   define __STDC_LIMIT_MACROS
+#   include <stdint.h>
+
 #else
 
 #   error "unsupported operating system or platform"
@@ -118,15 +126,31 @@ private:
 // Some definitions for 64-bit integers.
 //
 #if defined(_WIN32)
+
 typedef __int64 Int64;
 const Int64 Int64Min = -9223372036854775808i64;
 const Int64 Int64Max =  9223372036854775807i64;
-#define ICE_INT64(x) Int64(x##i64)
-#elif defined(__linux__) && defined(i386)
+
+#   define ICE_INT64(x) Int64(x##i64)
+
+#else
+
+#   if defined(INT64_MIN) && defined(INT64_MAX)
+
+typedef int64_t Int64;
+const Int64 Int64Min = INT64_MIN;
+const Int64 Int64Max = INT64_MAX;
+
+#   else
+
 typedef long long Int64;
 const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
 const Int64 Int64Max = 0x7fffffffffffffffLL;
+
+#   endif
+
 #define ICE_INT64(x) Int64(x##LL)
+
 #endif
 
 }

@@ -30,11 +30,18 @@ IceInternal::interrupted()
 	return true;
     }
 #else
+#   ifdef EPROTO
     if(errno == EINTR ||
        errno == EPROTO)
     {
 	return true;
     }
+#   else
+    if(errno == EINTR)
+    {
+	return true;
+    }
+#   endif
 #endif
     else
     {
