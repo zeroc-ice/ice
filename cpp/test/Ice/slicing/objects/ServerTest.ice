@@ -22,11 +22,6 @@ class SBSUnknownDerived extends SBase
     string sbsud;
 };
 
-class Unknown
-{
-    string u;
-};
-
 class SUnknown
 {
     string su;
