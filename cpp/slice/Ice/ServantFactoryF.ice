@@ -8,13 +8,13 @@
 //
 // **********************************************************************
 
-#ifndef ICE_VALUE_FACTORY_F_ICE
-#define ICE_VALUE_FACTORY_F_ICE
+#ifndef ICE_SERVANT_FACTORY_F_ICE
+#define ICE_SERVANT_FACTORY_F_ICE
 
 module Ice
 {
 
-local class ValueFactory;
+local class ServantFactory;
 
 };
 

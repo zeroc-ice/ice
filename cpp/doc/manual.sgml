@@ -1,11 +1,20 @@
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN" [
+
 <!ENTITY Ice "<phrase>Ice</phrase>">
-<!ENTITY IcePack "<phrase>IcePack</phrase>">
 <!ENTITY ModuleIce SYSTEM "ModuleIce.sgml">
+
+<!ENTITY IcePack "<phrase>IcePack</phrase>">
 <!ENTITY ModuleIcePack SYSTEM "ModuleIcePack.sgml">
+
+<!ENTITY Freeze "<phrase>Freeze</phrase>">
+<!ENTITY ModuleFreeze SYSTEM "ModuleFreeze.sgml">
+
 <!ENTITY Properties SYSTEM "Properties.sgml">
+
 <!ENTITY ReferencesEndpoints SYSTEM "ReferencesEndpoints.sgml">
+
 ]>
+
 <!--
 **********************************************************************
 Copyright (c) 2001
@@ -15,6 +24,7 @@ Huntsville, AL, USA
 All Rights Reserved
 **********************************************************************
 -->
+
 <book><?dbhtml filename="index.html">
 <bookinfo>
 <title>Ice User's Manual</title>
@@ -61,6 +71,10 @@ TBD
 <chapter>
 <title>Module &IcePack;</title>
 &ModuleIcePack;
+</chapter>
+<chapter>
+<title>Module &Freeze;</title>
+&ModuleFreeze;
 </chapter>
 <chapter>
 <title>Properties</title>

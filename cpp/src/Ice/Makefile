@@ -35,8 +35,8 @@ OBJS		= Stream.o \
 		  ObjectAdapter.o \
 		  ObjectAdapterI.o \
 		  ObjectAdapterFactory.o \
-		  ValueFactory.o \
-		  ValueFactoryManager.o \
+		  ServantFactory.o \
+		  ServantFactoryManager.o \
 		  Endpoint.o \
 		  Reference.o \
 		  LocalObject.o \
@@ -164,21 +164,21 @@ $(HDIR)/PropertiesF.h: $(IDIR)/PropertiesF.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/PropertiesF.h
 
-$(HDIR)/ValueFactory.h ValueFactory.cpp: $(IDIR)/ValueFactory.ice $(SLICE)
-	rm -f $(HDIR)/ValueFactory.h ValueFactory.cpp
-	$(SLICECMD) $(IDIR)/ValueFactory.ice
-	mv ValueFactory.h $(HDIR)
+$(HDIR)/ServantFactory.h ServantFactory.cpp: $(IDIR)/ServantFactory.ice $(SLICE)
+	rm -f $(HDIR)/ServantFactory.h ServantFactory.cpp
+	$(SLICECMD) $(IDIR)/ServantFactory.ice
+	mv ServantFactory.h $(HDIR)
 
 clean::
-	rm -f $(HDIR)/ValueFactory.h ValueFactory.cpp
+	rm -f $(HDIR)/ServantFactory.h ServantFactory.cpp
 
-$(HDIR)/ValueFactoryF.h: $(IDIR)/ValueFactoryF.ice $(SLICE)
-	rm -f $(HDIR)/ValueFactoryF.h ValueFactoryF.cpp
-	$(SLICECMD) $(IDIR)/ValueFactoryF.ice
-	mv ValueFactoryF.h $(HDIR)
-	rm -f ValueFactoryF.cpp
+$(HDIR)/ServantFactoryF.h: $(IDIR)/ServantFactoryF.ice $(SLICE)
+	rm -f $(HDIR)/ServantFactoryF.h ServantFactoryF.cpp
+	$(SLICECMD) $(IDIR)/ServantFactoryF.ice
+	mv ServantFactoryF.h $(HDIR)
+	rm -f ServantFactoryF.cpp
 
 clean::
-	rm -f $(HDIR)/ValueFactoryF.h
+	rm -f $(HDIR)/ServantFactoryF.h
 
 include .depend

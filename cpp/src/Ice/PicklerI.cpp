@@ -18,11 +18,11 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
-Ice::PicklerI::pickle(const ObjectPtr& obj, std::ostream& out)
+Ice::PicklerI::pickle(const ObjectPtr& servant, std::ostream& out)
 {
     Stream s(_instance);
     s.startWriteEncaps();
-    s.write(obj);
+    s.write(servant);
     s.endWriteEncaps();
     out.write(s.b.begin(), s.b.size());
     if (!out)
@@ -32,7 +32,7 @@ Ice::PicklerI::pickle(const ObjectPtr& obj, std::ostream& out)
 }
 
 ObjectPtr
-Ice::PicklerI::unpickle(std::istream& in)
+Ice::PicklerI::unpickle(const string& type, std::istream& in)
 {
     Stream s(_instance);
     s.b.resize(4); // Encapsulation length == Ice::Int
@@ -65,14 +65,14 @@ Ice::PicklerI::unpickle(std::istream& in)
 
     s.i = s.b.begin();
     s.startReadEncaps();
-    ObjectPtr obj;
-    s.read(obj, "::Ice::Object");
+    ObjectPtr servant;
+    s.read(servant, type);
     s.endReadEncaps();
-    if (!obj)
+    if (!servant)
     {
-	throw NoFactoryException(__FILE__, __LINE__);
+	throw NoServantFactoryException(__FILE__, __LINE__);
     }
-    return obj;    
+    return servant;    
 }
 
 Ice::PicklerI::PicklerI(const InstancePtr& instance) :

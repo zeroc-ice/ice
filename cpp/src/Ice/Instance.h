@@ -20,7 +20,7 @@
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/EmitterF.h>
-#include <Ice/ValueFactoryManagerF.h>
+#include <Ice/ServantFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/PicklerF.h>
 
@@ -46,7 +46,7 @@ public:
     ProxyFactoryPtr proxyFactory();
     ThreadPoolPtr threadPool();
     EmitterFactoryPtr emitterFactory();
-    ValueFactoryManagerPtr valueFactoryManager();
+    ServantFactoryManagerPtr valueFactoryManager();
     ObjectAdapterFactoryPtr objectAdapterFactory();
     ::Ice::PicklerPtr pickler();
     
@@ -64,7 +64,7 @@ private:
     ProxyFactoryPtr _proxyFactory;
     ThreadPoolPtr _threadPool;
     EmitterFactoryPtr _emitterFactory;
-    ValueFactoryManagerPtr _valueFactoryManager;
+    ServantFactoryManagerPtr _valueFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ::Ice::PicklerPtr _pickler;
 

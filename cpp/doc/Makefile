@@ -15,6 +15,7 @@ TARGETS		= manual/index.html
 SGMLFILES	= manual.sgml \
 		  ModuleIce.sgml \
 		  ModuleIcePack.sgml \
+		  ModuleFreeze.sgml \
 		  Properties.sgml \
 		  ReferencesEndpoints.sgml
 
@@ -26,6 +27,8 @@ ICEFILES	= ../slice/Ice/Communicator.ice \
 		  ../slice/Ice/ValueFactory.ice
 
 ICEPACKFILES	= ../slice/IcePack/Admin.ice
+
+FREEZEFILES	= ../slice/Freeze/DB.ice
 
 include $(top_srcdir)/config/Make.rules
 
@@ -60,3 +63,10 @@ ModuleIcePack.sgml: $(ICEPACKFILES) $(SLICE2DOCBOOK)
 
 clean::
 	rm -f ModuleIcePack.sgml
+
+ModuleFreeze.sgml: $(FREEZEFILES) $(SLICE2DOCBOOK)
+	rm -f $@
+	$(SLICE2DOCBOOK) --no-globals -I$(top_srcdir)/slice $@ $(FREEZEFILES)
+
+clean::
+	rm -f ModuleFreeze.sgml

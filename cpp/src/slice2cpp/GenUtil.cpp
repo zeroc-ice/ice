@@ -273,7 +273,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    }
 	    else
 	    {
-		out << nl << "throw ::Ice::NoFactoryException(__FILE__, __LINE__);";
+		out << nl << "throw ::Ice::NoServantFactoryException(__FILE__, __LINE__);";
 	    }
 	    out << eb;
 	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(__obj);";

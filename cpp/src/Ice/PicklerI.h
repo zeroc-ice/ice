@@ -23,7 +23,7 @@ class ICE_API PicklerI : public Pickler
 public:
 
     void pickle(const ObjectPtr&, std::ostream&);
-    ObjectPtr unpickle(std::istream&);
+    ObjectPtr unpickle(const std::string&, std::istream&);
 
 private:
 

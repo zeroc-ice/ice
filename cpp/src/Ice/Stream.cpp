@@ -13,8 +13,8 @@
 #include <Ice/Object.h>
 #include <Ice/Proxy.h>
 #include <Ice/ProxyFactory.h>
-#include <Ice/ValueFactory.h>
-#include <Ice/ValueFactoryManager.h>
+#include <Ice/ServantFactory.h>
+#include <Ice/ServantFactoryManager.h>
 #include <Ice/LocalException.h>
 
 using namespace std;
@@ -812,7 +812,7 @@ IceInternal::Stream::write(const ObjectPtr& v)
 }
 
 void
-IceInternal::Stream::read(ObjectPtr& v, const string& signatureType)
+IceInternal::Stream::read(ObjectPtr& v, const string& type)
 {
     vector<string> classIds;
     read(classIds);
@@ -820,7 +820,7 @@ IceInternal::Stream::read(ObjectPtr& v, const string& signatureType)
     vector<string>::const_iterator p;
     for (p = classIds.begin(); p != classIds.end(); ++p)
     {
-	ValueFactoryPtr factory = _instance->valueFactoryManager()->lookup(*p);
+	ServantFactoryPtr factory = _instance->valueFactoryManager()->lookup(*p);
 	
 	if (factory)
 	{
@@ -829,16 +829,16 @@ IceInternal::Stream::read(ObjectPtr& v, const string& signatureType)
 	    
 	    for (; p != classIds.end(); ++p)
 	    {
-		if (*p == signatureType)
+		if (*p == type)
 		{
 		    return;
 		}
 	    }
 	    
-	    throw ValueUnmarshalException(__FILE__, __LINE__);
+	    throw ServantUnmarshalException(__FILE__, __LINE__);
 	}
 	
-	if (*p == signatureType)
+	if (*p == type)
 	{
 	    return;
 	}
@@ -846,5 +846,5 @@ IceInternal::Stream::read(ObjectPtr& v, const string& signatureType)
 	skipEncaps();
     }
     
-    throw ValueUnmarshalException(__FILE__, __LINE__);
+    throw ServantUnmarshalException(__FILE__, __LINE__);
 }

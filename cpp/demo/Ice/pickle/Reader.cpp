@@ -18,8 +18,8 @@ using namespace std;
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    Ice::ValueFactoryPtr factory = new Factory;
-    communicator->installValueFactory(factory, "::Persistent");
+    Ice::ServantFactoryPtr factory = new Factory;
+    communicator->installServantFactory(factory, "::Persistent");
     
     ifstream in("persistent");
     if (!in)
@@ -30,8 +30,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
 
     Ice::PicklerPtr pickler = communicator->getPickler();
-    Ice::ObjectPtr base = pickler->unpickle(in);
+    Ice::ObjectPtr base = pickler->unpickle("::Persistent", in);
     PersistentPtr persistent = dynamic_cast<Persistent*>(base.get());
+    assert(persistent);
 
     cout << "aString = \"" << persistent->aString << "\"" << endl;
     cout << "aDouble = " << persistent->aDouble << endl;

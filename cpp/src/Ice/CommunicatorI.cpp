@@ -14,7 +14,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ObjectAdapter.h>
-#include <Ice/ValueFactoryManager.h>
+#include <Ice/ServantFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Logger.h>
 #include <Ice/Initialize.h>
@@ -107,7 +107,7 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
 }
 
 void
-Ice::CommunicatorI::installValueFactory(const ValueFactoryPtr& factory, const string& id)
+Ice::CommunicatorI::installServantFactory(const ServantFactoryPtr& factory, const string& id)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     if (!_instance)
@@ -232,4 +232,12 @@ PropertiesPtr
 Ice::createPropertiesFromFile(int& argc, char* argv[], const string& file)
 {
     return new PropertiesI(argc, argv, file);
+}
+
+InstancePtr
+IceInternal::getInstance(const CommunicatorPtr& communicator)
+{
+    CommunicatorI* p = dynamic_cast<CommunicatorI*>(communicator.get());
+    assert(p);
+    return p->_instance;
 }

@@ -175,13 +175,13 @@ public:
     virtual void raise() const;
 };
 
-class ICE_API NoFactoryException : public LocalException
+class ICE_API NoServantFactoryException : public LocalException
 {
 public:    
 
-    NoFactoryException(const char*, int);
-    NoFactoryException(const NoFactoryException&);
-    NoFactoryException& operator=(const NoFactoryException&);
+    NoServantFactoryException(const char*, int);
+    NoServantFactoryException(const NoServantFactoryException&);
+    NoServantFactoryException& operator=(const NoServantFactoryException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
     virtual void raise() const;
@@ -297,13 +297,13 @@ public:
     virtual void raise() const;
 };
 
-class ICE_API ValueUnmarshalException : public ProtocolException
+class ICE_API ServantUnmarshalException : public ProtocolException
 {
 public:    
     
-    ValueUnmarshalException(const char*, int);
-    ValueUnmarshalException(const ValueUnmarshalException&);
-    ValueUnmarshalException& operator=(const ValueUnmarshalException&);
+    ServantUnmarshalException(const char*, int);
+    ServantUnmarshalException(const ServantUnmarshalException&);
+    ServantUnmarshalException& operator=(const ServantUnmarshalException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
     virtual void raise() const;

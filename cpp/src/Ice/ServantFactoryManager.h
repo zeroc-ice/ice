@@ -12,26 +12,26 @@
 #define ICE_VALUE_FACTORY_MANAGER_H
 
 #include <IceUtil/Shared.h>
-#include <Ice/ValueFactoryManagerF.h>
-#include <Ice/ValueFactoryF.h>
+#include <Ice/ServantFactoryManagerF.h>
+#include <Ice/ServantFactoryF.h>
 
 namespace IceInternal
 {
 
-class ValueFactoryManager : public ::IceUtil::Shared, public JTCMutex
+class ServantFactoryManager : public ::IceUtil::Shared, public JTCMutex
 {
 public:
 
-    void install(const ::Ice::ValueFactoryPtr&, const std::string&);
-    ::Ice::ValueFactoryPtr lookup(const std::string&);
+    void install(const ::Ice::ServantFactoryPtr&, const std::string&);
+    ::Ice::ServantFactoryPtr lookup(const std::string&);
 
 private:
 
-    ValueFactoryManager();
+    ServantFactoryManager();
     void destroy();
     friend class Instance;
 
-    std::map<std::string, ::Ice::ValueFactoryPtr> _factories;
+    std::map<std::string, ::Ice::ServantFactoryPtr> _factories;
 };
 
 }

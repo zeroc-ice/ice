@@ -15,7 +15,7 @@
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/PicklerF.ice>
 #include <Ice/PropertiesF.ice>
-#include <Ice/ValueFactoryF.ice>
+#include <Ice/ServantFactoryF.ice>
 
 /**
  *
@@ -35,7 +35,7 @@ module Ice
  * @see ObjectAdapter
  * @see Pickler
  * @see Properties
- * @see ValueFactory
+ * @see ServantFactory
  *
  **/
 local class Communicator
@@ -161,14 +161,14 @@ local class Communicator
 
     /**
      *
-     * Install a new Value Factory.
+     * Install a new Servant Factory.
      *
      * @param factory The factory to install.
      *
      * @param id The type id for which the factory can create instances.
      *
      **/
-    void installValueFactory(ValueFactory factory, string id);
+    void installServantFactory(ServantFactory factory, string id);
 
     /**
      *

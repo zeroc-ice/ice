@@ -11,8 +11,7 @@
 #ifndef ICE_COMMUNICATOR_I_H
 #define ICE_COMMUNICATOR_I_H
 
-#include <IceUtil/Shared.h>
-#include <Ice/InstanceF.h>
+#include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
 
 namespace Ice
@@ -32,7 +31,7 @@ public:
     virtual ObjectAdapterPtr createObjectAdapter(const std::string&);
     virtual ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
 
-    virtual void installValueFactory(const ValueFactoryPtr&, const std::string&);
+    virtual void installServantFactory(const ServantFactoryPtr&, const std::string&);
 
     virtual PropertiesPtr getProperties();
 
@@ -48,6 +47,7 @@ private:
 
     friend ICE_API CommunicatorPtr initialize(int&, char*[], Int);
     friend ICE_API CommunicatorPtr initializeWithProperties(const PropertiesPtr&, Int);
+    friend ICE_API ::IceInternal::InstancePtr IceInternal::getInstance(const ::Ice::CommunicatorPtr&);
 
     ::IceInternal::InstancePtr _instance;
 };

@@ -12,6 +12,7 @@
 #define FREEZE_DB_I_H
 
 #include <IceUtil/IceUtil.h>
+#include <Ice/Ice.h>
 #include <Freeze/Initialize.h>
 #include <Freeze/DB.h>
 #include <db.h>
@@ -26,17 +27,21 @@ class DBI : public DB, public JTCMutex
 {
 public:
     
-    DBI(const ::Ice::CommunicatorPtr&, const ::Ice::PropertiesPtr&, const DBEnvIPtr&, ::DB*, const std::string&);
+    DBI(const ::Ice::CommunicatorPtr&, const ::Ice::PropertiesPtr&, const DBEnvIPtr&, ::DB_ENV*, ::DB*,
+	const std::string&);
     virtual ~DBI();
 
+    virtual void put(const std::string&, const ::Ice::ObjectPtr&);
+    virtual ::Ice::ObjectPtr get(const std::string&);
+    virtual void del(const std::string&);
     virtual void close();
 
 private:
 
-    bool _closed;
     ::Ice::CommunicatorPtr _communicator;
     ::Ice::PropertiesPtr _properties;
-    DBEnvIPtr _dbenv;
+    DBEnvIPtr _dbenvObj;
+    ::DB_ENV* _dbenv;
     ::DB* _db;
     std::string _name;
 };
@@ -55,10 +60,9 @@ public:
 
 private:
 
-    bool _closed;
     ::Ice::CommunicatorPtr _communicator;
     ::Ice::PropertiesPtr _properties;
-    DB_ENV* _dbenv;
+    ::DB_ENV* _dbenv;
     std::string _directory;
     std::map<std::string, DBPtr> _dbmap;
 };

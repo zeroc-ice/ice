@@ -52,7 +52,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	initial->printer(printer, printerProxy);
     }
-    catch(const Ice::NoFactoryException& ex)
+    catch(const Ice::NoServantFactoryException& ex)
     {
 	cout << "==> " << ex << endl;
     }
@@ -63,8 +63,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
-    Ice::ValueFactoryPtr factory = new Factory;
-    communicator->installValueFactory(factory, "::Printer");
+    Ice::ServantFactoryPtr factory = new Factory;
+    communicator->installServantFactory(factory, "::Printer");
 
     initial->printer(printer, printerProxy);
     cout << "==> " << printer->_message << endl;
@@ -113,7 +113,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
-    communicator->installValueFactory(factory, "::DerivedPrinter");
+    communicator->installServantFactory(factory, "::DerivedPrinter");
 
     derivedAsBase = initial->derivedPrinter();
     DerivedPrinterPtr derived = DerivedPrinterPtr::dynamicCast(derivedAsBase);

@@ -16,7 +16,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/Logger.h>
-#include <Ice/ValueFactory.h>
+#include <Ice/ServantFactory.h>
 #include <Ice/Pickler.h>
 #include <Ice/Initialize.h>
 

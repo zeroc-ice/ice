@@ -14,9 +14,9 @@
 module Freeze
 {
 
-local class DBException;
-local class DB;
-local class DBEnv;
+local interface DBException;
+local interface DB;
+local interface DBEnv;
 
 };
 

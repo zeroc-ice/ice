@@ -11,7 +11,7 @@
 #ifndef FACTORY_H
 #define FACTORY_H
 
-class Factory : public Ice::ValueFactory
+class Factory : public Ice::ServantFactory
 {
 public:
 

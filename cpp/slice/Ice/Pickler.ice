@@ -20,7 +20,7 @@ native OutputStream;
 local class Pickler
 {
     void pickle(Object object, OutputStream out);
-    Object unpickle(InputStream in);
+    Object unpickle(string type, InputStream in);
 };
 
 };

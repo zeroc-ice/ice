@@ -473,38 +473,38 @@ Ice::OperationNotExistException::raise() const
     throw *this;
 }
 
-Ice::NoFactoryException::NoFactoryException(const char* file, int line) :
+Ice::NoServantFactoryException::NoServantFactoryException(const char* file, int line) :
     LocalException(file, line)
 {
 }
 
-Ice::NoFactoryException::NoFactoryException(const NoFactoryException& ex) :
+Ice::NoServantFactoryException::NoServantFactoryException(const NoServantFactoryException& ex) :
     LocalException(ex)
 {
 }
 
-NoFactoryException&
-Ice::NoFactoryException::operator=(const NoFactoryException& ex)
+NoServantFactoryException&
+Ice::NoServantFactoryException::operator=(const NoServantFactoryException& ex)
 {
     LocalException::operator=(ex);
     return *this;
 }
 
 string
-Ice::NoFactoryException::toString() const
+Ice::NoServantFactoryException::toString() const
 {
-    string s = debugInfo() + "no factory installed for class with operations";
+    string s = debugInfo() + "no servant factory found for the requested servant type";
     return s;
 }
 
 LocalException*
-Ice::NoFactoryException::clone() const
+Ice::NoServantFactoryException::clone() const
 {
-    return new NoFactoryException(*this);
+    return new NoServantFactoryException(*this);
 }
 
 void
-Ice::NoFactoryException::raise() const
+Ice::NoServantFactoryException::raise() const
 {
     throw *this;
 }
@@ -839,37 +839,37 @@ Ice::UnmarshalOutOfBoundsException::raise() const
     throw *this;
 }
 
-Ice::ValueUnmarshalException::ValueUnmarshalException(const char* file, int line) :
+Ice::ServantUnmarshalException::ServantUnmarshalException(const char* file, int line) :
     ProtocolException(file, line)
 {
 }
 
-Ice::ValueUnmarshalException::ValueUnmarshalException(const ValueUnmarshalException& ex) :
+Ice::ServantUnmarshalException::ServantUnmarshalException(const ServantUnmarshalException& ex) :
     ProtocolException(ex)
 {
 }
 
-ValueUnmarshalException&
-Ice::ValueUnmarshalException::operator=(const ValueUnmarshalException& ex)
+ServantUnmarshalException&
+Ice::ServantUnmarshalException::operator=(const ServantUnmarshalException& ex)
 {
     ProtocolException::operator=(ex);
     return *this;
 }
 
 string
-Ice::ValueUnmarshalException::toString() const
+Ice::ServantUnmarshalException::toString() const
 {
-    return debugInfo() + "protocol error: value type does not match signature";
+    return debugInfo() + "protocol error: servant type does not match signature";
 }
 
 LocalException*
-Ice::ValueUnmarshalException::clone() const
+Ice::ServantUnmarshalException::clone() const
 {
-    return new ValueUnmarshalException(*this);
+    return new ServantUnmarshalException(*this);
 }
 
 void
-Ice::ValueUnmarshalException::raise() const
+Ice::ServantUnmarshalException::raise() const
 {
     throw *this;
 }
