@@ -8,15 +8,14 @@ Ice means simplicity, speed, and power.
 
 Ice is available under the terms of the GNU General Public License
 (GPL) (see LICENSE file). Commercial licenses are available for
-customers who wish to use Ice with proprietary products. 
+customers who wish to use Ice with proprietary products. Please
+contact sales@zeroc.com for more information about licensing Ice.
 
-If Ice was installed from RPMs see README.DEMOS for instructions to
-build and run the demos. Otherwise, you need to download the
+If Ice was installed from RPMs, see README.DEMOS for instructions on
+building and running the demos. Otherwise, you need to download the
 Ice-<version>-demos.tar.gz or Ice-<version>-demos.zip package from
 http://www.zeroc.com/download.html and see the README.DEMOS file
-included in this package.
+included in that package.
 
 See doc/README.html for information on the documentation included with
 this distribution.
-
-Please contact sales@zeroc.com for more information.

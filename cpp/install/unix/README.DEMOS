@@ -1,44 +1,45 @@
 When installing from RPMs, the demos for a particular language mapping
-are installed with the appropriate 'devel' RPM.  For example, the Java
-demos are located in the ice-java-devel RPM. 
+are included with the appropriate 'devel' RPM. For example, the Java
+demos are included in the ice-java-devel RPM. 
 
 Building the Ice Demos
 ======================
 
 For your convenience, the Ice demo distribution includes all of the
-demos included in the Ice source distributions. These demos may be
+demos included in the Ice source distribution. These demos can be
 built against a pre-existing Ice distribution.  
 
-If you installed Ice from RPM packages, you can build the demos by
-visiting each demo directory (e.g., demo, demoj, democs) and running
-'gmake' or 'ant' as appropriate. The Ice for Python demos do not need
-to be compiled. 
+If you have installed Ice from RPM packages, you can build the demos
+by visiting each demo directory (e.g., demo, demoj, democs) and
+running 'gmake' or 'ant' as appropriate. The Ice for Python demos do
+not need to be compiled. 
 
-If you installed Ice from an Ice binary distribution or from source
-distributions by running 'gmake install', you must set the ICE_HOME
-environment variable to the Ice installation directory. You must also
-tell your system where to find the Ice translators and shared
-libraries.  This is normally done through environment variables. On
-most systems the translators should be in a directory in your PATH
+If you have installed Ice from an Ice binary distribution, or from
+a source distribution by running 'gmake install', you must set the
+ICE_HOME environment variable to the Ice installation directory. You
+must also tell your system where to find the Ice translators and shared
+libraries, which is normally done using environment variables.
+
+On most systems the translators should be in a directory in your PATH
 environment variable, and the shared libraries should be in a
 directory in your system's shared library search path. Shared
 libraries are located using a system-specific environment variable,
 such as LD_LIBRARY_PATH (Linux and other UNIX variants), SHLIB_PATH
-(32 bit HP-UX), DYLD_LIBRARY_PATH (Mac OS X) and LIBPATH (IBM
-AIX). You can test whether you have configured your system properly by
+(32 bit HP-UX), DYLD_LIBRARY_PATH (Mac OS X) and LIBPATH (IBM AIX).
+You can test whether you have configured your system properly by
 running a Slice translator that was installed on your system. For
 example:
 
 myprompt> slice2cpp
 
-Without arguments, the translator will display some usage help
-information. If you get a 'command not found' or 'libIce.so.2.1.0 not
-found' or similar error, verify that the files are in the expected
-location, your environment variables are set properly and that you
-have the proper permissions on these files.
+Without arguments, the translator will display usage information. If
+you get a 'command not found' or 'libIce.so.2.1.0 not found' or a
+similar error, verify that the files are in the expected location,
+your environment variables are set properly and that you have the
+proper permissions on these files.
 
-To verify ICE_HOME is set, simply echoing the environment variable works
-on most systems. Assuming Ice is installed in /opt/Ice:
+To verify ICE_HOME is set, simply echoing the environment variable
+works on most systems. Assuming Ice is installed in /opt/Ice:
 
 myprompt> echo $ICE_HOME
 /opt/Ice
@@ -58,22 +59,22 @@ run the demos.
 Ice for C++
 -----------
 
-The C++ demos require the Ice runtime and tools as well as several third
-party libraries. If you have managed to build the C++ demos, you already
-have your environment set up properly for the Ice runtime. However,
-Ice uses other third party libraries such as OpenSSL that should
-also be accessible. 
+The C++ demos require the Ice run time and tools, as well as several
+third-party libraries. If you have managed to build the C++ demos, you
+already have your environment set up properly for the Ice run time.
+However, Ice uses other third party libraries such as OpenSSL that
+should also be accessible. 
 
 Ice for Java
 ------------
 
-The Java demos require that you have the Ice.jar, the Ice ant tasks
+The Java demos require that you have Ice.jar, the Ice ant task classes
 and the Berkeley DB db.jar in your CLASSPATH. 
 
-If Ice was installed from RPMs, Ice.jar and the ant tasks are in
+If Ice was installed from RPMs, Ice.jar and the ant task classes are in
 /usr/lib/Ice-<version>/Ice.jar and /usr/lib/Ice-<version>/ant,
-respectively. Otherwise, Ice.jar and the ant tasks will be in the Ice
-installation's lib and ant directories, respectively.
+respectively. Otherwise, Ice.jar and the ant task classes will be in the
+Ice installation's lib and ant directories, respectively.
 
 If BerkeleyDB was installed from RPMs, db.jar is in
 /usr/share/java/db.jar. Otherwise, db.jar will be in the Berkeley DB
@@ -84,8 +85,8 @@ Ice for C#
 
 To run the C# demos under Mono, you must include the library directory
 containing the icecs.dll in your MONO_PATH environment variable. In an
-RPM installation, the icecs.dll is installed in the /usr/lib directory.
-Otherwise, it can be found in the lib directory in your Ice
+RPM installation, the icecs.dll is installed in the /usr/lib
+directory. Otherwise, it can be found in the lib directory in your Ice
 installation.
 
 Ice for Python
@@ -96,9 +97,9 @@ extension must be in the PYTHONPATH environment variable. You also
 need to configure the ICEPY_HOME environment variable to indicate your
 Ice for Python installation. If you installed Ice for Python from an
 Ice binary distribution, it should be the same as your ICE_HOME
-environment variable. If you installed Ice for Python from the source
-distribution, you may have installed it in a directory other than the
-ICE_HOME directory.  
+environment variable. If you have installed Ice for Python from the
+source distribution, you may have installed it in a directory other
+than the ICE_HOME directory.  
 
 For RPM installations, the environment variables should be:
 
