@@ -31,7 +31,7 @@ public class ObjectPrxHelper implements ObjectPrx
     }
 
     public final boolean
-    ice_isA(String __id, java.util.HashMap __context)
+    ice_isA(String __id, java.util.Map __context)
     {
         int __cnt = 0;
         while (true)
@@ -63,7 +63,7 @@ public class ObjectPrxHelper implements ObjectPrx
     }
 
     public final void
-    ice_ping(java.util.HashMap __context)
+    ice_ping(java.util.Map __context)
     {
         int __cnt = 0;
         while (true)
@@ -97,7 +97,7 @@ public class ObjectPrxHelper implements ObjectPrx
 
     public final byte[]
     ice_invoke(String operation, boolean nonmutating, byte[] inParams,
-               java.util.HashMap __context)
+               java.util.Map __context)
     {
         int __cnt = 0;
         while (true)

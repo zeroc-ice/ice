@@ -13,7 +13,7 @@ package Ice;
 public class _ObjectDelM implements _ObjectDel
 {
     public boolean
-    ice_isA(String __id, java.util.HashMap __context)
+    ice_isA(String __id, java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
@@ -30,7 +30,7 @@ public class _ObjectDelM implements _ObjectDel
     }
 
     public void
-    ice_ping(java.util.HashMap __context)
+    ice_ping(java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =
@@ -44,7 +44,7 @@ public class _ObjectDelM implements _ObjectDel
 
     public byte[]
     ice_invoke(String operation, boolean nonmutating, byte[] inParams,
-               java.util.HashMap __context)
+               java.util.Map __context)
         throws LocationForward, IceInternal.NonRepeatable
     {
         IceInternal.Outgoing __out =

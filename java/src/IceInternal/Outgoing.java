@@ -14,7 +14,7 @@ public final class Outgoing
 {
     public
     Outgoing(Connection connection, Reference ref, boolean sendProxy,
-             String operation, boolean nonmutating, java.util.HashMap context)
+             String operation, boolean nonmutating, java.util.Map context)
     {
         _connection = connection;
         _reference = ref;

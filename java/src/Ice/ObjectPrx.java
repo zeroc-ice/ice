@@ -15,15 +15,15 @@ public interface ObjectPrx
     public int ice_hash();
 
     public boolean ice_isA(String __id);
-    public boolean ice_isA(String __id, java.util.HashMap __context);
+    public boolean ice_isA(String __id, java.util.Map __context);
 
     public void ice_ping();
-    public void ice_ping(java.util.HashMap __context);
+    public void ice_ping(java.util.Map __context);
 
     public byte[] ice_invoke(String operation, boolean nonmutating,
                              byte[] inParams);
     public byte[] ice_invoke(String operation, boolean nonmutating,
-                             byte[] inParams, java.util.HashMap __context);
+                             byte[] inParams, java.util.Map __context);
 
     public Identity ice_getIdentity();
 
