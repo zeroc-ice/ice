@@ -358,6 +358,12 @@ CPatchDlg::OnStartPatch()
 	Ice::PropertiesPtr properties = _communicator->getProperties();
 
 	//
+	// Since this is a demo, we want to prevent files from
+	// accidental deletion.
+	//
+	properties->setProperty("IcePatch2.Remove", "0");
+
+	//
 	// Set the patch directory.
 	// 
 	CString path;
