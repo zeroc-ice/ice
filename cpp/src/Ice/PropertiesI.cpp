@@ -69,6 +69,22 @@ Ice::PropertiesI::getProperties(const string& prefix)
     return result;
 }
 
+Int
+Ice::PropertiesI::getPropertyAsInt(const string& key)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    map<string, string>::const_iterator p = _properties.find(key);
+    if (p != _properties.end())
+    {
+	return static_cast<Int>(atoi(p->second.c_str()));
+    }
+    else
+    {
+	return 0;
+    }
+}
+
 void
 Ice::PropertiesI::setProperty(const string& key, const string& value)
 {

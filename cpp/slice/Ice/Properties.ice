@@ -58,6 +58,20 @@ local interface Properties
 
     /**
      *
+     * Get a property as an integer. If the property is not set, 0 is
+     * returned.
+     *
+     * @param key The property key.
+     *
+     * @return The property value interpreted as integer.
+     *
+     * @see setProperty
+     *
+     **/
+    int getPropertyAsInt(string key);
+
+    /**
+     *
      * Get all properties whose keys begins with
      * <replaceable>prefix</replaceable>. If
      * <replaceable>prefix</replaceable> is an empty string,

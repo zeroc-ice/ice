@@ -24,6 +24,7 @@ public:
     
     virtual std::string getProperty(const std::string&);
     virtual std::string getPropertyWithDefault(const std::string&, const std::string&);
+    virtual Ice::Int getPropertyAsInt(const std::string&);
     virtual StringSeq getProperties(const std::string&);
     virtual void setProperty(const std::string&, const std::string&);
     virtual StringSeq getCommandLineOptions();
