@@ -132,9 +132,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     communicator->waitForShutdown();
 
-    //cout << "eventFed1->count(): " << eventFed1->getCount() << endl;
-    //cout << "eventFed2->count(): " << eventFed2->getCount() << endl;
-    //cout << "eventFed3->count(): " << eventFed3->getCount() << endl;
+//      cout << "eventFed1->count(): " << eventFed1->count() << endl;
+//      cout << "eventFed2->count(): " << eventFed2->count() << endl;
+//      cout << "eventFed3->count(): " << eventFed3->count() << endl;
 
     test(eventFed1->count() == 30);
     test(eventFed2->count() == 40);
