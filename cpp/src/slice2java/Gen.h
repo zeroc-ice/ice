@@ -200,9 +200,9 @@ private:
     protected:
 
         //
-        // Generate code to assign a value
+        // Generate code to return a value
         //
-        void writeAssign(::IceUtil::Output&, const std::string&, const TypePtr&, const std::string&, int&);
+        void writeReturn(::IceUtil::Output&, const TypePtr&);
 
         //
         // Generate an operation
