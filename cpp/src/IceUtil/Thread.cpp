@@ -186,7 +186,7 @@ IceUtil::Thread::start()
 }
 
 IceUtil::ThreadControl
-IceUtil::Thread::getThreadControl()
+IceUtil::Thread::getThreadControl() const
 {
     return ThreadControl(_handle, _id);
 }
@@ -369,7 +369,7 @@ IceUtil::Thread::start()
 }
 
 IceUtil::ThreadControl
-IceUtil::Thread::getThreadControl()
+IceUtil::Thread::getThreadControl() const
 {
     return ThreadControl(_id);
 }
