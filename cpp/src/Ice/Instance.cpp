@@ -304,9 +304,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 IceInternal::Instance::~Instance()
 {
     assert(!_communicator);
-    assert(!_properties);
-    assert(!_logger);
-    assert(!_traceLevels);
     assert(!_referenceFactory);
     assert(!_proxyFactory);
     assert(!_outgoingConnectionFactory);

@@ -66,9 +66,9 @@ private:
     friend class ::Ice::CommunicatorI;
 
     ::Ice::CommunicatorPtr _communicator;
-    ::Ice::PropertiesPtr _properties;
-    ::Ice::LoggerPtr _logger;
-    TraceLevelsPtr _traceLevels;
+    ::Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
+    ::Ice::LoggerPtr _logger; // Not reset by destroy().
+    TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
     RouterManagerPtr _routerManager;
     ReferenceFactoryPtr _referenceFactory;
     ProxyFactoryPtr _proxyFactory;
@@ -77,8 +77,8 @@ private:
     UserExceptionFactoryManagerPtr _userExceptionFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ThreadPoolPtr _threadPool;
-    std::string _defaultProtocol;
-    std::string _defaultHost;
+    std::string _defaultProtocol; // Immutable, not reset by destroy().
+    std::string _defaultHost; // Immutable, not reset by destroy().
 
     //
     // Global state management

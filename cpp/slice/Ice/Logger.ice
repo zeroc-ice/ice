@@ -55,16 +55,6 @@ local interface Logger
      *
      **/
     void error(string message);
-
-    /**
-     *
-     * Called when the Communicator this Logger is installed with is
-     * destroyed.
-     *
-     * @see Communicator::destroy
-     *
-     **/
-    void destroy();
 };
 
 };

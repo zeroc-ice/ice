@@ -43,9 +43,3 @@ Ice::LoggerI::error(const string& message)
     IceUtil::Mutex::Lock sync(*this);
     cerr << "error: " << message << endl;
 }
-
-void
-Ice::LoggerI::destroy()
-{
-    // Nothing to do
-}

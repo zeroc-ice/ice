@@ -42,9 +42,3 @@ Ice::SysLoggerI::error(const string& message)
     IceUtil::Mutex::Lock sync(*this);
     syslog(LOG_ERR, "%s", message.c_str());
 }
-
-void
-Ice::SysLoggerI::destroy()
-{
-    // Nothing to do
-}

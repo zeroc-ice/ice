@@ -75,7 +75,7 @@ IceInternal::ThreadPool::waitUntilServerFinished()
 
     if (_servers != 0)
     {
-	Error out(_instance->logger());
+	Error out(_logger);
 	out << "can't wait for graceful server termination in thread pool\n"
 	    << "since all threads have vanished";
     }
@@ -93,7 +93,7 @@ IceInternal::ThreadPool::waitUntilFinished()
 
     if (!_handlerMap.empty())
     {
-	Error out(_instance->logger());
+	Error out(_logger);
 	out << "can't wait for graceful application termination in thread pool\n"
 	    << "since all threads have vanished";
     }
@@ -137,6 +137,8 @@ IceInternal::ThreadPool::getMaxConnections()
 
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     _instance(instance),
+    _logger(_instance->logger()),
+    _properties(_instance->properties()),
     _destroyed(false),
     _lastFd(INVALID_SOCKET),
     _servers(0),
@@ -153,8 +155,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     _maxFd = _fdIntrRead;
     _minFd = _fdIntrRead;
 
-    _timeout = atoi(_instance->properties()->getProperty("Ice.ServerIdleTime").c_str());
-    _threadNum = atoi(_instance->properties()->getPropertyWithDefault("Ice.ThreadPool.Size", "10").c_str());
+    _timeout = atoi(_properties->getProperty("Ice.ServerIdleTime").c_str());
+    _threadNum = atoi(_properties->getPropertyWithDefault("Ice.ThreadPool.Size", "10").c_str());
     if (_threadNum < 1)
     {
 	_threadNum = 1;
@@ -179,7 +181,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     }
 
     // Must be called after _threadNum is set.
-    setMaxConnections(atoi(_instance->properties()->getProperty("Ice.ThreadPool.MaxConnections").c_str()));
+    setMaxConnections(atoi(_properties->getProperty("Ice.ThreadPool.MaxConnections").c_str()));
 }
 
 IceInternal::ThreadPool::~ThreadPool()
@@ -243,7 +245,11 @@ IceInternal::ThreadPool::run()
 	if (shutdown) // Shutdown has been initiated.
 	{
 	    shutdown = false;
-	    _instance->objectAdapterFactory()->shutdown();
+	    ObjectAdapterFactoryPtr factory = _instance->objectAdapterFactory();
+	    if (factory)
+	    {
+		_instance->objectAdapterFactory()->shutdown();
+	    }
 	}
 	
 	fd_set fdSet;
@@ -361,7 +367,7 @@ IceInternal::ThreadPool::run()
 	    //
 	    if (fdSet.fd_count == 0)
 	    {
-		Error out(_instance->logger());
+		Error out(_logger);
 		out << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
 		goto repeatSelect;
 	    }
@@ -413,7 +419,7 @@ IceInternal::ThreadPool::run()
 
 	    if (loops > 1)
 	    {
-		Error out(_instance->logger());
+		Error out(_logger);
 		out << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
 		goto repeatSelect;
 	    }
@@ -428,7 +434,7 @@ IceInternal::ThreadPool::run()
 	    map<SOCKET, EventHandlerPtr>::iterator p = _handlerMap.find(_lastFd);
 	    if(p == _handlerMap.end())
 	    {
-		Error out(_instance->logger());
+		Error out(_logger);
 		out << "filedescriptor " << _lastFd << " not registered with the thread pool";
 		goto repeatSelect;
 	    }
@@ -535,12 +541,12 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     }
     catch (const Exception& ex)
     {	
-	Error out(_pool->_instance->logger());
+	Error out(_pool->_logger);
 	out << "exception in thread pool:\n" << ex;
     }
     catch (...)
     {
-	Error out(_pool->_instance->logger());
+	Error out(_pool->_logger);
 	out << "unknown exception in thread pool";
     }
 

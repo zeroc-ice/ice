@@ -18,6 +18,8 @@
 
 #include <Ice/ThreadPoolF.h>
 #include <Ice/InstanceF.h>
+#include <Ice/LoggerF.h>
+#include <Ice/PropertiesF.h>
 #include <Ice/EventHandlerF.h>
 #include <list>
 
@@ -58,6 +60,8 @@ private:
     void read(const EventHandlerPtr&);
 
     InstancePtr _instance;
+    ::Ice::LoggerPtr _logger;
+    ::Ice::PropertiesPtr _properties;
     bool _destroyed;
     SOCKET _maxFd;
     SOCKET _minFd;
