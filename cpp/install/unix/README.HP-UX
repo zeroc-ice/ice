@@ -62,7 +62,7 @@ Python 2.4. We built Python 2.4 using the source distribution from
 http://www.python.org. If you build Python 2.4 from source, you need
 to use the following configure options:
 
-./configure --enable-shared --with-cxx="aCC -AA +DAportable" ...
+./configure --enable-shared --with-cxx="aCC -AA +DAportable" --with-libs="-lxnet" ...
 
 
 ======================================================================
