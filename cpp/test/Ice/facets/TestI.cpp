@@ -63,3 +63,14 @@ GI::callG(const Ice::Current&)
 {
     return "G";
 }
+
+HI::HI(const Ice::CommunicatorPtr& communicator) :
+    GI(communicator)
+{
+}
+
+std::string
+HI::callH(const Ice::Current&)
+{
+    return "H";
+}

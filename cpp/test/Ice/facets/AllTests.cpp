@@ -52,10 +52,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(ff->callF() == "F");
     cout << "ok" << endl;
 
-    cout << "testing facet G... " << flush;
-    GPrx gf = GPrx::checkedCast(d, "facetG");
+    cout << "testing facet G, which is a sub-facet of E and F... " << flush;
+    GPrx gf = GPrx::checkedCast(ff, "facetGH");
     test(gf);
     test(gf->callG() == "G");
+    cout << "ok" << endl;
+
+    cout << "testing whether casting preserves the facet... " << flush;
+    HPrx hf = HPrx::checkedCast(gf);
+    test(hf);
+    test(hf->callH() == "H");
     cout << "ok" << endl;
 
     return gf;

@@ -27,10 +27,10 @@ printHeader(ostream& s, BasicStream& stream)
 {
     Byte protVer;
     stream.read(protVer);
-    s << "\nprotocol version = " << static_cast<int>(protVer);
+//    s << "\nprotocol version = " << static_cast<int>(protVer);
     Byte encVer;
     stream.read(encVer);
-    s << "\nencoding version = " << static_cast<int>(encVer);
+//    s << "\nencoding version = " << static_cast<int>(encVer);
     Byte type;
     stream.read(type);
     s << "\nmessage type = "  << static_cast<int>(type) << ' ';
@@ -93,9 +93,21 @@ printRequestHeader(ostream& s, BasicStream& stream)
     Identity identity;
     identity.__read(&stream);
     s << "\nidentity = " << identity;
-    string facet;
+    vector<string> facet;
     stream.read(facet);
-    s << "\nfacet = " << facet;
+    s << "\nfacet = ";
+    vector<string>::const_iterator p = facet.begin();
+    while(p != facet.end())
+    {
+	//
+	// TODO: Escape for whitespace and slashes.
+	//
+	s << *p++;
+	if(p != facet.end())
+	{
+	    s << '/';
+	}
+    }
     string operation;
     stream.read(operation);
     s << "\noperation = " << operation;

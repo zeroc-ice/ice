@@ -21,8 +21,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::ObjectPtr d = new DI;
     adapter->add(d, Ice::stringToIdentity("d"));
     d->ice_addFacet(d, "facetABCD");
-    d->ice_addFacet(new FI, "facetEF");
-    d->ice_addFacet(new GI(communicator), "facetG");
+    Ice::ObjectPtr f = new FI;
+    d->ice_addFacet(f, "facetEF");
+    Ice::ObjectPtr h = new HI(communicator);
+    f->ice_addFacet(h, "facetGH");
 
     GPrx allTests(const Ice::CommunicatorPtr&);
     allTests(communicator);

@@ -68,4 +68,12 @@ private:
     Ice::CommunicatorPtr _communicator;
 };
 
+class HI : virtual public H, virtual public GI
+{
+public:
+
+    HI(const Ice::CommunicatorPtr&);
+    virtual std::string callH(const Ice::Current&);
+};
+
 #endif

@@ -101,8 +101,7 @@ public:
     void ice_addFacet(const ObjectPtr&, const ::std::string&);
     void ice_removeFacet(const ::std::string&);
     void ice_removeAllFacets();
-    ObjectPtr ice_findFacet(const ::std::string&);
-    ObjectPtr ice_findFacet(const ::std::vector< ::std::string>&, int = 0);
+    ObjectPtr ice_findFacet(const ::std::vector< ::std::string>&, int);
 
 private:
 
