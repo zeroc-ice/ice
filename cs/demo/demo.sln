@@ -55,11 +55,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "printerSD", "book\printer\p
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleCD", "book\simple_filesystem\simpleCD.csproj", "{2E01BB07-5E3A-4563-AE3B-C357672BEEF7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleFSCD", "book\simple_filesystem\simpleFSCD.csproj", "{2E01BB07-5E3A-4563-AE3B-C357672BEEF7}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleSD", "book\simple_filesystem\simpleSD.csproj", "{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleFSSD", "book\simple_filesystem\simpleFSSD.csproj", "{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject

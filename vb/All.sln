@@ -118,7 +118,7 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "operationsAMDCommon", "test
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleC", "demo\book\simple_filesystem\simpleC.vbproj", "{3E2FDAF6-9978-478A-B511-A71203F3BFDB}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSC", "demo\book\simple_filesystem\simpleFSC.vbproj", "{3E2FDAF6-9978-478A-B511-A71203F3BFDB}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
@@ -128,7 +128,7 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleCommon", "demo\book\s
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
-Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleS", "demo\book\simple_filesystem\simpleS.vbproj", "{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}"
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSS", "demo\book\simple_filesystem\simpleFSS.vbproj", "{00A4F0AD-90F0-44F4-9FF5-6EEF02BE5362}"
 	ProjectSection(ProjectDependencies) = postProject
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection

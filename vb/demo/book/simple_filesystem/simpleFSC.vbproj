@@ -20,7 +20,7 @@
                 OptionCompare = "Binary"
                 OptionExplicit = "On"
                 OptionStrict = "Off"
-                RootNamespace = "simpleC"
+                RootNamespace = "simpleFSC"
                 StartupObject = ""
             >
                 <Config
