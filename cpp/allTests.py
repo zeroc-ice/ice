@@ -14,7 +14,7 @@
 # **********************************************************************
 
 import os, sys
-import optparse
+import getopt
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -89,14 +89,26 @@ tests = [ \
     "Glacier/starter", \
     ]
 
-parser = optparse.OptionParser()
-parser.add_option("-l", "--loop", action="store_true", dest="loop", default=False,
-		  help="run tests continously in an endless loop")
-(options, args) = parser.parse_args()
+def usage():
+    print "usage: " + sys.argv[0] + " [-l]"
+    sys.exit(2)
 
-if options.loop:
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "l")
+except getopt.GetoptError:
+    usage()
+
+if(args):
+    usage()
+
+loop = False
+for o, a in opts:
+    if o == "-l":
+        loop = True
+    
+if loop:
     num = 1
-    while 1:
+    while True:
 	runTests(tests, num)
 	num += 1
 else:
