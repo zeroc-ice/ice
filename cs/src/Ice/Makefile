@@ -80,6 +80,8 @@ SRCS		= Acceptor.cs \
 SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/CommunicatorF.ice \
 		  $(SDIR)/Communicator.ice \
+		  $(SDIR)/Connection.ice \
+		  $(SDIR)/ConnectionF.ice \
 		  $(SDIR)/Current.ice \
 		  $(SDIR)/FacetMap.ice \
 		  $(SDIR)/Identity.ice \
@@ -105,7 +107,8 @@ SLICE_SRCS	= $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/SliceChecksumDict.ice \
 		  $(SDIR)/StatsF.ice \
 		  $(SDIR)/Stats.ice \
-		  $(SDIR)/Connection.ice
+		  $(SDIR)/TransportInfo.ice \
+		  $(SDIR)/TransportInfoF.ice
 
 SDIR		= $(slicedir)/Ice
 GDIR		= generated

@@ -13,7 +13,7 @@ using System.Text;
 
 namespace IceInternal
 {
-    public abstract class Patcher
+    public abstract class Patcher : Ice.ReadObjectCallback
     {
         public Patcher()
         {
