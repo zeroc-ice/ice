@@ -285,7 +285,7 @@ namespace IceInternal
 		
 		if(_servant == null)
 		{
-                    if(servantManager.hasServant(_current.id))
+                    if(servantManager != null && servantManager.hasServant(_current.id))
                     {
                         status = DispatchStatus.DispatchFacetNotExist;
                     }

@@ -57,7 +57,7 @@ public final class Direct
 	    
 	    if(_servant == null)
 	    {
-                if(servantManager.hasServant(_current.id))
+                if(servantManager != null && servantManager.hasServant(_current.id))
                 {
                     Ice.FacetNotExistException ex = new Ice.FacetNotExistException();
                     ex.id = _current.id;

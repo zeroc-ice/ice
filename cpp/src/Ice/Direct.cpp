@@ -61,7 +61,7 @@ IceInternal::Direct::Direct(const Current& current) :
 	
 	if(!_servant)
 	{
-	    if(servantManager->hasServant(_current.id))
+	    if(servantManager && servantManager->hasServant(_current.id))
 	    {
 		FacetNotExistException ex(__FILE__, __LINE__);
 		ex.id = _current.id;

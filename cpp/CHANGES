@@ -1,6 +1,10 @@
 Changes since version 1.4.0
 ---------------------------
 
+- Fixed a bug that could cause an assert or exception in some rare
+  circumstances, if an operation is invoked after the object adapter
+  for the Ice object has been deactivated.
+
 - Fixed a bug in the C++ translator that caused compile errors when
   two Slice classes with the same name appeared in different modules
   in the same file.
@@ -16,6 +20,8 @@ Changes since version 1.4.0
     IcePackRegistry.exe	-> icepackregistry.exe
     IcePatchCalc.exe	-> icepatchcalc.exe
     TransformDB.exe	-> transformdb.exe
+
+  All library names have also been renamed accordingly.
 
 - Changed the default behavior of the IcePatch client to dynamically
   calculate the unique signatures of local files in order to reduce

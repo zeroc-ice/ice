@@ -183,7 +183,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    
 	if(!_servant)
 	{
-	    if(servantManager->hasServant(_current.id))
+	    if(servantManager && servantManager->hasServant(_current.id))
 	    {
 		status = DispatchFacetNotExist;
 	    }
