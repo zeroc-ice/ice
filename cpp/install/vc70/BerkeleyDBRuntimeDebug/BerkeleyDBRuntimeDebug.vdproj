@@ -17,7 +17,7 @@
         {
         "MsmKey" = "8:_C12C26B269874E359B1BA818440DD24D"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\DB-4.1.25\\BUILD_WIN32\\DEBUG\\LIBDB41D.DLL"
+        "MsmSig" = "8:C:\\BUILDS\\DB-4.2.52\\BUILD_WIN32\\DEBUG\\LIBDB42D.DLL"
         }
     }
     "Configurations"
@@ -70,8 +70,8 @@
         {
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_C12C26B269874E359B1BA818440DD24D"
             {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.1.25\\build_win32\\Debug\\libdb41d.dll"
-            "TargetName" = "8:libdb41d.dll"
+            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Debug\\libdb42d.dll"
+            "TargetName" = "8:libdb42d.dll"
             "Tag" = "8:"
             "Folder" = "8:_41C668252C5E45BC856D33ED6359A0AA"
             "Condition" = "8:"
@@ -165,7 +165,7 @@
         "Module"
         {
         "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
-        "Version" = "8:4.1.25.0"
+        "Version" = "8:4.2.52.0"
         "Title" = "8:BerkeleyDBRuntimeDebug"
         "Subject" = "8:"
         "Author" = "8:ZeroC, Inc"
