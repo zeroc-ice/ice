@@ -79,6 +79,8 @@ const char* errorToString(int);
 const char* errorToStringDNS(int);
 const char* lastErrorToString();
 const char* lastErrorToStringDNS();
+std::string fdToString(int);
+std::string addrToString(struct sockaddr_in&);
 
 }
 
