@@ -258,6 +258,8 @@ local interface DBCursor
  * database to store both key/value and identity/Servant pairs is
  * discouraged.
  *
+ * @see DBEnvironment
+ * @see DBCursor
  * @see Evictor
  *
  **/
@@ -288,6 +290,7 @@ local interface DB
      * @return A database cursor.
      *
      * @see DBCursor
+     * @see getCursorForKey
      *
      **/
     DBCursor getCursor();
@@ -303,6 +306,7 @@ local interface DB
      * database.
      *
      * @see DBCursor
+     * @see getCursor
      *
      **/
     DBCursor getCursorForKey(Key key) throws DBException;

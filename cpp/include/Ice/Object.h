@@ -26,6 +26,7 @@ enum DispatchStatus
     DispatchOK,
     DispatchUserException,
     DispatchLocationForward,
+    DispatchProxyRequested,
     DispatchObjectNotExist,
     DispatchFacetNotExist,
     DispatchOperationNotExist,

@@ -71,8 +71,9 @@ private:
 	StateUnsent,
 	StateInProgress,
 	StateOK,
-	StateException,
 	StateLocationForward,
+	StateProxyRequested,
+	StateException,
 	StateLocalException,
     } _state;
 

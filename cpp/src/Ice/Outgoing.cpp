@@ -189,6 +189,11 @@ IceInternal::Outgoing::invoke()
 		throw LocationForward(p);
 	    }
 
+	    if (_state == StateProxyRequested)
+	    {
+		throw ProxyRequested();
+	    }
+
 	    assert(_state == StateOK);
 	    break;
 	}
@@ -260,6 +265,12 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    case DispatchLocationForward:
 	    {
 		_state = StateLocationForward;
+		break;
+	    }
+
+	    case DispatchProxyRequested:
+	    {
+		_state = StateProxyRequested;
 		break;
 	    }
 

@@ -210,6 +210,11 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const ::Ice
 		s << "(location forward)";
 		break;
 	    }
+	    case DispatchProxyRequested:
+	    {
+		s << "(proxy requested)";
+		break;
+	    }
 	    case DispatchObjectNotExist:
 	    {
 		s << "(object not exist)";

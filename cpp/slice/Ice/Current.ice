@@ -72,7 +72,7 @@ module Ice
      * The proxy via which this request was sent. If not available
      * (i.e., if set to null) the server can ask the client to repeat
      * the request with including a proxy by throwing an
-     * [Ice::ReferenceRequested] exception.
+     * [Ice::ProxyRequested] exception.
      *
      **/
     Object* proxy;

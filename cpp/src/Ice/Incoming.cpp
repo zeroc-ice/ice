@@ -152,6 +152,19 @@ IceInternal::Incoming::invoke()
 	_os.write(static_cast<Byte>(DispatchLocationForward));
 	_os.write(ex._prx);
     }
+    catch (const ProxyRequested& ex)
+    {
+	if (locator && servant)
+	{
+	    locator->finished(_adapter, current, servant, cookie);
+	}
+
+	_is.endReadEncaps();
+	_os.endWriteEncaps();
+
+	_os.b.resize(statusPos);
+	_os.write(static_cast<Byte>(DispatchProxyRequested));
+    }
     catch (const LocalException& ex)
     {
 	if (locator && servant)
