@@ -102,11 +102,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 	obj->ice_ping();
 	test(false);
     }
-    catch(const Ice::CloseConnectionException&)
-    {
-	cout << "ok" << endl;
-    }
-    catch(const Ice::ConnectFailedException&)
+    catch(const Ice::LocalException&)
     {
 	cout << "ok" << endl;
     }

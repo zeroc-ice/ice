@@ -112,19 +112,12 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 		assert(transceiver);
 	    }	    
 	    connection = new Connection(_instance, transceiver, endpoint, 0);
+	    connection->validate();
 	    connection->activate();
 	    _connections.insert(make_pair(endpoint, connection));
 	    break;
 	}
-	catch(const SocketException& ex)
-	{
-	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
-	}
-	catch(const DNSException& ex)
-	{
-	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
-	}
-	catch(const TimeoutException& ex)
+	catch(const LocalException& ex)
 	{
 	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
@@ -366,6 +359,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
     {
 	assert(transceiver);
 	ConnectionPtr connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+	connection->validate();
 	connection->activate();
 	_connections.push_back(connection);
     }
@@ -446,6 +440,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	if(_transceiver)
 	{
 	    ConnectionPtr connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
+	    connection->validate();
 	    _connections.push_back(connection);
 
 	    //

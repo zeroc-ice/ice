@@ -198,19 +198,12 @@ IcePatch::Updater::run()
 	    // Just loop if we're busy.
 	    //
 	}
-	catch(const ConnectFailedException&)
+	catch(const Exception&)
 	{
 	    //
-	    // This exception can be raised if the adapter is shutdown
-	    // while this thread is still running. In such case, we
-	    // terminate this thread.
+	    // Bail out on any other exception.
 	    //
 	    break;
-	}
-	catch(const Exception& ex)
-	{
-	    Error out(_logger);
-	    out << "exception during update:\n" << ex;
 	}
 
 	if(_destroy)

@@ -27,7 +27,7 @@ IceInternal::interrupted()
     }
 #else
     if(errno == EINTR ||
-	errno == EPROTO)
+       errno == EPROTO)
     {
 	return true;
     }
@@ -49,15 +49,15 @@ IceInternal::acceptInterrupted()
 #ifdef _WIN32
     int error = WSAGetLastError();
     if(error == WSAECONNABORTED ||
-	error == WSAECONNRESET ||
-	error == WSAETIMEDOUT)
+       error == WSAECONNRESET ||
+       error == WSAETIMEDOUT)
     {
 	return true;
     }
 #else
     if(errno == ECONNABORTED ||
-	errno == ECONNRESET ||
-	errno == ETIMEDOUT)
+       errno == ECONNRESET ||
+       errno == ETIMEDOUT)
     {
 	return true;
     }
@@ -74,7 +74,7 @@ IceInternal::noBuffers()
 #ifdef _WIN32
     int error = WSAGetLastError();
     if(error == WSAENOBUFS ||
-	error == WSAEFAULT)
+       error == WSAEFAULT)
     {
 	return true;
     }
@@ -101,7 +101,7 @@ IceInternal::wouldBlock()
     }
 #else
     if(errno == EAGAIN ||
-	errno == EWOULDBLOCK)
+       errno == EWOULDBLOCK)
     {
 	return true;
     }
@@ -118,21 +118,21 @@ IceInternal::connectFailed()
 #ifdef _WIN32
     int error = WSAGetLastError();
     if(error == WSAECONNREFUSED ||
-	error == WSAETIMEDOUT ||
-	error == WSAENETUNREACH ||
-	error == WSAECONNRESET ||
-	error == WSAESHUTDOWN ||
-	error == WSAECONNABORTED)
+       error == WSAETIMEDOUT ||
+       error == WSAENETUNREACH ||
+       error == WSAECONNRESET ||
+       error == WSAESHUTDOWN ||
+       error == WSAECONNABORTED)
     {
 	return true;
     }
 #else
     if(errno == ECONNREFUSED ||
-	errno == ETIMEDOUT ||
-	errno == ENETUNREACH ||
-	errno == ECONNRESET ||
-	errno == ESHUTDOWN ||
-	errno == ECONNABORTED)
+       errno == ETIMEDOUT ||
+       errno == ENETUNREACH ||
+       errno == ECONNRESET ||
+       errno == ESHUTDOWN ||
+       errno == ECONNABORTED)
     {
 	return true;
     }
@@ -170,15 +170,15 @@ IceInternal::connectionLost()
 #ifdef _WIN32
     int error = WSAGetLastError();
     if(error == WSAECONNRESET ||
-	error == WSAESHUTDOWN ||
-	error == WSAECONNABORTED)
+       error == WSAESHUTDOWN ||
+       error == WSAECONNABORTED)
     {
 	return true;
     }
 #else
     if(errno == ECONNRESET ||
-	errno == ESHUTDOWN ||
-	errno == ECONNABORTED)
+       errno == ESHUTDOWN ||
+       errno == ECONNABORTED)
     {
 	return true;
     }

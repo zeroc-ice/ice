@@ -133,6 +133,7 @@ public class IncomingConnectionFactory extends EventHandler
 	{
 	    assert(transceiver != null);
             Connection connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+	    connection.validate();
             connection.activate();
             _connections.add(connection);
 	}
@@ -213,6 +214,7 @@ public class IncomingConnectionFactory extends EventHandler
             {
                 _endpoint = h.value;
                 Connection connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
+		connection.validate();
                 _connections.add(connection);
 
 		//

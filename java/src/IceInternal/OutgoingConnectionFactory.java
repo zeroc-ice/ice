@@ -81,19 +81,12 @@ public class OutgoingConnectionFactory
                     assert(transceiver != null);
                 }
                 connection = new Connection(_instance, transceiver, endpoint, null);
+		connection.validate();
                 connection.activate();
                 _connections.put(endpoint, connection);
                 break;
             }
-            catch(Ice.SocketException ex)
-            {
-                exception = ex;
-            }
-            catch(Ice.DNSException ex)
-            {
-                exception = ex;
-            }
-            catch(Ice.TimeoutException ex)
+            catch(Ice.LocalException ex)
             {
                 exception = ex;
             }

@@ -113,11 +113,7 @@ public class AllTests
             obj.ice_ping();
             test(false);
         }
-        catch(Ice.CloseConnectionException ex)
-        {
-            System.out.println("ok");
-        }
-        catch(Ice.ConnectFailedException ex)
+        catch(Ice.LocalException ex)
         {
             System.out.println("ok");
         }

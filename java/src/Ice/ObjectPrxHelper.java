@@ -517,26 +517,7 @@ public class ObjectPrxHelper implements ObjectPrx
 	    _delegate = null;
 	}
 
-        try
-        {
-            throw ex;
-        }
-        catch(CloseConnectionException e)
-        {
-	    ++cnt;
-        }
-        catch(SocketException e)
-        {
-            ++cnt;
-        }
-        catch(DNSException e)
-        {
-            ++cnt;
-        }
-        catch(TimeoutException e)
-        {
-            ++cnt;
-        }
+	++cnt;
 
         IceInternal.TraceLevels traceLevels = _reference.instance.traceLevels();
         Logger logger = _reference.instance.logger();

@@ -39,6 +39,85 @@ IceInternal::Connection::destroyed() const
 }
 
 void
+IceInternal::Connection::validate()
+{
+    IceUtil::RecMutex::Lock sync(*this);
+
+    if(_endpoint->datagram())
+    {
+	//
+	// Datagram connections are always implicitly validated.
+	//
+	return;
+    }
+
+    try
+    {
+	if(_adapter)
+	{
+	    //
+	    // Incoming connections play the active role with respect to
+	    // connection validation.
+	    //
+	    BasicStream os(_instance);
+	    os.write(protocolVersion);
+	    os.write(encodingVersion);
+	    os.write(validateConnectionMsg);
+	    os.write(headerSize); // Message size.
+	    os.i = os.b.begin();
+	    traceHeader("sending validate connection", os, _logger, _traceLevels);
+	    _transceiver->write(os, _endpoint->timeout());
+	}
+	else
+	{
+	    //
+	    // Outgoing connection play the passive role with respect to
+	    // connection validation.
+	    //
+	    BasicStream is(_instance);
+	    is.b.resize(headerSize);
+	    is.i = is.b.begin();
+	    _transceiver->read(is, _endpoint->timeout());
+	    assert(is.i == is.b.end());
+	    int pos = is.i - is.b.begin();
+	    assert(pos >= headerSize);
+	    is.i = is.b.begin();
+	    Byte protVer;
+	    is.read(protVer);
+	    if(protVer != protocolVersion)
+	    {
+		throw UnsupportedProtocolException(__FILE__, __LINE__);
+	    }
+	    Byte encVer;
+	    is.read(encVer);
+	    if(encVer != encodingVersion)
+	    {
+		throw UnsupportedEncodingException(__FILE__, __LINE__);
+	    }
+	    Byte messageType;
+	    is.read(messageType);
+	    if(messageType != validateConnectionMsg)
+	    {
+		throw ConnectionNotValidatedException(__FILE__, __LINE__);
+	    }
+	    Int size;
+	    is.read(size);
+	    if(size != headerSize)
+	    {
+		throw IllegalMessageSizeException(__FILE__, __LINE__);
+	    }
+	    traceHeader("received validate connection", is, _logger, _traceLevels);
+	}
+    }
+    catch(const LocalException& ex)
+    {
+	setState(StateClosed, ex);
+	assert(_exception.get());
+	_exception->ice_throw();
+    }
+}
+
+void
 IceInternal::Connection::hold()
 {
     IceUtil::RecMutex::Lock sync(*this);
@@ -416,22 +495,6 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    stream.read(messageType);
 
 	    //
-	    // Check whether the connection is validated.
-	    //
-	    if(!_connectionValidated && messageType != validateConnectionMsg)
-	    {
-		//
-                // Yes, we must set _connectionValidated to true
-                // here. The connection gets implicitly validated by
-                // any kind of message. However, it's still a protocol
-                // error like any other if no explicit connection
-                // validation message was sent first.
-		//
-		_connectionValidated = true;
-		throw ConnectionNotValidatedException(__FILE__, __LINE__);
-	    }
-	    
-	    //
 	    // Uncompress if necessary.
 	    //
 	    if(messageType == compressedRequestMsg ||
@@ -567,18 +630,11 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		case validateConnectionMsg:
 		{
 		    traceHeader("received validate connection", stream, _logger, _traceLevels);
-		    if(_endpoint->datagram())
+		    if(_warn)
 		    {
-			if(_warn)
-			{
-			    Warning out(_logger);
-			    out << "ignoring validate connection message for datagram connection:\n"
-				<< _transceiver->toString();
-			}
-		    }
-		    else
-		    {
-			_connectionValidated = true;
+			Warning out(_logger);
+			out << "ignoring unexpected validate connection message:\n"
+			    << _transceiver->toString();
 		    }
 		    break;
 		}
@@ -822,49 +878,6 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _state(StateHolding),
     _registeredWithPool(false)
 {
-    if(_endpoint->datagram())
-    {
-	//
-	// Datagram connections are always implicitly validated.
-	//
-	_connectionValidated = true;
-    }
-    else
-    {
-	if(_adapter)
-	{
-	    //
-	    // Incoming connections play the active role with respect
-	    // to connection validation, and are implicitly validated.
-	    //
-	    try
-	    {
-		validateConnection();
-	    }
-	    catch(const LocalException& ex)
-	    {
-		if(_warn)
-		{
-		    Warning out(_logger);
-		    out << "connection exception:\n" << ex << '\n' << _transceiver->toString();
-		}
-		_transceiver->close();
-		_state = StateClosed;
-		ex.ice_throw();
-	    }
-
-	    _connectionValidated = true;
-	}
-	else
-	{
-	    //
-	    // Outgoing connections are passive with respect to
-	    // validation, i.e., they wait until they get a validate
-	    // connection message from the server.
-	    //
-	    _connectionValidated = false;
-	}
-    }
 }
 
 IceInternal::Connection::~Connection()
@@ -903,28 +916,7 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 
     if(!_exception.get())
     {
-	if(!_connectionValidated && dynamic_cast<const ConnectionLostException*>(&ex))
-	{
-	    //
-	    // If the connection has not been validated yet, we treat
-	    // a connection loss just as if we would have received a
-	    // close connection messsage. This way, Ice will retry a
-	    // request if the peer just accepts and closes a
-	    // connection. This can happen, for example, if a
-	    // connection is in the server's backlog, but not yet
-	    // accepted by the server. In such case, the connection
-	    // has been established from the client point of view, but
-	    // not yet from the server point of view. If the server
-	    // then closes the acceptor socket, the client will get a
-	    // connection loss without receiving an explicit close
-	    // connection message first.
-	    //
-	    _exception = auto_ptr<LocalException>(new CloseConnectionException(__FILE__, __LINE__));
-	}
-	else
-	{
-	    _exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
-	}
+	_exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 
 	if(_warn)
 	{
@@ -1036,19 +1028,6 @@ IceInternal::Connection::setState(State state)
 	    setState(StateClosed, ex);
 	}
     }
-}
-
-void
-IceInternal::Connection::validateConnection() const
-{
-    BasicStream os(_instance);
-    os.write(protocolVersion);
-    os.write(encodingVersion);
-    os.write(validateConnectionMsg);
-    os.write(headerSize); // Message size.
-    os.i = os.b.begin();
-    traceHeader("sending validate connection", os, _logger, _traceLevels);
-    _transceiver->write(os, _endpoint->timeout());
 }
 
 void

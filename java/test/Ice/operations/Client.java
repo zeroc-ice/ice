@@ -23,11 +23,7 @@ public class Client
             myClass.opVoid();
             throw new RuntimeException();
         }
-        catch(Ice.CloseConnectionException ex)
-        {
-            System.out.println("ok");
-        }
-        catch(Ice.ConnectFailedException ex)
+        catch(Ice.LocalException ex)
         {
             System.out.println("ok");
         }

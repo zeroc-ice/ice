@@ -42,6 +42,7 @@ class Connection : public EventHandler, public ::IceUtil::RecMutex
 public:
 
     bool destroyed() const;
+    void validate();
     void hold();
     void activate();
     void incProxyUsageCount();
@@ -91,7 +92,6 @@ private:
 
     void setState(State, const ::Ice::LocalException&);
     void setState(State);
-    void validateConnection() const;
     void closeConnection() const;
     void registerWithPool();
     void unregisterWithPool();
@@ -116,7 +116,6 @@ private:
     int _proxyUsageCount;
     State _state;
     bool _registeredWithPool;
-    bool _connectionValidated;
 };
 
 }

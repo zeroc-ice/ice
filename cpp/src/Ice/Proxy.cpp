@@ -574,26 +574,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	_delegate = 0;
     }
 
-    try
-    {
-	ex.ice_throw();
-    }
-    catch(const CloseConnectionException&)
-    {
-	++cnt;
-    }
-    catch(const SocketException&)
-    {
-	++cnt;
-    }
-    catch(const DNSException&)
-    {
-	++cnt;
-    }
-    catch(const TimeoutException&)
-    {
-	++cnt;
-    }
+    ++cnt;
     
     TraceLevelsPtr traceLevels = _reference->instance->traceLevels();
     LoggerPtr logger = _reference->instance->logger();

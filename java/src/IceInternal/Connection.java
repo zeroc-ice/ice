@@ -27,6 +27,85 @@ public final class Connection extends EventHandler
     }
 
     public void
+    validate()
+    {
+        _mutex.lock();
+        try
+        {
+	    if(_endpoint.datagram())
+	    {
+		//
+		// Datagram connections are always implicitly validated.
+		//
+		return;
+	    }
+
+	    try
+	    {
+		if(_adapter != null)
+		{
+		    //
+		    // Incoming connections play the active role with
+		    // respect to connection validation.
+		    //
+		    BasicStream os = new BasicStream(_instance);
+		    os.writeByte(Protocol.protocolVersion);
+		    os.writeByte(Protocol.encodingVersion);
+		    os.writeByte(Protocol.validateConnectionMsg);
+		    os.writeInt(Protocol.headerSize); // Message size.
+		    TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
+		    _transceiver.write(os, _endpoint.timeout());
+		}
+		else
+		{
+		    //
+		    // Outgoing connection play the passive role with
+		    // respect to connection validation.
+		    //
+		    BasicStream is = new BasicStream(_instance);
+		    is.resize(Protocol.headerSize, true);
+		    is.pos(0);
+		    _transceiver.read(is, _endpoint.timeout());
+		    int pos = is.pos();
+		    assert(pos >= Protocol.headerSize);
+		    is.pos(0);
+		    byte protVer = is.readByte();
+		    if(protVer != Protocol.protocolVersion)
+		    {
+			throw new Ice.UnsupportedProtocolException();
+		    }
+		    byte encVer = is.readByte();
+		    if(encVer != Protocol.encodingVersion)
+		    {
+			throw new Ice.UnsupportedEncodingException();
+		    }
+		    byte messageType = is.readByte();
+		    if(messageType != Protocol.validateConnectionMsg)
+		    {
+			throw new Ice.ConnectionNotValidatedException();
+		    }
+		    int size = is.readInt();
+		    if(size != Protocol.headerSize)
+		    {
+			throw new Ice.IllegalMessageSizeException();
+		    }
+		    TraceUtil.traceHeader("received validate connection", is, _logger, _traceLevels);
+		}
+	    }
+            catch(Ice.LocalException ex)
+            {
+                setState(StateClosed, ex);
+		assert(_exception != null);
+		throw _exception;
+            }
+	}
+        finally
+        {
+            _mutex.unlock();
+        }
+    }
+
+    public void
     hold()
     {
         _mutex.lock();
@@ -381,22 +460,6 @@ public final class Connection extends EventHandler
                 byte messageType = stream.readByte();
                 stream.pos(Protocol.headerSize);
 
-		//
-		// Check whether the connection is validated.
-		//
-		if(!_connectionValidated && messageType != Protocol.validateConnectionMsg)
-		{
-		    //
-		    // Yes, we must set _connectionValidated to true
-		    // here. The connection gets implicitly validated
-		    // by any kind of message. However, it's still a
-		    // protocol error like any other if no explicit
-		    // connection validation message was sent first.
-		    //
-		    _connectionValidated = true;
-		    throw new Ice.ConnectionNotValidatedException();
-		}
-	    
                 switch(messageType)
                 {
 		    case Protocol.compressedRequestMsg:
@@ -455,18 +518,11 @@ public final class Connection extends EventHandler
                     case Protocol.validateConnectionMsg:
                     {
                         TraceUtil.traceHeader("received validate connection", stream, _logger, _traceLevels);
-                        if(_endpoint.datagram())
-                        {
-                            if(_warn)
-                            {
-                                _logger.warning("ignoring validate connection message for datagram connection:\n" +
-                                                _transceiver.toString());
-                            }
-                        }
-                        else
-                        {
-			    _connectionValidated = true;
-                        }
+			if(_warn)
+			{
+			    _logger.warning("ignoring unexpected validate connection message:\n" +
+					    _transceiver.toString());
+			}
                         break;
                     }
 
@@ -710,49 +766,6 @@ public final class Connection extends EventHandler
 	_proxyUsageCount = 0;
         _state = StateHolding;
 	_registeredWithPool = false;
-
-	if(_endpoint.datagram())
-	{
-	    //
-	    // Datagram connections are always implicitly validated.
-	    //
-	    _connectionValidated = true;
-	}
-	else
-	{
-	    if(_adapter != null)
-	    {
-		//
-		// Incoming connections play the active role with respect
-		// to connection validation, and are implicitly validated.
-		//
-		try
-		{
-		    validateConnection();
-		}
-		catch(Ice.LocalException ex)
-		{
-		    if(_warn)
-		    {
-			warning("connection exception", ex);
-		    }
-		    _transceiver.close();
-		    _state = StateClosed;
-		    throw ex;
-		}
-		
-		_connectionValidated = true;
-	    }
-	    else
-	    {
-		//
-		// Outgoing connections are passive with respect to
-		// validation, i.e., they wait until they get a
-		// validate connection message from the server.
-		//
-		_connectionValidated = false;
-	    }
-	}
     }
 
     protected void
@@ -818,29 +831,7 @@ public final class Connection extends EventHandler
 
         if(_exception == null)
         {
-	    if(!_connectionValidated && (ex instanceof Ice.ConnectionLostException))
-	    {
-		//
-		// If the connection has not been validated yet, we
-		// treat a connection loss just as if we would have
-		// received a close connection messsage. This way, Ice
-		// will retry a request if the peer just accepts and
-		// closes a connection. This can happen, for example,
-		// if a connection is in the server's backlog, but not
-		// yet accepted by the server. In such case, the
-		// connection has been established from the client
-		// point of view, but not yet from the server point of
-		// view. If the server then closes the acceptor
-		// socket, the client will get a connection loss
-		// without receiving an explicit close connection
-		// message first.
-		//
-		_exception = new Ice.CloseConnectionException();
-	    }
-	    else
-	    {
-		_exception = ex;
-	    }
+	    _exception = ex;
 
             if(_warn)
             {
@@ -953,17 +944,6 @@ public final class Connection extends EventHandler
                 setState(StateClosed, ex);
             }
         }
-    }
-
-    private void
-    validateConnection()
-    {
-        BasicStream os = new BasicStream(_instance);
-        os.writeByte(Protocol.protocolVersion);
-        os.writeByte(Protocol.encodingVersion);
-        os.writeByte(Protocol.validateConnectionMsg);
-        os.writeInt(Protocol.headerSize); // Message size.
-        _transceiver.write(os, _endpoint.timeout());
     }
 
     private void
@@ -1093,7 +1073,6 @@ public final class Connection extends EventHandler
     private int _proxyUsageCount;
     private int _state;
     private boolean _registeredWithPool;
-    private boolean _connectionValidated;
     private RecursiveMutex _mutex = new RecursiveMutex();
     private Incoming _incomingCache;
 }
