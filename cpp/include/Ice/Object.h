@@ -42,7 +42,14 @@ enum DispatchStatus
 namespace Ice
 {
 
-class ICE_API Object : virtual public ::IceUtil::GCShared
+//
+// No virtual inheritance from IceUtil::GCShared is required. This
+// used to be virtual inheritance from IceUtil::Shared, because we
+// could derive multiple times from IceUtil::Shared, such as deriving
+// a servant class from both Ice::Object and IceUtil::Thread. However,
+// we never derive from IceUtil::GCShared more than once.
+//
+class ICE_API Object : virtual public IceUtil::GCShared
 {
 public:
 
@@ -51,38 +58,38 @@ public:
     virtual bool operator==(const Object&) const;
     virtual bool operator!=(const Object&) const;
     virtual bool operator<(const Object&) const;
-    virtual ::Ice::Int ice_hash() const;
+    virtual Int ice_hash() const;
 
-    virtual bool ice_isA(const ::std::string&, const Current& = Current()) const;
-    ::IceInternal::DispatchStatus ___ice_isA(::IceInternal::Incoming&, const Current&);
+    virtual bool ice_isA(const std::string&, const Current& = Current()) const;
+    IceInternal::DispatchStatus ___ice_isA(IceInternal::Incoming&, const Current&);
 
     virtual void ice_ping(const Current&  = Current()) const;
-    ::IceInternal::DispatchStatus ___ice_ping(::IceInternal::Incoming&, const Current&);
+    IceInternal::DispatchStatus ___ice_ping(IceInternal::Incoming&, const Current&);
 
-    virtual ::std::vector< ::std::string> ice_ids(const Current& = Current()) const;
-    ::IceInternal::DispatchStatus ___ice_ids(::IceInternal::Incoming&, const Current&);
+    virtual std::vector< std::string> ice_ids(const Current& = Current()) const;
+    IceInternal::DispatchStatus ___ice_ids(IceInternal::Incoming&, const Current&);
 
-    virtual const ::std::string& ice_id(const Current& = Current()) const;
-    ::IceInternal::DispatchStatus ___ice_id(::IceInternal::Incoming&, const Current&);
+    virtual const std::string& ice_id(const Current& = Current()) const;
+    IceInternal::DispatchStatus ___ice_id(IceInternal::Incoming&, const Current&);
 
-    static const ::std::string& ice_staticId();
+    static const std::string& ice_staticId();
 
-    void __copyMembers(::Ice::ObjectPtr) const;
-    virtual ::Ice::ObjectPtr ice_clone() const;
+    void __copyMembers(ObjectPtr) const;
+    virtual ObjectPtr ice_clone() const;
 
     virtual void ice_preMarshal();
     virtual void ice_postUnmarshal();
 
-    static ::std::string __all[];
-    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
+    static std::string __all[];
+    virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 
-    virtual void __write(::IceInternal::BasicStream*) const;
-    virtual void __read(::IceInternal::BasicStream*, bool);
+    virtual void __write(IceInternal::BasicStream*) const;
+    virtual void __read(IceInternal::BasicStream*, bool);
 
-    virtual void __write(const ::Ice::OutputStreamPtr&) const;
-    virtual void __read(const ::Ice::InputStreamPtr&, bool);
+    virtual void __write(const OutputStreamPtr&) const;
+    virtual void __read(const InputStreamPtr&, bool);
 
-    virtual void __gcReachable(::IceUtil::GCObjectMultiSet&) const {}
+    virtual void __gcReachable(IceUtil::GCObjectMultiSet&) const {}
     virtual void __gcClear() {}
 };
 
@@ -92,7 +99,7 @@ public:
 
     // Returns true if ok, false if user exception.
     virtual bool ice_invoke(const std::vector<Byte>&, std::vector<Byte>&, const Current&) = 0;
-    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
+    virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
 class ICE_API BlobjectAsync : virtual public Object
@@ -101,7 +108,7 @@ public:
 
     // Returns true if ok, false if user exception.
     virtual void ice_invoke_async(const AMD_Object_ice_invokePtr&, const std::vector<Byte>&, const Current&) = 0;
-    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
+    virtual IceInternal::DispatchStatus __dispatch(IceInternal::Incoming&, const Current&);
 };
 
 ICE_API void ice_writeObject(const OutputStreamPtr&, const ObjectPtr&);

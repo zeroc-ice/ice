@@ -11,8 +11,8 @@
 #define ICE_UTIL_GC_SHARED_H
 
 #include <IceUtil/Config.h>
-#include <IceUtil/GCRecMutex.h>
 #include <IceUtil/Shared.h>
+#include <IceUtil/GCRecMutex.h>
 #include <set>
 
 namespace IceUtil
@@ -26,25 +26,12 @@ extern ICE_UTIL_API GCObjectSet gcObjects; // Set of pointers to all existing cl
 
 typedef std::multiset<GCShared*> GCObjectMultiSet;
 
-class ICE_UTIL_API GCShared : public noncopyable
+class ICE_UTIL_API GCShared : virtual public Shared
 {
 public:
 
-    GCShared() :
-#ifndef ICE_HAS_ATOMIC_FUNCTIONS
-	_ref(0),
-#endif
-	_noDelete(false)
-    {
-#ifdef ICE_HAS_ATOMIC_FUNCTIONS
-	ice_atomic_set(&_ref, 0);
-#endif
-    }
-
-    virtual ~GCShared()
-    {
-    }
-
+    GCShared() {}
+    virtual ~GCShared() {}
     virtual void __incRef(); // First derived class with class data members overrides this.
     virtual void __decRef(); // Ditto.
 
@@ -56,7 +43,7 @@ public:
 	return ref;
     }
 
-    void __setNoDelete(bool);
+    virtual void __setNoDelete(bool);
 
     void __incRefUnsafe()
     {
@@ -105,19 +92,6 @@ protected:
 	}
 	gcRecMutex._m->unlock();
     }
-
-protected:
-
-#if defined(_WIN32)
-    LONG _ref;
-#elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
-    ice_atomic_t _ref;
-#else
-    int _ref;
-    Mutex _mutex;
-#endif
-
-    bool _noDelete;
 };
 
 }
