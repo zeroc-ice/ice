@@ -92,7 +92,9 @@ for C++ compilers. A patch is provided in the IcePHP source distribution
 to correct these problems:
 
 $ cd <phpdir>
-$ patch -p < <icephpdir>/patch.txt
+$ patch -p0 < <icephpdir>/patch.txt
+
+Solaris users should run 'gpatch' instead of 'patch'.
 
 If you don't have the patch utility or prefer to make the changes
 manually, then you must edit two files:
