@@ -86,8 +86,14 @@ ObjectPrx
 IceInternal::ProxyFactory::referenceToProxy(const ReferencePtr& ref) const
 {
     ObjectPrx proxy = new ::IceProxy::Ice::Object;
-    proxy->setup(ref, _retryIntervals);
+    proxy->setup(ref);
     return proxy;
+}
+
+const std::vector<int>&
+IceInternal::ProxyFactory::getRetryIntervals() const
+{
+    return _retryIntervals;
 }
 
 IceInternal::ProxyFactory::ProxyFactory(const InstancePtr& instance) :

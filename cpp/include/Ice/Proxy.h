@@ -119,12 +119,11 @@ protected:
 
 private:
 
-    void setup(const ::IceInternal::ReferencePtr&, const ::std::vector<int>&);
+    void setup(const ::IceInternal::ReferencePtr&);
     friend class ::IceInternal::ProxyFactory;
 
     ::IceInternal::ReferencePtr _reference;
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> _delegate;
-    ::std::vector<int> _retryIntervals;
 };
 
 } }
@@ -217,3 +216,4 @@ private:
 } }
 
 #endif
+

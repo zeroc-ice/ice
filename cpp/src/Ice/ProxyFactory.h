@@ -35,6 +35,8 @@ public:
 
     ::Ice::ObjectPrx referenceToProxy(const ReferencePtr&) const;
 
+    const ::std::vector<int>& getRetryIntervals() const;
+
 private:
 
     ProxyFactory(const InstancePtr&);

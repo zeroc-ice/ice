@@ -293,7 +293,7 @@ IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(_reference->changeIdentity(newIdentity), _retryIntervals);
+	proxy->setup(_reference->changeIdentity(newIdentity));
 	return proxy;
     }
 }
@@ -314,7 +314,7 @@ IceProxy::Ice::Object::ice_newFacet(const string& newFacet) const
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(_reference->changeFacet(newFacet), _retryIntervals);
+	proxy->setup(_reference->changeFacet(newFacet));
 	return proxy;
     }
 }
@@ -330,7 +330,7 @@ IceProxy::Ice::Object::ice_twoway() const
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref, _retryIntervals);
+	proxy->setup(ref);
 	return proxy;
     }
 }
@@ -346,7 +346,7 @@ IceProxy::Ice::Object::ice_oneway() const
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref, _retryIntervals);
+	proxy->setup(ref);
 	return proxy;
     }
 }
@@ -362,7 +362,7 @@ IceProxy::Ice::Object::ice_batchOneway() const
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref, _retryIntervals);
+	proxy->setup(ref);
 	return proxy;
     }
 }
@@ -378,7 +378,7 @@ IceProxy::Ice::Object::ice_datagram() const
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref, _retryIntervals);
+	proxy->setup(ref);
 	return proxy;
     }
 }
@@ -394,7 +394,7 @@ IceProxy::Ice::Object::ice_batchDatagram() const
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref, _retryIntervals);
+	proxy->setup(ref);
 	return proxy;
     }
 }
@@ -410,7 +410,7 @@ IceProxy::Ice::Object::ice_secure(bool b) const
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref, _retryIntervals);
+	proxy->setup(ref);
 	return proxy;
     }
 }
@@ -426,7 +426,7 @@ IceProxy::Ice::Object::ice_compress(bool b) const
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref, _retryIntervals);
+	proxy->setup(ref);
 	return proxy;
     }
 }
@@ -442,7 +442,7 @@ IceProxy::Ice::Object::ice_timeout(int t) const
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref, _retryIntervals);
+	proxy->setup(ref);
 	return proxy;
     }
 }
@@ -458,7 +458,7 @@ IceProxy::Ice::Object::ice_router(const RouterPrx& router) const
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref, _retryIntervals);
+	proxy->setup(ref);
 	return proxy;
     }
 }
@@ -474,7 +474,7 @@ IceProxy::Ice::Object::ice_default() const
     else
     {
 	ObjectPrx proxy(new ::IceProxy::Ice::Object());
-	proxy->setup(ref, _retryIntervals);
+	proxy->setup(ref);
 	return proxy;
     }
 }
@@ -498,13 +498,11 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
     ReferencePtr ref;
     Handle< ::IceDelegateD::Ice::Object> delegateD;
     Handle< ::IceDelegateM::Ice::Object> delegateM;
-    vector<int> retryIntervals;
 
     {
 	IceUtil::Mutex::Lock sync(*from.get());
 
 	ref = from->_reference;
-	retryIntervals = from->_retryIntervals;
 	delegateD = dynamic_cast< ::IceDelegateD::Ice::Object*>(from->_delegate.get());
 	delegateM = dynamic_cast< ::IceDelegateM::Ice::Object*>(from->_delegate.get());
     }
@@ -515,7 +513,6 @@ IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
     //
 
     _reference = ref;
-    _retryIntervals = retryIntervals;
 
     if(delegateD)
     {
@@ -565,7 +562,9 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     TraceLevelsPtr traceLevels = _reference->instance->traceLevels();
     LoggerPtr logger = _reference->instance->logger();
     
-    if(cnt > (int)_retryIntervals.size())
+    const std::vector<int>& retryIntervals = _reference->instance->proxyFactory()->getRetryIntervals();
+    
+    if(cnt > (int)retryIntervals.size())
     {
 	if(traceLevels->retry >= 1)
 	{
@@ -579,9 +578,9 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     {
 	Trace out(logger, traceLevels->retryCat);
 	out << "re-trying operation call";
-	if(cnt > 0 && _retryIntervals[cnt - 1] > 0)
+	if(cnt > 0 && retryIntervals[cnt - 1] > 0)
 	{
-	    out << " in " << _retryIntervals[cnt - 1] << " (ms)";
+	    out << " in " << retryIntervals[cnt - 1] << " (ms)";
 	}
 	out << " because of exception\n" << ex;
     }
@@ -592,7 +591,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	// Sleep before retrying. TODO: is it safe to sleep here
 	// with the mutex locked?
 	//
-	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(_retryIntervals[cnt - 1]));
+	IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(retryIntervals[cnt - 1]));
     }
 }
 
@@ -681,14 +680,13 @@ IceProxy::Ice::Object::__createDelegateD()
 }
 
 void
-IceProxy::Ice::Object::setup(const ReferencePtr& ref, const vector<int>& retryIntervals)
+IceProxy::Ice::Object::setup(const ReferencePtr& ref)
 {
     //
     // No need to synchronize "*this", as this operation is only
     // called upon initialization.
     //
     _reference = ref;
-    _retryIntervals = retryIntervals;
 }
 
 IceDelegateM::Ice::Object::~Object()
