@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-namespace IceUtil
+namespace Evictor
 {
     using System;
     using System.Collections;
