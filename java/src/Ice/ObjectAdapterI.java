@@ -168,7 +168,7 @@ public class ObjectAdapterI implements ObjectAdapter
         id.name = ident.name;
         _activeServantMap.put(id, servant);
 
-        return newProxy(ident);
+        return newProxy(id);
     }
 
     public synchronized ObjectPrx
