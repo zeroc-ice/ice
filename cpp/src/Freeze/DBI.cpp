@@ -17,6 +17,12 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
+#ifdef WIN32
+#   define FREEZE_DB_MODE 0
+#else
+#   define FREEZE_DB_MODE (S_IRUSR | S_IWUSR)
+#endif
+
 Freeze::DBI::DBI(const CommunicatorPtr& communicator, const PropertiesPtr& properties, const DBEnvIPtr& dbenvObj,
 		 ::DB_ENV* dbenv, ::DB* db, const string& name) :
     _communicator(communicator),
@@ -312,7 +318,7 @@ Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const PropertiesPtr&
 		       DB_INIT_TXN |
 		       DB_RECOVER |
 		       DB_THREAD,
-		       S_IRUSR | S_IWUSR);
+		       FREEZE_DB_MODE);
     if (ret != 0)
     {
 	ostringstream s;
@@ -370,7 +376,7 @@ Freeze::DBEnvI::open(const string& name)
 	throw ex;
     }
 
-    ret = db->open(db, name.c_str(), 0, DB_BTREE, DB_CREATE | DB_THREAD, S_IRUSR | S_IWUSR);
+    ret = db->open(db, name.c_str(), 0, DB_BTREE, DB_CREATE | DB_THREAD, FREEZE_DB_MODE);
     if(ret != 0)
     {
 	ostringstream s;

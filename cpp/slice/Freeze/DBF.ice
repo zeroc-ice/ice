@@ -14,7 +14,6 @@
 module Freeze
 {
 
-local interface DBException;
 local interface DB;
 local interface DBEnv;
 

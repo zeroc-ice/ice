@@ -17,8 +17,8 @@ namespace IceInternal
 {
 
 class Instance;
-void incRef(Instance*);
-void decRef(Instance*);
+ICE_API void incRef(Instance*);
+ICE_API void decRef(Instance*);
 typedef IceInternal::Handle<Instance> InstancePtr;
 
 }
