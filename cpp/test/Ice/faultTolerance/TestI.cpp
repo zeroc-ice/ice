@@ -17,25 +17,25 @@ TestI::TestI(const Ice::ObjectAdapterPtr& adapter) :
 }
 
 void
-TestI::shutdown()
+TestI::shutdown(const Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
 }
 
 void
-TestI::abort()
+TestI::abort(const Ice::Current&)
 {
     exit(1);
 }
 
 void
-TestI::nonmutatingAbort()
+TestI::nonmutatingAbort(const Ice::Current&)
 {
     exit(1);
 }
 
 Ice::Int
-TestI::pid()
+TestI::pid(const Ice::Current&)
 {
 #ifdef WIN32
     return _getpid();

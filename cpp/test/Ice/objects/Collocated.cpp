@@ -32,7 +32,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     adapter->add(initial, "initial");
     InitialPrx allTests(const Ice::CommunicatorPtr&, bool);
     allTests(communicator, true);
-    initial->shutdown(); // We must call shutdown even in the collocated case for cyclic dependency cleanup
+    // We must call shutdown even in the collocated case for cyclic dependency cleanup
+    initial->shutdown(Ice::Current());
     return EXIT_SUCCESS;
 }
 

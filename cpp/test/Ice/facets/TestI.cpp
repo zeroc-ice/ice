@@ -12,37 +12,37 @@
 #include <TestI.h>
 
 std::string
-AI::callA()
+AI::callA(const Ice::Current&)
 {
     return "A";
 }
 
 std::string
-BI::callB()
+BI::callB(const Ice::Current&)
 {
     return "B";
 }
 
 std::string
-CI::callC()
+CI::callC(const Ice::Current&)
 {
     return "C";
 }
 
 std::string
-DI::callD()
+DI::callD(const Ice::Current&)
 {
     return "D";
 }
 
 std::string
-EI::callE()
+EI::callE(const Ice::Current&)
 {
     return "E";
 }
 
 std::string
-FI::callF()
+FI::callF(const Ice::Current&)
 {
     return "F";
 }
@@ -53,13 +53,13 @@ GI::GI(const Ice::CommunicatorPtr& communicator) :
 }
 
 void
-GI::shutdown()
+GI::shutdown(const Ice::Current&)
 {
     _communicator->shutdown();
 }
 
 std::string
-GI::callG()
+GI::callG(const Ice::Current&)
 {
     return "G";
 }

@@ -30,26 +30,26 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
 }
 
 SimplePtr
-InitialI::simple()
+InitialI::simple(const Ice::Current&)
 {
     return _simple;
 }
 
 void
-InitialI::printer(PrinterPtr& impl, PrinterPrx& proxy)
+InitialI::printer(PrinterPtr& impl, PrinterPrx& proxy, const Ice::Current&)
 {
     impl = _printer;
     proxy = _printerProxy;
 }
 
 PrinterPtr
-InitialI::derivedPrinter()
+InitialI::derivedPrinter(const Ice::Current&)
 {
     return _derivedPrinter;
 }
 
 void
-InitialI::throwDerivedPrinter()
+InitialI::throwDerivedPrinter(const Ice::Current&)
 {
     DerivedPrinterException ex;
     ex.derived = _derivedPrinter;
@@ -57,7 +57,7 @@ InitialI::throwDerivedPrinter()
 }
 
 void
-PrinterI::printBackwards()
+PrinterI::printBackwards(const Ice::Current&)
 {
     string s;
     s.resize(_message.length());
@@ -66,7 +66,7 @@ PrinterI::printBackwards()
 }
 
 void
-DerivedPrinterI::printUppercase()
+DerivedPrinterI::printUppercase(const Ice::Current&)
 {
     string s;
     s.resize(_derivedMessage.length());

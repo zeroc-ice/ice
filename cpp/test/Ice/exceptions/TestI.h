@@ -19,19 +19,19 @@ public:
 
     ThrowerI(const Ice::ObjectAdapterPtr&);
 
-    virtual void shutdown();
-    virtual void throwAasA(Ice::Int);
-    virtual void throwAorDasAorD(Ice::Int);
-    virtual void throwBasA(Ice::Int, Ice::Int);
-    virtual void throwCasA(Ice::Int, Ice::Int, Ice::Int);
-    virtual void throwBasB(Ice::Int, Ice::Int);
-    virtual void throwCasB(Ice::Int, Ice::Int, Ice::Int);
-    virtual void throwCasC(Ice::Int, Ice::Int, Ice::Int);
-    virtual void throwUndeclaredA(Ice::Int);
-    virtual void throwUndeclaredB(Ice::Int, Ice::Int);
-    virtual void throwUndeclaredC(Ice::Int, Ice::Int, Ice::Int);
-    virtual void throwLocalException();
-    virtual void throwNonIceException();
+    virtual void shutdown(const Ice::Current&);
+    virtual void throwAasA(Ice::Int, const Ice::Current&);
+    virtual void throwAorDasAorD(Ice::Int, const Ice::Current&);
+    virtual void throwBasA(Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwCasA(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwBasB(Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwCasB(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwCasC(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwUndeclaredA(Ice::Int, const Ice::Current&);
+    virtual void throwUndeclaredB(Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwUndeclaredC(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
+    virtual void throwLocalException(const Ice::Current&);
+    virtual void throwNonIceException(const Ice::Current&);
 
 private:
 

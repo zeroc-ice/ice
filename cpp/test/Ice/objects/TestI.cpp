@@ -34,7 +34,7 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
 }
 
 void
-InitialI::shutdown()
+InitialI::shutdown(const Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
 
@@ -58,31 +58,31 @@ InitialI::shutdown()
 }
 
 BPtr
-InitialI::getB1()
+InitialI::getB1(const Ice::Current&)
 {
     return _b1;
 }
 
 BPtr
-InitialI::getB2()
+InitialI::getB2(const Ice::Current&)
 {
     return _b2;
 }
 
 CPtr
-InitialI::getC()
+InitialI::getC(const Ice::Current&)
 {
     return _c;
 }
 
 DPtr
-InitialI::getD()
+InitialI::getD(const Ice::Current&)
 {
     return _d;
 }
 
 void
-InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d)
+InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d, const Ice::Current&)
 {
     b1 = _b1;
     b2 = _b2;
@@ -91,7 +91,7 @@ InitialI::getAll(BPtr& b1, BPtr& b2, CPtr& c, DPtr& d)
 }
 
 void
-InitialI::addFacetsToB1()
+InitialI::addFacetsToB1(const Ice::Current&)
 {
     _b1->ice_addFacet(_b1, "b1");
     _b1->ice_addFacet(_b2, "b2");

@@ -19,13 +19,13 @@ HelloI::HelloI(const Ice::CommunicatorPtr& communicator) :
 }
 
 void
-HelloI::hello()
+HelloI::hello(const Ice::Current&)
 {
     cout << "Hello World!" << endl;
 }
 
 void
-HelloI::shutdown()
+HelloI::shutdown(const Ice::Current&)
 {
     cout << "Shutting down..." << endl;
     _communicator->shutdown();

@@ -27,14 +27,14 @@ ContactI::setIdentity(const string& ident)
 }
 
 string
-ContactI::getName()
+ContactI::getName(const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     return _name;
 }
 
 void
-ContactI::setName(const string& name)
+ContactI::setName(const string& name, const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     assert(!_identity.empty());
@@ -43,35 +43,35 @@ ContactI::setName(const string& name)
 }
 
 string
-ContactI::getAddress()
+ContactI::getAddress(const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     return _address;
 }
 
 void
-ContactI::setAddress(const string& address)
+ContactI::setAddress(const string& address, const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     _address = address;
 }
 
 string
-ContactI::getPhone()
+ContactI::getPhone(const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     return _phone;
 }
 
 void
-ContactI::setPhone(const string& phone)
+ContactI::setPhone(const string& phone, const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     _phone = phone;
 }
 
 void
-ContactI::destroy()
+ContactI::destroy(const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this); // TODO: Reader/Writer lock
     assert(!_identity.empty());
@@ -107,7 +107,7 @@ private:
 };
 
 ContactPrx
-PhoneBookI::createContact()
+PhoneBookI::createContact(const Ice::Current&)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
     
@@ -151,7 +151,7 @@ PhoneBookI::createContact()
 }
 
 Contacts
-PhoneBookI::findContacts(const string& name)
+PhoneBookI::findContacts(const string& name, const Ice::Current&)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
     
@@ -175,7 +175,7 @@ PhoneBookI::findContacts(const string& name)
 }
 
 void
-PhoneBookI::setEvictorSize(Int size)
+PhoneBookI::setEvictorSize(Int size, const Ice::Current&)
 {
     //
     // No synchronization necessary, _evictor is immutable.
@@ -185,7 +185,7 @@ PhoneBookI::setEvictorSize(Int size)
 }
 
 void
-PhoneBookI::shutdown()
+PhoneBookI::shutdown(const Ice::Current&)
 {
     //
     // No synchronization necessary, _adapter is immutable.

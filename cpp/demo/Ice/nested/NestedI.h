@@ -18,7 +18,7 @@ class NestedI : public Nested
 public:
 
     NestedI(const NestedPrx&);
-    virtual void nested(Ice::Int, const NestedPrx&);
+    virtual void nested(Ice::Int, const NestedPrx&, const Ice::Current&);
 
 private:
 

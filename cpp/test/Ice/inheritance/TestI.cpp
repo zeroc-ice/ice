@@ -12,49 +12,49 @@
 #include <TestI.h>
 
 M_A::C_APrx
-C_A_I::ca(const M_A::C_APrx& p)
+C_A_I::ca(const M_A::C_APrx& p, const Ice::Current&)
 {
     return p;
 }
 
 M_B::C_BPrx
-C_B_I::cb(const M_B::C_BPrx& p)
+C_B_I::cb(const M_B::C_BPrx& p, const Ice::Current&)
 {
     return p;
 }
 
 M_A::C_CPrx
-C_C_I::cc(const M_A::C_CPrx& p)
+C_C_I::cc(const M_A::C_CPrx& p, const Ice::Current&)
 {
     return p;
 }
 
 M_A::C_DPrx
-C_D_I::cd(const M_A::C_DPrx& p)
+C_D_I::cd(const M_A::C_DPrx& p, const Ice::Current&)
 {
     return p;
 }
 
 M_A::I_APrx
-I_A_I::ia(const M_A::I_APrx& p)
+I_A_I::ia(const M_A::I_APrx& p, const Ice::Current&)
 {
     return p;
 }
 
 M_B::I_B1Prx
-I_B1_I::ib1(const M_B::I_B1Prx& p)
+I_B1_I::ib1(const M_B::I_B1Prx& p, const Ice::Current&)
 {
     return p;
 }
 
 M_B::I_B2Prx
-I_B2_I::ib2(const M_B::I_B2Prx& p)
+I_B2_I::ib2(const M_B::I_B2Prx& p, const Ice::Current&)
 {
     return p;
 }
 
 M_A::I_CPrx
-I_C_I::ic(const M_A::I_CPrx& p)
+I_C_I::ic(const M_A::I_CPrx& p, const Ice::Current&)
 {
     return p;
 }
@@ -73,55 +73,55 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
 }
 
 void
-InitialI::shutdown()
+InitialI::shutdown(const Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
 }
 
 M_A::C_APrx
-InitialI::c_a()
+InitialI::c_a(const Ice::Current&)
 {
     return _ca;
 }
 
 M_B::C_BPrx
-InitialI::c_b()
+InitialI::c_b(const Ice::Current&)
 {
     return _cb;
 }
 
 M_A::C_CPrx
-InitialI::c_c()
+InitialI::c_c(const Ice::Current&)
 {
     return _cc;
 }
 
 M_A::C_DPrx
-InitialI::c_d()
+InitialI::c_d(const Ice::Current&)
 {
     return _cd;
 }
 
 M_A::I_APrx
-InitialI::i_a()
+InitialI::i_a(const Ice::Current&)
 {
     return _ia;
 }
 
 M_B::I_B1Prx
-InitialI::i_b1()
+InitialI::i_b1(const Ice::Current&)
 {
     return _ib1;
 }
 
 M_B::I_B2Prx
-InitialI::i_b2()
+InitialI::i_b2(const Ice::Current&)
 {
     return _ib2;
 }
 
 M_A::I_CPrx
-InitialI::i_c()
+InitialI::i_c(const Ice::Current&)
 {
     return _ic;
 }

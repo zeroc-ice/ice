@@ -14,7 +14,7 @@
 using namespace std;
 
 void
-ClockI::tick()
+ClockI::tick(const Ice::Current&)
 {
     cout << "tick" << endl;
 }

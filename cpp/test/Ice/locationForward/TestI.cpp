@@ -18,7 +18,7 @@ TestI::TestI(const Ice::ObjectAdapterPtr& adapter, const Ice::ObjectPrx fwd) :
 }
 
 void
-TestI::shutdown()
+TestI::shutdown(const Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
     if (_fwd)

@@ -35,7 +35,7 @@ TopicManagerI::~TopicManagerI()
 }
 
 TopicPrx
-TopicManagerI::create(const string& name)
+TopicManagerI::create(const string& name, const Ice::Current&)
 {
     // TODO: reader/writer mutex
     JTCSyncT<JTCMutex> sync(*this);
@@ -67,7 +67,7 @@ TopicManagerI::create(const string& name)
 }
 
 TopicPrx
-TopicManagerI::retrieve(const string& name)
+TopicManagerI::retrieve(const string& name, const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -90,7 +90,7 @@ transformToTopicDict(TopicIMap::value_type p, Ice::ObjectAdapterPtr adapter)
 }
 
 TopicDict
-TopicManagerI::retrieveAll()
+TopicManagerI::retrieveAll(const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -104,7 +104,8 @@ TopicManagerI::retrieveAll()
 }
 
 void
-TopicManagerI::subscribe(const string& id, const QoS& qos, const StringSeq& topics, const Ice::ObjectPrx& tmpl)
+TopicManagerI::subscribe(const string& id, const QoS& qos, const StringSeq& topics, const Ice::ObjectPrx& tmpl,
+			 const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -168,7 +169,7 @@ TopicManagerI::subscribe(const string& id, const QoS& qos, const StringSeq& topi
 }
 
 void
-TopicManagerI::unsubscribe(const string& id, const StringSeq& topics)
+TopicManagerI::unsubscribe(const string& id, const StringSeq& topics, const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -202,7 +203,7 @@ TopicManagerI::unsubscribe(const string& id, const StringSeq& topics)
 }
 
 void
-TopicManagerI::shutdown()
+TopicManagerI::shutdown(const Ice::Current&)
 {
     _flusher->stopFlushing();
     _communicator->shutdown();

@@ -17,13 +17,13 @@ ThrowerI::ThrowerI(const Ice::ObjectAdapterPtr& adapter) :
 }
 
 void
-ThrowerI::shutdown()
+ThrowerI::shutdown(const Ice::Current&)
 {
     _adapter->getCommunicator()->shutdown();
 }
 
 void
-ThrowerI::throwAasA(Ice::Int a)
+ThrowerI::throwAasA(Ice::Int a, const Ice::Current&)
 {
     A ex;
     ex.a = a;
@@ -31,7 +31,7 @@ ThrowerI::throwAasA(Ice::Int a)
 }
 
 void
-ThrowerI::throwAorDasAorD(Ice::Int a)
+ThrowerI::throwAorDasAorD(Ice::Int a, const Ice::Current&)
 {
     if (a > 0)
     {
@@ -48,19 +48,19 @@ ThrowerI::throwAorDasAorD(Ice::Int a)
 }
 
 void
-ThrowerI::throwBasA(Ice::Int a, Ice::Int b)
+ThrowerI::throwBasA(Ice::Int a, Ice::Int b, const Ice::Current& current)
 {
-    throwBasB(a, b);
+    throwBasB(a, b, current);
 }
 
 void
-ThrowerI::throwCasA(Ice::Int a, Ice::Int b, Ice::Int c)
+ThrowerI::throwCasA(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current& current)
 {
-    throwCasC(a, b, c);
+    throwCasC(a, b, c, current);
 }
 
 void
-ThrowerI::throwBasB(Ice::Int a, Ice::Int b)
+ThrowerI::throwBasB(Ice::Int a, Ice::Int b, const Ice::Current&)
 {
     B ex;
     ex.a = a;
@@ -69,13 +69,13 @@ ThrowerI::throwBasB(Ice::Int a, Ice::Int b)
 }
 
 void
-ThrowerI::throwCasB(Ice::Int a, Ice::Int b, Ice::Int c)
+ThrowerI::throwCasB(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current& current)
 {
-    throwCasC(a, b, c);
+    throwCasC(a, b, c, current);
 }
 
 void
-ThrowerI::throwCasC(Ice::Int a, Ice::Int b, Ice::Int c)
+ThrowerI::throwCasC(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
 {
     C ex;
     ex.a = a;
@@ -85,7 +85,7 @@ ThrowerI::throwCasC(Ice::Int a, Ice::Int b, Ice::Int c)
 }
 
 void
-ThrowerI::throwUndeclaredA(Ice::Int a)
+ThrowerI::throwUndeclaredA(Ice::Int a, const Ice::Current&)
 {
     A ex;
     ex.a = a;
@@ -93,7 +93,7 @@ ThrowerI::throwUndeclaredA(Ice::Int a)
 }
 
 void
-ThrowerI::throwUndeclaredB(Ice::Int a, Ice::Int b)
+ThrowerI::throwUndeclaredB(Ice::Int a, Ice::Int b, const Ice::Current&)
 {
     B ex;
     ex.a = a;
@@ -102,7 +102,7 @@ ThrowerI::throwUndeclaredB(Ice::Int a, Ice::Int b)
 }
 
 void
-ThrowerI::throwUndeclaredC(Ice::Int a, Ice::Int b, Ice::Int c)
+ThrowerI::throwUndeclaredC(Ice::Int a, Ice::Int b, Ice::Int c, const Ice::Current&)
 {
     C ex;
     ex.a = a;
@@ -112,14 +112,14 @@ ThrowerI::throwUndeclaredC(Ice::Int a, Ice::Int b, Ice::Int c)
 }
 
 void
-ThrowerI::throwLocalException()
+ThrowerI::throwLocalException(const Ice::Current&)
 {
     // Any local exception is fine...
     throw Ice::TimeoutException(__FILE__, __LINE__);
 }
 
 void
-ThrowerI::throwNonIceException()
+ThrowerI::throwNonIceException(const Ice::Current&)
 {
     throw int();
 }

@@ -769,41 +769,33 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     for (q = inParams.begin(); q != inParams.end(); ++q)
     {
-	if (q != inParams.begin())
-	{
-	    params += ", ";
-	    paramsDecl += ", ";
-	    args += ", ";
-	}
-
 	string typeString = inputTypeToString(q->first);
 	params += typeString;
 	paramsDecl += typeString;
 	paramsDecl += ' ';
 	paramsDecl += q->second;
 	args += q->second;
+	params += ", ";
+	paramsDecl += ", ";
+	args += ", ";
     }
 
     for (q = outParams.begin(); q != outParams.end(); ++q)
     {
-	if (q != outParams.begin() || !inParams.empty())
-	{
-	    params += ", ";
-	    paramsDecl += ", ";
-	    args += ", ";
-	}
-
 	string typeString = outputTypeToString(q->first);
 	params += typeString;
 	paramsDecl += typeString;
 	paramsDecl += ' ';
 	paramsDecl += q->second;
 	args += q->second;
+	params += ", ";
+	paramsDecl += ", ";
+	args += ", ";
     }
 
-    params += ')';
-    paramsDecl += ')';
-    args += ')';
+    params += "const ::Ice::Context& = ::Ice::Context())";
+    paramsDecl += "const ::Ice::Context& __context)";
+    args += "__context)";
 
     H << sp << nl << retS << ' ' << name << params << ';';
     C << sp << nl << retS << nl << "IceProxy" << scoped << paramsDecl;
@@ -955,27 +947,19 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 
     for (q = inParams.begin(); q != inParams.end(); ++q)
     {
-	if (q != inParams.begin())
-	{
-	    params += ", ";
-	}
-
 	string typeString = inputTypeToString(q->first);
 	params += typeString;
+	params += ", ";
     }
 
     for (q = outParams.begin(); q != outParams.end(); ++q)
     {
-	if (q != outParams.begin() || !inParams.empty())
-	{
-	    params += ", ";
-	}
-
 	string typeString = outputTypeToString(q->first);
 	params += typeString;
+	params += ", ";
     }
 
-    params += ')';
+    params += "const ::Ice::Context&)";
     
     H << sp << nl << "virtual " << retS << ' ' << name << params << " = 0;";
 }
@@ -1089,36 +1073,28 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 
     for (q = inParams.begin(); q != inParams.end(); ++q)
     {
-	if (q != inParams.begin())
-	{
-	    params += ", ";
-	    paramsDecl += ", ";
-	}
-
 	string typeString = inputTypeToString(q->first);
 	params += typeString;
 	paramsDecl += typeString;
 	paramsDecl += ' ';
 	paramsDecl += q->second;
+	params += ", ";
+	paramsDecl += ", ";
     }
 
     for (q = outParams.begin(); q != outParams.end(); ++q)
     {
-	if (q != outParams.begin() || !inParams.empty())
-	{
-	    params += ", ";
-	    paramsDecl += ", ";
-	}
-
 	string typeString = outputTypeToString(q->first);
 	params += typeString;
 	paramsDecl += typeString;
 	paramsDecl += ' ';
 	paramsDecl += q->second;
+	params += ", ";
+	paramsDecl += ", ";
     }
 
-    params += ')';
-    paramsDecl += ')';
+    params += "const ::Ice::Context&)";
+    paramsDecl += "const ::Ice::Context& __context)";
     
     ExceptionList throws = p->throws();
     throws.sort();
@@ -1295,46 +1271,40 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
 
     for (q = inParams.begin(); q != inParams.end(); ++q)
     {
-	if (q != inParams.begin())
-	{
-	    params += ", ";
-	    paramsDecl += ", ";
-	    args += ", ";
-	}
-
 	string typeString = inputTypeToString(q->first);
 	params += typeString;
 	paramsDecl += typeString;
 	paramsDecl += ' ';
 	paramsDecl += q->second;
 	args += q->second;
+	params += ", ";
+	paramsDecl += ", ";
+	args += ", ";
     }
 
     for (q = outParams.begin(); q != outParams.end(); ++q)
     {
-	if (q != outParams.begin() || !inParams.empty())
-	{
-	    params += ", ";
-	    paramsDecl += ", ";
-	    args += ", ";
-	}
-
 	string typeString = outputTypeToString(q->first);
 	params += typeString;
 	paramsDecl += typeString;
 	paramsDecl += ' ';
 	paramsDecl += q->second;
 	args += q->second;
+	params += ", ";
+	paramsDecl += ", ";
+	args += ", ";
     }
 
-    params += ')';
-    paramsDecl += ')';
-    args += ')';
+    params += "const ::Ice::Context& = ::Ice::Context())";
+    paramsDecl += "const ::Ice::Context& __context)";
+    args += "__current)";
     
     H << sp << nl << "virtual " << retS << ' ' << name << params << ';';
     C << sp << nl << retS << nl << "IceDelegateD" << scoped << paramsDecl;
     C << sb;
-    C << nl << "::IceInternal::Direct __direct(__adapter, __reference, \"" << name << "\");";
+    C << nl << "::Ice::Current __current;";
+    C << nl << "__initCurrent(__current, \"" << name << "\", __context);";
+    C << nl << "::IceInternal::Direct __direct(__adapter, __current);";
     C << nl << cl->scoped() << "* __servant = dynamic_cast< " << cl->scoped() << "*>(__direct.facetServant().get());";
     C << nl << "if (!__servant)";
     C << sb;
@@ -1538,7 +1508,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	H << sp;
 	H << nl << exp2 << "static const char* __ids[" << ids.size() << "];";
 	H << nl << exp2 << "static const char* __classIds[" << classIds.size() << "];";
-	H << nl << exp2 << "virtual bool ice_isA(const ::std::string&);";
+	H << nl << exp2 << "virtual bool ice_isA(const ::std::string&, const ::Ice::Current& = ::Ice::Current());";
 	H << nl << exp2 << "virtual const char** __getClassIds();";
 	C << sp;
 	C << nl << "const char* " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
@@ -1567,7 +1537,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	C << eb << ';';
 	C << sp;
-	C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(const ::std::string& s)";
+	C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(const ::std::string& s, const ::Ice::Current&)";
 	C << sb;
 	C << nl << "const char** b = __ids;";
 	C << nl << "const char** e = __ids + " << ids.size() << ';';
@@ -1686,7 +1656,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    {
 		C << nl << "case " << i++ << ':';
 		C << sb;
-		C << nl << "return ___" << *q << "(in);";
+		C << nl << "return ___" << *q << "(in, current);";
 		C << eb;
 	    }
 	    C << eb;
@@ -1855,9 +1825,24 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	args += q->second;
     }
 
-    params += ')';
-    paramsDecl += ')';
-    args += ')';
+    if (!cl->isLocal())
+    {
+	if (!inParams.empty() || !outParams.empty())
+	{
+	    params += ", ";
+	    paramsDecl += ", ";
+	    args += ", ";
+	}
+	params += "const ::Ice::Current& = ::Ice::Current())";
+	paramsDecl += "const ::Ice::Current& __current)";
+	args += "__current)";
+    }
+    else
+    {
+	params += ')';
+	paramsDecl += ')';
+	args += ')';
+    }
     
     string exp2;
     if (_dllExport.size())
@@ -1877,10 +1862,11 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	throws.sort();
 	throws.unique();
 
-	H << nl << exp2 << "::IceInternal::DispatchStatus ___" << name << "(::IceInternal::Incoming&);";
+	H << nl << exp2 << "::IceInternal::DispatchStatus ___" << name
+	  << "(::IceInternal::Incoming&, const ::Ice::Current&);";
 	C << sp;
 	C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "___" << name
-	  << "(::IceInternal::Incoming& __in)";
+	  << "(::IceInternal::Incoming& __in, const ::Ice::Current& __current)";
 	C << sb;
 	if (!inParams.empty())
 	{

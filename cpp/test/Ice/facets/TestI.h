@@ -17,42 +17,42 @@ class AI : virtual public A
 {
 public:
 
-    virtual std::string callA();
+    virtual std::string callA(const Ice::Current&);
 };
 
 class BI : virtual public B, virtual public AI
 {
 public:
 
-    virtual std::string callB();
+    virtual std::string callB(const Ice::Current&);
 };
 
 class CI : virtual public C, virtual public AI
 {
 public:
 
-    virtual std::string callC();
+    virtual std::string callC(const Ice::Current&);
 };
 
 class DI : virtual public D, virtual public BI, virtual public CI
 {
 public:
 
-    virtual std::string callD();
+    virtual std::string callD(const Ice::Current&);
 };
 
 class EI : virtual public E
 {
 public:
 
-    virtual std::string callE();
+    virtual std::string callE(const Ice::Current&);
 };
 
 class FI : virtual public F, virtual public EI
 {
 public:
 
-    virtual std::string callF();
+    virtual std::string callF(const Ice::Current&);
 };
 
 class GI : virtual public G
@@ -60,8 +60,8 @@ class GI : virtual public G
 public:
 
     GI(const Ice::CommunicatorPtr&);
-    virtual void shutdown();
-    virtual std::string callG();
+    virtual void shutdown(const Ice::Current&);
+    virtual std::string callG(const Ice::Current&);
 
 private:
 

@@ -19,7 +19,7 @@ public:
 
     TestI(const Ice::ObjectAdapterPtr&);
 
-    virtual void shutdown();
+    virtual void shutdown(const Ice::Current&);
 
 private:
 

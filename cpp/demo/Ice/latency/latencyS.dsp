@@ -93,10 +93,6 @@ SOURCE=.\Latency.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\LatencyI.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Server.cpp
 # End Source File
 # End Group
@@ -106,10 +102,6 @@ SOURCE=.\Server.cpp
 # Begin Source File
 
 SOURCE=.\Latency.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\LatencyI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

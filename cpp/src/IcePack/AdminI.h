@@ -22,11 +22,11 @@ public:
 
     AdminI(const Ice::CommunicatorPtr&);
 
-    virtual void add(const ServerDescription&);
-    virtual void remove(const std::string&);
-    virtual ServerDescription find(const std::string&);
-    virtual ServerDescriptions getAll();
-    virtual void shutdown();
+    virtual void add(const ServerDescription&, const Ice::Current&);
+    virtual void remove(const std::string&, const Ice::Current&);
+    virtual ServerDescription find(const std::string&, const Ice::Current&);
+    virtual ServerDescriptions getAll(const Ice::Current&);
+    virtual void shutdown(const Ice::Current&);
 
 private:
 

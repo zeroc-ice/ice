@@ -64,33 +64,33 @@ Ice::Object::__getClassIds()
 }
 
 bool
-Ice::Object::ice_isA(const string& s)
+Ice::Object::ice_isA(const string& s, const Current&)
 {
     return s == "::Ice::Object";
 }
 
 void
-Ice::Object::ice_ping()
+Ice::Object::ice_ping(const Current&)
 {
     // Nothing to do.
 }
 
 DispatchStatus
-Ice::Object::___ice_isA(Incoming& __in)
+Ice::Object::___ice_isA(Incoming& __in, const Current& __current)
 {
     BasicStream* __is = __in.is();
     BasicStream* __os = __in.os();
-    string s;
-    __is->read(s);
-    bool __ret = ice_isA(s);
+    string __id;
+    __is->read(__id);
+    bool __ret = ice_isA(__id, __current);
     __os->write(__ret);
     return DispatchOK;
 }
 
 DispatchStatus
-Ice::Object::___ice_ping(Incoming&)
+Ice::Object::___ice_ping(Incoming&, const Current& __current)
 {
-    ice_ping();
+    ice_ping(__current);
     return DispatchOK;
 }
 
@@ -115,11 +115,11 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
     {
 	case 0:
 	{
-	    return ___ice_isA(in);
+	    return ___ice_isA(in, current);
 	}
 	case 1:
 	{
-	    return ___ice_ping(in);
+	    return ___ice_ping(in, current);
 	}
     }
 

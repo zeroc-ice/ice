@@ -19,13 +19,13 @@ public:
 
     InitialI(const Ice::ObjectAdapterPtr&);
 
-    virtual void shutdown();
-    virtual BPtr getB1();
-    virtual BPtr getB2();
-    virtual CPtr getC();
-    virtual DPtr getD();
-    virtual void getAll(BPtr&, BPtr&, CPtr&, DPtr&);
-    virtual void addFacetsToB1();
+    virtual void shutdown(const Ice::Current&);
+    virtual BPtr getB1(const Ice::Current&);
+    virtual BPtr getB2(const Ice::Current&);
+    virtual CPtr getC(const Ice::Current&);
+    virtual DPtr getD(const Ice::Current&);
+    virtual void getAll(BPtr&, BPtr&, CPtr&, DPtr&, const Ice::Current&);
+    virtual void addFacetsToB1(const Ice::Current&);
 
 private:
 

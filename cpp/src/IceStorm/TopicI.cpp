@@ -211,19 +211,19 @@ TopicI::~TopicI()
 }
 
 string
-TopicI::getName()
+TopicI::getName(const Ice::Current&)
 {
     return _name;
 }
 
 Ice::ObjectPrx
-TopicI::getPublisher()
+TopicI::getPublisher(const Ice::Current&)
 {
     return _obj;
 }
 
 void
-TopicI::destroy()
+TopicI::destroy(const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(_destroyedMutex);
     if (_traceLevels->topic > 0)

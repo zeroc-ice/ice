@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <LatencyI.h>
+#include <Latency.h>
 
 using namespace std;
 
@@ -17,7 +17,7 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("LatencyAdapter");
-    Ice::ObjectPtr object = new PingI;
+    Ice::ObjectPtr object = new Ping;
     adapter->add(object, "ping");
     adapter->activate();
     communicator->waitForShutdown();

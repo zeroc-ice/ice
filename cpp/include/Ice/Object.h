@@ -68,11 +68,11 @@ public:
     static const char* __classIds[];
     virtual const char** __getClassIds();
 
-    virtual bool ice_isA(const ::std::string&);
-    ::IceInternal::DispatchStatus ___ice_isA(::IceInternal::Incoming&);
+    virtual bool ice_isA(const ::std::string&, const Current&);
+    ::IceInternal::DispatchStatus ___ice_isA(::IceInternal::Incoming&, const Current&);
 
-    virtual void ice_ping();
-    ::IceInternal::DispatchStatus ___ice_ping(::IceInternal::Incoming&);
+    virtual void ice_ping(const Current&);
+    ::IceInternal::DispatchStatus ___ice_ping(::IceInternal::Incoming&, const Current&);
 
     static const char* __all[];
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
@@ -97,7 +97,7 @@ class ICE_API Blobject : virtual public Object
 {
 public:
 
-    virtual void ice_invokeIn(const std::vector< ::Ice::Byte>&, const Current&) = 0;
+    virtual void ice_invokeIn(const std::vector<Byte>&, const Current&) = 0;
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
 };
 

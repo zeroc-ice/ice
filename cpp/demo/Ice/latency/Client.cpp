@@ -38,8 +38,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    // Priming ping.
-    ping->ping();
+    // Initial ping to setup the connection.
+    ping->ice_ping();
 
     timeval tv1;
 #ifdef WIN32
@@ -54,7 +54,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     const int repetitions = 100000;
     cout << "pinging server " << repetitions << " times (this may take a while)" << endl;
     for (int i = 0; i < repetitions; ++i)
-	ping->ping();
+    {
+	ping->ice_ping();
+    }
 
     timeval tv2;
 #ifdef WIN32

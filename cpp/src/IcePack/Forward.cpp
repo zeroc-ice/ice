@@ -53,7 +53,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const Current& current
     //
     // Look up the server description
     //
-    ServerDescription desc = _admin->find(current.identity);
+    ServerDescription desc = _admin->find(current.identity, current);
 
     //
     // If we didn't find a server description, we return null, meaning

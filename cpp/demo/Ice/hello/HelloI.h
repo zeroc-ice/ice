@@ -19,8 +19,8 @@ public:
 
     HelloI(const Ice::CommunicatorPtr&);
 
-    virtual void hello();
-    virtual void shutdown();
+    virtual void hello(const Ice::Current&);
+    virtual void shutdown(const Ice::Current&);
 
 private:
 

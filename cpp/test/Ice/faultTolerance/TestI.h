@@ -19,10 +19,10 @@ public:
 
     TestI(const Ice::ObjectAdapterPtr&);
 
-    virtual void shutdown();
-    virtual void abort();
-    virtual void nonmutatingAbort();
-    virtual Ice::Int pid();
+    virtual void shutdown(const Ice::Current&);
+    virtual void abort(const Ice::Current&);
+    virtual void nonmutatingAbort(const Ice::Current&);
+    virtual Ice::Int pid(const Ice::Current&);
 
 private:
 

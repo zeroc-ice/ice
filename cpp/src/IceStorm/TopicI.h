@@ -30,9 +30,9 @@ public:
 	   const FlusherPtr&);
     ~TopicI();
 
-    virtual std::string getName();
-    virtual Ice::ObjectPrx getPublisher();
-    virtual void destroy();
+    virtual std::string getName(const Ice::Current&);
+    virtual Ice::ObjectPrx getPublisher(const Ice::Current&);
+    virtual void destroy(const Ice::Current&);
 
     // Internal methods
     bool destroyed() const;

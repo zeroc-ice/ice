@@ -28,12 +28,13 @@ public:
     TopicManagerI(const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&);
     ~TopicManagerI();
 
-    virtual TopicPrx create(const std::string&);
-    virtual TopicPrx retrieve(const std::string&);
-    virtual TopicDict retrieveAll();
-    virtual void subscribe(const std::string&, const QoS&, const StringSeq&, const Ice::ObjectPrx&);
-    virtual void unsubscribe(const std::string&, const StringSeq&);
-    virtual void shutdown();
+    virtual TopicPrx create(const std::string&, const Ice::Current&);
+    virtual TopicPrx retrieve(const std::string&, const Ice::Current&);
+    virtual TopicDict retrieveAll(const Ice::Current&);
+    virtual void subscribe(const std::string&, const QoS&, const StringSeq&, const Ice::ObjectPrx&,
+			   const Ice::Current&);
+    virtual void unsubscribe(const std::string&, const StringSeq&, const Ice::Current&);
+    virtual void shutdown(const Ice::Current&);
 
 private:
 

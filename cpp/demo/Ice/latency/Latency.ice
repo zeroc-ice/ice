@@ -13,7 +13,6 @@
 
 class Ping
 {
-    void ping();
 };
 
 #endif

@@ -19,10 +19,10 @@ public:
 
     InitialI(const Ice::ObjectAdapterPtr&);
 
-    virtual SimplePtr simple();
-    virtual void printer(PrinterPtr&, PrinterPrx&);
-    virtual PrinterPtr derivedPrinter();
-    virtual void throwDerivedPrinter();
+    virtual SimplePtr simple(const Ice::Current&);
+    virtual void printer(PrinterPtr&, PrinterPrx&, const Ice::Current&);
+    virtual PrinterPtr derivedPrinter(const Ice::Current&);
+    virtual void throwDerivedPrinter(const Ice::Current&);
 
 private:
 
@@ -37,14 +37,14 @@ class PrinterI : virtual public Printer
 {
 public:
 
-    virtual void printBackwards();
+    virtual void printBackwards(const Ice::Current&);
 };
 
 class DerivedPrinterI : virtual public DerivedPrinter, virtual public PrinterI
 {
 public:
 
-    virtual void printUppercase();
+    virtual void printUppercase(const Ice::Current&);
 };
 
 #endif

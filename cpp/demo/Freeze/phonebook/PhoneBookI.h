@@ -31,16 +31,16 @@ public:
 
     void setIdentity(const std::string&);
 
-    virtual std::string getName();
-    virtual void setName(const std::string&);
+    virtual std::string getName(const Ice::Current&);
+    virtual void setName(const std::string&, const Ice::Current&);
 
-    virtual std::string getAddress();
-    virtual void setAddress(const std::string&);
+    virtual std::string getAddress(const Ice::Current&);
+    virtual void setAddress(const std::string&, const Ice::Current&);
 
-    virtual std::string getPhone();
-    virtual void setPhone(const std::string&);
+    virtual std::string getPhone(const Ice::Current&);
+    virtual void setPhone(const std::string&, const Ice::Current&);
 
-    virtual void destroy();
+    virtual void destroy(const Ice::Current&);
 
 private:
 
@@ -55,10 +55,10 @@ public:
 
     PhoneBookI(const Ice::ObjectAdapterPtr&, const Freeze::DBPtr&, const Freeze::EvictorPtr&);
 
-    virtual ContactPrx createContact();
-    virtual Contacts findContacts(const std::string&);
-    virtual void setEvictorSize(Ice::Int);
-    virtual void shutdown();
+    virtual ContactPrx createContact(const Ice::Current&);
+    virtual Contacts findContacts(const std::string&, const Ice::Current&);
+    virtual void setEvictorSize(Ice::Int, const Ice::Current&);
+    virtual void shutdown(const Ice::Current&);
     
     void remove(const std::string&, const std::string&);
     void move(const std::string&, const std::string&, const std::string&);

@@ -19,13 +19,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const ReferencePtr& ref, const char* operation) :
-    _adapter(adapter)
+IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const Current& current) :
+    _adapter(adapter),
+    _current(current)
 {
-    _current.identity = ref->identity;
-    _current.facet = ref->facet;
-    _current.operation = operation;
-
     try
     {
 	_servant = _adapter->identityToServant(_current.identity);
@@ -52,9 +49,9 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const ReferencePtr&
 	    }
 	}
 	
-	if (_servant && !ref->facet.empty())
+	if (_servant && !_current.facet.empty())
 	{
-	    _facetServant = _servant->ice_findFacet(ref->facet);
+	    _facetServant = _servant->ice_findFacet(_current.facet);
 	    if (!_facetServant)
 	    {
 		throw FacetNotExistException(__FILE__, __LINE__);

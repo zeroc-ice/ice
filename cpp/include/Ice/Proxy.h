@@ -18,13 +18,14 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/ReferenceF.h>
+#include <Ice/Current.h>
 
 namespace Ice
 {
 
 class LocalException;
 class LocationForward;
-class Current;
+class Context;
 
 };
 
@@ -39,9 +40,10 @@ public:
     bool operator<(const Object&) const;
     ::Ice::Int ice_hash() const;
 
-    bool ice_isA(const std::string&);
-    void ice_ping();
-    void ice_invokeIn(const std::string&, bool, const std::vector< ::Ice::Byte>&);
+    bool ice_isA(const std::string&, const ::Ice::Context& = ::Ice::Context());
+    void ice_ping(const ::Ice::Context& = ::Ice::Context());
+    void ice_invokeIn(const std::string&, bool, const std::vector< ::Ice::Byte>&,
+		      const ::Ice::Context& = ::Ice::Context());
 
     std::string ice_getIdentity() const;
     ::Ice::ObjectPrx ice_newIdentity(const std::string&) const;
@@ -89,9 +91,9 @@ class ICE_API Object : public ::IceUtil::Shared
 {
 public:
 
-    virtual bool ice_isA(const std::string&) = 0;
-    virtual void ice_ping() = 0;
-    virtual void ice_invokeIn(const std::string&, const std::vector< ::Ice::Byte>&) = 0;
+    virtual bool ice_isA(const std::string&, const ::Ice::Context&) = 0;
+    virtual void ice_ping(const ::Ice::Context&) = 0;
+    virtual void ice_invokeIn(const std::string&, const std::vector< ::Ice::Byte>&, const ::Ice::Context&) = 0;
     virtual void ice_flush() = 0;
 };
 
@@ -104,9 +106,9 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 {
 public:
 
-    virtual bool ice_isA(const std::string&);
-    virtual void ice_ping();
-    virtual void ice_invokeIn(const std::string&, const std::vector< ::Ice::Byte>&);
+    virtual bool ice_isA(const std::string&, const ::Ice::Context&);
+    virtual void ice_ping(const ::Ice::Context&);
+    virtual void ice_invokeIn(const std::string&, const std::vector< ::Ice::Byte>&, const ::Ice::Context&);
     virtual void ice_flush();
 
 protected:
@@ -129,15 +131,17 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 {
 public:
 
-    virtual bool ice_isA(const std::string&);
-    virtual void ice_ping();
-    virtual void ice_invokeIn(const std::string&, const std::vector< ::Ice::Byte>&);
+    virtual bool ice_isA(const std::string&, const ::Ice::Context&);
+    virtual void ice_ping(const ::Ice::Context&);
+    virtual void ice_invokeIn(const std::string&, const std::vector< ::Ice::Byte>&, const ::Ice::Context&);
     virtual void ice_flush();
 
 protected:
 
     ::Ice::ObjectAdapterPtr __adapter;
     ::IceInternal::ReferencePtr __reference;
+
+    void __initCurrent(::Ice::Current&, const std::string&, const ::Ice::Context&);
 
 private:
 

@@ -98,7 +98,7 @@ IceProxy::Ice::Object::ice_hash() const
     return _reference->hashValue;
 }
 bool
-IceProxy::Ice::Object::ice_isA(const string& s)
+IceProxy::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     int __cnt = 0;
     while (true)
@@ -106,7 +106,7 @@ IceProxy::Ice::Object::ice_isA(const string& s)
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    return __del->ice_isA(s);
+	    return __del->ice_isA(__id, __context);
 	}
 	catch (const LocationForward& __ex)
 	{
@@ -124,7 +124,7 @@ IceProxy::Ice::Object::ice_isA(const string& s)
 }
 
 void
-IceProxy::Ice::Object::ice_ping()
+IceProxy::Ice::Object::ice_ping(const Context& __context)
 {
     int __cnt = 0;
     while (true)
@@ -132,7 +132,7 @@ IceProxy::Ice::Object::ice_ping()
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    __del->ice_ping();
+	    __del->ice_ping(__context);
 	    return;
 	}
 	catch (const LocationForward& __ex)
@@ -151,7 +151,8 @@ IceProxy::Ice::Object::ice_ping()
 }
 
 void
-IceProxy::Ice::Object::ice_invokeIn(const string& operation, bool nonmutating, const vector<Byte>& inParams)
+IceProxy::Ice::Object::ice_invokeIn(const string& operation, bool nonmutating, const vector<Byte>& inParams,
+				    const Context& __context)
 {
     int __cnt = 0;
     while (true)
@@ -159,7 +160,7 @@ IceProxy::Ice::Object::ice_invokeIn(const string& operation, bool nonmutating, c
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    __del->ice_invokeIn(operation, inParams);
+	    __del->ice_invokeIn(operation, inParams, __context);
 	    return;
 	}
 	catch (const LocationForward& __ex)
@@ -506,12 +507,12 @@ IceProxy::Ice::Object::setup(const ReferencePtr& ref)
 }
 
 bool
-IceDelegateM::Ice::Object::ice_isA(const string& s)
+IceDelegateM::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
     Outgoing __out(__emitter, __reference, "ice_isA");
     BasicStream* __is = __out.is();
     BasicStream* __os = __out.os();
-    __os->write(s);
+    __os->write(__id);
     if (!__out.invoke())
     {
 	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
@@ -522,7 +523,7 @@ IceDelegateM::Ice::Object::ice_isA(const string& s)
 }
 
 void
-IceDelegateM::Ice::Object::ice_ping()
+IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 {
     Outgoing __out(__emitter, __reference, "ice_ping");
     if (!__out.invoke())
@@ -532,7 +533,8 @@ IceDelegateM::Ice::Object::ice_ping()
 }
 
 void
-IceDelegateM::Ice::Object::ice_invokeIn(const string& operation, const vector<Byte>& inParams)
+IceDelegateM::Ice::Object::ice_invokeIn(const string& operation, const vector<Byte>& inParams,
+					const Context& __context)
 {
     Outgoing __out(__emitter, __reference, operation.c_str());
     BasicStream* __os = __out.os();
@@ -603,47 +605,80 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 }
 
 bool
-IceDelegateD::Ice::Object::ice_isA(const string& s)
+IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
 {
-    Direct __direct(__adapter, __reference, "ice_isA");
-    return __direct.facetServant()->ice_isA(s);
-}
-
-void
-IceDelegateD::Ice::Object::ice_ping()
-{
-    Direct __direct(__adapter, __reference, "ice_ping");
-    __direct.facetServant()->ice_ping();
-}
-
-void
-IceDelegateD::Ice::Object::ice_invokeIn(const string& operation, const vector<Byte>& inParams)
-{
-    ::IceInternal::Direct __direct(__adapter, __reference, operation.c_str());
-    ::Ice::Blobject* __servant = dynamic_cast< ::Ice::Blobject*>(__direct.facetServant().get());
-    if (!__servant)
-    {
-	throw ::Ice::OperationNotExistException(__FILE__, __LINE__);
-    }
+    Current __current;
+    __initCurrent(__current, "ice_isA", __context);
+    Direct __direct(__adapter, __current);
     try
     {
-	Current current;
-	current.identity = __reference->identity;
-	current.facet = __reference->facet;
-	current.operation = operation;
-	__servant->ice_invokeIn(inParams, current);
+	return __direct.facetServant()->ice_isA(__id, __current);
     }
-    catch (const ::Ice::LocalException&)
+    catch (const LocalException&)
     {
-	throw ::Ice::UnknownLocalException(__FILE__, __LINE__);
+	throw UnknownLocalException(__FILE__, __LINE__);
     }
-    catch (const ::Ice::UserException&)
+    catch (const UserException&)
     {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+	throw UnknownUserException(__FILE__, __LINE__);
     }
     catch (...)
     {
-	throw ::Ice::UnknownException(__FILE__, __LINE__);
+	throw UnknownException(__FILE__, __LINE__);
+    }
+}
+
+void
+IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
+{
+    Current __current;
+    __initCurrent(__current, "ice_ping", __context);
+    Direct __direct(__adapter, __current);
+    try
+    {
+	__direct.facetServant()->ice_ping(__current);
+    }
+    catch (const LocalException&)
+    {
+	throw UnknownLocalException(__FILE__, __LINE__);
+    }
+    catch (const UserException&)
+    {
+	throw UnknownUserException(__FILE__, __LINE__);
+    }
+    catch (...)
+    {
+	throw UnknownException(__FILE__, __LINE__);
+    }
+}
+
+void
+IceDelegateD::Ice::Object::ice_invokeIn(const string& operation, const vector<Byte>& inParams,
+					const ::Ice::Context& context)
+{
+    Current __current;
+    __initCurrent(__current, operation, context);
+    Direct __direct(__adapter, __current);
+    Blobject* __servant = dynamic_cast<Blobject*>(__direct.facetServant().get());
+    if (!__servant)
+    {
+	throw OperationNotExistException(__FILE__, __LINE__);
+    }
+    try
+    {
+	__servant->ice_invokeIn(inParams, __current);
+    }
+    catch (const LocalException&)
+    {
+	throw UnknownLocalException(__FILE__, __LINE__);
+    }
+    catch (const UserException&)
+    {
+	throw UnknownUserException(__FILE__, __LINE__);
+    }
+    catch (...)
+    {
+	throw UnknownException(__FILE__, __LINE__);
     }
 }
 
@@ -651,6 +686,15 @@ void
 IceDelegateD::Ice::Object::ice_flush()
 {
     // Nothing to do for direct delegates
+}
+
+void
+IceDelegateD::Ice::Object::__initCurrent(Current& current, const string& op, const Context& context)
+{
+    current.identity = __reference->identity;
+    current.facet = __reference->facet;
+    current.operation = op;
+    current.context = context;
 }
 
 void

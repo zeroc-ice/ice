@@ -21,7 +21,7 @@ IcePack::AdminI::AdminI(const CommunicatorPtr& communicator) :
 }
 
 void
-IcePack::AdminI::add(const ServerDescription& desc)
+IcePack::AdminI::add(const ServerDescription& desc, const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -32,14 +32,14 @@ IcePack::AdminI::add(const ServerDescription& desc)
 }
 
 void
-IcePack::AdminI::remove(const string& ident)
+IcePack::AdminI::remove(const string& ident, const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this);
     _serverDescriptions.erase(ident);
 }
 
 ServerDescription
-IcePack::AdminI::find(const string& ident)
+IcePack::AdminI::find(const string& ident, const Ice::Current&)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -55,13 +55,13 @@ IcePack::AdminI::find(const string& ident)
 }
 
 ServerDescriptions
-IcePack::AdminI::getAll()
+IcePack::AdminI::getAll(const Ice::Current&)
 {
     return _serverDescriptions;
 }
 
 void
-IcePack::AdminI::shutdown()
+IcePack::AdminI::shutdown(const Ice::Current&)
 {
     _communicator->shutdown();
 }

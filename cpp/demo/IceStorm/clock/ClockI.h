@@ -17,7 +17,7 @@ class ClockI : public Clock
 {
 public:
 
-    virtual void tick();
+    virtual void tick(const Ice::Current&);
 };
 
 #endif
