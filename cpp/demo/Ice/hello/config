@@ -40,10 +40,6 @@ Ice.ConnectionWarnings=1
 # 0 = no protocol tracing
 # 1 = trace warning messages
 # 2 = config file parsing warnings
-# 3 = method invocations and returns
-# 4 = exceptions thrown
-# 5 = protocol trace
-# 6 = protocol debug (full trace, stats and internal data)
 #
 #Ice.Trace.Security=2
 
