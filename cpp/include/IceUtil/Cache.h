@@ -64,7 +64,11 @@ public:
 	 
 	    if(val != 0)
 	    {
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
 		std::pair<CacheMap::iterator, bool> ir = 
+#else
+		std::pair<typename CacheMap::iterator, bool> ir =
+#endif     
 		    _map.insert(CacheMap::value_type(key, val));
 		pinned(val, ir.first);
 	    }
@@ -102,7 +106,11 @@ public:
 	assert(val != 0);
 
 	Mutex::Lock sync(_mutex);
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
 	std::pair<CacheMap::iterator, bool> ir = 
+#else
+	std::pair<typename CacheMap::iterator, bool> ir =
+#endif 
 	    _map.insert(CacheMap::value_type(key, val));
 
 	if(ir.second)
@@ -132,7 +140,11 @@ public:
     bool pin(const Key& key, const Handle<Value>& val)
     {
 	Mutex::Lock sync(_mutex);
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
 	std::pair<CacheMap::iterator, bool> ir = 
+#else
+	std::pair<typename CacheMap::iterator, bool> ir =
+#endif 
 	    _map.insert(CacheMap::value_type(key, val));
 	if(ir.second)
 	{
