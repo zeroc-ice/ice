@@ -181,6 +181,7 @@ SOURCE=.\Activator.ice
 
 !ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
 
+USERDEP__ACTIV="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Activator.ice
 
@@ -207,6 +208,7 @@ SOURCE=.\AdapterManager.ice
 
 !ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
 
+USERDEP__ADAPT="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\AdapterManager.ice
 
@@ -233,6 +235,7 @@ SOURCE=.\AdapterManagerF.ice
 
 !ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
 
+USERDEP__ADAPTE="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\AdapterManagerF.ice
 
@@ -254,6 +257,7 @@ SOURCE=.\ServerManager.ice
 
 !ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
 
+USERDEP__SERVE="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\ServerManager.ice
 
@@ -280,6 +284,7 @@ SOURCE=.\ServerManagerF.ice
 
 !ELSEIF  "$(CFG)" == "IcePackS - Win32 Debug"
 
+USERDEP__SERVER="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\ServerManagerF.ice
 
