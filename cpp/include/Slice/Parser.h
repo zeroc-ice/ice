@@ -287,7 +287,8 @@ public:
 	ContainedTypeException,
 	ContainedTypeStruct,
 	ContainedTypeOperation,
-	ContainedTypeDataMember
+	ContainedTypeDataMember,
+	ContainedTypeConstant
     };
     virtual ContainedType containedType() const = 0;
 
