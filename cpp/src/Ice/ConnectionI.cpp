@@ -246,9 +246,9 @@ Ice::ConnectionI::isFinished() const
 	}
 
 	if(_transceiver != 0 || _dispatchCount != 0 ||
-	   (threadPerConnection &&
-	    threadPerConnection->getThreadControl() != IceUtil::ThreadControl() &&
-	    threadPerConnection->getThreadControl().isAlive()))
+	   (_threadPerConnection &&
+	    _threadPerConnection->getThreadControl() != IceUtil::ThreadControl() &&
+	    _threadPerConnection->getThreadControl().isAlive()))
 	{
 	    return false;
 	}
@@ -2177,18 +2177,7 @@ Ice::ConnectionI::run()
 	// be done here, and not in the connection factory. Please see the
 	// comments in the connection factory for details.
 	//
-	try
-	{
-	    validate();
-	}
-	catch(const LocalException&)
-	{
-	    //
-	    // Ignore all exceptions while validating the
-	    // connection. Warning or error messages for such exceptions
-	    // are printed directly by the validation code.
-	    //
-	}
+	validate();
     }
     catch(const LocalException&)
     {
