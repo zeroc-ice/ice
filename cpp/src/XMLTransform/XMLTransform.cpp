@@ -894,28 +894,33 @@ public:
 
 	os << ::IceUtil::attr("length", lstr.str());
 
-	for(i = 0; i < children->getLength(); ++i)
+	if(l != 0)
 	{
-	    DOMNode* child = children->item(i);
-	    if(child->getNodeType() != DOMNode::ELEMENT_NODE)
+	    for(i = 0; i < children->getLength(); ++i)
 	    {
-		continue;
-	    }
+		DOMNode* child = children->item(i);
+		if(child->getNodeType() != DOMNode::ELEMENT_NODE)
+		{
+		    continue;
+		}
 
-	    string nodeName = toString(child->getLocalName());
-	    if(l == 0 || nodeName != "e")
-	    {
-		throw SchemaViolation(__FILE__, __LINE__);
-	    }
+		string nodeName = toString(child->getLocalName());
+		if(nodeName != "e")
+		{
+		    SchemaViolation ex(__FILE__, __LINE__);
+		    ex.reason = "invalid sequence element name: "  + nodeName;
+		    throw ex;
+		}
 
-            try
-            {
-                _transform->transform(os, info, nodeName, child, map);
-            }
-            catch(const MissingTypeException&)
-            {
-                // Skip this element
-            }
+		try
+		{
+		    _transform->transform(os, info, nodeName, child, map);
+		}
+		catch(const MissingTypeException&)
+		{
+		    // Skip this element
+		}
+	    }
 	}
 
 	os << ::IceUtil::ee;
