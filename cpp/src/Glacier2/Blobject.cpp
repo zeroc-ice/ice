@@ -60,6 +60,12 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 	    Int threadStackSize = _properties->getPropertyAsInt("Ice.ThreadPerConnection.StackSize");
 	    
 	    _requestQueue->start(static_cast<size_t>(threadStackSize));
+
+	    //
+	    // See the comment in Glacier2::RequestQueue::destroy()
+	    // for why we detach the thread.
+	    //
+	    _requestQueue->getThreadControl().detach();
 	}
 	catch(const IceUtil::Exception& ex)
 	{

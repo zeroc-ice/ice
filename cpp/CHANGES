@@ -1,20 +1,23 @@
 Changes since version 2.1.0
 ---------------------------
 
-- Added -E option to the various Slice compilers to print
-  proprocessor output on stdout.
+- A race condition with Glacier2 detaching the request handler thread
+  has been fixed.
 
-- As announced with version 1.6, slice2cpp and slice2freeze
-  now require all Slice definitions to be nested inside a
-  module; definitions at global scope (other than module
-  definitions) now cause a hard error (whereas, previously,
-  they only caused a warning).
+- Added -E option to the various Slice compilers to print proprocessor
+  output on stdout.
+
+- As announced with version 1.6, slice2cpp and slice2freeze now
+  require all Slice definitions to be nested inside a module;
+  definitions at global scope (other than module definitions) now
+  cause a hard error (whereas, previously, they only caused a
+  warning).
   
-- Fixed a bug in the option parsing for Ice tools such as
-  slice2cpp, slice2java, slice2cs, etc. The option parser
-  used to incorrectly complain about repeated options when
-  in fact no option was repeated. Also changed the parser
-  to permit options to follow an argument, so
+- Fixed a bug in the option parsing for Ice tools such as slice2cpp,
+  slice2java, slice2cs, etc. The option parser used to incorrectly
+  complain about repeated options when in fact no option was
+  repeated. Also changed the parser to permit options to follow an
+  argument, so
 
       slice2cpp -I. x.ice
 
@@ -24,12 +27,11 @@ Changes since version 2.1.0
 
   are now equivalent.
 
-- The Windows demo/IcePatch2/MFC example displays an error dialog 
-  when the patch client is run without the --IcePatch2.Endpoints 
-  option.
+- The Windows demo/IcePatch2/MFC example displays an error dialog when
+  the patch client is run without the --IcePatch2.Endpoints option.
 
-- Fixed bug where data transfer statistics were not being reported
-  on outgoing datagram requests.
+- Fixed bug where data transfer statistics were not being reported on
+  outgoing datagram requests.
 
 Changes since version 2.0.0
 ---------------------------
