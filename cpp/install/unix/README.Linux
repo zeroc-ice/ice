@@ -37,11 +37,11 @@ C++ compiler
 Third-party libraries
 ---------------------
 
-If Ice was installed from RPMs, you already have the required
-third-party libraries!
+Ice has dependencies on a number of third-party libraries. If you
+installed Ice from RPMs, you already have the necessary third-
+party libraries.
 
-Otherwise, Ice has dependencies on a number of third-party libraries
-that you will need to install:
+Otherwise, you will need to install the following libraries:
 
 - Berkeley DB 4.2.52 or 4.3.27 configured with --enable-cxx.
 
@@ -70,36 +70,38 @@ bzip2          bzip2-libs
 readline       readline
 ncurses        ncurses
 
+
 ======================================================================
 64 bit builds on x86-64
 ======================================================================
 
-This distribution only contains 32 bits binaries. If you need a 64
-bits build, you can download Ice sources from
-http://www.zeroc.com/download.html and build Ice in 64 bits mode. See
-the INSTALL.LINUX file of the source distribution for more
-information.
+This distribution only contains 32-bit binaries. If you need a 64-bit
+version, you can download Ice sources from the ZeroC web site at
+http://www.zeroc.com/download.html and build Ice in 64-bit mode. See
+the INSTALL.LINUX file of the source distribution for more details.
+
 
 ======================================================================
 Setting up your environment to use Ice
 ======================================================================
 
-If Ice was installed from RPMs, you don't have anything to do to setup
-your environment.
+If you installed Ice from RPMs, your environment is already set up
+to use Ice.
 
-Otherwise you need to add the Ice bin directory to your PATH and the
-lib directory to your LD_LIBRARY_PATH and when compiling Ice programs,
+Otherwise, you need to add the Ice bin directory to your PATH and the
+lib directory to your LD_LIBRARY_PATH. When compiling Ice programs,
 you must also make sure to pass the location of the Ice include
 directory to the compiler with the -I option, and the location of the
 Ice lib directory with the -L option.
+
 
 ======================================================================
 Demos and documentation
 ======================================================================
 
-If Ice was installed from RPMs, see README.DEMOS for instructions on
+If you installed Ice from RPMs, see README.DEMOS for instructions on
 building and running the demos. Otherwise, you need to download the
-Ice-<version>-demos.tar.gz package from
+Ice-<version>-demos.tar.gz package from the ZeroC web site at
 http://www.zeroc.com/download.html and see the README.DEMOS file
 included in that package.
 
