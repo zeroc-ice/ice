@@ -117,7 +117,8 @@ local interface Properties
 
     /**
      *
-     * Set a property.
+     * Set a property. To unset a property, set it to
+     * the empty string.
      *
      * @param key The property key.
      * @param value The property value.
