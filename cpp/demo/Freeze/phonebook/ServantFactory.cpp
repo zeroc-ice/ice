@@ -30,7 +30,11 @@ ContactFactory::create(const string& type)
 void
 ContactFactory::destroy()
 {
-    // Nothing to do
+    //
+    // Break cyclic object dependencies
+    //
+    _phoneBook = 0;
+    _evictor = 0;
 }
 
 void
