@@ -6,34 +6,28 @@ Requirements
 - Ice 1.6.0
 
 
-
 =========================================================================
 Building the Ice extension for Python (Linux/Solaris/HP-UX/MacOS X/AIX)
 =========================================================================
 
 Follow these steps to build the Ice extension for Python:
 
-1) Edit config/Make.rules and modify the installation prefix if
-   necessary.
+1) Edit config/Make.rules and do the following:
+
+   * Modify the installation prefix (if necessary).
+   * Review the settings for PYTHON_HOME, PYTHON_INCLUDE_DIR and
+     PYTHON_LIB_DIR.
 
 2) Execute 'python -V' to verify that the Python 2.3 interpreter
    is in your executable search path.
 
-3) Platform-specific requirements:
+3) Run 'make'.
 
-   a) Solaris
-
-      Set the CC environment variable as shown below:
-
-      $ export CC=CC
-
-4) Run 'make'.
-
-5) Upon successful completion, run 'make install'. You may need
+4) Upon successful completion, run 'make install'. You may need
    additional user priveleges to install in the directory specified
    by config/Make.rules.
 
-6) Modify your PYTHONPATH environment variable to include the Ice
+5) Modify your PYTHONPATH environment variable to include the Ice
    for Python extension. Assuming you installed the extension in
    the default directory (/opt/IcePy-1.6.0), you would modify your
    environment as shown below:
