@@ -82,6 +82,11 @@ public:
     virtual bool secure() const = 0;
 
     //
+    // Return true if the endpoint type is unknown.
+    //
+    virtual bool unknown() const = 0;
+
+    //
     // Return a client side transceiver for this endpoint, or null if a
     // transceiver can only be created by a connector.
     //
@@ -130,7 +135,7 @@ class UnknownEndpoint : public Endpoint
 {
 public:
 
-    UnknownEndpoint(BasicStream*);
+    UnknownEndpoint(::Ice::Short, BasicStream*);
 
     virtual void streamWrite(BasicStream*) const;
     virtual std::string toString() const;
@@ -139,6 +144,7 @@ public:
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;
     virtual bool secure() const;
+    virtual bool unknown() const;
     virtual TransceiverPtr clientTransceiver() const;
     virtual TransceiverPtr serverTransceiver(EndpointPtr&) const;
     virtual ConnectorPtr connector() const;
@@ -156,6 +162,7 @@ private:
     // All members are const, because endpoints are immutable.
     //
     const InstancePtr _instance;
+    ::Ice::Short _type;
     const std::vector< ::Ice::Byte> _rawBytes;
 };
 
@@ -174,6 +181,7 @@ public:
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;
     virtual bool secure() const;
+    virtual bool unknown() const;
     virtual TransceiverPtr clientTransceiver() const;
     virtual TransceiverPtr serverTransceiver(EndpointPtr&) const;
     virtual ConnectorPtr connector() const;
@@ -211,6 +219,7 @@ public:
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;
     virtual bool secure() const;
+    virtual bool unknown() const;
     virtual TransceiverPtr clientTransceiver() const;
     virtual TransceiverPtr serverTransceiver(EndpointPtr&) const;
     virtual ConnectorPtr connector() const;
@@ -248,6 +257,7 @@ public:
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;
     virtual bool secure() const;
+    virtual bool unknown() const;
     virtual TransceiverPtr clientTransceiver() const;
     virtual TransceiverPtr serverTransceiver(EndpointPtr&) const;
     virtual ConnectorPtr connector() const;
@@ -285,6 +295,7 @@ public:
     virtual EndpointPtr timeout(::Ice::Int) const;
     virtual bool datagram() const;
     virtual bool secure() const;
+    virtual bool unknown() const;
     virtual TransceiverPtr clientTransceiver() const;
     virtual TransceiverPtr serverTransceiver(EndpointPtr&) const;
     virtual ConnectorPtr connector() const;

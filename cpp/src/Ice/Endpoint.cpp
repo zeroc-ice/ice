@@ -110,23 +110,29 @@ IceInternal::Endpoint::streamRead(BasicStream* s, EndpointPtr& v)
 
 	default:
 	{
-	    v = new UnknownEndpoint(s);
+	    v = new UnknownEndpoint(type, s);
 	    break;
 	}
     }
 }
 
-IceInternal::UnknownEndpoint::UnknownEndpoint(BasicStream* s) :
-    _instance(s->instance())
+IceInternal::UnknownEndpoint::UnknownEndpoint(Short type, BasicStream* s) :
+    _instance(s->instance()),
+    _type(type)
 {
-    s->read(const_cast<vector<Byte>&>(_rawBytes));
+    s->startReadEncaps();
+    Int sz = s->getReadEncapsSize();
+    s->readBlob(const_cast<vector<Byte>&>(_rawBytes), sz);
+    s->endReadEncaps();
 }
 
 void
 IceInternal::UnknownEndpoint::streamWrite(BasicStream* s) const
 {
-    s->write(UnknownEndpointType);
-    s->write(_rawBytes);
+    s->write(_type);
+    s->startWriteEncaps();
+    s->writeBlob(_rawBytes);
+    s->endWriteEncaps();
 }
 
 string
@@ -138,7 +144,7 @@ IceInternal::UnknownEndpoint::toString() const
 Short
 IceInternal::UnknownEndpoint::type() const
 {
-    return UnknownEndpointType;
+    return _type;
 }
 
 Int
@@ -163,6 +169,12 @@ bool
 IceInternal::UnknownEndpoint::secure() const
 {
     return false;
+}
+
+bool
+IceInternal::UnknownEndpoint::unknown() const
+{
+    return true;
 }
 
 TransceiverPtr
@@ -217,6 +229,11 @@ IceInternal::UnknownEndpoint::operator==(const Endpoint& r) const
 	return true;
     }
 
+    if (_type != p->_type)
+    {
+        return false;
+    }
+
     if (_rawBytes != p->_rawBytes)
     {
 	return false;
@@ -241,6 +258,15 @@ IceInternal::UnknownEndpoint::operator<(const Endpoint& r) const
     }
 
     if (this == p)
+    {
+	return false;
+    }
+
+    if (_type < p->_type)
+    {
+	return true;
+    }
+    else if (p->_type < _type)
     {
 	return false;
     }
@@ -421,6 +447,12 @@ IceInternal::TcpEndpoint::datagram() const
 
 bool
 IceInternal::TcpEndpoint::secure() const
+{
+    return false;
+}
+
+bool
+IceInternal::TcpEndpoint::unknown() const
 {
     return false;
 }
@@ -759,6 +791,12 @@ IceInternal::SslEndpoint::secure() const
     return true;
 }
 
+bool
+IceInternal::SslEndpoint::unknown() const
+{
+    return false;
+}
+
 TransceiverPtr
 IceInternal::SslEndpoint::clientTransceiver() const
 {
@@ -1084,6 +1122,12 @@ IceInternal::UdpEndpoint::datagram() const
 
 bool
 IceInternal::UdpEndpoint::secure() const
+{
+    return false;
+}
+
+bool
+IceInternal::UdpEndpoint::unknown() const
 {
     return false;
 }
@@ -1415,6 +1459,12 @@ bool
 IceInternal::SUdpEndpoint::secure() const
 {
     return true;
+}
+
+bool
+IceInternal::SUdpEndpoint::unknown() const
+{
+    return false;
 }
 
 TransceiverPtr

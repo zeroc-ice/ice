@@ -867,7 +867,14 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 vector<EndpointPtr>
 IceDelegateM::Ice::Object::filterEndpoints(const vector<EndpointPtr>& allEndpoints) const
 {
-    vector<EndpointPtr> endpoints;
+    vector<EndpointPtr> endpoints = allEndpoints;
+
+    //
+    // Filter out unknown endpoints.
+    //
+    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), ::Ice::constMemFun(&Endpoint::unknown)),
+                    endpoints.end());
+
     switch (__reference->mode)
     {
 	case Reference::ModeTwoway:
@@ -877,8 +884,8 @@ IceDelegateM::Ice::Object::filterEndpoints(const vector<EndpointPtr>& allEndpoin
 	    //
 	    // Filter out datagram endpoints.
 	    //
-	    remove_copy_if(allEndpoints.begin(), allEndpoints.end(), back_inserter(endpoints), 
-			   ::Ice::constMemFun(&Endpoint::datagram));
+            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), ::Ice::constMemFun(&Endpoint::datagram)),
+                            endpoints.end());
 	    break;
 	}
 	
@@ -888,8 +895,9 @@ IceDelegateM::Ice::Object::filterEndpoints(const vector<EndpointPtr>& allEndpoin
 	    //
 	    // Filter out non-datagram endpoints.
 	    //
-	    remove_copy_if(allEndpoints.begin(), allEndpoints.end(), back_inserter(endpoints),
-			   not1(::Ice::constMemFun(&Endpoint::datagram)));
+            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
+                                      not1(::Ice::constMemFun(&Endpoint::datagram))),
+                            endpoints.end());
 	    break;
 	}
     }
