@@ -1012,28 +1012,32 @@ namespace IceInternal
 		return "";
 	    }
 	    
-	    try
-	    {
-		//
-		// We reuse the _stringBytes array to avoid creating
-		// excessive garbage
-		//
-		if(_stringBytes == null || len > _stringBytes.Length)
-		{
-		    _stringBytes = new byte[len];
-		}
-		_buf.get(_stringBytes, 0, len);
-		return utf8.GetString(_stringBytes, 0, len);
-	    }    
-	    catch(InvalidOperationException ex)
-	    {
-		throw new Ice.UnmarshalOutOfBoundsException(ex);
-	    }
-	    catch(Exception)
-	    {
-		Debug.Assert(false);
-		return "";
-	    }
+            try
+            {
+                //
+                // We reuse the _stringBytes array to avoid creating
+                // excessive garbage
+                //
+                if(_stringBytes == null || len > _stringBytes.Length)
+                {
+                    _stringBytes = new byte[len];
+                }
+                _buf.get(_stringBytes, 0, len);
+                return utf8.GetString(_stringBytes, 0, len);
+            }    
+            catch(InvalidOperationException ex)
+            {
+                throw new Ice.UnmarshalOutOfBoundsException(ex);
+            }
+            catch(System.ArgumentException ex)
+            {
+                throw new Ice.MarshalException("Invalid UTF8 string", ex);
+            }
+            catch(Exception)
+            {
+                Debug.Assert(false);
+                return "";
+            }
 	}
 	
 	public virtual string[] readStringSeq()
