@@ -17,6 +17,24 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
 
+struct FileInfoPathEqual: public binary_function<const FileInfo&, const FileInfo&, bool>
+{
+    bool
+    operator()(const FileInfo& lhs, const FileInfo& rhs)
+    {
+	return lhs.path != rhs.path;
+    }
+};
+
+struct FileInfoPathLess: public binary_function<const FileInfo&, const FileInfo&, bool>
+{
+    bool
+    operator()(const FileInfo& lhs, const FileInfo& rhs)
+    {
+	return lhs.path < rhs.path;
+    }
+};
+
 class CalcCB : public GetFileInfoSeqCB
 {
 public:
@@ -46,7 +64,7 @@ public:
 void
 usage(const char* appName)
 {
-    cerr << "Usage: " << appName << " [options] DIR\n";
+    cerr << "Usage: " << appName << " [options] DIR [FILES...]\n";
     cerr <<     
         "Options:\n"
         "-h, --help           Show this message.\n"
@@ -61,7 +79,8 @@ int
 main(int argc, char* argv[])
 {
     string dataDir;
-    int mode = 1;
+    StringSeq fileSeq;
+    int compress = 1;
     bool verbose = false;
 
     int i;
@@ -79,11 +98,11 @@ main(int argc, char* argv[])
         }
         else if(strcmp(argv[i], "-z") == 0 || strcmp(argv[i], "--compress") == 0)
         {
-            mode = 2;
+            compress = 2;
         }
         else if(strcmp(argv[i], "-Z") == 0 || strcmp(argv[i], "--no-compress") == 0)
         {
-            mode = 0;
+            compress = 0;
         }
         else if(strcmp(argv[i], "-V") == 0 || strcmp(argv[i], "--verbose") == 0)
         {
@@ -103,9 +122,7 @@ main(int argc, char* argv[])
             }
             else
             {
-		cerr << argv[0] << ": too many arguments" << endl;
-		usage(argv[0]);
-		return EXIT_FAILURE;
+		fileSeq.push_back(normalize(argv[i]));
             }
         }
     }
@@ -119,36 +136,110 @@ main(int argc, char* argv[])
 
     try
     {
-#ifdef _WIN32
-	if(dataDir[0] != '/' && !(dataDir.size() > 1 && isalpha(dataDir[0]) && dataDir[1] == ':'))
 	{
+#ifdef _WIN32
 	    char cwd[_MAX_PATH];
 	    if(_getcwd(cwd, _MAX_PATH) == NULL)
 	    {
 		throw "cannot get the current directory:\n" + lastError();
 	    }
 	    
-	    dataDir = string(cwd) + '/' + dataDir;
-	}
+	    if(dataDir[0] != '/' && !(dataDir.size() > 1 && isalpha(dataDir[0]) && dataDir[1] == ':'))
+	    {
+		dataDir = string(cwd) + '/' + dataDir;
+	    }
+	    
+	    for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
+	    {
+		if((*p)[0] != '/' && !(p->size() > 1 && isalpha((*p)[0]) && (*p)[1] == ':'))
+		{
+		    *p = string(cwd) + '/' + *p;
+		}
+	    }
 #else
-	if(dataDir[0] != '/')
-	{
 	    char cwd[PATH_MAX];
 	    if(getcwd(cwd, PATH_MAX) == NULL)
 	    {
 		throw "cannot get the current directory:\n" + lastError();
 	    }
 	    
-	    dataDir = string(cwd) + '/' + dataDir;
-	}
+	    if(dataDir[0] != '/')
+	    {
+		dataDir = string(cwd) + '/' + dataDir;
+	    }
+	    
+	    for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
+	    {
+		if((*p)[0] != '/')
+		{
+		    *p = string(cwd) + '/' + *p;
+		}
+	    }
 #endif
-
-	FileInfoSeq infoSeq;
-
-	CalcCB calcCB;
-	if(!getFileInfoSeq(dataDir, mode, verbose ? &calcCB : 0, infoSeq))
+	}
+	
 	{
-	    return EXIT_FAILURE;
+	    string dataDirWithSlash = dataDir + '/';
+
+	    for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
+	    {
+		if(p->compare(0, dataDirWithSlash.size(), dataDirWithSlash) != 0)
+		{
+		    throw "`" + *p + "' is not a path in `" + dataDir + "'";
+		}
+
+		p->erase(0, dataDirWithSlash.size());
+	    }
+	}
+	    
+	FileInfoSeq infoSeq;
+	    
+	if(fileSeq.empty())
+	{
+	    CalcCB calcCB;
+	    if(!getFileInfoSeq(dataDir, compress, verbose ? &calcCB : 0, infoSeq))
+	    {
+		return EXIT_FAILURE;
+	    }
+	}
+	else
+	{
+	    loadFileInfoSeq(dataDir, infoSeq);
+
+	    for(StringSeq::const_iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
+	    {
+		FileInfoSeq partialInfoSeq;
+
+		CalcCB calcCB;
+		if(!getFileInfoSeqSubDir(dataDir, *p, compress, verbose ? &calcCB : 0, partialInfoSeq))
+		{
+		    return EXIT_FAILURE;
+		}
+
+		FileInfoSeq newInfoSeq;
+		newInfoSeq.reserve(infoSeq.size());
+
+		set_difference(infoSeq.begin(),
+			       infoSeq.end(),
+			       partialInfoSeq.begin(),
+			       partialInfoSeq.end(),
+			       back_inserter(newInfoSeq),
+			       FileInfoPathLess());
+
+		infoSeq.swap(newInfoSeq);
+
+		newInfoSeq.clear();
+		newInfoSeq.reserve(infoSeq.size() + partialInfoSeq.size());
+
+		set_union(infoSeq.begin(),
+			  infoSeq.end(),
+			  partialInfoSeq.begin(),
+			  partialInfoSeq.end(),
+			  back_inserter(newInfoSeq),
+			  FileInfoPathLess());
+
+		infoSeq.swap(newInfoSeq);
+	    }
 	}
 
 	saveFileInfoSeq(dataDir, infoSeq);

@@ -114,7 +114,9 @@ public:
     virtual bool compress(const std::string&) = 0;
 };
 
-ICE_PATCH2_API bool getFileInfoSeq(const std::string&, int mode, GetFileInfoSeqCB*, FileInfoSeq&);
+ICE_PATCH2_API bool getFileInfoSeq(const std::string&, int, GetFileInfoSeqCB*, FileInfoSeq&);
+ICE_PATCH2_API bool getFileInfoSeqSubDir(const std::string&, const std::string&, int, GetFileInfoSeqCB*, FileInfoSeq&);
+
 ICE_PATCH2_API void saveFileInfoSeq(const std::string&, const FileInfoSeq&);
 ICE_PATCH2_API void loadFileInfoSeq(const std::string&, FileInfoSeq&);
 

@@ -653,7 +653,8 @@ IcePatch2::decompressFile(const string& pa)
 }
 
 static bool
-getFileInfoSeqInt(const string& basePath, const string& relPath, int mode, GetFileInfoSeqCB* cb, FileInfoSeq& infoSeq)
+getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, GetFileInfoSeqCB* cb,
+		  FileInfoSeq& infoSeq)
 {
     const string path = basePath + '/' + relPath;
 
@@ -734,7 +735,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int mode, GetFi
 	    StringSeq content = readDirectory(path);
 	    for(StringSeq::const_iterator p = content.begin(); p != content.end() ; ++p)
 	    {
-		if(!getFileInfoSeqInt(basePath, normalize(relPath + '/' + *p), mode, cb, infoSeq))
+		if(!getFileInfoSeqInt(basePath, normalize(relPath + '/' + *p), compress, cb, infoSeq))
 		{
 		    return false;
 		}
@@ -770,16 +771,16 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int mode, GetFi
 		close(fd);
 
 		//
-		// mode == 0: Never compress.
-		// mode == 1: Compress if necessary.
-		// mode >= 2: Always compress.
+		// compress == 0: Never compress.
+		// compress == 1: Compress if necessary.
+		// compress >= 2: Always compress.
 		//
-		if(mode > 0)
+		if(compress > 0)
 		{
 		    string pathBZ2 = path + ".bz2";
 		    struct stat bufBZ2;
 
-		    if(mode >= 2 || stat(pathBZ2.c_str(), &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
+		    if(compress >= 2 || stat(pathBZ2.c_str(), &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
 		    {
 			if(cb && !cb->compress(relPath))
 			{
@@ -823,11 +824,20 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int mode, GetFi
 }
 
 bool
-IcePatch2::getFileInfoSeq(const string& pa, int mode, GetFileInfoSeqCB* cb, FileInfoSeq& infoSeq)
+IcePatch2::getFileInfoSeq(const string& basePath, int compress, GetFileInfoSeqCB* cb,
+			  FileInfoSeq& infoSeq)
 {
-    const string path = normalize(pa);
+    return getFileInfoSeqSubDir(basePath, ".", compress, cb, infoSeq);
+}
 
-    if(!getFileInfoSeqInt(path, ".", mode, cb, infoSeq))
+bool
+IcePatch2::getFileInfoSeqSubDir(const string& basePa, const string& relPa, int compress, GetFileInfoSeqCB* cb,
+				FileInfoSeq& infoSeq)
+{
+    const string basePath = normalize(basePa);
+    const string relPath = normalize(relPa);
+
+    if(!getFileInfoSeqInt(basePath, relPath, compress, cb, infoSeq))
     {
 	return false;
     }
