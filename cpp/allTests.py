@@ -24,6 +24,7 @@ for i in \
     "Ice/exceptions", \
     "Ice/inheritance", \
     "Ice/facets", \
+    "Ice/objects", \
     "Ice/faultTolerance", \
     "Ice/locationForward", \
     "IcePack/simple", \
