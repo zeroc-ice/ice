@@ -13,6 +13,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/CommunicatorF.ice>
+#include <Ice/PropertiesF.ice>
 
 /**
  *
@@ -22,6 +23,15 @@
 module Ice
 {
     
+/**
+ *
+ * Used by a Service's [init] operation to indicate failure.
+ *
+ **/
+local exception ServiceFailureException
+{
+};
+
 /**
  *
  * An application service. A Service is managed by a ServiceManager.
@@ -41,7 +51,8 @@ module Ice
  * on a collocated service.</para></listitem>
  *
  * <listitem><para><important>start</important> - Destroy
- * Communicators, clean up resources, etc.</para></listitem>
+ * Communicators, deactivate Object Adapters, clean up resources,
+ * etc.</para></listitem>
  *
  * </orderedlist>
  *
@@ -71,20 +82,31 @@ local interface Service
      * <note><para>The ServiceManager owns this Communicator, and is
      * responsible for destroying it.</para></note>
      *
+     * @param name The service's name, as determined by the configuration.
      * @param communicator The ServiceManager's Communicator instance.
-     * @param args The service arguments.
+     * @param properties The property set representing the service's
+     * command-line arguments of the form
+     * [--<replaceable>name</replaceable>.key=value].
+     * @param args The service arguments which were not converted into
+     * properties.
+     *
+     * @throws ServiceFailureException Raised if [init] failed.
      *
      * @see start
      *
      **/
-    void init(Communicator communicator, StringSeq args);
+    void init(string name, Communicator communicator, Properties properties, StringSeq args)
+        throws ServiceFailureException;
 
     /**
      *
      * Start the Service.
      *
+     * @throws ServiceFailureException Raised if [start] failed.
+     *
      **/
-    void start();
+    void start()
+        throws ServiceFailureException;
 
     /**
      *
