@@ -14,15 +14,15 @@ structure, you may need to adjust some paths in the project files.
 The solution has two configurations:
  - ThirdParty, to build the ThirdParty.msi and ThirdPartyPDB.msi 
    installers from source distributions of Berkeley DB, 
-   bzip2/libbzip2, OpenSSL and Xerces-C++. All the source 
-   distributions must be built with both Debug and Release 
-   configurations, except OpenSSL (release only). This configuration 
-   also generates Merge Modules (.msm files) for these products in 
+   bzip2/libbzip2, OpenSSL and Expat. All the source distributions 
+   must be built with both Debug and Release configurations, except 
+   OpenSSL and Expat (release only). This configuration also 
+   generates Merge Modules (.msm files) for these products in 
    the MergeModules directory.
 
  - Ice, to build the Ice.msi and IcePDB.msi installers from Ice and 
    IceJ source distributions, and merge modules for Berkeley DB, 
-   OpenSSL and Xerces-C++. Ice must be built with both Debug and 
+   OpenSSL and Expat Ice must be built with both Debug and 
    Release configurations; IceJ should be built with optimize set to
    on. The required merge modules can be either created through 
    the ThirdParty configuration (which requires building the

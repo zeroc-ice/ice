@@ -105,12 +105,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_057C2665D61B46DD8B61FEAB5D7142F0"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:MergeModule.1F6ED23CA1134399AF5199CCC77B668A"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0601D13C3E2F4EA3A3A49F6BBC305F68"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\CALLBACK\\CONFIG"
@@ -2289,12 +2283,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C786CEA036904435996F174E607D9E8A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:MergeModule.5641B9C09E8843AB9441FB5C73DD199F"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_C8C49A98BCEA452CA3ED780EFCD5DE2D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICEPATCH\\CLIENTUTIL.H"
@@ -2634,12 +2622,6 @@
         "MsmKey" = "8:_E526E58523BD459BB318DAACE01D0C8A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\ICE\\HELLO\\BUILD.XML"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_E5310BFC7207452EAF09D2F21F5019FE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:MergeModule.1B71F6EBA83942139AA39B9AFCC66900"
         }
         "Entry"
         {
@@ -13705,24 +13687,11 @@
         }
         "MergeModule"
         {
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_057C2665D61B46DD8B61FEAB5D7142F0"
-            {
-            "UseDynamicProperties" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "SourcePath" = "8:..\\MergeModules\\XercesCRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.1F6ED23CA1134399AF5199CCC77B668A"
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
             "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_4A65050ED968466F8135E9DC8BC9DC05"
             {
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\BerkeleyDBRuntimeDebug.msm"
-            "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -13734,7 +13703,6 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\BerkeleyDBRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -13746,31 +13714,6 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\OpenSSLRuntime.msm"
-            "ModuleSignature" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_C786CEA036904435996F174E607D9E8A"
-            {
-            "UseDynamicProperties" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "SourcePath" = "8:..\\MergeModules\\XercesCRuntimeDebug.msm"
-            "ModuleSignature" = "8:MergeModule.5641B9C09E8843AB9441FB5C73DD199F"
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
-            "{AC8774A4-3E09-11D3-8E14-00C04F6837D0}:_E5310BFC7207452EAF09D2F21F5019FE"
-            {
-            "UseDynamicProperties" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "SourcePath" = "8:..\\MergeModules\\XercesCDevKit.msm"
-            "ModuleSignature" = "8:MergeModule.1B71F6EBA83942139AA39B9AFCC66900"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -13782,7 +13725,6 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\OpenSSLDevKit.msm"
-            "ModuleSignature" = "8:MergeModule.4E1047477590477A8EEC6153FAAF5A8A"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"

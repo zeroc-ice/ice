@@ -1,0 +1,300 @@
+"DeployProject"
+{
+"VSVersion" = "3:700"
+"ProjectType" = "8:{5443560e-dbb4-11d2-8724-00a0c9a8b90c}"
+"IsWebType" = "8:FALSE"
+"ProjectName" = "8:ExpatDevKit"
+"LanguageId" = "3:1033"
+"CodePage" = "3:1252"
+"UILanguageId" = "3:1033"
+"SccProjectName" = "8:"
+"SccLocalPath" = "8:"
+"SccAuxPath" = "8:"
+"SccProvider" = "8:"
+    "Hierarchy"
+    {
+        "Entry"
+        {
+        "MsmKey" = "8:_2EA469AEDB2B4B6AB359491FE01D8C99"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.7\\SOURCE\\LIB\\EXPAT.H"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_45678EE7CB114D88A25498B98CADF3D2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.7\\SOURCE\\LIB\\RELEASE-W\\LIBEXPATW.LIB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7B553249C86A43DABE5BD2110F02060F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\EXPAT-1.95.7\\SOURCE\\LIB\\RELEASE\\LIBEXPAT.LIB"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DB64E67CCE134124BAA7012F836A89B4"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:MergeModule.A32ACFF5E2BA440F958DA46F03D38012"
+        }
+    }
+    "Configurations"
+    {
+        "ThirdParty"
+        {
+        "DisplayName" = "8:ThirdParty"
+        "IsDebugOnly" = "11:FALSE"
+        "IsReleaseOnly" = "11:FALSE"
+        "OutputFilename" = "8:ThirdParty\\ExpatDevKit.msm"
+        "PackageFilesAs" = "3:2"
+        "PackageFileSize" = "3:-2147483648"
+        "CabType" = "3:1"
+        "Compression" = "3:2"
+        "SignOutput" = "11:FALSE"
+        "CertificateFile" = "8:"
+        "PrivateKeyFile" = "8:"
+        "TimeStampServer" = "8:"
+        "InstallerBootstrapper" = "3:1"
+        }
+    }
+    "Deployable"
+    {
+        "CustomAction"
+        {
+        }
+        "DefaultFeature"
+        {
+        "Name" = "8:DefaultFeature"
+        "Title" = "8:"
+        "Description" = "8:"
+        }
+        "File"
+        {
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_2EA469AEDB2B4B6AB359491FE01D8C99"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.7\\Source\\lib\\expat.h"
+            "TargetName" = "8:expat.h"
+            "Tag" = "8:"
+            "Folder" = "8:_862C9AAEFDED485BBBEC5E104D6E4A15"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_45678EE7CB114D88A25498B98CADF3D2"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.7\\Source\\lib\\Release-w\\libexpatw.lib"
+            "TargetName" = "8:libexpatw.lib"
+            "Tag" = "8:"
+            "Folder" = "8:_650BE57C81CD4945B5721411115CA2EA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_7B553249C86A43DABE5BD2110F02060F"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\Expat-1.95.7\\Source\\lib\\Release\\libexpat.lib"
+            "TargetName" = "8:libexpat.lib"
+            "Tag" = "8:"
+            "Folder" = "8:_650BE57C81CD4945B5721411115CA2EA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+        }
+        "FileType"
+        {
+        }
+        "Folder"
+        {
+            "{777C097F-0ED8-11D3-8D6C-00A0C9CFCEE6}:_2B89EACB055B40D98CBDCB82AEB2D82B"
+            {
+            "Name" = "8:#1910"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:CommonFilesFolder"
+                "Folders"
+                {
+                }
+            }
+            "{2FBCB9FF-B6A1-4FA9-9C7C-D1366E178586}:_F28A5380960A460496BB07B43120281E"
+            {
+            "DefaultLocation" = "8:[TARGETDIR]"
+            "DisplayName" = "8:Module Retargetable Folder"
+            "Description" = "8:"
+            "Name" = "8:Module Retargetable Folder"
+            "AlwaysCreate" = "11:FALSE"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Property" = "8:NEWRETARGETABLEPROPERTY1"
+                "Folders"
+                {
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_650BE57C81CD4945B5721411115CA2EA"
+                    {
+                    "Name" = "8:lib"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_8B58D36FEA7542DBB565CAE6B6F65FB7"
+                        "Folders"
+                        {
+                        }
+                    }
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_862C9AAEFDED485BBBEC5E104D6E4A15"
+                    {
+                    "Name" = "8:include"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_C9888DEFB9A8464DA1291206BB1C18DF"
+                        "Folders"
+                        {
+                        }
+                    }
+                }
+            }
+        }
+        "Shortcut"
+        {
+        }
+        "Sequences"
+        {
+        }
+        "Registry"
+        {
+            "HKLM"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKCU"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKCR"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKU"
+            {
+                "Keys"
+                {
+                }
+            }
+            "HKPU"
+            {
+                "Keys"
+                {
+                }
+            }
+        }
+        "ProjectOutput"
+        {
+            "{B1E2BB22-187D-11D3-8E02-00C04F6837D0}:_DB64E67CCE134124BAA7012F836A89B4"
+            {
+            "SourcePath" = "8:..\\ExpatRuntime\\ThirdParty\\ExpatRuntime.msm"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_2B89EACB055B40D98CBDCB82AEB2D82B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectCanonicalName" = "8:ExpatRuntime\\ExpatRuntime.vdproj"
+            "OutputProjectGuid" = "8:{6AE60547-9091-46B6-91CC-BBEAF177CD72}"
+            "ShowKeyOutput" = "11:FALSE"
+                "ExcludeFilters"
+                {
+                }
+                "KeyOutputModule"
+                {
+                "UseDynamicProperties" = "11:TRUE"
+                "IsDependency" = "11:FALSE"
+                "SourcePath" = "8:..\\MergeModules\\ExpatRuntime.msm"
+                "ModuleSignature" = "8:MergeModule.A32ACFF5E2BA440F958DA46F03D38012"
+                    "Properties"
+                    {
+                        "_DB4AE708F0EC4524BDC22AF9250F754B.A32ACFF5E2BA440F958DA46F03D38012"
+                        {
+                        "Name" = "8:_DB4AE708F0EC4524BDC22AF9250F754B.A32ACFF5E2BA440F958DA46F03D38012"
+                        "DisplayName" = "8:Module Retargetable Folder"
+                        "Description" = "8:"
+                        "Type" = "3:32769"
+                        "ContextData" = "8:_RetargetableFolder"
+                        "Attributes" = "3:6"
+                        "Setting" = "3:1"
+                        "UsePlugInResources" = "11:FALSE"
+                        }
+                    }
+                "LanguageId" = "3:1033"
+                "Exclude" = "11:FALSE"
+                "Folder" = "8:_2B89EACB055B40D98CBDCB82AEB2D82B"
+                "Feature" = "8:"
+                "IsolateTo" = "8:"
+                }
+            }
+        }
+        "Module"
+        {
+        "ModuleSignature" = "8:MergeModule.9D1FD48B7768405DB0E5CF2ECA44360C"
+        "Version" = "8:1.0.0.0"
+        "Title" = "8:ExpatDevKit"
+        "Subject" = "8:"
+        "Author" = "8:Default Company Name"
+        "Keywords" = "8:"
+        "Comments" = "8:"
+        "SearchPath" = "8:"
+        "UseSystemSearchPath" = "11:TRUE"
+        }
+        "MergeModule"
+        {
+        }
+    }
+}
