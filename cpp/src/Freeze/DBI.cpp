@@ -593,6 +593,27 @@ Freeze::DBI::getCommunicator()
     return _communicator;
 }
 
+Long
+Freeze::DBI::getNumberRecords()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DB_BTREE_STAT s;
+
+    checkBerkeleyDBReturn(_db->stat(_db, &s, DB_FAST_STAT), _errorPrefix, "DB->stat");
+
+    return s.bt_ndata;
+}
+
 DBCursorPtr
 Freeze::DBI::getCursor()
 {
@@ -872,6 +893,24 @@ Freeze::DBI::delServant(const string& ident)
     }
     
     checkBerkeleyDBReturn(_db->del(_db, 0, &dbKey, 0), _errorPrefix, "DB->del");
+}
+
+void
+Freeze::DBI::clear()
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    u_int32_t count; // ignored
+    checkBerkeleyDBReturn(_db->truncate(_db, 0, &count, 0), _errorPrefix, "DB->truncate");
 }
 
 void

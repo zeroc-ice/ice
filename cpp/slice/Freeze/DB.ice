@@ -302,12 +302,22 @@ local interface DB
 
     /**
      *
+     * Get number of key/value pairs in the database.
+     *
+     * @return The number of pairs.
+     *
+     * @throws DBException Raised if the database has been closed.
+     *
+     **/
+    long getNumberRecords() throws DBException;
+
+    /**
+     *
      * Create a cursor for this database.
      *
      * @return A database cursor.
      *
-     * @throws DBException Raised if any other database failure
-     * occurred.
+     * @throws DBException Raised if the database has been closed.
      *
      * @see DBCursor
      * @see getCursorForKey
@@ -469,6 +479,15 @@ local interface DB
      *
      **/
     void delServant(string identity) throws DBException;
+
+    /**
+     *
+     * Clear the database of all records.
+     *
+     * @throws DBException Raised if a database failure occurred.
+     * 
+     **/
+    void clear() throws DBException;
 
     /**
      *

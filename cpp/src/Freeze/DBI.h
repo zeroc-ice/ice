@@ -123,6 +123,8 @@ public:
     virtual std::string getName();
     virtual ::Ice::CommunicatorPtr getCommunicator();
 
+    virtual ::Ice::Long getNumberRecords();
+
     virtual DBCursorPtr getCursor();
     virtual DBCursorPtr getCursorForKey(const Key&);
 
@@ -133,6 +135,8 @@ public:
     virtual void putServant(const std::string&, const ::Ice::ObjectPtr&);
     virtual ::Ice::ObjectPtr getServant(const std::string&);
     virtual void delServant(const std::string&);
+
+    virtual void clear();
 
     virtual void close();
 
