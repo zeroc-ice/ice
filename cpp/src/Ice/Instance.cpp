@@ -348,51 +348,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
 	_objectAdapterFactory = new ObjectAdapterFactory(this);
 
-#ifndef _WIN32
-        //
-        // daemon() is called before the plug-ins are loaded.
-        // If a plug-in needs to use a resource such as stdin
-        // (e.g., the SSL plug-in might want to read a passphrase),
-        // then Ice.DaemonNoClose must be specified.
-        //
-        if (_properties->getPropertyAsInt("Ice.Daemon") > 0)
-        {
-            int noclose = _properties->getPropertyAsInt("Ice.DaemonNoClose");
-            int nochdir = _properties->getPropertyAsInt("Ice.DaemonNoChdir");
-            
-            if (daemon(nochdir, noclose) == -1)
-            {
-                SystemException ex(__FILE__, __LINE__);
-                ex.error = getSystemErrno();
-                throw ex;
-            }
-        }
-#endif
-
-        //
-        // Must be done after daemon() is called, since daemon()
-        // forks. Does not work together with Ice.Daemon if
-        // Ice.DaemonNoClose is not set.
-        //
-        if (_properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
-        {
-#ifdef _WIN32
-            cout << _getpid() << endl;
-#else
-            cout << getpid() << endl;
-#endif
-        }
-
-        //
-        // Thread pool initializations must be done after daemon() is
-        // called, since daemon() forks.
-        //
-
-        //
-        // Thread pool initialization is now lazy initialization in
-        // clientThreadPool() and serverThreadPool().
-        //
-
 	__setNoDelete(false);
     }
     catch(...)
@@ -455,7 +410,7 @@ IceInternal::Instance::~Instance()
 }
 
 void
-IceInternal::Instance::loadPlugins(int& argc, char* argv[])
+IceInternal::Instance::finishSetup(int& argc, char* argv[])
 {
     //
     // Load plug-ins.
@@ -463,6 +418,50 @@ IceInternal::Instance::loadPlugins(int& argc, char* argv[])
     PluginManagerI* pluginManagerImpl = dynamic_cast<PluginManagerI*>(_pluginManager.get());
     assert(pluginManagerImpl);
     pluginManagerImpl->loadPlugins(argc, argv);
+
+#ifndef _WIN32
+    //
+    // daemon() must be called after any plug-ins have been
+    // installed. For example, an SSL plug-in might want to
+    // read a passphrase from standard input.
+    //
+    if (_properties->getPropertyAsInt("Ice.Daemon") > 0)
+    {
+        int noclose = _properties->getPropertyAsInt("Ice.DaemonNoClose");
+        int nochdir = _properties->getPropertyAsInt("Ice.DaemonNoChdir");
+        
+        if (daemon(nochdir, noclose) == -1)
+        {
+            SystemException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+    }
+#endif
+
+    //
+    // Must be done after daemon() is called, since daemon()
+    // forks. Does not work together with Ice.Daemon if
+    // Ice.DaemonNoClose is not set.
+    //
+    if (_properties->getPropertyAsInt("Ice.PrintProcessId") > 0)
+    {
+#ifdef _WIN32
+        cout << _getpid() << endl;
+#else
+        cout << getpid() << endl;
+#endif
+    }
+
+    //
+    // Thread pool initializations must be done after daemon() is
+    // called, since daemon() forks.
+    //
+
+    //
+    // Thread pool initialization is now lazy initialization in
+    // clientThreadPool() and serverThreadPool().
+    //
 }
 
 void

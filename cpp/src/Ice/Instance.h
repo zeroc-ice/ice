@@ -68,7 +68,7 @@ private:
 
     Instance(const ::Ice::CommunicatorPtr&, int&, char*[], const ::Ice::PropertiesPtr&);
     virtual ~Instance();
-    void loadPlugins(int&, char*[]);
+    void finishSetup(int&, char*[]);
     void destroy();
     friend class ::Ice::CommunicatorI;
 
