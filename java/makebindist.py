@@ -103,7 +103,7 @@ elif sys.platform.startswith("linux"):
 elif sys.platform.startswith("sunos"):
     platform = "solaris"
 elif sys.platform.startswith("hp"):
-    platform = "hp"
+    platform = "hpux"
 elif sys.platform.startswith("darwin"):
     platform = "macosx"
 else:
