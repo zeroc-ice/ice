@@ -175,6 +175,7 @@ IceInternal::LocatorInfo::destroy()
 {
     IceUtil::Mutex::Lock sync(*this);
 
+    _locator = 0;
     _locatorRegistry = 0;
     _adapterTable->clear();
 }
