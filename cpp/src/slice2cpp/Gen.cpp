@@ -30,7 +30,7 @@ struct ToIfdef
 {
     char operator()(char c)
     {
-	if(!isalnum(c))
+	if (!isalnum(c))
 	    return '_';
 	else
 	    return c;
@@ -47,33 +47,33 @@ Slice::Gen::Gen(const string& name,
       _includePaths(includePaths),
       _dllExport(dllExport)
 {
-    for(vector<string>::iterator p = _includePaths.begin();
+    for (vector<string>::iterator p = _includePaths.begin();
 	p != _includePaths.end();
 	++p)
     {
-	if(p -> length() && (*p)[p -> length() - 1] != '/')
+	if (p -> length() && (*p)[p -> length() - 1] != '/')
 	    *p += '/';
     }
 
-    if(_dllExport.length())
+    if (_dllExport.length())
 	_dllExport = " " + _dllExport;
 
     string::size_type pos = _base.rfind('/');
-    if(pos != string::npos)
+    if (pos != string::npos)
 	_base.erase(0, pos + 1);
 
     string fileH = _base + ".h";
     string fileC = _base + ".cpp";
 
     H.open(fileH.c_str());
-    if(!H)
+    if (!H)
     {
 	cerr << name << ": can't open `" << fileH << "' for writing: " << strerror(errno) << endl;
 	return;
     }
     
     C.open(fileC.c_str());
-    if(!C)
+    if (!C)
     {
 	cerr << name << ": can't open `" << fileC << "' for writing: " << strerror(errno) << endl;
 	return;
@@ -105,7 +105,7 @@ void
 Slice::Gen::generate(const UnitPtr& unit)
 {
     C << "\n#include <";
-    if(_include.length())
+    if (_include.length())
 	C << _include << '/';
     C << _base << ".h>";
 
@@ -113,7 +113,7 @@ Slice::Gen::generate(const UnitPtr& unit)
     H << "\n#include <Ice/ObjectF.h>";
     H << "\n#include <Ice/LocalObjectF.h>";
     H << "\n#include <Ice/Native.h>";
-    if(unit -> hasProxies())
+    if (unit -> hasProxies())
     {
 	H << "\n#include <Ice/Proxy.h>";
 	H << "\n#include <Ice/Object.h>";
@@ -128,7 +128,7 @@ Slice::Gen::generate(const UnitPtr& unit)
     }
 
     StringList includes = unit -> includeFiles();
-    for(StringList::iterator q = includes.begin();
+    for (StringList::iterator q = includes.begin();
 	q != includes.end();
 	++q)
     {
@@ -185,20 +185,20 @@ string
 Slice::Gen::changeInclude(const string& orig)
 {
     string file = orig;
-    for(vector<string>::iterator p = _includePaths.begin();
+    for (vector<string>::iterator p = _includePaths.begin();
 	p != _includePaths.end();
 	++p)
     {
-	if(orig.compare(0, p -> length(), *p) == 0)
+	if (orig.compare(0, p -> length(), *p) == 0)
 	{
 	    string s = orig.substr(p -> length());
-	    if(s.length() < file.length())
+	    if (s.length() < file.length())
 		file = s;
 	}
     }
     
     string::size_type pos = file.rfind('.');
-    if(pos != string::npos)
+    if (pos != string::npos)
 	file.erase(pos);
 
     return file;
@@ -233,7 +233,7 @@ Slice::Gen::TypesVisitor::TypesVisitor(Output& h, Output& c, const string& dllEx
 void
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p -> hasOtherConstructedTypes())
+    if (!p -> hasOtherConstructedTypes())
 	return;
 
     string name = p -> name();
@@ -245,7 +245,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 void
 Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if(!p -> hasOtherConstructedTypes())
+    if (!p -> hasOtherConstructedTypes())
 	return;
 
     H << sp;
@@ -258,17 +258,17 @@ Slice::Gen::TypesVisitor::visitVector(const VectorPtr& p)
     string name = p -> name();
     TypePtr subtype = p -> type();
     string s = typeToString(subtype);
-    if(s[0] == ':')
+    if (s[0] == ':')
 	s.insert(0, " ");
     H << sp;
     H << nl << "typedef ::std::vector<" << s << "> " << name << ';';
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(subtype);
-    if(!builtin)
+    if (!builtin)
     {
 	string scoped = p -> scoped();
 	string scope = p -> scope();
-	if(scope.length())
+	if (scope.length())
 	    scope.erase(0, 2);
 
 	H << sp;
@@ -282,7 +282,7 @@ Slice::Gen::TypesVisitor::visitVector(const VectorPtr& p)
 	C << sb;
 	C << nl << "__os -> write(::Ice::Int(v.size()));";
 	C << nl << scoped << "::const_iterator p;";
-	C << nl << "for(p = v.begin(); p != v.end(); ++p)";
+	C << nl << "for (p = v.begin(); p != v.end(); ++p)";
 	C.inc();
 	writeMarshalUnmarshalCode(C, subtype, "*p", true);
 	C.dec();
@@ -295,7 +295,7 @@ Slice::Gen::TypesVisitor::visitVector(const VectorPtr& p)
 	C << nl << "__is -> read(sz);";
 	// Don't use v.resize(sz) or v.reserve(sz) here, as it
 	// cannot be checked whether sz is a reasonable value
-	C << nl << "while(sz--)";
+	C << nl << "while (sz--)";
 	C << sb;
 	C.zeroIndent();
 	C << nl << "#ifdef WIN32"; // STLBUG
@@ -323,17 +323,17 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     H << nl << "enum " << name;
     H << sb;
     StringList::iterator en = enumerators.begin();
-    while(en != enumerators.end())
+    while (en != enumerators.end())
     {
 	H << nl << *en;
-	if(++en != enumerators.end())
+	if (++en != enumerators.end())
 	    H << ',';
     }
     H << eb << ';';
 
     string scoped = p -> scoped();
     string scope = p -> scope();
-    if(scope.length())
+    if (scope.length())
 	scope.erase(0, 2);
 
     int sz = enumerators.size();
@@ -344,11 +344,11 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     C << sp;
     C << nl << "void" << nl << scope << "::__write(::IceInternal::Stream* __os, " << scoped << " v)";
     C << sb;
-    if(sz <= numeric_limits<Ice::Byte>::max())
+    if (sz <= numeric_limits<Ice::Byte>::max())
 	C << nl << "__os -> write(static_cast< ::Ice::Byte>(v));";
-    else if(sz <= numeric_limits<Ice::Short>::max())
+    else if (sz <= numeric_limits<Ice::Short>::max())
 	C << nl << "__os -> write(static_cast< ::Ice::Short>(v));";
-    else if(sz <= numeric_limits<Ice::Int>::max())
+    else if (sz <= numeric_limits<Ice::Int>::max())
 	C << nl << "__os -> write(static_cast< ::Ice::Int>(v));";
     else
 	C << nl << "__os -> write(static_cast< ::Ice::Long>(v));";
@@ -356,19 +356,19 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     C << sp;
     C << nl << "void" << nl << scope << "::__read(::IceInternal::Stream* __is, " << scoped << "& v)";
     C << sb;
-    if(sz <= numeric_limits<Ice::Byte>::max())
+    if (sz <= numeric_limits<Ice::Byte>::max())
     {
 	C << nl << "::Ice::Byte val;";
 	C << nl << "__is -> read(val);";
 	C << nl << "v = static_cast< " << scoped << ">(val);";
     }
-    else if(sz <= numeric_limits<Ice::Short>::max())
+    else if (sz <= numeric_limits<Ice::Short>::max())
     {
 	C << nl << "::Ice::Short val;";
 	C << nl << "__is -> read(val);";
 	C << nl << "v = static_cast< " << scoped << ">(val);";
     }
-    else if(sz <= numeric_limits<Ice::Int>::max())
+    else if (sz <= numeric_limits<Ice::Int>::max())
     {
 	C << nl << "::Ice::Int val;";
 	C << nl << "__is -> read(val);";
@@ -400,7 +400,7 @@ Slice::Gen::ProxyDeclVisitor::ProxyDeclVisitor(Output& h, Output& c, const strin
 void
 Slice::Gen::ProxyDeclVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     H << sp;
@@ -410,7 +410,7 @@ Slice::Gen::ProxyDeclVisitor::visitUnitStart(const UnitPtr& p)
 void
 Slice::Gen::ProxyDeclVisitor::visitUnitEnd(const UnitPtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     H << sp;
@@ -420,7 +420,7 @@ Slice::Gen::ProxyDeclVisitor::visitUnitEnd(const UnitPtr& p)
 void
 Slice::Gen::ProxyDeclVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     string name = p -> name();
@@ -432,7 +432,7 @@ Slice::Gen::ProxyDeclVisitor::visitModuleStart(const ModulePtr& p)
 void
 Slice::Gen::ProxyDeclVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     H << sp;
@@ -442,7 +442,7 @@ Slice::Gen::ProxyDeclVisitor::visitModuleEnd(const ModulePtr& p)
 void
 Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    if(p -> isLocal())
+    if (p -> isLocal())
 	return;
 
     string name = p -> name();
@@ -459,7 +459,7 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllEx
 void
 Slice::Gen::ProxyVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     H << sp;
@@ -469,7 +469,7 @@ Slice::Gen::ProxyVisitor::visitUnitStart(const UnitPtr& p)
 void
 Slice::Gen::ProxyVisitor::visitUnitEnd(const UnitPtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     H << sp;
@@ -479,7 +479,7 @@ Slice::Gen::ProxyVisitor::visitUnitEnd(const UnitPtr& p)
 void
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     string name = p -> name();
@@ -491,7 +491,7 @@ Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 void
 Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     H << sp;
@@ -501,7 +501,7 @@ Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr& p)
 void
 Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p -> isLocal())
+    if (p -> isLocal())
 	return;
 
     string name = p -> name();
@@ -510,16 +510,16 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     H << sp;
     H << nl << "class" << _dllExport << ' ' << name << " : ";
-    if(bases.empty())
+    if (bases.empty())
 	H << "virtual public ::IceProxy::Ice::Object";
     else
     {
 	H.useCurrentPosAsIndent();
 	ClassList::iterator q = bases.begin();
-	while(q != bases.end())
+	while (q != bases.end())
 	{
 	    H << "virtual public ::IceProxy" << (*q) -> scoped();
-	    if(++q != bases.end())
+	    if (++q != bases.end())
 		H << ',' << nl;
 	}
 	H.restoreIndent();
@@ -541,7 +541,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
-    if(p -> isLocal())
+    if (p -> isLocal())
 	return;
 
     string scoped = p -> scoped();
@@ -566,7 +566,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
     ContainerPtr container = p -> container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    if(cl -> isLocal())
+    if (cl -> isLocal())
 	return;
 
     string name = p -> name();
@@ -584,9 +584,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string paramsDecl = "("; // With declarators
     string args = "(";
 
-    for(q = inParams.begin(); q != inParams.end(); ++q)
+    for (q = inParams.begin(); q != inParams.end(); ++q)
     {
-	if(q != inParams.begin())
+	if (q != inParams.begin())
 	{
 	    params += ", ";
 	    paramsDecl += ", ";
@@ -601,9 +601,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	args += q -> second;
     }
 
-    for(q = outParams.begin(); q != outParams.end(); ++q)
+    for (q = outParams.begin(); q != outParams.end(); ++q)
     {
-	if(q != outParams.begin() || !inParams.empty())
+	if (q != outParams.begin() || !inParams.empty())
 	{
 	    params += ", ";
 	    paramsDecl += ", ";
@@ -632,7 +632,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase = __getDelegate();";
     C << nl << "::IceDelegate" << scope << "* __del = dynamic_cast< ::IceDelegate" << scope << "*>(__delBase.get());";
     C << nl;
-    if(ret)
+    if (ret)
 	C << "return ";
     C << "__del -> " << name << args << ";";
     C << eb;
@@ -646,7 +646,7 @@ Slice::Gen::DelegateVisitor::DelegateVisitor(Output& h, Output& c, const string&
 void
 Slice::Gen::DelegateVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     H << sp;
@@ -656,7 +656,7 @@ Slice::Gen::DelegateVisitor::visitUnitStart(const UnitPtr& p)
 void
 Slice::Gen::DelegateVisitor::visitUnitEnd(const UnitPtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     H << sp;
@@ -666,7 +666,7 @@ Slice::Gen::DelegateVisitor::visitUnitEnd(const UnitPtr& p)
 void
 Slice::Gen::DelegateVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     string name = p -> name();
@@ -678,7 +678,7 @@ Slice::Gen::DelegateVisitor::visitModuleStart(const ModulePtr& p)
 void
 Slice::Gen::DelegateVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     H << sp;
@@ -688,7 +688,7 @@ Slice::Gen::DelegateVisitor::visitModuleEnd(const ModulePtr& p)
 void
 Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p -> isLocal())
+    if (p -> isLocal())
 	return;
 
     string name = p -> name();
@@ -696,16 +696,16 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     H << sp;
     H << nl << "class" << _dllExport << ' ' << name << " : ";
-    if(bases.empty())
+    if (bases.empty())
 	H << "virtual public ::IceDelegate::Ice::Object";
     else
     {
 	H.useCurrentPosAsIndent();
 	ClassList::iterator q = bases.begin();
-	while(q != bases.end())
+	while (q != bases.end())
 	{
 	    H << "virtual public ::IceDelegate" << (*q) -> scoped();
-	    if(++q != bases.end())
+	    if (++q != bases.end())
 		H << ',' << nl;
 	}
 	H.restoreIndent();
@@ -719,7 +719,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::DelegateVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
-    if(p -> isLocal())
+    if (p -> isLocal())
 	return;
 
     H << eb << ';';
@@ -730,7 +730,7 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 {
     ContainerPtr container = p -> container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    if(cl -> isLocal())
+    if (cl -> isLocal())
 	return;
 
     string name = p -> name();
@@ -745,9 +745,9 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
     string params = "(";
     string args = "(";
 
-    for(q = inParams.begin(); q != inParams.end(); ++q)
+    for (q = inParams.begin(); q != inParams.end(); ++q)
     {
-	if(q != inParams.begin())
+	if (q != inParams.begin())
 	{
 	    params += ", ";
 	    args += ", ";
@@ -758,9 +758,9 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 	args += q -> second;
     }
 
-    for(q = outParams.begin(); q != outParams.end(); ++q)
+    for (q = outParams.begin(); q != outParams.end(); ++q)
     {
-	if(q != outParams.begin() || !inParams.empty())
+	if (q != outParams.begin() || !inParams.empty())
 	{
 	    params += ", ";
 	    args += ", ";
@@ -788,7 +788,7 @@ Slice::Gen::DelegateMVisitor::DelegateMVisitor(Output& h, Output& c, const strin
 void
 Slice::Gen::DelegateMVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     H << sp;
@@ -798,7 +798,7 @@ Slice::Gen::DelegateMVisitor::visitUnitStart(const UnitPtr& p)
 void
 Slice::Gen::DelegateMVisitor::visitUnitEnd(const UnitPtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     H << sp;
@@ -808,7 +808,7 @@ Slice::Gen::DelegateMVisitor::visitUnitEnd(const UnitPtr& p)
 void
 Slice::Gen::DelegateMVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     string name = p -> name();
@@ -820,7 +820,7 @@ Slice::Gen::DelegateMVisitor::visitModuleStart(const ModulePtr& p)
 void
 Slice::Gen::DelegateMVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if(!p -> hasProxies())
+    if (!p -> hasProxies())
 	return;
 
     H << sp;
@@ -830,7 +830,7 @@ Slice::Gen::DelegateMVisitor::visitModuleEnd(const ModulePtr& p)
 void
 Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p -> isLocal())
+    if (p -> isLocal())
 	return;
 
     string name = p -> name();
@@ -841,15 +841,15 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "class" << _dllExport << ' ' << name << " : ";
     H.useCurrentPosAsIndent();
     H << "virtual public ::IceDelegate" << scoped << ',';
-    if(bases.empty())
+    if (bases.empty())
 	H << nl << "virtual public ::IceDelegateM::Ice::Object";
     else
     {
 	ClassList::iterator q = bases.begin();
-	while(q != bases.end())
+	while (q != bases.end())
 	{
 	    H << nl << "virtual public ::IceDelegateM" << (*q) -> scoped();
-	    if(++q != bases.end())
+	    if (++q != bases.end())
 		H << ',';
 	}
     }
@@ -863,7 +863,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
-    if(p -> isLocal())
+    if (p -> isLocal())
 	return;
 
     H << eb << ';';
@@ -874,7 +874,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 {
     ContainerPtr container = p -> container();
     ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
-    if(cl -> isLocal())
+    if (cl -> isLocal())
 	return;
 
     string name = p -> name();
@@ -892,9 +892,9 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     string paramsDecl = "("; // With declarators
     string args = "(";
 
-    for(q = inParams.begin(); q != inParams.end(); ++q)
+    for (q = inParams.begin(); q != inParams.end(); ++q)
     {
-	if(q != inParams.begin())
+	if (q != inParams.begin())
 	{
 	    params += ", ";
 	    paramsDecl += ", ";
@@ -909,9 +909,9 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	args += q -> second;
     }
 
-    for(q = outParams.begin(); q != outParams.end(); ++q)
+    for (q = outParams.begin(); q != outParams.end(); ++q)
     {
-	if(q != outParams.begin() || !inParams.empty())
+	if (q != outParams.begin() || !inParams.empty())
 	{
 	    params += ", ";
 	    paramsDecl += ", ";
@@ -938,22 +938,22 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     C << nl << retS << nl << "IceDelegateM" << scoped << paramsDecl;
     C << sb;
     C << nl << "::IceInternal::Outgoing __out(__emitter(), __reference());";
-    if(ret || !outParams.empty() || !throws.empty())
+    if (ret || !outParams.empty() || !throws.empty())
 	C << nl << "::IceInternal::Stream* __is = __out.is();";
     C << nl << "::IceInternal::Stream* __os = __out.os();";
     C << nl << "__os -> write(\"" << name << "\");";
     writeMarshalCode(C, inParams, 0);
-    C << nl << "if(!__out.invoke())";
-    if(!throws.empty())
+    C << nl << "if (!__out.invoke())";
+    if (!throws.empty())
     {
 	C << sb;
 	C << nl << "::Ice::Int __exnum;";
 	C << nl << "__is -> read(__exnum);";
-	C << nl << "switch(__exnum)";
+	C << nl << "switch (__exnum)";
 	C << sb;
 	TypeList::iterator r;
 	Ice::Int cnt = 0;
-	for(r = throws.begin(); r != throws.end(); ++r)
+	for (r = throws.begin(); r != throws.end(); ++r)
 	{
 	    C << nl << "case " << cnt++ << ':';
 	    C << sb;
@@ -961,7 +961,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	    li.push_back(make_pair(*r, string("__ex")));
 	    writeAllocateCode(C, li, 0);
 	    writeUnmarshalCode(C, li, 0);
-	    if(ClassDeclPtr::dynamicCast(*r) || ProxyPtr::dynamicCast(*r))
+	    if (ClassDeclPtr::dynamicCast(*r) || ProxyPtr::dynamicCast(*r))
 		C << nl << "__ex -> _throw();";
 	    else
 		C << nl << "throw __ex;";
@@ -979,7 +979,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     }
     writeAllocateCode(C, TypeStringList(), ret);
     writeUnmarshalCode(C, outParams, ret);
-    if(ret)
+    if (ret)
 	C << nl << "return __ret;";
     C << eb;
 }
@@ -992,7 +992,7 @@ Slice::Gen::ObjectDeclVisitor::ObjectDeclVisitor(Output& h, Output& c, const str
 void
 Slice::Gen::ObjectDeclVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p -> hasClassDecls())
+    if (!p -> hasClassDecls())
 	return;
 
     string name = p -> name();
@@ -1004,7 +1004,7 @@ Slice::Gen::ObjectDeclVisitor::visitModuleStart(const ModulePtr& p)
 void
 Slice::Gen::ObjectDeclVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if(!p -> hasClassDecls())
+    if (!p -> hasClassDecls())
 	return;
 
     H << sp;
@@ -1028,7 +1028,7 @@ Slice::Gen::ObjectVisitor::ObjectVisitor(Output& h, Output& c, const string& dll
 void
 Slice::Gen::ObjectVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p -> hasClassDefs())
+    if (!p -> hasClassDefs())
 	return;
 
     string name = p -> name();
@@ -1040,7 +1040,7 @@ Slice::Gen::ObjectVisitor::visitModuleStart(const ModulePtr& p)
 void
 Slice::Gen::ObjectVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if(!p -> hasClassDefs())
+    if (!p -> hasClassDefs())
 	return;
 
     H << sp;
@@ -1057,9 +1057,9 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << sp;
     H << nl << "class" << _dllExport << ' ' << name << "PtrE : ";
     H.useCurrentPosAsIndent();
-    if(bases.empty())
+    if (bases.empty())
     {
-	if(p -> isLocal())
+	if (p -> isLocal())
 	    H << "virtual public ::Ice::LocalObjectPtrE";
 	else
 	    H << "virtual public ::Ice::ObjectPtrE";
@@ -1067,10 +1067,10 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
 	ClassList::iterator q = bases.begin();
-	while(q != bases.end())
+	while (q != bases.end())
 	{
 	    H << "virtual public " << (*q) -> scoped() << "PtrE";
-	    if(++q != bases.end())
+	    if (++q != bases.end())
 		H << ',' << nl;
 	}
     }
@@ -1103,20 +1103,20 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << "return dynamic_cast< " << scoped << "*>(_ptr.get());";
     C << eb;
 
-    if(!p -> isLocal())
+    if (!p -> isLocal())
     {
 	H << sp;
 	H << nl << "class" << _dllExport << ' ' << name << "PrxE : ";
 	H.useCurrentPosAsIndent();
-	if(bases.empty())
+	if (bases.empty())
 	    H << "virtual public ::Ice::ObjectPrxE";
 	else
 	{
 	    ClassList::iterator q = bases.begin();
-	    while(q != bases.end())
+	    while (q != bases.end())
 	    {
 		H << "virtual public " << (*q) -> scoped() << "PrxE";
-		if(++q != bases.end())
+		if (++q != bases.end())
 		    H << ',' << nl;
 	    }
 	}
@@ -1154,9 +1154,9 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << sp;
     H << nl << "class" << _dllExport << ' ' << name << " : ";
     H.useCurrentPosAsIndent();
-    if(bases.empty())
+    if (bases.empty())
     {
-	if(p -> isLocal())
+	if (p -> isLocal())
 	    H << "virtual public ::Ice::LocalObject";
 	else
 	    H << "virtual public ::Ice::Object";
@@ -1164,14 +1164,14 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
 	ClassList::iterator q = bases.begin();
-	while(q != bases.end())
+	while (q != bases.end())
 	{
 	    H << "virtual public " << (*q) -> scoped();
-	    if(++q != bases.end())
+	    if (++q != bases.end())
 		H << ',' << nl;
 	}
     }
-    if(!p -> isLocal())
+    if (!p -> isLocal())
  	H << ',' << nl << "virtual public ::IceDelegate" << scoped;
     H.restoreIndent();
     H << sb;
@@ -1186,7 +1186,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << "throw " << scoped << "PtrE(this);";
     C << eb;
 
-    if(!p -> isLocal())
+    if (!p -> isLocal())
     {
 	ClassList allBases = p -> allBases();
 	StringList ids;
@@ -1202,15 +1202,15 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	
 	ClassList allBaseClasses;
 	ClassDefPtr cl;
-	if(!bases.empty())
+	if (!bases.empty())
 	    cl = bases.front();
 	else
 	    cl = 0;
-	while(cl && !cl -> isInterface())
+	while (cl && !cl -> isInterface())
 	{
 	    allBaseClasses.push_back(cl);
 	    ClassList baseBases = cl -> bases();
-	    if(!baseBases.empty())
+	    if (!baseBases.empty())
 		cl = baseBases.front();
 	    else
 		cl = 0;
@@ -1219,7 +1219,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	transform(allBaseClasses.begin(), allBaseClasses.end(),
 		  back_inserter(classIds),
 		  ::Ice::memFun(&ClassDef::scoped));
-	if(!p -> isInterface())
+	if (!p -> isInterface())
 	    classIds.push_front(scoped);
 	classIds.push_back("::Ice::Object");
 
@@ -1237,10 +1237,10 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "std::string " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
 	C << sb;
 	q = ids.begin();
-	while(q != ids.end())
+	while (q != ids.end())
 	{
 	    C << nl << '"' << *q << '"';
-	    if(++q != ids.end())
+	    if (++q != ids.end())
 		C << ',';
 	}
 	C << eb << ';';
@@ -1248,10 +1248,10 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "std::string " << scoped.substr(2) << "::__classIds[" << classIds.size() << "] =";
 	C << sb;
 	q = classIds.begin();
-	while(q != classIds.end())
+	while (q != classIds.end())
 	{
 	    C << nl << '"' << *q << '"';
-	    if(++q != classIds.end())
+	    if (++q != classIds.end())
 		C << ',';
 	}
 	C << eb << ';';
@@ -1279,13 +1279,13 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     ClassList bases = p -> bases();
     ClassDefPtr base;
-    if(!bases.empty() && !bases.front() -> isInterface())
+    if (!bases.empty() && !bases.front() -> isInterface())
 	base = bases.front();
     
-    if(!p -> isLocal())
+    if (!p -> isLocal())
     {
 	OperationList allOperations = p -> allOperations();
-	if(!p -> allOperations().empty())
+	if (!p -> allOperations().empty())
 	{
 	    StringList allOpNames;
 	    transform(allOperations.begin(), allOperations.end(), back_inserter(allOpNames),
@@ -1306,10 +1306,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "std::string " << scoped.substr(2) << "::__names[" << allOpNames.size() << "] =";
 	    C << sb;
 	    q = allOpNames.begin();
-	    while(q != allOpNames.end())
+	    while (q != allOpNames.end())
 	    {
 		C << nl << '"' << *q << '"';
-		if(++q != allOpNames.end())
+		if (++q != allOpNames.end())
 		    C << ',';
 	    }
 	    C << eb << ';';
@@ -1320,15 +1320,15 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "std::string* b = __names;";
 	    C << nl << "std::string* e = __names + " << allOpNames.size() << ';';
 	    C << nl << "std::pair<std::string*, std::string*> r = std::equal_range(b, e, s);";
-	    C << nl << "if(r.first == r.second)";
+	    C << nl << "if (r.first == r.second)";
 	    C.inc();
 	    C << nl << "return ::IceInternal::DispatchOperationNotExist;";
 	    C.dec();
 	    C << sp;
-	    C << nl << "switch(r.first - __names)";
+	    C << nl << "switch (r.first - __names)";
 	    C << sb;
 	    int i = 0;
-	    for(q = allOpNames.begin(); q != allOpNames.end(); ++q)
+	    for (q = allOpNames.begin(); q != allOpNames.end(); ++q)
 	    {
 		C << nl << "case " << i++ << ':';
 		C << sb;
@@ -1349,7 +1349,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     TypeStringList memberList;
     DataMemberList dataMembers = p -> dataMembers();
     DataMemberList::const_iterator q;
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	memberList.push_back(make_pair((*q) -> type(), (*q) -> name()));
     C << sp;
     C << nl << "void" << nl << scoped.substr(2) << "::__write(::IceInternal::Stream* __os)";
@@ -1357,7 +1357,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "__os -> startWriteEncaps();";
     writeMarshalCode(C, memberList, 0);
     C << nl << "__os -> endWriteEncaps();";
-    if(base)
+    if (base)
     {
 	C.zeroIndent();
 	C << nl << "#ifdef WIN32"; // COMPILERBUG
@@ -1378,7 +1378,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "__is -> startReadEncaps();";
     writeUnmarshalCode(C, memberList, 0);
     C << nl << "__is -> endReadEncaps();";
-    if(base)
+    if (base)
     {
 	C.zeroIndent();
 	C << nl << "#ifdef WIN32"; // COMPILERBUG
@@ -1415,9 +1415,9 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     string paramsDecl = "("; // With declarators
     string args = "(";
 
-    for(q = inParams.begin(); q != inParams.end(); ++q)
+    for (q = inParams.begin(); q != inParams.end(); ++q)
     {
-	if(q != inParams.begin())
+	if (q != inParams.begin())
 	{
 	    params += ", ";
 	    paramsDecl += ", ";
@@ -1432,9 +1432,9 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	args += q -> second;
     }
 
-    for(q = outParams.begin(); q != outParams.end(); ++q)
+    for (q = outParams.begin(); q != outParams.end(); ++q)
     {
-	if(q != outParams.begin() || !inParams.empty())
+	if (q != outParams.begin() || !inParams.empty())
 	{
 	    params += ", ";
 	    paramsDecl += ", ";
@@ -1458,40 +1458,40 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     H << sp;
     H << nl << "virtual " << retS << ' ' << name << params << " = 0;";
 
-    if(!cl -> isLocal())
+    if (!cl -> isLocal())
     {
 	H << nl << "::IceInternal::DispatchStatus ___" << name << "(::IceInternal::Incoming&);";
 	C << sp;
 	C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "::___" << name
 	  << "(::IceInternal::Incoming& __in)";
 	C << sb;
-	if(!inParams.empty())
+	if (!inParams.empty())
 	    C << nl << "::IceInternal::Stream* __is = __in.is();";
-	if(ret || !outParams.empty() || !throws.empty())
+	if (ret || !outParams.empty() || !throws.empty())
 	    C << nl << "::IceInternal::Stream* __os = __in.os();";
 	writeAllocateCode(C, inParams, 0);
 	writeUnmarshalCode(C, inParams, 0);
 	writeAllocateCode(C, outParams, 0);
-	if(!throws.empty())
+	if (!throws.empty())
 	{
 	    C << nl << "try";
 	    C << sb;
 	}
 	C << nl;
-	if(ret)
+	if (ret)
 	    C << retS << " __ret = ";
 	C << name << args << ';';
-	if(!throws.empty())
+	if (!throws.empty())
 	{
 	    C << eb;
 	    TypeList::iterator r;
 	    Ice::Int cnt = 0;
-	    for(r = throws.begin(); r != throws.end(); ++r)
+	    for (r = throws.begin(); r != throws.end(); ++r)
 	    {
 		C << nl << "catch(" << exceptionTypeToString(*r) << " __ex)";
 		C << sb;
 		C << nl << "__os -> write(" << cnt++ << ");";
-		if(ClassDeclPtr::dynamicCast(*r) || ProxyPtr::dynamicCast(*r))
+		if (ClassDeclPtr::dynamicCast(*r) || ProxyPtr::dynamicCast(*r))
 		{
 		    string s = "static_cast< ";
 		    s += inputTypeToString(*r);
@@ -1527,7 +1527,7 @@ Slice::Gen::IceVisitor::IceVisitor(Output& h, Output& c, const string& dllExport
 void
 Slice::Gen::IceVisitor::visitUnitStart(const UnitPtr& p)
 {
-    if(!p -> hasClassDecls())
+    if (!p -> hasClassDecls())
 	return;
 
     H << sp;
@@ -1537,7 +1537,7 @@ Slice::Gen::IceVisitor::visitUnitStart(const UnitPtr& p)
 void
 Slice::Gen::IceVisitor::visitUnitEnd(const UnitPtr& p)
 {
-    if(!p -> hasClassDecls())
+    if (!p -> hasClassDecls())
 	return;
 
     H << sp;
@@ -1552,7 +1552,7 @@ Slice::Gen::IceVisitor::visitClassDecl(const ClassDeclPtr& p)
     H << sp;
     H << nl << "void" << _dllExport << " incRef(" << scoped << "*);";
     H << nl << "void" << _dllExport << " decRef(" << scoped << "*);";
-    if(!p -> isLocal())
+    if (!p -> isLocal())
     {
 	H << sp;
 	H << nl << "void" << _dllExport << " incRef(::IceProxy" << scoped << "*);";
@@ -1572,7 +1572,7 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << "void IceInternal::incRef(" << scoped << "* p) { p -> __incRef(); }";
     C << nl << "void IceInternal::decRef(" << scoped << "* p) { p -> __decRef(); }";
 
-    if(!p -> isLocal())
+    if (!p -> isLocal())
     {
 	C << sp;
 	C << nl << "void IceInternal::incRef(::IceProxy" << scoped << "* p) { p -> __incRef(); }";
@@ -1581,7 +1581,7 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "void IceInternal::checkedCast(::IceProxy::Ice::Object* b, ::IceProxy" << scoped << "*& d)";
 	C << sb;
 	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b);";
-	C << nl << "if(!d && b -> _isA(\"" << scoped << "\"))";
+	C << nl << "if (!d && b -> _isA(\"" << scoped << "\"))";
 	C << sb;
 	C << nl << "d = new ::IceProxy" << scoped << ';';
 	C << nl << "b -> __copyTo(d);";
@@ -1591,7 +1591,7 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "void IceInternal::uncheckedCast(::IceProxy::Ice::Object* b, ::IceProxy" << scoped << "*& d)";
 	C << sb;
 	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b);";
-	C << nl << "if(!d)";
+	C << nl << "if (!d)";
 	C << sb;
 	C << nl << "d = new ::IceProxy" << scoped << ';';
 	C << nl << "b -> __copyTo(d);";
@@ -1608,7 +1608,7 @@ Slice::Gen::HandleVisitor::HandleVisitor(Output& h, Output& c, const string& dll
 void
 Slice::Gen::HandleVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p -> hasClassDecls())
+    if (!p -> hasClassDecls())
 	return;
 
     string name = p -> name();
@@ -1620,7 +1620,7 @@ Slice::Gen::HandleVisitor::visitModuleStart(const ModulePtr& p)
 void
 Slice::Gen::HandleVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    if(!p -> hasClassDecls())
+    if (!p -> hasClassDecls())
 	return;
 
     H << sp;
@@ -1635,7 +1635,7 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
     
     H << sp;
     H << nl << "typedef ::IceInternal::Handle< " << scoped << "> " << name << "Ptr;";
-    if(!p -> isLocal())
+    if (!p -> isLocal())
     {
 	H << nl << "typedef ::IceInternal::ProxyHandle< ::IceProxy" << scoped << "> " << name << "Prx;";
 	H << sp;
@@ -1647,12 +1647,12 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
 void
 Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p -> isLocal())
+    if (p -> isLocal())
 	return;
 
     string scoped = p -> scoped();
     string scope = p -> scope();
-    if(scope.length())
+    if (scope.length())
 	scope.erase(0, 2);
 
     C << sp;

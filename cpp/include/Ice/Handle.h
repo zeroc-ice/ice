@@ -37,7 +37,7 @@ public:
     Handle(T* p = 0)
 	: Ptr(p)
     {
-	if(Ptr)
+	if (Ptr)
 	    incRef(Ptr);
     }
     
@@ -45,7 +45,7 @@ public:
     Handle(const Handle<Y>& r)
 	: Ptr(r.Ptr)
     {
-	if(Ptr)
+	if (Ptr)
 	    incRef(Ptr);
     }
 
@@ -57,24 +57,24 @@ public:
 #endif
 	: Ptr(r.Ptr)
     {
-	if(Ptr)
+	if (Ptr)
 	    incRef(Ptr);
     }
     
     ~Handle()
     {
-	if(Ptr)
+	if (Ptr)
 	    decRef(Ptr);
     }
     
     Handle& operator=(T* p)
     {
-	if(Ptr != p)
+	if (Ptr != p)
 	{
-	    if(p)
+	    if (p)
 		incRef(p);
 
-	    if(Ptr)
+	    if (Ptr)
 		decRef(Ptr);
 	    
 	    Ptr = p;
@@ -85,12 +85,12 @@ public:
     template<typename Y>
     Handle& operator=(const Handle<Y>& r)
     {
-	if(Ptr != r.Ptr)
+	if (Ptr != r.Ptr)
 	{
-	    if(r.Ptr)
+	    if (r.Ptr)
 		incRef(r.Ptr);
 
-	    if(Ptr)
+	    if (Ptr)
 		decRef(Ptr);
 	    
 	    Ptr = r.Ptr;
@@ -105,12 +105,12 @@ public:
     Handle& operator=(const Handle& r)
 #endif
     {
-	if(Ptr != r.Ptr)
+	if (Ptr != r.Ptr)
 	{
-	    if(r.Ptr)
+	    if (r.Ptr)
 		incRef(r.Ptr);
 
-	    if(Ptr)
+	    if (Ptr)
 		decRef(Ptr);
 	    
 	    Ptr = r.Ptr;

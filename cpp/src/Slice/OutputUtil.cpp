@@ -60,9 +60,9 @@ Slice::Output::open(const char* s)
 void
 Slice::Output::print(const char* s)
 {
-    for(unsigned int i = 0; i < strlen(s); ++i)
+    for (unsigned int i = 0; i < strlen(s); ++i)
     {
-    if(s[i] == '\n')
+    if (s[i] == '\n')
         _pos = 0;
     else
         ++_pos;
@@ -143,7 +143,7 @@ Slice::Output::nl()
 
     if (_useTab)
     {
-        while(indent >= 8)
+        while (indent >= 8)
         {
             indent -= 8;
             _out << '\t';
@@ -152,7 +152,7 @@ Slice::Output::nl()
     }
     else
     {
-        while(indent >= _indentSize)
+        while (indent >= _indentSize)
         {
             indent -= _indentSize;
             _out << "    ";
@@ -160,7 +160,7 @@ Slice::Output::nl()
         }
     }
 
-    while(indent > 0)
+    while (indent > 0)
     {
         --indent;
         _out << ' ';
@@ -192,7 +192,7 @@ Slice::Output::eb()
 void
 Slice::Output::sp()
 {
-    if(_separator)
+    if (_separator)
         _out << '\n';
 }
 

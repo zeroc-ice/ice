@@ -52,42 +52,42 @@ L			[a-zA-Z_]
     do
     {
 	c = yyinput();
-	if(c == '\n')
+	if (c == '\n')
 	    unit -> nextLine();
     }
-    while(c != '\n' && c != EOF);
+    while (c != '\n' && c != EOF);
 }
 
 "/*" {
     // C-style comment
    
     string comment = yytext + 2;
-    while(true)
+    while (true)
     {
 	int c = yyinput();
 	comment += static_cast<char>(c);
 	
-	if(c == '\n')
+	if (c == '\n')
 	{
 	    unit -> nextLine();
 	}
-	else if(c == '*')
+	else if (c == '*')
 	{
 	    int next = yyinput();
 	    
-	    if(next == '/')
+	    if (next == '/')
 		break;
 	    else
 		unput(next);
 	}
-	else if(c == EOF)
+	else if (c == EOF)
 	{
 	    unit -> warning("EOF in comment");
 	    break;
 	}
     }
 
-    if(comment[0] == '*')
+    if (comment[0] == '*')
 	unit -> setComment(comment);
 }
 
@@ -186,7 +186,7 @@ L			[a-zA-Z_]
 "\\"?{L}({L}|{D})* {
     char* s = yytext;
     
-    if(s[0] == '\\') // Strip leading backslash
+    if (s[0] == '\\') // Strip leading backslash
 	++s;
     
     StringTokPtr ident = new StringTok;
@@ -198,7 +198,7 @@ L			[a-zA-Z_]
 "\\"?{L}({L}|{D})*{WS}*"(" {
     char* s = yytext;
     
-    if(s[0] == '\\') // Strip leading backslash
+    if (s[0] == '\\') // Strip leading backslash
 	++s;
     
     StringTokPtr ident = new StringTok;
@@ -211,7 +211,7 @@ L			[a-zA-Z_]
 {WS} {
     // Igore white-space
     
-    if(yytext[0] == '\n')
+    if (yytext[0] == '\n')
 	unit -> nextLine();
 }
 

@@ -34,7 +34,7 @@ public:
 
     void __decRef()
     {
-	if(--_ref == 0)
+	if (--_ref == 0)
 	    delete this;
     }
 
@@ -64,10 +64,10 @@ public:
     {
 	_mutex.lock();
 	bool doDelete = false;
-	if(--_ref == 0)
+	if (--_ref == 0)
 	    doDelete = true;
 	_mutex.unlock();
-	if(doDelete)
+	if (doDelete)
 	    delete this;
     }
 

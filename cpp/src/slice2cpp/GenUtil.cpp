@@ -33,19 +33,19 @@ Slice::typeToString(const TypePtr& type)
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
+    if (builtin)
 	return builtinTable[builtin -> kind()];
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
+    if (cl)
 	return cl -> scoped() + "Ptr";
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if(proxy)
+    if (proxy)
 	return proxy -> _class() -> scoped() + "Prx";
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
-    if(contained)
+    if (contained)
 	return contained -> scoped();
 	    
     return "???";
@@ -54,7 +54,7 @@ Slice::typeToString(const TypePtr& type)
 string
 Slice::returnTypeToString(const TypePtr& type)
 {
-    if(!type)
+    if (!type)
 	return "void";
 
     return typeToString(type);
@@ -80,27 +80,27 @@ Slice::inputTypeToString(const TypePtr& type)
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
+    if (builtin)
 	return inputBuiltinTable[builtin -> kind()];
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
+    if (cl)
 	return "const " + cl -> scoped() + "Ptr&";
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if(proxy)
+    if (proxy)
 	return "const " + proxy -> _class() -> scoped() + "Prx&";
 	    
     EnumPtr en = EnumPtr::dynamicCast(type);
-    if(en)
+    if (en)
 	return en -> scoped();
 	    
     NativePtr native = NativePtr::dynamicCast(type);
-    if(native)
+    if (native)
 	return native -> scoped();
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
-    if(contained)
+    if (contained)
 	return "const " + contained -> scoped() + "&";
 
     return "???";
@@ -126,23 +126,23 @@ Slice::outputTypeToString(const TypePtr& type)
     };
     
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
+    if (builtin)
 	return outputBuiltinTable[builtin -> kind()];
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
+    if (cl)
 	return cl -> scoped() + "Ptr&";
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if(proxy)
+    if (proxy)
 	return proxy -> _class() -> scoped() + "Prx&";
 	    
     NativePtr native = NativePtr::dynamicCast(type);
-    if(native)
+    if (native)
 	return native -> scoped();
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
-    if(contained)
+    if (contained)
 	return contained -> scoped() + "&";
 
     return "???";
@@ -168,27 +168,27 @@ Slice::exceptionTypeToString(const TypePtr& type)
     };
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
+    if (builtin)
 	return inputBuiltinTable[builtin -> kind()];
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
+    if (cl)
 	return "const " + cl -> scoped() + "PtrE&";
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if(proxy)
+    if (proxy)
 	return "const " + proxy -> _class() -> scoped() + "PrxE&";
 	    
     EnumPtr en = EnumPtr::dynamicCast(type);
-    if(en)
+    if (en)
 	return en -> scoped();
 	    
     NativePtr native = NativePtr::dynamicCast(type);
-    if(native)
+    if (native)
 	return native -> scoped();
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
-    if(contained)
+    if (contained)
 	return "const " + contained -> scoped() + "&";
 
     return "???";
@@ -200,17 +200,17 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     const char* func = marshal ? "write(" : "read(";
     const char* stream = marshal ? "__os" : "__is";
 
-    if(BuiltinPtr::dynamicCast(type))
+    if (BuiltinPtr::dynamicCast(type))
     {
 	out << nl << stream << " -> " << func << param << ");";
 	return;
     }
     
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
+    if (cl)
     {
 	out << sb;
-	if(marshal)
+	if (marshal)
 	{
 	    out << nl << "::Ice::ObjectPtr __obj = " << param << ';';
 	    out << nl << stream << " -> write(__obj);";
@@ -219,9 +219,9 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	{
 	    out << nl << "::Ice::ObjectPtr __obj;";
 	    out << nl << stream << " -> read(__obj, " << cl -> scoped() << "::__classIds[0]);";
-	    out << nl << "if(!__obj)";
+	    out << nl << "if (!__obj)";
 	    ClassDefPtr def = cl -> definition();
-	    if(def && !def -> isAbstract())
+	    if (def && !def -> isAbstract())
 	    {
 		out << sb;
 		out << nl << "__obj = new " << cl -> scoped() << ";";
@@ -235,7 +235,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		out.dec();
 	    }
 	    out << nl << param << " = " << cl -> scoped() << "Ptr::dynamicCast(__obj);";
-	    out << nl << "if(!" << param << ')';
+	    out << nl << "if (!" << param << ')';
 	    out.inc();
 	    out << nl << "throw ::Ice::ValueUnmarshalException(__FILE__, __LINE__);";
 	    out.dec();
@@ -246,9 +246,9 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     }
     
     VectorPtr vec = VectorPtr::dynamicCast(type);
-    if(vec)
+    if (vec)
     {
-	if(BuiltinPtr::dynamicCast(vec -> type()))
+	if (BuiltinPtr::dynamicCast(vec -> type()))
 	    out << nl << stream << " -> " << func << param << ");";
 	else
 	    out << nl << vec -> scope() << "::__" << func << stream << ", " << param << ", " << vec -> scope()
@@ -260,7 +260,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     assert(!native); // TODO
     
     ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
-    if(!constructed)
+    if (!constructed)
     {
 	ProxyPtr proxy = ProxyPtr::dynamicCast(type);
 	assert(proxy);
@@ -274,9 +274,9 @@ void
 Slice::writeMarshalCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret)
 {
     list<pair<TypePtr, string> >::const_iterator p;
-    for(p = params.begin(); p != params.end(); ++p)
+    for (p = params.begin(); p != params.end(); ++p)
 	writeMarshalUnmarshalCode(out, p -> first, p -> second, true);
-    if(ret)
+    if (ret)
 	writeMarshalUnmarshalCode(out, ret, "__ret", true);
 }
 
@@ -284,9 +284,9 @@ void
 Slice::writeUnmarshalCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret)
 {
     list<pair<TypePtr, string> >::const_iterator p;
-    for(p = params.begin(); p != params.end(); ++p)
+    for (p = params.begin(); p != params.end(); ++p)
 	writeMarshalUnmarshalCode(out, p -> first, p -> second, false);
-    if(ret)
+    if (ret)
 	writeMarshalUnmarshalCode(out, ret, "__ret", false);
 }
 
@@ -294,10 +294,10 @@ void
 Slice::writeAllocateCode(Output& out, const list<pair<TypePtr, string> >& params, const TypePtr& ret)
 {
     list<pair<TypePtr, string> > ps = params;
-    if(ret)
+    if (ret)
 	ps.push_back(make_pair(ret, string("__ret")));
 
     list<pair<TypePtr, string> >::const_iterator p;
-    for(p = ps.begin(); p != ps.end(); ++p)
+    for (p = ps.begin(); p != ps.end(); ++p)
 	out << nl << typeToString(p -> first) << ' ' << p -> second << ';';
 }

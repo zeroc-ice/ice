@@ -33,7 +33,7 @@ public:
     ProxyHandle(T* p = 0)
 	: Ptr(p)
     {
-	if(Ptr)
+	if (Ptr)
 	    incRef(Ptr);
     }
     
@@ -41,7 +41,7 @@ public:
     ProxyHandle(const ProxyHandle<Y>& r)
 	: Ptr(r.Ptr)
     {
-	if(Ptr)
+	if (Ptr)
 	    incRef(Ptr);
     }
 
@@ -53,24 +53,24 @@ public:
 #endif
 	: Ptr(r.Ptr)
     {
-	if(Ptr)
+	if (Ptr)
 	    incRef(Ptr);
     }
     
     ~ProxyHandle()
     {
-	if(Ptr)
+	if (Ptr)
 	    decRef(Ptr);
     }
     
     ProxyHandle& operator=(T* p)
     {
-	if(Ptr != p)
+	if (Ptr != p)
 	{
-	    if(p)
+	    if (p)
 		incRef(p);
 
-	    if(Ptr)
+	    if (Ptr)
 		decRef(Ptr);
 	    
 	    Ptr = p;
@@ -81,12 +81,12 @@ public:
     template<typename Y>
     ProxyHandle& operator=(const ProxyHandle<Y>& r)
     {
-	if(Ptr != r.Ptr)
+	if (Ptr != r.Ptr)
 	{
-	    if(r.Ptr)
+	    if (r.Ptr)
 		incRef(r.Ptr);
 
-	    if(Ptr)
+	    if (Ptr)
 		decRef(Ptr);
 	    
 	    Ptr = r.Ptr;
@@ -101,12 +101,12 @@ public:
     ProxyHandle& operator=(const ProxyHandle& r)
 #endif
     {
-	if(Ptr != r.Ptr)
+	if (Ptr != r.Ptr)
 	{
-	    if(r.Ptr)
+	    if (r.Ptr)
 		incRef(r.Ptr);
 
-	    if(Ptr)
+	    if (Ptr)
 		decRef(Ptr);
 	    
 	    Ptr = r.Ptr;

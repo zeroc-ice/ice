@@ -170,7 +170,7 @@ module_def
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit -> currentContainer();
     ModulePtr module = cont -> createModule(ident -> v);
-    if(!module)
+    if (!module)
 	YYERROR; // Can't continue, jump to next yyerrok
     unit -> pushContainer(module);
 }
@@ -221,13 +221,13 @@ class_def
     ContainerPtr cont = unit -> currentContainer();
     ClassDefPtr base = ClassDefPtr::dynamicCast($4);
     ClassListTokPtr bases = ClassListTokPtr::dynamicCast($5);
-    if(base)
+    if (base)
 	bases -> v.push_front(base);
     ClassDefPtr cl = cont -> createClassDef(ident -> v,
 					     local -> v,
 					     false,
 					     bases -> v);
-    if(!cl)
+    if (!cl)
 	YYERROR; // Can't continue, jump to next yyerrok
     unit -> pushContainer(cl);
 }
@@ -246,10 +246,10 @@ class_extends
     ContainerPtr cont = unit -> currentContainer();
     list<TypePtr> types = cont -> lookupType(scoped -> v);
     $$ = 0;
-    if(!types.empty())
+    if (!types.empty())
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-	if(!cl)
+	if (!cl)
 	{
 	    string msg = "`";
 	    msg += scoped -> v;
@@ -259,7 +259,7 @@ class_extends
 	else
 	{
 	    ClassDefPtr def = cl -> definition();
-	    if(!def)
+	    if (!def)
 	    {
 		string msg = "`";
 		msg += scoped -> v;
@@ -319,7 +319,7 @@ interface_def
 					     local -> v,
 					     true,
 					     bases -> v);
-    if(!cl)
+    if (!cl)
 	YYERROR; // Can't continue, jump to next yyerrok
     unit -> pushContainer(cl);
 }
@@ -339,10 +339,10 @@ interface_list
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit -> currentContainer();
     list<TypePtr> types = cont -> lookupType(scoped -> v);
-    if(!types.empty())
+    if (!types.empty())
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-	if(!cl || !cl -> isInterface())
+	if (!cl || !cl -> isInterface())
 	{
 	    string msg = "`";
 	    msg += scoped -> v;
@@ -352,7 +352,7 @@ interface_list
 	else
 	{
 	    ClassDefPtr def = cl -> definition();
-	    if(!def)
+	    if (!def)
 	    {
 		string msg = "`";
 		msg += scoped -> v;
@@ -373,10 +373,10 @@ interface_list
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit -> currentContainer();
     list<TypePtr> types = cont -> lookupType(scoped -> v);
-    if(!types.empty())
+    if (!types.empty())
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-	if(!cl || !cl -> isInterface())
+	if (!cl || !cl -> isInterface())
 	{
 	    string msg = "`";
 	    msg += scoped -> v;
@@ -386,7 +386,7 @@ interface_list
 	else
 	{
 	    ClassDefPtr def = cl -> definition();
-	    if(!def)
+	    if (!def)
 	    {
 		string msg = "`";
 		msg += scoped -> v;
@@ -549,7 +549,7 @@ type
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit -> currentContainer();
     list<TypePtr> types = cont -> lookupType(scoped -> v);
-    if(types.empty())
+    if (types.empty())
 	YYERROR; // Can't continue, jump to next yyerrok
     $$ = types.front();
 }
@@ -558,14 +558,14 @@ type
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit -> currentContainer();
     list<TypePtr> types = cont -> lookupType(scoped -> v);
-    if(types.empty())
+    if (types.empty())
 	YYERROR; // Can't continue, jump to next yyerrok
-    for(list<TypePtr>::iterator p = types.begin();
+    for (list<TypePtr>::iterator p = types.begin();
 	p != types.end();
 	++p)
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
-	if(!cl)
+	if (!cl)
 	{
 	    string msg = "`";
 	    msg += scoped -> v;
@@ -656,7 +656,7 @@ identifier_list
     $$ = ens;
     ContainerPtr cont = unit -> currentContainer();
     EnumeratorPtr en = cont -> createEnumerator(ident -> v);
-    if(en)
+    if (en)
 	ens -> v.push_front(ident -> v);
 }
 | ICE_IDENTIFIER
@@ -666,7 +666,7 @@ identifier_list
     $$ = ens;
     ContainerPtr cont = unit -> currentContainer();
     EnumeratorPtr en = cont -> createEnumerator(ident -> v);
-    if(en)
+    if (en)
 	ens -> v.push_front(ident -> v);
 }
 ;

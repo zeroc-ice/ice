@@ -42,67 +42,67 @@ main(int argc, char* argv[])
     bool noGlobals = false;
 
     int idx = 1;
-    while(idx < argc)
+    while (idx < argc)
     {
-	if(strncmp(argv[idx], "-I", 2) == 0)
+	if (strncmp(argv[idx], "-I", 2) == 0)
 	{
 	    cpp += ' ';
 	    cpp += argv[idx];
 
 	    string path = argv[idx] + 2;
-	    if(path.length())
+	    if (path.length())
 		includePaths.push_back(path);
 
-	    for(int i = idx ; i + 1 < argc ; ++i)
+	    for (int i = idx ; i + 1 < argc ; ++i)
 		argv[i] = argv[i + 1];
 	    --argc;
 	}
-	else if(strncmp(argv[idx], "-D", 2) == 0 ||
+	else if (strncmp(argv[idx], "-D", 2) == 0 ||
 		strncmp(argv[idx], "-U", 2) == 0)
 	{
 	    cpp += ' ';
 	    cpp += argv[idx];
 
-	    for(int i = idx ; i + 1 < argc ; ++i)
+	    for (int i = idx ; i + 1 < argc ; ++i)
 		argv[i] = argv[i + 1];
 	    --argc;
 	}
-	else if(strcmp(argv[idx], "-s") == 0 ||
+	else if (strcmp(argv[idx], "-s") == 0 ||
 		strcmp(argv[idx], "--stand-alone") == 0)
 	{
 	    standAlone = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
+	    for (int i = idx ; i + 1 < argc ; ++i)
 		argv[i] = argv[i + 1];
 	    --argc;
 	}
-	else if(strcmp(argv[idx], "--no-globals") == 0)
+	else if (strcmp(argv[idx], "--no-globals") == 0)
 	{
 	    noGlobals = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
+	    for (int i = idx ; i + 1 < argc ; ++i)
 		argv[i] = argv[i + 1];
 	    --argc;
 	}
-	else if(strcmp(argv[idx], "-h") == 0 ||
+	else if (strcmp(argv[idx], "-h") == 0 ||
 		strcmp(argv[idx], "--help") == 0)
 	{
 	    usage(argv[0]);
 	    return EXIT_SUCCESS;
 	}
-	else if(strcmp(argv[idx], "-v") == 0 ||
+	else if (strcmp(argv[idx], "-v") == 0 ||
 		strcmp(argv[idx], "--version") == 0)
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
 	}
-	else if(strcmp(argv[idx], "-d") == 0 ||
+	else if (strcmp(argv[idx], "-d") == 0 ||
 		strcmp(argv[idx], "--debug") == 0)
 	{
 	    debug = true;
-	    for(int i = idx ; i + 1 < argc ; ++i)
+	    for (int i = idx ; i + 1 < argc ; ++i)
 		argv[i] = argv[i + 1];
 	    --argc;
 	}
-	else if(argv[idx][0] == '-')
+	else if (argv[idx][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'"
 		 << endl;
@@ -113,7 +113,7 @@ main(int argc, char* argv[])
 	    ++idx;
     }
 
-    if(argc < 2)
+    if (argc < 2)
     {
 	cerr << argv[0] << ": no docbook file specified" << endl;
 	usage(argv[0]);
@@ -123,19 +123,19 @@ main(int argc, char* argv[])
     string docbook(argv[1]);
     string suffix;
     string::size_type pos = docbook.rfind('.');
-    if(pos != string::npos)
+    if (pos != string::npos)
     {
 	suffix = docbook.substr(pos);
 	transform(suffix.begin(), suffix.end(), suffix.begin(), tolower);
     }
-    if(suffix != ".sgml")
+    if (suffix != ".sgml")
     {
 	cerr << argv[0] << ": docbook file must end with `.sgml'"
 	     << endl;
 	return EXIT_FAILURE;
     }
 
-    if(argc < 3)
+    if (argc < 3)
     {
 	cerr << argv[0] << ": no input file" << endl;
 	usage(argv[0]);
@@ -146,17 +146,17 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    for(idx = 2 ; idx < argc ; ++idx)
+    for (idx = 2 ; idx < argc ; ++idx)
     {
 	string base(argv[idx]);
 	string suffix;
 	string::size_type pos = base.rfind('.');
-	if(pos != string::npos)
+	if (pos != string::npos)
 	{
 	    suffix = base.substr(pos);
 	    transform(suffix.begin(), suffix.end(), suffix.begin(), tolower);
 	}
-	if(suffix != ".ice")
+	if (suffix != ".ice")
 	{
 	    cerr << argv[0] << ": input files must end with `.ice'"
 		 << endl;
@@ -166,7 +166,7 @@ main(int argc, char* argv[])
 	base.erase(pos);
 
 	ifstream test(argv[idx]);
-	if(!test)
+	if (!test)
 	{
 	    cerr << argv[0] << ": can't open `" << argv[idx]
 		 << "' for reading: " << strerror(errno) << endl;
@@ -181,7 +181,7 @@ main(int argc, char* argv[])
 #else
 	FILE* cppHandle = popen(cmd.c_str(), "r");
 #endif
-	if(cppHandle == NULL)
+	if (cppHandle == NULL)
 	{
 	    cerr << argv[0] << ": can't run C++ preprocessor: "
 		 << strerror(errno) << endl;
@@ -190,7 +190,7 @@ main(int argc, char* argv[])
 	}
 	
 	int parseStatus = unit -> parse(cppHandle, debug);
-	if(parseStatus == EXIT_FAILURE)
+	if (parseStatus == EXIT_FAILURE)
 	{
 	    status = EXIT_FAILURE;
 	}
@@ -203,10 +203,10 @@ main(int argc, char* argv[])
 	
     }
 
-    if(status == EXIT_SUCCESS)
+    if (status == EXIT_SUCCESS)
     {
 	Gen gen(argv[0], docbook, standAlone, noGlobals);
-	if(!gen)
+	if (!gen)
 	{
 	    unit -> destroy();
 	    return EXIT_FAILURE;
