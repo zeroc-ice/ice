@@ -211,7 +211,7 @@ SOURCE=.\Grammar.y
 InputPath=.\Grammar.y
 
 BuildCmds= \
-	bison -dvt Grammar.y \
+	bison -dvt --name-prefix "freeze_script_" Grammar.y \
 	move Grammar.tab.c Grammar.cpp \
 	move Grammar.tab.h Grammar.h \
 	
@@ -229,7 +229,7 @@ BuildCmds= \
 InputPath=.\Grammar.y
 
 BuildCmds= \
-	bison -dvt Grammar.y \
+	bison -dvt --name-prefix "freeze_script_" Grammar.y \
 	move Grammar.tab.c Grammar.cpp \
 	move Grammar.tab.h Grammar.h \
 	
