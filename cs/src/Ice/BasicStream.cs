@@ -556,7 +556,11 @@ namespace IceInternal
 	{
 	    try
 	    {
-		byte b = _buf.get();
+	        //
+	        // COMPILERFIX: for some reasons _buf.get() doesn't work here on MacOS X with Mono;
+                //
+ 	        //byte b = _buf.get();
+ 	        byte b = readByte();
 		if(b == 255)
 		{
 		    int v = _buf.getInt();
@@ -568,7 +572,7 @@ namespace IceInternal
 		}
 		else
 		{
-		    return (int) (b < 0?b + 256:b);
+		    return (int) (b < 0 ? b + 256 : b);
 		}
 	    }
 	    catch(InvalidOperationException ex)

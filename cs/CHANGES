@@ -1,6 +1,12 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed bug where marshalling would fail for sequences of integral types on
+  big endian platforms.
+
+- Fixed bug where connection establishment could raise a 
+  System.Net.Sockets.SocketException instead of an Ice.SocketException.
+
 - Added setDefaultContext() and getDefaultContext() to
   the Ice.Communicator interface. This allows a default context
   to be established on a communicator-wide basis. See section

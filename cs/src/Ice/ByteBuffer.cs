@@ -365,10 +365,10 @@ namespace IceInternal
 		    {
 			int index = i * 2;
 			byte* q = (byte*)p;
-			*q++ = Buffer.GetByte(_bytes, index + 1);
-			*q = Buffer.GetByte(_bytes, index);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 1);
+			*q = Buffer.GetByte(_bytes, _position + index);
 		    }
-		}
+		};
 	    }
 	    _position += len;
 	}
@@ -453,10 +453,10 @@ namespace IceInternal
 		    {
 			int index = i * 4;
 			byte* q = (byte*)p;
-			*q++ = Buffer.GetByte(_bytes, index + 3);
-			*q++ = Buffer.GetByte(_bytes, index + 2);
-			*q++ = Buffer.GetByte(_bytes, index + 1);
-			*q = Buffer.GetByte(_bytes, index);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 3);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 2);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 1);
+			*q = Buffer.GetByte(_bytes, _position + index);
 		    }
 		}
 	    }
@@ -564,14 +564,14 @@ namespace IceInternal
 		    {
 			int index = i * 8;
 			byte* q = (byte*)p;
-			*q++ = Buffer.GetByte(_bytes, index + 7);
-			*q++ = Buffer.GetByte(_bytes, index + 6);
-			*q++ = Buffer.GetByte(_bytes, index + 5);
-			*q++ = Buffer.GetByte(_bytes, index + 4);
-			*q++ = Buffer.GetByte(_bytes, index + 3);
-			*q++ = Buffer.GetByte(_bytes, index + 2);
-			*q++ = Buffer.GetByte(_bytes, index + 1);
-			*q = Buffer.GetByte(_bytes, index);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 7);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 6);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 5);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 4);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 3);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 2);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 1);
+			*q = Buffer.GetByte(_bytes, _position + index);
 		    }
 		}
 	    }
@@ -670,10 +670,10 @@ namespace IceInternal
 		    {
 			int index = i * 4;
 			byte* q = (byte*)p;
-			*q++ = Buffer.GetByte(_bytes, index + 3);
-			*q++ = Buffer.GetByte(_bytes, index + 2);
-			*q++ = Buffer.GetByte(_bytes, index + 1);
-			*q = Buffer.GetByte(_bytes, index);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 3);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 2);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 1);
+			*q = Buffer.GetByte(_bytes, _position + index);
 		    }
 		}
 	    }
@@ -768,14 +768,14 @@ namespace IceInternal
 		    {
 			int index = i * 8;
 			byte* q = (byte*)p;
-			*q++ = Buffer.GetByte(_bytes, index + 7);
-			*q++ = Buffer.GetByte(_bytes, index + 6);
-			*q++ = Buffer.GetByte(_bytes, index + 5);
-			*q++ = Buffer.GetByte(_bytes, index + 4);
-			*q++ = Buffer.GetByte(_bytes, index + 3);
-			*q++ = Buffer.GetByte(_bytes, index + 2);
-			*q++ = Buffer.GetByte(_bytes, index + 1);
-			*q = Buffer.GetByte(_bytes, index);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 7);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 6);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 5);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 4);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 3);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 2);
+			*q++ = Buffer.GetByte(_bytes, _position + index + 1);
+			*q = Buffer.GetByte(_bytes, _position + index);
 		    }
 		}
 	    }

@@ -428,7 +428,7 @@ namespace IceInternal
 		    catch(SocketException)
 		    {
 		    }
-		    throw new Ice.ConnectFailedException("Connect timed out after " + timeout + "msec");
+		    throw new Ice.ConnectTimeoutException("Connect timed out after " + timeout + " msec");
 		}
 	    }
 	}
@@ -794,7 +794,15 @@ namespace IceInternal
 		remoteEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
 	    }
     #else
-	    IPEndPoint localEndpoint = (IPEndPoint)socket.LocalEndPoint;
+	    IPEndPoint localEndpoint;
+	    try
+	    {
+	        localEndpoint = (IPEndPoint)socket.LocalEndPoint;
+	    }
+	    catch(SocketException ex)
+            {
+	        throw new Ice.SocketException(ex);
+	    }
 
 	    IPEndPoint remoteEndpoint;
 	    try

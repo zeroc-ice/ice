@@ -37,6 +37,17 @@ namespace Ice
 		{
 		    try
 		    {
+			int timeout;
+			IceInternal.DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+			if(defaultsAndOverrides.overrideConnectTimeout)
+			{
+			    timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
+			}
+			else
+			{
+			    timeout = _endpoint.timeout();
+			}
+
 			if(_adapter != null)
 			{
 			    lock(_sendMutex)
@@ -59,7 +70,14 @@ namespace Ice
 				os.writeInt(IceInternal.Protocol.headerSize); // Message size.
 				IceInternal.TraceUtil.traceHeader("sending validate connection", os, _logger, 
 								  _traceLevels);
-				_transceiver.write(os, _endpoint.timeout());
+				try
+				{
+				    _transceiver.write(os, timeout);
+				}
+				catch(TimeoutException)
+				{
+				    throw new ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+				}
 			    }
 			}
 			else
@@ -71,7 +89,14 @@ namespace Ice
 			    IceInternal.BasicStream ins = new IceInternal.BasicStream(_instance);
 			    ins.resize(IceInternal.Protocol.headerSize, true);
 			    ins.pos(0);
-			    _transceiver.read(ins, _endpoint.timeout());
+			    try
+			    {
+			        _transceiver.read(ins, timeout);
+			    }
+			    catch(TimeoutException)
+			    {
+			        throw new ConnectTimeoutException("Connect timed out after " + timeout + " msec");
+			    }
 			    Debug.Assert(ins.pos() == IceInternal.Protocol.headerSize);
 			    ins.pos(0);
 			    byte[] m = new byte[4];

@@ -727,7 +727,7 @@ namespace IceInternal
 			    timeout = endpoint.timeout();
 			}
 
-			transceiver = connector.connect(endpoint.timeout());
+			transceiver = connector.connect(timeout);
 			Debug.Assert(transceiver != null);
 		    }
 		    newConnection = new Ice.ConnectionI(_instance, transceiver, endpoint, null);
