@@ -543,7 +543,7 @@ IceInternal::IncomingConnectionFactory::waitUntilHolding() const
 void
 IceInternal::IncomingConnectionFactory::waitUntilFinished()
 {
-    IceUtil::ThreadPtr threadPerAcceptor;
+    IceUtil::ThreadPtr threadPerIncomingConnectionFactory;
     list<ConnectionIPtr> connections;
 
     {
@@ -559,8 +559,8 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 	
 	assert(_state == StateClosed);
 
-	threadPerAcceptor = _threadPerAcceptor;
-	_threadPerAcceptor = 0;
+	threadPerIncomingConnectionFactory = _threadPerIncomingConnectionFactory;
+	_threadPerIncomingConnectionFactory = 0;
 
 	//
 	// We want to wait until all connections are finished outside the
@@ -569,9 +569,10 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 	connections.swap(_connections);
     }
 
-    if(threadPerAcceptor)
+    if(threadPerIncomingConnectionFactory &&
+       threadPerIncomingConnectionFactory->getThreadControl() != IceUtil::ThreadControl())
     {
-	threadPerAcceptor->getThreadControl().join();
+	threadPerIncomingConnectionFactory->getThreadControl().join();
     }
 
     for_each(connections.begin(), connections.end(), Ice::voidMemFun(&ConnectionI::waitUntilFinished));
@@ -868,12 +869,12 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	else
 	{
 	    //
-	    // If we are in thread per connection mode, we also use one
-	    // thread per acceptor, that accepts new connections on this
-	    // endpoint.
+	    // If we are in thread per connection mode, we also use
+	    // one thread per incoming connection factory, that
+	    // accepts new connections on this endpoint.
 	    //
-	    _threadPerAcceptor = new ThreadPerAcceptor(this);
-	    _threadPerAcceptor->start();
+	    _threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory(this);
+	    _threadPerIncomingConnectionFactory->start();
 	}
     }
 }
@@ -885,7 +886,7 @@ IceInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
     assert(_state == StateClosed);
     assert(!_acceptor);
     assert(_connections.empty());
-    assert(!_threadPerAcceptor);
+    assert(!_threadPerIncomingConnectionFactory);
 }
 
 void
@@ -932,7 +933,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 	    {
 		//
 		// Connect to our own acceptor, which unblocks our
-		// thread per acceptor stuch in accept().
+		// thread per incoming connection factory stuck in accept().
 		//
 		_acceptor->connectToSelf();
 	    }
@@ -992,10 +993,7 @@ IceInternal::IncomingConnectionFactory::unregisterWithPool()
 void
 IceInternal::IncomingConnectionFactory::run()
 {
-    // TODO: Not correct, see comment about _acceptor->close()
-    // above. We should be able to use _acceptor directly here.
-    const AcceptorPtr acceptor = _acceptor;
-    assert(acceptor);
+    assert(_acceptor);
 
     while(true)
     {
@@ -1006,7 +1004,7 @@ IceInternal::IncomingConnectionFactory::run()
 	TransceiverPtr transceiver;
 	try
 	{
-	    transceiver = acceptor->accept(-1);
+	    transceiver = _acceptor->accept(-1);
 	}
 	catch(const SocketException&)
 	{
@@ -1022,7 +1020,7 @@ IceInternal::IncomingConnectionFactory::run()
 	    if(_warn)
 	    {
 		Warning out(_instance->logger());
-		out << "connection exception:\n" << ex << '\n' << acceptor->toString();
+		out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
 	    }
 	}
 	
@@ -1084,24 +1082,25 @@ IceInternal::IncomingConnectionFactory::run()
 	}
 	
 	//
-	// In thread per acceptor mode, the thread per connection (in
-	// ConnectionI) will take care of connection validation. We
-	// can't use this thread, because connection validation might
-	// block. However, this thread must not ever block, as in
-	// contrast to thread pool mode, it is the only thread that
-	// can accept connections with this factory's acceptor.
+	// In thread per incoming connection factory mode, the thread
+	// per connection (in ConnectionI) will take care of
+	// connection validation. We can't use this thread, because
+	// connection validation might block. However, this thread
+	// must not ever block, as in contrast to thread pool mode, it
+	// is the only thread that can accept connections with this
+	// factory's acceptor.
 	//
     }
 }
 
-IceInternal::IncomingConnectionFactory::ThreadPerAcceptor::ThreadPerAcceptor(
+IceInternal::IncomingConnectionFactory::ThreadPerIncomingConnectionFactory::ThreadPerIncomingConnectionFactory(
     const IncomingConnectionFactoryPtr& factory) :
     _factory(factory)
 {
 }
 
 void
-IceInternal::IncomingConnectionFactory::ThreadPerAcceptor::run()
+IceInternal::IncomingConnectionFactory::ThreadPerIncomingConnectionFactory::run()
 {
     try
     {
@@ -1110,17 +1109,17 @@ IceInternal::IncomingConnectionFactory::ThreadPerAcceptor::run()
     catch(const Exception& ex)
     {	
 	Error out(_factory->_instance->logger());
-	out << "exception in incoming connection factory:\n" << _factory->toString() << ex; 
+	out << "exception in thread per incoming connection factory:\n" << _factory->toString() << ex; 
     }
     catch(const std::exception& ex)
     {
 	Error out(_factory->_instance->logger());
-	out << "std::exception in incoming connection factory:\n" << _factory->toString() << ex.what();
+	out << "std::exception in thread per incoming connection factory:\n" << _factory->toString() << ex.what();
     }
     catch(...)
     {
 	Error out(_factory->_instance->logger());
-	out << "unknown exception in incoming connection factory:\n" << _factory->toString();
+	out << "unknown exception in thread per incoming connection factory:\n" << _factory->toString();
     }
 
     _factory = 0; // Resolve cyclic dependency.

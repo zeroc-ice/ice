@@ -215,7 +215,7 @@ Ice::ConnectionI::isFinished() const
 	_threadPerConnection = 0;
     }
 
-    if(threadPerConnection)
+    if(threadPerConnection && threadPerConnection->getThreadControl() != IceUtil::ThreadControl())
     {
 	threadPerConnection->getThreadControl().join();
     }
@@ -313,7 +313,7 @@ Ice::ConnectionI::waitUntilFinished()
 	_threadPerConnection = 0;
     }
 
-    if(threadPerConnection)
+    if(threadPerConnection && threadPerConnection->getThreadControl() != IceUtil::ThreadControl())
     {
 	threadPerConnection->getThreadControl().join();
     }
@@ -2316,17 +2316,17 @@ Ice::ConnectionI::ThreadPerConnection::run()
     catch(const Exception& ex)
     {	
 	Error out(_connection->_instance->logger());
-	out << "exception in incoming connection connection:\n" << _connection->toString() << ex; 
+	out << "exception in thread per connection:\n" << _connection->toString() << ex; 
     }
     catch(const std::exception& ex)
     {
 	Error out(_connection->_instance->logger());
-	out << "std::exception in incoming connection connection:\n" << _connection->toString() << ex.what();
+	out << "std::exception in thread per connection:\n" << _connection->toString() << ex.what();
     }
     catch(...)
     {
 	Error out(_connection->_instance->logger());
-	out << "unknown exception in incoming connection connection:\n" << _connection->toString();
+	out << "unknown exception in thread per connection:\n" << _connection->toString();
     }
 
     _connection = 0; // Resolve cyclic dependency.

@@ -20,19 +20,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Test::MyClassPrx myClass = allTests(communicator, false);
 
     cout << "testing server shutdown... " << flush;
-    cout << "--- 1 ---" << endl;
     myClass->shutdown();
-    cout << "--- 2 ---" << endl;
     try
     {
-    cout << "--- 3 ---" << endl;
 	myClass->opVoid();
-    cout << "--- 3.5 ---" << endl;
 	test(false);
     }
     catch(const Ice::LocalException&)
     {
-    cout << "--- 4 ---" << endl;
 	cout << "ok" << endl;
     }
 

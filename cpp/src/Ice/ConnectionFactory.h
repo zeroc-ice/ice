@@ -12,7 +12,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
-#include <IceUtil/Thread.h> // For ThreadPerAcceptor.
+#include <IceUtil/Thread.h> // For ThreadPerIncomingConnectionFactory.
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ConnectionIF.h>
 #include <Ice/InstanceF.h>
@@ -107,19 +107,19 @@ private:
 
     void run();
 
-    class ThreadPerAcceptor : public IceUtil::Thread
+    class ThreadPerIncomingConnectionFactory : public IceUtil::Thread
     {
     public:
 	
-	ThreadPerAcceptor(const IncomingConnectionFactoryPtr&);
+	ThreadPerIncomingConnectionFactory(const IncomingConnectionFactoryPtr&);
 	virtual void run();
 
     private:
 	
 	IncomingConnectionFactoryPtr _factory;
     };
-    friend class ThreadPerAcceptor;
-    IceUtil::ThreadPtr _threadPerAcceptor;
+    friend class ThreadPerIncomingConnectionFactory;
+    IceUtil::ThreadPtr _threadPerIncomingConnectionFactory;
 
     AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
