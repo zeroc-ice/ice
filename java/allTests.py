@@ -44,8 +44,8 @@ tests = [ \
 #
 if sys.platform != "win32" and sys.platform[:6] != "cygwin":
     tests += [ \
-        "Glacier/starter", \
         "IcePack/simple", \
+        "Glacier/starter", \
         ]
 
 #
