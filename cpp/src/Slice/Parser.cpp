@@ -167,57 +167,57 @@ Slice::Builtin::typeId() const
     {
 	case KindByte:
 	{
-	    return "::Ice::Byte";
+	    return "byte";
 	    break;
 	}
 	case KindBool:
 	{
-	    return "::Ice::Bool";
+	    return "bool";
 	    break;
 	}
 	case KindShort:
 	{
-	    return "::Ice::Short";
+	    return "short";
 	    break;
 	}
 	case KindInt:
 	{
-	    return "::Ice::Int";
+	    return "int";
 	    break;
 	}
 	case KindLong:
 	{
-	    return "::Ice::Long";
+	    return "long";
 	    break;
 	}
 	case KindFloat:
 	{
-	    return "::Ice::Float";
+	    return "float";
 	    break;
 	}
 	case KindDouble:
 	{
-	    return "::Ice::Double";
+	    return "double";
 	    break;
 	}
 	case KindString:
 	{
-	    return "::Ice::String";
+	    return "string";
 	    break;
 	}
 	case KindObject:
 	{
-	    return "::Ice::Object";
+	    return "Object";
 	    break;
 	}
 	case KindObjectProxy:
 	{
-	    return "::Ice::Object*";
+	    return "Object*";
 	    break;
 	}
 	case KindLocalObject:
 	{
-	    return "::Ice::LocalObject";
+	    return "LocalObject";
 	    break;
 	}
     }
