@@ -23,11 +23,11 @@
 //
 // For STLport. If we compile in debug mode, we want to use the debug
 // memory allocation, so that purify doesn't report bogus memory
-// leaks. This is done by setting _STLP_DEBUG_ALLOC before any STLport
+// leaks. This is done by setting _STLP_USE_MALLOC before any STLport
 // header files are included.
 //
-#   if !defined(NDEBUG) && !defined(_STLP_DEBUG_ALLOC)
-#       define _STLP_DEBUG_ALLOC
+#   if !defined(NDEBUG) && !defined(_STLP_USE_MALLOC)
+#       define _STLP_USE_MALLOC
 #   endif
 
 #if defined(_WIN32)
