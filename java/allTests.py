@@ -69,10 +69,17 @@ tests = [ \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \
-    "Glacier/starter", \
     "IcePack/simple", \
     "IcePack/deployer", \
     "Glacier2/router", \
+    ]
+
+#
+# This test is not currently supported when using SSL.
+#
+if TestUtil.protocol != "ssl":
+    tests += [ \
+       "Glacier/starter", \
     ]
 
 def usage():

@@ -6,10 +6,15 @@ Callback.Server.Endpoints=tcp -p 10000:udp -p 10000:ssl -p 10001
 #Ice.Trace.Protocol=1
 Ice.Warn.Connections=1
 
+#
+# SSL Configuration
+#
 Ice.Plugin.IceSSL=IceSSL.PluginFactory
 Ice.ThreadPerConnection=1
-#IceSSL.Client.CertPath=../../../certs
-#IceSSL.Client.Config=sslconfig.xml
-#IceSSL.Server.CertPath=../../../certs
-#IceSSL.Server.Config=sslconfig.xml
-#IceSSL.Trace.Security=1
+IceSSL.Client.KeyStore=../../../certs/client.jks
+IceSSL.Client.Password=password
+IceSSL.Client.Certs=../../../certs/certs.jks
+IceSSL.Server.KeyStore=../../../certs/server.jks
+IceSSL.Server.Password=password
+IceSSL.Server.ClientAuth=1
+IceSSL.Server.Certs=../../../certs/certs.jks

@@ -1,22 +1,28 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Added support for SSL. The Java plug-in uses the SSL capabilities
+  provided by Java 1.4.2. As such, the plug-in is not compatible with
+  the Ice thread pool, therefore the property Ice.ThreadPerConnection=1
+  must be defined for any communicator in which the plug-in is
+  installed. See the Ice manual for more information.
+
 - Added ice_ping optimization in the Freeze evictor: for operation
   "ice_ping", the object is not loaded in the cache, Freeze only
   checks if the object is in the cache or the database.
 
-- Added setDefaultContext() and getDefaultContext() to
-  the Ice.Communicator interface. This allows a default context
-  to be established on a communicator-wide basis. See section
-  29.8.3 in the doc.
+- Added setDefaultContext() and getDefaultContext() to the
+  Ice.Communicator interface. This allows a default context to be
+  established on a communicator-wide basis. See section 29.8.3 in
+  the doc.
 
   Added ice_defaultContext to Ice.ObjectPrx. This creates a new
   proxy that uses the default context established on the communicator.
 
-- Overloaded the checkedCast member function of the generated PrxHelper
-  classes to allow a trailing argument of type ::Ice::Context. This makes
-  it possible to do stateful things that require a context in a
-  servant locator's activate() method.
+- Overloaded the checkedCast member function of the generated proxy
+  helper classes to allow a trailing argument of type ::Ice::Context.
+  This makes it possible to do stateful things that require a context
+  in a servant locator's activate() method.
 
 - Added support for bzip2 protocol compression. The implementation
   uses the bzip2 classes from Ant. See the INSTALL file for more
