@@ -1402,56 +1402,73 @@ Ice::ConnectionI::ConnectionI(const InstancePtr& instance,
     replyHdr[8] = replyMsg;
     replyHdr[9] = 0;
 
-    if(_adapter)
+    ObjectAdapterI* adapterImpl = _adapter ? dynamic_cast<ObjectAdapterI*>(_adapter.get()) : 0;
+    if(adapterImpl)
     {
-	_servantManager = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getServantManager();
+	_servantManager = adapterImpl->getServantManager();
     }
 
-    if(!_instance->threadPerConnection())
+    __setNoDelete(true);
+    try
     {
-	//
-	// Only set _threadPool if we really need it, i.e., if we are
-	// not in thread per connection mode. Thread pools have lazy
-	// initialization in Instance, and we don't want them to be
-	// created if they are not needed.
-	//
-	if(_adapter)
+	if(!_instance->threadPerConnection())
 	{
-	    const_cast<ThreadPoolPtr&>(_threadPool) = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool();
+	    //
+	    // Only set _threadPool if we really need it, i.e., if we are
+	    // not in thread per connection mode. Thread pools have lazy
+	    // initialization in Instance, and we don't want them to be
+	    // created if they are not needed.
+	    //
+	    if(adapterImpl)
+	    {
+		const_cast<ThreadPoolPtr&>(_threadPool) = adapterImpl->getThreadPool();
+	    }
+	    else
+	    {
+		const_cast<ThreadPoolPtr&>(_threadPool) = _instance->clientThreadPool();
+	    }
 	}
 	else
 	{
-	    const_cast<ThreadPoolPtr&>(_threadPool) = _instance->clientThreadPool();
-	}
-    }
-    else
-    {
-	//
-	// If we are in thread per connection mode, create the thread
-	// for this connection.
-	//
-	__setNoDelete(true);
-	try
-	{
+	    //
+	    // If we are in thread per connection mode, create the thread
+	    // for this connection.
+	    //
 	    _threadPerConnection = new ThreadPerConnection(this);
 	    _threadPerConnection->start(_instance->threadPerConnectionStackSize());
 	}
-	catch(const IceUtil::Exception& ex)
+    }
+    catch(const IceUtil::Exception& ex)
+    {
 	{
+	    Error out(_logger);
+	    if(_instance->threadPerConnection())
 	    {
-		Error out(_logger);
 		out << "cannot create thread for connection:\n" << ex;
 	    }
-
-	    _state = StateClosed;
-	    _transceiver = 0;
-	    _threadPerConnection = 0;
-
-	    __setNoDelete(false);
-	    throw;
+	    else
+	    {
+		out << "cannot create thread pool for connection:\n" << ex;
+	    }
 	}
+	
+	_state = StateClosed;
+	
+	try
+	{
+	    _transceiver->close();
+	}
+	catch(const LocalException&)
+	{
+	    // Here we ignore any exceptions in close().
+	}
+	_transceiver = 0;
+	_threadPerConnection = 0;
+	
 	__setNoDelete(false);
+	throw;
     }
+    __setNoDelete(false);
 }
 
 Ice::ConnectionI::~ConnectionI()

@@ -1299,51 +1299,68 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    _servantManager = null;
 	}
 
-	if(!_instance.threadPerConnection())
+	try
 	{
-	    //
-	    // Only set _threadPool if we really need it, i.e., if we are
-	    // not in thread per connection mode. Thread pools have lazy
-	    // initialization in Instance, and we don't want them to be
-	    // created if they are not needed.
-	    //
-	    if(_adapter != null)
+	    if(!_instance.threadPerConnection())
 	    {
-		_threadPool = ((ObjectAdapterI)_adapter).getThreadPool();
+		//
+		// Only set _threadPool if we really need it, i.e., if we are
+		// not in thread per connection mode. Thread pools have lazy
+		// initialization in Instance, and we don't want them to be
+		// created if they are not needed.
+		//
+		if(_adapter != null)
+		{
+		    _threadPool = ((ObjectAdapterI)_adapter).getThreadPool();
+		}
+		else
+		{
+		    _threadPool = _instance.clientThreadPool();
+		}
 	    }
 	    else
 	    {
-		_threadPool = _instance.clientThreadPool();
-	    }
-	}
-	else
-	{
-	    _threadPool = null;
-
-	    //
-	    // If we are in thread per connection mode, create the thread
-	    // for this connection.
-	    //
-	    try
-	    {
+		_threadPool = null;
+		
+		//
+		// If we are in thread per connection mode, create the thread
+		// for this connection.
+		//
 		_threadPerConnection = new ThreadPerConnection();
 		_threadPerConnection.start();
 	    }
-	    catch(RuntimeException ex)
+	}
+	catch(RuntimeException ex)
+	{
+	    java.io.StringWriter sw = new java.io.StringWriter();
+	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	    ex.printStackTrace(pw);
+	    pw.flush();
+	    String s;
+	    if(_instance.threadPerConnection())
 	    {
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		String s = "cannot create thread for connection:\n" + sw.toString();
-		_instance.logger().error(s);
-
-		_state = StateClosed;
-		_transceiver = null;
-		_threadPerConnection = null;
-
-		throw ex;
+		s = "cannot create thread for connection:\n";
 	    }
+	    else
+	    {
+		s = "cannot create thread pool for connection:\n";
+	    }
+	    s += sw.toString();
+	    _instance.logger().error(s);
+	    
+	    _state = StateClosed;
+	    try
+	    {
+		_transceiver.close();
+	    }
+	    catch(LocalException e)
+	    {
+		// Here we ignore any exceptions in close().
+	    }
+	    _transceiver = null;
+	    _threadPerConnection = null;
+	    
+	    throw ex;
 	}
 
 	_overrideCompress = _instance.defaultsAndOverrides().overrideCompress;

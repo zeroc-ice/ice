@@ -1,6 +1,9 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed an assert which could occur on connection establishment if there 
+  wasn't anymore file descriptors available.
+
 - Improved support for on demand server activation in IcePack.
 
 - Improved the IcePack registry to prevent potential deadlocks caused by
