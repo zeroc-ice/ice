@@ -1,6 +1,10 @@
 Changes since version 1.5.0
 ---------------------------
 
+- Fixed a bug in IceStorm that caused a subscriber to no longer
+  receive events after unsubscribing and resubscribing to the same
+  topic.
+
 - Fixed a bug in the slice2cs code generator: classes with multiple
   sequence members caused incorrect code to be generated.
 
