@@ -201,7 +201,7 @@ Ice::EvictorBase::evictServants()
     // look at the excess elements to see whether any of them
     // can be evicted.
     //
-    for(int i = _map.size() - _size; i > 0; --i)
+    for(int i = static_cast<int>(_map.size() - _size); i > 0; --i)
     {
 	EvictorQueue::reverse_iterator p = _queue.rbegin();
 	assert(p != _queue.rend());
@@ -238,7 +238,7 @@ Ice::EvictorBase::initialize(const Current& c)
     _communicator = c.adapter->getCommunicator();
 
     PropertiesPtr p = _communicator->getProperties();
-    int num;
+    Int num;
 
     //
     // Check evictor size properties.

@@ -49,7 +49,6 @@ private:
 
     typedef std::list<Ice::Identity> EvictorQueue;
     typedef std::map<Ice::Identity, EvictorEntryPtr> EvictorMap;
-    typedef EvictorMap::size_type EvictorSize;
 
     struct EvictorEntry : public Ice::LocalObject
     {
@@ -67,7 +66,7 @@ private:
 
     EvictorQueue _queue;
     EvictorMap _map;
-    EvictorSize _size;
+    Ice::Int _size;
     bool _initialized;
     size_t _hits;
     size_t _misses;
