@@ -82,6 +82,16 @@ Ice::Object::ice_ping(const Current&)
     // Nothing to do.
 }
 
+vector<string>
+Ice::Object::ice_ids(const Current&)
+{
+    //
+    // Note in general this must be __ids, not __classIds since
+    // __classIds is only classes and not interfaces.
+    //
+    return vector<string>(&__classIds[0], &__classIds[1]);
+}
+
 DispatchStatus
 Ice::Object::___ice_isA(Incoming& __in, const Current& __current)
 {
@@ -101,8 +111,18 @@ Ice::Object::___ice_ping(Incoming&, const Current& __current)
     return DispatchOK;
 }
 
+DispatchStatus
+Ice::Object::___ice_ids(Incoming& __in, const Current& __current)
+{
+    BasicStream* __os = __in.os();
+    vector<string> __ret = ice_ids(__current);
+    __os->write(__ret);
+    return DispatchOK;
+}
+
 string Ice::Object::__all[] =
 {
+    "ice_ids",
     "ice_isA",
     "ice_ping"
 };
@@ -120,11 +140,15 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
 
     switch (r.first - __all)
     {
-	case 0:
+        case 0:
+        {
+	    return ___ice_ids(in, current);
+        }
+        case 1:
 	{
 	    return ___ice_isA(in, current);
 	}
-	case 1:
+	case 2:
 	{
 	    return ___ice_ping(in, current);
 	}

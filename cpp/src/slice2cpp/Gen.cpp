@@ -1855,6 +1855,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	H << nl << exp2 << "static const ::std::string __classIds[" << classIds.size() << "];";
 	H << nl << exp2 << "virtual bool ice_isA(const ::std::string&, const ::Ice::Current& = ::Ice::Current());";
 	H << nl << exp2 << "virtual const ::std::string* __getClassIds() const;";
+	H << nl << exp2 << "virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Current& = ::Ice::Current());";
 	if (!p->isAbstract())
 	{
 	    H << sp << nl << exp2 << "static ::Ice::ObjectFactoryPtr _factory;";
@@ -1896,6 +1897,12 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << sb;
 	C << nl << "return __classIds;";
 	C << eb;
+
+	C << sp;
+	C << nl << "::std::vector< ::std::string>" << nl << scoped.substr(2) << "::ice_ids(const ::Ice::Current&)";
+	C << sb;
+	C << nl << "return ::std::vector< ::std::string>(&__ids[0], &__ids[" << ids.size() << "]);";
+	C << eb;
     }
 
     return true;
@@ -1930,6 +1937,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	{
 	    StringList allOpNames;
 	    transform(allOps.begin(), allOps.end(), back_inserter(allOpNames), ::IceUtil::memFun(&Operation::name));
+	    allOpNames.push_back("ice_ids");
 	    allOpNames.push_back("ice_isA");
 	    allOpNames.push_back("ice_ping");
 	    allOpNames.sort();

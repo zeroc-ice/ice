@@ -16,6 +16,7 @@
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/StreamF.h>
+#include <Ice/Current.h>
 
 namespace IceInternal
 {
@@ -40,8 +41,6 @@ enum DispatchStatus
 
 namespace Ice
 {
-
-struct Current;
 
 class ICE_API LocationForward
 {
@@ -71,11 +70,14 @@ public:
     static const ::std::string __classIds[];
     virtual const ::std::string* __getClassIds() const;
 
-    virtual bool ice_isA(const ::std::string&, const Current&);
+    virtual bool ice_isA(const ::std::string&, const Current& = Current());
     ::IceInternal::DispatchStatus ___ice_isA(::IceInternal::Incoming&, const Current&);
 
-    virtual void ice_ping(const Current&);
+    virtual void ice_ping(const Current&  = Current());
     ::IceInternal::DispatchStatus ___ice_ping(::IceInternal::Incoming&, const Current&);
+
+    virtual ::std::vector< ::std::string> ice_ids(const Current& = Current());
+    ::IceInternal::DispatchStatus ___ice_ids(::IceInternal::Incoming&, const Current&);
 
     static ::std::string __all[];
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);

@@ -160,6 +160,32 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
     }
 }
 
+vector<string>
+IceProxy::Ice::Object::ice_ids(const Context& __context)
+{
+    int __cnt = 0;
+    while (true)
+    {
+	try
+	{
+	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    return __del->ice_ids(__context);
+	}
+	catch (const LocationForward& __ex)
+	{
+	    __locationForward(__ex);
+	}
+	catch (const NonRepeatable& __ex)
+	{
+	    __handleException(*__ex.get(), __cnt);
+	}
+	catch (const LocalException& __ex)
+	{
+	    __handleException(__ex, __cnt);
+	}
+    }
+}
+
 void
 IceProxy::Ice::Object::ice_invoke(const string& operation,
 				  bool nonmutating,
@@ -620,6 +646,21 @@ IceDelegateM::Ice::Object::ice_ping(const Context& __context)
     }
 }
 
+vector<string>
+IceDelegateM::Ice::Object::ice_ids(const Context& __context)
+{
+    static const string __operation("ice_ids");
+    Outgoing __out(__connection, __reference, __operation, true, __context);
+    BasicStream* __is = __out.is();
+    if (!__out.invoke())
+    {
+	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+    }
+    vector<string> __ret;
+    __is->read(__ret);
+    return __ret;
+}
+
 void
 IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 				      bool nonmutating,
@@ -834,6 +875,33 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
 	{
 	    __direct.facetServant()->ice_ping(__current);
 	    return;
+	}
+	catch (const LocalException&)
+	{
+	    throw UnknownLocalException(__FILE__, __LINE__);
+	}
+	catch (const UserException&)
+	{
+	    throw UnknownUserException(__FILE__, __LINE__);
+	}
+	catch (...)
+	{
+	    throw UnknownException(__FILE__, __LINE__);
+	}
+    }
+}
+
+vector<string>
+IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
+{
+    Current __current;
+    __initCurrent(__current, "ice_ids", true, __context);
+    while (true)
+    {
+	Direct __direct(__adapter, __current);
+	try
+	{
+	    return __direct.facetServant()->ice_ids(__current);
 	}
 	catch (const LocalException&)
 	{

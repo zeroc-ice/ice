@@ -69,6 +69,7 @@ public:
 
     bool ice_isA(const std::string&, const ::Ice::Context& = ::Ice::Context());
     void ice_ping(const ::Ice::Context& = ::Ice::Context());
+    ::std::vector< ::std::string> ice_ids(const ::Ice::Context& = ::Ice::Context());
     void ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
 		    const ::Ice::Context& = ::Ice::Context());
 
@@ -123,6 +124,7 @@ public:
 
     virtual bool ice_isA(const std::string&, const ::Ice::Context&) = 0;
     virtual void ice_ping(const ::Ice::Context&) = 0;
+    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&) = 0;
     virtual void ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
 			    const ::Ice::Context&) = 0;
     virtual void ice_flush() = 0;
@@ -139,6 +141,7 @@ public:
 
     virtual bool ice_isA(const std::string&, const ::Ice::Context&);
     virtual void ice_ping(const ::Ice::Context&);
+    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     virtual void ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
 			    const ::Ice::Context&);
     virtual void ice_flush();
@@ -169,6 +172,7 @@ public:
 
     virtual bool ice_isA(const std::string&, const ::Ice::Context&);
     virtual void ice_ping(const ::Ice::Context&);
+    virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     virtual void ice_invoke(const std::string&, bool, const std::vector< ::Ice::Byte>&, std::vector< ::Ice::Byte>&,
 			    const ::Ice::Context&);
     virtual void ice_flush();
