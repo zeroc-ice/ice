@@ -10,7 +10,7 @@
 
 package IceInternal;
 
-public class Incoming
+public final class Incoming
 {
     public
     Incoming(Instance instance, Ice.ObjectAdapter adapter)
@@ -28,7 +28,123 @@ public class Incoming
         String facet = _is.readString();
         String operation = _is.readString();
 
-        // TODO
+        int statusPos = ...; // TODO
+
+        Ice.Object servant = null;
+        Ice.ServantLocator locator = null;
+        Ice.LocalObjectHolder cookie = new Ice.LocalObjectHolder();
+
+        try
+        {
+            servant = _adapter.identityToServant(identity);
+
+            if (servant == null)
+            {
+                int pos = identity.indexOf('#');
+                if (pos != -1)
+                {
+                    locator = _adapter.findServantLocator(
+                        identity.substring(0, pos));
+                    if (locator != null)
+                    {
+                        servant = locator.locate(_adapter, identity, operation,
+                                                 cookie);
+                    }
+                }
+            }
+
+            if (servant == null)
+            {
+                locator = _adapter.findServantLocator("");
+                if (locator != null)
+                {
+                    servant = locator.locate(_adapter, identity, operation,
+                                             cookie);
+                }
+            }
+
+            if (servant == null)
+            {
+                _os.writeByte((byte)DispatchStatus._DispatchObjectNotExist);
+            }
+            else
+            {
+                if (facet.length() > 0)
+                {
+                    Ice.Object facetServant = servant._findFacet(facet);
+                    if (facetServant == null)
+                    {
+                        _os.writeByte(
+                            (byte)DispatchStatus._DispatchFacetNotExist);
+                    }
+                    else
+                    {
+                        _os.writeByte((byte)DispatchStatus._DispatchOK);
+                        DispatchStatus status =
+                            facetServant.__dispatch(this, operation);
+                        // TODO: Patch new status back into _os
+                    }
+                }
+                else
+                {
+                    _os.writeByte((byte)DispatchStatus._DispatchOK);
+                    DispatchStatus status =
+                        servant.__dispatch(this, operation);
+                    // TODO: Patch new status back into _os
+                }
+            }
+
+            if (locator != null && servant != null)
+            {
+                locator.finished(_adapter, identity, operation, servant,
+                                 cookie.value);
+            }
+        }
+        catch (Ice.LocationForward ex)
+        {
+            if (locator != null && servant != null)
+            {
+                locator.finished(_adapter, identity, operation, servant,
+                                 cookie.value);
+            }
+            _os.writeByte((byte)DispatchStatus._DispatchLocationForward);
+            // TODO
+            return;
+        }
+        catch (Ice.LocalException ex)
+        {
+            if (locator != null && servant != null)
+            {
+                locator.finished(_adapter, identity, operation, servant,
+                                 cookie.value);
+            }
+            // TODO
+            _os.writeByte((byte)DispatchStatus._DispatchUnknownLocalException);
+            throw ex;
+        }
+        catch (Ice.UserException ex)
+        {
+            if (locator != null && servant != null)
+            {
+                locator.finished(_adapter, identity, operation, servant,
+                                 cookie.value);
+            }
+            // TODO
+            _os.writeByte((byte)DispatchStatus._DispatchUnknownUserException);
+            // throw ex;
+            return;
+        }
+        catch (Exception ex)
+        {
+            if (locator != null && servant != null)
+            {
+                locator.finished(_adapter, identity, operation, servant,
+                                 cookie.value);
+            }
+            // TODO
+            _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
+            throw new Ice.UnknownException(); // TODO: Chain?
+        }
     }
 
     public Stream
