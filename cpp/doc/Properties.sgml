@@ -847,66 +847,51 @@ The identity of the service manager interface. If not specified and if
 <section><title>&IcePack; Properties</title>
 <!-- ********************************************************************** -->
 
-<section><title>IcePack.Locator.Endpoints,IcePack.Locator.Identity</title>
+<section><title>IcePack.Registry.Locator.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Locator.Endpoints=<replaceable>endpoints</replaceable>
-IcePack.Locator.Identity=<replaceable>identity</replaceable>
+IcePack.Registry.Locator.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints and identity of the &IcePack; locator
-interface. The locator endpoints must be accessible to &Ice; clients
-that are using &IcePack; to locate objects.
-</para>
-<para>The default value for <literal>IcePack.Locator.Identity</literal>
-is <literal>IcePack/Locator</literal>.
+Defines the endpoints of the &IcePack; locator interface. The locator
+endpoints must be accessible to &Ice; clients that are using &IcePack;
+to locate objects.
 </para>
 </section>
-
 </section>
 
-<section><title>IcePack.LocatorRegistry.Endpoints,IcePack.LocatorRegistry.Identity</title>
+<section><title>IcePack.Registry.LocatorRegistry.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.LocatorRegistry.Endpoints=<replaceable>endpoints</replaceable>
-IcePack.LocatorRegistry.Identity=<replaceable>identity</replaceable>
+IcePack.Registry.LocatorRegistry.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the endpoints and identity of the &IcePack; locator registry
-interface. The locator registry endpoints must be accessible to &Ice;
-servers that are using &IcePack; to register their object adapters.
-</para>
-<para>The default value for
-<literal>IcePack.LocatorRegistry.Identity</literal>
-is <literal>IcePack/LocatorRegistry</literal>.
+Defines the endpoints of the &IcePack; locator registry interface. The
+locator registry endpoints must be accessible to &Ice; servers that
+are using &IcePack; to register theirs object adapter endpoints.
 </para>
 </section>
-
 </section>
 
-<section><title>IcePack.Admin.Endpoints,IcePack.Admin.Identity</title>
+<section><title>IcePack.Registry.Admin.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Admin.Endpoints=<replaceable>endpoints</replaceable>
-IcePack.Admin.Identity=<replaceable>identity</replaceable>
+IcePack.Registry.Admin.Endpoints=<replaceable>endpoints</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-Defines the optional administrative endpoints and identity of the
-&IcePack; admin interface. The administrative endpoints must be
-accessible to clients which are using the &IcePack; administrative
-interface such as the &IcePack; administrative tool.
-</para>
-<para>The default value for IcePack.Admin.Identity is
-<literal>IcePack/Admin</literal>.
+Defines the optional administrative endpoints of the &IcePack; admin
+interface. The administrative endpoints must be accessible to clients
+which are using the &IcePack; administrative interface, the &IcePack;
+administrative tool for instance.
 </para>
 <note><para>Allowing access to the &IcePack; admin interface is a
 security risk! If you don't specify the administrative endpoints the
@@ -914,10 +899,176 @@ admin interface will be disabled.</para></note>
 </section>
 </section>
 
-<section><title>IcePack.Activation.WaitTime</title>
+<section><title>IcePack.Registry.Internal.Endpoints</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Activation.WaitTime=<replaceable>num</replaceable>
+IcePack.Registry.Internal.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the endpoints of the &IcePack; internal interface. The
+internal endpoints must be accessible to &IcePack; nodes. Nodes use
+this interface to communicate with the registry.
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Registry.Data</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.Data=<replaceable>path</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the path of the &IcePack; registry data directory.
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Registry.Trace.ServerRegistry</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.Trace.ServerRegistry=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The server registry tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No server registry tracing. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace server registration, removal.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Registry.Trace.AdapterRegistry</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.Trace.AdapterRegistry=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The adapter registry tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No adapter registry tracing. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace adapter registration, removal.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Registry.Trace.NodeRegistry</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Registry.Trace.NodeRegistry=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The node registry tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>No node registry tracing. (default)</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Trace node registration, removal.</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Node.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Node.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the endpoints of the &IcePack; node interface. The node
+endpoints must be accessible to the &IcePack; registry. The registry
+uses this interface to communicate with the node.
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Node.Name</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Node.Name=<replaceable>name</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the name of the &IcePack; node. Nodes need be uniquely
+identify. The node will refuse to start if there's a node with the
+same name already running.
+</para>
+<note><para>The default value is the hostname as returned by
+gethostname().</para></note>
+</section>
+</section>
+
+<section><title>IcePack.Node.Data</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Node.Data=<replaceable>path</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the path of the &IcePack; node data directory. The node will
+create a db and servers directory in this directory if they don't
+already exists. The db directory contains the node database. The
+servers directory will contain information such as configuration for
+each deployed server.
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Node.WaitTime</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Node.WaitTime=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -936,22 +1087,22 @@ will kill the server.</para>
 </section>
 </section>
 
-<section><title>IcePack.Trace.ServerManager</title>
+<section><title>IcePack.Node.Trace.Server</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Trace.ServerManager=<replaceable>num</replaceable>
+IcePack.Node.Trace.Server=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The server manager tracing level:
+The server tracing level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No server manager tracing. (default)</entry>
+<entry>No server tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -974,22 +1125,22 @@ change (activating and deactivating).</entry>
 </section>
 </section>
 
-<section><title>IcePack.Trace.AdapterManager</title>
+<section><title>IcePack.Node.Trace.Adapter</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Trace.AdapterManager=<replaceable>num</replaceable>
+IcePack.Node.Trace.Adapter=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-The adapter manager tracing level:
+The adapter tracing level:
 <informaltable>
 <tgroup cols=2>
 <tbody>
 <row>
 <entry>0</entry>
-<entry>No adapter manager tracing. (default)</entry>
+<entry>No adapter tracing. (default)</entry>
 </row>
 <row>
 <entry>1</entry>
@@ -1012,10 +1163,10 @@ change (`waiting for activation' for example).</entry>
 </section>
 </section>
 
-<section><title>IcePack.Trace.Activator</title>
+<section><title>IcePack.Node.Trace.Activator</title>
 <section><title>Synopsis</title>
 <synopsis>
-IcePack.Trace.Activator=<replaceable>num</replaceable>
+IcePack.Node.Trace.Activator=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
