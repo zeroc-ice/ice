@@ -98,7 +98,6 @@ slicedirs = [\
     "IceBox",\
     "IcePack",\
     "IceStorm",\
-    "Yellow",\
 ]
 os.mkdir(os.path.join("icej", "slice"))
 for x in slicedirs:
