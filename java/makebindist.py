@@ -107,7 +107,7 @@ if platform == "win32":
     if not os.path.exists(icehome + "/bin/glacier" + winver + ".dll"):
         debug = "d"
     executables = [ \
-        "glacier.exe",\
+        "glacierrouter.exe",\
         "icecpp.exe",\
         "slice2freezej.exe",\
         "slice2java.exe",\
