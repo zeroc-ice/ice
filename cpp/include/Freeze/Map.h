@@ -11,8 +11,8 @@
 #ifndef FREEZE_MAP_H
 #define FREEZE_MAP_H
 
-#include <Freeze/DB.h>
 #include <Ice/Ice.h>
+#include <Freeze/DB.h>
 
 #include <iterator>
 
@@ -104,7 +104,7 @@ public:
 	}
     }
 
-    bool operator==(const DBIterator& rhs)
+    bool operator==(const DBIterator& rhs) const
     {
 	if (!_db && !rhs._db)
 	{
@@ -113,7 +113,7 @@ public:
 	return false;
     }
 
-    bool operator!=(const DBIterator& rhs)
+    bool operator!=(const DBIterator& rhs) const
     {
 	return !(*this == rhs);
     }
