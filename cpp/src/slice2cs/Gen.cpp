@@ -1063,20 +1063,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     if(p->hasDataMembers())
     {
 #if 0
-	_out << sp << nl << "#region Comparison operators";
-
-	_out << sp << nl << "public static bool operator==(" << name << " __lhs, " << name << " __rhs)";
-	_out << sb;
-	_out << nl << "return Equals(__lhs, __rhs);";
-	_out << eb;
-
-	_out << sp << nl << "public static bool operator!=(" << name << " __lhs, " << name << " __rhs)";
-	_out << sb;
-	_out << nl << "return !Equals(__lhs, __rhs);";
-	_out << eb;
-
-	_out << sp << nl << "#endregion"; // Comparison operators
-
 	_out << sp << nl << "#region Object members";
 
 	_out << sp << nl << "public override int GetHashCode()";
@@ -1145,6 +1131,10 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	_out << nl << "return true;";
 	_out << eb;
 
+	_out << sp << nl << "#endregion"; // Object members
+
+	_out << sp << nl << "#region Comparison members";
+
 	_out << sp << nl << "public static bool Equals(" << name << " __lhs, " << name << " __rhs)";
 	_out << sb;
 	_out << nl << "return object.ReferenceEquals(__lhs, null)";
@@ -1152,7 +1142,18 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	_out << nl << "           : __lhs.Equals(__rhs);";
 	_out << eb;
 
-	_out << sp << nl << "#endregion"; // Object members
+	_out << sp << nl << "public static bool operator==(" << name << " __lhs, " << name << " __rhs)";
+	_out << sb;
+	_out << nl << "return Equals(__lhs, __rhs);";
+	_out << eb;
+
+	_out << sp << nl << "public static bool operator!=(" << name << " __lhs, " << name << " __rhs)";
+	_out << sb;
+	_out << nl << "return !Equals(__lhs, __rhs);";
+	_out << eb;
+
+	_out << sp << nl << "#endregion"; // Comparison members
+
 #endif
     }
 
@@ -1237,8 +1238,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     bool isValue = isValueType(p->type());
 
     _out << sp << nl << "public class " << name
-         << " : _System.Collections.CollectionBase, _System.ICloneable, Ice.SequenceBase";
-         //<< " : _System.Collections.CollectionBase, _System.IComparable, _System.ICloneable, Ice.SequenceBase";
+         << " : _System.Collections.CollectionBase, _System.ICloneable, IceInternal.SequenceBase";
     _out << sb;
 
     _out << sp << nl << "#region Constructors";
@@ -1250,11 +1250,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << sp << nl << "public " << name << "(int capacity)";
     _out << sb;
     _out << nl << "InnerList.Capacity = capacity;";
-    _out << eb;
-
-    _out << sp << nl << "public " << name << "(" << name << " __s)";
-    _out << sb;
-    _out << nl << "InnerList.AddRange(__s.InnerList);";
     _out << eb;
 
     _out << sp << nl << "public " << name << "(" << s << "[] __a)";
@@ -1290,24 +1285,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "#endregion"; // Array copy and conversion
 
-    _out << sp << nl << "#region Indexer";
-
-    _out << sp << nl << "public " << s << " this[int index]";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return (" << s << ")InnerList[index];";
-    _out << eb;
-
-    _out << nl << "set";
-    _out << sb;
-    _out << nl << "InnerList[index] = value;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Indexer
-
-    _out << sp << nl << "#region " << s << " members";
+    _out << sp << nl << "#region AddRange members";
 
     _out << sp << nl << "public void AddRange(" << name << " __s)";
     _out << sb;
@@ -1319,7 +1297,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << nl << "InnerList.AddRange(__a);";
     _out << eb;
 
-    _out << sp << nl << "#endregion"; // <s> operations";
+    _out << sp << nl << "#endregion"; // AddRange members
 
     _out << sp << nl << "#region ICollectionBase members";
 
@@ -1350,43 +1328,71 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "#endregion"; // ICollectionBase members
 
-    _out << sp << nl << "#region Comparison operators";
+    _out << sp << nl << "#region ICollection members";
 
-    _out << sp << nl << "public static bool operator==(" << name << " __lhs, " << name << " __rhs)";
+    _out << sp << nl << "public bool IsSynchronized";
     _out << sb;
-    _out << nl << "return Equals(__lhs, __rhs);";
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return false;";
+    _out << eb;
     _out << eb;
 
-    _out << sp << nl << "public static bool operator!=(" << name << " __lhs, " << name << " __rhs)";
+    _out << sp << nl << "public object SyncRoot";
     _out << sb;
-    _out << nl << "return !Equals(__lhs, __rhs);";
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return this;";
+    _out << eb;
     _out << eb;
 
-    _out << sp << nl << "#endregion"; // Comparison operators
+    _out << sp << nl << "#endregion"; // ICollection members
+
+    _out << sp << nl << "#region IList members";
+
+    _out << sp << nl << "public bool IsFixedSize";
+    _out << sb;
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return false;";
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "public bool IsReadOnly";
+    _out << sb;
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return false;";
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "#region Indexer";
+
+    _out << sp << nl << "public " << s << " this[int index]";
+    _out << sb;
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return (" << s << ")InnerList[index];";
+    _out << eb;
+
+    _out << nl << "set";
+    _out << sb;
+    _out << nl << "InnerList[index] = value;";
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // Indexer
+
+    _out << sp << nl << "#endregion"; // IList members
 
     _out << sp << nl << "#region ICloneable members";
 
     _out << sp << nl << "public object Clone()";
     _out << sb;
-    _out << nl << name << " __ret = new "<< name << "();";
-    _out << nl << "__ret.InnerList.AddRange(InnerList);";
-    _out << nl << "return __ret;";
+    _out << nl << "return (" << name << ")MemberwiseClone();";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // ICloneable members
-
-    _out << sp << nl << "#region SequenceBase members";
-
-    _out << sp << nl << "public void set(int index, object o)";
-    _out << sb;
-    _out << nl << "for(int i = InnerList.Count; i <= index; ++i)";
-    _out << sb;
-    _out << nl << "InnerList.Add(null);";
-    _out << eb;
-    _out << nl << "InnerList[index] = (" << s << ")o;";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // SequenceBase members
 
     _out << sp << nl << "#region Object members";
 
@@ -1440,6 +1446,10 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << nl << "return true;";
     _out << eb;
 
+    _out << sp << nl << "#endregion"; // Object members
+
+    _out << sp << nl << "#region Comparison members";
+
     _out << sp << nl << "public static bool Equals(" << name << " __lhs, " << name << " __rhs)";
     _out << sb;
     _out << nl << "return object.ReferenceEquals(__lhs, null)";
@@ -1447,7 +1457,30 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << nl << "           : __lhs.Equals(__rhs);";
     _out << eb;
 
-    _out << sp << nl << "#endregion"; // Object members
+    _out << sp << nl << "public static bool operator==(" << name << " __lhs, " << name << " __rhs)";
+    _out << sb;
+    _out << nl << "return Equals(__lhs, __rhs);";
+    _out << eb;
+
+    _out << sp << nl << "public static bool operator!=(" << name << " __lhs, " << name << " __rhs)";
+    _out << sb;
+    _out << nl << "return !Equals(__lhs, __rhs);";
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // Comparison members
+
+    _out << sp << nl << "#region SequenceBase members (For Ice-internal use only!";
+
+    _out << sp << nl << "public void ice_set(int index, object o) // For Ice-internal use only!";
+    _out << sb;
+    _out << nl << "for(int i = InnerList.Count; i <= index; ++i)";
+    _out << sb;
+    _out << nl << "InnerList.Add(null);";
+    _out << eb;
+    _out << nl << "InnerList[index] = (" << s << ")o;";
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // SequenceBase members (For Ice-internal use only!";
 
     _out << eb;
 }
@@ -1655,7 +1688,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
 
 #if 0
-    _out << sp << nl << "#region Comparison operators";
+    _out << sp << nl << "#region Comparison members";
 
     _out << sp << nl << "public static bool operator==(" << name << " __lhs, " << name << " __rhs)";
     _out << sb;
@@ -1667,7 +1700,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "return !Equals(__lhs, __rhs);";
     _out << eb;
 
-    _out << sp << nl << "#endregion"; // Comparison operators
+    _out << sp << nl << "#endregion"; // Comparison members
 
     _out << sp << nl << "#region Object members";
 
@@ -1735,8 +1768,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     string name = fixId(p->name());
 
-    _out << sp << nl << "public class " << name;
-    //_out << sp << nl << "public class " << name << " : _System.IComparable";
+    _out << sp << nl << "public class " << name << " : _System.ICloneable";
     _out << sb;
 
     _out << sp << nl << "#region Slice data members";
@@ -1753,6 +1785,102 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     DataMemberList::const_iterator q;
 
     _out << sp << nl << "#endregion"; // Slice data members
+
+    _out << sp << nl << "#region ICloneable members";
+
+    _out << sp << nl << "public object Clone()";
+    _out << sb;
+    _out << nl << "return (" << name << ")MemberwiseClone();";
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // ICloneable members
+
+    _out << sp << nl << "#region Object members";
+
+    _out << sp << nl << "public override int GetHashCode()";
+    _out << sb;
+    _out << nl << "int __h = 0;";
+    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        string memberName = fixId((*q)->name());
+	bool isValue = isValueType((*q)->type());
+	if(!isValue)
+	{
+	    _out << nl << "if(" << memberName << " != null)";
+	    _out << sb;
+	}
+	_out << nl << "__h = 5 * __h + " << memberName << ".GetHashCode();";
+	if(!isValue)
+	{
+	    _out << eb;
+	}
+    }
+    _out << nl << "return __h;";
+    _out << eb;
+
+    _out << sp << nl << "public override bool Equals(object __other)";
+    _out << sb;
+    _out << nl << "if(object.ReferenceEquals(this, __other))";
+    _out << sb;
+    _out << nl << "return true;";
+    _out << eb;
+    _out << nl << "if(!(__other is " << name << "))";
+    _out << sb;
+    _out << nl << "return false;";
+    _out << eb;
+    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        string memberName = fixId((*q)->name());
+	if(!isValueType((*q)->type()))
+	{
+	    _out << nl << "if(" << memberName << " == null)";
+	    _out << sb;
+	    _out << nl << "if(((" << name << ")__other)." << memberName << " != null)";
+	    _out << sb;
+	    _out << nl << "return false;";
+	    _out << eb;
+	    _out << eb;
+	    _out << nl << "else";
+	    _out << sb;
+	    _out << nl << "if(!(" << memberName << ".Equals(((" << name << ")__other)." << memberName << ")))";
+	    _out << sb;
+	    _out << nl << "return false;";
+	    _out << eb;
+	    _out << eb;
+	}
+	else
+	{
+	    _out << nl << "if(!(" << memberName << ".Equals(((" << name << ")__other)." << memberName << ")))";
+	    _out << sb;
+	    _out << nl << "return false;";
+	    _out << eb;
+	}
+    }
+    _out << nl << "return true;";
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // Object members
+
+    _out << sp << nl << "#region Comparison members";
+
+    _out << sp << nl << "public static bool Equals(" << name << " __lhs, " << name << " __rhs)";
+    _out << sb;
+    _out << nl << "return object.ReferenceEquals(__lhs, null)";
+    _out << nl << "           ? object.ReferenceEquals(__rhs, null)";
+    _out << nl << "           : __lhs.Equals(__rhs);";
+    _out << eb;
+
+    _out << sp << nl << "public static bool operator==(" << name << " __lhs, " << name << " __rhs)";
+    _out << sb;
+    _out << nl << "return Equals(__lhs, __rhs);";
+    _out << eb;
+
+    _out << sp << nl << "public static bool operator!=(" << name << " __lhs, " << name << " __rhs)";
+    _out << sb;
+    _out << nl << "return !Equals(__lhs, __rhs);";
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // Comparison members
 
     if(!p->isLocal())
     {
@@ -1864,93 +1992,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << sp << nl << "#endregion"; // Marshalling support
     }
 
-    _out << sp << nl << "#region Comparison operators";
-
-    _out << sp << nl << "public static bool operator==(" << name << " __lhs, " << name << " __rhs)";
-    _out << sb;
-    _out << nl << "return Equals(__lhs, __rhs);";
-    _out << eb;
-
-    _out << sp << nl << "public static bool operator!=(" << name << " __lhs, " << name << " __rhs)";
-    _out << sb;
-    _out << nl << "return !Equals(__lhs, __rhs);";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Comparison operators
-
-    _out << sp << nl << "#region Object members";
-
-    _out << sp << nl << "public override int GetHashCode()";
-    _out << sb;
-    _out << nl << "int __h = 0;";
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        string memberName = fixId((*q)->name());
-	bool isValue = isValueType((*q)->type());
-	if(!isValue)
-	{
-	    _out << nl << "if(" << memberName << " != null)";
-	    _out << sb;
-	}
-	_out << nl << "__h = 5 * __h + " << memberName << ".GetHashCode();";
-	if(!isValue)
-	{
-	    _out << eb;
-	}
-    }
-    _out << nl << "return __h;";
-    _out << eb;
-
-    _out << sp << nl << "public override bool Equals(object __other)";
-    _out << sb;
-    _out << nl << "if(object.ReferenceEquals(this, __other))";
-    _out << sb;
-    _out << nl << "return true;";
-    _out << eb;
-    _out << nl << "if(!(__other is " << name << "))";
-    _out << sb;
-    _out << nl << "return false;";
-    _out << eb;
-    for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
-    {
-        string memberName = fixId((*q)->name());
-	if(!isValueType((*q)->type()))
-	{
-	    _out << nl << "if(" << memberName << " == null)";
-	    _out << sb;
-	    _out << nl << "if(((" << name << ")__other)." << memberName << " != null)";
-	    _out << sb;
-	    _out << nl << "return false;";
-	    _out << eb;
-	    _out << eb;
-	    _out << nl << "else";
-	    _out << sb;
-	    _out << nl << "if(!(" << memberName << ".Equals(((" << name << ")__other)." << memberName << ")))";
-	    _out << sb;
-	    _out << nl << "return false;";
-	    _out << eb;
-	    _out << eb;
-	}
-	else
-	{
-	    _out << nl << "if(!(" << memberName << ".Equals(((" << name << ")__other)." << memberName << ")))";
-	    _out << sb;
-	    _out << nl << "return false;";
-	    _out << eb;
-	}
-    }
-    _out << nl << "return true;";
-    _out << eb;
-
-    _out << sp << nl << "public static bool Equals(" << name << " __lhs, " << name << " __rhs)";
-    _out << sb;
-    _out << nl << "return object.ReferenceEquals(__lhs, null)";
-    _out << nl << "           ? object.ReferenceEquals(__rhs, null)";
-    _out << nl << "           : __lhs.Equals(__rhs);";
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Object members
-
     _out << eb;
 }
 
@@ -1964,61 +2005,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp << nl << "public class " << name
          << " : _System.Collections.DictionaryBase, _System.ICloneable";
-         //<< " : _System.Collections.DictionaryBase, _System.IComparable, _System.ICloneable";
     _out << sb;
-
-    _out << sp << nl << "#region Constructors";
-
-    _out << sp << nl << "public " << name << "()";
-    _out << sb;
-    _out << eb;
-
-    _out << sp << nl << "public " << name << "(" << name << " __d)";
-    _out << sb;
-    _out << nl << "foreach(_System.Collections.DictionaryEntry e in __d)";
-    _out << sb;
-    _out << nl << "InnerHashtable.Add(e.Key, e.Value);";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Constructors
-
-    _out << sp << nl << "#region " << name << " properties";
-
-    _out << sp << nl << "#region Indexer";
-
-    _out << nl << "public " << vs << " this[" << ks << " key]";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return (" << vs << ")InnerHashtable[key];";
-    _out << eb;
-
-    _out << nl << "set";
-    _out << sb;
-    _out << nl << "InnerHashtable[key] = value;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // Indexer
-
-    _out << sp << nl << "public _System.Collections.ICollection Keys";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return InnerHashtable.Keys;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "public _System.Collections.ICollection Values";
-    _out << sb;
-    _out << nl << "get";
-    _out << sb;
-    _out << nl << "return InnerHashtable.Values;";
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "#endregion"; // properties
 
     _out << sp << nl << "#region " << name << " members";
 
@@ -2041,6 +2028,55 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp << nl << "#region IDictionary members";
 
+    _out << sp << nl << "public bool IsFixedSize";
+    _out << sb;
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return false;";
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "public bool IsReadOnly";
+    _out << sb;
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return false;";
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "public _System.Collections.ICollection Keys";
+    _out << sb;
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return InnerHashtable.Keys;";
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "public _System.Collections.ICollection Values";
+    _out << sb;
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return InnerHashtable.Values;";
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "#region Indexer";
+
+    _out << sp << nl << "public " << vs << " this[" << ks << " key]";
+    _out << sb;
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return (" << vs << ")InnerHashtable[key];";
+    _out << eb;
+
+    _out << nl << "set";
+    _out << sb;
+    _out << nl << "InnerHashtable[key] = value;";
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // Indexer
+
     _out << sp << nl << "public void Add(" << ks << " key, " << vs << " value)";
     _out << sb;
     _out << nl << "InnerHashtable.Add(key, value);";
@@ -2058,30 +2094,31 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     _out << sp << nl << "#endregion"; // IDictionary members
 
-    _out << sp << nl << "#region Comparison operators";
+    _out << sp << nl << "#region ICollection members";
 
-    _out << sp << nl << "public static bool operator==(" << name << " __lhs, " << name << " __rhs)";
+    _out << sp << nl << "public bool IsSynchronized";
     _out << sb;
-    _out << nl << "return Equals(__lhs, __rhs);";
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return false;";
+    _out << eb;
     _out << eb;
 
-    _out << sp << nl << "public static bool operator!=(" << name << " __lhs, " << name << " __rhs)";
+    _out << sp << nl << "public object SyncRoot";
     _out << sb;
-    _out << nl << "return !Equals(__lhs, __rhs);";
+    _out << nl << "get";
+    _out << sb;
+    _out << nl << "return this;";
+    _out << eb;
     _out << eb;
 
-    _out << sp << nl << "#endregion"; // Comparison operators
+    _out << sp << nl << "#endregion"; // ICollection members
 
     _out << sp << nl << "#region ICloneable members";
 
     _out << sp << nl << "public object Clone()";
     _out << sb;
-    _out << nl << name << " __ret = new " << name << "();";
-    _out << nl << "foreach(System.Collections.DictionaryEntry e in InnerHashtable)";
-    _out << sb;
-    _out << nl << "__ret[(" << ks << ")e.Key] = (" << vs << ")e.Value;";
-    _out << eb;
-    _out << nl << "return __ret;";
+    _out << nl << "return (" << name << ")MemberwiseClone();";
     _out << eb;
 
     _out << sp << nl << "#endregion"; // ICloneable members
@@ -2158,6 +2195,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "return true;";
     _out << eb;
 
+    _out << sp << nl << "#endregion"; // Object members
+
+    _out << sp << nl << "#region Comparison members";
+
     _out << sp << nl << "public static bool Equals(" << name << " __lhs, " << name << " __rhs)";
     _out << sb;
     _out << nl << "return object.ReferenceEquals(__lhs, null)";
@@ -2165,7 +2206,17 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << "           : __lhs.Equals(__rhs);";
     _out << eb;
 
-    _out << sp << nl << "#endregion"; // Object members
+    _out << sp << nl << "public static bool operator==(" << name << " __lhs, " << name << " __rhs)";
+    _out << sb;
+    _out << nl << "return Equals(__lhs, __rhs);";
+    _out << eb;
+
+    _out << sp << nl << "public static bool operator!=(" << name << " __lhs, " << name << " __rhs)";
+    _out << sb;
+    _out << nl << "return !Equals(__lhs, __rhs);";
+    _out << eb;
+
+    _out << sp << nl << "#endregion"; // Comparison members
 
     _out << eb;
 }
@@ -2193,7 +2244,7 @@ void
 Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     string name = fixId(p->name());
-    _out << sp << nl << "public class " << name;
+    _out << sp << nl << "public abstract class " << name;
     _out << sb;
     _out << sp << nl << "public const " << typeToString(p->type()) << " value = ";
     BuiltinPtr bp = BuiltinPtr::dynamicCast(p->type());

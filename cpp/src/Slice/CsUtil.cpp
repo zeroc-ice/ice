@@ -51,13 +51,12 @@ lookupKwd(const string& name)
 
     static const string memberList[] =
     {
-	"Add", "Clear", "Clone", "CompareTo", "Contains", "CopyTo", "Count", "Dictionary", "Equals", "Finalize",
-	"GetBaseException", "GetEnumerator", "GetHashCode", "GetObjectData", "GetType", "HResult", "HelpLink",
-	"IndexOf", "InnerException", "InnerHashtable", "InnerList", "Insert", "IsFixedSize", "IsReadOnly",
-	"IsSynchronized", "Item", "Keys", "List", "MemberWiseClone", "Message", "OnClear", "OnClearComplete",
-	"OnGet", "OnInsert", "OnInsertComplete", "OnRemove", "OnRemoveComplete", "OnSet", "OnSetComplete",
-	"OnValidate", "ReferenceEquals", "Remove", "RemoveAt", "Source", "StackTrace", "SyncRoot", "TargetSite",
-	"ToString", "Values", "checked_cast", "unchecked_cast"
+	"Add", "Clear", "Clone", "Contains", "CopyTo", "Dictionary", "Equals", "Finalize",
+	"GetBaseException", "GetEnumerator", "GetHashCode", "GetObjectData", "GetType", 
+	"IndexOf", "Insert", "IsFixedSize", "IsReadOnly", "IsSynchronized", "MemberWiseClone",
+	"Microsoft", "OnClear", "OnClearComplete", "OnGet", "OnInsert", "OnInsertComplete",
+	"OnRemove", "OnRemoveComplete", "OnSet", "OnSetComplete", "OnValidate", "ReferenceEquals",
+	"Remove", "RemoveAt", "SyncRoot", "System", "ToString"
     };
     found = binary_search(&memberList[0],
                            &memberList[sizeof(memberList) / sizeof(*memberList)],
