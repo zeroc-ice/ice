@@ -265,8 +265,11 @@ IceXML::DocumentBuilder::startElement(const string& name, const Attributes& attr
     NodePtr parent = _nodeStack.front();
 
     Element* element = new Element(parent, name, attributes, line, column);
-    bool b = parent->addChild(element);
-    assert(b);
+#if NDEBUG
+    parent->addChild(element);
+#else
+    assert(parent->addChild(element));
+#endif
 
     _nodeStack.push_front(element);
 }
