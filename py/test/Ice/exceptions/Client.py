@@ -10,7 +10,7 @@
 import sys, Ice, AllTests
 
 def run(args, communicator):
-    thrower = AllTests.allTests(communicator, False)
+    thrower = AllTests.allTests(communicator)
     thrower.shutdown()
     return True
 

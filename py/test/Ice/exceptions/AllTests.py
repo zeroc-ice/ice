@@ -60,7 +60,7 @@ class CallbackBase:
         self._cond.notify()
         self._cond.release()
 
-def allTests(communicator, collocated):
+def allTests(communicator):
     print "testing servant registration exceptions... ",
     adapter = communicator.createObjectAdapter("TestAdapter1")
     obj = EmptyI()
@@ -274,19 +274,12 @@ def allTests(communicator, collocated):
         try:
             thrower.throwUndeclaredA(1)
             test(False)
-        except Test.A, ex:
-            #
-            # We get the original exception with collocation
-            # optimization.
-            #
-            test(collocated)
-            test(ex.aMem == 1)
         except Ice.UnknownUserException:
             #
             # We get an unknown user exception without collocation
             # optimization.
             #
-            test(not collocated)
+            pass
         except:
             print sys.exc_info()
             test(False)
@@ -294,20 +287,12 @@ def allTests(communicator, collocated):
         try:
             thrower.throwUndeclaredB(1, 2)
             test(False)
-        except Test.B, ex:
-            #
-            # We get the original exception with collocation
-            # optimization.
-            #
-            test(collocated)
-            test(ex.aMem == 1)
-            test(ex.bMem == 2)
         except Ice.UnknownUserException:
             #
             # We get an unknown user exception without collocation
             # optimization.
             #
-            test(not collocated)
+            pass
         except:
             print sys.exc_info()
             test(False)
@@ -315,21 +300,12 @@ def allTests(communicator, collocated):
         try:
             thrower.throwUndeclaredC(1, 2, 3)
             test(False)
-        except Test.C, ex:
-            #
-            # We get the original exception with collocation
-            # optimization.
-            #
-            test(collocated)
-            test(ex.aMem == 1)
-            test(ex.bMem == 2)
-            test(ex.cMem == 3)
         except Ice.UnknownUserException:
             #
             # We get an unknown user exception without
             # collocation optimization.
             #
-            test(not collocated)
+            pass
         except:
             print sys.exc_info()
             test(False)
@@ -386,18 +362,12 @@ def allTests(communicator, collocated):
     try:
         thrower.throwLocalException()
         test(False)
-    except Ice.TimeoutException:
-        #
-        # We get the original exception with collocation
-        # optimization.
-        #
-        test(collocated)
     except Ice.UnknownLocalException:
         #
         # We get an unknown local exception without collocation
         # optimization.
         #
-        test(not collocated)
+        pass
     except:
         print sys.exc_info()
         test(False)
@@ -414,13 +384,10 @@ def allTests(communicator, collocated):
         # We get an unknown exception without collocation
         # optimization.
         #
-        assert(not collocated)
+        pass
     except:
-        #
-        # We get the original exception with collocation
-        # optimization.
-        #
-        assert(collocated)
+        print sys.exc_info()
+        test(False)
 
     print "ok"
 
