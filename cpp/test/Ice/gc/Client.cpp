@@ -499,9 +499,9 @@ MyApplication::run(int argc, char* argv[])
 
     garbageThread->stop();
     Ice::collectGarbage();
-    test(num == 0);
     if(!interrupted())
     {
+	test(num == 0);
 	cout << "ok" << endl;
 	return EXIT_SUCCESS;
     }

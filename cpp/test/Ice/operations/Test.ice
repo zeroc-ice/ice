@@ -63,6 +63,8 @@ sequence<StringS> StringSS;
 sequence<MyEnumS> MyEnumSS;
 sequence<MyClassS> MyClassSS;
 
+sequence<StringSS> StringSSS;
+
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;
 dictionary<long, float> LongFloatD;
@@ -127,6 +129,9 @@ dictionary<string, MyEnum> StringMyEnumD;
     
     StringSS opStringSS(StringSS p1, StringSS p2,
 			out StringSS p3);
+
+    StringSSS opStringSSS(StringSSS p1, StringSSS p2,
+    			  out StringSSS p3);
 
     ByteBoolD opByteBoolD(ByteBoolD p1, ByteBoolD p2,
 			  out ByteBoolD p3);

@@ -267,6 +267,20 @@ MyDerivedClassI::opStringSS(const Test::StringSS& p1,
     return r;
 }
 
+Test::StringSSS
+MyDerivedClassI::opStringSSS(const Test::StringSSS& p1,
+			     const Test::StringSSS& p2,
+			     Test::StringSSS& p3,
+			     const ::Ice::Current&)
+{
+    p3 = p1;
+    std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
+    Test::StringSSS r;
+    r.resize(p2.size());
+    std::reverse_copy(p2.begin(), p2.end(), r.begin());
+    return r;
+}
+
 Test::ByteBoolD
 MyDerivedClassI::opByteBoolD(const Test::ByteBoolD& p1,
 			     const Test::ByteBoolD& p2,

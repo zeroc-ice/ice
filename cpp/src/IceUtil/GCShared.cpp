@@ -12,7 +12,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/GCRecMutex.h>
 #include <IceUtil/GCShared.h>
 
 namespace IceUtil
@@ -22,29 +21,11 @@ GCObjectSet gcObjects;
 
 using namespace IceUtil;
 
-IceUtil::GCShared::GCShared()
-    : _ref(0), _noDelete(false)
-{
-}
-
-IceUtil::GCShared::~GCShared()
-{
-}
-
 void
 IceUtil::GCShared::__incRef()
 {
     gcRecMutex._m->lock();
     assert(_ref >= 0);
-    if(_ref == 0)
-    {
-#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...
-	gcObjects.insert(this);
-#else
-	std::pair<GCObjectSet::iterator, bool> rc = gcObjects.insert(this);
-	assert(rc.second);
-#endif
-    }
     ++_ref;
     gcRecMutex._m->unlock();
 }
@@ -59,21 +40,9 @@ IceUtil::GCShared::__decRef()
     {
 	doDelete = !_noDelete;
 	_noDelete = true;
-#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...
-	gcObjects.erase(this);
-#else
-	GCObjectSet::size_type num = gcObjects.erase(this);
-	assert(num == 1);
-#endif
     }
     gcRecMutex._m->unlock();
 
-    //
-    // We call delete outside the lock to avoid deadlock: if thread 1 executes
-    // the destructor of a class, and the destructor tries to join with thread 2,
-    // we would deadlock if thread 2 can't complete until after it has destroyed
-    // some class instance of its own.
-    //
     if(doDelete)
     {
 	delete this;
@@ -95,12 +64,6 @@ IceUtil::GCShared::__setNoDelete(bool b)
     gcRecMutex._m->lock();
     _noDelete = b;
     gcRecMutex._m->unlock();
-}
-
-void
-IceUtil::GCShared::__decRefUnsafe()
-{
-    --_ref;
 }
 
 void

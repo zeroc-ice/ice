@@ -85,8 +85,8 @@ public:
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*, bool);
 
-    virtual void __gcReachable(::IceUtil::GCObjectMultiSet&) const;
-    virtual void __gcClear();
+    virtual void __gcReachable(::IceUtil::GCObjectMultiSet&) const {}
+    virtual void __gcClear() {}
 };
 
 class ICE_API Blobject : virtual public Object

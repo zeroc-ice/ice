@@ -290,6 +290,20 @@ MyDerivedClassI::opStringSS_async(const Test::AMD_MyClass_opStringSSPtr& cb,
 }
 
 void
+MyDerivedClassI::opStringSSS_async(const Test::AMD_MyClass_opStringSSSPtr& cb,
+				  const Test::StringSSS& p1,
+				  const Test::StringSSS& p2,
+				  const Ice::Current&)
+{
+    Test::StringSSS p3 = p1;
+    std::copy(p2.begin(), p2.end(), std::back_inserter(p3));
+    Test::StringSSS r;
+    r.resize(p2.size());
+    std::reverse_copy(p2.begin(), p2.end(), r.begin());
+    cb->ice_response(r, p3);
+}
+
+void
 MyDerivedClassI::opByteBoolD_async(const Test::AMD_MyClass_opByteBoolDPtr& cb,
 				   const Test::ByteBoolD& p1,
 				   const Test::ByteBoolD& p2,

@@ -236,6 +236,33 @@ Slice::Builtin::usesClasses() const
     return _kind == KindObject;
 }
 
+size_t
+Slice::Builtin::minWireSize() const
+{
+    static size_t minWireSizeTable[] =
+    {
+	1, // KindByte
+	1, // KindBool
+	2, // KindShort
+	4, // KindInt
+	8, // KindLong
+	4, // KindFloat
+	8, // KindDouble
+	1, // KindString: at least one byte for an empty string.
+	4, // KindObject: at least 4 bytes (to marshal an index instead of an instance).
+	2  // KindObjectProxy: at least an empty identity for a nil proxy, that is, 2 bytes.
+    };
+
+    assert(_kind != KindLocalObject);
+    return minWireSizeTable[_kind];
+}
+
+bool
+Slice::Builtin::isVariableLength() const
+{
+    return _kind == KindString || _kind == KindObject || _kind == KindObjectProxy;
+}
+
 Builtin::Kind
 Slice::Builtin::kind() const
 {
@@ -1856,7 +1883,19 @@ Slice::ClassDecl::uses(const ContainedPtr&) const
 bool
 Slice::ClassDecl::usesClasses() const
 {
-    return !isLocal() && !_interface;
+    return !_interface;
+}
+
+size_t
+Slice::ClassDecl::minWireSize() const
+{
+    return 4; // At least four bytes for an instance, if the instance is marshaled as an index.
+}
+
+bool
+Slice::ClassDecl::isVariableLength() const
+{
+    return true;
 }
 
 string
@@ -2439,28 +2478,36 @@ Slice::ClassDef::allClassDataMembers() const
     // Check if we have a base class. If so, recursively
     // get the class data members of the base(s).
     //
-    ClassList::const_iterator p = _bases.begin();
-    if(p != _bases.end() && !(*p)->isInterface())
+    if(!_bases.empty() && !_bases.front()->isInterface())
     {
-	result = (*p)->allClassDataMembers();
+	result = _bases.front()->allClassDataMembers();
     }
 
     //
     // Append this class's class members.
     //
-    for(ContainedList::const_iterator it = _contents.begin(); it != _contents.end(); ++it)
+    DataMemberList myMembers = classDataMembers();
+    result.splice(result.end(), myMembers);
+
+    return result;
+}
+
+bool
+Slice::ClassDef::canBeCyclic() const
+{
+    if(!_bases.empty() && !_bases.front()->isInterface() && _bases.front()->canBeCyclic())
     {
-	DataMemberPtr q = DataMemberPtr::dynamicCast(*it);
-	if(q)
+	return true;
+    }
+    DataMemberList dml = dataMembers();
+    for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    {
+	if((*i)->type()->usesClasses())
 	{
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->type());
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->type()))
-	    {
-		result.push_back(q);
-	    }
+	    return true;
 	}
     }
-    return result;
+    return false;
 }
 
 bool
@@ -2607,6 +2654,18 @@ bool
 Slice::Proxy::usesClasses() const
 {
     return false;
+}
+
+size_t
+Slice::Proxy::minWireSize() const
+{
+    return 2; // At least two bytes for a nil proxy (empty name and empty category strings).
+}
+
+bool
+Slice::Proxy::isVariableLength() const
+{
+    return true;
 }
 
 ClassDeclPtr
@@ -3050,6 +3109,35 @@ Slice::Struct::usesClasses() const
     return false;
 }
 
+size_t
+Slice::Struct::minWireSize() const
+{
+    //
+    // At least the sum of the minimum member sizes.
+    //
+    size_t sz = 0;
+    DataMemberList dml = dataMembers();
+    for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    {
+	sz += (*i)->type()->minWireSize();
+    }
+    return sz;
+}
+
+bool
+Slice::Struct::isVariableLength() const
+{
+    DataMemberList dml = dataMembers();
+    for(DataMemberList::const_iterator i = dml.begin(); i != dml.end(); ++i)
+    {
+	if((*i)->type()->isVariableLength())
+	{
+	    return true;
+	}
+    }
+    return false;
+}
+
 string
 Slice::Struct::kindOf() const
 {
@@ -3113,6 +3201,18 @@ bool
 Slice::Sequence::usesClasses() const
 {
     return _type->usesClasses();
+}
+
+size_t
+Slice::Sequence::minWireSize() const
+{
+    return _type->minWireSize();
+}
+
+bool
+Slice::Sequence::isVariableLength() const
+{
+    return true;
 }
 
 string
@@ -3195,6 +3295,18 @@ bool
 Slice::Dictionary::usesClasses() const
 {
     return _valueType->usesClasses();
+}
+
+size_t
+Slice::Dictionary::minWireSize() const
+{
+    return _keyType->minWireSize() + _valueType->minWireSize();
+}
+
+bool
+Slice::Dictionary::isVariableLength() const
+{
+    return true;
 }
 
 string
@@ -3348,6 +3460,27 @@ Slice::Enum::uses(const ContainedPtr&) const
 
 bool
 Slice::Enum::usesClasses() const
+{
+    return false;
+}
+
+size_t
+Slice::Enum::minWireSize() const
+{
+    size_t sz = _enumerators.size();
+    if(sz <= 0x7f)
+    {
+	return 1;
+    }
+    if(sz <= 0x7fff)
+    {
+	return 2;
+    }
+    return 4;
+}
+
+bool
+Slice::Enum::isVariableLength() const
 {
     return false;
 }

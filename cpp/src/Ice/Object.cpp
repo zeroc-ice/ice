@@ -226,18 +226,6 @@ Ice::Object::__read(BasicStream* __is, bool __rid)
 }
 
 void
-Ice::Object::__gcReachable(::IceUtil::GCObjectMultiSet& c) const
-{
-    // TODO: Michi: This method does nothing anymore, but is needed because of GCShared.
-}
-
-void
-Ice::Object::__gcClear()
-{
-    // TODO: Michi: This method does nothing anymore, but is needed because of GCShared.
-}
-
-void
 Ice::__patch__ObjectPtr(void* __addr, ObjectPtr& v)
 {
     ObjectPtr* p = static_cast<ObjectPtr*>(__addr);

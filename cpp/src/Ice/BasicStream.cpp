@@ -56,6 +56,7 @@ IceInternal::BasicStream::BasicStream(Instance* instance) :
     _traceSlicing(-1),
     _sliceObjects(true),
     _messageSizeMax(_instance->messageSizeMax()), // Cached for efficiency.
+    _seqDataStack(0),
     _objectList(0)
 {
 }
@@ -76,6 +77,13 @@ IceInternal::BasicStream::~BasicStream()
 	delete oldEncaps;
     }
 
+    while(_seqDataStack)
+    {
+	SeqData* oldSeqData = _seqDataStack;
+	_seqDataStack = _seqDataStack->previous;
+	delete oldSeqData;
+    }
+
     delete _objectList;
 }
 
@@ -94,6 +102,7 @@ IceInternal::BasicStream::swap(BasicStream& other)
     std::swap(i, other.i);
     std::swap(_currentReadEncaps, other._currentReadEncaps);
     std::swap(_currentWriteEncaps, other._currentWriteEncaps);
+    std::swap(_seqDataStack, other._seqDataStack);
     std::swap(_objectList, other._objectList);
 }
 
@@ -106,6 +115,135 @@ IceInternal::BasicStream::reserve(Container::size_type sz)
     }
 
     b.reserve(sz);
+}
+
+//
+// startSeq() and endSeq() sanity-check sequence sizes during
+// unmarshaling and prevent malicious messages with incorrect
+// sequence sizes from causing the receiver to use up all
+// available memory by allocating sequences with an impossibly
+// large number of elements.
+//
+// The code generator inserts calls to startSeq() and endSeq()
+// around the code to unmarshal a sequence. startSeq() is called
+// immediately after reading the sequence size, and endSeq() is
+// called after reading the final element of a sequence.
+//
+// For sequences that contain constructed types that, in turn,
+// contain sequences, the code generator also inserts a call
+// to endElement() (inlined in BasicStream.h) after unmarshaling
+// each element.
+//
+// startSeq() is passed the unmarshaled element count, plus
+// the minimum size (in bytes) occupied by the sequence's
+// element type. numElements * minSize is the smallest
+// possible number of bytes that the sequence will occupy
+// on the wire.
+//
+// Every time startSeq() is called, it pushes the element
+// count and the minimum size on a stack. Every time endSeq()
+// is called, it pops the stack.
+//
+// For an ordinary sequence (one that does not (recursively)
+// contain nested sequences), numElements * minSize must be
+// less than the number of bytes remaining in the stream.
+//
+// For a sequence that is nested within some other sequence,
+// there must be enough bytes remaining in the stream for
+// this sequence (numElements + minSize), plus the sum of
+// the bytes required by the remaining elements of all
+// the enclosing sequences.
+//
+// For the enclosing sequences, numElements - 1 is the
+// number of elements for which unmarshaling has not started
+// yet. (The call to endElement() in the generated code
+// decrements that number whenever a sequence element is
+// unmarshaled.)
+//
+// For sequence that variable-length elements, checkSeq() is called
+// whenever an element is unmarshaled. checkSeq() also checks
+// whether the stream has a sufficient number of bytes remaining.
+// This means that, for messages with bogus sequence sizes,
+// unmarshaling is aborted at the earliest possible point.
+//
+
+void
+IceInternal::BasicStream::startSeq(int numElements, int minSize)
+{
+    if(numElements == 0) // Optimization to avoid pushing a useless stack frame.
+    {
+	return;
+    }
+
+    //
+    // Push the current sequence details on the stack.
+    //
+    SeqData* sd = new SeqData(numElements, minSize);
+    sd->previous = _seqDataStack;
+    _seqDataStack = sd;
+
+    int bytesLeft = b.end() - i;
+    if(_seqDataStack == 0) // Outermost sequence
+    {
+	//
+	// The sequence must fit within the message.
+	//
+	if(numElements * minSize > bytesLeft) 
+	{
+	    throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+	}
+    }
+    else // Nested sequence
+    {
+	checkSeq(bytesLeft);
+    }
+
+}
+
+//
+// Check, given the number of elements requested for this sequence,
+// that this sequence, plus the sum of the sizes of the remaining
+// number of elements of all enclosing sequences, would still fit within the message.
+//
+void
+IceInternal::BasicStream::checkSeq()
+{
+    checkSeq(b.end() - i);
+}
+
+void
+IceInternal::BasicStream::checkSeq(int bytesLeft)
+{
+    int size = 0;
+    SeqData* sd = _seqDataStack;
+    do
+    {
+	size += (sd->numElements - 1) * sd->minSize;
+	sd = sd->previous;
+    }
+    while(sd);
+
+    if(size > bytesLeft)
+    {
+	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
+    }
+}
+
+void
+IceInternal::BasicStream::endSeq(int sz)
+{
+    if(sz == 0) // Pop only if something was pushed previously.
+    {
+	return;
+    }
+
+    //
+    // Pop the sequence stack.
+    //
+    SeqData* oldSeqData = _seqDataStack;
+    assert(oldSeqData);
+    _seqDataStack = oldSeqData->previous;
+    delete oldSeqData;
 }
 
 IceInternal::BasicStream::WriteEncaps::WriteEncaps()
@@ -276,14 +414,6 @@ void
 IceInternal::BasicStream::endWriteSlice()
 {
     Int sz = static_cast<Int>(b.size() - _writeSlice + sizeof(Int));
-#if 0
-    const Byte* p = reinterpret_cast<const Byte*>(&sz);
-#ifdef ICE_BIG_ENDIAN
-    reverse_copy(p, p + sizeof(Int), b.begin() + _writeSlice - sizeof(Int));
-#else
-    copy(p, p + sizeof(Int), b.begin() + _writeSlice - sizeof(Int));
-#endif
-#else
     Byte* dest = &(*(b.begin() + _writeSlice - sizeof(Int)));
 #ifdef ICE_BIG_ENDIAN
     const Byte* src = reinterpret_cast<const Byte*>(&sz) + sizeof(Int) - 1;
@@ -297,7 +427,6 @@ IceInternal::BasicStream::endWriteSlice()
     *dest++ = *src++;
     *dest++ = *src++;
     *dest = *src;
-#endif
 #endif
 }
 
@@ -465,14 +594,12 @@ IceInternal::BasicStream::read(vector<Byte>& v)
 {
     Int sz;
     readSize(sz);
-    if(b.end() - i < sz)
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
+    startSeq(sz, 1);
     Container::iterator begin = i;
     i += sz;
     v.resize(sz);
     ice_copy(begin, i, v.begin());
+    endSeq(sz);
 }
 
 void
@@ -490,14 +617,12 @@ IceInternal::BasicStream::read(vector<bool>& v)
 {
     Int sz;
     readSize(sz);
-    if(b.end() - i < sz)
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
+    startSeq(sz, 1);
     Container::iterator begin = i;
     i += sz;
     v.resize(sz);
     ice_copy(begin, i, v.begin());
+    endSeq(sz);
 }
 
 void
@@ -568,13 +693,9 @@ IceInternal::BasicStream::read(vector<Short>& v)
 {
     Int sz;
     readSize(sz);
-    const int length = sz * static_cast<int>(sizeof(Short));
-    if(b.end() - i < length)
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
+    startSeq(sz, sizeof(Short));
     Container::iterator begin = i;
-    i += length;
+    i += sz * static_cast<int>(sizeof(Short));
     v.resize(sz);
     if(sz > 0)
     {
@@ -591,6 +712,7 @@ IceInternal::BasicStream::read(vector<Short>& v)
 	ice_copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
+    endSeq(sz);
 }
 
 void
@@ -671,13 +793,9 @@ IceInternal::BasicStream::read(vector<Int>& v)
 {
     Int sz;
     readSize(sz);
-    const int length = sz * static_cast<int>(sizeof(Int));
-    if(b.end() - i < length)
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
+    startSeq(sz, sizeof(Int));
     Container::iterator begin = i;
-    i += length;
+    i += sz * static_cast<int>(sizeof(Int));
     v.resize(sz);
     if(sz > 0)
     {
@@ -696,6 +814,7 @@ IceInternal::BasicStream::read(vector<Int>& v)
 	ice_copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
+    endSeq(sz);
 }
 
 void
@@ -796,13 +915,9 @@ IceInternal::BasicStream::read(vector<Long>& v)
 {
     Int sz;
     readSize(sz);
-    const int length = sz * static_cast<int>(sizeof(Long));
-    if(b.end() - i < length)
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
+    startSeq(sz, sizeof(Long));
     Container::iterator begin = i;
-    i += length;
+    i += sz * static_cast<int>(sizeof(Long));
     v.resize(sz);
     if(sz > 0)
     {
@@ -825,6 +940,7 @@ IceInternal::BasicStream::read(vector<Long>& v)
 	ice_copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
+    endSeq(sz);
 }
 
 void
@@ -905,13 +1021,9 @@ IceInternal::BasicStream::read(vector<Float>& v)
 {
     Int sz;
     readSize(sz);
-    const int length = sz * static_cast<int>(sizeof(Float));
-    if(b.end() - i < length)
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
+    startSeq(sz, sizeof(Float));
     Container::iterator begin = i;
-    i += length;
+    i += sz * static_cast<int>(sizeof(Float));
     v.resize(sz);
     if(sz > 0)
     {
@@ -930,6 +1042,7 @@ IceInternal::BasicStream::read(vector<Float>& v)
 	ice_copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
+    endSeq(sz);
 }
 
 void
@@ -1030,13 +1143,9 @@ IceInternal::BasicStream::read(vector<Double>& v)
 {
     Int sz;
     readSize(sz);
-    const int length = sz * static_cast<int>(sizeof(Double));
-    if(b.end() - i < length)
-    {
-	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
-    }
+    startSeq(sz, sizeof(Double));
     Container::iterator begin = i;
-    i += length;
+    i += sz * static_cast<int>(sizeof(Double));
     v.resize(sz);
     if(sz > 0)
     {
@@ -1059,12 +1168,15 @@ IceInternal::BasicStream::read(vector<Double>& v)
 	ice_copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
 #endif
     }
+    endSeq(sz);
 }
 
 //
 // NOTE: This member function is intentionally omitted in order to
-// cause a link error if it is used. See BasicStream.h for more
-// information.
+// cause a link error if it is used. This is for efficiency
+// reasons: writing a const char * requires a traversal of the string
+// to get the string length first, which takes O(n) time, whereas getting
+// the string length from a std::string takes constant time.
 //
 /*
 void
@@ -1122,18 +1234,22 @@ IceInternal::BasicStream::read(vector<string>& v)
 {
     Int sz;
     readSize(sz);
+    startSeq(sz, 1);
     v.clear();
 
     //
-    // Don't use v.resize(sz) or v.reserve(sz) here, as it cannot be
-    // checked whether sz is a reasonable value.
+    // For efficiency, we use reserve() here to avoid having the vector
+    // reallocate repeatedly.
     //
-
-    while(sz--)
+    v.reserve(sz);
+    for(int i = 0; i < sz; ++i)
     {
-	v.resize(v.size() + 1);
+	v.resize(i + 1);
 	read(v.back());
+	checkSeq();
+	endElement();
     }
+    endSeq(sz);
 }
 
 void
@@ -1612,4 +1728,8 @@ IceInternal::BasicStream::patchPointers(Int index, IndexToPtrMap::const_iterator
     // to patch for that index for the time being.
     //
     _currentReadEncaps->patchMap->erase(patchPos);
+}
+
+IceInternal::BasicStream::SeqData::SeqData(int num, int sz) : numElements(num), minSize(sz)
+{
 }

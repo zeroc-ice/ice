@@ -15,6 +15,7 @@
 #include <IceUtil/Functional.h>
 #include <Gen.h>
 #include <limits>
+#include <unistd.h>
 #include <IceUtil/Algorithm.h>
 #include <IceUtil/Iterator.h>
 
@@ -509,25 +510,44 @@ Slice::Gen::Gen(const string& name, const string& base, const vector<string>& in
     : _base(base),
       _includePaths(includePaths)
 {
-    string file;
+    string file = base + ".cs";
     if(!dir.empty())
     {
-	string slash = "/";
+	//
+	// Get the working directory and look at the returned path
+	// to find out whether we need to use a forward or backward slash
+	// as a path separator. (This seems to be one of the very few
+	// portable ways to get the correct separator.)
+	//
+	char* p;
+#if defined(_MSC_VER)
+	p = _getcwd(0, 0);
+#else
+	p = getcwd(0, 0);
+#endif
+	if(p == 0)
+	{
+	    cerr << name << ": cannot get working directory: " << strerror(errno) << endl;
+	    return;
+	}
+	string cwd(p);
+	string slash = cwd.find('/') == string::npos ? "\\" : "/";
+	free(p);
+
 	string::size_type pos = base.rfind('/');
 	if(pos == string::npos)
 	{
 	    pos = base.rfind('\\');
-	    slash = "\\";
 	}
 	if(pos != string::npos)
 	{
 	    string fileBase(base, pos + 1);
 	    file = dir + slash + fileBase + ".cs";
 	}
-    }
-    else
-    {
-	file = base + ".cs";
+	else
+	{
+	    file = dir + slash + file;
+	}
     }
     _out.open(file.c_str());
     if(!_out)
@@ -2368,6 +2388,77 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	_out << "Ice.Context __context)";
 	_out << sb;
+
+	//
+	// TODO: Remove this hack once mcs is fixed.
+	//
+	bool conditionalCode = false;
+	ParamDeclList paramList = op->parameters();
+	for(ParamDeclList::const_iterator i = paramList.begin(); i != paramList.end(); ++i)
+	{
+	    if((*i)->isOutParam())
+	    {
+		if(!conditionalCode)
+		{
+		    _out.zeroIndent();
+		    _out << nl << "#if __MonoCS__ // mcs bug: out parameter assignment is not tracked correctly.";
+		    _out.restoreIndent();
+		    conditionalCode = true;
+		}
+		string name = fixId((*i)->name());
+		TypePtr type = (*i)->type();
+		if(!isValueType(type))
+		{
+		    _out << nl << name << " = null;";
+		}
+		else
+		{
+		    EnumPtr e = EnumPtr::dynamicCast(type);
+		    if(e)
+		    {
+			EnumeratorList enl = e->getEnumerators();
+			_out << nl << name << " = " << typeToString(type) << "." << enl.front()->name() << ";";
+			continue;
+		    }
+		    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+		    if(builtin)
+		    {
+			switch(builtin->kind())
+			{
+			    case Builtin::KindBool:
+			    {
+				_out << nl << name << " = false;";
+				break;
+			    }
+			    case Builtin::KindFloat:
+			    {
+				_out << nl << name << " = 0f;";
+				break;
+			    }
+			    case Builtin::KindDouble:
+			    {
+				_out << nl << name << " = 0d;";
+				break;
+			    }
+			    default:
+			    {
+				_out << nl << name << " = 0;";
+				break;
+			    }
+			}
+			continue;
+		    }
+		    assert(0);
+		}
+	    }
+	}
+	if(conditionalCode)
+	{
+	    _out.zeroIndent();
+	    _out << nl << "#endif";
+	    _out.restoreIndent();
+	}
+
 	_out << nl << "int __cnt = 0;";
 	_out << nl << "while(true)";
 	_out << sb;

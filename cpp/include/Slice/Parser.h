@@ -263,6 +263,8 @@ public:
     virtual bool isLocal() const = 0;
     virtual std::string typeId() const = 0;
     virtual bool usesClasses() const = 0;
+    virtual size_t minWireSize() const = 0;
+    virtual bool isVariableLength() const = 0;
 
 protected:
 
@@ -295,6 +297,8 @@ public:
     virtual bool isLocal() const;
     virtual std::string typeId() const;
     virtual bool usesClasses() const;
+    virtual size_t minWireSize() const;
+    virtual bool isVariableLength() const;
 
     Kind kind() const;
     std::string kindAsString() const;
@@ -455,6 +459,7 @@ public:
 
     virtual bool isLocal() const;
     virtual std::string typeId() const;
+    virtual bool isVariableLength() const = 0;
     ConstructedList dependencies();
     virtual void recDependencies(std::set<ConstructedPtr>&) = 0; // Internal operation, don't use directly.
 
@@ -479,6 +484,8 @@ public:
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
+    virtual size_t minWireSize() const;
+    virtual bool isVariableLength() const;
     virtual void visit(ParserVisitor*);
     virtual std::string kindOf() const;
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
@@ -575,6 +582,7 @@ public:
     DataMemberList allDataMembers() const;
     DataMemberList classDataMembers() const;
     DataMemberList allClassDataMembers() const;
+    bool canBeCyclic() const;
     bool isAbstract() const;
     bool isInterface() const;
     bool isA(const std::string&) const;
@@ -610,6 +618,8 @@ public:
     virtual bool isLocal() const;
     virtual std::string typeId() const;
     virtual bool usesClasses() const;
+    virtual size_t minWireSize() const;
+    virtual bool isVariableLength() const;
 
     ClassDeclPtr _class() const;
 
@@ -667,6 +677,8 @@ public:
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
+    virtual size_t minWireSize() const;
+    virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
@@ -689,6 +701,8 @@ public:
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
+    virtual size_t minWireSize() const;
+    virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
@@ -714,6 +728,8 @@ public:
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
+    virtual size_t minWireSize() const;
+    virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
@@ -743,6 +759,8 @@ public:
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual bool usesClasses() const;
+    virtual size_t minWireSize() const;
+    virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.

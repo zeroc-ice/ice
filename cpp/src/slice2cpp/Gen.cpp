@@ -401,15 +401,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     if(!p->isLocal())
     {
-	H << sp;
-	H.dec();
-	H << sp << "private:";
-	H.inc();
-	H << sp << nl << "static ::IceInternal::UserExceptionFactoryPtr _factory;";
-	H << sp;
-	H.dec();
-	H << sp << "public:";
-	H.inc();
 	H << sp << nl << "static const ::IceInternal::UserExceptionFactoryPtr& ice_factory();";
 
 	C << sp << nl << "const ::IceInternal::UserExceptionFactoryPtr&";
@@ -554,6 +545,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     H.dec();
     H << sp << nl << "private:";
     H.inc();
+    if(!p->isLocal())
+    {
+	H << sp << nl << "static ::IceInternal::UserExceptionFactoryPtr _factory;";
+    }
     H << sp << nl << "static const ::std::string _name;";
 
     H << eb << ';';
@@ -698,30 +693,35 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << sb;
 	C << nl << "::Ice::Int sz;";
 	C << nl << "__is->readSize(sz);";
-	//
-	// TODO:
-	//
-	// ML: Don't use v.resize(sz) or v.reserve(sz) here, as it
-	// cannot be checked whether sz is a reasonable value.
-	//
-	// Michi: I don't think it matters -- if the size is
-	// unreasonable, we just fall over after having unmarshaled a
-	// whole lot of stuff instead of falling over straight away. I
-	// need to preallocate space for the entire sequence up-front
-	// because, otherwise, resizing the sequence may move it in
-	// memory and cause the wrong locations to be patched for
-	// classes. Also, doing a single large allocation up-front
-	// will be faster the repeatedly growing the vector.
-	//
-	// ML: It does matter. If we resize to a huge number, the
-	// program will crash. If we don't, but just loop, then we
-	// will eventually get an UnmarshalOutOfBoundsException.
-	//
+	C << nl << "__is->startSeq(sz, " << type->minWireSize() << ");"; // Protect against bogus sequence sizes.
 	C << nl << "v.resize(sz);";
 	C << nl << "for(int i = 0; i < sz; ++i)";
 	C << sb;
 	writeMarshalUnmarshalCode(C, type, "v[i]", false);
+
+	//
+	// After unmarshaling each element, check that there are still enough bytes left in the stream
+	// to unmarshal the remainder of the sequence, and decrement the count of elements
+	// yet to be unmarshaled for sequences with variable-length element type (that is, for sequences
+	// of classes, structs, dictionaries, sequences, strings, or proxies). This allows us to
+	// abort unmarshaling for bogus sequence sizes at the earliest possible moment.
+	// (For fixed-length sequences, we don't need to do this because the prediction of how many
+	// bytes will be taken up by the sequence is accurate.)
+	//
+	if(type->isVariableLength())
+	{
+	    if(!SequencePtr::dynamicCast(type))
+	    {
+		//
+		// No need to check for directly nested sequences because, at the at start of each
+		// sequence, we check anyway.
+		//
+		C << nl << "__is->checkSeq();";
+	    }
+	    C << nl << "__is->endElement();";
+	}
 	C << eb;
+	C << nl << "__is->endSeq(sz);";
 	C << eb;
     }
 }
@@ -1858,7 +1858,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(!p->isAbstract())
     {
-	H << nl << "void __copyMembers(" << scoped << "Ptr) const;";
+	H << sp << nl << "void __copyMembers(" << scoped << "Ptr) const;";
 
 	C << sp;
 	C << nl << "void ";
@@ -1942,18 +1942,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	  << "(const ::Ice::Current& = ::Ice::Current()) const;";
 	H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;";
 	H << nl << "static const ::std::string& ice_staticId();";
-
-	if(!p->isAbstract())
-	{
-	    H.dec();
-	    H << sp << nl << "private:";
-	    H.inc();
-	    H << sp << nl << "static ::Ice::ObjectFactoryPtr _factory;";
-	    H.dec();
-	    H << sp << nl << "public:";
-	    H.inc();
-	    H << sp << nl << "static const ::Ice::ObjectFactoryPtr& ice_factory();";
-	}
 
 	C << sp;
 	C << nl << "const ::std::string " << scoped.substr(2) << "::__ids[" << ids.size() << "] =";
@@ -2133,6 +2121,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
 	if(!p->isAbstract())
 	{
+	    H << sp << nl << "static const ::Ice::ObjectFactoryPtr& ice_factory();";
+
 	    string name = fixKwd(p->name());
 	    string factoryName = "__F__";
 	    factoryName += name;
@@ -2189,6 +2179,11 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    initfuncname += name + "__initializer";
 	    C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
 	    C << nl << "#endif";
+
+	    H.dec();
+	    H << sp << nl << "private:";
+	    H.inc();
+	    H << sp << nl << "static ::Ice::ObjectFactoryPtr _factory;";
 	}
     }
 
@@ -2500,68 +2495,153 @@ void
 Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 {
     string scoped = fixKwd(p->scoped());
-    string vc6Prefix;
-    string otherPrefix;
     ClassList bases = p->bases();
     DataMemberList dataMembers = p->dataMembers();
 
-    H << nl << "virtual void __gcReachable(::IceUtil::GCObjectMultiSet&) const;";
+    //
+    // A class can potentially be part of a cycle if it (recursively) contains class
+    // members. If so, we override __incRef() and __decRef() and, hence, consider instances
+    // of the class as candidates for collection by the garbage collector.
+    // We override __incRef() and __decRef() only once, in the basemost potentially cyclic class
+    // in an inheritance hierarchy.
+    //
+    bool hasBaseClass = !bases.empty() && !bases.front()->isInterface();
+    bool canBeCyclic = p->canBeCyclic();
+    bool override = canBeCyclic && (!hasBaseClass || !bases.front()->canBeCyclic());
 
-    C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcReachable(::IceUtil::GCObjectMultiSet& _c) const";
-    C << sb;
-    if(bases.empty() || bases.front()->isInterface())
+    if(override)
     {
-	vc6Prefix = "Object";
-	otherPrefix = "::Ice::Object";
+	H << nl << "virtual void __incRef();";
+
+	C << sp << nl << "void" << nl << scoped.substr(2) << "::__incRef()";
+	C << sb;
+	C << nl << "IceUtil::gcRecMutex._m->lock();";
+	C << nl << "assert(_ref >= 0);";
+        C << nl << "if(_ref == 0)";
+	C << sb;
+	C.zeroIndent();
+	C << nl << "#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...";
+	C.restoreIndent();
+	C << nl << "IceUtil::gcObjects.insert(this);";
+	C.zeroIndent();
+	C << nl << "#else";
+	C.restoreIndent();
+	C << nl << "std::pair<IceUtil::GCObjectSet::iterator, bool> rc = IceUtil::gcObjects.insert(this);";
+	C << nl << "assert(rc.second);";
+	C.zeroIndent();
+	C << nl << "#endif";
+	C.restoreIndent();
+	C << eb;
+	C << nl << "++_ref;";
+	C << nl << "IceUtil::gcRecMutex._m->unlock();";
+	C << eb;
+
+	H << nl << "virtual void __decRef();";
+
+	C << sp << nl << "void" << nl << scoped.substr(2) << "::__decRef()";
+	C << sb;
+	C << nl << "IceUtil::gcRecMutex._m->lock();";
+	C << nl << "bool doDelete = false;";
+	C << nl << "assert(_ref > 0);";
+	C << nl << "if(--_ref == 0)";
+	C << sb;
+	C << nl << "doDelete = !_noDelete;";
+	C << nl << "_noDelete = true;";
+        C.zeroIndent();
+	C << nl << "#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...";
+	C.restoreIndent();
+	C << nl << "IceUtil::gcObjects.erase(this);";
+        C.zeroIndent();
+	C << nl << "#else";
+	C.restoreIndent();
+	C << nl << "IceUtil::GCObjectSet::size_type num = IceUtil::gcObjects.erase(this);";
+	C << nl << "assert(num == 1);";
+        C.zeroIndent();
+	C << nl << "#endif";
+	C.restoreIndent();
+	C << eb;
+	C << nl << "IceUtil::gcRecMutex._m->unlock();";
+	C << sp << nl << "if(doDelete) // Outside the lock to avoid deadlock.";
+	C << sb;
+	C << nl << "delete this;";
+	C << eb;
+	C << eb;
     }
-    else
+
+    //
+    // __gcReachable() and __gcClear() are overridden by the basemost class that
+    // can be cyclic, plus all classes derived from that class.
+    //
+    if(canBeCyclic)
     {
-	vc6Prefix = bases.front()->name();
-	otherPrefix = bases.front()->scoped();
-    }
-    C.zeroIndent();
-    C << nl << "#if defined(_MSC_VER) && (MSC_VER < 1300) // VC++ 6 compiler bug";
-    C.restoreIndent();
-    C << nl << vc6Prefix<< "::__gcReachable(_c);";
-    C.zeroIndent();
-    C << nl << "#else";
-    C.restoreIndent();
-    C << nl << otherPrefix << "::__gcReachable(_c);";
-    C.zeroIndent();
-    C << nl << "#endif";
-    C.restoreIndent();
-    for(DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
-    {
-	if((*i)->type()->usesClasses())
+	H << nl << "virtual void __gcReachable(::IceUtil::GCObjectMultiSet&) const;";
+
+	C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcReachable(::IceUtil::GCObjectMultiSet& _c) const";
+	C << sb;
+
+	string vc6Prefix;
+	string otherPrefix;
+
+	bool hasCyclicBase = hasBaseClass && bases.front()->canBeCyclic();
+	if(hasCyclicBase)
 	{
-	    emitGCInsertCode((*i)->type(), fixKwd((*i)->name()), "", 0);
+	    vc6Prefix = bases.front()->name();
+	    otherPrefix = bases.front()->scoped();
+
+	    //
+	    // Up-call to the base's __gcReachable() member function.
+	    //
+	    C.zeroIndent();
+	    C << nl << "#if defined(_MSC_VER) && (MSC_VER < 1300) // VC++ 6 compiler bug";
+	    C.restoreIndent();
+	    C << nl << vc6Prefix << "::__gcReachable(_c);";
+	    C.zeroIndent();
+	    C << nl << "#else";
+	    C.restoreIndent();
+	    C << nl << otherPrefix << "::__gcReachable(_c);";
+	    C.zeroIndent();
+	    C << nl << "#endif";
+	    C.restoreIndent();
 	}
-    }
-    C << eb;
-
-    H << nl << "virtual void __gcClear();";
-
-    C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcClear()";
-    C << sb;
-    C.zeroIndent();
-    C << nl << "#if defined(_MSC_VER) && (MSC_VER < 1300) // VC++ 6 compiler bug";
-    C.restoreIndent();
-    C << nl << vc6Prefix<< "::__gcClear();";
-    C.zeroIndent();
-    C << nl << "#else";
-    C.restoreIndent();
-    C << nl << otherPrefix << "::__gcClear();";
-    C.zeroIndent();
-    C << nl << "#endif";
-    C.restoreIndent();
-    for(DataMemberList::const_iterator j = dataMembers.begin(); j != dataMembers.end(); ++j)
-    {
-	if((*j)->type()->usesClasses())
+	for(DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
 	{
-	    emitGCClearCode((*j)->type(), fixKwd((*j)->name()), "", 0);
+	    if((*i)->type()->usesClasses())
+	    {
+		emitGCInsertCode((*i)->type(), fixKwd((*i)->name()), "", 0);
+	    }
 	}
+	C << eb;
+
+	H << nl << "virtual void __gcClear();";
+
+	C << sp << nl << "void" << nl << scoped.substr(2) << "::__gcClear()";
+	C << sb;
+	if(hasCyclicBase)
+	{
+	    //
+	    // Up-call to the base's __gcClear() member function.
+	    //
+	    C.zeroIndent();
+	    C << nl << "#if defined(_MSC_VER) && (MSC_VER < 1300) // VC++ 6 compiler bug";
+	    C.restoreIndent();
+	    C << nl << vc6Prefix<< "::__gcClear();";
+	    C.zeroIndent();
+	    C << nl << "#else";
+	    C.restoreIndent();
+	    C << nl << otherPrefix << "::__gcClear();";
+	    C.zeroIndent();
+	    C << nl << "#endif";
+	    C.restoreIndent();
+	}
+	for(DataMemberList::const_iterator j = dataMembers.begin(); j != dataMembers.end(); ++j)
+	{
+	    if((*j)->type()->usesClasses())
+	    {
+		emitGCClearCode((*j)->type(), fixKwd((*j)->name()), "", 0);
+	    }
+	}
+	C << eb;
     }
-    C << eb;
 }
 
 void

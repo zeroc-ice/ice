@@ -154,10 +154,9 @@ IceUtil::GC::collectGarbage()
     ObjectCounts counts;
 
     Time t;
-
     GCStats stats;
 
-    RecMutex::Lock sync(*gcRecMutex._m);
+    RecMutex::Lock sync(*gcRecMutex._m); // Prevent any further class reference count activity.
 
     if(_statsCallback)
     {
@@ -178,7 +177,6 @@ IceUtil::GC::collectGarbage()
     if(_statsCallback)
     {
 	stats.examined = counts.size();
-	stats.collected = 0;
     }
 
     //
@@ -212,9 +210,9 @@ IceUtil::GC::collectGarbage()
 	    }
 	}
 
-	for(GCObjectSet::const_iterator k = reachable.begin(); k != reachable.end(); ++k)
+	for(GCObjectSet::const_iterator j = reachable.begin(); j != reachable.end(); ++j)
 	{
-	    counts.erase(*k);
+	    counts.erase(*j);
 	}
     }
 
@@ -225,25 +223,29 @@ IceUtil::GC::collectGarbage()
 	ObjectCounts::const_iterator i;
 	for(i = counts.begin(); i != counts.end(); ++i)
 	{
-	    i->first->__gcClear();
+	    i->first->__gcClear(); // Decrement ref count of objects pointed at by this object.
 	}
 	for(i = counts.begin(); i != counts.end(); ++i)
 	{
-	    gcObjects.erase(i->first);
-	    delete i->first;
-	    if(_statsCallback)
-	    {
-		++stats.collected;
-	    }
+	    gcObjects.erase(i->first); // Remove this object from candidate set.
+	    delete i->first; // Delete this object.
 	}
-	counts.clear();
     }
 
     if(_statsCallback)
     {
 	stats.msec = (Time::now() - t) * 1000.0L;
+	stats.collected = counts.size();
 	_statsCallback(stats);
     }
+
+    //
+    // We clear explicitly under protection of the lock, instead of waiting for the
+    // counts destructor. This avoids lots of lock contention later because, otherwise,
+    // the destructor of each object in the counts set would acquire and release
+    // gcRecMutex._m.
+    //
+    counts.clear();
 
     {
 	Monitor<Mutex>::Lock sync(*this);

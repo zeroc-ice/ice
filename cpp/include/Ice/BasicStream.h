@@ -70,7 +70,18 @@ public:
 
 	b.resize(sz);
     }
+
     void reserve(Container::size_type);
+
+    void startSeq(int, int);
+    void checkSeq();
+    void checkSeq(int);
+    void endElement()
+    {
+	assert(_seqDataStack);
+	--_seqDataStack->numElements;
+    }
+    void endSeq(int);
 
     void startWriteEncaps();
     void endWriteEncaps();
@@ -269,6 +280,15 @@ private:
     bool _sliceObjects;
 
     const Container::size_type _messageSizeMax;
+
+    struct SeqData
+    {
+	SeqData(int, int);
+	int numElements;
+	int minSize;
+	SeqData* previous;
+    };
+    SeqData* _seqDataStack;
 
     ObjectList* _objectList;
 };

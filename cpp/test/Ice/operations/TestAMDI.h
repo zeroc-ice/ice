@@ -102,6 +102,10 @@ public:
 				  const Test::StringSS&, const Test::StringSS&,
 				  const Ice::Current&);
 
+    virtual void opStringSSS_async(const Test::AMD_MyClass_opStringSSSPtr&,
+				   const Test::StringSSS&, const Test::StringSSS&,
+				   const Ice::Current&);
+
     virtual void opByteBoolD_async(const Test::AMD_MyClass_opByteBoolDPtr&,
 				   const Test::ByteBoolD&, const Test::ByteBoolD&, 
 				   const Ice::Current&);

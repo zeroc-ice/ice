@@ -126,6 +126,11 @@ public:
 				      Test::StringSS&,
 				      const Ice::Current&);
 
+    virtual Test::StringSSS opStringSSS(const Test::StringSSS&,
+	                                const Test::StringSSS&,
+					Test::StringSSS&,
+					const ::Ice::Current&);
+
     virtual Test::ByteBoolD opByteBoolD(const Test::ByteBoolD&, const Test::ByteBoolD&, 
 					Test::ByteBoolD&,
 					const Ice::Current&);
