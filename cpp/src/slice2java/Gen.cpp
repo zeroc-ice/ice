@@ -665,7 +665,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out << sb;
 
-    out << sp << nl << "public String" << nl << "_name()";
+    out << sp << nl << "public String" << nl << "ice_name()";
     out << sb;
     out << nl << "return \"" << scoped.substr(2) << "\";";
     out << eb;
