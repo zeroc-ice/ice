@@ -155,6 +155,10 @@ class Parser
 		System.out.println("no current contact");
 	    }
 	}
+	catch(Ice.ObjectNotExistException ex)
+	{
+            System.out.println("current contact no longer exists");
+	}
 	catch(DatabaseException ex)
 	{
 	    error(ex.message);
@@ -187,6 +191,10 @@ class Parser
 		System.out.println( "no current contact" );
 	    }
 	}
+	catch(Ice.ObjectNotExistException ex)
+	{
+            System.out.println("current contact no longer exists");
+	}
 	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
@@ -216,6 +224,10 @@ class Parser
 		System.out.println( "no current contact" );
 	    }
 	}
+	catch(Ice.ObjectNotExistException ex)
+	{
+            System.out.println("current contact no longer exists");
+	}
 	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
@@ -236,6 +248,10 @@ class Parser
 	    {
 		System.out.println( "no current contact" );
 	    }
+	}
+	catch(Ice.ObjectNotExistException ex)
+	{
+            System.out.println("current contact no longer exists");
 	}
 	catch(DatabaseException ex)
 	{

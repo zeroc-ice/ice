@@ -209,6 +209,10 @@ class Parser
 	{
 	    System.out.println("the book has already been rented.");
 	}
+	catch(Ice.ObjectNotExistException ex)
+	{
+            System.out.println("current book no longer exists");
+	}
 	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
@@ -234,6 +238,10 @@ class Parser
 	{
 	    System.out.println("the book is not currently rented.");
 	}
+	catch(Ice.ObjectNotExistException ex)
+	{
+            System.out.println("current book no longer exists");
+	}
 	catch(Ice.LocalException ex)
 	{
 	    error(ex.toString());
@@ -258,6 +266,10 @@ class Parser
 	catch(DatabaseException ex)
 	{
 	    error(ex.message);
+	}
+	catch(Ice.ObjectNotExistException ex)
+	{
+            System.out.println("current book no longer exists");
 	}
 	catch(Ice.LocalException ex)
 	{

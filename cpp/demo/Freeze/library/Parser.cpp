@@ -234,6 +234,10 @@ Parser::rentCurrent(const list<string>& args)
     {
 	cout << "the book has already been rented." << endl;
     }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        cout << "current book no longer exists" << endl;
+    }
     catch(const DatabaseException& ex)
     {
 	error(ex.message);
@@ -265,6 +269,10 @@ Parser::returnCurrent()
     {
 	cout << "the book is not currently rented." << endl;
     }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        cout << "current book no longer exists" << endl;
+    }
     catch(const DatabaseException& ex)
     {
 	error(ex.message);
@@ -291,6 +299,10 @@ Parser::removeCurrent()
 	{
 	    cout << "no current book" << endl;
 	}
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        cout << "current book no longer exists" << endl;
     }
     catch(const DatabaseException& ex)
     {

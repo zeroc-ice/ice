@@ -174,6 +174,10 @@ Parser::setCurrentName(const list<string>& args)
 	    cout << "no current contact" << endl;
 	}
     }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        cout << "current contact no longer exists" << endl;
+    }
     catch(const DatabaseException& ex)
     {
 	error(ex.message);
@@ -206,6 +210,10 @@ Parser::setCurrentAddress(const list<string>& args)
 	{
 	    cout << "no current contact" << endl;
 	}
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        cout << "current contact no longer exists" << endl;
     }
     catch(const DatabaseException& ex)
     {
@@ -240,6 +248,10 @@ Parser::setCurrentPhone(const list<string>& args)
 	    cout << "no current contact" << endl;
 	}
     }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        cout << "current contact no longer exists" << endl;
+    }
     catch(const DatabaseException& ex)
     {
 	error(ex.message);
@@ -266,6 +278,10 @@ Parser::removeCurrent()
 	{
 	    cout << "no current contact" << endl;
 	}
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        cout << "current contact no longer exists" << endl;
     }
     catch(const DatabaseException& ex)
     {
