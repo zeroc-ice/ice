@@ -64,7 +64,7 @@ public:
     void getAll();
     void shutdown();
 
-    void getInput(char*, int, int);
+    void getInput(char*, int&, int);
     void nextLine();
     void continueLine();
     char* getPrompt();
@@ -83,7 +83,7 @@ private:
 
     Parser(const Ice::CommunicatorPtr&, const IcePack::AdminPrx&);
 
-    const char* _commands;
+    std::string _commands;
     Ice::CommunicatorPtr _communicator;
     IcePack::AdminPrx _admin;
     bool _continue;
