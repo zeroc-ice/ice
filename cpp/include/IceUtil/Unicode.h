@@ -16,8 +16,8 @@
 namespace IceUtil
 {
 
-std::string wstringToString(const std::wstring&);
-std::wstring stringToWstring(const std::string&);
+ICE_UTIL_API std::string wstringToString(const std::wstring&);
+ICE_UTIL_API std::wstring stringToWstring(const std::string&);
 
 }
 
