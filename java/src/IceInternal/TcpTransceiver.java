@@ -145,13 +145,7 @@ final class TcpTransceiver implements Transceiver
             }
             catch (java.io.IOException ex)
             {
-                //
-                // TODO: The JDK raises a generic IOException for cases
-                // that we want to detect. Unfortunately, our only choice
-                // is to search the exception message for distinguishing
-                // phrases.
-                //
-                if (ex.getMessage().indexOf("An existing connection was forcibly closed") != -1)
+                if (Network.connectionLost(ex))
                 {
                     Ice.ConnectionLostException se = new Ice.ConnectionLostException();
                     se.initCause(ex);
@@ -244,6 +238,13 @@ final class TcpTransceiver implements Transceiver
             }
             catch (java.io.IOException ex)
             {
+                if (Network.connectionLost(ex))
+                {
+                    Ice.ConnectionLostException se = new Ice.ConnectionLostException();
+                    se.initCause(ex);
+                    throw se;
+                }
+
                 Ice.SocketException se = new Ice.SocketException();
                 se.initCause(ex);
                 throw se;

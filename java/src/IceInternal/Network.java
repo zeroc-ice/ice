@@ -12,6 +12,40 @@ package IceInternal;
 
 public final class Network
 {
+    public static boolean
+    connectionLost(java.io.IOException ex)
+    {
+        //
+        // TODO: The JDK raises a generic IOException for cases
+        // that we want to detect. Unfortunately, our only choice
+        // is to search the exception message for distinguishing
+        // phrases.
+        //
+        String msg = ex.getMessage();
+
+        if (msg != null)
+        {
+            final String[] msgs =
+            {
+                "Connection reset by peer", // ECONNRESET
+                "Cannot send after socket shutdown", // ESHUTDOWN (Win32)
+                "Cannot send after transport endpoint shutdown", // ESHUTDOWN (Linux)
+                "Software caused connection abort", // ECONNABORTED
+                "An existing connection was forcibly closed" // unknown
+            };
+
+            for (int i = 0; i < msgs.length; i++)
+            {
+                if (msg.indexOf(msgs[i]) != -1)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public static java.nio.channels.SocketChannel
     createTcpSocket()
     {
