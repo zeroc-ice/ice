@@ -66,7 +66,7 @@ namespace IceInternal
 	// Returns true if ok, false if user exception.
 	public bool invoke()
 	{
-	    assert(_state == StateUnsent);
+	    Debug.Assert(_state == StateUnsent);
 
 	    _os.endWriteEncaps();
 	    
@@ -212,7 +212,7 @@ namespace IceInternal
 	
 	public void abort(Ice.LocalException ex)
 	{
-	    assert(_state == StateUnsent);
+	    Debug.Assert(_state == StateUnsent);
 	    
 	    //
 	    // If we didn't finish a batch oneway or datagram request,
