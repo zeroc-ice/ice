@@ -59,7 +59,7 @@ IceInternal::LocatorManager::get(const LocatorPrx& locator)
     }
 
     //
-    // TODO: reap un-used locator info objects?
+    // TODO: reap unused locator info objects?
     //
 
     IceUtil::Mutex::Lock sync(*this);

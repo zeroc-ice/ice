@@ -31,7 +31,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      Reference::Mode mode,
 				      bool secure,
 				      bool compress,
-				      const string& adapter,
+				      const string& adapterId,
 				      const vector<EndpointPtr>& endpoints,
 				      const RouterInfoPtr& routerInfo,
 				      const LocatorInfoPtr& locatorInfo,
@@ -47,7 +47,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    ReferencePtr ref = new Reference(_instance, ident, facet, mode, secure, compress, adapter,
+    ReferencePtr ref = new Reference(_instance, ident, facet, mode, secure, compress, adapterId,
 				     endpoints, routerInfo, locatorInfo, reverseAdapter);
 
     //
