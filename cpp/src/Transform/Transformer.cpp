@@ -517,8 +517,10 @@ Transform::TransformSymbolTable::getConstantValue(const string& name) const
             {
                 string::size_type end;
                 Ice::Long n;
-                bool success = IceUtil::stringToInt64(value, n, end);
-                assert(success);
+                if(!IceUtil::stringToInt64(value, n, end))
+                {
+                    assert(false);
+                }
                 result = _factory->createInteger(n, true);
                 break;
             }
