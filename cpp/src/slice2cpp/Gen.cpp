@@ -3351,11 +3351,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             H << ")" << (nonmutating ? " const" : "") << ';';
 
             C << sp << nl << retS << nl;
-	    if(retS[0] == ':')
-	    {
-		C << '(';
-	    }
-	    C << scope << name << "I::" << fixKwd(opName) << '(';
+	    C << scope.substr(2) << name << "I::" << fixKwd(opName) << '(';
             C.useCurrentPosAsIndent();
             for(q = paramList.begin(); q != paramList.end(); ++q)
             {
@@ -3392,10 +3388,6 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             C.restoreIndent();
             C << ')';
-	    if(retS[0] == ':')
-	    {
-		C << ')';
-	    }
 	    C << (nonmutating ? " const" : "");
             C << sb;
 
