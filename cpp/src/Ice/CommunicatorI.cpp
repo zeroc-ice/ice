@@ -264,12 +264,22 @@ Ice::CommunicatorI::setLogger(const LoggerPtr& logger)
 void
 Ice::CommunicatorI::setDefaultRouter(const RouterPrx& router)
 {
+    RecMutex::Lock sync(*this);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
     _instance->referenceFactory()->setDefaultRouter(router);
 }
 
 void
 Ice::CommunicatorI::setDefaultLocator(const LocatorPrx& locator)
 {
+    RecMutex::Lock sync(*this);
+    if(_destroyed)
+    {
+	throw CommunicatorDestroyedException(__FILE__, __LINE__);
+    }
     _instance->referenceFactory()->setDefaultLocator(locator);
 }
 
