@@ -33,11 +33,9 @@ namespace Ice
 	bool ice_invoke(string operation, OperationMode mode, byte[] inParams, out byte[] outParams,
 			Context __context);
 
-	/*
 	void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams);
 	void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams,
 			      Context context);
-	*/
 
 	Identity ice_getIdentity();
 	ObjectPrx ice_newIdentity(Identity newIdentity);

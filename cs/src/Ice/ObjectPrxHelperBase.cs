@@ -167,20 +167,16 @@ namespace Ice
             }
         }
 
-        /*
-            public void
-            ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams)
-            {
-                ice_invoke_async(cb, operation, mode, inParams, null);
-            }
+	public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams)
+	{
+	    ice_invoke_async(cb, operation, mode, inParams, null);
+	}
 
-            public void
-            ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams, Context context)
-            {
-                __checkTwowayOnly("ice_invoke_async");
-                cb.__invoke(this, operation, mode, inParams, context);
-            }
-            */
+	public void ice_invoke_async(AMI_Object_ice_invoke cb, string operation, OperationMode mode, byte[] inParams, Context context)
+	{
+	    __checkTwowayOnly("ice_invoke_async");
+	    cb.__invoke(this, operation, mode, inParams, context);
+	}
 
         public Identity ice_getIdentity()
         {
@@ -453,6 +449,21 @@ namespace Ice
         {
             ObjectPrxHelperBase rhs = r as ObjectPrxHelperBase;
             return rhs == null ? false : _reference.Equals(rhs._reference);
+        }
+
+        public static bool Equals(Ice.ObjectPrxHelperBase lhs, Ice.ObjectPrxHelperBase rhs)
+        {
+            return lhs == null ? rhs == null : lhs._reference.Equals(rhs._reference);
+        }
+
+        public static bool operator==(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
+        {
+            return Equals(lhs, rhs);
+        }
+
+        public static bool operator!=(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
+        {
+            return !Equals(lhs, rhs);
         }
 
         public IceInternal.Reference __reference()

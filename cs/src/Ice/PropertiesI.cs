@@ -231,7 +231,7 @@ namespace Ice
 	
 	internal PropertiesI(PropertiesI p)
 	{
-	    _properties = new PropertyDict(p._properties);
+	    _properties = (PropertyDict)p._properties.Clone();
 	}
 
 	internal PropertiesI()

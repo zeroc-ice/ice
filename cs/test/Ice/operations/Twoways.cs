@@ -22,7 +22,6 @@ class Twoways
     
     internal static void twoways(Test.MyClassPrx p)
     {
-	/*
 	{
 	    p.opVoid();
 	}
@@ -403,58 +402,37 @@ class Twoways
 	}
 	
 	{
-	    String[][][] sssi1 =
-	    {
-		{
-		    {
-			"abc", "de"
-		    },
-		    {
-			"xyz"
-		    }
-		},
-		{
-		    {
-			"hello"
-		    }
-		}
-	    };
+	    Test.StringSS[] sssi1 = { new Test.StringSS(), new Test.StringSS() };
+	    sssi1[0].Add(new Test.StringS());
+	    sssi1[0].Add(new Test.StringS());
+	    sssi1[0][0].Add("abc");
+	    sssi1[0][0].Add("de");
+	    sssi1[0][1].Add("xyz");
+	    sssi1[1].Add(new Test.StringS());
+	    sssi1[1][0].Add("hello");
+	    Test.StringSS[] sssi2 = { new Test.StringSS(), new Test.StringSS(), new Test.StringSS() };
+	    sssi2[0].Add(new Test.StringS());
+	    sssi2[0].Add(new Test.StringS());
+	    sssi2[0][0].Add("");
+	    sssi2[0][0].Add("");
+	    sssi2[0][1].Add("abcd");
+	    sssi2[1].Add(new Test.StringS());
+	    sssi2[1][0].Add("");
 
-	    String[][][] sssi2 =
-	    {
-		{
-		    {
-			"", ""
-		    },
-		    {
-			"abcd"
-		    }
-		},
-		{
-		    {
-			""
-		    }
-		},
-		{
-		}
-	    };
-
-	    String ssso[][][];
-	    String rsso[][][];
-
-	    rsso = p.opStringSSS(sssi1, sssi2, ssso);
-	    test(ssso.length == 5);
-	    test(ssso[0].length == 2);
-	    test(ssso[0][0].length == 2);
-	    test(ssso[0][1].length == 1);
-	    test(ssso[1].length == 1);
-	    test(ssso[1][0].length == 1);
-	    test(ssso[2].length == 2);
-	    test(ssso[2][0].length == 2);
-	    test(ssso[2][1].length == 1);
-	    test(ssso[3].length == 1);
-	    test(ssso[3][0].length == 1);
-	    test(ssso[4].length == 0);
+            Test.StringSS[] ssso;
+	    Test.StringSS[] rsso = p.opStringSSS(sssi1, sssi2, out ssso);
+	    test(ssso.Length == 5);
+	    test(ssso[0].Count == 2);
+	    test(ssso[0][0].Count == 2);
+	    test(ssso[0][1].Count == 1);
+	    test(ssso[1].Count == 1);
+	    test(ssso[1][0].Count == 1);
+	    test(ssso[2].Count == 2);
+	    test(ssso[2][0].Count == 2);
+	    test(ssso[2][1].Count == 1);
+	    test(ssso[3].Count == 1);
+	    test(ssso[3][0].Count == 1);
+	    test(ssso[4].Count == 0);
 	    test(ssso[0][0][0].Equals("abc"));
 	    test(ssso[0][0][1].Equals("de"));
 	    test(ssso[0][1][0].Equals("xyz"));
@@ -464,13 +442,13 @@ class Twoways
 	    test(ssso[2][1][0].Equals("abcd"));
 	    test(ssso[3][0][0].Equals(""));
 
-	    test(rsso.length == 3);
-	    test(rsso[0].length == 0);
-	    test(rsso[1].length == 1);
-	    test(rsso[1][0].length == 1);
-	    test(rsso[2].length == 2);
-	    test(rsso[2][0].length == 2);
-	    test(rsso[2][1].length == 1);
+	    test(rsso.Length == 3);
+	    test(rsso[0].Count == 0);
+	    test(rsso[1].Count == 1);
+	    test(rsso[1][0].Count == 1);
+	    test(rsso[2].Count == 2);
+	    test(rsso[2][0].Count == 2);
+	    test(rsso[2][1].Count == 1);
 	    test(rsso[1][0][0].Equals(""));
 	    test(rsso[2][0][0].Equals(""));
 	    test(rsso[2][0][1].Equals(""));
@@ -595,7 +573,7 @@ class Twoways
 		}
 	    }
 	}
-*/	
+
 	{
 	    Ice.Context ctx = new Ice.Context();
 	    ctx["one"] = "ONE";

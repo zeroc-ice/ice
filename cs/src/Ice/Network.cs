@@ -504,54 +504,6 @@ namespace IceInternal
 
 	public static void doSelect(IList checkRead, IList checkWrite, IList checkError, int milliSeconds)
 	{
-	    /*
-	    //
-	    // Use Poll() in preference to Select() if there is only a single socket to monitor.
-	    //
-	    int count = 0;
-	    IList list = checkRead;
-	    SelectMode mode = SelectMode.SelectRead;
-	    if(checkRead != null)
-	    {
-		++count;
-	    }
-	    if(checkWrite != null)
-	    {
-		++count;
-		list = checkWrite;
-		mode = SelectMode.SelectWrite;
-	    }
-	    if(checkError != null)
-	    {
-		++count;
-		list = checkError;
-		mode = SelectMode.SelectError;
-	    }
-	    Debug.Assert(count != 0);
-
-	    if(count == 1)
-	    {
-		//
-		// Only one list was passed.
-		//
-		if(list.Count == 1)
-		{
-		    //
-		    // Only one socket is on that list, we can use Poll().
-		    //
-		    bool result = ((Socket)list[0]).Poll(milliSeconds, mode); // Poll() blocks indefinitely for negative timeouts.
-		    if(!result)
-		    {
-			list.Clear();
-		    }
-		    return;
-		}
-	    }
-
-	    //
-	    // More than one socket is being monitored, so we have to use Select().
-	    //
-	    */
 	    ArrayList cr = null;
 	    ArrayList cw = null;
 	    ArrayList ce = null;

@@ -7,17 +7,13 @@
 //
 // **********************************************************************
 
-
-namespace Ice
+namespace IceInternal
 {
     public interface SequenceBase
     {
-	void set(int i, object v);
+        void ice_set(int i, object v);
     }
-}
 
-namespace IceInternal
-{
     public interface Patcher
     {
 	void patch(Ice.Object v);
@@ -53,7 +49,7 @@ namespace IceInternal
 
     public sealed class SequencePatcher : Patcher
     {
-	public SequencePatcher(Ice.SequenceBase seq, System.Type type, int index)
+	public SequencePatcher(SequenceBase seq, System.Type type, int index)
 	{
 	    _seq = seq;
 	    _type = type;
@@ -74,7 +70,7 @@ namespace IceInternal
 		throw new System.InvalidCastException("expected element of type " + type() + " but received " + v.GetType().FullName);
 	    }
 	
-	    _seq.set(_index, v);
+	    _seq.ice_set(_index, v);
 	}
 
 	public string type()
@@ -82,7 +78,7 @@ namespace IceInternal
 	    return _type.FullName;
 	}
     
-	private Ice.SequenceBase _seq;
+	private SequenceBase _seq;
 	private System.Type _type;
 	private int _index;
     }

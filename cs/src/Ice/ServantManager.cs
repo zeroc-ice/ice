@@ -135,7 +135,7 @@ public sealed class ServantManager : SupportClass.ThreadClass
 	    Ice.FacetMap m = (Ice.FacetMap)_servantMapMap[ident];
 	    if(m != null)
 	    {
-	        return new Ice.FacetMap(m);
+	        return (Ice.FacetMap)m.Clone();
 	    }
 
 	    return new Ice.FacetMap();

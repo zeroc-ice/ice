@@ -247,7 +247,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     
     public override Ice.Context opContext(Ice.Current current)
     {
-	return current.ctx == null ? new Ice.Context() : new Ice.Context(current.ctx);
+	return current.ctx == null ? new Ice.Context() : (Ice.Context)current.ctx.Clone();
     }
     
     public override Test.StringS opStringS(Test.StringS p1, Test.StringS p2, out Test.StringS p3, Ice.Current current)
