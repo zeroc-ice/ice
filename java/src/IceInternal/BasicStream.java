@@ -1271,12 +1271,12 @@ public class BasicStream
     patchReferences(Integer instanceIndex, Integer patchIndex)
     {
         //
-        // Called whenever we have unmarshaled a new instance. The instanceIndex is the index of the instance just
-        // unmarshaled and patchIndex is the index just unmarshaled. (Either may be null, in which case we search
-        // the patch map and/or the unmarshaled map.)
+        // Called whenever we have unmarshaled a new instance or an index.
+	// The instanceIndex is the index of the instance just unmarshaled and patchIndex is the index
+	// just unmarshaled. (Exactly one of the two parameters must be null.)
         // Patch any pointers in the patch map with the new address.
         //
-	assert((patchIndex != null && instanceIndex == null) || (patchIndex == null && instanceIndex != null));
+	assert((instanceIndex != null && patchIndex == null) || (instanceIndex == null && patchIndex != null));
 
 	java.util.LinkedList patchlist;
 	Ice.Object v;
@@ -1296,7 +1296,7 @@ public class BasicStream
 	else
 	{
 	    //
-	    // We have just unmarshaled an index -- check if we have unmarshaled an instance for that index.
+	    // We have just unmarshaled an index -- check if we have unmarshaled the instance for that index yet.
 	    //
 	    v = (Ice.Object)_readEncapsStack.unmarshaledMap.get(patchIndex);
 	    if(v == null)
@@ -1308,6 +1308,9 @@ public class BasicStream
 	assert(patchlist != null && patchlist.size() > 0);
 	assert(v != null);
 
+	//
+	// Patch all references that refer to the instance.
+	//
 	for(java.util.Iterator i = patchlist.iterator(); i.hasNext(); )
 	{
 	    IceInternal.Patcher p = (IceInternal.Patcher)i.next();
@@ -1320,6 +1323,11 @@ public class BasicStream
 	        throw new Ice.UnmarshalOutOfBoundsException();
 	    }
 	}
+
+	//
+	// Clear out the patch map for that index -- there is nothing left to patch for that
+	// index for the time being.
+	//
 	_readEncapsStack.patchMap.remove(patchIndex);
     }
 

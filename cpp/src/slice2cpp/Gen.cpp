@@ -3562,7 +3562,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	writeUnmarshalCode(C, outParams, ret);
 	if(p->returnsClasses())
 	{
-	    C << "__is->readPendingObjects();";
+	    C << nl << "__is->readPendingObjects();";
 	}
 	C << eb;
 	C << nl << "catch(const ::Ice::Exception& __ex)";

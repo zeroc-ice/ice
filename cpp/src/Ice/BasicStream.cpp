@@ -1148,7 +1148,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 	e.patchFunc = patchFunc;
 	e.patchAddr = patchAddr;
 	p->second.push_back(e);
-	patchPointers(-index, p, _currentReadEncaps->unmarshaledMap->end());
+	patchPointers(-index, _currentReadEncaps->unmarshaledMap->end(), p);
 	return;
     }
     assert(index > 0);
@@ -1188,7 +1188,7 @@ IceInternal::BasicStream::read(PatchFunc patchFunc, void* patchAddr)
 			    _currentReadEncaps->unmarshaledMap->insert(make_pair(index, v)).first;
 
 	v->__read(this, false);
-	patchPointers(index, _currentReadEncaps->patchMap->end(), unmarshaledPos);
+	patchPointers(index, unmarshaledPos, _currentReadEncaps->patchMap->end());
 	return;
     }
 
@@ -1312,35 +1312,58 @@ BasicStream::writeInstance(const ObjectPtr& v, Int index)
 }
 
 void
-BasicStream::patchPointers(Int index, PatchMap::iterator patchPos, IndexToPtrMap::const_iterator unmarshaledPos)
+BasicStream::patchPointers(Int index, IndexToPtrMap::const_iterator unmarshaledPos, PatchMap::iterator patchPos)
 {
     //
-    // Called whenever we have unmarshaled a new instance. The index is the index of the instance just unmarshaled
-    // and patchPos is an iterator into the patch map at that index. (Either may be null, in which case we
-    // search the patch map and/or the unmarshaled map.)
+    // Called whenever we have unmarshaled a new instance. The index is the index of the instance.
+    // UnmarshaledPos denotes the instance just unmarshaled and patchPost denotes the patch map entry for
+    // the index just unmarshaled. (Exactly one of these two iterators must be end().)
     // Patch any pointers in the patch map with the new address.
     //
-    if(patchPos == _currentReadEncaps->patchMap->end())
-    {
-	patchPos = _currentReadEncaps->patchMap->find(index);
-    }
+    assert(   (unmarshaledPos != _currentReadEncaps->unmarshaledMap->end()
+	       && patchPos == _currentReadEncaps->patchMap->end())
+	   || (unmarshaledPos == _currentReadEncaps->unmarshaledMap->end()
+	       && patchPos != _currentReadEncaps->patchMap->end())
+	  );
 
-    if(unmarshaledPos == _currentReadEncaps->unmarshaledMap->end())
+    if(unmarshaledPos != _currentReadEncaps->unmarshaledMap->end())
     {
+	//
+	// We have just unmarshaled an instance -- check if something needs patching for that instance.
+	//
+	patchPos = _currentReadEncaps->patchMap->find(index);
+	if(patchPos == _currentReadEncaps->patchMap->end())
+	{
+	    return;	// We don't have anything to patch for the instance just unmarshaled
+	}
+    }
+    else
+    {
+	//
+	// We have just unmarshaled an index -- check if we have unmarshaled the instance for that index yet.
+	//
 	unmarshaledPos = _currentReadEncaps->unmarshaledMap->find(index);
 	if(unmarshaledPos == _currentReadEncaps->unmarshaledMap->end())
 	{
-	    return;	// Nothing to do
+	    return;	// We haven't unmarshaled the instance yet
 	}
+    }
+    assert(patchPos->second.size() > 0);
+
+    ObjectPtr v = unmarshaledPos->second;
+    assert(v);
+
+    //
+    // Patch all pointers that refer to the instance.
+    //
+    for(PatchList::iterator k = patchPos->second.begin(); k != patchPos->second.end(); ++k)
+    {
+	(*k->patchFunc)(k->patchAddr, v);
     }
 
-    if(patchPos != _currentReadEncaps->patchMap->end())
-    {
-	ObjectPtr v = unmarshaledPos->second;
-	for(PatchList::iterator k = patchPos->second.begin(); k != patchPos->second.end(); ++k)
-	{
-	    (*k->patchFunc)(k->patchAddr, v);
-	}
-	_currentReadEncaps->patchMap->erase(patchPos);
-    }
+    //
+    // Clear out the patch map for that index -- there is nothing left to patch for that
+    // index for the time being.
+    //
+    _currentReadEncaps->patchMap->erase(patchPos);
 }

@@ -205,7 +205,7 @@ private:
     static const std::string _userExceptionId;
 
     void writeInstance(const Ice::ObjectPtr&, Ice::Int);
-    void patchPointers(::Ice::Int, PatchMap::iterator, IndexToPtrMap::const_iterator);
+    void patchPointers(::Ice::Int, IndexToPtrMap::const_iterator, PatchMap::iterator);
 };
 
 }
