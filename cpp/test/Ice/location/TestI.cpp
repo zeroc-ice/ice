@@ -30,12 +30,13 @@ ServerManagerI::startServer(const Ice::Current&)
     // its endpoints with the locator and create references containing
     // the adapter id instead of the endpoints.
     //
-    _serverCommunicator = Ice::initialize(argc, argv);
-    _serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
-    _serverCommunicator->getProperties()->setProperty("TestAdapter.AdapterId", "TestAdapter");
-    Ice::ObjectAdapterPtr adapter = _serverCommunicator->createObjectAdapter("TestAdapter");
+    Ice::CommunicatorPtr serverCommunicator = Ice::initialize(argc, argv);
+    _communicators.insert(serverCommunicator);
+    serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
+    serverCommunicator->getProperties()->setProperty("TestAdapter.AdapterId", "TestAdapter");
+    Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
 
-    Ice::ObjectPrx locator = _serverCommunicator->stringToProxy("locator:default -p 12345");
+    Ice::ObjectPrx locator = serverCommunicator->stringToProxy("locator:default -p 12345");
     adapter->setLocator(Ice::LocatorPrx::uncheckedCast(locator));
 
     Ice::ObjectPtr object = new TestI(adapter);
@@ -44,14 +45,12 @@ ServerManagerI::startServer(const Ice::Current&)
 }
 
 void
-ServerManagerI::cleanup(const Ice::Current&)
-{
-    _serverCommunicator->destroy();
-}
-
-void
 ServerManagerI::shutdown(const Ice::Current&)
 {
+    for(::std::set<Ice::CommunicatorPtr>::const_iterator i = _communicators.begin(); i != _communicators.end(); ++i)
+    {
+	(*i)->destroy();
+    }
     _adapter->getCommunicator()->shutdown();
 }
 

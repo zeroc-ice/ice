@@ -51,7 +51,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 
     cout << "shutdown server... " << flush;
     obj->shutdown();
-    manager->cleanup();
     cout << "ok" << endl;
 
     cout << "restarting server... " << flush;
@@ -104,7 +103,6 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 
     cout << "shutdown server... " << flush;
     obj->shutdown();
-    manager->cleanup();
     cout << "ok" << endl;
 
     cout << "testing whether server is gone... " << flush;

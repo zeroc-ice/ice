@@ -11,6 +11,7 @@
 #define TEST_I_H
 
 #include <Test.h>
+#include <set>
 
 class ServerManagerI : public ServerManager
 {
@@ -18,14 +19,12 @@ public:
     ServerManagerI(const Ice::ObjectAdapterPtr&);
     
     virtual void startServer(const Ice::Current&);
-    virtual void cleanup(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:
 
     Ice::ObjectAdapterPtr _adapter;
-    Ice::CommunicatorPtr _serverCommunicator;
-
+    std::set<Ice::CommunicatorPtr> _communicators;
 };
 
 class HelloI : public Hello
