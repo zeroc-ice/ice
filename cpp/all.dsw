@@ -2268,61 +2268,19 @@ Package=<4>
     Project_Dep_Name IcePatch
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceBox
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceBoxC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceBoxS
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name icecpp
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IcePatchC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IcePatchS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceStorm
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceStormC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceStormS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name Slice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePack
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePackNode
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePackRegistry
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name slice2cpp
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name slice2freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name TransformDB
+    Project_Dep_Name Glacier2
     End Project Dependency
 }}}
 
