@@ -79,6 +79,7 @@ ICE_PROTOCOL_API void setBlock(SOCKET, bool);
 ICE_PROTOCOL_API void setTcpNoDelay(SOCKET);
 ICE_PROTOCOL_API void setKeepAlive(SOCKET);
 ICE_PROTOCOL_API void setSendBufferSize(SOCKET, int);
+ICE_PROTOCOL_API void setRecvBufferSize(SOCKET, int);
 
 ICE_PROTOCOL_API void doBind(SOCKET, struct sockaddr_in&);
 ICE_PROTOCOL_API void doListen(SOCKET, int);

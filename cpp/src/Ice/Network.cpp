@@ -331,6 +331,18 @@ IceInternal::setSendBufferSize(SOCKET fd, int sz)
 }
 
 void
+IceInternal::setRecvBufferSize(SOCKET fd, int sz)
+{
+    if(setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char*)&sz, sizeof(int)) == SOCKET_ERROR)
+    {
+	closeSocket(fd);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
+    }
+}
+
+void
 IceInternal::doBind(SOCKET fd, struct sockaddr_in& addr)
 {
 #ifndef _WIN32
@@ -385,7 +397,7 @@ IceInternal::doConnect(SOCKET fd, struct sockaddr_in& addr, int timeout)
 #ifdef _WIN32
     //
     // Set larger send buffer size to avoid performance problems on
-    // WIN32
+    // WIN32.
     //
     setSendBufferSize(fd, 64 * 1024);
 #endif
@@ -573,7 +585,7 @@ repeatAccept:
 #ifdef _WIN32
     //
     // Set larger send buffer size to avoid performance problems on
-    // WIN32
+    // WIN32.
     //
     setSendBufferSize(ret, 64 * 1024);
 #endif

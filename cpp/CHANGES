@@ -1,6 +1,8 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Further performance improvements with respect to latency.
+
 - Added demo/Ice/throughput, which can be used to measure the transfer
   time of large sequences.
 

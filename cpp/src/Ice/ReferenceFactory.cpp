@@ -60,6 +60,13 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     ReferencePtr ref = new Reference(_instance, ident, facet, mode, secure, adapterId,
 				     endpoints, routerInfo, locatorInfo, reverseAdapter, collocationOptimization);
 
+
+//
+// This code is currently not used, because the eviction code below is
+// too slow when there are a large number of references. The savings
+// are also rather questionable.
+//
+/*
     //
     // If we already have an equivalent reference, use such equivalent
     // reference. Otherwise add the new reference to the reference
@@ -110,6 +117,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 	    }
 	}
     }
+*/
 
     return ref;
 }
