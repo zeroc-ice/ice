@@ -303,7 +303,14 @@ Ice::PropertiesI::PropertiesI(StringSeq& args)
     StringSeq::iterator q = args.begin();
     if(q != args.end())
     {
-	setProperty("Ice.ProgramName", *q);
+        //
+        // Use the first argument as the value for Ice.ProgramName. Replace
+        // any backslashes in this value with forward slashes, in case this
+        // value is used by the event logger.
+        //
+        string name = *q;
+        replace(name.begin(), name.end(), '\\', '/');
+	setProperty("Ice.ProgramName", name);
     }
     StringSeq tmp;
     while(q != args.end())
