@@ -92,7 +92,7 @@ LINK32=link.exe
 # Begin Special Build Tool
 OutDir=.\Debug
 SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\icepatch001d.lib ..\..\lib
+PostBuild_Cmds=copy $(OutDir)\icepatch001d.lib ..\..\lib	copy $(OutDir)\icepatch001d.pdb ..\..\lib	copy $(OutDir)\icepatch001d.dll ..\..\bin
 # End Special Build Tool
 
 !ENDIF 
