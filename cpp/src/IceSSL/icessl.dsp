@@ -134,10 +134,6 @@ SOURCE=.\ConfigParser.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ConfigParserErrorReporter.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Context.cpp
 # End Source File
 # Begin Source File
@@ -271,10 +267,6 @@ SOURCE=.\ClientContext.h
 # Begin Source File
 
 SOURCE=.\ConfigParser.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ConfigParserErrorReporter.h
 # End Source File
 # Begin Source File
 
