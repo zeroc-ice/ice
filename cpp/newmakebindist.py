@@ -525,7 +525,7 @@ endif
     os.system("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.csproj\" ` ; do rm -rf $f ; done'")
 
     os.system("tar cvf Ice-" + version + "-demos.tar Ice-" + version + "-demos")
-    os.system("gzip -9 cvf Ice-" + version + "-demos.tar")
+    os.system("gzip -9 Ice-" + version + "-demos.tar")
     os.chdir(cwd)
 
 def makeInstall(buildDir, installDir, distro, clean):
