@@ -103,8 +103,6 @@ private:
         virtual void visitExceptionEnd(const ExceptionPtr&);
         virtual bool visitStructStart(const StructPtr&);
         virtual void visitStructEnd(const StructPtr&);
-        virtual void visitSequence(const SequencePtr&);
-        virtual void visitDictionary(const DictionaryPtr&);
         virtual void visitEnum(const EnumPtr&);
         virtual void visitDataMember(const DataMemberPtr&);
     };
@@ -124,6 +122,20 @@ private:
     private:
 
         void writeHolder(const TypePtr&);
+    };
+
+    class HelperVisitor : public JavaVisitor
+    {
+    public:
+
+        HelperVisitor(const std::string&, const std::string&);
+
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
+        virtual bool visitStructStart(const StructPtr&);
+        virtual void visitSequence(const SequencePtr&);
+        virtual void visitDictionary(const DictionaryPtr&);
+        virtual void visitEnum(const EnumPtr&);
     };
 };
 

@@ -249,7 +249,6 @@ Slice::JavaVisitor::typeToString(const TypePtr& type, TypeMode mode,
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if (cl)
     {
-        //return cl->scoped() + "Ptr"; // TODO: Use Ptr suffix?
         string result = getAbsolute(cl->scoped(), scope);
         if (mode == TypeModeOut)
         {
@@ -274,11 +273,11 @@ Slice::JavaVisitor::typeToString(const TypePtr& type, TypeMode mode,
     {
         if (mode == TypeModeOut)
         {
-            return "Ice.HashtableHolder";
+            return getAbsolute(dict->scoped(), scope) + "Holder";
         }
         else
         {
-            return "java.util.Hashtable";
+            return "java.util.Map";
         }
     }
 
@@ -353,6 +352,9 @@ Slice::Gen::generate(const UnitPtr& unit)
 
     HolderVisitor holderVisitor(_dir, _package);
     unit->visit(&holderVisitor);
+
+    HelperVisitor helperVisitor(_dir, _package);
+    unit->visit(&helperVisitor);
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(const string& dir,
@@ -723,32 +725,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 {
-    string name = p->name();
-    string scoped = p->scoped();
-
     Output& out = output();
-
-    TypeStringList memberList;
-    DataMemberList dataMembers = p->dataMembers();
-    for (DataMemberList::const_iterator q = dataMembers.begin();
-         q != dataMembers.end();
-         ++q)
-    {
-        memberList.push_back(make_pair((*q)->type(), (*q)->name()));
-    }
-    out << sp << nl << "public final void" << nl
-        << "__write(IceInternal.Stream __os)";
-    out << sb;
-    // TODO
-    //writeMarshalCode(_out, memberList, 0);
-    out << eb;
-    out << sp << nl << "public final void" << nl
-        << "__read(IceInternal.Stream __is)";
-    out << sb;
-    // TODO
-    //writeUnmarshalCode(_out, memberList, 0);
-    out << eb;
-
     out << eb;
     close();
 }
@@ -762,18 +739,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     string s = typeToString(p->type(), TypeModeMember, contained->scope());
     Output& out = output();
     out << sp << nl << "public " << s << ' ' << name << ';';
-}
-
-void
-Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
-{
-    // TODO: Marshalling code - need Helper?
-}
-
-void
-Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    // TODO: Marshalling code - need Helper?
 }
 
 void
@@ -814,49 +779,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << sp << nl << "public long" << nl << "value()";
     out << sb;
     out << nl << "return __value;";
-    out << eb;
-
-    out << sp << nl << "public void" << nl
-        << "__write(IceInternal.Stream __os, " << name << " v)";
-    out << sb;
-    if (sz <= 0x7f)
-    {
-        out << nl << "__os.write_byte((byte)(v));";
-    }
-    else if (sz <= 0x7fff)
-    {
-        out << nl << "__os.write_short((short)(v));";
-    }
-    else if (sz <= 0x7fffffff)
-    {
-        out << nl << "__os.write_int((int)(v));";
-    }
-    else
-    {
-        out << nl << "__os.write_long(v);";
-    }
-    out << eb;
-    out << sp << nl << "public static " << name << nl
-        << "__read(IceInternal.Stream __is)";
-    out << sb;
-    out << nl << "long val;";
-    if (sz <= 0x7f)
-    {
-        out << nl << "val = __is.read_byte(val);";
-    }
-    else if (sz <= 0x7fff)
-    {
-        out << nl << "val = __is.read_short(val);";
-    }
-    else if (sz <= 0x7fffffff)
-    {
-        out << nl << "val = __is.read_int(val);";
-    }
-    else
-    {
-        out << nl << "val = __is.read_long(val);";
-    }
-    out << nl << "return convert(val);";
     out << eb;
 
     out << sp << nl << "private" << nl << name << "(long val)";
@@ -925,6 +847,232 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
         out << sp << nl << "public final class " << name << "Holder";
         out << sb;
         out << nl << "public " << typeS << " value;";
+        out << eb;
+        close();
+    }
+}
+
+Slice::Gen::HelperVisitor::HelperVisitor(const string& dir,
+                                         const string& package) :
+    JavaVisitor(dir, package)
+{
+}
+
+bool
+Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    // TODO: Need helper for local classes?
+
+    if (!p->isLocal())
+    {
+        string name = p->name();
+        string absolute = getAbsolute(p->scoped());
+        string helper = absolute + "Helper";
+
+        if (open(helper))
+        {
+            Output& out = output();
+            out << sp << nl << "public final class " << name << "Helper";
+            out << sb;
+            out << nl << "public static void" << nl << "write()";
+            out << sb;
+            out << eb;
+            out << sp << nl << "public static void" << nl << "read()";
+            out << sb;
+            out << eb;
+            out << eb;
+            close();
+        }
+    }
+
+    return false;
+}
+
+bool
+Slice::Gen::HelperVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    // TODO: Need helper for local classes?
+
+    if (!p->isLocal())
+    {
+        string absolute = getAbsolute(p->scoped());
+        string helper = absolute + "Helper";
+
+        if (open(helper))
+        {
+            string name = p->name();
+            ExceptionPtr base = p->base();
+#if 0
+            string baseAbsolute;
+            if (base)
+            {
+                baseAbsolute = getAbsolute(base->scoped(), p->scope());
+            }
+#endif
+
+            Output& out = output();
+            out << sp << nl << "public final class " << name << "Helper";
+            out << sb;
+            out << nl << "public static void" << nl << "write()";
+            out << sb;
+            out << eb;
+            out << sp << nl << "public static void" << nl << "read()";
+            out << sb;
+            out << eb;
+            out << eb;
+            close();
+        }
+    }
+
+    return false;
+}
+
+bool
+Slice::Gen::HelperVisitor::visitStructStart(const StructPtr& p)
+{
+    string name = p->name();
+    string absolute = getAbsolute(p->scoped());
+    string helper = absolute + "Helper";
+
+    if (open(helper))
+    {
+#if 0
+        TypeStringList memberList;
+        DataMemberList dataMembers = p->dataMembers();
+        for (DataMemberList::const_iterator q = dataMembers.begin();
+             q != dataMembers.end();
+             ++q)
+        {
+            memberList.push_back(make_pair((*q)->type(), (*q)->name()));
+        }
+#endif
+
+        Output& out = output();
+        out << sp << nl << "public final class " << name << "Helper";
+        out << sb;
+        out << nl << "public static void" << nl << "write()";
+        out << sb;
+        out << eb;
+        out << sp << nl << "public static void" << nl << "read()";
+        out << sb;
+        out << eb;
+        out << eb;
+        close();
+    }
+
+    return false;
+}
+
+void
+Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
+{
+    string name = p->name();
+    string absolute = getAbsolute(p->scoped());
+    string helper = absolute + "Helper";
+
+    if (open(helper))
+    {
+        Output& out = output();
+        out << sp << nl << "public final class " << name << "Helper";
+        out << sb;
+        out << nl << "public static void" << nl << "write()";
+        out << sb;
+        out << eb;
+        out << sp << nl << "public static void" << nl << "read()";
+        out << sb;
+        out << eb;
+        out << eb;
+        close();
+    }
+}
+
+void
+Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    string name = p->name();
+    string absolute = getAbsolute(p->scoped());
+    string helper = absolute + "Helper";
+
+    if (open(helper))
+    {
+        Output& out = output();
+        out << sp << nl << "public final class " << name << "Helper";
+        out << sb;
+        out << nl << "public static void" << nl << "write()";
+        out << sb;
+        out << eb;
+        out << sp << nl << "public static void" << nl << "read()";
+        out << sb;
+        out << eb;
+        out << eb;
+        close();
+    }
+}
+
+void
+Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
+{
+    string name = p->name();
+    string absolute = getAbsolute(p->scoped());
+    string helper = absolute + "Helper";
+    EnumeratorList enumerators = p->getEnumerators();
+    int sz = enumerators.size();
+
+    if (open(helper))
+    {
+        Output& out = output();
+        out << sp << nl << "public final class " << name << "Helper";
+        out << sb;
+
+        //
+        // write
+        //
+        out << sp << nl << "public static void" << nl
+            << "write(Ice.Stream _ice_os, " << name << " _ice_v)";
+        out << sb;
+        if (sz <= 0x7f)
+        {
+            out << nl << "_ice_os.writeByte((byte)_ice_v.value());";
+        }
+        else if (sz <= 0x7fff)
+        {
+            out << nl << "_ice_os.writeShort((short)_ice_v.value());";
+        }
+        else if (sz <= 0x7fffffff)
+        {
+            out << nl << "_ice_os.writeInt((int)_ice_v.value());";
+        }
+        else
+        {
+            out << nl << "_ice_os.writeLong(_ice_v.value());";
+        }
+        out << eb;
+
+        //
+        // read
+        //
+        out << sp << nl << "public static " << name << nl
+            << "read(Ice.Stream _ice_is)";
+        out << sb;
+        if (sz <= 0x7f)
+        {
+            out << nl << "long _ice_v = _ice_is.readByte();";
+        }
+        else if (sz <= 0x7fff)
+        {
+            out << nl << "long _ice_v = _ice_is.readShort();";
+        }
+        else if (sz <= 0x7fffffff)
+        {
+            out << nl << "long _ice_v = _ice_is.readInt();";
+        }
+        else
+        {
+            out << nl << "long _ice_v = _ice_is.readLong();";
+        }
+        out << nl << "return " << name << ".convert(_ice_v);";
+        out << eb;
+
         out << eb;
         close();
     }
