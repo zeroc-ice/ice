@@ -1,3 +1,8 @@
+Changes since version 1.1.0
+---------------------------
+
+- Compatibility with PHP 5.0.0 (final).
+
 Changes since version 1.0.3
 ---------------------------
 
