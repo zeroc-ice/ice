@@ -75,10 +75,14 @@ public:
 
     void write(const std::string&);
     void write(const char*); // Optimization
+    void write(const std::vector<std::string>&);
     void read(std::string&);
+    void read(std::vector<std::string>&);
 
     void write(const std::wstring&);
+    void write(const std::vector<std::wstring>&);
     void read(std::wstring&);
+    void read(std::vector<std::wstring>&);
 
 private:
 

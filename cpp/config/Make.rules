@@ -21,7 +21,7 @@ includedir	= $(top_srcdir)/include
 iidldir		= $(top_srcdir)/iidl
 
 CXX		= c++
-CXXFLAGS	= -g -fPIC -Wall
+CXXFLAGS	= -g -ftemplate-depth-128 -fPIC -Wall
 CPPFLAGS	= -I. -I$(includedir) -I$(STLPORT)/stlport -I$(JTC)/include
 LDFLAGS		= -L$(libdir) -L$(STLPORT)/lib -L$(JTC)/lib
 LIBS		= -lIce -lstlport_gcc_debug -lJTC -lpthread
