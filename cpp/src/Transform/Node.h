@@ -69,7 +69,7 @@ enum BinaryOperator
     BinOpOr, BinOpAnd,
     BinOpMul, BinOpDiv, BinOpMod,
     BinOpAdd, BinOpSub,
-    BinOpLess, BinOpGreater, BinOpLessEq, BinOpGrEq, BinOpEq
+    BinOpLess, BinOpGreater, BinOpLessEq, BinOpGrEq, BinOpEq, BinOpNotEq
 };
 
 class BinaryNode : public Node

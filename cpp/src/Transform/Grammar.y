@@ -65,6 +65,7 @@ transform_error(const char* s)
 %token TOK_LESS_EQUAL
 %token TOK_GREATER_EQUAL
 %token TOK_EQUAL
+%token TOK_NEQ
 %token TOK_TRUE
 %token TOK_FALSE
 %token TOK_NIL
@@ -76,7 +77,7 @@ transform_error(const char* s)
 
 %left TOK_OR
 %left TOK_AND
-%nonassoc TOK_LESS_THAN TOK_GREATER_THAN TOK_LESS_EQUAL TOK_GREATER_EQUAL TOK_EQUAL
+%nonassoc TOK_LESS_THAN TOK_GREATER_THAN TOK_LESS_EQUAL TOK_GREATER_EQUAL TOK_EQUAL TOK_NEQ
 %left TOK_ADD TOK_SUB
 %left TOK_MUL TOK_DIV TOK_MOD
 %right UNARY_OP
@@ -123,6 +124,10 @@ binary
 | binary TOK_EQUAL binary
 {
     $$ = new BinaryNode(BinOpEq, parseDataFactory, $1, $3);
+}
+| binary TOK_NEQ binary
+{
+    $$ = new BinaryNode(BinOpNotEq, parseDataFactory, $1, $3);
 }
 | binary TOK_OR binary
 {

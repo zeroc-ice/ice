@@ -288,6 +288,15 @@ Transform::BinaryNode::evaluate(SymbolTable& st)
         result = _factory->createBoolean(b, true);
         break;
     }
+
+    case BinOpNotEq:
+    {
+        DataPtr leftValue = _left->evaluate(st);
+        DataPtr rightValue = _right->evaluate(st);
+        bool b = leftValue == rightValue;
+        result = _factory->createBoolean(!b, true);
+        break;
+    }
     }
 
     if(!result)
@@ -347,6 +356,9 @@ Transform::BinaryNode::opToString(BinaryOperator op)
 
     case BinOpEq:
         return "==";
+
+    case BinOpNotEq:
+        return "!=";
     }
 
     assert(false);

@@ -181,6 +181,7 @@ floating_literal        (({fractional_constant}{exponent_part}?)|([[:digit:]]+{e
 "<="    return TOK_LESS_EQUAL;
 ">="    return TOK_GREATER_EQUAL;
 "=="    return TOK_EQUAL;
+"!="    return TOK_NEQ;
 "+"     return TOK_ADD;
 "-"     return TOK_SUB;
 "*"     return TOK_MUL;
