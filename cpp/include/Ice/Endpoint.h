@@ -17,11 +17,14 @@
 namespace __Ice
 {
 
+//
+// Regular endpoint using a byte-stream oriented protocol
+//
 class ICE_API EndpointI : virtual public Shared
 {
 public:
 
-    EndpointI(const std::string&, int, int = -1);
+    EndpointI(const std::string&, int, int);
     virtual ~EndpointI();
 
     //
@@ -39,6 +42,32 @@ private:
 
     EndpointI(const EndpointI&);
     void operator=(const EndpointI&);
+};
+
+//
+// Datagram endpoint using a packet oriented protocol
+//
+class ICE_API DgEndpointI : virtual public Shared
+{
+public:
+
+    DgEndpointI(const std::string&, int);
+    virtual ~DgEndpointI();
+
+    //
+    // All  members are const, because DgEndpoints are immutable.
+    //
+    const std::string host;
+    const int port;
+
+    bool operator==(const DgEndpointI&) const;
+    bool operator!=(const DgEndpointI&) const;
+    bool operator<(const DgEndpointI&) const;
+
+private:
+
+    DgEndpointI(const DgEndpointI&);
+    void operator=(const DgEndpointI&);
 };
 
 }
