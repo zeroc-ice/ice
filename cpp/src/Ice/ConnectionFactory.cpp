@@ -838,26 +838,16 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	assert(_acceptor);
 	_acceptor->listen();
 
-	if(!_instance->threadPerConnection())
+	if(_instance->threadPerConnection())
 	{
-	    //
-	    // Only set _threadPool if we really need it, i.e., if we are
-	    // not in thread per connection mode. Thread pools have lazy
-	    // initialization in Instance, and we don't want them to be
-	    // created if they are not needed.
-	    //
-	    const_cast<ThreadPoolPtr&>(_threadPool) = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool();
-	}
-	else
-	{
-	    //
-	    // If we are in thread per connection mode, we also use
-	    // one thread per incoming connection factory, that
-	    // accepts new connections on this endpoint.
-	    //
 	    __setNoDelete(true);
 	    try
 	    {
+		//
+		// If we are in thread per connection mode, we also use
+		// one thread per incoming connection factory, that
+		// accepts new connections on this endpoint.
+		//
 		_threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory(this);
 		_threadPerIncomingConnectionFactory->start(_instance->threadPerConnectionStackSize());
 	    }
@@ -869,9 +859,17 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 		}
 		
 		_state = StateClosed;
+		try
+		{
+		    _acceptor->close();
+		}
+		catch(const LocalException& ex)
+		{
+		    // Here we ignore any exceptions in close().
+		}
 		_acceptor = 0;
 		_threadPerIncomingConnectionFactory = 0;
-
+		
 		__setNoDelete(false);
 		throw;
 	    }
@@ -977,7 +975,7 @@ IceInternal::IncomingConnectionFactory::registerWithPool()
 
     if(_acceptor && !_registeredWithPool)
     {
-	_threadPool->_register(_acceptor->fd(), this);
+	dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->_register(_acceptor->fd(), this);
 	_registeredWithPool = true;
     }
 }
@@ -989,7 +987,7 @@ IceInternal::IncomingConnectionFactory::unregisterWithPool()
 
     if(_acceptor && _registeredWithPool)
     {
-	_threadPool->unregister(_acceptor->fd());
+	dynamic_cast<ObjectAdapterI*>(_adapter.get())->getThreadPool()->unregister(_acceptor->fd());
 	_registeredWithPool = false;
     }
 }
@@ -1080,9 +1078,22 @@ IceInternal::IncomingConnectionFactory::run()
 	    //
 	    // Create a connection object for the connection.
 	    //
-	    assert(transceiver);
-	    connection = new ConnectionI(_instance, transceiver, _endpoint, _adapter);
-	    _connections.push_back(connection);
+	    if(transceiver)
+	    {
+		try
+		{
+		    connection = new ConnectionI(_instance, transceiver, _endpoint, _adapter);
+		    _connections.push_back(connection);
+		}
+		catch(const IceUtil::Exception&)
+		{
+		    //
+		    // We don't print any errors here, the connection
+		    // constructor is responsible for printing
+		    // the error.
+		    //
+		}
+	    }
 	}
 	
 	//

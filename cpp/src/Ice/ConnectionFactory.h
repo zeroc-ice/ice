@@ -128,7 +128,6 @@ private:
     const ::Ice::ObjectAdapterPtr _adapter;
 
     bool _registeredWithPool;
-    const IceInternal::ThreadPoolPtr _threadPool;
 
     const bool _warn;
 
