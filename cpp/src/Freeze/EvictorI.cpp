@@ -303,7 +303,7 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const Current& current,
     // It's possible that the locator has been deactivated already. In
     // this case, _evictorSize is set to zero.
     //
-    assert(!_deactivated || _evictorSize);
+    assert(!_deactivated || !_evictorSize);
 
     //
     // Decrease the usage count of the evictor queue element.
