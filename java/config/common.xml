@@ -32,6 +32,7 @@
 	    <equals arg1="${installtype}" arg2=""/>
 	</and>
     </condition>
+    <echo message="${installtype}"/>
 
     <import file="${common.basedir}/common.${installtype}.xml"/>
     <property file="${common.basedir}/build.properties"/>
