@@ -13,8 +13,8 @@
 
 class Hello
 {
-    void sayHello();
-    void shutdown();
+    nonmutating void sayHello();
+    idempotent void shutdown();
 };
 
 #endif
