@@ -71,8 +71,7 @@ public class Incoming
 
                 if (servant == null && current.identity.category.length() > 0)
                 {
-                    locator = _adapter.findServantLocator(
-                        current.identity.category);
+                    locator = _adapter.findServantLocator(current.identity.category);
                     if (locator != null)
                     {
                         servant = locator.locate(_adapter, current, cookie);
@@ -99,8 +98,7 @@ public class Incoming
             {
                 if (current.facet.length() > 0)
                 {
-                    Ice.Object facetServant =
-                        servant.ice_findFacet(current.facet);
+                    Ice.Object facetServant = servant.ice_findFacet(current.facet);
                     if (facetServant == null)
                     {
                         status = DispatchStatus.DispatchFacetNotExist;
@@ -127,8 +125,7 @@ public class Incoming
             {
                 _os.endWriteEncaps();
 
-                if (status != DispatchStatus.DispatchOK &&
-                    status != DispatchStatus.DispatchUserException)
+                if (status != DispatchStatus.DispatchOK && status != DispatchStatus.DispatchUserException)
                 {
                     _os.resize(statusPos, false);
                     _os.writeByte((byte)status.value());
@@ -277,6 +274,13 @@ public class Incoming
     os()
     {
         return _os;
+    }
+
+    public void
+    destroy()
+    {
+        _is.destroy();
+        _os.destroy();
     }
 
     private Ice.ObjectAdapter _adapter;

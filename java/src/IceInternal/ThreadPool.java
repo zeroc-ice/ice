@@ -518,6 +518,7 @@ catch (RuntimeException ex)
                             if (info.callFinished) // Call finished() on the handler?
                             {
                                 hinfo.handler.finished();
+                                hinfo.handler._stream.destroy();
                             }
                             if (hinfo.handler.server())
                             {

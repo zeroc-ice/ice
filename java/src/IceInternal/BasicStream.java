@@ -28,6 +28,10 @@ public class BasicStream
         _writeEncapsCache = null;
     }
 
+    /*
+     * Do NOT use a finalizer for BasicStream - this causes a
+     * severe performance penalty!
+     *
     protected void
     finalize()
         throws Throwable
@@ -39,9 +43,10 @@ public class BasicStream
 
         super.finalize();
     }
+    */
 
     //
-    // Optional - deterministic destruction
+    // Must be called in order to reclaim the buffer
     //
     public void
     destroy()
