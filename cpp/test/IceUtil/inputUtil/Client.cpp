@@ -8,6 +8,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Unicode.h>
 #include <IceUtil/InputUtil.h>
 #include <TestCommon.h>
 
