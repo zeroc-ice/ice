@@ -94,7 +94,7 @@ GACUTIL			= gacutil
 
 MCS			= mcs
 
-LIBS			= $(libdir)/icecs.dll $(libdir)/glaciercs.dll
+LIBS			= $(bindir)/icecs.dll $(bindir)/glaciercs.dll
 
 ifeq ($(DEBUG),yes)
     MCSFLAGS := -g

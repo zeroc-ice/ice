@@ -31,15 +31,15 @@ MCSFLAGS	:= $(MCSFLAGS) -target:exe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --ice -I. -I$(slicedir)
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(libdir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
 
 server.exe: $(S_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(libdir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
 
 collocated.exe: $(COL_SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(libdir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
 
 serveramd.exe: $(SAMD_SRCS) $(GEN_AMD_SRCS)
-	$(MCS) $(MCSFLAGS) -out:$@ -r:$(libdir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -out:$@ -r:$(bindir)/icecs.dll $^
 
 include .depend

@@ -31,7 +31,7 @@ MCSFLAGS	:= $(MCSFLAGS) -target:library -out:$(TARGETS) -unsafe
 SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I$(slicedir)
 
 $(TARGETS):: $(SRCS) $(GEN_SRCS)
-	$(MCS) $(MCSFLAGS) -r:$(libdir)/icecs.dll $^
+	$(MCS) $(MCSFLAGS) -r:$(bindir)/icecs.dll $^
 
 ifeq ($(NOGAC),)
 
