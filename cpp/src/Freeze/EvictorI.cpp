@@ -471,6 +471,11 @@ Freeze::EvictorIteratorI::hasNext()
 Ice::Identity
 Freeze::EvictorIteratorI::next()
 {
+    if (_curr == _end)
+    {
+	throw Freeze::NoSuchElementException(__FILE__, __LINE__);
+    }
+
     Ice::Identity ident = _curr->first;
     ++_curr;
     return ident;
