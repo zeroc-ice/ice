@@ -17,12 +17,15 @@ SGMLFILES	= manual.sgml \
 		  Properties.sgml \
 		  ReferencesEndpoints.sgml
 
-SLICEFILES	= ../slice/Ice/LocalException.ice \
+SLICEFILES	= ../slice/Ice/Object.ice \
+		  ../slice/Ice/LocalObject.ice \
+		  ../slice/Ice/LocalException.ice \
 		  ../slice/Ice/Properties.ice \
 		  ../slice/Ice/Logger.ice \
 		  ../slice/Ice/Stream.ice \
 		  ../slice/Ice/Communicator.ice \
 		  ../slice/Ice/ObjectFactory.ice \
+		  ../slice/Ice/UserExceptionFactory.ice \
 		  ../slice/Ice/ObjectAdapter.ice \
 		  ../slice/Ice/ServantLocator.ice \
 		  ../slice/IcePack/Admin.ice \

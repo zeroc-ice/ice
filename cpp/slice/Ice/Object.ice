@@ -8,6 +8,11 @@
 //
 // **********************************************************************
 
+//
+// This file is not used in the Ice core. It is only for documentation
+// purposes, and for tools such as <literal>slice2pythonext</literal>.
+//
+
 #ifndef ICE_OBJECT_ICE
 #define ICE_OBJECT_ICE
 
@@ -16,30 +21,32 @@ module Ice
 
 /**
  *
- * The base Ice Object. All Ice object derive from this class, however it cannot be 
- * instantiated (pure virtual). This Slice definition is for use, primarily, by other
- * language bindings that need to wrap the C++ implementation. Renamed _guard_Object since
- * Object is a keyword.
+ * The base interface for all objects in Ice.
+ *
+ * @see Ice::LocalObject
  *
  **/
-local interface _guard_Object
+interface \Object
 {
     /**
      *
-     * Is this class of type className? Returns true if it is, 
-     * this includes if it is a base class of classname.
+     * Check whether the object is of a certain type.
      *
-     * @param className The scoped name of the class we want to compare against.
-     * 
+     * @param id The type id, which is the same as the fully qualified
+     * Slice type name.
+     *
+     * @return True, if the object is of the specified type, or false
+     * otherwise.
+     *
      **/
-    bool _isA(string className);
+    nonmutating bool _isA(string id);
 
     /**
      *
-     * Just a simple call to see if this object is still alive. 
-     * 
+     * Check if an object is alive.
+     *
      **/
-    void _ping();
+    nonmutating void _ping();
 };
 
 };

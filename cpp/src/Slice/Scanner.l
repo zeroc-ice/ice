@@ -297,16 +297,30 @@ using namespace Slice;
     return ICE_OP_KEYWORD;
 }
 
-[[:alpha:]_][[:alnum:]_]* {
+\\?[[:alpha:]_][[:alnum:]_]* {
     StringTokPtr ident = new StringTok;
-    ident->v = yytext;
+    if (*yytext == '\\')
+    {
+	ident->v = yytext + 1;
+    }
+    else
+    {
+	ident->v = yytext;
+    }
     *yylvalp = ident;
     return ICE_IDENTIFIER;
 }
 
-[[:alpha:]_][[:alnum:]_]*[[:space:]]*"(" {
+\\?[[:alpha:]_][[:alnum:]_]*[[:space:]]*"(" {
     StringTokPtr ident = new StringTok;
-    ident->v = yytext;
+    if (*yytext == '\\')
+    {
+	ident->v = yytext + 1;
+    }
+    else
+    {
+	ident->v = yytext;
+    }
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
     *yylvalp = ident;
     return ICE_OP_IDENTIFIER;

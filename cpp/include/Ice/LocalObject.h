@@ -13,7 +13,6 @@
 
 #include <IceUtil/Shared.h>
 #include <Ice/LocalObjectF.h>
-#include <Ice/ProxyF.h> // TODO...
 
 namespace IceInternal
 {
@@ -25,28 +24,8 @@ class BasicStream;
 namespace Ice
 {
 
-class ICE_API LocalObjectPtrE
-{
-public:
-
-    LocalObjectPtrE() { }
-    explicit LocalObjectPtrE(const LocalObjectPtrE&);
-    explicit LocalObjectPtrE(const LocalObjectPtr&);
-    operator LocalObjectPtr() const;
-    LocalObject* operator->() const;
-    operator bool() const;
-
-protected:
-
-    LocalObjectPtr _ptr;        
-};
-
 class ICE_API LocalObject : public ::IceUtil::Shared
 {
-public:
-
-    LocalObject();
-    virtual ~LocalObject();
 };
 
 }
