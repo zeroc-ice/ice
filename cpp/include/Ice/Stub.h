@@ -12,11 +12,11 @@
 #define ICE_STUB_H
 
 #include <Ice/StubF.h>
-#include <Ice/ReferenceF.h>
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/Shared.h>
+#include <Ice/Outgoing.h>
 
-namespace _IceIntf { namespace Ice
+namespace _IceObj { namespace Ice
 {
 
 class ICE_API ObjectI : virtual public ::_Ice::SimpleShared
@@ -26,13 +26,15 @@ public:
     bool operator==(const ObjectI&) const;
     bool operator!=(const ObjectI&) const;
 
-    ::_Ice::Reference reference() const;
+    ::_Ice::Reference _reference() const;
 
 protected:
 
     ObjectI();
     virtual ~ObjectI();
-    friend class ::_Ice::ObjectFactoryI; // May create ObjectIs
+
+    ::_IceStub::Ice::Object _getStub();
+    virtual ::_IceStubM::Ice::Object _createStubM();
 
 private:
 
@@ -40,9 +42,11 @@ private:
     void operator=(const ObjectI&);
 
     void setup(const ::_Ice::Reference&);
-    ::_IceStub::Ice::Object _getStub();
 
     ::_Ice::Reference reference_;
+    ::_IceStub::Ice::Object stub_;
+
+    friend class ::_Ice::ObjectFactoryI; // May create and setup ObjectIs
 };
 
 } }
@@ -63,6 +67,10 @@ private:
 
     ObjectI(const ObjectI&);
     void operator=(const ObjectI&);
+
+    virtual void setup(const ::_Ice::Reference&) = 0;
+
+    friend class ::_IceObj::Ice::ObjectI; // May create and setup ObjectIs
 };
 
 } }
@@ -70,7 +78,7 @@ private:
 namespace _IceStubM { namespace Ice
 {
 
-class ICE_API ObjectI : virtual public ::_Ice::SimpleShared
+class ICE_API ObjectI : virtual public ::_IceStub::Ice::ObjectI
 {
 public:
 
@@ -83,6 +91,12 @@ private:
 
     ObjectI(const ObjectI&);
     void operator=(const ObjectI&);
+
+    void setup(const ::_Ice::Reference&);
+
+    ::_Ice::Reference reference_;
+
+    friend class ::_IceObj::Ice::ObjectI; // May create and setup ObjectIs
 };
 
 } }
