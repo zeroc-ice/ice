@@ -1104,8 +1104,8 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
     catch(const LocalException& ex)
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	threadPool->promoteFollower();
 	setState(StateClosed, ex);
+	threadPool->promoteFollower();
 	return;
     }
 
