@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-abstract class EventHandler
+public abstract class EventHandler
 {
     //
     // Return true if the handler is for a datagram transport, false otherwise.

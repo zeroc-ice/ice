@@ -243,7 +243,7 @@ public abstract class OutgoingAsync
 	// No synchronization necessary, because
 	// _absoluteTimeoutMillis is declared volatile. We cannot
 	// synchronize here because otherwise there might be deadlocks
-	// when Connection calls back on this object with this
+	// when Ice.ConnectionI calls back on this object with this
 	// function.
 	//
 	if(_absoluteTimeoutMillis > 0)
@@ -454,7 +454,7 @@ public abstract class OutgoingAsync
     protected BasicStream __os;
 
     private Reference _reference;
-    private Connection _connection;
+    private Ice.ConnectionI _connection;
     private int _cnt;
     private Ice.OperationMode _mode;
 

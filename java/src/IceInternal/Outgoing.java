@@ -12,7 +12,7 @@ package IceInternal;
 public final class Outgoing
 {
     public
-    Outgoing(Connection connection, Reference ref, String operation, Ice.OperationMode mode, java.util.Map context)
+    Outgoing(Ice.ConnectionI connection, Reference ref, String operation, Ice.OperationMode mode, java.util.Map context)
     {
         _connection = connection;
         _reference = ref;
@@ -456,7 +456,7 @@ public final class Outgoing
         _os.startWriteEncaps();
     }
 
-    private Connection _connection;
+    private Ice.ConnectionI _connection;
     private Reference _reference;
     private Ice.LocalException _exception;
 

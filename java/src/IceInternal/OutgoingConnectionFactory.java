@@ -27,7 +27,7 @@ public class OutgoingConnectionFactory
 	    java.util.Iterator q = connectionList.iterator();
 	    while(q.hasNext())
 	    {
-		Connection connection = (Connection)q.next();
+		Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
 		connection.destroy(Connection.CommunicatorDestroyed);
 	    }
 	}
@@ -79,13 +79,13 @@ public class OutgoingConnectionFactory
 	    java.util.Iterator q = connectionList.iterator();
 	    while(q.hasNext())
 	    {
-		Connection connection = (Connection)q.next();
+		Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
 		connection.waitUntilFinished();
 	    }
         }
     }
 
-    public Connection
+    public Ice.ConnectionI
     create(Endpoint[] endpoints)
     {
 	assert(endpoints.length > 0);
@@ -108,7 +108,7 @@ public class OutgoingConnectionFactory
 		java.util.Iterator q = connectionList.iterator();
 		while(q.hasNext())
 		{
-		    Connection con = (Connection)q.next();
+		    Ice.ConnectionI con = (Ice.ConnectionI)q.next();
 		    if(con.isFinished())
 		    {
 			q.remove();
@@ -145,7 +145,7 @@ public class OutgoingConnectionFactory
 			
 		    while(q.hasNext())
 		    {
-			Connection connection = (Connection)q.next();
+			Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
 			
 			//
 			// Don't return connections for which destruction
@@ -213,7 +213,7 @@ public class OutgoingConnectionFactory
 			
 			while(q.hasNext())
 			{
-			    Connection connection = (Connection)q.next();
+			    Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
 			    
 			    //
 			    // Don't return connections for which
@@ -240,7 +240,7 @@ public class OutgoingConnectionFactory
 	    }
 	}
 
-	Connection connection = null;
+	Ice.ConnectionI connection = null;
 	Ice.LocalException exception = null;
 
 	for(int i = 0; i < endpoints.length; i++)
@@ -272,7 +272,7 @@ public class OutgoingConnectionFactory
 		    transceiver = connector.connect(timeout);
 		    assert(transceiver != null);
 		}
-		connection = new Connection(_instance, transceiver, endpoint, null);
+		connection = new Ice.ConnectionI(_instance, transceiver, endpoint, null);
 		connection.validate();
 		break;
 	    }
@@ -378,7 +378,7 @@ public class OutgoingConnectionFactory
 		    
 		    while(p.hasNext())
 		    {
-			Connection connection = (Connection)p.next();
+			Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
 			connection.setAdapter(adapter);
 		    }
                 }
@@ -402,7 +402,7 @@ public class OutgoingConnectionFactory
 	    java.util.Iterator q = connectionList.iterator();
 	    while(q.hasNext())
 	    {
-		Connection connection = (Connection)q.next();
+		Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
 		if(connection.getAdapter() == adapter)
 		{
 		    connection.setAdapter(null);
@@ -433,7 +433,7 @@ public class OutgoingConnectionFactory
 	java.util.Iterator p = c.iterator();
 	while(p.hasNext())
 	{
-	    Connection conn = (Connection)p.next();
+	    Ice.ConnectionI conn = (Ice.ConnectionI)p.next();
 	    if(conn.isValidated())
 	    {
 		try

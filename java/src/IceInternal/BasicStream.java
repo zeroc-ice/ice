@@ -1615,25 +1615,25 @@ public class BasicStream
 	_readEncapsStack.patchMap.remove(patchIndex);
     }
 
-    int
+    public int
     pos()
     {
         return _buf.position();
     }
 
-    void
+    public void
     pos(int n)
     {
         _buf.position(n);
     }
 
-    int
+    public int
     size()
     {
         return _limit;
     }
 
-    boolean
+    public boolean
     isEmpty()
     {
         return _limit == 0;

@@ -548,7 +548,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         return false;
     }
 
-    public synchronized IceInternal.Connection[]
+    public synchronized ConnectionI[]
     getIncomingConnections()
     {
 	checkForDeactivation();
@@ -559,13 +559,13 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         {
             IceInternal.IncomingConnectionFactory factory =
                 (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-            IceInternal.Connection[] cons = factory.connections();
+            ConnectionI[] cons = factory.connections();
             for(int j = 0; j < cons.length; j++)
             {
                 connections.add(cons[j]);
             }
         }
-        IceInternal.Connection[] arr = new IceInternal.Connection[connections.size()];
+        ConnectionI[] arr = new ConnectionI[connections.size()];
         connections.toArray(arr);
         return arr;
     }

@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-package IceInternal;
+package Ice;
 
-public final class Connection extends EventHandler
+public final class ConnectionI extends IceInternal.EventHandler
 {
     public synchronized void
     validate()
@@ -28,19 +28,20 @@ public final class Connection extends EventHandler
 			// Incoming connections play the active role
 			// with respect to connection validation.
 			//
-			BasicStream os = new BasicStream(_instance);
-			os.writeByte(Protocol.magic[0]);
-			os.writeByte(Protocol.magic[1]);
-			os.writeByte(Protocol.magic[2]);
-			os.writeByte(Protocol.magic[3]);
-			os.writeByte(Protocol.protocolMajor);
-			os.writeByte(Protocol.protocolMinor);
-			os.writeByte(Protocol.encodingMajor);
-			os.writeByte(Protocol.encodingMinor);
-			os.writeByte(Protocol.validateConnectionMsg);
+			IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
+			os.writeByte(IceInternal.Protocol.magic[0]);
+			os.writeByte(IceInternal.Protocol.magic[1]);
+			os.writeByte(IceInternal.Protocol.magic[2]);
+			os.writeByte(IceInternal.Protocol.magic[3]);
+			os.writeByte(IceInternal.Protocol.protocolMajor);
+			os.writeByte(IceInternal.Protocol.protocolMinor);
+			os.writeByte(IceInternal.Protocol.encodingMajor);
+			os.writeByte(IceInternal.Protocol.encodingMinor);
+			os.writeByte(IceInternal.Protocol.validateConnectionMsg);
 			os.writeByte((byte)0); // Compression status (always zero for validate connection).
-			os.writeInt(Protocol.headerSize); // Message size.
-			TraceUtil.traceHeader("sending validate connection", os, _logger, _traceLevels);
+			os.writeInt(IceInternal.Protocol.headerSize); // Message size.
+			IceInternal.TraceUtil.traceHeader("sending validate connection", 
+							  os, _logger, _traceLevels);
 			_transceiver.write(os, _endpoint.timeout());
 		    }
 		}
@@ -50,22 +51,22 @@ public final class Connection extends EventHandler
 		    // Outgoing connections play the passive role with
 		    // respect to connection validation.
 		    //
-		    BasicStream is = new BasicStream(_instance);
-		    is.resize(Protocol.headerSize, true);
+		    IceInternal.BasicStream is = new IceInternal.BasicStream(_instance);
+		    is.resize(IceInternal.Protocol.headerSize, true);
 		    is.pos(0);
 		    _transceiver.read(is, _endpoint.timeout());
 		    int pos = is.pos();
-		    assert(pos >= Protocol.headerSize);
+		    assert(pos >= IceInternal.Protocol.headerSize);
 		    is.pos(0);
 		    byte[] m = new byte[4];
 		    m[0] = is.readByte();
 		    m[1] = is.readByte();
 		    m[2] = is.readByte();
 		    m[3] = is.readByte();
-		    if(m[0] != Protocol.magic[0] || m[1] != Protocol.magic[1]
-		       || m[2] != Protocol.magic[2] || m[3] != Protocol.magic[3])
+		    if(m[0] != IceInternal.Protocol.magic[0] || m[1] != IceInternal.Protocol.magic[1]
+		       || m[2] != IceInternal.Protocol.magic[2] || m[3] != IceInternal.Protocol.magic[3])
 		    {
-		        Ice.BadMagicException ex = new Ice.BadMagicException();
+		        BadMagicException ex = new BadMagicException();
 			ex.badMagic = m;
 			throw ex;
 		    }
@@ -92,13 +93,13 @@ public final class Connection extends EventHandler
 		    // never replies with a minor version that is
 		    // greater than what the client can handle.
 		    //
-		    if(pMajor != Protocol.protocolMajor)
+		    if(pMajor != IceInternal.Protocol.protocolMajor)
 		    {
-			Ice.UnsupportedProtocolException e = new Ice.UnsupportedProtocolException();
+			UnsupportedProtocolException e = new UnsupportedProtocolException();
 			e.badMajor = pMajor < 0 ? pMajor + 255 : pMajor;
 			e.badMinor = pMinor < 0 ? pMinor + 255 : pMinor;
-			e.major = Protocol.protocolMajor;
-			e.minor = Protocol.protocolMinor;
+			e.major = IceInternal.Protocol.protocolMajor;
+			e.minor = IceInternal.Protocol.protocolMinor;
 			throw e;
 		    }
 
@@ -110,33 +111,34 @@ public final class Connection extends EventHandler
 		    // major version number of the encoding is
 		    // relevant.
 		    //
-		    if(eMajor != Protocol.encodingMajor)
+		    if(eMajor != IceInternal.Protocol.encodingMajor)
 		    {
-			Ice.UnsupportedEncodingException e = new Ice.UnsupportedEncodingException();
+			UnsupportedEncodingException e = new UnsupportedEncodingException();
 			e.badMajor = eMajor < 0 ? eMajor + 255 : eMajor;
 			e.badMinor = eMinor < 0 ? eMinor + 255 : eMinor;
-			e.major = Protocol.encodingMajor;
-			e.minor = Protocol.encodingMinor;
+			e.major = IceInternal.Protocol.encodingMajor;
+			e.minor = IceInternal.Protocol.encodingMinor;
 			throw e;
 		    }
 
 		    byte messageType = is.readByte();
-		    if(messageType != Protocol.validateConnectionMsg)
+		    if(messageType != IceInternal.Protocol.validateConnectionMsg)
 		    {
-			throw new Ice.ConnectionNotValidatedException();
+			throw new ConnectionNotValidatedException();
 		    }
 
                     byte compress = is.readByte(); // Ignore compression status for validate connection.
 
 		    int size = is.readInt();
-		    if(size != Protocol.headerSize)
+		    if(size != IceInternal.Protocol.headerSize)
 		    {
-			throw new Ice.IllegalMessageSizeException();
+			throw new IllegalMessageSizeException();
 		    }
-		    TraceUtil.traceHeader("received validate connection", is, _logger, _traceLevels);
+		    IceInternal.TraceUtil.traceHeader("received validate connection", is, 
+						      _logger, _traceLevels);
 		}
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(LocalException ex)
 	    {
 		setState(StateClosed, ex);
 		assert(_exception != null);
@@ -178,13 +180,13 @@ public final class Connection extends EventHandler
 	{
 	    case ObjectAdapterDeactivated:
 	    {
-		setState(StateClosing, new Ice.ObjectAdapterDeactivatedException());
+		setState(StateClosing, new ObjectAdapterDeactivatedException());
 		break;
 	    }
 	    
 	    case CommunicatorDestroyed:
 	    {
-		setState(StateClosing, new Ice.CommunicatorDestroyedException());
+		setState(StateClosing, new CommunicatorDestroyedException());
 		break;
 	    }
 	}
@@ -286,7 +288,7 @@ public final class Connection extends EventHandler
 			wait(waitTime);
 			if(System.currentTimeMillis() >= absoluteWaitTime)
 			{
-			    setState(StateClosed, new Ice.CloseTimeoutException());
+			    setState(StateClosed, new CloseTimeoutException());
 			}
 		    }
 		    else
@@ -295,7 +297,7 @@ public final class Connection extends EventHandler
 			// We already waited long enough, so let's
 			// close this connection!
 			//
-			setState(StateClosed, new Ice.CloseTimeoutException());
+			setState(StateClosed, new CloseTimeoutException());
 		    }
 
 		    //
@@ -343,11 +345,11 @@ public final class Connection extends EventHandler
 	java.util.Iterator i = _asyncRequests.entryIterator();
 	while(i.hasNext())
 	{
-	    IntMap.Entry e = (IntMap.Entry)i.next();
-	    OutgoingAsync out = (OutgoingAsync)e.getValue();
+	    IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
+	    IceInternal.OutgoingAsync out = (IceInternal.OutgoingAsync)e.getValue();
 	    if(out.__timedOut())
 	    {
-		setState(StateClosed, new Ice.TimeoutException());
+		setState(StateClosed, new TimeoutException());
 		return;
 	    }
 	}
@@ -362,7 +364,7 @@ public final class Connection extends EventHandler
 	{
 	    if(System.currentTimeMillis() >= _acmAbsoluteTimeoutMillis)
 	    {
-		setState(StateClosing, new Ice.ConnectionTimeoutException());
+		setState(StateClosing, new ConnectionTimeoutException());
 		return;
 	    }
 	}	    
@@ -370,31 +372,31 @@ public final class Connection extends EventHandler
 
     private final static byte[] _requestHdr =
     {
-	Protocol.magic[0],
-	Protocol.magic[1],
-	Protocol.magic[2],
-	Protocol.magic[3],
-        Protocol.protocolMajor,
-        Protocol.protocolMinor,
-        Protocol.encodingMajor,
-        Protocol.encodingMinor,
-        Protocol.requestMsg,
+	IceInternal.Protocol.magic[0],
+	IceInternal.Protocol.magic[1],
+	IceInternal.Protocol.magic[2],
+	IceInternal.Protocol.magic[3],
+        IceInternal.Protocol.protocolMajor,
+        IceInternal.Protocol.protocolMinor,
+        IceInternal.Protocol.encodingMajor,
+        IceInternal.Protocol.encodingMinor,
+        IceInternal.Protocol.requestMsg,
         (byte)0, // Compression status.
         (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
         (byte)0, (byte)0, (byte)0, (byte)0  // Request ID (placeholder).
     };
 
     //
-    // TODO: Should not be a member function of Connection.
+    // TODO: Should not be a member function of ConnectionI.
     //
     public void
-    prepareRequest(BasicStream os)
+    prepareRequest(IceInternal.BasicStream os)
     {
         os.writeBlob(_requestHdr);
     }
 
     public void
-    sendRequest(BasicStream os, Outgoing out)
+    sendRequest(IceInternal.BasicStream os, IceInternal.Outgoing out)
     {
 	int requestId = 0;
 
@@ -434,7 +436,7 @@ public final class Connection extends EventHandler
 		//
 		// Fill in the request ID.
 		//
-		os.pos(Protocol.headerSize);
+		os.pos(IceInternal.Protocol.headerSize);
 		os.writeInt(requestId);
 
 		//
@@ -462,11 +464,11 @@ public final class Connection extends EventHandler
 		//
 		// Send the request.
 		//
-		TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
+		IceInternal.TraceUtil.traceRequest("sending request", os, _logger, _traceLevels);
 		_transceiver.write(os, _endpoint.timeout());
 	    }
 	}
-	catch(Ice.LocalException ex)
+	catch(LocalException ex)
 	{
 	    synchronized(this)
 	    {
@@ -491,7 +493,7 @@ public final class Connection extends EventHandler
 		    // complex design, which would be bad for
 		    // performance.
 		    //
-		    Outgoing o = (Outgoing)_requests.remove(requestId);
+		    IceInternal.Outgoing o = (IceInternal.Outgoing)_requests.remove(requestId);
 		    if(o != null)
 		    {
 			assert(o == out);
@@ -507,7 +509,7 @@ public final class Connection extends EventHandler
     }
 
     public void
-    sendAsyncRequest(BasicStream os, OutgoingAsync out)
+    sendAsyncRequest(IceInternal.BasicStream os, IceInternal.OutgoingAsync out)
     {
 	int requestId = 0;
 
@@ -542,7 +544,7 @@ public final class Connection extends EventHandler
 	    //
 	    // Fill in the request ID.
 	    //
-	    os.pos(Protocol.headerSize);
+	    os.pos(IceInternal.Protocol.headerSize);
 	    os.writeInt(requestId);
 	    
 	    //
@@ -569,11 +571,12 @@ public final class Connection extends EventHandler
 		//
 		// Send the request.
 		//
-		TraceUtil.traceRequest("sending asynchronous request", os, _logger, _traceLevels);
+		IceInternal.TraceUtil.traceRequest("sending asynchronous request", os, 
+						   _logger, _traceLevels);
 		_transceiver.write(os, _endpoint.timeout());
 	    }
 	}
-	catch(Ice.LocalException ex)
+	catch(LocalException ex)
 	{
 	    synchronized(this)
 	    {
@@ -595,7 +598,7 @@ public final class Connection extends EventHandler
 		// this, without a very elaborate and complex design,
 		// which would be bad for performance.
 		//
-		OutgoingAsync o = (OutgoingAsync)_asyncRequests.remove(requestId);
+		IceInternal.OutgoingAsync o = (IceInternal.OutgoingAsync)_asyncRequests.remove(requestId);
 		if(o != null)
 		{
 		    assert(o == out);
@@ -607,22 +610,22 @@ public final class Connection extends EventHandler
 
     private final static byte[] _requestBatchHdr =
     {
-	Protocol.magic[0],
-	Protocol.magic[1],
-	Protocol.magic[2],
-	Protocol.magic[3],
-        Protocol.protocolMajor,
-        Protocol.protocolMinor,
-        Protocol.encodingMajor,
-        Protocol.encodingMinor,
-        Protocol.requestBatchMsg,
+	IceInternal.Protocol.magic[0],
+	IceInternal.Protocol.magic[1],
+	IceInternal.Protocol.magic[2],
+	IceInternal.Protocol.magic[3],
+        IceInternal.Protocol.protocolMajor,
+        IceInternal.Protocol.protocolMinor,
+        IceInternal.Protocol.encodingMajor,
+        IceInternal.Protocol.encodingMinor,
+        IceInternal.Protocol.requestBatchMsg,
         0, // Compression status.
         (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
         (byte)0, (byte)0, (byte)0, (byte)0  // Number of requests in batch (placeholder).
     };
 
     public synchronized void
-    prepareBatchRequest(BasicStream os)
+    prepareBatchRequest(IceInternal.BasicStream os)
     {
 	while(_batchStreamInUse && _exception == null)
 	{
@@ -649,7 +652,7 @@ public final class Connection extends EventHandler
 	    {
 		_batchStream.writeBlob(_requestBatchHdr);
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(LocalException ex)
 	    {
 		setState(StateClosed, ex);
 		throw ex;
@@ -666,7 +669,7 @@ public final class Connection extends EventHandler
     }
 
     public synchronized void
-    finishBatchRequest(BasicStream os)
+    finishBatchRequest(IceInternal.BasicStream os)
     {
         if(_exception != null)
         {
@@ -680,7 +683,7 @@ public final class Connection extends EventHandler
 	++_batchRequestNum; // Increment the number of requests in the batch.
 
 	//
-	// Give the Connection back.
+	// Give the ConnectionI back.
 	//
 	assert(_batchStreamInUse);
         _batchStreamInUse = false;
@@ -752,11 +755,12 @@ public final class Connection extends EventHandler
 		//
 		// Send the batch request.
 		//
-		TraceUtil.traceBatchRequest("sending batch request", _batchStream, _logger, _traceLevels);
+		IceInternal.TraceUtil.traceBatchRequest("sending batch request", _batchStream, 
+							_logger, _traceLevels);
 		_transceiver.write(_batchStream, _endpoint.timeout());
 	    }
 	}
-	catch(Ice.LocalException ex)
+	catch(LocalException ex)
 	{
 	    synchronized(this)
 	    {
@@ -777,7 +781,7 @@ public final class Connection extends EventHandler
 	    // Reset the batch stream, and notify that flushing is over.
 	    //
 	    _batchStream.destroy();
-	    _batchStream = new BasicStream(_instance);
+	    _batchStream = new IceInternal.BasicStream(_instance);
 	    _batchRequestNum = 0;
 	    _batchStreamInUse = false;
 	    notifyAll();
@@ -785,7 +789,7 @@ public final class Connection extends EventHandler
     }
 
     public void
-    sendResponse(BasicStream os, byte compress)
+    sendResponse(IceInternal.BasicStream os, byte compress)
     {
 	try
 	{
@@ -806,11 +810,11 @@ public final class Connection extends EventHandler
 		//
 		// Send the reply.
 		//
-		TraceUtil.traceReply("sending reply", os, _logger, _traceLevels);
+		IceInternal.TraceUtil.traceReply("sending reply", os, _logger, _traceLevels);
 		_transceiver.write(os, _endpoint.timeout());
 	    }
 	}
-	catch(Ice.LocalException ex)
+	catch(LocalException ex)
 	{
 	    synchronized(this)
 	    {
@@ -839,7 +843,7 @@ public final class Connection extends EventHandler
 		    _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
 		}
 	    }
-	    catch(Ice.LocalException ex)
+	    catch(LocalException ex)
 	    {
 		setState(StateClosed, ex);
 	    }
@@ -863,7 +867,7 @@ public final class Connection extends EventHandler
 		initiateShutdown();
 	    }
 	}
-	catch(Ice.LocalException ex)
+	catch(LocalException ex)
 	{
 	    setState(StateClosed, ex);
 	}
@@ -876,7 +880,7 @@ public final class Connection extends EventHandler
         return _endpoint.timeout();
     }
 
-    public Endpoint
+    public IceInternal.Endpoint
     endpoint()
     {
         // No mutex protection necessary, _endpoint is immutable.
@@ -884,7 +888,7 @@ public final class Connection extends EventHandler
     }
 
     public synchronized void
-    setAdapter(Ice.ObjectAdapter adapter)
+    setAdapter(ObjectAdapter adapter)
     {
 	//
 	// Before we set an adapter (or reset it) we wait until the
@@ -921,7 +925,7 @@ public final class Connection extends EventHandler
             _adapter = adapter;
             if(_adapter != null)
             {
-                _servantManager = ((Ice.ObjectAdapterI)_adapter).getServantManager();
+                _servantManager = ((ObjectAdapterI)_adapter).getServantManager();
             }
             else
             {
@@ -930,7 +934,7 @@ public final class Connection extends EventHandler
         }
     }
 
-    public synchronized Ice.ObjectAdapter
+    public synchronized ObjectAdapter
     getAdapter()
     {
 	return _adapter;
@@ -953,7 +957,7 @@ public final class Connection extends EventHandler
     }
 
     public void
-    read(BasicStream stream)
+    read(IceInternal.BasicStream stream)
     {
 	_transceiver.read(stream, 0);
 
@@ -967,23 +971,23 @@ public final class Connection extends EventHandler
 
     private final static byte[] _replyHdr =
     {
-	Protocol.magic[0],
-	Protocol.magic[1],
-	Protocol.magic[2],
-	Protocol.magic[3],
-        Protocol.protocolMajor,
-        Protocol.protocolMinor,
-        Protocol.encodingMajor,
-        Protocol.encodingMinor,
-        Protocol.replyMsg,
+	IceInternal.Protocol.magic[0],
+	IceInternal.Protocol.magic[1],
+	IceInternal.Protocol.magic[2],
+	IceInternal.Protocol.magic[3],
+        IceInternal.Protocol.protocolMajor,
+        IceInternal.Protocol.protocolMinor,
+        IceInternal.Protocol.encodingMajor,
+        IceInternal.Protocol.encodingMinor,
+        IceInternal.Protocol.replyMsg,
         (byte)0, // Compression status.
         (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
     };
 
     public void
-    message(BasicStream stream, ThreadPool threadPool)
+    message(IceInternal.BasicStream stream, IceInternal.ThreadPool threadPool)
     {
-	OutgoingAsync outAsync = null;
+	IceInternal.OutgoingAsync outAsync = null;
 	int invoke = 0;
 	int requestId = 0;
 	byte compress = 0;
@@ -1022,37 +1026,39 @@ public final class Connection extends EventHandler
 		compress = stream.readByte();
 		if(compress == (byte)2)
 		{
-		    throw new Ice.CompressionNotSupportedException();
+		    throw new CompressionNotSupportedException();
 		}
-		stream.pos(Protocol.headerSize);
+		stream.pos(IceInternal.Protocol.headerSize);
 
                 switch(messageType)
                 {
-		    case Protocol.closeConnectionMsg:
+		    case IceInternal.Protocol.closeConnectionMsg:
 		    {
-			TraceUtil.traceHeader("received close connection", stream, _logger, _traceLevels);
+			IceInternal.TraceUtil.traceHeader("received close connection", stream, 
+							  _logger, _traceLevels);
 			if(_endpoint.datagram() && _warn)
 			{
 			    _logger.warning("ignoring close connection message for datagram connection:\n" + _desc);
 			}
 			else
 			{
-			    setState(StateClosed, new Ice.CloseConnectionException());
+			    setState(StateClosed, new CloseConnectionException());
 			}
 			break;
 		    }
 
-                    case Protocol.requestMsg:
+                    case IceInternal.Protocol.requestMsg:
                     {
                         if(_state == StateClosing)
                         {
-                            TraceUtil.traceRequest("received request during closing\n" +
+                            IceInternal.TraceUtil.traceRequest("received request during closing\n" +
                                                    "(ignored by server, client will retry)",
                                                    stream, _logger, _traceLevels);
                         }
                         else
                         {
-                            TraceUtil.traceRequest("received request", stream, _logger, _traceLevels);
+                            IceInternal.TraceUtil.traceRequest("received request", stream, 
+							       _logger, _traceLevels);
 			    requestId = stream.readInt();
 			    invoke = 1;
 			    ++_dispatchCount;
@@ -1060,50 +1066,53 @@ public final class Connection extends EventHandler
                         break;
                     }
 
-                    case Protocol.requestBatchMsg:
+                    case IceInternal.Protocol.requestBatchMsg:
                     {
                         if(_state == StateClosing)
                         {
-                            TraceUtil.traceBatchRequest("received batch request during closing\n" +
-                                                        "(ignored by server, client will retry)",
-                                                        stream, _logger, _traceLevels);
+                            IceInternal.TraceUtil.traceBatchRequest
+				("received batch request during closing\n" +
+				 "(ignored by server, client will retry)",
+				 stream, _logger, _traceLevels);
                         }
                         else
                         {
-                            TraceUtil.traceBatchRequest("received batch request", stream, _logger, _traceLevels);
+                            IceInternal.TraceUtil.traceBatchRequest("received batch request",
+								    stream, _logger, _traceLevels);
 			    invoke = stream.readInt();
 			    if(invoke < 0)
 			    {
-				throw new Ice.NegativeSizeException();
+				throw new NegativeSizeException();
 			    }
 			    _dispatchCount += invoke;
                         }
                         break;
                     }
 
-                    case Protocol.replyMsg:
+                    case IceInternal.Protocol.replyMsg:
                     {
-                        TraceUtil.traceReply("received reply", stream, _logger, _traceLevels);
+                        IceInternal.TraceUtil.traceReply("received reply", stream, _logger, _traceLevels);
                         requestId = stream.readInt();
-                        Outgoing out = (Outgoing)_requests.remove(requestId);
+                        IceInternal.Outgoing out = (IceInternal.Outgoing)_requests.remove(requestId);
                         if(out != null)
                         {
 			    out.finished(stream);
 			}
 			else
 			{
-			    outAsync = (OutgoingAsync)_asyncRequests.remove(requestId);
+			    outAsync = (IceInternal.OutgoingAsync)_asyncRequests.remove(requestId);
 			    if(outAsync == null)
 			    {
-				throw new Ice.UnknownRequestIdException();
+				throw new UnknownRequestIdException();
 			    }
                         }
                         break;
                     }
 
-                    case Protocol.validateConnectionMsg:
+                    case IceInternal.Protocol.validateConnectionMsg:
                     {
-                        TraceUtil.traceHeader("received validate connection", stream, _logger, _traceLevels);
+                        IceInternal.TraceUtil.traceHeader("received validate connection", stream, 
+							  _logger, _traceLevels);
 			if(_warn)
 			{
 			    _logger.warning("ignoring unexpected validate connection message:\n" + _desc);
@@ -1113,14 +1122,14 @@ public final class Connection extends EventHandler
 
                     default:
                     {
-                        TraceUtil.traceHeader("received unknown message\n" +
+                        IceInternal.TraceUtil.traceHeader("received unknown message\n" +
                                               "(invalid, closing connection)",
                                               stream, _logger, _traceLevels);
-                        throw new Ice.UnknownMessageException();
+                        throw new UnknownMessageException();
                     }
                 }
             }
-            catch(Ice.LocalException ex)
+            catch(LocalException ex)
             {
                 setState(StateClosed, ex);
                 return;
@@ -1141,7 +1150,7 @@ public final class Connection extends EventHandler
 	// must be done outside the thread synchronization, so that nested
 	// calls are possible.
 	//
-	Incoming in = null;
+	IceInternal.Incoming in = null;
 	try
 	{
 	    while(invoke > 0)
@@ -1152,9 +1161,9 @@ public final class Connection extends EventHandler
 		//
 		boolean response = !_endpoint.datagram() && requestId != 0;
 		in = getIncoming(response, compress);
-		BasicStream is = in.is();
+		IceInternal.BasicStream is = in.is();
 		stream.swap(is);
-		BasicStream os = in.os();
+		IceInternal.BasicStream os = in.os();
 		
 		//
 		// Prepare the response if necessary.
@@ -1184,7 +1193,7 @@ public final class Connection extends EventHandler
 		in = null;
 	    }
 	}
-	catch(Ice.LocalException ex)
+	catch(LocalException ex)
 	{
 	    assert(invoke > 0);
 
@@ -1208,7 +1217,7 @@ public final class Connection extends EventHandler
 		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
 		ex.printStackTrace(pw);
 		pw.flush();
-		Ice.UnknownException exc = new Ice.UnknownException();
+		UnknownException exc = new UnknownException();
 		exc.unknown = sw.toString();
 		_logger.error(exc.unknown);
 		setState(StateClosed, exc);
@@ -1243,15 +1252,15 @@ public final class Connection extends EventHandler
     }
 
     public void
-    finished(ThreadPool threadPool)
+    finished(IceInternal.ThreadPool threadPool)
     {
 	threadPool.promoteFollower();
 
-	Ice.LocalException exception = null;
+	LocalException exception = null;
 
-	IntMap requests = null;
-	IntMap asyncRequests = null;
-        Incoming in = null;
+	IceInternal.IntMap requests = null;
+	IceInternal.IntMap asyncRequests = null;
+        IceInternal.Incoming in = null;
 
 	synchronized(this)
 	{
@@ -1271,7 +1280,7 @@ public final class Connection extends EventHandler
 		    {
 			_transceiver.close();
 		    }
-		    catch(Ice.LocalException ex)
+		    catch(LocalException ex)
 		    {
 			exception = ex;
 		    }
@@ -1284,10 +1293,10 @@ public final class Connection extends EventHandler
 	    if(_state == StateClosed || _state == StateClosing)
 	    {
 		requests = _requests;
-		_requests = new IntMap();
+		_requests = new IceInternal.IntMap();
 
 		asyncRequests = _asyncRequests;
-		_asyncRequests = new IntMap();
+		_asyncRequests = new IceInternal.IntMap();
 	    }
 	}
 
@@ -1302,8 +1311,8 @@ public final class Connection extends EventHandler
 	    java.util.Iterator i = requests.entryIterator();
 	    while(i.hasNext())
 	    {
-		IntMap.Entry e = (IntMap.Entry)i.next();
-		Outgoing out = (Outgoing)e.getValue();
+		IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
+		IceInternal.Outgoing out = (IceInternal.Outgoing)e.getValue();
 		out.finished(_exception); // The exception is immutable at this point.
 	    }
 	}
@@ -1313,8 +1322,8 @@ public final class Connection extends EventHandler
 	    java.util.Iterator i = asyncRequests.entryIterator();
 	    while(i.hasNext())
 	    {
-		IntMap.Entry e = (IntMap.Entry)i.next();
-		OutgoingAsync out = (OutgoingAsync)e.getValue();
+		IceInternal.IntMap.Entry e = (IceInternal.IntMap.Entry)i.next();
+		IceInternal.OutgoingAsync out = (IceInternal.OutgoingAsync)e.getValue();
 		out.__finished(_exception); // The exception is immutable at this point.
 	    }
 	}
@@ -1326,7 +1335,7 @@ public final class Connection extends EventHandler
     }
 
     public synchronized void
-    exception(Ice.LocalException ex)
+    exception(LocalException ex)
     {
 	setState(StateClosed, ex);
     }
@@ -1337,7 +1346,8 @@ public final class Connection extends EventHandler
 	return _desc; // No mutex lock, _desc is immutable.
     }
 
-    Connection(Instance instance, Transceiver transceiver, Endpoint endpoint, Ice.ObjectAdapter adapter)
+    public ConnectionI(IceInternal.Instance instance, IceInternal.Transceiver transceiver, 
+		       IceInternal.Endpoint endpoint, ObjectAdapter adapter)
     {
         super(instance);
         _transceiver = transceiver;
@@ -1351,7 +1361,7 @@ public final class Connection extends EventHandler
 	_acmTimeout = _endpoint.datagram() ? 0 : _instance.connectionIdleTime();
 	_acmAbsoluteTimeoutMillis = 0;
         _nextRequestId = 1;
-        _batchStream = new BasicStream(instance);
+        _batchStream = new IceInternal.BasicStream(instance);
 	_batchStreamInUse = false;
 	_batchRequestNum = 0;
         _dispatchCount = 0;
@@ -1360,8 +1370,8 @@ public final class Connection extends EventHandler
 
 	if(_adapter != null)
 	{
-	    _threadPool = ((Ice.ObjectAdapterI)_adapter).getThreadPool();
-	    _servantManager = ((Ice.ObjectAdapterI)_adapter).getServantManager();
+	    _threadPool = ((ObjectAdapterI)_adapter).getThreadPool();
+	    _servantManager = ((ObjectAdapterI)_adapter).getServantManager();
 	}
 	else
 	{
@@ -1391,7 +1401,7 @@ public final class Connection extends EventHandler
     private static final int StateClosed = 4;
 
     private void
-    setState(int state, Ice.LocalException ex)
+    setState(int state, LocalException ex)
     {
 	//
 	// If setState() is called with an exception, then only closed
@@ -1418,11 +1428,11 @@ public final class Connection extends EventHandler
 		    //
 		    // Don't warn about certain expected exceptions.
 		    //
-		    if(!(_exception instanceof Ice.CloseConnectionException ||
-			 _exception instanceof Ice.ConnectionTimeoutException ||
-			 _exception instanceof Ice.CommunicatorDestroyedException ||
-			 _exception instanceof Ice.ObjectAdapterDeactivatedException ||
-			 (_exception instanceof Ice.ConnectionLostException && _state == StateClosing)))
+		    if(!(_exception instanceof CloseConnectionException ||
+			 _exception instanceof ConnectionTimeoutException ||
+			 _exception instanceof CommunicatorDestroyedException ||
+			 _exception instanceof ObjectAdapterDeactivatedException ||
+			 (_exception instanceof ConnectionLostException && _state == StateClosing)))
 		    {
 			warning("connection exception", _exception);
 		    }
@@ -1526,7 +1536,7 @@ public final class Connection extends EventHandler
 			{
 			    _transceiver.close();
 			}
-			catch(Ice.LocalException ex)
+			catch(LocalException ex)
 			{
 			    // Here we ignore any exceptions in close().
 			}
@@ -1554,7 +1564,7 @@ public final class Connection extends EventHandler
             {
                 initiateShutdown();
             }
-            catch(Ice.LocalException ex)
+            catch(LocalException ex)
             {
                 setState(StateClosed, ex);
             }
@@ -1575,23 +1585,23 @@ public final class Connection extends EventHandler
 		// Before we shut down, we send a close connection
 		// message.
 		//
-		BasicStream os = new BasicStream(_instance);
-		os.writeByte(Protocol.magic[0]);
-		os.writeByte(Protocol.magic[1]);
-		os.writeByte(Protocol.magic[2]);
-		os.writeByte(Protocol.magic[3]);
-		os.writeByte(Protocol.protocolMajor);
-		os.writeByte(Protocol.protocolMinor);
-		os.writeByte(Protocol.encodingMajor);
-		os.writeByte(Protocol.encodingMinor);
-		os.writeByte(Protocol.closeConnectionMsg);
+		IceInternal.BasicStream os = new IceInternal.BasicStream(_instance);
+		os.writeByte(IceInternal.Protocol.magic[0]);
+		os.writeByte(IceInternal.Protocol.magic[1]);
+		os.writeByte(IceInternal.Protocol.magic[2]);
+		os.writeByte(IceInternal.Protocol.magic[3]);
+		os.writeByte(IceInternal.Protocol.protocolMajor);
+		os.writeByte(IceInternal.Protocol.protocolMinor);
+		os.writeByte(IceInternal.Protocol.encodingMajor);
+		os.writeByte(IceInternal.Protocol.encodingMinor);
+		os.writeByte(IceInternal.Protocol.closeConnectionMsg);
 		os.writeByte((byte)0); // Compression status.
-		os.writeInt(Protocol.headerSize); // Message size.
+		os.writeInt(IceInternal.Protocol.headerSize); // Message size.
 		
 		//
 		// Send the message.
 		//
-		TraceUtil.traceHeader("sending close connection", os, _logger, _traceLevels);
+		IceInternal.TraceUtil.traceHeader("sending close connection", os, _logger, _traceLevels);
 		_transceiver.write(os, _endpoint.timeout());
 		_transceiver.shutdown();
 	    }
@@ -1606,7 +1616,7 @@ public final class Connection extends EventHandler
 	    _threadPool._register(_transceiver.fd(), this);
 	    _registeredWithPool = true;
 
-	    ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
+	    IceInternal.ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
 	    if(connectionMonitor != null)
 	    {
 		connectionMonitor.add(this);
@@ -1622,7 +1632,7 @@ public final class Connection extends EventHandler
 	    _threadPool.unregister(_transceiver.fd());
 	    _registeredWithPool = false;	
 
-	    ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
+	    IceInternal.ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
 	    if(connectionMonitor != null)
 	    {
 		connectionMonitor.remove(this);
@@ -1651,16 +1661,16 @@ public final class Connection extends EventHandler
         _logger.warning(s);
     }
 
-    private Incoming
+    private IceInternal.Incoming
     getIncoming(boolean response, byte compress)
     {
-        Incoming in = null;
+        IceInternal.Incoming in = null;
 
         synchronized(_incomingCacheMutex)
         {
             if(_incomingCache == null)
             {
-                in = new Incoming(_instance, this, _adapter, response, compress);
+                in = new IceInternal.Incoming(_instance, this, _adapter, response, compress);
             }
             else
             {
@@ -1675,7 +1685,7 @@ public final class Connection extends EventHandler
     }
 
     private void
-    reclaimIncoming(Incoming in)
+    reclaimIncoming(IceInternal.Incoming in)
     {
         synchronized(_incomingCacheMutex)
         {
@@ -1684,18 +1694,18 @@ public final class Connection extends EventHandler
         }
     }
 
-    private Transceiver _transceiver;
+    private IceInternal.Transceiver _transceiver;
     private final String _desc;
-    private final Endpoint _endpoint;
+    private final IceInternal.Endpoint _endpoint;
 
-    private Ice.ObjectAdapter _adapter;
-    private ServantManager _servantManager;
+    private ObjectAdapter _adapter;
+    private IceInternal.ServantManager _servantManager;
 
-    private final Ice.Logger _logger;
-    private final TraceLevels _traceLevels;
+    private final Logger _logger;
+    private final IceInternal.TraceLevels _traceLevels;
 
     private boolean _registeredWithPool;
-    private final ThreadPool _threadPool;
+    private final IceInternal.ThreadPool _threadPool;
 
     private final boolean _warn;
 
@@ -1703,12 +1713,12 @@ public final class Connection extends EventHandler
     private long _acmAbsoluteTimeoutMillis;
 
     private int _nextRequestId;
-    private IntMap _requests = new IntMap();
-    private IntMap _asyncRequests = new IntMap();
+    private IceInternal.IntMap _requests = new IceInternal.IntMap();
+    private IceInternal.IntMap _asyncRequests = new IceInternal.IntMap();
 
-    private Ice.LocalException _exception;
+    private LocalException _exception;
 
-    private BasicStream _batchStream;
+    private IceInternal.BasicStream _batchStream;
     private boolean _batchStreamInUse;
     private int _batchRequestNum;
 
@@ -1723,6 +1733,6 @@ public final class Connection extends EventHandler
     //
     private java.lang.Object _sendMutex = new java.lang.Object();
 
-    private Incoming _incomingCache;
+    private IceInternal.Incoming _incomingCache;
     private java.lang.Object _incomingCacheMutex = new java.lang.Object();
 }

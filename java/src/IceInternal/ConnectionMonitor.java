@@ -39,14 +39,14 @@ public final class ConnectionMonitor extends Thread
     }
     
     public synchronized void
-    add(Connection connection)
+    add(Ice.ConnectionI connection)
     {
 	assert(_instance != null);
 	_connections.add(connection);
     }
     
     public synchronized void
-    remove(Connection connection)
+    remove(Ice.ConnectionI connection)
     {
 	assert(_instance != null);
 	_connections.remove(connection);
@@ -121,7 +121,7 @@ public final class ConnectionMonitor extends Thread
 	    java.util.Iterator iter = connections.iterator();
 	    while(iter.hasNext())
 	    {
-		Connection connection = (Connection)iter.next();
+		Ice.ConnectionI connection = (Ice.ConnectionI)iter.next();
 
 		try
 		{	       

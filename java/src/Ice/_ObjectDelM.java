@@ -167,7 +167,7 @@ public class _ObjectDelM implements _ObjectDel
     }
 
     protected IceInternal.Reference __reference;
-    protected IceInternal.Connection __connection;
+    protected ConnectionI __connection;
 
     public void
     setup(IceInternal.Reference ref)

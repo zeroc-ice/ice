@@ -12,7 +12,7 @@ package IceInternal;
 public class IncomingBase
 {
     protected
-    IncomingBase(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
+    IncomingBase(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
     {
         _current = new Ice.Current();
         _current.id = new Ice.Identity();
@@ -77,7 +77,7 @@ public class IncomingBase
     // reallocated.
     //
     public void
-    reset(Instance instance, Connection connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
+    reset(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter, boolean response, byte compress)
     {
 	if(_current == null)
 	{
@@ -178,5 +178,5 @@ public class IncomingBase
 
     protected BasicStream _os;
 
-    private Connection _connection;
+    private Ice.ConnectionI _connection;
 }

@@ -9,9 +9,9 @@
 
 package IceInternal;
 
-final class TraceUtil
+public final class TraceUtil
 {
-    static void
+    public static void
     traceHeader(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
         if(tl.protocol >= 1)
@@ -28,7 +28,7 @@ final class TraceUtil
         }
     }
 
-    static void
+    public static void
     traceRequest(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
         if(tl.protocol >= 1)
@@ -54,7 +54,7 @@ final class TraceUtil
         }
     }
 
-    static void
+    public static void
     traceBatchRequest(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
         if(tl.protocol >= 1)
@@ -81,7 +81,7 @@ final class TraceUtil
         }
     }
 
-    static void
+    public static void
     traceReply(String heading, BasicStream str, Ice.Logger logger, TraceLevels tl)
     {
         if(tl.protocol >= 1)

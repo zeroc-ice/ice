@@ -64,7 +64,7 @@ public class IncomingConnectionFactory extends EventHandler
 	java.util.ListIterator p = connections.listIterator();
 	while(p.hasNext())
 	{
-	    Connection connection = (Connection)p.next();
+	    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
 	    connection.waitUntilHolding();
 	}
     }
@@ -105,7 +105,7 @@ public class IncomingConnectionFactory extends EventHandler
 	java.util.ListIterator p = connections.listIterator();
 	while(p.hasNext())
 	{
-	    Connection connection = (Connection)p.next();
+	    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
 	    connection.waitUntilFinished();
 	}
     }
@@ -129,7 +129,7 @@ public class IncomingConnectionFactory extends EventHandler
         return endp.equivalent(_acceptor);
     }
 
-    public synchronized Connection[]
+    public synchronized Ice.ConnectionI[]
     connections()
     {
 	java.util.LinkedList connections = new java.util.LinkedList();
@@ -140,14 +140,14 @@ public class IncomingConnectionFactory extends EventHandler
         java.util.ListIterator p = _connections.listIterator();
         while(p.hasNext())
         {
-            Connection connection = (Connection)p.next();
+            Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
             if(!connection.isDestroyed())
             {
                 connections.add(connection);
             }
         }
 
-        Connection[] arr = new Connection[connections.size()];
+        Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.size()];
         connections.toArray(arr);
         return arr;
     }
@@ -155,7 +155,7 @@ public class IncomingConnectionFactory extends EventHandler
     public void
     flushBatchRequests()
     {
-        Connection[] c = connections(); // connections() is synchronized, so no need to synchronize here.
+        Ice.ConnectionI[] c = connections(); // connections() is synchronized, so no need to synchronize here.
 	for(int i = 0; i < c.length; i++)
 	{
 	    try
@@ -194,7 +194,7 @@ public class IncomingConnectionFactory extends EventHandler
     public void
     message(BasicStream unused, ThreadPool threadPool)
     {
-	Connection connection = null;
+	Ice.ConnectionI connection = null;
 
 	synchronized(this)
 	{
@@ -211,7 +211,7 @@ public class IncomingConnectionFactory extends EventHandler
 	    java.util.ListIterator p = _connections.listIterator();
 	    while(p.hasNext())
 	    {
-		Connection con = (Connection)p.next();
+		Ice.ConnectionI con = (Ice.ConnectionI)p.next();
 		if(con.isFinished())
 		{
 		    p.remove();
@@ -253,7 +253,7 @@ public class IncomingConnectionFactory extends EventHandler
 	    // Create a connection object for the connection.
 	    //
 	    assert(transceiver != null);
-            connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+            connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
             _connections.add(connection);
 	}
 
@@ -343,7 +343,7 @@ public class IncomingConnectionFactory extends EventHandler
             if(_transceiver != null)
             {
                 _endpoint = h.value;
-                Connection connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
+                Ice.ConnectionI connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
 		connection.validate();
                 _connections.add(connection);
 	    }
@@ -406,7 +406,7 @@ public class IncomingConnectionFactory extends EventHandler
                 java.util.ListIterator p = _connections.listIterator();
                 while(p.hasNext())
                 {
-                    Connection connection = (Connection)p.next();
+                    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
                     connection.activate();
                 }
                 break;
@@ -423,7 +423,7 @@ public class IncomingConnectionFactory extends EventHandler
                 java.util.ListIterator p = _connections.listIterator();
                 while(p.hasNext())
                 {
-                    Connection connection = (Connection)p.next();
+                    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
                     connection.hold();
                 }
                 break;
@@ -444,7 +444,7 @@ public class IncomingConnectionFactory extends EventHandler
                 java.util.ListIterator p = _connections.listIterator();
                 while(p.hasNext())
                 {   
-                    Connection connection = (Connection)p.next();
+                    Ice.ConnectionI connection = (Ice.ConnectionI)p.next();
                     connection.destroy(Connection.ObjectAdapterDeactivated);
                 }
 		break;

@@ -571,10 +571,10 @@ public final class Reference
     //
     // Get a suitable connection for this reference.
     //
-    public Connection
+    public Ice.ConnectionI
     getConnection()
     {
-	Connection connection;
+	Ice.ConnectionI connection;
 
         if(reverseAdapter != null)
         {
@@ -583,7 +583,7 @@ public final class Reference
             // connections from such object adapter.
             //
             Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)reverseAdapter;
-            Connection[] connections = adapter.getIncomingConnections();
+            Ice.ConnectionI[] connections = adapter.getIncomingConnections();
 
             Endpoint[] endpoints = new Endpoint[connections.length];
             for(int i = 0; i < connections.length; i++)
