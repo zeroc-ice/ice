@@ -3,7 +3,7 @@ Requirements
 =========================================================================
 
 - PHP5.0.0b4 (http://www.php.net/downloads.php)
-- Ice 1.2.0
+- Ice 1.3.0
 
 
 
@@ -25,10 +25,11 @@ installed in PHP via configuration directives.
 The Ice extension for PHP supports both static and dynamic
 configurations. The only supported way to compile the Ice extension
 is as part of the larger PHP build process. Unfortunately, PHP's build
-system does not completely accommodate extensions written in C++, such
-as the Ice extension. On some platforms (currently only Solaris with
-Sun CC), a bit of fiddling is required in order to get everything
-built properly.
+system does not completely accommodate extensions written in C++,
+therefore some manual intervention is required.
+
+Adding the Ice extension
+------------------------
 
 After downloading and extracting the PHP5 source code, you must
 incorporate the Ice extension sources into the PHP5 source tree.
@@ -44,12 +45,27 @@ There are two ways to do this:
    $ cd <phpdir>
    $ ln -s <icephpdir>/src/ice ext
 
+Updating configure
+------------------
+
 In order to make the PHP build system aware of the Ice extension, the
-configure script must be regenerated:
+configure script must be updated. If you have the necessary tools
+installed on your system (e.g., autoconf, etc.), you can regenerate
+the script using the following commands:
 
 $ cd <phpdir>
 $ rm -rf configure autom4te.cache
 $ ./buildconf --force
+
+Alternatively, you can use the configure script supplied in the IcePHP
+source distribution:
+
+$ cd <phpdir>
+$ cp <icephpdir>/configure.gz .
+$ gunzip configure
+
+Running configure
+-----------------
 
 Set the CC and CXX environment variables to the names of your C and
 C++ compilers, respectively.
@@ -68,9 +84,41 @@ $ ./configure --with-ice=shared,$ICE_HOME ...
 Note that additional configuration options may be generally necessary.
 Please refer to the PHP documentation for more information.
 
-If you are using Solaris with Sun CC, please refer to the section
-titled "Additional Requirements for Solaris with Sun CC" before
-proceeding any further.
+Source patches
+--------------
+
+There are a couple of issues in the PHP sources that cause problems
+for C++ compilers. A patch is provided in the IcePHP source distribution
+to correct these problems:
+
+$ cd <phpdir>
+$ patch -p < <icephpdir>/patch.txt
+
+If you don't have the patch utility or prefer to make the changes
+manually, then you must edit two files:
+
+ * Zend/zend_interfaces.h
+ * main/network.c
+
+Edit Zend/zend_interfaces.h and scroll down to the lines shown below:
+
+ZEND_API zend_class_entry *zend_ce_traversable;
+ZEND_API zend_class_entry *zend_ce_aggregate;
+ZEND_API zend_class_entry *zend_ce_iterator;
+ZEND_API zend_class_entry *zend_ce_arrayaccess;
+
+Change each occurrence of "ZEND_API" to "extern" in these four lines.
+
+Edit main/network.c and change line and change line 829 to the
+following:
+
+if (error_code == PHP_TIMEOUT_ERROR_VALUE) {
+
+If you are using Solaris with Sun CC or HP-UX with aCC, please refer
+to the relevant section below before proceeding any further.
+
+Build PHP
+---------
 
 Finally, run make:
 
@@ -106,6 +154,40 @@ the file <phpdir>/Makefile and make the following changes:
   well as in the rule for "libs/libphp5.bundle" below.
 
 Note that PHP 5 cannot be compiled using Sun CC 5.3.
+
+
+
+=========================================================================
+Additional Requirements for HP-UX with aCC
+=========================================================================
+
+Edit the file <phpdir>/libtool, search for the line beginning with
+"archive_cmds=", and change \$LD to \$CXX in the value of both
+archive_cmds and archive_expsym_cmds.
+
+If you are building the Ice extension in a static configuration, edit
+the file <phpdir>/Makefile and make the following changes:
+
+- Add a definition for EXTRA_CXXFLAGS. For 32-bit platforms, use the
+  following setting:
+
+  EXTRA_CXXFLAGS = -AA +Z -mt +DA2.0N
+
+  For 64-bit platforms, use this setting:
+
+  EXTRA_CXXFLAGS = -AA +Z -mt +DD64
+
+- Modify EXTRA_LDFLAGS_PROGRAM to append "$(EXTRA_CXXFLAGS) -Wl,+s"
+
+- If the command-line interpreter is being built, search for the
+  definition of the BUILD_CLI variable and change "$(CC)" to "$(CXX)".
+
+- If the CGI interpreter is being built, search for the definition of
+  the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
+
+- If a Web server module is being built, search for the line beginning
+  with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
+  well as in the rule for "libs/libphp5.bundle" below.
 
 
 
