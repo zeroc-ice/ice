@@ -119,6 +119,14 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	eventFed3->pub("fed3:0", context);
     }
 
+    //
+    // Before we exit, we ping all proxies as twoway, to make sure
+    // that all oneways are delivered.
+    //
+    EventPrx::uncheckedCast(eventFed1->ice_twoway())->ice_ping();
+    EventPrx::uncheckedCast(eventFed2->ice_twoway())->ice_ping();
+    EventPrx::uncheckedCast(eventFed3->ice_twoway())->ice_ping();
+
     return EXIT_SUCCESS;
 }
 

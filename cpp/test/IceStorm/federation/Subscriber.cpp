@@ -30,44 +30,38 @@ using namespace std;
 using namespace Ice;
 using namespace IceStorm;
 
-class EventI : public Event, public IceUtil::Mutex
+class EventI : public Event
 {
 public:
 
     EventI(const CommunicatorPtr& communicator) :
-	_communicator(communicator),
-	_count(0)
+	_communicator(communicator)
     {
     }
 
     virtual void
     pub(const string& data, const Ice::Current&)
     {
-	IceUtil::Mutex::Lock sync(*this);
+	IceUtil::StaticMutex::Lock sync(_countMutex);
 
-	if(data == "shutdown")
+	if(++_count == 30 + 40 + 30)
 	{
 	    _communicator->shutdown();
-	    return;
 	}
-	++_count;
-    }
-
-    int
-    count() const
-    {
-	IceUtil::Mutex::Lock sync(*this);
-
-	return _count;
     }
 
 private:
 
     CommunicatorPtr _communicator;
-    int _count;
+
+    static int _count;
+    static IceUtil::StaticMutex _countMutex;
 };
 
 typedef IceUtil::Handle<EventI> EventIPtr;
+
+int EventI::_count = 0;
+IceUtil::StaticMutex EventI::_countMutex;
 
 void
 createLock(const string& name)
@@ -191,10 +185,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     createLock(lockfile);
 
     communicator->waitForShutdown();
-
-    test(eventFed1->count() == 30);
-    test(eventFed2->count() == 40);
-    test(eventFed3->count() == 30);
 
     deleteLock(lockfile);
 

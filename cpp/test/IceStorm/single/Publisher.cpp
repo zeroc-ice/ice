@@ -64,6 +64,12 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	single->event();
     }
 
+    //
+    // Before we exit, we ping the proxy as twoway, to make sure that
+    // all oneways are delivered.
+    //
+    SinglePrx::uncheckedCast(single->ice_twoway())->ice_ping();
+
     return EXIT_SUCCESS;
 }
 
