@@ -137,6 +137,7 @@ static const string iceProps[] =
     "Trace.Protocol",
     "Trace.Retry",
     "Trace.Slicing",
+    "Trace.Location",
     "UDP.RcvSize",
     "UDP.SndSize",
     "UseSyslog",
