@@ -235,7 +235,7 @@ public:
 
     virtual void ice_preMarshal();
 
-    virtual void __write(::IceInternal::BasicStream*, bool) const;
+    virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*, bool = true);
 
 private:
@@ -254,7 +254,7 @@ public:
 
     virtual void ice_postUnmarshal();
 
-    virtual void __write(::IceInternal::BasicStream*, bool) const;
+    virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*, bool = true);
 
     void setValue(zend_class_entry*, zval*);
@@ -1448,7 +1448,7 @@ IcePHP::ObjectWriter::ice_preMarshal()
 }
 
 void
-IcePHP::ObjectWriter::__write(IceInternal::BasicStream* os, bool) const
+IcePHP::ObjectWriter::__write(IceInternal::BasicStream* os) const
 {
     MarshalerMap* marshalerMap = static_cast<MarshalerMap*>(ICE_G(marshalerMap));
 
@@ -1538,7 +1538,7 @@ IcePHP::ObjectReader::ice_postUnmarshal()
 }
 
 void
-IcePHP::ObjectReader::__write(IceInternal::BasicStream* os, bool) const
+IcePHP::ObjectReader::__write(IceInternal::BasicStream* os) const
 {
     zend_error(E_ERROR, "ObjectReader::__write should never be called");
 }
