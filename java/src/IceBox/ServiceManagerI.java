@@ -34,15 +34,29 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     {
         try
         {
+	    //
+	    // Prefix the adapter name and object identity with the value
+	    // of the IceBox.Name property.
+	    //
+	    Ice.Properties properties = _communicator.getProperties();
+	    String namePrefix = properties.getProperty("IceBox.Name");
+	    if(namePrefix.length() > 0)
+	    {
+		namePrefix += ".";
+	    }
+
             //
             // Create an object adapter. Services probably should NOT share
             // this object adapter, as the endpoint(s) for this object adapter
             // will most likely need to be firewalled for security reasons.
             //
             Ice.ObjectAdapter adapter =
-                _communicator.createObjectAdapterFromProperty("ServiceManagerAdapter",
+                _communicator.createObjectAdapterFromProperty(namePrefix + "ServiceManagerAdapter",
                                                               "IceBox.ServiceManager.Endpoints");
-            adapter.add(this, Ice.Util.stringToIdentity("ServiceManager"));
+
+	    String identity = properties.getPropertyWithDefault("IceBox.ServiceManager.Identity", 
+								namePrefix + "ServiceManager");
+            adapter.add(this, Ice.Util.stringToIdentity(identity));
 
             //
             // Load and initialize the services defined in the property set
@@ -52,7 +66,6 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             // IceBox.Service.Foo=Package.Foo [args]
             //
             final String prefix = "IceBox.Service.";
-	    Ice.Properties properties = _communicator.getProperties();
 	    java.util.Map services = properties.getPropertiesForPrefix(prefix);
 	    java.util.Iterator p = services.entrySet().iterator();
 	    while(p.hasNext())
