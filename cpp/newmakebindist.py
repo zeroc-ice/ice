@@ -128,8 +128,6 @@ def extractDemos(sources, buildDir, version, distro, demoDir):
 	os.system("rm -rf " + buildDir + "/Ice-" + version + "-demos/certs/openssl")
     if os.path.exists(buildDir + "/Ice-" + version + "-demos/certs/makecerts"):
 	os.system("rm " + buildDir + "/Ice-" + version + "-demos/certs/makecerts")
-    if os.path.exists(buildDir + "/Ice-" + version + "-demos/config/makecerts"):
-	os.system("rm " + buildDir + "/Ice-" + version + "-demos/config/makecerts")
 
     #
     # C++ specific build modifications.
