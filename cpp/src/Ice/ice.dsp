@@ -1861,7 +1861,7 @@ InputPath=..\..\slice\Ice\UserExceptionFactory.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/UserExceptionFactory.ice \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/UserExceptionFactory.ice
 	move UserExceptionFactory.h ..\..\include\Ice \
 	
 
@@ -1880,7 +1880,7 @@ InputPath=..\..\slice\Ice\UserExceptionFactory.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/UserExceptionFactory.ice \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/UserExceptionFactory.ice
 	move UserExceptionFactory.h ..\..\include\Ice \
 	
 
