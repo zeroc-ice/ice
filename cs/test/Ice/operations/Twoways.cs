@@ -540,7 +540,7 @@ class Twoways
 		test(r.Equals(ctx));
 	    }
 	    {
-		Test.MyClassPrx p2 = Test.MyClassPrxHelper._checkedCast(p.ice_newContext(ctx));
+		Test.MyClassPrx p2 = Test.MyClassPrxHelper.checkedCast(p.ice_newContext(ctx));
 		test(p2.ice_getContext().Equals(ctx));
 		Test.StringStringD r = p2.opContext();
 		test(r.Equals(ctx));

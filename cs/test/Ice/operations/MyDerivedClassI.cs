@@ -162,8 +162,8 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
                                               Ice.Current current)
     {
 	p2 = p1;
-	p3 = Test.MyClassPrxHelper._uncheckedCast(_adapter.createProxy(Ice.Util.stringToIdentity("noSuchIdentity")));
-	return Test.MyClassPrxHelper._uncheckedCast(_adapter.createProxy(_identity));
+	p3 = Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(Ice.Util.stringToIdentity("noSuchIdentity")));
+	return Test.MyClassPrxHelper.uncheckedCast(_adapter.createProxy(_identity));
     }
     
     public override Test.MyEnum opMyEnum(Test.MyEnum p1, out Test.MyEnum p2, Ice.Current current)
