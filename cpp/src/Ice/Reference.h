@@ -65,7 +65,7 @@ public:
     //
     const InstancePtr instance;
     const Ice::Identity identity;
-    const std::vector<std::string> facet;
+    const Ice::FacetPath facet;
     const Mode mode;
     const bool secure;
     const bool compress;
@@ -81,7 +81,7 @@ public:
     // certain values.
     //
     ReferencePtr changeIdentity(const Ice::Identity&) const;
-    ReferencePtr changeFacet(const std::vector<std::string>&) const;
+    ReferencePtr changeFacet(const Ice::FacetPath&) const;
     ReferencePtr changeTimeout(int) const;
     ReferencePtr changeMode(Mode) const;
     ReferencePtr changeSecure(bool) const;
@@ -94,7 +94,7 @@ public:
  
 private:
 
-    Reference(const InstancePtr&, const Ice::Identity&, const std::vector<std::string>&, Mode, bool, bool,
+    Reference(const InstancePtr&, const Ice::Identity&, const Ice::FacetPath&, Mode, bool, bool,
 	      const std::string&, const std::vector<EndpointPtr>&,
 	      const RouterInfoPtr&, const LocatorInfoPtr&,
 	      const Ice::ObjectAdapterPtr&);

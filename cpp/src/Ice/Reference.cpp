@@ -258,7 +258,7 @@ IceInternal::Reference::toString() const
     if(!facet.empty())
     {
         ostringstream f;
-        vector<string>::const_iterator p = facet.begin();
+        FacetPath::const_iterator p = facet.begin();
         while(p != facet.end())
         {
             f << encodeString(*p++, "/");
@@ -376,7 +376,7 @@ IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
 }
 
 ReferencePtr
-IceInternal::Reference::changeFacet(const vector<string>& newFacet) const
+IceInternal::Reference::changeFacet(const FacetPath& newFacet) const
 {
     if(newFacet == facet)
     {
@@ -546,13 +546,13 @@ IceInternal::Reference::changeDefault() const
     RouterInfoPtr routerInfo = instance->routerManager()->get(instance->referenceFactory()->getDefaultRouter());
     LocatorInfoPtr locatorInfo = instance->locatorManager()->get(instance->referenceFactory()->getDefaultLocator());
 
-    return instance->referenceFactory()->create(identity, vector<string>(), ModeTwoway, false, false, adapterId,
+    return instance->referenceFactory()->create(identity, FacetPath(), ModeTwoway, false, false, adapterId,
 						endpoints, routerInfo, locatorInfo, 0);
 }
 
 IceInternal::Reference::Reference(const InstancePtr& inst,
 				  const Identity& ident,
-				  const vector<string>& facPath,
+				  const FacetPath& facPath,
 				  Mode md,
 				  bool sec,
 				  bool com,
@@ -582,7 +582,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
     Int h = 0;
 	
     string::const_iterator p;
-    vector<string>::const_iterator q;
+    FacetPath::const_iterator q;
 
     for(p = identity.name.begin(); p != identity.name.end(); ++p)
     {

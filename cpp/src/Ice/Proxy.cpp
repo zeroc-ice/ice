@@ -226,7 +226,7 @@ IceProxy::Ice::Object::ice_id(const Context& __context)
     }
 }
 
-vector<string>
+FacetPath
 IceProxy::Ice::Object::ice_facets(const Context& __context)
 {
     int __cnt = 0;
@@ -311,14 +311,14 @@ IceProxy::Ice::Object::ice_newIdentity(const Identity& newIdentity) const
     }
 }
 
-vector<string>
+FacetPath
 IceProxy::Ice::Object::ice_getFacet() const
 {
     return _reference->facet;
 }
 
 ObjectPrx
-IceProxy::Ice::Object::ice_newFacet(const vector<string>& newFacet) const
+IceProxy::Ice::Object::ice_newFacet(const FacetPath& newFacet) const
 {
     if(newFacet == _reference->facet)
     {
@@ -335,7 +335,7 @@ IceProxy::Ice::Object::ice_newFacet(const vector<string>& newFacet) const
 ObjectPrx
 IceProxy::Ice::Object::ice_appendFacet(const string& f) const
 {
-    vector<string> newFacet = _reference->facet;
+    FacetPath newFacet = _reference->facet;
     newFacet.push_back(f);
     ObjectPrx proxy(new ::IceProxy::Ice::Object());
     proxy->setup(_reference->changeFacet(newFacet));
@@ -804,7 +804,7 @@ IceDelegateM::Ice::Object::ice_id(const Context& __context)
     return __ret;
 }
 
-vector<string>
+FacetPath
 IceDelegateM::Ice::Object::ice_facets(const Context& __context)
 {
     static const string __operation("ice_facets");
@@ -814,7 +814,7 @@ IceDelegateM::Ice::Object::ice_facets(const Context& __context)
     {
 	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
     }
-    vector<string> __ret;
+    FacetPath __ret;
     __is->read(__ret);
     return __ret;
 }
@@ -1110,7 +1110,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
     return false; // To keep the Visual C++ compiler happy.
 }
 
-vector<string>
+FacetPath
 IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 {
     Current __current;
@@ -1120,7 +1120,7 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
 	Direct __direct(__current);
 	return __direct.facetServant()->ice_facets(__current);
     }
-    return vector<string>(); // To keep the Visual C++ compiler happy.
+    return FacetPath(); // To keep the Visual C++ compiler happy.
 }
 
 bool
@@ -1193,4 +1193,66 @@ IceDelegateD::Ice::Object::setup(const ReferencePtr& ref, const ObjectAdapterPtr
     //
     __reference = ref;
     __adapter = adapter;
+}
+
+bool
+Ice::proxyIdentityLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    return lhs->ice_getIdentity() < rhs->ice_getIdentity();
+}
+
+bool
+Ice::proxyIdentityEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    return lhs->ice_getIdentity() == rhs->ice_getIdentity();
+}
+
+bool
+Ice::proxyIdentityAndFacetLess(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    Identity lhsIdentity = lhs->ice_getIdentity();
+    Identity rhsIdentity = rhs->ice_getIdentity();
+
+    if(lhsIdentity < rhsIdentity)
+    {
+	return true;
+    }
+    else if(rhsIdentity < lhsIdentity)
+    {
+	return false;
+    }
+
+    FacetPath lhsFacet = lhs->ice_getFacet();
+    FacetPath rhsFacet = rhs->ice_getFacet();
+
+    if(lhsFacet < rhsFacet)
+    {
+	return true;
+    }
+    else if(rhsFacet < lhsFacet)
+    {
+	return false;
+    }
+    
+    return false;
+}
+
+bool
+Ice::proxyIdentityAndFacetEqual(const ObjectPrx& lhs, const ObjectPrx& rhs)
+{
+    Identity lhsIdentity = lhs->ice_getIdentity();
+    Identity rhsIdentity = rhs->ice_getIdentity();
+
+    if(lhsIdentity == rhsIdentity)
+    {
+	FacetPath lhsFacet = lhs->ice_getFacet();
+	FacetPath rhsFacet = rhs->ice_getFacet();
+
+	if(lhsFacet == rhsFacet)
+	{
+	    return true;
+	}
+    }
+    
+    return false;
 }

@@ -88,7 +88,7 @@ public:
     void ice_ping(const ::Ice::Context& = ::Ice::Context());
     ::std::vector< ::std::string> ice_ids(const ::Ice::Context& = ::Ice::Context());
     ::std::string ice_id(const ::Ice::Context& = ::Ice::Context());
-    ::std::vector< ::std::string> ice_facets(const ::Ice::Context& = ::Ice::Context());
+    ::Ice::FacetPath ice_facets(const ::Ice::Context& = ::Ice::Context());
     bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 	            ::std::vector< ::Ice::Byte>&,
 		    const ::Ice::Context& = ::Ice::Context()); // Returns true if ok, false if user exception.
@@ -96,8 +96,8 @@ public:
     ::Ice::Identity ice_getIdentity() const;
     ::Ice::ObjectPrx ice_newIdentity(const ::Ice::Identity&) const;
 
-    ::std::vector< ::std::string> ice_getFacet() const;
-    ::Ice::ObjectPrx ice_newFacet(const ::std::vector< ::std::string>&) const;
+    ::Ice::FacetPath ice_getFacet() const;
+    ::Ice::ObjectPrx ice_newFacet(const ::Ice::FacetPath&) const;
     ::Ice::ObjectPrx ice_appendFacet(const ::std::string&) const;
 
     ::Ice::ObjectPrx ice_twoway() const;
@@ -149,7 +149,7 @@ public:
     virtual void ice_ping(const ::Ice::Context&) = 0;
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&) = 0;
     virtual ::std::string ice_id(const ::Ice::Context&) = 0;
-    virtual ::std::vector< ::std::string> ice_facets(const ::Ice::Context&) = 0;
+    virtual ::Ice::FacetPath ice_facets(const ::Ice::Context&) = 0;
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&) = 0;
     virtual void ice_flush() = 0;
@@ -170,7 +170,7 @@ public:
     virtual void ice_ping(const ::Ice::Context&);
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     virtual ::std::string ice_id(const ::Ice::Context&);
-    virtual ::std::vector< ::std::string> ice_facets(const ::Ice::Context&);
+    virtual ::Ice::FacetPath ice_facets(const ::Ice::Context&);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
     virtual void ice_flush();
@@ -204,7 +204,7 @@ public:
     virtual void ice_ping(const ::Ice::Context&);
     virtual ::std::vector< ::std::string> ice_ids(const ::Ice::Context&);
     virtual ::std::string ice_id(const ::Ice::Context&);
-    virtual ::std::vector< ::std::string> ice_facets(const ::Ice::Context&);
+    virtual ::Ice::FacetPath ice_facets(const ::Ice::Context&);
     virtual bool ice_invoke(const ::std::string&, ::Ice::OperationMode, const ::std::vector< ::Ice::Byte>&,
 			    ::std::vector< ::Ice::Byte>&, const ::Ice::Context&);
     virtual void ice_flush();
@@ -225,6 +225,17 @@ private:
 };
 
 } }
+
+namespace Ice
+{
+
+ICE_API bool proxyIdentityLess(const ObjectPrx&, const ObjectPrx&);
+ICE_API bool proxyIdentityEqual(const ObjectPrx&, const ObjectPrx&);
+
+ICE_API bool proxyIdentityAndFacetLess(const ObjectPrx&, const ObjectPrx&);
+ICE_API bool proxyIdentityAndFacetEqual(const ObjectPrx&, const ObjectPrx&);
+
+}
 
 #endif
 
