@@ -189,7 +189,7 @@ Additional Requirements for MacOS X
 =========================================================================
 
 Edit the file <phpdir>/libtool, search for the line beginning with
-"archive_cmds=", and change \$LD to \$CXX.
+"archive_cmds=", and change \$CC to \$CXX.
 
 If you are building the Ice extension in a static configuration, edit
 the file <phpdir>/Makefile and make the following changes:
