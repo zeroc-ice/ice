@@ -82,7 +82,7 @@ public class Client
                 System.err.println("Client: " + ex + ":\n" + ex.reason);
                 return 1;
             }
-            catch(Glacier.InvalidPasswordException ex)
+            catch(Glacier.PermissionDeniedException ex)
             {
                 System.err.println("password is invalid, try again");
                 continue;
