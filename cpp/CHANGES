@@ -1,32 +1,33 @@
 Changes since version 1.5.1
 ---------------------------
 
-- Fixed a code generation problem in slice2cpp. This problem showed up
-  only for the --impl option.
+- Fixed a code generation problem in slice2cpp. This problem showed
+  up only for the --impl option.
 
-- Changed the way C++ keywords are escaped. Previously, a Slice identifier
-  that is a C++ keyword was escaped everywhere. For example, Slice "while"
-  was mapped to "_cpp_while" and _cpp_whilePrx". With the change, Slice
-  "while" mapped to "_cpp_while" and "whilePrx".
+- Changed the way C++ keywords are escaped. Previously, a Slice
+  identifier that is a C++ keyword was escaped everywhere. For
+  example, Slice "while" was mapped to "_cpp_while" and
+  "_cpp_whilePrx". With the change, Slice "while" is mapped to
+  "_cpp_while" and "whilePrx".
 
-- Fixed the slice2java and slice2cs compilers for operations with multiple
-  exceptions in an exception specification: if an exception was a base of one or
-  more other exceptions in the same exception specification, the code
-  generator sometimes emitted the catch blocks in the marshaling and
-  dispatch code in the wrong order. (This applied only to interfaces
-  with an ["amd"] metadata directive.)
+- Fixed the slice2java and slice2cs compilers for operations with
+  multiple exceptions in an exception specification: if an exception
+  was a base of one or more other exceptions in the same exception
+  specification, the code generator sometimes emitted the catch
+  blocks in the marshaling and dispatch code in the wrong order.
+  (This applied only to interfaces with an ["amd"] metadata
+  directive.)
 
 - Fixed a bug in the slice2cs code generator:
   
   ["cs:collection"] sequence<Object> S1;
   ["cs:collection"] sequence<Object*> S2;
 
-  Sequences of Object or Object* caused incorrect code
-  to be generated if they were marked as "cs:collection".
+  Sequences of Object or Object* caused incorrect code to be
+  generated if they were marked as "cs:collection".
 
-- Fixed a number of bugs in slice2cs that cause incorrect
-  code to be generated if C# keywords were used as Slice
-  identifiers.
+- Fixed a number of bugs in slice2cs that caused incorrect code to
+  be generated if C# keywords were used as Slice identifiers.
 
 - Fixed a bug in slice2cpp that permitted impossible exceptions
   to be received by a client if client and server used Slice
@@ -37,8 +38,8 @@ Changes since version 1.5.1
 
 - The documentation has always stated that same-named constructs
   cannot be directly nested inside each other. (For example, a
-  module `M' cannot contain a constant named `M'. The slice2cpp
-  compiler did not enforce this correctly up to now for modules
+  module `M' cannot contain a constant named `M'.) The Slice
+  compilers did not enforce this correctly up to now for modules
   containing constructs with the same name as the enclosing module.
   This has been fixed and now results in a diagnostic.
 
@@ -59,7 +60,7 @@ Changes since version 1.5.1
   node.
 
 - Fixed a hang in the IcePack registry that would occur if multiple
-  node were started simultaneously.
+  nodes were started simultaneously.
 
 - Added new properties Ice.StdErr and Ice.StdOut to redirect the
   standard error and output streams of a process. Reimplemented
