@@ -91,14 +91,81 @@ LINK32=link.exe
 
 SOURCE=.\Admin.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\Grammar.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Parser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Scanner.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\Grammar.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Parser.h
+# End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\Grammar.y
+
+!IF  "$(CFG)" == "IceStormC - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "IceStormC - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\Grammar.y
+
+BuildCmds= \
+	bison -dvt Grammar.y \
+	move Grammar.tab.c Grammar.cpp \
+	move Grammar.tab.h Grammar.h \
+	
+
+"Grammar.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Grammar.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\Scanner.l
+
+!IF  "$(CFG)" == "IceStormC - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "IceStormC - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\Scanner.l
+
+"Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	flex Scanner.l 
+	move lex.yy.c Scanner.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Group
 # End Target
 # End Project
