@@ -15,6 +15,8 @@
 #ifndef ICE_OUTGOING_ASYNC_H
 #define ICE_OUTGOING_ASYNC_H
 
+#include <IceUtil/Monitor.h>
+#include <IceUtil/RecMutex.h>
 #include <IceUtil/Time.h>
 #include <Ice/OutgoingAsyncF.h>
 #include <Ice/ReferenceF.h>
@@ -60,12 +62,16 @@ private:
     void warning(const std::exception&) const;
     void warning() const;
 
+    void cleanup();
+
     ReferencePtr _reference;
     ConnectionPtr _connection;
     int _cnt;
     Ice::OperationMode _mode;
 
     IceUtil::Time _absoluteTimeout;
+
+    IceUtil::Monitor<IceUtil::RecMutex> _monitor;
 };
 
 }

@@ -36,8 +36,14 @@ public final class Outgoing
     public void
     destroy()
     {
-        _os.destroy();
+	assert(_is != null);
         _is.destroy();
+	_is = null;
+
+	assert(_os != null);
+        _os.destroy();
+	_os = null;
+
     }
 
     //
@@ -50,7 +56,10 @@ public final class Outgoing
         _state = StateUnsent;
         _exception = null;
 
+	assert(_is != null);
         _is.reset();
+
+	assert(_os != null);
         _os.reset();
 
         writeHeader(operation, mode, context);
