@@ -82,6 +82,7 @@ inlineResize(Buffer* buffer, int total)
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }
+    buffer->b.reserve(max(static_cast<size_t>(total), 2 * buffer->b.capacity()));
     buffer->b.resize(total);
 }
 
