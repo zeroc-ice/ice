@@ -135,12 +135,14 @@ Additional Requirements for Solaris with Sun CC
    "archive_cmds=", and change \$LD to \$CXX in the value of both
    archive_cmds and archive_expsym_cmds.
 
-2. If you are building the Ice extension in a dynamic configuration, edit
+2. Edit the file <phpdir>/Makefile and add -D__sparc__ to CFLAGS.
+
+3. If you are building the Ice extension in a dynamic configuration, edit
    the file <phpdir>/Makefile and add the following definition:
 
      EXTRA_CXXFLAGS = -DCOMPILE_DL_ICE
 
-3. If you are building the Ice extension in a static configuration, edit
+4. If you are building the Ice extension in a static configuration, edit
    the file <phpdir>/Makefile and make the following changes:
 
    - If the command-line interpreter is being built, search for the
