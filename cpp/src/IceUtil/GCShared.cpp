@@ -18,11 +18,22 @@ GCObjectSet gcObjects;
 
 using namespace IceUtil;
 
+IceUtil::GCShared::GCShared() :
+    _ref(0),
+    _noDelete(false)
+{
+}
+
+IceUtil::GCShared::~GCShared()
+{
+}
+
 void
 IceUtil::GCShared::__incRef()
 {
     gcRecMutex._m->lock();
-    __incRefUnsafe();
+    assert(_ref >= 0);
+    ++_ref;
     gcRecMutex._m->unlock();
 }
 
@@ -30,25 +41,27 @@ void
 IceUtil::GCShared::__decRef()
 {
     gcRecMutex._m->lock();
-
     bool doDelete = false;
-#if defined(_WIN32)
-    if(InterlockedDecrement(&_ref) == 0)
-#elif defined(ICE_HAS_ATOMIC_FUNCTIONS)
-    if(ice_atomic_dec_and_test(&_ref))
-#else
+    assert(_ref > 0);
     if(--_ref == 0)
-#endif
     {
 	doDelete = !_noDelete;
 	_noDelete = true;
     }
     gcRecMutex._m->unlock();
-
     if(doDelete)
     {
 	delete this;
     }
+}
+
+int
+IceUtil::GCShared::__getRef() const
+{
+    gcRecMutex._m->lock();
+    int ref = _ref;
+    gcRecMutex._m->unlock();
+    return ref;
 }
 
 void
@@ -56,5 +69,16 @@ IceUtil::GCShared::__setNoDelete(bool b)
 {
     gcRecMutex._m->lock();
     _noDelete = b;
+    gcRecMutex._m->unlock();
+}
+
+void
+IceUtil::GCShared::__addObject(GCObjectMultiSet& c, GCShared* p)
+{
+    gcRecMutex._m->lock();
+    if(p)
+    {
+	c.insert(p);
+    }
     gcRecMutex._m->unlock();
 }

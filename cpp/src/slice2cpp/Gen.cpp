@@ -654,7 +654,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     {
 	H << sp << nl << "static " << name << " __" << p->name() << "_init;";
     }
-
 }
 
 bool
@@ -2914,7 +2913,8 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 	C << sp << nl << "void" << nl << scoped.substr(2) << "::__incRef()";
 	C << sb;
 	C << nl << "IceUtil::gcRecMutex._m->lock();";
-        C << nl << "if(__getRefUnsafe() == 0)";
+	C << nl << "assert(_ref >= 0);";
+        C << nl << "if(_ref == 0)";
 	C << sb;
 	C.zeroIndent();
 	C << nl << "#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...";
@@ -2929,7 +2929,7 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 	C << nl << "#endif";
 	C.restoreIndent();
 	C << eb;
-	C << nl << "__incRefUnsafe();";
+	C << nl << "++_ref;";
 	C << nl << "IceUtil::gcRecMutex._m->unlock();";
 	C << eb;
 
@@ -2939,8 +2939,8 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 	C << sb;
 	C << nl << "IceUtil::gcRecMutex._m->lock();";
 	C << nl << "bool doDelete = false;";
-	C << nl << "__decRefUnsafe();";
-	C << nl << "if(__getRefUnsafe() == 0)";
+	C << nl << "assert(_ref > 0);";
+	C << nl << "if(--_ref == 0)";
 	C << sb;
 	C << nl << "doDelete = !_noDelete;";
 	C << nl << "_noDelete = true;";
@@ -2958,7 +2958,7 @@ Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 	C.restoreIndent();
 	C << eb;
 	C << nl << "IceUtil::gcRecMutex._m->unlock();";
-	C << sp << nl << "if(doDelete) // Outside the lock to avoid deadlock.";
+	C << nl << "if(doDelete)";
 	C << sb;
 	C << nl << "delete this;";
 	C << eb;

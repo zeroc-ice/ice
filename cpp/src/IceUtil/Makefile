@@ -20,6 +20,7 @@ OBJS		= Base64.o \
 		  CountDownLatch.o \
 		  CtrlCHandler.o \
 		  Exception.o \
+		  Shared.o \
 		  GC.o \
 		  GCRecMutex.o \
 		  GCShared.o \

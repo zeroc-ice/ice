@@ -134,6 +134,10 @@ SOURCE=.\GCRecMutex.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Shared.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\GCShared.cpp
 # End Source File
 # Begin Source File

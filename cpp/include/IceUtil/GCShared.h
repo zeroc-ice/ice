@@ -37,6 +37,16 @@ public:
     int __getRef() const;
     void __setNoDelete(bool);
 
+    int __getRefUnsafe() const
+    {
+	return _ref;
+    }
+
+    void __decRefUnsafe()
+    {
+	--_ref;
+    }
+
     virtual void __gcReachable(GCObjectMultiSet&) const = 0;
     virtual void __gcClear() = 0;
 
