@@ -326,6 +326,13 @@ Ice::CloseConnectionException::ice_print(ostream& out) const
 }
 
 void
+Ice::ForcedCloseConnectionException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: connection forcefully closed";
+}
+
+void
 Ice::AbortBatchRequestException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

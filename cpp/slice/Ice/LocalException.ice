@@ -400,7 +400,7 @@ local exception ProtocolException
      * The reason for the failure.
      *
      **/
-    string reason;
+//    string reason;
 };
 
 /**
@@ -557,6 +557,19 @@ local exception CloseConnectionException extends ProtocolException
 
 /**
  *
+ * This exception is raised by an operation call if the application
+ * forcefully closes the connection used by this call with
+ * [Connection::close].
+ *
+ * @see Connection::close
+ *
+ **/
+local exception ForcedCloseConnectionException extends ProtocolException
+{
+};
+
+/**
+ *
  * This exception is a specialization of [ProtocolException],
  * indicating that a batch request has been aborted.
  *
@@ -601,21 +614,21 @@ local exception CompressionException extends ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException] that is
- * raised upon an error during marshaling or unmarshaling data.
+ * raised if a datagram exceeds the configured send or receive buffer
+ * size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
  *
  **/
-local exception MarshalException extends ProtocolException
+local exception DatagramLimitException extends ProtocolException
 {
 };
 
 /**
  *
  * This exception is a specialization of [ProtocolException] that is
- * raised if a datagram exceeds the configured send or receive buffer
- * size, or exceeds the maximum payload size of a UDP packet (65507 bytes).
+ * raised upon an error during marshaling or unmarshaling data.
  *
  **/
-local exception DatagramLimitException extends ProtocolException
+local exception MarshalException extends ProtocolException
 {
 };
 

@@ -198,7 +198,7 @@ const Int64 Int64Max = 0x7fffffffffffffffLL;
 //
 typedef int64_t Int64;
 #   ifdef INT64_MIN
-const Int64 Int64Min = -0x7fffffffffffffffLL-1LL
+const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
 #   else
 const Int64 Int64Min = INT64_MIN;
 #   endif

@@ -205,6 +205,15 @@ Ice::ConnectionI::destroy(DestructionReason reason)
     }
 }
 
+void
+Ice::ConnectionI::close(bool force)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    
+    
+}
+
 bool
 Ice::ConnectionI::isDestroyed() const
 {

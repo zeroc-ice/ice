@@ -52,6 +52,7 @@ public:
     void activate();
     void hold();
     void destroy(DestructionReason);
+    virtual void close(bool); // From Connection.
 
     bool isDestroyed() const;
     bool isFinished() const;

@@ -24,6 +24,20 @@ local interface Connection
 {
     /**
      *
+     * Close a connection, either gracefully or forcefully. If a
+     * connection is closed forcefully, it closes immediately, without
+     * sending the relevant close connection protocol messages to the
+     * peer and waiting for the peer to acknowledge these protocol
+     * messages.
+     *
+     * @param force If true, close forcefully. Otherwise the
+     * connection is closed gracefully.
+     *
+     **/
+    void close(bool force);
+
+    /**
+     *
      * Flush any pending batch requests for this connection. This
      * causes all batch requests that were sent via proxies that use
      * this connection to be sent to the server.
