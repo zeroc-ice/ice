@@ -1101,6 +1101,12 @@ public class BasicStream
         return _limit;
     }
 
+    boolean
+    isEmpty()
+    {
+        return _limit == 0;
+    }
+
     private void
     expand(int size)
     {

@@ -903,7 +903,7 @@ public final class ThreadPool
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                 ex.printStackTrace(pw);
                 pw.flush();
-                String s = "exception in thread pool:\n" + sw.toString();
+                String s = "exception in thread pool thread " + getName() + ":\n" + sw.toString();
                 _instance.logger().error(s);
             }
             catch(RuntimeException ex)

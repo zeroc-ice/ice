@@ -94,6 +94,10 @@ public abstract class OutgoingAsync
 	try
 	{
 	    _connection.sendAsyncRequest(this);
+	    if(_connection.timeout() >= 0)
+	    {
+		_absoluteTimeoutMillis = System.currentTimeMillis() + _connection.timeout() * 1000;
+	    }
 	}
         catch(RuntimeException ex)
 	{
@@ -227,6 +231,19 @@ public abstract class OutgoingAsync
 	}
     }
 
+    public boolean
+    __timedOut()
+    {
+	if(_connection.timeout() >= 0)
+	{
+	    return System.currentTimeMillis() >= _absoluteTimeoutMillis;
+	}
+	else
+	{
+	    return false;
+	}
+    }
+
     public BasicStream
     __is()
     {
@@ -273,6 +290,7 @@ public abstract class OutgoingAsync
     }
 
     private Connection _connection;
+    private long _absoluteTimeoutMillis;
     private BasicStream _is;
     private BasicStream _os;
 }

@@ -94,6 +94,45 @@ public final class Connection extends EventHandler
     }
 
     public synchronized void
+    monitor()
+    {
+	if(_state != StateActive)
+	{
+	    return;
+	}
+	
+	//
+	// Check for timed out async requests.
+	//
+	java.util.Iterator i = _asyncRequests.entryIterator();
+	while(i.hasNext())
+	{
+	    IntMap.Entry e = (IntMap.Entry)i.next();
+	    OutgoingAsync out = (OutgoingAsync)e.getValue();
+	    if(out.__timedOut())
+	    {
+		setState(StateClosed, new Ice.TimeoutException());
+		return;
+	    }
+	}
+
+	//
+	// Active connection management for idle connections.
+	//
+	if(_acmTimeout > 0 &&
+	   _requests.isEmpty() && _asyncRequests.isEmpty() &&
+	   !_batchStreamInUse && _batchStream.isEmpty() &&
+	   _dispatchCount == 0)
+	{
+	    if(System.currentTimeMillis() >= _acmAbsoluteTimeoutMillis)
+	    {
+		setState(StateClosing, new Ice.ConnectionTimeoutException());
+		return;
+	    }
+	}	    
+    }
+
+    public synchronized void
     validate()
     {
 	if(!_endpoint.datagram()) // Datagram connections are always implicitly validated.
@@ -162,6 +201,21 @@ public final class Connection extends EventHandler
 	// We only print warnings after successful connection validation.
 	//
 	_warn = _instance.properties().getPropertyAsInt("Ice.Warn.Connections") > 0 ? true : false;
+	
+	//
+	// We only use active connection management after successful
+	// connection validation. We don't use active connection
+	// management for datagram connections at all, because such
+	// "virtual connections" cannot be reestablished.
+	//
+	if(!_endpoint.datagram())
+	{
+	    _acmTimeout = _instance.properties().getPropertyAsInt("Ice.ConnectionIdleTime");
+	    if(_acmTimeout > 0)
+	    {
+		_acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+	    }
+	}
     }
 
     public synchronized void
@@ -257,6 +311,11 @@ public final class Connection extends EventHandler
 	{
 	    _requests.put(requestId, out);
 	}
+
+	if(_acmTimeout > 0)
+	{
+	    _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+	}
     }
 
     public synchronized void
@@ -304,6 +363,11 @@ public final class Connection extends EventHandler
 	// Only add to the request map if there was no exception.
 	//
 	_asyncRequests.put(requestId, out);
+
+	if(_acmTimeout > 0)
+	{
+	    _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+	}
     }
 
     private final static byte[] _requestBatchHdr =
@@ -335,21 +399,26 @@ public final class Connection extends EventHandler
         }
         assert(_state < StateClosing);
 
-        //
-        // The Connection now belongs to the caller, until
-        // finishBatchRequest() is called.
-        //
-
-        if(_batchStream.size() == 0)
+        if(_batchStream.isEmpty())
         {
-            _batchStream.writeBlob(_requestBatchHdr);
+	    try
+	    {
+		_batchStream.writeBlob(_requestBatchHdr);
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		setState(StateClosed, ex);
+		throw ex;
+	    }
         }
 
-        //
-        // Give the batch stream to caller, until finishBatchRequest()
-        // or abortBatchRequest() is called.
-        //
         _batchStreamInUse = true;
+	_batchStream.swap(os);
+
+	//
+	// _batchStream now belongs to the caller, until
+	// finishBatchRequest() or abortBatchRequest() is called.
+	//
     }
 
     public synchronized void
@@ -399,6 +468,11 @@ public final class Connection extends EventHandler
 	    }
 	}
 
+	if(_batchStream.isEmpty())
+	{
+	    return; // Nothing to send.
+	}
+	    
 	if(_exception != null)
 	{
 	    throw _exception;
@@ -407,11 +481,6 @@ public final class Connection extends EventHandler
 	
 	try
 	{
-	    if(_batchStream.size() == 0)
-	    {
-		return; // Nothing to send.
-	    }
-	    
 	    _batchStream.pos(3);
 	    
 	    //
@@ -442,6 +511,11 @@ public final class Connection extends EventHandler
 	    setState(StateClosed, ex);
 	    assert(_exception != null);
 	    throw _exception;
+	}
+
+	if(_acmTimeout > 0)
+	{
+	    _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
 	}
     }
 
@@ -481,6 +555,11 @@ public final class Connection extends EventHandler
 	catch(Ice.LocalException ex)
 	{
 	    setState(StateClosed, ex);
+	}
+
+	if(_acmTimeout > 0)
+	{
+	    _acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
 	}
     }
 
@@ -568,6 +647,13 @@ public final class Connection extends EventHandler
     read(BasicStream stream)
     {
         _transceiver.read(stream, 0);
+
+	//
+	// Updating _acmAbsoluteTimeoutMillis is to expensive here, because
+	// we would have to acquire a lock just for this
+	// purpose. Instead, we update _acmAbsoluteTimeoutMillis in
+	// message().
+	//
     }
 
     private final static byte[] _replyHdr =
@@ -595,6 +681,11 @@ public final class Connection extends EventHandler
                 Thread.yield();
                 return;
             }
+
+	    if(_acmTimeout > 0)
+	    {
+		_acmAbsoluteTimeoutMillis = System.currentTimeMillis() + _acmTimeout * 1000;
+	    }
 
             try
             {
@@ -841,6 +932,8 @@ public final class Connection extends EventHandler
         _traceLevels = instance.traceLevels();
 	_registeredWithPool = false;
 	_warn = false;
+	_acmTimeout = 0;
+	_acmAbsoluteTimeoutMillis = 0;
         _nextRequestId = 1;
         _batchStream = new BasicStream(instance);
 	_batchStreamInUse = false;
@@ -888,6 +981,7 @@ public final class Connection extends EventHandler
                 // Don't warn about certain expected exceptions.
                 //
                 if(!(_exception instanceof Ice.CloseConnectionException ||
+		     _exception instanceof Ice.ConnectionTimeoutException ||
 		     _exception instanceof Ice.CommunicatorDestroyedException ||
 		     _exception instanceof Ice.ObjectAdapterDeactivatedException ||
 		     (_exception instanceof Ice.ConnectionLostException && _state == StateClosing)))
@@ -913,8 +1007,8 @@ public final class Connection extends EventHandler
 	    while(i.hasNext())
 	    {
 		IntMap.Entry e = (IntMap.Entry)i.next();
-		Outgoing out = (Outgoing)e.getValue();
-		out.finished(_exception);
+		OutgoingAsync out = (OutgoingAsync)e.getValue();
+		out.__finished(_exception);
 	    }
 	    _asyncRequests.clear();
 	}
@@ -1057,6 +1151,12 @@ public final class Connection extends EventHandler
 	    }
 
 	    _registeredWithPool = true;
+
+	    ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
+	    if(connectionMonitor != null)
+	    {
+		connectionMonitor.add(this);
+	    }
 	}
     }
 
@@ -1077,6 +1177,12 @@ public final class Connection extends EventHandler
 	    }
 
 	    _registeredWithPool = false;	
+
+	    ConnectionMonitor connectionMonitor = _instance.connectionMonitor();
+	    if(connectionMonitor != null)
+	    {
+		connectionMonitor.remove(this);
+	    }
 	}
     }
 
@@ -1165,6 +1271,9 @@ public final class Connection extends EventHandler
     private boolean _registeredWithPool;
 
     private boolean _warn;
+
+    private int _acmTimeout;
+    private long _acmAbsoluteTimeoutMillis;
 
     private int _nextRequestId;
     private IntMap _requests = new IntMap();

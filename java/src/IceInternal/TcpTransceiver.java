@@ -98,8 +98,7 @@ final class TcpTransceiver implements Transceiver
 
                 if(_traceLevels.network >= 3)
                 {
-                    String s = "sent " + ret + " of " + buf.limit() +
-                        " bytes via tcp\n" + toString();
+                    String s = "sent " + ret + " of " + buf.limit() + " bytes via tcp\n" + toString();
                     _logger.trace(_traceLevels.networkCat, s);
                 }
             }

@@ -79,6 +79,12 @@ public class Instance
         return _outgoingConnectionFactory;
     }
 
+    public synchronized ConnectionMonitor
+    connectionMonitor()
+    {
+        return _connectionMonitor;
+    }
+
     public synchronized ObjectFactoryManager
     servantFactoryManager()
     {
@@ -191,6 +197,13 @@ public class Instance
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 
+	    int acmTimeout = _properties.getPropertyAsInt("Ice.ConnectionIdleTime");
+	    int interval = _properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", acmTimeout);
+	    if(interval > 0)
+	    {
+		_connectionMonitor = new ConnectionMonitor(this, interval);
+	    }
+
             _servantFactoryManager = new ObjectFactoryManager();
 
             _userExceptionFactoryManager = new UserExceptionFactoryManager();
@@ -214,6 +227,7 @@ public class Instance
         assert(_referenceFactory == null);
         assert(_proxyFactory == null);
         assert(_outgoingConnectionFactory == null);
+	assert(_connectionMonitor == null);
         assert(_servantFactoryManager == null);
         assert(_userExceptionFactoryManager == null);
         assert(_objectAdapterFactory == null);
@@ -281,6 +295,12 @@ public class Instance
 	    _objectAdapterFactory = null;
 	    _outgoingConnectionFactory = null;
 	    
+	    if(_connectionMonitor != null)
+	    {
+		_connectionMonitor.destroy();
+		_connectionMonitor = null;
+	    }
+
 	    if(_serverThreadPool != null)
 	    {
 		_serverThreadPool.destroy();
@@ -347,6 +367,7 @@ public class Instance
     private ReferenceFactory _referenceFactory;
     private ProxyFactory _proxyFactory;
     private OutgoingConnectionFactory _outgoingConnectionFactory;
+    private ConnectionMonitor _connectionMonitor;
     private ObjectFactoryManager _servantFactoryManager;
     private UserExceptionFactoryManager _userExceptionFactoryManager;
     private ObjectAdapterFactory _objectAdapterFactory;
