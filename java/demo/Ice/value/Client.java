@@ -61,13 +61,25 @@ public class Client
 
         System.out.println();
         System.out.println("Ok, this worked. Now let's try to transfer an object for a class");
-        System.out.println("with operations, without installing a factory first. This should");
-        System.out.println("give us a `no factory' exception.");
+        System.out.println("with operations as type Ice.Object. Because no factory is installed,");
+        System.out.println("the class will be sliced to Ice.Object.");
+        System.out.println("[press enter]");
+        readline(in);
+
+	Ice.Object obj = initial.getPrinterAsObject();
+	System.out.println("The type ID of the received object is \"" + obj.ice_id(null) + "\"");
+	assert(obj.ice_id(null).equals("::Ice::Object"));
+
+        System.out.println();
+        System.out.println("Yes, this worked. Now let's try to transfer an object for a class");
+        System.out.println("with operations as type Printer, without installing a factory first.");
+        System.out.println("This should give us a `no factory' exception.");
         System.out.println("[press enter]");
         readline(in);
 
         PrinterHolder printer = new PrinterHolder();
         PrinterPrxHolder printerProxy = new PrinterPrxHolder();
+	boolean gotException = false;
         try
         {
             initial.getPrinter(printer, printerProxy);
@@ -75,7 +87,9 @@ public class Client
         catch(Ice.NoObjectFactoryException ex)
         {
             System.out.println("==> " + ex);
+	    gotException = true;
         }
+	assert(gotException);
 
         System.out.println();
         System.out.println("Yep, that's what we expected. Now let's try again, but with");
@@ -102,34 +116,27 @@ public class Client
         System.out.println();
         System.out.println("Now we call the same method, but on the remote object. Watch the");
         System.out.println("server's output.");
-        System.out.println("[press enter]");
+        System.out.println("press enter]");
         readline(in);
 
         printerProxy.value.printBackwards();
 
         System.out.println();
         System.out.println("Next, we transfer a derived object from the server as base");
-        System.out.println("object. Since we didn't install a factory for the derived");
-        System.out.println("class yet, we will get another `no factory' exception.");
+        System.out.println("object. Since we haven't yet installed a factory for the derived");
+        System.out.println("class, the derived class (DerivedPrinter) is sliced");
+        System.out.println("to its base class (Printer).");
         System.out.println("[press enter]");
         readline(in);
 
-        Printer derivedAsBase;
-        try
-        {
-            derivedAsBase = initial.getDerivedPrinter();
-            assert(false);
-        }
-        catch(Ice.NoObjectFactoryException ex)
-        {
-            System.out.println("==> " + ex);
-        }
+        Printer derivedAsBase = initial.getDerivedPrinter();
+	System.out.println("The type ID of the received object is \"" + derivedAsBase.ice_id(null) + "\"");
+	assert(derivedAsBase.ice_id(null).equals("::Printer"));
 
         System.out.println();
         System.out.println("Now we install a factory for the derived class, and try again.");
-        System.out.println("We won't get a `no factory' exception anymore, but since we");
-        System.out.println("receive the derived object as base object, we need to do a");
-        System.out.println("dynamic_cast<> to get from the base to the derived object.");
+        System.out.println("Because we receive the derived object as base object,");
+	System.out.println("we need to do a class cast to get from the base to the derived object.");
         System.out.println("[press enter]");
         readline(in);
 
@@ -138,7 +145,8 @@ public class Client
         derivedAsBase = initial.getDerivedPrinter();
         DerivedPrinter derived = (DerivedPrinter)derivedAsBase;
 
-        System.out.println("==> dynamic_cast<> to derived object succeded");
+        System.out.println("==> class cast to derived object succeded");
+	System.out.println("The type ID of the received object is \"" + derived.ice_id(null) + "\"");
 
         System.out.println();
         System.out.println("Let's print the message contained in the derived object, and");

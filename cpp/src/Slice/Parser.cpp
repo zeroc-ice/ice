@@ -84,6 +84,70 @@ Slice::Builtin::isLocal() const
     return _kind == KindLocalObject;
 }
 
+string
+Slice::Builtin::typeId() const
+{
+    switch(_kind)
+    {
+	case KindByte:
+	{
+	    return "::Ice::Byte";
+	    break;
+	}
+	case KindBool:
+	{
+	    return "::Ice::Bool";
+	    break;
+	}
+	case KindShort:
+	{
+	    return "::Ice::Short";
+	    break;
+	}
+	case KindInt:
+	{
+	    return "::Ice::Int";
+	    break;
+	}
+	case KindLong:
+	{
+	    return "::Ice::Long";
+	    break;
+	}
+	case KindFloat:
+	{
+	    return "::Ice::Float";
+	    break;
+	}
+	case KindDouble:
+	{
+	    return "::Ice::Double";
+	    break;
+	}
+	case KindString:
+	{
+	    return "::Ice::String";
+	    break;
+	}
+	case KindObject:
+	{
+	    return "::Ice::Object";
+	    break;
+	}
+	case KindObjectProxy:
+	{
+	    return "::Ice::Object*";
+	    break;
+	}
+	case KindLocalObject:
+	{
+	    return "::Ice::LocalObject";
+	    break;
+	}
+    }
+    assert(false);
+}
+
 bool
 Slice::Builtin::usesClasses() const
 {
@@ -1612,6 +1676,12 @@ Slice::Constructed::isLocal() const
     return _local;
 }
 
+string
+Slice::Constructed::typeId() const
+{
+    return scoped();
+}
+
 ConstructedList
 Slice::Constructed::dependencies()
 {
@@ -2393,6 +2463,12 @@ bool
 Slice::Proxy::isLocal() const
 {
     return __class->isLocal();
+}
+
+string
+Slice::Proxy::typeId() const
+{
+    return __class->scoped();
 }
 
 bool

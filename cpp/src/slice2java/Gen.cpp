@@ -1227,59 +1227,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sb;
 
-#if 0
-    //
-    // hashCode
-    //
-    if(!p->isInterface())
-    {
-        //
-        // Does the class have (or inherit) any data members?
-        //
-        bool baseHasDataMembers = false;
-        ClassList l = p->bases();
-        while(!l.empty() && !l.front()->isInterface())
-        {
-            if(l.front()->hasDataMembers())
-            {
-                baseHasDataMembers = true;
-                break;
-            }
-            l = l.front()->bases();
-        }
-
-        if(p->hasDataMembers() || baseHasDataMembers)
-        {
-            out << sp << nl << "public int" << nl << "hashCode()";
-            out << sb;
-            if(p->hasDataMembers())
-            {
-                DataMemberList members = p->dataMembers();
-                DataMemberList::const_iterator d;
-
-                out << nl << "int __h = 0;";
-                int iter = 0;
-                for(d = members.begin(); d != members.end(); ++d)
-                {
-                    string memberName = fixKwd((*d)->name());
-                    list<string> metaData = (*d)->getMetaData();
-                    writeHashCode(out, (*d)->type(), memberName, iter, metaData);
-                }
-                if(baseHasDataMembers)
-                {
-                    out << nl << "__h = 5 * __h + super.hashCode();";
-                }
-                out << nl << "return __h;";
-            }
-            else
-            {
-                out << nl << "return super.hashCode();";
-            }
-            out << eb;
-        }
-    }
-#endif
-
     //
     // Default factory for non-abstract classes.
     //
@@ -1359,6 +1306,10 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 		    out << nl << "case " << memberCount << ":";
 		    out.inc();
 		}
+		if(allClassMembers.size() > 1)
+		{
+		    out << nl << "__typeId = \"" << (*d)->type()->typeId() << "\";";
+		}
 		string memberName = fixKwd((*d)->name());
 		string memberScope = fixKwd((*d)->scope());
 		string memberType = typeToString((*d)->type(), TypeModeMember, memberScope);
@@ -1374,9 +1325,23 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 		out << eb;
 	    }
 	    out << eb;
+
+	    out << sp << nl << "public String" << nl << "type()";
+	    out << sb;
 	    if(allClassMembers.size() > 1)
 	    {
-		out << nl << nl << "private int __member;";
+		out << nl << "return __typeId;";
+	    }
+	    else
+	    {
+		out << nl << "return \"" << (*allClassMembers.begin())->type()->typeId() << "\";";
+	    }
+	    out << eb;
+
+	    if(allClassMembers.size() > 1)
+	    {
+		out << sp << nl << "private int __member;";
+		out << nl << "private String __typeId;";
 	    }
 	    out << eb;
 	}
@@ -1561,6 +1526,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 		    out << nl << "case " << memberCount << ":";
 		    out.inc();
 		}
+		if(allClassMembers.size() > 1)
+		{
+		    out << nl << "__typeId = \"" << (*d)->type()->typeId() << "\";";
+		}
 		string memberName = fixKwd((*d)->name());
 		string memberScope = fixKwd((*d)->scope());
 		string memberType = typeToString((*d)->type(), TypeModeMember, memberScope);
@@ -1576,9 +1545,22 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 		out << eb;
 	    }
 	    out << eb;
+
+	    out << sp << nl << "public String" << nl << "type()";
+	    out << sb;
 	    if(allClassMembers.size() > 1)
 	    {
-		out << nl << nl << "private int __member;";
+		out << nl << "return __typeId;";
+	    }
+	    else
+	    {
+		out << nl << "return \"" << (*allClassMembers.begin())->type()->typeId() << "\";";
+	    }
+	    out << eb;
+	    if(allClassMembers.size() > 1)
+	    {
+		out << sp << nl << "private int __member;";
+		out << nl << "private String __typeId;";
 	    }
 	    out << eb;
 	}
@@ -1862,6 +1844,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		    out << nl << "case " << memberCount << ":";
 		    out.inc();
 		}
+		if(classMembers.size() > 1)
+		{
+		    out << nl << "__typeId = \"" << (*d)->type()->typeId() << "\";";
+		}
 		string memberName = fixKwd((*d)->name());
 		string memberScope = fixKwd((*d)->scope());
 		string memberType = typeToString((*d)->type(), TypeModeMember, memberScope);
@@ -1877,9 +1863,23 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		out << eb;
 	    }
 	    out << eb;
+
+	    out << sp << nl << "public String" << nl << "type()";
+	    out << sb;
 	    if(classMembers.size() > 1)
 	    {
-		out << nl << nl << "private int __member;";
+		out << nl << "return __typeId;";
+	    }
+	    else
+	    {
+		out << nl << "return \"" << (*classMembers.begin())->type()->typeId() << "\";";
+	    }
+	    out << eb;
+
+	    if(classMembers.size() > 1)
+	    {
+		out << sp << nl << "private int __member;";
+		out << nl << "private String __typeId;";
 	    }
 	    out << eb;
 	}
@@ -2265,23 +2265,31 @@ Slice::Gen::HolderVisitor::writeHolder(const TypePtr& p)
         out << sb;
         out << nl << "this.value = value;";
         out << eb;
-	BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
-	if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(p))
+	if(!p->isLocal())
 	{
-	    out << sp << nl << "public class Patcher implements IceInternal.Patcher";
-	    out << sb;
-	    out << nl << "public void";
-	    out << nl << "patch(Ice.Object v)";
-	    out << sb;
-	    out << nl << "value = (" << typeS << ")v;";
-	    out << eb;
-	    out << eb;
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(p))
+	    {
+		out << sp << nl << "public class Patcher implements IceInternal.Patcher";
+		out << sb;
+		out << nl << "public void";
+		out << nl << "patch(Ice.Object v)";
+		out << sb;
+		out << nl << "value = (" << typeS << ")v;";
+		out << eb;
 
-	    out << sp << nl << "public Patcher";
-	    out << nl << "getPatcher()";
-	    out << sb;
-	    out << nl << "return new Patcher();";
-	    out << eb;
+		out << sp << nl << "public String" << nl << "type()";
+		out << sb;
+		out << nl << "return \"" << p->typeId() << "\";";
+		out << eb;
+		out << eb;
+
+		out << sp << nl << "public Patcher";
+		out << nl << "getPatcher()";
+		out << sb;
+		out << nl << "return new Patcher();";
+		out << eb;
+	    }
 	}
         out << sp << nl << "public " << typeS << " value;";
         out << eb;
@@ -2611,9 +2619,12 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 	    //
 	    // The sequence has class elements.
 	    //
+	    string metaData = findMetaData(p->getMetaData());
+	    string listType = metaData.empty() ? typeS : "java.util.List";
+
 	    out << sp << nl << "private static class Patcher implements IceInternal.Patcher";
 	    out << sb;
-	    out << sp << nl << "Patcher(" << typeS << " values, int index)";
+	    out << sp << nl << "Patcher(" << listType << " values, int index)";
 	    out << sb;
 	    out << nl << "__values = values;";
 	    out << nl << "__index = index;";
@@ -2621,10 +2632,23 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 
 	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
 	    out << sb;
-	    out << nl << "__values[__index] = (" << typeToString(p->type(), TypeModeIn, scope) << ")v;";
+	    string elmtType = typeToString(p->type(), TypeModeIn, scope);
+	    if(metaData.empty())
+	    {
+		out << nl << "__values[__index] = (" << elmtType << ")v;";
+	    }
+	    else
+	    {
+		out << nl << "__values.set(__index, (" << elmtType << ")v);";
+	    }
 	    out << eb;
 
-	    out << sp << nl << "private " << typeS << " __values;";
+	    out << sp << nl << "public String" << nl << "type()";
+	    out << sb;
+	    out << nl << "return \"" << p->type()->typeId() << "\";";
+	    out << eb;
+
+	    out << sp << nl << "private " << listType << " __values;";
 	    out << nl << "private int __index;";
 	    out << eb;
 	}
@@ -2633,7 +2657,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         out << sb;
         out << nl << typeS << " __v;";
         iter = 0;
-        writeSequenceMarshalUnmarshalCode(out, scope, p, "__v", false, iter, false);
+	writeSequenceMarshalUnmarshalCode(out, scope, p, "__v", false, iter, false);
         out << nl << "return __v;";
         out << eb;
 
@@ -2844,7 +2868,13 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
 	    out << sp << nl << "public void" << nl << "patch(Ice.Object v)";
 	    out << sb;
+	    out << nl << valueS << " _v = (" << valueS << ")v;";
 	    out << nl << "__m.put(__key, v);";
+	    out << eb;
+
+	    out << sp << nl << "public String" << nl << "type()";
+	    out << sb;
+	    out << nl << "return \"" << value->typeId() << "\";";
 	    out << eb;
 
 	    out << sp << nl << "private java.util.Map __m;";

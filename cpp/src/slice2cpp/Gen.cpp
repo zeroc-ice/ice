@@ -2446,7 +2446,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C << nl << scope << name << "Ptr* p = static_cast< " << scope << name << "Ptr*>(__addr);";
 	C << nl << "assert(p);";
 	C << nl << "*p = " << scope << name << "Ptr::dynamicCast(v);";
-	C << nl << "assert(!v || *p);";
+	C << nl << "if(v && !*p)";
+	C << sb;
+	C << nl << "::Ice::NoObjectFactoryException e(__FILE__, __LINE__);";
+	C << nl << "e.type = " << scope << name << "::ice_staticId();";
+	C << nl << "throw e;";
+	C << eb;
 	C << eb;
 
 	C << sp;

@@ -37,6 +37,12 @@ class InitialI extends Initial
         return _simple;
     }
 
+    public Ice.Object
+    getPrinterAsObject(Ice.Current current)
+    {
+        return _printer;
+    }
+
     public void
     getPrinter(PrinterHolder impl, PrinterPrxHolder proxy, Ice.Current current)
     {

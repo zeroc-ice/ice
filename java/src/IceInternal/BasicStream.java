@@ -1116,7 +1116,7 @@ public class BasicStream
 	while(true)
 	{
 	    String id = readTypeId();
-	    if(id.equals("::Ice::Object"))
+	    if(id.equals(Ice.ObjectImpl.ice_staticId()))
 	    {
 	        v = new Ice.ObjectImpl();
 	    }
@@ -1323,7 +1323,9 @@ public class BasicStream
 	    }
 	    catch(ClassCastException ex)
 	    {
-	        throw new Ice.UnmarshalOutOfBoundsException();
+		Ice.NoObjectFactoryException nof = new Ice.NoObjectFactoryException();
+		nof.type = p.type();
+	        throw nof;
 	    }
 	}
 

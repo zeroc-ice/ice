@@ -990,10 +990,25 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 out << nl << "for(int __i" << iter << " = 0; __i" << iter << " < __len" << iter << "; __i" << iter
                     << "++)";
                 out << sb;
-                out << nl << origContentS << " __elem;";
+		BuiltinPtr builtin = BuiltinPtr::dynamicCast(origContent);
+		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(origContent))
+		{
+		    out << nl << v << ".add(null);";
+		    ostringstream patchParams;
+		    patchParams << v << ", __i" << iter;
+		    writeMarshalUnmarshalCode(out, scope, seq->type(), "__elem", false, iter, false,
+			                      list<string>(), patchParams.str());
+		}
+		else
+		{
+		    out << nl << origContentS << " __elem;";
+		    writeMarshalUnmarshalCode(out, scope, seq->type(), "__elem", false, iter, false);
+		}
                 iter++;
-                writeMarshalUnmarshalCode(out, scope, seq->type(), "__elem", false, iter, false);
-                out << nl << v << ".add(__elem);";
+		if((builtin && builtin->kind() != Builtin::KindObject) && !ClassDeclPtr::dynamicCast(origContent))
+		{
+		    out << nl << v << ".add(__elem);";
+		}
                 out << eb;
             }
         }

@@ -236,6 +236,7 @@ class SLICE_API Type : virtual public SyntaxTreeBase
 public:
 
     virtual bool isLocal() const = 0;
+    virtual std::string typeId() const = 0;
     virtual bool usesClasses() const = 0;
 
 protected:
@@ -267,6 +268,7 @@ public:
     };
 
     virtual bool isLocal() const;
+    virtual std::string typeId() const;
     virtual bool usesClasses() const;
 
     Kind kind() const;
@@ -426,7 +428,8 @@ class SLICE_API Constructed : virtual public Type, virtual public Contained
 {
 public:
 
-    bool isLocal() const;
+    virtual bool isLocal() const;
+    virtual std::string typeId() const;
     ConstructedList dependencies();
     virtual void recDependencies(std::set<ConstructedPtr>&) = 0; // Internal operation, don't use directly.
 
@@ -548,7 +551,7 @@ public:
     DataMemberList allClassDataMembers() const;
     bool isAbstract() const;
     bool isInterface() const;
-    bool isLocal() const;
+    virtual bool isLocal() const;
     bool hasDataMembers() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
@@ -576,6 +579,7 @@ class SLICE_API Proxy : virtual public Type
 public:
 
     virtual bool isLocal() const;
+    virtual std::string typeId() const;
     virtual bool usesClasses() const;
 
     ClassDeclPtr _class() const;
@@ -603,7 +607,7 @@ public:
     DataMemberList allClassDataMembers() const;
     ExceptionPtr base() const;
     ExceptionList allBases() const;
-    bool isLocal() const;
+    virtual bool isLocal() const;
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     bool usesClasses() const;

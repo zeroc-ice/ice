@@ -17,4 +17,5 @@ package IceInternal;
 public interface Patcher
 {
     void patch(Ice.Object v);
-};
+    String type();
+}

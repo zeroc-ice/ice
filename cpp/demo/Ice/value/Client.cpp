@@ -52,13 +52,25 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     cout << '\n'
 	 << "Ok, this worked. Now let's try to transfer an object for a class\n"
-	 << "with operations, without installing a factory first. This should\n"
-	 << "give us a `no factory' exception.\n"
+	 << "with operations as type ::Ice::Object. Because no factory is installed,\n"
+	 << "the class will be sliced to ::Ice::Object.\n"
+	 << "[press enter]\n";
+    cin.getline(&c, 1);
+
+    ::Ice::ObjectPtr obj = initial->getPrinterAsObject();
+    cout << "==> The type ID of the received object is \"" << obj->ice_id() << "\"" << endl;
+    assert(obj->ice_id() == "::Ice::Object");
+
+    cout << '\n'
+	 << "Yes, this worked. Now let's try to transfer an object for a class\n"
+	 << "with operations as type ::Printer, without installing a factory first.\n"
+	 << "This should give us a `no factory' exception.\n"
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
     PrinterPtr printer;
     PrinterPrx printerProxy;
+    bool gotException = false;
     try
     {
 	initial->getPrinter(printer, printerProxy);
@@ -66,7 +78,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     catch(const Ice::NoObjectFactoryException& ex)
     {
 	cout << "==> " << ex << endl;
+	gotException = true;
     }
+    assert(gotException);
 
     cout << '\n'
 	 << "Yep, that's what we expected. Now let's try again, but with\n"
@@ -99,28 +113,22 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     printerProxy->printBackwards();
 
     cout << '\n'
-	 << "Next, we transfer a derived object from the server as base\n"
-	 << "object. Since we didn't install a factory for the derived\n"
-	 << "class yet, we will get another `no factory' exception.\n"
+	 << "Next, we transfer a derived object from the server as a base\n"
+	 << "object. Since we haven't yet installed a factory for the derived\n"
+	 << "class, the derived class (::DerivedPrinter) is sliced\n"
+	 << "to its base class (::Printer).\n"
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
     PrinterPtr derivedAsBase;
-    try
-    {
-	derivedAsBase = initial->getDerivedPrinter();
-	assert(false);
-    }
-    catch(const Ice::NoObjectFactoryException& ex)
-    {
-	cout << "==> " << ex << endl;
-    }
+    derivedAsBase = initial->getDerivedPrinter();
+    cout << "==> The type ID of the received object is \"" << derivedAsBase->ice_id() << "\"" << endl;
+    assert(derivedAsBase->ice_id() == "::Printer");
     
     cout << '\n'
 	 << "Now we install a factory for the derived class, and try again.\n"
-	 << "We won't get a `no factory' exception anymore, but since we\n"
-	 << "receive the derived object as base object, we need to do a\n"
-	 << "dynamic_cast<> to get from the base to the derived object.\n"
+	 << "Because we receive the derived object as a base object, we\n"
+	 << "we need to do a dynamic_cast<> to get from the base to the derived object.\n"
 	 << "[press enter]\n";
     cin.getline(&c, 1);
     
@@ -129,8 +137,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     derivedAsBase = initial->getDerivedPrinter();
     DerivedPrinterPtr derived = DerivedPrinterPtr::dynamicCast(derivedAsBase);
     assert(derived);
-
     cout << "==> dynamic_cast<> to derived object succeded" << endl;
+    cout << "==> The type ID of the received object is \"" << derived->ice_id() << "\"" << endl;
 
     cout << '\n'
 	 << "Let's print the message contained in the derived object, and\n"
@@ -150,6 +158,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
+    gotException = false;
     try
     {
 	initial->throwDerivedPrinter();
@@ -158,7 +167,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	derived = ex.derived;
 	assert(derived);
+	gotException = true;
     }
+    assert(gotException);
 
     cout << "==> " << derived->derivedMessage << endl;
     cout << "==> ";

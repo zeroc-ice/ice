@@ -34,6 +34,12 @@ public final class ObjectHolder
 	{
 	    value = v;
 	}
+
+	public String
+	type()
+	{
+	    return Ice.ObjectImpl.ice_staticId();
+	}
     }
 
     public Patcher

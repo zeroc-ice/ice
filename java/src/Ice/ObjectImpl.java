@@ -198,7 +198,7 @@ public class ObjectImpl implements Object, java.lang.Cloneable
     {
         synchronized(_activeFacetMap)
         {
-	    __os.writeTypeId("::Ice::Object");
+	    __os.writeTypeId(ice_staticId());
 	    __os.startWriteSlice();
             final int sz = _activeFacetMap.size();
             __os.writeSize(sz);
@@ -226,6 +226,12 @@ public class ObjectImpl implements Object, java.lang.Cloneable
 	patch(Ice.Object v)
 	{
 	    _activeFacetMap.put(__key, v);
+	}
+
+	public String
+	type()
+	{
+	    return ice_staticId();
 	}
 
 	private String __key;
