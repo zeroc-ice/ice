@@ -206,18 +206,22 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionS", "demo\Glacier\se
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleS", "demo\book\simple_filesystem\simpleS.csproj", "{E5F6D866-9990-476A-B3A5-7C63064BC869}"
 	ProjectSection(ProjectDependencies) = postProject
+		{6851468D-426E-4260-986C-244F278F3526} = {6851468D-426E-4260-986C-244F278F3526}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleC", "demo\book\simple_filesystem\simpleC.csproj", "{73D1719A-7415-478B-ABC7-BED6F3C65ED7}"
 	ProjectSection(ProjectDependencies) = postProject
+		{6851468D-426E-4260-986C-244F278F3526} = {6851468D-426E-4260-986C-244F278F3526}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "printerC", "demo\book\printer\printerC.csproj", "{DC84831F-1B4B-476C-82F7-4A8144C63AD6}"
 	ProjectSection(ProjectDependencies) = postProject
+		{6851468D-426E-4260-986C-244F278F3526} = {6851468D-426E-4260-986C-244F278F3526}
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "printerS", "demo\book\printer\printerS.csproj", "{61830786-17E6-48D6-BF71-18DF450239D8}"
 	ProjectSection(ProjectDependencies) = postProject
+		{6851468D-426E-4260-986C-244F278F3526} = {6851468D-426E-4260-986C-244F278F3526}
 	EndProjectSection
 EndProject
 Global

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Slice/CsUtil.h>
+#include <Slice/DotNetNames.h>
 #include <IceUtil/Functional.h>
 
 #include <sys/types.h>
@@ -26,7 +27,7 @@ using namespace Slice;
 using namespace IceUtil;
 
 static string
-lookupKwd(const string& name)
+lookupKwd(const string& name, int baseTypes, bool mangleCasts = false)
 {
     //
     // Keyword list. *Must* be kept in alphabetical order.
@@ -43,26 +44,17 @@ lookupKwd(const string& name)
     };
     bool found = binary_search(&keywordList[0],
 	                       &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
-			       name);
+			       name,
+			       Slice::CICompare());
     if(found)
     {
         return "@" + name;
     }
-
-    static const string memberList[] =
+    if(mangleCasts && (name == "checkedCast" || name == "uncheckedCast"))
     {
-	"Add", "Clear", "Clone", "Contains", "CopyTo", "Dictionary", "Equals", "Finalize",
-	"GetBaseException", "GetEnumerator", "GetHashCode", "GetObjectData", "GetType", 
-	"IndexOf", "Insert", "IsFixedSize", "IsReadOnly", "IsSynchronized", "MemberWiseClone",
-	"Microsoft", "OnClear", "OnClearComplete", "OnGet", "OnInsert", "OnInsertComplete",
-	"OnRemove", "OnRemoveComplete", "OnSet", "OnSetComplete", "OnValidate", "ReferenceEquals",
-	"Remove", "RemoveAt", "SyncRoot", "System", "ToString", "checkedCast", "uncheckedCast"
-    };
-    found = binary_search(&memberList[0],
-                           &memberList[sizeof(memberList) / sizeof(*memberList)],
-			   name,
-			   Slice::CICompare());
-    return found ? "_Ice_" + name : name;
+	return string(DotNet::manglePrefix) + name;
+    }
+    return Slice::DotNet::mangleName(name, baseTypes);
 }
 
 //
@@ -105,10 +97,11 @@ splitScopedName(const string& scoped)
 // but with all components that are C# keywords replaced by
 // their "@"-prefixed version; otherwise, if the passed name is
 // not scoped, but a C# keyword, return the "@"-prefixed name;
-// otherwise, return the name unchanged.
+// otherwise, check if the name is one of the method names of baseTypes;
+// if so, prefix it with _Ice_; otherwise, return the name unchanged.
 //
 string
-Slice::CsGenerator::fixId(const string& name)
+Slice::CsGenerator::fixId(const string& name, int baseTypes, bool mangleCasts)
 {
     if(name.empty())
     {
@@ -116,18 +109,22 @@ Slice::CsGenerator::fixId(const string& name)
     }
     if(name[0] != ':')
     {
-	return lookupKwd(name);
+	return lookupKwd(name, baseTypes, mangleCasts);
     }
     StringList ids = splitScopedName(name);
-    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
-    stringstream result;
+    StringList newIds;
     for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
     {
-	if(i != ids.begin())
+	newIds.push_back(lookupKwd(*i, baseTypes));
+    }
+    stringstream result;
+    for(StringList::const_iterator j = newIds.begin(); j != newIds.end(); ++j)
+    {
+	if(j != newIds.begin())
 	{
 	    result << '.';
 	}
-	result << *i;
+	result << *j;
     }
     return result.str();
 }

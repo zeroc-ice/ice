@@ -10,7 +10,7 @@
 namespace Ice
 {
 
-    public interface LocalObject
+    public interface LocalObject : System.ICloneable
     {
         int ice_hash();
     }
@@ -21,6 +21,11 @@ namespace Ice
             ice_hash()
         {
             return GetHashCode();
+        }
+
+        public object Clone()
+        {
+            return MemberwiseClone();
         }
     }
 

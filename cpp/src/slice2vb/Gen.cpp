@@ -20,6 +20,7 @@
 #include <IceUtil/Iterator.h>
 #include <IceUtil/UUID.h>
 #include <Slice/Checksum.h>
+#include <Slice/DotNetNames.h>
 
 using namespace std;
 using namespace Slice;
@@ -109,31 +110,33 @@ Slice::VbVisitor::writeInheritedOperations(const ClassDefPtr& p)
 		string retS = typeToString((*op)->returnType());
 
 		string vbOp = ret ? "Function" : "Sub";
-		_out << sp << nl << "Public " << vbOp << ' ' << fixId(name) << spar << params << epar;
+		_out << sp << nl << "Public " << vbOp << ' ' << fixId(name, DotNet::ICloneable, true)
+		     << spar << params << epar;
 		if(ret)
 		{
 		    _out << " As " << retS;
 		}
 		_out << " Implements " << fixId(containingClass->scope()) << "_" << containingClass->name()
-		     << "OperationsNC." << fixId(name);
+		     << "OperationsNC." << fixId(name, DotNet::ICloneable, true);
 		_out.inc();
 		_out << nl;
 		if((*op)->returnType())
 		{
 		    _out << "Return ";
 		}
-		_out << fixId(name) << spar << args << "Ice.ObjectImpl.defaultCurrent" << epar;
+		_out << fixId(name, DotNet::ICloneable, true)
+		     << spar << args << "Ice.ObjectImpl.defaultCurrent" << epar;
 		_out.dec();
 		_out << nl << "End " << vbOp;
 
-		_out << sp << nl << "Public MustOverride " << vbOp << ' ' << fixId(name)
+		_out << sp << nl << "Public MustOverride " << vbOp << ' ' << fixId(name, DotNet::ICloneable, true)
 		     << spar << params << "ByVal __current As Ice.Current" << epar;
 		if(ret)
 		{
 		    _out << " As " << retS;
 		}
 		_out << " Implements " << fixId(containingClass->scope()) << "_" << containingClass->name()
-		     << "Operations." << fixId(name);
+		     << "Operations." << fixId(name, DotNet::ICloneable, true);
 	    }
 	    else
 	    {
@@ -394,7 +397,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 		string retS = typeToString(ret);
 		_out << "Dim __ret As " << retS << " = ";
 	    }
-	    _out << "__obj." << fixId(opName) << spar;
+	    _out << "__obj." << fixId(opName, DotNet::ICloneable, true) << spar;
 	    for(q = inParams.begin(); q != inParams.end(); ++q)
 	    {
 		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
@@ -517,7 +520,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 	    }
 	    else
 	    {
-	        _out << fixId(opName);
+	        _out << fixId(opName, DotNet::ICloneable, true);
 	    }
 	    _out << spar;
 	    if(amd)
@@ -1183,7 +1186,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	for(d = members.begin(); d != members.end(); ++d)
 	{
 	    StringList metaData = (*d)->getMetaData();
-	    writeMarshalUnmarshalCode(_out, (*d)->type(), fixId((*d)->name()), true, false);
+	    writeMarshalUnmarshalCode(_out, (*d)->type(), fixId((*d)->name(), DotNet::ICloneable, true), true, false);
 	}
 	_out << nl << "__os.endWriteSlice()";
 	_out << nl << "MyBase.__write(__os)";
@@ -1226,7 +1229,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 		    _out << nl << "Case " << memberCount;
 		    _out.inc();
 		}
-		string memberName = fixId((*d)->name());
+		string memberName = fixId((*d)->name(), DotNet::ICloneable, true);
 		string memberType = typeToString((*d)->type());
 		_out << nl << "_type = GetType(" << memberType << ')';
 		_out << nl << "_instance." << memberName << " = CType(v, " << memberType << ')';
@@ -1277,7 +1280,9 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 		    patchParams << ", " << classMemberCount++;
 		}
 	    }
-	    writeMarshalUnmarshalCode(_out, (*d)->type(), fixId((*d)->name()), false, false, patchParams.str());
+	    writeMarshalUnmarshalCode(_out, (*d)->type(),
+	                              fixId((*d)->name(), DotNet::ICloneable, true),
+				      false, false, patchParams.str());
 	}
 	_out << nl << "__is.endReadSlice()";
 	_out << nl << "MyBase.__read(__is, true)";
@@ -1317,7 +1322,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     {
 	params = getParams(p);
 	args = getArgs(p);
-	name = fixId(name);
+	name = fixId(name, DotNet::ICloneable, true);
 	ret = p->returnType();
 	retS = typeToString(ret);
     }
@@ -1758,7 +1763,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "Dim __h As Integer = 0";
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        string memberName = fixId((*q)->name());
+        string memberName = fixId((*q)->name(), DotNet::ApplicationException);
 	bool isValue = isValueType((*q)->type());
 	if(!isValue)
 	{
@@ -1811,7 +1816,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "End If";
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        string memberName = fixId((*q)->name());
+        string memberName = fixId((*q)->name(), DotNet::ApplicationException);
 
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast((*q)->type());
 	if(cl && cl->isInterface()) // Bug in VB 7.1: cast should not be necessary.
@@ -1882,7 +1887,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	_out << nl << "__os.startWriteSlice()";
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name()), true, false);
+            writeMarshalUnmarshalCode(_out, (*q)->type(),
+	                              fixId((*q)->name(), DotNet::ApplicationException),
+				      true, false);
         }
 	_out << nl << "__os.endWriteSlice()";
         if(base)
@@ -1928,7 +1935,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 		    _out << nl << "Case " << memberCount;
 		    _out.inc();
 		}
-		string memberName = fixId((*q)->name());
+		string memberName = fixId((*q)->name(), DotNet::ApplicationException);
 		string memberType = typeToString((*q)->type());
 		_out << nl << "_type = GetType(" << memberType << ')';
 		_out << nl << "_instance." << memberName << " = CType(v, " << memberType << ')';
@@ -1977,7 +1984,9 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 		    patchParams << ", " << classMemberCount++;
 		}
 	    }
-            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name()), false, false, patchParams.str());
+            writeMarshalUnmarshalCode(_out, (*q)->type(),
+	                              fixId((*q)->name(), DotNet::ApplicationException),
+	                              false, false, patchParams.str());
         }
 	_out << nl << "__is.endReadSlice()";
         if(base)
@@ -2039,7 +2048,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sp << nl << "#End Region"; // Slice data members
     _out.restoreIndent();
 
-    if(p->hasMetaData("vb:class"))
+    bool isClass = p->hasMetaData("vb:class");
+    if(isClass)
     {
 	_out.zeroIndent();
 	_out << sp << nl << "#Region \"ICloneable members\"";
@@ -2065,7 +2075,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "Dim __h As Integer = 0";
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        string memberName = fixId((*q)->name());
+        string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
 	bool isValue = isValueType((*q)->type());
 	if(!isValue)
 	{
@@ -2112,7 +2122,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << nl << "End If";
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        string memberName = fixId((*q)->name());
+        string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
 	if(!isValueType((*q)->type()))
 	{
 	    _out << nl << "If " << memberName << " Is Nothing Then";
@@ -2200,7 +2210,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out.inc();
 	for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	{
-	    writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name()), true, false);
+	    writeMarshalUnmarshalCode(_out, (*q)->type(),
+	                              fixId((*q)->name(), isClass ? DotNet::ICloneable : 0),
+				      true, false);
 	}
         _out.dec();
 	_out << nl << "End Sub";
@@ -2249,7 +2261,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		    _out.inc();
 		}
 		string memberType = typeToString((*q)->type());
-		string memberName = fixId((*q)->name());
+		string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
 		_out << nl << "_type = GetType(" << memberType << ')';
 		_out << nl << "_instance." << memberName << " = CType(v, " << memberType << ')';
 		if(classMembers.size() > 1)
@@ -2285,7 +2297,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		for(q = classMembers.begin(); q != classMembers.end(); ++q)
 		{
 		    string memberType = typeToString((*q)->type());
-		    string memberName = fixId((*q)->name());
+		    string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
 		    _out << nl << "Friend " << memberName << " As " << memberType;
 		}
 		_out.dec();
@@ -2297,7 +2309,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		_out.inc();
 		for(q = classMembers.begin(); q != classMembers.end(); ++q)
 		{
-		    string memberName = fixId((*q)->name());
+		    string memberName = fixId((*q)->name(), isClass ? DotNet::ICloneable : 0);
 		    _out << nl << memberName << " = _pm." << memberName;
 		}
 		_out.dec();
@@ -2328,7 +2340,9 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 		    patchParams << ", " << classMemberCount++;
 		}
 	    }
-            writeMarshalUnmarshalCode(_out, (*q)->type(), fixId((*q)->name()), false, false, patchParams.str());
+            writeMarshalUnmarshalCode(_out, (*q)->type(),
+	                              fixId((*q)->name(), isClass ? DotNet::ICloneable : 0),
+				      false, false, patchParams.str());
         }
         _out.dec();
 	_out << nl << "End Sub";
@@ -2769,7 +2783,24 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 void
 Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    _out << sp << nl << "Public " << fixId(p->name()) << " As " << typeToString(p->type());
+    int baseTypes = 0;
+    bool isClass = false;
+    ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
+    assert(cont);
+    if(StructPtr::dynamicCast(cont) && cont->hasMetaData("cs:class"))
+    {
+        baseTypes = DotNet::ICloneable;
+    }
+    else if(ExceptionPtr::dynamicCast(cont))
+    {
+        baseTypes = DotNet::ApplicationException;
+    }
+    else if(ClassDefPtr::dynamicCast(cont))
+    {
+	baseTypes = DotNet::ICloneable;
+	isClass = true;
+    }
+    _out << sp << nl << "Public " << fixId(p->name(), baseTypes, isClass) << " As " << typeToString(p->type());
 }
 
 Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtil::Output& out)
@@ -2841,7 +2872,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr&)
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
-    string name = fixId(p->name());
+    string name = fixId(p->name(), DotNet::ICloneable, true);
     vector<string> params = getParams(p);
 
     TypePtr ret = p->returnType();
@@ -2964,7 +2995,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
     {
 	OperationPtr op = *r;
 	bool amd = !p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd"));
-	string name = amd ? (op->name() + "_async") : fixId(op->name());
+	string name = amd ? (op->name() + "_async") : fixId(op->name(), DotNet::ICloneable, true);
 
 	TypePtr ret;
 	vector<string> params;
@@ -3059,7 +3090,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = *r;
-	string opName = fixId(op->name());
+	string opName = fixId(op->name(), DotNet::ICloneable, true);
 	TypePtr ret = op->returnType();
 	string retS = typeToString(ret);
 
@@ -3528,7 +3559,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
 	OperationPtr op = *r;
-	string opName = fixId(op->name());
+	string opName = fixId(op->name(), DotNet::ICloneable, true);
 	TypePtr ret = op->returnType();
 	string retS = typeToString(ret);
 	vector<string> params = getParams(op);
@@ -3598,7 +3629,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
 	OperationPtr op = *r;
-	string opName = fixId(op->name());
+	string opName = fixId(op->name(), DotNet::ICloneable, true);
 	TypePtr ret = op->returnType();
 	string retS = typeToString(ret);
 
@@ -3837,7 +3868,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = *r;
-        string opName = fixId(op->name());
+        string opName = fixId(op->name(), DotNet::ICloneable, true);
         TypePtr ret = op->returnType();
         string retS = typeToString(ret);
 	string vbOp = ret ? "Function" : "Sub";
@@ -3984,7 +4015,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	else
 	{
-	    name = fixId(name);
+	    name = fixId(name, DotNet::ICloneable, true);
 	    params = getParams(*op);
 	    ret = (*op)->returnType();
 	    args = getArgs(*op);
@@ -4530,7 +4561,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
 	bool hasAMD = p->hasMetaData("amd") || (*r)->hasMetaData("amd");
-        string opName = hasAMD ? (*r)->name() + "_async" : fixId((*r)->name());
+        string opName = hasAMD ? (*r)->name() + "_async" : fixId((*r)->name(), DotNet::ICloneable, true);
 
         TypePtr ret = (*r)->returnType();
         string retS = typeToString(ret);
@@ -4607,7 +4638,7 @@ Slice::Gen::TieVisitor::writeInheritedOperations(const ClassDefPtr& p, NameSet& 
     for(r = ops.begin(); r != ops.end(); ++r)
     {
 	bool hasAMD = p->hasMetaData("amd") || (*r)->hasMetaData("amd");
-        string opName = hasAMD ? (*r)->name() + "_async" : fixId((*r)->name());
+        string opName = hasAMD ? (*r)->name() + "_async" : fixId((*r)->name(), DotNet::ICloneable, true);
 	if(opNames.find(opName) != opNames.end())
 	{
 	    continue;
@@ -4756,7 +4787,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool local, 
 	{
 	    _out << "Overrides ";
 	}
-	_out << vbOp << ' ' << fixId(opName) << spar << pDecls;
+	_out << vbOp << ' ' << fixId(opName, DotNet::ICloneable, true) << spar << pDecls;
 	if(!local)
 	{
 	    _out << "ByVal __current As Ice.Current";
@@ -4774,7 +4805,7 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool local, 
 	{
 	    if(forTie)
 	    {
-		_out << " Implements _" << cl->name() << "Operations." << fixId(opName); // TODO: should be containing class?
+		_out << " Implements _" << cl->name() << "Operations." << fixId(opName, DotNet::ICloneable, true); // TODO: should be containing class?
 	    }
 	}
 	_out.inc();

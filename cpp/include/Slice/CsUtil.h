@@ -28,7 +28,7 @@ public:
     static void validateMetaData(const UnitPtr&);
 
 protected:
-    static std::string fixId(const std::string&);
+    static std::string fixId(const std::string&, int = 0, bool = false);
     static std::string typeToString(const TypePtr&);
     static bool isValueType(const TypePtr&);
     //

@@ -24,7 +24,8 @@ OBJS		= Scanner.o \
 		  JavaUtil.o \
 		  Preprocessor.o \
 		  Checksum.o \
-		  PythonUtil.o
+		  PythonUtil.o \
+		  DotNetNames.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
