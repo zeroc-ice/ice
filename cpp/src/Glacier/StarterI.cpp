@@ -22,9 +22,10 @@
 #include <fcntl.h>
 
 //
-// crypt.h is necessary on older Linux distributions
+// crypt.h is necessary on older Linux distributions, but not with
+// OpenSSL 0.96x.
 //
-#ifdef __linux__
+#if defined(__linux__) && OPENSSL_VERSION_NUMBER >= 0x0090700fL
 #   include <crypt.h>
 #endif
 
