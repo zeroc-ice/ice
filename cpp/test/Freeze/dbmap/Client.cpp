@@ -273,7 +273,11 @@ run(int argc, char* argv[], MAP& m)
     
     typename MAP::value_type i3('a', 7);
 
+#if defined(_MSC_VER) && (_MSC_VER < 1300)
+    pair<MAP::iterator, bool> insertResult = m.insert(i3);
+#else
     pair<typename MAP::iterator, bool> insertResult = m.insert(i3);
+#endif
     test(insertResult.first == m.find('a'));
     test(insertResult.first->second == 0);
     test(insertResult.second == false);
