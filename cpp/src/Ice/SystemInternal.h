@@ -30,8 +30,6 @@ class SystemInternal : public System
 {
 public:
 
-    virtual void shutdown() = 0;
-
     virtual ConnectionPtr createConnection(ContextType, int) = 0;
 
     virtual bool isConfigured(ContextType) = 0;

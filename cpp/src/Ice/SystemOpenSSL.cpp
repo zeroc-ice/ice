@@ -82,32 +82,6 @@ IceSSL::OpenSSL::System::createConnection(ContextType connectionType, int socket
     return connection;
 }
 
-void
-IceSSL::OpenSSL::System::shutdown()
-{
-/*
-    // Free our temporary RSA keys.
-    RSAMap::iterator iRSA = _tempRSAKeys.begin();
-    RSAMap::iterator eRSA = _tempRSAKeys.end();
-
-    while (iRSA != eRSA)
-    {
-        RSA_free((*iRSA).second);
-        iRSA++;
-    }
-
-    // Free our temporary DH params.
-    DHMap::iterator iDH = _tempDHKeys.begin();
-    DHMap::iterator eDH = _tempDHKeys.end();
-
-    while (iDH != eDH)
-    {
-        DH_free((*iDH).second);
-        iDH++;
-    }
-*/
-}
-
 bool
 IceSSL::OpenSSL::System::isConfigured(ContextType contextType)
 {
@@ -510,7 +484,6 @@ IceSSL::OpenSSL::System::System(const IceInternal::InstancePtr& instance) :
 
 IceSSL::OpenSSL::System::~System()
 {
-    shutdown();
 }
 
 //

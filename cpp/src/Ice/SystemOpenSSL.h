@@ -55,9 +55,6 @@ public:
 
     virtual IceSSL::ConnectionPtr createConnection(ContextType, int);
 
-    // Shuts down the SSL System.
-    virtual void shutdown();
-
     virtual bool isConfigured(ContextType);
     virtual void configure(ContextType);
     virtual void loadConfig(ContextType, const ::std::string&, const ::std::string&);

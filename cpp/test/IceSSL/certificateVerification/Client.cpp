@@ -69,6 +69,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
             PingerPrx pinger = PingerPrx::checkedCast(communicator->stringToProxy(ref));
             pinger->ping();
             cout << "ok" << endl;
+            pinger = 0;
         }
         catch(const Ice::LocalException& localEx)
         {
