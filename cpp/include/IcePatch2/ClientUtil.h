@@ -44,6 +44,14 @@ public:
     virtual ~Patcher();
 
     //
+    // Returns true if the patch preparation was successful, false if
+    // preparation failed (for example, because a thorough patch is
+    // necessary, but the user chose not to patch thorough), or raises
+    // std::string as an exception if there was an error.
+    //
+    bool prepare();
+
+    //
     // Returns true if patching was successful, false if patching was
     // aborted by the user, or raises std::string as an exception if
     // there was an error.
@@ -59,13 +67,17 @@ private:
 
     const PatcherFeedbackPtr _feedback;
     const std::string _dataDir;
-    const bool _dryRun;
     const bool _thorough;
+    const bool _dryRun;
     const Ice::Int _chunkSize;
     const FileServerPrx _serverCompress;
     const FileServerPrx _serverNoCompress;
 
-    std::ofstream _fileLog;
+    FileInfoSeq _localFiles;
+    FileInfoSeq _updateFiles;
+    FileInfoSeq _removeFiles;
+
+    std::ofstream _updateLog;
 
     bool _decompress;
     std::string _decompressException;

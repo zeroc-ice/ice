@@ -175,97 +175,19 @@ IcePatch2::Patcher::patch()
 
 	if(!_dryRun)
 	{
-	    FileInfoSeq newLocalFiles;
-	    newLocalFiles.reserve(_localFiles.size());
-	    
-	    set_difference(_localFiles.begin(),
-			   _localFiles.end(),
-			   _removeFiles.begin(),
-			   _removeFiles.end(),
-			   back_inserter(newLocalFiles),
-			   FileInfoLess());
-	    
-	    _localFiles.swap(newLocalFiles);
-	    
 	    saveFileInfoSeq(_dataDir, _localFiles);
 	}
     }
 
     if(!_updateFiles.empty())
     {
-	if(!_dryRun)
+	if(!updateFiles(_updateFiles))
 	{
-	    string pathLog = _dataDir + ".log";
-	    _updateLog.open(pathLog.c_str());
-	    if(!_updateLog)
-	    {
-		throw "cannot open `" + pathLog + "' for writing: " + lastError();
-	    }
-	    
-	    {
-		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-		_decompress = true;
-	    }
-
-	    start();
-	}
-	
-	try
-	{
-	    if(!updateFiles(_updateFiles))
-	    {
-		{
-		    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-		    _decompress = false;
-		    notify();
-		}
-		
-		getThreadControl().join();
-
-		return false;
-	    }
-	}
-	catch(...)
-	{
-	    {
-		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-		_decompress = false;
-		notify();
-	    }
-
-	    getThreadControl().join();
-
-	    throw;
+	    return false;
 	}
 
 	if(!_dryRun)
 	{
-	    {
-		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-		if(!_decompressException.empty())
-		{
-		    throw _decompressException;
-		}
-		_decompress = false;
-		notify();
-	    }
-
-	    getThreadControl().join();
-	    
-	    _updateLog.close();
-	    
-	    FileInfoSeq newLocalFiles;
-	    newLocalFiles.reserve(_localFiles.size());
-	    
-	    set_union(_localFiles.begin(),
-		      _localFiles.end(),
-		      _updateFiles.begin(),
-		      _updateFiles.end(),
-		      back_inserter(newLocalFiles),
-		      FileInfoLess());
-	    
-	    _localFiles.swap(newLocalFiles);
-	    
 	    saveFileInfoSeq(_dataDir, _localFiles);
 	}
     }
@@ -293,6 +215,29 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
 	    while(p != files.end() && p->path.size() > dir.size() &&
 		  p->path.compare(0, dir.size(), dir) == 0);
 	}
+
+	FileInfoSeq newLocalFiles;
+	newLocalFiles.reserve(_localFiles.size());
+
+	set_difference(_localFiles.begin(),
+		       _localFiles.end(),
+		       files.begin(),
+		       files.end(),
+		       back_inserter(newLocalFiles),
+		       FileInfoLess());
+	
+	_localFiles.swap(newLocalFiles);
+
+	FileInfoSeq newRemoveFiles;
+
+	set_difference(_removeFiles.begin(),
+		       _removeFiles.end(),
+		       files.begin(),
+		       files.end(),
+		       back_inserter(newRemoveFiles),
+		       FileInfoLess());
+	
+	_removeFiles.swap(newRemoveFiles);
     }
 
     return true;
@@ -300,6 +245,97 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
     
 bool
 IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
+{
+    if(!_dryRun)
+    {
+	string pathLog = _dataDir + ".log";
+	_updateLog.open(pathLog.c_str());
+	if(!_updateLog)
+	{
+	    throw "cannot open `" + pathLog + "' for writing: " + lastError();
+	}
+	
+	{
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	    _decompress = true;
+	}
+	
+	start();
+    }
+
+    try
+    {
+	if(!updateFilesInternal(files))
+	{
+	    {
+		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+		_decompress = false;
+		notify();
+	    }
+	    
+	    getThreadControl().join();
+	    
+	    return false;
+	}
+    }
+    catch(...)
+    {
+	{
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	    _decompress = false;
+	    notify();
+	}
+	
+	getThreadControl().join();
+	
+	throw;
+    }
+    
+    if(!_dryRun)
+    {
+	{
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	    if(!_decompressException.empty())
+	    {
+		throw _decompressException;
+	    }
+	    _decompress = false;
+	    notify();
+	}
+	
+	getThreadControl().join();
+	
+	_updateLog.close();
+	
+	FileInfoSeq newLocalFiles;
+	newLocalFiles.reserve(_localFiles.size());
+	
+	set_union(_localFiles.begin(),
+		  _localFiles.end(),
+		  files.begin(),
+		  files.end(),
+		  back_inserter(newLocalFiles),
+		  FileInfoLess());
+	
+	_localFiles.swap(newLocalFiles);
+
+	FileInfoSeq newUpdateFiles;
+
+	set_difference(_updateFiles.begin(),
+		       _updateFiles.end(),
+		       files.begin(),
+		       files.end(),
+		       back_inserter(newUpdateFiles),
+		       FileInfoLess());
+	
+	_updateFiles.swap(newUpdateFiles);
+    }
+
+    return true;
+}
+
+bool
+IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files)
 {
     FileInfoSeq::const_iterator p;
     
