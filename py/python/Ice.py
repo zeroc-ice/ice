@@ -315,6 +315,25 @@ class ObjectAdapterI(ObjectAdapter):
         self._impl.setLocator(loc)
 
 #
+# Logger wrapper.
+#
+class LoggerI(Logger):
+    def __init__(self, impl):
+        self._impl = impl
+
+    def _print(self, message):
+        return self._impl._print(message)
+
+    def trace(self, category, message):
+        return self._impl.trace(category, message)
+
+    def warning(self, message):
+        return self._impl.warning(message)
+
+    def error(self, message):
+        return self._impl.error(message)
+
+#
 # Properties wrapper.
 #
 class PropertiesI(Properties):
