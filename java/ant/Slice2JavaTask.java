@@ -65,8 +65,8 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
     public
     Slice2JavaTask()
     {
-        _translator = "slice2java";
-        _tagDir = ".";
+        _translator = new File("slice2java");
+        _tagDir = new File(".");
         _outputDir = null;
         _package = null;
         _includePath = null;
@@ -74,19 +74,19 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
     }
 
     public void
-    setTranslator(String prog)
+    setTranslator(File prog)
     {
         _translator = prog;
     }
 
     public void
-    setTagdir(String dir)
+    setTagdir(File dir)
     {
         _tagDir = dir;
     }
 
     public void
-    setOutputdir(String dir)
+    setOutputdir(File dir)
     {
         _outputDir = dir;
     }
@@ -182,7 +182,7 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
             if (_outputDir != null)
             {
                 cmd.append(" --output-dir ");
-                cmd.append(_outputDir);
+                cmd.append(_outputDir.toString());
             }
 
             //
@@ -220,12 +220,12 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
             //
             // Execute
             //
-            log(_translator + " " + cmd);
+            log(_translator.toString() + " " + cmd);
             ExecTask task = (ExecTask)project.createTask("exec");
             task.setFailonerror(true);
             Argument arg = task.createArg();
             arg.setLine(cmd.toString());
-            task.setExecutable(_translator);
+            task.setExecutable(_translator.toString());
             task.execute();
 
             //
@@ -248,9 +248,9 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
         }
     }
 
-    private String _translator;
-    private String _tagDir;
-    private String _outputDir;
+    private File _translator;
+    private File _tagDir;
+    private File _outputDir;
     private String _package;
     private Path _includePath;
     private FileSet _fileSet;
