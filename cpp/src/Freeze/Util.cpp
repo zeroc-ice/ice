@@ -31,7 +31,7 @@ Freeze::handleMemoryException(const DbMemoryException& dx, Key& key, Dbt& dbKey)
 
 	key.resize(dbKey.get_size());
 	initializeOutDbt(key, dbKey);
-	dbKey.set_size(oldKeySize);
+	dbKey.set_size(static_cast<u_int32_t>(oldKeySize));
     }
     else
     {
@@ -54,7 +54,7 @@ Freeze::handleMemoryException(const DbMemoryException& dx, Key& key, Dbt& dbKey,
 	size_t oldKeySize = key.size();
 	key.resize(dbKey.get_size());
 	initializeOutDbt(key, dbKey);
-	dbKey.set_size(oldKeySize);
+	dbKey.set_size(static_cast<u_int32_t>(oldKeySize));
 	resized = true;
     }
     

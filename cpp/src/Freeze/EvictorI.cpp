@@ -1433,13 +1433,7 @@ bool
 Freeze::EvictorI::load(Dbc* dbc, Key& key, vector<Identity>& identities)
 {
     Key root;
-    EvictorStorageKey esk;
-    unmarshal(esk, key, _communicator);
-    identities.push_back(esk.identity);
-    marshalRoot(esk.identity, root, _communicator);
-
     Dbt dbKey;
-
     Dbt dbValue;
     dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 	  
@@ -1807,7 +1801,7 @@ Freeze::EvictorI::load(const Identity& ident)
             //
 	    Dbt dbKey;
 	    initializeOutDbt(key, dbKey);
-	    dbKey.set_size(root.size());
+	    dbKey.set_size(static_cast<u_int32_t>(root.size()));
 
 	    Dbt dbValue;
 	    initializeOutDbt(value, dbValue);

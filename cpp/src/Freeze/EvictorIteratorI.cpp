@@ -120,7 +120,7 @@ Freeze::EvictorIteratorI::nextBatch()
 		    //
 		    // Will be used as input as well
 		    //
-		    dbKey.set_size(firstKey.size());
+		    dbKey.set_size(static_cast<u_int32_t>(firstKey.size()));
 		}
 		
 		if(_loadServants)

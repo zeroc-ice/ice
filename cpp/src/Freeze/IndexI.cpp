@@ -46,7 +46,7 @@ Freeze::IndexI::untypedFindFirst(const Key& bytes, Int firstN) const
     //
     // Berkeley DB 4.1.25 bug: it should not write into dbKey
     //
-    dbKey.set_ulen(bytes.size());
+    dbKey.set_ulen(static_cast<u_int32_t>(bytes.size()));
     
     Key pkey(1024);
     Dbt pdbKey;
@@ -321,7 +321,7 @@ Freeze::IndexI::secondaryKeyCreate(Db* secondary, const Dbt* dbKey,
 	    void* data = malloc(bytes.size());
 	    memcpy(data, &bytes[0], bytes.size());
 	    result->set_data(data);
-	    result->set_size(bytes.size());
+	    result->set_size(static_cast<u_int32_t>(bytes.size()));
 	    return 0;
 	}
     }
