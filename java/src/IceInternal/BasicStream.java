@@ -59,6 +59,10 @@ public class BasicStream
             _readEncapsStack.next = _readEncapsCache;
             _readEncapsCache = _readEncapsStack;
             _readEncapsStack = null;
+            if (_readEncapsCache.objectsRead != null)
+            {
+                _readEncapsCache.objectsRead.clear();
+            }
         }
     }
 
@@ -209,6 +213,7 @@ public class BasicStream
         ReadEncaps curr = _readEncapsCache;
         if (curr != null)
         {
+            assert(curr.objectsRead == null || curr.objectsRead.size() == 0);
             _readEncapsCache = _readEncapsCache.next;
         }
         else
