@@ -176,20 +176,24 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
 
 def clientServerTestWithClasspath(serverClasspath, clientClasspath):
 
+    server = "java -ea Server --Ice.ProgramName=Server"
+    client = "java -ea Client --Ice.ProgramName=Client"
+
     classpath = os.getenv("CLASSPATH", "")
     scp = serverClasspath + sep + classpath
     ccp = clientClasspath + sep + classpath
 
-    server = "java -ea -cp '" + scp + "' Server --Ice.ProgramName=Server"
-    client = "java -ea -cp '" + ccp + "' Client --Ice.ProgramName=Client"
-
     print "starting server...",
+    os.environ["CLASSPATH"] = scp
     serverPipe = os.popen(server + serverOptions)
+    os.environ["CLASSPATH"] = classpath
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
+    os.environ["CLASSPATH"] = ccp
     clientPipe = os.popen(client + clientOptions)
+    os.environ["CLASSPATH"] = classpath
     print "ok"
 
     printOutputFromPipe(clientPipe)

@@ -16,22 +16,12 @@
 import os, sys
 import getopt
 
-#
-# I must import "time" here, otherwise I get a "NameError: global name
-# 'time' is not defined" in the IceStorm run.py scripts. I have no
-# idea why.
-#
-import time
-
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):
         break
 else:
     raise "can't find toplevel directory!"
-
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
 
 def runTests(tests, num = 0):
 
@@ -49,14 +39,12 @@ def runTests(tests, num = 0):
 	print "*** running tests in " + dir,
 	print
 
-	try:
-	    execfile(os.path.join(dir, "run.py"))
-	except SystemExit, (status,):
-	    if status:
-		if(num > 0):
-		    print "[" + str(num) + "]",
-		print "test in " + dir + " failed with exit status", status,
-		sys.exit(status)
+	status = os.system(os.path.join(dir, "run.py"))
+	if status:
+	    if(num > 0):
+		print "[" + str(num) + "]",
+	    print "test in " + dir + " failed with exit status", status,
+	    sys.exit(status)
 
 #
 # List of all basic tests.

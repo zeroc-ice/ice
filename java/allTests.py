@@ -23,14 +23,6 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
-#
-# I must import "TestUtil" here, otherwise I get a "NameError: global
-# name 'TestUtil' is not defined" in the IcePack/deployer/run.py
-# script. I have no idea why.
-#
-sys.path.append(os.path.join(toplevel, "config"))
-import TestUtil
-
 def runTests(tests, num = 0):
 
     #
@@ -47,14 +39,12 @@ def runTests(tests, num = 0):
 	print "*** running tests in " + dir,
 	print
 
-	try:
-	    execfile(os.path.join(dir, "run.py"))
-	except SystemExit, (status,):
-	    if status:
-		if(num > 0):
-		    print "[" + str(num) + "]",
-		print "test in " + dir + " failed with exit status", status,
-		sys.exit(status)
+	status = os.system(os.path.join(dir, "run.py"))
+	if status:
+	    if(num > 0):
+		print "[" + str(num) + "]",
+	    print "test in " + dir + " failed with exit status", status,
+	    sys.exit(status)
 
 #
 # List of all basic tests.
