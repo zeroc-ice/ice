@@ -1217,29 +1217,37 @@ public class BasicStream
     public void
     writePendingObjects()
     {
-	while(_writeEncapsStack.toBeMarshaledMap.size() > 0)
+	//
+	// TODO: Benoit: I think we need to check for these to be null here because it's possible that
+	// these attributes are null if no objects have been written (which might be the case when 
+	// marshalling a sequence of objects if the sequence has no elements).
+	//
+	if(_writeEncapsStack != null && _writeEncapsStack.toBeMarshaledMap != null)
 	{
-	    java.util.IdentityHashMap savedMap = new java.util.IdentityHashMap(_writeEncapsStack.toBeMarshaledMap);
-	    writeSize(savedMap.size());
-	    for(java.util.Iterator p = savedMap.entrySet().iterator(); p.hasNext(); )
+	    while(_writeEncapsStack.toBeMarshaledMap.size() > 0)
 	    {
+		java.util.IdentityHashMap savedMap = new java.util.IdentityHashMap(_writeEncapsStack.toBeMarshaledMap);
+		writeSize(savedMap.size());
+		for(java.util.Iterator p = savedMap.entrySet().iterator(); p.hasNext(); )
+		{
+		    //
+		    // Add an instance from the old to-be-marshaled map to the marshaled map and then
+		    // ask the instance to marshal itself. Any new class instances that are triggered
+		    // by the classes marshaled are added to toBeMarshaledMap.
+		    //
+		    java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+		    _writeEncapsStack.marshaledMap.put(e.getKey(), e.getValue());
+		    writeInstance((Ice.Object)e.getKey(), (Integer)e.getValue());
+		}
+	    
 		//
-		// Add an instance from the old to-be-marshaled map to the marshaled map and then
-		// ask the instance to marshal itself. Any new class instances that are triggered
-		// by the classes marshaled are added to toBeMarshaledMap.
+		// We have marshaled all the instances for this pass, substract what we have
+		// marshaled from the toBeMarshaledMap.
 		//
-	        java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-	        _writeEncapsStack.marshaledMap.put(e.getKey(), e.getValue());
-		writeInstance((Ice.Object)e.getKey(), (Integer)e.getValue());
-	    }
-
-	    //
-	    // We have marshaled all the instances for this pass, substract what we have
-	    // marshaled from the toBeMarshaledMap.
-	    //
-	    for(java.util.Iterator p = savedMap.keySet().iterator(); p.hasNext(); )
-	    {
-	        _writeEncapsStack.toBeMarshaledMap.remove(p.next());
+		for(java.util.Iterator p = savedMap.keySet().iterator(); p.hasNext(); )
+		{
+		    _writeEncapsStack.toBeMarshaledMap.remove(p.next());
+		}
 	    }
 	}
 	writeSize(0);   // Zero marker indicates end of sequence of sequences of instances.
