@@ -73,10 +73,18 @@ public class Server
     {
         int status = 0;
         Ice.Communicator communicator = null;
-        Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
 
         try
         {
+	    //
+	    // In this test, we need a longer server idle time,
+	    // otherwise our test servers may time out before they are
+	    // used in the test.
+	    //
+	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
+	    properties.setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
+
             communicator = Ice.Util.initialize(argsH);
             status = run(argsH.value, communicator);
         }

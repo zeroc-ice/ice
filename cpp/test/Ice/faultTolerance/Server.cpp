@@ -72,9 +72,16 @@ main(int argc, char* argv[])
 
     try
     {
+        //
+	// In this test, we need a longer server idle time, otherwise
+	// our test servers may time out before they are used in the
+	// test.
+	//
+	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
+	properties->setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
+
 	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);
-
     }
     catch(const Ice::Exception& ex)
     {

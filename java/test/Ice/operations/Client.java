@@ -43,13 +43,12 @@ public class Client
 
         try
         {
-	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
-
 	    //
 	    // In this test, we need at least two threads in the
 	    // client side thread pool for nested AMI.
 	    //
+	    Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+	    Ice.Properties properties = Ice.Util.getDefaultProperties(argsH);
 	    properties.setProperty("Ice.ThreadPool.Client.Size", "2");
 	    properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
 
