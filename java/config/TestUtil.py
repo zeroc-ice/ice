@@ -73,18 +73,18 @@ def killServers():
 # Only used for C++ programs
 def getServerPid(serverPipe):
 
-    output = serverPipe.readline().strip()
+    output = serverPipe.readline()
 
     if not output:
         print "failed!"
         killServers()
         sys.exit(1)
 
-    serverPids.append(int(output))
+    serverPids.append(int(output.strip()))
 
 def getAdapterReady(serverPipe):
 
-    output = serverPipe.readline().strip()
+    output = serverPipe.readline()
 
     if not output:
         print "failed!"
@@ -95,13 +95,13 @@ def waitServiceReady(pipe, token):
 
     while 1:
 
-        output = pipe.readline().strip()
+        output = pipe.readline()
 
         if not output:
             print "failed!"
             sys.exit(1)
 
-        if output == token + " ready":
+        if output.strip() == token + " ready":
             break
 
 def printOutputFromPipe(pipe):
