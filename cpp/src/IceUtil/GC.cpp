@@ -156,7 +156,7 @@ IceUtil::GC::collectGarbage()
     if(_statsCallback)
     {
 	t = Time::now();
-	stats.examined = gcObjects.size();
+	stats.examined = static_cast<int>(gcObjects.size());
     }
 
     //
@@ -241,7 +241,7 @@ IceUtil::GC::collectGarbage()
     if(_statsCallback)
     {
 	stats.time = Time::now() - t;
-	stats.collected = counts.size();
+	stats.collected = static_cast<int>(counts.size());
 	_statsCallback(stats);
     }
 

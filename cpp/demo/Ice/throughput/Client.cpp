@@ -283,12 +283,12 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		    }
 		    case '2':
 		    {
-		        wireSize = stringSeq[0].size();
+		        wireSize = static_cast<int>(stringSeq[0].size());
 		    	break;
 		    }
 		    case '3':
 		    {
-		    	wireSize = structSeq[0].s.size();
+		    	wireSize = static_cast<int>(structSeq[0].s.size());
 			wireSize += 8; // Size of double on the wire.
 		    	break;
 		    }

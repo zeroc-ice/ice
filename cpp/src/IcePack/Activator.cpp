@@ -621,7 +621,7 @@ Activator::activate(const string& name,
     assert(i == argc);
     argv[argc] = 0;
     
-    int envCount = envs.size();
+    int envCount = static_cast<int>(envs.size());
     char** envArray = new char*[envCount];
     i = 0;
     for(StringSeq::const_iterator q = envs.begin(); q != envs.end(); ++q)

@@ -78,7 +78,8 @@ IceInternal::TcpTransceiver::shutdownReadWrite()
 void
 IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 {
-    Buffer::Container::difference_type packetSize = buf.b.end() - buf.i;
+    Buffer::Container::difference_type packetSize = 
+        static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
     
 #ifdef _WIN32
     //
@@ -184,7 +185,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 
 	if(packetSize > buf.b.end() - buf.i)
 	{
-	    packetSize = buf.b.end() - buf.i;
+	    packetSize = static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
 	}
     }
 }
@@ -192,7 +193,8 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 void
 IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 {
-    Buffer::Container::difference_type packetSize = buf.b.end() - buf.i;
+    Buffer::Container::difference_type packetSize = 
+        static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
     
     while(buf.i != buf.b.end())
     {
@@ -307,7 +309,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 
 	if(packetSize > buf.b.end() - buf.i)
 	{
-	    packetSize = buf.b.end() - buf.i;
+	    packetSize = static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
 	}
     }
 }

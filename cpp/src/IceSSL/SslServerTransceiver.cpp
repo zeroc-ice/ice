@@ -39,7 +39,8 @@ IceSSL::SslServerTransceiver::write(Buffer& buf, int timeout)
     int totalBytesWritten = 0;
     int bytesWritten = 0;
 
-    Buffer::Container::difference_type packetSize = buf.b.end() - buf.i;
+    Buffer::Container::difference_type packetSize = 
+        static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
 
 #ifdef _WIN32
     //
@@ -94,7 +95,7 @@ IceSSL::SslServerTransceiver::write(Buffer& buf, int timeout)
 
                 if(packetSize > buf.b.end() - buf.i)
                 {
-                    packetSize = buf.b.end() - buf.i;
+                    packetSize = static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
                 }
                 continue;
             }

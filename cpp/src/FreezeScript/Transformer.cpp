@@ -1901,7 +1901,8 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym)
             {
                 Ice::ByteSeq outKeyBytes, outValueBytes;
                 transformRecord(inKeyBytes, inValueBytes, outKeyBytes, outValueBytes);
-                Dbt dbNewKey(&outKeyBytes[0], outKeyBytes.size()), dbNewValue(&outValueBytes[0], outValueBytes.size());
+                Dbt dbNewKey(&outKeyBytes[0], static_cast<unsigned>(outKeyBytes.size())),
+			     dbNewValue(&outValueBytes[0], static_cast<unsigned>(outValueBytes.size()));
                 if(_info->newDb->put(_info->newDbTxn, &dbNewKey, &dbNewValue, DB_NOOVERWRITE) == DB_KEYEXIST)
                 {
                     _info->errorReporter->error("duplicate key encountered");

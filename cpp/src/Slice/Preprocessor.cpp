@@ -135,7 +135,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
         case CPlusPlus:
 	{
 	    char buf[1024];
-	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+	    while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
 	    {
 	        fputs(buf, stdout);
 	    }
@@ -152,7 +152,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
             //
             string deps;
 	    char buf[1024];
-	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+	    while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
 	    {
                 deps.append(buf, strlen(buf));
             }
@@ -205,7 +205,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
 	    // Change .cpp suffix to .cs suffix.
 	    //
 	    char buf[1024];
-	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+	    while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
 	    {
 		char* dot;
 		char* colon = strchr(buf, ':');
@@ -236,7 +236,7 @@ Slice::Preprocessor::printMakefileDependencies(Language lang)
 	    // Change .cpp suffix to .vb suffix.
 	    //
 	    char buf[1024];
-	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+	    while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
 	    {
 		char* dot;
 		char* colon = strchr(buf, ':');

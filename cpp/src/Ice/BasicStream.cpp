@@ -185,7 +185,7 @@ IceInternal::BasicStream::startSeq(int numElements, int minSize)
     sd->previous = _seqDataStack;
     _seqDataStack = sd;
 
-    int bytesLeft = b.end() - i;
+    int bytesLeft = static_cast<int>(b.end() - i);
     if(_seqDataStack == 0) // Outermost sequence
     {
 	//
@@ -211,7 +211,7 @@ IceInternal::BasicStream::startSeq(int numElements, int minSize)
 void
 IceInternal::BasicStream::checkSeq()
 {
-    checkSeq(b.end() - i);
+    checkSeq(static_cast<int>(b.end() - i));
 }
 
 void
@@ -252,7 +252,7 @@ IceInternal::BasicStream::endSeq(int sz)
 void
 IceInternal::BasicStream::checkFixedSeq(int numElements, int elemSize)
 {
-    int bytesLeft = b.end() - i;
+    int bytesLeft = static_cast<int>(b.end() - i);
     if(_seqDataStack == 0) // Outermost sequence
     {
 	//
@@ -495,7 +495,7 @@ Int
 IceInternal::BasicStream::getReadEncapsSize()
 {
     assert(_currentReadEncaps);
-    return _currentReadEncaps->sz - sizeof(Int) - 2;
+    return _currentReadEncaps->sz - static_cast<Int>(sizeof(Int)) - 2;
 }
 
 void
@@ -832,7 +832,7 @@ IceInternal::BasicStream::read(vector<Short>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, sizeof(Short));
+	checkFixedSeq(sz, static_cast<int>(sizeof(Short)));
 	Container::iterator begin = i;
 	i += sz * static_cast<int>(sizeof(Short));
 	v.resize(sz);
@@ -933,7 +933,7 @@ IceInternal::BasicStream::read(vector<Int>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, sizeof(Int));
+	checkFixedSeq(sz, static_cast<int>(sizeof(Int)));
 	Container::iterator begin = i;
 	i += sz * static_cast<int>(sizeof(Int));
 	v.resize(sz);
@@ -1056,7 +1056,7 @@ IceInternal::BasicStream::read(vector<Long>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, sizeof(Long));
+	checkFixedSeq(sz, static_cast<int>(sizeof(Long)));
 	Container::iterator begin = i;
 	i += sz * static_cast<int>(sizeof(Long));
 	v.resize(sz);
@@ -1163,7 +1163,7 @@ IceInternal::BasicStream::read(vector<Float>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, sizeof(Float));
+	checkFixedSeq(sz, static_cast<int>(sizeof(Float)));
 	Container::iterator begin = i;
 	i += sz * static_cast<int>(sizeof(Float));
 	v.resize(sz);
@@ -1286,7 +1286,7 @@ IceInternal::BasicStream::read(vector<Double>& v)
     readSize(sz);
     if(sz > 0)
     {
-	checkFixedSeq(sz, sizeof(Double));
+	checkFixedSeq(sz, static_cast<int>(sizeof(Double)));
 	Container::iterator begin = i;
 	i += sz * static_cast<int>(sizeof(Double));
 	v.resize(sz);

@@ -146,7 +146,8 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
 
     _plugin->registerThread();
 
-    Buffer::Container::difference_type packetSize = buf.b.end() - buf.i;
+    Buffer::Container::difference_type packetSize = 
+        static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
     int totalBytesRead = 0;
     int bytesRead;
 
@@ -213,7 +214,7 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
 
                     if(packetSize > buf.b.end() - buf.i)
                     {
-                        packetSize = buf.b.end() - buf.i;
+                        packetSize = static_cast<Buffer::Container::difference_type>(buf.b.end() - buf.i);
                     }
                 }
                 continue;

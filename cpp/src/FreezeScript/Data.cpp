@@ -1654,7 +1654,7 @@ FreezeScript::SequenceData::destroy()
 void
 FreezeScript::SequenceData::marshal(const Ice::OutputStreamPtr& out) const
 {
-    out->writeSize(_elements.size());
+    out->writeSize(static_cast<int>(_elements.size()));
     for(DataList::const_iterator p = _elements.begin(); p != _elements.end(); ++p)
     {
         (*p)->marshal(out);
@@ -1728,14 +1728,14 @@ FreezeScript::SequenceData::getElements()
 FreezeScript::EnumData::EnumData(const Slice::EnumPtr& type, const ErrorReporterPtr& errorReporter, bool readOnly) :
     Data(errorReporter, readOnly), _type(type), _value(0)
 {
-    _count = static_cast<long>(type->getEnumerators().size());
+    _count = static_cast<int>(type->getEnumerators().size());
 }
 
 FreezeScript::EnumData::EnumData(const Slice::EnumPtr& type, const ErrorReporterPtr& errorReporter, bool readOnly,
                                  Ice::Int value) :
     Data(errorReporter, readOnly), _type(type), _value(value)
 {
-    _count = static_cast<long>(type->getEnumerators().size());
+    _count = static_cast<int>(type->getEnumerators().size());
 }
 
 FreezeScript::DataPtr
@@ -2034,7 +2034,7 @@ FreezeScript::DictionaryData::destroy()
 void
 FreezeScript::DictionaryData::marshal(const Ice::OutputStreamPtr& out) const
 {
-    out->writeSize(_map.size());
+    out->writeSize(static_cast<int>(_map.size()));
     for(DataMap::const_iterator p = _map.begin(); p != _map.end(); ++p)
     {
         p->first->marshal(out);

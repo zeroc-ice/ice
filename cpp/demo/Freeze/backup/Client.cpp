@@ -38,7 +38,7 @@ main(int argc, char* argv[])
     Freeze::ConnectionPtr connection = createConnection(communicator, "backup");
     IntLongMap m(connection, "IntLongMap", true);
     
-    const size_t size = 10000;
+    const int size = 10000;
 
     if(m.size() == 0)
     {	
@@ -48,7 +48,7 @@ main(int argc, char* argv[])
 	Time time = Time::now();
 	Int64 ms = time.toMilliSeconds();
 
-	for(size_t i = 0; i < size; ++i)
+	for(int i = 0; i < size; ++i)
 	{
 	    m.insert(IntLongMap::value_type(i, ms));
 	}
@@ -59,7 +59,7 @@ main(int argc, char* argv[])
 
     for(;;)
     {
-	size_t count = 0;
+	int count = 0;
 
 	TransactionHolder txHolder(connection);
 	Time time = Time::now();

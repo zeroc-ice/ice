@@ -1346,7 +1346,7 @@ Ice::Service::runDaemon(int argc, char* argv[])
             size_t pos = 0;
             while(pos < sizeof(msg))
             {
-                int n = read(fds[0], &msg[pos], sizeof(msg) - pos);
+                int n = read(fds[0], &msg[pos], static_cast<int>(sizeof(msg) - pos));
                 if(n == -1)
                 {
                     if(IceInternal::interrupted())
@@ -1444,7 +1444,7 @@ Ice::Service::runDaemon(int argc, char* argv[])
             // conveniently allows the Ice.PrintProcessId property to work as expected.
             //
             FD_ZERO(&fdsToClose);
-            fdMax = sysconf(_SC_OPEN_MAX);
+            fdMax = static_cast<int>(sysconf(_SC_OPEN_MAX));
             if(fdMax <= 0)
             {
                 SyscallException ex(__FILE__, __LINE__);
@@ -1596,7 +1596,7 @@ Ice::Service::runDaemon(int argc, char* argv[])
         size_t pos = 0;
         while(len > 0)
         {
-            int n = write(fds[1], &msg[pos], len);
+            int n = write(fds[1], &msg[pos], static_cast<int>(len));
             if(n == -1)
             {
                 if(IceInternal::interrupted())

@@ -792,7 +792,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 			throw ": cannot write `" + pathBZ2 + "':\n" + lastError();
 		    }
 		
-		    pos += bytes.size();
+		    pos += static_cast<int>(bytes.size());
 		    updated += bytes.size();
 		
 		    if(!_feedback->patchProgress(pos, p->size, updated, total))

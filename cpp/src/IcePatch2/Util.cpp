@@ -602,7 +602,7 @@ IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
 	throw ex;
     }
 
-    BZ2_bzWrite(&bzError, bzFile, const_cast<Byte*>(&bytes[pos]), bytes.size() - pos);
+    BZ2_bzWrite(&bzError, bzFile, const_cast<Byte*>(&bytes[pos]), static_cast<int>(bytes.size() - pos));
     if(bzError != BZ_OK)
     {
 	string ex = "BZ2_bzWrite failed";
@@ -862,7 +862,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 			//
 			const string pathBZ2Temp = path + ".bz2temp";
 
-			compressBytesToFile(pathBZ2Temp, bytes, relPath.size());
+			compressBytesToFile(pathBZ2Temp, bytes, static_cast<Int>(relPath.size()));
 			
 			rename(pathBZ2Temp, pathBZ2);
 
@@ -872,7 +872,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 			}
 		    }
 
-		    info.size = bufBZ2.st_size;
+		    info.size = static_cast<Int>(bufBZ2.st_size);
 		}
 	    }
 
