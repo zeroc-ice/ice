@@ -420,6 +420,46 @@ interface Admin
     void stopServer(string name)
 	throws ServerNotExistException, NodeUnreachableException;
 
+
+    /**
+     *
+     * Send signal to a server.
+     *
+     * @param name Must match the name of [ServerDescription::name].
+     * @param signal The signal, for example SIGTERM or 15.
+     *
+     * @throws ServerNotExistException Raised if the server is not
+     * found.
+     *
+     * @throws NodeUnreachableException Raised if the node could not be
+     * reached.
+     *
+     * @throws BadSignalException Raised if the signal is not recognized 
+     * by the target server.
+     *
+     **/
+    void sendSignal(string name, string signal)
+	throws ServerNotExistException, NodeUnreachableException,
+	       BadSignalException;
+
+    /**
+     *
+     * Write message on server stdout or stderr
+     *
+     * @param name Must match the name of [ServerDescription::name].
+     * @param message The message.
+     * @param fd 1 for stdout, 2 for stderr.
+     *
+     * @throws ServerNotExistException Raised if the server is not
+     * found.
+     *
+     * @throws NodeUnreachableException Raised if the node could not be
+     * reached.
+     *
+     **/
+    void writeMessage(string name, string message, int fd)
+	throws ServerNotExistException, NodeUnreachableException;
+
     /**
      *
      * Get all the server names registered with &IcePack;.

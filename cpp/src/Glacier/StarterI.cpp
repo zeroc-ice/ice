@@ -603,11 +603,12 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    // Send any errors to the parent process, using the write
 	    // end of the pipe.
 	    //
+	    int err = errno;
 	    char msg[500];
 	    strcpy(msg,  "can't execute `");
 	    strcat(msg, argv[0]);
 	    strcat(msg, "':  ");
-	    strcat(msg, strerror(errno));
+	    strcat(msg, strerror(err));
 
 	    write(fds[1], msg, strlen(msg));
 	    close(fds[1]);

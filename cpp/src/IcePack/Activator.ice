@@ -48,6 +48,20 @@ local interface Activator
 
     /**
      *
+     * Send signal to server.
+     *
+     **/
+    void sendSignal(Server theServer, string signal);
+
+    /**
+     *
+     * Write message on the server stdout or stderr
+     *
+     **/
+    void writeMessage(Server theServer, string message, int fd);
+   
+    /**
+     *
      * Returns the server pid.
      *
      **/

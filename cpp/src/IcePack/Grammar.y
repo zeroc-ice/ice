@@ -53,6 +53,9 @@ yyerror(const char* s)
 %token ICE_PACK_STRING
 %token ICE_PACK_START
 %token ICE_PACK_STOP
+%token ICE_PACK_SIGNAL
+%token ICE_PACK_STDOUT
+%token ICE_PACK_STDERR
 %token ICE_PACK_DESCRIBE
 %token ICE_PACK_STATE
 %token ICE_PACK_PID
@@ -127,6 +130,18 @@ command
 | ICE_PACK_SERVER ICE_PACK_STOP strings ';'
 {
     parser->stopServer($3);
+}
+| ICE_PACK_SERVER ICE_PACK_SIGNAL strings ';'
+{
+    parser->signalServer($3);
+}
+| ICE_PACK_SERVER ICE_PACK_STDOUT strings ';'
+{
+    parser->writeMessage($3, 1);
+}
+| ICE_PACK_SERVER ICE_PACK_STDERR strings ';'
+{
+    parser->writeMessage($3, 2);
 }
 | ICE_PACK_SERVER ICE_PACK_DESCRIBE strings ';'
 {

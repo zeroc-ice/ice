@@ -1629,6 +1629,24 @@ each deployed server.
 </section>
 </section>
 
+<section><title>IcePack.Node.Output</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Node.Output=<replaceable>path</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the path of the &IcePack; node output directory. If set, the 
+node will redirect the stdout and stderr output of the started
+servers to files named <replaceable>server</replaceable>.out and 
+<replaceable>server</replaceable>.err in this directory. Otherwise, 
+the started servers share the stdout and stderr of the &IcePack; node.
+</para>
+</section>
+</section>
+
 <section><title>IcePack.Node.PropertiesOverride</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -1643,6 +1661,21 @@ server deployment descriptors. For example, in some cases it is desirable
 to set the property <literal>Ice.Default.Host</literal> for servers, but
 not in server deployment descriptors. The property definitions should
 be separated by white space.
+</para>
+</section>
+</section>
+
+<section><title>IcePack.Node.RedirectErrToOut</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePack.Node.RedirectErrToOut=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the stderr of each started server is redirected to the server's stdout.
 </para>
 </section>
 </section>

@@ -82,6 +82,8 @@ public:
     void addServer(const std::list<std::string>&);
     void startServer(const std::list<std::string>&);
     void stopServer(const std::list<std::string>&);
+    void signalServer(const std::list<std::string>&);
+    void writeMessage(const std::list<std::string>&, int fd);
     void describeServer(const std::list<std::string>&);
     void stateServer(const std::list<std::string>&);
     void activationServer(const std::list<std::string>&);

@@ -35,6 +35,9 @@ public:
     virtual bool activate(const ::IcePack::ServerPtr&);
     virtual void deactivate(const ::IcePack::ServerPtr&);
     virtual void kill(const ::IcePack::ServerPtr&);
+    virtual void sendSignal(const ::IcePack::ServerPtr&, const std::string&);
+    virtual void writeMessage(const ::IcePack::ServerPtr&, const std::string&, Ice::Int);
+
     virtual Ice::Int getServerPid(const ::IcePack::ServerPtr&);
     
     virtual void start();
@@ -42,6 +45,8 @@ public:
     virtual void shutdown();
     virtual void destroy();
     
+    
+    void sendSignal(const ::IcePack::ServerPtr&, int);
     void runTerminationListener();
 
 private:
@@ -57,9 +62,13 @@ private:
 #ifdef _WIN32
         DWORD pid;
         HANDLE hnd;
+	HANDLE outHandle;
+	HANDLE errHandle;
 #else
 	pid_t pid;
-	int fd;
+	int pipeFd;
+	int outFd;
+	int errFd;
 #endif
 	ServerPtr server;
     };
@@ -77,7 +86,10 @@ private:
 #endif
 
     std::vector<std::string> _propertiesOverride;
-    
+
+    std::string _outputDir;
+    bool _redirectErrToOut;
+
     IceUtil::ThreadPtr _thread;
 };
 

@@ -1,6 +1,22 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Three new icepackadmin commands:
+  - server signal NAME SIGNAL, to have the IcePackNode send a signal 
+     to a server (Unix only)
+  - server stdout NAME MESSAGE to write MESSAGE on server's stdout
+  - server stderr NAME MESSAGE to write MESSAGE on servers'stderr
+
+- Two new IcePack.Node properties:
+  - IcePack.Node.Output=<path>
+    If set, the IcePack node will redirect the stdout and stderr 
+    output of the started servers to files named <server>.out and 
+    <server>.err in this directory. Otherwise, the started servers 
+    share the stdout and stderr of the IcePack node.
+  - IcePack.Node.RedirectErrToOut=<num>
+    If <num> is set to a value larger than zero, the stderr of each
+    started server is redirected to the server's stdout.
+
 - Eliminated Glacier's dependency on the crypt library. It now
   uses an equivalent function from OpenSSL.
 

@@ -156,6 +156,16 @@ exception NodeUnreachableException
 {
 };
 
+/**
+ *
+ * This exception is raised if an unknown signal was sent to
+ * to a server.
+ *
+ **/
+exception BadSignalException
+{
+};
+
 };
 
 #endif

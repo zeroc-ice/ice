@@ -158,6 +158,18 @@ NL	[\n]
     return ICE_PACK_STOP;
 }
 
+"signal" {
+    return ICE_PACK_SIGNAL;
+}
+
+"stdout" {
+    return ICE_PACK_STDOUT;
+}
+
+"stderr" {
+    return ICE_PACK_STDERR;
+}
+
 "node" {
     return ICE_PACK_NODE;
 }

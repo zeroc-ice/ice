@@ -42,6 +42,8 @@ public:
 
     virtual bool start(ServerActivation, const ::Ice::Current&);
     virtual void stop(const ::Ice::Current&);
+    virtual void sendSignal(const std::string&, const ::Ice::Current&);
+    virtual void writeMessage(const std::string&, Ice::Int, const ::Ice::Current&);
     virtual void destroy(const ::Ice::Current&);
     virtual void terminated(const ::Ice::Current&);
 

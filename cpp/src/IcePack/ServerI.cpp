@@ -157,6 +157,19 @@ IcePack::ServerI::stop(const Ice::Current& current)
 }
 
 void
+IcePack::ServerI::sendSignal(const string& signal, const Ice::Current& current)
+{
+    _activator->sendSignal(this, signal);
+}
+
+void
+IcePack::ServerI::writeMessage(const string& message, Ice::Int fd, const Ice::Current& current)
+{
+    _activator->writeMessage(this, message, fd);
+}
+
+
+void
 IcePack::ServerI::destroy(const Ice::Current& current)
 {
     bool stop = false;

@@ -72,6 +72,9 @@ IcePack::Parser::usage()
 	"server pid NAME             Get server NAME pid.\n"
 	"server start NAME           Start server NAME.\n"
 	"server stop NAME            Stop server NAME.\n"
+        "server signal NAME SIGNAL   Send SIGNAL (e.g. SIGTERM or 15) to server NAME\n"
+        "server stdout NAME MESSAGE  Write MESSAGE on server NAME's stdout\n"
+	"server stderr NAME MESSAGE  Write MESSAGE on server NAME's stderr\n"
 	"server activation NAME [on-demand | manual] \n"
 	"                            Set the server activation mode to on-demand or\n"
 	"                            manual activation"
@@ -325,6 +328,54 @@ IcePack::Parser::stopServer(const list<string>& args)
 	error(s.str());
     }
 }
+
+void
+IcePack::Parser::signalServer(const list<string>& args)
+{
+    if(args.size() != 2)
+    {
+	error("`server signal' requires exactly two arguments\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	list<string>::const_iterator p = args.begin();
+	string server = *p++;
+	_admin->sendSignal(server, *p);
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
+
+void
+IcePack::Parser::writeMessage(const list<string>& args, int fd)
+{
+    if(args.size() != 2)
+    {
+	error("`server stdout or server stderr' requires exactly two arguments\n(`help' for more info)");
+	return;
+    }
+
+    try
+    {
+	list<string>::const_iterator p = args.begin();
+	string server = *p++;
+	_admin->writeMessage(server, *p,  fd);
+    }
+    catch(const Exception& ex)
+    {
+	ostringstream s;
+	s << ex;
+	error(s.str());
+    }
+}
+
 
 void
 IcePack::Parser::removeServer(const list<string>& args)

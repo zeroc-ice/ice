@@ -168,6 +168,43 @@ IcePack::AdminI::stopServer(const string& name, const Current&)
     }
 }
 
+void
+IcePack::AdminI::sendSignal(const string& name, const string& signal, const Current&)
+{
+    ServerPrx server = _serverRegistry->findByName(name);
+    try
+    {
+	server->sendSignal(signal);
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	throw ServerNotExistException();
+    }
+    catch(const Ice::LocalException&)
+    {
+	throw NodeUnreachableException();
+    }
+}
+
+void
+IcePack::AdminI::writeMessage(const string& name, const string& message, Int fd, const Current&)
+{
+    ServerPrx server = _serverRegistry->findByName(name);
+    try
+    {
+	server->writeMessage(message, fd);
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+	throw ServerNotExistException();
+    }
+    catch(const Ice::LocalException&)
+    {
+	throw NodeUnreachableException();
+    }
+}
+
+
 StringSeq
 IcePack::AdminI::getAllServerNames(const Current&) const
 {

@@ -270,6 +270,20 @@ class Server
 
     /**
      *
+     * Send signal to the server
+     *
+     **/
+    void sendSignal(string signal) throws BadSignalException;
+    
+    /**
+     *
+     * Write message on servers' stdout or stderr.
+     *
+     **/
+    void writeMessage(string message, int fd);
+
+    /**
+     *
      * Destroy the server. This method destroys the server and
      * eventually deactivates if it's still active.
      *

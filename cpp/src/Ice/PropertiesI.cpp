@@ -165,6 +165,8 @@ static const string icePackProps[] =
     "Node.AdapterId",
     "Node.CollocateRegistry",
     "Node.Data",
+    "Node.Output",
+    "Node.RedirectErrToOut",
     "Node.Endpoints",
     "Node.Name",
     "Node.PrintServersReady",

@@ -19,8 +19,10 @@
 #include <IcePack/TraceLevels.h>
 
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <signal.h>
 #include <fcntl.h>
+
 
 using namespace std;
 using namespace Ice;
@@ -48,6 +50,192 @@ private:
     
     ActivatorI& _activator;
 };
+
+}
+
+#define ICE_STRING(X) #X
+
+namespace
+{
+
+#ifndef _WIN32
+//
+// Helper function for async-signal safe error reporting
+//
+void
+reportChildError(int err, int fd, const char* cannot, const char* name)
+{
+    //
+    // Send any errors to the parent process, using the write
+    // end of the pipe.
+    //
+    char msg[500];
+    strcpy(msg, cannot);
+    strcat(msg, " `");
+    strcat(msg, name);
+    strcat(msg, "':  ");
+    strcat(msg, strerror(err));
+    write(fd, msg, strlen(msg));
+    close(fd);
+    _exit(EXIT_FAILURE);
+}
+
+#endif
+
+#ifndef _WIN32
+string
+signalToString(int signal)
+{
+    switch(signal)
+    {
+	case SIGHUP:
+	{
+	    return ICE_STRING(SIGHUP);
+	}
+	case SIGINT:
+	{
+	    return ICE_STRING(SIGINT);
+	}
+	case SIGQUIT:
+	{
+	    return ICE_STRING(SIGQUIT);
+	}
+	case SIGILL:
+	{
+	    return ICE_STRING(SIGILL);
+	}
+	case SIGTRAP:
+	{
+	    return ICE_STRING(SIGTRAP);
+	}
+	case SIGABRT:
+	{
+	    return ICE_STRING(SIGABRT);
+	}
+	case SIGBUS:
+	{
+	    return ICE_STRING(SIGBUS);
+	}
+	case SIGFPE:
+	{
+	    return ICE_STRING(SIGFPE);
+	}
+	case SIGKILL:
+	{
+	    return ICE_STRING(SIGKILL);
+	}
+	case SIGUSR1:
+	{
+	    return ICE_STRING(SIGUSR1);
+	}
+	case SIGSEGV:
+	{
+	    return ICE_STRING(SIGSEGV);
+	}
+	case SIGPIPE:
+	{
+	    return ICE_STRING(SIGPIPE);
+	}
+	case SIGALRM:
+	{
+	    return ICE_STRING(SIGALRM);
+	}
+	case SIGTERM:
+	{
+	    return ICE_STRING(SIGTERM);
+	}
+	default:
+	{
+	    ostringstream os;
+	    os << "signal " << signal;
+	    return os.str();
+	}
+    }
+#endif
+}
+
+int
+stringToSignal(const string& str)
+{
+#ifdef _WIN32
+    throw BadSignalException();
+#else
+
+    if(str == ICE_STRING(SIGHUP))
+    {
+	return SIGHUP;
+    }
+    else if(str ==  ICE_STRING(SIGINT))
+    {
+	return SIGINT;
+    }
+    else if(str == ICE_STRING(SIGQUIT))
+    {
+	return SIGQUIT;
+    }
+    else if(str == ICE_STRING(SIGILL))
+    {
+	return SIGILL;
+    }
+    else if(str == ICE_STRING(SIGTRAP))
+    {
+	return SIGTRAP;
+    }
+    else if(str == ICE_STRING(SIGABRT))
+    {
+	return SIGABRT;
+    }
+    else if(str == ICE_STRING(SIGBUS))
+    {
+	return SIGBUS;
+    }
+    else if(str == ICE_STRING(SIGFPE))
+    {
+	return SIGFPE;
+    }
+    else if(str == ICE_STRING(SIGKILL))
+    {
+	return SIGKILL;
+    }
+    else if(str == ICE_STRING(SIGUSR1))
+    {
+	return SIGUSR1;
+    }
+    else if(str == ICE_STRING(SIGSEGV))
+    {
+	return SIGSEGV;
+    }
+    else if(str == ICE_STRING(SIGUSR2))
+    {
+	return SIGUSR2;
+    }
+    else if(str == ICE_STRING(SIGPIPE))
+    {
+	return SIGPIPE;
+    }
+    else if(str == ICE_STRING(SIGALRM))
+    {
+	return SIGALRM;
+    }
+    else if(str == ICE_STRING(SIGTERM))
+    {
+	return SIGTERM;
+    }
+    else
+    {
+	if(str != "")
+	{
+	    char* end;
+	    long int signal = strtol(str.c_str(), &end, 10);
+	    if(*end == '\0' && signal > 0 && signal < 64)
+	    {
+		return static_cast<int>(signal);
+	    }
+	}
+	throw BadSignalException();
+    }
+}
+#endif
 
 }
 
@@ -84,6 +272,9 @@ IcePack::ActivatorI::ActivatorI(const TraceLevelsPtr& traceLevels, const Propert
     flags |= O_NONBLOCK;
     fcntl(_fdIntrRead, F_SETFL, flags);
 #endif
+
+    _outputDir = _properties->getProperty("IcePack.Node.Output");
+    _redirectErrToOut = (_properties->getPropertyAsInt("IcePack.Node.RedirectErrToOut") > 0);
 
     //
     // Parse the properties override property.
@@ -342,9 +533,107 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
         env = envbuf.c_str();
     }
 
+    Process process;
+
     STARTUPINFO si;
     ZeroMemory(&si, sizeof(si));
     si.cb = sizeof(si);
+    if(_outputDir.size() > 0)
+    {
+	string outFile = _outputDir + "/" + server->description.name + ".out";
+
+	SECURITY_ATTRIBUTES sec = { 0 };
+	sec.nLength = sizeof(sec);
+	sec.bInheritHandle = true;
+	
+	process.outHandle = CreateFile(outFile.c_str(),
+				       GENERIC_WRITE, 
+				       FILE_SHARE_READ, 
+				       &sec,
+				       OPEN_ALWAYS,
+				       FILE_ATTRIBUTE_NORMAL,
+				       NULL);
+	if(process.outHandle == INVALID_HANDLE_VALUE)
+	{
+	    SyscallException ex(__FILE__, __LINE__);
+	    ex.error = getSystemErrno();
+	    throw ex;
+	}
+	if(SetFilePointer(process.outHandle, 0, NULL, FILE_END) 
+	   == INVALID_SET_FILE_POINTER)
+	{
+	    SyscallException ex(__FILE__, __LINE__);
+	    ex.error = getSystemErrno();
+	    throw ex;
+	}
+	
+	if(_redirectErrToOut)
+	{
+	    process.errHandle = process.outHandle;
+	}
+	else
+	{
+	    string errFile = _outputDir + "/" + server->description.name + ".err";
+
+	    process.errHandle = CreateFile(errFile.c_str(),
+					   GENERIC_WRITE, 
+					   FILE_SHARE_READ, 
+					   &sec,
+					   OPEN_ALWAYS,
+					   FILE_ATTRIBUTE_NORMAL,
+					   NULL);
+	    if(process.errHandle == INVALID_HANDLE_VALUE)
+	    {
+		SyscallException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		throw ex;
+	    }
+	    if(SetFilePointer(process.errHandle, 0, NULL, FILE_END) 
+	       == INVALID_SET_FILE_POINTER)
+	    {
+		SyscallException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		throw ex;
+	    }
+
+	}
+
+	si.hStdInput = GetStdHandle(STD_OUTPUT_HANDLE);
+	if(si.hStdInput == INVALID_HANDLE_VALUE)
+	{
+	    SyscallException ex(__FILE__, __LINE__);
+	    ex.error = getSystemErrno();
+	    throw ex;
+	}
+	si.hStdOutput = process.outHandle;
+	si.hStdError = process.errHandle;
+	si.dwFlags = STARTF_USESTDHANDLES;
+    }
+    else
+    {
+	process.outHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+	if(process.outHandle == INVALID_HANDLE_VALUE)
+	{
+	    SyscallException ex(__FILE__, __LINE__);
+	    ex.error = getSystemErrno();
+	    throw ex;
+	}
+	if(_redirectErrToOut)
+	{
+	    process.errHandle = process.outHandle;
+	}
+	else
+	{
+	    process.errHandle = GetStdHandle(STD_ERROR_HANDLE);
+	    if(process.errHandle == INVALID_HANDLE_VALUE)
+	    {
+		SyscallException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		throw ex;
+	    }
+	}
+    }
+
     PROCESS_INFORMATION pi;
     ZeroMemory(&pi, sizeof(pi));
 
@@ -353,7 +642,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
         cmdbuf,                   // Command line
         NULL,                     // Process attributes
         NULL,                     // Thread attributes
-        FALSE,                    // Inherit handles
+        TRUE,                     // Inherit handles
         CREATE_NEW_PROCESS_GROUP, // Process creation flags
         (LPVOID)env,              // Process environment
         dir,                      // Current directory
@@ -376,7 +665,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     //
     CloseHandle(pi.hThread);
 
-    Process process;
+    
     process.pid = pi.dwProcessId;
     process.hnd = pi.hProcess;
     process.server = server;
@@ -397,6 +686,84 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	ex.error = getSystemErrno();
 	throw ex;
     }
+
+    //
+    // Convert to standard argc/argv.
+    //
+    int argc = static_cast<int>(args.size());
+    char** argv = static_cast<char**>(malloc((argc + 1) * sizeof(char*)));
+    int i = 0;
+    for(StringSeq::const_iterator p = args.begin(); p != args.end(); ++p, ++i)
+    {
+	assert(i < argc);
+	argv[i] = strdup(p->c_str());
+    }
+    assert(i == argc);
+    argv[argc] = 0;
+    
+    int envCount = server->description.envs.size();
+    char** envs = new char*[envCount];
+    i = 0;
+    for(StringSeq::const_iterator q = server->description.envs.begin(); q != server->description.envs.end(); ++q)
+    {
+	envs[i++] = strdup(q->c_str());
+    }
+
+    //
+    // stdout and stderr redirection
+    //
+    int flags = O_WRONLY | O_APPEND | O_CREAT;
+    mode_t mode = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
+   
+    int outFd;;
+    string outFile;
+    int errFd;
+    string errFile;
+
+    if(_outputDir.size() == 0)
+    {
+	outFd = STDOUT_FILENO;
+	errFd = _redirectErrToOut ? outFd : STDERR_FILENO;
+    }
+    else
+    {
+	outFile = _outputDir + "/" + server->description.name + ".out";
+	outFd = open(outFile.c_str(), flags, mode);
+	if(outFd < 0)
+	{
+	    SyscallException ex(__FILE__, __LINE__);
+	    ex.error = getSystemErrno();
+	    throw ex;
+	}
+	
+	if(_redirectErrToOut)
+	{
+	    errFile = outFile;
+	    errFd = outFd;
+	}
+	else
+	{
+	    errFile = _outputDir + "/" + server->description.name + ".err";
+	    errFd = open(errFile.c_str(), flags, mode);
+	    
+	    if(errFd < 0)
+	    {
+		SyscallException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		throw ex;
+	    }   
+	}
+    }
+    
+    const char* outFileCStr = outFile.c_str();
+    const char* errFileCStr = errFile.c_str();
+
+    //
+    // Current directory
+    //
+    const char* pwdCStr = pwd.c_str();
+
+
     pid_t pid = fork();
     if(pid == -1)
     {
@@ -408,10 +775,8 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     if(pid == 0) // Child process.
     {
 	//
-	// TODO: eliminate all non-async-signal-safe calls, in particular anything
-	// that may allocate dynamic memory.
+	// Until exec, we can only use async-signal safe functions
 	//
-
 
 #ifdef __linux
 	//
@@ -420,6 +785,22 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	//
 	setpgrp();
 #endif
+
+	//
+	// stdout and stderr redirection
+	//
+	if(_outputDir.size() > 0)
+	{
+	    if(dup2(outFd, STDOUT_FILENO) != STDOUT_FILENO)
+	    {
+		reportChildError(errno, fds[1], "cannot associate stdout with opened file",  outFileCStr);
+	    }
+	    
+	    if(dup2(errFd, STDERR_FILENO) != STDERR_FILENO)
+	    {
+		reportChildError(errno, fds[1], "cannot associate stderr with opened file",  errFileCStr);
+	    }
+	}
 
 	//
 	// Close all file descriptors, except for standard input,
@@ -435,115 +816,55 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	    }
 	}
 
-	//
-	// Convert to standard argc/argv.
-	//
-	int argc = static_cast<int>(args.size());
-	char** argv = static_cast<char**>(malloc((argc + 1) * sizeof(char*)));
-	int i = 0;
-	for(StringSeq::const_iterator p = args.begin(); p != args.end(); ++p, ++i)
+	for(i = 0; i < envCount; i++)
 	{
-	    assert(i < argc);
-	    argv[i] = strdup(p->c_str());
-	}
-	assert(i == argc);
-	argv[argc] = 0;
-
-	for(StringSeq::const_iterator q = server->description.envs.begin(); q != server->description.envs.end(); ++q)
-	{
-	    if(putenv(strdup(q->c_str())) != 0)
+	    if(putenv(envs[i]) != 0)
 	    {
-		SyscallException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		ostringstream s;
-		s << "can't set environment variable: " << *q << "':\n" << ex;
-		write(fds[1], s.str().c_str(), s.str().length());
-		close(fds[1]);
-		_exit(EXIT_FAILURE);
+		reportChildError(errno, fds[1], "cannot set environment variable",  envs[i]); 
 	    }
 	}
-
 	//
-	// Redirect the standard error output to the write side of the
-	// pipe.
+	// Each env is leaked on purpose ... see man putenv().
 	//
-	// TODO: This doesn't work well if the server doesn't control
-	// when and how the output is flushed. For example, we could
-	// receive one character after the other over the pipe which
-	// is problematic since we don't know when to log message. For
-	// sure we don't want to log each character one after the
-	// other. We want to log the message. One solution would be to
-	// put the received information in a buffer and log it only
-	// when we receive a '\n'.
-	//
-
-// 	if(fds[1] != STDERR_FILENO)
-// 	{
-// 	    if(dup2(fds[1], STDERR_FILENO) != STDERR_FILENO)
-// 	    {
-// 		//
-// 		// Send any errors to the parent process, using the write
-// 		// end of the pipe.
-// 		//
-// 		SyscallException ex(__FILE__, __LINE__);
-// 		ex.error = getSystemErrno();
-// 		ostringstream s;
-// 		s << "can't redirect stderr to the pipe output";
-// 		write(fds[1], s.str().c_str(), s.str().length());
-// 		close(fds[1]);
-// 		_exit(EXIT_FAILURE);
-// 	    }
-// 	}
+	delete[] envs;
 
 	//
 	// Change working directory.
 	//
-	if(!pwd.empty())
+	if(strlen(pwdCStr) != 0)
 	{
-	    if(chdir(pwd.c_str()) == -1)
+	    if(chdir(pwdCStr) == -1)
 	    {
-		//
-		// Send any errors to the parent process, using the write
-		// end of the pipe.
-		//
-		SyscallException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		ostringstream s;
-		s << "can't change working directory to `" << pwd << "':\n" << ex;
-		write(fds[1], s.str().c_str(), s.str().length());
-		close(fds[1]);
-		_exit(EXIT_FAILURE);
+		reportChildError(errno, fds[1], "cannot change working directory to",  pwdCStr);
 	    }
 	}	
 
 	if(execvp(argv[0], argv) == -1)
 	{
-	    //
-	    // Send any errors to the parent process, using the write
-	    // end of the pipe.
-	    //
-	    SyscallException ex(__FILE__, __LINE__);
-	    ex.error = getSystemErrno();
-	    ostringstream s;
-	    s << "can't execute `" << path << "':\n" << ex;
-	    write(fds[1], s.str().c_str(), s.str().length());
-	    close(fds[1]);
-	    _exit(EXIT_FAILURE);
+	    reportChildError(errno, fds[1], "cannot execute",  argv[0]);
 	}
     }
     else // Parent process.
     {
 	close(fds[1]);
 
+	for(i = 0; i < envCount; ++i)
+	{
+	    free(envs[i]);
+	}
+	delete[] envs;
+
 	Process process;
 	process.pid = pid;
-	process.fd = fds[0];
+	process.pipeFd = fds[0];
+	process.outFd = outFd;
+	process.errFd = errFd;
 	process.server = server;
 	_processes.push_back(process);
 	
-	int flags = fcntl(process.fd, F_GETFL);
+	int flags = fcntl(process.pipeFd, F_GETFL);
 	flags |= O_NONBLOCK;
-	fcntl(process.fd, F_SETFL, flags);
+	fcntl(process.pipeFd, F_SETFL, flags);
 
 	setInterrupt();
 
@@ -561,6 +882,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 void
 IcePack::ActivatorI::deactivate(const ServerPtr& server)
 {
+#ifdef _WIN32
     Ice::Int pid = server->getPid();
 
     if(pid == 0)
@@ -571,7 +893,6 @@ IcePack::ActivatorI::deactivate(const ServerPtr& server)
 	return;
     }
 
-#ifdef _WIN32
     //
     // Generate a Ctrl+Break event on the child.
     //
@@ -593,33 +914,15 @@ IcePack::ActivatorI::deactivate(const ServerPtr& server)
     //
     // Send a SIGTERM to the process.
     //
-
-#ifdef __linux
-    //
-    // Use process groups on Linux instead of processes
-    //
-    int ret = ::killpg(static_cast<pid_t>(pid), SIGTERM);
-#else
-    int ret = ::kill(static_cast<pid_t>(pid), SIGTERM);
-#endif
-    if(ret != 0 && getSystemErrno() != ESRCH)
-    {
-	SyscallException ex(__FILE__, __LINE__);
-	ex.error = getSystemErrno();
-	throw ex;
-    }
-
-    if(_traceLevels->activator > 1)
-    {
-	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-	out << "sent SIGTERM to server `" << server->description.name << "' (pid = " << pid << ")";
-    }
+    sendSignal(server, SIGTERM);
+    
 #endif
 }
 
 void
 IcePack::ActivatorI::kill(const ServerPtr& server)
 {
+#ifdef _WIN32
     Ice::Int pid = server->getPid();
     
     if(pid == 0)
@@ -630,7 +933,6 @@ IcePack::ActivatorI::kill(const ServerPtr& server)
 	return;
     }
 
-#ifdef _WIN32
     HANDLE hnd = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
     if(hnd == NULL)
     {
@@ -655,15 +957,43 @@ IcePack::ActivatorI::kill(const ServerPtr& server)
 	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
 	out << "terminating server `" << server->description.name << "' (pid = " << pid << ")";
     }
+
 #else
+    sendSignal(server, SIGKILL);
+#endif
+}
+
+
+void
+IcePack::ActivatorI::sendSignal(const ServerPtr& server, const string& signal)
+{
+    sendSignal(server, stringToSignal(signal));
+}
+void
+IcePack::ActivatorI::sendSignal(const ServerPtr& server, int signal)
+{
+#ifdef _WIN32
     //
-    // Send a SIGKILL to the process.
+    // TODO: Win32 implementation?
     //
+    throw BadSignalException();
+
+#else
+    Ice::Int pid = server->getPid();
+    
+    if(pid == 0)
+    {
+	//
+	// Server is already deactivated.
+	//
+	return;
+    }
+
 #ifdef __linux
     // Use process groups on Linux instead of processes
-    int ret = ::killpg(static_cast<pid_t>(pid), SIGKILL);
+    int ret = ::killpg(static_cast<pid_t>(pid), signal);
 #else
-    int ret = ::kill(static_cast<pid_t>(pid), SIGKILL);
+    int ret = ::kill(static_cast<pid_t>(pid), signal);
 #endif
     if(ret != 0 && getSystemErrno() != ESRCH)
     {
@@ -675,10 +1005,68 @@ IcePack::ActivatorI::kill(const ServerPtr& server)
     if(_traceLevels->activator > 1)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-	out << "sent SIGKILL to server `" << server->description.name << "' (pid = " << pid << ")";
+	out << "sent " << signalToString(signal) << " to server `" 
+	    << server->description.name << "' (pid = " << pid << ")";
     }
 #endif
 }
+
+void 
+IcePack::ActivatorI::writeMessage(const ServerPtr& server, const string& message, Ice::Int fd)
+{
+    assert(fd == 1 || fd == 2);
+    
+    string msg = message + "\n";
+
+#ifdef _WIN32
+    HANDLE handle = 0;
+#else
+    int actualFd = -1;
+#endif
+    {
+	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+
+	for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+	{
+	    if(p->server == server)
+	    {
+#ifdef _WIN32
+		handle = (fd == 1 ? p->outHandle : p->errHandle);
+#else
+		actualFd = (fd == 1 ? p->outFd : p->errFd);
+#endif
+		break; // for
+	    }
+	}
+    }
+
+#ifdef _WIN32
+    if(handle != 0)
+    {
+	DWORD written = 0;
+	if(!WriteFile(handle, msg.c_str(), msg.size(), &written, NULL))
+	{
+	    SyscallException ex(__FILE__, __LINE__);
+	    ex.error = getSystemErrno();
+	    throw ex;
+	} 
+	assert(written == msg.size());
+    }
+#else
+    if(actualFd > 0)
+    {
+	ssize_t written = write(actualFd, msg.c_str(), msg.size());
+	if(written == -1)
+	{
+	    SyscallException ex(__FILE__, __LINE__);
+	    ex.error = getSystemErrno();
+	    throw ex;
+	}
+	assert(written == static_cast<ssize_t>(msg.size()));
+    }
+#endif
+}
+   
 
 Ice::Int
 IcePack::ActivatorI::getServerPid(const ServerPtr& server)
@@ -870,11 +1258,17 @@ IcePack::ActivatorI::terminationListener()
                             << "' termination:\n" << ex;
                     }
                             
+		    CloseHandle(hnd);
+		    CloseHandle(p->outHandle);
+		    if(!_redirectErrToOut)
+		    {
+			CloseHandle(p->errHandle);
+		    }
                     _processes.erase(p);
                     break;
                 }
             }
-            CloseHandle(hnd);
+	    
         }
 
         if(_deactivating && _processes.empty())
@@ -895,7 +1289,7 @@ IcePack::ActivatorI::terminationListener()
 
 	    for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
 	    {
-		int fd = p->fd;
+		int fd = p->pipeFd;
 		FD_SET(fd, &fdSet);
 		if(maxFd < fd)
 		{
@@ -943,7 +1337,7 @@ IcePack::ActivatorI::terminationListener()
 	    vector<Process>::iterator p = _processes.begin();
 	    while(p != _processes.end())
 	    {
-		int fd = p->fd;
+		int fd = p->pipeFd;
 		if(!FD_ISSET(fd, &fdSet))   
 		{
 		    ++p;
@@ -996,8 +1390,16 @@ IcePack::ActivatorI::terminationListener()
 			    << "' termination:\n" << ex;
 		    }
 			    
+		    if(p->errFd != p->outFd && p->errFd != STDERR_FILENO)
+		    {
+			close(p->errFd);
+		    }
+		    if(p->outFd != STDOUT_FILENO)
+		    {
+			close(p->outFd);
+		    }
+		    close(p->pipeFd);
 		    p = _processes.erase(p);
-		    close(fd);
 
 		    //
 		    // We are deactivating and there's no more active processes. We can now 
