@@ -107,10 +107,14 @@ protected:
     std::string _dsaPublicKeyProperty;
     std::string _caCertificateProperty;
     std::string _handshakeTimeoutProperty;
+    std::string _passphraseRetriesProperty;
+    std::string _maxPassphraseRetriesDefault;
 
     IceSSL::CertificateVerifierPtr _certificateVerifier;
 
     SSL_CTX* _sslContext;
+
+    int _maxPassphraseTries;
 
     friend class IceSSL::OpenSSL::System;
 };

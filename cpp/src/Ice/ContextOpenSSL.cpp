@@ -113,6 +113,13 @@ IceSSL::OpenSSL::Context::configure(const GeneralConfig& generalConfig,
     // Set the certificate verify depth
     SSL_CTX_set_verify_depth(_sslContext, generalConfig.getVerifyDepth());
 
+    // Determine the number of retries the user gets on passphrase entry.
+    std::string passphraseRetries = _properties->getPropertyWithDefault(_passphraseRetriesProperty,
+                                                                        _maxPassphraseRetriesDefault);
+    int retries = atoi(passphraseRetries.c_str());
+    retries = (retries < 0 ? 0 : retries);
+    _maxPassphraseTries = retries + 1;
+
     // Process the RSA Certificate
     setKeyCert(baseCertificates.getRSACert(), _rsaPrivateKeyProperty, _rsaPublicKeyProperty);
 
@@ -141,6 +148,8 @@ IceSSL::OpenSSL::Context::Context(const IceInternal::InstancePtr& instance) :
 
     _certificateVerifier = new DefaultCertificateVerifier(instance);
     _sslContext = 0;
+
+    _maxPassphraseRetriesDefault = "4";
 }
 
 SSL_METHOD*
@@ -392,8 +401,43 @@ IceSSL::OpenSSL::Context::addKeyCert(const CertificateFile& privateKey, const Ce
             privKeyFileType = publicEncoding;
         }
 
-        // Set which Private Key file to use.
-        if (SSL_CTX_use_PrivateKey_file(_sslContext, privKeyFile, privKeyFileType) <= 0)
+        int retryCount = 0;
+        int pkLoadResult;
+        int errCode = 0;
+
+        while (retryCount != _maxPassphraseTries)
+        {
+            // We ignore the errors and remove them from the stack.
+            std::string errorString = sslGetErrors();
+
+            // Set which Private Key file to use.
+            pkLoadResult = SSL_CTX_use_PrivateKey_file(_sslContext, privKeyFile, privKeyFileType);
+
+            if (pkLoadResult <= 0)
+            {
+                errCode = ERR_GET_REASON(ERR_peek_error());
+            }
+            else
+            {
+                // The load went fine - continue on.
+                break;
+            }
+
+            // PEM errors, most likely related to a bad passphrase.
+            if (errCode != PEM_R_BAD_PASSWORD_READ &&
+                errCode != PEM_R_BAD_DECRYPT &&
+                errCode != PEM_R_BAD_BASE64_DECODE)
+            {
+                // Other errors get dealt with below.
+                break;
+            }
+
+            std::cout << "Passphrase error!" << std::endl;
+
+            retryCount++;
+        }
+
+        if (pkLoadResult <= 0)
         {
             int errCode = ERR_GET_REASON(ERR_peek_error());
 

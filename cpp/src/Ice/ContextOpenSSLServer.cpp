@@ -107,6 +107,7 @@ IceSSL::OpenSSL::ServerContext::ServerContext(const IceInternal::InstancePtr& in
     _dsaPublicKeyProperty  = "Ice.SSL.Server.Overrides.DSA.Certificate";
     _caCertificateProperty = "Ice.SSL.Server.Overrides.CACertificate";
     _handshakeTimeoutProperty = "Ice.SSL.Server.Handshake.ReadTimeout";
+    _passphraseRetriesProperty = "Ice.SSL.Server.Passphrase.Retries";
 }
 
 void
