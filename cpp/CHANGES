@@ -1,10 +1,10 @@
 Changes since version 1.0.1
 ---------------------------
 
-- In IceUtil, all try and timed function now return false when the
-  resource could not be acquired (an expected failure). 
-  The 'Try' from timedTry functions was removed, and for consistency
-  trylock, readlock and writelock functions were renamed tryLock, 
+- In IceUtil, all "try" and "timed" functions now return false when the
+  resource could not be acquired (i.e., an expected failure). The "Try"
+  from "timedTry" functions was removed, and for consistency the
+  functions trylock, readlock and writelock were renamed to tryLock, 
   readLock and writeLock. 
 
 - Update to the library versioning scheme:
