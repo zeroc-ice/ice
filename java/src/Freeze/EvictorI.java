@@ -290,7 +290,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    element.rec = new ObjectRecord();
 	    element.rec.stats = new Statistics();
 	    
-	    Object o = store.cache().add(ident, element);
+	    Object o = store.cache().putIfAbsent(ident, element);
 	    
 	    if(o != null)
 	    {

@@ -16,9 +16,7 @@ package IceUtil;
 
 //
 // An abstraction to efficiently populate a Cache, without holding
-// a lock while loading from a database.
-//
-// TODO: implement efficiently!
+// a lock while loading from a potentially slow store.
 //
 
 public class Cache
@@ -33,34 +31,18 @@ public class Cache
     {
 	synchronized(_map)
 	{
-	    return _map.get(key);
+	    CacheValue val = (CacheValue) _map.get(key);
+	    return val == null ? null : val.obj;
 	}
     }
     
-    public Object
-    pin(Object key)
-    {
-	synchronized(_map)
-	{
-	    Object o = _map.get(key);
-	    if(o == null)
-	    {
-		o = _store.load(key);
-		if(o != null)
-		{
-		    _map.put(key, o);
-		}
-	    }
-	    return o;
-	}
-    }
-
     public Object
     unpin(Object key)
     {
 	synchronized(_map)
 	{
-	    return _map.remove(key);
+	    CacheValue val = (CacheValue) _map.remove(key);
+	    return val == null ? null : val.obj;
 	}
     }
 
@@ -82,28 +64,22 @@ public class Cache
 	}
     }
 
+    //
+    // Add an object to the cache without checking store
+    // If there is already an object associated with this
+    // key, the existing value remains in the map and is
+    // returned.
+    //
     public Object
-    add(Object key, Object value)
+    pin(Object key, Object o)
     {
-	assert value != null;
-
 	synchronized(_map)
 	{
-	    Object existingVal = _map.put(key, value);
+	    CacheValue existingVal = (CacheValue) _map.put(key, new CacheValue(o));
 	    if(existingVal != null)
 	    {
 		_map.put(key, existingVal);
-		return existingVal;
-	    }
-	    
-	    //
-	    // Let's check if it's in the store
-	    //
-	    existingVal = _store.load(key);
-	    if(existingVal != null)
-	    {
-		_map.put(key, existingVal);
-		return existingVal;
+		return existingVal.obj;
 	    }
 	    else
 	    {
@@ -112,19 +88,139 @@ public class Cache
 	}
     }
 
+    //
+    // Return an object from the cache, loading it from the
+    // store if necessary.
+    //
     public Object
-    pin(Object key, Object value)
+    pin(Object key)
     {
-	synchronized(_map)
+	return pinImpl(key, null);
+    }
+
+    //
+    // Puts this key/value pair in the cache.
+    // If this key is already in the cache or store, the given
+    // key/value pair is not inserted and the existing value
+    // is returned.
+    //
+    public Object
+    putIfAbsent(Object key, Object newObj)
+    {
+	return pinImpl(key, newObj);
+    }
+
+    
+    static private class CacheValue
+    {
+	CacheValue()
 	{
-	    Object existingVal = _map.put(key, value);
-	    if(existingVal != null)
+	}
+
+	CacheValue(Object obj)
+	{
+	    this.obj = obj;
+	}
+
+	Object obj = null;
+	CountDownLatch latch = null;
+    }
+
+    private Object
+    pinImpl(Object key, Object newObj)
+    {
+	for(;;)
+	{
+	    CacheValue val = null;
+	    CountDownLatch latch = null;
+	    
+	    synchronized(_map)
 	    {
-		_map.put(key, existingVal);
+		val = (CacheValue) _map.get(key); 
+		if(val == null) 
+		{ 
+		    val = new CacheValue(); 
+		    _map.put(key, val); 
+		} 
+		else 
+		{ 
+		    if(val.obj != null) 
+		    { 
+			return val.obj;        
+		    } 
+		    if(val.latch == null) 
+		    { 
+			// 
+			// The first queued thread creates the latch 
+			// 
+			val.latch = new CountDownLatch(1); 
+		    } 
+		    latch = val.latch; 
+		} 
 	    }
-	    return existingVal;
+	    
+	    if(latch != null) 
+	    { 
+		try
+		{
+		    latch.await();
+		}
+		catch(InterruptedException e)
+		{
+		    // Ignored
+		}
+		
+		// 
+		// val could be stale now, e.g. some other thread pinned and unpinned the 
+		// object while we were waiting. 
+		// So start over. 
+		// 
+		continue;
+	    } 
+	    else 
+	    {                     
+		Object obj = _store.load(key); 
+		synchronized(_map) 
+		{ 
+		    if(obj != null) 
+		    {  
+			val.obj = obj; 
+		    } 
+		    else 
+		    { 
+			if(newObj == null)
+			{
+			    //
+			    // pin() did not find the object
+			    //
+			    
+			    // 
+			    // The waiting threads will have to call load() to see by themselves. 
+			    // 
+			    _map.remove(key);
+			}
+			else
+			{
+			    //
+			    // putIfAbsent() inserts key/newObj
+			    //
+			    val.obj = newObj;
+			}
+		    } 
+		    
+		    latch = val.latch; 
+		    val.latch = null; 
+		} 
+		if(latch != null)  
+		{ 
+		    latch.countDown();
+		    assert latch.getCount() == 0;
+		} 
+		return obj;
+	    }          
 	}
     }
+
 
     private final java.util.Map _map = new java.util.HashMap();
     private final Store _store;
