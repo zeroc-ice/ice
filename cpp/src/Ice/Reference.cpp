@@ -599,12 +599,19 @@ IceInternal::FixedReference::operator<(const Reference& r) const
     {
         return false;
     }
-    const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
-    if(!rhs || !Reference::operator<(r))
+    if(Reference::operator<(r))
     {
-        return false;
+        return true;
     }
-    return fixedConnections < rhs->fixedConnections;
+    if(Reference::operator==(r))
+    {
+        const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
+        if(rhs)
+        {
+            return fixedConnections < rhs->fixedConnections;
+        }
+    }
+    return false;
 }
 
 ReferencePtr
@@ -700,12 +707,19 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
     {
         return false;
     }
-    const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
-    if(!rhs || !Reference::operator<(r))
+    if(Reference::operator<(r))
     {
-        return false;
+        return true;
     }
-    return routerInfo < rhs->routerInfo;
+    if(Reference::operator==(r))
+    {
+        const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
+        if(rhs)
+        {
+            return routerInfo < rhs->routerInfo;
+        }
+    }
+    return false;
 }
 
 IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Ice::Identity& ident,
@@ -873,12 +887,19 @@ IceInternal::DirectReference::operator<(const Reference& r) const
     {
         return false;
     }
-    const DirectReference* rhs = dynamic_cast<const DirectReference*>(&r);
-    if(!rhs || !RoutableReference::operator<(r))
+    if(RoutableReference::operator<(r))
     {
-        return false;
+        return true;
     }
-    return endpoints < rhs->endpoints;
+    if(RoutableReference::operator==(r))
+    {
+        const DirectReference* rhs = dynamic_cast<const DirectReference*>(&r);
+        if(rhs)
+        {
+            return endpoints < rhs->endpoints;
+        }
+    }
+    return false;
 }
 
 ReferencePtr
@@ -1109,12 +1130,27 @@ IceInternal::IndirectReference::operator<(const Reference& r) const
     {
         return false;
     }
-    const IndirectReference* rhs = dynamic_cast<const IndirectReference*>(&r);
-    if(!rhs || !RoutableReference::operator<(r))
+    if(RoutableReference::operator<(r))
     {
-        return false;
+        return true;
     }
-    return adapterId < rhs->adapterId && locatorInfo < rhs->locatorInfo;
+    if(RoutableReference::operator==(r))
+    {
+        const IndirectReference* rhs = dynamic_cast<const IndirectReference*>(&r);
+        if(rhs)
+        {
+            if(adapterId < rhs->adapterId)
+            {
+                return true;
+            }
+            else if(rhs->adapterId < adapterId)
+            {
+                return false;
+            }
+            return locatorInfo < rhs->locatorInfo;
+        }
+    }
+    return false;
 }
 
 ReferencePtr
