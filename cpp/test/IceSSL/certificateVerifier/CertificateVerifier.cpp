@@ -69,7 +69,7 @@ testExpectCertificateVerifierTypeException(const IceSSL::PluginPtr& plugin,
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -97,7 +97,7 @@ testExpectNoException(const IceSSL::PluginPtr& plugin,
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.

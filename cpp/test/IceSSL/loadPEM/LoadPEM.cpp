@@ -50,7 +50,7 @@ testExpectCertificateAndPrivateKeyLoadException(const Ice::CommunicatorPtr& comm
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -85,7 +85,7 @@ testExpectPrivateKeyLoadException(const Ice::CommunicatorPtr& communicator, cons
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -120,7 +120,7 @@ testExpectCertificateLoadException(const Ice::CommunicatorPtr& communicator, con
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -155,7 +155,7 @@ testExpectCertificateKeyMatchException(const Ice::CommunicatorPtr& communicator,
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -186,7 +186,7 @@ testNoException(const Ice::CommunicatorPtr& communicator, const std::string& con
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.

@@ -18,17 +18,21 @@
 
 using namespace std;
 
-class EmptyI : virtual public Empty {
+class EmptyI : virtual public Empty
+{
 };
 
-class ServantLocatorI : virtual public Ice::ServantLocator {
+class ServantLocatorI : virtual public Ice::ServantLocator
+{
 public:
+
     virtual ::Ice::ObjectPtr locate(const ::Ice::Current&, ::Ice::LocalObjectPtr&) { return 0; }
     virtual void finished(const ::Ice::Current&, const ::Ice::ObjectPtr&, const ::Ice::LocalObjectPtr&) {}
     virtual void deactivate() {}
 };
 
-class ObjectFactoryI : virtual public Ice::ObjectFactory {
+class ObjectFactoryI : virtual public Ice::ObjectFactory
+{
 public:
     virtual ::Ice::ObjectPtr create(const string&) { return 0; }
     virtual void destroy() {}

@@ -49,7 +49,7 @@ testExpectCertificateAndPrivateKeyParseException(const IceSSL::PluginPtr& plugin
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -85,7 +85,7 @@ testExpectCertificateAndPrivateKeyParseException(const IceSSL::PluginPtr& plugin
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -116,7 +116,7 @@ testExpectPrivateKeyParseException(const IceSSL::PluginPtr& plugin, const string
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -147,7 +147,7 @@ testExpectPrivateKeyParseException(const IceSSL::PluginPtr& plugin, const Ice::B
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -178,7 +178,7 @@ testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const strin
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -209,7 +209,7 @@ testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const Ice::
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -240,7 +240,7 @@ testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const strin
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -271,7 +271,7 @@ testExpectCertificateParseException(const IceSSL::PluginPtr& plugin, const Ice::
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -304,7 +304,7 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin,
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -337,7 +337,7 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin,
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -368,7 +368,7 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin, const s
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -399,7 +399,7 @@ testExpectContextNotConfiguredException(const IceSSL::PluginPtr& plugin, const I
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -432,7 +432,7 @@ testExpectCertificateKeyMatchException(const IceSSL::PluginPtr& plugin,
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -465,7 +465,7 @@ testExpectCertificateKeyMatchException(const IceSSL::PluginPtr& plugin,
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -492,7 +492,7 @@ testNoException(const IceSSL::PluginPtr& plugin, const string& key, const string
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -519,7 +519,7 @@ testNoException(const IceSSL::PluginPtr& plugin, const Ice::ByteSeq& key, const 
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -546,7 +546,7 @@ testNoException(const IceSSL::PluginPtr& plugin, const string& cert)
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
@@ -573,7 +573,7 @@ testNoException(const IceSSL::PluginPtr& plugin, const Ice::ByteSeq& cert)
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.

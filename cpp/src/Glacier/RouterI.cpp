@@ -61,7 +61,7 @@ Glacier::RouterI::destroy()
 	{
 	    (*p)->destroy();
 	}
-	catch (...)
+	catch(...)
 	{
 	    // Ignore all exceptions.
 	}

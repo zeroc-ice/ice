@@ -163,7 +163,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, bool server) :
 	__setNoDelete(false);
 	throw;
     }
-    catch (...)
+    catch(...)
     {
 	__setNoDelete(false);
 	throw;

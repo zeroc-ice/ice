@@ -34,7 +34,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try {
 	obj->ice_addFacet(obj, "facetABCD");
     }
-    catch (Ice::AlreadyRegisteredException&)
+    catch(Ice::AlreadyRegisteredException&)
     {
 	gotException = true;
     }
@@ -47,7 +47,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     try {
 	obj->ice_removeFacet("facetABCD");
     }
-    catch (Ice::NotRegisteredException&)
+    catch(Ice::NotRegisteredException&)
     {
 	gotException = true;
     }

@@ -84,7 +84,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
 	base->ice_ping();
 	test(false);
     }
-    catch (const Ice::NoEndpointException&)
+    catch(const Ice::NoEndpointException&)
     {
     }
     cout << "ok" << endl;

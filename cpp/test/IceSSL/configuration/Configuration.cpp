@@ -163,7 +163,7 @@ testContextWithConfig(const Ice::CommunicatorPtr& communicator,
 
         test(false);
     }
-    catch (...)
+    catch(...)
     {
         //
         // Unknown exceptions are always bad.
