@@ -22,5 +22,7 @@ import TestUtil
 
 name = os.path.join("Ice", "checksum")
 
-TestUtil.clientServerTestWithOptionsAndNames(name, "", "", "server/server", "client/client")
+server = os.path.join("server", "server")
+client = os.path.join("client", "client")
+TestUtil.clientServerTestWithOptionsAndNames(name, "", "", server, client)
 sys.exit(0)

@@ -102,10 +102,6 @@ SOURCE=.\Server.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServerPrivate.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Test.cpp
 # End Source File
 # Begin Source File
@@ -120,10 +116,6 @@ SOURCE=.\Types.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
-# Begin Source File
-
-SOURCE=.\ServerPrivate.h
-# End Source File
 # Begin Source File
 
 SOURCE=.\Test.h
@@ -151,7 +143,7 @@ USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\slice.lib"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe Test.ice
+	..\..\..\..\bin\slice2cpp.exe -I../../../../slice Test.ice
 
 "Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -167,7 +159,7 @@ USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\sliced.lib"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe Test.ice
+	..\..\..\..\bin\slice2cpp.exe -I../../../../slice Test.ice
 
 "Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
