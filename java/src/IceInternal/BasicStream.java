@@ -1386,7 +1386,7 @@ public class BasicStream
 
         String id = readString();
 
-	while(!id.equals(""))
+	for(;;)
 	{
             //
             // Look for a factory for this ID.
@@ -1433,12 +1433,12 @@ public class BasicStream
 	}
 
 	//
-	// We can get here only if the sender has marshaled a sequence
-	// of type IDs, none of which we have factory for. This means
-	// that sender and receiver disagree about the Slice
-	// definitions they use.
+	// The only way out of the loop above is to find an exception for
+	// which the receiver has a factory. If this does not happen,
+	// sender and receiver disagree about the Slice definitions they
+	// use. In that case, the receiver will eventually fail to read
+	// another type ID and throw a MarshalException.
 	//
-	throw new Ice.UnknownUserException();
     }
 
     public void

@@ -1305,7 +1305,7 @@ namespace IceInternal
 	    
 	    string id = readString();
 	    
-	    while(!id.Equals(""))
+	    for(;;)
 	    {
 		//
 		// Look for a factory for this ID.
@@ -1352,12 +1352,12 @@ namespace IceInternal
 	    }
 
 	    //
-	    // We can get here only if the sender has marshaled a sequence
-	    // of type Ids, none of which we have factory for. This means
-	    // that sender and receiver disagree about the Slice
-	    //  definitions they use.
+	    // The only way out of the loop above is to find an exception for
+	    // which the receiver has a factory. If this does not happen,
+	    // sender and receiver disagree about the Slice definitions they
+	    // use. In that case, the receiver will eventually fail to read
+	    // another type ID and throw a MarshalException.
 	    //
-	    throw new Ice.UnknownUserException("Client and server disagree about the type IDs in use");
 	}
 	
 	public virtual void writePendingObjects()

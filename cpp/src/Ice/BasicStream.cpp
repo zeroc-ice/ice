@@ -1480,7 +1480,7 @@ IceInternal::BasicStream::throwException()
 
     string id;
     read(id);
-    while(!id.empty())
+    for(;;)
     {
 	//
 	// Look for a factory for this ID.
@@ -1527,12 +1527,12 @@ IceInternal::BasicStream::throwException()
     }
 
     //
-    // We can get here only if the sender has marshaled a sequence of
-    // type IDs, none of which we have factory for. This means that
+    // The only way out of the loop above is to find an exception for
+    // which the receiver has a factory. If this does not happen,
     // sender and receiver disagree about the Slice definitions they
-    // use.
+    // use. In that case, the receiver will eventually fail to read
+    // another type ID and throw a MarshalException.
     //
-    throw UnknownUserException(__FILE__, __LINE__);
 }
 
 void
