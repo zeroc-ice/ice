@@ -14,7 +14,7 @@
 using namespace std;
 
 string
-IceUtil::Base64::encode(const ByteSeq& plainSeq)
+IceUtil::Base64::encode(const vector<char>& plainSeq)
 {
     string retval;
 
@@ -97,7 +97,7 @@ IceUtil::Base64::encode(const ByteSeq& plainSeq)
     return outString;
 }
 
-IceUtil::ByteSeq
+vector<char>
 IceUtil::Base64::decode(const string& str)
 {
     string newStr;
@@ -112,7 +112,7 @@ IceUtil::Base64::decode(const string& str)
         }
     }
 
-    ByteSeq retval;
+    vector<char> retval;
 
     if(newStr.length() == 0)
     {
