@@ -452,7 +452,7 @@ IcePack::ComponentHandler::getAttributeValueWithDefault(const IceXML::Attributes
 string
 IcePack::ComponentHandler::elementValue() const
 {
-    return _elements.top();
+    return _builder.substitute(_elements.top());
 }
 
 bool
