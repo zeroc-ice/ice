@@ -97,7 +97,7 @@ def getAdapterReady(serverPipe):
 
 def waitServiceReady(pipe, token):
 
-    while True:
+    while 1:
 
         output = pipe.readline().strip()
 
@@ -110,7 +110,7 @@ def waitServiceReady(pipe, token):
 
 def printOutputFromPipe(pipe):
 
-    while True:
+    while 1:
 
         line = pipe.readline()
 
