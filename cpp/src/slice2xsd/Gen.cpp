@@ -111,7 +111,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     // Emit class-name-type
     //
     ostringstream os;
-    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\"";
     O << se(os.str());
 
     annotate("class");
@@ -163,7 +163,7 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     // Emit exception-name-type
     //
     ostringstream os;
-    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\"";
     O << se(os.str());
 
     annotate("exception");
@@ -218,7 +218,7 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     string scopeId = containedToId(p);
 
     ostringstream os;
-    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\"";
     O << se(os.str());
 
     annotate("struct");
@@ -309,7 +309,7 @@ Slice::Gen::visitEnum(const EnumPtr& p)
     O << sp;
 
     ostringstream os;
-    os << "xs:simpleType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    os << "xs:simpleType name=\"" <<  internalId << scopeId << p->name() << "Type\"";
     O << se(os.str());
 
     annotate("enumeration");
@@ -347,7 +347,7 @@ Slice::Gen::visitSequence(const SequencePtr& p)
     string scopeId = containedToId(p);
 
     ostringstream os;
-    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\"";
 
     O << se(os.str());
 
@@ -429,7 +429,7 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     // Next the dictionary sequence data.
     //
     os.str("");
-    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
+    os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\"";
     O << se(os.str());
 
     annotate("dictionary");
