@@ -40,7 +40,7 @@ def runTests(tests, num = 0):
 	print
 
 	try:
-	    execfile(os.path.join(dir, "run.py"))
+	    os.system(os.path.join(dir, "run.py"))
 	except SystemExit, (status,):
 	    if status:
 		if(num > 0):

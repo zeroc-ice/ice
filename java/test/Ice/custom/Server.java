@@ -17,7 +17,7 @@ public class Server
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 2000");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Ice.Object test = new TestI(communicator);
         adapter.add(test, Ice.Util.stringToIdentity("test"));

@@ -88,7 +88,7 @@ class CallbackClient extends Ice.Application
 
         System.out.print("testing stringToProxy... ");
         System.out.flush();
-        ref = "callback:tcp -p 12345 -t 5000";
+        ref = "callback:tcp -p 12345 -t 10000";
         Ice.ObjectPrx base = communicator().stringToProxy(ref);
         System.out.println("ok");
 

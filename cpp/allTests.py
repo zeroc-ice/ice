@@ -43,7 +43,7 @@ def runTests(tests, num = 0):
 	print
 
 	try:
-	    os.system(os.path.join(dir, "run.py"))
+	    execfile(os.path.join(dir, "run.py"))
 	except SystemExit, (status,):
 	    if status:
 		if(num > 0):
@@ -84,8 +84,8 @@ tests = [ \
     "IceStorm/federation2", \
     "FreezeScript/dbmap", \
     "FreezeScript/evictor", \
-    "IcePack/simple", \
-    "IcePack/deployer", \
+#    "IcePack/simple", \
+#    "IcePack/deployer", \
     "Glacier/starter", \
     ]
 

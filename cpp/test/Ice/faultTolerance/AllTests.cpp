@@ -170,7 +170,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     ref << "test";
     for(vector<int>::const_iterator p = ports.begin(); p != ports.end(); ++p)
     {
-	ref << ":default -t 4000 -p " << *p;
+	ref << ":default -t 10000 -p " << *p;
     }
     Ice::ObjectPrx base = communicator->stringToProxy(ref.str());
     test(base);

@@ -14,7 +14,7 @@
 # **********************************************************************
 
 import os, sys
-import time
+from time import sleep
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -79,7 +79,7 @@ def doTest(batch):
             print "failed!"
             TestUtil.killServers()
             sys.exit(1)
-        time.sleep(1)
+        sleep(1)
         lockCount = lockCount + 1    
     print "ok"
 
@@ -104,7 +104,7 @@ def doTest(batch):
             print "failed!"
             TestUtil.killServers()
             sys.exit(1)
-        time.sleep(1)
+        sleep(1)
         lockCount = lockCount + 1    
     print "ok"
 

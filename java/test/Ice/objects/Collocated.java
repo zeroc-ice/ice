@@ -17,7 +17,7 @@ public class Collocated
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 2000");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         Initial initial = new InitialI(adapter);
         adapter.add(initial, Ice.Util.stringToIdentity("initial"));

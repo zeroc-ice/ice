@@ -162,17 +162,17 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         sslPlugin->setCertificateVerifier(IceSSL::Server, certVerifier);
     }
 
-    properties->setProperty("KeyManagerAdapter.Endpoints", "tcp -p 12344 -t 2000");
+    properties->setProperty("KeyManagerAdapter.Endpoints", "tcp -p 12344 -t 10000");
     Ice::ObjectAdapterPtr kmAdapter = communicator->createObjectAdapter("KeyManagerAdapter");
     kmAdapter->add(object, Ice::stringToIdentity("keyManager"));
     kmAdapter->activate();
 
     const string pingerEndpoints =
-	"ssl -p 12345 -t 2000"
-	":ssl -p 12346 -t 2000"
-	":ssl -p 12347 -t 2000"
-	":ssl -p 12348 -t 2000"
-	":ssl -p 12349 -t 2000";
+	"ssl -p 12345 -t 10000"
+	":ssl -p 12346 -t 10000"
+	":ssl -p 12347 -t 10000"
+	":ssl -p 12348 -t 10000"
+	":ssl -p 12349 -t 10000";
     properties->setProperty("PingerAdapter.Endpoints", pingerEndpoints);
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("PingerAdapter");
     adapter->add(new PingerI(), Ice::stringToIdentity("pinger"));

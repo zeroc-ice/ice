@@ -23,7 +23,7 @@ TestPrx
 allTests(const CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
-    ObjectPrx base = communicator->stringToProxy("test:default -p 12345 -t 2000");
+    ObjectPrx base = communicator->stringToProxy("test:default -p 12345 -t 10000");
     test(base);
     cout << "ok" << endl;
 

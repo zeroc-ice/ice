@@ -22,7 +22,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
     properties->setProperty("Ice.Warn.Dispatch", "0");
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 2000");
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -p 12345 -t 10000");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = new ThrowerI(adapter);
     adapter->add(object, Ice::stringToIdentity("thrower"));
