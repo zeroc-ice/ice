@@ -55,6 +55,8 @@ namespace Ice
 	
 	public static Communicator initializeWithProperties(ref string[] args, Properties properties)
 	{
+	    args = properties.parseIceCommandLineOptions(args);
+
 	    CommunicatorI result = new CommunicatorI(properties);
 	    result.finishSetup(ref args);
 	    return result;

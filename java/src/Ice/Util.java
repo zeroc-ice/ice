@@ -74,6 +74,8 @@ public final class Util
     public static Communicator
     initializeWithProperties(StringSeqHolder args, Properties properties)
     {
+	args.value = properties.parseIceCommandLineOptions(args.value);
+
         CommunicatorI result = new CommunicatorI(properties);
         result.finishSetup(args);
         return result;

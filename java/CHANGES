@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Ice.Util.initializeWithProperties() now correctly parses the command
+  line arguments.
+
 - Fixed a bug in slice2java that caused byte constants to be
   initialized incorrectly.
 

@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Ice.Util.initializeWithProperties() now correctly parses the command
+  line arguments.
+
 - New properties Ice.StdErr and Ice.StdOut to redirect the standard
   error and output streams of a process.
 
