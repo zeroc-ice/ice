@@ -390,36 +390,34 @@ public class IncomingConnectionFactory extends EventHandler
                 assert(_acceptor != null);
                 _acceptor.listen();
 
-		if(!_instance.threadPerConnection())
-	        {
-		    //
-		    // Only set _threadPool if we really need it, i.e., if we are
-		    // not in thread per connection mode. Thread pools have lazy
-		    // initialization in Instance, and we don't want them to be
-		    // created if they are not needed.
-		    //
-		    _threadPool = ((Ice.ObjectAdapterI)_adapter).getThreadPool();
-		}
-		else
+		if(_instance.threadPerConnection())
 		{
-		    //
-		    // If we are in thread per connection mode, we also use
-		    // one thread per incoming connection factory, that
-		    // accepts new connections on this endpoint.
-		    //
 		    try
 		    {
+			//
+			// If we are in thread per connection mode, we also use
+			// one thread per incoming connection factory, that
+			// accepts new connections on this endpoint.
+			//
 			_threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory();
 			_threadPerIncomingConnectionFactory.start();
 		    }
 		    catch(RuntimeException ex)
 		    {
 			error("cannot create thread for incoming connection factory", ex);
-
+		    
 			_state = StateClosed;
+			try
+			{
+			    _acceptor.close();
+			}
+			catch(Ice.LocalException e)
+			{
+			    // Here we ignore any exceptions in close().			
+			}
 			_acceptor = null;
 			_threadPerIncomingConnectionFactory = null;
-
+			
 			throw ex;
 		    }
 		}
@@ -552,7 +550,7 @@ public class IncomingConnectionFactory extends EventHandler
 
         if(_acceptor != null && !_registeredWithPool)
 	{
-	    _threadPool._register(_acceptor.fd(), this);
+	    ((Ice.ObjectAdapterI)_adapter).getThreadPool()._register(_acceptor.fd(), this);
 	    _registeredWithPool = true;
         }
     }
@@ -564,7 +562,7 @@ public class IncomingConnectionFactory extends EventHandler
 
         if(_acceptor != null && _registeredWithPool)
 	{
-	    _threadPool.unregister(_acceptor.fd());
+	    ((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(_acceptor.fd());
 	    _registeredWithPool = false;
         }
     }
@@ -688,13 +686,21 @@ public class IncomingConnectionFactory extends EventHandler
 		//
 		// Create a connection object for the connection.
 		//
-		// In Java a keyboard interrupt causes accept() to raise a
-		// SocketException, therefore transceiver may be null.
-		//
 		if(transceiver != null)
 		{
-		    connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
-		    _connections.add(connection);
+		    try
+		    {
+			connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
+			_connections.add(connection);
+		    }
+		    catch(RuntimeException ex)
+		    {
+			//
+			// We don't print any errors here, the
+			// connection constructor is responsible for
+			// printing the error.
+			//
+		    }
 		}
 	    }
 
@@ -734,7 +740,6 @@ public class IncomingConnectionFactory extends EventHandler
     private final Ice.ObjectAdapter _adapter;
 
     private boolean _registeredWithPool;
-    private ThreadPool _threadPool;
 
     private final boolean _warn;
 
