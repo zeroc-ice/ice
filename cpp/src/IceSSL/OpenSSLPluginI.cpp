@@ -149,7 +149,7 @@ unsigned long IceSSL::idFunction()
 {
     unsigned long threadID = 0;
 
-#ifdef WINDOWS
+#ifdef _WIN32
     threadID = GetCurrentThreadId();
 #elif _POSIX_THREADS
     threadID = pthread_self();

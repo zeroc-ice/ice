@@ -1047,11 +1047,11 @@ class TwowaysAMI
 	{
             java.util.Map di1 = new java.util.HashMap();
             di1.put(new Long(999999110L), new Float(-1.1f));
-            di1.put(new Long(9999991100L), new Float(123123.2f));
+            di1.put(new Long(999999111L), new Float(123123.2f));
             java.util.Map di2 = new java.util.HashMap();
             di2.put(new Long(999999110L), new Float(-1.1f));
-            di2.put(new Long(999999111L), new Float(-100.4f));
-            di2.put(new Long(9999991101L), new Float(0.5f));
+            di2.put(new Long(999999120L), new Float(-100.4f));
+            di2.put(new Long(999999130L), new Float(0.5f));
 
 	    AMI_MyClass_opLongFloatDI cb = new AMI_MyClass_opLongFloatDI();
 	    p.opLongFloatD_async(cb, di1, di2);
