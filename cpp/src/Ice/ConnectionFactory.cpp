@@ -384,6 +384,7 @@ void
 IceInternal::OutgoingConnectionFactory::flushBatchRequests()
 {
     list<ConnectionPtr> c;
+
     {
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
@@ -394,7 +395,18 @@ IceInternal::OutgoingConnectionFactory::flushBatchRequests()
 	    c.push_back(p->second);
 	}
     }
-    for_each(c.begin(), c.end(), Ice::voidMemFun(&Connection::flushBatchRequest));
+
+    for(list<ConnectionPtr>::const_iterator p = c.begin(); p != c.end(); ++p)
+    {
+	try
+	{
+	    (*p)->flushBatchRequest();
+	}
+	catch(const LocalException&)
+	{
+	    // Ignore.
+	}
+    }
 }
 
 IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(const InstancePtr& instance) :
@@ -510,26 +522,25 @@ IceInternal::IncomingConnectionFactory::connections() const
     return result;
 }
 
-namespace IceInternal {
-
-struct FlushIfValidated
-{
-    void operator() (ConnectionPtr p)
-    {
-	if(p->isValidated())
-	{
-	    p->flushBatchRequest();
-	}
-    }
-};
-
-}
-
 void
 IceInternal::IncomingConnectionFactory::flushBatchRequests()
 {
     list<ConnectionPtr> c = connections(); // connections() is synchronized, so no need to synchronize here.
-    for_each(c.begin(), c.end(), FlushIfValidated());
+
+    for(list<ConnectionPtr>::const_iterator p = c.begin(); p != c.end(); ++p)
+    {
+	if((*p)->isValidated())
+	{
+	    try
+	    {
+		(*p)->flushBatchRequest();
+	    }
+	    catch(const LocalException&)
+	    {
+		// Ignore.
+	    }
+	}
+    }
 }
 
 bool

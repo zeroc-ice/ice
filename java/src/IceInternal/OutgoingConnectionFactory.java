@@ -418,7 +418,14 @@ public class OutgoingConnectionFactory
 	    Connection conn = (Connection)p.next();
 	    if(conn.isValidated())
 	    {
-	        conn.flushBatchRequest();
+		try
+		{
+		    conn.flushBatchRequest();
+		}
+		catch(Ice.LocalException ex)
+		{
+		    // Ignore.
+		}
 	    }
 	}
     }

@@ -145,7 +145,14 @@ public class IncomingConnectionFactory extends EventHandler
         Connection[] c = connections(); // connections() is synchronized, so no need to synchronize here.
 	for(int i = 0; i < c.length; i++)
 	{
-	    c[i].flushBatchRequest();
+	    try
+	    {
+		c[i].flushBatchRequest();
+	    }
+	    catch(Ice.LocalException ex)
+	    {
+		// Ignore.
+	    }
 	}
     }
 
