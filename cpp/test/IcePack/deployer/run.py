@@ -31,7 +31,7 @@ testdir = os.path.join(toplevel, "test", name)
 
 if TestUtil.isWin32():
     os.environ["PATH"] = testdir + ";" + os.environ["PATH"]
-else
+else:
     os.environ["LD_LIBRARY_PATH"] = testdir + ":" + os.environ["LD_LIBRARY_PATH"]
 
 #
