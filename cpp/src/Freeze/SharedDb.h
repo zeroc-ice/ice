@@ -30,7 +30,7 @@ class SharedDb : public ::Db
 {
 public:
     
-    using ::Db::get;
+    using Db::get;
 
     static SharedDbPtr get(const ConnectionIPtr&, const std::string&, bool);
 

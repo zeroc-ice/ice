@@ -116,15 +116,15 @@ Freeze::ConnectionI::closeAllIterators()
 }
 
 void
-Freeze::ConnectionI::registerMap(DBMapHelperI* map)
+Freeze::ConnectionI::registerMap(DBMapHelperI* m)
 {
-    _mapList.push_back(map);
+    _mapList.push_back(m);
 }
 
 void
-Freeze::ConnectionI::unregisterMap(DBMapHelperI* map)
+Freeze::ConnectionI::unregisterMap(DBMapHelperI* m)
 {
-    _mapList.remove(map);
+    _mapList.remove(m);
 }
 
 Freeze::ConnectionPtr 
