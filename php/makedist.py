@@ -95,7 +95,8 @@ version = re.search("ICEPHP_STRING_VERSION \"([0-9\.]*)\"", config.read()).group
 #
 icephpver = "IcePHP-" + version
 os.rename("icephp", icephpver)
-os.system("tar cvzf " + icephpver + ".tar.gz " + icephpver)
+os.system("tar cvf " + icephpver + ".tar " + icephpver)
+os.system("gzip -9 " + icephpver + ".tar")
 os.system("zip -9r " + icephpver + ".zip " + icephpver)
 
 #
