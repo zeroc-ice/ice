@@ -104,20 +104,12 @@ PostBuild_Cmds=copy Debug\icexml001d.* ..\..\lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Output.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\StreamI.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
-# Begin Source File
-
-SOURCE=..\..\include\IceXML\Output.h
-# End Source File
 # Begin Source File
 
 SOURCE=..\..\include\IceXML\StreamI.h

@@ -459,6 +459,12 @@ Slice::JavaVisitor::getArgs(const OperationPtr& op, const string& scope)
     return args;
 }
 
+static bool
+exceptionIsLocal(const ::Slice::ExceptionPtr exception)
+{
+    return exception->isLocal();
+}
+
 void
 Slice::JavaVisitor::writeThrowsClause(const string& scope,
                                       const ExceptionList& throws)
@@ -467,8 +473,13 @@ Slice::JavaVisitor::writeThrowsClause(const string& scope,
     // Don't include local exceptions in the throws clause
     //
     ExceptionList::size_type localCount = 0;
-    localCount = count_if(throws.begin(), throws.end(),
-                          ::IceUtil::memFun(&Exception::isLocal));
+
+    //
+    // MSVC gets confused if ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
+    // hence the exceptionIsLocal function.
+    //
+    localCount = count_if(throws.begin(), throws.end(),	exceptionIsLocal);
+
     Output& out = output();
     if (throws.size() - localCount > 0)
     {
@@ -1164,8 +1175,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         throws.sort();
         throws.unique();
 
-        remove_if(throws.begin(), throws.end(),
-                  ::IceUtil::memFun(&Exception::isLocal));
+	//
+	// MSVC gets confused if ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
+	// hence the exceptionIsLocal function.
+	//
+        remove_if(throws.begin(), throws.end(), exceptionIsLocal);
 
         if (!inParams.empty())
         {
@@ -3061,8 +3075,11 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         throws.sort();
         throws.unique();
 
-        remove_if(throws.begin(), throws.end(),
-                  ::IceUtil::memFun(&Exception::isLocal));
+	//
+	// MSVC gets confused if ::IceUtil::memFun(&::Slice::Exception::isLocal)); is used
+	// hence the exceptionIsLocal function.
+	//
+        remove_if(throws.begin(), throws.end(), exceptionIsLocal);
 
         string params = getParams(op, scope);
 

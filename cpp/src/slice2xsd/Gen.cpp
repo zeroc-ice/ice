@@ -265,7 +265,8 @@ Slice::Gen::visitOperation(const OperationPtr& p)
     annotate("operation");
 
     O << se("xs:sequence");
-    for (TypeStringList::const_iterator q = in.begin(); q != in.end(); ++q)
+    TypeStringList::const_iterator q;
+    for (q = in.begin(); q != in.end(); ++q)
     {
 	O << nl << "<xs:element name=\"" << q->second << "\" type=\"";
 	O << toString(q->first);
@@ -291,7 +292,7 @@ Slice::Gen::visitOperation(const OperationPtr& p)
     {
 	O << nl << "<xs:element name=\"__return\" type=\"" << toString(ret) << "\"/>";
     }
-    for (TypeStringList::const_iterator q = out.begin(); q != out.end(); ++q)
+    for (q = out.begin(); q != out.end(); ++q)
     {
 	O << nl << "<xs:element name=\"" << q->second << "\" type=\"";
 	O << toString(q->first);
