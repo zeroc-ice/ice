@@ -44,13 +44,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::PropertiesPtr properties = communicator->getProperties();
 
     // Use test related paths - override values in TestUtil.py
-    std::string clientCertPath = properties->getProperty("IceSSL.Client.CertPath.Test");
-    std::string serverCertPath = properties->getProperty("IceSSL.Server.CertPath.Test");
+    std::string clientCertPath = properties->getProperty("TestSSL.Client.CertPath");
+    std::string serverCertPath = properties->getProperty("TestSSL.Server.CertPath");
     properties->setProperty("IceSSL.Client.CertPath", clientCertPath);
     properties->setProperty("IceSSL.Server.CertPath", serverCertPath);
 
     bool singleCertVerifier = false;
-    if(properties->getProperty("IceSSL.Client.CertificateVerifier") == "singleCert")
+    if(properties->getProperty("TestSSL.Client.CertificateVerifier") == "singleCert")
     {
         singleCertVerifier = true;
     }
@@ -190,6 +190,10 @@ main(int argc, char* argv[])
     try
     {
 	communicator = Ice::initialize(argc, argv);
+        Ice::PropertiesPtr properties = communicator->getProperties();
+        Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+        args = properties->parseCommandLineOptions("TestSSL", args);
+        Ice::stringSeqToArgs(args, argc, argv);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)

@@ -191,7 +191,6 @@ static const string icePatchProps[] =
 
 static const string iceSSLProps[] =
 {
-    "Client.CertificateVerifier",
     "Client.CertPath*",
     "Client.Config",
     "Client.Handshake.Retries",
@@ -201,7 +200,6 @@ static const string iceSSLProps[] =
     "Client.Overrides.RSA.Certificate",
     "Client.Overrides.RSA.PrivateKey",
     "Client.Passphrase.Retries",
-    "Server.CertificateVerifier",
     "Server.CertPath*",
     "Server.Config",
     "Server.Overrides.CACertificate",

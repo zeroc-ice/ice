@@ -2113,6 +2113,25 @@ that matches one of the categories from this list.
 </section>
 </section>
 
+<section><title>Glacier.Router.AcceptCert</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Router.AcceptCert=<replaceable>base64 encoded certificate string</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+A base64 encoded certificate (which can be obtained by calling certToBase64()
+on an existing IceSSL::RSAKeyPair).
+
+The &Glacier; Router will use this certificate, when in SSL mode, to restrict
+those clients that may connect to it.  Only clients that use this certificate
+may connect, others will be rejected.
+</para>
+</section>
+</section>
+
 
 </section>
 

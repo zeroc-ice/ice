@@ -101,7 +101,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
 
-    std::string certPath = properties->getProperty("IceSSL.Server.CertPath.Test");
+    std::string certPath = properties->getProperty("TestSSL.Server.CertPath");
     properties->setProperty("IceSSL.Server.CertPath", certPath);
 
     properties->setProperty("Ice.Warn.Connections", "0");
@@ -156,7 +156,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     sslPlugin->addTrustedCertificate(IceSSL::Server, trustedCertificate);
     sslPlugin->setRSAKeys(IceSSL::Server, serverKey, serverCertificate);
 
-    if(properties->getProperty("IceSSL.Server.CertificateVerifier") == "singleCert")
+    if(properties->getProperty("TestSSL.Server.CertificateVerifier") == "singleCert")
     {
         IceSSL::CertificateVerifierPtr certVerifier = sslPlugin->getSingleCertVerifier(trustedCertificate);
         sslPlugin->setCertificateVerifier(IceSSL::Server, certVerifier);
@@ -184,6 +184,10 @@ main(int argc, char* argv[])
     try
     {
 	communicator = Ice::initialize(argc, argv);
+        Ice::PropertiesPtr properties = communicator->getProperties();
+        Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+        args = properties->parseCommandLineOptions("TestSSL", args);
+        Ice::stringSeqToArgs(args, argc, argv);
 	status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
