@@ -1,19 +1,23 @@
-======================================================================
+=========================================================================
 Requirements
-======================================================================
+=========================================================================
 
 - PHP5 (http://www.php.net/downloads.php)
-- Ice 1.1.x
-- Linux
+- Ice 1.1.x TODO
 
-======================================================================
-Building PHP
-======================================================================
+=========================================================================
+Building PHP with Ice (Linux/Solaris)
+=========================================================================
 
-The Ice extension for PHP currently supports only static builds. After
-downloading and extracting the PHP5 source code, you must incorporate
-the Ice extension into the PHP5 source tree. There are two ways to do
-this:
+The Ice extension for PHP supports both static and dynamic builds. A
+static build is one in which the Ice extension is linked into the PHP
+run-time, whereas a dynamic build produces a standalone shared library for
+the Ice extension that is installed in PHP via configuration directives.
+
+The only supported way to compile the Ice extension is as part of the
+PHP5 build system. After downloading and extracting the PHP5 source code,
+you must incorporate the Ice extension sources into the PHP5 source tree.
+There are two ways to do this:
 
 1) Copy the extension source directory.
 
@@ -32,21 +36,112 @@ $ cd <phpdir>
 $ rm -rf configure autom4te.cache
 $ ./buildconf --force
 
-You are now ready to configure PHP. To include support for the Ice
-extension, use the --with-ice option to specify the location of the
+You are now ready to configure PHP. To include support for a static
+Ice extension, use the --with-ice option to specify the location of the
 Ice installation:
 
 $ ./configure --with-ice=$ICE_HOME ...
+
+If you want to build a dynamic Ice extension, use this version of the
+--with-ice option:
+
+$ ./configure --with-ice=shared,$ICE_HOME ...
+
+Finally, run make:
+
 $ make
 
-If the Ice extension's config.m4 file is changed, then you must
-repeat the steps above to regenerate the configure script.
+Note that if the Ice extension's config.m4 file is changed, then you must
+repeat the steps above to regenerate the configure script, then execute
+configure again (or use config.nice instead).
 
 See the PHP documentation for more details on the PHP build process.
 
-======================================================================
+=========================================================================
+Building PHP with Ice (Windows)
+=========================================================================
+
+Compiling PHP from source code on Windows is a tedious process, therefore
+we recommend that you download the precompiled dynamic extension from the
+ZeroC web site.
+
+If you prefer to build the dynamic extension yourself, you will need to
+do the following:
+
+1) Download and extract the PHP5 sources so that the PHP header files are
+   available.
+
+2) Have a suitable Ice development environment.
+
+3) Configure the include and library paths in Visual C++ for PHP and Ice.
+   Assuming that you've extracted the PHP5 sources into C:\PHP5, and
+   installed Ice into C:\Ice, then the following paths must be configured:
+
+   Include:
+     C:\PHP5
+     C:\PHP5\main
+     C:\PHP5\Zend
+     C:\PHP5\TSRM
+     C:\Ice\include
+
+   Library:
+     C:\PHP5
+     C:\Ice\lib
+
+   If you are using Visual C++ 6.0, then you must also be sure to include
+   the appropriate paths for STLport.
+
+4) Open the workspace icephp.dsw, select the Debug or Release configuration,
+   and build php_ice.dll.
+
+=========================================================================
+Installing a Dynamic Extension
+=========================================================================
+
+If you are using the dynamic Ice extension, then the shared library must
+be moved into a directory where PHP can find it. This directory is
+determined by the PHP configuration directive "extension_dir". You can
+determine the default value for this directive by running the command-
+line version of PHP with the -i option.
+
+After compiling the dynamic extension on Linux and Solaris, the shared
+library can be found in the "modules" subdirectory of the PHP source
+tree. If you've compiled the dynamic Ice extension on Windows, the DLL
+is located in bin/Debug/php_ice.dll or bin/Release/php_ice.dll, depending
+on the build configuration you selected.
+
+Once you've copied the dynamic extension to PHP's extension directory,
+you will need to enable the extension in PHP configuration. In php.ini,
+use the following directive on Linux and Solaris:
+
+extension = ice.so
+
+On Windows, use this directive:
+
+extension = php_ice.dll
+
+In an Apache configuration, the equivalent directives are:
+
+TODO
+
+mod_php extension ice.so
+
+or
+
+mod_php extension php_ice.dll
+
+=========================================================================
+Dependencies
+=========================================================================
+
+Whether you build a dynamic or static Ice extension, you will still require
+the Ice and C++ run-time libraries.
+
+TODO
+
+=========================================================================
 Configuring Ice for PHP
-======================================================================
+=========================================================================
 
 The Ice extension currently supports two configuration directives:
 
