@@ -31,12 +31,16 @@ string
 Slice::changeInclude(const string& orig, const vector<string>& includePaths)
 {
     string file = orig;
-
+    replace(file.begin(), file.end(), '\\', '/');
+    
     for (vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
-	if (orig.compare(0, p->length(), *p) == 0)
+	string includePath = *p;
+	replace(includePath.begin(), includePath.end(), '\\', '/');
+	
+	if (orig.compare(0, includePath.length(), *p) == 0)
 	{
-	    string s = orig.substr(p->length());
+	    string s = orig.substr(includePath.length());
 	    if (s.size() < file.size())
 	    {
 		file = s;
