@@ -201,10 +201,10 @@ ifeq ($(PLATFORM_HAS_READLINE),yes)
     ifeq ($(USE_READLINE),yes)
         ifneq ($(READLINE_HOME),)
             READLINE_FLAGS	= -DHAVE_READLINE -I$(READLINE_HOME)/include
-            READLINE_LIBS	= -L$(READLINE_HOME)/$(libsubdir) -lreadline
+            READLINE_LIBS	= -L$(READLINE_HOME)/$(libsubdir) -lreadline -ltermcap
         else
             READLINE_FLAGS	= -DHAVE_READLINE
-            READLINE_LIBS	= -lreadline
+            READLINE_LIBS	= -lreadline -ltermcap
         endif
     endif
 endif
