@@ -28,7 +28,9 @@ public:
 };
 typedef IceUtil::Handle<Operation> OperationPtr;
 
-OperationPtr getOperation(const std::string&, const std::string&);
+bool initOperation(PyObject*);
+
+OperationPtr getOperation(PyObject*);
 
 }
 
