@@ -12,6 +12,7 @@
 <project name="demo_Ice" default="all" basedir=".">
 
     <target name="all">
+        <ant dir="bidir"/>
         <ant dir="callback"/>
         <ant dir="hello"/>
         <ant dir="invoke"/>
@@ -22,6 +23,7 @@
     </target>
 
     <target name="clean">
+        <ant dir="bidir" target="clean"/>
         <ant dir="callback" target="clean"/>
         <ant dir="hello" target="clean"/>
         <ant dir="invoke" target="clean"/>
