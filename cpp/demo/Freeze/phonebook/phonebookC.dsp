@@ -182,7 +182,7 @@ InputPath=.\PhoneBook.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\..\lib \
-	..\..\..\bin\slice2cpp.exe PhoneBook.ice \
+	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
 	
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -200,7 +200,7 @@ InputPath=.\PhoneBook.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\..\lib \
-	..\..\..\bin\slice2cpp.exe PhoneBook.ice \
+	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
 	
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"

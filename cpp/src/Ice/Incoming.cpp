@@ -81,7 +81,7 @@ IceInternal::Incoming::invoke(Stream& is)
 	_os.write(p._prx);
 	return;
     }
-    catch(const LocalException& ex)
+    catch(const LocalException&)
     {
 	if (locator && servant)
 	{

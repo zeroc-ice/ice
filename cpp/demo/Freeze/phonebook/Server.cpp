@@ -33,7 +33,6 @@ static void
 ignoreInterrupt()
 {
     SetConsoleCtrlHandler(NULL, TRUE);
-    SetConsoleCtrlHandler(interruptHandler, FALSE);
 }
 
 #else

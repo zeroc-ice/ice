@@ -89,6 +89,10 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
+SOURCE=.\NameIdentitiesDict.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\PhoneBook.cpp
 # End Source File
 # Begin Source File
@@ -107,6 +111,10 @@ SOURCE=.\Server.cpp
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
+# Begin Source File
+
+SOURCE=.\NameIdentitiesDict.h
+# End Source File
 # Begin Source File
 
 SOURCE=.\PhoneBook.h
@@ -129,37 +137,51 @@ SOURCE=.\PhoneBook.ice
 
 !IF  "$(CFG)" == "phonebookS - Win32 Release"
 
-USERDEP__PHONE="../../../bin/slice2cpp.exe"	
+USERDEP__PHONE="../../../bin/slice2cpp.exe"	"../../../bin/slice2freeze.exe"	
 # Begin Custom Build
 InputPath=.\PhoneBook.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\..\lib \
-	..\..\..\bin\slice2cpp.exe PhoneBook.ice \
+	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
+	..\..\..\bin\slice2freeze.exe -I../../../slice --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice \
 	
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "PhoneBook.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"NameIdentitiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"NameIdentitiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "phonebookS - Win32 Debug"
 
-USERDEP__PHONE="../../../bin/slice2cpp.exe"	
+USERDEP__PHONE="../../../bin/slice2cpp.exe"	"../../../bin/slice2freeze.exe"	
 # Begin Custom Build
 InputPath=.\PhoneBook.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\..\lib \
-	..\..\..\bin\slice2cpp.exe PhoneBook.ice \
+	..\..\..\bin\slice2cpp.exe -I../../../slice PhoneBook.ice \
+	..\..\..\bin\slice2freeze.exe -I../../../slice --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice \
 	
 
 "PhoneBook.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "PhoneBook.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"NameIdentitiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"NameIdentitiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

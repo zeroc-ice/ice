@@ -1241,7 +1241,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     
     H << sp;
-    H << nl << "class " << exp1 << name << "PtrE : ";
+    H << nl << "class " << _dllExport << name << "PtrE : ";
     H.useCurrentPosAsIndent();
     if (bases.empty())
     {

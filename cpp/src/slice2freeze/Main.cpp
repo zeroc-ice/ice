@@ -483,11 +483,13 @@ main(int argc, char* argv[])
 	unit->mergeModules();
 	unit->sort();
 
-	for (vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
 	{
-	    if (p->length() && (*p)[p->length() - 1] != '/')
+	    for (vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
 	    {
-		*p += '/';
+		if (p->length() && (*p)[p->length() - 1] != '/')
+		{
+		    *p += '/';
+		}
 	    }
 	}
 
@@ -520,9 +522,11 @@ main(int argc, char* argv[])
 	H << "\n#include <Ice/Stream.h>";
 	H << "\n#include <Freeze/DB.h>";
 	
-	for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
 	{
-	    H << "\n#include <" << changeInclude(*q, includePaths) << '>';
+	    for (StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
+	    {
+		H << "\n#include <" << changeInclude(*p, includePaths) << '>';
+	    }
 	}
 	
 	H << sp;
@@ -565,21 +569,23 @@ main(int argc, char* argv[])
 	C << "\n#   endif";
 	C << "\n#endif";
 	
-	for (vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
 	{
-	    try
+	    for (vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
 	    {
-		if (!writeDict(argv[0], unit, *p, H, C, dllExport))
+		try
 		{
+		    if (!writeDict(argv[0], unit, *p, H, C, dllExport))
+		    {
+			unit->destroy();
+			return EXIT_FAILURE;
+		    }
+		}
+		catch(...)
+		{
+		    cerr << argv[0] << ": unknown exception" << endl;
 		    unit->destroy();
 		    return EXIT_FAILURE;
 		}
-	    }
-	    catch(...)
-	    {
-		cerr << argv[0] << ": unknown exception" << endl;
-		unit->destroy();
-		return EXIT_FAILURE;
 	    }
 	}
 
