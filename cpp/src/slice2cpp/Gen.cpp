@@ -409,10 +409,13 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     H << nl << "virtual const ::std::string& ice_name() const;";
-    C << sp << nl << "const ::std::string " << scoped.substr(2) << "::_name = \"" << p->scoped().substr(2) << "\";";
+
+    string flatName = p->flattenedScope() + p->name() + "_name";
+
+    C << sp << nl << "static const ::std::string " << flatName << " = \"" << p->scoped().substr(2) << "\";";
     C << sp << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_name() const";
     C << sb;
-    C << nl << "return " << scoped << "::_name;";
+    C << nl << "return " << flatName << ';';
     C << eb;
     
     if(p->isLocal())
@@ -435,12 +438,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     if(!p->isLocal())
     {
 	H << sp << nl << "static const ::IceInternal::UserExceptionFactoryPtr& ice_factory();";
-
-	C << sp << nl << "const ::IceInternal::UserExceptionFactoryPtr&";
-	C << nl << scoped.substr(2) << "::ice_factory()";
-	C << sb;
-	C << nl << "return _factory;";
-	C << eb;
     }
     return true;
 }
@@ -450,19 +447,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
     string name = fixKwd(p->name());
     string scope = fixKwd(p->scope());
+    string scoped = fixKwd(p->scoped());
     DataMemberList dataMembers = p->dataMembers();
     DataMemberList::const_iterator q;
 	
+    string factoryName;
+
     if(!p->isLocal())
     {
-	string flattenedScope;
-
-	for(string::const_iterator r = scope.begin(); r != scope.end(); ++r)
-	{
-	    flattenedScope += ((*r) == ':') ? '_' : *r;
-	}
-
-	string scoped = fixKwd(p->scoped());
 	ExceptionPtr base = p->base();
     
 	H << sp << nl << "virtual void __write(::IceInternal::BasicStream*) const;";
@@ -608,13 +600,10 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    }
 	}
 
-	string factoryName = "__F" + flattenedScope + name;
+	factoryName = "__F" + p->flattenedScope() + p->name();
 
-	C << sp << nl << "class " << factoryName << " : public ::IceInternal::UserExceptionFactory";
+	C << sp << nl << "struct " << factoryName << " : public ::IceInternal::UserExceptionFactory";
 	C << sb;
-	C.dec();
-	C << nl << "public:";
-	C.inc();
 	C << sp << nl << "virtual void";
 	C << nl << "createAndThrow()";
 	C << sb;
@@ -622,8 +611,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	C << eb;
 	C << eb << ';';
 
-	C << sp << nl << "::IceInternal::UserExceptionFactoryPtr " << scoped.substr(2) << "::_factory = new "
-	  << factoryName << ';';
+	C << sp << nl << "static ::IceInternal::UserExceptionFactoryPtr " << factoryName
+	  << "__Ptr = new " << factoryName << ';';
+
+	C << sp << nl << "const ::IceInternal::UserExceptionFactoryPtr&";
+	C << nl << scoped.substr(2) << "::ice_factory()";
+	C << sb;
+	C << nl << "return " << factoryName << "__Ptr;";
+	C << eb;
 
 	C << sp << nl << "class " << factoryName << "__Init";
 	C << sb;
@@ -643,26 +638,17 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	C << sp << nl << "static " << factoryName << "__Init "<< factoryName << "__i;";
 	C << sp << nl << "#ifdef __APPLE__";
 	
-	string initfuncname = "__F" + flattenedScope + name + "__initializer";
+	string initfuncname = "__F" + p->flattenedScope() + p->name() + "__initializer";
 	C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
 	C << nl << "#endif";
     }
-
-    H.dec();
-    H << sp << nl << "private:";
-    H.inc();
-    if(!p->isLocal())
-    {
-	H << sp << nl << "static ::IceInternal::UserExceptionFactoryPtr _factory;";
-    }
-    H << sp << nl << "static const ::std::string _name;";
-
     H << eb << ';';
 
     if(!p->isLocal())
     {
-	H << sp << nl << "static " << fixKwd(p->scoped()) << " __" << p->name() << "_init;";
+	H << sp << nl << "static " << name << " __" << p->name() << "_init;";
     }
+
 }
 
 bool
@@ -2258,7 +2244,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	StringList::const_iterator q;
 
 	H << sp;
-	H << nl << "static const ::std::string __ids[" << ids.size() << "];";
 	H << nl << "virtual bool ice_isA"
 	  << "(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) const;";
 	H << nl << "virtual ::std::vector< ::std::string> ice_ids"
@@ -2266,8 +2251,10 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	H << nl << "virtual const ::std::string& ice_id(const ::Ice::Current& = ::Ice::Current()) const;";
 	H << nl << "static const ::std::string& ice_staticId();";
 
+	string flatName = p->flattenedScope() + p->name() + "_ids";
+
 	C << sp;
-	C << nl << "const ::std::string " << fixKwd(p->scoped()).substr(2) << "::__ids[" << ids.size() << "] =";
+	C << nl << "static const ::std::string " << flatName << '[' << ids.size() << "] =";
 	C << sb;
 	q = ids.begin();
 	while(q != ids.end())
@@ -2284,27 +2271,28 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "bool" << nl << fixKwd(p->scoped()).substr(2)
           << "::ice_isA(const ::std::string& _s, const ::Ice::Current&) const";
 	C << sb;
-	C << nl << "return ::std::binary_search(__ids, __ids + " << ids.size() << ", _s);";
+	C << nl << "return ::std::binary_search(" << flatName << ", " << flatName << " + " << ids.size() << ", _s);";
 	C << eb;
 
 	C << sp;
 	C << nl << "::std::vector< ::std::string>" << nl << fixKwd(p->scoped()).substr(2)
 	  << "::ice_ids(const ::Ice::Current&) const";
 	C << sb;
-	C << nl << "return ::std::vector< ::std::string>(&__ids[0], &__ids[" << ids.size() << "]);";
+	C << nl << "return ::std::vector< ::std::string>(&" << flatName << "[0], &" << flatName
+	  << '[' << ids.size() << "]);";
 	C << eb;
 
 	C << sp;
 	C << nl << "const ::std::string&" << nl << fixKwd(p->scoped()).substr(2)
 	  << "::ice_id(const ::Ice::Current&) const";
 	C << sb;
-	C << nl << "return __ids[" << scopedPos << "];";
+	C << nl << "return " << flatName << '[' << scopedPos << "];";
 	C << eb;
 
 	C << sp;
 	C << nl << "const ::std::string&" << nl << fixKwd(p->scoped()).substr(2) << "::ice_staticId()";
 	C << sb;
-	C << nl << "return __ids[" << scopedPos << "];";
+	C << nl << "return " << flatName << '[' << scopedPos << "];";
 	C << eb;
 
 	emitGCFunctions(p);
@@ -2352,11 +2340,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    StringList::const_iterator q;
 	    
 	    H << sp;
-	    H << nl << "static ::std::string __all[" << allOpNames.size() << "];";
 	    H << nl
 	      << "virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);";
+
+	    string flatName = p->flattenedScope() + p->name() + "_all";
 	    C << sp;
-	    C << nl << "::std::string " << scoped.substr(2) << "::__all[] =";
+	    C << nl << "static ::std::string " << flatName << "[] =";
 	    C << sb;
 	    q = allOpNames.begin();
 	    while(q != allOpNames.end())
@@ -2374,13 +2363,14 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << sb;
 	  
 	    C << nl << "::std::pair< ::std::string*, ::std::string*> r = "
-	      << "::std::equal_range(__all, __all + " << allOpNames.size() << ", current.operation);";
+	      << "::std::equal_range(" << flatName << ", " << flatName << " + " << allOpNames.size()
+	      << ", current.operation);";
 	    C << nl << "if(r.first == r.second)";
 	    C << sb;
 	    C << nl << "return ::IceInternal::DispatchOperationNotExist;";
 	    C << eb;
 	    C << sp;
-	    C << nl << "switch(r.first - __all)";
+	    C << nl << "switch(r.first - " << flatName << ')';
 	    C << sb;
 	    int i = 0;
 	    for(q = allOpNames.begin(); q != allOpNames.end(); ++q)
@@ -2522,15 +2512,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	{
 	    H << sp << nl << "static const ::Ice::ObjectFactoryPtr& ice_factory();";
 
-            string flattenedScope;
-
-            for(string::const_iterator r = scope.begin(); r != scope.end(); ++r)
-            {
-                flattenedScope += ((*r) == ':') ? '_' : *r;
-            }
-
-	    string name = fixKwd(p->name());
-	    string factoryName = "__F" + flattenedScope + name;
+	    string factoryName = "__F" + p->flattenedScope() + p->name();
 	    C << sp;
 	    C << nl << "class " << factoryName << " : public ::Ice::ObjectFactory";
 	    C << sb;
@@ -2547,12 +2529,13 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << eb;
 	    C << eb << ';';
 
+	    string flatName = factoryName + "_Ptr";
 	    C << sp;
-	    C << nl << "::Ice::ObjectFactoryPtr " << scoped.substr(2) << "::_factory = new " << factoryName << ';';
+	    C << nl << "static ::Ice::ObjectFactoryPtr " << flatName << " = new " << factoryName << ';';
 
 	    C << sp << nl << "const ::Ice::ObjectFactoryPtr&" << nl << scoped.substr(2) << "::ice_factory()";
 	    C << sb;
-	    C << nl << "return _factory;";
+	    C << nl << "return " << flatName << ';';
 	    C << eb;
 
 	    C << sp;
@@ -2575,14 +2558,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << sp;
 	    C << nl << "static " << factoryName << "__Init " << factoryName << "__i;";
 	    C << sp << nl << "#ifdef __APPLE__";
-	    std::string initfuncname = "__F" + flattenedScope + name + "__initializer";
+	    std::string initfuncname = "__F" + p->flattenedScope() + p->name() + "__initializer";
 	    C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
 	    C << nl << "#endif";
-
-	    H.dec();
-	    H << sp << nl << "private:";
-	    H.inc();
-	    H << sp << nl << "static ::Ice::ObjectFactoryPtr _factory;";
 	}
     }
 

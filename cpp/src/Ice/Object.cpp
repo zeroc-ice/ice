@@ -48,7 +48,7 @@ Ice::Object::ice_hash() const
     return static_cast<Int>(reinterpret_cast<Long>(this) >> 4);
 }
 
-const string Ice::Object::__ids[] =
+static const string __Ice__Object_ids[] =
 {
     "::Ice::Object"
 };
@@ -56,7 +56,7 @@ const string Ice::Object::__ids[] =
 bool
 Ice::Object::ice_isA(const string& s, const Current&) const
 {
-    return s == __ids[0];
+    return s == __Ice__Object_ids[0];
 }
 
 void
@@ -68,19 +68,19 @@ Ice::Object::ice_ping(const Current&) const
 vector<string>
 Ice::Object::ice_ids(const Current&) const
 {
-    return vector<string>(&__ids[0], &__ids[1]);
+    return vector<string>(&__Ice__Object_ids[0], &__Ice__Object_ids[1]);
 }
 
 const string&
 Ice::Object::ice_id(const Current&) const
 {
-    return __ids[0];
+    return __Ice__Object_ids[0];
 }
 
 const ::std::string&
 Ice::Object::ice_staticId()
 {
-    return __ids[0];
+    return __Ice__Object_ids[0];
 }
 
 void

@@ -327,6 +327,18 @@ Slice::Contained::scope() const
 }
 
 string
+Slice::Contained::flattenedScope() const
+{
+    string s = scope();
+    string flattenedScope;
+    for(string::const_iterator r = s.begin(); r != s.end(); ++r)
+    {
+	flattenedScope += ((*r) == ':') ? '_' : *r;
+    }
+    return flattenedScope;
+}
+
+string
 Slice::Contained::file() const
 {
     return _file;

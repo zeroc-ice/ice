@@ -320,6 +320,7 @@ public:
     std::string name() const;
     std::string scoped() const;
     std::string scope() const;
+    std::string flattenedScope() const;
     std::string file() const;
     std::string line() const;
     std::string comment() const;
