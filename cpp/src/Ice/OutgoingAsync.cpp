@@ -247,7 +247,7 @@ IceInternal::OutgoingAsync::__prepare(const ReferencePtr& ref, const string& ope
 	//
 	while(_reference)
 	{
-	    wait();
+	    _monitor.wait();
 	}
 	
 	_reference = ref;
@@ -396,6 +396,8 @@ IceInternal::OutgoingAsync::cleanup()
 	delete __os;
 	__os = 0;
     }
+
+    _monitor.notify();
 }
 
 void

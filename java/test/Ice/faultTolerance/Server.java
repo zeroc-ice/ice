@@ -61,7 +61,7 @@ public class Server
 
         communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p " + port);
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object = new TestI(adapter);
+        Ice.Object object = new TestI(adapter, port);
         adapter.add(object, Ice.Util.stringToIdentity("test"));
         adapter.activate();
         communicator.waitForShutdown();

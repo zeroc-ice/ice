@@ -322,7 +322,6 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 {
     __checkTwowayOnly("ice_invoke_async");
     cb->__invoke(__reference(), operation, mode, inParams, context);
-
 }
 
 Context

@@ -220,20 +220,8 @@ public class ObjectPrxHelper implements ObjectPrx
     ice_invoke_async(AMI_Object_ice_invoke cb, String operation, OperationMode mode, byte[] inParams,
 		     java.util.Map context)
     {
-        int __cnt = 0;
-        while(true)
-        {
-            try
-            {
-//                _ObjectDel __del = __getDelegate();
-//                __del.ice_invoke_async(cb, operation, mode, inParams, context);
-		return;
-            }
-            catch(LocalException __ex)
-            {
-                __cnt = __handleException(__ex, __cnt);
-            }
-        }
+	__checkTwowayOnly("ice_invoke_async");
+	cb.__invoke(__reference(), operation, mode, inParams, context);
     }
 
     public final Identity

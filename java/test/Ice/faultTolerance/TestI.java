@@ -15,10 +15,10 @@
 public final class TestI extends _TestDisp
 {
     public
-    TestI(Ice.ObjectAdapter adapter)
+    TestI(Ice.ObjectAdapter adapter, int port)
     {
         _adapter = adapter;
-	_pseudoPid = (new java.util.Random()).nextInt();
+	_pseudoPid = port; // We use the port number instead of the process ID in Java.
     }
 
     public void

@@ -220,7 +220,7 @@ public abstract class OutgoingAsync
 		{
 		    try
 		    {
-			wait();
+			_monitor.wait();
 		    }
 		    catch(InterruptedException ex)
 		    {
@@ -375,6 +375,8 @@ public abstract class OutgoingAsync
 	    __os.destroy();
 	    __os = null;
 	}
+
+	_monitor.notify();
     }
 
     protected BasicStream __is;
