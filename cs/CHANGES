@@ -13,6 +13,13 @@ Changes since version 1.5.1
   (constants, classes, interfaces, etc.) must be defined inside a
   module.
 
+- Fixed the and slice2cs compiler for operations with multiple
+  exceptions in an exception specification: if an exception was a base of one or
+  more other exceptions in the same exception specification, the code
+  generator sometimes emitted the catch blocks in the marshaling and
+  dispatch code in the wrong order. (This applied only to interfaces
+  with an ["amd"] metadata directive.)
+
 - Several demos used Slice classes where interface were more
   appropriate. This has been fixed.
 
