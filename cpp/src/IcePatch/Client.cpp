@@ -25,7 +25,6 @@ public:
 
     void usage();
     virtual int run(int, char*[]);
-    void printNodeDesc(const NodeDescPtr&);
     void printNodeDescSeq(const NodeDescSeq&, const string&);
 };
 
@@ -107,7 +106,13 @@ IcePatch::Client::run(int argc, char* argv[])
 	Identity identity = pathToIdentity(".");
 	ObjectPrx topObj = communicator()->stringToProxy(identityToString(identity) + ':' + endpoints);
 	NodePrx top = NodePrx::checkedCast(topObj);
-	printNodeDesc(top->describe());
+	assert(top);
+	DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
+	assert(topDesc);
+	string path = identityToPath(topDesc->directory->ice_getIdentity());
+	cout << pathToName(path) << endl;
+	cout << "|" << endl;
+	printNodeDescSeq(topDesc->directory->getContents(), "");
     }
     catch (const NodeAccessException& ex)
     {
@@ -119,43 +124,6 @@ IcePatch::Client::run(int argc, char* argv[])
 }
 
 void
-IcePatch::Client::printNodeDesc(const NodeDescPtr& nodeDesc)
-{
-    string name;
-    DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(nodeDesc);
-    FileDescPtr fileDesc;
-    if (directoryDesc)
-    {
-	name = directoryDesc->directory->ice_getIdentity().name;
-    }
-    else
-    {
-	fileDesc = FileDescPtr::dynamicCast(nodeDesc);
-	assert(fileDesc);
-	name = fileDesc->file->ice_getIdentity().name;
-    }
-    
-    string::size_type pos = name.rfind('/');
-    if (pos != string::npos)
-    {
-	name.erase(0, pos + 1);
-    }
-    
-    cout << name << endl;
-    
-    if (directoryDesc)
-    {
-	cout << endl;
-	printNodeDescSeq(directoryDesc->directory->getContents(), "");
-    }
-    else
-    {
-	assert(fileDesc);
-	cout << " (" << MD5ToString(fileDesc->md5) << ')' << endl;
-    }
-}
-
-void
 IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string& indent)
 {
     if (nodeDescSeq.empty())
@@ -163,56 +131,117 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 	return;
     }
 
-    cout << indent << "| " << endl;
-
     for (unsigned int i = 0; i < nodeDescSeq.size(); ++i)
     {
-	string name;
+	string path;
 	DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(nodeDescSeq[i]);
 	FileDescPtr fileDesc;
 	if (directoryDesc)
 	{
-	    name = directoryDesc->directory->ice_getIdentity().name;
+	    path = identityToPath(directoryDesc->directory->ice_getIdentity());
 	}
 	else
 	{
 	    fileDesc = FileDescPtr::dynamicCast(nodeDescSeq[i]);
 	    assert(fileDesc);
-	    name = fileDesc->file->ice_getIdentity().name;
+	    path = identityToPath(fileDesc->file->ice_getIdentity());
 	}
-	
-	string::size_type pos = name.rfind('/');
-	if (pos != string::npos)
-	{
-	    name.erase(0, pos + 1);
-	}
-	
-	cout << indent << "+-" << name;
+
+	bool last = (i == nodeDescSeq.size() - 1);
 	
 	if (directoryDesc)
 	{
-	    cout << endl;
-
 	    string newIndent;
-	    if (i < nodeDescSeq.size() - 1)
-	    {
-		newIndent = indent + "| ";
-	    }
-	    else
+	    if (last)
 	    {
 		newIndent = indent + "  ";
 	    }
+	    else
+	    {
+		newIndent = indent + "| ";
+	    }
+	    cout << indent << "+-" << pathToName(path) << "... " << flush;
 
+	    FileInfo info = getFileInfo(path);
+	    switch (info)
+	    {
+		case FileInfoNotExist:
+		{
+		    cout << "creating directory... " << flush;
+		    createDirectory(path);
+		    break;
+		}
+
+		case FileInfoDirectory:
+		{
+		    break;
+		}
+
+		case FileInfoRegular:
+		{
+		    cout << "removing regular file... " << flush;
+		    removeRecursive(path);
+		    cout << "creating directory... " << flush;
+		    createDirectory(path);
+		    break;
+		}
+
+		case FileInfoUnknown:
+		{
+		    cout << "removing unknown file... " << flush;
+		    removeRecursive(path);
+		    cout << "creating directory... " << flush;
+		    createDirectory(path);
+		    break;
+		}
+	    }
+
+	    cout << "ok" << endl;
+
+	    cout << newIndent << "|" << endl;
 	    printNodeDescSeq(directoryDesc->directory->getContents(), newIndent);
 	}
 	else
 	{
 	    assert(fileDesc);
-	    cout << " (" << MD5ToString(fileDesc->md5) << ')' << endl;
+	    cout << indent << "+-" << pathToName(path) << "... " << flush;
+
+	    FileInfo info = getFileInfo(path);
+	    switch (info)
+	    {
+		case FileInfoNotExist:
+		{
+		    break;
+		}
+
+		case FileInfoDirectory:
+		{
+		    cout << "removing directory... " << flush;
+		    removeRecursive(path);
+		    break;
+		}
+
+		case FileInfoRegular:
+		{
+		    break;
+		}
+
+		case FileInfoUnknown:
+		{
+		    cout << "removing unknown file... " << flush;
+		    removeRecursive(path);
+		    break;
+		}
+	    }
+
+	    cout << "ok" << endl;
+
+	    if (last)
+	    {
+		cout << indent << endl;
+	    }
 	}
     }
-
-    cout << indent << "  " << endl;
 }
 
 int

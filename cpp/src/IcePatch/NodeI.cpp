@@ -44,13 +44,10 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
     StringSeq::const_iterator p;
     for (p = paths.begin(); p != paths.end(); ++p)
     {
-	string::size_type pos;
-	if ((pos = p->rfind(".md5")) != string::npos)
+	string suffix = getSuffix(*p);
+	if (suffix == "md5" || suffix == "bz2")
 	{
-	    if (p->size() == pos + 4)
-	    {
-		continue;
-	    }
+	    continue;
 	}
 	
 	NodePrx node = NodePrx::uncheckedCast(_adapter->createProxy(pathToIdentity(*p)));

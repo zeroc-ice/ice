@@ -10,9 +10,6 @@
 
 #include <IcePatch/NodeLocator.h>
 #include <IcePatch/Util.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 using namespace std;
 using namespace Ice;
@@ -25,7 +22,7 @@ IcePatch::NodeLocator::NodeLocator(const Ice::ObjectAdapterPtr& adapter) :
 }
 
 ObjectPtr
-IcePatch::NodeLocator::locate(const ObjectAdapterPtr&, const Current& current, LocalObjectPtr&)
+IcePatch::NodeLocator::locate(const ObjectAdapterPtr& adapter, const Current& current, LocalObjectPtr&)
 {
     //
     // Check whether the path is valid.
@@ -52,30 +49,35 @@ IcePatch::NodeLocator::locate(const ObjectAdapterPtr&, const Current& current, L
 	return 0;
     }
 
-    struct stat buf;
-    if (stat(path.c_str(), &buf) == -1)
+    FileInfo info;
+    try
     {
-	//
-	// Can't really throw any sensible exception here if stat()
-	// fails, so I return 0.
-	//
+	info = getFileInfo(path);
+    }
+    catch (const NodeAccessException& ex)
+    {
+	Warning out(adapter->getCommunicator()->getLogger());
+	out << ex << ":\n" << ex.reason;
 	return 0;
     }
 
-    if (S_ISDIR(buf.st_mode))
+    switch (info)
     {
-	return _directory;
-    }
+	case FileInfoDirectory:
+	{
+	    return _directory;
+	}
 
-    if (S_ISREG(buf.st_mode))
-    {
-	return _file;
-    }
+	case FileInfoRegular:
+	{
+	    return _file;
+	}
 
-    //
-    // Neither a regular file nor a directory, so we return 0.
-    //
-    return 0;
+	default:
+	{
+	    return 0;
+	}
+    }
 }
 
 void

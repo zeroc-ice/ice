@@ -67,11 +67,70 @@ IcePatch::pathToIdentity(const string& path)
     return identity;
 }
 
+string
+IcePatch::pathToName(const string& path)
+{
+    string::size_type pos = path.rfind('/');
+    if (pos == string::npos)
+    {
+	return path;
+    }
+    else
+    {
+	return path.substr(pos + 1);
+    }
+}
+
+string
+IcePatch::getSuffix(const string& path)
+{
+    string::size_type pos = path.rfind('.');
+    if (pos == string::npos)
+    {
+	return string();
+    }
+    else
+    {
+	return path.substr(pos + 1);
+    }
+}
+
+FileInfo
+IcePatch::getFileInfo(const string& path)
+{
+    struct stat buf;
+    if (::stat(path.c_str(), &buf) == -1)
+    {
+	if (errno == ENOENT)
+	{
+	    return FileInfoNotExist;
+	}
+	else
+	{
+	    NodeAccessException ex;
+	    ex.reason = "cannot stat `" + path + "':" + strerror(errno);
+	    throw ex;
+	}
+    }
+
+    if (S_ISDIR(buf.st_mode))
+    {
+	return FileInfoDirectory;
+    }
+
+    if (S_ISREG(buf.st_mode))
+    {
+	return FileInfoRegular;
+    }
+
+    return FileInfoUnknown;
+}
+
 StringSeq
 IcePatch::readDirectory(const string& path)
 {
     struct dirent **namelist;
-    int n = scandir(path.c_str(), &namelist, 0, alphasort);
+    int n = ::scandir(path.c_str(), &namelist, 0, alphasort);
     if (n < 0)
     {
 	NodeAccessException ex;
@@ -98,14 +157,46 @@ IcePatch::readDirectory(const string& path)
     return result;
 }
 
+void
+IcePatch::removeRecursive(const string& path)
+{
+    if (getFileInfo(path) == FileInfoDirectory)
+    {
+	StringSeq paths = readDirectory(path);
+	StringSeq::const_iterator p;
+	for (p = paths.begin(); p != paths.end(); ++p)
+	{
+	    removeRecursive(*p);
+	}
+    }
+    
+    if (::remove(path.c_str()) == -1)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot remove file `" + path + "':" + strerror(errno);
+	throw ex;
+    }
+}
+
+void
+IcePatch::createDirectory(const string& path)
+{
+    if (::mkdir(path.c_str(), 00777) == -1)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot create directory `" + path + "':" + strerror(errno);
+	throw ex;
+    }
+}
+
 ByteSeq
-IcePatch::getMD5(const std::string& path)
+IcePatch::getMD5(const string& path)
 {
     //
     // Stat the file to get a MD5 hash value for.
     //
     struct stat buf;
-    if (stat(path.c_str(), &buf) == -1)
+    if (::stat(path.c_str(), &buf) == -1)
     {
 	NodeAccessException ex;
 	ex.reason = "cannot stat `" + path + "':" + strerror(errno);
@@ -129,7 +220,7 @@ IcePatch::getMD5(const std::string& path)
     string pathmd5 = path + ".md5";
     unsigned char md5[16];
     bool createmd5 = false;
-    if (stat(pathmd5.c_str(), &bufmd5) == -1)
+    if (::stat(pathmd5.c_str(), &bufmd5) == -1)
     {
 	if (errno == ENOENT)
 	{
@@ -170,7 +261,7 @@ IcePatch::getMD5(const std::string& path)
 	// Open the original file and create a MD5 hash value
 	//
 	{
-	    int fd = open(path.c_str(), O_RDONLY);
+	    int fd = ::open(path.c_str(), O_RDONLY);
 	    
 	    if (fd == -1)
 	    {
@@ -183,7 +274,7 @@ IcePatch::getMD5(const std::string& path)
 	    
 	    try
 	    {
-		int sz = read(fd, fileBuf, buf.st_size);
+		int sz = ::read(fd, fileBuf, buf.st_size);
 		
 		if (sz == -1)
 		{
@@ -199,14 +290,14 @@ IcePatch::getMD5(const std::string& path)
 		    throw ex;
 		}
 		
-		MD5(fileBuf, sz, md5);
+		::MD5(fileBuf, sz, md5);
 		
-		close(fd);
+		::close(fd);
 		delete [] fileBuf;
 	    }
 	    catch (...)
 	    {
-		close(fd);
+		::close(fd);
 		delete [] fileBuf;
 		throw;
 	    }
@@ -216,7 +307,7 @@ IcePatch::getMD5(const std::string& path)
 	// Write the MD5 hash value to the corresponding .md5 file.
 	//
 	{
-	    int fd = open(pathmd5.c_str(), O_WRONLY | O_CREAT, 00644);
+	    int fd = ::open(pathmd5.c_str(), O_WRONLY | O_CREAT, 00666);
 	    
 	    if (fd == -1)
 	    {
@@ -227,7 +318,7 @@ IcePatch::getMD5(const std::string& path)
 	    
 	    try
 	    {
-		int sz = write(fd, md5, 16);
+		int sz = ::write(fd, md5, 16);
 		
 		if (sz == -1)
 		{
@@ -243,11 +334,11 @@ IcePatch::getMD5(const std::string& path)
 		    throw ex;
 		}
 		
-		close(fd);
+		::close(fd);
 	    }
 	    catch (...)
 	    {
-		close(fd);
+		::close(fd);
 		throw;
 	    }
 	}
@@ -257,7 +348,7 @@ IcePatch::getMD5(const std::string& path)
 	//
 	// Read the MD5 hash value from the .md5 file.
 	//
-	int fd = open(pathmd5.c_str(), O_RDONLY);
+	int fd = ::open(pathmd5.c_str(), O_RDONLY);
 	
 	if (fd == -1)
 	{
@@ -268,7 +359,7 @@ IcePatch::getMD5(const std::string& path)
 	
 	try
 	{
-	    int sz = read(fd, md5, 16);
+	    int sz = ::read(fd, md5, 16);
 	    
 	    if (sz == -1)
 	    {
@@ -284,11 +375,11 @@ IcePatch::getMD5(const std::string& path)
 		throw ex;
 	    }
 	    
-	    close(fd);
+	    ::close(fd);
 	}
 	catch (...)
 	{
-	    close(fd);
+	    ::close(fd);
 	    throw;
 	}
     }
@@ -305,8 +396,8 @@ IcePatch::getMD5(const std::string& path)
     return result;
 }
 
-std::string
-IcePatch::MD5ToString(const Ice::ByteSeq& md5)
+string
+IcePatch::MD5ToString(const ByteSeq& md5)
 {
     if (md5.size() != 16)
     {
