@@ -13,15 +13,31 @@
 module Demo
 {
 
-const int seqSize = 500000;
-
 sequence<byte> ByteSeq;
+
+sequence<string> StringSeq;
+
+struct StringDouble
+{
+    string s;
+    double d;
+};
+sequence<StringDouble> StringDoubleSeq;
 
 interface Throughput
 {
     void sendByteSeq(ByteSeq seq);
     ByteSeq recvByteSeq();
     ByteSeq echoByteSeq(ByteSeq seq);
+
+    void sendStringSeq(StringSeq seq);
+    StringSeq recvStringSeq();
+    StringSeq echoStringSeq(StringSeq seq);
+
+    void sendStructSeq(StringDoubleSeq seq);
+    StringDoubleSeq recvStructSeq();
+    StringDoubleSeq echoStructSeq(StringDoubleSeq seq);
+
     idempotent void shutdown();
 };
 

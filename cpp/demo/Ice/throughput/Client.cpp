@@ -18,10 +18,15 @@ menu()
 {
     cout <<
 	"usage:\n"
-	"t: send byte sequence as twoway\n"
-	"o: send byte sequence as oneway\n"
-	"r: receive byte sequence\n"
-	"e: echo (send and receive) byte sequence\n"
+	"toggle type of data to send\n"
+	"  1: byte sequence (default)\n"
+	"  2: string { \"hello\" } sequence\n"
+	"  3: struct { \"hello\", \"3.14\" } sequence\n"
+	"select test to run\n"
+	"  t: send sequence as twoway\n"
+	"  o: send sequence as oneway\n"
+	"  r: receive sequence\n"
+	"  e: echo (send and receive) sequence\n"
 	"s: shutdown server\n"
 	"x: exit\n"
 	"?: help\n";
@@ -48,11 +53,30 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     ThroughputPrx throughputOneway = ThroughputPrx::uncheckedCast(throughput->ice_oneway());
 
-    ByteSeq seq(seqSize, 0);
+    int byteSeqSize = 500000;
+    int stringSeqSize = 100000;
+    int structSeqSize = 50000;
+
+    ByteSeq byteSeq(byteSeqSize, 0);
+
+    StringSeq stringSeq(stringSeqSize, "hello");
+
+    StringDoubleSeq structSeq(structSeqSize);
+    for(int i = 0; i < structSeqSize; ++i)
+    {
+        structSeq[i].s = "hello";
+	structSeq[i].d = 3.14;
+    }
 
     menu();
 
     throughput->ice_ping(); // Initial ping to setup the connection.
+
+    //
+    // By default use byte sequence.
+    //
+    char currentType = '1';
+    int seqSize = byteSeqSize;
 
     char c;
     do
@@ -65,7 +89,34 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    IceUtil::Time tm = IceUtil::Time::now();
 	    const int repetitions = 1000;
 
-	    if(c == 't' || c == 'o' || c == 'r' || c == 'e')
+	    if(c == '1' || c == '2' || c == '3')
+	    {
+		currentType = c;
+	        switch(c)
+		{
+		    case '1':
+		    {
+		        cout << "using byte sequences" << endl;
+			seqSize = byteSeqSize;
+			break;
+		    }
+
+		    case '2':
+		    {
+		        cout << "using string sequences" << endl;
+			seqSize = stringSeqSize;
+			break;
+		    }
+
+		    case '3':
+		    {
+		        cout << "using struct sequences" << endl;
+			seqSize = structSeqSize;
+			break;
+		    }
+		}
+	    }
+	    else if(c == 't' || c == 'o' || c == 'r' || c == 'e')
 	    {
 		switch(c)
 		{
@@ -89,7 +140,29 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		    }
 		}
 
-		cout << ' ' << repetitions << " sequences of size " << seqSize;
+		cout << ' ' << repetitions;
+	        switch(currentType)
+		{
+		    case '1':
+		    {
+		        cout << " byte";
+			break;
+		    }
+
+		    case '2':
+		    {
+		        cout << " string";
+			break;
+		    }
+
+		    case '3':
+		    {
+		        cout << " struct";
+			break;
+		    }
+		}
+		cout << " sequences of size " << seqSize;
+
 
 		if(c == 'o')
 		{
@@ -100,30 +173,97 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		
 		for(int i = 0; i < repetitions; ++i)
 		{
-		    switch(c)
+		    switch(currentType)
 		    {
-			case 't':
+		        case '1':
 			{
-			    throughput->sendByteSeq(seq);
+		            switch(c)
+		            {
+			        case 't':
+			        {
+			            throughput->sendByteSeq(byteSeq);
+			            break;
+			        }
+			
+			        case 'o':
+			        {
+			            throughputOneway->sendByteSeq(byteSeq);
+			            break;
+			        }
+			
+			        case 'r':
+			        {
+			            throughput->recvByteSeq();
+			            break;
+			        }
+			
+			        case 'e':
+			        {
+			            throughput->echoByteSeq(byteSeq);
+			            break;
+			        }
+			    }
 			    break;
 			}
-			
-			case 'o':
+
+		        case '2':
 			{
-			    throughputOneway->sendByteSeq(seq);
-			    break;
+		            switch(c)
+		            {
+			        case 't':
+			        {
+			            throughput->sendStringSeq(stringSeq);
+			            break;
+			        }
+			
+			        case 'o':
+			        {
+			            throughputOneway->sendStringSeq(stringSeq);
+			            break;
+			        }
+			
+			        case 'r':
+			        {
+			            throughput->recvStringSeq();
+			            break;
+			        }
+			
+			        case 'e':
+			        {
+			            throughput->echoStringSeq(stringSeq);
+			            break;
+			        }
+			    }
 			}
-			
-			case 'r':
+
+		        case '3':
 			{
-			    throughput->recvByteSeq();
-			    break;
-			}
+		            switch(c)
+		            {
+			        case 't':
+			        {
+			            throughput->sendStructSeq(structSeq);
+			            break;
+			        }
 			
-			case 'e':
-			{
-			    throughput->echoByteSeq(seq);
-			    break;
+			        case 'o':
+			        {
+			            throughputOneway->sendStructSeq(structSeq);
+			            break;
+			        }
+			
+			        case 'r':
+			        {
+			            throughput->recvStructSeq();
+			            break;
+			        }
+			
+			        case 'e':
+			        {
+			            throughput->echoStructSeq(structSeq);
+			            break;
+			        }
+			    }
 			}
 		    }
 		}
@@ -131,12 +271,18 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		tm = IceUtil::Time::now() - tm;
 		cout << "time for " << repetitions << " sequences: " << tm * 1000 << "ms" << endl;
 		cout << "time per sequence: " << tm * 1000 / repetitions << "ms" << endl;
-		double mbit = repetitions * seqSize * 8.0 / tm.toMicroSeconds();
-		if(c == 'e')
+		if(currentType == '1')
 		{
-		    mbit *= 2;
+		    //
+		    // TODO: Calculate rate for strings and structs.
+		    //
+		    double mbit = repetitions * seqSize * 8.0 / tm.toMicroSeconds();
+		    if(c == 'e')
+		    {
+		        mbit *= 2;
+		    }
+		    cout << "throughput: " << mbit << " MBit/s" << endl;
 		}
-		cout << "throughput: " << mbit << " MBit/s" << endl;
 	    }
 	    else if(c == 's')
 	    {
