@@ -36,7 +36,10 @@ void
 ice_copy(std::vector<Ice::Byte>::const_iterator first, std::vector<Ice::Byte>::const_iterator last,
        std::vector<Ice::Byte>::iterator result)
 {
-    memcpy(&*result, &*first, last - first);
+    if(last != first)
+    {
+	memcpy(&*result, &*first, last - first);
+    }
 }
 
 using namespace std;
