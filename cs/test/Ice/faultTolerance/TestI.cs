@@ -19,16 +19,19 @@ public sealed class TestI : _TestDisp
     public override void abort(Ice.Current current)
     {
         System.Diagnostics.Process.GetCurrentProcess().Kill();
+	System.Threading.Thread.Sleep(2000); // Sleep needed for Mono with RedHat 8 (no NPTL).
     }
     
     public override void idempotentAbort(Ice.Current current)
     {
         System.Diagnostics.Process.GetCurrentProcess().Kill();
+	System.Threading.Thread.Sleep(2000); // Sleep needed for Mono with RedHat 8 (no NPTL).
     }
     
     public override void nonmutatingAbort(Ice.Current current)
     {
         System.Diagnostics.Process.GetCurrentProcess().Kill();
+	System.Threading.Thread.Sleep(2000); // Sleep needed for Mono with RedHat 8 (no NPTL).
     }
     
     public override int pid(Ice.Current current)
