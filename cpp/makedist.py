@@ -16,17 +16,15 @@
 import os, sys, fnmatch, re
 
 #
-# Recursive removal of a directory.
+# Remove a file or directory (recursive).
 #
 def rm(path):
-    files = os.listdir(path)
-    for x in files:
-        fullpath = os.path.join(path, x)
-        if os.path.isdir(fullpath) and not os.path.islink(fullpath):
-            rm(fullpath)
-        else:
-            os.remove(fullpath)
-    os.rmdir(path)
+    if os.path.isdir(path) and not os.path.islink(path):
+        for x in os.listdir(path):
+            rm(os.path.join(path, x))
+        os.rmdir(path)
+    else:
+        os.remove(path)
 
 #
 # Find files matching a pattern.
@@ -70,10 +68,10 @@ os.system("cvs -z5 -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice
 # Remove files.
 #
 filesToRemove = [ \
-    "makedist.py", \
+    "ice/makedist.py", \
     ]
 for x in filesToRemove:
-    os.remove(x)
+    rm(x)
 
 #
 # Generate bison files.
