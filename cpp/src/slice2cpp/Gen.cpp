@@ -590,16 +590,32 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	string scoped = p->scoped();
 	string scope = p->scope();
 
+	//
+	// TODO: ice_marshal/ice_unmarshal, __write/__read can be
+	// moved into the helper.
+	//
 	H << sp << nl << "class __U__" << name << " { };";
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__" << name
 	  << ");";
 	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "&, __U__" << name << ");";
-	H << sp << nl << _dllExport << "void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
+
+	H << nl << _dllExport << "void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
           << name << "&, __U__" << name
 	  << ");";
 	H << nl << _dllExport << "void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
 	  << name << "&, __U__" << name << ");";
 
+	H << sp << nl << "class " << _dllExport << name << "Helper";
+	H << sb;
+	H.zeroIndent();
+	H << nl << "public:";
+	H.restoreIndent();
+	H << sp << nl << _dllExport << "static void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
+          << name << "&);";
+	H << nl << _dllExport << "static void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
+	  << name << "&);";
+	H << eb << ";";
+	
 	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
 	  << scoped << "& v, " << scope << "__U__" << name << ")";
 	C << sb;
@@ -675,6 +691,20 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << eb;
 	C << nl << "__is->endReadSequence();";
 	C << eb;
+
+	C << sp << nl << "void" << nl << scope.substr(2) << name << "Helper::"
+	  << "ice_marshal(const ::std::string& __name, const ::Ice::StreamPtr& __os, const "
+          << name << "& v)";
+        C << sb;
+	C << nl << scope << "ice_marshal(__name, __os, v, " << scope << "__U__" << name << "());";
+	C << eb;
+
+	C << nl << "void" << nl << scope.substr(2) << name << "Helper::"
+	  << "ice_unmarshal(const ::std::string& __name, const ::Ice::StreamPtr& __is, "
+	  << name << "& v)";
+	C << sb;
+	C << nl << scope << "ice_unmarshal(__name, __is, v, " << scope << "__U__" << name << "());";
+	C << eb;
     }
 }
 
@@ -696,7 +726,11 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     {
 	string scoped = p->scoped();
 	string scope = p->scope();
-	
+
+	//
+	// TODO: ice_marshal/ice_unmarshal, __write/__read can be
+	// moved into the helper.
+	//
 	H << sp << nl << "class __U__" << name << " { };";
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__" << name
 	  << ");";
@@ -706,6 +740,17 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	  << ");";
 	H << nl << _dllExport << "void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
 	  << name << "&, __U__" << name << ");";
+
+	H << sp << nl << "class " << _dllExport << name << "Helper";
+	H << sb;
+	H.zeroIndent();
+	H << nl << "public:";
+	H.restoreIndent();
+	H << sp << nl << _dllExport << "static void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
+	  << name << "&);";
+	H << nl << _dllExport << "static void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
+	  << name << "&);";
+	H << eb << ";";
 
 	C << sp << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::BasicStream* __os, const "
 	  << scoped << "& v, " << scope << "__U__" << name << ")";
@@ -759,6 +804,20 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	C << nl << "v.insert(v.end(), pair);";
 	C << eb;
 	C << nl << "__is->endReadDictionary();";
+	C << eb;
+
+	C << sp << nl << "void" << nl << scope.substr(2) << name << "Helper::"
+	  << "ice_marshal(const ::std::string& __name, const ::Ice::StreamPtr& __os, const "
+          << name << "& v)";
+        C << sb;
+	C << nl << scope << "ice_marshal(__name, __os, v, " << scope << "__U__" << name << "());";
+	C << eb;
+
+	C << nl << "void" << nl << scope.substr(2) << name << "Helper::"
+	  << "ice_unmarshal(const ::std::string& __name, const ::Ice::StreamPtr& __is, "
+	  << name << "& v)";
+	C << sb;
+	C << nl << scope << "ice_unmarshal(__name, __is, v, " << scope << "__U__" << name << "());";
 	C << eb;
     }
 }
