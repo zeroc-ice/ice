@@ -31,7 +31,7 @@ testdir = os.path.join(toplevel, "test", name)
 server = os.path.join(testdir, "server")
 client = os.path.join(testdir, "client")
 
-num = 6
+num = 12
 base = 12340
 
 serverPipes = { }

@@ -18,6 +18,150 @@
 
 using namespace std;
 
+class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    CallbackBase() :
+	_called(false)
+    {
+    }
+
+    virtual ~CallbackBase()
+    {
+    }
+
+    bool check()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	while(!_called)
+	{
+	    if(!timedWait(IceUtil::Time::seconds(5)))
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+protected:
+
+    void called()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	assert(!_called);
+	_called = true;
+	notify();
+    }
+
+private:
+
+    bool _called;
+};
+
+class AMI_Test_pidI : virtual public AMI_Test_pid, virtual public CallbackBase
+{
+public:
+
+    virtual void ice_response(Ice::Int pid)
+    {
+	_pid = pid;
+	called();
+    }
+
+    virtual void ice_exception(const Ice::Exception& ex)
+    {
+	cout << ex << endl;
+	test(false);
+    }
+
+    Ice::Int pid() const
+    {
+	return _pid;
+    }
+
+private:
+
+    Ice::Int _pid;
+};
+
+typedef IceUtil::Handle<AMI_Test_pidI> AMI_Test_pidIPtr;
+
+class AMI_Test_shutdownI : virtual public AMI_Test_shutdown, virtual public CallbackBase
+{
+public:
+
+    virtual void ice_response()
+    {
+	called();
+    }
+
+    virtual void ice_exception(const Ice::Exception&)
+    {
+	test(false);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_shutdownI> AMI_Test_shutdownIPtr;
+
+class AMI_Test_abortI : virtual public AMI_Test_abort, virtual public CallbackBase
+{
+public:
+
+    virtual void ice_response()
+    {
+	test(false);
+    }
+
+    virtual void ice_exception(const Ice::Exception& exc)
+    {
+	try
+	{
+	    exc.ice_throw();
+	}
+	catch(const Ice::ConnectionLostException&)
+	{
+	}
+	catch(...)
+	{
+	    test(false);
+	}
+	called();
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_abortI> AMI_Test_abortIPtr;
+
+class AMI_Test_idempotentAbortI : public AMI_Test_idempotentAbort, public AMI_Test_abortI
+{
+    virtual void ice_response()
+    {
+	test(false);
+    }
+
+    virtual void ice_exception(const Ice::Exception& exc)
+    {
+	AMI_Test_abortI::ice_exception(exc);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_idempotentAbortI> AMI_Test_idempotentAbortIPtr;
+
+class AMI_Test_nonmutatingAbortI : public AMI_Test_nonmutatingAbort, public AMI_Test_abortI
+{
+    virtual void ice_response()
+    {
+	test(false);
+    }
+
+    virtual void ice_exception(const Ice::Exception& exc)
+    {
+	AMI_Test_abortI::ice_exception(exc);
+    }
+};
+
+typedef IceUtil::Handle<AMI_Test_nonmutatingAbortI> AMI_Test_nonmutatingAbortIPtr;
+
 void
 allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 {
@@ -39,59 +183,126 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     cout << "ok" << endl;
 
     int oldPid = 0;
-    for(unsigned int i = 1, j = 0; i <= ports.size(); ++i, j = j >= 3 ? 0 : j + 1)
+    bool ami = false;
+    for(unsigned int i = 1, j = 0; i <= ports.size(); ++i, ++j)
     {
-	cout << "testing server #" << i << "... " << flush;
-	int pid = obj->pid();
-	test(pid != oldPid);
-	cout << "ok" << endl;
-	oldPid = pid;
+	if(j >= 3)
+	{
+	    j = 0;
+	    ami = !ami;
+	}
+
+	if(!ami)
+	{
+	    cout << "testing server #" << i << "... " << flush;
+	    int pid = obj->pid();
+	    test(pid != oldPid);
+	    cout << "ok" << endl;
+	    oldPid = pid;
+	}
+	else
+	{
+	    cout << "testing server #" << i << " with AMI... " << flush;
+	    AMI_Test_pidIPtr cb = new AMI_Test_pidI();
+	    obj->pid_async(cb);
+	    test(cb->check());
+	    int pid = cb->pid();
+	    test(pid != oldPid);
+	    cout << "ok" << endl;
+	    oldPid = pid;
+	}
 
 	if(j == 0)
 	{
-	    cout << "shutting down server #" << i << "... " << flush;
-	    obj->shutdown();
-	    cout << "ok" << endl;
+	    if(!ami)
+	    {
+		cout << "shutting down server #" << i << "... " << flush;
+		obj->shutdown();
+		cout << "ok" << endl;
+	    }
+	    else
+	    {
+		cout << "shutting down server #" << i << " with AMI... " << flush;
+		AMI_Test_shutdownIPtr cb = new AMI_Test_shutdownI;
+		obj->shutdown_async(cb);
+		test(cb->check());
+		cout << "ok" << endl;
+	    }
 	}
 	else if(j == 1 || i + 1 > ports.size())
 	{
-	    cout << "aborting server #" << i << "... " << flush;
-	    try
+	    if(!ami)
 	    {
-		obj->abort();
-		test(false);
+		cout << "aborting server #" << i << "... " << flush;
+		try
+		{
+		    obj->abort();
+		    test(false);
+		}
+		catch(const Ice::ConnectionLostException&)
+		{
+		    cout << "ok" << endl;
+		}
 	    }
-	    catch(const Ice::ConnectionLostException&)
+	    else
 	    {
+		cout << "aborting server #" << i << " with AMI... " << flush;
+		AMI_Test_abortIPtr cb = new AMI_Test_abortI;
+		obj->abort_async(cb);
+		test(cb->check());
 		cout << "ok" << endl;
 	    }
 	}
 	else if(j == 2)
 	{
-	    cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent call... " << flush;
-	    try
+	    if(!ami)
 	    {
-		obj->idempotentAbort();
-		test(false);
+		cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent call... " << flush;
+		try
+		{
+		    obj->idempotentAbort();
+		    test(false);
+		}
+		catch(const Ice::ConnectionLostException&)
+		{
+		    cout << "ok" << endl;
+		}
 	    }
-	    catch(const Ice::ConnectionLostException&)
+	    else
 	    {
+		cout << "aborting server #" << i << " and #" << i + 1 << " with idempotent AMI call... " << flush;
+		AMI_Test_idempotentAbortIPtr cb = new AMI_Test_idempotentAbortI;
+		obj->idempotentAbort_async(cb);
+		test(cb->check());
 		cout << "ok" << endl;
 	    }
+
 	    ++i;
 	}
 	else if(j == 3)
 	{
-	    cout << "aborting server #" << i << " and #" << i + 1 << " with nonmutating call... " << flush;
-	    try
+	    if(!ami)
 	    {
-		obj->nonmutatingAbort();
-		test(false);
+		cout << "aborting server #" << i << " and #" << i + 1 << " with nonmutating call... " << flush;
+		try
+		{
+		    obj->nonmutatingAbort();
+		    test(false);
+		}
+		catch(const Ice::ConnectionLostException&)
+		{
+		    cout << "ok" << endl;
+		}
 	    }
-	    catch(const Ice::ConnectionLostException&)
+	    else
 	    {
+		cout << "aborting server #" << i << " and #" << i + 1 << " with nonmutating AMI call... " << flush;
+		AMI_Test_nonmutatingAbortIPtr cb = new AMI_Test_nonmutatingAbortI;
+		obj->nonmutatingAbort_async(cb);
+		test(cb->check());
 		cout << "ok" << endl;
 	    }
+
 	    ++i;
 	}
 	else

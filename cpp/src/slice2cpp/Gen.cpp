@@ -3107,9 +3107,6 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     OperationList ops = p->operations();
     OperationList::const_iterator r;
 
-    //
-    // Operations
-    //
     for(r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = (*r);
@@ -3279,9 +3276,6 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             C << ")" << (nonmutating ? " const" : "");
             C << sb;
 
-            //
-            // Return value
-            //
             if(ret)
             {
                 writeReturn(C, ret);
@@ -3411,8 +3405,8 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	H << sp;
 	H << nl << "virtual void __response(bool);";
 	H << eb << ';';
-	H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMI << '_' << name << "> "
-	  << classNameAMI << '_' << name  << "Ptr;";
+	H << sp << nl << "typedef ::IceUtil::Handle< " << classScopedAMI << '_' << name << "> " << classNameAMI
+	  << '_' << name  << "Ptr;";
 	
 	C << sp << nl << "void" << nl << classScopedAMI.substr(2) << '_' << name << "::__invoke" << spar
 	  << paramsDeclInvoke << epar;
@@ -3420,8 +3414,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "try";
 	C << sb;
 	C << nl << "static const ::std::string __operation(\"" << p->name() << "\");";
-	C << nl << "__prepare(__operation, " << "static_cast< ::Ice::OperationMode>(" << p->mode()
-	  << "), __ctx);";
+	C << nl << "__prepare(__operation, " << "static_cast< ::Ice::OperationMode>(" << p->mode() << "), __ctx);";
 	writeMarshalCode(C, inParams, 0);
 	if(p->sendsClasses())
 	{
