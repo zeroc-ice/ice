@@ -25,6 +25,8 @@ using namespace IceInternal;
 void IceInternal::incRef(Object* p) { p->__incRef(); }
 void IceInternal::decRef(Object* p) { p->__decRef(); }
 
+const char * const Ice::Object::_kindOfObject = "facet";
+
 Ice::Object::Object() :
     _activeFacetMapHint(_activeFacetMap.end())
 {

@@ -24,6 +24,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+const char * const Ice::PluginManagerI::_kindOfObject = "plug-in";
+
 typedef Ice::Plugin* (*PLUGIN_FACTORY)(const CommunicatorPtr&, const string&, const StringSeq&);
 
 PluginPtr

@@ -21,6 +21,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+const char * const IceInternal::ObjectFactoryManager::_kindOfObject = "object factory";
+
 void IceInternal::incRef(ObjectFactoryManager* p) { p->__incRef(); }
 void IceInternal::decRef(ObjectFactoryManager* p) { p->__decRef(); }
 

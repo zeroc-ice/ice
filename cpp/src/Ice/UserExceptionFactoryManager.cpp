@@ -24,6 +24,8 @@ using namespace IceInternal;
 void IceInternal::incRef(UserExceptionFactoryManager* p) { p->__incRef(); }
 void IceInternal::decRef(UserExceptionFactoryManager* p) { p->__decRef(); }
 
+const char * const UserExceptionFactoryManager::_kindOfObject = "user exception factory";
+
 void
 IceInternal::UserExceptionFactoryManager::add(const UserExceptionFactoryPtr& factory, const string& id)
 {

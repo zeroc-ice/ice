@@ -39,7 +39,7 @@ private:
 
     std::map<std::string, ::Ice::ObjectFactoryPtr> _factoryMap;
     std::map<std::string, ::Ice::ObjectFactoryPtr>::iterator _factoryMapHint;
-    static const char * const _kindOfObject = "object factory";
+    static const char * const _kindOfObject;
 };
 
 }

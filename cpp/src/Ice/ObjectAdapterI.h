@@ -97,7 +97,7 @@ private:
     IceUtil::Mutex _routerEndpointsMutex;
     ::IceInternal::LocatorInfoPtr _locatorInfo;
     int _usageCount;
-    static const char * const _kindOfObject = "object adapter";
+    static const char * const _kindOfObject;
 };
 
 }

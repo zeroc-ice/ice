@@ -39,7 +39,7 @@ private:
 
     std::map<std::string, ::Ice::UserExceptionFactoryPtr> _factoryMap;
     std::map<std::string, ::Ice::UserExceptionFactoryPtr>::iterator _factoryMapHint;
-    static const char * const _kindOfObject = "user exception factory";
+    static const char * const _kindOfObject;
 };
 
 }

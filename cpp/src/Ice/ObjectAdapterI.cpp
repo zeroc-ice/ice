@@ -41,6 +41,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+const char * const Ice::ObjectAdapterI::_kindOfObject = "object adapter";
+
 CommunicatorPtr
 Ice::ObjectAdapterI::getCommunicator()
 {
