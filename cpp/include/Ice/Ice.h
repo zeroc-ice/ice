@@ -16,6 +16,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/Logger.h>
+#include <Ice/Stream.h>
 #include <Ice/ServantFactory.h>
 #include <Ice/Initialize.h>
 

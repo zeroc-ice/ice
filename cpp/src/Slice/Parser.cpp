@@ -1871,7 +1871,25 @@ Slice::Unit::setComment(const string& comment)
 	}
 
 	end = comment.find('\n', begin);
-	_currentComment += comment.substr(begin, end - begin + 1);
+	if (end != string::npos)
+	{
+	    if (end + 1 > begin)
+	    {
+		_currentComment += comment.substr(begin, end + 1 - begin);
+	    }
+	}
+	else
+	{
+	    end = comment.find_last_not_of(" \t\r\n*");
+	    if (end != string::npos)
+	    {
+		if (end + 1 > begin)
+		{
+		    _currentComment += comment.substr(begin, end + 1 - begin);
+		}
+	    }
+	    break;
+	}
     }
 }
 

@@ -19,6 +19,7 @@ SGMLFILES	= manual.sgml \
 
 SLICEFILES	= ../slice/Ice/Communicator.ice \
 		  ../slice/Ice/Logger.ice \
+		  ../slice/Ice/Stream.ice \
 		  ../slice/Ice/ObjectAdapter.ice \
 		  ../slice/Ice/Properties.ice \
 		  ../slice/Ice/ServantFactory.ice \

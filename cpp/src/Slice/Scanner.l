@@ -59,9 +59,9 @@ using namespace Slice;
     while (true)
     {
 	int c = yyinput();
-	comment += static_cast<char>(c);
 	if (c == '\n')
 	{
+	    comment += static_cast<char>(c);
 	    unit->nextLine();
 	}
 	else if (c == '*')
@@ -73,6 +73,7 @@ using namespace Slice;
 	    }
 	    else
 	    {
+		comment += static_cast<char>(c);
 		unput(next);
 	    }
 	}
@@ -80,6 +81,10 @@ using namespace Slice;
 	{
 	    unit->warning("EOF in comment");
 	    break;
+	}
+	else
+	{
+	    comment += static_cast<char>(c);
 	}
     }
     if (comment[0] == '*')

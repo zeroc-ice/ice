@@ -65,8 +65,8 @@ public:
     void read(std::vector<Ice::Long>&);
 
     void write(Ice::Float);
-    void read(Ice::Float&);
     void write(const std::vector<Ice::Float>&);
+    void read(Ice::Float&);
     void read(std::vector<Ice::Float>&);
 
     void write(Ice::Double);
