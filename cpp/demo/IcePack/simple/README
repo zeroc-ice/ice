@@ -6,10 +6,11 @@ $ ../../../bin/icepacknode --Ice.Config=config --warn
 
 In a separate window:
 
-$ ../../../bin/icepackadmin --Ice.Config=config -e 'application add "application.xml"'
+$ ../../../bin/icepackadmin --Ice.Config=config -e \
+  "application add 'application.xml'"
 $ ./client
 
-This will deploy the servers described in the "application.xml"
-descriptor and start the client.
+This will deploy the servers described in the file "application.xml"
+and start the client.
 
 Messages will be displayed in the IcePack service window.
