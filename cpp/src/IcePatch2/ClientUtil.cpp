@@ -760,7 +760,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 		    }
 		    catch(const FileAccessException& ex)
 		    {
-			throw "server error for `" + p->path + "':" + ex.reason;
+			throw "server error for `" + p->path + "': " + ex.reason;
 		    }
 		
 		    if(bytes.empty())

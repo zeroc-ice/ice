@@ -62,13 +62,28 @@ IcePatch2::FileServerI::getChecksum(const Current&) const
 ByteSeq
 IcePatch2::FileServerI::getFileCompressed(const string& pa, Int pos, Int num, const Current&) const
 {
+    if(isAbsolute(pa))
+    {
+	FileAccessException ex;
+	ex.reason = "Illegal absolute path: `" + pa + "'";
+	throw ex;
+    }
+
     string path = simplify(_dataDir + '/' + pa);
     path += ".bz2";
 
-    //
-    // TODO: Check if path is allowed, i.e., make sure that it neither
-    // is absolute, nor that it contains illegal "..".
-    //
+    string::size_type slashPos = path.find('/');
+    while(slashPos != string::npos)
+    {
+        string::size_type endPos = path.find('/', slashPos + 1);
+	if(path.substr(slashPos + 1, endPos - slashPos - 1) == "..")
+	{
+	    FileAccessException ex;
+	    ex.reason = "Illegal .. component in path: `" + pa + "'";
+	    throw ex;
+	}
+	slashPos = endPos;
+    }
 
     if(num <= 0 || pos < 0)
     {
