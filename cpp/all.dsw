@@ -923,6 +923,21 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IcePackRegistry
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name deployerC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name deployerS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name deployerSvc
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name simpleC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name simpleS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1244,6 +1259,18 @@ Package=<5>
 
 Package=<4>
 {{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBox
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceBoxS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2312,6 +2339,45 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name Glacier
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "simpleC"=.\test\IcePack\simple\simpleC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IcePack
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "simpleS"=.\test\IcePack\simple\simpleS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
     Begin Project Dependency
     Project_Dep_Name Ice
     End Project Dependency
