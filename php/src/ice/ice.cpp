@@ -68,6 +68,7 @@ int initIceGlobals(zend_ice_globals* g)
     g->communicator = NULL;
     g->marshalerMap = 0;
     g->profile = 0;
+    g->properties = 0;
     return SUCCESS;
 }
 
@@ -113,13 +114,15 @@ ZEND_RINIT_FUNCTION(ice)
     ICE_G(communicator) = NULL;
     ICE_G(marshalerMap) = new MarshalerMap;
     ICE_G(profile) = 0;
+    ICE_G(properties) = 0;
     ICE_G(objectFactoryMap) = new ObjectFactoryMap;
 
     //
     // Create the global variable "ICE" to hold the communicator for this request. The
-    // communicator won't actually be created until the script loads a profile.
+    // communicator won't actually be created until the script uses this global variable
+    // for the first time.
     //
-    if(!communicatorRegisterGlobal(TSRMLS_C))
+    if(!createCommunicator(TSRMLS_C))
     {
         return FAILURE;
     }
@@ -142,6 +145,7 @@ ZEND_RSHUTDOWN_FUNCTION(ice)
     delete ofm;
 
     delete static_cast<MarshalerMap*>(ICE_G(marshalerMap));
+    delete static_cast<Ice::PropertiesPtr*>(ICE_G(properties));
 
     return SUCCESS;
 }

@@ -46,8 +46,7 @@ namespace IcePHP
 
 bool communicatorInit(TSRMLS_D);
 
-bool communicatorRegisterGlobal(TSRMLS_D);
-
+bool createCommunicator(TSRMLS_D);
 Ice::CommunicatorPtr getCommunicator(TSRMLS_D);
 zval* getCommunicatorZval(TSRMLS_D);
 

@@ -12,11 +12,9 @@
 #endif
 
 #include "ice_profile.h"
-#include "ice_marshal.h"
 #include "ice_util.h"
 
 #include <Slice/Preprocessor.h>
-#include <IceUtil/StaticMutex.h>
 #include <fstream>
 
 using namespace std;
@@ -32,7 +30,6 @@ static const char* _defaultProfileName = "__default__";
 //
 // The table of profiles.
 //
-static IceUtil::StaticMutex _profileMutex = ICE_STATIC_MUTEX_INITIALIZER;
 static map<string, Profile*> _profiles;
 
 namespace IcePHP
@@ -268,7 +265,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit)
     string cppArgs;
     vector<string> files;
     bool debug = false;
-    bool ice = true; // This must be true so that we can create Ice::Identity when necessary.
+    bool ice = true; // This must be true so that we can create Ice::Identity when necessary
     bool caseSensitive = false;
 
     vector<string>::const_iterator p;
@@ -609,21 +606,6 @@ IcePHP::profileShutdown(TSRMLS_D)
 			     ostr.str().c_str());
         }
 
-	if(p->second->communicator)
-	{
-	    try
-	    {
-		p->second->communicator->destroy();
-	    }
-	    catch(const IceUtil::Exception& ex)
-	    {
-		ostringstream ostr;
-		ex.ice_print(ostr);
-		php_error_docref(NULL TSRMLS_CC, E_ERROR, "error while destroying communicator:\n%s\n",
-				 ostr.str().c_str());
-	    }
-	}
-
         delete p->second;
     }
 
@@ -677,46 +659,12 @@ do_load(const string& name, const Ice::StringSeq& args TSRMLS_DC)
     }
 
     //
-    // Initialize the communicator if necessary.
+    // Make a copy of the profile's properties, and include any command-line arguments.
     //
-    if(!profile->communicator)
-    {
-	IceUtil::StaticMutex::Lock sync(_profileMutex);
-
-	if(!profile->communicator)
-	{
-	    //
-	    // Make a copy of the profile's properties, and include any command-line arguments.
-	    //
-	    Ice::PropertiesPtr properties = Ice::createProperties();
-	    properties->parseCommandLineOptions("", profile->properties->getCommandLineOptions());
-	    properties->parseCommandLineOptions("", args);
-
-	    int argc = 0;
-	    char** argv = { 0 };
-	    profile->communicator = Ice::initializeWithProperties(argc, argv, properties);
-
-	    //
-	    // Register our default object factory with the communicator.
-	    //
-	    Ice::ObjectFactoryPtr factory = new PHPObjectFactory(TSRMLS_C);
-	    profile->communicator->addObjectFactory(factory, "");
-	}
-    }
-
-    //
-    // Update the $ICE global variable with the profile's communicator.
-    //
-    zval **zv;
-    if(zend_hash_find(&EG(symbol_table), "ICE", sizeof("ICE"), (void **) &zv) == SUCCESS)
-    {
-        ice_object* obj = getObject(*zv TSRMLS_CC);
-        assert(obj);
-	if(!obj->ptr)
-	{
-	    obj->ptr = new Ice::CommunicatorPtr(profile->communicator);
-	}
-    }
+    Ice::PropertiesPtr properties = Ice::createProperties();
+    properties->parseCommandLineOptions("", profile->properties->getCommandLineOptions());
+    properties->parseCommandLineOptions("", args);
+    ICE_G(properties) = new Ice::PropertiesPtr(properties);
 
     ICE_G(profile) = profile;
     return true;
@@ -737,18 +685,8 @@ ZEND_FUNCTION(Ice_loadProfile)
         return;
     }
 
-    try
-    {
-	Ice::StringSeq args;
-	do_load(name, args TSRMLS_CC);
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-	ostringstream ostr;
-	ex.ice_print(ostr);
-	php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize communicator:\n%s", ostr.str().c_str());
-	return;
-    }
+    Ice::StringSeq args;
+    do_load(name, args TSRMLS_CC);
 }
 
 ZEND_FUNCTION(Ice_loadProfileWithArgs)
@@ -786,22 +724,13 @@ ZEND_FUNCTION(Ice_loadProfileWithArgs)
         zend_hash_move_forward_ex(arr, &pos);
     }
 
-    try
-    {
-	do_load(name, args TSRMLS_CC);
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-	ostringstream ostr;
-	ex.ice_print(ostr);
-	php_error_docref(NULL TSRMLS_CC, E_ERROR, "unable to initialize communicator:\n%s", ostr.str().c_str());
-	return;
-    }
+    do_load(name, args TSRMLS_CC);
 }
 
 ZEND_FUNCTION(Ice_dumpProfile)
 {
     Profile* profile = static_cast<Profile*>(ICE_G(profile));
+    Ice::PropertiesPtr* properties = static_cast<Ice::PropertiesPtr*>(ICE_G(properties));
 
     if(!profile)
     {
@@ -812,7 +741,7 @@ ZEND_FUNCTION(Ice_dumpProfile)
     ostringstream out;
     out << "Ice profile: " << profile->name << endl;
 
-    Ice::PropertyDict props = profile->communicator->getProperties()->getPropertiesForPrefix("");
+    Ice::PropertyDict props = (*properties)->getPropertiesForPrefix("");
     if(!props.empty())
     {
         out << endl << "Ice configuration properties:" << endl << endl;

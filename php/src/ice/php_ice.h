@@ -45,6 +45,7 @@ ZEND_BEGIN_MODULE_GLOBALS(ice)
     zval* communicator;
     void* marshalerMap;
     void* profile;
+    void* properties;
     void* objectFactoryMap;
 ZEND_END_MODULE_GLOBALS(ice)
 
