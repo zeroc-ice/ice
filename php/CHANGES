@@ -1,22 +1,14 @@
 Changes since version 2.1.0
 ---------------------------
 
+- A new communicator is now initialized for each profile. The
+  communicator is initialized the first time a profile is loaded.
+
 - Added -E option to the various Slice compilers to print
   proprocessor output on stdout.
 
-- Fixed a bug in the option parsing for Ice tools such as
-  slice2cpp, slice2java, slice2cs, etc. The option parser
-  used to incorrectly complain about repeated options when
-  in fact no option was repeated. Also changed the parser
-  to permit options to follow an argument, so
-
-      slice2cpp -I. x.ice
-
-  and
-
-      slice2cpp x.ice -I.
-
-  are now equivalent.
+- A crash occurred if the global variable $ICE was used before a
+  profile was loaded. This now causes an error message.
 
 - Attempting to print a proxy value resulted in a fatal error.
   This has been fixed so that printing a proxy displays it in
