@@ -24,11 +24,22 @@ OnewayBatchSubscriber::OnewayBatchSubscriber(const SubscriberFactoryPtr& factory
     _communicator(communicator),
     _flusher(flusher)
 {
-    _flusher->add(this);
 }
 
 OnewayBatchSubscriber::~OnewayBatchSubscriber()
 {
+}
+
+void
+OnewayBatchSubscriber::activate()
+{
+    OnewaySubscriber::activate();
+
+    //
+    // Delay adding this object to the flusher until it is activated. This ensures
+    // that any subscriber with the same identity is first removed from the flusher.
+    //
+    _flusher->add(this);
 }
 
 void

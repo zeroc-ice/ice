@@ -104,10 +104,10 @@ IceStorm::TopicSubscribers::add(const SubscriberPtr& subscriber)
     //
     for(SubscriberList::iterator i = _subscribers.begin() ; i != _subscribers.end(); ++i)
     {
-	if((*i)->id() == id)
+	if(!(*i)->inactive() && (*i)->id() == id)
 	{
 	    //
-	    // This marks the subscriber as invalid. It will be
+	    // This marks an active subscriber as replaced. It will be
 	    // removed on the next event publish.
 	    //
 	    (*i)->replace();
@@ -116,8 +116,9 @@ IceStorm::TopicSubscribers::add(const SubscriberPtr& subscriber)
     }
 
     //
-    // Add to the set of subscribers.
+    // Activate and add to the set of subscribers.
     //
+    subscriber->activate();
     _subscribers.push_back(subscriber);
 }
 
@@ -136,10 +137,10 @@ IceStorm::TopicSubscribers::remove(const Ice::ObjectPrx& obj)
     
     for(SubscriberList::iterator i = _subscribers.begin() ; i != _subscribers.end(); ++i)
     {
-	if((*i)->id() == id)
+	if(!(*i)->inactive() && (*i)->id() == id)
 	{
 	    //
-	    // This marks the subscriber as invalid. It will be
+	    // This marks an active subscriber as unsubscribed. It will be
 	    // removed on the next event publish.
 	    //
 	    (*i)->unsubscribe();

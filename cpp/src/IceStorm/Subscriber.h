@@ -54,6 +54,12 @@ public:
     Ice::Identity id() const;
 
     //
+    // Activate. Called after any other subscribers with the same
+    // identity have been deactivated.
+    //
+    virtual void activate() = 0;
+
+    //
     // Unsubscribe. Mark the state as Unsubscribed.
     //
     virtual void unsubscribe() = 0;

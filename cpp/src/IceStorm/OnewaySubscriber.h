@@ -27,6 +27,7 @@ public:
     ~OnewaySubscriber();
 
     virtual bool persistent() const;
+    virtual void activate();
     virtual void unsubscribe();
     virtual void replace();
     virtual void publish(const EventPtr&);

@@ -35,6 +35,12 @@ OnewaySubscriber::persistent() const
 }
 
 void
+OnewaySubscriber::activate()
+{
+    // Nothing to do
+}
+
+void
 OnewaySubscriber::unsubscribe()
 {
     IceUtil::Mutex::Lock sync(_stateMutex);

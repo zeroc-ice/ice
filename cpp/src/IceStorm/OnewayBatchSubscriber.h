@@ -31,6 +31,7 @@ public:
 	                  const TraceLevelsPtr&, const FlusherPtr&, const QueuedProxyPtr&);
     ~OnewayBatchSubscriber();
 
+    virtual void activate();
     virtual void unsubscribe();
     virtual void replace();
     virtual bool inactive() const;

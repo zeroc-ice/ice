@@ -41,6 +41,12 @@ LinkSubscriber::inactive() const
 }
 
 void
+LinkSubscriber::activate()
+{
+    // Nothing to do
+}
+
+void
 LinkSubscriber::unsubscribe()
 {
     IceUtil::Mutex::Lock sync(_stateMutex);
