@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed a hang in the IcePack registry that would occur if multiple
+  node were started simultaneously.
+
 - New properties Ice.StdErr and Ice.StdOut to redirect the standard
   error and output streams of a process. Reimplemented IcePack's
   error/output redirection using these properties.
