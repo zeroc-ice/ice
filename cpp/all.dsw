@@ -791,6 +791,15 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name workqueue
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name ctrlCHandler
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name throughputC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name throughputS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -1027,6 +1036,21 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceSSL
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "ctrlCHandler"=.\test\IceUtil\ctrlCHandler\ctrlCHandler.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
     End Project Dependency
 }}}
 
@@ -2308,6 +2332,36 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "throughputC"=.\demo\Ice\throughput\throughputC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "throughputS"=.\demo\Ice\throughput\throughputS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
     End Project Dependency
 }}}
 
