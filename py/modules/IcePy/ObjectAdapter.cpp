@@ -35,14 +35,14 @@ struct ObjectAdapterObject
 //
 // Encapsulates a Python servant.
 //
-class ServantWrapper : public Ice::Blobject
+class ServantWrapper : public Ice::BlobjectAsync
 {
 public:
 
     ServantWrapper(PyObject*);
     ~ServantWrapper();
 
-    virtual bool ice_invoke(const vector<Ice::Byte>&, vector<Ice::Byte>&, const Ice::Current&);
+    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, const vector<Ice::Byte>&, const Ice::Current&);
 
     PyObject* getObject();
 
@@ -120,54 +120,61 @@ IcePy::ServantWrapper::~ServantWrapper()
     Py_DECREF(_servant);
 }
 
-bool
-IcePy::ServantWrapper::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outParams,
-                                  const Ice::Current& current)
+void
+IcePy::ServantWrapper::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, const vector<Ice::Byte>& inParams,
+                                        const Ice::Current& current)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    //
-    // Locate the Operation object. As an optimization we keep a reference
-    // to the most recent operation we've dispatched, so check that first.
-    //
-    OperationPtr op;
-    if(_lastOp != _operationMap.end() && _lastOp->first == current.operation)
-    {
-        op = _lastOp->second;
-    }
-    else
+    try
     {
         //
-        // Next check our cache of operations.
+        // Locate the Operation object. As an optimization we keep a reference
+        // to the most recent operation we've dispatched, so check that first.
         //
-        _lastOp = _operationMap.find(current.operation);
-        if(_lastOp == _operationMap.end())
-        {
-            //
-            // Look for the Operation object in the servant's type.
-            //
-            string attrName = "_op_" + current.operation;
-            PyObjectHandle h = PyObject_GetAttrString((PyObject*)_servant->ob_type,
-                                                      const_cast<char*>(attrName.c_str()));
-            if(h.get() == NULL)
-            {
-                Ice::OperationNotExistException ex(__FILE__, __LINE__);
-                ex.id = current.id;
-                ex.facet = current.facet;
-                ex.operation = current.operation;
-                throw ex;
-            }
-
-            op = getOperation(h.get());
-            _lastOp = _operationMap.insert(OperationMap::value_type(current.operation, op)).first;
-        }
-        else
+        OperationPtr op;
+        if(_lastOp != _operationMap.end() && _lastOp->first == current.operation)
         {
             op = _lastOp->second;
         }
-    }
+        else
+        {
+            //
+            // Next check our cache of operations.
+            //
+            _lastOp = _operationMap.find(current.operation);
+            if(_lastOp == _operationMap.end())
+            {
+                //
+                // Look for the Operation object in the servant's type.
+                //
+                string attrName = "_op_" + current.operation;
+                PyObjectHandle h = PyObject_GetAttrString((PyObject*)_servant->ob_type,
+                                                          const_cast<char*>(attrName.c_str()));
+                if(h.get() == NULL)
+                {
+                    Ice::OperationNotExistException ex(__FILE__, __LINE__);
+                    ex.id = current.id;
+                    ex.facet = current.facet;
+                    ex.operation = current.operation;
+                    throw ex;
+                }
 
-    return op->dispatch(_servant, inParams, outParams, current);
+                op = getOperation(h.get());
+                _lastOp = _operationMap.insert(OperationMap::value_type(current.operation, op)).first;
+            }
+            else
+            {
+                op = _lastOp->second;
+            }
+        }
+
+        op->dispatch(_servant, cb, inParams, current);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        cb->ice_exception(ex);
+    }
 }
 
 PyObject*
@@ -373,6 +380,7 @@ adapterActivate(ObjectAdapterObject* self)
     assert(self->adapter);
     try
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->activate();
     }
     catch(const Ice::Exception& ex)
@@ -437,6 +445,7 @@ adapterDeactivate(ObjectAdapterObject* self)
     assert(self->adapter);
     try
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->deactivate();
     }
     catch(const Ice::Exception& ex)
@@ -1085,6 +1094,7 @@ adapterAddRouter(ObjectAdapterObject* self, PyObject* args)
     assert(self->adapter);
     try
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->addRouter(router);
     }
     catch(const Ice::Exception& ex)
@@ -1115,6 +1125,7 @@ adapterSetLocator(ObjectAdapterObject* self, PyObject* args)
     assert(self->adapter);
     try
     {
+        AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
         (*self->adapter)->setLocator(locator);
     }
     catch(const Ice::Exception& ex)
