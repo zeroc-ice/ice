@@ -99,6 +99,18 @@
             </fileset>
         </slice2java>
 
+        <slice2java ice="on" outputdir="${generated.dir}" checksum="Glacier2.SliceChecksums"
+            dependencyfile="${generated.dir}/.depend.Glacier2">
+            <includepath>
+                <pathelement path="${slice.dir}" />
+            </includepath>
+            <fileset dir="${slice.dir}/Glacier2">
+                <include name="PermissionsVerifier.ice" />
+                <include name="Router.ice" />
+                <include name="Session.ice" />
+            </fileset>
+        </slice2java>
+
         <slice2java ice="on" outputdir="${generated.dir}" checksum="IceBox.SliceChecksums"
             dependencyfile="${generated.dir}/.depend.IceBox">
             <includepath>
