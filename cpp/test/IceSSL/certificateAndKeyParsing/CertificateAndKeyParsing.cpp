@@ -593,7 +593,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     Ice::PluginPtr plugin = communicator->getPluginManager()->getPlugin("IceSSL");
     IceSSL::PluginPtr sslPlugin = IceSSL::PluginPtr::dynamicCast(plugin);
 
-    string clientTestCertPath = properties->getProperty("IceSSL.Test.Client.CertPath");
+    string clientTestCertPath = properties->getProperty("IceSSL.Client.CertPath.Test");
 
     IceSSL::RSACertificateGen certGen;
 
