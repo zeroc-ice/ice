@@ -10,11 +10,6 @@
 
 class PhoneBookCollocated extends Freeze.Application
 {
-    PhoneBookCollocated(String dbEnvName)
-    {
-	super(dbEnvName);
-    }
-
     public int
     runFreeze(String[] args, Freeze.DBEnvironment dbEnv)
     {
@@ -87,6 +82,11 @@ class PhoneBookCollocated extends Freeze.Application
 	adapter.deactivate();
 
 	return status;
+    }
+
+    PhoneBookCollocated(String dbEnvName)
+    {
+	super(dbEnvName);
     }
 }
 

@@ -10,14 +10,13 @@
 
 class Parser
 {
-    public
     Parser(Ice.Communicator communicator, PhoneBookPrx phoneBook)
     {
 	_communicator = communicator;
 	_phoneBook = phoneBook;
     }
 
-    public void
+    void
     usage()
     {
 	System.err.print(
@@ -36,7 +35,7 @@ class Parser
 	    "shutdown         Shut the phonebook server down.\n");
     }
 
-    public void
+    void
     addContacts(java.util.LinkedList args)
     {
 	if (args.isEmpty())
@@ -66,7 +65,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     findContacts(java.util.LinkedList args)
     {
 	if (args.size() != 1)
@@ -93,7 +92,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     nextFoundContact()
     {
 	if (_current != _foundContacts.length)
@@ -103,7 +102,7 @@ class Parser
 	printCurrent();
     }
     
-    public void
+    void
     printCurrent()
     {
 	try
@@ -126,7 +125,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     setCurrentName(java.util.LinkedList args)
     {
 	if (args.size() != 1)
@@ -158,7 +157,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     setCurrentAddress(java.util.LinkedList args)
     {
 	if (args.size() != 1)
@@ -186,7 +185,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     setCurrentPhone(java.util.LinkedList args)
     {
 	if (args.size() != 1)
@@ -215,7 +214,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     removeCurrent()
     {
 	try
@@ -240,7 +239,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     setEvictorSize(java.util.LinkedList args)
     {
 	if (args.size() != 1)
@@ -268,7 +267,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     shutdown()
     {
 	try
@@ -281,19 +280,19 @@ class Parser
 	}
     }
 
-    public void
+    void
     error(String s)
     {
 	System.err.println("error: " + s);
     }
 
-    public void
+    void
     warning(String s)
     {
 	System.err.println("warning: " + s);
     }
 
-    public String
+    String
     getInput()
     {
 	if (_interactive)
@@ -312,7 +311,7 @@ class Parser
 	}
     }
 
-    public int
+    int
     parse()
     {
 	_foundContacts = new ContactPrx[0];
@@ -327,7 +326,7 @@ class Parser
 	return 0;
     }
 
-    public int
+    int
     parse(java.io.BufferedReader in)
     {
 	_foundContacts = new ContactPrx[0];

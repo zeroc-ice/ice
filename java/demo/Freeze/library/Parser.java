@@ -10,14 +10,13 @@
 
 class Parser
 {
-    public
     Parser(Ice.Communicator communicator, LibraryPrx library)
     {
 	_communicator = communicator;
 	_library = library;
     }
 
-    public void
+    void
     usage()
     {
 	System.err.print(
@@ -35,7 +34,7 @@ class Parser
 	    "shutdown         Shut the library server down.\n");
     }
 
-    public void
+    void
     addBook(java.util.LinkedList args)
     {
 	if (args.size() != 3)
@@ -68,7 +67,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     findIsbn(java.util.LinkedList args)
     {
 	if (args.size() != 1)
@@ -104,7 +103,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     findAuthors(java.util.LinkedList args)
     {
 	if (args.size() != 1)
@@ -130,7 +129,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     nextFoundBook()
     {
 	if (_current != _foundBooks.length)
@@ -140,7 +139,7 @@ class Parser
 	printCurrent();
     }
     
-    public void
+    void
     printCurrent()
     {
 	try
@@ -177,7 +176,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     rentCurrent(java.util.LinkedList args)
     {
 	if (args.size() != 1)
@@ -208,7 +207,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     returnCurrent()
     {
 	try
@@ -233,7 +232,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     removeCurrent()
     {
 	try
@@ -258,7 +257,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     setEvictorSize(java.util.LinkedList args)
     {
 	if (args.size() != 1)
@@ -286,7 +285,7 @@ class Parser
 	}
     }
 
-    public void
+    void
     shutdown()
     {
 	try
@@ -299,19 +298,19 @@ class Parser
 	}
     }
 
-    public void
+    void
     error(String s)
     {
 	System.err.println("error: " + s);
     }
 
-    public void
+    void
     warning(String s)
     {
 	System.err.println("warning: " + s);
     }
 
-    public String
+    String
     getInput()
     {
 	if (_interactive)
@@ -330,7 +329,7 @@ class Parser
 	}
     }
 
-    public int
+    int
     parse()
     {
 	_foundBooks = new BookPrx[0];
@@ -345,7 +344,7 @@ class Parser
 	return 0;
     }
 
-    public int
+    int
     parse(java.io.BufferedReader in)
     {
 	_foundBooks = new BookPrx[0];

@@ -12,7 +12,7 @@ class ContactI extends Contact
 {
     //
     // No read/write mutexes in Java - hence use native
-    // syncronization.
+    // synchronization.
     //
 
     synchronized public String

@@ -10,11 +10,6 @@
 
 class LibraryServer extends Freeze.Application
 {
-    LibraryServer(String dbEnvName)
-    {
-	super(dbEnvName);
-    }
-
     public int
     runFreeze(String[] args, Freeze.DBEnvironment dbEnv)
     {
@@ -94,6 +89,11 @@ class LibraryServer extends Freeze.Application
 	//ignoreInterrupt();
 
 	return 0;
+    }
+
+    LibraryServer(String dbEnvName)
+    {
+	super(dbEnvName);
     }
 }
 

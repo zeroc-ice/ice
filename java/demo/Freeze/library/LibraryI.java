@@ -10,12 +10,6 @@
 
 class LibraryI extends _LibraryDisp
 {
-    private BookPrx
-    isbnToBook(String isbn)
-    {
-	return BookPrxHelper.uncheckedCast(_adapter.createProxy(BookI.createIdentity(isbn)));
-    }
-
     public synchronized BookPrx
     createBook(BookDescription description, Ice.Current current)
 	throws DatabaseException, BookExistsException
@@ -41,10 +35,10 @@ class LibraryI extends _LibraryDisp
 	//
 	// Create a new book Servant.
 	//
-	BookI bookI = new BookI(this, _evictor);
+	BookI bookI = new BookI(this);
 	bookI._description = description;
 
-	Ice.Identity ident = BookI.createIdentity(description.isbn);
+	Ice.Identity ident = createBookIdentity(description.isbn);
 
 	//
 	// Create a new Ice Object in the evictor, using the new
@@ -213,6 +207,13 @@ class LibraryI extends _LibraryDisp
 	    
 		_authors.fastPut(description.authors, newIsbnSeq);
 	    }
+
+	    //
+	    // This can throw EvictorDeactivatedException (which
+	    // indicates an internal error). The exception is
+	    // currently ignored.
+	    //
+	    _evictor.destroyObject(createBookIdentity(description.isbn));
 	}
 	catch(Freeze.DBException ex)
 	{
@@ -227,6 +228,26 @@ class LibraryI extends _LibraryDisp
 	_adapter = adapter;
 	_evictor = evictor;
 	_authors = new StringIsbnSeqDict(db);
+    }
+
+    private Ice.Identity
+    createBookIdentity(String isbn)
+    {
+	//
+	// Note that the identity category is important since the
+	// locator was installed for the category 'book'.
+	//
+	Ice.Identity ident = new Ice.Identity();
+	ident.category = "book";
+	ident.name = isbn;
+
+	return ident;
+    }
+
+    private BookPrx
+    isbnToBook(String isbn)
+    {
+	return BookPrxHelper.uncheckedCast(_adapter.createProxy(createBookIdentity(isbn)));
     }
 
     private Ice.ObjectAdapter _adapter;

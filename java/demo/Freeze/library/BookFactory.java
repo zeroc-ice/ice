@@ -14,7 +14,7 @@ class BookFactory implements Ice.ObjectFactory
     create(String type)
     {
 	assert(type.equals("::Book"));
-	return new BookI(_library, _evictor);
+	return new BookI(_library);
     }
 
     public void
@@ -22,12 +22,10 @@ class BookFactory implements Ice.ObjectFactory
     {
     }
 
-    BookFactory(LibraryI library, Freeze.Evictor evictor)
+    BookFactory(LibraryI library)
     {
 	_library = library;
-	_evictor = evictor;
     }
 
     private LibraryI _library;
-    private Freeze.Evictor _evictor;
 }

@@ -12,7 +12,7 @@ class BookI extends Book
 {
     //
     // No read/write mutexes in Java - hence use native
-    // syncronization.
+    // synchronization.
     //
 
     public BookDescription
@@ -64,13 +64,6 @@ class BookI extends Book
 	try
 	{
 	    _library.remove(_description);
-
-	    //
-	    // This can throw EvictorDeactivatedException (which
-	    // indicates an internal error). The exception is
-	    // currently ignored.
-	    //
-	    _evictor.destroyObject(createIdentity(_description.isbn));
 	}
 	catch(Freeze.DBNotFoundException ex)
 	{
@@ -86,24 +79,9 @@ class BookI extends Book
 	}
     }
 
-    public static Ice.Identity
-    createIdentity(String isbn)
-    {
-	//
-	// Note that the identity category is important since the
-	// locator was installed for the category 'book'.
-	//
-	Ice.Identity ident = new Ice.Identity();
-	ident.category = "book";
-	ident.name = isbn;
-	
-	return ident;
-    }
-    
-    BookI(LibraryI library, Freeze.Evictor evictor)
+    BookI(LibraryI library)
     {
 	_library = library;
-	_evictor = evictor;
 
 	//
 	// This could be avoided by having two constructors (one for
@@ -114,5 +92,4 @@ class BookI extends Book
     }
 
     private LibraryI _library;
-    private Freeze.Evictor _evictor;
 }

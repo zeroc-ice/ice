@@ -10,11 +10,6 @@
 
 class LibraryCollocated extends Freeze.Application
 {
-    LibraryCollocated(String dbEnvName)
-    {
-	super(dbEnvName);
-    }
-
     public int
     runFreeze(String[] args, Freeze.DBEnvironment dbEnv)
     {
@@ -86,6 +81,11 @@ class LibraryCollocated extends Freeze.Application
 	adapter.deactivate();
 
 	return status;
+    }
+
+    LibraryCollocated(String dbEnvName)
+    {
+	super(dbEnvName);
     }
 }
 

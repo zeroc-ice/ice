@@ -15,15 +15,6 @@ class Grammar
 	_parser = p;
 	_scanner = new Scanner(_parser);
     }
-    
-
-    static private class ParseError extends RuntimeException
-    {
-	ParseError(String msg)
-	{
-	    super(msg);
-	}
-    }
 
     void
     parse()
@@ -179,6 +170,14 @@ class Grammar
 		return l;
 	    }
 	    l.add(_token.value);
+	}
+    }
+
+    static private class ParseError extends RuntimeException
+    {
+	ParseError(String msg)
+	{
+	    super(msg);
 	}
     }
 

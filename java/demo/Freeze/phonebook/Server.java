@@ -10,11 +10,6 @@
 
 class PhoneBookServer extends Freeze.Application
 {
-    PhoneBookServer(String dbEnvName)
-    {
-	super(dbEnvName);
-    }
-
     public int
     runFreeze(String[] args, Freeze.DBEnvironment dbEnv)
     {
@@ -95,6 +90,11 @@ class PhoneBookServer extends Freeze.Application
 	//ignoreInterrupt();
 
 	return 0;
+    }
+
+    PhoneBookServer(String dbEnvName)
+    {
+	super(dbEnvName);
     }
 }
 
