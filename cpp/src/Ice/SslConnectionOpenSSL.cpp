@@ -22,13 +22,13 @@
 #include <sstream>
 #include <Ice/Network.h>
 #include <Ice/OpenSSL.h>
-#include <Ice/SecurityException.h>
+#include <Ice/SslException.h>
 #include <Ice/SslFactory.h>
 #include <Ice/SslConnection.h>
 #include <Ice/SslConnectionOpenSSL.h>
-#include <Ice/SslSystemOpenSSL.h>
-#include <Ice/SslCertificateVerifierOpenSSL.h>
-#include <Ice/SslOpenSSLUtils.h>
+#include <Ice/SystemOpenSSL.h>
+#include <Ice/CertificateVerifierOpenSSL.h>
+#include <Ice/OpenSSLUtils.h>
 
 #include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>

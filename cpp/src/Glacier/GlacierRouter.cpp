@@ -14,8 +14,8 @@
 #include <Glacier/ClientBlobject.h>
 #include <Glacier/ServerBlobject.h>
 #include <IceUtil/Base64.h>
-#include <Ice/SslCertificateVerifierF.h>
-#include <Ice/SslSystem.h>
+#include <Ice/CertificateVerifierF.h>
+#include <Ice/System.h>
 #include <Ice/SslExtension.h>
 
 using namespace std;

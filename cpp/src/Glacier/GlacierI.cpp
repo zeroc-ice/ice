@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <IceUtil/UUID.h>
-#include <Ice/SslRSAKeyPair.h>
+#include <Ice/RSAKeyPair.h>
 #include <Glacier/GlacierI.h>
 #include <fcntl.h>
 

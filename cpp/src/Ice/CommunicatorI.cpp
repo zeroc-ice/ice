@@ -20,7 +20,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Exception.h>
 #include <Ice/SslExtensionInternal.h>
-#include <Ice/SslSystemInternal.h>
+#include <Ice/SystemInternal.h>
 
 using namespace std;
 using namespace Ice;

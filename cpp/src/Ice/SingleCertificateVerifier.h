@@ -12,7 +12,7 @@
 #define ICE_SSL_SINGLE_CERTIFICATE_VERIFIER_H
 
 #include <Ice/BuiltinSequences.h>
-#include <Ice/SslCertificateVerifierOpenSSL.h>
+#include <Ice/CertificateVerifierOpenSSL.h>
 
 namespace IceSSL
 {

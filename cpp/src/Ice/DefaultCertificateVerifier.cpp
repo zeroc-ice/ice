@@ -10,7 +10,7 @@
 
 #include <Ice/OpenSSL.h>
 #include <Ice/DefaultCertificateVerifier.h>
-#include <Ice/SslOpenSSLUtils.h>
+#include <Ice/OpenSSLUtils.h>
 #include <ostream>
 
 using namespace std;

@@ -13,7 +13,7 @@
 #include <TestCommon.h>
 #include <CallbackI.h>
 #include <IceUtil/Base64.h>
-#include <Ice/SslSystem.h>
+#include <Ice/System.h>
 #include <Ice/SslExtension.h>
 
 using namespace std;

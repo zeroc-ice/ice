@@ -16,7 +16,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/SslConnectionF.h>
-#include <Ice/SslCertificateVerifierF.h>
+#include <Ice/CertificateVerifierF.h>
 
 namespace IceSSL
 {

@@ -26,8 +26,8 @@
 #include <Ice/ObjectFactoryManagerF.h>
 #include <Ice/UserExceptionFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
-#include <Ice/SslSystemF.h>
-#include <Ice/SslSystemInternalF.h>
+#include <Ice/SystemF.h>
+#include <Ice/SystemInternalF.h>
 #include <list>
 
 namespace Ice

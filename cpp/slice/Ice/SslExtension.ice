@@ -12,7 +12,7 @@
 #define ICE_SSL_EXTENSION_ICE
 
 #include <Ice/BuiltinSequences.ice>
-#include <Ice/SslCertificateVerifierF.ice>
+#include <Ice/CertificateVerifierF.ice>
 
 module IceSSL
 {

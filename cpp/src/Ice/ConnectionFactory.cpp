@@ -24,7 +24,7 @@
 #include <Ice/RouterInfo.h>
 #include <Ice/Exception.h>
 #include <Ice/Functional.h>
-#include <Ice/SecurityException.h> // TODO: bandaid, see below.
+#include <Ice/SslException.h> // TODO: bandaid, see below.
 
 using namespace std;
 using namespace Ice;

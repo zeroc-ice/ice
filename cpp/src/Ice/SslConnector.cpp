@@ -17,7 +17,7 @@
 #   pragma warning(disable:4786)
 #endif
 
-#include <Ice/SslSystemInternal.h>
+#include <Ice/SystemInternal.h>
 #include <Ice/SslConnector.h>
 #include <Ice/SslTransceiver.h>
 #include <Ice/Instance.h>
@@ -26,7 +26,7 @@
 #include <Ice/Network.h>
 #include <Ice/Properties.h>
 #include <Ice/Exception.h>
-#include <Ice/SecurityException.h>
+#include <Ice/SslException.h>
 #include <sstream>
 
 using namespace std;

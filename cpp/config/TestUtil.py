@@ -14,8 +14,8 @@
 # protocol. Otherwise TCP is used.
 #
 
-protocol = "ssl"
-#protocol = ""
+#protocol = "ssl"
+protocol = ""
 
 #
 # Set the host to the host name the test servers are running on. If not
@@ -110,6 +110,36 @@ def clientServerTest(toplevel, name):
 
     updatedServerOptions = serverOptions.replace("TOPLEVELDIR", toplevel)
     updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
+
+    print "starting server...",
+    serverPipe = os.popen(server + updatedServerOptions)
+    getServerPid(serverPipe)
+    getAdapterReady(serverPipe)
+    print "ok"
+    
+    print "starting client...",
+    clientPipe = os.popen(client + updatedClientOptions)
+    output = clientPipe.readline()
+    if not output:
+	print "failed!"
+	killServers()
+	sys.exit(1)
+    print "ok"
+    print output,
+    while 1:
+	output = clientPipe.readline()
+	if not output:
+	    break;
+	print output,
+
+def clientServerHybridTest(toplevel, name):
+
+    testdir = os.path.join(toplevel, "test", name)
+    server = os.path.join(testdir, "server")
+    client = os.path.join(testdir, "client")
+
+    updatedServerOptions = clientServerOptions.replace("TOPLEVELDIR", toplevel)
+    updatedClientOptions = updatedServerOptions
 
     print "starting server...",
     serverPipe = os.popen(server + updatedServerOptions)

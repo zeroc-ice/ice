@@ -11,7 +11,7 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
-#include <Ice/SecurityException.h>
+#include <Ice/SslException.h>
 
 using namespace std;
 

@@ -15,9 +15,9 @@
 #include <openssl/ssl.h>
 #include <IceUtil/Mutex.h>
 #include <Ice/SslConnection.h>
-#include <Ice/SslSystemInternalF.h>
+#include <Ice/SystemInternalF.h>
 #include <Ice/SslConnectionOpenSSLF.h>
-#include <Ice/SslCertificateVerifierOpenSSL.h>
+#include <Ice/CertificateVerifierOpenSSL.h>
 
 namespace IceSSL
 {

@@ -15,7 +15,7 @@
 #include <Ice/Logger.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Instance.h>
-#include <Ice/SslCertificateVerifierOpenSSL.h>
+#include <Ice/CertificateVerifierOpenSSL.h>
 
 namespace IceSSL
 {

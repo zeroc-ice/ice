@@ -19,7 +19,7 @@
 #include <Ice/RouterF.ice>
 
 #ifdef ICE_CPP 
-#   include <Ice/SslSystemF.ice>
+#   include <Ice/SystemF.ice>
 #   include <Ice/SslExtensionF.ice>
 #endif
 

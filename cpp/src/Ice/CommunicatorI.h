@@ -17,8 +17,8 @@
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
 #include <Ice/SslExtensionF.h>
-#include <Ice/SslSystemInternalF.h>
-#include <Ice/SslSystemF.h>
+#include <Ice/SystemInternalF.h>
+#include <Ice/SystemF.h>
 
 namespace Ice
 {

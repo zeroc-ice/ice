@@ -22,7 +22,7 @@
 #include <Ice/Properties.h>
 #include <Ice/LoggerI.h>
 #include <Ice/Network.h>
-#include <Ice/SslSystemInternal.h>
+#include <Ice/SystemInternal.h>
 #include <Ice/SslFactory.h>
 
 #ifndef WIN32

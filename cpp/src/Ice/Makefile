@@ -72,40 +72,40 @@ OBJS		= Initialize.o \
 		  TcpConnector.o \
 		  TcpAcceptor.o \
 		  TcpTransceiver.o \
-                  SecurityException.o \
-                  SecurityException2.o \
+                  SslException.o \
+                  SslException2.o \
                   SslConnector.o \
                   SslAcceptor.o \
 		  SslTransceiver.o \
-                  SslBaseCerts.o \
-                  SslCertificateAuthority.o \
-                  SslCertificateDesc.o \
-                  SslConfig.o \
-                  SslConfigErrorReporter.o \
+                  BaseCerts.o \
+                  CertificateAuthority.o \
+                  CertificateDesc.o \
+                  ConfigParser.o \
+                  ConfigParserErrorReporter.o \
                   SslConnection.o \
                   SslConnectionOpenSSLClient.o \
                   SslConnectionOpenSSL.o \
                   SslConnectionOpenSSLServer.o \
-                  SslContextOpenSSL.o \
-                  SslContextOpenSSLClient.o \
-                  SslContextOpenSSLServer.o \
+                  ContextOpenSSL.o \
+                  ContextOpenSSLClient.o \
+                  ContextOpenSSLServer.o \
                   SslExtension.o \
                   SslExtensionInternal.o \
                   SslFactory.o \
-                  SslGeneralConfig.o \
-                  SslSystem.o \
-                  SslSystemInternal.o \
-                  SslSystemOpenSSL.o \
-                  SslTempCerts.o \
-                  SslCertificateVerifier.o \
-                  SslCertificateVerifierOpenSSL.o \
-                  SslJanitors.o \
-                  SslRSACertificateGen.o \
+                  GeneralConfig.o \
+                  System.o \
+                  SystemInternal.o \
+                  SystemOpenSSL.o \
+                  TempCerts.o \
+                  CertificateVerifier.o \
+                  CertificateVerifierOpenSSL.o \
+                  OpenSSLJanitors.o \
+                  RSACertificateGen.o \
                   SslIceUtils.o \
-                  SslRSAPrivateKey.o \
-                  SslRSAPublicKey.o \
-                  SslRSAKeyPair.o \
-                  SslOpenSSLUtils.o \
+                  RSAPrivateKey.o \
+                  RSAPublicKey.o \
+                  RSAKeyPair.o \
+                  OpenSSLUtils.o \
                   DefaultCertificateVerifier.o \
                   SingleCertificateVerifier.o \
 		  UdpTransceiver.o \
@@ -145,13 +145,13 @@ $(HDIR)/LocalException.h LocalException.cpp: $(SDIR)/LocalException.ice $(SLICE2
 clean::
 	rm -f $(HDIR)/LocalException.h LocalException.cpp
 
-$(HDIR)/SecurityException.h SecurityException.cpp: $(SDIR)/SecurityException.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SecurityException.h SecurityException.cpp
-	$(SLICECMD) $(SDIR)/SecurityException.ice
-	mv SecurityException.h $(HDIR)
+$(HDIR)/SslException.h SslException.cpp: $(SDIR)/SslException.ice $(SLICE2CPP)
+	rm -f $(HDIR)/SslException.h SslException.cpp
+	$(SLICECMD) $(SDIR)/SslException.ice
+	mv SslException.h $(HDIR)
 
 clean::
-	rm -f $(HDIR)/SecurityException.h SecurityException.cpp
+	rm -f $(HDIR)/SslException.h SslException.cpp
 
 $(HDIR)/Communicator.h Communicator.cpp: $(SDIR)/Communicator.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Communicator.h Communicator.cpp
@@ -246,39 +246,39 @@ $(HDIR)/SecureUdpF.h: $(SDIR)/SecureUdpF.ice $(SLICE2CPP)
 clean::
 	rm -f $(HDIR)/SecureUdpF.h
 
-$(HDIR)/SslCertificateVerifier.h SslCertificateVerifier.cpp: $(SDIR)/SslCertificateVerifier.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SslCertificateVerifier.h SslCertificateVerifier.cpp
-	$(SLICECMD) $(SDIR)/SslCertificateVerifier.ice
-	mv SslCertificateVerifier.h $(HDIR)
+$(HDIR)/CertificateVerifier.h CertificateVerifier.cpp: $(SDIR)/CertificateVerifier.ice $(SLICE2CPP)
+	rm -f $(HDIR)/CertificateVerifier.h CertificateVerifier.cpp
+	$(SLICECMD) $(SDIR)/CertificateVerifier.ice
+	mv CertificateVerifier.h $(HDIR)
 
 clean::
-	rm -f $(HDIR)/SslCertificateVerifier.h SslCertificateVerifier.cpp
+	rm -f $(HDIR)/CertificateVerifier.h CertificateVerifier.cpp
 
-$(HDIR)/SslCertificateVerifierF.h: $(SDIR)/SslCertificateVerifierF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SslCertificateVerifierF.h SslCertificateVerifierF.cpp
-	$(SLICECMD) $(SDIR)/SslCertificateVerifierF.ice
-	mv SslCertificateVerifierF.h $(HDIR)
-	rm -f SslCertificateVerifierF.cpp
-
-clean::
-	rm -f $(HDIR)/SslCertificateVerifierF.h
-
-$(HDIR)/SslSystem.h SslSystem.cpp: $(SDIR)/SslSystem.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SslSystem.h SslSystem.cpp
-	$(SLICECMD) $(SDIR)/SslSystem.ice
-	mv SslSystem.h $(HDIR)
+$(HDIR)/CertificateVerifierF.h: $(SDIR)/CertificateVerifierF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/CertificateVerifierF.h CertificateVerifierF.cpp
+	$(SLICECMD) $(SDIR)/CertificateVerifierF.ice
+	mv CertificateVerifierF.h $(HDIR)
+	rm -f CertificateVerifierF.cpp
 
 clean::
-	rm -f $(HDIR)/SslSystem.h SslSystem.cpp
+	rm -f $(HDIR)/CertificateVerifierF.h
 
-$(HDIR)/SslSystemF.h: $(SDIR)/SslSystemF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SslSystemF.h SslSystemF.cpp
-	$(SLICECMD) $(SDIR)/SslSystemF.ice
-	mv SslSystemF.h $(HDIR)
-	rm -f SslSystemF.cpp
+$(HDIR)/System.h System.cpp: $(SDIR)/System.ice $(SLICE2CPP)
+	rm -f $(HDIR)/System.h System.cpp
+	$(SLICECMD) $(SDIR)/System.ice
+	mv System.h $(HDIR)
 
 clean::
-	rm -f $(HDIR)/SslSystemF.h
+	rm -f $(HDIR)/System.h System.cpp
+
+$(HDIR)/SystemF.h: $(SDIR)/SystemF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/SystemF.h SystemF.cpp
+	$(SLICECMD) $(SDIR)/SystemF.ice
+	mv SystemF.h $(HDIR)
+	rm -f SystemF.cpp
+
+clean::
+	rm -f $(HDIR)/SystemF.h
 
 $(HDIR)/SslExtension.h SslExtension.cpp: $(SDIR)/SslExtension.ice $(SLICE2CPP)
 	rm -f $(HDIR)/SslExtension.h SslExtension.cpp

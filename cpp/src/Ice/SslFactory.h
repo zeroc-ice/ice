@@ -13,8 +13,8 @@
 
 #include <IceUtil/Mutex.h>
 #include <Ice/InstanceF.h>
-#include <Ice/SslSystemInternalF.h>
-#include <Ice/SslCertificateVerifierF.h>
+#include <Ice/SystemInternalF.h>
+#include <Ice/CertificateVerifierF.h>
 
 #include <string>
 #include <map>

@@ -13,7 +13,7 @@
 
 #include <Ice/InstanceF.h>
 #include <Ice/SslExtension.h>
-#include <Ice/SslCertificateVerifierF.h>
+#include <Ice/CertificateVerifierF.h>
 
 namespace IceSSL
 {

@@ -10,10 +10,10 @@
 
 #include <string>
 #include <sstream>
-#include <Ice/SslOpenSSLUtils.h>
+#include <Ice/OpenSSLUtils.h>
 #include <Ice/Network.h>
 #include <Ice/OpenSSL.h>
-#include <Ice/SecurityException.h>
+#include <Ice/SslException.h>
 #include <Ice/SslConnectionOpenSSLClient.h>
 
 #include <Ice/TraceLevels.h>

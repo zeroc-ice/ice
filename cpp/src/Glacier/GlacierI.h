@@ -12,7 +12,7 @@
 #define GLACIER_GLACIER_I_H
 
 #include <Ice/Ice.h>
-#include <Ice/SslRSACertificateGen.h>
+#include <Ice/RSACertificateGen.h>
 #include <Glacier/Glacier.h>
 
 namespace Glacier
