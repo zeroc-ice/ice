@@ -2902,10 +2902,10 @@ This value is passed to Berkeley DB's checkpoint function. Defaults to
 </section>
 
 
-<section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>db-name</replaceable>.MaxTxSize</title>
+<section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.MaxTxSize</title>
 <section><title>Synopsis</title>
 <synopsis>
-Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>db-name</replaceable>.MaxTxSize=<replaceable>num</replaceable>
+Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.MaxTxSize=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2914,15 +2914,15 @@ Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>db-name</replace
 to the database. Transactions are used to save many
 facets together. <replaceable>num</replaceable> defines the maximum
 number of facets saved per transaction. Defaults to 10 *
-SaveSizeTrigger (see <literal>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>db-name</replaceable>.SaveSizeTrigger</literal>); if this value is negative, the actual value is set to 100.
+SaveSizeTrigger (see <literal>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.SaveSizeTrigger</literal>); if this value is negative, the actual value is set to 100.
 </para>
 </section>
 </section>
 
-<section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>db-name</replaceable>.SavePeriod</title>
+<section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.SavePeriod</title>
 <section><title>Synopsis</title>
 <synopsis>
-Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>db-name</replaceable>.SavePeriod=<replaceable>num</replaceable>
+Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.SavePeriod=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2937,10 +2937,10 @@ no periodic saving. Defaults to 60,000.
 </section>
 
 
-<section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>db-name</replaceable>.SaveSizeTrigger</title>
+<section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.SaveSizeTrigger</title>
 <section><title>Synopsis</title>
 <synopsis>
-Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>db-name</replaceable>.SaveSizeTrigger=<replaceable>num</replaceable>
+Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.SaveSizeTrigger=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
@@ -2954,8 +2954,25 @@ save them. When <replaceable>num</replaceable> is negative, there is no size tri
 </section>
 </section>
 
-
-
+<section><title>Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.StreamTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+Freeze.Evictor.<replaceable>env-name</replaceable>.<replaceable>filename</replaceable>.StreamTimeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para> When the saving thread saves an object, it needs to lock
+this object in order to get a consistent copy of the object's state. If the
+lock cannot be acquired within <replaceable>num</replaceable> seconds,
+a fatal error is generated. If a fatal error callback was registered
+by the appplication, this callback is called; otherwise the program
+is terminated immediately.
+When <replaceable>num</replaceable> is 0 or negative, there is no
+timeout. The default value is 0.
+</para>
+</section>
+</section>
 
 <section><title>Freeze.Trace.DbEnv</title>
 <section><title>Synopsis</title>
