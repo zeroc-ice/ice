@@ -4,10 +4,10 @@
 <!ELEMENT general EMPTY>  
 <!ELEMENT certauthority EMPTY> 
 <!ELEMENT basecerts (rsacert?,dsacert?,dhparams?)>  
-<!ELEMENT tempcerts (rsacert*,dsacert*,dhparams*)>  
+<!ELEMENT tempcerts (rsacert*,dhparams*)>  
   
 <!ATTLIST general  
-        version (SSLv2|SSLv23|SSLv3|TLSv1) "SSLv23"  
+        version (SSLv23|SSLv3|TLSv1) "SSLv23"  
         cipherlist CDATA #IMPLIED  
         context CDATA #IMPLIED  
         verifymode CDATA "none"  
