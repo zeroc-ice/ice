@@ -1785,7 +1785,16 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Gen::TypesVisitor::visitConstDef(const ConstDefPtr& p)
 {
-    // TODO: emit constant definition
+#if 0
+    string name = fixKwd(p->name());
+    string absolute = getAbsolute(p->scoped());
+
+        if(open(absolute + "PrxHolder"))
+    Output& out = output();
+    out << "This is a definition for constant " << p->name() << endl;
+    out << eb;
+    close();
+#endif
 }
 
 Slice::Gen::HolderVisitor::HolderVisitor(const string& dir,

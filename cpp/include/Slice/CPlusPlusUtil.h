@@ -32,6 +32,8 @@ SLICE_API std::string returnTypeToString(const TypePtr&);
 SLICE_API std::string inputTypeToString(const TypePtr&);
 SLICE_API std::string outputTypeToString(const TypePtr&);
 
+SLICE_API std::string fixKwd(const std::string&);
+
 SLICE_API void writeMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,
 					 const std::string& = "", bool = true);
 SLICE_API void writeMarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,

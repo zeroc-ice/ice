@@ -152,9 +152,9 @@ string
 Slice::JavaGenerator::fixKwd(const string& name) const
 {
     //
-    // Alphabetical list of Java keywords
+    // Keyword list. *Must* be kept in alphabetical order.
     //
-    static const char* keywords[] = 
+    static const string keywordList[] = 
     {       
         "abstract", "assert", "boolean", "break", "byte", "case", "catch",
         "char", "class", "clone", "const", "continue", "default", "do",
@@ -166,31 +166,10 @@ Slice::JavaGenerator::fixKwd(const string& name) const
         "synchronized", "this", "throw", "throws", "toString", "transient",
         "true", "try", "void", "volatile", "wait", "while"
     };
-
-    int i = 0;
-    int j = sizeof(keywords) / sizeof(const char*);
-
-    while(i < j)
-    {
-        int mid = (i + j) / 2;
-        string str = keywords[mid];
-        int n = str.compare(name);
-        if(n == 0)
-        {
-            string result = "_" + name;
-            return result;
-        }
-        else if(n > 0)
-        {
-            j = mid;
-        }
-        else
-        {
-            i = mid + 1;
-        }
-    }
-
-    return name;
+    bool found =  binary_search(&keywordList[0],
+	                        &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+				name);
+    return found ? "_" + name : name;
 }
 
 string

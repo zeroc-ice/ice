@@ -132,25 +132,25 @@ Slice::typeToString(const TypePtr& type)
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	return cl->scoped() + "Ptr";
+	return fixKwd(cl->scoped()) + "Ptr";
     }
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-	return proxy->_class()->scoped() + "Prx";
+	return fixKwd(proxy->_class()->scoped()) + "Prx";
     }
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
-	return contained->scoped();
+	return fixKwd(contained->scoped());
     }
 
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-	return en->scoped();
+	return fixKwd(en->scoped());
     }
 	    
     return "???";
@@ -194,25 +194,25 @@ Slice::inputTypeToString(const TypePtr& type)
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	return "const " + cl->scoped() + "Ptr&";
+	return "const " + fixKwd(cl->scoped()) + "Ptr&";
     }
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-	return "const " + proxy->_class()->scoped() + "Prx&";
+	return "const " + fixKwd(proxy->_class()->scoped()) + "Prx&";
     }
 	    
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-	return en->scoped();
+	return fixKwd(en->scoped());
     }
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
-	return "const " + contained->scoped() + "&";
+	return "const " + fixKwd(contained->scoped()) + "&";
     }
 
     return "???";
@@ -245,28 +245,116 @@ Slice::outputTypeToString(const TypePtr& type)
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-	return cl->scoped() + "Ptr&";
+	return fixKwd(cl->scoped()) + "Ptr&";
     }
 	    
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-	return proxy->_class()->scoped() + "Prx&";
+	return fixKwd(proxy->_class()->scoped()) + "Prx&";
     }
 	    
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
-	return contained->scoped() + "&";
+	return fixKwd(contained->scoped()) + "&";
     }
 
     return "???";
+}
+
+//
+// If the passed name is a keyword, return the name with a "_cxx_" prefix;
+// otherwise, return the name unchanged.
+//
+
+static string
+lookupKwd(const string& name)
+{
+    //
+    // Keyword list. *Must* be kept in alphabetical order.
+    //
+    static const string keywordList[] = 
+    {       
+	"asm", "auto", "bool", "break", "case", "catch", "char", "class", "const", "const_cast",
+	"continue", "default", "delete", "do", "double", "dynamic_cast", "else", "enum", "explicit",
+	"export", "extern", "false", "float", "for", "friend", "goto", "if", "inline", "int", "long",
+	"mutable", "namespace", "new", "operator", "private", "protected", "public", "register",
+	"reinterpret_cast", "return", "short", "signed", "sizeof", "static", "static_cast", "struct",
+	"switch", "template", "this", "throw", "true", "try", "typedef", "typeid", "typename", "union",
+	"unsigned", "using", "virtual", "void", "volatile", "wchar_t", "while"
+    };
+    bool found =  binary_search(&keywordList[0],
+	                        &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+				name);
+    return found ? "_cpp_" + name : name;
+}
+
+//
+// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
+//
+static StringList
+splitScopedName(const string& scoped)
+{
+    assert(scoped[0] == ':');
+    StringList ids;
+    string::size_type next = 0;
+    string::size_type pos;
+    while((pos = scoped.find("::", next)) != string::npos)
+    {
+	pos += 2;
+	if(pos != scoped.size())
+	{
+	    string::size_type endpos = scoped.find("::", pos);
+	    if (endpos != string::npos)
+	    {
+		ids.push_back(scoped.substr(pos, endpos - pos));
+	    }
+	}
+	next = pos;
+    }
+    if(next != scoped.size())
+    {
+	ids.push_back(scoped.substr(next));
+    }
+    else
+    {
+	ids.push_back("");
+    }
+
+    return ids;
+}
+
+//
+// If the passed name is a scoped name, return the identical scoped name,
+// but with all components that are C++ keywords replaced by
+// their "_cxx_"-prefixed version; otherwise, if the passed name is
+// not scoped, but a C++ keyword, return the "_cxx_"-prefixed name;
+// otherwise, return the name unchanged.
+//
+string
+Slice::fixKwd(const string& name)
+{
+    if(name[0] != ':')
+    {
+	return lookupKwd(name);
+    }
+    StringList ids = splitScopedName(name);
+    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
+    stringstream result;
+    for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    {
+	result << "::" + *i;
+    }
+    return result.str();
 }
 
 void
 Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal,
 				 const string& str, bool pointer)
 {
+    string fixedParam = fixKwd(param);
+
     string stream;
     if(str.empty())
     {
@@ -306,17 +394,17 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	{
 	    if(marshal)
 	    {
-		out << nl << stream << deref << func << param << ");";
+		out << nl << stream << deref << func << fixedParam << ");";
 	    }
 	    else
 	    {
-		out << nl << stream << deref << func << "::Ice::Object::ice_staticId(), 0, " << param << ");";
+		out << nl << stream << deref << func << "::Ice::Object::ice_staticId(), 0, " << fixedParam << ");";
 	    }
 	    return;
 	}
 	else
 	{
-	    out << nl << stream << deref << func << param << ");";
+	    out << nl << stream << deref << func << fixedParam << ");";
 	    return;
 	}
     }
@@ -327,7 +415,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	out << sb;
 	if(marshal)
 	{
-	    out << nl << "::Ice::ObjectPtr " << obj << " = " << param << ';';
+	    out << nl << "::Ice::ObjectPtr " << obj << " = " << fixedParam << ';';
 	    out << nl << stream << deref << func << obj << ");";
 	}
 	else
@@ -338,9 +426,9 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	    string type;
 	    if(def && !def->isAbstract())
 	    {
-		factory = cl->scoped();
+		factory = fixKwd(cl->scoped());
 		factory += "::_factory";
-		type = cl->scoped();
+		type = fixKwd(cl->scoped());
 		type += "::ice_staticId()";
 	    }
 	    else
@@ -349,7 +437,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		type = "\"\"";
 	    }
 	    out << nl << stream << deref << func << type << ", " << factory << ", " << obj << ");";
-	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(" << obj << ");";
+	    out << nl << fixedParam << " = " << fixKwd(cl->scoped()) << "Ptr::dynamicCast(" << obj << ");";
 	}
 	out << eb;
 
@@ -359,7 +447,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-	out << nl << param << ".__" << func << (pointer ? "" : "&") << stream << ");";
+	out << nl << fixedParam << ".__" << func << (pointer ? "" : "&") << stream << ");";
 	return;
     }
     
@@ -369,12 +457,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
 	if(builtin && builtin->kind() != Builtin::KindObject && builtin->kind() != Builtin::KindObjectProxy)
 	{
-	    out << nl << stream << deref << func << param << ");";
+	    out << nl << stream << deref << func << fixedParam << ");";
 	}
 	else
 	{
-	    out << nl << seq->scope() << "__" << func << (pointer ? "" : "&") << stream << ", " << param << ", "
-		<< seq->scope() << "__U__" << seq->name() << "());";
+	    string scope = fixKwd(seq->scope());
+	    out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
+		<< fixedParam << ", " << scope << "__U__" << seq->name() << "());";
 	}
 	return;
     }
@@ -382,8 +471,9 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-	out << nl << dict->scope() << "__" << func << (pointer ? "" : "&") << stream << ", " << param << ", "
-	    << dict->scope() << "__U__" << dict->name() << "());";
+	string scope = fixKwd(dict->scope());
+	out << nl << scope << "__" << func << (pointer ? "" : "&") << stream << ", "
+	    << fixedParam << ", " << scope << "__U__" << dict->name() << "());";
 	return;
     }
     
@@ -395,7 +485,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	constructed = proxy->_class();
     }
 
-    out << nl << constructed->scope() << "__" << func << (pointer ? "" : "&") << stream << ", " << param << ");";
+    out << nl << fixKwd(constructed->scope()) << "__" << func << (pointer ? "" : "&") << stream << ", "
+	<< fixedParam << ");";
 }
 
 void
@@ -435,7 +526,7 @@ Slice::writeAllocateCode(Output& out, const list<pair<TypePtr, string> >& params
 
     for(list<pair<TypePtr, string> >::const_iterator p = ps.begin(); p != ps.end(); ++p)
     {
-	out << nl << typeToString(p->first) << ' ' << p->second << ';';
+	out << nl << typeToString(p->first) << ' ' << fixKwd(p->second) << ';';
     }
 }
 
@@ -499,6 +590,8 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 	tagName = tn;
     }
 
+    string fixedParam = fixKwd(param);
+
     string streamFunc = marshal ? "write" : "read";
     string genFunc = marshal ? "ice_marshal(" : "ice_unmarshal(";
 
@@ -510,11 +603,11 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 	    streamFunc += outputBuiltinTable[builtin->kind()];
 	    if(marshal)
 	    {
-		out << nl << stream << deref << streamFunc << "(" << tagName << ", " << param << ");";
+		out << nl << stream << deref << streamFunc << "(" << tagName << ", " << fixedParam << ");";
 	    }
 	    else
 	    {
-		out << nl << param << " = " << stream << deref << streamFunc << "(" << tagName
+		out << nl << fixedParam << " = " << stream << deref << streamFunc << "(" << tagName
                     << ", ::Ice::Object::ice_staticId(), 0);";
 	    }
 	    return;
@@ -524,11 +617,11 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
             if(marshal)
             {
                 out << nl << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()]
-                    << "(" << tagName << ", " << param << ");";
+                    << "(" << tagName << ", " << fixedParam << ");";
             }
             else
             {
-                out << nl << param << " = " << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()]
+                out << nl << fixedParam << " = " << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()]
                     << "(" << tagName << ");";
             }
 	    return;
@@ -541,7 +634,7 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 	out << sb;
 	if(marshal)
 	{
-	    out << nl << "::Ice::ObjectPtr " << obj << " = " << param << ';';
+	    out << nl << "::Ice::ObjectPtr " << obj << " = " << fixedParam << ';';
 	    out << nl << stream << deref << streamFunc << "Object(" << tagName << ", " << obj << ");";
 	}
 	else
@@ -552,9 +645,9 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 	    string type;
 	    if(def && !def->isAbstract())
 	    {
-		factory = cl->scoped();
+		factory = fixKwd(cl->scoped());
 		factory += "::_factory";
-		type = cl->scoped();
+		type = fixKwd(cl->scoped());
 		type += "::ice_staticId()";
 	    }
 	    else
@@ -564,7 +657,7 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 	    }
 	    out << nl << obj << " = " << stream << deref << streamFunc << "Object(" << tagName << ", "
 		<< type << ", " << factory << ");";
-	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(" << obj << ");";
+	    out << nl << fixedParam << " = " << fixKwd(cl->scoped()) << "Ptr::dynamicCast(" << obj << ");";
 	}
 	out << eb;
 
@@ -574,7 +667,7 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
     StructPtr st = StructPtr::dynamicCast(type);
     if(st)
     {
-	out << nl << param << "." << genFunc << tagName << ", " << (pointer ? "" : "&") << stream << ");";
+	out << nl << fixedParam << "." << genFunc << tagName << ", " << (pointer ? "" : "&") << stream << ");";
 	return;
     }
 
@@ -587,18 +680,19 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
             if(marshal)
             {
                 out << nl << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()] << "Seq("
-                    << tagName << ", " << param << ");";
+                    << tagName << ", " << fixedParam << ");";
             }
             else
             {
-                out << nl << param << " = " << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()]
+                out << nl << fixedParam << " = " << stream << deref << streamFunc << outputBuiltinTable[builtin->kind()]
                     << "Seq(" << tagName << ");";
             }
 	}
 	else
 	{
-	    out << nl << seq->scope() << genFunc << tagName << ", " << (pointer ? "" : "&") << stream
-		<< ", " << param << ", " << seq->scope() << "__U__" << seq->name() << "());";
+	    string scope = fixKwd(seq->scope());
+	    out << nl << scope << genFunc << tagName << ", " << (pointer ? "" : "&") << stream
+		<< ", " << fixedParam << ", " << scope << "__U__" << seq->name() << "());";
 	}
 	return;
     }
@@ -606,8 +700,9 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-	out << nl << dict->scope() << genFunc << tagName << ", " << (pointer ? "" : "&") << stream
-	    << ", " << param << ", " << dict->scope() << "__U__" << dict->name() << "());";
+	string scope = fixKwd(dict->scope());
+	out << nl << scope << genFunc << tagName << ", " << (pointer ? "" : "&") << stream
+	    << ", " << fixedParam << ", " << scope << "__U__" << dict->name() << "());";
 	return;
     }
     
@@ -619,8 +714,8 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
 	constructed = proxy->_class();
     }
 
-    out << nl << constructed->scope() << genFunc << tagName << ", " << (pointer ? "" : "&") << stream
-	<< ", " << param << ");";
+    out << nl << fixKwd(constructed->scope()) << genFunc << tagName << ", " << (pointer ? "" : "&") << stream
+	<< ", " << fixedParam << ");";
 }
 
 void
