@@ -295,22 +295,28 @@ A <literal>udp</literal> endpoint supports the following options:
 <entry>Specifies the protocol major and highest minor version number to be used for this
 endpoint. If not specified, the protocol major version and highest supported minor version
 of the client-side &Ice; run time is used.</entry>
-<entry>Determines the major version and highest minor version used by the client side
+<entry>Determines the protocol major version and highest minor version used by the client side
 when sending messages to this endpoint. The protocol major version number must match the protocol major
 version number of the server; the protocol minor version number must not be higher than the highest minor
 version number supported by the server.</entry>
-<entry>N/A</entry>
+<entry>Determines the protocol major version and highest minor version advertised by the server side for this endpoint.
+The protocol major version number must match the protocol major
+version number of the server; the protocol minor version number must not be higher than the highest minor
+version number supported by the server.</entry>
 </row>
 <row>
 <entry>-e <replaceable>major</replaceable>.<replaceable>minor</replaceable></entry>
 <entry>Specifies the encoding major and highest minor version number to be used for this
 endpoint. If not specified, the encoding major version and highest supported minor version
 of the client-side &Ice; run time is used.</entry>
-<entry>Determines the major version and highest minor version used by the client side
+<entry>Determines the encoding major version and highest minor version used by the client side
 when sending messages to this endpoint. The encoding major version number must match the encoding major
 version number of the server; the encoding minor version number must not be higher than the highest minor
 version number supported by the server.</entry>
-<entry>N/A</entry>
+<entry>Determines the encoding version and highest minor version advertised by the server side for this endpoint.
+The protocol major version number must match the protocol major
+version number of the server; the protocol minor version number must not be higher than the highest minor
+version number supported by the server.</entry>
 </row>
 <row>
 <entry>-h <replaceable>host</replaceable></entry>
