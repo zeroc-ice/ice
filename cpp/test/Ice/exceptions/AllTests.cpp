@@ -56,11 +56,12 @@ public:
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	while(!_called)
 	{
-	    if(!timedWait(IceUtil::Time::seconds(15)))
+	    if(!timedWait(IceUtil::Time::seconds(5)))
 	    {
 		return false;
 	    }
 	}
+	_called = false;
 	return true;
     }
 
@@ -1047,6 +1048,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	    AMI_Thrower_throwAasAIPtr cb = new AMI_Thrower_throwAasAI;
 	    thrower->throwAasA_async(cb, 1);
 	    test(cb->check());
+	    // Let's check if we can reuse the same callback object for another call.
+	    thrower->throwAasA_async(cb, 1);
+	    test(cb->check());
 	}
 	
 	{
@@ -1069,6 +1073,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	
 	{
 	    AMI_Thrower_throwCasCIPtr cb = new AMI_Thrower_throwCasCI;
+	    thrower->throwCasC_async(cb, 1, 2, 3);
+	    test(cb->check());
+	    // Let's check if we can reuse the same callback object for another call.
 	    thrower->throwCasC_async(cb, 1, 2, 3);
 	    test(cb->check());
 	}

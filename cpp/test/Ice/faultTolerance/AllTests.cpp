@@ -36,7 +36,7 @@ public:
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	while(!_called)
 	{
-	    if(!timedWait(IceUtil::Time::seconds(15)))
+	    if(!timedWait(IceUtil::Time::seconds(5)))
 	    {
 		return false;
 	    }

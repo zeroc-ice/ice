@@ -47,11 +47,12 @@ public:
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	while(!_called)
 	{
-	    if(!timedWait(IceUtil::Time::seconds(15)))
+	    if(!timedWait(IceUtil::Time::seconds(5)))
 	    {
 		return false;
 	    }
 	}
+	_called = false;
 	return true;
     }
 
@@ -802,6 +803,9 @@ twowaysAMI(const Test::MyClassPrx& p)
 	AMI_MyClass_opVoidIPtr cb = new AMI_MyClass_opVoidI;
 	p->opVoid_async(cb);
 	test(cb->check());
+	// Let's check if we can reuse the same callback object for another call.
+	p->opVoid_async(cb);
+	test(cb->check());
     }
 
     {
@@ -824,6 +828,9 @@ twowaysAMI(const Test::MyClassPrx& p)
 
     {
 	AMI_MyClass_opFloatDoubleIPtr cb = new AMI_MyClass_opFloatDoubleI;
+	p->opFloatDouble_async(cb, Ice::Float(3.14), Ice::Double(1.1E10));
+	test(cb->check());
+	// Let's check if we can reuse the same callback object for another call.
 	p->opFloatDouble_async(cb, Ice::Float(3.14), Ice::Double(1.1E10));
 	test(cb->check());
     }
