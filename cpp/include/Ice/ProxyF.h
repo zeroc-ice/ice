@@ -13,33 +13,33 @@
 
 #include <Ice/ProxyHandle.h>
 
-namespace __IceProxy { namespace Ice { class Object; } }
-namespace __IceDelegate { namespace Ice { class Object; } }
-namespace __IceDelegateM { namespace Ice { class Object; } }
+namespace IceProxy { namespace Ice { class Object; } }
+namespace IceDelegate { namespace Ice { class Object; } }
+namespace IceDelegateM { namespace Ice { class Object; } }
 
-namespace __Ice
+namespace IceInternal
 {
 
-void ICE_API incRef(::__IceProxy::Ice::Object*);
-void ICE_API decRef(::__IceProxy::Ice::Object*);
+void ICE_API incRef(::IceProxy::Ice::Object*);
+void ICE_API decRef(::IceProxy::Ice::Object*);
 
-void ICE_API incRef(::__IceDelegate::Ice::Object*);
-void ICE_API decRef(::__IceDelegate::Ice::Object*);
+void ICE_API incRef(::IceDelegate::Ice::Object*);
+void ICE_API decRef(::IceDelegate::Ice::Object*);
 
-void ICE_API incRef(::__IceDelegateM::Ice::Object*);
-void ICE_API decRef(::__IceDelegateM::Ice::Object*);
+void ICE_API incRef(::IceDelegateM::Ice::Object*);
+void ICE_API decRef(::IceDelegateM::Ice::Object*);
 
-void ICE_API checkedCast(::__IceProxy::Ice::Object*,
-			 ::__IceProxy::Ice::Object*&);
-void ICE_API uncheckedCast(::__IceProxy::Ice::Object*,
-			   ::__IceProxy::Ice::Object*&);
+void ICE_API checkedCast(::IceProxy::Ice::Object*,
+			 ::IceProxy::Ice::Object*&);
+void ICE_API uncheckedCast(::IceProxy::Ice::Object*,
+			   ::IceProxy::Ice::Object*&);
 
 }
 
 namespace Ice
 {
 
-typedef __Ice::ProxyHandle< ::__IceProxy::Ice::Object> Object_prx;
+typedef IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
 
 }
 

@@ -48,7 +48,7 @@ typedef double Double;
 
 }
 
-namespace __Ice
+namespace IceInternal
 {
 
 const bool bigendian = false;
@@ -73,7 +73,7 @@ typedef double Double;
 
 }
 
-namespace __Ice
+namespace IceInternal
 {
 
 const bool bigendian = false;
@@ -106,7 +106,7 @@ const bool bigendian = false;
 // By deriving from this class (private inheritance), other classes
 // are made non-copyable
 //
-namespace __Ice
+namespace IceInternal
 {
 
 class noncopyable

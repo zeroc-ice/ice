@@ -14,7 +14,7 @@ using namespace std;
 using namespace Slice;
 
 string
-Slice::typeToString(const Type_ptr& type)
+Slice::typeToString(const TypePtr& type)
 {
     static const char* builtinTable[] =
     {
@@ -27,24 +27,24 @@ Slice::typeToString(const Type_ptr& type)
 	"::Ice::Double",
 	"::std::string",
 	"::std::wstring",
-	"::Ice::Object_ptr",
-	"::Ice::Object_prx",
-	"::Ice::LocalObject_ptr"
+	"::Ice::ObjectPtr",
+	"::Ice::ObjectPrx",
+	"::Ice::LocalObjectPtr"
     };
 
-    Builtin_ptr builtin = Builtin_ptr::dynamicCast(type);
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
 	return builtinTable[builtin -> kind()];
 
-    ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(type);
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
-	return cl -> scoped() + "_ptr";
+	return cl -> scoped() + "Ptr";
 	    
-    Proxy_ptr proxy = Proxy_ptr::dynamicCast(type);
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
-	return proxy -> _class() -> scoped() + "_prx";
+	return proxy -> _class() -> scoped() + "Prx";
 	    
-    Contained_ptr contained = Contained_ptr::dynamicCast(type);
+    ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
 	return contained -> scoped();
 	    
@@ -52,7 +52,7 @@ Slice::typeToString(const Type_ptr& type)
 }
 
 string
-Slice::returnTypeToString(const Type_ptr& type)
+Slice::returnTypeToString(const TypePtr& type)
 {
     if(!type)
 	return "void";
@@ -61,7 +61,7 @@ Slice::returnTypeToString(const Type_ptr& type)
 }
 
 string
-Slice::inputTypeToString(const Type_ptr& type)
+Slice::inputTypeToString(const TypePtr& type)
 {
     static const char* inputBuiltinTable[] =
     {
@@ -74,32 +74,32 @@ Slice::inputTypeToString(const Type_ptr& type)
 	"::Ice::Double",
 	"const ::std::string&",
 	"const ::std::wstring&",
-	"const ::Ice::Object_ptr&",
-	"const ::Ice::Object_prx&",
-	"const ::Ice::LocalObject_ptr&"
+	"const ::Ice::ObjectPtr&",
+	"const ::Ice::ObjectPrx&",
+	"const ::Ice::LocalObjectPtr&"
     };
 
-    Builtin_ptr builtin = Builtin_ptr::dynamicCast(type);
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
 	return inputBuiltinTable[builtin -> kind()];
 
-    ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(type);
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
-	return "const " + cl -> scoped() + "_ptr&";
+	return "const " + cl -> scoped() + "Ptr&";
 	    
-    Proxy_ptr proxy = Proxy_ptr::dynamicCast(type);
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
-	return "const " + proxy -> _class() -> scoped() + "_prx&";
+	return "const " + proxy -> _class() -> scoped() + "Prx&";
 	    
-    Enum_ptr en = Enum_ptr::dynamicCast(type);
+    EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
 	return en -> scoped();
 	    
-    Native_ptr native = Native_ptr::dynamicCast(type);
+    NativePtr native = NativePtr::dynamicCast(type);
     if(native)
 	return native -> scoped();
 	    
-    Contained_ptr contained = Contained_ptr::dynamicCast(type);
+    ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
 	return "const " + contained -> scoped() + "&";
 
@@ -107,7 +107,7 @@ Slice::inputTypeToString(const Type_ptr& type)
 }
 
 string
-Slice::outputTypeToString(const Type_ptr& type)
+Slice::outputTypeToString(const TypePtr& type)
 {
     static const char* outputBuiltinTable[] =
     {
@@ -120,28 +120,28 @@ Slice::outputTypeToString(const Type_ptr& type)
 	"::Ice::Double&",
 	"::std::string&",
 	"::std::wstring&",
-	"::Ice::Object_ptr",
-	"::Ice::Object_prx",
-	"::Ice::LocalObject_ptr"
+	"::Ice::ObjectPtr",
+	"::Ice::ObjectPrx",
+	"::Ice::LocalObjectPtr"
     };
     
-    Builtin_ptr builtin = Builtin_ptr::dynamicCast(type);
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
 	return outputBuiltinTable[builtin -> kind()];
 
-    ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(type);
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
-	return cl -> scoped() + "_ptr&";
+	return cl -> scoped() + "Ptr&";
 	    
-    Proxy_ptr proxy = Proxy_ptr::dynamicCast(type);
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
-	return proxy -> _class() -> scoped() + "_prx&";
+	return proxy -> _class() -> scoped() + "Prx&";
 	    
-    Native_ptr native = Native_ptr::dynamicCast(type);
+    NativePtr native = NativePtr::dynamicCast(type);
     if(native)
 	return native -> scoped();
 	    
-    Contained_ptr contained = Contained_ptr::dynamicCast(type);
+    ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
 	return contained -> scoped() + "&";
 
@@ -149,7 +149,7 @@ Slice::outputTypeToString(const Type_ptr& type)
 }
 
 string
-Slice::exceptionTypeToString(const Type_ptr& type)
+Slice::exceptionTypeToString(const TypePtr& type)
 {
     static const char* inputBuiltinTable[] =
     {
@@ -162,32 +162,32 @@ Slice::exceptionTypeToString(const Type_ptr& type)
 	"::Ice::Double",
 	"const ::std::string&",
 	"const ::std::wstring&",
-	"const ::Ice::Object_ptrE&",
-	"const ::Ice::Object_prxE&",
-	"const ::Ice::LocalObject_ptrE&"
+	"const ::Ice::ObjectPtrE&",
+	"const ::Ice::ObjectPrxE&",
+	"const ::Ice::LocalObjectPtrE&"
     };
 
-    Builtin_ptr builtin = Builtin_ptr::dynamicCast(type);
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
 	return inputBuiltinTable[builtin -> kind()];
 
-    ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(type);
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
-	return "const " + cl -> scoped() + "_ptrE&";
+	return "const " + cl -> scoped() + "PtrE&";
 	    
-    Proxy_ptr proxy = Proxy_ptr::dynamicCast(type);
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
-	return "const " + proxy -> _class() -> scoped() + "_prxE&";
+	return "const " + proxy -> _class() -> scoped() + "PrxE&";
 	    
-    Enum_ptr en = Enum_ptr::dynamicCast(type);
+    EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
 	return en -> scoped();
 	    
-    Native_ptr native = Native_ptr::dynamicCast(type);
+    NativePtr native = NativePtr::dynamicCast(type);
     if(native)
 	return native -> scoped();
 	    
-    Contained_ptr contained = Contained_ptr::dynamicCast(type);
+    ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
 	return "const " + contained -> scoped() + "&";
 
@@ -195,34 +195,34 @@ Slice::exceptionTypeToString(const Type_ptr& type)
 }
 
 void
-Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
+Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type,
 				 const string& param, bool marshal)
 {
     const char* func = marshal ? "write(" : "read(";
     const char* stream = marshal ? "__os" : "__is";
 
-    if(Builtin_ptr::dynamicCast(type))
+    if(BuiltinPtr::dynamicCast(type))
     {
 	out << nl << stream << " -> " << func << param << ");";
 	return;
     }
     
-    ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(type);
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
 	out << sb;
 	if(marshal)
 	{
-	    out << nl << "::Ice::Object_ptr __obj = " << param << ';';
+	    out << nl << "::Ice::ObjectPtr __obj = " << param << ';';
 	    out << nl << stream << " -> write(__obj);";
 	}
 	else
 	{
-	    out << nl << "::Ice::Object_ptr __obj;";
+	    out << nl << "::Ice::ObjectPtr __obj;";
 	    out << nl << stream << " -> read(__obj, " << cl -> scoped()
 		<< "::__classIds[0]);";
 	    out << nl << "if(!__obj)";
-	    ClassDef_ptr def = cl -> definition();
+	    ClassDefPtr def = cl -> definition();
 	    if(def && !def -> isAbstract())
 	    {
 		out << sb;
@@ -238,7 +238,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 		out.dec();
 	    }
 	    out << nl << param << " = " << cl -> scoped()
-		<< "_ptr::dynamicCast(__obj);";
+		<< "Ptr::dynamicCast(__obj);";
 	    out << nl << "if(!" << param << ')';
 	    out.inc();
 	    out << nl
@@ -250,10 +250,10 @@ Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 	return;
     }
     
-    Vector_ptr vec = Vector_ptr::dynamicCast(type);
+    VectorPtr vec = VectorPtr::dynamicCast(type);
     if(vec)
     {
-	if(Builtin_ptr::dynamicCast(vec -> type()))
+	if(BuiltinPtr::dynamicCast(vec -> type()))
 	    out << nl << stream << " -> " << func << param << ");";
 	else
 	    out << nl << vec -> scope() << "::__" << func << stream\
@@ -262,13 +262,13 @@ Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 	return;
     }
     
-    Native_ptr native = Native_ptr::dynamicCast(type);
+    NativePtr native = NativePtr::dynamicCast(type);
     assert(!native); // TODO
     
-    Constructed_ptr constructed = Constructed_ptr::dynamicCast(type);
+    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
     if(!constructed)
     {
-	Proxy_ptr proxy = Proxy_ptr::dynamicCast(type);
+	ProxyPtr proxy = ProxyPtr::dynamicCast(type);
 	assert(proxy);
 	constructed = proxy -> _class();
     }
@@ -279,10 +279,10 @@ Slice::writeMarshalUnmarshalCode(Output& out, const Type_ptr& type,
 
 void
 Slice::writeMarshalCode(Output& out,
-			const list<pair<Type_ptr, string> >& params,
-			const Type_ptr& ret)
+			const list<pair<TypePtr, string> >& params,
+			const TypePtr& ret)
 {
-    list<pair<Type_ptr, string> >::const_iterator p;
+    list<pair<TypePtr, string> >::const_iterator p;
     for(p = params.begin(); p != params.end(); ++p)
 	writeMarshalUnmarshalCode(out, p -> first, p -> second, true);
     if(ret)
@@ -291,10 +291,10 @@ Slice::writeMarshalCode(Output& out,
 
 void
 Slice::writeUnmarshalCode(Output& out,
-			    const list<pair<Type_ptr, string> >& params,
-			    const Type_ptr& ret)
+			    const list<pair<TypePtr, string> >& params,
+			    const TypePtr& ret)
 {
-    list<pair<Type_ptr, string> >::const_iterator p;
+    list<pair<TypePtr, string> >::const_iterator p;
     for(p = params.begin(); p != params.end(); ++p)
 	writeMarshalUnmarshalCode(out, p -> first, p -> second, false);
     if(ret)
@@ -303,14 +303,14 @@ Slice::writeUnmarshalCode(Output& out,
 
 void
 Slice::writeAllocateCode(Output& out,
-			 const list<pair<Type_ptr, string> >& params,
-			 const Type_ptr& ret)
+			 const list<pair<TypePtr, string> >& params,
+			 const TypePtr& ret)
 {
-    list<pair<Type_ptr, string> > ps = params;
+    list<pair<TypePtr, string> > ps = params;
     if(ret)
 	ps.push_back(make_pair(ret, string("__ret")));
 
-    list<pair<Type_ptr, string> >::const_iterator p;
+    list<pair<TypePtr, string> >::const_iterator p;
     for(p = ps.begin(); p != ps.end(); ++p)
 	out << nl << typeToString(p -> first) << ' ' << p -> second << ';';
 }

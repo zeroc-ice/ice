@@ -13,7 +13,7 @@
 
 #include <Ice/Config.h>
 
-namespace __IceNative
+namespace IceNative
 {
 
 typedef std::istream& InputStream;

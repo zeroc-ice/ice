@@ -13,13 +13,13 @@
 
 #include <Ice/Handle.h>
 
-namespace __Ice
+namespace IceInternal
 {
 
 class Instance;
 void incRef(Instance*);
 void decRef(Instance*);
-typedef __Ice::Handle<Instance> Instance_ptr;
+typedef IceInternal::Handle<Instance> InstancePtr;
 
 }
 

@@ -13,7 +13,7 @@
 
 #include <Ice/Config.h>
 
-namespace __Ice
+namespace IceInternal
 {
 
 class ICE_API Buffer : noncopyable

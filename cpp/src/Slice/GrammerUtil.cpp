@@ -13,15 +13,15 @@
 using namespace std;
 using namespace Slice;
 
-void __Ice::incRef(StringTok* p) { p -> __incRef(); }
-void __Ice::decRef(StringTok* p) { p -> __decRef(); }
-void __Ice::incRef(TypeStringListTok* p) { p -> __incRef(); }
-void __Ice::decRef(TypeStringListTok* p) { p -> __decRef(); }
-void __Ice::incRef(StringListTok* p) { p -> __incRef(); }
-void __Ice::decRef(StringListTok* p) { p -> __decRef(); }
-void __Ice::incRef(BoolTok* p) { p -> __incRef(); }
-void __Ice::decRef(BoolTok* p) { p -> __decRef(); }
-void __Ice::incRef(TypeListTok* p) { p -> __incRef(); }
-void __Ice::decRef(TypeListTok* p) { p -> __decRef(); }
-void __Ice::incRef(ClassListTok* p) { p -> __incRef(); }
-void __Ice::decRef(ClassListTok* p) { p -> __decRef(); }
+void IceInternal::incRef(StringTok* p) { p -> __incRef(); }
+void IceInternal::decRef(StringTok* p) { p -> __decRef(); }
+void IceInternal::incRef(TypeStringListTok* p) { p -> __incRef(); }
+void IceInternal::decRef(TypeStringListTok* p) { p -> __decRef(); }
+void IceInternal::incRef(StringListTok* p) { p -> __incRef(); }
+void IceInternal::decRef(StringListTok* p) { p -> __decRef(); }
+void IceInternal::incRef(BoolTok* p) { p -> __incRef(); }
+void IceInternal::decRef(BoolTok* p) { p -> __decRef(); }
+void IceInternal::incRef(TypeListTok* p) { p -> __incRef(); }
+void IceInternal::decRef(TypeListTok* p) { p -> __decRef(); }
+void IceInternal::incRef(ClassListTok* p) { p -> __incRef(); }
+void IceInternal::decRef(ClassListTok* p) { p -> __decRef(); }

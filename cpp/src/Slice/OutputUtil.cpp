@@ -29,9 +29,9 @@ Separator sp;
 // ----------------------------------------------------------------------
 
 Slice::Output::Output()
-    : pos_(0),
-      indent_(0),
-      separator_(true),
+    : _pos(0),
+      _indent(0),
+      _separator(true),
       _blockStart("{"),
       _blockEnd("}"),
       _useTab(true),
@@ -40,9 +40,9 @@ Slice::Output::Output()
 }
 
 Slice::Output::Output(const char* s)
-    : pos_(0),
-      indent_(0),
-      separator_(true),
+    : _pos(0),
+      _indent(0),
+      _separator(true),
       _blockStart("{"),
       _blockEnd("}"),
       _useTab(true),
@@ -54,7 +54,7 @@ Slice::Output::Output(const char* s)
 void
 Slice::Output::open(const char* s)
 {
-    out_.open(s);
+    _out.open(s);
 }
 
 void
@@ -63,49 +63,49 @@ Slice::Output::print(const char* s)
     for(unsigned int i = 0; i < strlen(s); ++i)
     {
     if(s[i] == '\n')
-        pos_ = 0;
+        _pos = 0;
     else
-        ++pos_;
+        ++_pos;
     }
 
-    out_ << s;
+    _out << s;
 }
 
 void
 Slice::Output::inc()
 {
-    indent_ += _indentSize;
-    separator_ = true;
+    _indent += _indentSize;
+    _separator = true;
 }
 
 void
 Slice::Output::dec()
 {
-    assert(indent_ >= _indentSize);
-    indent_ -= _indentSize;
-    separator_ = true;
+    assert(_indent >= _indentSize);
+    _indent -= _indentSize;
+    _separator = true;
 }
 
 void
 Slice::Output::useCurrentPosAsIndent()
 {
-    indentSave_.push(indent_);
-    indent_ = pos_;
+    _indentSave.push(_indent);
+    _indent = _pos;
 }
 
 void
 Slice::Output::zeroIndent()
 {
-    indentSave_.push(indent_);
-    indent_ = 0;
+    _indentSave.push(_indent);
+    _indent = 0;
 }
 
 void
 Slice::Output::restoreIndent()
 {
-    assert(!indentSave_.empty());
-    indent_ = indentSave_.top();
-    indentSave_.pop();
+    assert(!_indentSave.empty());
+    _indent = _indentSave.top();
+    _indentSave.pop();
 }
 
 void 
@@ -135,19 +135,19 @@ Slice::Output::setUseTab(bool useTab)
 void
 Slice::Output::nl()
 {
-    out_ << '\n';
-    pos_ = 0;
-    separator_ = true;
+    _out << '\n';
+    _pos = 0;
+    _separator = true;
 
-    int indent = indent_;
+    int indent = _indent;
 
     if (_useTab)
     {
         while(indent >= 8)
         {
             indent -= 8;
-            out_ << '\t';
-            pos_ += 8;
+            _out << '\t';
+            _pos += 8;
         }
     }
     else
@@ -155,29 +155,29 @@ Slice::Output::nl()
         while(indent >= _indentSize)
         {
             indent -= _indentSize;
-            out_ << "    ";
-            pos_ += _indentSize;
+            _out << "    ";
+            _pos += _indentSize;
         }
     }
 
     while(indent > 0)
     {
         --indent;
-        out_ << ' ';
-        ++pos_;
+        _out << ' ';
+        ++_pos;
     }
 
-    out_.flush();
+    _out.flush();
 }
 
 void
 Slice::Output::sb()
 {
     nl();
-    out_ << _blockStart;
-    ++pos_;
+    _out << _blockStart;
+    ++_pos;
     inc();
-    separator_ = false;
+    _separator = false;
 }
 
 void
@@ -185,21 +185,21 @@ Slice::Output::eb()
 {
     dec();
     nl();
-    out_ << _blockEnd;
-    --pos_;
+    _out << _blockEnd;
+    --_pos;
 }
 
 void
 Slice::Output::sp()
 {
-    if(separator_)
-        out_ << '\n';
+    if(_separator)
+        _out << '\n';
 }
 
 bool
 Slice::Output::operator!() const
 {
-    return !out_;
+    return !_out;
 }
 
 Output&

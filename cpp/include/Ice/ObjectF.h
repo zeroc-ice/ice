@@ -15,7 +15,7 @@
 
 namespace Ice { class Object; }
 
-namespace __Ice
+namespace IceInternal
 {
 
 void ICE_API incRef(::Ice::Object*);
@@ -26,7 +26,7 @@ void ICE_API decRef(::Ice::Object*);
 namespace Ice
 {
 
-typedef __Ice::Handle< Object > Object_ptr;
+typedef IceInternal::Handle< Object > ObjectPtr;
 
 }
 

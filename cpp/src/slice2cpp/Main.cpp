@@ -177,7 +177,7 @@ main(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
 	
-	Unit_ptr unit = Unit::createUnit(false, false);
+	UnitPtr unit = Unit::createUnit(false, false);
 	int parseStatus = unit -> parse(cppHandle, debug);
 	
 #ifdef WIN32

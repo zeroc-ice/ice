@@ -13,18 +13,18 @@
 
 #include <Ice/Handle.h>
 
-namespace __Ice
+namespace IceInternal
 {
 
 class Collector;
 void incRef(Collector*);
 void decRef(Collector*);
-typedef __Ice::Handle<Collector> Collector_ptr;
+typedef IceInternal::Handle<Collector> CollectorPtr;
 
 class CollectorFactory;
 void incRef(CollectorFactory*);
 void decRef(CollectorFactory*);
-typedef __Ice::Handle<CollectorFactory> CollectorFactory_ptr;
+typedef IceInternal::Handle<CollectorFactory> CollectorFactoryPtr;
 
 }
 

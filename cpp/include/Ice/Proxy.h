@@ -17,41 +17,41 @@
 #include <Ice/ReferenceF.h>
 #include <Ice/Shared.h>
 
-namespace __Ice
+namespace IceInternal
 {
 
 class Stream;
 
-ICE_API void write(Stream*, const ::Ice::Object_prx&);
-ICE_API void read(Stream*, ::Ice::Object_prx&);
+ICE_API void write(Stream*, const ::Ice::ObjectPrx&);
+ICE_API void read(Stream*, ::Ice::ObjectPrx&);
 
 }
 
 namespace Ice
 {
 
-class ICE_API Object_prxE
+class ICE_API ObjectPrxE
 {
 public:
 
-    Object_prxE() { }
-    Object_prxE(const Object_prxE&);
-    explicit Object_prxE(const Object_prx&);
-    operator Object_prx() const;
-    ::__IceProxy::Ice::Object* operator->() const;
+    ObjectPrxE() { }
+    ObjectPrxE(const ObjectPrxE&);
+    explicit ObjectPrxE(const ObjectPrx&);
+    operator ObjectPrx() const;
+    ::IceProxy::Ice::Object* operator->() const;
     operator bool() const;
 
 protected:
 
-    Object_prx prx_;        
+    ObjectPrx _prx;        
 };
 
 };
 
-namespace __IceProxy { namespace Ice
+namespace IceProxy { namespace Ice
 {
 
-class ICE_API Object : public ::__Ice::Shared, JTCMutex
+class ICE_API Object : public ::IceInternal::Shared, JTCMutex
 {
 public:
 
@@ -61,38 +61,38 @@ public:
     bool operator==(const Object&) const;
     bool operator!=(const Object&) const;
 
-    ::Ice::Object_prx _twoway() const;
-    ::Ice::Object_prx _oneway() const;
-    ::Ice::Object_prx _datagram() const;
-    ::Ice::Object_prx _timeout(int) const;
+    ::Ice::ObjectPrx _twoway() const;
+    ::Ice::ObjectPrx _oneway() const;
+    ::Ice::ObjectPrx _datagram() const;
+    ::Ice::ObjectPrx _timeout(int) const;
 
-    ::__Ice::Reference_ptr __reference() const;
-    void __copyTo(::__IceProxy::Ice::Object*) const;
+    ::IceInternal::ReferencePtr __reference() const;
+    void __copyTo(::IceProxy::Ice::Object*) const;
 
 protected:
 
     Object();
     virtual ~Object();
 
-    ::__Ice::Handle< ::__IceDelegate::Ice::Object> __getDelegate();
-    virtual ::__Ice::Handle< ::__IceDelegateM::Ice::Object> __createDelegateM();
+    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate();
+    virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();
 
 private:
 
-    void setup(const ::__Ice::Reference_ptr&);
+    void setup(const ::IceInternal::ReferencePtr&);
 
-    ::__Ice::Reference_ptr reference_;
-    ::__Ice::Handle< ::__IceDelegate::Ice::Object> delegate_;
+    ::IceInternal::ReferencePtr _reference;
+    ::IceInternal::Handle< ::IceDelegate::Ice::Object> _delegate;
 
-    friend class ::__Ice::ProxyFactory;
+    friend class ::IceInternal::ProxyFactory;
 };
 
 } }
 
-namespace __IceDelegate { namespace Ice
+namespace IceDelegate { namespace Ice
 {
 
-class ICE_API Object : public ::__Ice::Shared
+class ICE_API Object : public ::IceInternal::Shared
 {
 public:
 
@@ -105,16 +105,16 @@ protected:
 
 private:
 
-    virtual void setup(const ::__Ice::Reference_ptr&);
-    friend class ::__IceProxy::Ice::Object;
+    virtual void setup(const ::IceInternal::ReferencePtr&);
+    friend class ::IceProxy::Ice::Object;
 };
 
 } }
 
-namespace __IceDelegateM { namespace Ice
+namespace IceDelegateM { namespace Ice
 {
 
-class ICE_API Object : virtual public ::__IceDelegate::Ice::Object
+class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 {
 public:
 
@@ -125,16 +125,16 @@ protected:
     Object();
     virtual ~Object();
 
-    const ::__Ice::Emitter_ptr& __emitter(); // const...& for performance
-    const ::__Ice::Reference_ptr& __reference(); // const...& for performance
+    const ::IceInternal::EmitterPtr& __emitter(); // const...& for performance
+    const ::IceInternal::ReferencePtr& __reference(); // const...& for performance
 
 private:
 
-    ::__Ice::Emitter_ptr emitter_;
-    ::__Ice::Reference_ptr reference_;
+    ::IceInternal::EmitterPtr _emitter;
+    ::IceInternal::ReferencePtr _reference;
 
-    virtual void setup(const ::__Ice::Reference_ptr&);
-    friend class ::__IceProxy::Ice::Object;
+    virtual void setup(const ::IceInternal::ReferencePtr&);
+    friend class ::IceProxy::Ice::Object;
 };
 
 } }

@@ -25,7 +25,7 @@ class ClassListTok;
 
 }
 
-namespace __Ice
+namespace IceInternal
 {
 
 void ICE_API incRef(::Slice::StringTok*);
@@ -46,12 +46,12 @@ void ICE_API decRef(::Slice::ClassListTok*);
 namespace Slice
 {
 
-typedef ::__Ice::Handle<StringTok> StringTok_ptr;
-typedef ::__Ice::Handle<TypeStringListTok> TypeStringListTok_ptr;
-typedef ::__Ice::Handle<StringListTok> StringListTok_ptr;
-typedef ::__Ice::Handle<BoolTok> BoolTok_ptr;
-typedef ::__Ice::Handle<TypeListTok> TypeListTok_ptr;
-typedef ::__Ice::Handle<ClassListTok> ClassListTok_ptr;
+typedef ::IceInternal::Handle<StringTok> StringTokPtr;
+typedef ::IceInternal::Handle<TypeStringListTok> TypeStringListTokPtr;
+typedef ::IceInternal::Handle<StringListTok> StringListTokPtr;
+typedef ::IceInternal::Handle<BoolTok> BoolTokPtr;
+typedef ::IceInternal::Handle<TypeListTok> TypeListTokPtr;
+typedef ::IceInternal::Handle<ClassListTok> ClassListTokPtr;
 
 }
 

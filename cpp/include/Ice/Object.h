@@ -15,7 +15,7 @@
 #include <Ice/Proxy.h>
 #include <Ice/Shared.h>
 
-namespace __Ice
+namespace IceInternal
 {
 
 class Incoming;
@@ -34,23 +34,23 @@ enum DispatchStatus
 namespace Ice
 {
 
-class ICE_API Object_ptrE
+class ICE_API ObjectPtrE
 {
 public:
 
-    Object_ptrE() { }
-    Object_ptrE(const Object_ptrE&);
-    explicit Object_ptrE(const Object_ptr&);
-    operator Object_ptr() const;
+    ObjectPtrE() { }
+    ObjectPtrE(const ObjectPtrE&);
+    explicit ObjectPtrE(const ObjectPtr&);
+    operator ObjectPtr() const;
     Object* operator->() const;
     operator bool() const;
 
 protected:
 
-    Object_ptr ptr_;        
+    ObjectPtr _ptr;
 };
 
-class ICE_API Object : virtual public ::__IceDelegate::Ice::Object
+class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 {
 public:
 
@@ -59,15 +59,15 @@ public:
 
     virtual void _throw();
     virtual bool _isA(const std::string&);
-    ::__Ice::DispatchStatus ____isA(::__Ice::Incoming&);
+    ::IceInternal::DispatchStatus ____isA(::IceInternal::Incoming&);
     virtual const std::string* _classIds() = 0;
 
     static std::string __names[];
-    virtual ::__Ice::DispatchStatus __dispatch(::__Ice::Incoming&,
+    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&,
 					       const std::string&);
 
-    virtual void __write(::__Ice::Stream*) = 0;
-    virtual void __read(::__Ice::Stream*) = 0;
+    virtual void __write(::IceInternal::Stream*) = 0;
+    virtual void __read(::IceInternal::Stream*) = 0;
 };
 
 }

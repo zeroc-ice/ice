@@ -17,28 +17,28 @@
 namespace Slice
 {
 
-std::string typeToString(const Type_ptr&);
-std::string returnTypeToString(const Type_ptr&);
-std::string inputTypeToString(const Type_ptr&);
-std::string outputTypeToString(const Type_ptr&);
-std::string exceptionTypeToString(const Type_ptr&);
+std::string typeToString(const TypePtr&);
+std::string returnTypeToString(const TypePtr&);
+std::string inputTypeToString(const TypePtr&);
+std::string outputTypeToString(const TypePtr&);
+std::string exceptionTypeToString(const TypePtr&);
 
 void writeMarshalUnmarshalCode(Output&,
-			       const Type_ptr&,
+			       const TypePtr&,
 			       const std::string&,
 			       bool);
 
 void writeMarshalCode(Output&,
-		      const std::list<std::pair<Type_ptr, std::string> >&,
-		      const Type_ptr&);
+		      const std::list<std::pair<TypePtr, std::string> >&,
+		      const TypePtr&);
 
 void writeUnmarshalCode(Output&,
-			const std::list<std::pair<Type_ptr, std::string> >&,
-			const Type_ptr&);
+			const std::list<std::pair<TypePtr, std::string> >&,
+			const TypePtr&);
 
 void writeAllocateCode(Output&,
-			const std::list<std::pair<Type_ptr, std::string> >&,
-			const Type_ptr&);
+			const std::list<std::pair<TypePtr, std::string> >&,
+			const TypePtr&);
 
 }
 

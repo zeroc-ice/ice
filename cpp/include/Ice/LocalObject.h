@@ -15,7 +15,7 @@
 #include <Ice/ProxyF.h> // TODO...
 #include <Ice/Shared.h>
 
-namespace __Ice
+namespace IceInternal
 {
 
 class Stream;
@@ -25,31 +25,31 @@ class Stream;
 namespace Ice
 {
 
-class ICE_API LocalObject_ptrE
+class ICE_API LocalObjectPtrE
 {
 public:
 
-    LocalObject_ptrE() { }
-    explicit LocalObject_ptrE(const LocalObject_ptrE&);
-    explicit LocalObject_ptrE(const LocalObject_ptr&);
-    operator LocalObject_ptr() const;
+    LocalObjectPtrE() { }
+    explicit LocalObjectPtrE(const LocalObjectPtrE&);
+    explicit LocalObjectPtrE(const LocalObjectPtr&);
+    operator LocalObjectPtr() const;
     LocalObject* operator->() const;
     operator bool() const;
 
 protected:
 
-    LocalObject_ptr ptr_;        
+    LocalObjectPtr _ptr;        
 };
 
-class ICE_API LocalObject : public ::__Ice::Shared
+class ICE_API LocalObject : public ::IceInternal::Shared
 {
 public:
 
     LocalObject();
     virtual ~LocalObject();
 
-    virtual void __write(::__Ice::Stream*) = 0;
-    virtual void __read(::__Ice::Stream*) = 0;
+    virtual void __write(::IceInternal::Stream*) = 0;
+    virtual void __read(::IceInternal::Stream*) = 0;
 };
 
 }

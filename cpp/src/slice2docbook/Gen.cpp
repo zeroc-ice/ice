@@ -17,9 +17,9 @@ using namespace Slice;
 
 Slice::Gen::Gen(const string& name, const string& file, bool standAlone,
 		bool noGlobals)
-    : standAlone_(standAlone),
-      noGlobals_(noGlobals),
-      chapter_("section") // Could also be "chapter"
+    : _standAlone(standAlone),
+      _noGlobals(noGlobals),
+      _chapter("section") // Could also be "chapter"
 {
     O.open(file.c_str());
     if(!O)
@@ -41,7 +41,7 @@ Slice::Gen::operator!() const
 }
 
 void
-Slice::Gen::generate(const Unit_ptr& unit)
+Slice::Gen::generate(const UnitPtr& unit)
 {
     unit -> mergeModules();
     unit -> sort();
@@ -49,9 +49,9 @@ Slice::Gen::generate(const Unit_ptr& unit)
 }
 
 void
-Slice::Gen::visitUnitStart(const Unit_ptr& p)
+Slice::Gen::visitUnitStart(const UnitPtr& p)
 {
-    if(standAlone_)
+    if(_standAlone)
     {
 	O << "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook V3.1//EN\">";
 	start("article");
@@ -59,25 +59,25 @@ Slice::Gen::visitUnitStart(const Unit_ptr& p)
 
     printHeader();
 
-    if(!noGlobals_)
+    if(!_noGlobals)
     {
-	start(chapter_, "Global Module");
+	start(_chapter, "Global Module");
 	start("section", "Overview");
 	visitContainer(p);
     }
 }
 
 void
-Slice::Gen::visitUnitEnd(const Unit_ptr& p)
+Slice::Gen::visitUnitEnd(const UnitPtr& p)
 {
-    if(standAlone_)
+    if(_standAlone)
 	end();
 }
 
 void
-Slice::Gen::visitModuleStart(const Module_ptr& p)
+Slice::Gen::visitModuleStart(const ModulePtr& p)
 {
-    start(chapter_ + " id=" + scopedToId(p -> scoped()),
+    start(_chapter + " id=" + scopedToId(p -> scoped()),
 	  p -> scoped().substr(2));
     start("section", "Overview");
     O.zeroIndent();
@@ -89,7 +89,7 @@ Slice::Gen::visitModuleStart(const Module_ptr& p)
 }
 
 void
-Slice::Gen::visitContainer(const Container_ptr& p)
+Slice::Gen::visitContainer(const ContainerPtr& p)
 {
     ModuleList modules = p -> modules();
     modules.sort();
@@ -252,7 +252,7 @@ Slice::Gen::visitContainer(const Container_ptr& p)
 	q != vectors.end();
 	++q)
     {
-	Type_ptr type = (*q) -> type();
+	TypePtr type = (*q) -> type();
 	
 	start("section id=" + scopedToId((*q) -> scoped()), (*q) -> name());
 	
@@ -312,9 +312,9 @@ Slice::Gen::visitContainer(const Container_ptr& p)
 }
 
 void
-Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
+Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 {
-    start(chapter_ + " id=" + scopedToId(p -> scoped()),
+    start(_chapter + " id=" + scopedToId(p -> scoped()),
 	  p -> scoped().substr(2));
 
     start("section", "Overview");
@@ -419,7 +419,7 @@ Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
 	q != operations.end();
 	++q)
     {
-	Type_ptr returnType = (*q) -> returnType();
+	TypePtr returnType = (*q) -> returnType();
 	TypeStringList inputParams = (*q) -> inputParameters();
 	TypeStringList outputParams = (*q) -> outputParameters();
 	TypeList throws =  (*q) -> throws();
@@ -480,7 +480,7 @@ Slice::Gen::visitClassDefStart(const ClassDef_ptr& p)
 	q != dataMembers.end();
 	++q)
     {
-	Type_ptr type = (*q) -> type();
+	TypePtr type = (*q) -> type();
 	
 	start("section id=" + scopedToId((*q) -> scoped()), (*q) -> name());
 	
@@ -553,9 +553,9 @@ Slice::Gen::getTagged(const string& tag, string& comment)
 }
 
 void
-Slice::Gen::printComment(const Contained_ptr& p)
+Slice::Gen::printComment(const ContainedPtr& p)
 {
-    Container_ptr container = Container_ptr::dynamicCast(p);
+    ContainerPtr container = ContainerPtr::dynamicCast(p);
     if(!container)
 	container = p -> container();
 
@@ -678,7 +678,7 @@ Slice::Gen::printComment(const Contained_ptr& p)
 }
 
 void
-Slice::Gen::printSummary(const Contained_ptr& p)
+Slice::Gen::printSummary(const ContainedPtr& p)
 {
     string comment = p -> comment();
 
@@ -702,9 +702,9 @@ Slice::Gen::start(const std::string& element)
 
     string::size_type pos = element.find_first_of(" \t");
     if(pos == string::npos)
-	elementStack_.push(element);
+	_elementStack.push(element);
     else
-	elementStack_.push(element.substr(0, pos));
+	_elementStack.push(element.substr(0, pos));
 }
 
 void
@@ -719,8 +719,8 @@ Slice::Gen::start(const std::string& element, const std::string& title)
 void
 Slice::Gen::end()
 {
-    string element = elementStack_.top();
-    elementStack_.pop();
+    string element = _elementStack.top();
+    _elementStack.pop();
 
     O.dec();
     O << nl << "</" << element << '>';

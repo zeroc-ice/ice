@@ -32,7 +32,7 @@ extern ICE_API Separator sp;
 // Indent
 // ----------------------------------------------------------------------
 
-class ICE_API Output : ::__Ice::noncopyable
+class ICE_API Output : ::IceInternal::noncopyable
 {
 public:
 
@@ -64,11 +64,11 @@ public:
 
 private:
 
-    std::ofstream out_;
-    int pos_;
-    int indent_;
-    std::stack<int> indentSave_;
-    bool separator_;
+    std::ofstream _out;
+    int _pos;
+    int _indent;
+    std::stack<int> _indentSave;
+    bool _separator;
 
     std::string _blockStart;
     std::string _blockEnd;

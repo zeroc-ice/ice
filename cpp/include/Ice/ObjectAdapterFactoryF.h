@@ -13,13 +13,13 @@
 
 #include <Ice/Handle.h>
 
-namespace __Ice
+namespace IceInternal
 {
 
 class ObjectAdapterFactory;
 void incRef(ObjectAdapterFactory*);
 void decRef(ObjectAdapterFactory*);
-typedef __Ice::Handle<ObjectAdapterFactory> ObjectAdapterFactory_ptr;
+typedef IceInternal::Handle<ObjectAdapterFactory> ObjectAdapterFactoryPtr;
 
 }
 

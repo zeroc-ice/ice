@@ -34,8 +34,8 @@ protected:
 
 private:
 
-    const char* file_;
-    int line_;
+    const char* _file;
+    int _line;
 };
 
 ICE_API std::ostream& operator<<(std::ostream&, const LocalException&);
@@ -188,7 +188,7 @@ public:
 
 protected:
 
-    int error_;
+    int _error;
 };
 
 class ICE_API SocketException : public SystemException

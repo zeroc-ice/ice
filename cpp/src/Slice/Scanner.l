@@ -189,7 +189,7 @@ L			[a-zA-Z_]
     if(s[0] == '\\') // Strip leading backslash
 	++s;
     
-    StringTok_ptr ident = new StringTok;
+    StringTokPtr ident = new StringTok;
     ident -> v = s;
     yylval = ident;
     return ICE_IDENTIFIER;
@@ -201,7 +201,7 @@ L			[a-zA-Z_]
     if(s[0] == '\\') // Strip leading backslash
 	++s;
     
-    StringTok_ptr ident = new StringTok;
+    StringTokPtr ident = new StringTok;
     ident -> v = s;
     ident -> v.erase(ident -> v.find_first_of(" \t\v\n\r\f("));
     yylval = ident;

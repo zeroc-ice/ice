@@ -15,14 +15,14 @@
 #include <Ice/InstanceF.h>
 #include <Ice/Stream.h>
 
-namespace __Ice
+namespace IceInternal
 {
 
 class ICE_API Incoming : noncopyable
 {
 public:
 
-    Incoming(const Instance_ptr&, const ::Ice::ObjectAdapter_ptr&);
+    Incoming(const InstancePtr&, const ::Ice::ObjectAdapterPtr&);
     ~Incoming();
 
     void invoke(Stream&);
@@ -32,10 +32,10 @@ public:
 
 private:
 
-    ::Ice::ObjectAdapter_ptr adapter_;
+    ::Ice::ObjectAdapterPtr _adapter;
 
-    Stream is_;
-    Stream os_;
+    Stream _is;
+    Stream _os;
 };
 
 }

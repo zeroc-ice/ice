@@ -17,16 +17,16 @@
 #include <stack>
 #include <set>
 
-namespace __Ice
+namespace IceInternal
 {
 
 class ICE_API Stream : public Buffer
 {
 public:
 
-    Stream(const Instance_ptr&);
+    Stream(const InstancePtr&);
 
-    Instance_ptr instance() const;
+    InstancePtr instance() const;
 
     void swap(Stream&);
 
@@ -89,15 +89,15 @@ public:
     void read(std::wstring&);
     void read(std::vector<std::wstring>&);
 
-    void write(const ::Ice::Object_ptr&);
-    void read(::Ice::Object_ptr&, const std::string&);
+    void write(const ::Ice::ObjectPtr&);
+    void read(::Ice::ObjectPtr&, const std::string&);
 
 private:
 
-    Instance_ptr instance_;
-    bool bigendian_;
-    std::stack<bool> bigendianStack_;
-    std::stack<int> encapsStartStack_;
+    InstancePtr _instance;
+    bool _bigendian;
+    std::stack<bool> _bigendianStack;
+    std::stack<int> _encapsStartStack;
 
     class CmpPosPos
     {
@@ -105,7 +105,7 @@ private:
 	CmpPosPos(const Container&);
 	bool operator()(int, int) const;
     private:
-	const Container& cont_;
+	const Container& _cont;
     };
 
     class CmpPosString
@@ -115,10 +115,10 @@ private:
 	bool operator()(int, const std::string&) const;
 	bool operator()(const std::string&, int) const;
     private:
-	const Container& cont_;
+	const Container& _cont;
     };
 
-    std::multiset<int, CmpPosPos> stringSet_;
+    std::multiset<int, CmpPosPos> _stringSet;
 };
 
 }

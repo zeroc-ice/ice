@@ -13,13 +13,13 @@
 
 #include <Ice/Handle.h>
 
-namespace __Ice
+namespace IceInternal
 {
 
 class Reference;
 void incRef(Reference*);
 void decRef(Reference*);
-typedef __Ice::Handle<Reference> Reference_ptr;
+typedef IceInternal::Handle<Reference> ReferencePtr;
 
 }
 

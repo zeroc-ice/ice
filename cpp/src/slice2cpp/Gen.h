@@ -17,7 +17,7 @@
 namespace Slice
 {
 
-class Gen : ::__Ice::noncopyable
+class Gen : ::IceInternal::noncopyable
 {
 public:
 
@@ -30,7 +30,7 @@ public:
 
     bool operator!() const; // Returns true if there was a constructor error
 
-    void generate(const Unit_ptr&);
+    void generate(const UnitPtr&);
 
 private:
 
@@ -40,192 +40,192 @@ private:
     Output H;
     Output C;
 
-    std::string base_;
-    std::string include_;
-    std::vector<std::string> includePaths_;
-    std::string dllExport_;
+    std::string _base;
+    std::string _include;
+    std::vector<std::string> _includePaths;
+    std::string _dllExport;
 
-    class TypesVisitor : ::__Ice::noncopyable, public ParserVisitor
+    class TypesVisitor : ::IceInternal::noncopyable, public ParserVisitor
     {
     public:
 
 	TypesVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitModuleStart(const Module_ptr&);
-	virtual void visitModuleEnd(const Module_ptr&);
-	virtual void visitVector(const Vector_ptr&);
-	virtual void visitEnum(const Enum_ptr&);
-	virtual void visitNative(const Native_ptr&);
+	virtual void visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual void visitVector(const VectorPtr&);
+	virtual void visitEnum(const EnumPtr&);
+	virtual void visitNative(const NativePtr&);
 
     private:
 
 	Output& H;
 	Output& C;
 
-	std::string dllExport_;
+	std::string _dllExport;
     };
 
-    class ProxyDeclVisitor : ::__Ice::noncopyable, public ParserVisitor
+    class ProxyDeclVisitor : ::IceInternal::noncopyable, public ParserVisitor
     {
     public:
 
 	ProxyDeclVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const Unit_ptr&);
-	virtual void visitUnitEnd(const Unit_ptr&);
-	virtual void visitModuleStart(const Module_ptr&);
-	virtual void visitModuleEnd(const Module_ptr&);
-	virtual void visitClassDecl(const ClassDecl_ptr&);
+	virtual void visitUnitStart(const UnitPtr&);
+	virtual void visitUnitEnd(const UnitPtr&);
+	virtual void visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual void visitClassDecl(const ClassDeclPtr&);
 
     private:
 
 	Output& H;
 	Output& C;
 
-	std::string dllExport_;
+	std::string _dllExport;
     };
 
-    class ProxyVisitor : ::__Ice::noncopyable, public ParserVisitor
+    class ProxyVisitor : ::IceInternal::noncopyable, public ParserVisitor
     {
     public:
 
 	ProxyVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const Unit_ptr&);
-	virtual void visitUnitEnd(const Unit_ptr&);
-	virtual void visitModuleStart(const Module_ptr&);
-	virtual void visitModuleEnd(const Module_ptr&);
-	virtual void visitClassDefStart(const ClassDef_ptr&);
-	virtual void visitClassDefEnd(const ClassDef_ptr&);
-	virtual void visitOperation(const Operation_ptr&);
+	virtual void visitUnitStart(const UnitPtr&);
+	virtual void visitUnitEnd(const UnitPtr&);
+	virtual void visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual void visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual void visitOperation(const OperationPtr&);
 
     private:
 
 	Output& H;
 	Output& C;
 
-	std::string dllExport_;
+	std::string _dllExport;
     };
 
-    class DelegateVisitor : ::__Ice::noncopyable, public ParserVisitor
+    class DelegateVisitor : ::IceInternal::noncopyable, public ParserVisitor
     {
     public:
 
 	DelegateVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const Unit_ptr&);
-	virtual void visitUnitEnd(const Unit_ptr&);
-	virtual void visitModuleStart(const Module_ptr&);
-	virtual void visitModuleEnd(const Module_ptr&);
-	virtual void visitClassDefStart(const ClassDef_ptr&);
-	virtual void visitClassDefEnd(const ClassDef_ptr&);
-	virtual void visitOperation(const Operation_ptr&);
+	virtual void visitUnitStart(const UnitPtr&);
+	virtual void visitUnitEnd(const UnitPtr&);
+	virtual void visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual void visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual void visitOperation(const OperationPtr&);
 
     private:
 
 	Output& H;
 	Output& C;
 
-	std::string dllExport_;
+	std::string _dllExport;
     };
 
-    class DelegateMVisitor : ::__Ice::noncopyable, public ParserVisitor
+    class DelegateMVisitor : ::IceInternal::noncopyable, public ParserVisitor
     {
     public:
 
 	DelegateMVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const Unit_ptr&);
-	virtual void visitUnitEnd(const Unit_ptr&);
-	virtual void visitModuleStart(const Module_ptr&);
-	virtual void visitModuleEnd(const Module_ptr&);
-	virtual void visitClassDefStart(const ClassDef_ptr&);
-	virtual void visitClassDefEnd(const ClassDef_ptr&);
-	virtual void visitOperation(const Operation_ptr&);
+	virtual void visitUnitStart(const UnitPtr&);
+	virtual void visitUnitEnd(const UnitPtr&);
+	virtual void visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual void visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual void visitOperation(const OperationPtr&);
 
     private:
 
 	Output& H;
 	Output& C;
 
-	std::string dllExport_;
+	std::string _dllExport;
     };
 
-    class ObjectDeclVisitor : ::__Ice::noncopyable, public ParserVisitor
+    class ObjectDeclVisitor : ::IceInternal::noncopyable, public ParserVisitor
     {
     public:
 
 	ObjectDeclVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitModuleStart(const Module_ptr&);
-	virtual void visitModuleEnd(const Module_ptr&);
-	virtual void visitClassDecl(const ClassDecl_ptr&);
+	virtual void visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual void visitClassDecl(const ClassDeclPtr&);
 
     private:
 
 	Output& H;
 	Output& C;
 
-	std::string dllExport_;
+	std::string _dllExport;
     };
 
-    class ObjectVisitor : ::__Ice::noncopyable, public ParserVisitor
+    class ObjectVisitor : ::IceInternal::noncopyable, public ParserVisitor
     {
     public:
 
 	ObjectVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitModuleStart(const Module_ptr&);
-	virtual void visitModuleEnd(const Module_ptr&);
-	virtual void visitClassDefStart(const ClassDef_ptr&);
-	virtual void visitClassDefEnd(const ClassDef_ptr&);
-	virtual void visitOperation(const Operation_ptr&);
-	virtual void visitDataMember(const DataMember_ptr&);
+	virtual void visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual void visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual void visitOperation(const OperationPtr&);
+	virtual void visitDataMember(const DataMemberPtr&);
 
     private:
 
 	Output& H;
 	Output& C;
 
-	std::string dllExport_;
+	std::string _dllExport;
     };
 
-    class IceVisitor : ::__Ice::noncopyable, public ParserVisitor
+    class IceVisitor : ::IceInternal::noncopyable, public ParserVisitor
     {
     public:
 
 	IceVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitUnitStart(const Unit_ptr&);
-	virtual void visitUnitEnd(const Unit_ptr&);
-	virtual void visitClassDecl(const ClassDecl_ptr&);
-	virtual void visitClassDefStart(const ClassDef_ptr&);
+	virtual void visitUnitStart(const UnitPtr&);
+	virtual void visitUnitEnd(const UnitPtr&);
+	virtual void visitClassDecl(const ClassDeclPtr&);
+	virtual void visitClassDefStart(const ClassDefPtr&);
 
     private:
 
 	Output& H;
 	Output& C;
 
-	std::string dllExport_;
+	std::string _dllExport;
     };
 
-    class HandleVisitor : ::__Ice::noncopyable, public ParserVisitor
+    class HandleVisitor : ::IceInternal::noncopyable, public ParserVisitor
     {
     public:
 
 	HandleVisitor(Output&, Output&, const std::string&);
 
-	virtual void visitModuleStart(const Module_ptr&);
-	virtual void visitModuleEnd(const Module_ptr&);
-	virtual void visitClassDecl(const ClassDecl_ptr&);
-	virtual void visitClassDefStart(const ClassDef_ptr&);
+	virtual void visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual void visitClassDecl(const ClassDeclPtr&);
+	virtual void visitClassDefStart(const ClassDefPtr&);
 
     private:
 
 	Output& H;
 	Output& C;
 
-	std::string dllExport_;
+	std::string _dllExport;
     };
 };
 

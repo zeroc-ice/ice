@@ -18,7 +18,7 @@
 namespace Slice
 {
 
-class Gen : ::__Ice::noncopyable, public ParserVisitor
+class Gen : ::IceInternal::noncopyable, public ParserVisitor
 {
 public:
 
@@ -27,30 +27,30 @@ public:
 
     bool operator!() const; // Returns true if there was a constructor error
 
-    void generate(const Unit_ptr&);
+    void generate(const UnitPtr&);
 
-    virtual void visitUnitStart(const Unit_ptr&);
-    virtual void visitUnitEnd(const Unit_ptr&);
-    virtual void visitModuleStart(const Module_ptr&);
-    virtual void visitContainer(const Container_ptr&);
-    virtual void visitClassDefStart(const ClassDef_ptr&);
+    virtual void visitUnitStart(const UnitPtr&);
+    virtual void visitUnitEnd(const UnitPtr&);
+    virtual void visitModuleStart(const ModulePtr&);
+    virtual void visitContainer(const ContainerPtr&);
+    virtual void visitClassDefStart(const ClassDefPtr&);
 
 private:
 
     void printHeader();
     StringList getTagged(const std::string&, std::string&);
-    void printComment(const Contained_ptr&);
-    void printSummary(const Contained_ptr&);
+    void printComment(const ContainedPtr&);
+    void printSummary(const ContainedPtr&);
     void start(const std::string&);
     void start(const std::string&, const std::string&);
     void end();
 
     Output O;
 
-    bool standAlone_;
-    bool noGlobals_;
-    std::string chapter_;
-    std::stack<std::string> elementStack_;
+    bool _standAlone;
+    bool _noGlobals;
+    std::string _chapter;
+    std::stack<std::string> _elementStack;
 };
 
 }

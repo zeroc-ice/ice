@@ -15,7 +15,7 @@
 
 namespace Ice { class LocalObject; }
 
-namespace __Ice
+namespace IceInternal
 {
 
 void ICE_API incRef(::Ice::LocalObject*);
@@ -26,7 +26,7 @@ void ICE_API decRef(::Ice::LocalObject*);
 namespace Ice
 {
 
-typedef __Ice::Handle< LocalObject > LocalObject_ptr;
+typedef IceInternal::Handle< LocalObject > LocalObjectPtr;
 
 }
 

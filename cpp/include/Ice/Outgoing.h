@@ -22,14 +22,14 @@ class LocalException;
 
 }
 
-namespace __Ice
+namespace IceInternal
 {
 
 class ICE_API Outgoing : noncopyable, public JTCMonitorT< JTCMutex >
 {
 public:
 
-    Outgoing(const Emitter_ptr&, const Reference_ptr&);
+    Outgoing(const EmitterPtr&, const ReferencePtr&);
     ~Outgoing();
 
     bool invoke();
@@ -41,9 +41,9 @@ public:
 
 private:
 
-    Emitter_ptr emitter_;
-    Reference_ptr reference_;
-    std::auto_ptr< ::Ice::LocalException> exception_;
+    EmitterPtr _emitter;
+    ReferencePtr _reference;
+    std::auto_ptr< ::Ice::LocalException> _exception;
 
     enum
     {
@@ -51,10 +51,10 @@ private:
 	StateOK,
 	StateException,
 	StateLocalException,
-    } state_;
+    } _state;
 
-    Stream is_;
-    Stream os_;
+    Stream _is;
+    Stream _os;
 };
 
 }

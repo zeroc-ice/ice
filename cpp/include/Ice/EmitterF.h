@@ -13,18 +13,18 @@
 
 #include <Ice/Handle.h>
 
-namespace __Ice
+namespace IceInternal
 {
 
 class Emitter;
 void incRef(Emitter*);
 void decRef(Emitter*);
-typedef __Ice::Handle<Emitter> Emitter_ptr;
+typedef IceInternal::Handle<Emitter> EmitterPtr;
 
 class EmitterFactory;
 void incRef(EmitterFactory*);
 void decRef(EmitterFactory*);
-typedef __Ice::Handle<EmitterFactory> EmitterFactory_ptr;
+typedef IceInternal::Handle<EmitterFactory> EmitterFactoryPtr;
 
 }
 

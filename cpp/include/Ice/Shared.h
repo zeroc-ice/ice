@@ -13,7 +13,7 @@
 
 #include <Ice/Config.h>
 
-namespace __Ice
+namespace IceInternal
 {
 
 //
@@ -29,18 +29,18 @@ public:
 
     void __incRef()
     {
-	++ref_;
+	++_ref;
     }
 
     void __decRef()
     {
-	if(--ref_ == 0)
+	if(--_ref == 0)
 	    delete this;
     }
 
 private:
 
-    int ref_;
+    int _ref;
 };
 
 //
@@ -55,26 +55,26 @@ public:
 
     void __incRef()
     {
-	mutex_.lock();
-	++ref_;
-	mutex_.unlock();
+	_mutex.lock();
+	++_ref;
+	_mutex.unlock();
     }
 
     void __decRef()
     {
-	mutex_.lock();
+	_mutex.lock();
 	bool doDelete = false;
-	if(--ref_ == 0)
+	if(--_ref == 0)
 	    doDelete = true;
-	mutex_.unlock();
+	_mutex.unlock();
 	if(doDelete)
 	    delete this;
     }
 
 private:
 
-    int ref_;
-    JTCMutex mutex_;
+    int _ref;
+    JTCMutex _mutex;
 };
 
 }
