@@ -126,6 +126,10 @@ SOURCE=.\Thread.cpp
 
 SOURCE=.\Unicode.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\UUID.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -185,6 +189,10 @@ SOURCE=..\..\include\IceUtil\Thread.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\Unicode.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\IceUtil\UUID.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
