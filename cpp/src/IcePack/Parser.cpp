@@ -146,7 +146,8 @@ IcePack::Parser::getInput(char* buf, int& result, int maxSize)
 	}
 	else
 	{
-	    result = std::min(maxSize, static_cast<int>(_commands.length()));
+	    // COMPILERBUG: Stupid Visual C++ defined min and max as macros
+	    result = _MIN(maxSize, static_cast<int>(_commands.length()));
 	    strncpy(buf, _commands.c_str(), result);
 	    _commands.erase(0, result);
 	    if (_commands.empty())
@@ -202,7 +203,7 @@ IcePack::Parser::getInput(char* buf, int& result, int maxSize)
 	    }
 	}
 	
-	result = strlen(line);
+	result = line.length();
 	if (result > maxSize)
 	{
 	    error("input line too long");
@@ -348,7 +349,7 @@ IcePack::Parser::parse(FILE* file, bool debug)
     parser = this;
 
     _errors = 0;
-    _commands.clear();
+    _commands.empty();
     yyin = file;
     assert(yyin);
 
