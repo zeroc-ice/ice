@@ -13,3 +13,6 @@ all:
 
 clean:
 	ant -emacs clean
+
+test::
+	@python ./allTests.py
