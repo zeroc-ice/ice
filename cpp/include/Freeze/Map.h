@@ -239,9 +239,9 @@ private:
     // avoids problems in certain situations. For example, if
     // _ref.second is an STL container and you use an STL algorithm
     // such as transform, STLport (debug build) asserts that the
-    // addresses of the containers are the same. This would fail
-    // if the same value was not returned on subsequent calls
-    // to operator->().
+    // addresses of the containers are the same. This would fail if
+    // the same value was not returned on subsequent calls to
+    // operator->().
     //
     mutable value_type _ref;
     mutable bool _refValid;
@@ -462,9 +462,9 @@ private:
     // avoids problems in certain situations. For example, if
     // _ref.second is an STL container and you use an STL algorithm
     // such as transform, STLport (debug build) asserts that the
-    // addresses of the containers are the same. This would fail if
-    // the same value was not returned on subsequent calls to
-    // operator->().
+    // addresses of the containers are the same. This would fail
+    // if the same value was not returned on subsequent calls
+    // to operator->().
     //
     mutable value_type _ref;
     mutable bool _refValid;
@@ -519,7 +519,6 @@ public:
     }
 
 #ifdef __STL_MEMBER_TEMPLATES
-
     template <class _InputIterator>
     DBMap(const DBPtr& db, _InputIterator first, _InputIterator last) :
 	_db(db)
@@ -530,9 +529,7 @@ public:
 	    ++first;
 	}
     }
-
 #else
-
     DBMap(const DBPtr& db, const value_type* first, const value_type* last) :
 	_db(db)
     {
@@ -551,7 +548,6 @@ public:
 	    ++first;
 	}
     }
-
 #endif /*__STL_MEMBER_TEMPLATES */
 
     ~DBMap()
@@ -828,13 +824,13 @@ public:
     size_type count(const key_type& key) const
     {
 	if(find(key) != end())
-	{
+        {
 	    return 1;
-	}
-	else
-	{
-	    return 0;
-	}
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     std::pair<iterator, iterator> equal_range(const key_type& key)
@@ -847,76 +843,6 @@ public:
     {
 	const_iterator p = find(key);
 	return std::pair<const_iterator,const_iterator>(p,p);
-    }
-
-    //
-    // Helper class used to implement operator[](key). If the function
-    // operator=(value) is invoked, then a new value is associated with
-    // the key. If operator mapped_type() is invoked, the value currently
-    // associated with the key is returned.
-    //
-    class ElementRef
-    {
-    public:
-
-        void operator=(const mapped_type& value)
-        {
-            Ice::CommunicatorPtr communicator = _db->getCommunicator();
-
-            Freeze::Key k;
-            Freeze::Value v;
-            KeyCodec::write(_key, k, communicator);
-            ValueCodec::write(value, v, communicator);
-
-            _db->put(k, v);
-        }
-
-        operator mapped_type()
-        {
-            Ice::CommunicatorPtr communicator = _db->getCommunicator();
-
-            Freeze::Key k;
-            KeyCodec::write(_key, k, communicator);
-
-            mapped_type value;
-            Freeze::Value v = _db->get(k);
-            ValueCodec::read(value, v, communicator);
-
-            return value;
-        }
-
-    private:
-
-        ElementRef(const DBPtr& db, const key_type& key) :
-            _db(db), _key(key)
-        {
-        }
-
-        DBPtr _db;
-        key_type _key;
-
-        //
-        // VC6 won't accept this:
-        // 
-        // friend class DBMap;
-        //
-        friend class DBMap<key_type, mapped_type, KeyCodec, ValueCodec>;
-    };
-
-    //
-    // The array index operator can be used to insert or replace an
-    // element, or to obtain the value associated with a key.
-    //
-    // Note that modifying the element value returned by this function
-    // has no effect on the persistent map. The only way to modify the
-    // map using this function is with the assignment operator. For
-    // example:
-    //
-    // myMap["key"] = "value";
-    //
-    ElementRef operator[](const key_type& key)
-    {
-        return ElementRef(_db, key);
     }
 
 private:

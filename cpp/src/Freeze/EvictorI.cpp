@@ -129,7 +129,7 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
     //
     // Save the new Ice Object to the database.
     //
-    _dict[ident] = servant;
+    _dict.insert(make_pair(ident, servant));
     add(ident, servant);
 
     if(_trace >= 1)
@@ -256,13 +256,9 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 	// Load the Ice Object from database and add a
 	// Servant for it.
 	//
-	ObjectPtr servant;
-        try
-        {
-            servant = _dict[current.id];
-        }
-        catch(const DBNotFoundException&)
-        {
+	IdentityObjectDict::iterator p = _dict.find(current.id);
+	if(p == _dict.end())
+	{
 	    //
             // The Ice Object with the given identity does not exist,
             // client will get an ObjectNotExistException.
@@ -273,6 +269,7 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 	//
 	// Add the new Servant to the evictor queue.
 	//
+	ObjectPtr servant = p->second;
 	element = add(current.id, servant);
 
 	//
@@ -332,7 +329,7 @@ Freeze::EvictorI::finished(const Current& current, const ObjectPtr& servant, con
     {
 	if(current.mode != Nonmutating && !element->destroyed)
 	{
-	    _dict[current.id] = servant;
+	    _dict.insert(make_pair(current.id, servant));
 	}
     }
 
@@ -407,7 +404,7 @@ Freeze::EvictorI::evict()
 	//
 	if(_persistenceMode == SaveUponEviction)
 	{
-	    _dict[ident] = element->servant;
+	    _dict.insert(make_pair(ident, element->servant));
 	}
 
 	//

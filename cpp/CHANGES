@@ -1,8 +1,6 @@
 Changes since version 1.0.0
 ---------------------------
 
-- Added support for operator[] to the Freeze Map.
-
 - Added the macro ICE_INT64 as a portable wrapper for long long
   constants.
 
@@ -27,10 +25,9 @@ Changes since version 1.0.0
 - For posix threads, PTHREAD_MUTEX_RECURSIVE_NP is now only used if
   __linux__ is defined. Otherwise, PTHREAD_MUTEX_RECURSIVE is used.
 
-- The EPROTO error code is now only if it is defined (like under
-  Linux).
+- The EPROTO error code is now only used if it is defined (such as
+  on Linux).
 
 - Several other changes that make Ice for C++ more portable.
 
 - Updated SSL test certificates. The old ones have expired.
-
