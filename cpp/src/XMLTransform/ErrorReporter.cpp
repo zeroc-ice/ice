@@ -12,6 +12,7 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Config.h>
 #include <XMLTransform/ErrorReporter.h>
 
 #include <iostream>
@@ -87,6 +88,6 @@ DOMTreeErrorReporter::toString(const XMLCh* s)
     }
     else
     {
-	return string();
+        return string();
     }
 }
