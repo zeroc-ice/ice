@@ -1,6 +1,15 @@
 Changes since version 1.5.1
 ---------------------------
 
+- The escape prefix for Slice identifiers that are used by .NET
+  framework classes has been changed from "_cs_" to "_Ice_".
+  For example, Slice "Add" now maps to C# "_Ice_Add" instead
+  of "_cs_Add".
+  In addition, the prefix is now case-insensitive, so Slice "add"
+  now maps to C# "_Ice_add" whereas, previously, it mapped to C#
+  "add". (These changes were necessary to preserve binary
+  compatibility of slice2cs and slice2vb generated code.)
+
 - The documentation has always stated that same-named constructs
   cannot be directly nested inside each other. (For example, a
   module `M' cannot contain a constant named `M'. The slice2cs
