@@ -37,6 +37,7 @@ public:
 
     LoggerWrapper(PyObject*);
 
+    virtual void print(const string&);
     virtual void trace(const string&, const string&);
     virtual void warning(const string&);
     virtual void error(const string&);
@@ -55,11 +56,22 @@ IcePy::LoggerWrapper::LoggerWrapper(PyObject* logger) :
 }
 
 void
+IcePy::LoggerWrapper::print(const string& message)
+{
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+
+    PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "print", "s", message.c_str());
+    if(tmp.get() == NULL)
+    {
+        throwPythonException();
+    }
+}
+
+void
 IcePy::LoggerWrapper::trace(const string& category, const string& message)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    cout << endl << "LoggerWrapper delegating to trace('" << category << "', '" << message << "')" << endl;
     PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), "trace", "ss", category.c_str(), message.c_str());
     if(tmp.get() == NULL)
     {
@@ -114,6 +126,33 @@ loggerDealloc(LoggerObject* self)
 {
     delete self->logger;
     PyObject_Del(self);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+loggerPrint(LoggerObject* self, PyObject* args)
+{
+    char* message;
+    if(!PyArg_ParseTuple(args, "s", &message))
+    {
+        return NULL;
+    }
+
+    assert(self->logger);
+    try
+    {
+        (*self->logger)->print(message);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 #ifdef WIN32
@@ -200,6 +239,8 @@ loggerError(LoggerObject* self, PyObject* args)
 
 static PyMethodDef LoggerMethods[] =
 {
+    { "_print", (PyCFunction)loggerPrint, METH_VARARGS,
+        PyDoc_STR("_print(message) -> None") },
     { "trace", (PyCFunction)loggerTrace, METH_VARARGS,
         PyDoc_STR("trace(category, message) -> None") },
     { "warning", (PyCFunction)loggerWarning, METH_VARARGS,
@@ -255,7 +296,7 @@ PyTypeObject LoggerType =
     0,                              /* tp_dictoffset */
     0,                              /* tp_init */
     0,                              /* tp_alloc */
-    (newfunc)loggerNew,         /* tp_new */
+    (newfunc)loggerNew,             /* tp_new */
     0,                              /* tp_free */
     0,                              /* tp_is_gc */
 };
