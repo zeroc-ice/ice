@@ -49,5 +49,5 @@ public interface ObjectPrx
 
     public void ice_flush();
 
-    public boolean equals(ObjectPrx r);
+    public boolean equals(java.lang.Object r);
 }

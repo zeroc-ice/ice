@@ -13,6 +13,12 @@ package Ice;
 public class ObjectPrxHelper implements ObjectPrx
 {
     public final int
+    hashCode()
+    {
+        return _reference.hashValue;
+    }
+
+    public final int
     ice_hash()
     {
         return _reference.hashValue;
@@ -291,7 +297,7 @@ public class ObjectPrxHelper implements ObjectPrx
     }
 
     public final boolean
-    equals(ObjectPrx r)
+    equals(java.lang.Object r)
     {
         ObjectPrxHelper rhs = (ObjectPrxHelper)r;
         return _reference.equals(rhs._reference);
