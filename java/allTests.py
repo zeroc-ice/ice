@@ -33,6 +33,7 @@ tests = [ \
     "Freeze/cursor", \
     "Freeze/dbmap", \
     "Freeze/complex", \
+    "Glacier/starter", \
     ]
 
 #
