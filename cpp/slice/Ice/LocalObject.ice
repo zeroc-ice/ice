@@ -10,7 +10,7 @@
 
 //
 // This file is not used in the Ice core. It is only for documentation
-// purposes, and for tool suchs as <literal>slice2pythonext</literal>.
+// purposes, and for tool such as <literal>slice2pythonext</literal>.
 //
 
 #ifndef ICE_LOCAL_OBJECT_ICE

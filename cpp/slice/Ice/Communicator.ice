@@ -62,7 +62,7 @@ local interface Communicator
      *
      * <important><para>Shutdown is the only operation that is
      * signal-safe, i.e., it is safe to call this operation from a
-     * Unix signal handler. No other Ice operation must be called from
+     * Unix signal handler. No other Ice operation can be called from
      * a Unix signal handler.</para></important>
      *
      * <note><para> Shutdown is not immediate, i.e., after [shutdown]

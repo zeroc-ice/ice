@@ -236,7 +236,7 @@ local interface ObjectAdapter
      * Look up a Servant in this Object Adapter's Active Servant Map
      * by the identity of the Ice Object it implements.
      *
-     * <note><para>This operation does only try to lookup a Servant in
+     * <note><para>This operation only tries to lookup a Servant in
      * the Active Servant Map. It does not attempt to find a Servant
      * by using any installed [ServantLocator].</para></note>
      *
@@ -256,7 +256,7 @@ local interface ObjectAdapter
      * Look up a Servant in this Object Adapter's Active Servant Map,
      * given a Proxy.
      *
-     * <note><para>This operation does only try to lookup a Servant in
+     * <note><para>This operation only tries to lookup a Servant in
      * the Active Servant Map. It does not attempt to find a Servant
      * via any installed [ServantLocator]s.</para></note>
      *

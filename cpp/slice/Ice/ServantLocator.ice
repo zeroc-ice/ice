@@ -19,9 +19,9 @@ module Ice
 /**
  *
  * The Servant Locator, which is called by the Object Adapter to
- * locate Servants, which it doesn't find in its Active Servant
+ * locate a Servant which is not found in its Active Servant
  * Map. The Servant Locator must be set with
- * [ObjectAdapter::setServantLocator] operation.
+ * [ObjectAdapter::addServantLocator] operation.
  *
  * @see ObjectAdapter
  *
@@ -37,8 +37,8 @@ local interface ServantLocator
      * Servant Map. This must be done by the Servant Locator's
      * implementation, if this is desired.
      *
-     * <important><para>If you call [locate] from our own code, you
-     * must also call [finished] when you are done with using the
+     * <important><para>If you call [locate] from your own code, you
+     * must also call [finished] when you have finished using the
      * Servant, provided that a non-null Servant was
      * returned. Otherwise you will get undefined behavior if you use
      * Servant Locators such as the
@@ -90,8 +90,8 @@ local interface ServantLocator
 
     /**
      *
-     * Called when the Object Adapter this Servant Locator is
-     * installed with is deactivated.
+     * Called when the Object Adapter in which this Servant Locator is
+     * installed is deactivated.
      *
      * @see ObjectAdapter::deactivate
      * @see Communicator::shutdown
