@@ -1156,7 +1156,6 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 
     string name = fixId(p->name());
     ParamDeclList paramList = p->parameters();
-    ParamDeclList::const_iterator q;
     vector<string> params;
     vector<string> args;
     string retS;
