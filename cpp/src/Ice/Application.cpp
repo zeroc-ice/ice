@@ -176,6 +176,15 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 
     try
     {
+	//
+	// Ignore signals for a little while.
+	//
+	//
+	// Note that the communicator must be created BEFORE the communicator,
+	// since the communicator initialization may create threads.
+	//
+	_ctrlCHandler.reset(new IceUtil::CtrlCHandler);
+
 	if(configFile)
 	{
 	    PropertiesPtr properties = createProperties(argc, argv);
@@ -186,17 +195,12 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	{
 	    _communicator = initialize(argc, argv);
 	}
-	
-	//
-	// Ignore signals for a little while.
-	//
-	_ctrlCHandler.reset(new IceUtil::CtrlCHandler);
-	
+
 	//
 	// Used by destroyOnInterruptCallback and shutdownOnInterruptCallback.
 	//
 	_nohup = (_communicator->getProperties()->getPropertyAsInt("Ice.Nohup") > 0);
-
+	
 	//
 	// The default is to destroy when a signal is received.
 	//
