@@ -999,9 +999,11 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    {
 		Facet facet = (Facet) allObjects.get(i);
 
-		boolean tryAgain = false;
+		boolean tryAgain;
+	
 		do
 		{
+		    tryAgain = false;
 		    Ice.Object servant = null;
 
 		    synchronized(facet)
@@ -1144,14 +1146,19 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				    }
 				}
 			    }
+			    
+			    com.sleepycat.db.DbTxn toCommit = tx;
+			    tx = null;
+			    toCommit.commit(0);
 			}
-			catch(com.sleepycat.db.DbException dx)
+			finally
 			{
-			    tx.abort();
-			    throw dx;
+			    if(tx != null)
+			    {
+				tx.abort();
+			    }
 			}
-			tx.commit(0);
-			
+   
 			for(int i = 0; i < txSize; i++)
 			{
 			    streamedObjectQueue.remove(0);
