@@ -106,7 +106,7 @@ IceUtil::Time::toString() const
 #endif
 
     char buf[32];
-    strftime(buf, sizeof(buf), "%Y %H:%M:%S", t);
+    strftime(buf, sizeof(buf), "%x %H:%M:%S", t);
 
     std::ostringstream os;
     os << buf << ":";
