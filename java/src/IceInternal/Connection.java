@@ -289,7 +289,7 @@ public final class Connection extends EventHandler
             //
             // We are registered with a thread pool in active and closing
             // mode. However, we only change subscription if we're in active
-            // mode, and thus ignore closing mode here.k
+            // mode, and thus ignore closing mode here.
             //
             if (_state == StateActive)
             {
@@ -944,9 +944,19 @@ public final class Connection extends EventHandler
     {
         java.io.StringWriter sw = new java.io.StringWriter();
         java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        ex.printStackTrace(pw);
+        Throwable t = ex;
+        do
+        {
+            t.printStackTrace(pw);
+            t = t.getCause();
+            if (t != null)
+            {
+                pw.println("Caused by:\n");
+            }
+        }
+        while (t != null);
         pw.flush();
-        String s = msg + ":\n" + sw.toString() + '\n' + _transceiver.toString();
+        String s = msg + ":\n" + sw.toString() + _transceiver.toString();
         _logger.warning(s);
     }
 
