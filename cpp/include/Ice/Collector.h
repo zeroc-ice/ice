@@ -98,6 +98,8 @@ public:
     void hold();
     void activate();
 
+    Endpoint endpoint() const;
+
     //
     // Operations from EventHandlerI
     //

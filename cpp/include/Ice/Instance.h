@@ -29,6 +29,7 @@ class ICE_API InstanceI : public Shared, public JTCMutex
 {
 public:
 
+    ::Ice::Communicator communicator();
     ::Ice::Properties properties();
     ::Ice::Logger logger();
     void logger(const ::Ice::Logger&);
@@ -39,11 +40,12 @@ public:
     
 private:
 
-    InstanceI(const ::Ice::Properties&);
+    InstanceI(const ::Ice::Communicator&, const ::Ice::Properties&);
     virtual ~InstanceI();
     void destroy();
     friend class ::Ice::CommunicatorI; // May create and destroy InstanceIs
 
+    ::Ice::Communicator communicator_;
     ::Ice::Properties properties_;
     ::Ice::Logger logger_;
     TraceLevels traceLevels_;

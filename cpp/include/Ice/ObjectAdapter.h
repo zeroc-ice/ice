@@ -13,7 +13,9 @@
 
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/InstanceF.h>
+#include <Ice/CommunicatorF.h>
 #include <Ice/CollectorF.h>
+#include <Ice/StubF.h>
 #include <Ice/SkeletonF.h>
 #include <Ice/LocalException.h>
 #include <Ice/Shared.h>
@@ -22,13 +24,12 @@
 namespace Ice
 {
 
-class CommunicatorI;
-
 class ICE_API ObjectAdapterI : virtual public ::__Ice::Shared, public JTCMutex
 {
 public:
 
     std::string name() const;
+    Communicator communicator() const;
 
     void activate();
     void hold();
@@ -36,6 +37,10 @@ public:
 
     void add(const ::IceServant::Ice::Object&, const std::string&);
     void remove(const std::string&);
+    std::string identity(const ::IceServant::Ice::Object&);
+    ::IceServant::Ice::Object servant(const std::string&);
+
+    Object object(const std::string&);
 
     ::__Ice::Instance __instance() const;
     ::IceServant::Ice::Object __findServant(const std::string&) const;

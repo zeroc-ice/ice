@@ -13,6 +13,7 @@
 
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/InstanceF.h>
+#include <Ice/ReferenceF.h>
 #include <Ice/StubF.h>
 #include <Ice/Shared.h>
 
@@ -25,9 +26,10 @@ class ICE_API ObjectFactoryI : public Shared
 {
 public:
     
-    ::Ice::Object referenceFromString(const std::string&);
-    ::Ice::Object referenceFromStream(Stream*);
-    void referenceToStream(const ::Ice::Object&, Stream*);
+    ::Ice::Object stringToObject(const std::string&);
+    ::Ice::Object streamToObject(Stream*);
+    ::Ice::Object referenceToObject(const Reference&);
+    void objectToStream(const ::Ice::Object&, Stream*);
 
 private:
 

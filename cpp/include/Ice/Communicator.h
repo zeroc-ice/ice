@@ -31,7 +31,7 @@ public:
     void shutdown();
     void waitForShutdown();
 
-    Object referenceFromString(const std::string&);
+    Object stringToObject(const std::string&);
 
     ObjectAdapter createObjectAdapter(const std::string&);
     ObjectAdapter createObjectAdapter(const std::string&, const std::string&);
