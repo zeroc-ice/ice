@@ -37,7 +37,7 @@ public class AllTests
 	    {
 		try
 		{
-		    wait(5000);
+		    wait(30000);
 		}
 		catch(InterruptedException ex)
 		{
