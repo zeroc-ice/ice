@@ -19,6 +19,13 @@ ice_home = os.environ['ICE_HOME']
 
 icePackPort = "0";
 
+#
+# We need to override the Java version of Ice.Plugin.IceSSL
+#
+overrideSSL = r''
+if TestUtil.protocol == "ssl":
+    overrideSSL = r' --Ice.Plugin.IceSSL=IceSSL:create'
+
 class ReaderThread(Thread):
     def __init__(self, pipe, token):
         self.pipe = pipe
@@ -42,7 +49,7 @@ class ReaderThread(Thread):
 
 def startIcePackRegistry(port, testdir):
 
-    global icePackPort
+    global icePackPort, overrideSSL
 
     icePackPort = port
     
@@ -60,7 +67,8 @@ def startIcePackRegistry(port, testdir):
               r' --IcePack.Registry.Admin.Endpoints=default' + \
               r' --IcePack.Registry.Data=' + dataDir + \
               r' --IcePack.Registry.DynamicRegistration' + \
-              r' --Ice.ProgramName=icepackregistry'
+              r' --Ice.ProgramName=icepackregistry' + \
+              overrideSSL
 
     (stdin, icePackPipe) = os.popen4(command)
     TestUtil.getAdapterReady(icePackPipe)
@@ -95,7 +103,8 @@ def startIcePackNode(testdir):
               r' --IcePack.Node.Trace.Activator=0' + \
               r' --IcePack.Node.Trace.Adapter=0' + \
               r' --IcePack.Node.Trace.Server=0' + \
-              r' --IcePack.Node.PrintServersReady=node'
+              r' --IcePack.Node.PrintServersReady=node' + \
+              overrideSSL
     
     (stdin, icePackPipe) = os.popen4(command)
     TestUtil.getAdapterReady(icePackPipe)
@@ -113,7 +122,7 @@ def shutdownIcePackRegistry():
 
     print "shutting down icepack registry...",
     command = icePackAdmin + TestUtil.clientOptions + \
-              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
+              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + overrideSSL + \
               r' -e "shutdown" ' + " 2>&1"
 
     icePackAdminPipe = os.popen(command)
@@ -131,7 +140,7 @@ def shutdownIcePackNode():
 
     print "shutting down icepack node...",
     command = icePackAdmin + TestUtil.clientOptions + \
-              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
+              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + overrideSSL + \
               r' -e "node shutdown localnode" ' + " 2>&1"
 
     icePackAdminPipe = os.popen(command)
@@ -149,7 +158,7 @@ def addApplication(descriptor, options):
 
     descriptor = descriptor.replace("\\", "/")
     command = icePackAdmin + TestUtil.clientOptions + \
-              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
+              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + overrideSSL + \
               r' -e "application add \"' + descriptor + '\\" ' + options + ' \"' + " 2>&1"
 
     icePackAdminPipe = os.popen(command)
@@ -166,8 +175,8 @@ def removeApplication(descriptor):
 
     descriptor = descriptor.replace("\\", "/")
     command = icePackAdmin + TestUtil.clientOptions + \
-              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "application remove \"' + descriptor + '\\" \"' + " 2>&1"
+              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + overrideSSL + \
+              r' -e "application remove \"' + descriptor + '\\" \"' + overrideSSL + " 2>&1"
 
     icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
@@ -183,7 +192,7 @@ def addServer(serverDescriptor, options):
 
     serverDescriptor = serverDescriptor.replace("\\", "/");
     command = icePackAdmin + TestUtil.clientOptions + \
-              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
+              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + overrideSSL + \
               r' -e "server add ' + serverDescriptor + ' localnode ' + \
               r' ' + options + '\"' + " 2>&1"
 
@@ -200,7 +209,7 @@ def removeServer(name):
     icePackAdmin = os.path.join(ice_home, "bin", "icepackadmin")
 
     command = icePackAdmin + TestUtil.clientOptions + \
-              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
+              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + overrideSSL + \
               r' -e "server remove \"' + name + '\\" \"' + " 2>&1"
 
     icePackAdminPipe = os.popen(command)
@@ -216,7 +225,7 @@ def startServer(name):
     icePackAdmin = os.path.join(ice_home, "bin", "icepackadmin")
 
     command = icePackAdmin + TestUtil.clientOptions + \
-              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
+              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + overrideSSL + \
               r' -e "server start \"' + name + '\\""' + " 2>&1"
 
     icePackAdminPipe = os.popen(command)
@@ -232,7 +241,7 @@ def listAdapters():
     icePackAdmin = os.path.join(ice_home, "bin", "icepackadmin")
 
     command = icePackAdmin + TestUtil.clientOptions + \
-              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
+              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + overrideSSL + \
               r' -e "adapter list"' + " 2>&1"
 
     icePackAdminPipe = os.popen(command)

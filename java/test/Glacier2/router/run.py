@@ -28,6 +28,13 @@ ice_home = os.environ['ICE_HOME']
 
 router = os.path.join(ice_home, "bin", "glacier2router")
 
+#
+# We need to override the Java version of Ice.Plugin.IceSSL
+#
+overrideSSL = r''
+if TestUtil.protocol == "ssl":
+    overrideSSL = r' --Ice.Plugin.IceSSL=IceSSL:create' 
+
 command = router + TestUtil.clientServerOptions + \
           r' --Ice.PrintProcessId' \
           r' --Glacier2.AllowCategories="c1 c2"' + \
@@ -37,7 +44,7 @@ command = router + TestUtil.clientServerOptions + \
           r' --Glacier2.Client.Endpoints="default -p 12347 -t 10000"' + \
           r' --Glacier2.Server.Endpoints="tcp -h 127.0.0.1 -t 10000"' \
           r' --Glacier2.Admin.Endpoints="tcp -h 127.0.0.1 -p 12348 -t 10000"' + \
-          r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/router/passwords"'
+          r' --Glacier2.CryptPasswords="' + toplevel + r'/test/Glacier2/router/passwords"' + overrideSSL
 
 print "starting router...",
 starterPipe = os.popen(command)

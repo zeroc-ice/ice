@@ -29,6 +29,13 @@ ice_home = os.environ['ICE_HOME']
 starter = os.path.join(ice_home, "bin", "glacierstarter")
 router = os.path.join(ice_home, "bin", "glacierrouter")
 
+#
+# We need to override the Java version of Ice.Plugin.IceSSL
+#
+overrideSSL = r''
+if TestUtil.protocol == "ssl":
+    overrideSSL = r' --Ice.Plugin.IceSSL=IceSSL:create' 
+
 command = starter + TestUtil.clientServerOptions + \
           r' --Ice.PrintProcessId' \
           r' --Glacier.Starter.RouterPath=' + router + \
@@ -37,7 +44,7 @@ command = starter + TestUtil.clientServerOptions + \
           r' --Glacier.Starter.Endpoints="default -p 12346 -t 30000"' + \
           r' --Glacier.Router.Endpoints="default"' + \
           r' --Glacier.Router.Client.Endpoints="default"' + \
-          r' --Glacier.Router.Server.Endpoints="tcp"' + " 2>&1"
+          r' --Glacier.Router.Server.Endpoints="tcp"' + overrideSSL + " 2>&1"
 
 print "starting glacier starter...",
 starterPipe = os.popen(command)
