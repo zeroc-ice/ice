@@ -31,7 +31,7 @@ Parser::usage()
         "exit, quit              Exit this program.\n"
         "add isbn title authors  Create new book.\n"
         "isbn NUMBER             Find the book with given ISBN number.\n"
-        "authors NAME            Find all books with the given authors.\n"
+        "authors NAME            Find all books by the given authors.\n"
         "next                    Set the current book to the next one that was found.\n"
         "current                 Display the current book.\n"
         "rent NAME               Rent the current book for customer NAME.\n"
@@ -52,7 +52,7 @@ Parser::addBook(const list<string>& _args)
 {
     if (_args.size() != 3)
     {
-	error("`add' requires at least three arguments (type `help' for more info)");
+	error("`add' requires at exactly three arguments (type `help' for more info)");
 	return;
     }
 
@@ -76,7 +76,7 @@ Parser::addBook(const list<string>& _args)
     }
     catch(const BookExistsException&)
     {
-	error("The book already exists.");
+	error("the book already exists.");
     }
     catch(const Exception& ex)
     {
@@ -98,11 +98,12 @@ Parser::findIsbn(const list<string>& args)
     try
     {
 	_foundBooks.clear();
+	_current = _foundBooks.begin();
 
 	BookPrx book = _library->findByIsbn(args.front());
 	if (!book)
 	{
-	    cout << "No book with that ISBN number exists." << endl;
+	    cout << "no book with that ISBN number exists." << endl;
 	}
 	else
 	{
@@ -136,6 +137,7 @@ Parser::findAuthors(const list<string>& args)
     {
 	_foundBooks = _library->findByAuthors(args.front());
 	_current = _foundBooks.begin();
+	cout << "number of books found: " << _foundBooks.size() << endl;
 	printCurrent();
     }
     catch(const DatabaseException& ex)
@@ -188,7 +190,7 @@ Parser::printCurrent()
 	}
 	else
 	{
-	    cout << "No current book" << endl;
+	    cout << "no current book" << endl;
 	}
     }
     catch(const Exception& ex)
@@ -213,16 +215,16 @@ Parser::rentCurrent(const list<string>& args)
 	if (_current != _foundBooks.end())
 	{
 	    (*_current)->rentBook(args.front());
-	    cout << "The book is now rented by `" << args.front() << "'" << endl;
+	    cout << "the book is now rented by `" << args.front() << "'" << endl;
 	}
 	else
 	{
-	    cout << "No current book" << endl;
+	    cout << "no current book" << endl;
 	}
     }
     catch(const BookRentedException&)
     {
-	cout << "The book has already been rented." << endl;
+	cout << "the book has already been rented." << endl;
     }
     catch(const DatabaseException& ex)
     {
@@ -244,16 +246,16 @@ Parser::returnCurrent()
 	if (_current != _foundBooks.end())
 	{
 	    (*_current)->returnBook();
-	    cout << "The book has been returned." << endl;
+	    cout << "the book has been returned." << endl;
 	}
 	else
 	{
-	    cout << "No current book" << endl;
+	    cout << "no current book" << endl;
 	}
     }
     catch(const BookNotRentedException&)
     {
-	cout << "The book is not current rented." << endl;
+	cout << "the book is not currently rented." << endl;
     }
     catch(const DatabaseException& ex)
     {
@@ -279,7 +281,7 @@ Parser::removeCurrent()
 	}
 	else
 	{
-	    cout << "No current book" << endl;
+	    cout << "no current book" << endl;
 	}
     }
     catch(const DatabaseException& ex)

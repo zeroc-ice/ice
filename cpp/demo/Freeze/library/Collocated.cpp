@@ -40,7 +40,7 @@ LibraryCollocated::runFreeze(int argc, char* argv[], const Freeze::DBEnvironment
     string value;
     
     Freeze::DBPtr dbBooks = dbEnv->openDB("books", true);
-    Freeze::DBPtr dbAuthor = dbEnv->openDB("authors", true);
+    Freeze::DBPtr dbAuthors = dbEnv->openDB("authors", true);
     
     //
     // Create an Evictor for books.
@@ -72,7 +72,7 @@ LibraryCollocated::runFreeze(int argc, char* argv[], const Freeze::DBEnvironment
     //
     // Create the library, and add it to the Object Adapter.
     //
-    LibraryIPtr library = new LibraryI(adapter, dbAuthor, evictor);
+    LibraryIPtr library = new LibraryI(adapter, dbAuthors, evictor);
     adapter->add(library, Ice::stringToIdentity("library"));
     
     //

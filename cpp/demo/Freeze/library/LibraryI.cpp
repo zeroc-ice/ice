@@ -149,7 +149,6 @@ LibraryI::createBook(const ::BookDescription& description, const Ice::Current&)
     BookPrx book = IsbnToBook(_adapter)(description.isbn);
     try
     {
-	book = IsbnToBook(_adapter)(description.isbn);
 	book->ice_ping();
 
 	//
@@ -167,9 +166,19 @@ LibraryI::createBook(const ::BookDescription& description, const Ice::Current&)
     BookPtr bookI = new BookI(this, _evictor);
     bookI->_description = description;
 
+    //
+    // Create a new Ice Object in the evictor, using the new identity
+    // and the new Servant.
+    //
+    // This can throw EvictorDeactivatedException (which indicates an
+    // internal error). The exception is currently ignored.
+    //
     Ice::Identity ident = BookI::createIdentity(description.isbn);
     _evictor->createObject(ident, bookI);
 
+    //
+    // Add the isbn number to the authors map.
+    //
     Ice::StringSeq isbnSeq;
 
     StringIsbnSeqDict::iterator p =  _authors.find(description.authors);
@@ -195,7 +204,6 @@ LibraryI::findByIsbn(const string& isbn, const Ice::Current&)
 
     try
     {
-	Ice::Identity ident = BookI::createIdentity(isbn);
 	BookPrx book = IsbnToBook(_adapter)(isbn);
 	book->ice_ping();
 	return book;
@@ -263,16 +271,26 @@ LibraryI::remove(const BookDescription& description)
 	    throw Freeze::DBNotFoundException(__FILE__, __LINE__);
 	}
 
+	//
+	// Remove the isbn number from the sequence.
+	//
 	Ice::StringSeq isbnSeq  = p->second;
 	isbnSeq.erase(remove_if(isbnSeq.begin(), isbnSeq.end(), bind2nd(equal_to<string>(), description.isbn)),
 			 isbnSeq.end());
 	
 	if (isbnSeq.empty())
 	{
+	    //
+	    // If there are no further associated isbn numbers then remove
+	    // the record.
+	    //
 	    _authors.erase(p);
 	}
 	else
 	{
+	    //
+	    // Otherwise, write back the new record.
+	    //
 	    _authors.insert(make_pair(description.authors, isbnSeq));
 	}
     }
