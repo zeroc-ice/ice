@@ -370,7 +370,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out << se("dumpdb");
 
         FreezeScript::SliceVisitor visitor(out, keyType, valueType, selectExpr);
-        unit->visit(&visitor);
+        unit->visit(&visitor, false);
 
         out << ee;
 

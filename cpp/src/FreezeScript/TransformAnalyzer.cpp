@@ -1128,10 +1128,10 @@ FreezeScript::TransformAnalyzer::analyze(const TypePtr& oldKey, const TypePtr& n
 
     AnalyzeTransformVisitor transformVisitor(out, _new, oldKey, newKey, oldValue, newValue, _ignoreTypeChanges,
                                              missingTypes, errors);
-    _old->visit(&transformVisitor);
+    _old->visit(&transformVisitor, false);
 
     AnalyzeInitVisitor initVisitor(out, _old);
-    _new->visit(&initVisitor);
+    _new->visit(&initVisitor, false);
 
     out << ee;
     out << '\n';

@@ -239,40 +239,40 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
-    p->visit(&proxyDeclVisitor);
+    p->visit(&proxyDeclVisitor, false);
 
     ObjectDeclVisitor objectDeclVisitor(H, C, _dllExport);
-    p->visit(&objectDeclVisitor);
+    p->visit(&objectDeclVisitor, false);
 
     IceInternalVisitor iceInternalVisitor(H, C, _dllExport);
-    p->visit(&iceInternalVisitor);
+    p->visit(&iceInternalVisitor, false);
 
     HandleVisitor handleVisitor(H, C, _dllExport);
-    p->visit(&handleVisitor);
+    p->visit(&handleVisitor, false);
 
     TypesVisitor typesVisitor(H, C, _dllExport);
-    p->visit(&typesVisitor);
+    p->visit(&typesVisitor, false);
 
     AsyncVisitor asyncVisitor(H, C, _dllExport);
-    p->visit(&asyncVisitor);
+    p->visit(&asyncVisitor, false);
 
     AsyncImplVisitor asyncImplVisitor(H, C, _dllExport);
-    p->visit(&asyncImplVisitor);
+    p->visit(&asyncImplVisitor, false);
 
     ProxyVisitor proxyVisitor(H, C, _dllExport);
-    p->visit(&proxyVisitor);
+    p->visit(&proxyVisitor, false);
 
     DelegateVisitor delegateVisitor(H, C, _dllExport);
-    p->visit(&delegateVisitor);
+    p->visit(&delegateVisitor, false);
 
     DelegateMVisitor delegateMVisitor(H, C, _dllExport);
-    p->visit(&delegateMVisitor);
+    p->visit(&delegateMVisitor, false);
 
     DelegateDVisitor delegateDVisitor(H, C, _dllExport);
-    p->visit(&delegateDVisitor);
+    p->visit(&delegateDVisitor, false);
 
     ObjectVisitor objectVisitor(H, C, _dllExport);
-    p->visit(&objectVisitor);
+    p->visit(&objectVisitor, false);
 
     if(_impl)
     {
@@ -291,7 +291,7 @@ Slice::Gen::generate(const UnitPtr& p)
         implC << _base << "I.h>";
 
         ImplVisitor implVisitor(implH, implC, _dllExport);
-        p->visit(&implVisitor);
+        p->visit(&implVisitor, false);
     }
 
     if(_checksum)

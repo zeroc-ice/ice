@@ -1399,7 +1399,7 @@ void
 Slice::JavaGenerator::validateMetaData(const UnitPtr& unit)
 {
     MetaDataVisitor visitor;
-    unit->visit(&visitor);
+    unit->visit(&visitor, false);
 }
 
 bool

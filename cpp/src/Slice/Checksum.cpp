@@ -312,7 +312,7 @@ Slice::createChecksums(const UnitPtr& unit)
     ChecksumMap result;
 
     ChecksumVisitor visitor(result);
-    unit->visit(&visitor);
+    unit->visit(&visitor, false);
 
     return result;
 }

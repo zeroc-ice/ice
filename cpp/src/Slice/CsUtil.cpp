@@ -760,7 +760,7 @@ void
 Slice::CsGenerator::validateMetaData(const UnitPtr& unit)
 {
     MetaDataVisitor visitor;
-    unit->visit(&visitor);
+    unit->visit(&visitor, false);
 }
 
 bool

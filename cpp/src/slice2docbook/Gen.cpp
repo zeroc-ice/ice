@@ -58,7 +58,7 @@ Slice::Gen::generate(const UnitPtr& p)
     //
     p->sortContents();
 
-    p->visit(this);
+    p->visit(this, false);
 }
 
 bool

@@ -237,7 +237,7 @@ public:
     virtual void destroy();
     UnitPtr unit() const;
     DefinitionContextPtr definitionContext() const; // May be nil
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
 
 protected:
 
@@ -417,7 +417,7 @@ public:
     void mergeModules();
     void sort();
     void sortContents();
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
     bool checkIntroduced(const std::string&, ContainedPtr = 0);
@@ -447,7 +447,7 @@ public:
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
 
 protected:
 
@@ -492,7 +492,7 @@ public:
     virtual bool usesClasses() const;
     virtual size_t minWireSize() const;
     virtual bool isVariableLength() const;
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
     virtual std::string kindOf() const;
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
@@ -549,7 +549,7 @@ public:
     bool returnsClasses() const;
     bool returnsData() const;
     virtual std::string kindOf() const;
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
 
 protected:
 
@@ -598,7 +598,7 @@ public:
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
 
 protected:
 
@@ -658,7 +658,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     bool usesClasses() const;
     virtual std::string kindOf() const;
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
 
 protected:
 
@@ -686,7 +686,7 @@ public:
     virtual size_t minWireSize() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
 protected:
@@ -710,7 +710,7 @@ public:
     virtual size_t minWireSize() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
 protected:
@@ -737,7 +737,7 @@ public:
     virtual size_t minWireSize() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
     static bool legalKeyType(const TypePtr&);
@@ -768,7 +768,7 @@ public:
     virtual size_t minWireSize() const;
     virtual bool isVariableLength() const;
     virtual std::string kindOf() const;
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
     virtual void recDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
 protected:
@@ -814,7 +814,7 @@ public:
     virtual bool uses(const ContainedPtr&) const;
     virtual ContainedType containedType() const;
     virtual std::string kindOf() const;
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
 
     static bool isLegalType(const std::string&, const TypePtr&, const UnitPtr&);
     static bool typesAreCompatible(const std::string&, const TypePtr&,
@@ -843,7 +843,7 @@ public:
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
 
 protected:
 
@@ -866,7 +866,7 @@ public:
     virtual ContainedType containedType() const;
     virtual bool uses(const ContainedPtr&) const;
     virtual std::string kindOf() const;
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
 
 protected:
     
@@ -936,7 +936,7 @@ public:
     int parse(FILE*, bool, bool = true); // TODO: remove third parameter once global definitions are outlawed.
 
     virtual void destroy();
-    virtual void visit(ParserVisitor*);
+    virtual void visit(ParserVisitor*, bool);
 
     BuiltinPtr builtin(Builtin::Kind); // Not const, as builtins are created on the fly. (Lazy initialization.)
 

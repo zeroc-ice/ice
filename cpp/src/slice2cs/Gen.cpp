@@ -856,52 +856,52 @@ Slice::Gen::generate(const UnitPtr& p)
     CsGenerator::validateMetaData(p);
 
     TypesVisitor typesVisitor(_out);
-    p->visit(&typesVisitor);
+    p->visit(&typesVisitor, false);
 
     ProxyVisitor proxyVisitor(_out);
-    p->visit(&proxyVisitor);
+    p->visit(&proxyVisitor, false);
 
     OpsVisitor opsVisitor(_out);
-    p->visit(&opsVisitor);
+    p->visit(&opsVisitor, false);
 
     HelperVisitor helperVisitor(_out);
-    p->visit(&helperVisitor);
+    p->visit(&helperVisitor, false);
 
     DelegateVisitor delegateVisitor(_out);
-    p->visit(&delegateVisitor);
+    p->visit(&delegateVisitor, false);
 
     DelegateMVisitor delegateMVisitor(_out);
-    p->visit(&delegateMVisitor);
+    p->visit(&delegateMVisitor, false);
 
     DelegateDVisitor delegateDVisitor(_out);
-    p->visit(&delegateDVisitor);
+    p->visit(&delegateDVisitor, false);
 
     DispatcherVisitor dispatcherVisitor(_out);
-    p->visit(&dispatcherVisitor);
+    p->visit(&dispatcherVisitor, false);
 
     AsyncVisitor asyncVisitor(_out);
-    p->visit(&asyncVisitor);
+    p->visit(&asyncVisitor, false);
 }
 
 void
 Slice::Gen::generateTie(const UnitPtr& p)
 {
     TieVisitor tieVisitor(_out);
-    p->visit(&tieVisitor);
+    p->visit(&tieVisitor, false);
 }
 
 void
 Slice::Gen::generateImpl(const UnitPtr& p)
 {
     ImplVisitor implVisitor(_impl);
-    p->visit(&implVisitor);
+    p->visit(&implVisitor, false);
 }
 
 void
 Slice::Gen::generateImplTie(const UnitPtr& p)
 {
     ImplTieVisitor implTieVisitor(_impl);
-    p->visit(&implTieVisitor);
+    p->visit(&implTieVisitor, false);
 }
 
 void

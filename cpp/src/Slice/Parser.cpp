@@ -128,7 +128,7 @@ Slice::SyntaxTreeBase::definitionContext() const
 }
 
 void
-Slice::SyntaxTreeBase::visit(ParserVisitor*)
+Slice::SyntaxTreeBase::visit(ParserVisitor*, bool)
 {
 }
 
@@ -1734,13 +1734,13 @@ Slice::Container::sortContents()
 }
 
 void
-Slice::Container::visit(ParserVisitor* visitor)
+Slice::Container::visit(ParserVisitor* visitor, bool all)
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
-	if((*p)->includeLevel() == 0)
+	if(all || (*p)->includeLevel() == 0)
 	{
-	    (*p)->visit(visitor);
+	    (*p)->visit(visitor, all);
 	}
     }
 }
@@ -2091,11 +2091,11 @@ Slice::Module::kindOf() const
 }
 
 void
-Slice::Module::visit(ParserVisitor* visitor)
+Slice::Module::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitModuleStart(this))
     {
-	Container::visit(visitor);
+	Container::visit(visitor, all);
 	visitor->visitModuleEnd(this);
     }
 }
@@ -2217,7 +2217,7 @@ Slice::ClassDecl::kindOf() const
 }
 
 void
-Slice::ClassDecl::visit(ParserVisitor* visitor)
+Slice::ClassDecl::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitClassDecl(this);
 }
@@ -2908,11 +2908,11 @@ Slice::ClassDef::kindOf() const
 }
 
 void
-Slice::ClassDef::visit(ParserVisitor* visitor)
+Slice::ClassDef::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitClassDefStart(this))
     {
-	Container::visit(visitor);
+	Container::visit(visitor, all);
 	visitor->visitClassDefEnd(this);
     }
 }
@@ -3247,11 +3247,11 @@ Slice::Exception::kindOf() const
 }
 
 void
-Slice::Exception::visit(ParserVisitor* visitor)
+Slice::Exception::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitExceptionStart(this))
     {
-	Container::visit(visitor);
+	Container::visit(visitor, all);
 	visitor->visitExceptionEnd(this);
     }
 }
@@ -3451,11 +3451,11 @@ Slice::Struct::kindOf() const
 }
 
 void
-Slice::Struct::visit(ParserVisitor* visitor)
+Slice::Struct::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitStructStart(this))
     {
-	Container::visit(visitor);
+	Container::visit(visitor, all);
 	visitor->visitStructEnd(this);
     }
 }
@@ -3528,7 +3528,7 @@ Slice::Sequence::kindOf() const
 }
 
 void
-Slice::Sequence::visit(ParserVisitor* visitor)
+Slice::Sequence::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitSequence(this);
 }
@@ -3622,7 +3622,7 @@ Slice::Dictionary::kindOf() const
 }
 
 void
-Slice::Dictionary::visit(ParserVisitor* visitor)
+Slice::Dictionary::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitDictionary(this);
 }
@@ -3798,7 +3798,7 @@ Slice::Enum::kindOf() const
 }
 
 void
-Slice::Enum::visit(ParserVisitor* visitor)
+Slice::Enum::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitEnum(this);
 }
@@ -3887,7 +3887,7 @@ Slice::Const::kindOf() const
 }
 
 void
-Slice::Const::visit(ParserVisitor* visitor)
+Slice::Const::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitConst(this);
 }
@@ -4390,7 +4390,7 @@ Slice::Operation::kindOf() const
 }
 
 void
-Slice::Operation::visit(ParserVisitor* visitor)
+Slice::Operation::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitOperation(this);
 }
@@ -4448,7 +4448,7 @@ Slice::ParamDecl::kindOf() const
 }
 
 void
-Slice::ParamDecl::visit(ParserVisitor* visitor)
+Slice::ParamDecl::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitParamDecl(this);
 }
@@ -4496,7 +4496,7 @@ Slice::DataMember::kindOf() const
 }
 
 void
-Slice::DataMember::visit(ParserVisitor* visitor)
+Slice::DataMember::visit(ParserVisitor* visitor, bool)
 {
     visitor->visitDataMember(this);
 }
@@ -5067,11 +5067,11 @@ Slice::Unit::destroy()
 }
 
 void
-Slice::Unit::visit(ParserVisitor* visitor)
+Slice::Unit::visit(ParserVisitor* visitor, bool all)
 {
     if(visitor->visitUnitStart(this))
     {
-	Container::visit(visitor);
+	Container::visit(visitor, all);
 	visitor->visitUnitEnd(this);
     }
 }

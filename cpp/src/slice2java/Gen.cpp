@@ -936,55 +936,55 @@ Slice::Gen::generate(const UnitPtr& p)
     JavaGenerator::validateMetaData(p);
 
     OpsVisitor opsVisitor(_dir);
-    p->visit(&opsVisitor);
+    p->visit(&opsVisitor, false);
 
     TypesVisitor typesVisitor(_dir);
-    p->visit(&typesVisitor);
+    p->visit(&typesVisitor, false);
 
     HolderVisitor holderVisitor(_dir);
-    p->visit(&holderVisitor);
+    p->visit(&holderVisitor, false);
 
     HelperVisitor helperVisitor(_dir);
-    p->visit(&helperVisitor);
+    p->visit(&helperVisitor, false);
 
     ProxyVisitor proxyVisitor(_dir);
-    p->visit(&proxyVisitor);
+    p->visit(&proxyVisitor, false);
 
     DelegateVisitor delegateVisitor(_dir);
-    p->visit(&delegateVisitor);
+    p->visit(&delegateVisitor, false);
 
     DelegateMVisitor delegateMVisitor(_dir);
-    p->visit(&delegateMVisitor);
+    p->visit(&delegateMVisitor, false);
 
     DelegateDVisitor delegateDVisitor(_dir);
-    p->visit(&delegateDVisitor);
+    p->visit(&delegateDVisitor, false);
 
     DispatcherVisitor dispatcherVisitor(_dir);
-    p->visit(&dispatcherVisitor);
+    p->visit(&dispatcherVisitor, false);
 
     AsyncVisitor asyncVisitor(_dir);
-    p->visit(&asyncVisitor);
+    p->visit(&asyncVisitor, false);
 }
 
 void
 Slice::Gen::generateTie(const UnitPtr& p)
 {
     TieVisitor tieVisitor(_dir);
-    p->visit(&tieVisitor);
+    p->visit(&tieVisitor, false);
 }
 
 void
 Slice::Gen::generateImpl(const UnitPtr& p)
 {
     ImplVisitor implVisitor(_dir);
-    p->visit(&implVisitor);
+    p->visit(&implVisitor, false);
 }
 
 void
 Slice::Gen::generateImplTie(const UnitPtr& p)
 {
     ImplTieVisitor implTieVisitor(_dir);
-    p->visit(&implTieVisitor);
+    p->visit(&implTieVisitor, false);
 }
 
 void
