@@ -461,6 +461,18 @@ Ice::ObjectReader::__read(::IceInternal::BasicStream* is, bool rid)
     read(bis->_in, rid);
 }
 
+void
+Ice::ObjectReader::__write(const ::Ice::OutputStreamPtr&) const
+{
+    assert(false);
+}
+
+void
+Ice::ObjectReader::__read(const ::Ice::InputStreamPtr&, bool)
+{
+    assert(false);
+}
+
 //
 // ObjectWriter
 //
@@ -474,6 +486,18 @@ Ice::ObjectWriter::__write(::IceInternal::BasicStream* os) const
 
 void
 Ice::ObjectWriter::__read(::IceInternal::BasicStream*, bool)
+{
+    assert(false);
+}
+
+void
+Ice::ObjectWriter::__write(const ::Ice::OutputStreamPtr&) const
+{
+    assert(false);
+}
+
+void
+Ice::ObjectWriter::__read(const ::Ice::InputStreamPtr&, bool)
 {
     assert(false);
 }

@@ -140,6 +140,9 @@ private:
 
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*, bool = true);
+
+    virtual void __write(const ::Ice::OutputStreamPtr&) const;
+    virtual void __read(const ::Ice::InputStreamPtr&, bool);
 };
 typedef ::IceInternal::Handle< ObjectReader > ObjectReaderPtr;
 
@@ -153,6 +156,9 @@ private:
 
     virtual void __write(::IceInternal::BasicStream*) const;
     virtual void __read(::IceInternal::BasicStream*, bool = true);
+
+    virtual void __write(const ::Ice::OutputStreamPtr&) const;
+    virtual void __read(const ::Ice::InputStreamPtr&, bool);
 };
 typedef ::IceInternal::Handle< ObjectWriter > ObjectWriterPtr;
 
