@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <IceUtil/Unicode.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -20,8 +21,9 @@ IceUtil::wstringToString(const wstring& str)
 
     for (unsigned int i = 0; i < str.length(); ++i)
     {
-	wchar_t wc = str[i];
-	
+	wchar_t wc;
+	wc = str[i];
+
 	if (wc < 0x80)
 	{
 	    result += static_cast<char>(wc);
@@ -110,7 +112,7 @@ IceUtil::stringToWstring(const string& str)
 
 	if (i + len - 1 < str.length())
 	{
-	    for (unsigned int j = 1; j < len - 1; ++j)
+	    for (unsigned int j = 1; j < len; ++j)
 	    {
 		if ((str[i + j] & 0xc0) != 0x80) // All other bytes must be 10xxxxxx
 		{
@@ -120,6 +122,8 @@ IceUtil::stringToWstring(const string& str)
 		wc <<= 6;
 		wc |= str[i + j] & 0x3f;
 	    }
+
+	    result += wc;
 	}
 	else
 	{

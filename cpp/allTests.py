@@ -23,6 +23,7 @@ else:
 #
 tests = [ \
     "IceUtil/thread", \
+    "IceUtil/unicode", \
     "Slice/errorDetection", \
     "Ice/operations", \
     "Ice/exceptions", \

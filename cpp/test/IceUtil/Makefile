@@ -12,7 +12,8 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= thread
+SUBDIRS		= thread \
+		  unicode
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
