@@ -51,10 +51,14 @@ BOOL CHelloServerApp::InitInstance()
     {
         int argc = 0;
         Ice::PropertiesPtr properties = Ice::createProperties();
-        //properties->setProperty("Hello.Endpoints", "tcp -p 10000:udp -p 10000:ssl -p 10001");
-        properties->setProperty("Hello.Endpoints", "tcp -p 10000:udp -p 10000");
+        properties->setProperty("Hello.Endpoints", "tcp -p 10000:udp -p 10000:ssl -p 10001");
         properties->setProperty("Ice.Trace.Network", "1");
         properties->setProperty("Ice.Warn.Connections", "1");
+
+	properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:create");
+	properties->setProperty("IceSSL.Server.CertPath", "../../../../certs");
+	properties->setProperty("IceSSL.Server.Config", "sslconfig.xml");
+
         communicator = Ice::initializeWithProperties(argc, 0, properties);
         log = new LogI;
         communicator->setLogger(log);

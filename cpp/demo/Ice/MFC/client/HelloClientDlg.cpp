@@ -64,8 +64,7 @@ CHelloClientDlg::OnInitDialog()
     //
     // Create the proxy.
     //
-    //Ice::ObjectPrx obj = _communicator->stringToProxy("hello:tcp -p 10000:udp -p 10000:ssl -p 10001");
-    Ice::ObjectPrx obj = _communicator->stringToProxy("hello:tcp -p 10000:udp -p 10000");
+    Ice::ObjectPrx obj = _communicator->stringToProxy("hello:tcp -p 10000:udp -p 10000:ssl -p 10001");
     _proxy = Demo::HelloPrx::uncheckedCast(obj);
     _currentProxy = _proxy;
     _status->SetWindowText(CString(" Ready"));
