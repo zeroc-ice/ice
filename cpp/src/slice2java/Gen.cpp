@@ -2993,6 +2993,14 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "public"
         << nl << '_' << name << "Disp(" << name << " __d)";
     out << sb;
+    if (p->isInterface())
+    {
+        out << nl << "super((Ice.Object)__d);";
+    }
+    else
+    {
+        out << nl << "super(__d);";
+    }
     out << nl << "_delegate = __d;";
     out << eb;
 
