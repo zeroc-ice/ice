@@ -31,6 +31,10 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	cout << "ok" << endl;
     }
+    catch(const Ice::ConnectionLostException&) // For Java compatibility
+    {
+	cout << "ok" << endl;
+    }
 
     return EXIT_SUCCESS;
 }
