@@ -114,6 +114,9 @@ following:
 
 if (error_code == PHP_TIMEOUT_ERROR_VALUE) {
 
+Platform-specific Issues
+------------------------
+
 If you are using Solaris with Sun CC or HP-UX with aCC, please refer
 to the relevant section below before proceeding any further.
 
@@ -161,33 +164,61 @@ Note that PHP 5 cannot be compiled using Sun CC 5.3.
 Additional Requirements for HP-UX with aCC
 =========================================================================
 
-Edit the file <phpdir>/libtool, search for the line beginning with
-"archive_cmds=", and change \$LD to \$CXX in the value of both
-archive_cmds and archive_expsym_cmds.
+The Ice extension currently supports only the static configuration on
+HP-UX.
 
-If you are building the Ice extension in a static configuration, edit
-the file <phpdir>/Makefile and make the following changes:
+- Edit the file <phpdir>/libtool, search for the line beginning with
+  "archive_cmds=", and change \$LD to \$CXX.
 
-- Add a definition for EXTRA_CXXFLAGS. For 32-bit platforms, use the
-  following setting:
+- Edit the file <phpdir>/Makefile and make the following changes:
 
-  EXTRA_CXXFLAGS = -AA +Z -mt +DA2.0N
+  - Add a definition for EXTRA_CXXFLAGS. For 32-bit platforms, use the
+    following setting:
 
-  For 64-bit platforms, use this setting:
+    EXTRA_CXXFLAGS = -AA +Z -mt +DA2.0N
 
-  EXTRA_CXXFLAGS = -AA +Z -mt +DD64
+    For 64-bit platforms, use this setting:
 
-- Modify EXTRA_LDFLAGS_PROGRAM to append "$(EXTRA_CXXFLAGS) -Wl,+s"
+    EXTRA_CXXFLAGS = -AA +Z -mt +DD64
 
-- If the command-line interpreter is being built, search for the
-  definition of the BUILD_CLI variable and change "$(CC)" to "$(CXX)".
+  - Modify EXTRA_LDFLAGS_PROGRAM to append "$(EXTRA_CXXFLAGS) -Wl,+s"
 
-- If the CGI interpreter is being built, search for the definition of
-  the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
+  - If the command-line interpreter is being built, search for the
+    definition of the BUILD_CLI variable and change "$(CC)" to "$(CXX)".
 
-- If a Web server module is being built, search for the line beginning
-  with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
-  well as in the rule for "libs/libphp5.bundle" below.
+  - If the CGI interpreter is being built, search for the definition of
+    the BUILD_CGI variable and change "$(CC)" to "$(CXX)".
+
+  - If a Web server module is being built, search for the line beginning
+    with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
+    well as in the rule for "libs/libphp5.bundle" below.
+
+
+If you are building the Ice extension in a dynamic configuration:
+
+- Edit the file <phpdir>/libtool, search for the line beginning with
+  "archive_cmds=", and make the following changes:
+
+  - Replace \$LD with \$CXX
+
+  - Replace "+h \$soname" with "-Wl,+h\$soname"
+
+  - Replace "+b \$install_libdir" with "-Wl,+b\$install_libdir"
+
+- Edit the file <phpdir>/Makefile and make the following changes:
+
+  - Add a definition for EXTRA_CXXFLAGS. For 32-bit platforms, use the
+    following setting:
+
+    EXTRA_CXXFLAGS = -AA +Z -mt +DA2.0N
+
+    For 64-bit platforms, use this setting:
+
+    EXTRA_CXXFLAGS = -AA +Z -mt +DD64
+
+  - Append "$(EXTRA_CXXFLAGS)" to the value of ICE_SHARED_LIBADD
+
+  - Modify EXTRA_LDFLAGS_PROGRAM to append "-Wl,+s"
 
 
 
