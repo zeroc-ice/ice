@@ -50,6 +50,13 @@ main(int argc, char* argv[])
 	properties->setProperty("Ice.ThreadPool.Client.Size", "2");
 	properties->setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
 
+	//
+	// We must set MessageSizeMax to an explicit values, because
+	// we run tests to check whether Ice.MemoryLimitException is
+	// raised as expected.
+	//
+	properties->setProperty("Ice.MessageSizeMax", "100");
+
 	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }

@@ -344,6 +344,11 @@ MyDerivedClassI::opIntS(const Test::IntS& s, const Ice::Current&)
     return r;
 }
 
+void
+MyDerivedClassI::opByteSOneway(const Test::ByteS&, const Ice::Current&)
+{
+}
+
 Test::StringStringD
 MyDerivedClassI::opContext(const Ice::Current& c)
 {

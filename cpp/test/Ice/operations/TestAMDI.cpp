@@ -359,7 +359,7 @@ MyDerivedClassI::opStringMyEnumD_async(const Test::AMD_MyClass_opStringMyEnumDPt
 }
 
 void
-MyDerivedClassI::opIntS_async(const ::Test::AMD_MyClass_opIntSPtr& cb, const Test::IntS& s, const Ice::Current&)
+MyDerivedClassI::opIntS_async(const Test::AMD_MyClass_opIntSPtr& cb, const Test::IntS& s, const Ice::Current&)
 {
     Test::IntS r;
     std::transform(s.begin(), s.end(), std::back_inserter(r), std::negate<int>());
@@ -367,7 +367,14 @@ MyDerivedClassI::opIntS_async(const ::Test::AMD_MyClass_opIntSPtr& cb, const Tes
 }
 
 void
-MyDerivedClassI::opContext_async(const ::Test::AMD_MyClass_opContextPtr& cb, const Ice::Current& c)
+MyDerivedClassI::opByteSOneway_async(const Test::AMD_MyClass_opByteSOnewayPtr& cb, const Test::ByteS& s,
+				     const Ice::Current&)
+{
+    cb->ice_response();
+}
+
+void
+MyDerivedClassI::opContext_async(const Test::AMD_MyClass_opContextPtr& cb, const Ice::Current& c)
 {
     Test::StringStringD r = c.ctx;
     cb->ice_response(r);

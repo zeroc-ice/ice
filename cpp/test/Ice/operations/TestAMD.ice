@@ -10,6 +10,8 @@
 #ifndef TEST_AMD_ICE
 #define TEST_AMD_ICE
 
+#include <Ice/Current.ice>
+
 module Test
 {
 
@@ -143,8 +145,9 @@ dictionary<string, MyEnum> StringMyEnumD;
 
     IntS opIntS(IntS s);
 
-    StringStringD opContext();
+    void opByteSOneway(ByteS s);
 
+    Ice::Context opContext();
 };
 
 ["ami", "amd"] class MyDerivedClass extends MyClass

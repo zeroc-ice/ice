@@ -83,6 +83,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	twowaysAMI(cl);
 	twowaysAMI(derived);
 	cout << "ok" << endl;
+
+	cout << "testing batch oneway operations... " << flush;
+	void batchOneways(const Test::MyClassPrx&);
+	batchOneways(cl);
+	batchOneways(derived);
+	cout << "ok" << endl;
     }
 
     return cl;

@@ -274,7 +274,7 @@ IceInternal::Outgoing::abort(const LocalException& ex)
 	// only the batch request that caused the problem will be
 	// aborted, but all other requests in the batch as well.
 	//
-	throw NonRepeatable(*_exception.get());
+	throw NonRepeatable(ex);
     }
     
     ex.ice_throw();

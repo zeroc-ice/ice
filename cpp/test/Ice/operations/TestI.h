@@ -148,7 +148,9 @@ public:
 
     virtual Test::IntS opIntS(const Test::IntS&, const Ice::Current&);
 
-    virtual Test::StringStringD opContext(const Ice::Current&);
+    virtual void opByteSOneway(const Test::ByteS&, const Ice::Current&);
+
+    virtual Ice::Context opContext(const Ice::Current&);
 
     virtual void opDerived(const Ice::Current&);
 
