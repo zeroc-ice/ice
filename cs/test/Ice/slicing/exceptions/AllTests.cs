@@ -24,10 +24,9 @@ public class AllTests
     
     private class Callback
     {
-        internal Callback(object obj)
+        internal Callback()
         {
             _called = false;
-	    _obj = obj;
         }
         
         public virtual bool check()
@@ -36,14 +35,7 @@ public class AllTests
             {
                 while(!_called)
                 {
-                    try
-                    {
-                        Monitor.Wait(_obj, TimeSpan.FromMilliseconds(5000));
-                    }
-                    catch(ThreadInterruptedException)
-                    {
-                        continue;
-                    }
+		    Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
                     
                     if(!_called)
                     {
@@ -62,36 +54,21 @@ public class AllTests
             {
                 Debug.Assert(!_called);
                 _called = true;
-                Monitor.Pulse(_obj);
+                Monitor.Pulse(this);
             }
         }
         
         private bool _called;
-	private object _obj;
     }
     
-/*
     private class AMI_Test_baseAsBaseI:AMI_Test_baseAsBase
     {
-        public AMI_Test_baseAsBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -100,9 +77,9 @@ public class AllTests
             catch(Base b)
             {
                 AllTests.test(b.b.Equals("Base.b"));
-                AllTests.test(b.ice_name().Equals("Base"));
+                AllTests.test(b.GetType().Name.Equals("Base"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -114,31 +91,17 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
     private class AMI_Test_unknownDerivedAsBaseI:AMI_Test_unknownDerivedAsBase
     {
-        public AMI_Test_unknownDerivedAsBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -147,9 +110,9 @@ public class AllTests
             catch(Base b)
             {
                 AllTests.test(b.b.Equals("UnknownDerived.b"));
-                AllTests.test(b.ice_name().Equals("Base"));
+                AllTests.test(b.GetType().Name.Equals("Base"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -161,31 +124,17 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
     private class AMI_Test_knownDerivedAsBaseI:AMI_Test_knownDerivedAsBase
     {
-        public AMI_Test_knownDerivedAsBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -195,9 +144,9 @@ public class AllTests
             {
                 AllTests.test(k.b.Equals("KnownDerived.b"));
                 AllTests.test(k.kd.Equals("KnownDerived.kd"));
-                AllTests.test(k.ice_name().Equals("KnownDerived"));
+                AllTests.test(k.GetType().Name.Equals("KnownDerived"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -209,31 +158,17 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
     private class AMI_Test_knownDerivedAsKnownDerivedI:AMI_Test_knownDerivedAsKnownDerived
     {
-        public AMI_Test_knownDerivedAsKnownDerivedI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -243,7 +178,7 @@ public class AllTests
             {
                 AllTests.test(k.b.Equals("KnownDerived.b"));
                 AllTests.test(k.kd.Equals("KnownDerived.kd"));
-                AllTests.test(k.ice_name().Equals("KnownDerived"));
+                AllTests.test(k.GetType().Name.Equals("KnownDerived"));
             }
             catch(Exception ex)
             {
@@ -257,31 +192,17 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
     private class AMI_Test_unknownIntermediateAsBaseI:AMI_Test_unknownIntermediateAsBase
     {
-        public AMI_Test_unknownIntermediateAsBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -290,9 +211,9 @@ public class AllTests
             catch(Base b)
             {
                 AllTests.test(b.b.Equals("UnknownIntermediate.b"));
-                AllTests.test(b.ice_name().Equals("Base"));
+                AllTests.test(b.GetType().Name.Equals("Base"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -304,31 +225,17 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
     private class AMI_Test_knownIntermediateAsBaseI:AMI_Test_knownIntermediateAsBase
     {
-        public AMI_Test_knownIntermediateAsBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -338,7 +245,7 @@ public class AllTests
             {
                 AllTests.test(ki.b.Equals("KnownIntermediate.b"));
                 AllTests.test(ki.ki.Equals("KnownIntermediate.ki"));
-                AllTests.test(ki.ice_name().Equals("KnownIntermediate"));
+                AllTests.test(ki.GetType().Name.Equals("KnownIntermediate"));
             }
             catch(Exception ex)
             {
@@ -352,31 +259,17 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
     private class AMI_Test_knownMostDerivedAsBaseI:AMI_Test_knownMostDerivedAsBase
     {
-        public AMI_Test_knownMostDerivedAsBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -387,7 +280,7 @@ public class AllTests
                 AllTests.test(kmd.b.Equals("KnownMostDerived.b"));
                 AllTests.test(kmd.ki.Equals("KnownMostDerived.ki"));
                 AllTests.test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                AllTests.test(kmd.ice_name().Equals("KnownMostDerived"));
+                AllTests.test(kmd.GetType().Name.Equals("KnownMostDerived"));
             }
             catch(Exception ex)
             {
@@ -401,31 +294,17 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
     private class AMI_Test_knownIntermediateAsKnownIntermediateI:AMI_Test_knownIntermediateAsKnownIntermediate
     {
-        public AMI_Test_knownIntermediateAsKnownIntermediateI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -435,7 +314,7 @@ public class AllTests
             {
                 AllTests.test(ki.b.Equals("KnownIntermediate.b"));
                 AllTests.test(ki.ki.Equals("KnownIntermediate.ki"));
-                AllTests.test(ki.ice_name().Equals("KnownIntermediate"));
+                AllTests.test(ki.GetType().Name.Equals("KnownIntermediate"));
             }
             catch(Exception ex)
             {
@@ -449,31 +328,17 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
     private class AMI_Test_knownMostDerivedAsKnownIntermediateI:AMI_Test_knownMostDerivedAsKnownIntermediate
     {
-        public AMI_Test_knownMostDerivedAsKnownIntermediateI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -484,9 +349,9 @@ public class AllTests
                 AllTests.test(kmd.b.Equals("KnownMostDerived.b"));
                 AllTests.test(kmd.ki.Equals("KnownMostDerived.ki"));
                 AllTests.test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                AllTests.test(kmd.ice_name().Equals("KnownMostDerived"));
+                AllTests.test(kmd.GetType().Name.Equals("KnownMostDerived"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -498,31 +363,17 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
     private class AMI_Test_knownMostDerivedAsKnownMostDerivedI:AMI_Test_knownMostDerivedAsKnownMostDerived
     {
-        public AMI_Test_knownMostDerivedAsKnownMostDerivedI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -533,9 +384,9 @@ public class AllTests
                 AllTests.test(kmd.b.Equals("KnownMostDerived.b"));
                 AllTests.test(kmd.ki.Equals("KnownMostDerived.ki"));
                 AllTests.test(kmd.kmd.Equals("KnownMostDerived.kmd"));
-                AllTests.test(kmd.ice_name().Equals("KnownMostDerived"));
+                AllTests.test(kmd.GetType().Name.Equals("KnownMostDerived"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -547,31 +398,17 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
     private class AMI_Test_unknownMostDerived1AsBaseI:AMI_Test_unknownMostDerived1AsBase
     {
-        public AMI_Test_unknownMostDerived1AsBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -581,9 +418,9 @@ public class AllTests
             {
                 AllTests.test(ki.b.Equals("UnknownMostDerived1.b"));
                 AllTests.test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                AllTests.test(ki.ice_name().Equals("KnownIntermediate"));
+                AllTests.test(ki.GetType().Name.Equals("KnownIntermediate"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -595,31 +432,17 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
     private class AMI_Test_unknownMostDerived1AsKnownIntermediateI:AMI_Test_unknownMostDerived1AsKnownIntermediate
     {
-        public AMI_Test_unknownMostDerived1AsKnownIntermediateI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -629,9 +452,9 @@ public class AllTests
             {
                 AllTests.test(ki.b.Equals("UnknownMostDerived1.b"));
                 AllTests.test(ki.ki.Equals("UnknownMostDerived1.ki"));
-                AllTests.test(ki.ice_name().Equals("KnownIntermediate"));
+                AllTests.test(ki.GetType().Name.Equals("KnownIntermediate"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -643,31 +466,17 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
     private class AMI_Test_unknownMostDerived2AsBaseI:AMI_Test_unknownMostDerived2AsBase
     {
-        public AMI_Test_unknownMostDerived2AsBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
@@ -676,9 +485,9 @@ public class AllTests
             catch(Base b)
             {
                 AllTests.test(b.b.Equals("UnknownMostDerived2.b"));
-                AllTests.test(b.ice_name().Equals("Base"));
+                AllTests.test(b.GetType().Name.Equals("Base"));
             }
-            catch(Exception ex)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -690,10 +499,8 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
-*/
     
     public static TestPrx allTests(Ice.Communicator communicator, bool collocated)
     {
@@ -733,16 +540,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
     
-	/*
         Console.Out.Write("base (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_baseAsBaseI cb = new AMI_Test_baseAsBaseI();
-            test.baseAsBase_async(cb);
+            testPrx.baseAsBase_async(cb);
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("slicing of unknown derived... ");
         Console.Out.Flush();
@@ -766,16 +571,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("slicing of unknown derived (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_unknownDerivedAsBaseI cb = new AMI_Test_unknownDerivedAsBaseI();
-            test.unknownDerivedAsBase_async(cb);
+            testPrx.unknownDerivedAsBase_async(cb);
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("non-slicing of known derived as base... ");
         Console.Out.Flush();
@@ -800,16 +603,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("non-slicing of known derived as base (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_knownDerivedAsBaseI cb = new AMI_Test_knownDerivedAsBaseI();
-            test.knownDerivedAsBase_async(cb);
+            testPrx.knownDerivedAsBase_async(cb);
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("non-slicing of known derived as derived... ");
         Console.Out.Flush();
@@ -834,16 +635,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("non-slicing of known derived as derived (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_knownDerivedAsKnownDerivedI cb = new AMI_Test_knownDerivedAsKnownDerivedI();
-            test.knownDerivedAsKnownDerived_async(cb);
+            testPrx.knownDerivedAsKnownDerived_async(cb);
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("slicing of unknown intermediate as base... ");
         Console.Out.Flush();
@@ -867,16 +666,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("slicing of unknown intermediate as base (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_unknownIntermediateAsBaseI cb = new AMI_Test_unknownIntermediateAsBaseI();
-            test.unknownIntermediateAsBase_async(cb);
+            testPrx.unknownIntermediateAsBase_async(cb);
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("slicing of known intermediate as base... ");
         Console.Out.Flush();
@@ -901,16 +698,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("slicing of known intermediate as base (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_knownIntermediateAsBaseI cb = new AMI_Test_knownIntermediateAsBaseI();
-            test.knownIntermediateAsBase_async(cb);
+            testPrx.knownIntermediateAsBase_async(cb);
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("slicing of known most derived as base... ");
         Console.Out.Flush();
@@ -936,16 +731,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("slicing of known most derived as base (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_knownMostDerivedAsBaseI cb = new AMI_Test_knownMostDerivedAsBaseI();
-            test.knownMostDerivedAsBase_async(cb);
+            testPrx.knownMostDerivedAsBase_async(cb);
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("non-slicing of known intermediate as intermediate... ");
         Console.Out.Flush();
@@ -970,16 +763,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("non-slicing of known intermediate as intermediate (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_knownIntermediateAsKnownIntermediateI cb = new AMI_Test_knownIntermediateAsKnownIntermediateI();
-            test.knownIntermediateAsKnownIntermediate_async(cb);
+            testPrx.knownIntermediateAsKnownIntermediate_async(cb);
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("non-slicing of known most derived as intermediate... ");
         Console.Out.Flush();
@@ -1005,16 +796,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("non-slicing of known most derived as intermediate (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_knownMostDerivedAsKnownIntermediateI cb = new AMI_Test_knownMostDerivedAsKnownIntermediateI();
-            test.knownMostDerivedAsKnownIntermediate_async(cb);
+            testPrx.knownMostDerivedAsKnownIntermediate_async(cb);
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("non-slicing of known most derived as most derived... ");
         Console.Out.Flush();
@@ -1040,16 +829,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("non-slicing of known most derived as most derived (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_knownMostDerivedAsKnownMostDerivedI cb = new AMI_Test_knownMostDerivedAsKnownMostDerivedI();
-            test.knownMostDerivedAsKnownMostDerived_async(cb);
-            test(cb.check());
+            testPrx.knownMostDerivedAsKnownMostDerived_async(cb);
+            AllTests.test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("slicing of unknown most derived, known intermediate as base... ");
         Console.Out.Flush();
@@ -1074,16 +861,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("slicing of unknown most derived, known intermediate as base (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_unknownMostDerived1AsBaseI cb = new AMI_Test_unknownMostDerived1AsBaseI();
-            test.unknownMostDerived1AsBase_async(cb);
+            testPrx.unknownMostDerived1AsBase_async(cb);
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("slicing of unknown most derived, known intermediate as intermediate... ");
         Console.Out.Flush();
@@ -1108,16 +893,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("slicing of unknown most derived, known intermediate as intermediate (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_unknownMostDerived1AsKnownIntermediateI cb = new AMI_Test_unknownMostDerived1AsKnownIntermediateI();
-            test.unknownMostDerived1AsKnownIntermediate_async(cb);
+            testPrx.unknownMostDerived1AsKnownIntermediate_async(cb);
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("slicing of unknown most derived, unknown intermediate thrown as base... ");
         Console.Out.Flush();
@@ -1141,16 +924,14 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("slicing of unknown most derived, unknown intermediate thrown as base (AMI)... ");
         Console.Out.Flush();
         {
             AMI_Test_unknownMostDerived2AsBaseI cb = new AMI_Test_unknownMostDerived2AsBaseI();
-            test.unknownMostDerived2AsBase_async(cb);
+            testPrx.unknownMostDerived2AsBase_async(cb);
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         return testPrx;
     }
