@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../../ice/include" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -66,7 +66,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../../ice/include" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /Fp"Debug/Filesystem.pch" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /D "_DEBUG" /D "_CONSOLE" /D "_UNICODE" /Fp"Debug/Filesystem.pch" /YX /FD /GZ /c
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
 BSC32=bscmake.exe
@@ -111,7 +111,7 @@ SOURCE=.\Filesystem.ice
 
 !IF  "$(CFG)" == "simpleFSC - Win32 Release"
 
-USERDEP__FILES="../../../../ice/bin/slice2cpp.exe"	
+USERDEP__FILES="../../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Filesystem.ice
 
@@ -127,7 +127,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "simpleFSC - Win32 Debug"
 
-USERDEP__FILES="..\..\..\..\ice\bin\slice2cpp.exe"	
+USERDEP__FILES="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Filesystem.ice
 

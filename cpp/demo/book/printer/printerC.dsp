@@ -113,7 +113,7 @@ SOURCE=.\Printer.ice
 
 !IF  "$(CFG)" == "printerC - Win32 Release"
 
-USERDEP__PRINT="../../../../ice/bin/slice2cpp.exe"	
+USERDEP__PRINT="../../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Printer.ice
 
@@ -129,7 +129,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "printerC - Win32 Debug"
 
-USERDEP__PRINT="..\..\..\..\ice\bin\slice2cpp.exe"	
+USERDEP__PRINT="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Printer.ice
 

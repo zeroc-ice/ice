@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../../ice/include" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /D "NDEBUG" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -112,7 +112,7 @@ SOURCE=.\Printer.ice
 
 !IF  "$(CFG)" == "printerS - Win32 Release"
 
-USERDEP__PRINT="..\..\..\..\ice\bin\slice2cpp.exe"	
+USERDEP__PRINT="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Printer.ice
 
@@ -128,7 +128,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "printerS - Win32 Debug"
 
-USERDEP__PRINT="..\..\..\..\ice\bin\slice2cpp.exe"	
+USERDEP__PRINT="..\..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\Printer.ice
 
