@@ -31,6 +31,7 @@ public:
 
     ::Ice::ObjectAdapterPtr createObjectAdapter(const std::string&);
     ::Ice::ObjectAdapterPtr findObjectAdapter(const ::Ice::ObjectPrx&);
+    void flushBatchRequests() const;
 
 private:
 

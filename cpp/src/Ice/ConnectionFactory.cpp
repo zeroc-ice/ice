@@ -510,11 +510,26 @@ IceInternal::IncomingConnectionFactory::connections() const
     return result;
 }
 
+namespace IceInternal {
+
+struct FlushIfValidated
+{
+    void operator() (ConnectionPtr p)
+    {
+	if(p->isValidated())
+	{
+	    p->flushBatchRequest();
+	}
+    }
+};
+
+}
+
 void
 IceInternal::IncomingConnectionFactory::flushBatchRequests()
 {
-    list<ConnectionPtr> c = connections(); // connections() is synchronized, so need to synchronize here.
-    for_each(c.begin(), c.end(), Ice::voidMemFun(&Connection::flushBatchRequest));
+    list<ConnectionPtr> c = connections(); // connections() is synchronized, so no need to synchronize here.
+    for_each(c.begin(), c.end(), FlushIfValidated());
 }
 
 bool

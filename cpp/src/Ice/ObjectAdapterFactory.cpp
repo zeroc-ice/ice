@@ -143,6 +143,33 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ObjectPrx& proxy)
     return 0;
 }
 
+namespace IceInternal {
+
+struct FlushAdapter
+{
+    void operator() (ObjectAdapterIPtr p)
+    {
+	p->flushBatchRequests();
+    }
+};
+
+}
+
+void
+IceInternal::ObjectAdapterFactory::flushBatchRequests() const
+{
+    list<ObjectAdapterIPtr> a;
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	for(map<string, ObjectAdapterIPtr>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+	{
+	    a.push_back(p->second);
+	}
+    }
+    for_each(a.begin(), a.end(), FlushAdapter());
+}
+
 IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(const InstancePtr& instance,
 							const CommunicatorPtr& communicator) :
     _instance(instance),

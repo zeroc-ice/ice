@@ -415,7 +415,11 @@ public class OutgoingConnectionFactory
 	java.util.Iterator p = c.iterator();
 	while(p.hasNext())
 	{
-	    ((Connection)p.next()).flushBatchRequest();
+	    Connection conn = (Connection)p.next();
+	    if(conn.isValidated())
+	    {
+	        conn.flushBatchRequest();
+	    }
 	}
     }
 

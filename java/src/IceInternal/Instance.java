@@ -261,18 +261,15 @@ public class Instance
     public void
     flushBatchRequests()
     {
-	OutgoingConnectionFactory f;
-	Ice.ObjectAdapterI adapters[];
+	OutgoingConnectionFactory connectionFactory;
+	ObjectAdapterFactory adapterFactory;
 	synchronized(this)
 	{
-	    f = _outgoingConnectionFactory;
-	    adapters = _objectAdapterFactory.adapters();
+	    connectionFactory = _outgoingConnectionFactory;
+	    adapterFactory = _objectAdapterFactory;
 	}
-	f.flushBatchRequests();
-	for(int i = 0; i < adapters.length; i++)
-	{
-	    adapters[i].flushBatchRequests();
-	}
+	connectionFactory.flushBatchRequests();
+	adapterFactory.flushBatchRequests();
     }
 
     public BufferManager

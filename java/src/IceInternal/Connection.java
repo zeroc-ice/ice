@@ -331,6 +331,12 @@ public final class Connection extends EventHandler
 	setState(StateHolding);
     }
 
+    public synchronized boolean
+    isValidated()
+    {
+        return _state > StateNotValidated;
+    }
+
     public synchronized void
     incProxyCount()
     {
@@ -379,7 +385,8 @@ public final class Connection extends EventHandler
 	{
 	    throw _exception;
 	}
-	assert(_state > StateNotValidated && _state < StateClosing);
+	assert(_state > StateNotValidated);
+	assert(_state < StateClosing);
 	
 	int requestId = 0;
 	
@@ -438,7 +445,8 @@ public final class Connection extends EventHandler
 	{
 	    throw _exception;
 	}
-	assert(_state > StateNotValidated && _state < StateClosing);
+	assert(_state > StateNotValidated);
+	assert(_state < StateClosing);
 	
 	int requestId = 0;
 	
@@ -517,7 +525,8 @@ public final class Connection extends EventHandler
         {
             throw _exception;
         }
-        assert(_state > StateNotValidated && _state < StateClosing);
+        assert(_state > StateNotValidated);
+	assert(_state < StateClosing);
 
         if(_batchStream.isEmpty())
         {
@@ -548,7 +557,8 @@ public final class Connection extends EventHandler
         {
             throw _exception;
         }
-        assert(_state > StateNotValidated && _state < StateClosing);
+        assert(_state > StateNotValidated);
+	assert(_state < StateClosing);
 
         _batchStream.swap(os); // Get the batch stream back.
 	++_batchRequestNum; // Increment the number of requests in the batch.
@@ -592,7 +602,8 @@ public final class Connection extends EventHandler
 	{
 	    throw _exception;
 	}
-	assert(_state > StateNotValidated && _state < StateClosing);
+	assert(_state > StateNotValidated);
+	assert(_state < StateClosing);
 	
 	if(!_batchStream.isEmpty())
 	{

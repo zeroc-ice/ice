@@ -64,6 +64,7 @@ public:
     void monitor();
 
     void validate();
+    bool isValidated() const;
 
     void incProxyCount();
     void decProxyCount();

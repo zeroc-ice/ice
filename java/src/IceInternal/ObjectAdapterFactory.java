@@ -149,18 +149,23 @@ public final class ObjectAdapterFactory
         return null;
     }
 
-    public synchronized Ice.ObjectAdapterI[]
-    adapters()
+    public void
+    flushBatchRequests()
     {
 	java.util.LinkedList a = new java.util.LinkedList();
-	java.util.Iterator i = _adapters.values().iterator();
-	while(i.hasNext())
+        synchronized(this)
 	{
-	    a.add(i.next());
+	    java.util.Iterator i = _adapters.values().iterator();
+	    while(i.hasNext())
+	    {
+	        a.add(i.next());
+	    }
 	}
-	Ice.ObjectAdapterI[] arr = new Ice.ObjectAdapterI[a.size()];
-	a.toArray(arr);
-	return arr;
+	java.util.Iterator p = a.iterator();
+	while(p.hasNext())
+	{
+	    ((Ice.ObjectAdapterI)p.next()).flushBatchRequests();
+	}
     }
 
     //

@@ -340,6 +340,13 @@ IceInternal::Connection::validate()
     setState(StateHolding);
 }
 
+bool
+IceInternal::Connection::isValidated() const
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    return _state > StateNotValidated;
+}
+
 void
 IceInternal::Connection::incProxyCount()
 {
@@ -376,7 +383,8 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
     {
 	_exception->ice_throw();
     }
-    assert(_state > StateNotValidated && _state < StateClosing);
+    assert(_state > StateNotValidated);
+    assert(_state < StateClosing);
 
     Int requestId;
 
@@ -486,7 +494,8 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
     {
 	_exception->ice_throw();
     }
-    assert(_state > StateNotValidated && _state < StateClosing);
+    assert(_state > StateNotValidated);
+    assert(_state < StateClosing);
 
     Int requestId;
 
@@ -590,7 +599,8 @@ IceInternal::Connection::prepareBatchRequest(BasicStream* os)
 	unlock();
 	_exception->ice_throw();
     }
-    assert(_state > StateNotValidated && _state < StateClosing);
+    assert(_state > StateNotValidated);
+    assert(_state < StateClosing);
 
     if(_batchStream.b.empty())
     {
@@ -622,7 +632,8 @@ IceInternal::Connection::finishBatchRequest(BasicStream* os)
 	unlock();
 	_exception->ice_throw();
     }
-    assert(_state > StateNotValidated && _state < StateClosing);
+    assert(_state > StateNotValidated);
+    assert(_state < StateClosing);
 
     _batchStream.swap(*os); // Get the batch stream back.
     ++_batchRequestNum; // Increment the number of requests in the batch.
@@ -645,7 +656,8 @@ IceInternal::Connection::flushBatchRequest()
     {
 	_exception->ice_throw();
     }
-    assert(_state > StateNotValidated && _state < StateClosing);
+    assert(_state > StateNotValidated);
+    assert(_state < StateClosing);
     
     if(!_batchStream.b.empty())
     {
