@@ -84,9 +84,9 @@ public:
     static bool interrupted();
 
 
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x530)
+#if defined(__SUNPRO_CC) && ((__SUNPRO_CC==0x530) || (__SUNPRO_CC==0x550))
 //
-// Sun C++ 5.3 does not like classes with no data members 
+// Sun C++ 5.3/5.5 does not like classes with no data members 
 //
 private:
     char _dummy;

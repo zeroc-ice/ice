@@ -25,15 +25,6 @@ class TestServer : public Application
 public:
 
     virtual int run(int, char*[]);
-
-#if defined(__SUNPRO_CC) && (__SUNPRO_CC==0x550)
-//
-// Sun C++ 5.5 needs a dummy data member here.
-//
-private:
-    char _dummy;
-#endif
-
 };
 
 int
