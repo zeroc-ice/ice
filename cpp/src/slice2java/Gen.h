@@ -214,7 +214,7 @@ private:
         // Generate code to emit a local variable declaration and initialize it
         // if necessary.
         //
-        void writeDecl(::IceUtil::Output&, const std::string&, const std::string&, const TypePtr&);
+        void writeDecl(::IceUtil::Output&, const std::string&, const std::string&, const TypePtr&, const StringList&);
 
         //
         // Generate code to return a value.

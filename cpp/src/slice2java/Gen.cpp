@@ -78,7 +78,9 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
     ParamDeclList paramList = op->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-	string typeString = typeToString((*q)->type(), (*q)->isOutParam() ? TypeModeOut : TypeModeIn, package);
+        StringList metaData = (*q)->getMetaData();
+	string typeString = typeToString((*q)->type(), (*q)->isOutParam() ? TypeModeOut : TypeModeIn, package,
+                                         metaData);
         params.push_back(typeString + ' ' + fixKwd((*q)->name()));
     }
 
@@ -101,7 +103,8 @@ Slice::JavaVisitor::getParamsAsync(const OperationPtr& op, const string& package
     {
 	if(!(*q)->isOutParam())
 	{
-	    string typeString = typeToString((*q)->type(), TypeModeIn, package);
+            StringList metaData = (*q)->getMetaData();
+	    string typeString = typeToString((*q)->type(), TypeModeIn, package, metaData);
 	    params.push_back(typeString + ' ' + fixKwd((*q)->name()));
 	}
     }
@@ -117,7 +120,7 @@ Slice::JavaVisitor::getParamsAsyncCB(const OperationPtr& op, const string& packa
     TypePtr ret = op->returnType();
     if(ret)
     {
-	string retS = typeToString(ret, TypeModeIn, package);
+	string retS = typeToString(ret, TypeModeIn, package, op->getMetaData());
 	params.push_back(retS + " __ret");
     }
 
@@ -126,7 +129,7 @@ Slice::JavaVisitor::getParamsAsyncCB(const OperationPtr& op, const string& packa
     {
 	if((*q)->isOutParam())
 	{
-	    string typeString = typeToString((*q)->type(), TypeModeIn, package);
+	    string typeString = typeToString((*q)->type(), TypeModeIn, package, (*q)->getMetaData());
 	    params.push_back(typeString + ' ' + fixKwd((*q)->name()));
 	}
     }
@@ -540,7 +543,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	}
 	if(generateOperation)
 	{
-	    out << sp << nl << "public final " << typeToString(ret, TypeModeReturn, package)
+	    out << sp << nl << "public final " << typeToString(ret, TypeModeReturn, package, op->getMetaData())
 		<< nl << opName << spar << params << epar;
 	    writeThrowsClause(package, throws);
 	    out << sb << nl;
@@ -562,6 +565,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = *r;
+        StringList opMetaData = op->getMetaData();
         ContainerPtr container = op->container();
         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
 	assert(cl);
@@ -576,18 +580,19 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	{
 	    TypePtr ret = op->returnType();
 	    
-	    TypeStringList inParams;
-	    TypeStringList outParams;
+	    ParamDeclList inParams;
+	    ParamDeclList outParams;
 	    ParamDeclList paramList = op->parameters();
-	    for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+	    ParamDeclList::const_iterator pli;
+	    for(pli = paramList.begin(); pli != paramList.end(); ++pli)
 	    {
 		if((*pli)->isOutParam())
 		{
-		    outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+		    outParams.push_back(*pli);
 		}
 		else
 		{
-		    inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+		    inParams.push_back(*pli);
 		}
 	    }
 	    
@@ -608,7 +613,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    throws.sort(Slice::DerivedToBaseCompare());
 #endif
 
-	    TypeStringList::const_iterator q;
 	    int iter;
 	    
 	    if(!inParams.empty())
@@ -624,20 +628,23 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    // Unmarshal 'in' parameters.
 	    //
 	    iter = 0;
-	    for(q = inParams.begin(); q != inParams.end(); ++q)
+	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
 	    {
-		string typeS = typeToString(q->first, TypeModeIn, package);
-		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+                StringList metaData = (*pli)->getMetaData();
+                TypePtr paramType = (*pli)->type();
+                string paramName = fixKwd((*pli)->name());
+		string typeS = typeToString(paramType, TypeModeIn, package, metaData);
+		BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
 		{
-		    out << nl << typeS << "Holder " << fixKwd(q->second) << " = new " << typeS << "Holder();";
-		    writeMarshalUnmarshalCode(out, package, q->first, fixKwd(q->second), false, iter, true,
-					      StringList(), string());
+		    out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
+		    writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, true,
+					      metaData, string());
 		}
 		else
 		{
-		    out << nl << typeS << ' ' << fixKwd(q->second) << ';';
-		    writeMarshalUnmarshalCode(out, package, q->first, fixKwd(q->second), false, iter);
+		    out << nl << typeS << ' ' << paramName << ';';
+		    writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, false, metaData);
 		}
 	    }
 	    if(op->sendsClasses())
@@ -648,10 +655,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    //
 	    // Create holders for 'out' parameters.
 	    //
-	    for(q = outParams.begin(); q != outParams.end(); ++q)
+	    for(pli = outParams.begin(); pli != outParams.end(); ++pli)
 	    {
-		string typeS = typeToString(q->first, TypeModeOut, package);
-		out << nl << typeS << ' ' << fixKwd(q->second) << " = new " << typeS << "();";
+		string typeS = typeToString((*pli)->type(), TypeModeOut, package, (*pli)->getMetaData());
+		out << nl << typeS << ' ' << fixKwd((*pli)->name()) << " = new " << typeS << "();";
 	    }
 	    
 	    //
@@ -665,36 +672,38 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    out << nl;
 	    if(ret)
 	    {
-		string retS = typeToString(ret, TypeModeReturn, package);
+		string retS = typeToString(ret, TypeModeReturn, package, opMetaData);
 		out << retS << " __ret = ";
 	    }
 	    out << "__obj." << opName << '(';
-	    for(q = inParams.begin(); q != inParams.end(); ++q)
+	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
 	    {
-		out << fixKwd(q->second);
-		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+                TypePtr paramType = (*pli)->type();
+		out << fixKwd((*pli)->name());
+		BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
 		{
 		    out << ".value";
 		}
 		out << ", ";
 	    }
-	    for(q = outParams.begin(); q != outParams.end(); ++q)
+	    for(pli = outParams.begin(); pli != outParams.end(); ++pli)
 	    {
-		out << fixKwd(q->second) << ", ";
+		out << fixKwd((*pli)->name()) << ", ";
 	    }
 	    out << "__current);";
 	    
 	    //
 	    // Marshal 'out' parameters and return value.
 	    //
-	    for(q = outParams.begin(); q != outParams.end(); ++q)
+	    for(pli = outParams.begin(); pli != outParams.end(); ++pli)
 	    {
-		writeMarshalUnmarshalCode(out, package, q->first, fixKwd(q->second), true, iter, true);
+		writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), true, iter, true,
+                                          (*pli)->getMetaData());
 	    }
 	    if(ret)
 	    {
-		writeMarshalUnmarshalCode(out, package, ret, "__ret", true, iter);
+		writeMarshalUnmarshalCode(out, package, ret, "__ret", true, iter, false, opMetaData);
 	    }
 	    if(op->returnsClasses())
 	    {
@@ -724,17 +733,17 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	}
 	else
 	{
-	    TypeStringList inParams;
+	    ParamDeclList inParams;
 	    ParamDeclList paramList = op->parameters();
-	    for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+	    ParamDeclList::const_iterator pli;
+	    for(pli = paramList.begin(); pli != paramList.end(); ++pli)
 	    {
 		if(!(*pli)->isOutParam())
 		{
-		    inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+		    inParams.push_back(*pli);
 		}
 	    }
 	    
-	    TypeStringList::const_iterator q;
 	    int iter;
 	    
 	    if(!inParams.empty())
@@ -746,20 +755,23 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    // Unmarshal 'in' parameters.
 	    //
 	    iter = 0;
-	    for(q = inParams.begin(); q != inParams.end(); ++q)
+	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
 	    {
-		string typeS = typeToString(q->first, TypeModeIn, package);
-		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+                StringList metaData = (*pli)->getMetaData();
+                TypePtr paramType = (*pli)->type();
+                string paramName = fixKwd((*pli)->name());
+		string typeS = typeToString(paramType, TypeModeIn, package, metaData);
+		BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
 		{
-		    out << nl << typeS << "Holder " << fixKwd(q->second) << " = new " << typeS << "Holder();";
-		    writeMarshalUnmarshalCode(out, package, q->first, fixKwd(q->second), false, iter, true,
-					      StringList(), string());
+		    out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
+		    writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, true, metaData,
+                                              string());
 		}
 		else
 		{
-		    out << nl << typeS << ' ' << fixKwd(q->second) << ';';
-		    writeMarshalUnmarshalCode(out, package, q->first, fixKwd(q->second), false, iter);
+		    out << nl << typeS << ' ' << paramName << ';';
+		    writeMarshalUnmarshalCode(out, package, paramType, paramName, false, iter, false, metaData);
 		}
 	    }
 	    if(op->sendsClasses())
@@ -776,11 +788,12 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             out << nl << "try";
             out << sb;
 	    out << nl << "__obj." << opName << (amd ? "_async(__cb, " : "(");
-	    for(q = inParams.begin(); q != inParams.end(); ++q)
+	    for(pli = inParams.begin(); pli != inParams.end(); ++pli)
 	    {
-		out << fixKwd(q->second);
-		BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+                TypePtr paramType = (*pli)->type();
+		out << fixKwd((*pli)->name());
+		BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
 		{
 		    out << ".value";
 		}
@@ -1135,7 +1148,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 	    ret = op->returnType();
 	}
 
-	string retS = typeToString(ret, TypeModeReturn, package);
+	string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
 	
 	ExceptionList throws = op->throws();
 	throws.sort();
@@ -1266,7 +1279,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
 
         TypePtr ret = (*r)->returnType();
-        string retS = typeToString(ret, TypeModeReturn, package);
+        string retS = typeToString(ret, TypeModeReturn, package, (*r)->getMetaData());
 
         vector<string> params;
 	vector<string> args;
@@ -2446,7 +2459,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         OperationPtr op = *r;
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
-        string retS = typeToString(ret, TypeModeReturn, package);
+        string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
 
         vector<string> params = getParams(op, package);
         vector<string> args = getArgs(op);
@@ -3073,7 +3086,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     Output& out = output();
 
     TypePtr ret = p->returnType();
-    string retS = typeToString(ret, TypeModeReturn, package);
+    string retS = typeToString(ret, TypeModeReturn, package, p->getMetaData());
     vector<string> params = getParams(p, package);
     ExceptionList throws = p->throws();
     throws.sort();
@@ -3160,7 +3173,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         OperationPtr op = *r;
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
-        string retS = typeToString(ret, TypeModeReturn, package);
+        string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
 
         vector<string> params = getParams(op, package);
 
@@ -3214,27 +3227,27 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(r = ops.begin(); r != ops.end(); ++r)
     {
         OperationPtr op = *r;
+        StringList opMetaData = op->getMetaData();
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
-        string retS = typeToString(ret, TypeModeReturn, package);
+        string retS = typeToString(ret, TypeModeReturn, package, opMetaData);
         int iter;
 
-        TypeStringList inParams;
-        TypeStringList outParams;
+        ParamDeclList inParams;
+        ParamDeclList outParams;
 	ParamDeclList paramList = op->parameters();
-	for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+	ParamDeclList::const_iterator pli;
+	for(pli = paramList.begin(); pli != paramList.end(); ++pli)
 	{
 	    if((*pli)->isOutParam())
 	    {
-		outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+		outParams.push_back(*pli);
 	    }
 	    else
 	    {
-		inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+		inParams.push_back(*pli);
 	    }
 	}
-
-        TypeStringList::const_iterator q;
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -3269,9 +3282,10 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "IceInternal.BasicStream __os = __out.os();";
         }
         iter = 0;
-        for(q = inParams.begin(); q != inParams.end(); ++q)
+        for(pli = inParams.begin(); pli != inParams.end(); ++pli)
         {
-            writeMarshalUnmarshalCode(out, package, q->first, fixKwd(q->second), true, iter);
+            writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), true, iter, false,
+                                      (*pli)->getMetaData());
         }
 	if(op->sendsClasses())
 	{
@@ -3299,9 +3313,10 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "throw new Ice.UnknownUserException();";
 	out << eb;
         out << eb;
-        for(q = outParams.begin(); q != outParams.end(); ++q)
+        for(pli = outParams.begin(); pli != outParams.end(); ++pli)
         {
-            writeMarshalUnmarshalCode(out, package, q->first, fixKwd(q->second), false, iter, true);
+            writeMarshalUnmarshalCode(out, package, (*pli)->type(), fixKwd((*pli)->name()), false, iter, true,
+                                      (*pli)->getMetaData());
         }
         if(ret)
         {
@@ -3314,7 +3329,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    else
 	    {
 		out << nl << retS << " __ret;";
-		writeMarshalUnmarshalCode(out, package, ret, "__ret", false, iter);
+		writeMarshalUnmarshalCode(out, package, ret, "__ret", false, iter, false, opMetaData);
 	    }
         }
 	if(op->returnsClasses())
@@ -3388,7 +3403,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
         OperationPtr op = *r;
         string opName = fixKwd(op->name());
         TypePtr ret = op->returnType();
-        string retS = typeToString(ret, TypeModeReturn, package);
+        string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData());
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -3512,9 +3527,10 @@ Slice::Gen::BaseImplVisitor::BaseImplVisitor(const string& dir) :
 }
 
 void
-Slice::Gen::BaseImplVisitor::writeDecl(Output& out, const string& package, const string& name, const TypePtr& type)
+Slice::Gen::BaseImplVisitor::writeDecl(Output& out, const string& package, const string& name, const TypePtr& type,
+                                       const StringList& metaData)
 {
-    out << nl << typeToString(type, TypeModeIn, package) << ' ' << name;
+    out << nl << typeToString(type, TypeModeIn, package, metaData) << ' ' << name;
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -3643,7 +3659,8 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
     string opName = fixKwd(op->name());
 
     TypePtr ret = op->returnType();
-    string retS = typeToString(ret, TypeModeReturn, package);
+    StringList opMetaData = op->getMetaData();
+    string retS = typeToString(ret, TypeModeReturn, package, opMetaData);
     vector<string> params = getParams(op, package);
 
     ContainerPtr container = op->container();
@@ -3688,13 +3705,13 @@ Slice::Gen::BaseImplVisitor::writeOperation(Output& out, const string& package, 
         }
         if(ret)
         {
-            writeDecl(out, package, result, ret);
+            writeDecl(out, package, result, ret, opMetaData);
         }
         for(q = paramList.begin(); q != paramList.end(); ++q)
         {
             if((*q)->isOutParam())
             {
-                writeDecl(out, package, fixKwd((*q)->name()), (*q)->type());
+                writeDecl(out, package, fixKwd((*q)->name()), (*q)->type(), (*q)->getMetaData());
             }
         }
 
@@ -3918,6 +3935,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
     string name = fixKwd(p->name());
     string classPkg = getPackage(cl);
+    StringList opMetaData = p->getMetaData();
     
     if(cl->hasMetaData("ami") || p->hasMetaData("ami"))
     {
@@ -3933,18 +3951,19 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
         TypePtr ret = p->returnType();
 
-	TypeStringList inParams;
-        TypeStringList outParams;
+	ParamDeclList inParams;
+        ParamDeclList outParams;
 	ParamDeclList paramList = p->parameters();
-	for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+	ParamDeclList::const_iterator pli;
+	for(pli = paramList.begin(); pli != paramList.end(); ++pli)
 	{
 	    if((*pli)->isOutParam())
 	    {
-		outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+		outParams.push_back(*pli);
 	    }
 	    else
 	    {
-		inParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+		inParams.push_back(*pli);
 	    }
 	}
 
@@ -3964,7 +3983,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	throws.sort(Slice::DerivedToBaseCompare());
 #endif
 
-        TypeStringList::const_iterator q;
         int iter;
 
 	vector<string> params = getParamsAsyncCB(p, classPkg);
@@ -3989,10 +4007,13 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	out << nl << "try";
 	out << sb;
 	out << nl << "__prepare(__prx, \"" << p->name() << "\", " << sliceModeToIceMode(p) << ", __ctx);";
-	for(q = inParams.begin(); q != inParams.end(); ++q)
+        iter = 0;
+	for(pli = inParams.begin(); pli != inParams.end(); ++pli)
 	{
-	    string typeS = typeToString(q->first, TypeModeIn, classPkg);
-	    writeMarshalUnmarshalCode(out, classPkg, q->first, fixKwd(q->second), true, iter);
+            StringList metaData = (*pli)->getMetaData();
+	    string typeS = typeToString((*pli)->type(), TypeModeIn, classPkg, metaData);
+	    writeMarshalUnmarshalCode(out, classPkg, (*pli)->type(), fixKwd((*pli)->name()), true, iter, false,
+                                      metaData);
 	}
 	if(p->sendsClasses())
 	{
@@ -4010,22 +4031,24 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 
 	out << sp << nl << "protected final void" << nl << "__response(boolean __ok)";
 	out << sb;
-        for(q = outParams.begin(); q != outParams.end(); ++q)
+        for(pli = outParams.begin(); pli != outParams.end(); ++pli)
         {
-            string typeS = typeToString(q->first, TypeModeIn, classPkg);
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+            TypePtr paramType = (*pli)->type();
+            string paramName = fixKwd((*pli)->name());
+            string typeS = typeToString(paramType, TypeModeIn, classPkg, (*pli)->getMetaData());
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
 	    {
-		out << nl << typeS << "Holder " << fixKwd(q->second) << " = new " << typeS << "Holder();";
+		out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
 	    }
 	    else
 	    {
-		out << nl << typeS << ' ' << fixKwd(q->second) << ';';
+		out << nl << typeS << ' ' << paramName << ';';
 	    }
         }
         if(ret)
         {
-	    string retS = typeToString(ret, TypeModeIn, classPkg);
+	    string retS = typeToString(ret, TypeModeIn, classPkg, opMetaData);
 	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
 	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
 	    {
@@ -4056,16 +4079,19 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         out << nl << "throw new Ice.UnknownUserException();";
 	out << eb;
         out << eb;
-        for(q = outParams.begin(); q != outParams.end(); ++q)
+        for(pli = outParams.begin(); pli != outParams.end(); ++pli)
         {
-	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(q->first);
-	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
+            TypePtr paramType = (*pli)->type();
+            string paramName = fixKwd((*pli)->name());
+	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
+	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
 	    {
-		out << nl << "__is.readObject(" << fixKwd(q->second) << ".getPatcher());";
+		out << nl << "__is.readObject(" << paramName << ".getPatcher());";
 	    }
 	    else
 	    {
-		writeMarshalUnmarshalCode(out, classPkg, q->first, fixKwd(q->second), false, iter);
+		writeMarshalUnmarshalCode(out, classPkg, paramType, paramName, false, iter, false,
+                                          (*pli)->getMetaData());
 	    }
         }
         if(ret)
@@ -4077,7 +4103,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    }
 	    else
 	    {
-		writeMarshalUnmarshalCode(out, classPkg, ret, "__ret", false, iter);
+		writeMarshalUnmarshalCode(out, classPkg, ret, "__ret", false, iter, false, opMetaData);
 	    }
         }
 	if(p->returnsClasses())
@@ -4142,13 +4168,14 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    
 	    TypePtr ret = p->returnType();
 	    
-	    TypeStringList outParams;
+	    ParamDeclList outParams;
 	    ParamDeclList paramList = p->parameters();
-	    for(ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+	    ParamDeclList::const_iterator pli;
+	    for(pli = paramList.begin(); pli != paramList.end(); ++pli)
 	    {
 		if((*pli)->isOutParam())
 		{
-		    outParams.push_back(make_pair((*pli)->type(), (*pli)->name()));
+		    outParams.push_back(*pli);
 		}
 	    }
 	    
@@ -4156,7 +4183,6 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    throws.sort();
 	    throws.unique();
 
-	    TypeStringList::const_iterator q;
 	    int iter;
 
 	    out << sp << nl << "final class " << classNameAMDI << '_' << name
@@ -4172,20 +4198,23 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    out << sb;
 	    out << nl << "if(!_finished)";
 	    out << sb;
+            iter = 0;
 	    if(ret || !outParams.empty())
 	    {
 		out << nl << "try";
 		out << sb;
 		out << nl << "IceInternal.BasicStream __os = this.__os();";
-		for(q = outParams.begin(); q != outParams.end(); ++q)
+		for(pli = outParams.begin(); pli != outParams.end(); ++pli)
 		{
-		    string typeS = typeToString(q->first, TypeModeIn, classPkg);
-		    writeMarshalUnmarshalCode(out, classPkg, q->first, fixKwd(q->second), true, iter);
+                    StringList metaData = (*pli)->getMetaData();
+		    string typeS = typeToString((*pli)->type(), TypeModeIn, classPkg, metaData);
+		    writeMarshalUnmarshalCode(out, classPkg, (*pli)->type(), fixKwd((*pli)->name()), true, iter,
+                                              false, metaData);
 		}
 		if(ret)
 		{
-		    string retS = typeToString(ret, TypeModeIn, classPkg);
-		    writeMarshalUnmarshalCode(out, classPkg, ret, "__ret", true, iter);
+		    string retS = typeToString(ret, TypeModeIn, classPkg, opMetaData);
+		    writeMarshalUnmarshalCode(out, classPkg, ret, "__ret", true, iter, false, opMetaData);
 		}
 		if(p->returnsClasses())
 		{

@@ -462,13 +462,28 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
+        string listType = findMetaData(metaData);
         if(mode == TypeModeOut)
         {
-            return getAbsolute(seq, package, "", "Holder");
+            if(listType.empty())
+            {
+                return getAbsolute(seq, package, "", "Holder");
+            }
+            else if(listType == "java.util.ArrayList")
+            {
+                return "Ice.ArrayListHolder";
+            }
+            else if(listType == "java.util.LinkedList")
+            {
+                return "Ice.LinkedListHolder";
+            }
+            else
+            {
+                return "Ice.ListHolder";
+            }
         }
         else
         {
-            string listType = findMetaData(metaData);
             if(listType.empty())
             {
                 StringList l = seq->getMetaData();

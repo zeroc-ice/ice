@@ -1143,10 +1143,10 @@ parameters
 : // empty
 {
 }
-| out_qualifier type_id
+| out_qualifier meta_data type_id
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
-    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($2);
+    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($3);
     TypePtr type = tsp->v.first;
     string ident = tsp->v.second;
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
@@ -1154,12 +1154,17 @@ parameters
     {
 	ParamDeclPtr pd = op->createParamDecl(ident, type, isOutParam->v);
 	unit->currentContainer()->checkIntroduced(ident, pd);
+        StringListTokPtr metaData = StringListTokPtr::dynamicCast($2);
+        if(!metaData->v.empty())
+        {
+            pd->setMetaData(metaData->v);
+        }
     }
 }
-| parameters ',' out_qualifier type_id
+| parameters ',' out_qualifier meta_data type_id
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
-    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($4);
+    TypeStringTokPtr tsp = TypeStringTokPtr::dynamicCast($5);
     TypePtr type = tsp->v.first;
     string ident = tsp->v.second;
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
@@ -1167,13 +1172,18 @@ parameters
     {
 	ParamDeclPtr pd = op->createParamDecl(ident, type, isOutParam->v);
 	unit->currentContainer()->checkIntroduced(ident, pd);
+        StringListTokPtr metaData = StringListTokPtr::dynamicCast($4);
+        if(!metaData->v.empty())
+        {
+            pd->setMetaData(metaData->v);
+        }
     }
 }
-| out_qualifier type keyword
+| out_qualifier meta_data type keyword
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
-    TypePtr type = TypePtr::dynamicCast($2);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
+    TypePtr type = TypePtr::dynamicCast($3);
+    StringTokPtr ident = StringTokPtr::dynamicCast($4);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
@@ -1181,11 +1191,11 @@ parameters
 	unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
-| parameters ',' out_qualifier type keyword
+| parameters ',' out_qualifier meta_data type keyword
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
-    TypePtr type = TypePtr::dynamicCast($4);
-    StringTokPtr ident = StringTokPtr::dynamicCast($5);
+    TypePtr type = TypePtr::dynamicCast($5);
+    StringTokPtr ident = StringTokPtr::dynamicCast($6);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
@@ -1193,10 +1203,10 @@ parameters
 	unit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
-| out_qualifier type
+| out_qualifier meta_data type
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($1);
-    TypePtr type = TypePtr::dynamicCast($2);
+    TypePtr type = TypePtr::dynamicCast($3);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
@@ -1204,10 +1214,10 @@ parameters
 	unit->error("missing parameter name");
     }
 }
-| parameters ',' out_qualifier type
+| parameters ',' out_qualifier meta_data type
 {
     BoolTokPtr isOutParam = BoolTokPtr::dynamicCast($3);
-    TypePtr type = TypePtr::dynamicCast($4);
+    TypePtr type = TypePtr::dynamicCast($5);
     OperationPtr op = OperationPtr::dynamicCast(unit->currentContainer());
     if(op)
     {
