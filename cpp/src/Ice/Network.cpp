@@ -23,15 +23,6 @@ using namespace IceInternal;
 #    define INADDR_NONE -1
 #endif
 
-#ifdef _WIN32
-#   define HAVE_NO_GETHOSTBYNAME_R
-#endif
-
-#ifdef HAVE_NO_GETHOSTBYNAME_R
-#   include <IceUtil/StaticMutex.h>
-static IceUtil::StaticMutex getHostByNameMutex;
-#endif
-
 bool
 IceInternal::interrupted()
 {
@@ -607,62 +598,60 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 
     if(addr.sin_addr.s_addr == INADDR_NONE)
     {
+
+#ifdef _WIN32
+	//
+	// Windows XP has getaddrinfo(), but we don't want to require XP to run Ice.
+	//
+	
+	//
+	// gethostbyname() is thread safe on Windows, with a separate hostent per thread
+	//
 	struct hostent* entry;
 	int retry = 5;
-
-#ifdef HAVE_NO_GETHOSTBYNAME_R
-
-	IceUtil::StaticMutex::Lock sync(getHostByNameMutex);
-	
 	do
 	{
 	    entry = gethostbyname(host.c_str());
 	}
-#ifdef _WIN32
-	while(!entry && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
-#else
-	while(!entry && h_errno == TRY_AGAIN && --retry >= 0);
-#endif
-
-	if(!entry)
+	while(entry == 0 && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
+	
+	if(entry == 0)
 	{
 	    DNSException ex(__FILE__, __LINE__);
-#ifdef _WIN32
+
 	    ex.error = WSAGetLastError();
-#else
-	    ex.error = h_errno;
-#endif
 	    ex.host = host;
 	    throw ex;
 	}
+	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
 
 #else
+	struct addrinfo* info = 0;
+	int retry = 5;
 
-	struct hostent entryBuf;
-	vector<char> buf(1024);
-	int res;
-	int herr = 0;
-
+	struct addrinfo hints = { 0 };
+	hints.ai_family = PF_INET;
+	
+	int rs = 0;
 	do
 	{
-	    while((res = gethostbyname_r(host.c_str(), &entryBuf, &buf[0], buf.size(), &entry, &herr)) == ERANGE)
-	    {
-		buf.resize(buf.size() * 2);
-	    }
-	}
-	while(res != 0 && herr == TRY_AGAIN && --retry >= 0);
-
-	if(res)
+	    rs = getaddrinfo(host.c_str(), 0, &hints, &info);    
+	} while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
+	
+	if(rs != 0)
 	{
 	    DNSException ex(__FILE__, __LINE__);
-	    ex.error = herr;
+	    ex.error = rs;
 	    ex.host = host;
 	    throw ex;
 	}
 
-#endif
+	assert(info->ai_family == PF_INET);
+	struct sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(info->ai_addr);
 
-	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
+	addr.sin_addr.s_addr = sin->sin_addr.s_addr;
+	freeaddrinfo(info);
+#endif
     }
 }
 
@@ -677,74 +666,78 @@ IceInternal::getLocalHost(bool numeric)
 	throw ex;
     }
     
+#ifdef _WIN32
+    //
+    // Windows XP has getaddrinfo(), but we don't want to require XP to run Ice.
+    //
+	
+    //
+    // gethostbyname() is thread safe on Windows, with a separate hostent per thread
+    //
+    struct hostent* entry;
+    int retry = 5;
+    do
     {
-	struct hostent* entry;
-	int retry = 5;
-	
-#ifdef HAVE_NO_GETHOSTBYNAME_R
-
-	IceUtil::StaticMutex::Lock sync(getHostByNameMutex);
-	
-	do
-	{
-	    entry = gethostbyname(host);
-	}
-#ifdef _WIN32
-	while(!entry && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
-#else
-	while(!entry && h_errno == TRY_AGAIN && --retry >= 0);
-#endif
-	
-	if(!entry)
-	{
-	    DNSException ex(__FILE__, __LINE__);
-#ifdef _WIN32
-	    ex.error = WSAGetLastError();
-#else
-	    ex.error = h_errno;
-#endif
-	    ex.host = host;
-	    throw ex;
-	}
-
-#else
-
-	struct hostent entryBuf;
-	vector<char> buf(1024);
-	int res;
-	int herr = 0;
-
-	do
-	{
-	    while((res = gethostbyname_r(host, &entryBuf, &buf[0], buf.size(), &entry, &herr)) == ERANGE)
-	    {
-		buf.resize(buf.size() * 2);
-	    }
-	}
-	while(res != 0 && herr == TRY_AGAIN && --retry >= 0);
-
-	if(res)
-	{
-	    DNSException ex(__FILE__, __LINE__);
-	    ex.error = herr;
-	    ex.host = host;
-	    throw ex;
-	}
-
-#endif
-
-	if(numeric)
-	{
-	    struct sockaddr_in addr;
-	    memset(&addr, 0, sizeof(struct sockaddr_in));
-	    memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
-	    return string(inet_ntoa(addr.sin_addr));
-	}
-	else
-	{
-	    return string(entry->h_name);
-	}
+	entry = gethostbyname(host);
     }
+    while(entry == 0 && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
+    
+    if(entry == 0)
+    {
+	DNSException ex(__FILE__, __LINE__);
+	ex.error = WSAGetLastError();
+	ex.host = host;
+	throw ex;
+    }
+
+    if(numeric)
+    {
+	struct sockaddr_in addr;
+	memset(&addr, 0, sizeof(struct sockaddr_in));
+	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
+	return string(inet_ntoa(addr.sin_addr));
+    }
+    else
+    {
+	return string(entry->h_name);
+    }
+
+#else
+    
+    struct addrinfo* info = 0;
+    int retry = 5;
+    
+    struct addrinfo hints = { 0 };
+    hints.ai_family = PF_INET;
+    
+    int rs = 0;
+    do
+    {
+	rs = getaddrinfo(host, 0, &hints, &info);    
+    } while(info == 0 && rs == EAI_AGAIN && --retry >= 0);
+    
+    if(rs != 0)
+    {
+	DNSException ex(__FILE__, __LINE__);
+	ex.error = rs;
+	ex.host = host;
+	throw ex;
+    }
+    
+    string result;
+    if(numeric)
+    {
+	assert(info->ai_family == PF_INET);
+	struct sockaddr_in* sin = reinterpret_cast<sockaddr_in*>(info->ai_addr);
+	result = inet_ntoa(sin->sin_addr);
+    }
+    else
+    {
+	result = info->ai_canonname;
+    }
+    freeaddrinfo(info);
+    return result;
+#endif
 }
 
 bool
@@ -1017,29 +1010,7 @@ IceInternal::errorToString(int error)
 string
 IceInternal::errorToStringDNS(int error)
 {
-    switch(error)
-    {
-    case NETDB_SUCCESS:
-	return "no problem";
-
-    case NETDB_INTERNAL:
-	return "internal problem";
-
-    case HOST_NOT_FOUND:
-	return "no such host is known";
-	
-    case TRY_AGAIN:
-	return "temporary error, try again";
-	
-    case NO_RECOVERY:
-	return "unexpected server failure";
-	
-    case NO_DATA:
-	return "name has no IP address";
-
-    default:
-	return "unknown DNS error";
-    }
+    return gai_strerror(error);
 }
 
 #endif
@@ -1053,18 +1024,6 @@ IceInternal::lastErrorToString()
     return errorToString(errno);
 #endif
 }
-
-string
-IceInternal::lastErrorToStringDNS()
-{
-#ifdef _WIN32
-    return errorToStringDNS(WSAGetLastError());
-#else
-    return errorToStringDNS(h_errno);
-#endif
-}
-
-static IceUtil::Mutex inetNtoaMutex;
 
 std::string
 IceInternal::fdToString(SOCKET fd)
@@ -1103,28 +1062,26 @@ IceInternal::fdToString(SOCKET fd)
     }
 
     ostringstream s;
-
+    s << "local address = " << inet_ntoa(localAddr.sin_addr) << ':' << ntohs(localAddr.sin_port);
+    if(peerNotConnected)
     {
-	IceUtil::Mutex::Lock sync(inetNtoaMutex);
-
-	s << "local address = " << inet_ntoa(localAddr.sin_addr) << ':' << ntohs(localAddr.sin_port);
-	if(peerNotConnected)
-	{
-	    s << "\nremote address = <not connected>";
-	}
-	else
-	{
-	    s << "\nremote address = " << inet_ntoa(remoteAddr.sin_addr) << ':' << ntohs(remoteAddr.sin_port);
-	}
+	s << "\nremote address = <not connected>";
     }
-
+    else
+    {
+	s << "\nremote address = " << inet_ntoa(remoteAddr.sin_addr) << ':' << ntohs(remoteAddr.sin_port);
+    }
     return s.str();
 }
 
 std::string
 IceInternal::addrToString(const struct sockaddr_in& addr)
 {
-    IceUtil::Mutex::Lock sync(inetNtoaMutex);
+    //
+    // inet_ntoa uses thread-specific data on Windows, Linux, Solaris
+    // and HP-UX
+    //
+
     ostringstream s;
     s << inet_ntoa(addr.sin_addr) << ':' << ntohs(addr.sin_port);
     return s.str();

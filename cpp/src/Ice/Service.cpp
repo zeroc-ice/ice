@@ -26,6 +26,8 @@
 #else
 #   include <Ice/Logger.h>
 #   include <Ice/Network.h>
+#   include <sys/types.h>
+#   include <sys/stat.h>
 #endif
 
 #include <fstream>

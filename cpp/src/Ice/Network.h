@@ -100,7 +100,6 @@ ICE_PROTOCOL_API void createPipe(SOCKET fds[2]);
 ICE_PROTOCOL_API std::string errorToString(int);
 ICE_PROTOCOL_API std::string errorToStringDNS(int);
 ICE_PROTOCOL_API std::string lastErrorToString();
-ICE_PROTOCOL_API std::string lastErrorToStringDNS();
 
 ICE_PROTOCOL_API std::string fdToString(SOCKET);
 ICE_PROTOCOL_API std::string addrToString(const struct sockaddr_in&);
