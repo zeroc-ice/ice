@@ -181,7 +181,7 @@ TestApp::IntIntMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     _watch.start();
     for(i = 0; i < _repetitions; ++i)
     {
-	m.insert(IntIntMap::value_type(i, i));
+	m.put(IntIntMap::value_type(i, i));
     }
     double total = _watch.stop();
     double perRecord = total / _repetitions;
@@ -255,7 +255,7 @@ TestApp::IntIntMapReadTest(const Freeze::DBEnvironmentPtr& dbEnv)
     _watch.start();
     for(i = 0; i < _repetitions; ++i)
     {
-	m.insert(IntIntMap::value_type(i, i));
+	m.put(IntIntMap::value_type(i, i));
     }
     double total = _watch.stop();
     double perRecord = total / _repetitions;
@@ -318,7 +318,7 @@ TestApp::Struct1Struct2MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
 	ostringstream os;
 	os << i;
 	s2.s = os.str();
-	m.insert(Struct1Struct2Map::value_type(s1, s2));
+	m.put(Struct1Struct2Map::value_type(s1, s2));
     }
     double total = _watch.stop();
     double perRecord = total / _repetitions;
@@ -382,7 +382,7 @@ TestApp::Struct1Class1MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
 	ostringstream os;
 	os << i;
 	c1->s = os.str();
-	m.insert(Struct1Class1Map::value_type(s1, c1));
+	m.put(Struct1Class1Map::value_type(s1, c1));
     }
     double total = _watch.stop();
     double perRecord = total / _repetitions;
@@ -459,7 +459,7 @@ TestApp::Struct1ObjectMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
 	ostringstream os;
 	os << i;
 	c1->s = os.str();
-	m.insert(Struct1ObjectMap::value_type(s1, o));
+	m.put(Struct1ObjectMap::value_type(s1, o));
     }
     double total = _watch.stop();
     double perRecord = total / _repetitions;

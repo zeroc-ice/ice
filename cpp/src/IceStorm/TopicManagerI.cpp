@@ -87,7 +87,7 @@ TopicManagerI::create(const string& name, const Ice::Current&)
     }
 
     installTopic("create", name, true);
-    _topics.insert(pair<const string, const bool>(name, true));
+    _topics.put(pair<const string, const bool>(name, true));
 
     //
     // The identity is the name of the Topic.

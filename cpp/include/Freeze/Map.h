@@ -518,37 +518,16 @@ public:
     {
     }
 
-#ifdef __STL_MEMBER_TEMPLATES
     template <class _InputIterator>
     DBMap(const DBPtr& db, _InputIterator first, _InputIterator last) :
 	_db(db)
     {
 	while(first != last)
 	{
-	    insert(*first);
+	    put(*first);
 	    ++first;
 	}
     }
-#else
-    DBMap(const DBPtr& db, const value_type* first, const value_type* last) :
-	_db(db)
-    {
-	while(first != last)
-	{
-	    insert(*first);
-	    ++first;
-	}
-    }
-    DBMap(const DBPtr& db, const_iterator first, const_iterator last) :
-	_db(db)
-    { 
-	while(first != last)
-	{
-	    insert(*first);
-	    ++first;
-	}
-    }
-#endif /*__STL_MEMBER_TEMPLATES */
 
     ~DBMap()
     {
@@ -666,7 +645,7 @@ public:
     //
     //allocator_type get_allocator() const;
     //
-
+ 
     iterator insert(iterator /*position*/, const value_type& key)
     {
 	//
@@ -674,13 +653,30 @@ public:
 	//
 	Ice::CommunicatorPtr communicator = _db->getCommunicator();
 
-	Freeze::Key k;
-	Freeze::Value v;
-	KeyCodec::write(key.first, k, communicator);
-	ValueCodec::write(key.second, v, communicator);
+	DBCursorPtr cursor;
+	bool alreadyThere;
 
-	_db->put(k, v);
-	DBCursorPtr cursor = _db->getCursorAtKey(k);
+	Freeze::Key k;
+	KeyCodec::write(key.first, k, communicator);
+	
+	try
+	{
+	    cursor = _db->getCursorAtKey(k);
+	    alreadyThere = true;
+	}
+	catch(const DBNotFoundException&)
+	{
+	    alreadyThere = false;
+	}
+
+	if(!alreadyThere)
+	{
+	    Freeze::Value v;
+	    ValueCodec::write(key.second, v, communicator);
+	    
+	    _db->put(k, v);
+	    cursor = _db->getCursorAtKey(k);
+	}
 
 	return iterator(_db, cursor);
     }
@@ -690,9 +686,7 @@ public:
 	Ice::CommunicatorPtr communicator = _db->getCommunicator();
 
 	Freeze::Key k;
-	Freeze::Value v;
 	KeyCodec::write(key.first, k, communicator);
-	ValueCodec::write(key.second, v, communicator);
 
 	DBCursorPtr cursor;
 	bool inserted;
@@ -710,15 +704,17 @@ public:
 	    inserted = true;
 	}
 
-	_db->put(k, v);
 	if(inserted)
 	{
+	    Freeze::Value v;
+	    ValueCodec::write(key.second, v, communicator);
+
+	    _db->put(k, v);
 	    cursor = _db->getCursorAtKey(k);
 	}
 	return std::pair<iterator, bool>(iterator(_db, cursor), inserted);
     }
 
-#ifdef __STL_MEMBER_TEMPLATES
     template <typename InputIterator>
     void insert(InputIterator first, InputIterator last)
     {
@@ -728,24 +724,31 @@ public:
 	    ++first;
 	}
     }
-#else
-    void insert(const value_type* first, const value_type* last)
+
+    void put(const value_type& key)
+    {
+	//
+	// insert or replace (like DB->put)
+	//
+	Ice::CommunicatorPtr communicator = _db->getCommunicator();
+
+	Freeze::Key k;
+	Freeze::Value v;
+	KeyCodec::write(key.first, k, communicator);
+	ValueCodec::write(key.second, v, communicator);
+
+	_db->put(k, v);
+    }
+
+    template <typename InputIterator>
+    void put(InputIterator first, InputIterator last)
     {
 	while(first != last)
 	{
-	    insert(*first);
+	    put(*first);
 	    ++first;
 	}
     }
-    void insert(const_iterator first, const_iterator last)
-    {
-	while(first != last)
-	{
-	    insert(*first);
-	    ++first;
-	}
-    }
-#endif
 
     void erase(iterator position)
     {

@@ -74,7 +74,7 @@ IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::
     }
     else
     {
-	_dict.insert(pair<const string, const Ice::ObjectPrx>(name, node));
+	_dict.put(pair<const string, const Ice::ObjectPrx>(name, node));
 	
 	if(_traceLevels->nodeRegistry > 0)
 	{

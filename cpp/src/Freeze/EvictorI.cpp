@@ -150,7 +150,7 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
     //
     // Save the Ice object's initial state and add it to the queue.
     //
-    _dict.insert(pair<const Identity, const ObjectRecord>(ident, rec));
+    _dict.put(pair<const Identity, const ObjectRecord>(ident, rec));
     add(ident, rec);
 
     if(_trace >= 1)
@@ -447,7 +447,7 @@ Freeze::EvictorI::save(const Identity& ident, const ObjectPtr& servant)
         element->rec.stats.avgSaveTime = (Long)(element->rec.stats.avgSaveTime * 0.95 + diff * 0.05);
     }
 
-    _dict.insert(pair<const Identity, const ObjectRecord>(ident, element->rec));
+    _dict.put(pair<const Identity, const ObjectRecord>(ident, element->rec));
 }
 
 void

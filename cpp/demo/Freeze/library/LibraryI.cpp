@@ -215,7 +215,7 @@ LibraryI::createBook(const ::BookDescription& description, const Ice::Current&)
     }
 
     isbnSeq.push_back(description.isbn);
-    _authors.insert(StringIsbnSeqDict::value_type(description.authors, isbnSeq));
+    _authors.put(StringIsbnSeqDict::value_type(description.authors, isbnSeq));
 
     return book;
 }
@@ -322,7 +322,7 @@ LibraryI::remove(const BookDescription& description)
 	    //
 	    // Otherwise, write back the new record.
 	    //
-	    _authors.insert(StringIsbnSeqDict::value_type(description.authors, isbnSeq));
+	    _authors.put(StringIsbnSeqDict::value_type(description.authors, isbnSeq));
 	}
 
 	//

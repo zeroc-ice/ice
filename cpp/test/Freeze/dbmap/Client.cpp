@@ -61,9 +61,9 @@ populateDB(MAP& m)
     for(vector<Byte>::const_iterator j = alphabet.begin(); j != alphabet.end(); ++j)
     {
 #if defined(_MSC_VER) || (defined(__SUNPRO_CC) && __SUNPRO_CC <= 0x530)
-	m.insert(MAP::value_type(*j, static_cast<Int>(j - alphabet.begin())));
+	m.put(MAP::value_type(*j, static_cast<Int>(j - alphabet.begin())));
 #else
-	m.insert(typename MAP::value_type(*j, static_cast<Int>(j - alphabet.begin())));
+	m.put(typename MAP::value_type(*j, static_cast<Int>(j - alphabet.begin())));
 #endif
     }
 }
@@ -248,23 +248,52 @@ run(int argc, char* argv[], MAP& m)
 
     test(m.find('a') == m.end());
     typename MAP::value_type i1('a', 1);
-    m.insert(i1);
+    m.put(i1);
     //
     // Note: VC++ won't accept this
     //
-    //m.insert(typename MAP::value_type('a', 1));
+    //m.put(typename MAP::value_type('a', 1));
 
     p = m.find('a');
     test(p != m.end() && p->second == 1);
 
     typename MAP::value_type i2('a', 0);
-    m.insert(i2);
+    m.put(i2);
     //
     // Note: VC++ won't accept this
     //
-    //m.insert(typename MAP::value_type('a', 0));
+    //m.put(typename MAP::value_type('a', 0));
+    
     p = m.find('a');
     test(p != m.end() && p->second == 0);
+
+    //
+    // Test inserts
+    // 
+    
+    typename MAP::value_type i3('a', 7);
+
+    pair<typename MAP::iterator, bool> insertResult = m.insert(i3);
+    test(insertResult.first == m.find('a'));
+    test(insertResult.first->second == 0);
+    test(insertResult.second == false);
+    
+    p = m.insert(m.end(), i3);
+    test(p == m.find('a'));
+    test(p->second == 0);
+
+    typename MAP::value_type i4('b', 7);
+    
+    insertResult = m.insert(i4);
+    test(insertResult.first == m.find('b'));
+    test(insertResult.first->second == 7);
+    test(insertResult.second == true);
+    
+    typename MAP::value_type i5('c', 8);
+    
+    p = m.insert(m.end(), i5);
+    test(p == m.find('c'));
+    test(p->second == 8);
 
     p = m.find('a');
     test(p != m.end() && p->second == 0);
