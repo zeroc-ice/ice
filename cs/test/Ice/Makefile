@@ -20,7 +20,8 @@ SUBDIRS		= adapterDeactivation \
 		  objects \
 		  operations \
 		  slicing \
-		  checksum
+		  checksum \
+		  stream
 
 install::
 	@if test ! -d $(prefix) ; \

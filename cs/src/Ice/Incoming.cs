@@ -584,7 +584,7 @@ namespace IceInternal
 	    return _os;
 	}
 	
-	internal Incoming next; // For use by Connection.
+	public Incoming next; // For use by Connection.
 	
 	private BasicStream _is;
     }

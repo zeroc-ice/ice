@@ -290,6 +290,27 @@ def collocatedTest(mono, name):
 
     collocatedTestWithOptions(mono, name, "")
 
+def clientTestWithOptions(mono, name, additionalOptions):
+
+    testdir = os.path.join(toplevel, "test", name)
+    client = os.path.join(testdir, "client")
+
+    print createMsg(mono, "client"),
+    clientPipe = os.popen(createCmd(mono, client) + clientOptions + " " + additionalOptions)
+    print "ok"
+
+    printOutputFromPipe(clientPipe)
+
+    clientStatus = clientPipe.close()
+
+    if clientStatus:
+	killServers()
+	sys.exit(1)
+
+def clientTest(mono, name):
+
+    clientTestWithOptions(mono, name, "")
+
 def cleanDbDir(path):
 
     files = os.listdir(path)

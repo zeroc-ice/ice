@@ -278,6 +278,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Glacier2", "src\Glacier2\Gl
 		{6851468D-426E-4260-986C-244F278F3526} = {6851468D-426E-4260-986C-244F278F3526}
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "streamC", "test\Ice\stream\streamC.csproj", "{8AC25551-5C5C-463C-9054-0EA182C39B25}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -508,6 +512,10 @@ Global
 		{F6EAFA67-FF43-4C8B-BF7F-86F79DCCDA1A}.Debug.Build.0 = Debug|.NET
 		{F6EAFA67-FF43-4C8B-BF7F-86F79DCCDA1A}.Release.ActiveCfg = Release|.NET
 		{F6EAFA67-FF43-4C8B-BF7F-86F79DCCDA1A}.Release.Build.0 = Release|.NET
+		{8AC25551-5C5C-463C-9054-0EA182C39B25}.Debug.ActiveCfg = Debug|.NET
+		{8AC25551-5C5C-463C-9054-0EA182C39B25}.Debug.Build.0 = Debug|.NET
+		{8AC25551-5C5C-463C-9054-0EA182C39B25}.Release.ActiveCfg = Release|.NET
+		{8AC25551-5C5C-463C-9054-0EA182C39B25}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
