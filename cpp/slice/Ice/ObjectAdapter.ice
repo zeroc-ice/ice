@@ -13,6 +13,7 @@
 
 #include <Ice/CommunicatorF.ice>
 #include <Ice/ServantLocatorF.ice>
+#include <Ice/RequestQueueF.ice>
 #include <Ice/RouterF.ice>
 #include <Ice/Identity.ice>
 
@@ -27,6 +28,7 @@ module Ice
  *
  * @see Communicator
  * @see ServantLocator
+ * @see RequestQueue
  *
  **/
 local interface ObjectAdapter
@@ -190,7 +192,7 @@ local interface ObjectAdapter
      *
      * @param category The category for which the Servant Locator can
      * locate Servants, or an empty string if the Servant Locator does
-     * not belong to any category.
+     * not belong to any specific category.
      *
      * @see Identity
      * @see removeServantLocator
@@ -202,13 +204,13 @@ local interface ObjectAdapter
 
     /**
      *
-     * Remove a Servant locator from this Object Adapter. This
+     * Remove a Servant Locator from this Object Adapter. This
      * operation does nothing if no locator for the given category has
      * been installed.
      *
      * @param category The category for which the Servant Locator can
      * locate Servants, or an empty string if the Servant Locator does
-     * not belong to any category.
+     * not belong to any specific category.
      *
      * @see Identity
      * @see addServantLocator
@@ -224,7 +226,7 @@ local interface ObjectAdapter
      *
      * @param category The category for which the Servant Locator can
      * locate Servants, or an empty string if the Servant Locator does
-     * not belong to any category.
+     * not belong to any specific category.
      *
      * @return The Servant Locator, or null if no Servant Locator was
      * found for the given category.
@@ -236,6 +238,47 @@ local interface ObjectAdapter
      *
      **/
     ServantLocator findServantLocator(string category);
+
+    /**
+     *
+     * Create a Request Queue for this Object Adapter. If a queue has
+     * already been created for the given category, the formerly
+     * created queue is returned.
+     *
+     * <note><para>Only one queue for an empty category can be
+     * installed.</para></note>
+     *
+     * @param category The category for which a Request Queue is
+     * created, or an empty string if the Request Queue is does not
+     * belong to any specific category.
+     *
+     * @return The new Request Queue for the category, or, if a
+     * Request Queue for the given category has already been created
+     * before, such formerly created Request Queue.
+     *
+     * @see Identity
+     * @see findRequestQueue
+     * @see RequestQueue
+     *
+     **/
+    RequestQueue createRequestQueue(string category);
+
+    /**
+     *
+     * Find a Request Queue created with this Object Adapter.
+     *
+     * @param category The category for which to look up a Request
+     * Queue.
+     *
+     * @return The Request Queue, or null if no Request Queue exists
+     * for the given category.
+     *
+     * @see Identity
+     * @see createRequestQueue
+     * @see RequestQueue
+     *
+     **/
+    RequestQueue findRequestQueue(string category);
 
     /**
      *

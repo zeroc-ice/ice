@@ -42,6 +42,7 @@ OBJS		= Initialize.o \
 		  ObjectAdapterI.o \
 		  ObjectAdapterFactory.o \
 		  ServantLocator.o \
+		  RequestQueue.o \
 		  UserExceptionFactory.o \
 		  UserExceptionFactoryManager.o \
 		  Endpoint.o \
@@ -270,6 +271,23 @@ $(HDIR)/ServantLocatorF.h: $(SDIR)/ServantLocatorF.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/ServantLocatorF.h
+
+$(HDIR)/RequestQueue.h RequestQueue.cpp: $(SDIR)/RequestQueue.ice $(SLICE2CPP)
+	rm -f $(HDIR)/RequestQueue.h RequestQueue.cpp
+	$(SLICECMD) $(SDIR)/RequestQueue.ice
+	mv RequestQueue.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/RequestQueue.h RequestQueue.cpp
+
+$(HDIR)/RequestQueueF.h: $(SDIR)/RequestQueueF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/RequestQueueF.h RequestQueueF.cpp
+	$(SLICECMD) $(SDIR)/RequestQueueF.ice
+	mv RequestQueueF.h $(HDIR)
+	rm -f RequestQueueF.cpp
+
+clean::
+	rm -f $(HDIR)/RequestQueueF.h
 
 $(HDIR)/Properties.h Properties.cpp: $(SDIR)/Properties.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Properties.h Properties.cpp

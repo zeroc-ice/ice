@@ -20,11 +20,12 @@ module Ice
 /**
  *
  * The Servant Locator, which is called by the Object Adapter to
- * locate a Servant which is not found in its Active Servant
- * Map. The Servant Locator must be set with
- * [ObjectAdapter::addServantLocator] operation.
+ * locate a Servant which is not found in its Active Servant Map.
  *
  * @see ObjectAdapter
+ * @see ObjectAdapter::addServantLocator
+ * @see ObjectAdapter::removeServantLocator
+ * @see ObjectAdapter::findServantLocator
  *
  **/
 local interface ServantLocator
