@@ -32,8 +32,20 @@ Ice::CommunicatorI::destroy()
 
     if(_instance)
     {
+	_serverThreadPool = 0;
+
+	LoggerPtr logger = _instance->logger();
+
 	_instance->objectAdapterFactory()->shutdown();
 	_instance->destroy();
+
+	if(_instance->__getRef() > 1)
+	{
+	    Warning warn(logger);
+	    warn << "memory leak in the Ice core:\n";
+	    warn << "IceInteral::Instance is not deleted after Ice::Communicator::destroy()";
+	}
+
 	_instance = 0;
     }
 }
