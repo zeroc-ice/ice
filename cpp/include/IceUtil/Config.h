@@ -20,6 +20,16 @@
 #       define _STLP_DEBUG
 #   endif
 
+//
+// For STLport. If we compile in debug mode, we want to use the debug
+// memory allocation, so that purify doesn't report bogus memory
+// leaks. This is done by setting _STLP_DEBUG_ALLOC before any STLport
+// header files are included.
+//
+#   if !defined(NDEBUG) && !defined(_STLP_DEBUG_ALLOC)
+#       define _STLP_DEBUG_ALLOC
+#   endif
+
 #if defined(_WIN32)
 
 // Necessary for TryEnterCriticalSection.
