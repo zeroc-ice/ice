@@ -96,7 +96,6 @@ IcePack::ServerAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPt
 	    out << "waiting for activation of server adapter `" << id << "'";
 	}
     }
-    
 
     //
     // Try to start the server. Note that we start the server outside
@@ -115,20 +114,8 @@ IcePack::ServerAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPt
 	    if(!_proxy)
 	    {
 		_factory->getWaitQueue()->add(new WaitForAdapterActivation(this, _traceLevels, cb), _waitTime);
+		return;
 	    }
-	    return;
-	}
-	else
-	{
-	    ::IceUtil::Mutex::Lock sync(*this);
-
-	    if(_traceLevels->adapter > 1)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-		out << "server adapter `" << id << "' activation failed, couldn't start the server";
-	    }
-	    cb->ice_response(_proxy);
-	    return;
 	}
     }
     catch(const Ice::ObjectNotExistException&)
@@ -145,6 +132,21 @@ IcePack::ServerAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPt
 	ex.id = current.id;
 	throw ex;
     }
+
+    //
+    // The server couldn't be activated, trace and return the current
+    // adapter proxy.
+    //
+    {
+	::IceUtil::Mutex::Lock sync(*this);
+	if(_traceLevels->adapter > 1)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
+	    out << "server adapter `" << id << "' activation failed, couldn't start the server";
+	}
+
+	cb->ice_response(_proxy);
+    }   
 }
 
 void

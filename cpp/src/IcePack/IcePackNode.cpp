@@ -312,9 +312,13 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
     activator->waitForShutdown();
     ignoreInterrupt();
 
-    waitQueue->destroy();
-
     activator->destroy();
+
+    //
+    // The wait queue must be destroyed after the activator and before
+    // the communicator is shutdown.
+    //
+    waitQueue->destroy();
 
     //
     // We can now safelly shutdown the communicator.
