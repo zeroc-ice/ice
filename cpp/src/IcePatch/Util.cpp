@@ -11,7 +11,6 @@
 #include <IcePatch/Util.h>
 #include <IcePatch/Node.h>
 #include <fstream>
-#include <sys/types.h>
 #include <sys/stat.h>
 #include <openssl/md5.h>
 #include <bzlib.h>
@@ -128,7 +127,10 @@ IcePatch::getFileInfo(const string& path)
     {
 	if (errno == ENOENT)
 	{
-	    return FileInfoNotExist;
+	    FileInfo result;
+	    result.size = 0;
+	    result.time = 0;
+	    result.type = FileTypeNotExist;
 	}
 	else
 	{
@@ -138,23 +140,30 @@ IcePatch::getFileInfo(const string& path)
 	}
     }
 
+    FileInfo result;
+    result.size = buf.st_size;
+    result.time = buf.st_mtime;
+
     if (S_ISDIR(buf.st_mode))
     {
-	return FileInfoDirectory;
+	result.type = FileTypeDirectory;
     }
-
-    if (S_ISREG(buf.st_mode))
+    else if (S_ISREG(buf.st_mode))
     {
-	return FileInfoRegular;
+	result.type = FileTypeRegular;
     }
-
-    return FileInfoUnknown;
+    else
+    {
+	result.type = FileTypeUnknown;
+    }
+    
+    return result;
 }
 
 void
 IcePatch::removeRecursive(const string& path)
 {
-    if (getFileInfo(path) == FileInfoDirectory)
+    if (getFileInfo(path).type == FileTypeDirectory)
     {
 	StringSeq paths = readDirectory(path);
 	StringSeq::const_iterator p;
@@ -309,169 +318,80 @@ IcePatch::getMD5(const string& path)
 void
 IcePatch::createMD5(const string& path)
 {
-    if (pathToName(path) == tmpName)
-    {
-	return;
-    }
-
-    string suffix = getSuffix(path);
-    if (suffix == "md5" || suffix == "bz2")
-    {
-	return;
-    }
-
+    assert(pathToName(path) != tmpName);
+    FileInfo info = getFileInfo(path);
+    assert(info.type == FileTypeRegular);
+    
     //
-    // Stat the file to get a MD5 hash value for.
+    // Read the original file.
     //
-    struct stat buf;
-    if (::stat(path.c_str(), &buf) == -1)
+    ifstream file(path.c_str(), ios::binary);
+    if (!file)
     {
 	NodeAccessException ex;
-	ex.reason = "cannot stat `" + path + "': " + strerror(errno);
+	ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
 	throw ex;
     }
-    else
+
+    ByteSeq bytes;
+    bytes.resize(info.size);
+    file.read(&bytes[0], bytes.size());
+    if (!file)
     {
-	if (!S_ISREG(buf.st_mode))
-	{
-	    NodeAccessException ex;
-	    ex.reason = "`" + path + "' is not a regular file";
-	    throw ex;
-	}
+	NodeAccessException ex;
+	ex.reason = "cannot read `" + path + "': " + strerror(errno);
+	throw ex;
     }
 
+    if (file.gcount() < static_cast<int>(bytes.size()))
+    {
+	NodeAccessException ex;
+	ex.reason = "could not read all bytes from `" + path + "'";
+	throw ex;
+    }
+
+    file.close();
+    
     //
-    // Stat the MD5 file. If it doesn't exist, or if it's outdated,
-    // set a flag to create a new MD5 hash value.
+    // Create the MD5 hash value.
     //
-    struct stat bufMD5;
+    ByteSeq bytesMD5;
+    bytesMD5.resize(16);
+    MD5(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), reinterpret_cast<unsigned char*>(&bytesMD5[0]));
+    
+    //
+    // Save the MD5 hash value to the MD5 file.
+    //
+    ofstream fileMD5(tmpName.c_str(), ios::binary);
+    if (!fileMD5)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot open `" + tmpName + "' for writing: " + strerror(errno);
+	throw ex;
+    }
+
+    fileMD5.write(&bytesMD5[0], 16);
+    if (!fileMD5)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot write `" + tmpName + "': " + strerror(errno);
+	throw ex;
+    }
+
+    fileMD5.close();
+    
+    //
+    // Rename the temporary MD5 file to the "real" MD5 file. This
+    // is done so that there can be no partial MD5 files after an
+    // abortive application termination.
+    //
     string pathMD5 = path + ".md5";
-    bool makeMD5 = false;
-    if (::stat(pathMD5.c_str(), &bufMD5) == -1)
+    ::remove(pathMD5.c_str());
+    if (::rename(tmpName.c_str(), pathMD5.c_str()) == -1)
     {
-	if (errno == ENOENT)
-	{
-	    makeMD5 = true;
-	}
-	else
-	{
-	    NodeAccessException ex;
-	    ex.reason = "cannot stat `" + path + "': " + strerror(errno);
-	    throw ex;
-	}
-    }
-    else
-    {
-	if (!S_ISREG(bufMD5.st_mode))
-	{
-	    NodeAccessException ex;
-	    ex.reason = "`" + pathMD5 + "' is not a regular file";
-	    throw ex;
-	}
-	
-	if (bufMD5.st_size != 16)
-	{
-	    NodeAccessException ex;
-	    ex.reason = "`" + pathMD5 + "' isn't 16 bytes in size";
-	    throw ex;
-	}
-	
-	if (bufMD5.st_mtime <= buf.st_mtime)
-	{
-	    makeMD5 = true;
-	}
-    }
-
-    if (makeMD5)
-    {
-	ByteSeq bytes;
-	bytes.resize(buf.st_size);
-
-	//
-	// Read the original file.
-	//
-	{
-	    ifstream file(path.c_str(), ios::binary);
-	    if (!file)
-	    {
-		NodeAccessException ex;
-		ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
-		throw ex;
-	    }
-	    file.read(&bytes[0], bytes.size());
-	    if (!file)
-	    {
-		NodeAccessException ex;
-		ex.reason = "cannot read `" + path + "': " + strerror(errno);
-		throw ex;
-	    }
-	    if (file.gcount() < static_cast<int>(bytes.size()))
-	    {
-		NodeAccessException ex;
-		ex.reason = "could not read all bytes from `" + path + "'";
-		throw ex;
-	    }
-	}
-	
-	//
-	// Create the MD5 hash value.
-	//
-	ByteSeq bytesMD5;
-	bytesMD5.resize(16);
-	MD5(reinterpret_cast<unsigned char*>(&bytes[0]), bytes.size(), reinterpret_cast<unsigned char*>(&bytesMD5[0]));
-	
-	//
-	// Save the MD5 hash value to the MD5 file.
-	//
-	{
-	    ofstream fileMD5(tmpName.c_str(), ios::binary);
-	    if (!fileMD5)
-	    {
-		NodeAccessException ex;
-		ex.reason = "cannot open `" + tmpName + "' for writing: " + strerror(errno);
-		throw ex;
-	    }
-	    fileMD5.write(&bytesMD5[0], 16);
-	    if (!fileMD5)
-	    {
-		NodeAccessException ex;
-		ex.reason = "cannot write `" + tmpName + "': " + strerror(errno);
-		throw ex;
-	    }
-	}
-
-	//
-	// Rename the temporary MD5 file to the "real" MD5 file. This
-	// is done so that there can be no partial MD5 files after an
-	// abortive application termination.
-	//
-        ::remove(pathMD5.c_str());
-	if (rename(tmpName.c_str(), pathMD5.c_str()) == -1)
-	{
-	    NodeAccessException ex;
-	    ex.reason = "cannot rename `" + tmpName + "' to  `" + pathMD5 + "': " + strerror(errno);
-	    throw ex;
-	}
-    }
-}
-
-void
-IcePatch::createMD5Recursive(const string& path)
-{
-    FileInfo info = getFileInfo(path);
-
-    if (info == FileInfoDirectory)
-    {
-	StringSeq paths = readDirectory(path);
-	StringSeq::const_iterator p;
-	for (p = paths.begin(); p != paths.end(); ++p)
-	{
-	    createMD5Recursive(*p);
-	}
-    }
-    else if (info == FileInfoRegular)
-    {
-	createMD5(path);
+	NodeAccessException ex;
+	ex.reason = "cannot rename `" + tmpName + "' to  `" + pathMD5 + "': " + strerror(errno);
+	throw ex;
     }
 }
 
@@ -525,360 +445,250 @@ IcePatch::getBytesBZ2(const string& path, Int pos, Int num)
 void
 IcePatch::createBZ2(const string& path)
 {
-    if (pathToName(path) == tmpName)
-    {
-	return;
-    }
-
-    string suffix = getSuffix(path);
-    if (suffix == "md5" || suffix == "bz2")
-    {
-	return;
-    }
+    assert(pathToName(path) != tmpName);
+    FileInfo info = getFileInfo(path);
+    assert(info.type == FileTypeRegular);
 
     //
-    // Stat the file to get a BZ2 file for.
+    // Read the original file in blocks and write the BZ2 file.
     //
-    struct stat buf;
-    if (::stat(path.c_str(), &buf) == -1)
+    ifstream file(path.c_str(), ios::binary);
+    if (!file)
     {
 	NodeAccessException ex;
-	ex.reason = "cannot stat `" + path + "': " + strerror(errno);
+	ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
 	throw ex;
     }
-    else
+    
+    FILE* stdioFileBZ2 = fopen(tmpName.c_str(), "wb");
+    if (!stdioFileBZ2)
     {
-	if (!S_ISREG(buf.st_mode))
+	NodeAccessException ex;
+	ex.reason = "cannot open `" + tmpName + "' for writing: " + strerror(errno);
+	throw ex;
+    }
+    
+    int bzError;
+    BZFILE* bzFile = BZ2_bzWriteOpen(&bzError, stdioFileBZ2, 5, 0, 0);
+    if (bzError != BZ_OK)
+    {
+	NodeAccessException ex;
+	ex.reason = "BZ2_bzWriteOpen failed";
+	if (bzError == BZ_IO_ERROR)
+	{
+	    ex.reason += string(": ") + strerror(errno);
+	}
+	fclose(stdioFileBZ2);
+	throw ex;
+    }
+    
+    static const Int num = 64 * 1024;
+    Byte bytes[num];
+    
+    while (!file.eof())
+    {
+	file.read(bytes, num);
+	if (!file && !file.eof())
 	{
 	    NodeAccessException ex;
-	    ex.reason = "`" + path + "' is not a regular file";
-	    throw ex;
-	}
-    }
-
-    //
-    // Stat the BZ2 file. If it doesn't exist, or if it's outdated,
-    // set a flag to create a new BZ2 file.
-    //
-    struct stat bufBZ2;
-    string pathBZ2 = path + ".bz2";
-    bool makeBZ2 = false;
-    if (::stat(pathBZ2.c_str(), &bufBZ2) == -1)
-    {
-	if (errno == ENOENT)
-	{
-	    makeBZ2 = true;
-	}
-	else
-	{
-	    NodeAccessException ex;
-	    ex.reason = "cannot stat `" + path + "': " + strerror(errno);
-	    throw ex;
-	}
-    }
-    else
-    {
-	if (!S_ISREG(bufBZ2.st_mode))
-	{
-	    NodeAccessException ex;
-	    ex.reason = "`" + pathBZ2 + "' is not a regular file";
-	    throw ex;
-	}
-
-	if (bufBZ2.st_mtime <= buf.st_mtime)
-	{
-	    makeBZ2 = true;
-	}
-    }
-
-    if (makeBZ2)
-    {
-	//
-	// Read the original file in blocks and write the BZ2 file.
-	//
-	{
-	    ifstream file(path.c_str(), ios::binary);
-	    if (!file)
-	    {
-		NodeAccessException ex;
-		ex.reason = "cannot open `" + path + "' for reading: " + strerror(errno);
-		throw ex;
-	    }
-	    
-	    FILE* fileBZ2 = fopen(tmpName.c_str(), "wb");
-	    if (!fileBZ2)
-	    {
-		NodeAccessException ex;
-		ex.reason = "cannot open `" + tmpName + "' for writing: " + strerror(errno);
-		throw ex;
-	    }
-	    
-	    int bzError;
-	    BZFILE* bzFile = BZ2_bzWriteOpen(&bzError, fileBZ2, 5, 0, 0);
-	    if (bzError != BZ_OK)
-	    {
-		NodeAccessException ex;
-		ex.reason = "BZ2_bzWriteOpen failed";
-		if (bzError == BZ_IO_ERROR)
-		{
-		    ex.reason += string(": ") + strerror(errno);
-		}
-		fclose(fileBZ2);
-		throw ex;
-	    }
-	    
-	    static const Int num = 64 * 1024;
-	    Byte bytes[num];
-	    
-	    while (!file.eof())
-	    {
-		file.read(bytes, num);
-		if (!file && !file.eof())
-		{
-		    NodeAccessException ex;
-		    ex.reason = "cannot read `" + path + "': " + strerror(errno);
-		    BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
-		    fclose(fileBZ2);
-		    throw ex;
-		}
-		
-		if (file.gcount() > 0)
-		{
-		    BZ2_bzWrite(&bzError, bzFile, bytes, file.gcount());
-		    if (bzError != BZ_OK)
-		    {
-			NodeAccessException ex;
-			ex.reason = "BZ2_bzWrite failed";
-			if (bzError == BZ_IO_ERROR)
-			{
-			    ex.reason += string(": ") + strerror(errno);
-			}
-			BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
-			fclose(fileBZ2);
-			throw ex;
-		    }
-		}
-	    }
-	    
+	    ex.reason = "cannot read `" + path + "': " + strerror(errno);
 	    BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
-	    if (bzError != BZ_OK)
-	    {
-		NodeAccessException ex;
-		ex.reason = "BZ2_bzWriteClose failed";
-		if (bzError == BZ_IO_ERROR)
-		{
-		    ex.reason += string(": ") + strerror(errno);
-		}
-		fclose(fileBZ2);
-		throw ex;
-	    }
-	    
-	    fclose(fileBZ2);
+	    fclose(stdioFileBZ2);
+	    throw ex;
 	}
 	
-	//
-	// Rename the temporary BZ2 file to the "real" BZ2 file. This
-	// is done so that there can be no partial BZ2 files after an
-	// abortive application termination.
-	//
-        ::remove(pathBZ2.c_str());
-	if (rename(tmpName.c_str(), pathBZ2.c_str()) == -1)
+	if (file.gcount() > 0)
 	{
-	    NodeAccessException ex;
-	    ex.reason = "cannot rename `" + tmpName + "' to  `" + pathBZ2 + "': " + strerror(errno);
-	    throw ex;
+	    BZ2_bzWrite(&bzError, bzFile, bytes, file.gcount());
+	    if (bzError != BZ_OK)
+	    {
+		NodeAccessException ex;
+		ex.reason = "BZ2_bzWrite failed";
+		if (bzError == BZ_IO_ERROR)
+		{
+		    ex.reason += string(": ") + strerror(errno);
+		}
+		BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
+		fclose(stdioFileBZ2);
+		throw ex;
+	    }
 	}
     }
-}
-
-void
-IcePatch::createBZ2Recursive(const string& path)
-{
-    FileInfo info = getFileInfo(path);
-
-    if (info == FileInfoDirectory)
-    {
-	StringSeq paths = readDirectory(path);
-	StringSeq::const_iterator p;
-	for (p = paths.begin(); p != paths.end(); ++p)
-	{
-	    createBZ2Recursive(*p);
-	}
-    }
-    else if (info == FileInfoRegular)
-    {
-	createBZ2(path);
-    }
-}
-
-void
-IcePatch::removeOrphanedRecursive(const string& path)
-{
-    assert(getFileInfo(path) == FileInfoDirectory);
     
-    StringSeq paths = readDirectory(path);
-    StringSeq::const_iterator p;
-    for (p = paths.begin(); p != paths.end(); ++p)
+    BZ2_bzWriteClose(&bzError, bzFile, 0, 0, 0);
+    if (bzError != BZ_OK)
     {
-	string suffix = getSuffix(*p);
-	if (suffix == "md5" || suffix == "bz2")
+	NodeAccessException ex;
+	ex.reason = "BZ2_bzWriteClose failed";
+	if (bzError == BZ_IO_ERROR)
 	{
-	    pair<StringSeq::const_iterator, StringSeq::const_iterator> r =
-		equal_range(paths.begin(), paths.end(), removeSuffix(*p));
-	    if (r.first == r.second)
-	    {
-		removeRecursive(*p);
-	    }
+	    ex.reason += string(": ") + strerror(errno);
 	}
-	else
-	{
-	    if (getFileInfo(*p) == FileInfoDirectory)
-	    {
-		removeOrphanedRecursive(*p);
-	    }
-	}
+	fclose(stdioFileBZ2);
+	throw ex;
     }
-
-    if (readDirectory(path).empty())
+    
+    fclose(stdioFileBZ2);
+    file.close();
+    
+    //
+    // Rename the temporary BZ2 file to the "real" BZ2 file. This
+    // is done so that there can be no partial BZ2 files after an
+    // abortive application termination.
+    //
+    string pathBZ2 = path + ".bz2";
+    ::remove(pathBZ2.c_str());
+    if (::rename(tmpName.c_str(), pathBZ2.c_str()) == -1)
     {
-	removeRecursive(path);
+	NodeAccessException ex;
+	ex.reason = "cannot rename `" + tmpName + "' to  `" + pathBZ2 + "': " + strerror(errno);
+	throw ex;
     }
 }
 
 void
-IcePatch::getFile(const FilePrx& file, ProgressCB& progressCB)
+IcePatch::getFile(const FilePrx& filePrx, ProgressCB& progressCB)
 {
-    string path = identityToPath(file->ice_getIdentity());
+    string path = identityToPath(filePrx->ice_getIdentity());
     string pathBZ2 = path + ".bz2";
+    Int totalBZ2 = filePrx->getSizeBZ2();
 
     //
     // Get the BZ2 file.
     //
+    progressCB.startDownload(totalBZ2);
+
+    ofstream fileBZ2(pathBZ2.c_str(), ios::binary);
+    if (!fileBZ2)
     {
-	Int totalBZ2 = file->getSizeBZ2();
-	progressCB.start(totalBZ2);
+	NodeAccessException ex;
+	ex.reason = "cannot open `" + pathBZ2 + "' for writing: " + strerror(errno);
+	throw ex;
+    }
+
+    ByteSeq bytesBZ2;
+    Int pos = 0;
+    while(pos < totalBZ2)
+    {
+	static const Int num = 64 * 1024;
 	
-	ofstream fileBZ2(pathBZ2.c_str(), ios::binary);
+	bytesBZ2 = filePrx->getBytesBZ2(pos, num);
+	if (bytesBZ2.empty())
+	{
+	    break;
+	}
+	
+	pos += bytesBZ2.size();
+	
+	fileBZ2.write(&bytesBZ2[0], bytesBZ2.size());
 	if (!fileBZ2)
 	{
 	    NodeAccessException ex;
-	    ex.reason = "cannot open `" + pathBZ2 + "' for writing: " + strerror(errno);
+	    ex.reason = "cannot write `" + pathBZ2 + "': " + strerror(errno);
 	    throw ex;
 	}
-	ByteSeq bytesBZ2;
-	Int pos = 0;
-	while(pos < totalBZ2)
+	
+	if (static_cast<Int>(bytesBZ2.size()) < num)
 	{
-	    static const Int num = 64 * 1024;
-	    
-	    bytesBZ2 = file->getBytesBZ2(pos, num);
-	    if (bytesBZ2.empty())
-	    {
-		break;
-	    }
-	    
-	    pos += bytesBZ2.size();
-	    
-	    fileBZ2.write(&bytesBZ2[0], bytesBZ2.size());
-	    if (!fileBZ2)
-	    {
-		NodeAccessException ex;
-		ex.reason = "cannot write `" + pathBZ2 + "': " + strerror(errno);
-		throw ex;
-	    }
-	    
-	    if (static_cast<Int>(bytesBZ2.size()) < num)
-	    {
-		break;
-	    }
-	    
-	    progressCB.update(totalBZ2, pos);
+	    break;
 	}
 	
-	progressCB.finished(totalBZ2);
+	progressCB.updateDownload(totalBZ2, pos);
     }
+
+    progressCB.finishedDownload(totalBZ2);
+
+    fileBZ2.close();
     
     //
     // Read the BZ2 file in blocks and write the original file.
     //
+    ofstream file(path.c_str(), ios::binary);
+    if (!file)
     {
-	ofstream file(path.c_str(), ios::binary);
-	if (!file)
+	NodeAccessException ex;
+	ex.reason = "cannot open `" + path + "' for writing: " + strerror(errno);
+	throw ex;
+    }
+    
+    FILE* stdioFileBZ2 = fopen(pathBZ2.c_str(), "rb");
+    if (!stdioFileBZ2)
+    {
+	NodeAccessException ex;
+	ex.reason = "cannot open `" + pathBZ2 + "' for reading: " + strerror(errno);
+	throw ex;
+    }
+    
+    int bzError;
+    BZFILE* bzFile = BZ2_bzReadOpen(&bzError, stdioFileBZ2, 0, 0, 0, 0);
+    if (bzError != BZ_OK)
+    {
+	NodeAccessException ex;
+	ex.reason = "BZ2_bzReadOpen failed";
+	if (bzError == BZ_IO_ERROR)
 	{
-	    NodeAccessException ex;
-	    ex.reason = "cannot open `" + path + "' for writing: " + strerror(errno);
-	    throw ex;
+	    ex.reason += string(": ") + strerror(errno);
 	}
-	
-	FILE* fileBZ2 = fopen(pathBZ2.c_str(), "rb");
-	if (!fileBZ2)
+	fclose(stdioFileBZ2);
+	throw ex;
+    }
+    
+    static const Int num = 64 * 1024;
+    Byte bytes[num];
+    
+    progressCB.startUncompress(totalBZ2);
+    int countBZ2 = 0;
+    
+    while (bzError != BZ_STREAM_END)
+    {
+	int sz = BZ2_bzRead(&bzError, bzFile, bytes, num);
+	if (bzError != BZ_OK && bzError != BZ_STREAM_END)
 	{
 	    NodeAccessException ex;
-	    ex.reason = "cannot open `" + pathBZ2 + "' for reading: " + strerror(errno);
-	    throw ex;
-	}
-	
-	int bzError;
-	BZFILE* bzFile = BZ2_bzReadOpen(&bzError, fileBZ2, 0, 0, 0, 0);
-	if (bzError != BZ_OK)
-	{
-	    NodeAccessException ex;
-	    ex.reason = "BZ2_bzReadOpen failed";
+	    ex.reason = "BZ2_bzRead failed";
 	    if (bzError == BZ_IO_ERROR)
 	    {
 		ex.reason += string(": ") + strerror(errno);
 	    }
-	    fclose(fileBZ2);
+	    BZ2_bzReadClose(&bzError, bzFile);
+	    fclose(stdioFileBZ2);
 	    throw ex;
 	}
 	
-	static const Int num = 64 * 1024;
-	Byte bytes[num];
-	
-	while (bzError != BZ_STREAM_END)
+	if (sz > 0)
 	{
-	    int sz = BZ2_bzRead(&bzError, bzFile, bytes, num);
-	    if (bzError != BZ_OK && bzError != BZ_STREAM_END)
+	    countBZ2 += sz;
+	    progressCB.updateUncompress(totalBZ2, countBZ2);
+	    
+	    file.write(bytes, sz);
+	    if (!file)
 	    {
 		NodeAccessException ex;
-		ex.reason = "BZ2_bzRead failed";
-		if (bzError == BZ_IO_ERROR)
-		{
-		    ex.reason += string(": ") + strerror(errno);
-		}
+		ex.reason = "cannot write `" + path + "': " + strerror(errno);
 		BZ2_bzReadClose(&bzError, bzFile);
-		fclose(fileBZ2);
+		fclose(stdioFileBZ2);
 		throw ex;
 	    }
-	    
-	    if (sz > 0)
-	    {
-		file.write(bytes, sz);
-		if (!file)
-		{
-		    NodeAccessException ex;
-		    ex.reason = "cannot write `" + path + "': " + strerror(errno);
-		    BZ2_bzReadClose(&bzError, bzFile);
-		    fclose(fileBZ2);
-		    throw ex;
-		}
-	    }
 	}
-	
-	BZ2_bzReadClose(&bzError, bzFile);
-	if (bzError != BZ_OK)
-	{
-	    NodeAccessException ex;
-	    ex.reason = "BZ2_bzReadClose failed";
-	    if (bzError == BZ_IO_ERROR)
-	    {
-		ex.reason += string(": ") + strerror(errno);
-	    }
-	    fclose(fileBZ2);
-	    throw ex;
-	}
-	fclose(fileBZ2);
     }
+    
+    progressCB.finishedUncompress(totalBZ2);
+    
+    BZ2_bzReadClose(&bzError, bzFile);
+    if (bzError != BZ_OK)
+    {
+	NodeAccessException ex;
+	ex.reason = "BZ2_bzReadClose failed";
+	if (bzError == BZ_IO_ERROR)
+	{
+	    ex.reason += string(": ") + strerror(errno);
+	}
+	fclose(stdioFileBZ2);
+	throw ex;
+    }
+
+    fclose(stdioFileBZ2);
+    file.close();
     
     //
     // Remove the BZ2 file, it is not needed anymore.

@@ -25,6 +25,8 @@ public:
 
     void usage();
     virtual int run(int, char*[]);
+    void removeOrphanedRecursive(const string&);
+    void updateRecursive(const string&);
 };
 
 };
@@ -90,14 +92,10 @@ IcePatch::Server::run(int argc, char* argv[])
 
 	//
 	// Remove orphaned MD5 and BZ2 files.
+        // Create MD5 and BZ2 files.
 	//
 	removeOrphanedRecursive(".");
-        
-        //
-        // Create MD5 and BZ2 files.
-        //
-	createMD5Recursive(".");
-	createBZ2Recursive(".");    
+	updateRecursive(".");
         
         //
         // Create and initialize the object adapter and the node locator.
@@ -119,6 +117,91 @@ IcePatch::Server::run(int argc, char* argv[])
     }
 
     return EXIT_SUCCESS;
+}
+
+void
+IcePatch::Server::removeOrphanedRecursive(const string& path)
+{
+    assert(getFileInfo(path).type == FileTypeDirectory);
+    
+    StringSeq paths = readDirectory(path);
+    StringSeq::const_iterator p;
+    for (p = paths.begin(); p != paths.end(); ++p)
+    {
+	string suffix = getSuffix(*p);
+	if (suffix == "md5" || suffix == "bz2")
+	{
+	    pair<StringSeq::const_iterator, StringSeq::const_iterator> r =
+		equal_range(paths.begin(), paths.end(), removeSuffix(*p));
+	    if (r.first == r.second)
+	    {
+		cout << "removing orphaned file `" << *p << "'... " << flush;
+		removeRecursive(*p);
+		cout << "ok" << endl;
+	    }
+	}
+	else
+	{
+	    if (getFileInfo(*p).type == FileTypeDirectory)
+	    {
+		removeOrphanedRecursive(*p);
+	    }
+	}
+    }
+
+    if (readDirectory(path).empty())
+    {
+	cout << "removing empty directory `" << *p << "'... " << flush;
+	removeRecursive(path);
+	cout << "ok" << endl;
+    }
+}
+
+void
+IcePatch::Server::updateRecursive(const string& path)
+{
+    string suffix = getSuffix(path);
+    if (suffix == "md5" || suffix == "bz2")
+    {
+	return;
+    }
+
+    if (pathToName(path) == tmpName)
+    {
+	return;
+    }
+
+    FileInfo info = getFileInfo(path);
+
+    if (info.type == FileTypeDirectory)
+    {
+	StringSeq paths = readDirectory(path);
+	StringSeq::const_iterator p;
+	for (p = paths.begin(); p != paths.end(); ++p)
+	{
+	    updateRecursive(*p);
+	}
+    }
+    else if (info.type == FileTypeRegular)
+    {
+	string pathMD5 = path + ".md5";
+	FileInfo infoMD5 = getFileInfo(pathMD5);
+	if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
+	{
+	    cout << "creating .md5 file for `" << path << "'... " << flush;
+	    createMD5(pathMD5);
+	    cout << "ok" << endl;
+	}
+
+	string pathBZ2 = path + ".bz2";
+	FileInfo infoBZ2 = getFileInfo(pathBZ2);
+	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+	{
+	    cout << "creating .bz2 file for `" << path << "'... " << flush;
+	    createBZ2(pathBZ2);
+	    cout << "ok" << endl;
+	}
+    }
 }
 
 int

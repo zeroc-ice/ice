@@ -110,13 +110,6 @@ IcePatch::Client::run(int argc, char* argv[])
 	cout << pathToName(path) << endl;
 	cout << "|" << endl;
 	patch(topDesc->directory->getContents(), "");
-
-	//
-	// Remove orphaned MD5 and BZ2 files.
-	//
-	cout << "removing orphaned .bz2 and .md5 files... " << flush;
-	removeOrphanedRecursive(".");
-	cout << "ok" << endl;
     }
     catch (const NodeAccessException& ex)
     {
@@ -131,20 +124,35 @@ class MyProgressCB : public ProgressCB
 {
 public:
 
-    virtual void start(Int)
+    virtual void startDownload(Int)
     {
-	cout << "  0% " << flush;
+	cout << "download   0% " << flush;
     }
 
-    virtual void update(Int total, Int pos)
+    virtual void updateDownload(Int total, Int pos)
     {
 	Ice::Int percent = pos * 100 / total;
 	cout << "\b\b\b\b\b" << setw(3) << percent << "% " << flush;
     }
 
-    virtual void finished(Int total)
+    virtual void finishedDownload(Int total)
     {
 	cout << "\b\b\b\b\b" << "100% " << flush;
+    }
+
+    virtual void startUncompress(Int)
+    {
+	cout << "uncompress   0% " << flush;
+    }
+
+    virtual void updateUncompress(Int total, Int pos)
+    {
+	updateDownload(total, pos);
+    }
+
+    virtual void finishedUncompress(Int total)
+    {
+	finishedDownload(total);
     }
 };
 
@@ -188,21 +196,21 @@ IcePatch::Client::patch(const NodeDescSeq& nodeDescSeq, const string& indent)
 	    cout << indent << "+-" << pathToName(path) << ": " << flush;
 
 	    FileInfo info = getFileInfo(path);
-	    switch (info)
+	    switch (info.type)
 	    {
-		case FileInfoNotExist:
+		case FileTypeNotExist:
 		{
 		    cout << "creating directory... " << flush;
 		    createDirectory(path);
 		    break;
 		}
 
-		case FileInfoDirectory:
+		case FileTypeDirectory:
 		{
 		    break;
 		}
 
-		case FileInfoRegular:
+		case FileTypeRegular:
 		{
 		    cout << "removing file... " << flush;
 		    removeRecursive(path);
@@ -211,7 +219,7 @@ IcePatch::Client::patch(const NodeDescSeq& nodeDescSeq, const string& indent)
 		    break;
 		}
 
-		case FileInfoUnknown:
+		case FileTypeUnknown:
 		{
 		    cout << "removing unknown file... " << flush;
 		    removeRecursive(path);
@@ -234,16 +242,16 @@ IcePatch::Client::patch(const NodeDescSeq& nodeDescSeq, const string& indent)
 	    MyProgressCB progressCB;
 
 	    FileInfo info = getFileInfo(path);
-	    switch (info)
+	    switch (info.type)
 	    {
-		case FileInfoNotExist:
+		case FileTypeNotExist:
 		{
 		    cout << "getting file... " << flush;
 		    getFile(fileDesc->file, progressCB);
 		    break;
 		}
 
-		case FileInfoDirectory:
+		case FileTypeDirectory:
 		{
 		    cout << "removing directory... " << flush;
 		    removeRecursive(path);
@@ -252,14 +260,17 @@ IcePatch::Client::patch(const NodeDescSeq& nodeDescSeq, const string& indent)
 		    break;
 		}
 
-		case FileInfoRegular:
+		case FileTypeRegular:
 		{
 		    ByteSeq md5;
-		    FileInfo infoMD5 = getFileInfo(path + ".md5");
-		    if (infoMD5 == FileInfoRegular)
+		    
+		    string pathMD5 = path + ".md5";
+		    FileInfo infoMD5 = getFileInfo(pathMD5);
+		    if (infoMD5.type == FileTypeRegular && infoMD5.time >= info.time)
 		    {
 			md5 = getMD5(path);
 		    }
+
 		    if (md5 != fileDesc->md5)
 		    {
 			cout << "removing file... " << flush;
@@ -267,10 +278,11 @@ IcePatch::Client::patch(const NodeDescSeq& nodeDescSeq, const string& indent)
 			cout << "getting file... " << flush;
 			getFile(fileDesc->file, progressCB);
 		    }
+
 		    break;
 		}
 
-		case FileInfoUnknown:
+		case FileTypeUnknown:
 		{
 		    cout << "removing unknown file... " << flush;
 		    removeRecursive(path);

@@ -61,14 +61,14 @@ IcePatch::NodeLocator::locate(const ObjectAdapterPtr& adapter, const Current& cu
 	return 0;
     }
 
-    switch (info)
+    switch (info.type)
     {
-	case FileInfoDirectory:
+	case FileTypeDirectory:
 	{
 	    return _directory;
 	}
 
-	case FileInfoRegular:
+	case FileTypeRegular:
 	{
 	    return _file;
 	}

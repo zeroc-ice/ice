@@ -110,7 +110,7 @@ IceInternal::ThreadPool::joinWithAllThreads()
     //
     for (vector<IceUtil::ThreadControl>::iterator p = _threads.begin(); p != _threads.end(); ++p)
     {
-	(*p).join();
+	p->join();
     }
 }
 

@@ -277,7 +277,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 #endif
 	_traceLevels = new TraceLevels(_properties);
 	_defaultProtocol = _properties->getPropertyWithDefault("Ice.DefaultProtocol", "tcp");
-	_defaultHost = _properties->getPropertyWithDefault("Ice.DefaultHost", "127.0.0.1");
+	_defaultHost = _properties->getProperty("Ice.DefaultHost");
+	if (_defaultHost.empty())
+	{
+	    _defaultHost = getLocalHost(true);
+	}
 	_routerManager = new RouterManager;
 	_referenceFactory = new ReferenceFactory(this);
 	_proxyFactory = new ProxyFactory(this);
