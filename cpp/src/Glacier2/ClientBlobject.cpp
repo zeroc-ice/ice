@@ -10,7 +10,6 @@
 
 #include <Ice/RoutingTable.h>
 #include <Ice/IdentityUtil.h>
-
 #include <Glacier2/ClientBlobject.h>
 
 using namespace std;
@@ -20,8 +19,8 @@ using namespace Glacier2;
 static const string clientTraceReject = "Glacier2.Client.Trace.Reject";
 
 Glacier2::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
-					const IceInternal::RoutingTablePtr& routingTable,
-					const string& allowCategories) :
+					 const IceInternal::RoutingTablePtr& routingTable,
+					 const string& allowCategories) :
     Glacier2::Blobject(communicator, false),
     _routingTable(routingTable),
     _traceLevelReject(communicator->getProperties()->getPropertyAsInt(clientTraceReject))
@@ -53,9 +52,8 @@ Glacier2::ClientBlobject::destroy()
 
 void
 Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
-					  const Current& current)
+					   const Current& current)
 {
-    cout << "xxxxxxxxxxxxxx 8" << endl;
     //
     // If there is an _allowCategories set then enforce it.
     //
@@ -75,8 +73,6 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
 	}
     }
 
-    cout << "xxxxxxxxxxxxxx 9" << endl;
-
     assert(_routingTable); // Destroyed?
     ObjectPrx proxy = _routingTable->get(current.id);
     if(!proxy)
@@ -86,6 +82,5 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
 	throw ex;
     }
 
-    cout << "xxxxxxxxxxxxxx 10" << endl;
     invoke(proxy, amdCB, inParams, current);
 }

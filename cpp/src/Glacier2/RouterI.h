@@ -10,24 +10,25 @@
 #ifndef GLACIER2_ROUTER_I_H
 #define GLACIER2_ROUTER_I_H
 
-#include <Ice/RoutingTableF.h>
-#include <Glacier2/Router.h>
+#include <IceUtil/Thread.h>
+#include <IceUtil/Monitor.h>
 #include <Ice/Ice.h>
+#include <Glacier2/Router.h>
+#include <Glacier2/ClientBlobject.h>
+#include <Glacier2/ServerBlobject.h>
 
 namespace Glacier2
 {
 
-class RouterI;
-typedef IceUtil::Handle<RouterI> RouterIPtr;
+class ClientRouterI;
+typedef IceUtil::Handle<ClientRouterI> ClientRouterIPtr;
 
-class RouterI : public Router
+class ClientRouterI : public Router
 {
 public:
 
-    RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const IceInternal::RoutingTablePtr&);
-	    
-    virtual ~RouterI();
-
+    ClientRouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const Ice::TransportInfoPtr& transport);
+    virtual ~ClientRouterI();
     void destroy();
 
     virtual Ice::ObjectPrx getClientProxy(const Ice::Current&) const;
@@ -35,15 +36,48 @@ public:
     virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
     virtual void createSession(const std::string&, const std::string&, const Ice::Current&);
 
+    Glacier2::ClientBlobjectPtr getClientBlobject() const;
+    Glacier2::ServerBlobjectPtr getServerBlobject() const;
+
 private:
 
-    Ice::ObjectAdapterPtr _clientAdapter;
-    Ice::ObjectAdapterPtr _serverAdapter;
-    Ice::LoggerPtr _logger;
-    IceInternal::RoutingTablePtr _routingTable;
-    int _routingTableTraceLevel;
+    const Ice::LoggerPtr _logger;
+    const Ice::ObjectAdapterPtr _clientAdapter;
+    const Ice::ObjectAdapterPtr _serverAdapter;
+    const IceInternal::RoutingTablePtr _routingTable;
+    const int _routingTableTraceLevel;
+    const Glacier2::ClientBlobjectPtr _clientBlobject;
+    const Glacier2::ServerBlobjectPtr _serverBlobject;
+};
 
-    std::string _userId;
+class SessionRouterI;
+typedef IceUtil::Handle<SessionRouterI> SessionRouterIPtr;
+
+class SessionRouterI : public Router, public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    SessionRouterI(const Ice::ObjectAdapterPtr&);
+    virtual ~SessionRouterI();
+    void destroy();
+
+    virtual Ice::ObjectPrx getClientProxy(const Ice::Current&) const;
+    virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
+    virtual void addProxy(const Ice::ObjectPrx&, const Ice::Current&);
+    virtual void createSession(const std::string&, const std::string&, const Ice::Current&);
+
+    ClientRouterIPtr getClientRouter(const Ice::TransportInfoPtr&) const;    
+
+private:
+
+    const Ice::LoggerPtr _logger;
+    const Ice::ObjectAdapterPtr _clientAdapter;
+    const int _traceLevel;
+
+    int _serverAdapterCount;
+
+    std::map<Ice::TransportInfoPtr, ClientRouterIPtr> _clientRouterMap;
+    mutable std::map<Ice::TransportInfoPtr, ClientRouterIPtr>::iterator _clientRouterMapHint;
 };
 
 }

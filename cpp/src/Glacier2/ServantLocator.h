@@ -7,13 +7,12 @@
 //
 // **********************************************************************
 
-#include <Glacier2/ClientBlobject.h>
-#include <Glacier2/ServerBlobject.h>
+#include <Glacier2/RouterI.h>
 
 namespace Glacier2
 {
 
-class ClientServantLocator : public Ice::ServantLocator, public IceUtil::Mutex
+class ClientServantLocator : public Ice::ServantLocator
 {
 public:
 
@@ -25,25 +24,8 @@ public:
 
 private:
 
-    const Ice::CommunicatorPtr _communicator;
-    const Ice::PropertiesPtr _properties;
-    const Ice::LoggerPtr _logger;
-    const Ice::ObjectAdapterPtr _clientAdapter;
     const Ice::Identity _routerId;
-    const std::string _serverEndpoints;
-    const int _traceLevel;
-
-    struct Client
-    {
-	Ice::RouterPtr router;
-	Glacier2::ClientBlobjectPtr clientBlobject;
-	Ice::ObjectAdapterPtr serverAdapter;
-    };
-
-    int _serverAdapterCount;
-
-    std::map<Ice::TransportInfoPtr, Client> _clientMap;
-    std::map<Ice::TransportInfoPtr, Client>::iterator _clientMapHint;
+    const Glacier2::SessionRouterIPtr _sessionRouter;
 };
 
 class ServerServantLocator : public Ice::ServantLocator
@@ -58,7 +40,7 @@ public:
 
 private:
 
-    Glacier2::ServerBlobjectPtr _serverBlobject;
+    const Glacier2::ServerBlobjectPtr _serverBlobject;
 };
 
 }
