@@ -85,11 +85,6 @@ private:
     //
     void writeDefaultValue(const TypePtr&);
 
-    //
-    // Converts a scoped name into a type name (e.g., ::M::Foo -> M._t_Foo).
-    //
-    string scopedToType(const string&);
-
     struct MemberInfo
     {
         string fixedName;
@@ -176,13 +171,37 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
 {
     if(p->includeLevel() > 0)
     {
-        string scoped = p->scoped();
-        if(_history.count(scoped) == 0)
+        string abs = getAbsolute(p);
+        if(_history.count(abs) == 0)
         {
-            string name = scopedToName(scoped);
-            _out << sp << nl << "# Included module " << name;
-            _out << nl << "_M_" << name << " = Ice.openModule('" << name << "')";
-            _history.insert(scoped);
+            //
+            // If this is a top-level module, then we check if it has package metadata.
+            // If so, we need to emit statements to open each of the modules in the
+            // package before we can open this module.
+            //
+            if(UnitPtr::dynamicCast(p->container()))
+            {
+                string pkg = getPackageMetadata(p);
+                if(!pkg.empty())
+                {
+                    vector<string> v;
+                    splitString(pkg, v, ".");
+                    string mod;
+                    for(vector<string>::iterator q = v.begin(); q != v.end(); ++q)
+                    {
+                        mod = mod.empty() ? *q : mod + "." + *q;
+                        if(_history.count(mod) == 0)
+                        {
+                            _out << nl << "_M_" << mod << " = Ice.openModule('" << mod << "')";
+                            _history.insert(mod);
+                        }
+                    }
+                }
+            }
+
+            _out << sp << nl << "# Included module " << abs;
+            _out << nl << "_M_" << abs << " = Ice.openModule('" << abs << "')";
+            _history.insert(abs);
         }
     }
 
@@ -214,16 +233,39 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
     //
     // This allows us to create types in the module Foo.
     //
-    string scoped = p->scoped();
-    string name = scopedToName(scoped);
-    _out << sp << nl << "# Start of module " << name;
-    _out << nl << "__name__ = '" << name << "'";
-    if(_moduleHistory.count(scoped) == 0) // Don't emit this more than once for each module.
+    string abs = getAbsolute(p);
+    _out << sp << nl << "# Start of module " << abs;
+    if(_moduleHistory.count(abs) == 0) // Don't emit this more than once for each module.
     {
-        _out << nl << "_M_" << name << " = Ice.openModule('" << name << "')";
-        _moduleHistory.insert(scoped);
+        //
+        // If this is a top-level module, then we check if it has package metadata.
+        // If so, we need to emit statements to open each of the modules in the
+        // package before we can open this module.
+        //
+        if(UnitPtr::dynamicCast(p->container()))
+        {
+            string pkg = getPackageMetadata(p);
+            if(!pkg.empty())
+            {
+                vector<string> v;
+                splitString(pkg, v, ".");
+                string mod;
+                for(vector<string>::iterator q = v.begin(); q != v.end(); ++q)
+                {
+                    mod = mod.empty() ? *q : mod + "." + *q;
+                    if(_moduleHistory.count(mod) == 0) // Don't emit this more than once for each module.
+                    {
+                        _out << nl << "_M_" << mod << " = Ice.openModule('" << mod << "')";
+                        _moduleHistory.insert(mod);
+                    }
+                }
+            }
+        }
+        _out << nl << "_M_" << abs << " = Ice.openModule('" << abs << "')";
+        _moduleHistory.insert(abs);
     }
-    _moduleStack.push_front(name);
+    _out << nl << "__name__ = '" << abs << "'";
+    _moduleStack.push_front(abs);
     return true;
 }
 
@@ -249,10 +291,10 @@ Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     string scoped = p->scoped();
     if(!p->isLocal() && _classHistory.count(scoped) == 0)
     {
-        string type = scopedToType(scoped);
+        string type = getAbsolute(p, "_t_");
         _out << sp << nl << "_M_" << type << " = IcePy.declareClass('" << scoped << "')";
         _out << nl << "_M_" << type << "Prx = IcePy.declareProxy('" << scoped << "')";
-        _classHistory.insert(scoped); // Avoid extra declarations.
+        _classHistory.insert(scoped); // Avoid redundant declarations.
     }
 }
 
@@ -260,19 +302,19 @@ bool
 Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string scoped = p->scoped();
-    string type = scopedToType(scoped);
-    string fixedScoped = scopedToName(scoped);
-    string fixedName = fixIdent(p->name());
+    string type = getAbsolute(p, "_t_");
+    string abs = getAbsolute(p);
+    string name = fixIdent(p->name());
     ClassList bases = p->bases();
+    ClassDefPtr base;
     OperationList ops = p->operations();
     OperationList::iterator oli;
 
     //
     // Define the class.
     //
-    _out << sp << nl << "_M_" << fixedScoped << " = Ice.createTempClass()";
-    _out << nl << "class " << fixedName << '(';
-    string baseScoped, baseName;
+    _out << sp << nl << "_M_" << abs << " = Ice.createTempClass()";
+    _out << nl << "class " << name << '(';
     if(bases.empty())
     {
         if(p->isLocal())
@@ -296,8 +338,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         if(!bases.front()->isInterface())
         {
-            baseScoped = bases.front()->scoped();
-            baseName = getSymbol(bases.front());
+            base = bases.front();
         }
     }
     _out << "):";
@@ -320,7 +361,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out << "):";
     _out.inc();
-    if(baseName.empty() && !p->hasDataMembers() && !p->isAbstract())
+    if(!base && !p->hasDataMembers() && !p->isAbstract())
     {
         _out << nl << "pass";
     }
@@ -328,14 +369,14 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if(p->isAbstract())
         {
-            _out << nl << "if __builtin__.type(self) == _M_" << fixedScoped << ':';
+            _out << nl << "if __builtin__.type(self) == _M_" << abs << ':';
             _out.inc();
-            _out << nl << "raise RuntimeError('" << fixedScoped << " is an abstract class')";
+            _out << nl << "raise RuntimeError('" << abs << " is an abstract class')";
             _out.dec();
         }
-        if(!baseName.empty())
+        if(base)
         {
-            _out << nl << baseName << ".__init__(self";
+            _out << nl << getSymbol(base) << ".__init__(self";
             for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 if(q->inherited)
@@ -461,8 +502,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "_M_" << fixedScoped << "Prx = Ice.createTempClass()";
-        _out << nl << "class " << fixedName << "Prx(";
+        _out << sp << nl << "_M_" << abs << "Prx = Ice.createTempClass()";
+        _out << nl << "class " << name << "Prx(";
         if(bases.empty())
         {
             _out << "Ice.ObjectPrx";
@@ -508,7 +549,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << ", _ctx=None):";
             _out.inc();
-            _out << nl << "return _M_" << fixedScoped << "._op_" << (*oli)->name() << ".invoke(self, (" << inParams;
+            _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invoke(self, (" << inParams;
             if(!inParams.empty() && inParams.find(',') == string::npos)
             {
                 _out << ", ";
@@ -525,7 +566,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 }
                 _out << ", _ctx=None):";
                 _out.inc();
-                _out << nl << "return _M_" << fixedScoped << "._op_" << (*oli)->name() << ".invokeAsync(self, _cb, ("
+                _out << nl << "return _M_" << abs << "._op_" << (*oli)->name() << ".invokeAsync(self, _cb, ("
                      << inParams;
                 if(!inParams.empty() && inParams.find(',') == string::npos)
                 {
@@ -538,19 +579,19 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         _out << sp << nl << "def checkedCast(proxy, facet=''):";
         _out.inc();
-        _out << nl << "return _M_" << fixedScoped << "Prx.ice_checkedCast(proxy, '" << scoped << "', facet)";
+        _out << nl << "return _M_" << abs << "Prx.ice_checkedCast(proxy, '" << scoped << "', facet)";
         _out.dec();
         _out << nl << "checkedCast = staticmethod(checkedCast)";
 
         _out << sp << nl << "def uncheckedCast(proxy, facet=''):";
         _out.inc();
-        _out << nl << "return _M_" << fixedScoped << "Prx.ice_uncheckedCast(proxy, facet)";
+        _out << nl << "return _M_" << abs << "Prx.ice_uncheckedCast(proxy, facet)";
         _out.dec();
         _out << nl << "uncheckedCast = staticmethod(uncheckedCast)";
 
         _out.dec();
 
-        _out << sp << nl << "_M_" << type << "Prx = IcePy.defineProxy('" << scoped << "', " << fixedName << "Prx)";
+        _out << sp << nl << "_M_" << type << "Prx = IcePy.defineProxy('" << scoped << "', " << name << "Prx)";
     }
 
     //
@@ -567,15 +608,15 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
 
         DataMemberList members = p->dataMembers();
-        _out << sp << nl << "_M_" << type << " = IcePy.defineClass('" << scoped << "', " << fixedName << ", "
+        _out << sp << nl << "_M_" << type << " = IcePy.defineClass('" << scoped << "', " << name << ", "
              << (p->isAbstract() ? "True" : "False") << ", ";
-        if(baseScoped.empty())
+        if(!base)
         {
             _out << "None";
         }
         else
         {
-            _out << "_M_" << scopedToType(baseScoped);
+            _out << "_M_" << getAbsolute(base, "_t_");
         }
         _out << ", (";
         //
@@ -590,7 +631,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     _out << ", ";
                 }
-                _out << "_M_" << scopedToType((*q)->scoped());
+                _out << "_M_" << getAbsolute(*q, "_t_");
                 ++interfaceCount;
             }
         }
@@ -633,7 +674,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl;
         }
         _out << "))";
-        _out << nl << fixedName << ".ice_type = _M_" << type;
+        _out << nl << name << ".ice_type = _M_" << type;
 
         //
         // Define each operation. The arguments to the IcePy.Operation constructor are:
@@ -653,7 +694,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             ParamDeclList::iterator t;
             int count;
 
-            _out << nl << fixedName << "._op_" << (*s)->name() << " = IcePy.Operation('" << (*s)->name() << "', ";
+            _out << nl << name << "._op_" << (*s)->name() << " = IcePy.Operation('" << (*s)->name() << "', ";
             switch((*s)->mode())
             {
             case Operation::Normal:
@@ -718,7 +759,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     _out << ", ";
                 }
-                _out << "_M_" << scopedToType((*u)->scoped());
+                _out << "_M_" << getAbsolute(*u, "_t_");
             }
             if(exceptions.size() == 1)
             {
@@ -728,11 +769,16 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
-    registerName(fixedName);
+    registerName(name);
 
     if(!p->isLocal())
     {
-        registerName(fixedName + "Prx");
+        registerName(name + "Prx");
+    }
+
+    if(_classHistory.count(scoped) == 0)
+    {
+        _classHistory.insert(scoped); // Avoid redundant declarations.
     }
 
     return false;
@@ -742,15 +788,14 @@ bool
 Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     string scoped = p->scoped();
-    string fixedScoped = scopedToName(scoped);
-    string fixedName = fixIdent(p->name());
-    _out << sp << nl << "_M_" << fixedScoped << " = Ice.createTempClass()";
-    _out << nl << "class " << fixedName << '(';
+    string abs = getAbsolute(p);
+    string name = fixIdent(p->name());
+    _out << sp << nl << "_M_" << abs << " = Ice.createTempClass()";
+    _out << nl << "class " << name << '(';
     ExceptionPtr base = p->base();
-    string baseScoped, baseName;
+    string baseName;
     if(base)
     {
-        baseScoped = base->scoped();
         baseName = getSymbol(base);
         _out << baseName;
     }
@@ -827,11 +872,11 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out.inc();
     if(allMembers.empty())
     {
-        _out << nl << "return '" << fixedScoped << "'";
+        _out << nl << "return '" << abs << "'";
     }
     else
     {
-        _out << nl << "return '" << fixedScoped << ":'";
+        _out << nl << "return '" << abs << ":'";
         _out.inc();
         for(MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
         {
@@ -849,15 +894,15 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     if(!p->isLocal())
     {
-        string type = scopedToType(scoped);
-        _out << sp << nl << "_M_" << type << " = IcePy.defineException('" << scoped << "', " << fixedName << ", ";
-        if(baseScoped.empty())
+        string type = getAbsolute(p, "_t_");
+        _out << sp << nl << "_M_" << type << " = IcePy.defineException('" << scoped << "', " << name << ", ";
+        if(!base)
         {
             _out << "None";
         }
         else
         {
-             _out << "_M_" << scopedToType(baseScoped);
+             _out << "_M_" << getAbsolute(base, "_t_");
         }
         _out << ", (";
         if(members.size() > 1)
@@ -892,10 +937,10 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             _out << nl;
         }
         _out << "), " << (p->usesClasses() ? "True" : "False") << ")";
-        _out << nl << fixedName << ".ice_type = _M_" << type;
+        _out << nl << name << ".ice_type = _M_" << type;
     }
 
-    registerName(fixedName);
+    registerName(name);
 
     return false;
 }
@@ -904,13 +949,13 @@ bool
 Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 {
     string scoped = p->scoped();
-    string fixedScoped = scopedToName(scoped);
-    string fixedName = fixIdent(p->name());
+    string abs = getAbsolute(p);
+    string name = fixIdent(p->name());
     DataMemberList members = p->dataMembers();
     DataMemberList::iterator q;
 
-    _out << sp << nl << "_M_" << fixedScoped << " = Ice.createTempClass()";
-    _out << nl << "class " << fixedName << "(object):";
+    _out << sp << nl << "_M_" << abs << " = Ice.createTempClass()";
+    _out << nl << "class " << name << "(object):";
     _out.inc();
     _out << nl << "def __init__(self";
     for(q = members.begin(); q != members.end(); ++q)
@@ -934,8 +979,8 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "_M_" << scopedToType(scoped) << " = IcePy.defineStruct('" << scoped << "', "
-             << fixedName << ", (";
+        _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineStruct('" << scoped << "', "
+             << name << ", (";
         //
         // Data members are represented as a tuple:
         //
@@ -970,7 +1015,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out << "))";
     }
 
-    registerName(fixedName);
+    registerName(name);
 
     return false;
 }
@@ -984,7 +1029,7 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     if(!p->isLocal())
     {
         string scoped = p->scoped();
-        _out << sp << nl << "_M_" << scopedToType(scoped) << " = IcePy.defineSequence('" << scoped << "', ";
+        _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineSequence('" << scoped << "', ";
         writeType(p->type());
         _out << ")";
     }
@@ -999,7 +1044,7 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
     if(!p->isLocal())
     {
         string scoped = p->scoped();
-        _out << sp << nl << "_M_" << scopedToType(scoped) << " = IcePy.defineDictionary('" << scoped << "', ";
+        _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineDictionary('" << scoped << "', ";
         writeType(p->keyType());
         _out << ", ";
         writeType(p->valueType());
@@ -1011,14 +1056,14 @@ void
 Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
 {
     string scoped = p->scoped();
-    string fixedScoped = scopedToName(scoped);
-    string fixedName = fixIdent(p->name());
+    string abs = getAbsolute(p);
+    string name = fixIdent(p->name());
     EnumeratorList enums = p->getEnumerators();
     EnumeratorList::iterator q;
     int i;
 
-    _out << sp << nl << "_M_" << fixedScoped << " = Ice.createTempClass()";
-    _out << nl << "class " << fixedName << "(object):";
+    _out << sp << nl << "_M_" << abs << " = Ice.createTempClass()";
+    _out << nl << "class " << name << "(object):";
     _out.inc();
     _out << sp << nl << "def __init__(self, val):";
     _out.inc();
@@ -1068,7 +1113,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
         string fixedEnum = fixIdent((*q)->name());
         ostringstream idx;
         idx << i;
-        _out << nl << fixedName << '.' << fixedEnum << " = " << fixedName << '(' << idx.str() << ')';
+        _out << nl << name << '.' << fixedEnum << " = " << name << '(' << idx.str() << ')';
     }
 
     //
@@ -1076,7 +1121,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "_M_" << scopedToType(scoped) << " = IcePy.defineEnum('" << scoped << "', " << fixedName
+        _out << sp << nl << "_M_" << getAbsolute(p, "_t_") << " = IcePy.defineEnum('" << scoped << "', " << name
              << ", (";
         for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
         {
@@ -1085,7 +1130,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
                 _out << ", ";
             }
             string fixedEnum = fixIdent((*q)->name());
-            _out << fixedName << '.' << fixedEnum;
+            _out << name << '.' << fixedEnum;
         }
         if(enums.size() == 1)
         {
@@ -1094,7 +1139,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
         _out << "))";
     }
 
-    registerName(fixedName);
+    registerName(name);
 }
 
 void
@@ -1104,7 +1149,7 @@ Slice::Python::CodeVisitor::visitConst(const ConstPtr& p)
     string value = p->value();
     string name = fixIdent(p->name());
 
-    _out << sp << nl << "_M_" << scopedToName(p->scoped()) << " = ";
+    _out << sp << nl << "_M_" << getAbsolute(p) << " = ";
 
     Slice::BuiltinPtr b = Slice::BuiltinPtr::dynamicCast(type);
     Slice::EnumPtr en = Slice::EnumPtr::dynamicCast(type);
@@ -1264,7 +1309,7 @@ Slice::Python::CodeVisitor::getSymbol(const ContainedPtr& p)
     //
     // An explicit reference to another type must always be prefixed with "_M_".
     //
-    return "_M_" + scopedToName(p->scoped());
+    return "_M_" + getAbsolute(p);
 }
 
 void
@@ -1345,13 +1390,13 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
     ProxyPtr prx = ProxyPtr::dynamicCast(p);
     if(prx)
     {
-        _out << "_M_" << scopedToType(prx->_class()->scoped()) << "Prx";
+        _out << "_M_" << getAbsolute(prx->_class(), "_t_") << "Prx";
         return;
     }
 
     ContainedPtr cont = ContainedPtr::dynamicCast(p);
     assert(cont);
-    _out << "_M_" << scopedToType(cont->scoped());
+    _out << "_M_" << getAbsolute(cont, "_t_");
 }
 
 void
@@ -1413,16 +1458,6 @@ Slice::Python::CodeVisitor::writeDefaultValue(const TypePtr& p)
     }
 
     _out << "None";
-}
-
-string
-Slice::Python::CodeVisitor::scopedToType(const string& scoped)
-{
-    string result = scopedToName(scoped);
-    string::size_type pos = result.rfind('.');
-    assert(pos != string::npos);
-    result.insert(pos + 1, "_t_");
-    return result;
 }
 
 void
@@ -1555,9 +1590,8 @@ Slice::Python::generate(const UnitPtr& unit, bool all, bool checksum, const vect
 }
 
 bool
-Slice::Python::splitString(const string& str, vector<string>& args)
+Slice::Python::splitString(const string& str, vector<string>& args, const string& delim)
 {
-    string delim = " \t\n\r";
     string::size_type beg;
     string::size_type end = 0;
     while(true)
@@ -1630,6 +1664,53 @@ Slice::Python::fixIdent(const string& ident)
         result << "::" + *i;
     }
     return result.str();
+}
+
+string
+Slice::Python::getPackageMetadata(const ContainedPtr& cont)
+{
+    string package;
+
+    DefinitionContextPtr dc = cont->definitionContext();
+    if(dc)
+    {
+        static const string prefix = "python:package:";
+        string metadata = dc->findMetaData(prefix);
+        if(!metadata.empty())
+        {
+            package = metadata.substr(prefix.size());
+        }
+    }
+
+    return package;
+}
+
+string
+Slice::Python::getAbsolute(const ContainedPtr& cont, const string& suffix)
+{
+    string scope = scopedToName(cont->scope());
+
+    string package = getPackageMetadata(cont);
+    if(!package.empty())
+    {
+        if(!scope.empty())
+        {
+            scope = package + "." + scope;
+        }
+        else
+        {
+            scope = package + ".";
+        }
+    }
+
+    if(suffix.empty())
+    {
+        return scope + fixIdent(cont->name());
+    }
+    else
+    {
+        return scope + suffix + fixIdent(cont->name());
+    }
 }
 
 void

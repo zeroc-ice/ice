@@ -66,6 +66,11 @@ private:
     static const char* _moduleTag;
     static const char* _submoduleTag;
 
+    bool createDirectory(const string&);
+
+    bool addModule(const string&, const string&);
+    bool addSubmodule(const string&, const string&);
+
     bool readInit(const string&, StringList&, StringList&);
     bool writeInit(const string&, const StringList&, const StringList&);
 
@@ -95,61 +100,79 @@ PackageVisitor::visitModuleStart(const ModulePtr& p)
 {
     assert(!_pathStack.empty());
     string name = fixIdent(p->name());
-    string path = _pathStack.front() + "/" + name;
+
+    string path;
+    if(_pathStack.size() == 1)
+    {
+        path = _pathStack.front();
+
+        //
+        // Check top-level modules for package metadata and create the package
+        // directories.
+        //
+        string package = getPackageMetadata(p);
+        if(!package.empty())
+        {
+            vector<string> v;
+            if(!splitString(package, v, "."))
+            {
+                return false;
+            }
+            for(vector<string>::iterator q = v.begin(); q != v.end(); ++q)
+            {
+                if(q != v.begin() && !addSubmodule(path, fixIdent(*q)))
+                {
+                    return false;
+                }
+                    
+                path += "/" + *q;
+                if(!createDirectory(path))
+                {
+                    return false;
+                }
+
+                if(!addModule(path, _module))
+                {
+                    return false;
+                }
+            }
+
+            if(!addSubmodule(path, name))
+            {
+                return false;
+            }
+        }
+
+        path += "/" + name;
+    }
+    else
+    {
+        path = _pathStack.front() + "/" + name;
+    }
+
     string parentPath = _pathStack.front();
     _pathStack.push_front(path);
 
-    struct stat st;
-    int result;
-    result = stat(path.c_str(), &st);
-    if(result != 0)
+    if(!createDirectory(path))
     {
-#ifdef _WIN32
-        result = _mkdir(path.c_str());
-#else       
-        result = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-#endif
-
-        if(result != 0)
-        {
-            cerr << _name << ": unable to create `" << path << "': " << strerror(errno) << endl;
-            return false;
-        }
+        return false;
     }
 
     //
-    // If necessary, add this file to the set of imported modules in __init__.py.
+    // If necessary, add this module to the set of imported modules in __init__.py.
     //
-    StringList modules, submodules;
-    if(readInit(path, modules, submodules))
+    if(!addModule(path, _module))
     {
-        StringList::iterator p;
-        p = find(modules.begin(), modules.end(), _module);
-        if(p == modules.end())
-        {
-            modules.push_back(_module);
-            writeInit(path, modules, submodules);
-        }
+        return false;
     }
 
     //
     // If this is a submodule, then modify the parent's __init__.py to import us.
     //
     ModulePtr mod = ModulePtr::dynamicCast(p->container());
-    if(mod)
+    if(mod && !addSubmodule(parentPath, name))
     {
-        modules.clear();
-        submodules.clear();
-        if(readInit(parentPath, modules, submodules))
-        {
-            StringList::iterator p;
-            p = find(submodules.begin(), submodules.end(), name);
-            if(p == submodules.end())
-            {
-                submodules.push_back(name);
-                writeInit(parentPath, modules, submodules);
-            }
-        }
+        return false;
     }
 
     return true;
@@ -160,6 +183,74 @@ PackageVisitor::visitModuleEnd(const ModulePtr& p)
 {
     assert(!_pathStack.empty());
     _pathStack.pop_front();
+}
+
+bool
+PackageVisitor::createDirectory(const string& dir)
+{
+    struct stat st;
+    int result;
+    result = stat(dir.c_str(), &st);
+    if(result != 0)
+    {
+#ifdef _WIN32
+        result = _mkdir(dir.c_str());
+#else       
+        result = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+#endif
+
+        if(result != 0)
+        {
+            cerr << _name << ": unable to create `" << dir << "': " << strerror(errno) << endl;
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool
+PackageVisitor::addModule(const string& dir, const string& name)
+{
+    //
+    // Add a module to the set of imported modules in __init__.py.
+    //
+    StringList modules, submodules;
+    if(readInit(dir, modules, submodules))
+    {
+        StringList::iterator p = find(modules.begin(), modules.end(), name);
+        if(p == modules.end())
+        {
+            modules.push_back(name);
+            return writeInit(dir, modules, submodules);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool
+PackageVisitor::addSubmodule(const string& dir, const string& name)
+{
+    //
+    // Add a submodule to the set of imported modules in __init__.py.
+    //
+    StringList modules, submodules;
+    if(readInit(dir, modules, submodules))
+    {
+        StringList::iterator p = find(submodules.begin(), submodules.end(), name);
+        if(p == submodules.end())
+        {
+            submodules.push_back(name);
+            return writeInit(dir, modules, submodules);
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 bool
