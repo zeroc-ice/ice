@@ -1,6 +1,8 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Ice is now supported on Windows 98 SE. See INSTALL.WINDOWS.
+
 - Fixed an incorrect complaint in the Slice parser about
   about a change of meaning for enumeration constant definitions.
 

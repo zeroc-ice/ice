@@ -6,12 +6,14 @@ Requirements
 Windows version
 ---------------
 
-Ice has been extensively tested with Windows XP and Windows 2000. Ice
-will most likely also work on Windows NT. Windows 95/98/ME is not
-supported.
+Ice has been extensively tested with Windows XP, Windows 2000 and
+Windows 98 SE. Ice is also expected to work on Windows 98, Windows
+ME, Windows NT 3.51, Windows NT 4.0 and Windows Server 2003.
 
 Ice binary distributions for Visual C++ .NET 2002 and 2003 are
-also available from http://www.zeroc.com/download.html.
+also available from http://www.zeroc.com/download.html. These binary
+distributions require Windows NT 4.0, Windows 2000, Windows XP
+or Windows Server 2003.
 
 
 C++ compiler
@@ -43,7 +45,7 @@ these compiler versions.
 Third-party libraries
 ---------------------
 
-- Berkeley DB 4.1
+- Berkeley DB 4.1.25
 
 - expat 1.9x
 
@@ -54,7 +56,7 @@ Third-party libraries
 You must install all these packages before proceeding with the
 installation of Ice.
 
-If you are using Visual C++ .NET 2002 or 2003, you can download
+If you are using Visual C++ .NET 2002 or 2003 you can download
 an installer for all these Ice dependencies from 
 http://www.zeroc.com/download.html. 
 
@@ -80,10 +82,10 @@ We recommend that you use the same Visual C++ version to build all
 of the third party libraries.
 
 
-Python 2.2
+Python 2.3
 ----------
 
-To run the automated test suite, you will need Python 2.2. If you have
+To run the automated test suite, you will need Python 2.3. If you have
 no interest in running the test scripts, Python is not required. You
 can download a Python distribution for Windows from:
 
@@ -106,7 +108,7 @@ third-party packages (include files, libraries, and DLLs):
 
 - Select "Include files".
 
-- Add the include directories for Berekeley DB, expat, OpenSSL,
+- Add the include directories for Berkeley DB, expat, OpenSSL,
   and bzip2.
 
   If you used the binary installer for expat, then the proper include
@@ -126,7 +128,7 @@ third-party packages (include files, libraries, and DLLs):
 
 - Select "Executable files".
 
-- Add the directories which contain DLLs for Berekeley DB, expat,
+- Add the directories which contain DLLs for Berkeley DB, expat,
   OpenSSL, bzip2, and STLport (if required).
 
 Now you're ready to compile Ice. Open the "all.dsw" workspace. If you
@@ -155,6 +157,27 @@ failure, the tests abort with "failed".
 If you want to try out any of the demos, make sure to add the "bin"
 directory, which contains DLLs and executables, to your PATH.
 
+======================================================================
+Windows 98, Windows 98 SE, Windows ME, Windows NT 3.51 
+======================================================================
+By default, IceUtil::Mutex and related classes are implemented using 
+Windows CriticalSection, and in particular use the 
+TryEnterCriticalSection function. This function is either not present 
+or implemented as a "no-op" call on Windows 98, Windows 98 SE, Windows 
+ME and Windows NT 3.51, so default Ice builds cannot be used on these 
+versions of Windows.
+IceUtil::Mutex and related classes can also use "heavier" Mutex 
+objects; such Ice builds will work on all Windows versions (>= 98).
+
+To switch to full Mutex, you need to edit %ICE_HOME%\include\IceUtil\
+Config.h and comment out the following lines:
+#   ifndef _WIN32_WINNT
+        //
+        // Necessary for TryEnterCriticalSection.
+        //
+#       define _WIN32_WINNT 0x0400
+#   endif
+before building Ice.
 
 ======================================================================
 Installation
