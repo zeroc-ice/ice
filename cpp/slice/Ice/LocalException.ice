@@ -609,6 +609,7 @@ local exception CompressionNotSupportedException extends ProtocolException
 {
 };
 
+#ifndef ICEE
 /**
  *
  * This exception is a specialization of [ProtocolException] that is
@@ -626,7 +627,6 @@ local exception CompressionException extends ProtocolException
     string reason;
 };
 
-#ifndef ICEE
 /**
  *
  * This exception is a specialization of [ProtocolException] that is
