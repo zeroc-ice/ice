@@ -425,10 +425,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
                 // here. The connection gets implicitly validated by
                 // any kind of message. However, it's still a protocol
                 // error like any other if no explicit connection
-                // validation message was sent first. Also, if I
-                // wouldn't set _connecitonValidated to true here,
-                // then the ConnectionValidatedException would be
-                // translated int a CloseConnectionException.
+                // validation message was sent first.
 		//
 		_connectionValidated = true;
 		throw ConnectionNotValidatedException(__FILE__, __LINE__);
@@ -901,13 +898,27 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 
     if(!_exception.get())
     {
-	if(_connectionValidated)
+	if(!_connectionValidated && dynamic_cast<const ConnectionLostException*>(&ex))
 	{
-	    _exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+	    //
+	    // If the connection has not been validated yet, we treat
+	    // a connection loss just as if we would have received a
+	    // close connection messsage. This way, Ice will retry a
+	    // request if the peer just accepts and closes a
+	    // connection. This can happen, for example, if a
+	    // connection is in the server's backlog, but not yet
+	    // accepted by the server. In such case, the connection
+	    // has been established from the client point of view, but
+	    // not yet from the server point of view. If the server
+	    // then closes the acceptor socket, the client will get a
+	    // connection loss without receiving an explicit close
+	    // connection message first.
+	    //
+	    _exception = auto_ptr<LocalException>(new CloseConnectionException(__FILE__, __LINE__));
 	}
 	else
 	{
-	    _exception = auto_ptr<LocalException>(new CloseConnectionException(__FILE__, __LINE__));
+	    _exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}
 
 	if(_warn)

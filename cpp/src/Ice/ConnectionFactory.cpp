@@ -411,18 +411,6 @@ IceInternal::IncomingConnectionFactory::exception(const LocalException&)
     assert(false); // Must not be called.
 }
 
-/*
-bool
-IceInternal::IncomingConnectionFactory::tryDestroy(const ThreadPoolPtr&)
-{
-    //
-    // Do nothing. We don't want collector factories to be closed by
-    // active connection management.
-    //
-    return false;
-}
-*/
-
 IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const InstancePtr& instance,
 								  const EndpointPtr& endpoint,
 								  const ObjectAdapterPtr& adapter) :

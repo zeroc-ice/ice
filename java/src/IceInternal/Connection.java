@@ -391,11 +391,7 @@ public final class Connection extends EventHandler
 		    // here. The connection gets implicitly validated
 		    // by any kind of message. However, it's still a
 		    // protocol error like any other if no explicit
-		    // connection validation message was sent
-		    // first. Also, if I wouldn't set
-		    // _connecitonValidated to true here, then the
-		    // ConnectionValidatedException would be
-		    // translated int a CloseConnectionException.
+		    // connection validation message was sent first.
 		    //
 		    _connectionValidated = true;
 		    throw new Ice.ConnectionNotValidatedException();
@@ -694,30 +690,6 @@ public final class Connection extends EventHandler
         }
     }
 
-    /*
-    public boolean
-    tryDestroy(ThreadPool threadPool)
-    {
-        boolean isLocked = _mutex.trylock();
-        if(!isLocked)
-        {
-            return false;
-        }
-
-        threadPool.promoteFollower();
-
-        try
-        {
-            setState(StateClosing, new Ice.CloseConnectionException());
-            return true;
-        }
-        finally
-        {
-            _mutex.unlock();
-        }
-    }
-    */
-
     Connection(Instance instance, Transceiver transceiver, Endpoint endpoint, Ice.ObjectAdapter adapter)
     {
         super(instance);
@@ -841,13 +813,28 @@ public final class Connection extends EventHandler
 
         if(_exception == null)
         {
-	    if(_connectionValidated)
+	    if(!_connectionValidated && (ex instanceof Ice.ConnectionLostException))
 	    {
-		_exception = ex;
+		//
+		// If the connection has not been validated yet, we
+		// treat a connection loss just as if we would have
+		// received a close connection messsage. This way, Ice
+		// will retry a request if the peer just accepts and
+		// closes a connection. This can happen, for example,
+		// if a connection is in the server's backlog, but not
+		// yet accepted by the server. In such case, the
+		// connection has been established from the client
+		// point of view, but not yet from the server point of
+		// view. If the server then closes the acceptor
+		// socket, the client will get a connection loss
+		// without receiving an explicit close connection
+		// message first.
+		//
+		_exception = new Ice.CloseConnectionException();
 	    }
 	    else
 	    {
-		_exception = new Ice.CloseConnectionException();
+		_exception = ex;
 	    }
 
             if(_warn)

@@ -177,18 +177,6 @@ public class IncomingConnectionFactory extends EventHandler
         assert(false); // Must not be called.
     }
 
-    /*
-    public boolean
-    tryDestroy(ThreadPool threadPool)
-    {
-        //
-        // Do nothing. We don't want collector factories to be closed by
-        // active connection management.
-        //
-        return false;
-    }
-    */
-
     public
     IncomingConnectionFactory(Instance instance, Endpoint endpoint, Ice.ObjectAdapter adapter)
     {
