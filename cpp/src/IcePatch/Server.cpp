@@ -199,9 +199,11 @@ IcePatch::IcePatchService::stop()
 {
     if(_thread)
     {
-        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-        _shutdown = true;
-        _monitor.notify();
+        {
+            IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
+            _shutdown = true;
+            _monitor.notify();
+        }
         _thread->getThreadControl().join();
         _thread = 0;
     }
