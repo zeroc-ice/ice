@@ -260,9 +260,9 @@
 		<row><td>NewBinary16</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\InstallFirstUse.ico</td></row>
 		<row><td>NewBinary17</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\InstallPartial.ico</td></row>
 		<row><td>NewBinary18</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\InstallStateMenu.ico</td></row>
-		<row><td>NewBinary19</td><td/><td>&lt;ISProjectFolder&gt;\installer-main.bmp</td></row>
+		<row><td>NewBinary19</td><td/><td>&lt;ISProjectFolder&gt;\install\ice-common\images\installer-main.bmp</td></row>
 		<row><td>NewBinary2</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\New.ibd</td></row>
-		<row><td>NewBinary20</td><td/><td>&lt;ISProjectFolder&gt;\installer-header.bmp</td></row>
+		<row><td>NewBinary20</td><td/><td>&lt;ISProjectFolder&gt;\install\ice-common\images\installer-header.bmp</td></row>
 		<row><td>NewBinary3</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\Up.ibd</td></row>
 		<row><td>NewBinary4</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\WarningIcon.ibd</td></row>
 		<row><td>NewBinary5</td><td/><td>&lt;ISProductFolder&gt;\Redist\Language Independent\OS Independent\IsDialogBitmap.ibd</td></row>
@@ -340,9 +340,11 @@
 		<row><td>IceCppDemo</td><td>{C1392163-339E-452B-A401-D0B4E27F0600}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCppDev</td><td>{F40D5465-8797-479E-ACD2-89216631CF7F}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceCppRuntime</td><td>{218943FB-F791-430F-B27E-9E839F0732C1}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceDocs</td><td>{864CDB60-DD48-44CE-A85C-95279D033B68}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceJavaDemo</td><td>{76F76C01-E468-46DC-8989-15EE4BC662F8}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceJavaDev</td><td>{23924FBE-9F6C-4DDD-BB38-4D6431973B01}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IceJavaRuntime</td><td>{3B1D1400-067A-40CE-A243-2CEB8F504FB7}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
+		<row><td>IceManual</td><td>{9C97525B-8993-4834-9ABA-9A593261C60D}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IcePhpDemo</td><td>{C6BAE4AD-8C22-4865-8880-0EC88168D32D}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IcePhpExtension</td><td>{D6A61A6B-6E8B-4A35-BDCE-95E5C9AEC142}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
 		<row><td>IcePythonDemo</td><td>{DC74F8DE-1571-43DA-8E48-2585970FE3D8}</td><td>INSTALLDIR</td><td>8</td><td/><td/><td>17</td><td/><td/><td/><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td><td>/LogFile=</td></row>
@@ -559,7 +561,7 @@
 		<row><td>LicenseAgreement</td><td>DlgDesc</td><td>Text</td><td>21</td><td>23</td><td>292</td><td>25</td><td>65539</td><td/><td>##IDS__IsLicenseDlg_ReadLicenseAgreement##</td><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>LicenseAgreement</td><td>DlgLine</td><td>Line</td><td>48</td><td>234</td><td>326</td><td>0</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td/></row>
 		<row><td>LicenseAgreement</td><td>DlgTitle</td><td>Text</td><td>13</td><td>6</td><td>292</td><td>25</td><td>65539</td><td/><td>##IDS__IsLicenseDlg_LicenseAgreement##</td><td/><td/><td>0</td><td/><td/><td/></row>
-		<row><td>LicenseAgreement</td><td>Memo</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td/><td>&lt;ISProductFolder&gt;\Redist\0409\Eula.rtf</td><td/></row>
+		<row><td>LicenseAgreement</td><td>Memo</td><td>ScrollableText</td><td>8</td><td>55</td><td>358</td><td>130</td><td>7</td><td/><td/><td/><td/><td>0</td><td/><td>&lt;ISProjectFolder&gt;\install\ice-common\docs\Ice-LICENSE.rtf</td><td/></row>
 		<row><td>LicenseAgreement</td><td>Next</td><td>PushButton</td><td>230</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_NEXT##</td><td>Cancel</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>MaintenanceType</td><td>Back</td><td>PushButton</td><td>164</td><td>243</td><td>66</td><td>17</td><td>3</td><td/><td>##IDS_BACK##</td><td>Next</td><td/><td>0</td><td/><td/><td/></row>
 		<row><td>MaintenanceType</td><td>Banner</td><td>Bitmap</td><td>0</td><td>0</td><td>374</td><td>44</td><td>1</td><td/><td/><td/><td/><td>0</td><td/><td/><td>NewBinary20</td></row>
@@ -1274,6 +1276,7 @@
 		<row><td>ice_java</td><td/><td>##ID_STRING6##</td><td/><td>4</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_java_demo</td><td>ice_java_dev</td><td>##ID_STRING7##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_java_dev</td><td>ice_java</td><td>##ID_STRING12##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
+		<row><td>ice_manual</td><td/><td>##ID_STRING16##</td><td/><td>10</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_php_demo</td><td>ice_php_extension</td><td>##ID_STRING11##</td><td/><td>2</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_php_extension</td><td/><td>##ID_STRING10##</td><td/><td>8</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
 		<row><td>ice_python</td><td/><td>##ID_STRING8##</td><td/><td>6</td><td>1</td><td>INSTALLDIR</td><td>8</td><td/><td/><td/><td/></row>
@@ -1286,6 +1289,7 @@
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s72">Component_</col>
 		<row><td>ice_cpp</td><td>IceCppRuntime</td></row>
+		<row><td>ice_cpp</td><td>IceDocs</td></row>
 		<row><td>ice_cpp</td><td>IceSupport</td></row>
 		<row><td>ice_cpp_demo</td><td>IceCppDemo</td></row>
 		<row><td>ice_cpp_dev</td><td>IceCppDev</td></row>
@@ -1293,6 +1297,7 @@
 		<row><td>ice_java</td><td>IceSupport</td></row>
 		<row><td>ice_java_demo</td><td>IceJavaDemo</td></row>
 		<row><td>ice_java_dev</td><td>IceJavaDev</td></row>
+		<row><td>ice_manual</td><td>IceManual</td></row>
 		<row><td>ice_php_demo</td><td>IcePhpDemo</td></row>
 		<row><td>ice_php_extension</td><td>IcePhpExtension</td></row>
 		<row><td>ice_python</td><td>IcePythonRuntime</td></row>
@@ -1469,9 +1474,11 @@
 		<row><td>IceCppDemo</td><td/><td/><td>_FC69CAF8_66AC_4793_A8ED_AFD7D168B544_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCppDev</td><td/><td/><td>_770F5B6A_0687_4BB0_B0D6_E1E5F6EAF0A7_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceCppRuntime</td><td/><td/><td>_DC33EA7A_C8B8_4C51_AA1A_6FA971C84A5F_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceDocs</td><td/><td/><td>_2749BAF0_9A4A_4485_9737_C1B8C2EC849E_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceJavaDemo</td><td/><td/><td>_CDB69F49_081A_4B76_A0E6_FB3312C328F7_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceJavaDev</td><td/><td/><td>_109869C1_DCF5_4B8D_A5FE_B1C4DFDFCF56_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IceJavaRuntime</td><td/><td/><td>_9DED8A42_54C6_45D9_8CDB_5DD14869E158_FILTER</td><td/><td/><td/><td/></row>
+		<row><td>IceManual</td><td/><td/><td>_2EAC330E_02E1_44BA_81E8_FEC200B20590_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IcePhpDemo</td><td/><td/><td>_94CABF79_5ABF_45A5_A3BA_649D69CDD302_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IcePhpExtension</td><td/><td/><td>_2390D3AD_94FC_4318_8D6A_2069DADC9C4D_FILTER</td><td/><td/><td/><td/></row>
 		<row><td>IcePythonDemo</td><td/><td/><td>_5F8824EE_DF7F_431F_8E8B_366272B2BB21_FILTER</td><td/><td/><td/><td/></row>
@@ -1509,9 +1516,11 @@
 		<row><td>IceCppDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-cpp\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCppDev</td><td>&lt;ISProjectFolder&gt;\install\ice-cpp\dev</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceCppRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice-cpp\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceDocs</td><td>&lt;ISProjectFolder&gt;\install\ice-common\docs</td><td>4</td><td/><td/><td>0</td></row>
 		<row><td>IceJavaDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-java\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceJavaDev</td><td>&lt;ISProjectFolder&gt;\install\ice-java\dev</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IceJavaRuntime</td><td>&lt;ISProjectFolder&gt;\install\ice-java\runtime</td><td>4</td><td/><td/><td>2</td></row>
+		<row><td>IceManual</td><td>&lt;ISProjectFolder&gt;\install\ice-common\html</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IcePhpDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-php\demo</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IcePhpExtension</td><td>&lt;ISProjectFolder&gt;\install\ice-php\extension</td><td>4</td><td/><td/><td>2</td></row>
 		<row><td>IcePythonDemo</td><td>&lt;ISProjectFolder&gt;\install\ice-python\demo</td><td>4</td><td/><td/><td>2</td></row>
@@ -1531,6 +1540,7 @@
 		<col key="yes" def="s38">Feature_</col>
 		<col key="yes" def="s255">ISMergeModule_</col>
 		<col key="yes" def="i2">Language_</col>
+		<row><td>ice_cpp</td><td>ExpatRuntime.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBDevKit.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>0</td></row>
 		<row><td>packages</td><td>BerkeleyDBRuntime.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td></row>
 		<row><td>packages</td><td>OpenSSLDevKit.1EDEFD63_5320_4657_82FE_73F602750180</td><td>0</td></row>
@@ -1621,6 +1631,7 @@
 		<col def="I4">ISAttributes</col>
 		<row><td>BerkeleyDBDevKit.81F93940_63FD_4AB8_B655_5F66F500C497</td><td>0</td><td>BerkeleyDB Dev Kit</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>BerkeleyDBRuntime.D4F6A049_6694_4A3A_98BB_FA2BF3B29275</td><td>0</td><td>BerkeleyDB Runtime</td><td>[INSTALLDIR]</td><td/></row>
+		<row><td>ExpatRuntime.682B7E6B_B5A9_4A2C_AA9C_BA4E466D1A9B</td><td>0</td><td>Expat Runtime</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLDevKit.1EDEFD63_5320_4657_82FE_73F602750180</td><td>0</td><td>OpenSSL Dev Kit</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>OpenSSLRuntime.25046D23_B4CC_4B64_BF3F_61A05B6EFA95</td><td>0</td><td>OpenSSL Runtime</td><td>[INSTALLDIR]</td><td/></row>
 		<row><td>STLPortDevKit.F03C5C9A_C845_43C9_9CEE_64055B1B4021</td><td>0</td><td>STLPort Dev Kit</td><td>[INSTALLDIR]</td><td/></row>
@@ -2371,6 +2382,7 @@
 		<row><td>ID_STRING13</td><td>1033</td><td>Python Development</td><td>0</td><td/><td>-1457924630</td></row>
 		<row><td>ID_STRING14</td><td>1033</td><td>http://www.zeroc.com</td><td>0</td><td/><td>-1457931605</td></row>
 		<row><td>ID_STRING15</td><td>1033</td><td>+ICE_HOME</td><td>0</td><td/><td>-1457951093</td></row>
+		<row><td>ID_STRING16</td><td>1033</td><td>HTML Documentation</td><td>0</td><td/><td>161047826</td></row>
 		<row><td>ID_STRING2</td><td>1033</td><td>Ice for C++</td><td>0</td><td/><td>-1457961558</td></row>
 		<row><td>ID_STRING3</td><td>1033</td><td>C++ Development</td><td>0</td><td/><td>-1457951318</td></row>
 		<row><td>ID_STRING4</td><td>1033</td><td>C++ Demos</td><td>0</td><td/><td>-1457943126</td></row>

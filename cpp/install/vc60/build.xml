@@ -16,13 +16,12 @@
 	<property name="top.dir" value="../../.."/>
 
 	<!-- Sources -->
-	<property name="core.dir" value="${top.dir}/core"/>
-	<property name="ice.dir" value="${top.dir}/ice"/>
-	<property name="icecs.dir" value="${top.dir}/icecs"/>
-	<property name="icej.dir" value="${top.dir}/icej"/>
-	<property name="icephp.dir" value="${top.dir}/icephp"/>
-	<property name="icepy.dir" value="${top.dir}/icepy"/>
-	<property name="icevb.dir" value="${top.dir}/icevb"/>
+	<property name="ice.dir" value="${top.dir}/stage/Ice-2.1.0"/>
+	<property name="icecs.dir" value="${top.dir}/stage/IceCS-2.1.0"/>
+	<property name="icej.dir" value="${top.dir}/stage/IceJ-2.1.0"/>
+	<property name="icephp.dir" value="${top.dir}/stage/IcePHP-2.1.0"/>
+	<property name="icepy.dir" value="${top.dir}/stage/IcePy-2.1.0"/>
+	<property name="icevb.dir" value="${top.dir}/stage/IceVB-2.1.0"/>
 	<property name="runtime.dir" value="C:/Windows/System32"/>
 	<property name="berkeley.dir" value="${top.dir}/db-4.2.52.NC"/>
 	<property name="bzip2.dir" value="${top.dir}/bzip2-1.0.2"/>
@@ -97,11 +96,28 @@
     <!-- Ice Common -->
     <target name="ice-common" depends="setup">
 
-	<!-- Docs, license, etc. -->
+	<!-- Readme, license, etc. -->
 	<mkdir dir="${install.dir}/ice-common/docs"/>
 	<copy todir="${install.dir}/ice-common/docs">
 	    <fileset dir="${common.dir}">
 		<include name="Ice*"/>
+		<include name="ThirdParty*"/>
+	    </fileset>
+	</copy>
+
+	<!-- Installer images -->
+	<mkdir dir="${install.dir}/ice-common/images"/>
+	<copy todir="${install.dir}/ice-common/images">
+	    <fileset dir="${common.dir}">
+		<include name="installer-*.bmp"/>
+	    </fileset>
+	</copy>
+
+	<!-- HTML Manual -->
+	<mkdir dir="${install.dir}/ice-common/html/doc"/>
+	<copy todir="${install.dir}/ice-common/html/doc">
+	    <fileset dir="${ice.dir}/doc/manual">
+		<include name="**"/>
 	    </fileset>
 	</copy>
 
@@ -110,11 +126,19 @@
     <!-- Packages Common -->
     <target name="packages-common" depends="setup">
 
-	<!-- Docs, license, etc. -->
+	<!-- Readme, license, etc. -->
 	<mkdir dir="${install.dir}/packages-common/docs"/>
 	<copy todir="${install.dir}/packages-common/docs">
 	    <fileset dir="${common.dir}">
 		<include name="ThirdParty*"/>
+	    </fileset>
+	</copy>
+
+	<!-- Installer images -->
+	<mkdir dir="${install.dir}/packages-common/images"/>
+	<copy todir="${install.dir}/packages-common/images">
+	    <fileset dir="${common.dir}">
+		<include name="installer-*.bmp"/>
 	    </fileset>
 	</copy>
 
@@ -365,6 +389,7 @@
 	    <fileset dir="${berkeley.dir}/build_win32/Debug">
 		<include name="*.dll"/>
 		<include name="*.pdb"/>
+		<exclude name="*java*"/>
 	    </fileset>
 	</copy>
 
@@ -372,9 +397,11 @@
 	<copy todir="${install.dir}/berkeley/dev/lib">
 	    <fileset dir="${berkeley.dir}/build_win32/Debug">
 		<include name="*.lib"/>
+		<exclude name="*java*"/>
 	    </fileset>
 	    <fileset dir="${berkeley.dir}/build_win32/Release">
 		<include name="*.lib"/>
+		<exclude name="*java*"/>
 	    </fileset>
 	</copy>
 
@@ -422,7 +449,7 @@
 
 	<mkdir dir="${install.dir}/bzip2/dev/lib"/>
 	<copy file="${bzip2.dir}/libbz2.lib" todir="${install.dir}/bzip2/dev/lib"/>
-	<!-- TODO include the debug lib? -->
+	<copy file="${bzip2.dir}/libbz2d.lib" todir="${install.dir}/bzip2/dev/lib"/>
 
 	<mkdir dir="${install.dir}/bzip2/dev/include"/>
 	<copy file="${bzip2.dir}/bzlib.h" todir="${install.dir}/bzip2/dev/include"/>
