@@ -234,7 +234,8 @@ local exception RequestFailedException
 
 /**
  *
- * This exception is raised if an object does not exist on the server.
+ * This exception is raised if an object does not exist on the server,
+ * that is, if no facets with the given identity exist.
  *
  **/
 local exception ObjectNotExistException extends RequestFailedException
@@ -243,8 +244,8 @@ local exception ObjectNotExistException extends RequestFailedException
 
 /**
  *
- * This exception is raised if an object does not implement a given
- * facet path.
+ * This exception is raised if no facet with the given name exists,
+ * but at least one facet with the given identity exists.
  *
  **/
 local exception FacetNotExistException extends RequestFailedException
