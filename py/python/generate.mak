@@ -243,6 +243,6 @@ IceStorm_IceStorm_ice.py: $(slicedir)/IceStorm/IceStorm.ice
 	$(SLICE2PY) $(SLICE2PYFLAGS) --prefix IceStorm_ $(slicedir)/IceStorm/IceStorm.ice
 
 clean::
-	del *.pyc
-	del *_ice.py
-	rmdir /S /Q $(PACKAGES)
+	-del /Q *.pyc
+	-del /Q *_ice.py
+	-rmdir /S /Q $(PACKAGES)

@@ -40,9 +40,9 @@ CFG=Python - Win32 Debug
 # PROP Output_Dir ""
 # PROP Intermediate_Dir ""
 # PROP Cmd_Line "NMAKE /f generate.mak"
-# PROP Rebuild_Opt "/a"
-# PROP Target_Dir ""
+# PROP Rebuild_Opt "clean all"
 # PROP Target_File "sources"
+# PROP Target_Dir ""
 
 !ELSEIF  "$(CFG)" == "Python - Win32 Debug"
 
@@ -58,9 +58,9 @@ CFG=Python - Win32 Debug
 # PROP Output_Dir ""
 # PROP Intermediate_Dir ""
 # PROP Cmd_Line "NMAKE /f generate.mak"
-# PROP Rebuild_Opt "/a"
-# PROP Target_Dir ""
+# PROP Rebuild_Opt "clean all"
 # PROP Target_File "sources"
+# PROP Target_Dir ""
 
 !ENDIF 
 
