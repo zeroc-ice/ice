@@ -16,7 +16,6 @@
 #define ICE_PACK_NODE_INFO_H
 
 #include <IcePack/Internal.h>
-#include <Yellow/Yellow.h>
 
 namespace IcePack
 {
@@ -41,9 +40,6 @@ public:
     AdapterRegistryPrx getAdapterRegistry() const;
     ObjectRegistryPrx getObjectRegistry() const;
     ServerRegistryPrx getServerRegistry() const;
-
-    Yellow::QueryPrx getYellowQuery() const;
-    Yellow::AdminPrx getYellowAdmin() const;
 
 private:
     

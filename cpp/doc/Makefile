@@ -50,8 +50,7 @@ SLICEFILES	= ../slice/Ice/BuiltinSequences.ice \
 		  ../slice/IceSSL/CertificateVerifier.ice \
 		  ../slice/IceSSL/Exception.ice \
 		  ../slice/IceSSL/Plugin.ice \
-		  ../slice/IceStorm/IceStorm.ice \
-		  ../slice/Yellow/Yellow.ice
+		  ../slice/IceStorm/IceStorm.ice
 
 include $(top_srcdir)/config/Make.rules
 

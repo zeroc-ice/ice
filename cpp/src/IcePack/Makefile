@@ -106,17 +106,17 @@ $(VERSIONED_NAME): $(LIB_OBJS)
 
 $(ADMIN): $(ADMIN_OBJS) $(NAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lYellow -lIcePack -lIceBox $(LIBS) -lreadline -lcurses
+	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIcePack -lIceBox $(LIBS) -lreadline -lcurses
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) \
-	-lYellow -lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(XERCESC_LIBS) $(DB_LIBS)
+	-lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(XERCESC_LIBS) $(DB_LIBS)
 
 $(NODE_SERVER): $(NODE_SVR_OBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) \
-	-lYellow -lIcePack -lIceBox -lFreeze -lIceXML $(XERCESC_LIBS) $(LIBS) $(DB_LIBS)
+	-lIcePack -lIceBox -lFreeze -lIceXML $(XERCESC_LIBS) $(LIBS) $(DB_LIBS)
 
 $(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
 	rm -f $(HDIR)/$(*F).h $(*F).cpp

@@ -332,7 +332,6 @@ IcePack::ServerBuilder::ServerBuilder(const NodeInfoPtr& nodeInfo,
     //
     // Required for the component builder.
     //
-    _yellowAdmin = _nodeInfo->getYellowAdmin();
     _objectRegistry = _nodeInfo->getObjectRegistry();
 
     //
@@ -363,12 +362,6 @@ IcePack::ServerBuilder::parse(const std::string& descriptor)
 
     Ice::PropertiesPtr props = _nodeInfo->getCommunicator()->getProperties();
     _properties->setProperty("Ice.ProgramName", _variables["name"]);
-
-    //
-    // TODO: Shall we really generate yellow configuration here?
-    //
-    _properties->setProperty("Yellow.Query", 
-			     _nodeInfo->getCommunicator()->proxyToString(_nodeInfo->getYellowQuery()));
 
     if(_kind == ServerKindJavaServer || _kind == ServerKindJavaIceBox)
     {

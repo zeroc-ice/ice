@@ -96,36 +96,3 @@ IcePack::NodeInfo::getServerRegistry() const
 	return 0;
     }
 }
-
-Yellow::QueryPrx
-IcePack::NodeInfo::getYellowQuery() const
-{
-    //
-    // TODO: get it from the IcePack registry instead.
-    //
-    try
-    {
-	return Yellow::QueryPrx::checkedCast(_communicator->stringToProxy("Yellow/Query@Yellow.Query"));
-    }
-    catch(const Ice::LocalException& ex)
-    {
-	return 0;
-    }
-}
-
-Yellow::AdminPrx
-IcePack::NodeInfo::getYellowAdmin() const
-{
-    //
-    // TODO: get it from the IcePack registry instead.
-    //
-    try
-    {
-	return Yellow::AdminPrx::checkedCast(_communicator->stringToProxy("Yellow/Admin@Yellow.Admin"));
-    }
-    catch(const Ice::LocalException& ex)
-    {
-	return 0;
-    }
-}
-

@@ -17,7 +17,6 @@
 
 #include <IceUtil/Shared.h>
 #include <IcePack/Internal.h>
-#include <Yellow/Yellow.h>
 
 #include <xercesc/sax/HandlerBase.hpp>
 
@@ -156,7 +155,6 @@ public:
     void createDirectory(const std::string&, bool = false);
     void createConfigFile(const std::string&);
     void addProperty(const std::string&, const std::string&);
-    void addOffer(const std::string&, const std::string&, const std::string&);
     void addObject(const std::string&, const std::string&, const std::string&);
     void overrideBaseDir(const std::string&);
 
@@ -169,7 +167,6 @@ public:
 protected:
     
     Ice::CommunicatorPtr _communicator;
-    Yellow::AdminPrx _yellowAdmin;
     ObjectRegistryPrx _objectRegistry;
 
     Ice::PropertiesPtr _properties;

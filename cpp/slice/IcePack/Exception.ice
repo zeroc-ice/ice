@@ -133,30 +133,6 @@ exception ObjectDeploymentException extends DeploymentException
 
 /**
  * 
- * This exception is raised when an error occured during the
- * registration of a Yellow offer.
- *
- **/
-exception OfferDeploymentException extends DeploymentException
-{
-    /**
-     *
-     * The Yellow interface which couldn't be registered with the
-     * Yellow service.
-     *
-     **/
-    string intf;
-    
-    /**
-     *
-     * The proxy which couldn't be registered with the Yellow service.
-     *
-     **/
-    Object* proxy;
-};
-
-/**
- * 
  * This exception is raised if an error occured when deploying a
  * server.
  *

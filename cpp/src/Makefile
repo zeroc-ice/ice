@@ -32,7 +32,6 @@ SUBDIRS		= IceUtil \
 		  Freeze \
 		  IceBox \
 		  IceStorm \
-		  Yellow \
 		  IcePack \
 		  Glacier \
 		  IcePatch \

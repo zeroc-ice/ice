@@ -17,7 +17,6 @@
 #include <Ice/IdentityUtil.h>
 #include <IcePack/Query.h>
 #include <IcePack/Admin.h>
-#include <Yellow/Yellow.h>
 #include <TestCommon.h>
 #include <Test.h>
 

@@ -15,7 +15,6 @@
 #include <Ice/Ice.h>
 #include <IcePack/ComponentBuilder.h>
 #include <IcePack/Internal.h>
-#include <Yellow/Yellow.h>
 
 #include <xercesc/parsers/SAXParser.hpp>
 
@@ -201,79 +200,6 @@ private:
 };
 
 //
-// Register an offer with the yellow page service.
-//
-class RegisterOffer : public Task
-{
-public:
-
-    RegisterOffer(const Yellow::AdminPrx& admin, const string& offer, const Ice::ObjectPrx& proxy) :
-	_admin(admin),
-	_offer(offer),
-	_proxy(proxy)
-    {
-    }
-
-    virtual void
-    execute()
-    {
-	try
-	{
-	    _admin->add(_offer, _proxy);
-	}
-	catch(const Ice::LocalException& lex)
-	{
-	    ostringstream os;
-	    os << "couldn't contact Yellow to add offer:\n" << lex << ends;
-
-	    OfferDeploymentException ex;
-	    ex.reason = os.str();
-	    ex.intf = _offer;
-	    ex.proxy = _proxy;
-	    throw ex;
-	}
-    }
-
-    virtual void
-    undo()
-    {
-	assert(_admin);
-	try
-	{
-	    _admin->remove(_offer, _proxy);
-	}
-	catch(const Yellow::NoSuchOfferException& lex)
-	{
-	    ostringstream os;
-	    os << "couldn't remove offer:\n" << lex << ends;
-
-	    OfferDeploymentException ex;
-	    ex.reason = os.str();
-	    ex.intf = _offer;
-	    ex.proxy = _proxy;
-	    throw ex;
-	}	
-	catch(const Ice::LocalException& lex)
-	{
-	    ostringstream os;
-	    os << "couldn't contact Yellow to remove offer:\n" << lex << ends;
-
-	    OfferDeploymentException ex;
-	    ex.reason = os.str();
-	    ex.intf = _offer;
-	    ex.proxy = _proxy;
-	    throw ex;
-	}
-    }
-
-private:
-
-    Yellow::AdminPrx _admin;
-    string _offer;
-    Ice::ObjectPrx _proxy;
-};
-
-//
 // Register an identity.
 //
 class RegisterObject : public Task
@@ -451,12 +377,6 @@ IcePack::ComponentHandler::startElement(const XMLCh *const name, AttributeList &
 	    throw DeploySAXParseException("empty adapter name", _locator);
 	}
 	_currentAdapterId = getAttributeValueWithDefault(attrs, "id", _builder.getDefaultAdapterId(name));
-    }
-    else if(str == "offer")
-    {
-	_builder.addOffer(getAttributeValue(attrs, "interface"),
-			  _currentAdapterId,
-			  getAttributeValue(attrs, "identity"));
     }
     else if(str == "object")
     {
@@ -797,23 +717,6 @@ void
 IcePack::ComponentBuilder::addProperty(const string& name, const string& value)
 {
     _properties->setProperty(name, value);
-}
-
-void
-IcePack::ComponentBuilder::addOffer(const string& offer, const string& adapterId, const string& identity)
-{
-    assert(!adapterId.empty());
-
-    if(!_yellowAdmin)
-    {	
-	string msg = "Can't find a running Yellow service to deploy offers";
-	throw DeploySAXParseException(msg, _locator);
-    }
-
-    Ice::ObjectPrx object = _communicator->stringToProxy(identity + "@" + adapterId);
-    assert(object);
-    
-    _tasks.push_back(new RegisterOffer(_yellowAdmin, offer, object));
 }
 
 void

@@ -101,7 +101,6 @@ IcePack::ServiceBuilder::ServiceBuilder(const NodeInfoPtr& nodeInfo,
     //
     // Required for the component builder.
     //
-    _yellowAdmin = nodeInfo->getYellowAdmin();
     _objectRegistry = _nodeInfo->getObjectRegistry();
 }
 
@@ -109,15 +108,8 @@ void
 IcePack::ServiceBuilder::parse(const string& descriptor)
 {
     ServiceHandler handler(*this);
-    
-    ComponentBuilder::parse(descriptor, handler);
 
-    //
-    // Once everything is parsed, we can perform some final setup
-    // before the deployment starts.
-    // 
-    _properties->setProperty("Yellow.Query", 
-			     _nodeInfo->getCommunicator()->proxyToString(_nodeInfo->getYellowQuery()));
+    ComponentBuilder::parse(descriptor, handler);
 }
 
 ServerBuilder&

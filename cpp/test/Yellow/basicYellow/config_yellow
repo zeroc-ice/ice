@@ -1,2 +1,0 @@
-Yellow.Query.Endpoints=tcp -p 10000 -h 127.0.0.1
-Yellow.Admin.Endpoints=tcp -p 10001 -h 127.0.0.1

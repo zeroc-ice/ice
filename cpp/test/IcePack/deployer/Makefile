@@ -46,7 +46,7 @@ CPPFLAGS	:= -I. -I../../include $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIcePack -lIceBox -lYellow $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lIcePack -lIceBox $(LIBS)
 
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@

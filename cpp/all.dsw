@@ -399,75 +399,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "Yellow"=.\src\Yellow\Yellow.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "YellowC"=.\src\Yellow\YellowC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Yellow
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "YellowS"=.\src\Yellow\YellowS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceBox
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Yellow
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Freeze
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceXML
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "adapterDeactivationC"=.\test\Ice\adapterDeactivation\adapterDeactivationC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -807,18 +738,6 @@ Package=<4>
     Project_Dep_Name sessionS
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name basicYellowC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Yellow
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name YellowC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name YellowS
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name transformP
     End Project Dependency
     Begin Project Dependency
@@ -853,27 +772,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name operationsAMDS
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "basicYellowC"=.\test\Yellow\basicYellow\basicYellow.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Yellow
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
     End Project Dependency
 }}}
 

@@ -27,8 +27,7 @@ SUBDIRS		= Freeze \
 		  IceUtil \
 		  IceXML \
 		  Slice \
-		  XMLTransform \
-		  Yellow
+		  XMLTransform
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
