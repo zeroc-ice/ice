@@ -55,7 +55,9 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 	string option = str.substr(beg, end - beg);
 	if(option.length() != 2 || option[0] != '-')
 	{
-	    throw EndpointParseException(__FILE__, __LINE__);
+	    EndpointParseException ex(__FILE__, __LINE__);
+	    ex.str = "udp " + str;
+	    throw ex;
 	}
 
 	string argument;
@@ -77,7 +79,9 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 	    {
 		if(argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
 		}
 		const_cast<string&>(_host) = argument;
 		break;
@@ -88,7 +92,9 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 		istringstream p(argument);
 		if(!(p >> const_cast<Int&>(_port)) || !p.eof())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
 		}
 		break;
 	    }
@@ -97,7 +103,9 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 	    {
 		if(!argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "udp " + str;
+		    throw ex;
 		}
 		const_cast<bool&>(_connect) = true;
 		break;
@@ -105,7 +113,9 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 
 	    default:
 	    {
-		throw EndpointParseException(__FILE__, __LINE__);
+		EndpointParseException ex(__FILE__, __LINE__);
+		ex.str = "udp " + str;
+		throw ex;
 	    }
 	}
     }

@@ -57,7 +57,9 @@ IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& 
 	string option = str.substr(beg, end - beg);
 	if(option.length() != 2 || option[0] != '-')
 	{
-	    throw EndpointParseException(__FILE__, __LINE__);
+	    EndpointParseException ex(__FILE__, __LINE__);
+	    ex.str = "ssl " + str;
+	    throw ex;
 	}
 
 	string argument;
@@ -79,7 +81,9 @@ IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& 
 	    {
 		if(argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "ssl " + str;
+		    throw ex;
 		}
 		const_cast<string&>(_host) = argument;
 		break;
@@ -89,7 +93,9 @@ IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& 
 	    {
 		if(argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "ssl " + str;
+		    throw ex;
 		}
 		const_cast<Int&>(_port) = atoi(argument.c_str());
 		break;
@@ -99,7 +105,9 @@ IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& 
 	    {
 		if(argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "ssl " + str;
+		    throw ex;
 		}
 		const_cast<Int&>(_timeout) = atoi(argument.c_str());
 		break;
@@ -107,7 +115,9 @@ IceSSL::SslEndpoint::SslEndpoint(const OpenSSLPluginIPtr& plugin, const string& 
 
 	    default:
 	    {
-		throw EndpointParseException(__FILE__, __LINE__);
+		EndpointParseException ex(__FILE__, __LINE__);
+		ex.str = "ssl " + str;
+		throw ex;
 	    }
 	}
     }

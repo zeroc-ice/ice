@@ -43,7 +43,9 @@ Ice::ObjectAdapterI::getCommunicator()
 
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
 
     return _communicator;
@@ -56,7 +58,9 @@ Ice::ObjectAdapterI::activate()
 
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
     
     if(!_printAdapterReadyDone)
@@ -112,7 +116,9 @@ Ice::ObjectAdapterI::hold()
 
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
 	
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
@@ -169,7 +175,9 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
 
     _activeServantMapHint = _activeServantMap.insert(_activeServantMapHint, make_pair(ident, object));
@@ -184,7 +192,9 @@ Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
 
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
 
     Identity ident;
@@ -202,7 +212,9 @@ Ice::ObjectAdapterI::remove(const Identity& ident)
 
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
 
     _activeServantMap.erase(ident);
@@ -216,7 +228,9 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
 
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
 
     _locatorMapHint = _locatorMap.insert(_locatorMapHint, make_pair(prefix, locator));
@@ -229,7 +243,9 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
 
     map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
@@ -270,7 +286,9 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
     
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
 
     map<string, ServantLocatorPtr>::iterator p = _locatorMap.end();
@@ -338,7 +356,9 @@ Ice::ObjectAdapterI::createProxy(const Identity& ident)
     
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
     
     return newProxy(ident);
@@ -351,7 +371,9 @@ Ice::ObjectAdapterI::createDirectProxy(const Identity& ident)
     
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
     
     return newDirectProxy(ident);
@@ -364,7 +386,9 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
     
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
     
     //
@@ -383,7 +407,9 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
     
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(router);
@@ -426,7 +452,9 @@ Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
     
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
 
     _locatorInfo = _instance->locatorManager()->get(locator);
@@ -439,7 +467,9 @@ Ice::ObjectAdapterI::getIncomingConnections() const
 
     if(!_instance)
     {
-	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+	ObjectAdapterDeactivatedException ex(__FILE__, __LINE__);
+	ex.name = _name;
+	throw ex;
     }
 
     list<ConnectionPtr> connections;

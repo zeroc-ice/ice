@@ -127,9 +127,11 @@ IceInternal::ReferenceFactory::create(const string& str)
     beg = s.find_first_not_of(delim, end);
     if(beg == string::npos)
     {
-	throw ProxyParseException(__FILE__, __LINE__);
+	ProxyParseException ex(__FILE__, __LINE__);
+	ex.str = str;
+	throw ex;
     }
-
+    
     //
     // Extract the identity, which may be enclosed in single
     // or double quotation marks.
@@ -138,7 +140,9 @@ IceInternal::ReferenceFactory::create(const string& str)
     end = checkQuote(s, beg);
     if(end == string::npos)
     {
-        throw ProxyParseException(__FILE__, __LINE__);
+	ProxyParseException ex(__FILE__, __LINE__);
+	ex.str = str;
+	throw ex;
     }
     else if(end == 0)
     {
@@ -158,7 +162,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 
     if(beg == end)
     {
-	throw ProxyParseException(__FILE__, __LINE__);
+	ProxyParseException ex(__FILE__, __LINE__);
+	ex.str = str;
+	throw ex;
     }
 
     Identity ident = stringToIdentity(idstr);
@@ -200,7 +206,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	string option = s.substr(beg, end - beg);
 	if(option.length() != 2 || option[0] != '-')
 	{
-	    throw ProxyParseException(__FILE__, __LINE__);
+	    ProxyParseException ex(__FILE__, __LINE__);
+	    ex.str = str;
+	    throw ex;
 	}
 
         //
@@ -218,7 +226,9 @@ IceInternal::ReferenceFactory::create(const string& str)
                 end = checkQuote(s, beg);
                 if(end == string::npos)
                 {
-                    throw ProxyParseException(__FILE__, __LINE__);
+		    ProxyParseException ex(__FILE__, __LINE__);
+		    ex.str = str;
+		    throw ex;
                 }
                 else if(end == 0)
                 {
@@ -248,7 +258,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(argument.empty())
 		{
-		    throw ProxyParseException(__FILE__, __LINE__);
+		    ProxyParseException ex(__FILE__, __LINE__);
+		    ex.str = str;
+		    throw ex;
 		}
 
                 const string::size_type argLen = argument.size();
@@ -286,7 +298,9 @@ IceInternal::ReferenceFactory::create(const string& str)
                     string token;
                     if(!decodeString(argument, argBeg, argEnd, token))
                     {
-                        throw ProxyParseException(__FILE__, __LINE__);
+			ProxyParseException ex(__FILE__, __LINE__);
+			ex.str = str;
+			throw ex;
                     }
                     facet.push_back(token);
                     argBeg = argEnd + 1;
@@ -294,7 +308,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 
                 if(facet.size() == 0)
                 {
-                    throw ProxyParseException(__FILE__, __LINE__);
+		    ProxyParseException ex(__FILE__, __LINE__);
+		    ex.str = str;
+		    throw ex;
                 }
 
 		break;
@@ -304,7 +320,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    throw ProxyParseException(__FILE__, __LINE__);
+		    ProxyParseException ex(__FILE__, __LINE__);
+		    ex.str = str;
+		    throw ex;
 		}
 		mode = Reference::ModeTwoway;
 		break;
@@ -314,7 +332,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    throw ProxyParseException(__FILE__, __LINE__);
+		    ProxyParseException ex(__FILE__, __LINE__);
+		    ex.str = str;
+		    throw ex;
 		}
 		mode = Reference::ModeOneway;
 		break;
@@ -324,7 +344,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    throw ProxyParseException(__FILE__, __LINE__);
+		    ProxyParseException ex(__FILE__, __LINE__);
+		    ex.str = str;
+		    throw ex;
 		}
 		mode = Reference::ModeBatchOneway;
 		break;
@@ -334,7 +356,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    throw ProxyParseException(__FILE__, __LINE__);
+		    ProxyParseException ex(__FILE__, __LINE__);
+		    ex.str = str;
+		    throw ex;
 		}
 		mode = Reference::ModeDatagram;
 		break;
@@ -344,7 +368,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    throw ProxyParseException(__FILE__, __LINE__);
+		    ProxyParseException ex(__FILE__, __LINE__);
+		    ex.str = str;
+		    throw ex;
 		}
 		mode = Reference::ModeBatchDatagram;
 		break;
@@ -354,7 +380,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    throw ProxyParseException(__FILE__, __LINE__);
+		    ProxyParseException ex(__FILE__, __LINE__);
+		    ex.str = str;
+		    throw ex;
 		}
 		secure = true;
 		break;
@@ -364,7 +392,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if(!argument.empty())
 		{
-		    throw ProxyParseException(__FILE__, __LINE__);
+		    ProxyParseException ex(__FILE__, __LINE__);
+		    ex.str = str;
+		    throw ex;
 		}
 		compress = true;
 		break;
@@ -372,7 +402,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 
 	    default:
 	    {
-		throw ProxyParseException(__FILE__, __LINE__);
+		ProxyParseException ex(__FILE__, __LINE__);
+		ex.str = str;
+		throw ex;
 	    }
 	}
     }
@@ -404,13 +436,17 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    beg = s.find_first_not_of(delim, beg + 1);
 	    if(beg == string::npos)
 	    {
-                throw ProxyParseException(__FILE__, __LINE__);
+		ProxyParseException ex(__FILE__, __LINE__);
+		ex.str = str;
+		throw ex;
 	    }
 
             end = checkQuote(s, beg);
             if(end == string::npos)
             {
-                throw ProxyParseException(__FILE__, __LINE__);
+		ProxyParseException ex(__FILE__, __LINE__);
+		ex.str = str;
+		throw ex;
             }
             else if(end == 0)
             {
@@ -427,7 +463,9 @@ IceInternal::ReferenceFactory::create(const string& str)
 
             if(!decodeString(s, beg, end, adapter) || adapter.size() == 0)
             {
-                throw ProxyParseException(__FILE__, __LINE__);
+	ProxyParseException ex(__FILE__, __LINE__);
+	ex.str = str;
+	throw ex;
             }
 	}
     }

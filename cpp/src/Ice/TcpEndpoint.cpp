@@ -57,7 +57,9 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 	string option = str.substr(beg, end - beg);
 	if(option.length() != 2 || option[0] != '-')
 	{
-	    throw EndpointParseException(__FILE__, __LINE__);
+	    EndpointParseException ex(__FILE__, __LINE__);
+	    ex.str = "tcp " + str;
+	    throw ex;
 	}
 
 	string argument;
@@ -79,7 +81,9 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 	    {
 		if(argument.empty())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "tcp " + str;
+		    throw ex;
 		}
 		const_cast<string&>(_host) = argument;
 		break;
@@ -90,7 +94,9 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 		istringstream p(argument);
 		if(!(p >> const_cast<Int&>(_port)) || !p.eof())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "tcp " + str;
+		    throw ex;
 		}
 		break;
 	    }
@@ -100,14 +106,18 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 		istringstream t(argument);
 		if(!(t >> const_cast<Int&>(_timeout)) || !t.eof())
 		{
-		    throw EndpointParseException(__FILE__, __LINE__);
+		    EndpointParseException ex(__FILE__, __LINE__);
+		    ex.str = "tcp " + str;
+		    throw ex;
 		}
 		break;
 	    }
 
 	    default:
 	    {
-		throw EndpointParseException(__FILE__, __LINE__);
+		EndpointParseException ex(__FILE__, __LINE__);
+		ex.str = "tcp " + str;
+		throw ex;
 	    }
 	}
     }

@@ -74,7 +74,9 @@ IceInternal::EndpointFactoryManager::create(const string& str) const
     string::size_type beg = str.find_first_not_of(delim);
     if(beg == string::npos)
     {
-        throw EndpointParseException(__FILE__, __LINE__);
+        EndpointParseException ex(__FILE__, __LINE__);
+	ex.str = str;
+	throw ex;
     }
 
     string::size_type end = str.find_first_of(delim, beg);
@@ -101,7 +103,9 @@ IceInternal::EndpointFactoryManager::create(const string& str) const
         }
     }
 
-    throw EndpointParseException(__FILE__, __LINE__);
+    EndpointParseException ex(__FILE__, __LINE__);
+    ex.str = str;
+    throw ex;
 }
 
 EndpointPtr

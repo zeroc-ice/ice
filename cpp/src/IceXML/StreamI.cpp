@@ -1196,7 +1196,9 @@ IceXML::StreamI::readObject(const string& name, const string& signatureType, con
 
 	    if(!value)
 	    {
-		throw ::Ice::NoObjectFactoryException(__FILE__, __LINE__);
+		::Ice::NoObjectFactoryException ex(__FILE__, __LINE__);
+		ex.type = type;
+		throw ex;
 	    }
 	}
 

@@ -210,14 +210,10 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
     assert(_db);
 
     //
-    // TODO: HACK: It's possible that locate is called on a
-    // deactivated servant locator. There's currently no nice way to
-    // handle this case so we just through an UnknownLocatoException.
+    // If this operation is called on a deactivated servant locator,
+    // it's a bug in Ice.
     //
-    if(_deactivated)
-    {
-	throw Ice::UnknownLocalException(__FILE__, __LINE__);
-    }
+    assert(!_deactivated);
 
     EvictorElementPtr element;
 

@@ -84,7 +84,7 @@ void
 Ice::ObjectAdapterDeactivatedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nobject adapter deactivated";
+    out << ":\nobject adapter `" << name << "' deactivated";
 }
 
 void
@@ -105,21 +105,21 @@ void
 Ice::NoEndpointException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nno suitable endpoint available";
+    out << ":\nno suitable endpoint available for proxy `" << proxy << "'";
 }
 
 void
 Ice::EndpointParseException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nerror while parsing endpoint";
+    out << ":\nerror while parsing endpoint `" << str << "'";
 }
 
 void
 Ice::ProxyParseException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nerror while parsing proxy";
+    out << ":\nerror while parsing proxy `" << str << "'";
 }
 
 void
@@ -333,14 +333,14 @@ void
 Ice::NoObjectFactoryException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nprotocol error: no suitable object factory found";
+    out << ":\nprotocol error: no suitable object factory found for `" << type << "'";
 }
 
 void
 Ice::NoUserExceptionFactoryException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nprotocol error: no suitable user exception factory found";
+    out << ":\nprotocol error: no suitable user exception factory found for `" << type << "'";
 }
 
 void

@@ -103,6 +103,12 @@ local exception CommunicatorDestroyedException
  **/
 local exception ObjectAdapterDeactivatedException
 {
+    /**
+     * 
+     * Name of the adapter.
+     *
+     **/
+    string name;
 };
 
 /**
@@ -142,11 +148,18 @@ local exception ObjectAdapterNameInUseException
  
 /**
  *
- * This exception is raised if not suitable endpoint is available.
+ * This exception is raised if no suitable endpoint is available.
  *
  **/
 local exception NoEndpointException
 {
+    /**
+     * 
+     * The stringified proxy for which no suitable endpoint is
+     * available.
+     *
+     **/
+    string proxy;
 };
 
 /**
@@ -157,6 +170,12 @@ local exception NoEndpointException
  **/
 local exception EndpointParseException
 {
+    /**
+     *
+     * The string which couldn't be parsed.
+     *
+     **/
+    string str;
 };
 
 /**
@@ -167,6 +186,12 @@ local exception EndpointParseException
  **/
 local exception ProxyParseException
 {
+    /**
+     *
+     * The string which couldn't be parsed.
+     *
+     **/
+    string str;
 };
 
 /**
@@ -478,6 +503,13 @@ local exception MarshalException extends ProtocolException
  **/
 local exception NoObjectFactoryException extends MarshalException
 {
+    /**
+     *
+     * The absolute Slice type name of the object for which we
+     * couldn't find a factory.
+     *
+     **/
+    string type;
 };
 
 /**
@@ -494,6 +526,13 @@ local exception NoObjectFactoryException extends MarshalException
  **/
 local exception NoUserExceptionFactoryException extends MarshalException
 {
+    /**
+     *
+     * The absolute Slice type name of the exception for which we
+     * couldn't find a factory.
+     *
+     **/
+    string type;
 };
 
 /**

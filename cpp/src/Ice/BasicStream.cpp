@@ -897,7 +897,9 @@ IceInternal::BasicStream::read(const string& signatureType, const ObjectFactoryP
 	    
 	    if(!v)
 	    {
-		throw NoObjectFactoryException(__FILE__, __LINE__);
+		NoObjectFactoryException ex(__FILE__, __LINE__);
+		ex.type = id;
+		throw ex;
 	    }
 	}
 	_currentReadEncaps->objectsRead.push_back(v.get());
@@ -946,5 +948,7 @@ IceInternal::BasicStream::throwException(const string* throwsBegin, const string
 	return p.first - throwsBegin;
     }
     
-    throw NoUserExceptionFactoryException(__FILE__, __LINE__);
+    NoUserExceptionFactoryException ex(__FILE__, __LINE__);
+    ex.type = id;
+    throw ex;
 }

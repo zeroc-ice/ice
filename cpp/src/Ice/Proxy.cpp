@@ -896,7 +896,9 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	
 	if(endpoints.empty())
 	{
-	    throw NoEndpointException(__FILE__, __LINE__);
+	    NoEndpointException ex(__FILE__, __LINE__);
+	    ex.proxy = __reference->toString();
+	    throw ex;
 	}
 
 	list<ConnectionPtr>::iterator p;
@@ -939,7 +941,9 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	    vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpoints);
 	    if(filteredEndpoints.empty())
 	    {
-		throw NoEndpointException(__FILE__, __LINE__);
+		NoEndpointException ex(__FILE__, __LINE__);
+		ex.proxy = __reference->toString();
+		throw ex;
 	    }
 
 	    try
