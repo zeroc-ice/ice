@@ -138,9 +138,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     O << se("xs:sequence");
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-	O << nl << "<xs:element name=\"" << (*q)->name() << "\" type=\"";
-	O << toString((*q)->type());
-	O << "\"/>";
+	emitElement(*q);
     }
     O << ee; // xs:sequence
 
@@ -193,9 +191,7 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-	O << nl << "<xs:element name=\"" << (*q)->name() << "\" type=\"";
-	O << toString((*q)->type());
-	O << "\"/>";
+	emitElement(*q);
     }
     
     O << ee; // xs:sequence
@@ -232,9 +228,7 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-	O << nl << "<xs:element name=\"" << (*q)->name() << "\" type=\"";
-	O << toString((*q)->type());
-	O << "\"/>";
+	emitElement(*q);
     }
     
     O << ee; // xs:sequence
@@ -268,9 +262,7 @@ Slice::Gen::visitOperation(const OperationPtr& p)
     TypeStringList::const_iterator q;
     for (q = in.begin(); q != in.end(); ++q)
     {
-	O << nl << "<xs:element name=\"" << q->second << "\" type=\"";
-	O << toString(q->first);
-	O << "\"/>";
+	emitElement(*q);
     }
     O << ee; // xs:sequence
 
@@ -294,9 +286,7 @@ Slice::Gen::visitOperation(const OperationPtr& p)
     }
     for (q = out.begin(); q != out.end(); ++q)
     {
-	O << nl << "<xs:element name=\"" << q->second << "\" type=\"";
-	O << toString(q->first);
-	O << "\"/>";
+	emitElement(*q);
     }
     O << ee; // xs:sequence
 
@@ -450,6 +440,34 @@ Slice::Gen::annotate(const ::std::string& type)
     O << nl << "<type>" << type << "</type>";
     O << ee; // xs:annotation
     O << ee; // xs:appinfo
+}
+
+void
+Slice::Gen::emitElement(const DataMemberPtr& q)
+{
+    ostringstream os;
+    os << "xs:element name=\"" << q->name() << "\" type=\"" << toString(q->type()) << '"';
+    O << se(os.str());
+    ProxyPtr proxy = ProxyPtr::dynamicCast(q->type());
+    if (proxy)
+    {
+	annotate(proxy->_class()->scoped());
+    }
+    O << ee; // xs:element
+}
+
+void
+Slice::Gen::emitElement(const TypeString& q)
+{
+    ostringstream os;
+    os << "xs:element name=\"" << q.second << "\" type=\"" << toString(q.first) << '"';
+    O << se(os.str());
+    ProxyPtr proxy = ProxyPtr::dynamicCast(q.first);
+    if (proxy)
+    {
+	annotate(proxy->_class()->scoped());
+    }
+    O << ee; // xs:element
 }
 
 string

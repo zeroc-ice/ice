@@ -45,6 +45,8 @@ private:
 
     void printHeader();
     void annotate(const ::std::string&);
+    void emitElement(const DataMemberPtr&);
+    void emitElement(const TypeString&);
 
     std::string containedToId(const ContainedPtr&);
     std::string toString(const SyntaxTreeBasePtr&);
