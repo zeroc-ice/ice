@@ -98,7 +98,7 @@ $ make
 
 This will build the Ice core library, all add-ons, all tests, and all
 examples. After a successful build, you can run the test suite,
-provided that you installed Python 2:
+provided that you installed Python:
 
 $ make test
 
@@ -106,7 +106,7 @@ This is equivalent to:
 
 $ python allTests.py
 
-Note that on some Linux distributions (like Redhat 7.x), Python 2 is
+Note that on some Linux distributions (like Redhat 7.x), Python 2.2 is
 available as "python2", in which case you must use:
 
 $ python2 allTests.py

@@ -128,7 +128,7 @@ To start the compilation, use Build->Build for Visual C++ 6.0, or
 Build->Build all/minimal for Visual C++ .NET, respectively.
 
 If you built the tests with "all", you can run the test suite,
-provided that you have installed Python 2. Open a command prompt, and
+provided that you have installed Python. Open a command prompt, and
 change to the directory Ice-<version>. At the command prompt, execute:
 
 python allTests.py

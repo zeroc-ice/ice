@@ -349,7 +349,7 @@ IceInternal::ThreadPool::run()
 	    {
 //
 // Optimization for WIN32 specific version of fd_set. Looping with a
-// FD_ISSET test like for Unix is very unefficient for WIN32.
+// FD_ISSET test like for Unix is very inefficient for WIN32.
 //
 #ifdef _WIN32
 		//

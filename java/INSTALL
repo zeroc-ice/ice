@@ -102,11 +102,11 @@ Testing
 ======================================================================
 
 You can run the Ice for Java test suite, provided that you have
-installed Python 2:
+installed Python:
 
 python allTests.py
 
-Note that on some Linux distributions (like Redhat 7.x), Python 2 is
+Note that on some Linux distributions (like Redhat 7.x), Python 2.2 is
 available as "python2", in which case you must use:
 
 python2 allTests.py
