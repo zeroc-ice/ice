@@ -11,7 +11,7 @@
 
 import sys, os
 
-protocol = "ssl"
+protocol = "tcp"
 
 serverOptions = " --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.ServerIdleTime=30" + \
                 " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=server_sslconfig.xml --Ice.Protocol=" + \
