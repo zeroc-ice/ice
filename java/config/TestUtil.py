@@ -115,8 +115,8 @@ def clientServerTest(toplevel, name):
 
     testdir = os.path.join(toplevel, "test", name)
     classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + os.environ['CLASSPATH']
-    server = "java -classpath \"" + classpath + "\" Server "
-    client = "java -classpath \"" + classpath + "\" Client "
+    server = "java -ea -classpath \"" + classpath + "\" Server "
+    client = "java -ea -classpath \"" + classpath + "\" Client "
 
     updatedServerOptions = serverOptions.replace("TOPLEVELDIR", toplevel)
     updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
@@ -144,8 +144,8 @@ def mixedClientServerTest(toplevel, name):
 
     testdir = os.path.join(toplevel, "test", name)
     classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + os.environ['CLASSPATH']
-    server = "java -classpath \"" + classpath + "\" Server "
-    client = "java -classpath \"" + classpath + "\" Client "
+    server = "java -ea -classpath \"" + classpath + "\" Server "
+    client = "java -ea -classpath \"" + classpath + "\" Client "
 
     updatedServerOptions = clientServerOptions.replace("TOPLEVELDIR", toplevel)
     updatedClientOptions = updatedServerOptions
@@ -173,7 +173,7 @@ def collocatedTest(toplevel, name):
 
     testdir = os.path.join(toplevel, "test", name)
     classpath = os.path.join(toplevel, "lib") + sep + os.path.join(testdir, "classes") + sep + os.environ['CLASSPATH']
-    collocated = "java -classpath \"" + classpath + "\" Collocated "
+    collocated = "java -ea -classpath \"" + classpath + "\" Collocated "
 
     updatedCollocatedOptions = collocatedOptions.replace("TOPLEVELDIR", toplevel)
 
