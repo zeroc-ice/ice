@@ -32,6 +32,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(2);
+	test(false);
     }
     catch(bool ex)
     {
@@ -41,6 +42,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(3);
+	test(false);
     }
     catch(Ice::Short ex)
     {
@@ -50,6 +52,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(4);
+	test(false);
     }
     catch(Ice::Int ex)
     {
@@ -59,6 +62,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(5);
+	test(false);
     }
     catch(Ice::Long ex)
     {
@@ -68,6 +72,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(6);
+	test(false);
     }
     catch(Ice::Float ex)
     {
@@ -77,6 +82,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(7);
+	test(false);
     }
     catch(Ice::Double ex)
     {
@@ -86,6 +92,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(8);
+	test(false);
     }
     catch(const string& ex)
     {
@@ -95,6 +102,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(9);
+	test(false);
     }
     catch(const wstring& ex)
     {
@@ -104,6 +112,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(10);
+	test(false);
     }
     catch(const Test::ByteS& ex)
     {
@@ -115,6 +124,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(11);
+	test(false);
     }
     catch(const Test::BoolS& ex)
     {
@@ -126,6 +136,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(12);
+	test(false);
     }
     catch(const Test::ShortS& ex)
     {
@@ -137,6 +148,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(13);
+	test(false);
     }
     catch(const Test::IntS& ex)
     {
@@ -148,6 +160,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(14);
+	test(false);
     }
     catch(const Test::LongS& ex)
     {
@@ -159,6 +172,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(15);
+	test(false);
     }
     catch(const Test::FloatS& ex)
     {
@@ -170,6 +184,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(16);
+	test(false);
     }
     catch(const Test::DoubleS& ex)
     {
@@ -181,6 +196,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(17);
+	test(false);
     }
     catch(const Test::StringS& ex)
     {
@@ -192,6 +208,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(18);
+	test(false);
     }
     catch(const Test::WStringS& ex)
     {
@@ -203,6 +220,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(19);
+	test(false);
     }
     catch(const Test::ByteSS& ex)
     {
@@ -217,6 +235,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(20);
+	test(false);
     }
     catch(const Test::BoolSS& ex)
     {
@@ -231,6 +250,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(21);
+	test(false);
     }
     catch(const Test::ShortSS& ex)
     {
@@ -245,6 +265,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(22);
+	test(false);
     }
     catch(const Test::IntSS& ex)
     {
@@ -259,6 +280,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(23);
+	test(false);
     }
     catch(const Test::LongSS& ex)
     {
@@ -273,6 +295,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(24);
+	test(false);
     }
     catch(const Test::FloatSS& ex)
     {
@@ -287,6 +310,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(25);
+	test(false);
     }
     catch(const Test::DoubleSS& ex)
     {
@@ -301,6 +325,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(26);
+	test(false);
     }
     catch(const Test::StringSS& ex)
     {
@@ -315,6 +340,7 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(27);
+	test(false);
     }
     catch(const Test::WStringSS& ex)
     {
@@ -329,6 +355,107 @@ exceptions(Test::MyClassPrx p)
     try
     {
 	p->opEx(28);
+	test(false);
+    }
+    catch(const Test::ByteBoolD& ex)
+    {
+	test(ex.size() == 2);
+	test(ex.count(0) == 1);
+	test(ex.find(0)->second == true);
+	test(ex.count(255) == 1);
+	test(ex.find(255)->second == false);
+    }
+
+    try
+    {
+	p->opEx(29);
+	test(false);
+    }
+    catch(const Test::ShortIntD& ex)
+    {
+	test(ex.size() == 3);
+	test(ex.count(-10) == 1);
+	test(ex.find(-10)->second == 10);
+	test(ex.count(-20) == 1);
+	test(ex.find(-20)->second == 20);
+	test(ex.count(-30) == 1);
+	test(ex.find(-30)->second == 30);
+    }
+
+    try
+    {
+	p->opEx(30);
+	test(false);
+    }
+    catch(const Test::LongFloatD& ex)
+    {
+	test(ex.size() == 1);
+	test(ex.count(0x7fffffffffffffff) == 1);
+	test(ex.find(0x7fffffffffffffff)->second == Ice::Float(3.14));
+    }
+
+    try
+    {
+	p->opEx(31);
+	test(false);
+    }
+    catch(const Test::DoubleStringD& ex)
+    {
+	test(ex.size() == 3);
+	test(ex.count(-10.1E1) == 1);
+	test(ex.find(-10.1E1)->second == "abc");
+	test(ex.count(-20.2E10) == 1);
+	test(ex.find(-20.2E10)->second == "def");
+	test(ex.count(-30.3E100) == 1);
+	test(ex.find(-30.3E100)->second == "ghi");
+    }
+
+    try
+    {
+	p->opEx(32);
+	test(false);
+    }
+    catch(const Test::WStringMyEnumD& ex)
+    {
+	test(ex.size() == 1);
+	test(ex.count(L"Hello") == 1);
+	test(ex.find(L"Hello")->second == Test::enum2);
+    }
+
+    try
+    {
+	p->opEx(33);
+	test(false);
+    }
+    catch(const Test::MyClassStringD& ex)
+    {
+	test(ex.size() == 2);
+	test(ex.count(0) == 1);
+	test(ex.find(0)->second == "null");
+	test(ex.count(p) == 1);
+	test(ex.find(p)->second == "MyClass");
+
+	int i = 0;
+	for (Test::MyClassStringD::const_iterator q = ex.begin(); q != ex.end(); ++q, ++i)
+	{
+	    test(i < 2);
+
+	    if (i == 0)
+	    {
+		test(!q->first);
+	    }
+	    else
+	    {
+		test(q->first);
+		q->first->opVoid();
+	    }
+	}
+    }
+
+    try
+    {
+	p->opEx(34);
+	test(false);
     }
     catch(const Test::MyClassPrxE& ex)
     {

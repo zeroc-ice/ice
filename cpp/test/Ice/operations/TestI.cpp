@@ -575,6 +575,55 @@ MyDerivedClassI::opEx(Ice::Int p)
 	
 	case 28:
 	{
+	    Test::ByteBoolD ex;
+	    ex[0] = true;
+	    ex[255] = false;
+	    throw ex;
+	}
+
+	case 29:
+	{
+	    Test::ShortIntD ex;
+	    ex[-10] = 10;
+	    ex[-20] = 20;
+	    ex[-30] = 30;
+	    throw ex;
+	}
+
+	case 30:
+	{
+	    Test::LongFloatD ex;
+	    ex[0x7fffffffffffffff] = Ice::Float(3.14);
+	    throw ex;
+	}
+
+	case 31:
+	{
+	    Test::DoubleStringD ex;
+	    ex[-10.1E1] = "abc";
+	    ex[-20.2E10] = "def";
+	    ex[-30.3E100] = "ghi";
+	    throw ex;
+	}
+
+	case 32:
+	{
+	    Test::WStringMyEnumD ex;
+	    ex[L"Hello"] = Test::enum2;
+	    throw ex;
+	}
+
+	case 33:
+	{
+	    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(_adapter->objectToProxy(this));
+	    Test::MyClassStringD ex;
+	    ex[0] = "null";
+	    ex[p] = "MyClass";
+	    throw ex;
+	}
+
+	case 34:
+	{
 	    Test::MyClassPrx p = Test::MyClassPrx::uncheckedCast(_adapter->objectToProxy(this));
 	    p->_throw();
 	}
