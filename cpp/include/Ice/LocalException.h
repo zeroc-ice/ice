@@ -103,6 +103,30 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API ObjectNotExistException : public LocalException
+{
+public:    
+
+    ObjectNotExistException(const char*, int);
+    ObjectNotExistException(const ObjectNotExistException&);
+    ObjectNotExistException& operator=(const ObjectNotExistException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
+class ICE_API OperationNotExistException : public LocalException
+{
+public:    
+
+    OperationNotExistException(const char*, int);
+    OperationNotExistException(const OperationNotExistException&);
+    OperationNotExistException& operator=(const OperationNotExistException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API SystemException : public LocalException
 {
 public:    
@@ -282,6 +306,18 @@ public:
     UnknownRequestIdException(const char*, int);
     UnknownRequestIdException(const UnknownRequestIdException&);
     UnknownRequestIdException& operator=(const UnknownRequestIdException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
+class ICE_API UnknownReplyStatusException : public ProtocolException
+{
+public:    
+
+    UnknownReplyStatusException(const char*, int);
+    UnknownReplyStatusException(const UnknownReplyStatusException&);
+    UnknownReplyStatusException& operator=(const UnknownReplyStatusException&);
     virtual std::string toString() const;
     virtual LocalException* clone() const;
     virtual void raise() const;

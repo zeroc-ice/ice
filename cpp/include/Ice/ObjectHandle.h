@@ -34,10 +34,17 @@ public:
 	return *this;
     }
 
-    static ObjectHandle<T> cast(::__IceIntf::Ice::Object* from)
+    static ObjectHandle<T> checkedCast(::__IceIntf::Ice::Object* from)
     {
 	T* to;
-	_cast(from, to);
+	_checkedCast(from, to);
+	return ObjectHandle<T>(to);
+    }
+
+    static ObjectHandle<T> uncheckedCast(::__IceIntf::Ice::Object* from)
+    {
+	T* to;
+	_uncheckedCast(from, to);
 	return ObjectHandle<T>(to);
     }
 };

@@ -31,6 +31,8 @@ class ICE_API Object : virtual public ::__Ice::Shared, JTCMutex
 {
 public:
 
+    bool _implements(const std::string&);
+
     bool operator==(const Object&) const;
     bool operator!=(const Object&) const;
 
@@ -69,6 +71,8 @@ class ICE_API Object : virtual public ::__Ice::Shared, JTCMutex
 {
 public:
 
+    virtual bool _implements(const std::string&) = 0;
+
 protected:
 
     Object();
@@ -89,6 +93,8 @@ namespace __IceStubM { namespace Ice
 class ICE_API Object : virtual public ::__IceStub::Ice::Object
 {
 public:
+
+    virtual bool _implements(const std::string&);
 
     static void __write(::__Ice::Stream*, const ::Ice::Object&);
     static void __read(::__Ice::Stream*, ::Ice::Object&);
