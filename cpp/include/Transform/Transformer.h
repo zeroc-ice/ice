@@ -36,7 +36,7 @@ class TRANSFORM_API Transformer
 {
 public:
 
-    Transformer(const Ice::CommunicatorPtr&, const Slice::UnitPtr&, const Slice::UnitPtr&, bool);
+    Transformer(const Ice::CommunicatorPtr&, const Slice::UnitPtr&, const Slice::UnitPtr&, bool, bool);
 
     void analyze(const std::string&, const std::string&, const std::string&, const std::string&, std::ostream&,
                  Ice::StringSeq&, Ice::StringSeq&);
@@ -55,6 +55,7 @@ private:
     Slice::UnitPtr _old;
     Slice::UnitPtr _new;
     bool _ignoreTypeChanges;
+    bool _purgeObjects;
 };
 
 } // End of namespace Transform
