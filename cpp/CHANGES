@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Fixed a bug in slice2java that caused byte constants to be
+  initialized incorrectly.
+
 - Fixed a hang in the IcePack registry that would occur if multiple
   node were started simultaneously.
 
