@@ -293,9 +293,10 @@ bool
 IcePatch2::ignoreSuffix(const string& path)
 {
     string suffix = getSuffix(path);
-    return suffix == "md5" // For legacy IcePatch
-	|| suffix == "tot" // For legacy IcePatch
-	|| suffix == "bz2";
+    return suffix == "md5" // For legacy IcePatch.
+	|| suffix == "tot" // For legacy IcePatch.
+	|| suffix == "bz2"
+	|| suffix == "bz2temp";
 }
 
 string
@@ -327,6 +328,20 @@ IcePatch2::getDirname(const string& pa)
     else
     {
 	return path.substr(0, pos);
+    }
+}
+
+void
+IcePatch2::rename(const string& fromPa, const string& toPa)
+{
+    const string fromPath = normalize(fromPa);
+    const string toPath = normalize(toPa);
+
+    ::remove(toPath.c_str()); // We ignore errors, as the file we are renaming to might not exist.
+
+    if(::rename(fromPath.c_str(), toPath.c_str()) == -1)
+    {
+	throw "cannot rename `" + fromPath + "' to  `" + toPath + "': " + lastError();
     }
 }
 
@@ -660,7 +675,7 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 
     if(ignoreSuffix(path))
     {
-	string pathWithoutSuffix = getWithoutSuffix(path);
+	const string pathWithoutSuffix = getWithoutSuffix(path);
 
 	if(ignoreSuffix(pathWithoutSuffix))
 	{
@@ -777,8 +792,8 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 		//
 		if(compress > 0)
 		{
-		    string pathBZ2 = path + ".bz2";
 		    struct stat bufBZ2;
+		    const string pathBZ2 = path + ".bz2";
 
 		    if(compress >= 2 || stat(pathBZ2.c_str(), &bufBZ2) == -1 || buf.st_mtime >= bufBZ2.st_mtime)
 		    {
@@ -787,8 +802,18 @@ getFileInfoSeqInt(const string& basePath, const string& relPath, int compress, G
 			    return false;
 			}
 			
-			compressBytesToFile(pathBZ2, bytes, relPath.size());
+			//
+			// We compress into a .bz2temp file, and then
+			// move this file to the final .bz2 file. This
+			// way we can be sure that there are no
+			// incomplete .bz2 files in case of a crash.
+			//
+			const string pathBZ2Temp = path + ".bz2temp";
+
+			compressBytesToFile(pathBZ2Temp, bytes, relPath.size());
 			
+			rename(pathBZ2Temp, pathBZ2);
+
 			if(stat(pathBZ2.c_str(), &bufBZ2) == -1)
 			{
 			    throw "cannot stat `" + pathBZ2 + "':\n" + lastError();

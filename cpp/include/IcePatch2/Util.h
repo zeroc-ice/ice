@@ -30,6 +30,8 @@ ICE_PATCH2_API bool ignoreSuffix(const std::string&);
 ICE_PATCH2_API std::string getBasename(const std::string&);
 ICE_PATCH2_API std::string getDirname(const std::string&);
 
+ICE_PATCH2_API void rename(const std::string&, const std::string&);
+
 ICE_PATCH2_API void remove(const std::string&);
 ICE_PATCH2_API void removeRecursive(const std::string&);
 
