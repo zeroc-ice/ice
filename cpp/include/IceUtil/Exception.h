@@ -16,19 +16,22 @@
 namespace IceUtil
 {
 
+class Exception;
+std::ostream& printException(std::ostream&, const Exception&);
+
 class Exception
 {
 public:
 
     Exception() :
-	_file(0),
-	_line(0)
+	_theFile(0),
+	_theLine(0)
     {
     }
     
     Exception(const char* file, int line) :
-	_file(file),
-	_line(line)
+	_theFile(file),
+	_theLine(line)
     {
     }
     
@@ -38,16 +41,16 @@ public:
 
     Exception(const Exception& ex)
     {
-	_file = ex._file;
-	_line = ex._line;
+	_theFile = ex._theFile;
+	_theLine = ex._theLine;
     }
 
     Exception& operator=(const Exception& ex)
     {
 	if (this != &ex)
 	{
-	    _file = ex._file;
-	    _line = ex._line;
+	    _theFile = ex._theFile;
+	    _theLine = ex._theLine;
 	}
 	
 	return *this;
@@ -58,9 +61,15 @@ public:
 	return "IceUtil::Exception";
     }
 
-    virtual std::string _description() const
+    virtual std::ostream& _print(std::ostream& out) const
     {
-	return "unknown Ice exception";
+	//
+	// Double dispatch, to allow user code to modify the behavior
+	// of _print() by providing specialized versions of
+	// IceUtil::printException() for generated exceptions derived
+	// from this base exception.
+	//
+	return printException(out, *this);
     }
 
     virtual Exception* _clone() const
@@ -72,23 +81,37 @@ public:
     {
 	throw *this;
     }
+
+    const char* _file() const
+    {
+	return _theFile;
+    }
+
+    int _line() const
+    {
+	return _theLine;
+    }
     
 private:
     
-    const char* _file;
-    int _line;
-    friend std::ostream& operator<<(std::ostream&, const Exception&);
+    const char* _theFile;
+    int _theLine;
 };
+
+inline std::ostream&
+printException(std::ostream& out, const Exception& ex)
+{
+    if (ex._file() && ex._line() > 0)
+    {
+	out << ex._file() << ':' << ex._line() << ": ";
+    }
+    return out << ex._name();
+}
 
 inline std::ostream&
 operator<<(std::ostream& out, const Exception& ex)
 {
-    if (ex._file && ex._line > 0)
-    {
-	out << ex._file << ':' << ex._line << ": ";
-    }
-    out << ex._name() << ": " << ex._description();
-    return out;
+    return ex._print(out);
 }
 
 }

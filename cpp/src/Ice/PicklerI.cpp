@@ -10,7 +10,7 @@
 
 #include <Ice/PicklerI.h>
 #include <Ice/BasicStream.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 #include <Ice/Protocol.h>
 
 using namespace std;

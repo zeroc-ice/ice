@@ -19,7 +19,7 @@
 #include <Ice/CollectorF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 
 namespace Ice
 {

@@ -18,7 +18,7 @@
 #include <Ice/ObjectAdapter.h>
 #include <Ice/Endpoint.h>
 #include <Ice/Incoming.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 #include <Ice/Protocol.h>
 #include <Ice/Functional.h>
 

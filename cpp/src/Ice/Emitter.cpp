@@ -18,7 +18,7 @@
 #include <Ice/ThreadPool.h>
 #include <Ice/Endpoint.h>
 #include <Ice/Outgoing.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 #include <Ice/Protocol.h>
 #include <Ice/Functional.h>
 

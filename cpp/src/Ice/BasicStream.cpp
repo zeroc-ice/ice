@@ -15,7 +15,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ServantFactory.h>
 #include <Ice/ServantFactoryManager.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 
 using namespace std;
 using namespace Ice;

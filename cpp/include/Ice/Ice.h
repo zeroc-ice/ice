@@ -13,7 +13,7 @@
 
 #include <Ice/Communicator.h>
 #include <Ice/ObjectAdapter.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 #include <Ice/Properties.h>
 #include <Ice/Logger.h>
 #include <Ice/Stream.h>

@@ -18,7 +18,7 @@
 #include <Ice/Logger.h>
 #include <Ice/StreamI.h>
 #include <Ice/Initialize.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 
 using namespace std;
 using namespace Ice;

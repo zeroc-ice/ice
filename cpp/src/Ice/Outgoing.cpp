@@ -12,7 +12,7 @@
 #include <Ice/Object.h>
 #include <Ice/Emitter.h>
 #include <Ice/Reference.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 
 using namespace std;
 using namespace Ice;

@@ -17,8 +17,6 @@
 namespace Ice
 {
 
-typedef IceUtil::Exception LocalException;
-
 class ICE_API UnknownException : public LocalException
 {
 public:    
@@ -27,20 +25,7 @@ public:
     UnknownException(const UnknownException&);
     UnknownException& operator=(const UnknownException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
-    virtual LocalException* _clone() const;
-    virtual void _throw() const;
-};
-
-class ICE_API UnknownUserException : public LocalException
-{
-public:    
-
-    UnknownUserException(const char*, int);
-    UnknownUserException(const UnknownUserException&);
-    UnknownUserException& operator=(const UnknownUserException&);
-    virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -53,7 +38,7 @@ public:
     VersionMismatchException(const VersionMismatchException&);
     VersionMismatchException& operator=(const VersionMismatchException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -66,7 +51,7 @@ public:
     CommunicatorDestroyedException(const CommunicatorDestroyedException&);
     CommunicatorDestroyedException& operator=(const CommunicatorDestroyedException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -79,7 +64,7 @@ public:
     ObjectAdapterDeactivatedException(const ObjectAdapterDeactivatedException&);
     ObjectAdapterDeactivatedException& operator=(const ObjectAdapterDeactivatedException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -92,7 +77,7 @@ public:
     NoEndpointException(const NoEndpointException&);
     NoEndpointException& operator=(const NoEndpointException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -105,7 +90,7 @@ public:
     EndpointParseException(const EndpointParseException&);
     EndpointParseException& operator=(const EndpointParseException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -118,7 +103,7 @@ public:
     ReferenceParseException(const ReferenceParseException&);
     ReferenceParseException& operator=(const ReferenceParseException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -131,7 +116,7 @@ public:
     ReferenceIdentityException(const ReferenceIdentityException&);
     ReferenceIdentityException& operator=(const ReferenceIdentityException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -144,7 +129,7 @@ public:
     ObjectNotExistException(const ObjectNotExistException&);
     ObjectNotExistException& operator=(const ObjectNotExistException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -157,7 +142,7 @@ public:
     OperationNotExistException(const OperationNotExistException&);
     OperationNotExistException& operator=(const OperationNotExistException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -170,7 +155,7 @@ public:
     NoServantFactoryException(const NoServantFactoryException&);
     NoServantFactoryException& operator=(const NoServantFactoryException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -183,13 +168,11 @@ public:
     SystemException(const SystemException&);
     SystemException& operator=(const SystemException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 
-protected:
-
-    int _error;
+    int error; // Don't use errno, as errno usually is a macro.
 };
 
 class ICE_API SocketException : public SystemException
@@ -200,7 +183,7 @@ public:
     SocketException(const SocketException&);
     SocketException& operator=(const SocketException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -213,7 +196,7 @@ public:
     TimeoutException(const TimeoutException&);
     TimeoutException& operator=(const TimeoutException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -226,7 +209,7 @@ public:
     ConnectTimeoutException(const ConnectTimeoutException&);
     ConnectTimeoutException& operator=(const ConnectTimeoutException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -239,7 +222,7 @@ public:
     ConnectFailedException(const ConnectFailedException&);
     ConnectFailedException& operator=(const ConnectFailedException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -252,7 +235,7 @@ public:
     ConnectionLostException(const ConnectionLostException&);
     ConnectionLostException& operator=(const ConnectionLostException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -265,7 +248,7 @@ public:
     DNSException(const DNSException&);
     DNSException& operator=(const DNSException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -285,10 +268,9 @@ public:
     
     UnmarshalOutOfBoundsException(const char*, int);
     UnmarshalOutOfBoundsException(const UnmarshalOutOfBoundsException&);
-    UnmarshalOutOfBoundsException& operator=(
-	const UnmarshalOutOfBoundsException&);
+    UnmarshalOutOfBoundsException& operator=(const UnmarshalOutOfBoundsException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -301,7 +283,7 @@ public:
     ServantUnmarshalException(const ServantUnmarshalException&);
     ServantUnmarshalException& operator=(const ServantUnmarshalException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -314,7 +296,7 @@ public:
     StringEncodingException(const StringEncodingException&);
     StringEncodingException& operator=(const StringEncodingException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -327,7 +309,7 @@ public:
     MemoryLimitException(const MemoryLimitException&);
     MemoryLimitException& operator=(const MemoryLimitException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -340,7 +322,7 @@ public:
     EncapsulationException(const EncapsulationException&);
     EncapsulationException& operator=(const EncapsulationException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -353,7 +335,7 @@ public:
     UnsupportedProtocolException(const UnsupportedProtocolException&);
     UnsupportedProtocolException& operator=(const UnsupportedProtocolException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -366,7 +348,7 @@ public:
     UnsupportedEncodingException(const UnsupportedEncodingException&);
     UnsupportedEncodingException& operator=(const UnsupportedEncodingException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -379,7 +361,7 @@ public:
     InvalidMessageException(const InvalidMessageException&);
     InvalidMessageException& operator=(const InvalidMessageException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -392,7 +374,7 @@ public:
     UnknownMessageException(const UnknownMessageException&);
     UnknownMessageException& operator=(const UnknownMessageException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -405,7 +387,7 @@ public:
     UnknownRequestIdException(const UnknownRequestIdException&);
     UnknownRequestIdException& operator=(const UnknownRequestIdException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -418,7 +400,7 @@ public:
     UnknownReplyStatusException(const UnknownReplyStatusException&);
     UnknownReplyStatusException& operator=(const UnknownReplyStatusException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -431,7 +413,7 @@ public:
     CloseConnectionException(const CloseConnectionException&);
     CloseConnectionException& operator=(const CloseConnectionException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };
@@ -444,7 +426,7 @@ public:
     AbortBatchRequestException(const AbortBatchRequestException&);
     AbortBatchRequestException& operator=(const AbortBatchRequestException&);
     virtual std::string _name() const;
-    virtual std::string _description() const;
+    virtual std::ostream& _print(std::ostream&) const;
     virtual LocalException* _clone() const;
     virtual void _throw() const;
 };

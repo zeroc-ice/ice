@@ -152,6 +152,10 @@ SOURCE=.\Instance.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Exception.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\LocalException.cpp
 # End Source File
 # Begin Source File
@@ -381,6 +385,10 @@ SOURCE=.\Ice\Instance.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\InstanceF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Exception.h
 # End Source File
 # Begin Source File
 

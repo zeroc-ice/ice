@@ -15,7 +15,7 @@
 #include <Ice/Emitter.h>
 #include <Ice/ServantFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 #include <Ice/Properties.h>
 #include <Ice/LoggerI.h>
 

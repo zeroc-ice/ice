@@ -107,7 +107,7 @@ Slice::Gen::generate(const UnitPtr& unit)
 	H << "\n#include <Ice/Outgoing.h>";
 	H << "\n#include <Ice/Incoming.h>";
 	H << "\n#include <Ice/Direct.h>";
-	H << "\n#include <Ice/LocalException.h>";
+	H << "\n#include <Ice/Exception.h>";
     }
     else
     {
@@ -1042,12 +1042,12 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	    C << eb;
 	}
 	C << eb;
-	C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__);";
+	C << nl << "throw ::Ice::UserException(__FILE__, __LINE__);";
     }
     else
 */
     {
-	C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__);";
+	C << nl << "throw ::Ice::UserException(__FILE__, __LINE__);";
     }
     C << eb;
     writeAllocateCode(C, TypeStringList(), ret);

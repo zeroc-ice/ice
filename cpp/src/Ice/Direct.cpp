@@ -12,7 +12,7 @@
 #include <Ice/ObjectAdapter.h>
 #include <Ice/Reference.h>
 #include <Ice/Object.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 
 using namespace std;
 using namespace Ice;

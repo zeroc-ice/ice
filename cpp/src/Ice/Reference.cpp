@@ -11,7 +11,7 @@
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
 #include <Ice/BasicStream.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 
 using namespace std;
 using namespace Ice;

@@ -18,7 +18,7 @@
 #include <Ice/SslTransceiver.h>
 #include <Ice/UdpTransceiver.h>
 #include <Ice/BasicStream.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 
 using namespace std;
 using namespace Ice;

@@ -15,7 +15,7 @@
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
 #include <Ice/Collector.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 #include <Ice/Properties.h>
 #include <Ice/Functional.h>
 

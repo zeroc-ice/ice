@@ -19,6 +19,7 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
 OBJS		= Application.o \
+		  Exception.o \
 		  LocalException.o \
 		  Properties.o \
 		  PropertiesI.o \

@@ -14,7 +14,7 @@
 #include <Ice/Logger.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 
 using namespace std;
 using namespace Ice;

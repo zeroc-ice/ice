@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/LocalException.h>
+#include <Ice/Exception.h>
 #include <Ice/Network.h>
 
 using namespace std;
@@ -38,10 +38,10 @@ Ice::UnknownException::_name() const
     return "Ice::UnknownException";
 }
 
-string
-Ice::UnknownException::_description() const
+ostream&
+Ice::UnknownException::_print(ostream& out) const
 {
-    return "unknown exception";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -52,47 +52,6 @@ Ice::UnknownException::_clone() const
 
 void
 Ice::UnknownException::_throw() const
-{
-    throw *this;
-}
-
-Ice::UnknownUserException::UnknownUserException(const char* file, int line) :
-    LocalException(file, line)
-{
-}
-
-Ice::UnknownUserException::UnknownUserException(const UnknownUserException& ex) :
-    LocalException(ex)
-{
-}
-
-UnknownUserException&
-Ice::UnknownUserException::operator=(const UnknownUserException& ex)
-{
-    LocalException::operator=(ex);
-    return *this;
-}
-
-string
-Ice::UnknownUserException::_name() const
-{
-    return "Ice::UnknownUserException";
-}
-
-string
-Ice::UnknownUserException::_description() const
-{
-    return "unknown user exception";
-}
-
-LocalException*
-Ice::UnknownUserException::_clone() const
-{
-    return new UnknownUserException(*this);
-}
-
-void
-Ice::UnknownUserException::_throw() const
 {
     throw *this;
 }
@@ -120,10 +79,10 @@ Ice::VersionMismatchException::_name() const
     return "Ice::VersionMismatchException";
 }
 
-string
-Ice::VersionMismatchException::_description() const
+ostream&
+Ice::VersionMismatchException::_print(ostream& out) const
 {
-    return "Ice library version mismatch";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -161,10 +120,10 @@ Ice::CommunicatorDestroyedException::_name() const
     return "Ice::CommunicatorDestroyedException";
 }
 
-string
-Ice::CommunicatorDestroyedException::_description() const
+ostream&
+Ice::CommunicatorDestroyedException::_print(ostream& out) const
 {
-    return "communicator object destroyed";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -202,10 +161,10 @@ Ice::ObjectAdapterDeactivatedException::_name() const
     return "Ice::ObjectAdapterDeactivatedException";
 }
 
-string
-Ice::ObjectAdapterDeactivatedException::_description() const
+ostream&
+Ice::ObjectAdapterDeactivatedException::_print(ostream& out) const
 {
-    return "object adapter deactivated";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -243,10 +202,10 @@ Ice::NoEndpointException::_name() const
     return "Ice::NoEndpointException";
 }
 
-string
-Ice::NoEndpointException::_description() const
+ostream&
+Ice::NoEndpointException::_print(ostream& out) const
 {
-    return "no suitable endpoint available";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -284,10 +243,10 @@ Ice::EndpointParseException::_name() const
     return "Ice::EndpointParseException";
 }
 
-string
-Ice::EndpointParseException::_description() const
+ostream&
+Ice::EndpointParseException::_print(ostream& out) const
 {
-    return "error while parsing endpoint";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -325,10 +284,10 @@ Ice::ReferenceParseException::_name() const
     return "Ice::ReferenceParseException";
 }
 
-string
-Ice::ReferenceParseException::_description() const
+ostream&
+Ice::ReferenceParseException::_print(ostream& out) const
 {
-    return "error while parsing reference";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -366,10 +325,10 @@ Ice::ReferenceIdentityException::_name() const
     return "Ice::ReferenceIdentityException";
 }
 
-string
-Ice::ReferenceIdentityException::_description() const
+ostream&
+Ice::ReferenceIdentityException::_print(ostream& out) const
 {
-    return "reference identity mismatch in location forward";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -407,10 +366,10 @@ Ice::ObjectNotExistException::_name() const
     return "Ice::ObjectNotExistException";
 }
 
-string
-Ice::ObjectNotExistException::_description() const
+ostream&
+Ice::ObjectNotExistException::_print(ostream& out) const
 {
-    return "object does not exist";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -448,10 +407,10 @@ Ice::OperationNotExistException::_name() const
     return "Ice::OperationNotExistException";
 }
 
-string
-Ice::OperationNotExistException::_description() const
+ostream&
+Ice::OperationNotExistException::_print(ostream& out) const
 {
-    return "operation does not exist";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -489,10 +448,10 @@ Ice::NoServantFactoryException::_name() const
     return "Ice::NoServantFactoryException";
 }
 
-string
-Ice::NoServantFactoryException::_description() const
+ostream&
+Ice::NoServantFactoryException::_print(ostream& out) const
 {
-    return "no servant factory found for the requested servant type";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -511,16 +470,16 @@ Ice::SystemException::SystemException(const char* file, int line) :
     LocalException(file, line)
 {
 #ifdef WIN32
-    _error = GetLastError();
+    error = GetLastError();
 #else
-    _error = errno;
+    error = errno;
 #endif
 }
 
 Ice::SystemException::SystemException(const SystemException& ex) :
     LocalException(ex)
 {
-    _error = ex._error;
+    error = ex.error;
 }
 
 SystemException&
@@ -530,7 +489,7 @@ Ice::SystemException::operator=(const SystemException& ex)
 
     if (this != &ex)
     {
-	_error = ex._error;
+	error = ex.error;
     }
 
     return *this;
@@ -541,12 +500,12 @@ Ice::SystemException::_name() const
 {
     return "Ice::SystemException";
 }
-string
-Ice::SystemException::_description() const
-{
-    return "system exception: " + errorToString(_error);
-}
 
+ostream&
+Ice::SystemException::_print(ostream& out) const
+{
+    return IceUtil::printException(out, *this);
+}
 LocalException*
 Ice::SystemException::_clone() const
 {
@@ -564,10 +523,10 @@ Ice::SocketException::SocketException(const char* file, int line) :
 {
 #ifdef WIN32
     //
-    // Overwrite _error, which has been set by GetLastError() in the
+    // Overwrite error, which has been set by GetLastError() in the
     // SystemException constructor, with WSAGetLastError()
     //
-    _error = WSAGetLastError();
+    error = WSAGetLastError();
 #endif
 }
 
@@ -589,10 +548,10 @@ Ice::SocketException::_name() const
     return "Ice::SocketException";
 }
 
-string
-Ice::SocketException::_description() const
+ostream&
+Ice::SocketException::_print(ostream& out) const
 {
-    return "system exception: " + errorToString(_error);
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -630,10 +589,10 @@ Ice::TimeoutException::_name() const
     return "Ice::TimeoutException";
 }
 
-string
-Ice::TimeoutException::_description() const
+ostream&
+Ice::TimeoutException::_print(ostream& out) const
 {
-    return "timeout while sending or receiving data";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -671,10 +630,10 @@ Ice::ConnectTimeoutException::_name() const
     return "Ice::ConnectTimeoutException";
 }
 
-string
-Ice::ConnectTimeoutException::_description() const
+ostream&
+Ice::ConnectTimeoutException::_print(ostream& out) const
 {
-    return "timeout while establishing a connection";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -712,10 +671,10 @@ Ice::ConnectFailedException::_name() const
     return "Ice::ConnectFailedException";
 }
 
-string
-Ice::ConnectFailedException::_description() const
+ostream&
+Ice::ConnectFailedException::_print(ostream& out) const
 {
-    return "connect failed: " + errorToString(_error);
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -753,19 +712,10 @@ Ice::ConnectionLostException::_name() const
     return "Ice::ConnectionLostException";
 }
 
-string
-Ice::ConnectionLostException::_description() const
+ostream&
+Ice::ConnectionLostException::_print(ostream& out) const
 {
-    string s = "connection lost: ";
-    if (_error == 0)
-    {
-	s += "recv() returned zero";
-    }
-    else
-    {
-	s += errorToString(_error);
-    }
-    return s;
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -784,7 +734,7 @@ Ice::DNSException::DNSException(const char* file, int line) :
     SystemException(file, line)
 {
 #ifndef WIN32
-    _error = h_errno;
+    error = h_errno;
 #endif
 }
 
@@ -806,10 +756,10 @@ Ice::DNSException::_name() const
     return "Ice::DNSException";
 }
 
-string
-Ice::DNSException::_description() const
+ostream&
+Ice::DNSException::_print(ostream& out) const
 {
-    return "DNS error: " + errorToStringDNS(_error);
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -864,10 +814,10 @@ Ice::UnmarshalOutOfBoundsException::_name() const
     return "Ice::UnmarshalOutOfBoundsException";
 }
 
-string
-Ice::UnmarshalOutOfBoundsException::_description() const
+ostream&
+Ice::UnmarshalOutOfBoundsException::_print(ostream& out) const
 {
-    return "protocol error: out of bounds during unmarshaling";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -905,10 +855,10 @@ Ice::ServantUnmarshalException::_name() const
     return "Ice::ServantUnmarshalException";
 }
 
-string
-Ice::ServantUnmarshalException::_description() const
+ostream&
+Ice::ServantUnmarshalException::_print(ostream& out) const
 {
-    return "protocol error: servant type does not match signature";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -946,10 +896,10 @@ Ice::StringEncodingException::_name() const
     return "Ice::StringEncodingException";
 }
 
-string
-Ice::StringEncodingException::_description() const
+ostream&
+Ice::StringEncodingException::_print(ostream& out) const
 {
-    return "protocol error: string encoding error";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -987,10 +937,10 @@ Ice::MemoryLimitException::_name() const
     return "Ice::MemoryLimitException";
 }
 
-string
-Ice::MemoryLimitException::_description() const
+ostream&
+Ice::MemoryLimitException::_print(ostream& out) const
 {
-    return "protocol error: memory limit exceeded";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -1028,10 +978,10 @@ Ice::EncapsulationException::_name() const
     return "Ice::EncapsulationException";
 }
 
-string
-Ice::EncapsulationException::_description() const
+ostream&
+Ice::EncapsulationException::_print(ostream& out) const
 {
-    return "protocol error: illegal encapsulation";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -1069,10 +1019,10 @@ Ice::UnsupportedProtocolException::_name() const
     return "Ice::UnsupportedProtocolException";
 }
 
-string
-Ice::UnsupportedProtocolException::_description() const
+ostream&
+Ice::UnsupportedProtocolException::_print(ostream& out) const
 {
-    return "protocol error: unsupported protocol version";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -1110,10 +1060,10 @@ Ice::UnsupportedEncodingException::_name() const
     return "Ice::UnsupportedEncodingException";
 }
 
-string
-Ice::UnsupportedEncodingException::_description() const
+ostream&
+Ice::UnsupportedEncodingException::_print(ostream& out) const
 {
-    return "protocol error: unsupported encoding version";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -1151,10 +1101,10 @@ Ice::InvalidMessageException::_name() const
     return "Ice::InvalidMessageException";
 }
 
-string
-Ice::InvalidMessageException::_description() const
+ostream&
+Ice::InvalidMessageException::_print(ostream& out) const
 {
-    return "protocol error: invalid message type";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -1192,10 +1142,10 @@ Ice::UnknownMessageException::_name() const
     return "Ice::UnknownMessageException";
 }
 
-string
-Ice::UnknownMessageException::_description() const
+ostream&
+Ice::UnknownMessageException::_print(ostream& out) const
 {
-    return "protocol error: unknown message type";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -1233,10 +1183,10 @@ Ice::UnknownRequestIdException::_name() const
     return "Ice::UnknownRequestIdException";
 }
 
-string
-Ice::UnknownRequestIdException::_description() const
+ostream&
+Ice::UnknownRequestIdException::_print(ostream& out) const
 {
-    return "protocol error: unknown request id";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -1274,10 +1224,10 @@ Ice::UnknownReplyStatusException::_name() const
     return "Ice::UnknownReplyStatusException";
 }
 
-string
-Ice::UnknownReplyStatusException::_description() const
+ostream&
+Ice::UnknownReplyStatusException::_print(ostream& out) const
 {
-    return "protocol error: unknown reply status";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -1315,10 +1265,10 @@ Ice::CloseConnectionException::_name() const
     return "Ice::CloseConnectionException";
 }
 
-string
-Ice::CloseConnectionException::_description() const
+ostream&
+Ice::CloseConnectionException::_print(ostream& out) const
 {
-    return "protocol error: connection closed by server";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
@@ -1356,10 +1306,10 @@ Ice::AbortBatchRequestException::_name() const
     return "Ice::AbortBatchRequestException";
 }
 
-string
-Ice::AbortBatchRequestException::_description() const
+ostream&
+Ice::AbortBatchRequestException::_print(ostream& out) const
 {
-    return "protocol error: batch request was aborted";
+    return IceUtil::printException(out, *this);
 }
 
 LocalException*
