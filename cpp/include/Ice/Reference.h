@@ -24,8 +24,7 @@ class ICE_API ReferenceI : public Shared
 public:
 
     ReferenceI(const Instance&, const std::string&,
-	       const std::vector<TcpEndpoint>&,
-	       const std::vector<UdpEndpoint>&);
+	       const std::vector<Endpoint>&);
     virtual ~ReferenceI();
 
     //
@@ -43,8 +42,7 @@ public:
     };
     const Mode mode;
 
-    const std::vector<TcpEndpoint> tcpEndpoints;
-    const std::vector<UdpEndpoint> udpEndpoints;
+    const std::vector<Endpoint> endpoints;
 
     //
     // Get a new reference, based on the existing one, overwriting

@@ -23,8 +23,7 @@
 namespace __Ice
 {
 
-class EmitterFactoryI;
-class CollectorFactoryI;
+class UdpEndpointI;
 
 class UdpTransceiverI : public TransceiverI
 {
@@ -45,8 +44,7 @@ private:
     UdpTransceiverI(Instance, const std::string&, int);
     UdpTransceiverI(Instance, int);
     virtual ~UdpTransceiverI();
-    friend class EmitterFactoryI; // May create UdpTransceiverIs
-    friend class CollectorFactoryI; // May create UdpTransceiverIs
+    friend class UdpEndpointI; // May create UdpTransceiverIs
 
     Instance instance_;
     bool sender_;

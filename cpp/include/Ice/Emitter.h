@@ -58,7 +58,7 @@ private:
     EmitterI(const EmitterI&);
     void operator=(const EmitterI&);
 
-    EmitterI(const Instance&, const Transceiver&, int, bool);
+    EmitterI(const Instance&, const Transceiver&, const Endpoint&);
     virtual ~EmitterI();
     friend class EmitterFactoryI; // May create EmitterIs
 
@@ -73,8 +73,7 @@ private:
     void setState(State, const ::Ice::LocalException&);
 
     Transceiver transceiver_;
-    int timeout_;
-    bool oneway_;
+    Endpoint endpoint_;
     ThreadPool threadPool_;
     ::Ice::Int nextRequestId_;
     std::map< ::Ice::Int, Outgoing*> requests_;
@@ -90,8 +89,7 @@ class ICE_API EmitterFactoryI : public Shared, public JTCMutex
 {
 public:
 
-    Emitter create(const TcpEndpoint&);
-    Emitter create(const UdpEndpoint&);
+    Emitter create(const Endpoint&);
 
 private:
 
@@ -104,8 +102,7 @@ private:
     friend class InstanceI; // May create and destroy EmitterFactoryIs
 
     Instance instance_;
-    std::map<TcpEndpoint, Emitter> tcpEmitters_;
-    std::map<UdpEndpoint, Emitter> udpEmitters_;
+    std::map<Endpoint, Emitter> emitters_;
 };
 
 }

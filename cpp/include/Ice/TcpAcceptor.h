@@ -24,7 +24,7 @@
 namespace __Ice
 {
 
-class CollectorFactoryI;
+class TcpEndpointI;
 
 class TcpAcceptorI : public AcceptorI
 {
@@ -44,7 +44,7 @@ private:
 
     TcpAcceptorI(Instance, int);
     virtual ~TcpAcceptorI();
-    friend class CollectorFactoryI; // May create TcpAcceptorIs
+    friend class TcpEndpointI; // May create TcpAcceptorIs
 
     Instance instance_;
     int fd_;
