@@ -83,9 +83,6 @@ void IceUtil::StaticMutex::initialize() const
     EnterCriticalSection(&_criticalSection);
     if(!_mutexInitialized)
     {
-        _mutex = new CRITICAL_SECTION;
-	InitializeCriticalSection(_mutex);
-
 #   if defined(_WIN32_WINNT) && _WIN32_WINNT >= 0x0400
 	_mutex = new CRITICAL_SECTION;
 	InitializeCriticalSection(_mutex);
