@@ -528,6 +528,26 @@ If not specified, the default value for these properties is 5000ms, or 5 seconds
 </section>
 </section>
 
+<section><title>Ice.SSL.Client.Passphrase.Retries, Ice.SSL.Server.Passphrase.Retries</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.SSL.Client.Passphrase.Retries=<replaceable>number of retries</replaceable>
+Ice.SSL.Server.Passphrase.Retries=<replaceable>number of retries</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+When IceSSL is directed to use a private key in a PEM file that has been encrypted, a prompt
+is displayed "Enter PEM pass phrase:".  In the case that the passphrase is incorrectly entered,
+these properties define how many retries the user will get before IceSSL shuts down.
+</para>
+<para>
+If not specified, the default value for these properties is 5 retries.
+</para>
+</section>
+</section>
+
 <section><title>Ice.SSL.Server.Overrides.RSA.PrivateKey, Ice.SSL.Server.Overrides.RSA.Certificate</title>
 <section><title>Synopsis</title>
 <synopsis>
