@@ -249,6 +249,30 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API ValueUnmarshalException : public ProtocolException
+{
+public:    
+    
+    ValueUnmarshalException(const char*, int);
+    ValueUnmarshalException(const ValueUnmarshalException&);
+    ValueUnmarshalException& operator=(const ValueUnmarshalException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
+class ICE_API MemoryLimitException : public ProtocolException
+{
+public:    
+    
+    MemoryLimitException(const char*, int);
+    MemoryLimitException(const MemoryLimitException&);
+    MemoryLimitException& operator=(const MemoryLimitException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API EncapsulationException : public ProtocolException
 {
 public:    

@@ -18,6 +18,7 @@ namespace __Ice
 {
 
 class Incoming;
+class Stream;
 
 }
 
@@ -34,11 +35,15 @@ public:
 
     virtual bool _implements(const std::string&);
     void ____implements(::__Ice::Incoming&);
+    virtual const std::string* __ids() = 0;
 
     typedef void (Object::*__Op)(::__Ice::Incoming&);
     static __Op __ops[];
     static std::string __names[];
     virtual bool __dispatch(::__Ice::Incoming&, const std::string&);
+
+    virtual void __write(::__Ice::Stream*) = 0;
+    virtual void __read(::__Ice::Stream*) = 0;
 };
 
 }

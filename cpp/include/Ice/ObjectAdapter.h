@@ -24,7 +24,7 @@
 namespace Ice
 {
 
-class ICE_API ObjectAdapterI : virtual public ::__Ice::Shared, public JTCMutex
+class ICE_API ObjectAdapterI : public ::__Ice::Shared, public JTCMutex
 {
 public:
 
@@ -50,7 +50,7 @@ private:
     ObjectAdapterI(const ::__Ice::Instance&, const std::string&,
 		   const std::string&);
     virtual ~ObjectAdapterI();
-    friend CommunicatorI; // May create ObjectAdapterIs
+    friend CommunicatorI;
 
     ::__Ice::Instance instance_;
     std::string name_;

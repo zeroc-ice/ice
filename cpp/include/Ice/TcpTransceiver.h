@@ -37,8 +37,8 @@ private:
 
     TcpTransceiverI(Instance, int);
     virtual ~TcpTransceiverI();
-    friend class TcpConnectorI; // May create TcpTransceiverIs
-    friend class TcpAcceptorI; // May create TcpTransceiverIs
+    friend class TcpConnectorI;
+    friend class TcpAcceptorI;
 
     Instance instance_;
     int fd_;

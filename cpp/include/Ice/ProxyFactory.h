@@ -35,7 +35,7 @@ private:
 
     ProxyFactoryI(const Instance&);
     virtual ~ProxyFactoryI();
-    friend class InstanceI; // May create and destroy ProxyFactoryIs
+    friend class InstanceI;
 
     Instance instance_;
 };

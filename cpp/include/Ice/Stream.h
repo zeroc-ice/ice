@@ -12,6 +12,7 @@
 #define ICE_STREAM_H
 
 #include <Ice/InstanceF.h>
+#include <Ice/ObjectF.h>
 #include <Ice/Buffer.h>
 #include <stack>
 
@@ -27,6 +28,9 @@ public:
     Instance instance() const;
 
     void swap(Stream&);
+
+    void resize(int);
+    void reserve(int);
 
     void pushBigendian(bool);
     void popBigendian();
@@ -83,6 +87,9 @@ public:
     void write(const std::vector<std::wstring>&);
     void read(std::wstring&);
     void read(std::vector<std::wstring>&);
+
+    void write(const ::Ice::Object_iptr&);
+    void read(::Ice::Object_iptr&, const std::string&);
 
 private:
 

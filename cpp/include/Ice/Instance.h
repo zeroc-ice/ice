@@ -19,7 +19,7 @@
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/EmitterF.h>
-#include <Ice/CollectorF.h>
+#include <Ice/ValueFactoryManagerF.h>
 #include <Ice/Shared.h>
 
 namespace __Ice
@@ -37,13 +37,14 @@ public:
     ProxyFactory proxyFactory();
     ThreadPool threadPool();
     EmitterFactory emitterFactory();
+    ValueFactoryManager valueFactoryManager();
     
 private:
 
     InstanceI(const ::Ice::Communicator&, const ::Ice::Properties&);
     virtual ~InstanceI();
     void destroy();
-    friend class ::Ice::CommunicatorI; // May create and destroy InstanceIs
+    friend class ::Ice::CommunicatorI;
 
     ::Ice::Communicator communicator_;
     ::Ice::Properties properties_;
@@ -52,6 +53,7 @@ private:
     ProxyFactory proxyFactory_;
     ThreadPool threadPool_;
     EmitterFactory emitterFactory_;
+    ValueFactoryManager valueFactoryManager_;
 
     //
     // Global state management

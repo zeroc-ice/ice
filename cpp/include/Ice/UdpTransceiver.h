@@ -41,7 +41,7 @@ private:
     UdpTransceiverI(Instance, const std::string&, int);
     UdpTransceiverI(Instance, int);
     virtual ~UdpTransceiverI();
-    friend class UdpEndpointI; // May create UdpTransceiverIs
+    friend class UdpEndpointI;
 
     Instance instance_;
     bool sender_;

@@ -38,7 +38,7 @@ private:
     ThreadPoolI(const Instance&);
     virtual ~ThreadPoolI();
     void destroy();
-    friend class InstanceI; // May create and destroy ThreadPoolIs
+    friend class InstanceI;
 
     void clearInterrupt();
     void setInterrupt();

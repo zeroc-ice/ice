@@ -41,7 +41,7 @@ private:
 
     TcpAcceptorI(Instance, int);
     virtual ~TcpAcceptorI();
-    friend class TcpEndpointI; // May create TcpAcceptorIs
+    friend class TcpEndpointI;
 
     Instance instance_;
     int fd_;

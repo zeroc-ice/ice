@@ -60,7 +60,7 @@ private:
 
     EmitterI(const Instance&, const Transceiver&, const Endpoint&);
     virtual ~EmitterI();
-    friend class EmitterFactoryI; // May create EmitterIs
+    friend class EmitterFactoryI;
 
     enum State
     {
@@ -99,7 +99,7 @@ private:
     EmitterFactoryI(const Instance&);
     virtual ~EmitterFactoryI();
     void destroy();
-    friend class InstanceI; // May create and destroy EmitterFactoryIs
+    friend class InstanceI;
 
     Instance instance_;
     std::map<Endpoint, Emitter> emitters_;

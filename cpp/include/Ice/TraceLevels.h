@@ -18,7 +18,7 @@
 namespace __Ice
 {
 
-class TraceLevelsI : virtual public Shared
+class TraceLevelsI : public Shared
 {
 public:
 

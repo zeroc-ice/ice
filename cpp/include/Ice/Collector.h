@@ -64,7 +64,7 @@ private:
     CollectorI(const ::Ice::ObjectAdapter&, const Transceiver&,
 	       const Endpoint&);
     virtual ~CollectorI();
-    friend class CollectorFactoryI; // May create CollectorIs
+    friend class CollectorFactoryI;
 
     enum State
     {
@@ -117,7 +117,7 @@ private:
 
     CollectorFactoryI(const ::Ice::ObjectAdapter&, const Endpoint&);
     virtual ~CollectorFactoryI();
-    friend class ::Ice::ObjectAdapterI; // May create CollectorFactoryIs
+    friend class ::Ice::ObjectAdapterI;
 
     enum State
     {

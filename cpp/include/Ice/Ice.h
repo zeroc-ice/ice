@@ -16,5 +16,6 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/Logger.h>
+#include <Ice/ValueFactory.h>
 
 #endif

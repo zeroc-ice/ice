@@ -37,7 +37,7 @@ private:
     
     TcpConnectorI(Instance, const std::string&, int);
     virtual ~TcpConnectorI();
-    friend class TcpEndpointI; // May create TcpConnectorIs
+    friend class TcpEndpointI;
 
     Instance instance_;
     struct sockaddr_in addr_;

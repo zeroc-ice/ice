@@ -15,6 +15,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectAdapterF.h>
+#include <Ice/ValueFactoryF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/Shared.h>
@@ -35,6 +36,8 @@ public:
 
     ObjectAdapter createObjectAdapter(const std::string&);
     ObjectAdapter createObjectAdapter(const std::string&, const std::string&);
+
+    void installValueFactory(const ValueFactory&);
 
     Properties properties();
 
