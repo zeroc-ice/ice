@@ -10,7 +10,6 @@
 
 #include <IceUtil/Functional.h>
 #include <Gen.h>
-//#include <JavaUtil.h>
 #include <limits>
 
 #include <sys/types.h>
@@ -188,7 +187,9 @@ Slice::JavaVisitor::fixKwd(const string& name) const
 
 string
 Slice::JavaVisitor::getAbsolute(const string& scoped,
-                                const string& scope) const
+                                const string& scope,
+                                const string& prefix,
+                                const string& suffix) const
 {
     string result;
     string::size_type start = 0;
@@ -236,7 +237,7 @@ Slice::JavaVisitor::getAbsolute(const string& scoped,
         string fix;
         if (pos == string::npos)
         {
-            fix = fixKwd(scoped.substr(start));
+            fix = prefix + fixKwd(scoped.substr(start)) + suffix;
         }
         else
         {
@@ -369,16 +370,630 @@ Slice::JavaVisitor::typeToString(const TypePtr& type, TypeMode mode,
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if (contained)
     {
-        return getAbsolute(contained->scoped(), scope);
+        if (mode == TypeModeOut)
+        {
+            return getAbsolute(contained->scoped(), scope) + "Holder";
+        }
+        else
+        {
+            return getAbsolute(contained->scoped(), scope);
+        }
     }
 
     return "???";
 }
 
+string
+Slice::JavaVisitor::getParams(const OperationPtr& op, const string& scope)
+{
+    TypeStringList inParams = op->inputParameters();
+    TypeStringList outParams = op->outputParameters();
+    TypeStringList::const_iterator q;
+
+    string params;
+
+    for (q = inParams.begin(); q != inParams.end(); ++q)
+    {
+        if (q != inParams.begin())
+        {
+            params += ", ";
+        }
+
+        string typeString = typeToString(q->first, TypeModeIn, scope);
+        params += typeString;
+        params += ' ';
+        params += fixKwd(q->second);
+    }
+
+    for (q = outParams.begin(); q != outParams.end(); ++q)
+    {
+        if (q != outParams.begin() || !inParams.empty())
+        {
+            params += ", ";
+        }
+
+        string typeString = typeToString(q->first, TypeModeOut, scope);
+        params += typeString;
+        params += ' ';
+        params += fixKwd(q->second);
+    }
+
+    return params;
+}
+
+string
+Slice::JavaVisitor::getArgs(const OperationPtr& op, const string& scope)
+{
+    TypeStringList inParams = op->inputParameters();
+    TypeStringList outParams = op->outputParameters();
+    TypeStringList::const_iterator q;
+
+    string args;
+
+    for (q = inParams.begin(); q != inParams.end(); ++q)
+    {
+        if (q != inParams.begin())
+        {
+            args += ", ";
+        }
+
+        args += fixKwd(q->second);
+    }
+
+    for (q = outParams.begin(); q != outParams.end(); ++q)
+    {
+        if (q != outParams.begin() || !inParams.empty())
+        {
+            args += ", ";
+        }
+
+        args += fixKwd(q->second);
+    }
+
+    return args;
+}
+
+void
+Slice::JavaVisitor::writeThrowsClause(const string& scope,
+                                      const ExceptionList& throws)
+{
+    //
+    // Don't include local exceptions in the throws clause
+    //
+    ExceptionList::size_type localCount = 0;
+    count_if(throws.begin(), throws.end(),
+             ::IceUtil::memFun(&Exception::isLocal), localCount);
+    Output& out = output();
+    if (throws.size() - localCount > 0)
+    {
+        out.inc();
+        out << nl;
+        out << "throws ";
+        out.useCurrentPosAsIndent();
+        ExceptionList::const_iterator r;
+        int count = 0;
+        for (r = throws.begin(); r != throws.end(); ++r)
+        {
+            if (!(*r)->isLocal())
+            {
+                if (count > 0)
+                {
+                    out << "," << nl;
+                }
+                out << getAbsolute((*r)->scoped(), scope);
+                count++;
+            }
+        }
+        out.restoreIndent();
+        out.dec();
+    }
+}
+
+void
+Slice::JavaVisitor::writeDelegateThrowsClause(const string& scope,
+                                              const ExceptionList& throws)
+{
+    Output& out = output();
+    out.inc();
+    out << nl;
+    out << "throws ";
+    out.useCurrentPosAsIndent();
+    out << "Ice.LocationForward,";
+    out << nl << "IceInternal.NonRepeatable";
+
+    //
+    // Don't include local exceptions in the throws clause
+    //
+    ExceptionList::const_iterator r;
+    for (r = throws.begin(); r != throws.end(); ++r)
+    {
+        if (!(*r)->isLocal())
+        {
+            out << "," << nl;
+            out << getAbsolute((*r)->scoped(), scope);
+        }
+    }
+    out.restoreIndent();
+    out.dec();
+}
+
+void
+Slice::JavaVisitor::writeMarshalUnmarshalCode(Output& out, const string& scope,
+                                              const TypePtr& type,
+                                              const string& param,
+                                              bool marshal, int& iter,
+                                              bool holder)
+{
+    string stream = marshal ? "__os" : "__is";
+    string v;
+    if (holder)
+    {
+        v = param + ".value";
+    }
+    else
+    {
+        v = param;
+    }
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if (builtin)
+    {
+        switch (builtin->kind())
+        {
+            case Builtin::KindByte:
+            {
+                if (marshal)
+                {
+                    out << nl << stream << ".writeByte(" << v << ");";
+                }
+                else
+                {
+                    out << nl << v << " = " << stream << ".readByte();";
+                }
+                break;
+            }
+            case Builtin::KindBool:
+            {
+                if (marshal)
+                {
+                    out << nl << stream << ".writeBool(" << v << ");";
+                }
+                else
+                {
+                    out << nl << v << " = " << stream << ".readBool();";
+                }
+                break;
+            }
+            case Builtin::KindShort:
+            {
+                if (marshal)
+                {
+                    out << nl << stream << ".writeShort(" << v << ");";
+                }
+                else
+                {
+                    out << nl << v << " = " << stream << ".readShort();";
+                }
+                break;
+            }
+            case Builtin::KindInt:
+            {
+                if (marshal)
+                {
+                    out << nl << stream << ".writeInt(" << v << ");";
+                }
+                else
+                {
+                    out << nl << v << " = " << stream << ".readInt();";
+                }
+                break;
+            }
+            case Builtin::KindLong:
+            {
+                if (marshal)
+                {
+                    out << nl << stream << ".writeLong(" << v << ");";
+                }
+                else
+                {
+                    out << nl << v << " = " << stream << ".readLong();";
+                }
+                break;
+            }
+            case Builtin::KindFloat:
+            {
+                if (marshal)
+                {
+                    out << nl << stream << ".writeFloat(" << v << ");";
+                }
+                else
+                {
+                    out << nl << v << " = " << stream << ".readFloat();";
+                }
+                break;
+            }
+            case Builtin::KindDouble:
+            {
+                if (marshal)
+                {
+                    out << nl << stream << ".writeDouble(" << v << ");";
+                }
+                else
+                {
+                    out << nl << v << " = " << stream << ".readDouble();";
+                }
+                break;
+            }
+            case Builtin::KindString:
+            {
+                if (marshal)
+                {
+                    out << nl << stream << ".writeString(" << v << ");";
+                }
+                else
+                {
+                    out << nl << v << " = " << stream << ".readString();";
+                }
+                break;
+            }
+            case Builtin::KindWString:
+            {
+                if (marshal)
+                {
+                    out << nl << stream << ".writeWString(" << v << ");";
+                }
+                else
+                {
+                    out << nl << v << " = " << stream << ".readWString();";
+                }
+                break;
+            }
+            case Builtin::KindObject:
+            {
+                if (marshal)
+                {
+                    out << nl << stream << ".writeObject(" << v << ");";
+                }
+                else
+                {
+                    if (holder)
+                    {
+                        out << nl << stream
+                            << ".readObject(Ice.Object.__classIds[0], "
+                            << v << ");";
+                    }
+                    else
+                    {
+                        out << sb;
+                        out << nl << "Ice.ObjectHolder __h = new "
+                            << "Ice.ObjectHolder();";
+                        out << nl << stream
+                            << ".readObject(Ice.Object.__classIds[0], __h);";
+                        out << nl << v << " = __h.value;";
+                        out << eb;
+                    }
+                }
+                break;
+            }
+            case Builtin::KindObjectProxy:
+            {
+                if (marshal)
+                {
+                    out << nl << stream << ".writeProxy(" << v << ");";
+                }
+                else
+                {
+                    out << nl << v << " = " << stream << ".readProxy();";
+                }
+                break;
+            }
+            case Builtin::KindLocalObject:
+            {
+                assert(false);
+                break;
+            }
+        }
+        return;
+    }
+
+    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    if (prx)
+    {
+        string typeS = typeToString(type, TypeModeIn, scope);
+        if (marshal)
+        {
+            out << nl << typeS << "Helper.__write(" << stream << ", "
+                << v << ");";
+        }
+        else
+        {
+            out << nl << v << " = " << typeS << "Helper.__read(" << stream
+                << ");";
+        }
+        return;
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    if (cl)
+    {
+        if (marshal)
+        {
+            out << nl << stream << ".writeObject(" << v << ");";
+        }
+        else
+        {
+            string typeS = typeToString(type, TypeModeIn, scope);
+            out << sb;
+            out << nl << "Ice.ObjectHolder __h = new "
+                << "Ice.ObjectHolder();";
+            out << nl << "if (" << stream << ".readObject(" << typeS
+                << ".__classIds[0], __h))";
+            out << sb;
+            out << nl << v << " = (" << typeS << ")__h.value;";
+            out << eb;
+            out << nl << "else";
+            out << sb;
+            out << nl << v << " = new " << typeS << "();";
+            out << nl << stream << ".readObject(" << v << ");";
+            out << eb;
+            out << eb;
+        }
+        return;
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if (st)
+    {
+        if (marshal)
+        {
+            out << nl << v << ".__write(" << stream << ");";
+        }
+        else
+        {
+            string typeS = typeToString(type, TypeModeIn, scope);
+            out << nl << v << " = new " << typeS << "();";
+            out << nl << v << ".__read(" << stream << ");";
+        }
+        return;
+    }
+
+#if 0
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if (seq)
+    {
+        BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
+        if (b)
+        {
+            switch (b->kind())
+            {
+                case Builtin::KindByte:
+                {
+                    if (marshal)
+                    {
+                        out << nl << stream << ".writeByteSeq(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readByteSeq();";
+                    }
+                    break;
+                }
+                case Builtin::KindBool:
+                {
+                    if (marshal)
+                    {
+                        out << nl << stream << ".writeBoolSeq(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readBoolSeq();";
+                    }
+                    break;
+                }
+                case Builtin::KindShort:
+                {
+                    if (marshal)
+                    {
+                        out << nl << stream << ".writeShortSeq(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream
+                            << ".readShortSeq();";
+                    }
+                    break;
+                }
+                case Builtin::KindInt:
+                {
+                    if (marshal)
+                    {
+                        out << nl << stream << ".writeIntSeq(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readIntSeq();";
+                    }
+                    break;
+                }
+                case Builtin::KindLong:
+                {
+                    if (marshal)
+                    {
+                        out << nl << stream << ".writeLongSeq(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream << ".readLongSeq();";
+                    }
+                    break;
+                }
+                case Builtin::KindFloat:
+                {
+                    if (marshal)
+                    {
+                        out << nl << stream << ".writeFloatSeq(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream
+                            << ".readFloatSeq();";
+                    }
+                    break;
+                }
+                case Builtin::KindDouble:
+                {
+                    if (marshal)
+                    {
+                        out << nl << stream << ".writeDoubleSeq(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream
+                            << ".readDoubleSeq();";
+                    }
+                    break;
+                }
+                case Builtin::KindString:
+                {
+                    if (marshal)
+                    {
+                        out << nl << stream << ".writeStringSeq(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream
+                            << ".readStringSeq();";
+                    }
+                    break;
+                }
+                case Builtin::KindWString:
+                {
+                    if (marshal)
+                    {
+                        out << nl << stream << ".writeWStringSeq(" << v << ");";
+                    }
+                    else
+                    {
+                        out << nl << v << " = " << stream
+                            << ".readWStringSeq();";
+                    }
+                    break;
+                }
+                case Builtin::KindObject:
+                {
+                    if (marshal)
+                    {
+                        out << nl << stream << ".writeInt(" << v
+                            << ".length);";
+                        out << nl << "for (int __i" << iter << " = 0; __i"
+                            << iter << " < " << v << ".length; __i" << iter
+                            << "++)";
+                        out << sb;
+                        out << nl << stream << ".writeObject(" << v << "[__i"
+                            << iter << "]);";
+                        out << eb;
+                        iter++;
+                    }
+                    else
+                    {
+                        out << nl << "int __len" << iter << " = " << stream
+                            << ".readInt();";
+                        out << nl << v << " = new Ice.Object[__len" << iter
+                            << "];";
+                        out << nl << "Ice.ObjectHolder __h" << iter
+                            << " = new Ice.ObjectHolder();";
+                        out << nl << "for (int __i" << iter << " = 0; __i"
+                            << iter << " < __len" << iter << "; __i" << iter
+                            << "++)";
+                        out << sb;
+                        out << nl << stream
+                            << ".readObject(Ice.Object.__classIds[0], __h"
+                            << iter << ");";
+                        out << nl << v << "[__i" << iter << "] = __h" << iter
+                            << ';';
+                        out << eb;
+                        iter++;
+                    }
+                    break;
+                }
+                case Builtin::KindObjectProxy:
+                {
+                    if (marshal)
+                    {
+                        out << nl << stream << ".writeInt(" << v
+                            << ".length);";
+                        out << nl << "for (int __i" << iter << " = 0; __i"
+                            << iter << " < " << v << ".length; __i" << iter
+                            << "++)";
+                        out << sb;
+                        out << nl << stream << ".writeProxy(" << v << "[__i"
+                            << iter << "]);";
+                        out << eb;
+                        iter++;
+                    }
+                    else
+                    {
+                        out << nl << "int __len" << iter << " = " << stream
+                            << ".readInt();";
+                        out << nl << v << " = new Ice.ObjectPrx[__len" << iter
+                            << "];";
+                        out << nl << "for (int __i" << iter << " = 0; __i"
+                            << iter << " < __len" << iter << "; __i" << iter
+                            << "++)";
+                        out << sb;
+                        out << nl << v << "[__i" << iter << "] = " << stream
+                            << ".readProxy();";
+                        out << eb;
+                        iter++;
+                    }
+                    break;
+                }
+                case Builtin::KindLocalObject:
+                {
+                    assert(false);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            ContainedPtr cont = ContainedPtr::dynamicCast(type);
+            assert(cont);
+            string typeS = getAbsolute(cont->scoped(), scope);
+            if (marshal)
+            {
+                out << nl << typeS << "Helper.write(" << stream << ", "
+                    << v << ");";
+            }
+            else
+            {
+                out << nl << v << " = " << typeS << "Helper.read(" << stream
+                    << ");";
+            }
+        }
+        return;
+    }
+#endif
+
+    ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
+    assert(constructed);
+    string typeS = getAbsolute(constructed->scoped(), scope);
+    if (marshal)
+    {
+        out << nl << typeS << "Helper.write(" << stream << ", "
+            << v << ");";
+    }
+    else
+    {
+        out << nl << v << " = " << typeS << "Helper.read(" << stream
+            << ");";
+    }
+}
+
 void
 Slice::JavaVisitor::printHeader()
 {
-    static const char* header = 
+    static const char* header =
 "// **********************************************************************\n"
 "//\n"
 "// Copyright (c) 2001\n"
@@ -426,6 +1041,18 @@ Slice::Gen::generate(const UnitPtr& unit)
 
     HelperVisitor helperVisitor(_dir, _package);
     unit->visit(&helperVisitor);
+
+    ProxyVisitor proxyVisitor(_dir, _package);
+    unit->visit(&proxyVisitor);
+
+    ProxyHelperVisitor proxyHelperVisitor(_dir, _package);
+    unit->visit(&proxyHelperVisitor);
+
+    DelegateVisitor delegateVisitor(_dir, _package);
+    unit->visit(&delegateVisitor);
+
+    DelegateMVisitor delegateMVisitor(_dir, _package);
+    unit->visit(&delegateMVisitor);
 }
 
 Slice::Gen::TypesVisitor::TypesVisitor(const string& dir,
@@ -545,45 +1172,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     TypePtr ret = p->returnType();
     string retS = typeToString(ret, TypeModeReturn, scope);
 
-    TypeStringList inParams = p->inputParameters();
-    TypeStringList outParams = p->outputParameters();
-    TypeStringList::const_iterator q;
-
-    string params = "(";
-    string args = "(";
-
-    for (q = inParams.begin(); q != inParams.end(); ++q)
-    {
-        if (q != inParams.begin())
-        {
-            params += ", ";
-            args += ", ";
-        }
-
-        string typeString = typeToString(q->first, TypeModeIn, scope);
-        params += typeString;
-        params += ' ';
-        params += fixKwd(q->second);
-        args += fixKwd(q->second);
-    }
-
-    for (q = outParams.begin(); q != outParams.end(); ++q)
-    {
-        if (q != outParams.begin() || !inParams.empty())
-        {
-            params += ", ";
-            args += ", ";
-        }
-
-        string typeString = typeToString(q->first, TypeModeOut, scope);
-        params += typeString;
-        params += ' ';
-        params += fixKwd(q->second);
-        args += fixKwd(q->second);
-    }
-
-    params += ')';
-    args += ')';
+    string params = getParams(p, scope);
 
     Output& out = output();
 
@@ -591,43 +1180,14 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     out << nl;
     if (!cl->isInterface())
     {
-        out << "public ";
+        out << "public abstract ";
     }
-    out << retS << ' ' << name << params;
+    out << retS << ' ' << name << '(' << params << ')';
 
-    //
-    // Don't include local exceptions in the throws clause
-    //
     ExceptionList throws = p->throws();
     throws.sort();
     throws.unique();
-    int localCount = 0;
-    count_if(throws.begin(), throws.end(),
-             ::IceUtil::memFun(&Exception::isLocal), localCount);
-    if (throws.size() - localCount > 0)
-    {
-        out.inc();
-        out << nl;
-        out << "throws ";
-        out.useCurrentPosAsIndent();
-        ExceptionList::const_iterator r;
-        int count = 0;
-        for (r = throws.begin(); r != throws.end(); ++r)
-        {
-            if (!(*r)->isLocal())
-            {
-                if (count > 0)
-                {
-                    out << "," << nl;
-                }
-                out << getAbsolute((*r)->scoped(), scope);
-                count++;
-            }
-        }
-        out.restoreIndent();
-        out.dec();
-    }
-
+    writeThrowsClause(scope, throws);
     out << ';';
 }
 
@@ -833,7 +1393,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     for (en = enumerators.begin(), n = 0; en != enumerators.end(); ++en, ++n)
     {
         string member = fixKwd((*en)->name());
-        out << nl << "public static final long _" << member << " = "
+        out << nl << "public static final int _" << member << " = "
             << n << ';';
         out << nl << "public static final " << name << ' ' << member
             << " = new " << name << "(_" << member << ");";
@@ -841,25 +1401,25 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     int sz = enumerators.size();
 
-    out << sp << nl << "public static " << name << nl << "convert(long val)";
+    out << sp << nl << "public static " << name << nl << "convert(int val)";
     out << sb;
     out << nl << "assert val < " << sz << ';';
     out << nl << "return __values[val];";
     out << eb;
 
-    out << sp << nl << "public long" << nl << "value()";
+    out << sp << nl << "public int" << nl << "value()";
     out << sb;
     out << nl << "return __value;";
     out << eb;
 
-    out << sp << nl << "private" << nl << name << "(long val)";
+    out << sp << nl << "private" << nl << name << "(int val)";
     out << sb;
     out << nl << "__value = val;";
     out << nl << "__values[val] = this;";
     out << eb;
     out << sp << nl << "private static " << name << "[] __values = new "
         << name << "[" << sz << "];";
-    out << sp << nl << "private long __value;";
+    out << sp << nl << "private int __value;";
 
     out << eb;
     close();
@@ -1149,4 +1709,618 @@ Slice::Gen::HelperVisitor::visitEnum(const EnumPtr& p)
         out << eb;
         close();
     }
+}
+
+Slice::Gen::ProxyVisitor::ProxyVisitor(const string& dir,
+                                       const string& package) :
+    JavaVisitor(dir, package)
+{
+}
+
+bool
+Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if (p->isLocal())
+    {
+        return false;
+    }
+
+    string name = fixKwd(p->name());
+    string scoped = p->scoped();
+    ClassList bases = p->bases();
+    string scope = p->scope();
+    string absolute = getAbsolute(scoped);
+
+    if (!open(absolute + "Prx"))
+    {
+        return false;
+    }
+
+    Output& out = output();
+
+    //
+    // Generate a Java interface as the user-visible type
+    //
+    out << sp << nl << "public interface " << name << "Prx extends ";
+    if (bases.empty())
+    {
+        out << "Ice.ObjectPrx";
+    }
+    else
+    {
+        out.useCurrentPosAsIndent();
+        ClassList::const_iterator q = bases.begin();
+        while (q != bases.end())
+        {
+            out << getAbsolute((*q)->scoped(), scope) << "Prx";
+            if (++q != bases.end())
+            {
+                out << ',' << nl;
+            }
+        }
+        out.restoreIndent();
+    }
+
+    out << sb;
+
+    return true;
+}
+
+void
+Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
+{
+    Output& out = output();
+    out << eb;
+    close();
+}
+
+void
+Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
+{
+    string name = fixKwd(p->name());
+    ContainerPtr container = p->container();
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
+    string scope = cl->scope();
+
+    TypePtr ret = p->returnType();
+    string retS = typeToString(ret, TypeModeReturn, scope);
+
+    string params = getParams(p, scope);
+
+    Output& out = output();
+
+    ExceptionList throws = p->throws();
+    throws.sort();
+    throws.unique();
+
+    //
+    // Write two versions of the operation - with and without a
+    // context parameter
+    //
+    out << sp;
+    out << nl;
+    out << "public " << retS << ' ' << name << '(' << params << ")";
+    writeThrowsClause(scope, throws);
+    out << ';';
+    out << nl;
+    out << "public " << retS << ' ' << name << '(' << params;
+    if (!params.empty())
+    {
+        out << ", ";
+    }
+    out << "java.util.HashMap __context)";
+    writeThrowsClause(scope, throws);
+    out << ';';
+}
+
+Slice::Gen::ProxyHelperVisitor::ProxyHelperVisitor(const string& dir,
+                                                   const string& package) :
+    JavaVisitor(dir, package)
+{
+}
+
+bool
+Slice::Gen::ProxyHelperVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if (p->isLocal())
+    {
+        return false;
+    }
+
+    string name = fixKwd(p->name());
+    string scoped = p->scoped();
+    ClassList bases = p->bases();
+    string scope = p->scope();
+    string absolute = getAbsolute(scoped);
+
+    if (!open(absolute + "PrxHelper"))
+    {
+        return false;
+    }
+
+    Output& out = output();
+
+    //
+    // A proxy helper class serves two purposes: it implements the
+    // proxy interface, and provides static helper methods for use
+    // by applications (e.g., checkedCast, etc.)
+    //
+    out << sp << nl << "public final class " << name
+        << "PrxHelper extends Ice.ObjectPrxHelper implements " << name
+        << "Prx";
+
+    out << sb;
+
+    OperationList ops = p->allOperations();
+
+    OperationList::const_iterator r;
+    for (r = ops.begin(); r != ops.end(); ++r)
+    {
+        OperationPtr op = (*r);
+        string opName = fixKwd(op->name());
+        TypePtr ret = op->returnType();
+        string retS = typeToString(ret, TypeModeReturn, scope);
+
+        string params = getParams(op, scope);
+        string args = getArgs(op, scope);
+
+        ExceptionList throws = op->throws();
+        throws.sort();
+        throws.unique();
+
+        //
+        // Write two versions of the operation - with and without a
+        // context parameter
+        //
+        out << sp;
+        out << nl;
+        out << "public final " << retS << nl << opName << '(' << params
+            << ")";
+        writeThrowsClause(scope, throws);
+        out << sb;
+        out << nl;
+        if (ret)
+        {
+            out << "return ";
+        }
+        out << opName << '(' << args;
+        if (!args.empty())
+        {
+            out << ", ";
+        }
+        out << "null);";
+        out << eb;
+
+        out << sp;
+        out << nl;
+        out << "public final " << retS << nl << opName << '(' << params;
+        if (!params.empty())
+        {
+            out << ", ";
+        }
+        out << "java.util.HashMap __context)";
+        writeThrowsClause(scope, throws);
+        out << sb;
+        out << nl << "int __cnt = 0;";
+        out << nl << "while (true)";
+        out << sb;
+        out << nl << "Ice._ObjectDel __delBase = __getDelegate();";
+        out << nl << '_' << name << "Del __del = (_" << name
+            << "Del)__delBase;";
+        out << nl << "try";
+        out << sb;
+        out << nl;
+        if (ret)
+        {
+            out << "return ";
+        }
+        out << "__del." << opName << '(' << args;
+        if (!args.empty())
+        {
+            out << ", ";
+        }
+        out << "__context);";
+        if (!ret)
+        {
+            out << nl << "return;";
+        }
+        out << eb;
+        out << nl << "catch (Ice.LocationForward __ex)";
+        out << sb;
+        out << nl << "__locationForward(__ex);";
+        out << eb;
+        out << nl << "catch (IceInternal.NonRepeatable __ex)";
+        out << sb;
+        out << nl << "__rethrowException(__ex.get());";
+        out << eb;
+        out << nl << "catch (Ice.LocalException __ex)";
+        out << sb;
+        out << nl << "__cnt = __handleException(__ex, __cnt);";
+        out << eb;
+        out << eb;
+        out << eb;
+    }
+
+    //
+    // checkedCast
+    //
+    out << sp << nl << "public static " << name << "Prx"
+        << nl << "checkedCast(Ice.ObjectPrx p)";
+    out << sb;
+    out << nl << "return checkedCast(p, \"\");";
+    out << eb;
+
+    out << sp << nl << "public static " << name << "Prx"
+        << nl << "checkedCast(Ice.ObjectPrx p, String facet)";
+    out << sb;
+    out << nl << name << "Prx result = null;";
+    out << nl << "if (p != null)";
+    out << sb;
+    out << nl << "if (facet.equals(p.ice_getFacet()))";
+    out << sb;
+    out << nl << "try";
+    out << sb;
+    out << nl << "result = (" << name << "Prx)p;";
+    out << eb;
+    out << nl << "catch (ClassCastException ex)";
+    out << sb;
+    out << nl << "if (p.ice_isA(\"" << scoped << "\"))";
+    out << sb;
+    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+    out << nl << "h.__copyFrom(p);";
+    out << nl << "result = h;";
+    out << eb;
+    out << eb;
+    out << eb;
+    out << nl << "else";
+    out << sb;
+    out << nl << "Ice.ObjectPrx pp = p.ice_newFacet(facet);";
+    out << nl << "try";
+    out << sb;
+    out << nl << "if (pp.ice_isA(\"" << scoped << "\"))";
+    out << sb;
+    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+    out << nl << "h.__copyFrom(pp);";
+    out << nl << "result = h;";
+    out << eb;
+    out << eb;
+    out << nl << "catch (Ice.FacetNotExistException ex)";
+    out << sb;
+    out << eb;
+    out << eb;
+    out << eb;
+    out << sp;
+    out << nl << "return result;";
+    out << eb;
+
+    //
+    // uncheckedCast
+    //
+    out << sp << nl << "public static " << name << "Prx"
+        << nl << "uncheckedCast(Ice.ObjectPrx p)";
+    out << sb;
+    out << nl << "return uncheckedCast(p, \"\");";
+    out << eb;
+
+    out << sp << nl << "public static " << name << "Prx"
+        << nl << "uncheckedCast(Ice.ObjectPrx p, String facet)";
+    out << sb;
+    out << nl << name << "Prx result = null;";
+    out << nl << "if (p != null)";
+    out << sb;
+    out << nl << "if (facet.equals(p.ice_getFacet()))";
+    out << sb;
+    out << nl << "try";
+    out << sb;
+    out << nl << "result = (" << name << "Prx)p;";
+    out << eb;
+    out << nl << "catch (ClassCastException ex)";
+    out << sb;
+    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+    out << nl << "h.__copyFrom(p);";
+    out << nl << "result = h;";
+    out << eb;
+    out << eb;
+    out << nl << "else";
+    out << sb;
+    out << nl << "Ice.ObjectPrx pp = p.ice_newFacet(facet);";
+    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+    out << nl << "h.__copyFrom(pp);";
+    out << nl << "result = h;";
+    out << eb;
+    out << eb;
+    out << sp;
+    out << nl << "return result;";
+    out << eb;
+
+    //
+    // __createDelegateM
+    //
+    out << sp << nl << "protected Ice._ObjectDelM"
+        << nl << "__createDelegateM()";
+    out << sb;
+    out << nl << "return new _" << name << "DelM();";
+    out << eb;
+
+    //
+    // __createDelegateD
+    //
+    out << sp << nl << "protected Ice._ObjectDelD"
+        << nl << "__createDelegateD()";
+    out << sb;
+    out << nl << "return null;";
+    out << eb;
+
+    //
+    // __write
+    //
+    out << sp << nl << "public static void"
+        << nl << "__write(IceInternal.BasicStream __os, " << name << "Prx v)";
+    out << sb;
+    out << nl << "__os.writeProxy(v);";
+    out << eb;
+
+    //
+    // __read
+    //
+    out << sp << nl << "public static " << name << "Prx"
+        << nl << "__read(IceInternal.BasicStream __is)";
+    out << sb;
+    out << nl << "Ice.ObjectPrx proxy = __is.readProxy();";
+    out << nl << "if (proxy != null)";
+    out << sb;
+    out << nl << name << "PrxHelper result = new " << name << "PrxHelper();";
+    out << nl << "result.__copyFrom(proxy);";
+    out << nl << "return result;";
+    out << eb;
+    out << nl << "return null;";
+    out << eb;
+
+    out << eb;
+    close();
+
+    return false;
+}
+
+Slice::Gen::DelegateVisitor::DelegateVisitor(const string& dir,
+                                             const string& package) :
+    JavaVisitor(dir, package)
+{
+}
+
+bool
+Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if (p->isLocal())
+    {
+        return false;
+    }
+
+    string name = fixKwd(p->name());
+    string scoped = p->scoped();
+    ClassList bases = p->bases();
+    string scope = p->scope();
+    string absolute = getAbsolute(scoped, "", "_", "Del");
+
+    if (!open(absolute))
+    {
+        return false;
+    }
+
+    Output& out = output();
+
+    out << sp << nl << "public interface _" << name
+        << "Del extends ";
+    if (bases.empty())
+    {
+        out << "Ice._ObjectDel";
+    }
+    else
+    {
+        out.useCurrentPosAsIndent();
+        ClassList::const_iterator q = bases.begin();
+        while (q != bases.end())
+        {
+            out << getAbsolute((*q)->scoped(), scope, "_", "Del");
+            if (++q != bases.end())
+            {
+                out << ',' << nl;
+            }
+        }
+        out.restoreIndent();
+    }
+
+    out << sb;
+
+    OperationList ops = p->operations();
+
+    OperationList::const_iterator r;
+    for (r = ops.begin(); r != ops.end(); ++r)
+    {
+        OperationPtr op = (*r);
+        string opName = fixKwd(op->name());
+        TypePtr ret = op->returnType();
+        string retS = typeToString(ret, TypeModeReturn, scope);
+
+        string params = getParams(op, scope);
+
+        ExceptionList throws = op->throws();
+        throws.sort();
+        throws.unique();
+
+        out << sp;
+        out << nl;
+        out << retS << ' ' << opName << '(' << params;
+        if (!params.empty())
+        {
+            out << ", ";
+        }
+        out << "java.util.HashMap __context)";
+        writeDelegateThrowsClause(scope, throws);
+        out << ';';
+    }
+
+    out << eb;
+    close();
+
+    return false;
+}
+
+Slice::Gen::DelegateMVisitor::DelegateMVisitor(const string& dir,
+                                               const string& package) :
+    JavaVisitor(dir, package)
+{
+}
+
+bool
+Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if (p->isLocal())
+    {
+        return false;
+    }
+
+    string name = fixKwd(p->name());
+    string scoped = p->scoped();
+    ClassList bases = p->bases();
+    string scope = p->scope();
+    string absolute = getAbsolute(scoped, "", "_", "DelM");
+
+    if (!open(absolute))
+    {
+        return false;
+    }
+
+    Output& out = output();
+
+    out << sp << nl << "public final class _" << name
+        << "DelM extends Ice._ObjectDelM implements _" << name << "Del";
+    out << sb;
+
+    OperationList ops = p->allOperations();
+
+    OperationList::const_iterator r;
+    for (r = ops.begin(); r != ops.end(); ++r)
+    {
+        OperationPtr op = (*r);
+        string opName = fixKwd(op->name());
+        TypePtr ret = op->returnType();
+        string retS = typeToString(ret, TypeModeReturn, scope);
+        int iter;
+
+        TypeStringList inParams = op->inputParameters();
+        TypeStringList outParams = op->outputParameters();
+        TypeStringList::const_iterator q;
+
+        ExceptionList throws = op->throws();
+        throws.sort();
+        throws.unique();
+
+        remove_if(throws.begin(), throws.end(),
+                  ::IceUtil::memFun(&Exception::isLocal));
+
+        string params = getParams(op, scope);
+
+        out << sp;
+        out << nl;
+        out << "public " << retS << nl << opName << '(' << params;
+        if (!params.empty())
+        {
+            out << ", ";
+        }
+        out << "java.util.HashMap __context)";
+        writeDelegateThrowsClause(scope, throws);
+        out << sb;
+        out << nl << "IceInternal.Outgoing __out = new "
+            << "IceInternal.Outgoing(__emitter, __reference, false, \""
+            << op->name() << "\", " << (op->nonmutating() ? "true" : "false")
+            << ", __context);";
+        if (!inParams.empty())
+        {
+            out << nl << "IceInternal.BasicStream __os = __out.os();";
+        }
+        if (!outParams.empty() || ret || throws.size() > 0)
+        {
+            out << nl << "IceInternal.BasicStream __is = __out.is();";
+        }
+        iter = 0;
+        for (q = inParams.begin(); q != inParams.end(); ++q)
+        {
+            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second),
+                                      true, iter);
+        }
+        out << nl << "if (!__out.invoke())";
+        out << sb;
+        if (throws.size() > 0)
+        {
+            //
+            // The try/catch block is necessary because throwException()
+            // can raise UserException
+            //
+            out << nl << "try";
+            out << sb;
+            out << nl << "final String[] __throws =";
+            out << sb;
+            ExceptionList::const_iterator r;
+            for (r = throws.begin(); r != throws.end(); ++r)
+            {
+                if (r != throws.begin())
+                {
+                    out << ",";
+                }
+                out << nl << "\"" << (*r)->scoped() << "\"";
+            }
+            out << eb;
+            out << ';';
+            out << nl << "switch (__is.throwException(__throws))";
+            out << sb;
+            int count = 0;
+            for (r = throws.begin(); r != throws.end(); ++r)
+            {
+                out << nl << "case " << count << ':';
+                out << sb;
+                string abs = getAbsolute((*r)->scoped(), scope);
+                out << nl << abs << " __ex = new " << abs << "();";
+                out << nl << "__ex.__read(__is);";
+                out << nl << "throw __ex;";
+                out << eb;
+                count++;
+            }
+            out << eb;
+            out << eb;
+            for (r = throws.begin(); r != throws.end(); ++r)
+            {
+                out << nl << "catch (" << getAbsolute((*r)->scoped(), scope)
+                    << " __ex)";
+                out << sb;
+                out << nl << "throw __ex;";
+                out << eb;
+            }
+            out << nl << "catch (Ice.UserException __ex)";
+            out << sb;
+            out << eb;
+        }
+        out << nl << "throw new Ice.UnknownUserException();";
+        out << eb;
+
+        for (q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            writeMarshalUnmarshalCode(out, scope, q->first, fixKwd(q->second),
+                                      false, iter, true);
+        }
+
+        if (ret)
+        {
+            out << nl << retS << " __ret;";
+            writeMarshalUnmarshalCode(out, scope, ret, "__ret", false, iter);
+            out << nl << "return __ret;";
+        }
+
+        out << eb;
+    }
+
+    out << eb;
+    close();
+
+    return false;
 }

@@ -48,6 +48,8 @@ protected:
     // scope is provided, the scope will be removed from the result.
     //
     std::string getAbsolute(const std::string&,
+                            const std::string& = std::string(),
+                            const std::string& = std::string(),
                             const std::string& = std::string()) const;
 
     //
@@ -63,6 +65,34 @@ protected:
     };
     std::string typeToString(const TypePtr&, TypeMode mode,
                              const std::string& = std::string()) const;
+
+    //
+    // Compose the parameter list for an operation
+    //
+    std::string getParams(const OperationPtr&, const std::string&);
+
+    //
+    // Compose the argument list for an operation
+    //
+    std::string getArgs(const OperationPtr&, const std::string&);
+
+    //
+    // Generate a throws clause containing only non-local exceptions
+    //
+    void writeThrowsClause(const std::string&, const ExceptionList&);
+
+    //
+    // Generate a throws clause for delegate operations containing only
+    // non-local exceptions
+    //
+    void writeDelegateThrowsClause(const std::string&, const ExceptionList&);
+
+    //
+    // Generate code to marshal or unmarshal a type
+    //
+    void writeMarshalUnmarshalCode(Output&, const std::string&, const TypePtr&,
+                                   const std::string&, bool, int&,
+                                   bool = false);
 
 private:
 
@@ -142,6 +172,44 @@ private:
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
         virtual void visitEnum(const EnumPtr&);
+    };
+
+    class ProxyVisitor : public JavaVisitor
+    {
+    public:
+
+        ProxyVisitor(const std::string&, const std::string&);
+
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
+    };
+
+    class ProxyHelperVisitor : public JavaVisitor
+    {
+    public:
+
+        ProxyHelperVisitor(const std::string&, const std::string&);
+
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
+    class DelegateVisitor : public JavaVisitor
+    {
+    public:
+
+        DelegateVisitor(const std::string&, const std::string&);
+
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
+    class DelegateMVisitor : public JavaVisitor
+    {
+    public:
+
+        DelegateMVisitor(const std::string&, const std::string&);
+
+        virtual bool visitClassDefStart(const ClassDefPtr&);
     };
 };
 
