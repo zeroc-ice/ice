@@ -60,13 +60,13 @@ SLICE_SRCS	= $(SDIR)/IceStorm.ice \
 HDIR		= $(includedir)/IceStorm
 SDIR		= $(slicedir)/IceStorm
 
-SLICECMD	= $(SLICE2CPP) --ice --include-dir IceStorm $(ICECPPFLAGS)
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(XERCESC_FLAGS) $(CPPFLAGS)
 ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
+SLICE2CPPFLAGS	:= --ice --include-dir IceStorm $(SLICE2CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
@@ -76,24 +76,9 @@ $(VERSIONED_SNAME): $(SERVICE_OBJS)
 	rm -f $@
 	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(SERVICE_OBJS)
 
-$(ADMIN): $(AOBJS)
+$(ADMIN): $(AOBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(LIBS) $(XERCESC_LIBS) -lreadline -lcurses
-
-$(HDIR)/IceStorm.h IceStorm.cpp: $(SDIR)/IceStorm.ice $(SLICE2CPP)
-	rm -f $(HDIR)/IceStorm.h IceStorm.cpp
-	$(SLICECMD) --dll-export ICE_STORM_API $(SDIR)/IceStorm.ice
-	mv IceStorm.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/IceStorm.h IceStorm.cpp
-
-IceStormInternal.h IceStormInternal.cpp: IceStormInternal.ice $(SLICE2CPP)
-	rm -f IceStormInternal.h IceStormInternal.cpp
-	$(SLICECMD) IceStormInternal.ice
-
-clean::
-	rm -f IceStormInternal.h IceStormInternal.cpp
 
 StringBoolDict.h StringBoolDict.cpp: $(SLICE2FREEZE)
 	rm -f StringBoolDict.h StringBoolDict.cpp
@@ -101,13 +86,6 @@ StringBoolDict.h StringBoolDict.cpp: $(SLICE2FREEZE)
 
 clean::
 	rm -f StringBoolDict.h StringBoolDict.cpp
-
-LinkDB.h LinkDB.cpp: LinkDB.ice $(SLICE2CPP)
-	rm -f LinkDB.h LinkDB.cpp
-	$(SLICECMD) LinkDB.ice
-
-clean::
-	rm -f LinkDB.h LinkDB.cpp
 
 IdentityLinkDict.h IdentityLinkDict.cpp: ../IceStorm/LinkDB.ice $(slicedir)/Ice/Identity.ice $(SLICE2FREEZE)
 	rm -f IdentityLinkDict.h IdentityLinkDict.cpp
@@ -117,19 +95,11 @@ IdentityLinkDict.h IdentityLinkDict.cpp: ../IceStorm/LinkDB.ice $(slicedir)/Ice/
 clean::
 	rm -f IdentityLinkDict.h IdentityLinkDict.cpp
 
-Grammar.cpp Grammar.h: Grammar.y
-	bison -dvt Grammar.y
-	rm -f Grammar.cpp ; mv Grammar.tab.c Grammar.cpp
-	rm -f Grammar.h ; mv Grammar.tab.h Grammar.h
-
-Scanner.cpp: Scanner.l Grammar.h
-	flex Scanner.l
-	rm -f Scanner.cpp
-	echo '#include <IceUtil/Config.h>' > Scanner.cpp
-	cat lex.yy.c >> Scanner.cpp
+# Needed for make -jn to work.
+../IceStorm/Grammar.y: Grammar.h
 
 clean::
-	-rm -f Grammar.cpp Grammar.h Grammar.output
-	-rm -f Scanner.cpp lex.yy.c
+	-rm -f Grammar.cpp Grammar.h
+	-rm -f Scanner.cpp
 
 include .depend

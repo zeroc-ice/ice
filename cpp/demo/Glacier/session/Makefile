@@ -30,10 +30,11 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
+SLICE_SRCS	= HelloSession.ice
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(CPPFLAGS)
-SLICECMD	= $(SLICE2CPP) -I$(slicedir)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
@@ -42,12 +43,5 @@ $(CLIENT): $(OBJS) $(COBJS)
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lGlacier $(LIBS)
-
-HelloSession.h HelloSession.cpp: HelloSession.ice $(SLICE2CPP)
-	rm -f HelloSession.h HelloSession.cpp
-	$(SLICECMD) HelloSession.ice
-
-clean::
-	rm -f HelloSession.h HelloSession.cpp
 
 include .depend

@@ -44,11 +44,4 @@ $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-Event.h Event.cpp: Event.ice $(SLICE2CPP)
-	rm -f Event.h Event.cpp
-	$(SLICE2CPP) Event.ice
-
-clean::
-	rm -f Event.h Event.cpp
-
 include .depend

@@ -36,11 +36,7 @@ Test.xsd: Test.ice $(SLICE2XSD)
 	rm -f Test.xsd
 	$(SLICE2XSD) Test.ice
 
-Test.h Test.cpp: Test.ice $(SLICE2CPP)
-	rm -f Test.h Test.cpp
-	$(SLICE2CPP) Test.ice
-
 clean::
-	rm -f Test.h Test.cpp
+	rm -f Test.xsd
 
 include .depend

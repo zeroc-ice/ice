@@ -117,6 +117,7 @@ endif
 
 CPPFLAGS		= -I$(includedir) $(STLPORT_FLAGS)
 ICECPPFLAGS		= -I$(slicedir)
+SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
 LDFLAGS			= -L$(libdir)
 SHLIB_LDFLAGS		= -shared -Xlinker -soname -Xlinker $(@F)
@@ -146,6 +147,35 @@ EVERYTHING		= all depend clean
 	rm -f $@
 	ln -s $(@F).$(VERSION) $@
 
+$(HDIR)/%F.h: $(SDIR)/%F.ice $(SLICE2CPP)
+	rm -f $(HDIR)/$(*F)F.h $(*F)F.cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
+	mv $(*F)F.h $(HDIR)
+	rm -f $(*F)F.cpp
+
+$(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
+	rm -f $(HDIR)/$(*F).h $(*F).cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $<
+	mv $(*F).h $(HDIR)
+
+%.h %.cpp: %.ice $(SLICE2CPP)
+	rm -f $(*F).h $(*F).cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(*F).ice	
+
+%.h %.cpp: %.y
+	rm -f $(*F).h $(*F).cpp
+	bison -dvt $<
+	mv $(*F).tab.c $(*F).cpp
+	mv $(*F).tab.h $(*F).h
+	rm -f $(*F).output
+
+%.cpp: %.l
+	flex $<
+	rm -f $@
+	echo '#include <IceUtil/Config.h>' > $@
+	cat lex.yy.c >> $@
+	rm -f lex.yy.c
+
 all:: $(SRCS) $(TARGETS)
 
 depend:: $(SRCS) $(SLICE_SRCS)
@@ -162,3 +192,14 @@ depend:: $(SRCS) $(SLICE_SRCS)
 clean::
 	-rm -f $(TARGETS)
 	-rm -f core *.o *.bak
+
+ifneq ($(SLICE_SRCS),)
+clean::
+	rm -f $(addsuffix .cpp, $(basename $(notdir $(SLICE_SRCS))))
+	rm -f $(addsuffix .h, $(basename $(notdir $(SLICE_SRCS))))
+endif
+ifneq ($(HDIR),)
+clean::
+	rm -f $(addprefix $(HDIR), $(addsuffix .h, $(basename $(subst $(SDIR),, \
+	$(filter $(SDIR)/%.ice, $(SLICE_SRCS))))))
+endif

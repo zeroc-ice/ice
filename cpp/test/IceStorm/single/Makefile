@@ -44,11 +44,4 @@ $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-Single.h Single.cpp: Single.ice $(SLICE2CPP)
-	rm -f Single.h Single.cpp
-	$(SLICE2CPP) Single.ice
-
-clean::
-	rm -f Single.h Single.cpp
-
 include .depend

@@ -65,33 +65,15 @@ $(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) -lFreeze -lIceXML $(LIBS) $(DB_LIBS) -lreadline -lcurses
 
-Grammar.cpp Grammar.h: Grammar.y
-	bison -dvt Grammar.y
-	rm -f Grammar.cpp ; mv Grammar.tab.c Grammar.cpp
-	rm -f Grammar.h ; mv Grammar.tab.h Grammar.h
-
-Scanner.cpp: Scanner.l Grammar.h
-	flex Scanner.l
-	rm -f Scanner.cpp
-	echo '#include <IceUtil/Config.h>' > Scanner.cpp
-	cat lex.yy.c >> Scanner.cpp
-
-clean::
-	-rm -f Grammar.cpp Grammar.h Grammar.output
-	-rm -f Scanner.cpp lex.yy.c
-
-PhoneBook.h PhoneBook.cpp: PhoneBook.ice $(SLICE2CPP)
-	rm -f PhoneBook.h PhoneBook.cpp
-	$(SLICE2CPP) $(ICECPPFLAGS) PhoneBook.ice
-
-clean::
-	rm -f PhoneBook.h PhoneBook.cpp
-
 NameIdentitiesDict.h NameIdentitiesDict.cpp: PhoneBook.ice $(SLICE2FREEZE)
 	rm -f NameIdentitiesDict.h NameIdentitiesDict.cpp
 	$(SLICE2FREEZE) $(ICECPPFLAGS) --dict NameIdentitiesDict,string,Identities NameIdentitiesDict PhoneBook.ice
 
 clean::
 	rm -f NameIdentitiesDict.h NameIdentitiesDict.cpp
+
+clean::
+	rm -f Grammar.cpp Grammar.h
+	rm -f Scanner.cpp
 
 include .depend

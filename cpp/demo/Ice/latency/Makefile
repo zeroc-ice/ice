@@ -43,11 +43,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-Latency.h Latency.cpp: Latency.ice $(SLICE2CPP)
-	rm -f Latency.h Latency.cpp
-	$(SLICE2CPP) Latency.ice
-
-clean::
-	rm -f Latency.h Latency.cpp
-
 include .depend

@@ -44,11 +44,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-Nested.h Nested.cpp: Nested.ice $(SLICE2CPP)
-	rm -f Nested.h Nested.cpp
-	$(SLICE2CPP) Nested.ice
-
-clean::
-	rm -f Nested.h Nested.cpp
-
 include .depend

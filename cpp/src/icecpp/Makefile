@@ -35,3 +35,6 @@ cexp.c: cexp.y
 $(NAME): $(OBJS)
 	rm -f $@
 	$(CC) -o $@ $(OBJS)
+
+clean::
+	rm -f cexp.c

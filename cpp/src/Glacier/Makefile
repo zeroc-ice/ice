@@ -51,72 +51,21 @@ SLICE_SRCS	= $(SDIR)/Starter.ice \
 HDIR		= $(includedir)/Glacier
 SDIR		= $(slicedir)/Glacier
 
-SLICECMD	= $(SLICE2CPP) --include-dir Glacier --dll-export GLACIER_API $(ICECPPFLAGS)
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS)
+SLICE2CPPFLAGS	:= --include-dir Glacier --dll-export GLACIER_API $(SLICE2CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
 	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
-$(ROUTER): $(ROBJS)
+$(ROUTER): $(ROBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(ROBJS) -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS)
 
-$(STARTER): $(SOBJS)
+$(STARTER): $(SOBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS) -lcrypt
-
-$(HDIR)/Starter.h Starter.cpp: $(SDIR)/Starter.ice $(SLICE2CPP)
-	rm -f $(HDIR)/Starter.h Starter.cpp
-	$(SLICECMD) $(SDIR)/Starter.ice
-	mv Starter.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/Starter.h Starter.cpp
-
-$(HDIR)/Router.h Router.cpp: $(SDIR)/Router.ice $(SLICE2CPP)
-	rm -f $(HDIR)/Router.h Router.cpp
-	$(SLICECMD) $(SDIR)/Router.ice
-	mv Router.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/Router.h Router.cpp
-
-$(HDIR)/Session.h Session.cpp: $(SDIR)/Session.ice $(SLICE2CPP)
-	rm -f $(HDIR)/Session.h Session.cpp
-	$(SLICECMD) $(SDIR)/Session.ice
-	mv Session.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/Session.h Session.cpp
-
-$(HDIR)/SessionF.h: $(SDIR)/SessionF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SessionF.h SessionF.cpp
-	$(SLICECMD) $(SDIR)/SessionF.ice
-	mv SessionF.h $(HDIR)
-	rm -f SessionF.cpp
-
-clean::
-	rm -f $(HDIR)/SessionF.h
-
-$(HDIR)/SessionManager.h SessionManager.cpp: $(SDIR)/SessionManager.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SessionManager.h SessionManager.cpp
-	$(SLICECMD) $(SDIR)/SessionManager.ice
-	mv SessionManager.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/SessionManager.h SessionManager.cpp
-
-$(HDIR)/SessionManagerF.h: $(SDIR)/SessionManagerF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/SessionManagerF.h SessionManagerF.cpp
-	$(SLICECMD) $(SDIR)/SessionManagerF.ice
-	mv SessionManagerF.h $(HDIR)
-	rm -f SessionManagerF.cpp
-
-clean::
-	rm -f $(HDIR)/SessionManagerF.h
 
 include .depend

@@ -43,11 +43,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lIceSSL $(LIBS) $(OPENSSL_LIBS)
 
-Pinger.h Pinger.cpp: Pinger.ice $(SLICE2CPP)
-	rm -f Pinger.h Pinger.cpp
-	$(SLICE2CPP) $(ICECPPFLAGS) Pinger.ice
-
-clean::
-	rm -f Pinger.h Pinger.cpp
-
 include .depend

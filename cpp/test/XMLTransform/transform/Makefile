@@ -57,6 +57,9 @@ VALIDATE_OBJS	= Validate.o \
 SRCS		= $(POPULATE_OBJS:.o=.cpp) \
 		  $(VALIDATE_OBJS:.o=.cpp)
 
+SLICE_SRCS	= TestOld.ice \
+		  TestNew.ice
+
 SCHEMAS		= TestOld.xsd \
 		  TestNew.xsd \
 		  Identity.xsd
@@ -170,14 +173,6 @@ TestNew.xsd: TestNew.ice $(SLICE2XSD)
 Identity.xsd: $(top_srcdir)/slice/Ice/Identity.ice $(SLICE2XSD)
 	$(SLICE2XSD) --ice -I$(top_srcdir)/slice $(top_srcdir)/slice/Ice/Identity.ice
 
-TestOld.h TestOld.cpp: TestOld.ice
-	rm -f TestOld.h TestOld.cpp
-	$(SLICE2CPP) TestOld.ice
-
-TestNew.h TestNew.cpp: TestNew.ice
-	rm -f TestNew.h TestNew.cpp
-	$(SLICE2CPP) TestNew.ice
-
 clean::
 	rm -f IntByteMap.h IntByteMap.cpp
 	rm -f IntShortMap.h IntShortMap.cpp
@@ -204,5 +199,6 @@ clean::
 	rm -f IntS1MapNew.h IntS1MapNew.cpp
 	rm -f IntC1MapOld.h IntC1MapOld.cpp
 	rm -f IntC1MapNew.h IntC1MapNew.cpp
+	rm -f Identity.xsd
 
 include .depend

@@ -42,30 +42,21 @@ SLICE_SRCS	= $(SDIR)/IcePatch.ice
 HDIR		= $(includedir)/IcePatch
 SDIR		= $(slicedir)/IcePatch
 
-SLICECMD	= $(SLICE2CPP) --ice --include-dir IcePatch --dll-export ICE_PATCH_API $(ICECPPFLAGS)
-
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS)
+SLICE2CPPFLAGS	:= --ice --include-dir IcePatch --dll-export ICE_PATCH_API $(SLICE2CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
 	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
-$(CLIENT): $(COBJS)
+$(CLIENT): $(COBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIcePatch -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS)
 
-$(SERVER): $(SOBJS)
+$(SERVER): $(SOBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIcePatch $(LIBS) $(OPENSSL_LIBS)
-
-$(HDIR)/IcePatch.h IcePatch.cpp: $(SDIR)/IcePatch.ice $(SLICE2CPP)
-	rm -f $(HDIR)/IcePatch.h IcePatch.cpp
-	$(SLICECMD) $(SDIR)/IcePatch.ice
-	mv IcePatch.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/IcePatch.h IcePatch.cpp
 
 include .depend

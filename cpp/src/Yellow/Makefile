@@ -46,11 +46,11 @@ SLICE_SRCS	= $(SDIR)/Yellow.ice
 HDIR		= $(includedir)/Yellow
 SDIR		= $(slicedir)/Yellow
 
-SLICECMD	= $(SLICE2CPP) --ice --include-dir Yellow $(ICECPPFLAGS)
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Yellow $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
+SLICE2CPPFLAGS	:= --ice --include-dir Yellow $(SLICE2CPPFLAGS)
 CPPFLAGS	:= -I.. $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
@@ -65,15 +65,7 @@ $(ADMIN): $(AOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lYellow $(LIBS) -lreadline -lcurses
 
-$(HDIR)/Yellow.h Yellow.cpp: $(SDIR)/Yellow.ice $(SLICE2CPP)
-	rm -f $(HDIR)/Yellow.h Yellow.cpp
-	$(SLICECMD) --dll-export ICE_YELLOW_API $(SDIR)/Yellow.ice
-	mv Yellow.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/Yellow.h Yellow.cpp
-
-StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp: $(SLICE2FREEZE)
+../Yellow/StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp: $(SLICE2FREEZE)
 	rm -f StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp
 	$(SLICE2FREEZECMD) --dict Yellow::StringObjectProxySeqDict,string,Ice::ObjectProxySeq \
 	StringObjectProxySeqDict $(slicedir)/Ice/BuiltinSequences.ice
@@ -81,19 +73,11 @@ StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp: $(SLICE2FREEZE)
 clean::
 	rm -f StringObjectProxySeqDict.h StringObjectProxySeqDict.cpp
 
-Grammar.cpp Grammar.h: Grammar.y
-	bison -dvt Grammar.y
-	rm -f Grammar.cpp ; mv Grammar.tab.c Grammar.cpp
-	rm -f Grammar.h ; mv Grammar.tab.h Grammar.h
-
-Scanner.cpp: Scanner.l Grammar.h
-	flex Scanner.l
-	rm -f Scanner.cpp
-	echo '#include <IceUtil/Config.h>' > Scanner.cpp
-	cat lex.yy.c >> Scanner.cpp
+# Needed for make -jn to work.
+../Yellow/Grammar.y: Grammar.h
 
 clean::
-	-rm -f Grammar.cpp Grammar.h Grammar.output
-	-rm -f Scanner.cpp lex.yy.c
+	rm -f Grammar.cpp Grammar.h
+	rm -f Scanner.cpp
 
 include .depend

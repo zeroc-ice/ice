@@ -40,7 +40,7 @@ $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
 	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
-$(TRANSFORM_DB): $(TRANSFORM_OBJS)
+$(TRANSFORM_DB): $(TRANSFORM_OBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(TRANSFORM_OBJS) -lFreeze -lIceXML -lXMLTransform $(LIBS) $(XERCESC_LIBS) $(DB_LIBS)
 

@@ -30,6 +30,8 @@ SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp)
 
+SLICE_SRCS	= Test.ice
+
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. -I../../include $(DB_FLAGS) $(CPPFLAGS)
@@ -41,12 +43,5 @@ $(CLIENT): $(OBJS) $(COBJS)
 $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
-
-Test.h Test.cpp: Test.ice $(SLICE2CPP)
-	rm -f Test.h Test.cpp
-	$(SLICE2CPP) Test.ice
-
-clean::
-	rm -f Test.h Test.cpp
 
 include .depend

@@ -52,6 +52,7 @@ SLICE_SRCS	= Library.ice
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I. $(DB_FLAGS) $(CPPFLAGS)
+SLICE2CPPFLAGS	:= --ice $(SLICE2CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
@@ -65,33 +66,15 @@ $(COLLOCATED): $(OBJS) $(COLOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COLOBJS) -lFreeze -lIceXML $(LIBS) $(DB_LIBS) -lreadline -lcurses
 
-Grammar.cpp Grammar.h: Grammar.y
-	bison -dvt Grammar.y
-	rm -f Grammar.cpp ; mv Grammar.tab.c Grammar.cpp
-	rm -f Grammar.h ; mv Grammar.tab.h Grammar.h
-
-Scanner.cpp: Scanner.l Grammar.h
-	flex Scanner.l
-	rm -f Scanner.cpp
-	echo '#include <IceUtil/Config.h>' > Scanner.cpp
-	cat lex.yy.c >> Scanner.cpp
-
-clean::
-	-rm -f Grammar.cpp Grammar.h Grammar.output
-	-rm -f Scanner.cpp lex.yy.c
-
-Library.h Library.cpp: Library.ice $(SLICE2CPP)
-	rm -f Library.h Library.cpp
-	$(SLICE2CPP) --ice -I$(slicedir) Library.ice
-
-clean::
-	rm -f Library.h Library.cpp
-
 LibraryTypes.h LibraryTypes.cpp: Library.ice $(SLICE2FREEZE)
 	rm -f LibraryTypes.h LibraryTypes.cpp
 	$(SLICE2FREEZE) --ice -I$(slicedir) --dict StringIsbnSeqDict,string,Ice::StringSeq LibraryTypes $(slicedir)/Ice/BuiltinSequences.ice Library.ice
 
 clean::
 	rm -f LibraryTypes.h LibraryTypes.cpp
+
+clean::
+	rm -f Grammar.cpp Grammar.h
+	rm -f Scanner.cpp
 
 include .depend

@@ -77,74 +77,42 @@ SRCS		= $(LIB_OBJS:.o=.cpp) \
 		  IcePackRegistry.cpp
 
 SLICE_SRCS	= $(SDIR)/Admin.ice \
-		  Internal.ice
+		  Internal.ice \
+		  Activator.ice
 
 HDIR		= $(includedir)/IcePack
 LOCAL_HDIR	= ../IcePack
 SDIR		= $(slicedir)/IcePack
 
-SLICECMD    	= $(SLICE2CPP) --ice --include-dir IcePack --dll-export ICE_PACK_API $(ICECPPFLAGS)
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IcePack $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)
 ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
+SLICE2CPPFLAGS 	:= --ice --include-dir IcePack --dll-export ICE_PACK_API $(SLICE2CPPFLAGS)
 
 $(VERSIONED_NAME): $(LIB_OBJS)
 	rm -f $@
 	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(LIB_OBJS) -lIceBox
 
-$(ADMIN): $(ADMIN_OBJS)
+$(ADMIN): $(ADMIN_OBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lYellow -lIcePack -lIceBox $(LIBS) -lreadline -lcurses
 
-$(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS)
+$(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(REGISTRY_SVR_OBJS) \
 	-lYellow -lIcePack -lIceBox -lFreeze -lIceXML $(LIBS) $(XERCESC_LIBS) $(DB_LIBS)
 
-$(NODE_SERVER): $(NODE_SVR_OBJS)
+$(NODE_SERVER): $(NODE_SVR_OBJS) $(NAME)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(NODE_SVR_OBJS) \
 	-lYellow -lIcePack -lIceBox -lFreeze -lIceXML $(XERCESC_LIBS) $(LIBS) $(DB_LIBS)
 
-Grammar.cpp Grammar.h: Grammar.y
-	bison -dvt Grammar.y
-	rm -f Grammar.cpp ; mv Grammar.tab.c Grammar.cpp
-	rm -f Grammar.h ; mv Grammar.tab.h Grammar.h
-
-Scanner.cpp: Scanner.l Grammar.h
-	flex Scanner.l
-	rm -f Scanner.cpp
-	echo '#include <IceUtil/Config.h>' > Scanner.cpp
-	cat lex.yy.c >> Scanner.cpp
-
-clean::
-	-rm -f Grammar.cpp Grammar.h Grammar.output
-	-rm -f Scanner.cpp lex.yy.c
-
-$(HDIR)/Admin.h Admin.cpp: $(SDIR)/Admin.ice $(SLICE2CPP)
-	rm -f $(HDIR)/Admin.h Admin.cpp
-	$(SLICECMD) $(SDIR)/Admin.ice
-	mv Admin.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/Admin.h Admin.cpp
-
-$(LOCAL_HDIR)/Internal.h Internal.cpp: Internal.ice $(SLICE2CPP)
-	rm -f Internal.h Internal.cpp
-	$(SLICECMD) Internal.ice
-
-clean::
-	rm -f Internal.h Internal.cpp
-
-$(LOCAL_HDIR)/Activator.h Activator.cpp: Activator.ice $(SLICE2CPP)
-	rm -f Activator.h Activator.cpp
-	$(SLICECMD) -I.. Activator.ice
-
-clean::
-	rm -f Activator.h Activator.cpp
+$(LOCAL_HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
+	rm -f $(HDIR)/$(*F).h $(*F).cpp
+	$(SLICE2CPP) $(SLICE2CPPFLAGS) $(SDIR)/$(*F).ice
 
 $(LOCAL_HDIR)/StringObjectProxyDict.h StringObjectProxyDict.cpp: $(SLICE2FREEZE)
 	rm -f StringObjectProxyDict.h StringObjectProxyDict.cpp
@@ -152,7 +120,13 @@ $(LOCAL_HDIR)/StringObjectProxyDict.h StringObjectProxyDict.cpp: $(SLICE2FREEZE)
 	StringObjectProxyDict ../../slice/Ice/BuiltinSequences.ice
 
 clean::
-	rm -f StringObjectProxyDict.h StringObjectProxySeq.cpp
+	rm -f StringObjectProxyDict.h StringObjectProxyDict.cpp
 
+# Needed for make -jn to work.
+../IcePack/Grammar.y: Grammar.h
+
+clean::
+	rm -f Grammar.cpp Grammar.h
+	rm -f Scanner.cpp
 
 include .depend

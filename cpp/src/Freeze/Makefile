@@ -38,58 +38,16 @@ SLICE_SRCS	= $(SDIR)/DB.ice \
 HDIR		= $(includedir)/Freeze
 SDIR		= $(slicedir)/Freeze
 
-SLICECMD	= $(SLICE2CPP) --ice --include-dir Freeze --dll-export FREEZE_API $(ICECPPFLAGS)
 SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir Freeze $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(DB_FLAGS) $(CPPFLAGS)
+SLICE2CPPFLAGS	:= --ice --include-dir Freeze --dll-export FREEZE_API $(SLICE2CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
 	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS)
-
-$(HDIR)/DB.h DB.cpp: $(SDIR)/DB.ice $(SLICE2CPP)
-	rm -f $(HDIR)/DB.h DB.cpp
-	$(SLICECMD) $(SDIR)/DB.ice
-	mv DB.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/DB.h DB.cpp
-
-$(HDIR)/DBF.h: $(SDIR)/DBF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/DBF.h DBF.cpp
-	$(SLICECMD) $(SDIR)/DBF.ice
-	mv DBF.h $(HDIR)
-	rm -f DBF.cpp
-
-clean::
-	rm -f $(HDIR)/DBF.h
-
-$(HDIR)/DBException.h DBException.cpp: $(SDIR)/DBException.ice $(SLICE2CPP)
-	rm -f $(HDIR)/DBException.h DBException.cpp
-	$(SLICECMD) $(SDIR)/DBException.ice
-	mv DBException.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/DBException.h DBException.cpp
-
-$(HDIR)/Evictor.h Evictor.cpp: $(SDIR)/Evictor.ice $(SLICE2CPP)
-	rm -f $(HDIR)/Evictor.h Evictor.cpp
-	$(SLICECMD) $(SDIR)/Evictor.ice
-	mv Evictor.h $(HDIR)
-
-clean::
-	rm -f $(HDIR)/Evictor.h Evictor.cpp
-
-$(HDIR)/EvictorF.h: $(SDIR)/EvictorF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/EvictorF.h EvictorF.cpp
-	$(SLICECMD) $(SDIR)/EvictorF.ice
-	mv EvictorF.h $(HDIR)
-	rm -f EvictorF.cpp
-
-clean::
-	rm -f $(HDIR)/EvictorF.h
 
 IdentityObjectDict.h IdentityObjectDict.cpp: $(SLICE2FREEZE)
 	rm -f IdentityObjectDict.h IdentityObjectDict.cpp

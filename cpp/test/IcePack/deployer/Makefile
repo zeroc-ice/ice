@@ -56,11 +56,4 @@ $(VERSIONED_SVC): $(OBJS) $(SERVICE_OBJS)
 	rm -f $@
 	$(CXX) $(SHLIB_LDFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SERVICE_OBJS)
 
-Test.h Test.cpp: Test.ice $(SLICE2CPP)
-	rm -f Test.h Test.cpp
-	$(SLICE2CPP) Test.ice
-
-clean::
-	rm -f Test.h Test.cpp
-
 include .depend

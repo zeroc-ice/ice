@@ -44,11 +44,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-Hello.h Hello.cpp: Hello.ice $(SLICE2CPP)
-	rm -f Hello.h Hello.cpp
-	$(SLICE2CPP) Hello.ice
-
-clean::
-	rm -f Hello.h Hello.cpp
-
 include .depend

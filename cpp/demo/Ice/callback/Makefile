@@ -44,11 +44,4 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-Callback.h Callback.cpp: Callback.ice $(SLICE2CPP)
-	rm -f Callback.h Callback.cpp
-	$(SLICE2CPP) Callback.ice
-
-clean::
-	rm -f Callback.h Callback.cpp
-
 include .depend

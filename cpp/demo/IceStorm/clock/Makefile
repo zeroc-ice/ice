@@ -45,11 +45,4 @@ $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-Clock.h Clock.cpp: Clock.ice $(SLICE2CPP)
-	rm -f Clock.h Clock.cpp
-	$(SLICE2CPP) Clock.ice
-
-clean::
-	rm -f Clock.h Clock.cpp
-
 include .depend
