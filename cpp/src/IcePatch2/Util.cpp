@@ -861,9 +861,10 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
 		infoSeq.push_back(info);
 	    }
 	}
-    }
 
-    bool save = false;
+	sort(infoSeq.begin(), infoSeq.end(), FileInfoLess());
+	infoSeq.erase(unique(infoSeq.begin(), infoSeq.end(), FileInfoEqual()), infoSeq.end());
+    }
 
     {
 	const string pathLog = normalize(pa + ".log");
@@ -871,31 +872,62 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
 	ifstream is(pathLog.c_str());
 	if(is)
 	{
-	    save = true;
+	    FileInfoSeq remove;
+	    FileInfoSeq update;
 	    
 	    while(is.good())
 	    {
+		char c;
+		is >> c;
+
 		FileInfo info;
 		is >> info;
-		
+
 		if(is.good())
 		{
-		    infoSeq.push_back(info);
+		    if(c == '-')
+		    {
+			remove.push_back(info);
+		    }
+		    else if(c == '+')
+		    {
+			update.push_back(info);
+		    }
 		}
 	    }
-	}
-    }
-    
-    sort(infoSeq.begin(), infoSeq.end(), FileInfoLess());
-    infoSeq.erase(unique(infoSeq.begin(), infoSeq.end(), FileInfoEqual()), infoSeq.end());
 
-    //
-    // If we merged the sequence with a log file, we save this new
-    // merged sequence and remove the log file.
-    //
-    if(save)
-    {
-	saveFileInfoSeq(pa, infoSeq);
+	    sort(remove.begin(), remove.end(), FileInfoLess());
+	    remove.erase(unique(remove.begin(), remove.end(), FileInfoEqual()), remove.end());
+
+	    sort(update.begin(), update.end(), FileInfoLess());
+	    update.erase(unique(update.begin(), update.end(), FileInfoEqual()), update.end());
+
+	    FileInfoSeq newInfoSeq;
+	    newInfoSeq.reserve(infoSeq.size());
+	    
+	    set_difference(infoSeq.begin(),
+			   infoSeq.end(),
+			   remove.begin(),
+			   remove.end(),
+			   back_inserter(newInfoSeq),
+			   FileInfoLess());
+	    
+	    infoSeq.swap(newInfoSeq);
+	    
+	    newInfoSeq.clear();
+	    newInfoSeq.reserve(infoSeq.size());
+
+	    set_union(infoSeq.begin(),
+		      infoSeq.end(),
+		      update.begin(),
+		      update.end(),
+		      back_inserter(newInfoSeq),
+		      FileInfoLess());
+	    
+	    infoSeq.swap(newInfoSeq);
+
+	    saveFileInfoSeq(pa, infoSeq);
+	}
     }
 }
 

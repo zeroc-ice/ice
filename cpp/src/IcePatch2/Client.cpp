@@ -204,10 +204,6 @@ IcePatch2::Client::run(int argc, char* argv[])
 	{
 	    properties->setProperty("IcePatch2.Thorough", "1");
 	}
-	else if(strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--dry") == 0)
-	{
-	    properties->setProperty("IcePatch2.DryRun", "1");
-	}
         else if(argv[i][0] == '-')
         {
             cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
@@ -248,7 +244,17 @@ IcePatch2::Client::run(int argc, char* argv[])
 
 	if(!aborted)
 	{
-	    aborted = !patcher->patch();
+	    aborted = !patcher->patch("Ice");
+	}
+
+	if(!aborted)
+	{
+	    aborted = !patcher->patch("");
+	}
+
+	if(!aborted)
+	{
+	    patcher->finish();
 	}
     }
     catch(const string& ex)
@@ -275,8 +281,7 @@ IcePatch2::Client::usage(const string& appName)
 	"Options:\n"
 	"-h, --help           Show this message.\n"
 	"-v, --version        Display the Ice version.\n"
-	"-t, --thorough       Recalculate all checksums.\n"
-	"-d, --dry            Don't update, do a dry run only.";
+	"-t, --thorough       Recalculate all checksums.";
 
     cerr << "Usage: " << appName << " [options] [DIR]" << endl;
     cerr << options << endl;

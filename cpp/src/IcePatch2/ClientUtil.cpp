@@ -10,6 +10,7 @@
 #include <IcePatch2/ClientUtil.h>
 #include <IcePatch2/Util.h>
 #include <IcePatch2/FileServerI.h>
+#include <list>
 
 #ifdef _WIN32
 #   include <direct.h>
@@ -19,13 +20,131 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
 
+namespace IcePatch2
+{
+
+class Decompressor : public IceUtil::Thread, IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    Decompressor(const string& dataDir) :
+	_dataDir(dataDir),
+	_destroy(false)
+    {
+    }
+
+    virtual ~Decompressor()
+    {
+	assert(_destroy);
+    }
+
+    void
+    destroy()
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	_destroy = true;
+	notify();
+    }
+
+    void
+    add(const FileInfo info)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	if(!_exception.empty())
+	{
+	    throw _exception;
+	}
+	_files.push_back(info);
+	notify();
+    }
+
+    void
+    exception() const
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	if(!_exception.empty())
+	{
+	    throw _exception;
+	}
+    }
+
+    void
+    log(ofstream& os)
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	for(FileInfoSeq::const_iterator p = _filesDone.begin(); p != _filesDone.end(); ++p)
+	{
+	    os << '+' << *p << endl;
+	}
+
+	_filesDone.clear();
+    }
+
+    virtual void
+    run()
+    {
+	FileInfo info;
+	
+	while(true)
+	{
+	    {
+		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	    
+		if(!info.path.empty())
+		{
+		    _filesDone.push_back(info);
+		}
+	    
+		while(!_destroy && _files.empty())
+		{
+		    wait();
+		}
+	    
+		if(!_files.empty())
+		{
+		    info = _files.front();
+		    _files.pop_front();
+		}
+		else
+		{
+		    return;
+		}
+	    }
+	
+	    try
+	    {
+		decompressFile(_dataDir + '/' + info.path);
+		remove(_dataDir + '/' + info.path + ".bz2");
+	    }
+	    catch(const string& ex)
+	    {
+		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+		_destroy = true;
+		_exception = ex;
+		return;
+	    }
+	}
+    }
+
+private:
+
+    const string _dataDir;
+
+    string _exception;
+    list<FileInfo> _files;
+    FileInfoSeq _filesDone;
+
+    bool _destroy;
+};
+
+}
+
 IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
     _feedback(feedback),
     _dataDir(normalize(communicator->getProperties()->getProperty("IcePatch2.Directory"))),
     _thorough(communicator->getProperties()->getPropertyAsInt("IcePatch2.Thorough") > 0),
-    _dryRun(communicator->getProperties()->getPropertyAsInt("IcePatch2.DryRun") > 0),
-    _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100000)),
-    _decompress(false)
+    _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100000))
 {
     if(_dataDir.empty())
     {
@@ -73,7 +192,6 @@ IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFe
 
 IcePatch2::Patcher::~Patcher()
 {
-    assert(!_decompress);
 }
 
 bool
@@ -160,74 +278,144 @@ IcePatch2::Patcher::prepare()
     sort(_removeFiles.begin(), _removeFiles.end(), FileInfoLess());
     sort(_updateFiles.begin(), _updateFiles.end(), FileInfoLess());
 
+    string pathLog = _dataDir + ".log";
+    _log.open(pathLog.c_str());
+    if(!_log)
+    {
+	throw "cannot open `" + pathLog + "' for writing: " + lastError();
+    }
+
     return true;
 }
 
 bool
-IcePatch2::Patcher::patch()
+IcePatch2::Patcher::patch(const string& d)
 {
-    if(!_removeFiles.empty())
-    {
-	if(!removeFiles(_removeFiles))
-	{
-	    return false;
-	}
-	
-	if(!_dryRun)
-	{
-	    saveFileInfoSeq(_dataDir, _localFiles);
-	}
-    }
-    
-    if(!_updateFiles.empty())
-    {
-	if(!updateFiles(_updateFiles))
-	{
-	    return false;
-	}
-	
-	if(!_dryRun)
-	{
-	    saveFileInfoSeq(_dataDir, _localFiles);
-	}
-    }
+    string dir = normalize(d);
 
-    return true;
+    if(dir.empty() || dir == ".")
+    {
+	if(!_removeFiles.empty())
+	{
+	    if(!removeFiles(_removeFiles))
+	    {
+		return false;
+	    }
+	}
+	
+	if(!_updateFiles.empty())
+	{
+	    if(!updateFiles(_updateFiles))
+	    {
+		return false;
+	    }
+	}
+	
+	return true;
+    }
+    else
+    {
+	string dirWithSlash = dir + '/';
+
+	FileInfoSeq::const_iterator p;
+
+	FileInfoSeq remove;
+	for(p = _removeFiles.begin(); p != _removeFiles.end(); ++p)
+	{
+	    if(p->size < 0) // Directory?
+	    {
+		if(p->path.compare(0, dir.size(), dir) == 0)
+		{
+		    remove.push_back(*p);
+		}
+	    }
+	    else
+	    {
+		if(p->path.compare(0, dirWithSlash.size(), dirWithSlash) == 0)
+		{
+		    remove.push_back(*p);
+		}
+	    }
+	}
+
+	FileInfoSeq update;
+	for(p = _updateFiles.begin(); p != _updateFiles.end(); ++p)
+	{
+	    if(p->size < 0) // Directory?
+	    {
+		if(p->path.compare(0, dir.size(), dir) == 0)
+		{
+		    update.push_back(*p);
+		}
+	    }
+	    else
+	    {
+		if(p->path.compare(0, dirWithSlash.size(), dirWithSlash) == 0)
+		{
+		    update.push_back(*p);
+		}
+	    }
+	}
+
+	if(!remove.empty())
+	{
+	    if(!removeFiles(remove))
+	    {
+		return false;
+	    }
+	}
+	
+	if(!update.empty())
+	{
+	    if(!updateFiles(update))
+	    {
+		return false;
+	    }
+	}
+	
+	return true;
+    }
+}
+
+void
+IcePatch2::Patcher::finish()
+{
+    _log.close();
+
+    saveFileInfoSeq(_dataDir, _localFiles);
 }
 
 bool
 IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
 {
-    if(!_dryRun)
+    for(FileInfoSeq::const_reverse_iterator p = files.rbegin(); p != files.rend(); ++p)
     {
-	for(FileInfoSeq::const_reverse_iterator p = files.rbegin(); p != files.rend(); ++p)
-	{
-	    remove(_dataDir + '/' + p->path);
-	}
-
-	FileInfoSeq newLocalFiles;
-	newLocalFiles.reserve(_localFiles.size());
-
-	set_difference(_localFiles.begin(),
-		       _localFiles.end(),
-		       files.begin(),
-		       files.end(),
-		       back_inserter(newLocalFiles),
-		       FileInfoLess());
-	
-	_localFiles.swap(newLocalFiles);
-
-	FileInfoSeq newRemoveFiles;
-
-	set_difference(_removeFiles.begin(),
-		       _removeFiles.end(),
-		       files.begin(),
-		       files.end(),
-		       back_inserter(newRemoveFiles),
-		       FileInfoLess());
-	
-	_removeFiles.swap(newRemoveFiles);
+	remove(_dataDir + '/' + p->path);
+	_log << '-' << *p << endl;
     }
+    
+    FileInfoSeq newLocalFiles;
+    newLocalFiles.reserve(_localFiles.size());
+    
+    set_difference(_localFiles.begin(),
+		   _localFiles.end(),
+		   files.begin(),
+		   files.end(),
+		   back_inserter(newLocalFiles),
+		   FileInfoLess());
+    
+    _localFiles.swap(newLocalFiles);
+    
+    FileInfoSeq newRemoveFiles;
+    
+    set_difference(_removeFiles.begin(),
+		   _removeFiles.end(),
+		   files.begin(),
+		   files.end(),
+		   back_inserter(newRemoveFiles),
+		   FileInfoLess());
+    
+    _removeFiles.swap(newRemoveFiles);
 
     return true;
 }
@@ -235,96 +423,33 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
 bool
 IcePatch2::Patcher::updateFiles(const FileInfoSeq& files)
 {
-    if(!_dryRun)
-    {
-	string pathLog = _dataDir + ".log";
-	_updateLog.open(pathLog.c_str());
-	if(!_updateLog)
-	{
-	    throw "cannot open `" + pathLog + "' for writing: " + lastError();
-	}
-	
-	{
-	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	    _decompress = true;
-	}
-	
-	start();
-    }
+    DecompressorPtr decompressor = new Decompressor(_dataDir);
+    decompressor->start();
+
+    bool result;
 
     try
     {
-	if(!updateFilesInternal(files))
-	{
-	    {
-		IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-		_decompress = false;
-		notify();
-	    }
-	    
-	    getThreadControl().join();
-	    
-	    return false;
-	}
+	result = updateFilesInternal(files, decompressor);
     }
     catch(...)
     {
-	{
-	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	    _decompress = false;
-	    notify();
-	}
-	
-	getThreadControl().join();
-	
+	decompressor->destroy();
+	decompressor->getThreadControl().join();
+	decompressor->log(_log);
 	throw;
     }
     
-    if(!_dryRun)
-    {
-	{
-	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	    if(!_decompressException.empty())
-	    {
-		throw _decompressException;
-	    }
-	    _decompress = false;
-	    notify();
-	}
-	
-	getThreadControl().join();
-	
-	_updateLog.close();
-	
-	FileInfoSeq newLocalFiles;
-	newLocalFiles.reserve(_localFiles.size());
-	
-	set_union(_localFiles.begin(),
-		  _localFiles.end(),
-		  files.begin(),
-		  files.end(),
-		  back_inserter(newLocalFiles),
-		  FileInfoLess());
-	
-	_localFiles.swap(newLocalFiles);
+    decompressor->destroy();
+    decompressor->getThreadControl().join();
+    decompressor->log(_log);
+    decompressor->exception();
 
-	FileInfoSeq newUpdateFiles;
-
-	set_difference(_updateFiles.begin(),
-		       _updateFiles.end(),
-		       files.begin(),
-		       files.end(),
-		       back_inserter(newUpdateFiles),
-		       FileInfoLess());
-	
-	_updateFiles.swap(newUpdateFiles);
-    }
-
-    return true;
+    return result;
 }
 
 bool
-IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files)
+IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const DecompressorPtr& decompressor)
 {
     FileInfoSeq::const_iterator p;
     
@@ -343,15 +468,8 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files)
     {
 	if(p->size < 0) // Directory?
 	{
-	    if(!_dryRun)
-	    {
-		createDirectoryRecursive(_dataDir + '/' + p->path);
-		
-		{
-		    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-		    _updateLog << *p << endl;
-		}
-	    }
+	    createDirectoryRecursive(_dataDir + '/' + p->path);
+	    _log << '+' << *p << endl;
 	}
 	else // Regular file.
 	{
@@ -363,27 +481,24 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files)
 	    string pathBZ2 = _dataDir + '/' + p->path + ".bz2";
 	    ofstream fileBZ2;
 	    
-	    if(!_dryRun)
+	    string dir = getDirname(pathBZ2);
+	    if(!dir.empty())
 	    {
-		string dir = getDirname(pathBZ2);
-		if(!dir.empty())
-		{
-		    createDirectoryRecursive(dir);
-		}
+		createDirectoryRecursive(dir);
+	    }
 		
-		try
-		{
-		    removeRecursive(pathBZ2);
-		}
-		catch(...)
-		{
-		}
+	    try
+	    {
+		removeRecursive(pathBZ2);
+	    }
+	    catch(...)
+	    {
+	    }
 		
-		fileBZ2.open(pathBZ2.c_str(), ios::binary);
-		if(!fileBZ2)
-		{
-		    throw "cannot open `" + pathBZ2 + "' for writing: " + lastError();
-		}
+	    fileBZ2.open(pathBZ2.c_str(), ios::binary);
+	    if(!fileBZ2)
+	    {
+		throw "cannot open `" + pathBZ2 + "' for writing: " + lastError();
 	    }
 	    
 	    Int pos = 0;
@@ -407,14 +522,11 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files)
 		    throw "size mismatch for `" + p->path + "'";
 		}
 		
-		if(!_dryRun)
+		fileBZ2.write(reinterpret_cast<char*>(&bytes[0]), bytes.size());
+		
+		if(!fileBZ2)
 		{
-		    fileBZ2.write(reinterpret_cast<char*>(&bytes[0]), bytes.size());
-		    
-		    if(!fileBZ2)
-		    {
-			throw ": cannot write `" + pathBZ2 + "': " + lastError();
-		    }
+		    throw ": cannot write `" + pathBZ2 + "': " + lastError();
 		}
 		
 		pos += bytes.size();
@@ -426,20 +538,10 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files)
 		}
 	    }
 	    
-	    if(!_dryRun)
-	    {
-		fileBZ2.close();
-		
-		{
-		    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-		    if(!_decompressException.empty())
-		    {
-			throw _decompressException;
-		    }
-		    _decompressList.push_back(*p);
-		    notify();
-		}
-	    }
+	    fileBZ2.close();
+
+	    decompressor->log(_log);
+	    decompressor->add(*p);
 	
 	    if(!_feedback->patchEnd())
 	    {
@@ -448,51 +550,28 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files)
 	}
     }
 
-    return true;
-}
-
-void
-IcePatch2::Patcher::run()
-{
-    FileInfo info;
-    
-    while(true)
-    {
-	{
-	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	    
-	    if(!info.path.empty())
-	    {
-		_updateLog << info << endl;
-	    }
-	    
-	    while(_decompress && _decompressList.empty())
-	    {
-		wait();
-	    }
-	    
-	    if(!_decompressList.empty())
-	    {
-		info = _decompressList.front();
-		_decompressList.pop_front();
-	    }
-	    else
-	    {
-		return;
-	    }
-	}
+    FileInfoSeq newLocalFiles;
+    newLocalFiles.reserve(_localFiles.size());
 	
-	try
-	{
-	    decompressFile(_dataDir + '/' + info.path);
-	    remove(_dataDir + '/' + info.path + ".bz2");
-	}
-	catch(const string& ex)
-	{
-	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	    _decompress = false;
-	    _decompressException = ex;
-	    return;
-	}
-    }
+    set_union(_localFiles.begin(),
+	      _localFiles.end(),
+	      files.begin(),
+	      files.end(),
+	      back_inserter(newLocalFiles),
+	      FileInfoLess());
+	
+    _localFiles.swap(newLocalFiles);
+
+    FileInfoSeq newUpdateFiles;
+
+    set_difference(_updateFiles.begin(),
+		   _updateFiles.end(),
+		   files.begin(),
+		   files.end(),
+		   back_inserter(newUpdateFiles),
+		   FileInfoLess());
+	
+    _updateFiles.swap(newUpdateFiles);
+
+    return true;
 }
