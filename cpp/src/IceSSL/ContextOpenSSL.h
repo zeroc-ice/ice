@@ -14,7 +14,6 @@
 #include <Ice/LoggerF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/BuiltinSequences.h>
-
 #include <IceSSL/OpenSSL.h>
 #include <IceSSL/TraceLevelsF.h>
 #include <IceSSL/CertificateVerifierOpenSSL.h>

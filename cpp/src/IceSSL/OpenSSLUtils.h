@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
+#include <IceUtil/Config.h>
 #include <openssl/ssl.h>
-#include <string>
 
 namespace IceSSL
 {

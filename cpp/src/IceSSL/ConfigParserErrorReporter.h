@@ -11,11 +11,11 @@
 #ifndef ICE_SSL_CONFIG_ERROR_REPORTER_H
 #define ICE_SSL_CONFIG_ERROR_REPORTER_H
 
+#include <Ice/LoggerF.h>
+#include <IceSSL/TraceLevelsF.h>
 #include <util/XercesDefs.hpp>
 #include <dom/DOMString.hpp>
 #include <sax/ErrorHandler.hpp>
-#include <Ice/LoggerF.h>
-#include <IceSSL/TraceLevelsF.h>
 
 namespace IceSSL
 {

@@ -11,10 +11,9 @@
 #ifndef ICE_DH_PARAMS_H
 #define ICE_DH_PARAMS_H
 
-#include <IceUtil/Config.h>
 #include <IceUtil/Shared.h>
-#include <openssl/ssl.h>
 #include <IceSSL/DHParamsF.h>
+#include <openssl/ssl.h>
 
 namespace IceSSL
 {

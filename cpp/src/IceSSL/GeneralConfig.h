@@ -11,8 +11,6 @@
 #ifndef ICE_SSL_GENERAL_CONFIG_H
 #define ICE_SSL_GENERAL_CONFIG_H
 
-#include <Ice/Config.h>
-
 #include <IceSSL/OpenSSL.h>
 
 namespace IceSSL

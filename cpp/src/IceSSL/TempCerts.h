@@ -12,7 +12,6 @@
 #define ICE_SSL_TEMP_CERTS_H
 
 #include <IceSSL/CertificateDesc.h>
-#include <ostream>
 
 namespace IceSSL
 {

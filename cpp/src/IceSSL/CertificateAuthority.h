@@ -11,7 +11,7 @@
 #ifndef ICE_SSL_CERTIFICATE_AUTHORITY_H
 #define ICE_SSL_CERTIFICATE_AUTHORITY_H
 
-#include <string>
+#include <IceUtil/Config.h>
 
 namespace IceSSL
 {

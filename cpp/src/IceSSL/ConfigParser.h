@@ -11,7 +11,6 @@
 #ifndef ICE_SSL_CONFIG_H
 #define ICE_SSL_CONFIG_H
 
-#include <dom/DOM.hpp>
 #include <Ice/LoggerF.h>
 #include <IceSSL/CertificateDesc.h>
 #include <IceSSL/GeneralConfig.h>
@@ -19,6 +18,7 @@
 #include <IceSSL/BaseCerts.h>
 #include <IceSSL/TempCerts.h>
 #include <IceSSL/TraceLevelsF.h>
+#include <dom/DOM.hpp>
 
 namespace IceSSL
 {

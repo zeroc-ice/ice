@@ -11,12 +11,9 @@
 #ifndef ICE_SSL_CERTIFICATE_DESC_H
 #define ICE_SSL_CERTIFICATE_DESC_H
 
-#include <Ice/Config.h>
-
+#include <IceUtil/Config.h>
 #include <openssl/ssl.h>
-
 #include <vector>
-#include <ostream>
 
 namespace IceSSL
 {

@@ -11,7 +11,6 @@
 #ifndef ICE_SSL_CONVERT_H
 #define ICE_SSL_CONVERT_H
 
-#include <IceUtil/Config.h>
 #include <Ice/BuiltinSequences.h>
 
 namespace IceSSL

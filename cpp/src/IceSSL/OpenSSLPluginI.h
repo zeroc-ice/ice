@@ -12,22 +12,16 @@
 #define ICE_SSL_OPENSSL_PLUGIN_I_H
 
 #include <IceUtil/RecMutex.h>
-
 #include <IceSSL/PluginBaseI.h>
 #include <IceSSL/CertificateDesc.h>
 #include <IceSSL/CertificateAuthority.h>
 #include <IceSSL/BaseCerts.h>
 #include <IceSSL/TempCerts.h>
-
 #include <IceSSL/ContextOpenSSLServer.h>
 #include <IceSSL/ContextOpenSSLClient.h>
-
-#include <openssl/ssl.h>
-
 #include <IceSSL/RSAPrivateKeyF.h>
 #include <IceSSL/DHParamsF.h>
-
-#include <map>
+#include <openssl/ssl.h>
 
 namespace IceSSL
 {

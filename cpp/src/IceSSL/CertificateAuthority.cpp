@@ -17,14 +17,14 @@ IceSSL::CertificateAuthority::CertificateAuthority()
 }
 
 IceSSL::CertificateAuthority::CertificateAuthority(string& fileName, string& path) :
-                             _fileName(fileName),
-                             _path(path)
+    _fileName(fileName),
+    _path(path)
 {
 }
 
 IceSSL::CertificateAuthority::CertificateAuthority(CertificateAuthority& certAuthority) :
-                             _fileName(certAuthority._fileName),
-                             _path(certAuthority._path)
+    _fileName(certAuthority._fileName),
+    _path(certAuthority._path)
 {
 }
 
