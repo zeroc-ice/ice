@@ -606,7 +606,7 @@ IceUtil::Options::parse(const vector<string>& args)
 //
 
 vector<string>
-IceUtil::Options::parse(int argc, char* argv[])
+IceUtil::Options::parse(int argc, const char* const argv[])
 {
     vector<string> vec;
     for(int i = 0; i < argc; ++i)

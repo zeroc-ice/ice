@@ -55,7 +55,7 @@ public:
 
     static ::std::vector< ::std::string> split(const ::std::string&);
     ::std::vector< ::std::string> parse(const ::std::vector< ::std::string>&);
-    ::std::vector< ::std::string> parse(int, char*[]);
+    ::std::vector< ::std::string> parse(int, const char* const []);
     bool isSet(const ::std::string&) const;
     ::std::string optArg(const ::std::string&) const;
     ::std::vector< ::std::string> argVec(const ::std::string&) const;
