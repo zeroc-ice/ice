@@ -127,7 +127,10 @@ void
 Ice::SystemException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nsystem exception: " << errorToString(error);
+    if (error != 0)
+    {
+        out << ":\nsystem exception: " << errorToString(error);
+    }
 }
 
 void
