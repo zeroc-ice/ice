@@ -150,10 +150,6 @@ SOURCE=.\MD5I.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\MemoryPool.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Options.cpp
 # End Source File
 # Begin Source File
@@ -267,10 +263,6 @@ SOURCE=..\..\include\iceutil\MD5.h
 # Begin Source File
 
 SOURCE=MD5I.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IceUtil\MemoryPool.h
 # End Source File
 # Begin Source File
 
