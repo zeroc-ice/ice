@@ -40,6 +40,7 @@ public:
 
     bool ice_isA(const std::string&);
     void ice_ping();
+    void ice_invokeIn(const std::string&, bool, const std::vector< ::Ice::Byte>&);
 
     std::string ice_getIdentity() const;
     ::Ice::ObjectPrx ice_newIdentity(const std::string&) const;
@@ -89,6 +90,7 @@ public:
 
     virtual bool ice_isA(const std::string&) = 0;
     virtual void ice_ping() = 0;
+    virtual void ice_invokeIn(const std::string&, const std::vector< ::Ice::Byte>&) = 0;
     virtual void ice_flush() = 0;
 };
 
@@ -103,6 +105,7 @@ public:
 
     virtual bool ice_isA(const std::string&);
     virtual void ice_ping();
+    virtual void ice_invokeIn(const std::string&, const std::vector< ::Ice::Byte>&);
     virtual void ice_flush();
 
 protected:
@@ -127,6 +130,7 @@ public:
 
     virtual bool ice_isA(const std::string&);
     virtual void ice_ping();
+    virtual void ice_invokeIn(const std::string&, const std::vector< ::Ice::Byte>&);
     virtual void ice_flush();
 
 protected:

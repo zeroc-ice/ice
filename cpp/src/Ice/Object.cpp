@@ -51,6 +51,17 @@ Ice::Object::ice_hash() const
     return reinterpret_cast<Int>(this);
 }
 
+const char* Ice::Object::__classIds[] =
+{
+    "::Ice::Object"
+};
+
+const char**
+Ice::Object::__getClassIds()
+{
+    return __classIds;
+}
+
 bool
 Ice::Object::ice_isA(const string& s)
 {
@@ -89,7 +100,7 @@ const char* Ice::Object::__all[] =
 };
 
 DispatchStatus
-Ice::Object::__dispatch(Incoming& in, const string& s)
+Ice::Object::__dispatch(Incoming& in, const string&, const string&, const string& s)
 {
     const char** b = __all;
     const char** e = __all + sizeof(__all) / sizeof(const char*);
@@ -231,4 +242,13 @@ Ice::Object::ice_findFacet(const string& name)
     {
 	return 0;
     }
+}
+
+DispatchStatus
+Ice::Blobject::__dispatch(Incoming& in, const string& identity, const string& facet, const string& operation)
+{
+    vector<Byte> blob;
+    in.is()->read(blob);
+    ice_invokeIn(identity, facet, operation, blob);
+    return ::IceInternal::DispatchOK;
 }

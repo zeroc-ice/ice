@@ -63,14 +63,18 @@ public:
     bool operator<(const Object&) const;
     ::Ice::Int ice_hash() const;
 
-    virtual bool ice_isA(const std::string&);
-    virtual void ice_ping();
+    static const char* __classIds[];
+    virtual const char** __getClassIds();
+
+    virtual bool ice_isA(const ::std::string&);
     ::IceInternal::DispatchStatus ___ice_isA(::IceInternal::Incoming&);
+
+    virtual void ice_ping();
     ::IceInternal::DispatchStatus ___ice_ping(::IceInternal::Incoming&);
-    virtual const char** __getClassIds() = 0;
 
     static const char* __all[];
-    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const std::string&);
+    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const std::string&, const std::string&,
+						     const std::string&);
     virtual bool __isMutating(const std::string&);
 
     virtual void __write(::IceInternal::BasicStream*) const;
@@ -86,6 +90,16 @@ private:
     std::map<std::string, ObjectPtr> _activeFacetMap;
     std::map<std::string, ObjectPtr>::iterator _activeFacetMapHint;
     JTCMutex _activeFacetMapMutex;
+};
+
+class ICE_API Blobject : virtual public Object
+{
+public:
+
+    virtual void ice_invokeIn(const std::string&, const std::string&, const std::string&,
+			      const std::vector< ::Ice::Byte>&) = 0;
+    virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const std::string&, const std::string&,
+						     const std::string&);
 };
 
 }

@@ -89,7 +89,7 @@ IceInternal::Incoming::invoke()
 		else
 		{
 		    _os.write(static_cast<Byte>(DispatchOK));
-		    DispatchStatus status = facetServant->__dispatch(*this, operation);
+		    DispatchStatus status = facetServant->__dispatch(*this, identity, facet, operation);
 		    _is.checkReadEncaps();
 		    *(_os.b.begin() + statusPos) = static_cast<Byte>(status);
 		}
@@ -97,7 +97,7 @@ IceInternal::Incoming::invoke()
 	    else
 	    {
 		_os.write(static_cast<Byte>(DispatchOK));
-		DispatchStatus status = servant->__dispatch(*this, operation);
+		DispatchStatus status = servant->__dispatch(*this, identity, facet, operation);
 		_is.checkReadEncaps();
 		*(_os.b.begin() + statusPos) = static_cast<Byte>(status);
 	    }

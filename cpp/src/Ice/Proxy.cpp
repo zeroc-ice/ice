@@ -150,6 +150,40 @@ IceProxy::Ice::Object::ice_ping()
     }
 }
 
+void
+IceProxy::Ice::Object::ice_invokeIn(const string& operation, bool nonmutating, const vector<Byte>& inParams)
+{
+    int __cnt = 0;
+    while (true)
+    {
+	try
+	{
+	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    __del->ice_invokeIn(operation, inParams);
+	    return;
+	}
+	catch (const LocationForward& __ex)
+	{
+	    __locationForward(__ex);
+	}
+	catch (const NonRepeatable& __ex)
+	{
+	    if (nonmutating)
+	    {
+		__handleException(*__ex.get(), __cnt);
+	    }
+	    else
+	    {
+		__rethrowException(*__ex.get());
+	    }
+	}
+	catch (const LocalException& __ex)
+	{
+	    __handleException(__ex, __cnt);
+	}
+    }
+}
+
 std::string
 IceProxy::Ice::Object::ice_getIdentity() const
 {
@@ -498,6 +532,18 @@ IceDelegateM::Ice::Object::ice_ping()
 }
 
 void
+IceDelegateM::Ice::Object::ice_invokeIn(const string& operation, const vector<Byte>& inParams)
+{
+    Outgoing __out(__emitter, __reference, operation.c_str());
+    BasicStream* __os = __out.os();
+    __os->write(inParams);
+    if (!__out.invoke())
+    {
+	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+    }
+}
+
+void
 IceDelegateM::Ice::Object::ice_flush()
 {
     __emitter->flushBatchRequest();
@@ -568,6 +614,33 @@ IceDelegateD::Ice::Object::ice_ping()
 {
     Direct __direct(__adapter, __reference, "ice_ping");
     __direct.facetServant()->ice_ping();
+}
+
+void
+IceDelegateD::Ice::Object::ice_invokeIn(const string& operation, const vector<Byte>& inParams)
+{
+    ::IceInternal::Direct __direct(__adapter, __reference, operation.c_str());
+    ::Ice::Blobject* __servant = dynamic_cast< ::Ice::Blobject*>(__direct.facetServant().get());
+    if (!__servant)
+    {
+	throw ::Ice::OperationNotExistException(__FILE__, __LINE__);
+    }
+    try
+    {
+	__servant->ice_invokeIn(__reference->identity, __reference->facet, operation, inParams);
+    }
+    catch (const ::Ice::LocalException&)
+    {
+	throw ::Ice::UnknownLocalException(__FILE__, __LINE__);
+    }
+    catch (const ::Ice::UserException&)
+    {
+	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+    }
+    catch (...)
+    {
+	throw ::Ice::UnknownException(__FILE__, __LINE__);
+    }
 }
 
 void
