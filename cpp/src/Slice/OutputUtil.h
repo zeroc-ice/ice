@@ -17,21 +17,21 @@
 namespace Slice
 {
 
-class NextLine { };
-class StartBlock { };
-class EndBlock { };
-class Separator { };
+class ICE_API NextLine { };
+class ICE_API StartBlock { };
+class ICE_API EndBlock { };
+class ICE_API Separator { };
 
-extern NextLine nl;
-extern StartBlock sb;
-extern EndBlock eb;
-extern Separator sp;
+extern ICE_API NextLine nl;
+extern ICE_API StartBlock sb;
+extern ICE_API EndBlock eb;
+extern ICE_API Separator sp;
 
 // ----------------------------------------------------------------------
 // Indent
 // ----------------------------------------------------------------------
 
-class Output : ::__Ice::noncopyable
+class ICE_API Output : ::__Ice::noncopyable
 {
 public:
 
@@ -73,10 +73,10 @@ Output& operator<<(Output& out, const T& val)
     return out;
 }
 
-Output& operator<<(Output&, const NextLine&);
-Output& operator<<(Output&, const StartBlock&);
-Output& operator<<(Output&, const EndBlock&);
-Output& operator<<(Output&, const Separator&);
+ICE_API Output& operator<<(Output&, const NextLine&);
+ICE_API Output& operator<<(Output&, const StartBlock&);
+ICE_API Output& operator<<(Output&, const EndBlock&);
+ICE_API Output& operator<<(Output&, const Separator&);
 
 }
 

@@ -916,8 +916,11 @@ Slice::Parser::includeFiles()
 }
 
 int
-Slice::Parser::parse(FILE* file)
+Slice::Parser::parse(FILE* file, bool debug)
 {
+    extern int yydebug;
+    yydebug = debug ? 1 : 0;
+
     assert(!Slice::parser);
     Slice::parser = this;
 

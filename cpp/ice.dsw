@@ -3,7 +3,7 @@ Microsoft Developer Studio Workspace File, Format Version 6.00
 
 ###############################################################################
 
-Project: "compiler"=.\src\compiler\compiler.dsp - Package Owner=<4>
+Project: "cpp"=.\src\slice\cpp\cpp.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -12,7 +12,7 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name library
+    Project_Dep_Name parser
     End Project Dependency
 }}}
 
@@ -196,6 +196,21 @@ Package=<4>
 ###############################################################################
 
 Project: "library"=.\src\library\library.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name cpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "parser"=.\src\slice\parser\parser.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

@@ -38,6 +38,7 @@ main(int argc, char* argv[])
     vector<string> includePaths;
     string include;
     string dllExport;
+    bool debug = false;
 
     int idx = 1;
     while(idx < argc)
@@ -74,8 +75,7 @@ main(int argc, char* argv[])
 	else if(strcmp(argv[idx], "-d") == 0 ||
 		strcmp(argv[idx], "--debug") == 0)
 	{
-	    extern int yydebug;
-	    yydebug = 1;
+	    debug = true;
 	    for(int i = idx ; i + 1 < argc ; ++i)
 		argv[i] = argv[i + 1];
 	    --argc;
@@ -169,7 +169,7 @@ main(int argc, char* argv[])
 	}
 	
 	Parser_ptr parser = Parser::createParser();
-	int status = parser -> parse(cppHandle);
+	int status = parser -> parse(cppHandle, debug);
 	
 #ifdef WIN32
 	_pclose(cppHandle);

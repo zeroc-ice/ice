@@ -54,42 +54,42 @@ class Parser;
 namespace __Ice
 {
 
-void incRef(::Slice::Token*);
-void decRef(::Slice::Token*);
-void incRef(::Slice::String*);
-void decRef(::Slice::String*);
-void incRef(::Slice::Parameters*);
-void decRef(::Slice::Parameters*);
-void incRef(::Slice::Throws*);
-void decRef(::Slice::Throws*);
-void incRef(::Slice::SyntaxTreeBase*);
-void decRef(::Slice::SyntaxTreeBase*);
-void incRef(::Slice::Type*);
-void decRef(::Slice::Type*);
-void incRef(::Slice::Builtin*);
-void decRef(::Slice::Builtin*);
-void incRef(::Slice::Contained*);
-void decRef(::Slice::Contained*);
-void incRef(::Slice::Container*);
-void decRef(::Slice::Container*);
-void incRef(::Slice::Module*);
-void decRef(::Slice::Module*);
-void incRef(::Slice::Constructed*);
-void decRef(::Slice::Constructed*);
-void incRef(::Slice::ClassDecl*);
-void decRef(::Slice::ClassDecl*);
-void incRef(::Slice::ClassDef*);
-void decRef(::Slice::ClassDef*);
-void incRef(::Slice::Proxy*);
-void decRef(::Slice::Proxy*);
-void incRef(::Slice::Operation*);
-void decRef(::Slice::Operation*);
-void incRef(::Slice::DataMember*);
-void decRef(::Slice::DataMember*);
-void incRef(::Slice::Vector*);
-void decRef(::Slice::Vector*);
-void incRef(::Slice::Parser*);
-void decRef(::Slice::Parser*);
+void ICE_API incRef(::Slice::Token*);
+void ICE_API decRef(::Slice::Token*);
+void ICE_API incRef(::Slice::String*);
+void ICE_API decRef(::Slice::String*);
+void ICE_API incRef(::Slice::Parameters*);
+void ICE_API decRef(::Slice::Parameters*);
+void ICE_API incRef(::Slice::Throws*);
+void ICE_API decRef(::Slice::Throws*);
+void ICE_API incRef(::Slice::SyntaxTreeBase*);
+void ICE_API decRef(::Slice::SyntaxTreeBase*);
+void ICE_API incRef(::Slice::Type*);
+void ICE_API decRef(::Slice::Type*);
+void ICE_API incRef(::Slice::Builtin*);
+void ICE_API decRef(::Slice::Builtin*);
+void ICE_API incRef(::Slice::Contained*);
+void ICE_API decRef(::Slice::Contained*);
+void ICE_API incRef(::Slice::Container*);
+void ICE_API decRef(::Slice::Container*);
+void ICE_API incRef(::Slice::Module*);
+void ICE_API decRef(::Slice::Module*);
+void ICE_API incRef(::Slice::Constructed*);
+void ICE_API decRef(::Slice::Constructed*);
+void ICE_API incRef(::Slice::ClassDecl*);
+void ICE_API decRef(::Slice::ClassDecl*);
+void ICE_API incRef(::Slice::ClassDef*);
+void ICE_API decRef(::Slice::ClassDef*);
+void ICE_API incRef(::Slice::Proxy*);
+void ICE_API decRef(::Slice::Proxy*);
+void ICE_API incRef(::Slice::Operation*);
+void ICE_API decRef(::Slice::Operation*);
+void ICE_API incRef(::Slice::DataMember*);
+void ICE_API decRef(::Slice::DataMember*);
+void ICE_API incRef(::Slice::Vector*);
+void ICE_API decRef(::Slice::Vector*);
+void ICE_API incRef(::Slice::Parser*);
+void ICE_API decRef(::Slice::Parser*);
 
 }
 
@@ -128,7 +128,7 @@ typedef std::list<TypeName> TypeNameList;
 // ParserVisitor
 // ----------------------------------------------------------------------
 
-class ParserVisitor
+class ICE_API ParserVisitor
 {
 public:
 
@@ -149,7 +149,7 @@ public:
 // Token
 // ----------------------------------------------------------------------
 
-class Token : virtual public ::__Ice::SimpleShared
+class ICE_API Token : virtual public ::__Ice::SimpleShared
 {
 };
 
@@ -159,7 +159,7 @@ class Token : virtual public ::__Ice::SimpleShared
 // String
 // ----------------------------------------------------------------------
 
-class String : virtual public Token
+class ICE_API String : virtual public Token
 {
 public:
 
@@ -171,7 +171,7 @@ public:
 // Parameters
 // ----------------------------------------------------------------------
 
-class Parameters : virtual public Token
+class ICE_API Parameters : virtual public Token
 {
 public:
 
@@ -183,7 +183,7 @@ public:
 // Throws
 // ----------------------------------------------------------------------
 
-class Throws : virtual public Token
+class ICE_API Throws : virtual public Token
 {
 public:
 
@@ -195,7 +195,7 @@ public:
 // SyntaxTreeBase
 // ----------------------------------------------------------------------
 
-class SyntaxTreeBase : virtual public ::__Ice::SimpleShared
+class ICE_API SyntaxTreeBase : virtual public ::__Ice::SimpleShared
 {
 public:
 
@@ -214,7 +214,7 @@ protected:
 // Type
 // ----------------------------------------------------------------------
 
-class Type : virtual public SyntaxTreeBase, virtual public Token
+class ICE_API Type : virtual public SyntaxTreeBase, virtual public Token
 {
 public:
 
@@ -227,7 +227,7 @@ protected:
 // Builtin
 // ----------------------------------------------------------------------
 
-class Builtin : virtual public Type
+class ICE_API Builtin : virtual public Type
 {
 public:
 
@@ -251,7 +251,7 @@ public:
 protected:
 
     Builtin(const Parser_ptr&, Kind);
-    friend class Parser;
+    friend class ICE_API Parser;
 
     Kind kind_;
 };
@@ -260,7 +260,7 @@ protected:
 // Contained
 // ----------------------------------------------------------------------
 
-class Contained : virtual public SyntaxTreeBase
+class ICE_API Contained : virtual public SyntaxTreeBase
 {
 public:
 
@@ -273,21 +273,21 @@ protected:
 
     Contained(const Container_ptr&,
 	      const std::string&);
-    friend class Container;
+    friend class ICE_API Container;
 
     Container_ptr container_;
     std::string name_;
     std::string scoped_;
 };
 
-bool operator<(Contained&, Contained&);
-bool operator==(Contained&, Contained&);
+bool ICE_API operator<(Contained&, Contained&);
+bool ICE_API operator==(Contained&, Contained&);
 
 // ----------------------------------------------------------------------
 // Container
 // ----------------------------------------------------------------------
 
-class Container : virtual public SyntaxTreeBase
+class ICE_API Container : virtual public SyntaxTreeBase
 {
 public:
 
@@ -317,7 +317,7 @@ protected:
 // Module
 // ----------------------------------------------------------------------
 
-class Module : virtual public Container, virtual public Contained
+class ICE_API Module : virtual public Container, virtual public Contained
 {
 public:
 
@@ -327,14 +327,14 @@ protected:
 
     Module(const Container_ptr&,
 	   const std::string&);
-    friend class Container;
+    friend class ICE_API Container;
 };
 
 // ----------------------------------------------------------------------
 // Constructed
 // ----------------------------------------------------------------------
 
-class Constructed : virtual public Type, virtual public Contained
+class ICE_API Constructed : virtual public Type, virtual public Contained
 {
 public:
 
@@ -348,7 +348,7 @@ protected:
 // ClassDecl
 // ----------------------------------------------------------------------
 
-class ClassDecl : virtual public Constructed
+class ICE_API ClassDecl : virtual public Constructed
 {
 public:
 
@@ -361,8 +361,8 @@ protected:
     ClassDecl(const Container_ptr&,
 	      const std::string&,
 	      bool);
-    friend class Container;
-    friend class ClassDef;
+    friend class ICE_API Container;
+    friend class ICE_API ClassDef;
 
     bool local_;
     ClassDef_ptr definition_;
@@ -372,7 +372,7 @@ protected:
 // ClassDef
 // ----------------------------------------------------------------------
 
-class ClassDef : virtual public Container, virtual public Contained,
+class ICE_API ClassDef : virtual public Container, virtual public Contained,
 		 virtual public Token 
 {
 public:
@@ -396,7 +396,7 @@ protected:
 	     const std::string&,
 	     const ClassDef_ptr&,
 	     bool);
-    friend class Container;
+    friend class ICE_API Container;
 
     ClassDef_ptr base_;
     bool local_;
@@ -406,7 +406,7 @@ protected:
 // Proxy
 // ----------------------------------------------------------------------
 
-class Proxy : virtual public Type
+class ICE_API Proxy : virtual public Type
 {
 public:
 
@@ -423,7 +423,7 @@ protected:
 // Operation
 // ----------------------------------------------------------------------
 
-class Operation : virtual public Contained
+class ICE_API Operation : virtual public Contained
 {
 public:
 
@@ -441,7 +441,7 @@ protected:
 	      const TypeNameList&,
 	      const TypeNameList&,
 	      const TypeList&);
-    friend class ClassDef;
+    friend class ICE_API ClassDef;
 
     Type_ptr returnType_;
     TypeNameList inParams_;
@@ -453,7 +453,7 @@ protected:
 // DataMember
 // ----------------------------------------------------------------------
 
-class DataMember : virtual public Contained
+class ICE_API DataMember : virtual public Contained
 {
 public:
 
@@ -465,7 +465,7 @@ protected:
     DataMember(const Container_ptr&,
 	       const std::string&,
 	       const Type_ptr&);
-    friend class ClassDef;
+    friend class ICE_API ClassDef;
 
     Type_ptr type_;
 };
@@ -474,7 +474,7 @@ protected:
 // Vector
 // ----------------------------------------------------------------------
 
-class Vector : virtual public Constructed
+class ICE_API Vector : virtual public Constructed
 {
 public:
 
@@ -486,7 +486,7 @@ protected:
     Vector(const Container_ptr&,
 	   const std::string&,
 	   const Type_ptr&);
-    friend class Container;
+    friend class ICE_API Container;
 
     Type_ptr type_;
 };
@@ -495,7 +495,7 @@ protected:
 // Parser
 // ----------------------------------------------------------------------
 
-class Parser : virtual public Container
+class ICE_API Parser : virtual public Container
 {
 public:
 
@@ -517,7 +517,7 @@ public:
 
     std::vector<std::string> includeFiles();
 
-    int parse(FILE*);
+    int parse(FILE*, bool);
 
     virtual void destroy();
     virtual void visit(ParserVisitor*);
