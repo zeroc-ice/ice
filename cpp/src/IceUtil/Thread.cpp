@@ -189,6 +189,12 @@ startHook(void* arg)
     {
 	IceUtil::Thread* rawThread = static_cast<IceUtil::Thread*>(arg);
 
+        //
+        // Initialize the random number generator in each thread.
+        //
+        unsigned int seed = static_cast<unsigned int>(IceUtil::Time::now().toMicroSeconds());
+        srand(seed);            
+
 	//
 	// Ensure that the thread doesn't go away until run() has
 	// completed.
