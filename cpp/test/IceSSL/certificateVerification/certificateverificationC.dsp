@@ -89,7 +89,7 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\client.cpp
+SOURCE=.\Client.cpp
 
 !IF  "$(CFG)" == "certificateVerificationC - Win32 Release"
 
