@@ -69,6 +69,7 @@ private:
     int _handlers;
     int _timeout;
     ::IceUtil::Mutex _threadMutex;
+    bool _multipleThreads;
 
     class EventHandlerThread : public ::IceUtil::Thread
     {

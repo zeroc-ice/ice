@@ -46,7 +46,10 @@ IceInternal::ThreadPool::unregister(SOCKET fd)
 void
 IceInternal::ThreadPool::promoteFollower()
 {
-    _threadMutex.unlock();
+    if (_multipleThreads)
+    {
+	_threadMutex.unlock();
+    }
 }
 
 void
@@ -97,7 +100,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, bool server) :
     _destroyed(false),
     _lastFd(INVALID_SOCKET),
     _handlers(0),
-    _timeout(0)
+    _timeout(0),
+    _multipleThreads(false)
 {
     SOCKET fds[2];
     createPipe(fds);
@@ -123,6 +127,11 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, bool server) :
     if (_threadNum < 1)
     {
 	_threadNum = 1;
+    }
+
+    if (_threadNum > 1)
+    {
+	_multipleThreads = true;
     }
 
     try
@@ -236,7 +245,10 @@ IceInternal::ThreadPool::run()
 
     while (true)
     {
-	_threadMutex.lock();
+	if (_multipleThreads)
+	{
+	    _threadMutex.lock();
+	}
 
     repeatSelect:
 	
