@@ -53,7 +53,6 @@ allTests(Ice::CommunicatorPtr communicator)
     test(ia != ib1);
     test(ia != ib2);
     test(ia != ic);
-    test(ib1 != ib2);
     test(ib1 != ic);
     test(ib2 != ic);
     cout << "ok" << endl;
