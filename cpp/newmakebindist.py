@@ -42,8 +42,39 @@ class Package:
         self.filelist = filelist
 	self.other = other
         
-    def writeHdr(self, ofile):
+    def writeHdr(self, ofile, version, release, installDir):
         ofile.write("\n")
+
+	ofile.write("%define _unpackaged_files_terminate_build 0\n")
+	ofile.write("Summary: " + self.summary + "\n")
+	ofile.write("Name: " + self.name + "\n")
+	ofile.write("Version: " + version + "\n")
+	ofile.write("Release: " + release + "\n")
+	if self.requires <> "":
+	    ofile.write("Requires: " + self.requires + "\n")
+	ofile.write("License: GPL\n")
+	ofile.write("Group: Development/Libraries\n")
+	ofile.write("Vendor: ZeroC Inc\n")
+	ofile.write("URL: http://www.zeroc.com/index.html\n")
+	ofile.write("Source0: http://www.zeroc.com/downloads/%{name}-%{version}.tar.gz\n")
+	ofile.write("Source1: http://www.zeroc.com/downloads/%{name}J-%{version}.tar.gz\n")
+	ofile.write("Source2: http://www.zeroc.com/downloads/%{name}Py-%{version}.tar.gz\n")
+	ofile.write("Source3: http://www.zeroc.com/downloads/%{name}CS-%{version}.tar.gz\n")
+	ofile.write("\n")
+	ofile.write("BuildRoot: " + installDir + "\n")
+	ofile.write("Prefix: /usr\n")
+	ofile.write("\n")
+	ofile.write("%description\n")
+	ofile.write("\n")
+	ofile.write("%prep\n")
+	ofile.write("\n")
+	ofile.write("%build\n")
+	ofile.write("\n")
+	ofile.write("%install\n")
+	ofile.write("\n")
+	ofile.write("%clean\n")
+	ofile.write("\n")
+	ofile.write("\n")
 
     def writeFileList(self, ofile, version, intVersion):
         ofile.write("%defattr(644, root, root, 755)\n\n")
@@ -61,11 +92,14 @@ class Package:
 
             if f.find("%version%"):
                 f = f.replace("%version%", version)
-            if f.endswith(".so"):
-                ofile.write(prefix + "/usr/" + f + "." + version + "\n")
-                ofile.write(prefix + "/usr/" + f + "." + str(intVersion) + "\n")
 
-            ofile.write(prefix + "/usr/" + f + "\n")
+            if perm == "lib" and f.endswith(".VERSION"):
+		fname = os.path.splitext(f)[0]
+                ofile.write(prefix + "/usr/" + fname + "." + version + "\n")
+                ofile.write(prefix + "/usr/" + fname + "." + str(intVersion) + "\n")
+	    else:
+		ofile.write(prefix + "/usr/" + f + "\n")
+
         ofile.write("\n")    
 
     def writeFiles(self, ofile, version, intVersion):
@@ -76,7 +110,7 @@ class Package:
 # Represents subpackages in an RPM spec file.
 #
 class Subpackage(Package):
-    def writeHdr(self, ofile):
+    def writeHdr(self, ofile, version, release, installDir):
         ofile.write("%package " + self.name + "\n")
         ofile.write("Summary: " + self.summary + "\n")
         ofile.write("Group: " + self.group + "\n")
@@ -108,9 +142,9 @@ transforms = [ ("lib/Ice.jar", "lib/Ice-%version%/Ice.jar" ),
 # the Ice spec file.
 # 
 fileLists = [
-    Package("main",
+    Package("ice",
             "",
-            "The Ice runtime and tools.",
+	    "The Internet Communications Engine (ICE) is a modern alternative to object middleware",
             "Development/Libraries Development/Tools System Environment/Libraries",
             "",
 	    "",
@@ -130,18 +164,18 @@ fileLists = [
              ("exe", "bin/icepatch2server"),
              ("exe", "bin/icestormadmin"),
              ("exe", "bin/slice2docbook"), 
-             ("lib", "lib/libFreeze.so"),
-             ("lib", "lib/libGlacier2.so"),
-             ("lib", "lib/libIceBox.so"),
-             ("lib", "lib/libIcePack.so"),
-             ("lib", "lib/libIcePatch2.so"),
-             ("lib", "lib/libIce.so"),
-             ("lib", "lib/libIceSSL.so"),
-             ("lib", "lib/libIceStormService.so"),
-             ("lib", "lib/libIceStorm.so"),
-             ("lib", "lib/libIceUtil.so"),
-             ("lib", "lib/libIceXML.so"),
-             ("lib", "lib/libSlice.so"),
+             ("lib", "lib/libFreeze.so.VERSION"),
+             ("lib", "lib/libGlacier2.so.VERSION"),
+             ("lib", "lib/libIceBox.so.VERSION"),
+             ("lib", "lib/libIcePack.so.VERSION"),
+             ("lib", "lib/libIcePatch2.so.VERSION"),
+             ("lib", "lib/libIce.so.VERSION"),
+             ("lib", "lib/libIceSSL.so.VERSION"),
+             ("lib", "lib/libIceStormService.so.VERSION"),
+             ("lib", "lib/libIceStorm.so.VERSION"),
+             ("lib", "lib/libIceUtil.so.VERSION"),
+             ("lib", "lib/libIceXML.so.VERSION"),
+             ("lib", "lib/libSlice.so.VERSION"),
              ("dir", "share/slice"),
              ("dir", "share/doc/Ice-%version%/images"),
              ("dir", "share/doc/Ice-%version%/manual"),
@@ -157,18 +191,24 @@ fileLists = [
                [("exe", "bin/slice2cpp"),
                 ("exe", "bin/slice2freeze"),
                 ("dir", "include"),
-		("dir", "share/doc/Ice-%version%/demo_cpp"),
+		("lib", "lib/libFreeze.so"),
+		("lib", "lib/libGlacier2.so"),
+		("lib", "lib/libIceBox.so"),
+		("lib", "lib/libIcePack.so"),
+		("lib", "lib/libIcePatch2.so"),
+		("lib", "lib/libIce.so"),
+		("lib", "lib/libIceSSL.so"),
+		("lib", "lib/libIceStormService.so"),
+		("lib", "lib/libIceStorm.so"),
+		("lib", "lib/libIceUtil.so"),
+		("lib", "lib/libIceXML.so"),
+		("lib", "lib/libSlice.so"),
+		("dir", "share/doc/Ice-%version%/demo"),
 		("file", "share/doc/Ice-%version%/config/Make.cxx.rules"),
 		("file", "share/doc/Ice-%version%/config/makedepend.py"),
 		("file", "share/doc/Ice-%version%/config/makecerts"),
 		("file", "share/doc/Ice-%version%/config/makeprops.py"),
-		("file", "share/doc/Ice-%version%/config/Make.rules.AIX"),
-		("file", "share/doc/Ice-%version%/config/Make.rules.Darwin"),
-		("file", "share/doc/Ice-%version%/config/Make.rules.FreeBSD"),
-		("file", "share/doc/Ice-%version%/config/Make.rules.HP-UX"),
 		("file", "share/doc/Ice-%version%/config/Make.rules.Linux"),
-		("file", "share/doc/Ice-%version%/config/Make.rules.SunOS"),
-		("file", "share/doc/Ice-%version%/config/PropertyNames.def"),
 		("file", "share/doc/Ice-%version%/config/server.cnf"),
 		("file", "share/doc/Ice-%version%/config/client.cnf"),
 		("file", "share/doc/Ice-%version%/config/generic.cnf"),
@@ -201,7 +241,7 @@ fileLists = [
 	       "",
                [("exe", "bin/slice2cs"),
 		("file", "share/doc/Ice-%version%/config/Make.cs.rules"),
-	        ("dir", "share/doc/Ice-%version%/demo_csharp")]),
+	        ("dir", "share/doc/Ice-%version%/democs")]),
     Subpackage("java-devel",
                "ice-java",
                "Ice tools developing Ice applications in Java",
@@ -223,7 +263,7 @@ fileLists = [
 	        ("file", "share/doc/Ice-%version%/config/common.rpm.xml"),
 	        ("file", "share/doc/Ice-%version%/config/common.src.xml"),
 	        ("file", "share/doc/Ice-%version%/config/common.xml"),
-		("dir", "share/doc/Ice-%version%/demo_java")]),
+		("dir", "share/doc/Ice-%version%/demoj")]),
     Subpackage("python",
                "ice python",
                "Ice runtime for Python applications",
@@ -238,13 +278,13 @@ fileLists = [
                "",
 	       "",
                [("exe", "bin/slice2py"),
-	        ("dir", "share/doc/Ice-%version%/demo_python")])
+	        ("dir", "share/doc/Ice-%version%/demopy")])
     ]
 
 noarchFileList = [
-    Package("java",
+    Package("ice-java",
 	    "ice db4-java >= 4.2",
-	    "Ice runtime for Java applications",
+	    "The Internet Communications Engine (ICE) is a modern alternative to object middleware",
 	    "Development/Libraries",
 	    "",
 	    "BuildArch: noarch",
@@ -341,7 +381,7 @@ def extractDemos(buildDir, version, distro, demoDir):
     os.chdir(buildDir + "/demotree")
     os.system("tar xvfz ../sources/" + distro + ".tar.gz " + distro + "/demo " + distro + "/config " \
 	    + distro + "/certs")
-    shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo_" + demoDir)
+    shutil.move(distro + "/demo", buildDir + "/Ice-" + version + "-demos/demo" + demoDir)
 
     #
     # 'System' copying of files here because its just easier!
@@ -366,7 +406,7 @@ def extractDemos(buildDir, version, distro, demoDir):
     #
     # C++ specific build modifications.
     #
-    if demoDir == "cpp":
+    if demoDir == "":
         tcwd = os.getcwd()
         os.chdir(buildDir + "/Ice-" + version + "-demos/config")
 	shutil.move(os.getcwd() + "/Make.rules", os.getcwd() + "/Make.cxx.rules")
@@ -392,7 +432,7 @@ def extractDemos(buildDir, version, distro, demoDir):
     #
     # C# specific build modifications
     #
-    elif demoDir == "csharp":
+    elif demoDir == "cs":
         tcwd = os.getcwd()
         os.chdir(buildDir + "/Ice-" + version + "-demos/config")
 	shutil.move(os.getcwd() + "/Make.rules", os.getcwd() + "/Make.cs.rules")
@@ -417,7 +457,7 @@ def extractDemos(buildDir, version, distro, demoDir):
         os.system("sh -c 'for f in `find . -name .depend` ; do echo \"\" > $f ; done'")
 
         os.chdir(tcwd)
-    elif demoDir == "java":
+    elif demoDir == "j":
         tcwd = os.getcwd()
         os.chdir(buildDir + "/Ice-" + version + "-demos/config")
 	#
@@ -449,7 +489,7 @@ def archiveDemoTree(buildDir, version):
 #
 # **********************************************************************
 
-ifeq ($(findstring demo_csharp, $(CURDIR)), demo_csharp)
+ifeq ($(findstring democs, $(CURDIR)), democs)
    include $(top_srcdir)/config/Make.cs.rules
 else
    include $(top_srcdir)/config/Make.cxx.rules
@@ -462,6 +502,24 @@ endif
     #
     os.remove("Ice-" + version + "-demos/config/TestUtil.py")
     os.remove("Ice-" + version + "-demos/config/IcePackAdmin.py")
+
+    # 
+    # Remove compiled Java.
+    # 
+    os.system("sh -c 'for f in `find Ice-" + version + "-demos/demoj -name classes -type d` ; do rm -rf $f/* ; done'")
+
+    #
+    # Remove generated source files.
+    #
+    os.system("sh -c 'for f in `find Ice-" + version + "-demos/demoj -name generated -type d` ; do rm -rf $f/* ; done'")
+
+    #
+    # Remove Windows project files.
+    #
+    os.system("sh -c 'for f in `find Ice-" + version + "-demos -regex \".*\.ds[wp]\" ` ; do rm -rf $f ; done'")
+    os.system("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.sln\" ` ; do rm -rf $f ; done'")
+    os.system("sh -c 'for f in `find Ice-" + version + "-demos/democs -name \"*.csproj\" ` ; do rm -rf $f ; done'")
+
     os.system("tar cvfz Ice-" + version + "-demos.tar.gz Ice-" + version + "-demos")
     os.chdir(cwd)
 
@@ -526,38 +584,6 @@ def strip(files):
     for f in files:
         print "Stripping " + f
         os.system(stripCmd + f)
-
-def printRPMHeader(ofile, name, version, release, installDir):
-    """Used on Linux only.  Prints out the header portion of an RPM spec file for building the RPM"""
-    ofile.write("%define _unpackaged_files_terminate_build 0\n")
-    ofile.write("Summary: The Internet Communications Engine (ICE) is a modern alternative to object middleware such ")
-    ofile.write("as CORBA\n")
-    ofile.write("Name: " + name + "\n")
-    ofile.write("Version: " + version + "\n")
-    ofile.write("Release: " + release + "\n")
-    ofile.write("License: GPL\n")
-    ofile.write("Group: Development/Libraries\n")
-    ofile.write("Vendor: ZeroC Inc\n")
-    ofile.write("URL: http://www.zeroc.com/index.html\n")
-    ofile.write("Source0: http://www.zeroc.com/downloads/%{name}-%{version}.tar.gz\n")
-    ofile.write("Source1: http://www.zeroc.com/downloads/%{name}J-%{version}.tar.gz\n")
-    ofile.write("Source2: http://www.zeroc.com/downloads/%{name}Py-%{version}.tar.gz\n")
-    ofile.write("Source3: http://www.zeroc.com/downloads/%{name}CS-%{version}.tar.gz\n")
-    ofile.write("\n")
-    ofile.write("BuildRoot: " + installDir + "\n")
-    ofile.write("Prefix: /usr\n")
-    ofile.write("\n")
-    ofile.write("%description\n")
-    ofile.write("\n")
-    ofile.write("%prep\n")
-    ofile.write("\n")
-    ofile.write("%build\n")
-    ofile.write("\n")
-    ofile.write("%install\n")
-    ofile.write("\n")
-    ofile.write("%clean\n")
-    ofile.write("\n")
-    ofile.write("\n")
 
 def missingPathParts(source, dest):
     print "Calculating :  " + source + " and " + dest
@@ -725,9 +751,8 @@ def main():
     #
     if printSpecFile:
         ofile = sys.stdout
-        printRPMHeader(ofile, "ice", version, "1", installDir)
         for v in fileLists:
-            v.writeHdr(ofile)
+            v.writeHdr(ofile, version, "1", installDir)
             ofile.write("\n\n\n")
         for v in fileLists:
             v.writeFiles(ofile, version, soVersion)
@@ -749,10 +774,10 @@ def main():
         #
         # Ice must be first or building the other source distributions will fail.
         #
-        sourceTarBalls = [ ("ice", "Ice-" + version, "cpp"),
-                           ("icej","IceJ-" + version, "java"),
-                           ("icecs","IceCS-" + version, "csharp"),
-                           ("icepy","IcePy-" + version, "python") ]
+        sourceTarBalls = [ ("ice", "Ice-" + version, ""),
+                           ("icej","IceJ-" + version, "j"),
+                           ("icecs","IceCS-" + version, "cs"),
+                           ("icepy","IcePy-" + version, "py") ]
 
         os.environ['ICE_HOME'] = installDir + "/Ice-" + version
         currentLibraryPath = None
@@ -798,9 +823,8 @@ def main():
     if getPlatform() == "linux":
         transformDirectories(transforms, version, installDir)
         ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
-        printRPMHeader(ofile, "ice", version, "1", installDir)
         for v in fileLists:
-            v.writeHdr(ofile)
+            v.writeHdr(ofile, version, "1", installDir)
             ofile.write("\n\n\n")
         for v in fileLists:
             v.writeFiles(ofile, version, soVersion)
@@ -822,9 +846,8 @@ def main():
 	# Build noarch RPMs
 	#
 	ofile = open(buildDir + "/IceJ-" + version + ".spec", "w")
-	printRPMHeader(ofile, "ice-java", version, "1", installDir)
 	for v in noarchFileList:
-	    v.writeHdr(ofile)
+            v.writeHdr(ofile, version, "1", installDir)
 	    ofile.write("\n\n\n")
 	for v in noarchFileList:
 	    v.writeFiles(ofile, version, soVersion)
