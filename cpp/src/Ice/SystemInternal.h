@@ -42,7 +42,9 @@ public:
 
     virtual void setCertificateVerifier(ContextType, const CertificateVerifierPtr&) = 0;
 
-    virtual void addTrustedCertificate(ContextType, const std::string&) = 0;
+    virtual void addTrustedCertificateBase64(ContextType, const std::string&) = 0;
+
+    virtual void addTrustedCertificate(ContextType, const Ice::ByteSeq&) = 0;
 
     virtual void setRSAKeysBase64(ContextType, const std::string&, const std::string&) = 0;
 

@@ -23,6 +23,7 @@
 //
 #include <IceUtil/Config.h>
 #include <IceUtil/Mutex.h>
+#include <IceUtil/RecMutex.h>
 #include <Ice/SslConnectionOpenSSL.h>
 #include <Ice/SystemOpenSSL.h>
 #include <Ice/SslException.h>
@@ -47,6 +48,8 @@ using IceSSL::SystemInternalPtr;
 IceSSL::ConnectionPtr
 IceSSL::OpenSSL::System::createConnection(ContextType connectionType, int socket)
 {
+    IceUtil::RecMutex::Lock sync(_configMutex);
+
     if (connectionType == ClientServer)
     {
         UnsupportedContextException unsupportedException(__FILE__, __LINE__);
@@ -103,6 +106,8 @@ IceSSL::OpenSSL::System::shutdown()
 bool
 IceSSL::OpenSSL::System::isConfigured(ContextType contextType)
 {
+    IceUtil::RecMutex::Lock sync(_configMutex);
+
     bool retCode = false;
 
     switch (contextType)
@@ -132,6 +137,8 @@ IceSSL::OpenSSL::System::isConfigured(ContextType contextType)
 void
 IceSSL::OpenSSL::System::configure(ContextType contextType)
 {
+    IceUtil::RecMutex::Lock sync(_configMutex);
+
     switch (contextType)
     {
         case Client :
@@ -171,6 +178,9 @@ IceSSL::OpenSSL::System::configure(ContextType contextType)
         }
     }
 }
+
+
+
 
 void
 IceSSL::OpenSSL::System::loadConfig(ContextType contextType,
@@ -219,7 +229,7 @@ IceSSL::OpenSSL::System::loadConfig(ContextType contextType,
     // Actually parse the file now.
     sslConfig.process();
 
-    if (contextType == Client || contextType == ClientServer)
+    if ((contextType == Client || contextType == ClientServer))
     {
         GeneralConfig clientGeneral;
         CertificateAuthority clientCertAuth;
@@ -234,7 +244,7 @@ IceSSL::OpenSSL::System::loadConfig(ContextType contextType,
         }
     }
 
-    if (contextType == Server || contextType == ClientServer)
+    if ((contextType == Server || contextType == ClientServer))
     {
         GeneralConfig serverGeneral;
         CertificateAuthority serverCertAuth;
@@ -387,6 +397,8 @@ void
 IceSSL::OpenSSL::System::setCertificateVerifier(ContextType contextType,
                                                 const IceSSL::CertificateVerifierPtr& verifier)
 {
+    IceUtil::RecMutex::Lock sync(_configMutex);
+
     CertificateVerifierPtr castVerifier = CertificateVerifierPtr::dynamicCast(verifier);
 
     if (!castVerifier.get())
@@ -407,16 +419,34 @@ IceSSL::OpenSSL::System::setCertificateVerifier(ContextType contextType,
 }
 
 void
-IceSSL::OpenSSL::System::addTrustedCertificate(ContextType contextType, const string& certString)
+IceSSL::OpenSSL::System::addTrustedCertificateBase64(ContextType contextType, const string& certString)
 {
+    IceUtil::RecMutex::Lock sync(_configMutex);
+
     if (contextType == Client || contextType == ClientServer)
     {
-        _clientContext.addTrustedCertificate(certString);
+        _clientContext.addTrustedCertificateBase64(certString);
     }
 
     if (contextType == Server || contextType == ClientServer)
     {
-        _serverContext.addTrustedCertificate(certString);
+        _serverContext.addTrustedCertificateBase64(certString);
+    }
+}
+
+void
+IceSSL::OpenSSL::System::addTrustedCertificate(ContextType contextType, const Ice::ByteSeq& certSeq)
+{
+    IceUtil::RecMutex::Lock sync(_configMutex);
+
+    if (contextType == Client || contextType == ClientServer)
+    {
+        _clientContext.addTrustedCertificate(certSeq);
+    }
+
+    if (contextType == Server || contextType == ClientServer)
+    {
+        _serverContext.addTrustedCertificate(certSeq);
     }
 }
 
@@ -425,6 +455,8 @@ IceSSL::OpenSSL::System::setRSAKeysBase64(ContextType contextType,
                                           const std::string& privateKey,
                                           const std::string& publicKey)
 {
+    IceUtil::RecMutex::Lock sync(_configMutex);
+
     if (contextType == Client || contextType == ClientServer)
     {
         _clientContext.setRSAKeysBase64(privateKey, publicKey);
@@ -441,6 +473,8 @@ IceSSL::OpenSSL::System::setRSAKeys(ContextType contextType,
                                     const ::Ice::ByteSeq& privateKey,
                                     const ::Ice::ByteSeq& publicKey)
 {
+    IceUtil::RecMutex::Lock sync(_configMutex);
+
     if (contextType == Client || contextType == ClientServer)
     {
         _clientContext.setRSAKeys(privateKey, publicKey);

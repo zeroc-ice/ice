@@ -50,7 +50,7 @@ IceSSL::OpenSSL::Context::setCertificateVerifier(const CertificateVerifierPtr& v
 }
 
 void
-IceSSL::OpenSSL::Context::addTrustedCertificate(const std::string& trustedCertString)
+IceSSL::OpenSSL::Context::addTrustedCertificateBase64(const std::string& trustedCertString)
 {
     if (_sslContext == 0)
     {
@@ -62,6 +62,34 @@ IceSSL::OpenSSL::Context::addTrustedCertificate(const std::string& trustedCertSt
     }
 
     RSAPublicKey pubKey(trustedCertString);
+
+    X509_STORE* certStore = SSL_CTX_get_cert_store(_sslContext);
+
+    assert(certStore != 0);
+
+    if (X509_STORE_add_cert(certStore, pubKey.getX509PublicKey()) == 0)
+    {
+        IceSSL::OpenSSL::TrustedCertificateAddException trustEx(__FILE__, __LINE__);
+
+        trustEx._message = sslGetErrors();
+
+        throw trustEx;
+    }
+}
+
+void
+IceSSL::OpenSSL::Context::addTrustedCertificate(const Ice::ByteSeq& trustedCert)
+{
+    if (_sslContext == 0)
+    {
+        IceSSL::OpenSSL::ContextNotConfiguredException contextConfigEx(__FILE__, __LINE__);
+
+        contextConfigEx._message = "SSL Context not configured.";
+
+        throw contextConfigEx;
+    }
+
+    RSAPublicKey pubKey(trustedCert);
 
     X509_STORE* certStore = SSL_CTX_get_cert_store(_sslContext);
 
@@ -280,7 +308,7 @@ IceSSL::OpenSSL::Context::loadCertificateAuthority(const CertificateAuthority& c
     std::string caCertBase64 = _properties->getProperty(_caCertificateProperty);
     if (!caCertBase64.empty())
     {
-         addTrustedCertificate(caCertBase64);
+         addTrustedCertificateBase64(caCertBase64);
     }
 }
 

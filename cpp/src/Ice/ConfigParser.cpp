@@ -185,7 +185,9 @@ IceSSL::ConfigParser::process()
 }
 
 bool
-IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general, CertificateAuthority& certAuth, BaseCertificates& baseCerts)
+IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
+                                       CertificateAuthority& certAuth,
+                                       BaseCertificates& baseCerts)
 {
     bool retCode = false;
     string clientSectionString("SSLConfig:client");
@@ -221,9 +223,9 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general, CertificateAuthor
 
 bool
 IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
-                                 CertificateAuthority& certAuth,
-                                 BaseCertificates& baseCerts,
-                                 TempCertificates& tempCerts)
+                                       CertificateAuthority& certAuth,
+                                       BaseCertificates& baseCerts,
+                                       TempCertificates& tempCerts)
 {
     bool retCode = false;
     string serverSectionString("SSLConfig:server");

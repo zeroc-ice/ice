@@ -13,6 +13,7 @@
 #include <Ice/Config.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
+#include <IceUtil/RecMutex.h>
 
 #include <Ice/GeneralConfig.h>
 #include <Ice/CertificateDesc.h>
@@ -71,7 +72,9 @@ public:
 
     virtual void setCertificateVerifier(ContextType, const IceSSL::CertificateVerifierPtr&);
 
-    virtual void addTrustedCertificate(ContextType, const std::string&);
+    virtual void addTrustedCertificateBase64(ContextType, const std::string&);
+
+    virtual void addTrustedCertificate(ContextType, const Ice::ByteSeq&);
 
     virtual void setRSAKeysBase64(ContextType, const std::string&, const std::string&);
 
@@ -87,6 +90,10 @@ private:
     ServerContext _serverContext;
     ClientContext _clientContext;
     
+    // Mutex to ensure synchronization of calls to configure
+    // the contexts and calls to create connections.
+    ::IceUtil::RecMutex _configMutex;
+
     // Keep a cache of all temporary RSA keys.
     RSAMap _tempRSAKeys;
     ::IceUtil::Mutex _tempRSAKeysMutex;

@@ -508,10 +508,6 @@ SOURCE=..\..\include\Ice\CertificateVerifierOpenSSL.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\CertificateVerifierOpenSSL.h
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\include\Ice\Communicator.h
 # End Source File
 # Begin Source File
