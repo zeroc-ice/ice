@@ -2,15 +2,9 @@
 <!DOCTYPE SSLConfig SYSTEM "sslconfig.dtd"> 
 <SSLConfig> 
     <client> 
-        <general version="SSLv23" cipherlist="RC4-MD5" verifymode="peer" verifydepth="10" /> 
+        <general version="SSLv23" cipherlist="RC4-MD5" verifymode="none" verifydepth="10" /> 
         <certauthority file="cacert.pem" />
         <basecerts> 
-<!--
-            <rsacert keysize="1024"> 
-                <public  encoding="PEM" filename="c_rsa1024_pub_old.pem" /> 
-                <private encoding="PEM" filename="c_rsa1024_priv_old.pem" /> 
-            </rsacert> 
--->
             <rsacert keysize="1024"> 
                 <public  encoding="PEM" filename="c_rsa1024_pub.pem" /> 
                 <private encoding="PEM" filename="c_rsa1024_priv.pem" /> 
@@ -18,15 +12,9 @@
         </basecerts> 
     </client> 
     <server> 
-        <general version="SSLv23" cipherlist="RC4-MD5" verifymode="peer|fail_no_cert|client_once" verifydepth="10" /> 
+        <general version="SSLv23" cipherlist="RC4-MD5" verifymode="none" verifydepth="10" /> 
         <certauthority file="cacert.pem" />
         <basecerts> 
-<!--
-            <rsacert keysize="1024"> 
-                <public  encoding="PEM" filename="s_rsa1024_pub_old.pem" /> 
-                <private encoding="PEM" filename="s_rsa1024_priv_old.pem" /> 
-            </rsacert>
--->
             <rsacert keysize="1024"> 
                 <public  encoding="PEM" filename="s_rsa1024_pub.pem" /> 
                 <private encoding="PEM" filename="s_rsa1024_priv.pem" /> 
