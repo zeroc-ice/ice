@@ -116,7 +116,7 @@ SOURCE=.\BasicStream.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Collector.cpp
+SOURCE=.\ConnectionFactory.cpp
 # End Source File
 # Begin Source File
 
@@ -141,10 +141,6 @@ SOURCE=.\Current.cpp
 # Begin Source File
 
 SOURCE=.\Direct.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Emitter.cpp
 # End Source File
 # Begin Source File
 
@@ -396,11 +392,11 @@ SOURCE=..\..\include\Ice\Buffer.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\Collector.h
+SOURCE=.\Ice\ConnectionFactory.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\CollectorF.h
+SOURCE=..\..\include\Ice\ConnectionFactoryF.h
 # End Source File
 # Begin Source File
 
@@ -441,14 +437,6 @@ SOURCE=..\..\include\Ice\Current.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Direct.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Ice\Emitter.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\EmitterF.h
 # End Source File
 # Begin Source File
 
