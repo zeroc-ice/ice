@@ -320,12 +320,19 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     _out << "):";
     _out.inc();
-    if(baseName.empty() && !p->hasDataMembers())
+    if(baseName.empty() && !p->hasDataMembers() && !p->isAbstract())
     {
         _out << nl << "pass";
     }
     else
     {
+        if(p->isAbstract())
+        {
+            _out << nl << "if __builtin__.type(self) == _M_" << fixedScoped << ':';
+            _out.inc();
+            _out << nl << "raise RuntimeError('" << fixedScoped << " is an abstract class')";
+            _out.dec();
+        }
         if(!baseName.empty())
         {
             _out << nl << baseName << ".__init__(self";
@@ -1493,7 +1500,7 @@ changeInclude(const string& orig, const vector<string>& includePaths)
 void
 Slice::Python::generate(const UnitPtr& unit, bool all, bool checksum, const vector<string>& includePaths, Output& out)
 {
-    out << nl << "import Ice, IcePy";
+    out << nl << "import Ice, IcePy, __builtin__";
 
     if(!all)
     {
