@@ -383,9 +383,33 @@ its endpoints with the locator registry upon activation.
 <section>
 <title>Description</title>
 <para>
-Sets the endpoints for the object adapter
-<replaceable>name</replaceable> to
-<replaceable>endpoints</replaceable>.
+Sets the endpoints for the object adapter <replaceable>name</replaceable> to
+<replaceable>endpoints</replaceable>. These endpoints specify the network
+interfaces on which the object adapter receives requests. Proxies created
+by the object adapter contain these endpoints, unless the
+<literal><replaceable>name</replaceable>.PublishedEndpoints</literal>
+property is also specified.
+</para>
+</section>
+</section>
+
+<section><title><replaceable>name</replaceable>.PublishedEndpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.PublishedEndpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+When creating a proxy, the object adapter <replaceable>name</replaceable>
+normally includes the endpoints defined by
+<literal><replaceable>name</replaceable>.Endpoints</literal>. If
+<literal><replaceable>name</replaceable>.PublishedEndpoints</literal>
+is defined, the object adapter uses these proxies instead. This is
+useful in many situations, such as when a server resides behind a
+port-forwarding firewall, in which case the object adapter's public
+endpoints must specify the address and port of the firewall.
 </para>
 </section>
 </section>
@@ -453,7 +477,7 @@ for services such as &IcePack;.</para></note>
 <para>
 Specifies a router for the object adapter with the name
 <replaceable>name</replaceable>. The value is a stringified proxy
-to the &Glacier; router control interface. Defining a router
+to the &Ice; router control interface. Defining a router
 allows the object adapter to receive callbacks from the router over
 outgoing connections from this process to the router, thereby avoiding
 the need for the router to establish a connection back to the object
