@@ -140,7 +140,6 @@ shutil.rmtree("ice")
 print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("icej", "makedist.py"), \
-    os.path.join("icej", "makebindist.py"), \
     ]
 filesToRemove.extend(find("icej", ".dummy"))
 for x in filesToRemove:
