@@ -38,23 +38,16 @@ Third-party libraries
   $ ../dist/configure --enable-cxx --enable-posixmutexes
   (plus --prefix=<dir> and/or --enable-java if you like)
   $ gmake
+
+  If you use Java, you need a Berkeley DB patch (see INSTALL
+  in your IceJ distribution).
  
 - OpenSSL
 
-  Unfortunately you cannot use openssl-0.9.6m-1 from the "AIX
-  Toolbox for Linux Applications" (cryptographic section), as it
-  was improperly built with cc instead of xlc_r. We expect that the
-  next revision of this package will be built properly.
-
-  In the meantime, for 32 bit builds, we recommend using OpenSSL
-  0.9.6m with the IBM patches available in the crypto section of
-
+  For 32 bit builds, we recommend openssl-0.9.6m-2 from the "AIX 
+  Toolbox for Linux Applications" (cryptographic section):
   http://www.ibm.com/servers/aix/products/aixos/linux/ezinstall.html
-
-  Follow the IBM instructions (from openssl.spec) but use xlc_r
-  (instead of cc) and use a new SHLIB_MAJOR version to avoid
-  conflict with the OpenSSL installed on your system (typically used
-  by OpenSSH).
+  Do not use openssl-0.9.6m-1, as it was not built properly.
 
   For 64 bit builds, we recommend using OpenSSL 0.9.7d (or later).
   You can download the source distribution from
