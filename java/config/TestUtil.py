@@ -120,12 +120,12 @@ def printOutputFromPipe(pipe):
 
     while 1:
 
-        line = pipe.readline()
+        c = pipe.read(1)
 
-        if not line:
+        if c == "":
             break
 
-        os.write(1, line)
+        os.write(1, c)
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -169,12 +169,12 @@ def clientServerTestWithOptions(additionalServerOptions, additionalClientOptions
     client = "java -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
-    serverPipe = os.popen(server + serverOptions + additionalServerOptions  + " 2>&1")
+    serverPipe = os.popen(server + serverOptions + additionalServerOptions  + " 2>&1", "r", 0)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1")
+    clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1", "r", 0)
     print "ok"
 
     #printOutputFromPipe(serverPipe)
@@ -198,14 +198,14 @@ def clientServerTestWithClasspath(serverClasspath, clientClasspath):
 
     print "starting server...",
     os.environ["CLASSPATH"] = scp
-    serverPipe = os.popen(server + serverOptions + " 2>&1")
+    serverPipe = os.popen(server + serverOptions + " 2>&1", "r", 0)
     os.environ["CLASSPATH"] = classpath
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
     os.environ["CLASSPATH"] = ccp
-    clientPipe = os.popen(client + clientOptions + " 2>&1")
+    clientPipe = os.popen(client + clientOptions + " 2>&1", "r", 0)
     os.environ["CLASSPATH"] = classpath
     print "ok"
 
@@ -229,12 +229,12 @@ def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOp
     client = "java -ea Client --Ice.ProgramName=Client "
 
     print "starting server...",
-    serverPipe = os.popen(server + serverOptions + additionalServerOptions + " 2>&1")
+    serverPipe = os.popen(server + serverOptions + additionalServerOptions + " 2>&1", "r", 0)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1")
+    clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1", "r", 0)
     print "ok"
 
     printOutputFromPipe(clientPipe)
@@ -255,7 +255,7 @@ def collocatedTestWithOptions(additionalOptions):
     collocated = "java -ea Collocated --Ice.ProgramName=Collocated "
 
     print "starting collocated...",
-    collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions + " 2>&1")
+    collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions + " 2>&1", "r", 0)
     print "ok"
 
     printOutputFromPipe(collocatedPipe)

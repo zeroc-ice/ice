@@ -40,7 +40,7 @@ command = starter + TestUtil.clientServerOptions + \
           r' --Glacier.Router.Server.Endpoints="tcp"' + " 2>&1"
 
 print "starting glacier starter...",
-starterPipe = os.popen(command)
+starterPipe = os.popen(command, "r", 0)
 TestUtil.getServerPid(starterPipe)
 TestUtil.getAdapterReady(starterPipe)
 print "ok"

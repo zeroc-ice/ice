@@ -40,7 +40,7 @@ def startClient(options):
 
     print "starting client...",
 
-    clientPipe = os.popen("java -ea Client " + fullClientOptions + " 2>&1")
+    clientPipe = os.popen("java -ea Client " + fullClientOptions + " 2>&1", "r", 0)
     print "ok"
 
     TestUtil.printOutputFromPipe(clientPipe)

@@ -54,7 +54,7 @@ print "executing evictor transformations... ",
 sys.stdout.flush()
 
 command = transformdb + " -e -p --old " + testold + " --new " + testnew + " -f " + transformxml + " " + dbdir + " evictor.db " + check_dbdir
-stdin, stdout, stderr = os.popen3(command)
+stdin, stdout, stderr = os.popen3(command, "r", 0)
 stderr.readlines()
 
 print "ok"

@@ -174,12 +174,12 @@ def printOutputFromPipe(pipe):
 
     while 1:
 
-        line = pipe.readline()
+        c = pipe.read(1)
 
-        if not line:
+        if c == "":
             break
 
-        os.write(1, line)
+        os.write(1, c)
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -251,13 +251,13 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     client = os.path.join(testdir, clientName)
  
     print "starting " + serverName + "...",
-    serverPipe = os.popen(server + serverOptions + additionalServerOptions + " 2>&1")
+    serverPipe = os.popen(server + serverOptions + additionalServerOptions + " 2>&1", "r", 0)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting " + clientName + "...",
-    clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1")
+    clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1", "r", 0)
     print "ok"
 
     printOutputFromPipe(clientPipe)
@@ -284,13 +284,13 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     client = os.path.join(testdir, "client")
 
     print "starting server...",
-    serverPipe = os.popen(server + clientServerOptions + additionalServerOptions + " 2>&1")
+    serverPipe = os.popen(server + clientServerOptions + additionalServerOptions + " 2>&1", "r", 0)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    clientPipe = os.popen(client + clientServerOptions + additionalClientOptions + " 2>&1")
+    clientPipe = os.popen(client + clientServerOptions + additionalClientOptions + " 2>&1", "r", 0)
     getServerPid(clientPipe)
     getAdapterReady(clientPipe)
     print "ok"
@@ -314,7 +314,7 @@ def collocatedTestWithOptions(name, additionalOptions):
     collocated = os.path.join(testdir, "collocated")
 
     print "starting collocated...",
-    collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions + " 2>&1")
+    collocatedPipe = os.popen(collocated + collocatedOptions + additionalOptions + " 2>&1", "r", 0)
     print "ok"
 
     printOutputFromPipe(collocatedPipe)

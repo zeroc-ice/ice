@@ -37,7 +37,7 @@ client = os.path.join(testdir, "certificateAndKeyParsing")
 
 localClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost
 print "starting certificateAndKeyParsing...",
-clientPipe = os.popen(client + localClientOptions + testOptions + " 2>&1")
+clientPipe = os.popen(client + localClientOptions + testOptions + " 2>&1", "r", 0)
 print "ok"
 
 TestUtil.printOutputFromPipe(clientPipe)

@@ -62,7 +62,7 @@ def doTest(batch):
 
     print "starting " + name + "...",
     command = subscriber + batchOptions + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile + " 2>&1"
-    subscriberPipe = os.popen(command)
+    subscriberPipe = os.popen(command, "r", 0)
     TestUtil.getServerPid(subscriberPipe)
     TestUtil.getAdapterReady(subscriberPipe)
     print "ok"
@@ -84,7 +84,7 @@ def doTest(batch):
     #
     print "starting publisher...",
     command = publisher + TestUtil.clientOptions + iceStormReference + " 2>&1"
-    publisherPipe = os.popen(command)
+    publisherPipe = os.popen(command, "r", 0)
     print "ok"
 
     TestUtil.printOutputFromPipe(publisherPipe)
@@ -114,14 +114,14 @@ iceStormDBEnv=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome
 
 print "starting icestorm service...",
 command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv + " 2>&1"
-iceBoxPipe = os.popen(command)
+iceBoxPipe = os.popen(command, "r", 0)
 TestUtil.getServerPid(iceBoxPipe)
 TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
 print "ok"
 
 print "creating topics...",
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create fed1 fed2 fed3"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
+iceStormAdminPipe = os.popen(command, "r", 0)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -130,13 +130,13 @@ print "ok"
 
 print "linking topics...",
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "link fed1 fed2 10"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
+iceStormAdminPipe = os.popen(command, "r", 0)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
     sys.exit(1)
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "link fed2 fed3 5"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
+iceStormAdminPipe = os.popen(command, "r", 0)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -158,7 +158,7 @@ batchStatus = doTest(1)
 #
 print "destroying topics...",
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy fed1 fed2 fed3"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
+iceStormAdminPipe = os.popen(command, "r", 0)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -170,7 +170,7 @@ print "ok"
 #
 print "shutting down icestorm service...",
 command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown' + " 2>&1"
-iceBoxAdminPipe = os.popen(command)
+iceBoxAdminPipe = os.popen(command, "r", 0)
 iceBoxAdminStatus = iceBoxAdminPipe.close()
 if iceBoxAdminStatus:
     TestUtil.killServers()

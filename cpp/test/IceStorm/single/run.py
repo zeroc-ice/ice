@@ -42,7 +42,7 @@ iceStormDBEnv=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome
 
 print "starting icestorm service...",
 command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv + " 2>&1"
-iceBoxPipe = os.popen(command)
+iceBoxPipe = os.popen(command, "r", 0)
 TestUtil.getServerPid(iceBoxPipe)
 #TestUtil.getAdapterReady(iceBoxPipe)
 TestUtil.waitServiceReady(iceBoxPipe, "IceStorm")
@@ -50,7 +50,7 @@ print "ok"
 
 print "creating topic...",
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "create single"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
+iceStormAdminPipe = os.popen(command, "r", 0)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -72,7 +72,7 @@ except:
 
 print "starting subscriber...",
 command = subscriber + TestUtil.clientServerOptions + iceStormReference + r' ' + subscriberLockFile + " 2>&1"
-subscriberPipe = os.popen(command)
+subscriberPipe = os.popen(command, "r", 0)
 TestUtil.getServerPid(subscriberPipe)
 TestUtil.getAdapterReady(subscriberPipe)
 print "ok"
@@ -90,7 +90,7 @@ print "ok"
 #
 print "starting publisher...",
 command = publisher + TestUtil.clientOptions + iceStormReference + " 2>&1"
-publisherPipe = os.popen(command)
+publisherPipe = os.popen(command, "r", 0)
 print "ok"
 
 TestUtil.printOutputFromPipe(publisherPipe);
@@ -114,7 +114,7 @@ print "ok"
 #
 print "destroying topic...",
 command = iceStormAdmin + TestUtil.clientOptions + iceStormReference + r' -e "destroy single"' + " 2>&1"
-iceStormAdminPipe = os.popen(command)
+iceStormAdminPipe = os.popen(command, "r", 0)
 iceStormAdminStatus = iceStormAdminPipe.close()
 if iceStormAdminStatus:
     TestUtil.killServers()
@@ -126,7 +126,7 @@ print "ok"
 #
 print "shutting down icestorm service...",
 command = iceBoxAdmin + TestUtil.clientOptions + iceBoxEndpoints + r' shutdown' + " 2>&1"
-iceBoxAdminPipe = os.popen(command)
+iceBoxAdminPipe = os.popen(command, "r", 0)
 iceBoxAdminStatus = iceBoxAdminPipe.close()
 if iceBoxAdminStatus:
     TestUtil.killServers()
