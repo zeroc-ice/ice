@@ -1,6 +1,10 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Fixed a race condition that could lead to a deadlock if
+  a thread tried to join with another thread from within
+  the destructor of a servant or class.
+
 - Added support for IcePack and Glacier on Windows platforms.
   The IcePack Registry, IcePack Node and Glacier Starter programs
   can optionally be installed as Windows services. See the Ice

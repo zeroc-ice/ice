@@ -51,7 +51,6 @@ private:
 
     int _ref;
     bool _noDelete;
-    bool _adopted;
 
     friend class IceUtil::GC;
 };

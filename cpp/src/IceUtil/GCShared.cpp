@@ -20,23 +20,14 @@ using namespace IceUtil;
 IceUtil::GCObjectSet IceUtil::gcObjects;
 
 IceUtil::GCShared::GCShared()
+    : _ref(0), _noDelete(false)
 {
-    gcRecMutex._m->lock();
-    _ref = 0;
-    _noDelete = false;
-    _adopted = false;
-    gcRecMutex._m->unlock();
 }
 
 IceUtil::GCShared::~GCShared()
 {
     gcRecMutex._m->lock();
-#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...
     gcObjects.erase(this);
-#else
-    GCObjectSet::size_type num = gcObjects.erase(this);
-    assert(num == 1 || !_adopted);
-#endif
     gcRecMutex._m->unlock();
 }
 
@@ -45,9 +36,8 @@ IceUtil::GCShared::__incRef()
 {
     gcRecMutex._m->lock();
     assert(_ref >= 0);
-    if(!_adopted && _ref == 0)
+    if(_ref == 0)
     {
-        _adopted = true;
 #ifdef NDEBUG // To avoid annoying warnings about variables that are not used...
 	gcObjects.insert(this);
 #else
@@ -69,12 +59,19 @@ IceUtil::GCShared::__decRef()
     {
 	doDelete = !_noDelete;
 	_noDelete = true;
+#ifdef NDEBUG // To avoid annoying warnings about variables that are not used...
+	gcObjects.erase(this);
+#else
+	GCObjectSet::size_type num = gcObjects.erase(this);
+	assert(num == 1);
+#endif
     }
+    gcRecMutex._m->unlock();
+
     if(doDelete)
     {
 	delete this;
     }
-    gcRecMutex._m->unlock();
 }
 
 int
