@@ -123,7 +123,7 @@ public:
     virtual void
     run()
     {
-	int index = _id * 1000;
+	int index = _id * 100000;
 
 	for(;;)
 	{
@@ -151,9 +151,23 @@ public:
 		test(false);
 		return;
 	    }
+	    catch(const IceUtil::Exception& e)
+	    {
+		cerr << "Caught IceUtil::Exception : " << e << endl;
+		cerr << "Index is " << index << endl;
+		test(false);
+		return;
+	    }
+	    catch(const std::exception& e)
+	    {
+		cerr << "Caught std::exception : " << e.what() << endl;
+		test(false);
+		return;
+	    }
 	    catch(...)
 	    {
-		test(false);
+		cerr << "Caught unknown exception" << endl;
+                test(false);
 		return;
 	    }
 	}

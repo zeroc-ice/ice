@@ -277,7 +277,7 @@ Test::RemoteEvictorI::createServant(Int id, Int value, const Current&)
     }
     catch(const Ice::AlreadyRegisteredException&)
     {
-	throw AlreadyRegisteredException();
+	throw Test::AlreadyRegisteredException();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
