@@ -1,6 +1,8 @@
 Changes since Alpha 2
 ---------------------
 
+- Added support for Mono.
+
 - The DLL that contains the Ice for C# run time has been renamed from
   Icicle.dll to icecs.dll.
 
