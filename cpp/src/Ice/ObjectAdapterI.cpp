@@ -67,6 +67,7 @@ Ice::ObjectAdapterI::activate()
     LocatorRegistryPrx locatorRegistry;
     bool registerProcess = false;
     string serverId;
+    CommunicatorPtr communicator;
     bool printAdapterReady = false;
 
     {    
@@ -98,6 +99,7 @@ Ice::ObjectAdapterI::activate()
                 registerProcess = false;
             }
 
+            communicator = _communicator;
 	    _printAdapterReadyDone = true;
 	}
 	
@@ -139,7 +141,7 @@ Ice::ObjectAdapterI::activate()
 
         if(registerProcess)
         {
-            ProcessPtr servant = new ProcessI(_communicator);
+            ProcessPtr servant = new ProcessI(communicator);
             ProcessPrx proxy = ProcessPrx::uncheckedCast(addWithUUID(servant));
 
             try

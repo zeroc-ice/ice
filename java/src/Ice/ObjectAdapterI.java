@@ -39,6 +39,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	Ice.LocatorRegistryPrx locatorRegistry = null;
         boolean registerProcess = false;
         String serverId = "";
+        Communicator communicator = null;
 	boolean printAdapterReady = false;
 
 	synchronized(this)
@@ -69,6 +70,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                     registerProcess = false;
                 }
 
+                communicator = _communicator;
 		_printAdapterReadyDone = true;
 	    }
 	    
@@ -116,7 +118,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
             if(registerProcess)
             {
-                Process servant = new ProcessI(_communicator);
+                Process servant = new ProcessI(communicator);
                 ProcessPrx proxy = ProcessPrxHelper.uncheckedCast(addWithUUID(servant));
 
                 try
