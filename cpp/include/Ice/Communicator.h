@@ -52,7 +52,6 @@ private:
     Communicator(const Properties_ptr&);
     virtual ~Communicator();
 
-    // The following operations may create CommunicatorIs
     friend ICE_API Communicator_ptr initialize(int&, char*[]);
     friend ICE_API Communicator_ptr initialize(int&, char*[],
 					       const Properties_ptr&);

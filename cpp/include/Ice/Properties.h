@@ -32,7 +32,6 @@ private:
     Properties(const std::string&);
     Properties(const Properties_ptr&);
 
-    // The following operations may create PropertiesIs
     friend ICE_API Communicator_ptr initialize(int&, char*[]);
     friend ICE_API Properties_ptr createProperties();
     friend ICE_API Properties_ptr createProperties(const Properties_ptr&);
