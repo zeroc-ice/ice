@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-import Ice
+import Ice, threading
 
 Ice.loadSlice('Test.ice')
 import Test
@@ -36,9 +36,57 @@ class CallbackBase:
 
     def called(self):
         self._cond.acquire()
-        _called = True
+        self._called = True
         self._cond.notify()
         self._cond.release()
+
+class AMI_Test_pidI(CallbackBase):
+    def ice_response(self, pid):
+        self._pid = pid
+        self.called()
+
+    def ice_exception(self, ex):
+        test(False)
+
+    def pid(self):
+        return self._pid
+
+class AMI_Test_shutdownI(CallbackBase):
+    def ice_response(self):
+        self.called()
+
+    def ice_exception(self, ex):
+        test(False)
+
+class AMI_Test_abortI(CallbackBase):
+    def ice_response(self):
+        test(False)
+
+    def ice_exception(self, ex):
+        try:
+            raise ex
+        except Ice.ConnectionLostException:
+            pass
+        except Ice.ConnectFailedException:
+            pass
+        except Ice.Exception, ex:
+            print ex
+            test(False)
+        self.called()
+
+class AMI_Test_idempotentAbortI(AMI_Test_abortI):
+    def ice_response(self):
+        test(False)
+
+    def ice_exception(self, ex):
+        AMI_Test_abortI.ice_exception(self, ex)
+
+class AMI_Test_nonmutatingAbortI(AMI_Test_abortI):
+    def ice_response(self):
+        test(False)
+
+    def ice_exception(self, ex):
+        AMI_Test_abortI.ice_exception(self, ex)
 
 def allTests(communicator, ports):
     print "testing stringToProxy... ",
@@ -62,7 +110,7 @@ def allTests(communicator, ports):
     while i <= len(ports):
         if j > 3:
             j = 0
-            #ami = not ami
+            ami = not ami
 
         if not ami:
             print "testing server #%d... " % i,
