@@ -645,7 +645,6 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
     ptrdiff_t pos = stream.i - stream.b.begin();
     assert(pos >= headerSize);
     stream.i = stream.b.begin();
-    stream.i += 8;
     ByteSeq m(sizeof(magic), 0);
     stream.readBlob(m, static_cast<Int>(sizeof(magic)));
     if(!equal(m.begin(), m.end(), magic))
