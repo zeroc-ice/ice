@@ -19,7 +19,7 @@
 namespace _Ice
 {
 
-class ICE_API ObjectFactoryI : public SimpleShared
+class ICE_API ObjectFactoryI : public Shared, JTCMutex
 {
 public:
     

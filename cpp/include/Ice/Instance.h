@@ -19,7 +19,7 @@
 namespace _Ice
 {
 
-class ICE_API InstanceI : public SimpleShared
+class ICE_API InstanceI : public Shared, public JTCMutex
 {
 public:
 
@@ -36,6 +36,14 @@ private:
     friend class ::Ice::CommunicatorI; // May create and destroy InstanceIs
 
     ObjectFactory objectFactory_;
+
+    //
+    // Global state management
+    //
+    friend class GlobalStateMutexDestroyer;
+    static JTCMutex* globalStateMutex_;
+    static JTCInitialize* globalStateJTC_;
+    static int globalStateCounter_;
 };
 
 }

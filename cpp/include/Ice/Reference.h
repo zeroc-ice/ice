@@ -18,7 +18,7 @@
 namespace _Ice
 {
 
-class ICE_API ReferenceI : virtual public SimpleShared
+class ICE_API ReferenceI : virtual public Shared
 {
 public:
 

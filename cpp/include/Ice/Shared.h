@@ -44,7 +44,45 @@ private:
     SimpleShared(const SimpleShared&);
     void operator=(const SimpleShared&);
 
-    int ref_; // The reference count
+    int ref_;
+};
+
+//
+// Thread-safe intrusive base class for reference-counted types.
+//
+class ICE_API Shared
+{
+public:
+
+    Shared();
+    virtual ~Shared();
+
+    void _incRef()
+    {
+	mutex_.lock();
+	++ref_;
+	mutex_.unlock();
+    }
+
+    void _decRef()
+    {
+	mutex_.lock();
+	assert(ref_ > 0);
+	bool doDelete = false;
+	if(--ref_ == 0)
+	    doDelete = true;
+	mutex_.unlock();
+	if(doDelete)
+	    delete this;
+    }
+
+private:
+
+    Shared(const Shared&);
+    void operator=(const Shared&);
+
+    int ref_;
+    JTCMutex mutex_;
 };
 
 }

@@ -35,6 +35,11 @@
 #endif
 
 //
+// Ice uses JThreads/C++
+//
+#include <JTC/JTC.h>
+
+//
 // Some include files we need almost everywhere
 //
 #include <cerrno>

@@ -19,7 +19,7 @@
 namespace _IceObj { namespace Ice
 {
 
-class ICE_API ObjectI : virtual public ::_Ice::SimpleShared
+class ICE_API ObjectI : virtual public ::_Ice::Shared, JTCMutex
 {
 public:
 
@@ -55,7 +55,7 @@ private:
 namespace _IceStub { namespace Ice
 {
 
-class ICE_API ObjectI : virtual public ::_Ice::SimpleShared
+class ICE_API ObjectI : virtual public ::_Ice::Shared, JTCMutex
 {
 public:
 

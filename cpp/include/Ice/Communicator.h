@@ -19,7 +19,7 @@
 namespace Ice
 {
 
-class ICE_API CommunicatorI : public ::_Ice::SimpleShared
+class ICE_API CommunicatorI : public ::_Ice::Shared, public JTCMutex
 {
 public:
     
