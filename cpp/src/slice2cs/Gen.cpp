@@ -202,7 +202,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s) >= 0;";
     _out << eb;
-    _out << "else";
+    _out << nl << "else";
     _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s, _System.Collections.Comparer.DefaultInvariant) >= 0;";
     _out << eb;
@@ -214,7 +214,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
     _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s) >= 0;";
     _out << eb;
-    _out << "else";
+    _out << nl << "else";
     _out << sb;
     _out << nl << "return _System.Array.BinarySearch(__ids, s, _System.Collections.Comparer.DefaultInvariant) >= 0;";
     _out << eb;
@@ -3397,7 +3397,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    {
 		_out << "return ";
 	    }
-	    _out << "((" << fixId(containingClass->name()) << ")__servant)."
+	    _out << "((" << fixId(containingClass->scoped()) << ")__servant)."
 	         << opName << spar << args << "__current" << epar << ';';
 	    if(!ret)
 	    {
