@@ -23,7 +23,6 @@ Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
 		 communicator->getProperties()->getPropertyAsInt(clientAlwaysBatch) > 0)
 {
     _requestQueue = new RequestQueue(communicator, reverse);
-    _requestQueueControl = _requestQueue->start();
 }
 
 Glacier::Blobject::~Blobject()
@@ -39,7 +38,7 @@ Glacier::Blobject::destroy()
     // object adapters have shut down.
     //
     _requestQueue->destroy();
-    _requestQueueControl.join();
+    _requestQueue->getThreadControl().join();
     _requestQueue = 0;
 }
 
@@ -73,30 +72,17 @@ void
 Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdCB, const vector<Byte>& inParams,
 			  const Current& current)
 {
-    modifyProxy(proxy, current);
-    
-    if(proxy->ice_isTwoway())
-    {
-	AMI_Object_ice_invokePtr amiCB = new GlacierCB(amdCB);
-	_requestQueue->addRequest(new Request(proxy, inParams, current, amiCB));
-    }
-    else
-    {
-	vector<Byte> dummy;
-	amdCB->ice_response(true, dummy);
-	_requestQueue->addRequest(new Request(proxy, inParams, current, 0));
-    }
-}
-
-void
-Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current) const
-{
+    //
+    // Set the correct facet on the proxy.
+    //
     if(!current.facet.empty())
     {
 	proxy = proxy->ice_newFacet(current.facet);
     }
 
-
+    //
+    // Modify the proxy according to the _fwd context field.
+    //
     Context::const_iterator p = current.ctx.find("_fwd");
     if(p != current.ctx.end())
     {
@@ -113,13 +99,27 @@ Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current) const
 		
 		case 'o':
 		{
-		    proxy = proxy->ice_oneway();
+		    if(_alwaysBatch)
+		    {
+			proxy = proxy->ice_batchOneway();
+		    }
+		    else
+		    {
+			proxy = proxy->ice_oneway();
+		    }
 		    break;
 		}
 		
 		case 'd':
 		{
-		    proxy = proxy->ice_datagram();
+		    if(_alwaysBatch)
+		    {
+			proxy = proxy->ice_batchDatagram();
+		    }
+		    else
+		    {
+			proxy = proxy->ice_datagram();
+		    }
 		    break;
 		}
 		
@@ -155,5 +155,21 @@ Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current) const
 		}
 	    }
 	}
+    }
+    
+    //
+    // Create a new request and add it to the request queue.
+    //
+    assert(_requestQueue);
+    if(proxy->ice_isTwoway())
+    {
+	AMI_Object_ice_invokePtr amiCB = new GlacierCB(amdCB);
+	_requestQueue->addRequest(new Request(proxy, inParams, current, amiCB));
+    }
+    else
+    {
+	vector<Byte> dummy;
+	amdCB->ice_response(true, dummy);
+	_requestQueue->addRequest(new Request(proxy, inParams, current, 0));
     }
 }

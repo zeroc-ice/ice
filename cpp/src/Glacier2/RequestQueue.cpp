@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <Glacier2/Request.h>
+#include <Glacier2/RequestQueue.h>
 #include <set>
 
 using namespace std;
@@ -145,7 +145,9 @@ void
 Glacier::RequestQueue::destroy()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-    
+
+    assert(_destroy);
+
     _destroy = true;
     _requests.clear();
     
@@ -155,8 +157,6 @@ Glacier::RequestQueue::destroy()
 void 
 Glacier::RequestQueue::addRequest(const RequestPtr& request)
 {
-    assert(request);
-
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
     
     assert(!_destroy);

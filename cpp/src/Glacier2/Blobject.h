@@ -11,8 +11,7 @@
 #define BLOBJECT_H
 
 #include <Ice/Ice.h>
-#include <IceUtil/Monitor.h>
-#include <Glacier2/Request.h>
+#include <Glacier2/RequestQueue.h>
 
 namespace Glacier
 {
@@ -25,20 +24,18 @@ public:
     virtual ~Blobject();
 
     void destroy();
-    void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
-		const Ice::Current&);
 
 protected:
+
+    void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
+		const Ice::Current&);
 
     const Ice::LoggerPtr _logger;
 
 private:
 
-    void modifyProxy(Ice::ObjectPrx&, const Ice::Current&) const;
-
     const bool _alwaysBatch;
     RequestQueuePtr _requestQueue;
-    IceUtil::ThreadControl _requestQueueControl;
 };
 
 }

@@ -36,7 +36,7 @@ Ice::UnknownException::ice_print(ostream& out) const
     out << ":\nunknown exception";
     if(!unknown.empty())
     {
-	out << "\nunknown exception text:\n" << unknown;
+	out << ":\n" << unknown;
     }
 }
 
@@ -47,7 +47,7 @@ Ice::UnknownLocalException::ice_print(ostream& out) const
     out << ":\nunknown local exception";
     if(!unknown.empty())
     {
-	out << "\nunknown local exception text:\n" << unknown;
+	out << ":\n" << unknown;
     }
 }
 
@@ -58,7 +58,7 @@ Ice::UnknownUserException::ice_print(ostream& out) const
     out << ":\nunknown user exception";
     if(!unknown.empty())
     {
-	out << "\nunknown user exception text:\n" << unknown;
+	out << ":\n" << unknown;
     }
 }
 

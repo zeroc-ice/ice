@@ -115,7 +115,7 @@ SOURCE=.\Glacier2.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Request.cpp
+SOURCE=.\RequestQueue.cpp
 # End Source File
 # Begin Source File
 
@@ -143,7 +143,7 @@ SOURCE=.\ClientBlobject.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Request.h
+SOURCE=.\RequestQueue.h
 # End Source File
 # Begin Source File
 
