@@ -79,7 +79,7 @@ IceStorm::QueuedProxy::publish(const EventPtr& event)
         assert(!sync.acquired());
         sync.acquire();
         _busy = false;
-        _exception = auto_ptr<Ice::LocalException>(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
+        _exception.reset(dynamic_cast<Ice::LocalException*>(ex.ice_clone()));
         throw;
     }
 }

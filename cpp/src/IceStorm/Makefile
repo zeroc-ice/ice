@@ -90,7 +90,7 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(libdir)/$(SVCLIBFILENAME): $(SERVICE_OBJS)
 	rm -f $@
-	$(call mkshlib,$@,$(SONAME),$(SERVICE_OBJS),$(LINKWITH))
+	$(call mkshlib,$@,$(SVCSONAME),$(SERVICE_OBJS),$(LINKWITH))
 
 $(libdir)/$(SVCSONAME): $(libdir)/$(SVCLIBFILENAME)
 	rm -f $@
