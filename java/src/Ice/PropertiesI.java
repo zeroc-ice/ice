@@ -9,7 +9,7 @@
 
 package Ice;
 
-final class PropertiesI extends LocalObjectImpl implements Properties
+public final class PropertiesI extends LocalObjectImpl implements Properties
 {
     public synchronized String
     getProperty(String key)
