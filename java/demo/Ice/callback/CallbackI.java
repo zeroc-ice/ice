@@ -13,13 +13,27 @@ public final class CallbackI extends Callback
     initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {
         System.out.println("initiating callback");
-        proxy.callback(current.ctx);
+	try
+	{
+	    proxy.callback(current.ctx);
+	}
+	catch(Ice.LocalException ex)
+	{
+	    ex.printStackTrace();
+	}
     }
 
     public void
     shutdown(Ice.Current current)
     {
         System.out.println("Shutting down...");
-        current.adapter.getCommunicator().shutdown();
+	try
+	{
+	    current.adapter.getCommunicator().shutdown();
+	}
+	catch(Ice.LocalException ex)
+	{
+	    ex.printStackTrace();
+	}
     }
 }

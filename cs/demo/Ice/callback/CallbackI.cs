@@ -7,18 +7,31 @@
 //
 // **********************************************************************
 
-
 public sealed class CallbackI : Callback
 {
     public override void initiateCallback(CallbackReceiverPrx proxy, Ice.Current current)
     {
         System.Console.Out.WriteLine("initiating callback");
-        proxy.callback(current.ctx);
+	try
+	{
+	    proxy.callback(current.ctx);
+	}
+	catch(System.Exception ex)
+	{
+	    System.Console.Error.WriteLine(ex);
+	}
     }
     
     public override void shutdown(Ice.Current current)
     {
         System.Console.Out.WriteLine("Shutting down...");
-        current.adapter.getCommunicator().shutdown();
+	try
+	{
+	    current.adapter.getCommunicator().shutdown();
+	}
+	catch(System.Exception ex)
+	{
+	    System.Console.Error.WriteLine(ex);
+	}
     }
 }
