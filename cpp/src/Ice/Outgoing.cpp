@@ -279,6 +279,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 
 		    default:
 		    {
+			ex = 0; // To keep the compiler from complaining.
 			assert(false);
 			break;
 		    }
@@ -325,6 +326,7 @@ IceInternal::Outgoing::finished(BasicStream& is)
 
 		    default:
 		    {
+			ex = 0; // To keep the compiler from complaining.
 			assert(false);
 			break;
 		    }
