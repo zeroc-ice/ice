@@ -27,6 +27,7 @@ OBJS		= Shared.o \
 		  PropertiesI.o \
 		  Logger.o \
 		  LoggerI.o \
+		  SysLoggerI.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
 		  Instance.o \

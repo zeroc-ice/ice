@@ -18,16 +18,15 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/LoggerI.h>
+#include <Ice/SysLoggerI.h>
 #include <Ice/PicklerI.h>
 
 #ifndef WIN32
 #   include <csignal>
-#endif
-
-#ifdef WIN32
-#   include <sys/timeb.h>
-#else
+#   include <syslog.h>
 #   include <sys/time.h>
+#else
+#   include <sys/timeb.h>
 #endif
 
 using namespace std;
@@ -36,6 +35,9 @@ using namespace IceInternal;
 
 JTCMutex* Instance::_globalStateMutex = new JTCMutex;
 JTCInitialize* Instance::_globalStateJTC = 0;
+#ifndef WIN32
+string Instance::_identForOpenlog;
+#endif
 
 namespace IceInternal
 {
@@ -146,7 +148,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 
     if (++_globalStateCounter == 1) // Only on first call
     {
-	string value = properties->getProperty("Ice.PrintProcessId");
+	string value;
+
+	value = properties->getProperty("Ice.PrintProcessId");
 	if (atoi(value.c_str()) >= 1)
 	{
 #ifdef WIN32
@@ -156,13 +160,28 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 #endif
 	}
 
+#ifndef WIN32
+	value = properties->getProperty("Ice.UseSyslog");
+	if (atoi(value.c_str()) >= 1)
+	{
+	    _identForOpenlog = properties->getProperty("Ice.ProgramName");
+	    if (_identForOpenlog.empty())
+	    {
+		_identForOpenlog = "<Unknown Ice Program>";
+	    }
+	    openlog(_identForOpenlog.c_str(), LOG_PID, LOG_USER);
+	}
+#endif
+
 #ifdef WIN32
 	WORD version = MAKEWORD(1, 1);
 	WSADATA data;
 	if (WSAStartup(version, &data) != 0)
 	{
 	    if (_globalStateMutex != 0)
+	    {
 		_globalStateMutex->unlock();
+	    }
 	    throw SocketException(__FILE__, __LINE__);
 	}
 #endif
@@ -200,7 +219,15 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     {
 	_communicator = communicator;
 	_properties = properties;
-	_logger = new LoggerI;
+	string value = properties->getProperty("Ice.UseSyslog");
+	if (atoi(value.c_str()) >= 1)
+	{
+	    _logger = new SysLoggerI;
+	}
+	else
+	{
+	    _logger = new LoggerI;
+	}
 	_traceLevels = new TraceLevels(_properties);
 	_proxyFactory = new ProxyFactory(this);
 	_threadPool = new ThreadPool(this);
@@ -249,7 +276,16 @@ IceInternal::Instance::~Instance()
 	sigaction(SIGPIPE, &action, 0);
 #endif
 	
+#ifndef WIN32
+	if (!_identForOpenlog.empty())
+	{
+	    closelog();
+	    _identForOpenlog.clear();
+	}
+#endif
+
 	delete _globalStateJTC;
+	_globalStateJTC = 0;
     }
     
     if (_globalStateMutex != 0)

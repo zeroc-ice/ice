@@ -64,6 +64,15 @@ Ice::PropertiesI::parseArgs(int& argc, char* argv[])
 	return;
     }
 
+    if (argc > 0)
+    {
+	string name = getProperty("Ice.ProgramName");
+	if (name.empty())
+	{
+	    setProperty("Ice.ProgramName", argv[0]);
+	}
+    }
+
     int idx = 1;
     while (idx < argc)
     {

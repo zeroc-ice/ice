@@ -74,6 +74,9 @@ private:
     friend class GlobalStateMutexDestroyer;
     static JTCMutex* _globalStateMutex;
     static JTCInitialize* _globalStateJTC;
+#ifndef WIN32
+    static std::string _identForOpenlog;
+#endif
     static int _globalStateCounter;
 };
 
