@@ -211,5 +211,28 @@ TopicManagerI::shutdown()
 void
 TopicManagerI::reap()
 {
+    //
+    // Always Called with mutex locked
+    //
+    // JTCSyncT<JTCMutex> sync(*this);
+    //
+    TopicIMap::iterator i = _topicIMap.begin();
+    while (i != _topicIMap.end())
+    {
+	if (i->second->destroyed())
+	{
+	    if (_traceLevels->topicMgr > 0)
+	    {
+		ostringstream s;
+		s << "Reaping " << i->first;
+		_communicator->getLogger()->trace(_traceLevels->topicMgrCat, s.str());
+	    }
+	    _topicIMap.erase(i++);
+	}
+	else
+	{
+	    ++i;
+	}
+    }
 }
 

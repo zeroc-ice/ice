@@ -24,6 +24,10 @@ using namespace std;
 namespace IceStorm
 {
 
+//
+// The servant has a 1-1 association with a topic. It is used to
+// receive events from Publishers.
+//
 class BlobjectI : public Ice::Blobject
 {
 public:
@@ -42,6 +46,9 @@ public:
 
 private:
 
+    //
+    // Set of associated subscribers
+    //
     IceStorm::TopicSubscribersPtr _subscribers;
 };
 
@@ -186,6 +193,11 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
 {
     _subscribers = new TopicSubscribers(_traceLevels, _logger, _name, _flusher);
 
+    //
+    // Create a servant per Topic to receive event data. The servants
+    // object-id is <topic>#publish. Active the object and save a
+    // reference to give to publishers.
+    //
     _publisher = new BlobjectI(_subscribers);
 
     string id = name;
@@ -216,6 +228,13 @@ void
 TopicI::destroy()
 {
     JTCSyncT<JTCMutex> sync(_destroyedMutex);
+    if (_traceLevels->topic > 0)
+    {
+	ostringstream s;
+	s << "Destroy " << _name;
+	_logger->trace(_traceLevels->topicCat, s.str());
+    }
+
     _adapter->remove(_name);
     _destroyed = true;
 }

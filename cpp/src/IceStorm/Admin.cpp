@@ -9,10 +9,12 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <IceStorm/IceStorm.h>
+#include <IceStorm/Parser.h>
+#include <fstream>
 
 using namespace std;
 using namespace Ice;
+using namespace IceStorm;
 
 void
 usage(const char* n)
@@ -22,13 +24,103 @@ usage(const char* n)
 	"Options:\n"
 	"-h, --help           Show this message.\n"
 	"-v, --version        Display the Ice version.\n"
-        "create topic         Create the given topic.\n"
+	"-DNAME               Define NAME as 1.\n"
+	"-DNAME=DEF           Define NAME as DEF.\n"
+	"-UNAME               Remove any definition for NAME.\n"
+	"-IDIR                Put DIR in the include file search path.\n"
+	"-e COMMANDS          Execute COMMANDS.\n"
+	"-d, --debug          Print debug messages.\n"
 	;
 }
 
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
+    string cpp("cpp");
+    string commands;
+    bool debug = false;
+
+    int idx = 1;
+    while (idx < argc)
+    {
+	if (strncmp(argv[idx], "-I", 2) == 0)
+	{
+	    cpp += ' ';
+	    cpp += argv[idx];
+
+	    for (int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
+	else if (strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
+	{
+	    cpp += ' ';
+	    cpp += argv[idx];
+
+	    for (int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
+	else if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
+	{
+	    usage(argv[0]);
+	    return EXIT_SUCCESS;
+	}
+	else if (strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
+	{
+	    cout << ICE_STRING_VERSION << endl;
+	    return EXIT_SUCCESS;
+	}
+	else if (strcmp(argv[idx], "-e") == 0)
+	{
+	    if (idx + 1 >= argc)
+            {
+		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
+		usage(argv[0]);
+		return EXIT_FAILURE;
+            }
+	    
+	    commands += argv[idx + 1];
+	    commands += ';';
+
+	    for (int i = idx ; i + 2 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 2];
+	    }
+	    argc -= 2;
+	}
+	else if (strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
+	{
+	    debug = true;
+	    for (int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
+	else if (argv[idx][0] == '-')
+	{
+	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
+	    usage(argv[0]);
+	    return EXIT_FAILURE;
+	}
+	else
+	{
+	    ++idx;
+	}
+    }
+
+    if (argc >= 2 && !commands.empty())
+    {
+	cerr << argv[0] << ": `-e' option cannot be used if input files are given" << endl;
+	usage(argv[0]);
+	return EXIT_FAILURE;
+    }
+
     PropertiesPtr properties = communicator->getProperties();
     const char* managerProperty = "IceStorm.TopicManager";
     string managerRef = properties->getProperty(managerProperty);
@@ -45,44 +137,69 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 	cerr << argv[0] << ": `" << managerProperty << "' is not running" << endl;
 	return EXIT_FAILURE;
     }
-    
-    int idx = 1;
-    while (idx < argc)
-    {
-	if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
-	{
-	    usage(argv[0]);
-	    return EXIT_SUCCESS;
-	}
-	else if (strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
-	{
-	    cout << ICE_STRING_VERSION << endl;
-	    return EXIT_SUCCESS;
-	}
-	else if (argv[idx][0] == '-')
-	{
-	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
-	    usage(argv[0]);
-	    return EXIT_FAILURE;
-	}
-	else if (strcmp(argv[idx], "create") == 0)
-	{
-	    ++idx;
-	    if (idx > argc)
-	    {
-		usage(argv[0]);
-		return EXIT_FAILURE;
-	    }
 
-	    IceStorm::TopicPrx topic = manager->create(argv[idx]);
-	    cout << "created: " << argv[idx] << endl;
-	}
-	else
+    ParserPtr parser = Parser::createParser(communicator, manager);
+    int status = EXIT_SUCCESS;
+
+    if (argc < 2) // No files given
+    {
+	if (!commands.empty()) // Commands were given
 	{
-	    ++idx;
+	    int parseStatus = parser->parse(commands, debug);
+	    if (parseStatus == EXIT_FAILURE)
+	    {
+		status = EXIT_FAILURE;
+	    }
+	}
+	else // No commands, let's use standard input
+	{
+	    int parseStatus = parser->parse(stdin, debug);
+	    if (parseStatus == EXIT_FAILURE)
+	    {
+		status = EXIT_FAILURE;
+	    }
 	}
     }
-    return EXIT_SUCCESS;
+    else // Process files given on the command line
+    {
+	for (idx = 1 ; idx < argc ; ++idx)
+	{
+	    ifstream test(argv[idx]);
+	    if (!test)
+	    {
+		cerr << argv[0] << ": can't open `" << argv[idx] << "' for reading: " << strerror(errno) << endl;
+		return EXIT_FAILURE;
+	    }
+	    test.close();
+	    
+	    string cmd = cpp + " " + argv[idx];
+#ifdef WIN32
+	    FILE* cppHandle = _popen(cmd.c_str(), "r");
+#else
+	    FILE* cppHandle = popen(cmd.c_str(), "r");
+#endif
+	    if (cppHandle == NULL)
+	    {
+		cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
+		return EXIT_FAILURE;
+	    }
+	    
+	    int parseStatus = parser->parse(cppHandle, debug);
+	    
+#ifdef WIN32
+	    _pclose(cppHandle);
+#else
+	    pclose(cppHandle);
+#endif
+
+	    if (parseStatus == EXIT_FAILURE)
+	    {
+		status = EXIT_FAILURE;
+	    }
+	}
+    }
+
+    return status;
 }
 
 int
@@ -117,4 +234,3 @@ main(int argc, char* argv[])
 
     return status;
 }
-

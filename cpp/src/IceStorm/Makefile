@@ -22,9 +22,17 @@ TARGETS		= $(NAME) $(VERSIONED_NAME) $(SERVER) $(ADMIN)
 
 OBJS		= IceStorm.o
 
-SOBJS		= TraceLevels.o Flusher.o Subscriber.o TopicI.o TopicManagerI.o Server.o
+SOBJS		= TraceLevels.o \
+		  Flusher.o \
+		  Subscriber.o \
+		  TopicI.o \
+		  TopicManagerI.o \
+		  Server.o
 
-AOBJS		= Admin.o
+AOBJS		= Admin.o \
+		  Grammar.o \
+		  Scanner.o \
+		  Parser.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(SOBJS:.o=.cpp) \
@@ -53,13 +61,26 @@ $(SERVER): $(SOBJS)
 
 $(ADMIN): $(AOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(LIBS) -lreadline -lcurses
+
 
 $(HDIR)/IceStorm.h IceStorm.cpp: $(SDIR)/IceStorm.ice $(SLICE2CPP)
 	rm -f $(HDIR)/IceStorm.h IceStorm.cpp
 	$(SLICECMD) $(SDIR)/IceStorm.ice
 	mv IceStorm.h $(HDIR)
 
+Grammar.cpp Grammar.h: Grammar.y
+	bison -dvt Grammar.y
+	rm -f Grammar.cpp ; mv Grammar.tab.c Grammar.cpp
+	rm -f Grammar.h ; mv Grammar.tab.h Grammar.h
+
+Scanner.cpp: Scanner.l Grammar.h
+	flex Scanner.l
+	rm -f Scanner.cpp ; mv lex.yy.c Scanner.cpp
+
+clean::
+	-rm -f Grammar.cpp Grammar.h Grammar.output
+	-rm -f Scanner.cpp lex.yy.c
 
 clean::
 	rm -f $(HDIR)/Clock.h Clock.cpp
