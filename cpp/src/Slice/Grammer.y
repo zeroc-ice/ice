@@ -429,11 +429,11 @@ operation
 }
 | ICE_NONMUTATING return_type ICE_OP_IDENTIFIER parameters output_parameters ')' throws
 {
-    TypePtr returnType = TypePtr::dynamicCast($1);
-    StringTokPtr name = StringTokPtr::dynamicCast($2);
-    TypeStringListTokPtr inParms = TypeStringListTokPtr::dynamicCast($3);
-    TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($4);
-    TypeListTokPtr throws = TypeListTokPtr::dynamicCast($6);
+    TypePtr returnType = TypePtr::dynamicCast($2);
+    StringTokPtr name = StringTokPtr::dynamicCast($3);
+    TypeStringListTokPtr inParms = TypeStringListTokPtr::dynamicCast($4);
+    TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($5);
+    TypeListTokPtr throws = TypeListTokPtr::dynamicCast($7);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v, true);
 }
