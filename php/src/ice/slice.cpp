@@ -270,7 +270,7 @@ Slice_createClasses(int module TSRMLS_DC)
     MAKE_STD_ZVAL(facetMap);
     array_init(facetMap);
     zend_hash_add(&cls->default_properties, "ice_facets", sizeof("ice_facets"), (void**)&facetMap, sizeof(zval*), NULL);
-    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, &cls, sizeof(zend_class_entry*), NULL);
+    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
     (*typeMap)[scoped] = cls;
 
     //
@@ -380,7 +380,7 @@ PHPVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
                 return false;
             }
             bases.pop_front();
-            assert((parent->type & ZEND_ACC_INTERFACE) == 0);
+            assert((parent->ce_flags & ZEND_ACC_INTERFACE) == 0);
         }
 
         if(!bases.empty())
@@ -394,7 +394,7 @@ PHPVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
                 {
                     return false;
                 }
-                assert(interfaces[numInterfaces]->type & ZEND_ACC_INTERFACE);
+                assert(interfaces[numInterfaces]->ce_flags & ZEND_ACC_INTERFACE);
             }
         }
     }
@@ -424,7 +424,7 @@ PHPVisitor::visitClassDefStart(const Slice::ClassDefPtr& p)
     {
         zend_do_implement_interface(cls, interfaces[i]);
     }
-    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, &cls, sizeof(zend_class_entry*), NULL);
+    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
     _typeMap[scoped] = cls;
 
     return false;
@@ -453,7 +453,7 @@ PHPVisitor::visitExceptionStart(const Slice::ExceptionPtr& p)
     {
         zend_do_inheritance(cls, parent);
     }
-    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, &cls, sizeof(zend_class_entry*), NULL);
+    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
     _typeMap[scoped] = cls;
 
     return false;
@@ -474,7 +474,7 @@ PHPVisitor::visitStructStart(const Slice::StructPtr& p)
 
     zend_class_entry* cls = allocClass(scoped, p TSRMLS_CC);
     cls->ce_flags |= ZEND_ACC_FINAL;
-    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, &cls, sizeof(zend_class_entry*), NULL);
+    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
     _typeMap[scoped] = cls;
 
     return false;
@@ -520,7 +520,7 @@ PHPVisitor::visitEnum(const Slice::EnumPtr& p)
         zend_hash_update(&cls->constants_table, const_cast<char*>(name.c_str()), name.length() + 1, &en,
                          sizeof(zval*), NULL);
     }
-    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, &cls, sizeof(zend_class_entry*), NULL);
+    zend_hash_update(CG(class_table), cls->name, cls->name_length + 1, (void**)&cls, sizeof(zend_class_entry*), NULL);
     _typeMap[scoped] = cls;
 }
 
