@@ -18,6 +18,13 @@ public final class TestI extends _TestDisp
     TestI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
+	_pseudoPid = (int)(System.currentTimeMillis() & 0xffffffffL);
+    }
+
+    public void
+    shutdown(Ice.Current current)
+    {
+        _adapter.getCommunicator().shutdown();
     }
 
     public void
@@ -41,14 +48,9 @@ public final class TestI extends _TestDisp
     public int
     pid(Ice.Current current)
     {
-        return (int)(System.currentTimeMillis() % 65535);
+        return _pseudoPid;
     }
 
-    public void
-    shutdown(Ice.Current current)
-    {
-        _adapter.getCommunicator().shutdown();
-    }
-
+    private int _pseudoPid;
     private Ice.ObjectAdapter _adapter;
 }
