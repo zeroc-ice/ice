@@ -81,6 +81,13 @@ final class UdpTransceiver implements Transceiver
         }
     }
 
+    public boolean
+    tryRead(BasicStream stream)
+    {
+        read(stream, 0);
+        return false; // Do not call read().
+    }
+
     public void
     read(BasicStream stream, int timeout)
     {

@@ -24,6 +24,13 @@ abstract class EventHandler
     abstract boolean readable();
 
     //
+    // Try to read data (non-blocking) via the event handler. Returns
+    // true if a subsequent call to read() is necessary, false otherwise.
+    // May only be called if readable() returns true.
+    //
+    abstract boolean tryRead(BasicStream is);
+
+    //
     // Read data via the event handler. May only be called if
     // readable() returns true.
     //

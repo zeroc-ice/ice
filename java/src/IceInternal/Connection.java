@@ -288,6 +288,12 @@ public final class Connection extends EventHandler
         return true;
     }
 
+    public boolean
+    tryRead(BasicStream stream)
+    {
+        return _transceiver.tryRead(stream);
+    }
+
     public void
     read(BasicStream stream)
     {

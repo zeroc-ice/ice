@@ -16,6 +16,7 @@ public interface Transceiver
     void close();
     void shutdown();
     void write(BasicStream stream, int timeout);
+    boolean tryRead(BasicStream stream);
     void read(BasicStream stream, int timeout);
     String toString();
 }

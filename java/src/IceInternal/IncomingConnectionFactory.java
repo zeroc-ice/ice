@@ -79,6 +79,13 @@ public class IncomingConnectionFactory extends EventHandler
         return false;
     }
 
+    public boolean
+    tryRead(BasicStream unused)
+    {
+        assert(false); // Must not be called
+        return false;
+    }
+
     public void
     read(BasicStream unused)
     {
