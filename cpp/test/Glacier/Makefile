@@ -8,16 +8,11 @@
 #
 # **********************************************************************
 
-top_srcdir	= ..
+top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= IceUtil \
-		  Ice \
-		  IceStorm \
-		  IcePack \
-		  Freeze \
-		  Glacier
+SUBDIRS		= starter
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
