@@ -25,7 +25,7 @@ class FileLocator: virtual public Ice::ServantLocator
 {
 public:
 
-    FileLocator(const Ice::ObjectAdapterPtr&);
+    FileLocator(const Ice::ObjectAdapterPtr&, const std::string&);
 
     virtual Ice::ObjectPtr locate(const Ice::Current&, Ice::LocalObjectPtr&);
 

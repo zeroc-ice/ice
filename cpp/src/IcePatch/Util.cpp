@@ -189,7 +189,8 @@ bool
 IcePatch::ignoreSuffix(const string& path)
 {
     string suffix = getSuffix(path);
-    return suffix == "md5" || suffix == "md5temp" || suffix == "bz2" || suffix == "bz2temp";
+    return suffix == "md5" || suffix == "md5temp" || suffix == "bz2" || suffix == "bz2temp" ||
+           suffix == "tot" || suffix == "tottemp";
 }
 
 string
@@ -568,7 +569,8 @@ IcePatch::calcMD5(const string& path, const LoggerPtr& logger)
 		// We must take the filename into account, so that
 		// renaming a file will change the summary MD5.
 		//
-		copy(plainPath.begin(), plainPath.end(), back_inserter(bytes));
+                string plainFile = plainPath.substr(plainPath.rfind('/') + 1);
+		copy(plainFile.begin(), plainFile.end(), back_inserter(bytes));
 
 		ByteSeq subBytesMD5 = getMD5(plainPath);
 		copy(subBytesMD5.begin(), subBytesMD5.end(), back_inserter(bytes));
@@ -716,7 +718,7 @@ IcePatch::getBZ2(const string& path, Int pos, Int num)
     if(num > 1024 * 1024)
     {
 	FileAccessException ex;
-	ex.reason = "maxium data segment size exceeded";
+	ex.reason = "maximum data segment size exceeded";
 	throw ex;
     }
     
@@ -871,3 +873,149 @@ IcePatch::createBZ2(const string& path, const Ice::LoggerPtr& logger)
 	out << "created BZ2 file for `" << path << "'";
     }
 }
+
+IcePatch::TotalMap
+IcePatch::getTotalMap(const CommunicatorPtr& communicator, const string& path)
+{
+    TotalMap result;
+
+    string pathTot = path + ".tot";
+
+    FileInfo infoTot = getFileInfo(pathTot, false);
+    if(infoTot.type == FileTypeNotExist)
+    {
+        return result;
+    }
+
+    ifstream fileTot(pathTot.c_str(), ios::binary);
+    if(!fileTot)
+    {
+        FileAccessException ex;
+        ex.reason = "cannot open `" + pathTot + "' for reading: " + strerror(errno);
+        throw ex;
+    }
+
+    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+    IceInternal::BasicStream is(instance.get());
+    is.b.resize(static_cast<ByteSeq::size_type>(infoTot.size));
+    fileTot.read(reinterpret_cast<char*>(&is.b[0]), is.b.size());
+
+    if(static_cast<vector<Byte>::size_type>(fileTot.gcount()) < is.b.size())
+    {
+        FileAccessException ex;
+        ex.reason = "could not read all bytes from `" + pathTot + "'";
+        throw ex;
+    }
+
+    fileTot.close();
+
+    is.i = is.b.begin();
+    try
+    {
+        Int i, sz;
+        is.readSize(sz);
+        for(i = 0; i < sz; ++i)
+        {
+            ByteSeq key;
+            Long value;
+            is.read(key);
+            is.read(value);
+            result.insert(TotalMap::value_type(key, value));
+        }
+    }
+    catch(const Ice::MarshalException&)
+    {
+        FileAccessException ex;
+        ex.reason = "could not unmarshal contents of `" + pathTot + "'";
+        throw ex;
+    }
+
+    return result;
+}
+
+void
+IcePatch::putTotalMap(const CommunicatorPtr& communicator, const string& path, const TotalMap& map)
+{
+    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+    IceInternal::BasicStream os(instance.get());
+
+    //
+    // Marshal the map.
+    //
+    os.writeSize(static_cast<Int>(map.size()));
+    for(TotalMap::const_iterator p = map.begin(); p != map.end(); ++p)
+    {
+        os.write(p->first);
+        os.write(p->second);
+    }
+
+    //
+    // Save the map to a temporary file.
+    //
+    string pathTotTemp = path + ".tottemp";
+    ofstream fileTot(pathTotTemp.c_str(), ios::binary);
+    if(!fileTot)
+    {
+        FileAccessException ex;
+        ex.reason = "cannot open `" + pathTotTemp + "' for writing: " + strerror(errno);
+        throw ex;
+    }
+
+    os.i = os.b.begin();
+    size_t sz = os.b.end() - os.i;
+    fileTot.write(reinterpret_cast<const char*>(&os.b[0]), sz);
+    if(!fileTot)
+    {
+        FileAccessException ex;
+        ex.reason = "cannot write `" + pathTotTemp + "': " + strerror(errno);
+        throw ex;
+    }
+
+    fileTot.close();
+
+    //
+    // Rename the temporary file to the final file. This is
+    // done so that there can be no partial files after an
+    // abortive application termination.
+    //
+    string pathTot = path + ".tot";
+    ::remove(pathTot.c_str());
+    if(::rename(pathTotTemp.c_str(), pathTot.c_str()) == -1)
+    {
+        FileAccessException ex;
+        ex.reason = "cannot rename `" + pathTotTemp + "' to  `" + pathTot + "': " + strerror(errno);
+        throw ex;
+    }
+}
+
+#ifdef _WIN32
+
+bool
+IcePatch::CICompare::operator()(const string& s1, const string& s2) const
+{
+    string::const_iterator p1 = s1.begin();
+    string::const_iterator p2 = s2.begin();
+    while(p1 != s1.end() && p2 != s2.end() && ::tolower(*p1) == ::tolower(*p2))
+    {
+        ++p1;
+        ++p2;
+    }
+    if(p1 == s1.end() && p2 == s2.end())
+    {
+        return false;
+    }
+    else if(p1 == s1.end())
+    {
+        return true;
+    }
+    else if(p2 == s2.end())
+    {
+        return false;
+    }
+    else
+    {
+        return ::tolower(*p1) < ::tolower(*p2);
+    }
+}
+
+#endif

@@ -19,25 +19,29 @@ SONAME          = $(call mksoname,IcePatch,$(SOVERSION))
 LIBNAME		= $(call mklibname,IcePatch)
 
 CLIENT		= $(top_srcdir)/bin/icepatchclient
+CALC		= $(top_srcdir)/bin/icepatchcalc
 SERVER		= $(top_srcdir)/bin/icepatchserver
 
 TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME) \
-                  $(CLIENT) $(SERVER)
+                  $(CLIENT) $(CALC) $(SERVER)
 
 OBJS		= IcePatch.o \
 		  FileDescFactory.o \
 		  Util.o \
 		  ClientUtil.o
 
-COBJS		= Client.o
+CLIENT_OBJS	= Client.o
 
-SOBJS		= Server.o \
+CALC_OBJS	= Calc.o
+
+SERVER_OBJS	= Server.o \
 		  IcePatchI.o \
 		  FileLocator.o
 
 SRCS		= $(OBJS:.o=.cpp) \
-		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp)
+		  $(CLIENT_OBJS:.o=.cpp) \
+		  $(CALC_OBJS:.o=.cpp) \
+		  $(SERVER_OBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/IcePatch.ice
 
@@ -63,13 +67,17 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 	rm -f $@
 	ln -s $(SONAME) $@
 
-$(CLIENT): $(COBJS) $(libdir)/$(LIBNAME)
+$(CLIENT): $(CLIENT_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIcePatch -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(CLIENT_OBJS) -lIcePatch -lGlacier -lIceSSL $(LIBS) $(OPENSSL_LIBS)
 
-$(SERVER): $(SOBJS) $(libdir)/$(LIBNAME)
+$(CALC): $(CALC_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIcePatch $(LIBS) $(OPENSSL_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(CALC_OBJS) -lIcePatch $(LIBS)
+
+$(SERVER): $(SERVER_OBJS) $(libdir)/$(LIBNAME)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(SERVER_OBJS) -lIcePatch $(LIBS)
 
 install:: all
 	$(INSTALL_LIBRARY) $(libdir)/$(LIBFILENAME) $(install_libdir)
@@ -78,6 +86,7 @@ install:: all
 	rm -f $(install_libdir)/$(LIBNAME)
 	ln -s $(SONAME) $(install_libdir)/$(LIBNAME)
 	$(INSTALL_PROGRAM) $(CLIENT) $(install_bindir)
+	$(INSTALL_PROGRAM) $(CALC) $(install_bindir)
 	$(INSTALL_PROGRAM) $(SERVER) $(install_bindir)
 
 include .depend

@@ -14,6 +14,7 @@
 
 #include <IcePatch/IcePatchI.h>
 #include <IcePatch/Util.h>
+#include <fstream>
 
 using namespace std;
 using namespace Ice;
@@ -21,15 +22,16 @@ using namespace IcePatch;
 
 static IceUtil::RWRecMutex globalMutex;
 
-IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter) :
+IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter, const string& dir) :
     _adapter(adapter),
     _fileTraceLogger(adapter->getCommunicator()->getProperties()->getPropertyAsInt("IcePatch.Trace.Files") > 0 ?
 		     adapter->getCommunicator()->getLogger() : LoggerPtr()),
     _busyTimeout(IceUtil::Time::seconds(adapter->getCommunicator()->getProperties()->
 					getPropertyAsIntWithDefault("IcePatch.BusyTimeout", 10))),
-    _dir(adapter->getCommunicator()->getProperties()->getProperty("IcePatch.Directory"))
+    _dir(dir)
 {
-    if(!_dir.empty() && _dir[_dir.length() - 1] != '/')
+    assert(!_dir.empty());
+    if(_dir[_dir.length() - 1] != '/')
     {
 	const_cast<string&>(_dir) += '/';
     }
@@ -42,13 +44,14 @@ IcePatch::FileI::readMD5(const Current& current) const
 
     if(path == ".")
     {
-	//
-	// We do not create a MD5 file for the top-level directory.
-	//
-	return ByteSeq();
+        path = _dir.substr(0, _dir.size() - 1); // Remove trailing '/'.
+    }
+    else
+    {
+        path = _dir + path;
     }
 
-    path = _dir + path;
+    string pathMD5 = path + ".md5";
     
     IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
     if(!sync.acquired())
@@ -57,7 +60,7 @@ IcePatch::FileI::readMD5(const Current& current) const
     }
 
     FileInfo info = getFileInfo(path, true, _fileTraceLogger);
-    FileInfo infoMD5 = getFileInfo(path + ".md5", false, _fileTraceLogger);
+    FileInfo infoMD5 = getFileInfo(pathMD5, false, _fileTraceLogger);
 
     if(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
     {
@@ -66,7 +69,7 @@ IcePatch::FileI::readMD5(const Current& current) const
 	    throw BusyException();
 	}
 	
-	infoMD5 = getFileInfo(path + ".md5", false, _fileTraceLogger);
+	infoMD5 = getFileInfo(pathMD5, false, _fileTraceLogger);
 	while(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
 	{
 	    //
@@ -79,16 +82,16 @@ IcePatch::FileI::readMD5(const Current& current) const
 	    {
 		IceUtil::ThreadControl::sleep(diff);
 	    }
-	    
+
 	    createMD5(path, _fileTraceLogger);
-	    
+
 	    //
 	    // If the source file size has changed after we
 	    // created the MD5 file, we try again.
 	    //
 	    FileInfo oldInfo = info;
 	    info = getFileInfo(path, true, _fileTraceLogger);
-	    infoMD5 = getFileInfo(path + ".md5", true, _fileTraceLogger); // Must exist.
+	    infoMD5 = getFileInfo(pathMD5, true, _fileTraceLogger); // Must exist.
 	    if(info.size != oldInfo.size)
 	    {
 		info.time = infoMD5.time;
@@ -99,8 +102,8 @@ IcePatch::FileI::readMD5(const Current& current) const
     return getMD5(path);
 }
 
-IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :
-    FileI(adapter)
+IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter, const string& dir) :
+    FileI(adapter, dir)
 {
 }
 
@@ -192,8 +195,46 @@ IcePatch::DirectoryI::getContents(const Current& current) const
     return result;
 }
 
-IcePatch::RegularI::RegularI(const ObjectAdapterPtr& adapter) :
-    FileI(adapter)
+Long
+IcePatch::DirectoryI::getTotal(const Ice::ByteSeq& md5, const Ice::Current& current) const
+{
+    string path = identityToPath(current.id);
+
+    if(path == ".")
+    {
+        path = _dir.substr(0, _dir.size() - 1); // Remove trailing '/'.
+    }
+    else
+    {
+        path = _dir + path;
+    }
+
+    IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
+    if(!sync.acquired())
+    {
+        throw BusyException();
+    }
+
+    TotalMap totals = getTotalMap(_adapter->getCommunicator(), path);
+    TotalMap::const_iterator p;
+    ByteSeq zeroMD5(16, 0);
+    if(md5.empty() || md5 == zeroMD5)
+    {
+        p = totals.find(ByteSeq());
+    }
+    else
+    {
+        p = totals.find(md5);
+    }
+    if(p != totals.end())
+    {
+        return p->second;
+    }
+    return -1;
+}
+
+IcePatch::RegularI::RegularI(const ObjectAdapterPtr& adapter, const string& dir) :
+    FileI(adapter, dir)
 {
 }
 
@@ -216,7 +257,6 @@ IcePatch::RegularI::describe(const Current& current) const
 Int
 IcePatch::RegularI::getBZ2Size(const Current& current) const
 {
-   
     IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
     if(!sync.acquired())
     {
@@ -256,7 +296,6 @@ IcePatch::RegularI::getBZ2Size(const Current& current) const
     }
     
     return static_cast<Int>(infoBZ2.size);
-   
 }
 
 ByteSeq
@@ -306,7 +345,6 @@ IcePatch::RegularI::getBZ2(Int pos, Int num, const Current& current) const
 ByteSeq
 IcePatch::RegularI::getBZ2MD5(Int size, const Current& current) const
 {
-   
     IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
     if(!sync.acquired())
     {
@@ -345,5 +383,5 @@ IcePatch::RegularI::getBZ2MD5(Int size, const Current& current) const
 	}
     }
     
-    return IcePatch::calcPartialMD5(path + ".bz2", size, _fileTraceLogger);
+    return calcPartialMD5(path + ".bz2", size, _fileTraceLogger);
 }

@@ -20,15 +20,16 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch;
 
-IcePatch::FileLocator::FileLocator(const Ice::ObjectAdapterPtr& adapter) :
-    _directory(new DirectoryI(adapter)),
-    _regular(new RegularI(adapter)),
+IcePatch::FileLocator::FileLocator(const Ice::ObjectAdapterPtr& adapter, const string& dir) :
+    _directory(new DirectoryI(adapter, dir)),
+    _regular(new RegularI(adapter, dir)),
     _logger(adapter->getCommunicator()->getLogger()),
     _fileTraceLogger(adapter->getCommunicator()->getProperties()->getPropertyAsInt("IcePatch.Trace.Files") > 0 ?
 		     _logger : LoggerPtr()),
-    _dir(adapter->getCommunicator()->getProperties()->getProperty("IcePatch.Directory"))
+    _dir(dir)
 {
-    if(!_dir.empty() && _dir[_dir.length() - 1] != '/')
+    assert(!_dir.empty());
+    if(_dir[_dir.length() - 1] != '/')
     {
 	const_cast<string&>(_dir) += '/';
     }

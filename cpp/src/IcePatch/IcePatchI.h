@@ -26,7 +26,7 @@ class FileI : virtual public File
 {
 public:
 
-    FileI(const Ice::ObjectAdapterPtr&);
+    FileI(const Ice::ObjectAdapterPtr&, const std::string&);
 
 protected:
 
@@ -42,19 +42,20 @@ class DirectoryI : virtual public Directory,
 		   virtual public FileI
 {
 public:
-    
-    DirectoryI(const Ice::ObjectAdapterPtr&);
+
+    DirectoryI(const Ice::ObjectAdapterPtr&, const std::string&);
 
     virtual FileDescPtr describe(const Ice::Current&) const;
     virtual FileDescSeq getContents(const Ice::Current&) const;
+    virtual Ice::Long getTotal(const Ice::ByteSeq&, const Ice::Current&) const;
 };
 
 class RegularI : virtual public Regular,
                  virtual public FileI
 {
 public:
-    
-    RegularI(const Ice::ObjectAdapterPtr&);
+
+    RegularI(const Ice::ObjectAdapterPtr&, const std::string&);
 
     virtual FileDescPtr describe(const Ice::Current&) const;
     virtual Ice::Int getBZ2Size(const Ice::Current&) const;
