@@ -74,7 +74,7 @@ LibraryServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     //
     // Create the library, and add it to the Object Adapter.
     //
-    LibraryIPtr library = new LibraryI(adapter, dbAuthors, evictor);
+    LibraryIPtr library = new LibraryI(dbAuthors, evictor);
     adapter->add(library, stringToIdentity("library"));
     
     //

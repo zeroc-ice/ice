@@ -148,8 +148,7 @@ ContactI::destroy(const Ice::Current&)
     }
 }
 
-PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter, const DBPtr& db, const EvictorPtr& evictor) :
-    _adapter(adapter),
+PhoneBookI::PhoneBookI(const DBPtr& db, const EvictorPtr& evictor) :
     _db(db),
     _evictor(evictor),
     _nameIdentitiesDict(db)
@@ -176,7 +175,7 @@ private:
 };
 
 ContactPrx
-PhoneBookI::createContact(const Ice::Current&)
+PhoneBookI::createContact(const Ice::Current& c)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
     
@@ -221,7 +220,7 @@ PhoneBookI::createContact(const Ice::Current&)
 	// Turn the identity into a Proxy and return the Proxy to the
 	// caller.
 	//
-	return IdentityToContact(_adapter)(ident);
+	return IdentityToContact(c.adapter)(ident);
     }
     catch(const Freeze::DBException& ex)
     {
@@ -232,7 +231,7 @@ PhoneBookI::createContact(const Ice::Current&)
 }
 
 Contacts
-PhoneBookI::findContacts(const string& name, const Ice::Current&) const
+PhoneBookI::findContacts(const string& name, const Ice::Current& c) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
     
@@ -252,7 +251,7 @@ PhoneBookI::findContacts(const string& name, const Ice::Current&) const
 
 	Contacts contacts;
 	contacts.reserve(identities.size());
-	transform(identities.begin(), identities.end(), back_inserter(contacts), IdentityToContact(_adapter));
+	transform(identities.begin(), identities.end(), back_inserter(contacts), IdentityToContact(c.adapter));
 
 	return contacts;
     }
@@ -274,12 +273,9 @@ PhoneBookI::setEvictorSize(Int size, const Ice::Current&)
 }
 
 void
-PhoneBookI::shutdown(const Ice::Current&) const
+PhoneBookI::shutdown(const Ice::Current& c) const
 {
-    //
-    // No synchronization necessary, _adapter is immutable.
-    //
-    _adapter->getCommunicator()->shutdown();
+    c.adapter->getCommunicator()->shutdown();
 }
 
 void

@@ -574,7 +574,6 @@ Parser::parse(const string& commands, bool debug)
 }
 
 Parser::Parser(const CommunicatorPtr& communicator, const PhoneBookPrx& phoneBook) :
-    _communicator(communicator),
     _phoneBook(phoneBook)
 {
 }

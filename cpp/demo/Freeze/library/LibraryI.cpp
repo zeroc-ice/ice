@@ -157,8 +157,7 @@ private:
     Ice::ObjectAdapterPtr _adapter;
 };
 
-LibraryI::LibraryI(const Ice::ObjectAdapterPtr& adapter, const Freeze::DBPtr& db, const Freeze::EvictorPtr& evictor) :
-    _adapter(adapter),
+LibraryI::LibraryI(const Freeze::DBPtr& db, const Freeze::EvictorPtr& evictor) :
     _evictor(evictor),
     _authors(db)
 {
@@ -169,11 +168,11 @@ LibraryI::~LibraryI()
 }
 
 ::BookPrx
-LibraryI::createBook(const ::BookDescription& description, const Ice::Current&)
+LibraryI::createBook(const ::BookDescription& description, const Ice::Current& c)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
 
-    BookPrx book = IsbnToBook(_adapter)(description.isbn);
+    BookPrx book = IsbnToBook(c.adapter)(description.isbn);
     try
     {
 	book->ice_ping();
@@ -221,7 +220,7 @@ LibraryI::createBook(const ::BookDescription& description, const Ice::Current&)
 }
 
 ::BookPrx
-LibraryI::findByIsbn(const string& isbn, const Ice::Current&) const
+LibraryI::findByIsbn(const string& isbn, const Ice::Current& c) const
 {
     //
     // No locking is necessary since no internal mutable state is
@@ -231,7 +230,7 @@ LibraryI::findByIsbn(const string& isbn, const Ice::Current&) const
 
     try
     {
-	BookPrx book = IsbnToBook(_adapter)(isbn);
+	BookPrx book = IsbnToBook(c.adapter)(isbn);
 	book->ice_ping();
 	return book;
     }
@@ -245,7 +244,7 @@ LibraryI::findByIsbn(const string& isbn, const Ice::Current&) const
 }
 
 ::BookPrxSeq
-LibraryI::findByAuthors(const string& authors, const Ice::Current&) const
+LibraryI::findByAuthors(const string& authors, const Ice::Current& c) const
 {
     IceUtil::RWRecMutex::RLock sync(*this);
 
@@ -260,7 +259,7 @@ LibraryI::findByAuthors(const string& authors, const Ice::Current&) const
     if(p != _authors.end())
     {
 	books.reserve(p->second.size());
-	transform(p->second.begin(), p->second.end(), back_inserter(books), IsbnToBook(_adapter));
+	transform(p->second.begin(), p->second.end(), back_inserter(books), IsbnToBook(c.adapter));
     }
 
     return books;
@@ -278,10 +277,7 @@ LibraryI::setEvictorSize(::Ice::Int size, const Ice::Current&)
 void
 LibraryI::shutdown(const Ice::Current& current)
 {
-    //
-    // No synchronization necessary, _adapter is immutable.
-    //
-    _adapter->getCommunicator()->shutdown();
+    current.adapter->getCommunicator()->shutdown();
 }
 
 void

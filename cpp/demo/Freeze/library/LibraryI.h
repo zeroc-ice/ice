@@ -24,7 +24,7 @@ class LibraryI : public Library, public IceUtil::RWRecMutex
 {
 public:
 
-    LibraryI(const Ice::ObjectAdapterPtr&, const Freeze::DBPtr&, const Freeze::EvictorPtr&);
+    LibraryI(const Freeze::DBPtr&, const Freeze::EvictorPtr&);
     virtual ~LibraryI();
 
     virtual ::BookPrx createBook(const ::BookDescription&, const Ice::Current&);
@@ -37,7 +37,6 @@ public:
 
 private:
 
-    Ice::ObjectAdapterPtr _adapter;
     Freeze::EvictorPtr _evictor;
 
     //

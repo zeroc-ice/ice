@@ -97,7 +97,6 @@ private:
     BookPrxSeq::iterator _current;
 
     std::string _commands;
-    Ice::CommunicatorPtr _communicator;
     LibraryPrx _library;
     bool _continue;
     int _errors;

@@ -74,7 +74,7 @@ PhoneBookServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv
     //
     // Create the phonebook, and add it to the Object Adapter.
     //
-    PhoneBookIPtr phoneBook = new PhoneBookI(adapter, dbPhoneBook, evictor);
+    PhoneBookIPtr phoneBook = new PhoneBookI(dbPhoneBook, evictor);
     adapter->add(phoneBook, stringToIdentity("phonebook"));
     
     //

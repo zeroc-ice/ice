@@ -595,7 +595,6 @@ Parser::parse(const string& commands, bool debug)
 }
 
 Parser::Parser(const CommunicatorPtr& communicator, const LibraryPrx& library) :
-    _communicator(communicator),
     _library(library)
 {
 }

@@ -58,7 +58,7 @@ class PhoneBookI : public PhoneBook, public IceUtil::RWRecMutex
 {
 public: 
 
-    PhoneBookI(const Ice::ObjectAdapterPtr&, const Freeze::DBPtr&, const Freeze::EvictorPtr&);
+    PhoneBookI(const Freeze::DBPtr&, const Freeze::EvictorPtr&);
 
     virtual ContactPrx createContact(const Ice::Current&);
     virtual Contacts findContacts(const std::string&, const Ice::Current&) const;
@@ -73,7 +73,6 @@ private:
 
     void removeI(const Ice::Identity&, const std::string&);
 
-    Ice::ObjectAdapterPtr _adapter;
     Freeze::DBPtr _db;
     Freeze::EvictorPtr _evictor;
     NameIdentitiesDict _nameIdentitiesDict;

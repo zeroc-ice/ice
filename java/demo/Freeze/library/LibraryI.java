@@ -18,7 +18,7 @@ class LibraryI extends _LibraryDisp
     createBook(BookDescription description, Ice.Current current)
 	throws DatabaseException, BookExistsException
     {
-	BookPrx book = isbnToBook(description.isbn);
+	BookPrx book = isbnToBook(description.isbn, current.adapter);
 
 	try
 	{
@@ -90,7 +90,7 @@ class LibraryI extends _LibraryDisp
     {
 	try
 	{
-	    BookPrx book = isbnToBook(isbn);
+	    BookPrx book = isbnToBook(isbn, current.adapter);
 	    book.ice_ping();
 
 	    return book;
@@ -123,7 +123,7 @@ class LibraryI extends _LibraryDisp
 	    {
 		for(int i = 0; i < length; ++i)
 		{
-		    books[i] = isbnToBook(isbnSeq[i]);
+		    books[i] = isbnToBook(isbnSeq[i], current.adapter);
 		}
 	    }
 
@@ -150,10 +150,7 @@ class LibraryI extends _LibraryDisp
     public void
     shutdown(Ice.Current current)
     {
-	//
-	// No synchronization necessary, _adapter is immutable.
-	//
-	_adapter.getCommunicator().shutdown();
+	current.adapter.getCommunicator().shutdown();
     }
 
     protected synchronized void
@@ -226,9 +223,8 @@ class LibraryI extends _LibraryDisp
 	}
     }
 
-    LibraryI(Ice.ObjectAdapter adapter, Freeze.DB db, Freeze.Evictor evictor)
+    LibraryI(Freeze.DB db, Freeze.Evictor evictor)
     {
-	_adapter = adapter;
 	_evictor = evictor;
 	_authors = new StringIsbnSeqDict(db);
     }
@@ -248,12 +244,11 @@ class LibraryI extends _LibraryDisp
     }
 
     private BookPrx
-    isbnToBook(String isbn)
+    isbnToBook(String isbn, Ice.ObjectAdapter adapter)
     {
-	return BookPrxHelper.uncheckedCast(_adapter.createProxy(createBookIdentity(isbn)));
+	return BookPrxHelper.uncheckedCast(adapter.createProxy(createBookIdentity(isbn)));
     }
 
-    private Ice.ObjectAdapter _adapter;
     private Freeze.Evictor _evictor;
     private StringIsbnSeqDict _authors;
 }

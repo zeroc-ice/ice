@@ -51,7 +51,7 @@ class LibraryCollocated extends Freeze.Application
 	//
 	// Create the library, and add it to the Object Adapter.
 	//
-	LibraryI library = new LibraryI(adapter, dbAuthors, evictor);
+	LibraryI library = new LibraryI(dbAuthors, evictor);
 	adapter.add(library, Ice.Util.stringToIdentity("library"));
     
 	//

@@ -16,7 +16,6 @@ class Parser
 {
     Parser(Ice.Communicator communicator, LibraryPrx library)
     {
-	_communicator = communicator;
 	_library = library;
     }
 
@@ -382,7 +381,6 @@ class Parser
     private BookPrx[] _foundBooks;
     private int _current;
 
-    private Ice.Communicator _communicator;
     private LibraryPrx _library;
 
     private java.io.BufferedReader _in;

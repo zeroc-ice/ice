@@ -97,7 +97,6 @@ private:
     Contacts::iterator _current;
 
     std::string _commands;
-    Ice::CommunicatorPtr _communicator;
     PhoneBookPrx _phoneBook;
     bool _continue;
     int _errors;
