@@ -112,12 +112,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 	}
 	
 	dataDir = normalize(string(cwd) + '/' + dataDir);
-	
-	if(chdir(dataDir.c_str()) == -1)
-	{
-	    throw "cannot change directory to `" + dataDir + "': " + strerror(errno);
-	}
-	
+
 	loadFileInfoSeq(dataDir, infoSeq);
     }
     catch(const string& ex)
@@ -148,7 +143,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 
     const char* idProperty = "IcePatch2.Identity";
     Identity id = stringToIdentity(properties->getPropertyWithDefault(idProperty, "IcePatch2/server"));
-    adapter->add(new FileServerI(infoSeq), id);
+    adapter->add(new FileServerI(dataDir, infoSeq), id);
 
     if(adminAdapter)
     {

@@ -756,24 +756,40 @@ IcePatch2::loadFileInfoSeq(const string& pa, FileInfoSeq& infoSeq)
 	}
     }
 
+    bool save = false;
+
     {
 	const string pathLog = normalize(pa + ".log");
 
 	ifstream is(pathLog.c_str());
-	while(is.good())
+	if(is)
 	{
-	    FileInfo info;
-	    is >> info;
-
-	    if(is.good())
+	    save = true;
+	    
+	    while(is.good())
 	    {
-		infoSeq.push_back(info);
+		FileInfo info;
+		is >> info;
+		
+		if(is.good())
+		{
+		    infoSeq.push_back(info);
+		}
 	    }
 	}
     }
     
     sort(infoSeq.begin(), infoSeq.end(), FileInfoLess());
     infoSeq.erase(unique(infoSeq.begin(), infoSeq.end(), FileInfoEqual()), infoSeq.end());
+
+    //
+    // If we merged the sequence with a log file, we save this new
+    // merged sequence and remove the log file.
+    //
+    if(save)
+    {
+	saveFileInfoSeq(pa, infoSeq);
+    }
 }
 
 void
