@@ -142,14 +142,14 @@ private:
 
 IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
     _feedback(feedback),
-    _dataDir(normalize(communicator->getProperties()->getProperty("IcePatch2.Directory"))),
+    _dataDir(normalize(communicator->getProperties()->getPropertyWithDefault("IcePatch2.Directory", "."))),
     _thorough(communicator->getProperties()->getPropertyAsInt("IcePatch2.Thorough") > 0),
     _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100)),
     _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.Remove", 1))
 {
-    if(_dataDir.empty())
+    if(chdir(_dataDir.c_str()) != 0)
     {
-	throw string("no data directory specified");
+	throw string("cannot change directory to `" + _dataDir + "': " + lastError());
     }
 
     int sizeMax = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
@@ -421,11 +421,11 @@ IcePatch2::Patcher::prepare()
         = equal_range(_removeFiles.begin(), _removeFiles.end(), fi, PathLess());
     _removeFiles.erase(p.first, p.second);
 
-    string pathLog = _dataDir + "/" + logFile;
-    _log.open(pathLog.c_str());
+    string patchLog = _dataDir + "/" + logFile;
+    _log.open(patchLog.c_str());
     if(!_log)
     {
-	throw "cannot open `" + pathLog + "' for writing:\n" + lastError();
+	throw "cannot open `" + patchLog + "' for writing:\n" + lastError();
     }
 
     return true;
