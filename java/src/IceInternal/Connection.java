@@ -1107,21 +1107,58 @@ public final class Connection extends EventHandler
 	}
     }
 
-    public synchronized void
+    public void
     finished(ThreadPool threadPool)
     {
-	threadPool.promoteFollower();
-	
-	if(_state == StateActive || _state == StateClosing)
+	IntMap requests = null;
+	IntMap asyncRequests = null;
+
+	synchronized(this)
 	{
-	    registerWithPool();
+	    threadPool.promoteFollower();
+	    
+	    if(_state == StateActive || _state == StateClosing)
+	    {
+		registerWithPool();
+	    }
+	    else if(_state == StateClosed && _transceiver != null)
+	    {
+		_transceiver.close();
+		_transceiver = null;
+		_threadPool = null; // We don't need the thread pool anymore.
+		notifyAll();
+	    }
+
+	    if(_state == StateClosed || _state == StateClosing)
+	    {
+		requests = _requests;
+		_requests = new IntMap();
+
+		asyncRequests = _asyncRequests;
+		_asyncRequests = new IntMap();
+	    }
 	}
-	else if(_state == StateClosed && _transceiver != null)
+
+	if(requests != null)
 	{
-	    _transceiver.close();
-	    _transceiver = null;
-	    _threadPool = null; // We don't need the thread pool anymore.
-	    notifyAll();
+	    java.util.Iterator i = requests.entryIterator();
+	    while(i.hasNext())
+	    {
+		IntMap.Entry e = (IntMap.Entry)i.next();
+		Outgoing out = (Outgoing)e.getValue();
+		out.finished(_exception); // Exception is immutable at this point.
+	    }
+	}
+	
+	if(asyncRequests != null)
+	{
+	    java.util.Iterator i = asyncRequests.entryIterator();
+	    while(i.hasNext())
+	    {
+		IntMap.Entry e = (IntMap.Entry)i.next();
+		OutgoingAsync out = (OutgoingAsync)e.getValue();
+		out.__finished(_exception); // Exception is immutable at this point.
+	    }
 	}
     }
 
@@ -1194,6 +1231,12 @@ public final class Connection extends EventHandler
     private void
     setState(int state, Ice.LocalException ex)
     {
+	//
+	// If setState() is called with an exception, then only closed
+	// and closing states are permissible.
+	//
+	assert(state == StateClosing || state == StateClosed);
+
         if(_state == state) // Don't switch twice.
         {
             return;
@@ -1226,6 +1269,15 @@ public final class Connection extends EventHandler
 	//
         setState(state);
 
+	//
+	// We can't call __finished() on async requests here, because
+	// it's possible that the callback will trigger another call,
+	// which then might block on this connection. Calling
+	// finished() at this place works for non-async calls, but in
+	// order to keep the logic of sending exceptions to requests
+	// in one place, we don't do this here either. Instead, we
+	// move all the code into the finished() operation.
+	/*
 	{
 	    java.util.Iterator i = _requests.entryIterator();
 	    while(i.hasNext())
@@ -1247,6 +1299,7 @@ public final class Connection extends EventHandler
 	    }
 	    _asyncRequests.clear();
 	}
+	*/
     }
 
     private void

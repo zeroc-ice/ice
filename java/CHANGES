@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Fixed a deadlock that could happen if requests were sent from the
+  exception() AMI callback.
+
 - A new Freeze warning is issued when a live iterator is closed by the
   finalizer of Freeze.Map or Freeze.ConnectionI. To see this warning
   in programs that do not run very long or do not create a large number 

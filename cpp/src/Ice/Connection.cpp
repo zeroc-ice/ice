@@ -1294,24 +1294,48 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 void
 IceInternal::Connection::finished(const ThreadPoolPtr& threadPool)
 {
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    std::map<Ice::Int, Outgoing*> requests;
+    std::map<Ice::Int, OutgoingAsyncPtr> asyncRequests;
 
-    threadPool->promoteFollower();
-
-    if(_state == StateActive || _state == StateClosing)
     {
-	registerWithPool();
-    }
-    else if(_state == StateClosed && _transceiver)
-    {
-	_transceiver->close();
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	
+	threadPool->promoteFollower();
+	
+	if(_state == StateActive || _state == StateClosing)
 	{
-	    // See _queryMutex comment in header file.
-	    IceUtil::Mutex::Lock s(_queryMutex);
-	    _transceiver = 0;
+	    registerWithPool();
 	}
-	_threadPool = 0; // We don't need the thread pool anymore.
-	notifyAll();
+	else if(_state == StateClosed && _transceiver)
+	{
+	    _transceiver->close();
+	    {
+		// See _queryMutex comment in header file.
+		IceUtil::Mutex::Lock s(_queryMutex);
+		_transceiver = 0;
+	    }
+	    _threadPool = 0; // We don't need the thread pool anymore.
+	    notifyAll();
+	}
+
+	if(_state == StateClosed || _state == StateClosing)
+	{
+	    requests.swap(_requests);
+	    _requestsHint = _requests.end();
+
+	    asyncRequests.swap(_asyncRequests);
+	    _asyncRequestsHint = _asyncRequests.end();
+	}
+    }
+
+    for(map<Int, Outgoing*>::iterator p = requests.begin(); p != requests.end(); ++p)
+    {
+	p->second->finished(*_exception.get()); // Exception is immutable at this point.
+    }
+
+    for(map<Int, OutgoingAsyncPtr>::iterator q = asyncRequests.begin(); q != asyncRequests.end(); ++q)
+    {
+	q->second->__finished(*_exception.get()); // Exception is immutable at this point.
     }
 }
 
@@ -1434,6 +1458,12 @@ IceInternal::Connection::~Connection()
 void
 IceInternal::Connection::setState(State state, const LocalException& ex)
 {
+    //
+    // If setState() is called with an exception, then only closed and
+    // closing states are permissible.
+    //
+    assert(state == StateClosing || state == StateClosed);
+
     if(_state == state) // Don't switch twice.
     {
 	return;
@@ -1467,6 +1497,15 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
     //
     setState(state);
 
+    //
+    // We can't call __finished() on async requests here, because
+    // it's possible that the callback will trigger another call,
+    // which then might block on this connection. Calling
+    // finished() at this place works for non-async calls, but in
+    // order to keep the logic of sending exceptions to requests
+    // in one place, we don't do this here either. Instead, we
+    // move all the code into the finished() operation.
+    /*
     for(map<Int, Outgoing*>::iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
 	p->second->finished(*_exception.get());
@@ -1480,6 +1519,7 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
     }
     _asyncRequests.clear();
     _asyncRequestsHint = _asyncRequests.end();
+    */
 }
 
 void

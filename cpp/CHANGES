@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Fixed a deadlock that could happen if requests were sent from the
+  exception() AMI callback.
+
 - Eliminated the need to define _UNICODE when building Ice on Windows.
 
 - Fixed problems with generated code in slice2cpp and slice2freeze
