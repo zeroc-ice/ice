@@ -92,7 +92,17 @@ class PropertiesI extends LocalObjectImpl implements Properties
     public synchronized void
     setProperty(String key, String value)
     {
-        _properties.put(key, value);
+	if(key != null && key.length() > 0)
+	{
+	    if(value != null && value.length() > 0)
+	    {
+		_properties.put(key, value);
+	    }
+	    else
+	    {
+		_properties.remove(key);
+	    }
+	}
     }
 
     public synchronized String[]

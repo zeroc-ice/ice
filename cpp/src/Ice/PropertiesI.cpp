@@ -95,7 +95,17 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    _properties[key] = value;
+    if(!key.empty())
+    {
+	if(!value.empty())
+	{
+	    _properties.insert(make_pair(key, value));
+	}
+	else
+	{
+	    _properties.erase(key);
+	}
+    }
 }
 
 StringSeq
