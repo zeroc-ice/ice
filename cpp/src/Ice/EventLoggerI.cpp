@@ -18,6 +18,13 @@ HMODULE Ice::EventLoggerI::_module = NULL;
 Ice::EventLoggerI::EventLoggerI(const string& appName) : 
     _appName(appName), _source(NULL)
 {
+    if(appName.empty())
+    {
+        InitializationException ex(__FILE__, __LINE__);
+        ex.reason = "event logger requires a value for Ice.ProgramName";
+        throw ex;
+    }
+
     //
     // We first need to ensure that there is a registry entry for this application
     // under HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\EventLog\Application.
@@ -86,7 +93,10 @@ Ice::EventLoggerI::EventLoggerI(const string& appName) :
 
     RegCloseKey(hKey);
 
-    _source = RegisterEventSource(NULL, appName.c_str());
+    //
+    // The event source must match the registry key.
+    //
+    _source = RegisterEventSource(NULL, _appName.c_str());
     if(_source == NULL)
     {
         SyscallException ex(__FILE__, __LINE__);
