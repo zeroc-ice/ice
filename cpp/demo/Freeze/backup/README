@@ -1,15 +1,24 @@
+**********************************************************************
+
+Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+This copy of Ice is licensed to you under the terms described in the
+ICE_LICENSE file included in this distribution.
+
+**********************************************************************
+
 Freeze online backup demo (Linux/Unix only)
 ===========================================
 
-This demo helps you experiment with Berkeley DB hot backup
+This demo helps you experiment with Berkeley DB's hot backup
 capabilities, and shows how to configure Freeze to support hot
 backups.
 
-The client program is very simple: it creates a simple Int to Long
-Freeze map, with 10000 elements. The client uses a transaction to update
-all the elements with the current date-time (as a number of
-milliseconds since the  epoch -- 01/01/1970 at 00:00:00 UTC). It also
-verifies that the old values are all the same.
+The client program is very simple: it creates an Int to Long Freeze
+map, with 10000 elements. The client uses a transaction to update all
+the elements with the current date-time (as a number of milliseconds
+since the epoch -- 01/01/1970 at 00:00:00 UTC). It also verifies that
+the old values are all the same.
 
 This program runs forever: you need to kill it (e.g., with CTRL-C) to 
 terminate it.
@@ -19,22 +28,23 @@ backup shell script:
 
 % ./backup full
 
-Performs a full backup (both data and log files) in the full directory.
+Performs a full backup (both data and log files) in the full
+directory.
 
 % ./backup incremental
 
 Performs an incremental backup (only log files) in the the incremental
 directory.
 
-The backup script uses dd and the Berkeley DB utilities db_archive
-and db_checkpoint.
+The backup script uses the dd program as well as the Berkeley DB
+utilities db_archive and db_checkpoint.
 
 The backup shell script runs db_archive before copying any file to get
-a list of unused (old) log files, and then delete all these files after
-the backup itself. This is a safe way to perform backups; other
+a list of unused (old) log files. These files are deleted after the
+backup is performed. This is a safe way to perform backups, but other
 approaches are also possible. Please consult the Berkeley DB
-documentation at http://www.sleepycat.com/docs for detailed information
-on Berkeley DB hot backups.
+documentation at http://www.sleepycat.com/docs for detailed
+information on Berkeley DB hot backups.
 
 Note that the Ice config file (named config) disables the automatic
 deletion of old log files:
@@ -42,7 +52,7 @@ deletion of old log files:
 Freeze.DbEnv.db.OldLogsAutoDelete=0
 
 and also sets DbPrivate to 0 to allow db_archive to access the db 
-environment while client is running:
+environment while the client is running:
 
 Freeze.DbEnv.db.DbPrivate=0
 
@@ -55,5 +65,5 @@ directory and the files in the incremental directory). Do not run this
 script while the client is running.
 
 Before doing a recover, you can "corrupt" the main database, for
-example remove the data file (db/data/IntLongMap), or add random
+example by removing the data file (db/data/IntLongMap), or add random
 characters to the latest log file.

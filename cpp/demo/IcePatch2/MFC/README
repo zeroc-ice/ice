@@ -1,3 +1,12 @@
+**********************************************************************
+
+Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+This copy of Ice is licensed to you under the terms described in the
+ICE_LICENSE file included in this distribution.
+
+**********************************************************************
+
 This demo illustrates how to use MFC to create a simple IcePatch2
 client application.
 
@@ -30,5 +39,5 @@ Now you can start the IcePatch2 client:
 $ patch --IcePatch2.Endpoints="tcp -h 127.0.0.1 -p 10000"
 
 Click the "..." button to the right of the Patch Directory field and
-select an empty directory you just created. Then click the "Patch"
+select the empty directory you just created. Then click the "Patch"
 button to begin the patch process.

@@ -1,11 +1,20 @@
+**********************************************************************
+
+Copyright (c) 2003-2005 ZeroC, Inc. All rights reserved.
+
+This copy of Ice is licensed to you under the terms described in the
+ICE_LICENSE file included in this distribution.
+
+**********************************************************************
+
 To run the demo:
 
 Start the IceStorm service:
 
 $ ../../../bin/icebox --Ice.Config=config_service
 
-This currently assumes there is a subdirectory named db in the current
-working directory.
+This configuration assumes there is a subdirectory named db in the
+current working directory.
 
 In a separate window:
 
