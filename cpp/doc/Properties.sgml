@@ -3061,3 +3061,126 @@ counting of the underlying database.</entry>
 
 
 </section>
+
+<!-- ********************************************************************** -->
+<section><title>&IcePatch; Properties</title>
+<!-- ********************************************************************** -->
+
+<section><title>IcePatch.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Specifies the endpoints of the IcePatch server. This property is required
+by both the IcePatch server and client.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch.Directory</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch.Directory=<replaceable>dir</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Sets the IcePatch data directory to <replaceable>dir</replaceable>. If not
+defined, the current working directory is used.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch.UpdatePeriod</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch.UpdatePeriod=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Sets the IcePatch server's update period to <replaceable>num</replaceable> seconds.
+Updates are executed in a background thread during which the server descends the data
+directory and performs a number of tasks, including compressing files and computing
+unique signatures. If not defined, the default value is 60. Automatic updates are
+disabled if this property is set to zero.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch.BusyTimeout</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch.BusyTimeout=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the number of seconds <replaceable>num</replaceable> the server should wait
+when attempting to acquire an internal lock on a file or directory. A lock is held
+whenever a file or directory is being updated, such as when a file is being compressed
+or a unique signature is being computed. If the server is unable to acquire a lock after
+the specified timeout period, an IcePatch::BusyException is returned. If not specified,
+the default value is 10.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch.Trace.Files</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch.Trace.Files=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the server emits diagnostic information to its configured logger.
+The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch.RemoveOrphaned</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch.RemoveOrphaned=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the IcePatch client automatically removes files from its local data
+directory that are no longer present in the server's data directory.
+The default value is 0.
+</para>
+</section>
+</section>
+
+<section><title>IcePatch.Thorough</title>
+<section><title>Synopsis</title>
+<synopsis>
+IcePatch.Thorough=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the IcePatch client performs a thorough comparison of each local
+directory to that of the server. The default value of 0 causes the
+client to skip a directory if its unique signature matches the server's.
+</para>
+</section>
+</section>
+
+</section>
