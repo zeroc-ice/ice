@@ -16,9 +16,7 @@
 #define FREEZE_FREEZE_H
 
 #include <Freeze/Initialize.h>
-#include <Freeze/DB.h>
 #include <Freeze/Evictor.h>
-#include <Freeze/Strategy.h>
 #include <Freeze/Map.h>
 
 #endif

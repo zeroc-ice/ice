@@ -29,8 +29,10 @@ name = os.path.join("Freeze", "evictor")
 testdir = os.path.join(toplevel, "test", name)
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 
+testOptions = " --Ice.Config=" + testdir + "/config ";
+
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
-TestUtil.clientServerTestWithOptions(" " + testdir, "")
+TestUtil.clientServerTestWithOptions(" " + testdir, testOptions)
 sys.exit(0)

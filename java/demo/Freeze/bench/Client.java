@@ -12,27 +12,26 @@
 //
 // **********************************************************************
 
-class TestApp extends Freeze.Application
+class TestApp extends Ice.Application
 {
-    TestApp(String dbEnvName)
+    TestApp(String envName)
     {
-	super(dbEnvName);
+	_envName = envName;
     }
 
     void
-    IntIntMapTest(Freeze.DBEnvironment dbEnv, boolean fast)
+    IntIntMapTest(boolean fast)
     {
-	Freeze.DB db;
+	IntIntMap m;
+
 	if(fast)
 	{
-	    db = dbEnv.openDB("IntIntMap.fast", true);
+	    m = new IntIntMap(communicator(), _envName, "IntIntMap.fast", true);
 	}
 	else
 	{
-	    db = dbEnv.openDB("IntIntMap", true);
+	    m = new IntIntMap(communicator(), _envName, "IntIntMap", true);
 	}
-
-	IntIntMap m = new IntIntMap(db);
 
 	//
 	// Populate the database.
@@ -99,7 +98,7 @@ class TestApp extends Freeze.Application
         System.out.println("\ttime for " + _repetitions + " " + ((fast) ? "fast " : "") + "removes: " + total + "ms");
         System.out.println("\ttime per remove: " + perRecord + "ms");
 
-	db.close();
+	m.close();
     }
 
     interface Generator
@@ -183,11 +182,9 @@ class TestApp extends Freeze.Application
     }
 
     void
-    IntIntMapReadTest(Freeze.DBEnvironment dbEnv)
+    IntIntMapReadTest()
     {
-	Freeze.DB db = dbEnv.openDB("IntIntMap", true);
-
-	IntIntMap m = new IntIntMap(db);
+	IntIntMap m = new IntIntMap(communicator(), _envName, "IntIntMap", true);
 
 	//
 	// Populate the database.
@@ -236,15 +233,13 @@ class TestApp extends Freeze.Application
         System.out.println("\ttime per remove: " + perRecord + "ms");
 */
 
-	db.close();
+	m.close();
     }
 
     void
-    Struct1Struct2MapTest(Freeze.DBEnvironment dbEnv)
+    Struct1Struct2MapTest()
     {
-	Freeze.DB db = dbEnv.openDB("Struct1Struct2", true);
-
-	Struct1Struct2Map m = new Struct1Struct2Map(db);
+	Struct1Struct2Map m = new Struct1Struct2Map(communicator(), _envName, "Struct1Struct2", true);
 
 	//
 	// Populate the database.
@@ -296,15 +291,13 @@ class TestApp extends Freeze.Application
         System.out.println("\ttime for " + _repetitions + " removes: " + total + "ms");
         System.out.println("\ttime per remove: " + perRecord + "ms");
 
-	db.close();
+	m.close();
     }
 
     void
-    Struct1Class1MapTest(Freeze.DBEnvironment dbEnv)
+    Struct1Class1MapTest()
     {
-	Freeze.DB db = dbEnv.openDB("Struct1Class1", true);
-
-	Struct1Class1Map m = new Struct1Class1Map(db);
+	Struct1Class1Map m = new Struct1Class1Map(communicator(), _envName, "Struct1Class1", true);
 
 	//
 	// Populate the database.
@@ -356,15 +349,13 @@ class TestApp extends Freeze.Application
         System.out.println("\ttime for " + _repetitions + " removes: " + total + "ms");
         System.out.println("\ttime per remove: " + perRecord + "ms");
 
-	db.close();
+	m.close();
     }
 
     void
-    Struct1ObjectMapTest(Freeze.DBEnvironment dbEnv)
+    Struct1ObjectMapTest()
     {
-	Freeze.DB db = dbEnv.openDB("Struct1Object", true);
-
-	Struct1ObjectMap m = new Struct1ObjectMap(db);
+	Struct1ObjectMap m = new Struct1ObjectMap(communicator(), _envName, "Struct1Object", true);
 
 	//
 	// Populate the database.
@@ -443,32 +434,32 @@ class TestApp extends Freeze.Application
         System.out.println("\ttime for " + _repetitions + " removes: " + total + "ms");
         System.out.println("\ttime per remove: " + perRecord + "ms");
 
-	db.close();
+	m.close();
     }
     
     public int
-    runFreeze(String[] args, Freeze.DBEnvironment dbEnv)
+    run(String[] args)
     {
 	System.out.println("IntIntMap (Collections API)");
-	IntIntMapTest(dbEnv, false);
+	IntIntMapTest(false);
 
 	System.out.println("IntIntMap (Fast API)");
-	IntIntMapTest(dbEnv, true);
+	IntIntMapTest(true);
 
 	System.out.println("Struct1Struct2Map");
-	Struct1Struct2MapTest(dbEnv);
+	Struct1Struct2MapTest();
 
 	System.out.println("Struct1Class1Map");
-	Struct1Class1MapTest(dbEnv);
+	Struct1Class1MapTest();
 
 	MyFactory factory = new MyFactory();
-	factory.install(dbEnv.getCommunicator());
+	factory.install(communicator());
 
 	System.out.println("Struct1ObjectMap");
-	Struct1ObjectMapTest(dbEnv);
+	Struct1ObjectMapTest();
 
 	System.out.println("IntIntMap (read test)");
-	IntIntMapReadTest(dbEnv);
+	IntIntMapReadTest();
 
 	return 0;
     }
@@ -513,6 +504,7 @@ class TestApp extends Freeze.Application
 
     private int _repetitions = 10000;
     private StopWatch _watch = new StopWatch();
+    private String _envName;
 }
 
 public class Client

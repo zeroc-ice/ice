@@ -19,11 +19,13 @@
 using namespace std;
 using namespace IcePack;
 
-IcePack::NodeRegistryI::NodeRegistryI(const Freeze::DBPtr& db, 
+IcePack::NodeRegistryI::NodeRegistryI(const Ice::CommunicatorPtr& communicator,
+				      const string& envName, 
+				      const string& dbName, 
 				      const AdapterRegistryPtr& adapterRegistry,
 				      const AdapterFactoryPtr& adapterFactory,
 				      const TraceLevelsPtr& traceLevels) :
-    _dict(db),
+    _dict(communicator, envName, dbName),
     _adapterRegistry(adapterRegistry),
     _adapterFactory(adapterFactory),
     _traceLevels(traceLevels)
@@ -96,7 +98,7 @@ IcePack::NodeRegistryI::add(const string& name, const NodePrx& node, const Ice::
 	// from the adapter registry to be able to run the node.
 	//
     }    
-    catch(AdapterNotExistException&)
+    catch(const AdapterNotExistException&)
     {
 	//
 	// Create and register the node adapter.

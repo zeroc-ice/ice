@@ -16,7 +16,7 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= cursor evictor dbmap complex
+SUBDIRS		= dbmap complex evictor
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 /nologo /dll /machine:I386 /out:"Release/freeze11.dll" /implib:"Release/freeze.lib" /libpath:"../../../lib"
+# ADD LINK32 libdb41.lib /nologo /dll /machine:I386 /out:"Release/freeze11.dll" /implib:"Release/freeze.lib" /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
@@ -87,7 +87,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386
-# ADD LINK32 /nologo /dll /debug /machine:I386 /out:"Debug/freeze11d.dll" /implib:"Debug/freezed.lib" /libpath:"../../../lib"
+# ADD LINK32 libdb41d.lib /nologo /dll /debug /machine:I386 /out:"Debug/freeze11d.dll" /implib:"Debug/freezed.lib" /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
@@ -106,19 +106,11 @@ PostBuild_Cmds=copy $(OutDir)\freezed.lib ..\..\lib	copy $(OutDir)\freeze11d.pdb
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Application.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\DB.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\DBException.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\DBI.cpp
 # End Source File
 # Begin Source File
 
@@ -134,15 +126,15 @@ SOURCE=.\IdentityObjectRecordDict.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\MapI.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ObjectRecord.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Strategy.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\StrategyI.cpp
+SOURCE=.\SharedDbEnv.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -304,39 +296,6 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Freeze\DBF.ice
-
-!IF  "$(CFG)" == "Freeze - Win32 Release"
-
-USERDEP__DBF_I="..\..\bin\slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Freeze\DBF.ice
-
-"..\..\include\Freeze\DBF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBF.ice 
-	move DBF.h ..\..\include\Freeze 
-	del DBF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
-
-USERDEP__DBF_I="..\..\bin\slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Freeze\DBF.ice
-
-"..\..\include\Freeze\DBF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/DBF.ice 
-	move DBF.h ..\..\include\Freeze 
-	del DBF.cpp 
-	
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=..\..\slice\Freeze\Evictor.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
@@ -488,82 +447,6 @@ BuildCmds= \
 
 "ObjectRecord.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Freeze\Strategy.ice
-
-!IF  "$(CFG)" == "Freeze - Win32 Release"
-
-USERDEP__STRAT="..\..\bin\slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Freeze\Strategy.ice
-
-BuildCmds= \
-	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Strategy.ice \
-	move Strategy.h ..\..\include\Freeze \
-	
-
-"..\..\include\Freeze\Strategy.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Strategy.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
-
-USERDEP__STRAT="..\..\bin\slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Freeze\Strategy.ice
-
-BuildCmds= \
-	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/Strategy.ice \
-	move Strategy.h ..\..\include\Freeze \
-	
-
-"..\..\include\Freeze\Strategy.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Strategy.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\slice\Freeze\StrategyF.ice
-
-!IF  "$(CFG)" == "Freeze - Win32 Release"
-
-USERDEP__STRATE="..\..\bin\slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Freeze\StrategyF.ice
-
-"..\..\include\Freeze\StrategyF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/StrategyF.ice 
-	move StrategyF.h ..\..\include\Freeze 
-	del StrategyF.cpp 
-	
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
-
-USERDEP__STRATE="..\..\bin\slice2cpp.exe"	
-# Begin Custom Build
-InputPath=..\..\slice\Freeze\StrategyF.ice
-
-"..\..\include\Freeze\StrategyF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --dll-export FREEZE_API --include-dir Freeze -I../../slice ../../slice/Freeze/StrategyF.ice 
-	move StrategyF.h ..\..\include\Freeze 
-	del StrategyF.cpp 
-	
 # End Custom Build
 
 !ENDIF 

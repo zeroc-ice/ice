@@ -30,10 +30,8 @@ using namespace Freeze;
 //
 
 static int
-validate(const DBPtr& db)
+validate(const Complex::ComplexDict& m)
 {
-    Complex::ComplexDict m(db);
-
     cout << "testing database expressions... ";
     Complex::ComplexDict::const_iterator p;
     Parser myParser;
@@ -72,10 +70,8 @@ static const char* expressions[] =
 static const size_t nexpressions = sizeof(expressions)/sizeof(expressions[0]);
 
 static int
-populate(const DBPtr& db)
+populate(Complex::ComplexDict& m)
 {
-    Complex::ComplexDict m(db);
-
     cout << "populating the database... ";
     Parser myParser;
     for(size_t i = 0 ; i < nexpressions; ++i)
@@ -102,12 +98,11 @@ usage(const char* name)
 }
 
 static int
-run(int argc, char* argv[], const DBPtr& db)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, Complex::ComplexDict& m)
 {
     //
     // Register a factory for the node types.
     //
-    CommunicatorPtr communicator = db->getCommunicator();
     Ice::ObjectFactoryPtr factory = new Complex::ObjectFactoryI;
     communicator->addObjectFactory(factory, "::Complex::NumberNode");
     communicator->addObjectFactory(factory, "::Complex::AddNode");
@@ -115,11 +110,11 @@ run(int argc, char* argv[], const DBPtr& db)
 
     if(argc > 1 && strcmp(argv[1], "populate") == 0)
     {
-	return populate(db);
+	return populate(m);
     }
     if(argc > 1 && strcmp(argv[1], "validate") == 0)
     {
-	return validate(db);
+	return validate(m);
     }
     usage(argv[0]);
 
@@ -131,9 +126,8 @@ main(int argc, char* argv[])
 {
     int status;
     Ice::CommunicatorPtr communicator;
-    DBEnvironmentPtr dbEnv;
-    string dbEnvDir = "db";
-    DBPtr db;
+   
+    string envName = "db";
 
     try
     {
@@ -151,9 +145,9 @@ main(int argc, char* argv[])
 		    return EXIT_FAILURE;
 		}
 
-		dbEnvDir = argv[i+1];
-		dbEnvDir += "/";
-		dbEnvDir += "db";
+		envName = argv[i+1];
+		envName += "/";
+		envName += "db";
 
 		//
 		// Consume arguments
@@ -172,62 +166,13 @@ main(int argc, char* argv[])
 	}
 
 	communicator = Ice::initialize(argc, argv);
-	dbEnv = Freeze::initialize(communicator, dbEnvDir);
-	db = dbEnv->openDB("test", true);
-	status = run(argc, argv, db);
+	Complex::ComplexDict m(communicator, envName, "test");
+	status = run(argc, argv, communicator, m);
     }
     catch(const Ice::Exception& ex)
     {
 	cerr << ex << endl;
 	status = EXIT_FAILURE;
-    }
-
-    if(db)
-    {
-	try
-	{
-	    db->close();
-	}
-	catch(const DBException& ex)
-	{
-	    cerr << argv[0] << ": " << ex << ": " << ex.message << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(const Exception& ex)
-	{
-	    cerr << argv[0] << ": " << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(...)
-	{
-	    cerr << argv[0] << ": unknown exception" << endl;
-	    status = EXIT_FAILURE;
-	}
-	db = 0;
-    }
-
-    if(dbEnv)
-    {
-	try
-	{
-	    dbEnv->close();
-	}
-	catch(const DBException& ex)
-	{
-	    cerr << argv[0] << ": " << ex << ": " << ex.message << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(const Exception& ex)
-	{
-	    cerr << argv[0] << ": " << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(...)
-	{
-	    cerr << argv[0] << ": unknown exception" << endl;
-	    status = EXIT_FAILURE;
-	}
-	dbEnv = 0;
     }
 
     try

@@ -12,29 +12,17 @@
 //
 // **********************************************************************
 
-class PhoneBookCollocated extends Freeze.Application
+class PhoneBookCollocated extends Ice.Application
 {
     public int
-    runFreeze(String[] args, Freeze.DBEnvironment dbEnv)
+    run(String[] args)
     {
 	Ice.Properties properties = communicator().getProperties();
-    
-	Freeze.DB dbPhoneBook = dbEnv.openDB("phonebook", true);
-	Freeze.DB dbContacts = dbEnv.openDB("contacts", true);
     
 	//
 	// Create an Evictor for contacts.
 	//
-	Freeze.PersistenceStrategy strategy;
-	if(properties.getPropertyAsInt("PhoneBook.IdleStrategy") > 0)
-	{
-            strategy = dbContacts.createIdleStrategy();
-	}
-	else
-	{
-            strategy = dbContacts.createEvictionStrategy();
-	}
-	Freeze.Evictor evictor = dbContacts.createEvictor(strategy);
+	Freeze.Evictor evictor = Freeze.Util.createEvictor(communicator(), _envName, "contacts", true);
 	int evictorSize = properties.getPropertyAsInt("PhoneBook.EvictorSize");
 	if(evictorSize > 0)
 	{
@@ -51,7 +39,7 @@ class PhoneBookCollocated extends Freeze.Application
 	//
 	// Create the phonebook, and add it to the Object Adapter.
 	//
-	PhoneBookI phoneBook = new PhoneBookI(dbPhoneBook, evictor);
+	PhoneBookI phoneBook = new PhoneBookI(communicator(), _envName, "phonebook", evictor);
 	adapter.add(phoneBook, Ice.Util.stringToIdentity("phonebook"));
     
 	//
@@ -68,14 +56,17 @@ class PhoneBookCollocated extends Freeze.Application
 	int status = RunParser.runParser(appName(), args, communicator());
 	adapter.deactivate();
 	adapter.waitForDeactivate();
+	phoneBook.close();
 
 	return status;
     }
 
-    PhoneBookCollocated(String dbEnvName)
+    PhoneBookCollocated(String envName)
     {
-	super(dbEnvName);
+	_envName = envName;
     }
+
+    private String _envName;
 }
 
 public class Collocated

@@ -32,6 +32,7 @@ public class Client
 			Object o = p.next();
 			test(entrySet.contains(o));
 		    }
+		    ((Freeze.Map.EntryIterator)p).close();
 		}
 	    }
 	    catch(Exception ex)
@@ -71,7 +72,7 @@ public class Client
     }
 
     private static int
-    run(String[] args, java.util.Map m, DB db)
+    run(String[] args, java.util.Map m)
 	throws DBException
     {
 	//
@@ -208,8 +209,6 @@ public class Client
 		}
 	    }
 
-	    ((Freeze.Map.EntryIterator)p).close();
- 
 	    test(m.size() == 23);
 	    test(m.get(new Byte((byte)'b')) == null);
 	    test(m.get(new Byte((byte)'n')) == null);
@@ -262,8 +261,6 @@ public class Client
                 }
             }
 
-            ((Freeze.Map.EntryIterator)p).close();
-
             test(m.size() == 26);
             test(m.get(new Byte((byte)'b')) != null);
             test(m.get(new Byte((byte)'n')) != null);
@@ -287,21 +284,6 @@ public class Client
             System.out.println("ok");
         }
 
-	/**
-	 *
-	 * TODO: BENOIT: Re-enable this test. The stress test is disabled for now. It exposes 
-	 * many self dead locks. I believe this is caused by how we setup the database environment,
-	 * i.e.: with all the flags to enable Berkeley DB Transactional support. However since we 
-	 * don't use transactions in the code this leads to deadlocks. If we specify DB_INIT_TXN we 
-	 * should use transactions (http://www.sleepycat.com/docs/ref/transapp/env_open.html).
-	 *
-	 * There's also some details at http://www.sleepycat.com/docs/ref/lock/notxn.html.
-	 *
-	 * Two solutions:
-	 *
-	 *  - use transactions.
-	 *  - use BerkeleyDB Concurrent Data Store product instead.
-	 *
 	{
 	    System.out.print("  testing concurrent access... ");
 	    System.out.flush();
@@ -313,14 +295,7 @@ public class Client
 	    //
 	    for(int i = 0; i < 10; ++i)
 	    {
-		if(m instanceof ByteIntMapXML)
-		{
-		    l.add(new StressThread(new ByteIntMapXML(db)));
-		}
-		else
-		{
-		    l.add(new StressThread(new ByteIntMapBinary(db)));
-		}
+		l.add(new StressThread(m));
 	    }
 
 	    //
@@ -354,7 +329,6 @@ public class Client
 
 	    System.out.println("ok");
 	}
-	*/
 
 	return 0;
     }
@@ -364,9 +338,8 @@ public class Client
     {
 	int status;
 	Ice.Communicator communicator = null;
-	DBEnvironment dbEnv = null;
-	String dbEnvDir = "db";
-        DB xmlDB = null, binaryDB = null;
+	String envName = "db";
+      
 
 	try
 	{
@@ -376,100 +349,37 @@ public class Client
 	    args = holder.value;
 	    if(args.length > 0)
 	    {
-		dbEnvDir = args[0];
-		dbEnvDir += "/";
-		dbEnvDir += "db";
+		envName = args[0];
+		envName += "/";
+		envName += "db";
 	    }
-	    dbEnv = Freeze.Util.initialize(communicator, dbEnvDir);
-            xmlDB = dbEnv.openDB("xml", true);
-            ByteIntMapXML xml = new ByteIntMapXML(xmlDB);
+	    
+            ByteIntMapXML xml = new ByteIntMapXML(communicator, envName, "xml", true);
             System.out.println("testing XML encoding...");
-            status = run(args, xml, xmlDB);
+            status = run(args, xml);
+	    xml.close();
             if(status == 0)
             {
-                binaryDB = dbEnv.openDB("binary", true);
-                ByteIntMapBinary binary = new ByteIntMapBinary(binaryDB);
+                ByteIntMapBinary binary = new ByteIntMapBinary(communicator, envName, "binary", true);
                 System.out.println("testing binary encoding...");
-                status = run(args, binary, binaryDB);
+                status = run(args, binary);
+		binary.close();
             }
+	}
+	catch(DBException ex)
+	{
+	    System.err.println(args[0] + ": " + ex + ": " + ex.message);
+	    status = 1;
+	}
+	catch(Ice.LocalException ex)
+	{
+	    System.err.println(args[0] + ": " + ex);
+	    status = 1;
 	}
 	catch(Exception ex)
 	{
-	    ex.printStackTrace();
-	    System.err.println(ex);
+	    System.err.println(args[0] + ": unknown exception: " + ex);
 	    status = 1;
-	}
-
-        if(xmlDB != null)
-        {
-            try
-            {
-                xmlDB.close();
-            }
-            catch(DBException ex)
-            {
-                System.err.println(args[0] + ": " + ex + ": " + ex.message);
-                status = 1;
-            }
-            catch(Ice.LocalException ex)
-            {
-                System.err.println(args[0] + ": " + ex);
-                status = 1;
-            }
-            catch(Exception ex)
-            {
-                System.err.println(args[0] + ": unknown exception: " + ex);
-                status = 1;
-            }
-            xmlDB = null;
-        }
-
-        if(binaryDB != null)
-        {
-            try
-            {
-                binaryDB.close();
-            }
-            catch(DBException ex)
-            {
-                System.err.println(args[0] + ": " + ex + ": " + ex.message);
-                status = 1;
-            }
-            catch(Ice.LocalException ex)
-            {
-                System.err.println(args[0] + ": " + ex);
-                status = 1;
-            }
-            catch(Exception ex)
-            {
-                System.err.println(args[0] + ": unknown exception: " + ex);
-                status = 1;
-            }
-            binaryDB = null;
-        }
-
-	if(dbEnv != null)
-	{
-	    try
-	    {
-		dbEnv.close();
-	    }
-	    catch(DBException ex)
-	    {
-		System.err.println(args[0] + ": " + ex + ": " + ex.message);
-		status = 1;
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		System.err.println(args[0] + ": " + ex);
-		status = 1;
-	    }
-	    catch(Exception ex)
-	    {
-		System.err.println(args[0] + ": unknown exception: " + ex);
-		status = 1;
-	    }
-	    dbEnv = null;
 	}
 
 	if(communicator != null)

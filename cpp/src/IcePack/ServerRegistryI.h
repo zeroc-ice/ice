@@ -28,7 +28,7 @@ class ServerRegistryI : public ServerRegistry
 {
 public:
 
-    ServerRegistryI(const Freeze::DBPtr&, const TraceLevelsPtr&);
+    ServerRegistryI(const Ice::CommunicatorPtr&, const std::string&, const std::string&, const TraceLevelsPtr&);
 
     virtual void add(const std::string&, const ServerPrx&, const ::Ice::Current&);
     virtual void remove(const std::string&, const ::Ice::Current&);

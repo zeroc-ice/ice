@@ -294,14 +294,14 @@ TopicLinkI::forward(const string& op, Ice::OperationMode mode, const ByteSeq& da
 }
 
 TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& traceLevels, const string& name,
-	       const SubscriberFactoryPtr& factory, const Freeze::DBPtr& db) :
+	       const SubscriberFactoryPtr& factory, 
+	       const string& envName, const string& dbName, bool createDb) :
     _adapter(adapter),
     _traceLevels(traceLevels),
     _name(name),
     _factory(factory),
     _destroyed(false),
-    _links(db),
-    _linksDb(db)
+    _links(adapter->getCommunicator(), envName, dbName, createDb)
 {
     _subscribers = new TopicSubscribers(_traceLevels);
 
@@ -401,8 +401,7 @@ TopicI::destroy(const Ice::Current&)
 
     _adapter->remove(id);
 
-    _linksDb->remove();
-    _linksDb = 0;
+    _links.destroy();
 }
 
 void

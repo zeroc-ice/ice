@@ -23,6 +23,7 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Unicode.h>
 #include <IceUtil/UUID.h>
+#include <IceUtil/AbstractMutex.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/RecMutex.h>
 #include <IceUtil/RWRecMutex.h>

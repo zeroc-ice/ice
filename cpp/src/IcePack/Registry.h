@@ -31,7 +31,7 @@ private:
 
     Ice::CommunicatorPtr _communicator;
 
-    Freeze::DBEnvironmentPtr _dbEnv;
+    std::string _envName;
 };
 
 }

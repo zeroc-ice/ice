@@ -12,29 +12,17 @@
 //
 // **********************************************************************
 
-class LibraryCollocated extends Freeze.Application
+class LibraryCollocated extends Ice.Application
 {
     public int
-    runFreeze(String[] args, Freeze.DBEnvironment dbEnv)
+    run(String[] args)
     {
 	Ice.Properties properties = communicator().getProperties();
-    
-	Freeze.DB dbBooks = dbEnv.openDB("books", true);
-	Freeze.DB dbAuthors = dbEnv.openDB("authors", true);
-    
+
 	//
 	// Create an Evictor for books.
 	//
-	Freeze.PersistenceStrategy strategy;
-	if(properties.getPropertyAsInt("Library.IdleStrategy") > 0)
-	{
-            strategy = dbBooks.createIdleStrategy();
-	}
-	else
-	{
-            strategy = dbBooks.createEvictionStrategy();
-	}
-	Freeze.Evictor evictor = dbBooks.createEvictor(strategy);
+	Freeze.Evictor evictor = Freeze.Util.createEvictor(communicator(), _envName, "books", true);
 	int evictorSize = properties.getPropertyAsInt("Library.EvictorSize");
 	if(evictorSize > 0)
 	{
@@ -51,7 +39,7 @@ class LibraryCollocated extends Freeze.Application
 	//
 	// Create the library, and add it to the Object Adapter.
 	//
-	LibraryI library = new LibraryI(dbAuthors, evictor);
+	LibraryI library = new LibraryI(communicator(), _envName, "authors", evictor);
 	adapter.add(library, Ice.Util.stringToIdentity("library"));
     
 	//
@@ -67,13 +55,16 @@ class LibraryCollocated extends Freeze.Application
 	adapter.deactivate();
 	adapter.waitForDeactivate();
 
+	library.close();
 	return status;
     }
 
-    LibraryCollocated(String dbEnvName)
+    LibraryCollocated(String envName)
     {
-	super(dbEnvName);
+	_envName = envName;
     }
+
+    private String _envName;
 }
 
 public class Collocated

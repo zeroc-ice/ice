@@ -14,7 +14,14 @@
 
 #include <Ice/Ice.h>
 #include <XMLTransform/XMLTransform.h>
-#include <Freeze/Freeze.h>
+#include <db_cxx.h>
+#include <sys/stat.h>
+
+#ifdef _WIN32
+#   define FREEZE_DB_MODE 0
+#else
+#   define FREEZE_DB_MODE (S_IRUSR | S_IWUSR)
+#endif
 
 using namespace std;
 
@@ -41,8 +48,7 @@ int
 main(int argc, char* argv[])
 {
     Ice::CommunicatorPtr communicator;
-    Freeze::DBEnvironmentPtr dbEnv;
-    Freeze::DBPtr db;
+
     bool failure = false;
 
     try
@@ -169,8 +175,22 @@ main(int argc, char* argv[])
 
         try
         {
-            dbEnv = Freeze::initializeWithTxn(communicator, argv[1]);
-            db = dbEnv->openDBWithTxn(0, argv[2], false);
+	    DbEnv dbEnv(0);
+	    dbEnv.set_flags(DB_TXN_NOSYNC, true);
+	    
+	    u_int32_t flags = DB_INIT_LOCK | DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN |
+		DB_PRIVATE | DB_THREAD;
+	    
+	    //
+	    // TODO: DB_RECOVER_FATAL option
+	    //
+	    flags |= DB_RECOVER | DB_CREATE;
+
+	    dbEnv.open(argv[1], flags, FREEZE_DB_MODE);
+	    
+	    Db db(&dbEnv, 0);
+	    flags = DB_AUTO_COMMIT | DB_THREAD;
+	    db.open(0, argv[2], 0, DB_UNKNOWN, flags, FREEZE_DB_MODE); 
 
             XMLTransform::DBTransformer transformer(dbEnv, db, loadOld, loadNew, pathOld, pathNew, force);
 
@@ -200,15 +220,19 @@ main(int argc, char* argv[])
             {
                 transformer.transform(argv[3], argv[4]);
             }
+	    
+	    db.close(0);
+	    dbEnv.close(0);
+	    
         }
-        catch(const Freeze::DBNotFoundException&)
+        catch(const DbException& ex)
         {
-            cout << argv[0] << ": database `" << argv[2] << "' not found in environment `" << argv[1] << "'" << endl;
-            failure = true;
-        }
-        catch(const Freeze::DBException& ex)
-        {
-            cout << argv[0] << ": database failure: " << ex << ": " << ex.message << endl;
+	    //
+	    // Note: from Berkeley DB 4.1 on, ~Db and ~DbEnv close their respective
+	    // handles if not done before.
+	    //
+
+            cout << argv[0] << ": database failure: " << ex.what() << endl;
             failure = true;
         }
     }
@@ -218,54 +242,7 @@ main(int argc, char* argv[])
         failure = true;
     }
 
-    if(db)
-    {
-        try
-        {
-            db->close();
-        }
-        catch(const Freeze::DBException& ex)
-        {
-            cerr << argv[0] << ": " << ex << ": " << ex.message << endl;
-            failure = true;
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << argv[0] << ": " << ex << endl;
-            failure = true;
-        }
-        catch(...)
-        {
-            cerr << argv[0] << ": unknown exception" << endl;
-            failure = true;
-        }
-        db = 0;
-    }
-
-    if(dbEnv)
-    {
-        try
-        {
-            dbEnv->close();
-        }
-        catch(const Freeze::DBException& ex)
-        {
-            cerr << argv[0] << ": " << ex << ": " << ex.message << endl;
-            failure = true;
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << argv[0] << ": " << ex << endl;
-            failure = true;
-        }
-        catch(...)
-        {
-            cerr << argv[0] << ": unknown exception" << endl;
-            failure = true;
-        }
-        dbEnv = 0;
-    }
-
+    
     try
     {
         communicator->destroy();

@@ -66,4 +66,8 @@ $(SVCLIBNAME): $(SVCSONAME)
 	rm -f $@
 	ln -s $(SVCSONAME) $@
 
+clean::
+	rm -f db/node/db/servers db/node/db/serveradapters db/node/db/log.*
+	rm -f db/registry/*
+
 include .depend

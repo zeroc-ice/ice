@@ -15,13 +15,18 @@
 #ifndef XML_TRANSFORM_H
 #define XML_TRANSFORM_H
 
-#include <Freeze/DB.h>
 #include <IceUtil/OutputUtil.h>
-
 #include <Ice/Xerces.h>
 #include <xercesc/dom/DOM.hpp>
 
 #include <map>
+
+//
+// Forward declarations for Berkeley DB
+//
+class DbEnv;
+class Db;
+
 
 #ifndef XML_TRANSFORM_API
 #   ifdef XML_TRANSFORM_API_EXPORTS
@@ -225,7 +230,7 @@ class XML_TRANSFORM_API DBTransformer
 {
 public:
 
-    DBTransformer(const Freeze::DBEnvironmentPtr&, const Freeze::DBPtr&, const Ice::StringSeq&, const Ice::StringSeq&,
+    DBTransformer(DbEnv&, Db&, const Ice::StringSeq&, const Ice::StringSeq&,
                   const Ice::StringSeq&, const Ice::StringSeq&, bool);
     ~DBTransformer();
 
@@ -246,8 +251,8 @@ private:
 
     void transform(ICE_XERCES_NS DOMDocument*, ICE_XERCES_NS DOMDocument*);
 
-    Freeze::DBEnvironmentPtr _dbEnv;
-    Freeze::DBPtr _db;
+    DbEnv& _dbEnv;
+    Db& _db;
     Ice::StringSeq _loadOld;
     Ice::StringSeq _loadNew;
     Ice::StringSeq _pathOld;

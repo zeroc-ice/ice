@@ -18,8 +18,6 @@
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ServantLocator.ice>
 #include <Freeze/DBException.ice>
-#include <Freeze/DBF.ice>
-#include <Freeze/StrategyF.ice>
 #include <Freeze/ObjectRecord.ice>
 
 module Freeze
@@ -68,7 +66,20 @@ local exception NoSuchElementException
 
 /**
  *
+ * This exception is raised when attempting to use a destroyed iterator.
+ *
+ **/
+local exception IteratorDestroyedException
+{
+};
+
+
+/**
+ *
  * An iterator for the identities managed by the evictor.
+ * Note that an EvictorIterator is not thread-safe: the application needs to
+ * serialize access to a given EvictorIterator, for example by using it
+ * in just one thread.
  *
  * @see Evictor
  *
@@ -82,6 +93,16 @@ local interface EvictorIterator
      * @return True if the iterator has more elements, false
      * otherwise.
      *
+     * @throws IteratorDestroyedException Raised if the iterator was destroyed.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occured, due to
+     * lock conflicts with another transaction or iterator.
+     * In this case, you need to destroy the iterator and retry 
+     * your iteration.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
      **/
     bool hasNext();
 
@@ -91,8 +112,15 @@ local interface EvictorIterator
      *
      * @returns The next identity in the iteration.
      *
+     * @throws IteratorDestroyedException Raised if the iterator was destroyed.
+     *
      * @throws NoSuchElementException Raised if there is no further
      * elements in the iteration.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occured, due to 
+     * lock conflicts with another transaction or iterator.
+     * In this case, you need to destroy the iterator and retry 
+     * your iteration.
      *
      * @throws DBException Raised if any other database failure
      * occurred.
@@ -104,6 +132,9 @@ local interface EvictorIterator
      *
      * Destroy the iterator. Once the iterator has been destroyed it
      * may no longer be accessed.
+     *
+     * @throws IteratorDestroyedException Raised if the iterator was already 
+     *  destroyed.
      *
      **/
     void destroy();
@@ -120,17 +151,7 @@ local exception EvictorDeactivatedException
 
 /**
  *
- * This exception is raised if the object has been destroyed.
- *
- **/
-local exception ObjectDestroyedException
-{
-};
-
-
-/**
- *
- * A semi-automatic &Ice; object persistence manager, based on the
+ * An automatic &Ice; object persistence manager, based on the
  * evictor pattern. The evictor is a servant locator implementation
  * that stores the persistent state of its objects in a database. Any
  * number of objects can be registered with an evictor, but only a
@@ -147,35 +168,7 @@ local exception ObjectDestroyedException
  **/
 local interface Evictor extends Ice::ServantLocator
 {
-    /**
-     *
-     * Get the database object that created this evictor, in which the
-     * evictor stores the persistent state of its objects.
-     *
-     * @return The database used by this evictor.
-     *
-     * @throws EvictorDeactivatedException Raised if the evictor has
-     * been deactivated.
-     *
-     * @see DB::createEvictor
-     *
-     **/
-    DB getDB();
-
-    /**
-     *
-     * Get the persistence strategy for this evictor.
-     *
-     * @return The persistence strategy used by this evictor.
-     *
-     * @throws EvictorDeactivatedException Raised if the evictor has
-     * been deactivated.
-     *
-     * @see DB::createEvictor
-     *
-     **/
-    PersistenceStrategy getPersistenceStrategy();
-
+  
     /**
      *
      * Set the size of the evictor's servant queue. This is the
@@ -190,7 +183,6 @@ local interface Evictor extends Ice::ServantLocator
      * the operation waits until a sufficient number of servants
      * complete their requests.
      *
-     * @throws DBException Raised if a database failure occurred.
      *
      * @throws EvictorDeactivatedException Raised if a the evictor has
      * been deactivated.
@@ -219,6 +211,7 @@ local interface Evictor extends Ice::ServantLocator
      * Create a new &Ice; object for this evictor. The state of the
      * servant passed to this operation is saved in the evictor's
      * persistent store.
+     * If the object already exists, it is updated.
      *
      * @param identity The identity of the &Ice; object to create.
      *
@@ -235,36 +228,11 @@ local interface Evictor extends Ice::ServantLocator
      **/
     void createObject(Ice::Identity identity, Object servant);
 
-
-    /**
-     *
-     * Save this &Ice; object immediately. The application must ensure
-     * that the persistent data members of the object are not modified
-     * by another thread during this operation.
-     * saveObject calls savedObject on the associated persistence 
-     * strategy.
-     *
-     * @param identity The identity of the &Ice; object to save.
-     *
-     * @throws DBException Raised if a database failure occurred.
-     *
-     * @throws EvictorDeactivatedException Raised if the evictor has
-     * been deactivated.
-     *
-     * @throws ObjectDestroyedException Raised if the object has been
-     * destroyed
-     *
-     * @see Ice::Identity
-     * @see destroyObject
-     *
-     **/
-    void saveObject(Ice::Identity identity);
-
     /**
      *
      * Permanently destroy an &Ice; object by removing it from the
-     * evictor's persistent store. Furthermore, if a servant is
-     * currently active for the &Ice; object, it will be removed.
+     * evictor's persistent store. If the object does not exist,
+     * this operation does nothing.
      *
      * @param identity The identity of the &Ice; object to destroy.
      *
@@ -321,6 +289,17 @@ local interface Evictor extends Ice::ServantLocator
      *
      **/
     bool hasObject(Ice::Identity ident);
+
+
+    /**
+     *
+     * Saves immediately all created, modified and destroyed objects.
+     *
+     * @throws DBException Raised if a database failure occurred.
+     *
+     **/
+    void saveNow();
+
 };
 
 };

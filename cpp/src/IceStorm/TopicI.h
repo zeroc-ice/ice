@@ -74,8 +74,8 @@ class TopicI : public TopicInternal, public IceUtil::RecMutex
 {
 public:
 
-    TopicI(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const std::string&, const SubscriberFactoryPtr&,
-           const Freeze::DBPtr&);
+    TopicI(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const std::string&, 
+	   const SubscriberFactoryPtr&, const std::string&, const std::string&, bool);
     ~TopicI();
 
     virtual std::string getName(const Ice::Current&) const;
@@ -118,7 +118,6 @@ private:
     TopicSubscribersPtr _subscribers; // Set of Subscribers
 
     IdentityLinkDict _links; // The database of Topic links
-    Freeze::DBPtr _linksDb;
 };
 
 typedef IceUtil::Handle<TopicI> TopicIPtr;

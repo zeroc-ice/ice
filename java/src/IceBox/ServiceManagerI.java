@@ -286,7 +286,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		// IceBox::Service
 		//
 	        Service s = (Service)info.service;
-	        info.dbEnv = null;
+	        info.envName = null;
                 s.start(service, communicator, serviceArgs);
 	    }
 	    catch(ClassCastException e)
@@ -299,10 +299,9 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		//
 	        FreezeService fs = (FreezeService)info.service;
 
-		info.dbEnv = Freeze.Util.initialize(communicator, 
-						    properties.getProperty("IceBox.DBEnvName." + service));
+		info.envName = properties.getProperty("IceBox.DBEnvName." + service);
 		
-                fs.start(service, communicator, serviceArgs, info.dbEnv);
+                fs.start(service, communicator, serviceArgs, info.envName);
 	    }
             _services.put(service, info);
         }
@@ -351,22 +350,6 @@ public final class ServiceManagerI extends _ServiceManagerDisp
                 pw.flush();
                 _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
 	    }
-
-	    if(info.dbEnv != null)
-	    {
-		try
-		{
-		    info.dbEnv.sync();
-		}
-		catch(Exception e)
-		{
-		    java.io.StringWriter sw = new java.io.StringWriter();
-		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		    e.printStackTrace(pw);
-		    pw.flush();
-		    _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
-		}
-	    }
 	}
 
 	//
@@ -387,22 +370,6 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		{
 		    info.communicator.shutdown();
 		    info.communicator.waitForShutdown();
-		}
-		catch(Exception e)
-		{
-		    java.io.StringWriter sw = new java.io.StringWriter();
-		    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		    e.printStackTrace(pw);
-		    pw.flush();
-		    _logger.warning("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
-		}
-	    }
-
-	    if(info.dbEnv != null)
-	    {
-		try
-		{
-		    info.dbEnv.close();
 		}
 		catch(Exception e)
 		{
@@ -438,12 +405,11 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     {
         public ServiceBase service;
 	public Ice.Communicator communicator = null;
-        Freeze.DBEnvironment dbEnv;
+        String envName;
     }
 
     private Ice.Application _server;
     private Ice.Logger _logger;
     private String[] _argv; // Filtered server argument vector
     private java.util.HashMap _services = new java.util.HashMap();
-    private java.util.HashMap _dbEnvs = new java.util.HashMap();
 }

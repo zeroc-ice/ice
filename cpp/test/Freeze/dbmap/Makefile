@@ -44,4 +44,7 @@ clean::
 	rm -f ByteIntMapXML.h ByteIntMapXML.cpp
 	rm -f ByteIntMapBinary.h ByteIntMapBinary.cpp
 
+clean::
+	rm -f db/xml db/log.*
+
 include .depend

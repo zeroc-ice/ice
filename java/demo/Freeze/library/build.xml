@@ -80,6 +80,10 @@ the Free Software Foundation.
     <target name="clean">
         <delete dir="${generated.dir}"/>
         <delete dir="${class.dir}"/>
+        <delete>
+	    <fileset dir="db" includes="log.*"/>
+            <fileset dir="db" includes="authors,books"/>
+        </delete>
     </target>
 
 </project>

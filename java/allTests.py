@@ -38,7 +38,6 @@ tests = [ \
     "Ice/slicing/objects", \
     "Ice/custom", \
     "IceXML/encoding", \
-    "Freeze/cursor", \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \

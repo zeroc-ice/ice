@@ -54,6 +54,10 @@ the Free Software Foundation.
     <target name="clean">
         <delete dir="${class.dir}"/>
         <delete dir="${generated.dir}"/>
+         <delete>
+	    <fileset dir="db" includes="log.*"/>
+            <fileset dir="db" includes="binary,xml"/>
+        </delete>
     </target>
 
 </project>

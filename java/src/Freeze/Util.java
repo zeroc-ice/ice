@@ -16,16 +16,17 @@ package Freeze;
 
 public class Util
 {
-    public static DBEnvironment
-    initialize(Ice.Communicator communicator, String name)
-    {
-	return new DBEnvironmentI(communicator, name, false);
-    }
 
-    public static DBEnvironment
-    initializeWithTxn(Ice.Communicator communicator, String name)
+    public static Evictor
+    createEvictor(Ice.Communicator communicator, String envName, String dbName, boolean createDb)
     {
-	return new DBEnvironmentI(communicator, name, true);
-    }
+	return new EvictorI(communicator, envName, dbName, createDb);
+    } 
+
+    public static Evictor
+    createEvictor(Ice.Communicator communicator, com.sleepycat.db.DbEnv dbEnv, String dbName, boolean createDb)
+    {
+	return new EvictorI(communicator, dbEnv, dbName, createDb);
+    } 
 }
 

@@ -27,7 +27,8 @@ typedef IceUtil::Handle<PhoneBookI> PhoneBookIPtr;
 class ContactI;
 typedef IceUtil::Handle<ContactI> ContactIPtr;
 
-class ContactI : public Contact, public IceUtil::RWRecMutex
+class ContactI : public Contact, 
+		 public IceUtil::AbstractMutexReadI<IceUtil::RWRecMutex>
 {
 public:
 
@@ -58,7 +59,9 @@ class PhoneBookI : public PhoneBook, public IceUtil::RWRecMutex
 {
 public: 
 
-    PhoneBookI(const Freeze::DBPtr&, const Freeze::EvictorPtr&);
+    PhoneBookI(const Ice::CommunicatorPtr& communicator,
+	       const std::string& envName, const std::string& dbName,
+	       const Freeze::EvictorPtr& evictor);
 
     virtual ContactPrx createContact(const Ice::Current&);
     virtual Contacts findContacts(const std::string&, const Ice::Current&) const;
@@ -73,7 +76,6 @@ private:
 
     void removeI(const Ice::Identity&, const std::string&);
 
-    Freeze::DBPtr _db;
     Freeze::EvictorPtr _evictor;
     NameIdentitiesDict _nameIdentitiesDict;
 };

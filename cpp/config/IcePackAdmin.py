@@ -14,6 +14,7 @@
 # **********************************************************************
 
 import sys, os, TestUtil
+import time
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -44,6 +45,10 @@ def startIcePackRegistry(port, testdir):
               r' --IcePack.Registry.Admin.Endpoints=default' + \
               r' --IcePack.Registry.Data=' + dataDir + \
               r' --IcePack.Registry.DynamicRegistration' + \
+	      r' --IcePack.Registry.Trace.ServerRegistry=0' + \
+              r' --IcePack.Registry.Trace.AdapterRegistry=0' + \
+              r' --IcePack.Registry.Trace.ObjectRegistry=0' + \
+              r' --IcePack.Registry.Trace.NodeRegistry=0' + \
               r' --Ice.ProgramName=icepackregistry'
 
     icePackPipe = os.popen(command)
@@ -53,7 +58,6 @@ def startIcePackRegistry(port, testdir):
     TestUtil.getAdapterReady(icePackPipe)
     TestUtil.getAdapterReady(icePackPipe)
     print "ok"
-
     return icePackPipe
 
 def startIcePackNode(testdir):

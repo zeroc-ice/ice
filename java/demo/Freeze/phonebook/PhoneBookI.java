@@ -235,12 +235,18 @@ class PhoneBookI extends _PhoneBookDisp
 	}
     }
 
-    PhoneBookI(Freeze.DB db, Freeze.Evictor evictor)
+    PhoneBookI(Ice.Communicator communicator, String envName, String dbName, Freeze.Evictor evictor)
     {
 	_evictor = evictor;
-	_nameIdentitiesDict = new NameIdentitiesDict(db);
+	_nameIdentitiesDict = new NameIdentitiesDict(communicator, envName, dbName, true);
     }
 
+    void
+    close()
+    {
+	_nameIdentitiesDict.close();
+    }
+    
     //
     // It's not strictly necessary in the Java implementation to have
     // a private removeI implememnation since there is no problem with

@@ -27,11 +27,11 @@ public class Client
         }
     }
 
-    private static int
-    validate(DB db)
+    private int
+    validate(String dbName)
 	throws DBException
     {
-	Complex.ComplexDict m = new Complex.ComplexDict(db);
+	Complex.ComplexDict m = new Complex.ComplexDict(_communicator, _envName, dbName, true);
 
 	try
 	{
@@ -64,11 +64,13 @@ public class Client
 	    test(false);
 	}
 	
+	m.close();
+
 	return 0;
     }
     
-    private static int
-    populate(DB db)
+    private int
+    populate(String dbName)
 	throws DBException
     {
 	String[] expressions = 
@@ -80,7 +82,7 @@ public class Client
 	    "10+(10+(20+(8*(2*(3*2+4+5+6)))))"
 	};
 	
-	Complex.ComplexDict m = new Complex.ComplexDict(db);
+	Complex.ComplexDict m = new Complex.ComplexDict(_communicator, _envName, dbName, true);
 
 	try
 	{
@@ -104,6 +106,7 @@ public class Client
 	    test(false);
 	}
 	
+	m.close();
 	return 0;
     }
     
@@ -115,40 +118,45 @@ public class Client
 	System.out.println("--dbdir           Location of the database directory.");
     }
 
-    private static int
-    run(String[] args, DB db)
+    private int
+    run(String[] args, String dbName)
 	throws DBException
     {
 	//
 	// Register a factory for the node types.
 	//
-	Ice.Communicator communicator = db.getCommunicator();
 	Ice.ObjectFactory factory = new Complex.ObjectFactoryI();
-	communicator.addObjectFactory(factory, "::Complex::NumberNode");
-	communicator.addObjectFactory(factory, "::Complex::AddNode");
-	communicator.addObjectFactory(factory, "::Complex::MultiplyNode");
+	_communicator.addObjectFactory(factory, "::Complex::NumberNode");
+	_communicator.addObjectFactory(factory, "::Complex::AddNode");
+	_communicator.addObjectFactory(factory, "::Complex::MultiplyNode");
 	
 	if(args.length != 0 && args[0].equals("populate"))
 	{
-	    return populate(db);
+	    return populate(dbName);
 	}
 	if(args.length != 0 && args[0].equals("validate"))
 	{
-	    return validate(db);
+	    return validate(dbName);
 	}
 	usage(progName);
 
         return 0;
     }
 
+    private
+    Client(Ice.Communicator communicator, String envName)
+    {
+	_communicator = communicator;
+	_envName = envName;
+    }
+
+
     static public void
     main(String[] args)
     {
 	int status;
 	Ice.Communicator communicator = null;
-	DBEnvironment dbEnv = null;
-	DB db = null;
-	String dbEnvDir = "db";
+	String envName = "db";
 
 	try
 	{
@@ -166,9 +174,9 @@ public class Client
 			System.exit(1);
 		    }
 		    
-		    dbEnvDir = args[i+1];
-		    dbEnvDir += "/";
-		    dbEnvDir += "db";
+		    envName = args[i+1];
+		    envName += "/";
+		    envName += "db";
 
 		    //
 		    // Consume arguments
@@ -191,53 +199,14 @@ public class Client
 	    holder.value = args;
 	    communicator = Ice.Util.initialize(holder);
 	    args = holder.value;
-	    dbEnv = Freeze.Util.initialize(communicator, dbEnvDir);
-	    db = dbEnv.openDB("test", true);
-	    status = run(args, db);
+	    Client client = new Client(communicator, envName);
+	    status = client.run(args, "test");
 	}
 	catch(Exception ex)
 	{
 	    ex.printStackTrace();
 	    System.err.println(ex);
 	    status = 1;
-	}
-
-	if(db != null)
-	{
-	    try
-	    {
-		db.close();
-	    }
-	    catch(DBException ex)
-	    {
-		System.err.println(progName + ": " + ex + ": " + ex.message);
-		status = 1;
-	    }
-	    dbEnv = null;
-	}
-
-	if(dbEnv != null)
-	{
-	    try
-	    {
-		dbEnv.close();
-	    }
-	    catch(DBException ex)
-	    {
-		System.err.println(progName + ": " + ex + ": " + ex.message);
-		status = 1;
-	    }
-	    catch(Ice.LocalException ex)
-	    {
-		System.err.println(progName + ": " + ex);
-		status = 1;
-	    }
-	    catch(Exception ex)
-	    {
-		System.err.println(progName + ": unknown exception: " + ex);
-		status = 1;
-	    }
-	    dbEnv = null;
 	}
 
 	if(communicator != null)
@@ -255,4 +224,8 @@ public class Client
 
 	System.exit(status);
     }
+
+    private Ice.Communicator _communicator;
+    private String _envName;
+
 }

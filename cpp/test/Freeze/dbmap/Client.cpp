@@ -138,6 +138,11 @@ run(int argc, char* argv[], MAP& m)
     cp = m.find(*j);
     test(cp != m.end());
     test(cp->first == 'n' && cp->second == j - alphabet.begin());
+
+    //
+    // Close the iterator to release locks
+    //
+    cp = m.end();
     cout << "ok" << endl;
 
     cout << "  testing erase... ";
@@ -157,6 +162,12 @@ run(int argc, char* argv[], MAP& m)
 	p = m.find(*j);
 	test(p != m.end());
 	m.erase(p);
+	//
+	// Need to release the iterator to commit the transaction
+	// and release the locks
+	//
+	p = m.end();
+
 	p = m.find(*j);
 	test(p == m.end());
 	vector<Byte>::iterator r = find(alphabet.begin(), alphabet.end(), *j);
@@ -235,7 +246,8 @@ run(int argc, char* argv[], MAP& m)
     p2 = p++;
     test(c == p2->first); // p2 should still be the same
     test(p2->first != p->first && (++p2)->first == p->first);
-
+    p2 = m.end();
+    
     cout << "ok" << endl;
 
     //
@@ -245,6 +257,7 @@ run(int argc, char* argv[], MAP& m)
 
     p = m.find('d');
     test(p != m.end() && p->second == 3);
+    p = m.end();
 
     test(m.find('a') == m.end());
     typename MAP::value_type i1('a', 1);
@@ -256,6 +269,7 @@ run(int argc, char* argv[], MAP& m)
 
     p = m.find('a');
     test(p != m.end() && p->second == 1);
+    p = m.end();
 
     typename MAP::value_type i2('a', 0);
     m.put(i2);
@@ -266,7 +280,7 @@ run(int argc, char* argv[], MAP& m)
     
     p = m.find('a');
     test(p != m.end() && p->second == 0);
-
+    p = m.end();
     //
     // Test inserts
     // 
@@ -281,10 +295,12 @@ run(int argc, char* argv[], MAP& m)
     test(insertResult.first == m.find('a'));
     test(insertResult.first->second == 0);
     test(insertResult.second == false);
+    insertResult.first = m.end();
     
     p = m.insert(m.end(), i3);
     test(p == m.find('a'));
     test(p->second == 0);
+    p = m.end();
 
     typename MAP::value_type i4('b', 7);
     
@@ -292,19 +308,23 @@ run(int argc, char* argv[], MAP& m)
     test(insertResult.first == m.find('b'));
     test(insertResult.first->second == 7);
     test(insertResult.second == true);
+    insertResult.first = m.end();
     
     typename MAP::value_type i5('c', 8);
     
     p = m.insert(m.end(), i5);
     test(p == m.find('c'));
     test(p->second == 8);
+    p = m.end();
 
     p = m.find('a');
     test(p != m.end() && p->second == 0);
     p.set(1);
     test(p != m.end() && p->second == 1);
+    p = m.end();
     p = m.find('a');
     test(p != m.end() && p->second == 1);
+    p = m.end();
     cout << "ok" << endl;
     
     //
@@ -393,28 +413,25 @@ main(int argc, char* argv[])
 {
     int status;
     Ice::CommunicatorPtr communicator;
-    DBEnvironmentPtr dbEnv;
-    string dbEnvDir = "db";
-    DBPtr xmlDB, binaryDB;
+ 
+    string envName = "db";
 
     try
     {
 	communicator = Ice::initialize(argc, argv);
 	if(argc != 1)
 	{
-	    dbEnvDir = argv[1];
-	    dbEnvDir += "/";
-	    dbEnvDir += "db";
+	    envName = argv[1];
+	    envName += "/";
+	    envName += "db";
 	}
-	dbEnv = Freeze::initialize(communicator, dbEnvDir);
-	xmlDB = dbEnv->openDB("xml", true);
-        ByteIntMapXML xml(xmlDB);
+	
+        ByteIntMapXML xml(communicator, envName, "xml");
         cout << "testing XML encoding..." << endl;
 	status = run(argc, argv, xml);
         if(status == EXIT_SUCCESS)
         {
-            binaryDB = dbEnv->openDB("binary", true);
-            ByteIntMapBinary binary(binaryDB);
+            ByteIntMapBinary binary(communicator, envName, "binary");
             cout << "testing binary encoding..." << endl;
             status = run(argc, argv, binary);
         }
@@ -423,78 +440,6 @@ main(int argc, char* argv[])
     {
 	cerr << ex << endl;
 	status = EXIT_FAILURE;
-    }
-
-    if(xmlDB)
-    {
-	try
-	{
-	    xmlDB->close();
-	}
-	catch(const DBException& ex)
-	{
-	    cerr << argv[0] << ": " << ex << ": " << ex.message << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(const Exception& ex)
-	{
-	    cerr << argv[0] << ": " << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(...)
-	{
-	    cerr << argv[0] << ": unknown exception" << endl;
-	    status = EXIT_FAILURE;
-	}
-	xmlDB = 0;
-    }
-
-    if(binaryDB)
-    {
-	try
-	{
-	    binaryDB->close();
-	}
-	catch(const DBException& ex)
-	{
-	    cerr << argv[0] << ": " << ex << ": " << ex.message << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(const Exception& ex)
-	{
-	    cerr << argv[0] << ": " << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(...)
-	{
-	    cerr << argv[0] << ": unknown exception" << endl;
-	    status = EXIT_FAILURE;
-	}
-	binaryDB = 0;
-    }
-
-    if(dbEnv)
-    {
-	try
-	{
-	    dbEnv->close();
-	}
-	catch(const DBException& ex)
-	{
-	    cerr << argv[0] << ": " << ex << ": " << ex.message << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(const Exception& ex)
-	{
-	    cerr << argv[0] << ": " << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(...)
-	{
-	    cerr << argv[0] << ": unknown exception" << endl;
-	    status = EXIT_FAILURE;
-	}
-	dbEnv = 0;
     }
 
     try

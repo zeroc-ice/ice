@@ -21,8 +21,7 @@
 #include <Ice/Ice.h>
 #include <XMLTransform/XMLTransform.h>
 #include <XMLTransform/ErrorReporter.h>
-#include <Freeze/DB.h>
-
+#include <db_cxx.h>
 #include <Ice/Xerces.h>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
@@ -48,7 +47,6 @@
 #endif
 
 using namespace std;
-using namespace Freeze;
 using namespace XMLTransform;
 
 //
@@ -2888,7 +2886,7 @@ XMLTransform::Transformer::transform(::IceUtil::XMLOutput& os, ICE_XERCES_NS DOM
     }
 }
 
-XMLTransform::DBTransformer::DBTransformer(const DBEnvironmentPtr& dbEnv, const DBPtr& db,
+XMLTransform::DBTransformer::DBTransformer(DbEnv& dbEnv, Db& db,
                                            const Ice::StringSeq& loadOld, const Ice::StringSeq& loadNew,
                                            const Ice::StringSeq& pathOld, const Ice::StringSeq& pathNew,
                                            bool force) :
@@ -2921,9 +2919,15 @@ XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE
     parser.setDoNamespaces(true);
     parser.setErrorHandler(&errReporter);
 
-    DBCursorPtr cursor;
-    DBTransactionPtr txn;
     string reason;
+    vector<Dbt> keys(1);
+    keys[0].set_flags(DB_DBT_MALLOC);
+
+    Dbt value;
+    value.set_flags(DB_DBT_REALLOC);
+
+    DbTxn* txn = 0;
+
     try
     {
         Transformer transformer(_loadOld, _loadNew, _pathOld, _pathNew, oldSchema, newSchema);
@@ -2942,25 +2946,33 @@ XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE
         // we can't use a cursor to perform the changes. We collect all of the
         // keys first, then update the records.
         //
-        vector<Key> keys;
-        cursor = _db->getCursor();
-        do
-        {
-            Key k;
-            Value v;
-            cursor->curr(k, v);
-            keys.push_back(k);
-        }
-        while(cursor->next());
-        cursor->close();
-        cursor = 0;
+	{
+	    Dbc* dbc = 0;
+	    _db.cursor(0, &dbc, 0);
+	    
+	    //
+	    // Not interested in value
+	    //
+	    Dbt dummy;
+	    dummy.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+	    
+	    while(dbc->get(&keys[keys.size() - 1], &dummy, DB_NEXT) == 0)
+	    {
+		size_t index = keys.size();
+		keys.resize(index + 1);
+		keys[index].set_flags(DB_DBT_MALLOC);
+	    }
+	    keys.resize(keys.size() - 1);
+	    dbc->close();
+	}
 
-        txn = _dbEnv->startTransaction();
+	_dbEnv.txn_begin(0, &txn, 0);
+	
+        vector<Dbt>::iterator p;
 
-        vector<Key>::const_iterator p;
         for(p = keys.begin(); p != keys.end(); ++p)
         {
-            const Key& k = *p;
+            Dbt& k = *p;
 
             try
             {
@@ -2969,7 +2981,7 @@ XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE
                 //
                 string fullKey;
                 fullKey.append(header);
-                fullKey.append(reinterpret_cast<const char*>(&k[0]), k.size());
+                fullKey.append(static_cast<const char*>(k.get_data()), k.get_size());
                 fullKey.append(footer);
                 ICE_XERCES_NS MemBufInputSource keySource((const XMLByte*)fullKey.data(), static_cast<unsigned int>(fullKey.size()), "key");
                 parser.parse(keySource);
@@ -2978,19 +2990,18 @@ XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE
                 ostringstream keyStream;
                 IceUtil::XMLOutput keyOut(keyStream);
                 transformer.transform(keyOut, keyDoc, "Key", _force, false);
-
-                Key newKey;
+                
                 const std::string& keyStr = keyStream.str();
-                newKey.resize(keyStr.size());
-                std::copy(keyStr.begin(), keyStr.end(), newKey.begin());
+		Dbt newKey(const_cast<char*>(keyStr.data()), keyStr.size());
 
                 //
                 // Transform value
                 //
-                Value value = _db->getWithTxn(txn, k);
+		_db.get(txn, &k, &value, 0);
+
                 string fullValue;
                 fullValue.append(header);
-                fullValue.append(reinterpret_cast<const char*>(&value[0]), value.size());
+                fullValue.append(static_cast<const char*>(value.get_data()), value.get_size());
                 fullValue.append(footer);
                 ICE_XERCES_NS MemBufInputSource valueSource((const XMLByte*)fullValue.data(), 
 							    static_cast<unsigned int>(fullValue.size()),
@@ -3002,24 +3013,21 @@ XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE
                 IceUtil::XMLOutput valueOut(valueStream);
                 transformer.transform(valueOut, valueDoc, "Value", _force, false);
 
-                Value newValue;
                 const std::string& valueStr = valueStream.str();
-                newValue.resize(valueStr.size());
-                std::copy(valueStr.begin(), valueStr.end(), newValue.begin());
-
+		Dbt newValue(const_cast<char*>(valueStr.data()), valueStr.size());
                 //
                 // Update database - only insert new key,value pair if the transformed
                 // key doesn't match an existing key.
                 //
-                _db->delWithTxn(txn, k);
-                if(_db->containsWithTxn(txn, newKey))
-                {
+		_db.del(txn, &k, 0);
+		
+		if(_db.put(txn, &newKey, &newValue, DB_NOOVERWRITE) != 0)
+		{
                     reason = "transformed key matches an existing record:\n" + keyStr;
                     txn->abort();
-                    txn = 0;
+		    txn = 0;
                     break;
                 }
-                _db->putWithTxn(txn, newKey, newValue);
             }
             catch(const MissingTypeException&)
             {
@@ -3029,7 +3037,7 @@ XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE
                 //
                 if(_force)
                 {
-                    _db->delWithTxn(txn, k);
+		    _db.del(txn, &k, 0);
                 }
                 else
                 {
@@ -3038,15 +3046,11 @@ XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE
             }
         }
 
-        if(txn)
+        if(txn != 0)
         {
-            txn->commit();
+            txn->commit(0);
             txn = 0;
         }
-    }
-    catch(const DBNotFoundException&)
-    {
-        // Database is empty
     }
     catch(const ICE_XERCES_NS XMLException& ex)
     {
@@ -3062,29 +3066,44 @@ XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE
         out << "DOM exception (" << ex.code << ") " << toString(ex.msg);
         reason = out.str();
     }
+    catch(const DbException& ex)
+    {
+	ostringstream out;
+        out << "DbException: " << ex.what();
+        reason = out.str();
+    }
     catch(...)
     {
-        if(cursor)
-        {
-            cursor->close();
-        }
-        if(txn)
-        {
-            txn->abort();
-        }
-        throw;
+	//
+	// Clean up
+	//
+	for(vector<Dbt>::iterator p = keys.begin(); p != keys.end(); p++)
+	{
+	    free(p->get_data());
+	}
+	free(value.get_data());
+
+	if(txn != 0)
+	{
+	    txn->abort();
+	}
+	throw;
     }
 
-    if(cursor)
+    //
+    // Clean up
+    //
+    for(vector<Dbt>::iterator p = keys.begin(); p != keys.end(); p++)
     {
-        cursor->close();
+	free(p->get_data());
     }
-
-    if(txn)
+    free(value.get_data());
+    if(txn != 0)
     {
-        txn->abort();
+	txn->abort();
     }
 
+   
     if(!reason.empty())
     {
         TransformException ex(__FILE__, __LINE__);

@@ -44,4 +44,7 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
 
+clean::
+	rm -f db/Test db/log.*
+
 include .depend

@@ -44,29 +44,6 @@ IcePack::Registry::Registry(const CommunicatorPtr& communicator) :
 
 IcePack::Registry::~Registry()
 {
-    if(_dbEnv)
-    {
-	try
-	{
-	    _dbEnv->close();
-	}
-	catch(const Freeze::DBException& ex)
-	{
-	    Error out(_communicator->getLogger());
-	    out << ex << ": " << ex.message;
-	}
-	catch(const Exception& ex)
-	{
-	    Error out(_communicator->getLogger());
-	    out << ex;
-	}
-	catch(...)
-	{
-	    Error out(_communicator->getLogger());
-	    out << "unknown exception";
-	}
-	_dbEnv = 0;
-    }
 }
 
 bool
@@ -78,8 +55,8 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
     //
     // Initialize the database environment.
     //
-    string dbPath = properties->getProperty("IcePack.Registry.Data");
-    if(dbPath.empty())
+    _envName = properties->getProperty("IcePack.Registry.Data");
+    if(_envName.empty())
     {
 	Error out(_communicator->getLogger());
 	out << "property `IcePack.Registry.Data' is not set";
@@ -88,14 +65,13 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
     else
     {
 	struct stat filestat;
-	if(stat(dbPath.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
+	if(stat(_envName.c_str(), &filestat) != 0 || !S_ISDIR(filestat.st_mode))
 	{
 	    Error out(_communicator->getLogger());
 	    out << "property `IcePack.Registry.Data' is not set to a valid directory path";
 	    return false;	    
 	}
     }
-    _dbEnv = Freeze::initialize(_communicator, dbPath);
 
     //
     // Check that required properties are set and valid.
@@ -154,18 +130,18 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
 
     ObjectAdapterPtr registryAdapter = _communicator->createObjectAdapter("IcePack.Registry.Internal");
 
-    AdapterFactoryPtr adapterFactory = new AdapterFactory(registryAdapter, traceLevels, _dbEnv);    
+    AdapterFactoryPtr adapterFactory = new AdapterFactory(registryAdapter, traceLevels, _envName);    
     
-    ObjectRegistryPtr objectRegistry = new ObjectRegistryI(_dbEnv->openDB("objectregistry", true), 
-							   _dbEnv->openDB("objectregistry-types", true),
+    ObjectRegistryPtr objectRegistry = new ObjectRegistryI(_communicator, _envName,
+							   "objectregistry", "objectregistry-types",
 							   traceLevels);
 
-    AdapterRegistryPtr adapterRegistry = new AdapterRegistryI(_dbEnv->openDB("adapterregistry", true), traceLevels);
+    AdapterRegistryPtr adapterRegistry = new AdapterRegistryI(_communicator, _envName, "adapterregistry", traceLevels);
 
-    ServerRegistryPtr serverRegistry = new ServerRegistryI(_dbEnv->openDB("serverregistry", true), traceLevels);
+    ServerRegistryPtr serverRegistry = new ServerRegistryI(_communicator, _envName, "serverregistry", traceLevels);
 
-    NodeRegistryPtr nodeRegistry = new NodeRegistryI(_dbEnv->openDB("noderegistry", true), adapterRegistry,
-						     adapterFactory, traceLevels);
+    NodeRegistryPtr nodeRegistry = new NodeRegistryI(_communicator, _envName, "noderegistry", 
+						     adapterRegistry, adapterFactory, traceLevels);
 
     registryAdapter->add(objectRegistry, stringToIdentity("IcePack/ObjectRegistry"));
     registryAdapter->add(adapterRegistry, stringToIdentity("IcePack/AdapterRegistry"));

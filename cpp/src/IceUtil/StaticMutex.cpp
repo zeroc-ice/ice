@@ -50,8 +50,13 @@ Init::Init()
 
 Init::~Init()
 {
-    for_each(_criticalSectionList->begin(), _criticalSectionList->end(), 
-	     DeleteCriticalSection);
+    for(list<CRITICAL_SECTION*>::iterator p = _criticalSectionList->begin(); 
+	p != _criticalSectionList->end(); ++p)
+    {
+	DeleteCriticalSection(*p);
+	delete *p;
+    }
+  
     delete _criticalSectionList;
     DeleteCriticalSection(&_criticalSection);
 }
@@ -66,9 +71,10 @@ void IceUtil::StaticMutex::initialize() const
     EnterCriticalSection(&_criticalSection);
     if(!_mutexInitialized)
     {
-	InitializeCriticalSection(&_mutex);
+        _mutex = new CRITICAL_SECTION;
+	InitializeCriticalSection(_mutex);
 	_mutexInitialized = true;
-	_criticalSectionList->push_back(&_mutex);
+	_criticalSectionList->push_back(_mutex);
     }
     LeaveCriticalSection(&_criticalSection);
 }

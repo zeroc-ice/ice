@@ -35,7 +35,7 @@ SDIR		= $(slicedir)/XMLTransform
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DXML_TRANSFORM_API_EXPORTS $(XERCESC_FLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DXML_TRANSFORM_API_EXPORTS $(XERCESC_FLAGS) $(DB_FLAGS) 
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
@@ -51,7 +51,7 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(TRANSFORM_DB): $(TRANSFORM_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(TRANSFORM_OBJS) -lFreeze -lIceXML -lXMLTransform $(LIBS) $(XERCESC_LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(TRANSFORM_OBJS) -lIceXML -lXMLTransform $(LIBS) $(XERCESC_LIBS) $(DB_LIBS)
 
 clean::
 	rm -f $(TRANSFORM_DB)

@@ -12,24 +12,28 @@
 //
 // **********************************************************************
 
-#include <Freeze/Application.h>
+#include <Ice/Application.h>
 #include <BookFactory.h>
 #include <Parser.h>
+#include <Freeze/Freeze.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-class LibraryCollocated : public Freeze::Application
+class LibraryCollocated : public Ice::Application
 {
 public:
     
-    LibraryCollocated(const string& dbEnvName) :
-	Freeze::Application(dbEnvName)
+    LibraryCollocated(const string& envName) :
+	_envName(envName)
     {
     }
 
-    virtual int runFreeze(int argc, char* argv[], const DBEnvironmentPtr&);
+    virtual int run(int argc, char* argv[]);
+
+private:
+    const string _envName;
 };
 
 int
@@ -40,27 +44,16 @@ main(int argc, char* argv[])
 }
 
 int
-LibraryCollocated::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
+LibraryCollocated::run(int argc, char* argv[])
 {
     PropertiesPtr properties = communicator()->getProperties();
     string value;
     
-    DBPtr dbBooks = dbEnv->openDB("books", true);
-    DBPtr dbAuthors = dbEnv->openDB("authors", true);
-    
     //
     // Create an Evictor for books.
-    //
-    PersistenceStrategyPtr strategy;
-    if(properties->getPropertyAsInt("Library.IdleStrategy") > 0)
-    {
-        strategy = dbBooks->createIdleStrategy();
-    }
-    else
-    {
-        strategy = dbBooks->createEvictionStrategy();
-    }
-    Freeze::EvictorPtr evictor = dbBooks->createEvictor(strategy);
+    //    
+    Freeze::EvictorPtr evictor = Freeze::createEvictor(communicator(), _envName, "books");
+
     Int evictorSize = properties->getPropertyAsInt("Library.EvictorSize");
     if(evictorSize > 0)
     {
@@ -76,7 +69,7 @@ LibraryCollocated::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbE
     //
     // Create the library, and add it to the Object Adapter.
     //
-    LibraryIPtr library = new LibraryI(dbAuthors, evictor);
+    LibraryIPtr library = new LibraryI(communicator(), _envName, "authors", evictor);
     adapter->add(library, stringToIdentity("library"));
     
     //

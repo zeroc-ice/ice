@@ -17,6 +17,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <IcePack/Internal.h>
+#include <IceUtil/AbstractMutex.h>
 
 namespace IcePack
 {
@@ -27,7 +28,7 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class ServerFactory;
 typedef IceUtil::Handle<ServerFactory> ServerFactoryPtr;
 
-class ServerAdapterI : public ServerAdapter, public ::IceUtil::Mutex
+class ServerAdapterI : public ServerAdapter, public IceUtil::AbstractMutexI<IceUtil::Mutex>
 {
 public:
 

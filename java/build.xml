@@ -81,7 +81,6 @@ the Free Software Foundation.
                 <include name="DBException.ice" />
                 <include name="Evictor.ice" />
                 <include name="ObjectRecord.ice" />
-                <include name="Strategy.ice" />
             </fileset>
             <fileset dir="${slice.dir}/IceBox">
                 <include name="IceBox.ice" />

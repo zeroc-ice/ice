@@ -28,7 +28,7 @@ class AdapterRegistryI : public AdapterRegistry
 {
 public:
 
-    AdapterRegistryI(const Freeze::DBPtr&, const TraceLevelsPtr&);
+    AdapterRegistryI(const Ice::CommunicatorPtr&, const std::string&, const std::string&, const TraceLevelsPtr&);
 
     virtual void add(const std::string&, const AdapterPrx&, const ::Ice::Current&);
     virtual void remove(const std::string&, const ::Ice::Current&);

@@ -32,7 +32,8 @@ the Free Software Foundation.
             classpath="${lib.dir}" debug="${debug}"/>
     </target>
 
-    <target name="all" depends="compile"/>
+    
+    <target name="all"/>
 
     <target name="clean">
         <delete dir="${class.dir}"/>

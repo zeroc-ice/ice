@@ -148,10 +148,11 @@ ContactI::destroy(const Ice::Current&)
     }
 }
 
-PhoneBookI::PhoneBookI(const DBPtr& db, const Freeze::EvictorPtr& evictor) :
-    _db(db),
+PhoneBookI::PhoneBookI(const Ice::CommunicatorPtr& communicator,
+		       const std::string& envName, const std::string& dbName,
+		       const Freeze::EvictorPtr& evictor) :
     _evictor(evictor),
-    _nameIdentitiesDict(db)
+    _nameIdentitiesDict(communicator, envName, dbName)
 {
 }
 
@@ -349,20 +350,22 @@ PhoneBookI::getNewIdentity()
 
 	Ice::Long n;
 	Identities ids;
-	NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("ID");
-	if(p == _nameIdentitiesDict.end())
 	{
-	    n = 0;
-	}
-	else
-	{
-	    ids = p->second;
-	    assert(ids.size() == 1);
-
-	    string::size_type sz;
-	    bool rc = IceUtil::stringToInt64(ids.front().name, n, sz);
-	    assert(rc);
-	    n += 1;
+	    NameIdentitiesDict::iterator p = _nameIdentitiesDict.find("ID");
+	    if(p == _nameIdentitiesDict.end())
+	    {
+		n = 0;
+	    }
+	    else
+	    {
+		ids = p->second;
+		assert(ids.size() == 1);
+		
+		string::size_type sz;
+		bool rc = IceUtil::stringToInt64(ids.front().name, n, sz);
+		assert(rc);
+		n += 1;
+	    }
 	}
 
 	char s[20];

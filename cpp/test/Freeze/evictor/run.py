@@ -31,5 +31,7 @@ testdir = os.path.join(toplevel, "test", name)
 dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
-TestUtil.clientServerTestWithOptions(name, " " + testdir, "")
+testOptions = " --Ice.Config=" + testdir + "/config ";
+
+TestUtil.clientServerTestWithOptions(name, " " + testdir, testOptions)
 sys.exit(0)

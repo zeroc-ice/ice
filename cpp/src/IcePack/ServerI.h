@@ -18,6 +18,7 @@
 #include <IceUtil/Mutex.h>
 #include <Freeze/EvictorF.h>
 #include <IcePack/Activator.h>
+#include <IceUtil/AbstractMutex.h>
 
 #include <IcePack/Internal.h>
 
@@ -30,7 +31,7 @@ typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 class ServerFactory;
 typedef IceUtil::Handle<ServerFactory> ServerFactoryPtr;
 
-class ServerI : public Server, public ::IceUtil::Monitor< ::IceUtil::Mutex>
+class ServerI : public Server, public IceUtil::AbstractMutexI<IceUtil::Monitor<IceUtil::Mutex> >
 {
 public:
 

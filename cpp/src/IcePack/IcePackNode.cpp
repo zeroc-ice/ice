@@ -87,7 +87,7 @@ shutdownCallback(int)
 
 
 int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Freeze::DBEnvironmentPtr& dbEnv)
+run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const string& envName)
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
 
@@ -184,7 +184,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator, const Free
     // installing the evictors and object factory necessary to persist
     // and create these objects.
     //
-    ServerFactoryPtr serverFactory = new ServerFactory(adapter, traceLevels, dbEnv, activator, waitQueue);
+    ServerFactoryPtr serverFactory = new ServerFactory(adapter, traceLevels, envName, activator, waitQueue);
     
     //
     // Create the node object and the node info. Because of circular
@@ -343,7 +343,6 @@ main(int argc, char* argv[])
     }
 
     Ice::CommunicatorPtr communicator;
-    Freeze::DBEnvironmentPtr dbEnv;
 
     int status;
     try
@@ -437,7 +436,7 @@ main(int argc, char* argv[])
 	// Initialize the database environment (first setup the
 	// directory structure if needed).
 	//
-	string dbPath;
+	string envName;
 	string dataPath = properties->getProperty("IcePack.Node.Data");
 	if(dataPath.empty())
 	{
@@ -462,21 +461,20 @@ main(int argc, char* argv[])
 		dataPath += "/"; 
 	    }
 	    
-	    dbPath = dataPath + "db";
+	    envName = dataPath + "db";
 	    string serversPath = dataPath + "servers";
     
-	    if(stat(dbPath.c_str(), &filestat) != 0)
+	    if(stat(envName.c_str(), &filestat) != 0)
 	    {
-		mkdir(dbPath.c_str(), 0755);
+		mkdir(envName.c_str(), 0755);
 	    }
 	    if(stat(serversPath.c_str(), &filestat) != 0)
 	    {
 		mkdir(serversPath.c_str(), 0755);
 	    }
 	}
-	dbEnv = Freeze::initialize(communicator, dbPath);
 
-	status = run(argc, argv, communicator, dbEnv);
+	status = run(argc, argv, communicator, envName);
     }
     catch(const Ice::Exception& ex)
     {
@@ -487,30 +485,6 @@ main(int argc, char* argv[])
     {
 	cerr << argv[0] << ": unknown exception" << endl;
 	status = EXIT_FAILURE;
-    }
-
-    if(dbEnv)
-    {
-	try
-	{
-	    dbEnv->close();
-	}
-	catch(const Freeze::DBException& ex)
-	{
-	    cerr << argv[0] << ": " << ex << ": " << ex.message << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(const Ice::Exception& ex)
-	{
-	    cerr << argv[0] << ": " << ex << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(...)
-	{
-	    cerr << argv[0] << ": unknown exception" << endl;
-	    status = EXIT_FAILURE;
-	}
-	dbEnv = 0;
     }
 
     if(communicator)

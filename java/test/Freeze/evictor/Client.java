@@ -44,343 +44,165 @@ public class Client
         test(base != null);
         Test.RemoteEvictorFactoryPrx factory = Test.RemoteEvictorFactoryPrxHelper.checkedCast(base);
 
-        //
-        // Test EvictionStrategy
-        //
-        {
-            System.out.print("testing EvictionStrategy... ");
-            System.out.flush();
+     
+	System.out.print("testing Freeze Evictor... ");
+	System.out.flush();
 
-            final int size = 5;
+	final int size = 5;
+	
+	Test.RemoteEvictorPrx evictor = factory.createEvictor("Test");
+	evictor.setSize(size);
 
-            Test.RemoteEvictorPrx evictor = factory.createEvictor("EvictionStrategy", Test.Strategy.Eviction);
-            evictor.setSize(size);
+	//
+	// Create some servants and verify they did not get saved
+	//
+	Test.ServantPrx[] servants = new Test.ServantPrx[size];
+	for(int i = 0; i < size; i++)
+	{
+	    servants[i] = evictor.createServant(i, i);
+	    test(evictor.getLastSavedValue() == -1);
+	}
+	
+	//
+	// Save and verify
+	//
+	evictor.saveNow();
+	test(evictor.getLastSavedValue() == size - 1);
 
-            //
-            // Create the same number of servants as the evictor size
-            // (i.e., don't exceed queue size). Servants should be
-            // saved immediately.
-            //
-            Test.ServantPrx[] servants = new Test.ServantPrx[size];
-            for(int i = 0; i < size; i++)
-            {
-                servants[i] = evictor.createServant(i, i);
-                test(evictor.getLastSavedValue() == i);
-            }
-
-            //
-            // Evict and verify values.
-            //
-            evictor.setSize(0);
-            evictor.setSize(size);
-            evictor.clearLastSavedValue();
-            for(int i = 0; i < size; i++)
-            {
-                test(servants[i].getValue() == i);
-            }
-
-            //
-            // Mutate servants.
-            //
-            for(int i = 0; i < size; i++)
-            {
+	//
+	// Evict and verify values.
+	//
+	evictor.setSize(0);
+	evictor.setSize(size);
+	evictor.clearLastSavedValue();
+	for(int i = 0; i < size; i++)
+	{
+	    test(servants[i].getValue() == i);
+	}
+	
+	//
+	// Mutate servants.
+	//
+	for(int i = 0; i < size; i++)
+	{
                 servants[i].setValue(i + 100);
-            }
+	}
+	
+	//
+	// Servants should not be saved yet.
+	//
+	test(evictor.getLastSavedValue() == -1);
+	for(int i = 0; i < size; i++)
+	{
+	    test(servants[i].getValue() == i + 100);
+	}
+	
+	evictor.saveNow();
 
-            //
-            // Servants should not be saved yet.
-            //
-            test(evictor.getLastSavedValue() == -1);
-            for(int i = 0; i < size; i++)
-            {
-                test(servants[i].getValue() == i + 100);
-            }
+	// 
+	// Test saving while busy
+	//
 
-            //
-            // Evict and verify values.
-            //
-            evictor.setSize(0);
-            evictor.setSize(size);
-            for(int i = 0; i < size; i++)
-            {
-                test(servants[i].getValue() == i + 100);
-            }
+	AMI_Servant_setValueAsyncI setCB = new AMI_Servant_setValueAsyncI();
+	for(int i = 0; i < size; i++)
+	{
+	    evictor.clearLastSavedValue();
 
-            //
-            // Destroy servants and verify ObjectNotExistException.
-            //
-            for(int i = 0; i < size; i++)
-            {
-                servants[i].destroy();
-                try
-                {
-                    servants[i].getValue();
-                    test(false);
-                }
-                catch(Ice.ObjectNotExistException ex)
-                {
-                    // Expected
-                }
-            }
-
-            //
-            // Allocate space for size+1 servants.
-            //
-            servants = new Test.ServantPrx[size + 1];
-
-            //
-            // Recreate servants.
-            //
-            for(int i = 0; i < size; i++)
-            {
-                servants[i] = evictor.createServant(i, i);
-            }
-
-            //
-            // Deactivate and recreate evictor, to ensure that servants
-            // are restored properly after database close and reopen.
-            //
-            evictor.deactivate();
-            evictor = factory.createEvictor("EvictionStrategy", Test.Strategy.Eviction);
-            evictor.setSize(size);
-            for(int i = 0; i < size; i++)
-            {
-                servants[i] = evictor.getServant(i);
-                test(servants[i].getValue() == i);
-            }
-
-            //
-            // No servants should have been evicted yet.
-            //
-            test(evictor.getLastEvictedValue() == -1);
-
-            //
-            // Create new servant - should cause eviction.
-            //
-            servants[size] = evictor.createServant(size, size);
-            test(evictor.getLastEvictedValue() == 0);
-
-            //
-            // Restore the evicted servant, which evicts another
-            // servant, and so on.
-            //
-            for(int i = 0; i <= size; i++)
-            {
-                test(servants[i].getValue() == i);
-                test(evictor.getLastEvictedValue() == (i + 1) % (size + 1));
-            }
-
-            //
-            // Destroy new servant and verify eviction no longer occurs.
-            //
-            servants[size].destroy();
-            evictor.clearLastEvictedValue();
-            for(int i = 0; i < size; i++)
-            {
-                test(servants[i].getValue() == i);
-            }
-            test(evictor.getLastEvictedValue() == -1);
-
-	    
-	    // 
-	    // Test explicit saves
 	    //
-	    for(int i = 0; i < size; i++)
+	    // Start a mutating operation so that the object is not idle.
+	    //
+	    servants[i].setValueAsync_async(setCB, i + 300);
+	    
+	    //
+	    // Wait for setValueAsync to be dispatched.
+	    //
+	    try
 	    {
-		servants[i].saveValue(i + 1);
-		test(evictor.getLastSavedValue() == i + 1);
+		Thread.sleep(100);
 	    }
+	    catch(InterruptedException ex)
+	    {
+	    }
+	    //
+	    // Object should not have been modified or saved yet.
+	    //
+	    test(servants[i].getValue() == i + 100);
+	    test(evictor.getLastSavedValue() == -1);
+	    //
+	    // This operation modifies the object state but is not saved
+	    // because the setValueAsync operation is still pending.
+	    //
+	    servants[i].setValue(i + 200);
+	    test(servants[i].getValue() == i + 200);
+	    test(evictor.getLastSavedValue() == -1);
+	    
+	    evictor.saveNow();
+	    test(evictor.getLastSavedValue() == i + 200);
 
-            //
-            // Clean up.
-            //
-            for(int i = 0; i < size; i++)
-            {
-                servants[i].destroy();
-            }
+	    //
+	    // Force the response to setValueAsync
+	    //
+	    servants[i].releaseAsync();
+	    test(servants[i].getValue() == i + 300);
+	    test(evictor.getLastSavedValue() == i + 200);
+	    evictor.saveNow();
+	    test(evictor.getLastSavedValue() == i + 300);
+	}
 
-            evictor.deactivate();
-            System.out.println("ok");
-        }
-
-        //
-        // Test IdleStrategy
-        //
-        {
-            System.out.print("testing IdleStrategy... ");
-            System.out.flush();
-
-            final int size = 5;
-
-            Test.RemoteEvictorPrx evictor = factory.createEvictor("IdleStrategy", Test.Strategy.Idle);
-            evictor.setSize(size);
-
-            //
-            // Create the same number of servants as the evictor size
-            // (i.e., don't exceed queue size). Servants should be
-            // saved immediately.
-            //
-            Test.ServantPrx[] servants = new Test.ServantPrx[size];
-            for(int i = 0; i < size; i++)
-            {
-                servants[i] = evictor.createServant(i, i);
-                test(evictor.getLastSavedValue() == i);
-            }
-
-            //
-            // Evict and verify values.
-            //
-            evictor.setSize(0);
-            evictor.setSize(size);
-            for(int i = 0; i < size; i++)
-            {
-                test(servants[i].getValue() == i);
-            }
-
-            //
-            // Mutate servants and verify they have been saved.
-            //
-            for(int i = 0; i < size; i++)
-            {
-                servants[i].setValue(i + 100);
-                test(evictor.getLastSavedValue() == i + 100);
-            }
-
-            //
-            // Evict and verify values.
-            //
-            evictor.setSize(0);
-            evictor.setSize(size);
-            for(int i = 0; i < size; i++)
-            {
-                test(servants[i].getValue() == i + 100);
-            }
-
-            //
-            // No servants should have been saved yet.
-            //
-            test(evictor.getLastSavedValue() == -1);
-
-            //
-            // Test idle behavior.
-            //
-            AMI_Servant_setValueAsyncI setCB = new AMI_Servant_setValueAsyncI();
-            for(int i = 0; i < size; i++)
-            {
-                //
-                // Start a mutating operation so that the object is not idle.
-                //
-                servants[i].setValueAsync_async(setCB, i + 300);
-                //
-                // Wait for setValueAsync to be dispatched.
-                //
-                try
-                {
-                    Thread.sleep(100);
-                }
-                catch(InterruptedException ex)
-                {
-                }
-                //
-                // Object should not have been modified or saved yet.
-                //
-                test(servants[i].getValue() == i + 100);
-                test(evictor.getLastSavedValue() == -1);
-                //
-                // This operation modifies the object state but is not saved
-                // because the setValueAsync operation is still pending.
-                //
-                servants[i].setValue(i + 200);
-                test(servants[i].getValue() == i + 200);
-                test(evictor.getLastSavedValue() == -1);
-                //
-                // Force the response to setValueAsync, which should cause
-                // the object to be saved.
-                //
-                servants[i].releaseAsync();
-                test(servants[i].getValue() == i + 300);
-                test(evictor.getLastSavedValue() == i + 300);
-            }
-
-            //
-            // Destroy servants and verify ObjectNotExistException.
-            //
-            for(int i = 0; i < size; i++)
-            {
-                servants[i].destroy();
-                try
-                {
-                    servants[i].getValue();
-                    test(false);
-                }
-                catch(Ice.ObjectNotExistException ex)
-                {
-                    // Expected
-                }
-            }
-
-            //
-            // Allocate space for size+1 servants.
-            //
-            servants = new Test.ServantPrx[size + 1];
-
-            //
-            // Recreate servants.
-            //
-            for(int i = 0; i < size; i++)
-            {
-                servants[i] = evictor.createServant(i, i);
-            }
-
-            //
-            // Deactivate and recreate evictor, to ensure that servants
-            // are restored properly after database close and reopen.
-            //
-            evictor.deactivate();
-            evictor = factory.createEvictor("IdleStrategy", Test.Strategy.Idle);
-            evictor.setSize(size);
-            for(int i = 0; i < size; i++)
-            {
-                servants[i] = evictor.getServant(i);
-                test(servants[i].getValue() == i);
-            }
-
-            //
-            // No servants should have been saved yet.
-            //
-            test(evictor.getLastSavedValue() == -1);
-
-            //
-            // Create new servant - should cause eviction but no
-            // servants should be saved.
-            //
-            servants[size] = evictor.createServant(size, size);
-            test(evictor.getLastSavedValue() == size);
-            test(evictor.getLastEvictedValue() != -1);
-
-            //
-            // Restore the evicted servant, which evicts another
-            // servant, and so on.
-            //
-            for(int i = 0; i <= size; i++)
-            {
-                test(servants[i].getValue() == i);
-                test(evictor.getLastEvictedValue() == (i + 1) % (size + 1));
-            }
-            test(evictor.getLastSavedValue() == -1);
-
-            //
-            // Clean up.
-            //
-            for(int i = 0; i <= size; i++)
-            {
-                servants[i].destroy();
-            }
-
-            evictor.deactivate();
-            System.out.println("ok");
-        }
-
+	//
+	// Destroy servants and verify ObjectNotExistException.
+	//
+	for(int i = 0; i < size; i++)
+	{
+	    servants[i].destroy();
+	    try
+	    {
+		servants[i].getValue();
+		test(false);
+	    }
+	    catch(Ice.ObjectNotExistException ex)
+	    {
+		// Expected
+	    }
+	}
+	
+	//
+	// Allocate space for size+1 servants.
+	//
+	servants = new Test.ServantPrx[size + 1];
+	
+	//
+	// Recreate servants.
+	//
+	for(int i = 0; i < size; i++)
+	{
+	    servants[i] = evictor.createServant(i, i);
+	}
+	
+	//
+	// Deactivate and recreate evictor, to ensure that servants
+	// are restored properly after database close and reopen.
+	//
+	evictor.deactivate();
+	evictor = factory.createEvictor("Test");
+	evictor.setSize(size);
+	for(int i = 0; i < size; i++)
+	{
+	    servants[i] = evictor.getServant(i);
+	    test(servants[i].getValue() == i);
+	}
+	
+	//
+	// Clean up.
+	//
+	for(int i = 0; i < size; i++)
+	{
+	    servants[i].destroy();
+	}
+	
+	evictor.deactivate();
+	System.out.println("ok");
+        
         factory.shutdown();
 
         return 0;

@@ -33,8 +33,8 @@ public:
     virtual ~ServiceI();
 
     virtual void start(const string&,
-                      const CommunicatorPtr&,
-                      const StringSeq&);
+		       const CommunicatorPtr&,
+		       const StringSeq&);
 
     virtual void stop();
 };
@@ -49,7 +49,7 @@ public:
     virtual void start(const string&,
 		       const CommunicatorPtr&,
 		       const StringSeq&,
-		       const Freeze::DBEnvironmentPtr&);
+		       const std::string&);
 
     virtual void stop();
 };
@@ -112,13 +112,8 @@ void
 FreezeServiceI::start(const string& name,
 		      const CommunicatorPtr& communicator,
 		      const StringSeq& args,
-		      const Freeze::DBEnvironmentPtr& dbEnv)
+		      const std::string& envName)
 {
-    //
-    // Ensure that we can create an environment.
-    //
-    Freeze::DBPtr db = dbEnv->openDB("testdb", true);
-
     Ice::PropertiesPtr properties = communicator->getProperties();
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter(name);

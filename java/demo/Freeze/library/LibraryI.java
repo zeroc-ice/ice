@@ -223,10 +223,16 @@ class LibraryI extends _LibraryDisp
 	}
     }
 
-    LibraryI(Freeze.DB db, Freeze.Evictor evictor)
+    LibraryI(Ice.Communicator communicator, String envName, String dbName, Freeze.Evictor evictor)
     {
 	_evictor = evictor;
-	_authors = new StringIsbnSeqDict(db);
+	_authors = new StringIsbnSeqDict(communicator, envName, dbName, true);
+    }
+
+    void
+    close()
+    {
+	_authors.close();
     }
 
     private Ice.Identity

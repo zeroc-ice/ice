@@ -60,8 +60,8 @@ public:
 
 
 #ifdef _WIN32
-    mutable bool             _mutexInitialized;
-    mutable CRITICAL_SECTION _mutex;
+    mutable bool _mutexInitialized;
+    mutable CRITICAL_SECTION* _mutex;
 #else
     mutable pthread_mutex_t _mutex;
 #endif
@@ -128,12 +128,12 @@ StaticMutex::lock() const
     {
 	initialize();
     }
-    EnterCriticalSection(&_mutex);
+    EnterCriticalSection(_mutex);
     //
     // If necessary this can be removed and replaced with a _count
     // member (like the UNIX implementation of RecStaticMutex).
     //
-    assert(_mutex.RecursionCount == 1);
+    assert(_mutex->RecursionCount == 1);
 }
 
 inline bool
@@ -143,13 +143,13 @@ StaticMutex::tryLock() const
     {
 	initialize();
     }
-    if(!TryEnterCriticalSection(&_mutex))
+    if(!TryEnterCriticalSection(_mutex))
     {
 	return false;
     }
-    if(_mutex.RecursionCount > 1)
+    if(_mutex->RecursionCount > 1)
     {
-	LeaveCriticalSection(&_mutex);
+	LeaveCriticalSection(_mutex);
 	return false;
     }
     return true;
@@ -159,15 +159,15 @@ inline void
 StaticMutex::unlock() const
 {
     assert(_mutexInitialized);
-    assert(_mutex.RecursionCount == 1);
-    LeaveCriticalSection(&_mutex);
+    assert(_mutex->RecursionCount == 1);
+    LeaveCriticalSection(_mutex);
 }
 
 inline void
 StaticMutex::unlock(LockState& state) const
 {
     assert(_mutexInitialized);
-    LeaveCriticalSection(&_mutex);
+    LeaveCriticalSection(_mutex);
 }
 
 inline void
@@ -177,7 +177,7 @@ StaticMutex::lock(LockState&) const
     {
 	initialize();
     }
-    EnterCriticalSection(&_mutex);
+    EnterCriticalSection(_mutex);
 }
 
 #else

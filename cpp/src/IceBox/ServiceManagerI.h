@@ -20,7 +20,6 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/DynamicLibraryF.h>
 #include <Ice/Application.h>
-#include <Freeze/DBI.h>
 #include <map>
 
 namespace IceBox
@@ -42,7 +41,7 @@ public:
         ServiceBasePtr service;
         ::IceInternal::DynamicLibraryPtr library;
 	::Ice::CommunicatorPtr communicator;
-        ::Freeze::DBEnvironmentPtr dbEnv;
+	::std::string envName;
     };
 
 private:

@@ -157,9 +157,11 @@ private:
     Ice::ObjectAdapterPtr _adapter;
 };
 
-LibraryI::LibraryI(const Freeze::DBPtr& db, const Freeze::EvictorPtr& evictor) :
+LibraryI::LibraryI(const Ice::CommunicatorPtr& communicator, 
+		   const string& envName, const string& dbName,
+		   const Freeze::EvictorPtr& evictor) :
     _evictor(evictor),
-    _authors(db)
+    _authors(communicator, envName, dbName)
 {
 }
 

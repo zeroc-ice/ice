@@ -58,6 +58,17 @@ local exception DBDeadlockException extends DBException
 {
 };
 
+/**
+ *
+ * This Freeze Iterator is not on a valid position, for example
+ * this position has been erased.
+ *
+ **/
+local exception DBInvalidPositionException extends DBException
+{
+};
+
+
 };
 
 #endif

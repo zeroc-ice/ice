@@ -52,6 +52,12 @@ the Free Software Foundation.
     <target name="clean">
         <delete dir="${generated.dir}"/>
         <delete dir="${class.dir}"/>
+        <delete>
+	    <fileset dir="db/node/db" includes="log.*"/>
+            <fileset dir="db/node/db" includes="serveradapters,servers"/>
+            <fileset dir="db/registry" includes="log.*"/>
+            <fileset dir="db/registry" includes="adapter,adapterregistry,noderegistry,objectregistry,objectregistry-types,serverregistry"/>
+        </delete>
     </target>
 
 </project>

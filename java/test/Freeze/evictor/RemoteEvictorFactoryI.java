@@ -14,10 +14,10 @@
 
 public final class RemoteEvictorFactoryI extends Test._RemoteEvictorFactoryDisp
 {
-    RemoteEvictorFactoryI(Ice.ObjectAdapter adapter, Freeze.DBEnvironment dbEnv)
+    RemoteEvictorFactoryI(Ice.ObjectAdapter adapter, String envName)
     {
         _adapter = adapter;
-        _dbEnv = dbEnv;
+	_envName = envName;
     }
 
     static class Initializer extends Ice.LocalObjectImpl implements Freeze.ServantInitializer
@@ -40,23 +40,11 @@ public final class RemoteEvictorFactoryI extends Test._RemoteEvictorFactoryDisp
     }
 
     public Test.RemoteEvictorPrx
-    createEvictor(String name, Test.Strategy s, Ice.Current current)
+    createEvictor(String name, Ice.Current current)
     {
-        Freeze.DB db = _dbEnv.openDB(name, true);
+        Freeze.Evictor evictor = Freeze.Util.createEvictor(_adapter.getCommunicator(), _envName, name, true);
 
-        Freeze.PersistenceStrategy delegate;
-        if(s == Test.Strategy.Eviction)
-        {
-            delegate = db.createEvictionStrategy();
-        }
-        else
-        {
-            delegate = db.createIdleStrategy();
-        }
-        StrategyI strategy = new StrategyI(delegate);
-        Freeze.Evictor evictor = db.createEvictor(strategy);
-
-        RemoteEvictorI remoteEvictor = new RemoteEvictorI(_adapter, name, db, strategy, evictor);
+        RemoteEvictorI remoteEvictor = new RemoteEvictorI(_adapter, name, evictor);
         evictor.installServantInitializer(new Initializer(remoteEvictor, evictor));
         return Test.RemoteEvictorPrxHelper.uncheckedCast(_adapter.add(remoteEvictor, Ice.Util.stringToIdentity(name)));
     }
@@ -64,9 +52,9 @@ public final class RemoteEvictorFactoryI extends Test._RemoteEvictorFactoryDisp
     public void
     shutdown(Ice.Current current)
     {
-        _dbEnv.getCommunicator().shutdown();
+        _adapter.getCommunicator().shutdown();
     }
 
     private Ice.ObjectAdapter _adapter;
-    private Freeze.DBEnvironment _dbEnv;
+    private String _envName;
 }

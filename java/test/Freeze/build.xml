@@ -17,7 +17,7 @@ the Free Software Foundation.
         <ant dir="cursor"/>
         <ant dir="dbmap"/>
         <ant dir="complex"/>
-        <ant dir="evictor"/>
+	<ant dir="evictor"/>
     </target>
 
     <target name="clean">

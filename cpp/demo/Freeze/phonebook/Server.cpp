@@ -12,23 +12,26 @@
 //
 // **********************************************************************
 
-#include <Freeze/Application.h>
+#include <Ice/Application.h>
 #include <ContactFactory.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-class PhoneBookServer : public Freeze::Application
+class PhoneBookServer : public Ice::Application
 {
 public:
     
-    PhoneBookServer(const string& dbEnvName) :
-	Freeze::Application(dbEnvName)
+    PhoneBookServer(const string& envName) :
+	_envName(envName)
     {
     }
 
-    virtual int runFreeze(int argc, char* argv[], const DBEnvironmentPtr&);
+    virtual int run(int argc, char* argv[]);
+
+private:
+    const string _envName;
 };
 
 int
@@ -39,26 +42,15 @@ main(int argc, char* argv[])
 }
 
 int
-PhoneBookServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
+PhoneBookServer::run(int argc, char* argv[])
 {
     PropertiesPtr properties = communicator()->getProperties();
-    
-    DBPtr dbPhoneBook = dbEnv->openDB("phonebook", true);
-    DBPtr dbContacts = dbEnv->openDB("contacts", true);
     
     //
     // Create an Evictor for contacts.
     //
-    PersistenceStrategyPtr strategy;
-    if(properties->getPropertyAsInt("PhoneBook.IdleStrategy") > 0)
-    {
-        strategy = dbContacts->createIdleStrategy();
-    }
-    else
-    {
-        strategy = dbContacts->createEvictionStrategy();
-    }
-    Freeze::EvictorPtr evictor = dbContacts->createEvictor(strategy);
+    Freeze::EvictorPtr evictor = Freeze::createEvictor(communicator(), _envName, "contacts");
+
     Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
     if(evictorSize > 0)
     {
@@ -74,7 +66,8 @@ PhoneBookServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv
     //
     // Create the phonebook, and add it to the Object Adapter.
     //
-    PhoneBookIPtr phoneBook = new PhoneBookI(dbPhoneBook, evictor);
+    PhoneBookIPtr phoneBook = new PhoneBookI(communicator(), 
+					     _envName, "phonebook", evictor);
     adapter->add(phoneBook, stringToIdentity("phonebook"));
     
     //

@@ -21,27 +21,21 @@ LIBNAME		= $(call mklibname,Freeze)
 TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME)
 
 
-OBJS		= DB.o \
-		  DBException.o \
+OBJS		= DBException.o \
 		  Evictor.o \
 		  ObjectRecord.o \
-		  Strategy.o \
-	  	  DBI.o \
+	  	  MapI.o \
 		  EvictorI.o \
-		  StrategyI.o \
-		  IdentityObjectRecordDict.o \
-		  Application.o
+                  SharedDbEnv.o \
+		  IdentityObjectRecordDict.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
 SLICE_SRCS	= $(SDIR)/DB.ice \
-		  $(SDIR)/DBF.ice \
-		  $(SDIR)/DBException.ice \
+                  $(SDIR)/DBException.ice \
 		  $(SDIR)/Evictor.ice \
 		  $(SDIR)/EvictorF.ice \
-		  $(SDIR)/ObjectRecord.ice \
-		  $(SDIR)/Strategy.ice \
-		  $(SDIR)/StrategyF.ice
+		  $(SDIR)/ObjectRecord.ice
 
 HDIR		= $(includedir)/Freeze
 SDIR		= $(slicedir)/Freeze

@@ -12,7 +12,7 @@
 //
 // **********************************************************************
 
-#include <Freeze/Application.h>
+#include <Ice/Application.h>
 #include <BenchTypes.h>
 #include <cstdlib>
 
@@ -140,39 +140,38 @@ private:
     int _current;
 };
 
-class TestApp : public Freeze::Application
+class TestApp : public Ice::Application
 {
 public:
     
     TestApp(const string&);
 
-    virtual int runFreeze(int, char*[], const Freeze::DBEnvironmentPtr&);
+    virtual int run(int, char*[]);
 
 private:
 
-    void IntIntMapTest(const Freeze::DBEnvironmentPtr&);
+    void IntIntMapTest();
     void generatedRead(IntIntMap&, int, const GeneratorPtr&);
-    void Struct1Struct2MapTest(const Freeze::DBEnvironmentPtr&);
-    void Struct1Class1MapTest(const Freeze::DBEnvironmentPtr&);
-    void Struct1ObjectMapTest(const Freeze::DBEnvironmentPtr&);
-    void IntIntMapReadTest(const Freeze::DBEnvironmentPtr&);
+    void Struct1Struct2MapTest();
+    void Struct1Class1MapTest();
+    void Struct1ObjectMapTest();
+    void IntIntMapReadTest();
 
+    const string _envName;
     StopWatch _watch;
     int _repetitions;
 };
 
-TestApp::TestApp(const string& dbEnvName) :
-    Freeze::Application(dbEnvName),
+TestApp::TestApp(const string& envName) :
+    _envName(envName),
     _repetitions(10000)
 {
 }
 
 void
-TestApp::IntIntMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
+TestApp::IntIntMapTest()
 {
-    Freeze::DBPtr db = dbEnv->openDB("IntIntMap", true);
-
-    IntIntMap m(db);
+    IntIntMap m(communicator(), _envName, "IntIntMap");
 
     //
     // Populate the database.
@@ -218,8 +217,6 @@ TestApp::IntIntMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
 
     cout << "\ttime for " << _repetitions << " removes: " << total  << "ms" << endl;
     cout << "\ttime per remove: " << perRecord << "ms" << endl;
-
-    db->close();
 }
 
 void
@@ -242,11 +239,9 @@ TestApp::generatedRead(IntIntMap& m, int reads , const GeneratorPtr& gen)
 }
 
 void
-TestApp::IntIntMapReadTest(const Freeze::DBEnvironmentPtr& dbEnv)
+TestApp::IntIntMapReadTest()
 {
-    Freeze::DBPtr db = dbEnv->openDB("IntIntMap", true);
-
-    IntIntMap m(db);
+    IntIntMap m(communicator(), _envName, "IntIntMap");
 
     //
     // Populate the database.
@@ -295,15 +290,12 @@ TestApp::IntIntMapReadTest(const Freeze::DBEnvironmentPtr& dbEnv)
     cout << "\ttime per remove: " << perRecord << "ms" << endl;
 */
 
-    db->close();
 }
 
 void
-TestApp::Struct1Struct2MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
+TestApp::Struct1Struct2MapTest()
 {
-    Freeze::DBPtr db = dbEnv->openDB("Struct1Struct2", true);
-
-    Struct1Struct2Map m(db);
+    Struct1Struct2Map m(communicator(), _envName, "Struct1Struct2");
 
     //
     // Populate the database.
@@ -359,15 +351,11 @@ TestApp::Struct1Struct2MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
 
     cout << "\ttime for " << _repetitions << " removes: " << total  << "ms" << endl;
     cout << "\ttime per remove: " << perRecord << "ms" << endl;
-
-    db->close();
 }
 void
-TestApp::Struct1Class1MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
+TestApp::Struct1Class1MapTest()
 {
-    Freeze::DBPtr db = dbEnv->openDB("Struct1Class1", true);
-
-    Struct1Class1Map m(db);
+    Struct1Class1Map m(communicator(), _envName, "Struct1Class1");
 
     //
     // Populate the database.
@@ -423,16 +411,12 @@ TestApp::Struct1Class1MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
 
     cout << "\ttime for " << _repetitions << " removes: " << total  << "ms" << endl;
     cout << "\ttime per remove: " << perRecord << "ms" << endl;
-
-    db->close();
 }
 
 void
-TestApp::Struct1ObjectMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
+TestApp::Struct1ObjectMapTest()
 {
-    Freeze::DBPtr db = dbEnv->openDB("Struct1Object", true);
-
-    Struct1ObjectMap m(db);
+    Struct1ObjectMap m(communicator(), _envName, "Struct1Object");
 
     //
     // Populate the database.
@@ -515,7 +499,6 @@ TestApp::Struct1ObjectMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     cout << "\ttime for " << _repetitions << " removes: " << total  << "ms" << endl;
     cout << "\ttime per remove: " << perRecord << "ms" << endl;
 
-    db->close();
 }
 
 class MyFactory : public Ice::ObjectFactory
@@ -551,25 +534,25 @@ public:
 typedef IceUtil::Handle<MyFactory> MyFactoryPtr;
 
 int
-TestApp::runFreeze(int argc, char* argv[], const Freeze::DBEnvironmentPtr& dbEnv)
+TestApp::run(int argc, char* argv[])
 {
     cout <<"IntIntMap" << endl;
-    IntIntMapTest(dbEnv);
+    IntIntMapTest();
     
     cout <<"Struct1Struct2Map" << endl;
-    Struct1Struct2MapTest(dbEnv);
+    Struct1Struct2MapTest();
     
     cout <<"Struct1Class1Map" << endl;
-    Struct1Class1MapTest(dbEnv);
+    Struct1Class1MapTest();
     
     MyFactoryPtr factory = new MyFactory();
-    factory->install(dbEnv->getCommunicator());
+    factory->install(communicator());
     
     cout <<"Struct1ObjectMap" << endl;
-    Struct1ObjectMapTest(dbEnv);
+    Struct1ObjectMapTest();
     
     cout <<"IntIntMap (read test)" << endl;
-    IntIntMapReadTest(dbEnv);
+    IntIntMapReadTest();
     
     return EXIT_SUCCESS;
 }

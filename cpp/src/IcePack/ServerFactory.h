@@ -18,6 +18,7 @@
 #include <IcePack/Internal.h>
 #include <IcePack/Activator.h>
 #include <IcePack/WaitQueue.h>
+#include <Freeze/Evictor.h>
 
 namespace IcePack
 {
@@ -29,7 +30,7 @@ class ServerFactory : public Ice::ObjectFactory
 {
 public:
 
-    ServerFactory(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const Freeze::DBEnvironmentPtr&,
+    ServerFactory(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const std::string&,
 		  const ActivatorPtr&, const WaitQueuePtr&);
     
     //

@@ -17,6 +17,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <IcePack/Internal.h>
+#include <IceUtil/AbstractMutex.h>
 
 namespace IcePack
 {
@@ -24,7 +25,7 @@ namespace IcePack
 class AdapterFactory;
 typedef IceUtil::Handle<AdapterFactory> AdapterFactoryPtr;
 
-class StandaloneAdapterI : public StandaloneAdapter, public IceUtil::Mutex
+class StandaloneAdapterI : public StandaloneAdapter, public IceUtil::AbstractMutexI<IceUtil::Mutex>
 {
 public:
 

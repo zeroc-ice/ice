@@ -18,10 +18,13 @@
 using namespace std;
 using namespace IcePack;
 
-IcePack::ObjectRegistryI::ObjectRegistryI(const Freeze::DBPtr& objDb, const Freeze::DBPtr& typeDb, 
+IcePack::ObjectRegistryI::ObjectRegistryI(const Ice::CommunicatorPtr& communicator,
+					  const string& envName,
+					  const string& objectsDbName,
+					  const string& typesDbName,
 					  const TraceLevelsPtr& traceLevels) :
-    _objects(objDb),
-    _types(typeDb),
+    _objects(communicator, envName, objectsDbName, true),
+    _types(communicator, envName, typesDbName, true),
     _traceLevels(traceLevels)
 {
 }

@@ -29,7 +29,11 @@ class ObjectRegistryI : public ObjectRegistry, public IceUtil::Mutex
 {
 public:
 
-    ObjectRegistryI(const Freeze::DBPtr&, const Freeze::DBPtr&, const TraceLevelsPtr&);
+    ObjectRegistryI(const Ice::CommunicatorPtr& communicator,
+		    const std::string& envName,
+		    const std::string& objectsDbName,
+		    const std::string& typesDbName,
+		    const TraceLevelsPtr& traceLevels);
 
     virtual void add(const IcePack::ObjectDescription&, const ::Ice::Current&);
     virtual void remove(const Ice::ObjectPrx&, const ::Ice::Current&);

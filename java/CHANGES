@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Major Freeze update
+  See corresponding entry in the Ice CHANGES file.
+
 - Added Ice.MessageSizeMax property. This property controls the maximum
   message size accepted by the Ice protocol in kiloBytes. The default value
   is 1024 (1 MB).

@@ -26,13 +26,13 @@ using namespace std;
 
 TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice::ObjectAdapterPtr& topicAdapter,
                              const Ice::ObjectAdapterPtr& publishAdapter, const TraceLevelsPtr& traceLevels,
-                             const Freeze::DBEnvironmentPtr& dbEnv, const Freeze::DBPtr& db) :
+                             const string& envName, const string& dbName) :
     _communicator(communicator),
     _topicAdapter(topicAdapter),
     _publishAdapter(publishAdapter),
     _traceLevels(traceLevels),
-    _dbEnv(dbEnv),
-    _topics(db)
+    _envName(envName),
+    _topics(_communicator, envName, dbName)
 {
     _flusher = new Flusher(_communicator, _traceLevels);
     _factory = new SubscriberFactory(_traceLevels, _flusher);
@@ -206,20 +206,17 @@ TopicManagerI::installTopic(const string& message, const string& name, bool crea
     //
     // Prepend "topic-" to the topic name in order to form a
     // unique name for the Freeze database. Since the name we
-    // supply to openDB is also used as a filename, we call
-    // getDatabaseName to obtain a name with any questionable
-    // filename characters converted to hex.
+    // supply is also used as a filename, we call getDatabaseName 
+    // to obtain a name with any questionable filename characters converted to hex.
     //
     // TODO: instance
     // TODO: failure? cleanup database?
     //
-    string dbName = "topic-" + getDatabaseName(name);
-    Freeze::DBPtr db = _dbEnv->openDB(dbName, create);
-    
+    string dbName = "topic-" + getDatabaseName(name);  
     //
     // Create topic implementation
     //
-    TopicIPtr topicI = new TopicI(_publishAdapter, _traceLevels, name, _factory, db);
+    TopicIPtr topicI = new TopicI(_publishAdapter, _traceLevels, name, _factory, _envName, dbName, create);
     
     //
     // The identity is the name of the Topic.

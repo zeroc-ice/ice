@@ -16,15 +16,18 @@
 #define LIBRARY_I_H
 
 #include <IceUtil/RWRecMutex.h>
-
+#include <Freeze/Evictor.h>
 #include <Library.h>
 #include <LibraryTypes.h>
+#include <IceUtil/AbstractMutex.h>
 
 class LibraryI : public Library, public IceUtil::RWRecMutex
 {
 public:
 
-    LibraryI(const Freeze::DBPtr&, const Freeze::EvictorPtr&);
+    LibraryI(const Ice::CommunicatorPtr& communicator,
+	     const std::string& envName, const std::string& dbName,
+	     const Freeze::EvictorPtr& evictor);
     virtual ~LibraryI();
 
     virtual ::BookPrx createBook(const ::BookDescription&, const Ice::Current&);
@@ -48,7 +51,7 @@ private:
 
 typedef IceUtil::Handle<LibraryI> LibraryIPtr;
 
-class BookI : public Book, public IceUtil::RWRecMutex
+class BookI : public Book, public IceUtil::AbstractMutexReadI<IceUtil::RWRecMutex>
 {
 public:
 

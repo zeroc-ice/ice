@@ -45,4 +45,8 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
+clean::
+	rm -f db/node/db/servers db/node/db/serveradapters db/node/db/log.*
+	rm -f db/registry/*
+
 include .depend

@@ -32,7 +32,8 @@ dbdir = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbdir)
 
 populate = os.path.join(testdir, "populate")
-populateOptions = TestUtil.clientOptions + " -I" + toplevel + "/schema -I" + testdir + " --db-dir " + dbdir;
+populateOptions = TestUtil.clientOptions + " --Ice.Config=" + testdir + "/config -I" + \
+	 toplevel + "/schema -I" + testdir + " --db-dir " + dbdir;
 
 print "starting populate...",
 populatePipe = os.popen(populate + populateOptions)
@@ -47,7 +48,8 @@ if populateStatus:
     sys.exit(1)
 
 validate = os.path.join(testdir, "validate")
-validateOptions = TestUtil.clientOptions + " --db-dir " + dbdir;
+validateOptions = TestUtil.clientOptions + " --Ice.Config=" + testdir + "/config " + \
+	" --db-dir " + dbdir;
 
 print "starting validate...",
 validatePipe = os.popen(validate + validateOptions)

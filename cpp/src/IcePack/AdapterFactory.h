@@ -28,7 +28,7 @@ class AdapterFactory : public Ice::ObjectFactory
 {
 public:
 
-    AdapterFactory(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const Freeze::DBEnvironmentPtr&);
+    AdapterFactory(const Ice::ObjectAdapterPtr&, const TraceLevelsPtr&, const std::string&);
     
     //
     // Ice::ObjectFactory method implementation.

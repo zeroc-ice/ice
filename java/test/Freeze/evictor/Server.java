@@ -30,13 +30,13 @@ public class Server
     }
 
     static int
-    run(String[] args, Ice.Communicator communicator, Freeze.DBEnvironment dbEnv)
+    run(String[] args, Ice.Communicator communicator, String envName)
     {
         communicator.getProperties().setProperty("Evictor.Endpoints", "default -p 12345 -t 2000");
 
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("Evictor");
     
-        RemoteEvictorFactoryI factory = new RemoteEvictorFactoryI(adapter, dbEnv);
+        RemoteEvictorFactoryI factory = new RemoteEvictorFactoryI(adapter, envName);
         adapter.add(factory, Ice.Util.stringToIdentity("factory"));
     
         Ice.ObjectFactory servantFactory = new ServantFactory();
@@ -54,8 +54,7 @@ public class Server
     {
         int status = 0;
         Ice.Communicator communicator = null;
-        Freeze.DBEnvironment dbEnv = null;
-        String dbEnvDir = "db";
+        String envName = "db";
 
         try
         {
@@ -65,22 +64,15 @@ public class Server
             args = holder.value;
             if(args.length > 0)
             {
-                dbEnvDir = args[0];
-                dbEnvDir += "/";
-                dbEnvDir += "db";
+                envName = args[0];
+                envName += "/db";  
             }
-            dbEnv = Freeze.Util.initialize(communicator, dbEnvDir);
-            status = run(args, communicator, dbEnv);
+            status = run(args, communicator, envName);
         }
         catch(Ice.LocalException ex)
         {
             ex.printStackTrace();
             status = 1;
-        }
-
-        if(dbEnv != null)
-        {
-            dbEnv.close();
         }
 
         if(communicator != null)

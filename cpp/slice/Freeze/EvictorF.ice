@@ -19,7 +19,6 @@ module Freeze
 {
 
 local interface Evictor;
-local interface PersistenceStrategy;
 
 };
 

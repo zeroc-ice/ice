@@ -18,8 +18,10 @@
 using namespace std;
 using namespace IcePack;
 
-IcePack::AdapterRegistryI::AdapterRegistryI(const Freeze::DBPtr& db, const TraceLevelsPtr& traceLevels) :
-    _dict(db),
+IcePack::AdapterRegistryI::AdapterRegistryI(const Ice::CommunicatorPtr& communicator,
+					    const string& envName, const string& dbName,
+					    const TraceLevelsPtr& traceLevels) :
+    _dict(communicator, envName, dbName),
     _traceLevels(traceLevels)
 {
 }

@@ -85,6 +85,10 @@ the Free Software Foundation.
     <target name="clean">
         <delete dir="${generated.dir}"/>
         <delete dir="${class.dir}"/>
+	<delete>
+	    <fileset dir="db" includes="log.*"/>
+            <fileset dir="db" includes="IntIntMap.fast,Struct1Object,IntIntMap,Struct1Class1,Struct1Struct2"/>
+        </delete>
     </target>
 
 </project>

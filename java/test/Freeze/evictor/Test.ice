@@ -21,12 +21,9 @@ module Test
 class Servant
 {
     nonmutating int getValue();
-
     void setValue(int value);
+
     ["ami", "amd"] void setValueAsync(int value);
-
-    void saveValue(int value);
-
     nonmutating void releaseAsync();
 
     void destroy();
@@ -41,20 +38,13 @@ interface RemoteEvictor
     Servant* getServant(int id);
     nonmutating int getLastSavedValue();
     void clearLastSavedValue();
-    nonmutating int getLastEvictedValue();
-    void clearLastEvictedValue();
+    void saveNow();
     void deactivate();
-};
-
-enum Strategy
-{
-    Eviction,
-    Idle
 };
 
 interface RemoteEvictorFactory
 {
-    RemoteEvictor* createEvictor(string name, Strategy s);
+    RemoteEvictor* createEvictor(string name);
     void shutdown();
 };
 
