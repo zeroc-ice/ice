@@ -68,7 +68,25 @@ yyerror(const char* s)
 %token ICE_OP_IDENTIFIER
 %token ICE_OP_KEYWORD
 
+//
+// One shift/reduce conflict is caused by the presence of ICE_OUT
+// in the "keyword" production. That's because when the parser sees
+// something like
+// 
+// void op(out long l);
+//            ^
+// and has just consumed the ICE_OUT, it can either reduce ICE_OUT via
+// the "keyword" production or continue to shift via the "out_param_decl"
+// production. We could remove ICE_OUT from the "keyword" production,
+// but then we wouldn't detect other incorrect uses of ICE_OUT, such as
+// using "out" as the name of an operation. Overall, it's better to live
+// with the shift/reduce conflict (and the default shift action here is
+// what we want anyway).
+//
+%expect 1
+
 %%
+
 
 // ----------------------------------------------------------------------
 start
