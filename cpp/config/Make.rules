@@ -111,7 +111,7 @@ KERBEROS_HOME		?= /usr/kerberos
 # ----------------------------------------------------------------------
 
 SHELL			= /bin/sh
-VERSION			= 1.1.0
+VERSION			= 1.1.1
 SOVERSION               = 11
 bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib

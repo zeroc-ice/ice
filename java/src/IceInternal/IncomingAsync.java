@@ -92,7 +92,10 @@ public class IncomingAsync extends IncomingBase
 		ex.operation = _current.operation;
 	    }
 
-	    __warning(ex);
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+	    {
+		__warning(ex);
+	    }
 
             if(_response)
             {
@@ -121,7 +124,10 @@ public class IncomingAsync extends IncomingBase
         }
         catch(Ice.LocalException ex)
         {
-	    __warning(ex);
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
 
             if(_response)
             {
@@ -133,7 +139,10 @@ public class IncomingAsync extends IncomingBase
         }
         catch(Ice.UserException ex)
         {
-	    __warning(ex);
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
 
             if(_response)
             {
@@ -145,7 +154,10 @@ public class IncomingAsync extends IncomingBase
         }
 	catch(Exception ex)
 	{
-	    __warning(ex);
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
 
             if(_response)
             {

@@ -24,7 +24,7 @@ select "Build".
 To run these demos, you need to add the Ice bin directory to your PATH,
 for example:
 
-set PATH=C:\Ice-1.1.0\bin;%PATH%
+set PATH=C:\Ice-1.1.1\bin;%PATH%
 
 Then open a Command Prompt, cd to the desired demo subdirectory, and
 type 'server' to start the server. In a separate Command Prompt window,

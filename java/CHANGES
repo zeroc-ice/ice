@@ -1,5 +1,9 @@
-Changes since version 1.1.0
+Changes since version 1.1.1
 ---------------------------
+
+- Fixed a bug where Ice would print a dispatch warning for
+  Ice::RequestFailedException even if the Ice.Warn.Dispatch property was
+  set to 1.
 
 - Added per-proxy contexts. The change is source-code compatible
   with the previous approach, that is, it is still possible to
@@ -25,11 +29,6 @@ Changes since version 1.1.0
   have that same context sent automatically whenever an
   operation is invoked via the proxy (instead of having to
   pass an explicit context parameter on every call).
-
-- Added support for a default object factory, similar to the semantics
-  of servant locators. Specifically, a factory registered with an
-  empty type id is invoked when a type-specific factory cannot be
-  found.
 
 - Added Ice::Properties::parseIceCommandLineOptions(). This operation
   converts to properties all options that start with one of the
@@ -64,17 +63,6 @@ Changes since version 1.1.0
 - Changed the return type of the ice_invoke_async method in
   Ice.BlobjectAsync to void instead of boolean.
 
-- Fixed a bug where the locator cache wasn't correctly updated upon a
-  connection failure to a server. This was causing IceJ to try to
-  re-establish the connection to the same server endpoints without
-  asking the locator if eventually the endpoints had changed.
-
-- Fixed a bug where the operation mode argument wasn't used in the
-  implementation of the Ice.ObjectPrx ice_invoke method.
-
-- Fixed a bug in the generated code for custom sequences so that it
-  now checks whether the sequence value is null.
-
 - Added new property: Ice.Trace.Slicing. When set to a value > 0,
   unknown exception and class types that are sliced emit a warning.
 
@@ -90,8 +78,6 @@ Changes since version 1.1.0
 - Changed Ice::ServantLocator::deactivate to be passed the category
   for which a servant locator is being deactivated.
 
-- Added missing declaration for ice_invoke_async to Ice.ObjectPrx.
-
 - Added saveObject() operation on Evictor, and savedObject() operation
   on PersistenceStrategy.
 
@@ -105,13 +91,34 @@ Changes since version 1.1.0
   typos, such as "Ice.config=MyFile" (instead of "Ice.Config=MyFile")
   from slipping through undetected.
 
-- Added DB_PRIVATE flag to DBEnv->open(), to be able to use the
-  Berkeley DB that ships with RedHat 9.
-
 - Changed the python code for printing output from test clients, so
   that you get each line as it comes.
 
+Changes since version 1.1.0
+---------------------------
+
+- Added support for a default object factory, similar to the semantics
+  of servant locators. Specifically, a factory registered with an
+  empty type id is invoked when a type-specific factory cannot be
+  found.
+
+- Fixed a bug where the locator cache wasn't correctly updated upon a
+  connection failure to a server. This was causing IceJ to try to
+  re-establish the connection to the same server endpoints without
+  asking the locator if eventually the endpoints had changed.
+
 - Fixed server side bug with batch oneways or batch datagrams.
+
+- Fixed a bug where the operation mode argument wasn't used in the
+  implementation of the Ice.ObjectPrx ice_invoke method.
+
+- Added missing declaration for ice_invoke_async to Ice.ObjectPrx.
+
+- Fixed a bug in the generated code for custom sequences so that it
+  now checks whether the sequence value is null.
+
+- Added DB_PRIVATE flag to DBEnv->open(), to be able to use the
+  Berkeley DB that ships with RedHat 9.
 
 Changes since version 1.0.1
 ---------------------------

@@ -156,22 +156,19 @@ public class IncomingBase
     {
 	assert(_os != null);
 
-	if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    java.io.StringWriter sw = new java.io.StringWriter();
-	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	    IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
-	    out.setUseTab(false);
-	    out.print("dispatch exception:");
-	    out.print("\nidentity: " + Ice.Util.identityToString(_current.id));
-	    out.print("\nfacet: ");
-	    IceInternal.ValueWriter.write(_current.facet, out);
-	    out.print("\noperation: " + _current.operation);
-	    out.print("\n");
-	    ex.printStackTrace(pw);
-	    pw.flush();
-	    _os.instance().logger().warning(sw.toString());
-	}
+	java.io.StringWriter sw = new java.io.StringWriter();
+	java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	IceUtil.OutputBase out = new IceUtil.OutputBase(pw);
+	out.setUseTab(false);
+	out.print("dispatch exception:");
+	out.print("\nidentity: " + Ice.Util.identityToString(_current.id));
+	out.print("\nfacet: ");
+	IceInternal.ValueWriter.write(_current.facet, out);
+	out.print("\noperation: " + _current.operation);
+	out.print("\n");
+	ex.printStackTrace(pw);
+	pw.flush();
+	_os.instance().logger().warning(sw.toString());
     }
 
     protected Ice.Current _current;

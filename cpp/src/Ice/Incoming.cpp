@@ -88,24 +88,21 @@ IceInternal::IncomingBase::__warning(const Exception& ex) const
 void
 IceInternal::IncomingBase::__warning(const string& msg) const
 {
-    if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+    Warning out(_os.instance()->logger());
+    
+    out << "dispatch exception: " << msg;
+    out << "\nidentity: " << _current.id;
+    out << "\nfacet: ";
+    vector<string>::const_iterator p = _current.facet.begin();
+    while(p != _current.facet.end())
     {
-	Warning out(_os.instance()->logger());
-	
-	out << "dispatch exception: " << msg;
-	out << "\nidentity: " << _current.id;
-	out << "\nfacet: ";
-	vector<string>::const_iterator p = _current.facet.begin();
-	while(p != _current.facet.end())
+	out << encodeString(*p++, "/");
+	if(p != _current.facet.end())
 	{
-	    out << encodeString(*p++, "/");
-	    if(p != _current.facet.end())
-	    {
-		out << '/';
-	    }
+	    out << '/';
 	}
-	out << "\noperation: " << _current.operation;
     }
+    out << "\noperation: " << _current.operation;
 }
 
 IceInternal::Incoming::Incoming(Instance* instance, Connection* connection, 
@@ -221,7 +218,10 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	    ex.operation = _current.operation;
 	}
 
-	__warning(ex);
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+	{
+	    __warning(ex);
+	}
 
 	if(_response)
 	{
@@ -254,7 +254,10 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     }
     catch(const LocalException& ex)
     {
-	__warning(ex);
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(ex);
+	}
 
 	if(_response)
 	{
@@ -272,7 +275,10 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     }
     catch(const UserException& ex)
     {
-	__warning(ex);
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(ex);
+	}
 
 	if(_response)
 	{
@@ -290,7 +296,10 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     }
     catch(const Exception& ex)
     {
-	__warning(ex);
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(ex);
+	}
 
 	if(_response)
 	{
@@ -308,7 +317,10 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     }
     catch(const std::exception& ex)
     {
-	__warning(string("std::exception: ") + ex.what());
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(string("std::exception: ") + ex.what());
+	}
 
 	if(_response)
 	{
@@ -326,7 +338,10 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
     }
     catch(...)
     {
-	__warning("unknown c++ exception");
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning("unknown c++ exception");
+	}
 
 	if(_response)
 	{

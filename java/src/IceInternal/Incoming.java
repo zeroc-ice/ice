@@ -148,7 +148,10 @@ final public class Incoming extends IncomingBase
 		ex.operation = _current.operation;
 	    }
 
-	    __warning(ex);
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+	    {
+		__warning(ex);
+	    }
 
             if(_response)
             {
@@ -181,7 +184,10 @@ final public class Incoming extends IncomingBase
         }
         catch(Ice.LocalException ex)
         {
-	    __warning(ex);
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
 
             if(_response)
             {
@@ -208,7 +214,10 @@ final public class Incoming extends IncomingBase
 	*/
         catch(Exception ex)
         {
-	    __warning(ex);
+	    if(_os.instance().properties().getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	    {
+		__warning(ex);
+	    }
 
             if(_response)
             {

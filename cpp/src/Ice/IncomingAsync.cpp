@@ -18,6 +18,8 @@
 #include <Ice/Connection.h>
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
+#include <Ice/Instance.h>
+#include <Ice/Properties.h>
 
 using namespace std;
 using namespace Ice;
@@ -87,7 +89,10 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    ex.operation = _current.operation;
 	}
 
-	__warning(ex);
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+	{
+	    __warning(ex);
+	}
 
 	if(_response)
 	{
@@ -116,7 +121,10 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
     }
     catch(const LocalException& ex)
     {
-	__warning(ex);
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(ex);
+	}
 
 	if(_response)
 	{
@@ -130,7 +138,10 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
     }
     catch(const UserException& ex)
     {
-	__warning(ex);
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(ex);
+	}
 
 	if(_response)
 	{
@@ -144,7 +155,10 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
     }
     catch(const Exception& ex)
     {
-	__warning(ex);
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(ex);
+	}
 
 	if(_response)
 	{
@@ -166,6 +180,11 @@ IceInternal::IncomingAsync::__exception(const std::exception& ex)
     assert(!_finished);
     _finished = true;
 
+    if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+    {
+	__warning(string("std::exception: ") + ex.what());
+    }
+
     if(_response)
     {
 	_os.endWriteEncaps();
@@ -184,6 +203,11 @@ IceInternal::IncomingAsync::__exception()
 {
     assert(!_finished);
     _finished = true;
+
+    if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+    {
+	__warning("unknown c++ exception");
+    }
 
     if(_response)
     {

@@ -490,7 +490,7 @@
         "Module"
         {
         "ModuleSignature" = "8:MergeModule.7161FF60AEEF4446BDF1885A48B67886"
-        "Version" = "8:1.1.0.0"
+        "Version" = "8:1.1.1.0"
         "Title" = "8:IceRuntimeDebug"
         "Subject" = "8:"
         "Author" = "8:ZeroC, Inc"
