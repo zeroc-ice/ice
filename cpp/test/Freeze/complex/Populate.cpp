@@ -60,7 +60,7 @@ run(int argc, char* argv[], const DBPtr& db)
 	Complex::Key k;
 	k.expression = expressions[i];
 	k.result = root->calc();
-	m[k] = root;
+	m.insert(make_pair(k, root));
     }
     cout << "ok" << endl;
 

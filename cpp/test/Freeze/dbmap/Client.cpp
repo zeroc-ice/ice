@@ -76,7 +76,8 @@ populateDB(CharIntMap& m)
 {
     for (vector<char>::const_iterator j = alphabet.begin() ; j != alphabet.end(); ++j)
     {
-	m.insert(CharIntMap::value_type(*j, j-alphabet.begin()));
+	m.insert(make_pair(*j, j-alphabet.begin()));
+
     }
 }
 
