@@ -27,6 +27,7 @@ public class ObjectAdapterI implements ObjectAdapter
     public synchronized void
     activate()
     {
+        /*
         if (_collectorFactories.isEmpty())
         {
             throw new ObjectAdapterDeactivatedException();
@@ -39,11 +40,13 @@ public class ObjectAdapterI implements ObjectAdapter
                 (IceInternal.CollectorFactory)i.next();
             factory.activate();
         }
+        */
     }
 
     public synchronized void
     hold()
     {
+        /*
         if (_collectorFactories.isEmpty())
         {
             throw new ObjectAdapterDeactivatedException();
@@ -56,11 +59,13 @@ public class ObjectAdapterI implements ObjectAdapter
                 (IceInternal.CollectorFactory)i.next();
             factory.hold();
         }
+        */
     }
 
     public synchronized void
     deactivate()
     {
+        /*
         if (_collectorFactories.isEmpty())
         {
             //
@@ -83,72 +88,84 @@ public class ObjectAdapterI implements ObjectAdapter
         // TODO: Hint
 
         int sz = _locatorMap.size();
-        java.util.Set valueSet = _locatorMap.valueSet();
+        java.util.Set entrySet = _locatorMap.entrySet();
         ServantLocator[] locators = new ServantLocator[sz];
-        valueSet.toArray(locators);
-        for (int i = 0; i < sz; i++)
+        entrySet.toArray(locators);
+        for (int n = 0; n < sz; n++)
         {
-            locators[i].deactivate();
+            locators[n].deactivate();
         }
         _locatorMap.clear();
         // TODO: Hint
+        */
     }
 
     public synchronized ObjectPrx
     add(Ice.Object servant, String ident)
     {
+        /*
         if (_collectorFactories.isEmpty())
         {
             throw new ObjectAdapterDeactivatedException();
         }
 
-        _activeServantMap.put(ident, object);
+        _activeServantMap.put(ident, servant);
 
         return newProxy(ident);
+        */
+        return null;
     }
 
     public synchronized ObjectPrx
     addTemporary(Ice.Object servant)
     {
+        /*
         if (_collectorFactories.isEmpty())
         {
             throw new ObjectAdapterDeactivatedException();
         }
 
         long now = System.currentTimeMillis();
-        String ident = '.' + (now / 1000) + '.' + (now % 1000) + '.' +
+        String ident = "." + (now / 1000L) + "." + (now % 1000L) + "." +
             _rand.nextInt();
 
-        _activeServantMap.put(ident, object);
+        _activeServantMap.put(ident, servant);
 
         return newProxy(ident);
+        */
+        return null;
     }
 
     public synchronized void
     remove(String ident)
     {
+        /*
         if (_collectorFactories.isEmpty())
         {
             throw new ObjectAdapterDeactivatedException();
         }
 
         _activeServantMap.remove(ident);
+        */
     }
 
     public synchronized void
     addServantLocator(ServantLocator locator, String prefix)
     {
+        /*
         if (_collectorFactories.isEmpty())
         {
             throw new ObjectAdapterDeactivatedException();
         }
 
         _locatorMap.put(prefix, locator);
+        */
     }
 
     public synchronized void
     removeServantLocator(String prefix)
     {
+        /*
         if (_collectorFactories.isEmpty())
         {
             throw new ObjectAdapterDeactivatedException();
@@ -159,41 +176,54 @@ public class ObjectAdapterI implements ObjectAdapter
         {
             locator.deactivate();
         }
+        */
     }
 
     public synchronized ServantLocator
     findServantLocator(String prefix)
     {
+        /*
         if (_collectorFactories.isEmpty())
         {
             throw new ObjectAdapterDeactivatedException();
         }
 
         return (ServantLocator)_locatorMap.get(prefix);
+        */
+        return null;
     }
 
     public synchronized Ice.Object
-    identityToServant(String identity)
+    identityToServant(String ident)
     {
-        return (Ice.Object)_activateServantMap.get(ident);
+        /*
+        return (Ice.Object)_activeServantMap.get(ident);
+        */
+        return null;
     }
 
     public Ice.Object
     proxyToServant(ObjectPrx proxy)
     {
+        /*
         IceInternal.Reference ref = proxy.__reference();
         return identityToServant(ref.identity);
+        */
+        return null;
     }
 
     public synchronized ObjectPrx
     createProxy(String ident)
     {
+        /*
         if (_collectorFactories.isEmpty())
         {
             throw new ObjectAdapterDeactivatedException();
         }
 
         return newProxy(ident);
+        */
+        return null;
     }
 
     //
@@ -205,6 +235,7 @@ public class ObjectAdapterI implements ObjectAdapter
         _instance = instance;
         _name = name;
 
+        /*
         String s = endpts.toLowerCase();
 
         int beg = 0;
@@ -263,7 +294,7 @@ public class ObjectAdapterI implements ObjectAdapter
         try
         {
             String value =
-                _instance.properites().getProperty("Ice.PrintAdapterReady");
+                _instance.properties().getProperty("Ice.PrintAdapterReady");
             if (Integer.parseInt(value) >= 1)
             {
                 System.out.println(_name + " readY");
@@ -273,47 +304,53 @@ public class ObjectAdapterI implements ObjectAdapter
         {
             // TODO: Do anything?
         }
+        */
     }
 
     protected void
     finalize()
         throws Throwable
     {
+        /*
         if (!_collectorFactories.isEmpty())
         {
             deactivate();
         }
 
         super.finalize();
+        */
     }
 
     private ObjectPrx
     newProxy(String ident)
     {
+        /*
         IceInternal.Endpoint[] endpoints =
             new IceInternal.Endpoint[_collectorFactories.size()];
-        for (java.util.ListIterator i = _collectorFactories.listIterator(),
-             int n = 0;
-             i.hasNext();
-             n++)
+        int n = 0;
+        java.util.ListIterator i = _collectorFactories.listIterator();
+        while (i.hasNext())
         {
             IceInternal.CollectorFactory factory =
                 (IceInternal.CollectorFactory)i.next();
-            endpoints[n] = factory.endpoint();
+            endpoints[n++] = factory.endpoint();
         }
 
         IceInternal.Reference reference = new IceInternal.Reference(_instance,
             ident, "", IceInternal.Reference.ModeTwoway, false, endpoints,
             endpoints);
         return _instance.proxyFactory().referenceToProxy(reference);
+        */
+        return null;
     }
 
-    private boolean
+    public boolean
     isLocal(ObjectPrx proxy)
     {
+        /*
         // TODO: Optimize?
         IceInternal.Reference ref = proxy.__reference();
-        IceInternal.Endpoint[] endpoints = ref.endpoints();
+        IceInternal.Endpoint[] endpoints = ref.endpoints;
         for (int n = 0; n < endpoints.length; n++)
         {
             java.util.ListIterator i = _collectorFactories.listIterator();
@@ -329,10 +366,13 @@ public class ObjectAdapterI implements ObjectAdapter
         }
 
         return false;
+        */
+        return false;
     }
 
     private IceInternal.Instance _instance;
     private String _name;
+    /*
     private java.util.LinkedList _collectorFactories =
         new java.util.LinkedList();
     private java.util.HashMap _activeServantMap = new java.util.HashMap();
@@ -340,5 +380,6 @@ public class ObjectAdapterI implements ObjectAdapter
     private java.util.HashMap _locatorMap = new java.util.HashMap();
     // TODO: Hint
     private java.util.Random _rand = new java.util.Random();
+    */
 
 }
