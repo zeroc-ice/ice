@@ -91,6 +91,8 @@ public final class Connection extends EventHandler
 	    {
 	    }
 	}
+
+	assert(_state == StateClosed);
     }
 
     public synchronized void
@@ -641,6 +643,14 @@ public final class Connection extends EventHandler
 	}
 	
 	_adapter = adapter;
+	if(_adapter != null)
+	{
+	    _servantManager = ((Ice.ObjectAdapterI)_adapter).getServantManager();
+	}
+	else
+	{
+	    _servantManager = null;
+	}
     }
 
     public synchronized Ice.ObjectAdapter
@@ -884,7 +894,7 @@ public final class Connection extends EventHandler
 		    //
 		    while(invoke-- > 0)
                     {
-			in.invoke();
+			in.invoke(_servantManager);
                     }
                 }
                 catch(Ice.LocalException ex)
@@ -943,8 +953,9 @@ public final class Connection extends EventHandler
         _transceiver = transceiver;
         _endpoint = endpoint;
         _adapter = adapter;
-        _logger = instance.logger();
-        _traceLevels = instance.traceLevels();
+        _logger = instance.logger(); // Chached for better performance.
+        _traceLevels = instance.traceLevels(); // Chached for better performance.
+	_defaultsAndOverrides = instance.defaultsAndOverrides(); // Chached for better performance.
 	_registeredWithPool = false;
 	_warn = false;
 	_acmTimeout = 0;
@@ -956,6 +967,15 @@ public final class Connection extends EventHandler
         _dispatchCount = 0;
 	_proxyCount = 0;
         _state = StateNotValidated;
+
+	if(_adapter != null)
+	{
+	    _servantManager = ((Ice.ObjectAdapterI)_adapter).getServantManager();
+	}
+	else
+	{
+	    _servantManager = null;
+	}
     }
 
     protected void
@@ -1166,21 +1186,11 @@ public final class Connection extends EventHandler
 	{
 	    if(_adapter != null)
 	    {
-		if(_serverThreadPool == null) // Lazy initialization.
-		{
-		    _serverThreadPool = _instance.serverThreadPool();
-		    assert(_serverThreadPool != null);
-		}
-		_serverThreadPool._register(_transceiver.fd(), this);
+		((Ice.ObjectAdapterI)_adapter).getThreadPool()._register(_transceiver.fd(), this);
 	    }
 	    else
 	    {
-		if(_clientThreadPool == null) // Lazy initialization.
-		{
-		    _clientThreadPool = _instance.clientThreadPool();
-		    assert(_clientThreadPool != null);
-		}
-		_clientThreadPool._register(_transceiver.fd(), this);
+		_instance.clientThreadPool()._register(_transceiver.fd(), this);
 	    }
 
 	    _registeredWithPool = true;
@@ -1200,13 +1210,11 @@ public final class Connection extends EventHandler
 	{
 	    if(_adapter != null)
 	    {
-		assert(_serverThreadPool != null);
-		_serverThreadPool.unregister(_transceiver.fd());
+		((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(_transceiver.fd());
 	    }
 	    else
 	    {
-		assert(_clientThreadPool != null);
-		_clientThreadPool.unregister(_transceiver.fd());
+		_instance.clientThreadPool().unregister(_transceiver.fd());
 	    }
 
 	    _registeredWithPool = false;	
@@ -1295,12 +1303,12 @@ public final class Connection extends EventHandler
     private final Endpoint _endpoint;
 
     private Ice.ObjectAdapter _adapter;
+    private ServantManager _servantManager;
 
     private final Ice.Logger _logger;
     private final TraceLevels _traceLevels;
+    private final DefaultsAndOverrides _defaultsAndOverrides;
 
-    private ThreadPool _clientThreadPool;
-    private ThreadPool _serverThreadPool;
     private boolean _registeredWithPool;
 
     private boolean _warn;

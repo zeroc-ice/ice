@@ -21,15 +21,21 @@ public final class Direct
     {
         _current = current;
 
-	((Ice.ObjectAdapterI)(_current.adapter)).incDirectCount();
+	Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)_current.adapter;
+	assert(adapter != null);
+	
+	ServantManager servantManager = adapter.getServantManager();
+	assert(servantManager != null);
+
+	adapter.incDirectCount();
 
         try
         {
-	    _servant = _current.adapter.identityToServant(_current.id);
+	    _servant = servantManager.findServant(_current.id);
 	    
 	    if(_servant == null && _current.id.category.length() > 0)
 	    {
-		_locator = _current.adapter.findServantLocator(_current.id.category);
+		_locator = servantManager.findServantLocator(_current.id.category);
 		if(_locator != null)
 		{
 		    _cookie = new Ice.LocalObjectHolder(); // Lazy creation.
@@ -39,7 +45,7 @@ public final class Direct
 	    
 	    if(_servant == null)
 	    {
-		_locator = _current.adapter.findServantLocator("");
+		_locator = servantManager.findServantLocator("");
 		if(_locator != null)
 		{
 		    _cookie = new Ice.LocalObjectHolder(); // Lazy creation.
@@ -81,7 +87,7 @@ public final class Direct
 	    }
 	    finally
 	    {
-		((Ice.ObjectAdapterI)(_current.adapter)).decDirectCount();
+		adapter.decDirectCount();
 	    }
         }
     }
@@ -89,6 +95,9 @@ public final class Direct
     public void
     destroy()
     {
+	Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)_current.adapter;
+	assert(adapter != null);
+	
 	try
 	{
 	    if(_locator != null && _servant != null)
@@ -98,7 +107,7 @@ public final class Direct
 	}
 	finally
 	{
-	    ((Ice.ObjectAdapterI)(_current.adapter)).decDirectCount();
+	    adapter.decDirectCount();
 	}
     }
 

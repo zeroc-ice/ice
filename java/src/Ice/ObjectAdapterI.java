@@ -126,7 +126,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	// Ignore deactivation requests if the object adapter has
 	// already been deactivated.
 	//
-	if(_instance == null)
+	if(_deactivated)
 	{
 	    return;
 	}
@@ -141,8 +141,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	
 	_instance.outgoingConnectionFactory().removeAdapter(this);
 	
-	_instance = null;
-	_communicator = null;
+	_deactivated = true;
 	
 	notifyAll();
     }
@@ -157,7 +156,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    // for the return of all direct method calls using this
 	    // adapter.
 	    //
-	    while(_instance != null || _directCount > 0)
+	    while(!_deactivated || _directCount > 0)
 	    {
 		try
 		{
@@ -199,44 +198,22 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	}
 	
 	//
-	// We're done, now we can throw away all incoming connection
-	// factories.
+	// Now it's also time to clean up our servants and servant
+	// locators.
 	//
-	_incomingConnectionFactories.clear();
-	
-	//
-	// Now it's also time to clean up the active servant map.
-	//
-	_activeServantMap.clear();
-	
-	//
-	// And the servant locators, too.
-	//
-	java.util.Iterator p = _locatorMap.entrySet().iterator();
-	while(p.hasNext())
+	if(_servantManager != null)
 	{
-	    java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-	    ServantLocator locator = (ServantLocator)e.getValue();
-	    try
-	    {
-		locator.deactivate();
-	    }
-	    catch(RuntimeException ex)
-	    {
-		java.io.StringWriter sw = new java.io.StringWriter();
-		java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-		ex.printStackTrace(pw);
-		pw.flush();
-		String s = "exception during locator deactivation:\n" + "object adapter: `" + _name + "'\n" +
-		    "locator prefix: `" + e.getKey() + "'\n" + sw.toString();
-		_logger.error(s);
-	    }
+	    _servantManager.destroy();
 	}
-
+	
 	//
-	// We're done, we can now throw away all the servant locators.
+	// Destroy the thread pool.
 	//
-	_locatorMap.clear();
+	if(_threadPool != null)
+	{
+	    _threadPool.destroy();
+	    _threadPool.joinWithAllThreads();
+	}
 
 	synchronized(this)
 	{
@@ -245,6 +222,20 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    //
 	    _waitForDeactivate = false;
 	    notifyAll();
+
+	    //
+	    // We're done, now we can throw away all incoming connection
+	    // factories.
+	    //
+	    _incomingConnectionFactories.clear();
+	    
+	    //
+	    // Remove object references (some of them cyclic).
+	    //
+	    _instance = null;
+	    _threadPool = null;
+	    _servantManager = null;
+	    _communicator = null;
 	}
     }
 
@@ -254,40 +245,27 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	checkForDeactivation();
 	checkIdentity(ident);
 	
-	Ice.Object o = (Ice.Object)_activeServantMap.get(ident);
-	if(o != null)
-	{
-	    AlreadyRegisteredException ex = new AlreadyRegisteredException();
-	    ex.id = Util.identityToString(ident);
-	    ex.kindOfObject = "servant";
-	    throw ex;
-	}
-
         //
         // Create a copy of the Identity argument, in case the caller
-        // reuses it
+        // reuses it.
         //
         Identity id = new Identity();
         id.category = ident.category;
         id.name = ident.name;
-        _activeServantMap.put(id, servant);
+
+	_servantManager.addServant(servant, id);
 
         return newProxy(id);
     }
 
-    public synchronized ObjectPrx
+    public ObjectPrx
     addWithUUID(Ice.Object servant)
     {
-	checkForDeactivation();
-
-        long now = System.currentTimeMillis();
         Identity ident = new Identity();
         ident.category = "";
         ident.name = Util.generateUUID();
 
-        _activeServantMap.put(ident, servant);
-
-        return newProxy(ident);
+        return add(servant, ident);
     }
 
     public synchronized void
@@ -296,16 +274,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	checkForDeactivation();
         checkIdentity(ident);
 
-	Ice.Object o = (Ice.Object)_activeServantMap.get(ident);
-	if(o == null)
-	{
-	    NotRegisteredException ex = new NotRegisteredException();
-	    ex.id = Util.identityToString(ident);
-	    ex.kindOfObject = "servant";
-	    throw ex;
-	}
-
-        _activeServantMap.remove(ident);
+	_servantManager.removeServant(ident);
     }
 
     public synchronized void
@@ -313,76 +282,39 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     {
 	checkForDeactivation();
 
-	ServantLocator l = (ServantLocator)_locatorMap.get(prefix);
-	if(l != null)
-	{
-	    AlreadyRegisteredException ex = new AlreadyRegisteredException();
-	    ex.id = prefix;
-	    ex.kindOfObject = "servant locator";
-	    throw ex;
-	}
-
-        _locatorMap.put(prefix, locator);
+	_servantManager.addServantLocator(locator, prefix);
     }
 
-    public void
+    public synchronized void
     removeServantLocator(String prefix)
     {
-	ServantLocator locator;
+	checkForDeactivation();
 
-	synchronized(this)
-	{
-	    checkForDeactivation();
-	    
-	    locator = (ServantLocator)_locatorMap.remove(prefix);
-	    if(locator == null)
-	    {
-		NotRegisteredException ex = new NotRegisteredException();
-		ex.id = prefix;
-		ex.kindOfObject = "servant locator";
-		throw ex;
-	    }
-	}
-
-	locator.deactivate();
+	_servantManager.removeServantLocator(prefix);
     }
 
     public synchronized ServantLocator
     findServantLocator(String prefix)
     {
-	//
-	// We cannot check for deactivation here, because after
-	// deactivation, there might still be some Incoming objects.
-	//
-	//checkForDeactivation();
+	checkForDeactivation();
 
-        return (ServantLocator)_locatorMap.get(prefix);
+	return _servantManager.findServantLocator(prefix);
     }
 
     public synchronized Ice.Object
     identityToServant(Identity ident)
     {
-	//
-	// We cannot check for deactivation here, because after
-	// deactivation, there might still be some Incoming objects.
-	//
-	//checkForDeactivation();
+	checkForDeactivation();
+	checkIdentity(ident);
 
-	//
-	// Don't call checkIdentity. We simply want null to be
-	// returned (e.g., for Direct, Incoming) in case the identity
-	// is incorrect and therefore no servant can be found.
-	//
-	/*
-        checkIdentity(ident);
-	*/
-
-        return (Ice.Object)_activeServantMap.get(ident);
+	return _servantManager.findServant(ident);
     }
 
-    public Ice.Object
+    public synchronized Ice.Object
     proxyToServant(ObjectPrx proxy)
     {
+	checkForDeactivation();
+
         IceInternal.Reference ref = ((ObjectPrxHelper)proxy).__reference();
         return identityToServant(ref.identity);
     }
@@ -412,7 +344,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         checkIdentity(ident);
 
         //
-        // Create a reference and return a reverse proxy for this reference.
+        // Create a reference and return a reverse proxy for this
+        // reference.
         //
         IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
         IceInternal.Reference ref =
@@ -475,6 +408,58 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	_locatorInfo = _instance.locatorManager().get(locator);
     }
 
+    public synchronized boolean
+    isLocal(ObjectPrx proxy)
+    {
+	checkForDeactivation();
+
+        IceInternal.Reference ref = ((ObjectPrxHelper)proxy).__reference();
+        final IceInternal.Endpoint[] endpoints = ref.endpoints;
+
+	if(!ref.adapterId.equals(""))
+	{
+	    //
+	    // Proxy is local if the reference adapter id matches this
+	    // adapter name.
+	    //
+	    return ref.adapterId.equals(_id);
+	}
+
+        //
+        // Proxies which have at least one endpoint in common with the
+        // endpoints used by this object adapter's incoming connection
+        // factories are considered local.
+        //
+        for(int i = 0; i < endpoints.length; ++i)
+        {
+            final int sz = _incomingConnectionFactories.size();
+            for(int j = 0; j < sz; j++)
+            {
+                IceInternal.IncomingConnectionFactory factory =
+                    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(j);
+                if(factory.equivalent(endpoints[i]))
+                {
+                    return true;
+                }
+            }
+        }
+
+	//
+	// Proxies which have at least one endpoint in common with the
+	// router's server proxy endpoints (if any), are also considered
+	// local.
+	//
+	for(int i = 0; i < endpoints.length; ++i)
+	{
+	    if(java.util.Collections.binarySearch(_routerEndpoints, endpoints[i]) >= 0) // _routerEndpoints is sorted.
+	    {
+		return true;
+	    }
+	}
+
+        return false;
+    }
+
     public synchronized IceInternal.Connection[]
     getIncomingConnections()
     {
@@ -509,17 +494,48 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     public synchronized void
     decDirectCount()
     {
-	//
-	// The object adapter may already have been deactivated when
-	// the direct count is decremented, thus there is no check for
-	// prior deactivation.
-	//
-
+	// Not check for deactivation here!
+	
+	assert(_instance != null); // Must not be called after waitForDeactivate().
+	
 	assert(_directCount > 0);
 	if(--_directCount == 0)
 	{
 	    notifyAll();
 	}
+    }
+
+    public IceInternal.ThreadPool
+    getThreadPool()
+    {
+	// No mutex lock necessary, _threadPool and _instance are
+	// immutable after creation until they are removed in
+	// waitForDeactivate().
+	
+	// Not check for deactivation here!
+	
+	assert(_instance != null); // Must not be called after waitForDeactivate().
+
+	if(_threadPool != null)
+	{
+	    return _threadPool;
+	}
+	else
+	{
+	    return _instance.serverThreadPool();
+	}
+    }
+
+    public IceInternal.ServantManager
+    getServantManager()
+    {
+	// No mutex lock necessary, _servantManager is immutable after
+	// creation until it is removed in waitForDeactivate().
+	
+	// Not check for deactivation here!
+	
+	assert(_servantManager != null); // Must not be called after waitForDeactivate().
+	return _servantManager;
     }
 
     //
@@ -528,8 +544,10 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     public
     ObjectAdapterI(IceInternal.Instance instance, Communicator communicator, String name)
     {
+	_deactivated = false;
         _instance = instance;
 	_communicator = communicator;
+	_servantManager = new IceInternal.ServantManager(instance, name);
 	_printAdapterReadyDone = false;
         _name = name;
 	_id = instance.properties().getProperty(name + ".AdapterId");
@@ -590,6 +608,12 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	    {
 		setLocator(_instance.referenceFactory().getDefaultLocator());
 	    }
+
+	    int threadNum = _instance.properties().getPropertyAsInt(_name + ".ThreadPool.Size");
+	    if(threadNum > 0)
+	    {
+		_threadPool = new IceInternal.ThreadPool(_instance, threadNum, 0, _name + ".ThreadPool");
+	    }
         }
         catch(LocalException ex)
         {
@@ -603,16 +627,20 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     finalize()
         throws Throwable
     {
-        if(_instance != null)
+        if(!_deactivated)
         {
             _instance.logger().warning("object adapter `" + _name + "' has not been deactivated");
         }
+        else if(_instance != null)
+        {
+            _instance.logger().warning("object adapter `" + _name + "' deactivation had not been waited for");
+        }
 	else
 	{
+	    assert(_threadPool == null);
+	    assert(_servantManager == null);
 	    assert(_communicator == null);
-	    assert(_incomingConnectionFactories.size() == 0);
-	    assert(_activeServantMap.size() == 0);
-	    assert(_locatorMap.size() == 0);
+	    assert(_incomingConnectionFactories.isEmpty());
 	    assert(_directCount == 0);
 	    assert(!_waitForDeactivate);
 	}
@@ -623,8 +651,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private ObjectPrx
     newProxy(Identity ident)
     {
-	checkForDeactivation();
-
 	if(_id.length() == 0)
 	{
 	    return newDirectProxy(ident);
@@ -647,8 +673,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private ObjectPrx
     newDirectProxy(Identity ident)
     {
-	checkForDeactivation();
-
         IceInternal.Endpoint[] endpoints =
             new IceInternal.Endpoint[_incomingConnectionFactories.size() + _routerEndpoints.size()];
 
@@ -685,73 +709,10 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         return _instance.proxyFactory().referenceToProxy(reference);
     }
 
-    public boolean
-    isLocal(ObjectPrx proxy)
-    {
-	checkForDeactivation();
-
-        IceInternal.Reference ref = ((ObjectPrxHelper)proxy).__reference();
-        final IceInternal.Endpoint[] endpoints = ref.endpoints;
-
-	if(!ref.adapterId.equals(""))
-	{
-	    //
-	    // Proxy is local if the reference adapter id matches this
-	    // adapter name.
-	    //
-	    return ref.adapterId.equals(_id);
-	}
-
-        //
-        // Proxies which have at least one endpoint in common with the
-        // endpoints used by this object adapter's incoming connection
-        // factories are considered local.
-        //
-        for(int i = 0; i < endpoints.length; ++i)
-        {
-            final int sz = _incomingConnectionFactories.size();
-            for(int j = 0; j < sz; j++)
-            {
-                IceInternal.IncomingConnectionFactory factory =
-                    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(j);
-                if(factory.equivalent(endpoints[i]))
-                {
-                    return true;
-                }
-            }
-        }
-
-	//
-	// Must be synchronized, because _routerEndpoints is not
-	// immutable, and because this operation is called
-	// unsynchronized from
-	// ObjectAdapterFactory::findObjectAdapter().
-	//
-	synchronized(this)
-	{
-	    //
-	    // Proxies which have at least one endpoint in common with the
-	    // router's server proxy endpoints (if any), are also considered
-	    // local.
-	    //
-	    for(int i = 0; i < endpoints.length; ++i)
-	    {
-		// _routerEndpoints is sorted.
-		if(java.util.Collections.binarySearch(_routerEndpoints, endpoints[i]) >= 0)
-		{
-		    return true;
-		}
-	    }
-	    
-	}
-
-        return false;
-    }
-
     private void
     checkForDeactivation()
     {
-	if(_instance == null)
+	if(_deactivated)
 	{
             ObjectAdapterDeactivatedException ex = new ObjectAdapterDeactivatedException();
 	    ex.name = _name;
@@ -782,14 +743,15 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         }
     }
 
+    private boolean _deactivated;
     private IceInternal.Instance _instance;
     private Communicator _communicator;
+    private IceInternal.ThreadPool _threadPool;
+    private IceInternal.ServantManager _servantManager;
     private boolean _printAdapterReadyDone;
-    private String _name;
-    private String _id;
+    final private String _name;
+    final private String _id;
     private Logger _logger;
-    private java.util.HashMap _activeServantMap = new java.util.HashMap();
-    private java.util.HashMap _locatorMap = new java.util.HashMap();
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
     private IceInternal.LocatorInfo _locatorInfo;

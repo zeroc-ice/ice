@@ -58,7 +58,7 @@ final public class Incoming extends IncomingBase
     }
 
     public void
-    invoke()
+    invoke(ServantManager servantManager)
     {
 	//
 	// Read the current.
@@ -98,13 +98,13 @@ final public class Incoming extends IncomingBase
 
         try
         {
-	    if(_current.adapter != null)
+	    if(servantManager != null)
 	    {
-		_servant = _current.adapter.identityToServant(_current.id);
+		_servant = servantManager.findServant(_current.id);
 		
 		if(_servant == null && _current.id.category.length() > 0)
 		{
-		    _locator = _current.adapter.findServantLocator(_current.id.category);
+		    _locator = servantManager.findServantLocator(_current.id.category);
 		    if(_locator != null)
 		    {
 			_servant = _locator.locate(_current, _cookie);
@@ -113,7 +113,7 @@ final public class Incoming extends IncomingBase
 		
 		if(_servant == null)
 		{
-		    _locator = _current.adapter.findServantLocator("");
+		    _locator = servantManager.findServantLocator("");
 		    if(_locator != null)
 		    {
 			_servant = _locator.locate(_current, _cookie);

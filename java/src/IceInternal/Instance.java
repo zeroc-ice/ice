@@ -106,12 +106,12 @@ public class Instance
     public synchronized ThreadPool
     clientThreadPool()
     {
-        if(!_destroyed)
-        {
-            if(_clientThreadPool == null) // Lazy initialization.
-            {
-                _clientThreadPool = new ThreadPool(this, false, "ThreadPool.Client");
-            }
+	assert(!_destroyed);
+	
+	if(_clientThreadPool == null) // Lazy initialization.
+	{
+	    int threadNum = _properties.getPropertyAsIntWithDefault("Ice.ThreadPool.Client.Size", 10);
+	    _clientThreadPool = new ThreadPool(this, threadNum, 0, "Ice.ThreadPool.Client");
         }
 
         return _clientThreadPool;
@@ -120,13 +120,14 @@ public class Instance
     public synchronized ThreadPool
     serverThreadPool()
     {
-        if(!_destroyed)
-        {
-            if(_serverThreadPool == null) // Lazy initialization.
-            {
-                _serverThreadPool = new ThreadPool(this, true, "ThreadPool.Server");
-            }
-        }
+	assert(!_destroyed);
+	
+	if(_serverThreadPool == null) // Lazy initialization.
+	{
+	    int threadNum = _properties.getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
+	    int timeout = _properties.getPropertyAsInt("Ice.ServerIdleTime");
+	    _serverThreadPool = new ThreadPool(this, threadNum, timeout, "Ice.ThreadPool.Server");
+	}
 
         return _serverThreadPool;
     }

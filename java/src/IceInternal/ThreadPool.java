@@ -24,6 +24,135 @@ public final class ThreadPool
     private final static boolean TRACE_THREAD = false;
     private final static boolean TRACE_STACK_TRACE = false;
 
+    public
+    ThreadPool(Instance instance, int threadNum, int timeout, String name)
+    {
+        _instance = instance;
+        _destroyed = false;
+        _timeout = timeout;
+        _multipleThreads = false;
+	_promote = true;
+        _name = name;
+
+        Network.SocketPair pair = Network.createPipe();
+        _fdIntrRead = (java.nio.channels.ReadableByteChannel)pair.source;
+        _fdIntrWrite = pair.sink;
+
+        try
+        {
+            _selector = java.nio.channels.Selector.open();
+            pair.source.configureBlocking(false);
+            _fdIntrReadKey = pair.source.register(_selector, java.nio.channels.SelectionKey.OP_READ);
+        }
+        catch(java.io.IOException ex)
+        {
+            Ice.SyscallException sys = new Ice.SyscallException();
+            sys.initCause(ex);
+            throw sys;
+        }
+
+        //
+        // The Selector holds a Set representing the selected keys. The
+        // Set reference doesn't change, so we obtain it once here.
+        //
+        _keys = _selector.selectedKeys();
+
+	if(threadNum < 1)
+	{
+	    threadNum = 1;
+	}
+
+        if(threadNum > 1)
+        {
+            _multipleThreads = true;
+        }
+
+        //
+        // Use Ice.ProgramName as the prefix for the thread names.
+        //
+        String threadNamePrefix = "";
+        String programName = _instance.properties().getProperty("Ice.ProgramName");
+        if(programName.length() > 0)
+        {
+            threadNamePrefix = programName + "-";
+        }
+
+        try
+        {
+            _threads = new EventHandlerThread[threadNum];
+            for(int i = 0; i < threadNum; i++)
+            {
+                _threads[i] = new EventHandlerThread(threadNamePrefix + _name + "-" + i);
+                _threads[i].start();
+            }
+        }
+        catch(RuntimeException ex)
+        {
+	    java.io.StringWriter sw = new java.io.StringWriter();
+	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	    ex.printStackTrace(pw);
+	    pw.flush();
+	    String s = "cannot create threads for thread pool:\n" + sw.toString();
+	    _instance.logger().error(s);
+
+            destroy();
+	    joinWithAllThreads();
+            throw ex;
+        }
+    }
+
+    protected void
+    finalize()
+        throws Throwable
+    {
+        assert(_destroyed);
+        if(_selector != null)
+        {
+            try
+            {
+                _selector.close();
+            }
+            catch(java.io.IOException ex)
+            {
+            }
+        }
+        if(_fdIntrWrite != null)
+        {
+            try
+            {
+                _fdIntrWrite.close();
+            }
+            catch(java.io.IOException ex)
+            {
+            }
+        }
+        if(_fdIntrRead != null)
+        {
+            try
+            {
+                _fdIntrRead.close();
+            }
+            catch(java.io.IOException ex)
+            {
+            }
+        }
+
+        super.finalize();
+    }
+
+    public synchronized void
+    destroy()
+    {
+        if(TRACE_SHUTDOWN)
+        {
+            trace("destroy");
+        }
+
+        assert(!_destroyed);
+        _destroyed = true;
+        setInterrupt(0);
+    }
+
     public synchronized void
     _register(java.nio.channels.SelectableChannel fd, EventHandler handler)
     {
@@ -120,151 +249,6 @@ public final class ThreadPool
                 }
             }
         }
-    }
-
-    //
-    // Only for use by Instance
-    //
-    ThreadPool(Instance instance, boolean server, String name)
-    {
-        _instance = instance;
-        _destroyed = false;
-        _timeout = 0;
-        _multipleThreads = false;
-	_promote = true;
-        _name = name;
-
-        Network.SocketPair pair = Network.createPipe();
-        _fdIntrRead = (java.nio.channels.ReadableByteChannel)pair.source;
-        _fdIntrWrite = pair.sink;
-
-        try
-        {
-            _selector = java.nio.channels.Selector.open();
-            pair.source.configureBlocking(false);
-            _fdIntrReadKey = pair.source.register(_selector, java.nio.channels.SelectionKey.OP_READ);
-        }
-        catch(java.io.IOException ex)
-        {
-            Ice.SyscallException sys = new Ice.SyscallException();
-            sys.initCause(ex);
-            throw sys;
-        }
-
-        //
-        // The Selector holds a Set representing the selected keys. The
-        // Set reference doesn't change, so we obtain it once here.
-        //
-        _keys = _selector.selectedKeys();
-
-	int threadNum;
-        if(server)
-        {
-            _timeout = _instance.properties().getPropertyAsInt("Ice.ServerIdleTime");
-            threadNum = _instance.properties().getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
-        }
-        else
-        {
-            threadNum = _instance.properties().getPropertyAsIntWithDefault("Ice.ThreadPool.Client.Size", 1);
-        }
-
-	if(threadNum < 1)
-	{
-	    threadNum = 1;
-	}
-
-        if(threadNum > 1)
-        {
-            _multipleThreads = true;
-        }
-
-        //
-        // Use Ice.ProgramName as the prefix for the thread names.
-        //
-        String threadNamePrefix = "";
-        String programName = _instance.properties().getProperty("Ice.ProgramName");
-        if(programName.length() > 0)
-        {
-            threadNamePrefix = programName + "-";
-        }
-
-        try
-        {
-            _threads = new EventHandlerThread[threadNum];
-            for(int i = 0; i < threadNum; i++)
-            {
-                _threads[i] = new EventHandlerThread(threadNamePrefix + _name + "-" + i);
-                _threads[i].start();
-            }
-        }
-        catch(RuntimeException ex)
-        {
-	    java.io.StringWriter sw = new java.io.StringWriter();
-	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-	    ex.printStackTrace(pw);
-	    pw.flush();
-	    String s = "cannot create threads for thread pool:\n" + sw.toString();
-	    _instance.logger().error(s);
-
-            destroy();
-	    joinWithAllThreads();
-            throw ex;
-        }
-    }
-
-    protected void
-    finalize()
-        throws Throwable
-    {
-        assert(_destroyed);
-        if(_selector != null)
-        {
-            try
-            {
-                _selector.close();
-            }
-            catch(java.io.IOException ex)
-            {
-            }
-        }
-        if(_fdIntrWrite != null)
-        {
-            try
-            {
-                _fdIntrWrite.close();
-            }
-            catch(java.io.IOException ex)
-            {
-            }
-        }
-        if(_fdIntrRead != null)
-        {
-            try
-            {
-                _fdIntrRead.close();
-            }
-            catch(java.io.IOException ex)
-            {
-            }
-        }
-
-        super.finalize();
-    }
-
-    //
-    // Called by Instance
-    //
-    synchronized void
-    destroy()
-    {
-        if(TRACE_SHUTDOWN)
-        {
-            trace("destroy");
-        }
-
-        assert(!_destroyed);
-        _destroyed = true;
-        setInterrupt(0);
     }
 
     private boolean

@@ -14,7 +14,7 @@
 
 package IceInternal;
 
-public class ConnectionMonitor extends Thread
+public final class ConnectionMonitor extends Thread
 {
     public void
     destroy()

@@ -421,32 +421,20 @@ public class IncomingConnectionFactory extends EventHandler
     private void
     registerWithPool()
     {
-        if(_acceptor != null)
-        {
-	    if(!_registeredWithPool)
-	    {
-		if(_serverThreadPool == null) // Lazy initialization.
-		{
-		    _serverThreadPool = _instance.serverThreadPool();
-		    assert(_serverThreadPool != null);
-		}
-		_serverThreadPool._register(_acceptor.fd(), this);
-		_registeredWithPool = true;
-	    }
+        if(_acceptor != null && !_registeredWithPool)
+	{
+	    ((Ice.ObjectAdapterI)_adapter).getThreadPool()._register(_acceptor.fd(), this);
+	    _registeredWithPool = true;
         }
     }
 
     private void
     unregisterWithPool()
     {
-        if(_acceptor != null)
-        {
-	    if(_registeredWithPool)
-	    {
-		assert(_serverThreadPool != null);
-		_serverThreadPool.unregister(_acceptor.fd());
-		_registeredWithPool = false;
-	    }
+        if(_acceptor != null && _registeredWithPool)
+	{
+	    ((Ice.ObjectAdapterI)_adapter).getThreadPool().unregister(_acceptor.fd());
+	    _registeredWithPool = false;
         }
     }
 
