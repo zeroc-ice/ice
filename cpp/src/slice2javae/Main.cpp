@@ -171,7 +171,7 @@ main(int argc, char* argv[])
 	    }
 
 	    UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive);
-	    int parseStatus = p->parse(cppHandle, debug, false);
+	    int parseStatus = p->parse(cppHandle, debug);
 
 	    if(!icecpp.close())
 	    {

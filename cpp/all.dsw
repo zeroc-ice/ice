@@ -120,9 +120,6 @@ Package=<4>
     Project_Dep_Name slice2cpp
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name slice2cppe
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name html
     End Project Dependency
     Begin Project Dependency
@@ -256,9 +253,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name slice2java
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2javae
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name thread
@@ -538,6 +532,12 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name mfcpatchC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cppe
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2javae
     End Project Dependency
 }}}
 
@@ -2391,9 +2391,6 @@ Package=<4>
     Project_Dep_Name slice2cpp
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name slice2cppe
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name glacier2
     End Project Dependency
     Begin Project Dependency
@@ -2464,9 +2461,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name slice2java
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2javae
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name slice2py
