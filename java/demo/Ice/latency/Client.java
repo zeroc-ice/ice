@@ -67,7 +67,9 @@ public class Client
         {
             ex.printStackTrace();
             status = 1;
-        } finally {
+        }
+	finally
+	{
 	    if(communicator != null)
 	    {
                 communicator.destroy();
