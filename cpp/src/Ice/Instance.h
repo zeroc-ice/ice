@@ -78,7 +78,7 @@ public:
     
 private:
 
-    Instance(const Ice::CommunicatorPtr&, int&, char*[], const Ice::PropertiesPtr&);
+    Instance(const Ice::CommunicatorPtr&, const Ice::PropertiesPtr&);
     virtual ~Instance();
     void finishSetup(int&, char*[]);
     void destroy();

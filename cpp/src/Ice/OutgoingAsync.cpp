@@ -35,8 +35,7 @@ void IceInternal::decRef(AMI_Object_ice_invoke* p) { p->__decRef(); }
 
 IceInternal::OutgoingAsync::OutgoingAsync() :
     __is(0),
-    __os(0),
-    _cnt(0)
+    __os(0)
 {
 }
 
@@ -155,14 +154,24 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 void
 IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 {
-    bool retry = false;
 
     if(_reference->locatorInfo)
     {
 	_reference->locatorInfo->clearObjectCache(_reference);
     }
     
-    if(dynamic_cast<const CloseConnectionException*>(&exc))
+    //
+    // A CloseConnectionException indicates graceful server shutdown,
+    // and is therefore always repeatable without violating
+    // "at-most-once". That's because by sending a close connection
+    // message, the server guarantees that all outstanding requests
+    // can safely be repeated. Otherwise, we can also retry if the
+    // operation mode Nonmutating or Idempotent.
+    //
+    bool canRetry = _mode == Nonmutating || _mode == Idempotent || dynamic_cast<const CloseConnectionException*>(&exc);
+    bool doRetry = false;
+
+    if(canRetry)
     {
 	try
 	{
@@ -176,14 +185,14 @@ IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 		exc.ice_throw(); // The communicator is already destroyed, so we cannot retry.
 	    }
 
-	    retry = true;
+	    doRetry = true;
 	}
 	catch(const LocalException&)
 	{
 	}
     }
 
-    if(retry)
+    if(doRetry)
     {
 	_connection->decProxyCount();
 	_connection = 0;
@@ -236,19 +245,20 @@ IceInternal::OutgoingAsync::__prepare(const ReferencePtr& ref, const string& ope
     _connection = _reference->getConnection();
     _connection->incProxyCount();
 
-    assert(_cnt == 0);
-    
     assert(!__is);
     __is = new BasicStream(_reference->instance.get());
     
     assert(!__os);
     __os = new BasicStream(_reference->instance.get());
 
+    _cnt = 0;
+    _mode = mode;
+
     _connection->prepareRequest(__os);
     _reference->identity.__write(__os);
     __os->write(_reference->facet);
     __os->write(operation);
-    __os->write(static_cast<Byte>(mode));
+    __os->write(static_cast<Byte>(_mode));
     __os->writeSize(Int(context.size()));
     Context::const_iterator p;
     for(p = context.begin(); p != context.end(); ++p)
@@ -263,11 +273,6 @@ IceInternal::OutgoingAsync::__prepare(const ReferencePtr& ref, const string& ope
 void
 IceInternal::OutgoingAsync::__send()
 {
-    if(_connection->timeout() >= 0)
-    {
-	_absoluteTimeout = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_connection->timeout());
-    }
-
     try
     {
 	while(true)
@@ -276,6 +281,11 @@ IceInternal::OutgoingAsync::__send()
 	    {
 		_connection = _reference->getConnection();
 		_connection->incProxyCount();
+	    }
+
+	    if(_connection->timeout() >= 0)
+	    {
+		_absoluteTimeout = IceUtil::Time::now() + IceUtil::Time::milliSeconds(_connection->timeout());
 	    }
 
 	    try
@@ -350,8 +360,6 @@ IceInternal::OutgoingAsync::cleanup()
     assert(_connection);
     _connection->decProxyCount();
     _connection = 0;
-    
-    _cnt = 0;
     
     assert(__is);
     delete __is;

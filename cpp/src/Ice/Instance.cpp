@@ -368,20 +368,12 @@ IceInternal::Instance::flushBatchRequests()
     adapterFactory->flushBatchRequests();
 }
 
-IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, char* argv[],
-                                const PropertiesPtr& properties) :
+IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
     _destroyed(false),
     _properties(properties)
 {
     IceUtil::Mutex::Lock sync(*_globalStateMutex);
     ++_globalStateCounter;
-
-    //
-    // Convert command-line options to properties.
-    //
-    StringSeq args = argsToStringSeq(argc, argv);
-    args = _properties->parseIceCommandLineOptions(args);
-    stringSeqToArgs(args, argc, argv);
 
     try
     {

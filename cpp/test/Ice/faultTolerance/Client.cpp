@@ -60,6 +60,9 @@ main(int argc, char* argv[])
 
     try
     {
+	Ice::PropertiesPtr properties = Ice::getDefaultProperties(argc, argv);
+	properties->setProperty("Ice.Warn.Connections", "0"); // This test aborts servers, so we don't want warnings.
+
 	communicator = Ice::initialize(argc, argv);
 	status = run(argc, argv, communicator);
     }

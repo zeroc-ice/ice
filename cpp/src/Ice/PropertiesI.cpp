@@ -13,6 +13,7 @@
 // **********************************************************************
 
 #include <Ice/PropertiesI.h>
+#include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <fstream>
 
@@ -500,6 +501,8 @@ Ice::PropertiesI::PropertiesI(StringSeq& args)
     }
 
     loadConfig();
+
+    args = parseIceCommandLineOptions(args);
 }
 
 Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
@@ -523,6 +526,10 @@ Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
     }
 
     loadConfig();
+
+    StringSeq args = argsToStringSeq(argc, argv);
+    args = parseIceCommandLineOptions(args);
+    stringSeqToArgs(args, argc, argv);
 
     if(argc > 0)
     {

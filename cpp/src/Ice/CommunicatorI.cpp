@@ -344,13 +344,13 @@ Ice::CommunicatorI::flushBatchRequests()
     _instance->flushBatchRequests();
 }
 
-Ice::CommunicatorI::CommunicatorI(int& argc, char* argv[], const PropertiesPtr& properties) :
+Ice::CommunicatorI::CommunicatorI(const PropertiesPtr& properties) :
     _destroyed(false)
 {
     __setNoDelete(true);
     try
     {
-	_instance = new Instance(this, argc, argv, properties);
+	_instance = new Instance(this, properties);
 
         //
         // Keep a reference to the dynamic library list to ensure

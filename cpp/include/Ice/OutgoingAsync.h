@@ -66,6 +66,7 @@ private:
     ReferencePtr _reference;
     ConnectionPtr _connection;
     int _cnt;
+    Ice::OperationMode _mode;
 
     IceUtil::Time _absoluteTimeout;
 };

@@ -61,7 +61,7 @@ public:
 
 private:
 
-    CommunicatorI(int&, char*[], const PropertiesPtr&);
+    CommunicatorI(const PropertiesPtr&);
     virtual ~CommunicatorI();
 
     //

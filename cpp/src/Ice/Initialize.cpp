@@ -49,7 +49,7 @@ Ice::initialize(int& argc, char* argv[], Int version)
 #endif
 
     PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
-    CommunicatorI* communicatorI = new CommunicatorI(argc, argv, defaultProperties);
+    CommunicatorI* communicatorI = new CommunicatorI(defaultProperties);
     CommunicatorPtr result = communicatorI; // For exception safety.
     communicatorI->finishSetup(argc, argv);
     return result;
@@ -65,7 +65,7 @@ Ice::initializeWithProperties(int& argc, char* argv[], const PropertiesPtr& prop
     }
 #endif
 
-    CommunicatorI* communicatorI = new CommunicatorI(argc, argv, properties);
+    CommunicatorI* communicatorI = new CommunicatorI(properties);
     CommunicatorPtr result = communicatorI; // For exception safety.
     communicatorI->finishSetup(argc, argv);
     return result;
