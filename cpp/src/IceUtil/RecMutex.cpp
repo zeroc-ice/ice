@@ -42,7 +42,7 @@ IceUtil::RecMutex::lock() const
 }
 
 bool
-IceUtil::RecMutex::trylock() const
+IceUtil::RecMutex::tryLock() const
 {
     if(!TryEnterCriticalSection(&_mutex))
     {
@@ -142,7 +142,7 @@ IceUtil::RecMutex::lock() const
 }
 
 bool
-IceUtil::RecMutex::trylock() const
+IceUtil::RecMutex::tryLock() const
 {
     int rc = pthread_mutex_trylock(&_mutex);
     bool result = (rc == 0);

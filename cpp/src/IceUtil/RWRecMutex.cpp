@@ -29,7 +29,7 @@ IceUtil::RWRecMutex::~RWRecMutex()
 }
 
 void
-IceUtil::RWRecMutex::readlock() const
+IceUtil::RWRecMutex::readLock() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -45,7 +45,7 @@ IceUtil::RWRecMutex::readlock() const
 }
 
 bool
-IceUtil::RWRecMutex::tryReadlock() const
+IceUtil::RWRecMutex::tryReadLock() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -62,7 +62,7 @@ IceUtil::RWRecMutex::tryReadlock() const
 }
 
 bool
-IceUtil::RWRecMutex::timedReadlock(const Time& timeout) const
+IceUtil::RWRecMutex::timedReadLock(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
 
@@ -92,7 +92,7 @@ IceUtil::RWRecMutex::timedReadlock(const Time& timeout) const
 }
 
 void
-IceUtil::RWRecMutex::writelock() const
+IceUtil::RWRecMutex::writeLock() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -133,7 +133,7 @@ IceUtil::RWRecMutex::writelock() const
 }
 
 bool
-IceUtil::RWRecMutex::tryWritelock() const
+IceUtil::RWRecMutex::tryWriteLock() const
 {
     Mutex::Lock lock(_mutex);
 
@@ -164,7 +164,7 @@ IceUtil::RWRecMutex::tryWritelock() const
 }
 
 bool
-IceUtil::RWRecMutex::timedWritelock(const Time& timeout) const
+IceUtil::RWRecMutex::timedWriteLock(const Time& timeout) const
 {
     Mutex::Lock lock(_mutex);
 

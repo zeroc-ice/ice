@@ -28,7 +28,7 @@ public:
     
     RecMutexTestThread(RecMutex& m) :
 	_mutex(m),
-	_trylock(false)
+	_tryLock(false)
     {
     }
 
@@ -39,33 +39,33 @@ public:
 	test(!tlock.acquired());
 	
 	{
-	    Mutex::Lock lock(_trylockMutex);
-	    _trylock = true;
+	    Mutex::Lock lock(_tryLockMutex);
+	    _tryLock = true;
 	}
-	_trylockCond.signal();
+	_tryLockCond.signal();
 
 	RecMutex::Lock lock(_mutex);
     }
 
     void
-    waitTrylock()
+    waitTryLock()
     {
-	Mutex::Lock lock(_trylockMutex);
-	while(!_trylock)
+	Mutex::Lock lock(_tryLockMutex);
+	while(!_tryLock)
 	{
-	    _trylockCond.wait(lock);
+	    _tryLockCond.wait(lock);
 	}
     }
 
 private:
 
     RecMutex& _mutex;
-    bool _trylock;
+    bool _tryLock;
     //
     // Use native Condition variable here, not Monitor.
     //
-    Cond _trylockCond;
-    Mutex _trylockMutex;
+    Cond _tryLockCond;
+    Mutex _tryLockMutex;
 };
 
 typedef Handle<RecMutexTestThread> RecMutexTestThreadPtr;
@@ -96,8 +96,8 @@ RecMutexTest::run()
 	t = new RecMutexTestThread(mutex);
 	control = t->start();
 	
-	// TEST: Wait until the trylock has been tested.
-	t->waitTrylock();
+	// TEST: Wait until the tryLock has been tested.
+	t->waitTryLock();
 	
     }
 

@@ -30,7 +30,7 @@ public:
     RLockT(const T& mutex) :
 	_mutex(mutex)
     {
-	_mutex.readlock();
+	_mutex.readLock();
 	_acquired = true;
     }
 
@@ -48,7 +48,7 @@ public:
 	{
 	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
-	_mutex.readlock();
+	_mutex.readLock();
 	_acquired = true;
     }
 
@@ -58,7 +58,7 @@ public:
 	{
 	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
-	_acquired = _mutex.tryReadlock();
+	_acquired = _mutex.tryReadLock();
 	return _acquired;
     }
 
@@ -68,7 +68,7 @@ public:
 	{
 	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
-	_acquired = _mutex.timedTryReadlock(timeout);
+	_acquired = _mutex.timedReadLock(timeout);
 	return _acquired;
     }
 
@@ -108,14 +108,14 @@ protected:
     RLockT(const T& mutex, bool) :
 	_mutex(mutex)
     {
-	_acquired = _mutex.tryReadlock();
+	_acquired = _mutex.tryReadLock();
     }
 
 
     RLockT(const T& mutex, const Time& timeout) :
 	_mutex(mutex)
     {
-	_acquired = _mutex.timedReadlock(timeout);
+	_acquired = _mutex.timedReadLock(timeout);
     }
 
 
@@ -154,7 +154,7 @@ public:
     WLockT(const T& mutex) :
 	_mutex(mutex)
     {
-	_mutex.writelock();
+	_mutex.writeLock();
 	_acquired = true;
     }
 
@@ -172,7 +172,7 @@ public:
 	{
 	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
-	_mutex.writelock();
+	_mutex.writeLock();
 	_acquired = true;
     }
 
@@ -182,7 +182,7 @@ public:
 	{
 	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
-	_acquired = _mutex.tryWritelock();
+	_acquired = _mutex.tryWriteLock();
 	return _acquired;
     }
 
@@ -192,7 +192,7 @@ public:
 	{
 	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
-	_acquired = _mutex.timedTryWritelock(timeout);
+	_acquired = _mutex.timedWriteLock(timeout);
 	return _acquired;
     }
 
@@ -218,13 +218,13 @@ protected:
     WLockT(const T& mutex, bool) :
 	_mutex(mutex)
     {
-	_acquired = _mutex.tryWritelock();
+	_acquired = _mutex.tryWriteLock();
     }
 
     WLockT(const T& mutex, const Time& timeout) :
 	_mutex(mutex)
     {
-	_acquired = _mutex.timedWritelock(timeout);
+	_acquired = _mutex.timedWriteLock(timeout);
     }
 
 private:
@@ -280,39 +280,39 @@ public:
     ~RWRecMutex();
 
     //
-    // Note that readlock/writelock & unlock in general should not be
+    // Note that readLock/writeLock & unlock in general should not be
     // used directly. Instead use RLock & WLock.
     //
 
     //
     // Acquire a read lock.
     //
-    void readlock() const;
+    void readLock() const;
 
     //
     // Try to acquire a read lock.
     //
-    bool tryReadlock() const;
+    bool tryReadLock() const;
 
     //
     // Try to acquire a read lock for upto the given timeout.
     //
-    bool timedReadlock(const Time&) const;
+    bool timedReadLock(const Time&) const;
 
     //
     // Acquire a write lock.
     //
-    void writelock() const;
+    void writeLock() const;
 
     //
     // Acquire a write lock.
     //
-    bool tryWritelock() const;
+    bool tryWriteLock() const;
 
     //
     // Acquire a write lock for up to the given timeout.
     //
-    bool timedWritelock(const Time&) const;
+    bool timedWriteLock(const Time&) const;
 
     //
     // Unlock the reader/writer lock.

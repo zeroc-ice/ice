@@ -45,7 +45,7 @@ public:
     typedef TryLockT<StaticMutex> TryLock;
 
     //
-    // Note that lock/trylock & unlock in general should not be used
+    // Note that lock/tryLock & unlock in general should not be used
     // directly. Instead use Lock & TryLock.
     //
  
@@ -54,7 +54,7 @@ public:
     //
     // Returns true if the lock was acquired, and false otherwise.
     //
-    bool trylock() const;
+    bool tryLock() const;
 
     void unlock() const;
 
@@ -137,7 +137,7 @@ StaticMutex::lock() const
 }
 
 inline bool
-StaticMutex::trylock() const
+StaticMutex::tryLock() const
 {
     if (!_mutexInitialized)
     {
@@ -193,7 +193,7 @@ StaticMutex::lock() const
 }
 
 inline bool
-StaticMutex::trylock() const
+StaticMutex::tryLock() const
 {
     int rc = pthread_mutex_trylock(&_mutex);
     if(rc != 0 && rc != EBUSY)

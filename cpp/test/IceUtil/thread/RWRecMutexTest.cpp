@@ -28,30 +28,30 @@ public:
     
     RWRecMutexTestThread(RWRecMutex& m) :
 	_mutex(m),
-	_trylock(false)
+	_tryLock(false)
     {
     }
 
     void
-    waitTrylock()
+    waitTryLock()
     {
-	Mutex::Lock lock(_trylockMutex);
-	while(!_trylock)
+	Mutex::Lock lock(_tryLockMutex);
+	while(!_tryLock)
 	{
-	    _trylockCond.wait(lock);
+	    _tryLockCond.wait(lock);
 	}
     }
 
 protected:
 
     RWRecMutex& _mutex;
-    bool _trylock;
+    bool _tryLock;
 
     //
     // Use native Condition variable here, not Monitor.
     //
-    Cond _trylockCond;
-    Mutex _trylockMutex;
+    Cond _tryLockCond;
+    Mutex _tryLockMutex;
 };
 
 class RWRecMutexReadTestThread : public RWRecMutexTestThread
@@ -70,10 +70,10 @@ public:
 	test(tlock.acquired());
 	
 	{
-	    Mutex::Lock lock(_trylockMutex);
-	    _trylock = true;
+	    Mutex::Lock lock(_tryLockMutex);
+	    _tryLock = true;
 	}
-	_trylockCond.signal();
+	_tryLockCond.signal();
 
 	RWRecMutex::RLock lock(_mutex);
     }
@@ -96,10 +96,10 @@ public:
 	test(!tlock.acquired());
 
 	{
-	    Mutex::Lock lock(_trylockMutex);
-	    _trylock = true;
+	    Mutex::Lock lock(_tryLockMutex);
+	    _tryLock = true;
 	}
-	_trylockCond.signal();
+	_tryLockCond.signal();
 
 	RWRecMutex::RLock lock(_mutex);
     }
@@ -255,10 +255,10 @@ public:
 	test(!tlock.acquired());
 
 	{
-	    Mutex::Lock lock(_trylockMutex);
-	    _trylock = true;
+	    Mutex::Lock lock(_tryLockMutex);
+	    _tryLock = true;
 	}
-	_trylockCond.signal();
+	_tryLockCond.signal();
 
 	RWRecMutex::WLock lock(_mutex);
     }
@@ -398,8 +398,8 @@ RWRecMutexTest::run()
 	t = new RWRecMutexReadTestThread(mutex);
 	control = t->start();
 	
-	// TEST: Wait until the trylock has been tested.
-	t->waitTrylock();
+	// TEST: Wait until the tryLock has been tested.
+	t->waitTryLock();
     }
 
     //
@@ -416,8 +416,8 @@ RWRecMutexTest::run()
 	t = new RWRecMutexWriteTestThread(mutex);
 	control = t->start();
 	
-	// TEST: Wait until the trylock has been tested.
-	t->waitTrylock();
+	// TEST: Wait until the tryLock has been tested.
+	t->waitTryLock();
     }
 
     //
@@ -434,9 +434,9 @@ RWRecMutexTest::run()
 	t = new RWRecMutexWriteTestThread(mutex);
 	control = t->start();
 
-	// TEST: Wait until the trylock has been tested. The thread is
+	// TEST: Wait until the tryLock has been tested. The thread is
 	// now waiting on a write lock.
-	t->waitTrylock();
+	t->waitTryLock();
 
 	// It's necessary for a small sleep here to ensure that the
 	// thread is actually waiting on a write lock.
@@ -465,9 +465,9 @@ RWRecMutexTest::run()
 	t = new RWRecMutexReadTestThread2(mutex);
 	control = t->start();
 
-	// TEST: Wait until the trylock has been tested. The thread is
+	// TEST: Wait until the tryLock has been tested. The thread is
 	// now waiting on a read lock.
-	t->waitTrylock();
+	t->waitTryLock();
 
 	// It's necessary for a small sleep here to ensure that the
 	// thread is actually waiting on a read lock.

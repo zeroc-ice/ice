@@ -39,12 +39,12 @@ public:
     ~Monitor();
 
     //
-    // Note that lock/trylock & unlock in general should not be used
+    // Note that lock/tryLock & unlock in general should not be used
     // directly. Instead use Lock & TryLock.
     //
     void lock() const;
     void unlock() const;
-    bool trylock() const;
+    bool tryLock() const;
 
     void wait() const;
     bool timedWait(const Time&) const;
@@ -127,9 +127,9 @@ IceUtil::Monitor<T>::unlock() const
 }
 
 template <class T> inline bool
-IceUtil::Monitor<T>::trylock() const
+IceUtil::Monitor<T>::tryLock() const
 {
-    bool result = _mutex.trylock();
+    bool result = _mutex.tryLock();
     if(result && _mutex.willUnlock())
     {
 	//

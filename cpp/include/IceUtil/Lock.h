@@ -27,7 +27,7 @@ namespace IceUtil
 class Cond;
 
 
-// LockT and TryLockT are the preferred construct to lock/trylock/unlock
+// LockT and TryLockT are the preferred construct to lock/tryLock/unlock
 // simple and recursive mutexes. You typically allocate them on the
 // stack to hold a lock on a mutex.
 // LockT and TryLockT are not recursive: you cannot acquire several times 
@@ -80,7 +80,7 @@ public:
 	{
 	    throw ThreadLockedException(__FILE__, __LINE__);
 	}
-	_acquired = _mutex.trylock();
+	_acquired = _mutex.tryLock();
 	return _acquired;
     }
 
@@ -105,7 +105,7 @@ protected:
     LockT(const T& mutex, bool) :
 	_mutex(mutex)
     {
-	_acquired = _mutex.trylock();
+	_acquired = _mutex.tryLock();
     }
 
 private:
