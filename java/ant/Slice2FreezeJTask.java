@@ -260,6 +260,18 @@ public class Slice2FreezeJTask extends SliceTask
 	    File f = (File)p.next();
 	    cmd.append(" " + f);
 	}
+
+        if(_translator == null)
+        {
+            if(_iceHome == null)
+            {
+                _translator = new File("slice2freezej");
+            }
+            else
+            {
+                _translator = new File(_iceHome + File.separator + "bin" + File.separator + "slice2freezej");
+            }
+        }
 	
 	//
 	// Execute.
@@ -349,7 +361,7 @@ public class Slice2FreezeJTask extends SliceTask
 	// Since the dependency file can be shared by several slice
 	// tasks we need to make sure that each dependency has a
 	// unique key. We use the name of the task, the output
-	// directory, the first dictionnary name and the name of the
+	// directory, the first dictionary name and the name of the
 	// slice file to be compiled.
 	//
 	return "slice2freezej " + _outputDir.toString() + ((Dict)_dicts.get(0)).getName() + slice;
@@ -361,7 +373,7 @@ public class Slice2FreezeJTask extends SliceTask
 	return "slice2freezej " + _outputDir.toString() + d.getName();
     }
 
-    private File _translator = new File("slice2freezej");
+    private File _translator = null;
     private boolean _binary = false;
 
     public class Dict

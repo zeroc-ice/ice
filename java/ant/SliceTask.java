@@ -65,6 +65,21 @@ public class SliceTask extends org.apache.tools.ant.Task
 	_caseSensitive = false;
         _ice = false;
         _includePath = null;
+
+        //
+        // Check for the presence of the ICE_HOME environment variable.
+        //
+        java.util.Vector env = Execute.getProcEnvironment();
+        java.util.Enumeration e = env.elements();
+        while(e.hasMoreElements())
+        {
+            String entry = (String)e.nextElement();
+            if(entry.startsWith("ICE_HOME="))
+            {
+                _iceHome = entry.substring(entry.indexOf('=') + 1);
+                break;
+            }
+        }
     }
 
     public void
@@ -302,4 +317,5 @@ public class SliceTask extends org.apache.tools.ant.Task
     protected Path _includePath;
     protected java.util.List _fileSets = new java.util.LinkedList();
     protected java.util.List _defines = new java.util.LinkedList();
+    protected String _iceHome;
 }

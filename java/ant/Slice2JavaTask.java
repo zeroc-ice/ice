@@ -71,7 +71,7 @@ public class Slice2JavaTask extends SliceTask
     public
     Slice2JavaTask()
     {
-        _translator = new File("slice2java");
+        _translator = null;
         _package = null;
         _tie = false;
     }
@@ -145,6 +145,18 @@ public class Slice2JavaTask extends SliceTask
         //
         if(!buildList.isEmpty())
         {
+            if(_translator == null)
+            {
+                if(_iceHome == null)
+                {
+                    _translator = new File("slice2java");
+                }
+                else
+                {
+                    _translator = new File(_iceHome + File.separator + "bin" + File.separator + "slice2java");
+                }
+            }
+
             StringBuffer cmd = new StringBuffer();
 
             //
