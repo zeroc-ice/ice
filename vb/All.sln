@@ -172,6 +172,19 @@ Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "simpleFSCommon", "demo\book
 		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
 	EndProjectSection
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirC", "demo\Ice\bidir\bidirC.vbproj", "{F5B679F0-2A0E-4611-88DF-86226696A9DB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirCommon", "demo\Ice\bidir\bidirCommon.vbproj", "{B6A11610-08F9-48E1-850A-B1A8E1A86B39}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F47C2D68-B976-4D14-B4D5-E563001011D1} = {F47C2D68-B976-4D14-B4D5-E563001011D1}
+	EndProjectSection
+EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "bidirS", "demo\Ice\bidir\bidirS.vbproj", "{5B8AA94A-0A97-4167-828B-D968F702ADF8}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -318,6 +331,18 @@ Global
 		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Debug.Build.0 = Debug|.NET
 		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Release.ActiveCfg = Release|.NET
 		{D708E322-EF83-44E1-89D1-C0F9E8529A16}.Release.Build.0 = Release|.NET
+		{F5B679F0-2A0E-4611-88DF-86226696A9DB}.Debug.ActiveCfg = Debug|.NET
+		{F5B679F0-2A0E-4611-88DF-86226696A9DB}.Debug.Build.0 = Debug|.NET
+		{F5B679F0-2A0E-4611-88DF-86226696A9DB}.Release.ActiveCfg = Release|.NET
+		{F5B679F0-2A0E-4611-88DF-86226696A9DB}.Release.Build.0 = Release|.NET
+		{B6A11610-08F9-48E1-850A-B1A8E1A86B39}.Debug.ActiveCfg = Debug|.NET
+		{B6A11610-08F9-48E1-850A-B1A8E1A86B39}.Debug.Build.0 = Debug|.NET
+		{B6A11610-08F9-48E1-850A-B1A8E1A86B39}.Release.ActiveCfg = Release|.NET
+		{B6A11610-08F9-48E1-850A-B1A8E1A86B39}.Release.Build.0 = Release|.NET
+		{5B8AA94A-0A97-4167-828B-D968F702ADF8}.Debug.ActiveCfg = Debug|.NET
+		{5B8AA94A-0A97-4167-828B-D968F702ADF8}.Debug.Build.0 = Debug|.NET
+		{5B8AA94A-0A97-4167-828B-D968F702ADF8}.Release.ActiveCfg = Release|.NET
+		{5B8AA94A-0A97-4167-828B-D968F702ADF8}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection

@@ -7,7 +7,7 @@
 ' 
 '  **********************************************************************
 
-Module callbackS
+Module BidirS
 
     Sub Main(ByVal args() As String)
         Dim app As CallbackServer = New CallbackServer
