@@ -2230,42 +2230,46 @@ Ice::ConnectionI::invokeAll(BasicStream& stream, Int invokeNum, Int requestId, B
 void
 Ice::ConnectionI::run()
 {
-    try
+    //
+    // For non-datagram connections, the thread-per-connection must
+    // validate and activate this connection, and not in the
+    // connection factory. Please see the comments in the connection
+    // factory for details.
+    //
+    if(!_endpoint->datagram())
     {
-	//
-	// First we must validate and activate this connection. This must
-	// be done here, and not in the connection factory. Please see the
-	// comments in the connection factory for details.
-	//
-	validate();
-    }
-    catch(const LocalException&)
-    {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-	assert(_state == StateClosed);
-
-	//
-	// We must make sure that nobody is sending when we close the
-	// transceiver.
-	//
-	IceUtil::Mutex::Lock sendSync(_sendMutex);
-	
 	try
 	{
-	    _transceiver->close();
+	    validate();
 	}
 	catch(const LocalException&)
 	{
-	    // Here we ignore any exceptions in close().
+	    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	    
+	    assert(_state == StateClosed);
+	    
+	    //
+	    // We must make sure that nobody is sending when we close
+	    // the transceiver.
+	    //
+	    IceUtil::Mutex::Lock sendSync(_sendMutex);
+	    
+	    try
+	    {
+		_transceiver->close();
+	    }
+	    catch(const LocalException&)
+	    {
+		// Here we ignore any exceptions in close().
+	    }
+	    
+	    _transceiver = 0;
+	    notifyAll();
+	    return;
 	}
 	
-	_transceiver = 0;
-	notifyAll();
-	return;
+	activate();
     }
-    
-    activate();
 
     const bool warnUdp = _instance->properties()->getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 

@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class OutgoingConnectionFactory
+public final class OutgoingConnectionFactory
 {
     public synchronized void
     destroy()

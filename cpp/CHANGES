@@ -1,6 +1,9 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed race between connection validation and activation for UDP
+  endpoints in thread-per-connection mode.
+
 - Fixed a deadlock that could occur if a server cannot send data
   during connection validation.
 

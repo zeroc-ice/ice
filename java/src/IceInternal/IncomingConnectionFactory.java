@@ -9,7 +9,7 @@
 
 package IceInternal;
 
-public class IncomingConnectionFactory extends EventHandler
+public final class IncomingConnectionFactory extends EventHandler
 {
     public synchronized void
     activate()
@@ -223,7 +223,7 @@ public class IncomingConnectionFactory extends EventHandler
 		    Thread.yield();
 		    return;
 		}
-
+		
 		//
 		// Reap connections for which destruction has completed.
 		//
@@ -236,7 +236,7 @@ public class IncomingConnectionFactory extends EventHandler
 			p.remove();
 		    }
 		}
-
+		
 		//
 		// Now accept a new connection.
 		//
@@ -264,9 +264,6 @@ public class IncomingConnectionFactory extends EventHandler
 
 		try
 		{
-		    //
-		    // Create a connection object for the connection.
-		    //
 		    connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
 		}
 		catch(Ice.LocalException ex)
@@ -374,75 +371,76 @@ public class IncomingConnectionFactory extends EventHandler
 	    _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
 	}
 
-        try
-        {
-            EndpointHolder h = new EndpointHolder();
-            h.value = _endpoint;
-            _transceiver = _endpoint.serverTransceiver(h);
-            if(_transceiver != null)
-            {
-                _endpoint = h.value;
-                Ice.ConnectionI connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
-
-		//
-		// In thread per connection mode, the connection's thread will
-		// take care of connection validation, and we don't want to
-		// block here waiting until validation is complete. Therefore
-		// we don't call validate() in thread per connection mode.
-		//
-		if(!_instance.threadPerConnection())
-		{
-		    connection.validate();
-		}
-
-                _connections.add(connection);
+	EndpointHolder h = new EndpointHolder();
+	h.value = _endpoint;
+	_transceiver = _endpoint.serverTransceiver(h);
+	if(_transceiver != null)
+	{
+	    _endpoint = h.value;
+	    
+	    Ice.ConnectionI connection;
+	    
+	    try
+	    {
+		connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
+		connection.validate();
 	    }
-            else
-            {
-                h.value = _endpoint;
-                _acceptor = _endpoint.acceptor(h);
-                _endpoint = h.value;
-                assert(_acceptor != null);
-                _acceptor.listen();
-
-		if(_instance.threadPerConnection())
+	    catch(Ice.LocalException ex)
+	    {
+		//
+		// Ignore all exceptions while constructing or
+		// validating the connection. Warning or error
+		// messages for such exceptions are printed directly
+		// by the connection object constructor and validation
+		// code.
+		//
+		return;
+	    }
+	    
+	    _connections.add(connection);
+	}
+	else
+	{
+	    h.value = _endpoint;
+	    _acceptor = _endpoint.acceptor(h);
+	    _endpoint = h.value;
+	    assert(_acceptor != null);
+	    _acceptor.listen();
+	    
+	    if(_instance.threadPerConnection())
+	    {
+		try
 		{
+		    //
+		    // If we are in thread per connection mode, we also use
+		    // one thread per incoming connection factory, that
+		    // accepts new connections on this endpoint.
+		    //
+		    _threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory();
+		    _threadPerIncomingConnectionFactory.start();
+		}
+		catch(java.lang.Exception ex)
+		{
+		    error("cannot create thread for incoming connection factory", ex);
+		    
 		    try
 		    {
-			//
-			// If we are in thread per connection mode, we also use
-			// one thread per incoming connection factory, that
-			// accepts new connections on this endpoint.
-			//
-			_threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory();
-			_threadPerIncomingConnectionFactory.start();
+			_acceptor.close();
 		    }
-		    catch(RuntimeException ex)
+		    catch(Ice.LocalException e)
 		    {
-			error("cannot create thread for incoming connection factory", ex);
-		    
-			_state = StateClosed;
-			try
-			{
-			    _acceptor.close();
-			}
-			catch(Ice.LocalException e)
-			{
-			    // Here we ignore any exceptions in close().			
-			}
-			_acceptor = null;
-			_threadPerIncomingConnectionFactory = null;
-			
-			throw ex;
+			// Here we ignore any exceptions in close().			
 		    }
+
+		    _state = StateClosed;
+		    _acceptor = null;
+		    _threadPerIncomingConnectionFactory = null;
+		    
+		    Ice.SyscallException e = new Ice.SyscallException();
+		    e.initCause(ex);
+		    throw e;
 		}
-            }
-        }
-        catch(RuntimeException ex)
-        {
-	    _state = StateClosed;
-	    _acceptor = null;
-            throw ex;
+	    }
         }
     }
 
@@ -706,26 +704,30 @@ public class IncomingConnectionFactory extends EventHandler
 		    try
 		    {
 			connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
-			_connections.add(connection);
 		    }
-		    catch(RuntimeException ex)
+		    catch(Ice.LocalException ex)
 		    {
 			//
 			// We don't print any errors here, the
 			// connection constructor is responsible for
 			// printing the error.
 			//
+			return;
 		    }
+
+		    _connections.add(connection);
 		}
 	    }
 
 	    //
-	    // In thread per connection mode, the connection's thread will
-	    // take care of connection validation. We don't want to block
-	    // this thread waiting until validation is complete, because
-	    // in contrast to thread pool mode, it is the only thread that
-	    // can accept connections with this factory's
-	    // acceptor. Therefore we don't call validate() in thread per
+	    // In thread per connection mode, the connection's thread
+	    // will take care of connection validation and activation
+	    // (for non-datagram connections). We don't want to block
+	    // this thread waiting until validation is complete,
+	    // because in contrast to thread pool mode, it is the only
+	    // thread that can accept connections with this factory's
+	    // acceptor. Therefore we don't call validate() and
+	    // activate() from the connection factory in thread per
 	    // connection mode.
 	    //
 	}

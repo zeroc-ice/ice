@@ -2053,44 +2053,48 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
     private void
     run()
     {
-	try
+	//
+	// For non-datagram connections, the thread-per-connection
+	// must validate and activate this connection, and not in the
+	// connection factory. Please see the comments in the
+	// connection factory for details.
+	//
+	if(!_endpoint.datagram())
 	{
-	    //
-	    // First we must validate and activate this connection. This must
-	    // be done here, and not in the connection factory. Please see the
-	    // comments in the connection factory for details.
-	    //
-	    validate();
-	}
-	catch(LocalException ex)
-	{
-	    synchronized(this)
+	    try
 	    {
-		assert(_state == StateClosed);
-
-		//
-		// We must make sure that nobody is sending when we close the
-		// transceiver.
-		//
-		synchronized(_sendMutex)
-		{
-		    try
-		    {
-			_transceiver.close();
-		    }
-		    catch(LocalException e)
-		    {
-			// Here we ignore any exceptions in close().
-		    }
-		    
-		    _transceiver = null;
-		    notifyAll();
-		}
+		validate();
 	    }
-	    return;
+	    catch(LocalException ex)
+	    {
+		synchronized(this)
+		{
+		    assert(_state == StateClosed);
+		    
+		    //
+		    // We must make sure that nobody is sending when
+		    // we close the transceiver.
+		    //
+		    synchronized(_sendMutex)
+		    {
+			try
+			{
+			    _transceiver.close();
+			}
+			catch(LocalException e)
+			{
+			    // Here we ignore any exceptions in close().
+			}
+			
+			_transceiver = null;
+			notifyAll();
+		    }
+		}
+		return;
+	    }
+	    
+	    activate();
 	}
-	
-	activate();
 
 	boolean warnUdp = _instance.properties().getPropertyAsInt("Ice.Warn.Datagrams") > 0;
 
