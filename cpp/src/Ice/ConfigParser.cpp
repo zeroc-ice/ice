@@ -387,7 +387,8 @@ IceSSL::ConfigParser::getCertAuth(DOM_Node rootNode, CertificateAuthority& certA
         return;
     }
 
-    DOM_Node certAuthNode = find(rootNode, string("certauthority"));
+    string nodeName = "certauthority";
+    DOM_Node certAuthNode = find(rootNode, nodeName);
 
     if (certAuthNode == 0)
     {
@@ -431,7 +432,8 @@ IceSSL::ConfigParser::getBaseCerts(DOM_Node rootNode, BaseCertificates& baseCert
         return;
     }
 
-    DOM_Node baseCertsRoot = find(rootNode, string("basecerts"));
+    string nodeName = "basecerts";
+    DOM_Node baseCertsRoot = find(rootNode, nodeName);
 
     if (baseCertsRoot == 0)
     {
@@ -462,7 +464,8 @@ IceSSL::ConfigParser::getTempCerts(DOM_Node rootNode, TempCertificates& tempCert
         return;
     }
 
-    DOM_Node tempCertsRoot = find(rootNode, string("tempcerts"));
+    string nodeName = "tempcerts";
+    DOM_Node tempCertsRoot = find(rootNode, nodeName);
 
     if (tempCertsRoot == 0)
     {
