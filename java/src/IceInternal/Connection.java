@@ -611,9 +611,9 @@ public final class Connection extends EventHandler
                 }
                 catch(Ice.LocalException ex)
                 {
-                    _mutex.lock();
-                    reclaimIncoming(in);
+                    reclaimIncoming(in); // Must be called outside of synchronization on _mutex.
                     in = null;
+                    _mutex.lock();
                     try
                     {
                         setState(StateClosed, ex);
@@ -666,11 +666,6 @@ public final class Connection extends EventHandler
                     }
                     finally
                     {
-                        if(in != null)
-                        {
-                            reclaimIncoming(in);
-                            in = null;
-                        }
                         _mutex.unlock();
                     }
                 }
@@ -679,9 +674,7 @@ public final class Connection extends EventHandler
             {
                 if(in != null)
                 {
-                    _mutex.lock();
-                    reclaimIncoming(in);
-                    _mutex.unlock();
+                    reclaimIncoming(in); // Must be called outside of synchronization on _mutex.
                 }
             }
         }
@@ -908,14 +901,7 @@ public final class Connection extends EventHandler
                     registerWithPool();
                 }
                 unregisterWithPool();
-                //
-                // The cache of Incoming objects must be destroyed
-                // outside the synchronization on _mutex to avoid
-                // a potential deadlock with ObjectAdapter.
-                //
-                Incoming cache = _incomingCache;
-                _incomingCache = null;
-                new DestroyIncomingThread(cache).start();
+                destroyIncomingCache();
                 break;
             }
         }
@@ -1024,49 +1010,54 @@ public final class Connection extends EventHandler
     private Incoming
     getIncoming()
     {
-        Incoming in;
-        if(_incomingCache == null)
+        Incoming in = null;
+
+        synchronized(_incomingCacheMutex)
         {
-            in = new Incoming(_instance, _adapter);
+            if(_incomingCache == null)
+            {
+                in = new Incoming(_instance, _adapter);
+            }
+            else
+            {
+                in = _incomingCache;
+                _incomingCache = _incomingCache.next;
+                in.next = null;
+                in.reset(_adapter);
+            }
         }
-        else
-        {
-            in = _incomingCache;
-            _incomingCache = _incomingCache.next;
-            in.next = null;
-            in.reset(_adapter);
-        }
+
         return in;
     }
 
     private void
     reclaimIncoming(Incoming in)
     {
-        in.next = _incomingCache;
-        _incomingCache = in;
+        in.finished();
+
+        synchronized(_incomingCacheMutex)
+        {
+            in.next = _incomingCache;
+            _incomingCache = in;
+        }
     }
 
-    //
-    // Must be called outside of synchronization on _mutex.
-    //
-    private static class DestroyIncomingThread extends Thread
+    private void
+    destroyIncomingCache()
     {
-        DestroyIncomingThread(Incoming cache)
+        Incoming in = null;
+
+        synchronized(_incomingCacheMutex)
         {
-            _cache = cache;
+            in = _incomingCache;
+            _incomingCache = null;
         }
 
-        public void
-        run()
+        while(in != null)
         {
-            while(_cache != null)
-            {
-                _cache.destroy();
-                _cache = _cache.next;
-            }
+            in.destroy();
+            in = in.next;
         }
-
-        private Incoming _cache;
     }
 
     private final Transceiver _transceiver;
@@ -1087,4 +1078,5 @@ public final class Connection extends EventHandler
     private boolean _registeredWithPool;
     private RecursiveMutex _mutex = new RecursiveMutex();
     private Incoming _incomingCache;
+    private java.lang.Object _incomingCacheMutex = new java.lang.Object();
 }

@@ -33,6 +33,20 @@ public class Incoming
     }
 
     //
+    // Must be called immediately after this object is no longer
+    // needed, in order to update the object adapter usage count.
+    //
+    public void
+    finished()
+    {
+        if(_current.adapter != null)
+        {
+            ((Ice.ObjectAdapterI)(_current.adapter)).decUsageCount();
+            _current.adapter = null;
+        }
+    }
+
+    //
     // This function allows this object to be reused, rather than
     // reallocated.
     //
@@ -46,19 +60,13 @@ public class Incoming
             _current.ctx.clear();
         }
 
-        if(_current.adapter != adapter)
+        //assert(_current.adapter == null); // finished() should have been called
+
+        _current.adapter = adapter;
+
+        if(_current.adapter != null)
         {
-            if(_current.adapter != null)
-            {
-                ((Ice.ObjectAdapterI)(_current.adapter)).decUsageCount();
-            }
-
-            _current.adapter = adapter;
-
-            if(_current.adapter != null)
-            {
-		((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
-            }
+            ((Ice.ObjectAdapterI)(_current.adapter)).incUsageCount();
         }
     }
 
@@ -70,11 +78,6 @@ public class Incoming
     {
         _is.destroy();
         _os.destroy();
-
-	if(_current.adapter != null)
-	{
-	    ((Ice.ObjectAdapterI)(_current.adapter)).decUsageCount();
-	}
     }
 
     public void
