@@ -26,7 +26,7 @@ namespace FreezeScript
 
 void
 transformDatabase(const Ice::CommunicatorPtr&, const Slice::UnitPtr&, const Slice::UnitPtr&,
-                  Db*, DbTxn*, Db*, DbTxn*, bool, std::ostream&, bool, std::istream&);
+                  Db*, Db*, DbTxn*, const std::string&, bool, std::ostream&, bool, std::istream&);
 
 } // End of namespace FreezeScript
 

@@ -67,6 +67,11 @@ public:
     virtual void executeCustomTransform(const DataPtr&, const DataPtr&) = 0;
 
     //
+    // The facet name of the database (evictor only).
+    //
+    virtual std::string facetName() = 0;
+
+    //
     // Indicates whether objects should be removed if no class definition is found.
     //
     virtual bool purgeObjects() = 0;

@@ -56,6 +56,7 @@ struct TransformInfoI : public TransformInfo
     virtual bool doBaseTransform(const Slice::ClassDefPtr&);
     virtual Slice::TypePtr getRenamedType(const Slice::TypePtr&);
     virtual void executeCustomTransform(const DataPtr&, const DataPtr&);
+    virtual string facetName();
     virtual bool purgeObjects();
     virtual ObjectDataMap& getObjectDataMap();
 
@@ -63,9 +64,9 @@ struct TransformInfoI : public TransformInfo
     Slice::UnitPtr oldUnit;
     Slice::UnitPtr newUnit;
     Db* oldDb;
-    DbTxn* oldDbTxn;
     Db* newDb;
     DbTxn* newDbTxn;
+    string facet;
     bool purge;
     ErrorReporterPtr errorReporter;
     TransformDataFactoryPtr factory;
@@ -1884,7 +1885,7 @@ FreezeScript::RecordDescriptor::execute(const SymbolTablePtr& sym)
     // Iterate over the database.
     //
     Dbc* dbc = 0;
-    _info->oldDb->cursor(_info->oldDbTxn, &dbc, 0);
+    _info->oldDb->cursor(0, &dbc, 0);
     try
     {
         Dbt dbKey, dbValue;
@@ -1984,6 +1985,8 @@ FreezeScript::RecordDescriptor::transformRecord(IceInternal::BasicStream& inKey,
     Destroyer<DataPtr> newKeyDataDestroyer(newKeyData);
     DataPtr newValueData = _info->factory->create(_info->newValueType, false);
     Destroyer<DataPtr> newValueDataDestroyer(newValueData);
+    DataPtr facetData = _info->factory->createString(_info->facet, true);
+    Destroyer<DataPtr> facetDataDestroyer(facetData);
 
     //
     // Copy the data from the old key and value to the new key and value, if possible.
@@ -2005,6 +2008,7 @@ FreezeScript::RecordDescriptor::transformRecord(IceInternal::BasicStream& inKey,
         st->add("newkey", newKeyData);
         st->add("oldvalue", oldValueData);
         st->add("newvalue", newValueData);
+        st->add("facet", facetData);
         ExecutableContainerDescriptor::execute(st);
     }
 
@@ -2706,6 +2710,12 @@ FreezeScript::TransformInfoI::executeCustomTransform(const DataPtr& dest, const 
     }
 }
 
+string
+FreezeScript::TransformInfoI::facetName()
+{
+    return facet;
+}
+
 bool
 FreezeScript::TransformInfoI::purgeObjects()
 {
@@ -2921,17 +2931,17 @@ FreezeScript::assignOrTransform(const DataPtr& dest, const DataPtr& src, bool co
 void
 FreezeScript::transformDatabase(const Ice::CommunicatorPtr& communicator,
                                 const Slice::UnitPtr& oldUnit, const Slice::UnitPtr& newUnit,
-                                Db* oldDb, DbTxn* oldDbTxn, Db* newDb, DbTxn* newDbTxn,
-                                bool purgeObjects, ostream& errors, bool suppress, istream& is)
+                                Db* oldDb, Db* newDb, DbTxn* newDbTxn, const string& facetName, bool purgeObjects,
+                                ostream& errors, bool suppress, istream& is)
 {
     TransformInfoIPtr info = new TransformInfoI;
     info->communicator = communicator;
     info->oldUnit = oldUnit;
     info->newUnit = newUnit;
     info->oldDb = oldDb;
-    info->oldDbTxn = oldDbTxn;
     info->newDb = newDb;
     info->newDbTxn = newDbTxn;
+    info->facet = facetName;
     info->purge = purgeObjects;
     info->errorReporter = new ErrorReporter(errors, suppress);
     info->factory = new TransformDataFactory(communicator, newUnit, info->errorReporter);
