@@ -34,6 +34,7 @@ public:
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitContainer(const ContainerPtr&);
     virtual bool visitClassDefStart(const ClassDefPtr&);
+    virtual bool visitExceptionStart(const ExceptionPtr&);
     virtual bool visitStructStart(const StructPtr&);
     virtual void visitEnum(const EnumPtr&);
 

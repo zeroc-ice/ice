@@ -99,6 +99,7 @@ namespace Slice
 {
 
 typedef std::list<TypePtr> TypeList;
+typedef std::list<ExceptionPtr> ExceptionList;
 typedef std::list<std::string> StringList;
 typedef std::pair<TypePtr, std::string> TypeString;
 typedef std::list<TypeString> TypeStringList;
@@ -282,6 +283,7 @@ public:
     TypeList lookupType(const std::string&, bool = true);
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
     ContainedList lookupContained(const std::string&, bool = true);
+    ExceptionPtr lookupException(const std::string&, bool = true);
     ModuleList modules();
     ClassList classes();
     ExceptionList exceptions();
@@ -379,7 +381,7 @@ public:
 
     virtual void destroy();
     OperationPtr createOperation(const std::string&, const TypePtr&, const TypeStringList&, const TypeStringList&,
-				 const TypeList&, bool);
+				 const ExceptionList&, bool);
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     ClassDeclPtr declaration();
     ClassList bases();
@@ -476,7 +478,7 @@ public:
     TypePtr returnType();
     TypeStringList inputParameters();
     TypeStringList outputParameters();
-    TypeList throws();
+    ExceptionList throws();
     bool nonmutating();
     virtual ContainedType containedType();
     virtual bool uses(const ConstructedPtr&);
@@ -485,13 +487,13 @@ public:
 protected:
 
     Operation(const ContainerPtr&, const std::string&, const TypePtr&, const TypeStringList&, const TypeStringList&,
-	      const TypeList&, bool);
+	      const ExceptionList&, bool);
     friend class SLICE_API ClassDef;
 
     TypePtr _returnType;
     TypeStringList _inParams;
     TypeStringList _outParams;
-    TypeList _throws;
+    ExceptionList _throws;
     bool _nonmutating;
 };
 

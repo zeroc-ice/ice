@@ -183,6 +183,28 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	end();
     }
 
+    ExceptionList exceptions = p->exceptions();
+    if (!exceptions.empty())
+    {
+	start("section", "Exception Index");
+	start("variablelist");
+	
+	for (ExceptionList::const_iterator q = exceptions.begin(); q != exceptions.end(); ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    O << nl << toString(*q, p);
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
     StructList structs = p->structs();
     if (!structs.empty())
     {
@@ -425,7 +447,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    TypePtr returnType = (*q)->returnType();
 	    TypeStringList inputParams = (*q)->inputParameters();
 	    TypeStringList outputParams = (*q)->outputParameters();
-	    TypeList throws =  (*q)->throws();
+	    ExceptionList throws =  (*q)->throws();
 	    
 	    start("section id=" + containedToId(*q), (*q)->name());
 	    
@@ -463,7 +485,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 		O.inc();
 		O << nl << "throws";
 		O.inc();
-		TypeList::const_iterator r = throws.begin();
+		ExceptionList::const_iterator r = throws.begin();
 		while (r != throws.end())
 		{
 		    O << nl << toString(*r, p);
@@ -483,6 +505,67 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    end();
 	}
     }
+
+    {
+	for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    TypePtr type = (*q)->type();
+	    
+	    start("section id=" + containedToId(*q), (*q)->name());
+	    
+	    O.zeroIndent();
+	    O << nl << "<synopsis>" << toString(type, p) << " <structfield>" << (*q)->name()
+	      << "</structfield>;</synopsis>";
+	    O.restoreIndent();
+	    
+	    printComment(*q);
+	    
+	    end();
+	}
+    }
+	
+    end();
+
+    return true;
+}
+
+bool
+Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
+{
+    start(_chapter + " id=" + containedToId(p), p->scoped().substr(2));
+
+    start("section", "Overview");
+    O.zeroIndent();
+    O << nl << "<synopsis>";
+    O << "exception <structname>" << p->name() << "</structname>";
+    O << "</synopsis>";
+    O.restoreIndent();
+
+    printComment(p);
+
+    DataMemberList dataMembers = p->dataMembers();
+    if (!dataMembers.empty())
+    {
+	start("section", "Data Member Index");
+	start("variablelist");
+	
+	for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+	{
+	    start("varlistentry");
+	    start("term");
+	    O << nl << toString(*q, p);
+	    end();
+	    start("listitem");
+	    printSummary(*q);
+	    end();
+	    end();
+	}
+
+	end();
+	end();
+    }
+
+    end();
 
     {
 	for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
@@ -1083,6 +1166,14 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
 	}
 	s = getScopedMinimized(cl, container);
 	tag = "classname";
+    }
+
+    ExceptionPtr ex = ExceptionPtr::dynamicCast(p);
+    if (ex)
+    {
+	linkend = containedToId(ex);
+	s = getScopedMinimized(ex, container);
+	tag = "structname";
     }
 
     StructPtr st = StructPtr::dynamicCast(p);

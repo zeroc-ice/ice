@@ -32,22 +32,6 @@ namespace Ice
 typedef IceUtil::Exception LocalException;
 class LocationForward;
 
-class ICE_API ObjectPrxE
-{
-public:
-
-    ObjectPrxE() { }
-    ObjectPrxE(const ObjectPrxE&);
-    explicit ObjectPrxE(const ObjectPrx&);
-    operator ObjectPrx() const;
-    ::IceProxy::Ice::Object* operator->() const;
-    operator bool() const;
-
-protected:
-
-    ObjectPrx _prx;
-};
-
 };
 
 namespace IceProxy { namespace Ice
@@ -57,7 +41,6 @@ class ICE_API Object : public ::IceUtil::Shared, JTCMutex
 {
 public:
 
-    virtual void _throw();
     bool _isA(const std::string&);
     void _ping();
 

@@ -31,7 +31,6 @@ std::string typeToString(const TypePtr&);
 std::string returnTypeToString(const TypePtr&);
 std::string inputTypeToString(const TypePtr&);
 std::string outputTypeToString(const TypePtr&);
-std::string exceptionTypeToString(const TypePtr&);
 
 void writeMarshalUnmarshalCode(Output&, const TypePtr&, const std::string&, bool, const std::string& = "",
 			       bool = true);

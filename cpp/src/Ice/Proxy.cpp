@@ -51,38 +51,6 @@ IceInternal::uncheckedCast(::IceProxy::Ice::Object* b, ::IceProxy::Ice::Object*&
     d = b;
 }
 
-Ice::ObjectPrxE::ObjectPrxE(const ObjectPrxE& p) :
-    _prx(p._prx)
-{
-}
-
-Ice::ObjectPrxE::ObjectPrxE(const ObjectPrx& p) :
-    _prx(p)
-{
-}
-
-Ice::ObjectPrxE::operator ObjectPrx() const
-{
-    return _prx;
-}
-
-IceProxy::Ice::Object*
-Ice::ObjectPrxE::operator->() const
-{
-    return _prx.get();
-}
-
-Ice::ObjectPrxE::operator bool() const
-{
-    return _prx.get() ? true : false;
-}
-
-void
-IceProxy::Ice::Object::_throw()
-{
-    throw ObjectPrxE(this);
-}
-
 bool
 IceProxy::Ice::Object::_isA(const string& s)
 {

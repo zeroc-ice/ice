@@ -28,44 +28,12 @@ Ice::LocationForward::LocationForward(const ObjectPrx& p) :
 {
 }
 
-Ice::ObjectPtrE::ObjectPtrE(const ObjectPtrE& p) :
-    _ptr(p._ptr)
-{
-}
-
-Ice::ObjectPtrE::ObjectPtrE(const ObjectPtr& p) :
-    _ptr(p)
-{
-}
-
-Ice::ObjectPtrE::operator ObjectPtr() const
-{
-    return _ptr;
-}
-
-::Ice::Object*
-Ice::ObjectPtrE::operator->() const
-{
-    return _ptr.get();
-}
-
-Ice::ObjectPtrE::operator bool() const
-{
-    return _ptr.get() ? true : false;
-}
-
 Ice::Object::Object()
 {
 }
 
 Ice::Object::~Object()
 {
-}
-
-void
-Ice::Object::_throw()
-{
-    throw ObjectPtrE(this);
 }
 
 bool

@@ -51,22 +51,6 @@ protected:
     friend class ::IceInternal::Incoming;
 };
 
-class ICE_API ObjectPtrE
-{
-public:
-
-    ObjectPtrE() { }
-    ObjectPtrE(const ObjectPtrE&);
-    explicit ObjectPtrE(const ObjectPtr&);
-    operator ObjectPtr() const;
-    Object* operator->() const;
-    operator bool() const;
-
-protected:
-
-    ObjectPtr _ptr;
-};
-
 class ICE_API Object : virtual public ::IceUtil::Shared
 {
 public:
@@ -74,7 +58,6 @@ public:
     Object();
     virtual ~Object();
 
-    virtual void _throw();
     virtual bool _isA(const std::string&);
     virtual void _ping();
     ::IceInternal::DispatchStatus ____isA(::IceInternal::Incoming&);

@@ -20,7 +20,7 @@ class StringTok;
 class TypeStringListTok;
 class StringListTok;
 class BoolTok;
-class TypeListTok;
+class ExceptionListTok;
 class ClassListTok;
 class EnumeratorListTok;
 
@@ -28,7 +28,7 @@ typedef ::IceUtil::Handle<StringTok> StringTokPtr;
 typedef ::IceUtil::Handle<TypeStringListTok> TypeStringListTokPtr;
 typedef ::IceUtil::Handle<StringListTok> StringListTokPtr;
 typedef ::IceUtil::Handle<BoolTok> BoolTokPtr;
-typedef ::IceUtil::Handle<TypeListTok> TypeListTokPtr;
+typedef ::IceUtil::Handle<ExceptionListTok> ExceptionListTokPtr;
 typedef ::IceUtil::Handle<ClassListTok> ClassListTokPtr;
 typedef ::IceUtil::Handle<EnumeratorListTok> EnumeratorListTokPtr;
 
@@ -86,15 +86,15 @@ public:
 };
 
 // ----------------------------------------------------------------------
-// TypeListTok
+// ExceptionListTok
 // ----------------------------------------------------------------------
 
-class SLICE_API TypeListTok : public GrammerBase
+class SLICE_API ExceptionListTok : public GrammerBase
 {
 public:
 
-    TypeListTok() { }
-    TypeList v;
+    ExceptionListTok() { }
+    ExceptionList v;
 };
 
 // ----------------------------------------------------------------------

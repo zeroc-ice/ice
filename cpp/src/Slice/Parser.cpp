@@ -673,8 +673,7 @@ Slice::Container::lookupContained(const string& scoped, bool printError)
 	    }
 	    return ContainedList();
 	}
-	return contained->container()->lookupContained(scoped,
-							   printError);
+	return contained->container()->lookupContained(scoped, printError);
     }
     else
     {
@@ -688,6 +687,31 @@ Slice::Container::lookupContained(const string& scoped, bool printError)
 	}
 	return results;
     }
+}
+
+ExceptionPtr
+Slice::Container::lookupException(const string& scoped, bool printError)
+{
+    ContainedList contained = lookupContained(scoped, printError);
+    ExceptionList exceptions;
+    for (ContainedList::iterator p = contained.begin(); p != contained.end(); ++p)
+    {
+	ExceptionPtr ex = ExceptionPtr::dynamicCast(*p);
+	if (!ex)
+	{
+	    if (printError)
+	    {
+		string msg = "`";
+		msg += scoped;
+		msg += "' is not an exception";
+		_unit->error(msg);
+	    }
+	    return 0;
+	}
+	exceptions.push_back(ex);
+    }
+    assert(exceptions.size() == 1);
+    return exceptions.front();
 }
 
 ModuleList
@@ -1173,7 +1197,7 @@ Slice::ClassDef::createOperation(const string& name,
 				 const TypePtr& returnType,
 				 const TypeStringList& inParams,
 				 const TypeStringList& outParams,
-				 const TypeList& throws,
+				 const ExceptionList& throws,
 				 bool nonmutating)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
@@ -1705,7 +1729,7 @@ Slice::Operation::outputParameters()
     return _outParams;
 }
 
-TypeList
+ExceptionList
 Slice::Operation::throws()
 {
     return _throws;
@@ -1748,7 +1772,7 @@ Slice::Operation::uses(const ConstructedPtr& constructed)
 	}
     }
 
-    TypeList::const_iterator q;
+    ExceptionList::const_iterator q;
 
     for (q = _throws.begin(); q != _throws.end(); ++q)
     {
@@ -1775,8 +1799,8 @@ Slice::Operation::visit(ParserVisitor* visitor)
 }
 
 Slice::Operation::Operation(const ContainerPtr& container, const string& name, const TypePtr& returnType,
-			    const TypeStringList& inParams, const TypeStringList& outParams, const TypeList& throws,
-			    bool nonmutating) :
+			    const TypeStringList& inParams, const TypeStringList& outParams,
+			    const ExceptionList& throws, bool nonmutating) :
     Contained(container, name),
     SyntaxTreeBase(container->unit()),
     _returnType(returnType),

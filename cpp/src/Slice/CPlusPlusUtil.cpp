@@ -255,58 +255,6 @@ Slice::outputTypeToString(const TypePtr& type)
     return "???";
 }
 
-string
-Slice::exceptionTypeToString(const TypePtr& type)
-{
-    static const char* inputBuiltinTable[] =
-    {
-	"::Ice::Byte",
-	"bool",
-	"::Ice::Short",
-	"::Ice::Int",
-	"::Ice::Long",
-	"::Ice::Float",
-	"::Ice::Double",
-	"const ::std::string&",
-	"const ::std::wstring&",
-	"const ::Ice::ObjectPtrE&",
-	"const ::Ice::ObjectPrxE&",
-	"const ::Ice::LocalObjectPtrE&"
-    };
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if (builtin)
-    {
-	return inputBuiltinTable[builtin->kind()];
-    }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if (cl)
-    {
-	return "const " + cl->scoped() + "PtrE&";
-    }
-	    
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if (proxy)
-    {
-	return "const " + proxy->_class()->scoped() + "PrxE&";
-    }
-	    
-    EnumPtr en = EnumPtr::dynamicCast(type);
-    if (en)
-    {
-	return en->scoped();
-    }
-	    
-    ContainedPtr contained = ContainedPtr::dynamicCast(type);
-    if (contained)
-    {
-	return "const " + contained->scoped() + "&";
-    }
-
-    return "???";
-}
-
 void
 Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string& param, bool marshal,
 				 const string& str, bool pointer)

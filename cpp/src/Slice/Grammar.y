@@ -414,7 +414,7 @@ class_extends
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
-    list<TypePtr> types = cont->lookupType(scoped->v);
+    TypeList types = cont->lookupType(scoped->v);
     $$ = 0;
     if (!types.empty())
     {
@@ -516,7 +516,7 @@ interface_list
     $$ = intfs;
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    list<TypePtr> types = cont->lookupType(scoped->v);
+    TypeList types = cont->lookupType(scoped->v);
     if (!types.empty())
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
@@ -550,7 +550,7 @@ interface_list
     $$ = intfs;
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    list<TypePtr> types = cont->lookupType(scoped->v);
+    TypeList types = cont->lookupType(scoped->v);
     if (!types.empty())
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
@@ -602,7 +602,7 @@ operation
     StringTokPtr name = StringTokPtr::dynamicCast($2);
     TypeStringListTokPtr inParms = TypeStringListTokPtr::dynamicCast($3);
     TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($4);
-    TypeListTokPtr throws = TypeListTokPtr::dynamicCast($6);
+    ExceptionListTokPtr throws = ExceptionListTokPtr::dynamicCast($6);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if (cl)
     {
@@ -615,7 +615,7 @@ operation
     StringTokPtr name = StringTokPtr::dynamicCast($3);
     TypeStringListTokPtr inParms = TypeStringListTokPtr::dynamicCast($4);
     TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($5);
-    TypeListTokPtr throws = TypeListTokPtr::dynamicCast($7);
+    ExceptionListTokPtr throws = ExceptionListTokPtr::dynamicCast($7);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
     if (cl)
     {
@@ -692,13 +692,13 @@ output_parameters
 // ----------------------------------------------------------------------
 throws
 // ----------------------------------------------------------------------
-: ICE_THROWS type_list
+: ICE_THROWS exception_list
 {
     $$ = $2;
 }
 |
 {
-    $$ = new TypeListTok;
+    $$ = new ExceptionListTok;
 }
 ;
 
@@ -786,7 +786,7 @@ type
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    list<TypePtr> types = cont->lookupType(scoped->v);
+    TypeList types = cont->lookupType(scoped->v);
     if (types.empty())
     {
 	YYERROR; // Can't continue, jump to next yyerrok
@@ -797,12 +797,12 @@ type
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    list<TypePtr> types = cont->lookupType(scoped->v);
+    TypeList types = cont->lookupType(scoped->v);
     if (types.empty())
     {
 	YYERROR; // Can't continue, jump to next yyerrok
     }
-    for (list<TypePtr>::iterator p = types.begin(); p != types.end(); ++p)
+    for (TypeList::iterator p = types.begin(); p != types.end(); ++p)
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
 	if (!cl)
@@ -820,25 +820,6 @@ type
 ;
 
 // ----------------------------------------------------------------------
-type_list
-// ----------------------------------------------------------------------
-: type ',' type_list
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    TypeListTokPtr typeList = TypeListTokPtr::dynamicCast($3);
-    typeList->v.push_front(type);
-    $$ = typeList;
-}
-| type
-{
-    TypePtr type = TypePtr::dynamicCast($1);
-    TypeListTokPtr typeList = new TypeListTok;
-    typeList->v.push_front(type);
-    $$ = typeList;
-}
-;
-
-// ----------------------------------------------------------------------
 return_type
 // ----------------------------------------------------------------------
 : ICE_VOID
@@ -848,6 +829,52 @@ return_type
 | type
 {
     $$ = $1;
+}
+;
+
+// ----------------------------------------------------------------------
+exception_list
+// ----------------------------------------------------------------------
+: exception ',' exception_list
+{
+    ExceptionPtr exception = ExceptionPtr::dynamicCast($1);
+    ExceptionListTokPtr exceptionList = ExceptionListTokPtr::dynamicCast($3);
+    exceptionList->v.push_front(exception);
+    $$ = exceptionList;
+}
+| exception
+{
+    ExceptionPtr exception = ExceptionPtr::dynamicCast($1);
+    ExceptionListTokPtr exceptionList = new ExceptionListTok;
+    exceptionList->v.push_front(exception);
+    $$ = exceptionList;
+}
+| type ',' exception_list
+{
+    unit->error("not an exception");
+    $$ = $3;
+}
+| type
+{
+    unit->error("not an exception");
+    $$ = new ExceptionListTok;
+}
+;
+
+// ----------------------------------------------------------------------
+exception
+// ----------------------------------------------------------------------
+/* TODO: builtin exceptions "Exception" and "LocalException"*/
+: scoped_name
+{
+    StringTokPtr scoped = StringTokPtr::dynamicCast($1);
+    ContainerPtr cont = unit->currentContainer();
+    ExceptionPtr exception = cont->lookupException(scoped->v);
+    if (!exception)
+    {
+	YYERROR; // Can't continue, jump to next yyerrok
+    }
+    $$ = exception;
 }
 ;
 
