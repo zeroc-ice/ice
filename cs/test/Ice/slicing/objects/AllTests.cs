@@ -24,10 +24,9 @@ public class AllTests
     
     private class Callback
     {
-        internal Callback(object obj)
+        internal Callback()
         {
             _called = false;
-	    _obj = obj;
         }
         
         public virtual bool check()
@@ -38,7 +37,7 @@ public class AllTests
                 {
                     try
                     {
-                        Monitor.Wait(_obj, TimeSpan.FromMilliseconds(5000));
+                        Monitor.Wait(this, TimeSpan.FromMilliseconds(5000));
                     }
                     catch(ThreadInterruptedException)
                     {
@@ -62,26 +61,16 @@ public class AllTests
             {
                 Debug.Assert(!_called);
                 _called = true;
-                Monitor.Pulse(_obj);
+                Monitor.Pulse(this);
             }
         }
         
         private bool _called;
-	private object _obj;
     }
     
-    /*
-    private class AMI_Test_SBaseAsObjectI:AMI_Test_SBaseAsObject
+    private class AMI_Test_SBaseAsObjectI : AMI_Test_SBaseAsObject
     {
-        public AMI_Test_SBaseAsObjectI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(Ice.Object o)
+        public override void ice_response(Ice.Object o)
         {
             AllTests.test(o != null);
             AllTests.test(o.ice_id(null).Equals("::SBase"));
@@ -91,12 +80,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -106,32 +90,18 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_SBaseAsSBaseI:AMI_Test_SBaseAsSBase
+    private class AMI_Test_SBaseAsSBaseI : AMI_Test_SBaseAsSBase
     {
-        public AMI_Test_SBaseAsSBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(SBase sb)
+        public override void ice_response(SBase sb)
         {
             AllTests.test(sb.sb.Equals("SBase.sb"));
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -141,21 +111,12 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_SBSKnownDerivedAsSBaseI:AMI_Test_SBSKnownDerivedAsSBase
+    private class AMI_Test_SBSKnownDerivedAsSBaseI : AMI_Test_SBSKnownDerivedAsSBase
     {
-        public AMI_Test_SBSKnownDerivedAsSBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(SBase sb)
+        public override void ice_response(SBase sb)
         {
             AllTests.test(sb.sb.Equals("SBSKnownDerived.sb"));
             SBSKnownDerived sbskd = (SBSKnownDerived) sb;
@@ -164,12 +125,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -179,32 +135,18 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI:AMI_Test_SBSKnownDerivedAsSBSKnownDerived
+    private class AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI : AMI_Test_SBSKnownDerivedAsSBSKnownDerived
     {
-        public AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(SBSKnownDerived sbskd)
+        public override void ice_response(SBSKnownDerived sbskd)
         {
             AllTests.test(sbskd.sbskd.Equals("SBSKnownDerived.sbskd"));
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -214,32 +156,18 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_SBSUnknownDerivedAsSBaseI:AMI_Test_SBSUnknownDerivedAsSBase
+    private class AMI_Test_SBSUnknownDerivedAsSBaseI : AMI_Test_SBSUnknownDerivedAsSBase
     {
-        public AMI_Test_SBSUnknownDerivedAsSBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(SBase sb)
+        public override void ice_response(SBase sb)
         {
             AllTests.test(sb.sb.Equals("SBSUnknownDerived.sb"));
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -249,32 +177,18 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_SUnknownAsObjectI:AMI_Test_SUnknownAsObject
+    private class AMI_Test_SUnknownAsObjectI : AMI_Test_SUnknownAsObject
     {
-        public AMI_Test_SUnknownAsObjectI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(Ice.Object o)
+        public override void ice_response(Ice.Object o)
         {
             AllTests.test(o.ice_id(null).Equals("::Ice::Object"));
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -284,21 +198,12 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_oneElementCycleI:AMI_Test_oneElementCycle
+    private class AMI_Test_oneElementCycleI : AMI_Test_oneElementCycle
     {
-        public AMI_Test_oneElementCycleI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(B b)
+        public override void ice_response(B b)
         {
             AllTests.test(b != null);
             AllTests.test(b.ice_id(null).Equals("::B"));
@@ -307,12 +212,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -322,21 +222,12 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_twoElementCycleI:AMI_Test_twoElementCycle
+    private class AMI_Test_twoElementCycleI : AMI_Test_twoElementCycle
     {
-        public AMI_Test_twoElementCycleI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(B b1)
+        public override void ice_response(B b1)
         {
             AllTests.test(b1 != null);
             AllTests.test(b1.ice_id(null).Equals("::B"));
@@ -350,12 +241,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -365,21 +251,12 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_D1AsBI:AMI_Test_D1AsB
+    private class AMI_Test_D1AsBI : AMI_Test_D1AsB
     {
-        public AMI_Test_D1AsBI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(B b1)
+        public override void ice_response(B b1)
         {
             AllTests.test(b1 != null);
             AllTests.test(b1.ice_id(null).Equals("::D1"));
@@ -401,12 +278,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -416,21 +288,12 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_D1AsD1I:AMI_Test_D1AsD1
+    private class AMI_Test_D1AsD1I : AMI_Test_D1AsD1
     {
-        public AMI_Test_D1AsD1I()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(D1 d1)
+        public override void ice_response(D1 d1)
         {
             AllTests.test(d1 != null);
             AllTests.test(d1.ice_id(null).Equals("::D1"));
@@ -446,12 +309,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -461,21 +319,12 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_D2AsBI:AMI_Test_D2AsB
+    private class AMI_Test_D2AsBI : AMI_Test_D2AsB
     {
-        public AMI_Test_D2AsBI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(B b2)
+        public override void ice_response(B b2)
         {
             AllTests.test(b2 != null);
             AllTests.test(b2.ice_id(null).Equals("::B"));
@@ -495,12 +344,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -510,21 +354,12 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_paramTest1I:AMI_Test_paramTest1
+    private class AMI_Test_paramTest1I : AMI_Test_paramTest1
     {
-        public AMI_Test_paramTest1I()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(B b1, B b2)
+        public override void ice_response(B b1, B b2)
         {
             AllTests.test(b1 != null);
             AllTests.test(b1.ice_id(null).Equals("::D1"));
@@ -542,12 +377,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -557,21 +387,12 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_paramTest2I:AMI_Test_paramTest2
+    private class AMI_Test_paramTest2I : AMI_Test_paramTest2
     {
-        public AMI_Test_paramTest2I()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(B b2, B b1)
+        public override void ice_response(B b2, B b1)
         {
             AllTests.test(b1 != null);
             AllTests.test(b1.ice_id(null).Equals("::D1"));
@@ -589,12 +410,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -604,32 +420,18 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_returnTest1I:AMI_Test_returnTest1
+    private class AMI_Test_returnTest1I : AMI_Test_returnTest1
     {
-        public AMI_Test_returnTest1I()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(B r, B p1, B p2)
+        public override void ice_response(B r, B p1, B p2)
         {
             AllTests.test(r == p1);
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -639,32 +441,18 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_returnTest2I:AMI_Test_returnTest2
+    private class AMI_Test_returnTest2I : AMI_Test_returnTest2
     {
-        public AMI_Test_returnTest2I()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(B r, B p1, B p2)
+        public override void ice_response(B r, B p1, B p2)
         {
             AllTests.test(r == p1);
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -674,32 +462,18 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_returnTest3I:AMI_Test_returnTest3
+    private class AMI_Test_returnTest3I : AMI_Test_returnTest3
     {
-        public AMI_Test_returnTest3I()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(B b)
+        public override void ice_response(B b)
         {
             r = b;
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -709,23 +483,14 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
         
         public B r;
     }
     
-    private class AMI_Test_paramTest3I:AMI_Test_paramTest3
+    private class AMI_Test_paramTest3I : AMI_Test_paramTest3
     {
-        public AMI_Test_paramTest3I()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(B ret, B p1, B p2)
+        public override void ice_response(B ret, B p1, B p2)
         {
             AllTests.test(p1 != null);
             AllTests.test(p1.sb.Equals("D2.sb (p1 1)"));
@@ -744,12 +509,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -759,23 +519,12 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
-        
-        public B r;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_paramTest4I:AMI_Test_paramTest4
+    private class AMI_Test_paramTest4I : AMI_Test_paramTest4
     {
-        public AMI_Test_paramTest4I()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(B ret, B b)
+        public override void ice_response(B ret, B b)
         {
             AllTests.test(b != null);
             AllTests.test(b.sb.Equals("D4.sb (1)"));
@@ -789,12 +538,7 @@ public class AllTests
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -804,34 +548,18 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
-        
-        public B r;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_sequenceTestI:AMI_Test_sequenceTest
+    private class AMI_Test_sequenceTestI : AMI_Test_sequenceTest
     {
-        public AMI_Test_sequenceTestI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(SS ss)
+        public override void ice_response(SS ss)
         {
             r = ss;
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -841,36 +569,21 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
         
         public SS r;
     }
     
-    private class AMI_Test_dictionaryTestI:AMI_Test_dictionaryTest
+    private class AMI_Test_dictionaryTestI : AMI_Test_dictionaryTest
     {
-        public AMI_Test_dictionaryTestI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        //UPGRADE_TODO: Interface java.util was not converted. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1095"'
-        public virtual void  ice_response(java.util.Map r, java.util.Map bout)
+        public override void ice_response(BDict r, BDict bout)
         {
             this.r = r;
             this.bout = bout;
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -880,47 +593,30 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
         
-        //UPGRADE_TODO: Interface java.util was not converted. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1095"'
-        public java.util.Map r;
-        //UPGRADE_TODO: Interface java.util was not converted. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1095"'
-        public java.util.Map bout;
+        public BDict  r;
+        public BDict bout;
     }
     
-    private class AMI_Test_throwBaseAsBaseI:AMI_Test_throwBaseAsBase
+    private class AMI_Test_throwBaseAsBaseI : AMI_Test_throwBaseAsBase
     {
-        public AMI_Test_throwBaseAsBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
-                BaseException e = (BaseException) exc;
-                AllTests.test(e.ice_name().Equals("BaseException"));
+                BaseException e = (BaseException)exc;
                 AllTests.test(e.sbe.Equals("sbe"));
                 AllTests.test(e.pb != null);
                 AllTests.test(e.pb.sb.Equals("sb"));
                 AllTests.test(e.pb.pb == e.pb);
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -932,36 +628,21 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_throwDerivedAsBaseI:AMI_Test_throwDerivedAsBase
+    private class AMI_Test_throwDerivedAsBaseI : AMI_Test_throwDerivedAsBase
     {
-        public AMI_Test_throwDerivedAsBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
-                DerivedException e = (DerivedException) exc;
-                AllTests.test(e.ice_name().Equals("DerivedException"));
+                DerivedException e = (DerivedException)exc;
                 AllTests.test(e.sbe.Equals("sbe"));
                 AllTests.test(e.pb != null);
                 AllTests.test(e.pb.sb.Equals("sb1"));
@@ -973,7 +654,7 @@ public class AllTests
                 AllTests.test(e.pd1.sd1.Equals("sd2"));
                 AllTests.test(e.pd1.pd1 == e.pd1);
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -985,36 +666,21 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_throwDerivedAsDerivedI:AMI_Test_throwDerivedAsDerived
+    private class AMI_Test_throwDerivedAsDerivedI : AMI_Test_throwDerivedAsDerived
     {
-        public AMI_Test_throwDerivedAsDerivedI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
-                DerivedException e = (DerivedException) exc;
-                AllTests.test(e.ice_name().Equals("DerivedException"));
+                DerivedException e = (DerivedException)exc;
                 AllTests.test(e.sbe.Equals("sbe"));
                 AllTests.test(e.pb != null);
                 AllTests.test(e.pb.sb.Equals("sb1"));
@@ -1026,7 +692,7 @@ public class AllTests
                 AllTests.test(e.pd1.sd1.Equals("sd2"));
                 AllTests.test(e.pd1.pd1 == e.pd1);
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -1038,42 +704,27 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_throwUnknownDerivedAsBaseI:AMI_Test_throwUnknownDerivedAsBase
+    private class AMI_Test_throwUnknownDerivedAsBaseI : AMI_Test_throwUnknownDerivedAsBase
     {
-        public AMI_Test_throwUnknownDerivedAsBaseI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response()
+        public override void ice_response()
         {
             AllTests.test(false);
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             try
             {
-                BaseException e = (BaseException) exc;
-                AllTests.test(e.ice_name().Equals("BaseException"));
+                BaseException e = (BaseException)exc;
                 AllTests.test(e.sbe.Equals("sbe"));
                 AllTests.test(e.pb != null);
                 AllTests.test(e.pb.sb.Equals("sb d2"));
                 AllTests.test(e.pb.pb == e.pb);
             }
-            catch(Exception e)
+            catch(Exception)
             {
                 AllTests.test(false);
             }
@@ -1085,32 +736,18 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
     
-    private class AMI_Test_useForwardI:AMI_Test_useForward
+    private class AMI_Test_useForwardI : AMI_Test_useForward
     {
-        public AMI_Test_useForwardI()
-        {
-            InitBlock();
-        }
-        private void  InitBlock()
-        {
-            callback = new Callback();
-        }
-        public virtual void  ice_response(Forward f)
+        public override void ice_response(Forward f)
         {
             AllTests.test(f != null);
             callback.called();
         }
         
-        public virtual void  ice_exception(Ice.LocalException exc)
-        {
-            AllTests.test(false);
-        }
-        
-        public virtual void  ice_exception(Ice.UserException exc)
+        public override void ice_exception(Ice.Exception exc)
         {
             AllTests.test(false);
         }
@@ -1120,10 +757,8 @@ public class AllTests
             return callback.check();
         }
         
-        //UPGRADE_NOTE: The initialization of  'callback' was moved to method 'InitBlock'. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1005"'
-        private Callback callback;
+        private Callback callback = new Callback();
     }
-    */
     
     public static TestPrx allTests(Ice.Communicator communicator, bool collocated)
     {
@@ -1162,7 +797,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("base as Object (AMI)... ");
         Console.Out.Flush();
         {
@@ -1171,7 +805,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("base as base... ");
         Console.Out.Flush();
@@ -1189,7 +822,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("base as base (AMI)... ");
         Console.Out.Flush();
         {
@@ -1198,7 +830,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("base with known derived as base... ");
         Console.Out.Flush();
@@ -1220,7 +851,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("base with known derived as base (AMI)... ");
         Console.Out.Flush();
         {
@@ -1229,7 +859,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("base with known derived as known derived... ");
         Console.Out.Flush();
@@ -1247,7 +876,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("base with known derived as known derived (AMI)... ");
         Console.Out.Flush();
         {
@@ -1256,7 +884,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("base with unknown derived as base... ");
         Console.Out.Flush();
@@ -1274,7 +901,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("base with unknown derived as base (AMI)... ");
         Console.Out.Flush();
         {
@@ -1283,7 +909,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("unknown with Object as Object... ");
         Console.Out.Flush();
@@ -1301,7 +926,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("unknown with Object as Object (AMI)... ");
         Console.Out.Flush();
         {
@@ -1310,7 +934,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("one-element cycle... ");
         Console.Out.Flush();
@@ -1330,7 +953,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("one-element cycle (AMI)... ");
         Console.Out.Flush();
         {
@@ -1339,7 +961,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("two-element cycle... ");
         Console.Out.Flush();
@@ -1364,7 +985,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("two-element cycle (AMI)... ");
         Console.Out.Flush();
         {
@@ -1373,7 +993,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("known derived pointer slicing as base... ");
         Console.Out.Flush();
@@ -1407,7 +1026,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("known derived pointer slicing as base (AMI)... ");
         Console.Out.Flush();
         {
@@ -1416,7 +1034,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("known derived pointer slicing as derived... ");
         Console.Out.Flush();
@@ -1444,7 +1061,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("known derived pointer slicing as derived (AMI)... ");
         Console.Out.Flush();
         {
@@ -1453,7 +1069,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("unknown derived pointer slicing as base... ");
         Console.Out.Flush();
@@ -1485,7 +1100,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("unknown derived pointer slicing as base (AMI)... ");
         Console.Out.Flush();
         {
@@ -1494,7 +1108,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("param ptr slicing with known first... ");
         Console.Out.Flush();
@@ -1526,7 +1139,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("param ptr slicing with known first (AMI)... ");
         Console.Out.Flush();
         {
@@ -1535,7 +1147,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("param ptr slicing with unknown first... ");
         Console.Out.Flush();
@@ -1567,7 +1178,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("param ptr slicing with unknown first (AMI)... ");
         Console.Out.Flush();
         {
@@ -1576,7 +1186,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("return value identity with known first... ");
         Console.Out.Flush();
@@ -1595,7 +1204,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("return value identity with known first (AMI)... ");
         Console.Out.Flush();
         {
@@ -1604,7 +1212,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("return value identity with unknown first... ");
         Console.Out.Flush();
@@ -1623,7 +1230,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("return value identity with unknown first (AMI)... ");
         Console.Out.Flush();
         {
@@ -1632,7 +1238,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("return value identity for input params known first... ");
         Console.Out.Flush();
@@ -1688,7 +1293,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("return value identity for input params known first (AMI)... ");
         Console.Out.Flush();
         {
@@ -1738,7 +1342,6 @@ public class AllTests
             test(b2 != d3);
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("return value identity for input params unknown first... ");
         Console.Out.Flush();
@@ -1795,7 +1398,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("return value identity for input params unknown first (AMI)... ");
         Console.Out.Flush();
         {
@@ -1846,7 +1448,6 @@ public class AllTests
             test(b2 != d3);
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("remainder unmarshaling (3 instances)... ");
         Console.Out.Flush();
@@ -1879,7 +1480,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("remainder unmarshaling (3 instances) (AMI)... ");
         Console.Out.Flush();
         {
@@ -1888,7 +1488,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("remainder unmarshaling (4 instances)... ");
         Console.Out.Flush();
@@ -1915,7 +1514,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("remainder unmarshaling (4 instances) (AMI)... ");
         Console.Out.Flush();
         {
@@ -1924,7 +1522,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("param ptr slicing, instance marshaled in unknown derived as base... ");
         Console.Out.Flush();
@@ -1959,7 +1556,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("param ptr slicing, instance marshaled in unknown derived as base (AMI)... ");
         Console.Out.Flush();
         {
@@ -1980,15 +1576,14 @@ public class AllTests
             AMI_Test_returnTest3I cb = new AMI_Test_returnTest3I();
             testPrx.returnTest3_async(cb, d3, b2);
             test(cb.check());
-            B r = cb.r;
+            B rv = cb.r;
             
-            test(r != null);
-            test(r.ice_id(null).Equals("::B"));
-            test(r.sb.Equals("D3.sb"));
-            test(r.pb == r);
+            test(rv != null);
+            test(rv.ice_id(null).Equals("::B"));
+            test(rv.sb.Equals("D3.sb"));
+            test(rv.pb == rv);
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("param ptr slicing, instance marshaled in unknown derived as derived... ");
         Console.Out.Flush();
@@ -2025,7 +1620,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("param ptr slicing, instance marshaled in unknown derived as derived (AMI)... ");
         Console.Out.Flush();
         {
@@ -2049,15 +1643,14 @@ public class AllTests
             AMI_Test_returnTest3I cb = new AMI_Test_returnTest3I();
             testPrx.returnTest3_async(cb, d3, d12);
             test(cb.check());
-            B r = cb.r;
+            B rv = cb.r;
             
-            test(r != null);
-            test(r.ice_id(null).Equals("::B"));
-            test(r.sb.Equals("D3.sb"));
-            test(r.pb == r);
+            test(rv != null);
+            test(rv.ice_id(null).Equals("::B"));
+            test(rv.sb.Equals("D3.sb"));
+            test(rv.pb == rv);
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("sequence slicing... ");
         Console.Out.Flush();
@@ -2149,7 +1742,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("sequence slicing (AMI)... ");
         Console.Out.Flush();
         {
@@ -2190,16 +1782,16 @@ public class AllTests
                 ss2d3.pd3 = ss1d1;
                 
                 SS1 ss1 = new SS1();
-                ss1.s = new B[3];
-                ss1.s[0] = ss1b;
-                ss1.s[1] = ss1d1;
-                ss1.s[2] = ss1d3;
+                ss1.s = new BSeq();
+                ss1.s.Add(ss1b);
+                ss1.s.Add(ss1d1);
+                ss1.s.Add(ss1d3);
                 
                 SS2 ss2 = new SS2();
-                ss2.s = new B[3];
-                ss2.s[0] = ss2b;
-                ss2.s[1] = ss2d1;
-                ss2.s[2] = ss2d3;
+                ss2.s = new BSeq();
+                ss2.s.Add(ss2b);
+                ss2.s.Add(ss2d1);
+                ss2.s.Add(ss2d3);
                 
                 AMI_Test_sequenceTestI cb = new AMI_Test_sequenceTestI();
                 testPrx.sequenceTest_async(cb, ss1, ss2);
@@ -2226,15 +1818,14 @@ public class AllTests
             test(ss2d6.pb == ss2b3);
             
             test(ss1b3.ice_id(null).Equals("::B"));
-            test(ss1d6.ice_id(null).Equals("::D1"));
+            test(ss1d5.ice_id(null).Equals("::D1"));
             test(ss1d6.ice_id(null).Equals("::B"));
             
             test(ss2b3.ice_id(null).Equals("::B"));
-            test(ss2d6.ice_id(null).Equals("::D1"));
+            test(ss2d5.ice_id(null).Equals("::D1"));
             test(ss2d6.ice_id(null).Equals("::B"));
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("dictionary slicing... ");
         Console.Out.Flush();
@@ -2245,7 +1836,7 @@ public class AllTests
                 BDict bout;
                 BDict ret;
                 int i;
-                for (i = 0; i < 10; ++i)
+                for(i = 0; i < 10; ++i)
                 {
                     string s = "D1." + i.ToString();
                     D1 d1 = new D1();
@@ -2258,7 +1849,7 @@ public class AllTests
                 ret = testPrx.dictionaryTest(bin, out bout);
                 
                 test(bout.Count == 10);
-                for (i = 0; i < 10; ++i)
+                for(i = 0; i < 10; ++i)
                 {
                     B b = bout[i * 10];
                     test(b != null);
@@ -2271,7 +1862,7 @@ public class AllTests
                 }
                 
                 test(ret.Count == 10);
-                for (i = 0; i < 10; ++i)
+                for(i = 0; i < 10; ++i)
                 {
                     B b = ret[i * 20];
                     test(b != null);
@@ -2291,38 +1882,33 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("dictionary slicing (AMI)... ");
         Console.Out.Flush();
         {
-            //UPGRADE_TODO: Interface java.util was not converted. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1095"'
-            //UPGRADE_TODO: Field java.util was not converted. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1095"'
-            java.util.Map bin = new java.util.HashMap();
-            //UPGRADE_TODO: Interface java.util was not converted. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1095"'
-            java.util.Map bout;
-            //UPGRADE_TODO: Interface java.util was not converted. 'ms-help://MS.VSCC.2003/commoner/redir/redirect.htm?keyword="jlca1095"'
-            java.util.Map r;
+            BDict bin = new BDict();
+            BDict bout;
+            BDict rv;
             int i;
-            for (i = 0; i < 10; ++i)
+            for(i = 0; i < 10; ++i)
             {
                 string s = "D1." + i.ToString();
                 D1 d1 = new D1();
                 d1.sb = s;
                 d1.pb = d1;
                 d1.sd1 = s;
-                bin.put(i, d1);
+                bin[i] = d1;
             }
             
             AMI_Test_dictionaryTestI cb = new AMI_Test_dictionaryTestI();
             testPrx.dictionaryTest_async(cb, bin);
             test(cb.check());
             bout = cb.bout;
-            r = cb.r;
+            rv = cb.r;
             
-            test(bout.size() == 10);
-            for (i = 0; i < 10; ++i)
+            test(bout.Count == 10);
+            for(i = 0; i < 10; ++i)
             {
-                B b = (B) bout.get(i * 10);
+                B b = bout[i * 10];
                 test(b != null);
                 string s = "D1." + i.ToString();
                 test(b.sb.Equals(s));
@@ -2332,14 +1918,14 @@ public class AllTests
                 test(b.pb.pb == b.pb);
             }
             
-            test(r.size() == 10);
-            for (i = 0; i < 10; ++i)
+            test(rv.Count == 10);
+            for(i = 0; i < 10; ++i)
             {
-                B b = (B) r.get(i * 20);
+                B b = rv[i * 20];
                 test(b != null);
                 string s = "D1." + (i * 20).ToString();
                 test(b.sb.Equals(s));
-                test(b.pb == (i == 0?(B) null:(B) r.get((i - 1) * 20)));
+                test(b.pb == (i == 0 ? (B)null : rv[(i - 1) * 20]));
                 D1 d1 = (D1) b;
                 test(d1 != null);
                 test(d1.sd1.Equals(s));
@@ -2347,7 +1933,6 @@ public class AllTests
             }
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("base exception thrown as base exception... ");
         Console.Out.Flush();
@@ -2372,7 +1957,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("base exception thrown as base exception (AMI)... ");
         Console.Out.Flush();
         {
@@ -2381,7 +1965,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("derived exception thrown as base exception... ");
         Console.Out.Flush();
@@ -2412,7 +1995,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("derived exception thrown as base exception (AMI)... ");
         Console.Out.Flush();
         {
@@ -2421,7 +2003,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("derived exception thrown as derived exception... ");
         Console.Out.Flush();
@@ -2452,7 +2033,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("derived exception thrown as derived exception (AMI)... ");
         Console.Out.Flush();
         {
@@ -2461,7 +2041,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("unknown derived exception thrown as base exception... ");
         Console.Out.Flush();
@@ -2486,7 +2065,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("unknown derived exception thrown as base exception (AMI)... ");
         Console.Out.Flush();
         {
@@ -2495,7 +2073,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         Console.Out.Write("forward-declared class... ");
         Console.Out.Flush();
@@ -2513,7 +2090,6 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
         
-	/*
         Console.Out.Write("forward-declared class (AMI)... ");
         Console.Out.Flush();
         {
@@ -2522,7 +2098,6 @@ public class AllTests
             test(cb.check());
         }
         Console.Out.WriteLine("ok");
-	*/
         
         return testPrx;
     }
