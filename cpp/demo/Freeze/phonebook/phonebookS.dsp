@@ -101,10 +101,6 @@ SOURCE=.\ServantFactory.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServantInitializer.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Server.cpp
 # End Source File
 # End Group
@@ -122,10 +118,6 @@ SOURCE=.\PhoneBookI.h
 # Begin Source File
 
 SOURCE=.\ServantFactory.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServantInitializer.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

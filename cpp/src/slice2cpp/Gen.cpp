@@ -1542,7 +1542,10 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    
 	    H << sp;
 	    H << nl << exp2 << "static ::std::string __all[" << allOpNames.size() << "];";
-	    H << nl << exp2 << "static ::std::string __mutating[" << allMutatingOpNames.size() << "];";
+	    if (!allMutatingOpNames.empty())
+	    {
+		H << nl << exp2 << "static ::std::string __mutating[" << allMutatingOpNames.size() << "];";
+	    }
 	    H << nl << exp2 << "virtual ::IceInternal::DispatchStatus "
 	      << "__dispatch(::IceInternal::Incoming&, const ::std::string&);";
 	    H << nl << exp2 << "virtual bool __isMutating(const ::std::string&);";
@@ -1559,19 +1562,22 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 		}
 	    }
 	    C << eb << ';';
-	    C << sp;
-	    C << nl << "::std::string " << scoped.substr(2) << "::__mutating[] =";
-	    C << sb;
-	    q = allMutatingOpNames.begin();
-	    while (q != allMutatingOpNames.end())
+	    if (!allMutatingOpNames.empty())
 	    {
-		C << nl << '"' << *q << '"';
-		if (++q != allMutatingOpNames.end())
+		C << sp;
+		C << nl << "::std::string " << scoped.substr(2) << "::__mutating[] =";
+		C << sb;
+		q = allMutatingOpNames.begin();
+		while (q != allMutatingOpNames.end())
 		{
-		    C << ',';
+		    C << nl << '"' << *q << '"';
+		    if (++q != allMutatingOpNames.end())
+		    {
+			C << ',';
+		    }
 		}
+		C << eb << ';';
 	    }
-	    C << eb << ';';
 	    C << sp;
 	    C << nl << "::IceInternal::DispatchStatus" << nl << scoped.substr(2)
 	      << "::__dispatch(::IceInternal::Incoming& in, const ::std::string& s)";
@@ -1603,9 +1609,16 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << nl << "bool" << nl << scoped.substr(2)
 	      << "::__isMutating(const ::std::string& s)";
 	    C << sb;
-	    C << nl << "::std::string* b = __mutating;";
-	    C << nl << "::std::string* e = __mutating + " << allMutatingOpNames.size() << ';';
-	    C << nl << "return ::std::binary_search(b, e, s);";
+	    if (!allMutatingOpNames.empty())
+	    {
+		C << nl << "::std::string* b = __mutating;";
+		C << nl << "::std::string* e = __mutating + " << allMutatingOpNames.size() << ';';
+		C << nl << "return ::std::binary_search(b, e, s);";
+	    }
+	    else
+	    {
+		C << nl << "return false;";
+	    }
 	    C << eb;
 	}
 	H << sp;

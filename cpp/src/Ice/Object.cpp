@@ -104,10 +104,6 @@ string Ice::Object::__names[] =
     "_ping"
 };
 
-string Ice::Object::__mutating[] =
-{
-};
-
 DispatchStatus
 Ice::Object::__dispatch(Incoming& in, const string& s)
 {
@@ -138,7 +134,5 @@ Ice::Object::__dispatch(Incoming& in, const string& s)
 bool
 Ice::Object::__isMutating(const std::string& s)
 {
-    string* b = __mutating;
-    string* e = __mutating + sizeof(__mutating) / sizeof(string);
-    return ::std::binary_search(b, e, s);
+    return false;
 }

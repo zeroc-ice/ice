@@ -164,6 +164,7 @@ SOURCE=..\..\slice\Freeze\DB.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
+USERDEP__DB_IC="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\DB.ice
 
@@ -182,6 +183,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
 
+USERDEP__DB_IC="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\DB.ice
 
@@ -207,6 +209,7 @@ SOURCE=..\..\slice\Freeze\DBF.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
+USERDEP__DBF_I="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\DBF.ice
 
@@ -220,6 +223,7 @@ InputPath=..\..\slice\Freeze\DBF.ice
 
 !ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
 
+USERDEP__DBF_I="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\DBF.ice
 
@@ -240,6 +244,7 @@ SOURCE=..\..\slice\Freeze\Evictor.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
+USERDEP__EVICT="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\Evictor.ice
 
@@ -249,7 +254,7 @@ BuildCmds= \
 	move Evictor.h ..\..\include\Freeze \
 	
 
-"..\..\include\Freeze\Evictor" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\Freeze\Evictor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Evictor.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -258,6 +263,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
 
+USERDEP__EVICT="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\Evictor.ice
 
@@ -267,7 +273,7 @@ BuildCmds= \
 	move Evictor.h ..\..\include\Freeze \
 	
 
-"..\..\include\Freeze\Evictor" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\Freeze\Evictor.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
 "Evictor.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
@@ -283,6 +289,7 @@ SOURCE=..\..\slice\Freeze\EvictorF.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
+USERDEP__EVICTO="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\EvictorF.ice
 
@@ -296,6 +303,7 @@ InputPath=..\..\slice\Freeze\EvictorF.ice
 
 !ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
 
+USERDEP__EVICTO="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Freeze\EvictorF.ice
 

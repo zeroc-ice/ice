@@ -80,7 +80,6 @@ public:
     virtual const std::string* _classIds() = 0;
 
     static std::string __names[];
-    static std::string __mutating[];
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const std::string&);
     virtual bool __isMutating(const std::string&);
 
