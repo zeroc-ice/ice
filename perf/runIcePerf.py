@@ -20,6 +20,7 @@ else:
 sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
+resultNames = [ ]
 results = { }
 
 #
@@ -30,6 +31,9 @@ threadPoolFour = " --Ice.ThreadPool.Server.Size=4 --Ice.ThreadPool.Server.SizeMa
 threadPerConnection = " --Ice.ThreadPerConnection"
 
 def addResults(name, result):
+    
+    if not name in resultNames:
+	resultNames.append(name)
 
     if not results.has_key(name):
         results[name] = [ ]
@@ -40,7 +44,8 @@ def printAllResults():
     print "\n"
     print "Final results"
     
-    for (k, v) in results.iteritems():
+    for n in resultNames:
+	v = results[n]
         mean = 0.0
         best = max
 
@@ -51,7 +56,7 @@ def printAllResults():
 
         mean /= len(v)
         
-        print "%-36s %f %f " % (k, mean, best)
+        print "%-36s %f %f " % (n, mean, best)
     
 def runClientServerPerf(iter, directory, name, clientOpts, serverOpts):
 
@@ -75,7 +80,8 @@ def runClientServerPerf(iter, directory, name, clientOpts, serverOpts):
 
 def runIcePerf(iter, test, name, clientOpts, serverOpts):
     
-    runClientServerPerf(iter, os.path.join(toplevel, "src", "Ice", test), name, clientOpts, serverOpts)
+    dir = os.path.join(toplevel, "src", "Ice", test)
+    runClientServerPerf(iter, dir, "Ice " + test + " " + name, clientOpts, serverOpts)
 
 print "NOTE: the test suite will run as long as you don't interrupt it.\n" + \
       "      Use Ctrl-C to interrupt it, it will print the average and\n" + \
