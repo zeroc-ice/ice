@@ -3,6 +3,10 @@ Changes since version 1.0.1
 
 - Compatibility fixes for GCC 2.96.
 
+- Added `option' and `vm-option' elements to IcePack server
+  descriptors. These elements allow to pass command line options 
+  to server processes.
+
 Changes since version 1.0.0
 ---------------------------
 

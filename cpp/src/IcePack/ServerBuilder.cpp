@@ -312,6 +312,14 @@ IcePack::ServerHandler::endElement(const XMLCh *const name)
 	{
 	    _builder.setWorkingDirectory(elementValue());
 	}
+	else if(str == "option")
+	{
+	    _builder.addOption(elementValue());
+	}
+	else if(str == "vm-option")
+	{
+	    _builder.addJavaOption(elementValue());
+	}
     }
 
     ComponentHandler::endElement(name);

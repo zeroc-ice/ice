@@ -143,6 +143,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
     IcePack::AdminPrx admin = IcePack::AdminPrx::checkedCast(communicator->stringToProxy("IcePack/Admin"));
     test(admin);
 
+    cout << "ok" << endl;
+
+    cout << "testing server options... " << flush;
+
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server-Server1"));
+    test(obj->getProperty("Test.Test") == "2");
+    test(obj->getProperty("Test.Test1") == "0");
+
     //
     // Ping the icebox service manager to avoid terminating the icebox
     // too soon (before the icebox is fully initialized) and some
