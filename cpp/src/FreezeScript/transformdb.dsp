@@ -51,11 +51,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 libdb41.lib setargv.obj /nologo /subsystem:console /machine:I386 /out:"Release/transformdb.exe" /libpath:"../../../lib"
+# ADD LINK32 libdb41.lib setargv.obj /nologo /subsystem:console /machine:I386 /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
-TargetName=transformdb
+TargetName=TransformDB
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -83,11 +83,11 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 libdb41d.lib setargv.obj /nologo /subsystem:console /debug /machine:I386 /out:"Debug/transformdb.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 libdb41d.lib setargv.obj /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
-TargetName=transformdb
+TargetName=TransformDB
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # End Special Build Tool
@@ -147,11 +147,11 @@ SOURCE=.\TransformDB.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\TransformVisitor.cpp
+SOURCE=.\Transformer.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Transformer.cpp
+SOURCE=.\TransformVisitor.cpp
 # End Source File
 # Begin Source File
 
@@ -183,11 +183,11 @@ SOURCE=.\Functions.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\GrammarUtil.h
+SOURCE=.\Grammar.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Grammar.h
+SOURCE=.\GrammarUtil.h
 # End Source File
 # Begin Source File
 
@@ -203,11 +203,11 @@ SOURCE=.\TransformAnalyzer.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\TransformVisitor.h
+SOURCE=.\Transformer.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Transformer.h
+SOURCE=.\TransformVisitor.h
 # End Source File
 # Begin Source File
 
@@ -245,7 +245,7 @@ BuildCmds= \
 InputPath=.\Grammar.y
 
 BuildCmds= \
-	bison -dvt Grammar.y \
+	bison -dvt --name-prefix "freeze_script_" Grammar.y \
 	move Grammar.tab.c Grammar.cpp \
 	move Grammar.tab.h Grammar.h \
 	
