@@ -1,6 +1,12 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed IcePack node and registry database environment names. They
+  have been changed to be the name of the node for IcePack nodes and
+  'Registry' for the IcePack registry. This means that you can now
+  configure the database environment using the properties prefixed
+  with Freeze.DbEnv.<node name> or Freeze.DbEnv.Registry.
+
 - Fixed a bug where the endpoint cache for indirect proxies wasn't
   always cleared upon a communication failure with an object.
 
