@@ -61,7 +61,7 @@ public class AllTests
         private bool _called;
     }
     
-    private class AMI_Test_baseAsBaseI:AMI_Test_baseAsBase
+    private class AMI_Test_baseAsBaseI : AMI_Test_baseAsBase
     {
         public override void ice_response()
         {
@@ -94,7 +94,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_unknownDerivedAsBaseI:AMI_Test_unknownDerivedAsBase
+    private class AMI_Test_unknownDerivedAsBaseI : AMI_Test_unknownDerivedAsBase
     {
         public override void ice_response()
         {
@@ -127,7 +127,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownDerivedAsBaseI:AMI_Test_knownDerivedAsBase
+    private class AMI_Test_knownDerivedAsBaseI : AMI_Test_knownDerivedAsBase
     {
         public override void ice_response()
         {
@@ -161,7 +161,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownDerivedAsKnownDerivedI:AMI_Test_knownDerivedAsKnownDerived
+    private class AMI_Test_knownDerivedAsKnownDerivedI : AMI_Test_knownDerivedAsKnownDerived
     {
         public override void ice_response()
         {
@@ -195,7 +195,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_unknownIntermediateAsBaseI:AMI_Test_unknownIntermediateAsBase
+    private class AMI_Test_unknownIntermediateAsBaseI : AMI_Test_unknownIntermediateAsBase
     {
         public override void ice_response()
         {
@@ -228,7 +228,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownIntermediateAsBaseI:AMI_Test_knownIntermediateAsBase
+    private class AMI_Test_knownIntermediateAsBaseI : AMI_Test_knownIntermediateAsBase
     {
         public override void ice_response()
         {
@@ -262,7 +262,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownMostDerivedAsBaseI:AMI_Test_knownMostDerivedAsBase
+    private class AMI_Test_knownMostDerivedAsBaseI : AMI_Test_knownMostDerivedAsBase
     {
         public override void ice_response()
         {
@@ -297,7 +297,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownIntermediateAsKnownIntermediateI:AMI_Test_knownIntermediateAsKnownIntermediate
+    private class AMI_Test_knownIntermediateAsKnownIntermediateI : AMI_Test_knownIntermediateAsKnownIntermediate
     {
         public override void ice_response()
         {
@@ -331,7 +331,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownMostDerivedAsKnownIntermediateI:AMI_Test_knownMostDerivedAsKnownIntermediate
+    private class AMI_Test_knownMostDerivedAsKnownIntermediateI : AMI_Test_knownMostDerivedAsKnownIntermediate
     {
         public override void ice_response()
         {
@@ -366,7 +366,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_knownMostDerivedAsKnownMostDerivedI:AMI_Test_knownMostDerivedAsKnownMostDerived
+    private class AMI_Test_knownMostDerivedAsKnownMostDerivedI : AMI_Test_knownMostDerivedAsKnownMostDerived
     {
         public override void ice_response()
         {
@@ -401,7 +401,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_unknownMostDerived1AsBaseI:AMI_Test_unknownMostDerived1AsBase
+    private class AMI_Test_unknownMostDerived1AsBaseI : AMI_Test_unknownMostDerived1AsBase
     {
         public override void ice_response()
         {
@@ -435,7 +435,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_unknownMostDerived1AsKnownIntermediateI:AMI_Test_unknownMostDerived1AsKnownIntermediate
+    private class AMI_Test_unknownMostDerived1AsKnownIntermediateI : AMI_Test_unknownMostDerived1AsKnownIntermediate
     {
         public override void ice_response()
         {
@@ -469,7 +469,7 @@ public class AllTests
         private Callback callback = new Callback();
     }
     
-    private class AMI_Test_unknownMostDerived2AsBaseI:AMI_Test_unknownMostDerived2AsBase
+    private class AMI_Test_unknownMostDerived2AsBaseI : AMI_Test_unknownMostDerived2AsBase
     {
         public override void ice_response()
         {
