@@ -83,8 +83,7 @@ IceInternal::Connection::validate()
 	    is.i = is.b.begin();
 	    _transceiver->read(is, _endpoint->timeout());
 	    assert(is.i == is.b.end());
-	    int pos = is.i - is.b.begin();
-	    assert(pos >= headerSize);
+	    assert((int pos = is.i - is.b.begin(), pos >= headerSize));
 	    is.i = is.b.begin();
 	    Byte protVer;
 	    is.read(protVer);
