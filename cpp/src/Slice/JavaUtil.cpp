@@ -1682,6 +1682,7 @@ Slice::JavaGenerator::writeGenericSequenceMarshalUnmarshalCode(Output& out,
                 writeGenericMarshalUnmarshalCode(out, scope, seq->type(), "\"e\"", "__elem", false, iter, false);
                 out << nl << v << ".add(__elem);";
                 out << eb;
+                out << nl << stream << ".endReadSequence();";
             }
         }
     }

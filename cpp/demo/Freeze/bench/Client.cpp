@@ -48,7 +48,7 @@ public:
 	    _stop = IceUtil::Time::now();
 	}
 
-	return (_stop - _start) / 1000.0;
+	return (_stop - _start) * 1000.0;
     }
 
 private:

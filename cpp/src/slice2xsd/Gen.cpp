@@ -392,6 +392,8 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "ContentType\"";
     O << se(os.str());
 
+    annotate("struct");
+
     O << se("xs:sequence");
 
     O.inc();
