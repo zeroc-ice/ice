@@ -104,8 +104,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	cout << "ok" << endl;
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cout << ex << endl;
         km->shutdown();
         test(false);
     }
@@ -125,8 +126,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	cout << "ok" << endl;
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cout << ex << endl;
         km->shutdown();
         test(false);
     }
@@ -155,8 +157,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         //       generating this exception.
 	cout << "ok" << endl;
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cout << ex << endl;
         km->shutdown();
         test(false);
     }
@@ -172,8 +175,9 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	pinger5->ping();
 	cout << "ok" << endl;
     }
-    catch(const Ice::LocalException&)
+    catch(const Ice::LocalException& ex)
     {
+	cout << ex << endl;
         km->shutdown();
         test(false);
     }

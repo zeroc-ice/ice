@@ -16,6 +16,13 @@
 import os, sys
 import getopt
 
+#
+# I must import "time" here, otherwise I get a "NameError: global name
+# 'time' is not defined" in the IceStorm run.py scripts. I have no
+# idea why.
+#
+import time
+
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
     if os.path.exists(os.path.join(toplevel, "config", "TestUtil.py")):

@@ -939,6 +939,9 @@ class TwowaysAMI
 	    AMI_MyClass_opVoidI cb = new AMI_MyClass_opVoidI();
 	    p.opVoid_async(cb);
 	    test(cb.check());
+	    // Let's check if we can reuse the same callback object for another call.
+	    p.opVoid_async(cb);
+	    test(cb.check());
 	}
 
 	{
@@ -961,6 +964,9 @@ class TwowaysAMI
 	
 	{
 	    AMI_MyClass_opFloatDoubleI cb = new AMI_MyClass_opFloatDoubleI();
+	    p.opFloatDouble_async(cb, 3.14f, 1.1E10);
+	    test(cb.check());
+	    // Let's check if we can reuse the same callback object for another call.
 	    p.opFloatDouble_async(cb, 3.14f, 1.1E10);
 	    test(cb.check());
 	}

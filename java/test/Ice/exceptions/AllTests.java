@@ -1152,6 +1152,9 @@ public class AllTests
 		AMI_Thrower_throwAasAI cb = new AMI_Thrower_throwAasAI();
 		thrower.throwAasA_async(cb, 1);
 		test(cb.check());
+		// Let's check if we can reuse the same callback object for another call.
+		thrower.throwAasA_async(cb, 1);
+		test(cb.check());
 	    }
 	
 	    {
@@ -1174,6 +1177,9 @@ public class AllTests
 	
 	    {
 		AMI_Thrower_throwCasCI cb = new AMI_Thrower_throwCasCI();
+		thrower.throwCasC_async(cb, 1, 2, 3);
+		test(cb.check());
+		// Let's check if we can reuse the same callback object for another call.
 		thrower.throwCasC_async(cb, 1, 2, 3);
 		test(cb.check());
 	    }

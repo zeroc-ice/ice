@@ -14,7 +14,7 @@
 # **********************************************************************
 
 import os, sys
-from time import sleep
+import time
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -110,7 +110,7 @@ while os.path.isfile(subscriberLockFile):
         print "failed!"
         TestUtil.killServers()
         sys.exit(1)
-    sleep(1)
+    time.sleep(1)
     lockCount = lockCount + 1    
 print "ok"
 
