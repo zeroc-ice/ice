@@ -30,11 +30,6 @@ RSC=rc.exe
 
 !IF  "$(CFG)" == "phonebookC - Win32 Release"
 
-"NameIdentitiesDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"NameIdentitiesDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
 # PROP BASE Output_Dir "Release"
