@@ -1,0 +1,105 @@
+Microsoft Visual Studio Solution File, Format Version 7.00
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ThirdParty", "ThirdParty\ThirdParty.vdproj", "{E9665B4F-D76E-4D20-B6D7-8F9353BA0EC8}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "BerkeleyDBRuntime", "BerkeleyDBRuntime\BerkeleyDBRuntime.vdproj", "{A468E14B-CEE8-406A-9FFA-99CFFE14B0A8}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "BerkeleyDBRuntimeDebug", "BerkeleyDBRuntimeDebug\BerkeleyDBRuntimeDebug.vdproj", "{ABABC608-592C-49ED-9C3C-D1BDD22C90BD}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "BerkeleyDBDevKit", "BerkeleyDBDevKit\BerkeleyDBDevKit.vdproj", "{185970EE-33C4-48CF-91E8-E4ED4B3ABDCA}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "XercesCRuntime", "XercesCRuntime\XercesCRuntime.vdproj", "{1F53BB53-9632-41C6-8A50-C79740B94192}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "XercesCRuntimeDebug", "XercesCRuntimeDebug\XercesCRuntimeDebug.vdproj", "{93474214-651D-468A-BDAE-C6E30A323ECD}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "XercesCDevKit", "XercesCDevKit\XercesCDevKit.vdproj", "{68EFA355-EB65-41ED-B5B1-B575A2D1176E}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "OpenSSLRuntime", "OpenSSLRuntime\OpenSSLRuntime.vdproj", "{032AC45C-B224-465D-B89C-F497BDD13BB1}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "OpenSSLDevKit", "OpenSSLDevKit\OpenSSLDevKit.vdproj", "{2A9AC4D4-4EB3-47F7-AE10-D2B7D1E9DA8D}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Bzip2DevKit", "Bzip2DevKit\Bzip2DevKit.vdproj", "{511A09A7-2D37-42F6-8ACE-C1A3A4CCD7B6}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "IceRuntime", "IceRuntime\IceRuntime.vdproj", "{58474DDD-CDA1-4243-AC66-776C7A8A1C52}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "IceRuntimeDebug", "IceRuntimeDebug\IceRuntimeDebug.vdproj", "{E3ACF956-DACD-463A-B79A-B46216682808}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "IceDevKit", "IceDevKit\IceDevKit.vdproj", "{BF34121D-3304-4F58-996D-1C1A7444D840}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "Ice", "Ice\Ice.vdproj", "{0ED9C353-C9EF-4F6D-BA05-DB82B8F8D1B5}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "XercesCRuntimeDebugPDB", "XercesCRuntimeDebugPDB\XercesCRuntimeDebugPDB.vdproj", "{1A7C97B6-E555-4C1D-BF32-55D5D6E64003}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "ThirdPartyPDB", "ThirdPartyPDB\ThirdPartyPDB.vdproj", "{6761DFC8-1376-4270-B8B3-A71D3C2ABDC4}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "IceRuntimeDebugPDB", "IceRuntimeDebugPDB\IceRuntimeDebugPDB.vdproj", "{745D0455-7792-4C23-B6DC-B00C442E23E7}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "IcePDB", "IcePDB\IcePDB.vdproj", "{B3EE5B8B-B779-49AB-BFD6-5586E454E72D}"
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Ice
+		ConfigName.1 = ThirdParty
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{E9665B4F-D76E-4D20-B6D7-8F9353BA0EC8}.Ice.ActiveCfg = ThirdParty
+		{E9665B4F-D76E-4D20-B6D7-8F9353BA0EC8}.ThirdParty.ActiveCfg = ThirdParty
+		{E9665B4F-D76E-4D20-B6D7-8F9353BA0EC8}.ThirdParty.Build.0 = ThirdParty
+		{A468E14B-CEE8-406A-9FFA-99CFFE14B0A8}.Ice.ActiveCfg = ThirdParty
+		{A468E14B-CEE8-406A-9FFA-99CFFE14B0A8}.ThirdParty.ActiveCfg = ThirdParty
+		{A468E14B-CEE8-406A-9FFA-99CFFE14B0A8}.ThirdParty.Build.0 = ThirdParty
+		{ABABC608-592C-49ED-9C3C-D1BDD22C90BD}.Ice.ActiveCfg = ThirdParty
+		{ABABC608-592C-49ED-9C3C-D1BDD22C90BD}.ThirdParty.ActiveCfg = ThirdParty
+		{ABABC608-592C-49ED-9C3C-D1BDD22C90BD}.ThirdParty.Build.0 = ThirdParty
+		{185970EE-33C4-48CF-91E8-E4ED4B3ABDCA}.Ice.ActiveCfg = ThirdParty
+		{185970EE-33C4-48CF-91E8-E4ED4B3ABDCA}.ThirdParty.ActiveCfg = ThirdParty
+		{185970EE-33C4-48CF-91E8-E4ED4B3ABDCA}.ThirdParty.Build.0 = ThirdParty
+		{1F53BB53-9632-41C6-8A50-C79740B94192}.Ice.ActiveCfg = ThirdParty
+		{1F53BB53-9632-41C6-8A50-C79740B94192}.ThirdParty.ActiveCfg = ThirdParty
+		{1F53BB53-9632-41C6-8A50-C79740B94192}.ThirdParty.Build.0 = ThirdParty
+		{93474214-651D-468A-BDAE-C6E30A323ECD}.Ice.ActiveCfg = ThirdParty
+		{93474214-651D-468A-BDAE-C6E30A323ECD}.ThirdParty.ActiveCfg = ThirdParty
+		{93474214-651D-468A-BDAE-C6E30A323ECD}.ThirdParty.Build.0 = ThirdParty
+		{68EFA355-EB65-41ED-B5B1-B575A2D1176E}.Ice.ActiveCfg = ThirdParty
+		{68EFA355-EB65-41ED-B5B1-B575A2D1176E}.ThirdParty.ActiveCfg = ThirdParty
+		{68EFA355-EB65-41ED-B5B1-B575A2D1176E}.ThirdParty.Build.0 = ThirdParty
+		{032AC45C-B224-465D-B89C-F497BDD13BB1}.Ice.ActiveCfg = ThirdParty
+		{032AC45C-B224-465D-B89C-F497BDD13BB1}.ThirdParty.ActiveCfg = ThirdParty
+		{032AC45C-B224-465D-B89C-F497BDD13BB1}.ThirdParty.Build.0 = ThirdParty
+		{2A9AC4D4-4EB3-47F7-AE10-D2B7D1E9DA8D}.Ice.ActiveCfg = ThirdParty
+		{2A9AC4D4-4EB3-47F7-AE10-D2B7D1E9DA8D}.ThirdParty.ActiveCfg = ThirdParty
+		{2A9AC4D4-4EB3-47F7-AE10-D2B7D1E9DA8D}.ThirdParty.Build.0 = ThirdParty
+		{511A09A7-2D37-42F6-8ACE-C1A3A4CCD7B6}.Ice.ActiveCfg = ThirdParty
+		{511A09A7-2D37-42F6-8ACE-C1A3A4CCD7B6}.ThirdParty.ActiveCfg = ThirdParty
+		{511A09A7-2D37-42F6-8ACE-C1A3A4CCD7B6}.ThirdParty.Build.0 = ThirdParty
+		{58474DDD-CDA1-4243-AC66-776C7A8A1C52}.Ice.ActiveCfg = Ice
+		{58474DDD-CDA1-4243-AC66-776C7A8A1C52}.Ice.Build.0 = Ice
+		{58474DDD-CDA1-4243-AC66-776C7A8A1C52}.ThirdParty.ActiveCfg = Ice
+		{E3ACF956-DACD-463A-B79A-B46216682808}.Ice.ActiveCfg = Ice
+		{E3ACF956-DACD-463A-B79A-B46216682808}.Ice.Build.0 = Ice
+		{E3ACF956-DACD-463A-B79A-B46216682808}.ThirdParty.ActiveCfg = Ice
+		{BF34121D-3304-4F58-996D-1C1A7444D840}.Ice.ActiveCfg = Ice
+		{BF34121D-3304-4F58-996D-1C1A7444D840}.Ice.Build.0 = Ice
+		{BF34121D-3304-4F58-996D-1C1A7444D840}.ThirdParty.ActiveCfg = Ice
+		{0ED9C353-C9EF-4F6D-BA05-DB82B8F8D1B5}.Ice.ActiveCfg = Ice
+		{0ED9C353-C9EF-4F6D-BA05-DB82B8F8D1B5}.Ice.Build.0 = Ice
+		{0ED9C353-C9EF-4F6D-BA05-DB82B8F8D1B5}.ThirdParty.ActiveCfg = Ice
+		{1A7C97B6-E555-4C1D-BF32-55D5D6E64003}.Ice.ActiveCfg = ThirdParty
+		{1A7C97B6-E555-4C1D-BF32-55D5D6E64003}.ThirdParty.ActiveCfg = ThirdParty
+		{1A7C97B6-E555-4C1D-BF32-55D5D6E64003}.ThirdParty.Build.0 = ThirdParty
+		{6761DFC8-1376-4270-B8B3-A71D3C2ABDC4}.Ice.ActiveCfg = ThirdParty
+		{6761DFC8-1376-4270-B8B3-A71D3C2ABDC4}.ThirdParty.ActiveCfg = ThirdParty
+		{6761DFC8-1376-4270-B8B3-A71D3C2ABDC4}.ThirdParty.Build.0 = ThirdParty
+		{745D0455-7792-4C23-B6DC-B00C442E23E7}.Ice.ActiveCfg = Ice
+		{745D0455-7792-4C23-B6DC-B00C442E23E7}.Ice.Build.0 = Ice
+		{745D0455-7792-4C23-B6DC-B00C442E23E7}.ThirdParty.ActiveCfg = Ice
+		{B3EE5B8B-B779-49AB-BFD6-5586E454E72D}.Ice.ActiveCfg = Ice
+		{B3EE5B8B-B779-49AB-BFD6-5586E454E72D}.Ice.Build.0 = Ice
+		{B3EE5B8B-B779-49AB-BFD6-5586E454E72D}.ThirdParty.ActiveCfg = Ice
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
