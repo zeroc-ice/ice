@@ -153,22 +153,53 @@ public final class Reference
     toString()
     {
         StringBuffer s = new StringBuffer();
-        s.append(Ice.Util.identityToString(identity));
+
+        //
+        // If the encoded identity string contains characters which
+        // the reference parser uses as separators, then we enclose
+        // the identity string in quotes.
+        //
+        String id = Ice.Util.identityToString(identity);
+        if(StringUtil.findFirstOf(id, " \t\n\r:@") != -1)
+        {
+            s.append('"');
+            s.append(id);
+            s.append('"');
+        }
+        else
+        {
+            s.append(id);
+        }
 
         if(facet.length > 0)
         {
+            StringBuffer f = new StringBuffer();
+            for(int i = 0; i < facet.length ; i++)
+            {
+                f.append(StringUtil.encodeString(facet[i], "/"));
+                if(i < facet.length - 1)
+                {
+                    f.append('/');
+                }
+            }
+
+            //
+            // If the encoded facet string contains characters which
+            // the reference parser uses as separators, then we enclose
+            // the facet string in quotes.
+            //
             s.append(" -f ");
-	    for(int i = 0; i < facet.length ; i++)
-	    {
-		//
-		// TODO: Escape for whitespace and slashes.
-		//
-		s.append(facet[i]);
-		if(i < facet.length - 1)
-		{
-		    s.append('/');
-		}
-	    }
+            String fs = f.toString();
+            if(StringUtil.findFirstOf(fs, " \t\n\r:@") != -1)
+            {
+                s.append('"');
+                s.append(fs);
+                s.append('"');
+            }
+            else
+            {
+                s.append(fs);
+            }
         }
 
         switch(mode)
@@ -224,10 +255,26 @@ public final class Reference
 		s.append(endpoints[i].toString());
 	    }
 	}
-	else
-	{
-	    s.append(" @ " + adapterId);
-	}
+        else
+        {
+            String a = StringUtil.encodeString(adapterId, null);
+            //
+            // If the encoded adapter id string contains characters which
+            // the reference parser uses as separators, then we enclose
+            // the adapter id string in quotes.
+            //
+            s.append(" @ ");
+            if(StringUtil.findFirstOf(a, " \t\n\r") != -1)
+            {
+                s.append('"');
+                s.append(a);
+                s.append('"');
+            }
+            else
+            {
+                s.append(a);
+            }
+        }
 
         return s.toString();
     }

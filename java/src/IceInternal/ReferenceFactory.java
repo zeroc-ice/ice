@@ -81,10 +81,30 @@ public final class ReferenceFactory
             throw new Ice.ProxyParseException();
         }
 
-        end = StringUtil.findFirstOf(s, delim + ":@", beg);
+        //
+        // Extract the identity, which may be enclosed in single
+        // or double quotation marks.
+        //
+        String idstr = null;
+        end = StringUtil.checkQuote(s, beg);
         if(end == -1)
         {
-            end = s.length();
+            throw new Ice.ProxyParseException();
+        }
+        else if(end == 0)
+        {
+            end = StringUtil.findFirstOf(s, delim + ":@", beg);
+            if(end == -1)
+            {
+                end = s.length();
+            }
+            idstr = s.substring(beg, end);
+        }
+        else
+        {
+            beg++; // Skip leading quote
+            idstr = s.substring(beg, end);
+            end++; // Skip trailing quote
         }
 
         if(beg == end)
@@ -92,7 +112,7 @@ public final class ReferenceFactory
             throw new Ice.ProxyParseException();
         }
 
-        Ice.Identity ident = Ice.Util.stringToIdentity(s.substring(beg, end));
+        Ice.Identity ident = Ice.Util.stringToIdentity(idstr);
         java.util.ArrayList facet = new java.util.ArrayList();
         int mode = Reference.ModeTwoway;
         boolean secure = false;
@@ -129,16 +149,39 @@ public final class ReferenceFactory
                 throw new Ice.ProxyParseException();
             }
 
+            //
+            // Check for the presence of an option argument. The
+            // argument may be enclosed in single or double
+            // quotation marks.
+            //
             String argument = null;
             int argumentBeg = StringUtil.findFirstNotOf(s, delim, end);
-            if(argumentBeg != -1 && s.charAt(argumentBeg) != '-')
+            if(argumentBeg != -1)
             {
-                beg = argumentBeg;
-                end = StringUtil.findFirstOf(s, delim + ":@", beg);
-                if(end == -1)
+                final char ch = s.charAt(argumentBeg);
+                if(ch != '@' && ch != ':' && ch != '-')
                 {
-                    end = s.length();
-                    argument = s.substring(beg, end);
+                    beg = argumentBeg;
+                    end = StringUtil.checkQuote(s, beg);
+                    if(end == -1)
+                    {
+                        throw new Ice.ProxyParseException();
+                    }
+                    else if(end == 0)
+                    {
+                        end = StringUtil.findFirstOf(s, delim + ":@", beg);
+                        if(end == -1)
+                        {
+                            end = s.length();
+                        }
+                        argument = s.substring(beg, end);
+                    }
+                    else
+                    {
+                        beg++; // Skip leading quote
+                        argument = s.substring(beg, end);
+                        end++; // Skip trailing quote
+                    }
                 }
             }
 
@@ -152,27 +195,55 @@ public final class ReferenceFactory
                 {
                     if(argument == null)
                     {
-                        throw new Ice.EndpointParseException();
+                        throw new Ice.ProxyParseException();
                     }
 
-                    //
-                    // TODO: Escape for whitespace and slashes.
-                    //
+                    final int argLen = argument.length();
+                    Ice.StringHolder token = new Ice.StringHolder();
+
                     int argBeg = 0;
-                    while(argBeg < argument.length())
+                    while(argBeg < argLen)
                     {
-                        int argEnd = argument.indexOf('/', argBeg);
+                        //
+                        // Skip slashes
+                        //
+                        argBeg = StringUtil.findFirstNotOf(argument, "/", argBeg);
+                        if(argBeg == -1)
+                        {
+                            break;
+                        }
+
+                        //
+                        // Find unescaped slash
+                        //
+                        int argEnd = argBeg;
+                        while((argEnd = argument.indexOf('/', argEnd)) != -1)
+                        {
+                            if(argument.charAt(argEnd - 1) != '\\')
+                            {
+                                break;
+                            }
+                            argEnd++;
+                        }
+
                         if(argEnd == -1)
                         {
-                            facet.add(argument.substring(argBeg));
+                            argEnd = argLen;
                         }
-                        else
+
+                        if(!IceInternal.StringUtil.decodeString(argument, argBeg, argEnd, token))
                         {
-                            facet.add(argument.substring(argBeg, argEnd));
-                            ++argEnd;
+                            throw new Ice.ProxyParseException();
                         }
-                        argBeg = argEnd;
+                        facet.add(token.value);
+                        argBeg = argEnd + 1;
                     }
+
+                    if(facet.size() == 0)
+                    {
+                        throw new Ice.ProxyParseException();
+                    }
+
                     break;
                 }
 
@@ -180,7 +251,7 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.EndpointParseException();
+                        throw new Ice.ProxyParseException();
                     }
                     mode = Reference.ModeTwoway;
                     break;
@@ -190,7 +261,7 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.EndpointParseException();
+                        throw new Ice.ProxyParseException();
                     }
                     mode = Reference.ModeOneway;
                     break;
@@ -200,7 +271,7 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.EndpointParseException();
+                        throw new Ice.ProxyParseException();
                     }
                     mode = Reference.ModeBatchOneway;
                     break;
@@ -210,7 +281,7 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.EndpointParseException();
+                        throw new Ice.ProxyParseException();
                     }
                     mode = Reference.ModeDatagram;
                     break;
@@ -220,7 +291,7 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.EndpointParseException();
+                        throw new Ice.ProxyParseException();
                     }
                     mode = Reference.ModeBatchDatagram;
                     break;
@@ -230,7 +301,7 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.EndpointParseException();
+                        throw new Ice.ProxyParseException();
                     }
                     secure = true;
                     break;
@@ -240,7 +311,7 @@ public final class ReferenceFactory
                 {
                     if(argument != null)
                     {
-                        throw new Ice.EndpointParseException();
+                        throw new Ice.ProxyParseException();
                     }
                     compress = true;
                     break;
@@ -280,20 +351,33 @@ public final class ReferenceFactory
                 beg = StringUtil.findFirstNotOf(s, delim, beg + 1);
                 if(beg == -1)
                 {
-                    beg = end + 1;
+                    throw new Ice.ProxyParseException();
                 }
 
-                end = StringUtil.findFirstOf(s, delim, beg);
+                end = StringUtil.checkQuote(s, beg);
                 if(end == -1)
-                {
-                    end = s.length();
-                }
-
-                adapter = s.substring(beg, end);
-                if(adapter.length() == 0)
                 {
                     throw new Ice.ProxyParseException();
                 }
+                else if(end == 0)
+                {
+                    end = StringUtil.findFirstOf(s, delim, beg);
+                    if(end == -1)
+                    {
+                        end = s.length();
+                    }
+                }
+                else
+                {
+                    beg++; // Skip leading quote
+                }
+
+                Ice.StringHolder token = new Ice.StringHolder();
+                if(!IceInternal.StringUtil.decodeString(s, beg, end, token) || token.value.length() == 0)
+                {
+                    throw new Ice.ProxyParseException();
+                }
+                adapter = token.value;
 	    }
 	}
 

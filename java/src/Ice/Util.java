@@ -107,17 +107,52 @@ public final class Util
     stringToIdentity(String s)
     {
         Identity ident = new Identity();
-        int pos = s.indexOf('/');
-        if(pos != -1)
+
+        //
+        // Find unescaped separator
+        //
+        int slash = 0;
+        while((slash = s.indexOf('/', slash)) != -1)
         {
-            ident.category = s.substring(0, pos);
-            ident.name = s.substring(pos + 1);
+            if(slash == 0 || s.charAt(slash - 1) != '\\')
+            {
+                break;
+            }
+            slash++;
+        }
+
+        if(slash == -1)
+        {
+            StringHolder token = new StringHolder();
+            if(!IceInternal.StringUtil.decodeString(s, 0, 0, token))
+            {
+                throw new SystemException();
+            }
+            ident.category = "";
+            ident.name = token.value;
         }
         else
         {
-            ident.category = "";
-            ident.name = s;
+            StringHolder token = new StringHolder();
+            if(!IceInternal.StringUtil.decodeString(s, 0, slash, token))
+            {
+                throw new SystemException();
+            }
+            ident.category = token.value;
+            if(slash + 1 < s.length())
+            {
+                if(!IceInternal.StringUtil.decodeString(s, slash + 1, 0, token))
+                {
+                    throw new SystemException();
+                }
+                ident.name = token.value;
+            }
+            else
+            {
+                ident.name = "";
+            }
         }
+
         return ident;
     }
 
@@ -126,11 +161,12 @@ public final class Util
     {
         if(ident.category.length() == 0)
         {
-            return ident.name;
+            return IceInternal.StringUtil.encodeString(ident.name, "/");
         }
         else
         {
-            return ident.category + '/' + ident.name;
+            return IceInternal.StringUtil.encodeString(ident.category, "/") + '/' +
+                IceInternal.StringUtil.encodeString(ident.name, "/");
         }
     }
 
