@@ -16,6 +16,7 @@
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/Stats.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
@@ -158,6 +159,11 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 	    out << "sent " << ret << " of " << packetSize << " bytes via tcp\n" << toString();
 	}
 
+	if(_stats)
+	{
+	    _stats->bytesSent(_name, ret);
+	}
+
 	buf.i += ret;
 
 	if(packetSize > buf.b.end() - buf.i)
@@ -257,6 +263,11 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 	    out << "received " << ret << " of " << packetSize << " bytes via tcp\n" << toString();
 	}
 
+	if(_stats)
+	{
+	    _stats->bytesReceived(_name, ret);
+	}
+
 	buf.i += ret;
 
 	if(packetSize > buf.b.end() - buf.i)
@@ -275,6 +286,8 @@ IceInternal::TcpTransceiver::toString() const
 IceInternal::TcpTransceiver::TcpTransceiver(const InstancePtr& instance, SOCKET fd) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
+    _stats(instance->stats()),
+    _name("tcp"),
     _fd(fd)
 {
     FD_ZERO(&_rFdSet);

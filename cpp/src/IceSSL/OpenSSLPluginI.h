@@ -18,6 +18,7 @@
 #include <IceUtil/RecMutex.h>
 
 #include <Ice/LoggerF.h>
+#include <Ice/StatsF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/ProtocolPluginFacadeF.h>
 
@@ -84,14 +85,17 @@ public:
 
     TraceLevelsPtr getTraceLevels() const;
     Ice::LoggerPtr getLogger() const;
+    Ice::StatsPtr getStats() const;
     Ice::PropertiesPtr getProperties() const;
     IceInternal::ProtocolPluginFacadePtr getProtocolPluginFacade() const;
 
 private:
-    IceInternal::ProtocolPluginFacadePtr _protocolPluginFacade;
-    TraceLevelsPtr _traceLevels;
-    Ice::LoggerPtr _logger;
-    Ice::PropertiesPtr _properties;
+
+    const IceInternal::ProtocolPluginFacadePtr _protocolPluginFacade;
+    const TraceLevelsPtr _traceLevels;
+    const Ice::LoggerPtr _logger;
+    const Ice::StatsPtr _stats;
+    const Ice::PropertiesPtr _properties;
 
     IceSSL::ServerContext _serverContext;
     IceSSL::ClientContext _clientContext;

@@ -13,6 +13,7 @@
 // **********************************************************************
 
 #include <Ice/LoggerUtil.h>
+#include <Ice/Stats.h>
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
 #include <IceSSL/OpenSSL.h>
@@ -86,6 +87,11 @@ IceSSL::SslServerTransceiver::write(Buffer& buf, int timeout)
                     out << "sent " << bytesWritten << " of " << packetSize;
                     out << " bytes via ssl\n" << fdToString(SSL_get_fd(_sslConnection));
                 }
+
+		if(_stats)
+		{
+		    _stats->bytesSent(_name, bytesWritten);
+		}
 
                 totalBytesWritten += bytesWritten;
 

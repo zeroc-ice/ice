@@ -181,19 +181,18 @@ std::vector<unsigned long> IceSSL::OpenSSLPluginI::_threadIdCache;
 //
 IceSSL::OpenSSLPluginI::OpenSSLPluginI(const ProtocolPluginFacadePtr& protocolPluginFacade) :
     _protocolPluginFacade(protocolPluginFacade),
+    _traceLevels(new TraceLevels(_protocolPluginFacade)),
+    _logger(_protocolPluginFacade->getCommunicator()->getLogger()),
+    _stats(_protocolPluginFacade->getCommunicator()->getStats()),
+    _properties(_protocolPluginFacade->getCommunicator()->getProperties()),
     _serverContext(new TraceLevels(protocolPluginFacade),
                    protocolPluginFacade->getCommunicator()->getLogger(),
                    protocolPluginFacade->getCommunicator()->getProperties()),
     _clientContext(new TraceLevels(protocolPluginFacade),
                    protocolPluginFacade->getCommunicator()->getLogger(),
-                   protocolPluginFacade->getCommunicator()->getProperties())
+                   protocolPluginFacade->getCommunicator()->getProperties()),
+    _randSeeded(0)
 {
-    _logger = _protocolPluginFacade->getCommunicator()->getLogger();
-    _properties = _protocolPluginFacade->getCommunicator()->getProperties();
-    _traceLevels = new TraceLevels(_protocolPluginFacade);
-
-    _randSeeded = 0;
-
     SSL_load_error_strings();
 
     OpenSSL_add_ssl_algorithms();
@@ -710,6 +709,12 @@ LoggerPtr
 IceSSL::OpenSSLPluginI::getLogger() const
 {
     return _logger;
+}
+
+StatsPtr
+IceSSL::OpenSSLPluginI::getStats() const
+{
+    return _stats;
 }
 
 PropertiesPtr

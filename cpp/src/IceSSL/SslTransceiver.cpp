@@ -13,6 +13,7 @@
 // **********************************************************************
 
 #include <Ice/LoggerUtil.h>
+#include <Ice/Stats.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
@@ -168,6 +169,11 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
                         out << "received " << bytesRead << " of " << packetSize;
                         out << " bytes via ssl\n" << fdToString(SSL_get_fd(_sslConnection));
                     }
+
+		    if(_stats)
+		    {
+			_stats->bytesReceived(_name, bytesRead);
+		    }
 
                     totalBytesRead += bytesRead;
 
@@ -989,6 +995,8 @@ IceSSL::SslTransceiver::SslTransceiver(const OpenSSLPluginIPtr& plugin,
     _plugin(plugin),
     _traceLevels(plugin->getTraceLevels()),
     _logger(plugin->getLogger()),
+    _stats(plugin->getStats()),
+    _name("ssl"),
     _fd(fd),
     _certificateVerifier(certificateVerifier)
 {

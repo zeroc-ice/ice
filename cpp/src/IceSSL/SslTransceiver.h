@@ -16,6 +16,7 @@
 #define ICE_SSL_TRANSCEIVER_H
 
 #include <Ice/LoggerF.h>
+#include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Buffer.h>
 #include <IceUtil/Mutex.h>
@@ -205,9 +206,12 @@ protected:
     SslTransceiver(const OpenSSLPluginIPtr&, SOCKET, const IceSSL::CertificateVerifierPtr&, SSL*);
     virtual ~SslTransceiver();
 
-    OpenSSLPluginIPtr _plugin;
-    TraceLevelsPtr _traceLevels;
-    Ice::LoggerPtr _logger;
+    const OpenSSLPluginIPtr _plugin;
+    const TraceLevelsPtr _traceLevels;
+    const Ice::LoggerPtr _logger;
+    const Ice::StatsPtr _stats;
+    const std::string _name;
+
     SOCKET _fd;
     fd_set _rFdSet;
     fd_set _wFdSet;

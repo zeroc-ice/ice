@@ -16,6 +16,7 @@
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/LoggerUtil.h>
+#include <Ice/Stats.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
 #include <Ice/LocalException.h>
@@ -105,6 +106,11 @@ repeat:
 	out << "sent " << ret << " bytes via udp\n" << toString();
     }
     
+    if(_stats)
+    {
+	_stats->bytesSent(_name, ret);
+    }
+
     assert(ret == static_cast<int>(buf.b.size()));
     buf.i = buf.b.end();
 }
@@ -191,6 +197,11 @@ repeat:
 	out << "received " << ret << " bytes via udp\n" << toString();
     }
 
+    if(_stats)
+    {
+	_stats->bytesReceived(_name, ret);
+    }
+
     buf.b.resize(ret);
     buf.i = buf.b.end();
 }
@@ -248,6 +259,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const s
 IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, const string& host, int port, bool connect) :
     _traceLevels(instance->traceLevels()),
     _logger(instance->logger()),
+    _stats(instance->stats()),
+    _name("udp"),
     _incoming(true),
     _connect(connect)
 {

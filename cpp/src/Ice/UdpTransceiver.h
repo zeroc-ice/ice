@@ -18,6 +18,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
+#include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
 
 #ifndef _WIN32
@@ -53,14 +54,17 @@ private:
 
     friend class UdpEndpoint;
 
-    TraceLevelsPtr _traceLevels;
-    ::Ice::LoggerPtr _logger;
-    bool _incoming;
-    bool _connect;
+    const TraceLevelsPtr _traceLevels;
+    const Ice::LoggerPtr _logger;
+    const Ice::StatsPtr _stats;
+    const std::string _name;
+    const bool _incoming;
+
     SOCKET _fd;
     struct sockaddr_in _addr;
     fd_set _rFdSet;
     fd_set _wFdSet;
+    bool _connect;
 };
 
 }

@@ -18,6 +18,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
+#include <Ice/StatsF.h>
 #include <Ice/Transceiver.h>
 
 namespace IceInternal
@@ -44,8 +45,11 @@ private:
     friend class TcpConnector;
     friend class TcpAcceptor;
 
-    TraceLevelsPtr _traceLevels;
-    ::Ice::LoggerPtr _logger;
+    const TraceLevelsPtr _traceLevels;
+    const Ice::LoggerPtr _logger;
+    const Ice::StatsPtr _stats;
+    const std::string _name;
+    
     SOCKET _fd;
     fd_set _rFdSet;
     fd_set _wFdSet;
