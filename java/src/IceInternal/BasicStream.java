@@ -22,17 +22,32 @@ public class BasicStream
         _limit = 0;
         assert(_buf.limit() == _capacity);
 
-        _currentReadEncaps = null;
-        _currentWriteEncaps = null;
+        _readEncapsStack = null;
+        _writeEncapsStack = null;
+        _readEncapsCache = null;
+        _writeEncapsCache = null;
     }
 
     protected void
     finalize()
         throws Throwable
     {
-        _bufferManager.reclaim(_buf);
+        if (_buf != null)
+        {
+            _bufferManager.reclaim(_buf);
+        }
 
         super.finalize();
+    }
+
+    //
+    // Optional - deterministic destruction
+    //
+    public void
+    destroy()
+    {
+        _bufferManager.reclaim(_buf);
+        _buf = null;
     }
 
     public IceInternal.Instance
@@ -58,12 +73,18 @@ public class BasicStream
         other._limit = _limit;
         _limit = tmpLimit;
 
-        java.util.LinkedList tmpStack = other._readEncapsStack;
+        ReadEncaps tmpRead = other._readEncapsStack;
         other._readEncapsStack = _readEncapsStack;
-        _readEncapsStack = tmpStack;
-        tmpStack = other._writeEncapsStack;
+        _readEncapsStack = tmpRead;
+        tmpRead = other._readEncapsCache;
+        other._readEncapsCache = _readEncapsCache;
+        _readEncapsCache = tmpRead;
+        WriteEncaps tmpWrite = other._writeEncapsStack;
         other._writeEncapsStack = _writeEncapsStack;
-        _writeEncapsStack = tmpStack;
+        _writeEncapsStack = tmpWrite;
+        tmpWrite = other._writeEncapsCache;
+        other._writeEncapsCache = _writeEncapsCache;
+        _writeEncapsCache = tmpWrite;
     }
 
     private static final int MAX = 1024 * 1024; // TODO: Configurable
@@ -119,26 +140,30 @@ public class BasicStream
     {
         writeInt(0); // Encoding
         writeInt(0); // Placeholder for the encapsulation length
-        _currentWriteEncaps = new WriteEncaps();
-        _currentWriteEncaps.encoding = 0;
-        _currentWriteEncaps.start = _buf.position();
-        _writeEncapsStack.add(_currentWriteEncaps);
+        WriteEncaps curr = _writeEncapsCache;
+        if (curr != null)
+        {
+            _writeEncapsCache = _writeEncapsCache.next;
+        }
+        else
+        {
+            curr = new WriteEncaps();
+        }
+        curr.encoding = 0;
+        curr.start = _buf.position();
+        curr.next = _writeEncapsStack;
+        _writeEncapsStack = curr;
     }
 
     public void
     endWriteEncaps()
     {
-        assert(_currentWriteEncaps != null);
-        final int start = _currentWriteEncaps.start;
-        _writeEncapsStack.removeLast();
-        if (_writeEncapsStack.isEmpty())
-        {
-            _currentWriteEncaps = null;
-        }
-        else
-        {
-            _currentWriteEncaps = (WriteEncaps)_writeEncapsStack.getLast();
-        }
+        final WriteEncaps curr = _writeEncapsStack;
+        assert(curr != null);
+        final int start = curr.start;
+        _writeEncapsStack = curr.next;
+        curr.next = _writeEncapsCache;
+        _writeEncapsCache = curr;
         final int sz = _buf.position() - start;
         _buf.putInt(start - 4, sz);
     }
@@ -152,26 +177,30 @@ public class BasicStream
             throw new Ice.UnsupportedEncodingException();
         }
         int sz = readInt();
-        _currentReadEncaps = new ReadEncaps();
-        _currentReadEncaps.encoding = (byte)encoding;
-        _currentReadEncaps.start = _buf.position();
-        _readEncapsStack.add(_currentReadEncaps);
+        ReadEncaps curr = _readEncapsCache;
+        if (curr != null)
+        {
+            _readEncapsCache = _readEncapsCache.next;
+        }
+        else
+        {
+            curr = new ReadEncaps();
+        }
+        curr.encoding = (byte)encoding;
+        curr.start = _buf.position();
+        curr.next = _readEncapsStack;
+        _readEncapsStack = curr;
     }
 
     public void
     endReadEncaps()
     {
-        assert(_currentReadEncaps != null);
-        final int start = _currentReadEncaps.start;
-        _readEncapsStack.removeLast();
-        if (_readEncapsStack.isEmpty())
-        {
-            _currentReadEncaps = null;
-        }
-        else
-        {
-            _currentReadEncaps = (ReadEncaps)_readEncapsStack.getLast();
-        }
+        final ReadEncaps curr = _readEncapsStack;
+        assert(curr != null);
+        final int start = curr.start;
+        _readEncapsStack = curr.next;
+        curr.next = _readEncapsCache;
+        _readEncapsCache = curr;
         final int sz = _buf.getInt(start - 4);
         try
         {
@@ -186,9 +215,9 @@ public class BasicStream
     public void
     checkReadEncaps()
     {
-        assert(_currentReadEncaps != null);
-        final int sz = _buf.getInt(_currentReadEncaps.start - 4);
-        if (sz != _buf.position() - _currentReadEncaps.start)
+        assert(_readEncapsStack != null);
+        final int sz = _buf.getInt(_readEncapsStack.start - 4);
+        if (sz != _buf.position() - _readEncapsStack.start)
         {
             throw new Ice.EncapsulationException();
         }
@@ -197,8 +226,8 @@ public class BasicStream
     public int
     getReadEncapsSize()
     {
-        assert(_currentReadEncaps != null);
-        return _buf.getInt(_currentReadEncaps.start - 4);
+        assert(_readEncapsStack != null);
+        return _buf.getInt(_readEncapsStack.start - 4);
     }
 
     public void
@@ -588,11 +617,10 @@ public class BasicStream
         writeInt(len);
         if (len > 0)
         {
-            final char[] arr = v.toCharArray();
             expand(len);
             for (int i = 0; i < len; i++)
             {
-                _buf.put((byte)arr[i]);
+                _buf.put((byte)v.charAt(i));
             }
         }
     }
@@ -674,16 +702,23 @@ public class BasicStream
     public void
     writeObject(Ice.Object v)
     {
-        if (_currentWriteEncaps == null) // Lazy initialization
+        if (_writeEncapsStack == null) // Lazy initialization
         {
-            _currentWriteEncaps = new WriteEncaps();
-            _writeEncapsStack.add(_currentWriteEncaps);
+            _writeEncapsStack = _writeEncapsCache;
+            if (_writeEncapsStack != null)
+            {
+                _writeEncapsCache = _writeEncapsCache.next;
+            }
+            else
+            {
+                _writeEncapsStack = new WriteEncaps();
+            }
         }
 
         Integer pos = null;
-        if (_currentWriteEncaps.objectsWritten != null) // Lazy creation
+        if (_writeEncapsStack.objectsWritten != null) // Lazy creation
         {
-            pos = (Integer)_currentWriteEncaps.objectsWritten.get(v);
+            pos = (Integer)_writeEncapsStack.objectsWritten.get(v);
         }
         if (pos != null)
         {
@@ -695,13 +730,12 @@ public class BasicStream
 
             if (v != null)
             {
-                if (_currentWriteEncaps.objectsWritten == null)
+                if (_writeEncapsStack.objectsWritten == null)
                 {
-                    _currentWriteEncaps.objectsWritten =
-                        new java.util.IdentityHashMap();
+                    _writeEncapsStack.objectsWritten = new java.util.IdentityHashMap();
                 }
-                int num = _currentWriteEncaps.objectsWritten.size();
-                _currentWriteEncaps.objectsWritten.put(v, new Integer(num));
+                int num = _writeEncapsStack.objectsWritten.size();
+                _writeEncapsStack.objectsWritten.put(v, new Integer(num));
                 writeString(v.__getClassIds()[0]);
                 v.__write(this);
             }
@@ -717,22 +751,29 @@ public class BasicStream
     {
         Ice.Object v = null;
 
-        if (_currentReadEncaps == null) // Lazy initialization
+        if (_readEncapsStack == null) // Lazy initialization
         {
-            _currentReadEncaps = new ReadEncaps();
-            _readEncapsStack.add(_currentReadEncaps);
+            _readEncapsStack = _readEncapsCache;
+            if (_readEncapsStack != null)
+            {
+                _readEncapsCache = _readEncapsCache.next;
+            }
+            else
+            {
+                _readEncapsStack = new ReadEncaps();
+            }
         }
 
         final int pos = readInt();
 
         if (pos >= 0)
         {
-            if (_currentReadEncaps.objectsRead == null || // Lazy creation
-                pos >= _currentReadEncaps.objectsRead.size())
+            if (_readEncapsStack.objectsRead == null || // Lazy creation
+                pos >= _readEncapsStack.objectsRead.size())
             {
                 throw new Ice.IllegalIndirectionException();
             }
-            v = (Ice.Object)_currentReadEncaps.objectsRead.get(pos);
+            v = (Ice.Object)_readEncapsStack.objectsRead.get(pos);
         }
         else
         {
@@ -766,11 +807,11 @@ public class BasicStream
                     throw new Ice.NoObjectFactoryException();
                 }
             }
-            if (_currentReadEncaps.objectsRead == null) // Lazy creation
+            if (_readEncapsStack.objectsRead == null) // Lazy creation
             {
-                _currentReadEncaps.objectsRead = new java.util.ArrayList(10);
+                _readEncapsStack.objectsRead = new java.util.ArrayList(10);
             }
-            _currentReadEncaps.objectsRead.add(v);
+            _readEncapsStack.objectsRead.add(v);
             v.__read(this);
         }
 
@@ -868,6 +909,7 @@ public class BasicStream
         int start;
         byte encoding;
         java.util.ArrayList objectsRead;
+        ReadEncaps next;
     }
 
     private static class WriteEncaps
@@ -875,10 +917,11 @@ public class BasicStream
         int start;
         byte encoding;
         java.util.IdentityHashMap objectsWritten;
+        WriteEncaps next;
     }
 
-    private java.util.LinkedList _readEncapsStack = new java.util.LinkedList();
-    private java.util.LinkedList _writeEncapsStack = new java.util.LinkedList();
-    private ReadEncaps _currentReadEncaps;
-    private WriteEncaps _currentWriteEncaps;
+    private ReadEncaps _readEncapsStack;
+    private WriteEncaps _writeEncapsStack;
+    private ReadEncaps _readEncapsCache;
+    private WriteEncaps _writeEncapsCache;
 }

@@ -72,9 +72,8 @@ public final class Outgoing
         _os.startWriteEncaps();
     }
 
-    protected void
-    finalize()
-        throws Throwable
+    public void
+    destroy()
     {
         if (_state == StateUnsent &&
             (_reference.mode == Reference.ModeBatchOneway ||
@@ -83,7 +82,8 @@ public final class Outgoing
             _connection.abortBatchRequest();
         }
 
-        super.finalize();
+        _os.destroy();
+        _is.destroy();
     }
 
     // Returns true if ok, false if user exception.

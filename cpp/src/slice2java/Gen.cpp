@@ -2742,6 +2742,8 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	bool nonmutating = find(metaData.begin(), metaData.end(), "nonmutating") != metaData.end();
         out << nl << "IceInternal.Outgoing __out = new IceInternal.Outgoing(__connection, __reference, \""
             << op->name() << "\", " << (nonmutating ? "true" : "false") << ", __context);";
+        out << nl << "try";
+        out << sb;
         if (!inParams.empty())
         {
             out << nl << "IceInternal.BasicStream __os = __out.os();";
@@ -2822,6 +2824,12 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             writeMarshalUnmarshalCode(out, scope, ret, "__ret", false, iter);
             out << nl << "return __ret;";
         }
+
+        out << eb;
+        out << nl << "finally";
+        out << sb;
+        out << nl << "__out.destroy();";
+        out << eb;
 
         out << eb;
     }

@@ -592,31 +592,38 @@ catch (RuntimeException ex)
                 // ignore the event in this case.
                 //
                 BasicStream stream = new BasicStream(_instance);
-                if (handler.readable())
+                try
                 {
-                    try
+                    if (handler.readable())
                     {
-                        if (!read(handler)) // No data available.
+                        try
                         {
+                            if (!read(handler)) // No data available.
+                            {
 //System.out.println("ThreadPool - no input");
+                                continue repeatSelect;
+                            }
+                        }
+                        catch (Ice.TimeoutException ex) // Expected
+                        {
                             continue repeatSelect;
                         }
-                    }
-                    catch (Ice.TimeoutException ex) // Expected
-                    {
-                        continue repeatSelect;
-                    }
-                    catch (Ice.LocalException ex)
-                    {
-                        handler.exception(ex);
-                        continue repeatSelect;
+                        catch (Ice.LocalException ex)
+                        {
+                            handler.exception(ex);
+                            continue repeatSelect;
+                        }
+
+                        stream.swap(handler._stream);
+                        assert(stream.pos() == stream.size());
                     }
 
-                    stream.swap(handler._stream);
-                    assert(stream.pos() == stream.size());
+                    handler.message(stream);
                 }
-
-                handler.message(stream);
+                finally
+                {
+                    stream.destroy();
+                }
 
                 break;
             }

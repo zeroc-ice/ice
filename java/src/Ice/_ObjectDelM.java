@@ -18,14 +18,21 @@ public class _ObjectDelM implements _ObjectDel
     {
         IceInternal.Outgoing __out =
             new IceInternal.Outgoing(__connection, __reference, "ice_isA", true, __context);
-        IceInternal.BasicStream __is = __out.is();
-        IceInternal.BasicStream __os = __out.os();
-        __os.writeString(__id);
-        if (!__out.invoke())
+        try
         {
-            throw new UnknownUserException();
+            IceInternal.BasicStream __is = __out.is();
+            IceInternal.BasicStream __os = __out.os();
+            __os.writeString(__id);
+            if (!__out.invoke())
+            {
+                throw new UnknownUserException();
+            }
+            return __is.readBool();
         }
-        return __is.readBool();
+        finally
+        {
+            __out.destroy();
+        }
     }
 
     public void
@@ -34,9 +41,16 @@ public class _ObjectDelM implements _ObjectDel
     {
         IceInternal.Outgoing __out =
             new IceInternal.Outgoing(__connection, __reference, "ice_ping", true, __context);
-        if (!__out.invoke())
+        try
         {
-            throw new UnknownUserException();
+            if (!__out.invoke())
+            {
+                throw new UnknownUserException();
+            }
+        }
+        finally
+        {
+            __out.destroy();
         }
     }
 
@@ -46,13 +60,19 @@ public class _ObjectDelM implements _ObjectDel
     {
         IceInternal.Outgoing __out =
             new IceInternal.Outgoing(__connection, __reference, "ice_ids", true, __context);
-        IceInternal.BasicStream __is = __out.is();
-        IceInternal.BasicStream __os = __out.os();
-        if (!__out.invoke())
+        try
         {
-            throw new UnknownUserException();
+            IceInternal.BasicStream __is = __out.is();
+            if (!__out.invoke())
+            {
+                throw new UnknownUserException();
+            }
+            return __is.readStringSeq();
         }
-        return __is.readStringSeq();
+        finally
+        {
+            __out.destroy();
+        }
     }
 
     public String
@@ -61,13 +81,19 @@ public class _ObjectDelM implements _ObjectDel
     {
         IceInternal.Outgoing __out =
             new IceInternal.Outgoing(__connection, __reference, "ice_id", true, __context);
-        IceInternal.BasicStream __is = __out.is();
-        IceInternal.BasicStream __os = __out.os();
-        if (!__out.invoke())
+        try
         {
-            throw new UnknownUserException();
+            IceInternal.BasicStream __is = __out.is();
+            if (!__out.invoke())
+            {
+                throw new UnknownUserException();
+            }
+            return __is.readString();
         }
-        return __is.readString();
+        finally
+        {
+            __out.destroy();
+        }
     }
 
     public String[]
@@ -76,13 +102,19 @@ public class _ObjectDelM implements _ObjectDel
     {
         IceInternal.Outgoing __out =
             new IceInternal.Outgoing(__connection, __reference, "ice_facets", true, __context);
-        IceInternal.BasicStream __is = __out.is();
-        IceInternal.BasicStream __os = __out.os();
-        if (!__out.invoke())
+        try
         {
-            throw new UnknownUserException();
+            IceInternal.BasicStream __is = __out.is();
+            if (!__out.invoke())
+            {
+                throw new UnknownUserException();
+            }
+            return __is.readStringSeq();
         }
-        return __is.readStringSeq();
+        finally
+        {
+            __out.destroy();
+        }
     }
 
     public boolean
@@ -92,16 +124,23 @@ public class _ObjectDelM implements _ObjectDel
     {
         IceInternal.Outgoing __out =
             new IceInternal.Outgoing(__connection, __reference, operation, nonmutating, __context);
-        IceInternal.BasicStream __os = __out.os();
-        __os.writeBlob(inParams);
-        boolean ok = __out.invoke();
-        if (__reference.mode == IceInternal.Reference.ModeTwoway)
+        try
         {
-            IceInternal.BasicStream __is = __out.is();
-            int sz = __is.getReadEncapsSize();
-            outParams.value = __is.readBlob(sz);
+            IceInternal.BasicStream __os = __out.os();
+            __os.writeBlob(inParams);
+            boolean ok = __out.invoke();
+            if (__reference.mode == IceInternal.Reference.ModeTwoway)
+            {
+                IceInternal.BasicStream __is = __out.is();
+                int sz = __is.getReadEncapsSize();
+                outParams.value = __is.readBlob(sz);
+            }
+            return ok;
         }
-        return ok;
+        finally
+        {
+            __out.destroy();
+        }
     }
 
     public void
