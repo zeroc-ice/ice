@@ -1175,14 +1175,14 @@ Operation::throwException(IceInternal::BasicStream& is TSRMLS_DC)
             is.skipSlice();
             is.read(id);
         }
-        //
-        // Getting here should be impossible: we can get here only if the
-        // sender has marshaled a sequence of type IDs, none of which we
-        // have factory for. This means that sender and receiver disagree
-        // about the Slice definitions they use.
-        //
-        throw Ice::UnknownUserException(__FILE__, __LINE__);
     }
+    //
+    // Getting here should be impossible: we can get here only if the
+    // sender has marshaled a sequence of type IDs, none of which we
+    // have factory for. This means that sender and receiver disagree
+    // about the Slice definitions they use.
+    //
+    throw Ice::UnknownUserException(__FILE__, __LINE__);
 }
 
 Proxy::Proxy(const Ice::ObjectPrx& proxy, const Slice::ClassDefPtr& cls) :
