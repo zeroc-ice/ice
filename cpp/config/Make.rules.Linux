@@ -63,12 +63,12 @@ ifeq ($(USE_SPARC_ASM),no)
 CFLAGS                  := -O3 -mcpu=v8 -pipe -DNDEBUG -fPIC -DICE_USE_MUTEX_SHARED
 endif
 
-mkshlib                 = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4)
+mkshlib                 = $(CXX) -shared $(LDFLAGS) -o $(1) -Wl,-h,$(2) $(3) $(4) -lpthread
 
 BASELIBS		= -lIceUtil $(STLPORT_LIBS) -lpthread 
 LIBS			= -lIce $(BASELIBS)
 
-ICEUTIL_OS_LIBS         = -lpthread
+ICEUTIL_OS_LIBS         = 
 ICE_OS_LIBS             = -ldl
 
 PLATFORM_HAS_READLINE   := yes
