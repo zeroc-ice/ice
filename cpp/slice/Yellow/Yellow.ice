@@ -26,6 +26,8 @@ module Yellow
  **/
 exception NoSuchOfferException
 {
+    /** The interface to which there is no corresponding offer. */
+    string intf;
 };
 
 /**

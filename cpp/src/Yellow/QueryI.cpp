@@ -26,7 +26,9 @@ Yellow::QueryI::lookup(const string& intf, const Current&)
     StringObjectProxySeqDict::const_iterator p = _dict.find(intf);
     if(p == _dict.end())
     {
-	throw NoSuchOfferException();
+	NoSuchOfferException e;
+	e.intf = intf;
+	throw e;
     }
     
     int r = rand() % p->second.size();
@@ -39,7 +41,9 @@ Yellow::QueryI::lookupAll(const string& intf, const Current&)
     StringObjectProxySeqDict::const_iterator p = _dict.find(intf);
     if(p == _dict.end())
     {
-	throw NoSuchOfferException();
+	NoSuchOfferException e;
+	e.intf = intf;
+	throw e;
     }
     return p->second;
 }
