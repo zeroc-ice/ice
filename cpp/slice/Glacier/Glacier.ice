@@ -57,6 +57,8 @@ interface Starter
      *
      * @param userId The user id for which to check the password.
      * @param password The password for the given user id.
+     * @param privateKey The RSA Private Key (DER encoded) for the client to use.
+     * @param publicKey The RSA Public Key (DER encoded) for the client to use.
      *
      * @return A proxy to the router that has been started.
      *
