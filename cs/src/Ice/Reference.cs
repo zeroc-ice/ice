@@ -35,31 +35,63 @@ namespace IceInternal
 	    return _identity;
 	}
 
-	public Ice.Context getContext()
-	{
-	    if(_hasContext)
-	    {
-	        return _context == null ? _emptyContext : _context;
-	    }
-	    else
-	    {
-		return _instance.getDefaultContext();
-	    }
-	}
-
 	public string getFacet()
 	{
 	    return _facet;
 	}
 
-	public bool getSecure()
-	{
-	    return _secure;
-	}
-
 	public Instance getInstance()
 	{
 	    return _instance;
+	}
+
+	public Ice.Context getContext()
+	{
+	    return _hasContext ? _context : _instance.getDefaultContext();
+	}
+
+	public Reference defaultContext()
+	{
+	    if(!_hasContext)
+	    {
+		return this;
+	    }
+	    Reference r = _instance.referenceFactory().copy(this);
+	    r._hasContext = false;
+	    r._context = _emptyContext;
+	    return r;
+	}
+
+	public abstract bool getSecure();
+	public abstract Endpoint[] getEndpoints();
+	public abstract bool getCollocationOptimization();
+
+	//
+	// The change* methods (here and in derived classes) create
+	// a new reference based on the existing one, with the
+	// corresponding value changed.
+	//
+	public Reference changeContext(Ice.Context newContext)
+	{
+	    if(newContext == null)
+	    {
+		newContext = _emptyContext;
+	    }
+	    if(_hasContext && newContext.Equals(_context))
+	    {
+		return this;
+	    }
+	    Reference r = _instance.referenceFactory().copy(this);
+	    r._hasContext = true;
+	    if(newContext.Count == 0)
+	    {
+		r._context = _emptyContext;
+	    }
+	    else
+	    {
+	        r._context = (Ice.Context)newContext.Clone();
+	    }
+	    return r;
 	}
 
 	public Reference changeMode(Mode newMode)
@@ -80,38 +112,7 @@ namespace IceInternal
 		return this;
 	    }
 	    Reference r = _instance.referenceFactory().copy(this);
-	    r._identity = newIdentity;
-	    return r;
-	}
-
-	public Reference changeContext(Ice.Context newContext)
-	{
-	    if(_hasContext && newContext.Equals(_context))
-	    {
-		return this;
-	    }
-	    Reference r = _instance.referenceFactory().copy(this);
-	    r._hasContext = true;
-	    if(newContext.Count == 0)
-	    {
-		r._context = _emptyContext;
-	    }
-	    else
-	    {
-	        r._context = (Ice.Context)newContext.Clone();
-	    }
-	    return r;
-	}
-
-	public Reference defaultContext()
-	{
-	    if(!_hasContext)
-	    {
-		return this;
-	    }
-	    Reference r = _instance.referenceFactory().copy(this);
-	    r._hasContext = false;
-	    r._context = _emptyContext;
+	    r._identity = newIdentity; // Identity is a value type, therefore a copy of newIdentity is made.
 	    return r;
 	}
 
@@ -131,92 +132,64 @@ namespace IceInternal
 	    return r;
 	}
 
-	public Reference changeSecure(bool newSecure)
+	public virtual Reference changeDefault()
 	{
-	    if(newSecure == _secure)
-	    {
-		return this;
-	    }
 	    Reference r = _instance.referenceFactory().copy(this);
-	    r._secure = newSecure;
+	    r._mode = Mode.ModeTwoway;
+	    r._hasContext = false;
+	    r._context = _emptyContext;
+	    r._facet = "";
 	    return r;
 	}
 
+	public abstract Reference changeSecure(bool newSecure);
+	public abstract Reference changeRouter(Ice.RouterPrx newRouter);
+	public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
+	public abstract Reference changeCompress(bool newCompress);
+	public abstract Reference changeTimeout(int newTimeout);
+	public abstract Reference changeCollocationOptimization(bool newCollocationOptimization);
+
 	public override int GetHashCode()
 	{
-	    //
-	    // Derived class must lock.
-	    //
-
-	    int h = (int)_mode;
-
-	    int sz = _identity.name.Length;
-	    for(int i = 0; i < sz; i++)
-	    {   
-		h = 5 * h + (int)_identity.name[i];
-	    }
-
-	    sz = _identity.category.Length;
-	    for(int i = 0; i < sz; i++)
-	    {   
-		h = 5 * h + (int)_identity.category[i];
-	    }
-
-	    if(_hasContext)
+	    lock(this)
 	    {
-		h = 5 * h + _context.GetHashCode();
+		if(_hashInitialized)
+		{
+		    return _hashValue;
+		}
+
+		int h = (int)_mode;
+
+		int sz = _identity.name.Length;
+		for(int i = 0; i < sz; i++)
+		{   
+		    h = 5 * h + (int)_identity.name[i];
+		}
+
+		sz = _identity.category.Length;
+		for(int i = 0; i < sz; i++)
+		{   
+		    h = 5 * h + (int)_identity.category[i];
+		}
+
+		if(_hasContext)
+		{
+		    h = 5 * h + _context.GetHashCode();
+		}
+
+		sz = _facet.Length;
+		for(int i = 0; i < sz; i++)
+		{   
+		    h = 5 * h + (int)_facet[i];
+		}
+
+		h = 5 * h + (getSecure() ? 1 : 0);
+
+		_hashValue = h;
+		_hashInitialized = true;
+
+		return h;
 	    }
-
-	    sz = _facet.Length;
-	    for(int i = 0; i < sz; i++)
-	    {   
-		h = 5 * h + (int)_facet[i];
-	    }
-
-	    h = 5 * h + (_secure ? 1 : 0);
-
-	    return h;
-	}
-
-	public override bool Equals(object obj)
-	{
-	    //
-	    // Note: if(this == obj) and type test are performed by each non-abstract derived class.
-	    //
-
-	    Reference r = (Reference)obj; // Guaranteed to succeed.
-
-	    if(_mode != r._mode)
-	    {
-		return false;
-	    }
-
-	    if(!_identity.Equals(r._identity))
-	    {
-		return false;
-	    }
-
-	    if(_hasContext != r._hasContext)
-	    {
-	        return false;
-	    }
-
-	    if(!_context.Equals(r._context))
-	    {
-		return false;
-	    }
-
-	    if(!_facet.Equals(r._facet))
-	    {
-		return false;
-	    }
-
-	    if(_secure != r._secure)
-	    {
-		return false;
-	    }
-
-	    return true;
 	}
 
 	//
@@ -244,7 +217,7 @@ namespace IceInternal
 
 	    s.writeByte((byte)_mode);
 
-	    s.writeBool(_secure);
+	    s.writeBool(getSecure());
 
 	    // Derived class writes the remainder of the reference.
 	}
@@ -327,7 +300,7 @@ namespace IceInternal
 		}
 	    }
 
-	    if(_secure)
+	    if(getSecure())
 	    {
 		s.Append(" -s");
 	    }
@@ -337,8 +310,49 @@ namespace IceInternal
 	    // Derived class writes the remainder of the string.
 	}
 
+	public abstract Ice.ConnectionI getConnection(out bool comp);
+
+	public override bool Equals(object obj)
+	{
+	    //
+	    // Note: if(this == obj) and type test are performed by each non-abstract derived class.
+	    //
+
+	    Reference r = (Reference)obj; // Guaranteed to succeed.
+
+	    if(_mode != r._mode)
+	    {
+		return false;
+	    }
+
+	    if(!_identity.Equals(r._identity))
+	    {
+		return false;
+	    }
+
+	    if(_hasContext != r._hasContext)
+	    {
+	        return false;
+	    }
+
+	    if(!_context.Equals(r._context))
+	    {
+		return false;
+	    }
+
+	    if(!_facet.Equals(r._facet))
+	    {
+		return false;
+	    }
+
+	    return true;
+	}
+
 	public Object Clone()
 	{
+	    //
+	    // A member-wise copy is safe because the members are immutable.
+	    //
 	    return MemberwiseClone();
 	}
 
@@ -350,7 +364,6 @@ namespace IceInternal
 	private Ice.Context _context;
 	private static Ice.Context _emptyContext = new Ice.Context();
 	private string _facet;
-	private bool _secure;
 
 	protected int _hashValue;
 	protected bool _hashInitialized;
@@ -359,8 +372,7 @@ namespace IceInternal
 		  	    Ice.Identity ident,
 		  	    Ice.Context ctx,
 		  	    string fac,
-		  	    Mode md,
-		  	    bool sec)
+		  	    Mode md)
 	{
 	    //
 	    // Validate string arguments.
@@ -372,10 +384,9 @@ namespace IceInternal
 	    _instance = inst;
 	    _mode = md;
 	    _identity = ident;
-	    _hasContext = false;
-	    _context = ctx;
+	    _hasContext = ctx != null && ctx.Count > 0;
+	    _context = ctx == null ? _emptyContext : ctx;
 	    _facet = fac;
-	    _secure = sec;
 	    _hashInitialized = false;
 	}
 
@@ -458,7 +469,7 @@ namespace IceInternal
 	    // secure endpoints by partitioning the endpoint vector, so that
 	    // non-secure endpoints come first.
 	    //
-	    if(_secure)
+	    if(getSecure())
 	    {
 		ArrayList tmp = new ArrayList();
 		foreach(Endpoint endpoint in endpoints)
@@ -575,7 +586,7 @@ namespace IceInternal
 	    // secure endpoints by partitioning the endpoint vector, so that
 	    // non-secure endpoints come first.
 	    //
-	    if(_secure)
+	    if(getSecure())
 	    {
 		ArrayList tmp = new ArrayList();
 		foreach(Ice.ConnectionI connection in connections)
@@ -649,16 +660,6 @@ namespace IceInternal
 	private static ConnectionComparator _connectionComparator = new ConnectionComparator();
 
 	private static System.Random _rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
-
-	public abstract Endpoint[] getEndpoints();
-	public abstract bool getCollocationOptimization();
-	public abstract Reference changeRouter(Ice.RouterPrx newRouter);
-	public abstract Reference changeLocator(Ice.LocatorPrx newLocator);
-	public abstract Reference changeDefault();
-	public abstract Reference changeCompress(bool newCompress);
-	public abstract Reference changeTimeout(int newTimeout);
-	public abstract Reference changeCollocationOptimization(bool newCollocationOptimization);
-	public abstract Ice.ConnectionI getConnection(out bool comp);
     }
 
     public class FixedReference : Reference
@@ -668,9 +669,8 @@ namespace IceInternal
 		       	      Ice.Context ctx,
 		       	      string fs,
 		       	      Reference.Mode md,
-		       	      bool sec,
 		       	      Ice.ConnectionI[] fixedConns)
-	    : base(inst, ident, ctx, fs, md, sec)
+	    : base(inst, ident, ctx, fs, md)
 	{
 	    _fixedConnections = fixedConns;
 	}
@@ -678,6 +678,11 @@ namespace IceInternal
 	public Ice.ConnectionI[] getFixedConnections()
 	{
 	    return _fixedConnections;
+	}
+
+	public override bool getSecure()
+	{
+	    return false;
 	}
 
 	public override Endpoint[] getEndpoints()
@@ -688,6 +693,40 @@ namespace IceInternal
 	public override bool getCollocationOptimization()
 	{
 	    return false;
+	}
+
+	public override Reference changeSecure(bool sec)
+	{
+	    return this;
+	}
+
+	public override Reference changeRouter(Ice.RouterPrx newRouter)
+	{
+	    return this;
+	}
+
+	public override Reference changeLocator(Ice.LocatorPrx newLocator)
+	{
+	    return this;
+	}
+
+	public override Reference changeCollocationOptimization(bool newCollocationOptimization)
+	{
+	    return this;
+	}
+
+	public override Reference changeCompress(bool newCompress)
+	{
+	    // TODO: FixedReferences should probably have a _compress flag,
+	    // that gets its default from the fixed connection this reference
+	    // refers to. This should be changable with changeCompress(), and
+	    // reset in changeDefault().
+	    return this;
+	}
+
+	public override Reference changeTimeout(int newTimeout)
+	{
+	    return this;
 	}
 
 	public override void streamWrite(BasicStream s)
@@ -714,51 +753,6 @@ namespace IceInternal
 	    return connection;
 	}
 
-	public override Reference changeRouter(Ice.RouterPrx newRouter)
-	{
-	    return this;
-	}
-
-	public override Reference changeLocator(Ice.LocatorPrx newLocator)
-	{
-	    return this;
-	}
-
-	public override Reference changeDefault()
-	{
-	    return this;
-	}
-
-	public override Reference changeCollocationOptimization(bool newCollocationOptimization)
-	{
-	    return this;
-	}
-
-	public override Reference changeCompress(bool newCompress)
-	{
-	    return this;
-	}
-
-	public override Reference changeTimeout(int newTimeout)
-	{
-	    return this;
-	}
-
-	public override int GetHashCode()
-	{
-	    lock(this)
-	    {
-		if(_hashInitialized)
-		{
-		    return _hashValue;
-		}
-
-		_hashInitialized = true;
-		_hashValue = base._hashValue * 5 + _fixedConnections.GetHashCode();
-		return _hashValue;
-	    }
-	}
-
 	public override bool Equals(object obj)
 	{
 	    if(object.ReferenceEquals(this, obj))
@@ -776,6 +770,14 @@ namespace IceInternal
 	    }
 	    return compare(_fixedConnections, rhs._fixedConnections);
 	}
+
+        //
+        // If we override Equals, we must also override GetHashCode.
+        //
+	public override int GetHashCode()
+	{
+            return base.GetHashCode();
+        }
 
 	private Ice.ConnectionI[] _fixedConnections;
     }
@@ -801,27 +803,46 @@ namespace IceInternal
 	    return new Endpoint[0];
 	}
 
+	public override bool getSecure()
+	{
+	    return _secure;
+	}
+
 	public override bool getCollocationOptimization()
 	{
 	    return _collocationOptimization;
 	}
 
+	public override Reference changeDefault()
+	{
+	    RoutableReference r = (RoutableReference)base.changeDefault();
+	    r._secure = false;
+	    r._routerInfo = getInstance().routerManager().get(getInstance().referenceFactory().getDefaultRouter());
+	    r._collocationOptimization = false;
+	    return r;
+	}
+
+	public override Reference changeSecure(bool newSecure)
+	{
+	    if(newSecure == _secure)
+	    {
+		return this;
+	    }
+	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
+	    r._secure = newSecure;
+	    return r;
+	}
+
 	public override Reference changeRouter(Ice.RouterPrx newRouter)
 	{
 	    RouterInfo newRouterInfo = getInstance().routerManager().get(newRouter);
-	    if(object.ReferenceEquals(newRouterInfo, _routerInfo))
+	    if(object.ReferenceEquals(newRouterInfo, _routerInfo) ||
+		    (newRouterInfo != null && _routerInfo != null && newRouterInfo.Equals(_routerInfo)))
 	    {
 		return this;
 	    }
 	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
 	    r._routerInfo = newRouterInfo;
-	    return r;
-	}
-
-	public override Reference changeDefault()
-	{
-	    RoutableReference r = (RoutableReference)getInstance().referenceFactory().copy(this);
-	    r._routerInfo = getInstance().routerManager().get(getInstance().referenceFactory().getDefaultRouter());
 	    return r;
 	}
 
@@ -836,20 +857,6 @@ namespace IceInternal
 	    return r;
 	}
 
-	public override int GetHashCode()
-	{
-	    //
-	    // Derived class must lock.
-	    //
-
-	    if(_routerInfo != null)
-	    {
-		_hashValue = _hashValue * 5 + _routerInfo.GetHashCode();
-	    }
-	    _hashValue = _hashValue * 2 + _collocationOptimization.GetHashCode();
-	    return _hashValue;
-	}
-
 	public override bool Equals(object obj)
 	{
 	    //
@@ -861,12 +868,24 @@ namespace IceInternal
 		return false;
 	    }
 	    RoutableReference rhs = (RoutableReference)obj; // Guaranteed to succeed.
+	    if(_secure != rhs._secure)
+	    {
+		return false;
+	    }
 	    if(_collocationOptimization != rhs._collocationOptimization)
 	    {
 		return false;
 	    }
 	    return _routerInfo == null ? rhs._routerInfo == null : _routerInfo.Equals(rhs._routerInfo);
 	}
+
+        //
+        // If we override Equals, we must also override GetHashCode.
+        //
+	public override int GetHashCode()
+	{
+            return base.GetHashCode();
+        }
 
 	protected RoutableReference(Instance inst,
 			            Ice.Identity ident,
@@ -876,12 +895,14 @@ namespace IceInternal
 			            bool sec,
 			            RouterInfo rtrInfo,
 			            bool collocationOpt)
-	    : base(inst, ident, ctx, fac, md, sec)
+	    : base(inst, ident, ctx, fac, md)
 	{
+	    _secure = sec;
 	    _routerInfo = rtrInfo;
 	    _collocationOptimization = collocationOpt;
 	}
 
+	private bool _secure;
 	private RouterInfo _routerInfo; // Null if no router is used.
 	private bool _collocationOptimization;
     }
@@ -918,14 +939,37 @@ namespace IceInternal
 	    return r;
 	}
 
-	public override Reference changeLocator(Ice.LocatorPrx newLocator)
-	{
-	    return this;
-	}
-
 	public override Reference changeDefault()
 	{
-	    return this;
+	    //
+	    // Return an indirect reference if a default locator is set.
+	    //
+	    Ice.LocatorPrx loc = getInstance().referenceFactory().getDefaultLocator();
+	    if(loc != null)
+	    {
+		LocatorInfo newLocatorInfo = getInstance().locatorManager().get(loc);
+		return getInstance().referenceFactory().create(getIdentity(), null, "", Mode.ModeTwoway, false, "",
+                                                               null, newLocatorInfo, false);
+	    }
+	    else
+	    {
+		return base.changeDefault();
+	    }
+	}
+
+	public override Reference changeLocator(Ice.LocatorPrx newLocator)
+	{
+	    if(newLocator != null)
+	    {
+		LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
+		return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
+							       getSecure(), "", null, newLocatorInfo,
+							       getCollocationOptimization());
+	    }
+	    else
+	    {
+		return this;
+	    }
 	}
 
 	public override Reference changeCompress(bool newCompress)
@@ -1019,21 +1063,6 @@ namespace IceInternal
 	    return connection;
 	}
 
-	public override int GetHashCode()
-	{
-	    lock(this)
-	    {
-		if(_hashInitialized)
-		{
-		    return _hashValue;
-		}
-
-		_hashInitialized = true;
-		_hashValue = base._hashValue * 5 + _endpoints.GetHashCode();
-		return _hashValue;
-	    }
-	}
-
 	public override bool Equals(object obj)
 	{
 	    if(Object.ReferenceEquals(this, obj))
@@ -1051,6 +1080,14 @@ namespace IceInternal
 	    }
 	    return compare(_endpoints, rhs._endpoints);
 	}
+
+        //
+        // If we override Equals, we must also override GetHashCode.
+        //
+	public override int GetHashCode()
+	{
+            return base.GetHashCode();
+        }
 
 	private Endpoint[] _endpoints;
     }
@@ -1088,25 +1125,49 @@ namespace IceInternal
 	    return new Endpoint[0];
 	}
 
-	public override Reference changeLocator(Ice.LocatorPrx newLocator)
-	{
-	    LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
-
-	    if(object.ReferenceEquals(newLocatorInfo, _locatorInfo) ||
-		(_locatorInfo != null && newLocatorInfo != null && newLocatorInfo.Equals(_locatorInfo)))
-	    {
-		return this;
-	    }
-	    IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
-	    r._locatorInfo = newLocatorInfo;
-	    return this;
-	}
-
 	public override Reference changeDefault()
 	{
-	    IndirectReference r = (IndirectReference)base.changeDefault();
-	    r._locatorInfo = getInstance().locatorManager().get(getInstance().referenceFactory().getDefaultLocator());
-	    return r;
+	    //
+	    // Return a direct reference if no default locator is defined.
+	    //
+	    Ice.LocatorPrx loc = getInstance().referenceFactory().getDefaultLocator();
+	    if(loc == null)
+	    {
+		return getInstance().referenceFactory().create(getIdentity(), null, "", Mode.ModeTwoway, false,
+							       new Endpoint[0], getRouterInfo(), false);
+	    }
+	    else
+	    {
+		IndirectReference r = (IndirectReference)base.changeDefault();
+		r._locatorInfo = getInstance().locatorManager().get(loc);
+		return r;
+	    }
+	}
+
+	public override Reference changeLocator(Ice.LocatorPrx newLocator)
+	{
+	    //
+	    // Return a direct reference if a null locator is given.
+	    //
+	    if(newLocator == null)
+	    {
+		return getInstance().referenceFactory().create(getIdentity(), getContext(), getFacet(), getMode(),
+							       getSecure(), new Endpoint[0], getRouterInfo(),
+							       getCollocationOptimization());
+	    }
+	    else
+	    {
+		LocatorInfo newLocatorInfo = getInstance().locatorManager().get(newLocator);
+
+		if(object.ReferenceEquals(newLocatorInfo, _locatorInfo) ||
+		    (_locatorInfo != null && newLocatorInfo != null && newLocatorInfo.Equals(_locatorInfo)))
+		{
+		    return this;
+		}
+		IndirectReference r = (IndirectReference)getInstance().referenceFactory().copy(this);
+		r._locatorInfo = newLocatorInfo;
+		return this;
+	    }
 	}
 
 	public override Reference changeCompress(bool newCompress)
@@ -1242,25 +1303,6 @@ namespace IceInternal
 	    return connection;
 	}
 
-	public override int GetHashCode()
-	{
-	    lock(this)
-	    {
-		if(_hashInitialized)
-		{
-		    return _hashValue;
-		}
-
-		_hashInitialized = true;
-		_hashValue = base._hashValue * 5 + _adapterId.GetHashCode();
-		if(_locatorInfo != null)
-		{
-		    _hashValue = _hashValue * 5 + _locatorInfo.GetHashCode();
-		}
-		return _hashValue;
-	    }
-	}
-
 	public override bool Equals(object obj)
 	{
 	    if(object.ReferenceEquals(this, obj))
@@ -1276,8 +1318,21 @@ namespace IceInternal
 	    {
 		return false;
 	    }
-	    return _adapterId.Equals(rhs._adapterId) && _locatorInfo.Equals(rhs._locatorInfo);
+	    if(!_adapterId.Equals(rhs._adapterId))
+	    {
+		return false;
+	    }
+	    return object.ReferenceEquals(_locatorInfo, rhs._locatorInfo) ||
+		(_locatorInfo != null && rhs._locatorInfo != null && rhs._locatorInfo.Equals(_locatorInfo));
 	}
+
+        //
+        // If we override Equals, we must also override GetHashCode.
+        //
+	public override int GetHashCode()
+	{
+            return base.GetHashCode();
+        }
 
 	private string _adapterId;
 	private LocatorInfo _locatorInfo;

@@ -906,7 +906,7 @@ namespace Ice
 		connections[0] = this;
 		IceInternal.Reference @ref = _instance.referenceFactory().create(ident, new Context(), "",
 										 IceInternal.Reference.Mode.ModeTwoway,
-										 false, true, connections);
+										 connections);
 		return _instance.proxyFactory().referenceToProxy(@ref);
 	    }
 	}

@@ -468,7 +468,7 @@ namespace Ice
 		}
                 IceInternal.Reference @ref = _instance.referenceFactory().create(ident, new Ice.Context(), "",
                                                                                  IceInternal.Reference.Mode.ModeTwoway,
-                                                                                 false, true, arr);
+                                                                                 arr);
 		return _instance.proxyFactory().referenceToProxy(@ref);
 	    }
 	}

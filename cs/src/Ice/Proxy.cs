@@ -263,7 +263,7 @@ namespace Ice
 
         public ObjectPrx ice_newContext(Context newContext)
         {
-            if(_reference.hasContext() && newContext.Equals(_reference.getContext()))
+            if(_reference.hasContext() && newContext != null && newContext.Equals(_reference.getContext()))
             {
                 return this;
             }

@@ -83,8 +83,6 @@ namespace IceInternal
 	                        Ice.Context context,
 	                        string facet,
 	                        Reference.Mode mode,
-	                        bool secure,
-	                        bool collocationOptimization,
 	                        Ice.ConnectionI[] fixedConnections)
 	{
 	    lock(this)
@@ -102,8 +100,7 @@ namespace IceInternal
 		//
 		// Create new reference
 		//
-		FixedReference @ref = new FixedReference(_instance, ident, context, facet, mode, secure,
-		                                         fixedConnections);
+		FixedReference @ref = new FixedReference(_instance, ident, context, facet, mode, fixedConnections);
 		return updateCache(@ref);
 	    }
 	}
