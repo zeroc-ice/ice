@@ -21,19 +21,19 @@ class ICE_API EndpointI : virtual public Shared
 {
 public:
 
-    EndpointI(const std::string&, int, bool = false);
+    EndpointI(const std::string&, int, int = -1);
     virtual ~EndpointI();
-
-    bool operator==(const EndpointI&) const;
-    bool operator!=(const EndpointI&) const;
-    bool operator<(const EndpointI&) const;
 
     //
     // All  members are const, because Endpoints are immutable.
     //
     const std::string host;
     const int port;
-    const bool datagram;
+    const int timeout;
+
+    bool operator==(const EndpointI&) const;
+    bool operator!=(const EndpointI&) const;
+    bool operator<(const EndpointI&) const;
 
 private:
 

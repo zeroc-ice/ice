@@ -30,6 +30,7 @@ public:
 
     Object _oneway() const;
     Object _twoway() const;
+    Object _timeout(int) const;
 
     ::__Ice::Reference __reference() const;
     void __copyTo(ObjectI*) const;

@@ -31,7 +31,7 @@ class ConnectorI : public Shared
 {
 public:
     
-    Transceiver connect();
+    Transceiver connect(int);
     std::string toString() const;
     
 private:

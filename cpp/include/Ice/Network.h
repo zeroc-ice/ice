@@ -65,24 +65,33 @@ bool interrupted();
 bool acceptInterrupted();
 bool noBuffers();
 bool wouldBlock();
-bool notConnected();
 bool connectFailed();
+bool connectInProgress();
 bool connectionLost();
-void setBlock(int, bool);
+bool notConnected();
+
+int createSocket();
 void closeSocket(int);
+
+void setBlock(int, bool);
 void setTcpNoDelay(int);
 void setKeepAlive(int);
 void setSendBufferSize(int, int);
-void getHostByName(const char*, int, struct sockaddr_in&);
+
 void doBind(int, struct sockaddr_in&);
 void doListen(int, int);
-void doConnect(int, struct sockaddr_in&);
-int doAccept(int);
+bool doConnect(int, struct sockaddr_in&, int);
+int doAccept(int, int);
+
+void getHostByName(const char*, int, struct sockaddr_in&);
+
 void createPipe(int fds[2]);
+
 const char* errorToString(int);
 const char* errorToStringDNS(int);
 const char* lastErrorToString();
 const char* lastErrorToStringDNS();
+
 std::string fdToString(int);
 std::string addrToString(const struct sockaddr_in&);
 

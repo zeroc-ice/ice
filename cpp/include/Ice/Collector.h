@@ -50,8 +50,11 @@ public:
     //
     // Operations from EventHandlerI
     //
-    virtual bool server();
-    virtual void receive();
+    virtual bool server() const;
+    virtual bool readable() const;
+    virtual void read(Stream&);
+    virtual void message(Stream&);
+    virtual void exception(const ::Ice::LocalException&);
     virtual void finished();
 
 private:
@@ -75,7 +78,6 @@ private:
     void closeConnection();
     void warning(const ::Ice::LocalException&) const;
 
-    Instance instance_;
     ::Ice::ObjectAdapter adapter_;
     ThreadPool threadPool_;
     Transceiver transceiver_;
@@ -98,8 +100,11 @@ public:
     //
     // Operations from EventHandlerI
     //
-    virtual bool server();
-    virtual void receive();
+    virtual bool server() const;
+    virtual bool readable() const;
+    virtual void read(Stream&);
+    virtual void message(Stream&);
+    virtual void exception(const ::Ice::LocalException&);
     virtual void finished();
     
 private:
@@ -123,7 +128,6 @@ private:
     void clearBacklog();
     void warning(const ::Ice::LocalException&) const;
 
-    Instance instance_;
     ::Ice::ObjectAdapter adapter_;
     ThreadPool threadPool_;
     Acceptor acceptor_;

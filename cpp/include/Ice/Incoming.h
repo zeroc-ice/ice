@@ -24,9 +24,8 @@ public:
     Incoming(const ::Ice::ObjectAdapter&);
     ~Incoming();
 
-    void invoke();
+    void invoke(Stream&);
 
-    Stream* is();
     Stream* os();
 
 private:
@@ -36,7 +35,6 @@ private:
 
     ::Ice::ObjectAdapter adapter_;
 
-    Stream is_;
     Stream os_;
 };
 

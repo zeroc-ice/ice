@@ -33,8 +33,8 @@ public:
     int fd();
     void close();
     void shutdown();
-    void write(Buffer&);
-    void read(Buffer&);
+    void write(Buffer&, int);
+    void read(Buffer&, int);
     std::string toString() const;
     
 private:
@@ -49,6 +49,8 @@ private:
 
     Instance instance_;
     int fd_;
+    fd_set rFdSet;
+    fd_set wFdSet;
 #ifndef ICE_NO_TRACE
     TraceLevels traceLevels_;
     ::Ice::Logger logger_;

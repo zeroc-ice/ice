@@ -26,9 +26,6 @@ public:
     ReferenceI(const Instance&, const std::string&, const Endpoint&);
     virtual ~ReferenceI();
 
-    bool operator==(const ReferenceI&) const;
-    bool operator!=(const ReferenceI&) const;
-
     //
     // All  members are const, because References are immutable.
     //
@@ -43,7 +40,12 @@ public:
     //
     Reference getOneway() const;
     Reference getTwoway() const;
+    Reference getTimeout(int) const;
  
+    bool operator==(const ReferenceI&) const;
+    bool operator!=(const ReferenceI&) const;
+    bool operator<(const ReferenceI&) const;
+
 private:
 
     ReferenceI(const ReferenceI&);

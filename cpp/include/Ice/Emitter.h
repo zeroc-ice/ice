@@ -45,8 +45,11 @@ public:
     //
     // Operations from EventHandlerI
     //
-    virtual bool server();
-    virtual void receive();
+    virtual bool server() const;
+    virtual bool readable() const;
+    virtual void read(Stream&);
+    virtual void message(Stream&);
+    virtual void exception(const ::Ice::LocalException&);
     virtual void finished();
 
 private:
@@ -54,7 +57,7 @@ private:
     EmitterI(const EmitterI&);
     void operator=(const EmitterI&);
 
-    EmitterI(const Instance&, const Transceiver&);
+    EmitterI(const Instance&, const Endpoint&, const Transceiver&);
     virtual ~EmitterI();
     friend class EmitterFactoryI; // May create EmitterIs
 
@@ -68,7 +71,7 @@ private:
 
     void setState(State, const ::Ice::LocalException&);
 
-    Instance instance_;
+    Endpoint endpoint_;
     ThreadPool threadPool_;
     Transceiver transceiver_;
     ::Ice::Int nextRequestId_;
@@ -98,6 +101,7 @@ private:
     friend class EmitterFactoryFactoryI; // May create EmitterFactoryIs
 
     Instance instance_;
+    Endpoint endpoint_;
     Connector connector_;
     Emitter emitter_;
 };

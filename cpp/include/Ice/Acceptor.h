@@ -30,13 +30,12 @@ class CollectorFactoryI;
 class AcceptorI : public Shared
 {
 public:
-    
+
     int fd();
     void close();
     void shutdown();
     void listen();
-    Transceiver accept();
-    Transceiver acceptNoBlock();
+    Transceiver accept(int);
     std::string toString() const;
 
 private:
@@ -48,8 +47,11 @@ private:
     virtual ~AcceptorI();
     friend class CollectorFactoryI; // May create AcceptorIs
 
+    void block(bool);
+
     Instance instance_;
     int fd_;
+    bool block_;
     int backlog_;
     struct sockaddr_in addr_;
 #ifndef ICE_NO_TRACE

@@ -20,13 +20,14 @@
 namespace __Ice
 {
 
+class Stream;
+
 class ICE_API ThreadPoolI : public Shared, public JTCMonitorT<JTCMutex>
 {
 public:
 
     void _register(int, const EventHandler&);
     void unregister(int);
-    void reregister(int);
     void waitUntilServerFinished();
     void waitUntilFinished();
     void joinWithAllThreads();
@@ -45,6 +46,7 @@ private:
     void setInterrupt();
 
     void run();
+    void read(const EventHandler&);
 
     Instance instance_;
     int lastFd_;
@@ -52,9 +54,8 @@ private:
     int fdIntrRead_;
     int fdIntrWrite_;
     fd_set fdSet_;
-    std::vector<std::pair<int, EventHandler> > newHandlers_;
+    std::vector<std::pair<int, EventHandler> > adds_;
     std::vector<int> removes_;
-    std::vector<int> adds_;
     std::map<int, EventHandler> handlers_;
     int servers_;
     JTCMutex threadMutex_;

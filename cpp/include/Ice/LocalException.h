@@ -95,6 +95,30 @@ public:
     virtual void raise() const;
 };
 
+class ICE_API TimeoutException : public SocketException
+{
+public:    
+
+    TimeoutException(const char*, int);
+    TimeoutException(const TimeoutException&);
+    TimeoutException& operator=(const TimeoutException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
+class ICE_API ConnectTimeoutException : public TimeoutException
+{
+public:    
+
+    ConnectTimeoutException(const char*, int);
+    ConnectTimeoutException(const ConnectTimeoutException&);
+    ConnectTimeoutException& operator=(const ConnectTimeoutException&);
+    virtual std::string toString() const;
+    virtual LocalException* clone() const;
+    virtual void raise() const;
+};
+
 class ICE_API ConnectFailedException : public SocketException
 {
 public:    
