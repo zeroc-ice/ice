@@ -390,6 +390,20 @@ SOURCE=.\dummy1.ice
 
 !IF  "$(CFG)" == "IcePackNode - Win32 Release"
 
+USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=.\dummy1.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --ice -I.. -I../../slice --include-dir IcePack  --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescription IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IcePack/Internal.ice
+
+"IdentityObjectDescDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"IdentityObjectDescDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "IcePackNode - Win32 Debug"
 
 USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"	
