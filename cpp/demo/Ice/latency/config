@@ -4,6 +4,8 @@ Ice.Adapter.LatencyAdapter.Endpoints=default -p 10000
 Ice.Security.Ssl.CertPath=../../../certs
 Ice.Security.Ssl.Config=./sslconfig.xml
 
-#Glacier.Router.Endpoints=default -p 10005
-#Glacier.Client.Endpoints=default
+Glacier.Router.Endpoints=default -p 10005
+Glacier.Client.Endpoints=default
+
+# Uncomment the following lines if you want to run this demo with Glacier
 #Ice.DefaultRouter=router:default -p 10005

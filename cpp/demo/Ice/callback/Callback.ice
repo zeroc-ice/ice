@@ -19,6 +19,7 @@ class CallbackReceiver
 class Callback
 {
     void initiateCallback(CallbackReceiver* proxy);
+    void shutdown();
 };
 
 #endif

@@ -20,9 +20,21 @@ CallbackReceiverI::callback(const Current&)
     cout << "received callback" << endl;
 }
 
+CallbackI::CallbackI(const Ice::CommunicatorPtr& communicator) :
+    _communicator(communicator)
+{
+}
+
 void
 CallbackI::initiateCallback(const CallbackReceiverPrx& proxy, const Current& current)
 {
     cout << "initiating callback" << endl;
     proxy->callback(current.context);
+}
+
+void
+CallbackI::shutdown(const Ice::Current&)
+{
+    cout << "Shutting down..." << endl;
+    _communicator->shutdown();
 }

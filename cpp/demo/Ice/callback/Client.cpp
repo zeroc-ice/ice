@@ -40,6 +40,7 @@ menu()
 	"D: send callback as batch datagram\n"
 	"f: flush all batch requests\n"
 	"S: switch secure mode on/off\n"
+	"s: shutdown server\n"
 	"x: exit\n"
 	"?: help\n";
 }
@@ -151,6 +152,10 @@ CallbackClient::run(int argc, char* argv[])
 		{
 		    cout << "secure mode is now off" << endl;
 		}
+	    }
+	    else if (c == 's')
+	    {
+		twoway->shutdown();
 	    }
 	    else if (c == 'x')
 	    {
