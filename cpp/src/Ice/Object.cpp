@@ -15,7 +15,6 @@
 #include <Ice/Object.h>
 #include <Ice/Incoming.h>
 #include <Ice/IncomingAsync.h>
-#include <Ice/Stream.h>
 #include <Ice/LocalException.h>
 
 using namespace std;
@@ -219,17 +218,24 @@ Ice::Object::__dispatch(Incoming& in, const Current& current)
 }
 
 void
-Ice::Object::__write(BasicStream* __os) const
+Ice::Object::__write(BasicStream* __os, bool __marshalFacets) const
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
     
     __os->writeTypeId(ice_staticId());
     __os->startWriteSlice();
-    __os->writeSize(Int(_activeFacetMap.size()));
-    for(map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
+    if(__marshalFacets)
     {
-	__os->write(p->first);
-	__os->write(p->second);
+        __os->writeSize(Int(_activeFacetMap.size()));
+        for(map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
+        {
+            __os->write(p->first);
+            __os->write(p->second);
+        }
+    }
+    else
+    {
+        __os->writeSize(0);
     }
     __os->endWriteSlice();
 }
@@ -263,66 +269,6 @@ Ice::Object::__read(BasicStream* __is, bool __rid)
     }
 
     __is->endReadSlice();
-}
-
-void
-Ice::Object::__marshal(const ::Ice::StreamPtr& __os, bool __marshalFacets) const
-{
-    if(__marshalFacets)
-    {
-	IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
-	
-	__os->startWriteDictionary("ice:facets", static_cast<Int>(_activeFacetMap.size()));
-	for(map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
-	{
-	    __os->startWriteDictionaryElement();
-	    __os->writeString("ice:key", p->first);
-	   
-	    __os->writeObject("ice:value", p->second);
-	       
-	    __os->endWriteDictionaryElement();
-	}
-    }
-    else
-    {
-	__os->startWriteDictionary("ice:facets", 0);
-    }
-    __os->endWriteDictionary();
-}
-
-
-void
-Ice::Object::__unmarshal(const ::Ice::StreamPtr& __is)
-{
-    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
- 
-    Int sz = __is->startReadDictionary("ice:facets");
-    
-    _activeFacetMap.clear();
-    _activeFacetMapHint = _activeFacetMap.end();
-    
-    while(sz-- > 0)
-    {
-	__is->startReadDictionaryElement();
-	pair<const string, ObjectPtr> v;
-	const_cast<string&>(v.first) = __is->readString("ice:key");
-	v.second = __is->readObject("ice:value", "", 0);
-	_activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, v);
-	__is->endReadDictionaryElement();
-    }
-    __is->endReadDictionary();
-}
-
-void
-Ice::Object::ice_marshal(const string& name, const ::Ice::StreamPtr& stream)
-{
-    stream->writeObject(name, this);
-}
-
-void
-Ice::Object::ice_unmarshal(const string& name, const ::Ice::StreamPtr& stream, ObjectPtr& value)
-{
-    value = stream->readObject(name, "", 0);
 }
 
 void

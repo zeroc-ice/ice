@@ -13,7 +13,6 @@
 // **********************************************************************
 
 #include <IcePack/ApplicationBuilder.h>
-#include <Ice/Xerces.h>
 
 using namespace std;
 using namespace IcePack;
@@ -105,8 +104,8 @@ public:
 
     ApplicationHandler(ApplicationBuilder&);
 
-    virtual void startElement(const XMLCh*, ICE_XERCES_NS AttributeList&); 
-    virtual void endElement(const XMLCh*);
+    virtual void startElement(const string&, const IceXML::Attributes&); 
+    virtual void endElement(const string&);
     
 private:
 
@@ -125,7 +124,7 @@ IcePack::ApplicationHandler::ApplicationHandler(ApplicationBuilder& builder) :
 }
 
 void 
-IcePack::ApplicationHandler::startElement(const XMLCh* name, ICE_XERCES_NS AttributeList& attrs)
+IcePack::ApplicationHandler::startElement(const string& name, const IceXML::Attributes& attrs)
 {
     ComponentHandler::startElement(name, attrs);
     if(!isCurrentTargetDeployable())
@@ -133,9 +132,7 @@ IcePack::ApplicationHandler::startElement(const XMLCh* name, ICE_XERCES_NS Attri
 	return;
     }
 
-    string str = toString(name);
-
-    if(str == "application")
+    if(name == "application")
     {
 	string basedir = getAttributeValueWithDefault(attrs, "basedir", "");
 	if(!basedir.empty())
@@ -143,11 +140,11 @@ IcePack::ApplicationHandler::startElement(const XMLCh* name, ICE_XERCES_NS Attri
 	    _builder.overrideBaseDir(basedir);
 	}
     }
-    else if(str == "node")
+    else if(name == "node")
     {
 	if(!_currentNode.empty())
 	{
-	    throw DeploySAXParseException("node element enclosed in an node element is not allowed", _locator);
+	    throw IceXML::ParserException(__FILE__, __LINE__, "node element enclosed in a node element is not allowed");
 	}
 	_currentNode = getAttributeValue(attrs, "name");
 
@@ -162,12 +159,12 @@ IcePack::ApplicationHandler::startElement(const XMLCh* name, ICE_XERCES_NS Attri
 	_savedBaseDir = _builder.substitute("${basedir}");
 	_builder.setBaseDir(getAttributeValueWithDefault(attrs, "basedir", ""));
     }
-    else if(str == "server")
+    else if(name == "server")
     {
 	if(_currentNode.empty())
 	{
-	    throw DeploySAXParseException("server element is not allowed outside the scope of a node element", 
-					  _locator);
+	    throw IceXML::ParserException(__FILE__, __LINE__,
+	                                  "server element is not allowed outside the scope of a node element");
 	}
 
 	string serverName = getAttributeValue(attrs, "name");
@@ -180,13 +177,11 @@ IcePack::ApplicationHandler::startElement(const XMLCh* name, ICE_XERCES_NS Attri
 }
 
 void
-IcePack::ApplicationHandler::endElement(const XMLCh* name)
+IcePack::ApplicationHandler::endElement(const string& name)
 {
-    string str = toString(name);    
-
     if(isCurrentTargetDeployable())
     {
-	if(str == "node")
+	if(name == "node")
 	{
 	    _currentNode = "";
 	    _builder.setBaseDir(_savedBaseDir);
@@ -222,15 +217,15 @@ IcePack::ApplicationBuilder::addServer(const string& name,
 {
     if(name.empty())
     {
-	throw DeploySAXParseException("name attribute value is empty", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "name attribute value is empty");
     }
     if(nodeName.empty())
     {
-	throw DeploySAXParseException("node attribute value is empty", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "node attribute value is empty");
     }
     if(descriptor.empty())
     {
-	throw DeploySAXParseException("descriptor attribute value is empty", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "descriptor attribute value is empty");
     }
     
     vector<string> targets = toTargets(additionalTargets);
@@ -243,7 +238,7 @@ IcePack::ApplicationBuilder::addServer(const string& name,
     }
     catch(const NodeNotExistException&)
     {
-	throw DeploySAXParseException("can't find node `" + nodeName + "'", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "can't find node `" + nodeName + "'");
     }
 
     //
@@ -257,7 +252,7 @@ IcePack::ApplicationBuilder::addServer(const string& name,
     }
     catch(::Ice::LocalException&)
     {
-	throw DeploySAXParseException("can't contact node `" + nodeName + "'", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "can't contact node `" + nodeName + "'");
     }
 }
 

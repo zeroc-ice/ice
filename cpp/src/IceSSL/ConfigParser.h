@@ -22,9 +22,7 @@
 #include <IceSSL/BaseCerts.h>
 #include <IceSSL/TempCerts.h>
 #include <IceSSL/TraceLevelsF.h>
-
-#include <Ice/Xerces.h>
-#include <xercesc/dom/DOM.hpp>
+#include <IceXML/Parser.h>
 
 namespace IceSSL
 {
@@ -48,7 +46,7 @@ public:
 
 private:
 
-    ICE_XERCES_NS DOMNode* _root;
+    IceXML::NodePtr _root;
     std::string _configFile;
     std::string _configPath;
 
@@ -57,34 +55,32 @@ private:
 
     // Parse tree walking utility methods.
     void popRoot(std::string&, std::string&, std::string&);
-    ICE_XERCES_NS DOMNode* find(std::string&);
-    ICE_XERCES_NS DOMNode* find(ICE_XERCES_NS DOMNode*, std::string&);
+    IceXML::NodePtr find(std::string&);
+    IceXML::NodePtr find(const IceXML::NodePtr&, std::string&);
 
     // Loading of the base elements of the file.
-    void getGeneral(ICE_XERCES_NS DOMNode*, GeneralConfig&);
-    void getCertAuth(ICE_XERCES_NS DOMNode*, CertificateAuthority&);
-    void getBaseCerts(ICE_XERCES_NS DOMNode*, BaseCertificates&);
-    void getTempCerts(ICE_XERCES_NS DOMNode*, TempCertificates&);
+    void getGeneral(const IceXML::NodePtr&, GeneralConfig&);
+    void getCertAuth(const IceXML::NodePtr&, CertificateAuthority&);
+    void getBaseCerts(const IceXML::NodePtr&, BaseCertificates&);
+    void getTempCerts(const IceXML::NodePtr&, TempCertificates&);
 
     // Loading of temporary certificates/params (Ephemeral Keys).
-    void loadDHParams(ICE_XERCES_NS DOMNode*, TempCertificates&);
-    void loadRSACert(ICE_XERCES_NS DOMNode*, TempCertificates&);
+    void loadDHParams(const IceXML::NodePtr&, TempCertificates&);
+    void loadRSACert(const IceXML::NodePtr&, TempCertificates&);
 
     // Populate with information from the indicated node in the parse tree.
-    void getCert(ICE_XERCES_NS DOMNode*, CertificateDesc&);
-    void getDHParams(ICE_XERCES_NS DOMNode*, DiffieHellmanParamsFile&);
+    void getCert(const IceXML::NodePtr&, CertificateDesc&);
+    void getDHParams(const IceXML::NodePtr&, DiffieHellmanParamsFile&);
 
     // Populate a certificate file object, basis of all certificates.
-    void loadCertificateFile(ICE_XERCES_NS DOMNode*, CertificateFile&);
+    void loadCertificateFile(const IceXML::NodePtr&, CertificateFile&);
 
-    // Detemines if the string represents an absolute pathname.
+    // Determines if the string represents an absolute pathname.
     bool isAbsolutePath(std::string&);
 
     // Parses the certificate encoding format from a string representation
     // to the proper integer value used by the underlying SSL framework.
     int parseEncoding(std::string&);
-
-    std::string toString(const XMLCh*);
 };
 
 }

@@ -54,9 +54,7 @@ public:
 
     virtual void destroy(const Ice::Current& = Ice::Current());
 
-    virtual void __write(::IceInternal::BasicStream*) const;
-
-    virtual void __marshal(const ::Ice::StreamPtr&, bool) const;
+    virtual void __write(::IceInternal::BasicStream*, bool) const;
 
 protected:
 
@@ -70,6 +68,7 @@ protected:
 class FacetI : public virtual Facet, public ServantI
 {
 public:
+
     FacetI();
 
     FacetI(const RemoteEvictorIPtr&, const Freeze::EvictorPtr&, Ice::Int, const std::string&);
@@ -78,17 +77,14 @@ public:
 
     virtual void setData(const std::string&, const Ice::Current& = Ice::Current());
 
-    virtual void __write(::IceInternal::BasicStream*) const;
-
-    virtual void __marshal(const ::Ice::StreamPtr&, bool) const;
+    virtual void __write(::IceInternal::BasicStream*, bool) const;
 };
 
 class RemoteEvictorI : virtual public RemoteEvictor
 {
 public:
 
-    RemoteEvictorI(const Ice::ObjectAdapterPtr&, const std::string&,
-                   const Freeze::EvictorPtr&);
+    RemoteEvictorI(const Ice::ObjectAdapterPtr&, const std::string&, const Freeze::EvictorPtr&);
 
     virtual void setSize(::Ice::Int, const Ice::Current&);
 
@@ -123,15 +119,14 @@ public:
 
     RemoteEvictorFactoryI(const Ice::ObjectAdapterPtr&, const std::string&);
 
-    virtual ::Test::RemoteEvictorPrx createEvictor(const ::std::string&,
-						   const Ice::Current&);
+    virtual ::Test::RemoteEvictorPrx createEvictor(const ::std::string&, const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
 
 private:
 
     Ice::ObjectAdapterPtr _adapter;
-    const std::string          _envName;
+    const std::string _envName;
 };
 
 }

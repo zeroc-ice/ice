@@ -52,6 +52,7 @@ IceInternal::BasicStream::BasicStream(Instance* instance) :
     _currentReadEncaps(0),
     _currentWriteEncaps(0),
     _traceSlicing(-1),
+    _marshalFacets(true),
     _messageSizeMax(_instance->messageSizeMax()) // Cached for efficiency.
 {
 }
@@ -1438,6 +1439,12 @@ IceInternal::BasicStream::readPendingObjects()
 }
 
 void
+IceInternal::BasicStream::marshalFacets(bool b)
+{
+    _marshalFacets = b;
+}
+
+void
 IceInternal::BasicStream::throwUnmarshalOutOfBoundsException(const char* file, int line)
 {
     throw UnmarshalOutOfBoundsException(file, line);
@@ -1453,7 +1460,7 @@ void
 IceInternal::BasicStream::writeInstance(const ObjectPtr& v, Int index)
 {
     write(index);
-    v->__write(this);
+    v->__write(this, _marshalFacets);
 }
 
 void

@@ -1278,7 +1278,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         DataMemberList::const_iterator d;
         int iter;
 
-        out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os)";
+        out << sp << nl << "public void" << nl << "__write(IceInternal.BasicStream __os, boolean __marshalFacets)";
         out << sb;
 	out << nl << "__os.writeTypeId(ice_staticId());";
 	out << nl << "__os.startWriteSlice();";
@@ -1289,7 +1289,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), true, iter, false, metaData);
         }
 	out << nl << "__os.endWriteSlice();";
-        out << nl << "super.__write(__os);";
+        out << nl << "super.__write(__os, __marshalFacets);";
         out << eb;
 
 	DataMemberList allClassMembers = p->allClassDataMembers();
@@ -1380,7 +1380,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    {
 		if(classMembers.size() > 1 || allClassMembers.size() > 1)
 		{
-		    patchParams << "Patcher(" << classMemberCount++ << ')';
+		    patchParams << "new Patcher(" << classMemberCount++ << ')';
 		}
 	    }
             writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
@@ -1388,40 +1388,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
 	out << nl << "__is.endReadSlice();";
         out << nl << "super.__read(__is, true);";
-        out << eb;
-
-        out << sp << nl << "public void" << nl << "__marshal(Ice.Stream __os, boolean __marshalFacets)";
-        out << sb;
-        out << nl << "super.__marshal(__os, __marshalFacets);"; // Base must come first (due to schema rules).
-        iter = 0;
-        for(d = members.begin(); d != members.end(); ++d)
-        {
-            string s = (*d)->name();
-            list<string> metaData = (*d)->getMetaData();
-            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), true, iter, false,
-                                             metaData);
-        }
-        out << eb;
-
-        out << sp << nl << "public void" << nl << "__unmarshal(Ice.Stream __is)";
-        out << sb;
-        out << nl << "super.__unmarshal(__is);"; // Base must come first (due to schema rules).
-        iter = 0;
-        for(d = members.begin(); d != members.end(); ++d)
-        {
-            string s = (*d)->name();
-            list<string> metaData = (*d)->getMetaData();
-            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), false, iter, false,
-                                             metaData);
-        }
-        out << eb;
-
-        out << sp << nl << "public static Ice.Object" << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
-        out << sb;
-        out << nl << name << " __val;";
-        iter = 0;
-        writeGenericMarshalUnmarshalCode(out, scope, p->declaration(), "__name", "__val", false, iter, false);
-        out << nl << "return __val;";
         out << eb;
     }
 
@@ -1597,7 +1563,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    {
 		if(classMembers.size() > 1 || allClassMembers.size() > 1)
 		{
-		    patchParams << "Patcher(" << classMemberCount++ << ')';
+		    patchParams << "new Patcher(" << classMemberCount++ << ')';
 		}
 	    }
             list<string> metaData = (*d)->getMetaData();
@@ -1609,45 +1575,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             out << nl << "super.__read(__is, true);";
         }
-        out << eb;
-
-        out << sp << nl << "public void" << nl << "__marshal(Ice.Stream __os)";
-        out << sb;
-        if(base)
-        {
-            out << nl << "super.__marshal(__os);"; // Base must come first (due to schema rules).
-        }
-        iter = 0;
-        for(d = members.begin(); d != members.end(); ++d)
-        {
-            string s = (*d)->name();
-            list<string> metaData = (*d)->getMetaData();
-            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), true, iter, false,
-                                             metaData);
-        }
-        out << eb;
-
-        out << sp << nl << "public void" << nl << "__unmarshal(Ice.Stream __is)";
-        out << sb;
-        if(base)
-        {
-            out << nl << "super.__unmarshal(__is);"; // Base must come first (due to schema rules).
-        }
-        iter = 0;
-        for(d = members.begin(); d != members.end(); ++d)
-        {
-            string s = (*d)->name();
-            list<string> metaData = (*d)->getMetaData();
-            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), false, iter, false,
-                                             metaData);
-        }
-        out << eb;
-
-        out << sp << nl << "public void" << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
-        out << sb;
-        out << nl << "__is.startReadException(__name);";
-        out << nl << "__unmarshal(__is);";
-        out << nl << "__is.endReadException();";
         out << eb;
 
 	if(p->usesClasses())
@@ -1911,41 +1838,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	    {
 		if(classMembers.size() > 1)
 		{
-		    patchParams << "Patcher(" << classMemberCount++ << ')';
+		    patchParams << "new Patcher(" << classMemberCount++ << ')';
 		}
 	    }
             list<string> metaData = (*d)->getMetaData();
             writeMarshalUnmarshalCode(out, scope, (*d)->type(), fixKwd((*d)->name()), false, iter, false, metaData,
 		    		      patchParams.str());
         }
-        out << eb;
-
-        out << sp << nl << "public void" << nl << "ice_marshal(String __name, Ice.Stream __os)";
-        out << sb;
-        out << nl << "__os.startWriteStruct(__name);";
-        iter = 0;
-        for(d = members.begin(); d != members.end(); ++d)
-        {
-            string s = (*d)->name();
-            list<string> metaData = (*d)->getMetaData();
-            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), true, iter, false,
-                                             metaData);
-        }
-        out << nl << "__os.endWriteStruct();";
-        out << eb;
-
-        out << sp << nl << "public void" << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
-        out << sb;
-        out << nl << "__is.startReadStruct(__name);";
-        iter = 0;
-        for(d = members.begin(); d != members.end(); ++d)
-        {
-            string s = (*d)->name();
-            list<string> metaData = (*d)->getMetaData();
-            writeGenericMarshalUnmarshalCode(out, scope, (*d)->type(), "\"" + s + "\"", fixKwd(s), false, iter, false,
-                                             metaData);
-        }
-        out << nl << "__is.endReadStruct();";
         out << eb;
     }
 
@@ -2059,17 +1958,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             }
         }
         out << eb << ';';
-
-        out << sp << nl << "public void" << nl << "ice_marshal(String __name, Ice.Stream __os)";
-        out << sb;
-        out << nl << "__os.writeEnum(__name, __T, __value);";
-        out << eb;
-
-        out << sp << nl << "public static " << name << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
-        out << sb;
-        out << nl << "int __val = __is.readEnum(__name, __T);";
-        out << nl << "return convert(__val);";
-        out << eb;
     }
 
     out << eb;
@@ -2581,24 +2469,6 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return null;";
     out << eb;
 
-    out << sp << nl << "public static void" << nl << "ice_marshal(String __name, Ice.Stream __os, " << name
-	<< "Prx v)";
-    out << sb;
-    out << nl << "__os.writeProxy(__name, v);";
-    out << eb;
-
-    out << sp << nl << "public static " << name << "Prx" << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
-    out << sb;
-    out << nl << "Ice.ObjectPrx proxy = __is.readProxy(__name);";
-    out << nl << "if(proxy != null)";
-    out << sb;
-    out << nl << name << "PrxHelper result = new " << name << "PrxHelper();";
-    out << nl << "result.__copyFrom(proxy);";
-    out << nl << "return result;";
-    out << eb;
-    out << nl << "return null;";
-    out << eb;
-
     out << eb;
     close();
 
@@ -2641,21 +2511,6 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         out << nl << typeS << " __v;";
         iter = 0;
 	writeSequenceMarshalUnmarshalCode(out, scope, p, "__v", false, iter, false);
-        out << nl << "return __v;";
-        out << eb;
-
-        out << sp << nl << "public static void" << nl << "ice_marshal(String __name, Ice.Stream __os, " << typeS
-	    << " __v)";
-        out << sb;
-        iter = 0;
-        writeGenericSequenceMarshalUnmarshalCode(out, scope, p, "__name", "__v", true, iter, false);
-        out << eb;
-
-        out << sp << nl << "public static " << typeS << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
-        out << sb;
-        out << nl << typeS << " __v;";
-        iter = 0;
-        writeGenericSequenceMarshalUnmarshalCode(out, scope, p, "__name", "__v", false, iter, false);
         out << nl << "return __v;";
         out << eb;
 
@@ -2956,7 +2811,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 		if((builtin2 && builtin2->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type))
 		{
 		    writeMarshalUnmarshalCode(out, scope, type, arg, false, iter, false, list<string>(),
-					      "Patcher(__r, __key)");
+					      "new Patcher(__r, __key)");
 		}
 		else
 		{
@@ -2970,217 +2825,6 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 	    out << nl << "__r.put(__key, __value);";
 	}
         out << eb;
-        out << nl << "return __r;";
-        out << eb;
-
-        out << sp << nl << "public static void" << nl
-	    << "ice_marshal(String __name, Ice.Stream __os, java.util.Map __v)";
-        out << sb;
-        out << nl << "if(__v == null)";
-        out << sb;
-        out << nl << "__os.startWriteDictionary(__name, 0);";
-        out << nl << "__os.endWriteDictionary();";
-        out << eb;
-        out << nl << "else";
-        out << sb;
-        out << nl << "__os.startWriteDictionary(__name, __v.size());";
-        out << nl << "java.util.Iterator __i = __v.entrySet().iterator();";
-        out << nl << "while(__i.hasNext())";
-        out << sb;
-        out << nl << "java.util.Map.Entry __e = (java.util.Map.Entry)" << "__i.next();";
-        out << nl << "__os.startWriteDictionaryElement();";
-        iter = 0;
-        for(i = 0; i < 2; i++)
-        {
-            string val;
-            string arg;
-            TypePtr type;
-            string tag;
-            if(i == 0)
-            {
-                arg = "__e.getKey()";
-                type = key;
-                tag = "\"key\"";
-            }
-            else
-            {
-                arg = "__e.getValue()";
-                type = value;
-                tag = "\"value\"";
-            }
-
-            BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            if(b)
-            {
-                switch(b->kind())
-                {
-                    case Builtin::KindByte:
-                    {
-                        val = "((java.lang.Byte)" + arg + ").byteValue()";
-                        break;
-                    }
-                    case Builtin::KindBool:
-                    {
-                        val = "((java.lang.Boolean)" + arg + ").booleanValue()";
-                        break;
-                    }
-                    case Builtin::KindShort:
-                    {
-                        val = "((java.lang.Short)" + arg + ").shortValue()";
-                        break;
-                    }
-                    case Builtin::KindInt:
-                    {
-                        val = "((java.lang.Integer)" + arg + ").intValue()";
-                        break;
-                    }
-                    case Builtin::KindLong:
-                    {
-                        val = "((java.lang.Long)" + arg + ").longValue()";
-                        break;
-                    }
-                    case Builtin::KindFloat:
-                    {
-                        val = "((java.lang.Float)" + arg + ").floatValue()";
-                        break;
-                    }
-                    case Builtin::KindDouble:
-                    {
-                        val = "((java.lang.Double)" + arg + ").doubleValue()";
-                        break;
-                    }
-                    case Builtin::KindString:
-                    case Builtin::KindObject:
-                    case Builtin::KindObjectProxy:
-                    {
-                        break;
-                    }
-                    case Builtin::KindLocalObject:
-                    {
-                        assert(false);
-                        break;
-                    }
-                }
-            }
-
-            if(val.empty())
-            {
-                val = "((" + typeToString(type, TypeModeIn, scope) + ')' + arg + ')';
-            }
-            writeGenericMarshalUnmarshalCode(out, scope, type, tag, val, true, iter, false);
-        }
-        out << nl << "__os.endWriteDictionaryElement();";
-        out << eb;
-        out << nl << "__os.endWriteDictionary();";
-        out << eb;
-        out << eb;
-
-        out << sp << nl << "public static java.util.Map" << nl << "ice_unmarshal(String __name, Ice.Stream __is)";
-        out << sb;
-        out << nl << "int __sz = __is.startReadDictionary(__name);";
-        out << nl << "java.util.Map __r = new java.util.HashMap(__sz);";
-        out << nl << "for(int __i = 0; __i < __sz; __i++)";
-        out << sb;
-        out << nl << "__is.startReadDictionaryElement();";
-        iter = 0;
-        for(i = 0; i < 2; i++)
-        {
-            string arg;
-            TypePtr type;
-            string tag;
-            if(i == 0)
-            {
-                arg = "__key";
-                type = key;
-                tag = "\"key\"";
-            }
-            else
-            {
-                arg = "__value";
-                type = value;
-                tag = "\"value\"";
-            }
-
-            BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-            if(b)
-            {
-                switch(b->kind())
-                {
-                    case Builtin::KindByte:
-                    {
-                        out << nl << "java.lang.Byte " << arg << " = new java.lang.Byte(__is.readByte(" << tag
-			    << "));";
-                        break;
-                    }
-                    case Builtin::KindBool:
-                    {
-                        out << nl << "java.lang.Boolean " << arg << " = new java.lang.Boolean(__is.readBool(" << tag
-			    << "));";
-                        break;
-                    }
-                    case Builtin::KindShort:
-                    {
-                        out << nl << "java.lang.Short " << arg << " = new java.lang.Short(__is.readShort(" << tag
-			    << "));";
-                        break;
-                    }
-                    case Builtin::KindInt:
-                    {
-                        out << nl << "java.lang.Integer " << arg << " = new java.lang.Integer(__is.readInt(" << tag
-			    << "));";
-                        break;
-                    }
-                    case Builtin::KindLong:
-                    {
-                        out << nl << "java.lang.Long " << arg << " = new java.lang.Long(__is.readLong(" << tag
-			    << "));";
-                        break;
-                    }
-                    case Builtin::KindFloat:
-                    {
-                        out << nl << "java.lang.Float " << arg << " = new java.lang.Float(__is.readFloat(" << tag
-			    << "));";
-                        break;
-                    }
-                    case Builtin::KindDouble:
-                    {
-                        out << nl << "java.lang.Double " << arg << " = new java.lang.Double(__is.readDouble(" << tag
-			    << "));";
-                        break;
-                    }
-                    case Builtin::KindString:
-                    {
-                        out << nl << "java.lang.String " << arg << " = __is.readString(" << tag << ");";
-                        break;
-                    }
-                    case Builtin::KindObject:
-                    {
-                        out << nl << "Ice.Object " << arg << " = __is.readObject(" << tag << ", \"\", null);";
-                        break;
-                    }
-                    case Builtin::KindObjectProxy:
-                    {
-                        out << nl << "Ice.ObjectPrx " << arg << " = __is.readProxy(" << tag << ");";
-                        break;
-                    }
-                    case Builtin::KindLocalObject:
-                    {
-                        assert(false);
-                        break;
-                    }
-                }
-            }
-            else
-            {
-                string s = typeToString(type, TypeModeIn, scope);
-                out << nl << s << ' ' << arg << ';';
-                writeGenericMarshalUnmarshalCode(out, scope, type, tag, arg, false, iter, false);
-            }
-        }
-        out << nl << "__is.endReadDictionaryElement();";
-        out << nl << "__r.put(__key, __value);";
-        out << eb;
-        out << nl << "__is.endReadDictionary();";
         out << nl << "return __r;";
         out << eb;
 

@@ -70,3 +70,8 @@ install:: all
 	ln -s $(SONAME) $(install_libdir)/$(LIBNAME)
 
 include .depend
+
+parser: parser.o
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ parser.o $(BASELIBS)
+

@@ -71,7 +71,7 @@ SLICE2FREEZECMD = $(SLICE2FREEZE) --ice --include-dir IceStorm $(ICECPPFLAGS)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_STORM_API_EXPORTS $(XERCESC_FLAGS) $(READLINE_FLAGS) 
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_STORM_API_EXPORTS $(READLINE_FLAGS) 
 ICECPPFLAGS	:= -I.. $(ICECPPFLAGS)
 SLICE2CPPFLAGS	:= --ice --dll-export ICE_STORM_API --include-dir IceStorm $(SLICE2CPPFLAGS)
 
@@ -103,7 +103,7 @@ $(libdir)/$(SVCLIBNAME): $(libdir)/$(SVCSONAME)
 
 $(ADMIN): $(AOBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(XERCESC_LIBS) $(READLINE_LIBS) $(LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm -lIceXML $(READLINE_LIBS) $(LIBS)
 
 StringBoolDict.h StringBoolDict.cpp: $(SLICE2FREEZE)
 	rm -f StringBoolDict.h StringBoolDict.cpp

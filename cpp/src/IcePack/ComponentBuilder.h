@@ -16,13 +16,9 @@
 #define ICE_PACK_COMPONENT_BUILDER_H
 
 #include <IceUtil/Shared.h>
+#include <IceXML/Parser.h>
 #include <IcePack/Internal.h>
 
-#include <Ice/Xerces.h>
-#include <xercesc/sax/HandlerBase.hpp>
-
-#include <map>
-#include <vector>
 #include <stack>
 
 namespace IcePack
@@ -44,75 +40,25 @@ typedef ::IceUtil::Handle< ::IcePack::Task> TaskPtr;
 
 class ComponentBuilder;
 
-class DeploySAXParseException : public ICE_XERCES_NS SAXParseException
-{
-public:
-
-    DeploySAXParseException(const std::string&, const ICE_XERCES_NS Locator* locator);
-
-};
-
-//
-// A wrapper for ParserDeploymentException.
-//
-class ParserDeploymentWrapperException : public ICE_XERCES_NS SAXException
-{
-public:
-
-    ParserDeploymentWrapperException(const ParserDeploymentException&);
-    void throwParserDeploymentException() const;
-
-private:
-
-    ParserDeploymentException _exception;
-};
-
-//
-// SAX error handler for compoonent descriptors.
-//
-class ComponentErrorHandler : public ICE_XERCES_NS ErrorHandler
-{
-public:
-
-    ComponentErrorHandler(ComponentBuilder&);
-
-    void warning(const ICE_XERCES_NS SAXParseException& exception);
-    void error(const ICE_XERCES_NS SAXParseException& exception);
-    void fatalError(const ICE_XERCES_NS SAXParseException& exception);
-    void resetErrors();
-
-private:
-
-    ComponentBuilder& _builder;
-};
-
 //
 // SAX parser handler for component descriptors.
 //
-class ComponentHandler : public ICE_XERCES_NS DocumentHandler
+class ComponentHandler : public IceXML::Handler
 {
 public:
 
     ComponentHandler(ComponentBuilder&);
 
-    virtual void characters(const XMLCh*const, const unsigned int);
-    virtual void startElement(const XMLCh*const, ICE_XERCES_NS AttributeList&); 
-    virtual void endElement(const XMLCh*const);
-    virtual void setDocumentLocator(const ICE_XERCES_NS Locator *const);
-
-    virtual void ignorableWhitespace(const XMLCh*const, const unsigned int);
-    virtual void processingInstruction(const XMLCh*const, const XMLCh*const);
-    virtual void resetDocument();
-    virtual void startDocument();
-    virtual void endDocument();
+    virtual void startElement(const std::string&, const IceXML::Attributes&);
+    virtual void endElement(const std::string&);
+    virtual void characters(const std::string&);
 
 protected:
 
-    std::string getAttributeValue(const ICE_XERCES_NS AttributeList&, const std::string&) const;
-    std::string getAttributeValueWithDefault(const ICE_XERCES_NS AttributeList&, const std::string&,
+    std::string getAttributeValue(const IceXML::Attributes&, const std::string&) const;
+    std::string getAttributeValueWithDefault(const IceXML::Attributes&, const std::string&,
                                              const std::string&) const;
 
-    std::string toString(const XMLCh*const) const;
     std::string elementValue() const;
     bool isCurrentTargetDeployable() const;
 
@@ -121,8 +67,6 @@ protected:
     std::string _currentAdapterId;
     std::string _currentTarget;
     bool _isCurrentTargetDeployable;
-
-    const ICE_XERCES_NS Locator* _locator;
 };
 
 //
@@ -150,7 +94,6 @@ public:
     virtual void undo();
 
     void parse(const std::string&, ComponentHandler&);
-    void setDocumentLocator(const ICE_XERCES_NS Locator*const locator);
 
     bool isTargetDeployable(const std::string&) const;
 
@@ -183,8 +126,6 @@ protected:
     std::vector<TaskPtr> _tasks;
     std::string _configFile;
     std::vector<std::string> _targets;
-
-    const ICE_XERCES_NS Locator* _locator;
 };
 
 }

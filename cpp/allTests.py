@@ -49,14 +49,12 @@ tests = [ \
     "IceSSL/certificateAndKeyParsing", \
     "IceSSL/certificateVerifier", \
     "IceSSL/certificateVerification", \
-    "IceXML/encoding", \
     "Freeze/dbmap", \
     "Freeze/complex", \
     "Freeze/evictor", \
     "IceStorm/single", \
     "IceStorm/federation", \
     "IceStorm/federation2", \
-    "XMLTransform/transform", \
     ]
 
 #

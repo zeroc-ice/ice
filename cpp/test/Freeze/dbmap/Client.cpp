@@ -15,8 +15,7 @@
 #include <IceUtil/IceUtil.h>
 #include <Freeze/Freeze.h>
 #include <TestCommon.h>
-#include <ByteIntMapXML.h>
-#include <ByteIntMapBinary.h>
+#include <ByteIntMap.h>
 
 #include <algorithm>
 
@@ -55,28 +54,22 @@ FindFirstOfTest(const pair<const Byte, const Int>& p, Byte q)
     return p.first == q;
 }
 
-template<class MAP>
 void
-populateDB(MAP& m)
+populateDB(ByteIntMap& m)
 {
     alphabet.assign(alphabetChars, alphabetChars + sizeof(alphabetChars) - 1);
 
     for(vector<Byte>::const_iterator j = alphabet.begin(); j != alphabet.end(); ++j)
     {
-#if defined(_MSC_VER) || (defined(__SUNPRO_CC) && __SUNPRO_CC <= 0x530)
-	m.put(MAP::value_type(*j, static_cast<Int>(j - alphabet.begin())));
-#else
-	m.put(typename MAP::value_type(*j, static_cast<Int>(j - alphabet.begin())));
-#endif
+	m.put(ByteIntMap::value_type(*j, static_cast<Int>(j - alphabet.begin())));
     }
 }
 
-template<class MAP>
 class ReadThread : public IceUtil::Thread
 {
 public:
 
-    ReadThread(MAP& m) :
+    ReadThread(ByteIntMap& m) :
 	_map(m)
     {
     }
@@ -90,7 +83,7 @@ public:
 	    {
 		try
 		{
-		    for(typename MAP::iterator p = _map.begin(); p != _map.end(); ++p)
+		    for(ByteIntMap::iterator p = _map.begin(); p != _map.end(); ++p)
 		    {
 			test(p->first == p->second + 'a');
 			IceUtil::ThreadControl::yield();
@@ -119,15 +112,14 @@ public:
 
 private:
 
-    MAP& _map;
+    ByteIntMap& _map;
 };
 
-template<class MAP>
 class WriteThread : public IceUtil::Thread
 {
 public:
 
-    WriteThread(MAP& m) :
+    WriteThread(ByteIntMap& m) :
 	_map(m)
     {
     }
@@ -144,7 +136,7 @@ public:
 	    {
 		try
 		{
-		    for(typename MAP::iterator p = _map.begin(); p != _map.end(); ++p)
+		    for(ByteIntMap::iterator p = _map.begin(); p != _map.end(); ++p)
 		    {
 			p.set(p->second + 1);
 			_map.erase(p);
@@ -174,14 +166,11 @@ public:
 
 private:
 
-    MAP& _map;
+    ByteIntMap& _map;
 };
 
-
-
-template<class MAP>
 int
-run(int argc, char* argv[], MAP& m)
+run(int argc, char* argv[], ByteIntMap& m)
 {
     //
     // Populate the database with the alphabet
@@ -189,8 +178,8 @@ run(int argc, char* argv[], MAP& m)
     populateDB(m);
 
     vector<Byte>::const_iterator j;
-    typename MAP::iterator p;
-    typename MAP::const_iterator cp;
+    ByteIntMap::iterator p;
+    ByteIntMap::const_iterator cp;
 
     cout << "  testing populate... ";
     //
@@ -280,7 +269,7 @@ run(int argc, char* argv[], MAP& m)
 
     cout << "  testing iterators... ";
     p = m.begin();
-    typename MAP::iterator p2 = p;
+    ByteIntMap::iterator p2 = p;
 
     //
     // Verify both iterators point at the same element, and that
@@ -346,7 +335,7 @@ run(int argc, char* argv[], MAP& m)
     p = m.end();
 
     test(m.find('a') == m.end());
-    typename MAP::value_type i1('a', 1);
+    ByteIntMap::value_type i1('a', 1);
     m.put(i1);
     //
     // Note: VC++ won't accept this
@@ -357,7 +346,7 @@ run(int argc, char* argv[], MAP& m)
     test(p != m.end() && p->second == 1);
     p = m.end();
 
-    typename MAP::value_type i2('a', 0);
+    ByteIntMap::value_type i2('a', 0);
     m.put(i2);
     //
     // Note: VC++ won't accept this
@@ -371,13 +360,9 @@ run(int argc, char* argv[], MAP& m)
     // Test inserts
     // 
     
-    typename MAP::value_type i3('a', 7);
+    ByteIntMap::value_type i3('a', 7);
 
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-    pair<MAP::iterator, bool> insertResult = m.insert(i3);
-#else
-    pair<typename MAP::iterator, bool> insertResult = m.insert(i3);
-#endif
+    pair<ByteIntMap::iterator, bool> insertResult = m.insert(i3);
     test(insertResult.first == m.find('a'));
     test(insertResult.first->second == 0);
     test(insertResult.second == false);
@@ -388,7 +373,7 @@ run(int argc, char* argv[], MAP& m)
     test(p->second == 0);
     p = m.end();
 
-    typename MAP::value_type i4('b', 7);
+    ByteIntMap::value_type i4('b', 7);
     
     insertResult = m.insert(i4);
     test(insertResult.first == m.find('b'));
@@ -396,7 +381,7 @@ run(int argc, char* argv[], MAP& m)
     test(insertResult.second == true);
     insertResult.first = m.end();
     
-    typename MAP::value_type i5('c', 8);
+    ByteIntMap::value_type i5('c', 8);
     
     p = m.insert(m.end(), i5);
     test(p == m.find('c'));
@@ -426,7 +411,7 @@ run(int argc, char* argv[], MAP& m)
     // Inefficient, but this is just a test. Ensure that both forms of
     // operator== & != are tested.
     //
-    typename MAP::value_type toFind('n', 13);
+    ByteIntMap::value_type toFind('n', 13);
     
     p = find(m.begin(), m.end(), toFind);
     test(p != m.end());
@@ -487,9 +472,9 @@ run(int argc, char* argv[], MAP& m)
     vector<IceUtil::ThreadControl> controls;
     for(int i = 0; i < 5; ++i)
     {
-	IceUtil::ThreadPtr rt = new ReadThread<MAP>(m);
+	IceUtil::ThreadPtr rt = new ReadThread(m);
 	controls.push_back(rt->start());
-	IceUtil::ThreadPtr wt = new WriteThread<MAP>(m);
+	IceUtil::ThreadPtr wt = new WriteThread(m);
 	controls.push_back(wt->start());
     }
     for(vector<IceUtil::ThreadControl>::iterator q = controls.begin(); q != controls.end(); ++q)
@@ -519,15 +504,9 @@ main(int argc, char* argv[])
 	    envName += "db";
 	}
 	
-        ByteIntMapXML xml(communicator, envName, "xml");
-        cout << "testing XML encoding..." << endl;
-	status = run(argc, argv, xml);
-        if(status == EXIT_SUCCESS)
-        {
-            ByteIntMapBinary binary(communicator, envName, "binary");
-            cout << "testing binary encoding..." << endl;
-            status = run(argc, argv, binary);
-        }
+        ByteIntMap binary(communicator, envName, "binary");
+        cout << "testing encoding..." << endl;
+        status = run(argc, argv, binary);
     }
     catch(const Ice::Exception& ex)
     {

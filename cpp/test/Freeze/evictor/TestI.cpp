@@ -125,26 +125,19 @@ Test::ServantI::destroy(const Current& current)
 }
 
 void
-Test::ServantI::__write(IceInternal::BasicStream* os) const
+Test::ServantI::__write(IceInternal::BasicStream* os, bool marshalFacets) const
 {
     assert(_remoteEvictor);
     _remoteEvictor->setLastSavedValue(value);
-    Servant::__write(os);
-}
-
-void
-Test::ServantI::__marshal(const StreamPtr& os, bool marshalFacets) const
-{
-    assert(_remoteEvictor);
-    _remoteEvictor->setLastSavedValue(value);
-    Servant::__marshal(os, marshalFacets);
+    Servant::__write(os, marshalFacets);
 }
 
 Test::FacetI::FacetI()
 {
 }
 
-Test::FacetI::FacetI(const RemoteEvictorIPtr& remoteEvictor, const Freeze::EvictorPtr& evictor, Ice::Int val, const string& d) :
+Test::FacetI::FacetI(const RemoteEvictorIPtr& remoteEvictor, const Freeze::EvictorPtr& evictor, Ice::Int val,
+                     const string& d) :
     ServantI(remoteEvictor, evictor, val)
 {
     data = d;
@@ -165,19 +158,11 @@ Test::FacetI::setData(const string& d, const Current&)
 }
 
 void 
-Test::FacetI::__write(::IceInternal::BasicStream* os) const
+Test::FacetI::__write(::IceInternal::BasicStream* os, bool marshalFacets) const
 {
     assert(_remoteEvictor);
     _remoteEvictor->setLastSavedValue(value);
-    Facet::__write(os);
-}
-
-void 
-Test::FacetI::__marshal(const StreamPtr& os, bool marshalFacets) const
-{
-    assert(_remoteEvictor);
-    _remoteEvictor->setLastSavedValue(value);
-    Facet::__marshal(os, marshalFacets);
+    Facet::__write(os, marshalFacets);
 }
 
 Test::RemoteEvictorI::RemoteEvictorI(const ObjectAdapterPtr& adapter, const string& category,
@@ -302,8 +287,7 @@ Test::RemoteEvictorFactoryI::RemoteEvictorFactoryI(const ObjectAdapterPtr& adapt
 }
 
 ::Test::RemoteEvictorPrx
-Test::RemoteEvictorFactoryI::createEvictor(const string& name,
-                                           const Current& current)
+Test::RemoteEvictorFactoryI::createEvictor(const string& name, const Current& current)
 {
     Freeze::EvictorPtr evictor = Freeze::createEvictor(_adapter->getCommunicator(), _envName, name);
 
@@ -318,4 +302,3 @@ Test::RemoteEvictorFactoryI::shutdown(const Current&)
 {
     _adapter->getCommunicator()->shutdown();
 }
-

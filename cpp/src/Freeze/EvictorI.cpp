@@ -12,12 +12,10 @@
 //
 // **********************************************************************
 
-#include <Ice/Object.h> // Not included in Ice/Ice.h
 #include <Freeze/EvictorI.h>
 #include <Freeze/Initialize.h>
-#include <sys/stat.h>
 #include <IceUtil/AbstractMutex.h>
-#include <IceXML/StreamI.h>
+#include <sys/stat.h>
 #include <typeinfo>
 
 using namespace std;
@@ -56,7 +54,6 @@ private:
 
 }
 
-
 namespace
 {
 
@@ -75,7 +72,7 @@ initializeDbt(vector<Ice::Byte>& v, Dbt& dbt)
 {
     dbt.set_data(&v[0]);
     dbt.set_size(v.size());
-    dbt.set_ulen(v.size());
+    dbt.set_ulen(v.capacity());
     dbt.set_dlen(0);
     dbt.set_doff(0);
     dbt.set_flags(DB_DBT_USERMEM);
@@ -90,78 +87,59 @@ inline bool startWith(Key key, Key root)
     return memcmp(&root[0], &key[0], root.size()) == 0;
 }
 
-
 //
-// Marshaling/unmarshaling persistent (key, data) pairs
-//
-// TODO: use template functions
+// Marshaling/unmarshaling persistent (key, data) pairs. The marshalRoot function
+// is used to create a key prefix containing only the key's identity.
 //
 
-void marshalRoot(const EvictorStorageKey& v, Key& bytes, const CommunicatorPtr& communicator)
+void
+marshalRoot(const EvictorStorageKey& v, Key& bytes, const CommunicatorPtr& communicator)
 {
-    ostringstream ostr;
-    StreamPtr stream = new IceXML::StreamI(communicator, ostr);
-    v.ice_marshal("Key", stream);
-    const string& str = ostr.str();
-
-    //
-    // TODO: fix this!
-    //
-    int index = str.find("</identity>");
-    string root = str.substr(0, index + strlen("</identity>"));
-    
-    bytes.resize(root.size());
-    std::copy(root.begin(), root.end(), bytes.begin());
+    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+    IceInternal::BasicStream stream(instance.get());
+    v.identity.__write(&stream);
+    bytes = stream.b;
 }
 
-void marshal(const EvictorStorageKey& v, Key& bytes, const CommunicatorPtr& communicator)
+void
+marshal(const EvictorStorageKey& v, Key& bytes, const CommunicatorPtr& communicator)
 {
-    ostringstream ostr;
-    StreamPtr stream = new IceXML::StreamI(communicator, ostr);
-    v.ice_marshal("Key", stream);
-    const string& str = ostr.str();
-    // cerr << "Marshalled key == " << str << endl;
-    bytes.resize(str.size());
-    std::copy(str.begin(), str.end(), bytes.begin());
+    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+    IceInternal::BasicStream stream(instance.get());
+    v.__write(&stream);
+    bytes = stream.b;
 }
 
-void unmarshal(EvictorStorageKey& v, const Key& bytes, const CommunicatorPtr& communicator)
+void
+unmarshal(EvictorStorageKey& v, const Key& bytes, const CommunicatorPtr& communicator)
 {
-    string str;
-    str.append("<data>");
-    str.append(reinterpret_cast<const char*>(&bytes[0]), bytes.size());
-    str.append("</data>");
-    // cerr << "esk to unmarshal == " << str << endl;
-    istringstream istr(str);
-    StreamPtr stream = new IceXML::StreamI(communicator, istr, false);
-    v.ice_unmarshal("Key", stream);
+    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+    IceInternal::BasicStream stream(instance.get());
+    stream.b = bytes;
+    stream.i = stream.b.begin();
+    v.__read(&stream);
 }
 
-void marshal(const ObjectRecord& v, Value& bytes, const CommunicatorPtr& communicator)
+void
+marshal(const ObjectRecord& v, Value& bytes, const CommunicatorPtr& communicator)
 {
-    std::ostringstream ostr;
-    StreamPtr stream = new IceXML::StreamI(communicator, ostr);
-    stream->marshalFacets(false);
-    v.ice_marshal("Value", stream);
-    const string& str = ostr.str();
-
-    // cerr << "Marshalled object record == " << str << endl;
-
-    bytes.resize(str.size());
-    std::copy(str.begin(), str.end(), bytes.begin());
+    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+    IceInternal::BasicStream stream(instance.get());
+    stream.marshalFacets(false);
+    v.__write(&stream);
+    stream.writePendingObjects();
+    bytes = stream.b;
 }
 
-void unmarshal(ObjectRecord& v, const Value& bytes, const CommunicatorPtr& communicator)
+void
+unmarshal(ObjectRecord& v, const Value& bytes, const CommunicatorPtr& communicator)
 {
-    string str;
-    str.append("<data>");
-    str.append(reinterpret_cast<const char*>(&bytes[0]), bytes.size());
-    str.append("</data>");
-    // cerr << "object record to unmarshal == " << str << endl;
-    std::istringstream istr(str);
-   
-    StreamPtr stream = new IceXML::StreamI(communicator, istr, false);
-    v.ice_unmarshal("Value", stream);
+    IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
+    IceInternal::BasicStream stream(instance.get());
+    stream.b = bytes;
+    stream.i = stream.b.begin();
+    v.__read(&stream);
+    stream.readPendingObjects();
 }
 
 }
@@ -993,7 +971,7 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 	    if(_trace >= 2)
 	    {
 		Trace out(_communicator->getLogger(), "Evictor");
-		out << "couldn't find \"" << current.id << "\" in the queue\n"
+		out << "could not find \"" << current.id << "\" in the queue\n"
 		    << "loading \"" << current.id << "\" from the database";
 	    }
 	    
@@ -1333,7 +1311,8 @@ Freeze::EvictorI::run()
 		    throw ex;
 		}
 	} 
-	} while(tryAgain);
+	}
+        while(tryAgain);
 	
 	
 	{
@@ -1358,7 +1337,6 @@ Freeze::EvictorI::run()
 	_lastSave = IceUtil::Time::now();
     }
 }
-    
 
 void
 Freeze::EvictorI::evict()
@@ -1461,7 +1439,6 @@ Freeze::EvictorI::dbHasObject(const Ice::Identity& ident)
     }
 }
 
-
 void
 Freeze::EvictorI::addToModifiedQueue(const Freeze::EvictorI::FacetMap::iterator& q,
 				     const Freeze::EvictorI::FacetPtr& facet)
@@ -1485,7 +1462,8 @@ Freeze::EvictorI::saveNowNoSync()
     do
     {
 	wait();
-    } while(find(_saveNowThreads.begin(), _saveNowThreads.end(), myself) != _saveNowThreads.end());
+    }
+    while(find(_saveNowThreads.begin(), _saveNowThreads.end(), myself) != _saveNowThreads.end());
 }
 
 void
@@ -1510,18 +1488,22 @@ Freeze::EvictorI::writeObjectRecordToValue(Long saveStart, ObjectRecord& rec, Va
     marshal(rec, value, _communicator);
 }
 
-
 Freeze::EvictorI::EvictorElementPtr
 Freeze::EvictorI::load(const Identity& ident)
 {
+    //
+    // This method attempts to restore an object and all of its facets from the database. It works by
+    // iterating over the database keys that match the "root" key. The root key is the encoded portion
+    // of the EvictorStorageKey struct that the object and its facets all have in common, namely the
+    // identity.
+    //
     Key root;
-    EvictorStorageKey esk;
-    esk.identity = ident;
-    marshalRoot(esk, root, _communicator);
-    
+    EvictorStorageKey rootEsk;
+    rootEsk.identity = ident;
+    marshalRoot(rootEsk, root, _communicator);
+
     const size_t defaultKeySize = 1024;
-    Key key(root);
-    key.reserve(defaultKeySize);
+    Key key(defaultKeySize);
 
     const size_t defaultValueSize = 1024;
     Value value(defaultValueSize);
@@ -1542,11 +1524,13 @@ Freeze::EvictorI::load(const Identity& ident)
 	    //
 	    _db->cursor(0, &dbc, 0);
 
-	    key.resize(key.capacity());
+            //
+            // We position the cursor at the key for the main object.
+            //
 	    Dbt dbKey;
+            marshal(rootEsk, key, _communicator);
 	    initializeDbt(key, dbKey);
-	    
-	    value.resize(value.capacity());
+
 	    Dbt dbValue;
 	    initializeDbt(value, dbValue);
 
@@ -1557,15 +1541,14 @@ Freeze::EvictorI::load(const Identity& ident)
 	    {
 		try
 		{
-		    rs = dbc->get(&dbKey, &dbValue, DB_SET_RANGE);
+		    rs = dbc->get(&dbKey, &dbValue, DB_SET);
 
 		    if(rs == 0)
 		    {
 			key.resize(dbKey.get_size());
 			value.resize(dbValue.get_size());
 		    }
-		    
-		    if(rs != 0 || !startWith(key, root))
+                    else
 		    {
 			dbc->close();
 
@@ -1579,19 +1562,19 @@ Freeze::EvictorI::load(const Identity& ident)
 		    
 		    break;
 		}
-		catch(const ::DbMemoryException dx)
+		catch(const ::DbMemoryException& dx)
 		{
 		    bool resized = false;
 		    if(dbKey.get_size() > dbKey.get_ulen())
 		    {
-			key.resize(dbKey.get_size());
+			key.reserve(dbKey.get_size());
 			initializeDbt(key, dbKey);
 			resized = true;
 		    }
 		   
 		    if(dbValue.get_size() > dbValue.get_ulen())
 		    {
-			value.resize(dbValue.get_size());
+			value.reserve(dbValue.get_size());
 			initializeDbt(value, dbValue);
 			resized = true;
 		    }
@@ -1615,7 +1598,6 @@ Freeze::EvictorI::load(const Identity& ident)
 		//
 		EvictorStorageKey esk;
 		unmarshal(esk, key, _communicator);
-
 	
 		if(_trace >= 3)
 		{
@@ -1655,12 +1637,12 @@ Freeze::EvictorI::load(const Identity& ident)
 		    result->mainObject = facet;
 		}
 		
-		key.resize(key.capacity());
 		Dbt dbKey;
+                key.resize(key.capacity());
 		initializeDbt(key, dbKey);
-		
-		value.resize(value.capacity());
+
 		Dbt dbValue;
+                value.resize(value.capacity());
 		initializeDbt(value, dbValue);
 
 		//
@@ -1678,19 +1660,19 @@ Freeze::EvictorI::load(const Identity& ident)
 			}
 			break; // for(;;)
 		    }
-		    catch(const ::DbMemoryException dx)
+		    catch(const ::DbMemoryException& dx)
 		    {
 			bool resized = false;
 			if(dbKey.get_size() > dbKey.get_ulen())
 			{
-			    key.resize(dbKey.get_size());
+			    key.reserve(dbKey.get_size());
 			    initializeDbt(key, dbKey);
 			    resized = true;
 			}
-			
+
 			if(dbValue.get_size() > dbValue.get_ulen())
 			{
-			    value.resize(dbValue.get_size());
+			    value.reserve(dbValue.get_size());
 			    initializeDbt(value, dbValue);
 			    resized = true;
 			}
@@ -1706,11 +1688,11 @@ Freeze::EvictorI::load(const Identity& ident)
 			}
 		    }
 		}
-	    } while(rs == 0 && startWith(key, root));
+	    }
+            while(rs == 0 && startWith(key, root));
 
 	    dbc->close();
 	    break; // for (;;)
-	       
 	}
 	catch(const ::DbDeadlockException&)
 	{
@@ -1783,10 +1765,9 @@ Freeze::EvictorI::load(const Identity& ident)
 	    }
 	}
     }
+
     return result;
 }
-
-
 
 Freeze::EvictorI::EvictorMap::iterator
 Freeze::EvictorI::insertElement(const ObjectAdapterPtr& adapter, const Identity& ident, const EvictorElementPtr& element)

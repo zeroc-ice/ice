@@ -91,11 +91,7 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\ByteIntMapBinary.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ByteIntMapXML.cpp
+SOURCE=.\ByteIntMap.cpp
 # End Source File
 # Begin Source File
 
@@ -107,11 +103,7 @@ SOURCE=.\Client.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\ByteIntMapBinary.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ByteIntMapXML.h
+SOURCE=.\ByteIntMap.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
@@ -128,20 +120,13 @@ USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"	"..\..\..\lib\slice.lib"
 InputPath=dummy.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2freeze.exe --dict ByteIntMapXML,byte,int ByteIntMapXML \
-	..\..\..\bin\slice2freeze.exe --binary --dict ByteIntMapBinary,byte,int ByteIntMapBinary \
+	..\..\..\bin\slice2freeze.exe --dict ByteIntMap,byte,int ByteIntMap \
 	
 
-"ByteIntMapXML.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ByteIntMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ByteIntMapXML.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"ByteIntMapBinary.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"ByteIntMapBinary.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ByteIntMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -152,20 +137,13 @@ USERDEP__DUMMY="..\..\..\bin\slice2freeze.exe"
 InputPath=dummy.ice
 
 BuildCmds= \
-	..\..\..\bin\slice2freeze.exe --dict ByteIntMapXML,byte,int ByteIntMapXML \
-	..\..\..\bin\slice2freeze.exe --binary --dict ByteIntMapBinary,byte,int ByteIntMapBinary \
+	..\..\..\bin\slice2freeze.exe --dict ByteIntMap,byte,int ByteIntMap \
 	
 
-"ByteIntMapXML.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ByteIntMap.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ByteIntMapXML.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"ByteIntMapBinary.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"ByteIntMapBinary.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ByteIntMap.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

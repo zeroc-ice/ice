@@ -19,31 +19,15 @@
 #include <Ice/Config.h>
 #include <Ice/Handle.h>
 
-//
-// The manual forward declaration of ::Ice::Stream is necesary since
-// Ice/StreamF.h includes Ice/Exception.h.
-//
-namespace Ice
-{
-
-class Stream;
-
-}
-
 namespace IceInternal
 {
 
 class BasicStream;
 
-ICE_API void incRef(::Ice::Stream*);
-ICE_API void decRef(::Ice::Stream*);
-
 }
 
 namespace Ice
 {
-
-typedef ::IceInternal::Handle< ::Ice::Stream> StreamPtr;
 
 typedef IceUtil::Exception Exception;
 
@@ -67,12 +51,8 @@ public:
 
     virtual void __write(::IceInternal::BasicStream*) const = 0;
     virtual void __read(::IceInternal::BasicStream*, bool) = 0;
-    virtual void __marshal(const StreamPtr&) const = 0;
-    virtual void __unmarshal(const StreamPtr&) = 0;
 
     virtual bool __usesClasses() const;
-
-    void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&);
 };
 
 typedef ::IceInternal::Handle<UserException> UserExceptionPtr;

@@ -26,11 +26,11 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I. $(CPPFLAGS) $(XERCESC_FLAGS)
+CPPFLAGS	:= -I. $(CPPFLAGS)
 
 $(NAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lSlice $(BASELIBS) $(XERCESC_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lSlice $(BASELIBS)
 
 install:: all
 	$(INSTALL_PROGRAM) $(NAME) $(install_bindir)

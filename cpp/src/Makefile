@@ -24,18 +24,16 @@ SUBDIRS		= IceUtil \
 		  slice2freezej \
 		  slice2docbook \
 		  slice2java \
-		  slice2xsd \
 		  slice2wsdl \
 		  Ice \
-		  IceSSL \
 		  IceXML \
+		  IceSSL \
 		  Freeze \
 		  IceBox \
 		  IceStorm \
 		  IcePack \
 		  Glacier \
-		  IcePatch \
-		  XMLTransform
+		  IcePatch
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

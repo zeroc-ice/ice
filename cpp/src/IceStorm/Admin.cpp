@@ -15,9 +15,6 @@
 #include <Ice/Application.h>
 #include <IceStorm/Parser.h>
 
-#include <Ice/Xerces.h>
-#include <xercesc/util/PlatformUtils.hpp>
-
 #include <fstream>
 
 using namespace std;
@@ -35,21 +32,8 @@ public:
 int
 main(int argc, char* argv[])
 {
-    try
-    {
-	ICE_XERCES_NS XMLPlatformUtils::Initialize();
-    }
-    catch(const ICE_XERCES_NS XMLException& e)
-    {
-	cout << e.getMessage() << endl;
-	return EXIT_FAILURE;
-    }
-
     Client app;
     int rc = app.main(argc, argv);
-
-    ICE_XERCES_NS XMLPlatformUtils::Terminate();
-
     return rc;
 }
 

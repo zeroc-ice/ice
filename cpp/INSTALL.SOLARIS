@@ -30,9 +30,9 @@ or
 Third-party libraries
 ---------------------
 
-- Xerces-C++ 2.2.0
-
 - Berkeley DB 4.1
+
+- expat 1.9x
 
 - OpenSSL 0.97
 
@@ -45,8 +45,8 @@ OpenSSL 0.97 can be downloaded (in binary form) from
 http://www.sunfreeware.com; or you can download the source from 
 http://www.openssl.org.
 
-Xerces-C++ can be downloaded from:
-http://xml.apache.org/xerces-c
+expat can be downloaded from:
+http://sourceforge.net/projects/expat/
 
 And Berkeley DB from:
 http://www.sleepycat.com/download

@@ -26,9 +26,6 @@
 #include <IcePack/TraceLevels.h>
 #include <IcePack/Registry.h>
 
-#include <Ice/Xerces.h>
-#include <xercesc/util/PlatformUtils.hpp>
-
 #include <csignal>
 #include <signal.h>
 #include <sys/wait.h>
@@ -329,19 +326,6 @@ main(int argc, char* argv[])
     action.sa_flags = 0;
     sigaction(SIGCHLD, &action, 0);
 
-    //
-    // Initialize Xerces.
-    //
-    try
-    {
-	ICE_XERCES_NS XMLPlatformUtils::Initialize();
-    }
-    catch(const ICE_XERCES_NS XMLException& e)
-    {
-	cout << e.getMessage() << endl;
-	return EXIT_FAILURE;
-    }
-
     Ice::CommunicatorPtr communicator;
 
     int status;
@@ -497,8 +481,6 @@ main(int argc, char* argv[])
 	}
 	communicator = 0;
     }
-
-    ICE_XERCES_NS XMLPlatformUtils::Terminate();
 
     return status;
 }

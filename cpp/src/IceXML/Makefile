@@ -20,15 +20,15 @@ LIBNAME		= $(call mklibname,IceXML)
 
 TARGETS		= $(libdir)/$(LIBFILENAME) $(libdir)/$(SONAME) $(libdir)/$(LIBNAME)
 
-OBJS		= StreamI.o
+OBJS		= Parser.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_XML_API_EXPORTS $(XERCESC_FLAGS)
+CPPFLAGS	:= $(CPPFLAGS) -DICE_XML_API_EXPORTS $(EXPAT_FLAGS)
 
-LINKWITH        := $(XERCESC_LIBS)
+LINKWITH        := $(EXPAT_LIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

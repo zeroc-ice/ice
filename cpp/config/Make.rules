@@ -88,12 +88,12 @@ USE_READLINE            := yes
 KERBEROS_HOME		?= /usr/kerberos
 
 #
-# If Xerces-C++ is not installed in a standard location where the
-# compiler can find it, set XERCESC_HOME to the Xerces-C++
+# If expat is not installed in a standard location where the
+# compiler can find it, set EXPAT_HOME to the expat
 # installation directory.
 #
 
-#XERCESC_HOME		?= /opt/xerces-c
+#EXPAT_HOME		?= /opt/expat
 
 
 #
@@ -189,12 +189,12 @@ else
     DB_LIBS		= -ldb_cxx
 endif
 
-ifneq ($(XERCESC_HOME),)
-    XERCESC_FLAGS	= -I$(XERCESC_HOME)/include
-    XERCESC_LIBS	= -L$(XERCESC_HOME)/$(libsubdir) -lxerces-c
+ifneq ($(EXPAT_HOME),)
+    EXPAT_FLAGS		= -I$(EXPAT_HOME)/include
+    EXPAT_LIBS		= -L$(EXPAT_HOME)/$(libsubdir) -lexpat
 else
-    XERCESC_FLAGS	=
-    XERCESC_LIBS	= -lxerces-c
+    EXPAT_FLAGS		=
+    EXPAT_LIBS		= -lexpat
 endif
 
 ifeq ($(PLATFORM_HAS_READLINE),yes)

@@ -19,8 +19,7 @@ CLIENT		= client
 TARGETS		= $(CLIENT)
 
 OBJS		= Client.o \
-                  ByteIntMapXML.o \
-                  ByteIntMapBinary.o
+                  ByteIntMap.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
@@ -30,21 +29,16 @@ CPPFLAGS	:= -I. -I../../include $(DB_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) -lFreeze $(LIBS) $(DB_LIBS)
 
-ByteIntMapXML.h ByteIntMapXML.cpp: $(SLICE2FREEZE)
-	rm -f ByteIntMapXML.h ByteIntMapXML.cpp
-	$(SLICE2FREEZE) --dict ByteIntMapXML,byte,int ByteIntMapXML
-
-ByteIntMapBinary.h ByteIntMapBinary.cpp: $(SLICE2FREEZE)
-	rm -f ByteIntMapBinary.h ByteIntMapBinary.cpp
-	$(SLICE2FREEZE) --binary --dict ByteIntMapBinary,byte,int ByteIntMapBinary
+ByteIntMap.h ByteIntMap.cpp: $(SLICE2FREEZE)
+	rm -f ByteIntMap.h ByteIntMap.cpp
+	$(SLICE2FREEZE) --dict ByteIntMap,byte,int ByteIntMap
 
 clean::
-	rm -f ByteIntMapXML.h ByteIntMapXML.cpp
-	rm -f ByteIntMapBinary.h ByteIntMapBinary.cpp
+	rm -f ByteIntMap.h ByteIntMap.cpp
 
 clean::
-	rm -f db/xml db/log.*
+	rm -f db/binary db/log.*
 
 include .depend

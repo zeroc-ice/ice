@@ -31,7 +31,6 @@ OBJS		= Initialize.o \
 		  LoggerI.o \
 		  Stats.o \
 		  SysLoggerI.o \
-		  Stream.o \
 		  BuiltinSequences.o \
 		  BasicStream.o \
 		  DefaultsAndOverrides.o \
@@ -101,8 +100,6 @@ SLICE_SRCS	= $(SDIR)/LocalException.ice \
 		  $(SDIR)/CommunicatorF.ice \
 		  $(SDIR)/Logger.ice \
 		  $(SDIR)/LoggerF.ice \
-		  $(SDIR)/Stream.ice \
-		  $(SDIR)/StreamF.ice \
 		  $(SDIR)/BuiltinSequences.ice \
 		  $(SDIR)/ObjectAdapter.ice \
 		  $(SDIR)/ObjectAdapterF.ice \

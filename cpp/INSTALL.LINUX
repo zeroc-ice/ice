@@ -34,9 +34,9 @@ installing STLport is not required for this compiler version.
 Third-party libraries
 ---------------------
 
-- Xerces-C++ 2.1.0 or 2.2.0
+- Berkeley DB 4.1
 
-- Berkeley DB 3.3, 4.0, or 4.1
+- expat 1.9x
 
 - OpenSSL 0.96 or 0.97
 
@@ -45,14 +45,12 @@ Third-party libraries
 - readline and ncurses (optional, but used unless you set USE_READLINE
   to no in config/Make.rules)
 
-Xerces-C++ can be download from:
-http://xml.apache.org/xerces-c
-
-Berkeley DB, OpenSSL, bzip2, readline and ncurses are usually
+Berkeley DB, expat, OpenSSL, bzip2, readline and ncurses are usually
 available with your Linux distribution.
 
 The RPMs for RedHat 8.0 are:
 db4-devel-4.0.14-14
+expat-devel-1.95.4-1
 openssl-devel-0.9.6b-29
 bzip2-devel-1.0.2-5
 readline-devel-4.3-3
@@ -60,6 +58,9 @@ ncurses-devel-5.2-28
 
 If you don't have them, you can download Berkeley DB from:
 http://www.sleepycat.com/download
+
+And expat from:
+http://sourceforge.net/projects/expat/
 
 And OpenSSL from:
 http://www.openssl.org

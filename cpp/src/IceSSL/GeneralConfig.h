@@ -35,7 +35,7 @@ public:
     std::string getRandomBytesFiles() const;
 
     // General method - it will figure out how to properly parse the data.
-    void set(std::string&, std::string&);
+    void set(const std::string&, const std::string&);
 
 protected:
 
@@ -48,8 +48,8 @@ protected:
     std::string _cipherList;
     std::string _randomBytesFiles;
 
-    void parseVersion(std::string&);
-    void parseVerifyMode(std::string&);
+    void parseVersion(const std::string&);
+    void parseVerifyMode(const std::string&);
 };
 
 template<class Stream> inline

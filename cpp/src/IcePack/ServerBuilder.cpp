@@ -18,7 +18,6 @@
 #include <IcePack/ServiceBuilder.h>
 #include <IcePack/AdapterFactory.h>
 #include <IcePack/ServerFactory.h>
-#include <Ice/Xerces.h>
 
 using namespace std;
 using namespace IcePack;
@@ -193,9 +192,8 @@ public:
 
     ServerHandler(ServerBuilder&);
 
-    virtual void startElement(const XMLCh *const, ICE_XERCES_NS AttributeList &);
-    virtual void endElement(const XMLCh *const);
-    virtual void startDocument();
+    virtual void startElement(const string&, const IceXML::Attributes&);
+    virtual void endElement(const string&);
 
 private:
 
@@ -208,11 +206,6 @@ IcePack::ServerHandler::ServerHandler(ServerBuilder& builder) :
     ComponentHandler(builder),
     _builder(builder)
 {
-}
-
-void
-IcePack::ServerHandler::startDocument()
-{
     //
     // Create top level directory and configuration directory.
     //
@@ -222,7 +215,7 @@ IcePack::ServerHandler::startDocument()
 }
 
 void 
-IcePack::ServerHandler::startElement(const XMLCh *const name, ICE_XERCES_NS AttributeList &attrs)
+IcePack::ServerHandler::startElement(const string& name, const IceXML::Attributes& attrs)
 {
     ComponentHandler::startElement(name, attrs);
     if(!isCurrentTargetDeployable())
@@ -230,9 +223,7 @@ IcePack::ServerHandler::startElement(const XMLCh *const name, ICE_XERCES_NS Attr
 	return;
     }
 
-    string str = toString(name);
-
-    if(str == "server")
+    if(name == "server")
     {
 	string basedir = getAttributeValueWithDefault(attrs, "basedir", "");
 	if(!basedir.empty())
@@ -282,14 +273,14 @@ IcePack::ServerHandler::startElement(const XMLCh *const name, ICE_XERCES_NS Attr
 				     _builder.getDefaultAdapterId("IceBox.ServiceManager"));
 	}
     }
-    else if(str == "service")
+    else if(name == "service")
     {
 	string serviceName = getAttributeValue(attrs, "name");
 	string descriptor = getAttributeValue(attrs, "descriptor");
 	string targets = getAttributeValueWithDefault(attrs, "targets", "");
 	_builder.addService(serviceName, descriptor, targets);
     }
-    else if(str == "adapter")
+    else if(name == "adapter")
     {
 	assert(!_currentAdapterId.empty());
 	string adapterName = getAttributeValue(attrs, "name");
@@ -298,29 +289,27 @@ IcePack::ServerHandler::startElement(const XMLCh *const name, ICE_XERCES_NS Attr
 }
 
 void
-IcePack::ServerHandler::endElement(const XMLCh *const name)
+IcePack::ServerHandler::endElement(const string& name)
 {
-    string str = toString(name);
-
     if(isCurrentTargetDeployable())
     {
-	if(str == "classname")
+	if(name == "classname")
 	{
 	    _builder.setClassName(elementValue());
 	}
-	else if(str == "pwd")
+	else if(name == "pwd")
 	{
 	    _builder.setWorkingDirectory(elementValue());
 	}
-	else if(str == "option")
+	else if(name == "option")
 	{
 	    _builder.addOption(elementValue());
 	}
-	else if(str == "vm-option")
+	else if(name == "vm-option")
 	{
 	    _builder.addJavaOption(elementValue());
 	}
-	else if(str == "env")
+	else if(name == "env")
 	{
 	    _builder.addEnvVar(elementValue());
 	}
@@ -506,12 +495,12 @@ IcePack::ServerBuilder::setClassName(const string& name)
 {
     if(_kind != ServerKindJavaServer)
     {
-	throw DeploySAXParseException("classname element only allowed for Java servers", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "classname element only allowed for Java servers");
     }
 
     if(name.empty())
     {
-	throw DeploySAXParseException("empty classname element value", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "empty classname element value");
     }
 
     _className = name;
@@ -522,7 +511,7 @@ IcePack::ServerBuilder::setWorkingDirectory(const string& pwd)
 {
     if(pwd.empty())
     {
-	throw DeploySAXParseException("no working directory", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "no working directory");
     }
 
     _description.pwd = pwd;
@@ -540,20 +529,20 @@ IcePack::ServerBuilder::registerAdapter(const string& name, const string& endpoi
     AdapterRegistryPrx adapterRegistry = _nodeInfo->getAdapterRegistry();
     if(!adapterRegistry)
     {
-	throw DeploySAXParseException("IcePack is not configured to register adapters", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "IcePack is not configured to register adapters");
     }
 
     if(name.empty())
     {
-	throw DeploySAXParseException("empty adapter name", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "empty adapter name");
     }
     if(endpoints.empty())
     {
-	throw DeploySAXParseException("empty adapter endpoints", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "empty adapter endpoints");
     }
     if(adapterId.empty())
     {
-	throw DeploySAXParseException("empty adapter id", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "empty adapter id");
     }
 
     //
@@ -577,16 +566,16 @@ IcePack::ServerBuilder::addService(const string& name, const string& descriptor,
 {
     if(_kind != ServerKindCppIceBox && _kind !=  ServerKindJavaIceBox)
     {
-	throw DeploySAXParseException("services are only allowed in IceBox servers", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "services are only allowed in IceBox servers");
     }
 
     if(name.empty())
     {
-	throw DeploySAXParseException("name attribute value is empty", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "name attribute value is empty");
     }
     if(descriptor.empty())
     {
-	throw DeploySAXParseException("descriptor attribute value is empty", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "descriptor attribute value is empty");
     }
 
     //
@@ -608,15 +597,7 @@ IcePack::ServerBuilder::addService(const string& name, const string& descriptor,
     copy(_targets.begin(), _targets.end(), back_inserter(targets));
 
     ServiceBuilder* task = new ServiceBuilder(_nodeInfo, *this, variables, targets);
-    try
-    {
-	task->parse(toLocation(descriptor));
-    }
-    catch(const ParserDeploymentException& ex)
-    {
-	throw ParserDeploymentWrapperException(ex);
-    }
-    
+    task->parse(toLocation(descriptor));
     _tasks.push_back(task);
 }
 
@@ -647,7 +628,7 @@ IcePack::ServerBuilder::setKind(ServerBuilder::ServerKind kind)
     {
 	if(_description.path.empty())
 	{
-	    throw DeploySAXParseException("C++ server path is not specified", _locator);
+	    throw IceXML::ParserException(__FILE__, __LINE__, "C++ server path is not specified");
 	}
 	break;
     }

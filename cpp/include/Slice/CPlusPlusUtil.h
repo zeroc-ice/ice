@@ -47,14 +47,6 @@ SLICE_API void writeUnmarshalCode(::IceUtil::Output&, const std::list<std::pair<
 SLICE_API void writeAllocateCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
 				 const TypePtr&);
 
-SLICE_API void writeGenericMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,
-						const std::string& = "", const std::string& = "", bool = true);
-
-SLICE_API void writeGenericMarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
-				       const TypePtr&);
-SLICE_API void writeGenericUnmarshalCode(::IceUtil::Output&, const std::list<std::pair<TypePtr, std::string> >&,
-					 const TypePtr&);
-
 }
 
 #endif

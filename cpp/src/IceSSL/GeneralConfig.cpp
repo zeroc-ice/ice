@@ -70,7 +70,7 @@ IceSSL::GeneralConfig::getRandomBytesFiles() const
 }
 
 void
-IceSSL::GeneralConfig::set(string& name, string& value)
+IceSSL::GeneralConfig::set(const string& name, const string& value)
 {
     if(name.compare("version") == 0)
     {
@@ -104,7 +104,7 @@ IceSSL::GeneralConfig::set(string& name, string& value)
 //
 
 void
-IceSSL::GeneralConfig::parseVersion(string& value)
+IceSSL::GeneralConfig::parseVersion(const string& value)
 {
     if(value.compare("SSLv23") == 0)
     {
@@ -123,7 +123,7 @@ IceSSL::GeneralConfig::parseVersion(string& value)
 }
 
 void
-IceSSL::GeneralConfig::parseVerifyMode(string& value)
+IceSSL::GeneralConfig::parseVerifyMode(const string& value)
 {
     const string delim = " |\t\n\r";
 

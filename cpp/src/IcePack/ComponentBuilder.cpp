@@ -20,9 +20,6 @@
 #include <IcePack/ComponentBuilder.h>
 #include <IcePack/Internal.h>
 
-#include <Ice/Xerces.h>
-#include <xercesc/parsers/SAXParser.hpp>
-
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -36,15 +33,6 @@ using namespace IcePack;
 
 namespace IcePack
 {
-
-static string
-toString(const XMLCh* ch)
-{
-    char* t = ICE_XERCES_NS XMLString::transcode(ch);
-    string s(t);
-    delete[] t;
-    return s;
-}
 
 //
 // Create a directory. 
@@ -284,55 +272,6 @@ private:
 
 }
 
-IcePack::DeploySAXParseException::DeploySAXParseException(const string& msg,
-                                                          const ICE_XERCES_NS Locator* locator)
-    : SAXParseException(ICE_XERCES_NS XMLString::transcode(msg.c_str()), *locator)
-{
-}
-
-IcePack::ParserDeploymentWrapperException::ParserDeploymentWrapperException(const ParserDeploymentException& ex)
-    : _exception(ex)
-{
-}
-
-void
-IcePack::ParserDeploymentWrapperException::throwParserDeploymentException() const
-{
-    throw _exception;
-}
-
-IcePack::ComponentErrorHandler::ComponentErrorHandler(ComponentBuilder& builder) :
-    _builder(builder)
-{
-}
-
-void
-IcePack::ComponentErrorHandler::warning(const ICE_XERCES_NS SAXParseException& exception)
-{
-    string s = toString(exception.getMessage());
-}
-
-void
-IcePack::ComponentErrorHandler::error(const ICE_XERCES_NS SAXParseException& exception)
-{
-    throw exception;
-//    string s = toString(exception.getMessage());
-//    cerr << "error: " << s << endl;
-}
-
-void
-IcePack::ComponentErrorHandler::fatalError(const ICE_XERCES_NS SAXParseException& exception)
-{
-    throw exception;
-//    string s = toString(exception.getMessage());
-//    cerr << "fatal:" << s << endl;
-}
-
-void
-IcePack::ComponentErrorHandler::resetErrors()
-{
-}
-
 IcePack::ComponentHandler::ComponentHandler(ComponentBuilder& builder) :
     _builder(builder),
     _isCurrentTargetDeployable(true)
@@ -340,13 +279,7 @@ IcePack::ComponentHandler::ComponentHandler(ComponentBuilder& builder) :
 }
 
 void
-IcePack::ComponentHandler::characters(const XMLCh *const chars, const unsigned int length)
-{
-    _elements.top().assign(toString(chars));
-}
-
-void
-IcePack::ComponentHandler::startElement(const XMLCh *const name, ICE_XERCES_NS AttributeList &attrs)
+IcePack::ComponentHandler::startElement(const string& name, const IceXML::Attributes& attrs)
 {
     _elements.push("");
 
@@ -355,9 +288,7 @@ IcePack::ComponentHandler::startElement(const XMLCh *const name, ICE_XERCES_NS A
 	return;
     }
 
-    string str = toString(name);
-
-    if(str == "variable")
+    if(name == "variable")
     {
 	string value = getAttributeValueWithDefault(attrs, "value", "");
 	if(value.empty())
@@ -369,7 +300,7 @@ IcePack::ComponentHandler::startElement(const XMLCh *const name, ICE_XERCES_NS A
 
     _builder.pushVariables();
 
-    if(str == "property")
+    if(name == "property")
     {
 	string value = getAttributeValueWithDefault(attrs, "value", "");
 	if(value.empty())
@@ -378,11 +309,12 @@ IcePack::ComponentHandler::startElement(const XMLCh *const name, ICE_XERCES_NS A
 	}
 	_builder.addProperty(getAttributeValue(attrs, "name"), value);
     }
-    else if(str == "adapter")
+    else if(name == "adapter")
     {
 	if(!_currentAdapterId.empty())
 	{
-	    throw DeploySAXParseException("Adapter element enclosed in an adapter element is not allowed", _locator);
+	    throw IceXML::ParserException(__FILE__, __LINE__,
+                                          "Adapter element enclosed in an adapter element is not allowed");
 	}
 
 	//
@@ -392,34 +324,33 @@ IcePack::ComponentHandler::startElement(const XMLCh *const name, ICE_XERCES_NS A
 	string adapterName = getAttributeValue(attrs, "name");
 	if(adapterName.empty())
 	{
-	    throw DeploySAXParseException("empty adapter name", _locator);
+	    throw IceXML::ParserException(__FILE__, __LINE__, "empty adapter name");
 	}
 	_currentAdapterId = getAttributeValueWithDefault(attrs, "id", _builder.getDefaultAdapterId(adapterName));
     }
-    else if(str == "object")
+    else if(name == "object")
     {
 	_builder.addObject(getAttributeValue(attrs, "identity"), 
 			   _currentAdapterId,
 			   getAttributeValue(attrs, "type"));
     }
-    else if(str == "target")
+    else if(name == "target")
     {
 	if(!_currentTarget.empty())
 	{
-	    throw DeploySAXParseException("Target element enclosed in a target element is not allowed", _locator);
+	    throw IceXML::ParserException(__FILE__, __LINE__,
+                                          "Target element enclosed in a target element is not allowed");
 	}
 	_isCurrentTargetDeployable = _builder.isTargetDeployable(getAttributeValue(attrs, "name"));
     }
 }
 
 void
-IcePack::ComponentHandler::endElement(const XMLCh *const name)
+IcePack::ComponentHandler::endElement(const string& name)
 {
     _elements.pop();
 
-    string str = toString(name);
-
-    if(str == "target")
+    if(name == "target")
     {
 	_isCurrentTargetDeployable = true;
     }
@@ -427,83 +358,44 @@ IcePack::ComponentHandler::endElement(const XMLCh *const name)
     if(isCurrentTargetDeployable())
     {
 	_builder.popVariables();
-	if(str == "adapter")
+	if(name == "adapter")
 	{
 	    _currentAdapterId = "";
 	}
     }
 }
 
-void 
-IcePack::ComponentHandler::ignorableWhitespace(const XMLCh*const, const unsigned int)
+void
+IcePack::ComponentHandler::characters(const string& chars)
 {
-}
-
-void 
-IcePack::ComponentHandler::processingInstruction(const XMLCh*const, const XMLCh*const)
-{
-}
-
-void 
-IcePack::ComponentHandler::resetDocument()
-{
-}
-
-void 
-IcePack::ComponentHandler::startDocument()
-{
-}
-
-void 
-IcePack::ComponentHandler::endDocument()
-{
-}
-
-void 
-IcePack::ComponentHandler::setDocumentLocator(const ICE_XERCES_NS Locator *const locator)
-{
-    _builder.setDocumentLocator(locator);
-
-    _locator = locator;
+    _elements.top().assign(chars);
 }
 
 string
-IcePack::ComponentHandler::getAttributeValue(const ICE_XERCES_NS AttributeList& attrs, const string& name) const
+IcePack::ComponentHandler::getAttributeValue(const IceXML::Attributes& attrs, const string& name) const
 {
-    XMLCh* n = ICE_XERCES_NS XMLString::transcode(name.c_str());
-    const XMLCh* value = attrs.getValue(n);
-    delete[] n;
-    
-    if(value == 0)
+    IceXML::Attributes::const_iterator p = attrs.find(name);
+    if(p == attrs.end())
     {
-	throw DeploySAXParseException("missing attribute '" + name + "'", _locator);
+	throw IceXML::ParserException(__FILE__, __LINE__, "missing attribute '" + name + "'");
     }
 
-    return _builder.substitute(toString(value));
+    return _builder.substitute(p->second);
 }
 
 string
-IcePack::ComponentHandler::getAttributeValueWithDefault(const ICE_XERCES_NS AttributeList& attrs, const string& name, 
+IcePack::ComponentHandler::getAttributeValueWithDefault(const IceXML::Attributes& attrs, const string& name, 
 							const string& def) const
 {
-    XMLCh* n = ICE_XERCES_NS XMLString::transcode(name.c_str());
-    const XMLCh* value = attrs.getValue(n);
-    delete[] n;
-    
-    if(value == 0)
+    IceXML::Attributes::const_iterator p = attrs.find(name);
+    if(p == attrs.end())
     {
-	return _builder.substitute(def);
+        return _builder.substitute(def);
     }
     else
     {
-	return _builder.substitute(toString(value));
+        return _builder.substitute(p->second);
     }
-}
-
-string
-IcePack::ComponentHandler::toString(const XMLCh* ch) const
-{
-    return IcePack::toString(ch);
 }
 
 string
@@ -546,52 +438,14 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	setVariable("basedir", ".");
     }
     
-    ICE_XERCES_NS SAXParser* parser = new ICE_XERCES_NS SAXParser;
     try
     {
-	parser->setValidationScheme(ICE_XERCES_NS SAXParser::Val_Never);
-	ComponentErrorHandler err(*this);
-	parser->setDocumentHandler(&handler);
-	parser->setErrorHandler(&err);
-	parser->parse(xmlFile.c_str());
+        IceXML::Parser::parse(xmlFile, handler);
     }
-    catch(const ParserDeploymentWrapperException& ex)
+    catch(const IceXML::ParserException& e)
     {
-	//
-	// Throw the exception wrapped in ex.
-	//
-	ex.throwParserDeploymentException();
-    }
-    catch(const ICE_XERCES_NS SAXParseException& e)
-    {
-	delete parser;
-
 	ostringstream os;
-	os << xmlFile << ":" << e.getLineNumber() << ": " << toString(e.getMessage());
-
-	ParserDeploymentException ex;
-	ex.component = getVariable("fqn");
-	ex.reason = os.str();
-	throw ex;
-    }
-    catch(const ICE_XERCES_NS SAXException& e)
-    {
-	delete parser;
-
-	ostringstream os;
-	os << xmlFile << ": SAXException: " << toString(e.getMessage());
-
-	ParserDeploymentException ex;
-	ex.component = getVariable("fqn");
-	ex.reason = os.str();
-	throw ex;
-    }
-    catch(const ICE_XERCES_NS XMLException& e)
-    {
-	delete parser;
-
-	ostringstream os;
-	os << xmlFile << ": XMLException: " << toString(e.getMessage());
+	os << xmlFile << ": " << e;
 
 	ParserDeploymentException ex;
 	ex.component = getVariable("fqn");
@@ -600,8 +454,6 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
     }
     catch(...)
     {
-	delete parser;
-
 	ostringstream os;
 	os << xmlFile << ": unknown exception while parsing file";
 
@@ -610,23 +462,6 @@ IcePack::ComponentBuilder::parse(const string& xmlFile, ComponentHandler& handle
 	ex.reason = os.str();
 	throw ex;
     }
-
-    int rc = parser->getErrorCount();
-    delete parser;
-
-    if(rc > 0)
-    {
-	ParserDeploymentException ex;
-	ex.component = getVariable("fqn");
-	ex.reason = xmlFile + ": parse error";
-	throw ex;
-    }
-}
-
-void
-IcePack::ComponentBuilder::setDocumentLocator(const ICE_XERCES_NS Locator* locator)
-{
-    _locator = locator;
 }
 
 bool
@@ -864,14 +699,14 @@ IcePack::ComponentBuilder::substitute(const string& v) const
 	
 	if(end == string::npos)
 	{
-	    throw DeploySAXParseException("malformed variable name in the '" + value + "' value", _locator);
+	    throw IceXML::ParserException(__FILE__, __LINE__, "malformed variable name in the '" + value + "' value");
 	}
 
 	
 	string name = value.substr(beg + 2, end - beg - 2);
 	if(!findVariable(name))
 	{
-	    throw DeploySAXParseException("unknown variable name in the '" + value + "' value", _locator);
+	    throw IceXML::ParserException(__FILE__, __LINE__, "unknown variable name in the '" + value + "' value");
 	}
 
 	value.replace(beg, end - beg + 1, getVariable(name));

@@ -13,10 +13,7 @@
 // **********************************************************************
 
 #include <IceStorm/WeightedGraph.h>
-
-#include <Ice/Xerces.h>
-#include <xercesc/parsers/SAXParser.hpp>
-#include <xercesc/sax/HandlerBase.hpp>
+#include <IceXML/Parser.h>
 
 #include <map>
 #include <list>
@@ -25,75 +22,29 @@
 using namespace std;
 using namespace IceStorm;
 
-static string
-toString(const XMLCh* ch)
-{
-    char* t = ICE_XERCES_NS XMLString::transcode(ch);
-    string s(t);
-    delete[] t;
-    return s;
-}
-
 namespace IceStorm
 {
-
-class SAXErrorHandler : public ICE_XERCES_NS ErrorHandler
-{
-public:
-
-    void
-    warning(const ICE_XERCES_NS SAXParseException& exception)
-    {
-	string s = toString(exception.getMessage());
-	cerr << "warning: " << s << endl;
-    }
-
-    void
-    error(const ICE_XERCES_NS SAXParseException& exception)
-    {
-	string s = toString(exception.getMessage());
-	cerr << "error: " << s << endl;
-    }
-
-    void
-    fatalError(const ICE_XERCES_NS SAXParseException& exception)
-    {
-	string s = toString(exception.getMessage());
-	cerr << "fatal:" << s << endl;
-    }
-
-    void
-    resetErrors()
-    {
-    }
-};
 
 #ifdef _WIN32
 #    pragma warning(disable:4786)
 #endif
 
-class SAXGraphHandler : public ICE_XERCES_NS DocumentHandler
+class GraphHandler : public IceXML::Handler
 {
 public:
 
-    SAXGraphHandler(WeightedGraph& graph) :
+    GraphHandler(WeightedGraph& graph) :
 	_graph(graph)
     {
     }
 
-    ~SAXGraphHandler()
+    ~GraphHandler()
     {
     }
 
-    virtual void characters(const XMLCh *const chars, const unsigned int length) { }
-    virtual void endDocument() { }
-    virtual void endElement(const XMLCh *const name) { }
-    virtual void ignorableWhitespace(const XMLCh *const chars, const unsigned int length) { }
-    virtual void processingInstruction(const XMLCh *const target, const XMLCh *const data) { }
-    virtual void resetDocument() { }
-    virtual void setDocumentLocator(const ICE_XERCES_NS Locator *const locator) { }
-    virtual void startDocument() { }
-    virtual void startElement(const XMLCh *const name, ICE_XERCES_NS AttributeList &attrs); 
+    virtual void startElement(const string& name, const IceXML::Attributes& attrs); 
+    virtual void endElement(const string& name) { }
+    virtual void characters(const string& chars) { }
 
 private:
 
@@ -111,86 +62,52 @@ struct WeightedGraphParseException
 } // End namespace IceStorm
 
 void
-SAXGraphHandler::startElement(const XMLCh *const name, ICE_XERCES_NS AttributeList &attrs) 
+GraphHandler::startElement(const string& name, const IceXML::Attributes& attrs) 
 {
-    string str = toString(name);
-    
-    try
+    if(name == "vertex")
     {
-	if(str == "vertex")
-	{
-	    XMLCh* n = ICE_XERCES_NS XMLString::transcode("name");
-	    const XMLCh* value = attrs.getValue(n);
-	    delete[] n;
-	    if(value == 0)
-	    {
-		WeightedGraphParseException ex;
-		ex.reason = "<vertex> name attribute missing";
-		throw ex;
-	    }
+        IceXML::Attributes::const_iterator p = attrs.find("name");
+        if(p == attrs.end())
+        {
+            WeightedGraphParseException ex;
+            ex.reason = "<vertex> name attribute missing";
+            throw ex;
+        }
 
-	    string vstr = toString(value);
-
-	    _graph.addVertex(vstr);
-	}
-	else if(str == "edge")
-	{
-	    XMLCh* n = ICE_XERCES_NS XMLString::transcode("source");
-	    const XMLCh* value = attrs.getValue(n);
-	    delete[] n;
-	    if(value == 0)
-	    {
-		WeightedGraphParseException ex;
-		ex.reason = "<edge> source attribute missing";
-		throw ex;
-	    }
-
-	    string source = toString(value);
-
-	    n = ICE_XERCES_NS XMLString::transcode("target");
-	    value = attrs.getValue(n);
-	    delete[] n;
-	    if(value == 0)
-	    {
-		WeightedGraphParseException ex;
-		ex.reason = "<edge> target attribute missing";
-		throw ex;
-	    }
-
-	    string target = toString(value);
-	    n = ICE_XERCES_NS XMLString::transcode("cost");
-	    value = attrs.getValue(n);
-	    delete[] n;
-
-	    int cost = 0;
-	    if(value != 0)
-	    {
-		string cstr = toString(value);
-		cost = atoi(cstr.c_str());
-	    }
-
-	    try
-	    {
-		_graph.addEdge(source, target, cost);
-	    }
-	    catch(...)
-	    {
-		throw;
-	    }
-	}
+        _graph.addVertex(p->second);
     }
-    catch(const WeightedGraphParseException& ex)
+    else if(name == "edge")
     {
-	//
-	// Xerces eats all exceptions (apparently by design). Not sure
-	// how the error handling is supposed to work.
-	//
-	cerr << ex.reason << endl;
-	_graph.error();
-    }
-    catch(...)
-    {
-	_graph.error();
+        IceXML::Attributes::const_iterator p;
+
+        p = attrs.find("source");
+        if(p == attrs.end())
+        {
+            WeightedGraphParseException ex;
+            ex.reason = "<edge> source attribute missing";
+            throw ex;
+        }
+
+        string source = p->second;
+
+        p = attrs.find("target");
+        if(p == attrs.end())
+        {
+            WeightedGraphParseException ex;
+            ex.reason = "<edge> target attribute missing";
+            throw ex;
+        }
+
+        string target = p->second;
+
+        int cost = 0;
+        p = attrs.find("cost");
+        if(p != attrs.end())
+        {
+            cost = atoi(p->second.c_str());
+        }
+
+        _graph.addEdge(source, target, cost);
     }
 }
 
@@ -207,25 +124,28 @@ bool
 WeightedGraph::parse(const string& xmlFile)
 {
     _error = 0;
-    ICE_XERCES_NS SAXParser* parser = new ICE_XERCES_NS SAXParser;
-    parser->setValidationScheme(ICE_XERCES_NS SAXParser::Val_Never);
 
     try
     {
-	SAXErrorHandler err;
-	SAXGraphHandler handler(*this);
-	parser->setDocumentHandler(&handler);
-	parser->setErrorHandler(&err);
-	parser->parse(xmlFile.c_str());
+	GraphHandler handler(*this);
+        IceXML::Parser::parse(xmlFile, handler); 
     }
-    catch(const ICE_XERCES_NS XMLException& e)
+    catch(const WeightedGraphParseException& e)
     {
-	cerr << e.getMessage() << endl;
+	cerr << e.reason << endl;
+	error();
     }
-    int rc = parser->getErrorCount();
-    delete parser;
+    catch(const IceXML::ParserException& e)
+    {
+	cerr << e << endl;
+        error();
+    }
+    catch(...)
+    {
+	error();
+    }
 
-    return _error == 0 && rc == 0;
+    return _error == 0;
 }
 
 void

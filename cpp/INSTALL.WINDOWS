@@ -40,9 +40,9 @@ these compiler versions.
 Third-party libraries
 ---------------------
 
-- Xerces-C++ 2.1.0 or 2.2.0
+- Berkeley DB 4.1
 
-- Berkeley DB 3.3, 4.0, or 4.1
+- expat 1.9x
 
 - OpenSSL 0.96 or 0.97
 
@@ -55,20 +55,16 @@ If you are using Visual C++ .NET 2002 or 2003, you can download
 an installer for all these Ice dependencies from 
 http://www.zeroc.com/download.html. 
 
-You can also download Xerces-C++ from:
-
-http://xml.apache.org/xerces-c
-
 You can download Berkeley DB from:
-
 http://www.sleepycat.com/download
 
-And OpenSSL from:
+And expat from:
+http://sourceforge.net/projects/expat/
 
+And OpenSSL from:
 http://www.openssl.org
 
 And bzip2 from:
-
 http://sources.redhat.com/bzip2
 
 Note: For a regular build of bzip2, both the debug and the release
@@ -77,9 +73,8 @@ debug and a release version on your system, please rename the debug
 library to "libbz2d.lib". This is also what the Ice project files
 expect if you build a debug version of Ice.
 
-Ice and Xerces-C++ must be built with the same version of Visual
-C++. We also recommend to use the same Visual C++ version to
-build the other third party libraries.
+We recommend that you use the same Visual C++ version to build all
+of the third party libraries.
 
 Python 2.2
 ----------
@@ -107,8 +102,11 @@ third-party packages (include files, libraries, and DLLs):
 
 - Select "Include files".
 
-- Add the include directories for Xerces-C++, Berekeley DB, OpenSSL,
-  bzip2.
+- Add the include directories for Berekeley DB, expat, OpenSSL,
+  and bzip2.
+
+  If you used the binary installer for expat, then the proper include
+  directory is C:\Expat-1.95.6\Source\lib.
 
 - If you're using STLport, also add the include files for STLport.
   (Note that you must add the include\stlport directory, not
@@ -116,12 +114,15 @@ third-party packages (include files, libraries, and DLLs):
 
 - Select "Library files".
 
-- Add the library directories for Xerces-C++, Berkeley DB, OpenSSL,
+- Add the library directories for Berkeley DB, expat, OpenSSL,
   bzip2, and STLport (if required).
+
+  If you used the binary installer for expat, then the proper library
+  directory is C:\Expat-1.95.6\Libs.
 
 - Select "Executable files".
 
-- Add the directories which contain DLLs for Xerces-C++, Berekeley DB,
+- Add the directories which contain DLLs for Berekeley DB, expat,
   OpenSSL, bzip2, and STLport (if required).
 
 Now you're ready to compile Ice. Open the "all.dsw" workspace. If you

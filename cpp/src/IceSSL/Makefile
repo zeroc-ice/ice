@@ -34,7 +34,6 @@ OBJS		= Plugin.o \
                   CertificateAuthority.o \
                   CertificateDesc.o \
                   ConfigParser.o \
-                  ConfigParserErrorReporter.o \
                   Context.o \
                   ClientContext.o \
                   ServerContext.o \
@@ -67,10 +66,10 @@ SDIR		= $(slicedir)/IceSSL
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS) $(XERCESC_FLAGS) 
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_SSL_API_EXPORTS $(OPENSSL_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IceSSL --dll-export ICE_SSL_API $(SLICE2CPPFLAGS)
 
-LINKWITH        := $(OPENSSL_LIBS) $(XERCESC_LIBS)
+LINKWITH        := -lIceXML $(OPENSSL_LIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@

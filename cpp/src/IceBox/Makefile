@@ -61,7 +61,7 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(SERVER): $(SOBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIceBox -lFreeze $(LIBS) $(DB_LIBS)
 
 $(ADMIN): $(AOBJS) $(libdir)/$(LIBNAME)
 	rm -f $@

@@ -19,7 +19,6 @@
 #include <IceUtil/Mutex.h>
 #include <Ice/ObjectF.h>
 #include <Ice/ProxyF.h>
-#include <Ice/StreamF.h>
 #include <Ice/IncomingAsyncF.h>
 #include <Ice/Current.h>
 
@@ -83,14 +82,8 @@ public:
     static ::std::string __all[];
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
 
-    virtual void __write(::IceInternal::BasicStream*) const;
+    virtual void __write(::IceInternal::BasicStream*, bool) const;
     virtual void __read(::IceInternal::BasicStream*, bool = true);
-
-    virtual void __marshal(const ::Ice::StreamPtr&, bool) const;
-    virtual void __unmarshal(const ::Ice::StreamPtr&);
-
-    void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&);
-    static void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, ObjectPtr&);
 
     void ice_addFacet(const ObjectPtr&, const ::std::string&);
     ObjectPtr ice_removeFacet(const ::std::string&);
@@ -106,8 +99,6 @@ private:
     ::IceUtil::Mutex _activeFacetMapMutex;
     static const char * const _kindOfObject;
 };
-
-void ICE_API __patch__ObjectPtr(void*, ObjectPtr&);
 
 class ICE_API Blobject : virtual public Object
 {

@@ -112,7 +112,7 @@ private:
 
     int _error;
 
-    friend class SAXGraphHandler;
+    friend class GraphHandler;
 };
 
 } // End namespace IceStorm

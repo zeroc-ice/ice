@@ -30,7 +30,7 @@ CPPFLAGS	:= -I. $(DB_FLAGS) $(CPPFLAGS)
 
 $(CLIENT): $(OBJS) $(COBJS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze -lIceXML $(LIBS) $(DB_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) -lFreeze $(LIBS) $(DB_LIBS)
 
 BenchTypes.h BenchTypes.cpp: Test.ice $(SLICE2FREEZE)
 	rm -f BenchTypes.h BenchTypes.cpp
