@@ -510,11 +510,14 @@ public class IncomingConnectionFactory extends EventHandler
             {
 		if(_instance.threadPerConnection())
 		{
-		    //
-		    // Connect to our own acceptor, which unblocks our
-		    // thread per incoming connection factory stuck in accept().
-		    //
-		    _acceptor.connectToSelf();
+		    if(_acceptor != null)
+		    {
+			//
+			// Connect to our own acceptor, which unblocks our
+			// thread per incoming connection factory stuck in accept().
+			//
+			_acceptor.connectToSelf();
+		    }
 		}
 		else
 		{
