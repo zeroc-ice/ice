@@ -119,16 +119,20 @@ Ice::ObjectAdapterI::activate()
 	{
 	    Identity ident;
 	    ident.name = "dummy";
-	    locatorRegistry->setAdapterDirectProxy(_id, newDirectProxy(ident, ""));
+	    locatorRegistry->setAdapterDirectProxy(_id, createDirectProxy(ident));
 	}
-	catch(const Ice::AdapterNotFoundException&)
+	catch(const ObjectAdapterDeactivatedException&)
+	{
+	    // IGNORE: The object adapter is already inactive.
+	}
+	catch(const AdapterNotFoundException&)
 	{
 	    NotRegisteredException ex(__FILE__, __LINE__);
 	    ex.kindOfObject = "object adapter";
 	    ex.id = _id;
 	    throw ex;
 	}
-	catch(const Ice::AdapterAlreadyActiveException&)
+	catch(const AdapterAlreadyActiveException&)
 	{
 	    ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
 	    ex.id = _id;
@@ -137,21 +141,24 @@ Ice::ObjectAdapterI::activate()
 
         if(registerProcess)
         {
-            ProcessPtr servant = new ProcessI(communicator);
-            ProcessPrx proxy = ProcessPrx::uncheckedCast(addWithUUID(servant));
-
-            try
-            {
-                locatorRegistry->setServerProcessProxy(serverId, proxy);
-            }
-            catch(const ServerNotFoundException&)
-            {
-                NotRegisteredException ex(__FILE__, __LINE__);
-                ex.kindOfObject = "server";
-                ex.id = serverId;
-                throw ex;
-            }
-        }
+	    try
+	    {
+		ProcessPtr servant = new ProcessI(communicator);
+		ProcessPrx proxy = ProcessPrx::uncheckedCast(addWithUUID(servant));
+		locatorRegistry->setServerProcessProxy(serverId, proxy);
+	    }
+	    catch(const ObjectAdapterDeactivatedException&)
+	    {
+		// IGNORE: The object adapter is already inactive.
+	    }
+	    catch(const ServerNotFoundException&)
+	    {
+		NotRegisteredException ex(__FILE__, __LINE__);
+		ex.kindOfObject = "server";
+		ex.id = serverId;
+		throw ex;
+	    }
+	}
     }
 
     if(printAdapterReady)

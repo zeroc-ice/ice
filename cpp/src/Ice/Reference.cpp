@@ -922,10 +922,7 @@ IceInternal::IndirectReference::getEndpoints() const
 ReferencePtr
 IceInternal::IndirectReference::changeLocator(const LocatorPrx& newLocator) const
 {
-    assert(newLocator);
-
     LocatorInfoPtr newLocatorInfo = getInstance()->locatorManager()->get(newLocator);
-
     if(newLocatorInfo == _locatorInfo)
     {
 	return IndirectReferencePtr(const_cast<IndirectReference*>(this));
