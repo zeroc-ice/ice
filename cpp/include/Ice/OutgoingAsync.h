@@ -34,7 +34,6 @@ public:
     virtual ~OutgoingAsync();
 
     virtual void ice_exception(const ::IceUtil::Exception&) = 0;
-    virtual void __response(bool) = 0;
 
     void __setup(const ConnectionPtr&, const ReferencePtr&, const std::string&, ::Ice::OperationMode,
 		 const ::Ice::Context&);
@@ -45,6 +44,10 @@ public:
 
     BasicStream* __is();
     BasicStream* __os();
+
+protected:
+
+    virtual void __response(bool) = 0;
 
 private:
 
