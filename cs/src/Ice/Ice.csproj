@@ -109,7 +109,7 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "Connection.cs"
+                    RelPath = "ConnectionI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />

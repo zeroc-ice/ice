@@ -67,7 +67,7 @@ namespace IceInternal
 	    //
 	    // Now we wait until each connection is in holding state.
 	    //
-	    foreach(Connection connection in connections)
+	    foreach(Ice.ConnectionI connection in connections)
 	    {
 		connection.waitUntilHolding();
 	    }
@@ -99,7 +99,7 @@ namespace IceInternal
 	    // Now we wait for until the destruction of each connection is
 	    // finished.
 	    //
-	    foreach(Connection connection in connections)
+	    foreach(Ice.ConnectionI connection in connections)
 	    {
 		connection.waitUntilFinished();
 	    }
@@ -122,7 +122,7 @@ namespace IceInternal
 	    return endp.equivalent(_acceptor);
 	}
 	
-	public virtual Connection[] connections()
+	public virtual Ice.ConnectionI[] connections()
 	{
 	    lock(this)
 	    {
@@ -131,14 +131,14 @@ namespace IceInternal
 		//
 		// Only copy connections which have not been destroyed.
 		//
-		foreach(Connection connection in _connections)
+		foreach(Ice.ConnectionI connection in _connections)
 		{
 		    if(!connection.isDestroyed())
 		    {
 			connections.Add(connection);
 		    }
 		}
-		Connection[] arr = new Connection[connections.Count];
+		Ice.ConnectionI[] arr = new Ice.ConnectionI[connections.Count];
 		if(arr.Length != 0)
 		{
 		    connections.CopyTo(arr, 0);
@@ -152,7 +152,7 @@ namespace IceInternal
 	    //
 	    // connections() is synchronized, so no need to synchronize here.
 	    //
-	    foreach(Connection connection in connections())
+	    foreach(Ice.ConnectionI connection in connections())
 	    {
 		try
 		{
@@ -186,7 +186,7 @@ namespace IceInternal
 	
 	public override void message(BasicStream unused, ThreadPool threadPool)
 	{
-	    Connection connection = null;
+	    Ice.ConnectionI connection = null;
 	    
 	    lock(this)
 	    {
@@ -203,7 +203,7 @@ namespace IceInternal
 		LinkedList.Enumerator p = (LinkedList.Enumerator)_connections.GetEnumerator();
 		while(p.MoveNext())
 		{
-		    Connection con = (Connection)p.Current;
+		    Ice.ConnectionI con = (Ice.ConnectionI)p.Current;
 		    if(con.isFinished())
 		    {
 			p.Remove();
@@ -245,7 +245,7 @@ namespace IceInternal
 		// Create a connection object for the connection.
 		//
 		Debug.Assert(transceiver != null);
-		connection = new Connection(_instance, transceiver, _endpoint, _adapter);
+		connection = new Ice.ConnectionI(_instance, transceiver, _endpoint, _adapter);
 		_connections.Add(connection);
 	    }
 	    
@@ -340,7 +340,7 @@ namespace IceInternal
 		if(_transceiver != null)
 		{
 		    _endpoint = h;
-		    Connection connection = new Connection(_instance, _transceiver, _endpoint, _adapter);
+		    Ice.ConnectionI connection = new Ice.ConnectionI(_instance, _transceiver, _endpoint, _adapter);
 		    connection.validate();
 		    _connections.Add(connection);
 		}
@@ -391,7 +391,7 @@ namespace IceInternal
 		    }
 		    registerWithPool();
 		    
-		    foreach(Connection connection in _connections)
+		    foreach(Ice.ConnectionI connection in _connections)
 		    {
 			connection.activate();
 		    }
@@ -407,7 +407,7 @@ namespace IceInternal
 		    }
 		    unregisterWithPool();
 		    
-		    foreach(Connection connection in _connections)
+		    foreach(Ice.ConnectionI connection in _connections)
 		    {
 			connection.hold();
 		    }
@@ -426,9 +426,9 @@ namespace IceInternal
 		    }
 		    unregisterWithPool();
 		    
-		    foreach(Connection connection in _connections)
+		    foreach(Ice.ConnectionI connection in _connections)
 		    {
-			connection.destroy(Connection.ObjectAdapterDeactivated);
+			connection.destroy(Ice.ConnectionI.ObjectAdapterDeactivated);
 		    }
 		    break;
 		}
@@ -489,9 +489,9 @@ namespace IceInternal
 		
 		foreach(LinkedList connections in _connections.Values)
 		{
-		    foreach(Connection c in connections)
+		    foreach(Ice.ConnectionI c in connections)
 		    {
-			c.destroy(Connection.CommunicatorDestroyed);
+			c.destroy(Ice.ConnectionI.CommunicatorDestroyed);
 		    }
 		}
 
@@ -530,14 +530,14 @@ namespace IceInternal
 	    //
 	    foreach(LinkedList cl in connections.Values)
 	    {
-		foreach(Connection c in cl)
+		foreach(Ice.ConnectionI c in cl)
 		{
 		    c.waitUntilFinished();
 		}
 	    }
 	}
 	
-	public virtual Connection create(Endpoint[] endpoints, out bool compress)
+	public virtual Ice.ConnectionI create(Endpoint[] endpoints, out bool compress)
 	{
 	    Debug.Assert(endpoints.Length > 0);
 	    
@@ -560,7 +560,7 @@ namespace IceInternal
 		    LinkedList.Enumerator q = (LinkedList.Enumerator)cl.GetEnumerator();
 		    while(q.MoveNext())
 		    {
-			if(((Connection)q.Current).isFinished())
+			if(((Ice.ConnectionI)q.Current).isFinished())
 			{
 			    q.Remove();
 			}
@@ -600,7 +600,7 @@ namespace IceInternal
 		    LinkedList connectionList = (LinkedList)_connections[endpoints[j]];
 		    if(connectionList != null)
 		    {
-			foreach(Connection connection in connectionList)
+			foreach(Ice.ConnectionI connection in connectionList)
 			{
                             //
                             // Don't return connections for which destruction has
@@ -666,7 +666,7 @@ namespace IceInternal
 			LinkedList connectionList = (LinkedList)_connections[endpoints[j]];
 			if(connectionList != null)
 			{
-                            foreach(Connection connection in connectionList)
+                            foreach(Ice.ConnectionI connection in connectionList)
                             {
                                 //
                                 // Don't return connections for which destruction has
@@ -701,7 +701,7 @@ namespace IceInternal
 		}
 	    }
 	    
-	    Connection newConnection = null;
+	    Ice.ConnectionI newConnection = null;
 	    Ice.LocalException exception = null;
 	    
 	    for(int i = 0; i < endpoints.Length; i++)
@@ -733,7 +733,7 @@ namespace IceInternal
 			transceiver = connector.connect(endpoint.timeout());
 			Debug.Assert(transceiver != null);
 		    }
-		    newConnection = new Connection(_instance, transceiver, endpoint, null);
+		    newConnection = new Ice.ConnectionI(_instance, transceiver, endpoint, null);
 		    newConnection.validate();
                     if(_instance.defaultsAndOverrides().overrideCompress)
                     {
@@ -797,7 +797,7 @@ namespace IceInternal
 		    
 		    if(_destroyed)
 		    {
-			newConnection.destroy(Connection.CommunicatorDestroyed);
+			newConnection.destroy(Ice.ConnectionI.CommunicatorDestroyed);
 			throw new Ice.CommunicatorDestroyedException();
 		    }
 		    else
@@ -842,7 +842,7 @@ namespace IceInternal
 			}
 
 			//
-                        // The Connection object does not take the compression flag of
+                        // The Ice.ConnectionI object does not take the compression flag of
                         // endpoints into account, but instead gets the information
                         // about whether messages should be compressed or not from
                         // other sources. In order to allow connection sharing for
@@ -855,7 +855,7 @@ namespace IceInternal
 			LinkedList connectionList = (LinkedList)_connections[endpoints[i]];
 			if(connectionList != null)
 			{
-			    foreach(Connection connection in connectionList)
+			    foreach(Ice.ConnectionI connection in connectionList)
 			    {
 				connection.setAdapter(adapter);
 			    }
@@ -876,7 +876,7 @@ namespace IceInternal
 		
 		foreach(LinkedList connectionList in _connections.Values)
 		{
-		    foreach(Connection connection in connectionList)
+		    foreach(Ice.ConnectionI connection in connectionList)
 		    {
 			if(connection.getAdapter() == adapter)
 			{
@@ -895,14 +895,14 @@ namespace IceInternal
 	    {
 		foreach(LinkedList connectionList in _connections.Values)
 		{
-		    foreach(Connection conn in connectionList)
+		    foreach(Ice.ConnectionI conn in connectionList)
 		    {
 			c.Add(conn);
 		    }
 		}
 	    }
 	    
-	    foreach(Connection conn in c)
+	    foreach(Ice.ConnectionI conn in c)
 	    {
 		if(conn.isValidated())
 		{

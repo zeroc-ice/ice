@@ -569,7 +569,7 @@ namespace Ice
 	    }
 	}
 	
-	public IceInternal.Connection[] getIncomingConnections()
+	public ConnectionI[] getIncomingConnections()
 	{
 	    lock(this)
 	    {
@@ -581,13 +581,13 @@ namespace Ice
 		{
 		    IceInternal.IncomingConnectionFactory factory
 			= (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories[i];
-		    IceInternal.Connection[] cons = factory.connections();
+		    ConnectionI[] cons = factory.connections();
 		    for(int j = 0; j < cons.Length; j++)
 		    {
 			connections.Add(cons[j]);
 		    }
 		}
-		IceInternal.Connection[] arr = new IceInternal.Connection[connections.Count];
+		ConnectionI[] arr = new ConnectionI[connections.Count];
 		if(arr.Length != 0)
 		{
 		    connections.CopyTo(arr, 0);

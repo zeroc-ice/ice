@@ -16,7 +16,7 @@ namespace IceInternal
 
     public class Outgoing
     {
-	public Outgoing(Connection connection, Reference r, string operation, Ice.OperationMode mode,
+	public Outgoing(Ice.ConnectionI connection, Reference r, string operation, Ice.OperationMode mode,
 	                Ice.Context context, bool compress)
 	{
 	    _connection = connection;
@@ -442,7 +442,7 @@ namespace IceInternal
 	    _os.startWriteEncaps();
 	}
 	
-	private Connection _connection;
+	private Ice.ConnectionI _connection;
 	private Reference _reference;
 	private Ice.LocalException _exception;
 	

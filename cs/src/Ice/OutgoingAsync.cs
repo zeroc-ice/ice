@@ -433,7 +433,7 @@ namespace IceInternal
         protected BasicStream __os;
 
         private Reference _reference;
-        private Connection _connection;
+        private Ice.ConnectionI _connection;
         private int _cnt;
         private Ice.OperationMode _mode;
         private bool _compress;

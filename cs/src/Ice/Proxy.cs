@@ -1037,7 +1037,7 @@ namespace Ice
         }
 	
         protected internal IceInternal.Reference __reference;
-        protected internal IceInternal.Connection __connection;
+        protected internal ConnectionI __connection;
 	
         public virtual void setup(IceInternal.Reference rf)
         {

@@ -36,7 +36,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public void add(Connection connection)
+	public void add(Ice.ConnectionI connection)
 	{
 	    lock(this)
 	    {
@@ -45,7 +45,7 @@ namespace IceInternal
 	    }
 	}
 	
-	public void remove(Connection connection)
+	public void remove(Ice.ConnectionI connection)
 	{
 	    lock(this)
 	    {
@@ -103,7 +103,7 @@ namespace IceInternal
 		    }
 		    
 		    connections.Clear();
-		    foreach(Connection connection in _connections)
+		    foreach(Ice.ConnectionI connection in _connections)
 		    {
 			connections.Add(connection);
 		    }
@@ -114,7 +114,7 @@ namespace IceInternal
 		// so that connections can be added or removed during
 		// monitoring.
 		//
-		foreach(Connection connection in connections)
+		foreach(Ice.ConnectionI connection in connections)
 		{
 		    try
 		    {

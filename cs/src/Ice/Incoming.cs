@@ -17,7 +17,7 @@ namespace IceInternal
 
     public class IncomingBase
     {
-	protected internal IncomingBase(Instance instance, Connection connection,
+	protected internal IncomingBase(Instance instance, Ice.ConnectionI connection,
 	                                Ice.ObjectAdapter adapter, bool response, byte compress)
 	{
 	    _current = new Ice.Current();
@@ -79,7 +79,7 @@ namespace IceInternal
 	// This function allows this object to be reused, rather than
 	// reallocated.
 	//
-	public virtual void reset(Instance instance, Connection connection,
+	public virtual void reset(Instance instance, Ice.ConnectionI connection,
 	                          Ice.ObjectAdapter adapter, bool response, byte compress)
 	{
 	    _current = new Ice.Current();
@@ -156,12 +156,12 @@ namespace IceInternal
 	
 	protected internal BasicStream _os;
 	
-	private Connection _connection;
+	private Ice.ConnectionI _connection;
     }
 	
     sealed public class Incoming : IncomingBase
     {
-	public Incoming(Instance instance, Connection connection, Ice.ObjectAdapter adapter,
+	public Incoming(Instance instance, Ice.ConnectionI connection, Ice.ObjectAdapter adapter,
 		        bool response, byte compress)
 	     : base(instance, connection, adapter, response, compress)
 	{
@@ -188,7 +188,7 @@ namespace IceInternal
 	// This function allows this object to be reused, rather than
 	// reallocated.
 	//
-	public override void reset(Instance instance, Connection connection,
+	public override void reset(Instance instance, Ice.ConnectionI connection,
 	                           Ice.ObjectAdapter adapter, bool response, byte compress)
 	{
 	    if(_is == null)

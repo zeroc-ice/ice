@@ -553,9 +553,9 @@ namespace IceInternal
 	//
 	// Get a suitable connection for this reference.
 	//
-	public Connection getConnection(out bool compress)
+	public Ice.ConnectionI getConnection(out bool compress)
 	{
-	    Connection connection;
+	    Ice.ConnectionI connection;
 
 	    if(reverseAdapter != null)
 	    {
@@ -564,7 +564,7 @@ namespace IceInternal
 		// connections from such object adapter.
 		//
 		Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)reverseAdapter;
-		Connection[] connections = adapter.getIncomingConnections();
+		Ice.ConnectionI[] connections = adapter.getIncomingConnections();
 
 		Endpoint[] endpoints = new Endpoint[connections.Length];
 		for(int i = 0; i < connections.Length; i++)

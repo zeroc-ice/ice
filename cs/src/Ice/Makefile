@@ -19,7 +19,7 @@ SRCS		= Acceptor.cs \
 		  BasicStream.cs \
 		  ByteBuffer.cs \
 		  CommunicatorI.cs \
-		  Connection.cs \
+		  ConnectionI.cs \
 		  ConnectionFactory.cs \
 		  ConnectionMonitor.cs \
 		  Connector.cs \
