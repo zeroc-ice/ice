@@ -23,6 +23,7 @@ Third-party libraries
 - expat 1.9x. You can download expat from 
   http://sourceforge.net/projects/expat/
 
+
 ======================================================================
 Compilation and Testing
 ======================================================================
@@ -63,6 +64,7 @@ PATH and "lib" to DYLD_LIBRARY_PATH:
 
 $ export PATH=`pwd`/bin:$PATH
 $ export DYLD_LIBRARY_PATH=`pwd`/lib:$DYLD_LIBRARY_PATH
+
 
 ======================================================================
 Installation
