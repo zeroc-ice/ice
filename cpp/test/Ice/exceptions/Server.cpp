@@ -25,6 +25,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
         protocol = "tcp";
     }
 
+    properties->setProperty("Ice.WarnAboutServerExceptions", "0");
     string endpts = protocol + " -p 12345 -t 2000";
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("TestAdapter", endpts);
     Ice::ObjectPtr object = new ThrowerI(adapter);
