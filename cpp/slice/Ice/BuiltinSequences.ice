@@ -37,9 +37,13 @@ sequence<double> DoubleSeq;
 /** A sequence of strings. **/
 sequence<string> StringSeq;
 
+#ifndef ICEE
+    
 /** A sequence of objects. **/
 sequence<Object> ObjectSeq;
-
+    
+#endif /* ICEE */
+    
 /** A sequence of object proxies. **/
 sequence<Object*> ObjectProxySeq;
 

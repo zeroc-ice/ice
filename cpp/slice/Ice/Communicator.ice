@@ -167,6 +167,8 @@ local interface Communicator
      **/
     ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
 
+#ifndef ICEE
+
     /**
      *
      * Add a servant factory to this communicator. Installing a
@@ -243,6 +245,8 @@ local interface Communicator
      *
      **/
     nonmutating ObjectFactory findObjectFactory(string id);
+
+#endif /* ICEE */
 
     /**
      *
