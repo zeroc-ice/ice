@@ -21,6 +21,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/CommunicatorF.h>
+#include <Ice/LoggerF.h>
 #include <Ice/ConnectionFactoryF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
@@ -86,6 +87,7 @@ private:
     bool _printAdapterReadyDone;
     std::string _name;
     std::string _id;
+    LoggerPtr _logger;
     ObjectDict _activeServantMap;
     ObjectDict::iterator _activeServantMapHint;
     std::map<std::string, ServantLocatorPtr> _locatorMap;

@@ -563,11 +563,35 @@ Ice::ObjectAdapterI::decUsageCount()
     {
 	_activeServantMap.clear();
 	_activeServantMapHint = _activeServantMap.end();
-	
-	for_each(_locatorMap.begin(), _locatorMap.end(),
-		 Ice::secondVoidMemFun<string, ServantLocator>(&ServantLocator::deactivate));
+
+        std::map<std::string, ServantLocatorPtr>::iterator p;
+        for(p = _locatorMap.begin(); p != _locatorMap.end(); ++p)
+        {
+            try
+            {
+                p->second->deactivate();
+            }
+            catch(const Exception& ex)
+            {
+                Error out(_logger);
+                out << "exception during locator deactivation:\n"
+                    << "object adapter: `" << _name << "'\n"
+                    << "locator prefix: `" << p->first << "'\n"
+                    << ex;
+            }
+            catch(...)
+            {
+                Error out(_logger);
+                out << "unknown exception during locator deactivation:\n"
+                    << "object adapter: `" << _name << "'\n"
+                    << "locator prefix: `" << p->first << "'";
+            }
+        }
+//	for_each(_locatorMap.begin(), _locatorMap.end(),
+//		 Ice::secondVoidMemFun<string, ServantLocator>(&ServantLocator::deactivate));
 	_locatorMap.clear();
 	_locatorMapHint = _locatorMap.end();
+        _logger = 0;
 
 	notifyAll();
     }
@@ -580,6 +604,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _printAdapterReadyDone(false),
     _name(name),
     _id(id),
+    _logger(instance->logger()),
     _activeServantMapHint(_activeServantMap.end()),
     _locatorMapHint(_locatorMap.end()),
     _usageCount(1)

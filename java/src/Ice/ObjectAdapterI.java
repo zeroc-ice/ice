@@ -486,13 +486,28 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	{
 	    _activeServantMap.clear();
 	    
-	    java.util.Iterator p = _locatorMap.values().iterator();
+	    java.util.Iterator p = _locatorMap.entrySet().iterator();
 	    while(p.hasNext())
 	    {
-		ServantLocator locator = (ServantLocator)p.next();
-		locator.deactivate();
+                java.util.Map.Entry e = (java.util.Map.Entry)p.next();
+		ServantLocator locator = (ServantLocator)e.getValue();
+                try
+                {
+                    locator.deactivate();
+                }
+                catch(RuntimeException ex)
+                {
+                    java.io.StringWriter sw = new java.io.StringWriter();
+                    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+                    ex.printStackTrace(pw);
+                    pw.flush();
+                    String s = "exception during locator deactivation:\n" + "object adapter: `" + _name + "'\n" +
+                        "locator prefix: `" + e.getKey() + "'\n" + sw.toString();
+                    _logger.error(s);
+                }
 	    }
 	    _locatorMap.clear();
+            _logger = null;
 
 	    notifyAll();
         }
@@ -509,6 +524,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	_printAdapterReadyDone = false;
         _name = name;
 	_id = id;
+        _logger = instance.logger();
 	_usageCount = 1;
 	
 	String s = endpts.toLowerCase();
@@ -720,6 +736,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
     private boolean _printAdapterReadyDone;
     private String _name;
     private String _id;
+    private Logger _logger;
     private java.util.HashMap _activeServantMap = new java.util.HashMap();
     private java.util.HashMap _locatorMap = new java.util.HashMap();
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
