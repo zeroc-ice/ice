@@ -180,32 +180,39 @@ Ice::PropertiesI::parseArgs(int& argc, char* argv[])
 	string::size_type beg = arg.find("--");
 	if (beg == 0)
 	{
-	    string::size_type end = arg.find('.');
-	    if (end != string::npos)
-	    {
-		string prefix = arg.substr(2, end - 2);
-		
-		if (prefix == "Ice" || _argumentPrefixes.find(prefix) != _argumentPrefixes.end())
-		{
-		    match = true;
-		}
+            string rest = arg.substr(2);
+            if (rest.find("Ice.") == 0)
+            {
+                match = true;
+            }
+            else
+            {
+                set<string>::const_iterator p;
+                for (p = _argumentPrefixes.begin(); p != _argumentPrefixes.end(); ++p)
+                {
+                    if (rest.find((*p) + ".") == 0)
+                    {
+                        match = true;
+                        break;
+                    }
+                }
+            }
 
-		if (match)
-		{
-		    for (int i = idx ; i + 1 < argc ; ++i)
-		    {
-			argv[i] = argv[i + 1];
-		    }
-		    --argc;
-		    
-		    if (arg.find('=') == string::npos)
-		    {
-			arg += "=1";
-		    }
-		    
-		    parseLine(arg.substr(2));
-		}
-	    }
+            if (match)
+            {
+                for (int i = idx ; i + 1 < argc ; ++i)
+                {
+                    argv[i] = argv[i + 1];
+                }
+                --argc;
+                
+                if (arg.find('=') == string::npos)
+                {
+                    arg += "=1";
+                }
+                
+                parseLine(arg.substr(2));
+            }
 	}
 	
 	if (!match)
