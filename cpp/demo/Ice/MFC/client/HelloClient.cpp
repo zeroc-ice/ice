@@ -47,10 +47,7 @@ CHelloClientApp::InitInstance()
     {
         int argc = 0;
 	Ice::PropertiesPtr properties = Ice::createProperties();
-	properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:create");
-	properties->setProperty("IceSSL.Client.CertPath", "../../../../certs");
-	properties->setProperty("IceSSL.Client.Config", "sslconfig.xml");
-
+	properties->load("config");
         communicator = Ice::initializeWithProperties(argc, 0, properties);
     }
     catch(const IceUtil::Exception& ex)
