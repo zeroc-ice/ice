@@ -76,7 +76,7 @@ create(const CommunicatorPtr& communicator, const string& name, const StringSeq&
     }
     catch (...)
     {
-        plugin->__decRef();
+        Ice::PluginPtr ptr = plugin; // Reclaim the plug-in instance
         throw;
     }
 

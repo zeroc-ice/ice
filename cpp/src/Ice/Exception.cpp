@@ -310,6 +310,17 @@ Ice::CompressionNotSupportedException::ice_print(ostream& out) const
 }
 
 void
+Ice::PluginInitializationException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nplug-in initialization failed";
+    if (!reason.empty())
+    {
+        out << ": " << reason;
+    }
+}
+
+void
 Ice::PluginExistsException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);

@@ -461,6 +461,22 @@ local exception CompressionNotSupportedException extends ProtocolException
 {
 };
 
+/**
+ *
+ * This exception indicates that a failure occurred while initializing
+ * a plug-in.
+ *
+ **/
+local exception PluginInitializationException
+{
+    /**
+     *
+     * The reason for the failure.
+     *
+     **/
+    string reason;
+};
+
 };
 
 #endif

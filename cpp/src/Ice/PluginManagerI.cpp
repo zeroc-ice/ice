@@ -144,15 +144,15 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, co
     DynamicLibrary::symbol_type sym = info.library->loadEntryPoint(entryPoint);
     if (sym == 0)
     {
-        Error out(_instance->logger());
+        ostringstream out;
         string msg = info.library->getErrorMessage();
-        out << "PluginManager: unable to load entry point `" << entryPoint << "'";
+        out << "unable to load entry point `" << entryPoint << "'";
         if (!msg.empty())
         {
             out << ": " + msg;
         }
-        SystemException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
+        PluginInitializationException ex(__FILE__, __LINE__);
+        ex.reason = out.str();
         throw ex;
     }
 
@@ -166,16 +166,28 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& entryPoint, co
     }
     catch (const Exception& ex)
     {
-        Error out(_instance->logger());
-        out << "PluginManager: exception in entry point `" << entryPoint << "': " << ex.ice_name();
-        throw;
+        //
+        // Do NOT propagate the exception from the entry point,
+        // because the library will be closed.
+        //
+        ostringstream out;
+        out << "exception in entry point `" << entryPoint << "'\n"
+            << "original exception:\n"
+            << ex;
+        PluginInitializationException e(__FILE__, __LINE__);
+        e.reason = out.str();
+        throw e;
     }
     catch (...)
     {
-        Error out(_instance->logger());
-        out << "PluginManager: unknown exception in entry point `" << entryPoint << "'";
-        SystemException e(__FILE__, __LINE__);
-        e.error = 0;
+        //
+        // Do NOT propagate the exception from the entry point,
+        // because the library will be closed.
+        //
+        ostringstream out;
+        out << "unknown exception in entry point `" << entryPoint << "'\n";
+        PluginInitializationException e(__FILE__, __LINE__);
+        e.reason = out.str();
         throw e;
     }
 
