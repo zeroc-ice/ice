@@ -34,25 +34,6 @@ print "tests with regular server."
 TestUtil.clientServerTestWithClasspath(os.path.join(testdir, "sclasses"), os.path.join(testdir, "cclasses"))
 
 print "tests with AMD server."
-server = "java -ea Server --Ice.ProgramName=Server "
-client = "java -ea Client --Ice.ProgramName=Client "
-print "starting server...",
-cp = os.getenv("CLASSPATH", "")
-os.environ["CLASSPATH"] = os.path.join(testdirAMD, "classes") + TestUtil.sep + cp
-serverPipe = os.popen(server + TestUtil.serverOptions)
-os.environ["CLASSPATH"] = cp
-TestUtil.getAdapterReady(serverPipe)
-print "ok"
-print "starting client...",
-os.environ["CLASSPATH"] = os.path.join(testdir, "cclasses") + TestUtil.sep + cp
-clientPipe = os.popen(client + TestUtil.clientOptions)
-os.environ["CLASSPATH"] = cp
-print "ok"
-TestUtil.printOutputFromPipe(clientPipe)
-clientStatus = clientPipe.close()
-serverStatus = serverPipe.close()
-if clientStatus or serverStatus:
-    TestUtil.killServers()
-    sys.exit(1)
+TestUtil.clientServerTestWithClasspath(os.path.join(testdirAMD, "classes"), os.path.join(testdir, "cclasses"))
 
 sys.exit(0)
