@@ -538,13 +538,14 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 	
 	//
-	// First we wait until the factory is destroyed.
+	// First we wait until the factory is destroyed. If we are using
+	// an acceptor, we also wait for it to be closed.
 	//
-	while(_state != StateClosed)
+	while(_state != StateClosed || _acceptor)
 	{
 	    wait();
 	}
-	
+
 	threadPerIncomingConnectionFactory = _threadPerIncomingConnectionFactory;
 	_threadPerIncomingConnectionFactory = 0;
 
