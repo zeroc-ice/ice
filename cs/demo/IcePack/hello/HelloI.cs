@@ -35,7 +35,7 @@ public class HelloI : Hello
         IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"));
         try
         {
-            admin.removeObject(adapter.createProxy(current.id));
+            admin.removeObject(current.id);
         }
         catch(IcePack.ObjectNotExistException)
         {
