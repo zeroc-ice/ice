@@ -1,6 +1,12 @@
 Changes since version 1.0.1
 ---------------------------
 
+- Updated Mutex, RecMutex and RWRecMutex APIs: lock and unlock now return
+  void, and trylock returns a bool that indicates whether the mutex was
+  acquired or not. Also added new member functions to LockT, TryLockT,
+  RLockT, TryLockT, WLockT, TryWLockT: acquire(), tryAcquire(), release(),
+  acquired() and more.
+
 - Removed dependency on E2FSPROGS for UUID generation. On Unix,
   UUIDs are now generated directly with /dev/urandom.
 
