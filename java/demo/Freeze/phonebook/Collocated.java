@@ -25,15 +25,16 @@ class PhoneBookCollocated extends Freeze.Application
 	//
 	// Create an Evictor for contacts.
 	//
-	Freeze.Evictor evictor;
-	if(properties.getPropertyAsInt("PhoneBook.SaveAfterMutatingOperation") > 0)
+	Freeze.PersistenceStrategy strategy;
+	if(properties.getPropertyAsInt("PhoneBook.IdleStrategy") > 0)
 	{
-	    evictor = dbContacts.createEvictor(Freeze.EvictorPersistenceMode.SaveAfterMutatingOperation);
+            strategy = dbContacts.createIdleStrategy();
 	}
 	else
 	{
-	    evictor = dbContacts.createEvictor(Freeze.EvictorPersistenceMode.SaveUponEviction);
+            strategy = dbContacts.createEvictionStrategy();
 	}
+	Freeze.Evictor evictor = dbContacts.createEvictor(strategy);
 	int evictorSize = properties.getPropertyAsInt("PhoneBook.EvictorSize");
 	if(evictorSize > 0)
 	{
@@ -83,6 +84,6 @@ public class Collocated
     main(String[] args)
     {
 	PhoneBookCollocated app = new PhoneBookCollocated("db");
-	app.main("test.Freeze.phonebook.Collocated", args, "config");
+	app.main("demo.Freeze.phonebook.Collocated", args, "config");
     }
 }

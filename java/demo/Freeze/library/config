@@ -4,6 +4,6 @@ Ice.Warn.Connections=1
 #Ice.Trace.Protocol=1
 Library.Proxy=library:default -p 10000
 Library.EvictorSize=3
-#Library.SaveAfterMutatingOperation=1
+#Library.IdleStrategy=1
 Freeze.Trace.DB=1
 Freeze.Trace.Evictor=2

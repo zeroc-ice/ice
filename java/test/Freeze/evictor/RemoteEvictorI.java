@@ -14,11 +14,12 @@
 
 public final class RemoteEvictorI extends Test._RemoteEvictorDisp
 {
-    RemoteEvictorI(Ice.ObjectAdapter adapter, String category, Freeze.DB db, Freeze.Evictor evictor)
+    RemoteEvictorI(Ice.ObjectAdapter adapter, String category, Freeze.DB db, StrategyI strategy, Freeze.Evictor evictor)
     {
         _adapter = adapter;
         _category = category;
         _db = db;
+        _strategy = strategy;
         _evictor = evictor;
         _lastSavedValue = -1;
     }
@@ -54,6 +55,18 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         _lastSavedValue = -1;
     }
 
+    public int
+    getLastEvictedValue(Ice.Current current)
+    {
+        return _strategy.getLastEvictedValue();
+    }
+
+    public void
+    clearLastEvictedValue(Ice.Current current)
+    {
+        _strategy.clearLastEvictedValue();
+    }
+
     public void
     deactivate(Ice.Current current)
     {
@@ -71,6 +84,7 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
     private Ice.ObjectAdapter _adapter;
     private String _category;
     private Freeze.DB _db;
+    private StrategyI _strategy;
     private Freeze.Evictor _evictor;
     private int _lastSavedValue;
 }

@@ -16,6 +16,7 @@
 #include <IceUtil/UUID.h>
 #include <Freeze/DB.h>
 #include <Freeze/Evictor.h>
+#include <Freeze/Strategy.h>
 #include <IcePack/ServerFactory.h>
 #include <IcePack/ServerI.h>
 #include <IcePack/ServerAdapterI.h>
@@ -75,7 +76,7 @@ IcePack::ServerFactory::ServerFactory(const Ice::ObjectAdapterPtr& adapter,
     // Create and install the freeze evictor for server objects.
     //
     Freeze::DBPtr dbServers = dbEnv->openDB("servers", true);
-    _serverEvictor = dbServers->createEvictor(Freeze::SaveUponEviction);
+    _serverEvictor = dbServers->createEvictor(dbServers->createEvictionStrategy());
     _serverEvictor->setSize(10000);
     _serverEvictor->installServantInitializer(initializer);
 
@@ -83,7 +84,7 @@ IcePack::ServerFactory::ServerFactory(const Ice::ObjectAdapterPtr& adapter,
     // Create and install the freeze evictor for server adapter objects.
     //
     Freeze::DBPtr dbServerAdapters = dbEnv->openDB("serveradapters", true);
-    _serverAdapterEvictor = dbServerAdapters->createEvictor(Freeze::SaveUponEviction);
+    _serverAdapterEvictor = dbServerAdapters->createEvictor(dbServerAdapters->createEvictionStrategy());
     _serverAdapterEvictor->setSize(10000);
     _serverAdapterEvictor->installServantInitializer(initializer);
 

@@ -22,8 +22,10 @@ TARGETS		= $(NAME) $(VERSIONED_NAME)
 OBJS		= DB.o \
 		  DBException.o \
 		  Evictor.o \
+		  Strategy.o \
 	  	  DBI.o \
 		  EvictorI.o \
+		  StrategyI.o \
 		  IdentityObjectDict.o \
 		  Application.o
 
@@ -33,7 +35,9 @@ SLICE_SRCS	= $(SDIR)/DB.ice \
 		  $(SDIR)/DBF.ice \
 		  $(SDIR)/DBException.ice \
 		  $(SDIR)/Evictor.ice \
-		  $(SDIR)/EvictorF.ice
+		  $(SDIR)/EvictorF.ice \
+		  $(SDIR)/Strategy.ice \
+		  $(SDIR)/StrategyF.ice
 
 HDIR		= $(includedir)/Freeze
 SDIR		= $(slicedir)/Freeze

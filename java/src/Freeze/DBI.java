@@ -260,8 +260,20 @@ class DBI extends Ice.LocalObjectImpl implements DB
 	}	
     }
 
+    public EvictionStrategy
+    createEvictionStrategy()
+    {
+        return new EvictionStrategyI();
+    }
+
+    public IdleStrategy
+    createIdleStrategy()
+    {
+        return new IdleStrategyI();
+    }
+
     synchronized public Evictor
-    createEvictor(EvictorPersistenceMode persistenceMode)
+    createEvictor(PersistenceStrategy strategy)
     {
 	if(_db == null)
 	{
@@ -270,7 +282,7 @@ class DBI extends Ice.LocalObjectImpl implements DB
 	    throw ex;
 	}
 
-	return new EvictorI(this, persistenceMode);
+	return new EvictorI(this, strategy);
     }
 
     DBI(Ice.Communicator communicator, DBEnvironmentI dbEnvObj, com.sleepycat.db.Db db, com.sleepycat.db.DbTxn txn,

@@ -22,8 +22,14 @@
 namespace Test
 {
 
+class ServantI;
+typedef IceUtil::Handle<ServantI> ServantIPtr;
+
 class RemoteEvictorI;
 typedef IceUtil::Handle<RemoteEvictorI> RemoteEvictorIPtr;
+
+class StrategyI;
+typedef IceUtil::Handle<StrategyI> StrategyIPtr;
 
 class ServantI : virtual public Servant
 {
@@ -34,11 +40,16 @@ public:
 
     void init(const RemoteEvictorIPtr&, const Freeze::EvictorPtr&);
 
-    virtual ::Ice::Int getValue(const Ice::Current&) const;
+    virtual ::Ice::Int getValue(const Ice::Current& = Ice::Current()) const;
 
-    virtual void setValue(::Ice::Int, const Ice::Current&);
+    virtual void setValue(::Ice::Int, const Ice::Current& = Ice::Current());
 
-    virtual void destroy(const Ice::Current&);
+    virtual void setValueAsync_async(const AMD_Servant_setValueAsyncPtr&, Ice::Int,
+                                     const Ice::Current& = Ice::Current());
+
+    virtual void releaseAsync(const Ice::Current& = Ice::Current()) const;
+
+    virtual void destroy(const Ice::Current& = Ice::Current());
 
     virtual void __write(::IceInternal::BasicStream*) const;
 
@@ -48,6 +59,8 @@ private:
 
     RemoteEvictorIPtr _remoteEvictor;
     Freeze::EvictorPtr _evictor;
+    AMD_Servant_setValueAsyncPtr _setValueAsyncCB;
+    Ice::Int _setValueAsyncValue;
 };
 
 class RemoteEvictorI : virtual public RemoteEvictor
@@ -55,7 +68,7 @@ class RemoteEvictorI : virtual public RemoteEvictor
 public:
 
     RemoteEvictorI(const Ice::ObjectAdapterPtr&, const std::string&, const Freeze::DBPtr& db,
-                   const Freeze::EvictorPtr&);
+                   const StrategyIPtr& strategy, const Freeze::EvictorPtr&);
 
     virtual void setSize(::Ice::Int, const Ice::Current&);
 
@@ -64,6 +77,10 @@ public:
     virtual ::Ice::Int getLastSavedValue(const Ice::Current&) const;
 
     virtual void clearLastSavedValue(const Ice::Current&);
+
+    virtual ::Ice::Int getLastEvictedValue(const Ice::Current&) const;
+
+    virtual void clearLastEvictedValue(const Ice::Current&);
 
     virtual void deactivate(const Ice::Current&);
 
@@ -74,6 +91,7 @@ private:
     Ice::ObjectAdapterPtr _adapter;
     std::string _category;
     Freeze::DBPtr _db;
+    StrategyIPtr _strategy;
     Freeze::EvictorPtr _evictor;
     Ice::Int _lastSavedValue;
 };
@@ -85,7 +103,7 @@ public:
     RemoteEvictorFactoryI(const Ice::ObjectAdapterPtr&, const Freeze::DBEnvironmentPtr&);
 
     virtual ::Test::RemoteEvictorPrx createEvictor(const ::std::string&,
-						   ::Test::EvictorPersistenceMode,
+						   ::Test::Strategy,
 						   const Ice::Current&);
 
     virtual void shutdown(const Ice::Current&);
@@ -94,6 +112,41 @@ private:
 
     Ice::ObjectAdapterPtr _adapter;
     Freeze::DBEnvironmentPtr _dbEnv;
+};
+
+class StrategyI : virtual public Freeze::PersistenceStrategy
+{
+public:
+
+    StrategyI(const Freeze::PersistenceStrategyPtr&);
+
+    virtual Ice::LocalObjectPtr activatedObject(const Ice::Identity&,
+                                                const Ice::ObjectPtr&);
+
+    virtual void destroyedObject(const Ice::Identity&, const Ice::LocalObjectPtr&);
+
+    virtual void evictedObject(const Freeze::ObjectStorePtr&,
+                               const Ice::Identity&,
+                               const Ice::ObjectPtr&,
+                               const Ice::LocalObjectPtr&);
+
+    virtual void invokedObject(const Freeze::ObjectStorePtr&,
+                               const Ice::Identity&,
+                               const Ice::ObjectPtr&,
+                               bool,
+                               bool,
+                               const Ice::LocalObjectPtr&);
+
+    virtual void destroy();
+
+    Ice::Int getLastEvictedValue();
+
+    void clearLastEvictedValue();
+
+private:
+
+    Freeze::PersistenceStrategyPtr _delegate;
+    Ice::Int _lastEvictedValue;
 };
 
 }

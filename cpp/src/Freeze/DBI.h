@@ -156,7 +156,10 @@ public:
     virtual void remove();
     virtual void sync();
 
-    virtual EvictorPtr createEvictor(EvictorPersistenceMode);
+    virtual EvictionStrategyPtr createEvictionStrategy();
+    virtual IdleStrategyPtr createIdleStrategy();
+
+    virtual EvictorPtr createEvictor(const PersistenceStrategyPtr&);
 
 private:
 

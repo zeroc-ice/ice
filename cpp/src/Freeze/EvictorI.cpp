@@ -41,12 +41,12 @@ private:
 
 }
 
-Freeze::EvictorI::EvictorI(const DBPtr& db, EvictorPersistenceMode persistenceMode) :
+Freeze::EvictorI::EvictorI(const DBPtr& db, const PersistenceStrategyPtr& strategy) :
     _evictorSize(10),
     _deactivated(false),
     _dict(db),
     _db(db),
-    _persistenceMode(persistenceMode),
+    _strategy(strategy),
     _trace(0)
 {
     _trace = _db->getCommunicator()->getProperties()->getPropertyAsInt("Freeze.Trace.Evictor");
@@ -59,6 +59,8 @@ Freeze::EvictorI::~EvictorI()
 	Warning out(_db->getCommunicator()->getLogger());
 	out << "evictor has not been deactivated";
     }
+
+    _strategy->destroy();
 }
 
 DBPtr
@@ -72,6 +74,19 @@ Freeze::EvictorI::getDB()
     }
 
     return _db;
+}
+
+PersistenceStrategyPtr
+Freeze::EvictorI::getPersistenceStrategy()
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    if(_deactivated)
+    {
+	throw EvictorDeactivatedException(__FILE__, __LINE__);
+    }
+
+    return _strategy;
 }
 
 void
@@ -127,9 +142,9 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
     }
 
     //
-    // Save the new Ice Object to the database.
+    // Save the Ice object's initial state and add it to the queue.
     //
-    _dict.insert(make_pair(ident, servant));
+    save(ident, servant);
     add(ident, servant);
 
     if(_trace >= 1)
@@ -155,19 +170,25 @@ Freeze::EvictorI::destroyObject(const Identity& ident)
     }
 
     //
-    // Delete the Ice Object from the database.
+    // Delete the Ice object from the database.
     //
     _dict.erase(ident);
+
     EvictorElementPtr element = remove(ident);
     if(element)
     {
         element->destroyed = true;
-    }
 
-    if(_trace >= 1)
-    {
-	Trace out(_db->getCommunicator()->getLogger(), "Evictor");
-	out << "destroyed \"" << ident << "\"";
+        //
+        // Notify the persistence strategy.
+        //
+        _strategy->destroyedObject(ident, element->strategyCookie);
+
+        if(_trace >= 1)
+        {
+            Trace out(_db->getCommunicator()->getLogger(), "Evictor");
+            out << "destroyed \"" << ident << "\"";
+        }
     }
 }
 
@@ -235,7 +256,7 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 	}
 
 	//
-	// Ice Object found in evictor map. Push it to the front of
+	// Ice object found in evictor map. Push it to the front of
 	// the evictor list, so that it will be evicted last.
 	//
 	element = p->second;
@@ -253,38 +274,42 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 	}
 
 	//
-	// Load the Ice Object from database and add a
-	// Servant for it.
+	// Load the Ice object from the database and add a
+        // servant for it.
 	//
 	IdentityObjectDict::iterator p = _dict.find(current.id);
 	if(p == _dict.end())
 	{
 	    //
-            // The Ice Object with the given identity does not exist,
+            // The Ice object with the given identity does not exist,
             // client will get an ObjectNotExistException.
 	    //
 	    return 0;
 	}
 
 	//
-	// Add the new Servant to the evictor queue.
-	//
-	ObjectPtr servant = p->second;
-	element = add(current.id, servant);
-
-	//
 	// If an initializer is installed, call it now.
 	//
+	ObjectPtr servant = p->second;
 	if(_initializer)
 	{
 	    _initializer->initialize(current.adapter, current.id, servant);
 	}
+
+	//
+	// Add the new servant to the evictor queue.
+	//
+	element = add(current.id, servant);
     }
 
     //
     // Increase the usage count of the evictor queue element.
     //
     ++element->usageCount;
+    if(current.mode != Nonmutating)
+    {
+        ++element->mutatingCount;
+    }
 
     //
     // Evict as many elements as necessary.
@@ -292,7 +317,7 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
     evict();
 
     //
-    // Set the cookie and return the servant for the Ice Object.
+    // Set the cookie and return the servant for the Ice object.
     //
     cookie = element;
     return element->servant;
@@ -319,18 +344,20 @@ Freeze::EvictorI::finished(const Current& current, const ObjectPtr& servant, con
     assert(element);
     assert(element->usageCount >= 1);
     --element->usageCount;
-    
-    //
-    // If we are in SaveAfterMutatingOperation mode, we must save the
-    // Ice Object if this was a mutating call and the object has not
-    // been destroyed.
-    //
-    if(_persistenceMode == SaveAfterMutatingOperation)
+    if(current.mode != Nonmutating)
     {
-	if(current.mode != Nonmutating && !element->destroyed)
-	{
-	    _dict.insert(make_pair(current.id, servant));
-	}
+        assert(element->mutatingCount >= 1);
+        --element->mutatingCount;
+    }
+
+    //
+    // If the object has not been destroyed, notify the persistence
+    // strategy about a mutating operation.
+    //
+    if(!element->destroyed)
+    {
+        _strategy->invokedObject(this, current.id, servant, current.mode != Nonmutating, element->mutatingCount == 0,
+                                 element->strategyCookie);
     }
 
     //
@@ -351,7 +378,7 @@ Freeze::EvictorI::deactivate()
 	if(_trace >= 1)
 	{
 	    Trace out(_db->getCommunicator()->getLogger(), "Evictor");
-	    out << "deactivating, saving unsaved Ice Objects to the database";
+	    out << "deactivating, saving unsaved Ice objects to the database";
 	}
 
 	//
@@ -361,6 +388,16 @@ Freeze::EvictorI::deactivate()
 	_evictorSize = 0;
 	evict();
     }
+}
+
+void
+Freeze::EvictorI::save(const Identity& ident, const ObjectPtr& servant)
+{
+    //
+    // NOTE: Do not synchronize on the evictor mutex or else
+    // deadlocks may occur.
+    //
+    _dict.insert(make_pair(ident, servant));
 }
 
 void
@@ -384,28 +421,24 @@ Freeze::EvictorI::evict()
 	    assert(q != _evictorMap.end());
 	    if(q->second->usageCount == 0)
 	    {
-		break; // Fine, Servant is not in use.
+		break; // Fine, servant is not in use.
 	    }
 	    ++p;
 	}
 	if(p == _evictorList.rend())
 	{
 	    //
-	    // All Servants are active, can't evict any further.
+	    // All servants are active, can't evict any further.
 	    //
 	    break;
 	}
 	Identity ident = *p;
 	EvictorElementPtr element = q->second;
 
-	//
-	// If we are in SaveUponEviction mode, we must save the Ice
-	// Object that is about to be evicted to persistent store.
-	//
-	if(_persistenceMode == SaveUponEviction)
-	{
-	    _dict.insert(make_pair(ident, element->servant));
-	}
+        //
+        // Notify the persistence strategy about the evicted object.
+        //
+        _strategy->evictedObject(this, ident, element->servant, element->strategyCookie);
 
 	//
 	// Remove last unused element from the evictor queue.
@@ -424,8 +457,7 @@ Freeze::EvictorI::evict()
 
     //
     // If we're deactivated, and if there are no more elements to
-    // evict, set _db to zero to break cyclic object
-    // dependencies.
+    // evict, set _db to zero to break cyclic object dependencies.
     //
     if(_deactivated && _evictorMap.empty())
     {
@@ -439,7 +471,7 @@ Freeze::EvictorI::EvictorElementPtr
 Freeze::EvictorI::add(const Identity& ident, const ObjectPtr& servant)
 {
     //
-    // Ignore the request if the Ice Object is already in the queue.
+    // Ignore the request if the Ice object is already in the queue.
     //
     map<Identity, EvictorElementPtr>::const_iterator p = _evictorMap.find(ident);
     if(p != _evictorMap.end())
@@ -448,14 +480,18 @@ Freeze::EvictorI::add(const Identity& ident, const ObjectPtr& servant)
     }    
 
     //
-    // Add an Ice Object with its Servant to the evictor queue.
+    // Add an Ice object with its servant to the evictor queue.
     //
     _evictorList.push_front(ident);
+
     EvictorElementPtr element = new EvictorElement;
     element->servant = servant;
     element->position = _evictorList.begin();
     element->usageCount = 0;
+    element->mutatingCount = 0;
     element->destroyed = false;
+    element->strategyCookie = _strategy->activatedObject(ident, servant);
+
     _evictorMap[ident] = element;
     return element;
 }
@@ -464,7 +500,7 @@ Freeze::EvictorI::EvictorElementPtr
 Freeze::EvictorI::remove(const Identity& ident)
 {
     //
-    // If the Ice Object is currently in the evictor, remove it.
+    // If the Ice object is currently in the evictor, remove it.
     //
     map<Identity, EvictorElementPtr>::iterator p = _evictorMap.find(ident);
     EvictorElementPtr element;

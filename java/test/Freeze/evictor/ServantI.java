@@ -51,6 +51,24 @@ public final class ServantI extends Test.Servant
     }
 
     public void
+    setValueAsync_async(Test.AMD_Servant_setValueAsync __cb, int value, Ice.Current current)
+    {
+        _setValueAsyncCB = __cb;
+        _setValueAsyncValue = value;
+    }
+
+    public void
+    releaseAsync(Ice.Current current)
+    {
+        if(_setValueAsyncCB != null)
+        {
+            value = _setValueAsyncValue;
+            _setValueAsyncCB.ice_response();
+            _setValueAsyncCB = null;
+        }
+    }
+
+    public void
     __write(IceInternal.BasicStream os)
     {
         _remoteEvictor.setLastSavedValue(value);
@@ -66,4 +84,6 @@ public final class ServantI extends Test.Servant
 
     private RemoteEvictorI _remoteEvictor;
     private Freeze.Evictor _evictor;
+    private Test.AMD_Servant_setValueAsync _setValueAsyncCB;
+    private int _setValueAsyncValue;
 }

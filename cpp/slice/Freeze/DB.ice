@@ -19,6 +19,7 @@
 #include <Freeze/DBException.ice>
 #include <Freeze/DBF.ice>
 #include <Freeze/EvictorF.ice>
+#include <Freeze/StrategyF.ice>
 
 /**
  *
@@ -181,35 +182,6 @@ local interface DBTransaction
      *
      **/
     void abort() throws DBException;
-};
-
-/**
- *
- * The evictor persistence mode.
- *
- * @see Evictor
- *
- **/
-enum EvictorPersistenceMode
-{
-    /**
-     *
-     * This mode instructs the evictor to save a servant to persistent
-     * storage when it is evicted, or when the evictor is deactivated.
-     *
-     * @see Ice::ServantLocator::deactivate
-     *
-     **/
-    SaveUponEviction,
-
-    /**
-     *
-     * This mode instructs the evictor to save a servant after each
-     * mutating operation. A mutating operation is one that has not
-     * been declared as nonmutating.
-     *
-     **/
-    SaveAfterMutatingOperation
 };
 
 /**
@@ -732,6 +704,28 @@ local interface DB
 
     /**
      *
+     * Create an instance of [EvictionStrategy].
+     *
+     * @return The new strategy.
+     *
+     * @see EvictionStrategy
+     *
+     **/
+    EvictionStrategy createEvictionStrategy();
+
+    /**
+     *
+     * Create an instance of [IdleStrategy].
+     *
+     * @return The new strategy.
+     *
+     * @see IdleStrategy
+     *
+     **/
+    IdleStrategy createIdleStrategy();
+
+    /**
+     *
      * Create a new evictor that uses this database to store
      * identity/servant pairs.
      *
@@ -743,7 +737,7 @@ local interface DB
      * down all object adapters with [Ice::Communicator::shutdown]
      * followed by [Ice::Communicator::waitForShutdown].</para></note>
      *
-     * @param mode The persistence mode for the new evictor.
+     * @param strategy The persistence strategy for the new evictor.
      *
      * @return The new evictor.
      *
@@ -753,7 +747,7 @@ local interface DB
      * @see EvictorPersistenceMode
      *
      **/
-    Evictor createEvictor(EvictorPersistenceMode mode) throws DBException;
+    Evictor createEvictor(PersistenceStrategy strategy) throws DBException;
 };
 
 };

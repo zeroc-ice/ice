@@ -40,23 +40,24 @@ public final class RemoteEvictorFactoryI extends Test._RemoteEvictorFactoryDisp
     }
 
     public Test.RemoteEvictorPrx
-    createEvictor(String name, Test.EvictorPersistenceMode mode, Ice.Current current)
+    createEvictor(String name, Test.Strategy s, Ice.Current current)
     {
         Freeze.DB db = _dbEnv.openDB(name, true);
 
-        Freeze.EvictorPersistenceMode fMode;
-        if(mode == Test.EvictorPersistenceMode.SaveUponEviction)
+        Freeze.PersistenceStrategy delegate;
+        if(s == Test.Strategy.Eviction)
         {
-            fMode = Freeze.EvictorPersistenceMode.SaveUponEviction;
+            delegate = db.createEvictionStrategy();
         }
         else
         {
-            fMode = Freeze.EvictorPersistenceMode.SaveAfterMutatingOperation;
+            delegate = db.createIdleStrategy();
         }
-        Freeze.Evictor evictor = db.createEvictor(fMode);
+        StrategyI strategy = new StrategyI(delegate);
+        Freeze.Evictor evictor = db.createEvictor(strategy);
         _adapter.addServantLocator(evictor, name);
 
-        RemoteEvictorI remoteEvictor = new RemoteEvictorI(_adapter, name, db, evictor);
+        RemoteEvictorI remoteEvictor = new RemoteEvictorI(_adapter, name, db, strategy, evictor);
         evictor.installServantInitializer(new Initializer(remoteEvictor, evictor));
         return Test.RemoteEvictorPrxHelper.uncheckedCast(_adapter.add(remoteEvictor, Ice.Util.stringToIdentity(name)));
     }

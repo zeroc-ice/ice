@@ -49,15 +49,16 @@ LibraryServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv)
     //
     // Create an Evictor for books.
     //
-    EvictorPtr evictor;
-    if(properties->getPropertyAsInt("Library.SaveAfterMutatingOperation") > 0)
+    PersistenceStrategyPtr strategy;
+    if(properties->getPropertyAsInt("Library.IdleStrategy") > 0)
     {
-	evictor = dbBooks->createEvictor(SaveAfterMutatingOperation);
+        strategy = dbBooks->createIdleStrategy();
     }
     else
     {
-	evictor = dbBooks->createEvictor(SaveUponEviction);
+        strategy = dbBooks->createEvictionStrategy();
     }
+    EvictorPtr evictor = dbBooks->createEvictor(strategy);
     Int evictorSize = properties->getPropertyAsInt("Library.EvictorSize");
     if(evictorSize > 0)
     {

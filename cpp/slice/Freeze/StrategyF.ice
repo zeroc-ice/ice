@@ -12,14 +12,15 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_EVICTOR_F_ICE
-#define FREEZE_EVICTOR_F_ICE
+#ifndef FREEZE_STRATEGY_F_ICE
+#define FREEZE_STRATEGY_F_ICE
 
 module Freeze
 {
 
-local interface Evictor;
 local interface PersistenceStrategy;
+local interface EvictionStrategy;
+local interface IdleStrategy;
 
 };
 

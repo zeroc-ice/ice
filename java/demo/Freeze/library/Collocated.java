@@ -25,15 +25,16 @@ class LibraryCollocated extends Freeze.Application
 	//
 	// Create an Evictor for books.
 	//
-	Freeze.Evictor evictor;
-	if(properties.getPropertyAsInt("Library.SaveAfterMutatingOperation") > 0)
+	Freeze.PersistenceStrategy strategy;
+	if(properties.getPropertyAsInt("Library.IdleStrategy") > 0)
 	{
-	    evictor = dbBooks.createEvictor(Freeze.EvictorPersistenceMode.SaveAfterMutatingOperation);
+            strategy = dbBooks.createIdleStrategy();
 	}
 	else
 	{
-	    evictor = dbBooks.createEvictor(Freeze.EvictorPersistenceMode.SaveUponEviction);
+            strategy = dbBooks.createEvictionStrategy();
 	}
+	Freeze.Evictor evictor = dbBooks.createEvictor(strategy);
 	int evictorSize = properties.getPropertyAsInt("Library.EvictorSize");
 	if(evictorSize > 0)
 	{
@@ -80,6 +81,6 @@ public class Collocated
     main(String[] args)
     {
 	LibraryCollocated app = new LibraryCollocated("db");
-	app.main("test.Freeze.library.Collocated", args, "config");
+	app.main("demo.Freeze.library.Collocated", args, "config");
     }
 }

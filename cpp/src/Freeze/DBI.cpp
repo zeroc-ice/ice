@@ -16,6 +16,7 @@
 #include <Freeze/DBException.h>
 #include <Freeze/DBI.h>
 #include <Freeze/EvictorI.h>
+#include <Freeze/StrategyI.h>
 #include <Freeze/Initialize.h>
 #include <sys/stat.h>
 
@@ -924,8 +925,20 @@ Freeze::DBI::sync()
     checkBerkeleyDBReturn(_db->sync(_db, 0), _errorPrefix, "DB->sync");
 }
 
+EvictionStrategyPtr
+Freeze::DBI::createEvictionStrategy()
+{
+    return new EvictionStrategyI;
+}
+
+IdleStrategyPtr
+Freeze::DBI::createIdleStrategy()
+{
+    return new IdleStrategyI;
+}
+
 EvictorPtr
-Freeze::DBI::createEvictor(EvictorPersistenceMode persistenceMode)
+Freeze::DBI::createEvictor(const PersistenceStrategyPtr& strategy)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -938,7 +951,7 @@ Freeze::DBI::createEvictor(EvictorPersistenceMode persistenceMode)
 	throw ex;
     }
 
-    return new EvictorI(this, persistenceMode);
+    return new EvictorI(this, strategy);
 }
 
 DBCursorPtr

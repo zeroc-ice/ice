@@ -16,6 +16,7 @@
 #include <IceUtil/UUID.h>
 #include <Freeze/DB.h>
 #include <Freeze/Evictor.h>
+#include <Freeze/Strategy.h>
 #include <IcePack/AdapterFactory.h>
 #include <IcePack/AdapterI.h>
 #include <IcePack/TraceLevels.h>
@@ -33,7 +34,7 @@ IcePack::AdapterFactory::AdapterFactory(const Ice::ObjectAdapterPtr& adapter,
     // Create and install the freeze evictor for standalone adapter objects.
     //
     Freeze::DBPtr dbAdapters = dbEnv->openDB("adapters", true);
-    _evictor = dbAdapters->createEvictor(Freeze::SaveUponEviction);
+    _evictor = dbAdapters->createEvictor(dbAdapters->createEvictionStrategy());
     _evictor->setSize(1000);
 
     //

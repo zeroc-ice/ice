@@ -23,6 +23,9 @@ class Servant
     nonmutating int getValue();
 
     void setValue(int value);
+    ["ami", "amd"] void setValueAsync(int value);
+
+    nonmutating void releaseAsync();
 
     void destroy();
 
@@ -35,18 +38,20 @@ interface RemoteEvictor
     Servant* createServant(int value);
     nonmutating int getLastSavedValue();
     void clearLastSavedValue();
+    nonmutating int getLastEvictedValue();
+    void clearLastEvictedValue();
     void deactivate();
 };
 
-enum EvictorPersistenceMode
+enum Strategy
 {
-    SaveUponEviction,
-    SaveAfterMutatingOperation
+    Eviction,
+    Idle
 };
 
 interface RemoteEvictorFactory
 {
-    RemoteEvictor* createEvictor(string name, EvictorPersistenceMode mode);
+    RemoteEvictor* createEvictor(string name, Strategy s);
     void shutdown();
 };
 

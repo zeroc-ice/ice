@@ -997,7 +997,7 @@ transformEvictor(const DBEnvironmentPtr& dbEnv)
         //
         db = dbEnv->openDB("evictor", true);
         db->clear();
-        evictor = db->createEvictor(SaveUponEviction);
+        evictor = db->createEvictor(db->createEvictionStrategy());
 
         {
             Test::C2Ptr c2;
@@ -1084,7 +1084,7 @@ transformEvictor(const DBEnvironmentPtr& dbEnv)
         //
         db = dbEnv->openDB("failure", true);
         db->clear();
-        evictor = db->createEvictor(SaveUponEviction);
+        evictor = db->createEvictor(db->createEvictionStrategy());
 
         {
             Test::C2Ptr c2;

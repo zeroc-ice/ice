@@ -521,7 +521,7 @@ validateEvictor(const DBEnvironmentPtr& dbEnv)
         // Validate C2
         //
         db = dbEnv->openDB("evictor", false);
-        evictor = db->createEvictor(SaveUponEviction);
+        evictor = db->createEvictor(db->createEvictionStrategy());
 
         {
             EvictorIteratorPtr iter = evictor->getIterator();

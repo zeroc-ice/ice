@@ -49,15 +49,16 @@ PhoneBookServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv
     //
     // Create an Evictor for contacts.
     //
-    EvictorPtr evictor;
-    if(properties->getPropertyAsInt("PhoneBook.SaveAfterMutatingOperation") > 0)
+    PersistenceStrategyPtr strategy;
+    if(properties->getPropertyAsInt("PhoneBook.IdleStrategy") > 0)
     {
-	evictor = dbContacts->createEvictor(SaveAfterMutatingOperation);
+        strategy = dbContacts->createIdleStrategy();
     }
     else
     {
-	evictor = dbContacts->createEvictor(SaveUponEviction);
+        strategy = dbContacts->createEvictionStrategy();
     }
+    EvictorPtr evictor = dbContacts->createEvictor(strategy);
     Int evictorSize = properties->getPropertyAsInt("PhoneBook.EvictorSize");
     if(evictorSize > 0)
     {
