@@ -26,7 +26,7 @@ All Rights Reserved
 
 <book><?dbhtml filename="index.html">
 <bookinfo>
-<title>Ice User's Manual</title>
+<title>Ice Reference Manual</title>
 <subtitle>A Guide to the Internet Communications Engine</subtitle>
 <authorgroup>
 <author>
@@ -53,15 +53,6 @@ All Rights Reserved
 </copyright>
 </bookinfo>
 <part>
-<title>Introduction</title>
-<chapter>
-<title>Getting Started</title>
-<para>
-TBD
-</para>
-</chapter>
-</part>
-<part>
 <title>Reference</title>
 <chapter>
 <title>Slice Documentation</title>
@@ -72,7 +63,7 @@ TBD
 &Properties;
 </chapter>
 <chapter>
-<title>proxies and Endpoints</title>
+<title>Proxies and Endpoints</title>
 &ProxiesEndpoints;
 </chapter>
 </part>
