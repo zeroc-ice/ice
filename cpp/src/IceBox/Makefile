@@ -34,8 +34,8 @@ SRCS		= $(OBJS:.o=.cpp) \
 
 HDIR		= $(includedir)/IceBox
 SDIR		= $(slicedir)/IceBox
-SLICECMD	= $(SLICE2CPP) --include-dir IceBox -I$(slicedir) -I..
-SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IceBox -I$(slicedir) -I..
+SLICECMD	= $(SLICE2CPP) --include-dir IceBox -I$(slicedir)
+SLICE2FREEZECMD = $(SLICE2FREEZE) --include-dir IceBox -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -59,7 +59,7 @@ $(ADMIN): $(AOBJS)
 
 $(HDIR)/IceBox.h IceBox.cpp: $(SDIR)/IceBox.ice $(SLICE2CPP)
 	rm -f $(HDIR)/IceBox.h IceBox.cpp
-	$(SLICECMD) --dll-export ICE_STORM_API $(SDIR)/IceBox.ice
+	$(SLICECMD) --dll-export ICE_BOX_API $(SDIR)/IceBox.ice
 	mv IceBox.h $(HDIR)
 
 clean::

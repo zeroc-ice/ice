@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_BOX_SERVICE_ICE
-#define ICE_BOX_SERVICE_ICE
+#ifndef ICE_BOX_ICE_BOX_ICE
+#define ICE_BOX_ICE_BOX_ICE
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/CommunicatorF.ice>
