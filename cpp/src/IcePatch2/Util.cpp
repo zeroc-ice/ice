@@ -388,7 +388,7 @@ IcePatch2::createDirectoryRecursive(const string& pa)
 }
 
 void
-IcePatch2::compressToFile(const string& pa, const ByteSeq& bytes, Int pos)
+IcePatch2::compressBytesToFile(const string& pa, const ByteSeq& bytes, Int pos)
 {
     const string path = normalize(pa);
 
@@ -440,9 +440,87 @@ IcePatch2::compressToFile(const string& pa, const ByteSeq& bytes, Int pos)
 }
 
 void
-IcePatch2::uncompressToFile(const string& pa, const ByteSeq& bytes, Int pos)
+IcePatch2::uncompressFile(const string& pa)
 {
     const string path = normalize(pa);
+    const string pathBZ2 = path + ".bz2";
+
+    ofstream file(path.c_str(), ios::binary);
+    if(!file)
+    {
+	throw "cannot open `" + path + "' for writing: " + strerror(errno);
+    }
+    
+    FILE* stdioFileBZ2 = fopen(pathBZ2.c_str(), "rb");
+    if(!stdioFileBZ2)
+    {
+	throw "cannot open `" + pathBZ2 + "' for reading: " + strerror(errno);
+    }
+    
+    int bzError;
+    BZFILE* bzFile = BZ2_bzReadOpen(&bzError, stdioFileBZ2, 0, 0, 0, 0);
+    if(bzError != BZ_OK)
+    {
+	string ex = "BZ2_bzReadOpen failed";
+	if(bzError == BZ_IO_ERROR)
+	{
+	    ex += string(": ") + strerror(errno);
+	}
+	fclose(stdioFileBZ2);
+	throw ex;
+    }
+    
+    const Int numBZ2 = 64 * 1024;
+    Byte bytesBZ2[numBZ2];
+    
+    while(bzError != BZ_STREAM_END)
+    {
+	int sz = BZ2_bzRead(&bzError, bzFile, bytesBZ2, numBZ2);
+	if(bzError != BZ_OK && bzError != BZ_STREAM_END)
+	{
+	    string ex = "BZ2_bzRead failed";
+	    if(bzError == BZ_IO_ERROR)
+	    {
+		ex += string(": ") + strerror(errno);
+	    }
+	    BZ2_bzReadClose(&bzError, bzFile);
+	    fclose(stdioFileBZ2);
+	    throw ex;
+	}
+	
+	if(sz > 0)
+	{
+	    long pos = ftell(stdioFileBZ2);
+	    if(pos == -1)
+	    {
+		BZ2_bzReadClose(&bzError, bzFile);
+		fclose(stdioFileBZ2);
+		throw "cannot get read position for `" + pathBZ2 + "': " + strerror(errno);
+	    }
+	    
+	    file.write(reinterpret_cast<char*>(bytesBZ2), sz);
+	    if(!file)
+	    {
+		BZ2_bzReadClose(&bzError, bzFile);
+		fclose(stdioFileBZ2);
+		throw "cannot write `" + path + "': " + strerror(errno);
+	    }
+	}
+    }
+
+    BZ2_bzReadClose(&bzError, bzFile);
+    if(bzError != BZ_OK)
+    {
+	string ex = "BZ2_bzReadClose failed";
+	if(bzError == BZ_IO_ERROR)
+	{
+	    ex += string(": ") + strerror(errno);
+	}
+	fclose(stdioFileBZ2);
+	throw ex;
+    }
+
+    fclose(stdioFileBZ2);
 }
 
 void
@@ -563,7 +641,7 @@ IcePatch2::getFileInfoSeq(const string& pa, FileInfoSeq& infoSeq, bool compress,
 	    if(compress)
 	    {
 		string pathBZ2 = path + ".bz2";
-		compressToFile(pathBZ2, bytes, path.size());
+		compressBytesToFile(pathBZ2, bytes, path.size());
 
 		struct stat bufBZ2;
 		if(stat(pathBZ2.c_str(), &bufBZ2) == -1)

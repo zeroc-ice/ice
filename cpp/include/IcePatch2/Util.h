@@ -34,8 +34,8 @@ ICEPATCH2_API void removeRecursive(const std::string&);
 ICEPATCH2_API Ice::StringSeq readDirectory(const std::string&);
 ICEPATCH2_API void createDirectoryRecursive(const std::string&);
 
-ICEPATCH2_API void compressToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
-ICEPATCH2_API void uncompressToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
+ICEPATCH2_API void compressBytesToFile(const std::string&, const Ice::ByteSeq&, Ice::Int);
+ICEPATCH2_API void uncompressFile(const std::string&);
 
 struct FileInfoCompare : public std::binary_function<const FileInfo&, const FileInfo&, bool>
 {

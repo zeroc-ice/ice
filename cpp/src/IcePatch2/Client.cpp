@@ -122,15 +122,37 @@ IcePatch2::Client::run(int argc, char* argv[])
 	    throw "cannot change directory to `" + dataDir + "': " + strerror(errno);
 	}
 
+	if(!thorough)
+	{
+	    try
+	    {
+		loadFileInfoSeq(dataDir + ".sum", infoSeq);
+	    }
+	    catch(const string& ex)
+	    {
+		cout << "Cannot load file summary:\n" << ex << endl;
+		string answer;
+		do
+		{
+		    cout << "Do a thorough patch? (yes/no)" << endl;
+		    cin >> answer;
+		    transform(answer.begin(), answer.end(), answer.begin(), ::tolower);
+		    if(answer == "no")
+		    {
+			return EXIT_SUCCESS;
+		    }
+		}
+		while(answer != "yes");
+		thorough = true;
+	    }
+	}
+	
 	if(thorough)
 	{
 	    getFileInfoSeq(".", infoSeq, false, false);
+	    saveFileInfoSeq(dataDir + ".sum", infoSeq);
 	}
-	else
-	{
-	    loadFileInfoSeq(dataDir + ".sum", infoSeq);
-	}
-	
+
 	sort(infoSeq.begin(), infoSeq.end(), FileInfoCompare());
 
 	const char* endpointsProperty = "IcePatch2.Endpoints";
@@ -260,7 +282,7 @@ IcePatch2::Client::run(int argc, char* argv[])
 	    else // Regular file.
 	    {
 		string pathBZ2 = p->path + ".bz2";
-		ofstream os;
+		ofstream fileBZ2;
 
 		if(!dry)
 		{
@@ -278,8 +300,8 @@ IcePatch2::Client::run(int argc, char* argv[])
 		    {
 		    }
 
-		    os.open(pathBZ2.c_str(), ios::binary);
-		    if(!os)
+		    fileBZ2.open(pathBZ2.c_str(), ios::binary);
+		    if(!fileBZ2)
 		    {
 			cerr << argv[0] << ": cannot open `" + pathBZ2 + "' for writing: " + strerror(errno);
 			return EXIT_FAILURE;
@@ -311,9 +333,9 @@ IcePatch2::Client::run(int argc, char* argv[])
 
 		    if(!dry)
 		    {
-			os.write(reinterpret_cast<char*>(&bytes[0]), bytes.size());
+			fileBZ2.write(reinterpret_cast<char*>(&bytes[0]), bytes.size());
 
-			if(!os.good())
+			if(!fileBZ2)
 			{
 			    cerr << argv[0] << ": cannot write `" + pathBZ2 + "': " + strerror(errno);
 			    return EXIT_FAILURE;
@@ -335,15 +357,9 @@ IcePatch2::Client::run(int argc, char* argv[])
 
 		if(!dry)
 		{
-		    os.close();
-
-		    try
-		    {
-//			removeRecursive(p->path);
-		    }
-		    catch(...)
-		    {
-		    }
+		    fileBZ2.close();
+		    uncompressFile(p->path);
+		    remove(pathBZ2);
 		}
 	    }
 	    
