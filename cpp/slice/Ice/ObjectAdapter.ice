@@ -182,7 +182,7 @@ local interface ObjectAdapter
      *
      * <note><para>This operation does only try to lookup a Servant in
      * the Active Servant Map. It does not attempt to find a Servant
-     * via any installed [ServantLocator]s.</para></note>
+     * by using any installed [ServantLocator].</para></note>
      *
      * @param identity The identity of the Ice Object for which the
      * Servant should be returned.
@@ -249,6 +249,13 @@ local interface ServantLocator
      * Servant Map. This must be done by the Servant Locator's
      * implementation, if this is desired.
      *
+     * <important><para>If you call [locate] from our own code, you
+     * must also call [finished] when you are done with using the
+     * Servant, provided that a non-null Servant was
+     * returned. Otherwise you will get undefined behavior if you use
+     * Servant Locators such as the
+     * [Freeze::Evictor].</para></important>
+     *
      * @param adapter The Object Adapter that calls the Servant
      * Locator.
      *
@@ -258,7 +265,7 @@ local interface ServantLocator
      * @param operation The operation the Object Adapter is about to
      * call.
      *
-     * @param cookie A "cookie", which is returned to [finished].
+     * @param cookie A "cookie", which will be passed to [finished].
      *
      * @return The located Servant, or null if no suitable Servant has
      * been found.

@@ -14,18 +14,32 @@
 module Ice
 {
 
+/**
+ *
+ * A language-specific input stream type. For C++, a Slice
+ * [InputStream] is mapped to a C++ [std::istream].
+ *
+ **/
 native InputStream;
+
+/**
+ *
+ * A language-specific output stream type. For C++, a Slice
+ * [OutputStream] is mapped to a C++ [std::ostream].
+ *
+ **/
 native OutputStream;
 
 /**
  *
- * A simple object serializer. Servants can be written to a native
- * ioutput stream type, and read from a native input stream type. For
- * C++, the output stream type is [std::ostream] and the input stream
- * type is [std::istream].
+ * A simple object serializer. Servants can be written to an
+ * [OutputStream] and read from an [InputStream].
  *
  * <note><para>For more sophisticated object persistence, you should
  * use the Freeze module.</para></note>
+ *
+ * @see InputStream
+ * @see OutputStream
  *
  **/
 local interface Pickler
@@ -39,6 +53,7 @@ local interface Pickler
      * @param out The output stream.
      *
      * @see unpickle
+     * @see OutputStream
      *
      **/
     void pickle(Object servant, OutputStream out);
@@ -55,6 +70,7 @@ local interface Pickler
      * @return The Servant that has been read from the input stream.
      *
      * @see pickle
+     * @see InputStream
      * @see ServantFactory
      *
      **/
