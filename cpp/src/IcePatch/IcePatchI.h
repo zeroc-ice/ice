@@ -33,8 +33,7 @@ protected:
     Ice::ByteSeq readMD5(const Ice::Current&) const;
 
     const Ice::ObjectAdapterPtr _adapter;
-    const Ice::LoggerPtr _logger;
-    const Ice::Int _traceLevel;
+    const Ice::LoggerPtr _fileTraceLogger;
     const IceUtil::Time _busyTimeout;
 };
 

@@ -230,13 +230,13 @@ IcePatch::Updater::destroy()
 void
 IcePatch::Updater::cleanup(const FileDescSeq& fileDescSeq)
 {
-    if(_destroy)
-    {
-	return;
-    }
-
     for(FileDescSeq::const_iterator p = fileDescSeq.begin(); p != fileDescSeq.end(); ++p)
     {
+	if(_destroy)
+	{
+	    return;
+	}
+
 	DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(*p);
 	if(directoryDesc)
 	{

@@ -22,7 +22,10 @@ using namespace IcePatch;
 
 IcePatch::FileLocator::FileLocator(const Ice::ObjectAdapterPtr& adapter) :
     _directory(new DirectoryI(adapter)),
-    _regular(new RegularI(adapter))
+    _regular(new RegularI(adapter)),
+    _logger(adapter->getCommunicator()->getLogger()),
+    _fileTraceLogger(adapter->getCommunicator()->getProperties()->getPropertyAsInt("IcePatch.Trace.Files") > 0 ?
+		     _logger : LoggerPtr())
 {
 }
 
@@ -68,11 +71,11 @@ IcePatch::FileLocator::locate(const Current& current, LocalObjectPtr&)
     FileInfo info;
     try
     {
-	info = getFileInfo(path, true);
+	info = getFileInfo(path, true, _fileTraceLogger);
     }
     catch(const FileAccessException& ex)
     {
-	Warning out(current.adapter->getCommunicator()->getLogger());
+	Warning out(_logger);
 	out << ex << ":\n" << ex.reason;
 	return 0;
     }

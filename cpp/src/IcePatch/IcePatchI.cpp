@@ -23,8 +23,8 @@ static IceUtil::RWRecMutex globalMutex;
 
 IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter) :
     _adapter(adapter),
-    _logger(adapter->getCommunicator()->getLogger()),
-    _traceLevel(adapter->getCommunicator()->getProperties()->getPropertyAsInt("IcePatch.Trace.Files")),
+    _fileTraceLogger(adapter->getCommunicator()->getProperties()->getPropertyAsInt("IcePatch.Trace.Files") > 0 ?
+		     adapter->getCommunicator()->getLogger() : LoggerPtr()),
     _busyTimeout(IceUtil::Time::seconds(adapter->getCommunicator()->getProperties()->
 					getPropertyAsIntWithDefault("IcePatch.BusyTimeout", 10)))
 {
@@ -47,14 +47,14 @@ IcePatch::FileI::readMD5(const Current& current) const
     {
 	IceUtil::RWRecMutex::TryRLock sync(globalMutex, _busyTimeout);
 	
-	FileInfo info = getFileInfo(path, true);
-	FileInfo infoMD5 = getFileInfo(path + ".md5", false);
+	FileInfo info = getFileInfo(path, true, _fileTraceLogger);
+	FileInfo infoMD5 = getFileInfo(path + ".md5", false, _fileTraceLogger);
 
 	if(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
 	{
 	    sync.timedUpgrade(_busyTimeout);
 
-	    infoMD5 = getFileInfo(path + ".md5", false);
+	    infoMD5 = getFileInfo(path + ".md5", false, _fileTraceLogger);
 	    while(infoMD5.type != FileTypeRegular || infoMD5.time <= info.time)
 	    {
 		//
@@ -68,15 +68,15 @@ IcePatch::FileI::readMD5(const Current& current) const
 		    IceUtil::ThreadControl::sleep(diff);
 		}
 
-		createMD5(path, _traceLevel > 0 ? _logger : LoggerPtr());
+		createMD5(path, _fileTraceLogger);
 
 		//
 		// If the source file size has changed after we
 		// created the MD5 file, we try again.
 		//
 		FileInfo oldInfo = info;
-		info = getFileInfo(path, true);
-		infoMD5 = getFileInfo(path + ".md5", true); // Must exist.
+		info = getFileInfo(path, true, _fileTraceLogger);
+		infoMD5 = getFileInfo(path + ".md5", true, _fileTraceLogger); // Must exist.
 		if(info.size != oldInfo.size)
 		{
 		    info.time = infoMD5.time;
@@ -138,7 +138,7 @@ IcePatch::DirectoryI::getContents(const Current& current) const
 			equal_range(paths2.begin(), paths2.end(), removeSuffix(*p));
 		    if(r2.first == r2.second)
 		    {
-			removeRecursive(*p, _traceLevel > 0 ? _logger : LoggerPtr());
+			removeRecursive(*p, _fileTraceLogger);
 		    }
 		}
 	    }
@@ -201,26 +201,26 @@ IcePatch::RegularI::getBZ2Size(const Current& current) const
 	
 	string path = identityToPath(current.id);
 
-	FileInfo info = getFileInfo(path, true);
+	FileInfo info = getFileInfo(path, true, _fileTraceLogger);
 	assert(info.type == FileTypeRegular);
-	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
+	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
 
 	if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	{
 	    sync.timedUpgrade(_busyTimeout);
 
-	    infoBZ2 = getFileInfo(path + ".bz2", false);
+	    infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
 	    while(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	    {
-		createBZ2(path, _traceLevel > 0 ? _logger : LoggerPtr());
+		createBZ2(path, _fileTraceLogger);
 		
 		//
 		// If the source file size has changed after we
 		// created the BZ2 file, we try again.
 		//
 		FileInfo oldInfo = info;
-		info = getFileInfo(path, true);
-		infoBZ2 = getFileInfo(path + ".bz2", true); // Must exist.
+		info = getFileInfo(path, true, _fileTraceLogger);
+		infoBZ2 = getFileInfo(path + ".bz2", true, _fileTraceLogger); // Must exist.
 		if(info.size != oldInfo.size)
 		{
 		    info.time = infoBZ2.time;
@@ -245,26 +245,26 @@ IcePatch::RegularI::getBZ2(Int pos, Int num, const Current& current) const
 	
 	string path = identityToPath(current.id);
 
-	FileInfo info = getFileInfo(path, true);
+	FileInfo info = getFileInfo(path, true, _fileTraceLogger);
 	assert(info.type == FileTypeRegular);
-	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
+	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
 
 	if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	{
 	    sync.timedUpgrade(_busyTimeout);
 
-	    infoBZ2 = getFileInfo(path + ".bz2", false);
+	    infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
 	    while(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	    {
-		createBZ2(path, _traceLevel > 0 ? _logger : LoggerPtr());
+		createBZ2(path, _fileTraceLogger);
 
 		//
 		// If the source file size has changed after we
 		// created the BZ2 file, we try again.
 		//
 		FileInfo oldInfo = info;
-		info = getFileInfo(path, true);
-		infoBZ2 = getFileInfo(path + ".bz2", true); // Must exist.
+		info = getFileInfo(path, true, _fileTraceLogger);
+		infoBZ2 = getFileInfo(path + ".bz2", true, _fileTraceLogger); // Must exist.
 		if(info.size != oldInfo.size)
 		{
 		    info.time = infoBZ2.time;
@@ -289,26 +289,26 @@ IcePatch::RegularI::getBZ2MD5(Int size, const Current& current) const
 	
 	string path = identityToPath(current.id);
 
-	FileInfo info = getFileInfo(path, true);
+	FileInfo info = getFileInfo(path, true, _fileTraceLogger);
 	assert(info.type == FileTypeRegular);
-	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
+	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
 
 	if(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	{
 	    sync.timedUpgrade(_busyTimeout);
 
-	    infoBZ2 = getFileInfo(path + ".bz2", false);
+	    infoBZ2 = getFileInfo(path + ".bz2", false, _fileTraceLogger);
 	    while(infoBZ2.type != FileTypeRegular || infoBZ2.time <= info.time)
 	    {
-		createBZ2(path, _traceLevel > 0 ? _logger : LoggerPtr());
+		createBZ2(path, _fileTraceLogger);
 
 		//
 		// If the source file size has changed after we
 		// created the BZ2 file, we try again.
 		//
 		FileInfo oldInfo = info;
-		info = getFileInfo(path, true);
-		infoBZ2 = getFileInfo(path + ".bz2", true); // Must exist.
+		info = getFileInfo(path, true, _fileTraceLogger);
+		infoBZ2 = getFileInfo(path + ".bz2", true, _fileTraceLogger); // Must exist.
 		if(info.size != oldInfo.size)
 		{
 		    info.time = infoBZ2.time;
@@ -316,7 +316,7 @@ IcePatch::RegularI::getBZ2MD5(Int size, const Current& current) const
 	    }
 	}
 	
-	return IcePatch::calcPartialMD5(path + ".bz2", size);
+	return IcePatch::calcPartialMD5(path + ".bz2", size, _fileTraceLogger);
     }
     catch(const IceUtil::ThreadLockedException&)
     {

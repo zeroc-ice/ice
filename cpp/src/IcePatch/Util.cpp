@@ -190,7 +190,7 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist, const Ice::L
 	{
 	    try
 	    {
-		removeRecursive(path + ".md5");
+		removeRecursive(path + ".md5", logger);
 	    }
 	    catch(const FileAccessException&)
 	    {
@@ -198,7 +198,7 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist, const Ice::L
 	    
 	    try
 	    {
-		removeRecursive(path + ".bz2");
+		removeRecursive(path + ".bz2", logger);
 	    }
 	    catch(const FileAccessException&)
 	    {
@@ -227,12 +227,12 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist, const Ice::L
 void
 IcePatch::removeRecursive(const string& path, const Ice::LoggerPtr& logger)
 {
-    if(getFileInfo(path, true).type == FileTypeDirectory)
+    if(getFileInfo(path, true, logger).type == FileTypeDirectory)
     {
 	StringSeq paths = readDirectory(path);
         for(StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
 	{
-	    removeRecursive(*p);
+	    removeRecursive(*p, logger);
 	}
 
 #ifdef _WIN32
@@ -443,7 +443,7 @@ IcePatch::createMD5(const string& path, const LoggerPtr& logger)
 
     ByteSeq bytes;
 
-    FileInfo info = getFileInfo(path, true);
+    FileInfo info = getFileInfo(path, true, logger);
     if(info.type == FileTypeDirectory)
     {
 	//
@@ -530,7 +530,7 @@ IcePatch::createMD5(const string& path, const LoggerPtr& logger)
 }
 
 ByteSeq
-IcePatch::calcPartialMD5(const string& path, Int size)
+IcePatch::calcPartialMD5(const string& path, Int size, const LoggerPtr& logger)
 {
     if(size < 0)
     {
@@ -539,7 +539,7 @@ IcePatch::calcPartialMD5(const string& path, Int size)
 	throw ex;
     }
     
-    FileInfo info = getFileInfo(path, true);
+    FileInfo info = getFileInfo(path, true, logger);
     if(info.type == FileTypeDirectory)
     {
 	FileAccessException ex;
@@ -660,7 +660,7 @@ IcePatch::getBZ2(const string& path, Int pos, Int num)
 void
 IcePatch::createBZ2(const string& path, const Ice::LoggerPtr& logger)
 {
-    FileInfo info = getFileInfo(path, true);
+    FileInfo info = getFileInfo(path, true, logger);
     if(info.type == FileTypeDirectory)
     {
 	FileAccessException ex;

@@ -37,6 +37,9 @@ private:
 
     DirectoryPtr _directory; // The stateless default servant for all directories.
     RegularPtr _regular; // The stateless default servant for all regular files.
+
+    const Ice::LoggerPtr _logger;
+    const Ice::LoggerPtr _fileTraceLogger;
 };
 
 }
