@@ -23,6 +23,9 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
+sys.path.append(os.path.join(toplevel, "config"))
+import TestUtil
+
 def runTests(tests, num = 0):
 
     #
@@ -37,9 +40,13 @@ def runTests(tests, num = 0):
 	if(num > 0):
 	    print "[" + str(num) + "]",
 	print "*** running tests in " + dir,
-	print
+	print 
+        
+        if TestUtil.isWin9x():
+	    status = os.system("python " + os.path.join(dir, "run.py"))
+        else:
+            status = os.system(os.path.join(dir, "run.py"))
 
-	status = os.system(os.path.join(dir, "run.py"))
 	if status:
 	    if(num > 0):
 		print "[" + str(num) + "]",
@@ -65,19 +72,9 @@ tests = [ \
     "Freeze/complex", \
     "Freeze/evictor", \
     "Glacier/starter", \
+    "IcePack/simple", \
+    "IcePack/deployer", \
     ]
-
-#
-# Certain tests only work on Linux.
-#
-# The substring on sys.platform is required because some cygwin
-# versions return "cygwin_nt-4.01".
-#
-if sys.platform != "win32" and sys.platform[:6] != "cygwin":
-    tests += [ \
-        "IcePack/simple", \
-        "IcePack/deployer", \
-        ]
 
 def usage():
     print "usage: " + sys.argv[0] + " [-l]"
