@@ -54,7 +54,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 int Instance::_globalStateCounter = 0;
-IceUtil::Mutex* Instance::_globalStateMutex = new IceUtil::Mutex;
+IceUtil::StaticMutex* Instance::_globalStateMutex = new IceUtil::StaticMutex;
 #ifndef _WIN32
 string Instance::_identForOpenlog;
 #endif
@@ -381,7 +381,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     _messageSizeMax(0),
     _connectionIdleTime(0)
 {
-    IceUtil::Mutex::Lock sync(*_globalStateMutex);
+    IceUtil::StaticMutex::Lock sync(*_globalStateMutex);
     ++_globalStateCounter;
 
     try
