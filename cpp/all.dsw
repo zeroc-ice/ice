@@ -381,6 +381,9 @@ Package=<4>
     Project_Dep_Name slice2freeze
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name slice2freezej
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name phonebookCOL
     End Project Dependency
     Begin Project Dependency
@@ -1390,6 +1393,24 @@ Package=<4>
 ###############################################################################
 
 Project: "slice2freeze"=.\src\slice2freeze\slice2freeze.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Slice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "slice2freezej"=.\src\slice2freezej\slice2freezej.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

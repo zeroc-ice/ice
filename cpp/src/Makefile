@@ -16,6 +16,7 @@ SUBDIRS		= IceUtil \
 		  Slice \
 		  slice2cpp \
 		  slice2freeze \
+		  slice2freezej \
 		  slice2docbook \
 		  slice2java \
 		  slice2xsd \
