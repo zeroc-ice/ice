@@ -30,7 +30,7 @@ Additional Ice components are provided in separate RPM packages:
 - Run time libraries for Java, Python, and C# (Mono). These libraries
   enable you to execute Ice applications.
 
-- Development kits for C++, Java, Python and C# (Mono). A development
+- Development kits for C++, Java, Python, and C# (Mono). A development
   kit is required for building Ice applications using a supported
   language mapping. The development kits include examples that
   demonstrate various Ice features.
@@ -100,7 +100,7 @@ necessary to locate the assemblies.
 
 The instructions for running the demos assume that you have configured
 your kernel to automatically execute the Mono interpreter. To do this,
-run the following commands as root (replace /opt/mono/bin/mono with
+run the following commands as root (replace /usr/bin/mono with
 the location of your mono interpreter):
 
     if [ ! -e /proc/sys/fs/binfmt_misc/register ]; then
