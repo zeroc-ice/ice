@@ -1078,7 +1078,7 @@ Slice::Gen::TypesVisitor::emitExceptionBase(const ExceptionPtr& base, const std:
     if(base)
     {
 	C.zeroIndent();
-	C << nl << "#ifdef _WIN32"; // COMPILERBUG
+	C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
 	C.restoreIndent();
 	C << nl << fixKwd(base->name()) << "::" << call << ";";
 	C.zeroIndent();
@@ -2151,23 +2151,23 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	string unixUpcall; 
 	if(!bases.empty() && !bases.front()->isInterface())
 	{
-	    winUpcall = fixKwd(bases.front()->scoped().substr(2)) + "::__copyMembers(__p);";
+	    winUpcall = fixKwd(bases.front()->name()) + "::__copyMembers(__p);";
 	    unixUpcall = fixKwd(bases.front()->scoped()) + "::__copyMembers(__p);";
 	}
 	else
 	{
-	    winUpcall = "Ice::Object::__copyMembers(__p);";
+	    winUpcall = "Object::__copyMembers(__p);";
 	    unixUpcall = "::Ice::Object::__copyMembers(__p);";
 	}
 	string winCall; 
 	string unixCall; 
 	if(!dataMembers.empty())
 	{
-	    winCall = scoped.substr(2) + "::__copyMembers(__p);";
+	    winCall = name + "::__copyMembers(__p);";
 	    unixCall = scoped + "::__copyMembers(__p);";
 	}
 	C.zeroIndent();
-	C << nl << "#ifdef _WIN32"; // COMPILERBUG
+	C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
 	C.restoreIndent();
 	C << nl << winUpcall;
 	if(!winCall.empty())
@@ -2325,8 +2325,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	      << "::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)";
 	    C << sb;
 	  
-	    // COMPILERBUG: Sun C++ 5.4 and GCC 3.2 won't compile without a 
-            // space between < and ::
 	    C << nl << "::std::pair< ::std::string*, ::std::string*> r = "
 	      << "::std::equal_range(__all, __all + " << allOpNames.size() << ", current.operation);";
 	    C << nl << "if(r.first == r.second)";
@@ -2773,7 +2771,7 @@ Slice::Gen::ObjectVisitor::emitClassBase(const ClassDefPtr& base, const std::str
     string unixName = base ? fixKwd(base->scoped()) : "::Ice::Object";
 
     C.zeroIndent();
-    C << nl << "#ifdef _WIN32"; // COMPILERBUG
+    C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
     C.restoreIndent();
     C << nl << winName << "::" << call << "(" << stream << ");";
     C.zeroIndent();
