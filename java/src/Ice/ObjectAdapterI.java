@@ -33,61 +33,74 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	return _communicator;
     }
 
-    public synchronized void
+    public void
     activate()
     {
-	checkForDeactivation();
-	
-	if(!_printAdapterReadyDone)
+	Ice.LocatorRegistryPrx locatorRegistry = null;
+
+	synchronized(this)
 	{
-	    if(_locatorInfo != null && _id.length() > 0)
+	    checkForDeactivation();
+	    
+	    if(!_printAdapterReadyDone)
+	    {
+		if(_locatorInfo != null && _id.length() > 0)
+		{
+		    locatorRegistry = _locatorInfo.getLocatorRegistry();
+		}
+	    }
+	    
+	    final int sz = _incomingConnectionFactories.size();
+	    for(int i = 0; i < sz; ++i)
+	    {
+		IceInternal.IncomingConnectionFactory factory =
+                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+		factory.activate();
+	    }
+	    
+	    if(!_printAdapterReadyDone)
+	    {
+		if(_instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0)
+		{
+		    System.out.println(_name + " ready");
+		}
+		
+		_printAdapterReadyDone = true;
+	    }
+	}
+
+	//
+	// We must call on the locator registry outside the thread
+	// synchronization, to avoid deadlocks.
+	//
+	if(locatorRegistry != null)
+	{
+	    //
+	    // TODO: This might throw if we can't connect to the
+	    // locator. Shall we raise a special exception for the
+	    // activate operation instead of a non obvious network
+	    // exception?
+	    //
+	    try
 	    {
 		Identity ident = new Identity();
 		ident.category = "";
 		ident.name = "dummy";
-
-		//
-		// TODO: This might throw if we can't connect to the
-		// locator. Shall we raise a special exception for the
-		// activate operation instead of a non obvious network
-		// exception?
-		//
-		try
-		{
-		    _locatorInfo.getLocatorRegistry().setAdapterDirectProxy(_id, newDirectProxy(ident));
-		}
-		catch(Ice.AdapterNotFoundException ex)
-		{
-		    NotRegisteredException ex1 = new NotRegisteredException();
-		    ex1.id = _id;
-		    ex1.kindOfObject = "object adapter";
-		    throw ex1;
-		}
-		catch(Ice.AdapterAlreadyActiveException ex)
-		{
-		    ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
-		    ex1.id = _id;
-		    throw ex1;
-		}
+		locatorRegistry.setAdapterDirectProxy(_id, newDirectProxy(ident));
 	    }
-	}
-
-        final int sz = _incomingConnectionFactories.size();
-        for(int i = 0; i < sz; ++i)
-        {
-            IceInternal.IncomingConnectionFactory factory =
-                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-            factory.activate();
-        }
-
-	if(!_printAdapterReadyDone)
-	{
-	    if(_instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0)
+	    catch(Ice.AdapterNotFoundException ex)
 	    {
-		System.out.println(_name + " ready");
+		NotRegisteredException ex1 = new NotRegisteredException();
+		ex1.id = _id;
+		ex1.kindOfObject = "object adapter";
+		throw ex1;
 	    }
-		
-	    _printAdapterReadyDone = true;
+	    catch(Ice.AdapterAlreadyActiveException ex)
+	    {
+		ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
+		ex1.id = _id;
+		throw ex1;
+	    }
 	}
     }
 

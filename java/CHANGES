@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Fixed a rare deadlock in the object adapter, when a locator was
+  used.
+
 - A DNSException could cause a deadlock. This has been fixed.
 
 - The Ice.Stats interface was not being invoked by the TCP and

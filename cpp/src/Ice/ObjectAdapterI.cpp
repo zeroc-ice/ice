@@ -63,54 +63,66 @@ Ice::ObjectAdapterI::getCommunicator()
 void
 Ice::ObjectAdapterI::activate()
 {
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    LocatorRegistryPrx locatorRegistry;
 
-    checkForDeactivation();
-    
-    if(!_printAdapterReadyDone)
-    {
-	if(_locatorInfo && !_id.empty())
+    {    
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	
+	checkForDeactivation();
+	
+	if(!_printAdapterReadyDone)
 	{
-	    Identity ident;
-	    ident.name = "dummy";
+	    if(_locatorInfo && !_id.empty())
+	    {
+		locatorRegistry = _locatorInfo->getLocatorRegistry();
+	    }
+	}
+	
+	for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+		 Ice::voidMemFun(&IncomingConnectionFactory::activate));
+	
+	if(!_printAdapterReadyDone)
+	{
+	    if(_instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0)
+	    {
+		cout << _name << " ready" << endl;
+	    }
 	    
-	    //
-	    // TODO: This might throw if we can't connect to the
-	    // locator. Shall we raise a special exception for the
-	    // activate operation instead of a non obvious network
-	    // exception?
-	    //
-	    try
-	    {
-		_locatorInfo->getLocatorRegistry()->setAdapterDirectProxy(_id, newDirectProxy(ident));
-	    }
-	    catch(const Ice::AdapterNotFoundException&)
-	    {
-		NotRegisteredException ex(__FILE__, __LINE__);
-		ex.kindOfObject = "object adapter";
-		ex.id = _id;
-		throw ex;
-	    }
-	    catch(const Ice::AdapterAlreadyActiveException&)
-	    {
-		ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
-		ex.id = _id;
-		throw ex;
-	    }
+	    _printAdapterReadyDone = true;
 	}
     }
 
-    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-	     Ice::voidMemFun(&IncomingConnectionFactory::activate));
-
-    if(!_printAdapterReadyDone)
+    //
+    // We must call on the locator registry outside the thread
+    // synchronization, to avoid deadlocks.
+    //
+    if(locatorRegistry)
     {
-	if(_instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0)
+	//
+	// TODO: This might throw if we can't connect to the
+	// locator. Shall we raise a special exception for the
+	// activate operation instead of a non obvious network
+	// exception?
+	//
+	try
 	{
-	    cout << _name << " ready" << endl;
+	    Identity ident;
+	    ident.name = "dummy";
+	    locatorRegistry->setAdapterDirectProxy(_id, newDirectProxy(ident));
 	}
-	
-	_printAdapterReadyDone = true;
+	catch(const Ice::AdapterNotFoundException&)
+	{
+	    NotRegisteredException ex(__FILE__, __LINE__);
+	    ex.kindOfObject = "object adapter";
+	    ex.id = _id;
+	    throw ex;
+	}
+	catch(const Ice::AdapterAlreadyActiveException&)
+	{
+	    ObjectAdapterIdInUseException ex(__FILE__, __LINE__);
+	    ex.id = _id;
+	    throw ex;
+	}
     }
 }
 
