@@ -13,8 +13,6 @@
 
   <application name="Simple">
 
-     <variable name="ice.dir" value="../../.."/>
-
      <node name="node">
 
        <!-- First, we deploy the regular server --> 
