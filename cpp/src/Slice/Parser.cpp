@@ -1894,8 +1894,6 @@ Slice::ClassDef::createOperation(const string& name,
 	copy(ol.begin(), ol.end(), back_inserter(cl));
 	DataMemberList dml = (*p)->allDataMembers();
 	copy(dml.begin(), dml.end(), back_inserter(cl));
-	// TODO: once we have constants, append constants to this list
-	// for checking. 
 	for(ContainedList::const_iterator q = cl.begin(); q != cl.end(); ++q)
 	{
 	    if((*q)->name() == name)
@@ -2029,7 +2027,6 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 	copy(ol.begin(), ol.end(), back_inserter(cl));
 	DataMemberList dml = (*p)->allDataMembers();
 	copy(dml.begin(), dml.end(), back_inserter(cl));
-	// TODO: once we have constants, append constants to this list for checking.
 	for(ContainedList::const_iterator q = cl.begin(); q != cl.end(); ++q)
 	{
 	    if((*q)->name() == name)
@@ -2835,13 +2832,14 @@ Slice::ConstDef::value() const
 Contained::ContainedType
 Slice::ConstDef::containedType() const
 {
-    return ContainedTypeEnumerator;	// TODO: Fix this
+    return ContainedTypeConstant;
 }
 
 bool
-Slice::ConstDef::uses(const ContainedPtr&) const
+Slice::ConstDef::uses(const ContainedPtr& contained) const
 {
-    return false;	// TODO: fix this?
+    ContainedPtr contained2 = ContainedPtr::dynamicCast(_type);
+    return (contained2 && contained2 == contained);
 }
 
 string
