@@ -103,9 +103,14 @@ public class ObjectAdapterI implements ObjectAdapter
         _deactivated = true;
     }
 
-    public synchronized void
+    public void
     waitForDeactivate()
     {
+	//
+	// _incommingConnectionFactories is immutable, thus no mutex
+	// lock is necessary. (A mutex lock wouldn't work here anyway,
+	// as there would be a deadlock with upcalls.)
+	//
         final int sz = _incomingConnectionFactories.size();
         for (int i = 0; i < sz; ++i)
         {
@@ -292,9 +297,13 @@ public class ObjectAdapterI implements ObjectAdapter
         }
     }
 
-    public synchronized IceInternal.Connection[]
+    public IceInternal.Connection[]
     getIncomingConnections()
     {
+	//
+	// _incommingConnectionFactories is immutable, thus no mutex lock
+	// is necessary.
+	//
         java.util.ArrayList connections = new java.util.ArrayList();
         final int sz = _incomingConnectionFactories.size();
         for (int i = 0; i < sz; ++i)
@@ -307,7 +316,6 @@ public class ObjectAdapterI implements ObjectAdapter
                 connections.add(cons[j]);
             }
         }
-
         IceInternal.Connection[] arr = new IceInternal.Connection[connections.size()];
         connections.toArray(arr);
         return arr;
@@ -460,18 +468,29 @@ public class ObjectAdapterI implements ObjectAdapter
             }
         }
 
-        //
-        // Proxies which have at least one endpoint in common with the
-        // router's server proxy endpoints (if any), are also considered
-        // local.
-        //
-        for (int i = 0; i < endpoints.length; ++i)
-        {
-            if (java.util.Collections.binarySearch(_routerEndpoints, endpoints[i]) >= 0) // _routerEndpoints is sorted.
-            {
-                return true;
-            }
-        }
+	//
+	// Must be synchronized, because _routerEndpoints is not
+	// immutable, and because this operation is called
+	// unsynchronized from
+	// ObjectAdapterFactory::findObjectAdapter().
+	//
+	synchronized(this)
+	{
+	    //
+	    // Proxies which have at least one endpoint in common with the
+	    // router's server proxy endpoints (if any), are also considered
+	    // local.
+	    //
+	    for (int i = 0; i < endpoints.length; ++i)
+	    {
+		// _routerEndpoints is sorted.
+		if (java.util.Collections.binarySearch(_routerEndpoints, endpoints[i]) >= 0)
+		{
+		    return true;
+		}
+	    }
+	    
+	}
 
         return false;
     }

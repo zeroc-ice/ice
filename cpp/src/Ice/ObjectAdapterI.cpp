@@ -116,8 +116,11 @@ Ice::ObjectAdapterI::deactivate()
 void
 Ice::ObjectAdapterI::waitForDeactivate()
 {
-    IceUtil::Mutex::Lock sync(*this);
-
+    //
+    // _incommingConnectionFactories is immutable, thus no mutex lock
+    // is necessary. (A mutex lock wouldn't work here anyway, as there
+    // would be a deadlock with upcalls.)
+    //
     for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::waitUntilFinished));
 }
@@ -365,17 +368,17 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 list<ConnectionPtr>
 Ice::ObjectAdapterI::getIncomingConnections() const
 {
-    IceUtil::Mutex::Lock sync(*this);
-
+    //
+    // _incommingConnectionFactories is immutable, thus no mutex lock
+    // is necessary.
+    //
     list<ConnectionPtr> connections;
-
     vector<IncomingConnectionFactoryPtr>::const_iterator p;
     for (p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
     {
 	list<ConnectionPtr> cons = (*p)->connections();
 	connections.splice(connections.end(), cons);
     }
-
     return connections;
 }
 
@@ -513,17 +516,26 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
     }
 
     //
-    // Proxies which have at least one endpoint in common with the
-    // router's server proxy endpoints (if any), are also considered
-    // local.
+    // Must be synchronized, because _routerEndpoints is not
+    // immutable, and because this operation is called unsynchronized
+    // from ObjectAdapterFactory::findObjectAdapter().
     //
-    for (p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
     {
-	if (binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
+	IceUtil::Mutex::Lock sync(*this);
+	
+	//
+	// Proxies which have at least one endpoint in common with the
+	// router's server proxy endpoints (if any), are also considered
+	// local.
+	//
+	for (p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
 	{
-	    return true;
+	    if (binary_search(_routerEndpoints.begin(), _routerEndpoints.end(), *p)) // _routerEndpoints is sorted.
+	    {
+		return true;
+	    }
 	}
     }
-
+	
     return false;
 }
