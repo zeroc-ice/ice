@@ -251,15 +251,8 @@ public class Instance
 		throw se;
 	    }
 
-	    if(_properties.getPropertyAsInt("Ice.UseSyslog") > 0)
-	    {
-		_logger = new Ice.SysLoggerI(_properties.getProperty("Ice.ProgramName"));
-	    }
-	    else
-	    {
-		_logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"),
-					  _properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
-	    }
+	    _logger = new Ice.LoggerI(_properties.getProperty("Ice.ProgramName"),
+				      _properties.getPropertyAsInt("Ice.Logger.Timestamp") > 0);
 
             validatePackages();
 

@@ -127,14 +127,11 @@ Ice:
     StdErr
     StdOut
     ThreadPerConnection.StackSize
-    Trace.GC
     Trace.Location
     Trace.Network
     Trace.Protocol
     Trace.Retry
     Trace.Slicing
-    UseEventLog
-    UseSyslog
     Warn.Connections
     Warn.Dispatch
     Warn.Leaks
