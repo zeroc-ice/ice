@@ -21,9 +21,9 @@ ContactI::ContactI(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
 }
 
 void
-ContactI::setIdentity(const string& identity)
+ContactI::setIdentity(const string& ident)
 {
-    _identity = identity;
+    _identity = ident;
 }
 
 string
@@ -96,9 +96,9 @@ public:
     {
     }
 
-    ContactPrx operator()(const string& identity)
+    ContactPrx operator()(const string& ident)
     {
-	return ContactPrx::uncheckedCast(_adapter->createProxy(identity));
+	return ContactPrx::uncheckedCast(_adapter->createProxy(ident));
     }
 
 private:
@@ -114,19 +114,19 @@ PhoneBookI::createContact()
     //
     // Get a new unique identity.
     //
-    string identity = getNewIdentity();
+    string ident = getNewIdentity();
 
     //
     // Create a new Contact Servant.
     //
     ContactIPtr contact = new ContactI(this, _evictor);
-    contact->setIdentity(identity);
+    contact->setIdentity(ident);
     
     //
     // Create a new Ice Object in the evictor, using the new identity
     // and the new Servant.
     //
-    _evictor->createObject(identity, contact);
+    _evictor->createObject(ident, contact);
 
     //
     // Add the identity to our name/identities map. The initial name
@@ -140,14 +140,14 @@ PhoneBookI::createContact()
     catch(const DBNotFoundException&)
     {
     }
-    identities.push_back(identity);
+    identities.push_back(ident);
     _nameIdentitiesDict->put("N", identities);
     
     //
     // Turn the identity into a Proxy and return the Proxy to the
     // caller.
     //
-    return IdentityToContact(_adapter)(identity);
+    return IdentityToContact(_adapter)(ident);
 }
 
 Contacts
@@ -195,7 +195,7 @@ PhoneBookI::shutdown()
 }
 
 void
-PhoneBookI::remove(const string& identity, const string& name)
+PhoneBookI::remove(const string& ident, const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
@@ -204,7 +204,7 @@ PhoneBookI::remove(const string& identity, const string& name)
     // application error if name is not found.
     //
     Identities identities  = _nameIdentitiesDict->get("N" + name);
-    identities.erase(remove_if(identities.begin(), identities.end(), bind2nd(equal_to<string>(), identity)),
+    identities.erase(remove_if(identities.begin(), identities.end(), bind2nd(equal_to<string>(), ident)),
 		     identities.end());
     if (identities.empty())
     {
@@ -217,14 +217,14 @@ PhoneBookI::remove(const string& identity, const string& name)
 }
 
 void
-PhoneBookI::move(const string& identity, const string& oldName, const string& newName)
+PhoneBookI::move(const string& ident, const string& oldName, const string& newName)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
     //
     // Called by ContactI in case the name has been changed.
     //
-    remove(identity, oldName);
+    remove(ident, oldName);
     Identities identities;
     try
     {
@@ -233,7 +233,7 @@ PhoneBookI::move(const string& identity, const string& oldName, const string& ne
     catch(const DBNotFoundException&)
     {
     }
-    identities.push_back(identity);
+    identities.push_back(ident);
     _nameIdentitiesDict->put("N" + newName, identities);
 }
 

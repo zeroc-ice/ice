@@ -444,7 +444,7 @@ Freeze::DBI::del(const Key& key)
 }
 
 void
-Freeze::DBI::putServant(const string& identity, const ObjectPtr& servant)
+Freeze::DBI::putServant(const string& ident, const ObjectPtr& servant)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -469,15 +469,15 @@ Freeze::DBI::putServant(const string& identity, const ObjectPtr& servant)
     DBT dbKey, dbData;
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(identity.c_str()));
-    dbKey.size = identity.size();
+    dbKey.data = const_cast<void*>(static_cast<const void*>(ident.c_str()));
+    dbKey.size = ident.size();
     dbData.data = stream.b.begin();
     dbData.size = stream.b.size();
 
     if (_trace >= 1)
     {
 	ostringstream s;
-	s << "writing Servant for identity \"" << identity << "\" in database \"" << _name << "\"";
+	s << "writing Servant for identity \"" << ident << "\" in database \"" << _name << "\"";
 	_communicator->getLogger()->trace("DB", s.str());
     }
     
@@ -485,7 +485,7 @@ Freeze::DBI::putServant(const string& identity, const ObjectPtr& servant)
 }
 
 ObjectPtr
-Freeze::DBI::getServant(const string& identity)
+Freeze::DBI::getServant(const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -501,13 +501,13 @@ Freeze::DBI::getServant(const string& identity)
     DBT dbKey, dbData;
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(identity.c_str()));
-    dbKey.size = identity.size();
+    dbKey.data = const_cast<void*>(static_cast<const void*>(ident.c_str()));
+    dbKey.size = ident.size();
 
     if (_trace >= 1)
     {
 	ostringstream s;
-	s << "reading Servant for identity \"" << identity << "\" from database \"" << _name << "\"";
+	s << "reading Servant for identity \"" << ident << "\" from database \"" << _name << "\"";
 	_communicator->getLogger()->trace("DB", s.str());
     }
     
@@ -531,7 +531,7 @@ Freeze::DBI::getServant(const string& identity)
 }
 
 void
-Freeze::DBI::delServant(const string& identity)
+Freeze::DBI::delServant(const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -546,13 +546,13 @@ Freeze::DBI::delServant(const string& identity)
 
     DBT dbKey;
     memset(&dbKey, 0, sizeof(dbKey));
-    dbKey.data = const_cast<void*>(static_cast<const void*>(identity.c_str()));
-    dbKey.size = identity.size();
+    dbKey.data = const_cast<void*>(static_cast<const void*>(ident.c_str()));
+    dbKey.size = ident.size();
 
     if (_trace >= 1)
     {
 	ostringstream s;
-	s << "deleting Servant for identity \"" << identity << "\" from database \"" << _name << "\"";
+	s << "deleting Servant for identity \"" << ident << "\" from database \"" << _name << "\"";
 	_communicator->getLogger()->trace("DB", s.str());
     }
     

@@ -32,18 +32,18 @@ IcePack::AdminI::add(const ServerDescription& desc)
 }
 
 void
-IcePack::AdminI::remove(const string& identity)
+IcePack::AdminI::remove(const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
-    _serverDescriptions.erase(identity);
+    _serverDescriptions.erase(ident);
 }
 
 ServerDescription
-IcePack::AdminI::find(const string& identity)
+IcePack::AdminI::find(const string& ident)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
-    ServerDescriptions::iterator p = _serverDescriptions.find(identity);
+    ServerDescriptions::iterator p = _serverDescriptions.find(ident);
     if (p != _serverDescriptions.end())
     {
 	return p->second;

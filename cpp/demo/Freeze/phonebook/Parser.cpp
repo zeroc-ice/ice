@@ -327,8 +327,8 @@ Parser::getInput(char* buf, int& result, int maxSize)
 	}
 	else
 	{
-#ifdef WIN32
-	    // COMPILERBUG: Stupid Visual C++ defined min and max as macros
+#if defined(_MSC_VER) && !defined(_STLP_MSVC)
+	    // COMPILERBUG: Stupid Visual C++ defines min and max as macros
 	    result = _MIN(maxSize, static_cast<int>(_commands.length()));
 #else
 	    result = min(maxSize, static_cast<int>(_commands.length()));
