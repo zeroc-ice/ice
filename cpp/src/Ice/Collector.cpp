@@ -431,11 +431,14 @@ IceInternal::Collector::closeConnection()
 void
 IceInternal::Collector::warning(const LocalException& ex) const
 {
+// TODO: Property to enable/disable the warnings below
+/*
     string s("server exception:\n");
     s += ex.toString();
     s += "\n";
     s += _transceiver->toString();
     _logger->warning(s);
+*/
 }
 
 void
@@ -693,9 +696,12 @@ IceInternal::CollectorFactory::clearBacklog()
 void
 IceInternal::CollectorFactory::warning(const LocalException& ex) const
 {
+// TODO: Property to enable/disable the warnings below
+/*
     string s("server exception:\n");
     s += ex.toString();
     s += "\n";
     s += _acceptor->toString();
     _logger->warning(s);
+*/
 }

@@ -72,7 +72,8 @@ private:
 	ThreadPoolPtr _pool;
     };
     friend class EventHandlerThread;
-    std::vector<JTCThreadHandle> _threads;
+    std::vector<JTCThreadHandle> _threads; // Handles for all threads, running or not.
+    int _threadNum; // Number of running threads.
 };
 
 }

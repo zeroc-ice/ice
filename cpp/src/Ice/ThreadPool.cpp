@@ -69,7 +69,7 @@ IceInternal::ThreadPool::waitUntilServerFinished()
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
 
-    while (_servers > 0)
+    while (_servers > 0 && _threadNum > 0)
     {
 	try
 	{
@@ -79,6 +79,12 @@ IceInternal::ThreadPool::waitUntilServerFinished()
 	{
 	}
     }
+
+    if (_servers > 0)
+    {
+	_instance->logger()->error("can't wait for graceful server termination in thread pool\n"
+				   "since all threads have vanished");
+    }
 }
 
 void
@@ -86,7 +92,7 @@ IceInternal::ThreadPool::waitUntilFinished()
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
 
-    while (_handlers.size() > 0)
+    while (_handlers.size() > 0 && _threadNum > 0)
     {
 	try
 	{
@@ -95,6 +101,12 @@ IceInternal::ThreadPool::waitUntilFinished()
 	catch (const JTCInterruptedException&)
 	{
 	}
+    }
+
+    if (_handlers.size() > 0)
+    {
+	_instance->logger()->error("can't wait for graceful application termination in thread pool\n"
+				   "since all threads have vanished");
     }
 }
 
@@ -132,18 +144,18 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
 
     try
     {
-	int threadNum = 10;
+	_threadNum = 10;
 	string value = _instance->properties()->getProperty("Ice.ThreadPool.Size");
 	if (!value.empty())
 	{
-	    threadNum = atoi(value.c_str());
-	    if (threadNum < 1)
+	    _threadNum = atoi(value.c_str());
+	    if (_threadNum < 1)
 	    {
-		threadNum = 1;
+		_threadNum = 1;
 	    }
 	}
 
-	for (int i = 0 ; i < threadNum ; ++i)
+	for (int i = 0 ; i < _threadNum ; ++i)
 	{
 	    JTCThreadHandle thread = new EventHandlerThread(this);
 	    thread->start();
@@ -366,7 +378,7 @@ IceInternal::ThreadPool::run()
 	    if(p == _handlers.end())
 	    {
 		ostringstream s;
-		s << "filedescriptor " << _lastFd << " not registered in thread pool";
+		s << "filedescriptor " << _lastFd << " not registered with the thread pool";
 		_instance->logger()->error(s.str());
 		goto repeatSelect;
 	    }
@@ -478,6 +490,25 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     catch (...)
     {
 	_pool->_instance->logger()->error("unknown exception in thread pool");
+    }
+
+    {
+	JTCSyncT<JTCMonitorT<JTCMutex> > sync(*_pool.get());
+	--_pool->_threadNum;
+	assert(_pool->_threadNum >= 0);
+
+	//
+	// The notifyAll() shouldn't be needed, *except* if one of the
+	// threads exits because of an exception. (Which is an error
+	// condition in Ice and if it happens needs to be debugged.)
+	// However, I call notifyAll() anyway, in all cases, using a
+	// "defensive" programming approach when it comes to
+	// multithreading.
+	//
+	if (_pool->_threadNum == 0)
+	{
+	    _pool->notifyAll(); // For waitUntil...Finished() methods
+	}
     }
 
     _pool->promoteFollower();
