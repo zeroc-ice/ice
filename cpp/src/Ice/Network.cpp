@@ -610,6 +610,14 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
     }
 }
 
+bool
+IceInternal::compareAddress(const struct sockaddr_in& addr1, const struct sockaddr_in& addr2)
+{
+    return (addr1.sin_family == addr2.sin_family) &&
+           (addr1.sin_port == addr2.sin_port) &&
+           (addr1.sin_addr.s_addr == addr2.sin_addr.s_addr);
+}
+
 void
 IceInternal::createPipe(SOCKET fds[2])
 {

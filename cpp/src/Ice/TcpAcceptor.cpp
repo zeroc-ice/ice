@@ -85,7 +85,7 @@ IceInternal::TcpAcceptor::equivalent(const string& host, int port) const
 {
     struct sockaddr_in addr;
     getAddress(host, port, addr);
-    return memcmp(&addr, &_addr, sizeof(struct sockaddr_in)) == 0;    
+    return compareAddress(addr, _addr);
 }
 
 int

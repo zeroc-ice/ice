@@ -522,10 +522,7 @@ IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
 	struct sockaddr_in raddr;
 	getAddress(_host.c_str(), _port, laddr);
 	getAddress(p->_host.c_str(), p->_port, raddr);
-	if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
-	{
-	    return false;
-	}
+	return compareAddress(laddr, raddr);
     }
 
     return true;
@@ -857,10 +854,7 @@ IceInternal::SslEndpoint::operator==(const Endpoint& r) const
 	struct sockaddr_in raddr;
 	getAddress(_host.c_str(), _port, laddr);
 	getAddress(p->_host.c_str(), p->_port, raddr);
-	if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
-	{
-	    return false;
-	}
+	return compareAddress(laddr, raddr);
     }
 
     return true;
@@ -1187,10 +1181,7 @@ IceInternal::UdpEndpoint::operator==(const Endpoint& r) const
 	struct sockaddr_in raddr;
 	getAddress(_host.c_str(), _port, laddr);
 	getAddress(p->_host.c_str(), p->_port, raddr);
-	if (memcmp(&laddr, &raddr, sizeof(struct sockaddr_in)) != 0)
-	{
-	    return false;
-	}
+	return compareAddress(laddr, raddr);
     }
 
     return true;
