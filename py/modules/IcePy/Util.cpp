@@ -567,16 +567,18 @@ IcePy::throwPythonException(PyObject* ex)
 
     if(PyObject_IsInstance(ex, userExceptionType))
     {
-        PyObjectHandle id = PyObject_CallMethod(ex, "ice_id", NULL);
+        PyObjectHandle name = PyObject_CallMethod(ex, "ice_name", NULL);
         PyErr_Clear();
         Ice::UnknownUserException e(__FILE__, __LINE__);
-        if(id.get() == NULL)
+        if(name.get() == NULL)
         {
-            e.unknown = ex->ob_type->tp_name;
+            PyObject* cls = (PyObject*)((PyInstanceObject*)ex)->in_class;
+            IcePy::PyObjectHandle str = PyObject_Str(cls);
+            e.unknown = PyString_AsString(str.get());
         }
         else
         {
-            e.unknown = PyString_AS_STRING(id.get());
+            e.unknown = PyString_AS_STRING(name.get());
         }
         throw e;
     }
@@ -586,12 +588,12 @@ IcePy::throwPythonException(PyObject* ex)
     }
     else
     {
-        PyObjectHandle str = PyObject_Str(ex);
+        PyObject* cls = (PyObject*)((PyInstanceObject*)ex)->in_class;
+        IcePy::PyObjectHandle str = PyObject_Str(cls);
         assert(str.get() != NULL);
-        assert(PyString_Check(str.get()));
 
         Ice::UnknownException e(__FILE__, __LINE__);
-        e.unknown = PyString_AS_STRING(str.get());
+        e.unknown = PyString_AsString(str.get());
         throw e;
     }
 }
