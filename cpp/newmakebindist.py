@@ -88,6 +88,8 @@ def collectSourceDistributions(tag, sourceDir, cvsdir, distro):
        are going to go get them ourselves"""
     cwd = os.getcwd()
     os.chdir(cwd + "/../" + cvsdir)
+    if len(tag) > 0:
+	print 'Making disribution ' + cvsdir + ' with tag ' + tag
     if cvsdir == "icepy" or cvsdir == "ice":
         os.system("./makedist.py " + tag)
     else:
@@ -270,6 +272,7 @@ def makeInstall(sources, buildDir, installDir, distro, clean):
 	# work) than shutil.copytree().
 	#
 	os.system("cp -pR " + buildDir + "/" + distro + "/ant " + installDir)
+	os.system('find ' + installDir + '/ant  -name "*.java" | xargs rm')
         os.chdir(cwd)
         return
 
@@ -590,7 +593,7 @@ def main():
 	    if d == "icej":
 		shutil.copy("lib/Ice.jar", installDir +"/Ice-" + version + "/lib")
 		os.system("cp -pR ant " + installDir + "/Ice-" + version)
-		os.system('find ' + installDir + 'Ice-' + version + ' -name "*.java" | xargs rm')
+		os.system('find ' + installDir + '/Ice-' + version + ' -name "*.java" | xargs rm')
 	    else:
 		os.system("perl -pi -e 's/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/' config/Make.rules")
 		os.system("gmake INSTALL_ROOT=" + installDir + "/Ice-" + version + " install")
