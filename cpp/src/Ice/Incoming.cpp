@@ -271,6 +271,78 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager)
 	__finishInvoke();
 	return;
     }
+    catch(const UnknownLocalException& ex)
+    {
+	_is.endReadEncaps();
+
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(ex);
+	}
+
+	if(_response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
+	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
+	    _os.write(ex.unknown);
+	}
+
+	//
+	// Must be called last, so that if an exception is raised,
+	// this function is definitely *not* called.
+	//
+	__finishInvoke();
+	return;
+    }
+    catch(const UnknownUserException& ex)
+    {
+	_is.endReadEncaps();
+
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(ex);
+	}
+
+	if(_response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
+	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
+	    _os.write(ex.unknown);
+	}
+
+	//
+	// Must be called last, so that if an exception is raised,
+	// this function is definitely *not* called.
+	//
+	__finishInvoke();
+	return;
+    }
+    catch(const UnknownException& ex)
+    {
+	_is.endReadEncaps();
+
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(ex);
+	}
+
+	if(_response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
+	    _os.write(static_cast<Byte>(DispatchUnknownException));
+	    _os.write(ex.unknown);
+	}
+
+	//
+	// Must be called last, so that if an exception is raised,
+	// this function is definitely *not* called.
+	//
+	__finishInvoke();
+	return;
+    }
     catch(const LocalException& ex)
     {
 	_is.endReadEncaps();

@@ -133,6 +133,51 @@ IceInternal::IncomingAsync::__exception(const Exception& exc)
 	    _os.write(ex.operation);
 	}
     }
+    catch(const UnknownLocalException& ex)
+    {
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(ex);
+	}
+
+	if(_response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
+	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
+	    _os.write(ex.unknown);
+	}
+    }
+    catch(const UnknownUserException& ex)
+    {
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(ex);
+	}
+
+	if(_response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
+	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
+	    _os.write(ex.unknown);
+	}
+    }
+    catch(const UnknownException& ex)
+    {
+	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+	{
+	    __warning(ex);
+	}
+
+	if(_response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(headerSize + 4); // Dispatch status position.
+	    _os.write(static_cast<Byte>(DispatchUnknownException));
+	    _os.write(ex.unknown);
+	}
+    }
     catch(const LocalException& ex)
     {
 	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
