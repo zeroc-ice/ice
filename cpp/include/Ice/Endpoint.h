@@ -30,27 +30,32 @@ public:
     virtual LocalException* clone() const;
 };
 
-class ICE_API EndpointI : virtual public ::_Ice::Shared, public JTCMutex
+class CommunicatorI;
+
+class ICE_API EndpointI : virtual public ::__Ice::Shared, public JTCMutex
 {
 public:
-
-    EndpointI(const ::_Ice::Instance&, const _Ice::EndpointData&);
-    virtual ~EndpointI();
 
     void activate();
     void hold();
     void close();
 
-    void _register(const ::IceServant::Ice::Object&, const std::string&);
+    void add(const ::IceServant::Ice::Object&, const std::string&);
+
+    ::__Ice::EndpointData __endpointData();
 
 private:
+
+    EndpointI(const ::__Ice::Instance&, const __Ice::EndpointData&);
+    virtual ~EndpointI();
+    friend CommunicatorI; // May create EndpointIs
 
     EndpointI(const EndpointI&);
     void operator=(const EndpointI&);
 
-    ::_Ice::Instance instance_;
-    ::_Ice::EndpointData endpointData_;
-    ::_Ice::CollectorFactory collectorFactory_;
+    ::__Ice::Instance instance_;
+    ::__Ice::EndpointData endpointData_;
+    ::__Ice::CollectorFactory collectorFactory_;
 };
 
 }

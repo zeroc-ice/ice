@@ -16,7 +16,7 @@
 #include <Ice/TransceiverF.h>
 #include <Ice/AcceptorF.h>
 #include <Ice/ThreadPoolF.h>
-#include <Ice/EndpointDataF.h>
+#include <Ice/EndpointF.h>
 #include <Ice/EventHandler.h>
 #include <list>
 #include <map>
@@ -28,7 +28,7 @@ class LocalException;
 
 }
 
-namespace _Ice
+namespace __Ice
 {
 
 class ICE_API CollectorI : public EventHandlerI, public JTCRecursiveMutex
@@ -58,6 +58,7 @@ private:
     void warning(const Ice::LocalException&) const;
 
     Instance instance_;
+    ::Ice::Endpoint endpoint_;
     ThreadPool threadPool_;
     Transceiver transceiver_;
     int fd_;
@@ -79,7 +80,7 @@ private:
     CollectorFactoryI(const CollectorFactoryI&);
     void operator=(const CollectorFactoryI&);
 
-    CollectorFactoryI(const Instance&, const EndpointData&);
+    CollectorFactoryI(const Instance&, const ::Ice::Endpoint&);
     virtual ~CollectorFactoryI();
     void destroy();
     // May create and destroy CollectorFactoryIs
@@ -88,6 +89,7 @@ private:
     void warning(const Ice::LocalException&) const;
 
     Instance instance_;
+    ::Ice::Endpoint endpoint_;
     ThreadPool threadPool_;
     Acceptor acceptor_;
     int fd_;
@@ -98,7 +100,7 @@ class ICE_API CollectorFactoryFactoryI : public Shared, public JTCMutex
 {
 public:
 
-    CollectorFactory create(const EndpointData&);
+    CollectorFactory create(const ::Ice::Endpoint&);
 
 private:
 
@@ -111,7 +113,6 @@ private:
     friend class InstanceI; // May create and destroy CollectorFactoryFactoryIs
 
     Instance instance_;
-    std::map<EndpointData, CollectorFactory> factories_;
 };
 
 }

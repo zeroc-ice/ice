@@ -14,12 +14,12 @@
 #include <Ice/Config.h>
 #include <algorithm>
 
-namespace _Ice
+namespace __Ice
 {
 
 //
 // Generic handle class, using intrusive referenceData counting. Two
-// global operations _Ice::_incRef(T*) and _Ice::_decRef(T*) must be
+// global operations __Ice::incRef(T*) and __Ice::decRef(T*) must be
 // declared for each T before using this template. The use of global
 // operations allows this template to be used for types which are
 // declared but not defined, provided that the two above mentioned
@@ -37,20 +37,20 @@ public:
 	: ptr_(p)
     {
 	if(ptr_)
-	    _incRef(ptr_);
+	    incRef(ptr_);
     }
     
     Handle(const Handle& r)
 	: ptr_(r.ptr_)
     {
 	if(ptr_)
-	    _incRef(ptr_);
+	    incRef(ptr_);
     }
     
     ~Handle()
     {
 	if(ptr_)
-	    _decRef(ptr_);
+	    decRef(ptr_);
     }
     
     Handle& operator=(T* p)
@@ -58,12 +58,12 @@ public:
 	if(ptr_ != p)
 	{
 	    if(ptr_)
-		_decRef(ptr_);
+		decRef(ptr_);
 	    
 	    ptr_ = p;
 	    
 	    if(ptr_)
-		_incRef(ptr_);
+		incRef(ptr_);
 	}
 	return *this;
     }
@@ -73,12 +73,12 @@ public:
 	if(ptr_ != r.ptr_)
 	{
 	    if(ptr_)
-		_decRef(ptr_);
+		decRef(ptr_);
 	    
 	    ptr_ = r.ptr_;
 	    
 	    if(ptr_)
-		_incRef(ptr_);
+		incRef(ptr_);
 	}
 	return *this;
     }
@@ -94,7 +94,7 @@ public:
 	: ptr_(r.ptr_)
     {
 	if(ptr_)
-	    _incRef(ptr_);
+	    incRef(ptr_);
     }
 
     template<typename Y>
@@ -103,12 +103,12 @@ public:
 	if(ptr_ != r.ptr_)
 	{
 	    if(ptr_)
-		_decRef(ptr_);
+		decRef(ptr_);
 	    
 	    ptr_ = r.ptr_;
 	    
 	    if(ptr_)
-		_incRef(ptr_);
+		incRef(ptr_);
 	}
 	return *this;
     }

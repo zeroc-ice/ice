@@ -14,7 +14,7 @@
 #include <Ice/EndpointDataF.h>
 #include <Ice/Shared.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class ICE_API EndpointDataI : virtual public Shared

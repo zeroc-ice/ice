@@ -13,13 +13,13 @@
 
 #include <Ice/Handle.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class ConnectorI;
-void ICE_API _incRef(ConnectorI*);
-void ICE_API _decRef(ConnectorI*);
-typedef _Ice::Handle<ConnectorI> Connector;
+void ICE_API incRef(ConnectorI*);
+void ICE_API decRef(ConnectorI*);
+typedef __Ice::Handle<ConnectorI> Connector;
 
 }
 

@@ -13,13 +13,13 @@
 
 #include <Ice/Handle.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class AcceptorI;
-void ICE_API _incRef(AcceptorI*);
-void ICE_API _decRef(AcceptorI*);
-typedef _Ice::Handle<AcceptorI> Acceptor;
+void ICE_API incRef(AcceptorI*);
+void ICE_API decRef(AcceptorI*);
+typedef __Ice::Handle<AcceptorI> Acceptor;
 
 }
 

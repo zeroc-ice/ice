@@ -21,7 +21,7 @@
 #include <Ice/CollectorF.h>
 #include <Ice/Shared.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class ICE_API InstanceI : public Shared, public JTCMutex

@@ -21,7 +21,7 @@
 namespace Ice
 {
 
-class ICE_API CommunicatorI : public ::_Ice::Shared, public JTCMutex
+class ICE_API CommunicatorI : public ::__Ice::Shared, public JTCMutex
 {
 public:
     
@@ -47,7 +47,7 @@ private:
     // May create CommunicatorIs
     friend ICE_API Communicator initialize(int&, char*[]);
 
-    ::_Ice::Instance instance_;
+    ::__Ice::Instance instance_;
 };
 
 ICE_API Communicator initialize(int&, char*[]);

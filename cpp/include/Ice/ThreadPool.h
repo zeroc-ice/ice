@@ -18,7 +18,7 @@
 #include <queue>
 #include <list>
 
-namespace _Ice
+namespace __Ice
 {
 
 class ICE_API ThreadPoolI : public Shared, public JTCMutex

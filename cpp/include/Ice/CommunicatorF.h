@@ -15,18 +15,18 @@
 
 namespace Ice { class CommunicatorI; }
 
-namespace _Ice
+namespace __Ice
 {
 
-void ICE_API _incRef(::Ice::CommunicatorI*);
-void ICE_API _decRef(::Ice::CommunicatorI*);
+void ICE_API incRef(::Ice::CommunicatorI*);
+void ICE_API decRef(::Ice::CommunicatorI*);
 
 }
 
 namespace Ice
 {
 
-typedef _Ice::Handle<CommunicatorI> Communicator;
+typedef __Ice::Handle<CommunicatorI> Communicator;
 
 }
 

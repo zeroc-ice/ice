@@ -13,13 +13,13 @@
 
 #include <Ice/Handle.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class EventHandlerI;
-void ICE_API _incRef(EventHandlerI*);
-void ICE_API _decRef(EventHandlerI*);
-typedef _Ice::Handle<EventHandlerI> EventHandler;
+void ICE_API incRef(EventHandlerI*);
+void ICE_API decRef(EventHandlerI*);
+typedef __Ice::Handle<EventHandlerI> EventHandler;
 
 }
 

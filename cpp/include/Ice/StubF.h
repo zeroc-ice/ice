@@ -14,41 +14,41 @@
 #include <Ice/Handle.h>
 
 namespace Ice { class ObjectI; }
-namespace _IceStub { namespace Ice { class ObjectI; } }
-namespace _IceStubM { namespace Ice { class ObjectI; } }
+namespace __IceStub { namespace Ice { class ObjectI; } }
+namespace __IceStubM { namespace Ice { class ObjectI; } }
 
-namespace _Ice
+namespace __Ice
 {
 
-void ICE_API _incRef(::Ice::ObjectI*);
-void ICE_API _decRef(::Ice::ObjectI*);
+void ICE_API incRef(::Ice::ObjectI*);
+void ICE_API decRef(::Ice::ObjectI*);
 
-void ICE_API _incRef(::_IceStub::Ice::ObjectI*);
-void ICE_API _decRef(::_IceStub::Ice::ObjectI*);
+void ICE_API incRef(::__IceStub::Ice::ObjectI*);
+void ICE_API decRef(::__IceStub::Ice::ObjectI*);
 
-void ICE_API _incRef(::_IceStubM::Ice::ObjectI*);
-void ICE_API _decRef(::_IceStubM::Ice::ObjectI*);
+void ICE_API incRef(::__IceStubM::Ice::ObjectI*);
+void ICE_API decRef(::__IceStubM::Ice::ObjectI*);
 
 }
 
 namespace Ice
 {
 
-typedef _Ice::Handle< ObjectI > Object;
+typedef __Ice::Handle< ObjectI > Object;
 
 }
 
-namespace _IceStub { namespace Ice
+namespace __IceStub { namespace Ice
 {
 
-typedef _Ice::Handle< ObjectI > Object;
+typedef __Ice::Handle< ObjectI > Object;
 
 } }
 
-namespace _IceStubM { namespace Ice
+namespace __IceStubM { namespace Ice
 {
 
-typedef _Ice::Handle< ObjectI > Object;
+typedef __Ice::Handle< ObjectI > Object;
 
 } }
 

@@ -13,23 +13,23 @@
 
 #include <Ice/Handle.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class EmitterI;
-void ICE_API _incRef(EmitterI*);
-void ICE_API _decRef(EmitterI*);
-typedef _Ice::Handle<EmitterI> Emitter;
+void ICE_API incRef(EmitterI*);
+void ICE_API decRef(EmitterI*);
+typedef __Ice::Handle<EmitterI> Emitter;
 
 class EmitterFactoryI;
-void ICE_API _incRef(EmitterFactoryI*);
-void ICE_API _decRef(EmitterFactoryI*);
-typedef _Ice::Handle<EmitterFactoryI> EmitterFactory;
+void ICE_API incRef(EmitterFactoryI*);
+void ICE_API decRef(EmitterFactoryI*);
+typedef __Ice::Handle<EmitterFactoryI> EmitterFactory;
 
 class EmitterFactoryFactoryI;
-void ICE_API _incRef(EmitterFactoryFactoryI*);
-void ICE_API _decRef(EmitterFactoryFactoryI*);
-typedef _Ice::Handle<EmitterFactoryFactoryI> EmitterFactoryFactory;
+void ICE_API incRef(EmitterFactoryFactoryI*);
+void ICE_API decRef(EmitterFactoryFactoryI*);
+typedef __Ice::Handle<EmitterFactoryFactoryI> EmitterFactoryFactory;
 
 }
 

@@ -20,7 +20,7 @@
 #include <Ice/EventHandler.h>
 #include <map>
 
-namespace _Ice
+namespace __Ice
 {
 
 class Buffer;

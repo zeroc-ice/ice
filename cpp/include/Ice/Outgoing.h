@@ -14,7 +14,7 @@
 #include <Ice/EmitterF.h>
 #include <Ice/Stream.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class ICE_API Outgoing

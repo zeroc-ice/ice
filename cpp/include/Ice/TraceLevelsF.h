@@ -13,13 +13,13 @@
 
 #include <Ice/Handle.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class TraceLevelsI;
-void ICE_API _incRef(TraceLevelsI*);
-void ICE_API _decRef(TraceLevelsI*);
-typedef _Ice::Handle<TraceLevelsI> TraceLevels;
+void ICE_API incRef(TraceLevelsI*);
+void ICE_API decRef(TraceLevelsI*);
+typedef __Ice::Handle<TraceLevelsI> TraceLevels;
 
 }
 

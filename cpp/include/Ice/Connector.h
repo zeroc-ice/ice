@@ -20,7 +20,7 @@
 #   include <netinet/in.h> // For struct sockaddr_in
 #endif
 
-namespace _Ice
+namespace __Ice
 {
 
 class EmitterFactoryI;

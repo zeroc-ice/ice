@@ -58,7 +58,7 @@ typedef int socklen_t;
 #   define NETDB_SUCCESS 0
 #endif
 
-namespace _Ice
+namespace __Ice
 {
 
 bool interrupted();

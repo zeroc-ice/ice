@@ -13,7 +13,7 @@
 
 #include <Ice/Config.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class Stream;

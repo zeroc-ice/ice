@@ -13,13 +13,13 @@
 
 #include <Ice/Handle.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class ThreadPoolI;
-void ICE_API _incRef(ThreadPoolI*);
-void ICE_API _decRef(ThreadPoolI*);
-typedef _Ice::Handle<ThreadPoolI> ThreadPool;
+void ICE_API incRef(ThreadPoolI*);
+void ICE_API decRef(ThreadPoolI*);
+typedef __Ice::Handle<ThreadPoolI> ThreadPool;
 
 }
 

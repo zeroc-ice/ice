@@ -16,7 +16,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/Shared.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class ICE_API ObjectFactoryI : public Shared, JTCMutex

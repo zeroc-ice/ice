@@ -13,23 +13,23 @@
 
 #include <Ice/Handle.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class CollectorI;
-void ICE_API _incRef(CollectorI*);
-void ICE_API _decRef(CollectorI*);
-typedef _Ice::Handle<CollectorI> Collector;
+void ICE_API incRef(CollectorI*);
+void ICE_API decRef(CollectorI*);
+typedef __Ice::Handle<CollectorI> Collector;
 
 class CollectorFactoryI;
-void ICE_API _incRef(CollectorFactoryI*);
-void ICE_API _decRef(CollectorFactoryI*);
-typedef _Ice::Handle<CollectorFactoryI> CollectorFactory;
+void ICE_API incRef(CollectorFactoryI*);
+void ICE_API decRef(CollectorFactoryI*);
+typedef __Ice::Handle<CollectorFactoryI> CollectorFactory;
 
 class CollectorFactoryFactoryI;
-void ICE_API _incRef(CollectorFactoryFactoryI*);
-void ICE_API _decRef(CollectorFactoryFactoryI*);
-typedef _Ice::Handle<CollectorFactoryFactoryI> CollectorFactoryFactory;
+void ICE_API incRef(CollectorFactoryFactoryI*);
+void ICE_API decRef(CollectorFactoryFactoryI*);
+typedef __Ice::Handle<CollectorFactoryFactoryI> CollectorFactoryFactory;
 
 }
 

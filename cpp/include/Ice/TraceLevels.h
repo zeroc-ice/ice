@@ -14,7 +14,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/Shared.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class ICE_API TraceLevelsI : virtual public Shared

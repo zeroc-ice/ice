@@ -19,22 +19,22 @@ namespace Ice
     class StderrLoggerI;
 }
 
-namespace _Ice
+namespace __Ice
 {
 
-void ICE_API _incRef(::Ice::LoggerI*);
-void ICE_API _decRef(::Ice::LoggerI*);
+void ICE_API incRef(::Ice::LoggerI*);
+void ICE_API decRef(::Ice::LoggerI*);
 
-void ICE_API _incRef(::Ice::StderrLoggerI*);
-void ICE_API _decRef(::Ice::StderrLoggerI*);
+void ICE_API incRef(::Ice::StderrLoggerI*);
+void ICE_API decRef(::Ice::StderrLoggerI*);
 
 }
 
 namespace Ice
 {
 
-typedef _Ice::Handle<LoggerI> Logger;
-typedef _Ice::Handle<StderrLoggerI> StderrLogger;
+typedef __Ice::Handle<LoggerI> Logger;
+typedef __Ice::Handle<StderrLoggerI> StderrLogger;
 
 }
 

@@ -42,7 +42,7 @@ typedef double Double;
 
 }
 
-namespace _Ice
+namespace __Ice
 {
 
 const bool bigendian = false;
@@ -65,7 +65,7 @@ typedef double Double;
 
 }
 
-namespace _Ice
+namespace __Ice
 {
 
 const bool bigendian = false;

@@ -13,7 +13,7 @@
 
 #include <Ice/StubF.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 //

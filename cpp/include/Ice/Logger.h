@@ -18,7 +18,7 @@
 namespace Ice
 {
 
-class ICE_API LoggerI : public ::_Ice::Shared
+class ICE_API LoggerI : public ::__Ice::Shared
 {
 public:
     

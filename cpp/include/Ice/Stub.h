@@ -21,43 +21,43 @@
 namespace Ice
 {
 
-class ICE_API ObjectI : virtual public ::_Ice::Shared, JTCMutex
+class ICE_API ObjectI : virtual public ::__Ice::Shared, JTCMutex
 {
 public:
 
     bool operator==(const ObjectI&) const;
     bool operator!=(const ObjectI&) const;
 
-    ::_Ice::ReferenceData _referenceData() const;
-    void _copyTo(ObjectI*) const;
+    ::__Ice::ReferenceData __referenceData() const;
+    void __copyTo(ObjectI*) const;
 
 protected:
 
     ObjectI();
     virtual ~ObjectI();
 
-    ::_IceStub::Ice::Object _getStub();
-    virtual ::_IceStubM::Ice::Object _createStubM();
+    ::__IceStub::Ice::Object __getStub();
+    virtual ::__IceStubM::Ice::Object __createStubM();
 
 private:
 
     ObjectI(const ObjectI&);
     void operator=(const ObjectI&);
 
-    void setup(const ::_Ice::ReferenceData&);
+    void setup(const ::__Ice::ReferenceData&);
 
-    ::_Ice::ReferenceData referenceData_;
-    ::_IceStub::Ice::Object stub_;
+    ::__Ice::ReferenceData referenceData_;
+    ::__IceStub::Ice::Object stub_;
 
-    friend class ::_Ice::ObjectFactoryI; // May create and setup ObjectIs
+    friend class ::__Ice::ObjectFactoryI; // May create and setup ObjectIs
 };
 
 }
 
-namespace _IceStub { namespace Ice
+namespace __IceStub { namespace Ice
 {
 
-class ICE_API ObjectI : virtual public ::_Ice::Shared, JTCMutex
+class ICE_API ObjectI : virtual public ::__Ice::Shared, JTCMutex
 {
 public:
 
@@ -71,17 +71,17 @@ private:
     ObjectI(const ObjectI&);
     void operator=(const ObjectI&);
 
-    virtual void setup(const ::_Ice::ReferenceData&) = 0;
+    virtual void setup(const ::__Ice::ReferenceData&) = 0;
 
     friend class ::Ice::ObjectI; // May create and setup ObjectIs
 };
 
 } }
 
-namespace _IceStubM { namespace Ice
+namespace __IceStubM { namespace Ice
 {
 
-class ICE_API ObjectI : virtual public ::_IceStub::Ice::ObjectI
+class ICE_API ObjectI : virtual public ::__IceStub::Ice::ObjectI
 {
 public:
 
@@ -90,18 +90,18 @@ protected:
     ObjectI();
     virtual ~ObjectI();
 
-    ::_Ice::Emitter _emitter();
-    const std::string& _identity();
+    ::__Ice::Emitter __emitter();
+    const std::string& __identity();
 
 private:
 
-    ::_Ice::EmitterFactory factory_;
-    ::_Ice::ReferenceData referenceData_;
+    ::__Ice::EmitterFactory factory_;
+    ::__Ice::ReferenceData referenceData_;
 
     ObjectI(const ObjectI&);
     void operator=(const ObjectI&);
 
-    void setup(const ::_Ice::ReferenceData&);
+    void setup(const ::__Ice::ReferenceData&);
 
     friend class ::Ice::ObjectI; // May create and setup ObjectIs
 };

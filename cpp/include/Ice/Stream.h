@@ -14,7 +14,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/Buffer.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class ICE_API Stream : public Buffer

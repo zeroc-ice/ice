@@ -14,7 +14,7 @@
 #include <Ice/EventHandlerF.h>
 #include <Ice/Shared.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 class ICE_API EventHandlerI : public Shared

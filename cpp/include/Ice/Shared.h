@@ -13,7 +13,7 @@
 
 #include <Ice/Config.h>
 
-namespace _Ice
+namespace __Ice
 {
 
 //
@@ -27,12 +27,12 @@ public:
     SimpleShared();
     virtual ~SimpleShared();
 
-    void _incRef()
+    void __incRef()
     {
 	++ref_;
     }
 
-    void _decRef()
+    void __decRef()
     {
 	assert(ref_ > 0);
 	if(--ref_ == 0)
@@ -57,14 +57,14 @@ public:
     Shared();
     virtual ~Shared();
 
-    void _incRef()
+    void __incRef()
     {
 	mutex_.lock();
 	++ref_;
 	mutex_.unlock();
     }
 
-    void _decRef()
+    void __decRef()
     {
 	mutex_.lock();
 	assert(ref_ > 0);

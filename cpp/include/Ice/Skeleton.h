@@ -17,7 +17,7 @@
 namespace IceServant { namespace Ice
 {
 
-class ICE_API ObjectS : virtual public ::_Ice::Shared
+class ICE_API ObjectS : virtual public ::__Ice::Shared
 {
 public:
 

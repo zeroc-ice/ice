@@ -15,18 +15,18 @@
 
 namespace IceServant { namespace Ice { class ObjectS; } }
 
-namespace _Ice
+namespace __Ice
 {
 
-void ICE_API _incRef(::IceServant::Ice::ObjectS*);
-void ICE_API _decRef(::IceServant::Ice::ObjectS*);
+void ICE_API incRef(::IceServant::Ice::ObjectS*);
+void ICE_API decRef(::IceServant::Ice::ObjectS*);
 
 }
 
 namespace IceServant { namespace Ice
 {
 
-typedef _Ice::Handle< ObjectS > Object;
+typedef __Ice::Handle< ObjectS > Object;
 
 } }
 

@@ -15,18 +15,18 @@
 
 namespace Ice { class EndpointI; }
 
-namespace _Ice
+namespace __Ice
 {
 
-void ICE_API _incRef(::Ice::EndpointI*);
-void ICE_API _decRef(::Ice::EndpointI*);
+void ICE_API incRef(::Ice::EndpointI*);
+void ICE_API decRef(::Ice::EndpointI*);
 
 }
 
 namespace Ice
 {
 
-typedef _Ice::Handle<EndpointI> Endpoint;
+typedef __Ice::Handle<EndpointI> Endpoint;
 
 }
 
