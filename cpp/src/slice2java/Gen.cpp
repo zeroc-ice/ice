@@ -491,7 +491,54 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	throws.sort(Slice::DerivedToBaseCompare());
 #endif
 	
-	if(cl == p || cl->isInterface())
+	//
+	// Only generate a "no current" version of the operation if it hasn't been done in a base
+	// class already, because the "no current" version is final.
+	//
+	bool generateOperation = cl == p; // Generate if the operation is defined in this class.
+	if(!generateOperation)
+	{
+	    //
+	    // The operation is not defined in this class.
+	    //
+	    ClassList bases = p->bases();
+	    if(!bases.empty())
+	    {
+	        //
+		// Check if the operation is already implemented by a base class.
+		//
+		bool implementedByBase = false;
+		if(!bases.front()->isInterface())
+		{
+		    OperationList baseOps = bases.front()->allOperations();
+		    OperationList::const_iterator i;
+		    for(i = baseOps.begin(); i != baseOps.end(); ++i)
+		    {
+			if((*i)->name() == op->name())
+			{
+			    implementedByBase = true;
+			    break;
+			}
+		    }
+		    if(i == baseOps.end())
+		    {
+			generateOperation = true;
+		    }
+		}
+		if(!generateOperation && !implementedByBase)
+		{
+		     //
+		     // No base class defines the operation. Check if one of the
+		     // interfaces defines it, in which case this class must provide it.
+		     //
+		     if(bases.front()->isInterface() || bases.size() > 1)
+		     {
+		         generateOperation = true;
+		     }
+		}
+	    }
+	}
+	if(generateOperation)
 	{
 	    out << sp << nl << "public final " << typeToString(ret, TypeModeReturn, package)
 		<< nl << opName << spar << params << epar;
