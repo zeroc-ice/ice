@@ -999,16 +999,16 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if(p->isLocal())
         {
-            out << " implements " << name;
+            out << " implements " << name << ", Ice.TieBase";
         }
         else
         {
-            out << " extends " << '_' << name << "Disp";
+            out << " extends " << '_' << name << "Disp implements Ice.TieBase";
         }
     }
     else
     {
-        out << " extends " << name;
+        out << " extends " << name << " implements Ice.TieBase";
     }
 
     out << sb;
@@ -1022,14 +1022,14 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "_ice_delegate = delegate;";
     out << eb;
 
-    out << sp << nl << "public " << '_' << name << "Operations" << nl << "ice_delegate()";
+    out << sp << nl << "public java.lang.Object" << nl << "ice_delegate()";
     out << sb;
     out << nl << "return _ice_delegate;";
     out << eb;
 
-    out << sp << nl << "public void" << nl << "ice_delegate(" << '_' << name << "Operations delegate)";
+    out << sp << nl << "public void" << nl << "ice_delegate(java.lang.Object delegate)";
     out << sb;
-    out << nl << "_ice_delegate = delegate;";
+    out << nl << "_ice_delegate = (_" << name << "Operations)delegate;";
     out << eb;
 
     out << sp << nl << "public boolean" << nl << "equals(java.lang.Object rhs)";
