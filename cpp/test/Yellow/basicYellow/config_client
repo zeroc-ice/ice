@@ -1,0 +1,2 @@
+Yellow.Admin=Yellow/Admin:tcp -p 10001 -h 127.0.0.1
+Yellow.Query=Yellow/Query:tcp -p 10000 -h 127.0.0.1
