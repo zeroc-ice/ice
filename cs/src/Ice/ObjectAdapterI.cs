@@ -691,46 +691,26 @@ namespace Ice
 	    
 	    try
 	    {
-		string endpts = _instance.properties().getProperty(name + ".Endpoints").ToLower();
-		
-		int beg;
-		int end = 0;
-		
-		string delim = " \t\n\r";
-		
-		while(end < endpts.Length)
+		//
+		// Parse the endpoints, but don't store them in the adapter.
+		// The connection factory might change it, for example, to
+		// fill in the real port number.
+		//
+		string endpts = _instance.properties().getProperty(name + ".Endpoints");
+		ArrayList endpoints = parseEndpoints(endpts);
+		for(int i = 0; i < endpoints.Count; ++i)
 		{
-		    beg = IceUtil.StringUtil.findFirstNotOf(endpts, delim, end);
-		    if(beg == -1)
-		    {
-			break;
-		    }
-		    
-		    end = endpts.IndexOf((System.Char) ':', beg);
-		    if(end == -1)
-		    {
-			end = endpts.Length;
-		    }
-		    
-		    if(end == beg)
-		    {
-			++end;
-			continue;
-		    }
-		    
-		    string s = endpts.Substring(beg, (end) - (beg));
-		    
-		    //
-		    // Don't store the endpoint in the adapter. The Connection
-		    // might change it, for example, to fill in the real port
-		    // number if a zero port number is given.
-		    //
-		    IceInternal.Endpoint endp = instance.endpointFactoryManager().create(s);
+		    IceInternal.Endpoint endp = (IceInternal.Endpoint)endpoints[i];
 		    _incomingConnectionFactories.Add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
-		    
-		    ++end;
 		}
 		
+		//
+		// Parse published endpoints. These are used in proxies
+		// instead of the connection factory endpoints.
+		//
+		endpts = _instance.properties().getProperty(name + ".PublishedEndpoints");
+		_publishedEndpoints = parseEndpoints(endpts);
+
 		string router = _instance.properties().getProperty(name + ".Router");
 		if(router.Length > 0)
 		{
@@ -806,30 +786,41 @@ namespace Ice
 	
 	private ObjectPrx newDirectProxy(Identity ident)
 	{
-	    IceInternal.Endpoint[] endpoints =
-		new IceInternal.Endpoint[_incomingConnectionFactories.Count + _routerEndpoints.Count];
-	    
+	    IceInternal.Endpoint[] endpoints;
+
+	    // 
+	    // Use the published endpoints, otherwise use the endpoints from all
+	    // incoming connection factories.
 	    //
-	    // First we add all endpoints from all incoming connection
-	    // factories.
-	    //
-	    int sz = _incomingConnectionFactories.Count;
-	    for(int i = 0; i < sz; ++i)
+	    int sz = _publishedEndpoints.Count;
+	    if(sz > 0)
 	    {
-		IceInternal.IncomingConnectionFactory factory =
-		    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories[i];
-		endpoints[i] = factory.endpoint();
+		endpoints = new IceInternal.Endpoint[sz + _routerEndpoints.Count];
+		for(int i = 0; i < sz; ++i)
+		{
+		    endpoints[i] = _publishedEndpoints[i];
+		}
 	    }
-	    
+	    else
+	    {
+		sz = _incomingConnectionFactories.Count;
+		endpoints = new IceInternal.Endpoint[sz + _routerEndpoints.Count];
+		for(int i = 0; i < sz; ++i)
+		{
+		    IceInternal.IncomingConnectionFactory factory =
+			(IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.[i];
+		    endpoints[i] = factory.endpoint();
+		}
+	    }
+
 	    //
 	    // Now we also add the endpoints of the router's server proxy, if
 	    // any. This way, object references created by this object adapter
 	    // will also point to the router's server proxy endpoints.
 	    //
-	    sz = _routerEndpoints.Count;
-	    for(int i = 0; i < sz; ++i)
+	    for(int i = 0; i < _routerEndpoints.Count; ++i)
 	    {
-		endpoints[_incomingConnectionFactories.Count + i] = (IceInternal.Endpoint)_routerEndpoints[i];
+		endpoints[sz + i] = (IceInternal.Endpoint)_routerEndpoints[i];
 	    }
 	    
 	    //
@@ -865,6 +856,46 @@ namespace Ice
 	    {
 		ident.category = "";
 	    }
+	}
+
+	private ArrayList parseEndpoints(string endpts)
+	{
+	    endpts = endpts.ToLower();
+
+	    int beg;
+	    int end = 0;
+
+	    string delim = " \t\n\r";
+
+	    ArrayList endpoints = new ArrayList();
+	    while(end < endpts.Length)
+	    {
+		beg = IceUtil.StringUtil.findFirstNotOf(endpts, delim, end);
+		if(beg == -1)
+		{
+		    break;
+		}
+
+		end = endpts.IndexOf((System.Char) ':', beg);
+		if(end == -1)
+		{
+		    end = endpts.Length;
+		}
+
+		if(end == beg)
+		{
+		    ++end;
+		    continue;
+		}
+
+		string s = endpts.Substring(beg, (end) - (beg));
+		IceInternal.Endpoint endp = instance.endpointFactoryManager().create(s);
+		endpoints.Add(endp);
+
+		++end;
+	    }
+
+	    return endpoints;
 	}
 
 	private sealed class ProcessI : _ProcessDisp
@@ -911,6 +942,7 @@ namespace Ice
 	private Logger _logger;
 	private ArrayList _incomingConnectionFactories;
 	private ArrayList _routerEndpoints;
+	private ArrayList _publishedEndpoints;
 	private IceInternal.LocatorInfo _locatorInfo;
 	private int _directCount;
 	private bool _waitForDeactivate;

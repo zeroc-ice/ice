@@ -682,46 +682,24 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     __setNoDelete(true);
     try
     {
+	//
+	// Parse the endpoints, but don't store them in the adapter.
+	// The connection factory might change it, for example, to
+	// fill in the real port number.
+	//
 	string endpts = _instance->properties()->getProperty(name + ".Endpoints");
-	transform(endpts.begin(), endpts.end(), endpts.begin(), ::tolower);
-
-	string::size_type beg;
-	string::size_type end = 0;
-
-	while(end < endpts.length())
+	vector<EndpointPtr> endpoints = parseEndpoints(endpts);
+	for(vector<EndpointPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
 	{
-	    const string delim = " \t\n\r";
-	    
-	    beg = endpts.find_first_not_of(delim, end);
-	    if(beg == string::npos)
-	    {
-		break;
-	    }
-
-	    end = endpts.find(':', beg);
-	    if(end == string::npos)
-	    {
-		end = endpts.length();
-	    }
-	    
-	    if(end == beg)
-	    {
-		++end;
-                continue;
-	    }
-	    
-	    string s = endpts.substr(beg, end - beg);
-	   
-	    //
-	    // Don't store the endpoint in the adapter. The Collector
-	    // might change it, for example, to fill in the real port
-	    // number if a zero port number is given.
-	    //
-	    EndpointPtr endp = _instance->endpointFactoryManager()->create(s);
-	    _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, endp, this));
-
-	    ++end;
+	    _incomingConnectionFactories.push_back(new IncomingConnectionFactory(instance, *p, this));
 	}
+
+	//
+	// Parse published endpoints. These are used in proxies
+	// instead of the connection factory endpoints.
+	//
+	endpts = _instance->properties()->getProperty(name + ".PublishedEndpoints");
+	_publishedEndpoints = parseEndpoints(endpts);
 
 	string router = _instance->properties()->getProperty(_name + ".Router");
 	if(!router.empty())
@@ -791,7 +769,6 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 	//
 	// Create a reference with the adapter id.
 	//
-	vector<EndpointPtr> endpoints;
 	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "",
 								 Reference::ModeTwoway, false, _id,
 								 0, _locatorInfo, true);
@@ -809,11 +786,18 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
     vector<EndpointPtr> endpoints;
 
     // 
-    // First we add all endpoints from all incoming connection
-    // factories.
+    // Use the published endpoints, otherwise use the endpoints from all
+    // incoming connection factories.
     //
-    transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), back_inserter(endpoints),
-	      Ice::constMemFun(&IncomingConnectionFactory::endpoint));
+    if(!_publishedEndpoints.empty())
+    {
+	endpoints = _publishedEndpoints;
+    }
+    else
+    {
+	transform(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(), back_inserter(endpoints),
+		  Ice::constMemFun(&IncomingConnectionFactory::endpoint));
+    }
     
     //
     // Now we also add the endpoints of the router's server proxy, if
@@ -851,6 +835,48 @@ Ice::ObjectAdapterI::checkIdentity(const Identity& ident)
         e.id = ident;
         throw e;
     }
+}
+
+vector<EndpointPtr>
+Ice::ObjectAdapterI::parseEndpoints(const string& str) const
+{
+    string endpts = str;
+    transform(endpts.begin(), endpts.end(), endpts.begin(), ::tolower);
+
+    string::size_type beg;
+    string::size_type end = 0;
+
+    vector<EndpointPtr> endpoints;
+    while(end < endpts.length())
+    {
+	const string delim = " \t\n\r";
+	
+	beg = endpts.find_first_not_of(delim, end);
+	if(beg == string::npos)
+	{
+	    break;
+	}
+
+	end = endpts.find(':', beg);
+	if(end == string::npos)
+	{
+	    end = endpts.length();
+	}
+	
+	if(end == beg)
+	{
+	    ++end;
+	    continue;
+	}
+	
+	string s = endpts.substr(beg, end - beg);
+	EndpointPtr endp = _instance->endpointFactoryManager()->create(s);
+	endpoints.push_back(endp);
+
+	++end;
+    }
+
+    return endpoints;
 }
 
 Ice::ObjectAdapterI::ProcessI::ProcessI(const CommunicatorPtr& communicator) :

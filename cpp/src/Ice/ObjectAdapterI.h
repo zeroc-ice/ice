@@ -92,6 +92,7 @@ private:
     ObjectPrx newDirectProxy(const Identity&) const;
     void checkForDeactivation() const;
     static void checkIdentity(const Identity&);
+    std::vector<IceInternal::EndpointPtr> parseEndpoints(const std::string&) const;
 
     bool _deactivated;
     IceInternal::InstancePtr _instance;
@@ -103,6 +104,7 @@ private:
     const std::string _id;
     std::vector<IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
     std::vector<IceInternal::EndpointPtr> _routerEndpoints;
+    std::vector<IceInternal::EndpointPtr> _publishedEndpoints;
     IceInternal::LocatorInfoPtr _locatorInfo;
     int _directCount; // The number of direct proxies dispatching on this object adapter.
     bool _waitForDeactivate;

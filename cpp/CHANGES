@@ -1,6 +1,10 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Added the object adapter property <name>.PublishedEndpoints,
+  which specifies endpoints to advertise in proxies created
+  by the adapter.
+
 - For WIN32, Thread::getThreadControl() set the thread id of the
   ThreadControl object to the current thread instead of the thread the
   control object belongs to. This has been fixed.

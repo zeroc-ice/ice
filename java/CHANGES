@@ -1,6 +1,10 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Added the object adapter property <name>.PublishedEndpoints,
+  which specifies endpoints to advertise in proxies created
+  by the adapter.
+
 - Fixed a bug with AMD exception handling, where it was possible that
   certain exceptions propagate out of ice_response() or
   ice_exception(), and therefore such exceptions were not handled

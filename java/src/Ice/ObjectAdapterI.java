@@ -663,45 +663,25 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	
         try
         {
-	    String endpts = _instance.properties().getProperty(name + ".Endpoints").toLowerCase();
-	    
-	    int beg;
-	    int end = 0;
-
-            final String delim = " \t\n\r";
-
-            while(end < endpts.length())
-            {
-                beg = IceUtil.StringUtil.findFirstNotOf(endpts, delim, end);
-                if(beg == -1)
-                {
-                    break;
-                }
-
-                end = endpts.indexOf(':', beg);
-                if(end == -1)
-                {
-                    end = endpts.length();
-                }
-
-                if(end == beg)
-                {
-                    ++end;
-                    continue;
-                }
-
-                String s = endpts.substring(beg, end);
-
-                //
-                // Don't store the endpoint in the adapter. The Connection
-                // might change it, for example, to fill in the real port
-                // number if a zero port number is given.
-                //
-                IceInternal.Endpoint endp = instance.endpointFactoryManager().create(s);
+	    //
+	    // Parse the endpoints, but don't store them in the adapter.
+	    // The connection factory might change it, for example, to
+	    // fill in the real port number.
+	    //
+	    String endpts = _instance.properties().getProperty(name + ".Endpoints");
+	    java.util.ArrayList endpoints = parseEndpoints(endpts);
+	    for(int i = 0; i < endpoints.size(); ++i)
+	    {
+		IceInternal.Endpoint endp = (IceInternal.Endpoint)endpoints.get(i);
                 _incomingConnectionFactories.add(new IceInternal.IncomingConnectionFactory(instance, endp, this));
-
-                ++end;
             }
+
+	    //
+	    // Parse published endpoints. These are used in proxies
+	    // instead of the connection factory endpoints.
+	    //
+	    endpts = _instance.properties().getProperty(name + ".PublishedEndpoints");
+	    _publishedEndpoints = parseEndpoints(endpts);
 
 	    String router = _instance.properties().getProperty(name + ".Router");
 	    if(router.length() > 0)
@@ -785,30 +765,38 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private ObjectPrx
     newDirectProxy(Identity ident)
     {
-        IceInternal.Endpoint[] endpoints =
-            new IceInternal.Endpoint[_incomingConnectionFactories.size() + _routerEndpoints.size()];
+        IceInternal.Endpoint[] endpoints;
 
-        //
-        // First we add all endpoints from all incoming connection
-        // factories.
-        //
-        int sz = _incomingConnectionFactories.size();
-        for(int i = 0; i < sz; ++i)
-        {
-            IceInternal.IncomingConnectionFactory factory =
-                (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
-            endpoints[i] = factory.endpoint();
-        }
+	// 
+	// Use the published endpoints, otherwise use the endpoints from all
+	// incoming connection factories.
+	//
+	int sz = _publishedEndpoints.size();
+	if(sz > 0)
+	{
+	    endpoints = new IceInternal.Endpoint[sz + _routerEndpoints.size()];
+	    _publishedEndpoints.toArray(endpoints);
+	}
+	else
+	{
+	    sz = _incomingConnectionFactories.size();
+	    endpoints = new IceInternal.Endpoint[sz + _routerEndpoints.size()];
+	    for(int i = 0; i < sz; ++i)
+	    {
+		IceInternal.IncomingConnectionFactory factory =
+		    (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
+		endpoints[i] = factory.endpoint();
+	    }
+	}
 
         //
         // Now we also add the endpoints of the router's server proxy, if
         // any. This way, object references created by this object adapter
         // will also point to the router's server proxy endpoints.
         //
-        sz = _routerEndpoints.size();
-        for(int i = 0; i < sz; ++i)
+        for(int i = 0; i < _routerEndpoints.size(); ++i)
         {
-            endpoints[_incomingConnectionFactories.size() + i] = (IceInternal.Endpoint)_routerEndpoints.get(i);
+	    endpoints[sz + i] = (IceInternal.Endpoint)_routerEndpoints.get(i);
         }
 
         //
@@ -853,6 +841,47 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         {
             ident.category = "";
         }
+    }
+
+    private java.util.ArrayList
+    parseEndpoints(String endpts)
+    {
+        endpts = endpts.toLowerCase();
+
+	int beg;
+	int end = 0;
+
+	final String delim = " \t\n\r";
+
+	java.util.ArrayList endpoints = new java.util.ArrayList();
+	while(end < endpts.length())
+	{
+	    beg = IceUtil.StringUtil.findFirstNotOf(endpts, delim, end);
+	    if(beg == -1)
+	    {
+		break;
+	    }
+
+	    end = endpts.indexOf(':', beg);
+	    if(end == -1)
+	    {
+		end = endpts.length();
+	    }
+
+	    if(end == beg)
+	    {
+		++end;
+		continue;
+	    }
+
+	    String s = endpts.substring(beg, end);
+	    IceInternal.Endpoint endp = _instance.endpointFactoryManager().create(s);
+	    endpoints.add(endp);
+
+	    ++end;
+	}
+
+	return endpoints;
     }
 
     private static class ProcessI extends _ProcessDisp
@@ -900,6 +929,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     private Logger _logger;
     private java.util.ArrayList _incomingConnectionFactories = new java.util.ArrayList();
     private java.util.ArrayList _routerEndpoints = new java.util.ArrayList();
+    private java.util.ArrayList _publishedEndpoints;
     private IceInternal.LocatorInfo _locatorInfo;
     private int _directCount;
     private boolean _waitForDeactivate;
