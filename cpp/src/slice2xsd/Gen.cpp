@@ -9,12 +9,12 @@
 // **********************************************************************
 
 #include <IceUtil/Functional.h>
-
 #include <Slice/CPlusPlusUtil.h> // TODO: ???
 #include <Gen.h>
 
 using namespace std;
 using namespace Slice;
+using namespace IceUtil;
 
 static const string internalId = "_internal.";
 
@@ -83,7 +83,7 @@ Slice::Gen::generate(const UnitPtr& unit)
        << "\n           xmlns:tns=\"" << _orgName << "/schemas\""
        << "\n           targetNamespace=\"" << _orgName << "/schemas\"";
 
-    start(os.str());
+    O << se(os.str());
     // TODO: schemaLocation?
     O << nl << "<xs:import namespace=\"http://www.mutablerealms.com/schemas\" schemaLocation=\"ice.xsd\"/>";
 
@@ -96,7 +96,7 @@ Slice::Gen::generate(const UnitPtr& unit)
 
     unit->visit(this);
 
-    end();
+    O << ee;
     O << nl;
 }
 
@@ -112,15 +112,11 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     //
     ostringstream os;
     os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
-    start(os.str());
+    O << se(os.str());
 
-    start("xs:annotation");
-    start("xs:appinfo");
-    O << nl << "<type>class</type>";
-    end(); // xs:annotation
-    end(); // xs:appinfo
+    annotate("class");
 
-    start("xs:complexContent");
+    O << se("xs:complexContent");
     
     string extension = "xs:extension base=\"";
     ClassList bases = p->bases();
@@ -136,28 +132,21 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     }
     extension += "Type\"";
     
-    start(extension);
+    O << se(extension);
 
     DataMemberList dataMembers = p->dataMembers();
-    if (!dataMembers.empty())
+    O << se("xs:sequence");
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-	start("xs:sequence");
-	for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    O << nl << "<xs:element name=\"" << (*q)->name() << "\" type=\"";
-	    O << toString((*q)->type());
-	    O << "\"/>";
-	}
-	end(); // xs:sequence
+	O << nl << "<xs:element name=\"" << (*q)->name() << "\" type=\"";
+	O << toString((*q)->type());
+	O << "\"/>";
     }
-    else
-    {
-	O << nl << "<xs:sequence/>";
-    }
+    O << ee; // xs:sequence
 
-    end(); // xs:extension
-    end(); // xs:complexContent
-    end(); // xs:complexType
+    O << ee; // xs:extension
+    O << ee; // xs:complexContent
+    O << ee; // xs:complexType
 
     O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
       << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\" nillable=\"true\"/>";
@@ -177,13 +166,9 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     //
     ostringstream os;
     os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
-    start(os.str());
+    O << se(os.str());
 
-    start("xs:annotation");
-    start("xs:appinfo");
-    O << nl << "<type>exception</type>";
-    end(); // xs:annotation
-    end(); // xs:appinfo
+    annotate("exception");
 
     //
     // Emit base Data
@@ -193,41 +178,35 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     {
 	string baseScopeId = containedToId(base);
 
-	start("xs:complexContent");
+	O << se("xs:complexContent");
 
 	string extension = "xs:extension base=\"";
 	extension += "tns:";
 	extension += internalId + baseScopeId + base->name();
 	extension += "Type\"";
-	start(extension);
+	O << se(extension);
     }
 
     DataMemberList dataMembers = p->dataMembers();
-    if (!dataMembers.empty())
-    {
-	start("xs:sequence");
-	
-	for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    O << nl << "<xs:element name=\"" << (*q)->name() << "\" type=\"";
-	    O << toString((*q)->type());
-	    O << "\"/>";
-	}
 
-	end();
-    }
-    else
+    O << se("xs:sequence");
+    
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-	O << nl << "<xs:sequence/>";
+	O << nl << "<xs:element name=\"" << (*q)->name() << "\" type=\"";
+	O << toString((*q)->type());
+	O << "\"/>";
     }
+    
+    O << ee; // xs:sequence
 
     if (base)
     {
-	end(); // xs:extension
-	end(); // xs:complexContent
+	O << ee; // xs:extension
+	O << ee; // xs:complexContent
     }
 
-    end(); // xs:complexType
+    O << ee; // xs:complexType
 
     O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
       << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\"/>";
@@ -244,35 +223,23 @@ Slice::Gen::visitStructStart(const StructPtr& p)
 
     ostringstream os;
     os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
-    start(os.str());
+    O << se(os.str());
 
-    // TODO: refactor into method
-    start("xs:annotation");
-    start("xs:appinfo");
-    O << nl << "<type>struct</type>";
-    end(); // xs:annotation
-    end(); // xs:appinfo
+    annotate("struct");
 
     DataMemberList dataMembers = p->dataMembers();
-    if (!dataMembers.empty())
+    O << se("xs:sequence");
+    
+    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-	start("xs:sequence");
-	
-	for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    O << nl << "<xs:element name=\"" << (*q)->name() << "\" type=\"";
-	    O << toString((*q)->type());
-	    O << "\"/>";
-	}
-
-	end(); // xs:sequence
-    }
-    else
-    {
-	O << nl << "<xs:sequence/>";
+	O << nl << "<xs:element name=\"" << (*q)->name() << "\" type=\"";
+	O << toString((*q)->type());
+	O << "\"/>";
     }
     
-    end(); // xs:complexType
+    O << ee; // xs:sequence
+    
+    O << ee; // xs:complexType
 
     O << sp << nl << "<xs:element name=\"" << scopeId << p->name()
       << "\" type=\"tns:" << internalId << scopeId << p->name() << "Type\"/>";
@@ -292,68 +259,48 @@ Slice::Gen::visitOperation(const OperationPtr& p)
     O << sp;
 
     os << "xs:element name=\"" << scopeId << "request." << p->name() << "\"";
-    start(os.str());
-    start("xs:complexType");
+    O << se(os.str());
+    O << se("xs:complexType");
 
-    start("xs:annotation");
-    start("xs:appinfo");
-    O << nl << "<type>operation</type>";
-    end(); // xs:annotation
-    end(); // xs:appinfo
+    annotate("operation");
 
-    if (!in.empty())
+    O << se("xs:sequence");
+    for (TypeStringList::const_iterator q = in.begin(); q != in.end(); ++q)
     {
-	start("xs:sequence");
-	for (TypeStringList::const_iterator q = in.begin(); q != in.end(); ++q)
-	{
-	    O << nl << "<xs:element name=\"" << q->second << "\" type=\"";
-	    O << toString(q->first);
-	    O << "\"/>";
-	}
-	end(); // xs:sequence
+	O << nl << "<xs:element name=\"" << q->second << "\" type=\"";
+	O << toString(q->first);
+	O << "\"/>";
     }
-    else
-    {
-	O << nl << "<xs:sequence/>";
-    }
-    end(); // xs:complexType
-    end(); // xs:element
+    O << ee; // xs:sequence
+
+    O << ee; // xs:complexType
+    O << ee; // xs:element
 
     os.str(""); // Reset stream
 
     O << sp;
 
     os << "xs:element name=\"" << scopeId << "reply." << p->name() << "\"";
-    start(os.str());
-    start("xs:complexType");
+    O << se(os.str());
+    O << se("xs:complexType");
 
-    start("xs:annotation");
-    start("xs:appinfo");
-    O << nl << "<type>operation</type>";
-    end(); // xs:annotation
-    end(); // xs:appinfo
+    annotate("operation");
 
-    if (ret || !out.empty())
+    O << se("xs:sequence");
+    if (ret)
     {
-	start("xs:sequence");
-	if (ret)
-	{
-	    O << nl << "<xs:element name=\"__return\" type=\"" << toString(ret) << "\"/>";
-	}
-	for (TypeStringList::const_iterator q = out.begin(); q != out.end(); ++q)
-	{
-	    O << nl << "<xs:element name=\"" << q->second << "\" type=\"";
-	    O << toString(q->first);
-	    O << "\"/>";
-	}
-	end(); // xs:sequence
+	O << nl << "<xs:element name=\"__return\" type=\"" << toString(ret) << "\"/>";
     }
-    else
+    for (TypeStringList::const_iterator q = out.begin(); q != out.end(); ++q)
     {
-	O << nl << "<xs:sequence/>";
+	O << nl << "<xs:element name=\"" << q->second << "\" type=\"";
+	O << toString(q->first);
+	O << "\"/>";
     }
-    end(); // xs:complexType
-    end(); // xs:element
+    O << ee; // xs:sequence
+
+    O << ee; // xs:complexType
+    O << ee; // xs:element
 }
 
 void
@@ -365,26 +312,22 @@ Slice::Gen::visitEnum(const EnumPtr& p)
 
     ostringstream os;
     os << "xs:simpleType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
-    start(os.str());
+    O << se(os.str());
 
-    start("xs:annotation");
-    start("xs:appinfo");
-    O << nl << "<type>enumeration</type>";
-    end(); // xs:annotation
-    end(); // xs:appinfo
+    annotate("enumeration");
 
     EnumeratorList enumerators = p->getEnumerators();
     assert (!enumerators.empty());
 
-    start("xs:restriction base=\"xs:string\"");
+    O << se("xs:restriction base=\"xs:string\"");
 
     for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
     {
 	O << nl << "<xs:enumeration value=\"" << (*q)->name() << "\"/>";
     }
     
-    end(); // xs:restriction
-    end(); // xs:simpleType
+    O << ee; // xs:restriction
+    O << ee; // xs:simpleType
 
     O << sp;
 
@@ -402,24 +345,20 @@ Slice::Gen::visitSequence(const SequencePtr& p)
     ostringstream os;
     os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
 
-    start(os.str());
+    O << se(os.str());
 
-    start("xs:annotation");
-    start("xs:appinfo");
-    O << nl << "<type>sequence</type>";
-    end(); // xs:annotation
-    end(); // xs:appinfo
+    annotate("sequence");
 
-    start("xs:sequence");
+    O << se("xs:sequence");
 
     O << nl << "<xs:element name=\"e\" type=\"" << toString(p->type())
       << "\" minOccurs=\"0\" maxOccurs=\"unbounded\"/>";
 
-    end(); // xs:sequence
+    O << ee; // xs:sequence
 
     O << nl << "<xs:attribute name=\"length\" type=\"xs:long\"/>";
 
-    end(); // xs:complexType
+    O << ee; // xs:complexType
 
     O << sp;
 
@@ -439,17 +378,17 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     //
     ostringstream os;
     os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "ContentType\"";
-    start(os.str());
+    O << se(os.str());
 
-    start("xs:sequence");
+    O << se("xs:sequence");
 
     O.inc();
     O << nl << "<xs:element name=\"key\" type=\"" << toString(p->keyType()) << "\"/>";
     O << nl << "<xs:element name=\"value\" type=\"" << toString(p->valueType()) << "\"/>";
     O.dec();
 
-    end(); // xs:sequence
-    end(); // xs:complexType
+    O << ee; // xs:sequence
+    O << ee; // xs:complexType
 
     O << sp;
 
@@ -458,24 +397,20 @@ Slice::Gen::visitDictionary(const DictionaryPtr& p)
     //
     os.str("");
     os << "xs:complexType name=\"" <<  internalId << scopeId << p->name() << "Type\" id=\"" << p->scoped() << "\"";
-    start(os.str());
+    O << se(os.str());
 
-    start("xs:annotation");
-    start("xs:appinfo");
-    O << nl << "<type>dictionary</type>";
-    end(); // xs:annotation
-    end(); // xs:appinfo
+    annotate("dictionary");
 
-    start("xs:sequence");
+    O << se("xs:sequence");
 
     O << nl << "<xs:element name=\"e\" type=\"tns:" << internalId << scopeId << p->name() << "ContentType\""
       << " minOccurs=\"0\" maxOccurs=\"unbounded\"/>";
 
-    end(); // xs:sequence
+    O << ee; // xs:sequence
 
     O << nl << "<xs:attribute name=\"length\" type=\"xs:long\"/>";
 
-    end(); // xs:complexType
+    O << ee; // xs:complexType
 
     O << sp;
 
@@ -506,32 +441,14 @@ Slice::Gen::printHeader()
     O.restoreIndent();
 }
 
-
 void
-Slice::Gen::start(const std::string& element)
+Slice::Gen::annotate(const ::std::string& type)
 {
-    O << nl << '<' << element << '>';
-    O.inc();
-
-    string::size_type pos = element.find_first_of(" \t");
-    if (pos == string::npos)
-    {
-	_elementStack.push(element);
-    }
-    else
-    {
-	_elementStack.push(element.substr(0, pos));
-    }
-}
-
-void
-Slice::Gen::end()
-{
-    string element = _elementStack.top();
-    _elementStack.pop();
-
-    O.dec();
-    O << nl << "</" << element << '>';
+    O << se("xs:annotation");
+    O << se("xs:appinfo");
+    O << nl << "<type>" << type << "</type>";
+    O << ee; // xs:annotation
+    O << ee; // xs:appinfo
 }
 
 string

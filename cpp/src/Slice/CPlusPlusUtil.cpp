@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace IceUtil;
 
 char
 Slice::ToIfdef::operator()(char c)

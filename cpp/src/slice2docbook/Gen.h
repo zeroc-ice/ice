@@ -12,7 +12,7 @@
 #define GEN_H
 
 #include <Slice/Parser.h>
-#include <Slice/OutputUtil.h>
+#include <IceUtil/OutputUtil.h>
 #include <stack>
 
 namespace Slice
@@ -55,12 +55,11 @@ private:
     std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&);
     std::string toString(const std::string&, const ContainerPtr&);
 
-    Output O;
+    ::IceUtil::XMLOutput O;
 
     bool _standAlone;
     bool _noGlobals;
     std::string _chapter;
-    std::stack<std::string> _elementStack;
 };
 
 }

@@ -9,13 +9,15 @@
 // **********************************************************************
 
 #include <IceUtil/Functional.h>
+#include <IceUtil/OutputUtil.h>
 
 #include <Slice/CPlusPlusUtil.h> // TODO: ???
+
 #include <Gen.h>
-#include <Slice/OutputUtil.h>
 
 using namespace std;
 using namespace Slice;
+using namespace IceUtil;
 
 static const string internalId = "_internal.";
 
@@ -50,7 +52,7 @@ Slice::Gen::~Gen()
 bool
 Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 {
-    Output O;
+    XMLOutput O;
 
     //string fileO = _base + ".wsdl";
     string fileO = containedToId(p) + p->name() + ".wsdl";
@@ -82,7 +84,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
        << "\n                 xmlns:tns=\"" << _orgName << "/definitions\""
        << "\n                 targetNamespace=\"" << _orgName << "/definitions\"";
 
-    start(O, os.str());
+    O << se(os.str());
 
     // TODO: schemaLocation?
     O << sp << nl << "<wsdl:import namespace=\"" << _orgName << "/schemas\" location=\"" << _base << ".xsd\"/>";
@@ -98,22 +100,22 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 
     os.str("");
     os << "wsdl:portType name=\"" << scopeId << "PortType\"";
-    start(O, os.str());
+    O << se(os.str());
 
     for (OperationList::const_iterator r = ops.begin(); r != ops.end(); ++r)
     {
 	emitOperation(O, *r);
     }
 
-    end(O); // PortType
+    O << ee; // PortType
 
-    end(O); // definitions
+    O << ee; // definitions
 
     return false;
 }
 
 void
-Slice::Gen::emitMessage(Output& O, const OperationPtr& p)
+Slice::Gen::emitMessage(XMLOutput& O, const OperationPtr& p)
 {
     O << sp;
 
@@ -121,38 +123,38 @@ Slice::Gen::emitMessage(Output& O, const OperationPtr& p)
     
     ostringstream os;
     os << "wsdl:message name=\"input." << p->name() << "\"";
-    start(O, os.str());
+    O << se(os.str());
 
     O << nl << "<wsdl:part name=\"body\" element=\"xsd1:" << scopeId << "request." << p->name() << "\"/>";
 
-    end(O); // message
+    O << ee; // message
 
     os.str("");
     os << "wsdl:message name=\"output." << p->name() << "\"";
-    start(O, os.str());
+    O << se(os.str());
 
     O << nl << "<wsdl:part name=\"body\" element=\"xsd1:" << scopeId << "reply." << p->name() << "\"/>";
 
-    end(O); // message
+    O << ee; // message
 }
 
 void
-Slice::Gen::emitOperation(Output& O, const OperationPtr& p)
+Slice::Gen::emitOperation(XMLOutput& O, const OperationPtr& p)
 {
     string scopeId = containedToId(p);
     
     ostringstream os;
     os << "wsdl:operation name=\"" << p->name() << "\"";
-    start(O, os.str());
+    O << se(os.str());
 
     O << nl << "<wsdl:input message=\"tns:input." << p->name() << "\"/>";
     O << nl << "<wsdl:output message=\"tns:output." << p->name() << "\"/>";
 
-    end(O); // operation
+    O << ee; // operation
 }
 
 void
-Slice::Gen::printHeader(Output& O)
+Slice::Gen::printHeader(XMLOutput& O)
 {
     static const char* header =
 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -174,33 +176,6 @@ Slice::Gen::printHeader(Output& O)
     O.restoreIndent();
 }
 
-
-void
-Slice::Gen::start(Output& O, const std::string& element)
-{
-    O << nl << '<' << element << '>';
-    O.inc();
-
-    string::size_type pos = element.find_first_of(" \t");
-    if (pos == string::npos)
-    {
-	_elementStack.push(element);
-    }
-    else
-    {
-	_elementStack.push(element.substr(0, pos));
-    }
-}
-
-void
-Slice::Gen::end(Output& O)
-{
-    string element = _elementStack.top();
-    _elementStack.pop();
-
-    O.dec();
-    O << nl << "</" << element << '>';
-}
 
 string
 Slice::Gen::containedToId(const ContainedPtr& contained)

@@ -40,6 +40,7 @@
 
 using namespace std;
 using namespace IceXML;
+using namespace IceUtil;
 
 //
 // Utilities to make the usage of xerces easier.

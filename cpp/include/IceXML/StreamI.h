@@ -13,7 +13,7 @@
 
 #include <Ice/Stream.h>
 #include <Ice/CommunicatorF.h>
-#include <IceXML/Output.h>
+#include <IceUtil/OutputUtil.h>
 
 #include <map>
 
@@ -207,7 +207,7 @@ private:
     //
     // XML Output stream.
     //
-    Output _os;
+    ::IceUtil::XMLOutput _os;
 
     //
     // Current document level.

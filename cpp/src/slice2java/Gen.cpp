@@ -25,6 +25,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace IceUtil;
 
 Slice::JavaVisitor::JavaVisitor(const string& dir, const string& package) :
     _dir(dir),

@@ -17,6 +17,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace IceUtil;
 
 Slice::Gen::Gen(const string& name, const string& base,	const string& include, const vector<string>& includePaths,
 		const string& dllExport, const string& dir, bool imp) :

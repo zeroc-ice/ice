@@ -12,7 +12,7 @@
 #define GEN_H
 
 #include <Slice/Parser.h>
-#include <Slice/OutputUtil.h>
+#include <IceUtil/OutputUtil.h>
 
 namespace Slice
 {
@@ -36,11 +36,11 @@ public:
 
 private:
 
-    Output H;
-    Output C;
+    ::IceUtil::Output H;
+    ::IceUtil::Output C;
 
-    Output implH;
-    Output implC;
+    ::IceUtil::Output implH;
+    ::IceUtil::Output implC;
 
     std::string _base;
     std::string _include;
@@ -52,7 +52,7 @@ private:
     {
     public:
 
-	TypesVisitor(Output&, Output&, const std::string&);
+	TypesVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -70,8 +70,8 @@ private:
 
 	void emitExceptionBase(const ExceptionPtr&, const std::string&);
 
-	Output& H;
-	Output& C;
+	::IceUtil::Output& H;
+	::IceUtil::Output& C;
 
 	std::string _dllExport;
     };
@@ -80,7 +80,7 @@ private:
     {
     public:
 
-	ProxyDeclVisitor(Output&, Output&, const std::string&);
+	ProxyDeclVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
@@ -90,8 +90,8 @@ private:
 
     private:
 
-	Output& H;
-	Output& C;
+	::IceUtil::Output& H;
+	::IceUtil::Output& C;
 
 	std::string _dllExport;
     };
@@ -100,7 +100,7 @@ private:
     {
     public:
 
-	ProxyVisitor(Output&, Output&, const std::string&);
+	ProxyVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
@@ -112,8 +112,8 @@ private:
 
     private:
 
-	Output& H;
-	Output& C;
+	::IceUtil::Output& H;
+	::IceUtil::Output& C;
 
 	std::string _dllExport;
     };
@@ -122,7 +122,7 @@ private:
     {
     public:
 
-	DelegateVisitor(Output&, Output&, const std::string&);
+	DelegateVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
@@ -134,8 +134,8 @@ private:
 
     private:
 
-	Output& H;
-	Output& C;
+	::IceUtil::Output& H;
+	::IceUtil::Output& C;
 
 	std::string _dllExport;
     };
@@ -144,7 +144,7 @@ private:
     {
     public:
 
-	DelegateMVisitor(Output&, Output&, const std::string&);
+	DelegateMVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
@@ -156,8 +156,8 @@ private:
 
     private:
 
-	Output& H;
-	Output& C;
+	::IceUtil::Output& H;
+	::IceUtil::Output& C;
 
 	std::string _dllExport;
     };
@@ -166,7 +166,7 @@ private:
     {
     public:
 
-	DelegateDVisitor(Output&, Output&, const std::string&);
+	DelegateDVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
@@ -178,8 +178,8 @@ private:
 
     private:
 
-	Output& H;
-	Output& C;
+	::IceUtil::Output& H;
+	::IceUtil::Output& C;
 
 	std::string _dllExport;
     };
@@ -188,7 +188,7 @@ private:
     {
     public:
 
-	ObjectDeclVisitor(Output&, Output&, const std::string&);
+	ObjectDeclVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -196,8 +196,8 @@ private:
 
     private:
 
-	Output& H;
-	Output& C;
+	::IceUtil::Output& H;
+	::IceUtil::Output& C;
 
 	std::string _dllExport;
     };
@@ -206,7 +206,7 @@ private:
     {
     public:
 
-	ObjectVisitor(Output&, Output&, const std::string&);
+	ObjectVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -221,8 +221,8 @@ private:
 
 	void emitClassBase(const ClassDefPtr&, const std::string&);
 
-	Output& H;
-	Output& C;
+	::IceUtil::Output& H;
+	::IceUtil::Output& C;
 
 	std::string _dllExport;
     };
@@ -231,7 +231,7 @@ private:
     {
     public:
 
-	IceInternalVisitor(Output&, Output&, const std::string&);
+	IceInternalVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
@@ -240,8 +240,8 @@ private:
 
     private:
 
-	Output& H;
-	Output& C;
+	::IceUtil::Output& H;
+	::IceUtil::Output& C;
 
 	std::string _dllExport;
     };
@@ -250,7 +250,7 @@ private:
     {
     public:
 
-	HandleVisitor(Output&, Output&, const std::string&);
+	HandleVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -259,8 +259,8 @@ private:
 
     private:
 
-	Output& H;
-	Output& C;
+	::IceUtil::Output& H;
+	::IceUtil::Output& C;
 
 	std::string _dllExport;
     };
@@ -269,7 +269,7 @@ private:
     {
     public:
 
-	ImplVisitor(Output&, Output&, const std::string&);
+	ImplVisitor(::IceUtil::Output&, ::IceUtil::Output&, const std::string&);
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
@@ -277,15 +277,15 @@ private:
 
     private:
 
-	Output& H;
-	Output& C;
+	::IceUtil::Output& H;
+	::IceUtil::Output& C;
 
 	std::string _dllExport;
 
         //
         // Generate code to assign a value
         //
-        void writeAssign(Output&, const TypePtr&, const std::string&, int&);
+        void writeAssign(::IceUtil::Output&, const TypePtr&, const std::string&, int&);
     };
 };
 

@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace IceUtil;
 
 Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool noGlobals, bool chapter) :
     _standAlone(standAlone),
@@ -33,6 +34,7 @@ Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool no
 	cerr << name << ": can't open `" << file << "' for writing: " << strerror(errno) << endl;
 	return;
     }
+    O.setSGML(true);
 }
 
 Slice::Gen::~Gen()
@@ -1036,25 +1038,15 @@ Slice::Gen::printSummary(const ContainedPtr& p)
 void
 Slice::Gen::start(const std::string& element)
 {
-    O << nl << '<' << element << '>';
-    O.inc();
-
-    string::size_type pos = element.find_first_of(" \t");
-    if (pos == string::npos)
-    {
-	_elementStack.push(element);
-    }
-    else
-    {
-	_elementStack.push(element.substr(0, pos));
-    }
+    O << se(element);
 }
 
 void
 Slice::Gen::start(const std::string& element, const std::string& title)
 {
-    start(element);
-    start("title");
+    O << se(element);
+    static const string titleElement("title");
+    O << se(titleElement);
     O << nl << title;
     end();
 }
@@ -1062,11 +1054,7 @@ Slice::Gen::start(const std::string& element, const std::string& title)
 void
 Slice::Gen::end()
 {
-    string element = _elementStack.top();
-    _elementStack.pop();
-
-    O.dec();
-    O << nl << "</" << element << '>';
+    O << ee;
 }
 
 string

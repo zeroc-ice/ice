@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace IceUtil;
 
 struct Dict
 {

@@ -14,10 +14,15 @@
 #include <Slice/Parser.h>
 #include <stack>
 
-namespace Slice
+namespace IceUtil
 {
 
-class Output;
+class XMLOutput;
+
+}
+
+namespace Slice
+{
 
 class Gen : public ::IceUtil::noncopyable, public ParserVisitor
 {
@@ -34,12 +39,10 @@ public:
 
 private:
 
-    void emitMessage(Output&, const OperationPtr&);
-    void emitOperation(Output&, const OperationPtr&);
+    void emitMessage(::IceUtil::XMLOutput&, const OperationPtr&);
+    void emitOperation(::IceUtil::XMLOutput&, const OperationPtr&);
 
-    void printHeader(Output&);
-    void start(Output&, const std::string&);
-    void end(Output&);
+    void printHeader(::IceUtil::XMLOutput&);
 
     std::string containedToId(const ContainedPtr&);
 
@@ -49,7 +52,6 @@ private:
     std::string _orgName;
     std::vector<std::string> _includePaths;
     std::string _dir;
-    std::stack<std::string> _elementStack;
 };
 
 }

@@ -12,7 +12,7 @@
 #define GEN_H
 
 #include <Slice/Parser.h>
-#include <Slice/OutputUtil.h>
+#include <IceUtil/OutputUtil.h>
 //#include <JavaUtil.h>
 
 namespace Slice
@@ -35,7 +35,7 @@ protected:
     bool open(const std::string&);
     void close();
 
-    Output& output() const;
+    ::IceUtil::Output& output() const;
 
     //
     // Check a symbol against any of the Java keywords. If a
@@ -90,19 +90,19 @@ protected:
     //
     // Generate code to marshal or unmarshal a type
     //
-    void writeMarshalUnmarshalCode(Output&, const std::string&, const TypePtr&,
+    void writeMarshalUnmarshalCode(::IceUtil::Output&, const std::string&, const TypePtr&,
                                    const std::string&, bool, int&,
                                    bool = false);
 
     //
     // Generate code to compute a hash code for a type
     //
-    void writeHashCode(Output&, const TypePtr&, const std::string&, int&);
+    void writeHashCode(::IceUtil::Output&, const TypePtr&, const std::string&, int&);
 
     //
     // Generate dispatch methods for a class or interface
     //
-    void writeDispatch(Output&, const ClassDefPtr&);
+    void writeDispatch(::IceUtil::Output&, const ClassDefPtr&);
 
 private:
 
@@ -111,7 +111,7 @@ private:
     std::string _dir;
     std::string _package;
 
-    Output* _out;
+    ::IceUtil::Output* _out;
 };
 
 class Gen : public ::IceUtil::noncopyable
@@ -225,7 +225,7 @@ private:
         //
         // Generate code to assign a value
         //
-        void writeAssign(Output&, const std::string&, const TypePtr&,
+        void writeAssign(::IceUtil::Output&, const std::string&, const TypePtr&,
                          const std::string&, int&);
 
     public:
