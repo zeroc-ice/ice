@@ -711,6 +711,7 @@ public:
 	Ice::Long v;
 	bool rc = IceUtil::stringToInt64(value, v, p);
 	assert(rc);
+	rc = false; // To keep the compiler happy.
 
 	if(_to == "xs:byte")
 	{
