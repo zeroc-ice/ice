@@ -49,12 +49,12 @@ class Package:
 	ofile.write("Group:" + self.group + "\n")
 	ofile.write("Vendor: ZeroC, Inc\n")
 	ofile.write("URL: http://www.zeroc.com/\n")
-	ofile.write("Source0: http://www.zeroc.com/downloads/Ice-%{version}.tar.gz\n")
-	ofile.write("Source1: http://www.zeroc.com/downloads/IceJ-%{version}.tar.gz\n")
-	ofile.write("Source2: http://www.zeroc.com/downloads/IcePy-%{version}.tar.gz\n")
-	ofile.write("Source3: http://www.zeroc.com/downloads/IceCS-%{version}.tar.gz\n")
-	ofile.write("Source4: http://www.zeroc.com/downloads/Ice-%{version}-demos.tar.gz\n")
-	ofile.write("Source5: http://www.zeroc.com/downloads/README.Linux-RPM\n")
+	ofile.write("Source0: http://www.zeroc.com/download/Ice/2.1/Ice-%{version}.tar.gz\n")
+	ofile.write("Source1: http://www.zeroc.com/download/Ice/2.1/IceJ-%{version}.tar.gz\n")
+	ofile.write("Source2: http://www.zeroc.com/download/Ice/2.1/IcePy-%{version}.tar.gz\n")
+	ofile.write("Source3: http://www.zeroc.com/download/Ice/2.1/IceCS-%{version}.tar.gz\n")
+	ofile.write("Source4: http://www.zeroc.com/download/Ice/2.1/Ice-%{version}-demos.tar.gz\n")
+	ofile.write("Source5: http://www.zeroc.com/download/Ice/2.1/README.Linux-RPM\n")
 	ofile.write("\n")
 	if installDir <> "":
 	    ofile.write("BuildRoot: " + installDir + "\n")
@@ -300,7 +300,7 @@ fileLists = [
 		("dll", "bin/icestormcs.dll")]),
     Subpackage("csharp-devel",
                "ice-dotnet = %version%",
-               "Tools  and demos for developing Ice applications in C#",
+               "Tools and demos for developing Ice applications in C#",
                "Development/Tools",
 	       iceDescription,
 	       "",

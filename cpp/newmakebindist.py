@@ -716,7 +716,7 @@ def main():
     if getPlatform() == 'hpux':
 	ssl = buildEnvironment['OPENSSL_HOME']
 	os.system('cp ' + ssl + '/bin/* Ice-' + version + '/bin')
-	os.system('cp -R ' + ssl + '/include Ice-' + version)
+	os.system('cp -R ' + ssl + '/include/* Ice-' + version + '/include')
 	os.system('cp -R ' + ssl + '/lib/* Ice-' + version + '/lib')
 	os.system('rm -rf Ice-' + version + '/lib/libfips*')
 
