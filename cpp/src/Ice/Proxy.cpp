@@ -164,7 +164,7 @@ IceProxy::Ice::Object::_getIdentity() const
     return _reference->identity;
 }
 
-::Ice::ObjectPrx
+ObjectPrx
 IceProxy::Ice::Object::_newIdentity(const std::string& newIdentity) const
 {
     if (newIdentity == _reference->identity)
@@ -185,7 +185,7 @@ IceProxy::Ice::Object::_getFacet() const
     return _reference->facet;
 }
 
-::Ice::ObjectPrx
+ObjectPrx
 IceProxy::Ice::Object::_newFacet(const std::string& newFacet) const
 {
     if (newFacet == _reference->facet)
@@ -319,13 +319,13 @@ IceProxy::Ice::Object::__reference() const
 }
 
 void
-IceProxy::Ice::Object::__copyFrom(const ::IceProxy::Ice::Object* from)
+IceProxy::Ice::Object::__copyFrom(const ObjectPrx& from)
 {
     setup(from->__reference());
 }
 
 void
-IceProxy::Ice::Object::__copyFromWithFacet(const ::IceProxy::Ice::Object* from, const string& facet)
+IceProxy::Ice::Object::__copyFromWithFacet(const ObjectPrx& from, const string& facet)
 {
     setup(from->__reference()->changeFacet(facet));
 }

@@ -21,41 +21,6 @@
 namespace IceUtil
 {
 
-class NullHandleException : public Exception
-{
-public:
-
-    NullHandleException(const char* file, int line) :
-	Exception(file, line)
-    {
-    }
-
-    NullHandleException(const NullHandleException& ex) :
-	Exception(ex)
-    {
-    }
-
-    virtual std::string _name() const
-    {
-	return "IceUtil::NullHandleException";
-    }
-
-    virtual std::string _description() const
-    {
-	return "operation call on null handle";
-    }
-
-    virtual Exception* _clone() const
-    {
-	return new NullHandleException(*this);
-    }
-
-    virtual void _throw() const
-    {
-	throw *this;
-    }
-};
-
 template<typename T>
 class HandleBase
 {

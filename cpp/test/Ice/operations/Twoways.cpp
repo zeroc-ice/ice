@@ -179,6 +179,7 @@ twoways(const Test::MyClassPrx& p)
 	}
     }
 
+
     {
 	Test::Struct si1;
 	si1.p = p;

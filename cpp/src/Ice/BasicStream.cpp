@@ -620,8 +620,8 @@ IceInternal::BasicStream::write(const string& v)
 	    int pos = b.size();
 	    resize(pos + len);
 	    copy(v.begin(), v.end(), b.begin() + pos);
-//  	    Int sz = _encapsStack.back().stringsWritten.size();
-//  	    _encapsStack.back().stringsWritten[v] = -(sz + 1);
+	    Int sz = _encapsStack.back().stringsWritten.size();
+	    _encapsStack.back().stringsWritten[v] = -(sz + 1);
 	}
     }
 }
@@ -649,8 +649,6 @@ IceInternal::BasicStream::read(string& v)
     Int len;
     read(len);
 
-    assert(len >= 0);
-
     if (len < 0)
     {
 	if (static_cast<vector<string>::size_type>(-(len + 1)) >= _encapsStack.back().stringsRead.size())
@@ -675,7 +673,7 @@ IceInternal::BasicStream::read(string& v)
 	    }
 	    v.resize(len);
 	    copy(begin, i, v.begin());
-//	    _encapsStack.back().stringsRead.push_back(v);
+	    _encapsStack.back().stringsRead.push_back(v);
 	}
     }
 }

@@ -16,70 +16,19 @@
 namespace IceUtil
 {
 
-class Exception;
-std::ostream& printException(std::ostream&, const Exception&);
-
 class Exception
 {
 public:
 
-    Exception() :
-	_theFile(0),
-	_theLine(0)
-    {
-    }
-    
-    Exception(const char* file, int line) :
-	_theFile(file),
-	_theLine(line)
-    {
-    }
-    
-    Exception(const Exception& ex)
-    {
-	_theFile = ex._theFile;
-	_theLine = ex._theLine;
-    }
-
-    virtual ~Exception()
-    {
-    }
-
-    virtual std::string _name() const
-    {
-	return "IceUtil::Exception";
-    }
-
-    virtual std::ostream& _print(std::ostream& out) const
-    {
-	//
-	// Double dispatch, to allow user code to modify the behavior
-	// of _print() by providing specialized versions of
-	// IceUtil::printException() for generated exceptions derived
-	// from this base exception.
-	//
-	return printException(out, *this);
-    }
-
-    virtual Exception* _clone() const
-    {
-	return new Exception(*this);
-    }
-
-    virtual void _throw() const
-    {
-	throw *this;
-    }
-
-    const char* _file() const
-    {
-	return _theFile;
-    }
-
-    int _line() const
-    {
-	return _theLine;
-    }
+    Exception();
+    Exception(const char*, int);
+    virtual ~Exception();
+    virtual std::string _name() const;
+    virtual void _print(std::ostream&) const;
+    virtual Exception* _clone() const;
+    virtual void _throw() const;
+    const char* _file() const;
+    int _line() const;
     
 private:
     
@@ -87,21 +36,18 @@ private:
     int _theLine;
 };
 
-inline std::ostream&
-printException(std::ostream& out, const Exception& ex)
-{
-    if (ex._file() && ex._line() > 0)
-    {
-	out << ex._file() << ':' << ex._line() << ": ";
-    }
-    return out << ex._name();
-}
+std::ostream& operator<<(std::ostream&, const Exception&);
 
-inline std::ostream&
-operator<<(std::ostream& out, const Exception& ex)
+class NullHandleException : public Exception
 {
-    return ex._print(out);
-}
+public:
+    
+    NullHandleException(const char*, int);
+    virtual std::string _name() const;
+    virtual std::string _description() const;
+    virtual Exception* _clone() const;
+    virtual void _throw() const;
+};
 
 }
 

@@ -20,262 +20,269 @@ Ice::LocalException::LocalException(const char* file, int line) :
 {
 }
 
-ostream&
-IceUtil::printException(ostream& out, const UnknownLocalException& ex)
+void
+Ice::UnknownLocalException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nunknown local exception";
+    IceUtil::Exception::_print(out);
+    out << ":\nunknown local exception";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const UnknownUserException& ex)
+void
+Ice::UnknownUserException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nunknown user exception";
+    IceUtil::Exception::_print(out);
+    out << ":\nunknown user exception";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const UnknownException& ex)
+void
+Ice::UnknownException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nunknown C++ exception";
+    IceUtil::Exception::_print(out);
+    out << ":\nunknown C++ exception";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const VersionMismatchException& ex)
+void
+Ice::VersionMismatchException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nIce library version mismatch";
+    IceUtil::Exception::_print(out);
+    out << ":\nIce library version mismatch";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const CommunicatorDestroyedException& ex)
+void
+Ice::CommunicatorDestroyedException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\ncommunicator object destroyed";
+    IceUtil::Exception::_print(out);
+    out << ":\ncommunicator object destroyed";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const ObjectAdapterDeactivatedException& ex)
+void
+Ice::ObjectAdapterDeactivatedException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nobject adapter deactivated";
+    IceUtil::Exception::_print(out);
+    out << ":\nobject adapter deactivated";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const NoEndpointException& ex)
+void
+Ice::NoEndpointException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nno suitable endpoint available";
+    IceUtil::Exception::_print(out);
+    out << ":\nno suitable endpoint available";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const EndpointParseException& ex)
+void
+Ice::EndpointParseException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nerror while parsing endpoint";
+    IceUtil::Exception::_print(out);
+    out << ":\nerror while parsing endpoint";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const ReferenceParseException& ex)
+void
+Ice::ReferenceParseException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nerror while parsing reference";
+    IceUtil::Exception::_print(out);
+    out << ":\nerror while parsing reference";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const ReferenceIdentityException& ex)
+void
+Ice::ReferenceIdentityException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nreference identity mismatch in location forward";
+    IceUtil::Exception::_print(out);
+    out << ":\nreference identity mismatch in location forward";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const ObjectNotExistException& ex)
+void
+Ice::ObjectNotExistException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nobject does not exist";
+    IceUtil::Exception::_print(out);
+    out << ":\nobject does not exist";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const OperationNotExistException& ex)
+void
+Ice::FacetNotExistException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\noperation does not exist";
+    IceUtil::Exception::_print(out);
+    out << ":\nfacet does not exist";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const SystemException& ex)
+void
+Ice::OperationNotExistException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nsystem exception: " << errorToString(ex.error);
+    IceUtil::Exception::_print(out);
+    out << ":\noperation does not exist";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const SocketException& ex)
+void
+Ice::SystemException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nsystem exception: " << errorToString(ex.error);
+    IceUtil::Exception::_print(out);
+    out << ":\nsystem exception: " << errorToString(error);
 }
 
-ostream&
-IceUtil::printException(ostream& out, const ConnectFailedException& ex)
+void
+Ice::SocketException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nconnect failed: " << errorToString(ex.error);
+    IceUtil::Exception::_print(out);
+    out << ":\nsocket exception: " << errorToString(error);
 }
 
-ostream&
-IceUtil::printException(ostream& out, const ConnectionLostException& ex)
+void
+Ice::ConnectFailedException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
+    IceUtil::Exception::_print(out);
+    out << ":\nconnect failed: " << errorToString(error);
+}
+
+void
+Ice::ConnectionLostException::_print(ostream& out) const
+{
+    IceUtil::Exception::_print(out);
     out << ":\nconnection lost: ";
-    if (ex.error == 0)
+    if (error == 0)
     {
-	return out << "recv() returned zero";
+	out << "recv() returned zero";
     }
     else
     {
-	return out << errorToString(ex.error);
+	out << errorToString(error);
     }
 }
 
-ostream&
-IceUtil::printException(ostream& out, const DNSException& ex)
+void
+Ice::DNSException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nDNS error: " + errorToStringDNS(ex.error);
+    IceUtil::Exception::_print(out);
+    out << ":\nDNS error: " << errorToStringDNS(error);
 }
 
-ostream&
-IceUtil::printException(ostream& out, const TimeoutException& ex)
+void
+Ice::TimeoutException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\ntimeout while sending or receiving data";
+    IceUtil::Exception::_print(out);
+    out << ":\ntimeout while sending or receiving data";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const ConnectTimeoutException& ex)
+void
+Ice::ConnectTimeoutException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\ntimeout while establishing a connection";
+    IceUtil::Exception::_print(out);
+    out << ":\ntimeout while establishing a connection";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const ProtocolException& ex)
+void
+Ice::ProtocolException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nunknown protocol exception";
+    IceUtil::Exception::_print(out);
+    out << ":\nunknown protocol exception";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const UnmarshalOutOfBoundsException& ex)
+void
+Ice::UnmarshalOutOfBoundsException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: out of bounds during unmarshaling";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: out of bounds during unmarshaling";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const NoServantFactoryException& ex)
+void
+Ice::NoServantFactoryException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: no servant factory found for servant with operations";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: no servant factory found for servant with operations";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const ServantUnmarshalException& ex)
+void
+Ice::ServantUnmarshalException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: servant type unknown or doesn't match signature";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: servant type unknown or doesn't match signature";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const UserExceptionUnmarshalException& ex)
+void
+Ice::UserExceptionUnmarshalException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: exception type unknown or doesn't match signature";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: exception type unknown or doesn't match signature";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const ProxyUnmarshalException& ex)
+void
+Ice::ProxyUnmarshalException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: inconsistent proxy data during unmarshaling";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: inconsistent proxy data during unmarshaling";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const StringEncodingException& ex)
+void
+Ice::StringEncodingException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: string encoding error";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: string encoding error";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const MemoryLimitException& ex)
+void
+Ice::MemoryLimitException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: memory limit exceeded";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: memory limit exceeded";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const EncapsulationException& ex)
+void
+Ice::EncapsulationException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: illegal encapsulation";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: illegal encapsulation";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const UnsupportedProtocolException& ex)
+void
+Ice::UnsupportedProtocolException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: unsupported protocol version";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: unsupported protocol version";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const UnsupportedEncodingException& ex)
+void
+Ice::UnsupportedEncodingException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: unsupported encoding version";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: unsupported encoding version";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const InvalidMessageException& ex)
+void
+Ice::InvalidMessageException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: invalid message type";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: invalid message type";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const UnknownMessageException& ex)
+void
+Ice::UnknownMessageException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: unknown message type";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: unknown message type";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const UnknownRequestIdException& ex)
+void
+Ice::UnknownRequestIdException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: unknown request id";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: unknown request id";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const UnknownReplyStatusException& ex)
+void
+Ice::UnknownReplyStatusException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: unknown reply status";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: unknown reply status";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const CloseConnectionException& ex)
+void
+Ice::CloseConnectionException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: connection closed by server";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: connection closed by server";
 }
 
-ostream&
-IceUtil::printException(ostream& out, const AbortBatchRequestException& ex)
+void
+Ice::AbortBatchRequestException::_print(ostream& out) const
 {
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ":\nprotocol error: batch request was aborted";
+    IceUtil::Exception::_print(out);
+    out << ":\nprotocol error: batch request was aborted";
 }

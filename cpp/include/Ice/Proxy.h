@@ -59,8 +59,8 @@ public:
     void _flush(); // Flush batch messages
 
     ::IceInternal::ReferencePtr __reference() const;
-    void __copyFrom(const ::IceProxy::Ice::Object*);
-    void __copyFromWithFacet(const ::IceProxy::Ice::Object*, const std::string&);
+    void __copyFrom(const ::Ice::ObjectPrx&);
+    void __copyFromWithFacet(const ::Ice::ObjectPrx&, const std::string&);
     void __handleException(const ::Ice::LocalException&, int&);
     void __rethrowException(const ::Ice::LocalException&);
     void __locationForward(const ::Ice::LocationForward&);

@@ -1,0 +1,1 @@
+Exception.o: Exception.cpp ../../include/IceUtil/Exception.h ../../include/IceUtil/Config.h

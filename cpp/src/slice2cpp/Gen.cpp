@@ -224,6 +224,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << nl << "public: ";
     H.inc();
 
+    H << sp;
     if (p->isLocal())
     {
 	H << nl << _dllExport << name << "(const char*, int);";
@@ -248,11 +249,10 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << nl << "return \"" << scoped.substr(2) << "\";";
     C << eb;
     
-    H << nl << _dllExport << "virtual ::std::ostream& _print(::std::ostream&) const;";
-    C << sp << nl << "::std::ostream&" << nl << scoped.substr(2) << "::_print(::std::ostream& out) const";
-    C << sb;
-    C << nl << "return IceUtil::printException(out, *this);";
-    C << eb;
+    if (p->isLocal())
+    {
+	H << nl << _dllExport << "virtual void _print(::std::ostream&) const;";
+    }
 
     H << nl << _dllExport << "virtual ::Ice::Exception* _clone() const;";
     C << sp << nl << "::Ice::Exception*" << nl << scoped.substr(2) << "::_clone() const";
@@ -2087,7 +2087,7 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << "else";
     C << sb;
     C << nl << "v = new ::IceProxy" << scoped << ';';
-    C << nl << "v->__copyFrom(proxy.get());";
+    C << nl << "v->__copyFrom(proxy);";
     C << eb;
     C << eb;
 
