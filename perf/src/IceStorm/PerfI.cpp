@@ -13,20 +13,25 @@
 
 #include <PerfI.h>
 
+#include <algorithm>
+
 using namespace std;
 
 PingI::PingI(int nExpectedTicks, int nPublishers) : 
     _nPublishers(nPublishers),
     _nStartedPublishers(0),
-    _nStoppedPublishers(0)
+    _nStoppedPublishers(0),
+    _nExpectedTicks(nExpectedTicks * _nPublishers),
+    _nReceived(0)
 {
     _results.reserve(nExpectedTicks * _nPublishers);
 }
 
 void
-PingI::tick(long long time, Perf::AEnum, int, const Perf::AStruct&, const Perf::IntfPrx&, const Ice::Current& current)
+PingI::tick(long long time, Perf::AEnum, int, const Perf::AStruct&, const Ice::Current& current)
 {
-    if(time > 0 && _nStartedPublishers == _nPublishers)
+    Lock sync(*this);
+    if(time > 0)
     {
 	add(time);
     }
@@ -46,7 +51,8 @@ PingI::tick(long long time, Perf::AEnum, int, const Perf::AStruct&, const Perf::
 void
 PingI::tickVoid(long long time, const Ice::Current& current)
 {
-    if(time > 0 && _nStartedPublishers == _nPublishers)
+    Lock sync(*this);
+    if(time > 0)
     {
 	add(time);
     }
@@ -54,12 +60,16 @@ PingI::tickVoid(long long time, const Ice::Current& current)
     {
 	started();
     }
-    else if(time < 0)
+    else if(time == -1)
     {
 	if(stopped())
 	{
 	    current.adapter->getCommunicator()->shutdown();
 	}
+    }
+    else if(time < 0)
+    {
+	cerr << "time < 0: " << time << endl;
     }
 }
 
@@ -77,11 +87,13 @@ PingI::stopped()
 {
     if(_nStoppedPublishers == 0)
     {
-	if(_nStartedPublishers < _nPublishers)
-	{
-	    cerr << "Some publishers are already finished while others aren't even started" << endl;
-	}
 	_stopTime = IceUtil::Time::now();
+    }
+    if(_nStartedPublishers < _nPublishers)
+    {
+	cerr << "Some publishers are already finished while others aren't even started" << endl;
+	cerr << _nPublishers << " " << _nStartedPublishers << " " << _nStoppedPublishers << endl;
+	cerr << _startTime - _stopTime << " " << _results.size() << " " << _nReceived << endl;
     }
     if(++_nStoppedPublishers == _nPublishers)
     {
@@ -97,12 +109,24 @@ PingI::stopped()
 void
 PingI::add(long long time)
 {
-    _results.push_back(static_cast<int>(IceUtil::Time::now().toMicroSeconds() - time));
+    ++_nReceived;
+    if(_nStartedPublishers == _nPublishers && _nStoppedPublishers == 0)
+    {
+	_results.push_back(static_cast<int>(IceUtil::Time::now().toMicroSeconds() - time));
+    }
 }
 
 void
 PingI::calc()
 {
+    double size = static_cast<double>(_results.size());
+
+    //
+    // Only keep the N/2 best results
+    //
+    sort(_results.begin(), _results.end());
+    _results.resize(_results.size() / 2);
+
     double total = 0.0;
     for(vector<int>::const_iterator p = _results.begin(); p != _results.end(); ++p)
     {
@@ -118,11 +142,15 @@ PingI::calc()
     }
     deviation = sqrt(total / (_results.size() - 1));
 
-    cout << mean << " " << deviation << " " 
-	 << static_cast<double>(_results.size()) / (_stopTime - _startTime).toMicroSeconds() * 1000000.0 
-	 << " " << flush;
+    if(size < (_nExpectedTicks * 0.90))
+    {
+	cerr << "less than 90% of the expected ticks were used for the test " << size << endl;
+    }
 
-    _results.clear();    
+    cout << mean << " " << deviation << " " << size / (_stopTime - _startTime).toMicroSeconds() * 1000000.0 << " ";
+    cout << flush;
+
+    _results.clear();
     _nStartedPublishers = 0;
     _nStoppedPublishers = 0;
 }

@@ -19,6 +19,7 @@
 
 #include <vector>
 #include "orbsvcs/CosEventCommS.h"
+#include "ace/Thread_Mutex.h"
 
 #if !defined (ACE_LACKS_PRAGMA_ONCE)
 # pragma once
@@ -66,6 +67,7 @@ private:
     int _nPublishers;
     int _nStartedPublishers;
     int _nStoppedPublishers;
+    ACE_Thread_Mutex _lock;
 
     CORBA::ORB_ptr orb_;
     // The orb, just a pointer because the ORB does not outlive the

@@ -5,7 +5,11 @@ Freeze.DbEnv.IceStorm.DbHome=db
 IceStorm.TopicManager.Proxy=IceStorm/TopicManager:default -p 10000
 IceStorm.TopicManager.Endpoints=default -p 10000
 IceStorm.Publish.Endpoints=default
-IceStorm.Flush.Timeout=100
+IceStorm.Flush.Timeout=200
+
+#Ice.ThreadPool.Server.Size=1
+#Ice.ThreadPool.Server.SizeMax=1
+#Ice.ThreadPool.Server.SizeWarn=0
 
 Ping.Subscriber.Endpoints=tcp
 

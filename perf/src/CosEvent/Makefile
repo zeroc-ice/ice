@@ -14,7 +14,9 @@ endif # ! TAO_ROOT
 
 BIN2 =  Service \
 	Consumer \
-	Supplier
+	Supplier \
+	Destroyer \
+	Notifier
 
 IDL_FILES = Perf
 IDL_SRC = PerfC.cpp PerfS.cpp
@@ -22,17 +24,28 @@ IDL_SRC = PerfC.cpp PerfS.cpp
 PSRC= $(IDL_SRC) $(addsuffix .cpp,$(BIN2))
 
 SUPPLIER_OBJS = \
+		Worker_Thread.o \
                 PerfC.o \
                 PerfS.o \
                 Supplier.o
 
 CONSUMER_OBJS = \
+		Worker_Thread.o \
                 PerfC.o \
                 PerfS.o \
                 Consumer.o
 
 SERVICE_OBJS = \
+		Worker_Thread.o \
 		Service.o
+
+DESTROYER_OBJS = \
+	         Destroyer.o
+
+NOTIFIER_OBJS = \
+	         Notifier.o \
+	         PerfC.o \
+                 PerfS.o
 
 LDLIBS = -lTAO_CosEvent -lTAO_CosNaming -lTAO_Strategies -lTAO_Svc_Utils -lTAO_IORTable -lTAO_Messaging $(TAO_SRVR_LIBS)
 CPPFLAGS += -I$(TAO_ROOT) -I$(TAO_ROOT)/orbsvcs 
@@ -78,6 +91,12 @@ Consumer: $(addprefix $(VDIR),$(CONSUMER_OBJS))
 	$(LINK.cc) $(LDFLAGS) -o $@ $^ $(VLDLIBS) $(POSTLINK)
 
 Service: $(addprefix $(VDIR),$(SERVICE_OBJS))
+	$(LINK.cc) $(LDFLAGS) -o $@ $^ $(VLDLIBS) $(POSTLINK)
+
+Destroyer: $(addprefix $(VDIR),$(DESTROYER_OBJS))
+	$(LINK.cc) $(LDFLAGS) -o $@ $^ $(VLDLIBS) $(POSTLINK)
+
+Notifier: $(addprefix $(VDIR),$(NOTIFIER_OBJS))
 	$(LINK.cc) $(LDFLAGS) -o $@ $^ $(VLDLIBS) $(POSTLINK)
 
 realclean: clean

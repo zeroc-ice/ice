@@ -1,9 +1,11 @@
 // Consumer.cpp,v 1.3 2002/01/29 20:20:46 okellogg Exp
 
 #include "Consumer.h"
+#include "Worker_Thread.h"
 #include "orbsvcs/CosEventChannelAdminS.h"
 #include "PerfC.h"
 #include "ace/Date_Time.h"
+#include "ace/Thread_Mutex.h"
 
 #include <iostream>
 #include <math.h>
@@ -33,6 +35,7 @@ int
 Consumer::run (int argc, char* argv[])
 {
     int repetitions = 10000;
+    int nthreads = 1;
     char* ior = 0;
     _payload = false;
     _nPublishers = 1;
@@ -46,15 +49,22 @@ Consumer::run (int argc, char* argv[])
 	{
 	    _payload = true;
 	}
-	if(strcmp(argv[i], "-c") == 0)
+	else if(strcmp(argv[i], "-c") == 0)
 	{
 	    _nPublishers = atoi(argv[++i]);
+	}
+	else if(strcmp(argv[i], "-n") == 0)
+	{
+	    nthreads = atoi(argv[++i]);
 	}
 	else if(strlen(argv[i]) > 3 && argv[i][0] == 'I' && argv[i][1] == 'O' && argv[i][2] == 'R')
 	{
 	    ior = strdup(argv[i]);
 	}
     }
+
+    _nExpectedTicks = repetitions * _nPublishers;
+    _results.reserve(_nExpectedTicks);
 
     ACE_DECLARE_NEW_CORBA_ENV;
     ACE_TRY
@@ -76,8 +86,12 @@ Consumer::run (int argc, char* argv[])
 	ACE_TRY_CHECK;
 	PortableServer::POAManager_var poa_manager = poa->the_POAManager (ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
+
 	poa_manager->activate (ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
+
+	Worker_Thread worker (orb.in ());
+	worker.activate (THR_NEW_LWP | THR_JOINABLE, nthreads, 1);
 	
 	object = orb->string_to_object (ior ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
@@ -102,7 +116,7 @@ Consumer::run (int argc, char* argv[])
 
 	cout << "Consumer ready" << endl;
 
-	orb->run ();
+	worker.thr_mgr()->wait();
     }
     ACE_CATCHANY
     {
@@ -117,6 +131,8 @@ void
 Consumer::push(const CORBA::Any& any ACE_ENV_ARG_DECL_NOT_USED)
     ACE_THROW_SPEC ((CORBA::SystemException))
 {
+    ACE_Guard<ACE_Thread_Mutex> sync(_lock);
+
     long long time = 0;
     if(!_payload)
     {
@@ -129,7 +145,7 @@ Consumer::push(const CORBA::Any& any ACE_ENV_ARG_DECL_NOT_USED)
 	time = e->time;
     }
 
-    if(time > 0 && _nStartedPublishers == _nPublishers)
+    if(time > 0)
     {
 	add(time);
     }
@@ -137,12 +153,16 @@ Consumer::push(const CORBA::Any& any ACE_ENV_ARG_DECL_NOT_USED)
     {
 	started();
     }
-    else if(time < 0)
+    else if(time == -1)
     {
 	if(stopped())
 	{
 	    this->orb_->shutdown (0 ACE_ENV_ARG_PARAMETER);
 	}
+    }
+    else if(time < 0)
+    {
+	cerr << "time < 0: " << time << endl;
     }
 }
 
@@ -162,16 +182,16 @@ Consumer::stopped()
 {
     if(_nStoppedPublishers == 0)
     {
-	if(_nStartedPublishers < _nPublishers)
-	{
-	    cerr << "Some publishers are already finished while others aren't even started" << endl;
-	}
-
 	timeval tv;
 	gettimeofday(&tv, 0);
 	_stopTime = tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec;
     }
-
+    if(_nStartedPublishers < _nPublishers)
+    {
+	cerr << "Some publishers are already finished while others aren't even started" << endl;
+	cerr << _nPublishers << " " << _nStartedPublishers << " " << _nStoppedPublishers << endl;
+	cerr << _startTime - _stopTime << " " << _results.size() << endl;
+    }
     if(++_nStoppedPublishers == _nPublishers)
     {
 	calc();
@@ -186,9 +206,12 @@ Consumer::stopped()
 void
 Consumer::add(long long time)
 {
-    timeval tv;
-    gettimeofday(&tv, 0);
-    _results.push_back(tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec - time);
+    if(_nStartedPublishers == _nPublishers && _nStoppedPublishers == 0)
+    {
+	timeval tv;
+	gettimeofday(&tv, 0);
+ 	_results.push_back(tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec - time);
+    }
 }
 
 void
@@ -200,6 +223,18 @@ Consumer::disconnect_push_consumer(ACE_ENV_SINGLE_ARG_DECL)
 void
 Consumer::calc()
 {
+    double size = static_cast<double>(_results.size());
+    if(_results.empty())
+    {
+	cout << "-1.0 -1.0 -1.0" << flush;
+    }
+
+    //
+    // Only keep the N/2 best results
+    //
+    sort(_results.begin(), _results.end());
+    _results.resize(_results.size() / 2);
+
     double total = 0.0;
     for(vector<int>::const_iterator p = _results.begin(); p != _results.end(); ++p)
     {
@@ -214,10 +249,13 @@ Consumer::calc()
 	total = (*p - mean) * (*p - mean);
     }
     deviation = sqrt(total / (_results.size() - 1));
-    
-    cout << mean << " " << deviation << " " 
-	 << static_cast<double>(_results.size()) / (_stopTime - _startTime) * 1000000.0 
-	 << " " << flush;
+
+    if(size < (_nExpectedTicks * 0.90))
+    {
+	cerr << "less than 90% of the expected ticks were used for the test " << size << endl;
+    }
+
+    cout << mean << " " << deviation << " " << size / (_stopTime - _startTime) * 1000000.0 << " " << flush;
 
     _results.clear();    
     _nStartedPublishers = 0;

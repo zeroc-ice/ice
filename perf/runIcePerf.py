@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, getopt, re
+import os, sys, getopt, re, platform
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -170,10 +170,12 @@ for o, a in opts:
         hostname = a
 
 if outputFile == "":
+    (system, name, ver, build, machine, processor) = platform.uname()
     if hostname == "":
-        import socket
-        hostname = socket.gethostname()
-    outputFile = "results." + sys.platform + "." + hostname
+        hostname = name
+        if hostname.find('.'):
+            hostname = hostname[0:hostname.find('.')]
+    outputFile = ("results.ice." + system + "." + hostname).lower()
 
 expr = [ ]
 if len(pargs) > 0:

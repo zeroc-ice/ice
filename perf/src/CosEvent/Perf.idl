@@ -39,14 +39,18 @@ struct Event
     AEnum e;
     long i;
     AStruct s;
-    Intf ref;
 };
 
 interface Ping
 {
     void tickVoid(in long long time);
 
-    void tick(in long long time, in AEnum e, in long i, in AStruct s, in Intf r);
+    void tick(in long long time, in AEnum e, in long i, in AStruct s);
+};
+
+interface Sync
+{
+    void notify();
 };
 
 };

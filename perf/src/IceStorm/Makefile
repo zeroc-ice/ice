@@ -11,8 +11,9 @@ top_srcdir	= ../..
 
 PUBLISHER	= publisher
 SUBSCRIBER	= subscriber
+NOTIFIER	= notifier
 
-TARGETS		= $(PUBLISHER) $(SUBSCRIBER)
+TARGETS		= $(PUBLISHER) $(SUBSCRIBER) $(NOTIFIER)
 
 OBJS		= Perf.o
 
@@ -20,6 +21,9 @@ POBJS		= Publisher.o
 
 SOBJS		= Subscriber.o \
 		  PerfI.o
+
+NOBJS		= Notifier.o \
+		  Perf.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(POBJS:.o=.cpp) \
@@ -39,5 +43,9 @@ $(PUBLISHER): $(OBJS) $(POBJS)
 $(SUBSCRIBER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
+
+$(NOTIFIER): $(NOBJS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(NOBJS) $(LIBS)
 
 include .depend

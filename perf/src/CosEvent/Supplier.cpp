@@ -1,11 +1,41 @@
 // Supplier.cpp,v 1.4 2003/11/02 23:27:21 dhinton Exp
 
 #include "Supplier.h"
+#include "Worker_Thread.h"
 #include "orbsvcs/CosEventChannelAdminS.h"
 #include "ace/OS_NS_unistd.h"
 #include "ace/Date_Time.h"
+#include "ace/Thread_Semaphore.h"
 #include "PerfC.h"
 #include "PerfS.h"
+
+#include <iostream>
+
+class Sync_impl : public POA_Perf::Sync, public PortableServer::RefCountServantBase
+{
+public:
+
+    Sync_impl() : _semaphore(0)
+    {
+    }
+    
+    void
+    wait()
+    {
+	_semaphore.acquire();
+    }
+
+    virtual void
+    notify()
+	ACE_THROW_SPEC ((CORBA::SystemException))
+    {
+	_semaphore.release();
+    }
+
+private:
+    
+    ACE_Thread_Semaphore _semaphore;
+};
 
 //
 // A reference counted implementation
@@ -45,6 +75,7 @@ Supplier::run (int argc, char* argv[])
     int repetitions = 10000;
     bool payload = false;
     char* ior = 0;
+    int nthreads = 1;
     for(int i = 1; i < argc; i++)
     {
 	if(strcmp(argv[i], "-p") == 0)
@@ -58,6 +89,10 @@ Supplier::run (int argc, char* argv[])
 	else if(strcmp(argv[i], "-w") == 0)
 	{
 	    payload = true;
+	}
+	else if(strcmp(argv[i], "-n") == 0)
+	{
+	    nthreads = atoi(argv[++i]);
 	}
 	else if(strlen(argv[i]) > 3 && argv[i][0] == 'I' && argv[i][1] == 'O' && argv[i][2] == 'R')
 	{
@@ -106,28 +141,42 @@ Supplier::run (int argc, char* argv[])
 	
 	consumer->connect_push_supplier (supplier.in () ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
+
+	Worker_Thread worker (orb.in ());
+	worker.activate (THR_NEW_LWP | THR_JOINABLE, nthreads, 1);
 	
 	//
 	// Create a servant to obtain a persistent reference.
 	//
-	CORBA::PolicyList pl(2);
-	pl.length(2);
-	pl[0] = poa -> create_lifespan_policy(PortableServer::PERSISTENT);
-	pl[1] = poa -> create_id_assignment_policy(PortableServer::USER_ID);
-	PortableServer::POA_var intfPOA = poa -> create_POA("intf", poa_manager, pl);
+// 	CORBA::PolicyList pl(2);
+// 	pl.length(2);
+// 	pl[0] = poa -> create_lifespan_policy(PortableServer::PERSISTENT);
+// 	pl[1] = poa -> create_id_assignment_policy(PortableServer::USER_ID);
+// 	PortableServer::POA_var intfPOA = poa -> create_POA("intf", poa_manager, pl);
 
-	Intf_impl* intfImpl = new Intf_impl(intfPOA);
-	PortableServer::ServantBase_var servant = intfImpl;
+// 	Intf_impl* intfImpl = new Intf_impl(intfPOA);
+// 	PortableServer::ServantBase_var servant = intfImpl;
 
-	PortableServer::ObjectId_var oid = PortableServer::string_to_ObjectId("intf");
-	intfPOA -> activate_object_with_id(oid, intfImpl);
-	CORBA::Object_var obj = intfImpl -> _this();
-	Perf::Intf_var intf = Perf::Intf::_narrow(obj);
-	
-	ACE_Time_Value sleep_time(0, period * 1000); // 10 milliseconds
+// 	PortableServer::ObjectId_var oid = PortableServer::string_to_ObjectId("intf");
+// 	intfPOA -> activate_object_with_id(oid, intfImpl);
+// 	CORBA::Object_var obj = intfImpl -> _this();
+// 	Perf::Intf_var intf = Perf::Intf::_narrow(obj);
 
+ 	Sync_impl* syncImpl = new Sync_impl();
+ 	PortableServer::ServantBase_var servant = syncImpl;
+ 	CORBA::Object_var obj = syncImpl -> _this();
+ 	Perf::Sync_var sync = Perf::Sync::_narrow(obj);
+
+	ACE_Time_Value sleep_time(0, period * 1000);
 	timeval tv;
 
+	CORBA::String_var ior = orb->object_to_string (sync.in () ACE_ENV_ARG_PARAMETER);
+	ACE_TRY_CHECK;
+	std::cout << ior.in() << std::endl;
+	std::cout << "Supplier ready" << std::endl;
+	syncImpl->wait();
+	
+	sched_yield();
 	if(!payload)
 	{
 	    {
@@ -169,10 +218,9 @@ Supplier::run (int argc, char* argv[])
 		e.e = Perf::A;
 		e.i = 10;
 		e.s.s = "TEST";
-		e.ref = intf;
 		gettimeofday(&tv, 0);
 		e.time = tv.tv_sec * static_cast<long long>(1000000) + tv.tv_usec;
-		
+
 		CORBA::Any event;
 		event <<= e;	
 		consumer->push (event ACE_ENV_ARG_PARAMETER);
@@ -195,13 +243,6 @@ Supplier::run (int argc, char* argv[])
 	consumer->disconnect_push_consumer (ACE_ENV_SINGLE_ARG_PARAMETER);
 	ACE_TRY_CHECK;
 
-	ACE_Time_Value wait_time(0, 1000 * 1000 * 5); // 10 seconds
-	ACE_OS::sleep (wait_time);
-	
-	// Destroy the EC....
-	event_channel->destroy (ACE_ENV_SINGLE_ARG_PARAMETER);
-	ACE_TRY_CHECK;
-	
 	// Deactivate this object...
 	PortableServer::ObjectId_var id = poa->servant_to_id (this ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
@@ -211,6 +252,9 @@ Supplier::run (int argc, char* argv[])
 	// Destroy the POA
 	poa->destroy (1, 0 ACE_ENV_ARG_PARAMETER);
 	ACE_TRY_CHECK;
+
+	orb->shutdown(1);
+	worker.thr_mgr()->wait();
     }
     ACE_CATCHANY
     {

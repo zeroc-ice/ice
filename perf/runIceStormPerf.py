@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, time, getopt, re
+import os, sys, time, getopt, re, platform
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -21,7 +21,7 @@ sys.path.append(os.path.join(toplevel, "config"))
 import TestUtil
 
 latencyRepetitions = 10000
-throughputRepetitions = 50000
+throughputRepetitions = 30000
 period = 2 # (ms)
 
 class Test(TestUtil.Test) :
@@ -42,24 +42,36 @@ class Test(TestUtil.Test) :
         self.latency = latency
         self.nSubscribers = nSubscribers
         self.nPublishers = nPublishers
+        self.period = nSubscribers # (ms)
 
-    def startPublishers(self, name, options):
+    def startPublishers(self, name, notifier, options):
 
         options = " " + options["publisher"]        
         if self.latency:
-            options += " -p " + str(period) + " -r " + str(latencyRepetitions)
+            options += " -p " + str(self.period) + " -r " + str(latencyRepetitions)
         else:
             options += " -r " + str(throughputRepetitions)
         if self.payload:
             options += " -w"
-        return [os.popen(os.path.join(".", name) + options) for i in range(0, self.nPublishers)]
+            
+        pipes = [os.popen(os.path.join(".", name) + options) for i in range(0, self.nPublishers)]
+        iors = ""
+        for i in pipes:
+            iors += " '" + i.readline().strip() + "'";
+            TestUtil.getAdapterReady(i)
+
+        pipe = os.popen(os.path.join(".", notifier) + iors)
+        TestUtil.printOutputFromPipe(pipe)
+        pipe.close()
+        
+        return pipes
 
     def startSubscribers(self, name, options):
 
         options = " " + options["subscriber"]
         options += " -c " + str(self.nPublishers)
         if self.latency:
-            options += " -p " + str(period) + " -r " + str(latencyRepetitions)
+            options += " -r " + str(latencyRepetitions)
         else:
             options += " -r " + str(throughputRepetitions)
         if self.payload:
@@ -83,9 +95,11 @@ class Test(TestUtil.Test) :
             try:
                 r = [float(x) for x in out.split()]
                 if self.latency:
-                    results.append(r[0]) # Latency
                     if r[1] > 3:
-                        print "high deviation: " + str(r[1]) + " ", # Standard deviation
+                        results.append(-1.0)
+                        print "high standard deviation: " + str(r[1]) + " ", # Standard deviation
+                    else:
+                        results.append(r[0]) # Latency
                 else:
                     results.append(r[2]) # Throughput
             except KeyboardInterrupt:
@@ -95,7 +109,10 @@ class Test(TestUtil.Test) :
 
         mean = 0.0
         for r in results:
-            mean += r
+            if r < 0.0:
+                return -1.0 # We have one bogus result, no need to record this one.
+            else:
+                mean += r
         mean /= len(results)
         return mean
 
@@ -103,6 +120,14 @@ class IceStormTest(Test):
 
     def run(self, name, subscriberOpts, publisherOpts):
 
+        nthreads = 4
+        threadOpts = " --Ice.ThreadPool.Server.Size=" + str(nthreads) + \
+                     " --Ice.ThreadPool.Server.SizeMax=" + str(nthreads) + \
+                     " --Ice.ThreadPool.Server.SizeWarn=0"
+
+        publisherOpts += threadOpts;
+        subscriberOpts += threadOpts;
+        
         TestUtil.Test.run(self, name, { "publisher" : publisherOpts, "subscriber" : subscriberOpts })
 
     def execute(self, options):
@@ -118,21 +143,26 @@ class IceStormTest(Test):
 
         # Start subscribers and publishers
         subscribersPipe = self.startSubscribers("subscriber", options)
-        publishersPipe = self.startPublishers("publisher", options)
+        publishersPipe = self.startPublishers("publisher", "notifier", options)
         result = self.waitForResults(subscribersPipe, publishersPipe)
 
         # Shutdown IceStorm
         os.system(os.path.join(os.environ['ICE_HOME'], "bin", "iceboxadmin") + " --Ice.Config=config shutdown")
-        servicePipe.close();
+        servicePipe.close()
 
         os.chdir(cwd)
         return result
 
 class CosEventTest(Test):
 
+    def __init__(self, expr, results, i, product, wPayload, latency, nPublishers, nSubscribers):
+
+        Test.__init__(self, expr, results, i, product, wPayload, latency, nPublishers, nSubscribers)
+
     def run(self, name, serviceOpts):
 
-        TestUtil.Test.run(self, name, { "service" : serviceOpts })
+        threadOpts = " -n 4"
+        TestUtil.Test.run(self, name, { "service" : serviceOpts, "publisher" : threadOpts, "subscriber" : threadOpts })
 
     def execute(self, options):
         
@@ -148,54 +178,117 @@ class CosEventTest(Test):
 
         # Start subscribers and publishers
         subscribersPipe = self.startSubscribers("Consumer", options)
-        publishersPipe = self.startPublishers("Supplier", options)
+        publishersPipe = self.startPublishers("Supplier", "Notifier", options)
         result = self.waitForResults(subscribersPipe, publishersPipe)
+
+        # Shutdown CosEvent
+        os.system(os.path.join(".", "Destroyer") + " " + ior)
+        servicePipe.close()
 
         os.chdir(cwd)
         return result
 
 def runIceStormPerfs(expr, results, i):
 
-    test = IceStormTest(expr, results, i, "IceStorm", False, True, 1, 1) # w/o payload, latency, 1-1
+    # Latency tests
+    
+    test = IceStormTest(expr, results, i, "IceStorm", False, True, 1, 1) # w/o payload
     test.run("oneway", "", "-t")
     test.run("twoway", "-o", "-t")
 
-    test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 1) # w/ payload, latency, 1-1
+    test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 1)
     test.run("oneway", "", "-t")
     test.run("twoway", "-o", "-t")
 
-    test = IceStormTest(expr, results, i, "IceStorm", True, False, 1, 1) # w/ payload, throughput 1-1
+    test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 2)
     test.run("oneway", "", "-t")
     test.run("twoway", "-o", "-t")
 
-#     test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 10)
-#     test.run("oneway", "", "-t")
-#     test.run("twoway", "-o", "-t")
+    test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 5)
+    test.run("oneway", "", "-t")
+    test.run("twoway", "-o", "-t")
 
-#     test = IceStormTest(expr, results, i, "IceStorm", True, False, 1, 10)
-#     test.run("oneway", "", "-t")
-#     test.run("twoway", "-o", "-t")
+    test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 10)
+    test.run("oneway", "", "-t")
+    test.run("twoway", "-o", "-t")
 
+    test = IceStormTest(expr, results, i, "IceStorm", True, True, 1, 20)
+    test.run("oneway", "", "-t")
+    test.run("twoway", "-o", "-t")
+
+    # Throughput tests
+    
+    test = IceStormTest(expr, results, i, "IceStorm", True, False, 1, 1)
+    test.run("oneway", "", "-t")
+    test.run("oneway (batch)", "", "-b")
+    test.run("twoway", "-o", "-t")
+
+    test = IceStormTest(expr, results, i, "IceStorm", True, False, 1, 10)
+    test.run("oneway", "", "-t")
+    test.run("oneway (batch)", "", "-b")
+    test.run("twoway", "-o", "-t")
+
+    test = IceStormTest(expr, results, i, "IceStorm", True, False, 10, 1)
+    test.run("oneway", "", "-t")
+    test.run("oneway (batch)", "", "-b")
+    test.run("twoway", "-o", "-t")
+
+    test = IceStormTest(expr, results, i, "IceStorm", True, False, 5, 5)
+    test.run("oneway", "", "-t")
+    test.run("oneway (batch)", "", "-b")
+    test.run("twoway", "-o", "-t")
 
 def runCosEventPerfs(expr, results, i):
 
     reactiveService = " -ORBSvcConf svc.event.reactive.conf"
     bufferedService = " -ORBSvcConf svc.event.mt.conf"
 
-    test = CosEventTest(expr, results, i, "CosEvent", False, True, 1, 1)  # w/o payload, latency, 1-1
-    test.run("twoway", reactiveService);
+    # Latency tests
+
+    test = CosEventTest(expr, results, i, "CosEvent", False, True, 1, 1)  # w/o payload
+    test.run("twoway", reactiveService)
     test.run("twoway buffered", bufferedService)
 
-    test = CosEventTest(expr, results, i, "CosEvent", True, True, 1, 1)  # w/ payload, latency, 1-1
-    test.run("twoway", reactiveService);
+    test = CosEventTest(expr, results, i, "CosEvent", True, True, 1, 1)
+    test.run("twoway", reactiveService)
     test.run("twoway buffered", bufferedService)
 
-    test = CosEventTest(expr, results, i, "CosEvent", True, False, 1, 1)  # w/ payload, throughput, 1-1
-    test.run("twoway", reactiveService);
+    test = CosEventTest(expr, results, i, "CosEvent", True, True, 1, 2)
+    test.run("twoway", reactiveService)
+    test.run("twoway buffered", bufferedService)
+
+    test = CosEventTest(expr, results, i, "CosEvent", True, True, 1, 5)
+    test.run("twoway", reactiveService)
+    test.run("twoway buffered", bufferedService)
+
+    test = CosEventTest(expr, results, i, "CosEvent", True, True, 1, 10)
+    test.run("twoway", reactiveService)
+    test.run("twoway buffered", bufferedService)
+
+    test = CosEventTest(expr, results, i, "CosEvent", True, True, 1, 20)
+    test.run("twoway", reactiveService)
+    test.run("twoway buffered", bufferedService)
+
+    # Throughput tests
+
+    test = CosEventTest(expr, results, i, "CosEvent", True, False, 1, 1)
+    test.run("twoway", reactiveService)
+    test.run("twoway buffered", bufferedService)
+
+    test = CosEventTest(expr, results, i, "CosEvent", True, False, 1, 10)
+    test.run("twoway", reactiveService)
+    test.run("twoway buffered", bufferedService)
+
+    test = CosEventTest(expr, results, i, "CosEvent", True, False, 10, 1)
+    test.run("twoway", reactiveService)
+    test.run("twoway buffered", bufferedService)
+
+    test = CosEventTest(expr, results, i, "CosEvent", True, False, 5, 5)
+    test.run("twoway", reactiveService)
     test.run("twoway buffered", bufferedService)
 
 try:
-    opts, pargs = getopt.getopt(sys.argv[1:], 'hi:o:n:', ['help', 'iter=', 'output=', 'hostname=']);
+    opts, pargs = getopt.getopt(sys.argv[1:], 'hi:o:n:', ['help', 'iter=', 'output=', 'hostname='])
 except getopt.GetoptError:
     usage()
 
@@ -213,17 +306,6 @@ for o, a in opts:
     elif o == '-n' or o == "--hostname":
         hostname = a
 
-if outputFile == "":
-    if hostname == "":
-        import socket
-        hostname = socket.gethostname()
-    outputFile = "results.icestorm." + sys.platform + "." + hostname
-
-expr = [ ]
-if len(pargs) > 0:
-    for e in pargs:
-        expr.append(re.compile(e))
-
 if not os.environ.has_key('ICE_HOME'):
     if os.path.exists(os.path.join(toplevel, "..", "ice")):
         os.environ['ICE_HOME'] = os.path.join(toplevel, "..", "ice")
@@ -231,6 +313,19 @@ if not os.environ.has_key('ICE_HOME'):
 if not os.environ.has_key('ICE_HOME') and not os.environ.has_key('TAO_ROOT'):
     print "You need to set at least ICE_HOME or TAO_ROOT!"
     sys.exit(1)
+
+if outputFile == "":
+    (system, name, ver, build, machine, processor) = platform.uname()
+    if hostname == "":
+        hostname = name
+        if hostname.find('.'):
+            hostname = hostname[0:hostname.find('.')]
+    outputFile = ("results.icestorm." + system + "." + hostname).lower()
+
+expr = [ ]
+if len(pargs) > 0:
+    for e in pargs:
+        expr.append(re.compile(e))
 
 results = TestUtil.HostResults(hostname, outputFile)
 

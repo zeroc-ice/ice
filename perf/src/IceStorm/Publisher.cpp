@@ -12,9 +12,41 @@
 #include <IceStorm/IceStorm.h>
 
 #include <Perf.h>
-
+#include <sys/time.h>
 using namespace std;
 using namespace Perf;
+
+class SyncI : public Sync, IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    SyncI() : _notified(false) 
+    {
+    }
+
+    virtual void 
+    waitNotification()
+    {
+	Lock sync(*this);
+	while(!_notified)
+	{
+	    wait();
+	}
+    }
+
+    virtual void
+    notify(const Ice::Current&)
+    {
+	Lock sync(*this);
+	_notified = true;
+	notifyAll();
+    }
+
+private:
+
+    bool _notified;
+};
+typedef IceUtil::Handle<SyncI> SyncIPtr;
 
 class Publisher : public Ice::Application
 {
@@ -91,10 +123,11 @@ Publisher::run(int argc, char* argv[])
     assert(topic);
 
     //
-    // Create a proxy for an intf object.
+    // Create a proxy for the synchronization object.
     //
-    //Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("intf", "tcp");
-    //IntfPrx intf = IntfPrx::uncheckedCast(adapter->createProxy(Ice::stringToIdentity("intf")));
+    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("Publisher", "tcp");
+    SyncIPtr sync = new SyncI();
+    Ice::ObjectPrx obj = adapter->addWithUUID(sync);
 
     PingPrx ping;
     if(twoway)
@@ -106,6 +139,15 @@ Publisher::run(int argc, char* argv[])
 	ping = PingPrx::uncheckedCast(topic->getPublisher()->ice_oneway());
     }
     ping->ice_ping();
+    cout << communicator()->proxyToString(obj) << endl;
+    adapter->activate();
+
+    //
+    // Wait for the notification to start publishing.
+    //
+    sync->waitNotification();
+
+    IceUtil::ThreadControl::yield();
 
     if(!payload)
     {
@@ -122,18 +164,18 @@ Publisher::run(int argc, char* argv[])
     }
     else
     {
-	ping->tick(0, A, 10, AStruct(), 0);
+	ping->tick(0, A, 10, AStruct());
 	for(int i = 0; i < repetitions; ++i)
 	{
 	    AStruct s;
 	    s.s = "TEST";
-	    ping->tick(IceUtil::Time::now().toMicroSeconds(), A, 10, s, 0);
+	    ping->tick(IceUtil::Time::now().toMicroSeconds(), A, 10, s);
 	    if(period > 0)
 	    {
 		IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(period));
 	    }
 	}
-	ping->tick(-1, A, 10, AStruct(), 0);
+	ping->tick(-1, A, 10, AStruct());
     }
 
     return EXIT_SUCCESS;

@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-import os, sys, pickle
+import os, sys, pickle, platform
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     toplevel = os.path.normpath(toplevel)
@@ -99,6 +99,13 @@ class TestResults :
                             self.results.pop(n)
                         print "removed " + p + " " + self.test + " " + n
 
+    def convert(self, function):
+
+        for x in self.results.iterkeys():
+            for y in self.results[x].iterkeys():
+                for i in range(0, len(self.results[x][y])):
+                    self.results[x][y][i] = function.convert(self.results[x][y][i])
+
     def addToResults(self, results, tests, names, products, id, function):
 
         if len(self.results) == 0:
@@ -142,7 +149,7 @@ class HostResults :
 
     def __init__(self, hostname, outputFile):
 
-        self.id = hostname + " " + sys.platform
+        self.id = hostname + " " + platform.system()
         self.outputFile = outputFile
         self.tests = [ ]
         self.results = { }
@@ -187,6 +194,11 @@ class HostResults :
         pickle.dump(self, f);
         f.close()        
 
+    def convert(self, function):
+
+        for t in self.tests:
+            self.results[t].convert(function)
+        
     def addToResults(self, results, tests, names, products, hosts, function):
 
         if not self.id in hosts:
@@ -220,6 +232,11 @@ class AllResults :
 
         for result in self.results.itervalues():
             result.save(outputFile)
+
+    def convert(self, function):
+
+        for r in self.results.itervalues():
+            r.convert(function)
     
     def printAll(self, function, csv):
 
@@ -256,6 +273,9 @@ class AllResults :
                                 else:
                                     (m, r) = results[test][name][product][host]
                                     print  str(m) + ",",
+                        else:
+                            print ",",
+                        
                     print ""
 
     def printAllAsText(self, results, tests, names, hosts, products):
@@ -266,12 +286,18 @@ class AllResults :
             print sep[0:len(test)]
             print ""
             
-            print " %-15s" % "Test",
+            maxLen = 0
+            for name in names:
+                for product in products:
+                    if maxLen < len(product + " " + name):
+                        maxLen = len(product + " " + name)
+
+            print (" %-" + str(maxLen) + "s") % "Test",
             for host in hosts:
                 print "| %-18s" % host[0:18],
             print ""
 
-            print " ---------------",
+            print (" %-" + str(maxLen) + "s") % ("-------------------------------------------"[0:maxLen]),
             for host in hosts:
                 print "+-------------------",
             print ""
@@ -282,7 +308,7 @@ class AllResults :
                     for product in products:
                         if results[test][name].has_key(product):
                             hasTest = True
-                            print " %-15s" % (product + " " + name),
+                            print (" %-" + str(maxLen) + "s") % (product + " " + name),
                             for host in hosts:
                                 if not results[test][name][product].has_key(host):
                                     print "| %-18s" % "",
@@ -290,7 +316,7 @@ class AllResults :
                                     print "| %10.6f (%#1.3f)" % results[test][name][product][host],
                             print ""
                 if hasTest:
-                    print " ---------------",
+                    print (" %-" + str(maxLen) + "s") % ("-------------------------------------------"[0:maxLen]),
                     for host in hosts:
                         print "+-------------------",
                     print ""
@@ -321,8 +347,15 @@ class Test :
         sys.stdout.flush()
 
         result = self.execute(options)
-        self.results.add(self.product, self.test, name, result)
-        print result
+        if result > 0.0:
+            self.results.add(self.product, self.test, name, result)
+            try:
+                (m1, m5, m15) = os.getloadavg()
+                print "(load = " + str(m1) + ") " + str(result)
+            except:
+                print result
+        else:
+            print "invalid"
     
     def execute(self, options):
 

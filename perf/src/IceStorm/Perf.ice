@@ -39,7 +39,12 @@ interface Ping
 {
     void tickVoid(long time);
 
-    void tick(long time, AEnum e, int i, AStruct s, Intf* p);
+    void tick(long time, AEnum e, int i, AStruct s);
+};
+
+interface Sync
+{
+    void notify();
 };
 
 };
