@@ -162,15 +162,6 @@ public abstract class Application
     }
     
     synchronized public static void
-    ignoreInterrupt()
-    {
-	//
-	// We cannot ignore, only set back to default.
-	//
-	defaultInterrupt();
-    }
-
-    synchronized public static void
     defaultInterrupt()
     {
 	if(_shutdownHook != null)

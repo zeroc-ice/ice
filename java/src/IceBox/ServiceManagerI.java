@@ -124,7 +124,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 	    }
 
             _server.communicator().waitForShutdown();
-	    _server.ignoreInterrupt();
+	    _server.defaultInterrupt();
 
             //
             // Invoke stop() on the services.

@@ -68,7 +68,7 @@ class PhoneBookServer extends Freeze.Application
 
 	shutdownOnInterrupt();
 	communicator().waitForShutdown();
-	ignoreInterrupt();
+	defaultInterrupt();
 
 	return 0;
     }

@@ -32,7 +32,7 @@ public class Server extends Ice.Application
 	{
 	}
         communicator().waitForShutdown();
-	ignoreInterrupt();
+	defaultInterrupt();
         return 0;
     }
 
