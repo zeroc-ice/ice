@@ -242,7 +242,7 @@ def archiveDemoTree(buildDir, version):
 
     os.system("tar cf Ice-" + version + "-demos.tar Ice-" + version + "-demos")
     os.system("gzip -9 Ice-" + version + "-demos.tar")
-    os.system("zip -9ry Ice-" + version + "-demos.zip Ice-" + version + "-demos")
+    os.system("zip -q9ry Ice-" + version + "-demos.zip Ice-" + version + "-demos")
     os.chdir(cwd)
 
 def makeInstall(sources, buildDir, installDir, distro, clean):
@@ -605,7 +605,7 @@ def main():
     os.chdir(installDir)
     os.system("tar cf Ice-" + version + "-bin-" + getPlatform() + ".tar Ice-" + version)
     os.system("gzip -9 Ice-" + version + "-bin-" + getPlatform() + ".tar")
-    os.system("zip -9ry Ice-" + version + "-bin-" + getPlatform() + ".zip Ice-" + version)
+    os.system("zip -9qry Ice-" + version + "-bin-" + getPlatform() + ".zip Ice-" + version)
     os.chdir(cwd)
 
     #
