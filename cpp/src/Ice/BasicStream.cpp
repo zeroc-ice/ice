@@ -1105,6 +1105,8 @@ IceInternal::BasicStream::read(vector<string>& v)
 {
     Int sz;
     readSize(sz);
+    v.clear();
+    v.reserve(sz);
     while(sz--)
     {
 	string s;
