@@ -27,11 +27,11 @@ slicedir	= $(top_srcdir)/slice
 #
 # export STLPORT=/usr/local/STLport-4.5
 #
-STLPORT		?= /opt/STLport-4.5
+STLPORT		?= /opt/STLport
 JTC		?= /opt/JTC
-DB		?= /opt/db-3.3.11
-OPENSSL         ?= /opt/ssl
-XERCESC         ?= /opt/xerces-1.5.2
+DB		?= /opt/db
+OPENSSL         ?= /opt/openssl
+XERCESC         ?= /opt/xerces-c
 
 #
 # Experts only: You can change the following lines, for example, to
