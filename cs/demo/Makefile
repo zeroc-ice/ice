@@ -11,7 +11,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= Ice Glacier book
+SUBDIRS		= Ice Glacier IcePack book
 
 install::
 	@if test ! -d $(prefix) ; \

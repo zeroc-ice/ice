@@ -11,7 +11,7 @@ top_srcdir	= ..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= Ice Glacier Glacier2
+SUBDIRS		= Ice Glacier Glacier2 IcePack
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \

@@ -23,7 +23,7 @@ include $(top_srcdir)/config/Make.rules
 
 MCSFLAGS	:= $(MCSFLAGS) -target:exe
 
-SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) -I.
+SLICE2CSFLAGS	:= $(SLICE2CSFLAGS) --stream -I.
 
 client.exe: $(C_SRCS) $(GEN_SRCS)
 	$(MCS) $(MCSFLAGS) -out:$@ -r:$(libdir)/icecs.dll $^

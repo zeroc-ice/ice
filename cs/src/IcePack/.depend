@@ -1,0 +1,3 @@
+Admin.cs: ../../../ice/slice/IcePack/Admin.ice ../../../ice/slice/Ice/Identity.ice ../../../ice/slice/Ice/BuiltinSequences.ice ../../../ice/slice/Ice/SliceChecksumDict.ice ../../../ice/slice/IceBox/IceBox.ice ../../../ice/slice/Ice/CommunicatorF.ice ../../../ice/slice/Ice/PropertiesF.ice ../../../ice/slice/IcePack/Exception.ice
+Exception.cs: ../../../ice/slice/IcePack/Exception.ice
+Query.cs: ../../../ice/slice/IcePack/Query.ice ../../../ice/slice/Ice/Identity.ice ../../../ice/slice/Ice/BuiltinSequences.ice ../../../ice/slice/IcePack/Exception.ice
