@@ -35,7 +35,8 @@ IceInternal::BasicOutputStream::BasicOutputStream(IceInternal::Instance* instanc
 Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const vector<Byte>& data) :
     _communicator(communicator), _is(IceInternal::getInstance(communicator).get(), this)
 {
-    _is.b.copyFromVector(data);
+    _is.b.resize(data.size());
+    memcpy(&_is.b[0], &data[0], data.size());
     _is.i = _is.b.begin();
 }
 
@@ -441,7 +442,7 @@ Ice::OutputStreamI::writePendingObjects()
 void
 Ice::OutputStreamI::finished(vector<Byte>& bytes)
 {
-    _os.b.copyToVector(bytes);
+    vector<Byte>(_os.b.begin(), _os.b.end()).swap(bytes);
 }
 
 //

@@ -12,6 +12,8 @@
 
 #include <Ice/Config.h>
 
+//#define ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+
 namespace IceInternal
 {
 
@@ -22,13 +24,9 @@ public:
     Buffer() : i(b.begin()) { }
     virtual ~Buffer() { }
 
-    void swap(Buffer& other)
-    {
-	b.swap(other.b);
-	std::swap(i, other.i);
-    }
+    void swap(Buffer&);
 
-    class Container : public IceUtil::noncopyable
+    class ICE_API Container : public IceUtil::noncopyable
     {
     public:
 
@@ -45,16 +43,32 @@ public:
 	typedef int difference_type;
 	typedef size_t size_type;
 
+#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+	Container() :
+	    _buf(_fixed),
+	    _size(0),
+	    _capacity(_fixedSize)
+	{
+	}
+#else
 	Container() :
 	    _buf(0),
 	    _size(0),
 	    _capacity(0)
 	{
 	}
+#endif
 
 	~Container()
 	{
+#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+	    if(_buf != _fixed)
+	    {
+		free(_buf);
+	    }
+#else
 	    free(_buf);
+#endif
 	}
 
 	iterator begin()
@@ -87,47 +101,27 @@ public:
 	    return !_size;
 	}
 
-	void swap(Container& other)
-	{
-	    std::swap(_buf, other._buf);
-	    std::swap(_size, other._size);
-	    std::swap(_capacity, other._capacity);
-	}
+	void swap(Container&);
 	
 	void clear()
 	{
+#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+	    if(_buf != _fixed)
+	    {
+		free(_buf);
+		_buf = _fixed;
+	    }
+	    _size = 0;
+	    _capacity = _fixedSize;
+#else
 	    free(_buf);
 	    _buf = 0;
 	    _size = 0;
 	    _capacity = 0;
+#endif
 	}
 
-	void resize(size_type n)
-	{
-	    if(n == 0)
-	    {
-		clear();
-	    }
-	    else
-	    {
-		_size = n;
-
-		if(_size > _capacity)
-		{
-		    _capacity = std::max<size_type>(_size, 2 * _capacity);
-		    _capacity = std::max<size_type>(static_cast<size_type>(240), _capacity);
-
-		    if(_buf)
-		    {
-			_buf = reinterpret_cast<pointer>(realloc(_buf, _capacity));
-		    }
-		    else
-		    {
-			_buf = reinterpret_cast<pointer>(malloc(_capacity));
-		    }
-		}
-	    }
-	}
+	void resize(size_type);
 
 	void push_back(value_type v)
 	{
@@ -147,35 +141,6 @@ public:
 	    return _buf[n];
 	}
 
-	//
-	// Special operations.
-	//
-
-	void copyFromVector(const std::vector<value_type>& v)
-	{
-	    if(v.empty())
-	    {
-		clear();
-	    }
-	    else
-	    {
-		resize(v.size());
-		memcpy(_buf, &v[0], v.size());
-	    }
-	}
-
-	void copyToVector(std::vector<value_type>& v)
-	{
-	    if(empty())
-	    {
-		v.clear();
-	    }
-	    else
-	    {
-		std::vector<value_type>(_buf, _buf + _size).swap(v);
-	    }
-	}
-
     private:
 
 	Container(const Container&);
@@ -184,6 +149,16 @@ public:
 	pointer _buf;
 	size_type _size;
 	size_type _capacity;
+
+#ifdef ICE_SMALL_MESSAGE_BUFFER_OPTIMIZATION
+	//
+	// For small buffers, we stack-allocate the memory. Only when
+	// a buffer size larger than _fixedSize is requested, we
+	// allocate memory dynamically.
+	//
+	static const size_type _fixedSize = 64;
+	value_type _fixed[_fixedSize];
+#endif
     };
 
     Container b;

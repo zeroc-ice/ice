@@ -118,6 +118,10 @@ SOURCE=.\BasicStream.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Buffer.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\BuiltinSequences.cpp
 # End Source File
 # Begin Source File

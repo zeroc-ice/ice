@@ -17,6 +17,7 @@ TARGETS		= $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(li
 
 OBJS		= Acceptor.o \
 		  Application.o \
+		  Buffer.o \
 		  BasicStream.o \
 		  BuiltinSequences.o \
 		  CommunicatorF.o \

@@ -257,7 +257,7 @@ Freeze::ObjectStore::marshal(const Identity& ident, Key& bytes, const Communicat
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
     ident.__write(&stream);
-    stream.b.copyToVector(bytes);
+    vector<Byte>(stream.b.begin(), stream.b.end()).swap(bytes);
 }
     
 void 
@@ -265,7 +265,8 @@ Freeze::ObjectStore::unmarshal(Identity& ident, const Key& bytes, const Communic
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
-    stream.b.copyFromVector(bytes);
+    stream.b.resize(bytes.size());
+    memcpy(&stream.b[0], &bytes[0], bytes.size());
     stream.i = stream.b.begin();
     ident.__read(&stream);
 }
@@ -279,7 +280,7 @@ Freeze::ObjectStore::marshal(const ObjectRecord& v, Value& bytes, const Communic
     v.__write(&stream);
     stream.writePendingObjects();
     stream.endWriteEncaps();
-    stream.b.copyToVector(bytes);
+    vector<Byte>(stream.b.begin(), stream.b.end()).swap(bytes);
 }
 
 void
@@ -288,7 +289,8 @@ Freeze::ObjectStore::unmarshal(ObjectRecord& v, const Value& bytes, const Commun
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
     stream.sliceObjects(false);
-    stream.b.copyFromVector(bytes);
+    stream.b.resize(bytes.size());
+    memcpy(&stream.b[0], &bytes[0], bytes.size());
     stream.i = stream.b.begin();
     stream.startReadEncaps();
     v.__read(&stream);

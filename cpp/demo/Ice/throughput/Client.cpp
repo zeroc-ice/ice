@@ -19,9 +19,9 @@ menu()
     cout <<
 	"usage:\n"
 	"toggle type of data to send\n"
-	"  1: byte sequence (default)\n"
-	"  2: string { \"hello\" } sequence\n"
-	"  3: struct { \"hello\", \"3.14\" } sequence\n"
+	"  1: sequence of bytes (default)\n"
+	"  2: sequence of strings (\"hello\")\n"
+	"  3: sequence of structs with a string (\"hello\") and a double\n"
 	"select test to run\n"
 	"  t: send sequence as twoway\n"
 	"  o: send sequence as oneway\n"
