@@ -21,12 +21,12 @@ InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
 
     _printer = new PrinterI;
     _printer->_message = "Ice rulez!";
-    _printerProxy = PrinterPrx::uncheckedCast(adapter->addTemporary(_printer));
+    _printerProxy = PrinterPrx::uncheckedCast(adapter->addWithUUID(_printer));
 
     _derivedPrinter = new DerivedPrinterI;
     _derivedPrinter->_message = _printer->_message;
     _derivedPrinter->_derivedMessage = "Coming soon: the ultimate online game from MutableRealms!";
-    adapter->addTemporary(_derivedPrinter);
+    adapter->addWithUUID(_derivedPrinter);
 }
 
 SimplePtr

@@ -62,14 +62,14 @@ I_C_I::ic(const M_A::I_CPrx& p, const Ice::Current&)
 InitialI::InitialI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {
-    _ca = M_A::C_APrx::uncheckedCast(_adapter->addTemporary(new C_A_I));
-    _cb = M_B::C_BPrx::uncheckedCast(_adapter->addTemporary(new C_B_I));
-    _cc = M_A::C_CPrx::uncheckedCast(_adapter->addTemporary(new C_C_I));
-    _cd = M_A::C_DPrx::uncheckedCast(_adapter->addTemporary(new C_D_I));
-    _ia = M_A::I_APrx::uncheckedCast(_adapter->addTemporary(new I_A_I));
-    _ib1 = M_B::I_B1Prx::uncheckedCast(_adapter->addTemporary(new I_B1_I));
-    _ib2 = M_B::I_B2Prx::uncheckedCast(_adapter->addTemporary(new I_B2_I));
-    _ic = M_A::I_CPrx::uncheckedCast(_adapter->addTemporary(new I_C_I));
+    _ca = M_A::C_APrx::uncheckedCast(_adapter->addWithUUID(new C_A_I));
+    _cb = M_B::C_BPrx::uncheckedCast(_adapter->addWithUUID(new C_B_I));
+    _cc = M_A::C_CPrx::uncheckedCast(_adapter->addWithUUID(new C_C_I));
+    _cd = M_A::C_DPrx::uncheckedCast(_adapter->addWithUUID(new C_D_I));
+    _ia = M_A::I_APrx::uncheckedCast(_adapter->addWithUUID(new I_A_I));
+    _ib1 = M_B::I_B1Prx::uncheckedCast(_adapter->addWithUUID(new I_B1_I));
+    _ib2 = M_B::I_B2Prx::uncheckedCast(_adapter->addWithUUID(new I_B2_I));
+    _ic = M_A::I_CPrx::uncheckedCast(_adapter->addWithUUID(new I_C_I));
 }
 
 void
