@@ -25,7 +25,7 @@ public final class RemoteEvictorFactoryI extends Test._RemoteEvictorFactoryDisp
         public void
         initialize(Ice.ObjectAdapter adapter, Ice.Identity ident, Ice.Object servant)
         {
-            ServantI servantImpl = (ServantI)servant;
+	    ServantI servantImpl =  (ServantI) ((Test._ServantTie) servant).ice_delegate();
             servantImpl.init(_remoteEvictor, _evictor);
         }
 

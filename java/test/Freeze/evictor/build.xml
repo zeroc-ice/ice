@@ -34,7 +34,7 @@ the Free Software Foundation.
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
-        <slice2java outputdir="${generated.dir}">
+        <slice2java tie="yes" outputdir="${generated.dir}">
             <fileset dir="." includes="Test.ice"/>
         </slice2java>
     </target>

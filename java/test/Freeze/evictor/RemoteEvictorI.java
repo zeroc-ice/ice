@@ -38,8 +38,9 @@ public final class RemoteEvictorI extends Test._RemoteEvictorDisp
         Ice.Identity ident = new Ice.Identity();
         ident.category = _category;
         ident.name = "" + id;
-        ServantI servant = new ServantI(this, _evictor, value);
-        _evictor.createObject(ident, servant);
+	Server.ServantTie tie = new Server.ServantTie();
+	tie.ice_delegate(new ServantI(tie, this, _evictor, value));
+        _evictor.createObject(ident, tie);
         return Test.ServantPrxHelper.uncheckedCast(_evictorAdapter.createProxy(ident));
     }
 

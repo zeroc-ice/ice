@@ -12,17 +12,19 @@
 //
 // **********************************************************************
 
-public final class ServantI extends Test.Servant
+public class ServantI implements Test._ServantOperations
 {
-    ServantI()
+    ServantI(Test.Servant tie)
     {
+	_tie = tie;
     }
 
-    ServantI(RemoteEvictorI remoteEvictor, Freeze.Evictor evictor, int value)
+    ServantI(Test.Servant tie, RemoteEvictorI remoteEvictor, Freeze.Evictor evictor, int value)
     {
+	_tie = tie;
         _remoteEvictor = remoteEvictor;
         _evictor = evictor;
-        this.value = value;
+        _tie.value = value;
     }
 
     void
@@ -31,18 +33,20 @@ public final class ServantI extends Test.Servant
         _remoteEvictor = remoteEvictor;
         _evictor = evictor;
 
-	String[] facets = ice_facets(null);
+	String[] facets = _tie.ice_facets(null);
 	for(int i = 0; i < facets.length; i++)
 	{
-	    Ice.Object o = ice_findFacet(facets[i]);
-	    if(o instanceof ServantI)
+	    Ice.Object o = _tie.ice_findFacet(facets[i]);
+	    if(o instanceof Test._ServantTie)
 	    {
-		((ServantI) o).init(remoteEvictor, evictor);
+		ServantI servant = (ServantI) ((Test._ServantTie) o).ice_delegate();
+		servant.init(remoteEvictor, evictor);
 	    }
 	    else
 	    {
-		assert(o instanceof FacetI);
-		((FacetI) o).init(remoteEvictor, evictor);
+		assert(o instanceof Test._FacetTie);
+		FacetI facet = (FacetI) ((Test._FacetTie) o).ice_delegate();
+		facet.init(remoteEvictor, evictor);
 	    }
 	}    
     }
@@ -53,36 +57,45 @@ public final class ServantI extends Test.Servant
         _evictor.destroyObject(current.id);
     }
 
-    public synchronized int
+    public int
     getValue(Ice.Current current)
     {
-        return value;
+	synchronized(_tie)
+	{
+	    return _tie.value;
+	}
     }
 
-    public synchronized void
+    public void
     setValue(int value, Ice.Current current)
     {
-        this.value = value;
+	synchronized(_tie)
+	{
+	    _tie.value = value;
+	}
     }
 
     public void
     setValueAsync_async(Test.AMD_Servant_setValueAsync __cb, int value, Ice.Current current)
     {
-        _setValueAsyncCB = __cb;
-        _setValueAsyncValue = value;
+	synchronized(_tie)
+	{
+	    _setValueAsyncCB = __cb;
+	    _setValueAsyncValue = value;
+	}
     }
 
     public void
     releaseAsync(Ice.Current current)
     {
-        if(_setValueAsyncCB != null)
-        {
-	    synchronized(this)
+	synchronized(_tie)
+	{
+	    if(_setValueAsyncCB != null)
 	    {
-		value = _setValueAsyncValue;
+		_tie.value = _setValueAsyncValue;
+		_setValueAsyncCB.ice_response();
+		_setValueAsyncCB = null;
 	    }
-            _setValueAsyncCB.ice_response();
-            _setValueAsyncCB = null;
         }
     }
 
@@ -94,11 +107,12 @@ public final class ServantI extends Test.Servant
 	System.arraycopy(current.facet, 0, facetPath, 0, current.facet.length);
 	facetPath[facetPath.length - 1] = name;
 
-	FacetI facet = new FacetI(_remoteEvictor, _evictor, value, data);
-	
+	Server.FacetTie tie = new Server.FacetTie();
+	tie.ice_delegate(new FacetI(tie, _remoteEvictor, _evictor, 0, data));
+
 	try
 	{
-	    _evictor.addFacet(current.id, facetPath, facet);
+	    _evictor.addFacet(current.id, facetPath, tie);
 	}
 	catch(Ice.AlreadyRegisteredException ex)
 	{
@@ -129,23 +143,20 @@ public final class ServantI extends Test.Servant
     {
 	_evictor.removeAllFacets(current.id);
     }
+
+
+    void setLastSavedValue()
+    {
+	synchronized(_tie)
+	{
+	    _remoteEvictor.setLastSavedValue(_tie.value);
+	}
+    }
     
-    public void
-    __write(IceInternal.BasicStream os)
-    {
-        _remoteEvictor.setLastSavedValue(value);
-        super.__write(os);
-    }
+    protected RemoteEvictorI _remoteEvictor;
+    protected Freeze.Evictor _evictor;
+    protected Test.AMD_Servant_setValueAsync _setValueAsyncCB;
+    protected int _setValueAsyncValue;
+    protected Test.Servant _tie;
 
-    public void
-    __marshal(Ice.Stream os, boolean marshalFacets)
-    {
-        _remoteEvictor.setLastSavedValue(value);
-        super.__marshal(os, marshalFacets);
-    }
-
-    RemoteEvictorI _remoteEvictor;
-    Freeze.Evictor _evictor;
-    Test.AMD_Servant_setValueAsync _setValueAsyncCB;
-    int _setValueAsyncValue;
 }
