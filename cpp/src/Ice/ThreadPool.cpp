@@ -407,6 +407,14 @@ IceInternal::ThreadPool::run()
 		    _lastFd = _minFd - 1;
 		}
 		
+		//
+		// TODO: This code is very inefficient under Windows,
+		// because FD_ISSET is implemented as a loop, and
+		// because socketdescriptors are not small, ordered
+		// integers, like under Unix. Therefore this should be
+		// rewritten to use the fd_set structure under Windows
+		// directly.
+		//
 		int loops = 0;
 		do
 		{
