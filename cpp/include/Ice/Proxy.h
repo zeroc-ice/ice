@@ -22,8 +22,8 @@ namespace __Ice
 
 class Stream;
 
-void write(Stream*, const ::Ice::Object_pptr&);
-void read(Stream*, ::Ice::Object_pptr&);
+ICE_API void write(Stream*, const ::Ice::Object_pptr&);
+ICE_API void read(Stream*, ::Ice::Object_pptr&);
 
 }
 

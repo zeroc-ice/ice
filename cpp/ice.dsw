@@ -80,6 +80,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name helloS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name valueC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name valueS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -128,6 +134,42 @@ Package=<5>
 
 Package=<4>
 {{{
+}}}
+
+###############################################################################
+
+Project: "valueC"=.\demo\value\valueC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name compiler
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name library
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "valueS"=.\demo\value\valueS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name compiler
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name library
+    End Project Dependency
 }}}
 
 ###############################################################################
