@@ -397,6 +397,7 @@ SOURCE=..\..\slice\Ice\Identity.ice
 
 !IF  "$(CFG)" == "Freeze - Win32 Release"
 
+USERDEP__IDENT="..\..\bin\slice2freeze.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Identity.ice
 
@@ -414,6 +415,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "Freeze - Win32 Debug"
 
+USERDEP__IDENT="..\..\bin\slice2freeze.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\Ice\Identity.ice
 

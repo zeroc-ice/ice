@@ -219,6 +219,7 @@ SOURCE=.\dummy.ice
 
 !IF  "$(CFG)" == "IceStormS - Win32 Release"
 
+USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	
 # Begin Custom Build
 InputPath=.\dummy.ice
 
@@ -236,6 +237,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
 
+USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	
 # Begin Custom Build
 InputPath=.\dummy.ice
 
@@ -260,6 +262,7 @@ SOURCE=.\IceStormInternal.ice
 
 !IF  "$(CFG)" == "IceStormS - Win32 Release"
 
+USERDEP__ICEST="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\IceStormInternal.ice
 
@@ -277,6 +280,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
 
+USERDEP__ICEST="..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\IceStormInternal.ice
 
@@ -301,6 +305,7 @@ SOURCE=.\LinkDB.ice
 
 !IF  "$(CFG)" == "IceStormS - Win32 Release"
 
+USERDEP__LINKD="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\LinkDB.ice
 
@@ -325,6 +330,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
 
+USERDEP__LINKD="..\..\bin\slice2freeze.exe"	"..\..\bin\slice2cpp.exe"	
 # Begin Custom Build
 InputPath=.\LinkDB.ice
 
