@@ -350,18 +350,14 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     {
 	string scoped = p->scoped();
 	string scope = p->scope();
-	if (scope.size())
-	{
-	    scope.erase(0, 2);
-	}
 
 	H << sp;
 	H << nl << "class __U__" << name << " { };";
 	H << nl << _dllExport << "void __write(::IceInternal::Stream*, const " << name << "&, __U__" << name << ");";
 	H << nl << _dllExport << "void __read(::IceInternal::Stream*, " << name << "&, __U__" << name << ");";
 	C << sp;
-	C << nl << "void" << nl << scope << "::__write(::IceInternal::Stream* __os, const " << scoped << "& v, ::"
-	  << scope << "::__U__" << name << ')';
+	C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::Stream* __os, const " << scoped
+	  << "& v, " << scope << "__U__" << name << ')';
 	C << sb;
 	C << nl << "__os->write(::Ice::Int(v.size()));";
 	C << nl << scoped << "::const_iterator p;";
@@ -371,8 +367,8 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << eb;
 	C << eb;
 	C << sp;
-	C << nl << "void" << nl << scope << "::__read(::IceInternal::Stream* __is, " << scoped << "& v, ::" << scope
-	  << "::__U__" << name << ')';
+	C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::Stream* __is, " << scoped
+	  << "& v, " << scope << "__U__" << name << ')';
 	C << sb;
 	C << nl << "::Ice::Int sz;";
 	C << nl << "__is->read(sz);";
@@ -414,18 +410,14 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     string scoped = p->scoped();
     string scope = p->scope();
-    if (scope.size())
-    {
-	scope.erase(0, 2);
-    }
     
     H << sp;
     H << nl << "class __U__" << name << " { };";
     H << nl << _dllExport << "void __write(::IceInternal::Stream*, const " << name << "&, __U__" << name << ");";
     H << nl << _dllExport << "void __read(::IceInternal::Stream*, " << name << "&, __U__" << name << ");";
     C << sp;
-    C << nl << "void" << nl << scope << "::__write(::IceInternal::Stream* __os, const " << scoped << "& v, ::"
-      << scope << "::__U__" << name << ')';
+    C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::Stream* __os, const " << scoped
+      << "& v, " << scope << "__U__" << name << ')';
     C << sb;
     C << nl << "__os->write(::Ice::Int(v.size()));";
     C << nl << scoped << "::const_iterator p;";
@@ -436,8 +428,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     C << eb;
     C << eb;
     C << sp;
-    C << nl << "void" << nl << scope << "::__read(::IceInternal::Stream* __is, " << scoped << "& v, ::" << scope
-      << "::__U__" << name << ')';
+    C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::Stream* __is, " << scoped
+      << "& v, " << scope << "__U__" << name << ')';
     C << sb;
     C << nl << "::Ice::Int sz;";
     C << nl << "__is->read(sz);";
@@ -472,10 +464,6 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     string scoped = p->scoped();
     string scope = p->scope();
-    if (scope.size())
-    {
-	scope.erase(0, 2);
-    }
 
     int sz = enumerators.size();
     
@@ -483,7 +471,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     H << nl << _dllExport << "void __write(::IceInternal::Stream*, " << name << ");";
     H << nl << _dllExport << "void __read(::IceInternal::Stream*, " << name << "&);";
     C << sp;
-    C << nl << "void" << nl << scope << "::__write(::IceInternal::Stream* __os, " << scoped << " v)";
+    C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::Stream* __os, " << scoped << " v)";
     C << sb;
     if (sz <= 0x7f)
     {
@@ -503,7 +491,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
     C << eb;
     C << sp;
-    C << nl << "void" << nl << scope << "::__read(::IceInternal::Stream* __is, " << scoped << "& v)";
+    C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::Stream* __is, " << scoped << "& v)";
     C << sb;
     if (sz <= 0x7f)
     {
@@ -788,7 +776,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "while (true)";
     C << sb;
     C << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase = __getDelegate();";
-    C << nl << "::IceDelegate" << scope << "* __del = dynamic_cast< ::IceDelegate" << scope << "*>(__delBase.get());";
+    C << nl << "::IceDelegate" << scope.substr(0, scope.size() - 2) << "* __del = dynamic_cast< ::IceDelegate"
+      << scope.substr(0, scope.size() - 2) << "*>(__delBase.get());";
     C << nl << "try";
     C << sb;
     C << nl;
@@ -1070,7 +1059,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 {
     string name = p->name();
     string scoped = p->scoped();
-    string scope = p->scope();
+//    string scope = p->scope();
 
     TypePtr ret = p->returnType();
     string retS = returnTypeToString(ret);
@@ -1734,7 +1723,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     {
 	H << nl << exp2 << "::IceInternal::DispatchStatus ___" << name << "(::IceInternal::Incoming&);";
 	C << sp;
-	C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "::___" << name
+	C << nl << "::IceInternal::DispatchStatus" << nl << scope.substr(2) << "___" << name
 	  << "(::IceInternal::Incoming& __in)";
 	C << sb;
 	if (!inParams.empty())
@@ -1938,18 +1927,14 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     string scoped = p->scoped();
     string scope = p->scope();
-    if (scope.size())
-    {
-	scope.erase(0, 2);
-    }
 
     C << sp;
-    C << nl << "void" << nl << scope << "::__write(::IceInternal::Stream* __os, const " << scoped << "Prx& v)";
+    C << nl << "void" << nl << scope.substr(2) << "__write(::IceInternal::Stream* __os, const " << scoped << "Prx& v)";
     C << sb;
     C << nl << "__os->write(::Ice::ObjectPrx(v));";
     C << eb;
     C << sp;
-    C << nl << "void" << nl << scope << "::__read(::IceInternal::Stream* __is, " << scoped << "Prx& v)";
+    C << nl << "void" << nl << scope.substr(2) << "__read(::IceInternal::Stream* __is, " << scoped << "Prx& v)";
     C << sb;
     C << nl << "::Ice::ObjectPrx proxy;";
     C << nl << "__is->read(proxy);";

@@ -100,7 +100,7 @@ Slice::Contained::scope()
 {
     string::size_type idx = _scoped.rfind("::");
     assert(idx != string::npos);
-    return string(_scoped, 0, idx);
+    return string(_scoped, 0, idx + 2);
 }
 
 string

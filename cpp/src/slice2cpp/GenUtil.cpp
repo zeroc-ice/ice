@@ -303,8 +303,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	}
 	else
 	{
-	    out << nl << seq->scope() << "::__" << func << stream << ", " << param << ", " << seq->scope()
-		<< "::__U__" << seq->name() << "());";
+	    out << nl << seq->scope() << "__" << func << stream << ", " << param << ", " << seq->scope()
+		<< "__U__" << seq->name() << "());";
 	}
 	return;
     }
@@ -312,8 +312,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if (dict)
     {
-	out << nl << dict->scope() << "::__" << func << stream << ", " << param << ", " << dict->scope()
-	    << "::__U__" << dict->name() << "());";
+	out << nl << dict->scope() << "__" << func << stream << ", " << param << ", " << dict->scope()
+	    << "__U__" << dict->name() << "());";
 	return;
     }
     
@@ -328,7 +328,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	constructed = proxy->_class();
     }
 
-    out << nl << constructed->scope() << "::__" << func << stream << ", " << param << ");";
+    out << nl << constructed->scope() << "__" << func << stream << ", " << param << ");";
 }
 
 void

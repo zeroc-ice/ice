@@ -12,7 +12,10 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= hello value latency pickle
+SUBDIRS		= hello \
+		  value \
+		  latency \
+		  pickle
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
