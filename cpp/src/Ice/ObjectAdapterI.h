@@ -52,8 +52,8 @@ public:
     virtual ObjectPrx addFacet(const ObjectPtr&, const Identity&, const std::string&);
     virtual ObjectPrx addWithUUID(const ObjectPtr&);
     virtual ObjectPrx addFacetWithUUID(const ObjectPtr&, const std::string&);
-    virtual void remove(const Identity&);
-    virtual void removeFacet(const Identity&, const std::string&);
+    virtual ObjectPtr remove(const Identity&);
+    virtual ObjectPtr removeFacet(const Identity&, const std::string&);
     virtual FacetMap removeAllFacets(const Identity&);
     virtual ObjectPtr find(const Identity&);
     virtual ObjectPtr findFacet(const Identity&, const std::string&);

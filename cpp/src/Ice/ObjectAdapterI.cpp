@@ -333,13 +333,13 @@ Ice::ObjectAdapterI::addFacetWithUUID(const ObjectPtr& object, const string& fac
     return addFacet(object, ident, facet);
 }
 
-void
+ObjectPtr
 Ice::ObjectAdapterI::remove(const Identity& ident)
 {
-    removeFacet(ident, "");
+    return removeFacet(ident, "");
 }
 
-void
+ObjectPtr
 Ice::ObjectAdapterI::removeFacet(const Identity& ident, const string& facet)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -347,7 +347,7 @@ Ice::ObjectAdapterI::removeFacet(const Identity& ident, const string& facet)
     checkForDeactivation();
     checkIdentity(ident);
 
-    _servantManager->removeServant(ident, facet);
+    return _servantManager->removeServant(ident, facet);
 }
 
 FacetMap

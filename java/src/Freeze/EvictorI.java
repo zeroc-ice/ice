@@ -720,13 +720,13 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     }
 
     
-    public void
+    public Ice.Object
     remove(Ice.Identity ident)
     {
-	removeFacet(ident, "");
+	return removeFacet(ident, "");
     }
 
-    public void
+    public Ice.Object
     removeFacet(Ice.Identity ident, String facet)
     {
 	checkIdentity(ident);
@@ -752,7 +752,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	try
 	{    
 	    ObjectStore store = findStore(facet);
-	    boolean notThere = (store == null);
+	    Ice.Object servant = null;
 	    
 	    if(store != null)
 	    {
@@ -763,11 +763,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    //
 		    
 		    EvictorElement element = (EvictorElement) store.cache().pin(ident);
-		    if(element == null)
-		    {
-			notThere = true;
-		    }
-		    else
+		    if(element != null)
 		    {
 			synchronized(this)
 			{
@@ -786,6 +782,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				{
 				    case EvictorElement.clean:
 				    {
+					servant = element.rec.servant;
 					element.status = EvictorElement.destroyed;
 					element.rec.servant = null;
 					addToModifiedQueue(element);
@@ -793,12 +790,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				    }
 				    case EvictorElement.created:
 				    {
+					servant = element.rec.servant;
 					element.status = EvictorElement.dead;
 					element.rec.servant = null;
 					break;
 				    }
 				    case EvictorElement.modified:
 				    {
+					servant = element.rec.servant;
 					element.status = EvictorElement.destroyed;
 					element.rec.servant = null;
 					//
@@ -811,7 +810,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				    case EvictorElement.destroyed:
 				    case EvictorElement.dead:
 				    {
-					notThere = true;
 					break;
 				    }
 				    default:
@@ -824,7 +822,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			    
 			    if(element. keepCount > 0)
 			    {
-				assert notThere == false;
+				assert servant != null;
 				
 				element.keepCount = 0;
 				//
@@ -846,7 +844,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		}
 	    }
 	    
-	    if(notThere)
+	    if(servant == null)
 	    {
 		Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 		ex.kindOfObject = "servant";
@@ -870,6 +868,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    "Freeze.Evictor", 
 		    "removed " + objString);
 	    }
+	    return servant;
 	}
 	finally
 	{

@@ -734,20 +734,20 @@ Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
     }
 }
 
-void
+Ice::ObjectPtr
 Freeze::EvictorI::remove(const Identity& ident)
 {
-    removeFacet(ident, "");
+    return removeFacet(ident, "");
 }
 
-void
+Ice::ObjectPtr
 Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 {
     checkIdentity(ident);
     DeactivateController::Guard deactivateGuard(_deactivateController);
    
     ObjectStore* store = findStore(facet);
-    bool notThere = (store == 0);
+    ObjectPtr servant = 0;
 
     if(store != 0)
     {
@@ -758,11 +758,7 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 	    //
 	    
 	    EvictorElementPtr element = store->pin(ident);
-	    if(element == 0)
-	    {
-		notThere = true;
-	    }
-	    else
+	    if(element != 0)
 	    {
 		Lock sync(*this);
 		if(element->stale)
@@ -781,6 +777,7 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 		    {
 			case EvictorElement::clean:
 			{
+			    servant = element->rec.servant;
 			    element->status = EvictorElement::destroyed;
 			    element->rec.servant = 0;
 			    addToModifiedQueue(element);
@@ -788,12 +785,14 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 			}
 			case EvictorElement::created:
 			{
+			    servant = element->rec.servant;
 			    element->status = EvictorElement::dead;
 			    element->rec.servant = 0;
 			    break;
 			}
 			case EvictorElement::modified:
 			{
+			    servant = element->rec.servant;
 			    element->status = EvictorElement::destroyed;
 			    element->rec.servant = 0;
 			    //
@@ -806,7 +805,6 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 			case EvictorElement::destroyed:
 			case EvictorElement::dead:
 			{
-			    notThere = true;
 			    break;
 			}
 			default:
@@ -818,7 +816,7 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 		}
 		if(element->keepCount > 0)
 		{
-		    assert(notThere == false);
+		    assert(servant != 0);
 
 		    element->keepCount = 0;
 		    //
@@ -835,7 +833,7 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 	}
     }
     
-    if(notThere)
+    if(servant == 0)
     {
 	NotRegisteredException ex(__FILE__, __LINE__);
 	ex.kindOfObject = "servant";
@@ -856,6 +854,7 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 	    out << " with facet \"" << facet << "\"";
 	}
     }
+    return servant;
 }
 
 //

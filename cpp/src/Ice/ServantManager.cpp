@@ -60,9 +60,16 @@ IceInternal::ServantManager::addServant(const ObjectPtr& object, const Identity&
     p->second.insert(pair<const string, ObjectPtr>(facet, object));
 }
 
-void
+ObjectPtr
 IceInternal::ServantManager::removeServant(const Identity& ident, const string& facet)
 {
+    //
+    // We return the removed servant to avoid releasing the last reference count
+    // with *this locked. We don't want to run user code, such as the servant
+    // destructor, with an internal Ice mutex locked.
+    //
+    ObjectPtr servant = 0;
+
     IceUtil::Mutex::Lock sync(*this);
     
     assert(_instance); // Must not be called after destruction.
@@ -87,6 +94,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
 	throw ex;
     }
 
+    servant = q->second;
     p->second.erase(q);
 
     if(p->second.empty())
@@ -101,6 +109,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string& 
 	    _servantMapMap.erase(p);
 	}
     }
+    return servant;
 }
 
 FacetMap
@@ -297,38 +306,51 @@ IceInternal::ServantManager::~ServantManager()
 void
 IceInternal::ServantManager::destroy()
 {
-    IceUtil::Mutex::Lock sync(*this);
-    
-    assert(_instance); // Must not be called after destruction.
+    ServantMapMap servantMapMap;
+    map<string, ServantLocatorPtr> locatorMap;
 
-    _servantMapMap.clear();
-    _servantMapMapHint = _servantMapMap.end();
-
-    for(map<string, ServantLocatorPtr>::const_iterator p = _locatorMap.begin(); p != _locatorMap.end(); ++p)
     {
-	try
+	IceUtil::Mutex::Lock sync(*this);
+	
+	assert(_instance); // Must not be called after destruction.
+	
+	servantMapMap.swap(_servantMapMap);
+	_servantMapMapHint = _servantMapMap.end();
+	
+	for(map<string, ServantLocatorPtr>::const_iterator p = _locatorMap.begin(); p != _locatorMap.end(); ++p)
 	{
-	    p->second->deactivate(p->first);
+	    try
+	    {
+		p->second->deactivate(p->first);
+	    }
+	    catch(const Exception& ex)
+	    {
+		Error out(_instance->logger());
+		out << "exception during locator deactivation:\n"
+		    << "object adapter: `" << _adapterName << "'\n"
+		    << "locator category: `" << p->first << "'\n"
+		    << ex;
+	    }
+	    catch(...)
+	    {
+		Error out(_instance->logger());
+		out << "unknown exception during locator deactivation:\n"
+		    << "object adapter: `" << _adapterName << "'\n"
+		    << "locator category: `" << p->first << "'";
+	    }
 	}
-	catch(const Exception& ex)
-	{
-	    Error out(_instance->logger());
-	    out << "exception during locator deactivation:\n"
-		<< "object adapter: `" << _adapterName << "'\n"
-		<< "locator category: `" << p->first << "'\n"
-		<< ex;
-	}
-	catch(...)
-	{
-	    Error out(_instance->logger());
-	    out << "unknown exception during locator deactivation:\n"
-		<< "object adapter: `" << _adapterName << "'\n"
-		<< "locator category: `" << p->first << "'";
-	}
+	
+	locatorMap.swap(_locatorMap);
+	_locatorMapHint = _locatorMap.end();
+	
+	_instance = 0;
     }
 
-    _locatorMap.clear();
-    _locatorMapHint = _locatorMap.end();
-
-    _instance = 0;
+    //
+    // We clear the maps outside the synchronization as we don't want to
+    // hold any internal Ice mutex while running user code (such as servant
+    // or servant locator destructors). 
+    //
+    servantMapMap.clear();
+    locatorMap.clear();
 }

@@ -239,6 +239,8 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @param id The identity of the &Ice; object.
      *
+     * @return The removed servant.
+     *
      * @throws NotRegisteredException Raised if this identity was not 
      * registered with the evictor.
      *
@@ -251,8 +253,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see removeFacet
      *
      **/
-    void remove(Ice::Identity id);
-
+    Object remove(Ice::Identity id);
 
     /**
      *
@@ -263,6 +264,8 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @param facet The facet. An empty facet means the default
      * facet.
+     *
+     * @return The removed servant.
      *
      * @throws NotRegisteredException Raised if this identity was not 
      * registered with the evictor.
@@ -277,7 +280,7 @@ local interface Evictor extends Ice::ServantLocator
      * @see addFacet
      *
      **/
-    void removeFacet(Ice::Identity id, string facet);
+    Object removeFacet(Ice::Identity id, string facet);
 
     /**
      *

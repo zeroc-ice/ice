@@ -325,19 +325,19 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         return addFacet(object, ident, facet);
     }
 
-    public void
+    public Ice.Object
     remove(Identity ident)
     {
-        removeFacet(ident, "");
+        return removeFacet(ident, "");
     }
 
-    public synchronized void
+    public synchronized Ice.Object
     removeFacet(Identity ident, String facet)
     {
 	checkForDeactivation();
         checkIdentity(ident);
 
-	_servantManager.removeServant(ident, facet);
+	return _servantManager.removeServant(ident, facet);
     }
 
     public synchronized java.util.Map

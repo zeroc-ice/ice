@@ -241,12 +241,14 @@ local interface ObjectAdapter
      * objects. Removing an identity that is not in the map throws
      * [NotRegisteredException].
      *
+     * @return The removed servant.
+     *
      * @see Identity
      * @see add
      * @see addWithUUID
      *
      **/
-    void remove(Identity id);
+    Object remove(Identity id);
 
     /**
      *
@@ -260,12 +262,14 @@ local interface ObjectAdapter
      * @param facet The facet. An empty facet means the default
      * facet.
      *
+     * @return The removed servant.
+     *
      * @see Identity
      * @see addFacet
      * @see addFacetWithUUID
      *
      **/
-    void removeFacet(Identity id, string facet);
+    Object removeFacet(Identity id, string facet);
 
     /**
      *

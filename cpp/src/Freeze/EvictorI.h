@@ -125,8 +125,8 @@ public:
     virtual Ice::ObjectPrx addFacet(const Ice::ObjectPtr&, const Ice::Identity&, const std::string&);
     virtual void createObject(const Ice::Identity&, const Ice::ObjectPtr&);
 
-    virtual void remove(const Ice::Identity&);
-    virtual void removeFacet(const Ice::Identity&, const std::string&);
+    virtual Ice::ObjectPtr remove(const Ice::Identity&);
+    virtual Ice::ObjectPtr removeFacet(const Ice::Identity&, const std::string&);
     virtual void destroyObject(const Ice::Identity&);
 
     virtual void keep(const Ice::Identity&);

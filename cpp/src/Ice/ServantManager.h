@@ -33,7 +33,7 @@ class ServantManager : public IceUtil::Shared, public IceUtil::Mutex
 public:
 
     void addServant(const Ice::ObjectPtr&, const Ice::Identity&, const std::string&);
-    void removeServant(const Ice::Identity&, const std::string&);
+    Ice::ObjectPtr removeServant(const Ice::Identity&, const std::string&);
     Ice::FacetMap removeAllFacets(const Ice::Identity&);
     Ice::ObjectPtr findServant(const Ice::Identity&, const std::string&) const;
     Ice::FacetMap findAllFacets(const Ice::Identity&) const;

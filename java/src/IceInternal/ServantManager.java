@@ -45,7 +45,7 @@ public final class ServantManager extends Thread
         m.put(facet, servant);
     }
 
-    public synchronized void
+    public synchronized Ice.Object
     removeServant(Ice.Identity ident, String facet)
     {
 	assert(_instance != null); // Must not be called after destruction.
@@ -57,7 +57,7 @@ public final class ServantManager extends Thread
 
         java.util.HashMap m = (java.util.HashMap)_servantMapMap.get(ident);
         Ice.Object obj = null;
-        if(m == null || (obj = (Ice.Object)m.get(facet)) == null)
+        if(m == null || (obj = (Ice.Object)m.remove(facet)) == null)
 	{
 	    Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
 	    ex.id = Ice.Util.identityToString(ident);
@@ -69,11 +69,11 @@ public final class ServantManager extends Thread
 	    throw ex;
 	}
 
-        m.remove(facet);
         if(m.isEmpty())
         {
             _servantMapMap.remove(ident);
         }
+	return obj;
     }
 
     public synchronized java.util.Map
