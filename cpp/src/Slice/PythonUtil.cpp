@@ -20,6 +20,34 @@ namespace Slice
 namespace Python
 {
 
+class MetaDataVisitor : public ParserVisitor
+{
+public:
+
+    virtual bool visitModuleStart(const ModulePtr&);
+    virtual void visitModuleEnd(const ModulePtr&);
+    virtual void visitClassDecl(const ClassDeclPtr&);
+    virtual bool visitClassDefStart(const ClassDefPtr&);
+    virtual void visitClassDefEnd(const ClassDefPtr&);
+    virtual bool visitExceptionStart(const ExceptionPtr&);
+    virtual void visitExceptionEnd(const ExceptionPtr&);
+    virtual bool visitStructStart(const StructPtr&);
+    virtual void visitStructEnd(const StructPtr&);
+    virtual void visitOperation(const OperationPtr&);
+    virtual void visitParamDecl(const ParamDeclPtr&);
+    virtual void visitDataMember(const DataMemberPtr&);
+    virtual void visitSequence(const SequencePtr&);
+    virtual void visitDictionary(const DictionaryPtr&);
+    virtual void visitEnum(const EnumPtr&);
+    virtual void visitConst(const ConstPtr&);
+
+private:
+
+    void validate(const ContainedPtr&);
+
+    StringSet _history;
+};
+
 //
 // ModuleVisitor finds all of the Slice modules whose include level is greater
 // than 0 and emits a statement of the following form:
@@ -1636,6 +1664,9 @@ changeInclude(const string& inc, const vector<string>& includePaths)
 void
 Slice::Python::generate(const UnitPtr& un, bool all, bool checksum, const vector<string>& includePaths, Output& out)
 {
+    Slice::Python::MetaDataVisitor visitor;
+    un->visit(&visitor, false);
+
     out << nl << "import Ice, IcePy, __builtin__";
 
     if(!all)
@@ -1831,4 +1862,157 @@ Slice::Python::printHeader(IceUtil::Output& out)
 
     out << header;
     out << "\n# Ice version " << ICE_STRING_VERSION;
+}
+
+bool
+Slice::Python::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
+{
+    validate(p);
+    return true;
+}
+
+void
+Slice::Python::MetaDataVisitor::visitModuleEnd(const ModulePtr&)
+{
+}
+
+void
+Slice::Python::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
+{
+    validate(p);
+}
+
+bool
+Slice::Python::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    validate(p);
+    return true;
+}
+
+void
+Slice::Python::MetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
+}
+
+bool
+Slice::Python::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    validate(p);
+    return true;
+}
+
+void
+Slice::Python::MetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
+{
+}
+
+bool
+Slice::Python::MetaDataVisitor::visitStructStart(const StructPtr& p)
+{
+    validate(p);
+    return true;
+}
+
+void
+Slice::Python::MetaDataVisitor::visitStructEnd(const StructPtr&)
+{
+}
+
+void
+Slice::Python::MetaDataVisitor::visitOperation(const OperationPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Python::MetaDataVisitor::visitParamDecl(const ParamDeclPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Python::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Python::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Python::MetaDataVisitor::visitEnum(const EnumPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Python::MetaDataVisitor::visitConst(const ConstPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Python::MetaDataVisitor::validate(const ContainedPtr& cont)
+{
+    DefinitionContextPtr dc = cont->definitionContext();
+    assert(dc);
+    StringList globalMetaData = dc->getMetaData();
+    string file = dc->filename();
+
+    StringList localMetaData = cont->getMetaData();
+
+    StringList::const_iterator p;
+    static const string prefix = "python:";
+
+    for(p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
+    {
+        string s = *p;
+        if(_history.count(s) == 0)
+        {
+            if(s.find(prefix) == 0)
+            {
+                static const string packagePrefix = "python:package:";
+                if(s.find(packagePrefix) != 0 || s.size() == packagePrefix.size())
+                {
+                    cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+                }
+            }
+            _history.insert(s);
+        }
+    }
+
+    for(p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    {
+        string s = *p;
+        if(_history.count(s) == 0)
+        {
+            if(s.find(prefix) == 0)
+            {
+                string::size_type pos = s.find(':', prefix.size());
+                if(pos == string::npos)
+                {
+                    cout << file << ": warning: metadata `" << s << "' uses deprecated syntax" << endl;
+                }
+                else if(s.substr(prefix.size(), pos - prefix.size()) != "type")
+                {
+                    cout << file << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+                }
+		if(SequencePtr::dynamicCast(cont))
+		{
+		    continue;
+		}
+		cout << file << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+            }
+            _history.insert(s);
+        }
+    }
 }
