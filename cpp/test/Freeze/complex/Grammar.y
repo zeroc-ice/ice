@@ -25,6 +25,7 @@ yyerror(const char* s)
 %}
 
 %pure_parser
+%expect 4
 
 %token TOK_NUMBER
 
