@@ -671,7 +671,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C.zeroIndent();
 	C << nl << "#endif";
 	C.restoreIndent();
-	writeGenericMarshalUnmarshalCode(C, type, "v.back()", false);
+	writeGenericMarshalUnmarshalCode(C, type, "v.back()", false, "\"e\"");
 	C << eb;
 	C << nl << "__is->endReadSequence();";
 	C << eb;
@@ -754,8 +754,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	C << nl << "while (sz--)";
 	C << sb;
 	C << nl << "::std::pair<" << ks << ", " << vs << "> pair;";
-	writeGenericMarshalUnmarshalCode(C, keyType, "pair.first", false);
-	writeGenericMarshalUnmarshalCode(C, valueType, "pair.second", false);
+	writeGenericMarshalUnmarshalCode(C, keyType, "pair.first", false, "\"key\"");
+	writeGenericMarshalUnmarshalCode(C, valueType, "pair.second", false, "\"value\"");
 	C << nl << "v.insert(v.end(), pair);";
 	C << eb;
 	C << nl << "__is->endReadDictionary();";
