@@ -4,6 +4,7 @@ Requirements
 
 OS
 --
+
 Solaris 8 or Solaris 9 on SPARC.
 
 You also need to have /dev/urandom installed. This is the default with
@@ -41,7 +42,7 @@ bzip2 may already be installed on your system. If not, we recommend to
 download it (in binary form) from http://www.sunfreeware.com.
 
 OpenSSL 0.97 can be downloaded (in binary form) from 
-http://www.sunfreeware.com;  or you can download the source from 
+http://www.sunfreeware.com; or you can download the source from 
 http://www.openssl.org.
 
 Xerces-C++ can be downloaded from:
@@ -88,8 +89,25 @@ Now you're ready to build Ice:
 $ gmake
 
 This will build the Ice core library, all add-ons, all tests, and all
-examples. After a successful build, you can run the test suite,
-provided that you installed Python:
+examples. 
+
+CC 5.4 note:
+-----------
+The Sun CC 5.4 build produces a large number of warnings about
+hidden functions in the fstream and sstream standard headers. This
+is a known Sun bug (#4852754). You can suppress them by removing
+the corresponding '+w' option in config/Make.rules.SunOS, or
+by filtering your build log file with a sed script such as:
+
+# Workaround for bug 4852754
+/SUNWspro/d
+/While specializing "std::/d
+/Where: Specialized in non-template code./d
+/Warning(s) detected./d
+
+
+After a successful build, you can run the test suite, provided that 
+you installed Python:
 
 $ gmake test
 
