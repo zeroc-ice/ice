@@ -37,6 +37,7 @@ public:
     virtual void destroyObject(const Ice::Identity&);
 
     virtual void installServantInitializer(const ServantInitializerPtr&);
+    virtual EvictorIteratorPtr getIterator();
 
     virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const Ice::Current&, Ice::LocalObjectPtr&);
     virtual void finished(const Ice::ObjectAdapterPtr&, const Ice::Current&,

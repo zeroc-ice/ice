@@ -125,6 +125,11 @@ class EvictorI implements Evictor
 	_initializer = initializer;
     }
 
+    public EvictorIterator
+    getIterator()
+    {
+	return new EvictorIteratorI(_dict.keySet().iterator());
+    }
 
     synchronized public Ice.Object
     locate(Ice.ObjectAdapter adapter, Ice.Current current, Ice.LocalObjectHolder cookie)

@@ -52,6 +52,51 @@ local interface ServantInitializer
 
 /**
  *
+ * This exception is raised if there are no further elements in the
+ * iteration.
+ *
+ **/
+local exception NoSuchElementException
+{
+};
+
+/**
+ *
+ * An iterator for Identities managed by the Evictor.
+ *
+ * @see Evictor
+ *
+ **/
+local interface EvictorIterator
+{
+    /**
+     *
+     * Returns true if the iteration has more elements.
+     *
+     * @return true if the iterator has more elements, false
+     * otherwise.
+     *
+     **/
+    bool hasNext();
+
+    /**
+     *
+     * Returns the next identity in the iteration.
+     *
+     * @returns The next identity in the iteration.
+     *
+     * @throws NoSuchElementException Raised if there is no further
+     * elements in the iteration.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
+     **/
+    Ice::Identity next() throws DBException;
+};
+
+/**
+ *
  * This exception is raised if the evictor has been deactivated.
  *
  **/
@@ -187,6 +232,18 @@ local interface Evictor extends Ice::ServantLocator
      *
      **/
     void installServantInitializer(ServantInitializer initializer) throws EvictorDeactivatedException;
+
+    /**
+     *
+     * Get an iterator over the Identities stored by the Evictor.
+     *
+     * @return A new iterator.
+     *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
+     **/
+    EvictorIterator getIterator() throws EvictorDeactivatedException;
 };
 
 };
