@@ -14,8 +14,8 @@
 // Include file for generated code
 
 #include <Ice/LocalException.h>
-#include <Ice/Object.h>
-#include <Ice/ObjectHandle.h>
+#include <Ice/Proxy.h>
+#include <Ice/ProxyHandle.h>
 #include <Ice/Object.h>
 #include <Ice/Outgoing.h>
 #include <Ice/Incoming.h>

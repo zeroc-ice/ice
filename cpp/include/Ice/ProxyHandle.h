@@ -11,41 +11,41 @@
 #ifndef ICE_PROXY_HANDLE_H
 #define ICE_PROXY_HANDLE_H
 
-#include <Ice/ObjectF.h>
+#include <Ice/ProxyF.h>
 
 namespace __Ice
 {
 
 //
-// Special handle class for Ice objects, which supports the static
-// member function cast().
+// Special handle class for proxies, which supports the static cast
+// operations.
 //
 template<typename T>
-class ObjectHandle : public Handle<T>
+class ProxyHandle : public Handle<T>
 {
 public:
     
-    ObjectHandle(T* p = 0) : Handle<T>(p) { }
-    ObjectHandle(const ObjectHandle& r) : Handle<T>(r) { }
+    ProxyHandle(T* p = 0) : Handle<T>(p) { }
+    ProxyHandle(const ProxyHandle& r) : Handle<T>(r) { }
 
-    ObjectHandle& operator=(const ObjectHandle& r)
+    ProxyHandle& operator=(const ProxyHandle& r)
     {
 	Handle<T>::operator=(r);
 	return *this;
     }
 
-    static ObjectHandle<T> checkedCast(::__IceProxy::Ice::Object* from)
+    static ProxyHandle<T> checkedCast(::__IceProxy::Ice::Object* from)
     {
 	T* to;
 	_checkedCast(from, to);
-	return ObjectHandle<T>(to);
+	return ProxyHandle<T>(to);
     }
 
-    static ObjectHandle<T> uncheckedCast(::__IceProxy::Ice::Object* from)
+    static ProxyHandle<T> uncheckedCast(::__IceProxy::Ice::Object* from)
     {
 	T* to;
 	_uncheckedCast(from, to);
-	return ObjectHandle<T>(to);
+	return ProxyHandle<T>(to);
     }
 };
 
