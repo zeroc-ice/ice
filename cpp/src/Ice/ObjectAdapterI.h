@@ -79,6 +79,7 @@ private:
     std::map<std::string, ServantLocatorPtr>::iterator _locatorMapHint;
     std::vector< ::IceInternal::IncomingConnectionFactoryPtr> _incomingConnectionFactories;
     std::vector< ::IceInternal::EndpointPtr> _routerEndpoints;
+    IceUtil::Mutex _routerEndpointsMutex;
 };
 
 }

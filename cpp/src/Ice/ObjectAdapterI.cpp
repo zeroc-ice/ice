@@ -344,10 +344,14 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 	// adapter.
 	//
 	ObjectPrx proxy = routerInfo->getServerProxy();
-	copy(proxy->__reference()->endpoints.begin(), proxy->__reference()->endpoints.end(),
-	     back_inserter(_routerEndpoints));
-	sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
-	_routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()), _routerEndpoints.end());
+
+	{
+	    IceUtil::Mutex::Lock routerEndpointsSync(_routerEndpointsMutex);
+	    copy(proxy->__reference()->endpoints.begin(), proxy->__reference()->endpoints.end(),
+		 back_inserter(_routerEndpoints));
+	    sort(_routerEndpoints.begin(), _routerEndpoints.end()); // Must be sorted.
+	    _routerEndpoints.erase(unique(_routerEndpoints.begin(), _routerEndpoints.end()), _routerEndpoints.end());
+	}
 
 	//
 	// Associate this object adapter with the router. This way,
@@ -482,7 +486,10 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
     // any. This way, object references created by this object adapter
     // will also point to the router's server proxy endpoints.
     //
-    copy(_routerEndpoints.begin(), _routerEndpoints.end(), back_inserter(endpoints));
+    {
+	IceUtil::Mutex::Lock routerEndpointsSync(_routerEndpointsMutex);
+	copy(_routerEndpoints.begin(), _routerEndpoints.end(), back_inserter(endpoints));
+    }
     
     //
     // Create a reference and return a proxy for this reference.
@@ -515,13 +522,8 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy) const
 	}
     }
 
-    //
-    // Must be synchronized, because _routerEndpoints is not
-    // immutable, and because this operation is called unsynchronized
-    // from ObjectAdapterFactory::findObjectAdapter().
-    //
     {
-	IceUtil::Mutex::Lock sync(*this);
+	IceUtil::Mutex::Lock routerEndpointsSync(_routerEndpointsMutex);
 	
 	//
 	// Proxies which have at least one endpoint in common with the
