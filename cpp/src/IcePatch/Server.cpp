@@ -205,11 +205,10 @@ IcePatch::Updater::run()
 	catch(const Exception& ex)
 	{
 	    //
-	    // Bail out on any other exception.
+	    // Log other exceptions.
 	    //
 	    Error out(_logger);
 	    out << "exception during update:\n" << ex;
-	    break;
 	}
 
 	if(_destroy)
