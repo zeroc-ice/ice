@@ -455,6 +455,10 @@ In the case that the <literal>Ice.SSL.Client.Config</literal> or
 will be relative to the value of <literal>Ice.SSL.Client.CertPath</literal>
 or <literal>Ice.SSL.Server.CertPath</literal>.
 </para>
+<para>
+If not specified, the application will use the current working directory
+as the certificate path.
+</para>
 </section>
 </section>
 
@@ -478,6 +482,11 @@ the matching <literal>Ice.SSL.Client.CertPath</literal> or
 Xerces-c, the XML parser used to read this file, will look for the DTD file in
 the same directory that it finds the XML configuration file.
 </para>
+<para>
+Depending on whether the application is running in client mode, server mode or
+both modes, a valid value for one or both of these parameters must be specified
+for the proper operation of the IceSSL extension.
+</para>
 </section>
 </section>
 
@@ -495,6 +504,9 @@ In order to tweak the behavior of SSL with regards to handshake, this timeout
 value, expressed in milliseconds, will be used for the first read directly
 after the SSL handshake is completed.  This gives the other party time to send
 application data before the connection times-out and resets.
+</para>
+<para>
+If not specified, the default value for these properties is 5000ms, or 5 seconds.
 </para>
 </section>
 </section>
@@ -514,6 +526,9 @@ used by the Server context may be overridden from those specified in the config 
 (specified in <literal>Ice.SSL.Server.Config</literal>).  The value must be
 the DER representation of the private and public keys, base64 encoded.
 </para>
+<para>
+There is not default value for these properties.
+</para>
 </section>
 </section>
 
@@ -531,6 +546,9 @@ These properties provides a method by which the DSA private key and public key (
 used by the Server context may be overridden from those specified in the config file
 (specified in <literal>Ice.SSL.Server.Config</literal>).  The value must be
 the DER representation of the private and public keys, base64 encoded.
+</para>
+<para>
+There is not default value for these properties.
 </para>
 </section>
 </section>
@@ -550,6 +568,9 @@ used by the Client context may be overridden from those specified in the config 
 (specified in <literal>Ice.SSL.Client.Config</literal>).  The value must be
 the DER representation of the private and public keys, base64 encoded.
 </para>
+<para>
+There is not default value for these properties.
+</para>
 </section>
 </section>
 
@@ -568,6 +589,9 @@ used by the Client context may be overridden from those specified in the config 
 (specified in <literal>Ice.SSL.Client.Config</literal>).  The value must be
 the DER representation of the private and public keys, base64 encoded.
 </para>
+<para>
+There is not default value for these properties.
+</para>
 </section>
 </section>
 
@@ -585,6 +609,9 @@ These properties provide a method by which one may override any trusted Certific
 Authority (CA) certificates specified in <literal>Ice.SSL.Server.Config</literal> or
 <literal>Ice.SSL.Client.Config</literal>.  The new certificate in question is represented
 as the base64 encoding of the DER binary representation of the certificate.
+</para>
+<para>
+There is not default value for these properties.
 </para>
 </section>
 </section>
