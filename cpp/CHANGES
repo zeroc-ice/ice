@@ -1,6 +1,10 @@
 Changes since version 1.5.1
 ---------------------------
 
+- For WIN32, Thread::getThreadControl() set the thread id of the
+  ThreadControl object to the current thread instead of the thread the
+  control object belongs to. This has been fixed.
+
 - Changed Ice::Service to use _exit() in the daemon parent.
 
 - Fixed a bug with AMD exception handling, where it was possible that

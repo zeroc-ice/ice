@@ -29,8 +29,8 @@ compress = 1
 # thread per connection mode.
 #
 
-threadPerConnection = 0
-#threadPerConnection = 1
+#threadPerConnection = 0
+threadPerConnection = 1
 
 #
 # If you don't set "host" below, then the Ice library will try to find

@@ -29,11 +29,11 @@ IceUtil::ThreadControl::ThreadControl()
     }
 }
 
-IceUtil::ThreadControl::ThreadControl(const HandleWrapperPtr& handle, unsigned int id)
+IceUtil::ThreadControl::ThreadControl(const HandleWrapperPtr& handle, ThreadId id)
 {
     IceUtil::Mutex::Lock lock(_stateMutex);
     _handle = handle;
-    _id = GetCurrentThreadId();
+    _id = id;
 }
 
 IceUtil::ThreadControl::ThreadControl(const ThreadControl& tc)
@@ -238,7 +238,9 @@ IceUtil::Thread::start(size_t stackSize)
     //
     __incRef();
     
-    _handle->handle = (HANDLE)_beginthreadex(0, stackSize, (unsigned int (__stdcall*)(void*))startHook, (LPVOID)this, 0, &_id);
+    _handle->handle = (HANDLE)_beginthreadex(
+	0, stackSize, (unsigned int (__stdcall*)(void*))startHook, (LPVOID)this, 0, &_id);
+
     if(_handle->handle == 0)
     {
 	__decRef();
@@ -317,7 +319,7 @@ IceUtil::Thread::operator<(const Thread& rhs) const
 
 #else
 
-IceUtil::ThreadControl::ThreadControl(pthread_t id)
+IceUtil::ThreadControl::ThreadControl(ThreadId id)
 {
     IceUtil::Mutex::Lock lock(_stateMutex);
     _id = id;

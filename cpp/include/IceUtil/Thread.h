@@ -56,9 +56,9 @@ public:
     ThreadControl();
 
 #ifdef _WIN32
-    ThreadControl(const HandleWrapperPtr&, unsigned int);
+    ThreadControl(const HandleWrapperPtr&, ThreadId);
 #else
-    ThreadControl(pthread_t);
+    ThreadControl(ThreadId);
 #endif
 
     ThreadControl(const ThreadControl&);
