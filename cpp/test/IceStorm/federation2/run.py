@@ -55,8 +55,8 @@ iceStormAdminPipe.close()
 print "ok"
 
 print "linking topics...",
-graph = os.path.join(testdir, "graph.xml");
-command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "graph \"' + graph + r'\" 10"'
+graph = os.path.join(testdir, "fed.xml");
+command = iceStormAdmin + updatedClientOptions + iceStormEndpoint + r' -e "graph ' + graph + r' 10"'
 iceStormAdminPipe = os.popen(command)
 iceStormAdminPipe.close()
 print "ok"
