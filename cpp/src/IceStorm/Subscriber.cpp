@@ -127,7 +127,8 @@ Subscriber::publish(const string& op, const std::vector< ::Ice::Byte>& blob)
     try
     {
 	bool nonmutating = true;
-	_obj->ice_invokeIn(op, nonmutating, blob);
+	std::vector< ::Ice::Byte> dummy;
+	_obj->ice_invoke(op, nonmutating, blob, dummy);
     }
     catch(const Ice::LocalException& e)
     {

@@ -97,7 +97,7 @@ class ICE_API Blobject : virtual public Object
 {
 public:
 
-    virtual void ice_invokeIn(const std::vector<Byte>&, const Current&) = 0;
+    virtual void ice_invoke(const std::vector<Byte>&, std::vector<Byte>&, const Current&) = 0;
     virtual ::IceInternal::DispatchStatus __dispatch(::IceInternal::Incoming&, const Current&);
 };
 

@@ -71,10 +71,11 @@ IceInternal::Outgoing::Outgoing(const EmitterPtr& emitter, const ReferencePtr& r
 	_os.write(p->first);
 	_os.write(p->second);
     }
-
+    
     //
-    // Input parameters are always sent in an encapsulation, which
-    // makes it possible to forward oneway requests as blobs.
+    // Input and output parameters are always sent in an
+    // encapsulation, which makes it possible to forward oneway
+    // requests as blobs.
     //
     _os.startWriteEncaps();
 }
@@ -221,12 +222,24 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	{
 	    case DispatchOK:
 	    {
+		//
+		// Input and output parameters are always sent in an
+		// encapsulation, which makes it possible to forward
+		// oneway requests as blobs.
+		//
+		_is.startReadEncaps();
 		_state = StateOK;
 		break;
 	    }
 	    
 	    case DispatchUserException:
 	    {
+		//
+		// Input and output parameters are always sent in an
+		// encapsulation, which makes it possible to forward
+		// oneway requests as blobs.
+		//
+		_is.startReadEncaps();
 		_state = StateException;
 		break;
 	    }

@@ -248,9 +248,11 @@ Ice::Object::ice_findFacet(const string& name)
 DispatchStatus
 Ice::Blobject::__dispatch(Incoming& in, const Current& current)
 {
-    vector<Byte> blob;
+    vector<Byte> inParams;
+    vector<Byte> outParams;
     Int sz = in.is()->getReadEncapsSize();
-    in.is()->readBlob(blob, sz);
-    ice_invokeIn(blob, current);
+    in.is()->readBlob(inParams, sz);
+    ice_invoke(inParams, outParams, current);
+    in.is()->writeBlob(outParams);
     return ::IceInternal::DispatchOK;
 }

@@ -41,7 +41,7 @@ public:
     {
     }
 
-    virtual void ice_invokeIn(const vector< Ice::Byte>&, const Ice::Current&);
+    virtual void ice_invoke(const vector< Ice::Byte>&, vector< Ice::Byte>&, const Ice::Current&);
 
 private:
 
@@ -175,9 +175,9 @@ private:
 } // End namespace IceStorm
 
 void
-BlobjectI::ice_invokeIn(const vector< Ice::Byte>& blob, const Ice::Current& current)
+BlobjectI::ice_invoke(const vector< Ice::Byte>& inParams, vector< Ice::Byte>& outParam, const Ice::Current& current)
 {
-    _subscribers->publish(current.operation, blob);
+    _subscribers->publish(current.operation, inParams);
 }
 
 TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& traceLevels, const Ice::LoggerPtr& logger,

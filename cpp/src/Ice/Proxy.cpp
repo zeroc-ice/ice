@@ -151,8 +151,11 @@ IceProxy::Ice::Object::ice_ping(const Context& __context)
 }
 
 void
-IceProxy::Ice::Object::ice_invokeIn(const string& operation, bool nonmutating, const vector<Byte>& inParams,
-				    const Context& __context)
+IceProxy::Ice::Object::ice_invoke(const string& operation,
+				  bool nonmutating,
+				  const vector<Byte>& inParams,
+				  vector<Byte>& outParams,
+				  const Context& __context)
 {
     int __cnt = 0;
     while (true)
@@ -160,13 +163,17 @@ IceProxy::Ice::Object::ice_invokeIn(const string& operation, bool nonmutating, c
 	try
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    __del->ice_invokeIn(operation, inParams, __context);
+	    __del->ice_invoke(operation, inParams, outParams, __context);
 	    return;
 	}
+// For routers, we want to propagate location forwards to the caller.
+// TODO: Should this be configurable?
+/*
 	catch (const LocationForward& __ex)
 	{
 	    __locationForward(__ex);
 	}
+*/
 	catch (const NonRepeatable& __ex)
 	{
 	    if (nonmutating)
@@ -533,15 +540,20 @@ IceDelegateM::Ice::Object::ice_ping(const Context& __context)
 }
 
 void
-IceDelegateM::Ice::Object::ice_invokeIn(const string& operation, const vector<Byte>& inParams,
-					const Context& __context)
+IceDelegateM::Ice::Object::ice_invoke(const string& operation,
+				      const vector<Byte>& inParams,
+				      vector<Byte>& outParams,
+				      const Context& __context)
 {
     Outgoing __out(__emitter, __reference, operation.c_str(), __context);
     BasicStream* __os = __out.os();
     __os->writeBlob(inParams);
-    if (!__out.invoke())
+    __out.invoke();
+    if (__reference->mode == Reference::ModeTwoway)
     {
-	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+	BasicStream* __is = __out.is();
+	Int sz = __is->getReadEncapsSize();
+	__is->readBlob(outParams, sz);
     }
 }
 
@@ -653,8 +665,10 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
 }
 
 void
-IceDelegateD::Ice::Object::ice_invokeIn(const string& operation, const vector<Byte>& inParams,
-					const ::Ice::Context& context)
+IceDelegateD::Ice::Object::ice_invoke(const string& operation,
+				      const vector<Byte>& inParams,
+				      vector<Byte>& outParams,
+				      const ::Ice::Context& context)
 {
     Current __current;
     __initCurrent(__current, operation, context);
@@ -666,7 +680,7 @@ IceDelegateD::Ice::Object::ice_invokeIn(const string& operation, const vector<By
     }
     try
     {
-	__servant->ice_invokeIn(inParams, __current);
+	__servant->ice_invoke(inParams, outParams, __current);
     }
     catch (const LocalException&)
     {
@@ -707,4 +721,3 @@ IceDelegateD::Ice::Object::setup(const ReferencePtr& ref, const ObjectAdapterPtr
     __reference = ref;
     __adapter = adapter;
 }
-
