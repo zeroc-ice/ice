@@ -1836,6 +1836,21 @@ property is 100 ms.
 </section>
 </section>
 
+<section><title>IceStorm.TopicManager.Proxy</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceStorm.TopicManager.Proxy=<replaceable>proxy</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Defines the proxy for the &IceStorm; topic manager. This property is used by
+the &IceStorm; administration tool, and may also be used by applications.
+</para>
+</section>
+</section>
+
 </section>
 
 <!-- ********************************************************************** -->
