@@ -1,4 +1,3 @@
-
 // **********************************************************************
 //
 // Copyright (c) 2001
@@ -61,26 +60,35 @@ exception DeploymentException
     string reason;
 };
 
+// TODO: ML: Documentation.
 exception ParserDeploymentException extends DeploymentException
 {
 };
 
+// TODO: ML: Documentation.
 exception AdapterDeploymentException extends DeploymentException
 {
+// TODO: ML: Documentation.
     string adapter;
 };
 
+// TODO: ML: Documentation.
 exception OfferDeploymentException extends DeploymentException
 {
+// TODO: ML: Documentation.
     string intf;
+// TODO: ML: Documentation.
     Object* proxy;
 };
 
+// TODO: ML: Documentation.
 exception ServerDeploymentException extends DeploymentException
 {
+// TODO: ML: Documentation.
     string server;
 };
 
+// TODO: ML: Documentation.
 exception NodeUnreachableException
 {
 };
@@ -106,6 +114,7 @@ sequence<string> Targets;
  **/
 enum ServerState
 {
+    // TODO: ML: Documentation for each individual element.
     Inactive,
     Activating,
     Active,
@@ -114,12 +123,15 @@ enum ServerState
     Destroyed
 };
 
+// TODO: ML: Documentation.
 enum ServerActivation
 {
+    // TODO: ML: Documentation for each individual element.
     OnDemand,
     Manual
 };
 
+// TODO: ML: Documentation.
 struct ServerDescription
 {
     /**
