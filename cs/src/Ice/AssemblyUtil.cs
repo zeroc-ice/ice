@@ -33,6 +33,8 @@ namespace IceInternal
 	    System.Version v = System.Environment.Version;
 	    _runtimeMajor = v.Major;
 	    _runtimeMinor = v.Minor;
+	    _runtimeBuild = v.Build;
+	    _runtimeRevision = v.Revision;
 	}
 
 	public static Type findType(string csharpId)
@@ -159,9 +161,15 @@ namespace IceInternal
 	private static Hashtable _typeTable = new Hashtable(); // <type name, Type> pairs.
 	private static Mutex _mutex = new Mutex();
 
-	public readonly static Runtime _runtime;
+	public readonly static Runtime _runtime; // Either DotNET or Mono
+	//
+	// Versioning is: Major.Minor.Build.Revision. (Yes, really. It is not Major.Minor.Revision.Build, as
+	// one might expect.) If a part of a version number (such as revision) is not defined, it is -1.
+	//
 	public readonly static int _runtimeMajor;
 	public readonly static int _runtimeMinor;
+	public readonly static int _runtimeBuild;
+	public readonly static int _runtimeRevision;
     }
 
 }
