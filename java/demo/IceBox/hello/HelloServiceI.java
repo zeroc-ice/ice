@@ -11,7 +11,6 @@ public class HelloServiceI extends Ice.LocalObjectImpl implements IceBox.Service
 {
     public void
     start(String name, Ice.Communicator communicator, String[] args)
-        throws IceBox.FailureException
     {
         _adapter = communicator.createObjectAdapter(name);
         Ice.Object object = new HelloI();
