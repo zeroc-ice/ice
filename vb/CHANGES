@@ -1,6 +1,11 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed bug in the code generators for C# and VB: for sequences
+  of structs and sequences of Object*, incorrect code was generated
+  if a ["cs:collection"] or ["vb:collection"] metadata directive
+  was used.
+
 - Added setDefaultContext() and getDefaultContext() to the
   Ice::Communicator interface. This allows a default context to be
   established on a communicator-wide basis. See section 29.8.3 in the

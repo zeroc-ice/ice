@@ -1,6 +1,11 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Fixed bug in the code generators for C# and VB: for sequences
+  of structs and sequences of Object*, incorrect code was generated
+  if a ["cs:collection"] or ["vb:collection"] metadata directive
+  was used.
+
 - We do not retry oneway or batch oneway requests anymore, except if
   there are problems during connection establishment. If we retry a
   oneway or batch oneway, previous oneways from the same batch, or
