@@ -373,7 +373,7 @@ public final class Reference
 	}
 
         return instance.referenceFactory().create(identity, facet, mode, secure, compress, adapterId, 
-						  endpoints, newRouterInfo, newLocatorInfo, reverseAdapter);
+						  newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter);
     }
 
     public Reference
