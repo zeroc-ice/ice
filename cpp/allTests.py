@@ -75,7 +75,7 @@ tests = [ \
     "IceSSL/certificateVerification", \
     "Freeze/dbmap", \
     "Freeze/complex", \
-#    "Freeze/evictor", \
+    "Freeze/evictor", \
     "IceStorm/single", \
     "IceStorm/federation", \
     "IceStorm/federation2", \
