@@ -213,7 +213,7 @@ Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current)
 		    break;
 		}
 		
-		case 'c':
+		case 'z':
 		{
 		    proxy = proxy->ice_compress(true);
 		    break;
