@@ -2165,19 +2165,42 @@ forwarded. Default is no context forwarding.
 </section>
 </section>
 
-<section><title>Glacier.Router.Client.BatchSleepTime, Glacier.Router.Server.BatchSleepTime</title>
+<section><title>Glacier.Router.Client.SleepTime, Glacier.Router.Server.SleepTime</title>
 <section><title>Synopsis</title>
 <synopsis>
-Glacier.Router.Client.BatchSleepTime=<replaceable>num</replaceable>
-Glacier.Router.Server.BatchSleepTime=<replaceable>num</replaceable>
+Glacier.Router.Client.SleepTime=<replaceable>num</replaceable>
+Glacier.Router.Server.SleepTime=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
 <replaceable>num</replaceable> is the sleep time (delay) in
-milliseconds between forwarding client and server message batches. The
-default values are 250ms.
+milliseconds after a request or message batch has been forwarded. The
+default value is zero, meaning no delay. Setting these values avoids
+message flooding. This is useful to avoid denial-of-service attacks,
+or to allow a minimum time for collecting messages for batching.
+</para>
+</section>
+</section>
+
+<section><title>Glacier.Router.Client.Throttle.Twoways, Glacier.Router.Server.Throttle.Twoways</title>
+<section><title>Synopsis</title>
+<synopsis>
+Glacier.Router.Client.Throttle.Twoways=<replaceable>num</replaceable>
+Glacier.Router.Server.Throttle.Twoways=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+<replaceable>num</replaceable> is the maximum number of twoway
+requests that the router will forward simultanously. The default is
+zero, meaning no limit. Setting thsleep time (delay) in milliseconds
+after a request or message batch has been forwarded. The default value
+is zero, meaning no delay. Enabling twoway message throtteling is
+useful to avoid that one router can consume too many resources of
+backend services.
 </para>
 </section>
 </section>

@@ -19,28 +19,84 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
+Glacier::TwowayThrottle::TwowayThrottle(int max) :
+    _max(max),
+    _count(0)
+{
+    assert(_max >= 0);
+}
+
+Glacier::TwowayThrottle::~TwowayThrottle()
+{
+    assert(_count == 0);
+}
+
+void
+Glacier::TwowayThrottle::twowayStarted()
+{
+    if(_max == 0)
+    {
+	return;
+    }
+    
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	assert(_count <= _max);
+	
+	while(_count == _max)
+	{
+	    wait();
+	}
+	
+	++_count;
+    }
+}
+
+void
+Glacier::TwowayThrottle::twowayFinished()
+{
+    if(_max == 0)
+    {
+	return;
+    }
+    
+    {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	assert(_count <= _max);
+	
+	if(_count == _max)
+	{
+	    notifyAll();
+	}
+	
+	--_count;
+    }
+}
+
 Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
     _communicator(communicator),
-    _logger(communicator->getLogger()),
-    _reverse(reverse)
+    _reverse(reverse),
+    _properties(_communicator->getProperties()),
+    _logger(_communicator->getLogger()),
+    _traceLevel(_reverse ?
+		_properties->getPropertyAsInt("Glacier.Router.Trace.Server") :
+		_properties->getPropertyAsInt("Glacier.Router.Trace.Client")),
+    _forwardContext(_reverse ?
+		    _properties->getPropertyAsInt("Glacier.Router.Server.ForwardContext") > 0 :
+		    _properties->getPropertyAsInt("Glacier.Router.Client.ForwardContext") > 0),
+    _sleepTime(_reverse ?
+		    IceUtil::Time::milliSeconds(
+			_properties->getPropertyAsInt("Glacier.Router.Server.SleepTime")) :
+		    IceUtil::Time::milliSeconds(
+			_properties->getPropertyAsInt("Glacier.Router.Client.SleepTime"))),
+    _twowayThrottle(_reverse ?
+		    _properties->getPropertyAsInt("Glacier.Router.Server.Throttle.Twoways") :
+		    _properties->getPropertyAsInt("Glacier.Router.Client.Throttle.Twoways"))
+		    
 {
-    PropertiesPtr properties = _communicator->getProperties();
-    if(_reverse)
-    {
-	const_cast<Int&>(_traceLevel) = properties->getPropertyAsInt("Glacier.Router.Trace.Server");
-	const_cast<bool&>(_forwardContext) = properties->getPropertyAsInt("Glacier.Router.Server.ForwardContext") > 0;
-	const_cast<IceUtil::Time&>(_batchSleepTime) = IceUtil::Time::milliSeconds(
-	    properties->getPropertyAsIntWithDefault("Glacier.Router.Server.BatchSleepTime", 250));
-    }
-    else
-    {
-	const_cast<Int&>(_traceLevel) = properties->getPropertyAsInt("Glacier.Router.Trace.Client");
-	const_cast<bool&>(_forwardContext) = properties->getPropertyAsInt("Glacier.Router.Client.ForwardContext") > 0;
-	const_cast<IceUtil::Time&>(_batchSleepTime) = IceUtil::Time::milliSeconds(
-	    properties->getPropertyAsIntWithDefault("Glacier.Router.Client.BatchSleepTime", 250));
-    }
-
-    _requestQueue = new RequestQueue(_communicator, _traceLevel, _reverse, _batchSleepTime);
+    _requestQueue = new RequestQueue(_communicator, _traceLevel, _reverse, _sleepTime);
     _requestQueueControl = _requestQueue->start();
 }
 
@@ -68,9 +124,17 @@ class GlacierCB : public AMI_Object_ice_invoke
 {
 public:
 
-    GlacierCB(const AMD_Object_ice_invokePtr& cb) :
-	_cb(cb)
+    GlacierCB(const AMD_Object_ice_invokePtr& cb, TwowayThrottle& twowayThrottle) :
+	_cb(cb),
+	_twowayThrottle(twowayThrottle)
     {
+	_twowayThrottle.twowayStarted();
+    }
+
+    virtual
+    ~GlacierCB()
+    {
+	_twowayThrottle.twowayFinished();
     }
 
     virtual void
@@ -88,6 +152,7 @@ public:
 private:
 
     AMD_Object_ice_invokePtr _cb;
+    TwowayThrottle& _twowayThrottle;
 };
 
 void
@@ -111,7 +176,7 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdC
 
 	    if(proxy->ice_isTwoway())
 	    {
-		amiCB = new GlacierCB(amdCB);
+		amiCB = new GlacierCB(amdCB, _twowayThrottle);
 	    }
 	    else
 	    {

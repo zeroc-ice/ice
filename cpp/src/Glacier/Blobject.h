@@ -16,10 +16,27 @@
 #define BLOBJECT_H
 
 #include <Ice/Ice.h>
+#include <IceUtil/Monitor.h>
 #include <Glacier/Request.h>
 
 namespace Glacier
 {
+
+class TwowayThrottle : public IceUtil::Monitor<IceUtil::Mutex>
+{
+public:
+
+    TwowayThrottle(int);
+    ~TwowayThrottle();
+
+    void twowayStarted();
+    void twowayFinished();
+
+private:
+
+    const int _max;
+    int _count;
+};
 
 class Blobject : public Ice::BlobjectAsync
 {
@@ -36,16 +53,21 @@ public:
 protected:
 
     Ice::CommunicatorPtr _communicator;
-    const Ice::LoggerPtr _logger;
     const bool _reverse;
+
+    const Ice::PropertiesPtr _properties;
+    const Ice::LoggerPtr _logger;
     const int _traceLevel;
-    const bool _forwardContext;
-    const IceUtil::Time _batchSleepTime;
 
 private:
 
+    const bool _forwardContext;
+    const IceUtil::Time _sleepTime;
+
     RequestQueuePtr _requestQueue;
     IceUtil::ThreadControl _requestQueueControl;
+
+    TwowayThrottle _twowayThrottle;
 };
 
 }

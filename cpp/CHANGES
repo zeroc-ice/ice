@@ -1,6 +1,16 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Added twoway-throtteling to Glacier. See the descriptions of the
+  properties Glacier.Router.Server.Throttle.Twoways and
+  Glacier.Router.Server.Throttle.Twoways for details.
+
+- The properties Glacier.Router.Client.BatchSleepTime and
+  Glacier.Router.Server.BatchSleepTime has been replace with
+  Glacier.Router.Client.SleepTime and
+  Glacier.Router.Server.SleepTime. Please see the description of the
+  properties in the manual for the new semantics of the sleep times.
+
 - Added STL functors for partial proxy comparison:
   * ProxyIdentityLess
   * ProxyIdentityEqual
