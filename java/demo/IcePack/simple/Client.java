@@ -167,12 +167,20 @@ public class Client
         {
             ex.printStackTrace();
             status = 1;
-        } finally {
-	    if(communicator != null)
-	    {
+        }
+
+        if(communicator != null)
+        {
+            try
+            {
                 communicator.destroy();
-	    }
-	}
+            }
+            catch(Ice.LocalException ex)
+            {
+                ex.printStackTrace();
+                status = 1;
+            }
+        }
 
         System.exit(status);
     }
