@@ -266,6 +266,15 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceUtil
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name facetsC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name facetsCOL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name facetsS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -307,6 +316,60 @@ Package=<4>
 ###############################################################################
 
 Project: "exceptionsS"=.\test\Ice\exceptions\exceptionsS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "facetsC"=.\test\Ice\facets\facetsC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "facetsCOL"=.\test\Ice\facets\facetsCOL.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "facetsS"=.\test\Ice\facets\facetsS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
