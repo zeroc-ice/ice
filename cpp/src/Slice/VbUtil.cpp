@@ -347,8 +347,8 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
                 {
 		    if(isOutParam)
 		    {
-			out << nl << "IceInternal.ParamPatcher " << param
-			    << "_PP = New IceInternal.ParamPatcher(TypeOf(Ice.Object))";
+			out << nl << "Dim " << param
+			    << "_PP As IceInternal.ParamPatcher = New IceInternal.ParamPatcher(GetType(Ice.Object)";
 			out << nl << stream << ".readObject(" << param << "_PP)";
 		    }
 		    else
@@ -382,7 +382,8 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
     ProxyPtr prx = ProxyPtr::dynamicCast(type);
     if(prx)
     {
-	string helperName = fixId(ContainedPtr::dynamicCast(type)->scoped() + "Helper");
+	ContainedPtr contained = ContainedPtr::dynamicCast(type);
+	string helperName = fixId((contained ? contained->scoped() : typeToString(type)) + "Helper");
         if(marshal)
         {
             out << nl << helperName << ".__write(" << stream << ", " << param << ')';
@@ -405,8 +406,9 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
         {
 	    if(isOutParam)
 	    {
-		out << nl << "IceInternal.ParamPatcher " << param
-		    << "_PP = New IceInternal.ParamPatcher(TypeOf(" << typeToString(type) << "))";
+		out << nl << "Dim " << param
+		    << "_PP As IceInternal.ParamPatcher = New IceInternal.ParamPatcher(GetType("
+		    << typeToString(type) << "))";
 		out << nl << stream << ".readObject(" << param << "_PP)";
 	    }
 	    else
@@ -427,7 +429,7 @@ Slice::VbGenerator::writeMarshalUnmarshalCode(Output &out,
         else
         {
             string typeS = typeToString(type);
-            out << nl << param << " = New " << typeS << "()";
+            out << nl << param << " = New " << typeS;
             out << nl << param << ".__read(" << stream << ")";
         }
         return;

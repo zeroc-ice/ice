@@ -19,7 +19,10 @@ namespace Generate
     class Generate
     {
 	static void Main(string[] args)
-	{
+	{   
+            const string slice2csName = "slice2cs";
+            string iceHome = Environment.GetEnvironmentVariable("ICE_HOME");
+
 	    string progName = AppDomain.CurrentDomain.FriendlyName;
 	    if(args.Length < 3)
 	    {
@@ -30,8 +33,6 @@ namespace Generate
 	    string solDir = args[0];
 	    string projDir = args[1];
 	    string projName = args[2];
-
-	    string iceHome = Environment.GetEnvironmentVariable("ICE_HOME");
 
 	    Directory.SetCurrentDirectory(projDir);
 
@@ -77,20 +78,22 @@ namespace Generate
 		Environment.Exit(1);
 	    }
 
-	    string slice2cs = Path.Combine(Path.Combine(solDir, "bin"), "slice2cs");
+
+
+	    string slice2cs = Path.Combine(Path.Combine(solDir, "bin"), slice2csName);
 	    if(!File.Exists(slice2cs) && !File.Exists(slice2cs + ".exe"))
 	    {
 		if(iceHome != null)
 		{
-		    slice2cs = Path.Combine(Path.Combine(iceHome, "bin"), "slice2cs");
+		    slice2cs = Path.Combine(Path.Combine(iceHome, "bin"), slice2csName);
 		    if(!File.Exists(slice2cs) && !File.Exists(slice2cs + ".exe"))
 		    {
-			slice2cs = "slice2cs";
+			slice2cs = slice2csName;
 		    }
 		}
 		else
 		{
-		    slice2cs = "slice2cs";
+		    slice2cs = slice2csName;
 		}
 	    }
 

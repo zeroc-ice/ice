@@ -198,7 +198,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
     _out << sp << nl << "#Region \"Slice type-related members\"";
     _out.restoreIndent();
 
-    _out << sp << nl << "Public Shadows Shared __ids As String() = New String() _";
+    _out << sp << nl << "Public Shared Shadows __ids As String() = New String() _";
     _out.inc();
     _out << nl << "{ _";
     _out.inc();
@@ -254,7 +254,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
     _out.dec();
     _out << nl << "End Function";
 
-    _out << sp << nl << "Public Shadows Shared Function ice_staticId() As String";
+    _out << sp << nl << "Public Overloads Shared Function ice_staticId() As String";
     _out.inc();
     _out << nl << "Return __ids(" << scopedPos << ")";
     _out.dec();
@@ -312,7 +312,18 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 	    ExceptionList throws = op->throws();
 	    throws.sort();
 	    throws.unique();
-	    remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal));
+
+	    //
+	    // Arrange exceptions into most-derived to least-derived order. If we don't
+	    // do this, a base exception handler can appear before a derived exception
+	    // handler, causing compiler warnings and resulting in the base exception
+	    // being marshaled instead of the derived exception.
+	    //
+#if defined(__SUNPRO_CC)
+	    throws.sort(Slice::derivedToBaseCompare);
+#else
+	    throws.sort(Slice::DerivedToBaseCompare());
+#endif
 
 	    TypeStringList::const_iterator q;
 	    
@@ -322,7 +333,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 	    }
 	    if(!outParams.empty() || ret || !throws.empty())
 	    {
-		_out << nl << "Dim __os AS IceInternal.BasicStream = __in.ostr()";
+		_out << nl << "Dim __os As IceInternal.BasicStream = __in.ostr()";
 	    }
 	    
 	    //
@@ -583,7 +594,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 	_out << nl << '}';
 	_out.dec();
 
-	_out << sp << nl << "Public Shadows Function __dispatch( _";
+	_out << sp << nl << "Public Overloads Overrides Function __dispatch( _";
 	_out.inc();
 	_out.inc();
 	_out << nl << "ByVal __in As IceInternal.Incoming, _";
@@ -658,7 +669,7 @@ Slice::VbVisitor::writeDispatch(const ClassDefPtr& p)
 	}
 	_out.dec();
 	_out << nl << "End Select";
-	_out << sp << nl << "_System.Diagnostics.Debug.Assert(false)";
+	_out << sp << nl << "' _System.Diagnostics.Debug.Assert(false) ' Bug in VB 7.1: Diagnostics.Debug is not found";
 	_out << nl << "Return IceInternal.DispatchStatus.DispatchOperationNotExist";
 	_out.dec();
 	_out << nl << "End Function";
@@ -1174,7 +1185,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	DataMemberList allClassMembers = p->allClassDataMembers();
 	if(allClassMembers.size() != 0)
 	{
-	    _out << sp << nl << "Public NotInheritable Shadows Class __Patcher";
+	    _out << sp << nl << "Public NotInheritable Overloads Class __Patcher";
 	    _out.inc();
 	    _out << nl << "Inherits IceInternal.Patcher";
 	    _out << sp << nl << "Friend Sub New(ByVal instance As Ice.ObjectImpl";
@@ -1553,7 +1564,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     _out << sp << nl << "#Region \"ICloneable members\"";
     _out.restoreIndent();
 
-    _out << sp << nl << "Function Clone() As Object Implements ICloneable.Clone";
+    _out << sp << nl << "Function Clone() As Object Implements _System.ICloneable.Clone";
     _out.inc();
     _out << nl << "Return MemberwiseClone()";
     _out.dec();
@@ -1843,7 +1854,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         ExceptionPtr base = p->base();
 
 
-        _out << sp << nl << "Public Overrides Sub __write(ByVal __os AS IceInternal.BasicStream)";
+        _out << sp << nl << "Public Overrides Sub __write(ByVal __os As IceInternal.BasicStream)";
         _out.inc();
 	_out << nl << "__os.writeString(\"" << scoped << "\")";
 	_out << nl << "__os.startWriteSlice()";
@@ -1862,7 +1873,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	DataMemberList allClassMembers = p->allClassDataMembers();
 	if(allClassMembers.size() != 0)
 	{
-	    _out << sp << nl << "Public NotInheritable Shadows Class __Patcher";
+	    _out << sp << nl << "Public NotInheritable Overloads Class __Patcher";
 	    _out.inc();
 	    _out << nl << "Inherits IceInternal.Patcher";
 	    _out << sp << nl << "Friend Sub New(ByVal instance As Ice.Exception";
@@ -2012,7 +2023,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 	_out << sp << nl << "#Region \"ICloneable members\"";
 	_out.restoreIndent();
 
-	_out << sp << nl << "Function Clone() As Object Implements ICloneable.Clone";
+	_out << sp << nl << "Function Clone() As Object Implements _System.ICloneable.Clone";
 	_out.inc();
 	_out << nl << "Return MemberwiseClone()";
 	_out.dec();
@@ -2166,7 +2177,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
 	if(classMembers.size() != 0)
 	{
-	    _out << sp << nl << "Public NotInheritable Shadows Class __Patcher";
+	    _out << sp << nl << "Public NotInheritable Overloads Class __Patcher";
 	    _out.inc();
 	    _out << nl << "Inherits IceInternal.Patcher";
 	    _out << sp << nl << "Friend Sub New(ByVal instance As " << name;
@@ -2452,7 +2463,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp << nl << "#Region \"ICloneable members\"";
     _out.restoreIndent();
 
-    _out << sp << nl << "Function Clone() As Object Implements ICloneable.Clone";
+    _out << sp << nl << "Function Clone() As Object Implements _System.ICloneable.Clone";
     _out.inc();
     _out << nl << "Return MemberwiseClone()";
     _out.dec();
@@ -2947,7 +2958,7 @@ Slice::Gen::OpsVisitor::writeOperations(const ClassDefPtr& p, bool noCurrent)
 		_out << sp << nl << vbOp << ' ' << name << spar << params << epar;
 	    }
 	}
-	if(ret)
+	if(!p->isLocal() && ret)
 	{
 	    _out << " As " << typeToString(ret);
 	}
@@ -3161,7 +3172,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "End If";
     _out << nl << "If b.ice_isA(\"" << p->scoped() << "\") Then";
     _out.inc();
-    _out << nl << "Dim h As " << name << "PrxHelper = New " << name << "PrxHelper()";
+    _out << nl << "Dim h As " << name << "PrxHelper = New " << name << "PrxHelper";
     _out << nl << "h.__copyFrom(b)";
     _out << nl << "Return h";
     _out.dec();
@@ -3253,7 +3264,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "Dim proxy As Ice.ObjectPrx = __is.readProxy()";
     _out << nl << "If Not proxy Is Nothing Then";
     _out.inc();
-    _out << nl << "Dim result As " << name << "PrxHelper = New " << name << "PrxHelper()";
+    _out << nl << "Dim result As " << name << "PrxHelper = New " << name << "PrxHelper";
     _out << nl << "result.__copyFrom(proxy)";
     _out << nl << "Return result";
     _out.dec();
@@ -3358,7 +3369,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     bool hasClassValue = (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(value);
     if(hasClassValue)
     {
-	_out << sp << nl << "Public NotInheritable Shadows Class __Patcher";
+	_out << sp << nl << "Public NotInheritable Overloads Class __Patcher";
 	_out.inc();
 	_out << nl << "Inherits IceInternal.Patcher";
 	_out << sp << nl << "Friend Sub New(ByVal m As " << name << ", ByVal key As " << keyS << ')';
@@ -3385,7 +3396,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out.inc();
 
     _out << nl << "Dim __sz As Integer = __is.readSize()";
-    _out << nl << "Dim __r As " << name << " = New " << name << "()";
+    _out << nl << "Dim __r As " << name << " = New " << name;
     _out << nl << "For __i As Integer = 0 To __sz - 1";
     _out.inc();
     _out << nl << "Dim __k As " << keyS;
@@ -3572,7 +3583,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	ExceptionList throws = op->throws();
 	throws.sort();
 	throws.unique();
-	throws.erase(remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal)), throws.end());
 
 	//
 	// Arrange exceptions into most-derived to least-derived order. If we don't
@@ -3599,7 +3609,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	_out << " Implements _" << name << "Del." << opName;
 	_out.inc();
 
-	_out << nl << "Dim __out AS IceInternal.Outgoing = getOutgoing(\""
+	_out << nl << "Dim __out As IceInternal.Outgoing = getOutgoing(\""
 	     << op->name() << "\", " << sliceModeToIceMode(op) << ", __context, __compress)";
 	_out << nl << "Try";
 	_out.inc();
@@ -3659,7 +3669,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
 	    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
 	    {
-		_out << nl << "Dim __ret As << retS";
+		_out << nl << "Dim __ret As " << retS;
 		_out << nl << "Dim __ret_PP As IceInternal.ParamPatcher = New IceInternal.ParamPatcher(GetType("
 		     << retS << "))";
 		_out << nl << "__is.readObject(__ret_PP)";
@@ -3680,7 +3690,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 		if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(q->first))
 		{	    
 		    string type = typeToString(q->first);
-		    _out << nl << param << " = (" << param << "__PP.value, " << type << ')';
+		    _out << nl << param << " = CType(" << param << "_PP.value, " << type << ')';
 		}
 		else
 		{
@@ -3794,11 +3804,6 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	string vbOp = ret ? "Function" : "Sub";
 	ClassDefPtr containingClass = ClassDefPtr::dynamicCast(op->container());
 
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-        throws.erase(remove_if(throws.begin(), throws.end(), IceUtil::constMemFun(&Exception::isLocal)), throws.end());
-
         vector<string> params = getParams(op);
         vector<string> args = getArgs(op);
 
@@ -3816,7 +3821,7 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	else
 	{
-	    _out << nl << "Dim __current As Ice.Current = New Ice.Current()";
+	    _out << nl << "Dim __current As Ice.Current = New Ice.Current";
 	    _out << nl << "__initCurrent(__current, \"" << op->name() << "\", " << sliceModeToIceMode(op)
 		 << ", __context)";
 	    _out << nl << "While True";
@@ -3832,7 +3837,8 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    {
 		_out << "Return ";
 	    }
-	    _out << "CType(__servant, _" << containingClass->name() << "Operations)."
+	    _out << "CType(__servant, " << fixId(containingClass->scope())
+	         << '_' << containingClass->name() << "Operations" << ")."
 		 << opName << spar << args << "__current" << epar;
 	    if(!ret)
 	    {
@@ -4066,6 +4072,18 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
         throws.sort();
         throws.unique();
 
+	//
+	// Arrange exceptions into most-derived to least-derived order. If we don't
+	// do this, a base exception handler can appear before a derived exception
+	// handler, causing compiler warnings and resulting in the base exception
+	// being marshaled instead of the derived exception.
+	//
+#if defined(__SUNPRO_CC)
+	throws.sort(Slice::derivedToBaseCompare);
+#else
+	throws.sort(Slice::DerivedToBaseCompare());
+#endif
+
         TypeStringList::const_iterator q;
 
 	vector<string> params = getParamsAsyncCB(p);
@@ -4238,6 +4256,18 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	ExceptionList throws = p->throws();
 	throws.sort();
 	throws.unique();
+
+	//
+	// Arrange exceptions into most-derived to least-derived order. If we don't
+	// do this, a base exception handler can appear before a derived exception
+	// handler, causing compiler warnings and resulting in the base exception
+	// being marshaled instead of the derived exception.
+	//
+#if defined(__SUNPRO_CC)
+	throws.sort(Slice::derivedToBaseCompare);
+#else
+	throws.sort(Slice::DerivedToBaseCompare());
+#endif
 
 	TypeStringList::const_iterator q;
 	_out << sp << nl << "Class " << classNameAMDI << '_' << name;

@@ -18,7 +18,7 @@
                 OutputType = "Library"
                 PreBuildEvent = "$(SolutionDir)\bin\generate.exe $(SolutionDir) $(ProjectDir) $(ProjectName)"
                 PostBuildEvent = ""
-                RootNamespace = "Icecs"
+                RootNamespace = ""
                 RunPostBuildEvent = "OnBuildSuccess"
                 StartupObject = ""
             >
@@ -109,12 +109,12 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ConnectionI.cs"
+                    RelPath = "ConnectionFactory.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "ConnectionFactory.cs"
+                    RelPath = "ConnectionI.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -405,7 +405,6 @@
                 />
                 <File
                     RelPath = "generated\CommunicatorF.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -435,7 +434,6 @@
                 />
                 <File
                     RelPath = "generated\LocatorF.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -445,7 +443,6 @@
                 />
                 <File
                     RelPath = "generated\LoggerF.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -455,7 +452,6 @@
                 />
                 <File
                     RelPath = "generated\ObjectAdapterF.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -465,7 +461,6 @@
                 />
                 <File
                     RelPath = "generated\ObjectFactoryF.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -475,7 +470,6 @@
                 />
                 <File
                     RelPath = "generated\PluginF.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -485,7 +479,6 @@
                 />
                 <File
                     RelPath = "generated\ProcessF.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -495,7 +488,6 @@
                 />
                 <File
                     RelPath = "generated\PropertiesF.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -505,7 +497,6 @@
                 />
                 <File
                     RelPath = "generated\RouterF.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -515,7 +506,6 @@
                 />
                 <File
                     RelPath = "generated\ServantLocatorF.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -530,7 +520,6 @@
                 />
                 <File
                     RelPath = "generated\StatsF.cs"
-                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File

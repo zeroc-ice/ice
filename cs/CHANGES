@@ -13,6 +13,18 @@ Changes since version 1.5.1
   (constants, classes, interfaces, etc.) must be defined inside a
   module.
 
+- Fixed a bug in the slice2cs code generator:
+  
+  ["cs:collection"] sequence<Object> S1;
+  ["cs:collection"] sequence<Object*> S2;
+
+  Sequences of Object or Object* caused incorrect code
+  to be generated if they were marked as "cs:collection".
+
+- Fixed a number of bugs in slice2cs that cause incorrect
+  code to be generated if C# keywords were used as Slice
+  identifiers.
+
 - Fixed the and slice2cs compiler for operations with multiple
   exceptions in an exception specification: if an exception was a base of one or
   more other exceptions in the same exception specification, the code
@@ -20,7 +32,7 @@ Changes since version 1.5.1
   dispatch code in the wrong order. (This applied only to interfaces
   with an ["amd"] metadata directive.)
 
-- Several demos used Slice classes where interface were more
+- Several demos used Slice classes where interfaces were more
   appropriate. This has been fixed.
 
 - Ice.Util.initializeWithProperties() now correctly parses the command

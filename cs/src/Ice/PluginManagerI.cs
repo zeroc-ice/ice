@@ -15,7 +15,7 @@ namespace Ice
 
     public interface PluginFactory
     {
-        Plugin create(Communicator communicator, System.String name, string[] args);
+        Plugin create(Communicator communicator, string name, string[] args);
     }
 
     public sealed class PluginManagerI : LocalObjectImpl, PluginManager

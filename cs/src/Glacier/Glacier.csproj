@@ -90,6 +90,7 @@
                 />
                 <File
                     RelPath = "generated\SessionF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File
@@ -99,6 +100,7 @@
                 />
                 <File
                     RelPath = "generated\SessionManagerF.cs"
+                    SubType = "Code"
                     BuildAction = "Compile"
                 />
                 <File

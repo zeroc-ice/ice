@@ -216,7 +216,7 @@ public class XMLOutput : OutputBase
 	}
     }
     
-    private System.String
+    private string
     escape(string input)
     {
 	string v = input;
