@@ -72,8 +72,7 @@ Freeze::EvictorIteratorI::nextBatch()
     vector<EvictorElementPtr> evictorElements;
     evictorElements.reserve(_batchSize);
      
-    Key firstKey;
-    firstKey = _key;
+    Key firstKey = _key;
 
     CommunicatorPtr communicator = _store->communicator();
    
