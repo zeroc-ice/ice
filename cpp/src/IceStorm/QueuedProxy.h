@@ -27,7 +27,7 @@ public:
 
     QueuedProxy();
 
-    void publish(const EventPtr&);
+    virtual void publish(const EventPtr&);
 
     virtual Ice::ObjectPrx proxy() const = 0;
 
@@ -35,11 +35,9 @@ protected:
 
     virtual void deliver(const EventPtr&) = 0;
 
-private:
-
     IceUtil::Mutex _mutex;
-    bool _busy;
     std::auto_ptr<Ice::LocalException> _exception;
+    bool _busy;
     std::vector<EventPtr> _events;
 };
 

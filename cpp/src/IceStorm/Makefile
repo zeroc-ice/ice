@@ -41,6 +41,7 @@ SERVICE_OBJS	= IceStorm.o \
 		  Service.o \
 		  QueuedProxy.o \
 		  OnewayProxy.o \
+		  TwowayProxy.o \
 		  LinkProxy.o
 
 AOBJS		= Admin.o \

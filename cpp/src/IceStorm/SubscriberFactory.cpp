@@ -16,6 +16,7 @@
 #include <IceStorm/TraceLevels.h>
 #include <IceStorm/LinkProxy.h>
 #include <IceStorm/OnewayProxy.h>
+#include <IceStorm/TwowayProxy.h>
 
 using namespace std;
 using namespace IceStorm;
@@ -92,6 +93,10 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
             newObj = obj->ice_batchOneway();
         }
     }
+    if(reliability == "twoway" || reliability == "twoway ordered")
+    {
+	newObj = obj->ice_twoway();
+    }
     else // reliability == "oneway"
     {
 	if(reliability != "oneway")
@@ -123,7 +128,18 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
     }
     else
     {
-        proxy = new OnewayProxy(newObj);
+	if(reliability == "twoway")
+	{
+	    proxy = new UnorderedTwowayProxy(newObj);
+	}
+	else if(reliability == "twoway ordered")
+	{
+	    proxy = new OrderedTwowayProxy(newObj);
+	}
+	else
+	{
+	    proxy = new OnewayProxy(newObj);
+	}
         ProxyInfo info;
         info.proxy = proxy;
         info.count = 0;
@@ -134,8 +150,12 @@ SubscriberFactory::createSubscriber(const QoS& qos, const Ice::ObjectPrx& obj)
     {
         return new OnewayBatchSubscriber(this, _communicator, _traceLevels, _flusher, proxy);
     }
-    else
+    else // oneway or twoway
     {
+	//
+	// TODO: rename OnewaySubscriber into something more approriate, ObjectPrxSubscriber
+	// for example (there's also LinkSubscriber).
+	//
         return new OnewaySubscriber(this, _traceLevels, proxy);
     }
 }

@@ -93,7 +93,7 @@ command = publisher + TestUtil.clientOptions + iceStormReference + " 2>&1"
 publisherPipe = os.popen(command)
 print "ok"
 
-TestUtil.printOutputFromPipe(publisherPipe);
+TestUtil.printOutputFromPipe(subscriberPipe);
     
 #
 # Verify that the subscriber has terminated.

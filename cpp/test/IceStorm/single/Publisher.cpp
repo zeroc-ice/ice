@@ -50,14 +50,13 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     assert(topic);
 
     //
-    // Get a publisher object, create a oneway proxy and then cast to
+    // Get a publisher object, create a twoway proxy and then cast to
     // a Single object.
     //
-    SinglePrx single = SinglePrx::uncheckedCast(topic->getPublisher()->ice_oneway());
-
-    for(int i = 0; i < 10; ++i)
+    SinglePrx single = SinglePrx::uncheckedCast(topic->getPublisher()->ice_twoway());
+    for(int i = 0; i < 1000; ++i)
     {
-	single->event();
+	single->event(i);
     }
 
     //

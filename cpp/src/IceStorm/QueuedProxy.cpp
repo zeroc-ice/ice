@@ -78,3 +78,4 @@ IceStorm::QueuedProxy::publish(const EventPtr& event)
         throw;
     }
 }
+
