@@ -1,0 +1,111 @@
+#!/usr/bin/expect -f
+# **********************************************************************
+#
+# Copyright (c) 2002
+# MutableRealms, Inc.
+# Huntsville, AL, USA
+#
+# All Rights Reserved
+#
+# **********************************************************************
+
+proc generateRequest { private request reqnum bitStrength } {
+
+    spawn "/usr/bin/openssl" "req" "-config" "./openssl.cnf" "-new" "-inform" "PEM" "-key" $private "-outform" "PEM" "-out" $request
+
+    expect {
+        -ex "\[CA]:" {
+            send "CA\r"
+            exp_continue
+        } -ex "\[Nova Scotia]:" {
+            send "Nova Scotia\r"
+            exp_continue
+        } -ex "\[Dartmouth]:" {
+            send "Dartmouth\r"
+            exp_continue
+        } -ex "\[Mutable Realms North]:" {
+            send "Mutable Realms North\r"
+            exp_continue
+        } -ex "\[Development]:" {
+            send "Development\r"
+            exp_continue
+        } -ex "\[Some Guy]:" {
+            send [format "Some%d Guy%d\r" $reqnum $bitStrength]
+            exp_continue
+        } -ex "\[dog@pound.com]:" {
+            send [format "dog%d@pound%d.com\r" $reqnum $bitStrength]
+            exp_continue
+        } -ex "\[iamalovelyindividual]:" {
+            send "iamalovelyindividual\r"
+            exp_continue
+        } -ex "\[]:" {
+            send "\r"
+            exp_continue
+        } eof {
+        }
+    }
+}
+
+proc signRequest { privreq public } {
+
+    spawn "/usr/bin/openssl" "ca" "-config" "./openssl.cnf" "-in" $privreq "-out" $public
+
+    expect {
+        -ex "Enter PEM pass phrase:"  {
+            send "moin+moin+03122001\r"
+            exp_continue
+        } -ex "Sign the certificate? \[y/n]:" {
+            send "y\r"
+            exp_continue
+        } -ex "commit? \[y/n]" {
+            send "y\r"
+            exp_continue
+        } eof {
+        }
+    }
+}
+
+proc outputTime { fileRef certNum bitStrength startTime endTime } {
+
+    # output our certificate generation time
+    set elapsed [expr $endTime - $startTime]
+    set outLine [format "cert%09d %04d %d %d %d" $certNum $bitStrength $startTime $endTime $elapsed]
+    puts $fileRef $outLine
+}
+
+# Command line arguments
+set bitStrength [lindex $argv 0]
+set numCerts [lindex $argv 1]
+
+# Set the log file so that we can see the times
+set logFile [open [format "./times%d.txt" $bitStrength] "a"]
+
+for {set i 1} {$i <= $numCerts} {incr i} {
+
+    # Base file name definitions
+    set private [format "./certs/cert%09d_rsa%d_priv.pem" $i $bitStrength]
+    set request [format "./tmp/cert%09d_rsa%d_req.pem"    $i $bitStrength]
+    set privreq [format "./tmp/cert%09d_rsa%d.req"        $i $bitStrength]
+    set public  [format "./certs/cert%09d_rsa%d_pub.pem"  $i $bitStrength]
+
+    # Generate our commands
+    set genrsa [format "/usr/bin/openssl genrsa -out %s %d" $private $bitStrength]
+    set catreq [format "cat %s %s > %s" $request $private $privreq]
+
+    # figure out when we're starting
+    set start [timestamp]
+
+    # Generate our certificates
+    system $genrsa
+    generateRequest $private $request $i $bitStrength
+    system $catreq
+    signRequest $privreq $public
+
+    # figure out when we're done
+    set end   [timestamp]
+
+    outputTime $logFile $i $bitStrength $start $end
+}
+
+close $logFile
+
