@@ -7,79 +7,92 @@
 //
 // **********************************************************************
 
+using System.Collections;
+using System.Diagnostics;
+using System.Text;
+
 namespace IceInternal
 {
-    public interface SequenceBase
+    public abstract class Patcher
     {
-        void ice_set(int i, object v);
-    }
+        public Patcher()
+        {
+        }
 
-    public interface Patcher
-    {
-	void patch(Ice.Object v);
-	string type();
+        public Patcher(System.Type type)
+        {
+            _type = type;
+        }
+
+	public abstract void patch(Ice.Object v);
+
+        public string type()
+        {
+            Debug.Assert(_type != null);
+            return _type.FullName;
+        }
+
+        protected System.Type _type;
     }
 
     public sealed class ParamPatcher : Patcher
     {
-	public ParamPatcher(System.Type type)
+	public ParamPatcher(System.Type type) : base(type)
 	{
-	    _type = type;
 	}
 
-	public void patch(Ice.Object v)
+	public override void patch(Ice.Object v)
 	{
+            Debug.Assert(_type != null);
 	    if(!_type.IsInstanceOfType(v))
 	    {
-		Ice.NoObjectFactoryException nof = new Ice.NoObjectFactoryException();
-		nof.type = type();
-		throw nof;
+                throw new System.InvalidCastException("expected element of type " + type()
+                    + " but received " + v.GetType().FullName);
 	    }
 	    value = v;
 	}
 
-	public string type()
-	{
-	    return _type.FullName;
-	}
-
 	public Ice.Object value;
-	public System.Type _type;
     }
 
     public sealed class SequencePatcher : Patcher
     {
-	public SequencePatcher(SequenceBase seq, System.Type type, int index)
+	public SequencePatcher(ICollection seq, System.Type type, int index) : base(type)
 	{
 	    _seq = seq;
-	    _type = type;
 	    _index = index;
 	}
     
-	public void patch(Ice.Object v)
-	{
-	    //
-	    // Raise InvalidCastException if the element doesn't match the expected type.
-	    // TODO: Shouldn't this be a NoObjectFactoryException? If no factory is installed
-	    // for an abstract class, the instance can be sliced to Ice::Object, in which case
-	    // it won't be assignment compatible with the sequence. (The same problem appears
-	    // to be in the Java implementation.)
-	    //
-	    if(!(_type.IsAssignableFrom(v.GetType())))
-	    {
-		throw new System.InvalidCastException("expected element of type " + type() + " but received " + v.GetType().FullName);
-	    }
-	
-	    _seq.ice_set(_index, v);
-	}
+        private static object dummyObject = new object();
 
-	public string type()
+	public override void patch(Ice.Object v)
 	{
-	    return _type.FullName;
+            try 
+            {
+                if(_seq is IList)
+                {
+                    if(_index >= _seq.Count)
+                    {
+                        for(int i = _seq.Count; i <= _index; i++)
+                        {
+                            ((IList)_seq).Add(dummyObject); // IList implementation does not permit adding null.
+                        }
+                    }
+                    ((IList)_seq)[_index] = v;
+                }
+                else
+                {
+                    ((System.Array)_seq).SetValue(v, _index);
+                }
+            }
+            catch(System.Exception)
+            {
+                throw new System.InvalidCastException("expected element of type " + type()
+                                                      + " but received " + v.GetType().FullName); 
+            }
 	}
     
-	private SequenceBase _seq;
-	private System.Type _type;
+	private ICollection _seq;
 	private int _index;
     }
 }

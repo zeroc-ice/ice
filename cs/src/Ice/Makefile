@@ -41,7 +41,6 @@ SRCS		= Acceptor.cs \
 		  Incoming.cs \
 		  Instance.cs \
 		  LinkedList.cs \
-		  ListPatcher.cs \
 		  LocalObject.cs \
 		  LocalObjectImpl.cs \
 		  LocatorInfo.cs \

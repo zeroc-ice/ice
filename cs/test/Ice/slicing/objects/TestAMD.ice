@@ -32,7 +32,7 @@ class D1 extends B
     B pd1;
 };
 
-sequence<B> BSeq;
+["cs:collection"] sequence<B> BSeq;
 
 class SS1
 {

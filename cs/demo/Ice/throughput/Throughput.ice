@@ -12,7 +12,7 @@
 
 const int seqSize = 500000;
 
-["cs:array"] sequence<byte> ByteSeq;
+sequence<byte> ByteSeq;
 
 interface Throughput
 {

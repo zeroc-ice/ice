@@ -34,9 +34,9 @@ protected:
     //
     // Generate code to marshal or unmarshal a type
     //
-    void writeMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool, bool,
-                                   bool = false, const std::string& = "");
-    void writeSequenceMarshalUnmarshalCode(::IceUtil::Output&, const SequencePtr&, const std::string&, bool, bool);
+    void writeMarshalUnmarshalCode(::IceUtil::Output&, const TypePtr&, const std::string&, bool,
+                                   bool, const std::string& = "");
+    void writeSequenceMarshalUnmarshalCode(::IceUtil::Output&, const SequencePtr&, const std::string&, bool);
 
 private:
 
@@ -45,6 +45,7 @@ private:
     public:
 
         virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
         virtual void visitClassDecl(const ClassDeclPtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
         virtual bool visitExceptionStart(const ExceptionPtr&);

@@ -14,28 +14,28 @@ module Ice
 {
 
 /** A sequence of bools. **/
-["cs:array"] sequence<bool> BoolSeq;
+sequence<bool> BoolSeq;
 
 /** A sequence of bytes. **/
-["cs:array"] sequence<byte> ByteSeq;
+sequence<byte> ByteSeq;
 
 /** A sequence of shorts. **/
-["cs:array"] sequence<short> ShortSeq;
+sequence<short> ShortSeq;
 
 /** A sequence of ints. **/
-["cs:array"] sequence<int> IntSeq;
+sequence<int> IntSeq;
 
 /** A sequence of longs. **/
-["cs:array"] sequence<long> LongSeq;
+sequence<long> LongSeq;
 
 /** A sequence of floats. **/
-["cs:array"] sequence<float> FloatSeq;
+sequence<float> FloatSeq;
 
 /** A sequence of doubles. **/
-["cs:array"] sequence<double> DoubleSeq;
+sequence<double> DoubleSeq;
 
 /** A sequence of strings. **/
-["cs:array"] sequence<string> StringSeq;
+sequence<string> StringSeq;
 
 /** A sequence of objects. **/
 sequence<Object> ObjectSeq;

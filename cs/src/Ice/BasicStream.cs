@@ -1205,8 +1205,8 @@ namespace IceInternal
 		}
 		
 		//
-		// Last chance: check the table of static factories (i.e., automatically generated
-		// factories for concrete classes).
+		// Last chance: check whether the class is non-abstract and
+                // dynamically instantiate it using reflection.
 		//
 		if(v == null)
 		{
@@ -1473,6 +1473,11 @@ namespace IceInternal
 		}
 		catch(InvalidCastException ex)
 		{
+                    //
+                    // TODO: Fix this (also for C++ and Java): NoObjectFactoryException
+                    // is misleading because the type sent by the sender is incompatible
+                    // with what is expected. This really should be a MarshalException.
+                    //
 		    Ice.NoObjectFactoryException nof = new Ice.NoObjectFactoryException(ex);
 		    nof.type = patcher.type();
 		    throw nof;

@@ -453,7 +453,7 @@ namespace Ice
 
         public static bool Equals(Ice.ObjectPrxHelperBase lhs, Ice.ObjectPrxHelperBase rhs)
         {
-            return lhs == null ? rhs == null : lhs._reference.Equals(rhs._reference);
+            return object.ReferenceEquals(lhs, null) ? object.ReferenceEquals(rhs, null) : lhs.Equals(rhs);
         }
 
         public static bool operator==(ObjectPrxHelperBase lhs, ObjectPrxHelperBase rhs)
