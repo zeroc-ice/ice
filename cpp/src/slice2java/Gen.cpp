@@ -796,6 +796,8 @@ Slice::Gen::operator!() const
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
+    JavaGenerator::validateMetaData(p);
+
     OpsVisitor opsVisitor(_dir);
     p->visit(&opsVisitor);
 

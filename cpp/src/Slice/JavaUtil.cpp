@@ -1313,3 +1313,131 @@ Slice::JavaGenerator::findMetaData(const StringList& metaData)
 
     return "";
 }
+
+void
+Slice::JavaGenerator::validateMetaData(const UnitPtr& unit)
+{
+    MetaDataVisitor visitor;
+    unit->visit(&visitor);
+}
+
+bool
+Slice::JavaGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
+{
+    validate(p);
+    return false;
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
+{
+    validate(p);
+}
+
+bool
+Slice::JavaGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    validate(p);
+    return false;
+}
+
+bool
+Slice::JavaGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    validate(p);
+    return false;
+}
+
+bool
+Slice::JavaGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
+{
+    validate(p);
+    return false;
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitEnum(const EnumPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
+{
+    DefinitionContextPtr dc = cont->definitionContext();
+    assert(dc);
+    StringList globalMetaData = dc->getMetaData();
+    string file = dc->filename();
+
+    StringList localMetaData = cont->getMetaData();
+
+    static const string prefix = "java:";
+
+    for(StringList::const_iterator p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
+    {
+        string s = *p;
+        if(_history.count(s) == 0)
+        {
+            if(s.find(prefix) == 0)
+            {
+                static const string packagePrefix = "java:package:";
+                if(s.find(packagePrefix) != 0 || s.size() == packagePrefix.size())
+                {
+                    cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+                }
+            }
+            _history.insert(s);
+        }
+    }
+
+    for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    {
+        string s = *p;
+        if(_history.count(s) == 0)
+        {
+            if(s.find(prefix) == 0)
+            {
+                string::size_type pos = s.find(':', prefix.size());
+                if(pos == string::npos)
+                {
+                    cout << file << ": warning: metadata `" << s << "' uses deprecated syntax" << endl;
+                }
+                else if(s.substr(prefix.size(), pos - prefix.size()) != "type")
+                {
+                    cout << file << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+                }
+            }
+            _history.insert(s);
+        }
+    }
+}

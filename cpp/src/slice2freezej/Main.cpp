@@ -900,6 +900,8 @@ main(int argc, char* argv[])
 
         FreezeGenerator gen(argv[0], output);
 
+        JavaGenerator::validateMetaData(u);
+
         for(vector<Dict>::const_iterator p = dicts.begin(); p != dicts.end(); ++p)
         {
             try

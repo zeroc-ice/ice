@@ -27,6 +27,11 @@ public:
 
     virtual ~JavaGenerator();
 
+    //
+    // Validate all metadata in the unit with a "java:" prefix.
+    //
+    static void validateMetaData(const UnitPtr&);
+
 protected:
 
     JavaGenerator(const std::string&);
@@ -96,11 +101,35 @@ protected:
                                            const std::string&, bool, int&, bool,
                                            const StringList& = StringList());
 
-protected:
-
+    //
+    // Find custom sequence metadata.
+    //
     static std::string findMetaData(const StringList&);
 
 private:
+
+    class MetaDataVisitor : public ParserVisitor
+    {
+    public:
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitClassDecl(const ClassDeclPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
+        virtual bool visitStructStart(const StructPtr&);
+        virtual void visitOperation(const OperationPtr&);
+        virtual void visitDataMember(const DataMemberPtr&);
+        virtual void visitSequence(const SequencePtr&);
+        virtual void visitDictionary(const DictionaryPtr&);
+        virtual void visitEnum(const EnumPtr&);
+        virtual void visitConst(const ConstPtr&);
+
+    private:
+
+        void validate(const ContainedPtr&);
+
+        StringSet _history;
+    };
 
     void printHeader();
 
