@@ -26,8 +26,12 @@ protected:
 
     virtual void writeInheritedOperations(const ClassDefPtr&);
     virtual void writeDispatch(const ClassDefPtr&);
-    virtual std::string getParams(const OperationPtr&);
-    virtual std::string getArgs(const OperationPtr&);
+    virtual std::vector<std::string> getParams(const OperationPtr&);
+    virtual std::vector<std::string> getParamsAsync(const OperationPtr&, bool);
+    virtual std::vector<std::string> getParamsAsyncCB(const OperationPtr&);
+    virtual std::vector<std::string> getArgs(const OperationPtr&);
+    virtual std::vector<std::string> getArgsAsync(const OperationPtr&);
+    virtual std::vector<std::string> getArgsAsyncCB(const OperationPtr&);
 
     ::IceUtil::Output& _out;
 };
@@ -162,6 +166,19 @@ private:
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
+    };
+
+    class AsyncVisitor : public CsVisitor
+    {
+    public:
+
+        AsyncVisitor(::IceUtil::Output&);
+
+	virtual bool visitModuleStart(const ModulePtr&);
+	virtual void visitModuleEnd(const ModulePtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+	virtual void visitClassDefEnd(const ClassDefPtr&);
+	virtual void visitOperation(const OperationPtr&);
     };
 };
 
