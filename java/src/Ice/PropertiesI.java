@@ -197,32 +197,41 @@ class PropertiesI implements Properties
             int beg = arg.indexOf("--");
             if (beg == 0)
             {
-                int end = arg.indexOf('.');
-                if (end != -1)
+                String rest = arg.substring(2);
+                if (rest.startsWith("Ice."))
                 {
-                    String prefix = arg.substring(2, end);
-                    if (prefix.equals("Ice") || _argumentPrefixes.contains(prefix))
+                    match = true;
+                }
+                else
+                {
+                    java.util.Iterator p = _argumentPrefixes.iterator();
+                    while (p.hasNext())
                     {
-                        match = true;
+                        String prefix = (String)p.next();
+                        if (rest.startsWith(prefix + '.'))
+                        {
+                            match = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (match)
+                {
+                    String[] arr = new String[args.value.length - 1];
+                    System.arraycopy(args.value, 0, arr, 0, idx);
+                    if (idx < args.value.length - 1)
+                    {
+                        System.arraycopy(args.value, idx + 1, arr, idx, args.value.length - idx - 1);
+                    }
+                    args.value = arr;
+
+                    if (arg.indexOf('=') == -1)
+                    {
+                        arg += "=1";
                     }
 
-                    if (match)
-                    {
-                        String[] arr = new String[args.value.length - 1];
-                        System.arraycopy(args.value, 0, arr, 0, idx);
-                        if (idx < args.value.length - 1)
-                        {
-                            System.arraycopy(args.value, idx + 1, arr, idx, args.value.length - idx - 1);
-                        }
-                        args.value = arr;
-
-                        if (arg.indexOf('=') == -1)
-                        {
-                            arg += "=1";
-                        }
-
-                        parseLine(arg.substring(2));
-                    }
+                    parseLine(arg.substring(2));
                 }
             }
 
