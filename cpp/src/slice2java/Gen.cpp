@@ -964,17 +964,17 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sb;
     out << eb;
 
-    out << sp << nl << "public" << nl << name << "Tie(" << name << "Operations delegate)";
+    out << sp << nl << "public" << nl << name << "Tie(_" << name << "Operations delegate)";
     out << sb;
     out << nl << "_ice_delegate = delegate;";
     out << eb;
 
-    out << sp << nl << "public " << name << "Operations" << nl << "ice_delegate()";
+    out << sp << nl << "public _" << name << "Operations" << nl << "ice_delegate()";
     out << sb;
     out << nl << "return _ice_delegate;";
     out << eb;
 
-    out << sp << nl << "public void" << nl << "ice_delegate(" << name << "Operations delegate)";
+    out << sp << nl << "public void" << nl << "ice_delegate(_" << name << "Operations delegate)";
     out << sb;
     out << nl << "_ice_delegate = delegate;";
     out << eb;
@@ -1044,7 +1044,7 @@ Slice::Gen::TieVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
     }
 
-    out << sp << nl << "private " << name << "Operations _ice_delegate;";
+    out << sp << nl << "private _" << name << "Operations _ice_delegate;";
     out << eb;
     close();
 
