@@ -28,7 +28,7 @@ class EvictorIteratorI implements EvictorIterator
     {
 	try
 	{
-	    return (Ice.Identity)_iterator.next();
+	    return (Ice.Identity)((Map.Entry)_iterator.next()).getKey();
 	}
 	catch(java.util.NoSuchElementException e)
 	{

@@ -133,7 +133,7 @@ class EvictorI implements Evictor
 	    throw new EvictorDeactivatedException();
 	}
 	
-	return new EvictorIteratorI(_dict.keySet().iterator());
+	return new EvictorIteratorI(_dict.entrySet().iterator());
     }
 
     synchronized public boolean
