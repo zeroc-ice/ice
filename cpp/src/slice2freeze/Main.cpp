@@ -84,6 +84,7 @@ writeCodecH(const TypePtr& type, const string& name, const string& freezeType, O
     H << sb;
     H.dec();
     H << sp << nl << "public:";
+    H << sp;
     H.inc();
     H << nl << "static Freeze::" << freezeType << " write(" << inputTypeToString(type)
       << ", const IceInternal::InstancePtr& instance);";
