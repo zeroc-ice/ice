@@ -37,7 +37,6 @@ print "starting icestorm...",
 dbEnvName = os.path.join(testdir, "db")
 TestUtil.cleanDbDir(dbEnvName)
 command = iceStorm + updatedClientServerOptions + iceStormEndpoint + " --IceStorm.DBEnvName=" + dbEnvName
-print command
 iceStormPipe = os.popen(command)
 TestUtil.getServerPid(iceStormPipe)
 TestUtil.getAdapterReady(iceStormPipe)
@@ -57,10 +56,7 @@ subscriber = os.path.join(testdir, "subscriber")
 # is used later to ensure that the subscriber actually goes away.
 #
 subscriberLockFile = os.path.join(testdir, 'subscriber.lock')
-try:
-    os.remove(subscriberLockFile)
-except OSError:
-    1 # Ignore
+os.remove(subscriberLockFile)
 
 print "starting subscriber...",
 command = subscriber + updatedClientServerOptions + iceStormEndpoint + r' ' + subscriberLockFile
@@ -99,7 +95,7 @@ while os.path.isfile(subscriberLockFile):
     print "lock file still present: ", lockCount
     if lockCount > 10:
         print "subscriber didn't terminate, failed!"
-        TestUtil.killServers()
+#        TestUtil.killServers()
         sys.exit(1)
     time.sleep(1)
     lockCount = lockCount + 1    
