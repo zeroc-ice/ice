@@ -1,14 +1,14 @@
 This demo illustrates how to use MFC to create a simple IcePatch2
 client application.
 
-The IcePatch2 server must be running before the client can patch,
-but a data directory must be prepared in order to run the server.
-The contents of the data directory are what the client will receive
-during the patch process. For convenience, this example uses its own
-source files as the data to be patched.
+The IcePatch2 server must be running before the client can patch, but
+a data directory must be prepared in order to run the server. The
+contents of the data directory are what the client will receive during
+the patch process. For convenience, this example uses its own source
+files as the data to be patched.
 
-Assuming that the current working directory is demo/IcePatch2/MFC,
-you can prepare the data files with the following command:
+Assuming that the current working directory is demo/IcePatch2/MFC, you
+can prepare the data files with the following command:
 
 $ icepatch2calc .
 
@@ -19,12 +19,16 @@ $ icepatch2server --IcePatch2.Endpoints="tcp -h 127.0.0.1 -p 10000" .
 The last argument (".") tells the server to use the current directory
 as its data directory.
 
-In another window, start the client:
+Before we start the patch client, we must first create an empty
+directory where the downloaded files will be placed. For example, you
+can use:
+
+$ mkdir $HOME/icepatch_download
+
+Now you can start the IcePatch2 client:
 
 $ patch --IcePatch2.Endpoints="tcp -h 127.0.0.1 -p 10000"
 
-Before the actual patching can begin, the client needs to know the 
-patch directory in which to place the downloaded files. Click the
-"..." button to the right of the Patch Directory field and select
-the demo/IcePatch2/Patch directory. Finally, click the "Patch"
+Click the "..." button to the right of the Patch Directory field and
+select an empty directory you just created. Then click the "Patch"
 button to begin the patch process.

@@ -13,8 +13,3 @@ Demos in this directory:
 
   Contains a simple IcePatch2 client built using Microsoft Foundation
   Classes (MFC).
-
-- Patch
-  
-  This directory is empty and is used by the MFC IcePatch2 demo, see the 
-  README file in the MFC demo for more information.
