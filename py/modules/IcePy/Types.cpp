@@ -12,13 +12,10 @@
 #include <Proxy.h>
 #include <Util.h>
 #include <IceUtil/InputUtil.h>
-//#include <Ice/IdentityUtil.h>
 #include <Ice/LocalException.h>
-//#include <Slice/PythonUtil.h>
 
 using namespace std;
 using namespace IcePy;
-//using namespace Slice::Python;
 
 // TODO: Destroyer for maps?
 
@@ -1514,6 +1511,19 @@ IcePy::ObjectWriter::~ObjectWriter()
 }
 
 void
+IcePy::ObjectWriter::ice_preMarshal()
+{
+    if(PyObject_HasAttrString(_object, "ice_preMarshal") == 1)
+    {
+        PyObjectHandle tmp = PyObject_CallMethod(_object, "ice_preMarshal", NULL);
+        if(PyErr_Occurred())
+        {
+            throw AbortMarshaling();
+        }
+    }
+}
+
+void
 IcePy::ObjectWriter::write(const Ice::OutputStreamPtr& os) const
 {
     ClassInfoPtr info = _info;
@@ -1571,6 +1581,19 @@ IcePy::ObjectReader::ObjectReader(PyObject* object, const ClassInfoPtr& info) :
 IcePy::ObjectReader::~ObjectReader()
 {
     Py_DECREF(_object);
+}
+
+void
+IcePy::ObjectReader::ice_postUnmarshal()
+{
+    if(PyObject_HasAttrString(_object, "ice_postUnmarshal") == 1)
+    {
+        PyObjectHandle tmp = PyObject_CallMethod(_object, "ice_postUnmarshal", NULL);
+        if(PyErr_Occurred())
+        {
+            throw AbortMarshaling();
+        }
+    }
 }
 
 void

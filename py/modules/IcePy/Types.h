@@ -312,6 +312,8 @@ public:
     ObjectWriter(const ClassInfoPtr&, PyObject*, ObjectMap*);
     ~ObjectWriter();
 
+    virtual void ice_preMarshal();
+
     virtual void write(const Ice::OutputStreamPtr&) const;
 
 private:
@@ -330,6 +332,8 @@ public:
 
     ObjectReader(PyObject*, const ClassInfoPtr&);
     ~ObjectReader();
+
+    virtual void ice_postUnmarshal();
 
     virtual void read(const Ice::InputStreamPtr&, bool);
 
