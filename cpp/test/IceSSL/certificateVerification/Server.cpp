@@ -16,7 +16,6 @@
 
 using namespace std;
 
-
 class KeyManagerI : public KeyManager
 {
 
@@ -78,8 +77,8 @@ KeyManagerI::shutdown(const ::Ice::Current&)
 
 class PingerI : public Pinger
 {
-
 public:
+
     PingerI();
     virtual void ping(const ::Ice::Current&);
 };

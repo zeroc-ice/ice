@@ -1737,16 +1737,13 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "::IceInternal::Direct __direct(__current);";
     string thisPointer = fixKwd(cl->scoped()) + "*";
-    C << nl << thisPointer << " __servant = dynamic_cast< "
-      << thisPointer << ">(__direct.facetServant().get());";
+    C << nl << thisPointer << " __servant = dynamic_cast< " << thisPointer << ">(__direct.facetServant().get());";
     C << nl << "if(!__servant)";
     C << sb;
     C << nl << "::Ice::OperationNotExistException __opEx(__FILE__, __LINE__);";
     C << nl << "__opEx.operation = __current.operation;";
     C << nl << "throw __opEx;";
     C << eb;
-    C << nl << "try";
-    C << sb;
     C << nl;
     if(ret)
     {
@@ -1757,30 +1754,6 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     {
 	C << nl << "return;";
     }
-    C << eb;
-    ExceptionList throws = p->throws();
-    throws.sort();
-    throws.unique();
-    ExceptionList::const_iterator r;
-    for(r = throws.begin(); r != throws.end(); ++r)
-    {
-	C << nl << "catch(const " << fixKwd((*r)->scoped()) << "&)";
-	C << sb;
-	C << nl << "throw;";
-	C << eb;
-    }
-    C << nl << "catch(const ::Ice::UserException&)";
-    C << sb;
-    C << nl << "throw ::Ice::UnknownUserException(__FILE__, __LINE__);";
-    C << eb;
-    C << nl << "catch(const ::Ice::LocalException&)";
-    C << sb;
-    C << nl << "throw;";
-    C << eb;
-    C << nl << "catch(...)";
-    C << sb;
-    C << nl << "throw ::Ice::UnknownException(__FILE__, __LINE__);";
-    C << eb;
     C << eb;
     C << eb;
 }

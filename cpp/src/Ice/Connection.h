@@ -45,8 +45,8 @@ public:
     void validate();
     void hold();
     void activate();
-    void incProxyUsageCount();
-    void decProxyUsageCount();
+    void incUsageCount();
+    void decUsageCount();
     void prepareRequest(Outgoing*);
     void sendRequest(Outgoing*, bool, bool);
     void removeRequest(Outgoing*);
@@ -113,7 +113,7 @@ private:
     std::auto_ptr< ::Ice::LocalException> _exception;
     BasicStream _batchStream;
     int _responseCount;
-    int _proxyUsageCount;
+    int _usageCount;
     State _state;
     bool _registeredWithPool;
 };

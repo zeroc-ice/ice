@@ -731,7 +731,7 @@ IceDelegateM::Ice::Object::~Object()
 {
     if(__connection)
     {
-	__connection->decProxyUsageCount();
+	__connection->decUsageCount();
     }
 }
 
@@ -851,12 +851,12 @@ IceDelegateM::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegate
 
     if(from->__connection)
     {
-	from->__connection->incProxyUsageCount();
+	from->__connection->incUsageCount();
     }
 
     if(__connection)
     {
-	__connection->decProxyUsageCount();
+	__connection->decUsageCount();
     }
 
     __connection = from->__connection;
@@ -902,7 +902,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	}
 	assert(p != connections.end());
 	__connection = *p;
-	__connection->incProxyUsageCount();
+	__connection->incUsageCount();
     }
     else
     {	
@@ -940,7 +940,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 		OutgoingConnectionFactoryPtr factory = __reference->instance->outgoingConnectionFactory();
 		__connection = factory->create(filteredEndpoints);
 		assert(__connection);
-		__connection->incProxyUsageCount();
+		__connection->incUsageCount();
 	    }
 	    catch(const LocalException& ex)
 	    {
@@ -1051,22 +1051,7 @@ IceDelegateD::Ice::Object::ice_isA(const string& __id, const Context& __context)
     while(true)
     {
 	Direct __direct(__current);
-	try
-	{
-	    return __direct.facetServant()->ice_isA(__id, __current);
-	}
-	catch(const LocalException&)
-	{
-	    throw UnknownLocalException(__FILE__, __LINE__);
-	}
-	catch(const UserException&)
-	{
-	    throw UnknownUserException(__FILE__, __LINE__);
-	}
-	catch (...)
-	{
-	    throw UnknownException(__FILE__, __LINE__);
-	}
+	return __direct.facetServant()->ice_isA(__id, __current);
     }
     return false; // To keep VC++ compiler happy.
 }
@@ -1079,23 +1064,8 @@ IceDelegateD::Ice::Object::ice_ping(const ::Ice::Context& __context)
     while(true)
     {
 	Direct __direct(__current);
-	try
-	{
-	    __direct.facetServant()->ice_ping(__current);
-	    return;
-	}
-	catch(const LocalException&)
-	{
-	    throw UnknownLocalException(__FILE__, __LINE__);
-	}
-	catch(const UserException&)
-	{
-	    throw UnknownUserException(__FILE__, __LINE__);
-	}
-	catch (...)
-	{
-	    throw UnknownException(__FILE__, __LINE__);
-	}
+	__direct.facetServant()->ice_ping(__current);
+	return;
     }
 }
 
@@ -1107,22 +1077,7 @@ IceDelegateD::Ice::Object::ice_ids(const ::Ice::Context& __context)
     while(true)
     {
 	Direct __direct(__current);
-	try
-	{
-	    return __direct.facetServant()->ice_ids(__current);
-	}
-	catch(const LocalException&)
-	{
-	    throw UnknownLocalException(__FILE__, __LINE__);
-	}
-	catch(const UserException&)
-	{
-	    throw UnknownUserException(__FILE__, __LINE__);
-	}
-	catch (...)
-	{
-	    throw UnknownException(__FILE__, __LINE__);
-	}
+	return __direct.facetServant()->ice_ids(__current);
     }
     return vector<string>(); // To keep VC++ compiler happy.
 }
@@ -1135,22 +1090,7 @@ IceDelegateD::Ice::Object::ice_id(const ::Ice::Context& __context)
     while(true)
     {
 	Direct __direct(__current);
-	try
-	{
-	    return __direct.facetServant()->ice_id(__current);
-	}
-	catch(const LocalException&)
-	{
-	    throw UnknownLocalException(__FILE__, __LINE__);
-	}
-	catch(const UserException&)
-	{
-	    throw UnknownUserException(__FILE__, __LINE__);
-	}
-	catch (...)
-	{
-	    throw UnknownException(__FILE__, __LINE__);
-	}
+	return __direct.facetServant()->ice_id(__current);
     }
     return false; // To keep VC++ compiler happy.
 }
@@ -1163,22 +1103,7 @@ IceDelegateD::Ice::Object::ice_facets(const ::Ice::Context& __context)
     while(true)
     {
 	Direct __direct(__current);
-	try
-	{
-	    return __direct.facetServant()->ice_facets(__current);
-	}
-	catch(const LocalException&)
-	{
-	    throw UnknownLocalException(__FILE__, __LINE__);
-	}
-	catch(const UserException&)
-	{
-	    throw UnknownUserException(__FILE__, __LINE__);
-	}
-	catch (...)
-	{
-	    throw UnknownException(__FILE__, __LINE__);
-	}
+	return __direct.facetServant()->ice_facets(__current);
     }
     return vector<string>(); // To keep VC++ compiler happy.
 }
@@ -1202,22 +1127,7 @@ IceDelegateD::Ice::Object::ice_invoke(const string& operation,
 	    ex.operation = current.operation;
 	    throw ex;
 	}
-	try
-	{
-	    return __servant->ice_invoke(inParams, outParams, current);
-	}
-	catch(const LocalException&)
-	{
-	    throw UnknownLocalException(__FILE__, __LINE__);
-	}
-	catch(const UserException&)
-	{
-	    throw UnknownUserException(__FILE__, __LINE__);
-	}
-	catch (...)
-	{
-	    throw UnknownException(__FILE__, __LINE__);
-	}
+	return __servant->ice_invoke(inParams, outParams, current);
     }
     return false; // To keep VC++ compiler happy.
 }

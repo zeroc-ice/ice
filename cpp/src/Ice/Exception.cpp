@@ -33,10 +33,25 @@ Ice::LocalException::LocalException(const char* file, int line) :
 }
 
 void
+Ice::UnknownException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nunknown exception";
+    if(!unknown.empty())
+    {
+	out << "\nunknown exception text:\n" << unknown;
+    }
+}
+
+void
 Ice::UnknownLocalException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nunknown local exception";
+    if(!unknown.empty())
+    {
+	out << "\nunknown local exception text:\n" << unknown;
+    }
 }
 
 void
@@ -44,13 +59,10 @@ Ice::UnknownUserException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nunknown user exception";
-}
-
-void
-Ice::UnknownException::ice_print(ostream& out) const
-{
-    Exception::ice_print(out);
-    out << ":\nunknown C++ exception";
+    if(!unknown.empty())
+    {
+	out << "\nunknown user exception text:\n" << unknown;
+    }
 }
 
 void

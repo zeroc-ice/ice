@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Incoming.h>
-#include <Ice/ObjectAdapter.h>
+#include <Ice/ObjectAdapterI.h> // We need ObjectAdapterI, not ObjectAdapter, because of inc/decUsageCount().
 #include <Ice/ServantLocator.h>
 #include <Ice/Object.h>
 #include <Ice/LocalException.h>
@@ -19,23 +19,30 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::Incoming::Incoming(const InstancePtr& instance, const ObjectAdapterPtr& adapter) :
-    _adapter(adapter),
     _is(instance),
     _os(instance)
 {
+    _current.adapter = adapter;
+    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->incUsageCount();
+}
+
+IceInternal::Incoming::~Incoming()
+{
+    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
 }
 
 void
 IceInternal::Incoming::invoke(bool response)
 {
-    Current current;
-    current.adapter = _adapter;
-    current.id.__read(&_is);
-    _is.read(current.facet);
-    _is.read(current.operation);
+    //
+    // Read the current.
+    //
+    _current.id.__read(&_is);
+    _is.read(_current.facet);
+    _is.read(_current.operation);
     Byte b;
     _is.read(b);
-    current.mode = static_cast<OperationMode>(b);
+    _current.mode = static_cast<OperationMode>(b);
     Int sz;
     _is.readSize(sz);
     while(sz--)
@@ -43,121 +50,94 @@ IceInternal::Incoming::invoke(bool response)
 	pair<string, string> pr;
 	_is.read(pr.first);
 	_is.read(pr.second);
-	current.ctx.insert(current.ctx.end(), pr);
+	_current.ctx.insert(_current.ctx.end(), pr);
     }
 
-    BasicStream::Container::size_type statusPos = 0; // Initialize, to keep the compiler happy.
+    _is.startReadEncaps();
+
+    BasicStream::Container::size_type statusPos;
     if(response)
     {
 	statusPos = _os.b.size();
 	_os.write(static_cast<Byte>(0));
-    }
-
-    //
-    // Input and output parameters are always sent in an
-    // encapsulation, which makes it possible to forward requests as
-    // blobs.
-    //
-    _is.startReadEncaps();
-    if(response)
-    {
 	_os.startWriteEncaps();
+    }
+    else
+    {
+	statusPos = 0; // Initialize, to keep the compiler happy.
     }
 
     ObjectPtr servant;
     ServantLocatorPtr locator;
     LocalObjectPtr cookie;
-	
+    DispatchStatus status;
+
+    //
+    // Don't put the code above into the try block below. Exceptions
+    // in the code above are considered fatal, and must propagate to
+    // the caller of this operation.
+    //
+
     try
     {
-	if(_adapter)
+	servant = _current.adapter->identityToServant(_current.id);
+	
+	if(!servant && !_current.id.category.empty())
 	{
-	    servant = _adapter->identityToServant(current.id);
-	    
-	    if(!servant && !current.id.category.empty())
+	    locator = _current.adapter->findServantLocator(_current.id.category);
+	    if(locator)
 	    {
-		locator = _adapter->findServantLocator(current.id.category);
-		if(locator)
-		{
-		    servant = locator->locate(current, cookie);
-		}
+		servant = locator->locate(_current, cookie);
 	    }
-	    
-	    if(!servant)
+	}
+	
+	if(!servant)
+	{
+	    locator = _current.adapter->findServantLocator("");
+	    if(locator)
 	    {
-		locator = _adapter->findServantLocator("");
-		if(locator)
-		{
-		    servant = locator->locate(current, cookie);
-		}
+		servant = locator->locate(_current, cookie);
 	    }
 	}
 	    
-	DispatchStatus status;
-
 	if(!servant)
 	{
 	    status = DispatchObjectNotExist;
 	}
 	else
 	{
-	    if(!current.facet.empty())
+	    if(!_current.facet.empty())
 	    {
-		ObjectPtr facetServant = servant->ice_findFacetPath(current.facet, 0);
+		ObjectPtr facetServant = servant->ice_findFacetPath(_current.facet, 0);
 		if(!facetServant)
 		{
 		    status = DispatchFacetNotExist;
 		}
 		else
 		{
-		    status = facetServant->__dispatch(*this, current);
+		    status = facetServant->__dispatch(*this, _current);
 		}
 	    }
 	    else
 	    {
-		status = servant->__dispatch(*this, current);
+		status = servant->__dispatch(*this, _current);
 	    }
 	}
 
 	if(locator && servant)
 	{
-	    assert(_adapter);
-	    locator->finished(current, servant, cookie);
-	}
-	
-	_is.endReadEncaps();
-	if(response)
-	{
-	    _os.endWriteEncaps();
-
-	    if(status != DispatchOK && status != DispatchUserException)
-	    {
-		assert(status == DispatchObjectNotExist ||
-		       status == DispatchFacetNotExist ||
-		       status == DispatchOperationNotExist);
-		       
-		_os.b.resize(statusPos);
-		_os.write(static_cast<Byte>(status));
-
-		current.id.__write(&_os);
-		_os.write(current.facet);
-		_os.write(current.operation);
-	    }
-	    else
-	    {
-		*(_os.b.begin() + statusPos) = static_cast<Byte>(status);
-	    }
+	    locator->finished(_current, servant, cookie);
 	}
     }
     catch(const LocationForward& ex)
     {
 	if(locator && servant)
 	{
-	    assert(_adapter);
-	    locator->finished(current, servant, cookie);
+	    locator->finished(_current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
+
 	if(response)
 	{
 	    _os.endWriteEncaps();
@@ -165,16 +145,18 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.write(static_cast<Byte>(DispatchLocationForward));
 	    _os.write(ex._prx);
 	}
+
+	return;
     }
     catch(const RequestFailedException& ex)
     {
 	if(locator && servant)
 	{
-	    assert(_adapter);
-	    locator->finished(current, servant, cookie);
+	    locator->finished(_current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
+
 	if(response)
 	{
 	    _os.endWriteEncaps();
@@ -195,77 +177,130 @@ IceInternal::Incoming::invoke(bool response)
 	    {
 		assert(false);
 	    }
-
-            // Not current.id.__write(_os), so that the identity
-            // can be overwritten.
+            // Write the data from the exception, not from _current,
+            // so that a RequestFailedException can override the
+            // information from _current.
 	    ex.id.__write(&_os);
-	    // Not _os.write(current.facet), so that the facet can
-	    // be overwritten.
 	    _os.write(ex.facet);
-	    // Not _os.write(current.operation), so that the operation
-	    // can be overwritten.
 	    _os.write(ex.operation);
 	}
 
-	// Rethrow, so that the caller can print a warning.
-	ex.ice_throw();
+	return;
     }
     catch(const LocalException& ex)
     {
 	if(locator && servant)
 	{
-	    assert(_adapter);
-	    locator->finished(current, servant, cookie);
+	    locator->finished(_current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
+
 	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
 	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
+	    ostringstream str;
+	    str << ex;
+	    _os.write(str.str());
 	}
 
-	// Rethrow, so that the caller can print a warning.
-	ex.ice_throw();
+	return;
     }
     catch(const UserException& ex)
     {
 	if(locator && servant)
 	{
-	    assert(_adapter);
-	    locator->finished(current, servant, cookie);
+	    locator->finished(_current, servant, cookie);
 	}
 
 	_is.endReadEncaps();
+
 	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
 	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
+	    ostringstream str;
+	    str << ex;
+	    _os.write(str.str());
 	}
 
-	// Rethrow, so that the caller can print a warning.
-	ex.ice_throw();
+	return;
     }
-    catch(...)
+    catch(const std::exception& ex)
     {
 	if(locator && servant)
 	{
-	    assert(_adapter);
-	    locator->finished(current, servant, cookie);
+	    locator->finished(_current, servant, cookie);
 	}
-
+	
 	_is.endReadEncaps();
+
 	if(response)
 	{
 	    _os.endWriteEncaps();
 	    _os.b.resize(statusPos);
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
+	    ostringstream str;
+	    str << "std::exception: " << ex.what();
+	    _os.write(str.str());
 	}
 
-	// Rethrow, so that the caller can print a warning.
-	throw;
+	return;
+    }
+    catch(...)
+    {
+	if(locator && servant)
+	{
+	    locator->finished(_current, servant, cookie);
+	}
+
+	_is.endReadEncaps();
+
+	if(response)
+	{
+	    _os.endWriteEncaps();
+	    _os.b.resize(statusPos);
+	    _os.write(static_cast<Byte>(DispatchUnknownException));
+	    string reason = "unknown c++ exception";
+	    _os.write(reason);
+	}
+
+	return;
+    }
+
+
+    //
+    // Don't put the code below into the try block above. Exceptions
+    // in the code below are considered fatal, and must propagate to
+    // the caller of this operation.
+    //
+
+    _is.endReadEncaps();
+
+    if(response)
+    {
+	_os.endWriteEncaps();
+	
+	if(status != DispatchOK && status != DispatchUserException)
+	{
+	    assert(status == DispatchObjectNotExist ||
+		   status == DispatchFacetNotExist ||
+		   status == DispatchOperationNotExist);
+	    
+	    _os.b.resize(statusPos);
+	    _os.write(static_cast<Byte>(status));
+	    
+	    _current.id.__write(&_os);
+	    _os.write(_current.facet);
+	    _os.write(_current.operation);
+	}
+	else
+	{
+	    *(_os.b.begin() + statusPos) = static_cast<Byte>(status);
+	}
     }
 }
 

@@ -53,7 +53,7 @@ private:
     std::map<EndpointPtr, ConnectionPtr> _connections;
 };
 
-class IncomingConnectionFactory : public EventHandler, public ::IceUtil::Monitor< ::IceUtil::Mutex>
+class IncomingConnectionFactory : public EventHandler, public ::IceUtil::Mutex
 {
 public:
 
@@ -79,7 +79,6 @@ private:
     IncomingConnectionFactory(const InstancePtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
     virtual ~IncomingConnectionFactory();
     void destroy();
-    void waitUntilFinished() const;
     friend class ::Ice::ObjectAdapterI;
 
     enum State

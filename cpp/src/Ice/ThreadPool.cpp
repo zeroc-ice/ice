@@ -609,7 +609,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
 	Error out(_pool->_instance->logger());
 	out << "exception in thread pool:\n" << ex;
     }
-    catch (...)
+    catch(...)
     {
 	Error out(_pool->_instance->logger());
 	out << "unknown exception in thread pool";

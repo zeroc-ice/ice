@@ -11,7 +11,6 @@
 #ifndef ICE_DIRECT_H
 #define ICE_DIRECT_H
 
-#include <Ice/ObjectAdapterF.h>
 #include <Ice/ServantLocatorF.h>
 #include <Ice/ReferenceF.h>
 #include <Ice/ObjectF.h>
@@ -32,7 +31,12 @@ public:
 
 private:
 
-    ::Ice::Current _current;
+    //
+    // Optimization. The current may not be deleted while a
+    // stack-allocated Direct still holds it.
+    //
+    const ::Ice::Current& _current;
+
     ::Ice::ObjectPtr _servant;
     ::Ice::ObjectPtr _facetServant;
     ::Ice::ServantLocatorPtr _locator;

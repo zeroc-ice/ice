@@ -23,76 +23,12 @@ using namespace Ice;
 using namespace IceInternal;
 
 static void
-printHeader(ostream& s, BasicStream& stream)
-{
-    Byte protVer;
-    stream.read(protVer);
-//    s << "\nprotocol version = " << static_cast<int>(protVer);
-    Byte encVer;
-    stream.read(encVer);
-//    s << "\nencoding version = " << static_cast<int>(encVer);
-    Byte type;
-    stream.read(type);
-    s << "\nmessage type = "  << static_cast<int>(type) << ' ';
-    switch(type)
-    {
-	case requestMsg:
-	{
-	    s << "(request)";
-	    break;
-	}
-	case requestBatchMsg:
-	{
-	    s << "(batch request)";
-	    break;
-	}
-	case replyMsg:
-	{
-	    s << "(reply)";
-	    break;
-	}
-	case compressedRequestMsg:
-	{
-	    s << "(compressed request)";
-	    break;
-	}
-	case compressedRequestBatchMsg:
-	{
-	    s << "(compressed batch request)";
-	    break;
-	}
-	case compressedReplyMsg:
-	{
-	    s << "(compressed reply)";
-	    break;
-	}
-	case closeConnectionMsg:
-	{
-	    s << "(close connection)";
-	    break;
-	}
-	case validateConnectionMsg:
-	{
-	    s << "(validate connection)";
-	    break;
-	}
-	default:
-	{
-	    s << "(unknown)";
-	    break;
-	}
-    }
-    Int size;
-    stream.read(size);
-    s << "\nmessage size = " << size;
-}
-
-static void
-printRequestHeader(ostream& s, BasicStream& stream)
+printIdentityFacetOperation(ostream& s, BasicStream& stream)
 {
     Identity identity;
     identity.__read(&stream);
     s << "\nidentity = " << identity;
+
     vector<string> facet;
     stream.read(facet);
     s << "\nfacet = ";
@@ -108,12 +44,21 @@ printRequestHeader(ostream& s, BasicStream& stream)
 	    s << '/';
 	}
     }
+
     string operation;
     stream.read(operation);
     s << "\noperation = " << operation;
+}
+
+static void
+printRequestHeader(ostream& s, BasicStream& stream)
+{
+    printIdentityFacetOperation(s, stream);
+
     bool idempotent;
     stream.read(idempotent);
     s << "\nidempotent = " << (idempotent ? "true" : "false");
+
     Int sz;
     stream.readSize(sz);
     s << "\ncontext = ";
@@ -130,66 +75,81 @@ printRequestHeader(ostream& s, BasicStream& stream)
     }
 }
 
-#if 0
 static void
-dumpOctets(const char* cat, const BasicStream& stream, const ::Ice::LoggerPtr& logger)
+printHeader(ostream& s, BasicStream& stream)
 {
-    ostringstream s;
-    s << endl;
+    Byte protVer;
+    stream.read(protVer);
+//    s << "\nprotocol version = " << static_cast<int>(protVer);
 
-    const BasicStream::Container::size_type inc = 8;
+    Byte encVer;
+    stream.read(encVer);
+//    s << "\nencoding version = " << static_cast<int>(encVer);
 
-    for(BasicStream::Container::size_type i = 0; i < stream.b.size(); i += inc)
+    Byte type;
+    stream.read(type);
+    s << "\nmessage type = "  << static_cast<int>(type) << ' ';
+
+    switch(type)
     {
-        for(BasicStream::Container::size_type j = i; j - i < inc; j++)
-        {
-            if(j < stream.b.size())
-            {
-                int n = stream.b[j];
-                if(n < 0)
-                {
-                    n += 256;
-                }
-                if(n < 10)
-                {
-                    s << "  " << n;
-                }
-                else if(n < 100)
-                {
-                    s << " " << n;
-                }
-                else
-                {
-                    s << n;
-                }
-                s << " ";
-            }
-            else
-            {
-                s << "    ";
-            }
-        }
+	case requestMsg:
+	{
+	    s << "(request)";
+	    break;
+	}
 
-        s << '"';
+	case requestBatchMsg:
+	{
+	    s << "(batch request)";
+	    break;
+	}
 
-        for(BasicStream::Container::size_type j = i; j < stream.b.size() && j - i < inc; j++)
-        {
-            if(stream.b[j] >= 32 && stream.b[j] < 127)
-            {
-                s << (char)stream.b[j];
-            }
-            else
-            {
-                s << '.';
-            }
-        }
+	case replyMsg:
+	{
+	    s << "(reply)";
+	    break;
+	}
 
-        s << '"' << endl;
+	case compressedRequestMsg:
+	{
+	    s << "(compressed request)";
+	    break;
+	}
+
+	case compressedRequestBatchMsg:
+	{
+	    s << "(compressed batch request)";
+	    break;
+	}
+
+	case compressedReplyMsg:
+	{
+	    s << "(compressed reply)";
+	    break;
+	}
+
+	case closeConnectionMsg:
+	{
+	    s << "(close connection)";
+	    break;
+	}
+
+	case validateConnectionMsg:
+	{
+	    s << "(validate connection)";
+	    break;
+	}
+	default:
+	{
+	    s << "(unknown)";
+	    break;
+	}
     }
 
-    logger->trace(cat, s.str());
+    Int size;
+    stream.read(size);
+    s << "\nmessage size = " << size;
 }
-#endif
 
 void
 IceInternal::traceHeader(const char* heading, const BasicStream& str, const ::Ice::LoggerPtr& logger,
@@ -200,9 +160,11 @@ IceInternal::traceHeader(const char* heading, const BasicStream& str, const ::Ic
 	BasicStream& stream = const_cast<BasicStream&>(str);
 	BasicStream::Container::iterator p = stream.i;
 	stream.i = stream.b.begin();
+
 	ostringstream s;
 	s << heading;
 	printHeader(s, stream);
+
 	logger->trace(tl->protocolCat, s.str());
 	stream.i = p;
     }
@@ -217,9 +179,11 @@ IceInternal::traceRequest(const char* heading, const BasicStream& str, const ::I
 	BasicStream& stream = const_cast<BasicStream&>(str);
 	BasicStream::Container::iterator p = stream.i;
 	stream.i = stream.b.begin();
+
 	ostringstream s;
 	s << heading;
 	printHeader(s, stream);
+
 	Int requestId;
 	stream.read(requestId);
 	s << "\nrequest id = " << requestId;
@@ -228,6 +192,7 @@ IceInternal::traceRequest(const char* heading, const BasicStream& str, const ::I
 	    s << " (oneway)";
 	}
 	printRequestHeader(s, stream);
+
 	logger->trace(tl->protocolCat, s.str());
 	stream.i = p;
     }
@@ -242,9 +207,11 @@ IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, cons
 	BasicStream& stream = const_cast<BasicStream&>(str);
 	BasicStream::Container::iterator p = stream.i;
 	stream.i = stream.b.begin();
+
 	ostringstream s;
 	s << heading;
 	printHeader(s, stream);
+
 	int cnt = 0;
 	while(stream.i != stream.b.end())
 	{
@@ -252,6 +219,7 @@ IceInternal::traceBatchRequest(const char* heading, const BasicStream& str, cons
 	    printRequestHeader(s, stream);
 	    stream.skipEncaps();
 	}
+
 	logger->trace(tl->protocolCat, s.str());
 	stream.i = p;
     }
@@ -266,12 +234,15 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const ::Ice
 	BasicStream& stream = const_cast<BasicStream&>(str);
 	BasicStream::Container::iterator p = stream.i;
 	stream.i = stream.b.begin();
+
 	ostringstream s;
 	s << heading;
 	printHeader(s, stream);
+
 	Int requestId;
 	stream.read(requestId);
 	s << "\nrequest id = " << requestId;
+
 	Byte status;
 	stream.read(status);
 	s << "\nreply status = " << static_cast<int>(status) << ' ';
@@ -282,52 +253,98 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const ::Ice
 		s << "(ok)";
 		break;
 	    }
+
 	    case DispatchUserException:
 	    {
 		s << "(user exception)";
 		break;
 	    }
+
 	    case DispatchLocationForward:
 	    {
 		s << "(location forward)";
 		break;
 	    }
+
 	    case DispatchObjectNotExist:
-	    {
-		s << "(object not exist)";
-		break;
-	    }
 	    case DispatchFacetNotExist:
-	    {
-		s << "(facet not exist)";
-		break;
-	    }
 	    case DispatchOperationNotExist:
 	    {
-		s << "(operation not exist)";
+		switch(static_cast<DispatchStatus>(status))
+		{
+		    case DispatchObjectNotExist:
+		    {
+			s << "(object not exist)";
+			break;
+		    }
+
+		    case DispatchFacetNotExist:
+		    {
+			s << "(facet not exist)";
+			break;
+		    }
+
+		    case DispatchOperationNotExist:
+		    {
+			s << "(operation not exist)";
+			break;
+		    }
+
+		    default:
+		    {
+			assert(false);
+			break;
+		    }
+		}
+
+		printIdentityFacetOperation(s, stream);
 		break;
 	    }
+
+	    case DispatchUnknownException:
 	    case DispatchUnknownLocalException:
-	    {
-		s << "(unknown local exception)";
-		break;
-	    }
 	    case DispatchUnknownUserException:
 	    {
-		s << "(unknown user exception)";
+		switch(static_cast<DispatchStatus>(status))
+		{
+		    case DispatchUnknownException:
+		    {
+			s << "(unknown exception)";
+			break;
+		    }
+
+		    case DispatchUnknownLocalException:
+		    {
+			s << "(unknown local exception)";
+			break;
+		    }
+
+		    case DispatchUnknownUserException:
+		    {
+			s << "(unknown user exception)";
+			break;
+		    }
+
+		    default:
+		    {
+			assert(false);
+			break;
+		    }
+		}
+		
+		string unknown;
+		stream.read(unknown);
+		s << "\nunknown = " << unknown;
 		break;
 	    }
-	    case DispatchUnknownException:
-	    {
-		s << "(unknown exception)";
-		break;
-	    }
+
 	    default:
 	    {
 		s << "(unknown)";
 		break;
 	    }
 	}
+
 	logger->trace(tl->protocolCat, s.str());
 	stream.i = p;
     }

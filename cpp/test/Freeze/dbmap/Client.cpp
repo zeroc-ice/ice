@@ -325,9 +325,9 @@ run(int argc, char* argv[], MAP& m)
 	IceUtil::ThreadPtr t = new StressThread<MAP>(m);
 	controls.push_back(t->start());
     }
-    for(vector<IceUtil::ThreadControl>::iterator p = controls.begin(); p != controls.end(); ++p)
+    for(vector<IceUtil::ThreadControl>::iterator q = controls.begin(); q != controls.end(); ++q)
     {
-	p->join();
+	q->join();
     }
     cout << "ok" << endl;
 

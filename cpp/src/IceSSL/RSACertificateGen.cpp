@@ -22,6 +22,17 @@
 using std::string;
 using std::back_inserter;
 
+IceSSL::RSACertificateGenContext::RSACertificateGenContext() :
+    _modulusLength(0),
+    _secondsValid(0),
+    _issuedAdjustment(0)
+{
+}
+
+IceSSL::RSACertificateGenContext::~RSACertificateGenContext()
+{
+}
+
 long
 IceSSL::RSACertificateGenContext::minutesToSeconds(long minutes)
 {
@@ -50,17 +61,6 @@ long
 IceSSL::RSACertificateGenContext::yearsToSeconds(long years)
 {
     return weeksToSeconds(years * 365L);
-}
-
-IceSSL::RSACertificateGenContext::RSACertificateGenContext() :
-                                          _modulusLength(0),
-                                          _secondsValid(0),
-                                          _issuedAdjustment(0)
-{
-}
-
-IceSSL::RSACertificateGenContext::~RSACertificateGenContext()
-{
 }
 
 void
@@ -158,7 +158,7 @@ IceSSL::RSACertificateGenContext::getOrganization() const
 }
 
 unsigned char*
-IceSSL::RSACertificateGenContext::getOrgainizationalUnit() const
+IceSSL::RSACertificateGenContext::getOrganizationalUnit() const
 {
     unsigned char* orgUnit = reinterpret_cast<unsigned char *>(const_cast<char*>(_organizationalUnit.c_str()));
 
@@ -248,12 +248,12 @@ IceSSL::RSACertificateGen::generate(const RSACertificateGenContext& context)
     X509_gmtime_adj(X509_get_notAfter(x509SelfSigned), context.getSecondsValid());
 
     // Set up subject/issuer Distinguished Name (DN).
-    X509_NAME_add_entry_by_txt(subjectName, "C",  MBSTRING_ASC, context.getCountry(),             -1, -1, 0);
-    X509_NAME_add_entry_by_txt(subjectName, "ST", MBSTRING_ASC, context.getStateProvince(),       -1, -1, 0);
-    X509_NAME_add_entry_by_txt(subjectName, "L",  MBSTRING_ASC, context.getLocality(),            -1, -1, 0);
-    X509_NAME_add_entry_by_txt(subjectName, "O",  MBSTRING_ASC, context.getOrganization(),        -1, -1, 0);
-    X509_NAME_add_entry_by_txt(subjectName, "OU", MBSTRING_ASC, context.getOrgainizationalUnit(), -1, -1, 0);
-    X509_NAME_add_entry_by_txt(subjectName, "CN", MBSTRING_ASC, context.getCommonName(),          -1, -1, 0);
+    X509_NAME_add_entry_by_txt(subjectName, "C",  MBSTRING_ASC, context.getCountry(),            -1, -1, 0);
+    X509_NAME_add_entry_by_txt(subjectName, "ST", MBSTRING_ASC, context.getStateProvince(),      -1, -1, 0);
+    X509_NAME_add_entry_by_txt(subjectName, "L",  MBSTRING_ASC, context.getLocality(),           -1, -1, 0);
+    X509_NAME_add_entry_by_txt(subjectName, "O",  MBSTRING_ASC, context.getOrganization(),       -1, -1, 0);
+    X509_NAME_add_entry_by_txt(subjectName, "OU", MBSTRING_ASC, context.getOrganizationalUnit(), -1, -1, 0);
+    X509_NAME_add_entry_by_txt(subjectName, "CN", MBSTRING_ASC, context.getCommonName(),         -1, -1, 0);
 
     // Self signed - set issuer and subject names identical
     X509_set_issuer_name(x509SelfSigned, subjectName);

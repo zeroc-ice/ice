@@ -132,20 +132,20 @@ IceInternal::Connection::activate()
 }
 
 void
-IceInternal::Connection::incProxyUsageCount()
+IceInternal::Connection::incUsageCount()
 {
     IceUtil::RecMutex::Lock sync(*this);
-    assert(_proxyUsageCount >= 0);
-    ++_proxyUsageCount;
+    assert(_usageCount >= 0);
+    ++_usageCount;
 }
 
 void
-IceInternal::Connection::decProxyUsageCount()
+IceInternal::Connection::decUsageCount()
 {
     IceUtil::RecMutex::Lock sync(*this);
-    assert(_proxyUsageCount > 0);
-    --_proxyUsageCount;
-    if(_proxyUsageCount == 0 && !_adapter)
+    assert(_usageCount > 0);
+    --_usageCount;
+    if(_usageCount == 0 && !_adapter)
     {
 	assert(_requests.empty());
 	setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
@@ -681,23 +681,27 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
     //
     if(invoke)
     {
+	//
+	// Prepare the invocation.
+	//
 	Incoming in(_instance, _adapter);
 	BasicStream* is = in.is();
-	BasicStream* os = in.os();
 	stream.swap(*is);
-	
-	bool response = false;
+	BasicStream* os = 0;
 
 	try
 	{
+	    //
+	    // Prepare the response if necessary.
+	    //
 	    if(!batch)
 	    {
 		Int requestId;
 		is->read(requestId);
 		if(!_endpoint->datagram() && requestId != 0) // 0 means oneway.
 		{
-		    response = true;
 		    ++_responseCount;
+		    os = in.os();
 		    os->write(protocolVersion);
 		    os->write(encodingVersion);
 		    os->write(replyMsg);
@@ -706,39 +710,13 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		}
 	    }
 	    
+	    //
+	    // Do the invocation, or multiple invocations for batch
+	    // messages.
+	    //
 	    do
 	    {
-		try
-		{
-		    in.invoke(response);
-		}
-		catch(const LocalException& ex)
-		{
-		    IceUtil::RecMutex::Lock sync(*this);
-		    if(_warn)
-		    {
-			Warning out(_logger);
-			out << "connection exception:\n" << ex << '\n' << _transceiver->toString();
-		    }
-		}
-		catch(const UserException& ex)
-		{
-		    IceUtil::RecMutex::Lock sync(*this);
-		    if(_warn)
-		    {
-			Warning out(_logger);
-			out << "unknown user exception:\n" << ex << '\n' << _transceiver->toString();
-		    }
-		}
-		catch(...)
-		{
-		    IceUtil::RecMutex::Lock sync(*this);
-		    if(_warn)
-		    {
-			Warning out(_logger);
-			out << "unknown exception";
-		    }
-		}
+		in.invoke(os != 0);
 	    }
 	    while(batch && is->i < is->b.end());
 	}
@@ -749,13 +727,15 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    return;
 	}
 	
-	if(response)
+	//
+	// Send a response if necessary.
+	//
+	if(os != 0)
 	{
 	    IceUtil::RecMutex::Lock sync(*this);
 	    
 	    try
 	    {
-		
 		if(_state == StateClosed)
 		{
 		    return;
@@ -772,14 +752,14 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 			comp = _defaultsAndOverrides->overrideComppressValue;
 		    }
 		}
-
+		
 		if(comp)
 		{
 		    //
 		    // Change message type.
 		    //
 		    os->b[2] = compressedReplyMsg;
-
+		    
 		    //
 		    // Do compression.
 		    //
@@ -874,7 +854,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _requestsHint(_requests.end()),
     _batchStream(_instance),
     _responseCount(0),
-    _proxyUsageCount(0),
+    _usageCount(0),
     _state(StateHolding),
     _registeredWithPool(false)
 {
@@ -882,6 +862,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
 
 IceInternal::Connection::~Connection()
 {
+    assert(_usageCount == 0);
     assert(_state == StateClosed);
 }
 

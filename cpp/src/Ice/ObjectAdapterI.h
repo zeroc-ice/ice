@@ -31,7 +31,7 @@ namespace Ice
 class ObjectAdapterI;
 typedef IceUtil::Handle<ObjectAdapterI> ObjectAdapterIPtr;
 
-class ObjectAdapterI : public ObjectAdapter, public ::IceUtil::Mutex
+class ObjectAdapterI : public ObjectAdapter, public ::IceUtil::Monitor< ::IceUtil::Mutex>
 {
 public:
 
@@ -62,6 +62,8 @@ public:
     virtual void setLocator(const LocatorPrx&);
     
     std::list< ::IceInternal::ConnectionPtr> getIncomingConnections() const;
+    void incUsageCount();
+    void decUsageCount();
 
 private:
 
@@ -87,6 +89,7 @@ private:
     std::vector< ::IceInternal::EndpointPtr> _routerEndpoints;
     IceUtil::Mutex _routerEndpointsMutex;
     ::IceInternal::LocatorInfoPtr _locatorInfo;
+    int _usageCount;
 };
 
 }

@@ -286,8 +286,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             thrower->throwUndeclaredA(1);
             test(false);
         }
+	catch(const A& ex)
+	{
+	    //
+	    // We get the original exception with collocation
+	    // optimization.
+	    //
+	    test(collocated);
+	    test(ex.aMem == 1);
+	}
         catch(const Ice::UnknownUserException&)
         {
+	    //
+	    // We get the an unknown user exception without
+	    // collocation optimization.
+	    //
+	    test(!collocated);
         }
         catch(const Ice::Exception& ex)
         {
@@ -304,8 +318,23 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             thrower->throwUndeclaredB(1, 2);
             test(false);
         }
+	catch(const B& ex)
+	{
+	    //
+	    // We get the original exception with collocation
+	    // optimization.
+	    //
+	    test(collocated);
+	    test(ex.aMem == 1);
+	    test(ex.bMem == 2);
+	}
         catch(const Ice::UnknownUserException&)
         {
+	    //
+	    // We get the an unknown user exception without
+	    // collocation optimization.
+	    //
+	    test(!collocated);
         }
         catch(...)
         {
@@ -317,8 +346,24 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
             thrower->throwUndeclaredC(1, 2, 3);
             test(false);
         }
+	catch(const C& ex)
+	{
+	    //
+	    // We get the original exception with collocation
+	    // optimization.
+	    //
+	    test(collocated);
+	    test(ex.aMem == 1);
+	    test(ex.bMem == 2);
+	    test(ex.cMem == 3);
+	}
         catch(const Ice::UnknownUserException&)
         {
+	    //
+	    // We get the an unknown user exception without
+	    // collocation optimization.
+	    //
+	    test(!collocated);
         }
         catch(...)
         {
@@ -410,13 +455,19 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     }
     catch(const Ice::TimeoutException&)
     {
+	//
 	// We get the original exception with collocation
 	// optimization.
+	//
+	test(collocated);
     }
     catch(const Ice::UnknownLocalException&)
     {
+	//
 	// We get the an unknown local exception without collocation
 	// optimization.
+	//
+	test(!collocated);
     }
     catch(...)
     {
@@ -432,8 +483,22 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	thrower->throwNonIceException();
 	test(false);
     }
+    catch(const int& ex)
+    {
+	//
+	// We get the original exception with collocation
+	// optimization.
+	//
+	assert(collocated);
+	assert(ex == 12345);
+    }
     catch(const Ice::UnknownException&)
     {
+	//
+	// We get the an unknown exception without collocation
+	// optimization.
+	//
+	assert(!collocated);
     }
     catch(...)
     {

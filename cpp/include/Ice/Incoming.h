@@ -11,9 +11,9 @@
 #ifndef ICE_INCOMING_H
 #define ICE_INCOMING_H
 
-#include <Ice/ObjectAdapterF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/BasicStream.h>
+#include <Ice/Current.h>
 
 namespace IceInternal
 {
@@ -22,7 +22,8 @@ class ICE_API Incoming : public ::IceUtil::noncopyable
 {
 public:
 
-    Incoming(const InstancePtr&, const ::Ice::ObjectAdapterPtr&);
+    Incoming(const InstancePtr&, const ::Ice::ObjectAdapterPtr& adapter);
+    ~Incoming();
 
     void invoke(bool);
 
@@ -31,11 +32,7 @@ public:
 
 private:
 
-    //
-    // Optimization. The adapter may not be deleted while a
-    // stack-allocated Incoming still holds it.
-    //
-    const ::Ice::ObjectAdapterPtr& _adapter;
+    Ice::Current _current;
 
     BasicStream _is;
     BasicStream _os;

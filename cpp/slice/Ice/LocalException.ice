@@ -19,6 +19,29 @@ module Ice
 
 /**
  *
+ * This exception is raised if an operation call on a server raises an
+ * unknown exception. For example, for C++, this exception is raised
+ * if the server throws a C++ exception that is not directly or
+ * indirectly derived from <literal>Ice::LocalException</literal> or
+ * <literal>Ice::UserException</literal>.
+ *
+ **/
+local exception UnknownException
+{
+    /**
+     *
+     * The unknown exception as textual representation. This field may
+     * or may not be set, depending on the security policy of the
+     * server. Some servers may give this information to clients for
+     * debugging purposes, while others don't provide this information
+     * to prevent any information about the server internals.
+     *
+     **/
+    string unknown;
+};
+    
+/**
+ *
  * This exception is raised if an operation call on a server raises a
  * local exception. Because local exceptions are not transmitted by
  * the &Ice; protocol, the client receives all local exceptions raised
@@ -28,7 +51,7 @@ module Ice
  * declared [local].
  *
  **/
-local exception UnknownLocalException
+local exception UnknownLocalException extends UnknownException
 {
 };
 
@@ -44,20 +67,7 @@ local exception UnknownLocalException
  * declared in the <literal>throws</literal> clause can be raised.
  *
  **/
-local exception UnknownUserException
-{
-};
-
-/**
- *
- * This exception is raised if an operation call on a server raises an
- * unknown exception. For example, for C++, this exception is raised
- * if the server throws a C++ exception that is not directly or
- * indirectly derived from <literal>Ice::LocalException</literal> or
- * <literal>Ice::UserException</literal>.
- *
- **/
-local exception UnknownException
+local exception UnknownUserException extends UnknownException
 {
 };
 

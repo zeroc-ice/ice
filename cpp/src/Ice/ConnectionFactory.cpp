@@ -246,14 +246,14 @@ IceInternal::OutgoingConnectionFactory::destroy()
 void
 IceInternal::IncomingConnectionFactory::hold()
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    ::IceUtil::Mutex::Lock sync(*this);
     setState(StateHolding);
 }
 
 void
 IceInternal::IncomingConnectionFactory::activate()
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    ::IceUtil::Mutex::Lock sync(*this);
     setState(StateActive);
 }
 
@@ -279,7 +279,7 @@ IceInternal::IncomingConnectionFactory::equivalent(const EndpointPtr& endp) cons
 list<ConnectionPtr>
 IceInternal::IncomingConnectionFactory::connections() const
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    ::IceUtil::Mutex::Lock sync(*this);
 
     //
     // Reap destroyed connections.
@@ -306,7 +306,7 @@ IceInternal::IncomingConnectionFactory::read(BasicStream&)
 void
 IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPtr& threadPool)
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    ::IceUtil::Mutex::Lock sync(*this);
 
     if(_state != StateActive)
     {
@@ -390,7 +390,7 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&, const ThreadPoolPt
 void
 IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool)
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    ::IceUtil::Mutex::Lock sync(*this);
 
     threadPool->promoteFollower();
     
@@ -403,13 +403,10 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 	_acceptor->close();
 
 	//
-        // Break cyclic object dependency. This is necessary, because
-        // the object adapter never clears the list of incoming
-        // connections it keeps.
+        // We don't need the adapter anymore after we closed the
+        // acceptor.
 	//
 	_adapter = 0;
-
-	notifyAll(); // For waitUntilFinished().
     }
 }
 
@@ -458,9 +455,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 
 	    //
 	    // We don't need an adapter anymore if we don't use an
-	    // acceptor. So we break cyclic object dependency
-	    // now. This is necessary, because the object adapter
-	    // never clears the list of incoming connections it keeps.
+	    // acceptor.
 	    //
 	    _adapter = 0;
 	}
@@ -487,19 +482,8 @@ IceInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
 void
 IceInternal::IncomingConnectionFactory::destroy()
 {
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    ::IceUtil::Mutex::Lock sync(*this);
     setState(StateClosed);
-}
-
-void
-IceInternal::IncomingConnectionFactory::waitUntilFinished() const
-{
-    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
-
-    while(_state != StateClosed || _adapter)
-    {
-	wait();
-    }
 }
 
 void

@@ -39,7 +39,7 @@ using namespace IceInternal;
 CommunicatorPtr
 Ice::ObjectAdapterI::getCommunicator()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
@@ -52,7 +52,7 @@ Ice::ObjectAdapterI::getCommunicator()
 void
 Ice::ObjectAdapterI::activate()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
@@ -108,7 +108,7 @@ Ice::ObjectAdapterI::activate()
 void
 Ice::ObjectAdapterI::hold()
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
@@ -122,57 +122,50 @@ Ice::ObjectAdapterI::hold()
 void
 Ice::ObjectAdapterI::deactivate()
 {
-    IceUtil::Mutex::Lock sync(*this);
-
-    if(!_instance)
     {
-	//
-	// Ignore deactivation requests if the Object Adapter has
-	// already been deactivated.
-	//
-	return;
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+	
+	if(!_instance)
+	{
+	    //
+	    // Ignore deactivation requests if the Object Adapter has
+	    // already been deactivated.
+	    //
+	    return;
+	}
+	
+	for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+		 Ice::voidMemFun(&IncomingConnectionFactory::destroy));
+	_incomingConnectionFactories.clear();
+	
+	_instance->outgoingConnectionFactory()->removeAdapter(this);
+
+	_instance = 0;
+	_communicator = 0;
     }
-	
-    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-	     Ice::voidMemFun(&IncomingConnectionFactory::destroy));
 
-    //
-    // Don't do a _incomingConnectionFactories.clear()!
-    // _incomingConnectionFactories is immutable. Even if all elements
-    // are destroyed, the elements are still needed by
-    // waitForDeactivate().
-    //
-
-    _instance->outgoingConnectionFactory()->removeAdapter(this);
-	
-    _activeServantMap.clear();
-    _activeServantMapHint = _activeServantMap.end();
-	
-    for_each(_locatorMap.begin(), _locatorMap.end(),
-	     Ice::secondVoidMemFun<string, ServantLocator>(&ServantLocator::deactivate));
-    _locatorMap.clear();
-    _locatorMapHint = _locatorMap.end();
-
-    _instance = 0;
-    _communicator = 0;
+    decUsageCount();
 }
 
 void
 Ice::ObjectAdapterI::waitForDeactivate()
 {
-    //
-    // _incommingConnectionFactories is immutable, thus no mutex lock
-    // is necessary. (A mutex lock wouldn't work here anyway, as there
-    // would be a deadlock with upcalls.)
-    //
-    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-	     Ice::constVoidMemFun(&IncomingConnectionFactory::waitUntilFinished));
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    assert(_usageCount >= 0);
+
+    while(_usageCount > 0)
+    {
+	wait();
+    }
+
+    assert(_usageCount == 0);
 }
 
 ObjectPrx
 Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
@@ -187,7 +180,7 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 ObjectPrx
 Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
@@ -205,7 +198,7 @@ Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
 void
 Ice::ObjectAdapterI::remove(const Identity& ident)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
@@ -219,7 +212,7 @@ Ice::ObjectAdapterI::remove(const Identity& ident)
 void
 Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const string& prefix)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
@@ -232,7 +225,7 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
 void
 Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(!_instance)
     {
@@ -273,7 +266,7 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 ServantLocatorPtr
 Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     if(!_instance)
     {
@@ -309,7 +302,7 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 ObjectPtr
 Ice::ObjectAdapterI::identityToServant(const Identity& ident)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
     if(_activeServantMapHint != _activeServantMap.end())
     {
@@ -341,7 +334,7 @@ Ice::ObjectAdapterI::proxyToServant(const ObjectPrx& proxy)
 ObjectPrx
 Ice::ObjectAdapterI::createProxy(const Identity& ident)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     if(!_instance)
     {
@@ -354,7 +347,7 @@ Ice::ObjectAdapterI::createProxy(const Identity& ident)
 ObjectPrx
 Ice::ObjectAdapterI::createDirectProxy(const Identity& ident)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     if(!_instance)
     {
@@ -367,7 +360,7 @@ Ice::ObjectAdapterI::createDirectProxy(const Identity& ident)
 ObjectPrx
 Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     if(!_instance)
     {
@@ -386,7 +379,7 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
 void
 Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     if(!_instance)
     {
@@ -429,7 +422,7 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 void
 Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
 {
-    IceUtil::Mutex::Lock sync(*this);
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     
     if(!_instance)
     {
@@ -442,10 +435,13 @@ Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
 list<ConnectionPtr>
 Ice::ObjectAdapterI::getIncomingConnections() const
 {
-    //
-    // _incommingConnectionFactories is immutable, thus no mutex lock
-    // is necessary.
-    //
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    if(!_instance)
+    {
+	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+    }
+
     list<ConnectionPtr> connections;
     vector<IncomingConnectionFactoryPtr>::const_iterator p;
     for(p = _incomingConnectionFactories.begin(); p != _incomingConnectionFactories.end(); ++p)
@@ -456,6 +452,46 @@ Ice::ObjectAdapterI::getIncomingConnections() const
     return connections;
 }
 
+void
+Ice::ObjectAdapterI::incUsageCount()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    if(!_instance)
+    {
+	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+    }
+
+    assert(_usageCount >= 0);
+    ++_usageCount;
+}
+
+void
+Ice::ObjectAdapterI::decUsageCount()
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+    //
+    // The object adapter may already be deactivated when the usage
+    // count is decremented, thus no check for prior deactivation.
+    //
+
+    assert(_usageCount > 0);
+    --_usageCount;
+    if(_usageCount == 0)
+    {
+	_activeServantMap.clear();
+	_activeServantMapHint = _activeServantMap.end();
+	
+	for_each(_locatorMap.begin(), _locatorMap.end(),
+		 Ice::secondVoidMemFun<string, ServantLocator>(&ServantLocator::deactivate));
+	_locatorMap.clear();
+	_locatorMapHint = _locatorMap.end();
+
+	notify();
+    }
+}
+
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const CommunicatorPtr& communicator,
 				    const string& name, const string& endpts, const string& id) :
     _instance(instance),
@@ -464,7 +500,8 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
     _name(name),
     _id(id),
     _activeServantMapHint(_activeServantMap.end()),
-    _locatorMapHint(_locatorMap.end())
+    _locatorMapHint(_locatorMap.end()),
+    _usageCount(1)
 {
     string s(endpts);
     transform(s.begin(), s.end(), s.begin(), ::tolower);
@@ -516,22 +553,12 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const Communica
 	throw;
     }
     __setNoDelete(false);  
-
-//
-// Object Adapters without incoming connection factories are
-// permissible, as such Object Adapters can still be used with a
-// router. (See addRouter.)
-//
-/*
-    if(_incomingConnectionFactories.empty())
-    {
-	throw EndpointParseException(__FILE__, __LINE__);
-    }
-*/
 }
 
 Ice::ObjectAdapterI::~ObjectAdapterI()
 {
+    assert(_usageCount == 0);
+
     if(_instance)
     {
 	Warning out(_instance->logger());

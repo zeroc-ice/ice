@@ -11,13 +11,12 @@
 #ifndef ICE_CURRENT_ICE
 #define ICE_CURRENT_ICE
 
+#include <Ice/ObjectAdapterF.ice>
 #include <Ice/Identity.ice>
 #include <Ice/Facet.ice>
 
 module Ice
 {
-
-local interface ObjectAdapter;
 
 /**
  *

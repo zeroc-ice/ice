@@ -251,8 +251,9 @@ IceInternal::Outgoing::finished(BasicStream& is)
 	    case DispatchOperationNotExist:
 	    {
 		_state = StateLocalException;
-                // Don't do _is.read(ex->facet), as this operation
-                // might throw exceptions. In such case ex would leak.
+                // Don't read the exception members directly into the
+                // exception. Otherwise if reading fails and raises an
+                // exception, you will have a memory leak.
 		Identity ident;
 		ident.__read(&_is);
 		vector<string> facet;
@@ -292,28 +293,50 @@ IceInternal::Outgoing::finished(BasicStream& is)
 		ex->facet = facet;
 		ex->operation = operation;
 		_exception = auto_ptr<LocalException>(ex);
-
-		break;
-	    }
-	    
-	    case DispatchUnknownLocalException:
-	    {
-		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(new UnknownLocalException(__FILE__, __LINE__));
-		break;
-	    }
-	    
-	    case DispatchUnknownUserException:
-	    {
-		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(new UnknownUserException(__FILE__, __LINE__));
 		break;
 	    }
 	    
 	    case DispatchUnknownException:
+	    case DispatchUnknownLocalException:
+	    case DispatchUnknownUserException:
 	    {
 		_state = StateLocalException;
-		_exception = auto_ptr<LocalException>(new UnknownException(__FILE__, __LINE__));
+                // Don't read the exception members directly into the
+                // exception. Otherwise if reading fails and raises an
+                // exception, you will have a memory leak.
+		string unknown;
+		_is.read(unknown);
+
+		UnknownException* ex;
+		switch(static_cast<DispatchStatus>(status))
+		{
+		    case DispatchUnknownException:
+		    {
+			ex = new UnknownException(__FILE__, __LINE__);
+			break;
+		    }
+
+		    case DispatchUnknownLocalException:
+		    {
+			ex = new UnknownLocalException(__FILE__, __LINE__);
+			break;
+		    }
+
+		    case DispatchUnknownUserException:
+		    {
+			ex = new UnknownUserException(__FILE__, __LINE__);
+			break;
+		    }
+
+		    default:
+		    {
+			assert(false);
+			break;
+		    }
+		}
+
+		ex->unknown = unknown;
+		_exception = auto_ptr<LocalException>(ex);
 		break;
 	    }
 	    

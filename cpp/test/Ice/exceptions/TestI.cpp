@@ -126,5 +126,5 @@ ThrowerI::throwLocalException(const Ice::Current&)
 void
 ThrowerI::throwNonIceException(const Ice::Current&)
 {
-    throw int();
+    throw int(12345);
 }

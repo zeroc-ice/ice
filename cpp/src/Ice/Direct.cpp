@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Direct.h>
-#include <Ice/ObjectAdapter.h>
+#include <Ice/ObjectAdapterI.h> // We need ObjectAdapterI, not ObjectAdapter, because of inc/decUsageCount().
 #include <Ice/ServantLocator.h>
 #include <Ice/Reference.h>
 #include <Ice/Object.h>
@@ -24,11 +24,13 @@ IceInternal::Direct::Direct(const Current& current) :
 {
     try
     {
-	_servant = current.adapter->identityToServant(_current.id);
+	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->incUsageCount();
+
+	_servant = _current.adapter->identityToServant(_current.id);
     
 	if(!_servant && !_current.id.category.empty())
 	{
-	    _locator = current.adapter->findServantLocator(_current.id.category);
+	    _locator = _current.adapter->findServantLocator(_current.id.category);
 	    if(_locator)
 	    {
 		_servant = _locator->locate(_current, _cookie);
@@ -37,14 +39,21 @@ IceInternal::Direct::Direct(const Current& current) :
 
 	if(!_servant)
 	{
-	    _locator = current.adapter->findServantLocator("");
+	    _locator = _current.adapter->findServantLocator("");
 	    if(_locator)
 	    {
 		_servant = _locator->locate(_current, _cookie);
 	    }
 	}
 	
-	if(_servant && !_current.facet.empty())
+	if(!_servant)
+	{
+	    ObjectNotExistException ex(__FILE__, __LINE__);
+	    ex.id = _current.id;
+	    throw ex;
+	}
+
+	if(!_current.facet.empty())
 	{
 	    _facetServant = _servant->ice_findFacetPath(_current.facet, 0);
 	    if(!_facetServant)
@@ -59,16 +68,19 @@ IceInternal::Direct::Direct(const Current& current) :
     {
 	if(_locator && _servant)
 	{
-	    _locator->finished(_current, _servant, _cookie);
+	    try
+	    {
+		_locator->finished(_current, _servant, _cookie);
+	    }
+	    catch(...)
+	    {
+		dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
+		throw;
+	    }
 	}
-	throw;
-    }
 
-    if(!_servant)
-    {
-	ObjectNotExistException ex(__FILE__, __LINE__);
-	ex.id = _current.id;
-	throw ex;
+	dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
+	throw;
     }
 }
 
@@ -76,8 +88,18 @@ IceInternal::Direct::~Direct()
 {
     if(_locator && _servant)
     {
-	_locator->finished(_current, _servant, _cookie);
+	try
+	{
+	    _locator->finished(_current, _servant, _cookie);
+	}
+	catch(...)
+	{
+	    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
+	    throw;
+	}
     }
+
+    dynamic_cast<ObjectAdapterI*>(_current.adapter.get())->decUsageCount();
 }
 
 const ObjectPtr&

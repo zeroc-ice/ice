@@ -26,29 +26,19 @@
 namespace IceSSL
 {
 
-using namespace std;
-
 class ICE_SSL_API RSACertificateGenContext
 {
 public:
 
-    //
-    // Static
-    //
+    RSACertificateGenContext();
+    ~RSACertificateGenContext();
 
-    // Conversion helper functions
+    // Conversion helper functions.
     static long minutesToSeconds(long);
     static long hoursToSeconds(long);
     static long daysToSeconds(long);
     static long weeksToSeconds(long);
     static long yearsToSeconds(long);
-
-    //
-    // Instance
-    //
-
-    RSACertificateGenContext();
-    ~RSACertificateGenContext();
 
     // Distinguished Name (setter) methods.
     void setCountry(const std::string&);
@@ -67,7 +57,7 @@ public:
     unsigned char* getStateProvince() const;
     unsigned char* getLocality() const;
     unsigned char* getOrganization() const;
-    unsigned char* getOrgainizationalUnit() const;
+    unsigned char* getOrganizationalUnit() const;
     unsigned char* getCommonName() const;
 
     int getModulusLength() const;
