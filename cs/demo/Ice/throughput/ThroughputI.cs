@@ -15,6 +15,10 @@ public sealed class ThroughputI : _ThroughputDisp
     {
         _byteSeq = new byte[ByteSeqSize.value];
         _stringSeq = new string[StringSeqSize.value];
+        for(int i = 0; i < StringSeqSize.value; ++i)
+        {
+            _stringSeq[i] = "hello";
+        }
         _structSeq = new StringDouble[StringDoubleSeqSize.value];
         for(int i = 0; i < StringDoubleSeqSize.value; ++i)
         {
