@@ -187,7 +187,7 @@ os.chdir(cwd)
 print "Removing unnecessary files..."
 filesToRemove = [ \
     os.path.join("icepy", "makedist.py"), \
-    #os.path.join("icepy", "makebindist.py"), \
+    os.path.join("icepy", "makebindist.py"), \
     os.path.join("icepy", "all.dsw"), \
     os.path.join("icepy", "Makefile"), \
     os.path.join("icepy", "config", "Make.rules"), \
