@@ -7,17 +7,16 @@
 //
 // **********************************************************************
 
-#ifndef HELLO_ICE
-#define HELLO_ICE
+#ifndef SIMPLE_ICE
+#define SIMPLE_ICE
 
 module Demo
 {
 
-interface Hello
-{
-    nonmutating void sayHello();
-    idempotent void shutdown();
-};
+    interface Printer
+    {
+	void printString(string s);
+    };
 
 };
 

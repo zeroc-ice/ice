@@ -7,18 +7,10 @@
 //
 // **********************************************************************
 
-#ifndef HELLO_ICE
-#define HELLO_ICE
-
-module Demo
-{
-
-interface Hello
-{
-    nonmutating void sayHello();
-    idempotent void shutdown();
-};
-
-};
-
-#endif
+public class PrinterI extends Demo._PrinterDisp {
+    public void
+    printString(String s, Ice.Current current)
+    {
+        System.out.println(s);
+    }
+}
