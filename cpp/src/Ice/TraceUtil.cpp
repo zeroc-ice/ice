@@ -104,6 +104,9 @@ IceInternal::traceRequest(const char* heading, const BasicStream& str, const ::I
 	string identity;
 	stream.read(identity);
 	s << "\nidentity = " << identity;
+	string facet;
+	stream.read(facet);
+	s << "\nfacet = " << facet;
 	string operation;
 	stream.read(operation);
 	s << "\noperation name = " << operation;

@@ -40,15 +40,18 @@ void IceInternal::incRef(::IceDelegateD::Ice::Object* p) { p->__incRef(); }
 void IceInternal::decRef(::IceDelegateD::Ice::Object* p) { p->__decRef(); }
 
 void
-IceInternal::checkedCast(::IceProxy::Ice::Object* b, ::IceProxy::Ice::Object*& d)
+IceInternal::checkedCast(::IceProxy::Ice::Object* b, const string& f, ::IceProxy::Ice::Object*& d)
 {
-    d = b;
+    // TODO: Check facet
+    d = new ::IceProxy::Ice::Object;
+    d->__copyFromWithFacet(b, f);
 }
 
 void
-IceInternal::uncheckedCast(::IceProxy::Ice::Object* b, ::IceProxy::Ice::Object*& d)
+IceInternal::uncheckedCast(::IceProxy::Ice::Object* b, const string& f, ::IceProxy::Ice::Object*& d)
 {
-    d = b;
+    d = new ::IceProxy::Ice::Object;
+    d->__copyFromWithFacet(b, f);
 }
 
 bool
@@ -61,6 +64,32 @@ IceProxy::Ice::Object::_isA(const string& s)
 	{
 	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->_isA(s);
+	}
+	catch (const LocationForward& __ex)
+	{
+	    __locationForward(__ex);
+	}
+	catch (const NonRepeatable& __ex)
+	{
+	    __handleException(*__ex.get(), __cnt);
+	}
+	catch (const LocalException& __ex)
+	{
+	    __handleException(__ex, __cnt);
+	}
+    }
+}
+
+bool
+IceProxy::Ice::Object::_hasFacet(const string& s)
+{
+    int __cnt = 0;
+    while (true)
+    {
+	try
+	{
+	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    return __del->_hasFacet(s);
 	}
 	catch (const LocationForward& __ex)
 	{
@@ -290,9 +319,15 @@ IceProxy::Ice::Object::__reference() const
 }
 
 void
-IceProxy::Ice::Object::__copyTo(::IceProxy::Ice::Object* to) const
+IceProxy::Ice::Object::__copyFrom(const ::IceProxy::Ice::Object* from)
 {
-    to->setup(_reference);
+    setup(from->__reference());
+}
+
+void
+IceProxy::Ice::Object::__copyFromWithFacet(const ::IceProxy::Ice::Object* from, const string& facet)
+{
+    setup(from->__reference()->changeFacet(facet));
 }
 
 void
@@ -393,14 +428,6 @@ IceProxy::Ice::Object::__rethrowException(const LocalException& ex)
     ex._throw();
 }
 
-IceProxy::Ice::Object::Object()
-{
-}
-
-IceProxy::Ice::Object::~Object()
-{
-}
-
 Handle< ::IceDelegate::Ice::Object>
 IceProxy::Ice::Object::__getDelegate()
 {
@@ -447,14 +474,6 @@ IceProxy::Ice::Object::setup(const ReferencePtr& ref)
     _reference = ref;
 }
 
-IceDelegate::Ice::Object::Object()
-{
-}
-
-IceDelegate::Ice::Object::~Object()
-{
-}
-
 bool
 IceDelegateM::Ice::Object::_isA(const string& s)
 {
@@ -462,6 +481,23 @@ IceDelegateM::Ice::Object::_isA(const string& s)
     BasicStream* __is = __out.is();
     BasicStream* __os = __out.os();
     __os->write("_isA");
+    __os->write(s);
+    if (!__out.invoke())
+    {
+	throw ::Ice::UnknownUserException(__FILE__, __LINE__);
+    }
+    bool __ret;
+    __is->read(__ret);
+    return __ret;
+}
+
+bool
+IceDelegateM::Ice::Object::_hasFacet(const string& s)
+{
+    Outgoing __out(__emitter, __reference);
+    BasicStream* __is = __out.is();
+    BasicStream* __os = __out.os();
+    __os->write("_hasFacet");
     __os->write(s);
     if (!__out.invoke())
     {
@@ -488,14 +524,6 @@ void
 IceDelegateM::Ice::Object::_flush()
 {
     __emitter->flushBatchRequest();
-}
-
-IceDelegateM::Ice::Object::Object()
-{
-}
-
-IceDelegateM::Ice::Object::~Object()
-{
 }
 
 void
@@ -558,10 +586,17 @@ IceDelegateD::Ice::Object::_isA(const string& s)
     return __direct.servant()->_isA(s);
 }
 
+bool
+IceDelegateD::Ice::Object::_hasFacet(const string& s)
+{
+    Direct __direct(__adapter, __reference, "_hasFacet");
+    return __direct.servant()->_hasFacet(s);
+}
+
 void
 IceDelegateD::Ice::Object::_ping()
 {
-    Direct __direct(__adapter, __reference, "_isA");
+    Direct __direct(__adapter, __reference, "_ping");
     __direct.servant()->_ping();
 }
 
@@ -569,14 +604,6 @@ void
 IceDelegateD::Ice::Object::_flush()
 {
     // Nothing to do for direct delegates
-}
-
-IceDelegateD::Ice::Object::Object()
-{
-}
-
-IceDelegateD::Ice::Object::~Object()
-{
 }
 
 void

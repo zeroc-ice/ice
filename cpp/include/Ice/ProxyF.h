@@ -33,10 +33,8 @@ void ICE_API decRef(::IceDelegateM::Ice::Object*);
 void ICE_API incRef(::IceDelegateD::Ice::Object*);
 void ICE_API decRef(::IceDelegateD::Ice::Object*);
 
-void ICE_API checkedCast(::IceProxy::Ice::Object*,
-			 ::IceProxy::Ice::Object*&);
-void ICE_API uncheckedCast(::IceProxy::Ice::Object*,
-			   ::IceProxy::Ice::Object*&);
+void ICE_API checkedCast(::IceProxy::Ice::Object*, const ::std::string&, ::IceProxy::Ice::Object*&);
+void ICE_API uncheckedCast(::IceProxy::Ice::Object*, const ::std::string&, ::IceProxy::Ice::Object*&);
 
 }
 

@@ -1953,8 +1953,10 @@ Slice::Gen::IceVisitor::visitClassDecl(const ClassDeclPtr& p)
 	H << nl << _dllExport << "void incRef(::IceProxy" << scoped << "*);";
 	H << nl << _dllExport << "void decRef(::IceProxy" << scoped << "*);";
 	H << sp;
-	H << nl << _dllExport << "void checkedCast(::IceProxy::Ice::Object*, ::IceProxy" << scoped << "*&);";
-	H << nl << _dllExport << "void uncheckedCast(::IceProxy::Ice::Object*, ::IceProxy" << scoped << "*&);";
+	H << nl << _dllExport << "void checkedCast(::IceProxy::Ice::Object*, const ::std::string&, ::IceProxy"
+	  << scoped << "*&);";
+	H << nl << _dllExport << "void uncheckedCast(::IceProxy::Ice::Object*, const ::std::string&, ::IceProxy"
+	  << scoped << "*&);";
     }
 }
 
@@ -1985,25 +1987,25 @@ Slice::Gen::IceVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "p->__decRef();";
 	C << eb;
 	C << sp;
-	C << nl << "void" << nl << "IceInternal::checkedCast(::IceProxy::Ice::Object* b, ::IceProxy" << scoped
-	  << "*& d)";
+	C << nl << "void" << nl << "IceInternal::checkedCast(::IceProxy::Ice::Object* b, const ::std::string& f, "
+	  << "::IceProxy" << scoped << "*& d)";
 	C << sb;
 	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b);";
 	C << nl << "if (!d && b->_isA(\"" << scoped << "\"))";
 	C << sb;
 	C << nl << "d = new ::IceProxy" << scoped << ';';
-	C << nl << "b->__copyTo(d);";
+	C << nl << "d->__copyFromWithFacet(b, f);";
 	C << eb;
 	C << eb;
 	C << sp;
-	C << nl << "void" << nl << "IceInternal::uncheckedCast(::IceProxy::Ice::Object* b, ::IceProxy" << scoped
-	  << "*& d)";
+	C << nl << "void" << nl << "IceInternal::uncheckedCast(::IceProxy::Ice::Object* b, const ::std::string& f, "
+	  << "::IceProxy" << scoped << "*& d)";
 	C << sb;
 	C << nl << "d = dynamic_cast< ::IceProxy" << scoped << "*>(b);";
 	C << nl << "if (!d)";
 	C << sb;
 	C << nl << "d = new ::IceProxy" << scoped << ';';
-	C << nl << "b->__copyTo(d);";
+	C << nl << "d->__copyFromWithFacet(b, f);";
 	C << eb;
 	C << eb;
     }
@@ -2085,7 +2087,7 @@ Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << "else";
     C << sb;
     C << nl << "v = new ::IceProxy" << scoped << ';';
-    C << nl << "proxy->__copyTo(v.get());";
+    C << nl << "v->__copyFrom(proxy.get());";
     C << eb;
     C << eb;
 

@@ -35,6 +35,7 @@ class ICE_API Object : public ::IceUtil::Shared, JTCMutex
 public:
 
     bool _isA(const std::string&);
+    bool _hasFacet(const std::string&);
     void _ping();
 
     bool operator==(const Object&) const;
@@ -58,16 +59,13 @@ public:
     void _flush(); // Flush batch messages
 
     ::IceInternal::ReferencePtr __reference() const;
-    void __copyTo(::IceProxy::Ice::Object*) const;
+    void __copyFrom(const ::IceProxy::Ice::Object*);
+    void __copyFromWithFacet(const ::IceProxy::Ice::Object*, const std::string&);
     void __handleException(const ::Ice::LocalException&, int&);
     void __rethrowException(const ::Ice::LocalException&);
     void __locationForward(const ::Ice::LocationForward&);
 
 protected:
-
-    Object();
-    virtual ~Object();
-    friend class ::IceInternal::ProxyFactory;
 
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> __getDelegate();
     virtual ::IceInternal::Handle< ::IceDelegateM::Ice::Object> __createDelegateM();
@@ -76,6 +74,7 @@ protected:
 private:
 
     void setup(const ::IceInternal::ReferencePtr&);
+    friend ::IceInternal::ProxyFactory;
 
     ::IceInternal::ReferencePtr _reference;
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> _delegate;
@@ -91,14 +90,9 @@ class ICE_API Object : public ::IceUtil::Shared
 public:
 
     virtual bool _isA(const std::string&) = 0;
+    virtual bool _hasFacet(const std::string&) = 0;
     virtual void _ping() = 0;
     virtual void _flush() = 0;
-
-protected:
-
-    Object();
-    virtual ~Object();
-    friend class ::IceProxy::Ice::Object;
 };
 
 } }
@@ -111,14 +105,11 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 public:
 
     virtual bool _isA(const std::string&);
+    virtual bool _hasFacet(const std::string&);
     virtual void _ping();
     virtual void _flush();
 
 protected:
-
-    Object();
-    virtual ~Object();
-    friend class ::IceProxy::Ice::Object;
 
     ::IceInternal::EmitterPtr __emitter;
     ::IceInternal::ReferencePtr __reference;
@@ -126,6 +117,7 @@ protected:
 private:
 
     void setup(const ::IceInternal::ReferencePtr&);
+    friend class ::IceProxy::Ice::Object;
 };
 
 } }
@@ -138,14 +130,11 @@ class ICE_API Object : virtual public ::IceDelegate::Ice::Object
 public:
 
     virtual bool _isA(const std::string&);
+    virtual bool _hasFacet(const std::string&);
     virtual void _ping();
     virtual void _flush();
 
 protected:
-
-    Object();
-    virtual ~Object();
-    friend class ::IceProxy::Ice::Object;
 
     ::Ice::ObjectAdapterPtr __adapter;
     ::IceInternal::ReferencePtr __reference;
@@ -153,6 +142,7 @@ protected:
 private:
 
     void setup(const ::IceInternal::ReferencePtr&, const ::Ice::ObjectAdapterPtr&);
+    friend class ::IceProxy::Ice::Object;
 };
 
 } }
