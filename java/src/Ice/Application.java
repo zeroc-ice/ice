@@ -165,7 +165,7 @@ public abstract class Application
 	}
     }
 
-    synchronized public static bool
+    synchronized public static boolean
     isShutdownFromInterrupt()
     {
 	if(_shutdownHook == null)
@@ -174,11 +174,11 @@ public abstract class Application
 	}
 	else
 	{
-	    return _shutdownHook->isShutdownFromInterrupt();
+	    return _shutdownHook.isShutdownFromInterrupt();
 	}
     }
 
     private static String _appName;
     private static Communicator _communicator;
-    private static Thread _shutdownHook;
+    private static ShutdownHook _shutdownHook;
 }

@@ -33,12 +33,12 @@ public class ShutdownHook extends Thread
         }
     }
 
-    public bool
+    public boolean
     isShutdownFromInterrupt()
     {
 	return _shutdown;
     }
 
     private Thread _threadToJoin;
-    private bool _shutdown;
+    private boolean _shutdown;
 }
