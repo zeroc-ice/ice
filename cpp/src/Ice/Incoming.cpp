@@ -39,24 +39,30 @@ IceInternal::Incoming::invoke(Stream& is)
 
     Stream::Container::size_type statusPos = _os.b.size();
 
-    ObjectPtr servant = _adapter->identityToServant(identity);
+    ObjectPtr servant;
     ServantLocatorPtr locator;
     LocalObjectPtr cookie;
 
     try
     {
+	servant = _adapter->identityToServant(identity);
+
 	if (!servant)
 	{
 	    string::size_type pos = identity.find('#');
 	    if (pos != string::npos)
 	    {
 		locator = _adapter->findServantLocator(identity.substr(0, pos));
+		if (locator)
+		{
+		    servant = locator->locate(_adapter, identity, operation, cookie);
+		}
 	    }
-	    else
-	    {
-		locator = _adapter->findServantLocator("");
-	    }
+	}
 
+	if (!servant)
+	{
+	    locator = _adapter->findServantLocator("");
 	    if (locator)
 	    {
 		servant = locator->locate(_adapter, identity, operation, cookie);

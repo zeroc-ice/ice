@@ -23,22 +23,26 @@ IceInternal::Direct::Direct(const ObjectAdapterPtr& adapter, const ReferencePtr&
     _reference(ref),
     _operation(operation)
 {
-    _servant = _adapter->identityToServant(_reference->identity);
-    
     try
     {
+	_servant = _adapter->identityToServant(_reference->identity);
+    
 	if (!_servant)
 	{
 	    string::size_type pos = _reference->identity.find('#');
 	    if (pos != string::npos)
 	    {
 		_locator = _adapter->findServantLocator(_reference->identity.substr(0, pos));
+		if (_locator)
+		{
+		    _servant = _locator->locate(_adapter, _reference->identity, _operation, _cookie);
+		}
 	    }
-	    else
-	    {
-		_locator = _adapter->findServantLocator("");
-	    }
+	}
 
+	if (!_servant)
+	{
+	    _locator = _adapter->findServantLocator("");
 	    if (_locator)
 	    {
 		_servant = _locator->locate(_adapter, _reference->identity, _operation, _cookie);

@@ -154,14 +154,38 @@ local interface ObjectAdapter
      *
      * Add a Servant Locator to this Object Adapter. If a locator has
      * already been installed for the given prefix, the current
-     * locator for this prefix is replaced by the new one. If a
-     * non-empty prefix is specified, the locator will only be called
-     * for Ice Objects with an identity that starts with
-     * "<replaceable>prefix</replaceable><literal>#</literal>". If an
-     * empty prefix is given, the Ice Object identity can be
-     * completely free-form, except that it cannot contain a
-     * "<literal>#</literal>". Only one locator for an empty prefix
-     * can be installed with one single Object Adapter.
+     * locator for this prefix is replaced by the new one. To dispatch
+     * operation calls on Servants, the Object Adapter tries to find a
+     * Servant for a given Ice Object identity in the following order:
+     *
+     * <orderedlist>
+     *
+     * <listitem><para>The Object Adapter tries to find a Servant for
+     * the identity in the Active Servant Map.</para></listitem>
+     *
+     * <listitem><para>If no Servant has been found in the Active
+     * Servant Map, and the identity has the format
+     * "<replaceable>prefix</replaceable><literal>#</literal>", the
+     * Object Adapter tries to find a locator for this prefix. If a
+     * locator is found, the Object Adapter tries to find a Servant
+     * using this locator.</para></listitem>
+     *
+     * <listitem><para>If no Servant has been found by any of the
+     * preceding steps, the Object Adapter tries to find a locator
+     * with an empty prefix, regardless of the format of the identity,
+     * i.e., even if the identity contains a
+     * '<literal>#</literal>'. If a locator is found, the Object
+     * Adapter tries to find a Servant using this
+     * locator</para></listitem>
+     *
+     * <listitem><para>If no Servant has been found with any of the
+     * preceding steps, the Object Adapter gives up and the caller
+     * will receive an [ObjectNotExistException].</para></listitem>
+     *
+     * </orderedlist>
+     *
+     * <note><para>Only one locator for an empty prefix can be
+     * installed.</para></note>
      *
      * @param locator The locator to add.
      *
