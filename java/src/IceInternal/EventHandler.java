@@ -56,10 +56,17 @@ abstract class EventHandler
         _stream = new BasicStream(instance);
     }
 
+    protected void
+    finalize()
+        throws Throwable
+    {
+	_stream.destroy();
+    }
+
     protected Instance _instance;
 
     //
-    // The _stream data member is for use by ThreadPool only
+    // The _stream data member is for use by ThreadPool only.
     //
     BasicStream _stream;
 }

@@ -35,8 +35,6 @@ public final class Connection extends EventHandler
     public synchronized void
     destroy(int reason)
     {
-	_batchStream.destroy();
-	
 	switch(reason)
 	{
 	    case ObjectAdapterDeactivated:
@@ -181,6 +179,7 @@ public final class Connection extends EventHandler
 	if(_proxyCount == 0 && _adapter == null)
 	{
 	    assert(_requests.isEmpty());
+	    assert(_asyncRequests.isEmpty());
 	    setState(StateClosing, new Ice.CloseConnectionException());
 	}
     }
@@ -254,12 +253,60 @@ public final class Connection extends EventHandler
 	}
     }
 
+    public synchronized void
+    sendAsyncRequest(OutgoingAsync out)
+    {
+	if(_exception != null)
+	{
+	    throw _exception;
+	}
+	assert(_state < StateClosing);
+	
+	int requestId = 0;
+	
+	try
+	{
+	    BasicStream os = out.__os();
+	    os.pos(3);
+	    
+	    //
+	    // Fill in the message size and request ID.
+	    //
+	    os.writeInt(os.size());
+	    requestId = _nextRequestId++;
+	    if(requestId <= 0)
+	    {
+		_nextRequestId = 1;
+		requestId = _nextRequestId++;
+	    }
+	    os.writeInt(requestId);
+	    
+	    //
+	    // Send the request.
+	    //
+	    TraceUtil.traceRequest("sending asynchronous request", os, _logger, _traceLevels);
+	    _transceiver.write(os, _endpoint.timeout());
+	}
+	catch(Ice.LocalException ex)
+	{
+	    setState(StateClosed, ex);
+	    assert(_exception != null);
+	    throw _exception;
+	}
+	
+	//
+	// Only add to the request map if there was no exception.
+	//
+	_asyncRequests.put(requestId, out);
+    }
+
     private final static byte[] _requestBatchHdr =
     {
         Protocol.protocolVersion,
         Protocol.encodingVersion,
         Protocol.requestBatchMsg,
-        (byte)0, (byte)0, (byte)0, (byte)0 // Message size (placeholder).
+        (byte)0, (byte)0, (byte)0, (byte)0, // Message size (placeholder).
+        (byte)0, (byte)0, (byte)0, (byte)0  // Number of requests in batch (placeholder).
     };
 
     public synchronized void
@@ -302,8 +349,6 @@ public final class Connection extends EventHandler
     public synchronized void
     finishBatchRequest(BasicStream os)
     {
-	assert(_batchStreamInUse);
-
         if(_exception != null)
         {
             throw _exception;
@@ -316,6 +361,7 @@ public final class Connection extends EventHandler
 	//
 	// Give the Connection back.
 	//
+	assert(_batchStreamInUse);
         _batchStreamInUse = false;
 	notifyAll();
     }
@@ -323,13 +369,12 @@ public final class Connection extends EventHandler
     public synchronized void
     abortBatchRequest()
     {
-	assert(_batchStreamInUse);
-
         setState(StateClosed, new Ice.AbortBatchRequestException());
 
 	//
 	// Give the Connection back.
 	//
+	assert(_batchStreamInUse);
         _batchStreamInUse = false;
 	notifyAll();
     }
@@ -364,9 +409,13 @@ public final class Connection extends EventHandler
 	    _batchStream.pos(3);
 	    
 	    //
-	    // Fill in the message size the number of requests in the batch.
+	    // Fill in the message size.
 	    //
 	    _batchStream.writeInt(_batchStream.size());
+
+	    //
+	    // Fill in the number of requests in the batch.
+	    //
 	    _batchStream.writeInt(_batchRequestNum);
 	    
 	    //
@@ -531,6 +580,8 @@ public final class Connection extends EventHandler
     public void
     message(BasicStream stream, ThreadPool threadPool)
     {
+	OutgoingAsync outAsync = null;
+
 	int invoke = 0;
 	int requestId = 0;
 
@@ -604,11 +655,18 @@ public final class Connection extends EventHandler
                         TraceUtil.traceReply("received reply", stream, _logger, _traceLevels);
                         requestId = stream.readInt();
                         Outgoing out = (Outgoing)_requests.remove(requestId);
-                        if(out == null)
+                        if(out != null)
                         {
-                            throw new Ice.UnknownRequestIdException();
+			    out.finished(stream);
+			}
+			else
+			{
+			    outAsync = (OutgoingAsync)_asyncRequests.remove(requestId);
+			    if(outAsync == null)
+			    {
+				throw new Ice.UnknownRequestIdException();
+			    }
                         }
-                        out.finished(stream);
                         break;
                     }
 
@@ -656,6 +714,15 @@ public final class Connection extends EventHandler
                 return;
             }
         }
+
+	//
+	// Asynchronous replies must be handled outside the thread
+	// synchronization, so that nested calls are possible.
+	//
+	if(outAsync != null)
+	{
+	    outAsync.__finished(stream);
+	}
 
         //
         // Method invocation must be done outside the thread
@@ -780,11 +847,7 @@ public final class Connection extends EventHandler
 	assert(_proxyCount == 0);
         assert(_incomingCache == null);
 
-        //
-        // Destroy the EventHandler's stream, so that its buffer
-        // can be reclaimed.
-        //
-        super._stream.destroy();
+        _batchStream.destroy();
 
         super.finalize();
     }
@@ -821,14 +884,27 @@ public final class Connection extends EventHandler
             }
         }
 
-        java.util.Iterator i = _requests.entryIterator();
-        while(i.hasNext())
-        {
-            IntMap.Entry e = (IntMap.Entry)i.next();
-            Outgoing out = (Outgoing)e.getValue();
-            out.finished(_exception);
-        }
-        _requests.clear();
+	{
+	    java.util.Iterator i = _requests.entryIterator();
+	    while(i.hasNext())
+	    {
+		IntMap.Entry e = (IntMap.Entry)i.next();
+		Outgoing out = (Outgoing)e.getValue();
+		out.finished(_exception);
+	    }
+	    _requests.clear();
+	}
+
+	{
+	    java.util.Iterator i = _asyncRequests.entryIterator();
+	    while(i.hasNext())
+	    {
+		IntMap.Entry e = (IntMap.Entry)i.next();
+		Outgoing out = (Outgoing)e.getValue();
+		out.finished(_exception);
+	    }
+	    _asyncRequests.clear();
+	}
 
         setState(state);
     }
@@ -1080,6 +1156,7 @@ public final class Connection extends EventHandler
 
     private int _nextRequestId;
     private IntMap _requests = new IntMap();
+    private IntMap _asyncRequests = new IntMap();
 
     private Ice.LocalException _exception;
 
