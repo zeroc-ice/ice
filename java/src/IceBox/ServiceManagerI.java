@@ -386,15 +386,12 @@ public final class ServiceManagerI extends _ServiceManagerDisp
     private void
     stopAll()
     {
-	java.util.Iterator r;
-        do
-        {
-	    r = _services.entrySet().iterator();
-            java.util.Map.Entry e = (java.util.Map.Entry)r.next();
-            String name = (String)e.getKey();
+	Object[] services = _services.keySet().toArray();
+	for(int i = 0; i < services.length; i++)
+	{
             try
             {
-		stop(name);
+		stop((String)services[i]);
             }
             catch(Exception ex)
             {
@@ -402,12 +399,12 @@ public final class ServiceManagerI extends _ServiceManagerDisp
                 java.io.PrintWriter pw = new java.io.PrintWriter(sw);
                 ex.printStackTrace(pw);
                 pw.flush();
-                _logger.error("ServiceManager: exception in stop for service " + name + "\n" + sw.toString());
+                _logger.error("ServiceManager: exception in stop for service " + (String)services[i] + "\n" + 
+			      sw.toString());
             }
-        }
-	while(r.hasNext());
+	}
 
-        _services.clear();
+	assert(_services.isEmpty());
     }
 
     class ServiceInfo
