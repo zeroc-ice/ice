@@ -5,7 +5,7 @@ The code has been built and tested with Visual Basic Version 7.1.3088
 and .NET Framework 1.1 Version 1.1.4322.
 
 Unpack the archive. The sources will be contained in the 
-IceVB-<version> subdirectory.
+IceVB-@ver@ subdirectory.
 
 You can either build the slice2vb compiler from the Ice for C++ source
 distribution, or you can download the Ice binary package for Windows,
