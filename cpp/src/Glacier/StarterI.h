@@ -30,6 +30,7 @@ class StarterI : public Starter
 public:
 
     StarterI(const Ice::CommunicatorPtr&, const PasswordVerifierPrx&);
+    StarterI(const Ice::CommunicatorPtr&, const PermissionsVerifierPrx&);
 
     void destroy();
 
@@ -45,7 +46,8 @@ private:
     Ice::CommunicatorPtr _communicator;
     Ice::LoggerPtr _logger;
     Ice::PropertiesPtr _properties;
-    PasswordVerifierPrx _verifier;
+    PasswordVerifierPrx _passwordVerifier;
+    PermissionsVerifierPrx _permissionsVerifier;
     int _traceLevel;
     RSACertificateGenContext _certContext;
     RSACertificateGen _certificateGenerator;

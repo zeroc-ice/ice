@@ -40,9 +40,45 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator, const PasswordV
     _communicator(communicator),
     _logger(_communicator->getLogger()),
     _properties(_communicator->getProperties()),
-    _verifier(verifier)
+    _passwordVerifier(verifier)
 {
-    assert(_verifier);
+    assert(_passwordVerifier);
+
+    _traceLevel = _properties->getPropertyAsInt("Glacier.Starter.Trace");
+
+    // Set up the Certificate Generation context
+    string country = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Country", "US");
+    string stateProv = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.StateProvince", "DC");
+    string locality = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Locality", "Washington");
+    string org = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Organization", "Some Company Inc.");
+    string orgUnit = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.OranizationalUnit", "Sales");
+    string commonName = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.CommonName", "John Doe");
+
+    Int bitStrength = _properties->getPropertyAsIntWithDefault(
+	"Glacier.Starter.Certificate.BitStrength", 1024);
+    Int secondsValid = _properties->getPropertyAsIntWithDefault(
+	"Glacier.Starter.Certificate.SecondsValid",
+	static_cast<Int>(IceSSL::RSACertificateGenContext::daysToSeconds(1)));
+    Int issuedAdjust = _properties->getPropertyAsIntWithDefault("Glacier.Starter.Certificate.IssuedAdjust", 0);
+    
+    _certContext.setCountry(country);
+    _certContext.setStateProvince(stateProv);
+    _certContext.setLocality(locality);
+    _certContext.setOrganization(org);
+    _certContext.setOrgainizationalUnit(orgUnit);
+    _certContext.setCommonName(commonName);
+    _certContext.setBitStrength(bitStrength);
+    _certContext.setSecondsValid(secondsValid);
+    _certContext.setSecondsValid(issuedAdjust);
+}
+
+Glacier::StarterI::StarterI(const CommunicatorPtr& communicator, const PermissionsVerifierPrx& verifier) :
+    _communicator(communicator),
+    _logger(_communicator->getLogger()),
+    _properties(_communicator->getProperties()),
+    _permissionsVerifier(verifier)
+{
+    assert(_permissionsVerifier);
 
     _traceLevel = _properties->getPropertyAsInt("Glacier.Starter.Trace");
 
@@ -103,9 +139,22 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 {
     assert(_communicator); // Destroyed?
 
-    if(!_verifier->checkPassword(userId, password))
+    if(_passwordVerifier)
     {
-	throw InvalidPasswordException();
+	if(!_passwordVerifier->checkPassword(userId, password))
+	{
+	    throw InvalidPasswordException();
+	}
+    }
+    else
+    {
+	string reason;
+	if(!_permissionsVerifier->checkPermissions(userId, password, reason))
+	{
+	    PermissionDeniedException ex;
+	    ex.reason = reason;
+	    throw ex;
+	}
     }
 
     bool sslConfigured = !_properties->getProperty("IceSSL.Server.Config").empty();

@@ -40,6 +40,19 @@ exception InvalidPasswordException
 
 /**
  *
+ * This exception is raised if router access is denied.
+ *
+ **/
+exception PermissionDeniedException
+{
+    /**
+     * Details as to why access was denied.
+     **/
+    string reason;
+};
+
+/**
+ *
  * This exception is raised if the router cannot be started.
  *
  **/
@@ -86,7 +99,7 @@ interface Starter
      **/
     Glacier::Router* startRouter(string userId, string password,
 				 out Ice::ByteSeq privateKey, out Ice::ByteSeq publicKey, out Ice::ByteSeq routerCert)
-	throws InvalidPasswordException, CannotStartRouterException;
+	throws InvalidPasswordException, PermissionDeniedException, CannotStartRouterException;
 };
 
 /**
@@ -109,6 +122,30 @@ interface PasswordVerifier
      **/
     nonmutating
     bool checkPassword(string userId, string password);
+};
+
+/**
+ *
+ * The &Glacier; router starter permissions verifier.
+ *
+ **/
+interface PermissionsVerifier
+{
+    /**
+     *
+     * Check whether user has permission to access router.
+     *
+     * @param userId The user id for which to check permissions.
+     *
+     * @param password The user's password.
+     *
+     * @param reason The reason access was denied.
+     *
+     * @return true if access is allowed, or false otherwise.
+     *
+     **/
+    nonmutating
+    bool checkPermissions(string userId, string password, out string reason);
 };
 
 };
