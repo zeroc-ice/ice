@@ -13,6 +13,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 #include <Ice/TraceUtil.h>
+#include <Ice/DefaultsAndOverwrites.h>
 #include <Ice/Transceiver.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ObjectAdapter.h>
@@ -114,6 +115,11 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool comp)
 	    const Byte* p;
 	    p = reinterpret_cast<const Byte*>(&requestId);
 	    copy(p, p + sizeof(Int), os->b.begin() + headerSize);
+	}
+
+	if (_defaultsAndOverwrites->overwriteCompress)
+	{
+	    comp = _defaultsAndOverwrites->overwriteCompressValue;
 	}
 
 	if (comp)
@@ -244,6 +250,11 @@ IceInternal::Connection::flushBatchRequest(bool comp)
 
 	_batchStream.i = _batchStream.b.begin();
 	
+	if (_defaultsAndOverwrites->overwriteCompress)
+	{
+	    comp = _defaultsAndOverwrites->overwriteCompressValue;
+	}
+
 	if (comp)
 	{
 	    //
@@ -643,6 +654,11 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		    return;
 		}
 		
+		if (_defaultsAndOverwrites->overwriteCompress)
+		{
+		    comp = _defaultsAndOverwrites->overwriteCompressValue;
+		}
+
 		if (comp)
 		{
 		    //
@@ -759,6 +775,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _adapter(adapter),
     _logger(_instance->logger()),
     _traceLevels(_instance->traceLevels()),
+    _defaultsAndOverwrites(_instance->defaultsAndOverwrites()),
     _nextRequestId(1),
     _requestsHint(_requests.end()),
     _batchStream(_instance),
