@@ -1,0 +1,81 @@
+# **********************************************************************
+#
+# Copyright (c) 2003-2004 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+top_srcdir	= ../..
+
+LIBFILENAME     = $(call mklibfilename,IcePatch2,$(VERSION))
+SONAME          = $(call mksoname,IcePatch2,$(SOVERSION))  
+LIBNAME		= $(call mklibname,IcePatch2)
+
+SERVER		= $(top_srcdir)/bin/icepatch2server
+CLIENT		= $(top_srcdir)/bin/icepatch2client
+CALC		= $(top_srcdir)/bin/icepatch2calc
+
+LIBTARGETS      = $(call mklibtargets,$(libdir)/$(LIBFILENAME),$(libdir)/$(SONAME),$(libdir)/$(LIBNAME))
+TARGETS         = $(LIBTARGETS) $(SERVER) $(CLIENT) $(CALC)
+
+OBJS		= Util.o \
+		  FileInfo.o \
+		  FileServer.o
+
+SOBJS		= Server.o \
+		  FileServerI.o
+
+COBJS		= Client.o
+
+CALCOBJS	= Calc.o
+
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(CALCOBJS:.o=.cpp)
+
+SLICE_SRCS	= $(SDIR)/FileInfo.ice \
+		  $(SDIR)/FileServer.ice
+
+HDIR		= $(includedir)/IcePatch2
+SDIR		= $(slicedir)/IcePatch2
+
+include $(top_srcdir)/config/Make.rules
+
+CPPFLAGS	:= -I.. $(CPPFLAGS) -DICEPATCH2_API_EXPORTS $(OPENSSL_FLAGS)
+SLICE2CPPFLAGS	:= --ice --include-dir IcePatch2 --dll-export ICEPATCH2_API $(SLICE2CPPFLAGS)
+LINKWITH	:= -lIce -lIceUtil
+
+$(libdir)/$(LIBFILENAME): $(OBJS)
+	rm -f $@
+	$(call mkshlib,$@,$(SONAME),$(OBJS),$(LINKWITH))
+
+$(libdir)/$(SONAME): $(libdir)/$(LIBFILENAME)
+	rm -f $@
+	ln -s $(LIBFILENAME) $@
+
+$(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
+	rm -f $@
+	ln -s $(SONAME) $@
+
+$(SERVER): $(SOBJS) $(LIBTARGETS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIcePatch2 $(LIBS) $(OPENSSL_LIBS)
+
+$(CLIENT): $(COBJS) $(LIBTARGETS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIcePatch2 $(LIBS) $(OPENSSL_LIBS)
+
+$(CALC): $(CALCOBJS) $(LIBTARGETS)
+	rm -f $@
+	$(CXX) $(LDFLAGS) -o $@ $(CALCOBJS) -lIcePatch2 $(LIBS) $(OPENSSL_LIBS)
+
+install:: all
+	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
+	$(INSTALL_PROGRAM) $(SERVER) $(install_bindir)
+	$(INSTALL_PROGRAM) $(CLIENT) $(install_bindir)
+	$(INSTALL_PROGRAM) $(CALC) $(install_bindir)
+
+include .depend

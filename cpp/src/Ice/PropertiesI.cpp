@@ -238,6 +238,25 @@ static const string icePatchProps[] =
     "UpdatePeriod"
 };
 
+static const string icePatch2Props[] =
+{
+    "AdapterId",
+    "Admin.AdapterId",
+    "Admin.Endpoints",
+    "Admin.PublishedEndpoints"
+    "Admin.ThreadPool.Size",
+    "Admin.ThreadPool.SizeMax",
+    "Admin.ThreadPool.SizeWarn",
+    "Admin.ThreadPool.StackSize",
+    "Directory",
+    "Endpoints",
+    "PublishedEndpoints"
+    "ThreadPool.Size",
+    "ThreadPool.SizeMax",
+    "ThreadPool.SizeWarn",
+    "ThreadPool.StackSize"
+};
+
 static const string iceSSLProps[] =
 {
     "Client.CertPath*",
@@ -421,6 +440,7 @@ static const PropertyValues validProps[] =
     PropertyValues("Ice", iceProps, sizeof(iceProps) / sizeof(iceProps[0])),
     PropertyValues("IcePack", icePackProps, sizeof(icePackProps) / sizeof(icePackProps[0])),
     PropertyValues("IcePatch", icePatchProps, sizeof(icePatchProps) / sizeof(icePatchProps[0])),
+    PropertyValues("IcePatch2", icePatch2Props, sizeof(icePatch2Props) / sizeof(icePatch2Props[0])),
     PropertyValues("IceSSL", iceSSLProps, sizeof(iceSSLProps) / sizeof(iceSSLProps[0])),
     PropertyValues("IceStorm", iceStormProps, sizeof(iceStormProps) / sizeof(iceStormProps[0]))
 };
@@ -541,6 +561,7 @@ Ice::PropertiesI::parseIceCommandLineOptions(const StringSeq& options)
     args = parseCommandLineOptions("IceBox", args);
     args = parseCommandLineOptions("IcePack", args);
     args = parseCommandLineOptions("IcePatch", args);
+    args = parseCommandLineOptions("IcePatch2", args);
     args = parseCommandLineOptions("IceStorm", args);
     return args;
 

@@ -12,6 +12,7 @@
 #include <Glacier2/Session.h>
 #include <Glacier2/SessionRouterI.h>
 #include <Glacier2/CryptPermissionsVerifierI.h>
+#include <fstream>
 
 using namespace std;
 using namespace Ice;

@@ -28,6 +28,7 @@
 #include <IceUtil/CountDownLatch.h>
 #include <IceUtil/Base64.h>
 #include <IceUtil/Time.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/GC.h>

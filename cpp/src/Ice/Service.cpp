@@ -469,6 +469,24 @@ Ice::Service::run(int argc, char* argv[])
         ostr << "service caught unhandled Ice exception:" << endl << ex;
         error(ostr.str());
     }
+    catch(const std::exception& ex)
+    {
+        ostringstream ostr;
+        ostr << "service caught unhandled std::exception:" << endl << ex.what();
+        error(ostr.str());
+    }
+    catch(const std::string& msg)
+    {
+        ostringstream ostr;
+        ostr << "service caught unhandled exception:" << endl << msg;
+        error(ostr.str());
+    }
+    catch(const char* msg)
+    {
+        ostringstream ostr;
+        ostr << "service caught unhandled exception:" << endl << msg;
+        error(ostr.str());
+    }
     catch(...)
     {
         error("service caught unhandled C++ exception");

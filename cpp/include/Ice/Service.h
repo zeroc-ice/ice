@@ -10,9 +10,7 @@
 #ifndef ICE_SERVICE_H
 #define ICE_SERVICE_H
 
-#include <Ice/CommunicatorF.h>
-#include <Ice/LoggerF.h>
-#include <fstream>
+#include <Ice/Ice.h>
 
 namespace Ice
 {
