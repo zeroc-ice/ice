@@ -40,6 +40,13 @@ public:
     Connection(const InstancePtr&, const TransceiverPtr&, const EndpointPtr&, const ::Ice::ObjectAdapterPtr&);
     virtual ~Connection();
 
+    enum DestructionReason
+    {
+	ObjectAdapterDeactivated,
+	CommunicatorDestroyed
+    };
+
+    void destroy(DestructionReason);
     bool destroyed() const;
     void hold();
     void activate();
@@ -75,7 +82,7 @@ private:
     void setState(State, const ::Ice::LocalException&);
     void setState(State);
     void closeConnection();
-    void warning(const ::Ice::LocalException&) const;
+    void warning(const ::Ice::Exception&) const;
 
     TransceiverPtr _transceiver;
     EndpointPtr _endpoint;

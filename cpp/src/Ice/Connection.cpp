@@ -54,6 +54,27 @@ IceInternal::Connection::~Connection()
     assert(_state == StateClosed);
 }
 
+void
+IceInternal::Connection::destroy(DestructionReason reason)
+{
+    JTCSyncT<JTCRecursiveMutex> sync(*this);
+
+    switch (reason)
+    {
+	case ObjectAdapterDeactivated:
+	{
+	    setState(StateClosing, ObjectAdapterDeactivatedException(__FILE__, __LINE__));
+	    break;
+	}
+
+	case CommunicatorDestroyed:
+	{
+	    setState(StateClosing, CommunicatorDestroyedException(__FILE__, __LINE__));
+	    break;
+	}
+    }
+}
+
 bool
 IceInternal::Connection::destroyed() const
 {
@@ -416,7 +437,7 @@ IceInternal::Connection::message(BasicStream& stream)
 		{
 		    in.invoke();
 		}
-		catch (const LocalException& ex)
+		catch (const Exception& ex)
 		{
 		    JTCSyncT<JTCRecursiveMutex> sync(*this);
 		    warning(ex);
@@ -535,7 +556,8 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 	//
 	if (!dynamic_cast<const CloseConnectionException*>(&ex) &&
 	    !dynamic_cast<const CommunicatorDestroyedException*>(&ex) &&
-	    !dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex))
+	    !dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) &&
+	    !(dynamic_cast<const ConnectionLostException*>(&ex) && _state == StateClosing));
 	{
 	    warning(ex);
 	}
@@ -642,7 +664,7 @@ IceInternal::Connection::closeConnection()
 }
 
 void
-IceInternal::Connection::warning(const LocalException& ex) const
+IceInternal::Connection::warning(const Exception& ex) const
 {
     if (_warn)
     {
