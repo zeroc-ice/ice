@@ -186,6 +186,10 @@ private:
     void readAttributes(::std::string&, ::std::string&, ::std::string&);
     ::Ice::Int readLength();
 
+    ::std::string getWritePrefix() const;
+    ::std::string getReadPrefix() const;
+    static ::std::string getPrefix(const ::std::string&);
+
     ::Ice::CommunicatorPtr _communicator;
 
     //
@@ -225,6 +229,7 @@ private:
 	bool written; // Has the object been written?
     };
     ::std::map<Ice::ObjectPtr, ObjectInfo> _objects;
+    bool _dump;
 };
 
 } // End namespace IceXML

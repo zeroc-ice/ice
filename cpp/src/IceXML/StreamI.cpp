@@ -131,6 +131,30 @@ private:
 namespace IceXML
 {
 
+class XercesInitializer
+{
+public:
+
+    XercesInitializer()
+    {
+        try
+        {
+             XMLPlatformUtils::Initialize();
+        }
+        catch(const XMLException& ex)
+        {
+            cerr << "IceXML: xerces initialize failed: " << toString(ex.getMessage()) << endl;
+        }
+    }
+
+    ~XercesInitializer()
+    {
+        XMLPlatformUtils::Terminate();
+    }
+};
+
+static XercesInitializer _xercesInitializer;
+
 //
 // This is used to reduce the external dependencies on the xerces
 // headers.
@@ -172,49 +196,16 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::ostrea
     _input(0),
     _os(os),
     _level(0),
-    _nextId(0)
+    _nextId(0),
+    _dump(false)
 {
-    ::Ice::LoggerPtr logger = communicator->getLogger();
-    //
-    // Initialize the XML4C2 system.  TODO: This really needs to be
-    // dealt with as global system state.
-    //
-    try
-    {
-         XMLPlatformUtils::Initialize();
-    }
-    catch(const XMLException& ex)
-    {
-	string err = "xerces: initialize failed: ";
-	err += toString(ex.getMessage());
-	logger->error(err);
-	throw ::Ice::SystemException(__FILE__, __LINE__);
-    }
 }
-
 
 IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istream& is, bool schema) :
     _communicator(communicator),
-    _nextId(0)
+    _nextId(0),
+    _dump(false)
 {
-    ::Ice::LoggerPtr logger = communicator->getLogger();
-
-    //
-    // Initialize the XML4C2 system.  TODO: This really needs to be
-    // dealt with as global system state.
-    //
-    try
-    {
-         XMLPlatformUtils::Initialize();
-    }
-    catch(const XMLException& ex)
-    {
-	string err = "xerces: initialize failed: ";
-	err += toString(ex.getMessage());
-	logger->error(err);
-	throw ::Ice::SystemException(__FILE__, __LINE__);
-    }
-
     //
     // Read the contents of the stream into memory.
     //
@@ -224,7 +215,9 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istrea
 	is.read(buf, sizeof(buf));
 	_content.append(buf, is.gcount());
     }
-    
+
+    ::Ice::LoggerPtr logger = communicator->getLogger();
+
     _input = new StreamInputImpl();
     _input->source = new MemBufInputSource((const XMLByte*)_content.data(), _content.size(), "inputsource");
 
@@ -297,12 +290,6 @@ IceXML::StreamI::StreamI(const ::Ice::CommunicatorPtr& communicator, std::istrea
 IceXML::StreamI::~StreamI()
 {
     delete _input;
-
-    //
-    // And call the termination method (TODO: is this correct -
-    // reference count?)
-    //
-    XMLPlatformUtils::Terminate();
 }
 
 void
@@ -322,7 +309,7 @@ IceXML::StreamI::endWriteDictionary()
 void
 IceXML::StreamI::startWriteDictionaryElement()
 {
-    startWrite(seqElementName);
+    startWrite(getWritePrefix() + seqElementName);
 }
 
 void
@@ -349,7 +336,7 @@ IceXML::StreamI::endReadDictionary()
 void
 IceXML::StreamI::startReadDictionaryElement()
 {
-    startRead(seqElementName);
+    startRead(getReadPrefix() + seqElementName);
     _input->current = _input->current.getFirstChild();
 }
 
@@ -376,7 +363,7 @@ IceXML::StreamI::endWriteSequence()
 void
 IceXML::StreamI::startWriteSequenceElement()
 {
-    startWrite(seqElementName);
+    startWrite(getWritePrefix() + seqElementName);
 }
 
 void
@@ -403,7 +390,7 @@ IceXML::StreamI::endReadSequence()
 void
 IceXML::StreamI::startReadSequenceElement()
 {
-    startRead(seqElementName);
+    startRead(getReadPrefix() + seqElementName);
 }
 
 void
@@ -467,7 +454,10 @@ IceXML::StreamI::writeEnum(const string& name, const ::Ice::StringSeq& table, ::
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
-    _os << nl << "<" << name << ">" << table[ordinal] << "</" << name << ">";
+
+    _os << se(name);
+    _os << startEscapes << table[ordinal] << endEscapes;
+    _os << ee;
 }
 
 ::Ice::Int
@@ -500,18 +490,22 @@ IceXML::StreamI::writeByte(const string& name, ::Ice::Byte value)
     assert(name.find_first_of(" \t") == string::npos);
 
     // The schema encoding for xs:byte is a value from -127 to 128.
-    _os << nl << "<" << name << ">" << (int)value << "</" << name << ">";
+    _os << se(name);
+    _os << startEscapes << (int)value << endEscapes;
+    _os << ee;
 }
 
 void
 IceXML::StreamI::writeByteSeq(const string& name, const ::Ice::ByteSeq& seq)
 {
-    startWrite(name);
+    startWriteSequence(name, seq.size());
     for(::Ice::ByteSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-	_os << nl << "<e>" << (int)*p << "</e>";
+        startWriteSequenceElement();
+	_os << startEscapes << (int)*p << endEscapes;
+        endWriteSequenceElement();
     }
-    endWrite();
+    endWriteSequence();
 }
 
 ::Ice::Byte
@@ -584,6 +578,7 @@ IceXML::StreamI::readByteSeq(const string& name)
 
     startRead(name);
 
+    string elem = getPrefix(name) + seqElementName;
     ::Ice::Int size = readLength();
     value.resize(size);
     if(size > 0)
@@ -591,7 +586,7 @@ IceXML::StreamI::readByteSeq(const string& name)
 	_input->current = _input->current.getFirstChild();
 	for(int i = 0; i < size; ++i)
 	{
-	    value[i] = readByte(seqElementName);
+	    value[i] = readByte(elem);
 	}
     }
     
@@ -605,18 +600,19 @@ IceXML::StreamI::writeBool(const string& name, bool value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
-    _os << nl << "<" << name << ">" << (value ? "true" : "false") << "</" << name << ">";
+
+    _os << se(name) << (value ? "true" : "false") << ee;
 }
 
 void
 IceXML::StreamI::writeBoolSeq(const string& name, const ::Ice::BoolSeq& seq)
 {
-    startWrite(name);
+    startWriteSequence(name, seq.size());
     for(::Ice::BoolSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-	_os << nl << "<e>" << ((*p) ? "true" : "false") << "</e>";
+	_os << se("e") << (*p ? "true" : "false") << ee;
     }
-    endWrite();
+    endWriteSequence();
 }
 
 bool
@@ -644,6 +640,7 @@ IceXML::StreamI::readBoolSeq(const string& name)
 
     startRead(name);
 
+    string elem = getPrefix(name) + seqElementName;
     ::Ice::Int size = readLength();
     value.resize(size);
     if(size > 0)
@@ -651,7 +648,7 @@ IceXML::StreamI::readBoolSeq(const string& name)
 	_input->current = _input->current.getFirstChild();
 	for(int i = 0; i < size; ++i)
 	{
-	    value[i] = readBool(seqElementName);
+	    value[i] = readBool(elem);
 	}
     }
     
@@ -665,18 +662,19 @@ IceXML::StreamI::writeShort(const string& name, ::Ice::Short value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
-    _os << nl << "<" << name << ">" << value << "</" << name << ">";
+
+    _os << se(name) << value << ee;
 }
 
 void
 IceXML::StreamI::writeShortSeq(const string& name, const ::Ice::ShortSeq& seq)
 {
-    startWrite(name);
+    startWriteSequence(name, seq.size());
     for(::Ice::ShortSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-	_os << nl << "<e>" << *p << "</e>";
+	_os << se("e") << *p << ee;
     }
-    endWrite();
+    endWriteSequence();
 }
 
 ::Ice::Short
@@ -709,6 +707,7 @@ IceXML::StreamI::readShortSeq(const string& name)
 
     startRead(name);
 
+    string elem = getPrefix(name) + seqElementName;
     ::Ice::Int size = readLength();
     value.resize(size);
     if(size > 0)
@@ -716,7 +715,7 @@ IceXML::StreamI::readShortSeq(const string& name)
 	_input->current = _input->current.getFirstChild();
 	for(int i = 0; i < size; ++i)
 	{
-	    value[i] = readShort(seqElementName);
+	    value[i] = readShort(elem);
 	}
     }
     
@@ -730,18 +729,18 @@ IceXML::StreamI::writeInt(const string& name, ::Ice::Int value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
-    _os << nl << "<" << name << ">" << value << "</" << name << ">";
+    _os << se(name) << value << ee;
 }
 
 void
 IceXML::StreamI::writeIntSeq(const string& name, const ::Ice::IntSeq& seq)
 {
-    startWrite(name);
+    startWriteSequence(name, seq.size());
     for(::Ice::IntSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-	_os << nl << "<e>" << *p << "</e>";
+	_os << se("e") << *p << ee;
     }
-    endWrite();
+    endWriteSequence();
 }
 
 ::Ice::Int
@@ -769,6 +768,7 @@ IceXML::StreamI::readIntSeq(const string& name)
 
     startRead(name);
 
+    string elem = getPrefix(name) + seqElementName;
     ::Ice::Int size = readLength();
     value.resize(size);
     if(size > 0)
@@ -776,7 +776,7 @@ IceXML::StreamI::readIntSeq(const string& name)
 	_input->current = _input->current.getFirstChild();
 	for(int i = 0; i < size; ++i)
 	{
-	    value[i] = readInt(seqElementName);
+	    value[i] = readInt(elem);
 	}
     }
     
@@ -790,18 +790,18 @@ IceXML::StreamI::writeLong(const string& name, ::Ice::Long value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
-    _os << nl << "<" << name << ">" << value << "</" << name << ">";
+    _os << se(name) << value << ee;
 }
 
 void
 IceXML::StreamI::writeLongSeq(const string& name, const ::Ice::LongSeq& seq)
 {
-    startWrite(name);
+    startWriteSequence(name, seq.size());
     for(::Ice::LongSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-	_os << nl << "<e>" << *p << "</e>";
+	_os << se("e") << *p << ee;
     }
-    endWrite();
+    endWriteSequence();
 }
 
 ::Ice::Long
@@ -829,6 +829,7 @@ IceXML::StreamI::readLongSeq(const string& name)
 
     startRead(name);
 
+    string elem = getPrefix(name) + seqElementName;
     ::Ice::Int size = readLength();
     value.resize(size);
     if(size > 0)
@@ -836,7 +837,7 @@ IceXML::StreamI::readLongSeq(const string& name)
 	_input->current = _input->current.getFirstChild();
 	for(int i = 0; i < size; ++i)
 	{
-	    value[i] = readLong(seqElementName);
+	    value[i] = readLong(elem);
 	}
     }
     
@@ -850,18 +851,18 @@ IceXML::StreamI::writeFloat(const string& name, ::Ice::Float value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
-    _os << nl << "<" << name << ">" << value << "</" << name << ">";
+    _os << se(name) << value << ee;
 }
 
 void
 IceXML::StreamI::writeFloatSeq(const string& name, const ::Ice::FloatSeq& seq)
 {
-    startWrite(name);
+    startWriteSequence(name, seq.size());
     for(::Ice::FloatSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-	_os << nl << "<e>" << *p << "</e>";
+	_os << se("e") << *p << ee;
     }
-    endWrite();
+    endWriteSequence();
 }
 
 ::Ice::Float
@@ -889,6 +890,7 @@ IceXML::StreamI::readFloatSeq(const string& name)
 
     startRead(name);
 
+    string elem = getPrefix(name) + seqElementName;
     ::Ice::Int size = readLength();
     value.resize(size);
     if(size > 0)
@@ -896,7 +898,7 @@ IceXML::StreamI::readFloatSeq(const string& name)
 	_input->current = _input->current.getFirstChild();
 	for(int i = 0; i < size; ++i)
 	{
-	    value[i] = readFloat(seqElementName);
+	    value[i] = readFloat(elem);
 	}
     }
     
@@ -910,18 +912,18 @@ IceXML::StreamI::writeDouble(const string& name, ::Ice::Double value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
-    _os << nl << "<" << name << ">" << value << "</" << name << ">";
+    _os << se(name) << value << ee;
 }
 
 void
 IceXML::StreamI::writeDoubleSeq(const string& name, const ::Ice::DoubleSeq& seq)
 {
-    startWrite(name);
+    startWriteSequence(name, seq.size());
     for(::Ice::DoubleSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-	_os << nl << "<e>" << *p << "</e>";
+	_os << se("e") << *p << ee;
     }
-    endWrite();
+    endWriteSequence();
 }
 
 ::Ice::Double
@@ -949,6 +951,7 @@ IceXML::StreamI::readDoubleSeq(const string& name)
 
     startRead(name);
 
+    string elem = getPrefix(name) + seqElementName;
     ::Ice::Int size = readLength();
     value.resize(size);
     if(size > 0)
@@ -956,7 +959,7 @@ IceXML::StreamI::readDoubleSeq(const string& name)
 	_input->current = _input->current.getFirstChild();
 	for(int i = 0; i < size; ++i)
 	{
-	    value[i] = readDouble(seqElementName);
+	    value[i] = readDouble(elem);
 	}
     }
     
@@ -970,72 +973,23 @@ IceXML::StreamI::writeString(const string& name, const string& value)
 {
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
-    string v = value;
 
-    //
-    // Find out whether there is a reserved character to avoid
-    // conversion if not necessary.
-    //
-    static const string allReserved = "<>'\"&";
-    if(v.find_first_of(allReserved) != string::npos)
-    {
-	//
-	// First convert all & to &amp;
-	//
-	size_t pos = 0;
-	while((pos = v.find_first_of('&', pos)) != string::npos)
-	{
-	    v.insert(pos+1, "amp;");
-	    pos += 4;
-	}
-
-	//
-	// Next convert remaining reserved characters.
-	//
-	static const string reserved = "<>'\"";
-	pos = 0;
-	while((pos = v.find_first_of(reserved, pos)) != string::npos)
-	{
-	    string replace;
-	    switch(v[pos])
-	    {
-	    case '>':
-		replace = "&gt;";
-		break;
-
-	    case '<':
-		replace = "&lt;";
-		break;
-
-	    case '\'':
-		replace = "&apos;";
-		break;
-
-	    case '"':
-		replace = "&quot;";
-		break;
-
-	    default:
-		assert(false);
-	    }
-	    v.erase(pos, 1);
-	    v.insert(pos, replace);
-	    pos += replace.size();
-	}
-    }
-    
-    _os << nl << "<" << name << ">" << v << "</" << name << ">";
+    _os << se(name);
+    _os << startEscapes << value << endEscapes;
+    _os << ee;
 }
 
 void
 IceXML::StreamI::writeStringSeq(const string& name, const ::Ice::StringSeq& seq)
 {
-    startWrite(name);
+    startWriteSequence(name, seq.size());
     for(::Ice::StringSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
     {
-	_os << nl << "<e>" << *p << "</e>"; // TODO: Escape
+	_os << se("e");
+	_os << startEscapes << *p << endEscapes;
+	_os << ee;
     }
-    endWrite();
+    endWriteSequence();
 }
 
 string
@@ -1072,6 +1026,7 @@ IceXML::StreamI::readStringSeq(const string& name)
 
     startRead(name);
 
+    string elem = getPrefix(name) + seqElementName;
     ::Ice::Int size = readLength();
     value.resize(size);
     if(size > 0)
@@ -1079,7 +1034,7 @@ IceXML::StreamI::readStringSeq(const string& name)
 	_input->current = _input->current.getFirstChild();
 	for(int i = 0; i < size; ++i)
 	{
-	    value[i] = readString(seqElementName);
+	    value[i] = readString(elem);
 	}
     }
     
@@ -1094,7 +1049,10 @@ IceXML::StreamI::writeProxy(const string& name, const ::Ice::ObjectPrx& proxy)
     // No attributes
     assert(name.find_first_of(" \t") == string::npos);
     string s = _communicator->proxyToString(proxy);
-    _os << nl << "<" << name << ">" << s << "</" << name << ">";
+
+    _os << se(name);
+    _os << startEscapes << s << endEscapes;
+    _os << ee;
 }
 
 ::Ice::ObjectPrx
@@ -1284,12 +1242,11 @@ IceXML::StreamI::endWrite()
 
     _os << ee;
 
-    if(_level == 0)
+    if(_level == 0 && !_dump)
     {
 	dumpUnwrittenObjects();
     }
 }
-
 
 void
 IceXML::StreamI::startRead(const ::std::string& element)
@@ -1331,7 +1288,9 @@ IceXML::StreamI::dumpUnwrittenObjects()
     //
     // Precondition: Must be at the top-level.
     //
-    assert(_level == 0);
+    assert(_level == 0 && !_dump);
+
+    _dump = true;
 
     //
     // It's necessary to run through the set of unwritten objects
@@ -1350,15 +1309,13 @@ IceXML::StreamI::dumpUnwrittenObjects()
 	    {
 		p->second.written = true;
 		writeObjectData("ice:object", p->second.id, p->first);
-		++nwritten;
 	    }
-	    else
-	    {
-		++nwritten;
-	    }
+            ++nwritten;
 	}
     }
     while(_objects.size() != nwritten);
+
+    _dump = false;
 }
 
 void
@@ -1404,8 +1361,7 @@ IceXML::StreamI::writeObjectData(const string& name, const string& id, const Ice
     }
 
     ostringstream os;
-    os << name << " id=\"" << id << "\" type=\"" << typeId << "\""
-       << " xsi:type=\"" << xsdType << "\"";
+    os << name << " id=\"" << id << "\" type=\"" << typeId << "\"" << " xsi:type=\"" << xsdType << "\"";
     if(!obj)
     {
 	os << " xsi:nil=\"true\"";
@@ -1465,4 +1421,33 @@ IceXML::StreamI::readLength()
     }
 
     throw ::Ice::MarshalException(__FILE__, __LINE__);
+}
+
+string
+IceXML::StreamI::getWritePrefix() const
+{
+    string name = _os.currentElement();
+    assert(!name.empty());
+    return getPrefix(name);
+}
+
+string
+IceXML::StreamI::getReadPrefix() const
+{
+    assert(!_input->nodeStack.empty());
+    return getPrefix(toString(_input->nodeStack.back().getNodeName()));
+}
+
+string
+IceXML::StreamI::getPrefix(const string& s)
+{
+    string::size_type pos = s.find(':');
+    if(pos != string::npos)
+    {
+        return s.substr(0, pos + 1);
+    }
+    else
+    {
+        return string();
+    }
 }
