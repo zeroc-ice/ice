@@ -320,11 +320,11 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	    if(name != service)
 	    {
 		name = name.empty() ? service : name + "-" + service;
-		serviceProperties->setProperty("Ice.ProgramName", name);
 	    }
 
 	    PropertiesPtr fileProperties = createProperties(serviceArgs);
 	    serviceProperties->parseCommandLineOptions("", fileProperties->getCommandLineOptions());
+	    serviceProperties->setProperty("Ice.ProgramName", name);
 
 	    serviceArgs = serviceProperties->parseIceCommandLineOptions(serviceArgs);
 	    serviceArgs = serviceProperties->parseCommandLineOptions(service, serviceArgs);

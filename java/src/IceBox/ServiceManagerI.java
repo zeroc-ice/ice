@@ -304,11 +304,11 @@ public final class ServiceManagerI extends _ServiceManagerDisp
 		if(!name.equals(service))
 		{
 		    name = name.length() == 0 ? name + "-" + service : service;
-		    serviceProperties.setProperty("Ice.ProgramName", name);
 		}
 
 		Ice.Properties fileProperties = Ice.Util.createProperties(serviceArgs);
 		serviceProperties.parseCommandLineOptions("", fileProperties.getCommandLineOptions());
+		serviceProperties.setProperty("Ice.ProgramName", name);
 
 		serviceArgs = serviceProperties.parseIceCommandLineOptions(serviceArgs);
 		serviceArgs = serviceProperties.parseCommandLineOptions(service, serviceArgs);
