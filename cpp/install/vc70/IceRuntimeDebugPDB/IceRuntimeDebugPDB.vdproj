@@ -45,6 +45,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_6A79C938651641F09E74F0936E8AFC36"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICECS\\BIN\\ICECS.PDB"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_87AA6D609B9B42C2BDF671D3869D69D4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEPATCH15D.PDB"
@@ -72,12 +78,6 @@
         "MsmKey" = "8:_C6EC15979476453F93D9EC37C6C4FEA2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\BIN\\ICEPACK15D.PDB"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CD828E69AB9444A58830B0427BA53F73"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:C:\\BUILDS\\ICECS\\BIN\\ICECS.PDB"
         }
         "Entry"
         {
@@ -224,6 +224,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_6A79C938651641F09E74F0936E8AFC36"
+            {
+            "SourcePath" = "8:..\\..\\..\\..\\icecs\\bin\\icecs.pdb"
+            "TargetName" = "8:icecs.pdb"
+            "Tag" = "8:"
+            "Folder" = "8:_8025D6617DB94A9BBCB7BA75391C566A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_87AA6D609B9B42C2BDF671D3869D69D4"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\icepatch15d.pdb"
@@ -324,26 +344,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_CD828E69AB9444A58830B0427BA53F73"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\icecs\\bin\\icecs.pdb"
-            "TargetName" = "8:icecs.pdb"
-            "Tag" = "8:"
-            "Folder" = "8:_2709A182318A457B9C35639588358FC2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:TRUE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_E051EBAB58284FF5A2747B2D98EEBED4"
             {
             "SourcePath" = "8:..\\..\\..\\bin\\iceutil15d.pdb"
@@ -402,6 +402,28 @@
             "Property" = "8:NEWRETARGETABLEPROPERTY2"
                 "Folders"
                 {
+                    "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_1CBD79232C81497AA58595973A364A10"
+                    {
+                    "Name" = "8:democs"
+                    "AlwaysCreate" = "11:FALSE"
+                    "Condition" = "8:"
+                    "Transitive" = "11:FALSE"
+                    "Property" = "8:_059E40EEFB83490C828DAEA2EA7D04D4"
+                        "Folders"
+                        {
+                            "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_8025D6617DB94A9BBCB7BA75391C566A"
+                            {
+                            "Name" = "8:bin"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_16DCE3362A194B978CA7ED9416733C1A"
+                                "Folders"
+                                {
+                                }
+                            }
+                        }
+                    }
                     "{461E96AF-1495-11D3-8D6C-00A0C9CFCEE6}:_2709A182318A457B9C35639588358FC2"
                     {
                     "Name" = "8:bin"

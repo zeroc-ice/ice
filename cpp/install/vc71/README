@@ -29,6 +29,16 @@ replace ".NET 2002" by ".NET 2003", either using Visual
 Studio or by opening the corresponding .vdproj files with a 
 text editor.
 
+(6) If you want to include Ice for C# support:
+ - build Ice for C# (debug) in C:\builds\icecs
+ - In the IceRuntime project, change the Exclude property of icecs.dll
+   to False.
+ - In the IceRuntimeDebugPDB project, change the Exclude property of 
+   icecs.pdb to False.
+ - In the Ice project, add the output of the IceCSDemos project.
+ - In the Configuration Manager, enable IceCSdemos/Ice for the Ice Solution 
+   Configuration.
+
 
 Then refer to the vc70\README for further information on
 these installer projects.

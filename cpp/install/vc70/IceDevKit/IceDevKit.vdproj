@@ -339,6 +339,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_17FDDA90B17F49409F7513E6A9E72FEE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICEUTIL\\MD5.H"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_18626D508AC4461B8BB1E46E8F832887"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\LATENCY\\LATENCY.ICE"
@@ -1896,6 +1902,12 @@
         "MsmKey" = "8:_8D9503D9106643399C379D2B5BEA8F3A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\BENCH\\TEST.ICE"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8DDDEF52F02D42A88835D03E0DEE3E15"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\SLICE\\CHECKSUM.H"
         }
         "Entry"
         {
@@ -4634,6 +4646,26 @@
             "TargetName" = "8:freezed.lib"
             "Tag" = "8:"
             "Folder" = "8:_C1629974A78F47E6B0BDE6A3D805AC69"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_17FDDA90B17F49409F7513E6A9E72FEE"
+            {
+            "SourcePath" = "8:..\\..\\..\\include\\IceUtil\\MD5.h"
+            "TargetName" = "8:MD5.h"
+            "Tag" = "8:"
+            "Folder" = "8:_341752277C4F4A0B8F6888BD6B23C54D"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -9794,6 +9826,26 @@
             "TargetName" = "8:Test.ice"
             "Tag" = "8:"
             "Folder" = "8:_F18CC681C34F4A7FB681EC6FC95C27FB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8DDDEF52F02D42A88835D03E0DEE3E15"
+            {
+            "SourcePath" = "8:..\\..\\..\\include\\Slice\\Checksum.h"
+            "TargetName" = "8:Checksum.h"
+            "Tag" = "8:"
+            "Folder" = "8:_9EE5AAE949E9488E9DE0EF5429E936F5"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
