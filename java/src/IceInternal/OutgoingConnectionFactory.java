@@ -87,11 +87,13 @@ public class OutgoingConnectionFactory
     }
 
     public Ice.ConnectionI
-    create(Endpoint[] endpoints, Ice.BooleanHolder compress)
+    create(Endpoint[] endpts, Ice.BooleanHolder compress)
     {
-	assert(endpoints.length > 0);
+	assert(endpts.length > 0);
+	Endpoint[] endpoints = new Endpoint[endpts.length];
+	System.arraycopy(endpts, 0, endpoints, 0, endpts.length);
 
-        compress.value = false; // TODO: compression is not supported yet.
+        DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 
 	synchronized(this)
 	{
@@ -127,13 +129,23 @@ public class OutgoingConnectionFactory
 	    //
 	    // Modify endpoints with overrides.
 	    //
-	    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 	    for(int i = 0; i < endpoints.length; i++)
 	    {
 		if(defaultsAndOverrides.overrideTimeout)
 		{
 		    endpoints[i] = endpoints[i].timeout(defaultsAndOverrides.overrideTimeoutValue);
 		}
+
+		//
+		// The Connection object does not take the compression flag of
+		// endpoints into account, but instead gets the information
+		// about whether messages should be compressed or not from
+		// other sources. In order to allow connection sharing for
+		// endpoints that differ in the value of the compression flag
+		// only, we always set the compression flag to false here in
+		// this connection factory.
+		//
+		endpoints[i] = endpoints[i].compress(false);
 	    }
 
 	    //
@@ -151,11 +163,20 @@ public class OutgoingConnectionFactory
 			Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
 			
 			//
-			// Don't return connections for which destruction
-			// has been initiated.
+			// Don't return connections for which destruction has
+			// been initiated.
 			//
 			if(!connection.isDestroyed())
 			{
+			    if(defaultsAndOverrides.overrideCompress)
+			    {
+				compress.value = defaultsAndOverrides.overrideCompressValue;
+			    }
+			    else
+			    {
+				compress.value = endpts[i].compress();
+			    }
+
 			    return connection;
 			}
 		    }
@@ -219,11 +240,20 @@ public class OutgoingConnectionFactory
 			    Ice.ConnectionI connection = (Ice.ConnectionI)q.next();
 			    
 			    //
-			    // Don't return connections for which
-			    // destruction has been initiated.
+			    // Don't return connections for which destruction has
+			    // been initiated.
 			    //
 			    if(!connection.isDestroyed())
 			    {
+				if(defaultsAndOverrides.overrideCompress)
+				{
+				    compress.value = defaultsAndOverrides.overrideCompressValue;
+				}
+				else
+				{
+				    compress.value = endpts[i].compress();
+				}
+
 				return connection;
 			    }
 			}
@@ -259,7 +289,6 @@ public class OutgoingConnectionFactory
 		    assert(connector != null);
 
 		    int timeout;
-		    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 		    if(defaultsAndOverrides.overrideConnectTimeout)
 		    {
 			timeout = defaultsAndOverrides.overrideConnectTimeoutValue;
@@ -277,6 +306,15 @@ public class OutgoingConnectionFactory
 		}
 		connection = new Ice.ConnectionI(_instance, transceiver, endpoint, null);
 		connection.validate();
+
+		if(defaultsAndOverrides.overrideCompress)
+		{
+		    compress.value = defaultsAndOverrides.overrideCompressValue;
+		}
+		else
+		{
+		    compress.value = endpts[i].compress();
+		}
 		break;
 	    }
 	    catch(Ice.LocalException ex)
@@ -369,10 +407,25 @@ public class OutgoingConnectionFactory
             for(int i = 0; i < endpoints.length; i++)
             {
 		Endpoint endpoint = endpoints[i];
+
+		//
+		// Modify endpoints with overrides.
+		//
 		if(defaultsAndOverrides.overrideTimeout)
 		{
 		    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 		}
+
+		//
+		// The Connection object does not take the compression flag of
+		// endpoints into account, but instead gets the information
+		// about whether messages should be compressed or not from
+		// other sources. In order to allow connection sharing for
+		// endpoints that differ in the value of the compression flag
+		// only, we always set the compression flag to false here in
+		// this connection factory.
+		//
+		endpoint = endpoint.compress(false);
 
 		java.util.LinkedList connectionList = (java.util.LinkedList)_connections.get(endpoints[i]);
 		if(connectionList != null)

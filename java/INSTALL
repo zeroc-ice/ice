@@ -95,6 +95,23 @@ $ export LD_LIBRARY_PATH=/opt/db4/lib:$LD_LIBRARY_PATH
 Note that the Ice for Java distribution is compiled against Berkeley
 DB 4.2.52.
 
+
+bzip2
+-----
+
+Ice for Java supports protocol compression using the bzip2 classes
+included with Apache Ant (see "Compiling the Source" below).
+
+Compression is automatically enabled if the classes are present in
+the CLASSPATH. You can either add ant.jar to your CLASSPATH, or
+download only the bzip2 classes from
+
+http://www.kohsuke.org/bzip2/
+
+Note that these classes are a pure Java implementation of the bzip2
+algorithm and therefore add significant latency to Ice requests.
+
+
 Python 2.2
 ----------
 

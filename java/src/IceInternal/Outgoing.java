@@ -13,13 +13,14 @@ public final class Outgoing
 {
     public
     Outgoing(Ice.ConnectionI connection, Reference ref, String operation, Ice.OperationMode mode,
-	     java.util.Map context)
+	     java.util.Map context, boolean compress)
     {
         _connection = connection;
         _reference = ref;
         _state = StateUnsent;
         _is = new BasicStream(ref.getInstance());
         _os = new BasicStream(ref.getInstance());
+        _compress = compress;
 
         writeHeader(operation, mode, context);
     }
@@ -81,7 +82,7 @@ public final class Outgoing
 		// call back on this object, so we don't need to lock
 		// the mutex, keep track of state, or save exceptions.
 		//
-		_connection.sendRequest(_os, this);
+		_connection.sendRequest(_os, this, _compress);
 
 		//
 		// Wait until the request has completed, or until the
@@ -193,16 +194,15 @@ public final class Outgoing
             case Reference.ModeDatagram:
             {
 		//
-		// For oneway and datagram requests, the connection
-		// object never calls back on this object. Therefore
-		// we don't need to lock the mutex or save
-		// exceptions. We simply let all exceptions from
-		// sending propagate to the caller, because such
-		// exceptions can be retried without violating
-		// "at-most-once".
+		// For oneway and datagram requests, the connection object
+                // never calls back on this object. Therefore we don't
+                // need to lock the mutex or save exceptions. We simply
+                // let all exceptions from sending propagate to the
+                // caller, because such exceptions can be retried without
+                // violating "at-most-once".
 		//
 		_state = StateInProgress;
-		_connection.sendRequest(_os, null);
+		_connection.sendRequest(_os, null, _compress);
                 break;
             }
 
@@ -215,7 +215,7 @@ public final class Outgoing
 		// apply.
 		//
 		_state = StateInProgress;
-                _connection.finishBatchRequest(_os);
+                _connection.finishBatchRequest(_os, _compress);
                 break;
             }
         }
@@ -502,6 +502,8 @@ public final class Outgoing
 
     private BasicStream _is;
     private BasicStream _os;
+
+    private boolean _compress;
 
     public Outgoing next; // For use by Ice._ObjectDelM
 }

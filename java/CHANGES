@@ -1,3 +1,10 @@
+Changes since version 2.0.0
+---------------------------
+
+- Added support for bzip2 protocol compression. The implementation
+  uses the bzip2 classes from Ant. See the INSTALL file for more
+  information.
+
 Changes since version 1.5.1
 ---------------------------
 

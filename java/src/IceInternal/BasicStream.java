@@ -611,6 +611,13 @@ public class BasicStream
         _buf.put(v);
     }
 
+    public void
+    writeBlob(byte[] v, int off, int len)
+    {
+        expand(len);
+        _buf.put(v, off, len);
+    }
+
     public byte[]
     readBlob(int sz)
     {
@@ -1657,6 +1664,239 @@ public class BasicStream
         return _limit == 0;
     }
 
+    private static class BufferedOutputStream extends java.io.OutputStream
+    {
+	BufferedOutputStream(byte[] data)
+	{
+	    _data = data;
+	}
+
+	public void
+	close()
+	    throws java.io.IOException
+	{
+	}
+
+	public void
+	flush()
+	    throws java.io.IOException
+	{
+	}
+
+	public void
+	write(byte[] b)
+	    throws java.io.IOException
+	{
+	    assert(_data.length - _pos >= b.length);
+	    System.arraycopy(b, 0, _data, _pos, b.length);
+	    _pos += b.length;
+	}
+
+	public void
+	write(byte[] b, int off, int len)
+	    throws java.io.IOException
+	{
+	    assert(_data.length - _pos >= len);
+	    System.arraycopy(b, off, _data, _pos, len);
+	    _pos += len;
+	}
+
+	public void
+	write(int b)
+	    throws java.io.IOException
+	{
+	    assert(_data.length - _pos >= 1);
+	    _data[_pos] = (byte)b;
+	    ++_pos;
+	}
+
+	int
+	pos()
+	{
+	    return _pos;
+	}
+
+	private byte[] _data;
+	private int _pos;
+    }
+
+    public BasicStream
+    compress(int headerSize)
+    {
+	assert(compressible());
+
+	int uncompressedLen = size() - headerSize;
+	int compressedLen = (int)(uncompressedLen * 1.01 + 600);
+	byte[] compressed = new byte[compressedLen];
+
+	byte[] data = null;
+	int offset = 0;
+	try
+	{
+	    //
+	    // If the ByteBuffer is backed by an array then we can avoid
+	    // an extra copy by using the array directly.
+	    //
+	    data = _buf.array();
+	    offset = _buf.arrayOffset();
+	}
+	catch(Exception ex)
+	{
+	    //
+	    // Otherwise, allocate an array to hold a copy of the uncompressed data.
+	    //
+	    data = new byte[size()];
+	    _buf.get(data);
+	}
+
+	try
+	{
+	    //
+	    // Compress the data using the class org.apache.tools.bzip2.CBZip2OutputStream.
+	    // Its constructor requires an OutputStream argument, therefore we pass the
+	    // compressed BasicStream in an OutputStream wrapper.
+	    //
+	    BufferedOutputStream bos = new BufferedOutputStream(compressed);
+	    //
+	    // For interoperability with the bzip2 C library, we insert the magic bytes
+	    // 'B', 'Z' before invoking the Java implementation.
+	    //
+	    bos.write((int)'B');
+	    bos.write((int)'Z');
+	    java.lang.Object[] args = new java.lang.Object[]{ bos };
+	    java.io.OutputStream os = (java.io.OutputStream)_bzOutputStreamCtor.newInstance(args);
+	    os.write(data, offset + headerSize, uncompressedLen);
+	    os.close();
+	    compressedLen = bos.pos();
+	}
+	catch(Exception ex)
+	{
+	    Ice.CompressionException e = new Ice.CompressionException();
+	    e.reason = "bzip2 compression failure";
+	    e.initCause(ex);
+	    throw e;
+	}
+
+	//
+	// Don't bother if the compressed data is larger than the
+	// uncompressed data.
+	//
+	if(compressedLen >= uncompressedLen)
+	{
+	    return null;
+	}
+
+	BasicStream cstream = new BasicStream(_instance);
+	cstream.resize(headerSize + 4 + compressedLen, false);
+	cstream.pos(0);
+
+	//
+	// Copy the header from the uncompressed stream to the
+	// compressed one.
+	//
+	cstream._buf.put(data, offset, headerSize);
+
+	//
+	// Add the size of the uncompressed stream before the
+	// message body.
+	//
+	cstream.writeInt(size());
+
+	//
+	// Add the compressed message body.
+	//
+	cstream._buf.put(compressed, 0, compressedLen);
+
+	return cstream;
+    }
+
+    public BasicStream
+    uncompress(int headerSize)
+    {
+	assert(compressible());
+
+	pos(headerSize);
+	int uncompressedSize = readInt();
+	if(uncompressedSize <= headerSize)
+	{
+	    throw new Ice.IllegalMessageSizeException();
+	}
+
+	int compressedLen = size() - headerSize - 4;
+
+	byte[] compressed = null;
+	int offset = 0;
+	try
+	{
+	    //
+	    // If the ByteBuffer is backed by an array then we can avoid
+	    // an extra copy by using the array directly.
+	    //
+	    compressed = _buf.array();
+	    offset = _buf.arrayOffset();
+	}
+	catch(Exception ex)
+	{
+	    //
+	    // Otherwise, allocate an array to hold a copy of the compressed data.
+	    //
+	    compressed = new byte[size()];
+	    _buf.get(compressed);
+	}
+
+	BasicStream ucStream = new BasicStream(_instance);
+	ucStream.resize(uncompressedSize, false);
+
+	try
+	{
+	    //
+	    // Uncompress the data using the class org.apache.tools.bzip2.CBZip2InputStream.
+	    // Its constructor requires an InputStream argument, therefore we pass the
+	    // compressed data in a ByteArrayInputStream.
+	    //
+	    java.io.ByteArrayInputStream bais =
+		new java.io.ByteArrayInputStream(compressed, offset + headerSize + 4, compressedLen);
+	    //
+	    // For interoperability with the bzip2 C library, we insert the magic bytes
+	    // 'B', 'Z' during compression and therefore must extract them before we
+	    // invoke the Java implementation.
+	    //
+	    byte magicB = (byte)bais.read();
+	    byte magicZ = (byte)bais.read();
+	    if(magicB != (byte)'B' || magicZ != (byte)'Z')
+	    {
+		Ice.CompressionException e = new Ice.CompressionException();
+		e.reason = "bzip2 uncompression failure: invalid magic bytes";
+		throw e;
+	    }
+	    java.lang.Object[] args = new java.lang.Object[]{ bais };
+	    java.io.InputStream is = (java.io.InputStream)_bzInputStreamCtor.newInstance(args);
+	    ucStream.pos(headerSize);
+	    byte[] arr = new byte[8 * 1024];
+	    int n;
+	    while((n = is.read(arr)) != -1)
+	    {
+		ucStream.writeBlob(arr, 0, n);
+	    }
+	    is.close();
+	}
+	catch(Exception ex)
+	{
+	    Ice.CompressionException e = new Ice.CompressionException();
+	    e.reason = "bzip2 uncompression failure";
+	    e.initCause(ex);
+	    throw e;
+	}
+
+	//
+	// Copy the header from the compressed stream to the uncompressed one.
+	//
+	ucStream.pos(0);
+	ucStream._buf.put(compressed, offset, headerSize);
+
+	return ucStream;
+    }
+
     private void
     expand(int size)
     {
@@ -2036,4 +2276,31 @@ public class BasicStream
 
     private static java.util.HashMap _exceptionFactories = new java.util.HashMap();
     private static java.lang.Object _factoryMutex = new java.lang.Object(); // Protects _exceptionFactories.
+
+    public static boolean
+    compressible()
+    {
+        return _bzInputStreamCtor != null && _bzOutputStreamCtor != null;
+    }
+
+    private static java.lang.reflect.Constructor _bzInputStreamCtor;
+    private static java.lang.reflect.Constructor _bzOutputStreamCtor;
+    static
+    {
+	try
+	{
+	    Class cls;
+	    Class[] types = new Class[1];
+	    cls = Class.forName("org.apache.tools.bzip2.CBZip2InputStream");
+	    types[0] = java.io.InputStream.class;
+	    _bzInputStreamCtor = cls.getDeclaredConstructor(types);
+	    cls = Class.forName("org.apache.tools.bzip2.CBZip2OutputStream");
+	    types[0] = java.io.OutputStream.class;
+	    _bzOutputStreamCtor = cls.getDeclaredConstructor(types);
+	}
+	catch(Exception ex)
+	{
+	    // Ignore - bzip2 compression not available.
+	}
+    }
 }

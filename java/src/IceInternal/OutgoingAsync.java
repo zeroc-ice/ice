@@ -283,8 +283,7 @@ public abstract class OutgoingAsync
 		
 		_reference = ((Ice.ObjectPrxHelperBase)prx).__reference();
 		assert(_connection == null);
-		Ice.BooleanHolder compress = new Ice.BooleanHolder();
-		_connection = _reference.getConnection(compress);
+		_connection = _reference.getConnection(_compress);
 		_cnt = 0;
 		_mode = mode;
 		assert(__is == null);
@@ -371,8 +370,7 @@ public abstract class OutgoingAsync
 		{
 		    if(_connection == null)
 		    {
-		        Ice.BooleanHolder compress = new Ice.BooleanHolder();
-			_connection = _reference.getConnection(compress);
+			_connection = _reference.getConnection(_compress);
 		    }
 		    
 		    if(_connection.timeout() >= 0)
@@ -386,7 +384,7 @@ public abstract class OutgoingAsync
 		    
 		    try
 		    {
-			_connection.sendAsyncRequest(__os, this);
+			_connection.sendAsyncRequest(__os, this, _compress.value);
 			
 			//
 			// Don't do anything after sendAsyncRequest() returned
@@ -479,6 +477,7 @@ public abstract class OutgoingAsync
     private Ice.ConnectionI _connection;
     private int _cnt;
     private Ice.OperationMode _mode;
+    private Ice.BooleanHolder _compress = new Ice.BooleanHolder();
 
     //
     // Must be volatile, because we don't want to lock the monitor

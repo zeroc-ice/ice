@@ -330,6 +330,11 @@ public class IncomingConnectionFactory extends EventHandler
 	    _endpoint = _endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 	}
 
+	if(defaultsAndOverrides.overrideCompress)
+	{
+	    _endpoint = _endpoint.compress(defaultsAndOverrides.overrideCompressValue);
+	}
+
         try
         {
             EndpointHolder h = new EndpointHolder();
