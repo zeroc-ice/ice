@@ -519,7 +519,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 else
                 {
-                    out << nl << "v = " << stream << ".readObject(\"\", null);";
+                    out << nl << v << " = " << stream << ".readObject(\"\", null);";
                 }
                 break;
             }
@@ -550,13 +550,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
         string typeS = typeToString(type, TypeModeIn, scope);
         if (marshal)
         {
-            out << nl << typeS << "Helper.__write(" << stream << ", "
-                << v << ");";
+            out << nl << typeS << "Helper.__write(" << stream << ", " << v << ");";
         }
         else
         {
-            out << nl << v << " = " << typeS << "Helper.__read(" << stream
-                << ");";
+            out << nl << v << " = " << typeS << "Helper.__read(" << stream << ");";
         }
         return;
     }
@@ -656,8 +654,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     }
                     else
                     {
-                        out << nl << v << " = " << stream
-                            << ".readShortSeq();";
+                        out << nl << v << " = " << stream << ".readShortSeq();";
                     }
                     break;
                 }
@@ -693,8 +690,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     }
                     else
                     {
-                        out << nl << v << " = " << stream
-                            << ".readFloatSeq();";
+                        out << nl << v << " = " << stream << ".readFloatSeq();";
                     }
                     break;
                 }
@@ -706,8 +702,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     }
                     else
                     {
-                        out << nl << v << " = " << stream
-                            << ".readDoubleSeq();";
+                        out << nl << v << " = " << stream << ".readDoubleSeq();";
                     }
                     break;
                 }
@@ -719,8 +714,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     }
                     else
                     {
-                        out << nl << v << " = " << stream
-                            << ".readStringSeq();";
+                        out << nl << v << " = " << stream << ".readStringSeq();";
                     }
                     break;
                 }
@@ -730,13 +724,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     string typeS = getAbsolute(seq->scoped(), scope);
                     if (marshal)
                     {
-                        out << nl << typeS << "Helper.write(" << stream
-                            << ", " << v << ");";
+                        out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
                     }
                     else
                     {
-                        out << nl << v << " = " << typeS << "Helper.read("
-                            << stream << ");";
+                        out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
                     }
                     break;
                 }
@@ -754,13 +746,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
             string typeS = getAbsolute(cont->scoped(), scope);
             if (marshal)
             {
-                out << nl << typeS << "Helper.write(" << stream << ", "
-                    << v << ");";
+                out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
             }
             else
             {
-                out << nl << v << " = " << typeS << "Helper.read(" << stream
-                    << ");";
+                out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
             }
         }
         return;
@@ -771,13 +761,11 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     string typeS = getAbsolute(constructed->scoped(), scope);
     if (marshal)
     {
-        out << nl << typeS << "Helper.write(" << stream << ", "
-            << v << ");";
+        out << nl << typeS << "Helper.write(" << stream << ", " << v << ");";
     }
     else
     {
-        out << nl << v << " = " << typeS << "Helper.read(" << stream
-            << ");";
+        out << nl << v << " = " << typeS << "Helper.read(" << stream << ");";
     }
 }
 
