@@ -33,14 +33,14 @@ class ModuleVisitor : public ParserVisitor
 {
 public:
 
-    ModuleVisitor(Output&);
+    ModuleVisitor(Output&, set<string>&);
 
     virtual bool visitModuleStart(const ModulePtr&);
 
 private:
 
     Output& _out;
-    set<string> _history;
+    set<string>& _history;
 };
 
 //
@@ -50,7 +50,7 @@ class CodeVisitor : public ParserVisitor
 {
 public:
 
-    CodeVisitor(IceUtil::Output&);
+    CodeVisitor(IceUtil::Output&, set<string>&);
 
     virtual bool visitModuleStart(const ModulePtr&);
     virtual void visitModuleEnd(const ModulePtr&);
@@ -63,7 +63,7 @@ public:
     virtual void visitEnum(const EnumPtr&);
     virtual void visitConst(const ConstPtr&);
 
-protected:
+private:
 
     //
     // Return a Python symbol for the given parser element.
@@ -100,6 +100,7 @@ protected:
     void collectExceptionMembers(const ExceptionPtr&, list<ExceptionDataMember>&, bool);
 
     Output& _out;
+    set<string>& _moduleHistory;
     list<string> _moduleStack;
     set<string> _classHistory;
 };
@@ -163,8 +164,8 @@ splitScopedName(const string& scoped)
 //
 // ModuleVisitor implementation.
 //
-Slice::Python::ModuleVisitor::ModuleVisitor(Output& out) :
-    _out(out)
+Slice::Python::ModuleVisitor::ModuleVisitor(Output& out, set<string>& history) :
+    _out(out), _history(history)
 {
 }
 
@@ -189,8 +190,8 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
 //
 // CodeVisitor implementation.
 //
-Slice::Python::CodeVisitor::CodeVisitor(Output& out) :
-    _out(out)
+Slice::Python::CodeVisitor::CodeVisitor(Output& out, set<string>& moduleHistory) :
+    _out(out), _moduleHistory(moduleHistory)
 {
 }
 
@@ -211,10 +212,15 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
     //
     // This allows us to create types in the module Foo.
     //
-    string name = scopedToName(p->scoped());
+    string scoped = p->scoped();
+    string name = scopedToName(scoped);
     _out << sp << nl << "# Start of module " << name;
     _out << nl << "__name__ = '" << name << "'";
-    _out << nl << "_M_" << name << " = Ice.openModule('" << name << "')";
+    if(_moduleHistory.count(scoped) == 0) // Don't emit this more than once for each module.
+    {
+        _out << nl << "_M_" << name << " = Ice.openModule('" << name << "')";
+        _moduleHistory.insert(scoped);
+    }
     _moduleStack.push_front(name);
     return true;
 }
@@ -576,6 +582,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << nl;
         }
         _out << "))";
+        _out << nl << fixedName << ".ice_type = _M_" << type;
 
         //
         // Define each operation. The arguments to the IcePy.Operation constructor are:
@@ -791,8 +798,8 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "_M_" << scopedToType(scoped) << " = IcePy.defineException('" << scoped << "', "
-             << fixedName << ", ";
+        string type = scopedToType(scoped);
+        _out << sp << nl << "_M_" << type << " = IcePy.defineException('" << scoped << "', " << fixedName << ", ";
         if(baseScoped.empty())
         {
             _out << "None";
@@ -834,6 +841,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             _out << nl;
         }
         _out << "), " << (p->usesClasses() ? "True" : "False") << ")";
+        _out << nl << fixedName << ".ice_type = _M_" << type;
     }
 
     registerName(fixedName);
@@ -1438,10 +1446,12 @@ Slice::Python::generate(const UnitPtr& unit, bool all, bool checksum, const vect
         }
     }
 
-    ModuleVisitor moduleVisitor(out);
+    set<string> moduleHistory;
+
+    ModuleVisitor moduleVisitor(out, moduleHistory);
     unit->visit(&moduleVisitor, true);
 
-    CodeVisitor codeVisitor(out);
+    CodeVisitor codeVisitor(out, moduleHistory);
     unit->visit(&codeVisitor, false);
 
     if(checksum)
