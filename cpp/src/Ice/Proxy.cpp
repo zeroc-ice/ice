@@ -694,7 +694,7 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	ir->getLocatorInfo()->clearObjectCache(ir);
     }
 
-    if(ice_isOneway() || ice_isBatchOnway())
+    if(ice_isOneway() || ice_isBatchOneway())
     {
 	//
 	// We do not retry oneway or batch oneway requests (except for

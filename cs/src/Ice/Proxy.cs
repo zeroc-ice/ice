@@ -621,7 +621,7 @@ namespace Ice
             {
             }
 
-	    if(ice_isOneway() || ice_isBatchOnway())
+	    if(ice_isOneway() || ice_isBatchOneway())
 	    {
 		//
 		// We do not retry oneway or batch oneway requests
