@@ -11,16 +11,13 @@
 #include <Communicator.h>
 #include <Current.h>
 #include <Identity.h>
-#include <Marshal.h>
+#include <Operation.h>
 #include <Proxy.h>
-#include <Types.h>
 #include <Util.h>
 #include <Ice/Communicator.h>
-#include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
-#include <Ice/Stream.h>
 
 using namespace std;
 using namespace IcePy;
@@ -33,27 +30,6 @@ struct ObjectAdapterObject
     PyObject_HEAD
     Ice::ObjectAdapterPtr* adapter;
 };
-
-//
-// Dispatches a user-defined operation.
-//
-class Dispatcher : public IceUtil::Shared
-{
-public:
-
-    Dispatcher(const OperationInfoPtr&);
-    ~Dispatcher();
-
-    bool dispatch(PyObject*, const vector<Ice::Byte>&, vector<Ice::Byte>&, const Ice::Current&);
-
-private:
-
-    OperationInfoPtr _info;
-    MarshalerPtr _resultMarshaler;
-    vector<MarshalerPtr> _inParams;
-    vector<MarshalerPtr> _outParams;
-};
-typedef IceUtil::Handle<Dispatcher> DispatcherPtr;
 
 //
 // Encapsulates a Python servant.
@@ -72,9 +48,10 @@ public:
 private:
 
     PyObject* _servant;
-    ClassInfoPtr _info;
-    typedef map<string, DispatcherPtr> DispatcherMap;
-    DispatcherMap _dispatcherMap;
+    string _id;
+    typedef map<string, OperationPtr> OperationMap;
+    OperationMap _operationMap;
+    OperationMap::iterator _lastOp;
 };
 typedef IceUtil::Handle<ServantWrapper> ServantWrapperPtr;
 
@@ -119,242 +96,8 @@ typedef IceUtil::Handle<ServantLocatorWrapper> ServantLocatorWrapperPtr;
 
 }
 
-IcePy::Dispatcher::Dispatcher(const OperationInfoPtr& info) :
-    _info(info)
-{
-    if(_info->returnType)
-    {
-        _resultMarshaler = Marshaler::createMarshaler(_info->returnType);
-    }
-
-    TypeInfoList::iterator p;
-
-    for(p = _info->inParams.begin(); p != _info->inParams.end(); ++p)
-    {
-        MarshalerPtr marshaler = Marshaler::createMarshaler(*p);
-        assert(marshaler);
-        _inParams.push_back(marshaler);
-    }
-
-    for(p = _info->outParams.begin(); p != _info->outParams.end(); ++p)
-    {
-        MarshalerPtr marshaler = Marshaler::createMarshaler(*p);
-        assert(marshaler);
-        _outParams.push_back(marshaler);
-    }
-}
-
-IcePy::Dispatcher::~Dispatcher()
-{
-}
-
-bool
-IcePy::Dispatcher::dispatch(PyObject* servant, const vector<Ice::Byte>& inParams, vector<Ice::Byte>& outParams,
-                            const Ice::Current& current)
-{
-    string fixedName = fixIdent(_info->name);
-    Ice::CommunicatorPtr communicator = current.adapter->getCommunicator();
-
-    //
-    // Unmarshal the in parameters.
-    //
-    PyObjectHandle inArgs = PyTuple_New(static_cast<int>(_inParams.size()) + 1); // Leave room for Ice.Current.
-    if(inArgs.get() == NULL)
-    {
-        return false;
-    }
-
-    Ice::InputStreamPtr is = Ice::createInputStream(communicator, inParams);
-    int i = 0;
-    try
-    {
-        for(vector<MarshalerPtr>::iterator p = _inParams.begin(); p != _inParams.end(); ++p, ++i)
-        {
-            ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(*p);
-            if(om)
-            {
-                om->unmarshalObject(communicator, is, new TupleReceiver(om->info(), inArgs.get(), i));
-            }
-            else
-            {
-                PyObjectHandle arg = (*p)->unmarshal(communicator, is);
-                if(arg.get() == NULL)
-                {
-                    return false;
-                }
-                if(PyTuple_SET_ITEM(inArgs.get(), i, arg.get()) < 0)
-                {
-                    return false;
-                }
-                arg.release(); // PyTuple_SET_ITEM steals a reference.
-            }
-        }
-        is->finished();
-    }
-    catch(const AbortMarshaling&)
-    {
-        throwPythonException();
-    }
-
-    //
-    // Create an object to represent Ice::Current. We need to append this to the argument tuple.
-    //
-    PyObjectHandle curr = createCurrent(current);
-    if(PyTuple_SET_ITEM(inArgs.get(), static_cast<int>(_inParams.size()), curr.get()) < 0)
-    {
-        return false;
-    }
-    curr.release(); // PyTuple_SET_ITEM steals a reference.
-
-    //
-    // Dispatch the operation. Use fixedName here, not _info->name.
-    //
-    PyObjectHandle method = PyObject_GetAttrString(servant, const_cast<char*>(fixedName.c_str()));
-    if(method.get() == NULL)
-    {
-        PyErr_SetString(PyExc_AttributeError, const_cast<char*>(fixedName.c_str()));
-        return false;
-    }
-
-    PyObjectHandle result = PyObject_Call(method.get(), inArgs.get(), NULL);
-
-    Ice::OutputStreamPtr os = Ice::createOutputStream(communicator);
-
-    //
-    // Check for exceptions.
-    //
-    PyObject* exType = PyErr_Occurred();
-    if(exType)
-    {
-        //
-        // A servant that calls sys.exit() will raise the SystemExit exception.
-        // This is normally caught by the interpreter, causing it to exit.
-        // However, we have no way to pass this exception to the interpreter,
-        // so we act on it directly.
-        //
-        if(PyErr_GivenExceptionMatches(exType, PyExc_SystemExit))
-        {
-           handleSystemExit(); // Does not return.
-        }
-
-        PyObjectHandle ex = getPythonException(); // Retrieve it before another Python API call clears it.
-
-        PyObject* userExceptionType = lookupType("Ice.UserException");
-
-        if(PyErr_GivenExceptionMatches(exType, userExceptionType))
-        {
-            //
-            // Get the exception's id and Verify that it is legal to be thrown from the operation.
-            //
-            PyObjectHandle id = PyObject_CallMethod(ex.get(), "ice_id", NULL);
-            PyErr_Clear();
-            if(id.get() == NULL || !_info->validateException(ex.get()))
-            {
-                throwPythonException(ex.get());
-            }
-            else
-            {
-                assert(PyString_Check(id.get()));
-                char* str = PyString_AS_STRING(id.get());
-                ExceptionInfoPtr info = getExceptionInfo(str);
-                if(!info)
-                {
-                    Ice::UnknownUserException e(__FILE__, __LINE__);
-                    e.unknown = PyString_AS_STRING(id.get());
-                    throw e;
-                }
-
-                try
-                {
-                    MarshalerPtr marshaler = Marshaler::createExceptionMarshaler(info);
-                    assert(marshaler);
-
-                    ObjectMap objectMap;
-                    marshaler->marshal(ex.get(), os, &objectMap);
-                    os->finished(outParams);
-                }
-                catch(const AbortMarshaling&)
-                {
-                    throwPythonException();
-                }
-            }
-        }
-        else
-        {
-            throwPythonException(ex.get());
-        }
-
-        return false;
-    }
-
-    if(_outParams.size() > 0 || _resultMarshaler)
-    {
-        try
-        {
-            //
-            // Unmarshal the results. If there is more than one value to be returned, then they must be
-            // returned in a tuple of the form (result, outParam1, ...).
-            //
-
-            i = _resultMarshaler ? 1 : 0;
-            int numResults = _outParams.size() + i;
-            if(numResults > 1)
-            {
-                if(!PyTuple_Check(result.get()) || PyTuple_GET_SIZE(result.get()) != numResults)
-                {
-                    ostringstream ostr;
-                    ostr << "operation `" << fixedName << "' should return a tuple of length " << numResults;
-                    string str = ostr.str();
-                    PyErr_Warn(PyExc_RuntimeWarning, const_cast<char*>(str.c_str()));
-                    throw Ice::MarshalException(__FILE__, __LINE__);
-                }
-            }
-
-            ObjectMap objectMap;
-            for(vector<MarshalerPtr>::iterator q = _outParams.begin(); q != _outParams.end(); ++q, ++i)
-            {
-                PyObject* arg;
-                if(numResults > 1)
-                {
-                    arg = PyTuple_GET_ITEM(result.get(), i);
-                }
-                else
-                {
-                    arg = result.get();
-                    assert(_outParams.size() == 1);
-                }
-
-                (*q)->marshal(arg, os, &objectMap);
-            }
-
-            if(_resultMarshaler)
-            {
-                PyObject* res;
-                if(numResults > 1)
-                {
-                    res = PyTuple_GET_ITEM(result.get(), 0);
-                }
-                else
-                {
-                    assert(_outParams.size() == 0);
-                    res = result.get();
-                }
-                _resultMarshaler->marshal(res, os, &objectMap);
-            }
-
-            os->finished(outParams);
-        }
-        catch(const AbortMarshaling&)
-        {
-            throwPythonException();
-        }
-    }
-
-    return true;
-}
-
 IcePy::ServantWrapper::ServantWrapper(PyObject* servant) :
-    _servant(servant)
+    _servant(servant), _lastOp(_operationMap.end())
 {
     Py_INCREF(_servant);
     PyObjectHandle id = PyObject_CallMethod(servant, "ice_id", NULL);
@@ -366,17 +109,7 @@ IcePy::ServantWrapper::ServantWrapper(PyObject* servant) :
         }
         else
         {
-            char* s = PyString_AS_STRING(id.get());
-            TypeInfoPtr info = getTypeInfo(s);
-            _info = ClassInfoPtr::dynamicCast(info);
-            if(!info)
-            {
-                PyErr_Format(PyExc_RuntimeError, "unknown type id `%s'", s);
-            }
-            else if(!_info)
-            {
-                PyErr_Format(PyExc_RuntimeError, "type id `%s' is not a class", s);
-            }
+            _id = PyString_AS_STRING(id.get());
         }
     }
 }
@@ -392,40 +125,35 @@ IcePy::ServantWrapper::ice_invoke(const vector<Ice::Byte>& inParams, vector<Ice:
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    DispatcherMap::iterator p = _dispatcherMap.find(current.operation);
-    DispatcherPtr dispatcher;
-    if(p == _dispatcherMap.end())
+    OperationPtr op;
+    if(_lastOp != _operationMap.end() && _lastOp->first == current.operation)
     {
-        OperationInfoPtr op = _info->findOperation(current.operation);
-
-        if(!op)
-        {
-            //
-            // Look for the operation in the description of Ice.Object.
-            //
-            ClassInfoPtr info = ClassInfoPtr::dynamicCast(getTypeInfo("::Ice::Object"));
-            assert(info);
-            op = info->findOperation(current.operation);
-        }
-
-        if(!op)
-        {
-            Ice::OperationNotExistException ex(__FILE__, __LINE__);
-            ex.id = current.id;
-            ex.facet = current.facet;
-            ex.operation = current.operation;
-            throw ex;
-        }
-
-        dispatcher = new Dispatcher(op);
-        _dispatcherMap.insert(DispatcherMap::value_type(current.operation, dispatcher));
+        op = _lastOp->second;
     }
     else
     {
-        dispatcher = p->second;
+        _lastOp = _operationMap.find(current.operation);
+        if(_lastOp == _operationMap.end())
+        {
+            op = getOperation(_id, current.operation);
+            if(!op)
+            {
+                Ice::OperationNotExistException ex(__FILE__, __LINE__);
+                ex.id = current.id;
+                ex.facet = current.facet;
+                ex.operation = current.operation;
+                throw ex;
+            }
+
+            _lastOp = _operationMap.insert(OperationMap::value_type(current.operation, op)).first;
+        }
+        else
+        {
+            op = _lastOp->second;
+        }
     }
 
-    return dispatcher->dispatch(_servant, inParams, outParams, current);
+    return op->dispatch(_servant, inParams, outParams, current);
 }
 
 PyObject*

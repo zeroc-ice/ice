@@ -33,14 +33,6 @@ Ice_loadSlice(PyObject* /*self*/, PyObject* args)
         return NULL;
     }
 
-#if 0
-    if(_unit)
-    {
-        PyErr_Format(PyExc_RuntimeError, "Ice.loadSlice can only be called once");
-        return NULL;
-    }
-#endif
-
     Ice::StringSeq argSeq;
     if(!Slice::Python::splitString(cmd, argSeq))
     {

@@ -10,10 +10,8 @@
 #include <Proxy.h>
 #include <structmember.h>
 #include <Identity.h>
-#include <Marshal.h>
-#include <Types.h>
+#include <Operation.h>
 #include <Util.h>
-#include <Ice/Initialize.h>
 #include <Ice/LocalException.h>
 #include <Ice/Proxy.h>
 
@@ -30,29 +28,6 @@ struct ProxyObject
     Ice::CommunicatorPtr* communicator;
 };
 
-//
-// Represents a user-defined operation.
-//
-class Operation : public IceUtil::Shared
-{
-public:
-
-    Operation(const OperationInfoPtr&);
-    ~Operation();
-
-    PyObject* invoke(const Ice::ObjectPrx&, const Ice::CommunicatorPtr&, PyObject*);
-
-private:
-
-    void throwUserException(const Ice::CommunicatorPtr&, const Ice::InputStreamPtr&);
-
-    OperationInfoPtr _info;
-    MarshalerPtr _resultMarshaler;
-    vector<MarshalerPtr> _inParams;
-    vector<MarshalerPtr> _outParams;
-};
-typedef IceUtil::Handle<Operation> OperationPtr;
-
 }
 
 static ProxyObject*
@@ -68,254 +43,6 @@ allocateProxy(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communica
     p->communicator = new Ice::CommunicatorPtr(communicator);
 
     return p;
-}
-
-IcePy::Operation::Operation(const OperationInfoPtr& info) :
-    _info(info)
-{
-    if(_info->returnType)
-    {
-        _resultMarshaler = Marshaler::createMarshaler(_info->returnType);
-    }
-
-    TypeInfoList::iterator p;
-
-    for(p = _info->inParams.begin(); p != _info->inParams.end(); ++p)
-    {
-        _inParams.push_back(Marshaler::createMarshaler(*p));
-    }
-
-    for(p = _info->outParams.begin(); p != _info->outParams.end(); ++p)
-    {
-        _outParams.push_back(Marshaler::createMarshaler(*p));
-    }
-}
-
-IcePy::Operation::~Operation()
-{
-}
-
-PyObject*
-IcePy::Operation::invoke(const Ice::ObjectPrx& proxy, const Ice::CommunicatorPtr& communicator, PyObject* args)
-{
-    assert(PyTuple_Check(args));
-
-    string fixedName = fixIdent(_info->name);
-
-    //
-    // Validate the number of arguments. There may be an extra argument for the context.
-    //
-    int argc = PyTuple_GET_SIZE(args);
-    int paramCount = static_cast<int>(_inParams.size());
-    if(argc != paramCount && argc != paramCount + 1)
-    {
-        PyErr_Format(PyExc_RuntimeError, "%s expects %d in parameters", fixedName.c_str(), _inParams.size());
-        return NULL;
-    }
-
-    //
-    // Retrieve the context if any.
-    //
-    Ice::Context ctx;
-    bool haveContext = false;
-    if(argc == paramCount + 1)
-    {
-        PyObject* pyctx = PyTuple_GET_ITEM(args, argc - 1);
-        if(pyctx != Py_None)
-        {
-            if(!PyDict_Check(pyctx))
-            {
-                PyErr_Format(PyExc_ValueError, "context argument must be a dictionary");
-                return NULL;
-            }
-
-            if(!dictionaryToContext(pyctx, ctx))
-            {
-                return NULL;
-            }
-
-            haveContext = true;
-        }
-    }
-
-    try
-    {
-        //
-        // Marshal the in parameters.
-        //
-        Ice::OutputStreamPtr os = Ice::createOutputStream(communicator);
-        ObjectMap objectMap;
-        int i = 0;
-        for(vector<MarshalerPtr>::iterator p = _inParams.begin(); p != _inParams.end(); ++p, ++i)
-        {
-            PyObject* arg = PyTuple_GET_ITEM(args, i);
-            (*p)->marshal(arg, os, &objectMap);
-        }
-
-        Ice::ByteSeq params;
-        os->finished(params);
-
-        //
-        // Invoke the operation. Use _info->name here, not fixedName.
-        //
-        Ice::ByteSeq result;
-        bool status;
-        {
-            AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
-            if(haveContext)
-            {
-                status = proxy->ice_invoke(_info->name, (Ice::OperationMode)_info->mode, params, result, ctx);
-            }
-            else
-            {
-                status = proxy->ice_invoke(_info->name, (Ice::OperationMode)_info->mode, params, result);
-            }
-        }
-
-        //
-        // Process the reply.
-        //
-        if(proxy->ice_isTwoway())
-        {
-            Ice::InputStreamPtr is = Ice::createInputStream(communicator, result);
-
-            if(!status)
-            {
-                //
-                // Unmarshal and "throw" a user exception.
-                //
-                throwUserException(communicator, is);
-                return NULL;
-            }
-            else if(_outParams.size() > 0 || _resultMarshaler)
-            {
-                //
-                // Unmarshal the results. If there is more than one value to be returned, then return them
-                // in a tuple of the form (result, outParam1, ...). Otherwise just return the value.
-                //
-                // TODO: Check for oneway/datagram errors
-                //
-
-                i = _resultMarshaler ? 1 : 0;
-                int numResults = static_cast<int>(_outParams.size()) + i;
-                PyObjectHandle results = PyTuple_New(numResults);
-                if(results.get() == NULL)
-                {
-                    return NULL;
-                }
-
-                for(vector<MarshalerPtr>::iterator q = _outParams.begin(); q != _outParams.end(); ++q, ++i)
-                {
-                    ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(*q);
-                    if(om)
-                    {
-                        om->unmarshalObject(communicator, is, new TupleReceiver(om->info(), results.get(), i));
-                    }
-                    else
-                    {
-                        PyObjectHandle outParam = (*q)->unmarshal(communicator, is);
-                        if(outParam.get() == NULL)
-                        {
-                            return NULL;
-                        }
-                        PyTuple_SET_ITEM(results.get(), i, outParam.release()); // PyTuple_SET_ITEM steals a reference.
-                    }
-                }
-
-                if(_resultMarshaler)
-                {
-                    ObjectMarshalerPtr om = ObjectMarshalerPtr::dynamicCast(_resultMarshaler);
-                    if(om)
-                    {
-                        om->unmarshalObject(communicator, is, new TupleReceiver(om->info(), results.get(), 0));
-                    }
-                    else
-                    {
-                        PyObjectHandle r = _resultMarshaler->unmarshal(communicator, is);
-                        if(r.get() == NULL)
-                        {
-                            return NULL;
-                        }
-                        PyTuple_SET_ITEM(results.get(), 0, r.release()); // PyTuple_SET_ITEM steals a reference.
-                    }
-                }
-
-                is->finished();
-
-                if(numResults > 1)
-                {
-                    return results.release();
-                }
-                else
-                {
-                    PyObject* ret = PyTuple_GET_ITEM(results.get(), 0);
-                    Py_INCREF(ret);
-                    return ret;
-                }
-            }
-        }
-    }
-    catch(const AbortMarshaling&)
-    {
-        return NULL;
-    }
-    catch(const Ice::Exception& ex)
-    {
-        setPythonException(ex);
-        return NULL;
-    }
-
-    Py_INCREF(Py_None);
-    return Py_None;
-}
-
-void
-IcePy::Operation::throwUserException(const Ice::CommunicatorPtr& communicator, const Ice::InputStreamPtr& is)
-{
-    is->readBool(); // usesClasses
-
-    string id = is->readString();
-    while(!id.empty())
-    {
-        ExceptionInfoPtr info = getExceptionInfo(id);
-        if(info)
-        {
-            MarshalerPtr marshaler = Marshaler::createExceptionMarshaler(info);
-            PyObjectHandle ex = marshaler->unmarshal(communicator, is);
-            is->finished();
-
-            if(_info->validateException(ex.get()))
-            {
-                //
-                // Set the Python exception.
-                //
-                assert(PyInstance_Check(ex.get()));
-                PyObject* type = (PyObject*)((PyInstanceObject*)ex.get())->in_class;
-                Py_INCREF(type);
-                PyErr_Restore(type, ex.release(), NULL);
-            }
-            else
-            {
-                throwPythonException(ex.get());
-            }
-
-            return;
-        }
-        else
-        {
-            is->skipSlice();
-            id = is->readString();
-        }
-    }
-
-    //
-    // Getting here should be impossible: we can get here only if the
-    // sender has marshaled a sequence of type IDs, none of which we
-    // have factory for. This means that sender and receiver disagree
-    // about the Slice definitions they use.
-    //
-    throw Ice::UnknownUserException(__FILE__, __LINE__);
 }
 
 #ifdef WIN32
@@ -1038,11 +765,8 @@ proxyIceOperation(ProxyObject* self, PyObject* args)
         return NULL;
     }
 
-    ClassInfoPtr info = ClassInfoPtr::dynamicCast(getTypeInfo(type));
-    assert(info);
-    OperationInfoPtr opInfo = info->findOperation(name);
-    assert(opInfo);
-    OperationPtr op = new Operation(opInfo); // TODO: Cache this
+    OperationPtr op = getOperation(type, name);
+    assert(op);
     return op->invoke(*self->proxy, *self->communicator, opArgs);
 }
 

@@ -9,18 +9,15 @@
 
 #include <Communicator.h>
 #include <Properties.h>
-#include <Marshal.h>
 #include <ObjectAdapter.h>
+#include <ObjectFactory.h>
 #include <Proxy.h>
-#include <Types.h>
 #include <Util.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
 #include <Ice/ObjectAdapter.h>
-#include <Ice/ObjectFactory.h>
 #include <Ice/Properties.h>
-#include <IceUtil/Mutex.h>
 
 using namespace std;
 using namespace IcePy;
@@ -28,183 +25,12 @@ using namespace IcePy;
 namespace IcePy
 {
 
-//
-// Each communicator registers an instance of PythonObjectFactory as its
-// default object factory. This instance delegates to registered Python
-// objects, and instantiates concrete classes when no factory is present.
-//
-class PythonObjectFactory : public Ice::ObjectFactory, public IceUtil::Mutex
-{
-public:
-
-    PythonObjectFactory(const Ice::CommunicatorPtr&);
-    ~PythonObjectFactory();
-
-    virtual Ice::ObjectPtr create(const string&);
-
-    virtual void destroy();
-
-    bool add(PyObject*, const string&);
-    bool remove(const string&);
-    PyObject* find(const string&);
-
-private:
-
-    typedef map<string, PyObject*> FactoryMap;
-    FactoryMap _factoryMap;
-    Ice::CommunicatorPtr _communicator;
-};
-typedef IceUtil::Handle<PythonObjectFactory> PythonObjectFactoryPtr;
-
 struct CommunicatorObject
 {
     PyObject_HEAD
     Ice::CommunicatorPtr* communicator;
 };
 
-}
-
-IcePy::PythonObjectFactory::PythonObjectFactory(const Ice::CommunicatorPtr& communicator) :
-    _communicator(communicator)
-{
-}
-
-IcePy::PythonObjectFactory::~PythonObjectFactory()
-{
-    assert(_factoryMap.empty());
-}
-
-Ice::ObjectPtr
-IcePy::PythonObjectFactory::create(const string& id)
-{
-    Lock sync(*this);
-
-    //
-    // Get the type information.
-    //
-    ClassInfoPtr info = ClassInfoPtr::dynamicCast(getTypeInfo(id));
-    if(!info)
-    {
-        return 0;
-    }
-
-    //
-    // Check if the application has registered a factory for this id.
-    //
-    FactoryMap::iterator p = _factoryMap.find(id);
-    if(p != _factoryMap.end())
-    {
-        //
-        // Invoke the create method on the Python factory object.
-        //
-        PyObjectHandle obj = PyObject_CallMethod(p->second, "create", "s", id.c_str());
-        if(obj.get() == NULL)
-        {
-            throw AbortMarshaling();
-        }
-        if(obj.get() == Py_None)
-        {
-            return 0;
-        }
-        return new ObjectReader(obj.get(), info, _communicator);
-    }
-
-    //
-    // Check if the requested type is a concrete class. If so, we can instantiate it directly.
-    //
-    if(info->isInterface || (info->name != Ice::Object::ice_staticId() && info->hasOperations()))
-    {
-        return 0;
-    }
-
-    //
-    // Instantiate the object.
-    //
-    PyTypeObject* type = (PyTypeObject*)info->pythonType.get();
-    PyObjectHandle args = PyTuple_New(0);
-    PyObjectHandle obj = type->tp_new(type, args.get(), NULL);
-    if(obj.get() == NULL)
-    {
-        throw AbortMarshaling();
-    }
-
-    return new ObjectReader(obj.get(), info, _communicator);
-}
-
-void
-IcePy::PythonObjectFactory::destroy()
-{
-    Lock sync(*this);
-
-    for(FactoryMap::iterator p = _factoryMap.begin(); p != _factoryMap.end(); ++p)
-    {
-        //
-        // Invoke the destroy method on each registered Python factory.
-        //
-        PyObjectHandle obj = PyObject_CallMethod(p->second, "destroy", NULL);
-        PyErr_Clear();
-        Py_DECREF(p->second);
-    }
-    _factoryMap.clear();
-    _communicator = 0;
-}
-
-bool
-IcePy::PythonObjectFactory::add(PyObject* factory, const string& id)
-{
-    Lock sync(*this);
-
-    FactoryMap::iterator p = _factoryMap.find(id);
-    if(p != _factoryMap.end())
-    {
-        Ice::AlreadyRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "object factory";
-        ex.id = id;
-        setPythonException(ex);
-        return false;
-    }
-
-    _factoryMap.insert(FactoryMap::value_type(id, factory));
-    Py_INCREF(factory);
-
-    return true;
-}
-
-bool
-IcePy::PythonObjectFactory::remove(const string& id)
-{
-    Lock sync(*this);
-
-    FactoryMap::iterator p = _factoryMap.find(id);
-    if(p == _factoryMap.end())
-    {
-        Ice::NotRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "object factory";
-        ex.id = id;
-        setPythonException(ex);
-        return false;
-    }
-
-    Py_DECREF(p->second);
-    _factoryMap.erase(p);
-
-    return true;
-}
-
-PyObject*
-IcePy::PythonObjectFactory::find(const string& id)
-{
-    Lock sync(*this);
-
-    FactoryMap::iterator p = _factoryMap.find(id);
-    if(p == _factoryMap.end())
-    {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-
-    Py_INCREF(p->second);
-    return p->second;
 }
 
 #ifdef WIN32
@@ -282,7 +108,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     }
 
     self->communicator = new Ice::CommunicatorPtr(communicator);
-    PythonObjectFactoryPtr factory = new PythonObjectFactory(communicator);
+    ObjectFactoryPtr factory = new ObjectFactory;
     (*self->communicator)->addObjectFactory(factory, "");
 
     return 0;
@@ -476,10 +302,10 @@ communicatorAddObjectFactory(CommunicatorObject* self, PyObject* args)
         return NULL;
     }
 
-    PythonObjectFactoryPtr pof;
+    ObjectFactoryPtr pof;
     try
     {
-        pof = PythonObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
+        pof = ObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
         assert(pof);
     }
     catch(const Ice::Exception& ex)
@@ -510,10 +336,10 @@ communicatorRemoveObjectFactory(CommunicatorObject* self, PyObject* args)
         return NULL;
     }
 
-    PythonObjectFactoryPtr pof;
+    ObjectFactoryPtr pof;
     try
     {
-        pof = PythonObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
+        pof = ObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
         assert(pof);
     }
     catch(const Ice::Exception& ex)
@@ -544,10 +370,10 @@ communicatorFindObjectFactory(CommunicatorObject* self, PyObject* args)
         return NULL;
     }
 
-    PythonObjectFactoryPtr pof;
+    ObjectFactoryPtr pof;
     try
     {
-        pof = PythonObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
+        pof = ObjectFactoryPtr::dynamicCast((*self->communicator)->findObjectFactory(""));
         assert(pof);
     }
     catch(const Ice::Exception& ex)
