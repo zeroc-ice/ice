@@ -1980,7 +1980,10 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         _out << sb;
 	if(patchStruct)
 	{
+	    _out << nl << "if(_pm == null)";
+	    _out << sb;
 	    _out << nl << "_pm = new __PatchMembers();";
+	    _out << eb;
 	}
 	int classMemberCount = 0;
         for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
