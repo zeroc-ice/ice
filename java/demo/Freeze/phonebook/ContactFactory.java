@@ -12,7 +12,7 @@ class ContactFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
     public Ice.Object
     create(String type)
     {
-	assert(type.equals("::Contact"));
+	assert(type.equals("::Demo::Contact"));
 	return new ContactI(this);
     }
 

@@ -18,7 +18,7 @@ class PhoneBookCollocated extends Ice.Application
 	// Create and install a factory for contacts.
 	//
 	ContactFactory contactFactory = new ContactFactory();
-	communicator().addObjectFactory(contactFactory, "::Contact");
+	communicator().addObjectFactory(contactFactory, "::Demo::Contact");
 
 	//
 	// Create an object adapter

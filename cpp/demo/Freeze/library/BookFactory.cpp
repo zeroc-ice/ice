@@ -20,7 +20,7 @@ BookFactory::BookFactory(const LibraryIPtr& library) :
 ObjectPtr
 BookFactory::create(const string& type)
 {
-    assert(type == "::Book");
+    assert(type == "::Demo::Book");
     return new BookI(_library);
 }
 

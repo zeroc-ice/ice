@@ -21,7 +21,7 @@ ContactFactory::ContactFactory()
 ObjectPtr
 ContactFactory::create(const string& type)
 {
-    assert(type == "::Contact");
+    assert(type == "::Demo::Contact");
     return new ContactI(this);
 }
 
