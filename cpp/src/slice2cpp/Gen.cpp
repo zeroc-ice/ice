@@ -1982,6 +1982,29 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << "void ";
 	C << nl << scoped.substr(2) << "::__copyMembers(" << scoped << "Ptr to) const";
 	C << sb;
+	string winUpcall; 
+	string unixUpcall; 
+	if(!bases.empty() && !bases.front()->isInterface())
+	{
+	    winUpcall = fixKwd(bases.front()->name()) + "::__copyMembers(to);";
+	    unixUpcall = fixKwd(bases.front()->scoped()) + "::__copyMembers(to);";
+	}
+	else
+	{
+	    winUpcall = "Object::__copyMembers(to);";
+	    unixUpcall = "::Ice::Object::__copyMembers(to);";
+	}
+	C.zeroIndent();
+	C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
+	C.restoreIndent();
+	C << nl << winUpcall;
+	C.zeroIndent();
+	C << nl << "#else";
+	C.restoreIndent();
+	C << nl << unixUpcall;
+	C.zeroIndent();
+	C << nl << "#endif";
+	C.restoreIndent();
 	DataMemberList dataMembers = p->dataMembers();
 	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	{
@@ -1996,41 +2019,14 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	C << nl << scoped.substr(2) << "::ice_clone() const";
 	C << sb;
 	C << nl << scoped << "Ptr __p = new " << scoped << ";";
-	string winUpcall; 
-	string unixUpcall; 
-	if(!bases.empty() && !bases.front()->isInterface())
-	{
-	    winUpcall = fixKwd(bases.front()->name()) + "::__copyMembers(__p);";
-	    unixUpcall = fixKwd(bases.front()->scoped()) + "::__copyMembers(__p);";
-	}
-	else
-	{
-	    winUpcall = "Object::__copyMembers(__p);";
-	    unixUpcall = "::Ice::Object::__copyMembers(__p);";
-	}
-	string winCall; 
-	string unixCall; 
-	if(!dataMembers.empty())
-	{
-	    winCall = name + "::__copyMembers(__p);";
-	    unixCall = scoped + "::__copyMembers(__p);";
-	}
 	C.zeroIndent();
 	C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
 	C.restoreIndent();
-	C << nl << winUpcall;
-	if(!winCall.empty())
-	{
-	    C << nl << winCall;
-	}
+	C << nl << name + "::__copyMembers(__p);";
 	C.zeroIndent();
 	C << nl << "#else";
 	C.restoreIndent();
-	C << nl << unixUpcall;
-	if(!unixCall.empty())
-	{
-	    C << nl << unixCall;
-	}
+	C << nl << scoped + "::__copyMembers(__p);";
 	C.zeroIndent();
 	C << nl << "#endif";
 	C.restoreIndent();
