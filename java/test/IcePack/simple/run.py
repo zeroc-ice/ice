@@ -103,8 +103,6 @@ if TestUtil.isWin32() == 0:
        
     print "ok"    
 
-#    IcePackAdmin.startServer(toplevel, "server")
-
     updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
 
     print "starting client...",
