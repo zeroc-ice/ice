@@ -18,11 +18,13 @@ CommunicatorPtr Application::_communicator;
 
 Ice::Application::Application()
 {
+#ifndef _WIN32
     sigemptyset(&signalSet);
     for (unsigned i = 0; i < sizeof(signals) / sizeof(*signals); ++i)
     {
 	sigaddset(&signalSet, signals[i]);
     }
+#endif
 }
 
 Ice::Application::~Application()
