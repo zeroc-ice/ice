@@ -99,7 +99,7 @@ public:
     static void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, ObjectPtr&);
 
     void ice_addFacet(const ObjectPtr&, const ::std::string&);
-    void ice_removeFacet(const ::std::string&);
+    ObjectPtr ice_removeFacet(const ::std::string&);
     void ice_removeAllFacets();
     ObjectPtr ice_findFacet(const ::std::string&);
     ObjectPtr ice_findFacetPath(const ::std::vector< ::std::string>&, int);

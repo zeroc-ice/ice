@@ -299,10 +299,12 @@ Ice::Object::ice_addFacet(const ObjectPtr& facet, const string& name)
     _activeFacetMapHint = _activeFacetMap.insert(_activeFacetMapHint, make_pair(name, facet));
 }
 
-void
+ObjectPtr
 Ice::Object::ice_removeFacet(const string& name)
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
+
+    ObjectPtr result;
 
     map<string, ObjectPtr>::iterator p = _activeFacetMap.end();
     
@@ -321,6 +323,8 @@ Ice::Object::ice_removeFacet(const string& name)
     
     if(p != _activeFacetMap.end())
     {
+        result = p->second;
+
 	if(p == _activeFacetMapHint)
 	{
 	    _activeFacetMap.erase(p++);
@@ -331,6 +335,8 @@ Ice::Object::ice_removeFacet(const string& name)
 	    _activeFacetMap.erase(p);
 	}
     }
+
+    return result;
 }
 
 void
