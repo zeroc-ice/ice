@@ -112,10 +112,10 @@ public:
     // For the iterator:
     //
     bool
-    load(const Ice::Identity&, Dbc*, Key&, Value&, std::vector<EvictorElementPtr>&);
+    load(Dbc*, Key&, Value&, std::vector<Ice::Identity>&, std::vector<EvictorElementPtr>&);
 
     bool
-    skipFacets(const Ice::Identity&, Dbc*, Key&);
+    load(Dbc*, Key&, std::vector<Ice::Identity>&);
 
     void 
     insert(const std::vector<Ice::Identity>&, const std::vector<EvictorElementPtr>&, int);

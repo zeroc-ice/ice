@@ -307,11 +307,6 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
 	// Deadlock detection
 	//
 	set_lk_detect(DB_LOCK_MINLOCKS);
-
-	//
-	// Async tx
-	//
-	set_flags(DB_TXN_NOSYNC, true);
 	
 	u_int32_t flags = DB_INIT_LOCK | DB_INIT_LOG | DB_INIT_MPOOL | DB_INIT_TXN;
 
@@ -370,11 +365,11 @@ Freeze::SharedDbEnv::SharedDbEnv(const std::string& envName,
     }
 
     //
-    // Default checkpoint period is every 2 minutes
+    // Default checkpoint period is every 120 seconds
     //
     Int checkpointPeriod = properties->getPropertyAsIntWithDefault(
 	propertyPrefix + ".CheckpointPeriod", 120);
-    Int kbyte = properties->getPropertyAsInt(propertyPrefix + ".PeriodicCheckpointMinSize");
+    Int kbyte = properties->getPropertyAsIntWithDefault(propertyPrefix + ".PeriodicCheckpointMinSize", 0);
 
     bool autoDelete = (properties->getPropertyAsIntWithDefault(
 			   propertyPrefix + ".OldLogsAutoDelete", 1) != 0); 

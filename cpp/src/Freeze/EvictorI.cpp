@@ -46,7 +46,7 @@ private:
     nextBatch();
 
     EvictorI& _evictor;
-    Int _batchSize;
+    size_t _batchSize;
     bool _loadServants;
     vector<Identity>::const_iterator _batchIterator;
 
@@ -1474,14 +1474,13 @@ Freeze::EvictorI::run()
 
 
 bool
-Freeze::EvictorI::load(const Identity& ident, Dbc* dbc, 
-		       Key& key, Value& value, vector<EvictorElementPtr>& evictorElements)
+Freeze::EvictorI::load(Dbc* dbc, Key& key, Value& value, 
+		       vector<Identity>& identities,
+		       vector<EvictorElementPtr>& evictorElements)
 {
-    Key root;
-    marshalRoot(ident, root, _communicator);
-
     Dbt dbKey;
     Dbt dbValue;
+    Key root;
 
     EvictorElementPtr elt = new EvictorElement;
     int rs = 0;
@@ -1527,11 +1526,14 @@ Freeze::EvictorI::load(const Identity& ident, Dbc* dbc,
 	pair = elt->facets.insert(FacetMap::value_type(esk.facet, facet));
 	assert(pair.second);
 	
-	if(esk.facet.size() == 0)
+	if(root.size() == 0)
 	{
+	    assert(esk.facet.size() == 0);
+	    identities.push_back(esk.identity);
+	    marshalRoot(esk.identity, root, _communicator);
 	    elt->mainObject = facet;
 	}
-	
+       
 	initializeOutDbt(key, dbKey);
 	initializeOutDbt(value, dbValue);
 
@@ -1564,19 +1566,23 @@ Freeze::EvictorI::load(const Identity& ident, Dbc* dbc,
 }
 
 bool
-Freeze::EvictorI::skipFacets(const Identity& ident, Dbc* dbc, Key& key)
+Freeze::EvictorI::load(Dbc* dbc, Key& key, vector<Identity>& identities)
 {
     Key root;
-    marshalRoot(ident, root, _communicator);
+    EvictorStorageKey esk;
+    unmarshal(esk, key, _communicator);
+    identities.push_back(esk.identity);
+    marshalRoot(esk.identity, root, _communicator);
 
     Dbt dbKey;
+
     Dbt dbValue;
-  
+    dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
+	  
     int rs = 0;
     do
     {
 	initializeOutDbt(key, dbKey);
-	dbValue.set_flags(DB_DBT_USERMEM | DB_DBT_PARTIAL);
 
 	for(;;)
 	{
@@ -2250,7 +2256,7 @@ Freeze::EvictorI::EvictorElement::~EvictorElement()
 
 Freeze::EvictorIteratorI::EvictorIteratorI(EvictorI& evictor, Int batchSize, bool loadServants) :
     _evictor(evictor),
-    _batchSize(batchSize),
+    _batchSize(static_cast<size_t>(batchSize)),
     _loadServants(loadServants),
     _key(1024),
     _more(true)
@@ -2304,7 +2310,9 @@ Freeze::EvictorIteratorI::nextBatch()
     vector<EvictorI::EvictorElementPtr> evictorElements;
     evictorElements.reserve(_batchSize);
      
-    Key previousKey = _key;
+    Key firstKey;
+    firstKey = _key;
+   
     int loadedGeneration = 0;
 
     try
@@ -2313,8 +2321,6 @@ Freeze::EvictorIteratorI::nextBatch()
 	{
 	    _batch.clear();
 	    evictorElements.clear();
-	    
-	    Int count = _batchSize;
 	    
 	    Dbt dbKey;
 	    initializeOutDbt(_key, dbKey);
@@ -2347,7 +2353,7 @@ Freeze::EvictorIteratorI::nextBatch()
 		    //
 		    // Will be used as input as well
 		    //
-		    dbKey.set_size(previousKey.size());
+		    dbKey.set_size(firstKey.size());
 		}
 		
 		if(_loadServants)
@@ -2377,32 +2383,18 @@ Freeze::EvictorIteratorI::nextBatch()
 		    }
 		}
 		
-		while(count > 0 && _more)
+		while(_batch.size() < _batchSize && _more)
 		{
-		    EvictorStorageKey esk;
-		    unmarshal(esk, _key, _evictor.communicator());
-		    
-		    //
-		    // Because of the Ice encoding and default binary comparison, records with
-		    // facet length = 0 are before records with facet length > 0 (for a given
-		    // identity).
-		    //
-		    assert(esk.facet.size() == 0);
-		    
-		    const Identity& ident = esk.identity;
-		    _batch.push_back(ident);
-		    count--;
-		    
 		    //
 		    // Even when count is 0, we read one more record (unless we reach the end)
 		    //
 		    if(_loadServants)
 		    {
-			_more = _evictor.load(ident, dbc, _key, _value, evictorElements);
+			_more = _evictor.load(dbc, _key, _value, _batch, evictorElements);
 		    }
 		    else
 		    {
-			_more = _evictor.skipFacets(ident, dbc, _key);
+			_more = _evictor.load(dbc, _key, _batch);
 		    }
 		}
 		
@@ -2426,7 +2418,7 @@ Freeze::EvictorIteratorI::nextBatch()
 			//
 		    }
 		}
-		_key = previousKey;
+		_key = firstKey;
 		//
 		// Retry
 		//
