@@ -35,12 +35,28 @@ public:
     void __decRef()
     {
 	if (--_ref == 0)
-	    delete this;
+	{
+	    if(!_noDelete)
+	    {
+		delete this;
+	    }
+	}
+    }
+
+    int __getRef()
+    {
+	return _ref;
+    }
+
+    void __setNoDelete(bool b)
+    {
+	_noDelete = b;
     }
 
 private:
 
     int _ref;
+    bool _noDelete;
 };
 
 //
@@ -65,15 +81,35 @@ public:
 	_mutex.lock();
 	bool doDelete = false;
 	if (--_ref == 0)
-	    doDelete = true;
+	{
+	    doDelete = !_noDelete;
+	}
 	_mutex.unlock();
 	if (doDelete)
+	{
 	    delete this;
+	}
+    }
+
+    int __getRef()
+    {
+	_mutex.lock();
+	int ref = _ref;
+	_mutex.unlock();
+	return ref;
+    }
+
+    void __setNoDelete(bool b)
+    {
+	_mutex.lock();
+	_noDelete = b;
+	_mutex.unlock();
     }
 
 private:
 
     int _ref;
+    bool _noDelete;
     JTCMutex _mutex;
 };
 
