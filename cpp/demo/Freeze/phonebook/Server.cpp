@@ -47,7 +47,7 @@ PhoneBookServer::run(int argc, char* argv[])
     PropertiesPtr properties = communicator()->getProperties();
     
     //
-    // Create an Evictor for contacts.
+    // Create an evictor for contacts.
     //
     Freeze::EvictorPtr evictor = Freeze::createEvictor(communicator(), _envName, "contacts");
 
@@ -58,16 +58,15 @@ PhoneBookServer::run(int argc, char* argv[])
     }
     
     //
-    // Create an Object Adapter, use the Evictor as Servant Locator.
+    // Create an object adapter, use the evictor as servant locator.
     //
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PhoneBook");
     adapter->addServantLocator(evictor, "contact");
     
     //
-    // Create the phonebook, and add it to the Object Adapter.
+    // Create the phonebook, and add it to the object adapter.
     //
-    PhoneBookIPtr phoneBook = new PhoneBookI(communicator(), 
-					     _envName, "phonebook", evictor);
+    PhoneBookIPtr phoneBook = new PhoneBookI(communicator(), _envName, "phonebook", evictor);
     adapter->add(phoneBook, stringToIdentity("phonebook"));
     
     //

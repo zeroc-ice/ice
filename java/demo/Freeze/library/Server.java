@@ -20,7 +20,7 @@ class LibraryServer extends Ice.Application
 	Ice.Properties properties = communicator().getProperties();
     
 	//
-	// Create an Evictor for books.
+	// Create an evictor for books.
 	//
 	Freeze.Evictor evictor = Freeze.Util.createEvictor(communicator(), _envName, "books", null, true);
 	int evictorSize = properties.getPropertyAsInt("Library.EvictorSize");
@@ -30,20 +30,20 @@ class LibraryServer extends Ice.Application
 	}
     
 	//
-	// Create an Object Adapter, use the Evictor as Servant
-	// Locator.
+	// Create an object adapter, use the evictor as servant
+	// locator.
 	//
 	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("Library");
 	adapter.addServantLocator(evictor, "book");
     
 	//
-	// Create the library, and add it to the Object Adapter.
+	// Create the library, and add it to the object adapter.
 	//
 	LibraryI library = new LibraryI(communicator(), _envName, "authors", evictor);
 	adapter.add(library, Ice.Util.stringToIdentity("library"));
     
 	//
-	// Create and install a factory and initializer for books.
+	// Create and install a factory for books.
 	//
 	Ice.ObjectFactory bookFactory = new BookFactory(library);
 	communicator().addObjectFactory(bookFactory, "::Book");

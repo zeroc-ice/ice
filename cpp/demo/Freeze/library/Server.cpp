@@ -49,7 +49,7 @@ LibraryServer::run(int argc, char* argv[])
     PropertiesPtr properties = communicator()->getProperties();
 
     //
-    // Create an Evictor for books.
+    // Create an evictor for books.
     //
     Freeze::EvictorPtr evictor = Freeze::createEvictor(communicator(), _envName, "books");
 
@@ -60,19 +60,19 @@ LibraryServer::run(int argc, char* argv[])
     }
     
     //
-    // Create an Object Adapter, use the Evictor as Servant Locator.
+    // Create an object adapter, use the evictor as servant Locator.
     //
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Library");
     adapter->addServantLocator(evictor, "book");
     
     //
-    // Create the library, and add it to the Object Adapter.
+    // Create the library, and add it to the object adapter.
     //
     LibraryIPtr library = new LibraryI(communicator(), _envName, "authors", evictor);
     adapter->add(library, stringToIdentity("library"));
     
     //
-    // Create and install a factory and initializer for books.
+    // Create and install a factory for books.
     //
     ObjectFactoryPtr bookFactory = new BookFactory(library);
     communicator()->addObjectFactory(bookFactory, "::Book");

@@ -541,12 +541,12 @@ usage(const char* n)
         "                          option may be specified multiple times for\n"
         "                          different names. NAME may be a scoped name.\n"
 	"--index NAME,TYPE,MEMBER[,{case-sensitive|case-insensitive}]\n" 
-        "                          Create a Freeze Evictor index with the name\n"
+        "                          Create a Freeze evictor index with the name\n"
         "                          NAME for member MEMBER of class TYPE. This\n"
         "                          option may be specified multiple times for\n"
         "                          different names. NAME may be a scoped name.\n"
         "                          When member is a string, the case can be\n"
-        "                          sensitive or insensitive (defaults to sensitive)\n"
+        "                          sensitive or insensitive (default is sensitive).\n"
         "--output-dir DIR          Create files in the directory DIR.\n"
 	"--depend                  Generate Makefile dependencies.\n"
         "-d, --debug               Print debug messages.\n"
@@ -722,7 +722,8 @@ main(int argc, char* argv[])
 	    
 	    if(caseString != "case-sensitive" && caseString != "case-insensitive")
             {
-                cerr << argv[0] << ": " << argv[idx] << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
+                cerr << argv[0] << ": " << argv[idx]
+		     << ": the case can be `case-sensitive' or `case-insensitive'" << endl;
                 usage(argv[0]);
                 return EXIT_FAILURE;
             }

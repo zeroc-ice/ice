@@ -20,14 +20,14 @@ class PhoneBookServer extends Ice.Application
 	Ice.Properties properties = communicator().getProperties();
 
 	//
-	// Create the Name index
+	// Create the name index.
 	//
 	NameIndex index = new NameIndex("name");
 	Freeze.Index[] indices = new Freeze.Index[1];
 	indices[0] = index;
 
 	//
-	// Create an Evictor for contacts.
+	// Create an evictor for contacts.
 	//
 	Freeze.Evictor evictor = Freeze.Util.createEvictor(communicator(), _envName, "contacts", indices, true);
 	int evictorSize = properties.getPropertyAsInt("PhoneBook.EvictorSize");
@@ -37,14 +37,14 @@ class PhoneBookServer extends Ice.Application
 	}
     
 	//
-	// Create an Object Adapter, use the Evictor as Servant
-	// Locator.
+	// Create an object adapter, use the evictor as servant
+	// locator.
 	//
 	Ice.ObjectAdapter adapter = communicator().createObjectAdapter("PhoneBook");
 	adapter.addServantLocator(evictor, "contact");
     
 	//
-	// Create the phonebook, and add it to the Object Adapter.
+	// Create the phonebook, and add it to the object adapter.
 	//
 	PhoneBookI phoneBook = new PhoneBookI(evictor, index);
 	adapter.add(phoneBook, Ice.Util.stringToIdentity("phonebook"));
