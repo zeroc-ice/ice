@@ -1,0 +1,4 @@
+interface Clock
+{
+	void tick();
+};

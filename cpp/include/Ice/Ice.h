@@ -21,5 +21,6 @@
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/ServantLocator.h>
+#include <Ice/Proxy.h>
 
 #endif

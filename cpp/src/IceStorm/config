@@ -1,0 +1,16 @@
+Ice.Adapter.TopicManager.Endpoints=tcp -p 10000
+
+Ice.Trace.Network=3
+Ice.Trace.Protocol=1
+#Ice.Trace.Security=2
+
+IceStorm.Trace.TopicManager=2
+
+IceStorm.Trace.Topic=1
+
+IceStorm.Trace.Flush=1
+
+IceStorm.Trace.Subscriber=1
+
+IceStorm.Flush.Timeout = 2000
+
