@@ -17,17 +17,17 @@ package IceInternal;
 public interface Endpoint extends java.lang.Comparable
 {
     //
-    // Marshal the endpoint
+    // Marshal the endpoint.
     //
     void streamWrite(BasicStream s);
 
     //
-    // Convert the endpoint to its string form
+    // Convert the endpoint to its string form.
     //
     String toString();
 
     //
-    // Return the endpoint type
+    // Return the endpoint type.
     //
     short type();
 
@@ -91,14 +91,14 @@ public interface Endpoint extends java.lang.Comparable
 
     //
     // Check whether the endpoint is equivalent to a specific
-    // Transceiver or Acceptor
+    // Transceiver or Acceptor.
     //
     boolean equivalent(Transceiver transceiver);
     boolean equivalent(Acceptor acceptor);
 
     //
-    // Compare endpoints for sorting purposes
+    // Compare endpoints for sorting purposes.
     //
     boolean equals(java.lang.Object obj);
-    int compareTo(java.lang.Object obj); // From java.lang.Comparable
+    int compareTo(java.lang.Object obj); // From java.lang.Comparable.
 }

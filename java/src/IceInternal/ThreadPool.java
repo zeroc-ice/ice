@@ -159,7 +159,6 @@ public final class ThreadPool
         if(server)
         {
             _timeout = _instance.properties().getPropertyAsInt("Ice.ServerIdleTime");
-            _timeoutMillis = _timeout * 1000;
             threadNum = _instance.properties().getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 10);
         }
         else
@@ -412,7 +411,6 @@ public final class ThreadPool
 
                     assert(_timeout > 0);
                     _timeout = 0;
-                    _timeoutMillis = 0;
                     initiateShutdown();
                     continue repeatSelect;
                 }
@@ -774,7 +772,14 @@ public final class ThreadPool
                     trace("select on " + _selector.keys().size() + " keys, thread id = " + Thread.currentThread());
                 }
 
-                ret = _selector.select(_timeoutMillis);
+		if(_timeout > 0)
+		{
+		    ret = _selector.select(_timeout * 1000);
+		}
+		else
+		{
+		    ret = _selector.select();
+		}
             }
             catch(java.io.InterruptedIOException ex)
             {
@@ -871,7 +876,6 @@ public final class ThreadPool
     private java.util.LinkedList _changes = new java.util.LinkedList();
     private java.util.HashMap _handlerMap = new java.util.HashMap();
     private int _timeout;
-    private int _timeoutMillis;
     private boolean _promote;
     private java.lang.Object _promoteMonitor = new java.lang.Object();
     private boolean _multipleThreads;
