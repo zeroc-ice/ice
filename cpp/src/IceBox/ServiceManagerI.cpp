@@ -57,6 +57,12 @@ IceBox::ServiceManagerI::run()
         ServiceManagerPtr obj = this;
 
 	//
+	// TODO: Simplify configuration, this is way too complicated. We
+	// should most likely have only two configuration properties, one
+	// for the identity and the other one for the endpoints.
+	//
+
+	//
 	// Prefix the adapter name and object identity with the value
 	// of the IceBox.Name property.
 	//

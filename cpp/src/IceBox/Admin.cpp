@@ -88,21 +88,39 @@ Client::run(int argc, char* argv[])
         return EXIT_SUCCESS;
     }
 
-    const char* managerProperty = "IceBox.ServiceManager";
-    string managerProxy = properties->getProperty(managerProperty);
-    if(managerProxy.empty())
+    
+    //
+    // TODO: Simplify configuration, this is way too complicated. We
+    // should most likely have only two configuration variables, one
+    // for the identity and the other one for the endpoints.
+    //
+
+    string namePrefix = properties->getProperty("IceBox.Name");
+    if(!namePrefix.empty())
     {
-	const char* nameProperty = "IceBox.Name";
-	string name = properties->getProperty(nameProperty);
-	if(!properties->getProperty("Ice.Default.Locator").empty() && !name.empty())
+	namePrefix += ".";
+    }
+
+    string managerProxy;
+
+    string managerEndpoints = properties->getProperty("IceBox.ServiceManager.Endpoints");
+    if(managerEndpoints.empty())
+    {
+	if(!properties->getProperty("Ice.Default.Locator").empty() && !namePrefix.empty())
 	{
-	    managerProxy = name + ".ServiceManager@" + name + ".ServiceManagerAdapter";
+	    managerProxy = namePrefix + "ServiceManager@" + namePrefix + "ServiceManagerAdapter";
 	}
 	else
 	{
-	    cerr << appName() << ": property `" << managerProperty << "' is not set" << endl;
+	    cerr << appName() << ": property `IceBox.ServiceManager.Endpoints' is not set" << endl;
 	    return EXIT_FAILURE;
 	}
+    }
+    else
+    {
+	string managerIdentity = properties->getPropertyWithDefault("IceBox.ServiceManager.Identity", 
+								    "ServiceManager");
+	managerProxy = namePrefix + managerIdentity + ":" + managerEndpoints;
     }
 
     ObjectPrx base = communicator()->stringToProxy(managerProxy);
