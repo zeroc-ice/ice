@@ -251,236 +251,232 @@ IceInternal::ThreadPool::run()
     {
 	_threadMutex.lock();
 	
-        while (true)
+    repeatSelect:
+	
+	if (shutdown) // Shutdown has been initiated.
 	{
-	    if (shutdown) // Shutdown has been initiated.
+	    shutdown = false;
+	    _instance->objectAdapterFactory()->shutdown();
+	}
+	
+	fd_set fdSet;
+	memcpy(&fdSet, &_fdSet, sizeof(fd_set));
+	int ret;
+	if (_timeout)
+	{
+	    struct timeval tv;
+	    tv.tv_sec = _timeout;
+	    tv.tv_usec = 0;
+	    ret = ::select(_maxFd + 1, &fdSet, 0, 0, &tv);
+	}
+	else
+	{
+	    ret = ::select(_maxFd + 1, &fdSet, 0, 0, 0);
+	}
+	
+	if (ret == 0) // Timeout.
+	{
+	    assert(_timeout);
+	    _timeout = 0;
+	    shutdown = true;
+	    goto repeatSelect;
+	}
+	
+	if (ret == SOCKET_ERROR)
+	{
+	    if (interrupted())
 	    {
-		shutdown = false;
-		_instance->objectAdapterFactory()->shutdown();
+		goto repeatSelect;
 	    }
 	    
-	    fd_set fdSet;
-	    memcpy(&fdSet, &_fdSet, sizeof(fd_set));
-	    int ret;
-	    if (_timeout)
-	    {
-		struct timeval tv;
-		tv.tv_sec = _timeout;
-		tv.tv_usec = 0;
-		ret = ::select(_maxFd + 1, &fdSet, 0, 0, &tv);
-	    }
-	    else
-	    {
-		ret = ::select(_maxFd + 1, &fdSet, 0, 0, 0);
-	    }
-	    
-	    if (ret == 0) // Timeout.
-	    {
-		assert(_timeout);
-		_timeout = 0;
-		shutdown = true;
-		continue;
-	    }
-	    
-	    if (ret == SOCKET_ERROR)
-	    {
-		if (interrupted())
-		{
-		    continue;
-		}
-		
-		SocketException ex(__FILE__, __LINE__);
-		ex.error = getSocketErrno();
-		throw ex;
-	    }
-	    
-	    EventHandlerPtr handler;
+	    SocketException ex(__FILE__, __LINE__);
+	    ex.error = getSocketErrno();
+	    throw ex;
+	}
+	
+	EventHandlerPtr handler;
 
+	{
+	    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+	    
+	    if (_destroyed)
 	    {
-		JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
-		
-		if (_destroyed)
+		//
+		// Don't clear the interrupt fd if destroyed, so that
+		// the other threads exit as well.
+		//
+		return;
+	    }
+
+	    if (!_adds.empty())
+	    {
+		//
+		// New handlers have been added.
+		//
+		for (vector<pair<SOCKET, EventHandlerPtr> >::iterator p = _adds.begin(); p != _adds.end(); ++p)
 		{
-		    //
-		    // Don't clear the interrupt fd if destroyed, so that
-		    // the other threads exit as well.
-		    //
-		    return;
+		    _handlerMap.insert(*p);
+		    FD_SET(p->first, &_fdSet);
+		    _maxFd = max(_maxFd, p->first);
+		    _minFd = min(_minFd, p->first);
 		}
-		
-		if (!_adds.empty())
+		_adds.clear();
+	    }
+	    
+	    if (!_removes.empty())
+	    {
+		//
+		// Handlers are permanently removed.
+		//
+		for (vector<pair<SOCKET, bool> >::iterator p = _removes.begin(); p != _removes.end(); ++p)
 		{
-		    //
-		    // New handlers have been added.
-		    //
-		    for (vector<pair<SOCKET, EventHandlerPtr> >::iterator p = _adds.begin(); p != _adds.end(); ++p)
+		    map<SOCKET, EventHandlerPtr>::iterator q = _handlerMap.find(p->first);
+		    assert(q != _handlerMap.end());
+		    FD_CLR(p->first, &_fdSet);
+		    if (p->second) // Call finished() on the handler?
 		    {
-			_handlerMap.insert(*p);
-			FD_SET(p->first, &_fdSet);
-			_maxFd = max(_maxFd, p->first);
-			_minFd = min(_minFd, p->first);
+			q->second->finished();
 		    }
-		    _adds.clear();
+		    if (q->second->server())
+		    {
+			--_servers;
+		    }
+		    _handlerMap.erase(q);
 		}
-		
-		if (!_removes.empty())
+		_removes.clear();
+		_maxFd = _fdIntrRead;
+		_minFd = _fdIntrRead;
+		if (!_handlerMap.empty())
 		{
-		    //
-		    // Handlers are permanently removed.
-		    //
-		    for (vector<pair<SOCKET, bool> >::iterator p = _removes.begin(); p != _removes.end(); ++p)
-		    {
-			map<SOCKET, EventHandlerPtr>::iterator q = _handlerMap.find(p->first);
-			assert(q != _handlerMap.end());
-			FD_CLR(p->first, &_fdSet);
-			if (p->second) // Call finished() on the handler?
-			{
-			    q->second->finished();
-			}
-			if (q->second->server())
-			{
-			    --_servers;
-			}
-			_handlerMap.erase(q);
-		    }
-		    _removes.clear();
-		    _maxFd = _fdIntrRead;
-		    _minFd = _fdIntrRead;
-		    if (!_handlerMap.empty())
-		    {
-			_maxFd = max(_maxFd, (--_handlerMap.end())->first);
-			_minFd = min(_minFd, _handlerMap.begin()->first);
-		    }
-		    if (_handlerMap.empty() || _servers == 0)
-		    {
-			notifyAll(); // For waitUntil...Finished() methods.
-		    }
-		    
-		    //
-		    // Selected filedescriptors may have changed, I
-		    // therefore need to repeat the select().
-		    //
-		    shutdown = clearInterrupt();
-		    continue;
+		    _maxFd = max(_maxFd, (--_handlerMap.end())->first);
+		    _minFd = min(_minFd, _handlerMap.begin()->first);
 		}
-		
+		if (_handlerMap.empty() || _servers == 0)
+		{
+		    notifyAll(); // For waitUntil...Finished() methods.
+		}
+
+		//
+                // Selected filedescriptors may have changed, I
+                // therefore need to repeat the select().
+		//
+		shutdown = clearInterrupt();
+		goto repeatSelect;
+	    }
+	
 //
 // Optimization for WIN32 specific version of fd_set. Looping with a
 // FD_ISSET test like for Unix is very unefficient for WIN32.
 //
 #ifdef WIN32
-		//
-		// Round robin for the filedescriptors.
-		//
-		if (fdSet.fd_count == 0)
+	    //
+	    // Round robin for the filedescriptors.
+	    //
+	    if (fdSet.fd_count == 0)
+	    {
+		ostringstream s;
+		s << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
+		_instance->logger()->error(s.str());
+		goto repeatSelect;
+	    }
+
+	    SOCKET largerFd = _maxFd + 1;
+	    SOCKET smallestFd = _maxFd + 1;
+	    for (u_short i = 0; i < fdSet.fd_count; ++i)
+	    {
+		SOCKET fd = fdSet.fd_array[i];
+		assert(fd != INVALID_SOCKET);
+
+		if (fd > _lastFd || _lastFd == INVALID_SOCKET)
 		{
-		    ostringstream s;
-		    s << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
-		    _instance->logger()->error(s.str());
-		    continue;
+		    largerFd = min(largerFd, fd);
 		}
-		
-		SOCKET largerFd = _maxFd + 1;
-		SOCKET smallestFd = _maxFd + 1;
-		for (u_short i = 0; i < fdSet.fd_count; ++i)
-		{
-		    SOCKET fd = fdSet.fd_array[i];
-		    assert(fd != INVALID_SOCKET);
-		    
-		    if (fd > _lastFd || _lastFd == INVALID_SOCKET)
-		    {
-			largerFd = min(largerFd, fd);
-		    }
-		    
-		    smallestFd = min(smallestFd, fd);
-		}
-		
-		if (largerFd <= _maxFd)
-		{
-		    assert(largerFd >= _minFd);
-		    _lastFd = largerFd;
-		}
-		else
-		{
-		    assert(smallestFd >= _minFd && smallestFd <= _maxFd);
-		    _lastFd = smallestFd;
-		}
+
+		smallestFd = min(smallestFd, fd);
+	    }
+
+	    if (largerFd <= _maxFd)
+	    {
+		assert(largerFd >= _minFd);
+		_lastFd = largerFd;
+	    }
+	    else
+	    {
+		assert(smallestFd >= _minFd && smallestFd <= _maxFd);
+		_lastFd = smallestFd;
+	    }
 #else
-		//
-		// Round robin for the filedescriptors.
-		//
-		if (_lastFd < _minFd - 1 || _lastFd == INVALID_SOCKET)
+	    //
+	    // Round robin for the filedescriptors.
+	    //
+	    if (_lastFd < _minFd - 1 || _lastFd == INVALID_SOCKET)
+	    {
+		_lastFd = _minFd - 1;
+	    }
+
+	    int loops = 0;
+	    do
+	    {
+		if (++_lastFd > _maxFd)
 		{
-		    _lastFd = _minFd - 1;
+		    ++loops;
+		    _lastFd = _minFd;
 		}
-		
-		int loops = 0;
-		do
-		{
-		    if (++_lastFd > _maxFd)
-		    {
-			++loops;
-			_lastFd = _minFd;
-		    }
-		}
-		while (!FD_ISSET(_lastFd, &fdSet) && loops <= 1);
-		
-		if (loops > 1)
-		{
-		    ostringstream s;
-		    s << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
-		    _instance->logger()->error(s.str());
-		    continue;
-		}
+	    }
+	    while (!FD_ISSET(_lastFd, &fdSet) && loops <= 1);
+
+	    if (loops > 1)
+	    {
+		ostringstream s;
+		s << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
+		_instance->logger()->error(s.str());
+		goto repeatSelect;
+	    }
 #endif
-		
-		if (_lastFd == _fdIntrRead)
-		{
-		    shutdown = clearInterrupt();
-		    continue;
-		}
-		
-		map<SOCKET, EventHandlerPtr>::iterator p = _handlerMap.find(_lastFd);
-		if(p == _handlerMap.end())
-		{
-		    ostringstream s;
-		    s << "filedescriptor " << _lastFd << " not registered with the thread pool";
-		    _instance->logger()->error(s.str());
-		    continue;
-		}
-		
-		handler = p->second;
+	    
+	    if (_lastFd == _fdIntrRead)
+	    {
+		shutdown = clearInterrupt();
+		goto repeatSelect;
+	    }
+
+	    map<SOCKET, EventHandlerPtr>::iterator p = _handlerMap.find(_lastFd);
+	    if(p == _handlerMap.end())
+	    {
+		ostringstream s;
+		s << "filedescriptor " << _lastFd << " not registered with the thread pool";
+		_instance->logger()->error(s.str());
+		goto repeatSelect;
 	    }
 	    
-	    assert(handler);
-
-	    //
-	    // If the handler is "readable", try to read a message.
-	    //
-	    BasicStream stream(_instance);
-	    if (handler->readable())
-	    {
-		try
-		{
-		    read(handler);
-		}
-		catch (const TimeoutException&) // Expected.
-		{
-		    continue;
-		}
-		catch (const LocalException& ex)
-		{
-		    handler->exception(ex);
-		    continue;
-		}
-		
-		stream.swap(handler->_stream);
-		assert(stream.i == stream.b.end());
-	    }
-	
-	    handler->message(stream);
-	    break;
+	    handler = p->second;
 	}
+
+	//
+	// If the handler is "readable", try to read a message.
+	//
+	BasicStream stream(_instance);
+	if (handler->readable())
+	{
+	    try
+	    {
+		read(handler);
+	    }
+	    catch (const TimeoutException&) // Expected.
+	    {
+		goto repeatSelect;
+	    }
+	    catch (const LocalException& ex)
+	    {
+		handler->exception(ex);
+		goto repeatSelect;
+	    }
+	    
+	    stream.swap(handler->_stream);
+	    assert(stream.i == stream.b.end());
+	}
+	
+	handler->message(stream);
     }
 }
 

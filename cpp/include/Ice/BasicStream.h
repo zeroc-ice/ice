@@ -114,7 +114,13 @@ private:
     // Optimization. The instance may not be deleted while a
     // stack-allocated Incoming still holds it.
     //
+    // TODO: On WIN32 I get crashes with this optimization from time
+    // to time. I don't know why yet.
+#ifdef WIN32
+    InstancePtr _instance;
+#else
     const InstancePtr& _instance;
+#endif
 
     struct Encaps
     {
