@@ -1061,6 +1061,18 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name routerS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name printerC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name printerS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name simpleFSC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name simpleFSS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2547,6 +2559,42 @@ Package=<4>
 
 ###############################################################################
 
+Project: "printerC"=.\demo\book\printer\printerC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "printerS"=.\demo\book\printer\PrinterS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "routerC"=.\test\Glacier2\router\routerC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -2647,6 +2695,42 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IcePack
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "simpleFSC"=.\demo\book\simple_filesystem\simpleFSC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "simpleFSS"=.\demo\book\simple_filesystem\simpleFSS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
     End Project Dependency
 }}}
 
