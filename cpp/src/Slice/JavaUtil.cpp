@@ -2,9 +2,13 @@
 //
 // Copyright (c) 2002
 // ZeroC, Inc.
-// Huntsville, AL, USA
+// Billerica, MA, USA
 //
-// All Rights Reserved
+// All Rights Reserved.
+//
+// Ice is free software; you can redistribute it and/or modify it under
+// the terms of the GNU General Public License version 2 as published by
+// the Free Software Foundation.
 //
 // **********************************************************************
 
@@ -1846,9 +1850,14 @@ Slice::JavaGenerator::printHeader()
 "//\n"
 "// Copyright (c) 2002\n"
 "// ZeroC, Inc.\n"
-"// Huntsville, AL, USA\n"
+"// Billerica, MA, USA\n"
 "//\n"
-"// All Rights Reserved\n"
+"// All Rights Reserved.\n"
+"//\n"
+"// Ice is free software; you can redistribute it and/or modify it under\n"
+"// the terms of the GNU General Public License version 2 as published by\n"
+"// the Free Software Foundation.\n"
+"// All Rights Reserved.
 "//\n"
 "// **********************************************************************\n"
         ;

@@ -1,16 +1,16 @@
-ChangedMeaning.ice:5: `ls' has changed meaning
-ChangedMeaning.ice:16: `ls' has changed meaning
-ChangedMeaning.ice:35: `M' has changed meaning
-ChangedMeaning.ice:41: `M' has changed meaning
-ChangedMeaning.ice:48: `i1' has changed meaning
-ChangedMeaning.ice:49: `i2' has changed meaning
-ChangedMeaning.ice:70: `e1' has changed meaning
-ChangedMeaning.ice:71: `e2' has changed meaning
-ChangedMeaning.ice:83: `c1' has changed meaning
-ChangedMeaning.ice:84: `c2' has changed meaning
-ChangedMeaning.ice:95: `blue' has changed meaning
-ChangedMeaning.ice:105: `CounterSeq' has changed meaning
-ChangedMeaning.ice:112: `counter' has changed meaning
-ChangedMeaning.ice:113: `counter' is not a type
-ChangedMeaning.ice:114: redefinition of parameter `param'
-ChangedMeaning.ice:120: `is' has changed meaning
+ChangedMeaning.ice:19: `ls' has changed meaning
+ChangedMeaning.ice:30: `ls' has changed meaning
+ChangedMeaning.ice:49: `M' has changed meaning
+ChangedMeaning.ice:55: `M' has changed meaning
+ChangedMeaning.ice:62: `i1' has changed meaning
+ChangedMeaning.ice:63: `i2' has changed meaning
+ChangedMeaning.ice:84: `e1' has changed meaning
+ChangedMeaning.ice:85: `e2' has changed meaning
+ChangedMeaning.ice:97: `c1' has changed meaning
+ChangedMeaning.ice:98: `c2' has changed meaning
+ChangedMeaning.ice:109: `blue' has changed meaning
+ChangedMeaning.ice:119: `CounterSeq' has changed meaning
+ChangedMeaning.ice:126: `counter' has changed meaning
+ChangedMeaning.ice:127: `counter' is not a type
+ChangedMeaning.ice:128: redefinition of parameter `param'
+ChangedMeaning.ice:134: `is' has changed meaning

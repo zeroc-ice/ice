@@ -2,9 +2,13 @@
 //
 // Copyright (c) 2001
 // ZeroC, Inc.
-// Huntsville, AL, USA
+// Billerica, MA, USA
 //
-// All Rights Reserved
+// All Rights Reserved.
+//
+// Ice is free software; you can redistribute it and/or modify it under
+// the terms of the GNU General Public License version 2 as published by
+// the Free Software Foundation.
 //
 // **********************************************************************
 
@@ -63,11 +67,15 @@ Slice::printHeader(Output& out)
     static const char* header = 
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2001\n"
+"// Copyright (c) 2002\n"
 "// ZeroC, Inc.\n"
-"// Huntsville, AL, USA\n"
+"// Billerica, MA, USA\n"
 "//\n"
-"// All Rights Reserved\n"
+"// All Rights Reserved.\n"
+"//\n"
+"// Ice is free software; you can redistribute it and/or modify it under\n"
+"// the terms of the GNU General Public License version 2 as published by\n"
+"// the Free Software Foundation.\n"
 "//\n"
 "// **********************************************************************\n"
 	;

@@ -1,20 +1,20 @@
-IllegalLocal.ice:5: non-local `i3' cannot have base local interface `i2'
-IllegalLocal.ice:11: non-local `c2' cannot have base local interface `i2'
-IllegalLocal.ice:17: non-local interface `i' cannot have operation `op' throwing local exception `le'
-IllegalLocal.ice:20: non-local exception `le2' cannot have local base exception `le'
-IllegalLocal.ice:26: non-local class`c3' cannot contain local member `lo1'
-IllegalLocal.ice:27: cannot create proxy for local interface `i2'
-IllegalLocal.ice:27: non-local class`c3' cannot contain local member `lo2'
-IllegalLocal.ice:28: non-local class`c3' cannot contain local member `lo3'
-IllegalLocal.ice:29: non-local class`c3' cannot contain local member `ls'
-IllegalLocal.ice:34: non-local struct`s1' cannot contain local member `ls'
-IllegalLocal.ice:39: non-local exception`e3' cannot contain local member `ls'
-IllegalLocal.ice:42: non-local sequence `los' cannot have local element type
-IllegalLocal.ice:45: non-local dictionary `d1' cannot have local key type
-IllegalLocal.ice:46: non-local dictionary `d2' cannot have local value type
-IllegalLocal.ice:47: non-local dictionary `d3' cannot have local key type
-IllegalLocal.ice:47: non-local dictionary `d3' cannot have local value type
-IllegalLocal.ice:52: non-local struct`s2' cannot contain local member `m'
-IllegalLocal.ice:58: non-local struct`s3' cannot contain local member `e'
-IllegalLocal.ice:63: non-local interface `i5' cannot have local parameter `p' in operation `op'
-IllegalLocal.ice:64: non-local interface `i5' cannot have operation `op2' with local return type
+IllegalLocal.ice:19: non-local `i3' cannot have base local interface `i2'
+IllegalLocal.ice:25: non-local `c2' cannot have base local interface `i2'
+IllegalLocal.ice:31: non-local interface `i' cannot have operation `op' throwing local exception `le'
+IllegalLocal.ice:34: non-local exception `le2' cannot have local base exception `le'
+IllegalLocal.ice:40: non-local class`c3' cannot contain local member `lo1'
+IllegalLocal.ice:41: cannot create proxy for local interface `i2'
+IllegalLocal.ice:41: non-local class`c3' cannot contain local member `lo2'
+IllegalLocal.ice:42: non-local class`c3' cannot contain local member `lo3'
+IllegalLocal.ice:43: non-local class`c3' cannot contain local member `ls'
+IllegalLocal.ice:48: non-local struct`s1' cannot contain local member `ls'
+IllegalLocal.ice:53: non-local exception`e3' cannot contain local member `ls'
+IllegalLocal.ice:56: non-local sequence `los' cannot have local element type
+IllegalLocal.ice:59: non-local dictionary `d1' cannot have local key type
+IllegalLocal.ice:60: non-local dictionary `d2' cannot have local value type
+IllegalLocal.ice:61: non-local dictionary `d3' cannot have local key type
+IllegalLocal.ice:61: non-local dictionary `d3' cannot have local value type
+IllegalLocal.ice:66: non-local struct`s2' cannot contain local member `m'
+IllegalLocal.ice:72: non-local struct`s3' cannot contain local member `e'
+IllegalLocal.ice:77: non-local interface `i5' cannot have local parameter `p' in operation `op'
+IllegalLocal.ice:78: non-local interface `i5' cannot have operation `op2' with local return type

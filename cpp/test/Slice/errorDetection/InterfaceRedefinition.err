@@ -1,4 +1,4 @@
-InterfaceRedefinition.ice:12: redefinition of interface `Intf1'
-InterfaceRedefinition.ice:12: parse error
-InterfaceRedefinition.ice:16: redefinition of interface `Intf2'
+InterfaceRedefinition.ice:16: redefinition of interface `Intf1'
 InterfaceRedefinition.ice:16: parse error
+InterfaceRedefinition.ice:20: redefinition of interface `Intf2'
+InterfaceRedefinition.ice:20: parse error

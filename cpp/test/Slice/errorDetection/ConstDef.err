@@ -1,21 +1,21 @@
-ConstDef.ice:37: `XXX' is not defined
-ConstDef.ice:38: redefinition of constant `f11' as constant
-ConstDef.ice:39: constant `F10' differs only in capitalization from constant `f10'
-ConstDef.ice:42: constant `ic2' has illegal type
-ConstDef.ice:43: constant `ic3' has illegal type: `Object'
-ConstDef.ice:45: initializer of type `long' is incompatible with the type `bool' of constant `ic4'
-ConstDef.ice:46: initializer of type `string' is incompatible with the type `byte' of constant `ic5'
-ConstDef.ice:47: initializer of type `double' is incompatible with the type `short' of constant `ic6'
-ConstDef.ice:48: type of initializer is incompatible with the type `int' of constant `ic7'
-ConstDef.ice:49: initializer of type `bool' is incompatible with the type `long' of constant `ic8'
-ConstDef.ice:51: missing constant name
-ConstDef.ice:54: enumerator `two' is not defined in enumeration `::color'
-ConstDef.ice:55: type of initializer is incompatible with the type of constant `ic10'
-ConstDef.ice:71: integer constant `-9223372036854775809' out of range
-ConstDef.ice:72: integer constant `+9223372036854775808' out of range
-ConstDef.ice:76: initializer `-2147483649' for constant `i3' out of range for type int
-ConstDef.ice:77: initializer `2147483648' for constant `i4' out of range for type int
-ConstDef.ice:81: initializer `-32769' for constant `s3' out of range for type short
-ConstDef.ice:82: initializer `32768' for constant `s4' out of range for type short
-ConstDef.ice:86: initializer `-1' for constant `b3' out of range for type byte
-ConstDef.ice:87: initializer `256' for constant `b4' out of range for type byte
+ConstDef.ice:51: `XXX' is not defined
+ConstDef.ice:52: redefinition of constant `f11' as constant
+ConstDef.ice:53: constant `F10' differs only in capitalization from constant `f10'
+ConstDef.ice:56: constant `ic2' has illegal type
+ConstDef.ice:57: constant `ic3' has illegal type: `Object'
+ConstDef.ice:59: initializer of type `long' is incompatible with the type `bool' of constant `ic4'
+ConstDef.ice:60: initializer of type `string' is incompatible with the type `byte' of constant `ic5'
+ConstDef.ice:61: initializer of type `double' is incompatible with the type `short' of constant `ic6'
+ConstDef.ice:62: type of initializer is incompatible with the type `int' of constant `ic7'
+ConstDef.ice:63: initializer of type `bool' is incompatible with the type `long' of constant `ic8'
+ConstDef.ice:65: missing constant name
+ConstDef.ice:68: enumerator `two' is not defined in enumeration `::color'
+ConstDef.ice:69: type of initializer is incompatible with the type of constant `ic10'
+ConstDef.ice:85: integer constant `-9223372036854775809' out of range
+ConstDef.ice:86: integer constant `+9223372036854775808' out of range
+ConstDef.ice:90: initializer `-2147483649' for constant `i3' out of range for type int
+ConstDef.ice:91: initializer `2147483648' for constant `i4' out of range for type int
+ConstDef.ice:95: initializer `-32769' for constant `s3' out of range for type short
+ConstDef.ice:96: initializer `32768' for constant `s4' out of range for type short
+ConstDef.ice:100: initializer `-1' for constant `b3' out of range for type byte
+ConstDef.ice:101: initializer `256' for constant `b4' out of range for type byte

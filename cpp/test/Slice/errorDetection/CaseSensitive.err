@@ -1,3 +1,3 @@
-CaseSensitive.ice:16: redefinition of struct `m2' as class
-CaseSensitive.ice:58: `I8' is not defined
-CaseSensitive.ice:64: `I10' is not defined
+CaseSensitive.ice:30: redefinition of struct `m2' as class
+CaseSensitive.ice:72: `I8' is not defined
+CaseSensitive.ice:78: `I10' is not defined
