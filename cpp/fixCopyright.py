@@ -135,6 +135,7 @@ def replaceAllCopyrights(path):
     cppCopyright = copyright("//")
     mcCopyright = copyright("; //")
     makefileCopyright = copyright("#")
+    vbCopyright = copyright("'")
     pythonCopyright = []
     pythonCopyright.append("#!/usr/bin/env python\n");
     pythonCopyright.extend(makefileCopyright)
@@ -173,6 +174,9 @@ def replaceAllCopyrights(path):
             elif fnmatch.fnmatch(x, "*.mc"):
                 commentMark = "; //"
                 copyrightLines = mcCopyright
+            elif fnmatch.fnmatch(x, "*.vb"):
+                commentMark = "'"
+                copyrightLines = vbCopyright
             elif fnmatch.fnmatch(x, "Make*") or fnmatch.fnmatch(x, "*.properties"):
                 commentMark = "#"
                 copyrightLines = makefileCopyright
