@@ -1,0 +1,49 @@
+# **********************************************************************
+#
+# Copyright (c) 2002
+# Mutable Realms, Inc.
+# Huntsville, AL, USA
+#
+# All Rights Reserved
+#
+# **********************************************************************
+
+top_srcdir	= ../../..
+
+CLIENT		= client
+SERVER		= server
+
+TARGETS		= $(CLIENT) $(SERVER)
+
+OBJS		= Test.o
+
+COBJS		= Client.o
+
+SOBJS		= TestI.o \
+		  Server.o
+
+SRCS		= $(OBJS:.o=.cpp) \
+		  $(COBJS:.o=.cpp) \
+		  $(SOBJS:.o=.cpp)
+
+include $(top_srcdir)/config/Make.rules
+
+CPPFLAGS	:= -I. -I../../include -I$(DB_HOME)/include $(CPPFLAGS)
+LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
+
+$(CLIENT): $(OBJS) $(COBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(COBJS) $(LIBS)
+
+$(SERVER): $(OBJS) $(SOBJS)
+	rm -f $@
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) -lFreeze -lIceXML $(LIBS) -ldb
+
+Test.h Test.cpp: Test.ice $(SLICE2CPP)
+	rm -f Test.h Test.cpp
+	$(SLICE2CPP) Test.ice
+
+clean::
+	rm -f Test.h Test.cpp
+
+include .depend
