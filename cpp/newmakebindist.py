@@ -14,6 +14,8 @@ import os, sys, shutil, re, string, getopt, glob, logging
 #
 #  * Tidying and tracing.
 #  * Testing on platforms besides Linux.
+#  * Make it work out of CVS builds.
+#  * Have the verbose flag turn on the logging.
 #
 # NOTES:
 #  There are python-ese ways to do some of the things I've shelled out to do.
@@ -21,10 +23,6 @@ import os, sys, shutil, re, string, getopt, glob, logging
 #  done with one line in a shell.
 #
 
-#
-# defaults.
-#
-verbose = False
 
 #
 # Represents the 'main' package of an RPM spec file.
@@ -549,7 +547,7 @@ def makeInstall(buildDir, installDir, distro, clean):
         os.chdir(cwd)
         return
 
-    os.system("perl -pi -e 's/^prefix.*$/prefix = \$\(RPM_BUILD_ROOT\)/' config/Make.rules")
+    os.system("perl -pi -e 's/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/' config/Make.rules")
 
     if distro.startswith("IcePy"):
         try:
@@ -569,7 +567,7 @@ def makeInstall(buildDir, installDir, distro, clean):
 	    os.system("perl -pi -e 's/^PYTHON.INCLUDE.DIR.*$/PYTHON_INCLUDE_DIR = \$\(PYTHON_HOME\)\/include\/\$\(PYTHON_VERSION\)/' config/Make.rules")
 	    os.system("perl -pi -e 's/^PYTHON.LIB.DIR.*$/PYTHON_LIB_DIR = \$\(PYTHON_HOME\)\/lib\/\$\(PYTHON_VERSION\)\/config/' config/Make.rules")
 
-    os.system("gmake OPTIMIZE=yes RPM_BUILD_ROOT=" + installDir + " install")
+    os.system("gmake OPTIMIZE=yes INSTALL_ROOT=" + installDir + " install")
     os.chdir(cwd)
     
 def shlibExtensions(versionString, versionInt):
@@ -677,6 +675,8 @@ def usage():
     print "--nobuild              Run through the process but don't build"
     print "                       anything new."
     print "--specfile             Just print the RPM spec file and exit."
+    print "--usecvs		  Use contents of existing CVS directories"
+    print "                       to create binary package (in progress)"
     print 
     print "The following options set the locations for third party libraries"
     print "that may be required on your platform.  Alternatively, you can"
@@ -720,18 +720,18 @@ def main():
     version = None
     soVersion = 0
     printSpecFile = False
+    verbose = False
+    cvsMode = False    # Use CVS directories.
 
     #
     # Process args.
     #
     try:
-
-
         optionList, args = getopt.getopt(sys.argv[1:], "hvt:",
                                          [ "build-dir=", "install-dir=", "install-root=", "sources=",
                                            "verbose", "tag=", "noclean", "nobuild", "specfile",
 					   "stlporthome=", "bzip2home=", "dbhome=", "sslhome=",
-					   "expathome=", "readlinehome="])
+					   "expathome=", "readlinehome=", "usecvs"])
                
     except getopt.GetoptError:
         usage()
@@ -771,6 +771,11 @@ def main():
 	    buildEnvironment['EXPAT_HOME'] = a
 	elif o == "--readlinehome":
 	    buildEnvironment['READLINE_HOME'] = a
+	elif o == "--usecvs":
+	    cvsMode = True
+
+    if verbose:
+	logging.getLogger().setLevel(logging.DEBUG)
 
     #
     # Configure environment.
@@ -788,25 +793,43 @@ def main():
 	    os.environ[dylibEnvironmentVar] = v + "/lib:" + os.environ[dylibEnvironmentVar] 
 
     if buildDir == None:
-        logging.info("No build directory specified, defaulting to $HOME/tmp/icebuild")
+        print "No build directory specified, defaulting to $HOME/tmp/icebuild"
         buildDir = os.environ.get('HOME') + "/tmp/icebuild"
 
+    if cvsMode:
+	print "Using CVS mode"
+
     if installDir == None:
-        logging.info("No install directory specified, default to $HOME/tmp/iceinstall")
+        print "No install directory specified, default to $HOME/tmp/iceinstall"
         installDir = os.environ.get('HOME') + "/tmp/iceinstall"
 
+    #
+    # We need to clean the directory out to keep obsolete files from
+    # being installed.  This needs to happen whether we are running with
+    # noclean or not.
+    #
     if build:
-        #
-        # We need to clean the directory out to keep obsolete files from being installed.
-        #
         if os.path.exists(installDir):
             shutil.rmtree(installDir, True)
 
-    directories = [buildDir, buildDir + "/sources", buildDir + "/demotree",  installDir]
+    #
+    # In CVS mode we are relying on the checked out CVS sources *are* the build sources.
+    #
+    if cvsMode:
+	directories = []
+    else:
+	directories = [buildDir, buildDir + "/sources", buildDir + "/demotree"]
+
+    directories.append(installDir)
+
     for d in directories:
         initDirectory(d)
 
-    version, soVersion = getVersion(cvsTag, buildDir)
+    if cvsMode:
+	version = getIceVersion("include/IceUtil/Config.h")
+	soVersion = getIceSoVersion("include/IceUtil/Config.h")
+    else:
+	version, soVersion = getVersion(cvsTag, buildDir)
 
     if verbose:
         print "Building binary distributions for Ice-" + version + " on " + getPlatform()
@@ -829,13 +852,14 @@ def main():
             ofile.write("\n")
         sys.exit(0)
 
-    #
-    # This last directory we have to wait until we've got the version number for the distribution.
-    #
-    shutil.rmtree(buildDir + "/Ice-" + version + "-demos", True)
-    initDirectory(buildDir + "/Ice-" + version + "-demos/config")
+    if not cvsMode:
+	#
+	# These last build directories will have to wait until we've got the version number for the distribution.
+	#
+	shutil.rmtree(buildDir + "/Ice-" + version + "-demos", True)
+	initDirectory(buildDir + "/Ice-" + version + "-demos/config")
 
-    if build:
+    if build and not cvsMode:
         collectSources = False
         if sources == None and clean:
             sources = buildDir + "/sources"
@@ -854,11 +878,11 @@ def main():
         os.environ['ICE_HOME'] = installDir + "/Ice-" + version
         currentLibraryPath = None
         try:
-            currentLibraryPath = os.environ['LD_LIBRARY_PATH'] 
+            currentLibraryPath = os.environ[dylibEnvironmentVar] 
         except KeyError:
             currentLibraryPath = ""
 
-        os.environ['LD_LIBRARY_PATH'] = installDir + "/Ice-" + version + "/lib:" + currentLibraryPath
+        os.environ[dylibEnvironmentVar] = installDir + "/Ice-" + version + "/lib:" + currentLibraryPath
         os.environ['PATH'] = installDir + "/Ice-" + version + "/bin:" + os.environ['PATH']
 
         for cvs, tarball, demoDir in sourceTarBalls:
@@ -873,6 +897,39 @@ def main():
         #
         archiveDemoTree(buildDir, version)
         shutil.move(buildDir + "/Ice-" + version + "-demos.tar.gz", installDir + "/Ice-" + version + "-demos.tar.gz")
+
+    elif cvsMode:
+	collectSources = False
+
+	#
+	# TODO: Sanity check to make sure that the script is being run
+	# from a location that it expects.
+	#
+	cvsDirs = [ "ice", "icej", "icepy" ]
+	if getPlatform() == "linux":
+	    cvsDirs.append("icecs")
+
+        os.environ['ICE_HOME'] = os.getcwd()  
+        currentLibraryPath = None
+        try:
+            currentLibraryPath = os.environ[dylibEnvironmentVar] 
+        except KeyError:
+            currentLibraryPath = ""
+
+        os.environ[dylibEnvironmentVar] = installDir + "/Ice-" + version + "/lib:" + currentLibraryPath
+        os.environ['PATH'] = installDir + "/Ice-" + version + "/bin:" + os.environ['PATH']
+
+	for d in cvsDirs:
+	    currentDir = os.getcwd()
+	    os.chdir("../" + d)
+	    print "Going to directory " + d
+	    if d == "icej":
+		shutil.copy("lib/Ice.jar", installDir +"/Ice-" + version + "/lib")
+		os.system("cp -pR ant " + installDir + "/Ice-" + version)
+	    else:
+		os.system("perl -pi -e 's/^prefix.*$/prefix = \$\(INSTALL_ROOT\)/' config/Make.rules")
+		os.system("gmake INSTALL_ROOT=" + installDir + "/Ice-" + version + " install")
+	    os.chdir(currentDir)
 
     #
     # Sources should have already been built and installed.  We
@@ -892,7 +949,7 @@ def main():
     # If we are running on Linux, we need to create RPMs.  This will probably blow up unless the user
     # that is running the script has massaged the permissions on /usr/src/redhat/.
     #
-    if getPlatform() == "linux":
+    if getPlatform() == "linux" and not cvsMode:
         transformDirectories(transforms, version, installDir)
         ofile = open(buildDir + "/Ice-" + version + ".spec", "w")
         for v in fileLists:
@@ -907,7 +964,8 @@ def main():
 	# Copy demo files so the RPM spec file can pick them up.
 	#
 	os.system("cp -pR " + installDir + "/Ice-" + version + "-demos/* " + installDir + "/usr/share/doc/Ice-" + version)
-	shutil.rmtree(installDir + "/Ice-" + version + "-demos")
+	if os.path.exists(installDir + "/Ice-" + version + "-demos"):
+	    shutil.rmtree(installDir + "/Ice-" + version + "-demos")
         cwd = os.getcwd()
         os.chdir(buildDir)
         ofile.flush()
