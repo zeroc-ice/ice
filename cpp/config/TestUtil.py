@@ -69,14 +69,12 @@ def clientServerTest(toplevel, name):
     updatedClientOptions = clientOptions.replace("TOPLEVELDIR", toplevel)
 
     print "starting server...",
-    print server + updatedServerOptions
     serverPipe = os.popen(server + updatedServerOptions)
     getServerPid(serverPipe)
     getAdapterReady(serverPipe)
     print "ok"
     
     print "starting client...",
-    print client + updatedClientOptions
     clientPipe = os.popen(client + updatedClientOptions)
     output = clientPipe.readline()
     if not output:
