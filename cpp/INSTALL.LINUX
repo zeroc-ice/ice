@@ -1,0 +1,65 @@
+Requirements
+============
+
+C++ compiler
+------------
+
+- GCC 3.2; or
+
+- GCC 2.96 with STLport 4.5.3
+
+The STL (Standard Template Library) that is included with GCC 2.96 is
+not supported! You must use STLport 4.5.3 with GCC 2.96. You can
+download STLport 4.5.3 from:
+
+http://www.stlport.org/download.html
+
+For STLport installation instructions, please see:
+
+http://www.stlport.org/doc/install.html
+
+For GCC 3.2, you can use the included STL library. Downloading and
+installing STLport is not required for this compiler version.
+
+Python 2
+--------
+
+To run the automated test suite, you require Python 2. Other than for
+running the test scripts, Python is not required.
+
+Third-party libraries
+---------------------
+
+- Berkeley DB 3.3.11
+
+- Xerces-C++ 2.1.0
+
+- OpenSSL 0.9.6
+
+- e2fsprogs 1.27 (only for the UUID library, which is part of this
+  package)
+
+- bzip2 1.0.2
+
+You can download Berkeley DB 3.3.11 from:
+
+http://www.sleepycat.com/update/index.html.
+
+OpenSSL, e2fsprogs, and bzip2 are usually available with your Linux
+distribution. The RPMs for Redhat 8.0 are:
+
+openssl-devel-0.9.6b-29
+e2fsprogs-devel-1.27-9
+bzip2-devel-1.0.2-5
+
+If you don't have them, you can download OpenSSL from:
+
+http://www.openssl.org
+
+And bzip2 from:
+
+http://sources.redhat.com/bzip2
+
+Sorry, but we are not aware of any download possibility for e2fsprogs
+(or the UUID routines of this package). But to our knowledge, every
+Linux distribution includes this, so there should be no problem.
