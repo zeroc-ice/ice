@@ -1881,6 +1881,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_8CE8E1F7D42847459587AC9EFB95326D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICE\\SLICECHECKSUMDICT.H"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8D5CDEEFEC224E3987312F3E1E418397"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\GLACIER\\STARTER.H"
@@ -2640,6 +2646,12 @@
         "MsmKey" = "8:_C9439D7140324FEC8F458E18DC34B0E9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICE\\DEMO\\ICE\\MFC\\SERVER\\HELLOI.H"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CA1E70C2C8B347EBBB78527EA6BB7339"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\SLICE\\ICE\\SLICECHECKSUMDICT.ICE"
         }
         "Entry"
         {
@@ -3504,6 +3516,12 @@
         "MsmKey" = "8:_FF4182081C6F45B2AAF8C7C476D53547"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:C:\\BUILDS\\ICEJ\\DEMO\\FREEZE\\BUILD.XML"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FF44903365AD4B4D8AE4765FF7A095D7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:C:\\BUILDS\\ICE\\INCLUDE\\ICE\\SLICECHECKSUMS.H"
         }
         "Entry"
         {
@@ -9730,6 +9748,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8CE8E1F7D42847459587AC9EFB95326D"
+            {
+            "SourcePath" = "8:..\\..\\..\\include\\Ice\\SliceChecksumDict.h"
+            "TargetName" = "8:SliceChecksumDict.h"
+            "Tag" = "8:"
+            "Folder" = "8:_A42D74C86BA04AF4A760DBEC329FD88D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_8D5CDEEFEC224E3987312F3E1E418397"
             {
             "SourcePath" = "8:..\\..\\..\\include\\Glacier\\Starter.h"
@@ -12196,6 +12234,26 @@
             "TargetName" = "8:HelloI.h"
             "Tag" = "8:"
             "Folder" = "8:_1D6949B8B314474198557C2C0B5596D8"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_CA1E70C2C8B347EBBB78527EA6BB7339"
+            {
+            "SourcePath" = "8:..\\..\\..\\slice\\Ice\\SliceChecksumDict.ice"
+            "TargetName" = "8:SliceChecksumDict.ice"
+            "Tag" = "8:"
+            "Folder" = "8:_B8F4249D0E88474E888D3FA8EF82E218"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -15050,6 +15108,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FF44903365AD4B4D8AE4765FF7A095D7"
+            {
+            "SourcePath" = "8:..\\..\\..\\include\\Ice\\SliceChecksums.h"
+            "TargetName" = "8:SliceChecksums.h"
+            "Tag" = "8:"
+            "Folder" = "8:_A42D74C86BA04AF4A760DBEC329FD88D"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_FF8B45C2C4294BE29F465229A1E97115"
             {
             "SourcePath" = "8:..\\..\\..\\include\\Ice\\ProxyFactoryF.h"
@@ -16369,6 +16447,7 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\BerkeleyDBRuntimeDebug.msm"
+            "ModuleSignature" = "8:MergeModule.322C5D4010C3431087389006EF9BC602"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -16380,6 +16459,7 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\ExpatRuntime.msm"
+            "ModuleSignature" = "8:MergeModule.A32ACFF5E2BA440F958DA46F03D38012"
             "LanguageId" = "3:1033"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -16391,6 +16471,7 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\BerkeleyDBRuntime.msm"
+            "ModuleSignature" = "8:MergeModule.F9B82A94BAF2496A9CF7665CDE828FEC"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -16402,6 +16483,7 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\OpenSSLRuntime.msm"
+            "ModuleSignature" = "8:MergeModule.AC78A5C4421B4F2FBD9AAFFA3084E88E"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
@@ -16413,6 +16495,7 @@
             "UseDynamicProperties" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "SourcePath" = "8:..\\MergeModules\\OpenSSLDevKit.msm"
+            "ModuleSignature" = "8:MergeModule.4E1047477590477A8EEC6153FAAF5A8A"
             "LanguageId" = "3:0"
             "Exclude" = "11:FALSE"
             "Folder" = "8:"
