@@ -487,20 +487,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	}
 	C << eb;
 
-	if(p->usesClasses())
-	{
-	    if(!base || (base && !base->usesClasses()))
-	    {
-		H << nl << "virtual bool __usesClasses() const;";
-
-		C << sp << nl << "bool";
-		C << nl << scoped.substr(2) << "::__usesClasses() const";
-		C << sb;
-		C << nl << "return true;";
-		C << eb;
-	    }
-	}
-
 	factoryName = "__F" + p->flattenedScope() + p->name();
 
 	C << sp << nl << "struct " << factoryName << " : public ::IceInternal::UserExceptionFactory";
@@ -1537,66 +1523,6 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "public:";
     H.inc();
 
-    if(!p->isAbstract() && !p->isLocal())
-    {
-	H << sp << nl << "void __copyMembers(" << fixKwd(p->scoped() + "Ptr") + ") const;";
-
-	C << sp;
-	C << nl << "void ";
-	C << nl << fixKwd(p->scoped()).substr(2) << "::__copyMembers(" << fixKwd(p->scoped() + "Ptr") << " __to) const";
-	C << sb;
-	string winUpcall; 
-	string unixUpcall; 
-	if(!bases.empty() && !bases.front()->isInterface())
-	{
-	    winUpcall = fixKwd(bases.front()->name()) + "::__copyMembers(__to);";
-	    unixUpcall = fixKwd(bases.front()->scoped()) + "::__copyMembers(__to);";
-	}
-	else
-	{
-	    winUpcall = "Object::__copyMembers(__to);";
-	    unixUpcall = "::Ice::Object::__copyMembers(__to);";
-	}
-	C.zeroIndent();
-	C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-	C.restoreIndent();
-	C << nl << winUpcall;
-	C.zeroIndent();
-	C << nl << "#else";
-	C.restoreIndent();
-	C << nl << unixUpcall;
-	C.zeroIndent();
-	C << nl << "#endif";
-	C.restoreIndent();
-	DataMemberList dataMembers = p->dataMembers();
-	for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
-	{
-	    C << nl << "__to->" << fixKwd((*q)->name()) << " = " << fixKwd((*q)->name()) << ';';
-	}
-	C << eb;
-
-	H << nl << "virtual ::Ice::ObjectPtr ice_clone() const;";
-
-	C << sp;
-	C << nl << "::Ice::ObjectPtr";
-	C << nl << fixKwd(p->scoped()).substr(2) << "::ice_clone() const";
-	C << sb;
-	C << nl << fixKwd(p->scope()) << p->name() << "Ptr __p = new " << fixKwd(p->scoped()) << ';';
-	C.zeroIndent();
-	C << nl << "#if defined(_MSC_VER) && (_MSC_VER < 1300) // VC++ 6 compiler bug"; // COMPILERBUG
-	C.restoreIndent();
-	C << nl << fixKwd(name) + "::__copyMembers(__p);";
-	C.zeroIndent();
-	C << nl << "#else";
-	C.restoreIndent();
-	C << nl << fixKwd(p->scoped()) + "::__copyMembers(__p);";
-	C.zeroIndent();
-	C << nl << "#endif";
-	C.restoreIndent();
-	C << nl << "return __p;";
-	C << eb;
-    }
-
     if(!p->isLocal())
     {
 	ClassList allBases = p->allBases();
@@ -1822,68 +1748,9 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	C.restoreIndent();
 	C << eb;
 
-	if(!p->isAbstract())
-	{
-	    H << sp << nl << "static const ::Ice::ObjectFactoryPtr& ice_factory();";
-
-	    string factoryName = "__F" + p->flattenedScope() + p->name();
-	    C << sp;
-	    C << nl << "class " << factoryName << " : public ::Ice::ObjectFactory";
-	    C << sb;
-	    C.dec();
-	    C << nl << "public:";
-	    C.inc();
-	    C << sp << nl << "virtual ::Ice::ObjectPtr" << nl << "create(const ::std::string& type)";
-	    C << sb;
-	    C << nl << "assert(type == " << scoped << "::ice_staticId());";
-	    C << nl << "return new " << scoped << ';';
-	    C << eb;
-	    C << sp << nl << "virtual void" << nl << "destroy()";
-	    C << sb;
-	    C << eb;
-	    C << eb << ';';
-
-	    string flatName = factoryName + "_Ptr";
-	    C << sp;
-	    C << nl << "static ::Ice::ObjectFactoryPtr " << flatName << " = new " << factoryName << ';';
-
-	    C << sp << nl << "const ::Ice::ObjectFactoryPtr&" << nl << scoped.substr(2) << "::ice_factory()";
-	    C << sb;
-	    C << nl << "return " << flatName << ';';
-	    C << eb;
-
-	    C << sp;
-	    C << nl << "class " << factoryName << "__Init";
-	    C << sb;
-	    C.dec();
-	    C << nl << "public:";
-	    C.inc();
-	    C << sp << nl << factoryName << "__Init()";
-	    C << sb;
-	    C << nl << "::Ice::factoryTable->addObjectFactory(" << scoped << "::ice_staticId(), "
-	      << scoped << "::ice_factory());";
-	    C << eb;
-	    C << sp << nl << "~" << factoryName << "__Init()";
-	    C << sb;
-	    C << nl << "::Ice::factoryTable->removeObjectFactory(" << scoped << "::ice_staticId());";
-	    C << eb;
-	    C << eb << ';';
-
-	    C << sp;
-	    C << nl << "static " << factoryName << "__Init " << factoryName << "__i;";
-	    C << sp << nl << "#ifdef __APPLE__";
-	    std::string initfuncname = "__F" + p->flattenedScope() + p->name() + "__initializer";
-	    C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
-	    C << nl << "#endif";
-	}
     }
 
     H << eb << ';';
-
-    if(!p->isAbstract() && !p->isLocal())
-    {
-	H << sp << nl << "static " << scoped << " __" << p->name() << "_init;";
-    }
 
     if(p->isLocal())
     {
@@ -1909,22 +1776,6 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
     else
     {
 	string name = p->name();
-
-	H << sp << nl << "void " << _dllExport << "__patch__" << name << "Ptr(void*, ::Ice::ObjectPtr&);";
-
-	C << sp << nl << "void " << _dllExport;
-	C << nl << scope.substr(2) << "__patch__" << name << "Ptr(void* __addr, ::Ice::ObjectPtr& v)";
-	C << sb;
-	C << nl << scope << name << "Ptr* p = static_cast< " << scope << name << "Ptr*>(__addr);";
-	C << nl << "assert(p);";
-	C << nl << "*p = " << scope << name << "Ptr::dynamicCast(v);";
-	C << nl << "if(v && !*p)";
-	C << sb;
-	C << nl << "::Ice::NoObjectFactoryException e(__FILE__, __LINE__);";
-	C << nl << "e.type = " << scope << fixKwd(name) << "::ice_staticId();";
-	C << nl << "throw e;";
-	C << eb;
-	C << eb;
 
 	C << sp;
 	C << nl << "bool" << nl << scope.substr(2) << "operator==(const " << scoped
@@ -2135,6 +1986,9 @@ Slice::Gen::ObjectVisitor::visitDataMember(const DataMemberPtr& p)
     H << nl << s << ' ' << name << ';';
 }
 
+//
+// XXX
+//
 void
 Slice::Gen::ObjectVisitor::emitGCFunctions(const ClassDefPtr& p)
 {

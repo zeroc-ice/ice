@@ -14,7 +14,9 @@
 #include <Ice/StatsF.ice>
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/PropertiesF.ice>
+#ifndef ICEE
 #include <Ice/ObjectFactoryF.ice>
+#endif
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
 #ifndef ICEE
