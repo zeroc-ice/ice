@@ -283,6 +283,13 @@ IceUtil::Thread::~Thread()
 {
 }
 
+IceUtil::Thread::ThreadId
+IceUtil::Thread::id() const
+{
+    return _id;
+}
+
+extern "C" {
 static void*
 startHook(void* arg)
 {
@@ -308,6 +315,7 @@ startHook(void* arg)
 	cerr << e << endl;
     }
     return 0;
+}
 }
 
 IceUtil::ThreadControl
