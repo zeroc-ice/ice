@@ -812,7 +812,7 @@ interface Admin
      * registered.
      *
      **/
-    nonmutating void addObject(Object* obj)
+    void addObject(Object* obj)
 	throws ObjectExistsException, DeploymentException;
 
     /**
@@ -828,7 +828,7 @@ interface Admin
      * registered.
      *
      **/
-    nonmutating void addObjectWithType(Object* obj, string type)
+    void addObjectWithType(Object* obj, string type)
 	throws ObjectExistsException;
 
     /**
@@ -841,7 +841,7 @@ interface Admin
      * found.
      *
      **/
-    nonmutating void removeObject(Object* obj) 
+    void removeObject(Object* obj) 
 	throws ObjectNotExistException;
 
     /**

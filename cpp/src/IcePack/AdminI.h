@@ -47,9 +47,9 @@ public:
     virtual ::std::string getAdapterEndpoints(const ::std::string&, const ::Ice::Current&) const;
     virtual Ice::StringSeq getAllAdapterIds(const ::Ice::Current&) const;
 
-    virtual void addObject(const ::Ice::ObjectPrx&, const ::Ice::Current&) const;
-    virtual void addObjectWithType(const ::Ice::ObjectPrx&, const ::std::string&, const ::Ice::Current&) const;
-    virtual void removeObject(const ::Ice::ObjectPrx&, const ::Ice::Current&) const;
+    virtual void addObject(const ::Ice::ObjectPrx&, const ::Ice::Current&);
+    virtual void addObjectWithType(const ::Ice::ObjectPrx&, const ::std::string&, const ::Ice::Current&);
+    virtual void removeObject(const ::Ice::ObjectPrx&, const ::Ice::Current&);
 
     virtual bool pingNode(const std::string&, const Ice::Current&) const;
     virtual void shutdownNode(const std::string&, const Ice::Current&);

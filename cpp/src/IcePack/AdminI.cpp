@@ -1370,7 +1370,7 @@ IcePack::AdminI::getAllAdapterIds(const Current&) const
 }
 
 void 
-IcePack::AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current) const
+IcePack::AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
 {
     ObjectDescriptor desc;
     desc.proxy = proxy;
@@ -1388,7 +1388,7 @@ IcePack::AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& cu
 }
 
 void 
-IcePack::AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current&) const
+IcePack::AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const ::Ice::Current&)
 {
     ObjectDescriptor desc;
     desc.proxy = proxy;
@@ -1397,7 +1397,7 @@ IcePack::AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& ty
 }
 
 void 
-IcePack::AdminI::removeObject(const Ice::ObjectPrx& proxy, const Ice::Current&) const
+IcePack::AdminI::removeObject(const Ice::ObjectPrx& proxy, const Ice::Current&)
 {
     _objectRegistry->remove(proxy);
 }
