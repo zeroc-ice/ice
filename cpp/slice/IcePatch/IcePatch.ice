@@ -63,7 +63,6 @@ interface Regular extends File
 class RegularDesc extends FileDesc
 {
     Regular* regular;
-    int size;
     Ice::ByteSeq md5;
 };
 
