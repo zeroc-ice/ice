@@ -22,6 +22,12 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
+#
+# For LD_LIBRARY_PATH and similar env variables
+#
+sys.path.append(os.path.join(toplevel, "config"))
+import TestUtil
+
 directory = os.path.join(toplevel, "test", "Slice", "errorDetection")
 slice2cpp = os.path.join(toplevel, "bin", "slice2cpp")
 
@@ -32,6 +38,7 @@ for file in os.listdir(directory):
         files.append(file)
 
 files.sort()
+
 for file in files:
 
     print file + "...",
