@@ -35,7 +35,7 @@ public class AllTests
         test(obj.equals(base));
         System.out.println("ok");
 
-        System.out.print("creating, activating and deactivating a new object adapter in one operation... ");
+        System.out.print("creating/activating/deactivating object adapter in one operation... ");
         System.out.flush();
         obj._transient();
         System.out.println("ok");

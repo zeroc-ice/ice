@@ -533,6 +533,15 @@
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
+                <File
+                    RelPath = "generated\TransportInfo.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "generated\TransportInfoF.cs"
+                    BuildAction = "Compile"
+                />
             </Include>
         </Files>
     </CSHARP>
