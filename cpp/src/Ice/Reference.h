@@ -47,6 +47,9 @@ public:
     const std::string& getFacet() const { return _facet; }
     bool getSecure() const { return _secure; }
     const InstancePtr& getInstance() const { return _instance; }
+    const Ice::Context& getContext() const;
+
+    ReferencePtr defaultContext() const;
 
     virtual std::vector<EndpointPtr> getEndpoints() const = 0;
     virtual bool getCollocationOptimization() const = 0;
@@ -56,11 +59,9 @@ public:
     // a new reference based on the existing one, with the
     // corresponding value changed.
     //
+    ReferencePtr changeContext(const Ice::Context&) const;
     ReferencePtr changeMode(Mode) const;
     ReferencePtr changeIdentity(const Ice::Identity&) const;
-    const Ice::Context& getContext() const;
-    ReferencePtr changeContext(const Ice::Context&) const;
-    ReferencePtr defaultContext() const;
     bool hasContext() const { return _hasContext; }
     ReferencePtr changeFacet(const std::string&) const;
     ReferencePtr changeSecure(bool) const;

@@ -32,6 +32,38 @@ using namespace IceInternal;
 void IceInternal::incRef(IceInternal::Reference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::Reference* p) { p->__decRef(); }
 
+const Context&
+IceInternal::Reference::getContext() const
+{
+    return _hasContext ? _context : _instance->getDefaultContext();
+}
+
+ReferencePtr
+IceInternal::Reference::defaultContext() const
+{
+    if(!_hasContext)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    ReferencePtr r = _instance->referenceFactory()->copy(this);
+    r->_hasContext = false;
+    r->_context.clear();
+    return r;
+}
+
+ReferencePtr
+IceInternal::Reference::changeContext(const Context& newContext) const
+{
+    if(_hasContext && newContext == _context)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    ReferencePtr r = _instance->referenceFactory()->copy(this);
+    r->_hasContext = true;
+    r->_context = newContext;
+    return r;
+}
+
 ReferencePtr
 IceInternal::Reference::changeMode(Mode newMode) const
 {
@@ -53,38 +85,6 @@ IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
     }
     ReferencePtr r = _instance->referenceFactory()->copy(this);
     r->_identity = newIdentity;
-    return r;
-}
-
-const Context&
-IceInternal::Reference::getContext() const
-{
-    return _hasContext ? _context : _instance->getDefaultContext();
-}
-
-ReferencePtr
-IceInternal::Reference::changeContext(const Context& newContext) const
-{
-    if(_hasContext && newContext == _context)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_hasContext = true;
-    r->_context = newContext;
-    return r;
-}
-
-ReferencePtr
-IceInternal::Reference::defaultContext() const
-{
-    if(!_hasContext)
-    {
-	return ReferencePtr(const_cast<Reference*>(this));
-    }
-    ReferencePtr r = _instance->referenceFactory()->copy(this);
-    r->_hasContext = false;
-    r->_context.clear();
     return r;
 }
 
