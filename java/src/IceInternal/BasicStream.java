@@ -1644,11 +1644,12 @@ public class BasicStream
     {
         UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
 
-        while(factory == null)
+        if(factory == null)
         {
-            if(factory == null)
+            String className = typeToClass(id);
+
+            while(factory == null)
             {
-                String className = typeToClass(id);
                 Class c = null;
                 try
                 {
