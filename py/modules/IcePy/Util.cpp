@@ -339,6 +339,8 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     catch(const Ice::UnsupportedProtocolException& e)
     {
         IcePy::PyObjectHandle m;
+        m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
+        PyObject_SetAttrString(p, "reason", m.get());
         m = PyInt_FromLong(e.badMajor);
         PyObject_SetAttrString(p, "badMajor", m.get());
         m = PyInt_FromLong(e.badMinor);
@@ -351,6 +353,8 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     catch(const Ice::UnsupportedEncodingException& e)
     {
         IcePy::PyObjectHandle m;
+        m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
+        PyObject_SetAttrString(p, "reason", m.get());
         m = PyInt_FromLong(e.badMajor);
         PyObject_SetAttrString(p, "badMajor", m.get());
         m = PyInt_FromLong(e.badMinor);
@@ -360,7 +364,15 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         m = PyInt_FromLong(e.minor);
         PyObject_SetAttrString(p, "minor", m.get());
     }
-    catch(const Ice::CompressionException& e)
+    catch(const Ice::NoObjectFactoryException& e)
+    {
+        IcePy::PyObjectHandle m;
+        m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
+        PyObject_SetAttrString(p, "reason", m.get());
+        m = PyString_FromString(const_cast<char*>(e.type.c_str()));
+        PyObject_SetAttrString(p, "type", m.get());
+    }
+    catch(const Ice::ProtocolException& e)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
         PyObject_SetAttrString(p, "reason", m.get());
@@ -369,11 +381,6 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     {
         IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.reason.c_str()));
         PyObject_SetAttrString(p, "reason", m.get());
-    }
-    catch(const Ice::NoObjectFactoryException& e)
-    {
-        IcePy::PyObjectHandle m = PyString_FromString(const_cast<char*>(e.type.c_str()));
-        PyObject_SetAttrString(p, "type", m.get());
     }
     catch(const Ice::AlreadyRegisteredException& e)
     {
