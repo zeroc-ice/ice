@@ -1,0 +1,89 @@
+Microsoft Developer Studio Workspace File, Format Version 6.00
+# WARNING: DO NOT EDIT OR DELETE THIS WORKSPACE FILE!
+
+###############################################################################
+
+Project: "all"=.\all.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name latencyIceC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name latencyIceS
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name throughputIceC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name throughputIceS
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "latencyIceC"=.\src\Ice\latency\latencyIceC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "latencyIceS"=.\src\Ice\latency\latencyIceS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "throughputIceC"=.\src\Ice\throughput\throughputIceC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "throughputIceS"=.\src\Ice\throughput\throughputIceS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Global:
+
+Package=<5>
+{{{
+}}}
+
+Package=<3>
+{{{
+}}}
+
+###############################################################################
+
