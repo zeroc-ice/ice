@@ -220,6 +220,11 @@ startHook(void* arg)
 IceUtil::ThreadControl
 IceUtil::Thread::start()
 {
+    //
+    // Keep this alive for the duration of start
+    //
+    IceUtil::ThreadPtr keepMe = this;
+
     IceUtil::Mutex::Lock lock(_stateMutex);
 
     if(_started)
@@ -501,6 +506,11 @@ startHook(void* arg)
 IceUtil::ThreadControl
 IceUtil::Thread::start()
 {
+    //
+    // Keep this alive for the duration of start
+    //
+    IceUtil::ThreadPtr keepMe = this;
+
     IceUtil::Mutex::Lock lock(_stateMutex);
 
     if(_started)

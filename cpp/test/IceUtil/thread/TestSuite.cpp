@@ -31,9 +31,9 @@ initializeTestSuite()
 {
     allTests.push_back(new MutexTest);
     allTests.push_back(new CountDownLatchTest);
+    allTests.push_back(new StartTest);
     allTests.push_back(new CreateTest);
     allTests.push_back(new AliveTest);
-    allTests.push_back(new StartTest);
     allTests.push_back(new RecMutexTest);
     allTests.push_back(new RWRecMutexTest);
     allTests.push_back(new StaticMutexTest);

@@ -63,4 +63,17 @@ StartTest::run()
 	gotException = true;
     }
     test(gotException);
+
+    //
+    // Now let's create a bunch of short-lived threads
+    //
+    for(int i = 0; i < 50; i++)
+    {
+	for(int j = 0; j < 50; j++)
+	{
+	    Thread* t = new StartTestThread;
+	    t->start().detach();
+	}
+	ThreadControl::sleep(Time::milliSeconds(5));
+    }
 }
