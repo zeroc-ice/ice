@@ -11,7 +11,7 @@
 #include <Ice/UdpTransceiver.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
@@ -31,9 +31,8 @@ IceInternal::UdpTransceiver::close()
 {
     if (_traceLevels->network >= 1)
     {
-	ostringstream s;
-	s << "closing " << _protocolName << " connection\n" << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "closing " << _protocolName << " connection\n" << toString();
     }
 
     SOCKET fd = _fd;
@@ -72,9 +71,8 @@ repeat:
 
     if (_traceLevels->network >= 3)
     {
-	ostringstream s;
-	s << "sent " << ret << " bytes via " << _protocolName << "\n" << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "sent " << ret << " bytes via " << _protocolName << "\n" << toString();
     }
     
     assert(ret == static_cast<int>(buf.b.size()));
@@ -109,9 +107,8 @@ repeat:
 
 	    if (_traceLevels->network >= 1)
 	    {
-		ostringstream s;
-		s << "connected " << _protocolName << " socket\n" << toString();
-		_logger->trace(_traceLevels->networkCat, s.str());
+		Trace out(_logger, _traceLevels->networkCat);
+		out << "connected " << _protocolName << " socket\n" << toString();
 	    }
 	}
     }
@@ -134,9 +131,8 @@ repeat:
     
     if (_traceLevels->network >= 3)
     {
-	ostringstream s;
-	s << "received " << ret << " bytes via " << _protocolName << "\n" << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "received " << ret << " bytes via " << _protocolName << "\n" << toString();
     }
 
     buf.b.resize(ret);
@@ -199,9 +195,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance,
 	
 	if (_traceLevels->network >= 1)
 	{
-	    ostringstream s;
-	    s << "starting to send " << _protocolName << " packets\n" << toString();
-	    _logger->trace(_traceLevels->networkCat, s.str());
+	    Trace out(_logger, _traceLevels->networkCat);
+	    out << "starting to send " << _protocolName << " packets\n" << toString();
 	}
     }
     catch(...)
@@ -232,9 +227,8 @@ IceInternal::UdpTransceiver::UdpTransceiver(const InstancePtr& instance, int por
 	    
 	if (_traceLevels->network >= 1)
 	{
-	    ostringstream s;
-	    s << "starting to receive " << _protocolName << " packets\n" << toString();
-	    _logger->trace(_traceLevels->networkCat, s.str());
+	    Trace out(_logger, _traceLevels->networkCat);
+	    out << "starting to receive " << _protocolName << " packets\n" << toString();
 	}
     }
     catch(...)

@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef SLICE_OUTPUT_UTIL_H
-#define SLICE_OUTPUT_UTIL_H
+#ifndef ICE_UTIL_OUTPUT_UTIL_H
+#define ICE_UTIL_OUTPUT_UTIL_H
 
 #include <IceUtil/Config.h>
 #include <fstream>
@@ -18,54 +18,8 @@
 namespace IceUtil
 {
 
-//
-// Common.
-//
-class ICE_UTIL_API NextLine { };
-class ICE_UTIL_API Separator { };
-
-extern ICE_UTIL_API NextLine nl;
-extern ICE_UTIL_API Separator sp;
-
-//
-// XMLOutput
-//
-class ICE_UTIL_API StartElement
-{
-public:
-
-    StartElement(const std::string& name)
-	: _name(name)
-    {
-    }
-    
-    ~StartElement()
-    {
-    }
-
-    const std::string& getName() const { return _name; }
-
-private:
-
-    const std::string _name;
-};
-
-class ICE_UTIL_API EndElement { };
-
-typedef StartElement se;
-extern ICE_UTIL_API EndElement ee;
-
-//
-// For Output
-//
-class ICE_UTIL_API EndBlock { };
-class ICE_UTIL_API StartBlock { };
-
-extern ICE_UTIL_API StartBlock sb;
-extern ICE_UTIL_API EndBlock eb;
-
 // ----------------------------------------------------------------------
-// Indent
+// OutputBase
 // ----------------------------------------------------------------------
 
 //
@@ -85,24 +39,24 @@ public:
 
     virtual ~OutputBase() { }
 
-    void setIndent(int);              // what is the indent level?
-    void setUseTab(bool);             // should we output tabs?
+    void setIndent(int); // What is the indent level?
+    void setUseTab(bool); // Should we output tabs?
 
-    void open(const char*); // Open output stream
+    void open(const char*); // Open output stream.
 
-    virtual void print(const char*); // Print a string
+    virtual void print(const char*); // Print a string.
 
-    void inc(); // Increment indentation level
-    void dec(); // Decrement indentation level
+    void inc(); // Increment indentation level.
+    void dec(); // Decrement indentation level.
 
-    void useCurrentPosAsIndent(); // Save the current position as indentation
-    void zeroIndent(); // Use zero identation
-    void restoreIndent(); // Restore indentation
+    void useCurrentPosAsIndent(); // Save the current position as indentation.
+    void zeroIndent(); // Use zero identation.
+    void restoreIndent(); // Restore indentation.
 
-    virtual void nl(); // Print newline
-    void sp(); // Print separator
+    virtual void nl(); // Print newline.
+    void sp(); // Print separator.
 
-    bool operator!() const; // Check whether the output state is ok
+    bool operator!() const; // Check whether the output state is ok.
 
 protected:
 
@@ -110,12 +64,21 @@ protected:
     std::ostream& _out;
     int _pos;
     int _indent;
+    int _indentSize;
     std::stack<int> _indentSave;
-    bool _separator;
-
     bool _useTab;
-    int  _indentSize;
+    bool _separator;
 };
+
+class ICE_UTIL_API NextLine { };
+extern ICE_UTIL_API NextLine nl;
+
+class ICE_UTIL_API Separator { };
+extern ICE_UTIL_API Separator sp;
+
+// ----------------------------------------------------------------------
+// Output
+// ----------------------------------------------------------------------
 
 class ICE_UTIL_API Output : public OutputBase
 {
@@ -128,8 +91,8 @@ public:
     void setBeginBlock(const char *); // what do we use at block starts?
     void setEndBlock(const char *);   // what do we use the block end?
 
-    void sb(); // Start a block
-    void eb(); // End a block
+    void sb(); // Start a block.
+    void eb(); // End a block.
 
 private:
 
@@ -137,33 +100,6 @@ private:
     std::string _blockEnd;
 };
 
-class ICE_UTIL_API XMLOutput : public OutputBase
-{
-public:
-
-    XMLOutput();
-    XMLOutput(std::ostream&);
-    XMLOutput(const char*);
-
-    void setSGML(bool);
-    virtual void print(const char*); // Print a string
-
-    virtual void nl(); // Print newline
-
-    void se(const std::string&); // Start an element
-    void ee(); // End an element
-
-private:
-
-    std::stack<std::string> _elementStack;
-    bool _printed;
-    bool _sgml;
-};
-
-//
-// Unfortunately, it's not possible to define operator<< for
-// OutputBase for nl, seperator, etc.
-//
 template<typename T>
 Output&
 operator<<(Output& out, const T& val)
@@ -190,6 +126,9 @@ operator<<(Output& o, const Separator&)
     return o;
 }
 
+class ICE_UTIL_API StartBlock { };
+extern ICE_UTIL_API StartBlock sb;
+
 template<>
 inline Output&
 operator<<(Output& o, const StartBlock&)
@@ -197,6 +136,9 @@ operator<<(Output& o, const StartBlock&)
     o.sb();
     return o;
 }
+
+class ICE_UTIL_API EndBlock { };
+extern ICE_UTIL_API EndBlock eb;
 
 template<>
 inline Output&
@@ -207,6 +149,33 @@ operator<<(Output& o, const EndBlock&)
 }
 
 ICE_UTIL_API Output& operator<<(Output&, std::ios_base& (*)(std::ios_base&));
+
+// ----------------------------------------------------------------------
+// XMLOutput
+// ----------------------------------------------------------------------
+
+class ICE_UTIL_API XMLOutput : public OutputBase
+{
+public:
+
+    XMLOutput();
+    XMLOutput(std::ostream&);
+    XMLOutput(const char*);
+
+    void setSGML(bool);
+    virtual void print(const char*); // Print a string.
+
+    virtual void nl(); // Print newline.
+
+    void se(const std::string&); // Start an element.
+    void ee(); // End an element.
+
+private:
+
+    std::stack<std::string> _elementStack;
+    bool _printed;
+    bool _sgml;
+};
 
 template<typename T>
 XMLOutput&
@@ -234,6 +203,27 @@ operator<<(XMLOutput& o, const Separator&)
     return o;
 }
 
+class ICE_UTIL_API StartElement
+{
+public:
+
+    StartElement(const std::string& name)
+	: _name(name)
+    {
+    }
+    
+    ~StartElement()
+    {
+    }
+
+    const std::string& getName() const { return _name; }
+
+private:
+
+    const std::string _name;
+};
+typedef StartElement se;
+
 template<>
 inline XMLOutput&
 operator<<(XMLOutput& o, const StartElement& e)
@@ -241,6 +231,9 @@ operator<<(XMLOutput& o, const StartElement& e)
     o.se(e.getName());
     return o;
 }
+
+class ICE_UTIL_API EndElement { };
+extern ICE_UTIL_API EndElement ee;
 
 template<>
 inline XMLOutput&

@@ -25,16 +25,16 @@ EndElement ee;
 }
 
 // ----------------------------------------------------------------------
-// Output
+// OutputBase
 // ----------------------------------------------------------------------
 
 IceUtil::OutputBase::OutputBase() :
     _out(_fout),
     _pos(0),
     _indent(0),
-    _separator(true),
+    _indentSize(4),
     _useTab(true),
-    _indentSize(4)
+    _separator(true)
 {
 }
 
@@ -42,9 +42,9 @@ IceUtil::OutputBase::OutputBase(ostream& os) :
     _out(os),
     _pos(0),
     _indent(0),
-    _separator(true),
+    _indentSize(4),
     _useTab(true),
-    _indentSize(4)
+    _separator(true)
 {
 }
 
@@ -53,9 +53,9 @@ IceUtil::OutputBase::OutputBase(const char* s) :
     _out(_fout),
     _pos(0),
     _indent(0),
-    _separator(true),
+    _indentSize(4),
     _useTab(true),
-    _indentSize(4)
+    _separator(true)
 {
     open(s);
 }
@@ -184,6 +184,10 @@ IceUtil::OutputBase::operator!() const
     return !_out;
 }
 
+// ----------------------------------------------------------------------
+// Output
+// ----------------------------------------------------------------------
+
 IceUtil::Output::Output() :
     OutputBase(),
     _blockStart("{"),
@@ -241,6 +245,19 @@ IceUtil::Output::eb()
     }
     --_pos;
 }
+
+Output&
+IceUtil::operator<<(Output& out, ios_base& (*val)(ios_base&))
+{
+    ostringstream s;
+    s << val;
+    out.print(s.str().c_str());
+    return out;
+}
+
+// ----------------------------------------------------------------------
+// XMLOutput
+// ----------------------------------------------------------------------
 
 IceUtil::XMLOutput::XMLOutput() :
     OutputBase(),
@@ -346,17 +363,6 @@ IceUtil::XMLOutput::ee()
     --_pos; // TODO: ???
     _printed = true;
 }
-
-
-Output&
-IceUtil::operator<<(Output& out, ios_base& (*val)(ios_base&))
-{
-    ostringstream s;
-    s << val;
-    out.print(s.str().c_str());
-    return out;
-}
-
 
 XMLOutput&
 IceUtil::operator<<(XMLOutput& out, ios_base& (*val)(ios_base&))

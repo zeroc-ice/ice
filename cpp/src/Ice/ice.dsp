@@ -196,6 +196,10 @@ SOURCE=.\Logger.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\LoggerUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\LoggerI.cpp
 # End Source File
 # Begin Source File
@@ -577,6 +581,10 @@ SOURCE=..\..\include\Ice\LocalObjectF.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Logger.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\LoggerUtil.h
 # End Source File
 # Begin Source File
 

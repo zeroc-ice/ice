@@ -25,11 +25,12 @@ OBJS		= Initialize.o \
 		  Properties.o \
 		  PropertiesI.o \
 		  Logger.o \
+		  LoggerUtil.o \
 		  LoggerI.o \
+		  SysLoggerI.o \
 		  Stream.o \
 		  BuiltinSequences.o \
 		  BasicStream.o \
-		  SysLoggerI.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
 		  Instance.o \

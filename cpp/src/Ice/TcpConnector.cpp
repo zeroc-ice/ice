@@ -12,7 +12,7 @@
 #include <Ice/TcpTransceiver.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
 
@@ -25,9 +25,8 @@ IceInternal::TcpConnector::connect(int timeout)
 {
     if (_traceLevels->network >= 2)
     {
-	ostringstream s;
-	s << "trying to establish tcp connection to " << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "trying to establish tcp connection to " << toString();
     }
 
     SOCKET fd = createSocket(false);
@@ -35,9 +34,8 @@ IceInternal::TcpConnector::connect(int timeout)
 
     if (_traceLevels->network >= 1)
     {
-	ostringstream s;
-	s << "tcp connection established\n" << fdToString(fd);
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "tcp connection established\n" << fdToString(fd);
     }
 
     return new TcpTransceiver(_instance, fd);

@@ -11,7 +11,7 @@
 #include <Ice/TcpTransceiver.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
@@ -31,9 +31,8 @@ IceInternal::TcpTransceiver::close()
 {
     if (_traceLevels->network >= 1)
     {
-	ostringstream s;
-	s << "closing tcp connection\n" << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "closing tcp connection\n" << toString();
     }
 
     SOCKET fd = _fd;
@@ -47,9 +46,8 @@ IceInternal::TcpTransceiver::shutdown()
 {
     if (_traceLevels->network >= 2)
     {
-	ostringstream s;
-	s << "shutting down tcp connection\n" << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "shutting down tcp connection\n" << toString();
     }
 
     ::shutdown(_fd, SHUT_WR); // Shutdown socket for writing
@@ -151,9 +149,8 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 
 	if (_traceLevels->network >= 3)
 	{
-	    ostringstream s;
-	    s << "sent " << ret << " of " << packetSize << " bytes via tcp\n" << toString();
-	    _logger->trace(_traceLevels->networkCat, s.str());
+	    Trace out(_logger, _traceLevels->networkCat);
+	    out << "sent " << ret << " of " << packetSize << " bytes via tcp\n" << toString();
 	}
 
 	buf.i += ret;
@@ -251,9 +248,8 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 
 	if (_traceLevels->network >= 3)
 	{
-	    ostringstream s;
-	    s << "received " << ret << " of " << packetSize << " bytes via tcp\n" << toString();
-	    _logger->trace(_traceLevels->networkCat, s.str());
+	    Trace out(_logger, _traceLevels->networkCat);
+	    out << "received " << ret << " of " << packetSize << " bytes via tcp\n" << toString();
 	}
 
 	buf.i += ret;

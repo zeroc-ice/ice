@@ -17,7 +17,7 @@
 #include <Ice/ObjectFactoryManager.h>
 #include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/Exception.h>
 
 using namespace std;
@@ -243,6 +243,7 @@ Ice::CommunicatorI::~CommunicatorI()
 {
     if (_instance)
     {
-	_instance->logger()->warning("communicator has not been destroyed");
+	Warning out(_instance->logger());
+	out << "communicator has not been destroyed";
     }
 }

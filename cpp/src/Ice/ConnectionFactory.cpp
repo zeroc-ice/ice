@@ -11,7 +11,7 @@
 #include <Ice/ConnectionFactory.h>
 #include <Ice/Connection.h>
 #include <Ice/Instance.h>
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Properties.h>
 #include <Ice/Transceiver.h>
@@ -124,18 +124,17 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
 
 	if (traceLevels->retry >= 2)
 	{
-	    ostringstream s;
-	    s << "connection to endpoint failed";
+	    Trace out(logger, traceLevels->retryCat);
+	    out << "connection to endpoint failed";
 	    if (q != endpoints.end())
 	    {
-		s << ", trying next endpoint\n";
+		out << ", trying next endpoint\n";
 	    }
 	    else
 	    {
-		s << " and no more endpoints to try\n";
+		out << " and no more endpoints to try\n";
 	    }
-	    s << *exception.get();
-	    logger->trace(traceLevels->retryCat, s.str());
+	    out << *exception.get();
 	}
     }
 
@@ -332,13 +331,11 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&)
     {
         // TODO: bandaid. Takes care of SSL Handshake problems during
         // creation of a Transceiver. Ignore, nothing we can do here.
-        warning(ex);
     }
     catch (const SocketException& ex)
     {
         // TODO: bandaid. Takes care of SSL Handshake problems during
         // creation of a Transceiver. Ignore, nothing we can do here.
-        warning(ex);
     }
     catch (const TimeoutException&)
     {
@@ -346,7 +343,11 @@ IceInternal::IncomingConnectionFactory::message(BasicStream&)
     }
     catch (const LocalException& ex)
     {
-	warning(ex);
+	if (_warn)
+	{
+	    Warning out(_instance->logger());
+	    out << "connection exception:\n" << ex << '\n' << _acceptor->toString();
+	}
         setState(StateClosed);
     }
 
@@ -517,16 +518,5 @@ IceInternal::IncomingConnectionFactory::clearBacklog()
 	{
 	    break;
 	}
-    }
-}
-
-void
-IceInternal::IncomingConnectionFactory::warning(const LocalException& ex) const
-{
-    if (_warn)
-    {
-	ostringstream s;
-	s << "connection exception:\n" << ex << '\n' << _acceptor->toString();
-	_instance->logger()->warning(s.str());
     }
 }

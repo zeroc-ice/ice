@@ -14,7 +14,7 @@
 #include <Ice/Exception.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/Functional.h>
 #include <Ice/Protocol.h>
 #include <Ice/ObjectAdapterFactory.h>
@@ -75,8 +75,9 @@ IceInternal::ThreadPool::waitUntilServerFinished()
 
     if (_servers != 0)
     {
-	_instance->logger()->error("can't wait for graceful server termination in thread pool\n"
-				   "since all threads have vanished");
+	Error out(_instance->logger());
+	out << "can't wait for graceful server termination in thread pool\n"
+	    << "since all threads have vanished";
     }
 }
 
@@ -92,8 +93,9 @@ IceInternal::ThreadPool::waitUntilFinished()
 
     if (!_handlerMap.empty())
     {
-	_instance->logger()->error("can't wait for graceful application termination in thread pool\n"
-				   "since all threads have vanished");
+	Error out(_instance->logger());
+	out << "can't wait for graceful application termination in thread pool\n"
+	    << "since all threads have vanished";
     }
 }
 
@@ -365,9 +367,8 @@ IceInternal::ThreadPool::run()
 	    //
 	    if (fdSet.fd_count == 0)
 	    {
-		ostringstream s;
-		s << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
-		_instance->logger()->error(s.str());
+		Error out(_instance->logger());
+		out << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
 		goto repeatSelect;
 	    }
 
@@ -418,9 +419,8 @@ IceInternal::ThreadPool::run()
 
 	    if (loops > 1)
 	    {
-		ostringstream s;
-		s << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
-		_instance->logger()->error(s.str());
+		Error out(_instance->logger());
+		out << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
 		goto repeatSelect;
 	    }
 #endif
@@ -434,9 +434,8 @@ IceInternal::ThreadPool::run()
 	    map<SOCKET, EventHandlerPtr>::iterator p = _handlerMap.find(_lastFd);
 	    if(p == _handlerMap.end())
 	    {
-		ostringstream s;
-		s << "filedescriptor " << _lastFd << " not registered with the thread pool";
-		_instance->logger()->error(s.str());
+		Error out(_instance->logger());
+		out << "filedescriptor " << _lastFd << " not registered with the thread pool";
 		goto repeatSelect;
 	    }
 	    
@@ -537,13 +536,13 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     }
     catch (const Exception& ex)
     {	
-	ostringstream s;
-	s << "exception in thread pool:\n" << ex;
-	_pool->_instance->logger()->error(s.str());
+	Error out(_pool->_instance->logger());
+	out << "exception in thread pool:\n" << ex;
     }
     catch (...)
     {
-	_pool->_instance->logger()->error("unknown exception in thread pool");
+	Error out(_pool->_instance->logger());
+	out << "unknown exception in thread pool";
     }
 
     {

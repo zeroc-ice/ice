@@ -18,7 +18,7 @@
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
 #include <Ice/Instance.h>
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/ConnectionFactory.h>
 #include <Ice/Connection.h>
@@ -555,18 +555,16 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     {
 	if (traceLevels->retry >= 1)
 	{
-	    ostringstream s;
-	    s << "cannot retry operation call because retry limit has been exceeded\n" << ex;
-	    logger->trace(traceLevels->retryCat, s.str());
+	    Trace out(logger, traceLevels->retryCat);
+	    out << "cannot retry operation call because retry limit has been exceeded\n" << ex;
 	}
 	ex.ice_throw();
     }
 
     if (traceLevels->retry >= 1)
     {
-	ostringstream s;
-	s << "re-trying operation call because of exception\n" << ex;
-	logger->trace(traceLevels->retryCat, s.str());
+	Trace out(logger, traceLevels->retryCat);
+	out << "re-trying operation call because of exception\n" << ex;
     }
 
     //
@@ -595,9 +593,8 @@ IceProxy::Ice::Object::__locationForward(const LocationForward& ex)
 
     if (traceLevels->locationForward >= 1)
     {
-	ostringstream s;
-	s << "location forward for object with identity `" << _reference.identity << "'";
-	logger->trace(traceLevels->locationForwardCat, s.str());
+	Trace out(logger, traceLevels->retryCat);
+	out << "location forward for object with identity `" << _reference.identity << "'";
     }
 */
 }

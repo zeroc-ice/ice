@@ -90,7 +90,6 @@ private:
 
     void setState(State);
     void clearBacklog();
-    void warning(const ::Ice::LocalException&) const;
 
     EndpointPtr _endpoint;
     ::Ice::ObjectAdapterPtr _adapter;

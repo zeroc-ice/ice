@@ -10,7 +10,7 @@
 
 #include <Ice/Connection.h>
 #include <Ice/Instance.h>
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/Transceiver.h>
@@ -370,10 +370,9 @@ IceInternal::Connection::message(BasicStream& stream)
 		    {
 			if (_warn)
 			{
-			    ostringstream s;
-			    s << "ignoring close connection message for datagram connection:\n"
-			      << _transceiver->toString();
-			    _logger->warning(s.str());
+			    Warning out(_logger);
+			    out << "ignoring close connection message for datagram connection:\n"
+				<< _transceiver->toString();
 			}
 		    }
 		    else
@@ -442,22 +441,21 @@ IceInternal::Connection::message(BasicStream& stream)
 		    IceUtil::RecMutex::Lock sync(*this);
 		    if (_warn)
 		    {
-			ostringstream s;
-			s << "connection exception:\n" << ex << '\n' << _transceiver->toString();
-			_logger->warning(s.str());
+			Warning out(_logger);
+			out << "connection exception:\n" << ex << '\n' << _transceiver->toString();
 		    }
 		}
 		catch (const UserException& ex)
 		{
 		    IceUtil::RecMutex::Lock sync(*this);
-		    ostringstream s;
-		    s << "unknown user exception:\n" << ex << '\n' << _transceiver->toString();
-		    _logger->error(s.str());
+		    Error out(_logger);
+		    out << "unknown user exception:\n" << ex << '\n' << _transceiver->toString();
 		}
 		catch (...)
 		{
 		    IceUtil::RecMutex::Lock sync(*this);
-		    _logger->error("unknown exception");
+		    Error out(_logger);
+		    out << "unknown exception";
 		}
 	    }
 	    while (batch && is->i < is->b.end());
@@ -620,9 +618,8 @@ IceInternal::Connection::setState(State state, const LocalException& ex)
 		  dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) ||
 		  (dynamic_cast<const ConnectionLostException*>(&ex) && _state == StateClosing)))
 	    {
-		ostringstream s;
-		s << "connection exception:\n" << ex << '\n' << _transceiver->toString();
-		_logger->warning(s.str());
+		Warning out(_logger);
+		out << "connection exception:\n" << ex << '\n' << _transceiver->toString();
 	    }
 	}
     }

@@ -12,7 +12,7 @@
 #include <Ice/TcpTransceiver.h>
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
 
@@ -31,9 +31,8 @@ IceInternal::TcpAcceptor::close()
 {
     if (_traceLevels->network >= 1)
     {
-	ostringstream s;
-	s << "stopping to accept tcp connections at " << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "stopping to accept tcp connections at " << toString();
     }
 
     SOCKET fd = _fd;
@@ -46,9 +45,8 @@ IceInternal::TcpAcceptor::shutdown()
 {
     if (_traceLevels->network >= 2)
     {
-	ostringstream s;
-	s << "shutting down accepting tcp connections at " << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "shutting down accepting tcp connections at " << toString();
     }
 
     ::shutdown(_fd, SHUT_RD); // Shutdown socket for reading
@@ -69,9 +67,8 @@ IceInternal::TcpAcceptor::listen()
 
     if (_traceLevels->network >= 1)
     {
-	ostringstream s;
-	s << "accepting tcp connections at " << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "accepting tcp connections at " << toString();
     }
 }
 
@@ -82,9 +79,8 @@ IceInternal::TcpAcceptor::accept(int timeout)
 
     if (_traceLevels->network >= 1)
     {
-	ostringstream s;
-	s << "accepted tcp connection\n" << fdToString(fd);
-	_logger->trace(_traceLevels->networkCat, s.str());
+	Trace out(_logger, _traceLevels->networkCat);
+	out << "accepted tcp connection\n" << fdToString(fd);
     }
 
     return new TcpTransceiver(_instance, fd);
