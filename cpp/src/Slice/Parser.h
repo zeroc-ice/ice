@@ -274,6 +274,17 @@ public:
     std::string scoped();
     std::string scope();
 
+    enum ContainedType
+    {
+	ContainedTypeVector,
+	ContainedTypeNative,
+	ContainedTypeModule,
+	ContainedTypeClass,
+	ContainedTypeOperation,
+	ContainedTypeDataMember
+    };
+    virtual ContainedType containedType() = 0;
+
 protected:
 
     Contained(const Container_ptr&,
@@ -310,6 +321,7 @@ public:
     bool hasOtherConstructedTypes(); // Other than classes
     std::string thisScope();
     void mergeModules();
+    void sort();
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -328,6 +340,7 @@ class ICE_API Module : virtual public Container, virtual public Contained
 {
 public:
 
+    virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -361,6 +374,7 @@ public:
 
     ClassDef_ptr definition();
     bool local();
+    virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -394,6 +408,7 @@ public:
     std::list<DataMember_ptr> dataMembers();
     bool abstract();
     bool local();
+    virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -437,6 +452,7 @@ public:
     TypeNameList inputParameters();
     TypeNameList outputParameters();
     TypeList throws();
+    virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -464,6 +480,7 @@ class ICE_API DataMember : virtual public Contained
 public:
 
     Type_ptr type();
+    virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -484,6 +501,7 @@ class Native : virtual public Constructed
 {
 public:
 
+    virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -502,6 +520,7 @@ class ICE_API Vector : virtual public Constructed
 public:
 
     Type_ptr type();
+    virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -522,7 +541,9 @@ class ICE_API Parser : virtual public Container
 {
 public:
 
-    static Parser_ptr createParser();
+    static Parser_ptr createParser(bool, bool);
+
+    bool ignRedefs();
 
     void nextLine();
     void scanPosition(const char*);
@@ -550,8 +571,10 @@ public:
 
 private:
 
-    Parser();
+    Parser(bool, bool);
 
+    bool ignRedefs_;
+    bool all_;
     int currentLine_;
     int currentIncludeLevel_;
     std::string currentFile_;

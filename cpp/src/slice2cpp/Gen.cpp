@@ -117,8 +117,8 @@ Slice::Gen::generate(const Parser_ptr& parser)
 	C << "\n#include <Ice/Stream.h>";
     }
 
-    vector<string> includes = parser -> includeFiles();
-    for(vector<string>::iterator q = includes.begin();
+    list<string> includes = parser -> includeFiles();
+    for(list<string>::iterator q = includes.begin();
 	q != includes.end();
 	++q)
     {
@@ -1021,13 +1021,13 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDef_ptr& p)
     string name = p -> name();
     string scoped = p -> scoped();
 
-    vector<Operation_ptr> operations = p -> operations();
+    list<Operation_ptr> operations = p -> operations();
     ClassDef_ptr base = p -> base();
     
     if(!p -> local() && !operations.empty())
     {
-	sort(operations.begin(), operations.end());
-	vector<Operation_ptr>::iterator op;
+	operations.sort();
+	list<Operation_ptr>::iterator op;
     
 	H << sp;
 	H << nl << "typedef ::__Ice::DispatchStatus (" << name
@@ -1041,11 +1041,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDef_ptr& p)
 	C << nl << scoped << "::__Op " << scoped.substr(2)
 	  << "::__ops[" << operations.size() << "] =";
 	C << sb;
-	for(op = operations.begin(); op != operations.end(); ++op)
+	op = operations.begin();
+	while(op != operations.end())
 	{
 	    C << nl << '&' << scoped.substr(2) << "::___"
 	      << (*op) -> name();
-	    if(op + 1 != operations.end())
+	    if(++op != operations.end())
 		C << ',';
 	}
 	C << eb << ';';
@@ -1053,10 +1054,11 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDef_ptr& p)
 	C << nl << "std::string " << scoped.substr(2)
 	  << "::__names[" << operations.size() << "] =";
 	C << sb;
-	for(op = operations.begin(); op != operations.end(); ++op)
+	op = operations.begin();
+	while(op != operations.end())
 	{
 	    C << nl << '"' << (*op) -> name() << '"';
-	    if(op + 1 != operations.end())
+	    if(++op != operations.end())
 		C << ',';
 	}
 	C << eb << ';';
@@ -1102,8 +1104,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDef_ptr& p)
     H << nl << "virtual void __read(::__Ice::Stream*);";
     H << eb << ';';
     TypeNameList memberList;
-    vector<DataMember_ptr> dataMembers = p -> dataMembers();
-    vector<DataMember_ptr>::const_iterator q;
+    list<DataMember_ptr> dataMembers = p -> dataMembers();
+    list<DataMember_ptr>::const_iterator q;
     for(q = dataMembers.begin(); q != dataMembers.end(); ++q)
 	memberList.push_back(make_pair((*q) -> type(), (*q) -> name()));
     C << sp;

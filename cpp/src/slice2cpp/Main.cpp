@@ -168,7 +168,7 @@ main(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
 	
-	Parser_ptr parser = Parser::createParser();
+	Parser_ptr parser = Parser::createParser(false, false);
 	int status = parser -> parse(cppHandle, debug);
 	
 #ifdef WIN32

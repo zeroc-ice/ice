@@ -159,6 +159,10 @@ Slice::Contained::Contained(const Container_ptr& container,
 bool
 Slice::operator<(Contained& l, Contained& r)
 {
+    if(l.containedType() != r.containedType())
+	return static_cast<int>(l.containedType()) <
+	       static_cast<int>(r.containedType());
+
     return l.name() < r.name();
 }
 
@@ -193,7 +197,7 @@ Slice::Container::createModule(const string& name)
 	if(module)
 	    continue; // Reopening modules is permissible
 	
-	assert(false); // TODO: Already exits
+	assert(false); // TODO: Already exists and not a module
     }
 
     Module_ptr q = new Module(this, name);
@@ -203,8 +207,8 @@ Slice::Container::createModule(const string& name)
 
 ClassDef_ptr
 Slice::Container::createClassDef(const string& name,
-				   const ClassDef_ptr& base,
-				   bool local)
+				 const ClassDef_ptr& base,
+				 bool local)
 {
     list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
     for(list<Contained_ptr>::iterator p = matches.begin();
@@ -212,9 +216,17 @@ Slice::Container::createClassDef(const string& name,
 	++p)
     {
 	ClassDecl_ptr cl = ClassDecl_ptr::dynamicCast(*p);
-	assert(cl); // TODO: Already exits
+	if(cl)
+	    continue; // TODO: Check whether locality matches
 
-	// TODO: Check whether locality matches
+	if(parser_ -> ignRedefs())
+	{
+	    ClassDef_ptr def = ClassDef_ptr::dynamicCast(*p);
+	    if(def)
+		return def;
+	}
+
+	assert(false); // TODO: Already exists and not a class declaration
     }
     
     ClassDef_ptr def = new ClassDef(this, name, base, local);
@@ -259,8 +271,9 @@ Slice::Container::createClassDecl(const string& name, bool local)
 	ClassDecl_ptr clDecl = ClassDecl_ptr::dynamicCast(*p);
 	if(clDecl)
 	    continue; // TODO: Check whether locality matches
-    
-	assert(false); // TODO: Not a class
+
+	// TODO: Already defined as something other than a class
+	assert(false);
     }
 
     //
@@ -295,7 +308,17 @@ Native_ptr
 Slice::Container::createNative(const string& name)
 {
     list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
-    assert(matches.empty()); // TODO: Already exits
+    if(!matches.empty())
+    {
+	if(parser_ -> ignRedefs())
+	{
+	    Native_ptr p = Native_ptr::dynamicCast(matches.front());
+	    if(p)
+		return p;
+	}
+	
+	assert(false); // TODO: Already exits
+    }
 
     Native_ptr p = new Native(this, name);
     contents_.push_back(p);
@@ -306,7 +329,17 @@ Vector_ptr
 Slice::Container::createVector(const string& name, const Type_ptr& type)
 {
     list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
-    assert(matches.empty()); // TODO: Already exits
+    if(!matches.empty())
+    {
+	if(parser_ -> ignRedefs())
+	{
+	    Vector_ptr p = Vector_ptr::dynamicCast(matches.front());
+	    if(p)
+		return p;
+	}
+	
+	assert(false); // TODO: Already exits
+    }
 
     Vector_ptr p = new Vector(this, name, type);
     contents_.push_back(p);
@@ -446,37 +479,51 @@ Slice::Container::mergeModules()
     for(list<Contained_ptr>::iterator p = contents_.begin();
 	p != contents_.end();
 	++p)
-   {
-       Module_ptr mod1 = Module_ptr::dynamicCast(*p);
-       if(!mod1)
-	   continue;
+    {
+	Module_ptr mod1 = Module_ptr::dynamicCast(*p);
+	if(!mod1)
+	    continue;
+	
+	list<Contained_ptr>::iterator q = p;
+	++q;
+	while(q != contents_.end())
+	{
+	    Module_ptr mod2 = Module_ptr::dynamicCast(*q);
+	    if(!mod2)
+	    {
+		++q;
+		continue;
+	    }
+	    
+	    if(mod1 -> name() != mod2 -> name())
+	    {
+		++q;
+		continue;
+	    }
+	    
+	    mod1 -> contents_.splice(mod1 -> contents_.end(),
+				     mod2 -> contents_);
+	    parser_ -> removeContent(*q);
+	    q = contents_.erase(q);
+	}
+	
+	mod1 -> mergeModules();
+    }
+}
 
-       list<Contained_ptr>::iterator q = p;
-       ++q;
-       while(q != contents_.end())
-       {
-	   Module_ptr mod2 = Module_ptr::dynamicCast(*q);
-	   if(!mod2)
-	   {
-	       ++q;
-	       continue;
-	   }
+void
+Slice::Container::sort()
+{
+    for(list<Contained_ptr>::iterator p = contents_.begin();
+	p != contents_.end();
+	++p)
+    {
+	Container_ptr container = Module_ptr::dynamicCast(*p);
+	if(container)
+	    container -> sort();
+    }
 
-	   if(mod1 -> name() != mod2 -> name())
-	   {
-	       ++q;
-	       continue;
-	   }
-
-	   copy(mod2 -> contents_.begin(), mod2 -> contents_.end(),
-		back_inserter(mod1 -> contents_));
-	   mod2 -> contents_.empty();
-	   parser_ -> removeContent(*q);
-	   q = contents_.erase(q);
-       }
-
-       mod1 -> mergeModules();
-   }
+    contents_.sort();
 }
 
 void
@@ -502,6 +549,12 @@ Slice::Container::Container(const Parser_ptr& parser)
 // ----------------------------------------------------------------------
 // Module
 // ----------------------------------------------------------------------
+
+Slice::Contained::ContainedType
+Slice::Module::containedType()
+{
+    return ContainedTypeModule;
+}
 
 void
 Slice::Module::visit(ParserVisitor* visitor)
@@ -550,6 +603,12 @@ Slice::ClassDecl::local()
     return local_;
 }
 
+Slice::Contained::ContainedType
+Slice::ClassDecl::containedType()
+{
+    return ContainedTypeClass;
+}
+
 void
 Slice::ClassDecl::visit(ParserVisitor* visitor)
 {
@@ -586,7 +645,17 @@ Slice::ClassDef::createOperation(const string& name,
 				   const TypeList& throws)
 {
     list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
-    assert(matches.empty()); // TODO: Already exits
+    if(!matches.empty())
+    {
+	if(parser_ -> ignRedefs())
+	{
+	    Operation_ptr p = Operation_ptr::dynamicCast(matches.front());
+	    if(p)
+		return p;
+	}
+	
+	assert(false); // TODO: Already exits
+    }
 
     Operation_ptr p = new Operation(this, name, returnType,
 				    inParams, outParams, throws);
@@ -598,7 +667,17 @@ DataMember_ptr
 Slice::ClassDef::createDataMember(const string& name, const Type_ptr& type)
 {
     list<Contained_ptr> matches = parser_ -> findContents(thisScope() + name);
-    assert(matches.empty()); // TODO: Already exits
+    if(!matches.empty())
+    {
+	if(parser_ -> ignRedefs())
+	{
+	    DataMember_ptr p = DataMember_ptr::dynamicCast(matches.front());
+	    if(p)
+		return p;
+	}
+
+	assert(false); // TODO: Already exits
+    }
 
     DataMember_ptr p = new DataMember(this, name, type);
     contents_.push_back(p);
@@ -664,6 +743,12 @@ Slice::ClassDef::local()
     return local_;
 }
 
+Slice::Contained::ContainedType
+Slice::ClassDef::containedType()
+{
+    return ContainedTypeClass;
+}
+
 void
 Slice::ClassDef::visit(ParserVisitor* visitor)
 {
@@ -676,9 +761,9 @@ Slice::ClassDef::visit(ParserVisitor* visitor)
 }
 
 Slice::ClassDef::ClassDef(const Container_ptr& container,
-			    const string& name,
-			    const ClassDef_ptr& base,
-			    bool local)
+			  const string& name,
+			  const ClassDef_ptr& base,
+			  bool local)
     : Contained(container, name),
       Container(container -> parser()),
       SyntaxTreeBase(container -> parser()),
@@ -732,6 +817,12 @@ Slice::Operation::throws()
     return throws_;
 }
 
+Slice::Contained::ContainedType
+Slice::Operation::containedType()
+{
+    return ContainedTypeOperation;
+}
+
 void
 Slice::Operation::visit(ParserVisitor* visitor)
 {
@@ -762,6 +853,13 @@ Slice::DataMember::type()
 {
     return type_;
 }
+
+Slice::Contained::ContainedType
+Slice::DataMember::containedType()
+{
+    return ContainedTypeDataMember;
+}
+
 void
 Slice::DataMember::visit(ParserVisitor* visitor)
 {
@@ -780,6 +878,12 @@ Slice::DataMember::DataMember(const Container_ptr& container,
 // ----------------------------------------------------------------------
 // Native
 // ----------------------------------------------------------------------
+
+Slice::Contained::ContainedType
+Slice::Native::containedType()
+{
+    return ContainedTypeNative;
+}
 
 void
 Slice::Native::visit(ParserVisitor* visitor)
@@ -806,6 +910,12 @@ Slice::Vector::type()
     return type_;
 }
 
+Slice::Contained::ContainedType
+Slice::Vector::containedType()
+{
+    return ContainedTypeVector;
+}
+
 void
 Slice::Vector::visit(ParserVisitor* visitor)
 {
@@ -828,9 +938,15 @@ Slice::Vector::Vector(const Container_ptr& container,
 // ----------------------------------------------------------------------
 
 Parser_ptr
-Slice::Parser::createParser()
+Slice::Parser::createParser(bool ignRedefs, bool all)
 {
-    return new Parser;
+    return new Parser(ignRedefs, all);
+}
+
+bool
+Slice::Parser::ignRedefs()
+{
+    return ignRedefs_;
 }
 
 void
@@ -905,7 +1021,10 @@ Slice::Parser::scanPosition(const char* s)
 int
 Slice::Parser::currentIncludeLevel()
 {
-    return currentIncludeLevel_;
+    if(all_)
+	return 0;
+    else
+	return currentIncludeLevel_;
 }
 
 void
@@ -955,11 +1074,13 @@ Slice::Parser::removeContent(const Contained_ptr& contained)
     assert(p != contentMap_.end());
     list<Contained_ptr>::iterator q;
     for(q = p -> second.begin(); q != p -> second.end(); ++q)
+    {
 	if(q -> get() == contained.get())
 	{
 	    p -> second.erase(q);
 	    return;
 	}
+    }
     assert(false);
 }
 
@@ -1036,9 +1157,11 @@ Slice::Parser::builtin(Builtin::Kind kind)
     return builtin;
 }
 
-Slice::Parser::Parser()
+Slice::Parser::Parser(bool ignRedefs, bool all)
     : SyntaxTreeBase(0),
-      Container(0)
+      Container(0),
+      ignRedefs_(ignRedefs),
+      all_(all)
 {
     parser_ = this;
 }
