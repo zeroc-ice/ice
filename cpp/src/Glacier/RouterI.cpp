@@ -53,15 +53,18 @@ Glacier::RouterI::destroy()
 
     {
 	IceUtil::Mutex::Lock lock(_sessionMutex);
-	try
+	if(_session)
 	{
-	    _session->destroy();
+	    try
+	    {
+		_session->destroy();
+	    }
+	    catch(...)
+	    {
+		// Ignore all exceptions.
+	    }
+	    _session = 0;
 	}
-	catch(...)
-	{
-	    // Ignore all exceptions.
-	}
-	_session = 0;
     }
 }
 
