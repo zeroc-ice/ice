@@ -2293,7 +2293,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << sb;
 	if(op->returnsData())
 	{
-	    out << "__checkTwowayOnly(\"" << opName << "\");";
+	    out << nl << "__checkTwowayOnly(\"" << opName << "\");";
 	}
         out << nl << "Ice._ObjectDel __delBase = __getDelegate();";
         out << nl << '_' << name << "Del __del = (_" << name << "Del)__delBase;";
@@ -2356,7 +2356,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << sb;
 	    if(op->returnsData())
 	    {
-		out << "__checkTwowayOnly(\"" << opName << "\");";
+		out << nl << "__checkTwowayOnly(\"" << opName << "\");";
 	    }
 	    out << nl << "Ice._ObjectDel __delBase = __getDelegate();";
 	    out << nl << '_' << name << "Del __del = (_" << name
