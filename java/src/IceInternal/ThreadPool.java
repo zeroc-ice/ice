@@ -192,7 +192,15 @@ public final class ThreadPool
         }
         catch (RuntimeException ex)
         {
+	    java.io.StringWriter sw = new java.io.StringWriter();
+	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	    ex.printStackTrace(pw);
+	    pw.flush();
+	    String s = "cannot create threads for thread pool:\n" + sw.toString();
+	    _instance.logger().error(s);
+
             destroy();
+	    joinWithAllThreads();
             throw ex;
         }
     }

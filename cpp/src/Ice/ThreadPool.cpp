@@ -142,13 +142,15 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, bool server) :
 	    _threads.push_back(thread->start());
 	}
     }
-    catch (const IceUtil::Exception&)
+    catch (const IceUtil::Exception& ex)
     {
-	//
-	// TODO: This doesn't look correct to me -- where are the
-	// started threads joined with in the event of a failure?
-	//
+	{
+	    Error out(_instance->logger());
+	    out << "cannot create threads for thread pool:\n" << ex;
+	}
+
 	destroy();
+	joinWithAllThreads();
 	throw;
     }
 }

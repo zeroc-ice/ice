@@ -187,13 +187,12 @@ Glacier::RouterApp::run(int argc, char* argv[])
 	serverAdapter = communicator()->createObjectAdapterFromProperty("Server", serverEndpointsProperty);
     }
 
-    const char* allowCategoriesProperty = "Glacier.Router.AllowCategories";
-    string allowCategories = properties->getProperty(allowCategoriesProperty);
-
     //
     // Create the client and server blobjects and the associated
     // servant locators.
     //
+    const char* allowCategoriesProperty = "Glacier.Router.AllowCategories";
+    string allowCategories = properties->getProperty(allowCategoriesProperty);
     ObjectPtr clientBlobject = new ClientBlobject(communicator(), routingTable, allowCategories);
     Ice::ServantLocatorPtr clientServantLocator = new Glacier::ServantLocator(clientBlobject);
     clientAdapter->addServantLocator(clientServantLocator, "");
@@ -282,6 +281,9 @@ Glacier::RouterApp::run(int argc, char* argv[])
     //
     // Destroy the router. The client and server blobjects get
     // destroyed by ServantLocator::deactivate.
+    //
+    // Destroying the router will also destroy all sessions associated
+    // with the router.
     //
     RouterI* rtr = dynamic_cast<RouterI*>(router.get());
     assert(rtr);

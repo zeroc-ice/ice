@@ -28,15 +28,17 @@ Glacier::ClientBlobject::ClientBlobject(const CommunicatorPtr& communicator,
     _traceLevel = properties->getPropertyAsInt("Glacier.Router.Trace.Client");
 
     const string ws = " \t";
-    size_t current = allowCategories.find_first_not_of(ws, 0);
+    string::size_type current = allowCategories.find_first_not_of(ws, 0);
     while (current != string::npos)
     {
-	size_t pos = allowCategories.find_first_of(ws, current);
-	size_t len = (pos == string::npos) ? string::npos : pos - current;
+	string::size_type pos = allowCategories.find_first_of(ws, current);
+	string::size_type len = (pos == string::npos) ? string::npos : pos - current;
 	string category = allowCategories.substr(current, len);
-	_allowCategories.insert(category);
+	_allowCategories.push_back(category);
 	current = allowCategories.find_first_not_of(ws, pos);
     }
+    sort(_allowCategories.begin(), _allowCategories.end()); // Must be sorted.
+    _allowCategories.erase(unique(_allowCategories.begin(), _allowCategories.end()), _allowCategories.end());
 }
 
 Glacier::ClientBlobject::~ClientBlobject()
@@ -63,11 +65,11 @@ Glacier::ClientBlobject::ice_invoke(const std::vector<Byte>& inParams, std::vect
     assert(_communicator); // Destroyed?
 
     //
-    // If there is an allowCategories set then enforce it.
+    // If there is an _allowCategories set then enforce it.
     //
     if (!_allowCategories.empty())
     {
-	if (_allowCategories.find(current.identity.category) == _allowCategories.end())
+	if (!binary_search(_allowCategories.begin(), _allowCategories.end(), current.identity.category))
 	{
 	    if (_traceLevel > 0)
 	    {

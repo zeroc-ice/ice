@@ -36,7 +36,7 @@ public:
 
     HelloSessionI(const ::std::string&, const HelloSessionManagerIPtr&);
 
-    virtual void stop(const Ice::Current&);
+    virtual void destroy(const Ice::Current&);
     virtual void hello(const Ice::Current&);
 
 private:

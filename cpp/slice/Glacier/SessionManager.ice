@@ -19,7 +19,7 @@ module Glacier
 /**
  *
  * The Session Manager, which is responsible for managing [Session]
- * objects. New Session objects are created from the [Router] object.
+ * objects. New session objects are created from the [Router] object.
  *
  * @see Session
  *

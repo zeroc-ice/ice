@@ -43,13 +43,13 @@ HelloSessionI::HelloSessionI(const string& userId, const HelloSessionManagerIPtr
 }
 
 void
-HelloSessionI::hello(const Ice::Current&)
+HelloSessionI::destroy(const Ice::Current& current)
 {
-    cout << "Hello " << _userId << endl;
+    _manager->remove(current.identity);
 }
 
 void
-HelloSessionI::stop(const Ice::Current& current)
+HelloSessionI::hello(const Ice::Current&)
 {
-    _manager->remove(current.identity);
+    cout << "Hello " << _userId << endl;
 }

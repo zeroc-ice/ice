@@ -37,6 +37,7 @@ Glacier::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
 Glacier::RouterI::~RouterI()
 {
     assert(!_clientAdapter);
+    assert(_sessions.empty());
 }
 
 void
@@ -50,6 +51,11 @@ Glacier::RouterI::destroy()
     _serverAdapter = 0;
     _logger = 0;
     _routingTable = 0;
+    for (vector<SessionPrx>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
+    {
+	(*p)->destroy();
+    }
+    _sessions.clear();
 }
 
 ObjectPrx
@@ -94,14 +100,6 @@ Glacier::RouterI::shutdown(const Current&)
 {
     assert(_routingTable);
     _clientAdapter->getCommunicator()->shutdown();
-
-    IceUtil::Mutex::Lock lock(_sessionMutex);
-
-    for (list<SessionPrx>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
-    {
-	(*p)->stop();
-    }
-    _sessions.clear();
 }
 
 SessionPrx

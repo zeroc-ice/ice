@@ -5,7 +5,3 @@ Ice.ThreadPool.Size=50
 #Ice.Trace.Network=1
 #Ice.Trace.Protocol=1
 #Ice.ConnectionWarnings=1
-
-Ice.Security.Ssl.CertPath=../../../certs
-Ice.Security.Ssl.Config=sslconfig.xml
-

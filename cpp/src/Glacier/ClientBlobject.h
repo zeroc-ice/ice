@@ -23,7 +23,7 @@ class ClientBlobject : public Ice::Blobject
 {
 public:
 
-    ClientBlobject(const Ice::CommunicatorPtr&, const IceInternal::RoutingTablePtr&, const ::std::string&);
+    ClientBlobject(const Ice::CommunicatorPtr&, const IceInternal::RoutingTablePtr&, const std::string&);
     virtual ~ClientBlobject();
 
     void destroy();
@@ -35,8 +35,7 @@ private:
     Ice::LoggerPtr _logger;
     int _traceLevel;
     IceInternal::RoutingTablePtr _routingTable;
-
-    ::std::set< ::std::string> _allowCategories;
+    std::vector<std::string> _allowCategories;
 };
 
 }

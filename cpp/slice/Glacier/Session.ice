@@ -16,7 +16,7 @@ module Glacier
 
 /**
  *
- * A Session object which is tied to the lifecycle of an [Router].
+ * A session object, which is tied to the lifecycle of an [Router].
  *
  * @see Router
  * @see SessionManager
@@ -26,11 +26,11 @@ interface Session
 {
     /**
      *
-     * Stop the session. This is called automatically when the
-     * [Router] terminates.
+     * Destroy the session. This is called automatically when the
+     * [Router] is destroyed.
      *
      **/
-    void stop();
+    void destroy();
 };
 
 };

@@ -69,12 +69,6 @@ public class AllTests
                 {
                     System.out.println("ok");
                 }
-                /* TODO: SSL
-                catch (IceSecurity.SecurityException ex)
-                {
-                    System.out.println("ok");
-                }
-                */
             }
             else if (j == 2)
             {
@@ -90,12 +84,6 @@ public class AllTests
                 {
                     System.out.println("ok");
                 }
-                /* TODO: SSL
-                catch (IceSecurity.SecurityException ex)
-                {
-                    System.out.println("ok");
-                }
-                */
                 ++i;
             }
             else
@@ -115,11 +103,5 @@ public class AllTests
         {
             System.out.println("ok");
         }
-        /* TODO: SSL
-        catch (IceSecurity.SecurityException ex)
-        {
-            System.out.println("ok");
-        }
-        */
     }
 }

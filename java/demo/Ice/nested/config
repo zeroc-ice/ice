@@ -7,9 +7,6 @@ Ice.ThreadPool.Size=50
 #Ice.Trace.Protocol=1
 #Ice.ConnectionWarnings=1
 
-Ice.Security.Ssl.CertPath=../../../certs
-Ice.Security.Ssl.Config=sslconfig.xml
-
 Glacier.Router.Endpoints=default -p 10005
 Glacier.Client.Endpoints=default
 Glacier.Server.Endpoints=default

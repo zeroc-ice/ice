@@ -13,11 +13,8 @@
 
 #include <Ice/RoutingTableF.h>
 #include <Ice/Ice.h>
-
 #include <Glacier/Router.h>
 #include <Glacier/SessionManagerF.h>
-
-#include <list>
 
 namespace Glacier
 {
@@ -27,7 +24,7 @@ class RouterI : public Router
 public:
 
     RouterI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const ::IceInternal::RoutingTablePtr&,
-	    const SessionManagerPrx&, const ::std::string&);
+	    const SessionManagerPrx&, const std::string&);
 	    
     virtual ~RouterI();
 
@@ -49,8 +46,8 @@ private:
 
     IceUtil::Mutex _sessionMutex;
     SessionManagerPrx _sessionManager;
-    ::std::list<SessionPrx> _sessions;
-    ::std::string _userId;
+    std::vector<SessionPrx> _sessions;
+    std::string _userId;
 };
 
 }
