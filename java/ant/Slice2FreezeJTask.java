@@ -31,6 +31,7 @@ import java.io.FileOutputStream;
  *   translator - The pathname of the translator (default: "slice2java").
  *   tagdir - The directory in which tag files are located (default: ".").
  *   outputdir - The value for the --output-dir translator option.
+ *   binary - Enables --binary option.
  *
  * Nested elements:
  *
@@ -83,6 +84,12 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
     setOutputdir(File dir)
     {
         _outputDir = dir;
+    }
+
+    public void
+    setBinary(boolean binary)
+    {
+        _binary = binary;
     }
 
     public Path
@@ -232,7 +239,15 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	    cmd.append(" --output-dir ");
 	    cmd.append(_outputDir.toString());
 	}
-	
+
+        //
+        // Add --binary
+        //
+        if(_binary)
+        {
+            cmd.append(" --binary");
+        }
+
 	//
 	// Add include directives
 	//
@@ -286,8 +301,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	    }
 	    catch(java.io.IOException ex)
 	    {
-		throw new BuildException("Unable to create tag file " +
-					 tag + ": " + ex);
+		throw new BuildException("Unable to create tag file " + tag + ": " + ex);
 	    }
 	}
     }
@@ -295,6 +309,7 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
     private File _translator = new File("slice2freezej");
     private File _tagDir = new File(".");
     private File _outputDir = null;
+    private boolean _binary = false;
     private Path _includePath = null;
     private java.util.List _fileSets = new java.util.LinkedList();
 
