@@ -21,7 +21,8 @@ SUBDIRS		= IceUtil \
 		  Ice \
 		  Freeze \
 		  IceStorm \
-		  IcePack
+		  IcePack \
+		  IceWall
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
