@@ -1132,7 +1132,7 @@ public final class ConnectionI extends IceInternal.EventHandler implements Conne
 	    //
 	    if(info.outAsync != null)
 	    {
-		info.outAsync.__finished(stream);
+		info.outAsync.__finished(info.stream);
 	    }
 
 	    //
