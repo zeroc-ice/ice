@@ -110,7 +110,12 @@ IcePatch::DirectoryI::describe(const Current& current) const
     // No mutex lock necessary.
     DirectoryDescPtr desc = new DirectoryDesc;
     desc->md5 = readMD5(current);
-    desc->dir = DirectoryPrx::uncheckedCast(_adapter->createProxy(current.id));
+    
+    //
+    // We want compression for directories, to compress directory
+    // listings on the fly.
+    //
+    desc->dir = DirectoryPrx::uncheckedCast(_adapter->createProxy(current.id)->ice_compress(true));
     return desc;
 }
 
@@ -198,7 +203,13 @@ IcePatch::RegularI::describe(const Current& current) const
     // No mutex lock necessary.
     RegularDescPtr desc = new RegularDesc;
     desc->md5 = readMD5(current);
-    desc->reg = RegularPrx::uncheckedCast(_adapter->createProxy(current.id));
+
+    //
+    // We do not want compression for regular files, because we
+    // download pre-compressed files.
+    //
+    desc->reg = RegularPrx::uncheckedCast(_adapter->createProxy(current.id)->ice_compress(false));
+
     return desc;
 }
 
