@@ -40,7 +40,6 @@ class ServantLocatorI(Ice.ServantLocator):
         test(self._deactivated)
 
     def locate(self, current):
-        print "locate returning TestI"
         test(not self._deactivated)
 
         test(current.id.category == '')
@@ -49,7 +48,6 @@ class ServantLocatorI(Ice.ServantLocator):
         return (TestI(), CookieI())
 
     def finished(self, current, servant, cookie):
-        print "finished received " + cookie.message()
         test(not self._deactivated)
 
         test(isinstance(cookie, Test.Cookie))
