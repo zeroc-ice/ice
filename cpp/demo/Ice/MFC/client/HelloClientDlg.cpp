@@ -66,7 +66,7 @@ CHelloClientDlg::OnInitDialog()
     //
     //Ice::ObjectPrx obj = _communicator->stringToProxy("hello:tcp -p 10000:udp -p 10000:ssl -p 10001");
     Ice::ObjectPrx obj = _communicator->stringToProxy("hello:tcp -p 10000:udp -p 10000");
-    _proxy = HelloPrx::uncheckedCast(obj);
+    _proxy = Demo::HelloPrx::uncheckedCast(obj);
     _currentProxy = _proxy;
     _status->SetWindowText(CString(" Ready"));
 
@@ -214,11 +214,11 @@ CHelloClientDlg::updateProxy()
 
     if(proxy->ice_isTwoway())
     {
-        _currentProxy = HelloPrx::checkedCast(proxy);
+        _currentProxy = Demo::HelloPrx::checkedCast(proxy);
     }
     else
     {
-        _currentProxy = HelloPrx::uncheckedCast(proxy);
+        _currentProxy = Demo::HelloPrx::uncheckedCast(proxy);
     }
     _currentMode = mode;
     _useSecure = secure;

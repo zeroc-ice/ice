@@ -15,7 +15,7 @@
 
 class CDialog;
 
-class HelloI : public Hello
+class HelloI : public Demo::Hello
 {
 public:
 

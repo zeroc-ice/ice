@@ -31,8 +31,8 @@ protected:
     CButton* _secure;
     CButton* _timeout;
     CStatic* _status;
-    HelloPrx _proxy;
-    HelloPrx _currentProxy;
+    Demo::HelloPrx _proxy;
+    Demo::HelloPrx _currentProxy;
     int _currentMode;
     bool _useSecure;
     bool _useTimeout;
