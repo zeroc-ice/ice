@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Eliminated Glacier's dependency on the crypt library. It now
+  uses an equivalent function from OpenSSL.
+
 - Fixed a bug that could cause a crash if an application used
   Ice::Application and was interrupted by a signal, resulting
   in two calls to Communicator::destroy().
