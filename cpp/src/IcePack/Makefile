@@ -75,9 +75,6 @@ SRCS		= $(LIB_OBJS:.o=.cpp) \
 		  IcePackNode.cpp \
 		  IcePackRegistry.cpp
 
-SLICE_SRCS	= $(SDIR)/Admin.ice \
-		  Internal.ice
-
 HDIR		= $(includedir)/IcePack
 LOCAL_HDIR	= ../IcePack
 SDIR		= $(slicedir)/IcePack
@@ -153,8 +150,6 @@ $(LOCAL_HDIR)/StringObjectProxyDict.h StringObjectProxyDict.cpp: $(SLICE2FREEZE)
 	StringObjectProxyDict ../../slice/Ice/BuiltinSequences.ice
 
 clean::
-include .slicedepend
 	rm -f StringObjectProxyDict.h StringObjectProxySeq.cpp
-
 
 include .depend
