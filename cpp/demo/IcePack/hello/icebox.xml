@@ -1,6 +1,6 @@
 <icepack>
 
-  <server name="${name}" kind="cpp-icebox" endpoints="default" exe="${ice.dir}/bin/icebox" activation="on-demand">
+  <server name="${name}" kind="cpp-icebox" endpoints="default" activation="on-demand">
 
     <!-- =========================================================== -->
     <!-- Deploys one service named 'Service1' and defined in the     -->
