@@ -20,6 +20,8 @@ TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::Logger
     adapterCat("Adapter"),
     activator(0),
     activatorCat("Activator"),
+    applicationRegistry(0),
+    applicationRegistryCat("ApplicationRegistry"),
     serverRegistry(0),
     serverRegistryCat("ServerRegistry"),
     adapterRegistry(0),
@@ -36,6 +38,7 @@ TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::Logger
     const_cast<int&>(activator) = properties->getPropertyAsInt(nodeKeyBase + activatorCat);
 
     const string registryKeyBase = "IcePack.Registry.Trace.";
+    const_cast<int&>(applicationRegistry) = properties->getPropertyAsInt(registryKeyBase + applicationRegistryCat);
     const_cast<int&>(serverRegistry) = properties->getPropertyAsInt(registryKeyBase + serverRegistryCat);
     const_cast<int&>(adapterRegistry) = properties->getPropertyAsInt(registryKeyBase + adapterRegistryCat);
     const_cast<int&>(objectRegistry) = properties->getPropertyAsInt(registryKeyBase + objectRegistryCat);

@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 ws2_32.lib setargv.obj /nologo /subsystem:console /machine:I386
+# ADD LINK32 ws2_32.lib setargv.obj /nologo /subsystem:console /machine:I386 /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
@@ -83,7 +83,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib setargv.obj /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 ws2_32.lib setargv.obj /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
@@ -107,10 +107,6 @@ SOURCE=.\Activator.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ActivatorI.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\AdapterFactory.cpp
 # End Source File
 # Begin Source File
@@ -127,11 +123,19 @@ SOURCE=.\AdminI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ApplicationBuilder.cpp
+SOURCE=.\ApplicationRegistryI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ComponentBuilder.cpp
+SOURCE=.\DescriptorParser.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DescriptorUtil.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DescriptorVisitor.cpp
 # End Source File
 # Begin Source File
 
@@ -159,10 +163,6 @@ SOURCE=.\NodeI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\NodeInfo.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\NodeRegistryI.cpp
 # End Source File
 # Begin Source File
@@ -183,14 +183,6 @@ SOURCE=.\ServerAdapterI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServerBuilder.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServerDeployerI.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\ServerFactory.cpp
 # End Source File
 # Begin Source File
@@ -203,15 +195,19 @@ SOURCE=.\ServerRegistryI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServiceBuilder.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\StringObjectProxyDict.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\StringObjectProxySeqDict.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StringServerDescriptorDict.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StringStringSeqDict.cpp
 # End Source File
 # Begin Source File
 
@@ -347,45 +343,6 @@ SOURCE=.\WaitQueue.h
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # Begin Source File
 
-SOURCE=.\Activator.ice
-
-!IF  "$(CFG)" == "IcePackNode - Win32 Release"
-
-USERDEP__ACTIV="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
-# Begin Custom Build
-InputPath=.\Activator.ice
-
-BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I.. -I../../slice ./Activator.ice
-
-".\Activator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Activator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "IcePackNode - Win32 Debug"
-
-USERDEP__ACTIV="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
-# Begin Custom Build
-InputPath=.\Activator.ice
-
-BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --include-dir IcePack -I.. -I../../slice ./Activator.ice
-
-".\Activator.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"Activator.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=.\dummy1.ice
 
 !IF  "$(CFG)" == "IcePackNode - Win32 Release"
@@ -411,7 +368,7 @@ USERDEP__DUMMY="..\..\bin\slice2freeze.exe"	"..\..\lib\sliced.lib"
 InputPath=.\dummy1.ice
 
 BuildCmds= \
-	..\..\bin\slice2freeze.exe --ice -I.. -I../../slice --include-dir IcePack  --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescription IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IcePack/Internal.ice
+	..\..\bin\slice2freeze.exe --ice -I.. -I../../slice --include-dir IcePack  --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescriptor IdentityObjectDescDict ../../slice/Ice/Identity.ice ../IcePack/Internal.ice
 
 "IdentityObjectDescDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -429,7 +386,6 @@ SOURCE=.\dummy2.ice
 
 !IF  "$(CFG)" == "IcePackNode - Win32 Release"
 
-d.lib"	
 # Begin Custom Build
 InputPath=.\dummy2.ice
 
@@ -495,6 +451,80 @@ BuildCmds= \
    $(BuildCmds)
 
 "StringObjectProxySeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\dummy4.ice
+
+!IF  "$(CFG)" == "IcePackNode - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\dummy4.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack  --dict IcePack::StringStringSeqDict,string,Ice::StringSeq StringStringSeqDict ../../slice/Ice/BuiltinSequences.ice
+
+"StringStringSeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringStringSeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "IcePackNode - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\dummy4.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack  --dict IcePack::StringStringSeqDict,string,Ice::StringSeq StringStringSeqDict ../../slice/Ice/BuiltinSequences.ice
+
+"StringStringSeqDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringStringSeqDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=.\dummy5.ice
+
+!IF  "$(CFG)" == "IcePackNode - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\dummy5.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack  --dict IcePack::StringServerDescriptorDict,string,IcePack::ServerDescriptor StringServerDescriptorDict ../../slice/IcePack/Admin.ice
+
+"StringServerDescriptorDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringServerDescriptorDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "IcePackNode - Win32 Debug"
+
+# Begin Custom Build
+InputPath=.\dummy5.ice
+
+BuildCmds= \
+	..\..\bin\slice2freeze.exe --ice -I../../slice --include-dir IcePack  --dict IcePack::StringServerDescriptorDict,string,IcePack::ServerDescriptor StringServerDescriptorDict ../../slice/IcePack/Admin.ice
+
+"StringServerDescriptorDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringServerDescriptorDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 

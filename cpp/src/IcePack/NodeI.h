@@ -11,27 +11,37 @@
 #define ICE_PACK_NODE_I_H
 
 #include <IcePack/Internal.h>
-#include <IcePack/Activator.h>
 
 namespace IcePack
 {
+
+class Activator;
+typedef IceUtil::Handle<Activator> ActivatorPtr;
+
+class ServerFactory;
+typedef IceUtil::Handle<ServerFactory> ServerFactoryPtr;
 
 class NodeI : public Node
 {
 public:
 
-    NodeI(const ActivatorPtr&, const std::string&, const ServerDeployerPrx&);
+    NodeI(const ActivatorPtr&, const std::string&, const ServerFactoryPtr&, const Ice::PropertiesPtr&);
 
-    virtual std::string getName(const Ice::Current& = Ice::Current()) const;
-    virtual IcePack::ServerDeployerPrx getServerDeployer(const Ice::Current& = Ice::Current()) const;
-    virtual void shutdown(const Ice::Current& = Ice::Current()) const;
+    virtual ServerPrx createServer(const std::string&, const ServerDescriptorPtr&, const Ice::Current&) const;
+    virtual ServerAdapterPrx createServerAdapter(const ServerPrx&, const std::string&, const Ice::Current&) const;
+
+    virtual std::string createTmpDir(const Ice::Current&) const;
+    virtual void destroyTmpDir(const std::string&, const Ice::Current&) const;
+
+    virtual std::string getName(const Ice::Current&) const;
+    virtual void shutdown(const Ice::Current&) const;
 
 private:
 
-    ActivatorPtr _activator;
-    std::string _name;
-    ServerDeployerPrx _deployer;
-
+    const ActivatorPtr _activator;
+    const std::string _name;
+    const ServerFactoryPtr _factory;
+    std::string _tmpDir;
 };
 
 }

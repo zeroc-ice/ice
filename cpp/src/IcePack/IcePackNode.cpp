@@ -7,20 +7,18 @@
 //
 // **********************************************************************
 
+#include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
 #include <Ice/Service.h>
 #include <IcePack/Activator.h>
 #include <IcePack/WaitQueue.h>
 #include <IcePack/Registry.h>
-#include <IcePack/ActivatorI.h>
 #include <IcePack/ServerFactory.h>
 #include <IcePack/AdapterFactory.h>
-#include <IcePack/ServerDeployerI.h>
 #include <IcePack/AdapterI.h>
 #include <IcePack/NodeI.h>
-#include <IcePack/NodeInfo.h>
 #include <IcePack/TraceLevels.h>
-#include <IceUtil/UUID.h>
+#include <IcePack/DescriptorParser.h>
 
 #ifdef _WIN32
 #   include <direct.h>
@@ -125,6 +123,7 @@ IcePack::NodeService::start(int argc, char* argv[])
 #endif
 
     bool nowarn = false;
+    bool checkdb = false;
     string descriptor;
     vector<string> targets;
     for(int i = 1; i < argc; ++i)
@@ -159,6 +158,10 @@ IcePack::NodeService::start(int argc, char* argv[])
                 targets.push_back(argv[i]);
             }
         }
+        else if(strcmp(argv[i], "--checkdb") == 0)
+        {
+	    checkdb = true;
+	}
     }
 
     Ice::PropertiesPtr properties = communicator()->getProperties();
@@ -184,12 +187,6 @@ IcePack::NodeService::start(int argc, char* argv[])
     //
     if(properties->getPropertyAsInt("IcePack.Node.CollocateRegistry") > 0)
     {
-        _registry = auto_ptr<Registry>(new Registry(communicator()));
-        if(!_registry->start(nowarn, true))
-        {
-            return false;
-        }
-
         //
         // The node needs a different thread pool to avoid
         // deadlocks in connection validation.
@@ -205,6 +202,12 @@ IcePack::NodeService::start(int argc, char* argv[])
             ostringstream os2;
             os2 << size - static_cast<int>(size / 3);
             properties->setProperty("Ice.ThreadPool.Server.Size", os2.str());
+        }
+
+        _registry = auto_ptr<Registry>(new Registry(communicator()));
+        if(!_registry->start(nowarn, true))
+        {
+            return false;
         }
 
         //
@@ -260,6 +263,7 @@ IcePack::NodeService::start(int argc, char* argv[])
 
         envName = dataPath + "db";
         string serversPath = dataPath + "servers";
+	string tmpPath = dataPath + "tmp";
 
 #ifdef _WIN32
         if(::_stat(envName.c_str(), &filestat) != 0)
@@ -270,6 +274,10 @@ IcePack::NodeService::start(int argc, char* argv[])
         {
             _mkdir(serversPath.c_str());
         }
+        if(::_stat(tmpPath.c_str(), &filestat) != 0)
+        {
+            _mkdir(tmpPath.c_str());
+        }
 #else
         if(::stat(envName.c_str(), &filestat) != 0)
         {
@@ -278,6 +286,10 @@ IcePack::NodeService::start(int argc, char* argv[])
         if(::stat(serversPath.c_str(), &filestat) != 0)
         {
             mkdir(serversPath.c_str(), 0755);
+        }
+        if(::stat(tmpPath.c_str(), &filestat) != 0)
+        {
+            mkdir(tmpPath.c_str(), 0755);
         }
 #endif
     }
@@ -310,7 +322,7 @@ IcePack::NodeService::start(int argc, char* argv[])
     // Set the adapter id for this node and create the node object
     // adapter.
     //
-    properties->setProperty("IcePack.Node.AdapterId", "IcePack.Node-" + name);
+    properties->setProperty("IcePack.Node.AdapterId", "IcePack.Node." + name);
 
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePack.Node");
 
@@ -319,7 +331,7 @@ IcePack::NodeService::start(int argc, char* argv[])
     //
     // Create the activator.
     //
-    _activator = new ActivatorI(traceLevels, properties);
+    _activator = new Activator(traceLevels, properties);
 
     //
     // Create the wait queue.
@@ -334,24 +346,8 @@ IcePack::NodeService::start(int argc, char* argv[])
     //
     ServerFactoryPtr serverFactory = new ServerFactory(adapter, traceLevels, envName, _activator, _waitQueue);
 
-    //
-    // Create the node object and the node info. Because of circular
-    // dependencies on the node info we need to create the proxy for
-    // the server registry and deployer now.
-    //
-    Ice::Identity deployerId;
-    deployerId.name = IceUtil::generateUUID();
-
-    NodePtr node = new NodeI(_activator, name, ServerDeployerPrx::uncheckedCast(adapter->createProxy(deployerId)));
+    NodePtr node = new NodeI(_activator, name, serverFactory, properties);
     NodePrx nodeProxy = NodePrx::uncheckedCast(adapter->addWithUUID(node));
-
-    NodeInfoPtr nodeInfo = new NodeInfo(communicator(), serverFactory, node, traceLevels);
-
-    //
-    // Create the server deployer.
-    //
-    ServerDeployerPtr deployer = new ServerDeployerI(nodeInfo);
-    adapter->add(deployer, deployerId);
 
     //
     // Register this node with the node registry.
@@ -371,6 +367,14 @@ IcePack::NodeService::start(int argc, char* argv[])
     {
         error("couldn't contact the IcePack registry");
         return false;
+    }
+
+    //
+    // Check the consistency of the databases.
+    //
+    if(checkdb)
+    {
+	serverFactory->checkConsistency();
     }
 
     //
@@ -405,20 +409,15 @@ IcePack::NodeService::start(int argc, char* argv[])
         {
             try
             {
-                admin->addApplication(descriptor, targets);
-            }
-            catch(const ServerDeploymentException& ex)
-            {
-                ostringstream ostr;
-                ostr << "failed to deploy application `" << descriptor << "':" << endl
-                     << ex << ": " << ex.server << ": " << ex.reason;
-                warning(ostr.str());
+		map<string, string> vars;
+		admin->addApplication(
+		    DescriptorParser::parseApplicationDescriptor(descriptor, targets, vars, communicator()));
             }
             catch(const DeploymentException& ex)
             {
                 ostringstream ostr;
                 ostr << "failed to deploy application `" << descriptor << "':" << endl
-                     << ex << ": " << ex.component << ": " << ex.reason;
+                     << ex << ": " << ex.reason;
                 warning(ostr.str());
             }
             catch(const Ice::LocalException& ex)
@@ -503,7 +502,8 @@ IcePack::NodeService::usage(const string& appName)
 	"\n"
 	"--deploy DESCRIPTOR [TARGET1 [TARGET2 ...]]\n"
 	"                     Deploy descriptor in file DESCRIPTOR, with\n"
-	"                     optional targets.";
+	"                     optional targets.\n"
+        "--checkdb            Do a consistency check of the node database.";
 #ifdef _WIN32
     if(checkSystem())
     {

@@ -33,6 +33,15 @@ exception ServerNotExistException
 
 /**
  *
+ * This exception is raised if an application does not exist.
+ *
+ **/
+exception ApplicationNotExistException
+{
+};
+
+/**
+ *
  * This exception is raised if an object already exists.
  *
  **/
@@ -68,78 +77,10 @@ exception DeploymentException
 {
     /**
      *
-     * The path of the component that caused the deployment to
-     * fail. The path is a dot-separated list of component names. It
-     * always starts with the node name, followed by the server name,
-     * and finally the service name.
-     *
-     **/
-    string component;
-    
-    /**
-     *
      * The reason for the failure.
      *
      **/
     string reason;
-};
-
-/**
- *
- * This exception is raised if an error occurs while parsing the
- * XML descriptor of a component.
- *
- **/
-exception ParserDeploymentException extends DeploymentException
-{
-};
-
-/**
- *
- * This exception is raised if an error occurs during adapter
- * registration.
- *
- **/
-exception AdapterDeploymentException extends DeploymentException
-{
-    /**
-     *
-     * The id of the adapter that could not be registered.
-     *
-     **/
-    string id;
-};
-
-/**
- *
- * This exception is raised if an error occurs during object
- * registration.
- *
- **/
-exception ObjectDeploymentException extends DeploymentException
-{
-    /**
-     *
-     * The object that could not be registered.
-     *
-     **/
-    Object* proxy;
-};
-
-/**
- * 
- * This exception is raised if an error occurs while deploying a
- * server.
- *
- **/
-exception ServerDeploymentException extends DeploymentException
-{
-    /**
-     *
-     * The name of the server that could not be deployed.
-     *
-     **/
-    string server;
 };
 
 /**

@@ -31,7 +31,7 @@ IcePack::ObjectRegistryI::ObjectRegistryI(const Ice::CommunicatorPtr& communicat
 }
 
 void
-IcePack::ObjectRegistryI::add(const ObjectDescription& obj, const Ice::Current&)
+IcePack::ObjectRegistryI::add(const ObjectDescriptor& obj, const Ice::Current&)
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -50,7 +50,7 @@ IcePack::ObjectRegistryI::add(const ObjectDescription& obj, const Ice::Current&)
     //
     // Add the object to the object dictionary.
     //
-    objects.put(pair<const Ice::Identity, const ObjectDescription>(id, obj));
+    objects.put(pair<const Ice::Identity, const ObjectDescriptor>(id, obj));
 
     //
     // Add the object to the interface dictionary.
@@ -101,7 +101,7 @@ IcePack::ObjectRegistryI::remove(const Ice::ObjectPrx& object, const Ice::Curren
 	throw ObjectNotExistException();
     }
 
-    ObjectDescription obj = p->second;
+    ObjectDescriptor obj = p->second;
     
     if(!obj.type.empty())
     {
@@ -147,8 +147,8 @@ IcePack::ObjectRegistryI::remove(const Ice::ObjectPrx& object, const Ice::Curren
     }
 }
 
-ObjectDescription
-IcePack::ObjectRegistryI::getObjectDescription(const Ice::Identity& id, const Ice::Current&) const
+ObjectDescriptor
+IcePack::ObjectRegistryI::getObjectDescriptor(const Ice::Identity& id, const Ice::Current&) const
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     IdentityObjectDescDict objects(connection, _objectsDbName);

@@ -1,22 +1,26 @@
-<service kind="standard" entry="TestService:create">
+<icepack>
 
-  <adapters>
-    <adapter name="${name}" endpoints="default">
-      <object identity="${parent}-${name}" type="::Test"/>
-    </adapter>
-  </adapters>
+  <service name="${name}" entry="TestService:create">
 
-  <properties>
-    <property name="${name}.InheritedVariable" value="${inheritedvar}"/>
-    <property name="${name}.Identity" value="${parent}-${name}"/>
-    <property name="${name}.Type" value="standard"/>
-    <property name="${name}.ServiceName" value="${name}"/>
-  </properties>
+    <adapters>
+      <adapter name="${name}" endpoints="default">
+        <object identity="${server}-${name}" type="::Test"/>
+      </adapter>
+    </adapters>
 
-  <target name="debug">
     <properties>
-      <property name="${name}.DebugProperty" value="debug"/>
+      <property name="${name}.InheritedVariable" value="${inheritedvar}"/>
+      <property name="${name}.Identity" value="${server}-${name}"/>
+      <property name="${name}.Type" value="standard"/>
+      <property name="${name}.ServiceName" value="${name}"/>
     </properties>
-  </target>
 
-</service>
+    <target name="debug">
+      <properties>
+        <property name="${name}.DebugProperty" value="debug"/>
+      </properties>
+    </target>
+
+  </service>
+
+</icepack>

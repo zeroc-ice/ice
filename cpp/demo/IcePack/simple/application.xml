@@ -1,15 +1,21 @@
-<application>
+<icepack>
 
-   <!-- =========================================================== -->
-   <!-- Deploy two servers, the first one is defined in the         --> 
-   <!-- server.xml file and is a regular C++ server, the second one -->
-   <!-- is defined in the icebox.xml file and is a C++ IceBox       -->
-   <!-- server. The servers are deployed on the node named 'node'   -->
-   <!-- =========================================================== -->
+  <variable name="ice.dir" value="../../.."/>
 
-   <node name="node" basedir="${basedir}">
-     <server name="Server1" binpath="./server" descriptor="server.xml"/>
-     <server name="IceBox1" binpath="../../../bin/icebox" descriptor="icebox.xml"/>
-   </node>
+  <application name="Simple">
+ 
+     <!-- =========================================================== -->
+     <!-- Deploy two servers, the first one is defined in the         --> 
+     <!-- server.xml file and is a regular C++ server, the second one -->
+     <!-- is defined in the icebox.xml file and is a C++ IceBox       -->
+     <!-- server. The servers are deployed on the node named 'node'   -->
+     <!-- =========================================================== -->
 
-</application>
+     <node name="node">
+       <include descriptor="icebox.xml" name="IceBox1"/>
+       <include descriptor="server.xml" name="Server1"/>
+     </node>
+
+  </application>
+
+</icepack>

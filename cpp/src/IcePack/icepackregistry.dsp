@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 setargv.obj /nologo /subsystem:console /machine:I386
+# ADD LINK32 setargv.obj /nologo /subsystem:console /machine:I386 /libpath:"../../../lib"
 # SUBTRACT LINK32 /debug /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Release
@@ -83,7 +83,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 setargv.obj /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 setargv.obj /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /nodefaultlib
 # Begin Special Build Tool
 OutDir=.\Debug
@@ -119,11 +119,15 @@ SOURCE=.\AdminI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ApplicationBuilder.cpp
+SOURCE=.\ApplicationRegistryI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ComponentBuilder.cpp
+SOURCE=.\DescriptorUtil.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\DescriptorVisitor.cpp
 # End Source File
 # Begin Source File
 
@@ -172,6 +176,14 @@ SOURCE=.\StringObjectProxyDict.cpp
 # Begin Source File
 
 SOURCE=.\StringObjectProxySeqDict.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StringServerDescriptorDict.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\StringStringSeqDict.cpp
 # End Source File
 # Begin Source File
 

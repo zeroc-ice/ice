@@ -26,7 +26,7 @@ public:
     AdapterRegistryI(const Ice::CommunicatorPtr&, const std::string&, const std::string&, const TraceLevelsPtr&);
 
     virtual void add(const std::string&, const AdapterPrx&, const ::Ice::Current&);
-    virtual void remove(const std::string&, const ::Ice::Current&);
+    virtual AdapterPrx remove(const std::string&, const ::Ice::Current&);
 
     virtual AdapterPrx findById(const ::std::string&, const ::Ice::Current&);
     virtual Ice::StringSeq getAll(const ::Ice::Current&) const;

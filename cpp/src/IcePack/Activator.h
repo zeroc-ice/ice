@@ -11,7 +11,6 @@
 #define ICE_PACK_ACTIVATOR_H
 
 #include <IceUtil/Thread.h>
-#include <IcePack/Activator.h>
 #include <IcePack/Internal.h>
 
 namespace IcePack
@@ -20,20 +19,21 @@ namespace IcePack
 class TraceLevels;
 typedef IceUtil::Handle<TraceLevels> TraceLevelsPtr;
 
-class ActivatorI : public Activator, public IceUtil::Monitor< IceUtil::Mutex>
+class Activator : public IceUtil::Monitor< IceUtil::Mutex>, public IceUtil::Shared
 {
 public:
 
-    ActivatorI(const TraceLevelsPtr&, const Ice::PropertiesPtr&);
-    virtual ~ActivatorI();
+    Activator(const TraceLevelsPtr&, const Ice::PropertiesPtr&);
+    virtual ~Activator();
 
-    virtual bool activate(const ::IcePack::ServerPtr&);
-    virtual void deactivate(const ::IcePack::ServerPtr&);
-    virtual void kill(const ::IcePack::ServerPtr&);
-    virtual void sendSignal(const ::IcePack::ServerPtr&, const std::string&);
-    virtual void writeMessage(const ::IcePack::ServerPtr&, const std::string&, Ice::Int);
+    virtual bool activate(const std::string&, const std::string&, const std::string&, const Ice::StringSeq&, 
+			  const Ice::StringSeq&, const ServerPrx&);
+    virtual void deactivate(const std::string&, const Ice::ProcessPrx&);
+    virtual void kill(const std::string&);
+    virtual void sendSignal(const std::string&, const std::string&);
+    virtual void writeMessage(const std::string&, const std::string&, Ice::Int);
 
-    virtual Ice::Int getServerPid(const ::IcePack::ServerPtr&);
+    virtual Ice::Int getServerPid(const std::string&);
     
     virtual void start();
     virtual void waitForShutdown();
@@ -41,7 +41,7 @@ public:
     virtual void destroy();
     
     
-    void sendSignal(const ::IcePack::ServerPtr&, int);
+    void sendSignal(const std::string&, int);
     void runTerminationListener();
 
 private:
@@ -65,12 +65,12 @@ private:
 	int outFd;
 	int errFd;
 #endif
-	ServerPtr server;
+	ServerPrx server;
     };
 
     TraceLevelsPtr _traceLevels;
     Ice::PropertiesPtr _properties;
-    std::vector<Process> _processes;
+    std::map<std::string, Process> _processes;
     bool _deactivating;
 
 #ifdef _WIN32
@@ -87,6 +87,7 @@ private:
 
     IceUtil::ThreadPtr _thread;
 };
+typedef IceUtil::Handle<Activator> ActivatorPtr;
 
 }
 

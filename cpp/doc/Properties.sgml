@@ -1422,21 +1422,6 @@ service implementation class.
 </section>
 </section>
 
-<section><title>IceBox.DBEnvName.<replaceable>name</replaceable></title>
-<section><title>Synopsis</title>
-<synopsis>
-IceBox.DBEnvName.<replaceable>name</replaceable>=<replaceable>db</replaceable>
-</synopsis>
-</section>
-<section>
-<title>Description</title>
-<para>
-Defines the database environment directory for the &Freeze; service
-with the name <replaceable>name</replaceable>.
-</para>
-</section>
-</section>
-
 <section><title>IceBox.UseSharedCommunicator.<replaceable>name</replaceable></title>
 <section><title>Synopsis</title>
 <synopsis>

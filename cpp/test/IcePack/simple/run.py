@@ -64,7 +64,7 @@ server = os.path.join(testdir, "server")
 client = os.path.join(testdir, "client")
 
 print "registering server with icepack...",
-IcePackAdmin.addServer("server", os.path.join(testdir, "simple_server.xml"), server, "", "");
+IcePackAdmin.addServer(os.path.join(testdir, "simple_server.xml"), "test.dir=" + testdir);
 print "ok"
   
 print "starting client...",

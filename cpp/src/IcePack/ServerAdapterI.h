@@ -30,6 +30,8 @@ public:
     ServerAdapterI(const ServerFactoryPtr&, const TraceLevelsPtr&, Ice::Int waitTime);
     virtual ~ServerAdapterI();
 
+    virtual std::string getId(const Ice::Current&);
+
     virtual void getDirectProxy_async(const AMD_Adapter_getDirectProxyPtr& cb, bool, const Ice::Current&);
     virtual void setDirectProxy(const ::Ice::ObjectPrx&, const ::Ice::Current&);
     virtual void destroy(const ::Ice::Current&);
@@ -41,7 +43,6 @@ private:
     IceUtil::Time _waitTime;
 
     Ice::ObjectPrx _proxy;
-    bool _notified;
 };
 
 }

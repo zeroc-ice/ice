@@ -23,7 +23,7 @@ using namespace Freeze;
 namespace IceStorm
 {
 
-class ICESTORM_SERVICE_API ServiceI : public ::IceBox::FreezeService
+class ICESTORM_SERVICE_API ServiceI : public ::IceBox::Service
 {
 public:
 
@@ -32,8 +32,7 @@ public:
 
     virtual void start(const string&,
 		       const CommunicatorPtr&,
-		       const StringSeq&,
-		       const string&);
+		       const StringSeq&);
 
     virtual void stop();
 
@@ -49,7 +48,7 @@ private:
 extern "C"
 {
 
-ICESTORM_SERVICE_API ::IceBox::FreezeService*
+ICESTORM_SERVICE_API ::IceBox::Service*
 create(CommunicatorPtr communicator)
 {
     return new ServiceI;
@@ -68,14 +67,16 @@ IceStorm::ServiceI::~ServiceI()
 void
 IceStorm::ServiceI::start(const string& name,
 			  const CommunicatorPtr& communicator,
-			  const StringSeq& args,
-			  const string& envName)
+			  const StringSeq& args)
 {
     TraceLevelsPtr traceLevels = new TraceLevels(name, communicator->getProperties(), communicator->getLogger());
     _topicAdapter = communicator->createObjectAdapter(name + ".TopicManager");
     _publishAdapter = communicator->createObjectAdapter(name + ".Publish");
 
-    _manager = new TopicManagerI(communicator, _topicAdapter, _publishAdapter, traceLevels, envName, "topics");
+    //
+    // We use the name of the service for the name of the database environment.
+    //
+    _manager = new TopicManagerI(communicator, _topicAdapter, _publishAdapter, traceLevels, name, "topics");
     _topicAdapter->add(_manager, stringToIdentity(name + "/TopicManager"));
 
     _topicAdapter->activate();

@@ -36,9 +36,9 @@ iceStormService = " --IceBox.Service.IceStorm=IceStormService," + TestUtil.getIc
                   " --IceBox.PrintServicesReady=IceStorm"
 iceStormReference = ' --IceStorm.TopicManager.Proxy="IceStorm/TopicManager:default -p 12346"'
 
-dbEnvName = os.path.join(testdir, "db")
-TestUtil.cleanDbDir(dbEnvName)
-iceStormDBEnv=" --IceBox.DBEnvName.IceStorm=" + dbEnvName
+dbHome = os.path.join(testdir, "db")
+TestUtil.cleanDbDir(dbHome)
+iceStormDBEnv=" --Freeze.DbEnv.IceStorm.DbHome=" + dbHome
 
 print "starting icestorm service...",
 command = iceBox + TestUtil.clientServerOptions + iceBoxEndpoints + iceStormService + iceStormDBEnv + " 2>&1"

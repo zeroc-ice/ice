@@ -62,13 +62,14 @@ icePackNodeThread = IcePackAdmin.startIcePackNode(testdir)
 # Deploy the application, run the client and remove the application.
 #
 print "deploying application...",
-IcePackAdmin.addApplication(os.path.join(testdir, "application.xml"), "");
+IcePackAdmin.addApplication(os.path.join(testdir, "application.xml"), \
+                            "ice.dir=" + toplevel + " " + "test.dir=" + testdir);
 print "ok"
 
 startClient("")
 
 print "removing application...",
-IcePackAdmin.removeApplication(os.path.join(testdir, "application.xml"));
+IcePackAdmin.removeApplication("test");
 print "ok"    
 
 #
@@ -76,13 +77,14 @@ print "ok"
 # client to test targets (-t options) and remove the application.
 #
 print "deploying application with target...",
-IcePackAdmin.addApplication(os.path.join(testdir, "application.xml"), "debug localnode.Server1.manual")
+IcePackAdmin.addApplication(os.path.join(testdir, "application.xml"), \
+                            "debug localnode.Server1.manual ice.dir=" + toplevel + " test.dir=" + testdir)
 print "ok"
 
 startClient("-t")
 
 print "removing application...",
-IcePackAdmin.removeApplication(os.path.join(testdir, "application.xml"));
+IcePackAdmin.removeApplication("test");
 print "ok"
 
 #

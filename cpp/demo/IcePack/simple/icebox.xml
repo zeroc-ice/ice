@@ -1,3 +1,7 @@
-<server kind="cpp-icebox" endpoints="default">
-  <service name="Hello" descriptor="service.xml"/>
-</server>
+<icepack>
+
+  <server name="${name}" kind="cpp-icebox" endpoints="default" activation="on-demand">
+    <include descriptor="service.xml" name="Hello"/>
+  </server>
+
+</icepack>

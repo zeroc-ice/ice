@@ -33,7 +33,7 @@ public:
 
     struct ServiceInfo
     {
-        ServiceBasePtr service;
+        ServicePtr service;
         ::IceInternal::DynamicLibraryPtr library;
 	::Ice::CommunicatorPtr communicator;
 	::std::string envName;

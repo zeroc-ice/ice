@@ -65,7 +65,7 @@ IcePack::AdapterRegistryI::add(const string& id, const AdapterPrx& adapter, cons
     }
 }
 
-void
+AdapterPrx
 IcePack::AdapterRegistryI::remove(const string& id, const Ice::Current&)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
@@ -76,7 +76,8 @@ IcePack::AdapterRegistryI::remove(const string& id, const Ice::Current&)
     {
 	throw AdapterNotExistException();
     }
-    
+
+    AdapterPrx adapter = AdapterPrx::uncheckedCast(p->second);
     dict.erase(p);
 
     if(_traceLevels->adapterRegistry > 0)
@@ -84,6 +85,8 @@ IcePack::AdapterRegistryI::remove(const string& id, const Ice::Current&)
 	Ice::Trace out(_traceLevels->logger, _traceLevels->adapterRegistryCat);
 	out << "removed adapter `" << id << "'";
     }
+
+    return adapter;
 }
 
 AdapterPrx

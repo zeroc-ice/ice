@@ -10,7 +10,6 @@
 #include <Ice/Ice.h>
 #include <Ice/DynamicLibrary.h>
 #include <IceBox/ServiceManagerI.h>
-#include <Freeze/Exception.h>
 
 using namespace Ice;
 using namespace IceBox;
@@ -329,42 +328,13 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
 	
 	CommunicatorPtr communicator = info.communicator ? info.communicator : _server->communicator();
 
-        ServicePtr s = ServicePtr::dynamicCast(info.service);
-
-        if(s)
-	{
-	    //
-	    // IceBox::Service
-	    //
-            s->start(service, communicator, serviceArgs);
-	}
-	else
-	{
-	    //
-	    // IceBox::FreezeService
-	    //
-	    // Either open the database environment, or if it has already been opened,
-	    // retrieve it from the map.
-	    //
-            FreezeServicePtr fs = FreezeServicePtr::dynamicCast(info.service);
-
-	    info.envName = properties->getProperty("IceBox.DBEnvName." + service);
-
-            fs->start(service, communicator, serviceArgs, info.envName);
-	}
+	//
+	// Start the service.
+	//
+	info.service->start(service, communicator, serviceArgs);
 
         info.library = library;
         _services[service] = info;
-    }
-    catch(const Freeze::DatabaseException& ex)
-    {
-	ostringstream s;
-	s << "ServiceManager: database exception while starting service " << service << ":\n";
-	s << ex;
-
-	FailureException e(__FILE__, __LINE__);
-	e.reason = s.str();
-        throw e;
     }
     catch(const FailureException&)
     {

@@ -20,6 +20,408 @@ module IcePack
 
 /**
  *
+ * The server activation mode.
+ *
+ **/
+enum ServerActivation
+{
+    /**
+     *
+     * The server is activated on demand if a client requests one of
+     * the server's adapter endpoints and the server is not already
+     * running.
+     *
+     **/
+    OnDemand,
+
+    /**
+     *
+     * The server is activated manually through the administrative
+     * interface.
+     *
+     **/
+    Manual
+};
+
+/**
+ *
+ * An &Ice; object descriptor.
+ * 
+ **/
+struct ObjectDescriptor
+{
+    /**
+     *
+     * The object proxy.
+     *
+     **/
+    Object* proxy;
+
+    /**
+     *
+     * The object type.
+     *
+     **/
+    string type;
+    
+    /**
+     *
+     * The object adapter id.
+     *
+     **/
+    string adapterId;
+};
+
+/**
+ *
+ * A sequence of object descriptors.
+ *
+ **/
+sequence<ObjectDescriptor> ObjectDescriptorSeq;
+
+/**
+ *
+ * An &Ice; object adapter descriptor.
+ *
+ **/
+struct AdapterDescriptor
+{
+    /**
+     *
+     * The object adapter name.
+     *
+     **/
+    string name;
+
+    /**
+     *
+     * The object adapter id.
+     *
+     **/
+    string id;
+
+    /**
+     *
+     * The object adapter endpoints.
+     *
+     **/
+    string endpoints;
+
+    /**
+     *
+     * Flag to specify if the object adapter will register a process object.
+     *
+     **/
+    bool registerProcess;
+
+    /**
+     *
+     * The object descriptor associated to this object adapter descriptor.
+     *
+     **/
+    ObjectDescriptorSeq objects;
+};
+
+/**
+ *
+ * A sequence of adapter descriptors.
+ *
+ **/
+sequence<AdapterDescriptor> AdapterDescriptorSeq;
+
+/**
+ *
+ * A configuration property descriptor.
+ * 
+ **/
+struct PropertyDescriptor
+{
+    /**
+     *
+     * The name of the property.
+     *
+     **/
+    string name;
+
+    /**
+     *
+     * The value of the property.
+     *
+     **/
+    string value;
+};
+
+/**
+ *
+ * A sequence of property descriptors.
+ *
+ **/
+sequence<PropertyDescriptor> PropertyDescriptorSeq;
+
+/**
+ *
+ * A &Freeze; database environment descriptor.
+ *
+ **/
+struct DbEnvDescriptor
+{
+    /**
+     *
+     * The name of the database environment.
+     *
+     **/
+    string name;
+
+    /**
+     *
+     * The home of the database environment (i.e.: the directory where the database file
+     * will be stored).
+     *
+     **/
+    string dbHome;
+
+    /**
+     *
+     * The configuration properties of the database environment.
+     *
+     **/
+    PropertyDescriptorSeq properties;
+};
+
+/**
+ *
+ * A sequence of database environment descriptors.
+ *
+ **/
+sequence<DbEnvDescriptor> DbEnvDescriptorSeq;
+
+/**
+ *
+ * A component descriptor. A component is either an &Ice; server or
+ * an &IceBox; service.
+ *
+ **/
+class ComponentDescriptor
+{
+    /**
+     *
+     * The component nane.
+     *
+     **/
+    string name;
+
+    /**
+     *
+     * The component object adapters.
+     *
+     **/
+    AdapterDescriptorSeq adapters;
+
+    /**
+     *
+     * The component configuration properties.
+     *
+     **/
+    PropertyDescriptorSeq properties;
+
+    /**
+     *
+     * The component database environments.
+     *
+     **/
+    DbEnvDescriptorSeq dbEnvs;
+
+    /**
+     *
+     * Some comments on the component.
+     *
+     **/
+    string comment;
+};
+
+/**
+ *
+ * An &Ice; server descriptor.
+ *
+ **/
+class ServerDescriptor extends ComponentDescriptor
+{
+    /**
+     *
+     * The path of the server executable.
+     *
+     **/
+    string exe;
+
+    /**
+     *
+     * The path to the server working directory.
+     *
+     **/
+    string pwd;
+
+    /**
+     *
+     * The &IcePack node on which the server is deployed.
+     *
+     **/
+    string node;
+    
+    /**
+     *
+     * The name of the application this server belongs to.
+     *
+     **/
+    string application;
+
+    /**
+     *
+     * The command line options to pass to the server executable.
+     *
+     **/
+    Ice::StringSeq options;
+
+    /**
+     *
+     * The server environment variables.
+     *
+     **/
+    Ice::StringSeq envs;
+
+    /**
+     *
+     * The server initial activation mode.
+     *
+     **/
+    ServerActivation activation;
+};
+
+/**
+ *
+ * A sequence of server descriptors.
+ *
+ **/
+sequence<ServerDescriptor> ServerDescriptorSeq;
+
+/**
+ *
+ * A Java &Ice; server descriptor.
+ *
+ **/
+class JavaServerDescriptor extends ServerDescriptor
+{
+    /**
+     *
+     * The name of the Java class containing the main function.
+     *
+     **/
+    string className;
+
+    /**
+     *
+     * The command line options to pass to the JVM.
+     *
+     **/ 
+    Ice::StringSeq jvmOptions;
+};
+
+/**
+ *
+ * An &IceBox; service descriptor.
+ *
+ **/
+class ServiceDescriptor extends ComponentDescriptor
+{
+    /**
+     *
+     * The entry point of the &IceBox; service.
+     * 
+     **/
+    string entry;
+};
+
+/**
+ *
+ * A sequence of service descriptors.
+ *
+ **/
+sequence<ServiceDescriptor> ServiceDescriptorSeq;
+
+/**
+ *
+ * A C++ &IceBox; server descriptor.
+ *
+ **/
+class CppIceBoxDescriptor extends ServerDescriptor
+{
+    /**
+     *
+     * The &IceBox; C++ services.
+     * 
+     **/
+    ServiceDescriptorSeq services;
+
+    /**
+     *
+     * The endpoints of the &IceBox; service manager interface.
+     *
+     **/
+    string endpoints;
+};
+
+/**
+ *
+ * A Java &IceBox; server descriptor.
+ *
+ **/
+class JavaIceBoxDescriptor extends JavaServerDescriptor
+{
+    /**
+     *
+     * The &IceBox; Java services.
+     * 
+     **/
+    ServiceDescriptorSeq services;
+
+    /**
+     *
+     * The endpoints of the &IceBox; service manager interface.
+     *
+     **/
+    string endpoints;
+};
+
+/**
+ *
+ * An application descriptor.
+ *
+ **/
+class ApplicationDescriptor
+{
+    /**
+     *
+     * The application name.
+     *
+     **/
+    string name;
+    
+    /**
+     *
+     * The application servers.
+     *
+     **/
+    ServerDescriptorSeq servers;
+    
+    /**
+     *
+     * Some comments on the application.
+     *
+     **/ 
+    string comment;
+};
+
+/**
+ *
  * An enumeration representing the state of the server.
  *
  **/
@@ -72,104 +474,6 @@ enum ServerState
 
 /**
  *
- * The server activation mode.
- *
- **/
-enum ServerActivation
-{
-    /**
-     *
-     * The server is activated on demand if a client requests one of
-     * the server's adapter endpoints and the server is not already
-     * running.
-     *
-     **/
-    OnDemand,
-
-    /**
-     *
-     * The server is activated manually through the administrative
-     * interface.
-     *
-     **/
-    Manual
-};
-
-/**
- *
- * The server description.
- *
- **/
-struct ServerDescription
-{
-    /**
-     *
-     * Server name.
-     *
-     **/
-    string name;
-
-    /**
-     *
-     * The name of the node where the server is deployed.
-     *
-     **/
-    string node;
-
-    /**
-     *
-     * The path of the deployment descriptor used to deploy the
-     * server.
-     *
-     **/
-    string descriptor;
-
-    /**
-     *
-     * Targets used to deploy the server.
-     *
-     **/
-    Ice::StringSeq targets;
-
-    /**
-     *
-     * The server path.
-     *
-     **/
-    string path;
-
-    /**
-     *
-     * The server working directory.
-     *
-     **/
-    string pwd;
-
-    /**
-     *
-     * The server arguments.
-     *
-     **/
-    Ice::StringSeq args;
-
-    /**
-     *
-     * The server environment variables.
-     *
-     **/
-    Ice::StringSeq envs;
-    
-    /**
-     *
-     * The &IceBox; service manager proxy if the server is an
-     * &IceBox; service, otherwise a null proxy.
-     *
-     **/
-    IceBox::ServiceManager* serviceManager;
-};
-
-/**
- *
  * The &IcePack; administrative interface. <warning><para>Allowing
  * access to this interface is a security risk! Please see the
  * &IcePack; documentation for further information.</para></warning>
@@ -179,118 +483,128 @@ interface Admin
 {
     /**
      *
-     * Add an application to &IcePack;. An application is a set of
-     * servers.
+     * Add an application to &IcePack;. An application is a set of servers.
      *
      * @param descriptor The application descriptor.
-     * 
-     * @param targets The optional targets to deploy. A target is a
-     * list of components separated by dots and a target name. For
-     * example, the "debug" target of "service1" in "server1" will be
-     * deployed if the target "server1.service1.debug" is specified.
      *
      * @throws DeploymentException Raised if application deployment failed.
      *
      * @see removeApplication
      *
      **/
-    void addApplication(string descriptor, Ice::StringSeq targets)
+    void addApplication(ApplicationDescriptor descriptor)
 	throws DeploymentException;    
+
+    /**
+     *
+     * Update an application. An application is a set of servers.
+     *
+     * @param descriptor The application descriptor.
+     *
+     * @throws DeploymentException Raised if application deployment failed.
+     *
+     * @see removeApplication
+     *
+     **/
+    void updateApplication(ApplicationDescriptor descriptor)
+	throws DeploymentException;    
+
+    /**
+     *
+     * Get all the &IcePack; applications currently registered.
+     *
+     * @return The application names.
+     *
+     **/
+    nonmutating Ice::StringSeq getAllApplicationNames();
 
     /**
      *
      * Remove an application from &IcePack;.
      *
-     * @param descriptor The application descriptor.
+     * @param name The application name.
      *
      * @see addApplication
      *
      **/
-    void removeApplication(string descriptor)
-	throws DeploymentException;
+    void removeApplication(string name)
+	throws ApplicationNotExistException;
+
+    /**
+     *
+     * Get an application descriptor.
+     *
+     * @param name The application name.
+     *
+     * @throws ApplicationNotExistException Raised if the application doesn't exist.
+     *
+     * @returns The application descriptor.
+     *
+     **/
+    nonmutating ApplicationDescriptor getApplicationDescriptor(string name)
+	throws ApplicationNotExistException;
 
     /**
      *
      * Add a server to an &IcePack; node.
      *
-     * @param node The name of the node where the server will be
-     * deployed.
-     *
-     * @param name The server name.
-     *
-     * @param path The server path. For C++ servers, this is the path
-     * of the executable. For C++ icebox, this is the path of the C++
-     * icebox executable or, if empty, &IcePack; will rely on the PATH
-     * to find it. For a Java server or Java icebox, this is the path
-     * of the <literal>java</literal> command or, if empty, &IcePack;
-     * will rely on the PATH to find it.
-     *
-     * @param librarypath Specify the
-     * <literal>LD_LIBRARY_PATH</literal> value for C++ servers or the
-     * <literal>CLASSPATH</literal> value for Java servers.
-     *
      * @param descriptor The server deployment descriptor.
-     *
-     * @param targets The optional targets to deploy. A target is a
-     * list of components separated by dots and a target name. For
-     * example, the "debug" target of "service1" in "server1" will be
-     * deployed if the target "server1.service1.debug" is specified.
      *
      * @throws DeploymentException Raised if server deployment failed.
      *
-     * @throws NodeUnreachableException Raised if the node could not be
-     * reached.
+     * @see removeServer
+     * @see updateServer
      *
+     **/
+    void addServer(ServerDescriptor server)
+	throws DeploymentException;
+
+    /**
+     *
+     * Update a server.
+     *
+     * @param descriptor The server deployment descriptor.
+     *
+     * @throws DeploymentException Raised if server deployment failed.
+     *
+     * @throws ServerNotExistException Raised if the server doesn't exist.
+     *
+     * @see addServer
      * @see removeServer
      *
      **/
-    void addServer(string node, string name, string path, string libraryPath, string descriptor, 
-		   Ice::StringSeq targets)
-	throws DeploymentException, NodeUnreachableException;
+    void updateServer(ServerDescriptor server)
+	throws ServerNotExistException, DeploymentException;
 
     /**
      *
      * Remove a server from an &IcePack; node.
      *
-     * @param name Must match the name of [ServerDescription::name].
+     * @param name The server name.
      *
-     * @throws DeploymentException Raised if the server deployer
-     * failed to remove the server.
-     *
-     * @throws ServerNotExistException Raised if the server is not
-     * found.
-     *
-     * @throws NodeUnreachableException Raised if the node could not be
-     * reached.
+     * @throws ServerNotExistException Raised if the server doesn't exist.
      *
      * @see addServer
+     * @see updateServer
      *
      **/
     void removeServer(string name)
-	throws DeploymentException, ServerNotExistException, NodeUnreachableException;
+	throws ServerNotExistException, DeploymentException;
 
     /**
      *
-     * Get a server's description.
+     * Get a server descriptor.
      *
-     * @param name Must match the name of [ServerDescription::name].
+     * @param name The server name.
      *
-     * @return The server description.
+     * @throws ServerNotExistException Raised if the server doesn't exist.
      *
-     * @throws ServerNotExistException Raised if the server is not
-     * found.
-     *
-     * @throws NodeUnreachableException Raised if the node could not be
-     * reached.
-     *
-     * @see getServerState
-     * @see getServerPid
-     * @see getAllServerNames
+     * @returns The server descriptor.
      *
      **/
-    nonmutating ServerDescription getServerDescription(string name)
-	throws ServerNotExistException, NodeUnreachableException;
-    
+    nonmutating ServerDescriptor getServerDescriptor(string name)
+	throws ServerNotExistException;
+
     /**
      *
      * Get a server's state.
@@ -305,7 +619,6 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
-     * @see getServerDescription
      * @see getServerPid
      * @see getAllServerNames
      *
@@ -328,7 +641,6 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
-     * @see getServerDescription
      * @see getServerState
      * @see getAllServerNames
      *
@@ -350,7 +662,6 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
-     * @see getServerDescription
      * @see getServerState
      * @see getAllServerNames
      *
@@ -372,7 +683,6 @@ interface Admin
      * @throws NodeUnreachableException Raised if the node could not be
      * reached.
      *
-     * @see getServerDescription
      * @see getServerState
      * @see getAllServerNames
      *
@@ -434,8 +744,7 @@ interface Admin
      *
      **/
     void sendSignal(string name, string signal)
-	throws ServerNotExistException, NodeUnreachableException,
-	       BadSignalException;
+	throws ServerNotExistException, NodeUnreachableException, BadSignalException;
 
     /**
      *
@@ -461,7 +770,6 @@ interface Admin
      *
      * @return The server names.
      *
-     * @see getServerDescription
      * @see getServerState
      *
      **/
@@ -499,17 +807,12 @@ interface Admin
      *
      * @param obj The object to be added to the registry.
      *
-     * @throws ObjectDeploymentException Raised if an error occurred
-     * while trying to register this object. This can occur if the
-     * type of the object cannot be determined because the object is not
-     * reachable.
-     *
      * @throws ObjectExistsException Raised if the object is already
      * registered.
      *
      **/
     nonmutating void addObject(Object* obj)
-	throws ObjectExistsException, ObjectDeploymentException;
+	throws ObjectExistsException, DeploymentException;
 
     /**
      *
@@ -544,6 +847,8 @@ interface Admin
      *
      * Ping an &IcePack; node to see if it is active.
      *
+     * @param name The node name.
+     *
      * @return true if the node ping succeeded, false otherwise.
      * 
      **/
@@ -554,8 +859,20 @@ interface Admin
      *
      * Shutdown an &IcePack; node.
      * 
+     * @param name The node name.
+     *
      **/
     idempotent void shutdownNode(string name)
+	throws NodeNotExistException;
+
+    /**
+     *
+     * Remove the given node and associated servers from the &IcePack; registry.
+     *
+     * @param name The node name.
+     *
+     **/
+    idempotent void removeNode(string name)
 	throws NodeNotExistException;
 
     /**

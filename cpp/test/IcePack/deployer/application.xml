@@ -1,13 +1,15 @@
+<icepack>
 
-<application>
+  <application name="test">
 
-   <node name="localnode" basedir="${basedir}">
+    <node name="localnode">
 
-     <server name="IceBox1" binpath="../../../bin/icebox" descriptor="icebox.xml"/>
-     <server name="IceBox2" binpath="../../../bin/icebox" descriptor="icebox.xml"/>
-     <server name="Server1" binpath="./server" descriptor="server.xml"/>
-     <server name="Server2" binpath="./server" descriptor="server.xml" targets="target1 target2"/>
+      <include name="IceBox1" descriptor="icebox.xml"/>
+      <include name="IceBox2" descriptor="icebox.xml"/>
+      <include name="Server1" descriptor="server.xml"/>
+      <include name="Server2" descriptor="server.xml" targets="target1 target2"/>
 
-   </node>
+    </node>
+  </application>
 
-</application>
+</icepack>

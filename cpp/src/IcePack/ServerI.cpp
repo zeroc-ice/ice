@@ -7,42 +7,59 @@
 //
 // **********************************************************************
 
+#ifdef __sun
+#define _POSIX_PTHREAD_SEMANTICS
+#endif
+
+#include <IceUtil/UUID.h>
 #include <Ice/Ice.h>
 #include <IcePack/ServerI.h>
 #include <IcePack/ServerFactory.h>
 #include <IcePack/TraceLevels.h>
 #include <IcePack/Activator.h>
 
-#include <IceBox/IceBox.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#ifdef _WIN32
+#   include <direct.h>
+#else
+#   include <unistd.h>
+#   include <dirent.h>
+#endif
+
+#include <fstream>
 
 using namespace std;
 using namespace IcePack;
 
-IcePack::ServerI::ServerI(const ServerFactoryPtr& factory, const TraceLevelsPtr& traceLevels, 
-			  const ActivatorPtr& activator, Ice::Int waitTime) :
+ServerI::ServerI(const ServerFactoryPtr& factory, 
+		 const TraceLevelsPtr& traceLevels, 
+		 const ActivatorPtr& activator,
+		 Ice::Int waitTime,
+		 const string& serversDir) :
     _factory(factory),
     _traceLevels(traceLevels),
     _activator(activator),
     _waitTime(waitTime),
+    _serversDir(serversDir),
     _state(Inactive)
 {
     assert(_activator);
-
 }
 
-IcePack::ServerI::~ServerI()
+ServerI::~ServerI()
 {
-}
-
-ServerDescription
-IcePack::ServerI::getServerDescription(const Ice::Current&)
-{
-    return description; // Description is immutable.
 }
 
 bool
-IcePack::ServerI::start(ServerActivation act, const Ice::Current& current)
+ServerI::start(ServerActivation act, const Ice::Current& current)
 {
+    string exe;
+    string wd;
+    Ice::StringSeq opts;
+    Ice::StringSeq evs;
+
     while(true)
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
@@ -56,6 +73,12 @@ IcePack::ServerI::start(ServerActivation act, const Ice::Current& current)
 	    }
 
 	    _state = Activating;
+
+	    //
+	    // Prevent eviction of the server object once it's not anymore in the inactive state.
+	    //
+	    _factory->getServerEvictor()->keep(current.id);
+
 	    break;
 	}
 	case Activating:
@@ -80,31 +103,37 @@ IcePack::ServerI::start(ServerActivation act, const Ice::Current& current)
 	if(_traceLevels->server > 2)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "changed server `" << description.name << "' state to `Activating'";
+	    out << "changed server `" << name << "' state to `Activating'";
 	}
 	assert(_state == Activating);
+
+	exe = exePath;
+	wd = pwd;
+	opts = options;
+	evs = envs;
 	break;
     }
 
     try
     {
-        bool active = _activator->activate(this);
-	setState(active ? Active : Inactive);
+	ServerPrx self = ServerPrx::uncheckedCast(current.adapter->createProxy(current.id));
+	bool active  = _activator->activate(name, exe, wd, opts, evs, self);
+	setState(active ? Active : Inactive, current);
 	return active;
     }
     catch(const Ice::SyscallException& ex)
     {
 	Ice::Warning out(_traceLevels->logger);
-	out << "activation failed for server `" << description.name << "':\n";
+	out << "activation failed for server `" << name << "':\n";
 	out << ex;
 
-	setState(Inactive);
+	setState(Inactive, current);
 	return false;
     }
 }
 
 void
-IcePack::ServerI::stop(const Ice::Current& current)
+ServerI::stop(const Ice::Current& current)
 {
     while(true)
     {
@@ -116,6 +145,7 @@ IcePack::ServerI::stop(const Ice::Current& current)
 	    return;
 	}
 	case Activating:
+	case Deactivating:
 	{
 	    wait(); // TODO: Timeout?
 	    continue;
@@ -124,11 +154,6 @@ IcePack::ServerI::stop(const Ice::Current& current)
 	{	    
 	    _state = Deactivating;
 	    break;
-	}
-	case Deactivating:
-	{
-	    wait();
-	    continue;
 	}
 	case Destroying:
 	case Destroyed:
@@ -142,30 +167,29 @@ IcePack::ServerI::stop(const Ice::Current& current)
 	if(_traceLevels->server > 2)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "changed server `" << description.name << "' state to `Deactivating'";
+	    out << "changed server `" << name << "' state to `Deactivating'";
 	}
 	assert(_state == Deactivating);
 	break;
     }
 
-    stopInternal();
+    stopInternal(current);
 }
 
 void
-IcePack::ServerI::sendSignal(const string& signal, const Ice::Current& current)
+ServerI::sendSignal(const string& signal, const Ice::Current& current)
 {
-    _activator->sendSignal(this, signal);
+    _activator->sendSignal(name, signal);
 }
 
 void
-IcePack::ServerI::writeMessage(const string& message, Ice::Int fd, const Ice::Current& current)
+ServerI::writeMessage(const string& message, Ice::Int fd, const Ice::Current& current)
 {
-    _activator->writeMessage(this, message, fd);
+    _activator->writeMessage(name, message, fd);
 }
 
-
 void
-IcePack::ServerI::destroy(const Ice::Current& current)
+ServerI::destroy(const Ice::Current& current)
 {
     bool stop = false;
 
@@ -205,7 +229,7 @@ IcePack::ServerI::destroy(const Ice::Current& current)
 	if(_traceLevels->server > 2)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "changed server `" << description.name << "' state to `";
+	    out << "changed server `" << name << "' state to `";
 	    out << (_state == Destroyed ? "Destroyed" : "Destroying") << "'";
 	}
 	break;
@@ -213,30 +237,18 @@ IcePack::ServerI::destroy(const Ice::Current& current)
 
     if(stop)
     {
-	stopInternal();
+	stopInternal(current);
     }
 
-    //
-    // Destroy the server adapters.
-    //
-    for(ServerAdapters::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
-    {
-	try
-	{
-	    (*p)->destroy();
-	}
-	catch(const Ice::ObjectNotExistException&)
-	{
-	}
-    }
-
+    
     _factory->destroy(this, current.id);
 }
 
 void
-IcePack::ServerI::terminated(const Ice::Current&)
+ServerI::terminated(const Ice::Current& current)
 {
     ServerState newState = Inactive; // Initialize to keep the compiler happy.
+    ServerAdapterPrxDict adpts;
     while(true)
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
@@ -257,7 +269,7 @@ IcePack::ServerI::terminated(const Ice::Current&)
 	    if(_traceLevels->server > 2)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-		out << "changed server `" << description.name << "' state to `Deactivating'";
+		out << "changed server `" << name << "' state to `Deactivating'";
 	    }
 	    newState = Inactive;
 	    break;
@@ -280,11 +292,17 @@ IcePack::ServerI::terminated(const Ice::Current&)
 	}
 	case Destroyed:
 	{
-	    assert(false);	    
+	    assert(false);
 	}
 	}
 
 	assert(_state == Deactivating || _state == Destroying);
+	adpts = adapters;
+
+	//
+	// Clear the process proxy.
+	//
+	_process = 0;
 	break;
     }
 
@@ -295,135 +313,374 @@ IcePack::ServerI::terminated(const Ice::Current&)
 	// null to cause the server re-activation if one of its adapter
 	// direct proxy is requested.
 	//
-	for(ServerAdapters::iterator p = adapters.begin(); p != adapters.end(); ++p)
+	for(ServerAdapterPrxDict::iterator p = adpts.begin(); p != adpts.end(); ++p)
 	{
 	    try
 	    {
-		(*p)->setDirectProxy(0);
+		p->second->setDirectProxy(0);
 	    }
 	    catch(const Ice::ObjectNotExistException&)
 	    {
-		//
-		// TODO: Inconsistent database.
-		//
-	    }
-	    catch(const Ice::LocalException&)
-	    {
-		//cerr << (*p)->__reference()->toString() << endl;
-		//cerr << ex << endl;
-		throw;
 	    }
 	}
     }
 
-    setState(newState);
+    setState(newState, current);
 }
 
 ServerState
-IcePack::ServerI::getState(const Ice::Current&)
+ServerI::getState(const Ice::Current&)
 {
-    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(*this);
     return _state;
 }
 
 Ice::Int
-IcePack::ServerI::getPid(const Ice::Current& current)
+ServerI::getPid(const Ice::Current& current)
 {
-    return _activator->getServerPid(this);
+    return _activator->getServerPid(name);
 }
 
 void 
-IcePack::ServerI::setActivationMode(ServerActivation mode, const ::Ice::Current&)
+ServerI::setActivationMode(ServerActivation mode, const ::Ice::Current&)
 {
-    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(*this);
     activation = mode;
 }
 
 ServerActivation 
-IcePack::ServerI::getActivationMode(const ::Ice::Current&)
+ServerI::getActivationMode(const ::Ice::Current&)
 {
-    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(*this);
     return activation;
 }
 
+ServerDescriptorPtr
+ServerI::getDescriptor(const Ice::Current&)
+{
+    Lock sync(*this);
+    return descriptor;
+}
+
+void 
+ServerI::setExePath(const string& path, const ::Ice::Current&)
+{
+    Lock sync(*this);
+    exePath = path;
+}
+
+void 
+ServerI::setPwd(const string& path,const ::Ice::Current&)
+{
+    Lock sync(*this);
+    pwd = path;
+}
+
+void 
+ServerI::setEnvs(const Ice::StringSeq& s, const ::Ice::Current&)
+{
+    Lock sync(*this);
+    envs = s;
+}
+
+void 
+ServerI::setOptions(const Ice::StringSeq& opts, const ::Ice::Current&)
+{
+    Lock sync(*this);
+    options = opts;
+}
+
+void 
+ServerI::addAdapter(const ServerAdapterPrx& adapter, bool registerProcess, const ::Ice::Current&)
+{
+    Lock sync(*this);
+    ServerAdapterPrxDict::const_iterator p = adapters.find(adapter->ice_getIdentity());
+    if(p != adapters.end())
+    {
+	DeploymentException ex;
+	ex.reason = "failed to add adapter because it already exists";
+	throw ex;
+    }
+    adapters[adapter->ice_getIdentity()] = adapter;
+    processRegistered |= registerProcess;
+}
+
 void
-IcePack::ServerI::setProcess(const ::Ice::ProcessPrx& proc, const ::Ice::Current&)
+ServerI::removeAdapter(const ServerAdapterPrx& adapter, const ::Ice::Current&)
+{
+    Lock sync(*this);
+    adapters.erase(adapter->ice_getIdentity());
+}
+
+string
+ServerI::addConfigFile(const string& n, const PropertyDescriptorSeq& properties, const ::Ice::Current&)
+{
+    string file = _serversDir + name + "/config/" + n;
+
+    ofstream configfile;
+    configfile.open(file.c_str(), ios::out);
+    if(!configfile)
+    {
+	DeploymentException ex;
+	ex.reason = "couldn't create configuration file: " + file;
+	throw ex;
+    }
+
+    for(PropertyDescriptorSeq::const_iterator p = properties.begin(); p != properties.end(); ++p)
+    {
+	configfile << p->name;
+	if(!p->value.empty())
+	{
+	    configfile << "=" << p->value;
+	}
+	configfile << endl;
+    }
+    configfile.close();
+    
+    return file;
+}
+
+void 
+ServerI::removeConfigFile(const string& n, const ::Ice::Current&)
+{
+    string file = _serversDir + name + "/config/" + n;
+    if(unlink(file.c_str()) != 0)
+    {
+	Ice::Warning out(_traceLevels->logger);
+	out << "couldn't remove configuration file: " + file + ": " + strerror(getSystemErrno());
+    }
+}
+
+string
+ServerI::addDbEnv(const DbEnvDescriptor& dbEnv, const string& path, const ::Ice::Current&)
+{
+    string dir;
+    if(dbEnv.dbHome.empty())
+    {
+	dir = _serversDir + name + "/dbs/" + dbEnv.name;
+    }
+    else
+    {
+	dir = dbEnv.dbHome;
+    }
+
+    //
+    // If no db home directory is specified for this db env, we provide one.
+    //
+    if(dbEnv.dbHome.empty())
+    {
+	//
+	// First, we try to move the given backup if specified, if not successful, we just
+	// create the database environment directory.
+	//
+	if(path.empty() || rename((path + "/" + dbEnv.name).c_str(), dir.c_str()) != 0)
+	{
+	    //
+	    // Create the database environment directory.
+	    //
+#ifdef _WIN32
+	    if(_mkdir(dir.c_str()) != 0)
+#else
+	    if(mkdir(dir.c_str(), 0755) != 0)
+#endif
+	    {
+		DeploymentException ex;
+		ex.reason = "couldn't create directory " + dir + ": " + strerror(getSystemErrno());
+		throw ex;
+	    }
+	}
+    }
+
+    string file = dir + "/DB_CONFIG";
+    ofstream configfile;
+    configfile.open(file.c_str(), ios::out);
+    if(!configfile)
+    {
+	rmdir(dir.c_str());
+
+	DeploymentException ex;
+	ex.reason = "couldn't create configuration file: " + file;
+	throw ex;
+    }
+
+    for(PropertyDescriptorSeq::const_iterator p = dbEnv.properties.begin(); p != dbEnv.properties.end(); ++p)
+    {
+	if(!p->name.empty())
+	{
+	    configfile << p->name;
+	    if(!p->value.empty())
+	    {
+		configfile << " " << p->value;
+	    }
+	    configfile << endl;
+	}
+    }
+    configfile.close();
+
+    return dir;
+}
+
+void 
+ServerI::removeDbEnv(const DbEnvDescriptor& dbEnv, const string& moveTo, const ::Ice::Current&)
+{
+    string path;
+    if(dbEnv.dbHome.empty())
+    {
+	path = _serversDir + name + "/dbs/" + dbEnv.name;
+    }
+    else
+    {
+	path = dbEnv.dbHome;
+    }
+
+    if(unlink((path + "/DB_CONFIG").c_str()) != 0)
+    {
+	Ice::Warning out(_traceLevels->logger);
+	out << "couldn't remove file: " + path + "/DB_CONFIG: " + strerror(getSystemErrno());
+    }
+
+    //
+    // If no db home directory was specified for this db env, we provided one. We need to cleanup
+    // this directory now.
+    //
+    if(dbEnv.dbHome.empty())
+    {
+	if(!moveTo.empty())
+	{
+	    //
+	    // Move the database environment directory to the given directory.
+	    //
+	    if(rename(path.c_str(), (moveTo + "/" + dbEnv.name).c_str()) != 0)
+	    {
+		Ice::Warning out(_traceLevels->logger);
+		out << "couldn't rename directory " + path + " to " + moveTo + "/" + dbEnv.name + ": " + 
+		    strerror(getSystemErrno());
+	    }
+	}
+	else
+	{
+	    //
+	    // Delete the database environment directory.
+	    //
+	    Ice::StringSeq files;
+	    
+#ifdef _WIN32
+	    string pattern = path + "/*";
+	    WIN32_FIND_DATA data;
+	    HANDLE hnd = FindFirstFile(pattern.c_str(), &data);
+	    if(hnd == INVALID_HANDLE_VALUE)
+	    {
+		// TODO: log a warning, throw an exception?
+		return;
+	    }
+	    
+	    do
+	    {
+		if((data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+		{
+		    files.push_back(path + "/" + data.cFileName);
+		}
+	    } 
+	    while(FindNextFile(hnd, &data));
+	    
+	    FindClose(hnd);
+#else
+	    
+	    DIR* dir = opendir(path.c_str());
+	    if(dir == 0)
+	    {
+		// TODO: log a warning, throw an exception?
+		return;
+	    }
+	    
+	    // TODO: make the allocation/deallocation exception-safe
+	    struct dirent* entry = static_cast<struct dirent*>(malloc(pathconf(path.c_str(), _PC_NAME_MAX) + 1));
+	    
+	    while(readdir_r(dir, entry, &entry) == 0 && entry != 0)
+	    {
+		string name = path + "/" + entry->d_name;
+		struct stat buf;
+		
+		if(::stat(name.c_str(), &buf) != 0)
+		{
+		    if(errno != ENOENT)
+		    {
+			//
+			// TODO: log error
+			//
+		    }
+		}
+		else if(S_ISREG(buf.st_mode))
+		{
+		    files.push_back(name);
+		}
+	    }
+	    
+	    free(entry);
+	    closedir(dir);
+#endif
+	    
+	    for(Ice::StringSeq::iterator p = files.begin(); p != files.end(); ++p)
+	    {
+		if(unlink(p->c_str()) != 0)
+		{
+		    //
+		    // TODO: log error
+		    //
+		}
+	    }
+	    
+	    if(rmdir(path.c_str()) != 0)
+	    {
+		Ice::Warning out(_traceLevels->logger);
+		out << "couldn't remove directory: " + path + ": " + strerror(getSystemErrno());
+	    }
+	}
+    }
+}
+
+void
+ServerI::setProcess(const ::Ice::ProcessPrx& proc, const ::Ice::Current&)
 {
     IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
     _process = proc;
-}
-
-Ice::ProcessPrx
-IcePack::ServerI::getProcess(const ::Ice::Current&)
-{
-    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
-    return _process;
+    notifyAll();
 }
 
 void
-IcePack::ServerI::stopInternal()
+ServerI::stopInternal(const Ice::Current& current)
 {
-    //
-    // If the server is an icebox, first try to use the IceBox service
-    // manager to shutdown the server.
-    //
-    bool deactivate = true;
-    
-    //
-    // TODO: use the service manager to shutdown icebox servers. The
-    // following code should work once it's possible to set an
-    // activation mode on a per adapter basis -- we really don't want
-    // to activate the icebox in this method if it's already
-    // deactivated.
-    //
-
-//     if(description.serviceManager)
-//     {
-// 	if(_state == Deactivating)
-// 	{
-// 	    try
-// 	    {
-// 		//
-// 		// Set a timeout on the service manager proxy and try to
-// 		// shutdown the icebox.
-// 		//
-// 		IceBox::ServiceManagerPrx serviceManager = 
-// 		    IceBox::ServiceManagerPrx::uncheckedCast(description.serviceManager->ice_timeout(_waitTime));
-		
-// 		serviceManager->shutdown();
-		
-// 		deactivate = false;
-// 	    }
-// 	    catch(const Ice::LocalException& ex)
-// 	    {
-// 		if(_traceLevels->server > 1)
-// 		{
-// 		    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-// 		    out << "couldn't contact the IceBox `" << description.name << "' service manager:\n";
-// 		    out << ex;
-// 		}
-// 	    }
-// 	}
-//     }
-
-    if(deactivate)
+    Ice::ProcessPrx process;
     {
-        //
-        // Deactivate the server.
-        //
-        try
-        {
-            _activator->deactivate(this);
-        }
-        catch(const Ice::Exception& ex)
-        {
-            Ice::Warning out(_traceLevels->logger);
-            out << "deactivation failed for server `" << description.name << "':\n";
-            out << ex;
-            
-            setState(Active);
-            return;
-        }
+	IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+	if(!_process && processRegistered)
+	{
+	    while(!_process)
+	    {
+		//
+		// Wait for the process to be set.
+		//
+		wait(); // TODO: timeout?
+	    }
+	}
+	process = _process;
+    }
+
+    //
+    // Deactivate the server.
+    //
+    try
+    {
+	_activator->deactivate(name, process);
+    }
+    catch(const Ice::Exception& ex)
+    {
+	Ice::Warning out(_traceLevels->logger);
+	out << "deactivation failed for server `" << name << "':\n";
+	out << ex;
+	
+	setState(Active, current);
+	return;
     }
 
     //
@@ -464,7 +721,7 @@ IcePack::ServerI::stopInternal()
     if(_traceLevels->server > 1)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	out << "graceful server shutdown failed, killing server `" << description.name << "'";
+	out << "graceful server shutdown failed, killing server `" << name << "'";
     }
     
     //
@@ -472,22 +729,30 @@ IcePack::ServerI::stopInternal()
     //
     try
     {
-	_activator->kill(this);
+	_activator->kill(name);
     }
     catch(const Ice::SyscallException& ex)
     {
 	Ice::Warning out(_traceLevels->logger);
-	out << "deactivation failed for server `" << description.name << "':\n";
+	out << "deactivation failed for server `" << name << "':\n";
 	out << ex;
 	
-	setState(Active);
+	setState(Active, current);
     }
 }
 
 void
-IcePack::ServerI::setState(ServerState st)
+ServerI::setState(ServerState st, const Ice::Current& current)
 {
-    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    Lock sync(*this);
+
+    //
+    // Allow eviction of an inactive server object.
+    //
+    if(_state != Inactive && st == Inactive)
+    {
+	_factory->getServerEvictor()->release(current.id);
+    }
 
     _state = st;
 
@@ -496,29 +761,29 @@ IcePack::ServerI::setState(ServerState st)
 	if(_state == Active)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "changed server `" << description.name << "' state to `Active'";
+	    out << "changed server `" << name << "' state to `Active'";
 	}
 	else if(_state == Inactive)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "changed server `" << description.name << "' state to `Inactive'";
+	    out << "changed server `" << name << "' state to `Inactive'";
 	}
 	else if(_state == Destroyed)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "changed server `" << description.name << "' state to `Destroyed'";
+	    out << "changed server `" << name << "' state to `Destroyed'";
 	}
 	else if(_traceLevels->server > 2)
 	{
 	    if(_state == Activating)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-		out << "changed server `" << description.name << "' state to `Activating'";
+		out << "changed server `" << name << "' state to `Activating'";
 	    }
 	    else if(_state == Deactivating)
 	    {
 		Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-		out << "changed server `" << description.name << "' state to `Deactivating'";
+		out << "changed server `" << name << "' state to `Deactivating'";
 	    }
 	}
     }

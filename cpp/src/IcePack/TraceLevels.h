@@ -33,6 +33,9 @@ public:
     const int activator;
     const char* activatorCat;
 
+    const int applicationRegistry;
+    const char* applicationRegistryCat;
+
     const int serverRegistry;
     const char* serverRegistryCat;
 

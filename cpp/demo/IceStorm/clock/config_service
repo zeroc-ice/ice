@@ -7,7 +7,12 @@ IceBox.ServiceManager.Endpoints=tcp -p 9998
 # The IceStorm service
 #
 IceBox.Service.IceStorm=IceStormService,14:create --Ice.Config=config
-IceBox.DBEnvName.IceStorm=db
+
+#
+# This property defines the home directory of the Freeze 
+# database environment for the IceStorm service.
+#
+Freeze.DbEnv.IceStorm.DbHome=db
 
 #
 # Warn about connection exceptions

@@ -61,6 +61,8 @@ yyerror(const char* s)
 %token ICE_PACK_SHOW
 %token ICE_PACK_COPYING
 %token ICE_PACK_WARRANTY
+%token ICE_PACK_DIFF
+%token ICE_PACK_UPDATE
 
 %%
 
@@ -105,6 +107,22 @@ command
 {
     parser->removeApplication($3);
 }
+| ICE_PACK_APPLICATION ICE_PACK_DIFF strings ';'
+{
+    parser->diffApplication($3);
+}
+| ICE_PACK_APPLICATION ICE_PACK_UPDATE strings ';'
+{
+    parser->updateApplication($3);
+}
+| ICE_PACK_APPLICATION ICE_PACK_DESCRIBE strings ';'
+{
+    parser->describeApplication($3);
+}
+| ICE_PACK_APPLICATION ICE_PACK_LIST ';'
+{
+    parser->listAllApplications();
+}
 | ICE_PACK_NODE ICE_PACK_PING strings ';'
 {
     parser->pingNode($3);
@@ -113,6 +131,10 @@ command
 {
     parser->shutdownNode($3);
 }
+| ICE_PACK_NODE ICE_PACK_REMOVE strings ';'
+{
+    parser->removeNode($3);
+}
 | ICE_PACK_NODE ICE_PACK_LIST ';'
 {
     parser->listAllNodes();
@@ -120,6 +142,14 @@ command
 | ICE_PACK_SERVER ICE_PACK_ADD strings ';'
 {
     parser->addServer($3);
+}
+| ICE_PACK_SERVER ICE_PACK_UPDATE strings ';'
+{
+    parser->updateServer($3);
+}
+| ICE_PACK_SERVER ICE_PACK_DESCRIBE strings ';'
+{
+    parser->describeServer($3);
 }
 | ICE_PACK_SERVER ICE_PACK_START strings ';'
 {
@@ -140,10 +170,6 @@ command
 | ICE_PACK_SERVER ICE_PACK_STDERR strings ';'
 {
     parser->writeMessage($3, 2);
-}
-| ICE_PACK_SERVER ICE_PACK_DESCRIBE strings ';'
-{
-    parser->describeServer($3);
 }
 | ICE_PACK_SERVER ICE_PACK_STATE strings ';'
 {

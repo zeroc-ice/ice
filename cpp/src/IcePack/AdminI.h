@@ -19,19 +19,22 @@ class AdminI : public Admin, public IceUtil::Mutex
 {
 public:
 
-    AdminI(const Ice::CommunicatorPtr&, const NodeRegistryPtr&, const ServerRegistryPtr&, const AdapterRegistryPtr&,
-	   const ObjectRegistryPtr&);
+    AdminI(const Ice::CommunicatorPtr&, const NodeRegistryPtr&, const ApplicationRegistryPtr&, 
+	   const ServerRegistryPtr&, const AdapterRegistryPtr&, const ObjectRegistryPtr&);
     virtual ~AdminI();
 
-    virtual void addApplication(const std::string&, const Ice::StringSeq&, const Ice::Current& = Ice::Current());
-    virtual void removeApplication(const std::string&, const Ice::Current& = Ice::Current());
+    virtual void addApplication(const ApplicationDescriptorPtr&, const Ice::Current&);
+    virtual void updateApplication(const ApplicationDescriptorPtr&, const Ice::Current&);
+    virtual void removeApplication(const std::string&, const Ice::Current&);
+    virtual ApplicationDescriptorPtr getApplicationDescriptor(const ::std::string&, const Ice::Current&) const;
+    virtual Ice::StringSeq getAllApplicationNames(const Ice::Current&) const;
 
-    virtual void addServer(const std::string&, const std::string&, const std::string&, const std::string&, 
-			   const std::string&, const Ice::StringSeq&, const Ice::Current& = Ice::Current());
+    virtual void addServer(const ServerDescriptorPtr&, const Ice::Current&);
+    virtual void updateServer(const ServerDescriptorPtr&, const Ice::Current&);
     virtual void removeServer(const ::std::string&, const Ice::Current&);
+    virtual ServerDescriptorPtr getServerDescriptor(const ::std::string&, const Ice::Current&) const;
 
-    virtual ServerDescription getServerDescription(const ::std::string&, const Ice::Current&) const;
-    virtual ServerState getServerState(const ::std::string&, const Ice::Current& = Ice::Current()) const;
+    virtual ServerState getServerState(const ::std::string&, const Ice::Current&) const;
     virtual Ice::Int getServerPid(const ::std::string&, const Ice::Current&) const;
     virtual bool startServer(const ::std::string&, const Ice::Current&);
     virtual void stopServer(const ::std::string&, const Ice::Current&);
@@ -50,6 +53,7 @@ public:
 
     virtual bool pingNode(const std::string&, const Ice::Current&) const;
     virtual void shutdownNode(const std::string&, const Ice::Current&);
+    virtual void removeNode(const std::string&, const Ice::Current&);
     virtual Ice::StringSeq getAllNodeNames(const ::Ice::Current&) const;
 
     virtual void shutdown(const Ice::Current&);
@@ -58,6 +62,7 @@ private:
 
     Ice::CommunicatorPtr _communicator;
     NodeRegistryPtr _nodeRegistry;
+    ApplicationRegistryPtr _applicationRegistry;
     ServerRegistryPtr _serverRegistry;
     AdapterRegistryPtr _adapterRegistry;
     ObjectRegistryPtr _objectRegistry;

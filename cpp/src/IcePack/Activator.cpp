@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <IcePack/ActivatorI.h>
+#include <IcePack/Activator.h>
 #include <IcePack/Admin.h>
 #include <IcePack/Internal.h>
 #include <IcePack/TraceLevels.h>
@@ -30,7 +30,7 @@ class TerminationListenerThread : public IceUtil::Thread
 {
 public:
 
-    TerminationListenerThread(ActivatorI& activator) :
+    TerminationListenerThread(Activator& activator) :
 	_activator(activator)
     {
     }
@@ -43,7 +43,7 @@ public:
 
 private:
     
-    ActivatorI& _activator;
+    Activator& _activator;
 };
 
 }
@@ -61,8 +61,8 @@ void
 reportChildError(int err, int fd, const char* cannot, const char* name)
 {
     //
-    // Send any errors to the parent process, using the write end of
-    // the pipe.
+    // Send any errors to the parent process, using the write
+    // end of the pipe.
     //
     char msg[500];
     strcpy(msg, cannot);
@@ -239,7 +239,7 @@ stringToSignal(const string& str)
 
 }
 
-IcePack::ActivatorI::ActivatorI(const TraceLevelsPtr& traceLevels, const PropertiesPtr& properties) :
+Activator::Activator(const TraceLevelsPtr& traceLevels, const PropertiesPtr& properties) :
     _traceLevels(traceLevels),
     _properties(properties),
     _deactivating(false)
@@ -312,7 +312,7 @@ IcePack::ActivatorI::ActivatorI(const TraceLevelsPtr& traceLevels, const Propert
     }    
 }
 
-IcePack::ActivatorI::~ActivatorI()
+Activator::~Activator()
 {
     assert(!_thread);
     
@@ -328,7 +328,12 @@ IcePack::ActivatorI::~ActivatorI()
 }
 
 bool
-IcePack::ActivatorI::activate(const ServerPtr& server)
+Activator::activate(const string& name,
+		    const string& exePath,
+		    const string& pwdPath,
+		    const Ice::StringSeq& options,
+		    const Ice::StringSeq& envs,
+		    const ServerPrx& server)
 {
     IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 
@@ -337,13 +342,13 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	return false;
     }
 
-    string path = server->description.path;
+    string path = exePath;
     if(path.empty())
     {
 	return false;
     }
 
-    string pwd = server->description.pwd;
+    string pwd = pwdPath;
 
 #ifdef _WIN32
     //
@@ -410,15 +415,15 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     //
     StringSeq args;
     args.push_back(path);
-    args.insert(args.end(), server->description.args.begin(), server->description.args.end());
+    args.insert(args.end(), options.begin(), options.end());
     args.insert(args.end(), _propertiesOverride.begin(), _propertiesOverride.end());
     args.push_back("--Ice.Default.Locator=" + _properties->getProperty("Ice.Default.Locator"));
-    args.push_back("--Ice.ServerId=" + server->description.name);
+    args.push_back("--Ice.ServerId=" + name);
 
     if(_traceLevels->activator > 1)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-	out << "activating server `" << server->description.name << "'";
+	out << "activating server `" << name << "'";
 	if(_traceLevels->activator > 2)
 	{
 	    out << "\n";
@@ -486,7 +491,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     //
     const char* env = NULL;
     string envbuf;
-    if(!server->description.envs.empty())
+    if(!envs.empty())
     {
         map<string, string> envMap;
         LPVOID parentEnv = GetEnvironmentStrings();
@@ -514,7 +519,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
             var++; // Skip the '\0' byte
         }
         FreeEnvironmentStrings(static_cast<char*>(parentEnv));
-        for(p = server->description.envs.begin(); p != server->description.envs.end(); ++p)
+        for(p = envs.begin(); p != envs.end(); ++p)
         {
             string s = *p;
             string::size_type pos = s.find('=');
@@ -541,7 +546,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     si.cb = sizeof(si);
     if(_outputDir.size() > 0)
     {
-	string outFile = _outputDir + "/" + server->description.name + ".out";
+	string outFile = _outputDir + "/" + name + ".out";
 
 	SECURITY_ATTRIBUTES sec = { 0 };
 	sec.nLength = sizeof(sec);
@@ -577,7 +582,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	}
 	else
 	{
-	    string errFile = _outputDir + "/" + server->description.name + ".err";
+	    string errFile = _outputDir + "/" + name + ".err";
 
 	    process.errHandle = CreateFile(errFile.c_str(),
 					   GENERIC_WRITE, 
@@ -672,17 +677,18 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     //
     CloseHandle(pi.hThread);
 
+    
     process.pid = pi.dwProcessId;
     process.hnd = pi.hProcess;
     process.server = server;
-    _processes.push_back(process);
+    _processes.insert(make_pair(name, process));
     
     setInterrupt();
 
     if(_traceLevels->activator > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-        out << "activated server `" << server->description.name << "' (pid = " << pi.dwProcessId << ")";
+        out << "activated server `" << name << "' (pid = " << pi.dwProcessId << ")";
     }
 #else
     int fds[2];
@@ -707,12 +713,12 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     assert(i == argc);
     argv[argc] = 0;
     
-    int envCount = server->description.envs.size();
-    char** envs = new char*[envCount];
+    int envCount = envs.size();
+    char** envArray = new char*[envCount];
     i = 0;
-    for(StringSeq::const_iterator q = server->description.envs.begin(); q != server->description.envs.end(); ++q)
+    for(StringSeq::const_iterator q = envs.begin(); q != envs.end(); ++q)
     {
-	envs[i++] = strdup(q->c_str());
+	envArray[i++] = strdup(q->c_str());
     }
 
     //
@@ -733,7 +739,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     }
     else
     {
-	outFile = _outputDir + "/" + server->description.name + ".out";
+	outFile = _outputDir + "/" + name + ".out";
 	outFd = open(outFile.c_str(), flags, mode);
 	if(outFd < 0)
 	{
@@ -749,7 +755,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	}
 	else
 	{
-	    errFile = _outputDir + "/" + server->description.name + ".err";
+	    errFile = _outputDir + "/" + name + ".err";
 	    errFd = open(errFile.c_str(), flags, mode);
 	    
 	    if(errFd < 0)
@@ -768,6 +774,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     // Current directory
     //
     const char* pwdCStr = pwd.c_str();
+
 
     pid_t pid = fork();
     if(pid == -1)
@@ -823,15 +830,15 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 
 	for(i = 0; i < envCount; i++)
 	{
-	    if(putenv(envs[i]) != 0)
+	    if(putenv(envArray[i]) != 0)
 	    {
-		reportChildError(errno, fds[1], "cannot set environment variable",  envs[i]); 
+		reportChildError(errno, fds[1], "cannot set environment variable",  envArray[i]); 
 	    }
 	}
 	//
 	// Each env is leaked on purpose ... see man putenv().
 	//
-	delete[] envs;
+	delete[] envArray;
 
 	//
 	// Change working directory.
@@ -855,9 +862,9 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 
 	for(i = 0; i < envCount; ++i)
 	{
-	    free(envs[i]);
+	    free(envArray[i]);
 	}
-	delete[] envs;
+	delete[] envArray;
 
 	Process process;
 	process.pid = pid;
@@ -865,7 +872,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	process.outFd = outFd;
 	process.errFd = errFd;
 	process.server = server;
-	_processes.push_back(process);
+	_processes.insert(make_pair(name, process));
 	
 	int flags = fcntl(process.pipeFd, F_GETFL);
 	flags |= O_NONBLOCK;
@@ -876,7 +883,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	if(_traceLevels->activator > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-	    out << "activated server `" << server->description.name << "' (pid = " << pid << ")";
+	    out << "activated server `" << name << "' (pid = " << pid << ")";
 	}
     }
 #endif
@@ -885,11 +892,10 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 }
 
 void
-IcePack::ActivatorI::deactivate(const ServerPtr& server)
+Activator::deactivate(const string& name, const Ice::ProcessPrx& process)
 {
 #ifdef _WIN32
-    Ice::Int pid = server->getPid();
-
+    Ice::Int pid = getServerPid(name);
     if(pid == 0)
     {
 	//
@@ -897,36 +903,34 @@ IcePack::ActivatorI::deactivate(const ServerPtr& server)
 	//
 	return;
     }
-#endif
+#endif 
 
     //
     // Try to shut down the server gracefully using the process proxy.
     //
-    Ice::ProcessPrx process = server->getProcess();
     if(process)
     {
-        if(_traceLevels->activator > 1)
-        {
-            Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-            out << "deactivating `" << server->description.name << "' using process proxy";
-        }
-        try
-        {
-            process->shutdown();
-            return;
-        }
-        catch(const Ice::LocalException& ex)
-        {
-            Ice::Warning out(_traceLevels->logger);
-            out << "exception occurred while deactivating `" << server->description.name
-                << "' using process proxy:\n" << ex;
-        }
+	if(_traceLevels->activator > 1)
+	{
+	    Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+	    out << "deactivating `" << name << "' using process proxy";
+	}
+	try
+	{
+	    process->shutdown();
+	    return;
+	}
+	catch(const Ice::LocalException& ex)
+	{
+	    Ice::Warning out(_traceLevels->logger);
+	    out << "exception occurred while deactivating `" << name << "' using process proxy:\n" << ex;
+	}
     }
 
     if(_traceLevels->activator > 1)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-        out << "no process proxy, deactivating `" << server->description.name << "' using signal";
+        out << "no process proxy, deactivating `" << name << "' using signal";
     }
 
 #ifdef _WIN32
@@ -938,7 +942,7 @@ IcePack::ActivatorI::deactivate(const ServerPtr& server)
         if(_traceLevels->activator > 1)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-            out << "sent Ctrl+Break to server `" << server->description.name << "' (pid = " << pid << ")";
+            out << "sent Ctrl+Break to server `" << name << "' (pid = " << pid << ")";
         }
     }
     else
@@ -951,17 +955,16 @@ IcePack::ActivatorI::deactivate(const ServerPtr& server)
     //
     // Send a SIGTERM to the process.
     //
-    sendSignal(server, SIGTERM);
+    sendSignal(name, SIGTERM);
     
 #endif
 }
 
 void
-IcePack::ActivatorI::kill(const ServerPtr& server)
+Activator::kill(const string& name)
 {
 #ifdef _WIN32
-    Ice::Int pid = server->getPid();
-    
+    Ice::Int pid = getServerPid(name);
     if(pid == 0)
     {
 	//
@@ -992,22 +995,22 @@ IcePack::ActivatorI::kill(const ServerPtr& server)
     if(_traceLevels->activator > 1)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-	out << "terminating server `" << server->description.name << "' (pid = " << pid << ")";
+	out << "terminating server `" << name << "' (pid = " << pid << ")";
     }
 
 #else
-    sendSignal(server, SIGKILL);
+    sendSignal(name, SIGKILL);
 #endif
 }
 
 
 void
-IcePack::ActivatorI::sendSignal(const ServerPtr& server, const string& signal)
+Activator::sendSignal(const string& name, const string& signal)
 {
-    sendSignal(server, stringToSignal(signal));
+    sendSignal(name, stringToSignal(signal));
 }
 void
-IcePack::ActivatorI::sendSignal(const ServerPtr& server, int signal)
+Activator::sendSignal(const string& name, int signal)
 {
 #ifdef _WIN32
     //
@@ -1016,8 +1019,7 @@ IcePack::ActivatorI::sendSignal(const ServerPtr& server, int signal)
     throw BadSignalException();
 
 #else
-    Ice::Int pid = server->getPid();
-    
+    Ice::Int pid = getServerPid(name);
     if(pid == 0)
     {
 	//
@@ -1042,14 +1044,13 @@ IcePack::ActivatorI::sendSignal(const ServerPtr& server, int signal)
     if(_traceLevels->activator > 1)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-	out << "sent " << signalToString(signal) << " to server `" 
-	    << server->description.name << "' (pid = " << pid << ")";
+	out << "sent " << signalToString(signal) << " to server `" << name << "' (pid = " << pid << ")";
     }
 #endif
 }
 
 void 
-IcePack::ActivatorI::writeMessage(const ServerPtr& server, const string& message, Ice::Int fd)
+Activator::writeMessage(const string& name, const string& message, Ice::Int fd)
 {
     assert(fd == 1 || fd == 2);
     
@@ -1063,18 +1064,17 @@ IcePack::ActivatorI::writeMessage(const ServerPtr& server, const string& message
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 
-	for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+	map<string, Process>::const_iterator p = _processes.find(name);
+	if(p == _processes.end())
 	{
-	    if(p->server == server)
-	    {
-#ifdef _WIN32
-		handle = (fd == 1 ? p->outHandle : p->errHandle);
-#else
-		actualFd = (fd == 1 ? p->outFd : p->errFd);
-#endif
-		break; // for
-	    }
+	    return;
 	}
+	
+#ifdef _WIN32
+	handle = (fd == 1 ? p->second.outHandle : p->second.errHandle);
+#else
+	actualFd = (fd == 1 ? p->second.outFd : p->second.errFd);
+#endif
     }
 
 #ifdef _WIN32
@@ -1106,23 +1106,21 @@ IcePack::ActivatorI::writeMessage(const ServerPtr& server, const string& message
    
 
 Ice::Int
-IcePack::ActivatorI::getServerPid(const ServerPtr& server)
+Activator::getServerPid(const string& name)
 {
     IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 
-    for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+    map<string, Process>::const_iterator p = _processes.find(name);
+    if(p == _processes.end())
     {
-	if(p->server == server)
-	{
-	    return static_cast<Ice::Int>(p->pid);
-	}
+	return 0;
     }
 
-    return 0;
+    return static_cast<Ice::Int>(p->second.pid);
 }
 
 void
-IcePack::ActivatorI::start()
+Activator::start()
 {
     //
     // Create and start the termination listener thread.
@@ -1132,7 +1130,7 @@ IcePack::ActivatorI::start()
 }
 
 void
-IcePack::ActivatorI::waitForShutdown()
+Activator::waitForShutdown()
 {
     IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
     while(!_deactivating)
@@ -1142,7 +1140,7 @@ IcePack::ActivatorI::waitForShutdown()
 }
 
 void
-IcePack::ActivatorI::shutdown()
+Activator::shutdown()
 {
     IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
     //
@@ -1157,7 +1155,7 @@ IcePack::ActivatorI::shutdown()
 }
 
 void
-IcePack::ActivatorI::destroy()
+Activator::destroy()
 {
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
@@ -1179,7 +1177,7 @@ IcePack::ActivatorI::destroy()
 }
 
 void
-IcePack::ActivatorI::runTerminationListener()
+Activator::runTerminationListener()
 {
     try
     {
@@ -1198,18 +1196,18 @@ IcePack::ActivatorI::runTerminationListener()
 }
 
 void
-IcePack::ActivatorI::deactivateAll()
+Activator::deactivateAll()
 {
     //
     // Stop all active processes.
     //
-    vector<Process> processes;
+    map<string, Process> processes;
     {
 	IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 	processes = _processes;
     }
 
-    for(vector<Process>::iterator p = processes.begin(); p != processes.end(); ++p)
+    for(map<string, Process>::iterator p = processes.begin(); p != processes.end(); ++p)
     {
 	//
 	// Stop the server. The listener thread should detect the
@@ -1218,7 +1216,7 @@ IcePack::ActivatorI::deactivateAll()
 	//
 	try
 	{
-	    p->server->stop();
+	    p->second.server->stop();
 	}
 	catch(const ObjectNotExistException&)
 	{
@@ -1230,7 +1228,7 @@ IcePack::ActivatorI::deactivateAll()
 }
 
 void
-IcePack::ActivatorI::terminationListener()
+Activator::terminationListener()
 {
 #ifdef _WIN32
     while(true)
@@ -1243,9 +1241,9 @@ IcePack::ActivatorI::terminationListener()
         {
             IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 
-            for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+            for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
             {
-                handles.push_back(p->hnd);
+                handles.push_back(p->second.hnd);
             }
         }
 
@@ -1274,25 +1272,24 @@ IcePack::ActivatorI::terminationListener()
         }
         else
         {
-            for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+            for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
             {
-                if(p->hnd == hnd)
+                if(p->second.hnd == hnd)
                 {
                     if(_traceLevels->activator > 0)
                     {
                         Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                        out << "detected termination of server `" << p->server->description.name << "'";
+                        out << "detected termination of server `" << p->first << "'";
                     }
 
                     try
                     {
-                        p->server->terminated();
+                        p->second.server->terminated();
                     }
                     catch(const Ice::LocalException& ex)
                     {
                         Ice::Warning out(_traceLevels->logger);
-                        out << "unexpected exception raised by server `" << p->server->description.name 
-                            << "' termination:\n" << ex;
+                        out << "unexpected exception raised by server `" << p->first << "' termination:\n" << ex;
                     }
                             
 		    CloseHandle(hnd);
@@ -1301,17 +1298,16 @@ IcePack::ActivatorI::terminationListener()
 			//
 			// STDOUT and STDERR should not be closed
 			//
-			CloseHandle(p->outHandle);
+			CloseHandle(p->second.outHandle);
 			if(!_redirectErrToOut)
 			{
-			    CloseHandle(p->errHandle);
+			    CloseHandle(p->second.errHandle);
 			}
 		    }
                     _processes.erase(p);
                     break;
                 }
             }
-	    
         }
 
         if(_deactivating && _processes.empty())
@@ -1330,9 +1326,9 @@ IcePack::ActivatorI::terminationListener()
 	{
 	    IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
 
-	    for(vector<Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+	    for(map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
 	    {
-		int fd = p->pipeFd;
+		int fd = p->second.pipeFd;
 		FD_SET(fd, &fdSet);
 		if(maxFd < fd)
 		{
@@ -1377,10 +1373,10 @@ IcePack::ActivatorI::terminationListener()
                 }
 	    }
 	    
-	    vector<Process>::iterator p = _processes.begin();
+	    map<string, Process>::iterator p = _processes.begin();
 	    while(p != _processes.end())
 	    {
-		int fd = p->pipeFd;
+		int fd = p->second.pipeFd;
 		if(!FD_ISSET(fd, &fdSet))   
 		{
 		    ++p;
@@ -1419,30 +1415,29 @@ IcePack::ActivatorI::terminationListener()
 		    if(_traceLevels->activator > 0)
 		    {
 			Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                        out << "detected termination of server `" << p->server->description.name << "'";
+                        out << "detected termination of server `" << p->first << "'";
 		    }
 
 		    try
 		    {
-			p->server->terminated();
+			p->second.server->terminated();
 		    }
 		    catch(const Ice::LocalException& ex)
 		    {
 			Ice::Warning out(_traceLevels->logger);
-			out << "unexpected exception raised by server `" << p->server->description.name 
-			    << "' termination:\n" << ex;
+			out << "unexpected exception raised by server `" << p->first << "' termination:\n" << ex;
 		    }
 			    
-		    if(p->errFd != p->outFd && p->errFd != STDERR_FILENO)
+		    if(p->second.errFd != p->second.outFd && p->second.errFd != STDERR_FILENO)
 		    {
-			close(p->errFd);
+			close(p->second.errFd);
 		    }
-		    if(p->outFd != STDOUT_FILENO)
+		    if(p->second.outFd != STDOUT_FILENO)
 		    {
-			close(p->outFd);
+			close(p->second.outFd);
 		    }
-		    close(p->pipeFd);
-		    p = _processes.erase(p);
+		    close(p->second.pipeFd);
+		    _processes.erase(p++);
 
 		    //
 		    // We are deactivating and there's no more active processes. We can now 
@@ -1469,7 +1464,7 @@ IcePack::ActivatorI::terminationListener()
 }
 
 void
-IcePack::ActivatorI::clearInterrupt()
+Activator::clearInterrupt()
 {
 #ifdef _WIN32
     ResetEvent(_hIntr);
@@ -1481,7 +1476,7 @@ IcePack::ActivatorI::clearInterrupt()
 }
 
 void
-IcePack::ActivatorI::setInterrupt()
+Activator::setInterrupt()
 {
 #ifdef _WIN32
     SetEvent(_hIntr);

@@ -45,11 +45,11 @@ allCommonTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing adapter registration... " << flush;
     Ice::StringSeq adapterIds = admin->getAllAdapterIds();
-    test(find(adapterIds.begin(), adapterIds.end(), "Server-Server1") != adapterIds.end());
-    test(find(adapterIds.begin(), adapterIds.end(), "Server-Server2") != adapterIds.end());
-    test(find(adapterIds.begin(), adapterIds.end(), "Service1-IceBox1.Service1") != adapterIds.end());
+    test(find(adapterIds.begin(), adapterIds.end(), "Server1.Server") != adapterIds.end());
+    test(find(adapterIds.begin(), adapterIds.end(), "Server2.Server") != adapterIds.end());
+    test(find(adapterIds.begin(), adapterIds.end(), "IceBox1.Service1.Service1") != adapterIds.end());
     test(find(adapterIds.begin(), adapterIds.end(), "IceBox1Service2Adapter") != adapterIds.end());
-    test(find(adapterIds.begin(), adapterIds.end(), "Service1-IceBox2.Service1") != adapterIds.end());
+    test(find(adapterIds.begin(), adapterIds.end(), "IceBox2.Service1.Service1") != adapterIds.end());
     test(find(adapterIds.begin(), adapterIds.end(), "IceBox2Service2Adapter") != adapterIds.end());
     cout << "ok" << endl;
 
@@ -101,18 +101,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     TestPrx obj;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server-Server1"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server-Server2"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@Service1-IceBox1.Service1"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
     obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service2@IceBox1Service2Adapter"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox2-Service1@Service1-IceBox2.Service1"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
     obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     
     cout << "ok" << endl;
 
     cout << "testing server configuration... " << flush;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server-Server1"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
     test(obj->getProperty("Type") == "Server");
     test(obj->getProperty("Name") == "Server1");
 
@@ -120,7 +120,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(obj->getProperty("Variable1") == "");
     test(obj->getProperty("Variable2") == "");
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server-Server2"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
     test(obj->getProperty("Target1") == "1");
     test(obj->getProperty("Target2") == "1");
     test(obj->getProperty("Variable") == "val0prop");
@@ -131,7 +131,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing service configuration... " << flush;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@Service1-IceBox1.Service1"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
     test(obj->getProperty("Service1.Type") == "standard");
     test(obj->getProperty("Service1.ServiceName") == "Service1");
     
@@ -151,24 +151,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing server options... " << flush;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server-Server1"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
     test(obj->getProperty("Test.Test") == "2");
     test(obj->getProperty("Test.Test1") == "0");
-
-    //
-    // Ping the icebox service manager to avoid terminating the icebox
-    // too soon (before the icebox is fully initialized) and some
-    // connection warnings message (caused by the fact the termination
-    // handler is not yet installed and communicator not properly
-    // shutdown).
-    //
-    IcePack::ServerDescription desc;
-
-    desc = admin->getServerDescription("IceBox1");
-    desc.serviceManager->ice_ping();
-
-    desc = admin->getServerDescription("IceBox2");
-    desc.serviceManager->ice_ping();
 
     cout << "ok" << endl;
 }
@@ -189,7 +174,7 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
     admin->setServerActivation("Server1", IcePack::Manual);
     try
     {
-	obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server-Server1"));
+	obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
 	test(false);
     }
     catch(const Ice::LocalException&)
@@ -197,25 +182,15 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
     }
     admin->startServer("Server1");
     
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server-Server1"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server-Server2"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
 
     cout << "ok" << endl;
 
     cout << "testing service configuration... " << flush;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@Service1-IceBox1.Service1"));
+    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
     test(obj->getProperty("Service1.DebugProperty") == "debug");
-
-    //
-    // Ping the icebox service manager to avoid terminating the icebox
-    // too soon (before the icebox is fully initialized) and some
-    // connection warnings message (caused by the fact the termination
-    // handler is not yet installed and communicator not properly
-    // shutdown).
-    //
-    IcePack::ServerDescription desc = admin->getServerDescription("IceBox1");
-    desc.serviceManager->ice_ping();
 
     cout << "ok" << endl;
 }

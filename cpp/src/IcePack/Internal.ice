@@ -18,13 +18,6 @@
 module IcePack
 {
 
-struct ObjectDescription
-{
-    Object* proxy;
-    string type;
-    string adapterId;
-};
-
 /**
  *
  * The object registry interface.
@@ -37,7 +30,7 @@ interface ObjectRegistry
      * Add an object to the registry.
      *
      **/
-    void add(ObjectDescription desc)
+    void add(ObjectDescriptor desc)
 	throws ObjectExistsException;
 
     /**
@@ -53,7 +46,7 @@ interface ObjectRegistry
      * Find an object by identity and returns its description.
      *
      **/
-    nonmutating ObjectDescription getObjectDescription(Ice::Identity id)
+    nonmutating ObjectDescriptor getObjectDescriptor(Ice::Identity id)
 	throws ObjectNotExistException;
 
     /**
@@ -160,7 +153,7 @@ interface AdapterRegistry
      * Remove an adapter from the registry.
      *
      **/
-    void remove(string id)
+    Adapter* remove(string id)
 	throws AdapterNotExistException;
     
     /**
@@ -208,6 +201,13 @@ class ServerAdapter implements Adapter
 {
     /**
      *
+     * Returns the adaper id.
+     *
+     **/
+    string getId();
+
+    /**
+     *
      * The adapter server.
      *
      **/
@@ -226,19 +226,10 @@ class ServerAdapter implements Adapter
  * A sequence of server adapter proxies.
  *
  **/
-sequence<ServerAdapter*> ServerAdapters;
+dictionary<Ice::Identity, ServerAdapter*> ServerAdapterPrxDict;
 
 class Server
 {
-    /**
-     *
-     * Server description.
-     *
-     * @return The server description.
-     *
-     **/
-    ServerDescription getServerDescription();
-
     /**
      *
      * Start the server.
@@ -269,7 +260,8 @@ class Server
      * Send signal to the server
      *
      **/
-    void sendSignal(string signal) throws BadSignalException;
+    void sendSignal(string signal) 
+	throws BadSignalException;
     
     /**
      *
@@ -317,6 +309,13 @@ class Server
 
     /**
      *
+     * Get the descriptor used to deploy this server.
+     *
+     **/
+    ServerDescriptor getDescriptor();
+
+    /**
+     *
      * Set the server activation mode.
      *
      **/
@@ -338,33 +337,103 @@ class Server
 
     /**
      *
-     * Get the proxy for the server's process.
+     * Set the server executable path.
      *
      **/
-    Ice::Process* getProcess();
-
-    /**
-     * 
-     * The description of this server.
-     *
-     * @return The server description.
-     *
-     */
-    ServerDescription description;
-
+    void setExePath(string name);
+    
     /**
      *
-     * The server adapter proxies.
+     * Set the path of the server working directory.
+     *
+     **/ 
+    void setPwd(string path);
+    
+    /**
+     *
+     * Set the server environment variables.
      *
      **/
-    ServerAdapters adapters;
+    void setEnvs(Ice::StringSeq envs);
 
     /**
      *
-     * The server activation mode.
+     * Set the server command line options.
      *
      **/
+    void setOptions(Ice::StringSeq options);
+    
+    /**
+     *
+     * Add an adapter to this server.
+     *
+     **/
+    void addAdapter(ServerAdapter* adapter, bool registerProcess)
+	throws DeploymentException;
+
+    /**
+     *
+     * Remove an adapter from this server.
+     *
+     **/
+    void removeAdapter(ServerAdapter* adapter);
+
+    /**
+     *
+     * Add a configuration file.
+     *
+     **/
+    string addConfigFile(string name, PropertyDescriptorSeq properties)
+	throws DeploymentException;
+
+    /**
+     *
+     * Remove a configuration file.
+     *
+     **/
+    void removeConfigFile(string name);
+
+    /**
+     *
+     * Add a database environment.
+     *
+     **/
+    string addDbEnv(DbEnvDescriptor dbEnv, string path)
+	throws DeploymentException;
+
+    /**
+     *
+     * Remove a database environment.
+     *
+     **/
+    void removeDbEnv(DbEnvDescriptor dbEnv, string path);
+    
+    /** The server name. */
+    string name;
+
+    /** The path of the server executable. */
+    string exePath;
+
+    /** The server environment variables. */
+    Ice::StringSeq envs;
+
+    /** The server command line options. */
+    Ice::StringSeq options;
+
+    /** The path to the server working directory. */
+    string pwd;
+
+    /** The server adapter proxies. */
+    ServerAdapterPrxDict adapters;
+
+    /** The server activation mode. */
     ServerActivation activation;
+
+    /** True if an adapter is configured to register a process object. */
+    bool processRegistered;
+
+    /** The descriptor used to deploy this server. */
+    ServerDescriptor descriptor;
 };
 
 /**
@@ -384,7 +453,7 @@ interface ServerRegistry
      * Add a server to the registry.
      *
      **/
-    void add(string name, Server* svr)
+    void add(string name, Server* svr, ServerDescriptor descriptor)
 	throws ServerExistsException;
 
     /**
@@ -392,7 +461,7 @@ interface ServerRegistry
      * Remove a server from the registry.
      *
      **/
-    void remove(string name)
+    Server* remove(string name)
 	throws ServerNotExistException;
     
     /**
@@ -409,72 +478,132 @@ interface ServerRegistry
 
     /**
      *
+     * Get a server descriptor.
+     *
+     **/
+    ServerDescriptor getDescriptor(string name)
+        throws ServerNotExistException;
+
+    /**
+     *
      * Get all the server names.
      *
      **/
     nonmutating Ice::StringSeq getAll();
+
+    /**
+     *
+     * Get all the server descriptors for servers deployed on the given node.
+     *
+     **/
+    nonmutating ServerDescriptorSeq getAllDescriptorsOnNode(string node);
 };
 
-interface ServerDeployer
+/**
+ *
+ * This exception is raised if a server with the same name already
+ * exists.
+ *
+ **/
+exception ApplicationExistsException
+{
+};
+
+interface ApplicationRegistry
 {
     /**
      *
-     * Deploy a new server. [add] will create and register a new
-     * server with the server registry. The server components
-     * described in the given XML descriptor file will also be created
-     * or registered with the appropriate services.
-     *
-     * @param name The server name.
-     *
-     * @param xmlfile Path to the XML file containing the server
-     * deployment descriptor.
-     *
-     * @param binPath The server path. For C++ servers, this is the
-     * path of the executable. For C++ icebox, this is the path of the
-     * C++ icebox executable or if empty IcePack will rely on the path
-     * to find it. For Java server or Java icebox, this is the path of
-     * the java command or if empty IcePack will rely on the path to
-     * find it.
-     *
-     * @param libPath Specify the CLASSPATH value for Java servers,
-     * ignored for C++ servers.
-     *
-     * @param targets The optional targets to be executed during the
-     * deployment.
+     * Add an application to the registry.
      *
      **/
-    void add(string name, string xmlfile, string binPath, string libPath, Ice::StringSeq targets)
-	throws DeploymentException;
+    void add(string name)
+	throws ApplicationExistsException;
 
     /**
      *
-     * Remove a server. [remove] will destroy the server and
-     * unregister it from the server registry. The server components
-     * described in the given XML descriptor file will also be
-     * destroyed or unregistered with the appropriate services.
-     *
-     * @param name The server name.
+     * Remove an application from the registry.
      *
      **/
     void remove(string name)
-	throws DeploymentException;
+	throws ApplicationNotExistException;
+
+    /**
+     *
+     * Register a server with the given application.
+     *
+     **/
+    void registerServer(string application, string name)
+	throws ApplicationNotExistException;
+
+    /**
+     *
+     * Unregister a server from the given application.
+     *
+     **/
+    void unregisterServer(string application, string name)
+	throws ApplicationNotExistException;
+
+    /**
+     *
+     * Get an application descriptor.
+     *
+     **/
+    ApplicationDescriptor getDescriptor(string name)
+        throws ApplicationNotExistException;
+
+    /**
+     *
+     * Get all the application names.
+     *
+     **/
+    nonmutating Ice::StringSeq getAll();
 };
 
 interface Node
 {
     /**
      *
+     * Create a new server on this node.
+     *
+     * @param The name of the server.
+     *
+     * @param The descriptor of the server.
+     *
+     **/
+    nonmutating Server* createServer(string name, ServerDescriptor desc)
+	throws DeploymentException;
+
+    /**
+     *
+     * Create a new adapter of a given server on this node.
+     *
+     * @param server The server associted to the adapter.
+     *
+     * @param id The id of the adapter.
+     *
+     **/
+    nonmutating ServerAdapter* createServerAdapter(Server* srv, string id);
+
+    /**
+     *
+     * Create a temporary directory.
+     *
+     **/
+    nonmutating string createTmpDir();
+
+    /**
+     *
+     * Destroy a temporary directory.
+     *
+     **/
+    nonmutating void destroyTmpDir(string path);
+
+    /**
+     *
      * Get the node name.
      *
      **/
     nonmutating string getName();    
-
-    /**
-     *
-     * Get the node server deployer.
-     *
-     **/
-    nonmutating ServerDeployer* getServerDeployer();
 
     /**
      *

@@ -14,6 +14,7 @@
 #include <IcePack/Registry.h>
 #include <IcePack/AdapterI.h>
 #include <IcePack/AdapterFactory.h>
+#include <IcePack/ApplicationRegistryI.h>
 #include <IcePack/ServerRegistryI.h>
 #include <IcePack/AdapterRegistryI.h>
 #include <IcePack/ObjectRegistryI.h>
@@ -145,7 +146,11 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
 
     AdapterRegistryPtr adapterRegistry = new AdapterRegistryI(_communicator, _envName, "adapterregistry", traceLevels);
 
-    ServerRegistryPtr serverRegistry = new ServerRegistryI(_communicator, _envName, "serverregistry", traceLevels);
+    ServerRegistryPtr serverRegistry = new ServerRegistryI(_communicator, _envName, "serverregistry", 
+							   "serverdescriptors", traceLevels);
+
+    ApplicationRegistryPtr applicationRegistry = new ApplicationRegistryI(_communicator, serverRegistry, _envName, 
+									  "applicationregistry", traceLevels);
 
     NodeRegistryPtr nodeRegistry = new NodeRegistryI(_communicator, _envName, "noderegistry", 
 						     adapterRegistry, adapterFactory, traceLevels);
@@ -153,6 +158,7 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
     registryAdapter->add(objectRegistry, stringToIdentity("IcePack/ObjectRegistry"));
     registryAdapter->add(adapterRegistry, stringToIdentity("IcePack/AdapterRegistry"));
     registryAdapter->add(serverRegistry, stringToIdentity("IcePack/ServerRegistry"));    
+    registryAdapter->add(serverRegistry, stringToIdentity("IcePack/ApplicationRegistry"));
     registryAdapter->add(nodeRegistry, stringToIdentity("IcePack/NodeRegistry"));
 
     //
@@ -190,7 +196,8 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
 	properties->setProperty("IcePack.Registry.Admin.AdapterId", "IcePack.Registry.Admin");
 	adminAdapter = _communicator->createObjectAdapter("IcePack.Registry.Admin");
 	
-	AdminPtr admin = new AdminI(_communicator, nodeRegistry, serverRegistry, adapterRegistry, objectRegistry);
+	AdminPtr admin = new AdminI(_communicator, nodeRegistry, applicationRegistry, serverRegistry, adapterRegistry, 
+				    objectRegistry);
 	adminAdapter->add(admin, stringToIdentity("IcePack/Admin"));
     
 	//
@@ -207,7 +214,7 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
 	{
 	}
 	
-	IcePack::ObjectDescription desc;
+	IcePack::ObjectDescriptor desc;
 	desc.proxy = adminPrx;
 	desc.type = "::IcePack::Admin";
 	
@@ -226,7 +233,7 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
     {
     }
 	
-    IcePack::ObjectDescription desc;
+    IcePack::ObjectDescriptor desc;
     desc.proxy = queryPrx;
     desc.type = "::IcePack::Query";	
     objectRegistry->add(desc);

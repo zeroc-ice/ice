@@ -242,6 +242,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name IceBox
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceXML
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -346,27 +349,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceSSL
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "IcePatchCalc"=.\src\IcePatch\IcePatchCalc.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePatch
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
     End Project Dependency
 }}}
 
@@ -801,6 +783,9 @@ Package=<4>
     Project_Dep_Name unicode
     End Project Dependency
     Begin Project Dependency
+    Project_Dep_Name slice2wsdl
+    End Project Dependency
+    Begin Project Dependency
     Project_Dep_Name Glacier
     End Project Dependency
     Begin Project Dependency
@@ -990,31 +975,7 @@ Package=<4>
     Project_Dep_Name freezeScriptEvictor
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name sliceexAMDS
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name TransformDB
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name DumpDB
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name sliceobAMDS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleIcePackC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleIcePackS
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name simpleIcePackSvc
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePatchCalc
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2cs
     End Project Dependency
 }}}
 
@@ -2195,18 +2156,6 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name TransformDB
     End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name DumpDB
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2freezej
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name slice2java
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePatchCalc
-    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2508,66 +2457,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "simpleIcePackC"=.\demo\IcePack\simple\simpleIcePackC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IcePack
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "simpleIcePackS"=.\demo\IcePack\simple\simpleIcePackS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "simpleIcePackSvc"=.\demo\IcePack\simple\simpleIcePackSvc.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceBox
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "simpleS"=.\test\IcePack\simple\simpleS.dsp - Package Owner=<4>
 
 Package=<5>
@@ -2736,7 +2625,7 @@ Package=<4>
 
 ###############################################################################
 
-Project: "sliceexAMDS"=.\test\Ice\slicing\exceptions\sliceexAMDS.dsp - Package Owner=<4>
+Project: "slice2wsdl"=.\src\slice2wsdl\slice2wsdl.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
@@ -2745,10 +2634,10 @@ Package=<5>
 Package=<4>
 {{{
     Begin Project Dependency
-    Project_Dep_Name Ice
+    Project_Dep_Name IceUtil
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name IceUtil
+    Project_Dep_Name Slice
     End Project Dependency
 }}}
 
@@ -2773,24 +2662,6 @@ Package=<4>
 ###############################################################################
 
 Project: "sliceexS"=.\test\Ice\slicing\exceptions\sliceexS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name Ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name IceUtil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "sliceobAMDS"=.\test\Ice\slicing\objects\sliceobAMDS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

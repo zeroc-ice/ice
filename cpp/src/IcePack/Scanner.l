@@ -197,7 +197,13 @@ NL	[\n]
     return ICE_PACK_WARRANTY;
 }
 
+"diff" {
+    return ICE_PACK_DIFF;
+}
 
+"update" {
+    return ICE_PACK_UPDATE;
+}
 
 {WS}*(\\{WS}*{NL})? {
     size_t len = strlen(yytext);

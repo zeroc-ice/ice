@@ -27,38 +27,40 @@ LIB_OBJS	= Admin.o \
 ADMIN_OBJS	= Grammar.o \
 		  Scanner.o \
 		  Parser.o \
+                  DescriptorVisitor.o \
+                  DescriptorParser.o \
+                  DescriptorUtil.o \
 		  Client.o
 
 COMMON_OBJS	= Internal.o \
-		  TraceLevels.o \
-		  ComponentBuilder.o
+		  TraceLevels.o
 
-NODE_OBJS	= NodeInfo.o \
-		  NodeI.o \
-		  ServiceBuilder.o \
-		  ServerBuilder.o \
+NODE_OBJS	= NodeI.o \
+	          ServerFactory.o \
 		  ServerI.o \
 		  ServerAdapterI.o \
-		  ServerFactory.o \
-		  ServerDeployerI.o \
 	          Activator.o \
-		  ActivatorI.o \
-		  WaitQueue.o
+		  WaitQueue.o \
+                  DescriptorParser.o
 
 REGISTRY_OBJS   = Registry.o \
 	 	  ObjectRegistryI.o \
 		  AdapterRegistryI.o \
 		  ServerRegistryI.o \
 		  NodeRegistryI.o \
+	          ApplicationRegistryI.o \
 		  StringObjectProxyDict.o \
 		  StringObjectProxySeqDict.o \
+		  StringServerDescriptorDict.o \
+                  StringStringSeqDict.o \
 		  IdentityObjectDescDict.o \
 		  LocatorI.o \
 		  LocatorRegistryI.o \
-		  ApplicationBuilder.o \
 		  AdapterFactory.o \
 		  AdapterI.o \
 		  AdminI.o \
+		  DescriptorVisitor.o \
+                  DescriptorUtil.o \
 		  QueryI.o
 
 NODE_SVR_OBJS 	= $(COMMON_OBJS) \
@@ -82,8 +84,7 @@ SRCS		= $(LIB_OBJS:.o=.cpp) \
 SLICE_SRCS	= $(SDIR)/Admin.ice \
                   $(SDIR)/Exception.ice \
                   $(SDIR)/Query.ice \
-		  Internal.ice \
-		  Activator.ice
+		  Internal.ice
 
 HDIR		= $(includedir)/IcePack
 LOCAL_HDIR	= ../IcePack
@@ -113,7 +114,7 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(ADMIN): $(ADMIN_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIcePack -lIceBox $(LIBS) $(READLINE_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(ADMIN_OBJS) -lIceXML -lIcePack -lIceBox $(LIBS) $(READLINE_LIBS)
 
 $(REGISTRY_SERVER): $(REGISTRY_SVR_OBJS) $(libdir)/$(LIBNAME)
 	rm -f $@
@@ -136,9 +137,25 @@ $(LOCAL_HDIR)/StringObjectProxyDict.h StringObjectProxyDict.cpp: $(SLICE2FREEZE)
 clean::
 	rm -f StringObjectProxyDict.h StringObjectProxyDict.cpp
 
+$(LOCAL_HDIR)/StringStringSeqDict.h StringStringSeqDict.cpp: $(SLICE2FREEZE)
+	rm -f StringStringSeqDict.h StringStringSeqDict.cpp
+	$(SLICE2FREEZECMD) --dict IcePack::StringStringSeqDict,string,Ice::StringSeq \
+	StringStringSeqDict ../../slice/Ice/BuiltinSequences.ice
+
+clean::
+	rm -f StringStringSeqDict.h StringStringSeqDict.cpp
+
+$(LOCAL_HDIR)/StringServerDescriptorDict.h StringServerDescriptorDict.cpp: $(SLICE2FREEZE)
+	rm -f StringServerDescriptorDict.h StringServerDescriptorDict.cpp
+	$(SLICE2FREEZECMD) --dict IcePack::StringServerDescriptorDict,string,IcePacK::ServerDescriptor \
+	StringServerDescriptorDict ../../slice/IcePack/Admin.ice
+
+clean::
+	rm -f StringServerDescriptorDict.h StringServerDescriptorDict.cpp
+
 $(LOCAL_HDIR)/IdentityObjectDescDict.h IdentityObjectDescDict.cpp: $(SLICE2FREEZE)
 	rm -f IdentityObjectDescDict.h IdentityObjectDescDict.cpp
-	$(SLICE2FREEZECMD) --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescription \
+	$(SLICE2FREEZECMD) --dict IcePack::IdentityObjectDescDict,Ice::Identity,IcePack::ObjectDescriptor \
 	IdentityObjectDescDict ../../slice/Ice/Identity.ice $(LOCAL_SDIR)/Internal.ice
 
 clean::

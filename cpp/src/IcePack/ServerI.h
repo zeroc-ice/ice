@@ -30,11 +30,9 @@ class ServerI : public Server, public IceUtil::AbstractMutexI<IceUtil::Monitor<I
 {
 public:
 
-    ServerI(const ServerFactoryPtr&, const TraceLevelsPtr&, const ActivatorPtr&, Ice::Int waitTime);
+    ServerI(const ServerFactoryPtr&, const TraceLevelsPtr&, const ActivatorPtr&, Ice::Int waitTime,const std::string&);
     virtual ~ServerI();
     
-    virtual ServerDescription getServerDescription(const ::Ice::Current&);
-
     virtual bool start(ServerActivation, const ::Ice::Current&);
     virtual void stop(const ::Ice::Current&);
     virtual void sendSignal(const std::string&, const ::Ice::Current&);
@@ -47,19 +45,30 @@ public:
 
     virtual void setActivationMode(ServerActivation, const ::Ice::Current&);
     virtual ServerActivation getActivationMode(const ::Ice::Current&);
-
+    virtual ServerDescriptorPtr getDescriptor(const ::Ice::Current&);
     virtual void setProcess(const ::Ice::ProcessPrx&, const ::Ice::Current&);
-    virtual Ice::ProcessPrx getProcess(const ::Ice::Current&);
+
+    void setExePath(const std::string&, const ::Ice::Current&);
+    void setPwd(const std::string&, const ::Ice::Current&);
+    void setEnvs(const Ice::StringSeq&, const ::Ice::Current&);
+    void setOptions(const Ice::StringSeq&, const ::Ice::Current&);
+    void addAdapter(const ServerAdapterPrx&, bool, const ::Ice::Current&);
+    void removeAdapter(const ServerAdapterPrx&, const ::Ice::Current&);
+    std::string addConfigFile(const std::string&, const PropertyDescriptorSeq&, const ::Ice::Current&);
+    void removeConfigFile(const std::string&, const ::Ice::Current&);
+    std::string addDbEnv(const DbEnvDescriptor&, const std::string&, const ::Ice::Current&);
+    void removeDbEnv(const DbEnvDescriptor&, const std::string&, const ::Ice::Current&);
 
 private:
 
-    void stopInternal();
-    void setState(ServerState);
+    void stopInternal(const Ice::Current&);
+    void setState(ServerState, const Ice::Current&);
 
     ServerFactoryPtr _factory;
     TraceLevelsPtr _traceLevels;
     ActivatorPtr _activator;
     ::Ice::Int _waitTime;
+    std::string _serversDir;
 
     ServerState _state;
 

@@ -175,10 +175,10 @@ void
 IcePack::LocatorI::findObjectById_async(const Ice::AMD_Locator_findObjectByIdPtr& response, const Ice::Identity& id, 
 					const Ice::Current& current) const
 {
-    ObjectDescription obj;
+    ObjectDescriptor obj;
     try
     {
-	obj = _objectRegistry->getObjectDescription(id);
+	obj = _objectRegistry->getObjectDescriptor(id);
     }
     catch(const ObjectNotExistException&)
     {

@@ -1,3 +1,35 @@
+Changes since version 1.4.0
+---------------------------
+
+- Removed IceBox::ServiceBase and IceBox::FreezeService. There's now
+  a single IceBox::Service interface.
+
+- IcePack descriptors have been redesigned. See the manual for more 
+  information on the new descriptor format.
+
+- Some IcePack improvements:
+  
+  * Descriptors are now parsed by the icepackadmin tool only. You
+    don't need to store the descriptors anymore on each IcePack
+    node or registry host.
+  
+  * It's now possible to update an application or server deployment 
+    by updating its XML descriptor and by using the `application 
+    update' or `server update' icepackadmin commands.
+
+  * It's now possible to define variables from the icepackadmin
+    command line when deploying or updating an application or 
+    server deployment.
+
+  * An icepackadmin `node remove' command has been added to clean 
+    up resources associated to a given node.
+
+  * A command line option `--checkdb' has been added to the 
+    icepacknode executable. If the icepacknode is started with this
+    option it will run a consistency check (it will remove servers
+    from its database which are not registered anymore with the 
+    IcePack registry).
+
 Changes since version 1.3.0
 ---------------------------
 

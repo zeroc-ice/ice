@@ -15,22 +15,30 @@ using namespace std;
 using namespace IcePack;
 
 IcePack::ServerRegistryI::ServerRegistryI(const Ice::CommunicatorPtr& communicator,
-					  const string& envName, const string& dbName,
+					  const string& envName, 
+					  const string& dbName,
+					  const string& dbDescriptorName,
 					  const TraceLevelsPtr& traceLevels) :
     _connectionCache(Freeze::createConnection(communicator, envName)),
     _dictCache(_connectionCache, dbName),
+    _dictDescriptorCache(_connectionCache, dbDescriptorName),
     _traceLevels(traceLevels),
     _envName(envName),
     _communicator(communicator),
-    _dbName(dbName)
+    _dbName(dbName),
+    _dbDescriptorName(dbDescriptorName)
 {
 }
 
 void
-IcePack::ServerRegistryI::add(const string& name, const ServerPrx& server, const Ice::Current&)
+IcePack::ServerRegistryI::add(const string& name, 
+			      const ServerPrx& server,
+			      const ServerDescriptorPtr& descriptor,
+			      const Ice::Current&)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringObjectProxyDict dict(connection, _dbName); 
+    StringServerDescriptorDict dictDescriptor(connection, _dbDescriptorName);
 
     StringObjectProxyDict::iterator p = dict.find(name);
     if(p != dict.end())
@@ -38,26 +46,18 @@ IcePack::ServerRegistryI::add(const string& name, const ServerPrx& server, const
 	try
 	{
 	    p->second->ice_ping();
+	    throw ServerExistsException();
 	}
 	catch(const Ice::ObjectNotExistException&)
 	{
-	    p.set(server);
-
-	    if(_traceLevels->serverRegistry > 0)
-	    {
-		Ice::Trace out(_traceLevels->logger, _traceLevels->serverRegistryCat);
-		out << "added server `" << name << "'";
-	    }
-
-	    return;
 	}
 	catch(const Ice::LocalException&)
 	{
 	}
-	throw ServerExistsException();
     }
     
     dict.put(pair<const string, const Ice::ObjectPrx>(name, server));
+    dictDescriptor.put(pair<const string, const ServerDescriptorPtr>(name, descriptor));
 
     if(_traceLevels->serverRegistry > 0)
     {
@@ -66,25 +66,30 @@ IcePack::ServerRegistryI::add(const string& name, const ServerPrx& server, const
     }
 }
 
-void
+ServerPrx
 IcePack::ServerRegistryI::remove(const string& name, const Ice::Current&)
 {
     Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
     StringObjectProxyDict dict(connection, _dbName); 
+    StringServerDescriptorDict dictDescriptor(connection, _dbDescriptorName);
 
     StringObjectProxyDict::iterator p = dict.find(name);
     if(p == dict.end())
     {
 	throw ServerNotExistException();
     }
-    
+
+    ServerPrx server = ServerPrx::uncheckedCast(p->second);
     dict.erase(p);
+    dictDescriptor.erase(name);
 
     if(_traceLevels->serverRegistry > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->serverRegistryCat);
 	out << "removed server `" << name << "'";
     }
+
+    return server;
 }
 
 ServerPrx
@@ -112,6 +117,20 @@ IcePack::ServerRegistryI::findByName(const string& name, const Ice::Current&)
     throw ServerNotExistException();
 }
 
+ServerDescriptorPtr
+ServerRegistryI::getDescriptor(const string& name, const Ice::Current&)
+{
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    StringServerDescriptorDict dictDescriptor(connection, _dbDescriptorName); 
+
+    StringServerDescriptorDict::iterator p = dictDescriptor.find(name);
+    if(p == dictDescriptor.end())
+    {
+	throw ServerNotExistException();
+    }
+    return p->second;
+}
+
 Ice::StringSeq
 IcePack::ServerRegistryI::getAll(const Ice::Current&) const
 {
@@ -127,4 +146,23 @@ IcePack::ServerRegistryI::getAll(const Ice::Current&) const
     }
 
     return names;
+}
+
+ServerDescriptorSeq
+IcePack::ServerRegistryI::getAllDescriptorsOnNode(const string& node, const Ice::Current&) const
+{
+    Freeze::ConnectionPtr connection = Freeze::createConnection(_communicator, _envName);
+    StringServerDescriptorDict dict(connection, _dbDescriptorName); 
+
+    ServerDescriptorSeq descriptors;
+
+    for(StringServerDescriptorDict::iterator p = dict.begin(); p != dict.end(); ++p)
+    {
+	if(p->second->node == node)
+	{
+	    descriptors.push_back(p->second);
+	}
+    }
+
+    return descriptors;
 }

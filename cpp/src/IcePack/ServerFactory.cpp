@@ -7,6 +7,10 @@
 //
 // **********************************************************************
 
+#ifdef __sun
+#define _POSIX_PTHREAD_SEMANTICS
+#endif
+
 #include <Ice/Ice.h>
 #include <IceUtil/UUID.h>
 #include <Freeze/Evictor.h>
@@ -15,8 +19,19 @@
 #include <IcePack/ServerI.h>
 #include <IcePack/ServerAdapterI.h>
 #include <IcePack/TraceLevels.h>
+#include <IcePack/DescriptorVisitor.h>
 
 #include <map>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
+#ifdef _WIN32
+#   include <direct.h>
+#else
+#   include <unistd.h>
+#   include <dirent.h>
+#endif
 
 using namespace std;
 using namespace IcePack;
@@ -24,38 +39,55 @@ using namespace IcePack;
 namespace IcePack
 {
 
-class ServerFactoryServantLocator : public Ice::ServantLocator
-{
-};
-
-
-class ServerFactoryServantInitializer : public Freeze::ServantInitializer
+class NodeServerCleaner : public DescriptorVisitor
 {
 public:
 
-    virtual void 
-    initialize(const Ice::ObjectAdapterPtr& adapter, const Ice::Identity& identity, const string& facet, const Ice::ObjectPtr& servant)
-    {
-	//
-	// Add the servant to the adapter active object map. This will
-	// prevent the evictor from evicting the servant. We just use
-	// the evictor to load servants from the database.
-	//
-	// TODO: Implement our own servant locator instead of using
-	// the evictor.
-	//
-	adapter->add(servant, identity);
-    }
+    void clean(const ServerPrx&, const ServerDescriptorPtr&);
 
+private:
+    
+    virtual void visitServerEnd(const ServerWrapper&, const ServerDescriptorPtr&);
+    virtual bool visitServiceStart(const ServiceWrapper&, const ServiceDescriptorPtr&);
+    virtual void visitDbEnv(const DbEnvWrapper&, const DbEnvDescriptor&);
+
+    ServerPrx _currentServer;
 };
 
 };
 
-IcePack::ServerFactory::ServerFactory(const Ice::ObjectAdapterPtr& adapter, 
-				      const TraceLevelsPtr& traceLevels, 
-				      const string& envName,
-				      const ActivatorPtr& activator,
-				      const WaitQueuePtr& waitQueue) :
+void
+NodeServerCleaner::clean(const ServerPrx& server, const ServerDescriptorPtr& descriptor)
+{
+    _currentServer = server;
+    ServerWrapper(descriptor).visit(*this);
+}
+
+void
+NodeServerCleaner::visitServerEnd(const ServerWrapper&, const ServerDescriptorPtr& server)
+{
+    _currentServer->removeConfigFile("config");
+    _currentServer->destroy();
+}
+
+bool
+NodeServerCleaner::visitServiceStart(const ServiceWrapper&, const ServiceDescriptorPtr& service)
+{
+    _currentServer->removeConfigFile("config_" + service->name);
+    return true;
+}
+
+void
+NodeServerCleaner::visitDbEnv(const DbEnvWrapper&, const DbEnvDescriptor& dbEnv)
+{
+    _currentServer->removeDbEnv(dbEnv, "");
+}
+
+ServerFactory::ServerFactory(const Ice::ObjectAdapterPtr& adapter, 
+			     const TraceLevelsPtr& traceLevels, 
+			     const string& envName,
+			     const ActivatorPtr& activator,
+			     const WaitQueuePtr& waitQueue) :
     _adapter(adapter),
     _traceLevels(traceLevels),
     _activator(activator),
@@ -64,18 +96,19 @@ IcePack::ServerFactory::ServerFactory(const Ice::ObjectAdapterPtr& adapter,
     Ice::PropertiesPtr properties = _adapter->getCommunicator()->getProperties();
     _waitTime = properties->getPropertyAsIntWithDefault("IcePack.Node.WaitTime", 60);
     
-    Freeze::ServantInitializerPtr initializer = new ServerFactoryServantInitializer();
+    _serversDir = properties->getProperty("IcePack.Node.Data");
+    _serversDir = _serversDir + (_serversDir[_serversDir.length() - 1] == '/' ? "" : "/") + "servers/";
 
     //
     // Create and install the freeze evictor for server objects.
     //
-    _serverEvictor = Freeze::createEvictor(_adapter, envName, "servers", initializer);
+    _serverEvictor = Freeze::createEvictor(_adapter, envName, "servers", 0);
     _serverEvictor->setSize(10000);
 
     //
     // Create and install the freeze evictor for server adapter objects.
     //
-    _serverAdapterEvictor = Freeze::createEvictor(_adapter, envName, "serveradapters", initializer);
+    _serverAdapterEvictor = Freeze::createEvictor(_adapter, envName, "serveradapters", 0);
     _serverAdapterEvictor->setSize(10000);
 
     //
@@ -95,11 +128,11 @@ IcePack::ServerFactory::ServerFactory(const Ice::ObjectAdapterPtr& adapter,
 // Ice::ObjectFactory::create method implementation
 //
 Ice::ObjectPtr
-IcePack::ServerFactory::create(const string& type)
+ServerFactory::create(const string& type)
 {
     if(type == "::IcePack::Server")
     {
-	return new ServerI(this, _traceLevels, _activator, _waitTime);
+	return new ServerI(this, _traceLevels, _activator, _waitTime, _serversDir);
     }
     else if(type == "::IcePack::ServerAdapter")
     {
@@ -116,7 +149,7 @@ IcePack::ServerFactory::create(const string& type)
 // Ice::ObjectFactory::destroy method implementation
 //
 void 
-IcePack::ServerFactory::destroy()
+ServerFactory::destroy()
 {
     _adapter = 0;
     _serverEvictor = 0;
@@ -125,59 +158,127 @@ IcePack::ServerFactory::destroy()
     _activator = 0;
 }
 
+void
+ServerFactory::checkConsistency()
+{
+    try
+    {
+	Ice::CommunicatorPtr communicator = _adapter->getCommunicator();
+
+	//
+	// Make sure that all the servers in this node server database are registered with the 
+	// IcePack server registry. If a server isn't registered with the registry, we remove
+	// it from the node and also delete any resources associated with it (config files,
+	// db envs, ...).
+	//
+	ServerRegistryPrx serverRegistry = ServerRegistryPrx::checkedCast(
+            communicator->stringToProxy("IcePack/ServerRegistry@IcePack.Registry.Internal"));
+	
+	Freeze::EvictorIteratorPtr p = _serverEvictor->getIterator("", 50);
+	while(p->hasNext())
+	{
+	    ServerPrx server = ServerPrx::uncheckedCast(_adapter->createProxy(p->next()));
+	    ServerDescriptorPtr descriptor = server->getDescriptor();
+	    try
+	    {
+		if(Ice::proxyIdentityEqual(serverRegistry->findByName(descriptor->name), server))
+		{
+		    continue;
+		}
+	    }
+	    catch(const ServerNotExistException&)
+	    {
+	    }
+
+	    NodeServerCleaner().clean(server, descriptor);
+	}
+	
+	//
+	// Make sure all the adapters in this node adapter database are registered with the 
+	// IcePack adapter registry. If an adapter isn't registered with the registry, we 
+	// remove it from this node.
+	//
+	AdapterRegistryPrx adapterRegistry = AdapterRegistryPrx::checkedCast(
+            communicator->stringToProxy("IcePack/AdapterRegistry@IcePack.Registry.Internal"));
+	
+	p = _serverAdapterEvictor->getIterator("", 50);
+	while(p->hasNext())
+	{
+	    ServerAdapterPrx adapter = ServerAdapterPrx::uncheckedCast(_adapter->createProxy(p->next()));
+	    try
+	    {
+		if(Ice::proxyIdentityEqual(adapterRegistry->findById(adapter->getId()), adapter))
+		{
+		    continue;
+		}
+	    }
+	    catch(const AdapterNotExistException&)
+	    {
+	    }
+
+	    adapter->destroy();
+	}
+    }
+    catch(const Ice::LocalException& ex)
+    {
+	ostringstream os;
+	os << "couldn't contact the IcePack registry for the consistency check:\n" << ex;
+	_traceLevels->logger->warning(os.str());
+	return;
+    }
+
+}
+
 //
 // Create a new server servant and new server adapter servants from
 // the given description.
 //
 ServerPrx
-IcePack::ServerFactory::createServerAndAdapters(const ServerDescription& description, 
-						const vector<string>& adapterIds,
-						map<string, ServerAdapterPrx>& adapters)
+ServerFactory::createServer(const string& name, const ServerDescriptorPtr& desc)
 {
     //
     // Create the server object.
     //
-    ServerPtr serverI = new ServerI(this, _traceLevels, _activator, _waitTime);
+    ServerPtr serverI = new ServerI(this, _traceLevels, _activator, _waitTime, _serversDir);
+    
+    serverI->name = name;
+    serverI->activation = Manual;
+    serverI->processRegistered = false;
+    serverI->descriptor = desc;
 
-    serverI->description = description;
-
-    Ice::Identity id;
-    id.category = "IcePackServer";
-    id.name = description.name + "-" + IceUtil::generateUUID();
-
-    //
-    // Create the server adapters.
-    //
-    ServerPrx proxy = ServerPrx::uncheckedCast(_adapter->createProxy(id));
-    for(Ice::StringSeq::const_iterator p = adapterIds.begin(); p != adapterIds.end(); ++p)
+    string path = _serversDir + name;
+#ifdef _WIN32
+    if(_mkdir(path.c_str()) != 0)
+#else
+    if(mkdir(path.c_str(), 0755) != 0)
+#endif
     {
-	ServerAdapterPrx adapterProxy = createServerAdapter(*p, proxy);	
-	adapters[*p] = adapterProxy;
-	serverI->adapters.push_back(adapterProxy);
+	DeploymentException ex;
+	ex.reason = "couldn't create directory " + path + ": " + strerror(getSystemErrno());
+	throw ex;
     }
 
-    //
-    // By default server is always activated on demand.
-    //
-    serverI->activation = OnDemand;
-
-    _adapter->add(serverI, id);
+#ifdef _WIN32
+    _mkdir(string(path + "/config").c_str());
+    _mkdir(string(path + "/dbs").c_str());
+#else
+    mkdir(string(path + "/config").c_str(), 0755);
+    mkdir(string(path + "/dbs").c_str(), 0755);
+#endif
+    
+    Ice::Identity id;
+    id.category = "IcePackServer";
+    id.name = name + "-" + IceUtil::generateUUID();
     
     _serverEvictor->add(serverI, id);
 
     if(_traceLevels->server > 0)
     {
 	Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	out << "created server `" << description.name << "'";
+	out << "created server `" << name << "'";
     }
     
-    return proxy;
-}
-
-const WaitQueuePtr&
-IcePack::ServerFactory::getWaitQueue() const
-{
-    return _waitQueue;
+    return ServerPrx::uncheckedCast(_adapter->createProxy(id));
 }
 
 //
@@ -185,7 +286,7 @@ IcePack::ServerFactory::getWaitQueue() const
 // and add it the evictor database.
 //
 ServerAdapterPrx
-IcePack::ServerFactory::createServerAdapter(const string& adapterId, const ServerPrx& server)
+ServerFactory::createServerAdapter(const string& adapterId, const ServerPrx& server)
 {
     ServerAdapterPtr adapterI = new ServerAdapterI(this, _traceLevels, _waitTime);
     adapterI->id = adapterId;
@@ -194,8 +295,6 @@ IcePack::ServerFactory::createServerAdapter(const string& adapterId, const Serve
     Ice::Identity id;
     id.category = "IcePackServerAdapter";
     id.name = adapterId + "-" + IceUtil::generateUUID();
-
-    _adapter->add(adapterI, id);
     
     _serverAdapterEvictor->add(adapterI, id);
 
@@ -208,8 +307,26 @@ IcePack::ServerFactory::createServerAdapter(const string& adapterId, const Serve
     return ServerAdapterPrx::uncheckedCast(_adapter->createProxy(id));
 }
 
+const WaitQueuePtr&
+ServerFactory::getWaitQueue() const
+{
+    return _waitQueue;
+}
+
+const Freeze::EvictorPtr&
+ServerFactory::getServerEvictor() const
+{
+    return _serverEvictor;
+}
+
+const Freeze::EvictorPtr&
+ServerFactory::getServerAdapterEvictor() const
+{
+    return _serverAdapterEvictor;
+}
+
 void
-IcePack::ServerFactory::destroy(const ServerPtr& server, const Ice::Identity& ident)
+ServerFactory::destroy(const ServerPtr& server, const Ice::Identity& ident)
 {
     try
     {
@@ -218,13 +335,13 @@ IcePack::ServerFactory::destroy(const ServerPtr& server, const Ice::Identity& id
 	if(_traceLevels->server > 0)
 	{
 	    Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-	    out << "destroyed server `" << server->description.name << "'";
+	    out << "destroyed server `" << server->name << "'";
 	}
     }
     catch(const Freeze::DatabaseException& ex)
     {
 	ostringstream os;
-	os << "couldn't destroy server `" << server->description.name << "':\n" << ex;
+	os << "couldn't destroy server `" << server->name << "':\n" << ex;
 	_traceLevels->logger->warning(os.str());
     }
     catch(const Freeze::EvictorDeactivatedException&)
@@ -232,11 +349,14 @@ IcePack::ServerFactory::destroy(const ServerPtr& server, const Ice::Identity& id
 	assert(false);
     }
 
-    _adapter->remove(ident);
+    string path = _serversDir + server->name;
+    rmdir(string(path + "/config").c_str());
+    rmdir(string(path + "/dbs").c_str());
+    rmdir(path.c_str());
 }
 
 void
-IcePack::ServerFactory::destroy(const ServerAdapterPtr& adapter, const Ice::Identity& ident)
+ServerFactory::destroy(const ServerAdapterPtr& adapter, const Ice::Identity& ident)
 {
     try
     {
@@ -258,6 +378,5 @@ IcePack::ServerFactory::destroy(const ServerAdapterPtr& adapter, const Ice::Iden
     {
 	assert(false);
     }
-
-    _adapter->remove(ident);
 }
+

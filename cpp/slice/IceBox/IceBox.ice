@@ -44,31 +44,10 @@ local exception FailureException
 
 /**
  *
- * Base interface for an application service managed by a [ServiceManager].
- *
- * @see ServiceManager
- * @see Service
- * @see FreezeService
+ * An application service managed by a [ServiceManager].
  *
  **/
-local interface ServiceBase
-{
-    /**
-     *
-     * Stop the service.
-     *
-     **/
-    void stop();
-};
-
-/**
- *
- * A standard application service managed by a [ServiceManager].
- *
- * @see ServiceBase
- *
- **/
-local interface Service extends ServiceBase
+local interface Service
 {
     /**
      *
@@ -92,43 +71,13 @@ local interface Service extends ServiceBase
      *
      **/
     void start(string name, Ice::Communicator communicator, Ice::StringSeq args);
-};
 
-/**
- * 
- * A Freeze application service managed by a [ServiceManager].
- *
- * @see ServiceBase
- * 
- */
-local interface FreezeService extends ServiceBase
-{
     /**
      *
-     * Start the service. The given communiator is created by the
-     * [ServiceManager] for use by the service. This communicator may
-     * also be used by other services, depending on the service
-     * configuration. The database environment is created by the
-     * [ServiceManager] for the exclusive use of the service.
-     *
-     * <note><para>The [ServiceManager] owns the communiator and the
-     * database environment, and is responsible for destroying
-     * them.</para></note>
-     *
-     * @param name The service's name, as determined by the
-     * configuration.
-     *
-     * @param communicator A communiator for use by the service.
-     *
-     * @param args The service arguments that were not converted into
-     * properties.
-     *
-     * @param envName The name of the Freeze database environment.
-     *
-     * @throws FailureException Raised if [start] failed.
+     * Stop the service.
      *
      **/
-    void start(string name, Ice::Communicator communicator, Ice::StringSeq args, string envName);
+    void stop();
 };
 
 /**

@@ -69,12 +69,18 @@ public:
 
     void addApplication(const std::list<std::string>&);
     void removeApplication(const std::list<std::string>&);
+    void describeApplication(const std::list<std::string>&);
+    void diffApplication(const std::list<std::string>&);
+    void updateApplication(const std::list<std::string>&);
+    void listAllApplications();
 
     void pingNode(const std::list<std::string>&);
     void shutdownNode(const std::list<std::string>&);
+    void removeNode(const std::list<std::string>&);
     void listAllNodes();
 
     void addServer(const std::list<std::string>&);
+    void updateServer(const std::list<std::string>&);
     void startServer(const std::list<std::string>&);
     void stopServer(const std::list<std::string>&);
     void signalServer(const std::list<std::string>&);

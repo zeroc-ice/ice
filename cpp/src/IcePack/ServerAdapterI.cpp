@@ -69,6 +69,12 @@ IcePack::ServerAdapterI::~ServerAdapterI()
 {
 }
 
+string
+IcePack::ServerAdapterI::getId(const Ice::Current&)
+{
+    return id;
+}
+
 void
 IcePack::ServerAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPtr& cb,
 					      bool activate, 
@@ -145,14 +151,13 @@ IcePack::ServerAdapterI::getDirectProxy_async(const AMD_Adapter_getDirectProxyPt
 }
 
 void
-IcePack::ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current&)
+IcePack::ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Current& current)
 {
     ::IceUtil::Mutex::Lock sync(*this);
 
     //
-    // If the adapter proxy is not null the given proxy can only be
-    // null. We don't allow to overide an existing proxy by another
-    // non null proxy if the server is active.
+    // If the adapter proxy is not null the given proxy can only be null. We don't allow to overide an 
+    // existing proxy by another non null proxy if the server is active.
     //
     if(prx && _proxy)
     {
@@ -162,8 +167,19 @@ IcePack::ServerAdapterI::setDirectProxy(const Ice::ObjectPrx& prx, const Ice::Cu
 	}
     }
 
+    //
+    // Prevent eviction of an active adapter object.
+    //
+    if(prx && !_proxy)
+    {
+	_factory->getServerAdapterEvictor()->keep(current.id);
+    }
+    else if(!prx && _proxy)
+    {
+	_factory->getServerAdapterEvictor()->release(current.id);
+    }
+
     _proxy = prx;
-    _notified = true;
 
     if(_traceLevels->adapter > 1)
     {

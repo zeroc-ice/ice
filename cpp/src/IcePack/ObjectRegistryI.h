@@ -31,10 +31,10 @@ public:
 		    const std::string&,
 		    const TraceLevelsPtr& traceLevels);
 
-    virtual void add(const IcePack::ObjectDescription&, const ::Ice::Current&);
+    virtual void add(const IcePack::ObjectDescriptor&, const ::Ice::Current&);
     virtual void remove(const Ice::ObjectPrx&, const ::Ice::Current&);
 
-    virtual ObjectDescription getObjectDescription(const Ice::Identity&, const ::Ice::Current&) const;
+    virtual ObjectDescriptor getObjectDescriptor(const Ice::Identity&, const ::Ice::Current&) const;
 
     virtual Ice::ObjectPrx findById(const ::Ice::Identity&, const ::Ice::Current&) const;
     virtual Ice::ObjectPrx findByType(const std::string&, const ::Ice::Current&) const;

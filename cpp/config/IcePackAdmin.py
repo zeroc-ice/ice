@@ -151,7 +151,7 @@ def shutdownIcePackNode():
         sys.exit(1)
     print "ok"
         
-def addApplication(descriptor, targets):
+def addApplication(descriptor, options):
 
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
@@ -159,23 +159,7 @@ def addApplication(descriptor, targets):
     descriptor = descriptor.replace("\\", "/")
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "application add \"' + descriptor + '\\" ' + targets + ' \"' + " 2>&1"
-
-    icePackAdminPipe = os.popen(command)
-    icePackAdminStatus = icePackAdminPipe.close()
-    if icePackAdminStatus:
-        TestUtil.killServers()
-        sys.exit(1)
-
-def removeApplication(descriptor):
-
-    global icePackPort
-    icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
-
-    descriptor = descriptor.replace("\\", "/")
-    command = icePackAdmin + TestUtil.clientOptions + \
-              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "application remove \"' + descriptor + '\\" \"' + " 2>&1"
+              r' -e "application add \"' + descriptor + '\\" ' + options + ' \"' + " 2>&1"
 
     icePackAdminPipe = os.popen(command)
     TestUtil.printOutputFromPipe(icePackAdminPipe)
@@ -184,20 +168,35 @@ def removeApplication(descriptor):
         TestUtil.killServers()
         sys.exit(1)
 
-def addServer(name, serverDescriptor, server, libpath, targets):
+def removeApplication(name):
+
+    global icePackPort
+    icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
+
+    command = icePackAdmin + TestUtil.clientOptions + \
+              r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
+              r' -e "application remove \"' + name + '\\" \"' + " 2>&1"
+
+    icePackAdminPipe = os.popen(command)
+    TestUtil.printOutputFromPipe(icePackAdminPipe)
+    icePackAdminStatus = icePackAdminPipe.close()
+    if icePackAdminStatus:
+        TestUtil.killServers()
+        sys.exit(1)
+
+def addServer(serverDescriptor, options):
 
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
 
     serverDescriptor = serverDescriptor.replace("\\", "/");
-    server = server.replace("\\", "/");
-    libpath = libpath.replace("\\", "/");
     command = icePackAdmin + TestUtil.clientOptions + \
               r' "--Ice.Default.Locator=IcePack/Locator:default -p ' + icePackPort + '" ' + \
-              r' -e "server add localnode \"' + name + '\\" \\"' + serverDescriptor + '\\" ' + \
-              r' \"' + server + '\\" \\"' + libpath + '\\" ' + targets + '\"' + " 2>&1"
+              r' -e "server add ' + serverDescriptor + ' localnode ' + \
+              r' ' + options + '\"' + " 2>&1"
 
     icePackAdminPipe = os.popen(command)
+    TestUtil.printOutputFromPipe(icePackAdminPipe)
     icePackAdminStatus = icePackAdminPipe.close()
     if icePackAdminStatus:
         print "bailing out"
