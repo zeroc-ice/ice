@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/Logger.h>
+#include <Ice/LoggerUtil.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
 #include <IceSSL/OpenSSL.h>
@@ -34,24 +34,34 @@ IceSSL::SslTransceiver::close()
 {
     if(_traceLevels->network >= 1)
     {
-	ostringstream s;
-	s << "closing ssl connection\n" << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+   	Trace out(_logger, _traceLevels->networkCat);
+	out << "closing ssl connection\n" << toString();
     }
 
-    int shutdown = 0;
-    int numRetries = 100;
-    int retries = -numRetries;
-    do
+    try
     {
-        shutdown = _sslConnection->shutdown();
-        retries++;
+	int shutdown = 0;
+	int numRetries = 100;
+	int retries = -numRetries;
+	do
+	{
+	    shutdown = _sslConnection->shutdown();
+	    retries++;
+	}
+	while((shutdown == 0) && (retries < 0));
     }
-    while((shutdown == 0) && (retries < 0));
+    catch(...)
+    {
+ 	assert(_fd != INVALID_SOCKET);
+	closeSocket(_fd);
+	_fd = INVALID_SOCKET;
+	throw;
+    }
 
     assert(_fd != INVALID_SOCKET);
     closeSocket(_fd);
     _fd = INVALID_SOCKET;
+    throw;
 }
 
 void
@@ -59,9 +69,8 @@ IceSSL::SslTransceiver::shutdown()
 {
     if(_traceLevels->network >= 2)
     {
-	ostringstream s;
-	s << "shutting down ssl connection\n" << toString();
-	_logger->trace(_traceLevels->networkCat, s.str());
+ 	Trace out(_logger, _traceLevels->networkCat);
+	out << "shutting down ssl connection\n" << toString();
     }
 
     int shutdown = 0;
@@ -93,7 +102,8 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
     {
         if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
         { 
-            _logger->trace(_traceLevels->securityCat, "WRN reading from ssl connection returns no bytes");
+	    Trace out(_logger, _traceLevels->securityCat);
+            out << "WRN reading from ssl connection returns no bytes";
         }
     }
 }
