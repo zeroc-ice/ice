@@ -3121,6 +3121,25 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "return null;";
     _out << eb;
 
+    _out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx b, Ice.Context ctx)";
+    _out << sb;
+    _out << nl << "if(b == null)";
+    _out << sb;
+    _out << nl << "return null;";
+    _out << eb;
+    _out << nl << "if(b is " << name << "Prx)";
+    _out << sb;
+    _out << nl << "return (" << name << "Prx)b;";
+    _out << eb;
+    _out << nl << "if(b.ice_isA(\"" << p->scoped() << "\", ctx))";
+    _out << sb;
+    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+    _out << nl << "h.__copyFrom(b);";
+    _out << nl << "return h;";
+    _out << eb;
+    _out << nl << "return null;";
+    _out << eb;
+
     _out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx b, string f)";
     _out << sb;
     _out << nl << "if(b == null)";
@@ -3131,6 +3150,28 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "try";
     _out << sb;
     _out << nl << "if(bb.ice_isA(\"" << p->scoped() << "\"))";
+    _out << sb;
+    _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+    _out << nl << "h.__copyFrom(bb);";
+    _out << nl << "return h;";
+    _out << eb;
+    _out << eb;
+    _out << nl << "catch(Ice.FacetNotExistException)";
+    _out << sb;
+    _out << eb;
+    _out << nl << "return null;";
+    _out << eb;
+
+    _out << sp << nl << "public static " << name << "Prx checkedCast(Ice.ObjectPrx b, string f, Ice.Context ctx)";
+    _out << sb;
+    _out << nl << "if(b == null)";
+    _out << sb;
+    _out << nl << "return null;";
+    _out << eb;
+    _out << nl << "Ice.ObjectPrx bb = b.ice_newFacet(f);";
+    _out << nl << "try";
+    _out << sb;
+    _out << nl << "if(bb.ice_isA(\"" << p->scoped() << "\", ctx))";
     _out << sb;
     _out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     _out << nl << "h.__copyFrom(bb);";

@@ -3566,6 +3566,31 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out.dec();
     _out << nl << "End Function";
 
+    _out << sp << nl << "Public Shared Function checkedCast(ByVal b As Ice.ObjectPrx, ByVal ctx As Ice.Context) As "
+         << name << "Prx";
+    _out.inc();
+    _out << nl << "If b Is Nothing Then";
+    _out.inc();
+    _out << nl << "Return Nothing";
+    _out.dec();
+    _out << nl << "End If";
+    _out << nl << "If TypeOf b Is " << name << "Prx Then";
+    _out.inc();
+    _out << nl << "Return CType(b, " << name << "Prx)";
+    _out.dec();
+    _out << nl << "End If";
+    _out << nl << "If b.ice_isA(\"" << p->scoped() << "\", ctx) Then";
+    _out.inc();
+    _out << nl << "Dim h As " << name << "PrxHelper = New " << name << "PrxHelper";
+    _out << nl << "h.__copyFrom(b)";
+    _out << nl << "Return h";
+    _out.dec();
+    _out << nl << "End If";
+    _out << nl << "Return Nothing";
+    _out.dec();
+    _out << nl << "End Function";
+
+
     _out << sp << nl << "Public Shared Function checkedCast(ByVal B As Ice.ObjectPrx, ByVal f As String) As "
          << name << "Prx";
     _out.inc();
@@ -3578,6 +3603,31 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "Try";
     _out.inc();
     _out << nl << "If bb.ice_isA(\"" << p->scoped() << "\") Then";
+    _out.inc();
+    _out << nl << "Dim h As " << name << "PrxHelper = new " << name << "PrxHelper()";
+    _out << nl << "h.__copyFrom(bb)";
+    _out << nl << "Return h";
+    _out.dec();
+    _out << nl << "End If";
+    _out.dec();
+    _out << nl << "Catch __ex As Ice.FacetNotExistException";
+    _out << nl << "End Try";
+    _out << nl << "Return Nothing";
+    _out.dec();
+    _out << nl << "End Function";
+
+    _out << sp << nl << "Public Shared Function checkedCast(ByVal B As Ice.ObjectPrx, ByVal f As String, "
+         << "ByVal ctx As Ice.Context) As " << name << "Prx";
+    _out.inc();
+    _out << nl << "If b Is Nothing Then";
+    _out.inc();
+    _out << nl << "Return Nothing";
+    _out.dec();
+    _out << nl << "End If";
+    _out << nl << "Dim bb As Ice.ObjectPrx = b.ice_newFacet(f)";
+    _out << nl << "Try";
+    _out.inc();
+    _out << nl << "If bb.ice_isA(\"" << p->scoped() << "\", ctx) Then";
     _out.inc();
     _out << nl << "Dim h As " << name << "PrxHelper = new " << name << "PrxHelper()";
     _out << nl << "h.__copyFrom(bb)";

@@ -2880,6 +2880,28 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "return d;";
     out << eb;
 
+    out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx b, java.util.Map ctx)";
+    out << sb;
+    out << nl << name << "Prx d = null;";
+    out << nl << "if(b != null)";
+    out << sb;
+    out << nl << "try";
+    out << sb;
+    out << nl << "d = (" << name << "Prx)b;";
+    out << eb;
+    out << nl << "catch(ClassCastException ex)";
+    out << sb;
+    out << nl << "if(b.ice_isA(\"" << scoped << "\", ctx))";
+    out << sb;
+    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+    out << nl << "h.__copyFrom(b);";
+    out << nl << "d = h;";
+    out << eb;
+    out << eb;
+    out << eb;
+    out << nl << "return d;";
+    out << eb;
+
     out << sp << nl << "public static " << name << "Prx" << nl << "checkedCast(Ice.ObjectPrx b, String f)";
     out << sb;
     out << nl << name << "Prx d = null;";
@@ -2889,6 +2911,29 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "try";
     out << sb;
     out << nl << "if(bb.ice_isA(\"" << scoped << "\"))";
+    out << sb;
+    out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
+    out << nl << "h.__copyFrom(bb);";
+    out << nl << "d = h;";
+    out << eb;
+    out << eb;
+    out << nl << "catch(Ice.FacetNotExistException ex)";
+    out << sb;
+    out << eb;
+    out << eb;
+    out << nl << "return d;";
+    out << eb;
+
+    out << sp << nl << "public static " << name << "Prx"
+        << nl << "checkedCast(Ice.ObjectPrx b, String f, java.util.Map ctx)";
+    out << sb;
+    out << nl << name << "Prx d = null;";
+    out << nl << "if(b != null)";
+    out << sb;
+    out << nl << "Ice.ObjectPrx bb = b.ice_newFacet(f);";
+    out << nl << "try";
+    out << sb;
+    out << nl << "if(bb.ice_isA(\"" << scoped << "\", ctx))";
     out << sb;
     out << nl << name << "PrxHelper h = new " << name << "PrxHelper();";
     out << nl << "h.__copyFrom(bb);";
