@@ -421,6 +421,7 @@ usage(const char* n)
         "                      different names. NAME may be a scoped name.\n"
 	"--binary              Use the binary encoding.\n"
         "--output-dir DIR      Create files in the directory DIR.\n"
+	"--depend              Generate Makefile dependencies.\n"
         "-d, --debug           Print debug messages.\n"
         "--ice                 Permit `Ice' prefix (for building Ice source code only)\n"
         ;
@@ -435,6 +436,7 @@ main(int argc, char* argv[])
     string include;
     bool binary = false;
     string output;
+    bool depend = false;
     bool debug = false;
     bool ice = false;
     bool caseSensitive = false;
@@ -539,6 +541,15 @@ main(int argc, char* argv[])
             cout << ICE_STRING_VERSION << endl;
             return EXIT_SUCCESS;
         }
+	else if(strcmp(argv[idx], "--depend") == 0)
+	{
+	    depend = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
         else if(strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
         {
             debug = true;
@@ -656,26 +667,52 @@ main(int argc, char* argv[])
         }
         test.close();
 
-        string cmd = cpp + " " + argv[idx];
+	if(depend)
+	{
+	    string::size_type pos = base.rfind('/');
+	    if(pos != string::npos)
+	    {
+		base.erase(0, pos + 1);
+	    }
+
+	    string cmd = cpp + " -M " + argv[idx];
+
 #ifdef _WIN32
-        FILE* cppHandle = _popen(cmd.c_str(), "r");
+	    FILE* cppHandle = _popen(cmd.c_str(), "w");
+	    _pclose(cppHandle);
 #else
-        FILE* cppHandle = popen(cmd.c_str(), "r");
+	    FILE* cppHandle = popen(cmd.c_str(), "w");
+	    pclose(cppHandle);
 #endif
-        if(cppHandle == 0)
-        {
-            cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
-            unit->destroy();
-            return EXIT_FAILURE;
-        }
-        
-        status = unit->parse(cppHandle, debug);
-        
+	}
+	else
+	{
+	    string cmd = cpp + " " + argv[idx];
 #ifdef _WIN32
-        _pclose(cppHandle);
+	    FILE* cppHandle = _popen(cmd.c_str(), "r");
 #else
-        pclose(cppHandle);
+	    FILE* cppHandle = popen(cmd.c_str(), "r");
 #endif
+	    if(cppHandle == 0)
+	    {
+		cerr << argv[0] << ": can't run C++ preprocessor: " << strerror(errno) << endl;
+		unit->destroy();
+		return EXIT_FAILURE;
+	    }
+	    
+	    status = unit->parse(cppHandle, debug);
+	    
+#ifdef _WIN32
+	    _pclose(cppHandle);
+#else
+	    pclose(cppHandle);
+#endif
+	}
+    }
+
+    if(depend)
+    {
+	return EXIT_SUCCESS;
     }
 
     if(status == EXIT_SUCCESS)
