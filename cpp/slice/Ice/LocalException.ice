@@ -413,8 +413,9 @@ local exception UnknownReplyStatusException extends ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException],
- * indicating that the server sent a close connection message in order
- * to gracefully shut down the connection.
+ * indicating that a connection has been gracefully shut down. Usually
+ * you will never see this exception, as Ice automatically tries to
+ * reestablish a connection if the old one has been shut down.
  *
  **/
 local exception CloseConnectionException extends ProtocolException

@@ -67,7 +67,7 @@ IceInternal::Connection::decProxyUsageCount()
     if (_proxyUsageCount == 0 && !_adapter)
     {
 	assert(_requests.empty());
-	setState(StateClosing);
+	setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
     }
 }
 
@@ -273,12 +273,6 @@ IceInternal::Connection::setAdapter(const ObjectAdapterPtr& adapter)
     }
     
     _adapter = adapter;
-    
-    if (_proxyUsageCount == 0 && !_adapter)
-    {
-	assert(_requests.empty());
-	setState(StateClosing);
-    }
 }
 
 ObjectAdapterPtr
@@ -596,7 +590,7 @@ IceInternal::Connection::tryDestroy()
 
     try
     {
-	setState(StateClosing);
+	setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
     }
     catch (...)
     {
