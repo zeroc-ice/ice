@@ -19,6 +19,7 @@
 #   include <signal.h>
 #   include <sys/wait.h>
 #endif
+#include <util/PlatformUtils.hpp>
 
 using namespace std;
 using namespace Ice;
@@ -56,8 +57,22 @@ main(int argc, char* argv[])
     sigaction(SIGCHLD, &action, 0);
 #endif
 
+    try
+    {
+	XMLPlatformUtils::Initialize();
+    }
+    catch(const XMLException& e)
+    {
+	cout << e.getMessage() << endl;
+	return EXIT_FAILURE;
+    }
+
     ::Server app;    
-    return app.main(argc, argv);
+    int rc = app.main(argc, argv);
+
+    XMLPlatformUtils::Terminate();
+
+    return rc;
 }
 
 void
@@ -133,6 +148,8 @@ int
     string locatorRegistryId = properties->getPropertyWithDefault("IcePack.LocatorRegistry.Identity", 
 								  "IcePack/locatorregistry");
     string adminId = properties->getPropertyWithDefault("IcePack.Admin.Identity", "IcePack/admin");
+
+    communicator()->getProperties()->setProperty("Ice.Default.Locator", locatorId + ":" + locatorEndpoints);
     
     //
     // Register the server manager and adapter manager with an
@@ -151,14 +168,8 @@ int
     ActivatorPrx activatorProxy;
 
 #ifndef _WIN32
-    //
-    // Setup default arguments which will be passed to each activated
-    // process. Then, create and start the activator.
-    //
-    Args defaultArgs;
-    defaultArgs.push_back("--Ice.Default.Locator=" + locatorId + ":" + locatorEndpoints);
 
-    ActivatorIPtr activator = new ActivatorI(communicator(), defaultArgs);
+    ActivatorIPtr activator = new ActivatorI(communicator());
     activator->start();
     activatorProxy = ActivatorPrx::uncheckedCast(internalAdapter->add(activator, 
 								      stringToIdentity("IcePack/activator")));

@@ -34,6 +34,9 @@ COBJS		= Grammar.o \
 SOBJS		= Server.o \
 		  AdapterManagerI.o \
 		  ServerManagerI.o \
+		  ComponentDeployer.o \
+		  ServerDeployer.o \
+		  ServiceDeployer.o \
 		  LocatorI.o \
 		  LocatorRegistryI.o \
 		  AdminI.o \
@@ -50,7 +53,7 @@ SLICECMD	= $(SLICE2CPP) --include-dir IcePack --dll-export ICE_PACK_API -I$(slic
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS)
+CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
@@ -62,11 +65,11 @@ $(NAME): $(VERSIONED_NAME)
 
 $(CLIENT): $(COBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(COBJS) -lIcePack $(LIBS) -lreadline -lcurses
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(COBJS) -lYellow -lIcePack $(LIBS) -lreadline -lcurses
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIcePack $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lYellow -lIcePack $(XERCESC_LIBS) $(LIBS)
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y

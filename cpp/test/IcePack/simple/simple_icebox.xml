@@ -1,0 +1,11 @@
+<server kind="cpp-icebox">
+
+<properties>
+   <property name="Ice.Trace.Network" value="0"/>
+</properties>
+
+<services>
+  <service name="GameClock" descriptor="simple_service.xml"/>
+</services>
+
+</server>

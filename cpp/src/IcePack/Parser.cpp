@@ -70,21 +70,14 @@ IcePack::Parser::addServer(const list<string>& args, const std::list<std::string
 
     try
     {
-	ServerDescription desc;
 	list<string>::const_iterator p = args.begin();
-	
-	desc.name = *p++;
-	desc.path = *p++;
 
-	if(p != args.end())
-	{
-	    desc.pwd = *p++;
-	}
+	string name = *p++;
+	string path = *p++;
+	string ldpath = *p++;
+	string descriptor = *p++;
 
-	copy(adapters.begin(), adapters.end(), back_inserter(desc.adapters));
-	copy(options.begin(), options.end(), back_inserter(desc.args));
-
-	_admin->addServer(desc);
+	_admin->addServer(name, path, ldpath, descriptor);
 
     }
     catch(const Exception& ex)

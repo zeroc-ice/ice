@@ -26,9 +26,10 @@ IcePack::AdminI::AdminI(const CommunicatorPtr& communicator, const ServerManager
 }
 
 void
-IcePack::AdminI::addServer(const ServerDescription& desc, const Current&)
+IcePack::AdminI::addServer(const string& name, const string& path, const string& ldpath, const string& descriptor,
+			   const Current&)
 {
-    _serverManager->create(desc);
+    _serverManager->create(name, path, ldpath, descriptor);
 }
 
 ServerDescription

@@ -13,7 +13,7 @@ import sys, os, TestUtil
 
 icePackPort = "0";
 
-def startIcePack(toplevel, port):
+def startIcePack(toplevel, port, testdir):
 
     global icePackPort
 
@@ -24,11 +24,12 @@ def startIcePack(toplevel, port):
     icePack = os.path.join(toplevel, "bin", "icepack")
 
     print "starting icepack...",
-    command = icePack + options + ' --nowarn' + \
+    command = icePack + options + ' --nowarn ' + \
           r' --IcePack.Locator.Endpoints="default -p ' + icePackPort + '  -t 5000" ' + \
           r' --IcePack.LocatorRegistry.Endpoints=default' + \
-          r' --IcePack.Admin.Endpoints=default'
-  
+          r' --IcePack.Admin.Endpoints=default' + \
+          r' --IcePack.Data=' + os.path.join(testdir, "db")
+
     icePackPipe = os.popen(command)
     TestUtil.getServerPid(icePackPipe)
     TestUtil.getAdapterReady(icePackPipe)
@@ -58,7 +59,7 @@ def shutdownIcePack(toplevel, icePackPipe):
         sys.exit(1)
         
 
-def addServer(toplevel, name, server, serverPwd, serverOptions, serverAdapters):
+def addServer(toplevel, name, server, libpath, serverDescriptor):
 
     global icePackPort
     icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
@@ -67,9 +68,25 @@ def addServer(toplevel, name, server, serverPwd, serverOptions, serverAdapters):
     
     command = icePackAdmin + options + \
               r' "--Ice.Default.Locator=IcePack/locator:default -p ' + icePackPort + '" ' + \
-              r' -e "server add \"' + name + '\\" \\"' + server + '\\" ' + serverPwd + \
-              r' options { ' + serverOptions + ' } ' + \
-              r' adapters {' + serverAdapters + ' } \" '
+              r' -e "server add \"' + name + '\\" \\"' + server + '\\" ' + \
+              r' \"' + libpath + '\\" ' + serverDescriptor + '\"'
+
+    icePackAdminPipe = os.popen(command)
+    icePackAdminStatus = icePackAdminPipe.close()
+    if icePackAdminStatus:
+        TestUtil.killServers()
+        sys.exit(1)
+
+def removeServer(toplevel, name):
+
+    global icePackPort
+    icePackAdmin = os.path.join(toplevel, "bin", "icepackadmin")
+
+    options = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
+    
+    command = icePackAdmin + options + \
+              r' "--Ice.Default.Locator=IcePack/locator:default -p ' + icePackPort + '" ' + \
+              r' -e "server remove \"' + name + '\\" \"'
 
     icePackAdminPipe = os.popen(command)
     icePackAdminStatus = icePackAdminPipe.close()

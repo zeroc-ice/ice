@@ -74,6 +74,16 @@ exception ServerNotInactiveException
 
 /**
  *
+ * This exception is raised the deployment of the server failed.
+ *
+ **/
+exception DeploymentException
+{
+    string message;
+};
+
+/**
+ *
  * A vector of strings representing command line arguments.
  *
  **/
@@ -105,6 +115,13 @@ struct ServerDescription
 
     /**
      *
+     * Descriptor file.
+     *
+     **/
+    string descriptor;
+
+    /**
+     *
      * The optional server adapter names. If a client makes a request
      * to locate an adapter from the server, the server will be
      * automatically started if it's not already active. If empty, no
@@ -125,6 +142,16 @@ struct ServerDescription
      *
      **/
     string path;
+
+    /**
+     *
+     * The server library path.
+     *
+     * @see args
+     * @see pwd
+     *
+     **/
+    string libraryPath;
 
     /**
      *
@@ -170,19 +197,31 @@ class Admin
      * Add a server and the adapters implemented by that server to
      * &IcePack;.
      *
-     * @param description The server's description.
+     * @param name The server name.
+     *
+     * @param path The server path. For C++ servers, this is the path
+     * of the executable. For C++ icebox, this is the path of the C++
+     * icebox executable or if empty IcePack will rely on the path to
+     * find it. For Java server or Java icebox, this is the path of
+     * the java command or if empty IcePack will rely on the path to
+     * find it.
+     *
+     * @param librarypath Specify the LD_LIBRARY_PATH value for C++
+     * servers or the CLASSPATH value for Java servers.
+     *
+     * @param name The server deployment descriptor.
      *
      * @throws ServerExistsException Raised if a server with the same
      * name already exists.
      *
-     * @throws AdapterExistsException Raised if an adapter with the
-     * same name already exists.
+     * @throws DeploymentException Raised if the deployment of the
+     * server failed.
      *
      * @see removeServer
      *
      **/
-    void addServer(ServerDescription description)
-	throws ServerExistsException, AdapterExistsException;
+    void addServer(string name, string path, string libraryPath, string descriptor)
+	throws ServerExistsException, DeploymentException;
 
     /**
      *

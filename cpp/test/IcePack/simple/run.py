@@ -23,17 +23,19 @@ import TestUtil
 import IcePackAdmin
 
 name = os.path.join("IcePack", "simple")
+testdir = os.path.join(toplevel, "test", "IcePack", "simple")
 
 #
 # Add locator options for client and servers. All servers are now
 # clients since they need to make requests to IcePack.
 #
-additionalOptions = " --Ice.Default.Locator=\"IcePack/locator:default -p 12346\""
+additionalOptions = " --Ice.Default.Locator=\"IcePack/locator:default -p 12346\" " + \
+                    "--Ice.Adapter.TestAdapter.Endpoints=default"
 
 #
 # Start IcePack
 # 
-icePackPipe = IcePackAdmin.startIcePack(toplevel, "12346")
+icePackPipe = IcePackAdmin.startIcePack(toplevel, "12346", testdir)
 
 #
 # Test client/server, collocated w/o automatic activation.
@@ -67,27 +69,20 @@ IcePackAdmin.removeAdapter(toplevel, "TestAdapter")
 #
 # This test doesn't work under Windows.
 #
-if TestUtil.isWin32() == 0:
+if TestUtil.isWin32() == 0 and TestUtil.protocol != "ssl":
 
-    testdir = os.path.join(toplevel, "test", "IcePack", "simple")
     server = os.path.join(testdir, "server")
     client = os.path.join(testdir, "client")
 
-    #
-    # Don't pass Ice.Locator.* properties for the server. The IcePack
-    # activator should take care of this.
-    #
-    updatedClientServerOptions = TestUtil.clientServerOptions.replace("TOPLEVELDIR", toplevel)
-
     print "registering server with icepack...",
-    IcePackAdmin.addServer(toplevel, "server", server, "", updatedClientServerOptions, "TestAdapter")
+    IcePackAdmin.addServer(toplevel, "server", server, "", os.path.join(testdir, "simple_server.xml"));
     print "ok"
     
     print "testing adapter registration...",
     hasTestAdapter = 0;
     icePackAdminPipe = IcePackAdmin.listAdapters(toplevel);
     for adaptername in icePackAdminPipe.xreadlines():
-        if adaptername == "TestAdapter\n":
+        if adaptername.strip() == "TestAdapter":
             hasTestAdapter = 1
             
     if hasTestAdapter == 0:
@@ -102,8 +97,6 @@ if TestUtil.isWin32() == 0:
        
     print "ok"    
 
-#    IcePackAdmin.startServer(toplevel, "server")
-
     updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel) + additionalOptions
 
     print "starting client...",
@@ -111,9 +104,13 @@ if TestUtil.isWin32() == 0:
     print "ok"
 
     for output in clientPipe.xreadlines():
-        print output,
+       print output,
 
     clientStatus = clientPipe.close()
+
+    print "unregister server with icepack...",
+    IcePackAdmin.removeServer(toplevel, "server");
+    print "ok"
 
     if clientStatus:
 	TestUtil.killServers()

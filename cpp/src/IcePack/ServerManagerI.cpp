@@ -14,10 +14,14 @@
 #include <IcePack/ServerManagerI.h>
 #include <IcePack/AdapterManager.h>
 #include <IcePack/Activator.h>
+#include <IcePack/ServerDeployer.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IcePack;
+
+namespace IcePack
+{
 
 class ServerNameToServer
 {
@@ -41,6 +45,8 @@ private:
 
     ObjectAdapterPtr _adapter;
 };
+
+}
 
 IcePack::ServerI::ServerI(const ObjectAdapterPtr& adapter, const ActivatorPrx& activator) :
     _adapter(adapter), 
@@ -137,7 +143,7 @@ IcePack::ServerI::getState(const Current&)
 }
 
 void
-IcePack::ServerI::setState(ServerState state)
+IcePack::ServerI::setState(ServerState state, const Current&)
 {
     IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
 
@@ -163,18 +169,15 @@ IcePack::ServerManagerI::~ServerManagerI()
 }
 
 ServerPrx
-IcePack::ServerManagerI::create(const ServerDescription& description, const Current&)
+IcePack::ServerManagerI::create(const string& name, const string& path, const string& libraryPath,
+				const string& descriptor, const Current&)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    ServerPrx server = ServerNameToServer(_adapter)(description.name);
+    ServerPrx server = ServerNameToServer(_adapter)(name);
     try
     {
 	server->ice_ping();
-	
-	//
-	// The server already exists.
-	//
 	throw ServerExistsException();
     }
     catch (const ObjectNotExistException&)
@@ -182,63 +185,46 @@ IcePack::ServerManagerI::create(const ServerDescription& description, const Curr
     }
 
     //
-    // Create the server. Set its state to Activating so that we can
+    // Creates the server. Set its state to Activating so that we can
     // safelly register the adapters without any race conditions. If a
     // request comes in for an adapter we've just registerd, the
     // server won't be started as long as we are not in the Inactive
     // state.
     //
-    ServerI* serverI = new ServerI(_adapter, _activator);
-    ServerPtr s = serverI;
-    serverI->_description = description;
+    // TODO: the server isn't fully initialized here. Is this really
+    // valid to add the servant to the object adapter? If not, how do
+    // we handle the race condition because of registered adapters
+    // having a proxy on the server?
+    //
+    ServerPtr serverI = new ServerI(_adapter, _activator);
+    serverI->_description.name = name;
+    serverI->_description.path = path;
+    serverI->_description.libraryPath = libraryPath;
+    serverI->_description.descriptor = descriptor;
     serverI->_state = Activating;
+    server = ServerPrx::uncheckedCast(_adapter->add(serverI, server->ice_getIdentity()));
 
     //
-    // The server object might receives requests as soon as it returns
-    // from this call. This is the reason why we've created the server
-    // in the  activating state --  to block any attempts  to activate
-    // the server. The server state is set to inactive once it's fully
-    // created.
+    // Deploy the server.
     //
-    server = ServerPrx::uncheckedCast(_adapter->add(serverI, server->ice_getIdentity()));
-    
     try
     {
-	//
-	// Register the server adapters to enabled automatic
-	// activation. If an adapter already exists, rollback the
-	// server creation and throw an exception.
-	// 
-	for(AdapterNames::const_iterator p = description.adapters.begin(); p != description.adapters.end(); ++p)
-	{
-	    AdapterDescription desc;
-	    desc.name = (*p);
-	    desc.server = server;
-	    serverI->_adapters.push_back(_adapterManager->create(desc));
-	}
+	ServerDeployer deployer(_adapter->getCommunicator(), serverI, server);
+	deployer.setAdapterManager(_adapterManager);
+
+	deployer.parse();
+	deployer.deploy();
     }
-    catch (const AdapterExistsException&)
+    catch(const DeploymentException&)
     {
-	//
-	// The adapter is already registered with a server, remove the
-	// server.
-	//
 	_adapter->remove(server->ice_getIdentity());
 	serverI->setState(Destroyed);
 	throw;
     }
 
-    //
-    // Set the server state as inactive. At this point the server can
-    // be automatically started if a request for one of its adapter
-    // comes in.
-    //
     serverI->setState(Inactive);
 
-    //
-    // Add this server name to our server names internal list.
-    //
-    _serverNames.insert(description.name);
+    _serverNames.insert(name);
 
     return server;
 }
@@ -254,7 +240,7 @@ IcePack::ServerManagerI::findByName(const string& name, const Current&)
 	server->ice_ping();
 	return server;
     }
-    catch (const ObjectNotExistException&)
+    catch(const ObjectNotExistException&)
     {
 	return 0;
     }
@@ -270,7 +256,7 @@ IcePack::ServerManagerI::remove(const string& name, const Current&)
     {
 	server->ice_ping();
     }
-    catch (const ObjectNotExistException&)
+    catch(const ObjectNotExistException&)
     {
 	throw ServerNotExistException();
     }
@@ -278,17 +264,23 @@ IcePack::ServerManagerI::remove(const string& name, const Current&)
     //
     // Mark the server as destroyed.
     //
-    ServerI* serverI = dynamic_cast<ServerI*>(_adapter->proxyToServant(server).get());
+    ServerPtr serverI = ServerPtr::dynamicCast(_adapter->proxyToServant(server).get());
     assert(serverI);
     serverI->setState(Destroyed);
 
     //
-    // Remove server adapters.
+    // Undeploy the server.
     //
-    ServerDescription description = serverI->_description;
-    for(AdapterNames::iterator p = description.adapters.begin(); p != description.adapters.end(); ++p)
+    try
     {
-	_adapterManager->remove(*p);
+	ServerDeployer deployer(_adapter->getCommunicator(), serverI, server);
+	deployer.setAdapterManager(_adapterManager);
+
+	deployer.parse();
+	deployer.undeploy();
+    }
+    catch(const DeploymentException& ex)
+    {
     }
 
     _adapter->remove(server->ice_getIdentity());

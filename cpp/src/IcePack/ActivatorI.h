@@ -22,7 +22,7 @@ class ActivatorI : public Activator, public IceUtil::Thread, public IceUtil::Mut
 {
 public:
 
-    ActivatorI(const Ice::CommunicatorPtr&, const std::vector<std::string>&);
+    ActivatorI(const Ice::CommunicatorPtr&);
     virtual ~ActivatorI();
 
     virtual void run();
@@ -48,7 +48,6 @@ private:
     bool _destroy;
     int _fdIntrRead;
     int _fdIntrWrite;
-    std::vector<std::string> _defaultArgs;
 };
 
 typedef IceUtil::Handle<ActivatorI> ActivatorIPtr;

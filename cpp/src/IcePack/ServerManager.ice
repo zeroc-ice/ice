@@ -54,6 +54,13 @@ class Server
     ServerState getState();
 
     /**
+     *
+     * Set the server state.
+     *
+     **/
+    void setState(ServerState state);
+
+    /**
      * 
      * The description of this server.
      *
@@ -82,8 +89,8 @@ class ServerManager
      * Create a server.
      *
      **/
-    Server* create(ServerDescription description)
-	throws ServerExistsException, AdapterExistsException;
+    Server* create(string name, string path, string libpath, string descriptor)
+	throws DeploymentException, ServerExistsException;
 
     /**
      *

@@ -24,7 +24,8 @@ public:
 
     AdminI(const Ice::CommunicatorPtr&, const ServerManagerPrx&, const AdapterManagerPrx&);
 
-    virtual void addServer(const ServerDescription&, const Ice::Current&);
+    virtual void addServer(const std::string&, const std::string&, const std::string&, const std::string&, 
+			   const Ice::Current&);
     virtual ServerDescription getServerDescription(const ::std::string&, const Ice::Current&);
     virtual ServerState getServerState(const ::std::string&, const Ice::Current&);
     virtual bool startServer(const ::std::string&, const Ice::Current&);

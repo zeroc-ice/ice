@@ -1,0 +1,7 @@
+<server kind="cpp">
+
+  <adapters>
+    <adapter name="TestAdapter"/>
+  </adapters>
+
+</server>

@@ -26,12 +26,11 @@ public:
     ServerI(const ::Ice::ObjectAdapterPtr&, const ActivatorPrx&);
     virtual ~ServerI();
     
-    virtual ServerDescription getServerDescription(const ::Ice::Current&);
-    virtual bool start(const ::Ice::Current&);
-    virtual void terminationCallback(const ::Ice::Current&);
-    virtual ServerState getState(const ::Ice::Current&);
-
-    void setState(ServerState);
+    virtual ServerDescription getServerDescription(const ::Ice::Current& = ::Ice::Current());
+    virtual bool start(const ::Ice::Current& = ::Ice::Current());
+    virtual void terminationCallback(const ::Ice::Current& = ::Ice::Current());
+    virtual ServerState getState(const ::Ice::Current& = ::Ice::Current());
+    virtual void setState(ServerState, const ::Ice::Current& = ::Ice::Current());
 
 private:
 
@@ -47,7 +46,8 @@ public:
     ServerManagerI(const Ice::ObjectAdapterPtr&, const AdapterManagerPrx&, const ActivatorPrx&);
     virtual ~ServerManagerI();
 
-    virtual ServerPrx create(const ServerDescription&, const ::Ice::Current&);
+    virtual ServerPrx create(const std::string&, const std::string&, const std::string&, const std::string&, 
+			     const ::Ice::Current&);
     virtual ServerPrx findByName(const ::std::string&, const ::Ice::Current&);
     virtual void remove(const ::std::string&, const ::Ice::Current&);
     virtual ServerNames getAll(const ::Ice::Current&);

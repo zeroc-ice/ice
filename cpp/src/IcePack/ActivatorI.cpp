@@ -22,10 +22,9 @@ using namespace std;
 using namespace Ice;
 using namespace IcePack;
 
-IcePack::ActivatorI::ActivatorI(const CommunicatorPtr& communicator, const vector<string>& defaultArgs) :
+IcePack::ActivatorI::ActivatorI(const CommunicatorPtr& communicator) :
     _communicator(communicator),
-    _destroy(false),
-    _defaultArgs(defaultArgs)
+    _destroy(false)
 {
     int fds[2];
     if(pipe(fds) != 0)
@@ -212,7 +211,7 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 	//
 	// Compute arguments.
 	//
-	int argc = desc.args.size() + _defaultArgs.size() + 3;
+	int argc = desc.args.size() + 2;
 	char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
 	argv[0] = strdup(path.c_str());
 	unsigned int i = 0;
@@ -221,14 +220,6 @@ IcePack::ActivatorI::activate(const ServerPrx& server, const ::Ice::Current&)
 	{
 	    argv[i + 1] = strdup(q->c_str());
 	}
-	for(q = _defaultArgs.begin(); q != _defaultArgs.end(); ++q, ++i)
-	{
-	    argv[i + 1] = strdup(q->c_str());
-	}
-
-	string serverName = "--Ice.ProgramName=" + desc.name;
-	argv[argc - 2] = strdup(serverName.c_str());
-
 	argv[argc - 1] = 0;
 
 	if(execvp(argv[0], argv) == -1)
