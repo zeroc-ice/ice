@@ -60,7 +60,7 @@ TopicManagerI::create(const string& name, const Ice::Current&)
     }
 
     installTopic("create", name);
-    _topics[name] = true;
+    _topics.insert(make_pair(name, true));
 
     Ice::Identity id;
     id.name = name;
