@@ -684,14 +684,34 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sp;
     C << nl << retS << nl << "IceProxy" << scoped << paramsDecl;
     C << sb;
+    C << nl << "int __cnt = 0;";
+    C << nl << "while (true)";
+    C << sb;
     C << nl << "::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase = __getDelegate();";
     C << nl << "::IceDelegate" << scope << "* __del = dynamic_cast< ::IceDelegate" << scope << "*>(__delBase.get());";
+    C << nl << "try";
+    C << sb;
     C << nl;
     if (ret)
     {
 	C << "return ";
     }
     C << "__del->" << name << args << ";";
+    if (!ret)
+    {
+	C << nl << "return;";
+    }
+    C << eb;
+    C << nl << "catch (const ::IceInternal::NonRepeatable& __ex)";
+    C << sb;
+//    C << nl << "__handleException(*__ex.get(), __cnt);";
+    C << nl << "__ex.raise();";
+    C << eb;
+    C << nl << "catch (const ::Ice::LocalException& __ex)";
+    C << sb;
+    C << nl << "__handleException(__ex, __cnt);";
+    C << eb;
+    C << eb;
     C << eb;
 }
 

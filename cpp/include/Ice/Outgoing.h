@@ -25,6 +25,27 @@ class LocalException;
 namespace IceInternal
 {
 
+//
+// An exception wrapper, which is used to indicate that an operation
+// that failed due to an exception is not repeatable if "at-most-once"
+// semantics must be guaranteed.
+//
+class NonRepeatable
+{
+public:
+
+    NonRepeatable(const NonRepeatable&);
+    NonRepeatable(const ::Ice::LocalException&);
+    void raise() const;
+    const ::Ice::LocalException* get() const;
+
+private:
+
+    const NonRepeatable& operator=(const NonRepeatable&);
+
+    std::auto_ptr< ::Ice::LocalException> _ex;
+};
+
 class ICE_API Outgoing : noncopyable, public JTCMonitorT< JTCMutex >
 {
 public:

@@ -30,6 +30,8 @@ ICE_API void read(Stream*, ::Ice::ObjectPrx&);
 namespace Ice
 {
 
+class LocalException;
+
 class ICE_API ObjectPrxE
 {
 public:
@@ -69,6 +71,7 @@ public:
 
     ::IceInternal::ReferencePtr __reference() const;
     void __copyTo(::IceProxy::Ice::Object*) const;
+    void __handleException(const ::Ice::LocalException&, int&);
 
 protected:
 
