@@ -19,9 +19,10 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 
-Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool noGlobals, bool chapter) :
+Slice::Gen::Gen(const string& name, const string& file, bool standAlone, bool noGlobals, bool chapter, bool noIndex) :
     _standAlone(standAlone),
-    _noGlobals(noGlobals)
+    _noGlobals(noGlobals),
+    _noIndex(noIndex)
 {
     if(chapter)
     {
@@ -79,7 +80,7 @@ Slice::Gen::visitUnitStart(const UnitPtr& p)
 	printHeader();
     }
 
-    if(!_noGlobals)
+    if(!_noGlobals && !_noIndex)
     {
 	start(_chapter, "Global Module", false);
 //	start("section", "Overview", false);
@@ -124,7 +125,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     modules.erase(remove_if(modules.begin(), modules.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		  modules.end());
 
-    if(!modules.empty())
+    if(!modules.empty() && !_noIndex)
     {
 	start("section", "Module Index", false);
 	start("variablelist");
@@ -154,7 +155,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     remove_copy_if(classesAndInterfaces.begin(), classesAndInterfaces.end(), back_inserter(interfaces),
 		   not1(::IceUtil::constMemFun(&ClassDef::isInterface)));
 
-    if(!classes.empty())
+    if(!classes.empty() && !_noIndex)
     {
 	start("section", "Class Index", false);
 	start("variablelist");
@@ -173,7 +174,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	end();
     }
 
-    if(!interfaces.empty())
+    if(!interfaces.empty() && !_noIndex)
     {
 	start("section", "Interface Index", false);
 	start("variablelist");
@@ -196,7 +197,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     exceptions.erase(remove_if(exceptions.begin(), exceptions.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		     exceptions.end());
 
-    if(!exceptions.empty())
+    if(!exceptions.empty() && !_noIndex)
     {
 	start("section", "Exception Index", false);
 	start("variablelist");
@@ -219,7 +220,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     structs.erase(remove_if(structs.begin(), structs.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		  structs.end());
 
-    if(!structs.empty())
+    if(!structs.empty() && !_noIndex)
     {
 	start("section", "Struct Index", false);
 	start("variablelist");
@@ -242,7 +243,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     sequences.erase(remove_if(sequences.begin(), sequences.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		    sequences.end());
 
-    if(!sequences.empty())
+    if(!sequences.empty() && !_noIndex)
     {
 	start("section", "Sequence Index", false);
 	start("variablelist");
@@ -266,7 +267,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 				 ::IceUtil::constMemFun(&Contained::includeLevel)),
 		       dictionaries.end());
 
-    if(!dictionaries.empty())
+    if(!dictionaries.empty() && !_noIndex)
     {
 	start("section", "Dictionary Index", false);
 	start("variablelist");
@@ -289,7 +290,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
     enums.erase(remove_if(enums.begin(), enums.end(), ::IceUtil::constMemFun(&Contained::includeLevel)),
 		enums.end());
 
-    if(!enums.empty())
+    if(!enums.empty() && !_noIndex)
     {
 	start("section", "Enum Index", false);
 	start("variablelist");
@@ -414,7 +415,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     printComment(p);
 
     OperationList operations = p->operations();
-    if(!operations.empty())
+    if(!operations.empty() && !_noIndex)
     {
 	start("section", "Operation Index", false);
 	start("variablelist");
@@ -434,7 +435,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     }
 
     DataMemberList dataMembers = p->dataMembers();
-    if(!dataMembers.empty())
+    if(!dataMembers.empty() && !_noIndex)
     {
 	start("section", "Data Member Index", false);
 	start("variablelist");
@@ -559,7 +560,7 @@ Slice::Gen::visitExceptionStart(const ExceptionPtr& p)
     printComment(p);
 
     DataMemberList dataMembers = p->dataMembers();
-    if(!dataMembers.empty())
+    if(!dataMembers.empty() && !_noIndex)
     {
 	start("section", "Data Member Index", false);
 	start("variablelist");
@@ -620,7 +621,7 @@ Slice::Gen::visitStructStart(const StructPtr& p)
     printComment(p);
 
     DataMemberList dataMembers = p->dataMembers();
-    if(!dataMembers.empty())
+    if(!dataMembers.empty() && !_noIndex)
     {
 	start("section", "Data Member Index", false);
 	start("variablelist");
@@ -680,7 +681,7 @@ Slice::Gen::visitEnum(const EnumPtr& p)
     printComment(p);
 
     EnumeratorList enumerators = p->getEnumerators();
-    if(!enumerators.empty())
+    if(!enumerators.empty() && !_noIndex)
     {
 	start("section", "Enumerator Index", false);
 	start("variablelist");

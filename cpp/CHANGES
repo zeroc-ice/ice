@@ -1,6 +1,9 @@
 Changes since version 1.1.0
 ---------------------------
 
+- Added --noindex option to slice2docbook to suppress generation of index
+  pages for pdf version of documentation.
+
 - Changed the behavior of Freeze::Map::insert to match the insert behavior 
   on associative containers in the C++ standard: if the element is already
   there, it is not updated.

@@ -35,6 +35,7 @@ usage(const char* n)
         "--no-globals         Don't document the global module.\n"
         "--chapter            Use \"chapter\" instead of \"section\" as\n"
         "                     top-level element.\n"
+	"--noindex            Suppress generation of index pages.\n"
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
         ;
@@ -51,6 +52,7 @@ main(int argc, char* argv[])
     bool standAlone = false;
     bool noGlobals = false;
     bool chapter = false;
+    bool noIndex = false;
 
     int idx = 1;
     while(idx < argc)
@@ -98,6 +100,15 @@ main(int argc, char* argv[])
 	else if(strcmp(argv[idx], "--chapter") == 0)
 	{
 	    chapter = true;
+	    for(int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
+	else if(strcmp(argv[idx], "--noindex") == 0)
+	{
+	    noIndex = true;
 	    for(int i = idx ; i + 1 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 1];
@@ -207,7 +218,7 @@ main(int argc, char* argv[])
 
     if(status == EXIT_SUCCESS)
     {
-	Gen gen(argv[0], docbook, standAlone, noGlobals, chapter);
+	Gen gen(argv[0], docbook, standAlone, noGlobals, chapter, noIndex);
 	if(!gen)
 	{
 	    p->destroy();

@@ -52,7 +52,7 @@ clean::
 
 SliceDoc.sgml: $(SLICEFILES) $(SLICE2DOCBOOK)
 	rm -f $@
-	$(SLICE2DOCBOOK) --ice -I$(top_srcdir)/slice $@ $(SLICEFILES)
+	$(SLICE2DOCBOOK) --noindex --ice -I$(top_srcdir)/slice $@ $(SLICEFILES)
 
 clean::
 	rm -f SliceDoc.sgml
