@@ -213,9 +213,6 @@ Additional Requirements for AIX with VisualAge 6.0
 The Ice extension currently cannot be used in a dynamic configuration.
 To build the Ice extension in a static configuration:
 
-- Edit the file <phpdir>/libtool, search for the line beginning with
-  "archive_cmds=", and change \$LD to \$CXX.
-
 - Edit the file <phpdir>/Makefile and make the following changes:
 
   - Add a definition for EXTRA_CXXFLAGS. For 32-bit platforms, use the
