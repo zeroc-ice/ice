@@ -30,6 +30,7 @@
 #include <Ice/IdentityUtil.h>
 #include <Ice/OutgoingAsync.h>
 #include <Ice/IncomingAsync.h>
+#include <Ice/Process.h>
 #include <Ice/Application.h>
 
 #endif

@@ -405,6 +405,42 @@ to the &Ice; locator interface.
 </section>
 </section>
 
+<section><title><replaceable>name</replaceable>.RegisterProcess</title>
+<section><title>Synopsis</title>
+<synopsis>
+<replaceable>name</replaceable>.RegisterProcess=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If <replaceable>num</replaceable> is set to a value larger than zero,
+the object adapter with the name <replaceable>name</replaceable> registers
+the server with the locator registry. Registration occurs upon the
+object adapter's initial activation, during which the object adapter creates
+a servant implementing the <literal>Ice::Process</literal> interface, adds
+the servant using a UUID, and registers its proxy with the locator
+registry using the value of the <literal>Ice.ServerId</literal> property
+for the server id. The servant implements the <literal>shutdown</literal>
+operation by invoking <literal>shutdown</literal> on the object adapter's
+communicator. </para>
+<para> It is important for a server to be registered with the locator 
+registry so that services such as &IcePack; can request a graceful shutdown
+when necessary. If a server is not registered, then platform-specific
+techniques are used to request a shutdown, and these techniques are not
+always effective (especially on Windows platforms). </para>
+<note><para> Only one object adapter in a server should register with
+a locator registry. </para></note>
+<note><para> The <literal>Ice::Process</literal> servant represents a
+potential target for denial-of-service attacks. The object adapter uses
+a UUID to make the proxy more difficult to guess, but the object adapter
+should be configured with secure endpoints if the server operates in a
+potentially hostile environment. Alternatively, a dedicated object
+adapter can be created specifically to provide a restricted access point
+for services such as &IcePack;.</para></note>
+</section>
+</section>
+
 <section><title><replaceable>name</replaceable>.Router</title>
 <section><title>Synopsis</title>
 <synopsis>
@@ -852,6 +888,24 @@ Ice.ProgramName=<replaceable>name</replaceable>
 automatically from <literal>argv[0]</literal> during
 initialization. However, a different name can be used by setting
 this property.
+</para>
+</section>
+</section>
+
+<section><title>Ice.ServerId</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.ServerId=<replaceable>id</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The value <replaceable>id</replaceable> is used as the server id when
+an object adapter registers the server with the locator registry.
+Refer to the description of the object adapter property
+<literal><replaceable>adapter</replaceable>.RegisterProcess</literal>
+for more information.
 </para>
 </section>
 </section>

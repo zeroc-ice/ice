@@ -13,7 +13,6 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <Ice/Application.h>
 #include <TestI.h>
 #include <TestCommon.h>
 
@@ -24,7 +23,6 @@ class Server : public Ice::Application
 public:
 
     virtual int run(int argc, char* argv[]);
-
 };
 
 int
@@ -41,6 +39,7 @@ Server::run(int argc, char* argv[])
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Server");
     Ice::ObjectPtr object = new TestI(adapter, properties);
     adapter->add(object, Ice::stringToIdentity(name));
+
     shutdownOnInterrupt();
     try
     {

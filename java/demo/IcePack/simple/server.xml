@@ -3,7 +3,7 @@
   <classname>Server</classname>
 
   <adapters>
-    <adapter name="Hello" endpoints="tcp:udp">
+    <adapter name="Hello" endpoints="tcp:udp" register="true">
       <object identity="${name}" type="::Hello"/>
     </adapter>
   </adapters>

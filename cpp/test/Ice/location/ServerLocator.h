@@ -25,6 +25,7 @@ public:
     ServerLocatorRegistry();
     
     virtual void setAdapterDirectProxy(const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
+    virtual void setServerProcessProxy(const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
     //
     // Internal method

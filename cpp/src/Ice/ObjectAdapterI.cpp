@@ -30,6 +30,7 @@
 #include <Ice/Locator.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/ThreadPool.h>
+#include <Ice/Communicator.h>
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -64,18 +65,36 @@ void
 Ice::ObjectAdapterI::activate()
 {
     LocatorRegistryPrx locatorRegistry;
+    bool registerProcess = false;
+    string serverId;
 
     {    
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 	
 	checkForDeactivation();
-	
+
 	if(!_printAdapterReadyDone)
 	{
 	    if(_locatorInfo && !_id.empty())
 	    {
 		locatorRegistry = _locatorInfo->getLocatorRegistry();
 	    }
+
+            registerProcess = _instance->properties()->getPropertyAsInt(_name + ".RegisterProcess") > 0;
+            serverId = _instance->properties()->getProperty("Ice.ServerId");
+
+            if(registerProcess && !locatorRegistry)
+            {
+                Warning out(_instance->logger());
+                out << "object adapter `" << _name << "' cannot register the process without a locator registry";
+                registerProcess = false;
+            }
+            else if(registerProcess && serverId.empty())
+            {
+                Warning out(_instance->logger());
+                out << "object adapter `" << _name << "' cannot register the process without a value for Ice.ServerId";
+                registerProcess = false;
+            }
 	}
 	
 	for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
@@ -123,6 +142,24 @@ Ice::ObjectAdapterI::activate()
 	    ex.id = _id;
 	    throw ex;
 	}
+
+        if(registerProcess)
+        {
+            ProcessPtr servant = new ProcessI(_communicator);
+            ProcessPrx proxy = ProcessPrx::uncheckedCast(addWithUUID(servant));
+
+            try
+            {
+                locatorRegistry->setServerProcessProxy(serverId, proxy);
+            }
+            catch(const ServerNotFoundException&)
+            {
+                NotRegisteredException ex(__FILE__, __LINE__);
+                ex.kindOfObject = "server";
+                ex.id = serverId;
+                throw ex;
+            }
+        }
     }
 }
 
@@ -406,6 +443,23 @@ Ice::ObjectAdapterI::setLocator(const LocatorPrx& locator)
     checkForDeactivation();
 
     _locatorInfo = _instance->locatorManager()->get(locator);
+}
+
+LocatorPrx
+Ice::ObjectAdapterI::getLocator()
+{
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+
+    checkForDeactivation();
+
+    LocatorPrx locator;
+
+    if(_locatorInfo)
+    {
+        locator = _locatorInfo->getLocator();
+    }
+
+    return locator;
 }
 
 bool
@@ -734,4 +788,15 @@ Ice::ObjectAdapterI::checkIdentity(const Identity& ident)
         e.id = ident;
         throw e;
     }
+}
+
+Ice::ObjectAdapterI::ProcessI::ProcessI(const CommunicatorPtr& communicator) :
+    _communicator(communicator)
+{
+}
+
+void
+Ice::ObjectAdapterI::ProcessI::shutdown(const Current&)
+{
+    _communicator->shutdown();
 }

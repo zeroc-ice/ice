@@ -124,6 +124,7 @@ static const string iceProps[] =
     "PrintProcessId",
     "ProgramName",
     "RetryIntervals",
+    "ServerId",
     "ServerIdleTime",
     "ThreadPool.Client.Size",
     "ThreadPool.Client.SizeMax",
@@ -157,6 +158,7 @@ static const string iceBoxProps[] =
     "ServiceManager.AdapterId",
     "ServiceManager.Endpoints",
     "ServiceManager.Identity",
+    "ServiceManager.RegisterProcess",
     "UseSharedCommunicator.*"
 };
 

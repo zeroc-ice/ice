@@ -1,10 +1,29 @@
 Changes since version 1.2.0
 ---------------------------
 
-- Added the methods ice_preMarshal and ice_postUnmarshal to Ice.Object.
-  The default implementations do nothing, but subclasses may override
-  them to take special action before marshaling and after unmarshaling,
-  respectively.
+- Added Slice interface Ice::Process in slice/Ice/Process.ice. This
+  interface enables IcePack to properly shut down a process without
+  relying on signals, which is necessary for successful operation
+  on Windows.
+
+- Added setServerProcessProxy to Ice::LocatorRegistry.
+
+- Added new properties <ObjectAdapter>.RegisterProcess and
+  Ice.ServerId. If RegisterProcess is defined, the object adapter
+  creates a servant implementing the Ice::Process interface and
+  registers it with the locator registry using the server id
+  defined by Ice.ServerId.
+
+- Added the "register" attribute to the <adapter> element in the
+  IcePack descriptors. If true, the RegisterProcess property is
+  defined for the object adapter.
+
+- Added getLocator to ObjectAdapter.
+
+- Added the methods ice_preMarshal and ice_postUnmarshal to
+  Ice.Object. The default implementations do nothing, but subclasses
+  may override them to take special action before marshaling and
+  after unmarshaling, respectively.
 
 - Added the demo/IcePack/simple example.
 

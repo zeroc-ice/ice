@@ -29,6 +29,11 @@ ServerLocatorRegistry::setAdapterDirectProxy(const ::std::string& adapter, const
     _adapters[adapter] = object;
 }
 
+void 
+ServerLocatorRegistry::setServerProcessProxy(const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&)
+{
+}
+
 Ice::ObjectPrx
 ServerLocatorRegistry::getAdapter(const ::std::string& adapter) const
 {

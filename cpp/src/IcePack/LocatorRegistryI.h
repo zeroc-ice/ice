@@ -26,13 +26,15 @@ class LocatorRegistryI : public Ice::LocatorRegistry
 {
 public:
 
-    LocatorRegistryI(const AdapterRegistryPtr&, const Ice::ObjectAdapterPtr&);
+    LocatorRegistryI(const AdapterRegistryPtr&, const ServerRegistryPtr&, const Ice::ObjectAdapterPtr&);
     
     virtual void setAdapterDirectProxy(const ::std::string&, const ::Ice::ObjectPrx&, const ::Ice::Current&);
+    virtual void setServerProcessProxy(const ::std::string&, const ::Ice::ProcessPrx&, const ::Ice::Current&);
 
 private:
     
     AdapterRegistryPtr _adapterRegistry;
+    ServerRegistryPtr _serverRegistry;
     Ice::ObjectAdapterPtr _adapter;
 };
 

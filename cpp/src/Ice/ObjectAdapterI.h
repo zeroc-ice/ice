@@ -30,6 +30,7 @@
 #include <Ice/EndpointF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ThreadPoolF.h>
+#include <Ice/Process.h>
 #include <list>
 
 namespace Ice
@@ -69,6 +70,7 @@ public:
     virtual void addRouter(const RouterPrx&);
 
     virtual void setLocator(const LocatorPrx&);
+    virtual LocatorPrx getLocator();
     
     bool isLocal(const ObjectPrx&) const;
 
@@ -106,6 +108,19 @@ private:
     IceInternal::LocatorInfoPtr _locatorInfo;
     int _directCount; // The number of direct proxies dispatching on this object adapter.
     bool _waitForDeactivate;
+
+    class ProcessI : public Process
+    {
+    public:
+
+        ProcessI(const CommunicatorPtr&);
+
+        virtual void shutdown(const Current&);
+
+    private:
+
+        CommunicatorPtr _communicator;
+    };
 };
 
 }

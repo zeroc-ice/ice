@@ -20,8 +20,10 @@ using namespace std;
 using namespace IcePack;
 
 IcePack::LocatorRegistryI::LocatorRegistryI(const AdapterRegistryPtr& adapterRegistry, 
+                                            const ServerRegistryPtr& serverRegistry,
 					    const Ice::ObjectAdapterPtr& adapter) :
     _adapterRegistry(adapterRegistry),
+    _serverRegistry(serverRegistry),
     _adapter(adapter)
 {
 }
@@ -102,3 +104,36 @@ IcePack::LocatorRegistryI::setAdapterDirectProxy(const string& id, const Ice::Ob
     }
 }
 
+void 
+IcePack::LocatorRegistryI::setServerProcessProxy(const string& name, const Ice::ProcessPrx& proxy, const Ice::Current&)
+{
+    try
+    {
+        //
+        // Get the server from the registry and set its process proxy.
+        //
+        _serverRegistry->findByName(name)->setProcess(proxy);
+        return;
+    }
+    catch(const ServerNotExistException&)
+    {
+    }
+    catch(const Ice::ObjectNotExistException&)
+    {
+        //
+        // Expected if the server was destroyed.
+        //
+    }
+    catch(const Ice::LocalException&)
+    {
+        //
+        // TODO: We couldn't contact the server object. This
+        // is possibly because the IcePack node is down and
+        // the server is started manually for example. We
+        // should probably throw here to prevent the server
+        // from starting?
+        //
+        return;
+    }
+    throw Ice::ServerNotFoundException();
+}

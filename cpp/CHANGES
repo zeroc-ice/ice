@@ -117,6 +117,25 @@ Changes since version 1.2.0
     If <num> is set to a value larger than zero, the stderr of each
     started server is redirected to the server's stdout.
 
+- Added Slice interface Ice::Process in slice/Ice/Process.ice. This
+  interface enables IcePack to properly shut down a process without
+  relying on signals, which is necessary for successful operation
+  on Windows.
+
+- Added setServerProcessProxy to Ice::LocatorRegistry.
+
+- Added new properties <ObjectAdapter>.RegisterProcess and
+  Ice.ServerId. If RegisterProcess is defined, the object adapter
+  creates a servant implementing the Ice::Process interface and
+  registers it with the locator registry using the server id
+  defined by Ice.ServerId.
+
+- Added the "register" attribute to the <adapter> element in the
+  IcePack descriptors. If true, the RegisterProcess property is
+  defined for the object adapter.
+
+- Added getLocator to ObjectAdapter.
+
 - Eliminated Glacier's dependency on the crypt library. It now
   uses an equivalent function from OpenSSL.
 

@@ -1,7 +1,7 @@
 <server kind="cpp">
 
   <adapters>
-    <adapter name="Hello" endpoints="tcp:udp:ssl">
+    <adapter name="Hello" endpoints="tcp:udp:ssl" register="true">
       <object identity="${name}" type="::Hello"/>
     </adapter>
   </adapters>
@@ -19,8 +19,8 @@
  
   <target name="debug">
     <properties>
-      <property name="Ice.Network.Trace" value="1"/>
-      <property name="Ice.Network.Protocol" value="1"/>
+      <property name="Ice.Trace.Network" value="1"/>
+      <property name="Ice.Trace.Protocol" value="1"/>
     </properties>
   </target>
   

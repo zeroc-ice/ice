@@ -5,7 +5,7 @@
   <!-- object hosted by this server.                                 -->
   <!-- ============================================================= -->
   <adapters>
-    <adapter name="Hello" endpoints="default">
+    <adapter name="Hello" endpoints="default" register="true">
       <object identity="${name}" type="::HelloFactory"/>
     </adapter>
   </adapters>

@@ -53,6 +53,9 @@ public:
     virtual void setActivationMode(ServerActivation, const ::Ice::Current&);
     virtual ServerActivation getActivationMode(const ::Ice::Current&);
 
+    virtual void setProcess(const ::Ice::ProcessPrx&, const ::Ice::Current&);
+    virtual Ice::ProcessPrx getProcess(const ::Ice::Current&);
+
 private:
 
     void stopInternal();
@@ -64,6 +67,8 @@ private:
     ::Ice::Int _waitTime;
 
     ServerState _state;
+
+    ::Ice::ProcessPrx _process;
 };
 
 }

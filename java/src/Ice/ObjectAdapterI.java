@@ -37,6 +37,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
     activate()
     {
 	Ice.LocatorRegistryPrx locatorRegistry = null;
+        boolean registerProcess = false;
+        String serverId = "";
 
 	synchronized(this)
 	{
@@ -48,6 +50,22 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		{
 		    locatorRegistry = _locatorInfo.getLocatorRegistry();
 		}
+
+                registerProcess = _instance.properties().getPropertyAsInt(_name + ".RegisterProcess") > 0;
+                serverId = _instance.properties().getProperty("Ice.ServerId");
+
+                if(registerProcess && locatorRegistry == null)
+                {
+                    _instance.logger().warning("object adapter `" + _name + "' cannot register the process " +
+                                               "without a locator registry");
+                    registerProcess = false;
+                }
+                else if(registerProcess && serverId.length() == 0)
+                {
+                    _instance.logger().warning("object adapter `" + _name + "' cannot register the process " +
+                                               "without a value for Ice.ServerId");
+                    registerProcess = false;
+                }
 	    }
 	    
 	    final int sz = _incomingConnectionFactories.size();
@@ -101,6 +119,24 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 		ex1.id = _id;
 		throw ex1;
 	    }
+
+            if(registerProcess)
+            {
+                Process servant = new ProcessI(_communicator);
+                ProcessPrx proxy = ProcessPrxHelper.uncheckedCast(addWithUUID(servant));
+
+                try
+                {
+                    locatorRegistry.setServerProcessProxy(serverId, proxy);
+                }
+                catch(ServerNotFoundException ex)
+                {
+                    NotRegisteredException ex1 = new NotRegisteredException();
+                    ex1.id = serverId;
+                    ex1.kindOfObject = "server";
+                    throw ex1;
+                }
+            }
 	}
     }
 
@@ -412,6 +448,21 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	checkForDeactivation();
 
 	_locatorInfo = _instance.locatorManager().get(locator);
+    }
+
+    public synchronized LocatorPrx
+    getLocator()
+    {
+        checkForDeactivation();
+
+        LocatorPrx locator = null;
+
+        if(_locatorInfo != null)
+        {
+            locator = _locatorInfo.getLocator();
+        }
+
+        return locator;
     }
 
     public synchronized boolean
@@ -769,6 +820,22 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
         {
             ident.category = "";
         }
+    }
+
+    private static class ProcessI extends _ProcessDisp
+    {
+        ProcessI(Communicator communicator)
+        {
+            _communicator = communicator;
+        }
+
+        public void
+        shutdown(Ice.Current current)
+        {
+            _communicator.shutdown();
+        }
+
+        private Communicator _communicator;
     }
 
     private boolean _deactivated;

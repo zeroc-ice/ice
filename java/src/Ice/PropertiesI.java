@@ -395,6 +395,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"PrintProcessId",
 	"ProgramName",
 	"RetryIntervals",
+	"ServerId",
 	"ServerIdleTime",
 	"ThreadPool.Client.Size",
 	"ThreadPool.Client.SizeMax",
@@ -427,6 +428,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"ServiceManager.AdapterId",
 	"ServiceManager.Endpoints",
 	"ServiceManager.Identity",
+	"ServiceManager.RegisterProcess",
 	"UseSharedCommunicator.*"
     };
 

@@ -169,7 +169,7 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
     locatorRegistryId.category = "IcePack";
     locatorRegistryId.name = IceUtil::generateUUID();
     
-    ObjectPtr locatorRegistry = new LocatorRegistryI(adapterRegistry, serverAdapter);
+    ObjectPtr locatorRegistry = new LocatorRegistryI(adapterRegistry, serverRegistry, serverAdapter);
     LocatorRegistryPrx locatorRegistryPrx = LocatorRegistryPrx::uncheckedCast(
 	serverAdapter->add(locatorRegistry, locatorRegistryId));
 

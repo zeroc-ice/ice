@@ -396,6 +396,17 @@ local interface ObjectAdapter
      * 
      **/
     void setLocator(Locator* loc);
+
+    /**
+     *
+     * Get the locator configured for this object adapter.
+     *
+     * @return The locator proxy.
+     *
+     * @see Locator
+     *
+     **/
+    Locator* getLocator();
 };
 
 };

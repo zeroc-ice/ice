@@ -254,9 +254,9 @@ IcePack::ServerHandler::startElement(const string& name, const IceXML::Attribute
 	    // TODO: is the server name a good category?
 	    //
 	    _builder.addProperty("IceBox.ServiceManager.Identity", _builder.substitute("${name}/ServiceManager"));
-	    
+
 	    _builder.registerAdapter("IceBox.ServiceManager", 
-				     getAttributeValue(attrs, "endpoints"),
+				     getAttributeValue(attrs, "endpoints"), true,
 				     _builder.getDefaultAdapterId("IceBox.ServiceManager"));
 	}
 	else if(kind == "java-icebox")
@@ -271,7 +271,7 @@ IcePack::ServerHandler::startElement(const string& name, const IceXML::Attribute
 	    _builder.addProperty("IceBox.ServiceManager.Identity", _builder.substitute("${name}/ServiceManager"));
 
 	    _builder.registerAdapter("IceBox.ServiceManager", 
-				     getAttributeValue(attrs, "endpoints"),
+				     getAttributeValue(attrs, "endpoints"), true,
 				     _builder.getDefaultAdapterId("IceBox.ServiceManager"));
 	}
     }
@@ -286,7 +286,9 @@ IcePack::ServerHandler::startElement(const string& name, const IceXML::Attribute
     {
 	assert(!_currentAdapterId.empty());
 	string adapterName = getAttributeValue(attrs, "name");
-	_builder.registerAdapter(adapterName, getAttributeValue(attrs, "endpoints"), _currentAdapterId);
+        bool registerProcess = getAttributeValueWithDefault(attrs, "register", "false") == "true";
+	_builder.registerAdapter(adapterName, getAttributeValue(attrs, "endpoints"), registerProcess,
+                                 _currentAdapterId);
     }
 }
 
@@ -533,7 +535,8 @@ IcePack::ServerBuilder::registerServer()
 }
 
 void
-IcePack::ServerBuilder::registerAdapter(const string& name, const string& endpoints, const string& adapterId)
+IcePack::ServerBuilder::registerAdapter(const string& name, const string& endpoints, bool registerProcess,
+                                        const string& adapterId)
 {
     AdapterRegistryPrx adapterRegistry = _nodeInfo->getAdapterRegistry();
     if(!adapterRegistry)
@@ -568,6 +571,10 @@ IcePack::ServerBuilder::registerAdapter(const string& name, const string& endpoi
     //
     addProperty(name + ".Endpoints", endpoints);
     addProperty(name + ".AdapterId", adapterId);
+    if(registerProcess)
+    {
+        addProperty(name + ".RegisterProcess", "1");
+    }
 }
 
 void

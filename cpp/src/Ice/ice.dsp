@@ -306,6 +306,10 @@ SOURCE=.\PluginManagerI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Process.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Properties.cpp
 # End Source File
 # Begin Source File
@@ -723,6 +727,14 @@ SOURCE=..\..\include\Ice\PluginF.h
 # Begin Source File
 
 SOURCE=.\PluginManagerI.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Process.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\ProcessF.h
 # End Source File
 # Begin Source File
 
@@ -1622,6 +1634,82 @@ InputPath=..\..\slice\Ice\PluginF.ice
 	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/PluginF.ice 
 	move PluginF.h ..\..\include\Ice 
 	del PluginF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\Process.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__PLUGI="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Process.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Process.ice \
+	move Process.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Process.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Process.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__PLUGI="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Process.ice
+
+BuildCmds= \
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Process.ice \
+	move Process.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Process.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Process.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\ProcessF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__PLUGIN="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\ProcessF.ice
+
+"..\..\include\Ice\ProcessF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ProcessF.ice 
+	move ProcessF.h ..\..\include\Ice 
+	del ProcessF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__PLUGIN="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\ProcessF.ice
+
+"..\..\include\Ice\ProcessF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	..\..\bin\slice2cpp.exe --ice --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ProcessF.ice 
+	move ProcessF.h ..\..\include\Ice 
+	del ProcessF.cpp 
 	
 # End Custom Build
 

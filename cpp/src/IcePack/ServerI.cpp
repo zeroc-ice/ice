@@ -93,7 +93,7 @@ IcePack::ServerI::start(ServerActivation act, const Ice::Current& current)
 
     try
     {
-	bool active  = _activator->activate(this);
+        bool active = _activator->activate(this);
 	setState(active ? Active : Inactive);
 	return active;
     }
@@ -352,6 +352,20 @@ IcePack::ServerI::getActivationMode(const ::Ice::Current&)
 }
 
 void
+IcePack::ServerI::setProcess(const ::Ice::ProcessPrx& proc, const ::Ice::Current&)
+{
+    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    _process = proc;
+}
+
+Ice::ProcessPrx
+IcePack::ServerI::getProcess(const ::Ice::Current&)
+{
+    IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+    return _process;
+}
+
+void
 IcePack::ServerI::stopInternal()
 {
     //
@@ -399,22 +413,22 @@ IcePack::ServerI::stopInternal()
 
     if(deactivate)
     {
-	//
-	// Deactivate the server by sending a SIGTERM.
-	//
-	try
-	{
-	    _activator->deactivate(this);
-	}
-	catch(const Ice::SyscallException& ex)
-	{
-	    Ice::Warning out(_traceLevels->logger);
-	    out << "deactivation failed for server `" << description.name << "':\n";
-	    out << ex;
-	    
-	    setState(Active);
-	    return;
-	}
+        //
+        // Deactivate the server.
+        //
+        try
+        {
+            _activator->deactivate(this);
+        }
+        catch(const Ice::Exception& ex)
+        {
+            Ice::Warning out(_traceLevels->logger);
+            out << "deactivation failed for server `" << description.name << "':\n";
+            out << ex;
+            
+            setState(Active);
+            return;
+        }
     }
 
     //

@@ -11,6 +11,8 @@ IcePack.Registry.Server.Endpoints=default
 IcePack.Registry.Internal.Endpoints=default
 IcePack.Registry.Admin.Endpoints=default
 IcePack.Registry.Data=db/registry
+IcePack.Registry.Trace.ServerRegistry=2
+IcePack.Registry.Trace.AdapterRegistry=2
 
 #
 # IcePack node configuration.
@@ -19,10 +21,11 @@ IcePack.Node.Name=node
 IcePack.Node.Endpoints=default
 IcePack.Node.Data=db/node
 IcePack.Node.CollocateRegistry=1
+IcePack.Node.Output=.
 
 #
 # Trace properties.
 #
 IcePack.Node.Trace.Activator=3
-#IcePack.Node.Trace.Adapter=2
-#IcePack.Node.Trace.Server=3
+IcePack.Node.Trace.Adapter=2
+IcePack.Node.Trace.Server=3

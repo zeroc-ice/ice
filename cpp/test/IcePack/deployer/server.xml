@@ -11,7 +11,7 @@
   </target>
 
   <adapters>
-    <adapter name="Server" endpoints="default">
+    <adapter name="Server" endpoints="default" register="true">
       <object identity="${name}" type="::Test"/>
     </adapter>
   </adapters>

@@ -17,6 +17,7 @@
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/ProcessF.ice>
 #include <IcePack/Admin.ice>
 
 module IcePack
@@ -332,7 +333,21 @@ class Server
      *
      **/
     ServerActivation getActivationMode();
-    
+
+    /**
+     *
+     * Set the process proxy.
+     *
+     **/
+    void setProcess(Ice::Process* proc);
+
+    /**
+     *
+     * Get the proxy for the server's process.
+     *
+     **/
+    Ice::Process* getProcess();
+
     /**
      * 
      * The description of this server.
@@ -391,8 +406,7 @@ interface ServerRegistry
      *
      * @param name Name of the server.
      *
-     * @return Server proxy or a null proxy if the server is not
-     * found.
+     * @return Server proxy.
      *
      **/
     Server* findByName(string name)

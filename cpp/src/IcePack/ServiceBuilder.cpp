@@ -79,8 +79,9 @@ IcePack::ServiceHandler::startElement(const string& name, const IceXML::Attribut
     {
 	assert(!_currentAdapterId.empty());
 	string adapterName = getAttributeValue(attrs, "name");
+        bool registerProcess = getAttributeValueWithDefault(attrs, "register", "false") == "true";
 	_builder.getServerBuilder().registerAdapter(adapterName, getAttributeValue(attrs, "endpoints"),
-                                                    _currentAdapterId);
+                                                    registerProcess, _currentAdapterId);
     }
     else if(name == "dbproperty")
     {

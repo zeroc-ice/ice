@@ -418,6 +418,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     args.insert(args.end(), server->description.args.begin(), server->description.args.end());
     args.insert(args.end(), _propertiesOverride.begin(), _propertiesOverride.end());
     args.push_back("--Ice.Default.Locator=" + _properties->getProperty("Ice.Default.Locator"));
+    args.push_back("--Ice.ServerId=" + server->description.name);
 
     if(_traceLevels->activator > 1)
     {
@@ -676,7 +677,6 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     //
     CloseHandle(pi.hThread);
 
-    
     process.pid = pi.dwProcessId;
     process.hnd = pi.hProcess;
     process.server = server;
@@ -773,7 +773,6 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     // Current directory
     //
     const char* pwdCStr = pwd.c_str();
-
 
     pid_t pid = fork();
     if(pid == -1)
@@ -903,7 +902,39 @@ IcePack::ActivatorI::deactivate(const ServerPtr& server)
 	//
 	return;
     }
+#endif
 
+    //
+    // Try to shut down the server gracefully using the process proxy.
+    //
+    Ice::ProcessPrx process = server->getProcess();
+    if(process)
+    {
+        if(_traceLevels->activator > 1)
+        {
+            Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+            out << "deactivating `" << server->description.name << "' using process proxy";
+        }
+        try
+        {
+            process->shutdown();
+            return;
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            Ice::Warning out(_traceLevels->logger);
+            out << "exception occurred while deactivating `" << server->description.name
+                << "' using process proxy:\n" << ex;
+        }
+    }
+
+    if(_traceLevels->activator > 1)
+    {
+        Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
+        out << "no process proxy, deactivating `" << server->description.name << "' using signal";
+    }
+
+#ifdef _WIN32
     //
     // Generate a Ctrl+Break event on the child.
     //
