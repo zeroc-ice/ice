@@ -13,6 +13,7 @@ C++ compiler
 ------------
 
 - Sun C++ 5.3 (part of Forte 6 update 2 aka Sun WorkShop 6 update 2)
+  with patch 111685-14 (or later) applied.
   It is necessary to setup Sun C++ 5.3 to use the shared version of
   libCstd, as described in 
   <F6U2 install base>/SUNWspro/READMEs/c++ C.1.b (line 168).
