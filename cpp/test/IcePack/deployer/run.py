@@ -39,6 +39,7 @@ else:
 # Start the client.
 #
 def startClient(options):
+    global testdir
 
     fullClientOptions = TestUtil.clientOptions + \
                         " --Ice.Default.Locator=\"IcePack/Locator:default -p 12346\" " + \
