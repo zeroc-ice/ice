@@ -30,16 +30,25 @@ string
 Slice::changeInclude(const string& orig, const vector<string>& includePaths)
 {
     string file = orig;
-    replace(file.begin(), file.end(), '\\', '/');
+    string::size_type pos;
+
+    //
+    // Our icecpp C++ preprocessor changes "\" into "\\".
+    //
+    while((pos = file.find("\\\\")) != string::npos)
+    {
+	file.erase(pos, 1);
+	file[pos] = '/';
+    }
     
     for(vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
     {
 	string includePath = *p;
 	replace(includePath.begin(), includePath.end(), '\\', '/');
-	
-	if(orig.compare(0, includePath.length(), *p) == 0)
+
+	if(file.compare(0, includePath.length(), includePath) == 0)
 	{
-	    string s = orig.substr(includePath.length());
+	    string s = file.substr(includePath.length());
 	    if(s.size() < file.size())
 	    {
 		file = s;
@@ -47,8 +56,7 @@ Slice::changeInclude(const string& orig, const vector<string>& includePaths)
 	}
     }
 
-    string::size_type pos = file.rfind('.');
-    if(pos != string::npos)
+    if((pos = file.rfind('.')) != string::npos)
     {
 	file.erase(pos);
     }
