@@ -13,6 +13,7 @@ include $(top_srcdir)/config/Make.rules
 
 all::
 	python setup.py build
+	python setup.py install --install-lib $(libdir)
 
 install::
 	python setup.py install --install-lib $(install_libdir)
