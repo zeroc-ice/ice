@@ -75,7 +75,7 @@ private:
     const PatcherFeedbackPtr _feedback;
     const std::string _dataDir;
     const bool _thorough;
-    Ice::Int _chunkSize;
+    const Ice::Int _chunkSize;
     const Ice::Int _remove;
     const FileServerPrx _serverCompress;
     const FileServerPrx _serverNoCompress;

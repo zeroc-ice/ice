@@ -59,20 +59,19 @@ private:
 
     void usage(const std::string&);
 
-    LoggerPtr _logger;
+    const LoggerPtr _logger;
 };
 
 };
 
-IcePatch2::PatcherService::PatcherService()
+IcePatch2::PatcherService::PatcherService() :
+    _logger(communicator()->getLogger())
 {
 }
 
 bool
 IcePatch2::PatcherService::start(int argc, char* argv[])
 {
-    _logger = communicator()->getLogger();
-
     string dataDir;
 
     IceUtil::Options opts;
@@ -108,14 +107,14 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 	usage(argv[0]);
 	return false;
     }
-
-    PropertiesPtr properties = communicator()->getProperties();
-
-    if(!args.empty())
+    if(args.size() == 1)
     {
         dataDir = args[0];
     }
-    else
+
+    PropertiesPtr properties = communicator()->getProperties();
+
+    if(dataDir.empty())
     {
 	dataDir = properties->getProperty("IcePatch2.Directory");
 	if(dataDir.empty())
@@ -130,16 +129,23 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 
     try
     {
-	//
-	// Make working directory the data directory *before* calling normalize() for
-	// for the first time (because normalize caches the current working directory).
-	//
-	if(chdir(dataDir.c_str()) != 0)
+#ifdef _WIN32
+	if(dataDir[0] != '/' && !(dataDir.size() > 1 && isalpha(dataDir[0]) && dataDir[1] == ':'))
 	{
-	    string msg = "cannot change working directory to `" + dataDir + "': " + lastError();
-	    throw msg;
+	    char cwd[_MAX_PATH];
+	    if(_getcwd(cwd, _MAX_PATH) == NULL)
+#else
+	if(dataDir[0] != '/')
+	{
+	    char cwd[PATH_MAX];
+	    if(getcwd(cwd, PATH_MAX) == NULL)
+#endif
+	    {
+		throw "cannot get the current directory:\n" + lastError();
+	    }
+	    
+	    dataDir = string(cwd) + '/' + dataDir;
 	}
-	dataDir = normalize(".");
 
 	loadFileInfoSeq(dataDir, infoSeq);
     }
@@ -157,9 +163,8 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
     const char* endpointsProperty = "IcePatch2.Endpoints";
     if(properties->getProperty(endpointsProperty).empty())
     {
-	ostringstream os;
-	os << "property `" << endpointsProperty << "' is not set";
-	_logger->error(os.str());
+	Error err(_logger);
+	err << "property `" << endpointsProperty << "' is not set";
 	return false;
     }
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePatch2");
@@ -173,7 +178,7 @@ IcePatch2::PatcherService::start(int argc, char* argv[])
 
     const char* idProperty = "IcePatch2.Identity";
     Identity id = stringToIdentity(properties->getPropertyWithDefault(idProperty, "IcePatch2/server"));
-    adapter->add(new FileServerI(communicator(), dataDir, infoSeq), id);
+    adapter->add(new FileServerI(dataDir, infoSeq), id);
 
     if(adminAdapter)
     {
@@ -243,8 +248,9 @@ IcePatch2::PatcherService::usage(const string& appName)
 	// --nochdir is intentionally not shown here. (See the comment in main().)
     );
 #endif
-    _logger->print("Usage: " + appName + " [options] [DIR]");
-    _logger->print(options);
+
+    Print out(_logger);
+    out << "Usage: " << appName << " [options] [DIR]\n" << options;
 }
 
 int
@@ -257,9 +263,10 @@ main(int argc, char* argv[])
     status = svc.main(argc, argv);
 #else
     //
-    // For UNIX, force --nochdir option, so the service isn't started with /
-    // as the working directory. That way, if the data directory is
-    // specified as a relative path, we don't misinterpret that path.
+    // For UNIX, force --nochdir option, so the service isn't started
+    // with / as the working directory. That way, if the data
+    // directory is specified as a relative path, we don't
+    // misinterpret that path.
     //
     char** v = new char*[argc + 2];
     char** vsave = new char*[argc + 2]; // We need to keep a copy of the vector because svc.main modifies argv.

@@ -12,30 +12,28 @@
 
 #include <IcePatch2/FileInfo.ice>
 
+/**
+ *
+ * &IcePatch2; can be used to update file hiearchies in a simple and
+ * efficient manner. Checksums ensure file integrity, and data is
+ * compressed before download.
+ *
+ **/
 module IcePatch2
 {
 
 /**
  *
- * The number of partitions in the file set. [getCheckSumSeq]
- * returns a sequence with [NumPartitions] elements, and
- * [getFileInfoSeq] expects an argument in the range
- * <literal>0</literal> to <literal>NumPartitions - 1</literal>.
- *
- **/
-const int NumPartitions = 256;
-
-/**
- *
- * A sequence of byte sequences. Each element is the checksum for a partition.
+ * A sequence of byte sequences. Each element is the checksum for a
+ * partition.
  *
  **/
 sequence<Ice::ByteSeq> ByteSeqSeq;
 
 /**
  *
- * This exception is raised if the [partition] argument for [getFileInfoSeq]
- * is not in the range <literal>0</literal> to <literal>NumPartitions - 1</literal>.
+ * This exception is raised if the [partition] argument for
+ * [getFileInfoSeq] is not in the range 0-255.
  *
  **/
 exception PartitionOutOfRangeException
@@ -44,8 +42,8 @@ exception PartitionOutOfRangeException
 
 /**
  *
- * This exception is raised if [getFileCompressed] cannot read the contents
- * of a file.
+ * This exception is raised if [getFileCompressed] cannot read the
+ * contents of a file.
  *
  **/
 exception FileAccessException
@@ -62,13 +60,15 @@ interface FileServer
 {
     /**
      *
-     * Return the [FileInfoSeq] for the specified partition. If the partion 
-     * number is out of range, the operation throws [PartitionOutOfRangException].
+     * Return the [FileInfoSeq] for the specified partition. If the
+     * partion number is out of range, the operation throws
+     * [PartitionOutOfRangException].
      *
-     * @param partition The partition number (in the range <literal>0</literal>
-     * to <literal>NumPartitions - 1</literal>).
+     * @param partition The partition number in the range 0-255.
      *
-     * @return A sequence containing the [FileInfo] structures for files in the specified partition.
+     * @return A sequence containing the [FileInfo] structures for
+     * files in the specified partition.
+     *
      **/
     ["ami"] nonmutating FileInfoSeq getFileInfoSeq(int partition)
 	throws PartitionOutOfRangeException;
@@ -77,10 +77,11 @@ interface FileServer
      *
      * Return the checksums for all partitions.
      *
-     * @return A sequence containing <literal>NumPartitions</literal> checksums. Partitions
-     * with a checksum that differs from the previous checksum for the same partition
-     * contain updated files. Partitions with a checksum that is identical to the
-     * previous checksum do not contain updated files.
+     * @return A sequence containing 256 checksums. Partitions with a
+     * checksum that differs from the previous checksum for the same
+     * partition contain updated files. Partitions with a checksum
+     * that is identical to the previous checksum do not contain
+     * updated files.
      *
      **/
     nonmutating ByteSeqSeq getChecksumSeq();
@@ -97,19 +98,19 @@ interface FileServer
 
     /**
      *
-     * Read the specified file. If the read operation fails, the operation
-     * throws [FileAccessException].
+     * Read the specified file. If the read operation fails, the
+     * operation throws [FileAccessException]. This operation may only
+     * return fewer bytes than requested in case there was an
+     * end-of-file condition.
      *
-     * @param path The pathname (relative to the data directory) for the file to be read.
+     * @param path The pathname (relative to the data directory) for
+     * the file to be read.
      *
      * @param pos The file offset at which to begin reading.
      *
      * @param num The number of bytes to be read.
      *
-     * @return A sequence containing the (compressed) file contents. The operation may
-     * return fewer bytes than requested, either because end-of-file was reached, or
-     * because more than <literal>IcePatch2.MaxReadSize * 1024</literal> bytes were
-     * requested.
+     * @return A sequence containing the compressed file contents.
      *
      **/
     ["ami"] nonmutating Ice::ByteSeq getFileCompressed(string path, int pos, int num)

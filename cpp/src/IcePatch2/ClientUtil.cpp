@@ -114,8 +114,8 @@ public:
 	
 	    try
 	    {
-		decompressFile(info.path);
-		remove(info.path + ".bz2");
+		decompressFile(_dataDir + '/' + info.path);
+		remove(_dataDir + '/' + info.path + ".bz2");
 	    }
 	    catch(const string& ex)
 	    {
@@ -142,34 +142,45 @@ private:
 
 IcePatch2::Patcher::Patcher(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
     _feedback(feedback),
-    _dataDir(normalize(communicator->getProperties()->getPropertyWithDefault("IcePatch2.Directory", "."))),
+    _dataDir(simplify(communicator->getProperties()->getProperty("IcePatch2.Directory"))),
     _thorough(communicator->getProperties()->getPropertyAsInt("IcePatch2.Thorough") > 0),
-    _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100)),
+    _chunkSize(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.ChunkSize", 100000)),
     _remove(communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.Remove", 1))
 {
-    if(chdir(_dataDir.c_str()) != 0)
+    if(_dataDir.empty())
     {
-	throw string("cannot change directory to `" + _dataDir + "': " + lastError());
+	throw string("no data directory specified");
     }
 
-    int sizeMax = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
     if(_chunkSize < 1)
     {
 	const_cast<Int&>(_chunkSize) = 1;
     }
-    else if(_chunkSize > sizeMax)
-    {
-        _chunkSize = sizeMax;
-    }
-    if(_chunkSize == sizeMax)
-    {
-        _chunkSize = _chunkSize * 1024 - 512; // Leave some headroom for protocol header.
-    }
-    else
-    {
-	_chunkSize *= 1024;
-    }
 
+#ifdef _WIN32
+    if(_dataDir[0] != '/' && !(_dataDir.size() > 1 && isalpha(_dataDir[0]) && _dataDir[1] == ':'))
+    {
+	char cwd[_MAX_PATH];
+	if(_getcwd(cwd, _MAX_PATH) == NULL)
+	{
+	    throw "cannot get the current directory:\n" + lastError();
+	}
+    
+	const_cast<string&>(_dataDir) = string(cwd) + '/' + _dataDir;
+    }
+#else
+    if(_dataDir[0] != '/')
+    {
+	char cwd[PATH_MAX];
+	if(getcwd(cwd, PATH_MAX) == NULL)
+	{
+	    throw "cannot get the current directory:\n" + lastError();
+	}
+    
+	const_cast<string&>(_dataDir) = string(cwd) + '/' + _dataDir;
+    }
+#endif
+	
     PropertiesPtr properties = communicator->getProperties();
 
     const char* endpointsProperty = "IcePatch2.Endpoints";
@@ -318,7 +329,10 @@ IcePatch2::Patcher::prepare()
 	}
 
 	PatcherGetFileInfoSeqCB cb(_feedback);
-	getFileInfoSeq(".", 0, &cb, _localFiles);
+	if(!getFileInfoSeq(_dataDir, 0, &cb, _localFiles))
+	{
+	    return false;
+	}
 
 	if(!_feedback->checksumEnd())
 	{
@@ -339,7 +353,7 @@ IcePatch2::Patcher::prepare()
 	}
 	
 	ByteSeqSeq checksumSeq = _serverCompress->getChecksumSeq();
-	if(static_cast<int>(checksumSeq.size()) != NumPartitions)
+	if(checksumSeq.size() != 256)
 	{
 	    throw string("server returned illegal value");
 	}
@@ -347,7 +361,7 @@ IcePatch2::Patcher::prepare()
 	AMIGetFileInfoSeqPtr curCB;
 	AMIGetFileInfoSeqPtr nxtCB;
 
-	for(int node0 = 0; node0 < NumPartitions; ++node0)
+	for(int node0 = 0; node0 < 256; ++node0)
 	{
 	    if(tree0.nodes[node0].checksum != checksumSeq[node0])
 	    {
@@ -370,9 +384,9 @@ IcePatch2::Patcher::prepare()
 		{
 		    ++node0Nxt;
 		}
-		while(node0Nxt < NumPartitions && tree0.nodes[node0Nxt].checksum == checksumSeq[node0Nxt]);
+		while(node0Nxt < 256 && tree0.nodes[node0Nxt].checksum == checksumSeq[node0Nxt]);
 
-		if(node0Nxt < NumPartitions)
+		if(node0Nxt < 256)
 		{
 		    _serverNoCompress->getFileInfoSeq_async(nxtCB, node0Nxt);
 		}
@@ -397,7 +411,7 @@ IcePatch2::Patcher::prepare()
 			       FileInfoLess());
 	    }
 
-	    if(!_feedback->fileListProgress((node0 + 1) * 100 / NumPartitions))
+	    if(!_feedback->fileListProgress((node0 + 1) * 100 / 256))
 	    {
 		return false;
 	    }
@@ -409,23 +423,14 @@ IcePatch2::Patcher::prepare()
 	}
     }
     
-    sort(_updateFiles.begin(), _updateFiles.end(), FileInfoLess());
     sort(_removeFiles.begin(), _removeFiles.end(), FileInfoLess());
+    sort(_updateFiles.begin(), _updateFiles.end(), FileInfoLess());
 
-    //
-    // Remove the data dir itself from the list of files to be removed.
-    //
-    FileInfo fi;
-    fi.path = _dataDir;
-    pair<FileInfoSeq::iterator, FileInfoSeq::iterator> p
-        = equal_range(_removeFiles.begin(), _removeFiles.end(), fi, PathLess());
-    _removeFiles.erase(p.first, p.second);
-
-    string patchLog = _dataDir + "/" + logFile;
-    _log.open(patchLog.c_str());
+    string pathLog = simplify(_dataDir + '/' + logFile);
+    _log.open(pathLog.c_str());
     if(!_log)
     {
-	throw "cannot open `" + patchLog + "' for writing:\n" + lastError();
+	throw "cannot open `" + pathLog + "' for writing:\n" + lastError();
     }
 
     return true;
@@ -434,9 +439,9 @@ IcePatch2::Patcher::prepare()
 bool
 IcePatch2::Patcher::patch(const string& d)
 {
-    string dir = normalize(d);
+    string dir = simplify(d);
 
-    if(dir == _dataDir)
+    if(dir.empty() || dir == ".")
     {
 	if(!_removeFiles.empty())
 	{
@@ -528,7 +533,7 @@ IcePatch2::Patcher::removeFiles(const FileInfoSeq& files)
     {
 	try
 	{
-	    remove(p->path);
+	    remove(_dataDir + '/' + p->path);
 	    _log << '-' << *p << endl;
 	}
 	catch(...)
@@ -677,7 +682,7 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
     {
 	if(p->size < 0) // Directory?
 	{
-	    createDirectoryRecursive(p->path);
+	    createDirectoryRecursive(_dataDir + '/' + p->path);
 	    _log << '+' << *p << endl;
 	}
 	else // Regular file.
@@ -689,14 +694,18 @@ IcePatch2::Patcher::updateFilesInternal(const FileInfoSeq& files, const Decompre
 
 	    if(p->size == 0)
 	    {
-		ofstream file(p->path.c_str(), ios::binary);
+		string path = _dataDir + '/' + p->path;
+		ofstream file(path.c_str(), ios::binary);
 	    }
 	    else
 	    {
-		string pathBZ2 = p->path + ".bz2";
+		string pathBZ2 = _dataDir + '/' + p->path + ".bz2";
 	    
 		string dir = getDirname(pathBZ2);
-		createDirectoryRecursive(dir);
+		if(!dir.empty())
+		{
+		    createDirectoryRecursive(dir);
+		}
 		
 		try
 		{

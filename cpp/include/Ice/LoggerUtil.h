@@ -15,6 +15,33 @@
 namespace Ice
 {
 
+class ICE_API Print : public IceUtil::noncopyable
+{
+public:
+
+    Print(const LoggerPtr&);
+    ~Print();
+
+    void flush();
+
+    std::ostringstream& __str(); // For internal use only. Don't use in your code.
+
+private:
+
+    LoggerPtr _logger;
+    std::ostringstream _str;
+};
+
+template<typename T>
+inline Print&
+operator<<(Print& out, const T& val)
+{
+    out.__str() << val;
+    return out;
+}
+
+ICE_API Print& operator<<(Print&, std::ios_base& (*)(std::ios_base&));
+
 class ICE_API Warning : public IceUtil::noncopyable
 {
 public:

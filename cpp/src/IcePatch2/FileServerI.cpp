@@ -22,53 +22,32 @@ using namespace std;
 using namespace Ice;
 using namespace IcePatch2;
 
-IcePatch2::FileServerI::FileServerI(const CommunicatorPtr& communicator,
-				    const std::string& dataDir,
-				    const FileInfoSeq& infoSeq) :
-    _dataDir(normalize(dataDir)),
-    _dataDirWithSlash(_dataDir + "/")
+IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const FileInfoSeq& infoSeq) :
+    _dataDir(dataDir)
 {
-    int sizeMax = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024);
-    _maxReadSize = communicator->getProperties()->getPropertyAsIntWithDefault("IcePatch2.MaxReadSize", 256);
-    if(_maxReadSize < 1)
-    {
-        _maxReadSize = 1;
-    }
-    else if(_maxReadSize > sizeMax)
-    {
-        _maxReadSize = sizeMax;
-    }
-    if(_maxReadSize == sizeMax)
-    {
-       _maxReadSize = _maxReadSize * 1024 - 512; // Leave some headroom for protocol header.
-    }
-    else
-    {
-	_maxReadSize *= 1024;
-    }
     FileTree0& tree0 = const_cast<FileTree0&>(_tree0);
     getFileTree0(infoSeq, tree0);
 }
 
 FileInfoSeq
-IcePatch2::FileServerI::getFileInfoSeq(Int partition, const Current&) const
+IcePatch2::FileServerI::getFileInfoSeq(Int node0, const Current&) const
 {
-    if(partition < 0 || partition > 255)
+    if(node0 < 0 || node0 > 255)
     {
 	throw PartitionOutOfRangeException();
     }
 
-    return _tree0.nodes[partition].files;
+    return _tree0.nodes[node0].files;
 }
 
 ByteSeqSeq
 IcePatch2::FileServerI::getChecksumSeq(const Current&) const
 {
-    ByteSeqSeq checksums(NumPartitions);
+    ByteSeqSeq checksums(256);
 
-    for(int part = 0; part < NumPartitions; ++part)
+    for(int node0 = 0; node0 < 256; ++node0)
     {
-	checksums[part] = _tree0.nodes[part].checksum;
+	checksums[node0] = _tree0.nodes[node0].checksum;
     }
 
     return checksums;
@@ -83,22 +62,17 @@ IcePatch2::FileServerI::getChecksum(const Current&) const
 ByteSeq
 IcePatch2::FileServerI::getFileCompressed(const string& pa, Int pos, Int num, const Current&) const
 {
-    string path = normalize(pa) + ".bz2";
-    if(path.compare(0, _dataDirWithSlash.size(), _dataDirWithSlash) != 0)
-    {
-	FileAccessException ex;
-	ex.reason = "`" + pa + "' is not a path in `" + _dataDir + "'";
-	throw ex;
-    }
+    string path = simplify(_dataDir + '/' + pa);
+    path += ".bz2";
+
+    //
+    // TODO: Check if path is allowed, i.e., make sure that it neither
+    // is absolute, nor that it contains illegal "..".
+    //
 
     if(num <= 0 || pos < 0)
     {
 	return ByteSeq();
-    }
-
-    if(num > _maxReadSize)
-    {
-	num = _maxReadSize;
     }
 
 #ifdef _WIN32
