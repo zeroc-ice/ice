@@ -9,7 +9,11 @@
 
 package IceBox;
 
-public final class ServiceManagerI extends _ServiceManagerDisp
+//
+// NOTE: the class isn't final on purpose to allow users to eventually
+// extend it.
+//
+public class ServiceManagerI extends _ServiceManagerDisp
 {
     public
     ServiceManagerI(Ice.Application server, String[] args)
@@ -31,7 +35,7 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         _server.communicator().shutdown();
     }
 
-    int
+    protected int
     run()
     {
         try
