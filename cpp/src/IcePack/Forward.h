@@ -12,7 +12,9 @@
 #define ICE_PACK_FORWARD_H
 
 #include <IcePack/AdminF.h>
-#include <IcePack/Activator.h>
+#ifndef WIN32
+#   include <IcePack/Activator.h>
+#endif
 #include <map>
 
 namespace IcePack
@@ -33,7 +35,9 @@ private:
 
     Ice::CommunicatorPtr _communicator;
     AdminPtr _admin;
+#ifndef WIN32
     ActivatorHandle _activator;
+#endif
 };
 
 }

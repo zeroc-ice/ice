@@ -47,8 +47,9 @@ private:
     void read(const EventHandlerPtr&);
 
     InstancePtr _instance;
-    int _lastFd;
     int _maxFd;
+    int _minFd;
+    int _lastFd;
     int _fdIntrRead;
     int _fdIntrWrite;
     fd_set _fdSet;

@@ -35,8 +35,12 @@
 #       define ICE_API __declspec(dllimport)
 #   endif
 
+#   ifndef _DLL
+#       error "Only multi-threaded DLL libraries may be linked with Ice!"
+#   endif
+
 #   ifndef _MT
-#       error "Only multi-threaded runtime libraries may be linked with Ice!"
+#       error "Only multi-threaded libraries may be linked with Ice!"
 #   endif
 
 namespace Ice

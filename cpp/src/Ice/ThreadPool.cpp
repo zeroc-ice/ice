@@ -116,6 +116,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     FD_ZERO(&_fdSet);
     FD_SET(_fdIntrRead, &_fdSet);
     _maxFd = _fdIntrRead;
+    _minFd = _fdIntrRead;
 
     try
     {
@@ -261,13 +262,14 @@ IceInternal::ThreadPool::run()
 	    if (!_adds.empty())
 	    {
 		//
-		// New handlers have been added
+		// New handlers have been addedf
 		//
 		for (vector<pair<int, EventHandlerPtr> >::iterator p = _adds.begin(); p != _adds.end(); ++p)
 		{
 		    _handlers.insert(*p);
 		    FD_SET(p->first, &_fdSet);
 		    _maxFd = max(_maxFd, p->first);
+		    _minFd = min(_minFd, p->first);
 		}
 		_adds.clear();
 		again = true;
@@ -296,9 +298,11 @@ IceInternal::ThreadPool::run()
 		}
 		_removes.clear();
 		_maxFd = _fdIntrRead;
+		_minFd = _fdIntrRead;
 		if (!_handlers.empty())
 		{
 		    _maxFd = max(_maxFd, (--_handlers.end())->first);
+		    _minFd = min(_minFd, (--_handlers.end())->first);
 		}
 		again = true;
 		if (_handlers.empty() || _servers == 0)
@@ -311,15 +315,19 @@ IceInternal::ThreadPool::run()
 	    {
 		goto repeatSelect;
 	    }
-	    
+
 	    //
 	    // Round robin for the filedescriptors
 	    //
+	    if (_lastFd < _minFd - 1)
+	    {
+		_lastFd = _minFd - 1;
+	    }
 	    do
 	    {
 		if (++_lastFd > _maxFd)
 		{
-		    _lastFd = 0;
+		    _lastFd = _minFd;
 		}
 	    }
 	    while (!FD_ISSET(_lastFd, &fdSet));

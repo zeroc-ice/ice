@@ -37,8 +37,6 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
     const string delim = " \t\n\r";
 
     string s(str);
-    transform(s.begin(), s.end(), s.begin(), tolower);
-
     string::size_type beg;
     string::size_type end = 0;
 
@@ -60,7 +58,9 @@ IceInternal::Reference::Reference(const InstancePtr& inst, const string& str) :
     }
 
     const_cast<string&>(identity) = s.substr(beg, end - beg);    
-    
+
+    transform(s.begin(), s.end(), s.begin(), tolower);
+
     while (true)
     {
 	beg = s.find_first_not_of(delim, end);

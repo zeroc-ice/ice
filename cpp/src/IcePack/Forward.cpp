@@ -21,13 +21,17 @@ IcePack::Forward::Forward(const CommunicatorPtr& communicator, const AdminPtr& a
     _communicator(communicator),
     _admin(admin)
 {
+#ifndef WIN32
     _activator = new Activator(_communicator);
     _activator->start();
+#endif
 }
 
 IcePack::Forward::~Forward()
 {
+#ifndef WIN32
     _activator->destroy();
+#endif
 }
 
 ObjectPtr
@@ -48,6 +52,7 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
 	return 0;
     }
 
+#ifndef WIN32
     //
     // We only try to activate if we have a path for the server
     //
@@ -135,7 +140,8 @@ IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity
 	    _communicator->getLogger()->error(s.str());
 	}
     }
-	
+#endif
+
     throw LocationForward(desc->object);
 }
 
