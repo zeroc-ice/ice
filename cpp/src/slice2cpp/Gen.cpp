@@ -2431,7 +2431,7 @@ Slice::Gen::IceInternalVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << "p->__decRef();";
     C << eb;
 
-    if(!p->isLocal() && (p->isInterface() || p->allOperations().size() != 0))
+    if(!p->isLocal())
     {
 	C << sp;
 	C << nl << "void" << nl << "IceInternal::incRef(::IceProxy" << scoped << "* p)";
@@ -2554,27 +2554,24 @@ Slice::Gen::HandleVisitor::visitClassDecl(const ClassDeclPtr& p)
     H << nl << "typedef ::IceInternal::Handle< " << scoped << "> " << name << "Ptr;";
     if(!p->isLocal())
     {
-	if(p->isInterface() || (p->definition() && p->definition()->allOperations().size() != 0))
-	{
-	    H << nl << "typedef ::IceInternal::ProxyHandle< ::IceProxy" << scoped << "> " << name << "Prx;";
+	H << nl << "typedef ::IceInternal::ProxyHandle< ::IceProxy" << scoped << "> " << name << "Prx;";
 
-	    H << sp;
-	    H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "Prx&);";
-	    H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "Prx&);";
+	H << sp;
+	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "Prx&);";
+	H << nl << _dllExport << "void __read(::IceInternal::BasicStream*, " << name << "Prx&);";
 
-	    H << sp;
-	    H << nl << _dllExport << "void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
-	      << name << "Prx&);";
-	    H << nl << _dllExport << "void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
-	      << name << "Prx&);";
-	}
+	H << sp;
+	H << nl << _dllExport << "void ice_marshal(const ::std::string&, const ::Ice::StreamPtr&, const "
+	  << name << "Prx&);";
+	H << nl << _dllExport << "void ice_unmarshal(const ::std::string&, const ::Ice::StreamPtr&, "
+	  << name << "Prx&);";
     }
 }
 
 bool
 Slice::Gen::HandleVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(!p->isLocal() && (p->isInterface() || p->allOperations().size()) != 0)
+    if(!p->isLocal())
     {
 	string scoped = fixKwd(p->scoped());
 	string scope = fixKwd(p->scope());
