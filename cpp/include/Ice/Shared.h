@@ -17,23 +17,12 @@
 namespace Ice
 {
 
-// ----------------------------------------------------------------------
-// SimpleShared
-// ----------------------------------------------------------------------
-
 //
 // Simple, non thread-safe intrusive base class for reference-counted
 // types.
 //
 class ICE_API SimpleShared
 {
-private:
-
-    SimpleShared(const SimpleShared&);
-    void operator=(const SimpleShared&);
-
-    int ref_; // The reference count
-
 public:
 
     SimpleShared();
@@ -50,6 +39,13 @@ public:
 	if(--ref_ == 0)
 	    delete this;
     }
+
+private:
+
+    SimpleShared(const SimpleShared&);
+    void operator=(const SimpleShared&);
+
+    int ref_; // The reference count
 };
 
 }

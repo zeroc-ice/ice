@@ -11,10 +11,6 @@
 #ifndef ICE_ICE_H
 #define ICE_ICE_H
 
-#include <Ice/Config.h>
-
-namespace Ice
-{
-}
+#include <Ice/Communicator.h>
 
 #endif

@@ -22,8 +22,8 @@ namespace IceServant { namespace Ice { class ServantS; } }
 namespace Ice
 {
 
-void _incRef(::IceServant::Ice::ServantS*);
-void _decRef(::IceServant::Ice::ServantS*);
+void ICE_API _incRef(::IceServant::Ice::ServantS*);
+void ICE_API _decRef(::IceServant::Ice::ServantS*);
 
 typedef Handle< ::IceServant::Ice::ServantS > Servant;
 

@@ -21,14 +21,14 @@ namespace _IceStubM { namespace Ice { class Object; } }
 namespace Ice
 {
 
-void _incRef(::_IceIntf::Ice::Object*);
-void _decRef(::_IceIntf::Ice::Object*);
+void ICE_API _incRef(::_IceIntf::Ice::Object*);
+void ICE_API _decRef(::_IceIntf::Ice::Object*);
 
-void _incRef(::_IceStub::Ice::Object*);
-void _decRef(::_IceStub::Ice::Object*);
+void ICE_API _incRef(::_IceStub::Ice::Object*);
+void ICE_API _decRef(::_IceStub::Ice::Object*);
 
-void _incRef(::_IceStubM::Ice::Object*);
-void _decRef(::_IceStubM::Ice::Object*);
+void ICE_API _incRef(::_IceStubM::Ice::Object*);
+void ICE_API _decRef(::_IceStubM::Ice::Object*);
 
 typedef Handle< ::_IceIntf::Ice::Object > Object;
 

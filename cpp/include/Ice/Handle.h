@@ -17,10 +17,6 @@
 namespace Ice
 {
 
-// ----------------------------------------------------------------------
-// Handle
-// ----------------------------------------------------------------------
-
 //
 // Generic handle class, using intrusive reference counting. Two
 // global operations Ice::_incRef(T*) and Ice::_decRef(T*) must be
