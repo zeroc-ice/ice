@@ -58,6 +58,7 @@ Glacier2::RouterI::destroy()
     IceUtil::Mutex::Lock lock(*this);
 
     assert(!_destroy);
+    _destroy = true;
 
     _clientBlobject->destroy();
     
@@ -70,8 +71,6 @@ Glacier2::RouterI::destroy()
     {
 	_session->destroy();
     }
-
-    _destroy = true;
 }
 
 ObjectPrx

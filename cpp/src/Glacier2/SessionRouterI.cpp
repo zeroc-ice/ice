@@ -143,15 +143,14 @@ Glacier2::SessionRouterI::destroy()
 	IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 	
 	assert(!_destroy);
+	_destroy = true;
+	notify();
 	
 	_routersByConnection.swap(routers);
 	_routersByConnectionHint = _routersByConnection.end();
 	
 	_routersByCategory.clear();
 	_routersByCategoryHint = _routersByCategory.end();
-	
-	_destroy = true;
-	notify();
     }
 
     //
@@ -316,7 +315,17 @@ Glacier2::SessionRouterI::destroySession(const Current& current)
     // We destroy the router outside the thread synchronization, to
     // avoid deadlocks.
     //
-    router->destroy();
+    try
+    {
+	router->destroy();
+    }
+    catch(const Ice::Exception& ex)
+    {
+	Trace out(_logger, "Glacier2");
+	out << "exception while destroying session\n";
+	out << ex;
+	ex.ice_throw();
+    }
 }
 
 RouterIPtr
