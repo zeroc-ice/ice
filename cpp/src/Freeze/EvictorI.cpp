@@ -1556,7 +1556,6 @@ Freeze::EvictorI::insert(const vector<Identity>& identities,
     }
 }
 
-
 //
 // Marshaling/unmarshaling persistent (key, data) pairs. The marshalRoot function
 // is used to create a key prefix containing only the key's identity.
@@ -1608,6 +1607,7 @@ Freeze::EvictorI::unmarshal(ObjectRecord& v, const Value& bytes, const Communica
 {
     IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);
     IceInternal::BasicStream stream(instance.get());
+    stream.sliceObjects(false);
     stream.b = bytes;
     stream.i = stream.b.begin();
     stream.startReadEncaps();
@@ -1615,7 +1615,6 @@ Freeze::EvictorI::unmarshal(ObjectRecord& v, const Value& bytes, const Communica
     stream.readPendingObjects();
     stream.endReadEncaps();
 }
-
 
 void
 Freeze::EvictorI::evict()

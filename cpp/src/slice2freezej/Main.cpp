@@ -244,8 +244,11 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
         out << sp << nl << "public Object" << nl << "decode" << keyValue
             << "(byte[] b, Ice.Communicator communicator)";
         out << sb;
-        out << nl << "IceInternal.BasicStream __is = "
-            << "new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
+        out << nl << "IceInternal.BasicStream __is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));";
+        if(type->usesClasses())
+        {
+            out << nl << "__is.sliceObjects(false);";
+        }
         out << nl << "try";
         out << sb;
         out << nl << "__is.resize(b.length, true);";

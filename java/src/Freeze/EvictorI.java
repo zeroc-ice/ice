@@ -1585,6 +1585,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     unmarshalValue(byte[] b, Ice.Communicator communicator)
     {
         IceInternal.BasicStream is = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
+        is.sliceObjects(false);
         try
         {
             is.resize(b.length, true);

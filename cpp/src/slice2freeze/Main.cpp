@@ -159,6 +159,10 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, b
     C << sb;
     C << nl << "IceInternal::InstancePtr instance = IceInternal::getInstance(communicator);";
     C << nl << "IceInternal::BasicStream stream(instance.get());";
+    if(type->usesClasses())
+    {
+        C << nl << "stream.sliceObjects(false);";
+    }
     C << nl << "stream.b = bytes;";
     C << nl << "stream.i = stream.b.begin();";
     if(encaps)
@@ -284,7 +288,6 @@ writeIndexH(const string& memberTypeString, const string& name, Output& H, const
     H << sp;
     H << nl << "typedef IceUtil::Handle<" << name << "> " << name << "Ptr;";
 }
-
 
 void
 writeIndexC(const TypePtr& type, const TypePtr& memberType, const string& memberName,
@@ -464,8 +467,6 @@ writeIndex(const string& n, UnitPtr& u, const Index& index, Output& H, Output& C
     writeIndexC(type, dataMember->type(), index.member, index.caseSensitive, absolute, name, C);
     return true;
 }
-
-
 
 int
 main(int argc, char* argv[])
