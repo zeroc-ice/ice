@@ -37,8 +37,8 @@ namespace Slice
 #   define STRTOLL(a, b, c) _atoi64(a)
     typedef __int64 Long;
     typedef double Double;
-    const Long INT32_MIN = -0x80000000;
-    const Long INT32_MAX =  0x7fffffff;
+    const Long INT32_MIN = -0x80000000i64;
+    const Long INT32_MAX =  0x7fffffffi64;
 #elif(__linux__) && defined(i386)
 #   define STRTOLL(a, b, c) strtoll((a), (b), (c))
     typedef long long Long;
