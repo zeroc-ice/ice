@@ -27,9 +27,9 @@ main(int argc, char* argv[])
     try
     {
         communicator = initialize(argc, argv);
-        ServiceManagerI* serviceManagerImpl = new ServiceManagerI(communicator);
+        ServiceManagerI* serviceManagerImpl = new ServiceManagerI(communicator, argc, argv);
         serviceManager = serviceManagerImpl;
-        status = serviceManagerImpl->run(argc, argv);
+        status = serviceManagerImpl->run();
     }
     catch (const Exception& ex)
     {

@@ -24,23 +24,31 @@ class ServiceManagerI : public ServiceManager
 {
 public:
 
-    ServiceManagerI(::Ice::CommunicatorPtr);
+    ServiceManagerI(::Ice::CommunicatorPtr, int&, char*[]);
     virtual ~ServiceManagerI();
 
     virtual void shutdown(const ::Ice::Current&);
 
-    int run(int&, char*[]);
+    int run();
+
+    struct ServiceInfo
+    {
+        ServicePtr service;
+        ::IceInternal::DynamicLibraryPtr library;
+    };
 
 private:
 
-    bool initServices(int&, char*[]);
-    bool startServices();
-    void stopServices();
+    ServicePtr init(const std::string&, const std::string&, const ::Ice::StringSeq&);
+    void stop(const std::string&);
+    void stopAll();
 
     ::Ice::CommunicatorPtr _communicator;
     ::Ice::LoggerPtr _logger;
-    std::map<std::string, ServicePtr> _services;
-    std::vector< ::IceInternal::DynamicLibraryPtr > _libraries;
+    std::string _progName; // argv[0]
+    ::Ice::StringSeq _argv; // Filtered server argument vector, not including program name
+    ::Ice::StringSeq _options; // Server property set converted to command-line options
+    std::map<std::string, ServiceInfo> _services;
 };
 
 }

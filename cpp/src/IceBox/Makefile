@@ -21,8 +21,7 @@ ADMIN		= $(top_srcdir)/bin/iceboxadmin
 
 TARGETS		= $(NAME) $(VERSIONED_NAME) $(SERVER) $(ADMIN)
 
-OBJS		= IceBox.o \
-		  Exception.o
+OBJS		= IceBox.o
 
 SOBJS		= ServiceManagerI.o \
 		  Server.o

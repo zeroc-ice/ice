@@ -18,9 +18,23 @@ using namespace std;
 
 typedef IceBox::ServicePtr (*SERVICE_FACTORY)(CommunicatorPtr);
 
-IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator)
+IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[])
     : _communicator(communicator)
 {
+    _logger = _communicator->getLogger();
+
+    if (argc > 0)
+    {
+        _progName = argv[0];
+    }
+
+    for (int i = 1; i < argc; i++)
+    {
+        _argv.push_back(argv[i]);
+    }
+
+    PropertiesPtr properties = _communicator->getProperties();
+    _options = properties->getCommandLineOptions();
 }
 
 IceBox::ServiceManagerI::~ServiceManagerI()
@@ -34,12 +48,10 @@ IceBox::ServiceManagerI::shutdown(const Current& current)
 }
 
 int
-IceBox::ServiceManagerI::run(int& argc, char* argv[])
+IceBox::ServiceManagerI::run()
 {
     try
     {
-        _logger = _communicator->getLogger();
-
         ServiceManagerPtr obj = this;
 
         //
@@ -52,21 +64,69 @@ IceBox::ServiceManagerI::run(int& argc, char* argv[])
         adapter->add(obj, stringToIdentity("ServiceManager"));
 
         //
-        // Load and initialize the services.
+        // Load and initialize the services defined in the property set
+        // with the prefix "IceBox.Service.". These properties should
+        // have the following format:
         //
-        if (!initServices(argc, argv))
+        // IceBox.Service.Foo=libFoo.so:create [args]
+        //
+        const string prefix = "IceBox.Service.";
+        PropertiesPtr properties = _communicator->getProperties();
+        StringSeq services = properties->getProperties(prefix);
+        for (StringSeq::size_type i = 0; i < services.size(); i += 2)
         {
-            stopServices();
-            return EXIT_FAILURE;
+            string name = services[i].substr(prefix.size());
+            string value = services[i + 1];
+
+            //
+            // Separate the entry point from the arguments.
+            //
+            string exec;
+            StringSeq args;
+            string::size_type pos = value.find_first_of(" \t\n");
+            if (pos == string::npos)
+            {
+                exec = value;
+            }
+            else
+            {
+                exec = value.substr(0, pos);
+                string::size_type beg = value.find_first_not_of(" \t\n", pos);
+                while (beg != string::npos)
+                {
+                    string::size_type end = value.find_first_of(" \t\n", beg);
+                    if (end == string::npos)
+                    {
+                        args.push_back(value.substr(beg));
+                        beg = end;
+                    }
+                    else
+                    {
+                        args.push_back(value.substr(beg, end - beg));
+                        beg = value.find_first_not_of(" \t\n", end);
+                    }
+                }
+            }
+
+            init(name, exec, args);
         }
 
         //
         // Invoke start() on the services.
         //
-        if (!startServices())
+        map<string,ServiceInfo>::const_iterator r;
+        for (r = _services.begin(); r != _services.end(); ++r)
         {
-            stopServices();
-            return EXIT_FAILURE;
+            try
+            {
+                (*r).second.service->start();
+            }
+            catch (const Exception& ex)
+            {
+                FailureException ex;
+                ex.reason = "ServiceManager: exception in start for service " + (*r).first + ": " + ex.ice_name();
+                throw ex;
+            }
         }
 
         //
@@ -79,242 +139,215 @@ IceBox::ServiceManagerI::run(int& argc, char* argv[])
         //
         // Invoke stop() on the services.
         //
-        stopServices();
+        stopAll();
+    }
+    catch (const FailureException& ex)
+    {
+        Error out(_logger);
+        out << ex.reason;
+        stopAll();
+        return EXIT_FAILURE;
     }
     catch (const Exception& ex)
     {
         Error out(_logger);
         out << "ServiceManager: " << ex;
-        stopServices();
+        stopAll();
         return EXIT_FAILURE;
     }
 
     return EXIT_SUCCESS;
 }
 
-bool
-IceBox::ServiceManagerI::initServices(int& argc, char* argv[])
+IceBox::ServicePtr
+IceBox::ServiceManagerI::init(const string& service, const string& exec, const StringSeq& args)
 {
     //
-    // Retrieve all properties with the prefix "IceBox.Service.".
-    // These properties should have the following format:
+    // We need to create a property set to pass to init().
+    // The property set is populated from a number of sources.
+    // The precedence order (from lowest to highest) is:
     //
-    // IceBox.Service.Foo=Package.Foo [args]
+    // 1. Properties defined in the server property set (e.g.,
+    //    that were defined in the server's configuration file)
+    // 2. Service arguments
+    // 3. Server arguments
     //
-    const string prefix = "IceBox.Service.";
-    PropertiesPtr properties = _communicator->getProperties();
-    StringSeq allOptions = properties->getCommandLineOptions();
-    StringSeq arr = properties->getProperties(prefix);
-    for (StringSeq::size_type i = 0; i < arr.size(); i += 2)
+    // We'll compose an array of arguments in the above order.
+    //
+    vector<string> l;
+    StringSeq::size_type j;
+    for (j = 0; j < _options.size(); j++)
     {
-        string name = arr[i].substr(prefix.size());
-        string value = arr[i + 1];
-
-        //
-        // Separate the factory function from the arguments.
-        //
-        string factoryFunc;
-        StringSeq args;
-        string::size_type pos = value.find_first_of(" \t\n");
-        if (pos == string::npos)
+        if (_options[j].find("--" + service + ".") == 0)
         {
-            factoryFunc = value;
+            l.push_back(_options[j]);
         }
-        else
+    }
+    for (j = 0; j < args.size(); j++)
+    {
+        l.push_back(args[j]);
+    }
+    for (j = 0; j < _argv.size(); j++)
+    {
+        if (_argv[j].find("--" + service + ".") == 0)
         {
-            factoryFunc = value.substr(0, pos);
-            string::size_type beg = value.find_first_not_of(" \t\n", pos);
-            while (beg != string::npos)
-            {
-                string::size_type end = value.find_first_of(" \t\n", beg);
-                if (end == string::npos)
-                {
-                    args.push_back(value.substr(beg));
-                    beg = end;
-                }
-                else
-                {
-                    args.push_back(value.substr(beg, end - beg));
-                    beg = value.find_first_not_of(" \t\n", end);
-                }
-            }
-        }
-
-        //
-        // Now we need to create a property set to pass to init().
-        // The property set is populated from a number of sources.
-        // The precedence order (from lowest to highest) is:
-        //
-        // 1. Properties defined in the server property set (e.g.,
-        //    that were defined in the server's configuration file)
-        // 2. Service arguments
-        // 3. Server arguments
-        //
-        // We'll compose an array of arguments in the above order.
-        //
-        vector<string> l;
-        StringSeq::size_type j;
-        int k;
-        for (j = 0; j < allOptions.size(); j++)
-        {
-            if (allOptions[j].find("--" + name + ".") == 0)
-            {
-                l.push_back(allOptions[j]);
-            }
-        }
-        for (j = 0; j < args.size(); j++)
-        {
-            l.push_back(args[j]);
-        }
-        for (k = 1; k < argc; k++)
-        {
-            string s = argv[k];
-            if (s.find("--" + name + ".") == 0)
-            {
-                l.push_back(s);
-            }
-        }
-
-        //
-        // Create the service property set.
-        //
-        addArgumentPrefix(name);
-        int serviceArgc = static_cast<int>(l.size() + 1);
-        char** serviceArgv = new char*[serviceArgc + 1];
-        serviceArgv[0] = argv[0];
-        for (k = 1; k < serviceArgc; k++)
-        {
-            serviceArgv[k] = const_cast<char*>(l[k - 1].c_str());
-        }
-        PropertiesPtr serviceProperties = createProperties(serviceArgc, serviceArgv);
-        StringSeq serviceArgs;
-        for (k = 1; k < serviceArgc; k++)
-        {
-            serviceArgs.push_back(serviceArgv[k]);
-        }
-        delete[] serviceArgv;
-
-        //
-        // Load the dynamic library.
-        //
-        string::size_type colon = factoryFunc.rfind(':');
-        if (colon == string::npos || colon == factoryFunc.size() - 1)
-        {
-            Error out(_logger);
-            out << "ServiceManager: invalid factory function `" << factoryFunc << "'";
-            return false;
-        }
-        string libName = factoryFunc.substr(0, colon);
-        string funcName = factoryFunc.substr(colon + 1);
-        DynamicLibraryPtr library = new DynamicLibrary();
-        if (!library->load(libName))
-        {
-            string msg = library->getErrorMessage();
-            Error out(_logger);
-            out << "ServiceManager: unable to load library `" << libName << "'";
-            if (!msg.empty())
-            {
-                out << ": " << msg;
-            }
-            return false;
-        }
-
-        //
-        // Lookup the factory function and invoke it.
-        //
-        DynamicLibrary::symbol_type sym = library->getSymbol(funcName);
-        if (sym == 0)
-        {
-            string msg = library->getErrorMessage();
-            Error out(_logger);
-            out << "ServiceManager: unable to load symbol `" << funcName << "'";
-            if (!msg.empty())
-            {
-                out << ": " << msg;
-            }
-            return false;
-        }
-        SERVICE_FACTORY factory = (SERVICE_FACTORY)sym;
-        ServicePtr service;
-        try
-        {
-            service = factory(_communicator);
-        }
-        catch (const Exception& ex)
-        {
-            Error out(_logger);
-            out << "ServiceManager: exception in factory function `" << funcName << "': " << ex;
-            return false;
-        }
-
-        //
-        // Invoke Service::init().
-        //
-        try
-        {
-            service->init(name, _communicator, serviceProperties, serviceArgs);
-            _services[name] = service;
-            _libraries.push_back(library);
-        }
-        catch (const ServiceFailureException& ex)
-        {
-            Error out(_logger);
-            out << "ServiceManager: initialization failed for service " << name;
-            return false;
-        }
-        catch (const Exception& ex)
-        {
-            Error out(_logger);
-            out << "ServiceManager: exception while initializing service " << name << ": " << ex;
-            return false;
+            l.push_back(_argv[j]);
         }
     }
 
-    return true;
-}
-
-bool
-IceBox::ServiceManagerI::startServices()
-{
-    map<string,ServicePtr>::const_iterator r;
-    for (r = _services.begin(); r != _services.end(); ++r)
+    //
+    // Create the service property set.
+    //
+    addArgumentPrefix(service);
+    int serviceArgc = static_cast<int>(l.size() + 1);
+    char** serviceArgv = new char*[serviceArgc + 1];
+    serviceArgv[0] = const_cast<char*>(_progName.c_str());
+    int k;
+    for (k = 1; k < serviceArgc; k++)
     {
-        try
+        serviceArgv[k] = const_cast<char*>(l[k - 1].c_str());
+    }
+    PropertiesPtr serviceProperties = createProperties(serviceArgc, serviceArgv);
+    StringSeq serviceArgs;
+    for (k = 1; k < serviceArgc; k++)
+    {
+        serviceArgs.push_back(serviceArgv[k]);
+    }
+    delete[] serviceArgv;
+
+    //
+    // Load the dynamic library.
+    //
+    string::size_type colon = exec.rfind(':');
+    if (colon == string::npos || colon == exec.size() - 1)
+    {
+        FailureException ex;
+        ex.reason = "ServiceManager: invalid factory format `" + exec + "'";
+        throw ex;
+    }
+    string libName = exec.substr(0, colon);
+    string funcName = exec.substr(colon + 1);
+    DynamicLibraryPtr library = new DynamicLibrary();
+    if (!library->load(libName))
+    {
+        string msg = library->getErrorMessage();
+        FailureException ex;
+        ex.reason = "ServiceManager: unable to load library `" + libName + "'";
+        if (!msg.empty())
         {
-            (*r).second->start();
+            ex.reason += ": " + msg;
         }
-        catch (const ServiceFailureException& ex)
-        {
-            Error out(_logger);
-            out << "ServiceManager: start failed for service " << (*r).first;
-            return false;
-        }
-        catch (const Exception& ex)
-        {
-            Error out(_logger);
-            out << "ServiceManager: exception in start for service " << (*r).first << ": " << ex;
-            return false;
-        }
+        throw ex;
     }
 
-    return true;
+    //
+    // Lookup the factory function and invoke it.
+    //
+    DynamicLibrary::symbol_type sym = library->getSymbol(funcName);
+    if (sym == 0)
+    {
+        string msg = library->getErrorMessage();
+        FailureException ex;
+        ex.reason = "ServiceManager: unable to load symbol `" + funcName + "'";
+        if (!msg.empty())
+        {
+            ex.reason += ": " + msg;
+        }
+        throw ex;
+    }
+    SERVICE_FACTORY factory = (SERVICE_FACTORY)sym;
+    ServiceInfo info;
+    try
+    {
+        info.service = factory(_communicator);
+    }
+    catch (const Exception& ex)
+    {
+        FailureException ex;
+        ex.reason = "ServiceManager: exception in factory function `" + funcName + "': " + ex.ice_name();
+        throw ex;
+    }
+
+    //
+    // Invoke Service::init().
+    //
+    try
+    {
+        info.service->init(service, _communicator, serviceProperties, serviceArgs);
+        info.library = library;
+        _services[service] = info;
+    }
+    catch (const FailureException& ex)
+    {
+        throw;
+    }
+    catch (const Exception& ex)
+    {
+        FailureException ex;
+        ex.reason = "ServiceManager: exception while initializing service " + service + ": " + ex.ice_name();
+        throw ex;
+    }
+
+    return info.service;
 }
 
 void
-IceBox::ServiceManagerI::stopServices()
+IceBox::ServiceManagerI::stop(const string& service)
 {
-    map<string,ServicePtr>::const_iterator r;
+    map<string,ServiceInfo>::iterator r = _services.find(service);
+    assert(r != _services.end());
+    ServiceInfo info = (*r).second;
+    _services.erase(r);
+
+    try
+    {
+        info.service->stop();
+    }
+    catch (const FailureException& ex)
+    {
+        //
+        // Release the service before the library
+        //
+        info.service = 0;
+        info.library = 0;
+
+        throw;
+    }
+    catch (const Exception& ex)
+    {
+        //
+        // Release the service before the library
+        //
+        info.service = 0;
+        info.library = 0;
+
+        FailureException ex;
+        ex.reason = "ServiceManager: exception in stop for service " + service + ": " + ex.ice_name();
+        throw ex;
+    }
+
+    //
+    // Release the service before the library
+    //
+    info.service = 0;
+    info.library = 0;
+}
+
+void
+IceBox::ServiceManagerI::stopAll()
+{
+    map<string,ServiceInfo>::const_iterator r;
     for (r = _services.begin(); r != _services.end(); ++r)
     {
         try
         {
-            (*r).second->stop();
+            stop((*r).first);
         }
-        catch (const Exception& ex)
+        catch (const FailureException& ex)
         {
             Error out(_logger);
-            out << "ServiceManager: exception in stop for service " << (*r).first << ": " << ex;
+            out << ex.reason;
         }
     }
-    _services.clear();
+    assert(_services.empty());
 }
