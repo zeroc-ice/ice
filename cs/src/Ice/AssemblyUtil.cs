@@ -16,8 +16,25 @@ namespace IceInternal
     using System.Reflection;
     using System.Threading;
 
-    sealed class AssemblyUtil
+    public enum Runtime { DotNET, Mono };
+
+    public sealed class AssemblyUtil
     {
+        static AssemblyUtil()
+	{
+	    if(System.Type.GetType("Mono.Runtime") != null)
+	    {
+	        _runtime = Runtime.Mono;
+	    }
+	    else
+	    {
+	        _runtime = Runtime.DotNET;
+	    }
+	    System.Version v = System.Environment.Version;
+	    _runtimeMajor = v.Major;
+	    _runtimeMinor = v.Minor;
+	}
+
 	public static Type findType(string csharpId)
 	{
 	    loadAssemblies(); // Lazy initialization
@@ -141,6 +158,10 @@ namespace IceInternal
 	private static Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
 	private static Hashtable _typeTable = new Hashtable(); // <type name, Type> pairs.
 	private static Mutex _mutex = new Mutex();
+
+	public readonly static Runtime _runtime;
+	public readonly static int _runtimeMajor;
+	public readonly static int _runtimeMinor;
     }
 
 }
