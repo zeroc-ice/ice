@@ -37,25 +37,25 @@ class ICE_API NonRepeatable
 public:
 
     NonRepeatable(const NonRepeatable&);
-    NonRepeatable(const ::Ice::LocalException&);
-    const ::Ice::LocalException* get() const;
+    NonRepeatable(const Ice::LocalException&);
+    const Ice::LocalException* get() const;
 
 private:
 
     const NonRepeatable& operator=(const NonRepeatable&);
 
-    std::auto_ptr< ::Ice::LocalException> _ex;
+    std::auto_ptr<Ice::LocalException> _ex;
 };
 
-class ICE_API Outgoing : public ::IceUtil::noncopyable, public IceUtil::Monitor< IceUtil::Mutex >
+class ICE_API Outgoing : public IceUtil::noncopyable, public IceUtil::Monitor<IceUtil::Mutex >
 {
 public:
 
-    Outgoing(Connection*, Reference*, const std::string&, ::Ice::OperationMode, const ::Ice::Context&, bool);
+    Outgoing(Connection*, Reference*, const std::string&, Ice::OperationMode, const Ice::Context&, bool);
 
     bool invoke(); // Returns true if ok, false if user exception.
     void finished(BasicStream&);
-    void finished(const ::Ice::LocalException&);
+    void finished(const Ice::LocalException&);
 
     // Inlined for speed optimization.
     BasicStream* is() { return &_is; }
@@ -70,7 +70,7 @@ private:
     Connection* _connection;
     Reference* _reference;
 
-    std::auto_ptr< ::Ice::LocalException> _exception;
+    std::auto_ptr<Ice::LocalException> _exception;
 
     enum
     {

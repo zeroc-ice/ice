@@ -65,7 +65,7 @@ public:
 
     virtual ObjectPrx createProxy(const Identity&);
     virtual ObjectPrx createDirectProxy(const Identity&);
-    virtual ObjectPrx createReverseProxy(const Identity&);
+    virtual ObjectPrx createReverseProxy(const Identity&, const TransportInfoPtr&);
 
     virtual void addRouter(const RouterPrx&);
 

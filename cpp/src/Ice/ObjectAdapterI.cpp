@@ -443,7 +443,7 @@ Ice::ObjectAdapterI::createDirectProxy(const Identity& ident)
 }
 
 ObjectPrx
-Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
+Ice::ObjectAdapterI::createReverseProxy(const Identity& ident, const TransportInfoPtr& transport)
 {
     IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
     
@@ -456,7 +456,7 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
     //
     vector<EndpointPtr> endpoints;
     ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
-							     false, "", endpoints, 0, 0, this, true);
+							     false, "", endpoints, 0, 0, this, transport, true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 }
 
@@ -792,7 +792,7 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident) const
 	vector<EndpointPtr> endpoints;
 	ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "",
 								 Reference::ModeTwoway, false, _id,
-								 endpoints, 0, _locatorInfo, 0, true);
+								 endpoints, 0, _locatorInfo, 0, 0, true);
 
 	//
 	// Return a proxy for the reference. 
@@ -824,7 +824,7 @@ Ice::ObjectAdapterI::newDirectProxy(const Identity& ident) const
     // Create a reference and return a proxy for this reference.
     //
     ReferencePtr ref = _instance->referenceFactory()->create(ident, Context(), "", Reference::ModeTwoway,
-							     false, "", endpoints, 0, _locatorInfo, 0, true);
+							     false, "", endpoints, 0, _locatorInfo, 0, 0, true);
     return _instance->proxyFactory()->referenceToProxy(ref);
 
 }

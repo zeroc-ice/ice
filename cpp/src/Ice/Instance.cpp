@@ -503,7 +503,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	}
 
 	{
-	    Int num = _properties->getPropertyAsIntWithDefault("Ice.ConnectionIdleTime", 60);
+	    Int num = _properties->getPropertyAsIntWithDefault("Ice.ConnectiondleTime", 60);
 	    if(num < 0)
 	    {
 		const_cast<Int&>(_connectionIdleTime) = 0;

@@ -20,6 +20,7 @@
 #include <Ice/RouterInfoF.h>
 #include <Ice/LocatorInfoF.h>
 #include <Ice/ObjectAdapterF.h>
+#include <Ice/TransportInfoF.h>
 #include <Ice/ConnectionF.h>
 #include <Ice/Identity.h>
 
@@ -70,6 +71,7 @@ public:
     const RouterInfoPtr routerInfo; // Null if no router is used.
     const LocatorInfoPtr locatorInfo; // Null if no locator is used.
     const Ice::ObjectAdapterPtr reverseAdapter; // For reverse communications using the adapter's incoming connections.
+    const Ice::TransportInfoPtr reverseTransport; // If not null, use this transport for reverse communications.
     const bool collocationOptimization;
     const Ice::Int hashValue;
 
@@ -105,7 +107,8 @@ private:
 
     Reference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const std::string&, Mode, bool,
 	      const std::string&, const std::vector<EndpointPtr>&,
-	      const RouterInfoPtr&, const LocatorInfoPtr&, const Ice::ObjectAdapterPtr&, bool);
+	      const RouterInfoPtr&, const LocatorInfoPtr&, const Ice::ObjectAdapterPtr&, const Ice::TransportInfoPtr&,
+	      bool);
     friend class ReferenceFactory;
 };
 

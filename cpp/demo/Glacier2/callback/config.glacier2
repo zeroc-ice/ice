@@ -1,0 +1,21 @@
+Glacier2.Client.Endpoints=ssl -p 10005
+Glacier2.Server.Endpoints=tcp -h 127.0.0.1
+Glacier2.Trace.Session=1
+Glacier2.Trace.Client=2
+Glacier2.Trace.Server=2
+Glacier2.Trace.RoutingTable=1
+Glacier2.Server.ForwardContext=1
+Glacier2.Client.ForwardContext=1
+#Glacier2.Server.SleepTime=2000
+#Glacier2.Client.SleepTime=2000
+
+#Ice.Trace.Network=1
+#Ice.Trace.Protocol=1
+Ice.Warn.Connections=1
+
+Ice.Plugin.IceSSL=IceSSL:create
+IceSSL.Client.CertPath=../../../certs
+IceSSL.Client.Config=sslconfig.xml
+IceSSL.Server.CertPath=../../../certs
+IceSSL.Server.Config=sslconfig.xml
+#IceSSL.Trace.Security=1

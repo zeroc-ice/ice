@@ -1,0 +1,61 @@
+#
+# This must correspond to Callback.Server.Endpoints in the server
+# configuration.
+#
+Callback.Client.Callback=callback:tcp -h 127.0.0.1 -p 10000
+
+#
+# We don't need any endpoints for the client if we use a
+# router. Incoming requests are received through connections
+# established from the client to the router.
+#
+Callback.Client.Endpoints=
+
+#
+# The proxy to Glacier2 router for the client's object adapter with
+# the name Callback.Client. This must correspond to
+# Glacier2.Client.Endpoints. Glacier2 only supports one connection per
+# client, and no UDP. Therefore we have only one single TCP endpoint.
+#
+Callback.Client.Router=Glacier/router:ssl -p 10005
+
+#
+# The proxy to Glacier2 router for all outgoing connections. This must
+# correspond to Glacier2.Client.Endpoints.
+#
+Ice.Default.Router=Glacier/router:ssl -p 10005
+
+#
+# No active connection management is permitted with
+# Glacier2. Connections must remain established.
+#
+Ice.ConnectionIdleTime=0
+
+#
+# Ice.MonitorConnections defaults to Ice.ConnectionIdleTime, which we
+# set to 0 above. However we still want the connection monitor thread
+# for AMI timeouts (for completeness, even if this demo doesn't use
+# AMI).
+#
+Ice.MonitorConnections=60
+
+#
+# Connection retry is not possible with Glacier2. Connections must
+# remain established.
+#
+Ice.RetryIntervals=-1
+
+#
+# Other settings.
+#
+
+#Ice.Trace.Network=1
+#Ice.Trace.Protocol=1
+Ice.Warn.Connections=1
+
+Ice.Plugin.IceSSL=IceSSL:create
+IceSSL.Client.CertPath=../../../certs
+IceSSL.Client.Config=sslconfig.xml
+IceSSL.Server.CertPath=../../../certs
+IceSSL.Server.Config=sslconfig.xml
+#IceSSL.Trace.Security=1

@@ -32,13 +32,11 @@ menu()
 {
     cout <<
 	"usage:\n"
-	"t: send callback as twoway\n"
-	"o: send callback as oneway\n"
-	"O: send callback as batch oneway\n"
-	"d: send callback as datagram\n"
-	"D: send callback as batch datagram\n"
+	"t: invoke callback as twoway\n"
+	"o: invoke callback as oneway\n"
+	"O: invoke callback as batch oneway\n"
 	"f: flush all batch requests\n"
-	"S: switch secure mode on/off\n"
+	"v: set/reset override context field\n"
 	"s: shutdown server\n"
 	"x: exit\n"
 	"?: help\n";
@@ -57,12 +55,7 @@ CallbackClient::run(int argc, char* argv[])
     }
 
     ObjectPrx base = communicator()->stringToProxy(proxy);
-    CallbackPrx twoway = CallbackPrx::checkedCast(base->ice_twoway()->ice_timeout(-1)->ice_secure(false));
-    if(!twoway)
-    {
-	cerr << appName() << ": invalid proxy" << endl;
-	return EXIT_FAILURE;
-    }
+    CallbackPrx twoway = CallbackPrx::checkedCast(base);
     CallbackPrx oneway = CallbackPrx::uncheckedCast(twoway->ice_oneway());
     CallbackPrx batchOneway = CallbackPrx::uncheckedCast(twoway->ice_batchOneway());
     CallbackPrx datagram = CallbackPrx::uncheckedCast(twoway->ice_datagram());
@@ -77,8 +70,7 @@ CallbackClient::run(int argc, char* argv[])
     CallbackReceiverPrx onewayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_oneway());
     CallbackReceiverPrx datagramR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_datagram());
 
-    bool secure = false;
-    string secureStr = "";
+    string override;
 
     menu();
 
@@ -91,64 +83,49 @@ CallbackClient::run(int argc, char* argv[])
 	    cin >> c;
 	    if(c == 't')
 	    {
-		twoway->initiateCallback(twowayR);
+		Context context;
+		context["_fwd"] = "t";
+		if(!override.empty())
+		{
+		    context["_ovrd"] = override;
+		}
+		twoway->initiateCallback(twowayR, context);
 	    }
 	    else if(c == 'o')
 	    {
-		oneway->initiateCallback(onewayR);
+		Context context;
+		context["_fwd"] = "o";
+		if(!override.empty())
+		{
+		    context["_ovrd"] = override;
+		}
+		oneway->initiateCallback(onewayR, context);
 	    }
 	    else if(c == 'O')
 	    {
-		batchOneway->initiateCallback(onewayR);
-	    }
-	    else if(c == 'd')
-	    {
-                if(secure)
-                {
-                    cout << "secure datagrams are not supported" << endl;
-                }
-                else
-                {
-                    datagram->initiateCallback(datagramR);
-                }
-	    }
-	    else if(c == 'D')
-	    {
-                if(secure)
-                {
-                    cout << "secure datagrams are not supported" << endl;
-                }
-                else
-                {
-                    batchDatagram->initiateCallback(datagramR);
-                }
+		Context context;
+		context["_fwd"] = "O";
+		if(!override.empty())
+		{
+		    context["_ovrd"] = override;
+		}
+		batchOneway->initiateCallback(onewayR, context);
 	    }
 	    else if(c == 'f')
 	    {
 		communicator()->flushBatchRequests();
 	    }
-	    else if(c == 'S')
+	    else if(c == 'v')
 	    {
-		secure = !secure;
-		secureStr = secure ? "s" : "";
-		
-		twoway = CallbackPrx::uncheckedCast(twoway->ice_secure(secure));
-		oneway = CallbackPrx::uncheckedCast(oneway->ice_secure(secure));
-		batchOneway = CallbackPrx::uncheckedCast(batchOneway->ice_secure(secure));
-		datagram = CallbackPrx::uncheckedCast(datagram->ice_secure(secure));
-		batchDatagram = CallbackPrx::uncheckedCast(batchDatagram->ice_secure(secure));
-
-		twowayR = CallbackReceiverPrx::uncheckedCast(twowayR->ice_secure(secure));
-		onewayR = CallbackReceiverPrx::uncheckedCast(onewayR->ice_secure(secure));
-		datagramR = CallbackReceiverPrx::uncheckedCast(datagramR->ice_secure(secure));
-		
-		if(secure)
-		{
-		    cout << "secure mode is now on" << endl;
+		if(override.empty())
+                {
+		    override = "some_value";
+		    cout << "override context field is now `" << override << "'" << endl;
 		}
 		else
 		{
-		    cout << "secure mode is now off" << endl;
+		    override.clear();
+		    cout << "override context field is empty" << endl;
 		}
 	    }
 	    else if(c == 's')

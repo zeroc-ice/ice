@@ -91,6 +91,11 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
+    if(reverseTransport != r.reverseTransport)
+    {
+	return false;
+    }
+
     if(collocationOptimization != r.collocationOptimization)
     {
 	return false;
@@ -199,6 +204,15 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return true;
     }
     else if(r.reverseAdapter < reverseAdapter)
+    {
+	return false;
+    }
+    
+    if(reverseTransport < r.reverseTransport)
+    {
+	return true;
+    }
+    else if(r.reverseTransport < reverseTransport)
     {
 	return false;
     }
@@ -385,7 +399,7 @@ IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
     {
 	return instance->referenceFactory()->create(newIdentity, context, facet, mode, secure, adapterId,
 						    endpoints, routerInfo, locatorInfo, reverseAdapter,
-						    collocationOptimization);
+						    reverseTransport, collocationOptimization);
     }
 }
 
@@ -400,7 +414,7 @@ IceInternal::Reference::changeContext(const Context& newContext) const
     {
 	return instance->referenceFactory()->create(identity, newContext, facet, mode, secure, adapterId,
 						    endpoints, routerInfo, locatorInfo, reverseAdapter,
-						    collocationOptimization);
+						    reverseTransport, collocationOptimization);
     }
 }
 
@@ -415,7 +429,7 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
     {
 	return instance->referenceFactory()->create(identity, context, newFacet, mode, secure, adapterId,
 						    endpoints, routerInfo, locatorInfo, reverseAdapter,
-						    collocationOptimization);
+						    reverseTransport, collocationOptimization);
     }
 }
 
@@ -466,7 +480,7 @@ IceInternal::Reference::changeTimeout(int newTimeout) const
 
     return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
 						newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter,
-						collocationOptimization);
+						reverseTransport, collocationOptimization);
 }
 
 ReferencePtr
@@ -480,7 +494,7 @@ IceInternal::Reference::changeMode(Mode newMode) const
     {
 	return instance->referenceFactory()->create(identity, context, facet, newMode, secure, adapterId,
 						    endpoints, routerInfo, locatorInfo, reverseAdapter,
-						    collocationOptimization);
+						    reverseTransport, collocationOptimization);
     }
 }
 
@@ -495,7 +509,7 @@ IceInternal::Reference::changeSecure(bool newSecure) const
     {
 	return instance->referenceFactory()->create(identity, context, facet, mode, newSecure, adapterId,
 						    endpoints, routerInfo, locatorInfo, reverseAdapter,
-						    collocationOptimization);
+						    reverseTransport, collocationOptimization);
     }
 }
 
@@ -546,7 +560,7 @@ IceInternal::Reference::changeCompress(bool newCompress) const
 
     return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
 						newEndpoints, newRouterInfo, newLocatorInfo, reverseAdapter,
-						collocationOptimization);
+						reverseTransport, collocationOptimization);
 }
 
 ReferencePtr
@@ -560,7 +574,7 @@ IceInternal::Reference::changeAdapterId(const string& newAdapterId) const
     {
 	return instance->referenceFactory()->create(identity, context, facet, mode, secure, newAdapterId,
 						    endpoints, routerInfo, locatorInfo, reverseAdapter,
-						    collocationOptimization);
+						    reverseTransport, collocationOptimization);
     }
 }
 
@@ -575,7 +589,7 @@ IceInternal::Reference::changeEndpoints(const vector<EndpointPtr>& newEndpoints)
     {
 	return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
 						    newEndpoints, routerInfo, locatorInfo, reverseAdapter,
-						    collocationOptimization);
+						    reverseTransport, collocationOptimization);
     }
 }
 
@@ -592,7 +606,7 @@ IceInternal::Reference::changeRouter(const RouterPrx& newRouter) const
     {
 	return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
 						    endpoints, newRouterInfo, locatorInfo, reverseAdapter,
-						    collocationOptimization);
+						    reverseTransport, collocationOptimization);
     }
 }
 
@@ -609,7 +623,7 @@ IceInternal::Reference::changeLocator(const LocatorPrx& newLocator) const
     {
 	return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
 						    endpoints, routerInfo, newLocatorInfo, reverseAdapter,
-						    collocationOptimization);
+						    reverseTransport, collocationOptimization);
     }
 }
 
@@ -624,7 +638,7 @@ IceInternal::Reference::changeCollocationOptimization(bool newCollocationOptimiz
     {
 	return instance->referenceFactory()->create(identity, context, facet, mode, secure, adapterId,
 						    endpoints, routerInfo, locatorInfo, reverseAdapter,
-						    newCollocationOptimization);
+						    reverseTransport, newCollocationOptimization);
     }
 }
 
@@ -637,7 +651,7 @@ IceInternal::Reference::changeDefault() const
 	get(instance->referenceFactory()->getDefaultLocator());
 
     return instance->referenceFactory()->create(identity, context, "", ModeTwoway, false, adapterId,
-						endpoints, defaultRouterInfo, defaultLocatorInfo, 0, true);
+						endpoints, defaultRouterInfo, defaultLocatorInfo, 0, 0, true);
 }
 
 ConnectionPtr
@@ -653,32 +667,64 @@ IceInternal::Reference::getConnection(bool& compress) const
 	//
 	ObjectAdapterIPtr adapter = ObjectAdapterIPtr::dynamicCast(reverseAdapter);
 	assert(adapter);
+
 	list<ConnectionPtr> connections = adapter->getIncomingConnections();
-
-	vector<EndpointPtr> endpts;
-	endpts.reserve(connections.size());
-	transform(connections.begin(), connections.end(), back_inserter(endpts),
-		  ::Ice::constMemFun(&Connection::endpoint));
-	endpts = filterEndpoints(endpts);
-	
-	if(endpts.empty())
-	{
-	    NoEndpointException ex(__FILE__, __LINE__);
-	    ex.proxy = toString();
-	    throw ex;
-	}
-
 	list<ConnectionPtr>::iterator p;
-	for(p = connections.begin(); p != connections.end(); ++p)
+
+	//
+	// If we have a reverse transport, then we only use the
+	// incoming connection that corresponds to this
+	// transport. Otherwise we use the first suitable incoming
+	// connections.
+	//
+	if(reverseTransport)
 	{
-	    if((*p)->endpoint() == endpts.front())
+	    //
+	    // TODO: This doesn't scale if we have many connections!!
+	    //
+	    for(p = connections.begin(); p != connections.end(); ++p)
 	    {
-		break;
+		if((*p)->getTransportInfo() == reverseTransport)
+		{
+		    break;
+		}
+	    }
+
+	    if(p == connections.end())
+	    {
+		NoEndpointException ex(__FILE__, __LINE__);
+		ex.proxy = toString();
+		throw ex;
 	    }
 	}
-	assert(p != connections.end());
+	else
+	{
+	    vector<EndpointPtr> endpts;
+	    endpts.reserve(connections.size());
+	    transform(connections.begin(), connections.end(), back_inserter(endpts),
+		      ::Ice::constMemFun(&Connection::endpoint));
+	    
+	    endpts = filterEndpoints(endpts);
+	    
+	    if(endpts.empty())
+	    {
+		NoEndpointException ex(__FILE__, __LINE__);
+		ex.proxy = toString();
+		throw ex;
+	    }
+	    
+	    for(p = connections.begin(); p != connections.end(); ++p)
+	    {
+		if((*p)->endpoint() == endpts.front())
+		{
+		    break;
+		}
+	    }
+	    assert(p != connections.end());
+	}
+	    
 	connection = *p;
-	compress = (*p)->endpoint()->compress();
+	compress = connection->endpoint()->compress();
     }
     else
     {	
@@ -842,7 +888,8 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
 				  const RouterInfoPtr& rtrInfo,
 				  const LocatorInfoPtr& locInfo,
 				  const ObjectAdapterPtr& rvAdapter,
-				  bool collocationOptimization) :
+				  const TransportInfoPtr& rvTransport,
+				  bool collocationOpt) :
     instance(inst),
     identity(ident),
     context(ctx),
@@ -854,7 +901,8 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
     routerInfo(rtrInfo),
     locatorInfo(locInfo),
     reverseAdapter(rvAdapter),
-    collocationOptimization(collocationOptimization),
+    reverseTransport(rvTransport),
+    collocationOptimization(collocationOpt),
     hashValue(0)
 {
     //

@@ -13,83 +13,6 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier;
 
-Glacier::TwowayThrottle::TwowayThrottle(const CommunicatorPtr& communicator, bool reverse) :
-    _communicator(communicator),
-    _reverse(reverse),
-    _properties(_communicator->getProperties()),
-    _logger(_communicator->getLogger()),
-    _traceLevel(_properties->getPropertyAsInt("Glacier.Router.Trace.Throttle")),
-    _max(_reverse ?
-	 _properties->getPropertyAsInt("Glacier.Router.Server.Throttle.Twoways") :
-	 _properties->getPropertyAsInt("Glacier.Router.Client.Throttle.Twoways")),
-    _count(0)
-{
-}
-
-Glacier::TwowayThrottle::~TwowayThrottle()
-{
-    assert(_count == 0);
-}
-
-void
-Glacier::TwowayThrottle::twowayStarted(const Ice::ObjectPrx& proxy, const Ice::Current& current)
-{
-    if(_max <= 0)
-    {
-	return;
-    }
-    
-    {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	
-	assert(_count <= _max);
-	
-	while(_count == _max)
-	{
-	    if(_traceLevel >= 1)
-	    {
-		Trace out(_logger, "Glacier");
-		out << "throttling ";
-		if(_reverse)
-		{
-		    out << "reverse ";
-		}
-		out << "twoway call:";
-		out << "\nnumber of calls = " << _count;
-		out << "\nproxy = " << _communicator->proxyToString(proxy);
-		out << "\noperation = " << current.operation;
-	    }
-
-	    wait();
-	}
-	
-	++_count;
-    }
-}
-
-void
-Glacier::TwowayThrottle::twowayFinished()
-{
-    if(_max <= 0)
-    {
-	return;
-    }
-    
-    {
-	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-	
-	assert(_count <= _max);
-	
-	if(_count == _max)
-	{
-	    notifyAll();
-	}
-	
-	--_count;
-    }
-}
-
-
 #ifdef __HP_aCC
 //
 // Compiler bug!
@@ -99,14 +22,14 @@ Glacier::TwowayThrottle::twowayFinished()
 // The work around is to use static strings:
 //
 
-static const string traceServer = "Glacier.Router.Trace.Server";
-static const string traceClient = "Glacier.Router.Trace.Client";
+static const string traceServer = "Glacier2.Trace.Server";
+static const string traceClient = "Glacier2.Trace.Client";
 
-static const string serverForwardContext = "Glacier.Router.Server.ForwardContext";
-static const string clientForwardContext = "Glacier.Router.Client.ForwardContext";
+static const string serverForwardContext = "Glacier2.Server.ForwardContext";
+static const string clientForwardContext = "Glacier2.Client.ForwardContext";
 
-static const string serverSleepTime = "Glacier.Router.Server.SleepTime";
-static const string clientSleepTime = "Glacier.Router.Client.SleepTime";
+static const string serverSleepTime = "Glacier2.Server.SleepTime";
+static const string clientSleepTime = "Glacier2.Client.SleepTime";
 #endif
 
 Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
@@ -127,21 +50,19 @@ Glacier::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
 		    _properties->getPropertyAsInt(clientForwardContext) > 0),
     _sleepTime(_reverse ?
 	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(serverSleepTime)) :
-	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(clientSleepTime))),
+	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt(clientSleepTime)))
 
 #else
     _traceLevel(_reverse ?
-		_properties->getPropertyAsInt("Glacier.Router.Trace.Server") :
-		_properties->getPropertyAsInt("Glacier.Router.Trace.Client")),
+		_properties->getPropertyAsInt("Glacier2.Trace.Server") :
+		_properties->getPropertyAsInt("Glacier2.Trace.Client")),
     _forwardContext(_reverse ?
-		    _properties->getPropertyAsInt("Glacier.Router.Server.ForwardContext") > 0 :
-		    _properties->getPropertyAsInt("Glacier.Router.Client.ForwardContext") > 0),
+		    _properties->getPropertyAsInt("Glacier2.Server.ForwardContext") > 0 :
+		    _properties->getPropertyAsInt("Glacier2.Client.ForwardContext") > 0),
     _sleepTime(_reverse ?
-	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt("Glacier.Router.Server.SleepTime")) :
-	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt("Glacier.Router.Client.SleepTime"))),
+	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt("Glacier2.Server.SleepTime")) :
+	       IceUtil::Time::milliSeconds(_properties->getPropertyAsInt("Glacier2.Client.SleepTime")))
 #endif   
-
-    _twowayThrottle(_communicator, _reverse)
 {
     _requestQueue = new RequestQueue(_communicator, _traceLevel, _reverse, _sleepTime);
     _requestQueueControl = _requestQueue->start();
@@ -171,26 +92,19 @@ class GlacierCB : public AMI_Object_ice_invoke
 {
 public:
 
-    GlacierCB(const AMD_Object_ice_invokePtr& cb, TwowayThrottle& twowayThrottle) :
-	_cb(cb),
-	_twowayThrottle(twowayThrottle)
+    GlacierCB(const AMD_Object_ice_invokePtr& cb) :
+	_cb(cb)
     {
-    }
-
-    virtual
-    ~GlacierCB()
-    {
-	_twowayThrottle.twowayFinished();
     }
 
     virtual void
-    ice_response(bool ok, const ::std::vector< ::Ice::Byte>& outParams)
+    ice_response(bool ok, const vector<Byte>& outParams)
     {
 	_cb->ice_response(ok, outParams);
     }
 
     virtual void
-    ice_exception(const ::IceUtil::Exception& ex)
+    ice_exception(const Exception& ex)
     {
 	_cb->ice_exception(ex);
     }
@@ -198,7 +112,6 @@ public:
 private:
 
     AMD_Object_ice_invokePtr _cb;
-    TwowayThrottle& _twowayThrottle;
 };
 
 void
@@ -207,31 +120,18 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdC
 {
     try
     {
-	bool missive = modifyProxy(proxy, current);
+	modifyProxy(proxy, current);
 
-	if(missive) // Batch routing?
+	if(proxy->ice_isTwoway())
+	{
+	    AMI_Object_ice_invokePtr amiCB = new GlacierCB(amdCB);
+	    _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, amiCB));
+	}
+	else
 	{
 	    vector<Byte> dummy;
 	    amdCB->ice_response(true, dummy);
-
-	    _requestQueue->addMissive(new Request(proxy, inParams, current, _forwardContext));
-	}
-	else // Regular routing.
-	{
-	    AMI_Object_ice_invokePtr amiCB;
-
-	    if(proxy->ice_isTwoway())
-	    {
-		amiCB = new GlacierCB(amdCB, _twowayThrottle);
-		_twowayThrottle.twowayStarted(proxy, current);
-	    }
-	    else
-	    {
-		vector<Byte> dummy;
-		amdCB->ice_response(true, dummy);
-	    }
-
-	    _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, amiCB));
+	    _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, 0));
 	}
     }
     catch(const Exception& ex)
@@ -252,15 +152,15 @@ Glacier::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amdC
     return;
 }
 
-bool
-Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current)
+void
+Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current) const
 {
     if(!current.facet.empty())
     {
 	proxy = proxy->ice_newFacet(current.facet);
     }
 
-    bool missive = false;
+    bool batch = false;
 
     Context::const_iterator p = current.ctx.find("_fwd");
     if(p != current.ctx.end())
@@ -273,35 +173,35 @@ Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current)
 		case 't':
 		{
 		    proxy = proxy->ice_twoway();
-		    missive = false;
+		    batch = false;
 		    break;
 		}
 		
 		case 'o':
 		{
 		    proxy = proxy->ice_oneway();
-		    missive = false;
+		    batch = false;
 		    break;
 		}
 		
 		case 'd':
 		{
 		    proxy = proxy->ice_datagram();
-		    missive = false;
+		    batch = false;
 		    break;
 		}
 		
 		case 'O':
 		{
 		    proxy = proxy->ice_batchOneway();
-		    missive = true;
+		    batch = true;
 		    break;
 		}
 		
 		case 'D':
 		{
 		    proxy = proxy->ice_batchDatagram();
-		    missive = true;
+		    batch = true;
 		    break;
 		}
 		
@@ -326,6 +226,4 @@ Glacier::Blobject::modifyProxy(ObjectPrx& proxy, const Current& current)
 	    }
 	}
     }
-
-    return missive;
 }

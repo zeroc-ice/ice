@@ -78,6 +78,8 @@ public:
     void setAdapter(const Ice::ObjectAdapterPtr&);
     Ice::ObjectAdapterPtr getAdapter() const;
 
+    Ice::TransportInfoPtr getTransportInfo() const;
+
     //
     // Operations from EventHandler
     //
@@ -90,7 +92,7 @@ public:
     virtual std::string toString() const;
 
     //
-    // Compare endpoints for sorting purposes.
+    // Compare connections for sorting purposes.
     //
     virtual bool operator==(const Connection&) const;
     virtual bool operator!=(const Connection&) const;

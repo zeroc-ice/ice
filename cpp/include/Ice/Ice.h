@@ -27,5 +27,6 @@
 #include <Ice/IncomingAsync.h>
 #include <Ice/Process.h>
 #include <Ice/Application.h>
+#include <Ice/TransportInfo.h>
 
 #endif

@@ -37,7 +37,7 @@ Glacier::ServerBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& a
 {
     assert(_clientAdapter); // Destroyed?
 
-    ObjectPrx proxy = _clientAdapter->createReverseProxy(current.id);
+    ObjectPrx proxy = _clientAdapter->createReverseProxy(current.id, 0);
     assert(proxy);
 
     invoke(proxy, amdCB, inParams, current);

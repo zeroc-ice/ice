@@ -162,6 +162,7 @@ Glacier::RequestQueue::run()
 {
     while(true)
     {
+	CommunicatorPtr communicator;
 	vector<RequestPtr> requests;
 	vector<RequestPtr> missives;
 
@@ -182,15 +183,9 @@ Glacier::RequestQueue::run()
                 return;
             }
 
-	    if(!_requests.empty())
-	    {
-		_requests.swap(requests);
-	    }
-
-	    if(!_missives.empty())
-	    {
-		_missives.swap(missives);
-	    }
+	    communicator = _communicator;
+	    requests.swap(_requests);
+	    missives.swap(_missives);
 	}
         
         //
@@ -214,8 +209,8 @@ Glacier::RequestQueue::run()
 		    {
 			out << "reverse ";
 		    }
-		    out << "routing to:\n"
-			<< "\nproxy = " << _communicator->proxyToString(proxy)
+		    out << "routing to:"
+			<< "\nproxy = " << communicator->proxyToString(proxy)
 			<< "\noperation = " << current.operation;
 		}
 
@@ -254,7 +249,7 @@ Glacier::RequestQueue::run()
 		    }
 		    
 		    out << "batch routing to:"
-			<< "\nproxy = " << _communicator->proxyToString(proxy)
+			<< "\nproxy = " << communicator->proxyToString(proxy)
 			<< "\noperation = " << current.operation;
 		}
 		
@@ -264,7 +259,7 @@ Glacier::RequestQueue::run()
 	    //
 	    // This sends all batched missives.
 	    //
-	    _communicator->flushBatchRequests();
+	    communicator->flushBatchRequests();
 	}
 	catch(const Ice::Exception& ex)
 	{

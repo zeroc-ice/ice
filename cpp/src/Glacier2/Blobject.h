@@ -50,7 +50,6 @@ public:
     void destroy();
     void invoke(Ice::ObjectPrx&, const Ice::AMD_Object_ice_invokePtr&, const std::vector<Ice::Byte>&,
 		const Ice::Current&);
-    bool modifyProxy(Ice::ObjectPrx&, const Ice::Current&);
 
 protected:
 
@@ -63,13 +62,13 @@ protected:
 
 private:
 
+    void modifyProxy(Ice::ObjectPrx&, const Ice::Current&) const;
+
     const bool _forwardContext;
     const IceUtil::Time _sleepTime;
 
     RequestQueuePtr _requestQueue;
     IceUtil::ThreadControl _requestQueueControl;
-
-    TwowayThrottle _twowayThrottle;
 };
 
 }

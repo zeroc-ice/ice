@@ -8,9 +8,9 @@
 // **********************************************************************
 
 #include <Ice/RoutingTable.h>
-#include <Glacier2/RouterI.h>
 #include <Glacier/Session.h>
 #include <Glacier/SessionManager.h>
+#include <Glacier2/RouterI.h>
 #include <iostream>
 
 using namespace std;
@@ -19,24 +19,29 @@ using namespace Glacier;
 
 Glacier::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
 			  const ObjectAdapterPtr& serverAdapter,
-			  const ::IceInternal::RoutingTablePtr& routingTable,
-			  const SessionManagerPrx& sessionManager,
-			  const string& userId) :
+			  const IceInternal::RoutingTablePtr& routingTable) :
     _clientAdapter(clientAdapter),
     _serverAdapter(serverAdapter),
     _logger(_clientAdapter->getCommunicator()->getLogger()),
     _routingTable(routingTable),
-    _sessionManager(sessionManager),
-    _userId(userId)
+    _userId("todo")
 {
-    PropertiesPtr properties = _clientAdapter->getCommunicator()->getProperties();
-    _routingTableTraceLevel = properties->getPropertyAsInt("Glacier.Router.Trace.RoutingTable");
+    CommunicatorPtr communicator = _clientAdapter->getCommunicator();
+    PropertiesPtr properties = communicator->getProperties();
+
+    _routingTableTraceLevel = properties->getPropertyAsInt("Glacier2.Trace.RoutingTable");
+
+    //
+    // If the property is empty, _sessionManager is null.
+    //
+    _sessionManager = SessionManagerPrx::checkedCast(
+	communicator->stringToProxy(properties->getProperty("Glacier2.SessionManager")));
 }
 
 Glacier::RouterI::~RouterI()
 {
     assert(!_clientAdapter);
-    assert(_sessions.empty());
+    assert(!_session);
 }
 
 void
@@ -50,18 +55,19 @@ Glacier::RouterI::destroy()
     _serverAdapter = 0;
     _logger = 0;
     _routingTable = 0;
-    for(vector<SessionPrx>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
+
     {
+	IceUtil::Mutex::Lock lock(_sessionMutex);
 	try
 	{
-	    (*p)->destroy();
+	    _session->destroy();
 	}
 	catch(...)
 	{
 	    // Ignore all exceptions.
 	}
+	_session = 0;
     }
-    _sessions.clear();
 }
 
 ObjectPrx
@@ -116,14 +122,17 @@ Glacier::RouterI::createSession(const Current&)
     assert(_clientAdapter); // Destroyed?
 
     IceUtil::Mutex::Lock lock(_sessionMutex);
-    if(!_sessionManager)
+
+    if(!_session)
     {
-	throw NoSessionManagerException();
+	if(!_sessionManager)
+	{
+	    throw NoSessionManagerException();
+	}
+	
+	_session = _sessionManager->create(_userId); 
     }
 
-    SessionPrx session = _sessionManager->create(_userId); 
-    _sessions.push_back(session);
-
-    return session;
+    return _session;
 }
 

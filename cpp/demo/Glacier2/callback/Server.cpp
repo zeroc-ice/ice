@@ -24,7 +24,7 @@ int
 main(int argc, char* argv[])
 {
     CallbackServer app;
-    return app.main(argc, argv, "config");
+    return app.main(argc, argv, "config.server");
 }
 
 int

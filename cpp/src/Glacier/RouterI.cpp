@@ -26,9 +26,9 @@ Glacier::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
     _serverAdapter(serverAdapter),
     _logger(_clientAdapter->getCommunicator()->getLogger()),
     _routingTable(routingTable),
-    _sessionManager(sessionManager),
-    _userId(userId)
-{
+    _userId(userId),
+   _sessionManager(sessionManager)
+ {
     PropertiesPtr properties = _clientAdapter->getCommunicator()->getProperties();
     _routingTableTraceLevel = properties->getPropertyAsInt("Glacier.Router.Trace.RoutingTable");
 }
@@ -36,7 +36,7 @@ Glacier::RouterI::RouterI(const ObjectAdapterPtr& clientAdapter,
 Glacier::RouterI::~RouterI()
 {
     assert(!_clientAdapter);
-    assert(_sessions.empty());
+    assert(!_session);
 }
 
 void
@@ -50,18 +50,19 @@ Glacier::RouterI::destroy()
     _serverAdapter = 0;
     _logger = 0;
     _routingTable = 0;
-    for(vector<SessionPrx>::const_iterator p = _sessions.begin(); p != _sessions.end(); ++p)
+
     {
+	IceUtil::Mutex::Lock lock(_sessionMutex);
 	try
 	{
-	    (*p)->destroy();
+	    _session->destroy();
 	}
 	catch(...)
 	{
 	    // Ignore all exceptions.
 	}
+	_session = 0;
     }
-    _sessions.clear();
 }
 
 ObjectPrx
@@ -116,14 +117,16 @@ Glacier::RouterI::createSession(const Current&)
     assert(_clientAdapter); // Destroyed?
 
     IceUtil::Mutex::Lock lock(_sessionMutex);
-    if(!_sessionManager)
+
+    if(!_session)
     {
-	throw NoSessionManagerException();
+	if(!_sessionManager)
+	{
+	    throw NoSessionManagerException();
+	}
+	
+	_session = _sessionManager->create(_userId); 
     }
 
-    SessionPrx session = _sessionManager->create(_userId); 
-    _sessions.push_back(session);
-
-    return session;
+    return _session;
 }
-

@@ -31,7 +31,6 @@ Glacier::Request::Request(const ObjectPrx& proxy, const vector<Byte>& inParams, 
 void
 Glacier::Request::invoke()
 {
-    
     if(_proxy->ice_isTwoway())
     {
 	assert(_amiCB);
@@ -68,7 +67,27 @@ Glacier::Request::invoke()
 bool
 Glacier::Request::override(const RequestPtr& other)
 {
+    //
+    // Both override values have to be non-empty.
+    //
     if(_override.empty() || other->_override.empty())
+    {
+	return false;
+    }
+
+    //
+    // Override does not work for twoways, because a response is
+    // expected for each request.
+    //
+    if(_proxy->ice_isTwoway() || other->_proxy->ice_isTwoway())
+    {
+	return false;
+    }
+
+    //
+    // We cannot override if the proxies differ.
+    //
+    if(_proxy != other->_proxy)
     {
 	return false;
     }
@@ -102,7 +121,6 @@ Glacier::RequestQueue::RequestQueue(const Ice::CommunicatorPtr& communicator, in
 Glacier::RequestQueue::~RequestQueue()
 {
     assert(_destroy);
-    assert(_missives.empty());
     assert(_requests.empty());
     assert(!_communicator);
 }
@@ -113,33 +131,9 @@ Glacier::RequestQueue::destroy()
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
     
     _destroy = true;
-    _missives.clear();
     _requests.clear();
     _communicator = 0;
     
-    notify();
-}
-
-void 
-Glacier::RequestQueue::addMissive(const RequestPtr& missive)
-{
-    assert(missive);
-
-    IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
-    
-    assert(!_destroy);
-
-    for(vector<RequestPtr>::iterator p = _missives.begin(); p != _missives.end(); ++p)
-    {
-        if(missive->override(*p))
-        {
-            *p = missive; // Replace old missive if this is an override.
-            return;
-        }
-    }
-
-    _missives.push_back(missive); // No override, add new missive.
-
     notify();
 }
 
@@ -152,7 +146,16 @@ Glacier::RequestQueue::addRequest(const RequestPtr& request)
     
     assert(!_destroy);
 
-    _requests.push_back(request);
+    for(vector<RequestPtr>::iterator p = _requests.begin(); p != _requests.end(); ++p)
+    {
+        if(request->override(*p))
+        {
+            *p = request; // Replace old request if this is an override.
+            return;
+        }
+    }
+
+    _requests.push_back(request); // No override, add new request.
 
     notify();
 }
@@ -162,17 +165,16 @@ Glacier::RequestQueue::run()
 {
     while(true)
     {
+	CommunicatorPtr communicator;
 	vector<RequestPtr> requests;
-	vector<RequestPtr> missives;
 
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock lock(*this);
 
 	    //
-	    // Wait indefinitely if there's no requests or missive to
-	    // send.
+	    // Wait indefinitely if there's no requests to send.
 	    //
-            while(!_destroy && _requests.empty() && _missives.empty())
+            while(!_destroy && _requests.empty())
             {		
 		wait();
             }
@@ -182,21 +184,14 @@ Glacier::RequestQueue::run()
                 return;
             }
 
-	    if(!_requests.empty())
-	    {
-		_requests.swap(requests);
-	    }
-
-	    if(!_missives.empty())
-	    {
-		_missives.swap(missives);
-	    }
+	    communicator = _communicator;
+	    requests.swap(_requests);
 	}
         
         //
-        // Send requests and missives, flush batch requests, and sleep
-        // outside the thread synchronization, so that new messages
-        // can be added while this is being done.
+        // Send requests, flush batch requests, and sleep outside the
+        // thread synchronization, so that new messages can be added
+        // while this is being done.
         //
 
         try
@@ -214,8 +209,8 @@ Glacier::RequestQueue::run()
 		    {
 			out << "reverse ";
 		    }
-		    out << "routing to:\n"
-			<< "\nproxy = " << _communicator->proxyToString(proxy)
+		    out << "routing to:"
+			<< "\nproxy = " << communicator->proxyToString(proxy)
 			<< "\noperation = " << current.operation;
 		}
 
@@ -239,32 +234,10 @@ Glacier::RequestQueue::run()
 
 	try
 	{
-	    for(vector<RequestPtr>::const_iterator p = missives.begin(); p != missives.end(); ++p)
-	    {
-		if(_traceLevel >= 2)
-		{
-		    const ObjectPrx& proxy = (*p)->getProxy();
-		    const Current& current = (*p)->getCurrent();
-		    
-		    Trace out(_logger, "Glacier");
-		    
-		    if(_reverse)
-		    {
-			out << "reverse ";
-		    }
-		    
-		    out << "batch routing to:"
-			<< "\nproxy = " << _communicator->proxyToString(proxy)
-			<< "\noperation = " << current.operation;
-		}
-		
-		(*p)->invoke();
-	    }
-	    
 	    //
-	    // This sends all batched missives.
+	    // This sends all batched requests.
 	    //
-	    _communicator->flushBatchRequests();
+	    communicator->flushBatchRequests();
 	}
 	catch(const Ice::Exception& ex)
 	{

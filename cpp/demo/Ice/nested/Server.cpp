@@ -24,7 +24,7 @@ int
 main(int argc, char* argv[])
 {
     NestedServer app;
-    return app.main(argc, argv, "config.server");
+    return app.main(argc, argv, "config");
 }
 
 int

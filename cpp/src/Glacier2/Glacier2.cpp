@@ -11,9 +11,7 @@
 #include <Ice/Application.h>
 #include <IceSSL/CertificateVerifierF.h>
 #include <IceSSL/Plugin.h>
-#include <Glacier/SessionManager.h>
-#include <Glacier2/ClientServantLocator.h>
-#include <Glacier2/ServerServantLocator.h>
+#include <Glacier2/ServantLocator.h>
 
 using namespace std;
 using namespace Ice;
@@ -93,7 +91,7 @@ Glacier::RouterApp::run(int argc, char* argv[])
         sslPlugin->configure(contextType);
 
         // If we have been told only to only accept a single certificate.
-        string clientCertBase64 = properties->getProperty("Glacier.Router.AcceptCert");
+        string clientCertBase64 = properties->getProperty("Glacier2.AcceptCert");
         if(!clientCertBase64.empty())
         {
             // Install a Certificate Verifier that only accepts indicated certificate.
@@ -106,59 +104,23 @@ Glacier::RouterApp::run(int argc, char* argv[])
     }
 
     //
-    // Get the session manager.
+    // Initialize the client object adapter and servant locator.
     //
-    const char* sessionManagerProperty = "Glacier.Router.SessionManager";
-    string sessionManager = properties->getProperty(sessionManagerProperty);
-    SessionManagerPrx sessionManagerPrx;
-    if(!sessionManager.empty())
-    {
-	sessionManagerPrx = SessionManagerPrx::checkedCast(communicator()->stringToProxy(sessionManager));
-    }
-
-    //
-    // Initialize the client object adapter.
-    //
-    const char* clientEndpointsProperty = "Glacier.Router.Client.Endpoints";
+    const char* clientEndpointsProperty = "Glacier2.Client.Endpoints";
     if(properties->getProperty(clientEndpointsProperty).empty())
     {
 	cerr << appName() << ": property `" << clientEndpointsProperty << "' is not set" << endl;
 	return EXIT_FAILURE;
     }
-    ObjectAdapterPtr clientAdapter = communicator()->createObjectAdapter("Glacier.Router.Client");
-
-    //
-    // Initialize the server object adapter.
-    //
-    ObjectAdapterPtr serverAdapter;
-    if(!properties->getProperty("Glacier.Router.Server.Endpoints").empty())
-    {
-	serverAdapter = communicator()->createObjectAdapter("Glacier.Router.Server");
-    }
-
-    //
-    // Create and add the servant locators.
-    //
-    Ice::ServantLocatorPtr clientServantLocator = new ClientServantLocator(clientAdapter,
-									   serverAdapter,
-									   sessionManagerPrx);
-    clientAdapter->addServantLocator(clientServantLocator, "");
-
-    if(serverAdapter)
-    {
-	Ice::ServantLocatorPtr serverServantLocator = new ServerServantLocator(clientAdapter);
-	serverAdapter->addServantLocator(serverServantLocator, "");
-    }
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Glacier2.Client");
+    ServantLocatorPtr locator = new ClientServantLocator(adapter);
+    adapter->addServantLocator(locator, "");
 
     //
     // Everything ok, let's go.
     //
     shutdownOnInterrupt();
-    clientAdapter->activate();
-    if(serverAdapter)
-    {
-	serverAdapter->activate();
-    }
+    adapter->activate();
     communicator()->waitForShutdown();
     ignoreInterrupt();
 
@@ -168,13 +130,39 @@ Glacier::RouterApp::run(int argc, char* argv[])
 int
 main(int argc, char* argv[])
 {
-    //
-    // Make sure that this process doesn't use a router.
-    //
     try
     {
 	PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
+
+	//
+	// Make sure that Glacier2 doesn't use a router.
+	//
 	defaultProperties->setProperty("Ice.Default.Router", "");
+
+	//
+	// No active connection management is permitted with
+	// Glacier2. Connections must remain established.
+	//
+	defaultProperties->setProperty("Ice.ConnectionIdleTime", "0");
+
+	//
+	// Ice.MonitorConnections defaults to Ice.ConnectionIdleTime,
+	// which we set to 0 above. However, we still want the
+	// connection monitor thread for AMI timeouts. We only set
+	// this value if it hasn't been set explicitly already.
+	//
+	if(defaultProperties->getProperty("Ice.MonitorConnections").empty())
+	{
+	    defaultProperties->setProperty("Ice.MonitorConnections", "60");
+	}
+
+	//
+	// We do not need to set Ice.RetryIntervals to -1, i.e., we do
+	// not have to disable connection retry. It is safe for
+	// Glacier2 to retry outgoing connections to servers. Retry
+	// for incoming connections from clients must be disabled in
+	// the clients.
+	//
     }
     catch(const Exception& e)
     {

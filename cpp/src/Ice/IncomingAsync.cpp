@@ -253,7 +253,7 @@ IceAsync::Ice::AMD_Object_ice_invoke::AMD_Object_ice_invoke(Incoming& in) :
 }
 
 void
-IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const ::std::vector< ::Ice::Byte>& outParams)
+IceAsync::Ice::AMD_Object_ice_invoke::ice_response(bool ok, const vector<Byte>& outParams)
 {
     try
     {

@@ -15,27 +15,36 @@ module Ice
 
 /**
  *
- * The base interface for all transport info objects.
+ * The user-level interface to a connection.
  *
  **/
 local interface TransportInfo
 {
     /**
      *
-     * Return the transport type. This corresponds to the endpoint
+     * Flush any pending batch requests for this connection. This
+     * causes all batch requests that were sent via proxies that use
+     * this connection to be sent to the server.
+     *
+     **/
+//    void flushBatchRequests();
+
+    /**
+     *
+     * Return the connection type. This corresponds to the endpoint
      * type, i.e., "tcp", "udp", etc.
      *
-     * @return The type of the transport.
+     * @return The type of the connection.
      *
      **/
     nonmutating string type();
 
     /**
      *
-     * Return a description of the transport as human readable text,
+     * Return a description of the connection as human readable text,
      * suitable for logging or error messages.
      *
-     * @return The description of the transport as human readable
+     * @return The description of the connection as human readable
      * text.
      *
      **/

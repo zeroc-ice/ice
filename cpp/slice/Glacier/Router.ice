@@ -42,15 +42,18 @@ interface Router extends Ice::Router
 
     /**
      *
-     * Create a new session. The session is automatically shutdown
-     * when the Router terminates.
+     * Create a session, or return a previously created session. The
+     * session is automatically shutdown when the Router terminates.
      *
-     * @return A proxy to the new session.
+     * @return A proxy to the session.
      *
-     * @throws NoSessionManagerException if there is no
-     * configured [SessionManager].
+     * @throws NoSessionManagerException if there is no configured
+     * [SessionManager].
      *
      **/
+    // TODO: Should be renamed to getSession(). Returns the session
+    // for the &Glacier; client, or creates a new one if no session
+    // exists yet.
     Session* createSession()
 	throws NoSessionManagerException;
 };

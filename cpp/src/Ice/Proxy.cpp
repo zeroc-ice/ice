@@ -21,6 +21,7 @@
 #include <Ice/LocatorInfo.h>
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
+#include <Ice/Connection.h> // For __connection->getTransportInfo();
 
 using namespace std;
 using namespace Ice;
@@ -562,6 +563,24 @@ IceProxy::Ice::Object::ice_default() const
     }
 }
 
+TransportInfoPtr
+IceProxy::Ice::Object::ice_getTransportInfo()
+{
+    int __cnt = 0;
+    while(true)
+    {
+	try
+	{
+	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    return __del->ice_getTransportInfo();
+	}
+	catch(const LocalException& __ex)
+	{
+	    __handleException(__ex, __cnt);
+	}
+    }
+}
+
 ReferencePtr
 IceProxy::Ice::Object::__reference() const
 {
@@ -858,6 +877,12 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
     return ok;
 }
 
+TransportInfoPtr
+IceDelegateM::Ice::Object::ice_getTransportInfo()
+{
+    return __connection->getTransportInfo();
+}
+
 void
 IceDelegateM::Ice::Object::__copyFrom(const ::IceInternal::Handle< ::IceDelegateM::Ice::Object>& from)
 {
@@ -952,6 +977,12 @@ IceDelegateD::Ice::Object::ice_invoke(const string&,
 				      const vector<Byte>&,
 				      vector<Byte>&,
 				      const Context&)
+{
+    throw CollocationOptimizationException(__FILE__, __LINE__);
+}
+
+TransportInfoPtr
+IceDelegateD::Ice::Object::ice_getTransportInfo()
 {
     throw CollocationOptimizationException(__FILE__, __LINE__);
 }

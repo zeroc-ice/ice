@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="Glacier2" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="glacier2CallbackC" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=Glacier2 - Win32 Debug
+CFG=glacier2CallbackC - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "Glacier2.mak".
+!MESSAGE NMAKE /f "glacier2CallbackC.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Glacier2.mak" CFG="Glacier2 - Win32 Debug"
+!MESSAGE NMAKE /f "glacier2CallbackC.mak" CFG="glacier2CallbackC - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Glacier2 - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "Glacier2 - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "glacier2CallbackC - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "glacier2CallbackC - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -28,7 +28,7 @@ CFG=Glacier2 - Win32 Debug
 CPP=cl.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Glacier2 - Win32 Release"
+!IF  "$(CFG)" == "glacier2CallbackC - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -42,7 +42,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /D "NDEBUG" /D "_CONSOLE" /FD /c
+# ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I "." /I "../../../include" /D "NDEBUG" /D "_CONSOLE" /FD /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
@@ -51,16 +51,10 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 libeay32.lib ssleay32.lib /nologo /subsystem:console /machine:I386
-# SUBTRACT LINK32 /nodefaultlib
-# Begin Special Build Tool
-OutDir=.\Release
-TargetName=Glacier2
-SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
-# End Special Build Tool
+# ADD LINK32 Ice.lib IceUtil.lib /nologo /subsystem:console /machine:I386 /out:"client.exe" /libpath:"../../../lib"
+# SUBTRACT LINK32 /debug /nodefaultlib
 
-!ELSEIF  "$(CFG)" == "Glacier2 - Win32 Debug"
+!ELSEIF  "$(CFG)" == "glacier2CallbackC - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -74,7 +68,7 @@ PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /GZ /c
-# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "_DEBUG" /D "_CONSOLE" /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /WX /Gm /GR /GX /Zi /Od /I "." /I "../../../include" /D "_DEBUG" /D "_CONSOLE" /FD /GZ /c
 # SUBTRACT CPP /Fr /YX
 # ADD BASE RSC /l 0x409 /d "_DEBUG"
 # ADD RSC /l 0x409 /d "_DEBUG"
@@ -83,51 +77,29 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 libeay32.lib ssleay32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
+# ADD LINK32 Iced.lib IceUtild.lib /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /nodefaultlib
-# Begin Special Build Tool
-OutDir=.\Debug
-TargetName=Glacier2
-SOURCE="$(InputPath)"
-PostBuild_Cmds=copy $(OutDir)\$(TargetName).exe ..\..\bin
-# End Special Build Tool
 
 !ENDIF 
 
 # Begin Target
 
-# Name "Glacier2 - Win32 Release"
-# Name "Glacier2 - Win32 Debug"
+# Name "glacier2CallbackC - Win32 Release"
+# Name "glacier2CallbackC - Win32 Debug"
 # Begin Group "Source Files"
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Blobject.cpp
+SOURCE=.\Callback.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ClientBlobject.cpp
+SOURCE=.\CallbackI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Glacier2.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\Request.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\RouterI.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServantLocator.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServerBlobject.cpp
+SOURCE=.\Client.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -135,32 +107,55 @@ SOURCE=.\ServerBlobject.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\Blobject.h
+SOURCE=.\Callback.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ClientBlobject.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Request.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\RouterI.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServantLocator.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServerBlobject.h
+SOURCE=.\CallbackI.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
+# Begin Source File
+
+SOURCE=.\Callback.ice
+
+!IF  "$(CFG)" == "glacier2CallbackC - Win32 Release"
+
+USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\slice.lib"	
+# Begin Custom Build
+InputPath=.\Callback.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe Callback.ice
+
+"Callback.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Callback.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "glacier2CallbackC - Win32 Debug"
+
+USERDEP__CALLB="..\..\..\bin\slice2cpp.exe"	"..\..\..\lib\sliced.lib"	
+# Begin Custom Build
+InputPath=.\Callback.ice
+
+BuildCmds= \
+	..\..\..\bin\slice2cpp.exe Callback.ice
+
+"Callback.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Callback.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
 # End Group
 # End Target
 # End Project

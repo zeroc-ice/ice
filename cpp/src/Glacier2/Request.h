@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-#ifndef MISSIVE_H
-#define MISSIVE_H
+#ifndef REQUEST_H
+#define REQUEST_H
 
 #include <Ice/Ice.h>
 #include <IceUtil/Thread.h>
@@ -25,7 +25,7 @@ class Request : virtual public IceUtil::Shared
 public:
 
     Request(const Ice::ObjectPrx&, const std::vector<Ice::Byte>&, const Ice::Current&, bool,
-	    const Ice::AMI_Object_ice_invokePtr& = 0);
+	    const Ice::AMI_Object_ice_invokePtr&);
     
     void invoke();
     bool override(const RequestPtr&);
@@ -53,8 +53,8 @@ public:
     virtual ~RequestQueue();
     
     void destroy();
-    void addMissive(const RequestPtr&);
     void addRequest(const RequestPtr&);
+    void addBatchRequest(const RequestPtr&);
 
     virtual void run();
 
@@ -66,8 +66,8 @@ private:
     const bool _reverse;
     const IceUtil::Time _sleepTime;
 
-    std::vector<RequestPtr> _missives;
     std::vector<RequestPtr> _requests;
+    std::vector<RequestPtr> _batchRequests;
     bool _destroy;
 };
 

@@ -350,9 +350,11 @@ local interface Communicator
     PluginManager getPluginManager();
 
     /**
+     *
      * Flush any pending batch requests for this communicator.
      * This causes all batch requests that were sent via proxies
      * obtained via this communicator to be sent to the server.
+     *
      **/
     void flushBatchRequests();
 };

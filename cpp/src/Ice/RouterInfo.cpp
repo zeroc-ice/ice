@@ -137,7 +137,7 @@ IceInternal::RouterInfo::getClientProxy()
 	}
 	_clientProxy = _clientProxy->ice_router(0); // The client proxy cannot be routed.
     }
-    
+
     return _clientProxy;
 }
 

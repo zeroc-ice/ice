@@ -14,6 +14,7 @@
 #include <Ice/ServantLocatorF.ice>
 #include <Ice/RouterF.ice>
 #include <Ice/LocatorF.ice>
+#include <Ice/TransportInfoF.ice>
 #include <Ice/Identity.ice>
 #include <Ice/FacetMap.ice>
 
@@ -488,13 +489,17 @@ local interface ObjectAdapter
      *
      * @param id The identity for which a proxy is to be created.
      *
+     * @param transport The transport that should be used, or null if
+     * all available connections to this object adapater should be
+     * used.
+     *
      * @return A "reverse proxy" that matches the given identity and
      * this object adapter.
      *
      * @see Identity
      *
      **/
-    Object* createReverseProxy(Identity id);
+    Object* createReverseProxy(Identity id, TransportInfo transport);
 
     /**
      *

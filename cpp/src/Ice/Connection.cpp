@@ -1015,15 +1015,13 @@ IceInternal::Connection::sendNoResponse()
 int
 IceInternal::Connection::timeout() const
 {
-    // No mutex protection necessary, _endpoint is immutable.
-    return _endpoint->timeout();
+    return _endpoint->timeout(); // No mutex protection necessary, _endpoint is immutable.
 }
 
 EndpointPtr
 IceInternal::Connection::endpoint() const
 {
-    // No mutex protection necessary, _endpoint is immutable.
-    return _endpoint;
+    return _endpoint; // No mutex protection necessary, _endpoint is immutable.
 }
 
 void
@@ -1075,10 +1073,16 @@ IceInternal::Connection::getAdapter() const
     return _adapter;
 }
 
+TransportInfoPtr
+IceInternal::Connection::getTransportInfo() const
+{
+    return _info; // No mutex lock, _info is immutable.
+}
+
 bool
 IceInternal::Connection::datagram() const
 {
-    return _endpoint->datagram();
+    return _endpoint->datagram(); // No mutex protection necessary, _endpoint is immutable.
 }
 
 bool
@@ -1949,3 +1953,38 @@ IceInternal::Connection::doUncompress(BasicStream& compressed, BasicStream& unco
 
     copy(compressed.b.begin(), compressed.b.begin() + headerSize, uncompressed.b.begin());
 }
+
+/*
+void
+Ice::ConnectionHandleI::flushBatchRequests()
+{
+    IceUtil::Mutex::Lock sync(*this);
+    if(_connection)
+    {
+	_connection->flushBatchRequest();
+    }
+}
+
+TransportInfoPtr
+Ice::ConnectionHandleI::getTransportInfo() const
+{
+    //
+    // No mutex lock necessary, _info is immutable;
+    //
+    return _info;
+}
+
+Ice::ConnectionHandleI::ConnectionHandleI(const ConnectionPtr& connection, const TransportInfoPtr& info) :
+    _connection(connection),
+    _info(info)
+{
+}
+
+void
+Ice::ConnectionHandleI::destroy()
+{
+    IceUtil::Mutex::Lock sync(*this);
+    assert(_connection);
+    _connection = 0;
+}
+*/
