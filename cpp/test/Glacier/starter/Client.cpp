@@ -12,8 +12,9 @@
 #include <Glacier/Glacier.h>
 #include <TestCommon.h>
 #include <CallbackI.h>
-#include <Ice/Security.h>
 #include <IceUtil/Base64.h>
+#include <Ice/SslSystem.h>
+#include <Ice/SslExtension.h>
 
 using namespace std;
 using namespace Ice;
@@ -67,6 +68,7 @@ CallbackClient::run(int argc, char* argv[])
     try
     {
 	router = starter->startRouter("", "", privateKey, publicKey, routerCert);
+        cerr << "Got a router!" << endl;
     }
     catch (const Glacier::CannotStartRouterException& ex)
     {
@@ -85,16 +87,22 @@ CallbackClient::run(int argc, char* argv[])
     string publicKeyBase64  = IceUtil::Base64::encode(publicKey);
     string routerCertString = IceUtil::Base64::encode(routerCert);
 
-    string sysIdentifier = properties->getProperty("Ice.SSL.Config");
-    IceSSL::SslContextType contextType = IceSSL::ClientServer;
-    IceSSL::CertificateVerifierPtr certVerifier = new CertVerifier(routerCert);
-    IceSSL::setSystemCertificateVerifier(sysIdentifier, contextType, certVerifier);
-    IceSSL::setSystemCertAuthCertificate(sysIdentifier, IceSSL::Client, routerCertString);
-    IceSSL::setSystemRSAKeysBase64(sysIdentifier, IceSSL::Client, privateKeyBase64, publicKeyBase64);
+    IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
+    IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
 
-    // Set the keys overrides for the server.
-    properties->setProperty("Ice.SSL.Server.Overrides.RSA.PrivateKey", privateKeyBase64);
-    properties->setProperty("Ice.SSL.Server.Overrides.RSA.Certificate", publicKeyBase64);
+    cerr << "about to configure." << endl;
+
+    // Configure Server, client is already configured
+    sslSystem->configure(IceSSL::Server);
+
+    cerr << "configured." << endl;
+
+    sslSystem->setCertificateVerifier(IceSSL::ClientServer, sslExtension->getSingleCertVerifier(routerCert));
+
+    // Set the keys overrides.
+    sslSystem->setRSAKeysBase64(IceSSL::ClientServer, privateKeyBase64, publicKeyBase64);
+
+    sslSystem->addTrustedCertificate(IceSSL::ClientServer, routerCertString);
 
     test(router);
     cout << "ok" << endl;

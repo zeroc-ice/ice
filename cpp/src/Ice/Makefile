@@ -86,9 +86,15 @@ OBJS		= Initialize.o \
                   SslConnectionOpenSSLClient.o \
                   SslConnectionOpenSSL.o \
                   SslConnectionOpenSSLServer.o \
+                  SslContextOpenSSL.o \
+                  SslContextOpenSSLClient.o \
+                  SslContextOpenSSLServer.o \
+                  SslExtension.o \
+                  SslExtensionInternal.o \
                   SslFactory.o \
                   SslGeneralConfig.o \
                   SslSystem.o \
+                  SslSystemInternal.o \
                   SslSystemOpenSSL.o \
                   SslTempCerts.o \
                   SslCertificateVerifier.o \
@@ -100,6 +106,8 @@ OBJS		= Initialize.o \
                   SslRSAPublicKey.o \
                   SslRSAKeyPair.o \
                   SslOpenSSLUtils.o \
+                  DefaultCertificateVerifier.o \
+                  SingleCertificateVerifier.o \
 		  UdpTransceiver.o \
                   Cryptor.o \
                   CryptKey.o \
@@ -254,6 +262,40 @@ $(HDIR)/SslCertificateVerifierF.h: $(SDIR)/SslCertificateVerifierF.ice $(SLICE2C
 
 clean::
 	rm -f $(HDIR)/SslCertificateVerifierF.h
+
+$(HDIR)/SslSystem.h SslSystem.cpp: $(SDIR)/SslSystem.ice $(SLICE2CPP)
+	rm -f $(HDIR)/SslSystem.h SslSystem.cpp
+	$(SLICECMD) $(SDIR)/SslSystem.ice
+	mv SslSystem.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/SslSystem.h SslSystem.cpp
+
+$(HDIR)/SslSystemF.h: $(SDIR)/SslSystemF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/SslSystemF.h SslSystemF.cpp
+	$(SLICECMD) $(SDIR)/SslSystemF.ice
+	mv SslSystemF.h $(HDIR)
+	rm -f SslSystemF.cpp
+
+clean::
+	rm -f $(HDIR)/SslSystemF.h
+
+$(HDIR)/SslExtension.h SslExtension.cpp: $(SDIR)/SslExtension.ice $(SLICE2CPP)
+	rm -f $(HDIR)/SslExtension.h SslExtension.cpp
+	$(SLICECMD) $(SDIR)/SslExtension.ice
+	mv SslExtension.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/SslExtension.h SslExtension.cpp
+
+$(HDIR)/SslExtensionF.h: $(SDIR)/SslExtensionF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/SslExtensionF.h SslExtensionF.cpp
+	$(SLICECMD) $(SDIR)/SslExtensionF.ice
+	mv SslExtensionF.h $(HDIR)
+	rm -f SslExtensionF.cpp
+
+clean::
+	rm -f $(HDIR)/SslExtensionF.h
 
 $(HDIR)/ServantLocator.h ServantLocator.cpp: $(SDIR)/ServantLocator.ice $(SLICE2CPP)
 	rm -f $(HDIR)/ServantLocator.h ServantLocator.cpp

@@ -14,8 +14,6 @@
 #include <Glacier/ClientBlobject.h>
 #include <Glacier/ServerBlobject.h>
 #include <IceUtil/Base64.h>
-// #include <Ice/Security.h>
-// #include <Glacier/CertVerifier.h>
 #include <Ice/SslCertificateVerifierF.h>
 #include <Ice/SslSystem.h>
 #include <Ice/SslExtension.h>
@@ -124,18 +122,27 @@ Glacier::Router::run(int argc, char* argv[])
 
     PropertiesPtr properties = communicator()->getProperties();
 
-    //
-    // Set up our CertificateVerifier
-    //
-    string clientCertBase64 = properties->getProperty("Glacier.Router.AcceptCert");
-    Ice::ByteSeq clientCert = IceUtil::Base64::decode(clientCertBase64);
+    string clientPrivKey = properties->getProperty("Ice.SSL.Client.Overrides.RSA.PrivateKey");
+    string clientPubKey  = properties->getProperty("Ice.SSL.Client.Overrides.RSA.Certificate");
+    string serverPrivKey = properties->getProperty("Ice.SSL.Server.Overrides.RSA.PrivateKey");
+    string serverPubKey  = properties->getProperty("Ice.SSL.Server.Overrides.RSA.Certificate");
+
     IceSSL::ContextType contextType = IceSSL::ClientServer;
 
     // Get our SSL System and an instance of the SSL Extension itself
     IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
     IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
 
+    // The system must configure itself (using config files as specified)
+    sslSystem->configure(contextType);
+
+    // Set the keys we will be using.
+    sslSystem->setRSAKeysBase64(IceSSL::Client, clientPrivKey, clientPubKey);
+    sslSystem->setRSAKeysBase64(IceSSL::Server, serverPrivKey, serverPubKey);
+
     // Install a Certificate Verifier that only accepts the client's certificate.
+    string clientCertBase64 = properties->getProperty("Glacier.Router.AcceptCert");
+    Ice::ByteSeq clientCert = IceUtil::Base64::decode(clientCertBase64);
     sslSystem->setCertificateVerifier(contextType, sslExtension->getSingleCertVerifier(clientCert));
 
     // Add the Client's certificate as a trusted certificate.

@@ -159,8 +159,8 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	// be seen with `ps'. Keys and certificate should rather be
 	// passed through a pipe? (ML will take care of this...)
 	//
-        args.push_back("--Ice.SSL.Server.Overrides.Server.RSA.PrivateKey=" + routerPrivateKeyBase64);
-        args.push_back("--Ice.SSL.Server.Overrides.Server.RSA.Certificate=" + routerCertificateBase64);
+        args.push_back("--Ice.SSL.Server.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
+        args.push_back("--Ice.SSL.Server.Overrides.RSA.Certificate=" + routerCertificateBase64);
         args.push_back("--Ice.SSL.Client.Overrides.RSA.PrivateKey=" + routerPrivateKeyBase64);
         args.push_back("--Ice.SSL.Client.Overrides.RSA.Certificate=" + routerCertificateBase64);
         args.push_back("--Glacier.Router.AcceptCert=" + clientCertificateBase64);
