@@ -791,6 +791,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name transformEvictor
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name slice2cs
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2068,6 +2071,24 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "slice2cs"=.\src\slice2cs\slice2cs.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Slice
     End Project Dependency
 }}}
 

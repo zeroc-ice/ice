@@ -25,6 +25,7 @@ OBJS		= Scanner.o \
 		  Grammar.o \
 		  Parser.o \
 		  CPlusPlusUtil.o \
+		  CsUtil.o \
 		  JavaUtil.o \
 		  Preprocessor.o
 

@@ -20,6 +20,7 @@ SUBDIRS		= IceUtil \
 		  icecpp \
 		  Slice \
 		  slice2cpp \
+		  slice2cs \
 		  slice2freeze \
 		  slice2freezej \
 		  slice2docbook \
