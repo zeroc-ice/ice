@@ -71,7 +71,7 @@ local interface ServantLocator
      * operation can be used for cleanup purposes after a request.
      *
      * @param curr Information about the current operation call for
-     * which a servant was lcoated by [locate].
+     * which a servant was located by [locate].
      *
      * @param servant The servant that was returned by [locate].
      *
