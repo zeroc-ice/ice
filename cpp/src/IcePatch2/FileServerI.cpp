@@ -23,7 +23,7 @@ using namespace Ice;
 using namespace IcePatch2;
 
 IcePatch2::FileServerI::FileServerI(const std::string& dataDir, const FileInfoSeq& infoSeq) :
-    _dataDir(dataDir)
+    _dataDir(dataDir), _tree0(FileTree0())
 {
     FileTree0& tree0 = const_cast<FileTree0&>(_tree0);
     getFileTree0(infoSeq, tree0);
