@@ -64,7 +64,8 @@ public class AllTests
 	    Ice.Object obj = new EmptyI();
 	    adapter.add(obj, Ice.Util.stringToIdentity("x"));
 	    boolean gotException = false;
-	    try {
+	    try
+            {
 		adapter.add(obj, Ice.Util.stringToIdentity("x"));
 	    }
 	    catch(Ice.AlreadyRegisteredException ex)
@@ -75,7 +76,8 @@ public class AllTests
 
 	    gotException = false;
 	    adapter.remove(Ice.Util.stringToIdentity("x"));
-	    try {
+	    try
+            {
 		adapter.remove(Ice.Util.stringToIdentity("x"));
 	    }
 	    catch(Ice.NotRegisteredException ex)
@@ -93,7 +95,8 @@ public class AllTests
 	    Ice.ServantLocator loc = new ServantLocatorI();
 	    adapter.addServantLocator(loc, "x");
 	    boolean gotException = false;
-	    try {
+	    try
+            {
 		adapter.addServantLocator(loc, "x");
 	    }
 	    catch(Ice.AlreadyRegisteredException ex)
@@ -104,7 +107,8 @@ public class AllTests
 
 	    gotException = false;
 	    adapter.removeServantLocator("x");
-	    try {
+	    try
+            {
 		adapter.removeServantLocator("x");
 	    }
 	    catch(Ice.NotRegisteredException ex)
@@ -121,7 +125,8 @@ public class AllTests
 	    Ice.ObjectFactory of = new ObjectFactoryI();
 	    communicator.addObjectFactory(of, "::x");
 	    boolean gotException = false;
-	    try {
+	    try
+            {
 		communicator.addObjectFactory(of, "::x");
 	    }
 	    catch(Ice.AlreadyRegisteredException ex)
@@ -132,7 +137,8 @@ public class AllTests
 
 	    gotException = false;
 	    communicator.removeObjectFactory("::x");
-	    try {
+	    try
+            {
 		communicator.removeObjectFactory("::x");
 	    }
 	    catch(Ice.NotRegisteredException ex)
@@ -149,7 +155,8 @@ public class AllTests
 	    Ice.UserExceptionFactory f = new MyExceptionFactory();
 	    communicator.addUserExceptionFactory(f, "::x");
 	    boolean gotException = false;
-	    try {
+	    try
+            {
 		communicator.addUserExceptionFactory(f, "::x");
 	    }
 	    catch(Ice.AlreadyRegisteredException ex)
@@ -160,7 +167,8 @@ public class AllTests
 
 	    gotException = false;
 	    communicator.removeUserExceptionFactory("::x");
-	    try {
+	    try
+            {
 		communicator.removeUserExceptionFactory("::x");
 	    }
 	    catch(Ice.NotRegisteredException ex)
@@ -351,6 +359,12 @@ public class AllTests
 
             System.out.print("catching derived types w/ static exception factories... ");
             System.out.flush();
+
+            //
+            // Remove dynamically-installed factories.
+            //
+            communicator.removeUserExceptionFactory("::B");
+            communicator.removeUserExceptionFactory("::C");
 
             Ice.UserExceptionFactory factory = new MyExceptionFactory();
             communicator.addUserExceptionFactory(factory, "::A");
