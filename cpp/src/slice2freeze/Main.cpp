@@ -86,8 +86,8 @@ writeCodecH(const TypePtr& type, const string& name, const string& freezeType, O
     H << sp << nl << "public:";
     H << sp;
     H.inc();
-    H << nl << "static Freeze::" << freezeType << " write(" << inputTypeToString(type)
-      << ", const ::Ice::CommunicatorPtr&);";
+    H << nl << "static void write(" << inputTypeToString(type) << ", Freeze::" << freezeType
+      << "&, const ::Ice::CommunicatorPtr&);";
     H << nl << "static void read(" << typeToString(type) << "&, const Freeze::" << freezeType << "&, "
       << "const ::Ice::CommunicatorPtr&);";
     H << eb << ';';
@@ -100,14 +100,14 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, O
     tagName += freezeType;
     tagName += "\"";
 
-    C << sp << nl << "Freeze::" << freezeType << nl << name << "::write(" << inputTypeToString(type) << " v, "
-      << "const ::Ice::CommunicatorPtr& communicator)";
+    C << sp << nl << "void" << nl << name << "::write(" << inputTypeToString(type) << " v, "
+      << "Freeze::" << freezeType << "& bytes, const ::Ice::CommunicatorPtr& communicator)";
     C << sb;
     C << nl << "::std::ostringstream os;";
     C << nl << "::Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, os);";
     writeGenericMarshalUnmarshalCode(C, type, "v", true, tagName, "stream", true);
-    
-    C << nl << "return Freeze::" << freezeType << "(os.str().begin(), os.str().end());";
+    C << nl << "bytes.resize(os.str().size());";
+    C << nl << "memcpy(&bytes[0], os.str().data(), os.str().size());";
     C << eb;
 
     C << sp << nl << "void" << nl << name << "::read(" << typeToString(type) << "& v, "

@@ -161,7 +161,8 @@ public:
     //
     void set(const mapped_type& value)
     {
-	Freeze::Value v = ValueCodec::write(value, _db->getCommunicator());
+	Freeze::Value v;
+	ValueCodec::write(value, v, _db->getCommunicator());
 	_cursor->set(v);
     }
 
@@ -597,8 +598,8 @@ public:
 
 	Freeze::Key k;
 	Freeze::Value v;
-	k = KeyCodec::write(key.first, communicator);
-	v = ValueCodec::write(key.second, communicator);
+	KeyCodec::write(key.first, k, communicator);
+	ValueCodec::write(key.second, v, communicator);
 
 	_db->put(k, v);
 	DBCursorPtr cursor = _db->getCursorAtKey(k);
@@ -612,8 +613,8 @@ public:
 
 	Freeze::Key k;
 	Freeze::Value v;
-	k = KeyCodec::write(key.first, communicator);
-	v = ValueCodec::write(key.second, communicator);
+	KeyCodec::write(key.first, k, communicator);
+	ValueCodec::write(key.second, v, communicator);
 
 	DBCursorPtr cursor;
 	bool inserted;
@@ -675,7 +676,8 @@ public:
 
     size_type erase(const key_type& key)
     {
-	Freeze::Key k = KeyCodec::write(key, _db->getCommunicator());
+	Freeze::Key k;
+	KeyCodec::write(key, k, _db->getCommunicator());
 
 	try
 	{
@@ -706,7 +708,7 @@ public:
     iterator find(const key_type& key)
     {
 	Freeze::Key k;
-	k = KeyCodec::write(key, _db->getCommunicator());
+	KeyCodec::write(key, k, _db->getCommunicator());
 
 	try
 	{
@@ -725,7 +727,7 @@ public:
     const_iterator find(const key_type& key) const
     {
 	Freeze::Key k;
-	k = KeyCodec::write(key, _db->getCommunicator());
+	KeyCodec::write(key, k, _db->getCommunicator());
 
 	try
 	{
