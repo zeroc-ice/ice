@@ -26,6 +26,12 @@ namespace Ice
 
 class ICE_API LocalObject : public ::IceUtil::Shared
 {
+public:
+
+    bool operator==(const LocalObject&) const;
+    bool operator!=(const LocalObject&) const;
+    bool operator<(const LocalObject&) const;
+    ::Ice::Int ice_hash() const;
 };
 
 }

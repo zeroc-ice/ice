@@ -181,7 +181,7 @@ Slice::Container::createModule(const string& name)
 }
 
 ClassDefPtr
-Slice::Container::createClassDef(const string& name, bool local, bool intf, const ClassList& bases)
+Slice::Container::createClassDef(const string& name, bool intf, const ClassList& bases, bool local)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
@@ -237,7 +237,7 @@ Slice::Container::createClassDef(const string& name, bool local, bool intf, cons
 	return 0;
     }
     
-    ClassDefPtr def = new ClassDef(this, name, local, intf, bases);
+    ClassDefPtr def = new ClassDef(this, name, intf, bases, local);
     _contents.push_back(def);
     
     for (ContainedList::const_iterator q = matches.begin(); q != matches.end(); ++q)
@@ -251,14 +251,14 @@ Slice::Container::createClassDef(const string& name, bool local, bool intf, cons
     // definition. This way the code generator can rely on always
     // having a class declaration available for lookup.
     //
-    ClassDeclPtr decl = createClassDecl(name, local, intf);
+    ClassDeclPtr decl = createClassDecl(name, intf, local);
     def->_declaration = decl;
 
     return def;
 }
 
 ClassDeclPtr
-Slice::Container::createClassDecl(const string& name, bool local, bool intf)
+Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 {
     ClassDefPtr def;
 
@@ -323,7 +323,7 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 	}
     }
 
-    ClassDeclPtr decl = new ClassDecl(this, name, local, intf);
+    ClassDeclPtr decl = new ClassDecl(this, name, intf, local);
     _contents.push_back(decl);
 
     if (def)
@@ -335,7 +335,7 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 }
 
 ExceptionPtr
-Slice::Container::createException(const string& name, bool local, const ExceptionPtr& base)
+Slice::Container::createException(const string& name, const ExceptionPtr& base, bool local)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -363,13 +363,13 @@ Slice::Container::createException(const string& name, bool local, const Exceptio
 	return 0;
     }
 
-    ExceptionPtr p = new Exception(this, name, local, base);
+    ExceptionPtr p = new Exception(this, name, base, local);
     _contents.push_back(p);
     return p;
 }
 
 StructPtr
-Slice::Container::createStruct(const string& name)
+Slice::Container::createStruct(const string& name, bool local)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -397,13 +397,13 @@ Slice::Container::createStruct(const string& name)
 	return 0;
     }
 
-    StructPtr p = new Struct(this, name);
+    StructPtr p = new Struct(this, name, local);
     _contents.push_back(p);
     return p;
 }
 
 SequencePtr
-Slice::Container::createSequence(const string& name, const TypePtr& type)
+Slice::Container::createSequence(const string& name, const TypePtr& type, bool local)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -430,13 +430,13 @@ Slice::Container::createSequence(const string& name, const TypePtr& type)
 	return 0;
     }
 
-    SequencePtr p = new Sequence(this, name, type);
+    SequencePtr p = new Sequence(this, name, type, local);
     _contents.push_back(p);
     return p;
 }
 
 DictionaryPtr
-Slice::Container::createDictionary(const string& name, const TypePtr& keyType, const TypePtr& valueType)
+Slice::Container::createDictionary(const string& name, const TypePtr& keyType, const TypePtr& valueType, bool local)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -463,13 +463,13 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 	return 0;
     }
 
-    DictionaryPtr p = new Dictionary(this, name, keyType, valueType);
+    DictionaryPtr p = new Dictionary(this, name, keyType, valueType, local);
     _contents.push_back(p);
     return p;
 }
 
 EnumPtr
-Slice::Container::createEnum(const string& name)
+Slice::Container::createEnum(const string& name, bool local)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -496,7 +496,7 @@ Slice::Container::createEnum(const string& name)
 	return 0;
     }
 
-    EnumPtr p = new Enum(this, name);
+    EnumPtr p = new Enum(this, name, local);
     _contents.push_back(p);
     return p;
 }
@@ -1071,16 +1071,16 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
 // Module
 // ----------------------------------------------------------------------
 
-bool
-Slice::Module::uses(const ConstructedPtr&)
-{
-    return false;
-}
-
 Contained::ContainedType
 Slice::Module::containedType()
 {
     return ContainedTypeModule;
+}
+
+bool
+Slice::Module::uses(const ConstructedPtr&)
+{
+    return false;
 }
 
 void
@@ -1109,10 +1109,17 @@ Slice::Module::Module(const ContainerPtr& container, const string& name) :
 // Constructed
 // ----------------------------------------------------------------------
 
-Slice::Constructed::Constructed(const ContainerPtr& container, const string& name) :
+bool
+Slice::Constructed::isLocal()
+{
+    return _local;
+}
+
+Slice::Constructed::Constructed(const ContainerPtr& container, const string& name, bool local) :
     Type(container->unit()),
     Contained(container, name),
-    SyntaxTreeBase(container->unit())
+    SyntaxTreeBase(container->unit()),
+    _local(local)
 {
 }
 
@@ -1134,21 +1141,9 @@ Slice::ClassDecl::definition()
 }
 
 bool
-Slice::ClassDecl::isLocal()
-{
-    return _local;
-}
-
-bool
 Slice::ClassDecl::isInterface()
 {
     return _interface;
-}
-
-bool
-Slice::ClassDecl::uses(const ConstructedPtr& constructed)
-{
-    return false;
 }
 
 Contained::ContainedType
@@ -1157,18 +1152,23 @@ Slice::ClassDecl::containedType()
     return ContainedTypeClass;
 }
 
+bool
+Slice::ClassDecl::uses(const ConstructedPtr& constructed)
+{
+    return false;
+}
+
 void
 Slice::ClassDecl::visit(ParserVisitor* visitor)
 {
     visitor->visitClassDecl(this);
 }
 
-Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name, bool local, bool intf) :
-    Constructed(container, name),
+Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name, bool intf, bool local) :
+    Constructed(container, name, local),
     Type(container->unit()),
     Contained(container, name),
     SyntaxTreeBase(container->unit()),
-    _local(local),
     _interface(intf)
 {
 }
@@ -1416,15 +1416,15 @@ Slice::ClassDef::isAbstract()
 }
 
 bool
-Slice::ClassDef::isLocal()
-{
-    return _local;
-}
-
-bool
 Slice::ClassDef::isInterface()
 {
     return _interface;
+}
+
+bool
+Slice::ClassDef::isLocal()
+{
+    return _local;
 }
 
 bool
@@ -1433,16 +1433,16 @@ Slice::ClassDef::hasDataMembers()
     return _hasDataMembers;
 }
 
-bool
-Slice::ClassDef::uses(const ConstructedPtr&)
-{
-    return false;
-}
-
 Contained::ContainedType
 Slice::ClassDef::containedType()
 {
     return ContainedTypeClass;
+}
+
+bool
+Slice::ClassDef::uses(const ConstructedPtr&)
+{
+    return false;
 }
 
 void
@@ -1460,15 +1460,15 @@ Slice::ClassDef::visit(ParserVisitor* visitor)
     }
 }
 
-Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, bool local, bool intf,
-			  const ClassList& bases) :
+Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, bool intf, const ClassList& bases,
+			  bool local) :
     Contained(container, name),
     Container(container->unit()),
     SyntaxTreeBase(container->unit()),
-    _local(local),
     _interface(intf),
     _hasDataMembers(false),
-    _bases(bases)
+    _bases(bases),
+    _local(local)
 {
     //
     // First element of bases may be a class, all others must be
@@ -1591,16 +1591,16 @@ Slice::Exception::isLocal()
     return _local;
 }
 
-bool
-Slice::Exception::uses(const ConstructedPtr&)
-{
-    return false;
-}
-
 Contained::ContainedType
 Slice::Exception::containedType()
 {
     return ContainedTypeException;
+}
+
+bool
+Slice::Exception::uses(const ConstructedPtr&)
+{
+    return false;
 }
 
 void
@@ -1618,12 +1618,12 @@ Slice::Exception::visit(ParserVisitor* visitor)
     }
 }
 
-Slice::Exception::Exception(const ContainerPtr& container, const string& name, bool local, const ExceptionPtr& base) :
+Slice::Exception::Exception(const ContainerPtr& container, const string& name, const ExceptionPtr& base, bool local) :
     Container(container->unit()),
     Contained(container, name),
     SyntaxTreeBase(container->unit()),
-    _local(local),
-    _base(base)
+    _base(base),
+    _local(local)
 {
 }
 
@@ -1697,16 +1697,16 @@ Slice::Struct::dataMembers()
     return result;
 }
 
-bool
-Slice::Struct::uses(const ConstructedPtr&)
-{
-    return false;
-}
-
 Contained::ContainedType
 Slice::Struct::containedType()
 {
     return ContainedTypeStruct;
+}
+
+bool
+Slice::Struct::uses(const ConstructedPtr&)
+{
+    return false;
 }
 
 void
@@ -1724,10 +1724,178 @@ Slice::Struct::visit(ParserVisitor* visitor)
     }
 }
 
-Slice::Struct::Struct(const ContainerPtr& container, const string& name) :
+Slice::Struct::Struct(const ContainerPtr& container, const string& name, bool local) :
     Container(container->unit()),
-    Constructed(container, name),
+    Constructed(container, name, local),
     Type(container->unit()),
+    Contained(container, name),
+    SyntaxTreeBase(container->unit())
+{
+}
+
+// ----------------------------------------------------------------------
+// Sequence
+// ----------------------------------------------------------------------
+
+TypePtr
+Slice::Sequence::type()
+{
+    return _type;
+}
+
+Contained::ContainedType
+Slice::Sequence::containedType()
+{
+    return ContainedTypeSequence;
+}
+
+bool
+Slice::Sequence::uses(const ConstructedPtr& constructed)
+{
+    ContainedPtr contained = ContainedPtr::dynamicCast(_type);
+    if (contained && contained == constructed)
+    {
+	return true;
+    }
+
+    return false;
+}
+
+void
+Slice::Sequence::visit(ParserVisitor* visitor)
+{
+    visitor->visitSequence(this);
+}
+
+Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, const TypePtr& type, bool local) :
+    Constructed(container, name, local),
+    Type(container->unit()),
+    Contained(container, name),
+    SyntaxTreeBase(container->unit()),
+    _type(type)
+{
+}
+
+// ----------------------------------------------------------------------
+// Dictionary
+// ----------------------------------------------------------------------
+
+TypePtr
+Slice::Dictionary::keyType()
+{
+    return _keyType;
+}
+
+TypePtr
+Slice::Dictionary::valueType()
+{
+    return _valueType;
+}
+
+Contained::ContainedType
+Slice::Dictionary::containedType()
+{
+    return ContainedTypeDictionary;
+}
+
+bool
+Slice::Dictionary::uses(const ConstructedPtr& constructed)
+{
+    {
+	ContainedPtr contained = ContainedPtr::dynamicCast(_keyType);
+	if (contained && contained == constructed)
+	{
+	    return true;
+	}
+    }
+
+    {
+	ContainedPtr contained = ContainedPtr::dynamicCast(_valueType);
+	if (contained && contained == constructed)
+	{
+	    return true;
+	}
+    }
+
+    return false;
+}
+
+void
+Slice::Dictionary::visit(ParserVisitor* visitor)
+{
+    visitor->visitDictionary(this);
+}
+
+Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name, const TypePtr& keyType,
+			      const TypePtr& valueType, bool local) :
+    Constructed(container, name, local),
+    Type(container->unit()),
+    Contained(container, name),
+    SyntaxTreeBase(container->unit()),
+    _keyType(keyType),
+    _valueType(valueType)
+{
+}
+
+// ----------------------------------------------------------------------
+// Enum
+// ----------------------------------------------------------------------
+
+EnumeratorList
+Slice::Enum::getEnumerators()
+{
+    return _enumerators;
+}
+
+void
+Slice::Enum::setEnumerators(const EnumeratorList& ens)
+{
+    _enumerators = ens;
+}
+
+Contained::ContainedType
+Slice::Enum::containedType()
+{
+    return ContainedTypeEnum;
+}
+
+bool
+Slice::Enum::uses(const ConstructedPtr& constructed)
+{
+    return false;
+}
+
+void
+Slice::Enum::visit(ParserVisitor* visitor)
+{
+    visitor->visitEnum(this);
+}
+
+Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool local) :
+    Constructed(container, name, local),
+    Type(container->unit()),
+    Contained(container, name),
+    SyntaxTreeBase(container->unit())
+{
+}
+
+// ----------------------------------------------------------------------
+// Enumerator
+// ----------------------------------------------------------------------
+
+Contained::ContainedType
+Slice::Enumerator::containedType()
+{
+    return ContainedTypeEnumerator;
+}
+
+bool
+Slice::Enumerator::uses(const ConstructedPtr& constructed)
+{
+    return false;
+}
+
+Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name) :
     Contained(container, name),
     SyntaxTreeBase(container->unit())
 {
@@ -1765,6 +1933,12 @@ bool
 Slice::Operation::nonmutating()
 {
     return _nonmutating;
+}
+
+Contained::ContainedType
+Slice::Operation::containedType()
+{
+    return ContainedTypeOperation;
 }
 
 bool
@@ -1812,12 +1986,6 @@ Slice::Operation::uses(const ConstructedPtr& constructed)
     return false;
 }
 
-Contained::ContainedType
-Slice::Operation::containedType()
-{
-    return ContainedTypeOperation;
-}
-
 void
 Slice::Operation::visit(ParserVisitor* visitor)
 {
@@ -1847,6 +2015,12 @@ Slice::DataMember::type()
     return _type;
 }
 
+Contained::ContainedType
+Slice::DataMember::containedType()
+{
+    return ContainedTypeDataMember;
+}
+
 bool
 Slice::DataMember::uses(const ConstructedPtr& constructed)
 {
@@ -1859,12 +2033,6 @@ Slice::DataMember::uses(const ConstructedPtr& constructed)
     return false;
 }
 
-Contained::ContainedType
-Slice::DataMember::containedType()
-{
-    return ContainedTypeDataMember;
-}
-
 void
 Slice::DataMember::visit(ParserVisitor* visitor)
 {
@@ -1875,174 +2043,6 @@ Slice::DataMember::DataMember(const ContainerPtr& container, const string& name,
     Contained(container, name),
     SyntaxTreeBase(container->unit()),
     _type(type)
-{
-}
-
-// ----------------------------------------------------------------------
-// Sequence
-// ----------------------------------------------------------------------
-
-TypePtr
-Slice::Sequence::type()
-{
-    return _type;
-}
-
-bool
-Slice::Sequence::uses(const ConstructedPtr& constructed)
-{
-    ContainedPtr contained = ContainedPtr::dynamicCast(_type);
-    if (contained && contained == constructed)
-    {
-	return true;
-    }
-
-    return false;
-}
-
-Contained::ContainedType
-Slice::Sequence::containedType()
-{
-    return ContainedTypeSequence;
-}
-
-void
-Slice::Sequence::visit(ParserVisitor* visitor)
-{
-    visitor->visitSequence(this);
-}
-
-Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, const TypePtr& type) :
-    Constructed(container, name),
-    Type(container->unit()),
-    Contained(container, name),
-    SyntaxTreeBase(container->unit()),
-    _type(type)
-{
-}
-
-// ----------------------------------------------------------------------
-// Dictionary
-// ----------------------------------------------------------------------
-
-TypePtr
-Slice::Dictionary::keyType()
-{
-    return _keyType;
-}
-
-TypePtr
-Slice::Dictionary::valueType()
-{
-    return _valueType;
-}
-
-bool
-Slice::Dictionary::uses(const ConstructedPtr& constructed)
-{
-    {
-	ContainedPtr contained = ContainedPtr::dynamicCast(_keyType);
-	if (contained && contained == constructed)
-	{
-	    return true;
-	}
-    }
-
-    {
-	ContainedPtr contained = ContainedPtr::dynamicCast(_valueType);
-	if (contained && contained == constructed)
-	{
-	    return true;
-	}
-    }
-
-    return false;
-}
-
-Contained::ContainedType
-Slice::Dictionary::containedType()
-{
-    return ContainedTypeDictionary;
-}
-
-void
-Slice::Dictionary::visit(ParserVisitor* visitor)
-{
-    visitor->visitDictionary(this);
-}
-
-Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name, const TypePtr& keyType,
-			      const TypePtr& valueType) :
-    Constructed(container, name),
-    Type(container->unit()),
-    Contained(container, name),
-    SyntaxTreeBase(container->unit()),
-    _keyType(keyType),
-    _valueType(valueType)
-{
-}
-
-// ----------------------------------------------------------------------
-// Enum
-// ----------------------------------------------------------------------
-
-EnumeratorList
-Slice::Enum::getEnumerators()
-{
-    return _enumerators;
-}
-
-void
-Slice::Enum::setEnumerators(const EnumeratorList& ens)
-{
-    _enumerators = ens;
-}
-
-bool
-Slice::Enum::uses(const ConstructedPtr& constructed)
-{
-    return false;
-}
-
-Contained::ContainedType
-Slice::Enum::containedType()
-{
-    return ContainedTypeEnum;
-}
-
-void
-Slice::Enum::visit(ParserVisitor* visitor)
-{
-    visitor->visitEnum(this);
-}
-
-Slice::Enum::Enum(const ContainerPtr& container, const string& name) :
-    Constructed(container, name),
-    Type(container->unit()),
-    Contained(container, name),
-    SyntaxTreeBase(container->unit())
-{
-}
-
-// ----------------------------------------------------------------------
-// Enumerator
-// ----------------------------------------------------------------------
-
-bool
-Slice::Enumerator::uses(const ConstructedPtr& constructed)
-{
-    return false;
-}
-
-Contained::ContainedType
-Slice::Enumerator::containedType()
-{
-    return ContainedTypeEnumerator;
-}
-
-Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name) :
-    Contained(container, name),
-    SyntaxTreeBase(container->unit())
 {
 }
 

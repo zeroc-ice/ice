@@ -126,6 +126,7 @@ public:
     // Compare endpoints for sorting purposes
     //
     virtual bool operator==(const Endpoint&) const = 0;
+    virtual bool operator!=(const Endpoint&) const = 0;
     virtual bool operator<(const Endpoint&) const = 0;
 };
 
@@ -151,6 +152,7 @@ public:
     virtual bool equivalent(const AcceptorPtr&) const;
 
     virtual bool operator==(const Endpoint&) const;
+    virtual bool operator!=(const Endpoint&) const;
     virtual bool operator<(const Endpoint&) const;
 
 private:
@@ -186,6 +188,7 @@ public:
     virtual bool equivalent(const AcceptorPtr&) const;
 
     virtual bool operator==(const Endpoint&) const;
+    virtual bool operator!=(const Endpoint&) const;
     virtual bool operator<(const Endpoint&) const;
 
 private:
@@ -223,6 +226,7 @@ public:
     virtual bool equivalent(const AcceptorPtr&) const;
 
     virtual bool operator==(const Endpoint&) const;
+    virtual bool operator!=(const Endpoint&) const;
     virtual bool operator<(const Endpoint&) const;
 
 private:
@@ -260,6 +264,7 @@ public:
     virtual bool equivalent(const AcceptorPtr&) const;
 
     virtual bool operator==(const Endpoint&) const;
+    virtual bool operator!=(const Endpoint&) const;
     virtual bool operator<(const Endpoint&) const;
 
 private:

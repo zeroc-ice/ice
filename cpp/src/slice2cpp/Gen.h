@@ -218,11 +218,11 @@ private:
 	std::string _dllExport;
     };
 
-    class IceVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    class IceInternalVisitor : public ::IceUtil::noncopyable, public ParserVisitor
     {
     public:
 
-	IceVisitor(Output&, Output&, const std::string&);
+	IceInternalVisitor(Output&, Output&, const std::string&);
 
 	virtual bool visitUnitStart(const UnitPtr&);
 	virtual void visitUnitEnd(const UnitPtr&);
@@ -245,6 +245,23 @@ private:
 
 	virtual bool visitModuleStart(const ModulePtr&);
 	virtual void visitModuleEnd(const ModulePtr&);
+	virtual void visitClassDecl(const ClassDeclPtr&);
+	virtual bool visitClassDefStart(const ClassDefPtr&);
+
+    private:
+
+	Output& H;
+	Output& C;
+
+	std::string _dllExport;
+    };
+
+    class GlobalVisitor : public ::IceUtil::noncopyable, public ParserVisitor
+    {
+    public:
+
+	GlobalVisitor(Output&, Output&, const std::string&);
+
 	virtual void visitClassDecl(const ClassDeclPtr&);
 	virtual bool visitClassDefStart(const ClassDefPtr&);
 

@@ -11,6 +11,7 @@
 #ifndef ICE_CURRENT_ICE
 #define ICE_CURRENT_ICE
 
+#include <Ice/ConnectionF.ice>
 #include <Ice/Identity.ice>
 
 module Ice
@@ -24,7 +25,7 @@ module Ice
  * parameter implicitly.
  *
  **/
-/*local*/ dictionary<string, string> Context;
+local dictionary<string, string> Context;
     
 /**
  *
@@ -37,7 +38,7 @@ module Ice
  * @see IceStorm
  *
  **/
-/*local*/ struct Current
+local struct Current
 {
     /**
      *
@@ -85,6 +86,16 @@ module Ice
      *
      **/
     Object* proxy;
+
+    /**
+     *
+     * The connection over which the request was received. In case no
+     * connection was involved for propagating the request, like if
+     * the request was sent directly by a collocated client,
+     * [connection] is set to null.
+     *
+     **/
+    Connection connection;
 };
 
 };

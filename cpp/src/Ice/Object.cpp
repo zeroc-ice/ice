@@ -41,6 +41,12 @@ Ice::Object::operator==(const Object& r) const
 }
 
 bool
+Ice::Object::operator!=(const Object& r) const
+{
+    return this != &r;
+}
+
+bool
 Ice::Object::operator<(const Object& r) const
 {
     return this < &r;
@@ -49,7 +55,7 @@ Ice::Object::operator<(const Object& r) const
 Int
 Ice::Object::ice_hash() const
 {
-    return reinterpret_cast<Int>(this);
+    return reinterpret_cast<Int>(this) >> 4;
 }
 
 const string Ice::Object::__classIds[] =

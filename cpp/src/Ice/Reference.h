@@ -42,6 +42,7 @@ public:
     Reference(const Ice::Identity&, BasicStream*);
 
     bool operator==(const Reference&) const;
+    bool operator!=(const Reference&) const;
     bool operator<(const Reference&) const;
 
     //

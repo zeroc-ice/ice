@@ -34,7 +34,9 @@ yyerror(const char* s)
 %token ICE_INTERFACE
 %token ICE_EXCEPTION
 %token ICE_STRUCT
-%token ICE_LOCAL
+%token ICE_SEQUENCE
+%token ICE_DICTIONARY
+%token ICE_ENUM
 %token ICE_EXTENDS
 %token ICE_IMPLEMENTS
 %token ICE_THROWS
@@ -50,9 +52,6 @@ yyerror(const char* s)
 %token ICE_WSTRING
 %token ICE_OBJECT
 %token ICE_LOCAL_OBJECT
-%token ICE_SEQUENCE
-%token ICE_DICTIONARY
-%token ICE_ENUM
 %token ICE_NONMUTATING
 
 //
@@ -134,68 +133,33 @@ definition
 ;
 
 // ----------------------------------------------------------------------
-class_exports
+module_def
 // ----------------------------------------------------------------------
-: class_export ';' class_exports
+: ICE_MODULE ICE_IDENTIFIER
 {
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    ContainerPtr cont = unit->currentContainer();
+    ModulePtr module = cont->createModule(ident->v);
+    if (!module)
+    {
+	YYERROR; // Can't continue, jump to next yyerrok
+    }
+    unit->pushContainer(module);
 }
-| error ';' class_exports
+'{' definitions '}'
 {
-}
-| class_export
-{
-    unit->error("`;' missing after definition");
-}
-|
-{
-}
-;
-
-// ----------------------------------------------------------------------
-class_export
-// ----------------------------------------------------------------------
-: operation
-{
-}
-| data_member
-{
-}
-;
-
-// ----------------------------------------------------------------------
-interface_exports
-// ----------------------------------------------------------------------
-: interface_export ';' interface_exports
-{
-}
-| error ';' interface_exports
-{
-}
-| interface_export
-{
-    unit->error("`;' missing after definition");
-}
-|
-{
-}
-;
-
-// ----------------------------------------------------------------------
-interface_export
-// ----------------------------------------------------------------------
-: operation
-{
+    unit->popContainer();
 }
 ;
 
 // ----------------------------------------------------------------------
 exception_decl
 // ----------------------------------------------------------------------
-: local ICE_EXCEPTION ICE_IDENTIFIER
+: ICE_EXCEPTION ICE_IDENTIFIER
 {
     unit->error("exceptions cannot be forward declared");
 }
-| local ICE_EXCEPTION keyword
+| ICE_EXCEPTION keyword
 {
     unit->error("keyword cannot be used as exception name");
 }
@@ -204,13 +168,13 @@ exception_decl
 // ----------------------------------------------------------------------
 exception_def
 // ----------------------------------------------------------------------
-: local ICE_EXCEPTION ICE_IDENTIFIER exception_extends
+: ICE_EXCEPTION ICE_IDENTIFIER exception_extends
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    ExceptionPtr base = ExceptionPtr::dynamicCast($4);
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    ExceptionPtr base = ExceptionPtr::dynamicCast($3);
     ContainerPtr cont = unit->currentContainer();
-    ExceptionPtr ex = cont->createException(ident->v, local->v, base);
+    ExceptionPtr ex = cont->createException(ident->v, base, local->v);
     if (!ex)
     {
 	YYERROR; // Can't continue, jump to next yyerrok
@@ -221,7 +185,7 @@ exception_def
 {
     unit->popContainer();
 }
-| local ICE_EXCEPTION keyword exception_extends
+| ICE_EXCEPTION keyword exception_extends
 {
     unit->error("keyword cannot be used as exception name");
 }
@@ -289,9 +253,10 @@ struct_def
 // ----------------------------------------------------------------------
 : ICE_STRUCT ICE_IDENTIFIER
 {
+    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
-    StructPtr st = cont->createStruct(ident->v);
+    StructPtr st = cont->createStruct(ident->v, local->v);
     if (!st)
     {
 	YYERROR; // Can't continue, jump to next yyerrok
@@ -338,53 +303,16 @@ struct_export
 ;
 
 // ----------------------------------------------------------------------
-module_def
-// ----------------------------------------------------------------------
-: ICE_MODULE ICE_IDENTIFIER
-{
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ContainerPtr cont = unit->currentContainer();
-    ModulePtr module = cont->createModule(ident->v);
-    if (!module)
-    {
-	YYERROR; // Can't continue, jump to next yyerrok
-    }
-    unit->pushContainer(module);
-}
-'{' definitions '}'
-{
-    unit->popContainer();
-}
-;
-
-// ----------------------------------------------------------------------
-local
-// ----------------------------------------------------------------------
-: ICE_LOCAL
-{
-    BoolTokPtr local = new BoolTok;
-    local->v = true;
-    $$ = local;
-}
-|
-{
-    BoolTokPtr local = new BoolTok;
-    local->v = false;
-    $$ = local;
-}
-;
-
-// ----------------------------------------------------------------------
 class_decl
 // ----------------------------------------------------------------------
-: local ICE_CLASS ICE_IDENTIFIER
+: ICE_CLASS ICE_IDENTIFIER
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
-    ClassDeclPtr cl = cont->createClassDecl(ident->v, local->v, false);
+    ClassDeclPtr cl = cont->createClassDecl(ident->v, false, local->v);
 }
-| local ICE_CLASS keyword
+| ICE_CLASS keyword
 {
     unit->error("keyword cannot be used as class name");
 }
@@ -393,18 +321,18 @@ class_decl
 // ----------------------------------------------------------------------
 class_def
 // ----------------------------------------------------------------------
-: local ICE_CLASS ICE_IDENTIFIER class_extends implements
+: ICE_CLASS ICE_IDENTIFIER class_extends implements
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
-    ClassDefPtr base = ClassDefPtr::dynamicCast($4);
-    ClassListTokPtr bases = ClassListTokPtr::dynamicCast($5);
+    ClassDefPtr base = ClassDefPtr::dynamicCast($3);
+    ClassListTokPtr bases = ClassListTokPtr::dynamicCast($4);
     if (base)
     {
 	bases->v.push_front(base);
     }
-    ClassDefPtr cl = cont->createClassDef(ident->v, local->v, false, bases->v);
+    ClassDefPtr cl = cont->createClassDef(ident->v, false, bases->v, local->v);
     if (!cl)
     {
 	YYERROR; // Can't continue, jump to next yyerrok
@@ -415,7 +343,7 @@ class_def
 {
     unit->popContainer();
 }
-| local ICE_CLASS keyword class_extends implements
+| ICE_CLASS keyword class_extends implements
 {
     unit->error("keyword cannot be used as class name");
 }
@@ -480,16 +408,45 @@ implements
 ;
 
 // ----------------------------------------------------------------------
+class_exports
+// ----------------------------------------------------------------------
+: class_export ';' class_exports
+{
+}
+| error ';' class_exports
+{
+}
+| class_export
+{
+    unit->error("`;' missing after definition");
+}
+|
+{
+}
+;
+
+// ----------------------------------------------------------------------
+class_export
+// ----------------------------------------------------------------------
+: operation
+{
+}
+| data_member
+{
+}
+;
+
+// ----------------------------------------------------------------------
 interface_decl
 // ----------------------------------------------------------------------
-: local ICE_INTERFACE ICE_IDENTIFIER
+: ICE_INTERFACE ICE_IDENTIFIER
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
-    ClassDeclPtr cl = cont->createClassDecl(ident->v, local->v, true);
+    ClassDeclPtr cl = cont->createClassDecl(ident->v, true, local->v);
 }
-| local ICE_INTERFACE keyword
+| ICE_INTERFACE keyword
 {
     unit->error("keyword cannot be used as interface name");
 }
@@ -498,13 +455,13 @@ interface_decl
 // ----------------------------------------------------------------------
 interface_def
 // ----------------------------------------------------------------------
-: local ICE_INTERFACE ICE_IDENTIFIER interface_extends
+: ICE_INTERFACE ICE_IDENTIFIER interface_extends
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
-    ClassListTokPtr bases = ClassListTokPtr::dynamicCast($4);
-    ClassDefPtr cl = cont->createClassDef(ident->v, local->v, true, bases->v);
+    ClassListTokPtr bases = ClassListTokPtr::dynamicCast($3);
+    ClassDefPtr cl = cont->createClassDef(ident->v, true, bases->v, local->v);
     if (!cl)
     {
 	YYERROR; // Can't continue, jump to next yyerrok
@@ -515,7 +472,7 @@ interface_def
 {
     unit->popContainer();
 }
-| local ICE_INTERFACE keyword interface_extends
+| ICE_INTERFACE keyword interface_extends
 {
     unit->error("keyword cannot be used as interface name");
 }
@@ -607,6 +564,170 @@ interface_extends
 |
 {
     $$ = new ClassListTok;
+}
+;
+
+// ----------------------------------------------------------------------
+interface_exports
+// ----------------------------------------------------------------------
+: interface_export ';' interface_exports
+{
+}
+| error ';' interface_exports
+{
+}
+| interface_export
+{
+    unit->error("`;' missing after definition");
+}
+|
+{
+}
+;
+
+// ----------------------------------------------------------------------
+interface_export
+// ----------------------------------------------------------------------
+: operation
+{
+}
+;
+
+// ----------------------------------------------------------------------
+exception_list
+// ----------------------------------------------------------------------
+: exception ',' exception_list
+{
+    ExceptionPtr exception = ExceptionPtr::dynamicCast($1);
+    ExceptionListTokPtr exceptionList = ExceptionListTokPtr::dynamicCast($3);
+    exceptionList->v.push_front(exception);
+    $$ = exceptionList;
+}
+| exception
+{
+    ExceptionPtr exception = ExceptionPtr::dynamicCast($1);
+    ExceptionListTokPtr exceptionList = new ExceptionListTok;
+    exceptionList->v.push_front(exception);
+    $$ = exceptionList;
+}
+;
+
+// ----------------------------------------------------------------------
+exception
+// ----------------------------------------------------------------------
+/* TODO: builtin exceptions "Exception" and "LocalException"*/
+: scoped_name
+{
+    StringTokPtr scoped = StringTokPtr::dynamicCast($1);
+    ContainerPtr cont = unit->currentContainer();
+    ExceptionPtr exception = cont->lookupException(scoped->v);
+    if (!exception)
+    {
+	YYERROR; // Can't continue, jump to next yyerrok
+    }
+    $$ = exception;
+}
+;
+
+// ----------------------------------------------------------------------
+sequence_def
+// ----------------------------------------------------------------------
+: ICE_SEQUENCE '<' type '>' ICE_IDENTIFIER
+{
+    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
+    StringTokPtr ident = StringTokPtr::dynamicCast($5);
+    TypePtr type = TypePtr::dynamicCast($3);
+    ContainerPtr cont = unit->currentContainer();
+    cont->createSequence(ident->v, type, local->v);
+}
+| ICE_SEQUENCE '<' type '>' keyword
+{
+    unit->error("keyword cannot be used as sequence name");
+}
+;
+
+// ----------------------------------------------------------------------
+dictionary_def
+// ----------------------------------------------------------------------
+: ICE_DICTIONARY '<' type ',' type '>' ICE_IDENTIFIER
+{
+    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
+    StringTokPtr ident = StringTokPtr::dynamicCast($7);
+    TypePtr keyType = TypePtr::dynamicCast($3);
+    TypePtr valueType = TypePtr::dynamicCast($5);
+    ContainerPtr cont = unit->currentContainer();
+    cont->createDictionary(ident->v, keyType, valueType, local->v);
+}
+| ICE_DICTIONARY '<' type ',' type '>' keyword
+{
+    unit->error("keyword cannot be used as dictionary name");
+}
+;
+
+// ----------------------------------------------------------------------
+enum_def
+// ----------------------------------------------------------------------
+: ICE_ENUM ICE_IDENTIFIER
+{
+    BoolTokPtr local = BoolTokPtr::dynamicCast($1);
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    ContainerPtr cont = unit->currentContainer();
+    EnumPtr en = cont->createEnum(ident->v, local->v);
+    $$ = en;
+}
+'{' enumerator_list '}'
+{
+    EnumPtr en = EnumPtr::dynamicCast($3);
+    if (en)
+    {
+	EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
+	en->setEnumerators(enumerators->v);
+    }
+}
+| ICE_ENUM keyword
+{
+    unit->error("keyword cannot be used as enum name");
+}
+'{' enumerator_list '}'
+{
+}
+;
+
+// ----------------------------------------------------------------------
+enumerator_list
+// ----------------------------------------------------------------------
+: enumerator ',' enumerator_list
+{
+    EnumeratorListTokPtr ens = EnumeratorListTokPtr::dynamicCast($1);
+    ens->v.splice(ens->v.end(), EnumeratorListTokPtr::dynamicCast($3)->v);
+    $$ = ens;
+}
+| enumerator
+{
+    $$ = $1;
+}
+;
+
+// ----------------------------------------------------------------------
+enumerator
+// ----------------------------------------------------------------------
+: ICE_IDENTIFIER
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($1);
+    EnumeratorListTokPtr ens = new EnumeratorListTok;
+    $$ = ens;
+    ContainerPtr cont = unit->currentContainer();
+    EnumeratorPtr en = cont->createEnumerator(ident->v);
+    if (en)
+    {
+	ens->v.push_front(en);
+    }
+}
+| keyword
+{
+    unit->error("keyword cannot be used as enumerator");
+    EnumeratorListTokPtr ens = new EnumeratorListTok;
+    $$ = ens;
 }
 ;
 
@@ -749,6 +870,29 @@ data_member
 ;
 
 // ----------------------------------------------------------------------
+scoped_name
+// ----------------------------------------------------------------------
+: ICE_IDENTIFIER
+{
+    $$ = $1;
+}
+| ICE_SCOPE_DELIMITOR ICE_IDENTIFIER
+{
+    StringTokPtr ident = StringTokPtr::dynamicCast($2);
+    ident->v = "::" + ident->v;
+    $$ = ident;
+}
+| scoped_name ICE_SCOPE_DELIMITOR ICE_IDENTIFIER
+{
+    StringTokPtr scoped = StringTokPtr::dynamicCast($1);
+    StringTokPtr ident = StringTokPtr::dynamicCast($3);
+    scoped->v += "::";
+    scoped->v += ident->v;
+    $$ = scoped;
+}
+;
+
+// ----------------------------------------------------------------------
 type
 // ----------------------------------------------------------------------
 : ICE_BYTE
@@ -850,164 +994,6 @@ return_type
 ;
 
 // ----------------------------------------------------------------------
-exception_list
-// ----------------------------------------------------------------------
-: exception ',' exception_list
-{
-    ExceptionPtr exception = ExceptionPtr::dynamicCast($1);
-    ExceptionListTokPtr exceptionList = ExceptionListTokPtr::dynamicCast($3);
-    exceptionList->v.push_front(exception);
-    $$ = exceptionList;
-}
-| exception
-{
-    ExceptionPtr exception = ExceptionPtr::dynamicCast($1);
-    ExceptionListTokPtr exceptionList = new ExceptionListTok;
-    exceptionList->v.push_front(exception);
-    $$ = exceptionList;
-}
-;
-
-// ----------------------------------------------------------------------
-exception
-// ----------------------------------------------------------------------
-/* TODO: builtin exceptions "Exception" and "LocalException"*/
-: scoped_name
-{
-    StringTokPtr scoped = StringTokPtr::dynamicCast($1);
-    ContainerPtr cont = unit->currentContainer();
-    ExceptionPtr exception = cont->lookupException(scoped->v);
-    if (!exception)
-    {
-	YYERROR; // Can't continue, jump to next yyerrok
-    }
-    $$ = exception;
-}
-;
-
-// ----------------------------------------------------------------------
-sequence_def
-// ----------------------------------------------------------------------
-: ICE_SEQUENCE '<' type '>' ICE_IDENTIFIER
-{
-    StringTokPtr ident = StringTokPtr::dynamicCast($5);
-    TypePtr type = TypePtr::dynamicCast($3);
-    ContainerPtr cont = unit->currentContainer();
-    cont->createSequence(ident->v, type);
-}
-| ICE_SEQUENCE '<' type '>' keyword
-{
-    unit->error("keyword cannot be used as sequence name");
-}
-;
-
-// ----------------------------------------------------------------------
-dictionary_def
-// ----------------------------------------------------------------------
-: ICE_DICTIONARY '<' type ',' type '>' ICE_IDENTIFIER
-{
-    StringTokPtr ident = StringTokPtr::dynamicCast($7);
-    TypePtr keyType = TypePtr::dynamicCast($3);
-    TypePtr valueType = TypePtr::dynamicCast($5);
-    ContainerPtr cont = unit->currentContainer();
-    cont->createDictionary(ident->v, keyType, valueType);
-}
-| ICE_DICTIONARY '<' type ',' type '>' keyword
-{
-    unit->error("keyword cannot be used as dictionary name");
-}
-;
-
-// ----------------------------------------------------------------------
-enum_def
-// ----------------------------------------------------------------------
-: ICE_ENUM ICE_IDENTIFIER
-{
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(ident->v);
-    $$ = en;
-}
-'{' enumerator_list '}'
-{
-    EnumPtr en = EnumPtr::dynamicCast($3);
-    if (en)
-    {
-	EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
-	en->setEnumerators(enumerators->v);
-    }
-}
-| ICE_ENUM keyword
-{
-    unit->error("keyword cannot be used as enum name");
-}
-'{' enumerator_list '}'
-{
-}
-;
-
-// ----------------------------------------------------------------------
-enumerator_list
-// ----------------------------------------------------------------------
-: enumerator ',' enumerator_list
-{
-    EnumeratorListTokPtr ens = EnumeratorListTokPtr::dynamicCast($1);
-    ens->v.splice(ens->v.end(), EnumeratorListTokPtr::dynamicCast($3)->v);
-    $$ = ens;
-}
-| enumerator
-{
-    $$ = $1;
-}
-;
-
-// ----------------------------------------------------------------------
-enumerator
-// ----------------------------------------------------------------------
-: ICE_IDENTIFIER
-{
-    StringTokPtr ident = StringTokPtr::dynamicCast($1);
-    EnumeratorListTokPtr ens = new EnumeratorListTok;
-    $$ = ens;
-    ContainerPtr cont = unit->currentContainer();
-    EnumeratorPtr en = cont->createEnumerator(ident->v);
-    if (en)
-    {
-	ens->v.push_front(en);
-    }
-}
-| keyword
-{
-    unit->error("keyword cannot be used as enumerator");
-    EnumeratorListTokPtr ens = new EnumeratorListTok;
-    $$ = ens;
-}
-;
-
-// ----------------------------------------------------------------------
-scoped_name
-// ----------------------------------------------------------------------
-: ICE_IDENTIFIER
-{
-    $$ = $1;
-}
-| ICE_SCOPE_DELIMITOR ICE_IDENTIFIER
-{
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ident->v = "::" + ident->v;
-    $$ = ident;
-}
-| scoped_name ICE_SCOPE_DELIMITOR ICE_IDENTIFIER
-{
-    StringTokPtr scoped = StringTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    scoped->v += "::";
-    scoped->v += ident->v;
-    $$ = scoped;
-}
-;
-
-// ----------------------------------------------------------------------
 keyword
 // ----------------------------------------------------------------------
 : ICE_MODULE
@@ -1023,9 +1009,6 @@ keyword
 {
 }
 | ICE_STRUCT
-{
-}
-| ICE_LOCAL
 {
 }
 | ICE_EXTENDS

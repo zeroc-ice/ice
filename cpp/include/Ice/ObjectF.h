@@ -18,8 +18,8 @@ namespace Ice { class Object; }
 namespace IceInternal
 {
 
-void ICE_API incRef(::Ice::Object*);
-void ICE_API decRef(::Ice::Object*);
+ICE_API void incRef(::Ice::Object*);
+ICE_API void decRef(::Ice::Object*);
 
 }
 

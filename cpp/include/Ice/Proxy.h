@@ -36,6 +36,7 @@ class ICE_API Object : public ::IceUtil::Shared, JTCMutex
 public:
 
     bool operator==(const Object&) const;
+    bool operator!=(const Object&) const;
     bool operator<(const Object&) const;
     ::Ice::Int ice_hash() const;
 

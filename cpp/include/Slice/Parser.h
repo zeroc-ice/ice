@@ -272,13 +272,13 @@ public:
 
     virtual void destroy();
     ModulePtr createModule(const std::string&);
-    ClassDefPtr createClassDef(const std::string&, bool, bool, const ClassList&);
+    ClassDefPtr createClassDef(const std::string&, bool, const ClassList&, bool);
     ClassDeclPtr createClassDecl(const std::string&, bool, bool);
-    ExceptionPtr createException(const std::string&, bool, const ExceptionPtr&);
-    StructPtr createStruct(const std::string&);
-    SequencePtr createSequence(const std::string&, const TypePtr&);
-    DictionaryPtr createDictionary(const std::string&, const TypePtr&, const TypePtr&);
-    EnumPtr createEnum(const std::string&);
+    ExceptionPtr createException(const std::string&, const ExceptionPtr&, bool);
+    StructPtr createStruct(const std::string&, bool);
+    SequencePtr createSequence(const std::string&, const TypePtr&, bool);
+    DictionaryPtr createDictionary(const std::string&, const TypePtr&, const TypePtr&, bool);
+    EnumPtr createEnum(const std::string&, bool);
     EnumeratorPtr createEnumerator(const std::string&);
     TypeList lookupType(const std::string&, bool = true);
     TypeList lookupTypeNoBuiltin(const std::string&, bool = true);
@@ -339,9 +339,13 @@ class SLICE_API Constructed : virtual public Type, virtual public Contained
 {
 public:
 
+    bool isLocal();
+
 protected:
 
-    Constructed(const ContainerPtr&, const std::string&);
+    Constructed(const ContainerPtr&, const std::string&, bool);
+
+    bool _local;
 };
 
 // ----------------------------------------------------------------------
@@ -354,7 +358,6 @@ public:
 
     virtual void destroy();
     ClassDefPtr definition();
-    bool isLocal();
     bool isInterface();
     virtual ContainedType containedType();
     virtual bool uses(const ConstructedPtr&);
@@ -367,7 +370,6 @@ protected:
     friend class SLICE_API ClassDef;
 
     ClassDefPtr _definition;
-    bool _local;
     bool _interface;
 };
 
@@ -390,8 +392,8 @@ public:
     OperationList allOperations();
     DataMemberList dataMembers();
     bool isAbstract();
-    bool isLocal();
     bool isInterface();
+    bool isLocal();
     bool hasDataMembers();
     virtual ContainedType containedType();
     virtual bool uses(const ConstructedPtr&);
@@ -399,14 +401,14 @@ public:
 
 protected:
 
-    ClassDef(const ContainerPtr&, const std::string&, bool, bool, const ClassList&);
+    ClassDef(const ContainerPtr&, const std::string&, bool, const ClassList&, bool);
     friend class SLICE_API Container;
 
     ClassDeclPtr _declaration;
-    bool _local;
     bool _interface;
     bool _hasDataMembers;
     ClassList _bases;
+    bool _local;
 };
 
 // ----------------------------------------------------------------------
@@ -447,11 +449,11 @@ public:
 
 protected:
 
-    Exception(const ContainerPtr&, const std::string&, bool, const ExceptionPtr&);
+    Exception(const ContainerPtr&, const std::string&, const ExceptionPtr&, bool);
     friend class SLICE_API Container;
 
-    bool _local;
     ExceptionPtr _base;
+    bool _local;
 };
 
 // ----------------------------------------------------------------------
@@ -470,7 +472,90 @@ public:
 
 protected:
 
-    Struct(const ContainerPtr&, const std::string&);
+    Struct(const ContainerPtr&, const std::string&, bool);
+    friend class SLICE_API Container;
+};
+
+// ----------------------------------------------------------------------
+// Sequence
+// ----------------------------------------------------------------------
+
+class SLICE_API Sequence : virtual public Constructed
+{
+public:
+
+    TypePtr type();
+    virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
+    virtual void visit(ParserVisitor*);
+
+protected:
+
+    Sequence(const ContainerPtr&, const std::string&, const TypePtr&, bool);
+    friend class SLICE_API Container;
+
+    TypePtr _type;
+};
+
+// ----------------------------------------------------------------------
+// Dictionary
+// ----------------------------------------------------------------------
+
+class SLICE_API Dictionary : virtual public Constructed
+{
+public:
+
+    TypePtr keyType();
+    TypePtr valueType();
+    virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
+    virtual void visit(ParserVisitor*);
+
+protected:
+
+    Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const TypePtr&, bool);
+    friend class SLICE_API Container;
+
+    TypePtr _keyType;
+    TypePtr _valueType;
+};
+
+// ----------------------------------------------------------------------
+// Enum
+// ----------------------------------------------------------------------
+
+class SLICE_API Enum : virtual public Constructed
+{
+public:
+
+    EnumeratorList getEnumerators();
+    void setEnumerators(const EnumeratorList&);
+    virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
+    virtual void visit(ParserVisitor*);
+
+protected:
+
+    Enum(const ContainerPtr&, const std::string&, bool);
+    friend class SLICE_API Container;
+    
+    EnumeratorList _enumerators;
+};
+
+// ----------------------------------------------------------------------
+// Enumerator
+// ----------------------------------------------------------------------
+
+class SLICE_API Enumerator : virtual public Contained
+{
+public:
+
+    virtual bool uses(const ConstructedPtr&);
+    virtual ContainedType containedType();
+
+protected:
+
+    Enumerator(const ContainerPtr&, const std::string&);
     friend class SLICE_API Container;
 };
 
@@ -525,89 +610,6 @@ protected:
     friend class SLICE_API Exception;
 
     TypePtr _type;
-};
-
-// ----------------------------------------------------------------------
-// Sequence
-// ----------------------------------------------------------------------
-
-class SLICE_API Sequence : virtual public Constructed
-{
-public:
-
-    TypePtr type();
-    virtual ContainedType containedType();
-    virtual bool uses(const ConstructedPtr&);
-    virtual void visit(ParserVisitor*);
-
-protected:
-
-    Sequence(const ContainerPtr&, const std::string&, const TypePtr&);
-    friend class SLICE_API Container;
-
-    TypePtr _type;
-};
-
-// ----------------------------------------------------------------------
-// Dictionary
-// ----------------------------------------------------------------------
-
-class SLICE_API Dictionary : virtual public Constructed
-{
-public:
-
-    TypePtr keyType();
-    TypePtr valueType();
-    virtual ContainedType containedType();
-    virtual bool uses(const ConstructedPtr&);
-    virtual void visit(ParserVisitor*);
-
-protected:
-
-    Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const TypePtr&);
-    friend class SLICE_API Container;
-
-    TypePtr _keyType;
-    TypePtr _valueType;
-};
-
-// ----------------------------------------------------------------------
-// Enum
-// ----------------------------------------------------------------------
-
-class SLICE_API Enum : virtual public Constructed
-{
-public:
-
-    EnumeratorList getEnumerators();
-    void setEnumerators(const EnumeratorList&);
-    virtual ContainedType containedType();
-    virtual bool uses(const ConstructedPtr&);
-    virtual void visit(ParserVisitor*);
-
-protected:
-
-    Enum(const ContainerPtr&, const std::string&);
-    friend class SLICE_API Container;
-    
-    EnumeratorList _enumerators;
-};
-
-// ----------------------------------------------------------------------
-// Enumerator
-// ----------------------------------------------------------------------
-
-class SLICE_API Enumerator : virtual public Contained
-{
-public:
-
-    virtual bool uses(const ConstructedPtr&);
-    virtual ContainedType containedType();
-
-protected:
-
-    Enumerator(const ContainerPtr&, const std::string&);
-    friend class SLICE_API Container;
 };
 
 // ----------------------------------------------------------------------

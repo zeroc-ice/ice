@@ -347,63 +347,69 @@ IceInternal::Reference::operator==(const Reference& r) const
 }
 
 bool
-IceInternal::Reference::operator<(const Reference& rhs) const
+IceInternal::Reference::operator!=(const Reference& r) const
 {
-    if (this == &rhs)
+    return !operator==(r);
+}
+
+bool
+IceInternal::Reference::operator<(const Reference& r) const
+{
+    if (this == &r)
     {
 	return false;
     }
     
-    if (identity < rhs.identity)
+    if (identity < r.identity)
     {
 	return true;
     }
-    else if (rhs.identity < identity)
+    else if (r.identity < identity)
     {
 	return false;
     }
 
-    if (facet < rhs.facet)
+    if (facet < r.facet)
     {
 	return true;
     }
-    else if (rhs.facet < facet)
+    else if (r.facet < facet)
     {
 	return false;
     }
 
-    if (mode < rhs.mode)
+    if (mode < r.mode)
     {
 	return true;
     }
-    else if (rhs.mode < mode)
+    else if (r.mode < mode)
     {
 	return false;
     }
     
-    if (!secure && rhs.secure)
+    if (!secure && r.secure)
     {
 	return true;
     }
-    else if (rhs.secure < secure)
+    else if (r.secure < secure)
     {
 	return false;
     }
     
-    if (origEndpoints < rhs.origEndpoints)
+    if (origEndpoints < r.origEndpoints)
     {
 	return true;
     }
-    else if (rhs.origEndpoints < origEndpoints)
+    else if (r.origEndpoints < origEndpoints)
     {
 	return false;
     }
     
-    if (endpoints < rhs.endpoints)
+    if (endpoints < r.endpoints)
     {
 	return true;
     }
-    else if (rhs.endpoints < endpoints)
+    else if (r.endpoints < endpoints)
     {
 	return false;
     }

@@ -49,10 +49,10 @@ public:
     bool loadServerConfig(GeneralConfig&, CertificateAuthority&, BaseCertificates&, TempCertificates&);
 
     inline void setTrace(TraceLevelsPtr traceLevels) { _traceLevels = traceLevels; };
-    inline bool isTraceSet() const { return (_traceLevels == 0 ? false : true); };
+    inline bool isTraceSet() const { return _traceLevels; };
 
     inline void setLogger(LoggerPtr traceLevels) { _logger = traceLevels; };
-    inline bool isLoggerSet() const { return (_logger == 0 ? false : true); };
+    inline bool isLoggerSet() const { return _logger; };
 
 private:
 

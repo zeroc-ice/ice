@@ -88,6 +88,12 @@ IceProxy::Ice::Object::operator==(const Object& r) const
 }
 
 bool
+IceProxy::Ice::Object::operator!=(const Object& r) const
+{
+    return _reference != r._reference;
+}
+
+bool
 IceProxy::Ice::Object::operator<(const Object& r) const
 {
     return _reference < r._reference;

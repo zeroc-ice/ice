@@ -106,6 +106,16 @@ using namespace Slice;
 }
 
 "class" {
+    BoolTokPtr local = new BoolTok;
+    local->v = false;
+    *yylvalp = local;
+    return ICE_CLASS;
+}
+
+"local"[[:space:]]*"class" {
+    BoolTokPtr local = new BoolTok;
+    local->v = true;
+    *yylvalp = local;
     return ICE_CLASS;
 }
 
@@ -114,6 +124,16 @@ using namespace Slice;
 }
 
 "interface" {
+    BoolTokPtr local = new BoolTok;
+    local->v = false;
+    *yylvalp = local;
+    return ICE_INTERFACE;
+}
+
+"local"[[:space:]]*"interface" {
+    BoolTokPtr local = new BoolTok;
+    local->v = true;
+    *yylvalp = local;
     return ICE_INTERFACE;
 }
 
@@ -122,6 +142,16 @@ using namespace Slice;
 }
 
 "exception" {
+    BoolTokPtr local = new BoolTok;
+    local->v = false;
+    *yylvalp = local;
+    return ICE_EXCEPTION;
+}
+
+"local"[[:space:]]*"exception" {
+    BoolTokPtr local = new BoolTok;
+    local->v = true;
+    *yylvalp = local;
     return ICE_EXCEPTION;
 }
 
@@ -130,6 +160,16 @@ using namespace Slice;
 }
 
 "struct" {
+    BoolTokPtr local = new BoolTok;
+    local->v = false;
+    *yylvalp = local;
+    return ICE_STRUCT;
+}
+
+"local"[[:space:]]*"struct" {
+    BoolTokPtr local = new BoolTok;
+    local->v = true;
+    *yylvalp = local;
     return ICE_STRUCT;
 }
 
@@ -137,11 +177,57 @@ using namespace Slice;
     return ICE_OP_KEYWORD;
 }
 
-"local" {
-    return ICE_LOCAL;
+"sequence" {
+    BoolTokPtr local = new BoolTok;
+    local->v = false;
+    *yylvalp = local;
+    return ICE_SEQUENCE;
 }
 
-"local"[[:space:]]*"(" {
+"local"[[:space:]]*"sequence" {
+    BoolTokPtr local = new BoolTok;
+    local->v = true;
+    *yylvalp = local;
+    return ICE_SEQUENCE;
+}
+
+"sequence"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
+"local"[[:space:]]*"dictionary" {
+    BoolTokPtr local = new BoolTok;
+    local->v = true;
+    *yylvalp = local;
+    return ICE_DICTIONARY;
+}
+
+"dictionary" {
+    BoolTokPtr local = new BoolTok;
+    local->v = false;
+    *yylvalp = local;
+    return ICE_DICTIONARY;
+}
+
+"dictionary"[[:space:]]*"(" {
+    return ICE_OP_KEYWORD;
+}
+
+"enum" {
+    BoolTokPtr local = new BoolTok;
+    local->v = false;
+    *yylvalp = local;
+    return ICE_ENUM;
+}
+
+"local"[[:space:]]*"enum" {
+    BoolTokPtr local = new BoolTok;
+    local->v = true;
+    *yylvalp = local;
+    return ICE_ENUM;
+}
+
+"enum"[[:space:]]*"(" {
     return ICE_OP_KEYWORD;
 }
 
@@ -262,30 +348,6 @@ using namespace Slice;
 }
 
 "LocalObject"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"sequence" {
-    return ICE_SEQUENCE;
-}
-
-"sequence"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"dictionary" {
-    return ICE_DICTIONARY;
-}
-
-"dictionary"[[:space:]]*"(" {
-    return ICE_OP_KEYWORD;
-}
-
-"enum" {
-    return ICE_ENUM;
-}
-
-"enum"[[:space:]]*"(" {
     return ICE_OP_KEYWORD;
 }
 

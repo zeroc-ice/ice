@@ -1311,6 +1311,86 @@ InputPath=..\..\slice\Ice\PropertiesF.ice
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\slice\Ice\Connection.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__PROPE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Connection.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Connection.ice \
+	move Connection.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Connection.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Connection.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__PROPE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Connection.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Connection.ice \
+	move Connection.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Connection.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Connection.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\ConnectionF.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__PROPER="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\ConnectionF.ice
+
+"..\..\include\Ice\ConnectionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ConnectionF.ice 
+	move ConnectionF.h ..\..\include\Ice 
+	del ConnectionF.cpp 
+	
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__PROPER="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\ConnectionF.ice
+
+"..\..\include\Ice\ConnectionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	set PATH=%PATH%;..\..\lib 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ConnectionF.ice 
+	move ConnectionF.h ..\..\include\Ice 
+	del ConnectionF.cpp 
+	
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\slice\Ice\SecurityException.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"

@@ -44,13 +44,13 @@ public:
     virtual Connection* createClientConnection(int) = 0;
 
     void setTrace(TraceLevelsPtr traceLevels) { _traceLevels = traceLevels; };
-    bool isTraceSet() const { return (_traceLevels == 0 ? false : true); };
+    bool isTraceSet() const { return _traceLevels; };
 
     void setLogger(LoggerPtr traceLevels) { _logger = traceLevels; };
-    bool isLoggerSet() const { return (_logger == 0 ? false : true); };
+    bool isLoggerSet() const { return _logger; };
 
     void setProperties(PropertiesPtr properties) { _properties = properties; };
-    bool isPropertiesSet() const { return (_properties == 0 ? false : true); };
+    bool isPropertiesSet() const { return _properties; };
 
 protected:
 

@@ -45,7 +45,7 @@ struct Identity
  * A mapping between identities and Ice Objects.
  *
  **/
-dictionary<Identity, Object> ObjectDict;
+local dictionary<Identity, Object> ObjectDict;
 
 };
 

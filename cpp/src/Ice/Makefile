@@ -48,6 +48,7 @@ OBJS		= Initialize.o \
 		  Identity.o \
 		  IdentityUtil.o \
 		  Current.o \
+		  Connection.o \
 		  LocalObject.o \
 		  Object.o \
 		  ProxyFactory.o \
@@ -273,5 +274,22 @@ $(HDIR)/Current.h Current.cpp: $(SDIR)/Current.ice $(SLICE2CPP)
 
 clean::
 	rm -f $(HDIR)/Current.h Current.cpp
+
+$(HDIR)/Connection.h Connection.cpp: $(SDIR)/Connection.ice $(SLICE2CPP)
+	rm -f $(HDIR)/Connection.h Connection.cpp
+	$(SLICECMD) $(SDIR)/Connection.ice
+	mv Connection.h $(HDIR)
+
+clean::
+	rm -f $(HDIR)/Connection.h Connection.cpp
+
+$(HDIR)/ConnectionF.h: $(SDIR)/ConnectionF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/ConnectionF.h ConnectionF.cpp
+	$(SLICECMD) $(SDIR)/ConnectionF.ice
+	mv ConnectionF.h $(HDIR)
+	rm -f ConnectionF.cpp
+
+clean::
+	rm -f $(HDIR)/ConnectionF.h
 
 include .depend

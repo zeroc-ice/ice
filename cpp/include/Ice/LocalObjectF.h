@@ -18,8 +18,8 @@ namespace Ice { class LocalObject; }
 namespace IceInternal
 {
 
-void ICE_API incRef(::Ice::LocalObject*);
-void ICE_API decRef(::Ice::LocalObject*);
+ICE_API void incRef(::Ice::LocalObject*);
+ICE_API void decRef(::Ice::LocalObject*);
 
 }
 

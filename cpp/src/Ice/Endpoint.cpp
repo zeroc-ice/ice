@@ -220,6 +220,12 @@ IceInternal::UnknownEndpoint::operator==(const Endpoint& r) const
 }
 
 bool
+IceInternal::UnknownEndpoint::operator!=(const Endpoint& r) const
+{
+    return !operator==(r);
+}
+
+bool
 IceInternal::UnknownEndpoint::operator<(const Endpoint& r) const
 {
     const UnknownEndpoint* p = dynamic_cast<const UnknownEndpoint*>(&r);
@@ -496,6 +502,12 @@ IceInternal::TcpEndpoint::operator==(const Endpoint& r) const
     }
 
     return true;
+}
+
+bool
+IceInternal::TcpEndpoint::operator!=(const Endpoint& r) const
+{
+    return !operator==(r);
 }
 
 bool
@@ -801,6 +813,12 @@ IceInternal::SslEndpoint::operator==(const Endpoint& r) const
 }
 
 bool
+IceInternal::SslEndpoint::operator!=(const Endpoint& r) const
+{
+    return !operator==(r);
+}
+
+bool
 IceInternal::SslEndpoint::operator<(const Endpoint& r) const
 {
     const SslEndpoint* p = dynamic_cast<const SslEndpoint*>(&r);
@@ -1077,6 +1095,12 @@ IceInternal::UdpEndpoint::operator==(const Endpoint& r) const
     }
 
     return true;
+}
+
+bool
+IceInternal::UdpEndpoint::operator!=(const Endpoint& r) const
+{
+    return !operator==(r);
 }
 
 bool

@@ -21,21 +21,21 @@ namespace IceDelegateD { namespace Ice { class Object; } }
 namespace IceInternal
 {
 
-void ICE_API incRef(::IceProxy::Ice::Object*);
-void ICE_API decRef(::IceProxy::Ice::Object*);
+ICE_API void incRef(::IceProxy::Ice::Object*);
+ICE_API void decRef(::IceProxy::Ice::Object*);
 
-void ICE_API incRef(::IceDelegate::Ice::Object*);
-void ICE_API decRef(::IceDelegate::Ice::Object*);
+ICE_API void incRef(::IceDelegate::Ice::Object*);
+ICE_API void decRef(::IceDelegate::Ice::Object*);
 
-void ICE_API incRef(::IceDelegateM::Ice::Object*);
-void ICE_API decRef(::IceDelegateM::Ice::Object*);
+ICE_API void incRef(::IceDelegateM::Ice::Object*);
+ICE_API void decRef(::IceDelegateM::Ice::Object*);
 
-void ICE_API incRef(::IceDelegateD::Ice::Object*);
-void ICE_API decRef(::IceDelegateD::Ice::Object*);
+ICE_API void incRef(::IceDelegateD::Ice::Object*);
+ICE_API void decRef(::IceDelegateD::Ice::Object*);
 
-void ICE_API checkedCast(const ProxyHandle< ::IceProxy::Ice::Object>&, const ::std::string&,
+ICE_API void checkedCast(const ProxyHandle< ::IceProxy::Ice::Object>&, const ::std::string&,
 			 ProxyHandle< ::IceProxy::Ice::Object>&);
-void ICE_API uncheckedCast(const ProxyHandle< ::IceProxy::Ice::Object>&, const ::std::string&,
+ICE_API void uncheckedCast(const ProxyHandle< ::IceProxy::Ice::Object>&, const ::std::string&,
 			   ProxyHandle< ::IceProxy::Ice::Object>&);
 
 }
