@@ -741,7 +741,7 @@
         "Title" = "8:Ice 1.1.0 Third Party"
         "Subject" = "8:"
         "ARPCONTACT" = "8:ZeroC, Inc"
-        "Keywords" = "8:Berkeley DB, libbzlib2, OpenSSL, Xerces-C++"
+        "Keywords" = "8:Berkeley DB, libbzip2, OpenSSL, Xerces-C++"
         "ARPCOMMENTS" = "8:Third Party Products used by Ice."
         "ARPURLINFOABOUT" = "8:http://www.zeroc.com"
         "ARPPRODUCTICON" = "8:"
@@ -1288,7 +1288,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:The installer will guide you through the steps required to install Berkeley DB, libbzlib2, OpenSSL and Xerces-C++ for Visual Studio .NET 2002 on your computer."
+                            "Value" = "8:The installer will guide you through the steps required to install Berkeley DB, libbzip2, OpenSSL and Xerces-C++ for Visual Studio .NET 2002 on your computer."
                             "DefaultValue" = "8:#1203"
                             "UsePlugInResources" = "11:TRUE"
                             }
@@ -1470,7 +1470,7 @@
                             "ContextData" = "8:"
                             "Attributes" = "3:0"
                             "Setting" = "3:2"
-                            "Value" = "8:The installer will guide you through the steps required to install Berkeley DB, libbzlib2, OpenSSL and Xerces-C++ for Visual Studio .NET 2002 on your computer."
+                            "Value" = "8:The installer will guide you through the steps required to install Berkeley DB, libbzip2, OpenSSL and Xerces-C++ for Visual Studio .NET 2002 on your computer."
                             "DefaultValue" = "8:#1203"
                             "UsePlugInResources" = "11:TRUE"
                             }
