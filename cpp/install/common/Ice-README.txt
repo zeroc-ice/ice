@@ -30,6 +30,12 @@ Then open a Command Prompt, cd to the desired demo subdirectory, and
 type 'server' to start the server. In a separate Command Prompt window,
 type 'client' to start the client.
 
+Note that extra steps may be required when running the IceBox demo,
+depending on how you compiled the demos. If you used the Release
+configuration, then no extra steps are necessary. However, if you
+used the Debug configuration, you will need to use the debug
+version of icebox.exe located in the bin\debug subdirectory.
+
 Building and running the Java demos
 -----------------------------------
 
