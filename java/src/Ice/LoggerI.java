@@ -31,35 +31,45 @@ public class LoggerI implements Logger
 	}
     }
 
-    public synchronized void
+    public void
     trace(String category, String message)
     {
-        String s = "[ " + category + ": ";
-        int start = 0;
-        int next;
-        while((next = message.indexOf('\n', start)) != -1)
-        {
-            s += message.substring(start, next + 1);
-            s += _emptyPrefix + "  ";
-            start = next + 1;
-        }
-        s += message.substring(start);
-        s += " ]";
-	System.err.println(_prefix + s);
+	synchronized(_globalMutex)
+	{
+	    String s = "[ " + category + ": ";
+	    int start = 0;
+	    int next;
+	    while((next = message.indexOf('\n', start)) != -1)
+	    {
+		s += message.substring(start, next + 1);
+		s += _emptyPrefix + "  ";
+		start = next + 1;
+	    }
+	    s += message.substring(start);
+	    s += " ]";
+	    System.err.println(_prefix + s);
+	}
     }
 
-    public synchronized void
+    public void
     warning(String message)
     {
-	System.err.println(_prefix + "warning: " + message);
+	synchronized(_globalMutex)
+	{
+	    System.err.println(_prefix + "warning: " + message);
+	}
     }
 
-    public synchronized void
+    public void
     error(String message)
     {
-	System.err.println(_prefix + "error: " + message);
+	synchronized(_globalMutex)
+	{
+	    System.err.println(_prefix + "error: " + message);
+	}
     }
 
     String _prefix = "";
     String _emptyPrefix = "";
+    static Object _globalMutex = new Object();
 }
