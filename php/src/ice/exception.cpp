@@ -74,7 +74,7 @@ ice_throw_exception(const IceUtil::Exception& ex TSRMLS_DC)
             return;
         }
 
-        ice_object* obj = ice_object_get(zex TSRMLS_CC);
+        ice_object* obj = ice_getObject(zex TSRMLS_CC);
         if(!obj)
         {
             return;
@@ -116,7 +116,7 @@ ZEND_FUNCTION(Ice_LocalException___construct)
         }
     }
 
-    ice_object* obj = ice_object_get(getThis() TSRMLS_CC);
+    ice_object* obj = ice_getObject(getThis() TSRMLS_CC);
     if(!obj)
     {
         RETURN_NULL();
@@ -132,7 +132,7 @@ ZEND_FUNCTION(Ice_LocalException_message)
         WRONG_PARAM_COUNT;
     }
 
-    ice_object* obj = ice_object_get(getThis() TSRMLS_CC);
+    ice_object* obj = ice_getObject(getThis() TSRMLS_CC);
     if(!obj)
     {
         RETURN_EMPTY_STRING();
@@ -146,7 +146,7 @@ Ice_LocalException_alloc(zend_class_entry* ce TSRMLS_DC)
 {
     zend_object_value result;
 
-    ice_object* obj = ice_object_new(ce TSRMLS_CC);
+    ice_object* obj = ice_newObject(ce TSRMLS_CC);
     assert(obj);
 
     result.handle = zend_objects_store_put(obj, Ice_LocalException_dtor, NULL TSRMLS_CC);

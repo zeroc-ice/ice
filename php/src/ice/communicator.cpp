@@ -102,7 +102,7 @@ Ice_Communicator_create(zval* zv TSRMLS_DC)
         return false;
     }
 
-    ice_object* obj = ice_object_get(zv TSRMLS_CC);
+    ice_object* obj = ice_getObject(zv TSRMLS_CC);
     if(!obj)
     {
         return false;
@@ -149,7 +149,7 @@ ZEND_FUNCTION(Ice_Communicator___construct)
 
 ZEND_FUNCTION(Ice_Communicator_stringToProxy)
 {
-    ice_object* obj = ice_object_get(getThis() TSRMLS_CC);
+    ice_object* obj = ice_getObject(getThis() TSRMLS_CC);
     if(!obj)
     {
         return;
@@ -189,7 +189,7 @@ ZEND_FUNCTION(Ice_Communicator_stringToProxy)
 
 ZEND_FUNCTION(Ice_Communicator_proxyToString)
 {
-    ice_object* obj = ice_object_get(getThis() TSRMLS_CC);
+    ice_object* obj = ice_getObject(getThis() TSRMLS_CC);
     if(!obj)
     {
         return;
@@ -232,7 +232,7 @@ Ice_Communicator_alloc(zend_class_entry* ce TSRMLS_DC)
 {
     zend_object_value result;
 
-    ice_object* obj = ice_object_new(ce TSRMLS_CC);
+    ice_object* obj = ice_newObject(ce TSRMLS_CC);
     assert(obj);
 
     result.handle = zend_objects_store_put(obj, Ice_Communicator_dtor, NULL TSRMLS_CC);

@@ -22,8 +22,65 @@
 
 using namespace std;
 
+static string
+lookupKwd(const string& name)
+{
+    string lower = ice_lowerCase(name); // PHP is case insensitive.
+
+    //
+    // Keyword list. *Must* be kept in alphabetical order.
+    //
+    static const string keywordList[] = 
+    {       
+        "and", "array", "as", "break", "case", "cfunction", "class", "const", "continue", "declare", "default",
+        "die", "do", "echo", "else", "elseif", "empty", "enddeclare", "endfor", "endforeach", "endif", "endswitch",
+        "endwhile", "eval", "exit", "extends", "for", "foreach", "function", "global", "if", "include",
+        "include_once", "isset", "list", "new", "old_function", "or", "print", "require", "require_once", "return",
+        "static", "switch", "unset", "use", "var", "while", "xor"
+    };
+    bool found =  binary_search(&keywordList[0],
+                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
+                                lower);
+    return found ? "_" + name : name;
+}
+
+//
+// Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
+//
+static vector<string>
+splitScopedName(const string& scoped)
+{
+    assert(scoped[0] == ':');
+    vector<string> ids;
+    string::size_type next = 0;
+    string::size_type pos;
+    while((pos = scoped.find("::", next)) != string::npos)
+    {
+        pos += 2;
+        if(pos != scoped.size())
+        {
+            string::size_type endpos = scoped.find("::", pos);
+            if(endpos != string::npos)
+            {
+                ids.push_back(scoped.substr(pos, endpos - pos));
+            }
+        }
+        next = pos;
+    }
+    if(next != scoped.size())
+    {
+        ids.push_back(scoped.substr(next));
+    }
+    else
+    {
+        ids.push_back("");
+    }
+
+    return ids;
+}
+
 ice_object*
-ice_object_new(zend_class_entry* ce TSRMLS_DC)
+ice_newObject(zend_class_entry* ce TSRMLS_DC)
 {
     ice_object* obj;
     zval* tmp;
@@ -43,18 +100,18 @@ ice_object_new(zend_class_entry* ce TSRMLS_DC)
 }
 
 ice_object*
-ice_object_get(zval* zv TSRMLS_DC)
+ice_getObject(zval* zv TSRMLS_DC)
 {
     if(!zv)
     {
-        php_error(E_ERROR, "method %s() must be invoked on an object", get_active_function_name(TSRMLS_C));
+        zend_error(E_ERROR, "method %s() must be invoked on an object", get_active_function_name(TSRMLS_C));
         return 0;
     }
 
     ice_object* obj = static_cast<ice_object*>(zend_object_store_get_object(zv TSRMLS_CC));
     if(!obj)
     {
-        php_error(E_ERROR, "no object found in %s()", get_active_function_name(TSRMLS_C));
+        zend_error(E_ERROR, "no object found in %s()", get_active_function_name(TSRMLS_C));
         return 0;
     }
 
@@ -62,7 +119,7 @@ ice_object_get(zval* zv TSRMLS_DC)
 }
 
 bool
-ice_split_string(const string& str, vector<string>& args)
+ice_splitString(const string& str, vector<string>& args)
 {
     string delim = " \t\n\r";
     string::size_type beg;
@@ -85,7 +142,7 @@ ice_split_string(const string& str, vector<string>& args)
             end = str.find(ch, beg);
             if(end == string::npos)
             {
-                php_error(E_ERROR, "unterminated quote in `%s'", str.c_str());
+                zend_error(E_ERROR, "unterminated quote in `%s'", str.c_str());
                 return false;
             }
             args.push_back(str.substr(beg, end - beg));
@@ -106,7 +163,7 @@ ice_split_string(const string& str, vector<string>& args)
 }
 
 string
-ice_lowercase(const string& s)
+ice_lowerCase(const string& s)
 {
     string result(s);
     transform(result.begin(), result.end(), result.begin(), ::tolower);
@@ -114,9 +171,9 @@ ice_lowercase(const string& s)
 }
 
 string
-ice_flatten(const string& str)
+ice_flatten(const string& scoped)
 {
-    string result = str;
+    string result = scoped;
     if(result.find("::") == 0)
     {
         result.erase(0, 2);
@@ -128,5 +185,22 @@ ice_flatten(const string& str)
         result.replace(pos, 2, "_");
     }
 
-    return result;
+    return ice_fixIdent(result);
+}
+
+string
+ice_fixIdent(const string& ident)
+{
+    if(ident[0] != ':')
+    {
+        return lookupKwd(ident);
+    }
+    vector<string> ids = splitScopedName(ident);
+    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
+    stringstream result;
+    for(vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    {
+        result << "::" + *i;
+    }
+    return result.str();
 }

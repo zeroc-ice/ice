@@ -757,7 +757,7 @@ StructMarshaler::StructMarshaler(const Slice::StructPtr& type) :
     Slice::DataMemberList members = type->dataMembers();
     for(Slice::DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
     {
-        string name = ice_lowercase((*p)->name());
+        string name = ice_lowerCase((*p)->name());
         MarshalerPtr marshaler = createMemberMarshaler(name, (*p)->type());
         assert(marshaler);
         _members.push_back(marshaler);

@@ -76,7 +76,7 @@ static bool
 parse_slice(const string& argStr)
 {
     vector<string> args;
-    if(!ice_split_string(argStr, args))
+    if(!ice_splitString(argStr, args))
     {
         return false;
     }
@@ -218,7 +218,7 @@ Slice_getClass(const string& scoped)
 {
     zend_class_entry* result = NULL;
 
-    string flat = ice_lowercase(ice_flatten(scoped));
+    string flat = ice_lowerCase(ice_flatten(scoped));
     TypeMap::iterator p = _typeMap.find(flat);
     if(p != _typeMap.end())
     {
@@ -263,7 +263,6 @@ Slice_isNativeKey(const Slice::TypePtr& type)
 Visitor::Visitor(int module TSRMLS_DC) :
     _module(module)
 {
-cerr << "_module = " << _module << endl;
 #ifdef ZTS
     this->TSRMLS_C = TSRMLS_C;
 #endif
@@ -291,7 +290,7 @@ Visitor::visitExceptionStart(const Slice::ExceptionPtr& p)
     if(base)
     {
         string s = base->scoped();
-        string f = ice_lowercase(ice_flatten(s));
+        string f = ice_lowerCase(ice_flatten(s));
         TypeMap::iterator q = _typeMap.find(f);
         if(q != _typeMap.end())
         {
@@ -305,7 +304,7 @@ Visitor::visitExceptionStart(const Slice::ExceptionPtr& p)
     }
 
     string scoped = p->scoped();
-    string flat = ice_lowercase(ice_flatten(scoped));
+    string flat = ice_lowerCase(ice_flatten(scoped));
 
     zend_class_entry ce;
     INIT_CLASS_ENTRY(ce, flat.c_str(), NULL);
@@ -485,7 +484,7 @@ zend_class_entry*
 Visitor::createZendClass(const Slice::ContainedPtr& type)
 {
     string scoped = type->scoped();
-    string flat = ice_lowercase(ice_flatten(scoped));
+    string flat = ice_lowerCase(ice_flatten(scoped));
 
     zend_class_entry ce;
     INIT_CLASS_ENTRY(ce, flat.c_str(), NULL);

@@ -86,6 +86,7 @@ static zend_object_handlers Ice_ObjectPrx_handlers;
 static zend_object_value Ice_ObjectPrx_alloc(zend_class_entry* TSRMLS_DC);
 static void Ice_ObjectPrx_dtor(void*, zend_object_handle TSRMLS_DC);
 static union _zend_function* Ice_ObjectPrx_get_method(zval*, char*, int TSRMLS_DC);
+static int Ice_ObjectPrx_compare(zval*, zval* TSRMLS_DC);
 ZEND_FUNCTION(Ice_ObjectPrx_call);
 
 //
@@ -136,6 +137,7 @@ Ice_ObjectPrx_init(TSRMLS_DC)
     Ice_ObjectPrx_entry_ptr = zend_register_internal_class(&ce_ObjectPrx TSRMLS_CC);
     memcpy(&Ice_ObjectPrx_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     Ice_ObjectPrx_handlers.get_method = Ice_ObjectPrx_get_method;
+    Ice_ObjectPrx_handlers.compare_objects = Ice_ObjectPrx_compare;
 
     return true;
 }
@@ -1267,13 +1269,13 @@ Proxy::getOperation(const string& name)
 {
     OperationPtr result;
 
-    string n = ice_lowercase(name);
+    string n = ice_lowerCase(name);
     map<string, OperationPtr>::const_iterator p = _ops.find(n);
     if(p == _ops.end())
     {
         for(Slice::OperationList::const_iterator q = _classOps.begin(); q != _classOps.end(); ++q)
         {
-            if(n == ice_lowercase((*q)->name()))
+            if(n == ice_lowerCase((*q)->name()))
             {
                 result = new Operation(_proxy, *q, _instance);
                 _ops[n] = result;
@@ -1294,7 +1296,7 @@ Ice_ObjectPrx_alloc(zend_class_entry* ce TSRMLS_DC)
 {
     zend_object_value result;
 
-    ice_object* obj = ice_object_new(ce TSRMLS_CC);
+    ice_object* obj = ice_newObject(ce TSRMLS_CC);
     assert(obj);
 
     result.handle = zend_objects_store_put(obj, Ice_ObjectPrx_dtor, NULL TSRMLS_CC);
@@ -1355,6 +1357,37 @@ Ice_ObjectPrx_get_method(zval* zv, char* method, int len TSRMLS_DC)
     }
 
     return result;
+}
+
+static int
+Ice_ObjectPrx_compare(zval* zobj1, zval* zobj2 TSRMLS_DC)
+{
+    //
+    // PHP guarantees that the objects have the same class.
+    //
+
+    ice_object* obj1 = static_cast<ice_object*>(zend_object_store_get_object(zobj1 TSRMLS_CC));
+    assert(obj1->ptr);
+    Proxy* _this1 = static_cast<Proxy*>(obj1->ptr);
+    Ice::ObjectPrx prx1 = _this1->getProxy();
+
+    ice_object* obj2 = static_cast<ice_object*>(zend_object_store_get_object(zobj2 TSRMLS_CC));
+    assert(obj2->ptr);
+    Proxy* _this2 = static_cast<Proxy*>(obj2->ptr);
+    Ice::ObjectPrx prx2 = _this2->getProxy();
+
+    if(prx1 == prx2)
+    {
+        return 0;
+    }
+    else if(prx1 < prx2)
+    {
+        return -1;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 ZEND_FUNCTION(Ice_ObjectPrx_call)
