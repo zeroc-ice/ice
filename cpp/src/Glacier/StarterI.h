@@ -12,8 +12,8 @@
 //
 // **********************************************************************
 
-#ifndef GLACIER_GLACIER_I_H
-#define GLACIER_GLACIER_I_H
+#ifndef GLACIER_STARTER_I_H
+#define GLACIER_STARTER_I_H
 
 #include <Ice/Ice.h>
 #include <IceSSL/RSACertificateGen.h>

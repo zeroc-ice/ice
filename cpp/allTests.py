@@ -60,15 +60,8 @@ tests = [ \
     "Transform/evictor", \
     "IcePack/simple", \
     "IcePack/deployer", \
+    "Glacier/starter", \
     ]
-
-#
-# Certain tests only work on Linux and Solaris
-#
-if TestUtil.isWin32() == 0:
-    tests += [ \
-        "Glacier/starter", \
-        ]
 
 #
 # The user can supply a subset of tests on the command line.

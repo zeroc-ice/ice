@@ -12,23 +12,12 @@
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   error Sorry, the Glacier Starter is not yet supported on WIN32.
-#endif
-
-//
-// crypt.h is necessary on older Linux distributions, but not with
-// OpenSSL 0.96x.
-//
-#if (defined(__linux__) || defined(__sun))
-#   include <crypt.h>
-#endif
-
-
 #include <IceUtil/UUID.h>
 #include <IceSSL/RSAKeyPair.h>
 #include <Glacier/StarterI.h>
-#include <fcntl.h>
+#ifndef _WIN32
+#   include <fcntl.h>
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -76,11 +65,17 @@ static bool
 prefixOK(const string& property)
 {
     if(property.find("--Ice.") == 0)
+    {
 	return false;
+    }
     if(property.find("--IceSSL.") == 0)
+    {
 	return false;
+    }
     if(property.find("--Glacier.Router") == 0)
+    {
 	return false;
+    }
 
     return true;
 }
@@ -151,13 +146,87 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
         clientKeyPair->certToBase64(clientCertificateBase64);
     }
 
+    string path = _properties->getPropertyWithDefault("Glacier.Starter.RouterPath", "glacierrouter");
+    string uuid = IceUtil::generateUUID();
+
+#ifdef _WIN32
+    //
+    // Get the absolute pathname of the executable.
+    //
+    char absbuf[_MAX_PATH];
+    char* filePart;
+    if(SearchPath(NULL, path.c_str(), ".exe", _MAX_PATH, absbuf, &filePart) == 0)
+    {
+        CannotStartRouterException ex;
+        ex.reason = "cannot convert `" + path + "' into an absolute path";
+        throw ex;
+    }
+    path = absbuf;
+
+    //
+    // Create a named pipe that allows the router to send its proxy to the starter.
+    // We use the UUID as the pipe name.
+    //
+    HANDLE pipe = NULL;
+    HANDLE event = NULL;
+    try
+    {
+        //
+        // An event object is necessary for using overlapped I/O, which we need
+        // in order to have a timeout for router startup.
+        //
+        event = CreateEvent(NULL, TRUE, FALSE, NULL);
+        if(event == NULL)
+        {
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+
+        //
+        // Windows 9x/ME does not allow colons in a pipe name, so we ensure
+        // our UUID does not have any.
+        //
+        string pipeName = "\\\\.\\pipe\\" + uuid;
+        string::size_type pos;
+        while((pos = pipeName.find(':')) != string::npos)
+        {
+            pipeName[pos] = '-';
+        }
+
+        pipe = CreateNamedPipe(
+            pipeName.c_str(),                                      // Name
+            PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED,            // Read-only, overlapped
+            PIPE_WAIT | PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE, // Pipe mode
+            1,                                                     // Instances allowed
+            1024,                                                  // Output buffer size
+            1024,                                                  // Input buffer size
+            NMPWAIT_USE_DEFAULT_WAIT,                              // Client time out
+            NULL);                                                 // No security attributes
+
+        if(pipe == INVALID_HANDLE_VALUE)
+        {
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+    }
+    catch(const LocalException& ex)
+    {
+        if(event != NULL)
+        {
+            CloseHandle(event);
+        }
+
+        Error out(_logger);
+        out << ex;
+        ex.ice_throw();
+    }
+#else
     //
     // Setup the pipe between the router and starter.
     //
-    string path = _properties->getPropertyWithDefault("Glacier.Starter.RouterPath", "glacierrouter");
-    string uuid = IceUtil::generateUUID();
     int fds[2];
-
     try
     {
 	if(pipe(fds) != 0)
@@ -173,6 +242,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	out << ex;
 	ex.ice_throw();
     }
+#endif
 
     //
     // Setup arguments to start the router with.
@@ -217,32 +287,40 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 		       _properties->getProperty("Glacier.Router.AllowCategories") + " _" + userId);
     }
 
+#ifdef _WIN32
+    //
+    // On Windows, the PrintProxyOnFd property is just a flag to signal that
+    // the router should write its proxy to the named pipe.
+    //
+    args.push_back("--Glacier.Router.PrintProxyOnFd=1");
+#else
     ostringstream s;
     s << "--Glacier.Router.PrintProxyOnFd=" << fds[1];
     args.push_back(s.str());
-    string overwrite = _properties->getProperty("Glacier.Starter.PropertiesOverride");
-    if(!overwrite.empty())
+#endif
+    string override = _properties->getProperty("Glacier.Starter.PropertiesOverride");
+    if(!override.empty())
     {
 	string::size_type end = 0;
 	while(end != string::npos)
 	{
 	    const string delim = " \t\r\n";
 		
-	    string::size_type beg = overwrite.find_first_not_of(delim, end);
+	    string::size_type beg = override.find_first_not_of(delim, end);
 	    if(beg == string::npos)
 	    {
 		break;
 	    }
 		
-	    end = overwrite.find_first_of(delim, beg);
+	    end = override.find_first_of(delim, beg);
 	    string arg;
 	    if(end == string::npos)
 	    {
-		arg = overwrite.substr(beg);
+		arg = override.substr(beg);
 	    }
 	    else
 	    {
-		arg = overwrite.substr(beg, end - beg);
+		arg = override.substr(beg, end - beg);
 	    }
 	    if(arg.find("--") != 0)
 	    {
@@ -251,7 +329,203 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    args.push_back(arg);
 	}
     }
-    
+
+#ifdef _WIN32
+    //
+    // Compose command line.
+    //
+    string cmd = path;
+    StringSeq::const_iterator p;
+    for(p = args.begin(); p != args.end(); ++p)
+    {
+        cmd.push_back(' ');
+
+        //
+        // Enclose arguments containing spaces in double quotes.
+        //
+        if((*p).find_first_of(" \t\n\r") != string::npos)
+        {
+            cmd.push_back('"');
+            cmd.append(*p);
+            cmd.push_back('"');
+        }
+        else
+        {
+            cmd.append(*p);
+        }
+    }
+
+    //
+    // Make a copy of the command line.
+    //
+    char* cmdbuf = strdup(cmd.c_str());
+
+    STARTUPINFO si;
+    ZeroMemory(&si, sizeof(si));
+    si.cb = sizeof(si);
+    PROCESS_INFORMATION pi;
+    ZeroMemory(&pi, sizeof(pi));
+
+    HANDLE router = NULL;
+
+    try
+    {
+        BOOL b;
+
+        OVERLAPPED ol;
+        ZeroMemory(&ol, sizeof(ol));
+        ol.hEvent = event;
+
+        //
+        // "Connect" to named pipe. This operation won't complete until the
+        // client connects to the pipe with CreateFile(), so we expect
+        // ConnectNamedPipe() to return false.
+        //
+        b = ConnectNamedPipe(pipe, &ol);
+        if(b || GetLastError() != ERROR_IO_PENDING)
+        {
+            CannotStartRouterException ex;
+            ex.reason = "unexpected result connecting to named pipe";
+            throw ex;
+        }
+
+        if(_traceLevel >= 2)
+        {
+            Trace out(_logger, "Glacier");
+            out << "creating new router:\n" << cmdbuf;
+        }
+
+        //
+        // Start the router.
+        //
+        b = CreateProcess(
+            NULL,                     // Executable
+            cmdbuf,                   // Command line
+            NULL,                     // Process attributes
+            NULL,                     // Thread attributes
+            FALSE,                    // Inherit handles
+            CREATE_NEW_PROCESS_GROUP, // Process creation flags
+            NULL,                     // Process environment
+            NULL,                     // Current directory
+            &si,                      // Startup info
+            &pi                       // Process info
+        );
+
+        free(cmdbuf);
+
+        if(!b)
+        {
+            SyscallException ex(__FILE__, __LINE__);
+            ex.error = getSystemErrno();
+            throw ex;
+        }
+
+        //
+        // Caller is responsible for closing handles in PROCESS_INFORMATION. We don't need to
+        // keep the thread handle, so we close it now. The process handle will be closed later.
+        //
+        CloseHandle(pi.hThread);
+        router = pi.hProcess;
+
+        //
+        // Get the startup timeout.
+        //
+        DWORD timeout = _properties->getPropertyAsIntWithDefault("Glacier.Starter.StartupTimeout", 10);
+        if(timeout < 1)
+        {
+            timeout = 1;
+        }
+        timeout *= 1000; // milliseconds
+
+        //
+        // Wait for the router to connect to the pipe.
+        //
+        while(true)
+        {
+            DWORD result = WaitForSingleObject(event, timeout);
+            if(result == WAIT_OBJECT_0)
+            {
+                break;
+            }
+            else if(result == WAIT_TIMEOUT)
+            {
+                CannotStartRouterException ex;
+                ex.reason = "timeout while starting `" + path + "'";
+                throw ex;
+            }
+            else
+            {
+                SyscallException ex(__FILE__, __LINE__);
+                ex.error = getSystemErrno();
+                throw ex;
+            }
+        }
+
+        //
+        // Read the output from the child.
+        //
+        string output;
+        while(true)
+        {
+            char buff[1024];
+            DWORD count;
+            b = ReadFile(pipe, buff, 1024, &count, NULL);
+            if(count == 0 || (!b && GetLastError() == ERROR_BROKEN_PIPE))
+            {
+                break;
+            }
+            if(!b)
+            {
+                SyscallException ex(__FILE__, __LINE__);
+                ex.error = getSystemErrno();
+                throw ex;
+            }
+            output.append(buff, 0, count);
+        }
+
+        if(output.find(uuid) == 0)
+        {
+            //
+            // We got the stringified router proxy.
+            //
+            RouterPrx prx = RouterPrx::uncheckedCast(_communicator->stringToProxy(output));
+
+            if(_traceLevel >= 2)
+            {
+                Trace out(_logger, "Glacier");
+                out << "started new router:\n" << _communicator->proxyToString(prx);
+            }
+
+            CloseHandle(router);
+            CloseHandle(pipe);
+            CloseHandle(event);
+
+            return prx;
+        }
+        else
+        {
+            //
+            // We got something else.
+            //
+            CannotStartRouterException ex;
+            ex.reason = output;
+            throw ex;
+        }
+    }
+    catch(const Exception& ex)
+    {
+        if(router != NULL)
+        {
+            CloseHandle(router);
+        }
+        CloseHandle(pipe);
+        CloseHandle(event);
+
+        Error out(_logger);
+        out << ex;
+        ex.ice_throw();
+    }
+#else
     //
     // Convert to standard argc/argv.
     //
@@ -470,6 +744,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    ex.ice_throw();
 	}
     }
+#endif
 
     assert(false); // Should never be reached.
     return 0; // To keep the compiler from complaining.
@@ -484,6 +759,8 @@ bool
 Glacier::CryptPasswordVerifierI::checkPermissions(
     const string& userId, const string& password, string&, const Current&) const
 {
+    IceUtil::Mutex::Lock sync(*this);
+
     map<string, string>::const_iterator p = _passwords.find(userId);
 
     if(p == _passwords.end())
@@ -496,11 +773,10 @@ Glacier::CryptPasswordVerifierI::checkPermissions(
 	return false;
     }
 
-    {
-	IceUtil::Mutex::Lock sync(*this); // Need a lock as crypt() is not reentrant.
-	
-	return p->second == crypt(password.c_str(), p->second.substr(0, 2).c_str());
-    }
+    char buff[14];
+    string salt = p->second.substr(0, 2);
+    DES_fcrypt(password.c_str(), salt.c_str(), buff);
+    return p->second == buff;
 }
 
 void

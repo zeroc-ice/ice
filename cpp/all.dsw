@@ -69,6 +69,30 @@ Package=<4>
 
 ###############################################################################
 
+Project: "GlacierStarter"=.\src\Glacier\GlacierStarter.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Glacier
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceSSL
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "Ice"=.\src\Ice\Ice.dsp - Package Owner=<4>
 
 Package=<5>
@@ -2611,6 +2635,36 @@ Package=<4>
 ###############################################################################
 
 Project: "sliceobS"=.\test\Ice\slicing\objects\sliceobS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceUtil
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "starterC"=.\test\Glacier\starter\starterC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+}}}
+
+###############################################################################
+
+Project: "starterS"=.\test\Glacier\starter\starterS.dsp - Package Owner=<4>
 
 Package=<5>
 {{{

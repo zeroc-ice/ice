@@ -231,7 +231,72 @@ Glacier::RouterApp::run(int argc, char* argv[])
     RouterPtr router = new RouterI(clientAdapter, serverAdapter, routingTable, sessionManagerPrx, userId);
     routerAdapter->add(router, stringToIdentity(routerIdentity));
 
-#ifndef _WIN32
+#ifdef _WIN32
+    //
+    // Send the stringified router proxy to a named pipe, if so requested.
+    //
+    string outputFd = properties->getProperty("Glacier.Router.PrintProxyOnFd");
+    if(!outputFd.empty())
+    {
+        //
+        // Windows 9x/ME does not allow colons in a pipe name, so we ensure
+        // our UUID does not have any.
+        //
+        string pipeName = "\\\\.\\pipe\\" + routerIdentity;
+        string::size_type pos;
+        while((pos = pipeName.find(':')) != string::npos)
+        {
+            pipeName[pos] = '-';
+        }
+
+        HANDLE pipe = CreateFile(
+            pipeName.c_str(), // Pipe name
+            GENERIC_WRITE,    // Write access
+            0,                // No sharing
+            NULL,             // No security attributes
+            OPEN_EXISTING,    // Opens existing pipe
+            0,                // Default attributes
+            NULL);            // No template file
+
+        if(pipe == INVALID_HANDLE_VALUE)
+        {
+            cerr << appName() << ": cannot open pipe `" << pipeName << "' to starter" << endl;
+
+            //
+            // Destroy the router. The client and server blobjects get destroyed by ServantLocator::deactivate.
+            //
+            RouterI* rtr = dynamic_cast<RouterI*>(router.get());
+            assert(rtr);
+            rtr->destroy();
+
+            return EXIT_FAILURE;
+        }
+
+	string ref = communicator()->proxyToString(routerAdapter->createProxy(stringToIdentity(routerIdentity)));
+        string::size_type count = 0;
+        while(count < ref.size())
+        {
+            DWORD n;
+            if(!WriteFile(pipe, ref.c_str(), ref.length(), &n, NULL))
+            {
+                cerr << appName() << ": unable to write proxy to pipe" << endl;
+
+                //
+                // Destroy the router. The client and server blobjects get destroyed by ServantLocator::deactivate.
+                //
+                RouterI* rtr = dynamic_cast<RouterI*>(router.get());
+                assert(rtr);
+                rtr->destroy();
+
+                return EXIT_FAILURE;
+            }
+            count += n;
+        }
+
+        FlushFileBuffers(pipe);
+        CloseHandle(pipe);
+    }
+#else
     //
     // Print the stringified router proxy on a filedescriptor
     // specified in the properties, if so requested.
