@@ -98,15 +98,15 @@ IceUtil::Base64::encode(const ByteSeq& plainSeq)
 }
 
 IceUtil::ByteSeq
-IceUtil::Base64::decode(const string& _str)
+IceUtil::Base64::decode(const string& s)
 {
     string str;
 
-    for (unsigned int j = 0; j < _str.length(); j++)
+    for (unsigned int j = 0; j < s.length(); j++)
     {
-        if (isBase64(_str[j]))
+        if (isBase64(s[j]))
         {
-            str += _str[j];
+            str += s[j];
         }
     }
 
@@ -118,8 +118,8 @@ IceUtil::Base64::decode(const string& _str)
     }
 
     // Figure out how long the final sequence is going to be.
-    long lines = _str.size() / 78;
-    long totalBytes = (lines * 76) + (((_str.size() - (lines * 78)) * 3) / 4);
+    long lines = s.size() / 78;
+    long totalBytes = (lines * 76) + (((s.size() - (lines * 78)) * 3) / 4);
 
     retval.reserve(totalBytes);
 
