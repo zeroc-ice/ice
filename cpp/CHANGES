@@ -1,8 +1,13 @@
 Changes since version 1.4.0
 ---------------------------
 
-- Changed the names of Windows executables to lower case, for consistency
-  with non-Windows platforms. The following executables have been renamed:
+- Fixed a bug in the C++ translator that caused compile errors when
+  two Slice classes with the same name appeared in different modules
+  in the same file.
+
+- Changed the names of Windows executables to lower case, for
+  consistency with non-Windows platforms. The following executables
+  have been renamed:
 
     DumpDB.exe		-> dumpdb.exe
     GlacierRouter.exe	-> glacierrouter.exe

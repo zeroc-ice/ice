@@ -2135,9 +2135,15 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	{
 	    H << sp << nl << "static const ::Ice::ObjectFactoryPtr& ice_factory();";
 
+            string flattenedScope;
+
+            for(string::const_iterator r = scope.begin(); r != scope.end(); ++r)
+            {
+                flattenedScope += ((*r) == ':') ? '_' : *r;
+            }
+
 	    string name = fixKwd(p->name());
-	    string factoryName = "__F__";
-	    factoryName += name;
+	    string factoryName = "__F" + flattenedScope + name;
 	    C << sp;
 	    C << nl << "class " << factoryName << " : public ::Ice::ObjectFactory";
 	    C << sb;
@@ -2155,8 +2161,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << eb << ';';
 
 	    C << sp;
-	    C << nl << "::Ice::ObjectFactoryPtr " << scoped.substr(2) << "::_factory = new "
-	      << "__F__" << fixKwd(p->name()) << ';';
+	    C << nl << "::Ice::ObjectFactoryPtr " << scoped.substr(2) << "::_factory = new " << factoryName << ';';
 
 	    C << sp << nl << "const ::Ice::ObjectFactoryPtr&" << nl << scoped.substr(2) << "::ice_factory()";
 	    C << sb;
@@ -2183,12 +2188,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    C << sp;
 	    C << nl << "static " << factoryName << "__Init " << factoryName << "__i;";
 	    C << sp << nl << "#ifdef __APPLE__";
-	    std::string initfuncname = "__F";
-	    for(std::string::const_iterator q = scope.begin(); q != scope.end(); ++q)
-	    {
-		initfuncname += ((*q) == ':') ? '_' : *q;
-	    }
-	    initfuncname += name + "__initializer";
+	    std::string initfuncname = "__F" + flattenedScope + name + "__initializer";
 	    C << nl << "extern \"C\" { void " << initfuncname << "() {} }";
 	    C << nl << "#endif";
 
