@@ -150,10 +150,6 @@ SOURCE=.\StaticMutex.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\StaticRecMutex.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\Thread.cpp
 # End Source File
 # Begin Source File
@@ -255,10 +251,6 @@ SOURCE=..\..\include\IceUtil\Shared.h
 # Begin Source File
 
 SOURCE=..\..\include\IceUtil\StaticMutex.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IceUtil\StaticRecMutex.h
 # End Source File
 # Begin Source File
 
