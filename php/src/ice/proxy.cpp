@@ -275,14 +275,17 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_isA)
 
     try
     {
-        if(_this->getProxy()->ice_isA(id, ctx))
+        bool b;
+        if(arr)
         {
-            RETVAL_TRUE;
+            b = _this->getProxy()->ice_isA(id, ctx);
         }
         else
         {
-            RETVAL_FALSE;
+            b = _this->getProxy()->ice_isA(id);
         }
+
+        RETURN_BOOL(b ? 1 : 0);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -320,7 +323,14 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ping)
 
     try
     {
-        _this->getProxy()->ice_ping(ctx);
+        if(arr)
+        {
+            _this->getProxy()->ice_ping(ctx);
+        }
+        else
+        {
+            _this->getProxy()->ice_ping();
+        }
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -359,7 +369,15 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_id)
 
     try
     {
-        string id = _this->getProxy()->ice_id(ctx);
+        string id;
+        if(arr)
+        {
+            id = _this->getProxy()->ice_id(ctx);
+        }
+        else
+        {
+            id = _this->getProxy()->ice_id();
+        }
         RETURN_STRINGL(const_cast<char*>(id.c_str()), id.length(), 1);
     }
     catch(const IceUtil::Exception& ex)
@@ -398,7 +416,16 @@ ZEND_FUNCTION(Ice_ObjectPrx_ice_ids)
 
     try
     {
-        vector<string> ids = _this->getProxy()->ice_ids(ctx);
+        vector<string> ids;
+        if(arr)
+        {
+            ids = _this->getProxy()->ice_ids(ctx);
+        }
+        else
+        {
+            ids = _this->getProxy()->ice_ids();
+        }
+
         array_init(return_value);
         uint idx = 0;
         for(vector<string>::const_iterator p = ids.begin(); p != ids.end(); ++p, ++idx)
@@ -1220,16 +1247,32 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
         // Populate the context (if necessary).
         //
         Ice::Context ctx;
-        if(ZEND_NUM_ARGS() == numParams + 1 && !extractContext(*args[numParams], ctx TSRMLS_CC))
+        bool haveContext = false;
+        if(ZEND_NUM_ARGS() == numParams + 1)
         {
-            return;
+            if(extractContext(*args[numParams], ctx TSRMLS_CC))
+            {
+                haveContext = true;
+            }
+            else
+            {
+                return;
+            }
         }
 
         //
         // Invoke the operation. Don't use _name here.
         //
         PHPStream is(_instance.get());
-        bool status = _proxy->ice_invoke(_op->name(), mode, os.b, is.b, ctx);
+        bool status;
+        if(haveContext)
+        {
+            status = _proxy->ice_invoke(_op->name(), mode, os.b, is.b, ctx);
+        }
+        else
+        {
+            status = _proxy->ice_invoke(_op->name(), mode, os.b, is.b);
+        }
 
         //
         // Process the reply.
