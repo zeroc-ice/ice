@@ -19,6 +19,12 @@
 namespace Freeze
 {
 
+//
+// Check a Berkeley DB return result, and throw an apropriate
+// exception.
+//
+void checkBerkeleyDBReturn(int ret, const std::string&, const std::string&);
+
 class DBEnvironmentI;
 typedef IceUtil::Handle<DBEnvironmentI> DBEnvironmentIPtr;
 
@@ -84,11 +90,11 @@ public:
 
     virtual std::string getName();
 
-    virtual void put(const Key&, const Value&, bool);
+    virtual void put(const Key&, const Value&);
     virtual Value get(const Key&);
     virtual void del(const Key&);
 
-    virtual void putServant(const std::string&, const ::Ice::ObjectPtr&, bool);
+    virtual void putServant(const std::string&, const ::Ice::ObjectPtr&);
     virtual ::Ice::ObjectPtr getServant(const std::string&);
     virtual void delServant(const std::string&);
 

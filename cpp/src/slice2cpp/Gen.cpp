@@ -125,7 +125,7 @@ Slice::Gen::generate(const UnitPtr& unit)
     }
 
     StringList includes = unit->includeFiles();
-    for (StringList::iterator q = includes.begin(); q != includes.end(); ++q)
+    for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
     {
 	H << "\n#include <" << changeInclude(*q) << ".h>";
     }
@@ -196,7 +196,7 @@ string
 Slice::Gen::changeInclude(const string& orig)
 {
     string file = orig;
-    for (vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
+    for (vector<string>::const_iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
 	if (orig.compare(0, p->length(), *p) == 0)
 	{
@@ -441,7 +441,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     H << sp;
     H << nl << "enum " << name;
     H << sb;
-    EnumeratorList::iterator en = enumerators.begin();
+    EnumeratorList::const_iterator en = enumerators.begin();
     while (en != enumerators.end())
     {
 	H << nl << (*en)->name();
@@ -652,7 +652,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
 	H.useCurrentPosAsIndent();
-	ClassList::iterator q = bases.begin();
+	ClassList::const_iterator q = bases.begin();
 	while (q != bases.end())
 	{
 	    H << "virtual public ::IceProxy" << (*q)->scoped();
@@ -711,7 +711,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     TypeStringList inParams = p->inputParameters();
     TypeStringList outParams = p->outputParameters();
-    TypeStringList::iterator q;
+    TypeStringList::const_iterator q;
 
     string params = "(";
     string paramsDecl = "("; // With declarators
@@ -873,7 +873,7 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
 	H.useCurrentPosAsIndent();
-	ClassList::iterator q = bases.begin();
+	ClassList::const_iterator q = bases.begin();
 	while (q != bases.end())
 	{
 	    H << "virtual public ::IceDelegate" << (*q)->scoped();
@@ -908,7 +908,7 @@ Slice::Gen::DelegateVisitor::visitOperation(const OperationPtr& p)
 
     TypeStringList inParams = p->inputParameters();
     TypeStringList outParams = p->outputParameters();
-    TypeStringList::iterator q;
+    TypeStringList::const_iterator q;
 
     string params = "(";
     string args = "(";
@@ -1019,7 +1019,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-	ClassList::iterator q = bases.begin();
+	ClassList::const_iterator q = bases.begin();
 	while (q != bases.end())
 	{
 	    H << nl << "virtual public ::IceDelegateM" << (*q)->scoped();
@@ -1056,7 +1056,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 
     TypeStringList inParams = p->inputParameters();
     TypeStringList outParams = p->outputParameters();
-    TypeStringList::iterator q;
+    TypeStringList::const_iterator q;
 
     string params = "(";
     string paramsDecl = "("; // With declarators
@@ -1123,7 +1123,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	C << nl << "__is->read(__exnum);";
 	C << nl << "switch (__exnum)";
 	C << sb;
-	TypeList::iterator r;
+	TypeList::const_iterator r;
 	int cnt = 0;
 	for (r = throws.begin(); r != throws.end(); ++r)
 	{
@@ -1262,7 +1262,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-	ClassList::iterator q = bases.begin();
+	ClassList::const_iterator q = bases.begin();
 	while (q != bases.end())
 	{
 	    H << "virtual public " << (*q)->scoped() << "PtrE";
@@ -1312,7 +1312,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	else
 	{
-	    ClassList::iterator q = bases.begin();
+	    ClassList::const_iterator q = bases.begin();
 	    while (q != bases.end())
 	    {
 		H << "virtual public " << (*q)->scoped() << "PrxE";
@@ -1369,7 +1369,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-	ClassList::iterator q = bases.begin();
+	ClassList::const_iterator q = bases.begin();
 	while (q != bases.end())
 	{
 	    H << "virtual public " << (*q)->scoped();
@@ -1440,7 +1440,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 	}
 	classIds.push_back("::Ice::Object");
 
-	StringList::iterator q;
+	StringList::const_iterator q;
 
 	H << sp;
 	H << nl << exp2 << "static ::std::string __ids[" << ids.size() << "];";
@@ -1538,7 +1538,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 	    allMutatingOpNames.sort();
 	    allMutatingOpNames.unique();
 	    
-	    StringList::iterator q;
+	    StringList::const_iterator q;
 	    
 	    H << sp;
 	    H << nl << exp2 << "static ::std::string __all[" << allOpNames.size() << "];";
@@ -1696,7 +1696,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 
     TypeStringList inParams = p->inputParameters();
     TypeStringList outParams = p->outputParameters();
-    TypeStringList::iterator q;
+    TypeStringList::const_iterator q;
 
     string params = "(";
     string paramsDecl = "("; // With declarators
@@ -1786,7 +1786,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	if (!throws.empty())
 	{
 	    C << eb;
-	    TypeList::iterator r;
+	    TypeList::const_iterator r;
 	    int cnt = 0;
 	    for (r = throws.begin(); r != throws.end(); ++r)
 	    {

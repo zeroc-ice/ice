@@ -20,9 +20,6 @@ module Ice
  * by implementing this interface and installing it with with a
  * Communicator.
  *
- * @see Communicator::getLogger
- * @see Communicator::setLogger
- *
  **/
 local interface Logger
 {

@@ -25,6 +25,43 @@ using namespace Freeze;
 #   define FREEZE_DB_MODE (S_IRUSR | S_IWUSR)
 #endif
 
+void
+Freeze::checkBerkeleyDBReturn(int ret, const string& prefix, const string& op)
+{
+    if (ret == 0)
+    {
+	return; // Everything ok
+    }
+    
+    DBExceptionPtr ex;
+
+    switch (ret)
+    {
+	case DB_LOCK_DEADLOCK:
+	{
+	    ex = new DBDeadlockException;
+	    break;
+	}
+
+	case DB_NOTFOUND:
+	{
+	    ex = new DBNotFoundException;
+	    break;
+	}
+	
+	default:
+	{
+	    ex = new DBException;
+	    break;
+	}
+    }
+
+    ostringstream s;
+    s << prefix << op << ": " << db_strerror(ret);
+    ex->message = s.str();
+    ex->_throw();
+}
+
 Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, const string& name) :
     _communicator(communicator),
     _logger(communicator->getLogger()),
@@ -43,18 +80,7 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
 	_trace = atoi(value.c_str());
     }
 
-    int ret;
-
-    ret = db_env_create(&_dbEnv, 0);
-
-    if (ret != 0)
-    {
-	ostringstream s;
-	s << _errorPrefix << "db_env_create: " << db_strerror(ret);
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
-    }
+    checkBerkeleyDBReturn(db_env_create(&_dbEnv, 0), _errorPrefix, "db_env_create");
 
     if (_trace >= 1)
     {
@@ -63,23 +89,15 @@ Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, cons
 	_logger->trace("DB", s.str());
     }
 
-    ret = _dbEnv->open(_dbEnv, _name.c_str(),
-		       DB_CREATE |
-		       DB_INIT_LOCK |
-		       DB_INIT_LOG |
-		       DB_INIT_MPOOL |
-		       //DB_INIT_TXN |
-		       DB_RECOVER |
-		       DB_THREAD,
-		       FREEZE_DB_MODE);
-    if (ret != 0)
-    {
-	ostringstream s;
-	s << _errorPrefix << "DB_ENV->open: " << db_strerror(ret);
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
-    }
+    checkBerkeleyDBReturn(_dbEnv->open(_dbEnv, _name.c_str(),
+				  DB_CREATE |
+				  DB_INIT_LOCK |
+				  DB_INIT_LOG |
+				  DB_INIT_MPOOL |
+				  DB_INIT_TXN |
+				  DB_RECOVER |
+				  DB_THREAD,
+				  FREEZE_DB_MODE), _errorPrefix, "DB_ENV->open");
 }
 
 Freeze::DBEnvironmentI::~DBEnvironmentI()
@@ -108,9 +126,9 @@ Freeze::DBEnvironmentI::openDB(const string& name)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
+	DBExceptionPtr ex = new DBException;
+	ex->message = s.str();
+	ex->_throw();
     }
 
     map<string, DBPtr>::iterator p = _dbMap.find(name);
@@ -120,17 +138,8 @@ Freeze::DBEnvironmentI::openDB(const string& name)
     }
 
     ::DB* db;
-    int ret = db_create(&db, _dbEnv, 0);
-
-    if (ret != 0)
-    {
-	ostringstream s;
-	s << _errorPrefix << "db_create: " << db_strerror(ret);
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
-    }
-
+    checkBerkeleyDBReturn(db_create(&db, _dbEnv, 0), _errorPrefix, "db_create");
+    
     return new DBI(_communicator, this, db, name);
 }
 
@@ -164,16 +173,7 @@ Freeze::DBEnvironmentI::close()
 	_logger->trace("DB", s.str());
     }
 
-    int ret = _dbEnv->close(_dbEnv, 0);
-
-    if (ret != 0)
-    {
-	ostringstream s;
-	s << _errorPrefix << "DB_ENV->close: " << db_strerror(ret);
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
-    }
+    checkBerkeleyDBReturn(_dbEnv->close(_dbEnv, 0), _errorPrefix, "DB_ENV->close");
 
     _dbEnv = 0;
 }
@@ -225,16 +225,7 @@ Freeze::DBTransactionI::DBTransactionI(const CommunicatorPtr& communicator, ::DB
 	_logger->trace("DB", s.str());
     }
     
-    int ret = txn_begin(dbEnv, 0, &_tid, 0);
-    
-    if (ret != 0)
-    {
-	ostringstream s;
-	s << _errorPrefix << "txn_begin: " << db_strerror(ret);
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
-    }
+    checkBerkeleyDBReturn(txn_begin(dbEnv, 0, &_tid, 0), _errorPrefix, "txn_begin");
 }
 
 Freeze::DBTransactionI::~DBTransactionI()
@@ -256,9 +247,9 @@ Freeze::DBTransactionI::commit()
     {
 	ostringstream s;
 	s << _errorPrefix << "transaction has already been committed or aborted";
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
+	DBExceptionPtr ex = new DBException;
+	ex->message = s.str();
+	ex->_throw();
     }
 
     if (_trace >= 2)
@@ -268,16 +259,7 @@ Freeze::DBTransactionI::commit()
 	_logger->trace("DB", s.str());
     }
     
-    int ret = txn_commit(_tid, 0);
-    
-    if (ret != 0)
-    {
-	ostringstream s;
-	s << _errorPrefix << "txn_commit: " << db_strerror(ret);
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
-    }
+    checkBerkeleyDBReturn(txn_commit(_tid, 0), _errorPrefix, "txn_commit");
 
     _tid = 0;
 }
@@ -291,9 +273,9 @@ Freeze::DBTransactionI::abort()
     {
 	ostringstream s;
 	s << _errorPrefix << "transaction has already been committed or aborted";
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
+	DBExceptionPtr ex = new DBException;
+	ex->message = s.str();
+	ex->_throw();
     }
 
     if (_trace >= 2)
@@ -303,16 +285,7 @@ Freeze::DBTransactionI::abort()
 	_logger->trace("DB", s.str());
     }
     
-    int ret = txn_abort(_tid);
-    
-    if (ret != 0)
-    {
-	ostringstream s;
-	s << _errorPrefix << "txn_abort: " << db_strerror(ret);
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
-    }
+    checkBerkeleyDBReturn(txn_abort(_tid), _errorPrefix, "txn_abort");
 
     _tid = 0;
 }
@@ -344,16 +317,8 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& d
 	_logger->trace("DB", s.str());
     }
     
-    int ret = _db->open(_db, name.c_str(), 0, DB_BTREE, DB_CREATE, FREEZE_DB_MODE);
-
-    if (ret != 0)
-    {
-	ostringstream s;
-	s << _errorPrefix << "DB->open: " << db_strerror(ret);
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
-    }
+    checkBerkeleyDBReturn(_db->open(_db, name.c_str(), 0, DB_BTREE, DB_CREATE, FREEZE_DB_MODE), _errorPrefix,
+			  "DB->open");
 }
 
 Freeze::DBI::~DBI()
@@ -374,7 +339,7 @@ Freeze::DBI::getName()
 }
 
 void
-Freeze::DBI::put(const Key& key, const Value& value, bool txn)
+Freeze::DBI::put(const Key& key, const Value& value)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -382,9 +347,9 @@ Freeze::DBI::put(const Key& key, const Value& value, bool txn)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
+	DBExceptionPtr ex = new DBException;
+	ex->message = s.str();
+	ex->_throw();
     }
 
     DBT dbKey, dbData;
@@ -395,76 +360,14 @@ Freeze::DBI::put(const Key& key, const Value& value, bool txn)
     dbData.data = const_cast<void*>(static_cast<const void*>(value.begin()));
     dbData.size = value.size();
 
-    while (true)
+    if (_trace >= 1)
     {
-	DBTransactionPtr txnObj;
-	if (txn)
-	{
-	    txnObj = _dbEnvObj->startTransaction();
-	}
-	
-	if (_trace >= 1)
-	{
-	    ostringstream s;
-	    s << "writing value in database \"" << _name << "\"";
-	    _logger->trace("DB", s.str());
-	}
-
-	int ret = _db->put(_db, 0, &dbKey, &dbData, 0);
-
-	switch (ret)
-	{
-	    case 0:
-	    {
-		if (txnObj)
-		{
-		    //
-		    // Everything ok, commit the transaction
-		    //
-		    txnObj->commit();
-		}
-
-		return; // We're done
-	    }
-	    
-	    case DB_LOCK_DEADLOCK:
-	    {
-		if (txnObj)
-		{
-		    //
-		    // Deadlock, abort the transaction and retry
-		    //
-		    txnObj->abort();
-		    break; // Repeat
-		}
-		else
-		{
-		    ostringstream s;
-		    s << _errorPrefix << "DB->put: " << db_strerror(ret);
-		    DBException ex;
-		    ex.message = s.str();
-		    throw ex;
-		}
-	    }
-
-	    default:
-	    {
-		if (txnObj)
-		{
-		    //
-		    // Error, run recovery
-		    //
-		    txnObj->abort();
-		}
-
-		ostringstream s;
-		s << _errorPrefix << "DB->put: " << db_strerror(ret);
-		DBException ex;
-		ex.message = s.str();
-		throw ex;
-	    }
-	}
+	ostringstream s;
+	s << "writing value in database \"" << _name << "\"";
+	_logger->trace("DB", s.str());
     }
+
+    checkBerkeleyDBReturn(_db->put(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->put");
 }
 
 Value
@@ -476,9 +379,9 @@ Freeze::DBI::get(const Key& key)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
+	DBExceptionPtr ex = new DBException;
+	ex->message = s.str();
+	ex->_throw();
     }
 
     DBT dbKey, dbData;
@@ -494,38 +397,12 @@ Freeze::DBI::get(const Key& key)
 	_logger->trace("DB", s.str());
     }
     
-    int ret = _db->get(_db, 0, &dbKey, &dbData, 0);
+    checkBerkeleyDBReturn(_db->get(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->get");
 
-    switch (ret)
-    {
-	case 0:
-	{
-	    //
-	    // Everything ok
-	    //
-	    Value value;
-	    value.resize(dbData.size);
-	    memcpy(value.begin(), dbData.data, dbData.size);
-	    return value;
-	}
-
-	case DB_NOTFOUND:
-	{
-	    //
-	    // Key does not exist, return a null servant
-	    //
-	    return Value();
-	}
-	
-	default:
-	{
-	    ostringstream s;
-	    s << _errorPrefix << "DB->get: " << db_strerror(ret);
-	    DBException ex;
-	    ex.message = s.str();
-	    throw ex;
-	}
-    }
+    Value value;
+    value.resize(dbData.size);
+    memcpy(value.begin(), dbData.data, dbData.size);
+    return value;
 }
 
 void
@@ -537,9 +414,9 @@ Freeze::DBI::del(const Key& key)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
+	DBExceptionPtr ex = new DBException;
+	ex->message = s.str();
+	ex->_throw();
     }
 
     DBT dbKey;
@@ -554,31 +431,11 @@ Freeze::DBI::del(const Key& key)
 	_logger->trace("DB", s.str());
     }
     
-    int ret = _db->del(_db, 0, &dbKey, 0);
-
-    switch (ret)
-    {
-	case 0:
-	{
-	    //
-	    // Everything ok
-	    //
-	    break;
-	}
-
-	default:
-	{
-	    ostringstream s;
-	    s << _errorPrefix << "DB->del: " << db_strerror(ret);
-	    DBException ex;
-	    ex.message = s.str();
-	    throw ex;
-	}
-    }
+    checkBerkeleyDBReturn(_db->del(_db, 0, &dbKey, 0), _errorPrefix, "DB->del");
 }
 
 void
-Freeze::DBI::putServant(const string& identity, const ObjectPtr& servant, bool txn)
+Freeze::DBI::putServant(const string& identity, const ObjectPtr& servant)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -586,9 +443,9 @@ Freeze::DBI::putServant(const string& identity, const ObjectPtr& servant, bool t
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
+	DBExceptionPtr ex = new DBException;
+	ex->message = s.str();
+	ex->_throw();
     }
 
     if (!servant)
@@ -608,76 +465,14 @@ Freeze::DBI::putServant(const string& identity, const ObjectPtr& servant, bool t
     dbData.data = stream.b.begin();
     dbData.size = stream.b.size();
 
-    while (true)
+    if (_trace >= 1)
     {
-	DBTransactionPtr txnObj;
-	if (txn)
-	{
-	    txnObj = _dbEnvObj->startTransaction();
-	}
-	
-	if (_trace >= 1)
-	{
-	    ostringstream s;
-	    s << "writing Servant for identity \"" << identity << "\" in database \"" << _name << "\"";
-	    _logger->trace("DB", s.str());
-	}
-
-	int ret = _db->put(_db, 0, &dbKey, &dbData, 0);
-
-	switch (ret)
-	{
-	    case 0:
-	    {
-		if (txnObj)
-		{
-		    //
-		    // Everything ok, commit the transaction
-		    //
-		    txnObj->commit();
-		}
-
-		return; // We're done
-	    }
-	    
-	    case DB_LOCK_DEADLOCK:
-	    {
-		if (txnObj)
-		{
-		    //
-		    // Deadlock, abort the transaction and retry
-		    //
-		    txnObj->abort();
-		    break; // Repeat
-		}
-		else
-		{
-		    ostringstream s;
-		    s << _errorPrefix << "DB->put: " << db_strerror(ret);
-		    DBException ex;
-		    ex.message = s.str();
-		    throw ex;
-		}
-	    }
-
-	    default:
-	    {
-		if (txnObj)
-		{
-		    //
-		    // Error, run recovery
-		    //
-		    txnObj->abort();
-		}
-
-		ostringstream s;
-		s << _errorPrefix << "DB->put: " << db_strerror(ret);
-		DBException ex;
-		ex.message = s.str();
-		throw ex;
-	    }
-	}
+	ostringstream s;
+	s << "writing Servant for identity \"" << identity << "\" in database \"" << _name << "\"";
+	_logger->trace("DB", s.str());
     }
+    
+    checkBerkeleyDBReturn(_db->put(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->put");
 }
 
 ObjectPtr
@@ -689,9 +484,9 @@ Freeze::DBI::getServant(const string& identity)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
+	DBExceptionPtr ex = new DBException;
+	ex->message = s.str();
+	ex->_throw();
     }
 
     DBT dbKey, dbData;
@@ -707,49 +502,23 @@ Freeze::DBI::getServant(const string& identity)
 	_logger->trace("DB", s.str());
     }
     
-    int ret = _db->get(_db, 0, &dbKey, &dbData, 0);
+    checkBerkeleyDBReturn(_db->get(_db, 0, &dbKey, &dbData, 0), _errorPrefix, "DB->get");
 
-    switch (ret)
+    IceInternal::InstancePtr instance = IceInternal::getInstance(_communicator);
+    IceInternal::Stream stream(instance);
+    stream.b.resize(dbData.size);
+    stream.i = stream.b.begin();
+    memcpy(stream.b.begin(), dbData.data, dbData.size);
+    
+    ObjectPtr servant;
+    stream.read(servant, "::Ice::Object");
+    
+    if (!servant)
     {
-	case 0:
-	{
-	    //
-	    // Everything ok
-	    //
-	    IceInternal::InstancePtr instance = IceInternal::getInstance(_communicator);
-	    IceInternal::Stream stream(instance);
-	    stream.b.resize(dbData.size);
-	    stream.i = stream.b.begin();
-	    memcpy(stream.b.begin(), dbData.data, dbData.size);
-	    
-	    ObjectPtr servant;
-	    stream.read(servant, "::Ice::Object");
-
-	    if (!servant)
-	    {
-		throw NoServantFactoryException(__FILE__, __LINE__);
-	    }
-
-	    return servant;
-	}
-
-	case DB_NOTFOUND:
-	{
-	    //
-	    // Identity does not exist, return a null servant
-	    //
-	    return 0;
-	}
-	
-	default:
-	{
-	    ostringstream s;
-	    s << _errorPrefix << "DB->get: " << db_strerror(ret);
-	    DBException ex;
-	    ex.message = s.str();
-	    throw ex;
-	}
+	throw NoServantFactoryException(__FILE__, __LINE__);
     }
+    
+    return servant;
 }
 
 void
@@ -761,9 +530,9 @@ Freeze::DBI::delServant(const string& identity)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
+	DBExceptionPtr ex = new DBException;
+	ex->message = s.str();
+	ex->_throw();
     }
 
     DBT dbKey;
@@ -778,27 +547,7 @@ Freeze::DBI::delServant(const string& identity)
 	_logger->trace("DB", s.str());
     }
     
-    int ret = _db->del(_db, 0, &dbKey, 0);
-
-    switch (ret)
-    {
-	case 0:
-	{
-	    //
-	    // Everything ok
-	    //
-	    break;
-	}
-
-	default:
-	{
-	    ostringstream s;
-	    s << _errorPrefix << "DB->del: " << db_strerror(ret);
-	    DBException ex;
-	    ex.message = s.str();
-	    throw ex;
-	}
-    }
+    checkBerkeleyDBReturn(_db->del(_db, 0, &dbKey, 0), _errorPrefix, "DB->del");
 }
 
 void
@@ -818,16 +567,7 @@ Freeze::DBI::close()
 	_logger->trace("DB", s.str());
     }
     
-    int ret = _db->close(_db, 0);
-
-    if (ret != 0)
-    {
-	ostringstream s;
-	s << _errorPrefix << "DB->close: " << db_strerror(ret);
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
-    }
+    checkBerkeleyDBReturn(_db->close(_db, 0), _errorPrefix, "DB->close");
 
     _dbEnvObj->remove(_name);
     _dbEnvObj = 0;
@@ -843,9 +583,9 @@ Freeze::DBI::createEvictor()
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
-	DBException ex;
-	ex.message = s.str();
-	throw ex;
+	DBExceptionPtr ex = new DBException;
+	ex->message = s.str();
+	ex->_throw();
     }
 
     return new EvictorI(this, _communicator);

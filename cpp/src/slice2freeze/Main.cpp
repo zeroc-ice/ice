@@ -167,7 +167,7 @@ writeDict(string n, UnitPtr& unit, const Dict& dict, Output& H, Output& C)
     H.inc();
     H << sp << nl << name << "(const ::Freeze::DBPtr&);";
     H << sp;
-    H << nl << "void put(" << inputTypeToString(keyType) << ", " << inputTypeToString(valueType) << ", bool);";
+    H << nl << "void put(" << inputTypeToString(keyType) << ", " << inputTypeToString(valueType) << ");";
     H << nl << returnTypeToString(valueType) << " get(" << inputTypeToString(keyType) << ");";
     H << nl << "void del(" << inputTypeToString(keyType) << ");";
     H.dec();
@@ -184,7 +184,7 @@ writeDict(string n, UnitPtr& unit, const Dict& dict, Output& H, Output& C)
     C << sb;
     C << eb;
     C << sp << nl << "void" << nl << "put(" << inputTypeToString(keyType) << " key, " << inputTypeToString(valueType)
-      << " value, bool txn)";
+      << " value)";
     C << sb;
     C << eb;
     C << sp << nl << returnTypeToString(valueType) << nl << "get(" << inputTypeToString(keyType) << " key)";

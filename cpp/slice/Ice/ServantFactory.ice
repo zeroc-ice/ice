@@ -22,7 +22,6 @@ module Ice
  * must be implemented by the application writer, and installed with
  * the Communicator.
  *
- * @see Communicator::installServantFactory
  * @see Pickler
  *
  **/

@@ -243,6 +243,8 @@ public:
     };
     virtual ContainedType containedType() = 0;
 
+    virtual bool uses(const ConstructedPtr&) = 0;
+
 protected:
 
     Contained(const ContainerPtr&, const std::string&);
@@ -295,6 +297,7 @@ public:
     std::string thisScope();
     void mergeModules();
     void sort();
+    void sortContents();
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -316,6 +319,7 @@ class SLICE_API Module : virtual public Container, virtual public Contained
 public:
 
     virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -345,10 +349,12 @@ class SLICE_API ClassDecl : virtual public Constructed
 {
 public:
 
+    virtual void destroy();
     ClassDefPtr definition();
     bool isLocal();
     bool isInterface();
     virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -370,9 +376,11 @@ class SLICE_API ClassDef : virtual public Container, virtual public Contained
 {
 public:
 
+    virtual void destroy();
     OperationPtr createOperation(const std::string&, const TypePtr&, const TypeStringList&, const TypeStringList&,
 				 const TypeList&, bool);
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
+    ClassDeclPtr declaration();
     ClassList bases();
     ClassList allBases();
     OperationList operations();
@@ -383,6 +391,7 @@ public:
     bool isInterface();
     bool hasDataMembers();
     virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -390,6 +399,7 @@ protected:
     ClassDef(const ContainerPtr&, const std::string&, bool, bool, const ClassList&);
     friend class SLICE_API Container;
 
+    ClassDeclPtr _declaration;
     bool _local;
     bool _interface;
     bool _hasDataMembers;
@@ -424,6 +434,7 @@ public:
     DataMemberPtr createDataMember(const std::string&, const TypePtr&);
     DataMemberList dataMembers();
     virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -446,6 +457,7 @@ public:
     TypeList throws();
     bool nonmutating();
     virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -471,6 +483,7 @@ public:
 
     TypePtr type();
     virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -492,6 +505,7 @@ public:
 
     TypePtr type();
     virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -513,6 +527,7 @@ public:
     TypePtr keyType();
     TypePtr valueType();
     virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -535,6 +550,7 @@ public:
     EnumeratorList getEnumerators();
     void setEnumerators(const EnumeratorList&);
     virtual ContainedType containedType();
+    virtual bool uses(const ConstructedPtr&);
     virtual void visit(ParserVisitor*);
 
 protected:
@@ -553,6 +569,7 @@ class SLICE_API Enumerator : virtual public Contained
 {
 public:
 
+    virtual bool uses(const ConstructedPtr&);
     virtual ContainedType containedType();
 
 protected:
@@ -569,6 +586,7 @@ class Native : virtual public Constructed
 {
 public:
 
+    virtual bool uses(const ConstructedPtr&);
     virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
@@ -611,6 +629,8 @@ public:
     void addContent(const ContainedPtr&);
     void removeContent(const ContainedPtr&);
     ContainedList findContents(const std::string&);
+    ClassList findDerived(const ClassDefPtr&);
+    ContainedList findUsedBy(const ConstructedPtr&);
 
     StringList includeFiles();
 

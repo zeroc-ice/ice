@@ -28,6 +28,8 @@ usage(const char* n)
 	"-IDIR                Put DIR in the include file search path.\n"
 	"-s, --stand-alone    Create stand-alone docbook file.\n"
 	"--no-globals         Don't document the global module.\n"
+	"--chapter            Use \"chapter\" instead of \"section\" as\n"
+	"                     top-level element.\n"
 	"-d, --debug          Print debug messages.\n"
 	;
 }
@@ -39,6 +41,7 @@ main(int argc, char* argv[])
     bool debug = false;
     bool standAlone = false;
     bool noGlobals = false;
+    bool chapter = false;
 
     int idx = 1;
     while (idx < argc)
@@ -77,6 +80,15 @@ main(int argc, char* argv[])
 	else if (strcmp(argv[idx], "--no-globals") == 0)
 	{
 	    noGlobals = true;
+	    for (int i = idx ; i + 1 < argc ; ++i)
+	    {
+		argv[i] = argv[i + 1];
+	    }
+	    --argc;
+	}
+	else if (strcmp(argv[idx], "--chapter") == 0)
+	{
+	    chapter = true;
 	    for (int i = idx ; i + 1 < argc ; ++i)
 	    {
 		argv[i] = argv[i + 1];
@@ -201,7 +213,7 @@ main(int argc, char* argv[])
 
     if (status == EXIT_SUCCESS)
     {
-	Gen gen(argv[0], docbook, standAlone, noGlobals);
+	Gen gen(argv[0], docbook, standAlone, noGlobals, chapter);
 	if (!gen)
 	{
 	    unit->destroy();

@@ -26,15 +26,40 @@ module Freeze
  *
  * A Freeze database exception.
  *
+ * @see DBEnvironment
+ * @see DBTransaction
+ * @see DB
+ * @see Evictor
+ *
  **/
-struct DBException
+local class DBException
 {
     /**
      *
-     * A message describing the exception.
+     * A message describing the reason for the exception.
      *
      **/
     string message;
+};
+
+/**
+ *
+ * A Freeze database exception, indicating that a database record
+ * could not be found.
+ *
+ **/
+local class DBNotFoundException extends DBException
+{
+};
+
+/**
+ *
+ * A Freeze database deadlock exception. Transactions can react to
+ * this exception by aborting and trying the transaction again.
+ *
+ **/
+local class DBDeadlockException extends DBException
+{
 };
 
 /**
@@ -43,7 +68,6 @@ struct DBException
  * single database environment. The database environment also offers
  * operations to create transactions.
  *
- * @see DBException
  * @see DBTransaction
  * @see DB
  *
@@ -69,6 +93,8 @@ local interface DBEnvironment
      *
      * @return The database object.
      *
+     * @throws DBException Raised if a database failure occurred.
+     *
      * @see DB
      * @see DB::close
      *
@@ -81,6 +107,8 @@ local interface DBEnvironment
      * return the transaction object for such new transaction.
      *
      * @return The transaction object.
+     *
+     * @throws DBException Raised if a database failure occurred.
      *
      * @see DBTransaction
      *
@@ -95,6 +123,8 @@ local interface DBEnvironment
      * with this database environment object. Subsequent calls to
      * <literal>close</literal> have no effect.
      *
+     * @throws DBException Raised if a database failure occurred.
+     *
      * @see DB::close
      *
      **/
@@ -105,6 +135,8 @@ local interface DBEnvironment
  *
  * A transaction object.
  *
+ * @see DBEnvironment
+ *
  **/
 local interface DBTransaction
 {
@@ -112,12 +144,16 @@ local interface DBTransaction
      *
      * Commit a transaction.
      *
+     * @throws DBException Raised if a database failure occurred.
+     *
      **/
     void commit() throws DBException;
 
     /**
      *
      * Abort a transaction.
+     *
+     * @throws DBException Raised if a database failure occurred.
      *
      **/
     void abort() throws DBException;
@@ -150,8 +186,6 @@ sequence<byte> Value;
  * database to store both key/value and identity/Servant pairs is
  * discouraged.
  *
- * @see DBEnvironment::openDB
- * @see DBException
  * @see Evictor
  *
  **/
@@ -175,24 +209,32 @@ local interface DB
      *
      * @param servant The value to store.
      *
-     * @param txn If true, do a transaction-protected write to the
-     * database.
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
      *
      * @see get
      * @see del
-     * @see DBTransaction
      *
      **/
-    void put(Key key, Value value, bool txn) throws DBException;
+    void put(Key key, Value value) throws DBException;
 
     /**
      *
      * Get a value from a database by it's key.
      *
-     * @param key The key under which the value is stored in the database.
+     * @param key The key under which the value is stored in the database
      *
-     * @return The value from the database, or an empty value if the
-     * key does not exist.
+     * @return The value from the database.
+     *
+     * @throws DBNotFoundException Raised if the key was not found in
+     * the database.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
      *
      * @see put
      * @see del
@@ -207,6 +249,14 @@ local interface DB
      *
      * @param key The key to remove together with the corresponding
      * value.
+     *
+     * @throws DBNotFoundException Raised if the key was not found in
+     * the database.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
      *
      * @see put
      * @see get
@@ -225,15 +275,16 @@ local interface DB
      * @param servant The servant to store. If the servant is null,
      * this operation does nothing.
      *
-     * @param txn If true, do a transaction-protected write to the
-     * database.
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
      *
      * @see getServant
      * @see delServant
-     * @see DBTransaction
      *
      **/
-    void putServant(string identity, Object servant, bool txn) throws DBException;
+    void putServant(string identity, Object servant) throws DBException;
 
     /**
      *
@@ -245,6 +296,14 @@ local interface DB
      *
      * @return The Servant from the database, or null if the identity
      * does not exist.
+     *
+     * @throws DBNotFoundException Raised if the Servant's identity
+     * was not found in the database.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
      *
      * @see putServant
      * @see delServant
@@ -261,6 +320,14 @@ local interface DB
      * @param identity The identity to remove together with the
      * corresponding Servant.
      *
+     * @throws DBNotFoundException Raised if the Servant's identity
+     * was not found in the database.
+     *
+     * @throws DBDeadlockException Raised if a deadlock occurred.
+     *
+     * @throws DBException Raised if any other database failure
+     * occurred.
+     *
      * @see putServant
      * @see getServant
      *
@@ -271,6 +338,8 @@ local interface DB
      *
      * Close the database and destroy this database object. Subsequent
      * calls to <literal>close</literal> have no effect.
+     *
+     * @throws DBException Raised if a database failure occurred.
      *
      * @see DBEnvironment::openDB
      * @see DBEnvironment::close

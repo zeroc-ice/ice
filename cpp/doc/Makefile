@@ -13,22 +13,18 @@ top_srcdir	= ..
 TARGETS		= manual/index.html
 
 SGMLFILES	= manual.sgml \
-		  ModuleIce.sgml \
-		  ModuleIcePack.sgml \
-		  ModuleFreeze.sgml \
+		  SliceDoc.sgml \
 		  Properties.sgml \
 		  ReferencesEndpoints.sgml
 
-ICEFILES	= ../slice/Ice/Communicator.ice \
+SLICEFILES	= ../slice/Ice/Communicator.ice \
 		  ../slice/Ice/Logger.ice \
 		  ../slice/Ice/ObjectAdapter.ice \
 		  ../slice/Ice/Pickler.ice \
 		  ../slice/Ice/Properties.ice \
-		  ../slice/Ice/ServantFactory.ice
-
-ICEPACKFILES	= ../slice/IcePack/Admin.ice
-
-FREEZEFILES	= ../slice/Freeze/DB.ice \
+		  ../slice/Ice/ServantFactory.ice \
+		  ../slice/IcePack/Admin.ice \
+		  ../slice/Freeze/DB.ice \
 		  ../slice/Freeze/Evictor.ice
 
 include $(top_srcdir)/config/Make.rules
@@ -51,23 +47,9 @@ manual.dvi: $(SGMLFILES)
 clean::
 	rm -rf manual manual.out manual.texi
 
-ModuleIce.sgml: $(ICEFILES) $(SLICE2DOCBOOK)
+SliceDoc.sgml: $(SLICEFILES) $(SLICE2DOCBOOK)
 	rm -f $@
-	$(SLICE2DOCBOOK) --no-globals -I$(top_srcdir)/slice $@ $(ICEFILES)
+	$(SLICE2DOCBOOK) -I$(top_srcdir)/slice $@ $(SLICEFILES)
 
 clean::
-	rm -f ModuleIce.sgml
-
-ModuleIcePack.sgml: $(ICEPACKFILES) $(SLICE2DOCBOOK)
-	rm -f $@
-	$(SLICE2DOCBOOK) --no-globals -I$(top_srcdir)/slice $@ $(ICEPACKFILES)
-
-clean::
-	rm -f ModuleIcePack.sgml
-
-ModuleFreeze.sgml: $(FREEZEFILES) $(SLICE2DOCBOOK)
-	rm -f $@
-	$(SLICE2DOCBOOK) --no-globals -I$(top_srcdir)/slice $@ $(FREEZEFILES)
-
-clean::
-	rm -f ModuleFreeze.sgml
+	rm -f SliceDoc.sgml

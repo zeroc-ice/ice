@@ -12,7 +12,7 @@
 #define FREEZE_EVICTOR_ICE
 
 #include <Ice/ObjectAdapter.ice>
-#include <Freeze/DB.ice>
+#include <Freeze/DBF.ice>
 
 module Freeze
 {
@@ -24,7 +24,6 @@ module Freeze
  * for custom Servant initialization.
  *
  * @see Evictor
- * @see Evictor::installServantInitializer
  *
  **/
 local interface ServantInitializer
@@ -43,6 +42,8 @@ local interface ServantInitializer
      *
      * @param servant The Servant to set up.
      *
+     * @throws DBException Raised if a database failure occurred.
+     *
      **/
     void initialize(Ice::ObjectAdapter adapter, string identity, Object servant);
 };
@@ -52,8 +53,6 @@ local interface ServantInitializer
  * The Evictor persistence mode.
  *
  * @see Evictor
- * @see Evictor::setPersistenceMode
- * @see Evictor::getPersistenceMode
  *
  **/
 enum EvictorPersistenceMode
@@ -88,8 +87,7 @@ enum EvictorPersistenceMode
  * <literal>DB::createEvictor</literal>, and must be registered with
  * an Object Adapter like other Servant Locators.
  *
- * @see DB::createEvictor
- * @see Ice::ServantLocator
+ * @see ServantInitializer
  *
  **/
 local interface Evictor extends Ice::ServantLocator
@@ -117,6 +115,8 @@ local interface Evictor extends Ice::ServantLocator
      * currently holds more Servants in its queue, Servants will be
      * evicted until the number of Servants match the new size.
      *
+     * @throws DBException Raised if a database failure occurred.
+     *
      * @see getSize
      *
      **/
@@ -142,6 +142,8 @@ local interface Evictor extends Ice::ServantLocator
      * can get lost after the mode has been changed.
      *
      * @param mode The Evictor's persistence mode.
+     *
+     * @throws DBException Raised if a database failure occurred.
      *
      * @see EvictorPersistenceMode
      * @see getPersistenceMode
@@ -174,6 +176,8 @@ local interface Evictor extends Ice::ServantLocator
      * @param servant The initial Servant for the Ice Object to
      * create.
      *
+     * @throws DBException Raised if a database failure occurred.
+     *
      * @see destroyObject
      *
      **/
@@ -187,6 +191,8 @@ local interface Evictor extends Ice::ServantLocator
      * be removed.
      *
      * @param identity The identity of the Ice Object to destroy.
+     *
+     * @throws DBException Raised if a database failure occurred.
      *
      * @see createObject
      *

@@ -27,8 +27,6 @@ native OutputStream;
  * <note><para>For more sophisticated object persistence, you should
  * use the Freeze module.</para></note>
  *
- * @see Communicator::getPickler
- *
  **/
 local interface Pickler
 {

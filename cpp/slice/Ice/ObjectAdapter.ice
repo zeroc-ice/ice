@@ -227,8 +227,6 @@ local interface ObjectAdapter
  * <literal>setServantLocator</literal> operation.
  *
  * @see ObjectAdapter
- * @see ObjectAdapter::setServantLocator
- * @see ObjectAdapter::getServantLocator
  *
  **/
 local interface ServantLocator
