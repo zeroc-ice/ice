@@ -301,9 +301,9 @@ in undefined behavior. The default value is no router. </para></note>
 <title>Description</title>
 <para>
 If <replaceable>num</replaceable> is set to a value larger than zero,
-the object adapter creates it's own, private thread pool with
+the object adapter creates its own, private thread pool with
 <replaceable>num</replaceable> threads for dispatching requests. This
-is useful to ensure that a minimum amount of threads is available for
+is useful to ensure that a minimum number of threads is available for
 dispatching requests on certain &Ice; objects, in order to avoid
 deadlocks because of thread starvation.
 </para>
