@@ -33,21 +33,6 @@ final class TcpTransceiver implements Transceiver
         }
 
         assert(_fd != null);
-        java.net.Socket socket = _fd.socket();
-        try
-        {
-            socket.shutdownInput(); // helps to unblock threads in recv()
-        }
-        catch(java.io.IOException ex)
-        {
-        }
-        try
-        {
-            socket.shutdownOutput();
-        }
-        catch(java.io.IOException ex)
-        {
-        }
         try
         {
             _fd.close();
@@ -81,38 +66,100 @@ final class TcpTransceiver implements Transceiver
     public void
     write(BasicStream stream, int timeout)
     {
+	// TODO: Timeouts are ignored!!
+
         java.nio.ByteBuffer buf = stream.prepareWrite();
-        while(buf.hasRemaining())
-        {
-            try
-            {
-                assert(_fd != null);
-                int ret = _fd.write(buf);
 
-                /* TODO: Review
-                if(ret == 0)
-                {
-                    throw new Ice.ConnectionLostException();
-                }
-                */
+	java.nio.channels.Selector selector = null; // TODO: Very inefficient!!
 
-                if(_traceLevels.network >= 3)
-                {
-                    String s = "sent " + ret + " of " + buf.limit() + " bytes via tcp\n" + toString();
-                    _logger.trace(_traceLevels.networkCat, s);
-                }
-            }
-            catch(java.io.InterruptedIOException ex)
-            {
-                continue;
-            }
-            catch(java.io.IOException ex)
-            {
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
-            }
-        }
+	try
+	{
+	    while(buf.hasRemaining())
+	    {
+		try
+		{
+		    assert(_fd != null);
+		    int ret = _fd.write(buf);
+		    
+		    if(ret == -1)
+		    {
+			throw new Ice.ConnectionLostException();
+		    }
+		    
+		    if(ret == 0)
+		    {
+			if(timeout == 0)
+			{
+			    throw new Ice.TimeoutException();
+			}
+			
+			if(selector == null)
+			{
+			    selector = java.nio.channels.Selector.open();
+			    _fd.register(selector, java.nio.channels.SelectionKey.OP_WRITE, null);
+			}
+			
+			while(true)
+			{
+			    try
+			    {
+				int n;
+				if(timeout > 0)
+				{
+				    n = selector.select(timeout);
+				}
+				else
+				{
+				    n = selector.select();
+				}
+				
+				if(n == 0 && timeout > 0)
+				{
+				    throw new Ice.TimeoutException();
+				}
+				
+				break;
+			    }
+			    catch(java.io.InterruptedIOException ex)
+			    {
+				continue;
+			    }
+			}
+
+			continue;
+		    }
+		    
+		    if(_traceLevels.network >= 3)
+		    {
+			String s = "sent " + ret + " of " + buf.limit() + " bytes via tcp\n" + toString();
+			_logger.trace(_traceLevels.networkCat, s);
+		    }
+		}
+		catch(java.io.InterruptedIOException ex)
+		{
+		    continue;
+		}
+		catch(java.io.IOException ex)
+		{
+		    Ice.SocketException se = new Ice.SocketException();
+		    se.initCause(ex);
+		    throw se;
+		}
+	    }
+	}
+	finally
+	{
+	    if(selector != null)
+	    {
+		try
+		{
+		    selector.close();
+		}
+		catch(java.io.IOException ex)
+		{
+		}
+	    }
+	}
     }
 
     public void
@@ -126,84 +173,103 @@ final class TcpTransceiver implements Transceiver
             remaining = buf.remaining();
         }
 
-        while(buf.hasRemaining())
-        {
-            try
-            {
-                assert(_fd != null);
-                int ret = _fd.read(buf);
+	java.nio.channels.Selector selector = null; // TODO: Very inefficient!!
 
-                if(ret == -1)
-                {
-                    throw new Ice.ConnectionLostException();
-                }
+	try
+	{
+	    while(buf.hasRemaining())
+	    {
+		try
+		{
+		    assert(_fd != null);
+		    int ret = _fd.read(buf);
+		    
+		    if(ret == -1)
+		    {
+			throw new Ice.ConnectionLostException();
+		    }
+		    
+		    if(ret == 0)
+		    {
+			if(timeout == 0)
+			{
+			    throw new Ice.TimeoutException();
+			}
 
-                if(ret == 0)
-                {
-                    assert(_fd != null);
+			if(selector == null)
+			{
+			    selector = java.nio.channels.Selector.open();
+			    _fd.register(selector, java.nio.channels.SelectionKey.OP_READ, null);
+			}
+			
+			while(true)
+			{
+			    try
+			    {
+				int n;
+				if(timeout > 0)
+				{
+				    n = selector.select(timeout);
+				}
+				else
+				{
+				    n = selector.select();
+				}
+				
+				if(n == 0 && timeout > 0)
+				{
+				    throw new Ice.TimeoutException();
+				}
+				
+				break;
+			    }
+			    catch(java.io.InterruptedIOException ex)
+			    {
+				continue;
+			    }
+			}
 
-                    if(_selector == null)
-                    {
-                        _selector = java.nio.channels.Selector.open();
-                        _fd.register(_selector, java.nio.channels.SelectionKey.OP_READ, null);
-                    }
-
-                    while(true)
-                    {
-                        try
-                        {
-                            int n;
-                            if(timeout == 0)
-                            {
-                                n = _selector.selectNow();
-                            }
-                            else if(timeout > 0)
-                            {
-                                n = _selector.select(timeout);
-                            }
-                            else
-                            {
-                                n = _selector.select();
-                            }
-
-                            if(n == 0 && timeout > 0)
-                            {
-                                throw new Ice.TimeoutException();
-                            }
-
-                            break;
-                        }
-                        catch(java.io.InterruptedIOException ex)
-                        {
-                            continue;
-                        }
-                    }
-                }
-
-                if(ret > 0 && _traceLevels.network >= 3)
-                {
-                    String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
-                    _logger.trace(_traceLevels.networkCat, s);
-                }
-            }
-            catch(java.io.InterruptedIOException ex)
-            {
-                continue;
-            }
-            catch(java.io.IOException ex)
-            {
-                if(Network.connectionLost(ex))
-                {
-                    Ice.ConnectionLostException se = new Ice.ConnectionLostException();
-                    se.initCause(ex);
-                    throw se;
-                }
-
-                Ice.SocketException se = new Ice.SocketException();
-                se.initCause(ex);
-                throw se;
-            }
+			continue;
+		    }
+		    
+		    if(ret > 0 && _traceLevels.network >= 3)
+		    {
+			String s = "received " + ret + " of " + remaining + " bytes via tcp\n" + toString();
+			_logger.trace(_traceLevels.networkCat, s);
+		    }
+		}
+		catch(java.io.InterruptedIOException ex)
+		{
+		    continue;
+		}
+		catch(java.io.IOException ex)
+		{
+		    if(Network.connectionLost(ex))
+		    {
+			Ice.ConnectionLostException se = new Ice.ConnectionLostException();
+			se.initCause(ex);
+			throw se;
+		    }
+		    
+		    Ice.SocketException se = new Ice.SocketException();
+		    se.initCause(ex);
+		    throw se;
+		}
+	    }
         }
+	finally
+	{
+	    if(selector != null)
+	    {
+		try
+		{
+		    selector.close();
+		}
+		catch(java.io.IOException ex)
+		{
+		}
+	    }
+	}
     }
 
     public String
@@ -228,22 +294,10 @@ final class TcpTransceiver implements Transceiver
     {
         assert(_fd == null);
 
-        if(_selector != null)
-        {
-            try
-            {
-                _selector.close();
-            }
-            catch(java.io.IOException ex)
-            {
-            }
-        }
-
         super.finalize();
     }
 
     private java.nio.channels.SocketChannel _fd;
-    private java.nio.channels.Selector _selector;
     private TraceLevels _traceLevels;
     private Ice.Logger _logger;
 }

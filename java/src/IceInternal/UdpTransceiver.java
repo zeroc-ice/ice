@@ -51,6 +51,8 @@ final class UdpTransceiver implements Transceiver
     public void
     write(BasicStream stream, int timeout)
     {
+	// TODO: Timeouts are ignored!!
+
         java.nio.ByteBuffer buf = stream.prepareWrite();
 
         assert(buf.position() == 0);
@@ -89,6 +91,8 @@ final class UdpTransceiver implements Transceiver
     public void
     read(BasicStream stream, int timeout)
     {
+	// TODO: Timeouts are ignored!!
+
         assert(stream.pos() == 0);
         final int packetSize = 64 * 1024; // TODO: configurable
         stream.resize(packetSize, true);
