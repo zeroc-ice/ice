@@ -25,8 +25,8 @@ class Logger;
 namespace __Ice
 {
 
-void incRef(::Ice::Logger*);
-void decRef(::Ice::Logger*);
+void ICE_API incRef(::Ice::Logger*);
+void ICE_API decRef(::Ice::Logger*);
 
 }
 

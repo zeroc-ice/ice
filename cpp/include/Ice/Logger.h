@@ -19,7 +19,7 @@
 namespace Ice
 {
 
-class Logger : public ::Ice::LocalObject
+class ICE_API Logger : public ::Ice::LocalObject
 {
 public: 
 

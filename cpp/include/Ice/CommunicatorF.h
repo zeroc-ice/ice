@@ -35,23 +35,23 @@ class Communicator;
 namespace __Ice
 {
 
-void incRef(::Ice::ObjectAdapter*);
-void decRef(::Ice::ObjectAdapter*);
+void ICE_API incRef(::Ice::ObjectAdapter*);
+void ICE_API decRef(::Ice::ObjectAdapter*);
 
-void incRef(::Ice::ValueFactory*);
-void decRef(::Ice::ValueFactory*);
+void ICE_API incRef(::Ice::ValueFactory*);
+void ICE_API decRef(::Ice::ValueFactory*);
 
-void incRef(::Ice::Properties*);
-void decRef(::Ice::Properties*);
+void ICE_API incRef(::Ice::Properties*);
+void ICE_API decRef(::Ice::Properties*);
 
-void incRef(::Ice::Logger*);
-void decRef(::Ice::Logger*);
+void ICE_API incRef(::Ice::Logger*);
+void ICE_API decRef(::Ice::Logger*);
 
-void incRef(::Ice::Pickler*);
-void decRef(::Ice::Pickler*);
+void ICE_API incRef(::Ice::Pickler*);
+void ICE_API decRef(::Ice::Pickler*);
 
-void incRef(::Ice::Communicator*);
-void decRef(::Ice::Communicator*);
+void ICE_API incRef(::Ice::Communicator*);
+void ICE_API decRef(::Ice::Communicator*);
 
 }
 

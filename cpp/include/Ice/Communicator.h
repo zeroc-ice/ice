@@ -19,7 +19,7 @@
 namespace Ice
 {
 
-class Communicator : public ::Ice::LocalObject
+class ICE_API Communicator : public ::Ice::LocalObject
 {
 public: 
 
