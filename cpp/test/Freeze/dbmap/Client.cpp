@@ -39,7 +39,14 @@ public:
     static void
     read(char& key, const Freeze::Key& bytes, const ::Ice::CommunicatorPtr& communicator)
     {
-	string data(bytes.begin(), bytes.end());
+	//
+	// COMPILERFIX: string data(bytes.begin(), bytes.end());
+	//
+	// This won't link with STLport 4.5.3 stldebug version.
+	//
+	string data;
+	data.assign(&bytes[0], bytes.size());
+
 	istringstream is(data);
 	Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, is, false);
 	key = stream->readByte("Key");
@@ -67,7 +74,14 @@ public:
     static void
     read(Ice::Int& value, const Freeze::Value& bytes, const ::Ice::CommunicatorPtr& communicator)
     {
-	string data(bytes.begin(), bytes.end());
+	//
+	// COMPILERFIX: string data(bytes.begin(), bytes.end());
+	//
+	// This won't link with STLport 4.5.3 stldebug version.
+	//
+	string data;
+	data.assign(&bytes[0], bytes.size());
+	
 	istringstream is(data);
 	Ice::StreamPtr stream = new ::IceXML::StreamI(communicator, is, false);
 	value = stream->readInt("Value");
