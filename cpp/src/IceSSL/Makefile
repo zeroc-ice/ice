@@ -63,12 +63,12 @@ SLICECMD	= $(SLICE2CPP) --include-dir IceSSL --dll-export ICE_SSL_API -I$(sliced
 
 include $(top_srcdir)/config/Make.rules
 
-CPPFLAGS	:= -I.. $(CPPFLAGS) $(OPENSSL_FLAGS) $(XERCESC_FLAGS)
-LDFLAGS		:= $(LDFLAGS) $(OPENSSL_LIBS) $(XERCESC_LIBS)
+CPPFLAGS	:= -I.. $(OPENSSL_FLAGS) $(XERCESC_FLAGS) $(CPPFLAGS)
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) -shared -o $@ $(OBJS) $(LDFLAGS)
+	$(CXX) -Xlinker -soname -Xlinker $(VERSIONED_BASE) $(LDFLAGS) -shared -o $@ $(OBJS) \
+	$(OPENSSL_LIBS) $(XERCESC_LIBS)
 
 $(NAME): $(VERSIONED_NAME)
 	rm -f $@
