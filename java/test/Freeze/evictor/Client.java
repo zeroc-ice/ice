@@ -294,8 +294,22 @@ public class Client
 	for(int i = 0; i < size; i++)
 	{
 	    servants[i] = evictor.createServant(i, i);
+	    servants[i].ice_ping();
+	    
+	    Test.FacetPrx facet1 = Test.FacetPrxHelper.uncheckedCast(servants[i], "facet1");
+	    try
+	    {
+		facet1.ice_ping();
+	    }
+	    catch(Ice.FacetNotExistException e)
+	    {
+		//
+		// Expected
+		//
+	    }
 	    servants[i].addFacet("facet1", "data");
-	    Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
+	    facet1.ice_ping();
+	    facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
 	    test(facet1 != null);
 	    facet1.setValue(10 * i);
 	    facet1.addFacet("facet2", "moreData");
@@ -311,6 +325,7 @@ public class Client
 	evictor.setSize(size);
 	for(int i = 0; i < size; i++)
 	{
+	    servants[i].ice_ping();
 	    test(servants[i].getValue() == i);
 	    Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
 	    test(facet1 != null);
@@ -437,17 +452,23 @@ public class Client
 	    servants[i].removeFacet("facet2");
 	}
 
+	for(int i = 0; i < size; i++)
+	{
+	    try
+	    {
+		servants[i].ice_ping();
+	    }
+	    catch(Ice.ObjectNotExistException e)
+	    {
+		//
+		// Expected
+		//
+	    }
+	}
+
 	evictor.setSize(0);
 	evictor.setSize(size);
 	
-	for(int i = 0; i < size; i++)
-	{
-	    test(servants[i].getValue() == i + 300);
-	    
-	    Test.FacetPrx facet1 = Test.FacetPrxHelper.checkedCast(servants[i], "facet1");
-	    test(facet1 == null);
-	}
-
 	//
 	// Destroy servants and verify ObjectNotExistException.
 	//
@@ -463,6 +484,17 @@ public class Client
 	    {
 		// Expected
 	    }
+
+	    try
+	    {
+		servants[i].ice_ping();
+		test(false);
+	    }
+	    catch(Ice.ObjectNotExistException ex)
+	    {
+		// Expected
+	    }
+
 	}
 
 	//

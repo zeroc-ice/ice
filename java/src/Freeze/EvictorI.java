@@ -1152,9 +1152,108 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
+    private boolean
+    hasAnotherFacet(Ice.Identity ident, String facet)
+    {
+	//
+	// If the object exists in another store, throw FacetNotExistException 
+	// instead of returning null (== ObjectNotExistException)
+	// 
+	java.util.Map storeMapCopy;
+	synchronized(this)
+	{
+	    storeMapCopy = new java.util.HashMap(_storeMap);
+	}	    
+	
+	java.util.Iterator p = storeMapCopy.entrySet().iterator();
+	while(p.hasNext())
+	{
+	    java.util.Map.Entry entry = (java.util.Map.Entry) p.next();
+	    
+	    //
+	    // Do not check facet
+	    //
+	    if(!facet.equals(entry.getKey()))
+	    {
+		ObjectStore store = (ObjectStore) entry.getValue();
+		boolean inCache = false;
+		
+		synchronized(this)
+		{
+		    EvictorElement element = (EvictorElement) store.cache().getIfPinned(ident);
+		    if(element != null)
+		    {
+			inCache = true;
+			assert !element.stale;    
+			
+			synchronized(element)
+			{
+			    if(element.status != EvictorElement.dead && 
+			       element.status != EvictorElement.destroyed)
+			    {
+				return true;
+			    }
+			}
+		    }
+		}
+		if(!inCache)
+		{
+		    if(store.dbHasObject(ident))
+		    {
+			return true;
+		    }
+		}
+	    }   
+	}
+	return false;
+    }
+
     public Ice.Object
     locate(Ice.Current current, Ice.LocalObjectHolder cookie)
     {
+	//
+	// Special ice_ping() handling
+	//
+	if(current.operation.equals("ice_ping"))
+	{
+	    if(hasFacet(current.id, current.facet))
+	    {
+		if(_trace >= 3)
+		{
+		    _communicator.getLogger().trace(
+			"Freeze.Evictor",
+			"ice_ping found \"" + Ice.Util.identityToString(current.id)  
+			+ "\" with facet \"" + current.facet + "\"");
+		}
+
+		return _pingObject;
+	    }
+	    else if(hasAnotherFacet(current.id, current.facet))
+	    {
+		if(_trace >= 3)
+		{
+		    _communicator.getLogger().trace(
+			"Freeze.Evictor",
+			"ice_ping raises FacetNotExistException for \"" + Ice.Util.identityToString(current.id)  
+			+ "\" with facet \"" + current.facet + "\"");
+		}
+
+		throw new Ice.FacetNotExistException();
+	    }
+	    else
+	    {
+		if(_trace >= 3)
+		{
+		    _communicator.getLogger().trace(
+			"Freeze.Evictor",
+			"ice_ping returns null for \"" + Ice.Util.identityToString(current.id)  
+			+ "\" with facet \"" + current.facet + "\"");
+		}
+
+		return null;
+	    }
+	}
+
 	_deactivateController.lock();
 
 	try
@@ -1163,57 +1262,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	    
 	    if(result == null)
 	    {
-		//
-		// If the object exists in another store, throw FacetNotExistException 
-		// instead of returning null (== ObjectNotExistException)
-		// 
-		java.util.Map storeMapCopy;
-		synchronized(this)
+		if(hasAnotherFacet(current.id, current.facet))
 		{
-		    storeMapCopy = new java.util.HashMap(_storeMap);
-		}	    
-		
-		java.util.Iterator p = storeMapCopy.entrySet().iterator();
-		while(p.hasNext())
-		{
-		    java.util.Map.Entry entry = (java.util.Map.Entry) p.next();
-		    
-		    //
-		    // Do not check again the current facet
-		    //
-		    if(!current.facet.equals(entry.getKey()))
-		    {
-			ObjectStore store = (ObjectStore) entry.getValue();
-			boolean inCache = false;
-			
-			synchronized(this)
-			{
-			    EvictorElement element = (EvictorElement) store.cache().getIfPinned(current.id);
-			    if(element != null)
-			    {
-				inCache = true;
-				assert !element.stale;    
-				
-				synchronized(element)
-				{
-				    if(element.status != EvictorElement.dead && 
-				       element.status != EvictorElement.destroyed)
-				    {
-					throw new Ice.FacetNotExistException();
-				    }
-				}
-			    }
-			}
-			if(!inCache)
-			{
-			    if(store.dbHasObject(current.id))
-			    {
-				throw new Ice.FacetNotExistException();
-			    }
-			}
-		    }   
+		    throw new Ice.FacetNotExistException();
 		}
 	    }
+		
 	    return result;
 	}
 	finally
@@ -2229,4 +2283,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     private String _errorPrefix;
     
     private boolean _deadlockWarning;    
+
+    private Ice.Object _pingObject = new Ice.ObjectImpl();
+
 }
