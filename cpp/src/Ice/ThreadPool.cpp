@@ -618,7 +618,7 @@ IceInternal::ThreadPool::run()
 		catch(const LocalException& ex)
 		{
 		    Error out(_instance->logger());
-		    out << "exception in `" << _prefix << "' while calling finished():\n"
+		    out << "exception in `" << _prefix << "' while calling message():\n"
 			<< ex << '\n' << handler->toString();
 		}
 		

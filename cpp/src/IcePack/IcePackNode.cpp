@@ -36,12 +36,13 @@
 #endif
 
 using namespace std;
+using namespace Ice;
 using namespace IcePack;
 
 namespace IcePack
 {
 
-class NodeService : public Ice::Service
+class NodeService : public Service
 {
 public:
 
@@ -54,6 +55,7 @@ protected:
     virtual bool start(int, char*[]);
     virtual void waitForShutdown();
     virtual bool stop();
+    virtual CommunicatorPtr initializeCommunicator(int&, char*[]);
 
 private:
 
@@ -164,7 +166,7 @@ IcePack::NodeService::start(int argc, char* argv[])
 	}
     }
 
-    Ice::PropertiesPtr properties = communicator()->getProperties();
+    PropertiesPtr properties = communicator()->getProperties();
 
     //
     // Disable server idle time. Otherwise, the adapter would be
@@ -324,7 +326,7 @@ IcePack::NodeService::start(int argc, char* argv[])
     //
     properties->setProperty("IcePack.Node.AdapterId", "IcePack.Node." + name);
 
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePack.Node");
+    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("IcePack.Node");
 
     TraceLevelsPtr traceLevels = new TraceLevels(properties, communicator()->getLogger());
 
@@ -363,7 +365,7 @@ IcePack::NodeService::start(int argc, char* argv[])
         error("a node with the same name is already registered and active");
         return false;
     }
-    catch(const Ice::LocalException&)
+    catch(const LocalException&)
     {
         error("couldn't contact the IcePack registry");
         return false;
@@ -397,7 +399,7 @@ IcePack::NodeService::start(int argc, char* argv[])
         {
             admin = AdminPrx::checkedCast(communicator()->stringToProxy("IcePack/Admin"));
         }
-        catch(const Ice::LocalException& ex)
+        catch(const LocalException& ex)
         {
             ostringstream ostr;
             ostr << "couldn't contact IcePack admin interface to deploy application `" << descriptor << "':" << endl
@@ -420,7 +422,7 @@ IcePack::NodeService::start(int argc, char* argv[])
                      << ex << ": " << ex.reason;
                 warning(ostr.str());
             }
-            catch(const Ice::LocalException& ex)
+            catch(const LocalException& ex)
             {
                 ostringstream ostr;
                 ostr << "failed to deploy application `" << descriptor << "':" << endl
@@ -489,6 +491,19 @@ IcePack::NodeService::stop()
     _activator = 0;
 
     return true;
+}
+
+CommunicatorPtr
+IcePack::NodeService::initializeCommunicator(int& argc, char* argv[])
+{
+    PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
+    
+    //
+    // Make sure that IcePackNode doesn't use thread-per-connection.
+    //
+    defaultProperties->setProperty("Ice.ThreadPerConnection", "");
+
+    return Service::initializeCommunicator(argc, argv);
 }
 
 void

@@ -12,12 +12,13 @@
 #include <IcePack/Registry.h>
 
 using namespace std;
+using namespace Ice;
 using namespace IcePack;
 
 namespace IcePack
 {
 
-class RegistryService : public Ice::Service
+class RegistryService : public Service
 {
 public:
 
@@ -26,6 +27,7 @@ public:
 protected:
 
     virtual bool start(int, char*[]);
+    virtual CommunicatorPtr initializeCommunicator(int&, char*[]);
 
 private:
 
@@ -75,6 +77,19 @@ IcePack::RegistryService::start(int argc, char* argv[])
     }
 
     return true;
+}
+
+CommunicatorPtr
+IcePack::RegistryService::initializeCommunicator(int& argc, char* argv[])
+{
+    PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
+    
+    //
+    // Make sure that IcePackRegistry doesn't use thread-per-connection.
+    //
+    defaultProperties->setProperty("Ice.ThreadPerConnection", "");
+
+    return Service::initializeCommunicator(argc, argv);
 }
 
 void

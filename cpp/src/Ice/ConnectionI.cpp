@@ -38,8 +38,31 @@ Ice::ConnectionI::validate()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    assert(_state == StateNotValidated);
+    if(_instance->threadPerConnection() &&
+       _threadPerConnection->getThreadControl() != IceUtil::ThreadControl())
+    {
+	//
+	// In thread per connection mode, this connection's thread
+	// will take care of connection validation. Therefore all we
+	// have to do here is to wait until this thread has completed
+	// validation.
+	//
+	while(_state == StateNotValidated)
+	{
+	    wait();
+	}
 
+	if(_state >= StateClosing)
+	{
+	    assert(_exception.get());
+	    _exception->ice_throw();
+	}
+
+	return;
+    }
+
+    assert(_state == StateNotValidated);
+    
     if(!_endpoint->datagram()) // Datagram connections are always implicitly validated.
     {
 	try
@@ -183,13 +206,6 @@ Ice::ConnectionI::destroy(DestructionReason reason)
 }
 
 bool
-Ice::ConnectionI::isValidated() const
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-    return _state > StateNotValidated;
-}
-
-bool
 Ice::ConnectionI::isDestroyed() const
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -221,17 +237,6 @@ Ice::ConnectionI::isFinished() const
     }
 
     return true;
-}
-
-void
-Ice::ConnectionI::waitUntilValidated() const
-{
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-    while(_state == StateNotValidated)
-    {
-	wait();
-    }
 }
 
 void
@@ -2082,22 +2087,50 @@ Ice::ConnectionI::invokeAll(BasicStream& stream, Int invokeNum, Int requestId, B
 void
 Ice::ConnectionI::run()
 {
-    //
-    // First we must validate and activate this connection. This must
-    // be done here, and not in the connection factory. Please see the
-    // comments in the connection factory for details.
-    //
     try
     {
-	validate();
+	//
+	// First we must validate and activate this connection. This must
+	// be done here, and not in the connection factory. Please see the
+	// comments in the connection factory for details.
+	//
+	try
+	{
+	    validate();
+	}
+	catch(const LocalException&)
+	{
+	    //
+	    // Ignore all exceptions while validating the
+	    // connection. Warning or error messages for such exceptions
+	    // are printed directly by the validation code.
+	    //
+	}
     }
-    catch(const LocalException&)
+    catch(const LocalException& ex)
     {
+	IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+
+	assert(_state == StateClosed);
+
 	//
-	// Ignore all exceptions while validating the
-	// connection. Warning or error messages for such exceptions
-	// are printed directly by the validation code.
+	// We must make sure that nobody is sending when we close the
+	// transceiver.
 	//
+	IceUtil::Mutex::Lock sendSync(_sendMutex);
+	
+	try
+	{
+	    _transceiver->close();
+	}
+	catch(const LocalException& ex)
+	{
+	    // Here we ignore any exceptions in close().
+	}
+	
+	_transceiver = 0;
+	notifyAll();
+	return;
     }
     
     activate();
@@ -2254,6 +2287,11 @@ Ice::ConnectionI::run()
 		_transceiver = 0;
 		notifyAll();
 
+		//
+		// We cannot simply return here. We have to make sure
+		// that all requests (regular and async) are notified
+		// about the closed connection below.
+		//
 		closed = true;
 	    }
 

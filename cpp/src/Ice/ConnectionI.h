@@ -53,11 +53,9 @@ public:
     void hold();
     void destroy(DestructionReason);
 
-    bool isValidated() const;
     bool isDestroyed() const;
     bool isFinished() const;
 
-    void waitUntilValidated() const;
     void waitUntilHolding() const;
     void waitUntilFinished(); // Not const, as this might close the connection upon timeout.
 

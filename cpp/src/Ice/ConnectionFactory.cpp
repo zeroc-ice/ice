@@ -285,20 +285,7 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 		assert(transceiver);
 	    }	    
 	    connection = new ConnectionI(_instance, transceiver, endpoint, 0);
-
-	    //
-	    // In thread per connection mode, the thread per
-	    // connection (in ConnectionI) will take care of
-	    // connection validation.
-	    //
-	    if(_instance->threadPerConnection())
-	    {
-		connection->waitUntilValidated();
-	    }
-	    else
-	    {
-		connection->validate();
-	    }
+	    connection->validate();
 
 	    if(_instance->defaultsAndOverrides()->overrideCompress)
 	    {
@@ -620,16 +607,13 @@ IceInternal::IncomingConnectionFactory::flushBatchRequests()
 
     for(list<ConnectionIPtr>::const_iterator p = c.begin(); p != c.end(); ++p)
     {
-	if((*p)->isValidated())
+	try
 	{
-	    try
-	    {
-		(*p)->flushBatchRequests();
-	    }
-	    catch(const LocalException&)
-	    {
-		// Ignore.
-	    }
+	    (*p)->flushBatchRequests();
+	}
+	catch(const LocalException&)
+	{
+	    // Ignore.
 	}
     }
 }
@@ -836,14 +820,12 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	ConnectionIPtr connection = new ConnectionI(_instance, _transceiver, _endpoint, _adapter);
 	
 	//
-	// In thread per connection mode, the thread per connection
-	// (in ConnectionI) will take care of connection validation.
+	// In thread per connection mode, the connection's thread will
+	// take care of connection validation, and we don't want to
+	// block here waiting until validation is complete. Therefore
+	// we don't call validate() in thread per connection mode.
 	//
-	if(_instance->threadPerConnection())
-	{
-	    connection->waitUntilValidated();
-	}
-	else
+	if(!_instance->threadPerConnection())
 	{
 	    connection->validate();
 	}
@@ -1082,14 +1064,13 @@ IceInternal::IncomingConnectionFactory::run()
 	}
 	
 	//
-	// In thread per incoming connection factory mode, the thread
-	// per connection (in ConnectionI) will take care of
-	// connection validation. We can't use this thread, because
-	// connection validation might block. However, this thread
-	// must not ever block, as in contrast to thread pool mode, it
-	// is the only thread that can accept connections with this
-	// factory's acceptor.
-	//
+	// In thread per connection mode, the connection's thread will
+	// take care of connection validation. We don't want to block
+	// this thread waiting until validation is complete, because
+	// in contrast to thread pool mode, it is the only thread that
+	// can accept connections with this factory's
+	// acceptor. Therefore we don't call validate() in thread per
+	// connection mode.
     }
 }
 

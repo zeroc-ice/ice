@@ -11,6 +11,7 @@
 #include <Ice/Properties.h>
 #include <Ice/ProtocolPluginFacade.h>
 #include <Ice/Communicator.h>
+#include <Ice/LocalException.h>
 
 #include <IceSSL/OpenSSLPluginI.h>
 #include <IceSSL/TraceLevels.h>
@@ -48,11 +49,10 @@
 
 using namespace std;
 using namespace Ice;
-using namespace IceInternal;
 using namespace IceSSL;
 
-void IceInternal::incRef(::IceSSL::OpenSSLPluginI* p) { p->__incRef(); }
-void IceInternal::decRef(::IceSSL::OpenSSLPluginI* p) { p->__decRef(); }
+void IceInternal::incRef(OpenSSLPluginI* p) { p->__incRef(); }
+void IceInternal::decRef(OpenSSLPluginI* p) { p->__decRef(); }
 
 //
 // Plugin factory function
@@ -63,9 +63,9 @@ extern "C"
 ICE_SSL_API Ice::Plugin*
 create(const CommunicatorPtr& communicator, const string& name, const StringSeq& args)
 {
-    ProtocolPluginFacadePtr facade = getProtocolPluginFacade(communicator);
+    IceInternal::ProtocolPluginFacadePtr facade = IceInternal::getProtocolPluginFacade(communicator);
 
-    IceSSL::OpenSSLPluginI* plugin = new IceSSL::OpenSSLPluginI(facade);
+    OpenSSLPluginI* plugin = new OpenSSLPluginI(facade);
     try
     {
         plugin->configure();
@@ -73,7 +73,7 @@ create(const CommunicatorPtr& communicator, const string& name, const StringSeq&
         //
         // Install the SSL endpoint factory
         //
-        EndpointFactoryPtr sslEndpointFactory = new SslEndpointFactory(plugin);
+        IceInternal::EndpointFactoryPtr sslEndpointFactory = new SslEndpointFactory(plugin);
         facade->addEndpointFactory(sslEndpointFactory);
     }
     catch(const Exception& ex)
@@ -176,9 +176,10 @@ IceSSL::SslLockKeeper::~SslLockKeeper()
 // Public Methods
 //
 //
-IceSSL::OpenSSLPluginI::OpenSSLPluginI(const ProtocolPluginFacadePtr& protocolPluginFacade) :
+IceSSL::OpenSSLPluginI::OpenSSLPluginI(const IceInternal::ProtocolPluginFacadePtr& protocolPluginFacade) :
     _protocolPluginFacade(protocolPluginFacade),
     _traceLevels(new TraceLevels(_protocolPluginFacade)),
+    _logger(_protocolPluginFacade->getCommunicator()->getLogger()),
     _properties(_protocolPluginFacade->getCommunicator()->getProperties()),
     _memDebug(_properties->getPropertyAsIntWithDefault("IceSSL.MemoryDebug", 0)),
     _serverContext(new TraceLevels(protocolPluginFacade), protocolPluginFacade->getCommunicator()),
@@ -228,7 +229,7 @@ IceSSL::OpenSSLPluginI::~OpenSSLPluginI()
     }
 }
 
-IceSSL::SslTransceiverPtr
+SslTransceiverPtr
 IceSSL::OpenSSLPluginI::createTransceiver(ContextType connectionType, int socket, int timeout)
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
@@ -248,7 +249,7 @@ IceSSL::OpenSSLPluginI::createTransceiver(ContextType connectionType, int socket
         configure(connectionType);
     }
 
-    IceSSL::SslTransceiverPtr transceiver;
+    SslTransceiverPtr transceiver;
 
     if(connectionType == Client)
     {
@@ -363,8 +364,8 @@ IceSSL::OpenSSLPluginI::configure(ContextType contextType)
 
 void
 IceSSL::OpenSSLPluginI::loadConfig(ContextType contextType,
-                                     const std::string& configFile,
-                                     const std::string& certPath)
+				   const string& configFile,
+				   const string& certPath)
 {
     if(configFile.empty())
     {
@@ -399,7 +400,7 @@ IceSSL::OpenSSLPluginI::loadConfig(ContextType contextType,
         throw configEx;
     }
 
-    ConfigParser sslConfig(configFile, certPath, _traceLevels, getLogger());
+    ConfigParser sslConfig(configFile, certPath, _traceLevels, _logger);
 
     // Actually parse the file now.
     sslConfig.process();
@@ -435,9 +436,9 @@ IceSSL::OpenSSLPluginI::loadConfig(ContextType contextType,
 
             _serverContext.configure(serverGeneral, serverCertAuth, serverBaseCerts);
 
-            if(_traceLevels->security >= IceSSL::SECURITY_PROTOCOL)
+            if(_traceLevels->security >= SECURITY_PROTOCOL)
             {
-                Trace out(getLogger(), _traceLevels->securityCat);
+                Trace out(_logger, _traceLevels->securityCat);
 
                 out << "temporary certificates (server)\n";
                 out << "-------------------------------\n";
@@ -526,9 +527,9 @@ IceSSL::OpenSSLPluginI::getRSAKey(int isExport, int keyLength)
         {
             _tempRSAKeys[keyLength] = new RSAPrivateKey(rsa_tmp);
         }
-        else if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+        else if(_traceLevels->security >= SECURITY_WARNINGS)
         {
-            Trace out(getLogger(), _traceLevels->securityCat);
+            Trace out(_logger, _traceLevels->securityCat);
             out << "WRN Unable to obtain a " << dec << keyLength << "-bit RSA key.\n";
         }
     }
@@ -602,9 +603,9 @@ IceSSL::OpenSSLPluginI::getDHParams(int isExport, int keyLength)
             // extra processing required then.
             _tempDHKeys[keyLength] = new DHParams(dh_tmp);
         }
-        else if(_traceLevels->security >= IceSSL::SECURITY_WARNINGS)
+        else if(_traceLevels->security >= SECURITY_WARNINGS)
         {
-            Trace out(getLogger(), _traceLevels->securityCat);
+            Trace out(_logger, _traceLevels->securityCat);
             out << "WRN Unable to obtain a " << dec << keyLength << "-bit Diffie-Hellman parameter group.\n";
         }
     }
@@ -614,16 +615,16 @@ IceSSL::OpenSSLPluginI::getDHParams(int isExport, int keyLength)
 
 void
 IceSSL::OpenSSLPluginI::setCertificateVerifier(ContextType contextType,
-                                               const IceSSL::CertificateVerifierPtr& verifier)
+                                               const CertificateVerifierPtr& verifier)
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
 
     IceSSL::CertificateVerifierOpenSSLPtr castVerifier;
-    castVerifier = IceSSL::CertificateVerifierOpenSSLPtr::dynamicCast(verifier);
+    castVerifier = CertificateVerifierOpenSSLPtr::dynamicCast(verifier);
 
     if(!castVerifier.get())
     {
-        IceSSL::CertificateVerifierTypeException cvtEx(__FILE__, __LINE__);
+        CertificateVerifierTypeException cvtEx(__FILE__, __LINE__);
         throw cvtEx;
     }
 
@@ -673,9 +674,7 @@ IceSSL::OpenSSLPluginI::addTrustedCertificate(ContextType contextType, const Ice
 }
 
 void
-IceSSL::OpenSSLPluginI::setRSAKeysBase64(ContextType contextType,
-                                           const std::string& privateKey,
-                                           const std::string& publicKey)
+IceSSL::OpenSSLPluginI::setRSAKeysBase64(ContextType contextType, const string& privateKey, const string& publicKey)
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
 
@@ -692,8 +691,8 @@ IceSSL::OpenSSLPluginI::setRSAKeysBase64(ContextType contextType,
 
 void
 IceSSL::OpenSSLPluginI::setRSAKeys(ContextType contextType,
-                                     const ::Ice::ByteSeq& privateKey,
-                                     const ::Ice::ByteSeq& publicKey)
+				   const ByteSeq& privateKey,
+				   const ByteSeq& publicKey)
 {
     IceUtil::RecMutex::Lock sync(_configMutex);
 
@@ -708,13 +707,13 @@ IceSSL::OpenSSLPluginI::setRSAKeys(ContextType contextType,
     }
 }
 
-IceSSL::CertificateVerifierPtr
+CertificateVerifierPtr
 IceSSL::OpenSSLPluginI::getDefaultCertVerifier()
 {
     return new DefaultCertificateVerifier(getTraceLevels(), _protocolPluginFacade->getCommunicator());
 }
 
-IceSSL::CertificateVerifierPtr
+CertificateVerifierPtr
 IceSSL::OpenSSLPluginI::getSingleCertVerifier(const ByteSeq& certSeq)
 {
     return new SingleCertificateVerifier(certSeq);
@@ -734,7 +733,7 @@ IceSSL::OpenSSLPluginI::getTraceLevels() const
 LoggerPtr
 IceSSL::OpenSSLPluginI::getLogger() const
 {
-    return _protocolPluginFacade->getCommunicator()->getLogger();
+    return _logger;
 }
 
 StatsPtr
@@ -744,7 +743,14 @@ IceSSL::OpenSSLPluginI::getStats() const
     // Don't cache the stats object. It might not be set on the
     // communicator when the plug-in is initialized.
     //
-    return _protocolPluginFacade->getCommunicator()->getStats();
+    try
+    {
+	return _protocolPluginFacade->getCommunicator()->getStats();
+    }
+    catch(const CommunicatorDestroyedException&)
+    {
+	return 0;
+    }
 }
 
 PropertiesPtr
@@ -753,7 +759,7 @@ IceSSL::OpenSSLPluginI::getProperties() const
     return _properties;
 }
 
-ProtocolPluginFacadePtr
+IceInternal::ProtocolPluginFacadePtr
 IceSSL::OpenSSLPluginI::getProtocolPluginFacade() const
 {
     return _protocolPluginFacade;
@@ -847,12 +853,12 @@ IceSSL::OpenSSLPluginI::initRandSystem(const string& randBytesFiles)
         randBytesLoaded += loadRandFiles(randBytesFiles);
     }
 
-    if(!randBytesLoaded && !RAND_status() && (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
+    if(!randBytesLoaded && !RAND_status() && (_traceLevels->security >= SECURITY_WARNINGS))
     {
         // In this case, there are two options open to us - specify a random data file using the
         // RANDFILE environment variable, or specify additional random data files in the
         // SSL configuration file.
-        Trace out(getLogger(), _traceLevels->securityCat);
+        Trace out(_logger, _traceLevels->securityCat);
         out << "WRN there is a lack of random data, consider specifying additional random data files";
     }
 
