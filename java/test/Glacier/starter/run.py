@@ -54,11 +54,11 @@ name = os.path.join("Glacier", "starter")
 testdir = os.path.join(toplevel, "test", name)
 os.environ["CLASSPATH"] = os.path.join(testdir, "classes") + TestUtil.sep + os.getenv("CLASSPATH", "")
 
-TestUtil.mixedClientServerTest(name)
+TestUtil.mixedClientServerTest()
 
 # We run the test again, to check whether the glacier router starter
 # can start up multiple routers.
-TestUtil.mixedClientServerTest(name)
+TestUtil.mixedClientServerTest()
 
 print "shutting down glacier starter...",
 TestUtil.killServers() # TODO: Graceful shutdown.

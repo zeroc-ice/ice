@@ -51,7 +51,7 @@ icePackRegistryPipe = IcePackAdmin.startIcePackRegistry("12346", testdir)
 # Test client/server without on demand activation.
 #
 additionalServerOptions=" --TestAdapter.Endpoints=default --TestAdapter.AdapterId=TestAdapter " + additionalOptions
-TestUtil.mixedClientServerTestWithOptions(name, additionalServerOptions, additionalOptions)
+TestUtil.mixedClientServerTestWithOptions(additionalServerOptions, additionalOptions)
 
 #
 # Shutdown the registry.
