@@ -62,13 +62,23 @@ public class AllTests
         test(ff.callF().equals("F"));
         System.out.println("ok");
 
-        System.out.print("testing facet G... ");
+        System.out.print("testing facet G, which is a sub-facet of E and F... ");
         System.out.flush();
-        GPrx gf = GPrxHelper.checkedCast(d, "facetG");
+        GPrx gf = GPrxHelper.checkedCast(ff, "facetGH");
         test(gf != null);
         test(gf.callG().equals("G"));
+        System.out.println("ok");
+
+        System.out.print("testing whether casting preserves the facet... ");
+        System.out.flush();
+        HPrx hf = HPrxHelper.checkedCast(gf);
+        test(hf != null);
+        test(hf.callG().equals("G"));
+        test(hf.callH().equals("H"));
         System.out.println("ok");
 
         return gf;
     }
 }
+
+

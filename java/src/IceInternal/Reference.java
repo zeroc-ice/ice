@@ -158,7 +158,17 @@ public final class Reference
         if(facet.length > 0)
         {
             s.append(" -f ");
-	    // TODO: For Mark.
+	    for(int i = 0; i < facet.length ; i++)
+	    {
+		//
+		// TODO: Escape for whitespace and slashes.
+		//
+		s.append(facet[i]);
+		if(i < facet.length - 1)
+		{
+		    s.append('/');
+		}
+	    }
         }
 
         switch(mode)

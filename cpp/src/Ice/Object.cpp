@@ -343,7 +343,38 @@ Ice::Object::ice_removeAllFacets()
 }
 
 ObjectPtr
-Ice::Object::ice_findFacet(const vector<string>& path, int start)
+Ice::Object::ice_findFacet(const string& name)
+{
+    IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
+    
+    map<string, ObjectPtr>::iterator p = _activeFacetMap.end();
+    
+    if(_activeFacetMapHint != _activeFacetMap.end())
+    {
+	if(_activeFacetMapHint->first == name)
+	{
+	    p = _activeFacetMapHint;
+	}
+    }
+    
+    if(p == _activeFacetMap.end())
+    {
+	p = _activeFacetMap.find(name);
+    }
+    
+    if(p != _activeFacetMap.end())
+    {
+	_activeFacetMapHint = p;
+	return p->second;
+    }
+    else
+    {
+	return 0;
+    }
+}
+
+ObjectPtr
+Ice::Object::ice_findFacetPath(const vector<string>& path, int start)
 {
     int sz = path.size();
 
@@ -357,32 +388,15 @@ Ice::Object::ice_findFacet(const vector<string>& path, int start)
 	return this;
     }
 
+    ObjectPtr f = ice_findFacet(path[start]);
+    if(f)
     {
-	IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
-	
-	map<string, ObjectPtr>::iterator p = _activeFacetMap.end();
-	
-	if(_activeFacetMapHint != _activeFacetMap.end())
-	{
-	    if(_activeFacetMapHint->first == path[start])
-	    {
-		p = _activeFacetMapHint;
-	    }
-	}
-	
-	if(p == _activeFacetMap.end())
-	{
-	    p = _activeFacetMap.find(path[start]);
-	}
-	
-	if(p != _activeFacetMap.end())
-	{
-	    _activeFacetMapHint = p;
-	    return p->second->ice_findFacet(path, start + 1);
-	}
+	return f->ice_findFacetPath(path, start + 1);
     }
-
-    return 0;
+    else
+    {
+	return f;
+    }
 }
 
 DispatchStatus

@@ -99,7 +99,7 @@ public class Incoming
             {
                 if(_current.facet.length > 0)
                 {
-                    Ice.Object facetServant = servant.ice_findFacet(_current.facet[0]);
+                    Ice.Object facetServant = servant.ice_findFacetPath(_current.facet, 0);
                     if(facetServant == null)
                     {
                         status = DispatchStatus.DispatchFacetNotExist;

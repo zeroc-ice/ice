@@ -108,6 +108,11 @@ final class TraceUtil
                     s.write("(object not exist)");
                     break;
                 }
+                case DispatchStatus._DispatchFacetNotExist:
+                {
+                    s.write("(facet not exist)");
+                    break;
+                }
                 case DispatchStatus._DispatchOperationNotExist:
                 {
                     s.write("(operation not exist)");
@@ -209,9 +214,9 @@ final class TraceUtil
         try
         {
             byte protVer = stream.readByte();
-            out.write("\nprotocol version = " + (int)protVer);
+//            out.write("\nprotocol version = " + (int)protVer);
             byte encVer = stream.readByte();
-            out.write("\nencoding version = " + (int)encVer);
+//            out.write("\nencoding version = " + (int)encVer);
             byte type = stream.readByte();
             out.write("\nmessage type = " + (int)type + ' ');
             switch(type)
@@ -264,8 +269,19 @@ final class TraceUtil
             Ice.Identity identity = new Ice.Identity();
             identity.__read(stream);
             out.write("\nidentity = " + Ice.Util.identityToString(identity));
-            String facet = stream.readString();
-            out.write("\nfacet = " + facet);
+            String[] facet = stream.readStringSeq();
+            out.write("\nfacet = ");
+	    for(int i = 0; i < facet.length ; i++)
+	    {
+		//
+		// TODO: Escape for whitespace and slashes.
+		//
+		out.write(facet[i]);
+		if(i < facet.length - 1)
+		{
+		    out.write('/');
+		}
+	    }
             String operation = stream.readString();
             out.write("\noperation = " + operation);
             boolean nonmutating = stream.readBool();

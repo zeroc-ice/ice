@@ -33,6 +33,7 @@
                 <include name="Communicator.ice" />
                 <include name="Current.ice" />
                 <include name="Identity.ice" />
+                <include name="Facet.ice" />
                 <include name="LocalException.ice" />
                 <include name="Logger.ice" />
                 <include name="ObjectAdapter.ice" />

@@ -304,6 +304,32 @@ public class Object
         synchronized(_activeFacetMap)
         {
             return (Object)_activeFacetMap.get(name);
+	}
+    }
+
+    public final Object
+    ice_findFacetPath(String[] path, int start)
+    {
+	int sz = path.length;
+	
+	if(start > sz)
+	{
+	    return null;
+	}
+	
+	if(start == sz)
+	{
+	    return this;
+	}
+
+	Object f = ice_findFacet(path[start]);
+	if(f != null)
+	{
+	    return f.ice_findFacetPath(path, start + 1);
+	}
+	else
+	{
+	    return f;
         }
     }
 

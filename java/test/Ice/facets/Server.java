@@ -14,14 +14,14 @@ public class Server
     run(String[] args, Ice.Communicator communicator)
     {
         String endpts = "default -p 12345 -t 2000";
-        Ice.ObjectAdapter adapter =
-            communicator.createObjectAdapterWithEndpoints("TestAdapter",
-                                                          endpts);
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("TestAdapter", endpts);
         Ice.Object d = new DI();
         adapter.add(d, Ice.Util.stringToIdentity("d"));
         d.ice_addFacet(d, "facetABCD");
-        d.ice_addFacet(new FI(), "facetEF");
-        d.ice_addFacet(new GI(communicator), "facetG");
+	Ice.Object f = new FI();
+        d.ice_addFacet(f, "facetEF");
+	Ice.Object h = new HI(communicator);
+        f.ice_addFacet(h, "facetGH");
 
         adapter.activate();
         communicator.waitForShutdown();

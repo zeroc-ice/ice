@@ -95,6 +95,6 @@ InitialI::addFacetsToB1(const Ice::Current&)
 {
     _b1->ice_addFacet(_b1, "b1");
     _b1->ice_addFacet(_b2, "b2");
-    _b1->ice_addFacet(_c, "c");
-    _b1->ice_addFacet(_d, "d");
+    _b2->ice_addFacet(_c, "c");
+    _b2->ice_addFacet(_d, "d");
 }

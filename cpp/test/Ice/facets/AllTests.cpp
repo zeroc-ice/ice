@@ -61,6 +61,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing whether casting preserves the facet... " << flush;
     HPrx hf = HPrx::checkedCast(gf);
     test(hf);
+    test(hf->callG() == "G");
     test(hf->callH() == "H");
     cout << "ok" << endl;
 

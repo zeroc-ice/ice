@@ -164,9 +164,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(fb1);
     BPtr fb2 = BPtr::dynamicCast(b1->ice_findFacet("b2"));
     test(fb2);
-    CPtr fc = CPtr::dynamicCast(b1->ice_findFacet("c"));
+    CPtr fc = CPtr::dynamicCast(fb2->ice_findFacet("c"));
     test(fc);
-    DPtr fd = DPtr::dynamicCast(b1->ice_findFacet("d"));
+    DPtr fd = DPtr::dynamicCast(fb2->ice_findFacet("d"));
     test(fd);
     test(b1 == fb1);
     test(fb1->a == fb2);
@@ -231,9 +231,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     test(fb1);
     fb2 = BPtr::dynamicCast(b1->ice_findFacet("b2"));
     test(fb2);
-    fc = CPtr::dynamicCast(b1->ice_findFacet("c"));
+    fc = CPtr::dynamicCast(fb2->ice_findFacet("c"));
     test(fc);
-    fd = DPtr::dynamicCast(b1->ice_findFacet("d"));
+    fd = DPtr::dynamicCast(fb2->ice_findFacet("d"));
     test(fd);
     test(b1 == fb1);
     test(b2 == fb2);

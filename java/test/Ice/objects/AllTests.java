@@ -189,8 +189,8 @@ public class AllTests
         System.out.flush();
         B fb1 = (B)b1.ice_findFacet("b1");
         B fb2 = (B)b1.ice_findFacet("b2");
-        C fc = (C)b1.ice_findFacet("c");
-        D fd = (D)b1.ice_findFacet("d");
+        C fc = (C)fb2.ice_findFacet("c");
+        D fd = (D)fb2.ice_findFacet("d");
         test(b1 == fb1);
         test(fb1.a == fb2);
         test(fb1.b == fb1);
@@ -222,8 +222,7 @@ public class AllTests
             fd.b = null;
         }
 
-        System.out.print("getting B1 with facets, and B2, C, and D all at " +
-                         "once... ");
+        System.out.print("getting B1 with facets, and B2, C, and D all at once... ");
         System.out.flush();
         initial.getAll(b1H, b2H, cH, dH);
         b1 = b1H.value;
@@ -260,8 +259,8 @@ public class AllTests
         System.out.flush();
         fb1 = (B)b1.ice_findFacet("b1");
         fb2 = (B)b1.ice_findFacet("b2");
-        fc = (C)b1.ice_findFacet("c");
-        fd = (D)b1.ice_findFacet("d");
+        fc = (C)fb2.ice_findFacet("c");
+        fd = (D)fb2.ice_findFacet("d");
         test(b1 == fb1);
         test(b2 == fb2);
         test(c == fc);

@@ -47,4 +47,9 @@ interface G
     string callG();
 };
 
+interface H extends G
+{
+    string callH();
+};
+
 #endif

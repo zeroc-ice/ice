@@ -100,7 +100,7 @@ IceInternal::Incoming::invoke(bool response)
 	{
 	    if(!current.facet.empty())
 	    {
-		ObjectPtr facetServant = servant->ice_findFacet(current.facet, 0);
+		ObjectPtr facetServant = servant->ice_findFacetPath(current.facet, 0);
 		if(!facetServant)
 		{
 		    status = DispatchFacetNotExist;

@@ -8,8 +8,6 @@
 //
 // **********************************************************************
 
-// Ice version 0.0.1
-
 public final class CI extends _CDisp
 {
     public

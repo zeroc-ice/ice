@@ -297,6 +297,11 @@ IceInternal::traceReply(const char* heading, const BasicStream& str, const ::Ice
 		s << "(object not exist)";
 		break;
 	    }
+	    case DispatchFacetNotExist:
+	    {
+		s << "(facet not exist)";
+		break;
+	    }
 	    case DispatchOperationNotExist:
 	    {
 		s << "(operation not exist)";
