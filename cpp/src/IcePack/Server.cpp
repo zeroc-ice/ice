@@ -77,21 +77,30 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    //
-    // Get the data directory from the IcePack.Data property.
-    //
-    PropertiesPtr defaultProperties = getDefaultProperties(argc, argv);
-    StringSeq args = argsToStringSeq(argc, argv);
-    args = defaultProperties->parseCommandLineOptions("IcePack", args);
-    stringSeqToArgs(args, argc, argv);
+    PropertiesPtr defaultProperties;
+    try
+    {
+	defaultProperties = getDefaultProperties(argc, argv);
+	StringSeq args = argsToStringSeq(argc, argv);
+	args = defaultProperties->parseCommandLineOptions("IcePack", args);
+	stringSeqToArgs(args, argc, argv);
+    }
+    catch(const SystemException& ex)
+    {
+	cerr << argv[0] << ": " << ex << endl;
+	return EXIT_FAILURE;
+    }
 
+    //
+    // Check that IcePack.Data property is set and creates
+    // subdirectories db and servers if they don't already exist.
+    //
     string dataPath = defaultProperties->getProperty("IcePack.Data");
     if(dataPath.empty())
     {
 	cerr << argv[0] << ": property `IcePack.Data' is not set" << endl;
 	return EXIT_FAILURE;
     }
-    
     if(dataPath[dataPath.length() - 1] != '/')
     {
 	dataPath += "/"; 

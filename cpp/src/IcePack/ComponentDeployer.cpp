@@ -539,7 +539,7 @@ IcePack::ComponentDeployer::addOffer(const string& offer, const string& adapter,
     }
     catch(Ice::LocalException& ex)
     {
-	cerr << "Couldn't contact the yellow service to register the offer '" << offer << "':" << ex << endl;
+	cerr << "Couldn't contact the yellow service to register the offer '" << offer << "':\n" << ex << endl;
 	_error++;
 	return;	
     }
