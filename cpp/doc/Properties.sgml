@@ -115,6 +115,38 @@ The request retry tracing level:
 </section>
 </section>
 
+<section><title>Ice.Trace.Security</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Trace.Security=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The Security extension tracing level:
+<informaltable>
+<tgroup cols=2>
+<tbody>
+<row>
+<entry>0</entry>
+<entry>no security tracing</entry>
+</row>
+<row>
+<entry>1</entry>
+<entry>Verbose, security warnings</entry>
+</row>
+<row>
+<entry>2</entry>
+<entry>More verbose, includes warnings during configuration file parse step</entry>
+</row>
+</tbody>
+</tgroup>
+</informaltable>
+</para>
+</section>
+</section>
+
 <section><title>Freeze.Trace.DB</title>
 <section><title>Synopsis</title>
 <synopsis>
