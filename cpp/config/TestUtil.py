@@ -43,7 +43,12 @@ host = "localhost"
 # Don't change anything below this line!
 #
 
-import sys, os
+import sys, os, re
+
+def getIceVersion():
+
+    config = open(os.path.join(toplevel, "include", "IceUtil", "Config.h"), "r")
+    return re.search("ICE_STRING_VERSION \"([0-9\.]*)\"", config.read()).group(1)
 
 def isCygwin():
 
