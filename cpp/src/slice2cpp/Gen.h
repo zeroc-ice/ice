@@ -288,6 +288,12 @@ private:
 	std::string _dllExport;
 
         //
+        // Generate code to emit a local variable declaration and initialize it
+        // if necessary.
+        //
+        void writeDecl(::IceUtil::Output&, const std::string&, const TypePtr&);
+
+        //
         // Generate code to return a dummy value
         //
         void writeReturn(::IceUtil::Output&, const TypePtr&);

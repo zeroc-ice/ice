@@ -2850,6 +2850,55 @@ Slice::Gen::ImplVisitor::ImplVisitor(Output& h, Output& c,
 }
 
 void
+Slice::Gen::ImplVisitor::writeDecl(Output& out, const string& name, const TypePtr& type)
+{
+    out << nl << typeToString(type) << ' ' << name;
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        switch(builtin->kind())
+        {
+            case Builtin::KindBool:
+            {
+                out << " = false";
+                break;
+            }
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindLong:
+            {
+                out << " = 0";
+                break;
+            }
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
+            {
+                out << " = 0.0";
+                break;
+            }
+            case Builtin::KindString:
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindLocalObject:
+            {
+                break;
+            }
+        }
+    }
+
+    EnumPtr en = EnumPtr::dynamicCast(type);
+    if(en)
+    {
+        EnumeratorList enumerators = en->getEnumerators();
+        out << " = " << fixKwd(en->scope()) << fixKwd(enumerators.front()->name());
+    }
+
+    out << ';';
+}
+
+void
 Slice::Gen::ImplVisitor::writeReturn(Output& out, const TypePtr& type)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
@@ -2967,6 +3016,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     string scope = fixKwd(p->scope());
     string scoped = fixKwd(p->scoped());
     string cls = scope.substr(2) + name + "I";
+    string classScopedAMD = scope + "AMD_" + name;
 
     ClassList bases = p->bases();
     ClassDefPtr base;
@@ -3005,67 +3055,147 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr ret = op->returnType();
         string retS = returnTypeToString(ret);
 
-        H << sp << nl << "virtual " << retS << ' ' << opName << '(';
-        H.useCurrentPosAsIndent();
-	ParamDeclList paramList = op->parameters();
-	ParamDeclList::const_iterator q;
-        for(q = paramList.begin(); q != paramList.end(); ++q)
+        if(!p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd")))
         {
-            if(q != paramList.begin())
+            H << sp << nl << "virtual void " << opName << "_async(";
+            H.useCurrentPosAsIndent();
+            H << "const " << classScopedAMD << '_' << opName << "Ptr&";
+            ParamDeclList paramList = op->parameters();
+            ParamDeclList::const_iterator q;
+            for(q = paramList.begin(); q != paramList.end(); ++q)
             {
-                H << ',' << nl;
+                if(!(*q)->isOutParam())
+                {
+                    H << ',' << nl << inputTypeToString((*q)->type());
+                }
             }
-            string typeString = (*q)->isOutParam() ?
-		outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
-            H << typeString;
-        }
-        if(!p->isLocal())
-        {
-            if(!paramList.empty())
+            H << ',' << nl << "const Ice::Current&";
+            H.restoreIndent();
+
+            bool nonmutating = op->mode() == Operation::Nonmutating;
+
+            H << ")" << (nonmutating ? " const" : "") << ";";
+
+            C << sp << nl << "void" << nl << scoped.substr(2) << "I::" << opName << "_async(";
+            C.useCurrentPosAsIndent();
+            C << "const " << classScopedAMD << '_' << opName << "Ptr& " << opName << "CB";
+            for(q = paramList.begin(); q != paramList.end(); ++q)
             {
-                H << ',' << nl;
+                if(!(*q)->isOutParam())
+                {
+                    C << ',' << nl << inputTypeToString((*q)->type()) << ' ' << fixKwd((*q)->name());
+                }
             }
-            H << "const Ice::Current&";
-        }
-        H.restoreIndent();
+            C << ',' << nl << "const Ice::Current& current";
+            C.restoreIndent();
+            C << ")" << (nonmutating ? " const" : "");
+            C << sb;
 
-	bool nonmutating = op->mode() == Operation::Nonmutating;
-
-        H << ")" << (nonmutating ? " const" : "") << ";";
-
-        C << sp << nl << retS << nl << scoped.substr(2) << "I::" << opName << '(';
-        C.useCurrentPosAsIndent();
-        for(q = paramList.begin(); q != paramList.end(); ++q)
-        {
-            if(q != paramList.begin())
+            string result = "r";
+            for(q = paramList.begin(); q != paramList.end(); ++q)
             {
-                C << ',' << nl;
+                if((*q)->name() == result)
+                {
+                    result = "_" + result;
+                    break;
+                }
             }
-            string typeString = (*q)->isOutParam() ?
-		outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
-            C << typeString << ' ' << fixKwd((*q)->name());
-        }
-        if(!p->isLocal())
-        {
-            if(!paramList.empty())
+            if(ret)
             {
-                C << ',' << nl;
+                writeDecl(C, result, ret);
             }
-            C << "const Ice::Current& current";
-        }
-        C.restoreIndent();
-        C << ")" << (nonmutating ? " const" : "");
-        C << sb;
+            for(q = paramList.begin(); q != paramList.end(); ++q)
+            {
+                if((*q)->isOutParam())
+                {
+                    writeDecl(C, fixKwd((*q)->name()), (*q)->type());
+                }
+            }
 
-        //
-        // Return value
-        //
-        if(ret)
+            C << nl << opName << "CB->ice_response(";
+            if(ret)
+            {
+                C << result;
+            }
+            for(q = paramList.begin(); q != paramList.end(); ++q)
+            {
+                if((*q)->isOutParam())
+                {
+                    if(ret || q != paramList.begin())
+                    {
+                        C << ", ";
+                    }
+                    C << fixKwd((*q)->name());
+                }
+            }
+            C << ");";
+
+            C << eb;
+        }
+        else
         {
-            writeReturn(C, ret);
-        }
+            H << sp << nl << "virtual " << retS << ' ' << opName << '(';
+            H.useCurrentPosAsIndent();
+            ParamDeclList paramList = op->parameters();
+            ParamDeclList::const_iterator q;
+            for(q = paramList.begin(); q != paramList.end(); ++q)
+            {
+                if(q != paramList.begin())
+                {
+                    H << ',' << nl;
+                }
+                string typeString = (*q)->isOutParam() ?
+                    outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+                H << typeString;
+            }
+            if(!p->isLocal())
+            {
+                if(!paramList.empty())
+                {
+                    H << ',' << nl;
+                }
+                H << "const Ice::Current&";
+            }
+            H.restoreIndent();
 
-        C << eb;
+            bool nonmutating = op->mode() == Operation::Nonmutating;
+
+            H << ")" << (nonmutating ? " const" : "") << ";";
+
+            C << sp << nl << retS << nl << scoped.substr(2) << "I::" << opName << '(';
+            C.useCurrentPosAsIndent();
+            for(q = paramList.begin(); q != paramList.end(); ++q)
+            {
+                if(q != paramList.begin())
+                {
+                    C << ',' << nl;
+                }
+                string typeString = (*q)->isOutParam() ?
+                    outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
+                C << typeString << ' ' << fixKwd((*q)->name());
+            }
+            if(!p->isLocal())
+            {
+                if(!paramList.empty())
+                {
+                    C << ',' << nl;
+                }
+                C << "const Ice::Current& current";
+            }
+            C.restoreIndent();
+            C << ")" << (nonmutating ? " const" : "");
+            C << sb;
+
+            //
+            // Return value
+            //
+            if(ret)
+            {
+                writeReturn(C, ret);
+            }
+
+            C << eb;
+        }
     }
 
     H << eb << ';';
