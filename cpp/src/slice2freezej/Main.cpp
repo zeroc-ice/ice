@@ -18,6 +18,11 @@ struct DictIndex
 {
     string member;
     bool caseSensitive;
+
+    bool operator==(const DictIndex& rhs) const
+    {
+	return member == rhs.member;
+    }
 };
 
 struct Dict
@@ -118,7 +123,13 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 		cerr << _prog << ": bad index for dictionary `" << dict.name << "'" << endl;
 		return false;
 	    }
-	    
+
+	    if(!Dictionary::legalKeyType(valueType))
+	    {
+		cerr << _prog << ": `" << dict.value << "' is not a valid index type" << endl;
+		return false; 
+	    }
+
 	    if(index.caseSensitive == false)
 	    {
 		//
@@ -179,6 +190,12 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 	    
 	    TypePtr dataMemberType = dataMember->type();
 	    
+	    if(!Dictionary::legalKeyType(dataMemberType))
+	    {
+		cerr << _prog << ": `" << index.member << "' cannot be used as an index" << endl;
+		return false; 
+	    }
+
 	    if(index.caseSensitive == false)
 	    {
 		//
@@ -187,7 +204,7 @@ FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 		BuiltinPtr memberType = BuiltinPtr::dynamicCast(dataMemberType);
 		if(memberType == 0 || memberType->kind() != Builtin::KindString)
 		{
-		    cerr << _prog << ": `" << index.member << "'is not a string " << endl;
+		    cerr << _prog << ": `" << index.member << "' is not a string " << endl;
 		    return false;
 		}
 	    }
@@ -1123,6 +1140,13 @@ main(int argc, char* argv[])
 	    {
 		if(p->name == dictName)
 		{
+		    if(find(p->indices.begin(), p->indices.end(), index) != p->indices.end())
+		    {
+			cerr << argv[0] << ": " << argv[idx] << " " << argv[idx + 1]
+			     << ": this dict-index is defined twice" << endl;
+			return EXIT_FAILURE;
+		    }
+
 		    p->indices.push_back(index);
 		    found = true;
 		    break;

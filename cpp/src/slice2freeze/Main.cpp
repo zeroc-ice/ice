@@ -19,6 +19,11 @@ struct DictIndex
 {
     string member;
     bool caseSensitive;
+
+    bool operator==(const DictIndex& rhs) const
+    {
+	return member == rhs.member;
+    }
 };
 
 struct Dict
@@ -596,6 +601,13 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
 		    return false;
 		}
 		
+		if(!Dictionary::legalKeyType(valueType))
+		{
+		    cerr << n << ": `" << dict.value << "' is not a valid index type" << endl;
+		    return false; 
+		}
+
+
 		if(index.caseSensitive == false)
 		{
 		    //
@@ -606,7 +618,7 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
 		    
 		    if(builtInType == 0 || builtInType->kind() != Builtin::KindString)
 		    {
-			cerr << n << ": VALUE is a `" << dict.value << "', not a string " << endl;
+			cerr << n << ": VALUE is a `" << dict.value << "', not a string" << endl;
 			return false; 
 		    }
 		}
@@ -653,6 +665,12 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
 		
 		TypePtr dataMemberType = dataMember->type();
 
+		if(!Dictionary::legalKeyType(dataMemberType))
+		{
+		    cerr << n << ": `" << index.member << "' cannot be used as an index" << endl;
+		    return false; 
+		}
+
 		if(index.caseSensitive == false)
 		{
 		    //
@@ -661,7 +679,7 @@ writeDict(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, c
 		    BuiltinPtr memberType = BuiltinPtr::dynamicCast(dataMemberType);
 		    if(memberType == 0 || memberType->kind() != Builtin::KindString)
 		    {
-			cerr << n << ": `" << index.member << "'is not a string " << endl;
+			cerr << n << ": `" << index.member << "' is not a string " << endl;
 			return false;
 		    }
 		}
@@ -1161,6 +1179,12 @@ main(int argc, char* argv[])
 	    {
 		if(p->name == dictName)
 		{
+		    if(find(p->indices.begin(), p->indices.end(), index) != p->indices.end())
+		    {
+			cerr << argv[0] << ": " << argv[idx] << " " << argv[idx + 1]
+			     << ": this dict-index is defined twice" << endl;
+			return EXIT_FAILURE;
+		    }
 		    p->indices.push_back(index);
 		    found = true;
 		    break;
