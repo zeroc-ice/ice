@@ -8,16 +8,19 @@
 // **********************************************************************
 
 #include <Communicator.h>
-#include <Properties.h>
+#include <Logger.h>
 #include <ObjectAdapter.h>
 #include <ObjectFactory.h>
+#include <Properties.h>
 #include <Proxy.h>
 #include <Util.h>
 #include <Ice/Initialize.h>
 #include <Ice/Communicator.h>
 #include <Ice/LocalException.h>
+#include <Ice/Locator.h>
 #include <Ice/ObjectAdapter.h>
 #include <Ice/Properties.h>
+#include <Ice/Router.h>
 
 using namespace std;
 using namespace IcePy;
@@ -290,6 +293,57 @@ communicatorGetProperties(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
+communicatorGetLogger(CommunicatorObject* self)
+{
+    assert(self->communicator);
+    Ice::LoggerPtr logger;
+    try
+    {
+        logger = (*self->communicator)->getLogger();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    return createLogger(logger);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorSetLogger(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* loggerType = lookupType("Ice.Logger");
+    assert(loggerType != NULL);
+
+    PyObject* logger;
+    if(!PyArg_ParseTuple(args, "O!", loggerType, &logger))
+    {
+        return NULL;
+    }
+
+    Ice::LoggerPtr wrapper = wrapLogger(logger);
+    try
+    {
+        (*self->communicator)->setLogger(wrapper);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorAddObjectFactory(CommunicatorObject* self, PyObject* args)
 {
     PyObject* factoryType = lookupType("Ice.ObjectFactory");
@@ -465,6 +519,114 @@ communicatorCreateObjectAdapterWithEndpoints(CommunicatorObject* self, PyObject*
     return obj;
 }
 
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorGetDefaultRouter(CommunicatorObject* self)
+{
+    assert(self->communicator);
+    Ice::RouterPrx router;
+    try
+    {
+        router = (*self->communicator)->getDefaultRouter();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    PyObject* routerProxyType = lookupType("Ice.RouterPrx");
+    assert(routerProxyType != NULL);
+    return createProxy(router, *self->communicator, routerProxyType);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* routerProxyType = lookupType("Ice.RouterPrx");
+    assert(routerProxyType != NULL);
+    PyObject* proxy;
+    if(!PyArg_ParseTuple(args, "O!", routerProxyType, &proxy))
+    {
+        return NULL;
+    }
+
+    Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(getProxy(proxy));
+
+    assert(self->communicator);
+    try
+    {
+        (*self->communicator)->setDefaultRouter(router);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorGetDefaultLocator(CommunicatorObject* self)
+{
+    assert(self->communicator);
+    Ice::LocatorPrx locator;
+    try
+    {
+        locator = (*self->communicator)->getDefaultLocator();
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
+    assert(locatorProxyType != NULL);
+    return createProxy(locator, *self->communicator, locatorProxyType);
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
+communicatorSetDefaultLocator(CommunicatorObject* self, PyObject* args)
+{
+    PyObject* locatorProxyType = lookupType("Ice.LocatorPrx");
+    assert(locatorProxyType != NULL);
+    PyObject* proxy;
+    if(!PyArg_ParseTuple(args, "O!", locatorProxyType, &proxy))
+    {
+        return NULL;
+    }
+
+    Ice::LocatorPrx locator = Ice::LocatorPrx::uncheckedCast(getProxy(proxy));
+
+    assert(self->communicator);
+    try
+    {
+        (*self->communicator)->setDefaultLocator(locator);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return NULL;
+    }
+
+    Py_INCREF(Py_None);
+    return Py_None;
+}
+
 static PyMethodDef CommunicatorMethods[] =
 {
     { "destroy", (PyCFunction)communicatorDestroy, METH_NOARGS,
@@ -477,20 +639,32 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR("stringToProxy(str) -> Ice.ObjectPrx") },
     { "proxyToString", (PyCFunction)communicatorProxyToString, METH_VARARGS,
         PyDoc_STR("proxyToString(Ice.ObjectPrx) -> string") },
-    { "flushBatchRequests", (PyCFunction)communicatorFlushBatchRequests, METH_NOARGS,
-        PyDoc_STR("flushBatchRequests() -> None") },
-    { "getProperties", (PyCFunction)communicatorGetProperties, METH_NOARGS,
-        PyDoc_STR("getProperties() -> Ice.Properties") },
+    { "createObjectAdapter", (PyCFunction)communicatorCreateObjectAdapter, METH_VARARGS,
+        PyDoc_STR("createObjectAdapter(name) -> Ice.ObjectAdapter") },
+    { "createObjectAdapterWithEndpoints", (PyCFunction)communicatorCreateObjectAdapterWithEndpoints, METH_VARARGS,
+        PyDoc_STR("createObjectAdapterWithEndpoints(name, endpoints) -> Ice.ObjectAdapter") },
     { "addObjectFactory", (PyCFunction)communicatorAddObjectFactory, METH_VARARGS,
         PyDoc_STR("addObjectFactory(factory, id) -> None") },
     { "removeObjectFactory", (PyCFunction)communicatorRemoveObjectFactory, METH_VARARGS,
         PyDoc_STR("removeObjectFactory(id) -> None") },
     { "findObjectFactory", (PyCFunction)communicatorFindObjectFactory, METH_VARARGS,
         PyDoc_STR("findObjectFactory(id) -> Ice.ObjectFactory") },
-    { "createObjectAdapter", (PyCFunction)communicatorCreateObjectAdapter, METH_VARARGS,
-        PyDoc_STR("createObjectAdapter(name) -> Ice.ObjectAdapter") },
-    { "createObjectAdapterWithEndpoints", (PyCFunction)communicatorCreateObjectAdapterWithEndpoints, METH_VARARGS,
-        PyDoc_STR("createObjectAdapterWithEndpoints(name, endpoints) -> Ice.ObjectAdapter") },
+    { "getProperties", (PyCFunction)communicatorGetProperties, METH_NOARGS,
+        PyDoc_STR("getProperties() -> Ice.Properties") },
+    { "getLogger", (PyCFunction)communicatorGetLogger, METH_NOARGS,
+        PyDoc_STR("getLogger() -> Ice.Logger") },
+    { "setLogger", (PyCFunction)communicatorSetLogger, METH_VARARGS,
+        PyDoc_STR("setLogger(Ice.Logger) -> None") },
+    { "getDefaultRouter", (PyCFunction)communicatorGetDefaultRouter, METH_NOARGS,
+        PyDoc_STR("getDefaultRouter() -> proxy") },
+    { "setDefaultRouter", (PyCFunction)communicatorSetDefaultRouter, METH_VARARGS,
+        PyDoc_STR("setDefaultRouter(proxy) -> None") },
+    { "getDefaultLocator", (PyCFunction)communicatorGetDefaultLocator, METH_NOARGS,
+        PyDoc_STR("getDefaultLocator() -> proxy") },
+    { "setDefaultLocator", (PyCFunction)communicatorSetDefaultLocator, METH_VARARGS,
+        PyDoc_STR("setDefaultLocator(proxy) -> None") },
+    { "flushBatchRequests", (PyCFunction)communicatorFlushBatchRequests, METH_NOARGS,
+        PyDoc_STR("flushBatchRequests() -> None") },
     { NULL, NULL} /* sentinel */
 };
 
@@ -558,6 +732,7 @@ IcePy::initCommunicator(PyObject* module)
     {
         return false;
     }
+
     return true;
 }
 
@@ -582,7 +757,7 @@ IcePy::createCommunicator(const Ice::CommunicatorPtr& communicator)
 
 extern "C"
 PyObject*
-Ice_initialize(PyObject* /*self*/, PyObject* args)
+IcePy_initialize(PyObject* /*self*/, PyObject* args)
 {
     //
     // Currently the same as "c = Ice.Communicator(args)".
@@ -592,7 +767,7 @@ Ice_initialize(PyObject* /*self*/, PyObject* args)
 
 extern "C"
 PyObject*
-Ice_initializeWithProperties(PyObject* /*self*/, PyObject* args)
+IcePy_initializeWithProperties(PyObject* /*self*/, PyObject* args)
 {
     //
     // Currently the same as "c = Ice.Communicator(args, properties)".

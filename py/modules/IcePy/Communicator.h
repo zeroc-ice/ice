@@ -26,7 +26,7 @@ PyObject* createCommunicator(const Ice::CommunicatorPtr&);
 
 }
 
-extern "C" PyObject* Ice_initialize(PyObject*, PyObject*);
-extern "C" PyObject* Ice_initializeWithProperties(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_initialize(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_initializeWithProperties(PyObject*, PyObject*);
 
 #endif
