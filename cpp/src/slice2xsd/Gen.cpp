@@ -512,7 +512,7 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p)
     {
 	"xs:byte",
 	"xs:boolean",
-	"xs;short",
+	"xs:short",
 	"xs:int",
 	"xs:long",
 	"xs:float",
