@@ -458,6 +458,7 @@ main(int argc, char* argv[])
             }
 
             IceUtil::Output out;
+            out.setUseTab(false);
             out.open(file.c_str());
             if(!out)
             {
