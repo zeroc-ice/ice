@@ -39,9 +39,6 @@ public:
 
 private:
 
-    TcpAcceptorI(const TcpAcceptorI&);
-    void operator=(const TcpAcceptorI&);
-
     TcpAcceptorI(Instance, int);
     virtual ~TcpAcceptorI();
     friend class TcpEndpointI; // May create TcpAcceptorIs

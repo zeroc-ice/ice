@@ -37,9 +37,6 @@ public:
     
 private:
 
-    InstanceI(const InstanceI&);
-    void operator=(const InstanceI&);
-
     InstanceI();
     virtual ~InstanceI();
     void destroy();

@@ -35,9 +35,6 @@ public:
     
 private:
 
-    TcpTransceiverI(const TcpTransceiverI&);
-    void operator=(const TcpTransceiverI&);
-
     TcpTransceiverI(Instance, int);
     virtual ~TcpTransceiverI();
     friend class TcpConnectorI; // May create TcpTransceiverIs

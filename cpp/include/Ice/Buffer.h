@@ -16,7 +16,7 @@
 namespace __Ice
 {
 
-class ICE_API Buffer
+class ICE_API Buffer : noncopyable
 {
 public:
 
@@ -25,11 +25,6 @@ public:
     typedef std::vector<Ice::Byte> Container;
     Container b;
     Container::iterator i;
-
-private:
-
-    Buffer(const Buffer&);
-    void operator=(const Buffer&);
 };
 
 }

@@ -20,7 +20,7 @@ namespace __Ice
 // Simple, non thread-safe intrusive base class for reference-counted
 // types.
 //
-class ICE_API SimpleShared
+class ICE_API SimpleShared : noncopyable
 {
 public:
 
@@ -40,16 +40,13 @@ public:
 
 private:
 
-    SimpleShared(const SimpleShared&);
-    void operator=(const SimpleShared&);
-
     int ref_;
 };
 
 //
 // Thread-safe intrusive base class for reference-counted types.
 //
-class ICE_API Shared
+class ICE_API Shared : noncopyable
 {
 public:
 
@@ -75,9 +72,6 @@ public:
     }
 
 private:
-
-    Shared(const Shared&);
-    void operator=(const Shared&);
 
     int ref_;
     JTCMutex mutex_;

@@ -32,11 +32,6 @@ public:
     virtual ~ObjectS();
 
     virtual void __dispatch(::__Ice::Incoming&, const std::string&) = 0;
-
-private:
-
-    ObjectS(const ObjectS&);
-    void operator=(const ObjectS&);
 };
 
 } }

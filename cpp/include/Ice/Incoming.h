@@ -17,7 +17,7 @@
 namespace __Ice
 {
 
-class ICE_API Incoming
+class ICE_API Incoming : noncopyable
 {
 public:
 
@@ -30,9 +30,6 @@ public:
     Stream* os();
 
 private:
-
-    Incoming(const Incoming&);
-    void operator=(const Incoming&);
 
     ::Ice::ObjectAdapter adapter_;
 

@@ -35,9 +35,6 @@ public:
     
 private:
     
-    TcpConnectorI(const TcpConnectorI&);
-    void operator=(const TcpConnectorI&);
-    
     TcpConnectorI(Instance, const std::string&, int);
     virtual ~TcpConnectorI();
     friend class TcpEndpointI; // May create TcpConnectorIs

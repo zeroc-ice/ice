@@ -52,9 +52,6 @@ protected:
 
 private:
 
-    Object(const Object&);
-    void operator=(const Object&);
-
     void setup(const ::__Ice::Reference&);
 
     ::__Ice::Reference reference_;
@@ -78,9 +75,6 @@ protected:
     virtual ~Object();
 
 private:
-
-    Object(const Object&);
-    void operator=(const Object&);
 
     virtual void setup(const ::__Ice::Reference&) = 0;
 
@@ -111,9 +105,6 @@ private:
 
     ::__Ice::Emitter emitter_;
     ::__Ice::Reference reference_;
-
-    Object(const Object&);
-    void operator=(const Object&);
 
     virtual void setup(const ::__Ice::Reference&);
 

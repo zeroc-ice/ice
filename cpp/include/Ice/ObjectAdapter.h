@@ -44,9 +44,6 @@ private:
     virtual ~ObjectAdapterI();
     friend CommunicatorI; // May create ObjectAdapterIs
 
-    ObjectAdapterI(const ObjectAdapterI&);
-    void operator=(const ObjectAdapterI&);
-
     ::__Ice::Instance instance_;
     std::vector< __Ice::CollectorFactory> collectorFactories_;
     std::map<std::string, ::IceServant::Ice::Object> servants_;

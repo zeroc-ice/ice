@@ -38,9 +38,6 @@ public:
 
 private:
 
-    CommunicatorI(const CommunicatorI&);
-    void operator=(const CommunicatorI&);
-
     CommunicatorI();
     virtual ~CommunicatorI();
     // May create CommunicatorIs

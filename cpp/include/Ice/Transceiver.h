@@ -34,11 +34,6 @@ protected:
 
     TransceiverI() { }
     virtual ~TransceiverI() { }
-
-private:
-
-    TransceiverI(const TransceiverI&);
-    void operator=(const TransceiverI&);
 };
 
 }

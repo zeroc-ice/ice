@@ -86,9 +86,6 @@ public:
 
 private:
 
-    Stream(const Stream&);
-    void operator=(const Stream&);
-
     Instance instance_;
     bool bigendian_;
     std::stack<bool> bigendianStack_;

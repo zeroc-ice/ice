@@ -29,11 +29,6 @@ protected:
 
     ConnectorI() { }
     virtual ~ConnectorI() { }
-
-private:
-
-    ConnectorI(const ConnectorI&);
-    void operator=(const ConnectorI&);
 };
 
 }

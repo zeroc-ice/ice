@@ -25,7 +25,7 @@ class LocalException;
 namespace __Ice
 {
 
-class ICE_API Outgoing : public JTCMonitorT< JTCMutex >
+class ICE_API Outgoing : noncopyable, public JTCMonitorT< JTCMutex >
 {
 public:
 
@@ -40,9 +40,6 @@ public:
     Stream* os();
 
 private:
-
-    Outgoing(const Outgoing&);
-    void operator=(const Outgoing&);
 
     Emitter emitter_;
     Reference reference_;

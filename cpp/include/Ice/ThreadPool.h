@@ -35,9 +35,6 @@ public:
     
 private:
 
-    ThreadPoolI(const ThreadPoolI&);
-    void operator=(const ThreadPoolI&);
-
     ThreadPoolI(const Instance&);
     virtual ~ThreadPoolI();
     void destroy();

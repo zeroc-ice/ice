@@ -33,11 +33,6 @@ protected:
 
     AcceptorI() { }
     virtual ~AcceptorI() { }
-
-private:
-
-    AcceptorI(const AcceptorI&);
-    void operator=(const AcceptorI&);
 };
 
 }

@@ -58,11 +58,6 @@ public:
     bool operator==(const ReferenceI&) const;
     bool operator!=(const ReferenceI&) const;
     bool operator<(const ReferenceI&) const;
-
-private:
-
-    ReferenceI(const ReferenceI&);
-    void operator=(const ReferenceI&);
 };
 
 }

@@ -75,9 +75,6 @@ protected:
 
 private:
 
-    EventHandlerI(const EventHandlerI&);
-    void operator=(const EventHandlerI&);
-
     // ThreadPoolI may use the following private data member
     friend ThreadPoolI;
     Stream stream_;

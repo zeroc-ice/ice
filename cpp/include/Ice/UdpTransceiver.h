@@ -38,9 +38,6 @@ public:
     
 private:
 
-    UdpTransceiverI(const UdpTransceiverI&);
-    void operator=(const UdpTransceiverI&);
-
     UdpTransceiverI(Instance, const std::string&, int);
     UdpTransceiverI(Instance, int);
     virtual ~UdpTransceiverI();

@@ -28,11 +28,6 @@ public:
     const char* networkCat;
     const int protocol;
     const char* protocolCat;
- 
-private:
-
-    TraceLevelsI(const TraceLevelsI&);
-    void operator=(const TraceLevelsI&);
 };
 
 }

@@ -31,9 +31,6 @@ public:
 
 private:
 
-    ObjectFactoryI(const ObjectFactoryI&);
-    void operator=(const ObjectFactoryI&);
-
     ObjectFactoryI(const Instance&);
     virtual ~ObjectFactoryI();
     friend class InstanceI; // May create and destroy ObjectFactoryIs

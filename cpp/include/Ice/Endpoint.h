@@ -102,11 +102,6 @@ public:
     virtual bool operator==(const EndpointI&) const = 0;
     virtual bool operator!=(const EndpointI&) const = 0;
     virtual bool operator<(const EndpointI&) const = 0;
-
-private:
-
-    EndpointI(const EndpointI&);
-    void operator=(const EndpointI&);
 };
 
 class ICE_API UnknownEndpointI : public EndpointI
@@ -132,9 +127,6 @@ public:
     virtual bool operator<(const EndpointI&) const;
 
 private:
-
-    UnknownEndpointI(const UnknownEndpointI&);
-    void operator=(const UnknownEndpointI&);
 
     //
     // All  members are const, because TcpEndpoints are immutable.
@@ -167,9 +159,6 @@ public:
     virtual bool operator<(const EndpointI&) const;
 
 private:
-
-    TcpEndpointI(const TcpEndpointI&);
-    void operator=(const TcpEndpointI&);
 
     //
     // All  members are const, because TcpEndpoints are immutable.
@@ -204,9 +193,6 @@ public:
     virtual bool operator<(const EndpointI&) const;
 
 private:
-
-    UdpEndpointI(const UdpEndpointI&);
-    void operator=(const UdpEndpointI&);
 
     //
     // All  members are const, because UdpEndpoints are immutable.

@@ -100,4 +100,26 @@ const bool bigendian = false;
 //
 #include <JTC/JTC.h>
 
+//
+// By deriving from this class (private inheritance), other classes
+// are made non-copyable
+//
+namespace __Ice
+{
+
+class noncopyable
+{
+protected:
+
+    noncopyable() { }
+    ~noncopyable() { }
+
+private:
+
+    noncopyable(const noncopyable&);
+    const noncopyable& operator=(const noncopyable&);
+};
+
+}
+
 #endif
