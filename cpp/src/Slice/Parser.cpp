@@ -161,11 +161,9 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name) :
 	_scoped = cont->scoped();
     }
     _scoped += "::" + _name;				       
-    if (_unit)
-    {
-	_unit->addContent(this);
-	_comment = _unit->currentComment();
-    }
+    assert(_unit);
+    _unit->addContent(this);
+    _comment = _unit->currentComment();
 }
 
 bool
@@ -1137,13 +1135,6 @@ Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name, b
 // ClassDef
 // ----------------------------------------------------------------------
 
-void
-Slice::ClassDef::destroy()
-{
-    _bases.clear();
-    Container::destroy();
-}
-
 OperationPtr
 Slice::ClassDef::createOperation(const string& name,
 				 const TypePtr& returnType,
@@ -1901,7 +1892,7 @@ void
 Slice::Unit::error(const char* s)
 {
     cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
-    yynerrs++;
+    _errors++;
 }
 
 void
@@ -1999,6 +1990,7 @@ Slice::Unit::parse(FILE* file, bool debug)
     assert(!Slice::unit);
     Slice::unit = this;
 
+    _errors = 0;
     _currentComment = "";
     _currentLine = 1;
     _currentIncludeLevel = 0;
@@ -2010,9 +2002,13 @@ Slice::Unit::parse(FILE* file, bool debug)
     extern FILE* yyin;
     yyin = file;
     int status = yyparse();
-    if (yynerrs)
+    if (_errors)
     {
 	status = EXIT_FAILURE;
+    }
+
+    if (status == EXIT_FAILURE)
+    {
 	while (!_containerStack.empty())
 	{
 	    popContainer();
@@ -2031,8 +2027,8 @@ Slice::Unit::parse(FILE* file, bool debug)
 void
 Slice::Unit::destroy()
 {
-    _builtins.clear();
     _contentMap.clear();
+    _builtins.clear();
     Container::destroy();
 }
 

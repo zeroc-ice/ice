@@ -207,7 +207,7 @@ L	[a-zA-Z_]
     
     StringTokPtr ident = new StringTok;
     ident->v = s;
-    yylval = ident;
+    *yylvalp = ident;
     return ICE_IDENTIFIER;
 }
 
@@ -222,7 +222,7 @@ L	[a-zA-Z_]
     StringTokPtr ident = new StringTok;
     ident->v = s;
     ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
-    yylval = ident;
+    *yylvalp = ident;
     return ICE_OP_IDENTIFIER;
 }
 

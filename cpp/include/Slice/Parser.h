@@ -125,13 +125,14 @@ YY_DECL;
 int yyparse();
 
 //
-// I must set the initial bison stack depth to the maximum stack
-// depth, because the bison stack extension routines use simple
-// malloc/alloc, which doesn't work for C++ smart pointers with
-// constructors and destructors
+// I must set the initial stack depth to the maximum stack depth to
+// disable bison stack resizing. The bison stack resizing routines use
+// simple malloc/alloc/memcpy calls, which do not work for the
+// YYSTYPE, since YYSTYPE is a C++ smart pointer, with a default
+// constructor and a destructor.
 //
-#define YYMAXDEPTH  20000 // 20000 should suffice. Default is 10000 for maximum
-#define YYINITDEPTH YYMAXDEPTH // initial depth == max depth, as described above
+#define YYMAXDEPTH  20000 // 20000 should suffice. Bison default is 10000 as maximum.
+#define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
 
 namespace Slice
 {

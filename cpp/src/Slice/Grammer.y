@@ -23,6 +23,8 @@ yyerror(const char* s)
 
 %}
 
+%pure_parser
+
 %token ICE_SCOPE_DELIMITOR
 %token ICE_MODULE
 %token ICE_LOCAL
