@@ -66,6 +66,7 @@ sequence<MyClassS> MyClassSS;
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;
 dictionary<long, float> LongFloatD;
+dictionary<string, string> StringStringD;
 dictionary<string, MyEnum> StringMyEnumD;
 
 ["ami"] class MyClass
@@ -136,8 +137,8 @@ dictionary<string, MyEnum> StringMyEnumD;
     LongFloatD opLongFloatD(LongFloatD p1, LongFloatD p2,
 			    out LongFloatD p3);
 
-    Ice::Context opStringStringD(Ice::Context p1, Ice::Context p2,
-				 out Ice::Context p3);
+    StringStringD opStringStringD(StringStringD p1, StringStringD p2,
+				 out StringStringD p3);
 
     StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2,
 				  out StringMyEnumD p3);

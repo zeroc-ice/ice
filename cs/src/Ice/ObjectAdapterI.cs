@@ -433,6 +433,23 @@ namespace Ice
 	    }
 	}
 
+	public LocatorPrx getLocator()
+	{
+	    lock(this)
+	    {
+		checkForDeactivation();
+
+		LocatorPrx locator = null;
+
+		if(_locatorInfo != null)
+		{
+		    locator = _locatorInfo.getLocator();
+		}
+
+		return locator;
+	    }
+	}
+
 	public bool isLocal(ObjectPrx proxy)
 	{
 	    lock(this)

@@ -568,6 +568,15 @@
                     BuildAction = "Compile"
                 />
                 <File
+                    RelPath = "generated\Process.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "generated\ProcessF.cs"
+                    BuildAction = "Compile"
+                />
+                <File
                     RelPath = "generated\Properties.cs"
                     SubType = "Code"
                     BuildAction = "Compile"

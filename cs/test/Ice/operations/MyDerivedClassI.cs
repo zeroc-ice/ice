@@ -251,15 +251,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
     
     public override Ice.Context opContext(Ice.Current current)
     {
-        Ice.Context r = new Ice.Context();
-	if(current.ctx != null)
-	{
-	    foreach(System.Collections.DictionaryEntry e in current.ctx)
-	    {
-		r[(string)e.Key] = (string)e.Value;
-	    }
-	}
-	return r;
+	return current.ctx == null ? new Ice.Context() : new Ice.Context(current.ctx);
     }
     
     public override Test.StringS opStringS(Test.StringS p1, Test.StringS p2, out Test.StringS p3, Ice.Current current)
@@ -291,11 +283,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClass
 	return r;
     }
     
-    public override Ice.Context opStringStringD(Ice.Context p1, Ice.Context p2,
-                                                       out Ice.Context p3, Ice.Current current)
+    public override Test.StringStringD opStringStringD(Test.StringStringD p1, Test.StringStringD p2,
+                                                       out Test.StringStringD p3, Ice.Current current)
     {
 	p3 = p1;
-	Ice.Context r = new Ice.Context();
+	Test.StringStringD r = new Test.StringStringD();
 	r.AddRange(p1);
 	r.AddRange(p2);
 	return r;
