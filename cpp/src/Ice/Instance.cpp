@@ -33,11 +33,8 @@
 #ifndef _WIN32
 #   include <csignal>
 #   include <syslog.h>
-#   include <sys/time.h>
 #   include <pwd.h>
 #   include <sys/types.h>
-#else
-#   include <sys/timeb.h>
 #endif
 
 using namespace std;
@@ -220,6 +217,8 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 
 	if (_globalStateCounter == 1) // Only on first call
 	{
+	    srand(static_cast<timeval>(IceUtil::Time::now()).tv_usec);
+	    
 #ifdef _WIN32
 	    WORD version = MAKEWORD(1, 1);
 	    WSADATA data;
@@ -238,19 +237,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    sigemptyset(&action.sa_mask);
 	    action.sa_flags = 0;
 	    sigaction(SIGPIPE, &action, 0);
-#endif
-	    
-#ifdef _WIN32
-	    struct _timeb tb;
-	    _ftime(&tb);
-	    srand(tb.millitm);
-#else
-	    timeval tv;
-	    gettimeofday(&tv, 0);
-	    srand(tv.tv_usec);
-#endif
-	
-#ifndef _WIN32
+
 	    string newUser = _properties->getProperty("Ice.ChangeUser");
 	    if (!newUser.empty())
 	    {

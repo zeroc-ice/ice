@@ -23,53 +23,47 @@ Time::Time() :
 {
 }
 
-IceUtil::Time::Time(const timeval& tv) :
-    _usec((tv.tv_sec * (LongLong)1000000) + tv.tv_usec)
-{
-}
-
 Time
 IceUtil::Time::now()
 {
 #ifdef WIN32
-    struct _timeb timebuffer;
-    _ftime(&timebuffer);
-
-    return Time(timebuffer.time * (LongLong)1000000) +
-               (timebuffer.millitm * (LongLong)1000);
+    struct _timeb tb;
+    _ftime(&tb);
+    return Time(tb.time * static_cast<LongLong>(1000000) + tb.millitm * static_cast<LongLong>(1000));
 #else
     struct timeval tv;
     gettimeofday(&tv, 0);
-
-    return Time(tv);
+    return Time(tv.tv_sec * static_cast<LongLong>(1000000) + tv.tv_usec);
 #endif
 }
 
 Time
 IceUtil::Time::seconds(long t)
 {
-    return Time(t * (LongLong)1000000);
+    return Time(t * static_cast<LongLong>(1000000));
 }
 
 Time
 IceUtil::Time::milliSeconds(long t)
 {
-    return Time(t * (LongLong)1000);
+    return Time(t * static_cast<LongLong>(1000));
 }
 
-#ifdef _WIN32
 Time
-IceUtil::Time::microSeconds(__int64 t)
+IceUtil::Time::microSeconds(LongLong t)
 {
     return Time(t);
 }
-#else
+
 Time
-IceUtil::Time::microSeconds(long long t)
+IceUtil::Time::operator=(const Time& rhs)
 {
-    return Time(t);
+    if (this != &rhs)
+    {
+	_usec = rhs._usec;
+    }
+    return *this;
 }
-#endif
 
 Time
 IceUtil::Time::operator-() const
@@ -78,78 +72,80 @@ IceUtil::Time::operator-() const
 }
 
 Time
-IceUtil::Time::operator-(const Time& other) const
+IceUtil::Time::operator-(const Time& rhs) const
 {
-    return Time(_usec - other._usec);
+    return Time(_usec - rhs._usec);
 }
 
 Time
-IceUtil::Time::operator+(const Time& other) const
+IceUtil::Time::operator+(const Time& rhs) const
 {
-    return Time(_usec + other._usec);
+    return Time(_usec + rhs._usec);
 }
 
 Time&
-IceUtil::Time::operator+=(const Time& other)
+IceUtil::Time::operator+=(const Time& rhs)
 {
-    _usec += other._usec;
+    _usec += rhs._usec;
     return *this;
 }
 
 Time&
-IceUtil::Time::operator-=(const Time& other)
+IceUtil::Time::operator-=(const Time& rhs)
 {
-    _usec -= other._usec;
+    _usec -= rhs._usec;
     return *this;
 }
 
 bool
-IceUtil::Time::operator<(const Time& other) const
+IceUtil::Time::operator<(const Time& rhs) const
 {
-    return _usec < other._usec;
+    return _usec < rhs._usec;
 }
 
 bool
-IceUtil::Time::operator<=(const Time& other) const
+IceUtil::Time::operator<=(const Time& rhs) const
 {
-    return _usec <= other._usec;
+    return _usec <= rhs._usec;
 }
 
 bool
-IceUtil::Time::operator>(const Time& other) const
+IceUtil::Time::operator>(const Time& rhs) const
 {
-    return _usec > other._usec;
+    return _usec > rhs._usec;
 }
 
 bool
-IceUtil::Time::operator>=(const Time& other) const
+IceUtil::Time::operator>=(const Time& rhs) const
 {
-    return _usec >= other._usec;
+    return _usec >= rhs._usec;
 }
 
 bool
-IceUtil::Time::operator==(const Time& other) const
+IceUtil::Time::operator==(const Time& rhs) const
 {
-    return _usec == other._usec;
+    return _usec == rhs._usec;
 }
 
 bool
-IceUtil::Time::operator!=(const Time& other) const
+IceUtil::Time::operator!=(const Time& rhs) const
 {
-    return _usec != other._usec;
+    return _usec != rhs._usec;
 }
 
 IceUtil::Time::operator timeval() const
 {
     timeval tv;
-    tv.tv_sec = (long)(_usec / 1000000);
-    tv.tv_usec = (long)(_usec % 1000000);
+    tv.tv_sec = static_cast<long>(_usec / 1000000);
+    tv.tv_usec = static_cast<long>(_usec % 1000000);
     return tv;
 }
 
-//
-// Private constructor.
-//
+IceUtil::Time::operator double() const
+{
+    return _usec / 1000000.0L;
+}
+
 Time::Time(LongLong usec) :
     _usec(usec)
 {

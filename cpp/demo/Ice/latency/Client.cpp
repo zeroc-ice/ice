@@ -10,11 +10,6 @@
 
 #include <Ice/Ice.h>
 #include <Latency.h>
-#ifdef _WIN32
-#   include <sys/timeb.h>
-#else
-#   include <sys/time.h>
-#endif
 
 using namespace std;
 
@@ -41,15 +36,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     // Initial ping to setup the connection.
     ping->ice_ping();
 
-    timeval tv1;
-#ifdef _WIN32
-    struct _timeb tb1;
-    _ftime(&tb1);
-    tv1.tv_sec = tb1.time;
-    tv1.tv_usec = tb1.millitm * 1000;
-#else
-    gettimeofday(&tv1, 0);
-#endif
+    IceUtil::Time tm = IceUtil::Time::now();
 
     const int repetitions = 100000;
     cout << "pinging server " << repetitions << " times (this may take a while)" << endl;
@@ -58,33 +45,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	ping->ice_ping();
     }
 
-    timeval tv2;
-#ifdef _WIN32
-    struct _timeb tb2;
-    _ftime(&tb2);
-    tv2.tv_sec = tb2.time;
-    tv2.tv_usec = tb2.millitm * 1000;
-#else
-    gettimeofday(&tv2, 0);
-#endif
+    tm = IceUtil::Time::now() - tm;
 
-    timeval tv;
-
-    tv.tv_sec = tv2.tv_sec - tv1.tv_sec;
-    tv.tv_usec = tv2.tv_usec - tv1.tv_usec;
-
-    tv.tv_sec += tv.tv_usec / 1000000;
-    tv.tv_usec = tv.tv_usec % 1000000;
-
-    if (tv.tv_usec < 0)
-    {
-        tv.tv_usec += 1000000;
-        tv.tv_sec -= 1;
-    }
-
-    double total = (tv.tv_sec * 1000000.0 + tv.tv_usec) / 1000.0;
+    double total = tm / 1000.0;
     double perPing = total / repetitions;
-
+    
     cout << "time for " << repetitions << " pings: " << total  << "ms" << endl;
     cout << "time per ping: " << perPing << "ms" << endl;
 

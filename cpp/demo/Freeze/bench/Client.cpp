@@ -9,15 +9,7 @@
 // **********************************************************************
 
 #include <Freeze/Application.h>
-
-#ifdef _WIN32
-#   include <sys/timeb.h>
-#else
-#   include <sys/time.h>
-#endif
-
 #include <BenchTypes.h>
-
 #include <cstdlib>
 
 using namespace std;
@@ -44,7 +36,7 @@ public:
     start()
     {
 	_stopped = false;
-	getTime(_start);
+	_start = IceUtil::Time::now();
     }
 
     double
@@ -52,45 +44,18 @@ public:
     {
 	if (!_stopped)
 	{
-	    getTime(_stop);
 	    _stopped = true;
+	    _stop = IceUtil::Time::now();
 	}
 
-	timeval tv;
-	
-	tv.tv_sec = _stop.tv_sec - _start.tv_sec;
-	tv.tv_usec = _stop.tv_usec - _start.tv_usec;
-	
-	tv.tv_sec += tv.tv_usec / 1000000;
-	tv.tv_usec = tv.tv_usec % 1000000;
-	
-	if (tv.tv_usec < 0)
-	{
-	    tv.tv_usec += 1000000;
-	    tv.tv_sec -= 1;
-	}
-	
-	return (tv.tv_sec * 1000000.0 + tv.tv_usec) / 1000.0;
+	return (_stop - _start) / 1000.0;
     }
 
 private:
 
-    void
-    getTime(timeval& tv)
-    {
-#ifdef _WIN32
-	struct _timeb tb1;
-	_ftime(&tb1);
-	tv.tv_sec = tb1.time;
-	tv.tv_usec = tb1.millitm * 1000;
-#else
-	gettimeofday(&tv, 0);
-#endif
-    }
-
     bool _stopped;
-    timeval _start;
-    timeval _stop;
+    IceUtil::Time _start;
+    IceUtil::Time _stop;
 };
 
 class Generator : public IceUtil::Shared
@@ -267,8 +232,7 @@ TestApp::generatedRead(IntIntMap& m, int reads , const GeneratorPtr& gen)
     double total = _watch.stop();
     double perRecord = total / reads;
 
-    cout << "\ttime for " << reads << " reads of " << gen->toString() << " records: "
-	 << total << "ms" << endl;
+    cout << "\ttime for " << reads << " reads of " << gen->toString() << " records: " << total << "ms" << endl;
     cout << "\ttime per read: " << perRecord << "ms" << endl;
     
 }
