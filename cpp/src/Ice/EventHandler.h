@@ -65,6 +65,13 @@ public:
     //
     virtual void finished() = 0;
 
+    //
+    // Try to destroy the event handler. Returns false if the event
+    // handler cannot be destroyed because it is in use, or true
+    // otherwise.
+    //
+    virtual bool tryDestroy() = 0;
+
 protected:
     
     EventHandler(const InstancePtr&);

@@ -36,7 +36,8 @@ void IceInternal::decRef(EmitterFactory* p) { p->__decRef(); }
 void
 IceInternal::Emitter::destroy()
 {
-    exception(CommunicatorDestroyedException(__FILE__, __LINE__));
+    JTCSyncT<JTCMutex> sync(*this);
+    setState(StateClosed, CommunicatorDestroyedException(__FILE__, __LINE__));
 }
 
 bool
@@ -326,6 +327,31 @@ IceInternal::Emitter::finished()
 {
     JTCSyncT<JTCMutex> sync(*this);
     _transceiver->close();
+}
+
+bool
+IceInternal::Emitter::tryDestroy()
+{
+    bool isLocked = trylock();
+    if(!isLocked)
+    {
+	return false;
+    }
+
+    _threadPool->promoteFollower();
+
+    try
+    {
+	setState(StateClosed, CommunicatorDestroyedException(__FILE__, __LINE__));
+    }
+    catch(...)
+    {
+	unlock();
+	throw;
+    }
+
+    unlock();    
+    return true;
 }
 
 IceInternal::Emitter::Emitter(const InstancePtr& instance,

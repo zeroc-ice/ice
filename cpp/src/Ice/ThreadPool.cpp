@@ -91,8 +91,8 @@ void
 IceInternal::ThreadPool::waitUntilFinished()
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
-
-    while (_handlers.size() > 0 && _threadNum > 0)
+    
+    while (_handlerMap.size() > 0 && _threadNum > 0) // Faster than _reapList.size() with most STLs.
     {
 	try
 	{
@@ -103,7 +103,7 @@ IceInternal::ThreadPool::waitUntilFinished()
 	}
     }
 
-    if (_handlers.size() > 0)
+    if (_handlerMap.size() > 0)
     {
 	_instance->logger()->error("can't wait for graceful application termination in thread pool\n"
 				   "since all threads have vanished");
@@ -125,8 +125,30 @@ IceInternal::ThreadPool::joinWithAllThreads()
     }
 }
 
+void
+IceInternal::ThreadPool::setMaxConnections(int maxConnections)
+{
+    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    if (maxConnections < _threadNum && maxConnections != 0)
+    {
+	_maxConnections = _threadNum;
+    }
+    else
+    {
+	_maxConnections = maxConnections;
+    }
+}
+
+int
+IceInternal::ThreadPool::getMaxConnections()
+{
+    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
+    return _maxConnections;
+}
+
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     _instance(instance),
+    _destroyed(false),
     _lastFd(-1),
     _servers(0),
     _timeout(0)
@@ -141,6 +163,8 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
     FD_SET(_fdIntrRead, &_fdSet);
     _maxFd = _fdIntrRead;
     _minFd = _fdIntrRead;
+
+    _timeout = atoi(_instance->properties()->getProperty("Ice.ServerIdleTime").c_str());
 
     try
     {
@@ -168,13 +192,13 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance) :
 	throw;
     }
 
-    _timeout = atoi(_instance->properties()->getProperty("Ice.ServerIdleTime").c_str());
+    // Must be called after _threadNum is set.
+    setMaxConnections(atoi(_instance->properties()->getProperty("Ice.ThreadPool.MaxConnections").c_str()));
 }
 
 IceInternal::ThreadPool::~ThreadPool()
 {
-    assert(!_instance);
-
+    assert(_destroyed);
     closeSocket(_fdIntrWrite);
     closeSocket(_fdIntrRead);
 }
@@ -183,8 +207,8 @@ void
 IceInternal::ThreadPool::destroy()
 {
     JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
-    assert(_instance);
-    _instance = 0;
+    assert(!_destroyed);
+    _destroyed = true;
     setInterrupt();
 }
 
@@ -222,17 +246,18 @@ IceInternal::ThreadPool::setInterrupt()
 void
 IceInternal::ThreadPool::run()
 {
+    bool shutdown = false;
+
     while (true)
     {
 	_threadMutex.lock();
 	
-	bool shutdown = false;
 	EventHandlerPtr handler;
-	InstancePtr instance;
+	bool reap;
 	
     repeatSelect:
 	
-	if (shutdown) // Shutdown has been initiated
+	if (shutdown) // Shutdown has been initiated.
 	{
 	    shutdown = false;
 	    _instance->objectAdapterFactory()->shutdown();
@@ -253,7 +278,7 @@ IceInternal::ThreadPool::run()
 	    ret = ::select(_maxFd + 1, &fdSet, 0, 0, 0);
 	}
 	
-	if (ret == 0) // Timeout
+	if (ret == 0) // Timeout.
 	{
 	    assert(_timeout);
 	    _timeout = 0;
@@ -274,13 +299,11 @@ IceInternal::ThreadPool::run()
 	{
 	    JTCSyncT<JTCMonitorT<JTCMutex> > sync(*this);
 	    
-	    instance = _instance;
-	    
-	    if (!instance) // Destroyed?
+	    if (_destroyed)
 	    {
 		//
 		// Don't clear the interrupt fd if destroyed, so that
-		// the other threads exit as well
+		// the other threads exit as well.
 		//
 		return;
 	    }
@@ -295,11 +318,12 @@ IceInternal::ThreadPool::run()
 	    if (!_adds.empty())
 	    {
 		//
-		// New handlers have been added
+		// New handlers have been added.
 		//
 		for (vector<pair<int, EventHandlerPtr> >::iterator p = _adds.begin(); p != _adds.end(); ++p)
 		{
-		    _handlers.insert(*p);
+		    _reapList.push_front(p->first);
+		    _handlerMap[p->first] = make_pair(p->second, _reapList.begin());
 		    FD_SET(p->first, &_fdSet);
 		    _maxFd = max(_maxFd, p->first);
 		    _minFd = min(_minFd, p->first);
@@ -310,107 +334,158 @@ IceInternal::ThreadPool::run()
 	    if (!_removes.empty())
 	    {
 		//
-		// Handlers are permanently removed
+		// Handlers are permanently removed.
 		//
 		for (vector<int>::iterator p = _removes.begin(); p != _removes.end(); ++p)
 		{
-		    std::map<int, EventHandlerPtr>::iterator q = _handlers.find(*p);
-		    assert(q != _handlers.end());
+		    map<int, pair<EventHandlerPtr, list<int>::iterator> >::iterator q =	_handlerMap.find(*p);
+		    assert(q != _handlerMap.end());
 #ifdef WIN32
 		    FD_CLR(static_cast<u_int>(*p), &_fdSet);
 #else
 		    FD_CLR(*p, &_fdSet);
 #endif
-		    q->second->finished();
-		    if (q->second->server())
+		    q->second.first->finished();
+		    if (q->second.first->server())
 		    {
 			--_servers;
 		    }
-		    _handlers.erase(q);
+
+		    _reapList.erase(q->second.second);
+		    _handlerMap.erase(q);
 		}
 		_removes.clear();
 		_maxFd = _fdIntrRead;
 		_minFd = _fdIntrRead;
-		if (!_handlers.empty())
+		if (!_handlerMap.empty())
 		{
-		    _maxFd = max(_maxFd, (--_handlers.end())->first);
-		    _minFd = min(_minFd, (--_handlers.end())->first);
+		    _maxFd = max(_maxFd, (--_handlerMap.end())->first);
+		    _minFd = min(_minFd, (--_handlerMap.end())->first);
 		}
-		if (_handlers.empty() || _servers == 0)
+		if (_handlerMap.empty() || _servers == 0)
 		{
-		    notifyAll(); // For waitUntil...Finished() methods
+		    notifyAll(); // For waitUntil...Finished() methods.
 		}
 	    }
-
+	    
 	    if (interrupt)
 	    {
 		goto repeatSelect;
 	    }
-	    
-	    //
-	    // Round robin for the filedescriptors
-	    //
-	    if (_lastFd < _minFd - 1)
-	    {
-		_lastFd = _minFd - 1;
-	    }
 
-	    int loops = 0;
-	    do
+	    //
+	    // Check if there are connections to reap.
+	    //
+            // _handlerMap.size() is faster than _reapList() with most STLs.
+	    if (_maxConnections > 0 && _handlerMap.size() > static_cast<list<int>::size_type>(_maxConnections))
 	    {
-		if (++_lastFd > _maxFd)
+		int fd = _reapList.back();
+		_reapList.pop_back();
+		_reapList.push_front(fd);
+		map<int, pair<EventHandlerPtr, list<int>::iterator> >::iterator p = _handlerMap.find(fd);
+		p->second.second = _reapList.begin();
+		handler = p->second.first;
+		reap = true;
+	    }
+	    else
+	    {
+		//
+		// Round robin for the filedescriptors.
+		//
+		if (_lastFd < _minFd - 1)
 		{
-		    ++loops;
-		    _lastFd = _minFd;
+		    _lastFd = _minFd - 1;
 		}
+		
+		int loops = 0;
+		do
+		{
+		    if (++_lastFd > _maxFd)
+		    {
+			++loops;
+			_lastFd = _minFd;
+		    }
+		}
+		while (!FD_ISSET(_lastFd, &fdSet) && loops <= 1);
+		
+		if (loops > 1)
+		{
+		    ostringstream s;
+		    s << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
+		    _instance->logger()->error(s.str());
+		    goto repeatSelect;
+		}
+		
+		map<int, pair<EventHandlerPtr, list<int>::iterator> >::iterator p = _handlerMap.find(_lastFd);
+		if(p == _handlerMap.end())
+		{
+		    ostringstream s;
+		    s << "filedescriptor " << _lastFd << " not registered with the thread pool";
+		    _instance->logger()->error(s.str());
+		    goto repeatSelect;
+		}
+		
+		//
+		// Make the fd for the handler the most recently used one
+		// by moving it to the beginning of the the reap list.
+		//
+		if (p->second.second != _reapList.begin())
+		{
+		    _reapList.erase(p->second.second);
+		    _reapList.push_front(p->first);
+		    p->second.second = _reapList.begin();
+		}
+		
+		handler = p->second.first;
+		reap = false;
 	    }
-	    while (!FD_ISSET(_lastFd, &fdSet) && loops <= 1);
-
-	    if (loops > 1)
-	    {
-		ostringstream s;
-		s << "select() in thread pool returned " << ret << " but no filedescriptor is readable";
-		_instance->logger()->error(s.str());
-		goto repeatSelect;
-	    }
-	    
-	    std::map<int, EventHandlerPtr>::iterator p = _handlers.find(_lastFd);
-	    if(p == _handlers.end())
-	    {
-		ostringstream s;
-		s << "filedescriptor " << _lastFd << " not registered with the thread pool";
-		_instance->logger()->error(s.str());
-		goto repeatSelect;
-	    }
-
-	    handler = p->second;
 	}
-	
-	//
-	// If the handler is "readable", try to read a message
-	//
-	Stream stream(instance);
-	if (handler->readable())
+
+	if (reap)
 	{
+	    //
+	    // Reap the handler.
+	    //
 	    try
 	    {
-		read(handler);
-	    }
-	    catch (const TimeoutException&) // Expected
-	    {
-		goto repeatSelect;
+		if (!handler->tryDestroy())
+		{
+		    goto repeatSelect;
+		}
 	    }
 	    catch (const LocalException& ex)
 	    {
-		handler->exception(ex);
-		goto repeatSelect;
+		// Ignore exeptions.
+	    }
+	}
+	else
+	{
+	    //
+	    // If the handler is "readable", try to read a message.
+	    //
+	    Stream stream(_instance);
+	    if (handler->readable())
+	    {
+		try
+		{
+		    read(handler);
+		}
+		catch (const TimeoutException&) // Expected.
+		{
+		    goto repeatSelect;
+		}
+		catch (const LocalException& ex)
+		{
+		    handler->exception(ex);
+		    goto repeatSelect;
+		}
+		
+		stream.swap(handler->_stream);
+		assert(stream.i == stream.b.end());
 	    }
 	    
-	    stream.swap(handler->_stream);
-	    assert(stream.i == stream.b.end());
+	    handler->message(stream);
 	}
-	
-	handler->message(stream);
     }
 }
 
@@ -456,7 +531,7 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 	stream.read(size);
 	if (size > 1024 * 1024) // TODO: configurable
 	{
-	    throw ::Ice::MemoryLimitException(__FILE__, __LINE__);
+	    throw MemoryLimitException(__FILE__, __LINE__);
 	}
 	stream.b.resize(size);
 	stream.i = stream.b.begin() + pos;
@@ -466,6 +541,11 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
     {
 	handler->read(stream);
     }
+}
+
+void
+IceInternal::ThreadPool::reapConnections()
+{
 }
 
 void
@@ -507,10 +587,10 @@ IceInternal::ThreadPool::EventHandlerThread::run()
 	//
 	if (_pool->_threadNum == 0)
 	{
-	    _pool->notifyAll(); // For waitUntil...Finished() methods
+	    _pool->notifyAll(); // For waitUntil...Finished() methods.
 	}
     }
 
     _pool->promoteFollower();
-    _pool = 0; // Break cyclic dependency
+    _pool = 0; // Break cyclic dependency.
 }

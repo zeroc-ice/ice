@@ -299,6 +299,31 @@ IceInternal::Collector::finished()
     }
 }
 
+bool
+IceInternal::Collector::tryDestroy()
+{
+    bool isLocked = trylock();
+    if(!isLocked)
+    {
+	return false;
+    }
+
+    _threadPool->promoteFollower();
+
+    try
+    {
+	setState(StateClosing);
+    }
+    catch(...)
+    {
+	unlock();
+	throw;
+    }
+    
+    unlock();    
+    return true;
+}
+
 IceInternal::Collector::Collector(const InstancePtr& instance,
 				  const ObjectAdapterPtr& adapter,
 				  const TransceiverPtr& transceiver,
@@ -560,6 +585,16 @@ IceInternal::CollectorFactory::finished()
 	clearBacklog();
 	_acceptor->close();
     }
+}
+
+bool
+IceInternal::CollectorFactory::tryDestroy()
+{
+    //
+    // Do nothing. We don't want collector factories to be closed by
+    // active connection management.
+    //
+    return false;
 }
 
 IceInternal::CollectorFactory::CollectorFactory(const InstancePtr& instance,

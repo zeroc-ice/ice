@@ -208,6 +208,23 @@ Sets the endpoints for the object adapter
 <section><title>Thread Pool</title>
 <!-- ********************************************************************** -->
 
+<section><title>Ice.ThreadPool.MaxConnections</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.ThreadPool.MaxConnections=<replaceable>num</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+The maximum number of connections the thread pool will use. Default is
+zero, meaning no limit. If <replaceable>num</replaceable> is not set
+to zero, it must be equal to or larger than the number of threads in
+the thread pool.
+</para>
+</section>
+</section>
+
 <section><title>Ice.ThreadPool.Size</title>
 <section><title>Synopsis</title>
 <synopsis>

@@ -15,6 +15,7 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/EventHandlerF.h>
+#include <list>
 
 namespace IceInternal
 {
@@ -32,6 +33,8 @@ public:
     void waitUntilServerFinished();
     void waitUntilFinished();
     void joinWithAllThreads();
+    void setMaxConnections(int);
+    int getMaxConnections();
     
 private:
 
@@ -45,8 +48,10 @@ private:
 
     void run();
     void read(const EventHandlerPtr&);
+    void reapConnections();
 
     InstancePtr _instance;
+    bool _destroyed;
     int _maxFd;
     int _minFd;
     int _lastFd;
@@ -55,7 +60,8 @@ private:
     fd_set _fdSet;
     std::vector<std::pair<int, EventHandlerPtr> > _adds;
     std::vector<int> _removes;
-    std::map<int, EventHandlerPtr> _handlers;
+    std::map<int, std::pair<EventHandlerPtr, std::list<int>::iterator> > _handlerMap;
+    std::list<int> _reapList;
     int _servers;
     int _timeout;
     JTCMutex _threadMutex;
@@ -74,6 +80,7 @@ private:
     friend class EventHandlerThread;
     std::vector<JTCThreadHandle> _threads; // Handles for all threads, running or not.
     int _threadNum; // Number of running threads.
+    int _maxConnections; // Maximum number of connections. If set to zero, the number of connections is not limited.
 };
 
 }

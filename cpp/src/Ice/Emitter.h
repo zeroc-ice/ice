@@ -56,6 +56,7 @@ public:
     virtual void message(Stream&);
     virtual void exception(const ::Ice::LocalException&);
     virtual void finished();
+    virtual bool tryDestroy();
 
 private:
 

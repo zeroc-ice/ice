@@ -20,15 +20,15 @@ usage(const char* n)
     cerr << "Usage: " << n << " [options] slice-files...\n";
     cerr <<	
 	"Options:\n"
-	"-h, --help           Show this message.\n"
-	"-v, --version        Display the Ice version.\n"
-	"-DNAME               Define NAME as 1.\n"
-	"-DNAME=DEF           Define NAME as DEF.\n"
-	"-UNAME               Remove any definition for NAME.\n"
-	"-IDIR                Put DIR in the include file search path.\n"
+	"-h, --help	      Show this message.\n"
+	"-v, --version	      Display the Ice version.\n"
+	"-DNAME		      Define NAME as 1.\n"
+	"-DNAME=DEF	      Define NAME as DEF.\n"
+	"-UNAME		      Remove any definition for NAME.\n"
+	"-IDIR		      Put DIR in the include file search path.\n"
 	"--include-dir DIR    Use DIR as the header include directory.\n"
 	"--dll-export SYMBOL  Use SYMBOL for DLL exports.\n"
-	"-d, --debug          Print debug messages.\n"
+	"-d, --debug	      Print debug messages.\n"
 	;
 }
 
@@ -94,11 +94,11 @@ main(int argc, char* argv[])
 	else if (strcmp(argv[idx], "--include-dir") == 0)
 	{
 	    if (idx + 1 >= argc)
-            {
+	    {
 		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
 		usage(argv[0]);
 		return EXIT_FAILURE;
-            }
+	    }
 	    
 	    include = argv[idx + 1];
 	    for (int i = idx ; i + 2 < argc ; ++i)
@@ -110,11 +110,11 @@ main(int argc, char* argv[])
 	else if (strcmp(argv[idx], "--dll-export") == 0)
 	{
 	    if (idx + 1 >= argc)
-            {
+	    {
 		cerr << argv[0] << ": argument expected for`" << argv[idx] << "'" << endl;
 		usage(argv[0]);
 		return EXIT_FAILURE;
-            }
+	    }
 	    
 	    dllExport = argv[idx + 1];
 	    for (int i = idx ; i + 2 < argc ; ++i)

@@ -15,7 +15,9 @@
 
 #if defined(WIN32)
 
-#   include <process.h>
+#   if !defined(_DLL) || !defined(_MT)
+#       error "Only multi-threaded DLL libraries can be used with Ice!"
+#   endif
 
 #   ifdef ICE_API_EXPORTS
 #       define ICE_API __declspec(dllexport)
@@ -23,13 +25,7 @@
 #       define ICE_API __declspec(dllimport)
 #   endif
 
-#   ifndef _DLL
-#       error "Only multi-threaded DLL libraries may be linked with Ice!"
-#   endif
-
-#   ifndef _MT
-#       error "Only multi-threaded libraries may be linked with Ice!"
-#   endif
+#   include <process.h>
 
 namespace Ice
 {
@@ -67,7 +63,7 @@ typedef double Double;
 
 #else
 
-#   error "unsupported operating system or platform"
+#   error "Unsupported operating system or platform!"
 
 #endif
 

@@ -56,11 +56,11 @@ public:
     virtual void message(Stream&);
     virtual void exception(const ::Ice::LocalException&);
     virtual void finished();
+    virtual bool tryDestroy();
 
 private:
 
-    Collector(const InstancePtr&, const ::Ice::ObjectAdapterPtr&,
-	      const TransceiverPtr&, const EndpointPtr&);
+    Collector(const InstancePtr&, const ::Ice::ObjectAdapterPtr&, const TransceiverPtr&, const EndpointPtr&);
     virtual ~Collector();
     friend class CollectorFactory;
 
@@ -106,11 +106,11 @@ public:
     virtual void message(Stream&);
     virtual void exception(const ::Ice::LocalException&);
     virtual void finished();
+    virtual bool tryDestroy();
     
 private:
 
-    CollectorFactory(const InstancePtr&, const ::Ice::ObjectAdapterPtr&,
-		     const EndpointPtr&);
+    CollectorFactory(const InstancePtr&, const ::Ice::ObjectAdapterPtr&, const EndpointPtr&);
     virtual ~CollectorFactory();
     friend class ::Ice::ObjectAdapterI;
 
