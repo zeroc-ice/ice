@@ -13,7 +13,7 @@
 #
 # **********************************************************************
 
-import os, sys, shutil, re
+import os, sys, shutil, fnmatch, re
 
 #
 # Show usage information.
@@ -28,6 +28,20 @@ def usage():
     print "-d    Skip SGML documentation conversion."
     print
     print "If no tag is specified, HEAD is used."
+
+#
+# Find files matching a pattern.
+#
+def find(path, patt):
+    result = [ ]
+    files = os.listdir(path)
+    for x in files:
+        fullpath = os.path.join(path, x);
+        if os.path.isdir(fullpath) and not os.path.islink(fullpath):
+            result.extend(find(fullpath, patt))
+        elif fnmatch.fnmatch(x, patt):
+            result.append(fullpath)
+    return result
 
 #
 # Check arguments
@@ -118,8 +132,9 @@ shutil.rmtree("ice")
 # Remove files.
 #
 filesToRemove = [ \
-    "icej/makedist.py", \
+    os.path.join("icej", "makedist.py"), \
     ]
+filesToRemove.extend(find("icej", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
 
