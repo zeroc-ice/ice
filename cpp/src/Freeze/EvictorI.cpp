@@ -102,7 +102,7 @@ Freeze::EvictorI::setPersistenceMode(EvictorPersistenceMode persistenceMode)
 
 	    for (map<string, EvictorElement>::iterator p = _evictorMap.begin(); p != _evictorMap.end(); ++p)
 	    {
-		_db->put(*(p->second.position), p->second.servant);
+		_db->put(*(p->second.position), p->second.servant, true);
 	    }
 	}
     }
@@ -124,7 +124,7 @@ Freeze::EvictorI::createObject(const string& identity, const ObjectPtr& servant)
     //
     // Save the new Ice Object to the database.
     //
-    _db->put(identity, servant);
+    _db->put(identity, servant, true);
     add(identity, servant);
 
     if (_trace >= 1)
@@ -246,7 +246,7 @@ Freeze::EvictorI::finished(const ObjectAdapterPtr&, const string& identity, cons
     {
 	if (servant->__isMutating(operation))
 	{
-	    _db->put(identity, servant);
+	    _db->put(identity, servant, true);
 	}
     }
 }
@@ -271,7 +271,7 @@ Freeze::EvictorI::deactivate()
     {
 	for (map<string, EvictorElement>::iterator p = _evictorMap.begin(); p != _evictorMap.end(); ++p)
 	{
-	    _db->put(*(p->second.position), p->second.servant);
+	    _db->put(*(p->second.position), p->second.servant, true);
 	}
     }
 
@@ -313,7 +313,7 @@ Freeze::EvictorI::evict()
 	//
 	if (_persistenceMode == SaveUponEviction)
 	{
-	    _db->put(identity, servant);
+	    _db->put(identity, servant, true);
 	}
 
 	if (_trace >= 2)

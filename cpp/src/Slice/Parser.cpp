@@ -650,7 +650,9 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 	{
 	    ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
 	    if (cl)
+	    {
 		continue; // Ignore class definitions
+	    }
 
 	    TypePtr type = TypePtr::dynamicCast(*p);
 	    if (!type)

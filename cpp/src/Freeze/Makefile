@@ -27,7 +27,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 HDIR		= $(includedir)/Freeze
 IDIR		= $(slicedir)/Freeze
-SLICECMD	= $(SLICE) --include-dir Freeze --dll-export FREEZE_API -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --include-dir Freeze --dll-export FREEZE_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -42,7 +42,7 @@ $(NAME): $(VERSIONED_NAME)
 	rm -f $@
 	ln -s $(VERSIONED_BASE) $@
 
-$(HDIR)/DB.h DB.cpp: $(IDIR)/DB.ice $(SLICE)
+$(HDIR)/DB.h DB.cpp: $(IDIR)/DB.ice $(SLICE2CPP)
 	rm -f $(HDIR)/DB.h DB.cpp
 	$(SLICECMD) $(IDIR)/DB.ice
 	mv DB.h $(HDIR)
@@ -50,7 +50,7 @@ $(HDIR)/DB.h DB.cpp: $(IDIR)/DB.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/DB.h DB.cpp
 
-$(HDIR)/DBF.h: $(IDIR)/DBF.ice $(SLICE)
+$(HDIR)/DBF.h: $(IDIR)/DBF.ice $(SLICE2CPP)
 	rm -f $(HDIR)/DBF.h DBF.cpp
 	$(SLICECMD) $(IDIR)/DBF.ice
 	mv DBF.h $(HDIR)
@@ -59,7 +59,7 @@ $(HDIR)/DBF.h: $(IDIR)/DBF.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/DBF.h
 
-$(HDIR)/Evictor.h Evictor.cpp: $(IDIR)/Evictor.ice $(SLICE)
+$(HDIR)/Evictor.h Evictor.cpp: $(IDIR)/Evictor.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Evictor.h Evictor.cpp
 	$(SLICECMD) $(IDIR)/Evictor.ice
 	mv Evictor.h $(HDIR)
@@ -67,7 +67,7 @@ $(HDIR)/Evictor.h Evictor.cpp: $(IDIR)/Evictor.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/Evictor.h Evictor.cpp
 
-$(HDIR)/EvictorF.h: $(IDIR)/EvictorF.ice $(SLICE)
+$(HDIR)/EvictorF.h: $(IDIR)/EvictorF.ice $(SLICE2CPP)
 	rm -f $(HDIR)/EvictorF.h EvictorF.cpp
 	$(SLICECMD) $(IDIR)/EvictorF.ice
 	mv EvictorF.h $(HDIR)

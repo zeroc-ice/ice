@@ -61,10 +61,14 @@ Slice::Output::print(const char* s)
 {
     for (unsigned int i = 0; i < strlen(s); ++i)
     {
-    if (s[i] == '\n')
-        _pos = 0;
-    else
-        ++_pos;
+	if (s[i] == '\n')
+	{
+	    _pos = 0;
+	}
+	else
+	{
+	    ++_pos;
+	}
     }
 
     _out << s;
@@ -74,7 +78,6 @@ void
 Slice::Output::inc()
 {
     _indent += _indentSize;
-    _separator = true;
 }
 
 void
@@ -82,7 +85,6 @@ Slice::Output::dec()
 {
     assert(_indent >= _indentSize);
     _indent -= _indentSize;
-    _separator = true;
 }
 
 void
@@ -198,7 +200,9 @@ void
 Slice::Output::sp()
 {
     if (_separator)
+    {
         _out << '\n';
+    }
 }
 
 bool

@@ -102,7 +102,7 @@ local interface DBEnvironment
      * @see DBTransaction
      *
      **/
-    DBTransaction startDBTransaction() throws DBException;
+    DBTransaction startTransaction() throws DBException;
 
     /**
      *
@@ -156,13 +156,35 @@ sequence<byte> Value;
 
 /**
  *
- * A basic database, which can store key/value pairs.
+ * The base class for databases.
  *
+ * @see DBEnvironment::openDB
  * @see DBException
- * @see DBEnvironment
  *
  **/
-local interface DB
+local interface DBBase
+{
+};
+
+/**
+ *
+ * A database that can store basic key/value pairs, or
+ * identity/servant pairs. In case the database is used to store both
+ * key/value and identity/Servant pairs, it is the application's
+ * responsbility to make sure that there is no overlap between keys
+ * and identities. Identities are simply strings, while values are
+ * sequence of bytes. This means that no byte representation of
+ * identity strings may be equal to any of the keys. Due to the
+ * difficulty to avoid this in practice, the use of one single
+ * database to store both key/value and identity/Servant pairs is
+ * discouraged.
+ *
+ * @see DBEnvironment::openDB
+ * @see DBException
+ * @see Evictor
+ *
+ **/
+local interface DBForKeyValues extends DBBase
 {
     /**
      *
@@ -223,38 +245,6 @@ local interface DB
 
     /**
      *
-     * Close the database and destroy this database object. Subsequent
-     * calls to <literal>close</literal> have no effect.
-     *
-     * @see DBEnvironment::openDB
-     * @see DBEnvironment::close
-     *
-     **/
-    void close() throws DBException;
-};
-
-/**
- *
- * A Servant database, which can store identity/Servant pairs.
- *
- * @see DBException
- * @see DBEnvironment
- * @see Evictor
- *
- **/
-local interface DBForServants
-{
-    /**
-     *
-     * Get the name of the database.
-     *
-     * @return The name of this database.
-     *
-     **/
-    string getName();
-
-    /**
-     *
      * Put a Servant into the database, using the Ice Object's
      * identity implemented by the Servant as a key.
      *
@@ -308,7 +298,19 @@ local interface DBForServants
 
     /**
      *
-     * Create a new Evictor that uses this database.
+     * Close the database and destroy this database object. Subsequent
+     * calls to <literal>close</literal> have no effect.
+     *
+     * @see DBEnvironment::openDB
+     * @see DBEnvironment::close
+     *
+     **/
+    void close() throws DBException;
+
+    /**
+     *
+     * Create a new Evictor that uses this database to store
+     * identity/Servant pairs.
      *
      * @return The new Evictor.
      *
@@ -316,17 +318,6 @@ local interface DBForServants
      *
      **/
     Evictor createEvictor();
-
-    /**
-     *
-     * Close the database and destroy this database object. Subsequent
-     * calls to <literal>close</literal> have no effect.
-     *
-     * @see DBEnvironment::openDBForServants
-     * @see DBEnvironment::close
-     *
-     **/
-    void close() throws DBException;
 };
 
 };

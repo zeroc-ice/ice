@@ -19,46 +19,19 @@
 namespace Freeze
 {
 
-class DBEnvI;
-typedef IceUtil::Handle<DBEnvI> DBEnvIPtr;
+class DBEnvironmentI;
+typedef IceUtil::Handle<DBEnvironmentI> DBEnvironmentIPtr;
 
-class DBI : public DB, public JTCMutex
-{
-public:
-    
-    DBI(const ::Ice::CommunicatorPtr&, const DBEnvIPtr&, ::DB*, const std::string&);
-    virtual ~DBI();
-
-    virtual std::string getName();
-    virtual void put(const std::string&, const ::Ice::ObjectPtr&, bool);
-    virtual ::Ice::ObjectPtr get(const std::string&);
-    virtual void del(const std::string&);
-    virtual void close();
-    virtual EvictorPtr createEvictor();
-
-private:
-
-    ::Ice::CommunicatorPtr _communicator;
-    ::Ice::LoggerPtr _logger;
-    int _trace;
-
-    DBEnvIPtr _dbenvObj;
-    ::DB* _db;
-
-    std::string _name;
-    std::string _errorPrefix;
-};
-
-class DBEnvI : public DBEnv, public JTCRecursiveMutex
+class DBEnvironmentI : public DBEnvironment, public JTCRecursiveMutex
 {
 public:
 
-    DBEnvI(const ::Ice::CommunicatorPtr&, const std::string&);
-    virtual ~DBEnvI();
+    DBEnvironmentI(const ::Ice::CommunicatorPtr&, const std::string&);
+    virtual ~DBEnvironmentI();
 
     virtual std::string getName();
     virtual DBPtr openDB(const std::string&);
-    virtual TXNPtr startTXN();
+    virtual DBTransactionPtr startDBTransaction();
     virtual void close();
 
 private:
@@ -72,20 +45,20 @@ private:
     ::Ice::LoggerPtr _logger;
     int _trace;
 
-    ::DB_ENV* _dbenv;
+    ::DB_ENV* _dbEnv;
 
     std::string _name;
     std::string _errorPrefix;
 
-    std::map<std::string, DBPtr> _dbmap;
+    std::map<std::string, DBPtr> _dbMap;
 };
 
-class TXNI : public TXN, public JTCMutex
+class DBTransactionI : public DBTransaction, public JTCMutex
 {
 public:
 
-    TXNI(const ::Ice::CommunicatorPtr&, ::DB_ENV*, const std::string&);
-    virtual ~TXNI();
+    DBTransactionI(const ::Ice::CommunicatorPtr&, ::DB_ENV*, const std::string&);
+    virtual ~DBTransactionI();
 
     virtual void commit();
     virtual void abort();
@@ -97,6 +70,40 @@ private:
     int _trace;
 
     ::DB_TXN* _tid;
+
+    std::string _name;
+    std::string _errorPrefix;
+};
+
+class DBI : public DB, public JTCMutex
+{
+public:
+    
+    DBI(const ::Ice::CommunicatorPtr&, const DBEnvironmentIPtr&, ::DB*, const std::string&);
+    virtual ~DBI();
+
+    virtual std::string getName();
+
+    virtual void put(const Key&, const Value&, bool);
+    virtual Value get(const Key&);
+    virtual void del(const Key&);
+
+    virtual void putServant(const std::string&, const ::Ice::ObjectPtr&, bool);
+    virtual ::Ice::ObjectPtr getServant(const std::string&);
+    virtual void delServant(const std::string&);
+
+    virtual void close();
+
+    virtual EvictorPtr createEvictor();
+
+private:
+
+    ::Ice::CommunicatorPtr _communicator;
+    ::Ice::LoggerPtr _logger;
+    int _trace;
+
+    DBEnvironmentIPtr _dbEnvObj;
+    ::DB* _db;
 
     std::string _name;
     std::string _errorPrefix;

@@ -92,7 +92,7 @@ run(int argc, char* argv[], const DBEnvPtr& dbenv)
     //
     // Open the phonebook database.
     //
-    DBPtr db = dbenv->open("phonebook");
+    DBPtr db = dbenv->openDB("phonebook");
 
     //
     // Create an Evictor.
@@ -115,31 +115,14 @@ run(int argc, char* argv[], const DBEnvPtr& dbenv)
 
     //
     // Create an Object Adapter, use the Evictor as Servant Locator.
+    //
     ObjectAdapterPtr adapter = communicator->createObjectAdapter("PhoneBookAdapter");
     adapter->setServantLocator(evictor);
 
     //
-    // Create and install a factory for the phonebook.
+    // Create the phonebook, and add it to the Object Adapter.
     //
-    ServantFactoryPtr phoneBookFactory = new PhoneBookFactory(adapter, evictor);
-    communicator->installServantFactory(phoneBookFactory, "::PhoneBook");
-
-    //
-    // Try to load the phonebook from the database. If none exists in
-    // the database yet, create a new one. Then add the phonebook
-    // Servant to the Object Adapter.
-    //
-    PhoneBookIPtr phoneBook;
-    ObjectPtr servant = db->get("phonebook");
-    if (!servant)
-    {
-	phoneBook = new PhoneBookI(adapter, evictor);
-    }
-    else
-    {
-	phoneBook = PhoneBookIPtr::dynamicCast(servant);
-    }
-    assert(phoneBook);
+    PhoneBookIPtr phoneBook = new PhoneBookI(adapter, evictor);
     adapter->add(phoneBook, "phonebook");
 
     //

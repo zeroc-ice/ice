@@ -13,21 +13,6 @@
 
 #include <PhoneBookI.h>
 
-class PhoneBookFactory : public Ice::ServantFactory
-{
-public:
-
-    PhoneBookFactory(const Ice::ObjectAdapterPtr&, const Freeze::EvictorPtr&);
-
-    virtual Ice::ObjectPtr create(const std::string&);
-    virtual void destroy();
-
-private:
-
-    Ice::ObjectAdapterPtr _adapter;
-    Freeze::EvictorPtr _evictor;
-};
-
 class ContactFactory : virtual public Ice::ServantFactory, virtual public Freeze::ServantInitializer
 {
 public:

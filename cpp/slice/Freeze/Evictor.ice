@@ -85,10 +85,10 @@ enum EvictorPersistenceMode
  * evictor pattern. The Evictor is an extended Servant Locator, with
  * an implementation in the Freeze module. Instances of this
  * implementation can be created with the operation
- * <literal>DBForServants::createEvictor</literal>, and must be registered with
+ * <literal>DB::createEvictor</literal>, and must be registered with
  * an Object Adapter like other Servant Locators.
  *
- * @see DBForServants::createEvictor
+ * @see DB::createEvictor
  * @see Ice::ServantLocator
  *
  **/
@@ -101,10 +101,10 @@ local interface Evictor extends Ice::ServantLocator
      *
      * @return The database used by this Evictor.
      *
-     * @see DBForServants::createEvictor
+     * @see DB::createEvictor
      *
      **/
-    DBForServants getDBForServants();
+    DB getDB();
 
     /**
      *

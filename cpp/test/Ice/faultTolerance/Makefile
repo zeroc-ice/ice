@@ -39,9 +39,9 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-Test.h Test.cpp: Test.ice $(SLICE)
+Test.h Test.cpp: Test.ice $(SLICE2CPP)
 	rm -f Test.h Test.cpp
-	$(SLICE) Test.ice
+	$(SLICE2CPP) Test.ice
 
 clean::
 	rm -f Test.h Test.cpp

@@ -82,9 +82,10 @@ ContactI::destroy()
 
 PhoneBookI::PhoneBookI(const ObjectAdapterPtr& adapter, const EvictorPtr& evictor) :
     _adapter(adapter),
-    _evictor(evictor)
+    _evictor(evictor),
+    _nextContactIdentity(0),
+    _nameIdentitiesDict(new NameIdentitiesDict(evictor->getDB()))
 {
-    _nextContactIdentity = 0;
 }
 
 class IdentityToContact
@@ -141,7 +142,7 @@ PhoneBookI::createContact()
     // Add identity to our name/identity map. The initial name is the
     // empty string.
     //
-    _nameIdentitiesDict[""].push_back(identity);
+//    _nameIdentitiesDict[""].push_back(identity);
     
     //
     // TODO: Of course it's inefficient to always save the whole phone
@@ -149,7 +150,7 @@ PhoneBookI::createContact()
     // dictionary type that directly reads from and writes to the
     // database.
     //
-    _evictor->getDB()->put("phonebook", this);
+//    _evictor->getDB()->put("phonebook", this, true);
 
     //
     // Turn the identity into a Proxy and return the Proxy to the
@@ -167,6 +168,7 @@ PhoneBookI::findContacts(const string& name)
     // Lookup all phone book contacts that match a name, and return
     // them to the caller.
     //
+/*
     NameIdentitiesDict::iterator p = _nameIdentitiesDict.find(name);
     if (p != _nameIdentitiesDict.end())
     {
@@ -175,7 +177,7 @@ PhoneBookI::findContacts(const string& name)
 	transform(p->second.begin(), p->second.end(), back_inserter(contacts), IdentityToContact(_adapter));
 	return contacts;
     }
-    else
+    else*/
     {
 	return Contacts();
     }
@@ -190,6 +192,7 @@ PhoneBookI::getAllNames()
     // Get all names from this phone book.
     //
     Names names;
+/*
     for (NameIdentitiesDict::iterator p = _nameIdentitiesDict.begin(); p != _nameIdentitiesDict.end(); ++p)
     {
 	//
@@ -201,6 +204,7 @@ PhoneBookI::getAllNames()
 	    names.push_back(p->first);
 	}
     }
+*/
 
     return names;
 }
@@ -218,6 +222,7 @@ PhoneBookI::remove(const string& identity, const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
+/*
     //
     // Called by ContactI to remove itself from the phone book.
     //
@@ -233,6 +238,7 @@ PhoneBookI::remove(const string& identity, const string& name)
     // database.
     //
     _evictor->getDB()->put("phonebook", this);
+*/
 }
 
 void
@@ -240,6 +246,7 @@ PhoneBookI::move(const string& identity, const string& oldName, const string& ne
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this); // TODO: Reader/Writer lock
 
+/*
     //
     // Called by ContactI in case the name has been changed.
     //
@@ -253,4 +260,5 @@ PhoneBookI::move(const string& identity, const string& oldName, const string& ne
     // database.
     //
     _evictor->getDB()->put("phonebook", this);
+*/
 }

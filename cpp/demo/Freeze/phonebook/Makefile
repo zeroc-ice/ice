@@ -23,6 +23,7 @@ COBJS		= Grammer.o \
 		  Client.o \
 
 SOBJS		= PhoneBookI.o \
+		  NameIdentitiesDict.o \
 		  ServantFactory.o \
 		  Server.o
 
@@ -56,11 +57,18 @@ clean::
 	-rm -f Grammer.cpp Grammer.h Grammer.output
 	-rm -f Scanner.cpp lex.yy.c
 
-PhoneBook.h PhoneBook.cpp: PhoneBook.ice $(SLICE)
+PhoneBook.h PhoneBook.cpp: PhoneBook.ice $(SLICE2CPP)
 	rm -f PhoneBook.h PhoneBook.cpp
-	$(SLICE) PhoneBook.ice
+	$(SLICE2CPP) PhoneBook.ice
 
 clean::
 	rm -f PhoneBook.h PhoneBook.cpp
+
+NameIdentitiesDict.h NameIdentitiesDict.cpp: PhoneBook.ice $(SLICE2FREEZE)
+	rm -f NameIdentitiesDict.h NameIdentitiesDict.cpp
+	$(SLICE2FREEZE) --dict NameIdentitiesDict,string,string NameIdentitiesDict PhoneBook.ice
+
+clean::
+	rm -f NameIdentitiesDict.h NameIdentitiesDict.cpp
 
 include .depend

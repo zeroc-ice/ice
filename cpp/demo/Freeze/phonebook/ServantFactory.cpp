@@ -14,25 +14,6 @@ using namespace std;
 using namespace Ice;
 using namespace Freeze;
 
-PhoneBookFactory::PhoneBookFactory(const ObjectAdapterPtr& adapter, const EvictorPtr& evictor) :
-    _adapter(adapter),
-    _evictor(evictor)
-{
-}
-
-ObjectPtr
-PhoneBookFactory::create(const string& type)
-{
-    assert(type == "::PhoneBook");
-    return new PhoneBookI(_adapter, _evictor);
-}
-
-void
-PhoneBookFactory::destroy()
-{
-    // Nothing to do
-}
-
 ContactFactory::ContactFactory(const PhoneBookIPtr& phoneBook, const EvictorPtr& evictor) :
     _phoneBook(phoneBook),
     _evictor(evictor)

@@ -17,7 +17,6 @@ module Freeze
 local interface DBEnvironment;
 local interface DBTransaction;
 local interface DB;
-local interface DBForServants;
 
 };
 

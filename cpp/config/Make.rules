@@ -47,7 +47,8 @@ LIBS		= -lIce $(BASELIBS)
 # Don't change anything below this line!
 #
 
-SLICE		= $(bindir)/slice2cpp
+SLICE2CPP	= $(bindir)/slice2cpp
+SLICE2FREEZE	= $(bindir)/slice2freeze
 SLICE2DOCBOOK	= $(bindir)/slice2docbook
 
 EVERYTHING	= all depend clean

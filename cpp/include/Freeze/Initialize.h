@@ -27,7 +27,7 @@
 namespace Freeze
 {
 
-FREEZE_API DBEnvPtr initialize(const ::Ice::CommunicatorPtr&, const std::string&);
+FREEZE_API DBEnvironmentPtr initialize(const ::Ice::CommunicatorPtr&, const std::string&);
 
 }
 

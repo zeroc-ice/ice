@@ -36,10 +36,9 @@ class Contact
 
 sequence<Contact*> Contacts;
 sequence<string> Identities;
-dictionary<string, Identities> NameIdentitiesDict;
 sequence<string> Names;
 
-class PhoneBook
+interface PhoneBook
 {
     Contact* createContact();
 
@@ -52,9 +51,6 @@ class PhoneBook
     // shuts down the application.
     //
     nonmutating void shutdown();
-
-    long _nextContactIdentity;
-    NameIdentitiesDict _nameIdentitiesDict;
 };
 
 #endif

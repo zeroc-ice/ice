@@ -38,9 +38,9 @@ $(WRITER): $(OBJS) $(WOBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(WOBJS) $(LIBS)
 
-Pickle.h Pickle.cpp: Pickle.ice $(SLICE)
+Pickle.h Pickle.cpp: Pickle.ice $(SLICE2CPP)
 	rm -f Pickle.h Pickle.cpp
-	$(SLICE) Pickle.ice
+	$(SLICE2CPP) Pickle.ice
 
 clean::
 	rm -f Pickle.h Pickle.cpp

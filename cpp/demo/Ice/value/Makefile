@@ -39,9 +39,9 @@ $(SERVER): $(OBJS) $(SOBJS)
 	rm -f $@
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(SOBJS) $(LIBS)
 
-Value.h Value.cpp: Value.ice $(SLICE)
+Value.h Value.cpp: Value.ice $(SLICE2CPP)
 	rm -f Value.h Value.cpp
-	$(SLICE) Value.ice
+	$(SLICE2CPP) Value.ice
 
 clean::
 	rm -f Value.h Value.cpp

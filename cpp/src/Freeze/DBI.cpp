@@ -25,14 +25,14 @@ using namespace Freeze;
 #   define FREEZE_DB_MODE (S_IRUSR | S_IWUSR)
 #endif
 
-Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const string& name) :
+Freeze::DBEnvironmentI::DBEnvironmentI(const CommunicatorPtr& communicator, const string& name) :
     _communicator(communicator),
     _logger(communicator->getLogger()),
     _trace(0),
-    _dbenv(0),
+    _dbEnv(0),
     _name(name)
 {
-    _errorPrefix = "Freeze::DBEnv(\"" + _name + "\"): ";
+    _errorPrefix = "Freeze::DBEnvironment(\"" + _name + "\"): ";
 
     PropertiesPtr properties = _communicator->getProperties();
     string value;
@@ -45,7 +45,7 @@ Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const string& name) 
 
     int ret;
 
-    ret = db_env_create(&_dbenv, 0);
+    ret = db_env_create(&_dbEnv, 0);
 
     if (ret != 0)
     {
@@ -63,7 +63,7 @@ Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const string& name) 
 	_logger->trace("DB", s.str());
     }
 
-    ret = _dbenv->open(_dbenv, _name.c_str(),
+    ret = _dbEnv->open(_dbEnv, _name.c_str(),
 		       DB_CREATE |
 		       DB_INIT_LOCK |
 		       DB_INIT_LOG |
@@ -82,9 +82,9 @@ Freeze::DBEnvI::DBEnvI(const CommunicatorPtr& communicator, const string& name) 
     }
 }
 
-Freeze::DBEnvI::~DBEnvI()
+Freeze::DBEnvironmentI::~DBEnvironmentI()
 {
-    if (_dbenv)
+    if (_dbEnv)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has not been closed";
@@ -93,18 +93,18 @@ Freeze::DBEnvI::~DBEnvI()
 }
 
 string
-Freeze::DBEnvI::getName()
+Freeze::DBEnvironmentI::getName()
 {
     // No mutex lock necessary, _name is immutable
     return _name;
 }
 
 DBPtr
-Freeze::DBEnvI::openDB(const string& name)
+Freeze::DBEnvironmentI::openDB(const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
 
-    if (!_dbenv)
+    if (!_dbEnv)
     {
 	ostringstream s;
 	s << _errorPrefix << "\"" << _name << "\" has been closed";
@@ -113,14 +113,14 @@ Freeze::DBEnvI::openDB(const string& name)
 	throw ex;
     }
 
-    map<string, DBPtr>::iterator p = _dbmap.find(name);
-    if (p != _dbmap.end())
+    map<string, DBPtr>::iterator p = _dbMap.find(name);
+    if (p != _dbMap.end())
     {
 	return p->second;
     }
 
     ::DB* db;
-    int ret = db_create(&db, _dbenv, 0);
+    int ret = db_create(&db, _dbEnv, 0);
 
     if (ret != 0)
     {
@@ -134,27 +134,27 @@ Freeze::DBEnvI::openDB(const string& name)
     return new DBI(_communicator, this, db, name);
 }
 
-TXNPtr
-Freeze::DBEnvI::startTXN()
+DBTransactionPtr
+Freeze::DBEnvironmentI::startTransaction()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
 
-    return new TXNI(_communicator, _dbenv, _name);
+    return new DBTransactionI(_communicator, _dbEnv, _name);
 }
 
 void
-Freeze::DBEnvI::close()
+Freeze::DBEnvironmentI::close()
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
 
-    if (!_dbenv)
+    if (!_dbEnv)
     {
 	return;
     }
 
-    while(!_dbmap.empty())
+    while(!_dbMap.empty())
     {
-	_dbmap.begin()->second->close();
+	_dbMap.begin()->second->close();
     }
 
     if (_trace >= 1)
@@ -164,7 +164,7 @@ Freeze::DBEnvI::close()
 	_logger->trace("DB", s.str());
     }
 
-    int ret = _dbenv->close(_dbenv, 0);
+    int ret = _dbEnv->close(_dbEnv, 0);
 
     if (ret != 0)
     {
@@ -175,57 +175,57 @@ Freeze::DBEnvI::close()
 	throw ex;
     }
 
-    _dbenv = 0;
+    _dbEnv = 0;
 }
 
 void
-Freeze::DBEnvI::add(const string& name, const DBPtr& db)
+Freeze::DBEnvironmentI::add(const string& name, const DBPtr& db)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
 
-    _dbmap[name] = db;
+    _dbMap[name] = db;
 }
 
 void
-Freeze::DBEnvI::remove(const string& name)
+Freeze::DBEnvironmentI::remove(const string& name)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
 
-    _dbmap.erase(name);
+    _dbMap.erase(name);
 }
 
-DBEnvPtr
+DBEnvironmentPtr
 Freeze::initialize(const CommunicatorPtr& communicator, const string& name)
 {
-    return new DBEnvI(communicator, name);
+    return new DBEnvironmentI(communicator, name);
 }
 
-Freeze::TXNI::TXNI(const CommunicatorPtr& communicator, ::DB_ENV* dbenv, const string& name) :
+Freeze::DBTransactionI::DBTransactionI(const CommunicatorPtr& communicator, ::DB_ENV* dbEnv, const string& name) :
     _communicator(communicator),
     _logger(communicator->getLogger()),
     _trace(0),
     _tid(0),
     _name(name)
 {
-    _errorPrefix = "Freeze::TXN(\"" + _name + "\"): ";
+    _errorPrefix = "Freeze::DBTransaction(\"" + _name + "\"): ";
 
     PropertiesPtr properties = _communicator->getProperties();
     string value;
 
-    value = properties->getProperty("Freeze.Trace.TXN");
+    value = properties->getProperty("Freeze.Trace.DB");
     if (!value.empty())
     {
 	_trace = atoi(value.c_str());
     }
 
-    if (_trace >= 1)
+    if (_trace >= 2)
     {
 	ostringstream s;
 	s << "starting transaction for environment \"" << _name << "\"";
 	_logger->trace("DB", s.str());
     }
     
-    int ret = txn_begin(dbenv, 0, &_tid, 0);
+    int ret = txn_begin(dbEnv, 0, &_tid, 0);
     
     if (ret != 0)
     {
@@ -237,7 +237,7 @@ Freeze::TXNI::TXNI(const CommunicatorPtr& communicator, ::DB_ENV* dbenv, const s
     }
 }
 
-Freeze::TXNI::~TXNI()
+Freeze::DBTransactionI::~DBTransactionI()
 {
     if (_tid)
     {
@@ -248,7 +248,7 @@ Freeze::TXNI::~TXNI()
 }
 
 void
-Freeze::TXNI::commit()
+Freeze::DBTransactionI::commit()
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -261,7 +261,7 @@ Freeze::TXNI::commit()
 	throw ex;
     }
 
-    if (_trace >= 1)
+    if (_trace >= 2)
     {
 	ostringstream s;
 	s << "committing transaction for environment \"" << _name << "\"";
@@ -283,7 +283,7 @@ Freeze::TXNI::commit()
 }
 
 void
-Freeze::TXNI::abort()
+Freeze::DBTransactionI::abort()
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -296,7 +296,7 @@ Freeze::TXNI::abort()
 	throw ex;
     }
 
-    if (_trace >= 1)
+    if (_trace >= 2)
     {
 	ostringstream s;
 	s << "aborting transaction for environment \"" << _name << "\" due to deadlock";
@@ -317,11 +317,12 @@ Freeze::TXNI::abort()
     _tid = 0;
 }
 
-Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvIPtr& dbenvObj, ::DB* db, const string& name) :
+Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvironmentIPtr& dbEnvObj, ::DB* db,
+		 const string& name) :
     _communicator(communicator),
     _logger(communicator->getLogger()),
     _trace(0),
-    _dbenvObj(dbenvObj),
+    _dbEnvObj(dbEnvObj),
     _db(db),
     _name(name)
 {
@@ -339,7 +340,7 @@ Freeze::DBI::DBI(const CommunicatorPtr& communicator, const DBEnvIPtr& dbenvObj,
     if (_trace >= 1)
     {
 	ostringstream s;
-	s << "opening database \"" << _name << "\" in environment \"" << _dbenvObj->getName() << "\"";
+	s << "opening database \"" << _name << "\" in environment \"" << _dbEnvObj->getName() << "\"";
 	_logger->trace("DB", s.str());
     }
     
@@ -373,7 +374,7 @@ Freeze::DBI::getName()
 }
 
 void
-Freeze::DBI::put(const string& key, const ObjectPtr& servant, bool txn)
+Freeze::DBI::put(const Key& key, const Value& value, bool txn)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -406,10 +407,10 @@ Freeze::DBI::put(const string& key, const ObjectPtr& servant, bool txn)
 
     while (true)
     {
-	TXNPtr txnObj;
+	DBTransactionPtr txnObj;
 	if (txn)
 	{
-	    txnObj = _dbenvObj->startTXN();
+	    txnObj = _dbEnvObj->startTransaction();
 	}
 	
 	if (_trace >= 1)
@@ -476,8 +477,8 @@ Freeze::DBI::put(const string& key, const ObjectPtr& servant, bool txn)
     }
 }
 
-ObjectPtr
-Freeze::DBI::get(const string& key)
+Value
+Freeze::DBI::get(const Key& key)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -499,7 +500,7 @@ Freeze::DBI::get(const string& key)
     if (_trace >= 1)
     {
 	ostringstream s;
-	s << "reading value for key \"" << key << "\" in database \"" << _name << "\"";
+	s << "reading value for key \"" << key << "\" from database \"" << _name << "\"";
 	_logger->trace("DB", s.str());
     }
     
@@ -549,7 +550,7 @@ Freeze::DBI::get(const string& key)
 }
 
 void
-Freeze::DBI::del(const string& key)
+Freeze::DBI::del(const Key& key)
 {
     JTCSyncT<JTCMutex> sync(*this);
 
@@ -570,7 +571,232 @@ Freeze::DBI::del(const string& key)
     if (_trace >= 1)
     {
 	ostringstream s;
-	s << "deleting value for key \"" << key << "\" in database \"" << _name << "\"";
+	s << "deleting value for key \"" << key << "\" from database \"" << _name << "\"";
+	_logger->trace("DB", s.str());
+    }
+    
+    int ret = _db->del(_db, 0, &dbKey, 0);
+
+    switch (ret)
+    {
+	case 0:
+	{
+	    //
+	    // Everything ok
+	    //
+	    break;
+	}
+
+	default:
+	{
+	    ostringstream s;
+	    s << _errorPrefix << "DB->del: " << db_strerror(ret);
+	    DBException ex;
+	    ex.message = s.str();
+	    throw ex;
+	}
+    }
+}
+
+void
+Freeze::DBI::put(const string& identity, const ObjectPtr& servant, bool txn)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    if (!servant)
+    {
+	return;
+    }
+
+    IceInternal::InstancePtr instance = IceInternal::getInstance(_communicator);
+    IceInternal::Stream stream(instance);
+    stream.write(servant);
+
+    DBT dbKey, dbData;
+
+    memset(&dbKey, 0, sizeof(dbKey));
+    memset(&dbData, 0, sizeof(dbData));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(identity.c_str()));
+    dbKey.size = identity.size();
+    dbData.data = stream.b.begin();
+    dbData.size = stream.b.size();
+
+    while (true)
+    {
+	DBTransactionPtr txnObj;
+	if (txn)
+	{
+	    txnObj = _dbEnvObj->startTransaction();
+	}
+	
+	if (_trace >= 1)
+	{
+	    ostringstream s;
+	    s << "writing Servant for identity \"" << identity << "\" in database \"" << _name << "\"";
+	    _logger->trace("DB", s.str());
+	}
+
+	int ret = _db->put(_db, 0, &dbKey, &dbData, 0);
+
+	switch (ret)
+	{
+	    case 0:
+	    {
+		if (txnObj)
+		{
+		    //
+		    // Everything ok, commit the transaction
+		    //
+		    txnObj->commit();
+		}
+
+		return; // We're done
+	    }
+	    
+	    case DB_LOCK_DEADLOCK:
+	    {
+		if (txnObj)
+		{
+		    //
+		    // Deadlock, abort the transaction and retry
+		    //
+		    txnObj->abort();
+		    break; // Repeat
+		}
+		else
+		{
+		    ostringstream s;
+		    s << _errorPrefix << "DB->put: " << db_strerror(ret);
+		    DBException ex;
+		    ex.message = s.str();
+		    throw ex;
+		}
+	    }
+
+	    default:
+	    {
+		if (txnObj)
+		{
+		    //
+		    // Error, run recovery
+		    //
+		    txnObj->abort();
+		}
+
+		ostringstream s;
+		s << _errorPrefix << "DB->put: " << db_strerror(ret);
+		DBException ex;
+		ex.message = s.str();
+		throw ex;
+	    }
+	}
+    }
+}
+
+ObjectPtr
+Freeze::DBI::get(const string& identity)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBT dbKey, dbData;
+    memset(&dbKey, 0, sizeof(dbKey));
+    memset(&dbData, 0, sizeof(dbData));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(identity.c_str()));
+    dbKey.size = identity.size();
+
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "reading Servant for identity \"" << identity << "\" from database \"" << _name << "\"";
+	_logger->trace("DB", s.str());
+    }
+    
+    int ret = _db->get(_db, 0, &dbKey, &dbData, 0);
+
+    switch (ret)
+    {
+	case 0:
+	{
+	    //
+	    // Everything ok
+	    //
+	    IceInternal::InstancePtr instance = IceInternal::getInstance(_communicator);
+	    IceInternal::Stream stream(instance);
+	    stream.b.resize(dbData.size);
+	    stream.i = stream.b.begin();
+	    memcpy(stream.b.begin(), dbData.data, dbData.size);
+	    
+	    ObjectPtr servant;
+	    stream.read(servant, "::Ice::Object");
+
+	    if (!servant)
+	    {
+		throw NoServantFactoryException(__FILE__, __LINE__);
+	    }
+
+	    return servant;
+	}
+
+	case DB_NOTFOUND:
+	{
+	    //
+	    // Identity does not exist, return a null servant
+	    //
+	    return 0;
+	}
+	
+	default:
+	{
+	    ostringstream s;
+	    s << _errorPrefix << "DB->get: " << db_strerror(ret);
+	    DBException ex;
+	    ex.message = s.str();
+	    throw ex;
+	}
+    }
+}
+
+void
+Freeze::DBI::del(const string& identity)
+{
+    JTCSyncT<JTCMutex> sync(*this);
+
+    if (!_db)
+    {
+	ostringstream s;
+	s << _errorPrefix << "\"" << _name << "\" has been closed";
+	DBException ex;
+	ex.message = s.str();
+	throw ex;
+    }
+
+    DBT dbKey;
+    memset(&dbKey, 0, sizeof(dbKey));
+    dbKey.data = const_cast<void*>(static_cast<const void*>(identity.c_str()));
+    dbKey.size = identity.size();
+
+    if (_trace >= 1)
+    {
+	ostringstream s;
+	s << "deleting Servant for identity \"" << identity << "\" from database \"" << _name << "\"";
 	_logger->trace("DB", s.str());
     }
     
@@ -625,8 +851,8 @@ Freeze::DBI::close()
 	throw ex;
     }
 
-    _dbenvObj->remove(_name);
-    _dbenvObj = 0;
+    _dbEnvObj->remove(_name);
+    _dbEnvObj = 0;
     _db = 0;
 }
 

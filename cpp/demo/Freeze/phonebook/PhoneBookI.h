@@ -15,6 +15,7 @@
 #include <IceUtil/IceUtil.h>
 #include <Freeze/Freeze.h>
 #include <PhoneBook.h>
+#include <NameIdentitiesDict.h>
 
 class PhoneBookI;
 typedef IceUtil::Handle<PhoneBookI> PhoneBookIPtr;
@@ -67,6 +68,8 @@ private:
     Ice::ObjectAdapterPtr _adapter;
     Freeze::EvictorPtr _evictor;
     Ice::Long _nextContactIdentity;
+    NameIdentitiesDictPtr _nameIdentitiesDict;
+    
 };
 
 #endif

@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef FREEZE_EVICTOR_ICE
-#define FREEZE_EVICTOR_ICE
+#ifndef FREEZE_EVICTOR_F_ICE
+#define FREEZE_EVICTOR_F_ICE
 
 module Freeze
 {

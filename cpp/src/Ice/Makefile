@@ -65,7 +65,7 @@ SRCS		= $(OBJS:.o=.cpp)
 
 HDIR		= $(includedir)/Ice
 IDIR		= $(slicedir)/Ice
-SLICECMD	= $(SLICE) --include-dir Ice --dll-export ICE_API -I$(slicedir)
+SLICECMD	= $(SLICE2CPP) --include-dir Ice --dll-export ICE_API -I$(slicedir)
 
 include $(top_srcdir)/config/Make.rules
 
@@ -79,7 +79,7 @@ $(NAME): $(VERSIONED_NAME)
 	rm -f $@
 	ln -s $(VERSIONED_BASE) $@
 
-$(HDIR)/Communicator.h Communicator.cpp: $(IDIR)/Communicator.ice $(SLICE)
+$(HDIR)/Communicator.h Communicator.cpp: $(IDIR)/Communicator.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Communicator.h Communicator.cpp
 	$(SLICECMD) $(IDIR)/Communicator.ice
 	mv Communicator.h $(HDIR)
@@ -87,7 +87,7 @@ $(HDIR)/Communicator.h Communicator.cpp: $(IDIR)/Communicator.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/Communicator.h Communicator.cpp
 
-$(HDIR)/CommunicatorF.h: $(IDIR)/CommunicatorF.ice $(SLICE)
+$(HDIR)/CommunicatorF.h: $(IDIR)/CommunicatorF.ice $(SLICE2CPP)
 	rm -f $(HDIR)/CommunicatorF.h CommunicatorF.cpp
 	$(SLICECMD) $(IDIR)/CommunicatorF.ice
 	mv CommunicatorF.h $(HDIR)
@@ -96,7 +96,7 @@ $(HDIR)/CommunicatorF.h: $(IDIR)/CommunicatorF.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/CommunicatorF.h
 
-$(HDIR)/Logger.h Logger.cpp: $(IDIR)/Logger.ice $(SLICE)
+$(HDIR)/Logger.h Logger.cpp: $(IDIR)/Logger.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Logger.h Logger.cpp
 	$(SLICECMD) $(IDIR)/Logger.ice
 	mv Logger.h $(HDIR)
@@ -104,7 +104,7 @@ $(HDIR)/Logger.h Logger.cpp: $(IDIR)/Logger.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/Logger.h Logger.cpp
 
-$(HDIR)/LoggerF.h: $(IDIR)/LoggerF.ice $(SLICE)
+$(HDIR)/LoggerF.h: $(IDIR)/LoggerF.ice $(SLICE2CPP)
 	rm -f $(HDIR)/LoggerF.h LoggerF.cpp
 	$(SLICECMD) $(IDIR)/LoggerF.ice
 	mv LoggerF.h $(HDIR)
@@ -113,7 +113,7 @@ $(HDIR)/LoggerF.h: $(IDIR)/LoggerF.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/LoggerF.h
 
-$(HDIR)/ObjectAdapter.h ObjectAdapter.cpp: $(IDIR)/ObjectAdapter.ice $(SLICE)
+$(HDIR)/ObjectAdapter.h ObjectAdapter.cpp: $(IDIR)/ObjectAdapter.ice $(SLICE2CPP)
 	rm -f $(HDIR)/ObjectAdapter.h ObjectAdapter.cpp
 	$(SLICECMD) $(IDIR)/ObjectAdapter.ice
 	mv ObjectAdapter.h $(HDIR)
@@ -121,7 +121,7 @@ $(HDIR)/ObjectAdapter.h ObjectAdapter.cpp: $(IDIR)/ObjectAdapter.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/ObjectAdapter.h ObjectAdapter.cpp
 
-$(HDIR)/ObjectAdapterF.h: $(IDIR)/ObjectAdapterF.ice $(SLICE)
+$(HDIR)/ObjectAdapterF.h: $(IDIR)/ObjectAdapterF.ice $(SLICE2CPP)
 	rm -f $(HDIR)/ObjectAdapterF.h ObjectAdapterF.cpp
 	$(SLICECMD) $(IDIR)/ObjectAdapterF.ice
 	mv ObjectAdapterF.h $(HDIR)
@@ -130,7 +130,7 @@ $(HDIR)/ObjectAdapterF.h: $(IDIR)/ObjectAdapterF.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/ObjectAdapterF.h
 
-$(HDIR)/Pickler.h Pickler.cpp: $(IDIR)/Pickler.ice $(SLICE)
+$(HDIR)/Pickler.h Pickler.cpp: $(IDIR)/Pickler.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Pickler.h Pickler.cpp
 	$(SLICECMD) $(IDIR)/Pickler.ice
 	mv Pickler.h $(HDIR)
@@ -138,13 +138,13 @@ $(HDIR)/Pickler.h Pickler.cpp: $(IDIR)/Pickler.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/Pickler.h Pickler.cpp
 
-$(HDIR)/PicklerF.h: $(IDIR)/PicklerF.ice $(SLICE)
+$(HDIR)/PicklerF.h: $(IDIR)/PicklerF.ice $(SLICE2CPP)
 	rm -f $(HDIR)/PicklerF.h PicklerF.cpp
 	$(SLICECMD) $(IDIR)/PicklerF.ice
 	mv PicklerF.h $(HDIR)
 	rm -f PicklerF.cpp
 
-$(HDIR)/Properties.h Properties.cpp: $(IDIR)/Properties.ice $(SLICE)
+$(HDIR)/Properties.h Properties.cpp: $(IDIR)/Properties.ice $(SLICE2CPP)
 	rm -f $(HDIR)/Properties.h Properties.cpp
 	$(SLICECMD) $(IDIR)/Properties.ice
 	mv Properties.h $(HDIR)
@@ -155,7 +155,7 @@ clean::
 clean::
 	rm -f $(HDIR)/PicklerF.h
 
-$(HDIR)/PropertiesF.h: $(IDIR)/PropertiesF.ice $(SLICE)
+$(HDIR)/PropertiesF.h: $(IDIR)/PropertiesF.ice $(SLICE2CPP)
 	rm -f $(HDIR)/PropertiesF.h PropertiesF.cpp
 	$(SLICECMD) $(IDIR)/PropertiesF.ice
 	mv PropertiesF.h $(HDIR)
@@ -164,7 +164,7 @@ $(HDIR)/PropertiesF.h: $(IDIR)/PropertiesF.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/PropertiesF.h
 
-$(HDIR)/ServantFactory.h ServantFactory.cpp: $(IDIR)/ServantFactory.ice $(SLICE)
+$(HDIR)/ServantFactory.h ServantFactory.cpp: $(IDIR)/ServantFactory.ice $(SLICE2CPP)
 	rm -f $(HDIR)/ServantFactory.h ServantFactory.cpp
 	$(SLICECMD) $(IDIR)/ServantFactory.ice
 	mv ServantFactory.h $(HDIR)
@@ -172,7 +172,7 @@ $(HDIR)/ServantFactory.h ServantFactory.cpp: $(IDIR)/ServantFactory.ice $(SLICE)
 clean::
 	rm -f $(HDIR)/ServantFactory.h ServantFactory.cpp
 
-$(HDIR)/ServantFactoryF.h: $(IDIR)/ServantFactoryF.ice $(SLICE)
+$(HDIR)/ServantFactoryF.h: $(IDIR)/ServantFactoryF.ice $(SLICE2CPP)
 	rm -f $(HDIR)/ServantFactoryF.h ServantFactoryF.cpp
 	$(SLICECMD) $(IDIR)/ServantFactoryF.ice
 	mv ServantFactoryF.h $(HDIR)
