@@ -34,7 +34,8 @@ class ICE_API IncomingAsync : virtual public ::IceUtil::Shared
 {
 public:
 
-    IncomingAsync(Incoming&);
+    IncomingAsync(Incoming&); // Adopts the Incoming argument. It must not be used afterwards.
+    void __restore(Incoming&); // Restores the Incoming from the IncomingAsync.
 
 protected:
 

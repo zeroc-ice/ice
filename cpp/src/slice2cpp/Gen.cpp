@@ -2529,7 +2529,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    C << nl << classScopedAMD << '_' << name << "Ptr __cb = new ::IceAsync" << classScopedAMD << '_' << name
 	      << "(__in);";
 	    C << nl << name << "_async" << argsAMD << ';';
-	    C << nl << "return ::IceInternal::DispatchAsync;";
+	    C << nl << "return ::IceInternal::DispatchOK;";
 	}	    
 	C << eb;
     }	

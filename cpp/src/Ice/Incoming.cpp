@@ -127,20 +127,43 @@ IceInternal::Incoming::invoke()
 		status = _servant->__dispatch(*this, _current);
 	    }
 
-	    if(status == DispatchAsync)
+	    if(_is.b.empty()) // Asynchronous dispatch?
 	    {
 		//
-		// This was a asynchronous dispatch, we're done here.
-		// We do *not* call finishInvoke(), because the call is
-		// not finished yet.
+		// If this was an asynchronous dispatch, we're done
+		// here.  We do *not* call finishInvoke(), because the
+		// call is not finished yet.
 		//
-		return true; // Asynchronous dispatch.
+		assert(status == DispatchOK);
+		return true;
 	    }
 	}
     }
     catch(RequestFailedException& ex)
     {
+	if(_is.b.empty()) // Asynchronous dispatch?
+	{
+	    Error out(_os.instance()->logger());
+	    out << "dispatch exception in asynchronous method: " << ex;
+	    ex.ice_throw();
+	}	
+
 	finishInvoke();
+
+	if(ex.id.name.empty())
+	{
+	    ex.id = _current.id;
+	}
+	
+	if(ex.facet.empty() && !_current.facet.empty())
+	{
+	    ex.facet = _current.facet;
+	}
+	
+	if(ex.operation.empty() && !_current.operation.empty())
+	{
+	    ex.operation = _current.operation;
+	}
 
 	if(_connection) // Response expected?
 	{
@@ -162,65 +185,23 @@ IceInternal::Incoming::invoke()
 	    {
 		assert(false);
 	    }
-	    
-	    //
-            // Write the data from the exception if set so that a
-            // RequestFailedException can override the information
-            // from _current.
-	    //
-	    if(!ex.id.name.empty())
-	    {
-		ex.id.__write(&_os);
-	    }
-	    else
-	    {
-		_current.id.__write(&_os);
-	    }
-
-	    if(!ex.facet.empty())
-	    {
-		_os.write(ex.facet);
-	    }
-	    else
-	    {
-		_os.write(_current.facet);
-	    }
-
-	    if(ex.operation.empty())
-	    {
-		_os.write(ex.operation);
-	    }
-	    else
-	    {
-		_os.write(_current.operation);
-	    }
+	    ex.id.__write(&_os);
+	    _os.write(ex.facet);
+	    _os.write(ex.operation);
 	}
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
-	{
-	    if(ex.id.name.empty())
-	    {
-		ex.id = _current.id;
-	    }
-
-	    if(ex.facet.empty() && !_current.facet.empty())
-	    {
-		ex.facet = _current.facet;
-	    }
-	    
-	    if(ex.operation.empty() && !_current.operation.empty())
-	    {
-		ex.operation = _current.operation;
-	    }
-
-	    Warning out(_os.instance()->logger());
-	    out << "dispatch exception:\n" << ex;
-	}
-	
+	warning(ex);
 	return false; // Regular, non-asynchronous dispatch.
     }
     catch(const LocalException& ex)
     {
+	if(_is.b.empty()) // Asynchronous dispatch?
+	{
+	    Error out(_os.instance()->logger());
+	    out << "dispatch exception in asynchronous method: " << ex;
+	    ex.ice_throw();
+	}	
+
 	finishInvoke();
 
 	if(_connection) // Response expected?
@@ -233,17 +214,18 @@ IceInternal::Incoming::invoke()
 	    _os.write(str.str());
 	}
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    ostringstream str;
-	    str << ex;
-	    warning("dispatch exception: unknown local exception:", str.str());
-	}
-	
+	warning(ex);
 	return false; // Regular, non-asynchronous dispatch.
     }
     catch(const UserException& ex)
     {
+	if(_is.b.empty()) // Asynchronous dispatch?
+	{
+	    Error out(_os.instance()->logger());
+	    out << "dispatch exception in asynchronous method: " << ex;
+	    ex.ice_throw();
+	}	
+
 	finishInvoke();
 
 	if(_connection) // Response expected?
@@ -256,17 +238,18 @@ IceInternal::Incoming::invoke()
 	    _os.write(str.str());
 	}
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    ostringstream str;
-	    str << ex;
-	    warning("dispatch exception: unknown user exception:", str.str());
-	}
-
+	warning(ex);
 	return false; // Regular, non-asynchronous dispatch.
     }
     catch(const Exception& ex)
     {
+	if(_is.b.empty()) // Asynchronous dispatch?
+	{
+	    Error out(_os.instance()->logger());
+	    out << "dispatch exception in asynchronous method: " << ex;
+	    ex.ice_throw();
+	}	
+
 	finishInvoke();
 
 	if(_connection) // Response expected?
@@ -279,17 +262,18 @@ IceInternal::Incoming::invoke()
 	    _os.write(str.str());
 	}
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    ostringstream str;
-	    str << ex;
-	    warning("dispatch exception: unknown exception:", str.str());
-	}
-
+	warning(ex);
 	return false; // Regular, non-asynchronous dispatch.
     }
     catch(const std::exception& ex)
     {
+	if(_is.b.empty()) // Asynchronous dispatch?
+	{
+	    Error out(_os.instance()->logger());
+	    out << "dispatch exception in asynchronous method: std::exception: " << ex.what();
+	    throw UnknownException(__FILE__, __LINE__);
+	}	
+
 	finishInvoke();
 
 	if(_connection) // Response expected?
@@ -302,15 +286,18 @@ IceInternal::Incoming::invoke()
 	    _os.write(str.str());
 	}
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    warning("dispatch exception: unknown std::exception:", ex.what());
-	}
-
+	warning(string("std::exception: ") + ex.what());
 	return false; // Regular, non-asynchronous dispatch.
     }
     catch(...)
     {
+	if(_is.b.empty()) // Asynchronous dispatch?
+	{
+	    Error out(_os.instance()->logger());
+	    out << "dispatch exception in asynchronous method: unknown c++ exception";
+	    throw UnknownException(__FILE__, __LINE__);
+	}	
+
 	finishInvoke();
 
 	if(_connection) // Response expected?
@@ -322,11 +309,7 @@ IceInternal::Incoming::invoke()
 	    _os.write(reason);
 	}
 
-	if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
-	{
-	    warning("dispatch exception: unknown c++ exception:", "");
-	}
-
+	warning("unknown c++ exception");
 	return false; // Regular, non-asynchronous dispatch.
     }
 
@@ -404,25 +387,32 @@ IceInternal::Incoming::finishInvoke()
 }
 
 void
-IceInternal::Incoming::warning(const string& msg, const string& ex) const
+IceInternal::Incoming::warning(const Exception& ex) const
 {
-    Warning out(_os.instance()->logger());
+    ostringstream str;
+    str << ex;
+    warning(str.str());
+}
 
-    out << msg;
-    if(!ex.empty())
+void
+IceInternal::Incoming::warning(const string& msg) const
+{
+    if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
     {
-	out << "\n" << ex;
-    }
-    out << "\nidentity: " << _current.id;
-    out << "\nfacet: ";
-    vector<string>::const_iterator p = _current.facet.begin();
-    while(p != _current.facet.end())
-    {
-	out << encodeString(*p++, "/");
-	if(p != _current.facet.end())
+	Warning out(_os.instance()->logger());
+	
+	out << "dispatch exception: " << msg;
+	out << "\nidentity: " << _current.id;
+	out << "\nfacet: ";
+	vector<string>::const_iterator p = _current.facet.begin();
+	while(p != _current.facet.end())
 	{
-	    out << '/';
+	    out << encodeString(*p++, "/");
+	    if(p != _current.facet.end())
+	    {
+		out << '/';
+	    }
 	}
+	out << "\noperation: " << _current.operation;
     }
-    out << "\noperation: " << _current.operation;
 }

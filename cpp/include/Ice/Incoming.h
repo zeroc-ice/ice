@@ -39,7 +39,8 @@ public:
 private:
     
     void finishInvoke();
-    void warning(const std::string&, const std::string&) const;
+    void warning(const ::Ice::Exception&) const;
+    void warning(const std::string&) const;
 
     //
     // IncomingAsync needs access to the various data members

@@ -38,14 +38,7 @@ enum DispatchStatus
     DispatchOperationNotExist,
     DispatchUnknownLocalException,
     DispatchUnknownUserException,
-    DispatchUnknownException,
-
-    //
-    // This is a pseudo dispatch code. Not transmitted over the wire,
-    // but only used in the Ice core internally, to indicate that a
-    // method should be dispatched asynchronously.
-    //
-    DispatchAsync
+    DispatchUnknownException
 };
 
 }
