@@ -15,10 +15,8 @@ TARGETS		= index.html \
 		  slice.html \
 		  cppmap.html
 
-HTMLDSL		= /usr/share/sgml/docbook/dsssl-stylesheets/html/docbook.dsl
-
 include $(top_srcdir)/config/Make.rules
 
 $(TARGETS): main.sgml
 	rm -f $(TARGETS)
-	jade -t sgml -d $(HTMLDSL) -i html main.sgml
+	$(SGML2HTML) main.sgml

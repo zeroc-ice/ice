@@ -777,9 +777,9 @@ Slice::ClassDef::operations()
 	p != contents_.end();
 	++p)
     {
-	Operation_ptr derived = Operation_ptr::dynamicCast(*p);
-	if(derived)
-	    result.push_back(derived);
+	Operation_ptr q = Operation_ptr::dynamicCast(*p);
+	if(q)
+	    result.push_back(q);
     }
     return result;
 }
@@ -790,9 +790,8 @@ Slice::ClassDef::allOperations()
     OperationList result = operations();
     result.sort();
     result.unique();
-    ClassList all = allBases();
-    for(ClassList::iterator p = all.begin();
-	p != all.end();
+    for(ClassList::iterator p = bases_.begin();
+	p != bases_.end();
 	++p)
     {
 	OperationList li = (*p) -> allOperations();
@@ -810,9 +809,9 @@ Slice::ClassDef::dataMembers()
 	p != contents_.end();
 	++p)
     {
-	DataMember_ptr derived = DataMember_ptr::dynamicCast(*p);
-	if(derived)
-	    result.push_back(derived);
+	DataMember_ptr q = DataMember_ptr::dynamicCast(*p);
+	if(q)
+	    result.push_back(q);
     }
     return result;
 }

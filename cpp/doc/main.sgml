@@ -1,0 +1,42 @@
+<!DOCTYPE BOOK PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<BOOK ID="ICE"><?dbhtml filename="index.html">
+<BOOKINFO>
+<TITLE>Ice User's Manual</TITLE>
+<SUBTITLE>A Guide to the Internet Communications Engine</SUBTITLE>
+<AUTHORGROUP>
+<AUTHOR>
+<FIRSTNAME>Marc</FIRSTNAME>
+<SURNAME>Laukien</SURNAME>
+</AUTHOR>
+</AUTHORGROUP>
+<PUBLISHER>
+<PUBLISHERNAME>Mutable Realms, Inc.</PUBLISHERNAME>
+<ADDRESS>
+<CITY>Huntsville</CITY>
+<STATE>Alabama</STATE>
+<COUNTRY>USA</COUNTRY>
+</ADDRESS>
+</PUBLISHER>
+<RELEASEINFO>Version 0.0.1</RELEASEINFO>
+<PUBDATE>Date to be inserted here...</PUBDATE>
+<LEGALNOTICE>
+<PARA>Legal stuff to be inserted here...</PARA>
+</LEGALNOTICE>
+<COPYRIGHT>
+<YEAR>2001</YEAR>
+<HOLDER>Mutable Realms, Inc. All rights reserved.</HOLDER>
+</COPYRIGHT>
+</BOOKINFO>
+<CHAPTER ID="INTRO"><?dbhtml filename="intro.html">
+<TITLE>Introduction</TITLE>
+<PARA>blahblahblah...</PARA>
+</CHAPTER>
+<CHAPTER ID="SLICE"><?dbhtml filename="slice.html">
+<TITLE>Slice</TITLE>
+<PARA>blahblahblah...</PARA>
+</CHAPTER>
+<CHAPTER ID="CPPMAP"><?dbhtml filename="cppmap.html">
+<TITLE>The Slice to C++ Mapping</TITLE>
+<PARA>blahblahblah...</PARA>
+</CHAPTER>
+</BOOK>
