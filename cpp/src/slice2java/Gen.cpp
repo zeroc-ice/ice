@@ -690,18 +690,27 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Generate the operations interface
     //
     out << sp << nl << "public interface " << name << "Operations";
-    if (!bases.empty())
+    if ((bases.size() == 1 && bases.front()->isAbstract()) || bases.size() > 1)
     {
         out << " extends ";
         out.useCurrentPosAsIndent();
         ClassList::const_iterator q = bases.begin();
+        bool first = true;
         while (q != bases.end())
         {
-            out << getAbsolute((*q)->scoped(), scope, "", "Operations");
-            if (++q != bases.end())
+            if ((*q)->isAbstract())
             {
-                out << ',' << nl;
+                if (!first)
+                {
+                    out << ',' << nl;
+                }
+                else
+                {
+                    first = false;
+                }
+                out << getAbsolute((*q)->scoped(), scope, "", "Operations");
             }
+            ++q;
         }
         out.restoreIndent();
     }
