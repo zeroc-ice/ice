@@ -1234,6 +1234,11 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
             }
         }
 
+        if(_op->sendsClasses())
+        {
+            os->writePendingObjects();
+        }
+
         Ice::ByteSeq params;
         os->finished(params);
 
@@ -1301,7 +1306,10 @@ IcePHP::Operation::invoke(INTERNAL_FUNCTION_PARAMETERS)
                         return;
                     }
                 }
-                is->finished();
+                if(_op->returnsClasses())
+                {
+                    is->readPendingObjects();
+                }
             }
             else
             {
@@ -1348,7 +1356,10 @@ IcePHP::Operation::throwUserException(Ice::InputStreamPtr& is TSRMLS_DC)
             MAKE_STD_ZVAL(zex);
             if(m->unmarshal(zex, is TSRMLS_CC))
             {
-                is->finished();
+                if(ex->usesClasses())
+                {
+                    is->readPendingObjects();
+                }
                 zend_throw_exception_object(zex TSRMLS_CC);
             }
             else

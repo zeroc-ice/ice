@@ -27,14 +27,14 @@ public class PrinterI : Ice.Blobject
         if(current.operation.Equals("printString"))
         {
             string message = inStream.readString();
-            inStream.finished();
+            inStream.destroy();
             Console.WriteLine("Printing string `" + message + "'");
             return true;
         }
         else if(current.operation.Equals("printStringSequence"))
         {
             String[] seq = Demo.StringSeqHelper.read(inStream);
-            inStream.finished();
+            inStream.destroy();
             Console.Write("Printing string sequence {");
             for(int i = 0; i < seq.Length; ++i)
             {
@@ -50,7 +50,7 @@ public class PrinterI : Ice.Blobject
         else if(current.operation.Equals("printDictionary"))
         {
             Demo.StringDict dict = Demo.StringDictHelper.read(inStream);
-            inStream.finished();
+            inStream.destroy();
             Console.Write("Printing dictionary {");
             bool first = true;
             foreach(DictionaryEntry e in dict)
@@ -68,7 +68,7 @@ public class PrinterI : Ice.Blobject
         else if(current.operation.Equals("printEnum"))
         {
             Demo.Color c = Demo.ColorHelper.read(inStream);
-            inStream.finished();
+            inStream.destroy();
             Console.WriteLine("Printing enum " + c);
             return true;
         }
@@ -76,14 +76,14 @@ public class PrinterI : Ice.Blobject
         {
             Demo.Structure s = new Demo.Structure();
             s.__read(inStream);
-            inStream.finished();
+            inStream.destroy();
             Console.WriteLine("Printing struct: name=" + s.name + ", value=" + s.value);
             return true;
         }
         else if(current.operation.Equals("printStructSequence"))
         {
             Demo.Structure[] seq = Demo.StructureSeqHelper.read(inStream);
-            inStream.finished();
+            inStream.destroy();
             Console.Write("Printing struct sequence: {");
             for(int i = 0; i < seq.Length; ++i)
             {
@@ -100,7 +100,8 @@ public class PrinterI : Ice.Blobject
         {
             Demo.CHelper ch = new Demo.CHelper(inStream);
             ch.read();
-            inStream.finished();
+            inStream.readPendingObjects();
+            inStream.destroy();
             Demo.C c = ch.value;
             Console.WriteLine("Printing class: s.name=" + c.s.name + ", s.value=" + c.s.value);
             return true;
@@ -114,6 +115,7 @@ public class PrinterI : Ice.Blobject
             Ice.OutputStream outStream = Ice.Util.createOutputStream(communicator);
             Demo.CHelper.write(outStream, c);
             outStream.writeString("hello");
+            outStream.writePendingObjects();
             outParams = outStream.finished();
             return true;
         }

@@ -196,6 +196,7 @@ public class Client
                     c.s.name = "blue";
                     c.s.value = Demo.Color.blue;
                     Demo.CHelper.write(out, c);
+                    out.writePendingObjects();
 
                     //
                     // Invoke operation.
@@ -226,7 +227,7 @@ public class Client
                     Demo.CHolder c = new Demo.CHolder();
                     Demo.CHelper.read(in, c);
                     String str = in.readString();
-                    in.finished();
+                    in.readPendingObjects();
                     in.destroy();
                     System.out.println("Got string `" + str + "' and class: s.name=" + c.value.s.name +
                         ", s.value=" + c.value.s.value);

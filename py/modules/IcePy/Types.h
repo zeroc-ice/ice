@@ -68,6 +68,8 @@ public:
 
     virtual bool validate(PyObject*) = 0;
 
+    virtual bool usesClasses(); // Default implementation returns false.
+
     virtual void unmarshaled(PyObject*, PyObject*, void*); // Default implementation is assert(false).
 
     virtual void destroy();
@@ -165,6 +167,8 @@ public:
 
     virtual bool validate(PyObject*);
 
+    virtual bool usesClasses();
+
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
 
@@ -187,6 +191,8 @@ public:
 
     virtual bool validate(PyObject*);
 
+    virtual bool usesClasses();
+
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
     virtual void unmarshaled(PyObject*, PyObject*, void*);
@@ -208,6 +214,8 @@ public:
     virtual std::string getId() const;
 
     virtual bool validate(PyObject*);
+
+    virtual bool usesClasses();
 
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
@@ -240,6 +248,8 @@ public:
     virtual std::string getId() const;
 
     virtual bool validate(PyObject*);
+
+    virtual bool usesClasses();
 
     virtual void marshal(PyObject*, const Ice::OutputStreamPtr&, ObjectMap*);
     virtual void unmarshal(const Ice::InputStreamPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);

@@ -23,14 +23,14 @@ public class PrinterI extends Ice.Blobject
         if(current.operation.equals("printString"))
         {
             String message = in.readString();
-            in.finished();
             System.out.println("Printing string `" + message + "'");
+            in.destroy();
             return true;
         }
         else if(current.operation.equals("printStringSequence"))
         {
             String[] seq = Demo.StringSeqHelper.read(in);
-            in.finished();
+            in.destroy();
             System.out.print("Printing string sequence {");
             for(int i = 0; i < seq.length; ++i)
             {
@@ -46,7 +46,7 @@ public class PrinterI extends Ice.Blobject
         else if(current.operation.equals("printDictionary"))
         {
             java.util.Map dict = Demo.StringDictHelper.read(in);
-            in.finished();
+            in.destroy();
             System.out.print("Printing dictionary {");
             java.util.Iterator i = dict.entrySet().iterator();
             boolean first = true;
@@ -66,7 +66,7 @@ public class PrinterI extends Ice.Blobject
         else if(current.operation.equals("printEnum"))
         {
             Demo.Color c = Demo.Color.__read(in);
-            in.finished();
+            in.destroy();
             System.out.println("Printing enum " + c);
             return true;
         }
@@ -74,14 +74,14 @@ public class PrinterI extends Ice.Blobject
         {
             Demo.Structure s = new Demo.Structure();
             s.__read(in);
-            in.finished();
+            in.destroy();
             System.out.println("Printing struct: name=" + s.name + ", value=" + s.value);
             return true;
         }
         else if(current.operation.equals("printStructSequence"))
         {
             Demo.Structure[] seq = Demo.StructureSeqHelper.read(in);
-            in.finished();
+            in.destroy();
             System.out.print("Printing struct sequence: {");
             for(int i = 0; i < seq.length; ++i)
             {
@@ -98,7 +98,8 @@ public class PrinterI extends Ice.Blobject
         {
             Demo.CHolder c = new Demo.CHolder();
             Demo.CHelper.read(in, c);
-            in.finished();
+            in.readPendingObjects();
+            in.destroy();
             System.out.println("Printing class: s.name=" + c.value.s.name + ", s.value=" + c.value.s.value);
             return true;
         }
@@ -111,6 +112,7 @@ public class PrinterI extends Ice.Blobject
             Ice.OutputStream out = Ice.Util.createOutputStream(communicator);
             Demo.CHelper.write(out, c);
             out.writeString("hello");
+            out.writePendingObjects();
             outParams.value = out.finished();
             return true;
         }

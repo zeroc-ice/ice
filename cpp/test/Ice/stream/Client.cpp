@@ -103,7 +103,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         test(in->readBool());
-        in->finished();
     }
 
     {
@@ -112,7 +111,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         test(in->readByte() == 1);
-        in->finished();
     }
 
     {
@@ -121,7 +119,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         test(in->readShort() == 2);
-        in->finished();
     }
 
     {
@@ -130,7 +127,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         test(in->readInt() == 3);
-        in->finished();
     }
 
     {
@@ -139,7 +135,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         test(in->readLong() == 4);
-        in->finished();
     }
 
     {
@@ -148,7 +143,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         test(in->readFloat() == 5.0);
-        in->finished();
     }
 
     {
@@ -157,7 +151,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         test(in->readDouble() == 6.0);
-        in->finished();
     }
 
     {
@@ -166,7 +159,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         test(in->readString() == "hello world");
-        in->finished();
     }
 
     cout << "ok" << endl;
@@ -181,7 +173,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         Test::MyEnum e;
         Test::ice_readMyEnum(in, e);
         test(e == Test::enum3);
-        in->finished();
     }
 
     {
@@ -202,7 +193,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         in = Ice::createInputStream(communicator, data);
         Test::SmallStruct s2;
         Test::ice_readSmallStruct(in, s2);
-        in->finished();
         test(s2 == s);
     }
 
@@ -218,7 +208,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         Test::BoolS arr2 = in->readBoolSeq();
-        in->finished();
         test(arr2 == arr);
     }
 
@@ -234,7 +223,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         Test::ByteS arr2 = in->readByteSeq();
-        in->finished();
         test(arr2 == arr);
     }
 
@@ -249,7 +237,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         Test::ShortS arr2 = in->readShortSeq();
-        in->finished();
         test(arr2 == arr);
     }
 
@@ -264,7 +251,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         Test::IntS arr2 = in->readIntSeq();
-        in->finished();
         test(arr2 == arr);
     }
 
@@ -279,7 +265,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         Test::LongS arr2 = in->readLongSeq();
-        in->finished();
         test(arr2 == arr);
     }
 
@@ -294,7 +279,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         Test::FloatS arr2 = in->readFloatSeq();
-        in->finished();
         test(arr2 == arr);
     }
 
@@ -309,7 +293,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         Test::DoubleS arr2 = in->readDoubleSeq();
-        in->finished();
         test(arr2 == arr);
     }
 
@@ -324,7 +307,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         Test::StringS arr2 = in->readStringSeq();
-        in->finished();
         test(arr2 == arr);
     }
 
@@ -341,7 +323,6 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         in = Ice::createInputStream(communicator, data);
         Test::MyEnumS arr2;
         Test::ice_readMyEnumS(in, arr2);
-        in->finished();
         test(arr2 == arr);
     }
 
@@ -402,11 +383,12 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         }
         out = Ice::createOutputStream(communicator);
         Test::ice_writeMyClassS(out, arr);
+        out->writePendingObjects();
         out->finished(data);
         in = Ice::createInputStream(communicator, data);
         Test::MyClassS arr2;
         Test::ice_readMyClassS(in, arr2);
-        in->finished();
+        in->readPendingObjects();
         test(arr2.size() == arr.size());
         for(Test::MyClassS::size_type j = 0; j < arr2.size(); ++j)
         {
@@ -433,13 +415,14 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
         obj->s.e = Test::enum2;
         TestObjectWriterPtr writer = new TestObjectWriter(obj);
         out->writeObject(writer);
+        out->writePendingObjects();
         out->finished(data);
         test(writer->called);
         communicator->addObjectFactory(new TestObjectFactory, Test::MyClass::ice_staticId());
         in = Ice::createInputStream(communicator, data);
         TestReadObjectCallbackPtr cb = new TestReadObjectCallback;
         in->readObject(cb);
-        in->finished();
+        in->readPendingObjects();
         test(cb->obj);
         TestObjectReaderPtr reader = TestObjectReaderPtr::dynamicCast(cb->obj);
         test(reader);

@@ -91,7 +91,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readBool());
-            in.finished();
             out.destroy();
             in.destroy();
         }
@@ -102,7 +101,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readByte() == (byte)1);
-            in.finished();
             out.destroy();
             in.destroy();
         }
@@ -113,7 +111,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readShort() == (short)2);
-            in.finished();
             out.destroy();
             in.destroy();
         }
@@ -124,7 +121,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readInt() == 3);
-            in.finished();
             out.destroy();
             in.destroy();
         }
@@ -135,7 +131,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readLong() == 4);
-            in.finished();
             out.destroy();
             in.destroy();
         }
@@ -146,7 +141,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readFloat() == (float)5.0);
-            in.finished();
             out.destroy();
             in.destroy();
         }
@@ -157,7 +151,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readDouble() == 6.0);
-            in.finished();
             out.destroy();
             in.destroy();
         }
@@ -168,7 +161,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             test(in.readString().equals("hello world"));
-            in.finished();
             out.destroy();
             in.destroy();
         }
@@ -184,7 +176,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             test(Test.MyEnum.__read(in) == Test.MyEnum.enum3);
-            in.finished();
             out.destroy();
             in.destroy();
         }
@@ -207,7 +198,6 @@ public class Client
             in = Ice.Util.createInputStream(communicator, data);
             Test.SmallStruct s2 = new Test.SmallStruct();
             s2.__read(in);
-            in.finished();
             test(s2.equals(s));
             out.destroy();
             in.destroy();
@@ -226,7 +216,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             boolean[] arr2 = Test.BoolSHelper.read(in);
-            in.finished();
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -245,7 +234,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             byte[] arr2 = Test.ByteSHelper.read(in);
-            in.finished();
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -264,7 +252,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             short[] arr2 = Test.ShortSHelper.read(in);
-            in.finished();
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -283,7 +270,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             int[] arr2 = Test.IntSHelper.read(in);
-            in.finished();
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -302,7 +288,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             long[] arr2 = Test.LongSHelper.read(in);
-            in.finished();
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -321,7 +306,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             float[] arr2 = Test.FloatSHelper.read(in);
-            in.finished();
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -340,7 +324,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             double[] arr2 = Test.DoubleSHelper.read(in);
-            in.finished();
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -359,7 +342,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             String[] arr2 = Test.StringSHelper.read(in);
-            in.finished();
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -378,7 +360,6 @@ public class Client
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             Test.MyEnum[] arr2 = Test.MyEnumSHelper.read(in);
-            in.finished();
             test(java.util.Arrays.equals(arr2, arr));
             out.destroy();
             in.destroy();
@@ -408,10 +389,11 @@ public class Client
             }
             out = Ice.Util.createOutputStream(communicator);
             Test.MyClassSHelper.write(out, arr);
+            out.writePendingObjects();
             byte[] data = out.finished();
             in = Ice.Util.createInputStream(communicator, data);
             Test.MyClass[] arr2 = Test.MyClassSHelper.read(in);
-            in.finished();
+            in.readPendingObjects();
             test(arr2.length == arr.length);
             for(int i = 0; i < arr2.length; ++i)
             {
@@ -441,6 +423,7 @@ public class Client
             obj.s.e = Test.MyEnum.enum2;
             TestObjectWriter writer = new TestObjectWriter(obj);
             out.writeObject(writer);
+            out.writePendingObjects();
             byte[] data = out.finished();
             test(writer.called);
             communicator.removeObjectFactory(Test.MyClass.ice_staticId()); // Default factory.
@@ -448,7 +431,7 @@ public class Client
             in = Ice.Util.createInputStream(communicator, data);
             TestReadObjectCallback cb = new TestReadObjectCallback();
             in.readObject(cb);
-            in.finished();
+            in.readPendingObjects();
             test(cb.obj != null);
             test(cb.obj instanceof TestObjectReader);
             TestObjectReader reader = (TestObjectReader)cb.obj;

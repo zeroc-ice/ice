@@ -71,6 +71,8 @@ private:
     ParamInfoPtr _returnType;
     ExceptionInfoList _exceptions;
     string _dispatchName;
+    bool _sendsClasses;
+    bool _returnsClasses;
 
     bool prepareRequest(const Ice::CommunicatorPtr&, PyObject*, bool, vector<Ice::Byte>&);
     PyObject* unmarshalResults(const vector<Ice::Byte>&, const Ice::CommunicatorPtr&);
@@ -389,27 +391,38 @@ IcePy::OperationI::OperationI(const char* name, PyObject* mode, int amd, PyObjec
     assert(PyInt_Check(modeValue.get()));
     _mode = (Ice::OperationMode)static_cast<int>(PyInt_AS_LONG(modeValue.get()));
 
+    int i, sz;
+
     //
     // inParams
     //
-    int i, sz;
+    _sendsClasses = false;
     sz = PyTuple_GET_SIZE(inParams);
     for(i = 0; i < sz; ++i)
     {
         ParamInfoPtr param = new ParamInfo;
         param->type = getType(PyTuple_GET_ITEM(inParams, i));
         _inParams.push_back(param);
+        if(!_sendsClasses)
+        {
+            _sendsClasses = param->type->usesClasses();
+        }
     }
 
     //
     // outParams
     //
+    _returnsClasses = false;
     sz = PyTuple_GET_SIZE(outParams);
     for(i = 0; i < sz; ++i)
     {
         ParamInfoPtr param = new ParamInfo;
         param->type = getType(PyTuple_GET_ITEM(outParams, i));
         _outParams.push_back(param);
+        if(!_returnsClasses)
+        {
+            _returnsClasses = param->type->usesClasses();
+        }
     }
 
     //
@@ -419,6 +432,10 @@ IcePy::OperationI::OperationI(const char* name, PyObject* mode, int amd, PyObjec
     {
         _returnType = new ParamInfo;
         _returnType->type = getType(returnType);
+        if(!_returnsClasses)
+        {
+            _returnsClasses = _returnType->type->usesClasses();
+        }
     }
 
     //
@@ -626,7 +643,10 @@ IcePy::OperationI::dispatch(PyObject* servant, const Ice::AMD_Object_ice_invokeP
             {
                 (*p)->type->unmarshal(is, *p, args.get(), (void*)i);
             }
-            is->finished();
+            if(_sendsClasses)
+            {
+                is->readPendingObjects();
+            }
         }
         catch(const AbortMarshaling&)
         {
@@ -852,6 +872,11 @@ IcePy::OperationI::sendResponse(const Ice::AMD_Object_ice_invokePtr& cb, PyObjec
             _returnType->type->marshal(res, os, &objectMap);
         }
 
+        if(_returnsClasses)
+        {
+            os->writePendingObjects();
+        }
+
         Ice::ByteSeq outBytes;
         os->finished(outBytes);
         cb->ice_response(true, outBytes);
@@ -901,6 +926,11 @@ IcePy::OperationI::sendException(const Ice::AMD_Object_ice_invokePtr& cb, PyObje
                 Ice::OutputStreamPtr os = Ice::createOutputStream(communicator);
                 ObjectMap objectMap;
                 info->marshal(ex, os, &objectMap);
+
+                if(info->usesClasses)
+                {
+                    os->writePendingObjects();
+                }
 
                 Ice::ByteSeq bytes;
                 os->finished(bytes);
@@ -968,6 +998,11 @@ IcePy::OperationI::prepareRequest(const Ice::CommunicatorPtr& communicator, PyOb
                 (*p)->type->marshal(arg, os, &objectMap);
             }
 
+            if(_sendsClasses)
+            {
+                os->writePendingObjects();
+            }
+
             os->finished(bytes);
         }
         catch(const AbortMarshaling&)
@@ -1008,7 +1043,10 @@ IcePy::OperationI::unmarshalResults(const vector<Ice::Byte>& bytes, const Ice::C
             _returnType->type->unmarshal(is, _returnType, results.get(), 0);
         }
 
-        is->finished();
+        if(_returnsClasses)
+        {
+            is->readPendingObjects();
+        }
     }
 
     return results.release();
@@ -1028,7 +1066,10 @@ IcePy::OperationI::unmarshalException(const vector<Ice::Byte>& bytes, const Ice:
         if(info)
         {
             PyObjectHandle ex = info->unmarshal(is);
-            is->finished();
+            if(info->usesClasses)
+            {
+                is->readPendingObjects();
+            }
 
             if(validateException(ex.get()))
             {

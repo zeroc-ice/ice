@@ -182,6 +182,12 @@ IcePy::TypeInfo::TypeInfo()
 {
 }
 
+bool
+IcePy::TypeInfo::usesClasses()
+{
+    return false;
+}
+
 void
 IcePy::TypeInfo::unmarshaled(PyObject*, PyObject*, void*)
 {
@@ -1102,6 +1108,20 @@ IcePy::StructInfo::validate(PyObject* val)
     return PyObject_IsInstance(val, pythonType.get()) == 1;
 }
 
+bool
+IcePy::StructInfo::usesClasses()
+{
+    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    {
+        if((*q)->type->usesClasses())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void
 IcePy::StructInfo::marshal(PyObject* p, const Ice::OutputStreamPtr& os, ObjectMap* objectMap)
 {
@@ -1175,6 +1195,12 @@ bool
 IcePy::SequenceInfo::validate(PyObject* val)
 {
     return val == Py_None || PySequence_Check(val) == 1;
+}
+
+bool
+IcePy::SequenceInfo::usesClasses()
+{
+    return elementType->usesClasses();
 }
 
 void
@@ -1274,6 +1300,12 @@ bool
 IcePy::DictionaryInfo::validate(PyObject* val)
 {
     return val == Py_None || PyDict_Check(val) == 1;
+}
+
+bool
+IcePy::DictionaryInfo::usesClasses()
+{
+    return valueType->usesClasses();
 }
 
 void
@@ -1402,6 +1434,12 @@ bool
 IcePy::ClassInfo::validate(PyObject* val)
 {
     return val == Py_None || PyObject_IsInstance(val, pythonType.get()) == 1;
+}
+
+bool
+IcePy::ClassInfo::usesClasses()
+{
+    return true;
 }
 
 void
@@ -2369,8 +2407,7 @@ IcePy_defineException(PyObject*, PyObject* args)
     PyObject* type;
     PyObject* base;
     PyObject* members;
-    int usesClasses;
-    if(!PyArg_ParseTuple(args, "sOOOi", &id, &type, &base, &members, &usesClasses))
+    if(!PyArg_ParseTuple(args, "sOOO", &id, &type, &base, &members))
     {
         return NULL;
     }
@@ -2387,7 +2424,7 @@ IcePy_defineException(PyObject*, PyObject* args)
         assert(info->base);
     }
 
-    info->usesClasses = usesClasses ? true : false;
+    info->usesClasses = false;
 
     int sz = PyTuple_GET_SIZE(members);
     for(int i = 0; i < sz; ++i)
@@ -2402,6 +2439,10 @@ IcePy_defineException(PyObject*, PyObject* args)
         member->name = PyString_AS_STRING(s);
         member->type = getType(t);
         info->members.push_back(member);
+        if(!info->usesClasses)
+        {
+            info->usesClasses = member->type->usesClasses();
+        }
     }
 
     info->pythonType = type;

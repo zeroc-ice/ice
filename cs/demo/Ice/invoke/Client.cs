@@ -178,7 +178,8 @@ public class Client
                     //
                     // Invoke operation.
                     //
-                    if(!obj.ice_invoke("printStructSequence", Ice.OperationMode.Normal, outStream.finished(), out outParams))
+                    if(!obj.ice_invoke("printStructSequence", Ice.OperationMode.Normal, outStream.finished(),
+                                       out outParams))
                     {
                         Console.Error.WriteLine("Unknown user exception");
                     }
@@ -196,6 +197,7 @@ public class Client
                     c.s.name = "blue";
                     c.s.value = Demo.Color.blue;
                     Demo.CHelper.write(outStream, c);
+                    outStream.writePendingObjects();
 
                     //
                     // Invoke operation.
@@ -225,7 +227,7 @@ public class Client
                     Demo.CHelper ch = new Demo.CHelper(inStream);
                     ch.read();
                     String str = inStream.readString();
-                    inStream.finished();
+                    inStream.readPendingObjects();
                     inStream.destroy();
                     Demo.C c = ch.value;
                     Console.Error.WriteLine("Got string `" + str + "' and class: s.name=" + c.s.name +
