@@ -63,6 +63,38 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleFSSD", "book\simple_f
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionCD", "Glacier\session\sessionCD.csproj", "{40BF7596-8258-4D1A-BECD-E9D03BF4F2D9}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "sessionSD", "Glacier\session\sessionSD.csproj", "{5C3CE569-6102-4503-AB02-4DF1FA4B2E6C}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "invokeCD", "Ice\invoke\invokeCD.csproj", "{64B7BE89-5E04-44B9-90F6-C040FB9111EA}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "invokeSD", "Ice\invoke\invokeSD.csproj", "{CB1ADC6B-02F0-4470-A97B-A8F3AFF39581}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "helloIcePackCD", "IcePack\hello\helloIcePackCD.csproj", "{3D4C9F3A-8E6F-4281-88D0-AD8AD3A1C7D9}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "helloIcePackSD", "IcePack\hello\helloIcePackSD.csproj", "{DEA7890A-203D-4028-B319-AA23803543FB}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleIcePackCD", "IcePack\simple\simpleIcePackCD.csproj", "{CCC279C5-FA79-4862-898D-621E2358DE57}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "simpleIcePackSD", "IcePack\simple\simpleIcePackSD.csproj", "{69794D83-A555-4A71-A2F8-D8EF0DA5A718}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
@@ -133,6 +165,38 @@ Global
 		{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}.Debug.Build.0 = Debug|.NET
 		{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}.Release.ActiveCfg = Release|.NET
 		{ECF4A31E-8545-4A9D-ADC2-2020E53C9B46}.Release.Build.0 = Release|.NET
+		{40BF7596-8258-4D1A-BECD-E9D03BF4F2D9}.Debug.ActiveCfg = Debug|.NET
+		{40BF7596-8258-4D1A-BECD-E9D03BF4F2D9}.Debug.Build.0 = Debug|.NET
+		{40BF7596-8258-4D1A-BECD-E9D03BF4F2D9}.Release.ActiveCfg = Release|.NET
+		{40BF7596-8258-4D1A-BECD-E9D03BF4F2D9}.Release.Build.0 = Release|.NET
+		{5C3CE569-6102-4503-AB02-4DF1FA4B2E6C}.Debug.ActiveCfg = Debug|.NET
+		{5C3CE569-6102-4503-AB02-4DF1FA4B2E6C}.Debug.Build.0 = Debug|.NET
+		{5C3CE569-6102-4503-AB02-4DF1FA4B2E6C}.Release.ActiveCfg = Release|.NET
+		{5C3CE569-6102-4503-AB02-4DF1FA4B2E6C}.Release.Build.0 = Release|.NET
+		{64B7BE89-5E04-44B9-90F6-C040FB9111EA}.Debug.ActiveCfg = Debug|.NET
+		{64B7BE89-5E04-44B9-90F6-C040FB9111EA}.Debug.Build.0 = Debug|.NET
+		{64B7BE89-5E04-44B9-90F6-C040FB9111EA}.Release.ActiveCfg = Release|.NET
+		{64B7BE89-5E04-44B9-90F6-C040FB9111EA}.Release.Build.0 = Release|.NET
+		{CB1ADC6B-02F0-4470-A97B-A8F3AFF39581}.Debug.ActiveCfg = Debug|.NET
+		{CB1ADC6B-02F0-4470-A97B-A8F3AFF39581}.Debug.Build.0 = Debug|.NET
+		{CB1ADC6B-02F0-4470-A97B-A8F3AFF39581}.Release.ActiveCfg = Release|.NET
+		{CB1ADC6B-02F0-4470-A97B-A8F3AFF39581}.Release.Build.0 = Release|.NET
+		{3D4C9F3A-8E6F-4281-88D0-AD8AD3A1C7D9}.Debug.ActiveCfg = Debug|.NET
+		{3D4C9F3A-8E6F-4281-88D0-AD8AD3A1C7D9}.Debug.Build.0 = Debug|.NET
+		{3D4C9F3A-8E6F-4281-88D0-AD8AD3A1C7D9}.Release.ActiveCfg = Release|.NET
+		{3D4C9F3A-8E6F-4281-88D0-AD8AD3A1C7D9}.Release.Build.0 = Release|.NET
+		{DEA7890A-203D-4028-B319-AA23803543FB}.Debug.ActiveCfg = Debug|.NET
+		{DEA7890A-203D-4028-B319-AA23803543FB}.Debug.Build.0 = Debug|.NET
+		{DEA7890A-203D-4028-B319-AA23803543FB}.Release.ActiveCfg = Release|.NET
+		{DEA7890A-203D-4028-B319-AA23803543FB}.Release.Build.0 = Release|.NET
+		{CCC279C5-FA79-4862-898D-621E2358DE57}.Debug.ActiveCfg = Debug|.NET
+		{CCC279C5-FA79-4862-898D-621E2358DE57}.Debug.Build.0 = Debug|.NET
+		{CCC279C5-FA79-4862-898D-621E2358DE57}.Release.ActiveCfg = Release|.NET
+		{CCC279C5-FA79-4862-898D-621E2358DE57}.Release.Build.0 = Release|.NET
+		{69794D83-A555-4A71-A2F8-D8EF0DA5A718}.Debug.ActiveCfg = Debug|.NET
+		{69794D83-A555-4A71-A2F8-D8EF0DA5A718}.Debug.Build.0 = Debug|.NET
+		{69794D83-A555-4A71-A2F8-D8EF0DA5A718}.Release.ActiveCfg = Release|.NET
+		{69794D83-A555-4A71-A2F8-D8EF0DA5A718}.Release.Build.0 = Release|.NET
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 	EndGlobalSection
