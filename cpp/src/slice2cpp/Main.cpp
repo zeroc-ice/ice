@@ -178,7 +178,7 @@ main(int argc, char* argv[])
 	}
 	
 	UnitPtr unit = Unit::createUnit(false, false);
-	int parseStatus = unit -> parse(cppHandle, debug);
+	int parseStatus = unit->parse(cppHandle, debug);
 	
 #ifdef WIN32
 	_pclose(cppHandle);
@@ -195,13 +195,13 @@ main(int argc, char* argv[])
 	    Gen gen(argv[0], base, include, includePaths, dllExport);
 	    if (!gen)
 	    {
-		unit -> destroy();
+		unit->destroy();
 		return EXIT_FAILURE;
 	    }
 	    gen.generate(unit);
 	}
 
-	unit -> destroy();
+	unit->destroy();
     }
 
     return status;

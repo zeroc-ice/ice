@@ -160,7 +160,7 @@ main(int argc, char* argv[])
 	{
 	    cerr << argv[0] << ": input files must end with `.ice'"
 		 << endl;
-	    unit -> destroy();
+	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
 	base.erase(pos);
@@ -170,7 +170,7 @@ main(int argc, char* argv[])
 	{
 	    cerr << argv[0] << ": can't open `" << argv[idx]
 		 << "' for reading: " << strerror(errno) << endl;
-	    unit -> destroy();
+	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
 	test.close();
@@ -185,11 +185,11 @@ main(int argc, char* argv[])
 	{
 	    cerr << argv[0] << ": can't run C++ preprocessor: "
 		 << strerror(errno) << endl;
-	    unit -> destroy();
+	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
 	
-	int parseStatus = unit -> parse(cppHandle, debug);
+	int parseStatus = unit->parse(cppHandle, debug);
 	if (parseStatus == EXIT_FAILURE)
 	{
 	    status = EXIT_FAILURE;
@@ -208,13 +208,13 @@ main(int argc, char* argv[])
 	Gen gen(argv[0], docbook, standAlone, noGlobals);
 	if (!gen)
 	{
-	    unit -> destroy();
+	    unit->destroy();
 	    return EXIT_FAILURE;
 	}
 	gen.generate(unit);
     }
     
-    unit -> destroy();
+    unit->destroy();
 
     return status;
 }

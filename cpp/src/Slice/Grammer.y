@@ -18,7 +18,7 @@ using namespace Slice;
 void
 yyerror(const char* s)
 {
-    unit -> error(s);
+    unit->error(s);
 }
 
 %}
@@ -71,7 +71,7 @@ definitions
 }
 | definition
 {
-    unit -> error("`;' missing after definition");
+    unit->error("`;' missing after definition");
 }
 |
 {
@@ -118,7 +118,7 @@ class_exports
 }
 | class_export
 {
-    unit -> error("`;' missing after definition");
+    unit->error("`;' missing after definition");
 }
 |
 {
@@ -147,7 +147,7 @@ interface_exports
 }
 | interface_export
 {
-    unit -> error("`;' missing after definition");
+    unit->error("`;' missing after definition");
 }
 |
 {
@@ -168,15 +168,15 @@ module_def
 : ICE_MODULE ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ContainerPtr cont = unit -> currentContainer();
-    ModulePtr module = cont -> createModule(ident -> v);
+    ContainerPtr cont = unit->currentContainer();
+    ModulePtr module = cont->createModule(ident->v);
     if (!module)
 	YYERROR; // Can't continue, jump to next yyerrok
-    unit -> pushContainer(module);
+    unit->pushContainer(module);
 }
 '{' definitions '}'
 {
-    unit -> popContainer();
+    unit->popContainer();
 }
 ;
 
@@ -186,13 +186,13 @@ local
 : ICE_LOCAL
 {
     BoolTokPtr local = new BoolTok;
-    local -> v = true;
+    local->v = true;
     $$ = local;
 }
 |
 {
     BoolTokPtr local = new BoolTok;
-    local -> v = false;
+    local->v = false;
     $$ = local;
 }
 ;
@@ -204,9 +204,9 @@ class_decl
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    ContainerPtr cont = unit -> currentContainer();
-    ClassDeclPtr cl = cont -> createClassDecl(ident -> v,
-					       local -> v,
+    ContainerPtr cont = unit->currentContainer();
+    ClassDeclPtr cl = cont->createClassDecl(ident->v,
+					       local->v,
 					       false);
 }
 ;
@@ -218,22 +218,22 @@ class_def
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    ContainerPtr cont = unit -> currentContainer();
+    ContainerPtr cont = unit->currentContainer();
     ClassDefPtr base = ClassDefPtr::dynamicCast($4);
     ClassListTokPtr bases = ClassListTokPtr::dynamicCast($5);
     if (base)
-	bases -> v.push_front(base);
-    ClassDefPtr cl = cont -> createClassDef(ident -> v,
-					     local -> v,
+	bases->v.push_front(base);
+    ClassDefPtr cl = cont->createClassDef(ident->v,
+					     local->v,
 					     false,
-					     bases -> v);
+					     bases->v);
     if (!cl)
 	YYERROR; // Can't continue, jump to next yyerrok
-    unit -> pushContainer(cl);
+    unit->pushContainer(cl);
 }
 '{' class_exports '}'
 {
-    unit -> popContainer();
+    unit->popContainer();
 }
 ;
 
@@ -243,8 +243,8 @@ class_extends
 : ICE_EXTENDS scoped_name
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($2);
-    ContainerPtr cont = unit -> currentContainer();
-    list<TypePtr> types = cont -> lookupType(scoped -> v);
+    ContainerPtr cont = unit->currentContainer();
+    list<TypePtr> types = cont->lookupType(scoped->v);
     $$ = 0;
     if (!types.empty())
     {
@@ -252,19 +252,19 @@ class_extends
 	if (!cl)
 	{
 	    string msg = "`";
-	    msg += scoped -> v;
+	    msg += scoped->v;
 	    msg += "' is not a class";
-	    unit -> error(msg);
+	    unit->error(msg);
 	}
 	else
 	{
-	    ClassDefPtr def = cl -> definition();
+	    ClassDefPtr def = cl->definition();
 	    if (!def)
 	    {
 		string msg = "`";
-		msg += scoped -> v;
+		msg += scoped->v;
 		msg += "' has been declared but not defined";
-		unit -> error(msg);
+		unit->error(msg);
 	    }
 	    else
 	    {
@@ -299,9 +299,9 @@ interface_decl
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    ContainerPtr cont = unit -> currentContainer();
-    ClassDeclPtr cl = cont -> createClassDecl(ident -> v,
-					       local -> v,
+    ContainerPtr cont = unit->currentContainer();
+    ClassDeclPtr cl = cont->createClassDecl(ident->v,
+					       local->v,
 					       true);
 }
 ;
@@ -313,19 +313,19 @@ interface_def
 {
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    ContainerPtr cont = unit -> currentContainer();
+    ContainerPtr cont = unit->currentContainer();
     ClassListTokPtr bases = ClassListTokPtr::dynamicCast($4);
-    ClassDefPtr cl = cont -> createClassDef(ident -> v,
-					     local -> v,
+    ClassDefPtr cl = cont->createClassDef(ident->v,
+					     local->v,
 					     true,
-					     bases -> v);
+					     bases->v);
     if (!cl)
 	YYERROR; // Can't continue, jump to next yyerrok
-    unit -> pushContainer(cl);
+    unit->pushContainer(cl);
 }
 '{' interface_exports '}'
 {
-    unit -> popContainer();
+    unit->popContainer();
 }
 ;
 
@@ -337,31 +337,31 @@ interface_list
     ClassListTokPtr intfs = ClassListTokPtr::dynamicCast($3);
     $$ = intfs;
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
-    ContainerPtr cont = unit -> currentContainer();
-    list<TypePtr> types = cont -> lookupType(scoped -> v);
+    ContainerPtr cont = unit->currentContainer();
+    list<TypePtr> types = cont->lookupType(scoped->v);
     if (!types.empty())
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-	if (!cl || !cl -> isInterface())
+	if (!cl || !cl->isInterface())
 	{
 	    string msg = "`";
-	    msg += scoped -> v;
+	    msg += scoped->v;
 	    msg += "' is not an interface";
-	    unit -> error(msg);
+	    unit->error(msg);
 	}
 	else
 	{
-	    ClassDefPtr def = cl -> definition();
+	    ClassDefPtr def = cl->definition();
 	    if (!def)
 	    {
 		string msg = "`";
-		msg += scoped -> v;
+		msg += scoped->v;
 		msg += "' has been declared but not defined";
-		unit -> error(msg);
+		unit->error(msg);
 	    }
 	    else
 	    {
-		intfs -> v.push_front(def);
+		intfs->v.push_front(def);
 	    }
 	}
     }
@@ -371,31 +371,31 @@ interface_list
     ClassListTokPtr intfs = new ClassListTok;
     $$ = intfs;
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
-    ContainerPtr cont = unit -> currentContainer();
-    list<TypePtr> types = cont -> lookupType(scoped -> v);
+    ContainerPtr cont = unit->currentContainer();
+    list<TypePtr> types = cont->lookupType(scoped->v);
     if (!types.empty())
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(types.front());
-	if (!cl || !cl -> isInterface())
+	if (!cl || !cl->isInterface())
 	{
 	    string msg = "`";
-	    msg += scoped -> v;
+	    msg += scoped->v;
 	    msg += "' is not an interface";
-	    unit -> error(msg);
+	    unit->error(msg);
 	}
 	else
 	{
-	    ClassDefPtr def = cl -> definition();
+	    ClassDefPtr def = cl->definition();
 	    if (!def)
 	    {
 		string msg = "`";
-		msg += scoped -> v;
+		msg += scoped->v;
 		msg += "' has been declared but not defined";
-		unit -> error(msg);
+		unit->error(msg);
 	    }
 	    else
 	    {
-		intfs -> v.push_front(def);
+		intfs->v.push_front(def);
 	    }
 	}
     }
@@ -425,9 +425,9 @@ operation
     TypeStringListTokPtr inParms = TypeStringListTokPtr::dynamicCast($3);
     TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($4);
     TypeListTokPtr throws = TypeListTokPtr::dynamicCast($6);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit -> currentContainer());
-    cl -> createOperation(name -> v, returnType, inParms -> v, outParms -> v,
-			  throws -> v);
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    cl->createOperation(name->v, returnType, inParms->v, outParms->v,
+			  throws->v);
 }
 
 // ----------------------------------------------------------------------
@@ -438,7 +438,7 @@ parameters
     TypePtr type = TypePtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     TypeStringListTokPtr parms = TypeStringListTokPtr::dynamicCast($4);
-    parms -> v.push_front(make_pair(type, ident -> v));
+    parms->v.push_front(make_pair(type, ident->v));
     $$ = parms;
 }
 | type ICE_IDENTIFIER
@@ -446,7 +446,7 @@ parameters
     TypePtr type = TypePtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     TypeStringListTokPtr parms = new TypeStringListTok;
-    parms -> v.push_front(make_pair(type, ident -> v));
+    parms->v.push_front(make_pair(type, ident->v));
     $$ = parms;
 }
 |
@@ -487,9 +487,9 @@ data_member
 {
     TypePtr type = TypePtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit -> currentContainer());
-    assert(!cl -> isInterface());
-    cl -> createDataMember(ident -> v, type);
+    ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
+    assert(!cl->isInterface());
+    cl->createDataMember(ident->v, type);
 }
 ;
 
@@ -498,57 +498,57 @@ type
 // ----------------------------------------------------------------------
 : ICE_BYTE
 {
-    $$ = unit -> builtin(Builtin::KindByte);
+    $$ = unit->builtin(Builtin::KindByte);
 }
 | ICE_BOOL
 {
-    $$ = unit -> builtin(Builtin::KindBool);
+    $$ = unit->builtin(Builtin::KindBool);
 }
 | ICE_SHORT
 {
-    $$ = unit -> builtin(Builtin::KindShort);
+    $$ = unit->builtin(Builtin::KindShort);
 }
 | ICE_INT
 {
-    $$ = unit -> builtin(Builtin::KindInt);
+    $$ = unit->builtin(Builtin::KindInt);
 }
 | ICE_LONG
 {
-    $$ = unit -> builtin(Builtin::KindLong);
+    $$ = unit->builtin(Builtin::KindLong);
 }
 | ICE_FLOAT
 {
-    $$ = unit -> builtin(Builtin::KindFloat);
+    $$ = unit->builtin(Builtin::KindFloat);
 }
 | ICE_DOUBLE
 {
-    $$ = unit -> builtin(Builtin::KindDouble);
+    $$ = unit->builtin(Builtin::KindDouble);
 }
 | ICE_STRING
 {
-    $$ = unit -> builtin(Builtin::KindString);
+    $$ = unit->builtin(Builtin::KindString);
 }
 | ICE_WSTRING
 {
-    $$ = unit -> builtin(Builtin::KindWString);
+    $$ = unit->builtin(Builtin::KindWString);
 }
 | ICE_OBJECT
 {
-    $$ = unit -> builtin(Builtin::KindObject);
+    $$ = unit->builtin(Builtin::KindObject);
 }
 | ICE_OBJECT '*'
 {
-    $$ = unit -> builtin(Builtin::KindObjectProxy);
+    $$ = unit->builtin(Builtin::KindObjectProxy);
 }
 | ICE_LOCAL_OBJECT
 {
-    $$ = unit -> builtin(Builtin::KindLocalObject);
+    $$ = unit->builtin(Builtin::KindLocalObject);
 }
 | scoped_name
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
-    ContainerPtr cont = unit -> currentContainer();
-    list<TypePtr> types = cont -> lookupType(scoped -> v);
+    ContainerPtr cont = unit->currentContainer();
+    list<TypePtr> types = cont->lookupType(scoped->v);
     if (types.empty())
 	YYERROR; // Can't continue, jump to next yyerrok
     $$ = types.front();
@@ -556,8 +556,8 @@ type
 | scoped_name '*'
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
-    ContainerPtr cont = unit -> currentContainer();
-    list<TypePtr> types = cont -> lookupType(scoped -> v);
+    ContainerPtr cont = unit->currentContainer();
+    list<TypePtr> types = cont->lookupType(scoped->v);
     if (types.empty())
 	YYERROR; // Can't continue, jump to next yyerrok
     for (list<TypePtr>::iterator p = types.begin();
@@ -568,9 +568,9 @@ type
 	if (!cl)
 	{
 	    string msg = "`";
-	    msg += scoped -> v;
+	    msg += scoped->v;
 	    msg += "' must be class or interface";
-	    unit -> error(msg);
+	    unit->error(msg);
 	    YYERROR; // Can't continue, jump to next yyerrok
 	}
 	*p = new Proxy(cl);
@@ -586,14 +586,14 @@ type_list
 {
     TypePtr type = TypePtr::dynamicCast($1);
     TypeListTokPtr typeList = TypeListTokPtr::dynamicCast($3);
-    typeList -> v.push_front(type);
+    typeList->v.push_front(type);
     $$ = typeList;
 }
 | type
 {
     TypePtr type = TypePtr::dynamicCast($1);
     TypeListTokPtr typeList = new TypeListTok;
-    typeList -> v.push_front(type);
+    typeList->v.push_front(type);
     $$ = typeList;
 }
 ;
@@ -617,8 +617,8 @@ native_def
 : ICE_NATIVE ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ContainerPtr cont = unit -> currentContainer();
-    cont -> createNative(ident -> v);
+    ContainerPtr cont = unit->currentContainer();
+    cont->createNative(ident->v);
 }
 ;
 
@@ -629,8 +629,8 @@ vector_def
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($5);
     TypePtr type = TypePtr::dynamicCast($3);
-    ContainerPtr cont = unit -> currentContainer();
-    cont -> createVector(ident -> v, type);
+    ContainerPtr cont = unit->currentContainer();
+    cont->createVector(ident->v, type);
 }
 ;
 
@@ -641,8 +641,8 @@ enum_def
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     StringListTokPtr enumerators = StringListTokPtr::dynamicCast($4);
-    ContainerPtr cont = unit -> currentContainer();
-    EnumPtr en = cont -> createEnum(ident -> v, enumerators -> v);
+    ContainerPtr cont = unit->currentContainer();
+    EnumPtr en = cont->createEnum(ident->v, enumerators->v);
 }
 ;
 
@@ -654,20 +654,20 @@ identifier_list
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     StringListTokPtr ens = StringListTokPtr::dynamicCast($3);
     $$ = ens;
-    ContainerPtr cont = unit -> currentContainer();
-    EnumeratorPtr en = cont -> createEnumerator(ident -> v);
+    ContainerPtr cont = unit->currentContainer();
+    EnumeratorPtr en = cont->createEnumerator(ident->v);
     if (en)
-	ens -> v.push_front(ident -> v);
+	ens->v.push_front(ident->v);
 }
 | ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($1);
     StringListTokPtr ens = new StringListTok;
     $$ = ens;
-    ContainerPtr cont = unit -> currentContainer();
-    EnumeratorPtr en = cont -> createEnumerator(ident -> v);
+    ContainerPtr cont = unit->currentContainer();
+    EnumeratorPtr en = cont->createEnumerator(ident->v);
     if (en)
-	ens -> v.push_front(ident -> v);
+	ens->v.push_front(ident->v);
 }
 ;
 
@@ -681,15 +681,15 @@ scoped_name
 | ICE_SCOPE_DELIMITOR ICE_IDENTIFIER
 {
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ident -> v = "::" + ident -> v;
+    ident->v = "::" + ident->v;
     $$ = ident;
 }
 | scoped_name ICE_SCOPE_DELIMITOR ICE_IDENTIFIER
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    scoped -> v += "::";
-    scoped -> v += ident -> v;
+    scoped->v += "::";
+    scoped->v += ident->v;
     $$ = scoped;
 }
 ;

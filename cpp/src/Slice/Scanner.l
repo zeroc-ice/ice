@@ -29,19 +29,19 @@ L			[a-zA-Z_]
 %%
 
 ^"#"{S}*{D}+{S}*$ {
-    unit -> scanPosition(yytext);
+    unit->scanPosition(yytext);
 }
 
 ^"#"{S}*{D}+{S}+"\""[^\"]*"\"".*$ {
-    unit -> scanPosition(yytext);
+    unit->scanPosition(yytext);
 }
 
 ^"#"{S}*"line"{S}+{D}+{S}*$ {
-    unit -> scanPosition(yytext);
+    unit->scanPosition(yytext);
 }
 
 ^"#"{S}*"line"{S}+{D}+{S}+"\""[^\"]*"\"".*$ {
-    unit -> scanPosition(yytext);
+    unit->scanPosition(yytext);
 }
 
 "//" {
@@ -53,7 +53,7 @@ L			[a-zA-Z_]
     {
 	c = yyinput();
 	if (c == '\n')
-	    unit -> nextLine();
+	    unit->nextLine();
     }
     while (c != '\n' && c != EOF);
 }
@@ -69,7 +69,7 @@ L			[a-zA-Z_]
 	
 	if (c == '\n')
 	{
-	    unit -> nextLine();
+	    unit->nextLine();
 	}
 	else if (c == '*')
 	{
@@ -82,13 +82,13 @@ L			[a-zA-Z_]
 	}
 	else if (c == EOF)
 	{
-	    unit -> warning("EOF in comment");
+	    unit->warning("EOF in comment");
 	    break;
 	}
     }
 
     if (comment[0] == '*')
-	unit -> setComment(comment);
+	unit->setComment(comment);
 }
 
 "::" {
@@ -190,7 +190,7 @@ L			[a-zA-Z_]
 	++s;
     
     StringTokPtr ident = new StringTok;
-    ident -> v = s;
+    ident->v = s;
     yylval = ident;
     return ICE_IDENTIFIER;
 }
@@ -202,8 +202,8 @@ L			[a-zA-Z_]
 	++s;
     
     StringTokPtr ident = new StringTok;
-    ident -> v = s;
-    ident -> v.erase(ident -> v.find_first_of(" \t\v\n\r\f("));
+    ident->v = s;
+    ident->v.erase(ident->v.find_first_of(" \t\v\n\r\f("));
     yylval = ident;
     return ICE_OP_IDENTIFIER;
 }
@@ -212,7 +212,7 @@ L			[a-zA-Z_]
     // Igore white-space
     
     if (yytext[0] == '\n')
-	unit -> nextLine();
+	unit->nextLine();
 }
 
 . {

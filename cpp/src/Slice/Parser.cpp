@@ -21,42 +21,42 @@ Unit* unit;
 
 }
 
-void IceInternal::incRef(GrammerBase* p) { p -> __incRef(); }
-void IceInternal::decRef(GrammerBase* p) { p -> __decRef(); }
-void IceInternal::incRef(SyntaxTreeBase* p) { p -> __incRef(); }
-void IceInternal::decRef(SyntaxTreeBase* p) { p -> __decRef(); }
-void IceInternal::incRef(Type* p) { p -> __incRef(); }
-void IceInternal::decRef(Type* p) { p -> __decRef(); }
-void IceInternal::incRef(Builtin* p) { p -> __incRef(); }
-void IceInternal::decRef(Builtin* p) { p -> __decRef(); }
-void IceInternal::incRef(Contained* p) { p -> __incRef(); }
-void IceInternal::decRef(Contained* p) { p -> __decRef(); }
-void IceInternal::incRef(Container* p) { p -> __incRef(); }
-void IceInternal::decRef(Container* p) { p -> __decRef(); }
-void IceInternal::incRef(Module* p) { p -> __incRef(); }
-void IceInternal::decRef(Module* p) { p -> __decRef(); }
-void IceInternal::incRef(Constructed* p) { p -> __incRef(); }
-void IceInternal::decRef(Constructed* p) { p -> __decRef(); }
-void IceInternal::incRef(ClassDecl* p) { p -> __incRef(); }
-void IceInternal::decRef(ClassDecl* p) { p -> __decRef(); }
-void IceInternal::incRef(ClassDef* p) { p -> __incRef(); }
-void IceInternal::decRef(ClassDef* p) { p -> __decRef(); }
-void IceInternal::incRef(Proxy* p) { p -> __incRef(); }
-void IceInternal::decRef(Proxy* p) { p -> __decRef(); }
-void IceInternal::incRef(Operation* p) { p -> __incRef(); }
-void IceInternal::decRef(Operation* p) { p -> __decRef(); }
-void IceInternal::incRef(DataMember* p) { p -> __incRef(); }
-void IceInternal::decRef(DataMember* p) { p -> __decRef(); }
-void IceInternal::incRef(Vector* p) { p -> __incRef(); }
-void IceInternal::decRef(Vector* p) { p -> __decRef(); }
-void IceInternal::incRef(Enum* p) { p -> __incRef(); }
-void IceInternal::decRef(Enum* p) { p -> __decRef(); }
-void IceInternal::incRef(Enumerator* p) { p -> __incRef(); }
-void IceInternal::decRef(Enumerator* p) { p -> __decRef(); }
-void IceInternal::incRef(Native* p) { p -> __incRef(); }
-void IceInternal::decRef(Native* p) { p -> __decRef(); }
-void IceInternal::incRef(Unit* p) { p -> __incRef(); }
-void IceInternal::decRef(Unit* p) { p -> __decRef(); }
+void IceInternal::incRef(GrammerBase* p) { p->__incRef(); }
+void IceInternal::decRef(GrammerBase* p) { p->__decRef(); }
+void IceInternal::incRef(SyntaxTreeBase* p) { p->__incRef(); }
+void IceInternal::decRef(SyntaxTreeBase* p) { p->__decRef(); }
+void IceInternal::incRef(Type* p) { p->__incRef(); }
+void IceInternal::decRef(Type* p) { p->__decRef(); }
+void IceInternal::incRef(Builtin* p) { p->__incRef(); }
+void IceInternal::decRef(Builtin* p) { p->__decRef(); }
+void IceInternal::incRef(Contained* p) { p->__incRef(); }
+void IceInternal::decRef(Contained* p) { p->__decRef(); }
+void IceInternal::incRef(Container* p) { p->__incRef(); }
+void IceInternal::decRef(Container* p) { p->__decRef(); }
+void IceInternal::incRef(Module* p) { p->__incRef(); }
+void IceInternal::decRef(Module* p) { p->__decRef(); }
+void IceInternal::incRef(Constructed* p) { p->__incRef(); }
+void IceInternal::decRef(Constructed* p) { p->__decRef(); }
+void IceInternal::incRef(ClassDecl* p) { p->__incRef(); }
+void IceInternal::decRef(ClassDecl* p) { p->__decRef(); }
+void IceInternal::incRef(ClassDef* p) { p->__incRef(); }
+void IceInternal::decRef(ClassDef* p) { p->__decRef(); }
+void IceInternal::incRef(Proxy* p) { p->__incRef(); }
+void IceInternal::decRef(Proxy* p) { p->__decRef(); }
+void IceInternal::incRef(Operation* p) { p->__incRef(); }
+void IceInternal::decRef(Operation* p) { p->__decRef(); }
+void IceInternal::incRef(DataMember* p) { p->__incRef(); }
+void IceInternal::decRef(DataMember* p) { p->__decRef(); }
+void IceInternal::incRef(Vector* p) { p->__incRef(); }
+void IceInternal::decRef(Vector* p) { p->__decRef(); }
+void IceInternal::incRef(Enum* p) { p->__incRef(); }
+void IceInternal::decRef(Enum* p) { p->__decRef(); }
+void IceInternal::incRef(Enumerator* p) { p->__incRef(); }
+void IceInternal::decRef(Enumerator* p) { p->__decRef(); }
+void IceInternal::incRef(Native* p) { p->__incRef(); }
+void IceInternal::decRef(Native* p) { p->__decRef(); }
+void IceInternal::incRef(Unit* p) { p->__incRef(); }
+void IceInternal::decRef(Unit* p) { p->__decRef(); }
 
 // ----------------------------------------------------------------------
 // SyntaxTreeBase
@@ -148,18 +148,18 @@ Slice::Contained::comment()
 
 Slice::Contained::Contained(const ContainerPtr& container,
 			    const string& name)
-    : SyntaxTreeBase(container -> unit()),
+    : SyntaxTreeBase(container->unit()),
       _container(container),
       _name(name)
 {
     ContainedPtr cont = ContainedPtr::dynamicCast(_container);
     if (cont)
-	_scoped = cont -> scoped();
+	_scoped = cont->scoped();
     _scoped += "::" + _name;				       
     if (_unit)
     {
-	_unit -> addContent(this);
-	_comment = _unit -> currentComment();
+	_unit->addContent(this);
+	_comment = _unit->currentComment();
     }
 }
 
@@ -195,7 +195,7 @@ Slice::Container::destroy()
 ModulePtr
 Slice::Container::createModule(const string& name)
 {
-    ContainedList matches = _unit -> findContents(thisScope() + name);
+    ContainedList matches = _unit->findContents(thisScope() + name);
     for (ContainedList::iterator p = matches.begin();
 	p != matches.end();
 	++p)
@@ -207,7 +207,7 @@ Slice::Container::createModule(const string& name)
 	string msg = "redefinition of `";
 	msg += name;
 	msg += "' as module";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return 0;
     }
 
@@ -220,7 +220,7 @@ ClassDefPtr
 Slice::Container::createClassDef(const string& name, bool local, bool intf,
 				 const ClassList& bases)
 {
-    ContainedList matches = _unit -> findContents(thisScope() + name);
+    ContainedList matches = _unit->findContents(thisScope() + name);
     for (ContainedList::iterator p = matches.begin();
 	p != matches.end();
 	++p)
@@ -229,8 +229,8 @@ Slice::Container::createClassDef(const string& name, bool local, bool intf,
 	if (cl)
 	{
 	    if (checkInterfaceAndLocal(name, false,
-				      intf, cl -> isInterface(),
-				      local, cl -> isLocal()))
+				      intf, cl->isInterface(),
+				      local, cl->isLocal()))
 		continue;
 	    
 	    return 0;
@@ -239,7 +239,7 @@ Slice::Container::createClassDef(const string& name, bool local, bool intf,
 	ClassDefPtr def = ClassDefPtr::dynamicCast(*p);
 	if (def)
 	{
-	    if (_unit -> ignRedefs())
+	    if (_unit->ignRedefs())
 		return def;
 
 	    string msg = "redefinition of ";
@@ -250,7 +250,7 @@ Slice::Container::createClassDef(const string& name, bool local, bool intf,
 	    msg += " `";
 	    msg += name;
 	    msg += "'";
-	    _unit -> error(msg);
+	    _unit->error(msg);
 	    return 0;
 	}
 	
@@ -261,7 +261,7 @@ Slice::Container::createClassDef(const string& name, bool local, bool intf,
 	    msg += "interface";
 	else
 	    msg += "class";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return 0;
     }
     
@@ -273,7 +273,7 @@ Slice::Container::createClassDef(const string& name, bool local, bool intf,
 	++q)
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*q);
-	cl -> _definition = def;
+	cl->_definition = def;
     }
 
     //
@@ -291,7 +291,7 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 {
     ClassDefPtr def;
 
-    ContainedList matches = _unit -> findContents(thisScope() + name);
+    ContainedList matches = _unit->findContents(thisScope() + name);
     for (ContainedList::iterator p = matches.begin();
 	p != matches.end();
 	++p)
@@ -300,8 +300,8 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 	if (clDef)
 	{
 	    if (checkInterfaceAndLocal(name, true,
-				      intf, clDef -> isInterface(),
-				      local, clDef -> isLocal()))
+				      intf, clDef->isInterface(),
+				      local, clDef->isLocal()))
 	    {
 		assert(!def);
 		def = clDef;
@@ -315,8 +315,8 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 	if (clDecl)
 	{
 	    if (checkInterfaceAndLocal(name, false,
-				      intf, clDecl -> isInterface(),
-				      local, clDecl -> isLocal()))
+				      intf, clDecl->isInterface(),
+				      local, clDecl->isLocal()))
 		continue;
 	    
 	    return 0;
@@ -329,7 +329,7 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 	    msg += "interface";
 	else
 	    msg += "class";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return 0;
     }
 
@@ -342,7 +342,7 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 	q != _contents.end();
 	++q)
     {
-	if ((*q) -> name() == name)
+	if ((*q)->name() == name)
 	{
 	    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*q);
 	    if (cl)
@@ -356,7 +356,7 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
     _contents.push_back(cl);
 
     if (def)
-	cl -> _definition = def;
+	cl->_definition = def;
 
     return cl;
 }
@@ -364,26 +364,26 @@ Slice::Container::createClassDecl(const string& name, bool local, bool intf)
 VectorPtr
 Slice::Container::createVector(const string& name, const TypePtr& type)
 {
-    ContainedList matches = _unit -> findContents(thisScope() + name);
+    ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
 	VectorPtr p = VectorPtr::dynamicCast(matches.front());
 	if (p)
 	{
-	    if (_unit -> ignRedefs())
+	    if (_unit->ignRedefs())
 		return p;
 
 	    string msg = "redefinition of vector `";
 	    msg += name;
 	    msg += "'";
-	    _unit -> error(msg);
+	    _unit->error(msg);
 	    return 0;
 	}
 	
 	string msg = "redefinition of `";
 	msg += name;
 	msg += "' as vector";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return 0;
     }
 
@@ -395,26 +395,26 @@ Slice::Container::createVector(const string& name, const TypePtr& type)
 EnumPtr
 Slice::Container::createEnum(const string& name, const StringList& enumerators)
 {
-    ContainedList matches = _unit -> findContents(thisScope() + name);
+    ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
 	EnumPtr p = EnumPtr::dynamicCast(matches.front());
 	if (p)
 	{
-	    if (_unit -> ignRedefs())
+	    if (_unit->ignRedefs())
 		return p;
 
 	    string msg = "redefinition of enum `";
 	    msg += name;
 	    msg += "'";
-	    _unit -> error(msg);
+	    _unit->error(msg);
 	    return 0;
 	}
 	
 	string msg = "redefinition of `";
 	msg += name;
 	msg += "' as enum";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return 0;
     }
 
@@ -426,26 +426,26 @@ Slice::Container::createEnum(const string& name, const StringList& enumerators)
 EnumeratorPtr
 Slice::Container::createEnumerator(const std::string& name)
 {
-    ContainedList matches = _unit -> findContents(thisScope() + name);
+    ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
 	EnumeratorPtr p = EnumeratorPtr::dynamicCast(matches.front());
 	if (p)
 	{
-	    if (_unit -> ignRedefs())
+	    if (_unit->ignRedefs())
 		return p;
 
 	    string msg = "redefinition of enumerator `";
 	    msg += name;
 	    msg += "'";
-	    _unit -> error(msg);
+	    _unit->error(msg);
 	    return 0;
 	}
 	
 	string msg = "redefinition of `";
 	msg += name;
 	msg += "' as enumerator";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return 0;
     }
 
@@ -457,26 +457,26 @@ Slice::Container::createEnumerator(const std::string& name)
 NativePtr
 Slice::Container::createNative(const string& name)
 {
-    ContainedList matches = _unit -> findContents(thisScope() + name);
+    ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
 	NativePtr p = NativePtr::dynamicCast(matches.front());
 	if (p)
 	{
-	    if (_unit -> ignRedefs())
+	    if (_unit->ignRedefs())
 		return p;
 
 	    string msg = "redefinition of native `";
 	    msg += name;
 	    msg += "'";
-	    _unit -> error(msg);
+	    _unit->error(msg);
 	    return 0;
 	}
 	
 	string msg = "redefinition of `";
 	msg += name;
 	msg += "' as native";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return 0;
     }
 
@@ -513,7 +513,7 @@ Slice::Container::lookupType(const string& scoped, bool printError)
 	if (scoped == builtinTable[i])
 	{
 	    TypeList result;
-	    result.push_back(_unit -> builtin(static_cast<Builtin::Kind>(i)));
+	    result.push_back(_unit->builtin(static_cast<Builtin::Kind>(i)));
 	    return result;
 	}
     }
@@ -527,10 +527,10 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
     assert(!scoped.empty());
 
     if (scoped[0] == ':')
-	return _unit -> lookupTypeNoBuiltin(scoped.substr(2), printError);
+	return _unit->lookupTypeNoBuiltin(scoped.substr(2), printError);
     
     ContainedList matches =
-	_unit -> findContents(thisScope() + scoped);
+	_unit->findContents(thisScope() + scoped);
     if (matches.empty())
     {
 	ContainedPtr contained = ContainedPtr::dynamicCast(this);
@@ -541,11 +541,11 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 		string msg = "`";
 		msg += scoped;
 		msg += "' is not defined";
-		_unit -> error(msg);
+		_unit->error(msg);
 	    }
 	    return TypeList();
 	}
-	return contained -> container() -> lookupTypeNoBuiltin(scoped,
+	return contained->container()->lookupTypeNoBuiltin(scoped,
 							       printError);
     }
     else
@@ -567,7 +567,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& scoped, bool printError)
 		    string msg = "`";
 		    msg += scoped;
 		    msg += "' is not a type";
-		    _unit -> error(msg);
+		    _unit->error(msg);
 		}
 		return TypeList();
 	    }
@@ -583,10 +583,10 @@ Slice::Container::lookupContained(const string& scoped, bool printError)
     assert(!scoped.empty());
 
     if (scoped[0] == ':')
-	return _unit -> lookupContained(scoped.substr(2), printError);
+	return _unit->lookupContained(scoped.substr(2), printError);
     
     ContainedList matches =
-	_unit -> findContents(thisScope() + scoped);
+	_unit->findContents(thisScope() + scoped);
     if (matches.empty())
     {
 	ContainedPtr contained = ContainedPtr::dynamicCast(this);
@@ -597,11 +597,11 @@ Slice::Container::lookupContained(const string& scoped, bool printError)
 		string msg = "`";
 		msg += scoped;
 		msg += "' is not defined";
-		_unit -> error(msg);
+		_unit->error(msg);
 	    }
 	    return ContainedList();
 	}
-	return contained -> container() -> lookupContained(scoped,
+	return contained->container()->lookupContained(scoped,
 							   printError);
     }
     else
@@ -707,11 +707,11 @@ Slice::Container::hasProxies()
 	++p)
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
-	if (cl && !cl -> isLocal())
+	if (cl && !cl->isLocal())
 	    return true;
 
 	ContainerPtr container = ContainerPtr::dynamicCast(*p);
-	if (container && container -> hasProxies())
+	if (container && container->hasProxies())
 	    return true;
     }
 
@@ -729,7 +729,7 @@ Slice::Container::hasClassDecls()
 	    return true;
 
 	ContainerPtr container = ContainerPtr::dynamicCast(*p);
-	if (container && container -> hasClassDecls())
+	if (container && container->hasClassDecls())
 	    return true;
     }
 
@@ -747,7 +747,7 @@ Slice::Container::hasClassDefs()
 	    return true;
 
 	ContainerPtr container = ContainerPtr::dynamicCast(*p);
-	if (container && container -> hasClassDefs())
+	if (container && container->hasClassDefs())
 	    return true;
     }
 
@@ -767,7 +767,7 @@ Slice::Container::hasOtherConstructedTypes()
 	    return true;
 
 	ContainerPtr container = ContainerPtr::dynamicCast(*p);
-	if (container && container -> hasOtherConstructedTypes())
+	if (container && container->hasOtherConstructedTypes())
 	    return true;
     }
 
@@ -780,7 +780,7 @@ Slice::Container::thisScope()
     string s;
     ContainedPtr contained = ContainedPtr::dynamicCast(this);
     if (contained)
-	s = contained -> scoped();
+	s = contained->scoped();
     s += "::";
     return s;
 }
@@ -807,23 +807,23 @@ Slice::Container::mergeModules()
 		continue;
 	    }
 	    
-	    if (mod1 -> name() != mod2 -> name())
+	    if (mod1->name() != mod2->name())
 	    {
 		++q;
 		continue;
 	    }
 	    
-	    mod1 -> _contents.splice(mod1 -> _contents.end(),
-				     mod2 -> _contents);
+	    mod1->_contents.splice(mod1->_contents.end(),
+				     mod2->_contents);
 
-	    if (mod1 -> _comment.length() < mod2 -> _comment.length())
-		mod1 -> _comment = mod2 -> _comment;
+	    if (mod1->_comment.length() < mod2->_comment.length())
+		mod1->_comment = mod2->_comment;
 
-	    _unit -> removeContent(*q);
+	    _unit->removeContent(*q);
 	    q = _contents.erase(q);
 	}
 	
-	mod1 -> mergeModules();
+	mod1->mergeModules();
     }
 }
 
@@ -836,7 +836,7 @@ Slice::Container::sort()
     {
 	ContainerPtr container = ModulePtr::dynamicCast(*p);
 	if (container)
-	    container -> sort();
+	    container->sort();
     }
 
     _contents.sort();
@@ -849,7 +849,7 @@ Slice::Container::visit(ParserVisitor* visitor)
 	p != _contents.end();
 	++p)
     {
-	(*p) -> visit(visitor);
+	(*p)->visit(visitor);
     }
 }
 
@@ -857,7 +857,7 @@ Slice::Container::Container(const UnitPtr& unit)
     : SyntaxTreeBase(unit)
 {
     if (_unit)
-	_includeLevel = _unit -> currentIncludeLevel();
+	_includeLevel = _unit->currentIncludeLevel();
     else
 	_includeLevel = 0;
 }
@@ -880,7 +880,7 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
 	msg += "' was ";
 	msg += definedOrDeclared;
 	msg += " as interface";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return false;
     }
     
@@ -891,7 +891,7 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
 	msg += "' was ";
 	msg += definedOrDeclared;
 	msg += " as class";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return false;
     }
     
@@ -902,7 +902,7 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
 	msg += "' was ";
 	msg += definedOrDeclared;
 	msg += " local";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return false;
     }
     
@@ -913,7 +913,7 @@ Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
 	msg += "' was ";
 	msg += definedOrDeclared;
 	msg += " non-local";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return false;
     }
     
@@ -936,16 +936,16 @@ Slice::Module::visit(ParserVisitor* visitor)
     if (_includeLevel > 0)
 	return;
    
-    visitor -> visitModuleStart(this);
+    visitor->visitModuleStart(this);
     Container::visit(visitor);
-    visitor -> visitModuleEnd(this);
+    visitor->visitModuleEnd(this);
 }
 
 Slice::Module::Module(const ContainerPtr& container,
 			const string& name)
     : Contained(container, name),
-      Container(container -> unit()),
-      SyntaxTreeBase(container -> unit())
+      Container(container->unit()),
+      SyntaxTreeBase(container->unit())
 {
 }
 
@@ -955,9 +955,9 @@ Slice::Module::Module(const ContainerPtr& container,
 
 Slice::Constructed::Constructed(const ContainerPtr& container,
 				  const string& name)
-    : Type(container -> unit()),
+    : Type(container->unit()),
       Contained(container, name),
-      SyntaxTreeBase(container -> unit())
+      SyntaxTreeBase(container->unit())
 {
 }
 
@@ -992,7 +992,7 @@ Slice::ClassDecl::containedType()
 void
 Slice::ClassDecl::visit(ParserVisitor* visitor)
 {
-    visitor -> visitClassDecl(this);
+    visitor->visitClassDecl(this);
 }
 
 Slice::ClassDecl::ClassDecl(const ContainerPtr& container,
@@ -1000,9 +1000,9 @@ Slice::ClassDecl::ClassDecl(const ContainerPtr& container,
 			    bool local,
 			    bool intf)
     : Constructed(container, name),
-      Type(container -> unit()),
+      Type(container->unit()),
       Contained(container, name),
-      SyntaxTreeBase(container -> unit()),
+      SyntaxTreeBase(container->unit()),
       _local(local),
       _interface(intf)
 {
@@ -1026,26 +1026,26 @@ Slice::ClassDef::createOperation(const string& name,
 				 const TypeStringList& outParams,
 				 const TypeList& throws)
 {
-    ContainedList matches = _unit -> findContents(thisScope() + name);
+    ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
 	OperationPtr p = OperationPtr::dynamicCast(matches.front());
 	if (p)
 	{
-	    if (_unit -> ignRedefs())
+	    if (_unit->ignRedefs())
 		return p;
 
 	    string msg = "redefinition of operation `";
 	    msg += name;
 	    msg += "'";
-	    _unit -> error(msg);
+	    _unit->error(msg);
 	    return 0;
 	}
 	
 	string msg = "redefinition of `";
 	msg += name;
 	msg += "' as operation";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return 0;
     }
 
@@ -1060,12 +1060,12 @@ Slice::ClassDef::createOperation(const string& name,
 	    ++q;
 	    while (q != allParams.end())
 	    {
-		if (p -> second == q -> second)
+		if (p->second == q->second)
 		{
 		    string msg = "duplicate parameter `";
-		    msg += p -> second;
+		    msg += p->second;
 		    msg += "'";
-		    _unit -> error(msg);
+		    _unit->error(msg);
 		    return 0;
 		}
 		++q;
@@ -1074,7 +1074,7 @@ Slice::ClassDef::createOperation(const string& name,
 	}
     }
 
-    if (name == this -> name())
+    if (name == this->name())
     {
 	string msg;
 	if (isInterface())
@@ -1083,7 +1083,7 @@ Slice::ClassDef::createOperation(const string& name,
 	    msg = "class name `";
 	msg += name;
 	msg += "' can not be used as operation";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return 0;
     }
 
@@ -1098,30 +1098,30 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 {
     assert(!isInterface());
 
-    ContainedList matches = _unit -> findContents(thisScope() + name);
+    ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
     {
 	DataMemberPtr p = DataMemberPtr::dynamicCast(matches.front());
 	if (p)
 	{
-	    if (_unit -> ignRedefs())
+	    if (_unit->ignRedefs())
 		return p;
 
 	    string msg = "redefinition of data member `";
 	    msg += name;
 	    msg += "'";
-	    _unit -> error(msg);
+	    _unit->error(msg);
 	    return 0;
 	}
 	
 	string msg = "redefinition of `";
 	msg += name;
 	msg += "' as data member";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return 0;
     }
 
-    if (name == this -> name())
+    if (name == this->name())
     {
 	string msg;
 	if (isInterface())
@@ -1130,7 +1130,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 	    msg = "class name `";
 	msg += name;
 	msg += "' can not be used as data member";
-	_unit -> error(msg);
+	_unit->error(msg);
 	return 0;
     }
 
@@ -1155,7 +1155,7 @@ Slice::ClassDef::allBases()
 	p != _bases.end();
 	++p)
     {
-	ClassList li = (*p) -> allBases();
+	ClassList li = (*p)->allBases();
 	result.merge(li);
 	result.unique();
     }
@@ -1187,7 +1187,7 @@ Slice::ClassDef::allOperations()
 	p != _bases.end();
 	++p)
     {
-	OperationList li = (*p) -> allOperations();
+	OperationList li = (*p)->allOperations();
 	result.merge(li);
 	result.unique();
     }
@@ -1215,7 +1215,7 @@ Slice::ClassDef::isAbstract()
     if (isInterface())
 	return true;
 
-    if (!_bases.empty() && _bases.front() -> isAbstract())
+    if (!_bases.empty() && _bases.front()->isAbstract())
 	return true;
 
     for (ContainedList::const_iterator p = _contents.begin();
@@ -1253,9 +1253,9 @@ Slice::ClassDef::visit(ParserVisitor* visitor)
     if (_includeLevel > 0)
 	return;
    
-    visitor -> visitClassDefStart(this);
+    visitor->visitClassDefStart(this);
     Container::visit(visitor);
-    visitor -> visitClassDefEnd(this);
+    visitor->visitClassDefEnd(this);
 }
 
 Slice::ClassDef::ClassDef(const ContainerPtr& container,
@@ -1264,8 +1264,8 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container,
 			  bool intf,
 			  const ClassList& bases)
     : Contained(container, name),
-      Container(container -> unit()),
-      SyntaxTreeBase(container -> unit()),
+      Container(container->unit()),
+      SyntaxTreeBase(container->unit()),
       _local(local),
       _interface(intf),
       _bases(bases)
@@ -1279,7 +1279,7 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container,
 	p != _bases.end();
 	++p)
     {
-	assert(p == _bases.begin() || (*p) -> isInterface());
+	assert(p == _bases.begin() || (*p)->isInterface());
     }
 #endif
 }
@@ -1295,8 +1295,8 @@ Slice::Proxy::_class()
 }
 
 Slice::Proxy::Proxy(const ClassDeclPtr& cl)
-    : Type(cl -> unit()),
-      SyntaxTreeBase(cl -> unit()),
+    : Type(cl->unit()),
+      SyntaxTreeBase(cl->unit()),
       __class(cl)
 {
 }
@@ -1338,7 +1338,7 @@ Slice::Operation::containedType()
 void
 Slice::Operation::visit(ParserVisitor* visitor)
 {
-    visitor -> visitOperation(this);
+    visitor->visitOperation(this);
 }
 
 Slice::Operation::Operation(const ContainerPtr& container,
@@ -1348,7 +1348,7 @@ Slice::Operation::Operation(const ContainerPtr& container,
 			    const TypeStringList& outParams,
 			    const TypeList& throws)
     : Contained(container, name),
-      SyntaxTreeBase(container -> unit()),
+      SyntaxTreeBase(container->unit()),
       _returnType(returnType),
       _inParams(inParams),
       _outParams(outParams),
@@ -1375,14 +1375,14 @@ Slice::DataMember::containedType()
 void
 Slice::DataMember::visit(ParserVisitor* visitor)
 {
-    visitor -> visitDataMember(this);
+    visitor->visitDataMember(this);
 }
 
 Slice::DataMember::DataMember(const ContainerPtr& container,
 				const string& name,
 				const TypePtr& type)
     : Contained(container, name),
-      SyntaxTreeBase(container -> unit()),
+      SyntaxTreeBase(container->unit()),
       _type(type)
 {
 }
@@ -1400,15 +1400,15 @@ Slice::Native::containedType()
 void
 Slice::Native::visit(ParserVisitor* visitor)
 {
-    visitor -> visitNative(this);
+    visitor->visitNative(this);
 }
 
 Slice::Native::Native(const ContainerPtr& container,
 		      const string& name)
     : Constructed(container, name),
-      Type(container -> unit()),
+      Type(container->unit()),
       Contained(container,  name),
-      SyntaxTreeBase(container -> unit())
+      SyntaxTreeBase(container->unit())
 {
 }
 
@@ -1431,16 +1431,16 @@ Slice::Vector::containedType()
 void
 Slice::Vector::visit(ParserVisitor* visitor)
 {
-    visitor -> visitVector(this);
+    visitor->visitVector(this);
 }
 
 Slice::Vector::Vector(const ContainerPtr& container,
 		      const string& name,
 		      const TypePtr& type)
     : Constructed(container, name),
-      Type(container -> unit()),
+      Type(container->unit()),
       Contained(container,  name),
-      SyntaxTreeBase(container -> unit()),
+      SyntaxTreeBase(container->unit()),
       _type(type)
 {
 }
@@ -1464,16 +1464,16 @@ Slice::Enum::containedType()
 void
 Slice::Enum::visit(ParserVisitor* visitor)
 {
-    visitor -> visitEnum(this);
+    visitor->visitEnum(this);
 }
 
 Slice::Enum::Enum(const ContainerPtr& container,
 		  const string& name,
 		  const StringList& enumerators)
     : Constructed(container, name),
-      Type(container -> unit()),
+      Type(container->unit()),
       Contained(container,  name),
-      SyntaxTreeBase(container -> unit()),
+      SyntaxTreeBase(container->unit()),
       _enumerators(enumerators)
 {
 }
@@ -1491,7 +1491,7 @@ Slice::Enumerator::containedType()
 Slice::Enumerator::Enumerator(const ContainerPtr& container,
 			      const string& name)
     : Contained(container, name),
-      SyntaxTreeBase(container -> unit())
+      SyntaxTreeBase(container->unit())
 {
 }
 
@@ -1662,21 +1662,21 @@ Slice::Unit::popContainer()
 void
 Slice::Unit::addContent(const ContainedPtr& contained)
 {
-    _contentMap[contained -> scoped()].push_back(contained);
+    _contentMap[contained->scoped()].push_back(contained);
 }
 
 void
 Slice::Unit::removeContent(const ContainedPtr& contained)
 {
-    string scoped = contained -> scoped();
+    string scoped = contained->scoped();
     map<string, ContainedList >::iterator p = _contentMap.find(scoped);
     assert(p != _contentMap.end());
     ContainedList::iterator q;
-    for (q = p -> second.begin(); q != p -> second.end(); ++q)
+    for (q = p->second.begin(); q != p->second.end(); ++q)
     {
-	if (q -> get() == contained.get())
+	if (q->get() == contained.get())
 	{
-	    p -> second.erase(q);
+	    p->second.erase(q);
 	    return;
 	}
     }
@@ -1692,7 +1692,7 @@ Slice::Unit::findContents(const string& scoped)
     map<string, ContainedList >::iterator p = _contentMap.find(scoped);
 
     if (p != _contentMap.end())
-	return p -> second;
+	return p->second;
     else
 	return ContainedList();
 }
@@ -1742,9 +1742,9 @@ Slice::Unit::destroy()
 void
 Slice::Unit::visit(ParserVisitor* visitor)
 {
-    visitor -> visitUnitStart(this);
+    visitor->visitUnitStart(this);
     Container::visit(visitor);
-    visitor -> visitUnitEnd(this);
+    visitor->visitUnitEnd(this);
 }
 
 BuiltinPtr
@@ -1752,7 +1752,7 @@ Slice::Unit::builtin(Builtin::Kind kind)
 {
     map<Builtin::Kind, BuiltinPtr>::iterator p = _builtins.find(kind);
     if (p != _builtins.end())
-	return p -> second;
+	return p->second;
     BuiltinPtr builtin = new Builtin(this, kind);
     _builtins.insert(make_pair(kind, builtin));
     return builtin;
