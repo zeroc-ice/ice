@@ -39,6 +39,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 	Ice.LocatorRegistryPrx locatorRegistry = null;
         boolean registerProcess = false;
         String serverId = "";
+	boolean printAdapterReady = false;
 
 	synchronized(this)
 	{
@@ -53,6 +54,7 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
 
                 registerProcess = _instance.properties().getPropertyAsInt(_name + ".RegisterProcess") > 0;
                 serverId = _instance.properties().getProperty("Ice.ServerId");
+		printAdapterReady = _instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 
                 if(registerProcess && locatorRegistry == null)
                 {
@@ -66,6 +68,8 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                                                "without a value for Ice.ServerId");
                     registerProcess = false;
                 }
+
+		_printAdapterReadyDone = true;
 	    }
 	    
 	    final int sz = _incomingConnectionFactories.size();
@@ -75,16 +79,6 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                 (IceInternal.IncomingConnectionFactory)_incomingConnectionFactories.get(i);
 		factory.activate();
 	    }
-	    
-	    if(!_printAdapterReadyDone)
-	    {
-		if(_instance.properties().getPropertyAsInt("Ice.PrintAdapterReady") > 0)
-		{
-		    System.out.println(_name + " ready");
-		}
-	    }
-
-	    _printAdapterReadyDone = true;
 	}
 
 	//
@@ -137,6 +131,11 @@ public final class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapt
                     throw ex1;
                 }
             }
+	}
+
+	if(printAdapterReady)
+	{
+	    System.out.println(_name + " ready");
 	}
     }
 

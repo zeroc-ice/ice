@@ -67,6 +67,7 @@ Ice::ObjectAdapterI::activate()
     LocatorRegistryPrx locatorRegistry;
     bool registerProcess = false;
     string serverId;
+    bool printAdapterReady = false;
 
     {    
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
@@ -82,6 +83,7 @@ Ice::ObjectAdapterI::activate()
 
             registerProcess = _instance->properties()->getPropertyAsInt(_name + ".RegisterProcess") > 0;
             serverId = _instance->properties()->getProperty("Ice.ServerId");
+	    printAdapterReady = _instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0;
 
             if(registerProcess && !locatorRegistry)
             {
@@ -95,20 +97,12 @@ Ice::ObjectAdapterI::activate()
                 out << "object adapter `" << _name << "' cannot register the process without a value for Ice.ServerId";
                 registerProcess = false;
             }
+
+	    _printAdapterReadyDone = true;
 	}
 	
 	for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
-		 Ice::voidMemFun(&IncomingConnectionFactory::activate));
-	
-	if(!_printAdapterReadyDone)
-	{
-	    if(_instance->properties()->getPropertyAsInt("Ice.PrintAdapterReady") > 0)
-	    {
-		cout << _name << " ready" << endl;
-	    }
-	}
-
-	_printAdapterReadyDone = true;
+		 Ice::voidMemFun(&IncomingConnectionFactory::activate));	
     }
 
     //
@@ -160,6 +154,11 @@ Ice::ObjectAdapterI::activate()
                 throw ex;
             }
         }
+    }
+
+    if(printAdapterReady)
+    {
+	cout << _name << " ready" << endl;
     }
 }
 
