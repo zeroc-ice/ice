@@ -124,8 +124,7 @@ IceStorm::TopicSubscribers::add(const SubscriberPtr& subscriber)
 	    break;
 	}
     }
-    
-    
+
     //
     // Add to the set of subscribers
     //
@@ -147,19 +146,7 @@ IceStorm::TopicSubscribers::remove(const Ice::ObjectPrx& obj)
     
     for(SubscriberList::iterator i = _subscribers.begin() ; i != _subscribers.end(); ++i)
     {
-	Ice::Identity id = subscriber->id();
-	
-	IceUtil::Mutex::Lock sync(_subscribersMutex);
-	
-	//
-	// If a subscriber with this identity is already subscribed
-	// then mark the subscriber as replaced.
-	//
-	// Note that this doesn't actually remove the subscriber from
-	// the list of subscribers - it marks the subscriber as
-	// replaced, and it's removed on the next event publish.
-	//
-	for(SubscriberList::iterator i = _subscribers.begin() ; i != _subscribers.end(); ++i)
+	if((*i)->id() == id)
 	{
 	    //
 	    // This marks the subscriber as invalid. It will be
@@ -168,18 +155,10 @@ IceStorm::TopicSubscribers::remove(const Ice::ObjectPrx& obj)
 	    (*i)->unsubscribe();
 	    return;
 	}
-
-	//
-	// Add to the set of subscribers.
-	//
-	_subscribers.push_back(subscriber);
     }
     
     //
-    // Unsubscribe the subscriber with the given identity. Note that
-    // this doesn't remove the subscriber from the list of subscribers
-    // - it marks the subscriber as unsubscribed, and it's removed on
-    // the next event publish.
+    // If the subscriber was not found then display a diagnostic
     //
     if(_traceLevels->topic > 0)
     {
@@ -216,8 +195,8 @@ IceStorm::TopicSubscribers::publish(const Event& event)
 	//
 	// Copy of the subscribers that are in error.
 	//
-	// Copy the subscriber list so that event publishing can
-	// occur in parallel.
+	SubscriberList e;
+
 	//
 	// Erase the inactive subscribers from the _subscribers
 	// list. Copy the subscribers in error to the error list.
