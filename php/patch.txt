@@ -23,3 +23,22 @@
   
   typedef struct _zend_user_iterator {
   	zend_object_iterator     it;
+*** main/network.c	Thu Jan  8 03:17:53 2004
+--- main/network.c	Tue Feb 24 12:19:44 2004
+***************
+*** 826,832 ****
+  				}
+  			}
+  #else
+! 			if (err == PHP_TIMEOUT_ERROR_VALUE) {
+  				/* Don't even bother trying to connect to the next alternative;
+  				 * we have no way to determine how long we have already taken
+  				 * and it is quite likely that the next attempt will fail too. */
+--- 826,832 ----
+  				}
+  			}
+  #else
+! 			if (*error_code == PHP_TIMEOUT_ERROR_VALUE) {
+  				/* Don't even bother trying to connect to the next alternative;
+  				 * we have no way to determine how long we have already taken
+  				 * and it is quite likely that the next attempt will fail too. */
