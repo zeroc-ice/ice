@@ -71,9 +71,9 @@ Slice::Gen::operator!() const
 }
 
 void
-Slice::Gen::generate(const UnitPtr& unit)
+Slice::Gen::generate(const UnitPtr& p)
 {
-    unit->mergeModules();
+    p->mergeModules();
 
     //
     // TODO: It would be better if start() aligned the attributes
@@ -91,14 +91,14 @@ Slice::Gen::generate(const UnitPtr& unit)
     // TODO: schemaLocation?
     O << nl << "<xs:import namespace=\"http://www.zeroc.com/schemas\" schemaLocation=\"ice.xsd\"/>";
 
-    StringList includes = unit->includeFiles();
+    StringList includes = p->includeFiles();
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
     {
 	O << sp;
 	O << nl << "<xs:include schemaLocation=\"" << changeInclude(*q, _includePaths) << ".xsd\"/>";
     }
 
-    unit->visit(this);
+    p->visit(this);
 
     O << ee;
     O << nl;

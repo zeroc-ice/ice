@@ -599,11 +599,11 @@ IceInternal::Reference::changeCollocationOptimization(bool newCollocationOptimiz
 ReferencePtr
 IceInternal::Reference::changeDefault() const
 {
-    RouterInfoPtr routerInfo = instance->routerManager()->get(instance->referenceFactory()->getDefaultRouter());
-    LocatorInfoPtr locatorInfo = instance->locatorManager()->get(instance->referenceFactory()->getDefaultLocator());
+    RouterInfoPtr defaultRouterInfo = instance->routerManager()->get(instance->referenceFactory()->getDefaultRouter());
+    LocatorInfoPtr defaultLocatorInfo = instance->locatorManager()->get(instance->referenceFactory()->getDefaultLocator());
 
     return instance->referenceFactory()->create(identity, FacetPath(), ModeTwoway, false, adapterId,
-						endpoints, routerInfo, locatorInfo, 0, true);
+						endpoints, defaultRouterInfo, defaultLocatorInfo, 0, true);
 }
 
 IceInternal::Reference::Reference(const InstancePtr& inst,

@@ -136,14 +136,16 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     //
     // Normalize the pathname a bit.
     //
-    string::size_type pos;
-    while((pos = path.find("//")) != string::npos)
     {
-	path.erase(pos, 1);
-    }
-    while((pos = path.find("/./")) != string::npos)
-    {
-	path.erase(pos, 2);
+	string::size_type pos;
+	while((pos = path.find("//")) != string::npos)
+	{
+	    path.erase(pos, 1);
+	}
+	while((pos = path.find("/./")) != string::npos)
+	{
+	    path.erase(pos, 2);
+	}
     }
 
     //
@@ -607,18 +609,18 @@ IcePack::ActivatorI::terminationListener()
 		}
 
 		char s[16];
-		int ret;
+		int rs;
 		string message;
 
 		//
 		// Read the message over the pipe.
 		//
-		while((ret = read(fd, &s, 16)) > 0)
+		while((rs = read(fd, &s, 16)) > 0)
 		{
-		    message.append(s, ret);
+		    message.append(s, rs);
 		}
 
-		if(ret == -1)
+		if(rs == -1)
 		{
 		    if(errno != EAGAIN || message.empty())
 		    {
@@ -629,7 +631,7 @@ IcePack::ActivatorI::terminationListener()
 
 		    ++p;
 		}
-		else if(ret == 0)
+		else if(rs == 0)
 		{    
 		    //
 		    // If the pipe was closed, the process has terminated.

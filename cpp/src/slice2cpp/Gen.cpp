@@ -161,7 +161,7 @@ Slice::Gen::operator!() const
 }
 
 void
-Slice::Gen::generate(const UnitPtr& unit)
+Slice::Gen::generate(const UnitPtr& p)
 {
     C << "\n#include <";
     if(_include.size())
@@ -174,19 +174,19 @@ Slice::Gen::generate(const UnitPtr& unit)
     H << "\n#include <Ice/ProxyF.h>";
     H << "\n#include <Ice/ObjectF.h>";
 
-    if(unit->usesProxies())
+    if(p->usesProxies())
     {
 	H << "\n#include <Ice/Exception.h>";
 	H << "\n#include <Ice/LocalObject.h>";
 	H << "\n#include <Ice/Proxy.h>";
 	H << "\n#include <Ice/Object.h>";
 	H << "\n#include <Ice/Outgoing.h>";
-	if(unit->hasContentsWithMetaData("ami"))
+	if(p->hasContentsWithMetaData("ami"))
 	{
 	    H << "\n#include <Ice/OutgoingAsync.h>";
 	}
 	H << "\n#include <Ice/Incoming.h>";
-	if(unit->hasContentsWithMetaData("amd"))
+	if(p->hasContentsWithMetaData("amd"))
 	{
 	    H << "\n#include <Ice/IncomingAsync.h>";
 	}
@@ -197,7 +197,7 @@ Slice::Gen::generate(const UnitPtr& unit)
 	C << "\n#include <Ice/BasicStream.h>";
 	C << "\n#include <Ice/Stream.h>";
     }
-    else if(unit->usesNonLocals())
+    else if(p->usesNonLocals())
     {
 	H << "\n#include <Ice/Exception.h>";
 	H << "\n#include <Ice/LocalObject.h>";
@@ -211,7 +211,7 @@ Slice::Gen::generate(const UnitPtr& unit)
 	H << "\n#include <Ice/LocalObject.h>";
     }
 
-    StringList includes = unit->includeFiles();
+    StringList includes = p->includeFiles();
     for(StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
     {
 	H << "\n#include <" << changeInclude(*q, _includePaths) << ".h>";
@@ -227,40 +227,40 @@ Slice::Gen::generate(const UnitPtr& unit)
     }
 
     ProxyDeclVisitor proxyDeclVisitor(H, C, _dllExport);
-    unit->visit(&proxyDeclVisitor);
+    p->visit(&proxyDeclVisitor);
 
     ObjectDeclVisitor objectDeclVisitor(H, C, _dllExport);
-    unit->visit(&objectDeclVisitor);
+    p->visit(&objectDeclVisitor);
 
     IceInternalVisitor iceInternalVisitor(H, C, _dllExport);
-    unit->visit(&iceInternalVisitor);
+    p->visit(&iceInternalVisitor);
 
     HandleVisitor handleVisitor(H, C, _dllExport);
-    unit->visit(&handleVisitor);
+    p->visit(&handleVisitor);
 
     TypesVisitor typesVisitor(H, C, _dllExport);
-    unit->visit(&typesVisitor);
+    p->visit(&typesVisitor);
 
     AsyncVisitor asyncVisitor(H, C, _dllExport);
-    unit->visit(&asyncVisitor);
+    p->visit(&asyncVisitor);
 
     AsyncImplVisitor asyncImplVisitor(H, C, _dllExport);
-    unit->visit(&asyncImplVisitor);
+    p->visit(&asyncImplVisitor);
 
     ProxyVisitor proxyVisitor(H, C, _dllExport);
-    unit->visit(&proxyVisitor);
+    p->visit(&proxyVisitor);
 
     DelegateVisitor delegateVisitor(H, C, _dllExport);
-    unit->visit(&delegateVisitor);
+    p->visit(&delegateVisitor);
 
     DelegateMVisitor delegateMVisitor(H, C, _dllExport);
-    unit->visit(&delegateMVisitor);
+    p->visit(&delegateMVisitor);
 
     DelegateDVisitor delegateDVisitor(H, C, _dllExport);
-    unit->visit(&delegateDVisitor);
+    p->visit(&delegateDVisitor);
 
     ObjectVisitor objectVisitor(H, C, _dllExport);
-    unit->visit(&objectVisitor);
+    p->visit(&objectVisitor);
 
     if(_impl)
     {
@@ -279,7 +279,7 @@ Slice::Gen::generate(const UnitPtr& unit)
         implC << _base << "I.h>";
 
         ImplVisitor implVisitor(implH, implC, _dllExport);
-        unit->visit(&implVisitor);
+        p->visit(&implVisitor);
     }
 }
 
@@ -1254,15 +1254,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
 	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
-	string name = fixKwd((*q)->name());
+	string paramName = fixKwd((*q)->name());
 
 	params += typeString;
 	params += ", ";
 	paramsDecl += typeString;
 	paramsDecl += ' ';
-	paramsDecl += name;
+	paramsDecl += paramName;
 	paramsDecl += ", ";
-	args += name;
+	args += paramName;
 	args += ", ";
 
 	if(!(*q)->isOutParam())
@@ -1271,9 +1271,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	    paramsAMI += ", ";
 	    paramsDeclAMI += typeString;
 	    paramsDeclAMI += ' ';
-	    paramsDeclAMI += name;
+	    paramsDeclAMI += paramName;
 	    paramsDeclAMI += ", ";
-	    argsAMI += name;
+	    argsAMI += paramName;
 	    argsAMI += ", ";
 	}
     }
@@ -1608,18 +1608,18 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-	string name = fixKwd((*q)->name());
+	string paramName = fixKwd((*q)->name());
 	TypePtr type = (*q)->type();
 	bool isOutParam = (*q)->isOutParam();
 	string typeString;
 	if(isOutParam)
 	{
-	    outParams.push_back(make_pair(type, name));
+	    outParams.push_back(make_pair(type, paramName));
 	    typeString = outputTypeToString(type);
 	}
 	else
 	{
-	    inParams.push_back(make_pair(type, name));
+	    inParams.push_back(make_pair(type, paramName));
 	    typeString = inputTypeToString(type);
 	}
 
@@ -1627,7 +1627,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	params += ", ";
 	paramsDecl += typeString;
 	paramsDecl += ' ';
-	paramsDecl += name;
+	paramsDecl += paramName;
 	paramsDecl += ", ";
 	
 	if(!isOutParam)
@@ -1636,7 +1636,7 @@ Slice::Gen::DelegateMVisitor::visitOperation(const OperationPtr& p)
 	    paramsAMI += ", ";
 	    paramsDeclAMI += typeString;
 	    paramsDeclAMI += ' ';
-	    paramsDeclAMI += name;
+	    paramsDeclAMI += paramName;
 	    paramsDeclAMI += ", ";
 	}
     }
@@ -1856,15 +1856,15 @@ Slice::Gen::DelegateDVisitor::visitOperation(const OperationPtr& p)
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
 	string typeString = (*q)->isOutParam() ? outputTypeToString((*q)->type()) : inputTypeToString((*q)->type());
-	string name = fixKwd((*q)->name());
+	string paramName = fixKwd((*q)->name());
 
 	params += typeString;
 	params += ", ";
 	paramsDecl += typeString;
 	paramsDecl += ' ';
-	paramsDecl += name;
+	paramsDecl += paramName;
 	paramsDecl += ", ";
-	args += name;
+	args += paramName;
 	args += ", ";
 
 	if(!(*q)->isOutParam())
@@ -2389,18 +2389,18 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     ParamDeclList paramList = p->parameters();
     for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
-	string name = fixKwd((*q)->name());
+	string paramName = fixKwd((*q)->name());
 	TypePtr type = (*q)->type();
 	bool isOutParam = (*q)->isOutParam();
 	string typeString;
 	if(isOutParam)
 	{
-	    outParams.push_back(make_pair(type, name));
+	    outParams.push_back(make_pair(type, paramName));
 	    typeString = outputTypeToString(type);
 	}
 	else
 	{
-	    inParams.push_back(make_pair(type, name));
+	    inParams.push_back(make_pair(type, paramName));
 	    typeString = inputTypeToString((*q)->type());
 	}
 
@@ -2414,8 +2414,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	params += typeString;
 	paramsDecl += typeString;
 	paramsDecl += ' ';
-	paramsDecl += name;
-	args += name;
+	paramsDecl += paramName;
+	args += paramName;
 
 	if(!isOutParam)
 	{
@@ -2423,9 +2423,9 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
 	    paramsAMD += ", ";
 	    paramsDeclAMD += typeString;
 	    paramsDeclAMD += ' ';
-	    paramsDeclAMD += name;
+	    paramsDeclAMD += paramName;
 	    paramsDeclAMD += ", ";
-	    argsAMD += name;
+	    argsAMD += paramName;
 	    argsAMD += ", ";
 	}
     }
@@ -3111,8 +3111,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << "class " << name << "I : ";
     H.useCurrentPosAsIndent();
     H << "virtual public " << name;
-    ClassList::const_iterator q;
-    for(q = bases.begin(); q != bases.end(); ++q)
+    for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
     {
         H << ',' << nl << "virtual public " << fixKwd((*q)->scoped()) << "I";
     }
@@ -3357,7 +3356,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     {
 	if((*q)->isOutParam())
 	{
-	    string name = fixKwd((*q)->name());
+	    string paramName = fixKwd((*q)->name());
 	    TypePtr type = (*q)->type();
 	    string typeString = inputTypeToString(type);
 	    
@@ -3371,10 +3370,10 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
 	    params += typeString;
 	    paramsDecl += typeString;
 	    paramsDecl += ' ';
-	    paramsDecl += name;
-	    args += name;
+	    paramsDecl += paramName;
+	    args += paramName;
 	    
-	    outParams.push_back(make_pair(type, name));
+	    outParams.push_back(make_pair(type, paramName));
 	}
     }
 
@@ -3565,7 +3564,7 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     {
 	if((*q)->isOutParam())
 	{
-	    string name = fixKwd((*q)->name());
+	    string paramName = fixKwd((*q)->name());
 	    TypePtr type = (*q)->type();
 	    string typeString = inputTypeToString(type);
 	    
@@ -3579,10 +3578,10 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
 	    params += typeString;
 	    paramsDecl += typeString;
 	    paramsDecl += ' ';
-	    paramsDecl += name;
-	    args += name;
+	    paramsDecl += paramName;
+	    args += paramName;
 	    
-	    outParams.push_back(make_pair(type, name));
+	    outParams.push_back(make_pair(type, paramName));
 	}
     }
 

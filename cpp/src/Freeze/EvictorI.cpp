@@ -283,8 +283,8 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 	// Load the Ice object from the database and add a
         // servant for it.
 	//
-	IdentityObjectRecordDict::iterator p = _dict.find(current.id);
-	if(p == _dict.end())
+	IdentityObjectRecordDict::iterator q = _dict.find(current.id);
+	if(q == _dict.end())
 	{
 	    //
             // The Ice object with the given identity does not exist,
@@ -298,13 +298,13 @@ Freeze::EvictorI::locate(const Current& current, LocalObjectPtr& cookie)
 	//
 	if(_initializer)
 	{
-	    _initializer->initialize(current.adapter, current.id, p->second.servant);
+	    _initializer->initialize(current.adapter, current.id, q->second.servant);
 	}
 
 	//
 	// Add the new servant to the evictor queue.
 	//
-	element = add(current.id, p->second);
+	element = add(current.id, q->second);
     }
 
     //

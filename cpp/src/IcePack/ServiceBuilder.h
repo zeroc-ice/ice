@@ -37,6 +37,8 @@ public:
 		   const std::map<std::string, std::string>&,
 		   const std::vector<std::string>&);
 
+    using ComponentBuilder::parse;
+    
     void parse(const std::string&);
 
     ServerBuilder& getServerBuilder() const;

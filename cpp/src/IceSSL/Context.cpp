@@ -304,10 +304,7 @@ IceSSL::Context::setKeyCert(const CertificateDesc& certDesc,
     }
     else if(certDesc.getKeySize() != 0)
     {
-        const CertificateFile& privateKey = certDesc.getPrivate();
-        const CertificateFile& publicKey  = certDesc.getPublic();
-
-        addKeyCert(privateKey, publicKey);
+        addKeyCert(certDesc.getPrivate(), certDesc.getPublic());
     }
 }
 
@@ -439,7 +436,7 @@ IceSSL::Context::addKeyCert(const CertificateFile& privateKey, const Certificate
 
         if(pkLoadResult <= 0)
         {
-            int errCode = ERR_GET_REASON(ERR_peek_error());
+            errCode = ERR_GET_REASON(ERR_peek_error());
 
             // Note: Because OpenSSL currently (V0.9.6b) performs a check to see if the
             //       key matches the private key when calling SSL_CTX_use_PrivateKey_file().

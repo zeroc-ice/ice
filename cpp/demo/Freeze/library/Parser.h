@@ -78,7 +78,7 @@ public:
     void getInput(char*, int&, int);
     void nextLine();
     void continueLine();
-    char* getPrompt();
+    const char* getPrompt();
 
     void error(const char*);
     void error(const std::string&);

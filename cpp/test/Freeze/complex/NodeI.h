@@ -29,9 +29,9 @@ public:
     {
     }
 
-    NumberNodeI(int number)
+    NumberNodeI(int n)
     {
-	this->number = number;
+	number = n;
     }
 
     virtual int calc(const Ice::Current&)
@@ -48,10 +48,10 @@ public:
     {
     }
 
-    AddNodeI(const NodePtr& left, const NodePtr& right)
+    AddNodeI(const NodePtr& l, const NodePtr& r)
     {
-	this->left = left;
-	this->right = right;
+	left = l;
+	right = r;
     }
 
     virtual int calc(const Ice::Current&)
@@ -68,10 +68,10 @@ public:
     {
     }
 
-    MultiplyNodeI(const NodePtr& left, const NodePtr& right)
+    MultiplyNodeI(const NodePtr& l, const NodePtr& r)
     {
-	this->left = left;
-	this->right = right;
+	left = l;
+	right = r;
     }
 
     virtual int calc(const Ice::Current&)

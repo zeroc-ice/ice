@@ -161,7 +161,7 @@ writeCodecC(const TypePtr& type, const string& name, const string& freezeType, O
 }
 
 bool
-writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output& C, const string& dllExport,
+writeCodecs(const string& n, UnitPtr& u, const Dict& dict, Output& H, Output& C, const string& dllExport,
             bool binary)
 {
     string absolute = dict.name;
@@ -190,7 +190,7 @@ writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output&
 	return false;
     }
 
-    TypeList keyTypes = unit->lookupType(dict.key, false);
+    TypeList keyTypes = u->lookupType(dict.key, false);
     if(keyTypes.empty())
     {
 	cerr << n << ": `" << dict.key << "' is not a valid type" << endl;
@@ -198,7 +198,7 @@ writeCodecs(const string& n, UnitPtr& unit, const Dict& dict, Output& H, Output&
     }
     TypePtr keyType = keyTypes.front();
     
-    TypeList valueTypes = unit->lookupType(dict.value, false);
+    TypeList valueTypes = u->lookupType(dict.value, false);
     if(valueTypes.empty())
     {
 	cerr << n << ": `" << dict.value << "' is not a valid type" << endl;
@@ -499,7 +499,7 @@ main(int argc, char* argv[])
 	fileC = output + '/' + fileC;
     }
 
-    UnitPtr unit = Unit::createUnit(true, false, ice, caseSensitive);
+    UnitPtr u = Unit::createUnit(true, false, ice, caseSensitive);
 
     StringList includes;
 
@@ -515,23 +515,23 @@ main(int argc, char* argv[])
 
 	if(cppHandle == 0)
 	{
-	    unit->destroy();
+	    u->destroy();
 	    return EXIT_FAILURE;
 	}
 	
-	status = unit->parse(cppHandle, debug);
+	status = u->parse(cppHandle, debug);
 
 	if(!icecpp.close())
 	{
-	    unit->destroy();
+	    u->destroy();
 	    return EXIT_FAILURE;	    
 	}
     }
 
     if(status == EXIT_SUCCESS)
     {
-	unit->mergeModules();
-	unit->sort();
+	u->mergeModules();
+	u->sort();
 
 	{
 	    for(vector<string>::iterator p = includePaths.begin(); p != includePaths.end(); ++p)
@@ -548,7 +548,7 @@ main(int argc, char* argv[])
 	if(!H)
 	{
 	    cerr << argv[0] << ": can't open `" << fileH << "' for writing: " << strerror(errno) << endl;
-	    unit->destroy();
+	    u->destroy();
 	    return EXIT_FAILURE;
 	}
 	printHeader(H);
@@ -559,7 +559,7 @@ main(int argc, char* argv[])
 	if(!C)
 	{
 	    cerr << argv[0] << ": can't open `" << fileC << "' for writing: " << strerror(errno) << endl;
-	    unit->destroy();
+	    u->destroy();
 	    return EXIT_FAILURE;
 	}
 	printHeader(C);
@@ -609,16 +609,16 @@ main(int argc, char* argv[])
 	    {
 		try
 		{
-		    if(!writeCodecs(argv[0], unit, *p, H, C, dllExport, binary))
+		    if(!writeCodecs(argv[0], u, *p, H, C, dllExport, binary))
 		    {
-			unit->destroy();
+			u->destroy();
 			return EXIT_FAILURE;
 		    }
 		}
 		catch(...)
 		{
 		    cerr << argv[0] << ": unknown exception" << endl;
-		    unit->destroy();
+		    u->destroy();
 		    return EXIT_FAILURE;
 		}
 	    }
@@ -628,7 +628,7 @@ main(int argc, char* argv[])
 	C << '\n';
     }
     
-    unit->destroy();
+    u->destroy();
 
     return status;
 }

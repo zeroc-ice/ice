@@ -403,7 +403,7 @@ IceSSL::ConfigParser::getCertAuth(ICE_XERCES_NS DOMNode* rootNode, CertificateAu
     for(int i = 0; i < attrCount; i++)
     {
         ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
-        string nodeName = toString(attribute->getNodeName());
+        nodeName = toString(attribute->getNodeName());
         string nodeValue = toString(attribute->getNodeValue());
 
         if(nodeName.compare("file") == 0)

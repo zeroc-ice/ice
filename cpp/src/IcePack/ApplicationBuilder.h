@@ -27,6 +27,7 @@ public:
 
     ApplicationBuilder(const Ice::CommunicatorPtr&, const NodeRegistryPtr&, const std::vector<std::string>&);
 
+    using ComponentBuilder::parse;
     void parse(const std::string&);
 
     void addServer(const std::string&, const std::string&, const std::string&, const std::string&, const std::string&,

@@ -105,17 +105,12 @@ create(const CommunicatorPtr& communicator, const string& name, const StringSeq&
 
 }
 
+
 //
 // Thread safety implementation for OpenSSL
 //
 namespace IceSSL
 {
-
-extern "C"
-{
-    void lockingCallback(int, int, const char*, int);
-    unsigned long idFunction();
-}
 
 class SslLockKeeper
 {
@@ -132,7 +127,10 @@ SslLockKeeper lockKeeper;
 
 }
 
-void IceSSL::lockingCallback(int mode, int type, const char *file, int line)
+extern "C"
+{
+    
+static void lockingCallback(int mode, int type, const char *file, int line)
 {
     if(mode & CRYPTO_LOCK)
     {
@@ -144,8 +142,8 @@ void IceSSL::lockingCallback(int mode, int type, const char *file, int line)
     }
 }
 
-unsigned long
-IceSSL::idFunction()
+static unsigned long
+idFunction()
 {
 #ifdef _WIN32
     return static_cast<unsigned long>(GetCurrentThreadId());
@@ -153,11 +151,12 @@ IceSSL::idFunction()
     return static_cast<unsigned long>(pthread_self());
 #endif
 }
+}
 
 IceSSL::SslLockKeeper::SslLockKeeper()
 {
-    CRYPTO_set_id_callback(IceSSL::idFunction);
-    CRYPTO_set_locking_callback(IceSSL::lockingCallback);
+    CRYPTO_set_id_callback(idFunction);
+    CRYPTO_set_locking_callback(lockingCallback);
 }
 
 IceSSL::SslLockKeeper::~SslLockKeeper()

@@ -1373,7 +1373,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 	cout << "catching object not exist exception with AMI... " << flush;
 
 	{
-	    Ice::Identity id = Ice::stringToIdentity("does not exist");
+	    id = Ice::stringToIdentity("does not exist");
 	    ThrowerPrx thrower2 = ThrowerPrx::uncheckedCast(thrower->ice_newIdentity(id));
 	    AMI_Thrower_throwAasAObjectNotExistIPtr cb = new AMI_Thrower_throwAasAObjectNotExistI;
 	    thrower2->throwAasA_async(cb, 1);
@@ -1404,8 +1404,8 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 
 	{
 	    AMI_WrongOperation_noSuchOperationIPtr cb = new AMI_WrongOperation_noSuchOperationI;
-	    WrongOperationPrx thrower2 = WrongOperationPrx::uncheckedCast(thrower);
-	    thrower2->noSuchOperation_async(cb);
+	    WrongOperationPrx thrower4 = WrongOperationPrx::uncheckedCast(thrower);
+	    thrower4->noSuchOperation_async(cb);
 	    test(cb->check());
 	}
 

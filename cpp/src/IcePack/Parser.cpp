@@ -769,7 +769,7 @@ IcePack::Parser::continueLine()
     _continue = true;
 }
 
-char*
+const char*
 IcePack::Parser::getPrompt()
 {
     assert(_commands.empty() && isatty(fileno(yyin)));

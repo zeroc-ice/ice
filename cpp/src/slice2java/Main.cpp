@@ -245,8 +245,8 @@ main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	    }
 
-	    UnitPtr unit = Unit::createUnit(false, false, ice, caseSensitive);
-	    int parseStatus = unit->parse(cppHandle, debug);
+	    UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive);
+	    int parseStatus = p->parse(cppHandle, debug);
 
 	    if(!icecpp.close())
 	    {
@@ -262,25 +262,25 @@ main(int argc, char* argv[])
 		Gen gen(argv[0], icecpp.getBaseName(), includePaths, package, output);
 		if(!gen)
 		{
-		    unit->destroy();
+		    p->destroy();
 		    return EXIT_FAILURE;
 		}
-		gen.generate(unit);
+		gen.generate(p);
 		if(tie)
 		{
-		    gen.generateTie(unit);
+		    gen.generateTie(p);
 		}
 		if(impl)
 		{
-		    gen.generateImpl(unit);
+		    gen.generateImpl(p);
 		}
 		if(implTie)
 		{
-		    gen.generateImplTie(unit);
+		    gen.generateImplTie(p);
 		}
 	    }
 
-	    unit->destroy();
+	    p->destroy();
 	}
     }
 

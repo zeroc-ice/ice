@@ -543,7 +543,6 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 	    //
 	    // No compression, just fill in the message size.
 	    //
-	    const Byte* p;
 	    Int sz = os->b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIG_ENDIAN
@@ -701,7 +700,6 @@ IceInternal::Connection::flushBatchRequest()
 	    //
 	    // No compression, just fill in the message size.
 	    //
-	    const Byte* p;
 	    Int sz = _batchStream.b.size();
 	    p = reinterpret_cast<const Byte*>(&sz);
 

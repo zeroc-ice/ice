@@ -59,6 +59,9 @@ usage(const char* appName)
 	;
 }
 
+extern "C"
+{
+
 static void
 childHandler(int)
 {
@@ -75,6 +78,7 @@ interruptHandler(int)
 {
     assert(activator);
     activator->shutdown();
+}
 }
 
 void

@@ -532,10 +532,10 @@ validateEvictor(const DBEnvironmentPtr& dbEnv)
 
                 current.id = iter->next();
 
-                ObjectPtr obj = evictor->locate(current, cookie);
-                test(obj);
+                ObjectPtr object = evictor->locate(current, cookie);
+                test(object);
 
-                Test::C2Ptr c2 = Test::C2Ptr::dynamicCast(obj);
+                Test::C2Ptr c2 = Test::C2Ptr::dynamicCast(object);
                 test(c2);
                 test(c2->s.size() == 1 && c2->s == current.id.name);
                 int i = current.id.name[0] - '0';
@@ -581,7 +581,7 @@ validateEvictor(const DBEnvironmentPtr& dbEnv)
                     test(c1->b == 0);
                 }
 
-                evictor->finished(current, obj, cookie);
+                evictor->finished(current, object, cookie);
             }
             iter->destroy();
         }

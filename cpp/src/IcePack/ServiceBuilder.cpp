@@ -81,8 +81,8 @@ IcePack::ServiceHandler::startElement(const XMLCh *const name, ICE_XERCES_NS Att
     else if(str == "adapter")
     {
 	assert(!_currentAdapterId.empty());
-	string name = getAttributeValue(attrs, "name");
-	_builder.getServerBuilder().registerAdapter(name, getAttributeValue(attrs, "endpoints"), _currentAdapterId);
+	string adapterName = getAttributeValue(attrs, "name");
+	_builder.getServerBuilder().registerAdapter(adapterName, getAttributeValue(attrs, "endpoints"), _currentAdapterId);
     }
 }
 

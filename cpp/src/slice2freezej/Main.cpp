@@ -46,7 +46,7 @@ FreezeGenerator::FreezeGenerator(const string& prog, bool binary, const string& 
 }
 
 bool
-FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
+FreezeGenerator::generate(UnitPtr& u, const Dict& dict)
 {
     static const char* builtinTable[] =
     {
@@ -74,7 +74,7 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
         name = dict.name.substr(pos + 1);
     }
 
-    TypeList keyTypes = unit->lookupType(dict.key, false);
+    TypeList keyTypes = u->lookupType(dict.key, false);
     if(keyTypes.empty())
     {
         cerr << _prog << ": `" << dict.key << "' is not a valid type" << endl;
@@ -82,7 +82,7 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
     }
     TypePtr keyType = keyTypes.front();
     
-    TypeList valueTypes = unit->lookupType(dict.value, false);
+    TypeList valueTypes = u->lookupType(dict.value, false);
     if(valueTypes.empty())
     {
         cerr << _prog << ": `" << dict.value << "' is not a valid type" << endl;
@@ -641,7 +641,7 @@ main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    UnitPtr unit = Unit::createUnit(true, false, ice, caseSensitive);
+    UnitPtr u = Unit::createUnit(true, false, ice, caseSensitive);
 
     int status = EXIT_SUCCESS;
 
@@ -659,15 +659,15 @@ main(int argc, char* argv[])
 
 	    if(cppHandle == 0)
 	    {
-		unit->destroy();
+		u->destroy();
 		return EXIT_FAILURE;
 	    }
 	    
-	    status = unit->parse(cppHandle, debug);
+	    status = u->parse(cppHandle, debug);
 
 	    if(!icecpp.close())
 	    {
-		unit->destroy();
+		u->destroy();
 		return EXIT_FAILURE;
 	    }	    
 	}
@@ -680,8 +680,8 @@ main(int argc, char* argv[])
 
     if(status == EXIT_SUCCESS)
     {
-        unit->mergeModules();
-        unit->sort();
+        u->mergeModules();
+        u->sort();
 
         FreezeGenerator gen(argv[0], binary, output);
 
@@ -689,22 +689,22 @@ main(int argc, char* argv[])
         {
             try
             {
-                if(!gen.generate(unit, *p))
+                if(!gen.generate(u, *p))
                 {
-                    unit->destroy();
+                    u->destroy();
                     return EXIT_FAILURE;
                 }
             }
             catch(...)
             {
                 cerr << argv[0] << ": unknown exception" << endl;
-                unit->destroy();
+                u->destroy();
                 return EXIT_FAILURE;
             }
         }
     }
     
-    unit->destroy();
+    u->destroy();
 
     return status;
 }

@@ -538,7 +538,7 @@ repeatAccept:
 	if(wouldBlock())
 	{
 	repeatSelect:
-	    int ret;
+	    int rs;
 	    fd_set fdSet;
 	    FD_ZERO(&fdSet);
 	    FD_SET(fd, &fdSet);
@@ -547,14 +547,14 @@ repeatAccept:
 		struct timeval tv;
 		tv.tv_sec = timeout / 1000;
 		tv.tv_usec = (timeout - tv.tv_sec * 1000) * 1000;
-		ret = ::select(fd + 1, 0, &fdSet, 0, &tv);
+		rs = ::select(fd + 1, 0, &fdSet, 0, &tv);
 	    }
 	    else
 	    {
-		ret = ::select(fd + 1, 0, &fdSet, 0, 0);
+		rs = ::select(fd + 1, 0, &fdSet, 0, 0);
 	    }
 	    
-	    if(ret == SOCKET_ERROR)
+	    if(rs == SOCKET_ERROR)
 	    {
 		if(interrupted())
 		{
@@ -566,7 +566,7 @@ repeatAccept:
 		throw ex;
 	    }
 	    
-	    if(ret == 0)
+	    if(rs == 0)
 	    {
 		throw TimeoutException(__FILE__, __LINE__);
 	    }

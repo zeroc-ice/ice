@@ -82,11 +82,11 @@ printRequestHeader(ostream& s, BasicStream& stream)
 static void
 printHeader(ostream& s, BasicStream& stream)
 {
-    Byte magic;
-    stream.read(magic);	// Don't bother printing the magic number
-    stream.read(magic);
-    stream.read(magic);
-    stream.read(magic);
+    Byte magicNumber;
+    stream.read(magicNumber);	// Don't bother printing the magic number
+    stream.read(magicNumber);
+    stream.read(magicNumber);
+    stream.read(magicNumber);
 
     Byte pMajor;
     Byte pMinor;

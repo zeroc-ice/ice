@@ -281,7 +281,6 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpts
 	// Signal other threads that we are done with trying to
 	// establish connections to our endpoints.
 	//
-	vector<EndpointPtr>::const_iterator q;
 	for(q = endpoints.begin(); q != endpoints.end(); ++q)
 	{
 	    _pending.erase(*q);

@@ -177,12 +177,12 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
     
-    UnitPtr unit = Unit::createUnit(false, false, ice, caseSensitive);
-    int parseStatus = unit->parse(cppHandle, debug);
+    UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive);
+    int parseStatus = p->parse(cppHandle, debug);
     
     if(!icecpp.close())
     {
-	unit->destroy();
+	p->destroy();
 	return EXIT_FAILURE;
     }	    
     
@@ -199,7 +199,7 @@ main(int argc, char* argv[])
 	    for(idx = 2 ; idx < argc; ++idx)
 	    {
 		ClassDeclPtr classDecl;
-		TypeList classTypes = unit->lookupType(argv[idx], false);
+		TypeList classTypes = p->lookupType(argv[idx], false);
 		if(!classTypes.empty())
 		{
 		    classDecl = ClassDeclPtr::dynamicCast(classTypes.front());
@@ -215,11 +215,11 @@ main(int argc, char* argv[])
 	}
 	else
 	{
-	    unit->visit(&gen);
+	    p->visit(&gen);
 	}
     }
     
-    unit->destroy();
+    p->destroy();
 
     return status;
 }

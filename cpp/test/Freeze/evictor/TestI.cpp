@@ -44,9 +44,9 @@ Test::ServantI::getValue(const Current&) const
 }
 
 void
-Test::ServantI::setValue(Int value, const Current&)
+Test::ServantI::setValue(Int val, const Current&)
 {
-    this->value = value;
+    value = val;
 }
 
 void

@@ -426,7 +426,7 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-	BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+	builtin = BuiltinPtr::dynamicCast(seq->type());
 	if(builtin && builtin->kind() != Builtin::KindObject && builtin->kind() != Builtin::KindObjectProxy)
 	{
 	    out << nl << stream << deref << func << fixedParam << ");";
@@ -610,7 +610,7 @@ Slice::writeGenericMarshalUnmarshalCode(Output& out, const TypePtr& type, const 
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-	BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+	builtin = BuiltinPtr::dynamicCast(seq->type());
 	if(builtin && builtin->kind() != Builtin::KindObject && builtin->kind() != Builtin::KindObjectProxy)
 	{
             if(marshal)

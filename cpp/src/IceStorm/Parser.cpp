@@ -291,9 +291,11 @@ Parser::graph(const list<string>& _args)
 	//
 	// Compute the new edge set.
 	//
-	vector<int> edges;
-	graph.compute(edges, maxCost);
-	graph.swap(edges);
+	{
+	    vector<int> edges;
+	    graph.compute(edges, maxCost);
+	    graph.swap(edges);
+	}
 
 	//
 	// Ensure each vertex is present.
@@ -495,7 +497,7 @@ Parser::continueLine()
     _continue = true;
 }
 
-char*
+const char*
 Parser::getPrompt()
 {
     assert(_commands.empty() && isatty(fileno(yyin)));

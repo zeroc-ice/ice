@@ -164,10 +164,13 @@ Glacier::RouterApp::run(int argc, char* argv[])
     return EXIT_SUCCESS;
 }
 
+extern "C"
+{
 static void
 childHandler(int)
 {
     wait(0);
+}
 }
 
 int

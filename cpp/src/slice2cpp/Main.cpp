@@ -263,12 +263,12 @@ main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	    }
 	
-	    UnitPtr unit = Unit::createUnit(false, false, ice, caseSensitive);
-	    int parseStatus = unit->parse(cppHandle, debug);
+	    UnitPtr u = Unit::createUnit(false, false, ice, caseSensitive);
+	    int parseStatus = u->parse(cppHandle, debug);
 	
 	    if(!icecpp.close())
 	    {
-		unit->destroy();
+		u->destroy();
 		return EXIT_FAILURE;
 	    }
 
@@ -282,13 +282,13 @@ main(int argc, char* argv[])
 			includePaths, dllExport, output, impl);
 		if(!gen)
 		{
-		    unit->destroy();
+		    u->destroy();
 		    return EXIT_FAILURE;
 		}
-		gen.generate(unit);
+		gen.generate(u);
 	    }
 
-	    unit->destroy();
+	    u->destroy();
 	}
     }
 

@@ -135,7 +135,7 @@ MutexTest::run()
 #if !defined(NDEBUG) && !defined(_WIN32)
 	try
 	{
-	    Mutex::Lock lock2(mutex);
+	    Mutex::Lock lock3(mutex);
 	    test(false);
 	}
 	catch(const ThreadSyscallException& e)

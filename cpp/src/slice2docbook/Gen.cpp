@@ -52,17 +52,17 @@ Slice::Gen::operator!() const
 }
 
 void
-Slice::Gen::generate(const UnitPtr& unit)
+Slice::Gen::generate(const UnitPtr& p)
 {
-    unit->mergeModules();
+    p->mergeModules();
 
     //
     // I don't want the top-level module to be sorted, therefore no
-    // unit->sort() before or after the unit->sortContents().
+    // p->sort() before or after the p->sortContents().
     //
-    unit->sortContents();
+    p->sortContents();
 
-    unit->visit(this);
+    p->visit(this);
 }
 
 bool
@@ -490,11 +490,11 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 		O.inc();
 		O << nl << "throws";
 		O.inc();
-		ExceptionList::const_iterator r = throws.begin();
-		while(r != throws.end())
+		ExceptionList::const_iterator t = throws.begin();
+		while(t != throws.end())
 		{
-		    O << nl << toString(*r, p);
-		    if(++r != throws.end())
+		    O << nl << toString(*t, p);
+		    if(++t != throws.end())
 		    {
 			O << ',';
 		    }
@@ -876,7 +876,6 @@ Slice::Gen::printComment(const ContainedPtr& p)
 	start("variablelist");
 	for(StringList::const_iterator q = par.begin(); q != par.end(); ++q)
 	{
-	    string::size_type pos;
 	    string term;
 	    pos = q->find_first_of(" \t\r\n");
 	    if(pos != string::npos)
@@ -920,7 +919,6 @@ Slice::Gen::printComment(const ContainedPtr& p)
 	start("variablelist");
 	for(StringList::const_iterator q = throws.begin(); q != throws.end(); ++q)
 	{
-	    string::size_type pos;
 	    string term;
 	    pos = q->find_first_of(" \t\r\n");
 	    if(pos != string::npos)
@@ -1261,7 +1259,7 @@ Slice::Gen::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container, 
     ParamDeclPtr pd = ParamDeclPtr::dynamicCast(p);
     if(pd)
     {
-	OperationPtr op = OperationPtr::dynamicCast(pd->container());
+	op = OperationPtr::dynamicCast(pd->container());
 	assert(op);
 	if(withLink && pd->includeLevel() == 0)
 	{

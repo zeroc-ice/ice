@@ -389,18 +389,19 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     assert(scopedIter != ids.end());
     int scopedPos = ice_distance(firstIter, scopedIter);
 
-    StringList::const_iterator q;
-
     out << sp << nl << "public static final String[] __ids =";
     out << sb;
-    q = ids.begin();
-    while(q != ids.end())
+
     {
-        out << nl << '"' << *q << '"';
-        if(++q != ids.end())
-        {
-            out << ',';
-        }
+	StringList::const_iterator q = ids.begin();
+	while(q != ids.end())
+	{
+	    out << nl << '"' << *q << '"';
+	    if(++q != ids.end())
+	    {
+		out << ',';
+	    }
+	}
     }
     out << eb << ';';
 
@@ -544,10 +545,10 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 	    if(!throws.empty())
 	    {
 		out << eb;
-		ExceptionList::const_iterator r;
-		for(r = throws.begin(); r != throws.end(); ++r)
+		ExceptionList::const_iterator t;
+		for(t = throws.begin(); t != throws.end(); ++t)
 		{
-		    string exS = getAbsolute((*r)->scoped(), scope);
+		    string exS = getAbsolute((*t)->scoped(), scope);
 		    out << nl << "catch(" << exS << " ex)";
 		    out << sb;
 		    out << nl << "__os.writeUserException(ex);";
@@ -684,11 +685,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                 //
                 // There's probably a better way to do this
                 //
-                for(OperationList::const_iterator r = allOps.begin(); r != allOps.end(); ++r)
+                for(OperationList::const_iterator t = allOps.begin(); t != allOps.end(); ++t)
                 {
-                    if((*r)->name() == (*q))
+                    if((*t)->name() == (*q))
                     {
-                        ContainerPtr container = (*r)->container();
+                        ContainerPtr container = (*t)->container();
                         ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
                         assert(cl);
                         if(cl->scoped() == p->scoped())
@@ -741,58 +742,58 @@ Slice::Gen::operator!() const
 }
 
 void
-Slice::Gen::generate(const UnitPtr& unit)
+Slice::Gen::generate(const UnitPtr& p)
 {
     OpsVisitor opsVisitor(_dir, _package);
-    unit->visit(&opsVisitor);
+    p->visit(&opsVisitor);
 
     TypesVisitor typesVisitor(_dir, _package);
-    unit->visit(&typesVisitor);
+    p->visit(&typesVisitor);
 
     HolderVisitor holderVisitor(_dir, _package);
-    unit->visit(&holderVisitor);
+    p->visit(&holderVisitor);
 
     HelperVisitor helperVisitor(_dir, _package);
-    unit->visit(&helperVisitor);
+    p->visit(&helperVisitor);
 
     ProxyVisitor proxyVisitor(_dir, _package);
-    unit->visit(&proxyVisitor);
+    p->visit(&proxyVisitor);
 
     DelegateVisitor delegateVisitor(_dir, _package);
-    unit->visit(&delegateVisitor);
+    p->visit(&delegateVisitor);
 
     DelegateMVisitor delegateMVisitor(_dir, _package);
-    unit->visit(&delegateMVisitor);
+    p->visit(&delegateMVisitor);
 
     DelegateDVisitor delegateDVisitor(_dir, _package);
-    unit->visit(&delegateDVisitor);
+    p->visit(&delegateDVisitor);
 
     DispatcherVisitor dispatcherVisitor(_dir, _package);
-    unit->visit(&dispatcherVisitor);
+    p->visit(&dispatcherVisitor);
 
     AsyncVisitor asyncVisitor(_dir, _package);
-    unit->visit(&asyncVisitor);
+    p->visit(&asyncVisitor);
 }
 
 void
-Slice::Gen::generateTie(const UnitPtr& unit)
+Slice::Gen::generateTie(const UnitPtr& p)
 {
     TieVisitor tieVisitor(_dir, _package);
-    unit->visit(&tieVisitor);
+    p->visit(&tieVisitor);
 }
 
 void
-Slice::Gen::generateImpl(const UnitPtr& unit)
+Slice::Gen::generateImpl(const UnitPtr& p)
 {
     ImplVisitor implVisitor(_dir, _package);
-    unit->visit(&implVisitor);
+    p->visit(&implVisitor);
 }
 
 void
-Slice::Gen::generateImplTie(const UnitPtr& unit)
+Slice::Gen::generateImplTie(const UnitPtr& p)
 {
     ImplTieVisitor implTieVisitor(_dir, _package);
-    unit->visit(&implTieVisitor);
+    p->visit(&implTieVisitor);
 }
 
 Slice::Gen::OpsVisitor::OpsVisitor(const string& dir, const string& package) :
@@ -3077,7 +3078,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << "java.util.Map __context)";
         writeDelegateThrowsClause(scope, throws);
         out << sb;
-	list<string> metaData = op->getMetaData();
+
         out << nl << "IceInternal.Outgoing __out = getOutgoing(\"" << op->name() << "\", " << sliceModeToIceMode(op)
 	    << ", __context);";
         out << nl << "try";
@@ -3107,25 +3108,25 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sb;
             out << nl << "final String[] __throws =";
             out << sb;
-            ExceptionList::const_iterator r;
-            for(r = throws.begin(); r != throws.end(); ++r)
+            ExceptionList::const_iterator t;
+            for(t = throws.begin(); t != throws.end(); ++t)
             {
-                if(r != throws.begin())
+                if(t != throws.begin())
                 {
                     out << ",";
                 }
-                out << nl << "\"" << (*r)->scoped() << "\"";
+                out << nl << "\"" << (*t)->scoped() << "\"";
             }
             out << eb;
             out << ';';
             out << nl << "switch(__is.throwException(__throws))";
             out << sb;
             int count = 0;
-            for(r = throws.begin(); r != throws.end(); ++r)
+            for(t = throws.begin(); t != throws.end(); ++t)
             {
                 out << nl << "case " << count << ':';
                 out << sb;
-                string abs = getAbsolute((*r)->scoped(), scope);
+                string abs = getAbsolute((*t)->scoped(), scope);
                 out << nl << abs << " __ex = new " << abs << "();";
                 out << nl << "__ex.__read(__is);";
                 out << nl << "throw __ex;";
@@ -3134,9 +3135,9 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             out << eb;
             out << eb;
-            for(r = throws.begin(); r != throws.end(); ++r)
+            for(t = throws.begin(); t != throws.end(); ++t)
             {
-                out << nl << "catch(" << getAbsolute((*r)->scoped(), scope) << " __ex)";
+                out << nl << "catch(" << getAbsolute((*t)->scoped(), scope) << " __ex)";
                 out << sb;
                 out << nl << "throw __ex;";
                 out << eb;
@@ -3184,7 +3185,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << sp;
 	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ", java.util.Map __context)";
 	    out << sb;
-	    list<string> metaData = op->getMetaData();
+	    
 	    out << nl << "__cb.__setup(__connection, __reference, \"" << op->name() << "\", " << sliceModeToIceMode(op)
 		<< ", __context);";
 	    if(!inParams.empty())

@@ -433,7 +433,7 @@ Parser::continueLine()
     _continue = true;
 }
 
-char*
+const char*
 Parser::getPrompt()
 {
     assert(_commands.empty() && isatty(fileno(yyin)));

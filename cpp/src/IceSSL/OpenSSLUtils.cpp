@@ -414,7 +414,7 @@ IceSSL::sslGetErrors()
     return errorMessage;
 }
 
-static char* errorStrings[] =
+static const char* errorStrings[] =
 {
     "Unable to get issuer's certificate.",
     "Unable to get certificate revocation list.",

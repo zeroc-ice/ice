@@ -53,7 +53,7 @@ FindFirstOfTest(const pair<const Byte, const Int>& p, Byte q)
 }
 
 template<class MAP>
-static void
+void
 populateDB(MAP& m)
 {
     alphabet.assign(alphabetChars, alphabetChars + sizeof(alphabetChars) - 1);
@@ -96,7 +96,7 @@ private:
 };
 
 template<class MAP>
-static int
+int
 run(int argc, char* argv[], MAP& m)
 {
     //

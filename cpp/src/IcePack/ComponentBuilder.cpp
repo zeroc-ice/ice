@@ -378,12 +378,12 @@ IcePack::ComponentHandler::startElement(const XMLCh *const name, ICE_XERCES_NS A
 	// If the id is not specified, we ask the builder to generate
 	// an id for us based on the adapter name.
 	//
-	string name = getAttributeValue(attrs, "name");
-	if(name.empty())
+	string adapterName = getAttributeValue(attrs, "name");
+	if(adapterName.empty())
 	{
 	    throw DeploySAXParseException("empty adapter name", _locator);
 	}
-	_currentAdapterId = getAttributeValueWithDefault(attrs, "id", _builder.getDefaultAdapterId(name));
+	_currentAdapterId = getAttributeValueWithDefault(attrs, "id", _builder.getDefaultAdapterId(adapterName));
     }
     else if(str == "object")
     {
@@ -620,9 +620,9 @@ IcePack::ComponentBuilder::setDocumentLocator(const ICE_XERCES_NS Locator* locat
 bool
 IcePack::ComponentBuilder::isTargetDeployable(const string& target) const
 {
-    map<string, string>::const_iterator p = _variables.find("fqn");
-    assert(p != _variables.end());
-    const string fqn = p->second;
+    map<string, string>::const_iterator q = _variables.find("fqn");
+    assert(q != _variables.end());
+    const string fqn = q->second;
 
     for(vector<string>::const_iterator p = _targets.begin(); p != _targets.end(); ++p)
     {

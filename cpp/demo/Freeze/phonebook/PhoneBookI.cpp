@@ -45,7 +45,7 @@ ContactI::getName(const Ice::Current&) const
 }
 
 void
-ContactI::setName(const string& name, const Ice::Current&)
+ContactI::setName(const string& newName, const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
 
@@ -55,8 +55,8 @@ ContactI::setName(const string& name, const Ice::Current&)
     }
 
     assert(!_identity.name.empty());
-    _phoneBook->move(_identity, this->name, name);
-    this->name = name;
+    _phoneBook->move(_identity, name, newName);
+    name = newName;
 }
 
 string
@@ -73,7 +73,7 @@ ContactI::getAddress(const Ice::Current&) const
 }
 
 void
-ContactI::setAddress(const string& address, const Ice::Current&)
+ContactI::setAddress(const string& newAddress, const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
 
@@ -82,7 +82,7 @@ ContactI::setAddress(const string& address, const Ice::Current&)
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    this->address = address;
+    address = newAddress;
 }
 
 string
@@ -99,7 +99,7 @@ ContactI::getPhone(const Ice::Current&) const
 }
 
 void
-ContactI::setPhone(const string& phone, const Ice::Current&)
+ContactI::setPhone(const string& newPhone, const Ice::Current&)
 {
     IceUtil::RWRecMutex::WLock sync(*this);
 
@@ -108,7 +108,7 @@ ContactI::setPhone(const string& phone, const Ice::Current&)
         throw Ice::ObjectNotExistException(__FILE__, __LINE__);
     }
 
-    this->phone = phone;
+    phone = newPhone;
 }
 
 void
@@ -363,8 +363,8 @@ PhoneBookI::getNewIdentity()
 	    ids = p->second;
 	    assert(ids.size() == 1);
 
-	    string::size_type p;
-	    bool rc = IceUtil::stringToInt64(ids.front().name, n, p);
+	    string::size_type sz;
+	    bool rc = IceUtil::stringToInt64(ids.front().name, n, sz);
 	    assert(rc);
 	    n += 1;
 	}

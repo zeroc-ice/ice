@@ -181,7 +181,7 @@ main(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    UnitPtr unit = Unit::createUnit(true, false, ice, caseSensitive);
+    UnitPtr p = Unit::createUnit(true, false, ice, caseSensitive);
 
     int status = EXIT_SUCCESS;
 
@@ -192,15 +192,15 @@ main(int argc, char* argv[])
 
 	if(cppHandle == 0)
 	{
-	    unit->destroy();
+	    p->destroy();
 	    return EXIT_FAILURE;
 	}
 	
-	status = unit->parse(cppHandle, debug);
+	status = p->parse(cppHandle, debug);
 
 	if(!icecpp.close())
 	{
-	    unit->destroy();
+	    p->destroy();
 	    return EXIT_FAILURE;
 	}
     }
@@ -210,13 +210,13 @@ main(int argc, char* argv[])
 	Gen gen(argv[0], docbook, standAlone, noGlobals, chapter);
 	if(!gen)
 	{
-	    unit->destroy();
+	    p->destroy();
 	    return EXIT_FAILURE;
 	}
-	gen.generate(unit);
+	gen.generate(p);
     }
     
-    unit->destroy();
+    p->destroy();
 
     return status;
 }

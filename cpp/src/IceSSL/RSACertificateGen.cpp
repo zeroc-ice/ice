@@ -252,12 +252,12 @@ IceSSL::RSACertificateGen::generate(const RSACertificateGenContext& context)
     X509_gmtime_adj(X509_get_notAfter(x509SelfSigned), context.getSecondsValid());
 
     // Set up subject/issuer Distinguished Name (DN).
-    X509_NAME_add_entry_by_txt(subjectName, "C",  MBSTRING_ASC, context.getCountry(),            -1, -1, 0);
-    X509_NAME_add_entry_by_txt(subjectName, "ST", MBSTRING_ASC, context.getStateProvince(),      -1, -1, 0);
-    X509_NAME_add_entry_by_txt(subjectName, "L",  MBSTRING_ASC, context.getLocality(),           -1, -1, 0);
-    X509_NAME_add_entry_by_txt(subjectName, "O",  MBSTRING_ASC, context.getOrganization(),       -1, -1, 0);
-    X509_NAME_add_entry_by_txt(subjectName, "OU", MBSTRING_ASC, context.getOrganizationalUnit(), -1, -1, 0);
-    X509_NAME_add_entry_by_txt(subjectName, "CN", MBSTRING_ASC, context.getCommonName(),         -1, -1, 0);
+    X509_NAME_add_entry_by_txt(subjectName, const_cast<char*>("C"),  MBSTRING_ASC, context.getCountry(),            -1, -1, 0);
+    X509_NAME_add_entry_by_txt(subjectName, const_cast<char*>("ST"), MBSTRING_ASC, context.getStateProvince(),      -1, -1, 0);
+    X509_NAME_add_entry_by_txt(subjectName, const_cast<char*>("L"),  MBSTRING_ASC, context.getLocality(),           -1, -1, 0);
+    X509_NAME_add_entry_by_txt(subjectName, const_cast<char*>("O"),  MBSTRING_ASC, context.getOrganization(),       -1, -1, 0);
+    X509_NAME_add_entry_by_txt(subjectName, const_cast<char*>("OU"), MBSTRING_ASC, context.getOrganizationalUnit(), -1, -1, 0);
+    X509_NAME_add_entry_by_txt(subjectName, const_cast<char*>("CN"), MBSTRING_ASC, context.getCommonName(),         -1, -1, 0);
 
     // Self signed - set issuer and subject names identical
     X509_set_issuer_name(x509SelfSigned, subjectName);

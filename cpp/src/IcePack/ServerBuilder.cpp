@@ -284,16 +284,16 @@ IcePack::ServerHandler::startElement(const XMLCh *const name, ICE_XERCES_NS Attr
     }
     else if(str == "service")
     {
-	string name = getAttributeValue(attrs, "name");
+	string serviceName = getAttributeValue(attrs, "name");
 	string descriptor = getAttributeValue(attrs, "descriptor");
 	string targets = getAttributeValueWithDefault(attrs, "targets", "");
-	_builder.addService(name, descriptor, targets);
+	_builder.addService(serviceName, descriptor, targets);
     }
     else if(str == "adapter")
     {
 	assert(!_currentAdapterId.empty());
-	string name = getAttributeValue(attrs, "name");
-	_builder.registerAdapter(name, getAttributeValue(attrs, "endpoints"), _currentAdapterId);
+	string adapterName = getAttributeValue(attrs, "name");
+	_builder.registerAdapter(adapterName, getAttributeValue(attrs, "endpoints"), _currentAdapterId);
     }
 }
 

@@ -218,7 +218,6 @@ IcePatch::getFileInfo(const string& path, bool exceptionIfNotExist, const Ice::L
 	{
 	    if(!exceptionIfNotExist && errno == ENOENT)
 	    {
-		FileInfo result;
 		result.size = 0;
 		result.time = 0;
 		result.type = FileTypeNotExist;

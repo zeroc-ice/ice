@@ -112,14 +112,14 @@ runParser(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    ParserPtr parser = Parser::createParser(communicator, phoneBook);
+    ParserPtr p = Parser::createParser(communicator, phoneBook);
     int status = EXIT_SUCCESS;
 
     if(argc < 2) // No files given
     {
 	if(!commands.empty()) // Commands were given
 	{
-	    int parseStatus = parser->parse(commands, debug);
+	    int parseStatus = p->parse(commands, debug);
 	    if(parseStatus == EXIT_FAILURE)
 	    {
 		status = EXIT_FAILURE;
@@ -127,7 +127,7 @@ runParser(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
 	else // No commands, let's use standard input
 	{
-	    int parseStatus = parser->parse(stdin, debug);
+	    int parseStatus = p->parse(stdin, debug);
 	    if(parseStatus == EXIT_FAILURE)
 	    {
 		status = EXIT_FAILURE;
@@ -145,7 +145,7 @@ runParser(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 		return EXIT_FAILURE;
 	    }
 	    
-	    int parseStatus = parser->parse(file, debug);
+	    int parseStatus = p->parse(file, debug);
 
 	    fclose(file);
 

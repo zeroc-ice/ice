@@ -94,6 +94,8 @@ private:
 
 static DBEnvironmentMap _dbEnvMap;
 
+extern "C"
+{
 static void
 FreezeErrCallFcn(const char* prefix, char* msg)
 {
@@ -102,6 +104,7 @@ FreezeErrCallFcn(const char* prefix, char* msg)
 
     Error out(dbEnv->getCommunicator()->getLogger());
     out << "Freeze database error: " << dbEnv->getName() << ": " << msg;
+}
 }
 
 void

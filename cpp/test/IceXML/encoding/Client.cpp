@@ -29,7 +29,7 @@ static string header =
 static string footer =
 "</ice:data>";
 
-static const string element = "s";
+
 static const string strings[] =
 {
     "hello world",
@@ -47,6 +47,8 @@ static const string strings[] =
 void
 TestString(const Ice::CommunicatorPtr& communicator)
 {
+    const string element = "s";
+
     for(int i = 0; !strings[i].empty(); ++i)
     {
 	ostringstream os;
@@ -180,7 +182,7 @@ TestStruct4Seq(const Ice::CommunicatorPtr& communicator)
     test(seqout.size() == seqin.size());
     while(!seqin.empty())
     {
-	Test::Struct4 sin = seqin.back();
+	sin = seqin.back();
 	Test::Struct4 sout = seqout.back();
 	test(sin == sout);
 	seqout.pop_back();

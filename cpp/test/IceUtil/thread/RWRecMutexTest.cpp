@@ -490,11 +490,11 @@ RWRecMutexTest::run()
     // TEST: Lock upgrading. This time a reader thread is started
     // first.
     {
-	RWRecMutexUpgradeReadThreadPtr t = new RWRecMutexUpgradeReadThread(mutex);
-	control = t->start();
+	RWRecMutexUpgradeReadThreadPtr t1 = new RWRecMutexUpgradeReadThread(mutex);
+	control = t1->start();
 
 	// Wait for the thread to acquire the read lock.
-	t->waitLock();
+	t1->waitLock();
 
 	// Spawn a thread to try acquiring the lock
 	RWRecMutexUpgradeTestThreadPtr t2 = new RWRecMutexUpgradeTestThread(mutex);
@@ -528,7 +528,7 @@ RWRecMutexTest::run()
 	// Once the read lock is released then the upgrade should
 	// succeed & the thread should terminate.
 	//
-	t->signalUnlock();
+	t1->signalUnlock();
 
 	control2.join();
 	control.join();

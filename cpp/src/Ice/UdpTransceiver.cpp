@@ -78,9 +78,9 @@ repeat:
 
 	    assert(_fd != INVALID_SOCKET);
 	    FD_SET(_fd, &_wFdSet);
-	    int ret = ::select(_fd + 1, 0, &_wFdSet, 0, 0);
+	    int rs = ::select(_fd + 1, 0, &_wFdSet, 0, 0);
 	    
-	    if(ret == SOCKET_ERROR)
+	    if(rs == SOCKET_ERROR)
 	    {
 		if(interrupted())
 		{
@@ -169,9 +169,9 @@ repeat:
 	    
 	    assert(_fd != INVALID_SOCKET);
 	    FD_SET(_fd, &_rFdSet);
-	    int ret = ::select(_fd + 1, &_rFdSet, 0, 0, 0);
+	    int rs = ::select(_fd + 1, &_rFdSet, 0, 0, 0);
 	    
-	    if(ret == SOCKET_ERROR)
+	    if(rs == SOCKET_ERROR)
 	    {
 		if(interrupted())
 		{
