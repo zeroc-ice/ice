@@ -31,9 +31,14 @@ class ICE_UTIL_API GCShared : public noncopyable
 public:
 
     GCShared() :
+#ifndef ICE_HAS_ATOMIC_FUNCTIONS
 	_ref(0),
+#endif
 	_noDelete(false)
     {
+#ifdef ICE_HAS_ATOMIC_FUNCTIONS
+	ice_atomic_set(&_ref, 0);
+#endif
     }
 
     virtual ~GCShared()

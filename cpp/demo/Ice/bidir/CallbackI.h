@@ -38,10 +38,10 @@ private:
     std::set<Demo::CallbackReceiverPrx> _clients;
 
     //
-    // We cannot derive CallbackSenderI directly from IceUtil::Thread,
-    // because CallbackSenderI uses IceUtil::GCShared as base, and
-    // IceUtil::Thread uses IceUtil::Shared. These two base classes
-    // are not compatible. Therefore we use this helper class.
+    // We cannot derive CallbackSenderI from IceUtil::Thread, because
+    // CallbackSenderI uses IceUtil::GCShared as base, and
+    // IceUtil::Thread uses IceUtil::Shared as base. These two base
+    // classes are not compatible. Therefore we use this helper class.
     //
     class CallbackSenderThread : public IceUtil::Thread
     {
