@@ -943,22 +943,27 @@ namespace std
 {
 
 template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
-inline pair<key_type, mapped_type>* value_type(const Freeze::DbIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
+inline pair<key_type, mapped_type>*
+value_type(const Freeze::DbIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
 {
     return (pair<key_type, mapped_type>*)0;
 }
 
 template <class key_type, class mapped_type, class KeyCodec, class ValueCodec>
-inline pair<key_type, mapped_type>* value_type(const Freeze::ConstDbIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
+inline pair<key_type, mapped_type>*
+value_type(const Freeze::ConstDbIterator<key_type, mapped_type, KeyCodec, ValueCodec>&)
 {
     return (pair<key_type, mapped_type>*)0;
 }
 
-inline forward_iterator_tag iterator_category(const Freeze::DbIteratorBase&) { return forward_iterator_tag(); }
+inline forward_iterator_tag iterator_category(const Freeze::DbIteratorBase&)
+{
+    return forward_iterator_tag();
+}
 
 inline ptrdiff_t* distance_type(const Freeze::DbIteratorBase&) { return (ptrdiff_t*) 0; }
 
-}
+} // End namespace std
 #endif /* _STLP_CLASS_PARTIAL_SPECIALIZATION */
 
 #endif
