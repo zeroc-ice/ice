@@ -35,8 +35,17 @@ IceInternal::BasicOutputStream::BasicOutputStream(IceInternal::Instance* instanc
 Ice::InputStreamI::InputStreamI(const Ice::CommunicatorPtr& communicator, const vector<Byte>& data) :
     _communicator(communicator), _is(IceInternal::getInstance(communicator).get(), this)
 {
+#if defined(__SUNPRO_CC)
+    //
+    // COMPILERFIX: No idea why Sun CC needs this.
+    //
+    vector<Byte> copy = data;
+    _is.b.swap(copy);
+    _is.i = _is.b.begin();
+#else
     _is.b = data;
     _is.i = _is.b.begin();
+#endif
 }
 
 Ice::InputStreamI::~InputStreamI()
