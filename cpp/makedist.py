@@ -232,6 +232,7 @@ filesToRemove.extend(find("ice", ".dummy"))
 for x in filesToRemove:
     os.remove(x)
 shutil.rmtree(os.path.join("ice", "certs", "openssl"))
+shutil.rmtree(os.path.join("ice", "install"))
 
 #
 # Generate bison files.
