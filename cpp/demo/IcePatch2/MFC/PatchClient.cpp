@@ -55,6 +55,14 @@ CPatchClientApp::InitInstance()
         return FALSE;
     }
 
+    Ice::PropertiesPtr properties = communicator->getProperties();
+    CString path = properties->getPropertyWithDefault("IcePatch2.Endpoints", "").c_str();
+    if(path.IsEmpty())
+    {
+	AfxMessageBox(CString("Please run with the --IcePatch2.Endpoints option."), MB_OK|MB_ICONEXCLAMATION);
+        return FALSE;
+    }
+
     CPatchDlg dlg(communicator);
     m_pMainWnd = &dlg;
     dlg.DoModal();
