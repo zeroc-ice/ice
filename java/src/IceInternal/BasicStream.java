@@ -16,6 +16,11 @@ public class BasicStream
     BasicStream(IceInternal.Instance instance)
     {
         _instance = instance;
+        _bufferManager = instance.bufferManager();
+        _buf = _bufferManager.allocate(1500);
+        _capacity = _buf.capacity();
+        _limit = 0;
+        assert(_buf.limit() == _capacity);
 
         Encaps enc = new Encaps();
         enc.start = 0;
@@ -33,6 +38,8 @@ public class BasicStream
         //
         assert(_encapsStack.size() > 0);
 
+        _bufferManager.reclaim(_buf);
+
         super.finalize();
     }
 
@@ -47,7 +54,17 @@ public class BasicStream
     {
         assert(_instance == other._instance);
 
-        _buf.swap(other._buf);
+        java.nio.ByteBuffer tmpBuf = other._buf;
+        other._buf = _buf;
+        _buf = tmpBuf;
+
+        int tmpCapacity = other._capacity;
+        other._capacity = _capacity;
+        _capacity = tmpCapacity;
+
+        int tmpLimit = other._limit;
+        other._limit = _limit;
+        _limit = tmpLimit;
 
         java.util.LinkedList tmpStack = other._encapsStack;
         other._encapsStack = _encapsStack;
@@ -56,6 +73,7 @@ public class BasicStream
 
     private static final int MAX = 1024 * 1024; // TODO: Configurable
 
+    /*
     public void
     resize(int total)
     {
@@ -63,9 +81,15 @@ public class BasicStream
         {
             throw new Ice.MemoryLimitException();
         }
-        _buf.resize(total);
+        if (total > _buf.capacity())
+        {
+            // TODO - Get new buffer
+        }
+        _buf.limit(total);
     }
+    */
 
+    /* TODO - Remove?
     public void
     reserve(int total)
     {
@@ -75,13 +99,22 @@ public class BasicStream
         }
         _buf.reserve(total);
     }
+    */
+
+    java.nio.ByteBuffer
+    prepareWrite()
+    {
+        _buf.limit(_limit);
+        _buf.position(0);
+        return _buf;
+    }
 
     public void
     startWriteEncaps()
     {
         writeInt(0); // Placeholder for the encapsulation length
         Encaps enc = new Encaps();
-        enc.start = _buf.pos;
+        enc.start = _buf.position();
         enc.encoding = 0;
         _encapsStack.add(enc);
     }
@@ -90,12 +123,8 @@ public class BasicStream
     endWriteEncaps()
     {
         Encaps enc = (Encaps)_encapsStack.removeLast();
-        int sz = _buf.pos - enc.start;
-        int pos = enc.start - 4;
-        _buf.data[pos++] = (byte)sz;
-        _buf.data[pos++] = (byte)(sz >>> 8);
-        _buf.data[pos++] = (byte)(sz >>> 16);
-        _buf.data[pos++] = (byte)(sz >>> 24);
+        final int sz = _buf.position() - enc.start;
+        _buf.putInt(enc.start - 4, sz);
     }
 
     public void
@@ -103,7 +132,7 @@ public class BasicStream
     {
         int sz = readInt();
         Encaps enc = new Encaps();
-        enc.start = _buf.pos;
+        enc.start = _buf.position();
         enc.encoding = readByte();
         if (enc.encoding != 0)
         {
@@ -115,13 +144,9 @@ public class BasicStream
     public void
     endReadEncaps()
     {
-        // TODO: Review
         Encaps enc = (Encaps)_encapsStack.removeLast();
-        int save = _buf.pos;
-        _buf.pos = enc.start - 4;
-        int sz = readInt();
-        _buf.pos = save;
-        if (sz != _buf.pos - enc.start)
+        int sz = _buf.getInt(enc.start - 4);
+        if (sz != _buf.position() - enc.start)
         {
             throw new Ice.EncapsulationException();
         }
@@ -131,8 +156,11 @@ public class BasicStream
     skipEncaps()
     {
         int sz = readInt();
-        _buf.pos += sz;
-        if (_buf.pos > _buf.len)
+        try
+        {
+            _buf.position(_buf.position() + sz);
+        }
+        catch (IllegalArgumentException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
@@ -141,476 +169,340 @@ public class BasicStream
     public void
     writeByte(byte v)
     {
-        int pos = _buf.pos;
-        _buf.pos++;
-        if (_buf.pos > _buf.len)
-        {
-            resize(_buf.pos);
-        }
-        _buf.data[pos++] = v;
+        expand(1);
+        _buf.put(v);
     }
 
     public void
     writeByteSeq(byte[] v)
     {
-        int pos = _buf.pos;
-        final int vlen = v.length;
-        _buf.pos += 4 + vlen;
-        if (_buf.pos > _buf.len)
-        {
-            resize(_buf.pos);
-        }
-        _buf.data[pos++] = (byte)vlen;
-        _buf.data[pos++] = (byte)(vlen >>> 8);
-        _buf.data[pos++] = (byte)(vlen >>> 16);
-        _buf.data[pos++] = (byte)(vlen >>> 24);
-        System.arraycopy(value, 0, _buf.data, pos, vlen);
-        assert(pos == _buf.pos);
+        expand(4 + v.length);
+        _buf.putInt(v.length);
+        _buf.put(v);
     }
 
     public byte
     readByte()
     {
-        if (_buf.pos >= _buf.len)
+        try
+        {
+            return _buf.get();
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        return _buf.data[_buf.pos++];
     }
 
     public byte[]
     readByteSeq()
     {
-        final int sz = readInt();
-        final int pos = _buf.pos;
-        _buf.pos += sz;
-        if (_buf.pos > _buf.len)
+        try
+        {
+            final int sz = _buf.getInt();
+            byte[] v = new byte[sz];
+            _buf.get(v);
+            return v;
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        byte[] v = new byte[sz];
-        System.arraycopy(_buf.data, pos, v, 0, sz);
-        return v;
     }
 
     public void
     writeBool(boolean v)
     {
-        int pos = _buf.pos;
-        _buf.pos++;
-        if (_buf.pos > _buf.len)
-        {
-            resize(_buf.pos);
-        }
-        _buf.data[pos] = v ? (byte)1 : (byte)0;
+        expand(1);
+        _buf.put(v ? (byte)1 : (byte)0);
     }
 
     public void
     writeBoolSeq(boolean[] v)
     {
-        int pos = _buf.pos;
-        final int vlen = v.length;
-        _buf.pos += 4 + vlen;
-        if (_buf.pos > _buf.len)
+        expand(4 + v.length);
+        _buf.putInt(v.length);
+        for (int i = 0; i < v.length; i++)
         {
-            resize(_buf.pos);
+            _buf.put(v[i] ? (byte)1 : (byte)0);
         }
-        _buf.data[pos++] = (byte)vlen;
-        _buf.data[pos++] = (byte)(vlen >>> 8);
-        _buf.data[pos++] = (byte)(vlen >>> 16);
-        _buf.data[pos++] = (byte)(vlen >>> 24);
-        for (int i = 0; i < vlen; i++)
-        {
-            _buf.data[pos++] = v[i] ? (byte)1 : (byte)0;
-        }
-        assert(pos == _buf.pos);
     }
 
     public boolean
     readBool()
     {
-        if (_buf.pos >= _buf.len)
+        try
+        {
+            return _buf.get() == 1;
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        return _buf.data[_buf.pos++] == 1;
     }
 
     public boolean[]
     readBoolSeq()
     {
-        final int sz = readInt();
-        int pos = _buf.pos;
-        _buf.pos += sz;
-        if (_buf.pos > _buf.len)
+        try
+        {
+            final int sz = _buf.getInt();
+            boolean[] v = new boolean[sz];
+            for (int i = 0; i < sz; i++)
+            {
+                v[i] = _buf.get() == 1;
+            }
+            return v;
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        boolean[] v = new boolean[sz];
-        for (int i = 0; i < sz; i++)
-        {
-            v[i] = _buf.data[pos++] == 1;
-        }
-        return v;
     }
 
     public void
     writeShort(short v)
     {
-        int pos = _buf.pos;
-        _buf.pos += 2;
-        if (_buf.pos > _buf.len)
-        {
-            resize(_buf.pos);
-        }
-        _buf.data[pos++] = (byte)v;
-        _buf.data[pos]   = (byte)(v >>> 8);
+        expand(2);
+        _buf.putShort(v);
     }
 
     public void
     writeShortSeq(short[] v)
     {
-        int pos = _buf.pos;
-        final int vlen = v.length;
-        _buf.pos += 4 + (vlen * 2);
-        if (_buf.pos > _buf.len)
-        {
-            resize(_buf.pos);
-        }
-        _buf.data[pos++] = (byte)vlen;
-        _buf.data[pos++] = (byte)(vlen >>> 8);
-        _buf.data[pos++] = (byte)(vlen >>> 16);
-        _buf.data[pos++] = (byte)(vlen >>> 24);
-        for (int i = 0; i < vlen; i++)
-        {
-            _buf.data[pos++] = (byte)v[i];
-            _buf.data[pos++] = (byte)(v[i] >>> 8);
-        }
-        assert(pos == _buf.pos);
+        expand(4 + v.length * 2);
+        _buf.putInt(v.length);
+
+        java.nio.ShortBuffer shortBuf = _buf.asShortBuffer();
+        shortBuf.put(v);
+        _buf.position(_buf.position() + v.length * 2);
     }
 
     public short
     readShort()
     {
-        int pos = _buf.pos;
-        _buf.pos += 2;
-        if (_buf.pos > _buf.len)
+        try
+        {
+            return _buf.getShort();
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        return (short)((_buf.data[pos++] & 0xff) |
-                       (_buf.data[pos] << 8));
     }
 
     public short[]
     readShortSeq()
     {
-        int sz = readInt();
-        int pos = _buf.pos;
-        _buf.pos += sz * 2;
-        if (_buf.pos > _buf.len)
+        try
+        {
+            final int sz = _buf.getInt();
+            short[] v = new short[sz];
+            java.nio.ShortBuffer shortBuf = _buf.asShortBuffer();
+            shortBuf.get(v);
+            _buf.position(_buf.position() + sz * 2);
+            return v;
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        short[] v = new short[sz];
-        for (int i = 0; i < sz; i++)
-        {
-            v[i] = (short)((_buf.data[pos++] & 0xff) |
-                           (_buf.data[pos++] << 8));
-        }
-        return v;
     }
 
     public void
     writeInt(int v)
     {
-        int pos = _buf.pos;
-        _buf.pos += 4;
-        if (_buf.pos > _buf.len)
-        {
-            resize(_buf.pos);
-        }
-        _buf.data[pos++] = (byte)v;
-        _buf.data[pos++] = (byte)(v >>> 8);
-        _buf.data[pos++] = (byte)(v >>> 16);
-        _buf.data[pos]   = (byte)(v >>> 24);
+        expand(4);
+        _buf.putInt(v);
     }
 
     public void
     writeIntSeq(int[] v)
     {
-        int pos = _buf.pos;
-        final int vlen = v.length;
-        _buf.pos += 4 + (vlen * 4);
-        if (_buf.pos > _buf.len)
-        {
-            resize(_buf.pos);
-        }
-        _buf.data[pos++] = (byte)vlen;
-        _buf.data[pos++] = (byte)(vlen >>> 8);
-        _buf.data[pos++] = (byte)(vlen >>> 16);
-        _buf.data[pos++] = (byte)(vlen >>> 24);
-        for (int i = 0; i < vlen; i++)
-        {
-            _buf.data[pos++] = (byte)v[i];
-            _buf.data[pos++] = (byte)(v[i] >>> 8);
-            _buf.data[pos++] = (byte)(v[i] >>> 16);
-            _buf.data[pos++] = (byte)(v[i] >>> 24);
-        }
-        assert(pos == _buf.pos);
+        expand(4 + v.length * 4);
+        _buf.putInt(v.length);
+
+        java.nio.IntBuffer intBuf = _buf.asIntBuffer();
+        intBuf.put(v);
+        _buf.position(_buf.position() + v.length * 4);
     }
 
     public int
     readInt()
     {
-        int pos = _buf.pos;
-        _buf.pos += 4;
-        if (_buf.pos > _buf.len)
+        try
+        {
+            return _buf.getInt();
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        return ((_buf.data[pos++] & 0xff) |
-               ((_buf.data[pos++] << 8) & 0xff00) |
-               ((_buf.data[pos++] << 16) & 0xff0000) |
-               (_buf.data[pos]    << 24));
     }
 
     public int[]
     readIntSeq()
     {
-        int sz = readInt();
-        int pos = _buf.pos;
-        _buf.pos += sz * 4;
-        if (_buf.pos > _buf.len)
+        try
+        {
+            final int sz = _buf.getInt();
+            int[] v = new int[sz];
+            java.nio.IntBuffer intBuf = _buf.asIntBuffer();
+            intBuf.get(v);
+            _buf.position(_buf.position() + sz * 4);
+            return v;
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        int[] v = new int[sz];
-        for (int i = 0; i < sz; i++)
-        {
-            v[i] = ((_buf.data[pos++] & 0xff) |
-                   ((_buf.data[pos++] << 8) & 0xff00) |
-                   ((_buf.data[pos++] << 16) & 0xff0000) |
-                   (_buf.data[pos++]  << 24));
-        }
-        return v;
     }
 
     public void
     writeLong(long v)
     {
-        int pos = _buf.pos;
-        _buf.pos += 8;
-        if (_buf.pos > _buf.len)
-        {
-            resize(_buf.pos);
-        }
-        _buf.data[pos++] = (byte)v;
-        _buf.data[pos++] = (byte)(v >>> 8);
-        _buf.data[pos++] = (byte)(v >>> 16);
-        _buf.data[pos++] = (byte)(v >>> 24);
-        _buf.data[pos++] = (byte)(v >>> 32);
-        _buf.data[pos++] = (byte)(v >>> 40);
-        _buf.data[pos++] = (byte)(v >>> 48);
-        _buf.data[pos]   = (byte)(v >>> 56);
+        expand(8);
+        _buf.putLong(v);
     }
 
     public void
     writeLongSeq(long[] v)
     {
-        int pos = _buf.pos;
-        final int vlen = v.length;
-        _buf.pos += 4 + (vlen * 8);
-        if (_buf.pos > _buf.len)
-        {
-            resize(_buf.pos);
-        }
-        _buf.data[pos++] = (byte)vlen;
-        _buf.data[pos++] = (byte)(vlen >>> 8);
-        _buf.data[pos++] = (byte)(vlen >>> 16);
-        _buf.data[pos++] = (byte)(vlen >>> 24);
-        for (int i = 0; i < vlen; i++)
-        {
-            _buf.data[pos++] = (byte)v[i];
-            _buf.data[pos++] = (byte)(v[i] >>> 8);
-            _buf.data[pos++] = (byte)(v[i] >>> 16);
-            _buf.data[pos++] = (byte)(v[i] >>> 24);
-            _buf.data[pos++] = (byte)(v[i] >>> 32);
-            _buf.data[pos++] = (byte)(v[i] >>> 40);
-            _buf.data[pos++] = (byte)(v[i] >>> 48);
-            _buf.data[pos++] = (byte)(v[i] >>> 56);
-        }
-        assert(pos == _buf.pos);
+        expand(4 + v.length * 8);
+        _buf.putInt(v.length);
+
+        java.nio.LongBuffer longBuf = _buf.asLongBuffer();
+        longBuf.put(v);
+        _buf.position(_buf.position() + v.length * 8);
     }
 
     public long
     readLong()
     {
-        int pos = _buf.pos;
-        _buf.pos += 8;
-        if (_buf.pos > _buf.len)
+        try
+        {
+            return _buf.getLong();
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        return ((long)_buf.data[pos++] & 0xffL) |
-            (((long)_buf.data[pos++] << 8) & 0xff00L) |
-            (((long)_buf.data[pos++] << 16) & 0xff0000L) |
-            (((long)_buf.data[pos++] << 24) & 0xff000000L) |
-            (((long)_buf.data[pos++] << 32) & 0xff00000000L) |
-            (((long)_buf.data[pos++] << 40) & 0xff0000000000L) |
-            (((long)_buf.data[pos++] << 48) & 0xff000000000000L) |
-            ((long)_buf.data[pos]    << 56);
     }
 
     public long[]
     readLongSeq()
     {
-        int sz = readInt();
-        int pos = _buf.pos;
-        _buf.pos += sz * 8;
-        if (_buf.pos > _buf.len)
+        try
+        {
+            final int sz = _buf.getInt();
+            long[] v = new long[sz];
+            java.nio.LongBuffer longBuf = _buf.asLongBuffer();
+            longBuf.get(v);
+            _buf.position(_buf.position() + sz * 8);
+            return v;
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        long[] v = new long[sz];
-        for (int i = 0; i < sz; i++)
-        {
-            v[i] = ((long)_buf.data[pos++] & 0xffL) |
-                (((long)_buf.data[pos++] << 8) & 0xff00L) |
-                (((long)_buf.data[pos++] << 16) & 0xff0000L) |
-                (((long)_buf.data[pos++] << 24) & 0xff000000L) |
-                (((long)_buf.data[pos++] << 32) & 0xff00000000L) |
-                (((long)_buf.data[pos++] << 40) & 0xff0000000000L) |
-                (((long)_buf.data[pos++] << 48) & 0xff000000000000L) |
-                ((long)_buf.data[pos++]  << 56);
-        }
-        return v;
     }
 
     public void
     writeFloat(float v)
     {
-        writeInt(Float.floatToIntBits(v));
+        expand(4);
+        _buf.putFloat(v);
     }
 
     public void
     writeFloatSeq(float[] v)
     {
-        int pos = _buf.pos;
-        final int vlen = v.length;
-        _buf.pos += 4 + (vlen * 4);
-        if (_buf.pos > _buf.len)
-        {
-            resize(_buf.pos);
-        }
-        _buf.data[pos++] = (byte)vlen;
-        _buf.data[pos++] = (byte)(vlen >>> 8);
-        _buf.data[pos++] = (byte)(vlen >>> 16);
-        _buf.data[pos++] = (byte)(vlen >>> 24);
-        for (int i = 0; i < vlen; i++)
-        {
-            int val = Float.floatToIntBits(v[i]);
-            _buf.data[pos++] = (byte)val;
-            _buf.data[pos++] = (byte)(val >>> 8);
-            _buf.data[pos++] = (byte)(val >>> 16);
-            _buf.data[pos++] = (byte)(val >>> 24);
-        }
-        assert(pos == _buf.pos);
+        expand(4 + v.length * 4);
+        _buf.putInt(v.length);
+
+        java.nio.FloatBuffer floatBuf = _buf.asFloatBuffer();
+        floatBuf.put(v);
+        _buf.position(_buf.position() + v.length * 4);
     }
 
     public float
     readFloat()
     {
-        return Float.intBitsToFloat(readInt());
+        try
+        {
+            return _buf.getFloat();
+        }
+        catch (java.nio.BufferUnderflowException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
     }
 
     public float[]
     readFloatSeq()
     {
-        int sz = readInt();
-        int pos = _buf.pos;
-        _buf.pos += sz * 4;
-        if (_buf.pos > _buf.len)
+        try
+        {
+            final int sz = _buf.getInt();
+            float[] v = new float[sz];
+            java.nio.FloatBuffer floatBuf = _buf.asFloatBuffer();
+            floatBuf.get(v);
+            _buf.position(_buf.position() + sz * 4);
+            return v;
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        int[] v = new int[sz];
-        for (int i = 0; i < sz; i++)
-        {
-            int val = ((_buf.data[pos++] & 0xff) |
-                      ((_buf.data[pos++] << 8) & 0xff00) |
-                      ((_buf.data[pos++] << 16) & 0xff0000) |
-                      (_buf.data[pos++]  << 24));
-            v[i] = Float.intBitsToFloat(val);
-        }
-        return v;
     }
 
     public void
     writeDouble(double v)
     {
-        writeLong(Double.doubleToLongBits(v));
+        expand(8);
+        _buf.putDouble(v);
     }
 
     public void
     writeDoubleSeq(double[] v)
     {
-        int pos = _buf.pos;
-        final int vlen = v.length;
-        _buf.pos += 4 + (vlen * 8);
-        if (_buf.pos > _buf.len)
-        {
-            resize(_buf.pos);
-        }
-        _buf.data[pos++] = (byte)vlen;
-        _buf.data[pos++] = (byte)(vlen >>> 8);
-        _buf.data[pos++] = (byte)(vlen >>> 16);
-        _buf.data[pos++] = (byte)(vlen >>> 24);
-        for (int i = 0; i < vlen; i++)
-        {
-            long val = Double.doubleToLongBits(v[i]);
-            _buf.data[pos++] = (byte)val;
-            _buf.data[pos++] = (byte)(val >>> 8);
-            _buf.data[pos++] = (byte)(val >>> 16);
-            _buf.data[pos++] = (byte)(val >>> 24);
-            _buf.data[pos++] = (byte)(val >>> 32);
-            _buf.data[pos++] = (byte)(val >>> 40);
-            _buf.data[pos++] = (byte)(val >>> 48);
-            _buf.data[pos++] = (byte)(val >>> 56);
-        }
-        assert(pos == _buf.pos);
+        expand(4 + v.length * 8);
+        _buf.putInt(v.length);
+
+        java.nio.DoubleBuffer doubleBuf = _buf.asDoubleBuffer();
+        doubleBuf.put(v);
+        _buf.position(_buf.position() + v.length * 8);
     }
 
     public double
     readDouble()
     {
-        return Double.longBitsToDouble(readLong());
+        try
+        {
+            return _buf.getDouble();
+        }
+        catch (java.nio.BufferUnderflowException ex)
+        {
+            throw new Ice.UnmarshalOutOfBoundsException();
+        }
     }
 
     public double[]
     readDoubleSeq()
     {
-        int sz = readInt();
-        int pos = _buf.pos;
-        _buf.pos += sz * 8;
-        if (_buf.pos > _buf.len)
+        try
+        {
+            final int sz = _buf.getInt();
+            double[] v = new double[sz];
+            java.nio.DoubleBuffer doubleBuf = _buf.asDoubleBuffer();
+            doubleBuf.get(v);
+            _buf.position(_buf.position() + sz * 8);
+            return v;
+        }
+        catch (java.nio.BufferUnderflowException ex)
         {
             throw new Ice.UnmarshalOutOfBoundsException();
         }
-        long[] v = new long[sz];
-        for (int i = 0; i < sz; i++)
-        {
-            long val = ((long)_buf.data[pos++] & 0xffL) |
-                       (((long)_buf.data[pos++] << 8) & 0xff00L) |
-                       (((long)_buf.data[pos++] << 16) & 0xff0000L) |
-                       (((long)_buf.data[pos++] << 24) & 0xff000000L) |
-                       (((long)_buf.data[pos++] << 32) & 0xff00000000L) |
-                       (((long)_buf.data[pos++] << 40) & 0xff0000000000L) |
-                       (((long)_buf.data[pos++] << 48) & 0xff000000000000L) |
-                       ((long)_buf.data[pos++]  << 56);
-            v[i] = Double.longBitsToDouble(val);
-        }
-        return v;
     }
 
     public void
@@ -638,16 +530,11 @@ public class BasicStream
                 }
                 int num = enc.stringsWritten.size();
                 enc.stringsWritten.put(v, new Integer(-(num + 1)));
-                int pos = _buf.pos;
-                _buf.pos += len;
-                if (_buf.pos > _buf.len)
-                {
-                    resize(_buf.pos);
-                }
                 final char[] arr = v.toCharArray();
+                expand(len);
                 for (int i = 0; i < len; i++)
                 {
-                    _buf.data[pos++] = (byte)arr[i];
+                    _buf.put((byte)arr[i]);
                 }
             }
         }
@@ -686,25 +573,31 @@ public class BasicStream
             }
             else
             {
-                pos = _buf.pos;
-                _buf.pos += len;
-                if (_buf.pos > _buf.len)
+                try
+                {
+                    /* TODO: Performance review
+                    char[] arr = new char[len];
+                    for (int i = 0; i < len; i++)
+                    {
+                        arr[i] = (char)_buf.get();
+                    }
+                    String v = new String(arr);
+                    */
+                    byte[] arr = new byte[len];
+                    _buf.get(arr);
+                    String v = new String(arr, "ISO-8859-1");
+                    Encaps enc = (Encaps)_encapsStack.getLast();
+                    if (enc.stringsRead == null)
+                    {
+                        enc.stringsRead = new java.util.ArrayList(10);
+                    }
+                    enc.stringsRead.add(v);
+                    return v;
+                }
+                catch (java.nio.BufferUnderflowException ex)
                 {
                     throw new Ice.UnmarshalOutOfBoundsException();
                 }
-                char[] arr = new char[len];
-                for (int i = 0; i < len; i++)
-                {
-                    arr[i] = (char)_buf.data[pos++];
-                }
-                String v = new String(arr);
-                Encaps enc = (Encaps)_encapsStack.getLast();
-                if (enc.stringsRead == null)
-                {
-                    enc.stringsRead = new java.util.ArrayList(10);
-                }
-                enc.stringsRead.add(v);
-                return v;
             }
         }
     }
@@ -747,18 +640,11 @@ public class BasicStream
                 }
                 int num = enc.wstringsWritten.size();
                 enc.wstringsWritten.put(v, new Integer(-(num + 1)));
-                int pos = _buf.pos;
-                _buf.pos += len;
-                if (_buf.pos > _buf.len)
-                {
-                    resize(_buf.pos);
-                }
-                final char[] arr = v.toCharArray();
-                for (int i = 0; i < len; i++)
-                {
-                    _buf.data[pos++] = (byte)v;
-                    _buf.data[pos++] = (byte)(v >>> 8);
-                }
+                final int sz = len * 2;
+                expand(sz);
+                java.nio.CharBuffer charBuf = _buf.asCharBuffer();
+                charBuf.put(v);
+                _buf.position(_buf.position() + sz);
             }
         }
     }
@@ -796,26 +682,25 @@ public class BasicStream
             }
             else
             {
-                pos = _buf.pos;
-                _buf.pos += len;
-                if (_buf.pos > _buf.len)
+                try
+                {
+                    char[] arr = new char[len];
+                    java.nio.CharBuffer charBuf = _buf.asCharBuffer();
+                    charBuf.get(arr);
+                    String v = new String(arr);
+                    Encaps enc = (Encaps)_encapsStack.getLast();
+                    if (enc.wstringsRead == null)
+                    {
+                        enc.wstringsRead = new java.util.ArrayList(10);
+                    }
+                    enc.wstringsRead.add(v);
+                    _buf.position(_buf.position() + len * 2);
+                    return v;
+                }
+                catch (java.nio.BufferUnderflowException ex)
                 {
                     throw new Ice.UnmarshalOutOfBoundsException();
                 }
-                char[] arr = new char[len];
-                for (int i = 0; i < len; i++)
-                {
-                    arr[i] = (char)(((char)_buf.data[pos++] & 0xff) |
-                                    ((char)_buf.data[pos++] << 8));
-                }
-                String v = new String(arr);
-                Encaps enc = (Encaps)_encapsStack.getLast();
-                if (enc.wstringsRead == null)
-                {
-                    enc.wstringsRead = new java.util.ArrayList(10);
-                }
-                enc.wstringsRead.add(v);
-                return v;
             }
         }
     }
@@ -943,7 +828,7 @@ public class BasicStream
     public void
     writeUserException(Ice.UserException v)
     {
-        write(v.__getExceptionIds()[0]);
+        writeString(v.__getExceptionIds()[0]);
         v.__write(this);
     }
 
@@ -989,23 +874,39 @@ public class BasicStream
     int
     pos()
     {
-        return _buf.pos;
+        return _buf.position();
     }
 
     void
-    pos(int p)
+    pos(int n)
     {
-        _buf.pos = p;
+        _buf.position(n);
     }
 
     int
     size()
     {
-        return _buf.len;
+        return _limit;
+    }
+
+    private void
+    expand(int size)
+    {
+        _limit += size;
+        if (_limit > _capacity)
+        {
+            final int cap2 = _capacity << 1;
+            int newCapacity = cap2 > _limit ? cap2 : _limit;
+            _buf = _bufferManager.reallocate(_buf, newCapacity);
+            _capacity = _buf.capacity();
+        }
     }
 
     private IceInternal.Instance _instance;
-    private Buffer _buf = new Buffer();
+    private BufferManager _bufferManager;
+    private java.nio.ByteBuffer _buf;
+    private int _capacity; // Cache capacity to avoid excessive method calls
+    private int _limit; // Cache limit to avoid excessive method calls
 
     private static class Encaps
     {
