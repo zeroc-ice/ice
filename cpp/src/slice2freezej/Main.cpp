@@ -308,6 +308,7 @@ usage(const char* n)
         "                      option may be specified multiple times for\n"
         "                      different names. NAME may be a scoped name.\n"
         "--output-dir DIR      Create files in the directory DIR.\n"
+	"--ice                 TBD.\n"
         "-d, --debug           Print debug messages.\n"
         ;
 }
@@ -461,6 +462,15 @@ main(int argc, char* argv[])
                 argv[i] = argv[i + 2];
             }
             argc -= 2;
+        }
+        else if(strcmp(argv[idx], "--ice") == 0)
+        {
+	    // TBD
+            for(int i = idx ; i + 1 < argc ; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            --argc;
         }
         else if(argv[idx][0] == '-')
         {

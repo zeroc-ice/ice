@@ -32,6 +32,7 @@ usage(const char* n)
         "--impl                  Generate sample implementations.\n"
         "--impl-tie              Generate sample TIE implementations.\n"
         "--clone                 Generate clone().\n"
+	"--ice                   TBD.\n"
         "-d, --debug             Print debug messages.\n"
         ;
 }
@@ -167,6 +168,15 @@ main(int argc, char* argv[])
         else if(strcmp(argv[idx], "--clone") == 0)
         {
             clone = true;
+            for(int i = idx ; i + 1 < argc ; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            --argc;
+        }
+        else if(strcmp(argv[idx], "--ice") == 0)
+        {
+	    // TBD
             for(int i = idx ; i + 1 < argc ; ++i)
             {
                 argv[i] = argv[i + 1];

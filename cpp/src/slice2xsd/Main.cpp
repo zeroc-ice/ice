@@ -26,6 +26,7 @@ usage(const char* n)
 	"-DNAME=DEF	      Define NAME as DEF.\n"
 	"-UNAME		      Remove any definition for NAME.\n"
 	"-IDIR		      Put DIR in the include file search path.\n"
+	"--ice                TBD.\n"
 	"-d, --debug	      Print debug messages.\n"
 	;
 }
@@ -121,6 +122,15 @@ main(int argc, char* argv[])
 	    }
 	    argc -= 2;
 	}
+        else if(strcmp(argv[idx], "--ice") == 0)
+        {
+	    // TBD
+            for(int i = idx ; i + 1 < argc ; ++i)
+            {
+                argv[i] = argv[i + 1];
+            }
+            --argc;
+        }
 	else if(argv[idx][0] == '-')
 	{
 	    cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
