@@ -191,7 +191,7 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
     }
     if(opts.isSet("load"))
     {
-        vector<string> args;
+        vector<string> args = opts.argVec("load");
 	for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
 	{
 	    slice.push_back(*i);
