@@ -28,6 +28,9 @@ public final class Outgoing
     reset(String operation, boolean nonmutating, java.util.Map context)
     {
         _state = StateUnsent;
+        _exception = null;
+        _fillStackTrace = false;
+
         _is.reset();
         _os.reset();
 
@@ -114,6 +117,16 @@ public final class Outgoing
                     if (_exception instanceof Ice.CloseConnectionException)
                     {
                         throw _exception;
+                    }
+
+                    //
+                    // If _fillStackTrace is true, then we want to update
+                    // the exception's stack trace to reflect the calling
+                    // thread.
+                    //
+                    if (_fillStackTrace)
+                    {
+                        _exception.fillInStackTrace();
                     }
 
                     //
@@ -210,6 +223,7 @@ public final class Outgoing
                 {
                     _state = StateLocalException;
                     _exception = new Ice.ObjectNotExistException();
+                    _fillStackTrace = true;
                     break;
                 }
 
@@ -217,6 +231,7 @@ public final class Outgoing
                 {
                     _state = StateLocalException;
                     _exception = new Ice.FacetNotExistException();
+                    _fillStackTrace = true;
                     break;
                 }
 
@@ -224,6 +239,7 @@ public final class Outgoing
                 {
                     _state = StateLocalException;
                     _exception = new Ice.OperationNotExistException();
+                    _fillStackTrace = true;
                     break;
                 }
 
@@ -231,6 +247,7 @@ public final class Outgoing
                 {
                     _state = StateLocalException;
                     _exception = new Ice.UnknownLocalException();
+                    _fillStackTrace = true;
                     break;
                 }
 
@@ -238,6 +255,7 @@ public final class Outgoing
                 {
                     _state = StateLocalException;
                     _exception = new Ice.UnknownUserException();
+                    _fillStackTrace = true;
                     break;
                 }
 
@@ -245,6 +263,7 @@ public final class Outgoing
                 {
                     _state = StateLocalException;
                     _exception = new Ice.UnknownException();
+                    _fillStackTrace = true;
                     break;
                 }
 
@@ -252,6 +271,7 @@ public final class Outgoing
                 {
                     _state = StateLocalException;
                     _exception = new Ice.UnknownReplyStatusException();
+                    _fillStackTrace = true;
                     break;
                 }
             }
@@ -338,6 +358,7 @@ public final class Outgoing
     private Connection _connection;
     private Reference _reference;
     private Ice.LocalException _exception;
+    private boolean _fillStackTrace;
 
     private static final int StateUnsent = 0;
     private static final int StateInProgress = 1;
