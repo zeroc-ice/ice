@@ -152,26 +152,6 @@
         }
         "File"
         {
-            "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_06705D2C0B844999B71909D221B77AF8"
-            {
-            "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\ex_access.exe"
-            "TargetName" = "8:ex_access.exe"
-            "Tag" = "8:"
-            "Folder" = "8:_960E1A72653C4D889AFC062E21AEE40A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{54DA9790-1474-11D3-8E00-00C04F6837D0}:_088FE0FE9D7848B5B3F2B4BBD6F65A16"
             {
             "SourcePath" = "8:..\\..\\..\\..\\db-4.2.52\\build_win32\\Release\\db_upgrade.exe"
