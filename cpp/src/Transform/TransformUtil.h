@@ -40,6 +40,11 @@ public:
         _p = p;
     }
 
+    void release()
+    {
+        _p = 0;
+    }
+
 private:
 
     T _p;
