@@ -49,6 +49,13 @@ class EvictorIteratorI extends Ice.LocalObjectImpl implements EvictorIterator
     public void
     destroy()
     {
+	//
+	// Close the iterator explicitly. We don't want to wait for
+	// the garbage collection to destroy the iterator since the
+	// iterator consumes resources (database locks for instance).
+	//
+	((Freeze.Map.EntryIterator)_iterator).close();
+
         _identities = null;
         _iterator = null;
     }

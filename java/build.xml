@@ -14,7 +14,6 @@
     <property name="src.dir" value="src"/>
     <property name="lib.dir" value="lib"/>
     <property name="generated.dir" value="generated"/>
-    <property name="tags.dir" value="${generated.dir}/.tags"/>
     <property name="debug" value="on"/>
     <property name="optimize" value="off"/>
 
@@ -26,8 +25,7 @@
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
-        <mkdir dir="${tags.dir}"/>
-        <slice2java tagdir="${tags.dir}" outputdir="${generated.dir}">
+        <slice2java outputdir="${generated.dir}">
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -72,7 +70,7 @@
                 <include name="Yellow.ice" />
             </fileset>
         </slice2java>
-        <slice2freezej tagdir="${tags.dir}" outputdir="${generated.dir}">
+        <slice2freezej outputdir="${generated.dir}">
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -100,7 +98,6 @@
     </target>
 
     <target name="clean">
-        <delete dir="${tags.dir}"/>
         <delete dir="${generated.dir}"/>
         <delete dir="${lib.dir}"/>
         <ant inheritAll="false" dir="demo" target="clean"/>

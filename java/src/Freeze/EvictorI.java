@@ -106,8 +106,10 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor
 	//
 	_dict.fastRemove(ident);
 	EvictorElement element = remove(ident);
-        assert(element != null);
-        element.destroyed = true;
+        if(element != null)
+	{
+	    element.destroyed = true;
+	}
 	
 	if(_trace >= 1)
 	{

@@ -5,7 +5,6 @@
     <property name="lib.dir" value="${top.dir}/lib"/>
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
-    <property name="tags.dir" value="${generated.dir}/.tags"/>
 
     <!-- install slice2freezej task -->
     <taskdef name="slice2freezej" classpath="${top.dir}/ant" classname="Slice2FreezeJTask" />
@@ -18,11 +17,10 @@
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
-        <mkdir dir="${tags.dir}"/>
-        <slice2freezej tagdir="${tags.dir}" outputdir="${generated.dir}">
+        <slice2freezej outputdir="${generated.dir}">
             <dict name="ByteIntMapXML" key="byte" value="int"/>
         </slice2freezej>
-        <slice2freezej binary="on" tagdir="${tags.dir}" outputdir="${generated.dir}">
+        <slice2freezej binary="on" outputdir="${generated.dir}">
             <dict name="ByteIntMapBinary" key="byte" value="int"/>
         </slice2freezej>
     </target>
@@ -38,7 +36,6 @@
     <target name="all" depends="compile"/>
 
     <target name="clean">
-        <delete dir="${tags.dir}"/>
         <delete dir="${class.dir}"/>
         <delete dir="${generated.dir}"/>
     </target>

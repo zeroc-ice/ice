@@ -12,6 +12,39 @@ import Freeze.*;
 
 public class Client
 {
+    static class StressThread extends Thread
+    {
+        public void
+        run()
+        {
+            try
+            {
+		for(int i = 0; i < 50; ++i)
+		{
+		    java.util.Set entrySet = _map.entrySet();
+		    java.util.Iterator p = entrySet.iterator();
+		    if(p.hasNext())
+		    {
+			Object o = p.next();
+			test(entrySet.contains(o));
+		    }
+		}
+	    }
+	    catch(Exception ex)
+	    {
+		ex.printStackTrace();
+		System.err.println(ex);
+	    }
+	}
+	
+	StressThread(java.util.Map m)
+        {
+	    _map = m;
+	}
+
+	private java.util.Map _map;
+    }
+
     static String alphabet = "abcdefghijklmnopqrstuvwxyz";
 
     private static void
@@ -34,7 +67,7 @@ public class Client
     }
 
     private static int
-    run(String[] args, java.util.Map m)
+    run(String[] args, java.util.Map m, DB db)
 	throws DBException
     {
 	//
@@ -86,105 +119,186 @@ public class Client
 	//
 	populateDB(m);
 
-	System.out.print("  testing keySet... ");
-        System.out.flush();
-	java.util.Set keys = m.keySet();
-	test(keys.size() == alphabet.length());
-	test(!keys.isEmpty());
-	java.util.Iterator p = keys.iterator();
-	while(p.hasNext())
 	{
-	    Object o = p.next();
-	    test(keys.contains(o));
-
-	    Byte b = (Byte)o;
-	    test(m.containsKey(b));
-	}
-	System.out.println("ok");
-
-	System.out.print("  testing values... ");
-        System.out.flush();
-	java.util.Collection values = m.values();
-	test(values.size() == alphabet.length());
-	test(!values.isEmpty());
-	p = values.iterator();
-	while(p.hasNext())
-	{
-	    Object o = p.next();
-	    test(values.contains(o));
-
-	    Integer i = (Integer)o;
-	    test(m.containsValue(i));
-	}
-	System.out.println("ok");
-
-	System.out.print("  testing entrySet... ");
-        System.out.flush();
-	java.util.Set entrySet = m.entrySet();
-	test(entrySet.size() == alphabet.length());
-	test(!entrySet.isEmpty());
-	p = entrySet.iterator();
-	while(p.hasNext())
-	{
-	    Object o = p.next();
-	    test(entrySet.contains(o));
-
-	    java.util.Map.Entry e = (java.util.Map.Entry)o;
-	    test(m.containsKey(e.getKey()));
-	    test(m.containsValue(e.getValue()));
-	}
-	System.out.println("ok");
-
-	System.out.print("  testing iterator.remove... ");
-        System.out.flush();
-
-	test(m.size() == 26);
-	test(m.get(new Byte((byte)'b')) != null);
-	test(m.get(new Byte((byte)'n')) != null);
-	test(m.get(new Byte((byte)'z')) != null);
-
-	p = entrySet.iterator();
-	while(p.hasNext())
-	{
-	    Object o = p.next();
-	    java.util.Map.Entry e = (java.util.Map.Entry)o;
-	    Byte b = (Byte)e.getKey();
-	    byte v = b.byteValue();
-	    if(v == (byte)'b' || v == (byte)'n' || v == (byte)'z')
+	    System.out.print("  testing keySet... ");
+	    System.out.flush();
+	    java.util.Set keys = m.keySet();
+	    test(keys.size() == alphabet.length());
+	    test(!keys.isEmpty());
+	    java.util.Iterator p = keys.iterator();
+	    while(p.hasNext())
 	    {
-		p.remove();
+		Object o = p.next();
+		test(keys.contains(o));
+
+		Byte b = (Byte)o;
+		test(m.containsKey(b));
 	    }
+	    System.out.println("ok");
 	}
 
-	test(m.size() == 23);
-	test(m.get(new Byte((byte)'b')) == null);
-	test(m.get(new Byte((byte)'n')) == null);
-	test(m.get(new Byte((byte)'z')) == null);
-
-	//
-	// Re-populate.
-	//
-	populateDB(m);
-
-	test(m.size() == 26);
-
-	p = entrySet.iterator();
-	while(p.hasNext())
 	{
-	    Object o = p.next();
-	    java.util.Map.Entry e = (java.util.Map.Entry)o;
-	    byte v = ((Byte)e.getKey()).byteValue();
-	    if(v == (byte)'a' || v == (byte)'b' || v == (byte)'c')
+	    System.out.print("  testing values... ");
+	    System.out.flush();
+	    java.util.Collection values = m.values();
+	    test(values.size() == alphabet.length());
+	    test(!values.isEmpty());
+	    java.util.Iterator p = values.iterator();
+	    while(p.hasNext())
 	    {
-		p.remove();
+		Object o = p.next();
+		test(values.contains(o));
+
+		Integer i = (Integer)o;
+		test(m.containsValue(i));
 	    }
+	    System.out.println("ok");
 	}
 
-	test(m.size() == 23);
-	test(m.get(new Byte((byte)'a')) == null);
-	test(m.get(new Byte((byte)'b')) == null);
-	test(m.get(new Byte((byte)'c')) == null);
-	System.out.println("ok");
+	{
+	    System.out.print("  testing entrySet... ");
+	    System.out.flush();
+	    java.util.Set entrySet = m.entrySet();
+	    test(entrySet.size() == alphabet.length());
+	    test(!entrySet.isEmpty());
+	    java.util.Iterator p = entrySet.iterator();
+	    while(p.hasNext())
+	    {
+		Object o = p.next();
+		test(entrySet.contains(o));
+
+		java.util.Map.Entry e = (java.util.Map.Entry)o;
+		test(m.containsKey(e.getKey()));
+		test(m.containsValue(e.getValue()));
+	    }
+	    System.out.println("ok");
+	}
+
+	{
+	    System.out.print("  testing iterator.remove... ");
+	    System.out.flush();
+
+	    test(m.size() == 26);
+	    test(m.get(new Byte((byte)'b')) != null);
+	    test(m.get(new Byte((byte)'n')) != null);
+	    test(m.get(new Byte((byte)'z')) != null);
+
+	    java.util.Set entrySet = m.entrySet();
+	    java.util.Iterator p = entrySet.iterator();
+	    while(p.hasNext())
+	    {
+		Object o = p.next();
+		java.util.Map.Entry e = (java.util.Map.Entry)o;
+		Byte b = (Byte)e.getKey();
+		byte v = b.byteValue();
+		if(v == (byte)'b' || v == (byte)'n' || v == (byte)'z')
+		{
+		    p.remove();
+		}
+	    }
+
+	    ((Freeze.Map.EntryIterator)p).close();
+ 
+	    test(m.size() == 23);
+	    test(m.get(new Byte((byte)'b')) == null);
+	    test(m.get(new Byte((byte)'n')) == null);
+	    test(m.get(new Byte((byte)'z')) == null);
+
+	    //
+	    // Re-populate.
+	    //
+	    populateDB(m);
+	    
+	    test(m.size() == 26);
+
+	    entrySet = m.entrySet();
+	    p = entrySet.iterator();
+	    while(p.hasNext())
+	    {
+		Object o = p.next();
+		java.util.Map.Entry e = (java.util.Map.Entry)o;
+		byte v = ((Byte)e.getKey()).byteValue();
+		if(v == (byte)'a' || v == (byte)'b' || v == (byte)'c')
+		{
+		    p.remove();
+		}
+	    }
+
+	    test(m.size() == 23);
+	    test(m.get(new Byte((byte)'a')) == null);
+	    test(m.get(new Byte((byte)'b')) == null);
+	    test(m.get(new Byte((byte)'c')) == null);
+	    System.out.println("ok");
+	}
+
+	/**
+	 *
+	 * TODO: BENOIT: Re-enable this test. The stress test is disabled for now. It exposes 
+	 * many self dead locks. I believe this is caused by how we setup the database environment,
+	 * i.e.: with all the flags to enable Berkeley DB Transactional support. However since we 
+	 * don't use transactions in the code this leads to deadlocks. If we specify DB_INIT_TXN we 
+	 * should use transactions (http://www.sleepycat.com/docs/ref/transapp/env_open.html).
+	 *
+	 * There's also some details at http://www.sleepycat.com/docs/ref/lock/notxn.html.
+	 *
+	 * Two solutions:
+	 *
+	 *  - use transactions.
+	 *  - use BerkeleyDB Concurrent Data Store product instead.
+	 *
+	{
+	    System.out.print("  testing concurrent access... ");
+	    System.out.flush();
+	
+	    java.util.List l = new java.util.ArrayList();
+	
+	    //
+	    // Create each thread.
+	    //
+	    for(int i = 0; i < 10; ++i)
+	    {
+		if(m instanceof ByteIntMapXML)
+		{
+		    l.add(new StressThread(new ByteIntMapXML(db)));
+		}
+		else
+		{
+		    l.add(new StressThread(new ByteIntMapBinary(db)));
+		}
+	    }
+
+	    //
+	    // Start each thread.
+	    //
+	    java.util.Iterator p = l.iterator();
+	    while(p.hasNext())
+	    {
+		Thread thr = (Thread)p.next();
+		thr.start();
+	    }
+	
+	    //
+	    // Wait for each thread to terminate.
+	    //
+	    p = l.iterator();
+	    while(p.hasNext())
+	    {
+		Thread thr = (Thread)p.next();
+		while(thr.isAlive())
+		{
+		    try
+		    {
+			thr.join();
+		    }
+		    catch(InterruptedException e)
+		    {
+		    }
+		}
+	    }
+
+	    System.out.println("ok");
+	}
+	*/
 
 	return 0;
     }
@@ -214,13 +328,13 @@ public class Client
             xmlDB = dbEnv.openDB("xml", true);
             ByteIntMapXML xml = new ByteIntMapXML(xmlDB);
             System.out.println("testing XML encoding...");
-            status = run(args, xml);
+            status = run(args, xml, xmlDB);
             if(status == 0)
             {
                 binaryDB = dbEnv.openDB("binary", true);
                 ByteIntMapBinary binary = new ByteIntMapBinary(binaryDB);
                 System.out.println("testing binary encoding...");
-                status = run(args, binary);
+                status = run(args, binary, binaryDB);
             }
 	}
 	catch(Exception ex)

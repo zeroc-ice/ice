@@ -47,16 +47,47 @@ public abstract class Map extends java.util.AbstractMap
 	// the size adjusted) and the transaction aborted then the
 	// cached map size() would be incorrect.
 	//
-
 	return (int)_db.getNumberOfRecords();
     }
 
     public boolean
     containsValue(Object value)
     {
-	boolean rc = super.containsValue(value);
-	closeIterators();
-	return rc;
+	//
+	// It's not necessary to close outstanding iterators.
+	//
+	// If it was it would be a problem - it doesn't change the Map
+	// - therefore open iterators should not be invalidated
+	// (according the Java spec).
+	//
+	// closeIterators();
+
+	EntryIterator p = (EntryIterator)entrySet().iterator();
+	if(value == null)
+	{
+	    while(p.hasNext())
+	    {
+		Entry e = (Entry)p.next();
+		if(e.getValue() == null)
+		{
+		    return true;
+		}
+	    }
+	} 
+	else 
+	{
+	    while(p.hasNext()) 
+	    {
+		Entry e = (Entry)p.next();
+		if(value.equals(e.getValue()))
+		{
+		    return true;
+		}
+	    }
+	}
+	p.close();
+
+	return false;
     }
 
     public boolean
@@ -196,7 +227,7 @@ public abstract class Map extends java.util.AbstractMap
 		iterator()
 		{
 		    EntryIterator p = new EntryIterator();
-		    _iterators.add(p);
+		    _iterators.add(new java.lang.ref.WeakReference(p));
 		    return p;
 		}
 		
@@ -263,11 +294,21 @@ public abstract class Map extends java.util.AbstractMap
     private void
     closeIterators()
     {
+	closeIteratorsExcept(null);
+    }
+
+    private void
+    closeIteratorsExcept(java.util.Iterator i)
+    {
 	java.util.Iterator p = _iterators.iterator();
 	while(p.hasNext())
 	{
-	    EntryIterator q = (EntryIterator)p.next();
-	    q.close();
+	    java.lang.ref.WeakReference ref = (java.lang.ref.WeakReference)p.next();
+	    EntryIterator q = (EntryIterator)ref.get();
+	    if(q != null && q != i)
+	    {
+		q.close();
+	    }
 	}
 
 	//
@@ -275,12 +316,23 @@ public abstract class Map extends java.util.AbstractMap
 	// by element in the iteration loop.
 	//
 	_iterators.clear();
+	if(i != null)
+	{
+	    _iterators.add(new java.lang.ref.WeakReference(i));
+	}
     }
 
     private Entry
     getEntry(Object key)
     {
-	closeIterators();
+	//
+	// It's not necessary to close outstanding iterators.
+	//
+	// If it was it would be a problem - it doesn't change the Map
+	// - therefore open iterators should not be invalidated
+	// (according the Java spec).
+	//
+	// closeIterators();
 
 	byte[] k = encodeKey(key, _db.getCommunicator());
 	byte[] v = _db.get(k);
@@ -296,7 +348,14 @@ public abstract class Map extends java.util.AbstractMap
         return (o1 == null ? o2 == null : o1.equals(o2));
     }
 
-    class EntryIterator implements java.util.Iterator
+    /**
+     *
+     * The entry iterator class needs to be public to allow clients to
+     * close explicitly the iterator and free resources allocated for
+     * the iterator as soon as possible.
+     *
+     **/
+    public class EntryIterator implements java.util.Iterator
     {
 	EntryIterator()
 	{
@@ -346,6 +405,8 @@ public abstract class Map extends java.util.AbstractMap
 		throw new IllegalStateException();
 	    }
 	    
+	    closeIteratorsExcept(this);
+	    
 	    //
 	    // Clone the cursor so that error handling is simpler.
 	    //
@@ -378,7 +439,7 @@ public abstract class Map extends java.util.AbstractMap
 		    }
 		}
 	    }
-	    
+
 	    _current = null;
 	}
 	
@@ -401,6 +462,12 @@ public abstract class Map extends java.util.AbstractMap
 	    {
 		copy.close();
 	    }
+	}
+
+	protected void
+	finalize()
+        {
+	    close();
 	}
 	
 	private Entry

@@ -5,7 +5,6 @@
     <property name="lib.dir" value="${top.dir}/lib"/>
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
-    <property name="tags.dir" value="${generated.dir}/.tags"/>
 
     <!-- install slice2java task -->
     <taskdef name="slice2java" classpath="${top.dir}/ant"
@@ -23,11 +22,10 @@
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
-        <mkdir dir="${tags.dir}"/>
-        <slice2java tagdir="${tags.dir}" outputdir="${generated.dir}">
+        <slice2java outputdir="${generated.dir}">
             <fileset dir="." includes="Complex.ice"/>
         </slice2java>
-        <slice2freezej tagdir="${tags.dir}" outputdir="${generated.dir}">
+        <slice2freezej outputdir="${generated.dir}">
             <fileset dir="." includes="Complex.ice"/>
             <dict name="Complex.ComplexDict" key="Complex::Key" value="Complex::Node"/>
         </slice2freezej>
@@ -44,7 +42,6 @@
     <target name="all" depends="compile"/>
 
     <target name="clean">
-        <delete dir="${tags.dir}"/>
         <delete dir="${class.dir}"/>
         <delete dir="${generated.dir}"/>
     </target>

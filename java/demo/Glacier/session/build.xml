@@ -9,7 +9,6 @@
     <property name="lib.dir" value="${top.dir}/lib"/>
     <property name="class.dir" value="classes"/>
     <property name="generated.dir" value="generated"/>
-    <property name="tags.dir" value="${generated.dir}/.tags"/>
 
     <!-- install slice2java task -->
     <taskdef name="slice2java" classpath="${top.dir}/ant" classname="Slice2JavaTask" />
@@ -22,8 +21,7 @@
     <target name="generate" depends="init">
         <!-- Create the output directory for generated code -->
         <mkdir dir="${generated.dir}"/>
-        <mkdir dir="${tags.dir}"/>
-        <slice2java tagdir="${tags.dir}" outputdir="${generated.dir}">
+        <slice2java outputdir="${generated.dir}">
             <includepath>
                 <pathelement path="${slice.dir}" />
             </includepath>
@@ -42,7 +40,6 @@
     <target name="all" depends="compile"/>
 
     <target name="clean">
-        <delete dir="${tags.dir}"/>
         <delete dir="${generated.dir}"/>
         <delete dir="${class.dir}"/>
     </target>

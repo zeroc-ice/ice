@@ -31,24 +31,15 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 
 /**
- * An ant task for slice2java. The task minimizes regeneration by
- * creating a tag file whose timestamp represents the last time
- * the corresponding Slice file was generated.
+ * An ant task for slice2java. This task extends the abstract
+ * SliceTask class which takes care of attributes common to all slice
+ * translators (see SliceTask.java for details on these attributes).
  *
- * Attributes:
+ * Attributes specific to slice2java:
  *
  *   translator - The pathname of the translator (default: "slice2java").
- *   tagdir - The directory in which tag files are located (default: ".").
- *   outputdir - The value for the --output-dir translator option.
  *   package - The value for the --package translator option.
  *   tie - The value for the --tie translator option.
- *   casesensitive - The value for the --case-sensitive translator option.
- *
- * Nested elements:
- *
- *   includepath - The directories in which to search for Slice files.
- *       These are converted into -I directives for the translator.
- *   fileset - The set of Slice files to generate.
  *
  * Example:
  *
@@ -70,18 +61,14 @@ import java.io.BufferedWriter;
  *
  * The <taskdef> element installs the slice2java task.
  */
-public class Slice2JavaTask extends org.apache.tools.ant.Task
+public class Slice2JavaTask extends SliceTask
 {
     public
     Slice2JavaTask()
     {
         _translator = new File("slice2java");
-        _tagDir = new File(".");
-        _outputDir = null;
         _package = null;
-        _includePath = null;
         _tie = false;
-	_caseSensitive = false;
     }
 
     public void
@@ -91,71 +78,15 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
     }
 
     public void
-    setTagdir(File dir)
-    {
-        _tagDir = dir;
-    }
-
-    public void
-    setOutputdir(File dir)
-    {
-        _outputDir = dir;
-    }
-
-    public void
     setPackage(String pkg)
     {
         _package = pkg;
-    }
-
-    public Path
-    createIncludePath()
-    {
-        if(_includePath == null) 
-        {
-            _includePath = new Path(project);
-        }
-        return _includePath.createPath();
-    }
-
-    public void
-    setIncludePathRef(Reference ref)
-    {
-        createIncludePath().setRefid(ref);
-    }
-
-    public void
-    setIncludePath(Path includePath)
-    {
-        if(_includePath == null)
-        {
-            _includePath = includePath;  
-        }
-        else
-        {
-            _includePath.append(includePath);
-        }
     }
 
     public void
     setTie(boolean tie)
     {
         _tie = tie;
-    }
-
-    public void
-    setCaseSensitive(boolean c)
-    {
-        _caseSensitive = c;
-    }
-
-    public FileSet
-    createFileset()
-    {
-        FileSet fileset = new FileSet();
-        _fileSets.add(fileset);
-
-        return fileset;
     }
 
     public void
@@ -167,8 +98,17 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
             throw new BuildException("No fileset specified");
         }
 
+	//
+	// Read the set of dependencies for this task.
+	//
+	java.util.HashMap dependencies = readDependencies();
+
         //
-        // Compose a list of the files that need to be translated
+        // Compose a list of the files that need to be translated. A
+        // file needs to translated if we can't find a dependency in
+        // the dependency table or if its dependency is not up-to-date
+        // anymore (the slice file changed since the dependency was
+        // last updated or a slice file it depends on changed).
         //
         java.util.Vector buildList = new java.util.Vector();
         java.util.Iterator p = _fileSets.iterator();
@@ -181,44 +121,11 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
             String[] files = scanner.getIncludedFiles();
             for(int i = 0; i < files.length; i++)
             {
-		boolean translate = false;
-
                 File slice = new File(fileset.getDir(project), files[i]);
-                File tag = new File(_tagDir, "." + slice.getName() + ".tag");
 
-                if(tag.exists() && slice.lastModified() <= tag.lastModified())
-                {
-		    try
-		    {
-			BufferedReader reader = new BufferedReader(new FileReader(tag));
-			String dependency;
-			while((dependency = reader.readLine()) != null)
-			{
-			    File dependencyFile = new File(dependency);
-			    if(!dependencyFile.exists() || tag.lastModified() < dependencyFile.lastModified())
-			    {
-				translate = true;
-				break;
-			    }
-			}
-			reader.close();
-		    }
-		    catch(java.io.FileNotFoundException ex)
-		    {
-			translate = true;
-		    }
-		    catch(java.io.IOException ex)
-		    {
-			translate = true;
-		    }
-                }
-		else
+		SliceDependency depend = (SliceDependency)dependencies.get(getTargetKey(slice.toString()));
+		if(depend == null || !depend.isUpToDate())
 		{
-		    translate = true;
-		}
-
-		if(translate)
-                {
                     buildList.addElement(slice);
                 }
 		else
@@ -309,7 +216,7 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
             task.execute();
 
             //
-            // Create the tag files
+            // Update the dependencies.
             //
 	    cmd = new StringBuffer("--depend");
 
@@ -339,72 +246,43 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
 	    task = (ExecTask)project.createTask("exec");
             task.setFailonerror(true);
 	    arg = task.createArg();
-            arg.setLine(cmd.toString() + " --depend");
-            task.setExecutable("slice2java");
+            arg.setLine(cmd.toString());
+            task.setExecutable(_translator.toString());
 	    task.setOutputproperty("slice2java.depend");
             task.execute();
 
-	    try
+	    //
+	    // Update dependency file.
+	    //
+	    java.util.List newDependencies = parseDependencies(project.getProperty("slice2java.depend"));
+	    p = newDependencies.iterator();
+	    while(p.hasNext())
 	    {
-		BufferedReader in = new BufferedReader(new StringReader(project.getProperty("slice2java.depend")));
-		StringBuffer depline = new StringBuffer();
-		String line;
-		while((line = in.readLine()) != null)
-		{
-		    if(line.endsWith("\\"))
-		    {
-			depline.append(line.substring(0, line.length() - 1));
-		    }
-		    else
-		    {
-			depline.append(line);
-
-			String[] deps = depline.toString().split("[\\s]");
-			if(deps.length > 0)
-			{
-			    File slice = new File(deps[0]);
-			    int pos = slice.getName().indexOf('.');
-			    if(pos != -1)
-			    {
-				String sliceFile = slice.getName().substring(0, pos);
-				File tag = new File(_tagDir, "." + sliceFile + ".ice.tag");
-				try
-				{
-				    BufferedWriter out = new BufferedWriter(new FileWriter(tag));
-				    for(int i = 2; i < deps.length; ++i)
-				    {
-					if(deps[i].length() > 0)
-					{
-					    out.write(deps[i]);
-					    out.newLine();
-					}
-				    }
-				    out.close();
-				}
-				catch(java.io.IOException ex)
-				{
-				    throw new BuildException("Unable to create tag file " + tag + ": " + ex);
-				}
-			    }
-			}
-			
-			depline = new StringBuffer();
-		    }
-		}
+		SliceDependency dep = (SliceDependency)p.next();
+		dependencies.put(getTargetKey(dep._dependencies[0]), dep);
 	    }
-	    catch(java.io.IOException ex)
-	    {
-		throw new BuildException("Unable to read dependencies to create tag files: " + ex);
-	    }
+		
+	    writeDependencies(dependencies);
         }
     }
 
+    private String
+    getTargetKey(String slice)
+    {
+	//
+	// Since the dependency file can be shared by several slice
+	// tasks we need to make sure that each dependency has a
+	// unique key. We use the name of the task, the output
+	// directory and the name of the slice file to be compiled. 
+	//
+	// If there's two slice2java tasks using the same dependency
+	// file, with the same output dir and which compiles the same
+	// slice file they'll use the same dependency.
+	//
+	return "slice2java " + _outputDir.toString() + slice;
+    }
+
     private File _translator;
-    private File _tagDir;
-    private File _outputDir;
     private String _package;
-    private Path _includePath;
     private boolean _tie;
-    private boolean _caseSensitive;
-    private java.util.List _fileSets = new java.util.LinkedList();
 }

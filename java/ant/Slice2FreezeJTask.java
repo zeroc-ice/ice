@@ -23,22 +23,16 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 /**
- * An ant task for slice2freezej. The task minimizes regeneration by
- * the use of tag files.
+ * An ant task for slice2freezej. This task extends the abstract
+ * SliceTask class which takes care of attributes common to all slice
+ * translators (see SliceTask.java for details on these attributes).
  *
  * Attributes:
  *
- *   translator - The pathname of the translator (default: "slice2java").
- *   tagdir - The directory in which tag files are located (default: ".").
- *   outputdir - The value for the --output-dir translator option.
  *   binary - Enables --binary option.
- *   casesensitive - The value for the --case-sensitive translator option.
  *
  * Nested elements:
  *
- *   includepath - The directories in which to search for Slice files.
- *   These are converted into -I directives for the translator.
- *   fileset - The set of Slice files which contain relevent types.
  *   dict - contains the NAME KEY & VALUE of the freeze type.
  *
  * Example:
@@ -60,9 +54,9 @@ import java.io.FileOutputStream;
  *        </target>
  *    </project>
  *
- * The <taskdef> element installs the slice2java task.
+ * The <taskdef> element installs the slice2freezej task.
  */
-public class Slice2FreezeJTask extends org.apache.tools.ant.Task
+public class Slice2FreezeJTask extends SliceTask
 {
     public
     Slice2FreezeJTask()
@@ -76,65 +70,9 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
     }
 
     public void
-    setTagdir(File dir)
-    {
-        _tagDir = dir;
-    }
-
-    public void
-    setOutputdir(File dir)
-    {
-        _outputDir = dir;
-    }
-
-    public void
     setBinary(boolean binary)
     {
         _binary = binary;
-    }
-
-    public void
-    setCaseSensitive(boolean c)
-    {
-        _caseSensitive = c;
-    }
-
-    public Path
-    createIncludePath()
-    {
-        if(_includePath == null) 
-        {
-            _includePath = new Path(project);
-        }
-        return _includePath.createPath();
-    }
-
-    public void
-    setIncludePathRef(Reference ref)
-    {
-        createIncludePath().setRefid(ref);
-    }
-
-    public void
-    setIncludePath(Path includePath)
-    {
-        if(_includePath == null)
-        {
-            _includePath = includePath;  
-        }
-        else
-        {
-            _includePath.append(includePath);
-        }
-    }
-
-    public FileSet
-    createFileset()
-    {
-	FileSet fileset = new FileSet();
-	_fileSets.add(fileset);
-
-	return fileset;
     }
 
     public Dict
@@ -155,7 +93,13 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	}
 
 	//
-	// Determine if the output file needs to be created.
+	// Read the set of dependencies for this task.
+	//
+	java.util.HashMap dependencies = readDependencies();
+
+	//
+	// Check if the set of slice files changed. If it changed we
+	// need to rebuild all the dictionnaries.
 	//
 	boolean build = false;
 	java.util.List sliceFiles = new java.util.LinkedList();
@@ -172,43 +116,40 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	    {
 		File slice = new File(fileset.getDir(project), files[i]);
 		sliceFiles.add(slice);
-	    }
-	}
-	
-	java.util.List tagFiles = new java.util.LinkedList();
-	
-	p = _dicts.iterator();
-	while(p.hasNext())
-	{
-	    //
-	    // Build the complete list of tag files - it's not
-	    // possible to stop on the first missing or old file since
-	    // if changed they all need to be touched.
-	    //
-	    File tag = new File(_tagDir, "." + ((Dict)p.next()).getName() + ".tag");
-	    tagFiles.add(tag);
-	    
-	    if(!build)
-	    {
-		if(!tag.exists())
-		{
-		    build = true;
-		    continue;
-		}
 
-		java.util.Iterator q = sliceFiles.iterator();
-		while(q.hasNext())
+		if(!build)
 		{
-		    File slice = (File)q.next();
-		    if(slice.lastModified() > tag.lastModified())
+		    //
+		    // The dictionnaries need to be re-created since
+		    // on dependency changed.
+		    //
+		    SliceDependency depend = (SliceDependency)dependencies.get(getSliceTargetKey(slice.toString()));
+		    if(depend == null || !depend.isUpToDate())
 		    {
 			build = true;
-			break;
 		    }
 		}
 	    }
 	}
 
+	if(!build)
+	{
+	    //
+	    // Check that each dictionnaries has been built at least
+	    // once.
+	    //
+	    p = _dicts.iterator();
+	    while(p.hasNext())
+	    {
+		SliceDependency depend = (SliceDependency)dependencies.get(getDictTargetKey((Dict)p.next()));
+		if(depend == null)
+		{
+		    build = true;
+		    break;
+		}
+	    }
+	}
+	
 	//
 	// Add the --dict options.
 	//
@@ -303,31 +244,90 @@ public class Slice2FreezeJTask extends org.apache.tools.ant.Task
 	task.execute();
 	
 	//
-	// Touch the tag files.
-	//
-	p = tagFiles.iterator();
-	while(p.hasNext())
+	// Update the dependencies.
+	//	
+	if(!sliceFiles.isEmpty())
 	{
-	    File tag = (File)p.next();
-	    try
+	    cmd = new StringBuffer("--depend");
+	    
+	    //
+	    // Add include directives
+	    //
+	    if(_includePath != null)
 	    {
-		FileOutputStream out = new FileOutputStream(tag);
-		out.close();
+		String[] dirs = _includePath.list();
+		for(int i = 0; i < dirs.length; i++)
+		{
+		    cmd.append(" -I");
+		    cmd.append(dirs[i]);
+		}
 	    }
-	    catch(java.io.IOException ex)
+
+	    //
+	    // Add the slice files.
+	    //
+	    p = sliceFiles.iterator();
+	    while(p.hasNext())
 	    {
-		throw new BuildException("Unable to create tag file " + tag + ": " + ex);
+		File f = (File)p.next();
+		cmd.append(" " + f.toString());
+	    }
+
+	    //
+	    // Add the --dict options.
+	    //
+	    cmd.append(dictString);
+
+	    task = (ExecTask)project.createTask("exec");
+	    task.setFailonerror(true);
+	    arg = task.createArg();
+	    arg.setLine(cmd.toString());
+	    task.setExecutable(_translator.toString());
+	    task.setOutputproperty("slice2freezej.depend");
+	    task.execute();
+
+	    //
+	    // Update dependency file.
+	    //
+	    java.util.List newDependencies = parseDependencies(project.getProperty("slice2freezej.depend"));
+	    p = newDependencies.iterator();
+	    while(p.hasNext())
+	    {
+		SliceDependency dep = (SliceDependency)p.next();
+		dependencies.put(getSliceTargetKey(dep._dependencies[0]), dep);
 	    }
 	}
+
+	p = _dicts.iterator();
+	while(p.hasNext())
+	{
+	    dependencies.put(getDictTargetKey((Dict)p.next()), new SliceDependency());
+	}
+
+	writeDependencies(dependencies);
+    }
+
+    private String
+    getSliceTargetKey(String slice)
+    {
+	//
+	// Since the dependency file can be shared by several slice
+	// tasks we need to make sure that each dependency has a
+	// unique key. We use the name of the task, the output
+	// directory, the first dictionnary name and the name of the
+	// slice file to be compiled.
+	//
+	return "slice2freezej " + _outputDir.toString() + ((Dict)_dicts.get(0)).getName() + slice;
+    }
+
+    private String
+    getDictTargetKey(Dict d)
+    {
+	return "slice2freezej " + _outputDir.toString() + d.getName();
     }
 
     private File _translator = new File("slice2freezej");
-    private File _tagDir = new File(".");
-    private File _outputDir = null;
     private boolean _binary = false;
-    private boolean _caseSensitive = false;
-    private Path _includePath = null;
-    private java.util.List _fileSets = new java.util.LinkedList();
 
     public class Dict
     {
