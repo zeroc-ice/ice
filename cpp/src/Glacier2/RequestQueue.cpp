@@ -125,7 +125,10 @@ Glacier2::RequestQueue::destroy()
     // thread to block here.
     //
     //getThreadControl().join();
-    getThreadControl().detach();
+    if(getThreadControl().isAlive())
+    {
+	getThreadControl().detach();
+    }
 }
 
 bool

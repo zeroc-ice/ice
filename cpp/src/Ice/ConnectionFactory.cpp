@@ -856,8 +856,27 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 	    // one thread per incoming connection factory, that
 	    // accepts new connections on this endpoint.
 	    //
-	    _threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory(this);
-	    _threadPerIncomingConnectionFactory->start(_instance->threadPerConnectionStackSize());
+	    __setNoDelete(true);
+	    try
+	    {
+		_threadPerIncomingConnectionFactory = new ThreadPerIncomingConnectionFactory(this);
+		_threadPerIncomingConnectionFactory->start(_instance->threadPerConnectionStackSize());
+	    }
+	    catch(const IceUtil::Exception& ex)
+	    {
+		{
+		    Error out(_instance->logger());
+		    out << "cannot create thread for incoming connection factory:\n" << ex;
+		}
+		
+		_state = StateClosed;
+		_acceptor = 0;
+		_threadPerIncomingConnectionFactory = 0;
+
+		__setNoDelete(false);
+		throw;
+	    }
+	    __setNoDelete(false);
 	}
     }
 }
