@@ -173,6 +173,21 @@ SOURCE=.\dummy.ice
 
 !IF  "$(CFG)" == "IceStormS - Win32 Release"
 
+# Begin Custom Build
+InputPath=.\dummy.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2freeze.exe --include-dir IceStorm  --dict IceStorm::StringBoolDict,string,bool StringBoolDict \
+	
+
+"StringBoolDict.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"StringBoolDict.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "IceStormS - Win32 Debug"
 
 # Begin Custom Build

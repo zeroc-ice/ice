@@ -125,6 +125,22 @@ SOURCE=.\Grammar.y
 
 !IF  "$(CFG)" == "IceStormC - Win32 Release"
 
+# Begin Custom Build
+InputPath=.\Grammar.y
+
+BuildCmds= \
+	bison -dvt Grammar.y \
+	move Grammar.tab.c Grammar.cpp \
+	move Grammar.tab.h Grammar.h \
+	
+
+"Grammar.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Grammar.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "IceStormC - Win32 Debug"
 
 # Begin Custom Build
@@ -151,6 +167,15 @@ BuildCmds= \
 SOURCE=.\Scanner.l
 
 !IF  "$(CFG)" == "IceStormC - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\Scanner.l
+
+"Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	flex Scanner.l 
+	move lex.yy.c Scanner.cpp 
+	
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "IceStormC - Win32 Debug"
 
