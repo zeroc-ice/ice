@@ -31,7 +31,13 @@ public:
     ObjectS();
     virtual ~ObjectS();
 
-    virtual bool __dispatch(::__Ice::Incoming&, const std::string&) = 0;
+    virtual bool _implements(const std::string&);
+    void ____implements(::__Ice::Incoming&);
+
+    typedef void (ObjectS::*__Op)(::__Ice::Incoming&);
+    static __Op __ops[];
+    static std::string __names[];
+    virtual bool __dispatch(::__Ice::Incoming&, const std::string&);
 };
 
 } }
