@@ -112,12 +112,10 @@ print "ok"
 print "starting publisher...",
 command = publisher + updatedClientOptions + iceStormEndpoint
 publisherPipe = os.popen(command)
-output = publisherPipe.readline()
-if not output:
-    print "failed!"
-    TestUtil.killServers()
-    sys.exit(1)
 print "ok"
+
+for output in publisherPipe.xreadlines():
+    print output,
 
 #
 # Verify that the subscriber has terminated.

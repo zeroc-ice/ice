@@ -75,19 +75,17 @@ if sys.platform != "cygwin" and sys.platform != "win32":
     print "starting client...",
     exit
     clientPipe = os.popen(client + updatedClientOptions)
-    output = clientPipe.readline()
-    if not output:
-        print "failed!"
-        TestUtil.killServers()
-        sys.exit(1)
     print "ok"
-    print output,
-    while 1:
-        output = clientPipe.readline()
-        if not output:
-            break;
+
+    for output in clientPipe.xreadlines():
         print output,
 
+    clientStatus = clientPipe.close()
+
+    if clientStatus:
+	killServers()
+	sys.exit(1)
+    
 print "shutting down icepack...",
 command = icePackAdmin + updatedClientOptions + \
           r' "--IcePack.Admin.Endpoints=default -p 12347 -t 5000" -e "shutdown"'
@@ -99,9 +97,8 @@ if icePackAdminStatus:
 print "ok"
 
 icePackStatus = icePackPipe.close()
-clientStatus = clientPipe.close()
 
-if icePackStatus or clientStatus:
+if icePackStatus:
     TestUtil.killServers()
     sys.exit(1)
 

@@ -32,14 +32,15 @@ client = "java -classpath \"" + classpath + "\" Client --dbdir " + testdir
 
 print "starting populate...",
 clientPipe = os.popen(client + " populate")
-output = clientPipe.read().strip()
-if not output:
-    print "failed!"
-    clientPipe.close()
-    sys.exit(1)
 print "ok"
-print output
-clientPipe.close()
+
+for output in clientPipe.xreadlines():
+    print output,
+
+clientStatus = clientPipe.close()
+
+if clientStatus:
+    sys.exit(1)
 
 print "starting validate...",
 clientPipe = os.popen(client + " validate")

@@ -63,9 +63,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     SinglePrx single = SinglePrx::uncheckedCast(obj);
 
     for (int i = 0; i < 10; ++i)
+    {
 	single->event();
-
-    cout << "ok" << endl;
+    }
 
     return EXIT_SUCCESS;
 }

@@ -39,13 +39,11 @@ updatedOptions = localClientOptions.replace("TOPLEVELDIR", toplevel)
 testOptions = testOptions.replace("TOPLEVELDIR", toplevel)
 print "starting certificateAndKeyParsing...",
 clientPipe = os.popen(client + updatedOptions + testOptions)
-output = clientPipe.read().strip()
-if not output:
-    print "failed!"
-    sys.exit(1)
 print "ok"
-print output
 
+for output in clientPipe.xreadlines():
+    print output,
+    
 clientStatus = clientPipe.close()
 
 if clientStatus:

@@ -43,13 +43,11 @@ print "ok"
 
 print "starting client...",
 clientPipe = os.popen(client + clientOptions)
-output = clientPipe.read().strip()
-if not output:
-    print "failed!"
-    sys.exit(1)
 print "ok"
-print output
 
+for output in clientPipe.xreadlines():
+    print output,
+    
 os.remove("numeric.txt")
 os.remove("utf8.txt")
 

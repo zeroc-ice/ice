@@ -33,11 +33,12 @@ host = ""
 
 if protocol == "ssl":
     clientProtocol = " --Ice.DefaultProtocol=ssl" + \
-    " --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=client_sslconfig.xml"
+    " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=client_sslconfig.xml"
     serverProtocol = " --Ice.DefaultProtocol=ssl" + \
-    " --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=server_sslconfig.xml"
+    " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=server_sslconfig.xml"
     clientServerProtocol = " --Ice.DefaultProtocol=ssl" + \
-    " --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=sslconfig.xml"
+    " --IceSSL.Client.CertPath=TOPLEVELDIR/certs --IceSSL.Client.Config=sslconfig.xml" + \
+    " --IceSSL.Server.CertPath=TOPLEVELDIR/certs --IceSSL.Server.Config=sslconfig.xml"
 else:
     clientProtocol = ""
     serverProtocol = ""
@@ -64,11 +65,8 @@ clientOptions = clientProtocol + defaultHost
 clientServerOptions = commonServerOptions + clientServerProtocol + defaultHost
 collocatedOptions = clientServerProtocol
 
-serverPids = []
-
-#
 # Only used for C++ programs
-#
+serverPids = []
 def killServers():
 
     global serverPids
@@ -92,9 +90,7 @@ def killServers():
 
     serverPids = []
 
-#
 # Only used for C++ programs
-#
 def getServerPid(serverPipe):
 
     output = serverPipe.readline().strip()
@@ -132,20 +128,10 @@ def clientServerTest(toplevel, name):
     
     print "starting client...",
     clientPipe = os.popen(client + updatedClientOptions)
-    output = clientPipe.readline()
-    if not output:
-        print "failed!"
-        serverPipe.close()
-        clientPipe.close()
-        killServers()
-        sys.exit(1)
     print "ok"
-    print output,
-    while 1:
-        output = clientPipe.readline()
-        if not output:
-            break;
-        print output,
+
+    for output in clientPipe.xreadlines():
+	print output,
 
     clientStatus = clientPipe.close()
     serverStatus = serverPipe.close()
@@ -171,19 +157,10 @@ def mixedClientServerTest(toplevel, name):
     
     print "starting client...",
     clientPipe = os.popen(client + updatedClientOptions)
-    output = clientPipe.readline()
-    if not output:
-        print "failed!"
-        serverPipe.close()
-        clientPipe.close()
-        killServers()
-        sys.exit(1)
     print "ok"
-    while 1:
-        output = clientPipe.readline()
-        if not output:
-            break;
-        print output,
+
+    for output in clientPipe.xreadlines():
+	print output,
 
     clientStatus = clientPipe.close()
     serverStatus = serverPipe.close()
@@ -202,13 +179,10 @@ def collocatedTest(toplevel, name):
 
     print "starting collocated...",
     collocatedPipe = os.popen(collocated + updatedCollocatedOptions)
-    output = collocatedPipe.read().strip()
-    if not output:
-        print "failed!"
-        collocatedPipe.close()
-        sys.exit(1)
     print "ok"
-    print output
+
+    for output in collocatedPipe.xreadlines():
+	print output,
 
     collocatedStatus = collocatedPipe.close()
 

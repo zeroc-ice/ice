@@ -49,18 +49,9 @@ print "starting client...",
 s = " %d %d" % (base, (base + num - 1))
 command = client + updatedClientOptions + s
 clientPipe = os.popen(command)
-output = clientPipe.readline()
-if not output:
-    print "failed!"
-    for i in range(0, num):
-        serverPipes[i].close()
-    sys.exit(1)
 print "ok"
-print output,
-while 1:
-    output = clientPipe.readline()
-    if not output:
-	break;
+
+for output in clientPipe.xreadlines():
     print output,
 
 clientStatus = clientPipe.close()

@@ -45,18 +45,9 @@ for i in range(0, num):
     ports = "%s %d" % (ports, base + i)
 print "starting client...",
 clientPipe = os.popen(client + updatedClientOptions + " " + ports)
-output = clientPipe.readline()
-if not output:
-    print "failed!"
-    for i in range(0, num):
-        serverPipes[i].close()
-    sys.exit(1)
 print "ok"
-print output,
-while 1:
-    output = clientPipe.readline()
-    if not output:
-	break;
+
+for output in clientPipe.xreadlines():
     print output,
 
 for i in range(0, num):

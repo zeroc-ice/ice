@@ -138,8 +138,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     eventFed3->pub("shutdown");
 
-    cout << "ok" << endl;
-
     return EXIT_SUCCESS;
 }
 

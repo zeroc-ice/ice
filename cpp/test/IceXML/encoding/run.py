@@ -29,13 +29,11 @@ client = os.path.join(testdir, "client" + ' ' + testdir)
 
 print "starting client...",
 clientPipe = os.popen(client)
-output = clientPipe.read().strip()
-if not output:
-    print "failed!"
-    sys.exit(1)
 print "ok"
-print output
 
+for output in clientPipe.xreadlines():
+    print output,
+    
 clientStatus = clientPipe.close()
 
 if clientStatus:

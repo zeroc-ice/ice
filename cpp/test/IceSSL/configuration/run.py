@@ -32,13 +32,11 @@ localClientOptions = TestUtil.clientServerProtocol + TestUtil.defaultHost
 updatedOptions = localClientOptions.replace("TOPLEVELDIR", toplevel)
 print "starting configuration...",
 clientPipe = os.popen(client + updatedOptions)
-output = clientPipe.read().strip()
-if not output:
-    print "failed!"
-    sys.exit(1)
 print "ok"
-print output
 
+for output in clientPipe.xreadlines():
+    print output,
+    
 clientStatus = clientPipe.close()
 
 if clientStatus:

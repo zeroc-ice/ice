@@ -28,7 +28,7 @@ if not os.environ.has_key('ICE_HOME'):
 ice_home = os.environ['ICE_HOME']
 
 starter = os.path.join(ice_home, "bin", "glacierstarter")
-router = os.path.join(ice_home, "bin", "glacier")
+router = os.path.join(ice_home, "bin", "glacierrouter")
 
 updatedServerOptions = TestUtil.serverOptions.replace("TOPLEVELDIR", toplevel)
 updatedClientOptions = TestUtil.clientOptions.replace("TOPLEVELDIR", toplevel)
@@ -41,8 +41,8 @@ command = starter + updatedClientServerOptions + \
           r' --Glacier.Starter.CryptPasswords="' + toplevel + r'/test/Glacier/starter/passwords"' + \
           r' --Glacier.Starter.Endpoints="default -p 12346 -t 5000"' + \
           r' --Glacier.Router.Endpoints="default"' + \
-          r' --Glacier.Client.Endpoints="default"' + \
-          r' --Glacier.Server.Endpoints="tcp"'
+          r' --Glacier.Router.Client.Endpoints="default"' + \
+          r' --Glacier.Router.Server.Endpoints="tcp"'
 
 print "starting glacier starter...",
 starterPipe = os.popen(command)

@@ -59,7 +59,6 @@ clientServerOptions = commonServerOptions + clientServerProtocol + defaultHost
 collocatedOptions = clientServerProtocol
 
 serverPids = []
-
 def killServers():
 
     global serverPids
@@ -120,17 +119,9 @@ def clientServerTest(toplevel, name):
     
     print "starting client...",
     clientPipe = os.popen(client + updatedClientOptions)
-    output = clientPipe.readline()
-    if not output:
-	print "failed!"
-	killServers()
-	sys.exit(1)
     print "ok"
-    print output,
-    while 1:
-	output = clientPipe.readline()
-	if not output:
-	    break;
+
+    for output in clientPipe.xreadlines():
 	print output,
 
     clientStatus = clientPipe.close()
@@ -159,17 +150,9 @@ def mixedClientServerTest(toplevel, name):
     clientPipe = os.popen(client + updatedClientOptions)
     getServerPid(clientPipe)
     getAdapterReady(clientPipe)
-    output = clientPipe.readline()
-    if not output:
-	print "failed!"
-	killServers()
-	sys.exit(1)
     print "ok"
-    print output,
-    while 1:
-	output = clientPipe.readline()
-	if not output:
-	    break;
+
+    for output in clientPipe.xreadlines():
 	print output,
 
     clientStatus = clientPipe.close()
@@ -188,12 +171,10 @@ def collocatedTest(toplevel, name):
 
     print "starting collocated...",
     collocatedPipe = os.popen(collocated + updatedCollocatedOptions)
-    output = collocatedPipe.read().strip()
-    if not output:
-        print "failed!"
-        sys.exit(1)
     print "ok"
-    print output
+
+    for output in collocatedPipe.xreadlines():
+	print output,
 
     collocatedStatus = collocatedPipe.close()
 

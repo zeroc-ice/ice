@@ -36,12 +36,10 @@ clientOptions = " --dbdir " + testdir;
 
 print "starting populate...",
 populatePipe = os.popen(client + clientOptions + " populate")
-output = populatePipe.read().strip()
-if not output:
-    print "failed!"
-    sys.exit(1)
 print "ok"
-print output
+
+for output in populatePipe.xreadlines():
+    print output,
 
 populateStatus = populatePipe.close()
 
@@ -50,12 +48,10 @@ if populateStatus:
 
 print "starting verification client...",
 clientPipe = os.popen(client + clientOptions + " validate")
-output = clientPipe.read().strip()
-if not output:
-    print "failed!"
-    sys.exit(1)
 print "ok"
-print output
+
+for output in clientPipe.xreadlines():
+    print output,
 
 clientStatus = clientPipe.close()
 
