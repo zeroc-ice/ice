@@ -125,7 +125,9 @@ for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
 else:
     raise "can't find toplevel directory!"
 
-if not isWin32():
+if isWin32():
+    os.environ["PATH"] = os.path.join(toplevel, "bin") + ";" + os.environ["PATH"]
+else:
     os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.environ["LD_LIBRARY_PATH"]
 
 if protocol == "ssl":
