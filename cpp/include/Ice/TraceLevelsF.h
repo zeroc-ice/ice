@@ -17,8 +17,8 @@ namespace __Ice
 {
 
 class TraceLevelsI;
-void ICE_API incRef(TraceLevelsI*);
-void ICE_API decRef(TraceLevelsI*);
+void incRef(TraceLevelsI*);
+void decRef(TraceLevelsI*);
 typedef __Ice::Handle<TraceLevelsI> TraceLevels;
 
 }

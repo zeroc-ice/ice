@@ -17,8 +17,8 @@ namespace __Ice
 {
 
 class EventHandlerI;
-void ICE_API incRef(EventHandlerI*);
-void ICE_API decRef(EventHandlerI*);
+void incRef(EventHandlerI*);
+void decRef(EventHandlerI*);
 typedef __Ice::Handle<EventHandlerI> EventHandler;
 
 }

@@ -27,7 +27,7 @@ class LocalException;
 namespace __Ice
 {
 
-class ICE_API EventHandlerI : public Shared
+class EventHandlerI : public Shared
 {
 public:
     

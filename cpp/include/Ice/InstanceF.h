@@ -17,8 +17,8 @@ namespace __Ice
 {
 
 class InstanceI;
-void ICE_API incRef(InstanceI*);
-void ICE_API decRef(InstanceI*);
+void incRef(InstanceI*);
+void decRef(InstanceI*);
 typedef __Ice::Handle<InstanceI> Instance;
 
 }

@@ -22,7 +22,7 @@ namespace __Ice
 
 class Stream;
 
-class ICE_API ThreadPoolI : public Shared, public JTCMonitorT<JTCMutex>
+class ThreadPoolI : public Shared, public JTCMonitorT<JTCMutex>
 {
 public:
 

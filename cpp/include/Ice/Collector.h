@@ -35,7 +35,7 @@ namespace __Ice
 
 class Incoming;
 
-class ICE_API CollectorI : public EventHandlerI, public JTCRecursiveMutex
+class CollectorI : public EventHandlerI, public JTCRecursiveMutex
 {
 public:
 
@@ -90,7 +90,7 @@ private:
 #endif
 };
 
-class ICE_API CollectorFactoryI : public EventHandlerI, public JTCMutex
+class CollectorFactoryI : public EventHandlerI, public JTCMutex
 {
 public:
 

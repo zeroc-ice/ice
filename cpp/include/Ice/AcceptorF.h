@@ -17,8 +17,8 @@ namespace __Ice
 {
 
 class AcceptorI;
-void ICE_API incRef(AcceptorI*);
-void ICE_API decRef(AcceptorI*);
+void incRef(AcceptorI*);
+void decRef(AcceptorI*);
 typedef __Ice::Handle<AcceptorI> Acceptor;
 
 }

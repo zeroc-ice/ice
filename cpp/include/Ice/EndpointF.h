@@ -17,8 +17,8 @@ namespace __Ice
 {
 
 class EndpointI;
-void ICE_API incRef(EndpointI*);
-void ICE_API decRef(EndpointI*);
+void incRef(EndpointI*);
+void decRef(EndpointI*);
 typedef __Ice::Handle<EndpointI> Endpoint;
 
 }

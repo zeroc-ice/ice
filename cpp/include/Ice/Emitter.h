@@ -34,7 +34,7 @@ namespace __Ice
 
 class Outgoing;
 
-class ICE_API EmitterI : public EventHandlerI, public JTCMutex
+class EmitterI : public EventHandlerI, public JTCMutex
 {
 public:
 
@@ -85,7 +85,7 @@ private:
 #endif
 };
 
-class ICE_API EmitterFactoryI : public Shared, public JTCMutex
+class EmitterFactoryI : public Shared, public JTCMutex
 {
 public:
 

@@ -17,13 +17,13 @@ namespace __Ice
 {
 
 class CollectorI;
-void ICE_API incRef(CollectorI*);
-void ICE_API decRef(CollectorI*);
+void incRef(CollectorI*);
+void decRef(CollectorI*);
 typedef __Ice::Handle<CollectorI> Collector;
 
 class CollectorFactoryI;
-void ICE_API incRef(CollectorFactoryI*);
-void ICE_API decRef(CollectorFactoryI*);
+void incRef(CollectorFactoryI*);
+void decRef(CollectorFactoryI*);
 typedef __Ice::Handle<CollectorFactoryI> CollectorFactory;
 
 }

@@ -22,7 +22,7 @@ namespace __Ice
 
 class Stream;
 
-class ICE_API ProxyFactoryI : public Shared
+class ProxyFactoryI : public Shared
 {
 public:
     

@@ -27,7 +27,7 @@ const ::Ice::Short UnknownEndpointType = 0;
 const ::Ice::Short TcpEndpointType = 1;
 const ::Ice::Short UdpEndpointType = 2;
 
-class ICE_API EndpointI : public Shared
+class EndpointI : public Shared
 {
 public:
 
@@ -104,7 +104,7 @@ public:
     virtual bool operator<(const EndpointI&) const = 0;
 };
 
-class ICE_API UnknownEndpointI : public EndpointI
+class UnknownEndpointI : public EndpointI
 {
 public:
 
@@ -134,7 +134,7 @@ private:
     const std::vector< ::Ice::Byte> rawBytes_;
 };
 
-class ICE_API TcpEndpointI : public EndpointI
+class TcpEndpointI : public EndpointI
 {
 public:
 
@@ -168,7 +168,7 @@ private:
     const ::Ice::Int timeout_;
 };
 
-class ICE_API UdpEndpointI : public EndpointI
+class UdpEndpointI : public EndpointI
 {
 public:
 

@@ -17,8 +17,8 @@ namespace __Ice
 {
 
 class TransceiverI;
-void ICE_API incRef(TransceiverI*);
-void ICE_API decRef(TransceiverI*);
+void incRef(TransceiverI*);
+void decRef(TransceiverI*);
 typedef __Ice::Handle<TransceiverI> Transceiver;
 
 }

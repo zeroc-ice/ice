@@ -17,8 +17,8 @@ namespace __Ice
 {
 
 class ConnectorI;
-void ICE_API incRef(ConnectorI*);
-void ICE_API decRef(ConnectorI*);
+void incRef(ConnectorI*);
+void decRef(ConnectorI*);
 typedef __Ice::Handle<ConnectorI> Connector;
 
 }

@@ -17,8 +17,8 @@ namespace __Ice
 {
 
 class ProxyFactoryI;
-void ICE_API incRef(ProxyFactoryI*);
-void ICE_API decRef(ProxyFactoryI*);
+void incRef(ProxyFactoryI*);
+void decRef(ProxyFactoryI*);
 typedef __Ice::Handle<ProxyFactoryI> ProxyFactory;
 
 }

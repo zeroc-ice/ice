@@ -21,7 +21,7 @@ namespace __Ice
 
 class Stream;
 
-class ICE_API ReferenceI : public Shared
+class ReferenceI : public Shared
 {
 public:
 

@@ -25,7 +25,7 @@
 namespace __Ice
 {
 
-class ICE_API InstanceI : public Shared, public JTCMutex
+class InstanceI : public Shared, public JTCMutex
 {
 public:
 
