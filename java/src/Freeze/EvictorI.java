@@ -1180,12 +1180,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     }
 
     static byte[]
-    marshalRootKey(EvictorStorageKey v, Ice.Communicator communicator)
+    marshalRootKey(Ice.Identity v, Ice.Communicator communicator)
     {
         IceInternal.BasicStream os = new IceInternal.BasicStream(Ice.Util.getInstance(communicator));
         try
         {
-            v.identity.__write(os);
+            v.__write(os);
             java.nio.ByteBuffer buf = os.prepareWrite();
             byte[] r = new byte[buf.limit()];
             buf.get(r);
@@ -1488,11 +1488,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
         // of the EvictorStorageKey struct that the object and its facets all have in common, namely the
         // identity.
         //
-	EvictorStorageKey rootEsk = new EvictorStorageKey();
-	rootEsk.identity = ident;
-	rootEsk.facet = null;
-	byte[] root = marshalRootKey(rootEsk, _communicator);
-        byte[] mainKey = marshalKey(rootEsk, _communicator);
+	byte[] root = marshalRootKey(ident, _communicator);
 
 	com.sleepycat.db.Dbt dbKey;
 	com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt();
@@ -1511,22 +1507,14 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		//
 		// Get first pair
 		//	
-                dbKey = new com.sleepycat.db.Dbt(mainKey);
-		int rs = dbc.get(dbKey, dbValue, com.sleepycat.db.Db.DB_SET);
-	
-		if(rs != 0)
-		{ 
-		    if(_trace >= 2)
-		    {
-			_communicator.getLogger().trace(
-			    "Freeze::Evictor", 
-			    "could not find \"" + Ice.Util.identityToString(ident) +
-			    "\" in the database");
-		    }
-		    return null;
+                dbKey = new com.sleepycat.db.Dbt(root);
+		int rs = dbc.get(dbKey, dbValue, com.sleepycat.db.Db.DB_SET_RANGE);
+		if(rs == 0)
+		{
+		    assert(dbKey.get_data() != root);
 		}
 
-		do
+		while(rs == 0 && startWith(dbKey.get_data(), root))
 		{
 		    //
 		    // Unmarshal key and data and insert it into result's facet map
@@ -1549,7 +1537,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    //
 		    rs = dbc.get(dbKey, dbValue, com.sleepycat.db.Db.DB_NEXT);    
 		}
-		while(rs == 0 && startWith(dbKey.get_data(), root));
 		
 		break; // for (;;)
 	    }
@@ -1580,6 +1567,18 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    }
 		}
 	    }
+	}
+
+	if(result.facets.size() == 0)
+	{ 
+	    if(_trace >= 2)
+	    {
+		_communicator.getLogger().trace(
+		    "Freeze::Evictor", 
+		    "could not find \"" + Ice.Util.identityToString(ident) +
+		    "\" in the database");
+	    }
+	    return null;
 	}
 
 	//
