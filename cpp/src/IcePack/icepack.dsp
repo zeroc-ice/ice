@@ -147,7 +147,7 @@ USERDEP__ADMIN="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\IcePack\Admin.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Admin.ice \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Admin.ice \
 	move Admin.h ..\..\include\IcePack \
 	
 
@@ -165,7 +165,7 @@ USERDEP__ADMIN="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\IcePack\Admin.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Admin.ice \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Admin.ice \
 	move Admin.h ..\..\include\IcePack \
 	
 
@@ -190,7 +190,7 @@ USERDEP__EXCEP="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\IcePack\Exception.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Exception.ice \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Exception.ice \
 	move Exception.h ..\..\include\IcePack \
 	
 
@@ -208,7 +208,7 @@ USERDEP__EXCEP="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\IcePack\Exception.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Exception.ice \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Exception.ice \
 	move Exception.h ..\..\include\IcePack \
 	
 
@@ -233,7 +233,7 @@ USERDEP__QUERY="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\IcePack\Query.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Query.ice \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Query.ice \
 	move Query.h ..\..\include\IcePack \
 	
 
@@ -251,7 +251,7 @@ USERDEP__QUERY="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\IcePack\Query.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Query.ice \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PACK_API --include-dir IcePack -I../../slice ../../slice/IcePack/Query.ice \
 	move Query.h ..\..\include\IcePack \
 	
 

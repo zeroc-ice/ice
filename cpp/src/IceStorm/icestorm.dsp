@@ -131,7 +131,7 @@ USERDEP__ICEST="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\IceStorm\IceStorm.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_STORM_API --include-dir IceStorm -I../../slice ../../slice/IceStorm/IceStorm.ice \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_STORM_API --include-dir IceStorm -I../../slice ../../slice/IceStorm/IceStorm.ice \
 	move IceStorm.h ..\..\include\IceStorm \
 	
 
@@ -149,7 +149,7 @@ USERDEP__ICEST="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\IceStorm\IceStorm.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_STORM_API --include-dir IceStorm -I../../slice ../../slice/IceStorm/IceStorm.ice \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_STORM_API --include-dir IceStorm -I../../slice ../../slice/IceStorm/IceStorm.ice \
 	move IceStorm.h ..\..\include\IceStorm \
 	
 

@@ -167,7 +167,7 @@ USERDEP__ROUTE="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\Glacier\Router.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Router.ice \
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Router.ice \
 	move Router.h ..\..\include\Glacier \
 	
 
@@ -185,7 +185,7 @@ USERDEP__ROUTE="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\Glacier\Router.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Router.ice \
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Router.ice \
 	move Router.h ..\..\include\Glacier \
 	
 
@@ -210,7 +210,7 @@ USERDEP__SESSI="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\Glacier\Session.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Session.ice \
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Session.ice \
 	move Session.h ..\..\include\Glacier \
 	
 
@@ -228,7 +228,7 @@ USERDEP__SESSI="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\Glacier\Session.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Session.ice \
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Session.ice \
 	move Session.h ..\..\include\Glacier \
 	
 
@@ -253,7 +253,7 @@ USERDEP__SESSIO="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\Glacier\SessionF.ice
 
 "..\..\include\Glacier\SessionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionF.ice 
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionF.ice 
 	move SessionF.h ..\..\include\Glacier 
 	del SessionF.cpp 
 	
@@ -266,7 +266,7 @@ USERDEP__SESSIO="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\Glacier\SessionF.ice
 
 "..\..\include\Glacier\SessionF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionF.ice 
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionF.ice 
 	move SessionF.h ..\..\include\Glacier 
 	del SessionF.cpp 
 	
@@ -286,7 +286,7 @@ USERDEP__SESSION="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\Glacier\SessionManager.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionManager.ice \
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionManager.ice \
 	move SessionManager.h ..\..\include\Glacier \
 	
 
@@ -304,7 +304,7 @@ USERDEP__SESSION="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\Glacier\SessionManager.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionManager.ice \
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionManager.ice \
 	move SessionManager.h ..\..\include\Glacier \
 	
 
@@ -329,7 +329,7 @@ USERDEP__SESSIONM="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\Glacier\SessionManagerF.ice
 
 "..\..\include\Glacier\SessionManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionManagerF.ice 
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionManagerF.ice 
 	move SessionManagerF.h ..\..\include\Glacier 
 	del SessionManagerF.cpp 
 	
@@ -342,7 +342,7 @@ USERDEP__SESSIONM="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\Glacier\SessionManagerF.ice
 
 "..\..\include\Glacier\SessionManagerF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-	..\..\bin\slice2cpp.exe --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionManagerF.ice 
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/SessionManagerF.ice 
 	move SessionManagerF.h ..\..\include\Glacier 
 	del SessionManagerF.cpp 
 	
@@ -362,7 +362,7 @@ USERDEP__START="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\Glacier\Starter.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Starter.ice \
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Starter.ice \
 	move Starter.h ..\..\include\Glacier \
 	
 
@@ -380,7 +380,7 @@ USERDEP__START="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\Glacier\Starter.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Starter.ice \
+	..\..\bin\slice2cpp.exe --checksum --dll-export GLACIER_API --include-dir Glacier -I../../slice ../../slice/Glacier/Starter.ice \
 	move Starter.h ..\..\include\Glacier \
 	
 

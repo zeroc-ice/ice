@@ -130,7 +130,7 @@ USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\slice.lib"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe -I../../../../slice Test.ice
+	..\..\..\..\bin\slice2cpp.exe --checksum -I../../../../slice Test.ice
 
 "Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -146,7 +146,7 @@ USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\sliced.lib"
 InputPath=.\Test.ice
 
 BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe -I../../../../slice Test.ice
+	..\..\..\..\bin\slice2cpp.exe --checksum -I../../../../slice Test.ice
 
 "Test.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -169,7 +169,7 @@ USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\slice.lib"
 InputPath=.\Types.ice
 
 BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe Types.ice
+	..\..\..\..\bin\slice2cpp.exe --checksum Types.ice
 
 "Types.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
@@ -185,7 +185,7 @@ USERDEP__TEST_="..\..\..\..\bin\slice2cpp.exe"	"..\..\..\..\lib\sliced.lib"
 InputPath=.\Types.ice
 
 BuildCmds= \
-	..\..\..\..\bin\slice2cpp.exe Types.ice
+	..\..\..\..\bin\slice2cpp.exe --checksum Types.ice
 
 "Types.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)

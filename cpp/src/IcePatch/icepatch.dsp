@@ -155,7 +155,7 @@ USERDEP__ICEPA="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\IcePatch\IcePatch.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/IcePatch.ice \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/IcePatch.ice \
 	move IcePatch.h ..\..\include\IcePatch \
 	
 
@@ -173,7 +173,7 @@ USERDEP__ICEPA="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\IcePatch\IcePatch.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/IcePatch.ice \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_PATCH_API --include-dir IcePatch -I../../slice ../../slice/IcePatch/IcePatch.ice \
 	move IcePatch.h ..\..\include\IcePatch \
 	
 

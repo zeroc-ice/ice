@@ -135,7 +135,7 @@ USERDEP__ICEBO="..\..\bin\slice2cpp.exe"	"..\..\lib\slice.lib"
 InputPath=..\..\slice\IceBox\IceBox.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_BOX_API --include-dir IceBox -I../../slice ../../slice/IceBox/IceBox.ice \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_BOX_API --include-dir IceBox -I../../slice ../../slice/IceBox/IceBox.ice \
 	move IceBox.h ..\..\include\IceBox \
 	
 
@@ -153,7 +153,7 @@ USERDEP__ICEBO="..\..\bin\slice2cpp.exe"	"..\..\lib\sliced.lib"
 InputPath=..\..\slice\IceBox\IceBox.ice
 
 BuildCmds= \
-	..\..\bin\slice2cpp.exe --ice --dll-export ICE_BOX_API --include-dir IceBox -I../../slice ../../slice/IceBox/IceBox.ice \
+	..\..\bin\slice2cpp.exe --ice --checksum --dll-export ICE_BOX_API --include-dir IceBox -I../../slice ../../slice/IceBox/IceBox.ice \
 	move IceBox.h ..\..\include\IceBox \
 	
 
