@@ -19,7 +19,6 @@
         <ant dir="latency"/>
         <ant dir="nested"/>
         <ant dir="throughput"/>
-        <ant dir="value"/>
     </target>
 
     <target name="clean">
