@@ -30,7 +30,7 @@ LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(CLIENT): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) $(LIBS) -lFreeze -ldb
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJS) -lFreeze $(LIBS) -ldb
 
 Grammar.cpp Grammar.h: Grammar.y
 	bison -dvt Grammar.y

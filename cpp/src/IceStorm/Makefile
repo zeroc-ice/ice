@@ -68,11 +68,11 @@ $(NAME): $(VERSIONED_NAME)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIceStorm -lFreeze $(XERCESC_LIBS) -ldb $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIceStorm -lFreeze $(LIBS) $(XERCESC_LIBS) -ldb
 
 $(ADMIN): $(AOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(XERCESC_LIBS) $(LIBS) -lreadline -lcurses
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(AOBJS) -lIceStorm $(LIBS) $(XERCESC_LIBS) -lreadline -lcurses
 
 $(HDIR)/IceStorm.h IceStorm.cpp: $(SDIR)/IceStorm.ice $(SLICE2CPP)
 	rm -f $(HDIR)/IceStorm.h IceStorm.cpp

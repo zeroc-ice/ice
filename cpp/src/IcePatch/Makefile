@@ -57,7 +57,7 @@ $(CLIENT): $(COBJS)
 
 $(SERVER): $(SOBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIcePatch $(OPENSSL_LIBS) $(LIBS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(SOBJS) -lIcePatch $(LIBS) $(OPENSSL_LIBS)
 
 $(HDIR)/IcePatch.h IcePatch.cpp: $(SDIR)/IcePatch.ice $(SLICE2CPP)
 	rm -f $(HDIR)/IcePatch.h IcePatch.cpp

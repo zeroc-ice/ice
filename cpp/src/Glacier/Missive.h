@@ -44,7 +44,7 @@ private:
 class MissiveQueue;
 typedef IceUtil::Handle<MissiveQueue> MissiveQueuePtr;
 
-class MissiveQueue : virtual public IceUtil::Thread, IceUtil::Monitor<IceUtil::Mutex>
+class MissiveQueue : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
