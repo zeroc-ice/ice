@@ -19,6 +19,7 @@ IcePack.Node.Name=node
 IcePack.Node.Endpoints=default
 IcePack.Node.Data=db/node
 IcePack.Node.CollocateRegistry=1
+#IcePack.Node.Output=db
 
 #
 # Trace properties.

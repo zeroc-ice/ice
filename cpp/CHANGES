@@ -13,6 +13,9 @@ Changes since version 1.5.0
 - Fixed a bug in the slice2cs code generator: classes with multiple
   sequence members caused incorrect code to be generated.
 
+- Added work-around for clients "hanging" at exit when using
+  IcePack on Windows.
+
 Changes since version 1.4.0
 ---------------------------
 

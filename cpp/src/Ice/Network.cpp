@@ -176,6 +176,21 @@ IceInternal::createSocket(bool udp)
 	throw ex;
     }
 
+
+#ifdef _WIN32
+    //
+    // Temporary work-around!
+    // Make this socket non-inheritable, so that IcePack-launched servers
+    // do not inherit it.
+    // 
+    if(!SetHandleInformation(reinterpret_cast<HANDLE>(fd), HANDLE_FLAG_INHERIT, 0))
+    {
+	SyscallException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
+    }
+#endif
+
     if(!udp)
     {
 	setTcpNoDelay(fd);
@@ -596,6 +611,19 @@ repeatAccept:
     setKeepAlive(ret);
 
 #ifdef _WIN32
+
+    //
+    // Temporary work-around!
+    // Make this socket non-inheritable, so that IcePack-launched servers
+    // do not inherit it.
+    // 
+    if(!SetHandleInformation(reinterpret_cast<HANDLE>(ret), HANDLE_FLAG_INHERIT, 0))
+    {
+	SyscallException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
+    }
+
     //
     // Set larger send buffer size to avoid performance problems on
     // WIN32.

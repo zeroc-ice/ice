@@ -610,7 +610,7 @@ Activator::activate(const string& name,
 
 	}
 
-	si.hStdInput = GetStdHandle(STD_OUTPUT_HANDLE);
+	si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 	if(si.hStdInput == INVALID_HANDLE_VALUE)
 	{
 	    SyscallException ex(__FILE__, __LINE__);
@@ -632,6 +632,10 @@ Activator::activate(const string& name,
 	}
 	if(_redirectErrToOut)
 	{
+	    //
+	    // Note: very partial implementation, since we don't pass this 
+	    // info to the child
+	    //
 	    process.errHandle = process.outHandle;
 	}
 	else
@@ -644,6 +648,10 @@ Activator::activate(const string& name,
 		throw ex;
 	    }
 	}
+	//
+	// Note: we don't set si.hStdOutput or si.hStdError, and use
+	// Windows default behavior.
+	//
     }
 
     PROCESS_INFORMATION pi;
@@ -654,7 +662,7 @@ Activator::activate(const string& name,
         cmdbuf,                   // Command line
         NULL,                     // Process attributes
         NULL,                     // Thread attributes
-        TRUE,                     // Inherit handles
+        _outputDir.size() > 0,    // Inherit handles only when redirecting (Temporary, should always be FALSE)
         CREATE_NEW_PROCESS_GROUP, // Process creation flags
         (LPVOID)env,              // Process environment
         dir,                      // Current directory
