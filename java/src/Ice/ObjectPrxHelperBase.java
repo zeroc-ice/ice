@@ -600,6 +600,17 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	{
 	}
 
+	if(ice_isBatchOneway() || ice_isBatchDatagram())
+	{
+	    //
+	    // We do not retry batch requests (except for problems
+	    // during connection establishment, which are not handled
+	    // here anyway). If we retry a batch request, previous
+	    // requests from the same batch are silently thrown away.
+	    //
+	    throw ex;
+	}
+
 	IceInternal.ProxyFactory proxyFactory = _reference.getInstance().proxyFactory();
 	if(proxyFactory != null)
 	{
@@ -607,7 +618,11 @@ public class ObjectPrxHelperBase implements ObjectPrx
 	}
 	else
 	{
-	    throw ex; // The communicator is already destroyed, so we cannot retry.
+	    //
+            // The communicator is already destroyed, so we cannot
+            // retry.
+	    //
+	    throw ex;
 	}
     }
 

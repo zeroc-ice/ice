@@ -1,6 +1,10 @@
 Changes since version 2.0.0
 ---------------------------
 
+- Ice does not retry batch requests anymore, except for retry of
+  connection establishement. Otherwise if we retry a batch request,
+  previous requests from the same batch are silently thrown away.
+
 - Fixed a deadlock that could occur if a server cannot send data
   during connection validation.
 
