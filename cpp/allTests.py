@@ -59,7 +59,7 @@ tests = [ \
     "FreezeScript/dbmap", \
     "FreezeScript/evictor", \
     "IcePack/simple", \
-#    "IcePack/deployer", \
+    "IcePack/deployer", \
     "Glacier/starter", \
     ]
 
