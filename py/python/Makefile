@@ -9,6 +9,8 @@
 
 top_srcdir	= ..
 
+include $(top_srcdir)/config/Make.rules
+
 ICE_SRCS	= Ice_LocalException_ice.py \
 		  Ice_Communicator_ice.py \
 		  Ice_CommunicatorF_ice.py \
@@ -62,36 +64,27 @@ ICEPATCH_SRCS	= IcePatch_IcePatch_ice.py
 
 ICESTORM_SRCS	= IceStorm_IceStorm_ice.py
 
-include $(top_srcdir)/config/Make.rules
-
 all:: $(ICE_SRCS) $(GLACIER_SRCS) $(GLACIER2_SRCS) $(ICEBOX_SRCS) $(ICEPACK_SRCS) $(ICEPATCH_SRCS) $(ICESTORM_SRCS)
 
 Ice_%_ice.py: $(slicedir)/Ice/%.ice
-	rm -f $(*F).py
 	$(SLICE2PY) --prefix Ice_ --ice --no-package $(SLICE2PYFLAGS) $<
 
 Glacier_%_ice.py: $(slicedir)/Glacier/%.ice
-	rm -f $(*F).py
 	$(SLICE2PY) --prefix Glacier_ --checksum $(SLICE2PYFLAGS) $<
 
 Glacier2_%_ice.py: $(slicedir)/Glacier2/%.ice
-	rm -f $(*F).py
 	$(SLICE2PY) --prefix Glacier2_ --checksum $(SLICE2PYFLAGS) $<
 
 IceBox_%_ice.py: $(slicedir)/IceBox/%.ice
-	rm -f $(*F).py
 	$(SLICE2PY) --prefix IceBox_ --ice --checksum $(SLICE2PYFLAGS) $<
 
 IcePack_%_ice.py: $(slicedir)/IcePack/%.ice
-	rm -f $(*F).py
 	$(SLICE2PY) --prefix IcePack_ --ice --checksum $(SLICE2PYFLAGS) $<
 
 IcePatch_%_ice.py: $(slicedir)/IcePatch/%.ice
-	rm -f $(*F).py
 	$(SLICE2PY) --prefix IcePatch_ --ice --checksum $(SLICE2PYFLAGS) $<
 
 IceStorm_%_ice.py: $(slicedir)/IceStorm/%.ice
-	rm -f $(*F).py
 	$(SLICE2PY) --prefix IceStorm_ --ice --checksum $(SLICE2PYFLAGS) $<
 
 clean::
