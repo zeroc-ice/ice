@@ -155,24 +155,61 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 void
 IceInternal::OutgoingAsync::__finished(const LocalException& exc)
 {
-    try
+    bool retry = false;
+
+    if(_reference->locatorInfo)
     {
-	ice_exception(exc);
+	_reference->locatorInfo->clearObjectCache(_reference);
     }
-    catch(const Exception& ex)
+    
+    if(dynamic_cast<const CloseConnectionException*>(&exc))
     {
-	warning(ex);
-    }
-    catch(const std::exception& ex)
-    {
-	warning(ex);
-    }
-    catch(...)
-    {
-	warning();
+	try
+	{
+	    ProxyFactoryPtr proxyFactory = _reference->instance->proxyFactory();
+	    if(proxyFactory)
+	    {
+		proxyFactory->checkRetryAfterException(exc, _cnt);
+	    }
+	    else
+	    {
+		exc.ice_throw(); // The communicator is already destroyed, so we cannot retry.
+	    }
+
+	    retry = true;
+	}
+	catch(const LocalException&)
+	{
+	}
     }
 
-    cleanup();
+    if(retry)
+    {
+	_connection->decProxyCount();
+	_connection = 0;
+	__send();
+    }
+    else
+    {
+	try
+	{
+	    ice_exception(exc);
+	}
+	catch(const Exception& ex)
+	{
+	    warning(ex);
+	}
+	catch(const std::exception& ex)
+	{
+	    warning(ex);
+	}
+	catch(...)
+	{
+	    warning();
+	}
+	
+	cleanup();
+    }
 }
 
 bool
@@ -235,6 +272,12 @@ IceInternal::OutgoingAsync::__send()
     {
 	while(true)
 	{
+	    if(!_connection)
+	    {
+		_connection = _reference->getConnection();
+		_connection->incProxyCount();
+	    }
+
 	    try
 	    {
 		_connection->sendAsyncRequest(__os, this);
@@ -257,6 +300,9 @@ IceInternal::OutgoingAsync::__send()
 		    ex.ice_throw(); // The communicator is already destroyed, so we cannot retry.
 		}
 	    }
+
+	    _connection->decProxyCount();
+	    _connection = 0;
 	}
     }
     catch(const LocalException& ex)

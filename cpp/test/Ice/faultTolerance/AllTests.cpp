@@ -186,7 +186,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     bool ami = false;
     for(unsigned int i = 1, j = 0; i <= ports.size(); ++i, ++j)
     {
-	if(j >= 3)
+	if(j > 3)
 	{
 	    j = 0;
 	    ami = !ami;
