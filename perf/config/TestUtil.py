@@ -236,24 +236,25 @@ class AllResults :
 
     def printAllAsCsv(self, results, tests, names, hosts, products):
 
-        print "Product, Test, Configuration, ",
-        for host in hosts:
-            print host + ",",
+        print "Test, Configuration, ",
+        for product in products:
+            for host in hosts:
+                print product + " " + host + ",",
         print ""
 
-        for product in products:
-            for test in tests:
-                for name in names:
-                    if results[test].has_key(name):
+        for test in tests:
+            for name in names:
+                if results[test].has_key(name):
+                    print test + "," + name + ",",
+                    for product in products:
                         if results[test][name].has_key(product):
-                            print product + "," + test + "," + name + ",",
                             for host in hosts:
                                 if not results[test][name][product].has_key(host):
                                     print ",",
                                 else:
                                     (m, r) = results[test][name][product][host]
                                     print  str(m) + ",",
-                            print ""
+                    print ""
 
     def printAllAsText(self, results, tests, names, hosts, products):
 
