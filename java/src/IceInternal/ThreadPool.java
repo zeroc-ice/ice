@@ -29,12 +29,15 @@ public final class ThreadPool
     unregister(java.nio.channels.SelectableChannel fd, boolean callFinished)
     {
         java.nio.channels.SelectionKey key = fd.keyFor(_selector);
-        HandlerInfo info = (HandlerInfo)key.attachment();
-        assert(info != null);
-        info.callFinished = callFinished;
-        info.next = _removes;
-        _removes = info;
-        setInterrupt();
+        if (key != null)
+        {
+            HandlerInfo info = (HandlerInfo)key.attachment();
+            assert(info != null);
+            info.callFinished = callFinished;
+            info.next = _removes;
+            _removes = info;
+            setInterrupt();
+        }
     }
 
     public void
