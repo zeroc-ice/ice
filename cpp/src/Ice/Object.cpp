@@ -373,6 +373,30 @@ Ice::Object::ice_findFacet(const string& name)
     }
 }
 
+ObjectPtr
+Ice::Object::ice_findFacet(const vector<string>& path, int start)
+{
+    int sz = path.size();
+
+    if(start > sz)
+    {
+	return 0;
+    }
+
+    if(start == sz)
+    {
+	return this;
+    }
+
+    ObjectPtr facet = ice_findFacet(path[start]);
+    if(!facet)
+    {
+	return 0;
+    }
+
+    return facet->ice_findFacet(path, start + 1);
+}
+
 DispatchStatus
 Ice::Blobject::__dispatch(Incoming& in, const Current& current)
 {
