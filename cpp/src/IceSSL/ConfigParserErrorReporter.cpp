@@ -31,11 +31,13 @@ toString(const XMLCh* s)
     return r;
 }
 
+// TODO: ML: Indentation.
 IceSSL::ConfigParserErrorReporter::ConfigParserErrorReporter(const IceSSL::TraceLevelsPtr& traceLevels,
                                                              const Ice::LoggerPtr& logger) :
                                   _traceLevels(traceLevels),
                                   _logger(logger)
 {
+    // TODO: ML: User initializer list.
     _errorCount = 0;
 }
 

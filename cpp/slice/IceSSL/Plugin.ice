@@ -20,7 +20,6 @@ module IceSSL
 
 /**
  *
- *
  * A [Plugin] may serve as a Client, Server or both (ClientServer).  A
  * <literal>Context</literal> is set up inside the [Plugin] in order to handle
  * either Client or Server roles.  The <literal>Context</literal> represents a

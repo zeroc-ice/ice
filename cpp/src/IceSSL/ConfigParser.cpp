@@ -32,6 +32,7 @@ IceSSL::ConfigParser::ConfigParser(const string& configFile) :
     _configFile(configFile)
 {
     assert(!configFile.empty());
+    // TODO: ML Initialize int the initializer list. Remove unnecessary 0 initialization.
     _configPath = "./";
     _traceLevels = 0;
     _logger = 0;
@@ -44,6 +45,7 @@ IceSSL::ConfigParser::ConfigParser(const string& configFile, const string& confi
 {
     assert(!configFile.empty());
     assert(!configPath.empty());
+    // TODO: ML Initialize int the initializer list. Remove unnecessary 0 initialization.
     _traceLevels = 0;
     _logger = 0;
 }
@@ -70,6 +72,7 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
         ostringstream s;
+	// TODO: ML: ": " can just be ":", as nothing follows at the same line.
         s << "while parsing " << _configFile << ": " << endl;
 	s << "xerces-c init exception: " << toString(toCatch.getMessage());
 
@@ -94,8 +97,11 @@ IceSSL::ConfigParser::process()
 
     try
     {
+	// TODO: ML: _configPath.front();
+	// TODO: ML: What about files that start with c:\, or just \?
         if(*(_configFile.begin()) != '/')
         {
+	    // TODO: ML: _configPath.back();
             if(*(_configPath.rbegin()) != '/')
             {
                 _configPath += "/";
@@ -131,6 +137,7 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
         ostringstream s;
+	// TODO: ML: ": " can just be ":", as nothing follows at the same line.
         s << "while parsing " << _configFile << ": " << endl;
 	s << "xerces-c parsing error: " << toString(e.getMessage());
 
@@ -143,6 +150,7 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
 	ostringstream s;
+	// TODO: ML: ": " can just be ":", as nothing follows at the same line.
         s << "while parsing " << _configFile << ": " << endl;
 	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
@@ -151,10 +159,14 @@ IceSSL::ConfigParser::process()
 
         throw configEx;
     }
-    catch (...)
+    catch(...)
     {
         ConfigParseException configEx(__FILE__, __LINE__);
 
+	// TODO: ML: ":\n" (: is missing)
+	// TODO: ML: "unknown exception" instead of "unknown error
+	// occured during parsing". The latter is redundant, given
+	// that it already says "while parsing".
         configEx.message = "while parsing " + _configFile + "\n" + "unknown error occured during parsing";
 
         throw configEx;
@@ -165,8 +177,7 @@ IceSSL::ConfigParser::process()
         ConfigParseException configEx(__FILE__, __LINE__);
 
         ostringstream errStr;
-
-        errStr << dec << errorCount << " errors occured during parsing";
+        errStr << dec << errorCount << " errors during parsing";
 
         configEx.message = errStr.str();
 
@@ -206,6 +217,7 @@ IceSSL::ConfigParser::loadClientConfig(GeneralConfig& general,
         ConfigParseException configEx(__FILE__, __LINE__);
 
 	ostringstream s;
+	// TODO: ML: ": " can just be ":", as nothing follows at the same line.
         s << "while loading client configuration: " << endl;
 	s << "xerces-c DOM parsing error, DOMException code: " << e.code;
         s << ", message: " << e.msg;
@@ -256,6 +268,9 @@ IceSSL::ConfigParser::loadServerConfig(GeneralConfig& general,
     return false;
 }
 
+// TODO: ML: Can you get rid of these functions? The logger and
+// trace level should be set in the constructor, either by
+// configuration, or by passing arguments.
 void
 IceSSL::ConfigParser::setTrace(const TraceLevelsPtr& traceLevels)
 {
@@ -284,7 +299,7 @@ IceSSL::ConfigParser::isLoggerSet() const
 // Private Methods
 //
 
-// path is of the form "sslconfig:client:general"
+// Path is of the form "sslconfig:client:general"
 void
 IceSSL::ConfigParser::popRoot(string& path, string& root, string& tail)
 {
@@ -412,6 +427,10 @@ IceSSL::ConfigParser::getCertAuth(DOMNode* rootNode, CertificateAuthority& certA
             string filename = nodeValue;
 
             // Just a filename, no path component, append path.
+	    // TODO: ML: Append path? Prepend path! Also, why this
+	    // rule? I can understand this for absolute filenames, but
+	    // for something like foo/bar? Shouldn't this be relative
+	    // to _configPath?
             if((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
             {
                 filename = _configPath + filename;
@@ -609,6 +628,7 @@ IceSSL::ConfigParser::loadCertificateFile(DOMNode* rootNode, CertificateFile& ce
             filename = nodeValue;
 
             // Just a filename, no path component, append path.
+	    // TODO: ML: See comments above.
             if((filename.find("/") == string::npos) && (filename.find("\\") == string::npos))
             {
                 filename = _configPath + filename;
