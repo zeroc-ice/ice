@@ -468,7 +468,7 @@ def extractDemos(buildDir, version, distro, demoDir):
 	# The RPM configuration is the only one that cares about Ice
 	# version numbers.
 	#
-	os.system("perl -pi -e 's/ICE_VERSION/" + version + "/' common.rpm.xml")
+	os.system("perl -pi -e 's/ICE_VERSION/" + version + "/' common.xml")
         os.chdir(tcwd)
         
     shutil.rmtree(buildDir + "/demotree/" + distro, True)
@@ -568,6 +568,15 @@ def makeInstall(buildDir, installDir, distro, clean):
             
         os.system("perl -pi -e 's/^PYTHON.HOME.*$/PYTHON\_HOME \?= "+ pyHome.replace("/", "\/") + \
 		"/' config/Make.rules")
+
+    if distro.startswith("Ice-"):
+	if getPlatform() <> "linux":
+	    os.system("perl -pi -e 's/^#(BZIP2_HOME)/$1/' config/Make.rules")
+	    os.system("perl -pi -e 's/^#(DB_HOME)/$1/' config/Make.rules")
+	    os.system("perl -pi -e 's/^#(OPENSSL_HOME)/$1/' config/Make.rules")
+	    os.system("perl -pi -e 's/^#(EXPAT_HOME)/$1/' config/Make.rules")
+	    os.system("perl -pi -e 's/^#(READLINE_HOME)/$1/' config/Make.rules")
+
     os.system("gmake OPTIMIZE=yes RPM_BUILD_ROOT=" + installDir + " install")
     os.chdir(cwd)
     
