@@ -1,6 +1,11 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Ice now uses gethostbyname_r() if available.
+
+- Errors during close() or shutdown() on connections now cause
+  exceptions.
+
 - Fixed a deadlock that could happen if requests were sent from the
   exception() AMI callback.
 

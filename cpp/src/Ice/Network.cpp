@@ -20,6 +20,14 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+#ifdef __sun
+#    define INADDR_NONE -1
+#endif
+
+#ifdef _WIN32
+#   define HAVE_NO_GETHOSTBYNAME_R
+#endif
+
 bool
 IceInternal::interrupted()
 {
@@ -179,13 +187,35 @@ IceInternal::closeSocket(SOCKET fd)
 {
 #ifdef _WIN32
     int error = WSAGetLastError();
-    closesocket(fd);
+    if(closesocket(fd) == SOCKET_ERROR)
+    {
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
+    }
     WSASetLastError(error);
 #else
     int error = errno;
+    if(close(fd) == SOCKET_ERROR)
+    {
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
+    }
     close(fd);
     errno = error;
 #endif
+}
+    
+void
+IceInternal::shutdownSocket(SOCKET fd)
+{
+    if(shutdown(fd, SHUT_WR) == SOCKET_ERROR)
+    {
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
+    }
 }
     
 void
@@ -546,7 +576,9 @@ repeatAccept:
     return ret;
 }
 
+#ifdef HAVE_NO_GETHOSTBYNAME_R
 static IceUtil::Mutex getHostByNameMutex;
+#endif
 
 void
 IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
@@ -556,20 +588,18 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = inet_addr(host.c_str());
 
-#ifdef __sun
-#define INADDR_NONE -1
-#endif
-
     if(addr.sin_addr.s_addr == INADDR_NONE)
     {
-	IceUtil::Mutex::Lock sync(getHostByNameMutex);
-
 	struct hostent* entry;
 	int retry = 5;
 
+#ifdef HAVE_NO_GETHOSTBYNAME_R
+
+	IceUtil::Mutex::Lock sync(getHostByNameMutex);
+	
 	do
 	{
-	    entry = gethostbyname(host.c_str());
+	    entry = gethostbyname(host);
 	}
 #ifdef _WIN32
 	while(!entry && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
@@ -589,6 +619,32 @@ IceInternal::getAddress(const string& host, int port, struct sockaddr_in& addr)
 	    throw ex;
 	}
 
+#else
+
+	struct hostent entryBuf;
+	vector<char> buf(1024);
+	int res;
+	int herr = 0;
+
+	do
+	{
+	    while((res = gethostbyname_r(host.c_str(), &entryBuf, &buf[0], buf.size(), &entry, &herr)) == ERANGE)
+	    {
+		buf.resize(buf.size() * 2);
+	    }
+	}
+	while(res && herr == TRY_AGAIN && --retry >= 0);
+
+	if(res)
+	{
+	    DNSException ex(__FILE__, __LINE__);
+	    ex.error = herr;
+	    ex.host = host;
+	    throw ex;
+	}
+
+#endif
+
 	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
     }
 }
@@ -605,10 +661,12 @@ IceInternal::getLocalHost(bool numeric)
     }
     
     {
-	IceUtil::Mutex::Lock sync(getHostByNameMutex);
-	
 	struct hostent* entry;
 	int retry = 5;
+	
+#ifdef HAVE_NO_GETHOSTBYNAME_R
+
+	IceUtil::Mutex::Lock sync(getHostByNameMutex);
 	
 	do
 	{
@@ -631,6 +689,32 @@ IceInternal::getLocalHost(bool numeric)
 	    ex.host = host;
 	    throw ex;
 	}
+
+#else
+
+	struct hostent entryBuf;
+	vector<char> buf(1024);
+	int res;
+	int herr = 0;
+
+	do
+	{
+	    while((res = gethostbyname_r(host, &entryBuf, &buf[0], buf.size(), &entry, &herr)) == ERANGE)
+	    {
+		buf.resize(buf.size() * 2);
+	    }
+	}
+	while(res && herr == TRY_AGAIN && --retry >= 0);
+
+	if(res)
+	{
+	    DNSException ex(__FILE__, __LINE__);
+	    ex.error = herr;
+	    ex.host = host;
+	    throw ex;
+	}
+
+#endif
 
 	if(numeric)
 	{

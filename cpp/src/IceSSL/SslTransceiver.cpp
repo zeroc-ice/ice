@@ -102,7 +102,7 @@ IceSSL::SslTransceiver::shutdown()
     while((shutdown == 0) && (retries < 0));
 
     assert(_fd != INVALID_SOCKET);
-    ::shutdown(_fd, SHUT_WR); // Shutdown socket for writing
+    shutdownSocket(_fd);
 }
 
 void
@@ -453,7 +453,7 @@ IceSSL::SslTransceiver::internalShutdown(int timeout)
     if(retCode == 1)
     {
         // Shutdown successful - shut down the socket for writing.
-        ::shutdown(SSL_get_fd(_sslConnection), SHUT_WR);
+	shutdownSocket(SSL_get_fd(_sslConnection));
     }
     else if(retCode == -1)
     {

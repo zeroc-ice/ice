@@ -76,6 +76,7 @@ ICE_PROTOCOL_API bool recvTruncated();
 
 ICE_PROTOCOL_API SOCKET createSocket(bool);
 ICE_PROTOCOL_API void closeSocket(SOCKET);
+ICE_PROTOCOL_API void shutdownSocket(SOCKET);
 
 ICE_PROTOCOL_API void setBlock(SOCKET, bool);
 ICE_PROTOCOL_API void setTcpNoDelay(SOCKET);

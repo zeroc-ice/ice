@@ -56,7 +56,7 @@ IceInternal::TcpTransceiver::shutdown()
     }
 
     assert(_fd != INVALID_SOCKET);
-    ::shutdown(_fd, SHUT_WR); // Shutdown socket for writing
+    shutdownSocket(_fd);
 }
 
 void
