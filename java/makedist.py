@@ -81,14 +81,14 @@ os.chdir(distdir)
 #
 # Export Java sources from CVS.
 #
-os.system("cvs -z5 -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icej")
+os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icej")
 
 #
 # Export C++ sources.
 #
 # NOTE: Assumes that the C++ and Java trees will use the same tag.
 #
-os.system("cvs -z5 -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
+os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
 #
 # Copy Slice directories.
 #

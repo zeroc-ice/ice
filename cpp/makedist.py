@@ -190,7 +190,7 @@ os.chdir(distdir)
 #
 # Export sources from CVS.
 #
-os.system("cvs -z5 -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
+os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
 
 #
 # Remove files.
