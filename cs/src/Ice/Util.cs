@@ -170,7 +170,57 @@ namespace Ice
 
 	public static string generateUUID()
 	{
-	    if(AssemblyUtil._platform == AssemblyUtil.Platform.NonWindows)
+	    if(AssemblyUtil._platform == AssemblyUtil.Platform.Windows)
+	    {
+	        //
+		// Under Windows, with both .NET and Mono, there is no /dev/urandom.
+		//
+		int rc;
+		UUID uuid = new UUID();
+		rc = UuidCreate(ref uuid);
+		if(rc != RPC_S_OK && rc != RPC_S_UUID_LOCAL_ONLY)
+		{
+		    Ice.SyscallException ex = new Ice.SyscallException("UuidCreate() failed");
+		    ex.error = rc;
+		    throw ex;
+		}
+		System.IntPtr str = new System.IntPtr();
+		rc = UuidToString(ref uuid, ref str);
+		switch(rc)
+		{
+		    case RPC_S_OK:
+		    {
+			break;
+		    }
+		    case RPC_S_OUT_OF_MEMORY:
+		    {
+			throw new Ice.MemoryLimitException("No memory for UUID string");
+		    }
+		    default:
+		    {
+			Ice.SyscallException ex = new Ice.SyscallException("UuidToString() failed");
+			ex.error = rc;
+			throw ex;
+		    }
+		}
+		string result;
+		try 
+		{
+		    result = Marshal.PtrToStringAnsi(str);
+		}
+		catch(System.Exception ex)
+		{
+		    throw new Ice.SyscallException(ex);
+		}
+		if((rc = RpcStringFree(ref str)) != RPC_S_OK)
+		{
+		    Ice.SyscallException ex = new Ice.SyscallException("Cannot deallocate UUID");
+		    ex.error = rc;
+		    throw ex;
+		}
+		return result;
+	    }
+	    else
 	    {
 		//
 		// On Linux, /dev/random, even when used in blocking mode, sometimes 
@@ -234,53 +284,6 @@ namespace Ice
 		    sb.AppendFormat("{0:X2}", buf[i]);
 		}
 		return sb.ToString();
-	    }
-	    else
-	    {
-		int rc;
-		UUID uuid = new UUID();
-		rc = UuidCreate(ref uuid);
-		if(rc != RPC_S_OK && rc != RPC_S_UUID_LOCAL_ONLY)
-		{
-		    Ice.SyscallException ex = new Ice.SyscallException("UuidCreate() failed");
-		    ex.error = rc;
-		    throw ex;
-		}
-		System.IntPtr str = new System.IntPtr();
-		rc = UuidToString(ref uuid, ref str);
-		switch(rc)
-		{
-		    case RPC_S_OK:
-		    {
-			break;
-		    }
-		    case RPC_S_OUT_OF_MEMORY:
-		    {
-			throw new Ice.MemoryLimitException("No memory for UUID string");
-		    }
-		    default:
-		    {
-			Ice.SyscallException ex = new Ice.SyscallException("UuidToString() failed");
-			ex.error = rc;
-			throw ex;
-		    }
-		}
-		string result;
-		try 
-		{
-		    result = Marshal.PtrToStringAnsi(str);
-		}
-		catch(System.Exception ex)
-		{
-		    throw new Ice.SyscallException(ex);
-		}
-		if((rc = RpcStringFree(ref str)) != RPC_S_OK)
-		{
-		    Ice.SyscallException ex = new Ice.SyscallException("Cannot deallocate UUID");
-		    ex.error = rc;
-		    throw ex;
-		}
-		return result;
 	    }
 	}
 	
