@@ -47,10 +47,13 @@
 //  ...: decorated name length exceeded, name was truncated
 #   pragma warning( disable : 4503 )  
 
+#   define SIZEOF_WCHAR_T 2
+
 #elif defined(__linux__) && defined(i386)
 
 #   define ICE_UTIL_API /**/
 #   define HAVE_READLINE
+#   define SIZEOF_WCHAR_T 4
 
 #else
 
