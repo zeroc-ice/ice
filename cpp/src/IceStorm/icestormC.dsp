@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_MBCS" /YX /FD /c
 # ADD CPP /nologo /MD /W3 /WX /GR /GX /O2 /I ".." /I "../../include" /I "dummyinclude" /D "NDEBUG" /D "WIN32" /D "_CONSOLE" /D "_UNICODE" /YX /FD /c
-# SUBTRACT CPP /Z<none> /Fr
+# SUBTRACT CPP /Fr
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
 # ADD RSC /l 0x409 /d "NDEBUG"
 BSC32=bscmake.exe
@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 ws2_32.lib setargv.obj jtc.lib /nologo /subsystem:console /machine:I386 /out:"../../bin/icestormadmin.exe" /libpath:"../../../lib"
+# ADD LINK32 ws2_32.lib setargv.obj jtc.lib xerces-c_1.lib /nologo /subsystem:console /machine:I386 /out:"../../bin/icestormadmin.exe" /libpath:"../../../lib"
 
 !ELSEIF  "$(CFG)" == "IceStormC - Win32 Debug"
 
@@ -76,7 +76,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib setargv.obj jtcd.lib /nologo /subsystem:console /debug /machine:I386 /out:"../../bin/icestormadmin.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 ws2_32.lib setargv.obj jtcd.lib xerces-c_1D.lib /nologo /subsystem:console /debug /machine:I386 /out:"../../bin/icestormadmin.exe" /pdbtype:sept /libpath:"../../../lib"
 
 !ENDIF 
 
@@ -103,6 +103,10 @@ SOURCE=.\Parser.cpp
 
 SOURCE=.\Scanner.cpp
 # End Source File
+# Begin Source File
+
+SOURCE=.\WeightedGraph.cpp
+# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -114,6 +118,10 @@ SOURCE=.\Grammar.h
 # Begin Source File
 
 SOURCE=.\Parser.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\WeightedGraph.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

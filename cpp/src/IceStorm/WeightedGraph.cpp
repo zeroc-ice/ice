@@ -59,6 +59,10 @@ public:
     }
 };
 
+#ifdef WIN32
+#    pragma warning(disable:4786)
+#endif
+
 class SAXGraphHandler : public DocumentHandler
 {
 public:

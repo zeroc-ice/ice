@@ -328,7 +328,7 @@ TopicI::TopicI(const Ice::ObjectAdapterPtr& adapter, const TraceLevelsPtr& trace
     //
     // Run through link database - re-establishing linked subscribers
     //
-    for (IdentityLinkDict::iterator p = _links.begin(); p != _links.end(); ++p)
+    for (IdentityLinkDict::const_iterator p = _links.begin(); p != _links.end(); ++p)
     {
 	if (_traceLevels->topic > 0)
 	{
