@@ -70,7 +70,6 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
         _outputDir = null;
         _package = null;
         _includePath = null;
-        _fileSet = null;
     }
 
     public void
@@ -129,18 +128,17 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
     public FileSet
     createFileset()
     {
-        if (_fileSet == null) 
-        {
-            _fileSet = new FileSet();
-        }
-        return _fileSet;
+        FileSet fileset = new FileSet();
+        _fileSets.add(fileset);
+
+        return fileset;
     }
 
     public void
     execute()
         throws BuildException
     {
-        if (_fileSet == null)
+        if (_fileSets.isEmpty())
         {
             throw new BuildException("No fileset specified");
         }
@@ -150,22 +148,28 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
         //
         java.util.Vector buildList = new java.util.Vector();
         java.util.Vector tagList = new java.util.Vector();
-        DirectoryScanner scanner = _fileSet.getDirectoryScanner(project);
-        scanner.scan();
-        String[] files = scanner.getIncludedFiles();
-        for (int i = 0; i < files.length; i++)
+        java.util.Iterator p = _fileSets.iterator();
+        while (p.hasNext())
         {
-            File slice = new File(_fileSet.getDir(project), files[i]);
-            File tag = new File(_tagDir, "." + slice.getName() + ".tag");
+            FileSet fileset = (FileSet)p.next();
 
-            if (tag.exists() && slice.lastModified() <= tag.lastModified())
+            DirectoryScanner scanner = fileset.getDirectoryScanner(project);
+            scanner.scan();
+            String[] files = scanner.getIncludedFiles();
+            for (int i = 0; i < files.length; i++)
             {
-                log("skipping " + files[i]);
-            }
-            else
-            {
-                buildList.addElement(slice);
-                tagList.addElement(tag);
+                File slice = new File(fileset.getDir(project), files[i]);
+                File tag = new File(_tagDir, "." + slice.getName() + ".tag");
+
+                if (tag.exists() && slice.lastModified() <= tag.lastModified())
+                {
+                    log("skipping " + files[i]);
+                }
+                else
+                {
+                    buildList.addElement(slice);
+                    tagList.addElement(tag);
+                }
             }
         }
 
@@ -252,5 +256,5 @@ public class Slice2JavaTask extends org.apache.tools.ant.Task
     private File _outputDir;
     private String _package;
     private Path _includePath;
-    private FileSet _fileSet;
+    private java.util.List _fileSets = new java.util.LinkedList();
 }
