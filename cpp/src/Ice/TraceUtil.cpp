@@ -22,9 +22,6 @@ using namespace IceInternal;
 static void
 printHeader(ostream& s, Stream& stream)
 {
-    bool bigendian;
-    stream.read(bigendian);
-    s << "\nbigendian = " << boolalpha << bigendian;
     Byte protVer;
     stream.read(protVer);
     s << "\nprotocol version = " << static_cast<int>(protVer);

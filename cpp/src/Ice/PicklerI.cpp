@@ -34,8 +34,8 @@ ObjectPtr
 Ice::PicklerI::unpickle(std::istream& in)
 {
     Stream s(_instance);
-    s.b.resize(6);
-    in.read(s.b.begin(), 6);
+    s.b.resize(5);
+    in.read(s.b.begin(), 5);
     if (in.eof())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
@@ -53,8 +53,8 @@ Ice::PicklerI::unpickle(std::istream& in)
 
     // Don't use s.b.resize() here, otherwise no size sanity checks
     // will be done
-    s.resize(6 + sz);
-    in.read(s.b.begin() + 6, sz);
+    s.resize(5 + sz);
+    in.read(s.b.begin() + 5, sz);
     if (in.eof())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);

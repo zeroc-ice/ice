@@ -26,7 +26,6 @@ static const Byte stringEncodingRedirect = 1;
 
 IceInternal::Stream::Stream(const InstancePtr& instance) :
     _instance(instance),
-    _bigendian(false),
     _stringSet(CmpPosPos(b))
 {
 }
@@ -42,7 +41,6 @@ IceInternal::Stream::swap(Stream& other)
 {
     b.swap(other.b);
     std::swap(i, other.i);
-    std::swap(_bigendian, other._bigendian);
 }
 
 void
@@ -52,7 +50,6 @@ IceInternal::Stream::resize(int total)
     {
 	throw ::Ice::MemoryLimitException(__FILE__, __LINE__);
     }
-
     b.resize(total);
 }
 
@@ -63,41 +60,12 @@ IceInternal::Stream::reserve(int total)
     {
 	throw ::Ice::MemoryLimitException(__FILE__, __LINE__);
     }
-
     b.reserve(total);
-}
-
-void
-IceInternal::Stream::pushBigendian(bool bigendian)
-{
-    _bigendianStack.push(bigendian);
-    _bigendian = _bigendianStack.top();
-}
-
-void
-IceInternal::Stream::popBigendian()
-{
-    _bigendianStack.pop();
-    if (!_bigendianStack.empty())
-    {
-	_bigendian = _bigendianStack.top();
-    }
-    else
-    {
-	_bigendian = false;
-    }
-}
-
-bool
-IceInternal::Stream::bigendian() const
-{
-    return _bigendian;
 }
 
 void
 IceInternal::Stream::startWriteEncaps()
 {
-    write(_bigendian);
     write(Byte(0)); // Encoding version
     write(Int(0)); // Placeholder for the encapsulation length
     _encapsStartStack.push(b.size());
@@ -110,20 +78,19 @@ IceInternal::Stream::endWriteEncaps()
     _encapsStartStack.pop();
     Int sz = b.size() - start;
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Int), b.begin() + start - sizeof(Int));
+#else
     copy(p, p + sizeof(Int), b.begin() + start - sizeof(Int));
+#endif
 }
 
 void
 IceInternal::Stream::startReadEncaps()
 {
-    bool bigendian;
-    read(bigendian);
-    pushBigendian(bigendian);
-
     //
     // If in the future several encoding versions are supported, we
-    // need a pushEncoding() and popEncoding() operation, just like
-    // pushBigendian() and popBigendian().
+    // need a pushEncoding() and popEncoding() operation.
     //
     Byte encVer;
     read(encVer);
@@ -131,7 +98,6 @@ IceInternal::Stream::startReadEncaps()
     {
 	throw UnsupportedEncodingException(__FILE__, __LINE__);
     }
-
     Int sz;
     read(sz);
     _encapsStartStack.push(i - b.begin());
@@ -151,18 +117,13 @@ IceInternal::Stream::endReadEncaps()
     {
         throw EncapsulationException(__FILE__, __LINE__);
     }
-    popBigendian();
 }
 
 void
 IceInternal::Stream::skipEncaps()
 {
-    bool bigendian;
-    read(bigendian);
-    pushBigendian(bigendian);
     Byte encVer;
     read(encVer);
-
     Int sz;
     read(sz);
     i += sz;
@@ -170,8 +131,6 @@ IceInternal::Stream::skipEncaps()
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
-    popBigendian();
 }
 
 void
@@ -181,7 +140,11 @@ IceInternal::Stream::write(const vector<Byte>& v)
     Int sz = v.size();
     resize(pos + sizeof(Int) + sz);
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
+#else
     copy(p, p + sizeof(Int), b.begin() + pos);
+#endif
     copy(v.begin(), v.end(), b.begin() + pos + sizeof(Int));
 }
 
@@ -192,7 +155,6 @@ IceInternal::Stream::read(Byte& v)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
     v = *i++;
 }
 
@@ -201,14 +163,12 @@ IceInternal::Stream::read(vector<Byte>& v)
 {
     Int sz;
     read(sz);
-
     Container::iterator begin = i;
     i += sz;
     if (i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
     v.resize(sz);
     copy(begin, i, v.begin());
 }
@@ -220,7 +180,11 @@ IceInternal::Stream::write(const vector<bool>& v)
     Int sz = v.size();
     resize(pos + sizeof(Int) + sz);
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
+#else
     copy(p, p + sizeof(Int), b.begin() + pos);
+#endif
     copy(v.begin(), v.end(), b.begin() + pos + sizeof(Int));
 }
 
@@ -231,7 +195,6 @@ IceInternal::Stream::read(bool& v)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
     v = *i++;
 }
 
@@ -240,14 +203,12 @@ IceInternal::Stream::read(vector<bool>& v)
 {
     Int sz;
     read(sz);
-
     Container::iterator begin = i;
     i += sz;
     if (i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
     v.resize(sz);
     copy(begin, i, v.begin());
 }
@@ -258,7 +219,11 @@ IceInternal::Stream::write(Short v)
     int pos = b.size();
     resize(pos + sizeof(Short));
     const Byte* p = reinterpret_cast<const Byte*>(&v);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Short), b.begin() + pos);
+#else
     copy(p, p + sizeof(Short), b.begin() + pos);
+#endif
 }
 
 void
@@ -268,9 +233,21 @@ IceInternal::Stream::write(const vector<Short>& v)
     Int sz = v.size();
     resize(pos + sizeof(Int) + sz * sizeof(Short));
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
+    pos += sizeof(Int);
+    p = reinterpret_cast<const Byte*>(v.begin());
+    for (int j = 0 ; j < sz ; ++j)
+    {
+	reverse_copy(p, p + sizeof(Short), b.begin() + pos);
+	p += sizeof(Short);
+	pos += sizeof(Short);
+    }
+#else
     copy(p, p + sizeof(Int), b.begin() + pos);
     p = reinterpret_cast<const Byte*>(v.begin());
     copy(p, p + sz * sizeof(Short), b.begin() + pos + sizeof(Int));
+#endif
 }
 
 void
@@ -282,15 +259,11 @@ IceInternal::Stream::read(Short& v)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
-    if (_bigendian != ::IceInternal::bigendian)
-    {
-	reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
-    }
-    else
-    {
-	copy(begin, i, reinterpret_cast<Byte*>(&v));
-    }
+#ifdef ICE_BIGENDIAN
+    reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
+#else
+    copy(begin, i, reinterpret_cast<Byte*>(&v));
+#endif
 }
 
 void
@@ -298,27 +271,22 @@ IceInternal::Stream::read(vector<Short>& v)
 {
     Int sz;
     read(sz);
-
     Container::iterator begin = i;
     i += sz * sizeof(Short);
     if (i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
     v.resize(sz);
-    if (_bigendian != ::IceInternal::bigendian)
+#ifdef ICE_BIGENDIAN
+    for (int j = 0 ; j < sz ; ++j)
     {
-	for (int j = 0 ; j < sz ; ++j)
-	{
-	    reverse_copy(begin, begin + sizeof(Short), reinterpret_cast<Byte*>(&v[j]));
-	    begin += sizeof(Short);
-	}
+	reverse_copy(begin, begin + sizeof(Short), reinterpret_cast<Byte*>(&v[j]));
+	begin += sizeof(Short);
     }
-    else
-    {
-	copy(begin, i, reinterpret_cast<Byte*>(v.begin()));
-    }
+#else
+    copy(begin, i, reinterpret_cast<Byte*>(v.begin()));
+#endif
 }
 
 void
@@ -327,7 +295,11 @@ IceInternal::Stream::write(Int v)
     int pos = b.size();
     resize(pos + sizeof(Int));
     const Byte* p = reinterpret_cast<const Byte*>(&v);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
+#else
     copy(p, p + sizeof(Int), b.begin() + pos);
+#endif
 }
 
 void
@@ -337,9 +309,21 @@ IceInternal::Stream::write(const vector<Int>& v)
     Int sz = v.size();
     resize(pos + sizeof(Int) + sz * sizeof(Int));
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
+    pos += sizeof(Int);
+    p = reinterpret_cast<const Byte*>(v.begin());
+    for (int j = 0 ; j < sz ; ++j)
+    {
+	reverse_copy(p, p + sizeof(Short), b.begin() + pos);
+	p += sizeof(Int);
+	pos += sizeof(Int);
+    }
+#else
     copy(p, p + sizeof(Int), b.begin() + pos);
     p = reinterpret_cast<const Byte*>(v.begin());
     copy(p, p + sz * sizeof(Int), b.begin() + pos + sizeof(Int));
+#endif
 }
 
 void
@@ -351,15 +335,11 @@ IceInternal::Stream::read(Int& v)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
-    if (_bigendian != ::IceInternal::bigendian)
-    {
-	reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
-    }
-    else
-    {
-	copy(begin, i, reinterpret_cast<Byte*>(&v));
-    }
+#ifdef ICE_BIGENDIAN
+    reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
+#else
+    copy(begin, i, reinterpret_cast<Byte*>(&v));
+#endif
 }
 
 void
@@ -367,27 +347,22 @@ IceInternal::Stream::read(vector<Int>& v)
 {
     Int sz;
     read(sz);
-
     Container::iterator begin = i;
     i += sz * sizeof(Int);
     if (i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
     v.resize(sz);
-    if (_bigendian != ::IceInternal::bigendian)
+#ifdef ICE_BIGENDIAN
+    for (int j = 0 ; j < sz ; ++j)
     {
-	for (int j = 0 ; j < sz ; ++j)
-	{
-	    reverse_copy(begin, begin + sizeof(Int), reinterpret_cast<Byte*>(&v[j]));
-	    begin += sizeof(Int);
-	}
+	reverse_copy(begin, begin + sizeof(Int), reinterpret_cast<Byte*>(&v[j]));
+	begin += sizeof(Int);
     }
-    else
-    {
-	copy(begin, i, reinterpret_cast<Byte*>(v.begin()));
-    }
+#else
+    copy(begin, i, reinterpret_cast<Byte*>(v.begin()));
+#endif
 }
 
 void
@@ -396,7 +371,11 @@ IceInternal::Stream::write(Long v)
     int pos = b.size();
     resize(pos + sizeof(Long));
     const Byte* p = reinterpret_cast<const Byte*>(&v);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Long), b.begin() + pos);
+#else
     copy(p, p + sizeof(Long), b.begin() + pos);
+#endif
 }
 
 void
@@ -406,9 +385,21 @@ IceInternal::Stream::write(const vector<Long>& v)
     Int sz = v.size();
     resize(pos + sizeof(Int) + sz * sizeof(Long));
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
+    pos += sizeof(Int);
+    p = reinterpret_cast<const Byte*>(v.begin());
+    for (int j = 0 ; j < sz ; ++j)
+    {
+	reverse_copy(p, p + sizeof(Long), b.begin() + pos);
+	p += sizeof(Long);
+	pos += sizeof(Long);
+    }
+#else
     copy(p, p + sizeof(Int), b.begin() + pos);
     p = reinterpret_cast<const Byte*>(v.begin());
     copy(p, p + sz * sizeof(Long), b.begin() + pos + sizeof(Int));
+#endif
 }
 
 void
@@ -420,15 +411,11 @@ IceInternal::Stream::read(Long& v)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
-    if (_bigendian != ::IceInternal::bigendian)
-    {
-	reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
-    }
-    else
-    {
-	copy(begin, i, reinterpret_cast<Byte*>(&v));
-    }
+#ifdef ICE_BIGENDIAN
+    reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
+#else
+    copy(begin, i, reinterpret_cast<Byte*>(&v));
+#endif
 }
 
 void
@@ -436,27 +423,22 @@ IceInternal::Stream::read(vector<Long>& v)
 {
     Int sz;
     read(sz);
-
     Container::iterator begin = i;
     i += sz * sizeof(Long);
     if (i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
     v.resize(sz);
-    if (_bigendian != ::IceInternal::bigendian)
+#ifdef ICE_BIGENDIAN
+    for (int j = 0 ; j < sz ; ++j)
     {
-	for (int j = 0 ; j < sz ; ++j)
-	{
-	    reverse_copy(begin, begin + sizeof(Long), reinterpret_cast<Byte*>(&v[j]));
-	    begin += sizeof(Long);
-	}
+	reverse_copy(begin, begin + sizeof(Long), reinterpret_cast<Byte*>(&v[j]));
+	begin += sizeof(Long);
     }
-    else
-    {
-	copy(begin, i, reinterpret_cast<Byte*>(v.begin()));
-    }
+#else
+    copy(begin, i, reinterpret_cast<Byte*>(v.begin()));
+#endif
 }
 
 void
@@ -465,7 +447,11 @@ IceInternal::Stream::write(Float v)
     int pos = b.size();
     resize(pos + sizeof(Float));
     const Byte* p = reinterpret_cast<const Byte*>(&v);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Float), b.begin() + pos);
+#else
     copy(p, p + sizeof(Float), b.begin() + pos);
+#endif
 }
 
 void
@@ -475,9 +461,21 @@ IceInternal::Stream::write(const vector<Float>& v)
     Int sz = v.size();
     resize(pos + sizeof(Int) + sz * sizeof(Float));
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
+    pos += sizeof(Int);
+    p = reinterpret_cast<const Byte*>(v.begin());
+    for (int j = 0 ; j < sz ; ++j)
+    {
+	reverse_copy(p, p + sizeof(Float), b.begin() + pos);
+	p += sizeof(Float);
+	pos += sizeof(Float);
+    }
+#else
     copy(p, p + sizeof(Int), b.begin() + pos);
     p = reinterpret_cast<const Byte*>(v.begin());
     copy(p, p + sz * sizeof(Float), b.begin() + pos + sizeof(Int));
+#endif
 }
 
 void
@@ -489,15 +487,11 @@ IceInternal::Stream::read(Float& v)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
-    if (_bigendian != ::IceInternal::bigendian)
-    {
-	reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
-    }
-    else
-    {
-	copy(begin, i, reinterpret_cast<Byte*>(&v));
-    }
+#ifdef ICE_BIGENDIAN
+    reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
+#else
+    copy(begin, i, reinterpret_cast<Byte*>(&v));
+#endif
 }
 
 void
@@ -505,27 +499,22 @@ IceInternal::Stream::read(vector<Float>& v)
 {
     Int sz;
     read(sz);
-
     Container::iterator begin = i;
     i += sz * sizeof(Float);
     if (i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
     v.resize(sz);
-    if (_bigendian != ::IceInternal::bigendian)
+#ifdef ICE_BIGENDIAN
+    for (int j = 0 ; j < sz ; ++j)
     {
-	for (int j = 0 ; j < sz ; ++j)
-	{
-	    reverse_copy(begin, begin + sizeof(Float), reinterpret_cast<Byte*>(&v[j]));
-	    begin += sizeof(Float);
-	}
+	reverse_copy(begin, begin + sizeof(Float), reinterpret_cast<Byte*>(&v[j]));
+	begin += sizeof(Float);
     }
-    else
-    {
-	copy(begin, i, reinterpret_cast<Byte*>(v.begin()));
-    }
+#else
+    copy(begin, i, reinterpret_cast<Byte*>(v.begin()));
+#endif
 }
 
 void
@@ -534,7 +523,11 @@ IceInternal::Stream::write(Double v)
     int pos = b.size();
     resize(pos + sizeof(Double));
     const Byte* p = reinterpret_cast<const Byte*>(&v);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Double), b.begin() + pos);
+#else
     copy(p, p + sizeof(Double), b.begin() + pos);
+#endif
 }
 
 void
@@ -544,9 +537,21 @@ IceInternal::Stream::write(const vector<Double>& v)
     Int sz = v.size();
     resize(pos + sizeof(Int) + sz * sizeof(Double));
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
+#ifdef ICE_BIGENDIAN
+    reverse_copy(p, p + sizeof(Int), b.begin() + pos);
+    pos += sizeof(Int);
+    p = reinterpret_cast<const Byte*>(v.begin());
+    for (int j = 0 ; j < sz ; ++j)
+    {
+	reverse_copy(p, p + sizeof(Double), b.begin() + pos);
+	p += sizeof(Double);
+	pos += sizeof(Double);
+    }
+#else
     copy(p, p + sizeof(Int), b.begin() + pos);
     p = reinterpret_cast<const Byte*>(v.begin());
     copy(p, p + sz * sizeof(Double), b.begin() + pos + sizeof(Int));
+#endif
 }
 
 void
@@ -558,15 +563,11 @@ IceInternal::Stream::read(Double& v)
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
-    if (_bigendian != ::IceInternal::bigendian)
-    {
-	reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
-    }
-    else
-    {
-	copy(begin, i, reinterpret_cast<Byte*>(&v));
-    }
+#ifdef ICE_BIGENDIAN
+    reverse_copy(begin, i, reinterpret_cast<Byte*>(&v));
+#else
+    copy(begin, i, reinterpret_cast<Byte*>(&v));
+#endif
 }
 
 void
@@ -574,27 +575,22 @@ IceInternal::Stream::read(vector<Double>& v)
 {
     Int sz;
     read(sz);
-
     Container::iterator begin = i;
     i += sz * sizeof(Double);
     if (i > b.end())
     {
 	throw UnmarshalOutOfBoundsException(__FILE__, __LINE__);
     }
-
     v.resize(sz);
-    if (_bigendian != ::IceInternal::bigendian)
+#ifdef ICE_BIGENDIAN
+    for (int j = 0 ; j < sz ; ++j)
     {
-	for (int j = 0 ; j < sz ; ++j)
-	{
-	    reverse_copy(begin, begin + sizeof(Double), reinterpret_cast<Byte*>(&v[j]));
-	    begin += sizeof(Double);
-	}
+	reverse_copy(begin, begin + sizeof(Double), reinterpret_cast<Byte*>(&v[j]));
+	begin += sizeof(Double);
     }
-    else
-    {
-	copy(begin, i, reinterpret_cast<Byte*>(v.begin()));
-    }
+#else
+    copy(begin, i, reinterpret_cast<Byte*>(v.begin()));
+#endif
 }
 
 void
@@ -745,7 +741,6 @@ IceInternal::Stream::read(wstring& v)
     {
 	throw StringEncodingException(__FILE__, __LINE__);
     }
-    
     // TODO: This can be optimized
     while (true)
     {

@@ -370,11 +370,11 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 {
     Stream& stream = handler->_stream;
     
-    if (stream.b.size() < 8) // Read header?
+    if (stream.b.size() < 7) // Read header?
     {
 	if (stream.b.size() == 0)
 	{
-	    stream.b.resize(8);
+	    stream.b.resize(7);
 	    stream.i = stream.b.begin();
 	}
 	
@@ -385,13 +385,10 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 	}
     }
     
-    if (stream.b.size() >= 8) // Interpret header?
+    if (stream.b.size() >= 7) // Interpret header?
     {
 	int pos = stream.i - stream.b.begin();
 	stream.i = stream.b.begin();
-	bool peerBigendian;
-	stream.read(peerBigendian);
-	stream.pushBigendian(peerBigendian);
 	Byte protVer;
 	stream.read(protVer);
 	if (protVer != 0)
@@ -416,7 +413,7 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 	stream.i = stream.b.begin() + pos;
     }
     
-    if (stream.b.size() > 8 && stream.i != stream.b.end())
+    if (stream.b.size() > 7 && stream.i != stream.b.end())
     {
 	handler->read(stream);
     }

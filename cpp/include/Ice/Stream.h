@@ -34,10 +34,6 @@ public:
     void resize(int);
     void reserve(int);
 
-    void pushBigendian(bool);
-    void popBigendian();
-    bool bigendian() const;
-
     void startWriteEncaps();
     void endWriteEncaps();
     void startReadEncaps();
@@ -99,8 +95,6 @@ public:
 private:
 
     InstancePtr _instance;
-    bool _bigendian;
-    std::stack<bool> _bigendianStack;
     std::stack<int> _encapsStartStack;
 
     class CmpPosPos

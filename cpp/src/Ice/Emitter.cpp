@@ -49,7 +49,6 @@ void
 IceInternal::Emitter::prepareRequest(Outgoing* out)
 {
     Stream* os = out->os();
-    os->write(bigendian);
     os->write(Byte(0)); // Protocol version
     os->write(Byte(0)); // Encoding version
     os->write(Byte(0)); // Message type = Request
@@ -82,7 +81,7 @@ IceInternal::Emitter::sendRequest(Outgoing* out, bool oneway)
 	const Byte* p;
 	Int sz = os->b.size();
 	p = reinterpret_cast<Byte*>(&sz);
-	copy(p, p + sizeof(Int), os->i + 4);
+	copy(p, p + sizeof(Int), os->i + 3);
 	if (!_endpoint->oneway() && !oneway)
 	{
 	    requestId = _nextRequestId++;
@@ -91,7 +90,7 @@ IceInternal::Emitter::sendRequest(Outgoing* out, bool oneway)
 		requestId = _nextRequestId++;
 	    }		
 	    p = reinterpret_cast<Byte*>(&requestId);
-	    copy(p, p + sizeof(Int), os->i + 8);
+	    copy(p, p + sizeof(Int), os->i + 7);
 	}
 	traceRequest("sending request", *os, _logger, _traceLevels);
 	_transceiver->write(*os, _endpoint->timeout());
@@ -151,10 +150,10 @@ IceInternal::Emitter::message(Stream& stream)
     try
     {
 	assert(stream.i == stream.b.end());
-	stream.i = stream.b.begin() + 3;
+	stream.i = stream.b.begin() + 2;
 	Byte messageType;
 	stream.read(messageType);
-	stream.i = stream.b.begin() + 8;
+	stream.i = stream.b.begin() + 7;
 	
 	switch (messageType)
 	{

@@ -55,13 +55,6 @@ typedef double Double;
 
 }
 
-namespace IceInternal
-{
-
-const bool bigendian = false;
-
-}
-
 #   define _UNICODE
 
 #elif defined(__linux__) && defined(i386)
@@ -81,13 +74,6 @@ typedef int Int;
 typedef long long Long;
 typedef float Float;
 typedef double Double;
-
-}
-
-namespace IceInternal
-{
-
-const bool bigendian = false;
 
 }
 

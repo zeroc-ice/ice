@@ -98,15 +98,14 @@ IceInternal::Collector::message(Stream& stream)
 	try
 	{
 	    assert(stream.i == stream.b.end());
-	    stream.i = stream.b.begin() + 3;
+	    stream.i = stream.b.begin() + 2;
 	    Byte messageType;
 	    stream.read(messageType);
-	    stream.i = stream.b.begin() + 8;
+	    stream.i = stream.b.begin() + 7;
 
 	    //
 	    // Write partial message header
 	    //
-	    os->write(bigendian);
 	    os->write(Byte(0)); // Protocol version
 	    os->write(Byte(0)); // Encoding version
 	    
@@ -225,7 +224,7 @@ IceInternal::Collector::message(Stream& stream)
 	    const Byte* p;
 	    Int sz = os->b.size();
 	    p = reinterpret_cast<Byte*>(&sz);
-	    copy(p, p + sizeof(Int), os->i + 4);
+	    copy(p, p + sizeof(Int), os->i + 3);
 	    
 	    traceReply("sending reply", *os, _logger, _traceLevels);
 	    _transceiver->write(*os, _endpoint->timeout());
@@ -406,11 +405,10 @@ void
 IceInternal::Collector::closeConnection()
 {
     Stream os(_instance);
-    os.write(bigendian);
     os.write(Byte(0)); // Protocol version
     os.write(Byte(0)); // Encoding version
     os.write(Byte(2)); // Message type = CloseConnection
-    os.write(Int(8)); // Message size
+    os.write(Int(7)); // Message size
     os.i = os.b.begin();
     traceHeader("sending close connection", os, _logger, _traceLevels);
     _transceiver->write(os, _endpoint->timeout());
