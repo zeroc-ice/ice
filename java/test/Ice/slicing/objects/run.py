@@ -40,12 +40,13 @@ print "starting server...",
 cp = os.getenv("CLASSPATH", "")
 os.environ["CLASSPATH"] = os.path.join(testdirAMD, "classes") + TestUtil.sep + cp
 serverPipe = os.popen(server + TestUtil.serverOptions)
+os.environ["CLASSPATH"] = cp
 TestUtil.getAdapterReady(serverPipe)
 print "ok"
 print "starting client...",
-os.environ["CLASSPATH"] = cp
 os.environ["CLASSPATH"] = os.path.join(testdir, "cclasses") + TestUtil.sep + cp
 clientPipe = os.popen(client + TestUtil.clientOptions)
+os.environ["CLASSPATH"] = cp
 print "ok"
 TestUtil.printOutputFromPipe(clientPipe)
 clientStatus = clientPipe.close()
