@@ -78,26 +78,18 @@ os.mkdir(distdir)
 os.chdir(distdir)
 
 #
-# Export VB sources from CVS.
+# Export VB and C++ sources from CVS.
+#
+# NOTE: Assumes that the C++ and C# trees will use the same tag.
 #
 print "Checking out CVS tag " + tag + "..."
 if verbose:
     quiet = ""
 else:
     quiet = "-Q"
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icevb")
-
-#
-# Export C++ sources.
-#
-# NOTE: Assumes that the C++ and C# trees will use the same tag.
-#
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " ice")
-
-#
-# Get version file from C# tree.
-#
-os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag + " icecs/src/Ice/AssemblyInfo.cs")
+os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + tag +
+          " icevb ice/bin ice/config ice/doc ice/include ice/lib ice/slice ice/src" +
+          " icecs/src/Ice/AssemblyInfo.cs")
 
 #
 # Copy Slice directories.
@@ -115,6 +107,7 @@ slicedirs = [\
 os.mkdir(os.path.join("icevb", "slice"))
 for x in slicedirs:
     shutil.copytree(os.path.join("ice", "slice", x), os.path.join("icevb", "slice", x), 1)
+
 #
 # Generate HTML documentation. We need to build icecpp
 # and slice2docbook first.
@@ -141,7 +134,6 @@ if not skipDocs:
     os.rename(os.path.join("ice", "doc", "reference"), os.path.join("icevb", "doc", "reference"))
     os.rename(os.path.join("ice", "doc", "README.html"), os.path.join("icevb", "doc", "README.html"))
     os.rename(os.path.join("ice", "doc", "images"), os.path.join("icevb", "doc", "images"))
-   
 shutil.rmtree("ice")
 
 #
@@ -164,7 +156,7 @@ version = re.search("AssemblyVersion.*\"([0-9\.]*)\"", config.read()).group(1)
 #
 # Create source archives.
 #
-print "Creating distribution..."
+print "Creating distribution archives..."
 icever = "IceVB-" + version
 os.rename("icevb", icever)
 if verbose:
