@@ -13,7 +13,7 @@
 #include <Ice/Instance.h>
 #include <Ice/LoggerUtil.h>
 #include <Ice/TraceLevels.h>
-#include <Ice/DefaultsAndOverwrites.h>
+#include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Properties.h>
 #include <Ice/Transceiver.h>
 #include <Ice/Connector.h>
@@ -67,14 +67,14 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
     //
     // Search for existing connections.
     //
-    DefaultsAndOverwritesPtr defaultsAndOverwrites = _instance->defaultsAndOverwrites();
+    DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
     vector<EndpointPtr>::const_iterator q;
     for (q = endpoints.begin(); q != endpoints.end(); ++q)
     {
 	EndpointPtr endpoint = *q;
-	if (defaultsAndOverwrites->overwriteTimeout)
+	if (defaultsAndOverrides->overrideTimeout)
 	{
-	    endpoint = endpoint->timeout(defaultsAndOverwrites->overwriteTimeoutValue);
+	    endpoint = endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
 	}
 
 	map<EndpointPtr, ConnectionPtr>::const_iterator r = _connections.find(endpoint);
@@ -96,9 +96,9 @@ IceInternal::OutgoingConnectionFactory::create(const vector<EndpointPtr>& endpoi
     while (q != endpoints.end())
     {
 	EndpointPtr endpoint = *q;
-	if (defaultsAndOverwrites->overwriteTimeout)
+	if (defaultsAndOverrides->overrideTimeout)
 	{
-	    endpoint = endpoint->timeout(defaultsAndOverwrites->overwriteTimeoutValue);
+	    endpoint = endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
 	}
 
 	try
@@ -177,14 +177,14 @@ IceInternal::OutgoingConnectionFactory::setRouter(const RouterPrx& router)
 	//
 	ObjectPrx proxy = routerInfo->getClientProxy();
 	ObjectAdapterPtr adapter = routerInfo->getAdapter();
-	DefaultsAndOverwritesPtr defaultsAndOverwrites = _instance->defaultsAndOverwrites();
+	DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
 	vector<EndpointPtr>::const_iterator p;
 	for (p = proxy->__reference()->endpoints.begin(); p != proxy->__reference()->endpoints.end(); ++p)
 	{
 	    EndpointPtr endpoint = *p;
-	    if (defaultsAndOverwrites->overwriteTimeout)
+	    if (defaultsAndOverrides->overrideTimeout)
 	    {
-		endpoint = endpoint->timeout(defaultsAndOverwrites->overwriteTimeoutValue);
+		endpoint = endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
 	    }
 
 	    map<EndpointPtr, ConnectionPtr>::const_iterator q = _connections.find(endpoint);
@@ -430,10 +430,10 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     _adapter(adapter),
     _state(StateHolding)
 {
-    DefaultsAndOverwritesPtr defaultsAndOverwrites = _instance->defaultsAndOverwrites();
-    if (defaultsAndOverwrites->overwriteTimeout)
+    DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
+    if (defaultsAndOverrides->overrideTimeout)
     {
-	_endpoint = _endpoint->timeout(defaultsAndOverwrites->overwriteTimeoutValue);
+	_endpoint = _endpoint->timeout(defaultsAndOverrides->overrideTimeoutValue);
     }
 
     _warn = _instance->properties()->getPropertyAsInt("Ice.ConnectionWarnings") > 0;

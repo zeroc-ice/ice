@@ -22,7 +22,7 @@
 #include <Ice/ThreadPoolF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
-#include <Ice/DefaultsAndOverwritesF.h>
+#include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/EventHandler.h>
 
 namespace Ice
@@ -101,7 +101,7 @@ private:
     ::Ice::ObjectAdapterPtr _adapter;
     ::Ice::LoggerPtr _logger;
     TraceLevelsPtr _traceLevels;
-    DefaultsAndOverwritesPtr _defaultsAndOverwrites;
+    DefaultsAndOverridesPtr _defaultsAndOverrides;
     ThreadPoolPtr _clientThreadPool;
     ThreadPoolPtr _serverThreadPool;
     ::Ice::Int _nextRequestId;

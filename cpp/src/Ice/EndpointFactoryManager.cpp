@@ -14,7 +14,7 @@
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
-#include <Ice/DefaultsAndOverwrites.h>
+#include <Ice/DefaultsAndOverrides.h>
 
 using namespace std;
 using namespace Ice;
@@ -87,7 +87,7 @@ IceInternal::EndpointFactoryManager::create(const string& str) const
 
     if (protocol == "default")
     {
-        protocol = _instance->defaultsAndOverwrites()->defaultProtocol;
+        protocol = _instance->defaultsAndOverrides()->defaultProtocol;
     }
 
     //

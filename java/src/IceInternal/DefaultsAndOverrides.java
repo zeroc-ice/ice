@@ -10,9 +10,9 @@
 
 package IceInternal;
 
-public final class DefaultsAndOverwrites
+public final class DefaultsAndOverrides
 {
-    DefaultsAndOverwrites(Ice.Properties properties)
+    DefaultsAndOverrides(Ice.Properties properties)
     {
 	String value;
 	
@@ -30,28 +30,28 @@ public final class DefaultsAndOverwrites
 	
 	defaultRouter = properties.getProperty("Ice.Default.Router");
 	
-	value = properties.getProperty("Ice.Overwrite.Timeout");
+	value = properties.getProperty("Ice.Override.Timeout");
 	if (value.length() > 0)
 	{
-	    overwriteTimeout = true;
-	    overwriteTimeoutValue = properties.getPropertyAsInt("Ice.Overwrite.Timeout");
+	    overrideTimeout = true;
+	    overrideTimeoutValue = properties.getPropertyAsInt("Ice.Override.Timeout");
 	}
 	else
 	{
-	    overwriteTimeout = false;
-	    overwriteTimeoutValue = -1;
+	    overrideTimeout = false;
+	    overrideTimeoutValue = -1;
 	}
 
-	value = properties.getProperty("Ice.Overwrite.Compress");
+	value = properties.getProperty("Ice.Override.Compress");
 	if (value.length() > 0)
 	{
-	    overwriteCompress = true;
-	    overwriteCompressValue = properties.getPropertyAsInt("Ice.Overwrite.Compress") != 0;
+	    overrideComppress = true;
+	    overrideComppressValue = properties.getPropertyAsInt("Ice.Override.Compress") != 0;
 	}
 	else
 	{
-	    overwriteCompress = false;
-	    overwriteCompressValue = false;
+	    overrideComppress = false;
+	    overrideComppressValue = false;
 	}
     }
 
@@ -59,8 +59,8 @@ public final class DefaultsAndOverwrites
     final public String defaultProtocol;
     final public String defaultRouter;
 
-    final public boolean overwriteTimeout;
-    final public int overwriteTimeoutValue;
-    final public boolean overwriteCompress;
-    final public boolean overwriteCompressValue;
+    final public boolean overrideTimeout;
+    final public int overrideTimeoutValue;
+    final public boolean overrideComppress;
+    final public boolean overrideComppressValue;
 }

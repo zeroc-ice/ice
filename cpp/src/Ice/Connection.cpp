@@ -13,7 +13,7 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Properties.h>
 #include <Ice/TraceUtil.h>
-#include <Ice/DefaultsAndOverwrites.h>
+#include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Transceiver.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/ObjectAdapter.h>
@@ -123,9 +123,9 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway, bool comp)
 	}
 	else
 	{
-	    if (_defaultsAndOverwrites->overwriteCompress)
+	    if (_defaultsAndOverrides->overrideComppress)
 	    {
-		comp = _defaultsAndOverwrites->overwriteCompressValue;
+		comp = _defaultsAndOverrides->overrideComppressValue;
 	    }
 	}
 
@@ -263,9 +263,9 @@ IceInternal::Connection::flushBatchRequest(bool comp)
 	}
 	else
 	{
-	    if (_defaultsAndOverwrites->overwriteCompress)
+	    if (_defaultsAndOverrides->overrideComppress)
 	    {
-		comp = _defaultsAndOverwrites->overwriteCompressValue;
+		comp = _defaultsAndOverrides->overrideComppressValue;
 	    }
 	}
 
@@ -674,9 +674,9 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 		}
 		else
 		{
-		    if (_defaultsAndOverwrites->overwriteCompress)
+		    if (_defaultsAndOverrides->overrideComppress)
 		    {
-			comp = _defaultsAndOverwrites->overwriteCompressValue;
+			comp = _defaultsAndOverrides->overrideComppressValue;
 		    }
 		}
 
@@ -796,7 +796,7 @@ IceInternal::Connection::Connection(const InstancePtr& instance,
     _adapter(adapter),
     _logger(_instance->logger()),
     _traceLevels(_instance->traceLevels()),
-    _defaultsAndOverwrites(_instance->defaultsAndOverwrites()),
+    _defaultsAndOverrides(_instance->defaultsAndOverrides()),
     _nextRequestId(1),
     _requestsHint(_requests.end()),
     _batchStream(_instance),

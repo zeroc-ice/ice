@@ -44,11 +44,11 @@ public class Instance
         return _traceLevels;
     }
 
-    public DefaultsAndOverwrites
-    defaultsAndOverwrites()
+    public DefaultsAndOverrides
+    defaultsAndOverrides()
     {
 	// No mutex lock, immutable.
-        return _defaultsAndOverwrites;
+        return _defaultsAndOverrides;
     }
 
     public synchronized RouterManager
@@ -160,7 +160,7 @@ public class Instance
 
             _traceLevels = new TraceLevels(_properties);
 
-            _defaultsAndOverwrites = new DefaultsAndOverwrites(_properties);
+            _defaultsAndOverrides = new DefaultsAndOverrides(_properties);
 
             _routerManager = new RouterManager();
 
@@ -176,10 +176,10 @@ public class Instance
 
             _pluginManager = new Ice.PluginManagerI(this);
 
-            if (_defaultsAndOverwrites.defaultRouter.length() > 0)
+            if (_defaultsAndOverrides.defaultRouter.length() > 0)
             {
                 _referenceFactory.setDefaultRouter(Ice.RouterPrxHelper.uncheckedCast(
-		    _proxyFactory.stringToProxy(_defaultsAndOverwrites.defaultRouter)));
+		    _proxyFactory.stringToProxy(_defaultsAndOverrides.defaultRouter)));
             }
 
             _outgoingConnectionFactory = new OutgoingConnectionFactory(this);
@@ -348,7 +348,7 @@ public class Instance
     private Ice.Properties _properties; // Immutable, not reset by destroy().
     private Ice.Logger _logger; // Not reset by destroy().
     private TraceLevels _traceLevels; // Immutable, not reset by destroy().
-    private DefaultsAndOverwrites _defaultsAndOverwrites; // Immutable, not reset by destroy().
+    private DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private RouterManager _routerManager;
     private ReferenceFactory _referenceFactory;
     private ProxyFactory _proxyFactory;

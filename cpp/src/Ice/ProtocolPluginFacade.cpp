@@ -13,7 +13,7 @@
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Initialize.h>
-#include <Ice/DefaultsAndOverwrites.h>
+#include <Ice/DefaultsAndOverrides.h>
 
 using namespace std;
 using namespace Ice;
@@ -42,7 +42,7 @@ IceInternal::ProtocolPluginFacade::getCommunicator() const
 string
 IceInternal::ProtocolPluginFacade::getDefaultHost() const
 {
-    return _instance->defaultsAndOverwrites()->defaultHost;
+    return _instance->defaultsAndOverrides()->defaultHost;
 }
 
 int

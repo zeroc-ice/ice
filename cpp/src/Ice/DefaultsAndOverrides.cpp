@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <Ice/DefaultsAndOverwrites.h>
+#include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Properties.h>
 #include <Ice/Network.h>
 
@@ -16,14 +16,14 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-void IceInternal::incRef(DefaultsAndOverwrites* p) { p->__incRef(); }
-void IceInternal::decRef(DefaultsAndOverwrites* p) { p->__decRef(); }
+void IceInternal::incRef(DefaultsAndOverrides* p) { p->__incRef(); }
+void IceInternal::decRef(DefaultsAndOverrides* p) { p->__decRef(); }
 
-IceInternal::DefaultsAndOverwrites::DefaultsAndOverwrites(const PropertiesPtr& properties) :
-    overwriteTimeout(false),
-    overwriteTimeoutValue(-1),
-    overwriteCompress(false),
-    overwriteCompressValue(false)
+IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& properties) :
+    overrideTimeout(false),
+    overrideTimeoutValue(-1),
+    overrideComppress(false),
+    overrideComppressValue(false)
 {
     const_cast<string&>(defaultProtocol) = properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
@@ -37,17 +37,17 @@ IceInternal::DefaultsAndOverwrites::DefaultsAndOverwrites(const PropertiesPtr& p
 
     string value;
     
-    value = properties->getProperty("Ice.Overwrite.Timeout");
+    value = properties->getProperty("Ice.Override.Timeout");
     if (!value.empty())
     {
-	const_cast<bool&>(overwriteTimeout) = true;
-	const_cast<Int&>(overwriteTimeoutValue) = atoi(value.c_str());
+	const_cast<bool&>(overrideTimeout) = true;
+	const_cast<Int&>(overrideTimeoutValue) = atoi(value.c_str());
     }
 
-    value = properties->getProperty("Ice.Overwrite.Compress");
+    value = properties->getProperty("Ice.Override.Compress");
     if (!value.empty())
     {
-	const_cast<bool&>(overwriteCompress) = true;
-	const_cast<bool&>(overwriteCompressValue) = atoi(value.c_str());
+	const_cast<bool&>(overrideComppress) = true;
+	const_cast<bool&>(overrideComppressValue) = atoi(value.c_str());
     }
 }

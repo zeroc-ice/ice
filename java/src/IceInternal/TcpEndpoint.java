@@ -115,7 +115,7 @@ final class TcpEndpoint implements Endpoint
 
         if (_host == null)
         {
-            _host = _instance.defaultsAndOverwrites().defaultHost;
+            _host = _instance.defaultsAndOverrides().defaultHost;
         }
 
         calcHashValue();

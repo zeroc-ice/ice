@@ -10,7 +10,7 @@
 
 #include <Ice/Instance.h>
 #include <Ice/TraceLevels.h>
-#include <Ice/DefaultsAndOverwrites.h>
+#include <Ice/DefaultsAndOverrides.h>
 #include <Ice/RouterInfo.h>
 #include <Ice/ReferenceFactory.h>
 #include <Ice/ProxyFactory.h>
@@ -107,11 +107,11 @@ IceInternal::Instance::traceLevels()
     return _traceLevels;
 }
 
-DefaultsAndOverwritesPtr
-IceInternal::Instance::defaultsAndOverwrites()
+DefaultsAndOverridesPtr
+IceInternal::Instance::defaultsAndOverrides()
 {
     // No mutex lock, immutable.
-    return _defaultsAndOverwrites;
+    return _defaultsAndOverrides;
 }
 
 RouterManagerPtr
@@ -304,7 +304,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
 	_traceLevels = new TraceLevels(_properties);
 
-	_defaultsAndOverwrites = new DefaultsAndOverwrites(_properties);
+	_defaultsAndOverrides = new DefaultsAndOverrides(_properties);
 
 	_routerManager = new RouterManager;
 
@@ -320,10 +320,10 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 
         _pluginManager = new PluginManagerI(this);
 
-	if (!_defaultsAndOverwrites->defaultRouter.empty())
+	if (!_defaultsAndOverrides->defaultRouter.empty())
 	{
 	    _referenceFactory->setDefaultRouter(
-		RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverwrites->defaultRouter)));
+		RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(_defaultsAndOverrides->defaultRouter)));
 	}
 
 	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);

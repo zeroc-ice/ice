@@ -54,9 +54,9 @@ else:
     clientServerProtocol = ""
 
 if compress:
-    clientProtocol += " --Ice.Overwrite.Compress"
-    serverProtocol += " --Ice.Overwrite.Compress"
-    clientServerProtocol += " --Ice.Overwrite.Compress"
+    clientProtocol += " --Ice.Override.Compress"
+    serverProtocol += " --Ice.Override.Compress"
+    clientServerProtocol += " --Ice.Override.Compress"
 
 if host != "":
     defaultHost = " --Ice.Default.Host=" + host

@@ -8,18 +8,18 @@
 //
 // **********************************************************************
 
-#ifndef ICE_DEFAULTS_AND_OVERWRITES_F_H
-#define ICE_DEFAULTS_AND_OVERWRITES_F_H
+#ifndef ICE_DEFAULTS_AND_OVERRIDES_F_H
+#define ICE_DEFAULTS_AND_OVERRIDES_F_H
 
 #include <Ice/Handle.h>
 
 namespace IceInternal
 {
 
-class DefaultsAndOverwrites;
-void incRef(DefaultsAndOverwrites*);
-void decRef(DefaultsAndOverwrites*);
-typedef Handle<DefaultsAndOverwrites> DefaultsAndOverwritesPtr;
+class DefaultsAndOverrides;
+void incRef(DefaultsAndOverrides*);
+void decRef(DefaultsAndOverrides*);
+typedef Handle<DefaultsAndOverrides> DefaultsAndOverridesPtr;
 
 }
 

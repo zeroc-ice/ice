@@ -31,7 +31,7 @@ OBJS		= Initialize.o \
 		  Stream.o \
 		  BuiltinSequences.o \
 		  BasicStream.o \
-		  DefaultsAndOverwrites.o \
+		  DefaultsAndOverrides.o \
 		  TraceLevels.o \
 		  TraceUtil.o \
 		  Instance.o \

@@ -19,7 +19,7 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
 #include <Ice/TraceLevelsF.h>
-#include <Ice/DefaultsAndOverwritesF.h>
+#include <Ice/DefaultsAndOverridesF.h>
 #include <Ice/RouterInfoF.h>
 #include <Ice/ReferenceFactoryF.h>
 #include <Ice/ProxyFactoryF.h>
@@ -51,7 +51,7 @@ public:
     ::Ice::LoggerPtr logger();
     void logger(const ::Ice::LoggerPtr&);
     TraceLevelsPtr traceLevels();
-    DefaultsAndOverwritesPtr defaultsAndOverwrites();
+    DefaultsAndOverridesPtr defaultsAndOverrides();
     RouterManagerPtr routerManager();
     ReferenceFactoryPtr referenceFactory();
     ProxyFactoryPtr proxyFactory();
@@ -76,7 +76,7 @@ private:
     ::Ice::PropertiesPtr _properties; // Immutable, not reset by destroy().
     ::Ice::LoggerPtr _logger; // Not reset by destroy().
     TraceLevelsPtr _traceLevels; // Immutable, not reset by destroy().
-    DefaultsAndOverwritesPtr _defaultsAndOverwrites; // Immutable, not reset by destroy().
+    DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     RouterManagerPtr _routerManager;
     ReferenceFactoryPtr _referenceFactory;
     ProxyFactoryPtr _proxyFactory;

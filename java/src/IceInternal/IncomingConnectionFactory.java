@@ -201,10 +201,10 @@ public class IncomingConnectionFactory extends EventHandler
     {
         super(instance);
         _endpoint = endpoint;
-	DefaultsAndOverwrites defaultsAndOverwrites = _instance.defaultsAndOverwrites();
-	if (defaultsAndOverwrites.overwriteTimeout)
+	DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
+	if (defaultsAndOverrides.overrideTimeout)
 	{
-	    _endpoint = _endpoint.timeout(defaultsAndOverwrites.overwriteTimeoutValue);
+	    _endpoint = _endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 	}
         _adapter = adapter;
         _state = StateHolding;

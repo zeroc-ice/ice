@@ -38,13 +38,13 @@ public class OutgoingConnectionFactory
         //
         // Search for existing connections.
         //
-	DefaultsAndOverwrites defaultsAndOverwrites = _instance.defaultsAndOverwrites();
+	DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
         for (int i = 0; i < endpoints.length; i++)
         {
 	    Endpoint endpoint = endpoints[i];
-	    if (defaultsAndOverwrites.overwriteTimeout)
+	    if (defaultsAndOverrides.overrideTimeout)
 	    {
-		endpoint = endpoint.timeout(defaultsAndOverwrites.overwriteTimeoutValue);
+		endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 	    }
 
             Connection connection = (Connection)_connections.get(endpoints);
@@ -65,9 +65,9 @@ public class OutgoingConnectionFactory
         for (int i = 0; i < endpoints.length; i++)
         {
   	    Endpoint endpoint = endpoints[i];
-	    if (defaultsAndOverwrites.overwriteTimeout)
+	    if (defaultsAndOverrides.overrideTimeout)
 	    {
-		endpoint = endpoint.timeout(defaultsAndOverwrites.overwriteTimeoutValue);
+		endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 	    }
 	    
 	    try
@@ -149,14 +149,14 @@ public class OutgoingConnectionFactory
             //
             Ice.ObjectPrx proxy = routerInfo.getClientProxy();
             Ice.ObjectAdapter adapter = routerInfo.getAdapter();
-	    DefaultsAndOverwrites defaultsAndOverwrites = _instance.defaultsAndOverwrites();
+	    DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
             Endpoint[] endpoints = ((Ice.ObjectPrxHelper)proxy).__reference().endpoints;
             for (int i = 0; i < endpoints.length; i++)
             {
 		Endpoint endpoint = endpoints[i];
-		if (defaultsAndOverwrites.overwriteTimeout)
+		if (defaultsAndOverrides.overrideTimeout)
 		{
-		    endpoint = endpoint.timeout(defaultsAndOverwrites.overwriteTimeoutValue);
+		    endpoint = endpoint.timeout(defaultsAndOverrides.overrideTimeoutValue);
 		}
 
                 Connection connection = (Connection)_connections.get(endpoint);

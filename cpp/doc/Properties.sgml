@@ -250,7 +250,7 @@ method invocations). </para></note>
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&Ice; Default and Overwrite Properties</title>
+<section><title>&Ice; Default and Override Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Default.Protocol</title>
@@ -304,32 +304,32 @@ router.
 </section>
 </section>
 
-<section><title>Ice.Overwrite.Timeout</title>
+<section><title>Ice.Override.Timeout</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Overwrite.Timeout=<replaceable>num</replaceable>
+Ice.Override.Timeout=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-If set, this property overwrites timeout settings in all
+If set, this property overrides timeout settings in all
 endpoints. <replaceable>num</replaceable> is the timeout value in
 milliseconds, or -1 for no timeout.
 </para>
 </section>
 </section>
 
-<section><title>Ice.Overwrite.Compression</title>
+<section><title>Ice.Override.Compression</title>
 <section><title>Synopsis</title>
 <synopsis>
-Ice.Overwrite.Compression=<replaceable>num</replaceable>
+Ice.Override.Compression=<replaceable>num</replaceable>
 </synopsis>
 </section>
 <section>
 <title>Description</title>
 <para>
-If set, this property overwrites compession settings in all
+If set, this property overrides compession settings in all
 proxies. If <replaceable>num</replaceable> is set to a value larger
 than zero, compression is enabled. If zero, compression is disabled.
 </para>
@@ -1164,10 +1164,10 @@ default is <literal>glacier</literal>. (Unix only.)
 </section>
 </section>
 
-<section><title>Glacier.Starter.PropertiesOverwrite</title>
+<section><title>Glacier.Starter.PropertiesOverride</title>
 <section><title>Synopsis</title>
 <synopsis>
-Glacier.Starter.PropertiesOverwrite=<replaceable>overwrites</replaceable>
+Glacier.Starter.PropertiesOverride=<replaceable>overrides</replaceable>
 </synopsis>
 </section>
 <section>
@@ -1175,14 +1175,14 @@ Glacier.Starter.PropertiesOverwrite=<replaceable>overwrites</replaceable>
 <para>
 By default, the &Glacier; router starter starts new routers with the
 exact same property set as for the router
-starter. <replaceable>overwrites</replaceable> can contain a list
+starter. <replaceable>overrides</replaceable> can contain a list
 (separated by whitespace) of properties for the router, which are used
-in addition to the router starter's properties, or which overwrite the
+in addition to the router starter's properties, or which override the
 router starter's properties. For example, in many cases it is
 desirable to set the property <literal>Ice.ServerIdleTime</literal>
 for the router, but not for the router starter. For an idle time of 60
 seconds, this can be done by setting
-<literal>Glacier.Starter.PropertiesOverwrite=Ice.SeverIdleTime=60</literal>. (Unix
+<literal>Glacier.Starter.PropertiesOverride=Ice.SeverIdleTime=60</literal>. (Unix
 only.)
 </para>
 </section>
