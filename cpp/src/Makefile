@@ -22,6 +22,8 @@ SUBDIRS		= IceUtil \
 		  slice2docbook \
 		  slice2java \
 		  slice2py \
+		  slice2cppe \
+		  slice2javae \
 		  Ice \
 		  IceXML \
 		  IceSSL \
