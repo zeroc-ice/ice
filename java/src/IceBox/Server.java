@@ -19,7 +19,7 @@ public final class Server extends Ice.Application
     private static void
     usage()
     {
-        System.err.println("Usage: IceBox.Server [options]\n");
+        System.err.println("Usage: IceBox.Server [options] --Ice.Config=<file>\n");
         System.err.println(
             "Options:\n" +
             "-h, --help           Show this message.\n"

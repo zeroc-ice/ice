@@ -42,7 +42,7 @@ main(int argc, char* argv[])
 void
 Server::usage()
 {
-    cerr << "Usage: " << appName() << " [options]\n";
+    cerr << "Usage: " << appName() << " [options] --Ice.Config=<file>\n";
     cerr <<     
         "Options:\n"
         "-h, --help           Show this message.\n"
