@@ -76,12 +76,9 @@ IceInternal::SslTransceiver::write(Buffer& buf, int timeout)
 
 	if (ret == 0)
 	{
-#ifdef WIN32
-	    WSASetLastError(0);
-#else
-	    errno = 0;
-#endif
-	    throw ConnectionLostException(__FILE__, __LINE__);
+	    ConnectionLostException ex(__FILE__, __LINE__);
+	    ex.error = 0;
+	    throw ex;
 	}
 
 	if (ret == SOCKET_ERROR)
@@ -124,7 +121,9 @@ IceInternal::SslTransceiver::write(Buffer& buf, int timeout)
 			    goto repeatSelect;
 			}
 			
-			throw SocketException(__FILE__, __LINE__);
+			SocketException ex(__FILE__, __LINE__);
+			ex.error = getSocketErrno();
+			throw ex;
 		    }
 		    
 		    if (ret == 0)
@@ -138,11 +137,15 @@ IceInternal::SslTransceiver::write(Buffer& buf, int timeout)
 	    
 	    if (connectionLost())
 	    {
-		throw ConnectionLostException(__FILE__, __LINE__);
+		ConnectionLostException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
 	    }
 	    else
 	    {
-		throw SocketException(__FILE__, __LINE__);
+		SocketException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
 	    }
 	}
 
@@ -173,12 +176,9 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 
 	if (ret == 0)
 	{
-#ifdef WIN32
-	    WSASetLastError(0);
-#else
-	    errno = 0;
-#endif
-	    throw ConnectionLostException(__FILE__, __LINE__);
+	    ConnectionLostException ex(__FILE__, __LINE__);
+	    ex.error = 0;
+	    throw ex;
 	}
 
 	if (ret == SOCKET_ERROR)
@@ -221,7 +221,9 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 			    goto repeatSelect;
 			}
 			
-			throw SocketException(__FILE__, __LINE__);
+			SocketException ex(__FILE__, __LINE__);
+			ex.error = getSocketErrno();
+			throw ex;
 		    }
 		    
 		    if (ret == 0)
@@ -235,11 +237,15 @@ IceInternal::SslTransceiver::read(Buffer& buf, int timeout)
 	    
 	    if (connectionLost())
 	    {
-		throw ConnectionLostException(__FILE__, __LINE__);
+		ConnectionLostException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
 	    }
 	    else
 	    {
-		throw SocketException(__FILE__, __LINE__);
+		SocketException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
 	    }
 	}
 

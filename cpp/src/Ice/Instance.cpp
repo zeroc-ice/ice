@@ -168,7 +168,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    {
 		--_globalStateCounter;
 		_globalStateMutex->unlock();
-		throw SystemException(__FILE__, __LINE__);
+		SystemException ex(__FILE__, __LINE__);
+		ex.error = getSystemErrno();
+		throw ex;
 	    }
 	}
 #endif
@@ -192,7 +194,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	if (WSAStartup(version, &data) != 0)
 	{
 	    _globalStateMutex->unlock();
-	    throw SocketException(__FILE__, __LINE__);
+	    SocketException ex(__FILE__, __LINE__);
+	    ex.error = getSocketErrno();
+	    throw ex;
 	}
 #endif
 	

@@ -223,7 +223,9 @@ IceInternal::createSocket(bool udp)
 
     if (fd == INVALID_SOCKET)
     {
-	throw SocketException(__FILE__, __LINE__);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
     }
 
     setBlock(fd, false);
@@ -285,7 +287,9 @@ IceInternal::setTcpNoDelay(int fd)
     if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char*)&flag, sizeof(int)) == SOCKET_ERROR)
     {
 	closeSocket(fd);
-	throw SocketException(__FILE__, __LINE__);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
     }
 }
     
@@ -296,7 +300,9 @@ IceInternal::setKeepAlive(int fd)
     if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, (char*)&flag, sizeof(int)) == SOCKET_ERROR)
     {
 	closeSocket(fd);
-	throw SocketException(__FILE__, __LINE__);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
     }
 }
 
@@ -306,7 +312,9 @@ IceInternal::setSendBufferSize(int fd, int sz)
     if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char*)&sz, sizeof(int)) == SOCKET_ERROR)
     {
 	closeSocket(fd);
-	throw SocketException(__FILE__, __LINE__);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
     }
 }
 
@@ -318,14 +326,18 @@ IceInternal::doBind(int fd, struct sockaddr_in& addr)
     if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, (char*)&flag, sizeof(int)) == SOCKET_ERROR)
     {
 	closeSocket(fd);
-	throw SocketException(__FILE__, __LINE__);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
     }
 #endif
 
     if (bind(fd, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) == SOCKET_ERROR)
     {
 	closeSocket(fd);
-	throw SocketException(__FILE__, __LINE__);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
     }
 
     socklen_t len = sizeof(addr);
@@ -345,7 +357,9 @@ repeatListen:
 	}
 	
 	closeSocket(fd);
-	throw SocketException(__FILE__, __LINE__);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
     }
 }
 
@@ -416,7 +430,9 @@ repeatConnect:
 		    goto repeatSelect;
 		}
 		
-		throw SocketException(__FILE__, __LINE__);
+		SocketException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
 	    }
 	    
 #ifdef WIN32
@@ -432,7 +448,9 @@ repeatConnect:
 	    if (getsockopt(fd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&val), &len) == SOCKET_ERROR)
 	    {
 		closeSocket(fd);
-		throw SocketException(__FILE__, __LINE__);
+		SocketException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
 	    }
 	    
 	    if (val > 0)
@@ -445,11 +463,15 @@ repeatConnect:
 #endif
 		if (connectFailed())
 		{
-		    throw ConnectFailedException(__FILE__, __LINE__);
+		    ConnectFailedException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
 		}
 		else
 		{
-		    throw SocketException(__FILE__, __LINE__);
+		    SocketException ex(__FILE__, __LINE__);
+		    ex.error = getSocketErrno();
+		    throw ex;
 		}
 	    }
 	    
@@ -459,11 +481,15 @@ repeatConnect:
 	closeSocket(fd);
 	if (connectFailed())
 	{
-	    throw ConnectFailedException(__FILE__, __LINE__);
+	    ConnectFailedException ex(__FILE__, __LINE__);
+	    ex.error = getSocketErrno();
+	    throw ex;
 	}
 	else
 	{
-	    throw SocketException(__FILE__, __LINE__);
+	    SocketException ex(__FILE__, __LINE__);
+	    ex.error = getSocketErrno();
+	    throw ex;
 	}
     }
 }
@@ -507,7 +533,9 @@ repeatAccept:
 		    goto repeatSelect;
 		}
 		
-		throw SocketException(__FILE__, __LINE__);
+		SocketException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
 	    }
 	    
 	    if (ret == 0)
@@ -519,7 +547,9 @@ repeatAccept:
 	}
 	
 	closeSocket(fd);
-	throw SocketException(__FILE__, __LINE__);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
     }
 
     setTcpNoDelay(ret);
@@ -565,7 +595,9 @@ IceInternal::getAddress(const char* host, int port, struct sockaddr_in& addr)
 
 	if (!entry)
 	{
-	    throw DNSException(__FILE__, __LINE__);
+	    DNSException ex(__FILE__, __LINE__);
+	    ex.error = getDNSErrno();
+	    throw ex;
 	}
 
 	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
@@ -578,7 +610,9 @@ IceInternal::getLocalAddress(int port, struct sockaddr_in& addr)
     char host[1024 + 1];
     if (gethostname(host, 1024) == -1)
     {
-	throw SystemException(__FILE__, __LINE__);
+	SystemException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
     }
 
     memset(&addr, 0, sizeof(struct sockaddr_in));
@@ -603,7 +637,9 @@ IceInternal::getLocalAddress(int port, struct sockaddr_in& addr)
 	
 	if (!entry)
 	{
-	    throw DNSException(__FILE__, __LINE__);
+	    DNSException ex(__FILE__, __LINE__);
+	    ex.error = getDNSErrno();
+	    throw ex;
 	}
 
 	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
@@ -616,7 +652,9 @@ IceInternal::getLocalHost(bool numeric)
     char host[1024 + 1];
     if (gethostname(host, 1024) == -1)
     {
-	throw SystemException(__FILE__, __LINE__);
+	SystemException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
     }
 
     {
@@ -637,7 +675,9 @@ IceInternal::getLocalHost(bool numeric)
 	
 	if (!entry)
 	{
-	    throw DNSException(__FILE__, __LINE__);
+	    DNSException ex(__FILE__, __LINE__);
+	    ex.error = getDNSErrno();
+	    throw ex;
 	}
 
 	if (numeric)
@@ -698,7 +738,9 @@ IceInternal::createPipe(int fds[2])
 
     if (::pipe(fds) != 0)
     {
-	throw SystemException(__FILE__, __LINE__);
+	SystemException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
     }
 
 #endif
@@ -963,7 +1005,9 @@ IceInternal::fdToString(int fd)
     if (getsockname(fd, reinterpret_cast<struct sockaddr*>(&localAddr), &localLen) == SOCKET_ERROR)
     {
 	closeSocket(fd);
-	throw SocketException(__FILE__, __LINE__);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
     }
     
     bool peerNotConnected = false;
@@ -978,7 +1022,9 @@ IceInternal::fdToString(int fd)
 	else
 	{
 	    closeSocket(fd);
-	    throw SocketException(__FILE__, __LINE__);
+	    SocketException ex(__FILE__, __LINE__);
+	    ex.error = getSocketErrno();
+	    throw ex;
 	}
     }
 

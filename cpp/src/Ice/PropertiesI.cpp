@@ -140,7 +140,9 @@ Ice::PropertiesI::load(const std::string& file)
     ifstream in(file.c_str());
     if (!in)
     {
-	throw SystemException(__FILE__, __LINE__);
+	SystemException ex(__FILE__, __LINE__);
+	ex.error = getSystemErrno();
+	throw ex;
     }
     parse(in);
 }

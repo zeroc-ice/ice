@@ -71,7 +71,9 @@ repeat:
 	    goto repeat;
 	}
 
-	throw SocketException(__FILE__, __LINE__);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
     }
 
     if (_traceLevels->network >= 3)
@@ -105,7 +107,9 @@ repeat:
 	    goto repeat;
 	}
 	
-	throw SocketException(__FILE__, __LINE__);
+	SocketException ex(__FILE__, __LINE__);
+	ex.error = getSocketErrno();
+	throw ex;
     }
     
     if (_traceLevels->network >= 3)

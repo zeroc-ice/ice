@@ -195,20 +195,6 @@ IceUtil::printException(ostream& out, const SocketException& ex)
 }
 
 ostream&
-IceUtil::printException(ostream& out, const TimeoutException& ex)
-{
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ": timeout while sending or receiving data";
-}
-
-ostream&
-IceUtil::printException(ostream& out, const ConnectTimeoutException& ex)
-{
-    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
-    return out << ": timeout while establishing a connection";
-}
-
-ostream&
 IceUtil::printException(ostream& out, const ConnectFailedException& ex)
 {
     IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
@@ -235,6 +221,20 @@ IceUtil::printException(ostream& out, const DNSException& ex)
 {
     IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
     return out << ": DNS error: " + errorToStringDNS(ex.error);
+}
+
+ostream&
+IceUtil::printException(ostream& out, const TimeoutException& ex)
+{
+    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
+    return out << ": timeout while sending or receiving data";
+}
+
+ostream&
+IceUtil::printException(ostream& out, const ConnectTimeoutException& ex)
+{
+    IceUtil::printException(out, static_cast<const IceUtil::Exception&>(ex));
+    return out << ": timeout while establishing a connection";
 }
 
 ostream&

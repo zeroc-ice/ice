@@ -297,6 +297,10 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
     {
 	++cnt;
     }
+    catch (const TimeoutException&)
+    {
+	++cnt;
+    }
 
     TraceLevelsPtr traceLevels = _reference->instance->traceLevels();
     LoggerPtr logger = _reference->instance->logger();

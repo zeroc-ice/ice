@@ -13,6 +13,26 @@
 
 #include <IceUtil/Config.h>
 
+//
+// Some include files we need almost everywhere
+//
+#include <cerrno>
+#include <cstdio>
+#include <cstring>
+#include <string>
+#include <vector>
+#include <map>
+
+//
+// Define the Ice and IceInternal namespace, so that we can use the following
+// everywhere in our code:
+//
+// using namespace Ice;
+// using namespace IceInternal;
+//
+namespace Ice { }
+namespace IceInternal { }
+
 #if defined(WIN32)
 
 #   if !defined(_DLL) || !defined(_MT)
@@ -41,6 +61,10 @@ typedef double Double;
 
 #   define _UNICODE
 
+inline int getSystemErrno() { return GetLastError(); }
+inline int getSocketErrno() { return WSAGetLastError(); }
+inline int getDNSErrno() { return WSAGetLastError(); }
+
 #elif defined(__linux__) && defined(i386)
 
 #   include <sys/types.h>
@@ -61,30 +85,15 @@ typedef double Double;
 
 }
 
+inline int getSystemErrno() { return errno; }
+inline int getSocketErrno() { return errno; }
+extern int h_errno;
+inline int getDNSErrno() { return h_errno; }
+
 #else
 
 #   error "Unsupported operating system or platform!"
 
 #endif
-
-//
-// Some include files we need almost everywhere
-//
-#include <cerrno>
-#include <cstdio>
-#include <cstring>
-#include <string>
-#include <vector>
-#include <map>
-
-//
-// Define the Ice and IceInternal namespace, so that we can use the following
-// everywhere in our code:
-//
-// using namespace Ice;
-// using namespace IceInternal;
-//
-namespace Ice { }
-namespace IceInternal { }
 
 #endif

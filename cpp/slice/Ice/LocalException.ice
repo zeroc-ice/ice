@@ -173,26 +173,6 @@ local exception SocketException extends SystemException
 
 /**
  *
- * This exception is a specialization of [SocketException] for timeout
- * conditions.
- *
- **/
-local exception TimeoutException extends SocketException
-{
-};
-
-/**
- *
- * This exception is a specialization of [TimeoutException] for
- * connection timeout conditions.
- *
- **/
-local exception ConnectTimeoutException extends TimeoutException
-{
-};
-
-/**
- *
  * This exception is a specialization of [SocketException] for
  * connection failures.
  *
@@ -228,6 +208,25 @@ local exception DNSException
      *
      **/
     int error; // Don't use h_errno, as h_errno is usually a macro.
+};
+
+/**
+ *
+ * This exception indicates a timeout condition.
+ *
+ **/
+local exception TimeoutException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [TimeoutException] for
+ * connection timeout conditions.
+ *
+ **/
+local exception ConnectTimeoutException extends TimeoutException
+{
 };
 
 /**

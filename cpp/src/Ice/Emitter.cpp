@@ -493,6 +493,10 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
 	{
 	    exception = auto_ptr<LocalException>(ex._clone());
 	}
+	catch (const TimeoutException& ex)
+	{
+	    exception = auto_ptr<LocalException>(ex._clone());
+	}
 
 	++q;
 
