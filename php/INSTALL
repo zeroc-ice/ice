@@ -98,7 +98,7 @@ If you are building the Ice extension in a static configuration, edit the
 file <phpdir>/Makefile and make the following changes:
 
 - If the command-line interpreter is being built, search for the
-  definition of the BUILD_CLI variable and change "$(CC)" to "$(CXX").
+  definition of the BUILD_CLI variable and change "$(CC)" to "$(CXX)".
 
 - If a Web server module is being built, search for the line beginning
   with "libphp5.la:", and change "$(CC)" to "$(CXX)" in that rule, as
