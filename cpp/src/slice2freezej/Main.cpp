@@ -866,6 +866,7 @@ usage(const char* n)
         "-DNAME=DEF                Define NAME as DEF.\n"
         "-UNAME                    Remove any definition for NAME.\n"
         "-IDIR                     Put DIR in the include file search path.\n"
+	"-E                        Print preprocessor output on stdout.\n"
         "--include-dir DIR         Use DIR as the header include directory.\n"
         "--dict NAME,KEY,VALUE     Create a Freeze dictionary with the name NAME,\n"
         "                          using KEY as key, and VALUE as value. This\n"
@@ -899,6 +900,7 @@ main(int argc, char* argv[])
 {
     string cppArgs;
     vector<string> includePaths;
+    bool preprocess;
     string include;
     vector<Dict> dicts;
     vector<Index> indices;
@@ -914,6 +916,7 @@ main(int argc, char* argv[])
     opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("E");
     opts.addOpt("", "include-dir", IceUtil::Options::NeedArg);
     opts.addOpt("", "dict", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("", "index", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
@@ -970,6 +973,7 @@ main(int argc, char* argv[])
 	    cppArgs += " -I" + *i;
 	}
     }
+    preprocess = opts.isSet("E");
     if(opts.isSet("include-dir"))
     {
 	include = opts.optArg("include-dir");
@@ -1211,8 +1215,23 @@ main(int argc, char* argv[])
 		u->destroy();
 		return EXIT_FAILURE;
 	    }
-	    
-	    status = u->parse(cppHandle, debug);
+
+	    if(preprocess)
+	    {
+	        char buf[4096];
+		while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+		{
+		    if(fputs(buf, stdout) == EOF)
+		    {
+			u->destroy();
+		        return EXIT_FAILURE;
+		    }
+		}
+	    }
+	    else
+	    {
+		status = u->parse(cppHandle, debug);
+	    }
 
 	    if(!icecpp.close())
 	    {
@@ -1224,10 +1243,11 @@ main(int argc, char* argv[])
 
     if(depend)
     {
+        u->destroy();
 	return EXIT_SUCCESS;
     }
 
-    if(status == EXIT_SUCCESS)
+    if(status == EXIT_SUCCESS && !preprocess)
     {
         u->mergeModules();
         u->sort();

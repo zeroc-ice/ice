@@ -26,6 +26,7 @@ usage(const char* n)
         "-DNAME=DEF              Define NAME as DEF.\n"
         "-UNAME                  Remove any definition for NAME.\n"
         "-IDIR                   Put DIR in the include file search path.\n"
+        "-E                      Print preprocessor output on stdout.\n"
         "--output-dir DIR        Create files in the directory DIR.\n"
         "--tie                   Generate TIE classes.\n"
         "--impl                  Generate sample implementations.\n"
@@ -44,6 +45,7 @@ main(int argc, char* argv[])
 {
     string cppArgs;
     vector<string> includePaths;
+    bool preprocess;
     string output;
     bool tie;
     bool impl;
@@ -118,6 +120,7 @@ main(int argc, char* argv[])
             cppArgs += " -I" + *i;
 	}
     }
+    preprocess = opts.isSet("E");
     if(opts.isSet("output-dir"))
     {
 	output = opts.optArg("output-dir");
@@ -165,46 +168,65 @@ main(int argc, char* argv[])
 		return EXIT_FAILURE;
 	    }
 
-	    UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive);
-	    int parseStatus = p->parse(cppHandle, debug);
-
-	    if(!icecpp.close())
+	    if(preprocess)
 	    {
-		return EXIT_FAILURE;
-	    }	    
-	    
-	    if(parseStatus == EXIT_FAILURE)
-	    {
-		status = EXIT_FAILURE;
+	        char buf[4096];
+		while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+		{
+		    if(fputs(buf, stdout) == EOF)
+		    {
+		        return EXIT_FAILURE;
+		    }
+		}
+		if(!icecpp.close())
+		{
+		    return EXIT_FAILURE;
+		}	    
 	    }
 	    else
 	    {
-		Gen gen(argv[0], icecpp.getBaseName(), includePaths, output, impl, implTie, stream);
-		if(!gen)
+		UnitPtr p = Unit::createUnit(false, false, ice, caseSensitive);
+		int parseStatus = p->parse(cppHandle, debug);
+
+		if(!icecpp.close())
 		{
 		    p->destroy();
 		    return EXIT_FAILURE;
-		}
-		gen.generate(p);
-		if(tie)
+		}	    
+		
+		if(parseStatus == EXIT_FAILURE)
 		{
-		    gen.generateTie(p);
+		    status = EXIT_FAILURE;
 		}
-		if(impl)
+		else
 		{
-		    gen.generateImpl(p);
+		    Gen gen(argv[0], icecpp.getBaseName(), includePaths, output, impl, implTie, stream);
+		    if(!gen)
+		    {
+			p->destroy();
+			return EXIT_FAILURE;
+		    }
+		    gen.generate(p);
+		    if(tie)
+		    {
+			gen.generateTie(p);
+		    }
+		    if(impl)
+		    {
+			gen.generateImpl(p);
+		    }
+		    if(implTie)
+		    {
+			gen.generateImplTie(p);
+		    }
+		    if(checksum)
+		    {
+			gen.generateChecksums(p);
+		    }
 		}
-		if(implTie)
-		{
-		    gen.generateImplTie(p);
-		}
-                if(checksum)
-                {
-		    gen.generateChecksums(p);
-                }
-	    }
 
-	    p->destroy();
+		p->destroy();
+	    }
 	}
     }
 

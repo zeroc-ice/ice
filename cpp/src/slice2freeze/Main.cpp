@@ -58,6 +58,7 @@ usage(const char* n)
         "-DNAME=DEF            Define NAME as DEF.\n"
         "-UNAME                Remove any definition for NAME.\n"
         "-IDIR                 Put DIR in the include file search path.\n"
+	"-E                    Print preprocessor output on stdout.\n"
         "--include-dir DIR     Use DIR as the header include directory in source files.\n"
         "--dll-export SYMBOL   Use SYMBOL for DLL exports.\n"
         "--dict NAME,KEY,VALUE Create a Freeze dictionary with the name NAME,\n"
@@ -963,6 +964,7 @@ main(int argc, char* argv[])
     string headerExtension;
     string sourceExtension;
     vector<string> includePaths;
+    bool preprocess;
     string include;
     string dllExport;
     vector<Dict> dicts;
@@ -980,6 +982,7 @@ main(int argc, char* argv[])
     opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("E");
     opts.addOpt("", "include-dir", IceUtil::Options::NeedArg);
     opts.addOpt("", "dll-export", IceUtil::Options::NeedArg);
     opts.addOpt("", "dict", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
@@ -1040,6 +1043,7 @@ main(int argc, char* argv[])
 	    cppArgs += " -I" + *i;
 	}
     }
+    preprocess= opts.isSet("E");
     if(opts.isSet("include-dir"))
     {
 	include = opts.optArg("include-dir");
@@ -1302,8 +1306,23 @@ main(int argc, char* argv[])
 	    u->destroy();
 	    return EXIT_FAILURE;
 	}
-	
-	status = u->parse(cppHandle, debug);
+
+	if(preprocess)
+	{
+	    char buf[4096];
+	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+	    {
+		if(fputs(buf, stdout) == EOF)
+		{
+		    u->destroy();
+		    return EXIT_FAILURE;
+		}
+	    }
+	}
+	else
+	{
+	    status = u->parse(cppHandle, debug);
+	}
 
 	if(!icecpp.close())
 	{
@@ -1312,7 +1331,7 @@ main(int argc, char* argv[])
 	}
     }
 
-    if(status == EXIT_SUCCESS)
+    if(status == EXIT_SUCCESS && !preprocess)
     {
 	u->mergeModules();
 	u->sort();

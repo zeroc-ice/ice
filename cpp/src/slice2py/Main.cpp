@@ -368,6 +368,7 @@ usage(const char* n)
         "-DNAME=DEF           Define NAME as DEF.\n"
         "-UNAME               Remove any definition for NAME.\n"
         "-IDIR                Put DIR in the include file search path.\n"
+	"-E                   Print preprocessor output on stdout.\n"
         "--output-dir DIR     Create files in the directory DIR.\n"
         "-d, --debug          Print debug messages.\n"
         "--ice                Permit `Ice' prefix (for building Ice source code only)\n"
@@ -384,6 +385,7 @@ main(int argc, char* argv[])
 {
     string cppArgs;
     vector<string> includePaths;
+    bool preprocess;
     string output;
     bool debug;
     bool ice;
@@ -399,6 +401,7 @@ main(int argc, char* argv[])
     opts.addOpt("D", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("U", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
     opts.addOpt("I", "", IceUtil::Options::NeedArg, "", IceUtil::Options::Repeat);
+    opts.addOpt("E");
     opts.addOpt("", "output-dir", IceUtil::Options::NeedArg);
     opts.addOpt("d", "debug");
     opts.addOpt("", "ice");
@@ -454,6 +457,7 @@ main(int argc, char* argv[])
 	    cppArgs += " -I" + *i;
 	}
     }
+    preprocess = opts.isSet("E");
     if(opts.isSet("output-dir"))
     {
 	output = opts.optArg("output-dir");
@@ -488,73 +492,91 @@ main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
 
-        UnitPtr u = Unit::createUnit(false, all, ice, caseSensitive);
-        int parseStatus = u->parse(cppHandle, debug);
+	if(preprocess)
+	{
+	    char buf[4096];
+	    while(fgets(buf, sizeof(buf), cppHandle) != NULL)
+	    {
+		if(fputs(buf, stdout) == EOF)
+		{
+		    return EXIT_FAILURE;
+		}
+	    }
+	    if(!icecpp.close())
+	    {
+		return EXIT_FAILURE;
+	    }
+	}
+	else
+	{
+	    UnitPtr u = Unit::createUnit(false, all, ice, caseSensitive);
+	    int parseStatus = u->parse(cppHandle, debug);
 
-        if(!icecpp.close())
-        {
-            u->destroy();
-            return EXIT_FAILURE;
-        }
+	    if(!icecpp.close())
+	    {
+		u->destroy();
+		return EXIT_FAILURE;
+	    }
 
-        if(parseStatus == EXIT_FAILURE)
-        {
-            status = EXIT_FAILURE;
-        }
-        else
-        {
-            string base = icecpp.getBaseName();
-            string::size_type pos = base.rfind('/');
-            if(pos == string::npos)
-            {
-                pos = base.rfind('\\');
-            }
-            if(pos != string::npos)
-            {
-                base.erase(0, pos + 1);
-            }
+	    if(parseStatus == EXIT_FAILURE)
+	    {
+		status = EXIT_FAILURE;
+	    }
+	    else
+	    {
+		string base = icecpp.getBaseName();
+		string::size_type pos = base.rfind('/');
+		if(pos == string::npos)
+		{
+		    pos = base.rfind('\\');
+		}
+		if(pos != string::npos)
+		{
+		    base.erase(0, pos + 1);
+		}
 
-            //
-            // Append the suffix "_ice" to the filename in order to avoid any conflicts
-            // with Slice module names. For example, if the file Test.ice defines a
-            // Slice module named "Test", then we couldn't create a Python package named
-            // "Test" and also call the generated file "Test.py".
-            //
-            string file = prefix + base + "_ice.py";
-            if(!output.empty())
-            {
-                file = output + '/' + file;
-            }
+		//
+		// Append the suffix "_ice" to the filename in order to avoid any conflicts
+		// with Slice module names. For example, if the file Test.ice defines a
+		// Slice module named "Test", then we couldn't create a Python package named
+		// "Test" and also call the generated file "Test.py".
+		//
+		string file = prefix + base + "_ice.py";
+		if(!output.empty())
+		{
+		    file = output + '/' + file;
+		}
 
-            IceUtil::Output out;
-            out.setUseTab(false);
-            out.open(file.c_str());
-            if(!out)
-            {
-                cerr << argv[0] << ": can't open `" << file << "' for writing" << endl;
-                u->destroy();
-                return EXIT_FAILURE;
-            }
+		IceUtil::Output out;
+		out.setUseTab(false);
+		out.open(file.c_str());
+		if(!out)
+		{
+		    cerr << argv[0] << ": can't open `" << file << "' for writing" << endl;
+		    u->destroy();
+		    return EXIT_FAILURE;
+		}
 
-            printHeader(out);
-            out << "\n# Generated from file `" << base << ".ice'\n";
+		printHeader(out);
+		out << "\n# Generated from file `" << base << ".ice'\n";
 
-            //
-            // Generate the Python mapping.
-            //
-            generate(u, all, checksum, includePaths, out);
+		//
+		// Generate the Python mapping.
+		//
+		generate(u, all, checksum, includePaths, out);
 
-            //
-            // Create or update the Python package hierarchy.
-            //
-            if(!noPackage)
-            {
-                PackageVisitor visitor(argv[0], prefix + base + "_ice", output);
-                u->visit(&visitor, false);
-            }
-        }
+		//
+		// Create or update the Python package hierarchy.
+		//
+		if(!noPackage)
+		{
+		    PackageVisitor visitor(argv[0], prefix + base + "_ice", output);
+		    u->visit(&visitor, false);
+		}
+	    }
 
-        u->destroy();
+	    u->destroy();
+	}
     }
 
     return status;

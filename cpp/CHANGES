@@ -1,6 +1,9 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Added -E option to the various Slice compilers to print
+  proprocessor output on stdout.
+
 - As announced with version 1.6, slice2cpp and slice2freeze
   now require all Slice definitions to be nested inside a
   module; definitions at global scope (other than module

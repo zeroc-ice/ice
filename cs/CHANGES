@@ -1,6 +1,9 @@
 Changes since version 2.1.0
 ---------------------------
 
+- Added -E option to the various Slice compilers to print
+  proprocessor output on stdout.
+
 - Fixed a bug in the option parsing for Ice tools such as
   slice2cpp, slice2java, slice2cs, etc. The option parser
   used to incorrectly complain about repeated options when
