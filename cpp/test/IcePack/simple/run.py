@@ -61,7 +61,7 @@ if os.name != "nt":
     if not output:
         print "failed!"
         TestUtil.killServers()
-        sys.exit(0)
+        sys.exit(1)
     print "ok"
     print output,
     while 1:
@@ -77,4 +77,4 @@ icePackAdminPipe = os.popen(icePackAdmin + \
 icePackAdminPipe.close()
 print "ok"
 
-sys.exit(1)
+sys.exit(0)

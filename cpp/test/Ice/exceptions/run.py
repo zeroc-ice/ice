@@ -23,4 +23,4 @@ import TestUtil
 name = "Ice/exceptions"
 TestUtil.clientServerTest(toplevel, name)
 TestUtil.collocatedTest(toplevel, name)
-sys.exit(1)
+sys.exit(0)

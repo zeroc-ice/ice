@@ -9,7 +9,7 @@
 #
 # **********************************************************************
 
-import os
+import os, sys
 
 for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
     if os.path.exists(os.path.normpath(toplevel + "/config/TestUtil.py")):
@@ -34,4 +34,12 @@ for i in \
     print "*** running tests in " + dir + ":"
     print
 
-    os.system("python " + os.path.normpath(dir + "/run.py"))
+    try:
+        execfile(os.path.normpath(dir + "/run.py"))
+    except SystemExit, (ex,):
+        if ex:
+            sys.exit(ex)
+
+
+
+        

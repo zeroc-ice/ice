@@ -36,7 +36,7 @@ def getServerPid(serverPipe):
     if not output:
         print "failed!"
         killServers()
-        sys.exit(0)
+        sys.exit(1)
 
     serverPids.append(int(output))
 
@@ -47,7 +47,7 @@ def getAdapterReady(serverPipe):
     if not output:
         print "failed!"
         killServers()
-        sys.exit(0)
+        sys.exit(1)
     
 
 def clientServerTest(toplevel, name):
@@ -68,7 +68,7 @@ def clientServerTest(toplevel, name):
     if not output:
 	print "failed!"
 	killServers()
-	sys.exit(0)
+	sys.exit(1)
     print "ok"
     print output,
     while 1:
@@ -87,6 +87,6 @@ def collocatedTest(toplevel, name):
     output = collocatedPipe.read().strip()
     if not output:
         print "failed!"
-        sys.exit(0)
+        sys.exit(1)
     print "ok"
     print output

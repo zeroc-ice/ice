@@ -44,7 +44,7 @@ output = clientPipe.readline()
 if not output:
     print "failed!"
     TestUtil.killServers()
-    sys.exit(0)
+    sys.exit(1)
 print "ok"
 print output,
 while 1:
@@ -53,4 +53,4 @@ while 1:
 	break;
     print output,
 
-sys.exit(1)
+sys.exit(0)
