@@ -1646,7 +1646,7 @@ public final class Connection extends EventHandler
         }
     }
 
-// TODO: This function doesn't seem to be needed?t
+// TODO: This function doesn't seem to be needed?
 /*
     private void
     destroyIncomingCache()
