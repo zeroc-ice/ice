@@ -272,16 +272,13 @@ struct ProxyIdentityAndFacetEqual : std::binary_function<bool, ObjectPrx&, Objec
     }
 };
 
-class FacetNotExistException;
-
 }
-
 
 namespace IceInternal
 {
 
 //
-// checkedCast and uncheckedCast functions without facet
+// checkedCast and uncheckedCast functions without facet:
 //
 
 //
@@ -328,47 +325,44 @@ uncheckedCastImpl(const ::Ice::ObjectPrx& b)
 //
 
 //
-// Specializations for P = ::Ice::ObjectPrx
+// Helper; last parameter = typeId
 //
-// We have to use inline functions and helpers for broken compilers
-// such as VC7.
-//
+ICE_API ::Ice::ObjectPrx checkedCastImpl(const ::Ice::ObjectPrx&, const std::string&, const std::string&);
 
-ICE_API ::Ice::ObjectPrx trivialCheckedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
-ICE_API ::Ice::ObjectPrx trivialUncheckedCastImpl(const ::Ice::ObjectPrx&, const std::string&);
+//
+// Specializations for P = ::Ice::ObjectPrx
+// We have to use inline functions for broken compilers such as VC7.
+//
 
 template<> inline ::Ice::ObjectPrx 
 checkedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f)
 {
-    return trivialCheckedCastImpl(b, f);
+    return checkedCastImpl(b, f, "::Ice::Object");
 }
 
 template<> inline ::Ice::ObjectPrx 
 uncheckedCastImpl< ::Ice::ObjectPrx>(const ::Ice::ObjectPrx& b, const std::string& f)
 {
-    return trivialUncheckedCastImpl(b, f);
+    ::Ice::ObjectPrx d = 0;
+    if(b)
+    {
+	d = b->ice_newFacet(f);
+    }
+    return d;
 }
 
 template<typename P> P 
 checkedCastImpl(const ::Ice::ObjectPrx& b, const std::string& f)
 {
     P d = 0;
-    if(b)
-    {
-	typedef typename P::element_type T;
 
-	::Ice::ObjectPrx bb = b->ice_newFacet(f);
-	try
-	{
-	    if(bb->ice_isA(T::ice_staticId()))
-	    {
-		d = new T;
-		d->__copyFrom(bb);
-	    }
-	}
-	catch(const ::Ice::FacetNotExistException&)
-	{
-	}
+    typedef typename P::element_type T;
+    ::Ice::ObjectPrx bb = checkedCastImpl(b, f, T::ice_staticId());
+
+    if(bb)
+    {
+	d = new T;
+	d->__copyFrom(bb);
     }
     return d;
 }
@@ -418,7 +412,6 @@ uncheckedCast(const ::Ice::ObjectPrx& b, const std::string& f)
 {
     return ::IceInternal::checkedCastImpl<P>(b, f);
 }
-
 
 #endif
 

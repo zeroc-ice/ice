@@ -45,39 +45,31 @@ void IceInternal::decRef(::IceDelegateD::Ice::Object* p) { p->__decRef(); }
 
 
 ::Ice::ObjectPrx
-IceInternal::trivialCheckedCastImpl(const ObjectPrx& b, const string& f)
+IceInternal::checkedCastImpl(const ObjectPrx& b, const string& f, const string& typeId)
 {
-    ObjectPrx d = 0;
     if(b)
     {
 	ObjectPrx bb = b->ice_newFacet(f);
 	try
 	{
-#ifdef NDEBUG
-	    bb->ice_isA("::Ice::Object");
-#else
-	    bool ok = bb->ice_isA("::Ice::Object");
-	    assert(ok);
+	    if(bb->ice_isA(typeId))
+	    {
+		return bb;
+	    }
+#ifndef NDEBUG
+	    else
+	    {
+		assert(typeId != "::Ice::Object");
+	    }
 #endif
-	    d = bb;
 	}
 	catch(const FacetNotExistException&)
 	{
 	}
     }
-    return d;
+    return 0;
 }
 
-::Ice::ObjectPrx
-IceInternal::trivialUncheckedCastImpl(const ObjectPrx& b, const string& f)
-{
-    ObjectPrx d = 0;
-    if(b)
-    {
-	d = b->ice_newFacet(f);
-    }
-    return d;
-}
 
 bool
 IceProxy::Ice::Object::operator==(const Object& r) const
