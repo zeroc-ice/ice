@@ -18,6 +18,42 @@ Package=<4>
 
 ###############################################################################
 
+Project: "helloC"=.\demo\hello\helloC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name compiler
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name library
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "helloS"=.\demo\hello\helloS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name compiler
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name library
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "ice"=.\ice.dsp - Package Owner=<4>
 
 Package=<5>
@@ -37,6 +73,12 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name library
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name helloC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name helloS
     End Project Dependency
 }}}
 

@@ -31,10 +31,11 @@ private:
 
     CommunicatorI();
     virtual ~CommunicatorI();
-    friend Communicator initialize(int&, char*[]); // May create Communicators
+    // May create Communicators
+    friend ICE_API Communicator initialize(int&, char*[]);
 };
 
-Communicator initialize(int&, char*[]);
+ICE_API Communicator initialize(int&, char*[]);
 
 }
 
