@@ -7,25 +7,34 @@
 #
 # **********************************************************************
 
-ifndef ICE_HOME
-    $(error ICE_HOME is not defined)
-endif
-
-ifndef TAO_HOME
-    $(error TAO_HOME is not defined)
-endif
+#
+# If you want to compile TAO performance tests, set TAO_ROOT to the
+# TAO source distribution directory.
+#
+#TAO_ROOT	?=
 
 #
-# Define OPTIMIZE as yes if you want to build with optimization.
+# If you want to compile Ice performance tests, set ICE_HOME to the
+# Ice source distribution directory.
 #
-OPTIMIZE		= yes
+#ICE_HOME	?= 
 
-ICE_CPPFLAGS		?= -I$(ICE_HOME)/include
-ICE_LIBS		?= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
+#
+# Define DEBUG as yes if you want to build with debug information.
+#
+#DEBUG			= yes
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
+
+ifeq ($(ICE_HOME),)
+    ifeq ($(shell test -d $(top_srcdir)/../ice/slice && echo 0),0)
+	ICE_HOME=$(top_srcdir)/../ice
+    endif
+endif
+
+OPTIMIZE		= yes
 
 SHELL			= /bin/sh
 
@@ -40,7 +49,13 @@ CPPFLAGS		=
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
+ifeq ($(DEBUG),yes)
+     CXXFLAGS		:= -g $(CXXFLAGS)
+endif
 LDFLAGS			= $(LDPLATFORMFLAGS) $(CXXFLAGS)
+
+ICE_CPPFLAGS		?= -I$(ICE_HOME)/include
+ICE_LIBS		?= -L$(ICE_HOME)/lib -lIce -lIceUtil -lSlice
 
 SLICE2CPP		= $(ICE_HOME)/bin/slice2cpp
 

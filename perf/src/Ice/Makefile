@@ -11,8 +11,18 @@ top_srcdir	= ../..
 
 include $(top_srcdir)/config/Make.rules
 
-SUBDIRS		= latency \
+ICE_SUBDIRS	= latency \
 		  throughput
+
+TAO_SUBDIRS	= 
+
+SUBDIRS		=
+ifdef ICE_HOME
+    SUBDIRS := $(ICE_SUBDIRS) $(SUBDIRS)
+endif
+ifdef TAO_ROOT
+    SUBDIRS := $(TAO_SUBDIRS) $(SUBDIRS)
+endif
 
 $(EVERYTHING)::
 	@for subdir in $(SUBDIRS); \
