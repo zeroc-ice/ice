@@ -1,3 +1,5 @@
 Scanner.o: Scanner.cpp ../Slice/GrammarUtil.h ../../include/Slice/Parser.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h ../Slice/Grammar.h
 Grammar.o: Grammar.cpp ../Slice/GrammarUtil.h ../../include/Slice/Parser.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h
 Parser.o: Parser.cpp ../../include/IceUtil/Functional.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h ../../include/IceUtil/Config.h ../../include/Slice/Parser.h ../../include/IceUtil/Shared.h
+CPlusPlusUtil.o: CPlusPlusUtil.cpp ../../include/Slice/CPlusPlusUtil.h ../../include/Slice/Parser.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h ../../include/IceUtil/OutputUtil.h
+JavaUtil.o: JavaUtil.cpp ../../include/Slice/JavaUtil.h ../../include/Slice/Parser.h ../../include/IceUtil/Shared.h ../../include/IceUtil/Config.h ../../include/IceUtil/Handle.h ../../include/IceUtil/Exception.h ../../include/IceUtil/OutputUtil.h ../../include/IceUtil/Functional.h
