@@ -203,7 +203,11 @@ CPatchDlg::patchProgress(Ice::Long, Ice::Long, Ice::Long totalProgress, Ice::Lon
 	_speed->SetWindowText(speed);
     }
 
-    int pcnt = static_cast<int>(totalProgress * 100 / totalSize);
+    int pcnt = 100;
+    if(totalSize > 0)
+    {
+	pcnt = static_cast<int>(totalProgress * 100 / totalSize);
+    }
     CString percent;
     percent.Format("%d%%", pcnt);
     _percent->SetWindowText(percent);
