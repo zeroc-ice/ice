@@ -39,6 +39,9 @@ final class TcpTransceiver implements Transceiver
         }
         catch(java.io.IOException ex)
         {
+	    Ice.SocketException se = new Ice.SocketException();
+	    se.initCause(ex);
+	    throw se;
         }
         _fd = null;
     }
@@ -60,6 +63,9 @@ final class TcpTransceiver implements Transceiver
         }
         catch(java.io.IOException ex)
         {
+	    Ice.SocketException se = new Ice.SocketException();
+	    se.initCause(ex);
+	    throw se;
         }
     }
 
@@ -115,6 +121,7 @@ final class TcpTransceiver implements Transceiver
 			}
 			catch(java.io.InterruptedIOException ex)
 			{
+			    // Ignore.
 			}
 
 			continue;
@@ -153,6 +160,7 @@ final class TcpTransceiver implements Transceiver
 		}
 		catch(java.io.IOException ex)
 		{
+		    // Ignore.
 		}
 	    }
 	}
@@ -216,6 +224,7 @@ final class TcpTransceiver implements Transceiver
 			}
 			catch(java.io.InterruptedIOException ex)
 			{
+			    // Ignore.
 			}
 
 			continue;
@@ -264,6 +273,7 @@ final class TcpTransceiver implements Transceiver
 		}
 		catch(java.io.IOException ex)
 		{
+		    // Ignore.
 		}
 	    }
 	}
