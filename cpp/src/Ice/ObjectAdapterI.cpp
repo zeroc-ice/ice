@@ -22,6 +22,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Properties.h>
 #include <Ice/Functional.h>
+#include <Ice/LoggerUtil.h>
 
 #ifdef _WIN32
 #   include <sys/timeb.h>
@@ -42,7 +43,14 @@ Ice::ObjectAdapterI::getName()
 CommunicatorPtr
 Ice::ObjectAdapterI::getCommunicator()
 {
-    return _instance->communicator(); // _instance is immutable
+    IceUtil::Mutex::Lock sync(*this);
+
+    if (!_instance)
+    {
+	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
+    }
+
+    return _instance->communicator();
 }
 
 void
@@ -50,7 +58,7 @@ Ice::ObjectAdapterI::activate()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if (!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -74,7 +82,7 @@ Ice::ObjectAdapterI::hold()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if (!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -88,7 +96,7 @@ Ice::ObjectAdapterI::deactivate()
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if (!_instance)
     {
 	//
         // Ignore deactivation requests if the Object Adapter has
@@ -110,7 +118,7 @@ Ice::ObjectAdapterI::deactivate()
     _locatorMap.clear();
     _locatorMapHint = _locatorMap.end();
 
-    _deactivated = true;
+    _instance = 0;
 }
 
 void
@@ -130,7 +138,7 @@ Ice::ObjectAdapterI::add(const ObjectPtr& object, const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if (!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -145,7 +153,7 @@ Ice::ObjectAdapterI::addWithUUID(const ObjectPtr& object)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if (!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -163,7 +171,7 @@ Ice::ObjectAdapterI::remove(const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if (!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -177,7 +185,7 @@ Ice::ObjectAdapterI::addServantLocator(const ServantLocatorPtr& locator, const s
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if (!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -190,7 +198,7 @@ Ice::ObjectAdapterI::removeServantLocator(const string& prefix)
 {
     IceUtil::Mutex::Lock sync(*this);
 
-    if (_deactivated)
+    if (!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -231,7 +239,7 @@ Ice::ObjectAdapterI::findServantLocator(const string& prefix)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    if (_deactivated)
+    if (!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -299,7 +307,7 @@ Ice::ObjectAdapterI::createProxy(const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    if (_deactivated)
+    if (!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -312,7 +320,7 @@ Ice::ObjectAdapterI::createReverseProxy(const Identity& ident)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    if (_deactivated)
+    if (!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -331,7 +339,7 @@ Ice::ObjectAdapterI::addRouter(const RouterPrx& router)
 {
     IceUtil::Mutex::Lock sync(*this);
     
-    if (_deactivated)
+    if (!_instance)
     {
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
@@ -388,7 +396,6 @@ Ice::ObjectAdapterI::getIncomingConnections() const
 
 Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& name, const string& endpts) :
     _instance(instance),
-    _deactivated(false),
     _printAdapterReadyDone(false),
     _name(name),
     _activeServantMapHint(_activeServantMap.end()),
@@ -439,10 +446,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
     }
     catch(...)
     {
-	if (!_deactivated)
-	{
-	    deactivate();
-	}
+	deactivate();
 	__setNoDelete(false);
 	throw;
     }
@@ -463,9 +467,10 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 
 Ice::ObjectAdapterI::~ObjectAdapterI()
 {
-    if (!_deactivated)
+    if (_instance)
     {
-	deactivate();
+	Warning out(_instance->logger());
+	out << "object adapter has not been deactivated";
     }
 }
 

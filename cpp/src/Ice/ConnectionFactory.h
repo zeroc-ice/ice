@@ -100,7 +100,6 @@ private:
     std::list<ConnectionPtr> _connections;
     State _state;
     bool _warn;
-    bool _finished;
     bool _registeredWithPool;
 };
 

@@ -402,7 +402,13 @@ IceInternal::IncomingConnectionFactory::finished(const ThreadPoolPtr& threadPool
 	
 	_acceptor->close();
 
-	_finished = true;
+	//
+        // Break cyclic object dependency. This is necessary, because
+        // the object adapter never clears the list of incoming
+        // connections it keeps.
+	//
+	_adapter = 0;
+
 	notifyAll(); // For waitUntilFinished().
     }
 }
@@ -432,7 +438,6 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
     _endpoint(endpoint),
     _adapter(adapter),
     _state(StateHolding),
-    _finished(false),
     _registeredWithPool(false)    
 {
     DefaultsAndOverridesPtr defaultsAndOverrides = _instance->defaultsAndOverrides();
@@ -468,7 +473,7 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(const Instance
 IceInternal::IncomingConnectionFactory::~IncomingConnectionFactory()
 {
     assert(_state == StateClosed);
-    assert(_finished);
+    assert(!_adapter);
 }
 
 void
@@ -483,7 +488,7 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
 {
     ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
 
-    while (!_finished)
+    while (_adapter)
     {
 	wait();
     }
