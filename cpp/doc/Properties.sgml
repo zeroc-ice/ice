@@ -47,8 +47,9 @@ A configuration file contains a number of property settings, one setting per lin
 Property settings have one of the forms
 </para>
 <synopsis>
-<literal><replaceable>property_name</replaceable>       # Clear property</literal>
 <literal><replaceable>property_name</replaceable>=      # Set property to the empty string or zero</literal>
+</synopsis>
+<synopsis>
 <literal><replaceable>property_name</replaceable>=<replaceable>value</replaceable> # Assign value to property</literal>
 </synopsis>
 <para>
