@@ -16,7 +16,7 @@ public class Client
         Ice.Properties properties = communicator.getProperties();
         final String refProperty = "Latency.Ping";
         String ref = properties.getProperty(refProperty);
-        if (ref == null)
+        if (ref.length() == 0)
         {
             System.err.println("property `" + refProperty + "' not set");
             return 1;

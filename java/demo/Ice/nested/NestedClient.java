@@ -16,7 +16,7 @@ class NestedClient extends Ice.Application
         Ice.Properties properties = communicator().getProperties();
         final String refProperty = "Nested.NestedServer";
         String ref = properties.getProperty(refProperty);
-        if (ref == null)
+        if (ref.length() == 0)
         {
             System.err.println("property `" + refProperty + "' not set");
             return 1;
@@ -30,25 +30,18 @@ class NestedClient extends Ice.Application
             return 1;
         }
 
-        Ice.ObjectAdapter adapter =
-            communicator().createObjectAdapter("NestedClientAdapter");
-        NestedPrx self = NestedPrxHelper.uncheckedCast(
-            adapter.createProxy(Ice.Util.stringToIdentity("nestedClient")));
-        adapter.add(new NestedI(self),
-                    Ice.Util.stringToIdentity("nestedClient"));
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("NestedClientAdapter");
+        NestedPrx self = NestedPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("nestedClient")));
+        adapter.add(new NestedI(self), Ice.Util.stringToIdentity("nestedClient"));
         adapter.activate();
 
-        System.out.println("Note: The maximum nesting level is " +
-                           "(sz - 1) * 2, with sz");
-        System.out.println("being the number of threads in the thread pool. " +
-                           "if you");
-        System.out.println("specify a value higher than that, the " +
-                           "application will block");
+        System.out.println("Note: The maximum nesting level is (sz - 1) * 2, with sz");
+        System.out.println("being the number of threads in the thread pool. if you");
+        System.out.println("specify a value higher than that, the application will block");
         System.out.println("or timeout.");
         System.out.println();
 
-        java.io.BufferedReader in = new java.io.BufferedReader(
-            new java.io.InputStreamReader(System.in));
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
 
         String s = null;
         do

@@ -34,36 +34,30 @@ public class Client
         Ice.Properties properties = communicator.getProperties();
         final String refProperty = "Hello.Hello";
         String ref = properties.getProperty(refProperty);
-        if (ref == null)
+        if (ref.length() == 0)
         {
             System.err.println("property `" + refProperty + "' not set");
             return 1;
         }
 
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
-        HelloPrx twoway = HelloPrxHelper.checkedCast(
-            base.ice_twoway().ice_timeout(-1).ice_secure(false));
+        HelloPrx twoway = HelloPrxHelper.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(false));
         if (twoway == null)
         {
             System.err.println("invalid object reference");
             return 1;
         }
-        HelloPrx oneway =
-            HelloPrxHelper.uncheckedCast(twoway.ice_oneway());
-        HelloPrx batchOneway =
-            HelloPrxHelper.uncheckedCast(twoway.ice_batchOneway());
-        HelloPrx datagram =
-            HelloPrxHelper.uncheckedCast(twoway.ice_datagram());
-        HelloPrx batchDatagram =
-            HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
+        HelloPrx oneway = HelloPrxHelper.uncheckedCast(twoway.ice_oneway());
+        HelloPrx batchOneway = HelloPrxHelper.uncheckedCast(twoway.ice_batchOneway());
+        HelloPrx datagram = HelloPrxHelper.uncheckedCast(twoway.ice_datagram());
+        HelloPrx batchDatagram = HelloPrxHelper.uncheckedCast(twoway.ice_batchDatagram());
 
         boolean secure = false;
         int timeout = -1;
 
         menu();
 
-        java.io.BufferedReader in = new java.io.BufferedReader(
-            new java.io.InputStreamReader(System.in));
+        java.io.BufferedReader in = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
 
         String line = null;
         do
@@ -113,12 +107,9 @@ public class Client
                         timeout = -1;
                     }
 
-                    twoway = HelloPrxHelper.uncheckedCast(
-                        twoway.ice_timeout(timeout));
-                    oneway = HelloPrxHelper.uncheckedCast(
-                        oneway.ice_timeout(timeout));
-                    batchOneway = HelloPrxHelper.uncheckedCast(
-                        batchOneway.ice_timeout(timeout));
+                    twoway = HelloPrxHelper.uncheckedCast(twoway.ice_timeout(timeout));
+                    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_timeout(timeout));
+                    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_timeout(timeout));
 
                     if (timeout == -1)
                     {
@@ -133,16 +124,11 @@ public class Client
                 {
                     secure = !secure;
 
-                    twoway = HelloPrxHelper.uncheckedCast(
-                        twoway.ice_secure(secure));
-                    oneway = HelloPrxHelper.uncheckedCast(
-                        oneway.ice_secure(secure));
-                    batchOneway = HelloPrxHelper.uncheckedCast(
-                        batchOneway.ice_secure(secure));
-                    datagram = HelloPrxHelper.uncheckedCast(
-                        datagram.ice_secure(secure));
-                    batchDatagram = HelloPrxHelper.uncheckedCast(
-                        batchDatagram.ice_secure(secure));
+                    twoway = HelloPrxHelper.uncheckedCast(twoway.ice_secure(secure));
+                    oneway = HelloPrxHelper.uncheckedCast(oneway.ice_secure(secure));
+                    batchOneway = HelloPrxHelper.uncheckedCast(batchOneway.ice_secure(secure));
+                    datagram = HelloPrxHelper.uncheckedCast(datagram.ice_secure(secure));
+                    batchDatagram = HelloPrxHelper.uncheckedCast(batchDatagram.ice_secure(secure));
 
                     if (secure)
                     {
@@ -193,8 +179,7 @@ public class Client
 
         try
         {
-            Ice.Properties properties =
-                Ice.Util.createPropertiesFromFile(args, "config");
+            Ice.Properties properties = Ice.Util.createPropertiesFromFile(args, "config");
             communicator = Ice.Util.initializeWithProperties(properties);
             status = run(args, communicator);
         }

@@ -13,8 +13,7 @@ public class Server
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        Ice.ObjectAdapter adapter =
-            communicator.createObjectAdapter("HelloAdapter");
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("HelloAdapter");
         Ice.Object object = new HelloI(communicator);
         adapter.add(object, Ice.Util.stringToIdentity("hello"));
         adapter.activate();
@@ -30,8 +29,7 @@ public class Server
 
         try
         {
-            Ice.Properties properties =
-                Ice.Util.createPropertiesFromFile(args, "config");
+            Ice.Properties properties = Ice.Util.createPropertiesFromFile(args, "config");
             communicator = Ice.Util.initializeWithProperties(properties);
             status = run(args, communicator);
         }
