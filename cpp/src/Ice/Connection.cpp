@@ -434,7 +434,7 @@ IceInternal::Connection::prepareBatchRequest(BasicStream* os)
 
     //
     // Give the batch stream to the caller, until finishBatchRequest()
-    // is called.
+    // or abortBatchRequest() is called.
     //
     _batchStream.swap(*os);
 }
@@ -1072,6 +1072,8 @@ IceInternal::Connection::exception(const LocalException& ex)
 string
 IceInternal::Connection::toString() const
 {
+    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+    assert(_transceiver);
     return _transceiver->toString();
 }
 

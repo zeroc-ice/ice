@@ -25,13 +25,14 @@ class EmptyI : virtual public Empty
 GPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    cout << "testing whether adding the same facet twice raises AlreadyRegisteredException... " << flush;
+    cout << "testing facet registration exceptions... " << flush;
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
     Ice::ObjectPtr obj = new EmptyI;
     adapter->add(obj, Ice::stringToIdentity("d"));
     obj->ice_addFacet(obj, "facetABCD");
     bool gotException = false;
-    try {
+    try
+    {
 	obj->ice_addFacet(obj, "facetABCD");
     }
     catch(Ice::AlreadyRegisteredException&)
@@ -39,12 +40,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	gotException = true;
     }
     test(gotException);
-    cout << "ok" << endl;
-
-    cout << "testing whether removing a non-existing facet raises NotRegisteredException... " << flush;
     obj->ice_removeFacet("facetABCD");
     gotException = false;
-    try {
+    try
+    {
 	obj->ice_removeFacet("facetABCD");
     }
     catch(Ice::NotRegisteredException&)

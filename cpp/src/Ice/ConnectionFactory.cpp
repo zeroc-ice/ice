@@ -507,6 +507,8 @@ IceInternal::IncomingConnectionFactory::exception(const LocalException&)
 string
 IceInternal::IncomingConnectionFactory::toString() const
 {
+    ::IceUtil::Monitor< ::IceUtil::Mutex>::Lock sync(*this);
+
     if(_transceiver)
     {
 	return _transceiver->toString();
