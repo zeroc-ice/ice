@@ -55,7 +55,6 @@ for i in range(0, num):
     serverStatus = serverStatus or serverPipes[i].close()
 
 if clientStatus or serverStatus:
-    print "error"
     TestUtil.killServers()
     sys.exit(1)
 
