@@ -60,12 +60,6 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
     }
 
     public void
-    signalShutdown()
-    {
-	 shutdown();
-    }
-
-    public void
     waitForShutdown()
     {
 	IceInternal.ObjectAdapterFactory objectAdapterFactory;

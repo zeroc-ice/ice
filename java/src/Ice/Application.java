@@ -205,7 +205,7 @@ public abstract class Application
             synchronized(_doneMutex)
             {
 		setInterrupt();
-                communicator().signalShutdown();
+                communicator().shutdown();
                 while(!_done)
                 {
                     try
