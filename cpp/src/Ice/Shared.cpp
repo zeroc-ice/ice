@@ -19,7 +19,8 @@ using namespace IceInternal;
 //static JTCMutex debugCounterMutex;
 
 IceInternal::SimpleShared::SimpleShared() :
-    _ref(0)
+    _ref(0),
+    _noDelete(false)
 {
 //    cout << "new SimpleShared: " << ++simpleDebugCounter << endl;
 }
@@ -30,7 +31,8 @@ IceInternal::SimpleShared::~SimpleShared()
 }
 
 IceInternal::Shared::Shared() :
-    _ref(0)
+    _ref(0),
+    _noDelete(false)
 {
 //    JTCSyncT<JTCMutex> sync(debugCounterMutex);
 //    cout << "new Shared: " << ++debugCounter << endl;
