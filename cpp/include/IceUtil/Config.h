@@ -174,27 +174,39 @@ private:
 // Some definitions for 64-bit integers.
 //
 #if defined(_MSC_VER)
+
 typedef __int64 Int64;
 const Int64 Int64Min = -9223372036854775808i64;
 const Int64 Int64Max =  9223372036854775807i64;
 
 #elif defined(__SUNPRO_CC)
-#     if defined(ICE_64)
+
+#   if defined(ICE_64)
 typedef long Int64;
 const Int64 Int64Min = -0x7fffffffffffffffL-1L;
 const Int64 Int64Max = 0x7fffffffffffffffL;
-#     else
+#   else
 typedef long long Int64;
 const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
 const Int64 Int64Max = 0x7fffffffffffffffLL;
-#     endif
+#   endif
 
 #else
+
+//
 // Assumes ISO C99 types
 //
 typedef int64_t Int64;
+#   ifdef INT64_MIN
+const Int64 Int64Min = -0x7fffffffffffffffLL-1LL
+#   else
 const Int64 Int64Min = INT64_MIN;
+#   endif
+#   ifdef INT64_MIN
 const Int64 Int64Max = INT64_MAX;
+#   else
+const Int64 Int64Max = 0x7fffffffffffffffLL;
+#   endif
 
 #endif
 

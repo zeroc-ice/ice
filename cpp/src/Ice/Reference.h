@@ -70,6 +70,7 @@ public:
     virtual ReferencePtr changeTimeout(int) const = 0;
     virtual ReferencePtr changeCollocationOptimization(bool) const = 0;
 
+    // TODO: Why virtual?
     virtual int hash() const; // Conceptually const.
 
     //
@@ -100,6 +101,7 @@ protected:
 
 private:
 
+    // TODO: Add leading underscore for private members.
     InstancePtr instance;
 
     Mode mode;
@@ -124,6 +126,7 @@ public:
 
     virtual std::vector<EndpointPtr> getEndpoints() const;
 
+    // TODO: Virtual functions shouldn't be inlined.
     virtual bool getCollocationOptimization() const { return false; }
 
     virtual void streamWrite(BasicStream*) const;
@@ -148,6 +151,7 @@ protected:
 
 private:
 
+    // TODO: Add leading underscore for private members.
     std::vector<Ice::ConnectionIPtr> fixedConnections;
 };
 
@@ -157,6 +161,7 @@ public:
 
     const RouterInfoPtr& getRouterInfo() const { return routerInfo; }
     std::vector<EndpointPtr> getRoutedEndpoints() const;
+    // TODO: Virtual functions shouldn't be inlined.
     virtual bool getCollocationOptimization() const { return collocationOptimization; }
 
     virtual ReferencePtr changeRouter(const Ice::RouterPrx&) const;
@@ -180,6 +185,7 @@ protected:
 
 private:
 
+    // TODO: Add leading underscore for private members.
     bool collocationOptimization;
     RouterInfoPtr routerInfo; // Null if no router is used.
 };
@@ -216,6 +222,7 @@ protected:
 
 private:
 
+    // TODO: Add leading underscore for private members.
     std::vector<EndpointPtr> endpoints;
 };
 
@@ -252,6 +259,7 @@ protected:
 
 private:
 
+    // TODO: Add leading underscore for private members.
     std::string adapterId;
     LocatorInfoPtr locatorInfo; // Null if no locator is used.
 };
