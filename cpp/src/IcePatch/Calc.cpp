@@ -15,6 +15,9 @@
 #include <Ice/Ice.h>
 #include <IcePatch/Util.h>
 #include <set>
+#ifdef _WIN32
+#   include <direct.h>
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -95,6 +98,18 @@ CalcApp::run(int argc, char* argv[])
         cerr << argv[0] << ": no data directory specified" << endl;
         usage();
         return EXIT_FAILURE;
+    }
+
+    if(dataDir == ".")
+    {
+#ifdef _WIN32
+        char cwd[_MAX_PATH];
+        _getcwd(cwd, _MAX_PATH);
+#else
+        char cwd[PATH_MAX];
+        getcwd(cwd, PATH_MAX);
+#endif
+        dataDir = cwd;
     }
 
     //
