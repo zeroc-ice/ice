@@ -987,7 +987,7 @@ Ice::Service::runService(int argc, char* argv[])
 {
     assert(_service);
 
-    if(_win9x)
+    if(!checkSystem())
     {
         error("Win32 service not supported on Windows 9x/ME");
         return EXIT_FAILURE;
