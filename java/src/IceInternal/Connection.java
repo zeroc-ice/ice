@@ -137,7 +137,10 @@ public final class Connection extends EventHandler
 	//
 	// Active connection management for idle connections.
 	//
-	if(_acmTimeout > 0 && closeOK())
+	// TODO: Hack: ACM for incoming connections doesn't work right
+	// with AMI.
+	//
+	if(_acmTimeout > 0 && closeOK() && _adapter == null)
 	{
 	    if(System.currentTimeMillis() >= _acmAbsoluteTimeoutMillis)
 	    {

@@ -1095,9 +1095,7 @@ public class BasicStream
             }
         }
 
-	Ice.NoUserExceptionFactoryException ex = new Ice.NoUserExceptionFactoryException();
-	ex.type = id;
-	throw ex;
+	throw new Ice.UnknownUserException();
     }
 
     int
@@ -1298,10 +1296,7 @@ public class BasicStream
         }
         catch(Exception ex)
         {
-            Ice.NoUserExceptionFactoryException e = new Ice.NoUserExceptionFactoryException();
-	    e.type = id;
-            e.initCause(ex);
-            throw e;
+	    throw new Ice.UnknownUserException();
         }
 
         return factory;
