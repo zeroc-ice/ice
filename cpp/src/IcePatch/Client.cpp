@@ -202,7 +202,7 @@ IcePatch::Client::run(int argc, char* argv[])
 	}
 	return EXIT_FAILURE;
     }
-    catch (const BusyException& ex)
+    catch (const BusyException&)
     {
 	cout << endl; // There might still be a non-terminated line on cout.
 	cerr << appName() << ": patching service busy, try again later" << endl;
