@@ -53,7 +53,7 @@ Parser::addContacts(const list<string>& args)
 {
     if (args.empty())
     {
-	error("`add' requires at least one rgument (type `help' for more info)");
+	error("`add' requires at least one argument (type `help' for more info)");
 	return;
     }
 
@@ -62,7 +62,7 @@ Parser::addContacts(const list<string>& args)
 	for(list<string>::const_iterator p = args.begin(); p != args.end(); ++p)
 	{
 	    ContactPrx contact = _phoneBook->createContact();
-	    contact -> setName(*p);
+	    contact->setName(*p);
 	    cout << "added new contact for `" << *p << "'" << endl;
 	}
     }
