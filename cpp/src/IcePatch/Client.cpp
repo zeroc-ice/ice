@@ -126,9 +126,7 @@ IcePatch::Client::run(int argc, char* argv[])
 	    }
 
 	    string clientConfig = properties->getProperty("Ice.SSL.Client.Config");
-	    string serverConfig = properties->getProperty("Ice.SSL.Server.Config");
-
-	    if (!clientConfig.empty() && !serverConfig.empty())
+	    if (!clientConfig.empty())
 	    {
 		string privateKeyBase64 = IceUtil::Base64::encode(privateKey);
 		string publicKeyBase64  = IceUtil::Base64::encode(publicKey);
@@ -137,14 +135,9 @@ IcePatch::Client::run(int argc, char* argv[])
 		IceSSL::SystemPtr sslSystem = communicator()->getSslSystem();
 		IceSSL::SslExtensionPtr sslExtension = communicator()->getSslExtension();
 
-		// Configure Server, client is already configured.
-		sslSystem->configure(IceSSL::Server);
-		sslSystem->setCertificateVerifier(IceSSL::ClientServer,
-						  sslExtension->getSingleCertVerifier(routerCert));
-		
-		// Set the keys overrides.
-		sslSystem->setRSAKeysBase64(IceSSL::ClientServer, privateKeyBase64, publicKeyBase64);
-		sslSystem->addTrustedCertificateBase64(IceSSL::ClientServer, routerCertString);
+		sslSystem->setCertificateVerifier(IceSSL::Client, sslExtension->getSingleCertVerifier(routerCert));
+		sslSystem->setRSAKeysBase64(IceSSL::Client, privateKeyBase64, publicKeyBase64);
+		sslSystem->addTrustedCertificateBase64(IceSSL::Client, routerCertString);
 	    }
 
 	    communicator()->setDefaultRouter(router);

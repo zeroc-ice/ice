@@ -185,11 +185,133 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
     _communicator(communicator),
     _properties(properties)
 {
-    _globalStateMutex->lock();
+    IceUtil::Mutex::Lock sync(*_globalStateMutex);
+    ++_globalStateCounter;
 
-    if (++_globalStateCounter == 1) // Only on first call
+    try
     {
+	__setNoDelete(true);
+
+	if (_globalStateCounter == 1) // Only on first call
+	{
+#ifdef _WIN32
+	    WORD version = MAKEWORD(1, 1);
+	    WSADATA data;
+	    if (WSAStartup(version, &data) != 0)
+	    {
+		_globalStateMutex->unlock();
+		SocketException ex(__FILE__, __LINE__);
+		ex.error = getSocketErrno();
+		throw ex;
+	    }
+#endif
+	    
 #ifndef _WIN32
+	    struct sigaction action;
+	    action.sa_handler = SIG_IGN;
+	    sigemptyset(&action.sa_mask);
+	    action.sa_flags = 0;
+	    sigaction(SIGPIPE, &action, 0);
+#endif
+	    
+#ifdef _WIN32
+	    struct _timeb tb;
+	    _ftime(&tb);
+	    srand(tb.millitm);
+#else
+	    timeval tv;
+	    gettimeofday(&tv, 0);
+	    srand(tv.tv_usec);
+#endif
+	
+#ifndef _WIN32
+	    string newUser = _properties->getProperty("Ice.ChangeUser");
+	    if (!newUser.empty())
+	    {
+		struct passwd* pw = getpwnam(newUser.c_str());
+		if (!pw)
+		{
+		    SystemException ex(__FILE__, __LINE__);
+		    ex.error = getSystemErrno();
+		    throw ex;
+		}
+		
+		if (setgid(pw->pw_gid) == -1)
+		{
+		    SystemException ex(__FILE__, __LINE__);
+		    ex.error = getSystemErrno();
+		    throw ex;
+		}
+		
+		if (setuid(pw->pw_uid) == -1)
+		{
+		    SystemException ex(__FILE__, __LINE__);
+		    ex.error = getSystemErrno();
+		    throw ex;
+		}
+	    }
+	    
+	    if (_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
+	    {
+		_identForOpenlog = _properties->getProperty("Ice.ProgramName");
+		if (_identForOpenlog.empty())
+		{
+		    _identForOpenlog = "<Unknown Ice Program>";
+		}
+		openlog(_identForOpenlog.c_str(), LOG_PID, LOG_USER);
+	    }
+#endif
+	}
+
+#ifndef _WIN32
+	if (_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
+	{
+	    _logger = new SysLoggerI;
+	}
+	else
+	{
+	    _logger = new LoggerI;
+	}
+#else
+	_logger = new LoggerI;
+#endif
+
+	_traceLevels = new TraceLevels(_properties);
+
+	_defaultProtocol = _properties->getPropertyWithDefault("Ice.DefaultProtocol", "tcp");
+	_defaultHost = _properties->getProperty("Ice.DefaultHost");
+	if (_defaultHost.empty())
+	{
+	    _defaultHost = getLocalHost(true);
+	}
+
+	_routerManager = new RouterManager;
+
+	_referenceFactory = new ReferenceFactory(this);
+
+	_proxyFactory = new ProxyFactory(this);
+	string router = _properties->getProperty("Ice.DefaultRouter");
+	if (!router.empty())
+	{
+	    _referenceFactory->setDefaultRouter(RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(router)));
+	}
+
+	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
+
+	_servantFactoryManager = new ObjectFactoryManager();
+
+	_userExceptionFactoryManager = new UserExceptionFactoryManager();
+
+	_objectAdapterFactory = new ObjectAdapterFactory(this);
+	
+        _sslSystem = IceSSL::Factory::getSystem(this);
+        _sslSystem->configure();
+
+	//
+	// daemon() must be called after the SSL system has been
+	// configured, since SSL might want to read a passphrase from
+	// standard input.
+	//
 	if (_properties->getPropertyAsInt("Ice.Daemon") > 0)
 	{
 	    int noclose = _properties->getPropertyAsInt("Ice.DaemonNoClose");
@@ -197,56 +319,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    
 	    if (daemon(nochdir, noclose) == -1)
 	    {
-		--_globalStateCounter;
-		_globalStateMutex->unlock();
 		SystemException ex(__FILE__, __LINE__);
 		ex.error = getSystemErrno();
 		throw ex;
 	    }
 	}
-	
-	string newUser = _properties->getProperty("Ice.ChangeUser");
-	if (!newUser.empty())
-	{
-	    struct passwd* pw = getpwnam(newUser.c_str());
-	    if (!pw)
-	    {
-		--_globalStateCounter;
-		_globalStateMutex->unlock();
-		SystemException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
-	    }
-
-	    if (setgid(pw->pw_gid) == -1)
-	    {
-		--_globalStateCounter;
-		_globalStateMutex->unlock();
-		SystemException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
-	    }
-
-	    if (setuid(pw->pw_uid) == -1)
-	    {
-		--_globalStateCounter;
-		_globalStateMutex->unlock();
-		SystemException ex(__FILE__, __LINE__);
-		ex.error = getSystemErrno();
-		throw ex;
-	    }
-	}
-
-	if (_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
-	{
-	    _identForOpenlog = _properties->getProperty("Ice.ProgramName");
-	    if (_identForOpenlog.empty())
-	    {
-		_identForOpenlog = "<Unknown Ice Program>";
-	    }
-	    openlog(_identForOpenlog.c_str(), LOG_PID, LOG_USER);
-	}
-#endif
 
 	//
 	// Must be done after daemon() is called, since daemon()
@@ -262,87 +339,18 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 #endif
 	}
 
-#ifdef _WIN32
-	WORD version = MAKEWORD(1, 1);
-	WSADATA data;
-	if (WSAStartup(version, &data) != 0)
-	{
-	    _globalStateMutex->unlock();
-	    SocketException ex(__FILE__, __LINE__);
-	    ex.error = getSocketErrno();
-	    throw ex;
-	}
-#endif
-	
-#ifndef _WIN32
-	struct sigaction action;
-	action.sa_handler = SIG_IGN;
-	sigemptyset(&action.sa_mask);
-	action.sa_flags = 0;
-	sigaction(SIGPIPE, &action, 0);
-#endif
-
-#ifdef _WIN32
-	struct _timeb tb;
-	_ftime(&tb);
-	srand(tb.millitm);
-#else
-	timeval tv;
-	gettimeofday(&tv, 0);
-	srand(tv.tv_usec);
-#endif
-	
-    }
-
-    _globalStateMutex->unlock();
-
-    try
-    {
-	__setNoDelete(true);
-#ifndef _WIN32
-	if (_properties->getPropertyAsInt("Ice.UseSyslog") > 0)
-	{
-	    _logger = new SysLoggerI;
-	}
-	else
-	{
-	    _logger = new LoggerI;
-	}
-#else
-	_logger = new LoggerI;
-#endif
-	_traceLevels = new TraceLevels(_properties);
-	_defaultProtocol = _properties->getPropertyWithDefault("Ice.DefaultProtocol", "tcp");
-	_defaultHost = _properties->getProperty("Ice.DefaultHost");
-	if (_defaultHost.empty())
-	{
-	    _defaultHost = getLocalHost(true);
-	}
-	_routerManager = new RouterManager;
-	_referenceFactory = new ReferenceFactory(this);
-	_proxyFactory = new ProxyFactory(this);
-	string router = _properties->getProperty("Ice.DefaultRouter");
-	if (!router.empty())
-	{
-	    _referenceFactory->setDefaultRouter(RouterPrx::uncheckedCast(_proxyFactory->stringToProxy(router)));
-	}
-	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
-	_servantFactoryManager = new ObjectFactoryManager();
-	_userExceptionFactoryManager = new UserExceptionFactoryManager();
-	_objectAdapterFactory = new ObjectAdapterFactory(this);
+	//
+	// Thread pool initialization must be done after daemon() is
+	// called, since daemon() forks.
+	//
 	_threadPool = new ThreadPool(this);
 	__setNoDelete(false);
-
-        // Get our instance of the SSL System
-        _sslSystem = IceSSL::Factory::getSystem(this);
-
-        // Get the SSL system to configure itself
-        _sslSystem->configure();
     }
     catch(...)
     {
 	destroy();
 	__setNoDelete(false);
+	--_globalStateCounter;
 	throw;
     }
 }
