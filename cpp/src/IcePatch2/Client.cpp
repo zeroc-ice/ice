@@ -177,11 +177,6 @@ IcePatch2::Client::run(int argc, char* argv[])
         cerr << argv[0] << ": " << ex << endl;
         return EXIT_FAILURE;
     }
-    catch(const char* ex)
-    {
-        cerr << argv[0] << ": " << ex << endl;
-        return EXIT_FAILURE;
-    }
 
     return EXIT_SUCCESS;
 }

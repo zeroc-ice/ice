@@ -43,7 +43,7 @@ IcePatch2::Patcher::patch()
 
     if(dataDir.empty())
     {
-	throw "no data directory specified";
+	throw string("no data directory specified");
     }
 
     if(chunkSize < 1)
@@ -93,7 +93,7 @@ IcePatch2::Patcher::patch()
     const string endpoints = properties->getProperty(endpointsProperty);
     if(endpoints.empty())
     {
-	throw "property `" + endpointsProperty + "' is not set";
+	throw string("property `") + endpointsProperty + "' is not set";
     }
     
     const char* idProperty = "IcePatch2.Identity";
@@ -113,6 +113,8 @@ IcePatch2::Patcher::patch()
     FileInfoSeq updateFiles;
     
     ByteSeq empty(20, 0);
+
+    fileServer = FileServerPrx::uncheckedCast(fileServer->ice_compress(true));
     
     if(tree0.checksum != fileServer->getChecksum())
     {
@@ -121,7 +123,7 @@ IcePatch2::Patcher::patch()
 	ByteSeqSeq checksum0Seq = fileServer->getChecksum0Seq();
 	if(checksum0Seq.size() != 256)
 	{
-	    throw "server returned illegal value";
+	    throw string("server returned illegal value");
 	}
 	
 	for(int node0 = 0; node0 < 256; ++node0)
@@ -156,6 +158,8 @@ IcePatch2::Patcher::patch()
     
     sort(removeFiles.begin(), removeFiles.end(), FileInfoLess());
     sort(updateFiles.begin(), updateFiles.end(), FileInfoLess());
+    
+    fileServer = FileServerPrx::uncheckedCast(fileServer->ice_compress(false)); 
     
     FileInfoSeq::const_iterator p;
     
