@@ -369,9 +369,6 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"ChangeUser",
 	"Config",
 	"ConnectionIdleTime",
-	"Daemon",
-	"DaemonNoChdir",
-	"DaemonNoClose",
 	"Default.Host",
 	"Default.Locator",
 	"Default.Protocol",
@@ -403,7 +400,6 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"Trace.Protocol",
 	"Trace.Retry",
 	"Trace.Slicing",
-	"Trace.Location",
 	"UDP.RcvSize",
 	"UDP.SndSize",
 	"UseSyslog",
@@ -423,7 +419,6 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"ServiceManager.AdapterId",
 	"ServiceManager.Endpoints",
 	"ServiceManager.Identity",
-	"ServiceManager.RegisterProcess",
 	"UseSharedCommunicator.*"
     };
 
@@ -434,8 +429,10 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"Node.Data",
 	"Node.Endpoints",
 	"Node.Name",
+	"Node.Output",
 	"Node.PrintServersReady",
 	"Node.PropertiesOverride",
+	"Node.RedirectErrToOutput",
 	"Node.ThreadPool.Size",
 	"Node.ThreadPool.SizeMax",
 	"Node.ThreadPool.SizeWarn",
@@ -460,16 +457,17 @@ final class PropertiesI extends LocalObjectImpl implements Properties
     private static final String _icePatchProps[] =
     {
 	"BusyTimeout",
+	"Directory",
+	"Dynamic",
+	"Endpoints",
 	"RemoveOrphaned",
 	"Thorough",
 	"Trace.Files",
-	"UpdatePeriod",
-	"Directory"
+	"UpdatePeriod"
     };
     
     private static final String _iceSSLProps[] =
     {
-	"Client.CertificateVerifier",
 	"Client.CertPath*",
 	"Client.Config",
 	"Client.Handshake.Retries",
@@ -479,7 +477,6 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"Client.Overrides.RSA.Certificate",
 	"Client.Overrides.RSA.PrivateKey",
 	"Client.Passphrase.Retries",
-	"Server.CertificateVerifier",
 	"Server.CertPath*",
 	"Server.Config",
 	"Server.Overrides.CACertificate",
@@ -495,9 +492,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
     {
 	"Flush.Timeout",
 	"Publish.Endpoints",
-	"Publish.AdapterId",
 	"TopicManager.Endpoints",
-	"TopicManager.AdapterId",
 	"TopicManager.Proxy",
 	"Trace.Flush",
 	"Trace.Subscriber",
@@ -509,7 +504,6 @@ final class PropertiesI extends LocalObjectImpl implements Properties
     {
 	"Router.AcceptCert",
 	"Router.AllowCategories",
-	"Router.Client.BatchSleepTime",
 	"Router.Client.Endpoints",
 	"Router.Client.ThreadPool.Size",
 	"Router.Client.ThreadPool.SizeMax",
@@ -521,7 +515,6 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"Router.ThreadPool.SizeWarn",
 	"Router.Identity",
 	"Router.PrintProxyOnFd",
-	"Router.Server.BatchSleepTime",
 	"Router.Server.Endpoints",
 	"Router.Server.ThreadPool.Size",
 	"Router.Server.ThreadPool.SizeMax",

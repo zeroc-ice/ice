@@ -374,9 +374,6 @@ namespace Ice
 	    "ChangeUser",
 	    "Config",
 	    "ConnectionIdleTime",
-	    "Daemon",
-	    "DaemonNoChdir",
-	    "DaemonNoClose",
 	    "Default.Host",
 	    "Default.Locator",
 	    "Default.Protocol",
@@ -428,7 +425,6 @@ namespace Ice
 	    "ServiceManager.AdapterId",
 	    "ServiceManager.Endpoints",
 	    "ServiceManager.Identity",
-	    "ServiceManager.RegisterProcess",
 	    "UseSharedCommunicator.*"
 	};
 	
@@ -439,8 +435,10 @@ namespace Ice
 	    "Node.Data",
 	    "Node.Endpoints",
 	    "Node.Name",
+	    "Node.Output",
 	    "Node.PrintServersReady",
 	    "Node.PropertiesOverride",
+	    "Node.RedirectErrToOutput",
 	    "Node.ThreadPool.Size",
 	    "Node.ThreadPool.SizeMax",
 	    "Node.ThreadPool.SizeWarn",
@@ -465,16 +463,17 @@ namespace Ice
 	private static readonly string[] _icePatchProps = new string[]
 	{
 	    "BusyTimeout",
+	    "Directory",
+	    "Dynamic",
+	    "Endpoints",
 	    "RemoveOrphaned",
 	    "Thorough",
 	    "Trace.Files",
-	    "UpdatePeriod",
-	    "Directory"
+	    "UpdatePeriod"
 	};
 	
 	private static readonly string[] _iceSSLProps = new string[]
 	{
-	    "Client.CertificateVerifier",
 	    "Client.CertPath*",
 	    "Client.Config",
 	    "Client.Handshake.Retries",
@@ -484,7 +483,6 @@ namespace Ice
 	    "Client.Overrides.RSA.Certificate",
 	    "Client.Overrides.RSA.PrivateKey",
 	    "Client.Passphrase.Retries",
-	    "Server.CertificateVerifier",
 	    "Server.CertPath*",
 	    "Server.Config",
 	    "Server.Overrides.CACertificate",
@@ -500,8 +498,6 @@ namespace Ice
 	{
 	    "Flush.Timeout",
 	    "Publish.Endpoints",
-	    "Publish.AdapterId",
-	    "TopicManager.AdapterId",
 	    "TopicManager.Endpoints",
 	    "TopicManager.Proxy",
 	    "Trace.Flush",
@@ -514,7 +510,6 @@ namespace Ice
 	{
 	    "Router.AcceptCert",
 	    "Router.AllowCategories",
-	    "Router.Client.BatchSleepTime",
 	    "Router.Client.Endpoints",
 	    "Router.Client.ThreadPool.Size",
 	    "Router.Client.ThreadPool.SizeMax",
@@ -526,7 +521,6 @@ namespace Ice
 	    "Router.ThreadPool.SizeWarn",
 	    "Router.Identity",
 	    "Router.PrintProxyOnFd",
-	    "Router.Server.BatchSleepTime",
 	    "Router.Server.Endpoints",
 	    "Router.Server.ThreadPool.Size",
 	    "Router.Server.ThreadPool.SizeMax",
