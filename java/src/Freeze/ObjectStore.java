@@ -34,12 +34,24 @@ class ObjectStore implements IceUtil.Store
 	com.sleepycat.db.DbTxn txn = null;
 	com.sleepycat.db.DbEnv dbEnv = evictor.dbEnv();
 
+	String txnId = null;
+
 	try
 	{	    
 	    _db = new com.sleepycat.db.Db(dbEnv, 0);
 	    
 	    txn = dbEnv.txnBegin(null, 0);
 
+	    if(evictor.txTrace() >= 1)
+	    {
+		txnId = Long.toHexString((txn.id() & 0x7FFFFFFF) + 0x80000000L); 
+	    
+		evictor.communicator().getLogger().trace
+		    ("Freeze.Evictor", _evictor.errorPrefix() + "successfully started transaction " +
+		      txnId + " to open Db");
+	    }
+	    
+	    
 	    //
 	    // TODO: FREEZE_DB_MODE
 	    //
@@ -61,6 +73,14 @@ class ObjectStore implements IceUtil.Store
 	    com.sleepycat.db.DbTxn toCommit = txn;
 	    txn = null;
 	    toCommit.commit(0);
+
+	    if(evictor.txTrace() >= 1)
+	    {
+		evictor.communicator().getLogger().trace
+		    ("Freeze.Evictor", _evictor.errorPrefix() + "successfully committed transaction " +
+		     txnId);
+	    }
+
 	}
 	catch(java.io.FileNotFoundException dx)
 	{
@@ -81,11 +101,25 @@ class ObjectStore implements IceUtil.Store
 	    if(txn != null)
 	    {
 		try
-		{
+		{  
 		    txn.abort();
+		    
+		    if(evictor.txTrace() >= 1)
+		    {
+			evictor.communicator().getLogger().trace
+			    ("Freeze.Evictor", _evictor.errorPrefix() + "successfully rolled back transaction " +
+			     txnId);
+		    }
 		}
 		catch(com.sleepycat.db.DbException dx)
 		{
+		    if(evictor.txTrace() >= 1)
+		    {
+			evictor.communicator().getLogger().trace
+			    ("Freeze.Evictor", _evictor.errorPrefix() + "failed to rollback transaction " +
+			     txnId + ": " + dx.getMessage());
+		    }
+
 		}
 	    }
 	}

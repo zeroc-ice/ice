@@ -15,7 +15,7 @@ public abstract class Map extends java.util.AbstractMap
     Map(Connection connection, String dbName, boolean createDb)
     {
 	_connection = (ConnectionI) connection;
-	_errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\") :";
+	_errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\"): ";
 	_trace = _connection.trace();
 	
 	init(null, dbName, createDb);
@@ -25,7 +25,7 @@ public abstract class Map extends java.util.AbstractMap
     Map(Connection connection, String dbName)
     {
 	_connection = (ConnectionI) connection;
-	_errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\") :";
+	_errorPrefix = "Freeze DB DbEnv(\"" + _connection.envName() + "\") Db(\"" + dbName + "\"): ";
 	_trace = _connection.trace();
     }
 
@@ -871,12 +871,6 @@ public abstract class Map extends java.util.AbstractMap
         {
 	    _indexed = (index != null);
 
-	    if(_trace >= 3)
-	    {
-		_connection.communicator().getLogger().trace
-		    ("Freeze.Map", "starting transaction for cursor on Db \"" + _db.dbName() + "\"");
-	    }
-
 	    try
 	    {
 		com.sleepycat.db.DbTxn txn = _connection.dbTxn();
@@ -887,6 +881,15 @@ public abstract class Map extends java.util.AbstractMap
 		    //
 		    txn = _connection.dbEnv().txnBegin(null, 0);
 		    _txn = txn;
+
+		    if(_connection.txTrace() >= 1)
+		    {
+			String txnId = Long.toHexString((_txn.id() & 0x7FFFFFFF) + 0x80000000L); 
+
+			_connection.communicator().getLogger().trace
+			    ("Freeze.Map", _errorPrefix + "successfully started transaction " +
+			     txnId + " for cursor");
+		    }
 		}
 		
 		//
@@ -911,6 +914,7 @@ public abstract class Map extends java.util.AbstractMap
 	    }
 	    catch(com.sleepycat.db.DbException dx)
 	    {
+		dead();
 		DatabaseException ex = new DatabaseException();
 		ex.initCause(dx);
 		ex.message = _errorPrefix + "EntryIterator constructor: " + dx.getMessage();
@@ -1188,18 +1192,34 @@ public abstract class Map extends java.util.AbstractMap
 	    
 	    if(_txn != null)
 	    {
-		if(_trace >= 3)
-		{
-		    _connection.communicator().getLogger().trace
-			("Freeze.Map", "committing transaction for cursor on Db \"" + _db.dbName() + "\"");
-		}
+		String txnId = null;
 
 		try
 		{
+		    if(_connection.txTrace() >= 1)
+		    {
+			txnId = Long.toHexString((_txn.id() & 0x7FFFFFFF) + 0x80000000L); 
+		    }
+
 		    _txn.commit(0);
+
+		    if(_connection.txTrace() >= 1)
+		    {
+			_connection.communicator().getLogger().trace
+			    ("Freeze.Map", _errorPrefix + "successfully committed transaction " +
+			     txnId);
+		    }
+
 		}
 		catch(com.sleepycat.db.DbDeadlockException e)
 		{
+		    if(_connection.txTrace() >= 1)
+		    {
+			_connection.communicator().getLogger().trace
+			    ("Freeze.Map", _errorPrefix + "failed to commit transaction " +
+			     txnId + ": " + e.getMessage());
+		    }
+
 		    DeadlockException ex = new DeadlockException();
 		    ex.initCause(e);
 		    ex.message = _errorPrefix + "DbTxn.commit: " + e.getMessage();
@@ -1207,6 +1227,13 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		catch(com.sleepycat.db.DbException e)
 		{
+		    if(_connection.txTrace() >= 1)
+		    {
+			_connection.communicator().getLogger().trace
+			    ("Freeze.Map", _errorPrefix + "failed to commit transaction " +
+			     txnId + ": " + e.getMessage());
+		    }
+
 		    DatabaseException ex = new DatabaseException();
 		    ex.initCause(e);
 		    ex.message = _errorPrefix + "DbTxn.commit: " + e.getMessage();
@@ -1373,19 +1400,33 @@ public abstract class Map extends java.util.AbstractMap
 
 	    if(_txn != null)
 	    {
-		if(_trace >= 3)
-		{
-		    _connection.communicator().getLogger().trace
-			("Freeze.Map", "rolling back transaction for cursor on Db \"" 
-			 + _db.dbName() + "\"");
-		}
+		String txnId = null;
 
 		try
 		{
+		    if(_connection.txTrace() >= 1)
+		    {
+			txnId = Long.toHexString((_txn.id() & 0x7FFFFFFF) + 0x80000000L); 
+		    }
+
 		    _txn.abort();
+
+		    if(_connection.txTrace() >= 1)
+		    {
+			_connection.communicator().getLogger().trace
+			    ("Freeze.Map", _errorPrefix + "successfully rolled back transaction " +
+			     txnId);
+		    }
 		}
 		catch(com.sleepycat.db.DbDeadlockException e)
 		{
+		    if(_connection.txTrace() >= 1)
+		    {
+			_connection.communicator().getLogger().trace
+			    ("Freeze.Map", _errorPrefix + "failed to roll back transaction " +
+			     txnId + ": " + e.getMessage());
+		    }
+
 		    DeadlockException ex = new DeadlockException();
 		    ex.initCause(e);
 		    ex.message = _errorPrefix + "DbTxn.abort: " + e.getMessage();
@@ -1393,6 +1434,13 @@ public abstract class Map extends java.util.AbstractMap
 		}
 		catch(com.sleepycat.db.DbException e)
 		{
+		    if(_connection.txTrace() >= 1)
+		    {
+			_connection.communicator().getLogger().trace
+			    ("Freeze.Map", _errorPrefix + "failed to roll back transaction " +
+			     txnId + ": " + e.getMessage());
+		    }
+
 		    DatabaseException ex = new DatabaseException();
 		    ex.initCause(e);
 		    ex.message = _errorPrefix + "DbTxn.abort: " + e.getMessage();

@@ -106,9 +106,20 @@ class SharedDb extends com.sleepycat.db.Db
 
 	com.sleepycat.db.DbTxn txn = null;
 
+	String txnId = null;
+
 	try
 	{
 	    txn = connection.dbEnv().txnBegin(null, 0);
+
+	    if(connection.txTrace() >= 1)
+	    {
+		txnId = Long.toHexString((txn.id() & 0x7FFFFFFF) + 0x80000000L); 
+
+		_key.communicator.getLogger().trace
+		    ("Freeze.Map", errorPrefix(_key) + "successfully started transaction " +
+		      txnId + " to open Db \"" + _key.dbName + "\"");
+	    }
 
 	    int flags = 0;
 	    
@@ -116,7 +127,12 @@ class SharedDb extends com.sleepycat.db.Db
 	    {
 		flags |= com.sleepycat.db.Db.DB_CREATE;
 	    }
-	    
+
+	    if(_trace >= 1)
+	    {
+		_key.communicator.getLogger().trace("Freeze.Map", "opening Db \"" + _key.dbName + "\"");
+	    }
+   
 	    open(txn, key.dbName, null, com.sleepycat.db.Db.DB_BTREE, flags, 0);
 
 	    if(_indices != null)
@@ -130,6 +146,13 @@ class SharedDb extends com.sleepycat.db.Db
 	    com.sleepycat.db.DbTxn toCommit = txn;
 	    txn = null;
 	    toCommit.commit(0);
+
+	    if(connection.txTrace() >= 1)
+	    {
+		_key.communicator.getLogger().trace
+		    ("Freeze.Map", errorPrefix(_key) + "successfully committed transaction " +
+		     txnId);
+	    }
 
 	    //
 	    // TODO: FREEZE_DB_MODE
@@ -158,9 +181,21 @@ class SharedDb extends com.sleepycat.db.Db
 		try
 		{
 		    txn.abort();
+
+		    if(connection.txTrace() >= 1)
+		    {
+			_key.communicator.getLogger().trace
+			    ("Freeze.Map", errorPrefix(_key) + "successfully rolled back transaction " + txnId);
+		    }
 		}
 		catch(com.sleepycat.db.DbException dx)
 		{
+		    if(connection.txTrace() >= 1)
+		    {
+			_key.communicator.getLogger().trace
+			    ("Freeze.Map", errorPrefix(_key) + "failed to roll back transaction " +
+			     txnId + ": " + dx.getMessage());
+		    }
 		}
 	    }
 	}
@@ -199,7 +234,7 @@ class SharedDb extends com.sleepycat.db.Db
     private static String
     errorPrefix(MapKey k)
     {
-	return "Freeze DB DbEnv(\"" + k.envName + "\") Db(\"" + k.dbName + "\") :";
+	return "Freeze DB DbEnv(\"" + k.envName + "\") Db(\"" + k.dbName + "\"): ";
     }
 
     private static class MapKey

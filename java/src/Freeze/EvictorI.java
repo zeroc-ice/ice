@@ -240,6 +240,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     init(String envName, Index[] indices)
     {
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Evictor");
+	_txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
 	_deadlockWarning = _communicator.getProperties().getPropertyAsInt("Freeze.Warn.Deadlocks") != 0;
 
 	_errorPrefix = "Freeze Evictor DbEnv(\"" + envName + "\") Db(\"" + _filename + "\"): ";
@@ -1684,9 +1685,21 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			}
 			
 			long saveStart = System.currentTimeMillis();
+			String txnId = null;
+
 			try
 			{
 			    com.sleepycat.db.DbTxn tx = _dbEnv.txnBegin(null, 0);
+
+			    if(_txTrace >= 1)
+			    {
+				txnId = Long.toHexString((tx.id() & 0x7FFFFFFF) + 0x80000000L); 
+
+				_communicator.getLogger().trace
+				    ("Freeze.Evictor", _errorPrefix + "successfully started transaction " +
+				     txnId + " in saving thread");
+			    }
+
 			    try
 			    {   
 				for(int i = 0; i < txSize; i++)
@@ -1698,12 +1711,25 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 				com.sleepycat.db.DbTxn toCommit = tx;
 				tx = null;
 				toCommit.commit(0);
+
+				if(_txTrace >= 1)
+				{
+				    _communicator.getLogger().trace
+					("Freeze.Evictor", _errorPrefix + "successfully committed transaction " +
+					 txnId);
+				}
 			    }
 			    finally
 			    {
 				if(tx != null)
 				{
 				    tx.abort();
+				    if(_txTrace >= 1)
+				    {
+					_communicator.getLogger().trace
+					    ("Freeze.Evictor", _errorPrefix + "successfully rolled back transaction " +
+					     txnId);
+				    }
 				}
 			    }
 			    
@@ -1834,6 +1860,12 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     errorPrefix()
     {
 	return _errorPrefix;
+    }
+
+    final int
+    txTrace()
+    {
+	return _txTrace;
     }
     
     final boolean
@@ -2179,6 +2211,7 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     private final boolean _createDb;
 
     private int _trace = 0;
+    private int _txTrace = 0;
 
     //
     // Threads that have requested a "saveNow" and are waiting for

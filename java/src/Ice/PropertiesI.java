@@ -641,6 +641,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	"Trace.DbEnv",
 	"Trace.Evictor",
 	"Trace.Map",
+        "Trace.Transaction",
 	"Warn.CloseInFinalize",
 	"Warn.Deadlocks"
     };

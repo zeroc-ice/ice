@@ -110,6 +110,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	_dbEnv = _dbEnvHolder;
 	_envName = envName;
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
+	_txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
 	Ice.Properties properties = _communicator.getProperties();
 
 	_deadlockWarning = properties.getPropertyAsInt("Freeze.Warn.Deadlocks") > 0;
@@ -122,6 +123,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	_dbEnv = dbEnv;
 	_envName = envName;
 	_trace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Map");
+	_txTrace = _communicator.getProperties().getPropertyAsInt("Freeze.Trace.Transaction");
     }
 
     //
@@ -196,6 +198,12 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
 	return _trace;
     }
 
+    final int
+    txTrace()
+    {
+	return _txTrace;
+    }
+
     final boolean
     deadlockWarning()
     {
@@ -215,6 +223,7 @@ class ConnectionI extends Ice.LocalObjectImpl implements Connection
     private TransactionI _transaction;
     private LinkedList _mapList = new Freeze.LinkedList();
     private int _trace;
+    private int _txTrace;
     private boolean _deadlockWarning;
     private boolean _closeInFinalizeWarning;
 }
