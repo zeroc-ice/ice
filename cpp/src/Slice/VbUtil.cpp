@@ -994,21 +994,36 @@ bool
 Slice::VbGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     validate(p);
-    return false;
+    return true;
+}
+
+void
+Slice::VbGenerator::MetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
 }
 
 bool
 Slice::VbGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     validate(p);
-    return false;
+    return true;
+}
+
+void
+Slice::VbGenerator::MetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
+{
 }
 
 bool
 Slice::VbGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
     validate(p);
-    return false;
+    return true;
+}
+
+void
+Slice::VbGenerator::MetaDataVisitor::visitStructEnd(const StructPtr&)
+{
 }
 
 void

@@ -945,21 +945,36 @@ bool
 Slice::CsGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     validate(p);
-    return false;
+    return true;
+}
+
+void
+Slice::CsGenerator::MetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
 }
 
 bool
 Slice::CsGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     validate(p);
-    return false;
+    return true;
+}
+
+void
+Slice::CsGenerator::MetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
+{
 }
 
 bool
 Slice::CsGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
     validate(p);
-    return false;
+    return true;
+}
+
+void
+Slice::CsGenerator::MetaDataVisitor::visitStructEnd(const StructPtr&)
+{
 }
 
 void
@@ -977,6 +992,7 @@ Slice::CsGenerator::MetaDataVisitor::visitParamDecl(const ParamDeclPtr& p)
 void
 Slice::CsGenerator::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
 {
+    cerr << "validating " << p->name() << endl;
     validate(p);
 }
 

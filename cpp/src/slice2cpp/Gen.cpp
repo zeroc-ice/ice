@@ -161,6 +161,8 @@ Slice::Gen::operator!() const
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
+    validateMetaData(p);
+
     C << "\n#include <";
     if(_include.size())
     {
@@ -4186,4 +4188,162 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     C << nl << "__exception();";
     C << eb;
+}
+
+void
+Slice::Gen::validateMetaData(const UnitPtr& unit)
+{
+    MetaDataVisitor visitor;
+    unit->visit(&visitor, false);
+}
+
+bool
+Slice::Gen::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
+{
+    validate(p);
+    return true;
+}
+
+void
+Slice::Gen::MetaDataVisitor::visitModuleEnd(const ModulePtr&)
+{
+}
+
+void
+Slice::Gen::MetaDataVisitor::visitClassDecl(const ClassDeclPtr& p)
+{
+    validate(p);
+}
+
+bool
+Slice::Gen::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    validate(p);
+    return true;
+}
+
+void
+Slice::Gen::MetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
+}
+
+bool
+Slice::Gen::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    validate(p);
+    return true;
+}
+
+void
+Slice::Gen::MetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
+{
+}
+
+bool
+Slice::Gen::MetaDataVisitor::visitStructStart(const StructPtr& p)
+{
+    validate(p);
+    return true;
+}
+
+void
+Slice::Gen::MetaDataVisitor::visitStructEnd(const StructPtr&)
+{
+}
+
+void
+Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Gen::MetaDataVisitor::visitParamDecl(const ParamDeclPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Gen::MetaDataVisitor::visitDataMember(const DataMemberPtr& p)
+{
+    cerr << "validating " << p->name() << endl;
+    validate(p);
+}
+
+void
+Slice::Gen::MetaDataVisitor::visitSequence(const SequencePtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Gen::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Gen::MetaDataVisitor::visitEnum(const EnumPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Gen::MetaDataVisitor::visitConst(const ConstPtr& p)
+{
+    validate(p);
+}
+
+void
+Slice::Gen::MetaDataVisitor::validate(const ContainedPtr& cont)
+{
+    DefinitionContextPtr dc = cont->definitionContext();
+    assert(dc);
+    StringList globalMetaData = dc->getMetaData();
+    string file = dc->filename();
+
+    StringList localMetaData = cont->getMetaData();
+
+    StringList::const_iterator p;
+    static const string prefix = "cpp:";
+
+    for(p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
+    {
+        string s = *p;
+        if(_history.count(s) == 0)
+        {
+            if(s.find(prefix) == 0)
+            {
+		cout << file << ": warning: ignoring invalid global metadata `" << s << "'" << endl;
+            }
+            _history.insert(s);
+        }
+    }
+
+    for(p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    {
+	string s = *p;
+        if(_history.count(s) == 0)
+        {
+            if(s.find(prefix) == 0)
+            {
+	    	if(SequencePtr::dynamicCast(cont))
+		{
+		    if(s.substr(prefix.size()) == "collection")
+		    {
+			continue;
+		    }
+		}
+		if(StructPtr::dynamicCast(cont))
+		{
+		    if(s.substr(prefix.size()) == "class")
+		    {
+		        continue;
+		    }
+		}
+		cout << file << ": warning: ignoring invalid metadata `" << s << "'" << endl;
+            }
+            _history.insert(s);
+        }
+    }
 }

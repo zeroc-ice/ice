@@ -344,6 +344,38 @@ private:
 
 	std::string _dllExport;
     };
+
+private:
+
+    class MetaDataVisitor : public ParserVisitor
+    {
+    public:
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual void visitClassDecl(const ClassDeclPtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
+        virtual void visitExceptionEnd(const ExceptionPtr&);
+        virtual bool visitStructStart(const StructPtr&);
+        virtual void visitStructEnd(const StructPtr&);
+        virtual void visitOperation(const OperationPtr&);
+        virtual void visitParamDecl(const ParamDeclPtr&);
+        virtual void visitDataMember(const DataMemberPtr&);
+        virtual void visitSequence(const SequencePtr&);
+        virtual void visitDictionary(const DictionaryPtr&);
+        virtual void visitEnum(const EnumPtr&);
+        virtual void visitConst(const ConstPtr&);
+
+    private:
+
+        void validate(const ContainedPtr&);
+
+        StringSet _history;
+    };
+
+    static void validateMetaData(const UnitPtr&);
 };
 
 }

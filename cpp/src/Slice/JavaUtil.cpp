@@ -2266,21 +2266,36 @@ bool
 Slice::JavaGenerator::MetaDataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     validate(p);
-    return false;
+    return true;
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
 }
 
 bool
 Slice::JavaGenerator::MetaDataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     validate(p);
-    return false;
+    return true;
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitExceptionEnd(const ExceptionPtr&)
+{
 }
 
 bool
 Slice::JavaGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
 {
     validate(p);
-    return false;
+    return true;
+}
+
+void
+Slice::JavaGenerator::MetaDataVisitor::visitStructEnd(const StructPtr&)
+{
 }
 
 void
@@ -2365,6 +2380,11 @@ Slice::JavaGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
                 {
                     cout << file << ": warning: ignoring invalid metadata `" << s << "'" << endl;
                 }
+		if(SequencePtr::dynamicCast(cont))
+		{
+		    continue;
+		}
+		cout << file << ": warning: ignoring invalid metadata `" << s << "'" << endl;
             }
             _history.insert(s);
         }
