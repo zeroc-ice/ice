@@ -350,9 +350,7 @@ def getVersion(cvsTag, buildDir):
     os.chdir(buildDir)
     if getPlatform() == "aix":
         os.environ["LIBPATH"] = ""
-        os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export -r " + cvsTag + " ice/include/IceUtil/Config.h")
-    else:
-        os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export -r " + cvsTag + " ice/include/IceUtil/Config.h")
+    os.system("cvs -d cvs.mutablerealms.com:/home/cvsroot export -r " + cvsTag + " ice/include/IceUtil/Config.h")
 
     result = [ getIceVersion("ice/include/IceUtil/Config.h"), getIceSoVersion("ice/include/IceUtil/Config.h")]
     os.remove("ice/include/IceUtil/Config.h")
