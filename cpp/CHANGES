@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Visual C++ 7.x builds can now be used by applications built with 
+  /Zc:wchar_t.
+
 - Fixed a bug in IceSSL that caused the error message "WRN unable
   to load certificate authorities" to be logged when no value
   was specified for the "path" attribute of <certauthority>.

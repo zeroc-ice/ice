@@ -158,3 +158,24 @@ IceUtil::stringToWstring(const string& str)
 
     return result;
 }
+
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1300)
+//
+// See comments in IceUtil/Unicode.h
+//
+string
+IceUtil::wstringToString(const basic_string<__wchar_t>& str)
+{
+    assert(sizeof(__wchar_t) == SIZEOF_WCHAR_T);
+	return wstringToString(*reinterpret_cast<const wstring*>(&str));
+}
+
+basic_string<__wchar_t>
+IceUtil::stringToNativeWstring(const string& str)
+{
+    assert(sizeof(__wchar_t) == SIZEOF_WCHAR_T);
+    return *reinterpret_cast<basic_string<__wchar_t>* >(&stringToWstring(str));
+}
+
+#endif
