@@ -150,6 +150,7 @@ static const string iceProps[] =
 static const string iceBoxProps[] =
 {
     "DBEnvName.*",
+    "LoadOrder",
     "PrintServicesReady",
     "Service.*",
     "ServiceManager.AdapterId",

@@ -433,6 +433,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
     private static final String _iceBoxProps[] =
     {
 	"DBEnvName.*",
+	"LoadOrder",
 	"PrintServicesReady",
 	"Service.*",
 	"ServiceManager.AdapterId",

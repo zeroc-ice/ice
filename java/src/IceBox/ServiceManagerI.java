@@ -48,39 +48,53 @@ public final class ServiceManagerI extends _ServiceManagerDisp
             adapter.add(this, Ice.Util.stringToIdentity(identity));
 
             //
+            // Parse the IceBox.LoadOrder property.
+            //
+            String order = properties.getProperty("IceBox.LoadOrder");
+            String[] loadOrder = null;
+            if(order.length() > 0)
+            {
+                loadOrder = order.trim().split("[,\t ]+");
+            }
+
+            //
             // Load and start the services defined in the property set
             // with the prefix "IceBox.Service.". These properties should
             // have the following format:
             //
             // IceBox.Service.Foo=Package.Foo [args]
             //
+            // We load the services specified in IceBox.LoadOrder first,
+            // then load any remaining services.
+            //
             final String prefix = "IceBox.Service.";
 	    java.util.Map services = properties.getPropertiesForPrefix(prefix);
+            if(loadOrder != null)
+            {
+                for(int i = 0; i < loadOrder.length; ++i)
+                {
+                    if(loadOrder[i].length() > 0)
+                    {
+                        String key = prefix + loadOrder[i];
+                        String value = (String)services.get(key);
+                        if(value == null)
+                        {
+                            FailureException ex = new FailureException();
+                            ex.reason = "ServiceManager: no service definition for `" + loadOrder[i] + "'";
+                            throw ex;
+                        }
+                        load(loadOrder[i], value);
+                        services.remove(key);
+                    }
+                }
+            }
 	    java.util.Iterator p = services.entrySet().iterator();
 	    while(p.hasNext())
 	    {
 		java.util.Map.Entry entry = (java.util.Map.Entry)p.next();
 		String name = ((String)entry.getKey()).substring(prefix.length());
 		String value = (String)entry.getValue();
-
-                //
-                // Separate the entry point from the arguments.
-                //
-                String className;
-                String[] args;
-                int pos = IceInternal.StringUtil.findFirstOf(value, " \t\n");
-                if(pos == -1)
-                {
-                    className = value;
-                    args = new String[0];
-                }
-                else
-                {
-                    className = value.substring(0, pos);
-                    args = value.substring(pos).trim().split("[ \t\n]+", pos);
-                }
-
-                start(name, className, args);
+                load(name, value);
             }
 
             //
@@ -164,6 +178,30 @@ public final class ServiceManagerI extends _ServiceManagerDisp
         }
 
         return 0;
+    }
+
+    private void
+    load(String name, String value)
+        throws FailureException
+    {
+        //
+        // Separate the entry point from the arguments.
+        //
+        String className;
+        String[] args;
+        int pos = IceInternal.StringUtil.findFirstOf(value, " \t\n");
+        if(pos == -1)
+        {
+            className = value;
+            args = new String[0];
+        }
+        else
+        {
+            className = value.substring(0, pos);
+            args = value.substring(pos).trim().split("[ \t\n]+", pos);
+        }
+
+        start(name, className, args);
     }
 
     private void

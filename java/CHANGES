@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Added the IceBox.LoadOrder property, which specifies the order
+  in which IceBox services are loaded.
+
 - Added support for Berkeley DB 4.2.52.
 
 - The default thread pool size is now just one thread. This is the

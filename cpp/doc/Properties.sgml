@@ -1297,6 +1297,25 @@ are ready to be used.
 </section>
 </section>
 
+<section><title>IceBox.LoadOrder</title>
+<section><title>Synopsis</title>
+<synopsis>
+IceBox.LoadOrder=<replaceable>names</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Determines the order in which services are loaded. The service manager
+loads the services in the order they appear in
+<replaceable>names</replaceable>, where each service name is separated
+by a comma or whitespace. Any services not mentioned in
+<replaceable>names</replaceable> are loaded afterward, in an undefined
+order.
+</para>
+</section>
+</section>
+
 <section><title>IceBox.Service.<replaceable>name</replaceable></title>
 <section><title>Synopsis</title>
 <synopsis>

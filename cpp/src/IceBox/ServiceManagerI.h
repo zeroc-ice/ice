@@ -46,6 +46,7 @@ public:
 
 private:
 
+    void load(const std::string&, const std::string&);
     void start(const std::string&, const std::string&, const ::Ice::StringSeq&);
     void stopAll();
 

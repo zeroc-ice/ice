@@ -1,6 +1,9 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Added the IceBox.LoadOrder property, which specifies the order
+  in which IceBox services are loaded.
+
 - Added support for the Intel C++ compiler (v8.0) on Linux x86
 
 - Removed the Ice.Daemon, Ice.DaemonNoChdir and Ice.DaemonNoClose

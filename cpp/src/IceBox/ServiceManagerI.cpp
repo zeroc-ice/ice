@@ -69,52 +69,58 @@ IceBox::ServiceManagerI::run()
         adapter->add(obj, stringToIdentity(identity));
 
         //
+        // Parse the IceBox.LoadOrder property.
+        //
+        string order = properties->getProperty("IceBox.LoadOrder");
+        StringSeq loadOrder;
+        if(!order.empty())
+        {
+            string::size_type beg = order.find_first_not_of(",\t ");
+            while(beg != string::npos)
+            {
+                string::size_type end = order.find_first_of(",\t ", beg);
+                if(end == string::npos)
+                {
+                    loadOrder.push_back(order.substr(beg));
+                    beg = end;
+                }
+                else
+                {
+                    loadOrder.push_back(order.substr(beg, end - beg));
+                    beg = order.find_first_not_of(",\t ", end);
+                }
+            }
+        }
+
+        //
         // Load and start the services defined in the property set
         // with the prefix "IceBox.Service.". These properties should
         // have the following format:
         //
         // IceBox.Service.Foo=entry_point [args]
         //
+        // We load the services specified in IceBox.LoadOrder first,
+        // then load any remaining services.
+        //
         const string prefix = "IceBox.Service.";
-
         PropertyDict services = properties->getPropertiesForPrefix(prefix);
-	PropertyDict::const_iterator p;
+	PropertyDict::iterator p;
+        for(StringSeq::const_iterator q = loadOrder.begin(); q != loadOrder.end(); ++q)
+        {
+            p = services.find(prefix + *q);
+            if(p == services.end())
+            {
+                FailureException ex(__FILE__, __LINE__);
+                ex.reason = "ServiceManager: no service definition for `" + *q + "'";
+                throw ex;
+            }
+            load(*q, p->second);
+            services.erase(p);
+        }
 	for(p = services.begin(); p != services.end(); ++p)
 	{
-	    string name = p->first.substr(prefix.size());
-	    const string& value = p->second;
-
-            //
-            // Separate the entry point from the arguments.
-            //
-            string entryPoint;
-            StringSeq args;
-            string::size_type pos = value.find_first_of(" \t\n");
-            if(pos == string::npos)
-            {
-                entryPoint = value;
-            }
-            else
-            {
-                entryPoint = value.substr(0, pos);
-                string::size_type beg = value.find_first_not_of(" \t\n", pos);
-                while(beg != string::npos)
-                {
-                    string::size_type end = value.find_first_of(" \t\n", beg);
-                    if(end == string::npos)
-                    {
-                        args.push_back(value.substr(beg));
-                        beg = end;
-                    }
-                    else
-                    {
-                        args.push_back(value.substr(beg, end - beg));
-                        beg = value.find_first_not_of(" \t\n", end);
-                    }
-                }
-            }
-
-            start(name, entryPoint, args);
+            string name = p->first.substr(prefix.size());
+            load(name, p->second);
         }
 
         //
@@ -178,6 +184,42 @@ IceBox::ServiceManagerI::run()
     }
 
     return EXIT_SUCCESS;
+}
+
+void
+IceBox::ServiceManagerI::load(const string& name, const string& value)
+{
+    //
+    // Separate the entry point from the arguments.
+    //
+    string entryPoint;
+    StringSeq args;
+    string::size_type pos = value.find_first_of(" \t\n");
+    if(pos == string::npos)
+    {
+        entryPoint = value;
+    }
+    else
+    {
+        entryPoint = value.substr(0, pos);
+        string::size_type beg = value.find_first_not_of(" \t\n", pos);
+        while(beg != string::npos)
+        {
+            string::size_type end = value.find_first_of(" \t\n", beg);
+            if(end == string::npos)
+            {
+                args.push_back(value.substr(beg));
+                beg = end;
+            }
+            else
+            {
+                args.push_back(value.substr(beg, end - beg));
+                beg = value.find_first_not_of(" \t\n", end);
+            }
+        }
+    }
+
+    start(name, entryPoint, args);
 }
 
 void
