@@ -13,6 +13,16 @@
 
 #include <Ice/SUdpControlChannel.h>
 #include <Ice/SecureUdp.h>
+#include <Ice/Buffer.h>
+#include <Ice/CryptKeyF.h>
+#include <Ice/MessageAuthenticatorF.h>
+
+namespace IceInternal
+{
+
+// class SUdpTransceiverPtr;
+
+}
 
 namespace IceSecurity
 {
@@ -21,20 +31,22 @@ namespace SecureUdp
 {
 
 using IceInternal::SUdpTransceiver;
+using IceInternal::Buffer;
 using Ice::Long;
 using Ice::ByteSeq;
 using Ice::Current;
+
 
 class ClientControlChannel : public ControlChannel, public ClientChannel
 {
 
 public:
 
+    // Messages received from the Server
     virtual void serverHello(Long, const ByteSeq&, const Current&);
-
     virtual void serverKeyChange(const ByteSeq&, const Current&);
-
     virtual void serverGoodbye(const Current&);
+
 
 protected:
 
@@ -42,11 +54,25 @@ protected:
 
     virtual ~ClientControlChannel();
 
+    void serverKeyChange(const ByteSeq&);
+    void clientHello();
+
+
     friend IceInternal::SUdpTransceiver;
 
-    std::string _host;
-    int _port;
+    // Called from the SUdpTransceiver
+    void encryptPacket(Buffer&, Buffer&);
+    void clientKeyRequest();
+
+
     Ice::ObjectAdapterPtr _adapter;
+    ServerChannelPrx _serverChannel;
+
+    Long _msgID;
+    Long _clientID;
+    CryptKeyPtr _encryptionKey;
+
+    MessageAuthenticatorPtr _messageAuthenticator;
 };
 
 }
@@ -54,3 +80,4 @@ protected:
 }
 
 #endif
+

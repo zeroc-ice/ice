@@ -16,6 +16,7 @@
 #include <IceUtil/Mutex.h>
 #include <Ice/SUdpControlChannelF.h>
 #include <Ice/SUdpTransceiverF.h>
+#include <Ice/CryptorF.h>
 
 namespace IceSecurity
 {
@@ -32,7 +33,6 @@ class ControlChannel : public virtual Shared
 {
 
 protected:
-
     ControlChannel(const SUdpTransceiverPtr&, const InstancePtr&);
     virtual ~ControlChannel();
 
@@ -43,6 +43,7 @@ protected:
     SUdpTransceiverPtr _transceiver;
     InstancePtr _instance;
     Mutex _mutex;
+    CryptorPtr _cryptor;
 };
 
 }
@@ -50,3 +51,4 @@ protected:
 }
 
 #endif
+

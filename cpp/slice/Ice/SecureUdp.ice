@@ -35,7 +35,7 @@ interface ServerChannel
 {
     void clientHello(ClientChannel client, Ice::ByteSeq MACkey);
 
-    void clientKeyAcknowledge(long clientID, long msgID);
+    void clientKeyAcknowledge(long clientID, long msgID, Ice::ByteSeq key);
 
     void clientKeyRequest(long clientID);
 

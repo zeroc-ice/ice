@@ -18,6 +18,7 @@
 #include <Ice/SecureUdp.h>
 #include <Ice/UdpTransceiver.h>
 #include <Ice/SUdpTransceiverF.h>
+#include <map>
 
 #ifndef WIN32
 #   include <netinet/in.h> // For struct sockaddr_in
@@ -44,12 +45,13 @@ public:
     virtual void read(Buffer&, int);
     virtual std::string toString() const;
 
-    bool equivalent(const std::string&, int) const;
+    virtual bool equivalent(const std::string&, int) const;
+
     int effectivePort();
 
     // Server Channel Implementation methods
     void clientHello(const ClientChannelPtr&, const ByteSeq&);
-    void clientKeyAcknowledge(Long, Long);
+    void clientKeyAcknowledge(Long, Long, const ByteSeq&);
     void clientKeyRequest(Long);
     void clientGoodbye(Long);
 
@@ -68,7 +70,6 @@ private:
 
     void connectControlChannel(const std::string&, int);
     void createControlChannel(int);
-    void activateControlChannel();
 
     UdpTransceiver _udpTransceiver;
     ControlChannelPtr _controlChannel;
@@ -81,3 +82,4 @@ private:
 }
 
 #endif
+

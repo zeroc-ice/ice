@@ -25,7 +25,7 @@ CFG=Ice - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=xicl6.exe
+CPP=cl.exe
 MTL=midl.exe
 RSC=rc.exe
 
@@ -52,7 +52,7 @@ RSC=rc.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=xilink6.exe
+LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
 # ADD LINK32 ws2_32.lib libeay32.lib ssleay32.lib xerces-c_1.lib /nologo /dll /machine:I386 /out:"Release/ice001.dll"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
@@ -84,7 +84,7 @@ PostBuild_Cmds=copy Release\ice001.* ..\..\lib
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=xilink6.exe
+LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 ws2_32.lib libeay32.lib ssleay32.lib xerces-c_1D.lib /nologo /dll /debug /machine:I386 /out:"Debug/ice001d.dll" /pdbtype:sept
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
@@ -133,6 +133,14 @@ SOURCE=.\ConnectionFactory.cpp
 # Begin Source File
 
 SOURCE=.\Connector.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\CryptKey.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Cryptor.cpp
 # End Source File
 # Begin Source File
 
@@ -189,6 +197,10 @@ SOURCE=.\Logger.cpp
 # Begin Source File
 
 SOURCE=.\LoggerI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\MessageAuthenticator.cpp
 # End Source File
 # Begin Source File
 
@@ -348,6 +360,10 @@ SOURCE=.\StreamI.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\SUdpClient.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SUdpClientControlChannel.cpp
 # End Source File
 # Begin Source File
@@ -468,6 +484,22 @@ SOURCE=.\ConnectorF.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\CryptKey.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\CryptKeyF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Cryptor.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\CryptorF.h
+# End Source File
+# Begin Source File
+
 SOURCE=..\..\include\Ice\Current.h
 # End Source File
 # Begin Source File
@@ -553,6 +585,14 @@ SOURCE=..\..\include\Ice\LoggerF.h
 # Begin Source File
 
 SOURCE=.\LoggerI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MessageAuthenticator.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\MessageAuthenticatorF.h
 # End Source File
 # Begin Source File
 
@@ -792,7 +832,15 @@ SOURCE=.\StreamI.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\SUdpClient.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\SUdpClientControlChannel.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\SUdpClientF.h
 # End Source File
 # Begin Source File
 

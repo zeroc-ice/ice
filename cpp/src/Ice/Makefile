@@ -89,6 +89,10 @@ OBJS		= Initialize.o \
                   SslSystemOpenSSL.o \
                   SslTempCerts.o \
 		  UdpTransceiver.o \
+                  Cryptor.o \
+                  CryptKey.o \
+                  MessageAuthenticator.o \
+                  SUdpClient.o \
                   SUdpTransceiver.o \
                   SUdpControlChannel.o \
                   SUdpServerControlChannel.o \

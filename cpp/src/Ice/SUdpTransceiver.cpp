@@ -74,41 +74,6 @@ IceInternal::SUdpTransceiver::effectivePort()
     return _udpTransceiver.effectivePort();
 }
 
-void
-IceInternal::SUdpTransceiver::clientHello(const ClientChannelPtr& client, const ByteSeq& MACkey)
-{
-}
-
-void
-IceInternal::SUdpTransceiver::clientKeyAcknowledge(Long clientID, Long msgID)
-{
-}
-
-void
-IceInternal::SUdpTransceiver::clientKeyRequest(Long clientID)
-{
-}
-
-void
-IceInternal::SUdpTransceiver::clientGoodbye(Long clientID)
-{
-}
-
-void
-IceInternal::SUdpTransceiver::serverHello(Long clientID, const ByteSeq& key)
-{
-}
-
-void
-IceInternal::SUdpTransceiver::serverKeyChange(const ByteSeq& key)
-{
-}
-
-void
-IceInternal::SUdpTransceiver::serverGoodbye()
-{
-}
-
 IceInternal::SUdpTransceiver::SUdpTransceiver(const InstancePtr& instance, const string& host, int port) :
     _udpTransceiver(instance, host, port, "sudp"),
     _instance(instance),
@@ -127,19 +92,15 @@ IceInternal::SUdpTransceiver::SUdpTransceiver(const InstancePtr& instance, int p
 {
     // Build our control channel
     createControlChannel(port);
-
-    // Activate the control channel (begin taking connections)
-    activateControlChannel();
 }
 
 IceInternal::SUdpTransceiver::~SUdpTransceiver()
 {
-    // delete _controlChannel;
     _controlChannel->unsetTransceiver();
 }
 
 void
-IceInternal::SUdpTransceiver::connectControlChannel(const std::string& host, int port)
+IceInternal::SUdpTransceiver::connectControlChannel(const string& host, int port)
 {
     // Create a control channel, one for this Client SUdp connection
     _controlChannel = new ClientControlChannel(this, _instance, host, port);
@@ -150,10 +111,5 @@ IceInternal::SUdpTransceiver::createControlChannel(int port)
 {
     // Create a control channel, one for this Server SUdp connection
     _controlChannel = new ServerControlChannel(this, _instance, port);
-}
-
-void
-IceInternal::SUdpTransceiver::activateControlChannel()
-{
 }
 
