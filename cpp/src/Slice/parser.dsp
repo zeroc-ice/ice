@@ -155,6 +155,22 @@ SOURCE=.\Grammer.y
 
 !IF  "$(CFG)" == "parser - Win32 Release"
 
+# Begin Custom Build
+InputPath=.\Grammer.y
+
+BuildCmds= \
+	bison -dvt Grammer.y \
+	move Grammer.tab.c Grammer.cpp \
+	move Grammer.tab.h Grammer.h \
+	
+
+"Grammer.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Grammer.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
 !ELSEIF  "$(CFG)" == "parser - Win32 Debug"
 
 # Begin Custom Build
@@ -181,6 +197,15 @@ BuildCmds= \
 SOURCE=.\Scanner.l
 
 !IF  "$(CFG)" == "parser - Win32 Release"
+
+# Begin Custom Build
+InputPath=.\Scanner.l
+
+"Scanner.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+	flex Scanner.l 
+	move lex.yy.c Scanner.cpp 
+	
+# End Custom Build
 
 !ELSEIF  "$(CFG)" == "parser - Win32 Debug"
 
