@@ -45,6 +45,13 @@ LDFLAGS		= -L$(libdir) -L$(STLPORT)/lib -L$(JTC)/lib -L$(OPENSSL)/lib -L$(XERCES
 BASELIBS	= -lIceUtil -lstlport_gcc -lJTC -lpthread
 LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
 
+#CXX		= icc
+#CXXFLAGS	= -O3 -DNDEBUG
+#CPPFLAGS	= -I$(includedir) -I$(JTC)/include
+#LDFLAGS 	= -L$(libdir) -L$(JTC)/lib -L$(OPENSSL)/lib -L$(XERCESC)/lib
+#BASELIBS	= -lIceUtil -lJTC -lpthread
+#LIBS		= -lIce -lxerces-c1_5_2 -lssl -lcrypto $(BASELIBS)
+
 #
 # Don't change anything below this line!
 #

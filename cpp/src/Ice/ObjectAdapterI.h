@@ -16,7 +16,7 @@
 #include <Ice/InstanceF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <Ice/CommunicatorF.h>
-#include <Ice/CollectorF.h>
+#include <Ice/ConnectionFactoryF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
 #include <Ice/Exception.h>
@@ -63,7 +63,7 @@ private:
 
     ::IceInternal::InstancePtr _instance;
     std::string _name;
-    std::vector< IceInternal::CollectorFactoryPtr> _collectorFactories;
+    std::vector< IceInternal::IncomingConnectionFactoryPtr> _collectorFactories;
     ObjectDict _activeServantMap;
     ObjectDict::iterator _activeServantMapHint;
     std::map<std::string, ServantLocatorPtr> _locatorMap;

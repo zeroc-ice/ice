@@ -49,6 +49,7 @@ OBJS		= Initialize.o \
 		  IdentityUtil.o \
 		  Current.o \
 		  Connection.o \
+		  ConnectionFactory.o \
 		  LocalObject.o \
 		  Object.o \
 		  ProxyFactory.o \
@@ -56,8 +57,6 @@ OBJS		= Initialize.o \
 		  Outgoing.o \
 		  Incoming.o \
 		  Direct.o \
-		  Emitter.o \
-		  Collector.o \
 		  Network.o \
 	          ThreadPool.o \
 		  EventHandler.o \

@@ -19,7 +19,7 @@
 #include <Ice/Instance.h>
 #include <Ice/Logger.h>
 #include <Ice/TraceLevels.h>
-#include <Ice/Emitter.h>
+#include <Ice/ConnectionFactory.h>
 #include <Ice/Connection.h>
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
@@ -661,7 +661,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	throw NoEndpointException(__FILE__, __LINE__);
     }
 
-    EmitterFactoryPtr factory = __reference->instance->emitterFactory();
+    OutgoingConnectionFactoryPtr factory = __reference->instance->outgoingConnectionFactory();
     __connection = factory->create(endpoints);
     assert(__connection);
 }

@@ -95,7 +95,7 @@ IceInternal::UserExceptionFactoryManager::destroy()
 {
     JTCSyncT<JTCMutex> sync(*this);
     for_each(_factoryMap.begin(), _factoryMap.end(),
-	     secondVoidMemFun<string, UserExceptionFactory>(&UserExceptionFactory::destroy));
+	     Ice::secondVoidMemFun<string, UserExceptionFactory>(&UserExceptionFactory::destroy));
     _factoryMap.clear();
     _factoryMapHint = _factoryMap.end();
 }

@@ -19,7 +19,7 @@
 #include <Ice/TraceLevelsF.h>
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ThreadPoolF.h>
-#include <Ice/EmitterF.h>
+#include <Ice/ConnectionFactoryF.h>
 #include <Ice/ObjectFactoryManagerF.h>
 #include <Ice/UserExceptionFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
@@ -45,7 +45,7 @@ public:
     void logger(const ::Ice::LoggerPtr&);
     TraceLevelsPtr traceLevels();
     ProxyFactoryPtr proxyFactory();
-    EmitterFactoryPtr emitterFactory();
+    OutgoingConnectionFactoryPtr outgoingConnectionFactory();
     ObjectFactoryManagerPtr servantFactoryManager();
     UserExceptionFactoryManagerPtr userExceptionFactoryManager();
     ObjectAdapterFactoryPtr objectAdapterFactory();
@@ -65,7 +65,7 @@ private:
     ::Ice::LoggerPtr _logger;
     TraceLevelsPtr _traceLevels;
     ProxyFactoryPtr _proxyFactory;
-    EmitterFactoryPtr _emitterFactory;
+    OutgoingConnectionFactoryPtr _outgoingConnectionFactory;
     ObjectFactoryManagerPtr _servantFactoryManager;
     UserExceptionFactoryManagerPtr _userExceptionFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;

@@ -116,23 +116,29 @@ private:
     //
     const InstancePtr& _instance;
 
-    struct Encaps
+    struct ReadEncaps
     {
 	Container::size_type start;
 	Ice::Byte encoding;
-	std::vector<std::string> stringsRead;
-#ifdef ICE_ACTIVE_STRING_INDIRECTION
-	std::map<std::string, Ice::Int> stringsWritten;
-#endif
-	std::vector<std::wstring> wstringsRead;
-#ifdef ICE_ACTIVE_STRING_INDIRECTION
-	std::map<std::wstring, Ice::Int> wstringsWritten;
-#endif
-	std::vector<Ice::ObjectPtr> objectsRead;
-	std::map<Ice::ObjectPtr, Ice::Int> objectsWritten;
+	std::vector<const char*> stringsRead;
+	std::vector<const wchar_t*> wstringsRead;
+	std::vector<Ice::Object*> objectsRead;
     };
 
-    std::vector<Encaps> _encapsStack;
+    struct WriteEncaps
+    {
+	Container::size_type start;
+#ifdef ICE_ACTIVE_STRING_INDIRECTION
+	std::map<const char*, Ice::Int> stringsWritten;
+	std::map<const wchar_t*, Ice::Int> wstringsWritten;
+#endif
+	std::map<Ice::Object*, Ice::Int> objectsWritten;
+    };
+
+    std::vector<ReadEncaps> _readEncapsStack;
+    std::vector<WriteEncaps> _writeEncapsStack;
+    ReadEncaps* _currentReadEncaps;
+    WriteEncaps* _currentWriteEncaps;
 };
 
 }

@@ -15,7 +15,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/Reference.h>
 #include <Ice/Endpoint.h>
-#include <Ice/Collector.h>
+#include <Ice/ConnectionFactory.h>
 #include <Ice/Exception.h>
 #include <Ice/Properties.h>
 #include <Ice/Functional.h>
@@ -52,7 +52,7 @@ Ice::ObjectAdapterI::activate()
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    for_each(_collectorFactories.begin(), _collectorFactories.end(), Ice::voidMemFun(&CollectorFactory::activate));
+    for_each(_collectorFactories.begin(), _collectorFactories.end(), Ice::voidMemFun(&IncomingConnectionFactory::activate));
 }
 
 void
@@ -65,7 +65,7 @@ Ice::ObjectAdapterI::hold()
 	throw ObjectAdapterDeactivatedException(__FILE__, __LINE__);
     }
 
-    for_each(_collectorFactories.begin(), _collectorFactories.end(), Ice::voidMemFun(&CollectorFactory::hold));
+    for_each(_collectorFactories.begin(), _collectorFactories.end(), Ice::voidMemFun(&IncomingConnectionFactory::hold));
 }
 
 void
@@ -82,14 +82,14 @@ Ice::ObjectAdapterI::deactivate()
 	return;
     }
 
-    for_each(_collectorFactories.begin(), _collectorFactories.end(), Ice::voidMemFun(&CollectorFactory::destroy));
+    for_each(_collectorFactories.begin(), _collectorFactories.end(), Ice::voidMemFun(&IncomingConnectionFactory::destroy));
     _collectorFactories.clear();
 
     _activeServantMap.clear();
     _activeServantMapHint = _activeServantMap.end();
 
     for_each(_locatorMap.begin(), _locatorMap.end(),
-	     secondVoidMemFun<string, ServantLocator>(&ServantLocator::deactivate));
+	     Ice::secondVoidMemFun<string, ServantLocator>(&ServantLocator::deactivate));
     _locatorMap.clear();
     _locatorMapHint = _locatorMap.end();
 }
@@ -316,7 +316,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(const InstancePtr& instance, const string& n
 	    // number if a zero port number is given.
 	    //
 	    EndpointPtr endp = Endpoint::endpointFromString(instance, es);
-	    _collectorFactories.push_back(new CollectorFactory(instance, endp, this));
+	    _collectorFactories.push_back(new IncomingConnectionFactory(instance, endp, this));
 	    
 	    if (end == s.length())
 	    {
@@ -362,7 +362,7 @@ Ice::ObjectAdapterI::newProxy(const Identity& ident)
 {
     vector<EndpointPtr> endpoints;
     transform(_collectorFactories.begin(), _collectorFactories.end(), back_inserter(endpoints),
-	      Ice::constMemFun(&CollectorFactory::endpoint));
+	      Ice::constMemFun(&IncomingConnectionFactory::endpoint));
     
     ReferencePtr reference = new Reference(_instance, ident, "", Reference::ModeTwoway, false, endpoints, endpoints);
     return _instance->proxyFactory()->referenceToProxy(reference);
@@ -375,7 +375,7 @@ Ice::ObjectAdapterI::isLocal(const ObjectPrx& proxy)
     vector<EndpointPtr>::const_iterator p;
     for (p = ref->endpoints.begin(); p != ref->endpoints.end(); ++p)
     {
-	vector<CollectorFactoryPtr>::const_iterator q;
+	vector<IncomingConnectionFactoryPtr>::const_iterator q;
 	for (q = _collectorFactories.begin(); q != _collectorFactories.end(); ++q)
 	{
 	    if ((*q)->equivalent(*p))

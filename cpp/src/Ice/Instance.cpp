@@ -12,7 +12,7 @@
 #include <Ice/TraceLevels.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
-#include <Ice/Emitter.h>
+#include <Ice/ConnectionFactory.h>
 #include <Ice/ObjectFactoryManager.h>
 #include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
@@ -107,11 +107,11 @@ IceInternal::Instance::proxyFactory()
     return _proxyFactory;
 }
 
-EmitterFactoryPtr
-IceInternal::Instance::emitterFactory()
+OutgoingConnectionFactoryPtr
+IceInternal::Instance::outgoingConnectionFactory()
 {
     JTCSyncT<JTCMutex> sync(*this);
-    return _emitterFactory;
+    return _outgoingConnectionFactory;
 }
 
 ObjectFactoryManagerPtr
@@ -268,7 +268,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 #endif
 	_traceLevels = new TraceLevels(_properties);
 	_proxyFactory = new ProxyFactory(this);
-	_emitterFactory = new EmitterFactory(this);
+	_outgoingConnectionFactory = new OutgoingConnectionFactory(this);
 	_servantFactoryManager = new ObjectFactoryManager();
 	_userExceptionFactoryManager = new UserExceptionFactoryManager();
 	_objectAdapterFactory = new ObjectAdapterFactory(this);
@@ -298,7 +298,7 @@ IceInternal::Instance::~Instance()
     assert(!_logger);
     assert(!_traceLevels);
     assert(!_proxyFactory);
-    assert(!_emitterFactory);
+    assert(!_outgoingConnectionFactory);
     assert(!_servantFactoryManager);
     assert(!_userExceptionFactoryManager);
     assert(!_objectAdapterFactory);
@@ -386,10 +386,10 @@ IceInternal::Instance::destroy()
 	_proxyFactory = 0;
     }
 
-    if(_emitterFactory)
+    if(_outgoingConnectionFactory)
     {
-	_emitterFactory->destroy();
-	_emitterFactory = 0;
+	_outgoingConnectionFactory->destroy();
+	_outgoingConnectionFactory = 0;
     }
 
     if(_servantFactoryManager)

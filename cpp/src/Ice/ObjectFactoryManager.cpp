@@ -95,7 +95,7 @@ IceInternal::ObjectFactoryManager::destroy()
 {
     JTCSyncT<JTCMutex> sync(*this);
     for_each(_factoryMap.begin(), _factoryMap.end(),
-	     secondVoidMemFun<string, ObjectFactory>(&ObjectFactory::destroy));
+	     Ice::secondVoidMemFun<string, ObjectFactory>(&ObjectFactory::destroy));
     _factoryMap.clear();
     _factoryMapHint = _factoryMap.end();
 }

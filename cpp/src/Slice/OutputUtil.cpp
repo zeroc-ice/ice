@@ -212,29 +212,10 @@ Slice::Output::operator!() const
 }
 
 Output&
-Slice::operator<<(Output& o, const NextLine&)
+Slice::operator<<(Output& out, ios_base& (*val)(ios_base&))
 {
-    o.nl();
-    return o;
-}
-
-Output&
-Slice::operator<<(Output& o, const StartBlock&)
-{
-    o.sb();
-    return o;
-}
-
-Output&
-Slice::operator<<(Output& o, const EndBlock&)
-{
-    o.eb();
-    return o;
-}
-
-Output&
-Slice::operator<<(Output& o, const Separator&)
-{
-    o.sp();
-    return o;
+    ostringstream s;
+    s << val;
+    out.print(s.str().c_str());
+    return out;
 }

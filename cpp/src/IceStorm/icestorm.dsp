@@ -25,7 +25,7 @@ CFG=IceStorm - Win32 Debug
 # PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
-CPP=cl.exe
+CPP=xicl6.exe
 MTL=midl.exe
 RSC=rc.exe
 
@@ -52,10 +52,10 @@ RSC=rc.exe
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=link.exe
+LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
 # ADD LINK32 ws2_32.lib jtc.lib /nologo /dll /machine:I386 /out:"Release/icestorm001.dll" /libpath:"../../../lib"
-# SUBTRACT LINK32 /pdb:none
+# SUBTRACT LINK32 /pdb:none /debug
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
 PostBuild_Cmds=copy Release\icestorm001.* ..\..\lib
@@ -84,7 +84,7 @@ PostBuild_Cmds=copy Release\icestorm001.* ..\..\lib
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-LINK32=link.exe
+LINK32=xilink6.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
 # ADD LINK32 ws2_32.lib jtcd.lib /nologo /dll /debug /machine:I386 /out:"Debug/icestorm001d.dll" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none

@@ -14,6 +14,9 @@
 using namespace std;
 using namespace Slice;
 
+extern FILE* yyin;
+extern int yydebug;
+
 namespace Slice
 {
 
@@ -2368,7 +2371,6 @@ Slice::Unit::includeFiles()
 int
 Slice::Unit::parse(FILE* file, bool debug)
 {
-    extern int yydebug;
     yydebug = debug ? 1 : 0;
 
     assert(!Slice::unit);
@@ -2381,7 +2383,6 @@ Slice::Unit::parse(FILE* file, bool debug)
     _topLevelFile = "";
     pushContainer(this);
 
-    extern FILE* yyin;
     yyin = file;
     int status = yyparse();
     if (_errors)

@@ -27,7 +27,7 @@ IceInternal::ObjectAdapterFactory::shutdown()
 {
     JTCSyncT<JTCMutex> sync(*this);
     for_each(_adapters.begin(), _adapters.end(),
-	     secondVoidMemFun<string, ObjectAdapter>(&ObjectAdapter::deactivate));
+	     Ice::secondVoidMemFun<string, ObjectAdapter>(&ObjectAdapter::deactivate));
     _adapters.clear();
 }
 

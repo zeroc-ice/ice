@@ -87,7 +87,8 @@ private:
 };
 
 template<typename T>
-Output& operator<<(Output& out, const T& val)
+Output&
+operator<<(Output& out, const T& val)
 {
     std::ostringstream s;
     s << val;
@@ -95,19 +96,39 @@ Output& operator<<(Output& out, const T& val)
     return out;
 }
 
-inline
-Output& operator<<(Output& out, std::ios_base& (*val)(std::ios_base&))
+template<>
+inline Output&
+operator<<(Output& o, const NextLine&)
 {
-    std::ostringstream s;
-    s << val;
-    out.print(s.str().c_str());
-    return out;
+    o.nl();
+    return o;
 }
 
-SLICE_API Output& operator<<(Output&, const NextLine&);
-SLICE_API Output& operator<<(Output&, const StartBlock&);
-SLICE_API Output& operator<<(Output&, const EndBlock&);
-SLICE_API Output& operator<<(Output&, const Separator&);
+template<>
+inline Output&
+operator<<(Output& o, const StartBlock&)
+{
+    o.sb();
+    return o;
+}
+
+template<>
+inline Output&
+operator<<(Output& o, const EndBlock&)
+{
+    o.eb();
+    return o;
+}
+
+template<>
+inline Output&
+operator<<(Output& o, const Separator&)
+{
+    o.sp();
+    return o;
+}
+
+SLICE_API Output& operator<<(Output&, std::ios_base& (*)(std::ios_base&));
 
 }
 
