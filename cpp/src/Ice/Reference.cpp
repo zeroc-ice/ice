@@ -372,8 +372,8 @@ public:
     }
 };
 
-IceInternal::Reference::Reference(const InstancePtr& inst, const Ice::Identity& ident, const Ice::Context& ctx,
-                                  const std::string& fs, Mode md, bool sec)
+IceInternal::Reference::Reference(const InstancePtr& inst, const Identity& ident, const Context& ctx,
+                                  const string& fs, Mode md, bool sec)
     : _instance(inst),
       _mode(md),
       _identity(ident),
@@ -398,9 +398,9 @@ IceInternal::Reference::Reference(const Reference& r)
 void IceInternal::incRef(IceInternal::FixedReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::FixedReference* p) { p->__decRef(); }
 
-IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const Ice::Identity& ident,
-						  const Ice::Context& ctx, const std::string& fs, Mode md,
-						  bool sec, const vector<Ice::ConnectionIPtr>& fixedConns)
+IceInternal::FixedReference::FixedReference(const InstancePtr& inst, const Identity& ident,
+						  const Context& ctx, const string& fs, Mode md,
+						  bool sec, const vector<ConnectionIPtr>& fixedConns)
     : Reference(inst, ident, ctx, fs, md, sec),
       _fixedConnections(fixedConns)
 {
@@ -538,7 +538,7 @@ IceInternal::FixedReference::FixedReference(const FixedReference& r)
 void IceInternal::incRef(IceInternal::RoutableReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::RoutableReference* p) { p->__decRef(); }
 
-std::vector<EndpointPtr>
+vector<EndpointPtr>
 IceInternal::RoutableReference::getRoutedEndpoints() const
 {
     if(_routerInfo)
@@ -647,8 +647,8 @@ IceInternal::RoutableReference::operator<(const Reference& r) const
     return false;
 }
 
-IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Ice::Identity& ident,
-						  const Ice::Context& ctx, const std::string& fs, Mode md,
+IceInternal::RoutableReference::RoutableReference(const InstancePtr& inst, const Identity& ident,
+						  const Context& ctx, const string& fs, Mode md,
 						  bool sec, const RouterInfoPtr& rtrInfo, bool collocationOpt)
     : Reference(inst, ident, ctx, fs, md, sec),
       _routerInfo(rtrInfo),
@@ -666,9 +666,9 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r)
 void IceInternal::incRef(IceInternal::DirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::DirectReference* p) { p->__decRef(); }
 
-IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Ice::Identity& ident,
-					      const Ice::Context& ctx, const std::string& fs, Mode md,
-					      bool sec, const std::vector<EndpointPtr>& endpts,
+IceInternal::DirectReference::DirectReference(const InstancePtr& inst, const Identity& ident,
+					      const Context& ctx, const string& fs, Mode md,
+					      bool sec, const vector<EndpointPtr>& endpts,
 					      const RouterInfoPtr& rtrInfo, bool collocationOpt)
     : RoutableReference(inst, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
       _endpoints(endpts)
@@ -738,11 +738,11 @@ IceInternal::DirectReference::streamWrite(BasicStream* s) const
 {
     RoutableReference::streamWrite(s);
 
-    Ice::Int sz = static_cast<Ice::Int>(endpoints.size());
+    Int sz = static_cast<Int>(_endpoints.size());
     s->writeSize(sz);
     if(sz)
     {
-	for(vector<EndpointPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+	for(vector<EndpointPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
 	{
 	    (*p)->streamWrite(s);
 	}
@@ -864,8 +864,8 @@ IceInternal::DirectReference::DirectReference(const DirectReference& r)
 void IceInternal::incRef(IceInternal::IndirectReference* p) { p->__incRef(); }
 void IceInternal::decRef(IceInternal::IndirectReference* p) { p->__decRef(); }
 
-IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Ice::Identity& ident,
-                                                  const Ice::Context& ctx, const std::string& fs, Mode md,
+IceInternal::IndirectReference::IndirectReference(const InstancePtr& inst, const Identity& ident,
+                                                  const Context& ctx, const string& fs, Mode md,
 						  bool sec, const string& adptid, const RouterInfoPtr& rtrInfo,
 						  const LocatorInfoPtr& locInfo, bool collocationOpt)
     : RoutableReference(inst, ident, ctx, fs, md, sec, rtrInfo, collocationOpt),
@@ -1133,7 +1133,7 @@ IceInternal::filterEndpoints(const vector<EndpointPtr>& allEndpoints, Reference:
 	    // Filter out non-datagram endpoints.
 	    //
             endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-                                      not1(Ice::constMemFun(&Endpoint::datagram))),
+				      not1(Ice::constMemFun(&Endpoint::datagram))),
                             endpoints.end());
 	    break;
 	}
