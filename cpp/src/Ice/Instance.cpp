@@ -19,6 +19,7 @@
 #include <Ice/Exception.h>
 #include <Ice/Properties.h>
 #include <Ice/LoggerI.h>
+#include <Ice/Network.h>
 
 #ifndef WIN32
 #   include <Ice/SysLoggerI.h>
@@ -149,6 +150,14 @@ IceInternal::Instance::defaultProtocol()
     return _defaultProtocol;
 }
 
+string
+IceInternal::Instance::defaultHost()
+{
+    // No synchronization necessary
+    // JTCSyncT<JTCMutex> sync(*this);
+    return _defaultHost;
+}
+
 IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const PropertiesPtr& properties) :
     _communicator(communicator),
     _properties(properties)
@@ -268,6 +277,11 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	if (_defaultProtocol.empty())
 	{
 	    _defaultProtocol = "tcp";
+	}
+	_defaultHost = _properties->getProperty("Ice.DefaultHost");
+	if (_defaultHost.empty())
+	{
+	    _defaultHost = getLocalHost(true);
 	}
     }
     catch(...)

@@ -11,23 +11,48 @@
 
 import sys, os
 
-protocol = "tcp"
+#
+# Set protocol to "ssl" in case you want to run the tests with the SSL protocol. Otherwise TCP is used.
+#
 
-serverOptions = \
-" --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.WarnAboutServerExceptions --Ice.ServerIdleTime=30" + \
-" --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=server_sslconfig.xml" + \
-" --Ice.Protocol=" + protocol
+protocol = "ssl"
+#protocol = ""
 
-clientOptions = \
-" --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=client_sslconfig.xml" + \
-" --Ice.Protocol=" + protocol
+#
+# Set the host to the hostname the server is running. If not set, "localhost" is used.
+#
 
-clientServerOptions = \
-" --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.WarnAboutServerExceptions --Ice.ServerIdleTime=30" + \
-" --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=sslconfig.xml --Ice.Protocol=" + protocol
+#host = "someotherhost"
+host = ""
 
-collocatedOptions = \
-" --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=sslconfig.xml --Ice.Protocol=" + protocol
+#
+# Don't change anything below this line
+#
+
+if protocol == "ssl":
+    clientProtocol = " --Ice.DefaultProtocol=ssl" + \
+    " --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=client_sslconfig.xml"
+    serverProtocol = " --Ice.DefaultProtocol=ssl" + \
+    " --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=server_sslconfig.xml"
+    clientServerProtocol = " --Ice.DefaultProtocol=ssl" + \
+    " --Ice.Security.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Security.Ssl.Config=sslconfig.xml"
+else:
+    clientProtocol = ""
+    serverProtocol = ""
+    clientServerProtocol = ""
+
+if host != "":
+    defaultHost = " --Ice.DefaultHost=" + host
+else:
+    defaultHost = ""
+
+commonServerOptions = \
+" --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.WarnAboutServerExceptions --Ice.ServerIdleTime=30"
+
+serverOptions = commonServerOptions + serverProtocol
+clientOptions = clientProtocol + defaultHost
+clientServerOptions = commonServerOptions + clientServerProtocol + defaultHost
+collocatedOptions = clientServerProtocol
 
 serverPids = []
 

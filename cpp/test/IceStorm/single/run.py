@@ -40,7 +40,7 @@ TestUtil.cleanDbDir(dbdir)
 # TODO: --dbdir is a hack
 #
 command = iceStorm + updatedClientServerOptions + \
-          r' --Ice.Adapter.TopicManager.Endpoints="tcp -p 12345"' + \
+          r' --Ice.Adapter.TopicManager.Endpoints="default -p 12345"' + \
           r' --dbdir ' + os.path.join(testdir, "db")
 
 print "starting icestorm...",

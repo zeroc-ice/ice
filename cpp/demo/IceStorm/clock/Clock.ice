@@ -13,7 +13,7 @@
 
 interface Clock
 {
-	void tick();
+    void tick();
 };
 
 #endif

@@ -145,14 +145,7 @@ Client::run(int argc, char* argv[])
 	return EXIT_FAILURE;
     }
 
-    string protocol = properties->getProperty("Ice.Protocol");
-    string secureFlag;
-    if (!protocol.compare("ssl"))
-    {
-        secureFlag = " -s ";
-    }
-
-    Ice::ObjectPrx base = communicator()->stringToProxy("admin" + secureFlag + ":" + adminEndpoints);
+    Ice::ObjectPrx base = communicator()->stringToProxy("admin:" + adminEndpoints);
     AdminPrx admin = AdminPrx::checkedCast(base);
     if (!admin)
     {

@@ -17,25 +17,8 @@ using namespace std;
 InitialPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
-
-    string protocol = properties->getProperty("Ice.Protocol");
-
-    if (protocol.empty())
-    {
-        protocol = "tcp";
-    }
-
-    string secureFlag;
-
-    if (!protocol.compare("ssl"))
-    {
-        secureFlag = " -s ";
-    }
-
-    string ref = "initial" + secureFlag + ":" + protocol + " -p 12345 -t 2000";
-
     cout << "testing stringToProxy... " << flush;
+    string ref = "initial:default -p 12345 -t 2000";
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;

@@ -340,8 +340,7 @@ IceInternal::TcpEndpoint::TcpEndpoint(const InstancePtr& instance, const string&
 
     if (_host.empty())
     {
-	// TODO: Whether numeric or not should be configurable
-	const_cast<string&>(_host) = getLocalHost(true);
+	const_cast<string&>(_host) = _instance->defaultHost();
     }
 }
 
@@ -372,19 +371,7 @@ string
 IceInternal::TcpEndpoint::toString() const
 {
     ostringstream s;
-    s << "tcp";
-    if (_host != getLocalHost(true)) // TODO: Whether numeric or not should be configurable
-    {
-	s << " -h " << _host;
-    }
-    if (_port != 0)
-    {
-	s << " -p " << _port;
-    }
-    if (_timeout != -1)
-    {
-	s << " -t " << _timeout;
-    }
+    s << "tcp -h " << _host << " -p " << _port << " -t " << _timeout;
     return s.str();
 }
 
@@ -655,8 +642,7 @@ IceInternal::SslEndpoint::SslEndpoint(const InstancePtr& instance, const string&
 
     if (_host.empty())
     {
-	// TODO: Whether numeric or not should be configurable
-	const_cast<string&>(_host) = getLocalHost(true);
+	const_cast<string&>(_host) = _instance->defaultHost();
     }
 }
 
@@ -687,19 +673,7 @@ string
 IceInternal::SslEndpoint::toString() const
 {
     ostringstream s;
-    s << "ssl";
-    if (_host != getLocalHost(true)) // TODO: Whether numeric or not should be configurable
-    {
-	s << " -h " << _host;
-    }
-    if (_port != 0)
-    {
-	s << " -p " << _port;
-    }
-    if (_timeout != -1)
-    {
-	s << " -t " << _timeout;
-    }
+    s << "ssl -h " << _host << " -p " << _port << " -t " << _timeout;
     return s.str();
 }
 
@@ -962,8 +936,7 @@ IceInternal::UdpEndpoint::UdpEndpoint(const InstancePtr& instance, const string&
 
     if (_host.empty())
     {
-	// TODO: Whether numeric or not should be configurable
-	const_cast<string&>(_host) = getLocalHost(true);
+	const_cast<string&>(_host) = _instance->defaultHost();
     }
 }
 
@@ -991,15 +964,7 @@ string
 IceInternal::UdpEndpoint::toString() const
 {
     ostringstream s;
-    s << "udp";
-    if (_host != getLocalHost(true)) // TODO: Whether numeric or not should be configurable
-    {
-	s << " -h " << _host;
-    }
-    if (_port != 0)
-    {
-	s << " -p " << _port;
-    }
+    s << "udp -h " << _host << " -p " << _port;
     return s.str();
 }
 

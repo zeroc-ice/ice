@@ -49,27 +49,7 @@ ThrowerPrx
 allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
 {
     cout << "testing stringToProxy... " << flush;
-    string ref;
-    
-    Ice::PropertiesPtr properties = communicator->getProperties();
-
-    string protocol = properties->getProperty("Ice.Protocol");
-    string secure;
-
-    if (protocol.empty())
-    {
-        protocol = "tcp";
-    }
-
-    if (protocol.compare("ssl") == 0)
-    {
-        secure = " -s ";
-    }
-
-    string endpts = protocol + " -p 12345 -t 2000";
-
-    ref = "thrower" + secure + ":" + endpts;
-
+    string ref = "thrower:default -p 12345 -t 2000";
     Ice::ObjectPrx base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;

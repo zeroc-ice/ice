@@ -490,6 +490,45 @@ cross-reference TODO: Move to some place more appropriate
 </section>
 
 <!-- ********************************************************************** -->
+<section><title>Protocol</title>
+<!-- ********************************************************************** -->
+
+<section><title>Ice.DefaultProtocol</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.DefaultProtocol=<replaceable>protocol</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+Sets the protocol that is being used if an endpoint uses
+<literal>default</literal> as protocol specification. The default
+value is <literal>tcp</literal>.
+</para>
+</section>
+</section>
+
+<section><title>Ice.DefaultHost</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.DefaultHost=<replaceable>host</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+If an endpoint is specified without a host name (i.e., without a
+<literal>-h <replaceable>host</replaceable></literal> option), the
+<replaceable>host</replaceable> value from this property is being used
+instead. The default value is the local host name.
+</para>
+</section>
+</section>
+
+</section>
+
+<!-- ********************************************************************** -->
 <section><title>Miscellaneous</title>
 <!-- ********************************************************************** -->
 
@@ -621,4 +660,3 @@ dispatching operation calls invoked by clients.
 </section>
 
 </section>
-

@@ -90,7 +90,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	return EXIT_FAILURE;
     }
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ClockAdapter", "tcp");
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ClockAdapter", "default");
     Ice::ObjectPtr single = new SingleI(communicator);
     Ice::ObjectPrx object = adapter->add(single, Ice::stringToIdentity("events#single"));
 

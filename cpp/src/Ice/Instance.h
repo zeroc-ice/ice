@@ -51,6 +51,7 @@ public:
     ObjectAdapterFactoryPtr objectAdapterFactory();
     ThreadPoolPtr threadPool();
     std::string defaultProtocol();
+    std::string defaultHost();
     
 private:
 
@@ -70,6 +71,7 @@ private:
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ThreadPoolPtr _threadPool;
     std::string _defaultProtocol;
+    std::string _defaultHost;
 
     //
     // Global state management

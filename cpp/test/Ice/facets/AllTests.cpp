@@ -17,24 +17,8 @@ using namespace std;
 GPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
-
-    string protocol = properties->getProperty("Ice.Protocol");
-
-    if (protocol.empty())
-    {
-        protocol = "tcp";
-    }
-
-    string secure;
-
-    if (protocol.compare("ssl") == 0)
-    {
-        secure = " -s ";
-    }
-
     cout << "testing stringToProxy... " << flush;
-    string ref = "d" + secure + ":" + protocol + " -p 12345 -t 2000";
+    string ref = "d:default -p 12345 -t 2000";
     Ice::ObjectPrx db = communicator->stringToProxy(ref);
     test(db);
     cout << "ok" << endl;
