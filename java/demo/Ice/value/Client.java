@@ -122,7 +122,7 @@ public class Client
         printerProxy.value.printBackwards();
 
         System.out.println();
-        System.out.println("Next, we transfer a derived object from the server as base");
+        System.out.println("Next, we transfer a derived object from the server as a base");
         System.out.println("object. Since we haven't yet installed a factory for the derived");
         System.out.println("class, the derived class (DerivedPrinter) is sliced");
         System.out.println("to its base class (Printer).");
@@ -135,7 +135,7 @@ public class Client
 
         System.out.println();
         System.out.println("Now we install a factory for the derived class, and try again.");
-        System.out.println("Because we receive the derived object as base object,");
+        System.out.println("Because we receive the derived object as a base object,");
 	System.out.println("we need to do a class cast to get from the base to the derived object.");
         System.out.println("[press enter]");
         readline(in);
