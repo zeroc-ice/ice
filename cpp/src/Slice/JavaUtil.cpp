@@ -1401,9 +1401,10 @@ Slice::JavaGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
 
     StringList localMetaData = cont->getMetaData();
 
+    StringList::const_iterator p;
     static const string prefix = "java:";
 
-    for(StringList::const_iterator p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
+    for(p = globalMetaData.begin(); p != globalMetaData.end(); ++p)
     {
         string s = *p;
         if(_history.count(s) == 0)
@@ -1420,7 +1421,7 @@ Slice::JavaGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
         }
     }
 
-    for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    for(p = localMetaData.begin(); p != localMetaData.end(); ++p)
     {
         string s = *p;
         if(_history.count(s) == 0)
