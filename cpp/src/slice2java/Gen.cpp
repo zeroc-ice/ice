@@ -1677,7 +1677,7 @@ Slice::Gen::HolderVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDeclPtr decl = p->declaration();
     writeHolder(decl);
 
-    if (!p->isInterface() && !p->isLocal())
+    if (!p->isLocal())
     {
         string name = fixKwd(p->name());
         string absolute = getAbsolute(p->scoped());
