@@ -648,6 +648,14 @@ Identity.__ge__ = Identity__ge__
 del Identity__ge__
 
 #
+# Annotate Ice::SyscallException.
+#
+def SyscallException__str__(self):
+    return "Ice.SyscallException:\n" + os.strerror(self.error)
+SyscallException.__str__ = SyscallException__str__
+del SyscallException__str__
+
+#
 # Proxy comparison functions.
 #
 def proxyIdentityEqual(lhs, rhs):
