@@ -21,7 +21,9 @@ IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter) :
     _adapter(adapter),
     _logger(adapter->getCommunicator()->getLogger())
 {
-    _traceLevel = adapter->getCommunicator()->getProperties()->getPropertyAsInt("IcePatch.Trace.Files");
+    PropertiesPtr properties = adapter->getCommunicator()->getProperties();
+    _traceLevel = properties->getPropertyAsInt("IcePatch.Trace.Files");
+    _busyTimeout = properties->getPropertyAsIntWithDefault("IcePatch.BusyTimeout", 10);
 }
 
 IcePatch::DirectoryI::DirectoryI(const ObjectAdapterPtr& adapter) :
@@ -44,8 +46,9 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
 {
     StringSeq filteredPaths;
 
+    try
     {
-	IceUtil::RWRecMutex::RLock sync(_globalMutex);
+	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout * 1000);
 	string path = identityToPath(current.identity);
 	StringSeq paths = readDirectory(path);
 	filteredPaths.reserve(paths.size() / 3);
@@ -57,7 +60,7 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
 		    equal_range(paths.begin(), paths.end(), removeSuffix(*p));
 		if (r.first == r.second)
 		{
-		    sync.upgrade();
+		    sync.timedUpgrade(_busyTimeout * 1000);
 		    StringSeq paths2 = readDirectory(path);
 		    pair<StringSeq::const_iterator, StringSeq::const_iterator> r2 =
 			equal_range(paths2.begin(), paths2.end(), removeSuffix(*p));
@@ -78,6 +81,10 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
 		filteredPaths.push_back(*p);
 	    }
 	}
+    }
+    catch (const IceUtil::LockedException&)
+    {
+	throw BusyException();
     }
 
     //
@@ -112,88 +119,109 @@ IcePatch::RegularI::RegularI(const ObjectAdapterPtr& adapter) :
 FileDescPtr
 IcePatch::RegularI::describe(const Ice::Current& current)
 {
-    IceUtil::RWRecMutex::RLock sync(_globalMutex);
-    string path = identityToPath(current.identity);
-
-    FileInfo info = getFileInfo(path, true);
-    FileInfo infoMD5 = getFileInfo(path + ".md5", false);
-    if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
+    try
     {
-	sync.upgrade();
-	infoMD5 = getFileInfo(path + ".md5", false);
+	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout * 1000);
+	string path = identityToPath(current.identity);
+	
+	FileInfo info = getFileInfo(path, true);
+	FileInfo infoMD5 = getFileInfo(path + ".md5", false);
 	if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
 	{
-	    createMD5(path);
-
-	    if (_traceLevel > 0)
+	    sync.timedUpgrade(_busyTimeout * 1000);
+	    infoMD5 = getFileInfo(path + ".md5", false);
+	    if (infoMD5.type != FileTypeRegular || infoMD5.time < info.time)
 	    {
-		Trace out(_logger, "IcePatch");
-		out << "created .md5 file for `" << path << "'";
+		createMD5(path);
+		
+		if (_traceLevel > 0)
+		{
+		    Trace out(_logger, "IcePatch");
+		    out << "created .md5 file for `" << path << "'";
+		}
 	    }
 	}
+	
+	RegularDescPtr desc = new RegularDesc;
+	desc->regular = RegularPrx::uncheckedCast(_adapter->createProxy(current.identity));
+	desc->md5 = getMD5(path);
+	return desc;
     }
-
-    RegularDescPtr desc = new RegularDesc;
-    desc->regular = RegularPrx::uncheckedCast(_adapter->createProxy(current.identity));
-    desc->md5 = getMD5(path);
-    return desc;
+    catch (const IceUtil::LockedException&)
+    {
+	throw BusyException();
+    }
 }
 
 Int
 IcePatch::RegularI::getBZ2Size(const Ice::Current& current)
 {
-    IceUtil::RWRecMutex::RLock sync(_globalMutex);
-    string path = identityToPath(current.identity);
-
-    FileInfo info = getFileInfo(path, true);
-    FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
-    if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+    try
     {
-	sync.upgrade();
-	infoBZ2 = getFileInfo(path + ".bz2", false);
+	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout * 1000);
+	string path = identityToPath(current.identity);
+	
+	FileInfo info = getFileInfo(path, true);
+	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
 	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
 	{
-	    createBZ2(path);
-
-	    if (_traceLevel > 0)
+	    sync.timedUpgrade(_busyTimeout * 1000);
+	    infoBZ2 = getFileInfo(path + ".bz2", false);
+	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
 	    {
-		Trace out(_logger, "IcePatch");
-		out << "created .bz2 file for `" << path << "'";
+		createBZ2(path);
+		
+		if (_traceLevel > 0)
+		{
+		    Trace out(_logger, "IcePatch");
+		    out << "created .bz2 file for `" << path << "'";
+		}
+		
+		// Get the .bz2 file info again, so that we can return the
+		// size below. This time the .bz2 file must exist,
+		// otherwise an exception is raised.
+		infoBZ2 = getFileInfo(path + ".bz2", true);
 	    }
-
-	    // Get the .bz2 file info again, so that we can return the
-	    // size below. This time the .bz2 file must exist,
-	    // otherwise an exception is raised.
-	    infoBZ2 = getFileInfo(path + ".bz2", true);
 	}
+	
+	return infoBZ2.size;
     }
-
-    return infoBZ2.size;
+    catch (const IceUtil::LockedException&)
+    {
+	throw BusyException();
+    }
 }
 
 ByteSeq
 IcePatch::RegularI::getBZ2(Ice::Int pos, Ice::Int num, const Ice::Current& current)
 {
-    IceUtil::RWRecMutex::RLock sync(_globalMutex);
-    string path = identityToPath(current.identity);
-
-    FileInfo info = getFileInfo(path, true);
-    FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
-    if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
+    try
     {
-	sync.upgrade();
-	infoBZ2 = getFileInfo(path + ".bz2", false);
+	IceUtil::RWRecMutex::TryRLock sync(_globalMutex, _busyTimeout * 1000);
+	string path = identityToPath(current.identity);
+	
+	FileInfo info = getFileInfo(path, true);
+	FileInfo infoBZ2 = getFileInfo(path + ".bz2", false);
 	if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
 	{
-	    createBZ2(path);
-
-	    if (_traceLevel > 0)
+	    sync.timedUpgrade(_busyTimeout * 1000);
+	    infoBZ2 = getFileInfo(path + ".bz2", false);
+	    if (infoBZ2.type != FileTypeRegular || infoBZ2.time < info.time)
 	    {
-		Trace out(_logger, "IcePatch");
-		out << "created .bz2 file for `" << path << "'";
+		createBZ2(path);
+		
+		if (_traceLevel > 0)
+		{
+		    Trace out(_logger, "IcePatch");
+		    out << "created .bz2 file for `" << path << "'";
+		}
 	    }
 	}
+	
+	return IcePatch::getBZ2(path, pos, num);
     }
-
-    return IcePatch::getBZ2(path, pos, num);
+    catch (const IceUtil::LockedException&)
+    {
+	throw BusyException();
+    }
 }

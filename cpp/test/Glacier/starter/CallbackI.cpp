@@ -45,7 +45,7 @@ CallbackReceiverI::callbackOK()
 
     while (!_callback)
     {
-	if (!timedwait(5000))
+	if (!timedWait(5000))
 	{
 	    return false;
 	}

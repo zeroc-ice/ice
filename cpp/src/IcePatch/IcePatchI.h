@@ -29,6 +29,7 @@ protected:
     Ice::ObjectAdapterPtr _adapter;
     Ice::LoggerPtr _logger;
     Ice::Int _traceLevel;
+    Ice::Int _busyTimeout;
     static IceUtil::RWRecMutex _globalMutex;
 };
 

@@ -68,7 +68,7 @@ IceUtil::RWRecMutex::timedTryReadlock(int timeout) const
     //
     while (_count < 0 || _waitingWriters != 0)
     {
-	if (!_readers.timedwait(lock, timeout))
+	if (!_readers.timedWait(lock, timeout))
 	{
 	    throw LockedException(__FILE__, __LINE__);
 	}
@@ -170,10 +170,10 @@ IceUtil::RWRecMutex::timedTryWritelock(int timeout) const
     if (_count != 0)
     {
 	_waitingWriters++;
-	bool timedout;
+	bool timedOut;
 	try
 	{
-	    timedout = !_writers.timedwait(lock, timeout);
+	    timedOut = !_writers.timedWait(lock, timeout);
 	}
 	catch(...)
 	{
@@ -185,7 +185,7 @@ IceUtil::RWRecMutex::timedTryWritelock(int timeout) const
 	//
 	// If a timeout occurred then the lock wasn't acquired.
 	//
-	if (timedout)
+	if (timedOut)
 	{
 	    throw LockedException(__FILE__, __LINE__);
 	}
@@ -321,10 +321,10 @@ IceUtil::RWRecMutex::timedUpgrade(int timeout) const
     while (_count != 0)
     {
 	_waitingWriters++;
-	bool timedout;
+	bool timedOut;
 	try
 	{
-	    timedout = !_writers.timedwait(lock, timeout);
+	    timedOut = !_writers.timedWait(lock, timeout);
 	}
 	catch(...)
 	{
@@ -337,7 +337,7 @@ IceUtil::RWRecMutex::timedUpgrade(int timeout) const
 	// If a timeout occurred then the lock wasn't acquired. Ensure
 	// that the _count is increased again before returning.
 	//
-	if (timedout)
+	if (timedOut)
 	{
 	    ++_count;
 	    throw LockedException(__FILE__, __LINE__);

@@ -194,7 +194,18 @@ IcePatch::Client::run(int argc, char* argv[])
     }
     catch (const FileAccessException& ex)
     {
+	cout << endl; // There might still be a non-terminated line on cout.
 	cerr << appName() << ": " << ex << ":\n" << ex.reason << endl;
+	if (router)
+	{
+	    router->shutdown();
+	}
+	return EXIT_FAILURE;
+    }
+    catch (const BusyException& ex)
+    {
+	cout << endl; // There might still be a non-terminated line on cout.
+	cerr << appName() << ": patching service busy, try again later" << endl;
 	if (router)
 	{
 	    router->shutdown();

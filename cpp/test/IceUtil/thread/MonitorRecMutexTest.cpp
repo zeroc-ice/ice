@@ -183,9 +183,9 @@ MonitorRecMutexTest::run()
     control.join();
     control2.join();
 
-    // TEST: timedwait
+    // TEST: timedWait
     {
 	Monitor<RecMutex>::Lock lock(monitor);
-	test(!monitor.timedwait(500));
+	test(!monitor.timedWait(500));
     }
 }

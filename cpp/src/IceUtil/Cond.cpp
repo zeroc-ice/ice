@@ -122,7 +122,7 @@ IceUtil::Cond::preWait() const
 }
 
 void
-IceUtil::Cond::postWait(bool timedout) const
+IceUtil::Cond::postWait(bool timedOut) const
 {
     _internal.lock();
     _unblocked++;
@@ -132,7 +132,7 @@ IceUtil::Cond::postWait(bool timedout) const
 	bool last = --_toUnblock == 0;
 	_internal.unlock();
 	
-	if (timedout)
+	if (timedOut)
 	{
 	    _queue.wait();
 	}

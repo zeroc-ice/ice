@@ -113,7 +113,7 @@ IceInternal::Outgoing::invoke()
 		{
 		    if (timeout >= 0)
 		    {	
-			timedwait(timeout);
+			timedWait(timeout);
 			if (_state == StateInProgress)
 			{
 			    timedOut = true;

@@ -43,7 +43,7 @@ public:
     void trylock() const;
 
     void wait() const;
-    bool timedwait(long) const;
+    bool timedWait(long) const;
     void notify();
     void notifyAll();
 
@@ -150,7 +150,7 @@ IceUtil::Monitor<T>::wait() const
 }
 
 template <class T> inline bool
-IceUtil::Monitor<T>::timedwait(long msec) const
+IceUtil::Monitor<T>::timedWait(long msec) const
 {
     //
     // Perform any pending notifies.
@@ -163,7 +163,7 @@ IceUtil::Monitor<T>::timedwait(long msec) const
     //
     try
     {
-	rc = _cond.timedwaitImpl(_mutex, msec);
+	rc = _cond.timedWaitImpl(_mutex, msec);
 
 	//
 	// Reset the nnotify count once wait() returns.

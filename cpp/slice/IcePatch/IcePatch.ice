@@ -21,6 +21,10 @@ exception FileAccessException
     string reason;
 };
 
+exception BusyException
+{
+};
+
 class FileDesc
 {
 };
@@ -30,13 +34,13 @@ sequence<FileDesc> FileDescSeq;
 interface File
 {
     FileDesc describe()
-	throws FileAccessException;
+	throws FileAccessException, BusyException;
 };
 
 interface Directory extends File
 {
     FileDescSeq getContents()
-	throws FileAccessException;
+	throws FileAccessException, BusyException;
 };
 
 class DirectoryDesc extends FileDesc
@@ -47,10 +51,10 @@ class DirectoryDesc extends FileDesc
 interface Regular extends File
 {
     int getBZ2Size()
-	throws FileAccessException;
+	throws FileAccessException, BusyException;
 
     Ice::ByteSeq getBZ2(int pos, int num)
-	throws FileAccessException;
+	throws FileAccessException, BusyException;
 };
 
 class RegularDesc extends FileDesc

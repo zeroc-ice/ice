@@ -181,9 +181,9 @@ MonitorMutexTest::run()
     control.join();
     control2.join();
 
-    // TEST: timedwait
+    // TEST: timedWait
     {
 	Monitor<Mutex>::Lock lock(monitor);
-	test(!monitor.timedwait(500));
+	test(!monitor.timedWait(500));
     }
 }

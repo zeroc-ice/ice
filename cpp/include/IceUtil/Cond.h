@@ -20,7 +20,7 @@
 //
 #    include <IceUtil/Mutex.h>
 //
-// See member-template note for waitImpl & timedwaitImpl.
+// See member-template note for waitImpl & timedWaitImpl.
 //
 #    include <IceUtil/RecMutex.h>
 #endif
@@ -109,9 +109,9 @@ public:
     // timeout.
     //
     template <typename Lock> inline bool
-    timedwait(const Lock& lock, long msec) const
+    timedWait(const Lock& lock, long msec) const
     {
-	return timedwaitImpl(lock._mutex, msec);
+	return timedWaitImpl(lock._mutex, msec);
     }
 
 private:
@@ -120,13 +120,13 @@ private:
     friend class Monitor<RecMutex>;
 
     //
-    // The Monitor implementation uses waitImpl & timedwaitImpl.
+    // The Monitor implementation uses waitImpl & timedWaitImpl.
     //
 #ifdef _WIN32
 
     //
     // For some reason under WIN32 with VC6 using a member-template
-    // for waitImpl & timedwaitImpl results in a link error for
+    // for waitImpl & timedWaitImpl results in a link error for
     // RecMutex.
     //
 /*
@@ -152,7 +152,7 @@ private:
         }
     }
     template <typename M> bool
-    timedwaitImpl(const M& mutex, long msec) const
+    timedWaitImpl(const M& mutex, long msec) const
     {
         preWait();
 
@@ -225,7 +225,7 @@ private:
     // TODO: Should not be inlined, not performance critical.
     //
     bool
-    timedwaitImpl(const RecMutex& mutex, long msec) const
+    timedWaitImpl(const RecMutex& mutex, long msec) const
     {
 	preWait();
 
@@ -249,7 +249,7 @@ private:
     // TODO: Should not be inlined, not performance critical.
     //
     bool
-    timedwaitImpl(const Mutex& mutex, long msec) const
+    timedWaitImpl(const Mutex& mutex, long msec) const
     {
 	preWait();
 
@@ -272,7 +272,7 @@ private:
 #else
 
     template <typename M> void waitImpl(const M&) const;
-    template <typename M> bool timedwaitImpl(const M&, long) const;
+    template <typename M> bool timedWaitImpl(const M&, long) const;
 
 #endif
 
@@ -312,7 +312,7 @@ Cond::waitImpl(const M& mutex) const
 }
 
 template <typename M> inline bool
-Cond::timedwaitImpl(const M& mutex, long msec) const
+Cond::timedWaitImpl(const M& mutex, long msec) const
 {
     typedef typename M::LockState LockState;
     

@@ -61,7 +61,7 @@ public:
 	    }
 	    else
 	    {
-		timedwait(tout);
+		timedWait(tout);
 	    }
 	    if (_destroy)
 	    {

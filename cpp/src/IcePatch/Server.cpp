@@ -181,6 +181,12 @@ IcePatch::Updater::run()
 	    Error out(_adapter->getCommunicator()->getLogger());
 	    out << "exception during update:\n" << ex << ":\n" << ex.reason;
 	}
+	catch (const BusyException&)
+	{
+	    //
+	    // Just loop if we're busy.
+	    //
+	}
 	catch (const ConnectFailedException&)
 	{
 	    //
@@ -201,7 +207,7 @@ IcePatch::Updater::run()
 	    break;
 	}
 
-	timedwait(updatePeriod * 1000);
+	timedWait(updatePeriod * 1000);
     }
 }
 
