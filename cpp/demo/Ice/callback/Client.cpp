@@ -126,24 +126,41 @@ CallbackClient::run(int argc, char* argv[])
 	    }
 	    else if(c == 'd')
 	    {
-		Context context;
-		context["_fwd"] = "d" + secureStr;
-		datagram->initiateCallback(datagramR, context);
+                if(secure)
+                {
+                    cout << "secure datagrams are not supported" << endl;
+                }
+                else
+                {
+                    Context context;
+                    context["_fwd"] = "d";
+                    datagram->initiateCallback(datagramR, context);
+                }
 	    }
 	    else if(c == 'D')
 	    {
-		Context context;
-		context["_fwd"] = "D" + secureStr;
-		if(!overwrite.empty())
-		{
-		    context["ovrd"] = overwrite;
-		}
-		batchDatagram->initiateCallback(datagramR, context);
+                if(secure)
+                {
+                    cout << "secure datagrams are not supported" << endl;
+                }
+                else
+                {
+                    Context context;
+                    context["_fwd"] = "D";
+                    if(!overwrite.empty())
+                    {
+                        context["ovrd"] = overwrite;
+                    }
+                    batchDatagram->initiateCallback(datagramR, context);
+                }
 	    }
 	    else if(c == 'f')
 	    {
 		batchOneway->ice_flush();
-		batchDatagram->ice_flush();
+                if(!secure)
+                {
+                    batchDatagram->ice_flush();
+                }
 	    }
 	    else if(c == 'S')
 	    {
