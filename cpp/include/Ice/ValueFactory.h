@@ -23,7 +23,7 @@ class ICE_API ValueFactory : public ::__Ice::Shared
 public:
 
     ValueFactory() { }
-    virtual std::vector<std::string> ids() = 0;
+
     virtual Ice::Object_ptr create(const std::string&) = 0;
 };
 

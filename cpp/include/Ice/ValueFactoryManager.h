@@ -23,7 +23,7 @@ class ValueFactoryManager : public Shared, public JTCMutex
 {
 public:
 
-    void install(const ::Ice::ValueFactory_ptr&);
+    void install(const ::Ice::ValueFactory_ptr&, const std::string&);
     ::Ice::ValueFactory_ptr lookup(const std::string&);
 
 private:

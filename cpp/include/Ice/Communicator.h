@@ -35,9 +35,10 @@ public:
     Object_prx stringToProxy(const std::string&);
 
     ObjectAdapter_ptr createObjectAdapter(const std::string&);
-    ObjectAdapter_ptr createObjectAdapter(const std::string&, const std::string&);
+    ObjectAdapter_ptr createObjectAdapter(const std::string&,
+					  const std::string&);
 
-    void installValueFactory(const ValueFactory_ptr&);
+    void installValueFactory(const ValueFactory_ptr&, const std::string&);
 
     Properties_ptr properties();
 
