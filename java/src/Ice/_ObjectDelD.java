@@ -125,13 +125,6 @@ public class _ObjectDelD implements _ObjectDel
 	throw new CollocationOptimizationException();
     }
 
-    public void
-    ice_invoke_async(AMI_Object_ice_invoke cb, String operation, Ice.OperationMode mode, byte[] inParams,
-		     java.util.Map context)
-    {
-	throw new CollocationOptimizationException();
-    }
-
     //
     // Only for use by ObjectPrx.
     //

@@ -573,6 +573,255 @@ public final class Reference
     }
 
     //
+    // Get a suitable connection for this reference.
+    //
+    public Connection
+    getConnection()
+    {
+	Connection connection;
+
+        if(reverseAdapter != null)
+        {
+            //
+            // If we have a reverse object adapter, we use the incoming
+            // connections from such object adapter.
+            //
+            Ice.ObjectAdapterI adapter = (Ice.ObjectAdapterI)reverseAdapter;
+            Connection[] connections = adapter.getIncomingConnections();
+
+            Endpoint[] endpoints = new Endpoint[connections.length];
+            for(int i = 0; i < connections.length; i++)
+            {
+                endpoints[i] = connections[i].endpoint();
+            }
+            endpoints = filterEndpoints(endpoints);
+
+            if(endpoints.length == 0)
+            {
+                Ice.NoEndpointException e = new Ice.NoEndpointException();
+		e.proxy = toString();
+		throw e;
+            }
+
+            int j;
+            for(j = 0; j < connections.length; j++)
+            {
+                if(connections[j].endpoint().equals(endpoints[0]))
+                {
+                    break;
+                }
+            }
+            assert(j < connections.length);
+            connection = connections[j];
+        }
+        else
+        {
+	    while(true)
+	    {
+		Endpoint[] endpoints = null;
+		Ice.BooleanHolder cached = new Ice.BooleanHolder();
+		cached.value = false;
+
+		if(routerInfo != null)
+		{
+		    //
+		    // If we route, we send everything to the router's client
+		    // proxy endpoints.
+		    //
+		    Ice.ObjectPrx proxy = routerInfo.getClientProxy();
+		    endpoints = ((Ice.ObjectPrxHelper)proxy).__reference().endpoints;
+		}
+		else if(endpoints.length > 0)
+		{
+		    endpoints = endpoints;
+		}
+		else if(locatorInfo != null)
+		{
+		    endpoints = locatorInfo.getEndpoints(this, cached);
+		}
+
+		Endpoint[] filteredEndpoints = null;
+		if(endpoints != null)
+		{
+		    filteredEndpoints = filterEndpoints(endpoints);
+		}
+		if(filteredEndpoints == null || filteredEndpoints.length == 0)
+		{
+		    Ice.NoEndpointException e = new Ice.NoEndpointException();
+		    e.proxy = toString();
+		    throw e;
+		}
+
+		try
+		{
+		    OutgoingConnectionFactory factory = instance.outgoingConnectionFactory();
+		    connection = factory.create(filteredEndpoints);
+		    assert(connection != null);
+		}
+		catch(Ice.LocalException ex)
+		{
+		    if(routerInfo == null && endpoints.length == 0)
+		    {
+			assert(locatorInfo != null);
+			locatorInfo.clearCache(this);
+			
+			if(cached.value)
+			{
+			    TraceLevels traceLevels = instance.traceLevels();
+			    Ice.Logger logger = instance.logger();
+			    
+			    if(traceLevels.retry >= 2)
+			    {
+				String s = "connection to cached endpoints failed\n" +
+				    "removing endpoints from cache and trying one more time\n" + ex;
+				logger.trace(traceLevels.retryCat, s);
+			    }
+			    
+			    continue;
+			}
+		    }
+
+		    throw ex;
+		}   
+
+		break;
+	    }
+
+            //
+            // If we have a router, set the object adapter for this
+            // router (if any) to the new connection, so that
+            // callbacks from the router can be received over this new
+            // connection.
+            //
+            if(routerInfo != null)
+            {
+                connection.setAdapter(routerInfo.getAdapter());
+            }
+        }
+
+	assert(connection != null);
+	return connection;
+    }
+
+    //
+    // Filter endpoints based on criteria from this reference.
+    //
+    public Endpoint[]
+    filterEndpoints(Endpoint[] allEndpoints)
+    {
+        java.util.ArrayList endpoints = new java.util.ArrayList();
+
+        //
+        // Filter out unknown endpoints.
+        //
+        for(int i = 0; i < allEndpoints.length; i++)
+        {
+            if(!allEndpoints[i].unknown())
+            {
+                endpoints.add(allEndpoints[i]);
+            }
+        }
+
+        switch(mode)
+        {
+            case Reference.ModeTwoway:
+            case Reference.ModeOneway:
+            case Reference.ModeBatchOneway:
+            {
+                //
+                // Filter out datagram endpoints.
+                //
+                java.util.Iterator i = endpoints.iterator();
+                while(i.hasNext())
+                {
+                    Endpoint endpoint = (Endpoint)i.next();
+                    if(endpoint.datagram())
+                    {
+                        i.remove();
+                    }
+                }
+                break;
+            }
+
+            case Reference.ModeDatagram:
+            case Reference.ModeBatchDatagram:
+            {
+                //
+                // Filter out non-datagram endpoints.
+                //
+                java.util.Iterator i = endpoints.iterator();
+                while(i.hasNext())
+                {
+                    Endpoint endpoint = (Endpoint)i.next();
+                    if(!endpoint.datagram())
+                    {
+                        i.remove();
+                    }
+                }
+                break;
+            }
+        }
+
+        //
+        // Randomize the order of endpoints.
+        //
+        java.util.Collections.shuffle(endpoints);
+
+        //
+        // If a secure connection is requested, remove all non-secure
+        // endpoints. Otherwise make non-secure endpoints preferred over
+        // secure endpoints by partitioning the endpoint vector, so that
+        // non-secure endpoints come first.
+        //
+        if(secure)
+        {
+            java.util.Iterator i = endpoints.iterator();
+            while(i.hasNext())
+            {
+                Endpoint endpoint = (Endpoint)i.next();
+                if(!endpoint.secure())
+                {
+                    i.remove();
+                }
+            }
+        }
+        else
+        {
+            java.util.Collections.sort(endpoints, _comparator);
+        }
+
+        Endpoint[] arr = new Endpoint[endpoints.size()];
+        endpoints.toArray(arr);
+        return arr;
+    }
+
+    static class EndpointComparator implements java.util.Comparator
+    {
+	public int
+	compare(java.lang.Object l, java.lang.Object r)
+	{
+	    IceInternal.Endpoint le = (IceInternal.Endpoint)l;
+	    IceInternal.Endpoint re = (IceInternal.Endpoint)r;
+	    boolean ls = le.secure();
+	    boolean rs = re.secure();
+	    if((ls && rs) || (!ls && !rs))
+	    {
+		return 0;
+	    }
+	    else if(!ls && rs)
+	    {
+		return -1;
+	    }
+	    else
+	    {
+		return 1;
+	    }
+	}
+    }
+    
+    private static EndpointComparator _comparator = new EndpointComparator();
+
+    //
     // Only for use by ReferenceFactory
     //
     Reference(Instance inst,

@@ -1,6 +1,34 @@
 Changes since version 1.2.0
 ---------------------------
 
+- Connections are now not closed anymore when that last proxy using
+  the connection is destroyed. Doing so is error prone:
+
+  * Quite often, proxies are created on the fly, resulting in
+    connections being opened and closed all the time. This is
+    especially true for services that receive a proxy and data, and
+    then forward this data using the proxy.
+
+  * Often, connections are stay open for too long, because proxies are
+    kept even though they are never used again.
+
+  * It doesn't work well with AMI requests, because the AMI callback
+    objects keep track of connections directly. This would mean that
+    if a process only uses AMI requests, a connection is opened and
+    closed for each such request, as each request typically has its
+    own AMI callback object.
+
+  Instead, ACM (Automatic Connection Management) is now enabled by
+  default, with a default value of one minute. This means that idle
+  connections are closed after one minute, regardless of whether there
+  are proxies using the connection or not. This closing of connections
+  is transparent, i.e., closed connections are automatically
+  reestablished in case they are needed again. Please see the
+  description of the Ice.ConnectionIdleTime property for details.
+
+- ACM has been completely reworked. It now works properly with respect
+  to retrying failed requests.
+
 - Added the IceBox.LoadOrder property, which specifies the order
   in which IceBox services are loaded.
 

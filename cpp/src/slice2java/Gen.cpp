@@ -2344,6 +2344,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << sp;
 	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ", java.util.Map __context)";
 	    out << sb;
+	    /*
 	    out << nl << "int __cnt = 0;";
 	    out << nl << "while(true)";
 	    out << sb;
@@ -2362,6 +2363,7 @@ Slice::Gen::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << nl << "__cnt = __handleException(__ex, __cnt);";
 	    out << eb;
 	    out << eb;
+	    */
 	    out << eb;
 	}
     }
@@ -3007,14 +3009,6 @@ Slice::Gen::DelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << "java.util.Map __context)";
         writeDelegateThrowsClause(package, throws);
         out << ';';
-
-	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
-	{
-	    string paramsAMI = getParamsAsync(op, package, false);
-	    
-	    out << sp;
-	    out << nl << "void " << opName << "_async(" << paramsAMI << ", java.util.Map __context);";
-	}
     }
 
     out << eb;
@@ -3180,33 +3174,6 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "reclaimOutgoing(__out);";
         out << eb;
         out << eb;
-
-	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
-	{
-	    string paramsAMI = getParamsAsync(op, package, false);
-	    
-	    out << sp;
-	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ", java.util.Map __context)";
-	    out << sb;
-	    
-	    out << nl << "__cb.__setup(__connection, __reference, \"" << op->name() << "\", " << sliceModeToIceMode(op)
-		<< ", __context);";
-	    if(!inParams.empty())
-	    {
-		out << nl << "IceInternal.BasicStream __os = __cb.__os();";
-	    }
-	    iter = 0;
-	    for(q = inParams.begin(); q != inParams.end(); ++q)
-	    {
-		writeMarshalUnmarshalCode(out, package, q->first, fixKwd(q->second), true, iter);
-	    }
-	    if(op->sendsClasses())
-	    {
-		out << nl << "__os.writePendingObjects();";
-	    }
-	    out << nl << "__cb.__invoke();";
-	    out << eb;
-	}
     }
 
     out << eb;
@@ -3328,17 +3295,6 @@ Slice::Gen::DelegateDVisitor::visitClassDefStart(const ClassDefPtr& p)
 	    out << eb;
 	}
         out << eb;
-
-	if(p->hasMetaData("ami") || op->hasMetaData("ami"))
-	{
-	    string paramsAMI = getParamsAsync(op, package, false);
-	    
-	    out << sp;
-	    out << nl << "public void" << nl << opName << "_async(" << paramsAMI << ", java.util.Map __context)";
-	    out << sb;
-	    out << nl << "throw new Ice.CollocationOptimizationException();";
-	    out << eb;
-	}
     }
 
     out << eb;

@@ -241,6 +241,13 @@ public class Instance
 	return _messageSizeMax;
     }
 
+    public int
+    connectionIdleTime()
+    {
+	// No mutex lock, immutable.
+	return _connectionIdleTime;
+    }
+
     public void
     flushBatchRequests()
     {
@@ -297,21 +304,35 @@ public class Instance
 
             _defaultsAndOverrides = new DefaultsAndOverrides(_properties);
 
-	    final int defaultMessageSizeMax = 1024;
-	    final int num = _properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
-	    if(num < 1)
 	    {
-		_messageSizeMax = defaultMessageSizeMax * 1024; // Ignore stupid values.
+		final int defaultMessageSizeMax = 1024;
+		int num = _properties.getPropertyAsIntWithDefault("Ice.MessageSizeMax", defaultMessageSizeMax);
+		if(num < 1)
+		{
+		    _messageSizeMax = defaultMessageSizeMax * 1024; // Ignore stupid values.
+		}
+		else if(num > 0x7fffffff / 1024)
+		{
+		    _messageSizeMax = 0x7fffffff;
+		}
+		else
+		{
+		    _messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
+		}
 	    }
-	    else if(num > 0x7fffffff / 1024)
+	    
 	    {
-		_messageSizeMax = 0x7fffffff;
+		int num = _properties.getPropertyAsIntWithDefault("Ice.ConnectionIdleTime", 60);
+		if(num < 0)
+		{
+		    _connectionIdleTime = 0;
+		}
+		else
+		{
+		    _connectionIdleTime = num;
+		}
 	    }
-	    else
-	    {
-		_messageSizeMax = num * 1024; // Property is in kilobytes, _messageSizeMax in bytes
-	    }
-
+	    
             _routerManager = new RouterManager();
 
             _locatorManager = new LocatorManager();
@@ -394,11 +415,9 @@ public class Instance
 	}
 	
 	//
-	// Connection monitor initializations must be done after
-	// daemon() is called, since daemon() forks.
+	// Start connection monitor if necessary.
 	//
-	int acmTimeout = _properties.getPropertyAsInt("Ice.ConnectionIdleTime");
-	int interval = _properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", acmTimeout);
+	int interval = _properties.getPropertyAsIntWithDefault("Ice.MonitorConnections", _connectionIdleTime);
 	if(interval > 0)
 	{
 	    _connectionMonitor = new ConnectionMonitor(this, interval);
@@ -537,6 +556,7 @@ public class Instance
     private final TraceLevels _traceLevels; // Immutable, not reset by destroy().
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private final int _messageSizeMax; // Immutable, not reset by destroy().
+    private final int _connectionIdleTime; // Immutable, not reset by destroy().
     private RouterManager _routerManager;
     private LocatorManager _locatorManager;
     private ReferenceFactory _referenceFactory;

@@ -42,7 +42,7 @@ const DWORD SIGHUP = CTRL_LOGOFF_EVENT;
 #endif
 
 //
-// CtrlCHandler callbacks
+// CtrlCHandler callbacks.
 //
 
 static void holdInterruptCallback(int signal)
@@ -55,7 +55,8 @@ static void holdInterruptCallback(int signal)
 	}
     }
 
-    // Use the current callback to process this (old) signal
+    //
+    // Use the current callback to process this (old) signal.
     //
     CtrlCHandlerCallback callback = _ctrlCHandler->getCallback();
     if(callback != 0)
@@ -192,7 +193,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	}
 	
 	//
-	// Ignore signals for a little while
+	// Ignore signals for a little while.
 	//
 	_ctrlCHandler.reset(new IceUtil::CtrlCHandler);
 	
@@ -213,10 +214,9 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	cerr << _appName << ": " << ex << endl;
 	status = EXIT_FAILURE;
     }
-    /*
     catch(const std::exception& ex)
     {
-	cerr << _appName << ": std::exception5: " << ex.what() << endl;
+	cerr << _appName << ": std::exception: " << ex.what() << endl;
 	status = EXIT_FAILURE;
 	assert(0);
     }
@@ -225,7 +225,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	cerr << _appName << ": " << msg << endl;
 	status = EXIT_FAILURE;
     }
-    catch(const char * msg)
+    catch(const char* msg)
     {
 	cerr << _appName << ": " << msg << endl;
 	status = EXIT_FAILURE;
@@ -235,14 +235,13 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	cerr << _appName << ": unknown exception" << endl;
 	status = EXIT_FAILURE;
     }
-    */
     
     if(_communicator)
     {
 	//
-	// We don't want to handle signals anymore
+	// We don't want to handle signals anymore.
 	//
-	ignoreInterrupt(); // will release any signal still held
+	ignoreInterrupt(); // Will release any signal still held.
 	_ctrlCHandler.reset();
        
 	try
@@ -254,26 +253,7 @@ Ice::Application::main(int argc, char* argv[], const char* configFile)
 	    cerr << _appName << ": " << ex << endl;
 	    status = EXIT_FAILURE;
 	}
-	catch(const std::exception& ex)
-	{
-	    cerr << _appName << ": std::exception: " << ex.what() << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(const std::string& msg)
-	{
-	    cerr << _appName << ": " << msg << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(const char * msg)
-	{
-	    cerr << _appName << ": " << msg << endl;
-	    status = EXIT_FAILURE;
-	}
-	catch(...)
-	{
-	    cerr << _appName << ": unknown exception" << endl;
-	    status = EXIT_FAILURE;
-	}
+
 	_communicator = 0;
     }
 
@@ -372,17 +352,19 @@ Ice::Application::releaseInterrupt()
     StaticMutex::Lock lock(_mutex);
     if(_ctrlCHandler->getCallback() == holdInterruptCallback)
     {
+	//
 	// Note that it's very possible no signal is held;
 	// in this case the callback is just replaced and
 	// setting _released to true and signalling _condVar
 	// do no harm.
+	//
 
 	_released = true;
 	_ctrlCHandler->setCallback(_previousCallback);
 	lock.release();
 	_condVar->signal();
     }
-    // else nothing to release
+    // Else nothing to release.
 }
 
 bool

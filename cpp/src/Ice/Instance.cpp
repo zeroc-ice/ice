@@ -505,9 +505,12 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	    Int num = _properties->getPropertyAsIntWithDefault("Ice.ConnectionIdleTime", 60);
 	    if(num < 0)
 	    {
-		num = 0;
+		const_cast<Int&>(_connectionIdleTime) = 0;
 	    }
-	    const_cast<Int&>(_connectionIdleTime) = num;
+	    else
+	    {
+		const_cast<Int&>(_connectionIdleTime) = num;
+	    }
 	}
 
 	_routerManager = new RouterManager;

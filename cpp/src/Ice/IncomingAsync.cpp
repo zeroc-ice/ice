@@ -182,7 +182,7 @@ IceInternal::IncomingAsync::__exception(const std::exception& ex)
 
     if(_os.instance()->properties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
     {
-	__warning(string("std::exception1: ") + ex.what());
+	__warning(string("std::exception: ") + ex.what());
     }
 
     if(_response)
@@ -191,7 +191,7 @@ IceInternal::IncomingAsync::__exception(const std::exception& ex)
 	_os.b.resize(headerSize + 4); // Dispatch status position.
 	_os.write(static_cast<Byte>(DispatchUnknownException));
 	ostringstream str;
-	str << "std::exception2: " << ex.what();
+	str << "std::exception: " << ex.what();
 	_os.write(str.str());
     }
 

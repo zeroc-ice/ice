@@ -986,6 +986,10 @@ public class BasicStream
     public String[]
     readStringSeq()
     {
+	//
+	// TODO: This code is dangerous, because it cannot be
+	// checked whether sz is a reasonable value.
+	//
         final int sz = readSize();
         String[] v = new String[sz];
         for(int i = 0; i < sz; i++)

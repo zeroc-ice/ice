@@ -225,8 +225,8 @@ public class ObjectPrxHelper implements ObjectPrx
         {
             try
             {
-                _ObjectDel __del = __getDelegate();
-                __del.ice_invoke_async(cb, operation, mode, inParams, context);
+//                _ObjectDel __del = __getDelegate();
+//                __del.ice_invoke_async(cb, operation, mode, inParams, context);
 		return;
             }
             catch(LocalException __ex)
@@ -623,63 +623,15 @@ public class ObjectPrxHelper implements ObjectPrx
 	    _reference.locatorInfo.clearObjectCache(_reference);
 	}
 
-	++cnt;
-
-        IceInternal.TraceLevels traceLevels = _reference.instance.traceLevels();
-        Logger logger = _reference.instance.logger();
-        IceInternal.ProxyFactory proxyFactory = _reference.instance.proxyFactory();
-
-        //
-        // Instance components may be null if Communicator has been destroyed.
-        //
-        if(traceLevels != null && logger != null && proxyFactory != null)
-        {
-            int[] retryIntervals = proxyFactory.getRetryIntervals();
-
-            if(cnt > retryIntervals.length)
-            {
-                if(traceLevels.retry >= 1)
-                {
-                    String s = "cannot retry operation call because retry limit has been exceeded\n" + ex.toString();
-                    logger.trace(traceLevels.retryCat, s);
-                }
-                throw ex;
-            }
-
-            if(traceLevels.retry >= 1)
-            {
-                String s = "re-trying operation call";
-                if(cnt > 0 && retryIntervals[cnt - 1] > 0)
-                {
-                    s += " in " + retryIntervals[cnt - 1] + "ms";
-                }
-                s += " because of exception\n" + ex;
-                logger.trace(traceLevels.retryCat, s);
-            }
-
-            if(cnt > 0)
-            {
-                //
-                // Sleep before retrying.
-                //
-                try
-                {
-                    Thread.currentThread().sleep(retryIntervals[cnt - 1]);
-                }
-                catch(InterruptedException ex1)
-                {
-                }
-            }
-
-            return cnt;
-        }
-        else
-        {
-            //
-            // Impossible to retry after Communicator has been destroyed.
-            //
-            throw ex;
-        }
+	IceInternal.ProxyFactory proxyFactory = _reference.instance.proxyFactory();
+	if(proxyFactory != null)
+	{
+	    return proxyFactory.checkRetryAfterException(ex, cnt);
+	}
+	else
+	{
+	    throw ex; // The communicator is already destroyed, so we cannot retry.
+	}
     }
 
     public final synchronized void

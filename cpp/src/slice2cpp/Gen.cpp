@@ -646,10 +646,6 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	string scoped = fixKwd(p->scoped());
 	string scope = fixKwd(p->scope());
 
-	//
-	// TODO: ice_marshal/ice_unmarshal, __write/__read can be
-	// moved into the helper.
-	//
 	H << sp << nl << "class __U__" << name << " { };";
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name << "&, __U__" << name
 	  << ");";
@@ -671,6 +667,8 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 	C << sb;
 	C << nl << "::Ice::Int sz;";
 	C << nl << "__is->readSize(sz);";
+	//
+	// TODO:
 	//
 	// ML: Don't use v.resize(sz) or v.reserve(sz) here, as it
 	// cannot be checked whether sz is a reasonable value.
@@ -716,10 +714,6 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 	string scoped = fixKwd(p->scoped());
 	string scope = fixKwd(p->scope());
 
-	//
-	// TODO: ice_marshal/ice_unmarshal, __write/__read can be
-	// moved into the helper.
-	//
 	H << sp << nl << "class __U__" << name << " { };";
 	H << nl << _dllExport << "void __write(::IceInternal::BasicStream*, const " << name
 	  << "&, __U__" << name << ");";

@@ -85,15 +85,6 @@ IceInternal::Outgoing::Outgoing(Connection* connection, Reference* ref, const st
     _os.startWriteEncaps();
 }
 
-IceInternal::Outgoing::~Outgoing()
-{
-    if(_state == StateUnsent &&
-       (_reference->mode == Reference::ModeBatchOneway || _reference->mode == Reference::ModeBatchDatagram))
-    {
-	_connection->abortBatchRequest();
-    }
-}
-
 bool
 IceInternal::Outgoing::invoke()
 {
@@ -230,15 +221,8 @@ IceInternal::Outgoing::invoke()
 	    //
 	    // For batch oneways and datagrams, the same rules as for
 	    // regular oneways and datagrams (see comment above)
-	    // apply, except that we must set the state to
-	    // StateInProgress before calling finishBatchRequest.
-	    // Otherwise if finishBatchRequest raises an exception,
-	    // the destructor of this class will call
-	    // abortBatchRequest, and calling both finishBatchRequest
-	    // and abortBatchRequest for the same request is not
-	    // permissible.
+	    // apply.
 	    //
-	    _state = StateInProgress;
 	    _connection->finishBatchRequest(&_os);
 	    break;
 	}

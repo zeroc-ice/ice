@@ -81,14 +81,67 @@ public final class ProxyFactory
         }
     }
 
-    public int[]
-    getRetryIntervals()
-    {  
-	return _retryIntervals;
+    public int
+    checkRetryAfterException(Ice.LocalException ex, int cnt)
+    {
+	++cnt;
+
+        TraceLevels traceLevels = _instance.traceLevels();
+        Ice.Logger logger = _instance.logger();
+
+        //
+        // Instance components may be null if Communicator has been destroyed.
+        //
+        if(traceLevels != null && logger != null)
+        {
+            if(cnt > _retryIntervals.length)
+            {
+                if(traceLevels.retry >= 1)
+                {
+                    String s = "cannot retry operation call because retry limit has been exceeded\n" + ex.toString();
+                    logger.trace(traceLevels.retryCat, s);
+                }
+                throw ex;
+            }
+
+            if(traceLevels.retry >= 1)
+            {
+                String s = "re-trying operation call";
+                if(cnt > 0 && _retryIntervals[cnt - 1] > 0)
+                {
+                    s += " in " + _retryIntervals[cnt - 1] + "ms";
+                }
+                s += " because of exception\n" + ex;
+                logger.trace(traceLevels.retryCat, s);
+            }
+
+            if(cnt > 0)
+            {
+                //
+                // Sleep before retrying.
+                //
+                try
+                {
+                    Thread.currentThread().sleep(_retryIntervals[cnt - 1]);
+                }
+                catch(InterruptedException ex1)
+                {
+                }
+            }
+
+            return cnt;
+        }
+        else
+        {
+            //
+            // Impossible to retry after Communicator has been destroyed.
+            //
+            throw ex;
+        }
     }
 
     //
-    // Only for use by Instance
+    // Only for use by Instance.
     //
     ProxyFactory(Instance instance)
     {

@@ -95,7 +95,7 @@ public abstract class OutgoingAsync
 	{
 	    _os.endWriteEncaps();
 
-	    _connection.sendAsyncRequest(this);
+	    _connection.sendAsyncRequest(_os, this);
 
 	    if(_connection.timeout() >= 0)
 	    {

@@ -71,7 +71,6 @@ public:
 
     void prepareBatchRequest(BasicStream*);
     void finishBatchRequest(BasicStream*);
-    void abortBatchRequest();
     void flushBatchRequest();
 
     void sendResponse(BasicStream*, Ice::Byte);
@@ -159,13 +158,13 @@ private:
     std::auto_ptr<Ice::LocalException> _exception;
 
     BasicStream _batchStream;
+    bool _batchStreamInUse;
     int _batchRequestNum;
-    bool _batchFlushInProgress;
 
     int _dispatchCount;
 
     State _state; // The current state.
-    IceUtil::Time _stateTime; // The time when the state was changed the last time.
+    IceUtil::Time _stateTime; // The last time when the state was changed.
 
     //
     // We have a separate mutex for sending, so that we don't block
