@@ -19,6 +19,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ObjectFactory.h>
 #include <Ice/ObjectFactoryManager.h>
+#include <Ice/UserExceptionFactory.h>
 #include <Ice/LocalException.h>
 #include <Ice/Protocol.h>
 #include <Ice/FactoryTable.h>

@@ -1,6 +1,10 @@
 Changes since version 1.1.1
 ---------------------------
 
+- Moved UserExceptionFactory from Ice package to IceInternal package
+  because UserExceptionFactory is no longer an interface for use
+  by applications.
+
 - Bi-directional connections are now handled by the client-side thread
   pool instead of the server-side thread pool.
 

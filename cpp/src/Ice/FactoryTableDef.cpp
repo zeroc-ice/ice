@@ -13,6 +13,7 @@
 // **********************************************************************
 
 #include <Ice/FactoryTableDef.h>
+#include <Ice/UserExceptionFactory.h>
 
 namespace Ice
 {
@@ -29,7 +30,7 @@ ICE_API FactoryTableDef* factoryTable;		// Single global instance of the factory
 // If the factory is present already, increment its reference count.
 //
 void
-Ice::FactoryTableDef::addExceptionFactory(const std::string& t, const UserExceptionFactoryPtr& f)
+Ice::FactoryTableDef::addExceptionFactory(const std::string& t, const IceInternal::UserExceptionFactoryPtr& f)
 {
     IceUtil::Mutex::Lock lock(_m);
     EFTable::iterator i = _eft.find(t);
@@ -46,12 +47,12 @@ Ice::FactoryTableDef::addExceptionFactory(const std::string& t, const UserExcept
 //
 // Return the exception factory for a given type ID
 //
-Ice::UserExceptionFactoryPtr
+IceInternal::UserExceptionFactoryPtr
 Ice::FactoryTableDef::getExceptionFactory(const std::string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     EFTable::const_iterator i = _eft.find(t);
-    return i != _eft.end() ? i->second.first : UserExceptionFactoryPtr();
+    return i != _eft.end() ? i->second.first : IceInternal::UserExceptionFactoryPtr();
 }
 
 //

@@ -12,26 +12,12 @@
 //
 // **********************************************************************
 
-#ifndef ICE_USER_EXCEPTION_FACTORY_H
-#define ICE_USER_EXCEPTION_FACTORY_H
+package IceInternal;
 
-#include <IceUtil/Shared.h>
-#include <IceUtil/Handle.h>
-#include <Ice/Config.h>
-
-namespace IceInternal
+public interface UserExceptionFactory
 {
+    void createAndThrow()
+        throws Ice.UserException;
 
-class ICE_API UserExceptionFactory : public IceUtil::Shared
-{
-public:
-
-    virtual void createAndThrow() = 0;
-    virtual ~UserExceptionFactory() {}
-};
-
-typedef ::IceUtil::Handle<UserExceptionFactory> UserExceptionFactoryPtr;
-
-};
-
-#endif
+    void destroy();
+}

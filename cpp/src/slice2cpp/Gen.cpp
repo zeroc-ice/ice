@@ -210,6 +210,11 @@ Slice::Gen::generate(const UnitPtr& p)
 	H << "\n#include <Ice/LocalObject.h>";
     }
 
+    if(p->hasNonLocalExceptions())
+    {
+	H << "\n#include <Ice/UserExceptionFactory.h>";
+    }
+
     if(p->hasDataOnlyClasses() || p->hasNonLocalExceptions())
     {
 	H << "\n#include <Ice/FactoryTable.h>";
@@ -399,14 +404,14 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	H.dec();
 	H << sp << "private:";
 	H.inc();
-	H << sp << nl << "static ::Ice::UserExceptionFactoryPtr _factory;";
+	H << sp << nl << "static ::IceInternal::UserExceptionFactoryPtr _factory;";
 	H << sp;
 	H.dec();
 	H << sp << "public:";
 	H.inc();
-	H << sp << nl << "static const ::Ice::UserExceptionFactoryPtr& ice_factory();";
+	H << sp << nl << "static const ::IceInternal::UserExceptionFactoryPtr& ice_factory();";
 
-	C << sp << nl << "const ::Ice::UserExceptionFactoryPtr&";
+	C << sp << nl << "const ::IceInternal::UserExceptionFactoryPtr&";
 	C << nl << scoped.substr(2) << "::ice_factory()";
 	C << sb;
 	C << nl << "return _factory;";
@@ -472,7 +477,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	    }
 	}
 
-	C << sp << nl << "class __F__" << name << " : public ::Ice::UserExceptionFactory";
+	C << sp << nl << "class __F__" << name << " : public ::IceInternal::UserExceptionFactory";
 	C << sb;
 	C.dec();
 	C << nl << "public:";
@@ -484,7 +489,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 	C << eb;
 	C << eb << ";";
 
-	C << sp << nl << "::Ice::UserExceptionFactoryPtr " << scoped.substr(2) << "::_factory = new __F__"
+	C << sp << nl << "::IceInternal::UserExceptionFactoryPtr " << scoped.substr(2) << "::_factory = new __F__"
 	  << name << ";";
 
 	C << sp << nl << "class __F__" << name << "__Init";

@@ -157,7 +157,7 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
     }
 
     public synchronized void
-    addUserExceptionFactory(UserExceptionFactory factory, String id)
+    addUserExceptionFactory(IceInternal.UserExceptionFactory factory, String id)
     {
         if(_destroyed)
         {
@@ -176,7 +176,7 @@ final class CommunicatorI extends LocalObjectImpl implements Communicator
         _instance.userExceptionFactoryManager().remove(id);
     }
 
-    public synchronized UserExceptionFactory
+    public synchronized IceInternal.UserExceptionFactory
     findUserExceptionFactory(String id)
     {
         if(_destroyed)

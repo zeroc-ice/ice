@@ -1212,7 +1212,7 @@ public class BasicStream
             //
             // Look for a factory for this ID.
             //
-	    Ice.UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
+	    UserExceptionFactory factory = _instance.userExceptionFactoryManager().find(id);
 	    if(factory == null)
 	    {
 		factory = loadUserExceptionFactory(id);
@@ -1532,7 +1532,7 @@ public class BasicStream
     }
 
     private static final class DynamicUserExceptionFactory extends Ice.LocalObjectImpl
-        implements Ice.UserExceptionFactory
+        implements UserExceptionFactory
     {
         DynamicUserExceptionFactory(Class c)
         {
@@ -1567,10 +1567,10 @@ public class BasicStream
         private Class _class;
     }
 
-    private Ice.UserExceptionFactory
+    private UserExceptionFactory
     loadUserExceptionFactory(String id)
     {
-        Ice.UserExceptionFactory factory = null;
+        UserExceptionFactory factory = null;
 
         try
         {

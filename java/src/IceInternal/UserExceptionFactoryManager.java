@@ -17,7 +17,7 @@ package IceInternal;
 public final class UserExceptionFactoryManager
 {
     public synchronized void
-    add(Ice.UserExceptionFactory factory, String id)
+    add(UserExceptionFactory factory, String id)
     {
         Object o = _factoryMap.get(id);
 	if(o != null)
@@ -44,10 +44,10 @@ public final class UserExceptionFactoryManager
         _factoryMap.remove(id);
     }
 
-    public synchronized Ice.UserExceptionFactory
+    public synchronized UserExceptionFactory
     find(String id)
     {
-        return (Ice.UserExceptionFactory)_factoryMap.get(id);
+        return (UserExceptionFactory)_factoryMap.get(id);
     }
 
     //
@@ -63,8 +63,7 @@ public final class UserExceptionFactoryManager
         java.util.Iterator i = _factoryMap.values().iterator();
         while(i.hasNext())
         {
-            Ice.UserExceptionFactory factory =
-                (Ice.UserExceptionFactory)i.next();
+            UserExceptionFactory factory = (UserExceptionFactory)i.next();
             factory.destroy();
         }
         _factoryMap.clear();

@@ -22,7 +22,7 @@ OBJS		= Client.o IntLongMap.o
 
 SRCS		= $(OBJS:.o=.cpp)
 
-SLICE_SRCS	= Test.ice
+SLICE_SRCS	=
 
 include $(top_srcdir)/config/Make.rules
 
