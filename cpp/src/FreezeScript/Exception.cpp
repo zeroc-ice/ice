@@ -35,7 +35,7 @@ FreezeScript::Exception::ice_name() const
 void
 FreezeScript::Exception::ice_print(ostream& out) const
 {
-    Exception::ice_print(out);
+	::IceUtil::Exception::ice_print(out);
     out << ":\nerror occurred during transformation"; // TODO
     if(!_reason.empty())
     {
