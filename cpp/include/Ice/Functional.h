@@ -8,381 +8,502 @@
 //
 // **********************************************************************
 
-#ifndef ICE_HANDLE_FUNCTIONAL_H
-#define ICE_HANDLE_FUNCTIONAL_H
+#ifndef ICE_FUNCTIONAL_H
+#define ICE_FUNCTIONAL_H
 
 #include <Ice/Handle.h>
 #include <functional>
+
+namespace IceInternal
+{
+
+// ----------------------------------------------------------------------
+// Various function objects that work with handles instead of plain
+// pointers.
+// ----------------------------------------------------------------------
+
+template<class R, class T, class H>
+class MemFun : public std::unary_function<H, R>
+{
+    typedef R (T::*MemberFN)(void);
+    MemberFN _mfn;
+
+public:
+
+    explicit MemFun(MemberFN p) : _mfn(p) { }
+    R operator()(H p) const
+    {
+	return (p.get() ->* _mfn)();
+    }
+};
+
+template<class R, class T, class H, class A>
+class MemFun1 : public std::binary_function<H, A, R>
+{
+    typedef R (T::*MemberFN)(A);
+    MemberFN _mfn;
+
+public:
+
+    explicit MemFun1(MemberFN p) : _mfn(p) { }
+    R operator()(H h, A arg) const
+    {
+	return (p.get() ->* _mfn)(arg);
+    }
+};
+
+template<class T, class H>
+class VoidMemFun : public std::unary_function<H, void>
+{
+    typedef void (T::*MemberFN)(void);
+    MemberFN _mfn;
+
+public:
+
+    explicit VoidMemFun(MemberFN p) : _mfn(p) { }
+    void operator()(H p) const
+    {
+	(p.get() ->* _mfn)();
+    }
+};
+
+template<class T, class H, class A>
+class VoidMemFun1 : public std::binary_function<H, A, void>
+{
+    typedef void (T::*MemberFN)(A);
+    MemberFN _mfn;
+
+public:
+
+    explicit VoidMemFun1(MemberFN p) : _mfn(p) { }
+    void operator()(H h, A arg) const
+    {
+	(p.get() ->* _mfn)(arg);
+    }
+};
+
+template<class R, class K, class T, class H>
+class SecondMemFun : public std::unary_function<std::pair<K, H>, R>
+{
+    typedef R (T::*MemberFN)(void);
+    MemberFN _mfn;
+
+public:
+
+    explicit SecondMemFun(MemberFN p) : _mfn(p) { }
+    R operator()(std::pair<K, H> p) const
+    {
+	return (p.second.get() ->* _mfn)();
+    }
+};
+
+template<class R, class K, class T, class H, class A>
+class SecondMemFun1 : public std::binary_function<std::pair<K, H>, A, R>
+{
+    typedef R (T::*MemberFN)(A);
+    MemberFN _mfn;
+
+public:
+
+    explicit SecondMemFun1(MemberFN p) : _mfn(p) { }
+    R operator()(std::pair<K, H> h, A arg) const
+    {
+	return (p.second.get() ->* _mfn)(arg);
+    }
+};
+
+template<class K, class T, class H>
+class SecondVoidMemFun : public std::unary_function<std::pair<K, H>, void>
+{
+    typedef void (T::*MemberFN)(void);
+    MemberFN _mfn;
+
+public:
+
+    explicit SecondVoidMemFun(MemberFN p) : _mfn(p) { }
+    void operator()(std::pair<K, H> p) const
+    {
+	(p.second.get() ->* _mfn)();
+    }
+};
+
+template<class K, class T, class H, class A>
+class SecondVoidMemFun1 : public std::binary_function<std::pair<K, H>, A, void>
+{
+    typedef void (T::*MemberFN)(A);
+    MemberFN _mfn;
+
+public:
+
+    explicit SecondVoidMemFun1(MemberFN p) : _mfn(p) { }
+    void operator()(std::pair<K, H> h, A arg) const
+    {
+	(p.second.get() ->* _mfn)(arg);
+    }
+};
+
+template<class R, class T, class H>
+class ConstMemFun : public std::unary_function<H, R>
+{
+    typedef R (T::*MemberFN)(void) const;
+    MemberFN _mfn;
+
+public:
+
+    explicit ConstMemFun(MemberFN p) : _mfn(p) { }
+    R operator()(H p) const
+    {
+	return (p.get() ->* _mfn)();
+    }
+};
+
+template<class R, class T, class H, class A>
+class ConstMemFun1 : public std::binary_function<H, A, R>
+{
+    typedef R (T::*MemberFN)(A);
+    MemberFN _mfn;
+
+public:
+
+    explicit ConstMemFun1(MemberFN p) : _mfn(p) { }
+    R operator()(H h, A arg) const
+    {
+	return (p.get() ->* _mfn)(arg);
+    }
+};
+
+template<class T, class H>
+class ConstVoidMemFun : public std::unary_function<H, void>
+{
+    typedef void (T::*MemberFN)(void) const;
+    MemberFN _mfn;
+
+public:
+
+    explicit ConstVoidMemFun(MemberFN p) : _mfn(p) { }
+    void operator()(H p) const
+    {
+	(p.get() ->* _mfn)();
+    }
+};
+
+template<class T, class H, class A>
+class ConstVoidMemFun1 : public std::binary_function<H, A, void>
+{
+    typedef void (T::*MemberFN)(A);
+    MemberFN _mfn;
+
+public:
+
+    explicit ConstVoidMemFun1(MemberFN p) : _mfn(p) { }
+    void operator()(H h, A arg) const
+    {
+	(p.get() ->* _mfn)(arg);
+    }
+};
+
+template<class R, class K, class T, class H>
+class SecondConstMemFun : public std::unary_function<std::pair<K, H>, R>
+{
+    typedef R (T::*MemberFN)(void) const;
+    MemberFN _mfn;
+
+public:
+
+    explicit SecondConstMemFun(MemberFN p) : _mfn(p) { }
+    R operator()(std::pair<K, H> p) const
+    {
+	return (p.second.get() ->* _mfn)();
+    }
+};
+
+template<class R, class K, class T, class H, class A>
+class SecondConstMemFun1 : public std::binary_function<std::pair<K, H>, A, R>
+{
+    typedef R (T::*MemberFN)(A);
+    MemberFN _mfn;
+
+public:
+
+    explicit SecondConstMemFun1(MemberFN p) : _mfn(p) { }
+    R operator()(std::pair<K, H> h, A arg) const
+    {
+	return (p.second.get() ->* _mfn)(arg);
+    }
+};
+
+template<class K, class T, class H>
+class SecondConstVoidMemFun : public std::unary_function<std::pair<K, H>, void>
+{
+    typedef void (T::*MemberFN)(void) const;
+    MemberFN _mfn;
+
+public:
+
+    explicit SecondConstVoidMemFun(MemberFN p) : _mfn(p) { }
+    void operator()(std::pair<K, H> p) const
+    {
+	(p.second.get() ->* _mfn)();
+    }
+};
+
+template<class K, class T, class H, class A>
+class SecondConstVoidMemFun1 : public std::binary_function<std::pair<K, H>, A, void>
+{
+    typedef void (T::*MemberFN)(A);
+    MemberFN _mfn;
+
+public:
+
+    explicit SecondConstVoidMemFun1(MemberFN p) : _mfn(p) { }
+    void operator()(std::pair<K, H> h, A arg) const
+    {
+	(p.second.get() ->* _mfn)(arg);
+    }
+};
+
+}
+
+// ----------------------------------------------------------------------
+// Inline functions that return function objects that work with
+// IceInternal::Handle
+// ----------------------------------------------------------------------
+
+namespace IceInternal
+{
+
+template<class R, class T>
+inline ::IceInternal::MemFun<R, T, Handle<T> >
+memFun(R (T::*p)(void))
+{
+    return ::IceInternal::MemFun<R, T, Handle<T> >(p);
+}
+
+template<class R, class T, class A>
+inline ::IceInternal::MemFun1<R, T, Handle<T>, A>
+memFun1(R (T::*p)(A))
+{
+    return ::IceInternal::MemFun1<R, T, Handle<T>, A>(p);
+}
+
+template<class T>
+inline ::IceInternal::VoidMemFun<T, Handle<T> >
+voidMemFun(void (T::*p)(void))
+{
+    return ::IceInternal::VoidMemFun<T, Handle<T> >(p);
+}
+
+template<class T, class A>
+inline ::IceInternal::VoidMemFun1<T, Handle<T>, A>
+voidMemFun1(void (T::*p)(A))
+{
+    return ::IceInternal::VoidMemFun1<T, Handle<T>, A>(p);
+}
+
+template<class R, class K, class T>
+inline ::IceInternal::SecondMemFun<R, K, T, Handle<T> >
+secondMemFun(R (T::*p)(void))
+{
+    return ::IceInternal::SecondMemFun<R, K, T, Handle<T> >(p);
+}
+
+template<class R, class K, class T, class A>
+inline ::IceInternal::SecondMemFun1<R, K, T, Handle<T>, A>
+secondMemFun1(R (T::*p)(A))
+{
+    return ::IceInternal::SecondMemFun1<R, K, T, Handle<T>, A>(p);
+}
+
+template<class K, class T>
+inline ::IceInternal::SecondVoidMemFun<K, T, Handle<T> >
+secondVoidMemFun(void (T::*p)(void))
+{
+    return ::IceInternal::SecondVoidMemFun<K, T, Handle<T> >(p);
+}
+
+template<class K, class T, class A>
+inline ::IceInternal::SecondVoidMemFun1<K, T, Handle<T>, A>
+secondVoidMemFun1(void (T::*p)(A))
+{
+    return ::IceInternal::SecondVoidMemFun1<K, T, Handle<T>, A>(p);
+}
+
+template<class R, class T>
+inline ::IceInternal::ConstMemFun<R, T, Handle<T> >
+constMemFun(R (T::*p)(void) const)
+{
+    return ::IceInternal::ConstMemFun<R, T, Handle<T> >(p);
+}
+
+template<class R, class T, class A>
+inline ::IceInternal::ConstMemFun1<R, T, Handle<T>, A>
+constMemFun1(R (T::*p)(A))
+{
+    return ::IceInternal::ConstMemFun1<R, T, Handle<T>, A>(p);
+}
+
+template<class T>
+inline ::IceInternal::ConstVoidMemFun<T, Handle<T> >
+constVoidMemFun(void (T::*p)(void) const)
+{
+    return ::IceInternal::ConstVoidMemFun<T, Handle<T> >(p);
+}
+
+template<class T, class A>
+inline ::IceInternal::ConstVoidMemFun1<T, Handle<T>, A>
+constVoidMemFun1(void (T::*p)(A))
+{
+    return ::IceInternal::ConstVoidMemFun1<T, Handle<T>, A>(p);
+}
+
+template<class R, class K, class T>
+inline ::IceInternal::SecondConstMemFun<R, K, T, Handle<T> >
+secondConstMemFun(R (T::*p)(void) const)
+{
+    return ::IceInternal::SecondConstMemFun<R, K, T, Handle<T> >(p);
+}
+
+template<class R, class K, class T, class A>
+inline ::IceInternal::SecondConstMemFun1<R, K, T, Handle<T>, A>
+secondConstMemFun1(R (T::*p)(A))
+{
+    return ::IceInternal::SecondConstMemFun1<R, K, T, Handle<T>, A>(p);
+}
+
+template<class K, class T>
+inline ::IceInternal::SecondConstVoidMemFun<K, T, Handle<T> >
+secondConstVoidMemFun(void (T::*p)(void) const)
+{
+    return ::IceInternal::SecondConstVoidMemFun<K, T, Handle<T> >(p);
+}
+
+template<class K, class T, class A>
+inline ::IceInternal::SecondConstVoidMemFun1<K, T, Handle<T>, A>
+secondConstVoidMemFun1(void (T::*p)(A))
+{
+    return ::IceInternal::SecondConstVoidMemFun1<K, T, Handle<T>, A>(p);
+}
+
+}
+
+// ----------------------------------------------------------------------
+// Inline functions that return function objects that work with
+// Ice::Handle
+// ----------------------------------------------------------------------
 
 namespace Ice
 {
 
 template<class R, class T>
-class memFunT
-    : public std::unary_function<IceInternal::Handle<T>, R>
-{
-    typedef R (T::*funT)(void);
-    funT mfn;
-
-public:
-
-    explicit memFunT(funT p) : mfn(p) { }
-    R operator()(const IceInternal::Handle<T>& p) const
-    {
-	return ((p.get() ->* mfn)());
-    }
-};
-
-template<class R, class T>
-inline memFunT<R, T>
+inline ::IceInternal::MemFun<R, T, Handle<T> >
 memFun(R (T::*p)(void))
 {
-    return (memFunT<R, T>(p));
+    return ::IceInternal::MemFun<R, T, Handle<T> >(p);
 }
 
 template<class R, class T, class A>
-class memFun1T
-    : public std::binary_function<IceInternal::Handle<T>, A, R>
-{
-    typedef R (T::*funT)(A);
-    funT mfn;
-
-public:
-
-    explicit memFun1T(funT p) : mfn(p) { }
-    R operator()(const IceInternal::Handle<T>& h, A arg) const
-    {
-	return ((p.get() ->* mfn)(arg));
-    }
-};
-
-template<class R, class T, class A>
-inline memFun1T<R, T, A>
+inline ::IceInternal::MemFun1<R, T, Handle<T>, A>
 memFun1(R (T::*p)(A))
 {
-    return (memFun1T<R, T, A>(p));
+    return ::IceInternal::MemFun1<R, T, Handle<T>, A>(p);
 }
 
 template<class T>
-class voidMemFunT
-    : public std::unary_function<IceInternal::Handle<T>, void>
-{
-    typedef void (T::*funT)(void);
-    funT mfn;
-
-public:
-
-    explicit voidMemFunT(funT p) : mfn(p) { }
-    void operator()(const IceInternal::Handle<T>& p) const
-    {
-	(p.get() ->* mfn)();
-    }
-};
-
-template<class T>
-inline voidMemFunT<T>
+inline ::IceInternal::VoidMemFun<T, Handle<T> >
 voidMemFun(void (T::*p)(void))
 {
-    return voidMemFunT<T>(p);
+    return ::IceInternal::VoidMemFun<T, Handle<T> >(p);
 }
 
 template<class T, class A>
-class voidMemFun1T
-    : public std::binary_function<IceInternal::Handle<T>, A, void>
-{
-    typedef void (T::*funT)(A);
-    funT mfn;
-
-public:
-
-    explicit voidMemFun1T(funT p) : mfn(p) { }
-    void operator()(const IceInternal::Handle<T>& h, A arg) const
-    {
-	(p.get() ->* mfn)(arg);
-    }
-};
-
-template<class T, class A>
-inline voidMemFun1T<T, A>
+inline ::IceInternal::VoidMemFun1<T, Handle<T>, A>
 voidMemFun1(void (T::*p)(A))
 {
-    return voidMemFun1T<T, A>(p);
+    return ::IceInternal::VoidMemFun1<T, Handle<T>, A>(p);
 }
 
 template<class R, class K, class T>
-class secondMemFunT
-    : public std::unary_function<std::pair<K, IceInternal::Handle<T> >, R>
-{
-    typedef R (T::*funT)(void);
-    funT mfn;
-
-public:
-
-    explicit secondMemFunT(funT p) : mfn(p) { }
-    R operator()(std::pair<K, const IceInternal::Handle<T>&> p) const
-    {
-	return ((p.second.get() ->* mfn)());
-    }
-};
-
-template<class R, class K, class T>
-inline secondMemFunT<R, K, T>
+inline ::IceInternal::SecondMemFun<R, K, T, Handle<T> >
 secondMemFun(R (T::*p)(void))
 {
-    return (secondMemFunT<R, K, T>(p));
+    return ::IceInternal::SecondMemFun<R, K, T, Handle<T> >(p);
 }
 
 template<class R, class K, class T, class A>
-class secondMemFun1T
-    : public std::binary_function<std::pair<K, const IceInternal::Handle<T>&>, A, R>
-{
-    typedef R (T::*funT)(A);
-    funT mfn;
-
-public:
-
-    explicit secondMemFun1T(funT p) : mfn(p) { }
-    R operator()(std::pair<K, const IceInternal::Handle<T>&> h, A arg) const
-    {
-	return ((p.second.get() ->* mfn)(arg));
-    }
-};
-
-template<class R, class K, class T, class A>
-inline secondMemFun1T<R, K, T, A>
+inline ::IceInternal::SecondMemFun1<R, K, T, Handle<T>, A>
 secondMemFun1(R (T::*p)(A))
 {
-    return (secondMemFun1T<R, K, T, A>(p));
+    return ::IceInternal::SecondMemFun1<R, K, T, Handle<T>, A>(p);
 }
 
 template<class K, class T>
-class secondVoidMemFunT
-    : public std::unary_function<std::pair<K, IceInternal::Handle<T> >, void>
-{
-    typedef void (T::*funT)(void);
-    funT mfn;
-
-public:
-
-    explicit secondVoidMemFunT(funT p) : mfn(p) { }
-    void operator()(std::pair<K, IceInternal::Handle<T> > p) const
-    {
-	(p.second.get() ->* mfn)();
-    }
-};
-
-template<class K, class T>
-inline secondVoidMemFunT<K, T>
+inline ::IceInternal::SecondVoidMemFun<K, T, Handle<T> >
 secondVoidMemFun(void (T::*p)(void))
 {
-    return secondVoidMemFunT<K, T>(p);
+    return ::IceInternal::SecondVoidMemFun<K, T, Handle<T> >(p);
 }
 
 template<class K, class T, class A>
-class secondVoidMemFun1T
-    : public std::binary_function<std::pair<K, IceInternal::Handle<T> >, A, void>
-{
-    typedef void (T::*funT)(A);
-    funT mfn;
-
-public:
-
-    explicit secondVoidMemFun1T(funT p) : mfn(p) { }
-    void operator()(std::pair<K, IceInternal::Handle<T> > h, A arg) const
-    {
-	(p.second.get() ->* mfn)(arg);
-    }
-};
-
-template<class K, class T, class A>
-inline secondVoidMemFun1T<K, T, A>
+inline ::IceInternal::SecondVoidMemFun1<K, T, Handle<T>, A>
 secondVoidMemFun1(void (T::*p)(A))
 {
-    return secondVoidMemFun1T<K, T, A>(p);
+    return ::IceInternal::SecondVoidMemFun1<K, T, Handle<T>, A>(p);
 }
 
 template<class R, class T>
-class constMemFunT
-    : public std::unary_function<IceInternal::Handle<T>, R>
-{
-    typedef R (T::*funT)(void) const;
-    funT mfn;
-
-public:
-
-    explicit constMemFunT(funT p) : mfn(p) { }
-    R operator()(const IceInternal::Handle<T>& p) const
-    {
-	return ((p.get() ->* mfn)());
-    }
-};
-
-template<class R, class T>
-inline constMemFunT<R, T>
+inline ::IceInternal::ConstMemFun<R, T, Handle<T> >
 constMemFun(R (T::*p)(void) const)
 {
-    return (constMemFunT<R, T>(p));
+    return ::IceInternal::ConstMemFun<R, T, Handle<T> >(p);
 }
 
 template<class R, class T, class A>
-class constMemFun1T
-    : public std::binary_function<IceInternal::Handle<T>, A, R>
-{
-    typedef R (T::*funT)(A);
-    funT mfn;
-
-public:
-
-    explicit constMemFun1T(funT p) : mfn(p) { }
-    R operator()(const IceInternal::Handle<T>& h, A arg) const
-    {
-	return ((p.get() ->* mfn)(arg));
-    }
-};
-
-template<class R, class T, class A>
-inline constMemFun1T<R, T, A>
+inline ::IceInternal::ConstMemFun1<R, T, Handle<T>, A>
 constMemFun1(R (T::*p)(A))
 {
-    return (constMemFun1T<R, T, A>(p));
+    return ::IceInternal::ConstMemFun1<R, T, Handle<T>, A>(p);
 }
 
 template<class T>
-class constVoidMemFunT
-    : public std::unary_function<IceInternal::Handle<T>, void>
-{
-    typedef void (T::*funT)(void) const;
-    funT mfn;
-
-public:
-
-    explicit constVoidMemFunT(funT p) : mfn(p) { }
-    void operator()(const IceInternal::Handle<T>& p) const
-    {
-	(p.get() ->* mfn)();
-    }
-};
-
-template<class T>
-inline constVoidMemFunT<T>
+inline ::IceInternal::ConstVoidMemFun<T, Handle<T> >
 constVoidMemFun(void (T::*p)(void) const)
 {
-    return constVoidMemFunT<T>(p);
+    return ::IceInternal::ConstVoidMemFun<T, Handle<T> >(p);
 }
 
 template<class T, class A>
-class constVoidMemFun1T
-    : public std::binary_function<IceInternal::Handle<T>, A, void>
-{
-    typedef void (T::*funT)(A);
-    funT mfn;
-
-public:
-
-    explicit constVoidMemFun1T(funT p) : mfn(p) { }
-    void operator()(const IceInternal::Handle<T>& h, A arg) const
-    {
-	(p.get() ->* mfn)(arg);
-    }
-};
-
-template<class T, class A>
-inline constVoidMemFun1T<T, A>
+inline ::IceInternal::ConstVoidMemFun1<T, Handle<T>, A>
 constVoidMemFun1(void (T::*p)(A))
 {
-    return constVoidMemFun1T<T, A>(p);
+    return ::IceInternal::ConstVoidMemFun1<T, Handle<T>, A>(p);
 }
 
 template<class R, class K, class T>
-class secondConstMemFunT
-    : public std::unary_function<std::pair<K, IceInternal::Handle<T> >, R>
-{
-    typedef R (T::*funT)(void) const;
-    funT mfn;
-
-public:
-
-    explicit secondConstMemFunT(funT p) : mfn(p) { }
-    R operator()(std::pair<K, const IceInternal::Handle<T>&> p) const
-    {
-	return ((p.second.get() ->* mfn)());
-    }
-};
-
-template<class R, class K, class T>
-inline secondConstMemFunT<R, K, T>
+inline ::IceInternal::SecondConstMemFun<R, K, T, Handle<T> >
 secondConstMemFun(R (T::*p)(void) const)
 {
-    return (secondConstMemFunT<R, K, T>(p));
+    return ::IceInternal::SecondConstMemFun<R, K, T, Handle<T> >(p);
 }
 
 template<class R, class K, class T, class A>
-class secondConstMemFun1T
-    : public std::binary_function<std::pair<K, const IceInternal::Handle<T>&>, A, R>
-{
-    typedef R (T::*funT)(A);
-    funT mfn;
-
-public:
-
-    explicit secondConstMemFun1T(funT p) : mfn(p) { }
-    R operator()(std::pair<K, const IceInternal::Handle<T>&> h, A arg) const
-    {
-	return ((p.second.get() ->* mfn)(arg));
-    }
-};
-
-template<class R, class K, class T, class A>
-inline secondConstMemFun1T<R, K, T, A>
+inline ::IceInternal::SecondConstMemFun1<R, K, T, Handle<T>, A>
 secondConstMemFun1(R (T::*p)(A))
 {
-    return (secondConstMemFun1T<R, K, T, A>(p));
+    return ::IceInternal::SecondConstMemFun1<R, K, T, Handle<T>, A>(p);
 }
 
 template<class K, class T>
-class secondConstVoidMemFunT
-    : public std::unary_function<std::pair<K, IceInternal::Handle<T> >, void>
-{
-    typedef void (T::*funT)(void) const;
-    funT mfn;
-
-public:
-
-    explicit secondConstVoidMemFunT(funT p) : mfn(p) { }
-    void operator()(std::pair<K, IceInternal::Handle<T> > p) const
-    {
-	(p.second.get() ->* mfn)();
-    }
-};
-
-template<class K, class T>
-inline secondConstVoidMemFunT<K, T>
+inline ::IceInternal::SecondConstVoidMemFun<K, T, Handle<T> >
 secondConstVoidMemFun(void (T::*p)(void) const)
 {
-    return secondConstVoidMemFunT<K, T>(p);
+    return ::IceInternal::SecondConstVoidMemFun<K, T, Handle<T> >(p);
 }
 
 template<class K, class T, class A>
-class secondConstVoidMemFun1T
-    : public std::binary_function<std::pair<K, IceInternal::Handle<T> >, A, void>
-{
-    typedef void (T::*funT)(A);
-    funT mfn;
-
-public:
-
-    explicit secondConstVoidMemFun1T(funT p) : mfn(p) { }
-    void operator()(std::pair<K, IceInternal::Handle<T> > h, A arg) const
-    {
-	(p.second.get() ->* mfn)(arg);
-    }
-};
-
-template<class K, class T, class A>
-inline secondConstVoidMemFun1T<K, T, A>
+inline ::IceInternal::SecondConstVoidMemFun1<K, T, Handle<T>, A>
 secondConstVoidMemFun1(void (T::*p)(A))
 {
-    return secondConstVoidMemFun1T<K, T, A>(p);
+    return ::IceInternal::SecondConstVoidMemFun1<K, T, Handle<T>, A>(p);
 }
 
 }

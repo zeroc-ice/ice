@@ -17,12 +17,16 @@
 #   define fileno _fileno
 #endif
 
+#ifdef HAVE_READLINE
+#   include <readline/readline.h>
+#   include <readline/history.h>
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IcePack;
 
 extern FILE* yyin;
-extern const char* yycommands;
 
 namespace IcePack
 {
@@ -140,6 +144,98 @@ IcePack::Parser::shutdown()
 }
 
 void
+IcePack::Parser::getInput(char* buf, int result, int maxSize)
+{
+    if (_commands)
+    {
+	if (strcmp(_commands, ";") == 0)
+	{
+	    buf[0] = EOF;
+	    result = 1;
+	}
+	else
+	{
+	    result = strlen(_commands);
+	    if (result >= maxSize)
+	    {
+		error("fatal error in flex scanner: command line too long");
+		buf[0] = EOF;
+		result = 1;
+	    }
+	    else
+	    {
+		strcpy(buf, _commands);
+		_commands = ";";
+	    }
+	}
+    }
+    else if (isatty(fileno(yyin)))
+    {
+#ifdef HAVE_READLINE
+
+	char* line = readline(parser->getPrompt());
+	if (line && *line)
+	{
+	    add_history(line);
+	}
+	if (!line)
+	{
+	    buf[0] = EOF;
+	    result = 1;
+	}
+	else
+	{
+	    result = strlen(line) + 1;
+	    if (result >= maxSize)
+	    {
+		free(line);
+		error("fatal error in flex scanner: input line too long");
+		buf[0] = EOF;
+		result = 1;
+	    }
+	    else
+	    {
+		strcpy(buf, line);
+		strcat(buf, "\n");
+		free(line);
+	    }
+	}
+
+#else
+
+	cout << parser->getPrompt() << flush;
+	int c = '*';
+	int n;
+	for (n = 0; n < maxSize && (c = getc(yyin)) != EOF && c != '\n'; ++n)
+	{
+	    buf[n] = static_cast<char>(c);
+	}
+	if (c == '\n')
+	{
+	    buf[n++] = static_cast<char>(c);
+	}
+	if (c == EOF && ferror(yyin))
+	{
+	    error("input in flex scanner failed");
+	    buf[0] = EOF;
+	    result = 1;
+	}
+	result = n;
+
+#endif
+    }
+    else
+    {
+	if (((result = fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
+	{
+	    error("input in flex scanner failed");
+	    buf[0] = EOF;
+	    result = 1;
+	}
+    }
+}
+
+void
 IcePack::Parser::nextLine()
 {
     _currentLine++;
@@ -154,7 +250,7 @@ IcePack::Parser::continueLine()
 char*
 IcePack::Parser::getPrompt()
 {
-    assert(!yycommands && isatty(fileno(yyin)));
+    assert(!_commands && isatty(fileno(yyin)));
 
     if (_continue)
     {
@@ -214,7 +310,7 @@ IcePack::Parser::scanPosition(const char* s)
 void
 IcePack::Parser::error(const char* s)
 {
-    if (!yycommands && !isatty(fileno(yyin)))
+    if (!_commands && !isatty(fileno(yyin)))
     {
 	cerr << _currentFile << ':' << _currentLine << ": " << s << endl;
     }
@@ -222,7 +318,7 @@ IcePack::Parser::error(const char* s)
     {
 	cerr << "error: " << s << endl;
     }
-    yynerrs++;
+    _errors++;
 }
 
 void
@@ -234,7 +330,7 @@ IcePack::Parser::error(const string& s)
 void
 IcePack::Parser::warning(const char* s)
 {
-    if (!yycommands && !isatty(fileno(yyin)))
+    if (!_commands && !isatty(fileno(yyin)))
     {
 	cerr << _currentFile << ':' << _currentLine << ": warning: " << s << endl;
     }
@@ -259,8 +355,9 @@ IcePack::Parser::parse(FILE* file, bool debug)
     assert(!parser);
     parser = this;
 
+    _errors = 0;
+    _commands = 0;
     yyin = file;
-    yycommands = 0;
 
     _currentFile = "<standard input>";
     _currentLine = 0;
@@ -268,6 +365,10 @@ IcePack::Parser::parse(FILE* file, bool debug)
     nextLine();
 
     int status = yyparse();
+    if (_errors)
+    {
+	status = EXIT_FAILURE;
+    }
 
     parser = 0;
     return status;
@@ -282,8 +383,9 @@ IcePack::Parser::parse(const std::string& commands, bool debug)
     assert(!parser);
     parser = this;
 
+    _errors = 0;
+    _commands = commands.c_str();
     yyin = 0;
-    yycommands = commands.c_str();
 
     _currentFile = "<command line>";
     _currentLine = 0;
@@ -291,6 +393,10 @@ IcePack::Parser::parse(const std::string& commands, bool debug)
     nextLine();
 
     int status = yyparse();
+    if (_errors)
+    {
+	status = EXIT_FAILURE;
+    }
 
     parser = 0;
     return status;

@@ -53,7 +53,7 @@ Ice::ObjectAdapterI::activate()
     }
 
     for_each(_collectorFactories.begin(), _collectorFactories.end(),
-	     voidMemFun(& ::IceInternal::CollectorFactory::activate));
+	     ::IceInternal::voidMemFun(& ::IceInternal::CollectorFactory::activate));
 }
 
 void
@@ -67,7 +67,7 @@ Ice::ObjectAdapterI::hold()
     }
 
     for_each(_collectorFactories.begin(), _collectorFactories.end(),
-	     voidMemFun(& ::IceInternal::CollectorFactory::hold));
+	     ::IceInternal::voidMemFun(& ::IceInternal::CollectorFactory::hold));
 }
 
 void
@@ -81,7 +81,7 @@ Ice::ObjectAdapterI::deactivate()
     }
 
     for_each(_collectorFactories.begin(), _collectorFactories.end(),
-	     voidMemFun(& ::IceInternal::CollectorFactory::destroy));
+	     ::IceInternal::voidMemFun(& ::IceInternal::CollectorFactory::destroy));
     _collectorFactories.clear();
     _objects.clear();
 }
@@ -240,7 +240,7 @@ Ice::ObjectAdapterI::identityToProxy(const string& ident)
     
     vector<EndpointPtr> endpoints;
     transform(_collectorFactories.begin(), _collectorFactories.end(), back_inserter(endpoints),
-	      constMemFun(&CollectorFactory::endpoint));
+	      ::IceInternal::constMemFun(&CollectorFactory::endpoint));
 
     ReferencePtr reference = new Reference(_instance, ident, Reference::ModeTwoway, false, endpoints, endpoints);
     return _instance->proxyFactory()->referenceToProxy(reference);

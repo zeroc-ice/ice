@@ -17,6 +17,16 @@
 #include <stack>
 #include <map>
 
+#ifdef WIN32
+#   ifdef SLICE_API_EXPORTS
+#       define SLICE_API __declspec(dllexport)
+#   else
+#       define SLICE_API __declspec(dllimport)
+#   endif
+#else
+#   define SLICE_API /**/
+#endif
+
 namespace Slice
 {
 
@@ -41,77 +51,26 @@ class Enumerator;
 class Native;
 class Unit;
 
-}
-
-namespace IceInternal
-{
-
-void ICE_API incRef(::Slice::GrammerBase*);
-void ICE_API decRef(::Slice::GrammerBase*);
-void ICE_API incRef(::Slice::SyntaxTreeBase*);
-void ICE_API decRef(::Slice::SyntaxTreeBase*);
-void ICE_API incRef(::Slice::Type*);
-void ICE_API decRef(::Slice::Type*);
-void ICE_API incRef(::Slice::Builtin*);
-void ICE_API decRef(::Slice::Builtin*);
-void ICE_API incRef(::Slice::Contained*);
-void ICE_API decRef(::Slice::Contained*);
-void ICE_API incRef(::Slice::Container*);
-void ICE_API decRef(::Slice::Container*);
-void ICE_API incRef(::Slice::Module*);
-void ICE_API decRef(::Slice::Module*);
-void ICE_API incRef(::Slice::Constructed*);
-void ICE_API decRef(::Slice::Constructed*);
-void ICE_API incRef(::Slice::ClassDecl*);
-void ICE_API decRef(::Slice::ClassDecl*);
-void ICE_API incRef(::Slice::ClassDef*);
-void ICE_API decRef(::Slice::ClassDef*);
-void ICE_API incRef(::Slice::Proxy*);
-void ICE_API decRef(::Slice::Proxy*);
-void ICE_API incRef(::Slice::Struct*);
-void ICE_API decRef(::Slice::Struct*);
-void ICE_API incRef(::Slice::Operation*);
-void ICE_API decRef(::Slice::Operation*);
-void ICE_API incRef(::Slice::DataMember*);
-void ICE_API decRef(::Slice::DataMember*);
-void ICE_API incRef(::Slice::Sequence*);
-void ICE_API decRef(::Slice::Sequence*);
-void ICE_API incRef(::Slice::Dictionary*);
-void ICE_API decRef(::Slice::Dictionary*);
-void ICE_API incRef(::Slice::Enum*);
-void ICE_API decRef(::Slice::Enum*);
-void ICE_API incRef(::Slice::Enumerator*);
-void ICE_API decRef(::Slice::Enumerator*);
-void ICE_API incRef(::Slice::Native*);
-void ICE_API decRef(::Slice::Native*);
-void ICE_API incRef(::Slice::Unit*);
-void ICE_API decRef(::Slice::Unit*);
-
-}
-
-namespace Slice
-{
-
-typedef ::IceInternal::Handle<GrammerBase> GrammerBasePtr;
-typedef ::IceInternal::Handle<SyntaxTreeBase> SyntaxTreeBasePtr;
-typedef ::IceInternal::Handle<Type> TypePtr;
-typedef ::IceInternal::Handle<Builtin> BuiltinPtr;
-typedef ::IceInternal::Handle<Contained> ContainedPtr;
-typedef ::IceInternal::Handle<Container> ContainerPtr;
-typedef ::IceInternal::Handle<Module> ModulePtr;
-typedef ::IceInternal::Handle<Constructed> ConstructedPtr;
-typedef ::IceInternal::Handle<ClassDecl> ClassDeclPtr;
-typedef ::IceInternal::Handle<ClassDef> ClassDefPtr;
-typedef ::IceInternal::Handle<Proxy> ProxyPtr;
-typedef ::IceInternal::Handle<Struct> StructPtr;
-typedef ::IceInternal::Handle<Operation> OperationPtr;
-typedef ::IceInternal::Handle<DataMember> DataMemberPtr;
-typedef ::IceInternal::Handle<Sequence> SequencePtr;
-typedef ::IceInternal::Handle<Dictionary> DictionaryPtr;
-typedef ::IceInternal::Handle<Enum> EnumPtr;
-typedef ::IceInternal::Handle<Enumerator> EnumeratorPtr;
-typedef ::IceInternal::Handle<Native> NativePtr;
-typedef ::IceInternal::Handle<Unit> UnitPtr;
+typedef ::Ice::Handle<GrammerBase> GrammerBasePtr;
+typedef ::Ice::Handle<SyntaxTreeBase> SyntaxTreeBasePtr;
+typedef ::Ice::Handle<Type> TypePtr;
+typedef ::Ice::Handle<Builtin> BuiltinPtr;
+typedef ::Ice::Handle<Contained> ContainedPtr;
+typedef ::Ice::Handle<Container> ContainerPtr;
+typedef ::Ice::Handle<Module> ModulePtr;
+typedef ::Ice::Handle<Constructed> ConstructedPtr;
+typedef ::Ice::Handle<ClassDecl> ClassDeclPtr;
+typedef ::Ice::Handle<ClassDef> ClassDefPtr;
+typedef ::Ice::Handle<Proxy> ProxyPtr;
+typedef ::Ice::Handle<Struct> StructPtr;
+typedef ::Ice::Handle<Operation> OperationPtr;
+typedef ::Ice::Handle<DataMember> DataMemberPtr;
+typedef ::Ice::Handle<Sequence> SequencePtr;
+typedef ::Ice::Handle<Dictionary> DictionaryPtr;
+typedef ::Ice::Handle<Enum> EnumPtr;
+typedef ::Ice::Handle<Enumerator> EnumeratorPtr;
+typedef ::Ice::Handle<Native> NativePtr;
+typedef ::Ice::Handle<Unit> UnitPtr;
 
 }
 
@@ -128,8 +87,8 @@ int yyparse();
 // I must set the initial stack depth to the maximum stack depth to
 // disable bison stack resizing. The bison stack resizing routines use
 // simple malloc/alloc/memcpy calls, which do not work for the
-// YYSTYPE, since YYSTYPE is a C++ smart pointer, with a default
-// constructor and a destructor.
+// YYSTYPE, since YYSTYPE is a C++ type, with constructor, destructor,
+// assignment operator, etc.
 //
 #define YYMAXDEPTH  20000 // 20000 should suffice. Bison default is 10000 as maximum.
 #define YYINITDEPTH YYMAXDEPTH // Initial depth is set to max depth, for the reasons described above.
@@ -156,7 +115,7 @@ typedef std::list<DataMemberPtr> DataMemberList;
 // ParserVisitor
 // ----------------------------------------------------------------------
 
-class ICE_API ParserVisitor
+class SLICE_API ParserVisitor
 {
 public:
 
@@ -182,7 +141,7 @@ public:
 // GrammerBase
 // ----------------------------------------------------------------------
 
-class ICE_API GrammerBase : public ::IceInternal::SimpleShared
+class SLICE_API GrammerBase : public ::Ice::SimpleShared
 {
 };
 
@@ -190,7 +149,7 @@ class ICE_API GrammerBase : public ::IceInternal::SimpleShared
 // SyntaxTreeBase
 // ----------------------------------------------------------------------
 
-class ICE_API SyntaxTreeBase : public GrammerBase
+class SLICE_API SyntaxTreeBase : public GrammerBase
 {
 public:
 
@@ -209,7 +168,7 @@ protected:
 // Type
 // ----------------------------------------------------------------------
 
-class ICE_API Type : virtual public SyntaxTreeBase
+class SLICE_API Type : virtual public SyntaxTreeBase
 {
 public:
 
@@ -222,7 +181,7 @@ protected:
 // Builtin
 // ----------------------------------------------------------------------
 
-class ICE_API Builtin : virtual public Type
+class SLICE_API Builtin : virtual public Type
 {
 public:
 
@@ -246,7 +205,7 @@ public:
 protected:
 
     Builtin(const UnitPtr&, Kind);
-    friend class ICE_API Unit;
+    friend class SLICE_API Unit;
 
     Kind _kind;
 };
@@ -255,7 +214,7 @@ protected:
 // Contained
 // ----------------------------------------------------------------------
 
-class ICE_API Contained : virtual public SyntaxTreeBase
+class SLICE_API Contained : virtual public SyntaxTreeBase
 {
 public:
 
@@ -283,7 +242,7 @@ public:
 protected:
 
     Contained(const ContainerPtr&, const std::string&);
-    friend class ICE_API Container;
+    friend class SLICE_API Container;
 
     ContainerPtr _container;
     std::string _name;
@@ -291,14 +250,14 @@ protected:
     std::string _comment;
 };
 
-bool ICE_API operator<(Contained&, Contained&);
-bool ICE_API operator==(Contained&, Contained&);
+bool SLICE_API operator<(Contained&, Contained&);
+bool SLICE_API operator==(Contained&, Contained&);
 
 // ----------------------------------------------------------------------
 // Container
 // ----------------------------------------------------------------------
 
-class ICE_API Container : virtual public SyntaxTreeBase
+class SLICE_API Container : virtual public SyntaxTreeBase
 {
 public:
 
@@ -346,7 +305,7 @@ protected:
 // Module
 // ----------------------------------------------------------------------
 
-class ICE_API Module : virtual public Container, virtual public Contained
+class SLICE_API Module : virtual public Container, virtual public Contained
 {
 public:
 
@@ -356,14 +315,14 @@ public:
 protected:
 
     Module(const ContainerPtr&, const std::string&);
-    friend class ICE_API Container;
+    friend class SLICE_API Container;
 };
 
 // ----------------------------------------------------------------------
 // Constructed
 // ----------------------------------------------------------------------
 
-class ICE_API Constructed : virtual public Type, virtual public Contained
+class SLICE_API Constructed : virtual public Type, virtual public Contained
 {
 public:
 
@@ -376,7 +335,7 @@ protected:
 // ClassDecl
 // ----------------------------------------------------------------------
 
-class ICE_API ClassDecl : virtual public Constructed
+class SLICE_API ClassDecl : virtual public Constructed
 {
 public:
 
@@ -389,8 +348,8 @@ public:
 protected:
 
     ClassDecl(const ContainerPtr&, const std::string&, bool, bool);
-    friend class ICE_API Container;
-    friend class ICE_API ClassDef;
+    friend class SLICE_API Container;
+    friend class SLICE_API ClassDef;
 
     ClassDefPtr _definition;
     bool _local;
@@ -401,7 +360,7 @@ protected:
 // ClassDef
 // ----------------------------------------------------------------------
 
-class ICE_API ClassDef : virtual public Container, virtual public Contained
+class SLICE_API ClassDef : virtual public Container, virtual public Contained
 {
 public:
 
@@ -422,7 +381,7 @@ public:
 protected:
 
     ClassDef(const ContainerPtr&, const std::string&, bool, bool, const ClassList&);
-    friend class ICE_API Container;
+    friend class SLICE_API Container;
 
     bool _local;
     bool _interface;
@@ -433,7 +392,7 @@ protected:
 // Proxy
 // ----------------------------------------------------------------------
 
-class ICE_API Proxy : virtual public Type
+class SLICE_API Proxy : virtual public Type
 {
 public:
 
@@ -450,7 +409,7 @@ protected:
 // Struct
 // ----------------------------------------------------------------------
 
-class ICE_API Struct : virtual public Container, virtual public Constructed
+class SLICE_API Struct : virtual public Container, virtual public Constructed
 {
 public:
 
@@ -462,14 +421,14 @@ public:
 protected:
 
     Struct(const ContainerPtr&, const std::string&);
-    friend class ICE_API Container;
+    friend class SLICE_API Container;
 };
 
 // ----------------------------------------------------------------------
 // Operation
 // ----------------------------------------------------------------------
 
-class ICE_API Operation : virtual public Contained
+class SLICE_API Operation : virtual public Contained
 {
 public:
 
@@ -485,7 +444,7 @@ protected:
 
     Operation(const ContainerPtr&, const std::string&, const TypePtr&, const TypeStringList&, const TypeStringList&,
 	      const TypeList&, bool);
-    friend class ICE_API ClassDef;
+    friend class SLICE_API ClassDef;
 
     TypePtr _returnType;
     TypeStringList _inParams;
@@ -498,7 +457,7 @@ protected:
 // DataMember
 // ----------------------------------------------------------------------
 
-class ICE_API DataMember : virtual public Contained
+class SLICE_API DataMember : virtual public Contained
 {
 public:
 
@@ -509,8 +468,8 @@ public:
 protected:
     
     DataMember(const ContainerPtr&, const std::string&, const TypePtr&);
-    friend class ICE_API ClassDef;
-    friend class ICE_API Struct;
+    friend class SLICE_API ClassDef;
+    friend class SLICE_API Struct;
 
     TypePtr _type;
 };
@@ -519,7 +478,7 @@ protected:
 // Sequence
 // ----------------------------------------------------------------------
 
-class ICE_API Sequence : virtual public Constructed
+class SLICE_API Sequence : virtual public Constructed
 {
 public:
 
@@ -530,7 +489,7 @@ public:
 protected:
 
     Sequence(const ContainerPtr&, const std::string&, const TypePtr&);
-    friend class ICE_API Container;
+    friend class SLICE_API Container;
 
     TypePtr _type;
 };
@@ -539,7 +498,7 @@ protected:
 // Dictionary
 // ----------------------------------------------------------------------
 
-class ICE_API Dictionary : virtual public Constructed
+class SLICE_API Dictionary : virtual public Constructed
 {
 public:
 
@@ -551,7 +510,7 @@ public:
 protected:
 
     Dictionary(const ContainerPtr&, const std::string&, const TypePtr&, const TypePtr&);
-    friend class ICE_API Container;
+    friend class SLICE_API Container;
 
     TypePtr _keyType;
     TypePtr _valueType;
@@ -561,7 +520,7 @@ protected:
 // Enum
 // ----------------------------------------------------------------------
 
-class ICE_API Enum : virtual public Constructed
+class SLICE_API Enum : virtual public Constructed
 {
 public:
 
@@ -572,7 +531,7 @@ public:
 protected:
 
     Enum(const ContainerPtr&, const std::string&, const StringList&);
-    friend class ICE_API Container;
+    friend class SLICE_API Container;
     
     StringList _enumerators;
 };
@@ -581,7 +540,7 @@ protected:
 // Enumerator
 // ----------------------------------------------------------------------
 
-class ICE_API Enumerator : virtual public Contained
+class SLICE_API Enumerator : virtual public Contained
 {
 public:
 
@@ -590,7 +549,7 @@ public:
 protected:
 
     Enumerator(const ContainerPtr&, const std::string&);
-    friend class ICE_API Container;
+    friend class SLICE_API Container;
 };
 
 // ----------------------------------------------------------------------
@@ -614,7 +573,7 @@ protected:
 // Unit
 // ----------------------------------------------------------------------
 
-class ICE_API Unit : virtual public Container
+class SLICE_API Unit : virtual public Container
 {
 public:
 

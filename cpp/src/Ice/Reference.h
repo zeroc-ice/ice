@@ -21,7 +21,7 @@ namespace IceInternal
 
 class Stream;
 
-class Reference : public Shared
+class Reference : public ::Ice::Shared
 {
 public:
 

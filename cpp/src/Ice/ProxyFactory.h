@@ -22,7 +22,7 @@ namespace IceInternal
 
 class Stream;
 
-class ProxyFactory : public Shared
+class ProxyFactory : public ::Ice::Shared
 {
 public:
     

@@ -11,28 +11,39 @@
 #ifndef SLICE_OUTPUT_UTIL_H
 #define SLICE_OUTPUT_UTIL_H
 
+#include <Ice/Config.h>
 #include <fstream>
 #include <sstream>
 #include <stack>
 
+#ifdef WIN32
+#   ifdef SLICE_API_EXPORTS
+#       define SLICE_API __declspec(dllexport)
+#   else
+#       define SLICE_API __declspec(dllimport)
+#   endif
+#else
+#   define SLICE_API /**/
+#endif
+
 namespace Slice
 {
 
-class ICE_API NextLine { };
-class ICE_API StartBlock { };
-class ICE_API EndBlock { };
-class ICE_API Separator { };
+class SLICE_API NextLine { };
+class SLICE_API StartBlock { };
+class SLICE_API EndBlock { };
+class SLICE_API Separator { };
 
-extern ICE_API NextLine nl;
-extern ICE_API StartBlock sb;
-extern ICE_API EndBlock eb;
-extern ICE_API Separator sp;
+extern SLICE_API NextLine nl;
+extern SLICE_API StartBlock sb;
+extern SLICE_API EndBlock eb;
+extern SLICE_API Separator sp;
 
 // ----------------------------------------------------------------------
 // Indent
 // ----------------------------------------------------------------------
 
-class ICE_API Output : ::IceInternal::noncopyable
+class SLICE_API Output : public ::Ice::noncopyable
 {
 public:
 
@@ -94,10 +105,10 @@ Output& operator<<(Output& out, std::ios_base& (*val)(std::ios_base&))
     return out;
 }
 
-ICE_API Output& operator<<(Output&, const NextLine&);
-ICE_API Output& operator<<(Output&, const StartBlock&);
-ICE_API Output& operator<<(Output&, const EndBlock&);
-ICE_API Output& operator<<(Output&, const Separator&);
+SLICE_API Output& operator<<(Output&, const NextLine&);
+SLICE_API Output& operator<<(Output&, const StartBlock&);
+SLICE_API Output& operator<<(Output&, const EndBlock&);
+SLICE_API Output& operator<<(Output&, const Separator&);
 
 }
 

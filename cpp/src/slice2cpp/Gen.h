@@ -17,7 +17,7 @@
 namespace Slice
 {
 
-class Gen : ::IceInternal::noncopyable
+class Gen : public ::Ice::noncopyable
 {
 public:
 
@@ -45,7 +45,7 @@ private:
     std::vector<std::string> _includePaths;
     std::string _dllExport;
 
-    class TypesVisitor : ::IceInternal::noncopyable, public ParserVisitor
+    class TypesVisitor : public ::Ice::noncopyable, public ParserVisitor
     {
     public:
 
@@ -66,7 +66,7 @@ private:
 	std::string _dllExport;
     };
 
-    class ProxyDeclVisitor : ::IceInternal::noncopyable, public ParserVisitor
+    class ProxyDeclVisitor : public ::Ice::noncopyable, public ParserVisitor
     {
     public:
 
@@ -86,7 +86,7 @@ private:
 	std::string _dllExport;
     };
 
-    class ProxyVisitor : ::IceInternal::noncopyable, public ParserVisitor
+    class ProxyVisitor : public ::Ice::noncopyable, public ParserVisitor
     {
     public:
 
@@ -108,7 +108,7 @@ private:
 	std::string _dllExport;
     };
 
-    class DelegateVisitor : ::IceInternal::noncopyable, public ParserVisitor
+    class DelegateVisitor : public ::Ice::noncopyable, public ParserVisitor
     {
     public:
 
@@ -130,7 +130,7 @@ private:
 	std::string _dllExport;
     };
 
-    class DelegateMVisitor : ::IceInternal::noncopyable, public ParserVisitor
+    class DelegateMVisitor : public ::Ice::noncopyable, public ParserVisitor
     {
     public:
 
@@ -152,7 +152,7 @@ private:
 	std::string _dllExport;
     };
 
-    class ObjectDeclVisitor : ::IceInternal::noncopyable, public ParserVisitor
+    class ObjectDeclVisitor : public ::Ice::noncopyable, public ParserVisitor
     {
     public:
 
@@ -170,7 +170,7 @@ private:
 	std::string _dllExport;
     };
 
-    class ObjectVisitor : ::IceInternal::noncopyable, public ParserVisitor
+    class ObjectVisitor : public ::Ice::noncopyable, public ParserVisitor
     {
     public:
 
@@ -191,7 +191,7 @@ private:
 	std::string _dllExport;
     };
 
-    class IceVisitor : ::IceInternal::noncopyable, public ParserVisitor
+    class IceVisitor : public ::Ice::noncopyable, public ParserVisitor
     {
     public:
 
@@ -210,7 +210,7 @@ private:
 	std::string _dllExport;
     };
 
-    class HandleVisitor : ::IceInternal::noncopyable, public ParserVisitor
+    class HandleVisitor : public ::Ice::noncopyable, public ParserVisitor
     {
     public:
 

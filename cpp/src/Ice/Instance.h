@@ -34,7 +34,7 @@ class CommunicatorI;
 namespace IceInternal
 {
 
-class Instance : public Shared, public JTCMutex
+class Instance : public ::Ice::Shared, public JTCMutex
 {
 public:
 

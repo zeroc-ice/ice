@@ -100,10 +100,9 @@ typedef double Double;
 #include <JTC/JTC.h>
 
 //
-// By deriving from this class (private inheritance), other classes
-// are made non-copyable
+// By deriving from this class, other classes are made non-copyable
 //
-namespace IceInternal
+namespace Ice
 {
 
 class noncopyable
@@ -111,7 +110,7 @@ class noncopyable
 protected:
 
     noncopyable() { }
-    ~noncopyable() { }
+    ~noncopyable() { } // May not be virtual! Classes without virtual operations also derive from noncopyable.
 
 private:
 
@@ -120,6 +119,16 @@ private:
 };
 
 }
+
+//
+// Define the Ice and IceInternal namespace, so that we can use the following
+// everywhere in our code:
+//
+// using namespace Ice;
+// using namespace IceInternal;
+//
+namespace Ice { }
+namespace IceInternal { }
 
 //
 // The Ice version

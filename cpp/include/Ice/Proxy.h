@@ -44,7 +44,7 @@ protected:
 namespace IceProxy { namespace Ice
 {
 
-class ICE_API Object : public ::IceInternal::Shared, JTCMutex
+class ICE_API Object : public ::Ice::Shared, JTCMutex
 {
 public:
 
@@ -97,7 +97,7 @@ private:
 namespace IceDelegate { namespace Ice
 {
 
-class ICE_API Object : public ::IceInternal::Shared
+class ICE_API Object : public ::Ice::Shared
 {
 public:
 

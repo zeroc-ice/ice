@@ -25,6 +25,8 @@ yyerror(const char* s)
 
 %}
 
+%pure_parser
+
 %token ICE_PACK_STRING
 %token ICE_PACK_EXIT
 %token ICE_PACK_ADD

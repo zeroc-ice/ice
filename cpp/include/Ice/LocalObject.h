@@ -41,7 +41,7 @@ protected:
     LocalObjectPtr _ptr;        
 };
 
-class ICE_API LocalObject : public ::IceInternal::Shared
+class ICE_API LocalObject : public ::Ice::Shared
 {
 public:
 

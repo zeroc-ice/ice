@@ -525,7 +525,8 @@ IceInternal::CollectorFactory::message(Stream&)
     //
     // Can't use _collectors.remove_if(constMemFun(...)), because VC++
     // doesn't support member templates :-(
-    _collectors.erase(remove_if(_collectors.begin(), _collectors.end(),	constMemFun(&Collector::destroyed)),
+    _collectors.erase(remove_if(_collectors.begin(), _collectors.end(),
+				::IceInternal::constMemFun(&Collector::destroyed)),
 		      _collectors.end());
 
     //
@@ -635,7 +636,7 @@ IceInternal::CollectorFactory::setState(State state)
 		_threadPool->_register(_acceptor->fd(), this);
 	    }
 
-	    for_each(_collectors.begin(), _collectors.end(), voidMemFun(&Collector::activate));
+	    for_each(_collectors.begin(), _collectors.end(), ::IceInternal::voidMemFun(&Collector::activate));
 	    break;
 	}
 	
@@ -651,7 +652,7 @@ IceInternal::CollectorFactory::setState(State state)
 		_threadPool->unregister(_acceptor->fd());
 	    }
 
-	    for_each(_collectors.begin(), _collectors.end(), voidMemFun(&Collector::hold));
+	    for_each(_collectors.begin(), _collectors.end(), ::IceInternal::voidMemFun(&Collector::hold));
 	    break;
 	}
 	
@@ -674,7 +675,7 @@ IceInternal::CollectorFactory::setState(State state)
 		    _threadPool->unregister(_acceptor->fd());
 		}
 	    }
-	    for_each(_collectors.begin(), _collectors.end(), voidMemFun(&Collector::destroy));
+	    for_each(_collectors.begin(), _collectors.end(), ::IceInternal::voidMemFun(&Collector::destroy));
 	    _collectors.clear();
 	    break;
 	}

@@ -46,7 +46,7 @@ private:
     std::auto_ptr< ::Ice::LocalException> _ex;
 };
 
-class ICE_API Outgoing : noncopyable, public JTCMonitorT< JTCMutex >
+class ICE_API Outgoing : public ::Ice::noncopyable, public JTCMonitorT< JTCMutex >
 {
 public:
 

@@ -88,7 +88,7 @@ IceProxy::Ice::Object::_isA(const string& s)
     {
 	try
 	{
-	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    return __del->_isA(s);
 	}
 	catch (const LocationForward& __ex)
@@ -114,7 +114,7 @@ IceProxy::Ice::Object::_ping()
     {
 	try
 	{
-	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
 	    __del->_ping();
 	    return;
 	}
@@ -136,7 +136,7 @@ IceProxy::Ice::Object::_ping()
 void
 IceProxy::Ice::Object::_flush()
 {
-    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+    ::IceInternal::Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
     __del->_flush();
 }
 
@@ -409,7 +409,7 @@ IceProxy::Ice::Object::~Object()
 {
 }
 
-Handle< ::IceDelegate::Ice::Object>
+::IceInternal::Handle< ::IceDelegate::Ice::Object>
 IceProxy::Ice::Object::__getDelegate()
 {
     JTCSyncT<JTCMutex> sync(*this);
@@ -432,10 +432,10 @@ IceProxy::Ice::Object::__getDelegate()
     return _delegate;
 }
 
-Handle< ::IceDelegateM::Ice::Object>
+::IceInternal::Handle< ::IceDelegateM::Ice::Object>
 IceProxy::Ice::Object::__createDelegateM()
 {
-    return Handle< ::IceDelegateM::Ice::Object>(new ::IceDelegateM::Ice::Object);
+    return ::IceInternal::Handle< ::IceDelegateM::Ice::Object>(new ::IceDelegateM::Ice::Object);
 }
 
 void
@@ -538,7 +538,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
 	case Reference::ModeBatchOneway:
 	{
 	    remove_copy_if(_reference->endpoints.begin(), _reference->endpoints.end(), back_inserter(endpoints), 
-			   not1(constMemFun(&Endpoint::regular)));
+			   not1(::IceInternal::constMemFun(&Endpoint::regular)));
 	    break;
 	}
 	
@@ -546,14 +546,15 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& reference)
 	case Reference::ModeBatchDatagram:
 	{
 	    remove_copy_if(_reference->endpoints.begin(), _reference->endpoints.end(), back_inserter(endpoints),
-			   not1(constMemFun(&Endpoint::datagram)));
+			   not1(::IceInternal::constMemFun(&Endpoint::datagram)));
 	    break;
 	}
     }
 
     if (_reference->secure)
     {
-	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(constMemFun(&Endpoint::secure))),
+	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
+				  not1(::IceInternal::constMemFun(&Endpoint::secure))),
 			endpoints.end());
     }
 

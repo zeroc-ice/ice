@@ -21,47 +21,6 @@ Unit* unit;
 
 }
 
-void IceInternal::incRef(GrammerBase* p) { p->__incRef(); }
-void IceInternal::decRef(GrammerBase* p) { p->__decRef(); }
-void IceInternal::incRef(SyntaxTreeBase* p) { p->__incRef(); }
-void IceInternal::decRef(SyntaxTreeBase* p) { p->__decRef(); }
-void IceInternal::incRef(Type* p) { p->__incRef(); }
-void IceInternal::decRef(Type* p) { p->__decRef(); }
-void IceInternal::incRef(Builtin* p) { p->__incRef(); }
-void IceInternal::decRef(Builtin* p) { p->__decRef(); }
-void IceInternal::incRef(Contained* p) { p->__incRef(); }
-void IceInternal::decRef(Contained* p) { p->__decRef(); }
-void IceInternal::incRef(Container* p) { p->__incRef(); }
-void IceInternal::decRef(Container* p) { p->__decRef(); }
-void IceInternal::incRef(Module* p) { p->__incRef(); }
-void IceInternal::decRef(Module* p) { p->__decRef(); }
-void IceInternal::incRef(Constructed* p) { p->__incRef(); }
-void IceInternal::decRef(Constructed* p) { p->__decRef(); }
-void IceInternal::incRef(ClassDecl* p) { p->__incRef(); }
-void IceInternal::decRef(ClassDecl* p) { p->__decRef(); }
-void IceInternal::incRef(ClassDef* p) { p->__incRef(); }
-void IceInternal::decRef(ClassDef* p) { p->__decRef(); }
-void IceInternal::incRef(Proxy* p) { p->__incRef(); }
-void IceInternal::decRef(Proxy* p) { p->__decRef(); }
-void IceInternal::incRef(Struct* p) { p->__incRef(); }
-void IceInternal::decRef(Struct* p) { p->__decRef(); }
-void IceInternal::incRef(Operation* p) { p->__incRef(); }
-void IceInternal::decRef(Operation* p) { p->__decRef(); }
-void IceInternal::incRef(DataMember* p) { p->__incRef(); }
-void IceInternal::decRef(DataMember* p) { p->__decRef(); }
-void IceInternal::incRef(Sequence* p) { p->__incRef(); }
-void IceInternal::decRef(Sequence* p) { p->__decRef(); }
-void IceInternal::incRef(Dictionary* p) { p->__incRef(); }
-void IceInternal::decRef(Dictionary* p) { p->__decRef(); }
-void IceInternal::incRef(Enum* p) { p->__incRef(); }
-void IceInternal::decRef(Enum* p) { p->__decRef(); }
-void IceInternal::incRef(Enumerator* p) { p->__incRef(); }
-void IceInternal::decRef(Enumerator* p) { p->__decRef(); }
-void IceInternal::incRef(Native* p) { p->__incRef(); }
-void IceInternal::decRef(Native* p) { p->__decRef(); }
-void IceInternal::incRef(Unit* p) { p->__incRef(); }
-void IceInternal::decRef(Unit* p) { p->__decRef(); }
-
 // ----------------------------------------------------------------------
 // SyntaxTreeBase
 // ----------------------------------------------------------------------

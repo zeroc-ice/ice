@@ -23,35 +23,12 @@ class BoolTok;
 class TypeListTok;
 class ClassListTok;
 
-}
-
-namespace IceInternal
-{
-
-void ICE_API incRef(::Slice::StringTok*);
-void ICE_API decRef(::Slice::StringTok*);
-void ICE_API incRef(::Slice::TypeStringListTok*);
-void ICE_API decRef(::Slice::TypeStringListTok*);
-void ICE_API incRef(::Slice::StringListTok*);
-void ICE_API decRef(::Slice::StringListTok*);
-void ICE_API incRef(::Slice::BoolTok*);
-void ICE_API decRef(::Slice::BoolTok*);
-void ICE_API incRef(::Slice::TypeListTok*);
-void ICE_API decRef(::Slice::TypeListTok*);
-void ICE_API incRef(::Slice::ClassListTok*);
-void ICE_API decRef(::Slice::ClassListTok*);
-
-}
-
-namespace Slice
-{
-
-typedef ::IceInternal::Handle<StringTok> StringTokPtr;
-typedef ::IceInternal::Handle<TypeStringListTok> TypeStringListTokPtr;
-typedef ::IceInternal::Handle<StringListTok> StringListTokPtr;
-typedef ::IceInternal::Handle<BoolTok> BoolTokPtr;
-typedef ::IceInternal::Handle<TypeListTok> TypeListTokPtr;
-typedef ::IceInternal::Handle<ClassListTok> ClassListTokPtr;
+typedef ::Ice::Handle<StringTok> StringTokPtr;
+typedef ::Ice::Handle<TypeStringListTok> TypeStringListTokPtr;
+typedef ::Ice::Handle<StringListTok> StringListTokPtr;
+typedef ::Ice::Handle<BoolTok> BoolTokPtr;
+typedef ::Ice::Handle<TypeListTok> TypeListTokPtr;
+typedef ::Ice::Handle<ClassListTok> ClassListTokPtr;
 
 }
 

@@ -13,19 +13,42 @@
 
 #include <Ice/Config.h>
 
-namespace IceInternal
+//
+// Base classes for reference counted types. Note that the Ice
+// namespace is used instead of IceInternal, so that user code can use
+// these base classes as well.
+//
+// For "smart pointers" or "handles" for reference counted types
+// derived from these base classes, use IceInternal::Handle (only for
+// Ice internal stuff, of course), or Ice::Handle (for application
+// code).
+//
+// Ice::SimpleShared
+// =================
+//
+// A non thread-safe base class for reference-counted types.
+//
+// Ice::Shared
+// ===========
+//
+// A thread-safe base class for reference-counted types.
+//
+namespace Ice
 {
 
-//
-// Simple, non thread-safe intrusive base class for reference-counted
-// types.
-//
-class ICE_API SimpleShared : noncopyable
+class SimpleShared : public noncopyable
 {
 public:
 
-    SimpleShared();
-    virtual ~SimpleShared();
+    SimpleShared() :
+	_ref(0),
+	_noDelete(false)
+    {
+    }
+
+    virtual ~SimpleShared()
+    {
+    }
 
     void __incRef()
     {
@@ -61,15 +84,19 @@ private:
     bool _noDelete;
 };
 
-//
-// Thread-safe intrusive base class for reference-counted types.
-//
-class ICE_API Shared : noncopyable
+class Shared : public noncopyable
 {
 public:
 
-    Shared();
-    virtual ~Shared();
+    Shared() :
+	_ref(0),
+	_noDelete(false)
+    {
+    }
+    
+    virtual ~Shared()
+    {
+    }
 
     void __incRef()
     {

@@ -18,10 +18,8 @@ VERSIONED_NAME	= $(top_srcdir)/lib/$(VERSIONED_BASE)
 
 TARGETS		= $(NAME) $(VERSIONED_NAME)
 
-OBJS		= Shared.o \
-		  Scanner.o \
+OBJS		= Scanner.o \
 		  Grammer.o \
-		  GrammerUtil.o \
 		  Parser.o \
 		  OutputUtil.o
 
@@ -51,12 +49,5 @@ Scanner.cpp: Scanner.l Grammer.h
 clean::
 	-rm -f Grammer.cpp Grammer.h Grammer.output
 	-rm -f Scanner.cpp lex.yy.c
-
-Shared.cpp: ../Ice/Shared.cpp
-	rm -f $@
-	ln -s ../Ice/Shared.cpp $@
-
-clean::
-	-rm -f Shared.cpp
 
 include .depend

@@ -28,7 +28,7 @@ const ::Ice::Short TcpEndpointType = 1;
 const ::Ice::Short SslEndpointType = 2;
 const ::Ice::Short UdpEndpointType = 3;
 
-class Endpoint : public Shared
+class Endpoint : public ::Ice::Shared
 {
 public:
 

@@ -19,7 +19,7 @@
 namespace IceInternal
 {
 
-class ValueFactoryManager : public Shared, public JTCMutex
+class ValueFactoryManager : public ::Ice::Shared, public JTCMutex
 {
 public:
 

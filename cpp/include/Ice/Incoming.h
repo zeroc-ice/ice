@@ -18,7 +18,7 @@
 namespace IceInternal
 {
 
-class ICE_API Incoming : noncopyable
+class ICE_API Incoming : public ::Ice::noncopyable
 {
 public:
 

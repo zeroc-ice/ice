@@ -18,7 +18,7 @@
 namespace IceInternal
 {
 
-class TraceLevels : public Shared
+class TraceLevels : public ::Ice::Shared
 {
 public:
 

@@ -106,10 +106,6 @@ SOURCE=.\Grammer.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\GrammerUtil.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\OutputUtil.cpp
 # End Source File
 # Begin Source File
@@ -119,10 +115,6 @@ SOURCE=.\Parser.cpp
 # Begin Source File
 
 SOURCE=.\Scanner.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=..\Ice\Shared.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"

@@ -210,10 +210,6 @@ SOURCE=.\Reference.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\Shared.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\SslAcceptor.cpp
 # End Source File
 # Begin Source File

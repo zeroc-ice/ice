@@ -18,7 +18,7 @@
 namespace IceInternal
 {
 
-class Acceptor : public Shared
+class Acceptor : public ::Ice::Shared
 {
 public:
 

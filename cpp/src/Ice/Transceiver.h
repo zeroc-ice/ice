@@ -19,7 +19,7 @@ namespace IceInternal
 
 class Buffer;
 
-class Transceiver : public Shared
+class Transceiver : public ::Ice::Shared
 {
 public:
 
