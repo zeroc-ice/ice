@@ -7,55 +7,58 @@
 #
 # **********************************************************************
 
-import sys, Ice, Test, MA, MB, _Top
+import sys, Ice
+
+Ice.loadSlice('Test.ice')
+import Test
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class CAI(MA.CA):
+class CAI(Test.MA.CA):
     def caop(self, p, current=None):
         return p
 
-class CBI(MB.CB, CAI):
+class CBI(Test.MB.CB, CAI):
      def cbop(self, p, current=None):
         return p
 
-class CCI(MA.CC, CBI):
+class CCI(Test.MA.CC, CBI):
     def ccop(self, p, current=None):
         return p
 
-class IAI(MA.IA):
+class IAI(Test.MA.IA):
     def iaop(self, p, current=None):
         return p
 
-class IB1I(MB.IB1, IAI):
+class IB1I(Test.MB.IB1, IAI):
     def ib1op(self, p, current=None):
         return p
 
-class IB2I(MB.IB2, IAI):
+class IB2I(Test.MB.IB2, IAI):
     def ib2op(self, p, current=None):
         return p
 
-class ICI(MA.IC, IB1I, IB2I):
+class ICI(Test.MA.IC, IB1I, IB2I):
     def icop(self, p, current=None):
         return p
 
-class CDI(MA.CD, CCI, IB1I, IB2I):
+class CDI(Test.MA.CD, CCI, IB1I, IB2I):
     def cdop(self, p, current=None):
         return p
 
-class InitialI(_Top.Initial):
+class InitialI(Test.Initial):
     def __init__(self, adapter):
         self._adapter = adapter
-        self._ca = MA.CAPrx.uncheckedCast(self._adapter.addWithUUID(CAI()))
-        self._cb = MB.CBPrx.uncheckedCast(self._adapter.addWithUUID(CBI()))
-        self._cc = MA.CCPrx.uncheckedCast(self._adapter.addWithUUID(CCI()))
-        self._cd = MA.CDPrx.uncheckedCast(self._adapter.addWithUUID(CDI()))
-        self._ia = MA.IAPrx.uncheckedCast(self._adapter.addWithUUID(IAI()))
-        self._ib1 = MB.IB1Prx.uncheckedCast(self._adapter.addWithUUID(IB1I()))
-        self._ib2 = MB.IB2Prx.uncheckedCast(self._adapter.addWithUUID(IB2I()))
-        self._ic = MA.ICPrx.uncheckedCast(self._adapter.addWithUUID(ICI()))
+        self._ca = Test.MA.CAPrx.uncheckedCast(self._adapter.addWithUUID(CAI()))
+        self._cb = Test.MB.CBPrx.uncheckedCast(self._adapter.addWithUUID(CBI()))
+        self._cc = Test.MA.CCPrx.uncheckedCast(self._adapter.addWithUUID(CCI()))
+        self._cd = Test.MA.CDPrx.uncheckedCast(self._adapter.addWithUUID(CDI()))
+        self._ia = Test.MA.IAPrx.uncheckedCast(self._adapter.addWithUUID(IAI()))
+        self._ib1 = Test.MB.IB1Prx.uncheckedCast(self._adapter.addWithUUID(IB1I()))
+        self._ib2 = Test.MB.IB2Prx.uncheckedCast(self._adapter.addWithUUID(IB2I()))
+        self._ic = Test.MA.ICPrx.uncheckedCast(self._adapter.addWithUUID(ICI()))
 
     def shutdown(self, current=None):
         self._adapter.getCommunicator().shutdown()

@@ -7,7 +7,14 @@
 #
 # **********************************************************************
 
-import sys, Ice, Test, math
+import Ice, os, sys
+
+if not os.environ.has_key('ICE_HOME'):
+    print sys.argv[0] + ': ICE_HOME is not defined'
+    sys.exit(1)
+
+Ice.loadSlice('-I' + os.environ['ICE_HOME'] + '/slice Test.ice')
+import Test
 
 def test(b):
     if not b:

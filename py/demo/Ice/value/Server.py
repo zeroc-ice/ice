@@ -7,16 +7,19 @@
 #
 # **********************************************************************
 
-import sys, Ice, Value, _Top, Printer
+import sys, Ice
 
-class InitialI(_Top.Initial):
+Ice.loadSlice('Value.ice')
+import Demo, Printer
+
+class InitialI(Demo.Initial):
     def __init__(self, adapter):
-        self._simple = _Top.Simple()
+        self._simple = Demo.Simple()
         self._simple.message = "a message 4 u"
 
         self._printer = Printer.PrinterI()
         self._printer.message = "Ice rulez!"
-        self._printerProxy = _Top.PrinterPrx.uncheckedCast(adapter.addWithUUID(self._printer))
+        self._printerProxy = Demo.PrinterPrx.uncheckedCast(adapter.addWithUUID(self._printer))
 
         self._derivedPrinter = Printer.DerivedPrinterI()
         self._derivedPrinter.message = self._printer.message
@@ -36,7 +39,7 @@ class InitialI(_Top.Initial):
         return self._derivedPrinter
 
     def throwDerivedPrinter(self, current=None):
-        ex = _Top.DerivedPrinterException()
+        ex = Demo.DerivedPrinterException()
         ex.derived = self._derivedPrinter
         raise ex
 

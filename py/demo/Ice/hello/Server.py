@@ -7,16 +7,14 @@
 #
 # **********************************************************************
 
-import sys, Hello, Ice, _Top
+import sys, Ice
 
-class HelloI(_Top.Hello):
+Ice.loadSlice('Hello.ice')
+import Demo
+
+class HelloI(Demo.Hello):
     def sayHello(self, current=None):
         print "Hello World!"
-        print "adapter =", current.adapter.getName()
-        print "id =", current.id
-        print "operation =", current.operation
-        print "facet =", current.facet
-        print "ctx =", current.ctx
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()

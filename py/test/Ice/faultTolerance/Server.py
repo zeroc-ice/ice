@@ -7,12 +7,15 @@
 #
 # **********************************************************************
 
-import sys, os, Ice, Test, _Top
+import sys, os, Ice
+
+Ice.loadSlice('Test.ice')
+import Test
 
 def usage(n):
     sys.stderr.write("Usage: " + n + " port\n")
 
-class TestI(_Top.Test):
+class TestI(Test.TestIntf):
     def __init__(self, adapter):
         self._adapter = adapter
 

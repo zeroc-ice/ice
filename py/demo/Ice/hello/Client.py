@@ -7,7 +7,10 @@
 #
 # **********************************************************************
 
-import sys, Hello, Ice, _Top
+import sys, Ice
+Ice.loadSlice('Hello.ice')
+
+import Demo
 
 def menu():
     print """
@@ -34,15 +37,15 @@ def run(args, communicator):
         return False
 
     base = communicator.stringToProxy(proxy)
-    twoway = _Top.HelloPrx.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(False))
+    twoway = Demo.HelloPrx.checkedCast(base.ice_twoway().ice_timeout(-1).ice_secure(False))
     if not twoway:
         print "invalid proxy"
         return False
 
-    oneway = _Top.HelloPrx.uncheckedCast(twoway.ice_oneway())
-    batchOneway = _Top.HelloPrx.uncheckedCast(twoway.ice_batchOneway())
-    datagram = _Top.HelloPrx.uncheckedCast(twoway.ice_datagram())
-    batchDatagram = _Top.HelloPrx.uncheckedCast(twoway.ice_batchDatagram())
+    oneway = Demo.HelloPrx.uncheckedCast(twoway.ice_oneway())
+    batchOneway = Demo.HelloPrx.uncheckedCast(twoway.ice_batchOneway())
+    datagram = Demo.HelloPrx.uncheckedCast(twoway.ice_datagram())
+    batchDatagram = Demo.HelloPrx.uncheckedCast(twoway.ice_batchDatagram())
 
     secure = False
     timeout = -1
@@ -77,9 +80,9 @@ def run(args, communicator):
                 else:
                     timeout = -1
 
-                twoway = _Top.HelloPrx.uncheckedCast(twoway.ice_timeout(timeout))
-                oneway = _Top.HelloPrx.uncheckedCast(oneway.ice_timeout(timeout))
-                batchOneway = _Top.HelloPrx.uncheckedCast(batchOneway.ice_timeout(timeout))
+                twoway = Demo.HelloPrx.uncheckedCast(twoway.ice_timeout(timeout))
+                oneway = Demo.HelloPrx.uncheckedCast(oneway.ice_timeout(timeout))
+                batchOneway = Demo.HelloPrx.uncheckedCast(batchOneway.ice_timeout(timeout))
 
                 if timeout == -1:
                     print "timeout is now switched off"
@@ -88,11 +91,11 @@ def run(args, communicator):
             elif c == 'S':
                 secure = not secure
 
-                twoway = _Top.HelloPrx.uncheckedCast(twoway.ice_secure(secure))
-                oneway = _Top.HelloPrx.uncheckedCast(oneway.ice_secure(secure))
-                batchOneway = _Top.HelloPrx.uncheckedCast(batchOneway.ice_secure(secure))
-                datagram = _Top.HelloPrx.uncheckedCast(datagram.ice_secure(secure))
-                batchDatagram = _Top.HelloPrx.uncheckedCast(batchDatagram.ice_secure(secure))
+                twoway = Demo.HelloPrx.uncheckedCast(twoway.ice_secure(secure))
+                oneway = Demo.HelloPrx.uncheckedCast(oneway.ice_secure(secure))
+                batchOneway = Demo.HelloPrx.uncheckedCast(batchOneway.ice_secure(secure))
+                datagram = Demo.HelloPrx.uncheckedCast(datagram.ice_secure(secure))
+                batchDatagram = Demo.HelloPrx.uncheckedCast(batchDatagram.ice_secure(secure))
 
                 if secure:
                     print "secure mode is now on"

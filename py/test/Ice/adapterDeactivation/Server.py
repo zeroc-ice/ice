@@ -7,13 +7,16 @@
 #
 # **********************************************************************
 
-import sys, Ice, Test, _Top, time
+import sys, Ice, time
+
+Ice.loadSlice('Test.ice')
+import Test
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class TestI(_Top.Test):
+class TestI(Test.TestIntf):
     def transient(self, current=None):
         communicator = current.adapter.getCommunicator()
         adapter = communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "default -p 9999")
@@ -25,7 +28,7 @@ class TestI(_Top.Test):
         current.adapter.deactivate()
         time.sleep(1)
 
-class CookieI(_Top.Cookie):
+class CookieI(Test.Cookie):
     def message(self):
         return 'blahblah'
 
@@ -49,7 +52,7 @@ class ServantLocatorI(Ice.ServantLocator):
         print "finished received " + cookie.message()
         test(not self._deactivated)
 
-        test(isinstance(cookie, _Top.Cookie))
+        test(isinstance(cookie, Test.Cookie))
         test(cookie.message() == 'blahblah')
 
     def deactivate(self, category):

@@ -7,13 +7,16 @@
 #
 # **********************************************************************
 
-import Ice, Test, _Top, Mod, threading, sys
+import Ice, threading, sys
+
+Ice.loadSlice('Test.ice')
+import Test
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class EmptyI(_Top.Empty):
+class EmptyI(Test.Empty):
     pass
 
 class ServantLocatorI(Ice.ServantLocator):
@@ -120,7 +123,7 @@ def allTests(communicator, collocated):
     print "ok"
 
     print "testing checked cast... ",
-    thrower = _Top.ThrowerPrx.checkedCast(base)
+    thrower = Test.ThrowerPrx.checkedCast(base)
     test(thrower)
     test(thrower == base)
     print "ok"
@@ -130,16 +133,16 @@ def allTests(communicator, collocated):
     try:
         thrower.throwAasA(1)
         test(False)
-    except _Top.A, ex:
+    except Test.A, ex:
         test(ex.aMem == 1)
     except:
-        print sys.exc_info()[1].unknown
+        print sys.exc_info()
         test(False)
 
     try:
         thrower.throwAorDasAorD(1)
         test(False)
-    except _Top.A, ex:
+    except Test.A, ex:
         test(ex.aMem == 1)
     except:
         print sys.exc_info()
@@ -148,7 +151,7 @@ def allTests(communicator, collocated):
     try:
         thrower.throwAorDasAorD(-1)
         test(False)
-    except _Top.D, ex:
+    except Test.D, ex:
         test(ex.dMem == -1)
     except:
         print sys.exc_info()
@@ -157,7 +160,7 @@ def allTests(communicator, collocated):
     try:
         thrower.throwBasB(1, 2)
         test(False)
-    except _Top.B, ex:
+    except Test.B, ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
     except:
@@ -167,7 +170,7 @@ def allTests(communicator, collocated):
     try:
         thrower.throwCasC(1, 2, 3)
         test(False)
-    except _Top.C, ex:
+    except Test.C, ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
         test(ex.cMem == 3)
@@ -178,7 +181,7 @@ def allTests(communicator, collocated):
     try:
         thrower.throwModA(1, 2)
         test(False)
-    except Mod.A, ex:
+    except Test.Mod.A, ex:
         test(ex.aMem == 1)
         test(ex.a2Mem == 2)
     except Ice.OperationNotExistException:
@@ -197,7 +200,7 @@ def allTests(communicator, collocated):
     try:
         thrower.throwBasB(1, 2)
         test(False)
-    except _Top.A, ex:
+    except Test.A, ex:
         test(ex.aMem == 1)
     except:
         print sys.exc_info()
@@ -206,7 +209,7 @@ def allTests(communicator, collocated):
     try:
         thrower.throwCasC(1, 2, 3)
         test(False)
-    except _Top.B, ex:
+    except Test.B, ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
     except:
@@ -216,7 +219,7 @@ def allTests(communicator, collocated):
     try:
         thrower.throwModA(1, 2)
         test(False)
-    except _Top.A, ex:
+    except Test.A, ex:
         test(ex.aMem == 1)
     except Ice.OperationNotExistException:
         #
@@ -234,7 +237,7 @@ def allTests(communicator, collocated):
     try:
         thrower.throwBasA(1, 2)
         test(False)
-    except _Top.B, ex:
+    except Test.B, ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
     except:
@@ -244,7 +247,7 @@ def allTests(communicator, collocated):
     try:
         thrower.throwCasA(1, 2, 3)
         test(False)
-    except _Top.C, ex:
+    except Test.C, ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
         test(ex.cMem == 3)
@@ -255,7 +258,7 @@ def allTests(communicator, collocated):
     try:
         thrower.throwCasB(1, 2, 3)
         test(False)
-    except _Top.C, ex:
+    except Test.C, ex:
         test(ex.aMem == 1)
         test(ex.bMem == 2)
         test(ex.cMem == 3)
@@ -271,7 +274,7 @@ def allTests(communicator, collocated):
         try:
             thrower.throwUndeclaredA(1)
             test(False)
-        except _Top.A, ex:
+        except Test.A, ex:
             #
             # We get the original exception with collocation
             # optimization.
@@ -291,7 +294,7 @@ def allTests(communicator, collocated):
         try:
             thrower.throwUndeclaredB(1, 2)
             test(False)
-        except _Top.B, ex:
+        except Test.B, ex:
             #
             # We get the original exception with collocation
             # optimization.
@@ -312,7 +315,7 @@ def allTests(communicator, collocated):
         try:
             thrower.throwUndeclaredC(1, 2, 3)
             test(False)
-        except _Top.C, ex:
+        except Test.C, ex:
             #
             # We get the original exception with collocation
             # optimization.
@@ -337,7 +340,7 @@ def allTests(communicator, collocated):
 
     id = Ice.stringToIdentity("does not exist")
     try:
-        thrower2 = _Top.ThrowerPrx.uncheckedCast(thrower.ice_newIdentity(id))
+        thrower2 = Test.ThrowerPrx.uncheckedCast(thrower.ice_newIdentity(id))
         thrower2.throwAasA(1)
 #        thrower2.ice_ping()
         test(False)
@@ -352,7 +355,7 @@ def allTests(communicator, collocated):
     print "catching facet not exist exception... ",
 
     try:
-        thrower2 = _Top.ThrowerPrx.uncheckedCast(thrower, "no such facet")
+        thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet")
         try:
             thrower2.ice_ping()
             test(False)
@@ -367,7 +370,7 @@ def allTests(communicator, collocated):
     print "catching operation not exist exception... ",
 
     try:
-        thrower2 = _Top.WrongOperationPrx.uncheckedCast(thrower)
+        thrower2 = Test.WrongOperationPrx.uncheckedCast(thrower)
         thrower2.noSuchOperation()
         test(False)
     except Ice.OperationNotExistException, ex:

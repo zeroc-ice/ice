@@ -237,6 +237,9 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
     server = os.path.join(testdir, serverName)
     client = os.path.join(testdir, clientName)
  
+    cwd = os.getcwd()
+    os.chdir(testdir)
+
     print "starting " + serverName + "...",
     serverCmd = "python " + server + serverOptions + additionalServerOptions + " 2>&1"
     serverPipe = os.popen(serverCmd)
@@ -258,6 +261,48 @@ def clientServerTestWithOptionsAndNames(name, additionalServerOptions, additiona
 	killServers()
 	sys.exit(1)
 
+    os.chdir(cwd)
+
+def clientServerTestWithPath(name, serverPath, clientPath):
+
+    testdir = os.path.join(toplevel, "test", name)
+    serverName = "Server.py"
+    clientName = "Client.py"
+    server = os.path.join(testdir, serverName)
+    client = os.path.join(testdir, clientName)
+ 
+    cwd = os.getcwd()
+    os.chdir(testdir)
+
+    oldPath = os.getenv("PYTHONPATH", "")
+
+    os.environ["PYTHONPATH"] = serverPath + ":" + oldPath
+    print "starting " + serverName + "...",
+    serverCmd = "python " + server + serverOptions + " 2>&1"
+    serverPipe = os.popen(serverCmd)
+    getServerPid(serverPipe)
+    getAdapterReady(serverPipe)
+    print "ok"
+
+    os.environ["PYTHONPATH"] = clientPath + ":" + oldPath
+    print "starting " + clientName + "...",
+    clientCmd = "python " + client + clientOptions + " 2>&1"
+    clientPipe = os.popen(clientCmd)
+    print "ok"
+
+    os.environ["PYTHONPATH"] = oldPath
+
+    printOutputFromPipe(clientPipe)
+
+    clientStatus = clientPipe.close()
+    serverStatus = serverPipe.close()
+
+    if clientStatus or serverStatus:
+	killServers()
+	sys.exit(1)
+
+    os.chdir(cwd)
+
 def clientServerTestWithOptions(name, additionalServerOptions, additionalClientOptions):
 
     clientServerTestWithOptionsAndNames(name, additionalServerOptions, additionalClientOptions,
@@ -272,6 +317,9 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
     testdir = os.path.join(toplevel, "test", name)
     server = os.path.join(testdir, "Server.py")
     client = os.path.join(testdir, "Client.py")
+
+    cwd = os.getcwd()
+    os.chdir(testdir)
 
     print "starting server...",
     serverPipe = os.popen("python " + server + clientServerOptions + additionalServerOptions + " 2>&1")
@@ -294,30 +342,11 @@ def mixedClientServerTestWithOptions(name, additionalServerOptions, additionalCl
 	killServers()
 	sys.exit(1)
 
+    os.chdir(cwd)
+
 def mixedClientServerTest(name):
 
     mixedClientServerTestWithOptions(name, "", "")
-
-def collocatedTestWithOptions(name, additionalOptions):
-
-    testdir = os.path.join(toplevel, "test", name)
-    collocated = os.path.join(testdir, "Collocated.py")
-
-    print "starting collocated...",
-    collocatedPipe = os.popen("python " + collocated + collocatedOptions + additionalOptions + " 2>&1")
-    print "ok"
-
-    printOutputFromPipe(collocatedPipe)
-
-    collocatedStatus = collocatedPipe.close()
-
-    if collocatedStatus:
-	killServers()
-	sys.exit(1)
-
-def collocatedTest(name):
-
-    collocatedTestWithOptions(name, "")
 
 def cleanDbDir(path):
 

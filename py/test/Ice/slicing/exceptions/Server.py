@@ -7,9 +7,12 @@
 #
 # **********************************************************************
 
-import sys, Ice, Test, ServerPrivate, _Top
+import Ice, sys
 
-class TestI(_Top.Test):
+Ice.loadSlice('-I. --all ServerPrivate.ice')
+import Test
+
+class TestI(Test.TestIntf):
     def __init__(self, adapter):
         self._adapter = adapter
 
@@ -17,83 +20,83 @@ class TestI(_Top.Test):
         self._adapter.getCommunicator().shutdown()
 
     def baseAsBase(self, current=None):
-        b = _Top.Base()
+        b = Test.Base()
         b.b = "Base.b"
         raise b
 
     def unknownDerivedAsBase(self, current=None):
-        d = _Top.UnknownDerived()
+        d = Test.UnknownDerived()
         d.b = "UnknownDerived.b"
         d.ud = "UnknownDerived.ud"
         raise d
 
     def knownDerivedAsBase(self, current=None):
-        d = _Top.KnownDerived()
+        d = Test.KnownDerived()
         d.b = "KnownDerived.b"
         d.kd = "KnownDerived.kd"
         raise d
 
     def knownDerivedAsKnownDerived(self, current=None):
-        d = _Top.KnownDerived()
+        d = Test.KnownDerived()
         d.b = "KnownDerived.b"
         d.kd = "KnownDerived.kd"
         raise d
 
     def unknownIntermediateAsBase(self, current=None):
-        ui = _Top.UnknownIntermediate()
+        ui = Test.UnknownIntermediate()
         ui.b = "UnknownIntermediate.b"
         ui.ui = "UnknownIntermediate.ui"
         raise ui
 
     def knownIntermediateAsBase(self, current=None):
-        ki = _Top.KnownIntermediate()
+        ki = Test.KnownIntermediate()
         ki.b = "KnownIntermediate.b"
         ki.ki = "KnownIntermediate.ki"
         raise ki
 
     def knownMostDerivedAsBase(self, current=None):
-        kmd = _Top.KnownMostDerived()
+        kmd = Test.KnownMostDerived()
         kmd.b = "KnownMostDerived.b"
         kmd.ki = "KnownMostDerived.ki"
         kmd.kmd = "KnownMostDerived.kmd"
         raise kmd
 
     def knownIntermediateAsKnownIntermediate(self, current=None):
-        ki = _Top.KnownIntermediate()
+        ki = Test.KnownIntermediate()
         ki.b = "KnownIntermediate.b"
         ki.ki = "KnownIntermediate.ki"
         raise ki
 
     def knownMostDerivedAsKnownIntermediate(self, current=None):
-        kmd = _Top.KnownMostDerived()
+        kmd = Test.KnownMostDerived()
         kmd.b = "KnownMostDerived.b"
         kmd.ki = "KnownMostDerived.ki"
         kmd.kmd = "KnownMostDerived.kmd"
         raise kmd
 
     def knownMostDerivedAsKnownMostDerived(self, current=None):
-        kmd = _Top.KnownMostDerived()
+        kmd = Test.KnownMostDerived()
         kmd.b = "KnownMostDerived.b"
         kmd.ki = "KnownMostDerived.ki"
         kmd.kmd = "KnownMostDerived.kmd"
         raise kmd
 
     def unknownMostDerived1AsBase(self, current=None):
-        umd1 = _Top.UnknownMostDerived1()
+        umd1 = Test.UnknownMostDerived1()
         umd1.b = "UnknownMostDerived1.b"
         umd1.ki = "UnknownMostDerived1.ki"
         umd1.umd1 = "UnknownMostDerived1.umd1"
         raise umd1
 
     def unknownMostDerived1AsKnownIntermediate(self, current=None):
-        umd1 = _Top.UnknownMostDerived1()
+        umd1 = Test.UnknownMostDerived1()
         umd1.b = "UnknownMostDerived1.b"
         umd1.ki = "UnknownMostDerived1.ki"
         umd1.umd1 = "UnknownMostDerived1.umd1"
         raise umd1
 
     def unknownMostDerived2AsBase(self, current=None):
-        umd2 = _Top.UnknownMostDerived2()
+        umd2 = Test.UnknownMostDerived2()
         umd2.b = "UnknownMostDerived2.b"
         umd2.ui = "UnknownMostDerived2.ui"
         umd2.umd2 = "UnknownMostDerived2.umd2"

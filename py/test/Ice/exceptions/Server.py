@@ -7,9 +7,12 @@
 #
 # **********************************************************************
 
-import sys, Ice, Test, Mod, _Top
+import sys, Ice
 
-class ThrowerI(_Top.Thrower):
+Ice.loadSlice('Test.ice')
+import Test
+
+class ThrowerI(Test.Thrower):
     def __init__(self, adapter):
         self._adapter = adapter
 
@@ -23,17 +26,17 @@ class ThrowerI(_Top.Thrower):
         return False
 
     def throwAasA(self, a, current=None):
-        ex = _Top.A()
+        ex = Test.A()
         ex.aMem = a
         raise ex
 
     def throwAorDasAorD(self, a, current=None):
         if a > 0:
-            ex = _Top.A()
+            ex = Test.A()
             ex.aMem = a
             raise ex
         else:
-            ex = _Top.D()
+            ex = Test.D()
             ex.dMem = a
             raise ex
 
@@ -44,7 +47,7 @@ class ThrowerI(_Top.Thrower):
         self.throwCasC(a, b, c, current)
 
     def throwBasB(self, a, b, current=None):
-        ex = _Top.B()
+        ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
@@ -53,31 +56,31 @@ class ThrowerI(_Top.Thrower):
         self.throwCasC(a, b, c, current)
 
     def throwCasC(self, a, b, c, current=None):
-        ex = _Top.C()
+        ex = Test.C()
         ex.aMem = a
         ex.bMem = b
         ex.cMem = c
         raise ex
 
     def throwModA(self, a, a2, current=None):
-        ex = Mod.A()
+        ex = Test.Mod.A()
         ex.aMem = a
         ex.a2Mem = a2
         raise ex
 
     def throwUndeclaredA(self, a, current=None):
-        ex = _Top.A()
+        ex = Test.A()
         ex.aMem = a
         raise ex
 
     def throwUndeclaredB(self, a, b, current=None):
-        ex = _Top.B()
+        ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
 
     def throwUndeclaredC(self, a, b, c, current=None):
-        ex = _Top.C()
+        ex = Test.C()
         ex.aMem = a
         ex.bMem = b
         ex.cMem = c

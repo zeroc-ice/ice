@@ -7,13 +7,16 @@
 #
 # **********************************************************************
 
-import Ice, Test, _Top
+import Ice
+
+Ice.loadSlice('Test.ice')
+import Test
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-class EmptyI(_Top.Empty):
+class EmptyI(Test.Empty):
     pass
 
 def allTests(communicator):
@@ -72,7 +75,7 @@ def allTests(communicator):
     print "ok"
 
     print "testing checked cast... ",
-    d = _Top.DPrx.checkedCast(db)
+    d = Test.DPrx.checkedCast(db)
     test(d)
     test(d == db)
     print "ok"
@@ -85,7 +88,7 @@ def allTests(communicator):
     print "ok"
 
     print "testing facets A, B, C, and D... ",
-    df = _Top.DPrx.checkedCast(d, "facetABCD")
+    df = Test.DPrx.checkedCast(d, "facetABCD")
     test(df)
     test(df.callA() == "A")
     test(df.callB() == "B")
@@ -94,20 +97,20 @@ def allTests(communicator):
     print "ok"
 
     print "testing facets E and F... ",
-    ff = _Top.FPrx.checkedCast(d, "facetEF")
+    ff = Test.FPrx.checkedCast(d, "facetEF")
     test(ff)
     test(ff.callE() == "E")
     test(ff.callF() == "F")
     print "ok"
 
     print "testing facet G... ",
-    gf = _Top.GPrx.checkedCast(ff, "facetGH")
+    gf = Test.GPrx.checkedCast(ff, "facetGH")
     test(gf)
     test(gf.callG() == "G")
     print "ok"
 
     print "testing whether casting preserves the facet... ",
-    hf = _Top.HPrx.checkedCast(gf)
+    hf = Test.HPrx.checkedCast(gf)
     test(hf)
     test(hf.callG() == "G")
     test(hf.callH() == "H")

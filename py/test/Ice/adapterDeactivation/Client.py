@@ -7,7 +7,10 @@
 #
 # **********************************************************************
 
-import sys, Ice, Test, _Top
+import sys, Ice
+
+Ice.loadSlice('Test.ice')
+import Test
 
 def test(b):
     if not b:
@@ -23,7 +26,7 @@ class TestClient(Ice.Application):
 
         print "testing checked cast... ",
         sys.stdout.flush()
-        obj = _Top.TestPrx.checkedCast(base)
+        obj = Test.TestIntfPrx.checkedCast(base)
         test(obj)
         test(obj == base)
         print "ok"

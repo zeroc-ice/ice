@@ -7,7 +7,10 @@
 #
 # **********************************************************************
 
-import Ice, Test, _Top
+import Ice
+
+Ice.loadSlice('Test.ice')
+import Test
 
 def test(b):
     if not b:
@@ -47,7 +50,7 @@ def allTests(communicator, ports):
     print "ok"
 
     print "testing checked cast... ",
-    obj = _Top.TestPrx.checkedCast(base)
+    obj = Test.TestIntfPrx.checkedCast(base)
     test(obj)
     test(obj == base)
     print "ok"

@@ -7,7 +7,10 @@
 #
 # **********************************************************************
 
-import Test, Ice, _Top, threading, sys
+import Ice, threading, sys
+
+Ice.loadSlice('Test.ice')
+import Test
 
 def test(b):
     if not b:
@@ -39,15 +42,15 @@ class CallbackBase:
 
 def allTests(communicator):
     obj = communicator.stringToProxy("Test:default -p 12345")
-    t = _Top.TestPrx.checkedCast(obj)
+    t = Test.TestIntfPrx.checkedCast(obj)
 
     print "base... ",
     gotException = False
     try:
         t.baseAsBase()
-    except _Top.Base, b:
+    except Test.Base, b:
         test(b.b == "Base.b")
-        test(b.ice_id() == "::Base")
+        test(b.ice_id() == "::Test::Base")
         gotException = True
     except:
         test(False)
@@ -64,9 +67,9 @@ def allTests(communicator):
     gotException = False
     try:
         t.unknownDerivedAsBase()
-    except _Top.Base, b:
+    except Test.Base, b:
         test(b.b == "UnknownDerived.b")
-        test(b.ice_id() == "::Base")
+        test(b.ice_id() == "::Test::Base")
         gotException = True
     except:
         test(False)
@@ -83,10 +86,10 @@ def allTests(communicator):
     gotException = False
     try:
         t.knownDerivedAsBase()
-    except _Top.KnownDerived, k:
+    except Test.KnownDerived, k:
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
-        test(k.ice_id() == "::KnownDerived")
+        test(k.ice_id() == "::Test::KnownDerived")
         gotException = True
     except:
         test(False)
@@ -103,10 +106,10 @@ def allTests(communicator):
     gotException = False
     try:
         t.knownDerivedAsKnownDerived()
-    except _Top.KnownDerived, k:
+    except Test.KnownDerived, k:
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
-        test(k.ice_id() == "::KnownDerived")
+        test(k.ice_id() == "::Test::KnownDerived")
         gotException = True
     except:
         test(False)
@@ -123,9 +126,9 @@ def allTests(communicator):
     gotException = False
     try:
         t.unknownIntermediateAsBase()
-    except _Top.Base, b:
+    except Test.Base, b:
         test(b.b == "UnknownIntermediate.b")
-        test(b.ice_id() == "::Base")
+        test(b.ice_id() == "::Test::Base")
         gotException = True
     except:
         test(False)
@@ -142,10 +145,10 @@ def allTests(communicator):
     gotException = False
     try:
         t.knownIntermediateAsBase()
-    except _Top.KnownIntermediate, ki:
+    except Test.KnownIntermediate, ki:
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
-        test(ki.ice_id() == "::KnownIntermediate")
+        test(ki.ice_id() == "::Test::KnownIntermediate")
         gotException = True
     except:
         test(False)
@@ -162,11 +165,11 @@ def allTests(communicator):
     gotException = False
     try:
         t.knownMostDerivedAsBase()
-    except _Top.KnownMostDerived, kmd:
+    except Test.KnownMostDerived, kmd:
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
-        test(kmd.ice_id() == "::KnownMostDerived")
+        test(kmd.ice_id() == "::Test::KnownMostDerived")
         gotException = True
     except:
         test(False)
@@ -183,10 +186,10 @@ def allTests(communicator):
     gotException = False
     try:
         t.knownIntermediateAsKnownIntermediate()
-    except _Top.KnownIntermediate, ki:
+    except Test.KnownIntermediate, ki:
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
-        test(ki.ice_id() == "::KnownIntermediate")
+        test(ki.ice_id() == "::Test::KnownIntermediate")
         gotException = True
     except:
         test(False)
@@ -203,11 +206,11 @@ def allTests(communicator):
     gotException = False
     try:
         t.knownMostDerivedAsKnownIntermediate()
-    except _Top.KnownMostDerived, kmd:
+    except Test.KnownMostDerived, kmd:
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
-        test(kmd.ice_id() == "::KnownMostDerived")
+        test(kmd.ice_id() == "::Test::KnownMostDerived")
         gotException = True
     except:
         test(False)
@@ -224,11 +227,11 @@ def allTests(communicator):
     gotException = False
     try:
         t.knownMostDerivedAsKnownMostDerived()
-    except _Top.KnownMostDerived, kmd:
+    except Test.KnownMostDerived, kmd:
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
         test(kmd.kmd == "KnownMostDerived.kmd")
-        test(kmd.ice_id() == "::KnownMostDerived")
+        test(kmd.ice_id() == "::Test::KnownMostDerived")
         gotException = True
     except:
         test(False)
@@ -245,10 +248,10 @@ def allTests(communicator):
     gotException = False
     try:
         t.unknownMostDerived1AsBase()
-    except _Top.KnownIntermediate, ki:
+    except Test.KnownIntermediate, ki:
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
-        test(ki.ice_id() == "::KnownIntermediate")
+        test(ki.ice_id() == "::Test::KnownIntermediate")
         gotException = True
     except:
         test(False)
@@ -265,10 +268,10 @@ def allTests(communicator):
     gotException = False
     try:
         t.unknownMostDerived1AsKnownIntermediate()
-    except _Top.KnownIntermediate, ki:
+    except Test.KnownIntermediate, ki:
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
-        test(ki.ice_id() == "::KnownIntermediate")
+        test(ki.ice_id() == "::Test::KnownIntermediate")
         gotException = True
     except:
         test(False)
@@ -285,9 +288,9 @@ def allTests(communicator):
     gotException = False
     try:
         t.unknownMostDerived2AsBase()
-    except _Top.Base, b:
+    except Test.Base, b:
         test(b.b == "UnknownMostDerived2.b")
-        test(b.ice_id() == "::Base")
+        test(b.ice_id() == "::Test::Base")
         gotException = True
     except:
         test(False)

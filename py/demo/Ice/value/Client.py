@@ -7,14 +7,17 @@
 #
 # **********************************************************************
 
-import sys, Ice, Value, _Top, Printer
+import sys, Ice
+
+Ice.loadSlice('Value.ice')
+import Demo, Printer
 
 class ObjectFactory(Ice.ObjectFactory):
     def create(self, type):
-        if type == "::Printer":
+        if type == "::Demo::Printer":
             return Printer.PrinterI()
 
-        if type == "::DerivedPrinter":
+        if type == "::Demo::DerivedPrinter":
             return Printer.DerivedPrinterI()
 
         assert(False)
@@ -32,7 +35,7 @@ def run(args, communicator):
         return False
 
     base = communicator.stringToProxy(proxy)
-    initial = _Top.InitialPrx.checkedCast(base)
+    initial = Demo.InitialPrx.checkedCast(base)
     if not initial:
         print args[0] + ": invalid proxy"
         return False
@@ -60,8 +63,8 @@ def run(args, communicator):
 
     print '\n'\
           "Yes, this worked. Now let's try to transfer an object for a class\n"\
-          "with operations as type ::Printer, without installing a factory first.\n"\
-          "This should give us a `no factory' exception.\n"\
+          "with operations as type ::Demo::Printer, without installing a factory\n"\
+          "first. This should give us a `no factory' exception.\n"\
           "[press enter]"
     raw_input()
 
@@ -81,7 +84,7 @@ def run(args, communicator):
     raw_input()
 
     factory = ObjectFactory()
-    communicator.addObjectFactory(factory, "::Printer")
+    communicator.addObjectFactory(factory, "::Demo::Printer")
 
     printer, printerProxy = initial.getPrinter()
     print "==> " + printer.message
@@ -106,14 +109,14 @@ def run(args, communicator):
     print '\n'\
           "Next, we transfer a derived object from the server as a base\n"\
           "object. Since we haven't yet installed a factory for the derived\n"\
-          "class, the derived class (::DerivedPrinter) is sliced\n"\
-          "to its base class (::Printer).\n"\
+          "class, the derived class (::Demo::DerivedPrinter) is sliced\n"\
+          "to its base class (::Demo::Printer).\n"\
           "[press enter]"
     raw_input()
 
     derivedAsBase = initial.getDerivedPrinter()
     print "==> The type ID of the received object is \"" + derivedAsBase.ice_id() + "\""
-    assert(derivedAsBase.ice_id() == "::Printer")
+    assert(derivedAsBase.ice_id() == "::Demo::Printer")
 
     print '\n'\
           "Now we install a factory for the derived class, and try again.\n"\
@@ -122,7 +125,7 @@ def run(args, communicator):
           "[press enter]"
     raw_input()
 
-    communicator.addObjectFactory(factory, "::DerivedPrinter")
+    communicator.addObjectFactory(factory, "::Demo::DerivedPrinter")
 
     derived = initial.getDerivedPrinter()
     print "==> The type ID of the received object is \"" + derived.ice_id() + "\""
@@ -148,7 +151,7 @@ def run(args, communicator):
     gotException = False
     try:
         initial.throwDerivedPrinter()
-    except _Top.DerivedPrinterException, ex:
+    except Demo.DerivedPrinterException, ex:
         derived = ex.derived
         assert(derived)
         gotException = True
