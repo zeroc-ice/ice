@@ -30,7 +30,6 @@ class TcpConnectorI : public ConnectorI
 {
 public:
     
-    virtual Transceiver initialize();
     virtual Transceiver connect(int);
     virtual std::string toString() const;
     

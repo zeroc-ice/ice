@@ -28,6 +28,7 @@ public:
 
     void _register(int, const EventHandler&);
     void unregister(int);
+    void promoteFollower();
     void waitUntilServerFinished();
     void waitUntilFinished();
     void joinWithAllThreads();

@@ -25,7 +25,7 @@ public:
     virtual int fd() = 0;
     virtual void close() = 0;
     virtual void shutdown() = 0;
-    virtual Transceiver initialize() = 0;
+    virtual void listen() = 0;
     virtual Transceiver accept(int) = 0;
     virtual std::string toString() const = 0;
 

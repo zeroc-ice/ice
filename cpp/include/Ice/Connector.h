@@ -22,7 +22,6 @@ class ConnectorI : public Shared
 {
 public:
     
-    virtual Transceiver initialize() = 0;
     virtual Transceiver connect(int) = 0;
     virtual std::string toString() const = 0;
     

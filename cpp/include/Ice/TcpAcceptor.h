@@ -33,7 +33,7 @@ public:
     virtual int fd();
     virtual void close();
     virtual void shutdown();
-    virtual Transceiver initialize();
+    virtual void listen();
     virtual Transceiver accept(int);
     virtual std::string toString() const;
 

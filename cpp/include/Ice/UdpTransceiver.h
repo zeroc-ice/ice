@@ -16,11 +16,15 @@
 #include <Ice/LoggerF.h>
 #include <Ice/Transceiver.h>
 
+#ifndef WIN32
+#   include <netinet/in.h> // For struct sockaddr_in
+#endif
+
 namespace __Ice
 {
 
-class UdpConnectorI;
-class UdpAcceptorI;
+class EmitterFactoryI;
+class CollectorFactoryI;
 
 class UdpTransceiverI : public TransceiverI
 {
@@ -38,13 +42,16 @@ private:
     UdpTransceiverI(const UdpTransceiverI&);
     void operator=(const UdpTransceiverI&);
 
+    UdpTransceiverI(Instance, const std::string&, int);
     UdpTransceiverI(Instance, int);
     virtual ~UdpTransceiverI();
-    friend class UdpConnectorI; // May create UdpTransceiverIs
-    friend class UdpAcceptorI; // May create UdpTransceiverIs
+    friend class EmitterFactoryI; // May create UdpTransceiverIs
+    friend class CollectorFactoryI; // May create UdpTransceiverIs
 
     Instance instance_;
+    bool sender_;
     int fd_;
+    struct sockaddr_in addr_;
 #ifndef ICE_NO_TRACE
     TraceLevels traceLevels_;
     ::Ice::Logger logger_;
