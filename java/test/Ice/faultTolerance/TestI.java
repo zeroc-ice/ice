@@ -18,7 +18,7 @@ public final class TestI extends _TestDisp
     TestI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-	_pseudoPid = (int)(System.currentTimeMillis() & 0xffffffffL);
+	_pseudoPid = (new java.util.Random()).nextInt();
     }
 
     public void
@@ -30,19 +30,19 @@ public final class TestI extends _TestDisp
     public void
     abort(Ice.Current current)
     {
-        System.exit(1);
+	Runtime.getRuntime().halt(1);
     }
 
     public void
     idempotentAbort(Ice.Current current)
     {
-        System.exit(1);
+	Runtime.getRuntime().halt(1);
     }
 
     public void
     nonmutatingAbort(Ice.Current current)
     {
-        System.exit(1);
+	Runtime.getRuntime().halt(1);
     }
 
     public int
