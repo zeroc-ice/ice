@@ -11,7 +11,6 @@
 #include <Ice/EndpointFactoryManager.h>
 #include <Ice/Endpoint.h>
 #include <Ice/UnknownEndpoint.h>
-#include <Ice/Network.h>
 #include <Ice/BasicStream.h>
 #include <Ice/LocalException.h>
 #include <Ice/Instance.h>
