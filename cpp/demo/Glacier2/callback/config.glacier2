@@ -13,6 +13,13 @@ Glacier2.Client.Endpoints=ssl -p 10005
 #
 Glacier2.Server.Endpoints=tcp -h 127.0.0.1
 
+# 
+# For this demo, we use a dummy permissions verifier that is
+# collocated with the server process. This dummy permissions verfier
+# allows any user-id / password combination.
+# 
+Glacier2.PermissionsVerifier=verifier:tcp -h 127.0.0.1 -p 10000
+
 #
 # These two lines instruct Glacier to forward contexts both for
 # regular routing, as well as for callbacks (reverse routing).

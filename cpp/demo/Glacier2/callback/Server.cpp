@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
+#include <DummyPermissionsVerifierI.h>
 #include <CallbackI.h>
 
 using namespace std;
@@ -33,6 +34,7 @@ CallbackServer::run(int argc, char* argv[])
 {
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Callback.Server");
     adapter->add(new CallbackI, Ice::stringToIdentity("callback"));
+    adapter->add(new DummyPermissionsVerifierI, Ice::stringToIdentity("verifier"));
     adapter->activate();
     communicator()->waitForShutdown();
     return EXIT_SUCCESS;

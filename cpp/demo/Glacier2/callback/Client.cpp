@@ -66,6 +66,8 @@ CallbackClient::run(int argc, char* argv[])
 
     while(true)
     {
+	cout << "This demo accepts any user-id / password combination.\n";
+
 	string id;
 	cout << "user id: " << flush;
 	cin >> id;
