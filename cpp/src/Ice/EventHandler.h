@@ -79,7 +79,7 @@ private:
     // The _stream data member is for use by ThreadPool only
     //
     BasicStream _stream;
-    friend ThreadPool;
+    friend class ThreadPool;
 };
 
 }

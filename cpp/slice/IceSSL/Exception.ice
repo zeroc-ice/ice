@@ -17,7 +17,7 @@ module IceSSL
 /**
  *
  * This exception represents the base of all security related exceptions
- * in Ice.  It is a local exception since usually a problem with security
+ * in &Ice;.  It is a local exception since usually a problem with security
  * precludes a proper secure connection to transmit exceptions upon.  As
  * well, many exceptions would contain information that is of no business
  * for external clients/servers.

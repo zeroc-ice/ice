@@ -17,6 +17,7 @@ public final class ReferenceFactory
            String facet,
            int mode,
            boolean secure,
+	   boolean compress,
            Endpoint[] origEndpoints,
            Endpoint[] endpoints,
            RouterInfo routerInfo,
@@ -30,7 +31,7 @@ public final class ReferenceFactory
         //
         // Create a new reference
         //
-        Reference ref = new Reference(_instance, ident, facet, mode, secure,
+        Reference ref = new Reference(_instance, ident, facet, mode, secure, compress,
                                       origEndpoints, endpoints,
                                       routerInfo, reverseAdapter);
 
@@ -72,7 +73,7 @@ public final class ReferenceFactory
         String s = str.trim();
         if (s.length() == 0)
         {
-            throw new Ice.ReferenceParseException();
+            throw new Ice.ProxyParseException();
         }
 
         int colon = s.indexOf(':');
@@ -91,6 +92,7 @@ public final class ReferenceFactory
         String facet = "";
         int mode = Reference.ModeTwoway;
         boolean secure = false;
+        boolean compress = false;
 
         int i = 1;
         while (i < arr.length)
@@ -98,7 +100,7 @@ public final class ReferenceFactory
             String option = arr[i++];
             if (option.length() != 2 || option.charAt(0) != '-')
             {
-                throw new Ice.ReferenceParseException();
+                throw new Ice.ProxyParseException();
             }
 
             String argument = null;
@@ -190,9 +192,20 @@ public final class ReferenceFactory
                     break;
                 }
 
+                case 'c':
+                {
+                    if (argument != null)
+                    {
+                        throw new Ice.EndpointParseException();
+                    }
+
+                    compress = true;
+                    break;
+                }
+
                 default:
                 {
-                    throw new Ice.ReferenceParseException();
+                    throw new Ice.ProxyParseException();
                 }
             }
         }
@@ -217,7 +230,7 @@ public final class ReferenceFactory
             {
                 if (!orig)
                 {
-                    throw new Ice.ReferenceParseException();
+                    throw new Ice.ProxyParseException();
                 }
 
                 orig = false;
@@ -244,7 +257,7 @@ public final class ReferenceFactory
 
         if (origEndpoints.size() == 0 || endpoints.size() == 0)
         {
-            throw new Ice.ReferenceParseException();
+            throw new Ice.ProxyParseException();
         }
 
         Endpoint[] origEndp = new Endpoint[origEndpoints.size()];
@@ -253,7 +266,7 @@ public final class ReferenceFactory
         endpoints.toArray(endp);
 
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
-        return create(ident, facet, mode, secure, origEndp, endp, routerInfo, null);
+        return create(ident, facet, mode, secure, compress, origEndp, endp, routerInfo, null);
     }
 
     public Reference
@@ -273,6 +286,8 @@ public final class ReferenceFactory
         }
 
         boolean secure = s.readBool();
+
+        boolean compress = s.readBool();
 
         Endpoint[] origEndpoints;
         Endpoint[] endpoints;
@@ -300,7 +315,7 @@ public final class ReferenceFactory
         }
 
         RouterInfo routerInfo = _instance.routerManager().get(getDefaultRouter());
-        return create(ident, facet, mode, secure, origEndpoints, endpoints, routerInfo, null);
+        return create(ident, facet, mode, secure, compress, origEndpoints, endpoints, routerInfo, null);
     }
 
     public synchronized void

@@ -63,7 +63,7 @@ private:
 
     ObjectAdapterI(const ::IceInternal::InstancePtr&, const std::string&, const std::string&);
     virtual ~ObjectAdapterI();
-    friend ::IceInternal::ObjectAdapterFactory;
+    friend class ::IceInternal::ObjectAdapterFactory;
     
     ObjectPrx newProxy(const Identity&) const;
     bool isLocal(const ObjectPrx&) const;

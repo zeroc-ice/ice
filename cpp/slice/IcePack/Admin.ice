@@ -15,7 +15,7 @@
 
 /**
  *
- * The Ice module for object location and activation.
+ * The &Ice; module for object location and activation.
  *
  **/
 module IcePack
@@ -78,7 +78,7 @@ struct ServerDescription
 
 /**
  *
- * A dictionary of server descriptions. The dictionary key is the Ice
+ * A dictionary of server descriptions. The dictionary key is the &Ice;
  * Object identity, and the value is the corresponding server
  * description.
  *

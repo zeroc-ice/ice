@@ -53,6 +53,11 @@ IceInternal::Reference::operator==(const Reference& r) const
 	return false;
     }
 
+    if (compress != r.compress)
+    {
+	return false;
+    }
+
     if (origEndpoints != r.origEndpoints)
     {
 	return false;
@@ -126,6 +131,15 @@ IceInternal::Reference::operator<(const Reference& r) const
 	return false;
     }
     
+    if (!compress && r.compress)
+    {
+	return true;
+    }
+    else if (r.compress < compress)
+    {
+	return false;
+    }
+    
     if (origEndpoints < r.origEndpoints)
     {
 	return true;
@@ -178,6 +192,8 @@ IceInternal::Reference::streamWrite(BasicStream* s) const
     s->write(static_cast<Byte>(mode));
     
     s->write(secure);
+
+    s->write(compress);
     
     vector<EndpointPtr>::const_iterator p;
 
@@ -252,6 +268,11 @@ IceInternal::Reference::toString() const
 	s << " -s";
     }
 
+    if (compress)
+    {
+	s << " -s";
+    }
+
     vector<EndpointPtr>::const_iterator p;
 
     for (p = origEndpoints.begin(); p != origEndpoints.end(); ++p)
@@ -280,7 +301,7 @@ IceInternal::Reference::changeIdentity(const Identity& newIdentity) const
     }
     else
     {
-	return instance->referenceFactory()->create(newIdentity, facet, mode, secure,
+	return instance->referenceFactory()->create(newIdentity, facet, mode, secure, compress,
 						    origEndpoints, endpoints,
 						    routerInfo, reverseAdapter);
     }
@@ -295,7 +316,7 @@ IceInternal::Reference::changeFacet(const string& newFacet) const
     }
     else
     {
-	return instance->referenceFactory()->create(identity, newFacet, mode, secure,
+	return instance->referenceFactory()->create(identity, newFacet, mode, secure, compress,
 						    origEndpoints, endpoints,
 						    routerInfo, reverseAdapter);
     }
@@ -341,7 +362,7 @@ IceInternal::Reference::changeTimeout(int timeout) const
 	}
     }
 
-    return instance->referenceFactory()->create(identity, facet, mode, secure,
+    return instance->referenceFactory()->create(identity, facet, mode, secure, compress,
 						newOrigEndpoints, newEndpoints,
 						newRouterInfo, reverseAdapter);
 }
@@ -355,7 +376,7 @@ IceInternal::Reference::changeMode(Mode newMode) const
     }
     else
     {
-	return instance->referenceFactory()->create(identity, facet, newMode, secure,
+	return instance->referenceFactory()->create(identity, facet, newMode, secure, compress,
 						    origEndpoints, endpoints,
 						    routerInfo, reverseAdapter);
     }
@@ -370,7 +391,22 @@ IceInternal::Reference::changeSecure(bool newSecure) const
     }
     else
     {
-	return instance->referenceFactory()->create(identity, facet, mode, newSecure,
+	return instance->referenceFactory()->create(identity, facet, mode, newSecure, compress,
+						    origEndpoints, endpoints,
+						    routerInfo, reverseAdapter);
+    }
+}
+
+ReferencePtr
+IceInternal::Reference::changeCompress(bool newCompress) const
+{
+    if (newCompress == compress)
+    {
+	return ReferencePtr(const_cast<Reference*>(this));
+    }
+    else
+    {
+	return instance->referenceFactory()->create(identity, facet, mode, secure, newCompress,
 						    origEndpoints, endpoints,
 						    routerInfo, reverseAdapter);
     }
@@ -385,7 +421,7 @@ IceInternal::Reference::changeEndpoints(const vector<EndpointPtr>& newEndpoints)
     }
     else
     {
-	return instance->referenceFactory()->create(identity, facet, mode, secure,
+	return instance->referenceFactory()->create(identity, facet, mode, secure, compress,
 						    origEndpoints, newEndpoints,
 						    routerInfo, reverseAdapter);
     }
@@ -402,7 +438,7 @@ IceInternal::Reference::changeRouter(const RouterPrx& newRouter) const
     }
     else
     {
-	return instance->referenceFactory()->create(identity, facet, mode, secure,
+	return instance->referenceFactory()->create(identity, facet, mode, secure, compress,
 						    origEndpoints, endpoints,
 						    newRouterInfo, reverseAdapter);
     }
@@ -411,7 +447,7 @@ IceInternal::Reference::changeRouter(const RouterPrx& newRouter) const
 ReferencePtr
 IceInternal::Reference::changeDefault() const
 {
-    return instance->referenceFactory()->create(identity, "", ModeTwoway, false,
+    return instance->referenceFactory()->create(identity, "", ModeTwoway, false, false,
 						origEndpoints, origEndpoints,
 						0, 0);
 }
@@ -421,6 +457,7 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
 				  const string& fac,
 				  Mode md,
 				  bool sec,
+				  bool com,
 				  const vector<EndpointPtr>& origEndpts,
 				  const vector<EndpointPtr>& endpts,
 				  const RouterInfoPtr& rtrInfo,
@@ -430,17 +467,12 @@ IceInternal::Reference::Reference(const InstancePtr& inst,
     facet(fac),
     mode(md),
     secure(sec),
+    compress(com),
     origEndpoints(origEndpts),
     endpoints(endpts),
     routerInfo(rtrInfo),
     reverseAdapter(rvAdapter),
     hashValue(0)
-{
-    calcHashValue();
-}
-
-void
-IceInternal::Reference::calcHashValue()
 {
     Int h = 0;
 
@@ -464,6 +496,8 @@ IceInternal::Reference::calcHashValue()
     h = 5 * h + static_cast<Int>(mode);
 
     h = 5 * h + static_cast<Int>(secure);
+
+    h = 5 * h + static_cast<Int>(compress);
 
     //
     // TODO: Should we also take the endpoints and other stuff into

@@ -118,7 +118,7 @@ The request retry tracing level:
 </section>
 
 <!-- ********************************************************************** -->
-<section><title>&Ice; Object Adapter Properties</title>
+<section><title>&Ice; object adapter Properties</title>
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Adapter.<replaceable>name</replaceable>.Endpoints</title>
@@ -261,8 +261,8 @@ Ice.DefaultRouter=<replaceable>router</replaceable>
 <title>Description</title>
 <para>
 Specifies a default router (as stingified proxy to the &Glacier;
-router control interface) which is to be used for all Proxies, unless
-the router is overwritten with the Proxy's
+router control interface) which is to be used for all proxies, unless
+the router is overwritten with the proxy's
 <literal>ice_router()</literal> operation. The default value is no
 router.
 </para>

@@ -18,8 +18,8 @@ module Ice
 
 /**
  *
- * A property set to configure Ice and applications based on
- * Ice. Properties are key/value pairs, with both keys and values
+ * A property set to configure &Ice; and applications based on
+ * &Ice;. Properties are key/value pairs, with both keys and values
  * being strings. By conventions, property keys should have the form
  * <replaceable>application-name</replaceable>\[.<replaceable>category</replaceable>\[.<replaceable>sub-category</replaceable>]].<replaceable>name</replaceable>.
  *

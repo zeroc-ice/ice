@@ -89,17 +89,17 @@ Ice::EndpointParseException::ice_print(ostream& out) const
 }
 
 void
-Ice::ReferenceParseException::ice_print(ostream& out) const
+Ice::ProxyParseException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nerror while parsing reference";
+    out << ":\nerror while parsing proxy";
 }
 
 void
-Ice::ReferenceIdentityException::ice_print(ostream& out) const
+Ice::LocationForwardIdentityException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nreference identity mismatch in location forward";
+    out << ":\nidentity mismatch in location forward";
 }
 
 void
@@ -297,6 +297,13 @@ Ice::IllegalMessageSizeException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nprotocol error: illegal message size";
+}
+
+void
+Ice::CompressionNotSupportedException::ice_print(ostream& out) const
+{
+    Exception::ice_print(out);
+    out << ":\nprotocol error: compressed messages not supported";
 }
 
 void

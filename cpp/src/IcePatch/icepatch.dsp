@@ -54,7 +54,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /machine:I386
-# ADD LINK32 libeay32.lib ssleay32.lib /nologo /dll /machine:I386 /out:"Release/icepatch001.dll" /libpath:"../../../lib"
+# ADD LINK32 libeay32.lib ssleay32.lib libbz2.lib /nologo /dll /machine:I386 /out:"Release/icepatch001.dll" /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /debug /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
@@ -86,7 +86,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /dll /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 libeay32.lib ssleay32.lib /nologo /dll /debug /machine:I386 /out:"Debug/icepatch001d.dll" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 libeay32.lib ssleay32.lib libbz2.lib /nologo /dll /debug /machine:I386 /out:"Debug/icepatch001d.dll" /pdbtype:sept /libpath:"../../../lib"
 # SUBTRACT LINK32 /pdb:none /nodefaultlib
 # Begin Special Build Tool
 SOURCE="$(InputPath)"
@@ -104,39 +104,11 @@ PostBuild_Cmds=copy Debug\icepatch001d.* ..\..\lib
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\blocksort.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\bzlib.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\compress.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\crctable.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\decompress.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\huffman.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\IcePatch.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\FileDescFactory.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\randtable.c
+SOURCE=.\IcePatch.cpp
 # End Source File
 # Begin Source File
 
@@ -148,19 +120,11 @@ SOURCE=.\Util.cpp
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\bzlib.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\bzlib_private.h
+SOURCE=..\..\include\IcePatch\FileDescFactory.h
 # End Source File
 # Begin Source File
 
 SOURCE=..\..\include\IcePatch\IcePatch.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\IcePatch\FileDescFactory.h
 # End Source File
 # Begin Source File
 
@@ -176,7 +140,7 @@ SOURCE=..\..\slice\IcePatch\IcePatch.ice
 
 !IF  "$(CFG)" == "IcePatch - Win32 Release"
 
-USERDEP__NODE_="../../bin/slice2cpp.exe"	
+USERDEP__ICEPA="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\IcePatch\IcePatch.ice
 
@@ -195,7 +159,7 @@ BuildCmds= \
 
 !ELSEIF  "$(CFG)" == "IcePatch - Win32 Debug"
 
-USERDEP__NODE_="../../bin/slice2cpp.exe"	
+USERDEP__ICEPA="../../bin/slice2cpp.exe"	
 # Begin Custom Build
 InputPath=..\..\slice\IcePatch\IcePatch.ice
 

@@ -24,7 +24,7 @@ class ReferenceFactory : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 
-    ReferencePtr create(const Ice::Identity&, const std::string&, Reference::Mode, bool,
+    ReferencePtr create(const Ice::Identity&, const std::string&, Reference::Mode, bool, bool,
 			const std::vector<EndpointPtr>&, const std::vector<EndpointPtr>&,
 			const RouterInfoPtr&, const Ice::ObjectAdapterPtr&);
     ReferencePtr create(const std::string&);

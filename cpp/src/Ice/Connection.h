@@ -46,12 +46,12 @@ public:
     void incProxyUsageCount();
     void decProxyUsageCount();
     void prepareRequest(Outgoing*);
-    void sendRequest(Outgoing*, bool);
+    void sendRequest(Outgoing*, bool, bool);
     void removeRequest(Outgoing*);
     void prepareBatchRequest(Outgoing*);
     void finishBatchRequest(Outgoing*);
     void abortBatchRequest();
-    void flushBatchRequest();
+    void flushBatchRequest(bool);
     int timeout() const;
     EndpointPtr endpoint() const;
     void setAdapter(const ::Ice::ObjectAdapterPtr&);
@@ -92,6 +92,8 @@ private:
     void closeConnection();
     void registerWithPool();
     void unregisterWithPool();
+    void compress(BasicStream&, BasicStream&);
+    void uncompress(BasicStream&, BasicStream&);
 
     TransceiverPtr _transceiver;
     EndpointPtr _endpoint;

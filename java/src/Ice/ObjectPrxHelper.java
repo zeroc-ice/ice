@@ -554,7 +554,7 @@ public class ObjectPrxHelper implements ObjectPrx
         ObjectPrxHelper h = (ObjectPrxHelper)ex._prx;
         if (!_reference.identity.equals(h.__reference().identity))
         {
-            throw new ReferenceIdentityException();
+            throw new LocationForwardIdentityException();
         }
 
         _reference = _reference.changeEndpoints(h.__reference().endpoints);

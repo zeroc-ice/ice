@@ -62,6 +62,7 @@ public:
     const std::string facet;
     const Mode mode;
     const bool secure;
+    const bool compress;
     const std::vector<EndpointPtr> origEndpoints; // Original endpoints.
     const std::vector<EndpointPtr> endpoints; // Actual endpoints, changed by a location forwards.
     const RouterInfoPtr routerInfo; // Null if no router is used.
@@ -77,18 +78,17 @@ public:
     ReferencePtr changeTimeout(int) const;
     ReferencePtr changeMode(Mode) const;
     ReferencePtr changeSecure(bool) const;
+    ReferencePtr changeCompress(bool) const;
     ReferencePtr changeEndpoints(const std::vector<EndpointPtr>&) const;
     ReferencePtr changeRouter(const ::Ice::RouterPrx&) const;
     ReferencePtr changeDefault() const;
  
 private:
 
-    Reference(const InstancePtr&, const Ice::Identity&, const std::string&, Mode, bool,
+    Reference(const InstancePtr&, const Ice::Identity&, const std::string&, Mode, bool, bool,
 	      const std::vector<EndpointPtr>&, const std::vector<EndpointPtr>&,
 	      const RouterInfoPtr&, const Ice::ObjectAdapterPtr&);
     friend class ReferenceFactory;
-
-    void calcHashValue();
 };
 
 }

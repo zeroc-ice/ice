@@ -9,7 +9,7 @@ All Rights Reserved
 -->
 
 <!-- ********************************************************************** -->
-<section><title>References</title>
+<section><title>proxies</title>
 <!-- ********************************************************************** -->
 
 <section><title>Synopsis</title>
@@ -23,6 +23,7 @@ All Rights Reserved
 <arg>-d</arg>
 <arg>-D</arg>
 <arg>-s</arg>
+<arg>-c</arg>
 </group>
 <arg choice=plain> : <replaceable>endpoints</replaceable></arg>
 </cmdsynopsis>

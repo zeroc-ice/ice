@@ -21,7 +21,7 @@
 
 /**
  *
- * The basic Ice module, containing all the Ice core functionality.
+ * The basic &Ice; module, containing all the &Ice; core functionality.
  *
  **/
 module Ice
@@ -29,8 +29,8 @@ module Ice
     
 /**
  *
- * The central object in Ice. One or more Communicators can be
- * instantiated for an Ice application. Communicator instantiation is
+ * The central object in &Ice;. One or more communicators can be
+ * instantiated for an &Ice; application. communicator instantiation is
  * language specific, and not specified in Slice code.
  *
  * @see Logger
@@ -44,7 +44,7 @@ local interface Communicator
 {
     /**
      *
-     * Destroy the Communicator. This operation calls [shutdown]
+     * Destroy the communicator. This operation calls [shutdown]
      * implicitly.  Calling [destroy] cleans up memory, and shuts the
      * client-side of an application down. Subsequent calls to
      * [destroy] are ignored.
@@ -57,12 +57,12 @@ local interface Communicator
     /**
      *
      * Shut the server-side of an application down. [shutdown]
-     * deactivates all Object Adapters. Subsequent calls to [shutdown]
+     * deactivates all object adapters. Subsequent calls to [shutdown]
      * are ignored.
      *
      * <important><para>Shutdown is the only operation that is
      * signal-safe, i.e., it is safe to call this operation from a
-     * Unix signal handler. No other Ice operation can be called from
+     * Unix signal handler. No other &Ice; operation can be called from
      * a Unix signal handler.</para></important>
      *
      * <note><para> Shutdown is not immediate, i.e., after [shutdown]
@@ -97,16 +97,16 @@ local interface Communicator
 
     /**
      *
-     * Convert a string into a Proxy. For example,
+     * Convert a string into a proxy. For example,
      * <literal>MyCategory/MyObject:tcp -h some_host -p
-     * 10000</literal> creates a proxy that refers to the Ice Object
+     * 10000</literal> creates a proxy that refers to the &&Ice;; object
      * having an identity with a name "MyObject" and a category
      * "MyCategory", with the server running on host "some_host", port
      * 10000.
      *
-     * @param str The string to turn into a Proxy.
+     * @param str The string to turn into a proxy.
      *
-     * @return The Proxy.
+     * @return The proxy.
      *
      * @see proxyToString
      *
@@ -115,11 +115,11 @@ local interface Communicator
 
     /**
      *
-     * Convert a Proxy into a string.
+     * Convert a proxy into a string.
      *
-     * @param obj The Proxy to turn into a string.
+     * @param obj The proxy to turn into a string.
      *
-     * @return The "stringified" Proxy.
+     * @return The "stringified" proxy.
      *
      * @see stringToProxy
      *
@@ -128,16 +128,16 @@ local interface Communicator
 
     /**
      *
-     * Create a new Object Adapter. The endpoints for the Object
-     * Adapter are taken from the property
+     * Create a new object adapter. The endpoints for the object
+     * adapter are taken from the property
      * <literal>Ice.Adapter.<replaceable>name</replaceable>.Endpoints</literal>,
      * with <replaceable>name</replaceable> being the name of the
-     * Object Adapter.
+     * object adapter.
      *
-     * @param name The name to use for the Object Adapter. This name
-     * must be unique for the Communicator.
+     * @param name The name to use for the object adapter. This name
+     * must be unique for the communicator.
      *
-     * @return The new Object Adapter.
+     * @return The new object adapter.
      *
      * @see ObjectAdapter
      * @see Properties
@@ -149,16 +149,16 @@ local interface Communicator
 
     /**
      *
-     * Create a new Object Adapter from a property. The endpoints for
-     * the Object Adapter are taken from the property
+     * Create a new object adapter from a property. The endpoints for
+     * the object adapter are taken from the property
      * <replaceable>property</replaceable>.
      *
-     * @param name The name to use for the Object Adapter. This name
-     * must be unique for the Communicator.
+     * @param name The name to use for the object adapter. This name
+     * must be unique for the communicator.
      *
      * @param property The property from which the endpoints are taken.
      *
-     * @return The new Object Adapter.
+     * @return The new object adapter.
      *
      * @see Properties
      * @see ObjectAdapter
@@ -169,17 +169,17 @@ local interface Communicator
 
     /**
      *
-     * Create a new Object Adapter with a list of endpoints. In
+     * Create a new object adapter with a list of endpoints. In
      * contrast to [createObjectAdapter] and
      * [createObjectAdapterFromProperty], the endpoints to use are
      * passed explicitly as a parameter.
      *
-     * @param name The name to use for the Object Adapter. This name
-     * must be unique for the Communicator.
+     * @param name The name to use for the object adapter. This name
+     * must be unique for the communicator.
      *
-     * @param endpts The list of endpoints for the Object Adapter.
+     * @param endpts The list of endpoints for the object adapter.
      *
-     * @return The new Object Adapter.
+     * @return The new object adapter.
      *
      * @see ObjectAdapter
      * @see createObjectAdapter
@@ -190,7 +190,7 @@ local interface Communicator
 
     /**
      *
-     * Add a Servant factory to this Communicator. If a factory has
+     * Add a Servant factory to this communicator. If a factory has
      * already been installed for the given id, the current factory
      * for this id is replaced by the new one.
      *
@@ -208,7 +208,7 @@ local interface Communicator
 
     /**
      *
-     * Remove a Servant factory from this Communicator. This operation
+     * Remove a Servant factory from this communicator. This operation
      * does nothing if no factory for the given id has been installed.
      *
      * @param id The type id for which the factory can create
@@ -223,7 +223,7 @@ local interface Communicator
 
     /**
      *
-     * Find a Servant factory installed with this Communicator.
+     * Find a Servant factory installed with this communicator.
      *
      * @param id The type id for which the factory can create
      * instances.
@@ -240,7 +240,7 @@ local interface Communicator
 
     /**
      *
-     * Add a user exception factory to this Communicator. If a factory
+     * Add a user exception factory to this communicator. If a factory
      * has already been installed for the given id, the current
      * factory for this id is replaced by the new one.
      *
@@ -258,7 +258,7 @@ local interface Communicator
 
     /**
      *
-     * Remove a user exception factory from this Communicator. This
+     * Remove a user exception factory from this communicator. This
      * operation does nothing if no factory for the given id has been
      * installed.
      *
@@ -274,7 +274,7 @@ local interface Communicator
 
     /**
      *
-     * Find a user exception factory installed with this Communicator.
+     * Find a user exception factory installed with this communicator.
      *
      * @param id The type id for which the factory can create user
      * exceptions.
@@ -291,9 +291,9 @@ local interface Communicator
 
     /**
      *
-     * Get the properties for this Communicator.
+     * Get the properties for this communicator.
      *
-     * @return This Communicator's properties.
+     * @return This communicator's properties.
      *
      * @see Properties
      *
@@ -302,9 +302,9 @@ local interface Communicator
 
     /**
      *
-     * Get the logger for this Communicator.
+     * Get the logger for this communicator.
      *
-     * @return This Communicator's Logger.
+     * @return This communicator's logger.
      *
      * @see Logger
      *
@@ -313,9 +313,9 @@ local interface Communicator
 
     /**
      *
-     * Set the logger for this Communicator.
+     * Set the logger for this communicator.
      *
-     * @param logger The logger to use for this Communicator.
+     * @param logger The logger to use for this communicator.
      *
      * @see Logger
      *
@@ -324,16 +324,16 @@ local interface Communicator
 
     /**
      *
-     * Set a default &Glacier; router for this Communicator. All newly
-     * created Proxies will use this default router. To disable the
+     * Set a default &Glacier; router for this communicator. All newly
+     * created proxies will use this default router. To disable the
      * default router, null can be passed as argument. Note that this
-     * operation has no effect on already existing Proxies.
+     * operation has no effect on already existing proxies.
      *
-     * <note><para> You can also set a router for an individual Proxy
+     * <note><para> You can also set a router for an individual proxy
      * by calling the operation [ice_router] on such
-     * Proxy.</para></note>
+     * proxy.</para></note>
      *
-     * @param router The default router to use for this Communicator.
+     * @param router The default router to use for this communicator.
      *
      * @see Router
      * @see ObjectAdapter::addRouter
@@ -343,9 +343,9 @@ local interface Communicator
 
     /**
      *
-     * Get the plug-in manager for this Communicator.
+     * Get the plug-in manager for this communicator.
      *
-     * @return This Communicator's plug-in manager.
+     * @return This communicator's plug-in manager.
      *
      * @see PluginManager
      *

@@ -20,7 +20,7 @@ module Ice
  *
  * This exception is raised if an operation call on a server raises a
  * local exception. Since the exception is local, it is not
- * transmitted by the Ice protocol. Instead, the client only receives
+ * transmitted by the &Ice; protocol. Instead, the client only receives
  * an [UknownLocalException] for all local exceptions being raised by
  * the server.
  *
@@ -34,7 +34,7 @@ local exception UnknownLocalException
  * This exception is raised if an operation call on a server raises a
  * user exception which is not declared in the exception's
  * <literal>throws</literal> clause. Such undeclared exceptions are
- * not transmitted from the server to the client by the Ice protocol,
+ * not transmitted from the server to the client by the &Ice; protocol,
  * but instead the client just gets an [UnknownUserException]. This is
  * necessary in order to not violate the contract established by an
  * operation's signature: Only local exceptions and user exceptions
@@ -60,8 +60,8 @@ local exception UnknownException
 
 /**
  *
- * This exception is raised if the Ice library version doesn't match
- * the Ice header files version.
+ * This exception is raised if the &Ice; library version doesn't match
+ * the &Ice; header files version.
  *
  **/
 local exception VersionMismatchException
@@ -94,8 +94,7 @@ local exception ObjectAdapterDeactivatedException
 
 /**
  *
- * This exception is raised if not suitable endpoint is available in
- * an object reference.
+ * This exception is raised if not suitable endpoint is available.
  *
  **/
 local exception NoEndpointException
@@ -114,22 +113,22 @@ local exception EndpointParseException
 
 /**
  *
- * This exception is raised if there was an error while parsing an
- * object reference.
+ * This exception is raised if there was an error while parsing a
+ * stringified proxy.
  *
  **/
-local exception ReferenceParseException
+local exception ProxyParseException
 {
 };
 
 /**
  *
- * This exception is raised if an operation call using a Proxy
- * resulted in a location forward to an object reference that doesn't
- * match the Proxy's identity.
+ * This exception is raised if an operation call using a proxy
+ * resulted in a location forward to another proxy that doesn't
+ * match this proxy's identity.
  *
  **/
-local exception ReferenceIdentityException
+local exception LocationForwardIdentityException
 {
 };
 
@@ -422,7 +421,7 @@ local exception UnknownReplyStatusException extends ProtocolException
  *
  * This exception is a specialization of [ProtocolException],
  * indicating that a connection has been gracefully shut down. Usually
- * you will never see this exception, as Ice automatically tries to
+ * you will never see this exception, as &Ice; automatically tries to
  * reestablish a connection if the old one has been shut down.
  *
  **/
@@ -448,6 +447,17 @@ local exception AbortBatchRequestException extends ProtocolException
  *
  **/
 local exception IllegalMessageSizeException extends ProtocolException
+{
+};
+
+/**
+ *
+ * This exception is a specialization of [ProtocolException], which is
+ * raised if a compressed protocol message has been received by an
+ * &Ice; version which does not support compression.
+ *
+ **/
+local exception CompressionNotSupportedException extends ProtocolException
 {
 };
 

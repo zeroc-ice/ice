@@ -15,7 +15,7 @@ TARGETS		= manual/index.html
 SGMLFILES	= manual.sgml \
 		  SliceDoc.sgml \
 		  Properties.sgml \
-		  ReferencesEndpoints.sgml
+		  ProxiesEndpoints.sgml
 
 SLICEFILES	= ../slice/Ice/BuiltinSequences.ice \
 		  ../slice/Ice/Communicator.ice \

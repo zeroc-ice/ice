@@ -227,7 +227,7 @@ public class ObjectAdapterI implements ObjectAdapter
         //
         IceInternal.Endpoint[] endpoints = new IceInternal.Endpoint[0];
         IceInternal.Reference ref =
-            _instance.referenceFactory().create(ident, "", IceInternal.Reference.ModeTwoway, false, endpoints,
+            _instance.referenceFactory().create(ident, "", IceInternal.Reference.ModeTwoway, false, false, endpoints,
                                                 endpoints, null, this);
 
         return _instance.proxyFactory().referenceToProxy(ref);
@@ -418,7 +418,8 @@ public class ObjectAdapterI implements ObjectAdapter
         // Create a reference and return a proxy for this reference.
         //
         IceInternal.Reference reference = _instance.referenceFactory().create(ident, "",
-                                                                              IceInternal.Reference.ModeTwoway, false,
+									      IceInternal.Reference.ModeTwoway,
+									      false, false,
                                                                               endpoints, endpoints, null, null);
         return _instance.proxyFactory().referenceToProxy(reference);
     }

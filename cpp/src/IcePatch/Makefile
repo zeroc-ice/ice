@@ -31,18 +31,9 @@ SOBJS		= Server.o \
 		  IcePatchI.o \
 		  FileLocator.o
 
-BZOBJS		= blocksort.o \
-		  huffman.o \
-		  crctable.o \
-		  randtable.o \
-		  compress.o \
-		  decompress.o \
-		  bzlib.o
-
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \
-		  $(SOBJS:.o=.cpp) \
-		  $(BZOBJS:.o=.c)
+		  $(SOBJS:.o=.cpp)
 
 HDIR		= $(includedir)/IcePatch
 SDIR		= $(slicedir)/IcePatch
@@ -52,9 +43,9 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS)
 
-$(VERSIONED_NAME): $(OBJS) $(BZOBJS)
+$(VERSIONED_NAME): $(OBJS)
 	rm -f $@
-	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS) $(BZOBJS)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS)
 
 $(NAME): $(VERSIONED_NAME)
 	rm -f $@

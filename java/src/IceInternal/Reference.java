@@ -65,6 +65,11 @@ public final class Reference
             return false;
         }
 
+        if (compress != r.compress)
+        {
+            return false;
+        }
+
         if (!compare(origEndpoints, r.origEndpoints))
         {
             return false;
@@ -110,6 +115,8 @@ public final class Reference
         s.writeByte((byte)mode);
 
         s.writeBool(secure);
+
+        s.writeBool(compress);
 
         s.writeSize(origEndpoints.length);
         for (int i = 0; i < origEndpoints.length; i++)
@@ -185,6 +192,11 @@ public final class Reference
             s.append(" -s");
         }
 
+        if (compress)
+        {
+            s.append(" -c");
+        }
+
         for (int i = 0; i < origEndpoints.length; i++)
         {
             s.append(':');
@@ -207,16 +219,17 @@ public final class Reference
     //
     // All members are treated as const, because References are immutable.
     //
-    public Instance instance;
-    public Ice.Identity identity;
-    public String facet;
-    public int mode;
-    public boolean secure;
-    public Endpoint[] origEndpoints; // Original endpoints.
-    public Endpoint[] endpoints; // Actual endpoints, changed by a location forward.
-    public RouterInfo routerInfo; // Null if no router is used.
-    public Ice.ObjectAdapter reverseAdapter; // For reverse communications using the adapter's incoming connections.
-    public int hashValue;
+    final public Instance instance;
+    final public Ice.Identity identity;
+    final public String facet;
+    final public int mode;
+    final public boolean secure;
+    final public boolean compress;
+    final public Endpoint[] origEndpoints; // Original endpoints.
+    final public Endpoint[] endpoints; // Actual endpoints, changed by a location forward.
+    final public RouterInfo routerInfo; // Null if no router is used.
+    final public Ice.ObjectAdapter reverseAdapter; // For reverse comm. using the adapter's incoming connections.
+    final public int hashValue;
 
     //
     // Get a new reference, based on the existing one, overwriting
@@ -231,7 +244,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(newIdentity, facet, mode, secure,
+            return instance.referenceFactory().create(newIdentity, facet, mode, secure, compress,
                                                       origEndpoints, endpoints,
                                                       routerInfo, reverseAdapter);
         }
@@ -246,7 +259,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, newFacet, mode, secure,
+            return instance.referenceFactory().create(identity, newFacet, mode, secure, compress,
                                                       origEndpoints, endpoints,
                                                       routerInfo, reverseAdapter);
         }
@@ -291,7 +304,7 @@ public final class Reference
             }
         }
 
-        return instance.referenceFactory().create(identity, facet, mode, secure,
+        return instance.referenceFactory().create(identity, facet, mode, secure, compress,
                                                   newOrigEndpoints, newEndpoints,
                                                   newRouterInfo, reverseAdapter);
     }
@@ -305,7 +318,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, newMode, secure,
+            return instance.referenceFactory().create(identity, facet, newMode, secure, compress,
                                                       origEndpoints, endpoints,
                                                       routerInfo, reverseAdapter);
         }
@@ -320,7 +333,22 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, newSecure,
+            return instance.referenceFactory().create(identity, facet, mode, newSecure, compress,
+                                                      origEndpoints, endpoints,
+                                                      routerInfo, reverseAdapter);
+        }
+    }
+
+    public Reference
+    changeCompress(boolean newCompress)
+    {
+        if (newCompress == compress)
+        {
+            return this;
+        }
+        else
+        {
+            return instance.referenceFactory().create(identity, facet, mode, secure, newCompress,
                                                       origEndpoints, endpoints,
                                                       routerInfo, reverseAdapter);
         }
@@ -335,7 +363,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure,
+            return instance.referenceFactory().create(identity, facet, mode, secure, compress,
                                                       origEndpoints, newEndpoints,
                                                       routerInfo, reverseAdapter);
         }
@@ -353,7 +381,7 @@ public final class Reference
         }
         else
         {
-            return instance.referenceFactory().create(identity, facet, mode, secure,
+            return instance.referenceFactory().create(identity, facet, mode, secure, compress,
                                                       origEndpoints, endpoints,
                                                       newRouterInfo, reverseAdapter);
         }
@@ -362,7 +390,7 @@ public final class Reference
     public Reference
     changeDefault()
     {
-        return instance.referenceFactory().create(identity, "", ModeTwoway, false,
+        return instance.referenceFactory().create(identity, "", ModeTwoway, false, false,
                                                   origEndpoints, origEndpoints,
                                                   null, null);
     }
@@ -375,6 +403,7 @@ public final class Reference
               String fac,
               int md,
               boolean sec,
+              boolean com,
               Endpoint[] origEndpts,
               Endpoint[] endpts,
               RouterInfo rtrInfo,
@@ -385,18 +414,12 @@ public final class Reference
         facet = fac;
         mode = md;
         secure = sec;
+        compress = com;
         origEndpoints = origEndpts;
         endpoints = endpts;
         routerInfo = rtrInfo;
         reverseAdapter = rvAdapter;
-        hashValue = 0;
 
-        calcHashValue();
-    }
-
-    private void
-    calcHashValue()
-    {
         int h = 0;
 
         int sz = identity.name.length();
@@ -421,13 +444,15 @@ public final class Reference
 
         h = 5 * h + (secure ? 1 : 0);
 
+        h = 5 * h + (compress ? 1 : 0);
+
         //
         // TODO: Should we also take the endpoints into account for hash
         // calculation? Perhaps not, the code above should be good enough
         // for a good hash value.
         //
 
-        hashValue = h;
+	hashValue = h;
     }
 
     //

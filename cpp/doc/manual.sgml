@@ -8,7 +8,7 @@
 
 <!ENTITY SliceDoc SYSTEM "SliceDoc.sgml">
 <!ENTITY Properties SYSTEM "Properties.sgml">
-<!ENTITY ReferencesEndpoints SYSTEM "ReferencesEndpoints.sgml">
+<!ENTITY ProxiesEndpoints SYSTEM "ProxiesEndpoints.sgml">
 
 ]>
 
@@ -70,8 +70,8 @@ TBD
 &Properties;
 </chapter>
 <chapter>
-<title>References and Endpoints</title>
-&ReferencesEndpoints;
+<title>proxies and Endpoints</title>
+&ProxiesEndpoints;
 </chapter>
 </part>
 </book>

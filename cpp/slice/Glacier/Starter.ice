@@ -16,7 +16,7 @@
 
 /**
  *
- * &Glacier; is the &Ice; firewall and router.
+ * &Glacier; is the &&Ice;; firewall and router.
  *
  **/
 module Glacier

@@ -39,6 +39,9 @@ const ::Ice::Byte requestMsg = 0;
 const ::Ice::Byte requestBatchMsg = 1;
 const ::Ice::Byte replyMsg = 2;
 const ::Ice::Byte closeConnectionMsg = 3;
+const ::Ice::Byte compressedRequestMsg = 4;
+const ::Ice::Byte compressedRequestBatchMsg = 5;
+const ::Ice::Byte compressedReplyMsg = 6;
 
 }
 

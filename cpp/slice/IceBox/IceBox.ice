@@ -48,7 +48,7 @@ exception FailureException
  * <itemizedlist>
  *
  * <listitem><para>[init] - This is the opportunity for the service to
- * create a Communicator or Object Adapter, register servants,
+ * create a Communicator or object adapter, register servants,
  * etc.</para></listitem>
  *
  * <listitem><para>[start] - Perform any client-side activities which
@@ -62,7 +62,7 @@ exception FailureException
  *
  * </itemizedlist>
  *
- * <note><para>If the service requires an Object Adapter, it should be
+ * <note><para>If the service requires an object adapter, it should be
  * created and activated in [init]. However, the service should
  * refrain from any client-side activities which might result in an
  * invocation on a collocated service, because the order of service

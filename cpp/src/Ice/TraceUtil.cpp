@@ -51,6 +51,21 @@ printHeader(ostream& s, BasicStream& stream)
 	    s << "(reply)";
 	    break;
 	}
+	case compressedRequestMsg:
+	{
+	    s << "(compressed request)";
+	    break;
+	}
+	case compressedRequestBatchMsg:
+	{
+	    s << "(compressed batch request)";
+	    break;
+	}
+	case compressedReplyMsg:
+	{
+	    s << "(compressed reply)";
+	    break;
+	}
 	case closeConnectionMsg:
 	{
 	    s << "(close connection)";
@@ -100,7 +115,7 @@ printRequestHeader(ostream& s, BasicStream& stream)
 
 #if 0
 static void
-dumpOctets(const string& cat, const BasicStream& stream, const ::Ice::LoggerPtr& logger)
+dumpOctets(const char* cat, const BasicStream& stream, const ::Ice::LoggerPtr& logger)
 {
     ostringstream s;
     s << endl;

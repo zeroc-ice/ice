@@ -18,7 +18,7 @@
 
 /**
  *
- * The Ice module for object persistence.
+ * The &Ice; module for object persistence.
  *
  **/
 module Freeze
@@ -526,7 +526,7 @@ local interface DB
      * or the database environment this database belongs to, before
      * the Evictor has been properly deactivated. The Evictor is
      * deactivated by calling [Ice::ObjectAdapter::deactivate] on the
-     * Object Adapter this Evictor is installed with, or by shutting
+     * object adapter this Evictor is installed with, or by shutting
      * down all Object Adapters with [Ice::Communicator::shutdown]
      * followed by [Ice::Communicator::waitForShutdown].</para></note>
      *

@@ -39,7 +39,7 @@ local interface ServantInitializer
      *
      * @param adapter The ObjectAdapter the Evictor is installed with.
      *
-     * @param identity The identity of the Ice Object for which the
+     * @param identity The identity of the &&Ice;; object for which the
      * Servant was created.
      *
      * @param servant The Servant to set up.
@@ -106,11 +106,11 @@ local exception EvictorDeactivatedException
 
 /**
  *
- * A semi-automatic Ice Object persistence manager, based on the
+ * A semi-automatic &&Ice;; object persistence manager, based on the
  * evictor pattern. The Evictor is an extended Servant Locator, with
  * an implementation in the Freeze module. Instances of this
  * implementation can be created with the operation
- * [DB::createEvictor], and must be registered with an Object Adapter
+ * [DB::createEvictor], and must be registered with an object adapter
  * like other Servant Locators.
  *
  * @see ServantInitializer
@@ -176,13 +176,13 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Create a new Ice Object for this Evictor. The state of the
+     * Create a new &&Ice;; object for this Evictor. The state of the
      * initial Servant passed to this operation is put into the
      * Evictor's persistent store.
      *
-     * @param identity The identity of the Ice Object to create.
+     * @param identity The identity of the &&Ice;; object to create.
      *
-     * @param servant The initial Servant for the Ice Object to
+     * @param servant The initial Servant for the &&Ice;; object to
      * create.
      *
      * @throws DBException Raised if a database failure occurred.
@@ -198,12 +198,12 @@ local interface Evictor extends Ice::ServantLocator
 
     /**
      *
-     * Permanently destroy an Ice Object by removing it from this
+     * Permanently destroy an &&Ice;; object by removing it from this
      * Evictor's persistent store. Furthermore, if the Evictor
-     * currently holds a Servant for the Ice Object, such Servant will
+     * currently holds a Servant for the &&Ice;; object, such Servant will
      * be removed.
      *
-     * @param identity The identity of the Ice Object to destroy.
+     * @param identity The identity of the &&Ice;; object to destroy.
      *
      * @throws DBException Raised if a database failure occurred.
      *

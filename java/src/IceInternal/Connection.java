@@ -387,6 +387,13 @@ public final class Connection extends EventHandler
 
                 switch (messageType)
                 {
+		    case Protocol.compressedRequestMsg:
+		    case Protocol.compressedRequestBatchMsg:
+		    case Protocol.compressedReplyMsg:
+		    {
+			throw new Ice.CompressionNotSupportedException();
+		    }
+			
                     case Protocol.requestMsg:
                     {
                         if (_state == StateClosing)
@@ -766,8 +773,7 @@ public final class Connection extends EventHandler
                 if (!(ex instanceof Ice.CloseConnectionException ||
                       ex instanceof Ice.CommunicatorDestroyedException ||
                       ex instanceof Ice.ObjectAdapterDeactivatedException ||
-                      (ex instanceof Ice.ConnectionLostException &&
-                       _state == StateClosing)))
+                      (ex instanceof Ice.ConnectionLostException && _state == StateClosing)))
                 {
                     warning("connection exception", ex);
                 }

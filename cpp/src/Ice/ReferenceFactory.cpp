@@ -29,6 +29,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
 				      const string& facet,
 				      Reference::Mode mode,
 				      bool secure,
+				      bool compress,
 				      const vector<EndpointPtr>& origEndpoints,
 				      const vector<EndpointPtr>& endpoints,
 				      const RouterInfoPtr& routerInfo,
@@ -44,7 +45,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident,
     //
     // Create new reference
     //
-    ReferencePtr ref = new Reference(_instance, ident, facet, mode, secure,
+    ReferencePtr ref = new Reference(_instance, ident, facet, mode, secure, compress,
 				     origEndpoints, endpoints,
 				     routerInfo, reverseAdapter);
 
@@ -114,7 +115,7 @@ IceInternal::ReferenceFactory::create(const string& str)
     beg = s.find_first_not_of(delim, end);
     if (beg == string::npos)
     {
-	throw ReferenceParseException(__FILE__, __LINE__);
+	throw ProxyParseException(__FILE__, __LINE__);
     }
     
     end = s.find_first_of(delim + ":", beg);
@@ -125,13 +126,14 @@ IceInternal::ReferenceFactory::create(const string& str)
     
     if (beg == end)
     {
-	throw ReferenceParseException(__FILE__, __LINE__);
+	throw ProxyParseException(__FILE__, __LINE__);
     }
 
     Identity ident = stringToIdentity(s.substr(beg, end - beg));
     string facet;
     Reference::Mode mode = Reference::ModeTwoway;
     bool secure = false;
+    bool compress = false;
 
     while (true)
     {
@@ -160,7 +162,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	string option = s.substr(beg, end - beg);
 	if (option.length() != 2 || option[0] != '-')
 	{
-	    throw ReferenceParseException(__FILE__, __LINE__);
+	    throw ProxyParseException(__FILE__, __LINE__);
 	}
 	
 	string argument;
@@ -186,7 +188,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (argument.empty())
 		{
-		    throw ReferenceParseException(__FILE__, __LINE__);
+		    throw ProxyParseException(__FILE__, __LINE__);
 		}
 		facet = argument;
 		break;
@@ -196,7 +198,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (!argument.empty())
 		{
-		    throw ReferenceParseException(__FILE__, __LINE__);
+		    throw ProxyParseException(__FILE__, __LINE__);
 		}
 		mode = Reference::ModeTwoway;
 		break;
@@ -206,7 +208,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (!argument.empty())
 		{
-		    throw ReferenceParseException(__FILE__, __LINE__);
+		    throw ProxyParseException(__FILE__, __LINE__);
 		}
 		mode = Reference::ModeOneway;
 		break;
@@ -216,7 +218,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (!argument.empty())
 		{
-		    throw ReferenceParseException(__FILE__, __LINE__);
+		    throw ProxyParseException(__FILE__, __LINE__);
 		}
 		mode = Reference::ModeBatchOneway;
 		break;
@@ -226,7 +228,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (!argument.empty())
 		{
-		    throw ReferenceParseException(__FILE__, __LINE__);
+		    throw ProxyParseException(__FILE__, __LINE__);
 		}
 		mode = Reference::ModeDatagram;
 		break;
@@ -236,7 +238,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (!argument.empty())
 		{
-		    throw ReferenceParseException(__FILE__, __LINE__);
+		    throw ProxyParseException(__FILE__, __LINE__);
 		}
 		mode = Reference::ModeBatchDatagram;
 		break;
@@ -246,15 +248,25 @@ IceInternal::ReferenceFactory::create(const string& str)
 	    {
 		if (!argument.empty())
 		{
-		    throw ReferenceParseException(__FILE__, __LINE__);
+		    throw ProxyParseException(__FILE__, __LINE__);
 		}
 		secure = true;
 		break;
 	    }
 
+	    case 'c':
+	    {
+		if (!argument.empty())
+		{
+		    throw ProxyParseException(__FILE__, __LINE__);
+		}
+		compress = true;
+		break;
+	    }
+
 	    default:
 	    {
-		throw ReferenceParseException(__FILE__, __LINE__);
+		throw ProxyParseException(__FILE__, __LINE__);
 	    }
 	}
     }
@@ -277,7 +289,7 @@ IceInternal::ReferenceFactory::create(const string& str)
 	{
 	    if (!orig)
 	    {
-		throw ReferenceParseException(__FILE__, __LINE__);
+		throw ProxyParseException(__FILE__, __LINE__);
 	    }
 
 	    orig = false;
@@ -304,11 +316,11 @@ IceInternal::ReferenceFactory::create(const string& str)
 
     if (!origEndpoints.size() || !endpoints.size())
     {
-	throw ReferenceParseException(__FILE__, __LINE__);
+	throw ProxyParseException(__FILE__, __LINE__);
     }
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
-    return create(ident, facet, mode, secure, origEndpoints, endpoints, routerInfo, 0);
+    return create(ident, facet, mode, secure, compress, origEndpoints, endpoints, routerInfo, 0);
 }
 
 ReferencePtr
@@ -332,6 +344,9 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
 
     bool secure;
     s->read(secure);
+
+    bool compress;
+    s->read(compress);
 
     vector<EndpointPtr> origEndpoints;
     vector<EndpointPtr> endpoints;
@@ -363,7 +378,7 @@ IceInternal::ReferenceFactory::create(const Identity& ident, BasicStream* s)
     }
 
     RouterInfoPtr routerInfo = _instance->routerManager()->get(getDefaultRouter());
-    return create(ident, facet, mode, secure, origEndpoints, endpoints, routerInfo, 0);
+    return create(ident, facet, mode, secure, compress, origEndpoints, endpoints, routerInfo, 0);
 }
 
 void

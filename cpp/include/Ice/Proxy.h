@@ -87,6 +87,7 @@ public:
     ::Ice::ObjectPrx ice_datagram() const;
     ::Ice::ObjectPrx ice_batchDatagram() const;
     ::Ice::ObjectPrx ice_secure(bool) const;
+    ::Ice::ObjectPrx ice_compress(bool) const;
     ::Ice::ObjectPrx ice_timeout(int) const;
     ::Ice::ObjectPrx ice_router(const ::Ice::RouterPrx&) const;
     ::Ice::ObjectPrx ice_default() const;
@@ -109,7 +110,7 @@ protected:
 private:
 
     void setup(const ::IceInternal::ReferencePtr&);
-    friend ::IceInternal::ProxyFactory;
+    friend class ::IceInternal::ProxyFactory;
 
     ::IceInternal::ReferencePtr _reference;
     ::IceInternal::Handle< ::IceDelegate::Ice::Object> _delegate;

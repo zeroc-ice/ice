@@ -30,7 +30,7 @@ local dictionary<string, string> Context;
  *
  * Information about the current method invocation for servers. Each
  * method on the server has a [Current] as last parameter
- * implicitly. [Current] is mostly used for Ice services, such as
+ * implicitly. [Current] is mostly used for &Ice; services, such as
  * &IceStorm;. "Regular" user applications normally ignore this last
  * parameter.
  *
@@ -41,7 +41,7 @@ local struct Current
 {
     /**
      *
-     * The Ice Object identity.
+     * The &&Ice;; object identity.
      *
      **/
     Identity identity;

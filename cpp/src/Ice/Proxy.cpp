@@ -413,6 +413,22 @@ IceProxy::Ice::Object::ice_secure(bool b) const
 }
 
 ObjectPrx
+IceProxy::Ice::Object::ice_compress(bool b) const
+{
+    ReferencePtr ref = _reference->changeCompress(b);
+    if (ref == _reference)
+    {
+	return ObjectPrx(const_cast< ::IceProxy::Ice::Object*>(this));
+    }
+    else
+    {
+	ObjectPrx proxy(new ::IceProxy::Ice::Object());
+	proxy->setup(ref);
+	return proxy;
+    }
+}
+
+ObjectPrx
 IceProxy::Ice::Object::ice_timeout(int t) const
 {
     ReferencePtr ref = _reference->changeTimeout(t);
@@ -577,7 +593,7 @@ IceProxy::Ice::Object::__locationForward(const LocationForward& ex)
 
     if (_reference->identity != ex._prx->_reference->identity)
     {
-	throw ReferenceIdentityException(__FILE__, __LINE__);
+	throw LocationForwardIdentityException(__FILE__, __LINE__);
     }
 
     _reference = _reference->changeEndpoints(ex._prx->_reference->endpoints);
@@ -765,7 +781,7 @@ IceDelegateM::Ice::Object::ice_invoke(const string& operation,
 void
 IceDelegateM::Ice::Object::ice_flush()
 {
-    __connection->flushBatchRequest();
+    __connection->flushBatchRequest(__reference->compress);
 }
 
 void
