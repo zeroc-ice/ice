@@ -68,7 +68,7 @@ PHP_INI_BEGIN()
 PHP_INI_END()
 
 extern "C"
-static int initIceGlobals(zend_ice_globals* g)
+int initIceGlobals(zend_ice_globals* g)
 {
     g->communicator = NULL;
     g->marshalerMap = new MarshalerMap;
