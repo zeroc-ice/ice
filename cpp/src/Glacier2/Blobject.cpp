@@ -23,6 +23,10 @@ static const string serverThreadStackSize = "Glacier2.Server.ThreadStackSize";
 static const string clientThreadStackSize = "Glacier2.Client.ThreadStackSize";
 static const string serverTraceRequest = "Glacier2.Server.Trace.Request";
 static const string clientTraceRequest = "Glacier2.Client.Trace.Request";
+static const string serverTraceOverride = "Glacier2.Server.Trace.Override";
+static const string clientTraceOverride = "Glacier2.Client.Trace.Override";
+static const string serverSleepTime = "Glacier2.Server.SleepTime";
+static const string clientSleepTime = "Glacier2.Client.SleepTime";
 
 Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) :
     _communicator(communicator),
@@ -40,7 +44,10 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 		 _properties->getPropertyAsInt(clientAlwaysBatch) > 0),
     _requestTraceLevel(_reverse ?
 		       _properties->getPropertyAsInt(serverTraceRequest) :
-		       _properties->getPropertyAsInt(clientTraceRequest))
+		       _properties->getPropertyAsInt(clientTraceRequest)),
+    _overrideTraceLevel(reverse ?
+			_properties->getPropertyAsInt(serverTraceOverride) :
+			_properties->getPropertyAsInt(clientTraceOverride))
 {
     if(!_unbuffered)
     {
@@ -48,7 +55,11 @@ Glacier2::Blobject::Blobject(const CommunicatorPtr& communicator, bool reverse) 
 	    _properties->getPropertyAsInt(serverThreadStackSize) :
 	    _properties->getPropertyAsInt(clientThreadStackSize);
 	
-	_requestQueue = new RequestQueue(_communicator, _reverse);
+	IceUtil::Time sleepTime = _reverse ?
+	    IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsInt(serverSleepTime)) :
+	    IceUtil::Time::milliSeconds(communicator->getProperties()->getPropertyAsInt(clientSleepTime));
+
+	_requestQueue = new RequestQueue(sleepTime);
 	_requestQueue->start(static_cast<size_t>(threadStackSize));
     }
 }
@@ -171,33 +182,37 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
 	}
     }
     
+    if(_requestTraceLevel >= 1)
+    {
+	Trace out(_logger, "Glacier2");
+	if(_reverse)
+	{
+	    out << "reverse ";
+	}
+	out << "routing";
+	if(_unbuffered)
+	{
+	    out << " (unbuffered)";
+	}
+	out << "\nproxy = " << _communicator->proxyToString(proxy);
+	out << "\noperation = " << current.operation;
+	out << "\ncontext = ";
+	Context::const_iterator q = current.ctx.begin();
+	while(q != current.ctx.end())
+	{
+	    out << q->first << '/' << q->second;
+	    if(++q != current.ctx.end())
+	    {
+		out << ", ";
+	    }
+	}
+    }
+
     if(_unbuffered)
     {
 	//
 	// If we are in unbuffered mode, we send the request directly.
 	//
-
-	if(_requestTraceLevel >= 1)
-	{
-	    Trace out(_logger, "Glacier2");
-	    if(_reverse)
-	    {
-		out << "reverse ";
-	    }
-	    out << "routing (unbuffered)";
-	    out << "\nproxy = " << _communicator->proxyToString(proxy);
-	    out << "\noperation = " << current.operation;
-	    out << "\ncontext = ";
-	    Context::const_iterator q = current.ctx.begin();
-	    while(q != current.ctx.end())
-	    {
-		out << q->first << '/' << q->second;
-		if(++q != current.ctx.end())
-		{
-		    out << ", ";
-		}
-	    }
-	}
 
 	bool ok;
 	vector<Byte> outParams;
@@ -212,14 +227,13 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
 	    {
 		ok = proxy->ice_invoke(current.operation, current.mode, inParams, outParams);
 	    }
+
+	    amdCB->ice_response(ok, outParams);
 	}
 	catch(const LocalException& ex)
 	{
 	    amdCB->ice_exception(ex);
-	    return;
 	}
-	
-	amdCB->ice_response(ok, outParams);
     }
     else
     {    
@@ -229,6 +243,28 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
 	// we use AMI.
 	//
 
-	_requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, amdCB));
+	bool override = _requestQueue->addRequest(new Request(proxy, inParams, current, _forwardContext, amdCB));
+
+	if(override && _overrideTraceLevel >= 1)
+	{
+	    Trace out(_logger, "Glacier2");
+	    if(_reverse)
+	    {
+		out << "reverse ";
+	    }
+	    out << "routing override";
+	    out << "\nproxy = " << _communicator->proxyToString(proxy);
+	    out << "\noperation = " << current.operation;
+	    out << "\ncontext = ";
+	    Context::const_iterator q = current.ctx.begin();
+	    while(q != current.ctx.end())
+	    {
+		out << q->first << '/' << q->second;
+		if(++q != current.ctx.end())
+		{
+		    out << ", ";
+		}
+	    }
+	}
     }
 }

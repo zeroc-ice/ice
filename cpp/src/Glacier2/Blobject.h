@@ -41,6 +41,7 @@ private:
     const bool _unbuffered;
     const bool _alwaysBatch;
     const int _requestTraceLevel;
+    const int _overrideTraceLevel;
     RequestQueuePtr _requestQueue;
 };
 

@@ -1,5 +1,13 @@
-Glacier2.Server.ThreadPool.Size=1
-Glacier2.Server.ThreadPool.SizeWarn=0
+#
+# We must set the stack size of new threads created by Glacier2. The
+# default on Linux is typically in the 10MB range, which is way too
+# high.
+#
+# Since Glacier2 always uses thread-per-connection mode, we must use
+# the property below to set the thread stack size. Internal Glacier2
+# threads also use this property value.
+#
+Ice.ThreadPerConnection.StackSize=262144
 
 #
 # The client-visible endpoint of Glacier2. This should be an endpoint
@@ -51,16 +59,8 @@ Glacier2.Server.ForwardContext=1
 # queued. These requests are then all sent once the sleep period is
 # over. The unit is milliseconds.
 #
-Glacier2.Client.SleepTime=500
-Glacier2.Server.SleepTime=500
-
-#
-# We must set the stack size of new threads created by Glacier2. The
-# default on Linux is typically in the 10MB range, which is way too
-# high, given that we allocate two threads per client.
-#
-Glacier2.Server.ThreadStackSize=262144
-Glacier2.Client.ThreadStackSize=262144
+Glacier2.Client.SleepTime=2000
+Glacier2.Server.SleepTime=2000
 
 #
 # Glacier2 always disables active connection management so there is no

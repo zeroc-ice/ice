@@ -20,7 +20,7 @@ namespace Glacier2
 class Request;
 typedef IceUtil::Handle<Request> RequestPtr;
 
-class Request : virtual public IceUtil::Shared
+class Request : public Ice::AMI_Object_ice_invoke
 {
 public:
 
@@ -30,7 +30,12 @@ public:
     void invoke();
     bool override(const RequestPtr&) const;
     const Ice::ObjectPrx& getProxy() const;
-    const Ice::Current& getCurrent() const;
+
+    //
+    // From AMI_Object_ice_invoke.
+    //
+    virtual void ice_response(bool, const std::vector<Ice::Byte>&);
+    virtual void ice_exception(const Ice::Exception&);
 
 private:
 
@@ -38,8 +43,8 @@ private:
     const std::vector<Ice::Byte> _inParams;
     const Ice::Current _current;
     const bool _forwardContext;
-    const Ice::AMI_Object_ice_invokePtr _amiCB;
     const std::string _override;
+    const Ice::AMD_Object_ice_invokePtr _amdCB;
 };
 
 class RequestQueue;
@@ -49,26 +54,18 @@ class RequestQueue : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mu
 {
 public:
 
-    RequestQueue(const Ice::CommunicatorPtr&, bool);
+    RequestQueue(const IceUtil::Time&);
     virtual ~RequestQueue();
     
     void destroy();
-    void addRequest(const RequestPtr&);
+    bool addRequest(const RequestPtr&);
 
     virtual void run();
 
 private:
 
-    void traceRequest(const RequestPtr&, const std::string&) const;
-
-    const Ice::LoggerPtr _logger;
-    const bool _reverse;
     const IceUtil::Time _sleepTime;
-    const int _requestTraceLevel;
-    const int _overrideTraceLevel;
-
     std::vector<RequestPtr> _requests;
-
     bool _destroy;
 };
 

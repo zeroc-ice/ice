@@ -32,42 +32,25 @@ Glacier2::Request::Request(const ObjectPrx& proxy, const vector<Byte>& inParams,
 void
 Glacier2::Request::invoke()
 {
-    if(_proxy->ice_isTwoway())
+    bool ok;
+    vector<Byte> outParams;
+    
+    try
     {
 	if(_forwardContext)
 	{
-	    _proxy->ice_invoke_async(this, _current.operation, _current.mode, _inParams, _current.ctx);
+	    ok = _proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams, _current.ctx);
 	}
 	else
 	{
-	    _proxy->ice_invoke_async(this, _current.operation, _current.mode, _inParams);
+	    ok = _proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams);
 	}
+	
+	_amdCB->ice_response(ok, outParams);
     }
-    else
+    catch(const LocalException& ex)
     {
-	//
-	// Dummy values, since we are sending oneway.
-	//
-	bool ok;
-	vector<Byte> outParams;
-    
-	try
-	{
-	    if(_forwardContext)
-	    {
-		ok = _proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams, _current.ctx);
-	    }
-	    else
-	    {
-		ok = _proxy->ice_invoke(_current.operation, _current.mode, _inParams, outParams);
-	    }
-
-	    ice_response(ok, outParams);
-	}
-	catch(const LocalException& ex)
-	{
-	    ice_exception(ex);
-	}
+	_amdCB->ice_exception(ex);
     }
 }
 
@@ -106,18 +89,6 @@ const ObjectPrx&
 Glacier2::Request::getProxy() const
 {
     return _proxy;
-}
-
-void
-Glacier2::Request::ice_response(bool ok, const vector<Byte>& outParams)
-{
-    _amdCB->ice_response(ok, outParams);
-}
-
-void
-Glacier2::Request::ice_exception(const Exception& ex)
-{
-    _amdCB->ice_exception(ex);
 }
 
 Glacier2::RequestQueue::RequestQueue(const IceUtil::Time& sleepTime) :

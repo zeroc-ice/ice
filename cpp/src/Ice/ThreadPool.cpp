@@ -75,7 +75,7 @@ IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& p
     const_cast<int&>(_sizeMax) = sizeMax;
     const_cast<int&>(_sizeWarn) = sizeWarn;
 
-    int stackSize = _instance->properties()->getPropertyAsIntWithDefault(_prefix + ".StackSize", 0);
+    int stackSize = _instance->properties()->getPropertyAsInt(_prefix + ".StackSize");
     if(stackSize < 0)
     {
 	stackSize = 0;
