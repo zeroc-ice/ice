@@ -47,7 +47,7 @@ Third-party libraries
 - OpenSSL 0.9.7c, which can be downloaded from http://www.openssl.org
 
   We do not recommend to use the binary distribution available from the
-  "Sofware Porting And Archive Centre for HP-UX" as it depends on the
+  "Software Porting And Archive Centre for HP-UX" as it depends on the
   GCC runtime.
 
   A recommended configuration is:
@@ -84,8 +84,9 @@ http://hpux.cs.utah.edu.
 Python 2.2 or 2.3
 -----------------
 
-To run the automated test suite, you will need Python 2.2. If you have
-no interest in running the test scripts, Python is not required.
+To run the automated test suite, you will need Python 2.2 or 2.3. If 
+you have no interest in running the test scripts, Python is not 
+required.
 
 You can download Python from http://hpux.cs.utah.edu.
 
