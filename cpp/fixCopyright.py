@@ -171,6 +171,9 @@ def replaceAllCopyrights(path):
             elif fnmatch.fnmatch(x, "*.py"):
                 commentMark = "#"
                 copyrightLines = pythonCopyright
+            elif fnmatch.fnmatch(x, "*.def"):
+                commentMark = "#"
+                copyrightLines = pythonCopyright
             elif fnmatch.fnmatch(x, "*.mc"):
                 commentMark = "; //"
                 copyrightLines = mcCopyright
