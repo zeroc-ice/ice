@@ -186,6 +186,9 @@ IceInternal::Incoming::invoke(bool response)
             // can be overwritten.
 	    ex.identity.__write(&_os);
 	}
+
+	// Rethrow, so that the caller can print a warning.
+	ex.ice_throw();
     }
     catch (const FacetNotExistException& ex)
     {
@@ -205,6 +208,9 @@ IceInternal::Incoming::invoke(bool response)
 	    // be overwritten.
 	    _os.write(ex.facet);
 	}
+
+	// Rethrow, so that the caller can print a warning.
+	ex.ice_throw();
     }
     catch (const OperationNotExistException& ex)
     {
@@ -224,6 +230,9 @@ IceInternal::Incoming::invoke(bool response)
 	    // can be overwritten.
 	    _os.write(ex.operation);
 	}
+
+	// Rethrow, so that the caller can print a warning.
+	ex.ice_throw();
     }
     catch (const LocalException& ex)
     {
@@ -241,6 +250,7 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.write(static_cast<Byte>(DispatchUnknownLocalException));
 	}
 
+	// Rethrow, so that the caller can print a warning.
 	ex.ice_throw();
     }
     catch (const UserException& ex)
@@ -259,6 +269,7 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.write(static_cast<Byte>(DispatchUnknownUserException));
 	}
 
+	// Rethrow, so that the caller can print a warning.
 	ex.ice_throw();
     }
     catch (...)
@@ -277,6 +288,7 @@ IceInternal::Incoming::invoke(bool response)
 	    _os.write(static_cast<Byte>(DispatchUnknownException));
 	}
 
+	// Rethrow, so that the caller can print a warning.
 	throw;
     }
 }

@@ -188,6 +188,9 @@ public class Incoming
 		// identity can be overwritten.
 		ex.identity.__write(_os);
             }
+
+	    // Rethrow, so that the caller can print a warning.
+            throw ex;
         }
         catch (Ice.FacetNotExistException ex)
         {
@@ -207,6 +210,9 @@ public class Incoming
 		// can be overwritten.
 		_os.writeString(ex.facet);
             }
+
+	    // Rethrow, so that the caller can print a warning.
+            throw ex;
         }
         catch (Ice.OperationNotExistException ex)
         {
@@ -226,6 +232,9 @@ public class Incoming
 		// identity can be overwritten.
 		_os.writeString(ex.operation);
             }
+
+	    // Rethrow, so that the caller can print a warning.
+            throw ex;
         }
         catch (Ice.LocalException ex)
         {
@@ -244,6 +253,7 @@ public class Incoming
                     (byte)DispatchStatus._DispatchUnknownLocalException);
             }
 
+	    // Rethrow, so that the caller can print a warning.
             throw ex;
         }
         /* Not possible in Java - UserExceptions are checked exceptions
@@ -283,6 +293,7 @@ public class Incoming
                 _os.writeByte((byte)DispatchStatus._DispatchUnknownException);
             }
 
+	    // Rethrow, so that the caller can print a warning.
             throw ex;
         }
     }
