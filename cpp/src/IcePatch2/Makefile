@@ -47,7 +47,7 @@ include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_PATCH2_API_EXPORTS $(OPENSSL_FLAGS) $(BZIP2_FLAGS)
 SLICE2CPPFLAGS	:= --ice --include-dir IcePatch2 --dll-export ICE_PATCH2_API $(SLICE2CPPFLAGS)
-LINKWITH	:= -lIce -lIceUtil
+LINKWITH	:= -lIce -lIceUtil $(OPENSSL_LIBS)
 
 $(libdir)/$(LIBFILENAME): $(OBJS)
 	rm -f $@
@@ -63,15 +63,15 @@ $(libdir)/$(LIBNAME): $(libdir)/$(SONAME)
 
 $(SERVER): $(SOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIcePatch2 $(LIBS) $(OPENSSL_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(SOBJS) -lIcePatch2 $(LIBS)
 
 $(CLIENT): $(COBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIcePatch2 $(LIBS) $(OPENSSL_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(COBJS) -lIcePatch2 $(LIBS)
 
 $(CALC): $(CALCOBJS) $(LIBTARGETS)
 	rm -f $@
-	$(CXX) $(LDFLAGS) -o $@ $(CALCOBJS) -lIcePatch2 $(LIBS) $(OPENSSL_LIBS)
+	$(CXX) $(LDFLAGS) -o $@ $(CALCOBJS) -lIcePatch2 $(LIBS)
 
 install:: all
 	$(call installlib,$(install_libdir),$(libdir),$(LIBFILENAME),$(SONAME),$(LIBNAME))
