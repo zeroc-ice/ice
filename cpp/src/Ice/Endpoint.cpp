@@ -228,7 +228,7 @@ IceInternal::UnknownEndpoint::operator<(const Endpoint& r) const
     {
 	return true;
     }
-    else if (_rawBytes != p->_rawBytes)
+    else if (p->_rawBytes < _rawBytes)
     {
 	return false;
     }
@@ -536,7 +536,7 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
     {
 	return true;
     }
-    else if (laddr.sin_addr.s_addr != raddr.sin_addr.s_addr)
+    else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
     {
 	return false;
     }
@@ -545,7 +545,7 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
     {
 	return true;
     }
-    else if (_port != p->_port)
+    else if (p->_port < _port)
     {
 	return false;
     }
@@ -554,7 +554,7 @@ IceInternal::TcpEndpoint::operator<(const Endpoint& r) const
     {
 	return true;
     }
-    else if (_timeout != p->_timeout)
+    else if (p->_timeout < _timeout)
     {
 	return false;
     }
@@ -848,7 +848,7 @@ IceInternal::SslEndpoint::operator<(const Endpoint& r) const
     {
 	return true;
     }
-    else if (laddr.sin_addr.s_addr != raddr.sin_addr.s_addr)
+    else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
     {
 	return false;
     }
@@ -857,7 +857,7 @@ IceInternal::SslEndpoint::operator<(const Endpoint& r) const
     {
 	return true;
     }
-    else if (_port != p->_port)
+    else if (p->_port < _port)
     {
 	return false;
     }
@@ -866,7 +866,7 @@ IceInternal::SslEndpoint::operator<(const Endpoint& r) const
     {
 	return true;
     }
-    else if (_timeout != p->_timeout)
+    else if (p->_timeout < _timeout)
     {
 	return false;
     }
@@ -1133,7 +1133,7 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
     {
 	return true;
     }
-    else if (laddr.sin_addr.s_addr != raddr.sin_addr.s_addr)
+    else if (raddr.sin_addr.s_addr < laddr.sin_addr.s_addr)
     {
 	return false;
     }
@@ -1142,7 +1142,7 @@ IceInternal::UdpEndpoint::operator<(const Endpoint& r) const
     {
 	return true;
     }
-    else if (_port != p->_port)
+    else if (p->_port < _port)
     {
 	return false;
     }

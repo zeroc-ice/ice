@@ -113,6 +113,8 @@ Slice::Gen::generate(const UnitPtr& unit)
     {
 	H << "\n#include <Ice/LocalObject.h>";
 	C << "\n#include <Ice/BasicStream.h>";
+	C << "\n#include <Ice/Proxy.h>";
+	C << "\n#include <Ice/Object.h>";
     }
 
     StringList includes = unit->includeFiles();
@@ -378,11 +380,13 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     H << sp << nl << _dllExport << "void __write(::IceInternal::BasicStream*) const;"; // NOT virtual!
     H << nl << _dllExport << "void __read(::IceInternal::BasicStream*);"; // NOT virtual!
+    H << nl << _dllExport << "bool operator<(const " << name << "&) const;";
     H << eb << ';';
     
     TypeStringList memberList;
     DataMemberList dataMembers = p->dataMembers();
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    DataMemberList::const_iterator q;
+    for (q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
 	memberList.push_back(make_pair((*q)->type(), (*q)->name()));
     }
@@ -393,6 +397,25 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     C << sp << nl << "void" << nl << scoped.substr(2) << "::__read(::IceInternal::BasicStream* __is)";
     C << sb;
     writeUnmarshalCode(C, memberList, 0);
+    C << eb;
+    C << sp << nl << "bool" << nl << scoped.substr(2) << "::operator<(const " << name << "& __rhs) const";
+    C << sb;
+    C << nl << "if (this == &__rhs)";
+    C << sb;
+    C << nl << "return false;";
+    C << eb;
+    for (q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+	C << nl << "if (" << (*q)->name() << " < __rhs." << (*q)->name() << ')';
+	C << sb;
+	C << nl << "return true;";
+	C << eb;
+	C << nl << "else if (__rhs." << (*q)->name() << " < " << (*q)->name() << ')';
+	C << sb;
+	C << nl << "return false;";
+	C << eb;
+    }
+    C << nl << "return false;";
     C << eb;
 }
 

@@ -136,6 +136,10 @@ SOURCE=.\Current.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Identity.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Direct.cpp
 # End Source File
 # Begin Source File
@@ -413,6 +417,10 @@ SOURCE=.\Ice\ConnectorF.h
 # Begin Source File
 
 SOURCE=..\..\include\Ice\Current.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Identity.h
 # End Source File
 # Begin Source File
 
@@ -873,6 +881,51 @@ BuildCmds= \
    $(BuildCmds)
 
 "Current.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ENDIF 
+
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\slice\Ice\Identity.ice
+
+!IF  "$(CFG)" == "Ice - Win32 Release"
+
+USERDEP__CURRE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Identity.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Identity.ice \
+	move Identity.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Identity.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Identity.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+# End Custom Build
+
+!ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
+
+USERDEP__CURRE="../../bin/slice2cpp.exe"	
+# Begin Custom Build
+InputPath=..\..\slice\Ice\Identity.ice
+
+BuildCmds= \
+	set PATH=%PATH%;..\..\lib \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/Identity.ice \
+	move Identity.h ..\..\include\Ice \
+	
+
+"..\..\include\Ice\Identity.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+   $(BuildCmds)
+
+"Identity.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
