@@ -251,7 +251,7 @@ public final class Reference
             throw new Ice.ProxyUnmarshalException();
         }
 
-        secure = s.readBoolean();
+        secure = s.readBool();
 
         int sz = s.readInt();
         origEndpoints = new Endpoint[sz];
@@ -260,7 +260,7 @@ public final class Reference
             origEndpoints[i] = Endpoint.streamRead(s);
         }
 
-        boolean same = s.readBoolean();
+        boolean same = s.readBool();
         if (same) // origEndpoints == endpoints
         {
             endpoints = origEndpoints;
@@ -336,7 +336,7 @@ public final class Reference
 
         s.writeByte((byte)mode);
 
-        s.writeBoolean(secure);
+        s.writeBool(secure);
 
         s.writeInt(origEndpoints.length);
         for (int i = 0; i < origEndpoints.length; i++)
@@ -346,11 +346,11 @@ public final class Reference
 
         if (endpointsEqual())
         {
-            s.writeBoolean(true);
+            s.writeBool(true);
         }
         else
         {
-            s.writeBoolean(false);
+            s.writeBool(false);
             s.writeInt(endpoints.length);
             for (int i = 0; i < endpoints.length; i++)
             {

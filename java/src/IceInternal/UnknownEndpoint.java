@@ -15,7 +15,7 @@ public final class UnknownEndpoint extends Endpoint
     public
     UnknownEndpoint(Ice.Stream s)
     {
-        _rawBytes = s.readBytes();
+        _rawBytes = s.readByteSeq();
     }
 
     //
@@ -25,7 +25,7 @@ public final class UnknownEndpoint extends Endpoint
     streamWrite(Ice.Stream s)
     {
         s.writeShort(UnknownEndpointType);
-        s.writeBytes(_rawBytes);
+        s.writeByteSeq(_rawBytes);
     }
 
     //

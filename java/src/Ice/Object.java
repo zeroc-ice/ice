@@ -43,7 +43,7 @@ public abstract class Object
         Stream __os = __in.os();
         String s = __is.readString();
         boolean __ret = ice_isA(s);
-        __os.writeBoolean(__ret);
+        __os.writeBool(__ret);
         return IceInternal.DispatchStatus.DispatchOK;
     }
 
