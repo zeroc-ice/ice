@@ -518,7 +518,7 @@ Ice::ObjectAdapterI::decUsageCount()
 	_locatorMap.clear();
 	_locatorMapHint = _locatorMap.end();
 
-	notify();
+	notifyAll();
     }
 }
 

@@ -443,7 +443,7 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 	    }
 	    _locatorMap.clear();
 
-	    notify();
+	    notifyAll();
         }
     }
 
