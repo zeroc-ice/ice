@@ -213,7 +213,9 @@ bool
 IcePatch2::ignoreSuffix(const string& path)
 {
     string suffix = getSuffix(path);
-    return suffix == "bz2" || suffix == "md5"; // "md5" is for legacy IcePatch
+    return suffix == "md5" // For legacy IcePatch
+	|| suffix == "tot" // For legacy IcePatch
+	|| suffix == "bz2";
 }
 
 string
