@@ -168,7 +168,7 @@ public final class ThreadPool
         }
         catch(java.io.IOException ex)
         {
-            Ice.SystemException sys = new Ice.SystemException();
+            Ice.SyscallException sys = new Ice.SyscallException();
             sys.initCause(ex);
             throw sys;
         }

@@ -137,7 +137,7 @@ Ice::OperationNotExistException::ice_print(ostream& out) const
 }
 
 void
-Ice::SystemException::ice_print(ostream& out) const
+Ice::SyscallException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     if(error != 0)

@@ -176,11 +176,11 @@ local exception OperationNotExistException
  *
  * This exception is raised if a system error occurred in the server
  * or client process. There are many possible causes for such a system
- * exception. For details on the cause, [SystemException::error]
+ * exception. For details on the cause, [SyscallException::error]
  * should be inspected.
  *
  **/
-local exception SystemException
+local exception SyscallException
 {
     /**
      *
@@ -196,11 +196,11 @@ local exception SystemException
 
 /**
  *
- * This exception is a specialization of [SystemException] for socket
+ * This exception is a specialization of [SyscallException] for socket
  * errors.
  *
  **/
-local exception SocketException extends SystemException
+local exception SocketException extends SyscallException
 {
 };
 

@@ -206,7 +206,7 @@ repeat:
 	    goto repeat;
 	}
 
-	SystemException ex(__FILE__, __LINE__);
+	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
     }
@@ -240,7 +240,7 @@ repeat:
 	    goto repeat;
 	}
 
-	SystemException ex(__FILE__, __LINE__);
+	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
     }

@@ -1350,7 +1350,7 @@ public class StreamI implements Ice.Stream
             }
             catch(Exception ex)
             {
-                Ice.SystemException e = new Ice.SystemException();
+                Ice.SyscallException e = new Ice.SyscallException();
                 e.initCause(ex);
                 throw e;
             }

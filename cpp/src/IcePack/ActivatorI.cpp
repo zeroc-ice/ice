@@ -58,7 +58,7 @@ IcePack::ActivatorI::ActivatorI(const TraceLevelsPtr& traceLevels) :
     int fds[2];
     if(pipe(fds) != 0)
     {
-	SystemException ex(__FILE__, __LINE__);
+	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
     }
@@ -163,14 +163,14 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     int fds[2];
     if(pipe(fds) != 0)
     {
-	SystemException ex(__FILE__, __LINE__);
+	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
     }
     pid_t pid = fork();
     if(pid == -1)
     {
-	SystemException ex(__FILE__, __LINE__);
+	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
     }
@@ -212,7 +212,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 // 		// Send any errors to the parent process, using the write
 // 		// end of the pipe.
 // 		//
-// 		SystemException ex(__FILE__, __LINE__);
+// 		SyscallException ex(__FILE__, __LINE__);
 // 		ex.error = getSystemErrno();
 // 		ostringstream s;
 // 		s << "can't redirect stderr to the pipe output";
@@ -233,7 +233,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 		// Send any errors to the parent process, using the write
 		// end of the pipe.
 		//
-		SystemException ex(__FILE__, __LINE__);
+		SyscallException ex(__FILE__, __LINE__);
 		ex.error = getSystemErrno();
 		ostringstream s;
 		s << "can't change working directory to `" << pwd << "':\n" << ex;
@@ -249,7 +249,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
 	    // Send any errors to the parent process, using the write
 	    // end of the pipe.
 	    //
-	    SystemException ex(__FILE__, __LINE__);
+	    SyscallException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();
 	    ostringstream s;
 	    s << "can't execute `" << path << "':\n" << ex;
@@ -294,7 +294,7 @@ IcePack::ActivatorI::deactivate(const ServerPtr& server)
     //
     if(::kill(pid, SIGTERM))
     {
-	SystemException ex(__FILE__, __LINE__);
+	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
     }
@@ -316,7 +316,7 @@ IcePack::ActivatorI::kill(const ServerPtr& server)
     //
     if(::kill(pid, SIGKILL))
     {
-	SystemException ex(__FILE__, __LINE__);
+	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
     }
@@ -479,7 +479,7 @@ IcePack::ActivatorI::terminationListener()
 		goto repeatSelect;
 	    }
 	    
-	    SystemException ex(__FILE__, __LINE__);
+	    SyscallException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();
 	    throw ex;
 	}
@@ -530,7 +530,7 @@ IcePack::ActivatorI::terminationListener()
 		    {
 			if(errno != EAGAIN || message.empty())
 			{
-			    SystemException ex(__FILE__, __LINE__);
+			    SyscallException ex(__FILE__, __LINE__);
 			    ex.error = getSystemErrno();
 			    throw ex;
 			}

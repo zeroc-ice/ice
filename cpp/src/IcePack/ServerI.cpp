@@ -94,7 +94,7 @@ IcePack::ServerI::start(ServerActivation activation, const Ice::Current& current
 	setState(active ? Active : Inactive);
 	return active;
     }
-    catch (const Ice::SystemException& ex)
+    catch (const Ice::SyscallException& ex)
     {
 	Ice::Warning out(_traceLevels->logger);
 	out << "activation failed for server `" << description.name << "':\n";
@@ -360,7 +360,7 @@ IcePack::ServerI::stopInternal()
 	{
 	    _activator->deactivate(this);
 	}
-	catch (const Ice::SystemException& ex)
+	catch (const Ice::SyscallException& ex)
 	{
 	    Ice::Warning out(_traceLevels->logger);
 	    out << "deactivation failed for server `" << description.name << "':\n";
@@ -417,7 +417,7 @@ IcePack::ServerI::stopInternal()
     {
 	_activator->kill(this);
     }
-    catch (const Ice::SystemException& ex)
+    catch (const Ice::SyscallException& ex)
     {
 	Ice::Warning out(_traceLevels->logger);
 	out << "deactivation failed for server `" << description.name << "':\n";

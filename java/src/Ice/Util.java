@@ -126,7 +126,7 @@ public final class Util
             StringHolder token = new StringHolder();
             if(!IceInternal.StringUtil.decodeString(s, 0, 0, token))
             {
-                throw new SystemException();
+                throw new SyscallException();
             }
             ident.category = "";
             ident.name = token.value;
@@ -136,14 +136,14 @@ public final class Util
             StringHolder token = new StringHolder();
             if(!IceInternal.StringUtil.decodeString(s, 0, slash, token))
             {
-                throw new SystemException();
+                throw new SyscallException();
             }
             ident.category = token.value;
             if(slash + 1 < s.length())
             {
                 if(!IceInternal.StringUtil.decodeString(s, slash + 1, 0, token))
                 {
-                    throw new SystemException();
+                    throw new SyscallException();
                 }
                 ident.name = token.value;
             }

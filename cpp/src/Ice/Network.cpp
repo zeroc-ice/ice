@@ -615,7 +615,7 @@ IceInternal::getLocalHost(bool numeric)
     char host[1024 + 1];
     if(gethostname(host, 1024) == SOCKET_ERROR)
     {
-	SystemException ex(__FILE__, __LINE__);
+	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
     }
@@ -712,7 +712,7 @@ IceInternal::createPipe(SOCKET fds[2])
 
     if(::pipe(fds) != 0)
     {
-	SystemException ex(__FILE__, __LINE__);
+	SyscallException ex(__FILE__, __LINE__);
 	ex.error = getSystemErrno();
 	throw ex;
     }

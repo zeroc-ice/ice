@@ -134,14 +134,14 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
     {
 	if(pipe(fds) != 0)
 	{
-	    SystemException ex(__FILE__, __LINE__);
+	    SyscallException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();
 	    throw ex;
 	}
 	pid = fork();
 	if(pid == -1)
 	{
-	    SystemException ex(__FILE__, __LINE__);
+	    SyscallException ex(__FILE__, __LINE__);
 	    ex.error = getSystemErrno();
 	    throw ex;
 	}
@@ -289,7 +289,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    flags |= O_NONBLOCK;
 	    if(fcntl(fds[0], F_SETFL, flags) == -1)
 	    {
-		SystemException ex(__FILE__, __LINE__);
+		SyscallException ex(__FILE__, __LINE__);
 		ex.error = getSystemErrno();
 		throw ex;
 	    }
@@ -314,7 +314,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 		    goto repeatSelect;
 		}
 		
-		SystemException ex(__FILE__, __LINE__);
+		SyscallException ex(__FILE__, __LINE__);
 		ex.error = getSystemErrno();
 		throw ex;
 	    }
@@ -335,7 +335,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	    ssize_t sz = read(fds[0], buf, sizeof(buf)/sizeof(char) - 1);
 	    if(sz == -1)
 	    {
-		SystemException ex(__FILE__, __LINE__);
+		SyscallException ex(__FILE__, __LINE__);
 		ex.error = getSystemErrno();
 		throw ex;
 	    }

@@ -44,20 +44,20 @@ Ice::stringToIdentity(const string& s)
     {
         if(!decodeString(s, 0, 0, ident.name))
         {
-            throw SystemException(__FILE__, __LINE__);
+            throw SyscallException(__FILE__, __LINE__);
         }
     }
     else
     {
         if(!decodeString(s, 0, slash, ident.category))
         {
-            throw SystemException(__FILE__, __LINE__);
+            throw SyscallException(__FILE__, __LINE__);
         }
         if(slash + 1 < s.size())
         {
             if(!decodeString(s, slash + 1, 0, ident.name))
             {
-                throw SystemException(__FILE__, __LINE__);
+                throw SyscallException(__FILE__, __LINE__);
             }
         }
     }

@@ -1418,9 +1418,16 @@ Slice::Container::checkPrefix(const string& name) const
 {
     if(_unit->currentIncludeLevel() == 0 && !_unit->allowIcePrefix())
     {
-    	if(name.find("Ice", 0) == 0)
+	if(name.size() >= 3)
 	{
-	    _unit->error("illegal identifier `" + name + "': `Ice' prefix is reserved");
+	    string prefix3;
+	    prefix3 += tolower(name[0]);
+	    prefix3 += tolower(name[1]);
+	    prefix3 += tolower(name[2]);
+	    if(prefix3 == "ice")
+	    {
+		_unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
+	    }
 	}
     }
 }

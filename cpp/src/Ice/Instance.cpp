@@ -258,21 +258,21 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, int& argc, 
 		struct passwd* pw = getpwnam(newUser.c_str());
 		if(!pw)
 		{
-		    SystemException ex(__FILE__, __LINE__);
+		    SyscallException ex(__FILE__, __LINE__);
 		    ex.error = getSystemErrno();
 		    throw ex;
 		}
 		
 		if(setgid(pw->pw_gid) == -1)
 		{
-		    SystemException ex(__FILE__, __LINE__);
+		    SyscallException ex(__FILE__, __LINE__);
 		    ex.error = getSystemErrno();
 		    throw ex;
 		}
 		
 		if(setuid(pw->pw_uid) == -1)
 		{
-		    SystemException ex(__FILE__, __LINE__);
+		    SyscallException ex(__FILE__, __LINE__);
 		    ex.error = getSystemErrno();
 		    throw ex;
 		}
@@ -437,7 +437,7 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[])
         
         if(daemon(nochdir, noclose) == -1)
         {
-            SystemException ex(__FILE__, __LINE__);
+            SyscallException ex(__FILE__, __LINE__);
             ex.error = getSystemErrno();
             throw ex;
         }

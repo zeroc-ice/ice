@@ -2308,7 +2308,7 @@ XMLTransform::DBTransformer::DBTransformer()
     catch(const XMLException& ex)
     {
         cerr << "Error during xerces initialization: " << toString(ex.getMessage()) << endl;
-        throw Ice::SystemException(__FILE__, __LINE__); // TODO: Better exception?
+        throw Ice::SyscallException(__FILE__, __LINE__); // TODO: Better exception?
     }
 }
 

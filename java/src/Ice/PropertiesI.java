@@ -154,7 +154,7 @@ class PropertiesI implements Properties
         }
         catch(java.io.IOException ex)
         {
-            SystemException se = new SystemException();
+            SyscallException se = new SyscallException();
             se.initCause(ex); // Exception chaining
             throw se;
         }
@@ -228,7 +228,7 @@ class PropertiesI implements Properties
         }
         catch(java.io.IOException ex)
         {
-            SystemException se = new SystemException();
+            SyscallException se = new SyscallException();
             se.initCause(ex); // Exception chaining
             throw se;
         }

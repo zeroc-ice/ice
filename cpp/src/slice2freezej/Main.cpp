@@ -223,7 +223,7 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
             out << eb;
             out << nl << "catch(java.io.UnsupportedEncodingException ex)";
             out << sb;
-            out << nl << "Ice.SystemException e = new Ice.SystemException();";
+            out << nl << "Ice.SyscallException e = new Ice.SyscallException();";
             out << nl << "e.initCause(ex);";
             out << nl << "throw e;";
             out << eb;
@@ -375,7 +375,7 @@ FreezeGenerator::generate(UnitPtr& unit, const Dict& dict)
             out << eb;
             out << nl << "catch(java.io.UnsupportedEncodingException ex)";
             out << sb;
-            out << nl << "Ice.SystemException e = new Ice.SystemException();";
+            out << nl << "Ice.SyscallException e = new Ice.SyscallException();";
             out << nl << "e.initCause(ex);";
             out << nl << "throw e;";
             out << eb;
