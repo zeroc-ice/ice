@@ -54,6 +54,7 @@ SLICECMD	= $(SLICE2CPP) --include-dir IcePack --dll-export ICE_PACK_API -I$(slic
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) $(XERCESC_FLAGS)
+LDFLAGS		:= $(LDFLAGS) -L$(DB_HOME)/lib
 
 $(VERSIONED_NAME): $(OBJS)
 	rm -f $@
