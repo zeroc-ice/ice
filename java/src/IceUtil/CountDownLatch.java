@@ -24,7 +24,7 @@ public class CountDownLatch
     {
 	if(_count < 0)
 	{
-	    throw new IllegalArgumentException();
+	    throw new IllegalArgumentException("count < 0");
 	}
 	_count = count;
     }
