@@ -47,7 +47,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     tsec = IceUtil::Time::now() - tsec;
 
-    double tmsec = tsec * 1000.0;
+    double tmsec = tsec * 1000.0L;
     
     cout << "time for " << repetitions << " pings: " << tmsec  << "ms" << endl;
     cout << "time per ping: " << tmsec / repetitions << "ms" << endl;

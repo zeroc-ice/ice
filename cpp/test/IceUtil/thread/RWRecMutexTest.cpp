@@ -411,7 +411,7 @@ RWRecMutexTest::run()
 
 	// It's necessary for a small sleep here to ensure that the
 	// thread is actually waiting on a write lock.
-	ThreadControl::sleep(1000);
+	ThreadControl::sleep(Time::seconds(1));
 
 	try
 	{
@@ -449,7 +449,7 @@ RWRecMutexTest::run()
 
 	// It's necessary for a small sleep here to ensure that the
 	// thread is actually waiting on a read lock.
-	ThreadControl::sleep(1000);
+	ThreadControl::sleep(Time::seconds(1));
     }
 
     //
@@ -484,7 +484,7 @@ RWRecMutexTest::run()
 	// terminates (which means that the write lock upgrade was
 	// mistakenly acquired).
 	//
-	ThreadControl::sleep(1000);
+	ThreadControl::sleep(Time::seconds(1));
 
 	test(!t2->upgradeAcquired());
 

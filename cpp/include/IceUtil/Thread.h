@@ -17,6 +17,8 @@
 namespace IceUtil
 {
 
+class Time;
+
 #ifdef _WIN32
 struct HandleWrapper : public Shared
 {
@@ -67,14 +69,7 @@ public:
     //
     void join();
 
-    //
-    // Sleep for n milliseconds.
-    //
-    static void sleep(long);
-
-    //
-    // Yield the CPU.
-    //
+    static void sleep(const Time&);
     static void yield();
 
 private:

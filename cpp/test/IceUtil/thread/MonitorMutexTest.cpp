@@ -145,15 +145,15 @@ MonitorMutexTest::run()
     control2 = t3->start();
 
     // Give the thread time to start waiting.
-    ThreadControl::sleep(1000);
-
+    ThreadControl::sleep(Time::seconds(1));
+    
     {
 	Monitor<Mutex>::Lock lock(monitor);
 	monitor.notify();
     }
 
     // Give one thread time to terminate
-    ThreadControl::sleep(1000);
+    ThreadControl::sleep(Time::seconds(1));
 
     test((t2->finished && !t3->finished) || (t3->finished && !t2->finished));
 
@@ -171,7 +171,7 @@ MonitorMutexTest::run()
     control2 = t3->start();
 
     // Give the threads time to start waiting.
-    ThreadControl::sleep(1000);
+    ThreadControl::sleep(Time::seconds(1));
 
     {
 	Monitor<Mutex>::Lock lock(monitor);
