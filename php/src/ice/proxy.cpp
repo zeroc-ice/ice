@@ -39,6 +39,7 @@ public:
     Operation(const Ice::ObjectPrx&, const Slice::OperationPtr&, const IceInternal::InstancePtr&);
     virtual ~Operation();
 
+    zend_uchar* getArgTypes() const;
     void invoke(INTERNAL_FUNCTION_PARAMETERS);
 
 private:
@@ -50,6 +51,7 @@ private:
     MarshalerPtr _result;
     vector<MarshalerPtr> _inParams;
     vector<MarshalerPtr> _outParams;
+    zend_uchar* _argTypes;
 };
 typedef IceUtil::Handle<Operation> OperationPtr;
 
@@ -82,7 +84,6 @@ static zend_object_value Ice_ObjectPrx_alloc(zend_class_entry* TSRMLS_DC);
 static void Ice_ObjectPrx_dtor(void*, zend_object_handle TSRMLS_DC);
 static union _zend_function* Ice_ObjectPrx_get_method(zval*, char*, int TSRMLS_DC);
 ZEND_FUNCTION(Ice_ObjectPrx_call);
-//static int Ice_ObjectPrx_call(char*, INTERNAL_FUNCTION_PARAMETERS);
 
 //
 // Function entries for Ice::ObjectPrx methods.
@@ -966,7 +967,17 @@ Operation::Operation(const Ice::ObjectPrx& proxy, const Slice::OperationPtr& op,
     }
 
     Slice::ParamDeclList params = op->parameters();
-    for(Slice::ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+
+    //
+    // Create an array that indicates how arguments are passed to the operation.
+    // The first element in the array determines how many follow it.
+    //
+    _argTypes = new zend_uchar[params.size() + 1];
+    _argTypes[0] = static_cast<zend_uchar>(params.size());
+
+    int i;
+    Slice::ParamDeclList::const_iterator p;
+    for(p = params.begin(), i = 1; p != params.end(); ++p, ++i)
     {
         MarshalerPtr m = Marshaler::createMarshaler((*p)->type());
         if(!m)
@@ -976,10 +987,12 @@ Operation::Operation(const Ice::ObjectPrx& proxy, const Slice::OperationPtr& op,
         _paramNames.push_back((*p)->name());
         if((*p)->isOutParam())
         {
+            _argTypes[i] = BYREF_FORCE;
             _outParams.push_back(m);
         }
         else
         {
+            _argTypes[i] = BYREF_NONE;
             _inParams.push_back(m);
         }
     }
@@ -987,6 +1000,13 @@ Operation::Operation(const Ice::ObjectPrx& proxy, const Slice::OperationPtr& op,
 
 Operation::~Operation()
 {
+    delete []_argTypes;
+}
+
+zend_uchar*
+Operation::getArgTypes() const
+{
+    return _argTypes;
 }
 
 void
@@ -1196,12 +1216,12 @@ Ice_ObjectPrx_get_method(zval* zv, char* method, int len TSRMLS_DC)
         }
 
         zend_internal_function* zif = static_cast<zend_internal_function*>(emalloc(sizeof(zend_internal_function)));
-        zif->arg_types = NULL;
-        zif->function_name = estrndup(method, len);
-        zif->handler = ZEND_FN(Ice_ObjectPrx_call);
-        zif->scope = Ice_ObjectPrx_entry_ptr;
         zif->type = ZEND_INTERNAL_FUNCTION;
+        zif->arg_types = op->getArgTypes();
+        zif->function_name = estrndup(method, len);
+        zif->scope = Ice_ObjectPrx_entry_ptr;
         zif->fn_flags = ZEND_ACC_PUBLIC;
+        zif->handler = ZEND_FN(Ice_ObjectPrx_call);
         result = (zend_function*)zif;
     }
 
