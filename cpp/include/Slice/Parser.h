@@ -252,8 +252,8 @@ protected:
     std::string _comment;
 };
 
-bool SLICE_API operator<(Contained&, Contained&);
-bool SLICE_API operator==(Contained&, Contained&);
+SLICE_API bool operator<(Contained&, Contained&);
+SLICE_API bool operator==(Contained&, Contained&);
 
 // ----------------------------------------------------------------------
 // Container
@@ -377,6 +377,7 @@ public:
     bool isAbstract();
     bool isLocal();
     bool isInterface();
+    bool hasDataMembers();
     virtual ContainedType containedType();
     virtual void visit(ParserVisitor*);
 
@@ -387,6 +388,7 @@ protected:
 
     bool _local;
     bool _interface;
+    bool _hasDataMembers;
     ClassList _bases;
 };
 

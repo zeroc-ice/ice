@@ -1223,6 +1223,8 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type)
 	return 0;
     }
 
+    _hasDataMembers = true;
+
     DataMemberPtr p = new DataMember(this, name, type);
     _contents.push_back(p);
     return p;
@@ -1330,6 +1332,12 @@ Slice::ClassDef::isInterface()
     return _interface;
 }
 
+bool
+Slice::ClassDef::hasDataMembers()
+{
+    return _hasDataMembers;
+}
+
 Slice::Contained::ContainedType
 Slice::ClassDef::containedType()
 {
@@ -1358,6 +1366,7 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, boo
     SyntaxTreeBase(container->unit()),
     _local(local),
     _interface(intf),
+    _hasDataMembers(false),
     _bases(bases)
 {
     //
