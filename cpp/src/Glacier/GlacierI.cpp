@@ -32,7 +32,8 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator) :
     _traceLevel = atoi(_properties->getProperty("Glacier.Trace.Starter").c_str());
 
     // Set up the Certificate Generation context
-    string defSecondsValid = IceSSL::OpenSSL::RSACertificateGenContext::daysToSeconds(1);
+    ostringstream defSecondsValid;
+    defSecondsValid << dec << IceSSL::OpenSSL::RSACertificateGenContext::daysToSeconds(1);
     string country = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Country", "US");
     string stateProv = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.StateProvince", "Washington");
     string locality = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.Locality", "DC");
@@ -41,7 +42,7 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator) :
     string commonName = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.CommonName", "John Doe");
     string bitStrength = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.BitStrength", "1024");
     string secondsValid = _properties->getPropertyWithDefault("Glacier.Starter.Certificate.SecondsValid",
-                                                              defSecondsValid);
+                                                              defSecondsValid.str());
 
     _certContext.setCountry(country);
     _certContext.setStateProvince(stateProv);

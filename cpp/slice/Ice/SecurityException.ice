@@ -146,7 +146,7 @@ module OpenSSL
  * A problem was encountered while setting up the [IceSSL::System]
  * <literal>Context</literal>.  This can include problems related
  * to loading certificates and keys or calling methods on a
- * <literal>Context</lieral> that has not been initialized as of yet.
+ * <literal>Context</literal> that has not been initialized as of yet.
  *
  **/
 local exception ContextException extends SslException
