@@ -1482,6 +1482,27 @@ Package=<4>
 
 ###############################################################################
 
+Project: "minimal"=.\minimal.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name Glacier
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Ice
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name IceSSL
+    End Project Dependency
+}}}
+
+###############################################################################
+
 Project: "nestedC"=.\demo\Ice\nested\nestedC.dsp - Package Owner=<4>
 
 Package=<5>
