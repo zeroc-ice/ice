@@ -308,7 +308,7 @@ public class SliceTask extends org.apache.tools.ant.Task
 
 	public String[] _dependencies;
 	public long _timeStamp;
-    };
+    }
 
     protected File _dependencyFile;
     protected File _outputDir;

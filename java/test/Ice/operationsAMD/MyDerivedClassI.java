@@ -29,7 +29,7 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
 	}
 
 	private Test.AMD_MyClass_opVoid _cb;
-    };
+    }
 
     public
     MyDerivedClassI(Ice.ObjectAdapter adapter, Ice.Identity identity)

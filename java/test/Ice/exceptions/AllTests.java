@@ -63,7 +63,7 @@ public class AllTests
 	}
 
 	private boolean _called;
-    };
+    }
 
     private static class AMI_Thrower_throwAasAI extends AMI_Thrower_throwAasA
     {
@@ -104,7 +104,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwAasAObjectNotExistI extends AMI_Thrower_throwAasA
     {
@@ -146,7 +146,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwAasAFacetNotExistI extends AMI_Thrower_throwAasA
     {
@@ -188,7 +188,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwAasAFacetNotExist2I extends AMI_Thrower_throwAasA
     {
@@ -231,7 +231,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwAorDasAorDI extends AMI_Thrower_throwAorDasAorD
     {
@@ -276,7 +276,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwBasAI extends AMI_Thrower_throwBasA
     {
@@ -318,7 +318,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwCasAI extends AMI_Thrower_throwCasA
     {
@@ -361,7 +361,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwBasBI extends AMI_Thrower_throwBasB
     {
@@ -403,7 +403,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwCasBI extends AMI_Thrower_throwCasB
     {
@@ -446,7 +446,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwCasCI extends AMI_Thrower_throwCasC
     {
@@ -489,7 +489,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwUndeclaredAI extends AMI_Thrower_throwUndeclaredA
     {
@@ -523,7 +523,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwUndeclaredBI extends AMI_Thrower_throwUndeclaredB
     {
@@ -557,7 +557,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwUndeclaredCI extends AMI_Thrower_throwUndeclaredC
     {
@@ -591,7 +591,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwLocalExceptionI extends AMI_Thrower_throwLocalException
     {
@@ -625,7 +625,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_Thrower_throwNonIceExceptionI extends AMI_Thrower_throwNonIceException
     {
@@ -659,7 +659,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_WrongOperation_noSuchOperationI extends AMI_WrongOperation_noSuchOperation
     {
@@ -694,7 +694,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     public static ThrowerPrx
     allTests(Ice.Communicator communicator, boolean collocated)

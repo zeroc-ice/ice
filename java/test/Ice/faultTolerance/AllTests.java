@@ -63,7 +63,7 @@ public class AllTests
 	}
 
 	private boolean _called;
-    };
+    }
 
     private static class AMI_Test_pidI extends AMI_Test_pid
     {
@@ -101,7 +101,7 @@ public class AllTests
 	private int _pid;
 	
 	private Callback callback = new Callback();
-    };
+    }
     
     private static class AMI_Test_shutdownI extends AMI_Test_shutdown
     {
@@ -130,7 +130,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
     
     private static class AMI_Test_abortI extends AMI_Test_abort
     {
@@ -170,7 +170,7 @@ public class AllTests
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
     
     private static class AMI_Test_idempotentAbortI extends AMI_Test_idempotentAbort
     {
@@ -199,7 +199,7 @@ public class AllTests
 	}
 
 	private AMI_Test_abortI delegate = new AMI_Test_abortI();
-    };
+    }
     
     private static class AMI_Test_nonmutatingAbortI extends AMI_Test_nonmutatingAbort
     {
@@ -228,7 +228,7 @@ public class AllTests
 	}
 
 	private AMI_Test_abortI delegate = new AMI_Test_abortI();
-    };
+    }
     
     public static void
     allTests(Ice.Communicator communicator, int[] ports)

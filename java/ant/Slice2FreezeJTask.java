@@ -476,7 +476,7 @@ public class Slice2FreezeJTask extends SliceTask
 	{
 	    return _value;
 	}
-    };
+    }
 
 
     public class Index
@@ -534,7 +534,7 @@ public class Slice2FreezeJTask extends SliceTask
 	    return _caseSensitive;
 	}
 
-    };
+    }
 
 
     private java.util.List _dicts = new java.util.LinkedList();

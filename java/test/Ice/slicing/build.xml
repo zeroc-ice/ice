@@ -15,11 +15,13 @@ the Free Software Foundation.
 
     <target name="all">
         <ant dir="exceptions"/>
+        <ant dir="exceptionsAMD"/>
         <ant dir="objects"/>
     </target>
 
     <target name="clean">
         <ant dir="exceptions" target="clean"/>
+        <ant dir="exceptionsAMD" target="clean"/>
         <ant dir="objects" target="clean"/>
     </target>
 

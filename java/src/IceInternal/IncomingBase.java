@@ -184,4 +184,4 @@ public class IncomingBase
     protected BasicStream _os;
 
     private Connection _connection;
-};
+}

@@ -174,7 +174,7 @@ class Twoways
                 (byte)0x11,
                 (byte)0x12,
                 (byte)0x22
-            };
+            }
             final byte[] bsi2 =
             {
                 (byte)0xf1,

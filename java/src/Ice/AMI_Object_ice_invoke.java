@@ -51,4 +51,4 @@ public abstract class AMI_Object_ice_invoke extends IceInternal.OutgoingAsync
 	}
 	ice_response(ok, outParams);
     }
-};
+}

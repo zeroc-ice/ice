@@ -133,7 +133,7 @@ class TestApp extends Ice.Application
 
 	private java.util.Random _r;
 	private int _max;
-    };
+    }
 
     static class SequentialGenerator implements Generator
     {

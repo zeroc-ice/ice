@@ -63,7 +63,7 @@ class TwowaysAMI
 	}
 
 	private boolean _called;
-    };
+    }
 
     private static class AMI_MyClass_opVoidI extends Test.AMI_MyClass_opVoid
     {
@@ -86,7 +86,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opByteI extends Test.AMI_MyClass_opByte
     {
@@ -111,7 +111,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opBoolI extends Test.AMI_MyClass_opBool
     {
@@ -136,7 +136,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opShortIntLongI extends Test.AMI_MyClass_opShortIntLong
     {
@@ -163,7 +163,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opFloatDoubleI extends Test.AMI_MyClass_opFloatDouble
     {
@@ -189,7 +189,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opStringI extends Test.AMI_MyClass_opString
     {
@@ -214,7 +214,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opMyEnumI extends Test.AMI_MyClass_opMyEnum
     {
@@ -239,7 +239,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opMyClassI extends Test.AMI_MyClass_opMyClass
     {
@@ -275,7 +275,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opStructI extends Test.AMI_MyClass_opStruct
     {
@@ -304,7 +304,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opByteSI extends Test.AMI_MyClass_opByteS
     {
@@ -341,7 +341,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opBoolSI extends Test.AMI_MyClass_opBoolS
     {
@@ -373,7 +373,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opShortIntLongSI extends Test.AMI_MyClass_opShortIntLongS
     {
@@ -417,7 +417,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opFloatDoubleSI extends Test.AMI_MyClass_opFloatDoubleS
     {
@@ -453,7 +453,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opStringSI extends Test.AMI_MyClass_opStringS
     {
@@ -485,7 +485,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opByteSSI extends Test.AMI_MyClass_opByteSS
     {
@@ -527,7 +527,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opBoolSSI extends Test.AMI_MyClass_opBoolSS
     {
@@ -550,7 +550,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opShortIntLongSSI extends Test.AMI_MyClass_opShortIntLongSS
     {
@@ -573,7 +573,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opFloatDoubleSSI extends Test.AMI_MyClass_opFloatDoubleSS
     {
@@ -616,7 +616,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opStringSSI extends Test.AMI_MyClass_opStringSS
     {
@@ -654,7 +654,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opByteBoolDI extends Test.AMI_MyClass_opByteBoolD
     {
@@ -686,7 +686,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opShortIntDI extends Test.AMI_MyClass_opShortIntD
     {
@@ -718,7 +718,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opLongFloatDI extends Test.AMI_MyClass_opLongFloatD
     {
@@ -750,7 +750,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opStringStringDI extends Test.AMI_MyClass_opStringStringD
     {
@@ -782,7 +782,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opStringMyEnumDI extends Test.AMI_MyClass_opStringMyEnumD
     {
@@ -814,7 +814,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opIntSI extends Test.AMI_MyClass_opIntS
     {
@@ -848,7 +848,7 @@ class TwowaysAMI
 
 	private int _l;
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opContextEqualI extends Test.AMI_MyClass_opContext
     {
@@ -878,7 +878,7 @@ class TwowaysAMI
 
 	private java.util.Map _d;
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyClass_opContextNotEqualI extends Test.AMI_MyClass_opContext
     {
@@ -908,7 +908,7 @@ class TwowaysAMI
 
 	private java.util.Map _d;
 	private Callback callback = new Callback();
-    };
+    }
 
     private static class AMI_MyDerivedClass_opDerivedI extends Test.AMI_MyDerivedClass_opDerived
     {
@@ -931,7 +931,7 @@ class TwowaysAMI
 	}
 
 	private Callback callback = new Callback();
-    };
+    }
 
     static void
     twowaysAMI(Test.MyClassPrx p)
@@ -1014,14 +1014,14 @@ class TwowaysAMI
 		    (byte)0x11,
 		    (byte)0x12,
 		    (byte)0x22
-		};
+		}
             final byte[] bsi2 =
 		{
 		    (byte)0xf1,
 		    (byte)0xf2,
 		    (byte)0xf3,
 		    (byte)0xf4
-		};
+		}
 	    
 	    AMI_MyClass_opByteSI cb = new AMI_MyClass_opByteSI();
 	    p.opByteS_async(cb, bsi1, bsi2);
@@ -1029,8 +1029,8 @@ class TwowaysAMI
 	}
 	
 	{
-            final boolean[] bsi1 = { true, true, false };
-            final boolean[] bsi2 = { false };
+            final boolean[] bsi1 = { true, true, false }
+            final boolean[] bsi2 = { false }
 	    
 	    AMI_MyClass_opBoolSI cb = new AMI_MyClass_opBoolSI();
 	    p.opBoolS_async(cb, bsi1, bsi2);
@@ -1038,9 +1038,9 @@ class TwowaysAMI
 	}
 	
 	{
-            final short[] ssi = { 1, 2, 3 };
-            final int[] isi = { 5, 6, 7, 8 };
-            final long[] lsi = { 10, 30, 20 };
+            final short[] ssi = { 1, 2, 3 }
+            final int[] isi = { 5, 6, 7, 8 }
+            final long[] lsi = { 10, 30, 20 }
 	    
 	    AMI_MyClass_opShortIntLongSI cb = new AMI_MyClass_opShortIntLongSI();
 	    p.opShortIntLongS_async(cb, ssi, isi, lsi);
@@ -1048,8 +1048,8 @@ class TwowaysAMI
 	}
 	
 	{
-            final float[] fsi = { 3.14f, 1.11f };
-            final double[] dsi = { 1.1E10, 1.2E10, 1.3E10 };
+            final float[] fsi = { 3.14f, 1.11f }
+            final double[] dsi = { 1.1E10, 1.2E10, 1.3E10 }
 	    
 	    AMI_MyClass_opFloatDoubleSI cb = new AMI_MyClass_opFloatDoubleSI();
 	    p.opFloatDoubleS_async(cb, fsi, dsi);
@@ -1057,8 +1057,8 @@ class TwowaysAMI
 	}
 	
 	{
-            final String[] ssi1 = { "abc", "de", "fghi" };
-            final String[] ssi2 = { "xyz" };
+            final String[] ssi1 = { "abc", "de", "fghi" }
+            final String[] ssi2 = { "xyz" }
 	    
 	    AMI_MyClass_opStringSI cb = new AMI_MyClass_opStringSI();
 	    p.opStringS_async(cb, ssi1, ssi2);
@@ -1070,12 +1070,12 @@ class TwowaysAMI
 		{
 		    { (byte)0x01, (byte)0x11, (byte)0x12 },
 		    { (byte)0xff }
-		};
+		}
             final byte[][] bsi2 =
 		{
 		    { (byte)0x0e },
 		    { (byte)0xf2, (byte)0xf1 }
-		};
+		}
 
 	    AMI_MyClass_opByteSSI cb = new AMI_MyClass_opByteSSI();
 	    p.opByteSS_async(cb, bsi1, bsi2);
@@ -1088,11 +1088,11 @@ class TwowaysAMI
 		    { 3.14f },
 		    { 1.11f },
 		    { },
-		};
+		}
             final double[][] dsi =
 		{
 		    { 1.1E10, 1.2E10, 1.3E10 }
-		};
+		}
 
 	    AMI_MyClass_opFloatDoubleSSI cb = new AMI_MyClass_opFloatDoubleSSI();
 	    p.opFloatDoubleSS_async(cb, fsi, dsi);
@@ -1104,13 +1104,13 @@ class TwowaysAMI
 		{
 		    { "abc" },
 		    { "de", "fghi" }
-		};
+		}
             final String[][] ssi2 =
 		{
 		    { },
 		    { },
 		    { "xyz" }
-		};
+		}
 
 	    AMI_MyClass_opStringSSI cb = new AMI_MyClass_opStringSSI();
 	    p.opStringSS_async(cb, ssi1, ssi2);
@@ -1188,7 +1188,7 @@ class TwowaysAMI
 	}
 
 	{
-	    int[] lengths = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+	    int[] lengths = { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 }
 
 	    for(int l = 0; l < lengths.length; ++l)
 	    {
@@ -1242,4 +1242,4 @@ class TwowaysAMI
 	    test(cb.check());
 	}
     }
-};
+}

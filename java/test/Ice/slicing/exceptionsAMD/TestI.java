@@ -21,144 +21,146 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    shutdown(Ice.Current current)
+    shutdown_async(AMD_Test_shutdown cb, Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
+	cb.ice_response();
     }
 
     public void
-    baseAsBase(Ice.Current current)
+    baseAsBase_async(AMD_Test_baseAsBase cb, Ice.Current current)
         throws Base
     {
         Base b = new Base();
 	b.b = "Base.b";
-	throw b;
+	cb.ice_exception(b);
     }
 
     public void
-    unknownDerivedAsBase(Ice.Current current)
+    unknownDerivedAsBase_async(AMD_Test_unknownDerivedAsBase cb, Ice.Current current)
         throws Base
     {
 	UnknownDerived d = new UnknownDerived();
 	d.b = "UnknownDerived.b";
 	d.ud = "UnknownDerived.ud";
-	throw d;
+	cb.ice_exception(d);
     }
 
     public void
-    knownDerivedAsBase(Ice.Current current)
+    knownDerivedAsBase_async(AMD_Test_knownDerivedAsBase cb, Ice.Current current)
         throws Base
     {
 	KnownDerived d = new KnownDerived();
 	d.b = "KnownDerived.b";
 	d.kd = "KnownDerived.kd";
-	throw d;
+	cb.ice_exception(d);
     }
 
     public void
-    knownDerivedAsKnownDerived(Ice.Current current)
+    knownDerivedAsKnownDerived_async(AMD_Test_knownDerivedAsKnownDerived cb, Ice.Current current)
         throws KnownDerived
     {
 	KnownDerived d = new KnownDerived();
 	d.b = "KnownDerived.b";
 	d.kd = "KnownDerived.kd";
-	throw d;
+	cb.ice_exception(d);
     }
 
     public void
-    unknownIntermediateAsBase(Ice.Current current)
+    unknownIntermediateAsBase_async(AMD_Test_unknownIntermediateAsBase cb, Ice.Current current)
         throws Base
     {
 	UnknownIntermediate ui = new UnknownIntermediate();
 	ui.b = "UnknownIntermediate.b";
 	ui.ui = "UnknownIntermediate.ui";
-	throw ui;
+	cb.ice_exception(ui);
     }
 
     public void
-    knownIntermediateAsBase(Ice.Current current)
+    knownIntermediateAsBase_async(AMD_Test_knownIntermediateAsBase cb, Ice.Current current)
         throws Base
     {
 	KnownIntermediate ki = new KnownIntermediate();
 	ki.b = "KnownIntermediate.b";
 	ki.ki = "KnownIntermediate.ki";
-	throw ki;
+	cb.ice_exception(ki);
     }
 
     public void
-    knownMostDerivedAsBase(Ice.Current current)
+    knownMostDerivedAsBase_async(AMD_Test_knownMostDerivedAsBase cb, Ice.Current current)
         throws Base
     {
 	KnownMostDerived kmd = new KnownMostDerived();
 	kmd.b = "KnownMostDerived.b";
 	kmd.ki = "KnownMostDerived.ki";
 	kmd.kmd = "KnownMostDerived.kmd";
-	throw kmd;
+	cb.ice_exception(kmd);
     }
 
     public void
-    knownIntermediateAsKnownIntermediate(Ice.Current current)
+    knownIntermediateAsKnownIntermediate_async(AMD_Test_knownIntermediateAsKnownIntermediate cb, Ice.Current current)
         throws KnownIntermediate
     {
 	KnownIntermediate ki = new KnownIntermediate();
 	ki.b = "KnownIntermediate.b";
 	ki.ki = "KnownIntermediate.ki";
-	throw ki;
+	cb.ice_exception(ki);
     }
 
     public void
-    knownMostDerivedAsKnownIntermediate(Ice.Current current)
+    knownMostDerivedAsKnownIntermediate_async(AMD_Test_knownMostDerivedAsKnownIntermediate cb, Ice.Current current)
         throws KnownIntermediate
     {
 	KnownMostDerived kmd = new KnownMostDerived();
 	kmd.b = "KnownMostDerived.b";
 	kmd.ki = "KnownMostDerived.ki";
 	kmd.kmd = "KnownMostDerived.kmd";
-	throw kmd;
+	cb.ice_exception(kmd);
     }
 
     public void
-    knownMostDerivedAsKnownMostDerived(Ice.Current current)
+    knownMostDerivedAsKnownMostDerived_async(AMD_Test_knownMostDerivedAsKnownMostDerived cb, Ice.Current current)
         throws KnownMostDerived
     {
 	KnownMostDerived kmd = new KnownMostDerived();
 	kmd.b = "KnownMostDerived.b";
 	kmd.ki = "KnownMostDerived.ki";
 	kmd.kmd = "KnownMostDerived.kmd";
-	throw kmd;
+	cb.ice_exception(kmd);
     }
 
     public void
-    unknownMostDerived1AsBase(Ice.Current current)
+    unknownMostDerived1AsBase_async(AMD_Test_unknownMostDerived1AsBase cb, Ice.Current current)
         throws Base
     {
 	UnknownMostDerived1 umd1 = new UnknownMostDerived1();
 	umd1.b = "UnknownMostDerived1.b";
 	umd1.ki = "UnknownMostDerived1.ki";
 	umd1.umd1 = "UnknownMostDerived1.umd1";
-	throw umd1;
+	cb.ice_exception(umd1);
     }
 
     public void
-    unknownMostDerived1AsKnownIntermediate(Ice.Current current)
+    unknownMostDerived1AsKnownIntermediate_async(AMD_Test_unknownMostDerived1AsKnownIntermediate cb,
+                                                 Ice.Current current)
         throws KnownIntermediate
     {
 	UnknownMostDerived1 umd1 = new UnknownMostDerived1();
 	umd1.b = "UnknownMostDerived1.b";
 	umd1.ki = "UnknownMostDerived1.ki";
 	umd1.umd1 = "UnknownMostDerived1.umd1";
-	throw umd1;
+	cb.ice_exception(umd1);
     }
 
     public void
-    unknownMostDerived2AsBase(Ice.Current current)
+    unknownMostDerived2AsBase_async(AMD_Test_unknownMostDerived2AsBase cb, Ice.Current current)
         throws Base
     {
 	UnknownMostDerived2 umd2 = new UnknownMostDerived2();
 	umd2.b = "UnknownMostDerived2.b";
 	umd2.ui = "UnknownMostDerived2.ui";
 	umd2.umd2 = "UnknownMostDerived2.umd2";
-	throw umd2;
+	cb.ice_exception(umd2);
     }
     private Ice.ObjectAdapter _adapter;
 }

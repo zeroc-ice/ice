@@ -263,5 +263,5 @@ public final class LocatorInfo
     private final Ice.LocatorPrx _locator;
     private Ice.LocatorRegistryPrx _locatorRegistry;
     private final LocatorTable _table;
-};
+}
 

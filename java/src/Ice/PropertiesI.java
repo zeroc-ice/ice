@@ -580,7 +580,7 @@ final class PropertiesI extends LocalObjectImpl implements Properties
 	}
 
         public static java.util.HashMap _validProps = new java.util.HashMap();
-    }
+    };
 
     private static final ValidProps _vp = new ValidProps();
 }

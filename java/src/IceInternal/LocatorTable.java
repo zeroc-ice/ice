@@ -65,5 +65,5 @@ final class LocatorTable
 
     private java.util.HashMap _adapterEndpointsTable = new java.util.HashMap();
     private java.util.HashMap _objectTable = new java.util.HashMap();
-};
+}
 
