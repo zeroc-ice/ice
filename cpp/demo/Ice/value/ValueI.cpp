@@ -11,6 +11,7 @@
 #include <ValueI.h>
 
 using namespace std;
+using namespace Demo;
 
 InitialI::InitialI(::Ice::ObjectAdapterPtr adapter)
 {

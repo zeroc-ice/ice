@@ -10,6 +10,9 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+module Test
+{
+
 class C {};
 
 sequence<C> CSeq;
@@ -39,7 +42,7 @@ dictionary<int, string> D;
 
 sequence<StringSeq> StringSeqSeq;
 
-class Test
+class TestIntf
 {
     CSeq opCSeq(CSeq inSeq, out CSeq outSeq);
     CArray opCArray(CArray inSeq, out CArray outSeq);
@@ -60,6 +63,8 @@ class Test
     void shutdown();
 
     ["java:type:java.util.ArrayList"] CSeq seq;
+};
+
 };
 
 #endif

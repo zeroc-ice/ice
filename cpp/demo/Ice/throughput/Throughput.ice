@@ -10,6 +10,9 @@
 #ifndef THROUGHPUT_ICE
 #define THROUGHPUT_ICE
 
+module Demo
+{
+
 const int seqSize = 500000;
 
 sequence<byte> ByteSeq;
@@ -19,6 +22,8 @@ interface Throughput
     void sendByteSeq(ByteSeq seq);
     ByteSeq recvByteSeq();
     ByteSeq echoByteSeq(ByteSeq seq);
+};
+
 };
 
 #endif

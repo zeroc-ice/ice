@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace Demo;
 
 ContactI::ContactI(const ContactFactoryPtr& contactFactory) :
     _factory(contactFactory)

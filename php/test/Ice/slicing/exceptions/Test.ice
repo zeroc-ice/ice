@@ -10,6 +10,9 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+module Test
+{
+
 exception Base
 {
     string b;
@@ -30,7 +33,7 @@ exception KnownMostDerived extends KnownIntermediate
     string kmd;
 };
 
-["ami"] interface Test
+["ami"] interface TestIntf
 {
     void baseAsBase() throws Base;
     void unknownDerivedAsBase() throws Base;
@@ -49,6 +52,8 @@ exception KnownMostDerived extends KnownIntermediate
     void unknownMostDerived2AsBase() throws Base;
 
     void shutdown();
+};
+
 };
 
 #endif

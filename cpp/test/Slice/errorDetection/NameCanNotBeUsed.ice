@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 class Foo
 {
@@ -37,4 +37,6 @@ exception EBar
 struct SBar
 {
     string SBar;
+};
+
 };

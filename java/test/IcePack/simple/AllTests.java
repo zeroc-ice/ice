@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public class AllTests
 {
     private static void
@@ -18,7 +20,7 @@ public class AllTests
         }
     }
 
-    public static TestPrx
+    public static TestIntfPrx
     allTests(Ice.Communicator communicator)
     {
 	System.out.print("testing stringToProxy... ");
@@ -30,7 +32,7 @@ public class AllTests
 
 	System.out.print("testing checked cast... ");
 	System.out.flush();
-	TestPrx obj = TestPrxHelper.checkedCast(base);
+	TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
 	test(obj != null);
 	test(obj.equals(base));
 	System.out.println("ok");
@@ -43,7 +45,7 @@ public class AllTests
 	return obj;
     }
 
-    public static TestPrx
+    public static TestIntfPrx
     allTestsWithDeploy(Ice.Communicator communicator)
     {
 	System.out.print("testing stringToProxy... ");
@@ -56,10 +58,10 @@ public class AllTests
 
 	System.out.print("testing checked cast... ");
 	System.out.flush();
-	TestPrx obj = TestPrxHelper.checkedCast(base);
+	TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
 	test(obj != null);
 	test(obj.equals(base));
-	TestPrx obj2 = TestPrxHelper.checkedCast(base2);
+	TestIntfPrx obj2 = TestIntfPrxHelper.checkedCast(base2);
 	test(obj2 != null);
 	test(obj2.equals(base2));
 	System.out.println("ok");
@@ -119,7 +121,7 @@ public class AllTests
 	System.out.flush();
 	try
 	{
-	    obj = TestPrxHelper.checkedCast(base);
+	    obj = TestIntfPrxHelper.checkedCast(base);
 	    test(false);
 	}
 	catch(Ice.NoEndpointException ex)
@@ -127,7 +129,7 @@ public class AllTests
 	}
 	try
 	{
-	    obj2 = TestPrxHelper.checkedCast(base2);
+	    obj2 = TestIntfPrxHelper.checkedCast(base2);
 	    test(false);
 	}
 	catch(Ice.NoEndpointException ex)
@@ -149,7 +151,7 @@ public class AllTests
 
 	try
 	{
-	    obj = TestPrxHelper.checkedCast(base);
+	    obj = TestIntfPrxHelper.checkedCast(base);
 	}
 	catch(Ice.NoEndpointException ex)
 	{
@@ -157,7 +159,7 @@ public class AllTests
 	}
 	try
 	{
-	    obj2 = TestPrxHelper.checkedCast(base2);
+	    obj2 = TestIntfPrxHelper.checkedCast(base2);
 	}
 	catch(Ice.NoEndpointException ex)
 	{

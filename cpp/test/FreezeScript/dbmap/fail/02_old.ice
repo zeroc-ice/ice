@@ -1,3 +1,6 @@
+module Test
+{
+
 enum E { E1, E2, E3 };
 
 struct S1
@@ -71,4 +74,6 @@ struct S2
     byte m14;
     byte m15;
     byte m16;
+};
+
 };

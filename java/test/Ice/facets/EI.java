@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public final class EI extends _EDisp
 {
     public

@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace Demo;
 
 void
 CallbackReceiverI::callback(const Current&)

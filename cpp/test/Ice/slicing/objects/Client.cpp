@@ -12,12 +12,13 @@
 #include <ClientPrivate.h>
 
 using namespace std;
+using namespace Test;
 
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    TestPrx allTests(const Ice::CommunicatorPtr&);
-    TestPrx Test = allTests(communicator);
+    TestIntfPrx allTests(const Ice::CommunicatorPtr&);
+    TestIntfPrx Test = allTests(communicator);
     Test->shutdown();
     return EXIT_SUCCESS;
 }

@@ -29,7 +29,7 @@ private:
 };
 typedef IceUtil::Handle<HelloSessionManagerI> HelloSessionManagerIPtr;
 
-class HelloSessionI : public HelloSession
+class HelloSessionI : public Demo::HelloSession
 {
 public:
 

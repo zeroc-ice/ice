@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 class DerivedPrinterI extends DerivedPrinter
 {
     public void

@@ -7,51 +7,51 @@
 //
 // **********************************************************************
 
-public final class CDI extends MA.CD
+public final class CDI extends Test.MA.CD
 {
     public
     CDI()
     {
     }
 
-    public MA.CAPrx
-    caop(MA.CAPrx p, Ice.Current current)
+    public Test.MA.CAPrx
+    caop(Test.MA.CAPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public MA.CCPrx
-    ccop(MA.CCPrx p, Ice.Current current)
+    public Test.MA.CCPrx
+    ccop(Test.MA.CCPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public MA.CDPrx
-    cdop(MA.CDPrx p, Ice.Current current)
+    public Test.MA.CDPrx
+    cdop(Test.MA.CDPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public MA.IAPrx
-    iaop(MA.IAPrx p, Ice.Current current)
+    public Test.MA.IAPrx
+    iaop(Test.MA.IAPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public MB.CBPrx
-    cbop(MB.CBPrx p, Ice.Current current)
+    public Test.MB.CBPrx
+    cbop(Test.MB.CBPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public MB.IB1Prx
-    ib1op(MB.IB1Prx p, Ice.Current current)
+    public Test.MB.IB1Prx
+    ib1op(Test.MB.IB1Prx p, Ice.Current current)
     {
         return p;
     }
 
-    public MB.IB2Prx
-    ib2op(MB.IB2Prx p, Ice.Current current)
+    public Test.MB.IB2Prx
+    ib2op(Test.MB.IB2Prx p, Ice.Current current)
     {
         return p;
     }

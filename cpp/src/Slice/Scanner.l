@@ -131,6 +131,22 @@ floating_literal	(({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]+{e
     return ICE_SCOPE_DELIMITER;
 }
 
+"[" {
+    return ICE_METADATA_OPEN;
+}
+
+"]" {
+    return ICE_METADATA_CLOSE;
+}
+
+"[[" {
+    return ICE_GLOBAL_METADATA_OPEN;
+}
+
+"]]" {
+    return ICE_GLOBAL_METADATA_CLOSE;
+}
+
 {identifier}[[:space:]]*"(" {
     StringTokPtr ident = new StringTok;
     ident->v = *yytext == '\\' ? yytext + 1 : yytext;

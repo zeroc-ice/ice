@@ -23,7 +23,7 @@ typedef IceUtil::Handle<PhoneBookI> PhoneBookIPtr;
 class ContactI;
 typedef IceUtil::Handle<ContactI> ContactIPtr;
 
-class ContactI : public Contact, 
+class ContactI : public Demo::Contact, 
 		 public IceUtil::AbstractMutexReadI<IceUtil::RWRecMutex>
 {
 public:
@@ -46,14 +46,14 @@ private:
     ContactFactoryPtr _factory;
 };
 
-class PhoneBookI : public PhoneBook
+class PhoneBookI : public Demo::PhoneBook
 {
 public: 
 
     PhoneBookI(const Freeze::EvictorPtr& evictor, const ContactFactoryPtr& factory, const NameIndexPtr& index);
 
-    virtual ContactPrx createContact(const Ice::Current&);
-    virtual Contacts findContacts(const std::string&, const Ice::Current&) const;
+    virtual Demo::ContactPrx createContact(const Ice::Current&);
+    virtual Demo::Contacts findContacts(const std::string&, const Ice::Current&) const;
     virtual void setEvictorSize(Ice::Int, const Ice::Current&);
     virtual void shutdown(const Ice::Current&) const;
 

@@ -10,6 +10,9 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+module Test
+{
+
 class B;
 class C;
 
@@ -53,6 +56,8 @@ class Initial
     C getC();
     D getD();
     void getAll(out B b1, out B b2, out C theC, out D theD);
+};
+
 };
 
 #endif

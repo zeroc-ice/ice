@@ -14,6 +14,7 @@
 using namespace std;
 using namespace Ice;
 using namespace Freeze;
+using namespace Test;
 
 int
 run(const CommunicatorPtr& communicator, const string& envName, const string& dbName)

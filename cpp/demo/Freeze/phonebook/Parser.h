@@ -55,7 +55,7 @@ class Parser : public ::IceUtil::SimpleShared
 {
 public:
 
-    static ParserPtr createParser(const Ice::CommunicatorPtr&, const PhoneBookPrx&);
+    static ParserPtr createParser(const Ice::CommunicatorPtr&, const Demo::PhoneBookPrx&);
 
     void usage();
 
@@ -86,13 +86,13 @@ public:
 
 private:
 
-    Parser(const Ice::CommunicatorPtr&, const PhoneBookPrx&);
+    Parser(const Ice::CommunicatorPtr&, const Demo::PhoneBookPrx&);
 
-    Contacts _foundContacts;
-    Contacts::iterator _current;
+    Demo::Contacts _foundContacts;
+    Demo::Contacts::iterator _current;
 
     std::string _commands;
-    PhoneBookPrx _phoneBook;
+    Demo::PhoneBookPrx _phoneBook;
     bool _continue;
     int _errors;
     int _currentLine;

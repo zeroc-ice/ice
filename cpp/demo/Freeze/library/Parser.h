@@ -55,7 +55,7 @@ class Parser : public ::IceUtil::SimpleShared
 {
 public:
 
-    static ParserPtr createParser(const Ice::CommunicatorPtr&, const LibraryPrx&);
+    static ParserPtr createParser(const Ice::CommunicatorPtr&, const Demo::LibraryPrx&);
 
     void usage();
 
@@ -86,13 +86,13 @@ public:
 
 private:
 
-    Parser(const Ice::CommunicatorPtr&, const LibraryPrx&);
+    Parser(const Ice::CommunicatorPtr&, const Demo::LibraryPrx&);
 
-    BookPrxSeq _foundBooks;
-    BookPrxSeq::iterator _current;
+    Demo::BookPrxSeq _foundBooks;
+    Demo::BookPrxSeq::iterator _current;
 
     std::string _commands;
-    LibraryPrx _library;
+    Demo::LibraryPrx _library;
     bool _continue;
     int _errors;
     int _currentLine;

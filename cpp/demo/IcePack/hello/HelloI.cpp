@@ -12,6 +12,7 @@
 #include <HelloI.h>
 
 using namespace std;
+using namespace Demo;
 
 HelloFactoryI::HelloFactoryI()
 {

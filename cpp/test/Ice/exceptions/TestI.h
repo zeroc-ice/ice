@@ -12,7 +12,7 @@
 
 #include <Test.h>
 
-class ThrowerI : public Thrower
+class ThrowerI : public Test::Thrower
 {
 public:
 

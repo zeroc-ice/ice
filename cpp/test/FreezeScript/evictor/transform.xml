@@ -3,16 +3,16 @@
 	<record/>
     </database>
     
-    <!-- enum ::E -->
-    <transform type="::E"/>
+    <!-- enum ::Test::E -->
+    <transform type="::Test::E"/>
     
-    <!-- class ::MainObject -->
-    <transform type="::MainObject">
+    <!-- class ::Test::MainObject -->
+    <transform type="::Test::MainObject">
 	<!-- NOTICE: renamed has been removed -->
         <!-- NOTICE: newname has been added -->
         <set target="new.newname" value="old.renamed"/>
     </transform>
     
-    <!-- class ::RenamedFacetObject -->
-    <transform type="::RenamedFacetObject" rename="::FacetObject"/>
+    <!-- class ::Test::RenamedFacetObject -->
+    <transform type="::Test::RenamedFacetObject" rename="::Test::FacetObject"/>
 </transformdb>

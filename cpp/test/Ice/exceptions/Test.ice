@@ -10,6 +10,9 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+module Test
+{
+
 interface Empty
 {
 };
@@ -38,7 +41,7 @@ exception D
 
 module Mod
 {
-    exception A extends :: A
+    exception A extends ::Test::A
     {
 	int a2Mem;
     };
@@ -72,6 +75,8 @@ module Mod
 ["ami"] interface WrongOperation
 {
     void noSuchOperation();
+};
+
 };
 
 #endif

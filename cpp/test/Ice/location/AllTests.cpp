@@ -12,6 +12,7 @@
 #include <Test.h>
 
 using namespace std;
+using namespace Test;
 
 void
 allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
@@ -31,14 +32,14 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestPrx obj = TestPrx::checkedCast(base);
-    obj = TestPrx::checkedCast(communicator->stringToProxy("test@TestAdapter"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("test   @TestAdapter"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("test@   TestAdapter"));
+    TestIntfPrx obj = TestIntfPrx::checkedCast(base);
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("test@TestAdapter"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("test   @TestAdapter"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("test@   TestAdapter"));
     test(obj);
-    TestPrx obj2 = TestPrx::checkedCast(base2);
+    TestIntfPrx obj2 = TestIntfPrx::checkedCast(base2);
     test(obj2);
-    TestPrx obj3 = TestPrx::checkedCast(base3);
+    TestIntfPrx obj3 = TestIntfPrx::checkedCast(base3);
     test(obj3);
     ServerManagerPrx obj4 = ServerManagerPrx::checkedCast(base4);
     test(obj4);
@@ -60,7 +61,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     cout << "testing whether server is still reachable... " << flush;
     try
     {
-	obj2 = TestPrx::checkedCast(base2);
+	obj2 = TestIntfPrx::checkedCast(base2);
 	obj2->ice_ping();
     }
     catch(const Ice::LocalException&)

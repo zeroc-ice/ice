@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 interface Foo1;
 class Foo1;
@@ -25,3 +25,5 @@ interface Foo3 { void op(); };
 
 class Foo4 { long l; };
 interface Foo4;
+
+};

@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 class NestedClient extends Ice.Application
 {
     public int

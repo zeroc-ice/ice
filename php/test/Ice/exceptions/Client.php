@@ -23,7 +23,7 @@ function allTests()
 
     echo "testing checked cast... ";
     flush();
-    $thrower = $base->ice_checkedCast("::Thrower");
+    $thrower = $base->ice_checkedCast("::Test::Thrower");
     test($thrower != null);
     test($thrower == $base);
     echo "ok\n";
@@ -36,7 +36,7 @@ function allTests()
         $thrower->throwAasA(1);
         test(false);
     }
-    catch(A $ex)
+    catch(Test_A $ex)
     {
         test($ex->aMem == 1);
     }
@@ -46,7 +46,7 @@ function allTests()
         $thrower->throwAorDasAorD(1);
         test(false);
     }
-    catch(A $ex)
+    catch(Test_A $ex)
     {
         test($ex->aMem == 1);
     }
@@ -56,7 +56,7 @@ function allTests()
         $thrower->throwAorDasAorD(-1);
         test(false);
     }
-    catch(D $ex)
+    catch(Test_D $ex)
     {
         test($ex->dMem == -1);
     }
@@ -66,7 +66,7 @@ function allTests()
         $thrower->throwBasB(1, 2);
         test(false);
     }
-    catch(B $ex)
+    catch(Test_B $ex)
     {
         test($ex->aMem == 1);
         test($ex->bMem == 2);
@@ -77,7 +77,7 @@ function allTests()
         $thrower->throwCasC(1, 2, 3);
         test(false);
     }
-    catch(C $ex)
+    catch(Test_C $ex)
     {
         test($ex->aMem == 1);
         test($ex->bMem == 2);
@@ -94,7 +94,7 @@ function allTests()
         $thrower->throwBasB(1, 2);
         test(false);
     }
-    catch(A $ex)
+    catch(Test_A $ex)
     {
         test($ex->aMem == 1);
     }
@@ -104,7 +104,7 @@ function allTests()
         $thrower->throwCasC(1, 2, 3);
         test(false);
     }
-    catch(B $ex)
+    catch(Test_B $ex)
     {
         test($ex->aMem == 1);
         test($ex->bMem == 2);
@@ -120,7 +120,7 @@ function allTests()
         $thrower->throwBasA(1, 2);
         test(false);
     }
-    catch(B $ex)
+    catch(Test_B $ex)
     {
         test($ex->aMem == 1);
         test($ex->bMem == 2);
@@ -131,7 +131,7 @@ function allTests()
         $thrower->throwCasA(1, 2, 3);
         test(false);
     }
-    catch(C $ex)
+    catch(Test_C $ex)
     {
         test($ex->aMem == 1);
         test($ex->bMem == 2);
@@ -143,7 +143,7 @@ function allTests()
         $thrower->throwCasB(1, 2, 3);
         test(false);
     }
-    catch(C $ex)
+    catch(Test_C $ex)
     {
         test($ex->aMem == 1);
         test($ex->bMem == 2);
@@ -193,7 +193,7 @@ function allTests()
     $id = Ice_stringToIdentity("does not exist");
     try
     {
-        $thrower2 = $thrower->ice_newIdentity($id)->ice_uncheckedCast("::Thrower");
+        $thrower2 = $thrower->ice_newIdentity($id)->ice_uncheckedCast("::Test::Thrower");
         $thrower2->throwAasA(1);
         test(false);
     }
@@ -208,7 +208,7 @@ function allTests()
     flush();
 
     {
-        $thrower2 = $thrower->ice_uncheckedCast("::Thrower", "no such facet");
+        $thrower2 = $thrower->ice_uncheckedCast("::Test::Thrower", "no such facet");
         try
         {
             $thrower2->ice_ping();
@@ -227,7 +227,7 @@ function allTests()
 
     try
     {
-        $thrower2 = $thrower->ice_uncheckedCast("::WrongOperation");
+        $thrower2 = $thrower->ice_uncheckedCast("::Test::WrongOperation");
         $thrower2->noSuchOperation();
         test(false);
     }

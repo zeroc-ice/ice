@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public class AllTests
 {
     public static void
@@ -60,7 +62,7 @@ public class AllTests
 	private boolean _called;
     }
 
-    private static class AMI_Test_pidI extends AMI_Test_pid
+    private static class AMI_Test_pidI extends AMI_TestIntf_pid
     {
 	public void
 	ice_response(int pid)
@@ -98,7 +100,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
     
-    private static class AMI_Test_shutdownI extends AMI_Test_shutdown
+    private static class AMI_Test_shutdownI extends AMI_TestIntf_shutdown
     {
 	public void
 	ice_response()
@@ -127,7 +129,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
     
-    private static class AMI_Test_abortI extends AMI_Test_abort
+    private static class AMI_Test_abortI extends AMI_TestIntf_abort
     {
 	public void
 	ice_response()
@@ -173,7 +175,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
     
-    private static class AMI_Test_idempotentAbortI extends AMI_Test_idempotentAbort
+    private static class AMI_Test_idempotentAbortI extends AMI_TestIntf_idempotentAbort
     {
 	public void
 	ice_response()
@@ -202,7 +204,7 @@ public class AllTests
 	private AMI_Test_abortI delegate = new AMI_Test_abortI();
     }
     
-    private static class AMI_Test_nonmutatingAbortI extends AMI_Test_nonmutatingAbort
+    private static class AMI_Test_nonmutatingAbortI extends AMI_TestIntf_nonmutatingAbort
     {
 	public void
 	ice_response()
@@ -247,7 +249,7 @@ public class AllTests
 
         System.out.print("testing checked cast... ");
         System.out.flush();
-        TestPrx obj = TestPrxHelper.checkedCast(base);
+        TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
         test(obj != null);
         test(obj.equals(base));
         System.out.println("ok");

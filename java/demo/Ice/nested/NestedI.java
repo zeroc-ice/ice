@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-class NestedI extends Nested
+import Demo.*;
+
+class NestedI extends _NestedDisp
 {
     NestedI(NestedPrx self)
     {

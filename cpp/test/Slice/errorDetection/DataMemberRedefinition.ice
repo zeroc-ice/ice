@@ -9,11 +9,13 @@
 
 
 
-
-
+module Test
+{
 
 class C
 {
     int member;
     int member;
+};
+
 };

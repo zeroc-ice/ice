@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 class LibraryI extends _LibraryDisp
 {
     public synchronized BookPrx

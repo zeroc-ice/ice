@@ -12,6 +12,7 @@
 #include <Test.h>
 
 using namespace std;
+using namespace Test;
 
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
@@ -27,11 +28,11 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	}
     }
 
-    TestPrx obj;
+    TestIntfPrx obj;
 
     if(!withDeploy)
     {
-	TestPrx allTests(const Ice::CommunicatorPtr&);
+	TestIntfPrx allTests(const Ice::CommunicatorPtr&);
 	obj = allTests(communicator);
 
 	cout << "shutting down server... " << flush;
@@ -40,7 +41,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     }
     else
     {
-	TestPrx allTestsWithDeploy(const Ice::CommunicatorPtr&);
+	TestIntfPrx allTestsWithDeploy(const Ice::CommunicatorPtr&);
 	obj = allTestsWithDeploy(communicator);
     }
 

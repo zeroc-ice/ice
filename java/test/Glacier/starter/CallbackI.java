@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 final class CallbackI extends Callback
 {
     CallbackI(Ice.Communicator communicator)

@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 public class Client
 {
     private static void

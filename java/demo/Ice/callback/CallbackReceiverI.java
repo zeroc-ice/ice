@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-public final class CallbackReceiverI extends CallbackReceiver
+import Demo.*;
+
+public final class CallbackReceiverI extends _CallbackReceiverDisp
 {
     public void
     callback(Ice.Current current)

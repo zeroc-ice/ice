@@ -12,7 +12,7 @@
 
 #include <Test.h>
 
-class InitialI : public Initial
+class InitialI : public Test::Initial
 {
 public:
 
@@ -20,82 +20,82 @@ public:
 
     virtual void shutdown(const Ice::Current&);
 
-    virtual MA::CAPrx caop(const Ice::Current&);
-    virtual MB::CBPrx cbop(const Ice::Current&);
-    virtual MA::CCPrx ccop(const Ice::Current&);
-    virtual MA::CDPrx cdop(const Ice::Current&);
-    virtual MA::IAPrx iaop(const Ice::Current&);
-    virtual MB::IB1Prx ib1op(const Ice::Current&);
-    virtual MB::IB2Prx ib2op(const Ice::Current&);
-    virtual MA::ICPrx icop(const Ice::Current&);
+    virtual Test::MA::CAPrx caop(const Ice::Current&);
+    virtual Test::MB::CBPrx cbop(const Ice::Current&);
+    virtual Test::MA::CCPrx ccop(const Ice::Current&);
+    virtual Test::MA::CDPrx cdop(const Ice::Current&);
+    virtual Test::MA::IAPrx iaop(const Ice::Current&);
+    virtual Test::MB::IB1Prx ib1op(const Ice::Current&);
+    virtual Test::MB::IB2Prx ib2op(const Ice::Current&);
+    virtual Test::MA::ICPrx icop(const Ice::Current&);
 
 private:
 
     Ice::ObjectAdapterPtr _adapter;
-    MA::CAPrx _ca;
-    MB::CBPrx _cb;
-    MA::CCPrx _cc;
-    MA::CDPrx _cd;
-    MA::IAPrx _ia;
-    MB::IB1Prx _ib1;
-    MB::IB2Prx _ib2;
-    MA::ICPrx _ic;
+    Test::MA::CAPrx _ca;
+    Test::MB::CBPrx _cb;
+    Test::MA::CCPrx _cc;
+    Test::MA::CDPrx _cd;
+    Test::MA::IAPrx _ia;
+    Test::MB::IB1Prx _ib1;
+    Test::MB::IB2Prx _ib2;
+    Test::MA::ICPrx _ic;
 };
 
-class CAI_ : virtual public MA::CA
+class CAI_ : virtual public Test::MA::CA
 {
 public:
 
-    virtual MA::CAPrx caop(const MA::CAPrx&, const Ice::Current&);
+    virtual Test::MA::CAPrx caop(const Test::MA::CAPrx&, const Ice::Current&);
 };
 
-class CBI : virtual public MB::CB, virtual public CAI_
+class CBI : virtual public Test::MB::CB, virtual public CAI_
 {
 public:
 
-    virtual MB::CBPrx cbop(const MB::CBPrx&, const Ice::Current&);
+    virtual Test::MB::CBPrx cbop(const Test::MB::CBPrx&, const Ice::Current&);
 };
 
-class CCI : virtual public MA::CC, virtual public CBI
+class CCI : virtual public Test::MA::CC, virtual public CBI
 {
 public:
 
-    virtual MA::CCPrx ccop(const MA::CCPrx&, const Ice::Current&);
+    virtual Test::MA::CCPrx ccop(const Test::MA::CCPrx&, const Ice::Current&);
 };
 
-class IAI : virtual public MA::IA
+class IAI : virtual public Test::MA::IA
 {
 public:
 
-    virtual MA::IAPrx iaop(const MA::IAPrx&, const Ice::Current&);
+    virtual Test::MA::IAPrx iaop(const Test::MA::IAPrx&, const Ice::Current&);
 };
 
-class IB1I : virtual public MB::IB1, virtual public IAI
+class IB1I : virtual public Test::MB::IB1, virtual public IAI
 {
 public:
 
-    virtual MB::IB1Prx ib1op(const MB::IB1Prx&, const Ice::Current&);		   
+    virtual Test::MB::IB1Prx ib1op(const Test::MB::IB1Prx&, const Ice::Current&);		   
 };
 
-class IB2I : virtual public MB::IB2, virtual public IAI
+class IB2I : virtual public Test::MB::IB2, virtual public IAI
 {
 public:
 
-    virtual MB::IB2Prx ib2op(const MB::IB2Prx&, const Ice::Current&);
+    virtual Test::MB::IB2Prx ib2op(const Test::MB::IB2Prx&, const Ice::Current&);
 };
 
-class ICI : virtual public MA::IC, virtual public IB1I, virtual public IB2I
+class ICI : virtual public Test::MA::IC, virtual public IB1I, virtual public IB2I
 {
 public:
 
-    virtual MA::ICPrx icop(const MA::ICPrx&, const Ice::Current&);
+    virtual Test::MA::ICPrx icop(const Test::MA::ICPrx&, const Ice::Current&);
 };
 
-class CDI : virtual public MA::CD, virtual public CCI, virtual public IB1I, virtual public IB2I
+class CDI : virtual public Test::MA::CD, virtual public CCI, virtual public IB1I, virtual public IB2I
 {
 public:
 
-    virtual MA::CDPrx cdop(const MA::CDPrx&, const Ice::Current&);
+    virtual Test::MA::CDPrx cdop(const Test::MA::CDPrx&, const Ice::Current&);
 };
 
 #endif

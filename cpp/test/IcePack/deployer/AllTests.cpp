@@ -16,6 +16,7 @@
 #include <Test.h>
 
 using namespace std;
+using namespace Test;
 
 struct ProxyIdentityEqual : public std::binary_function<Ice::ObjectPrx,string,bool>
 {
@@ -99,20 +100,20 @@ allTests(const Ice::CommunicatorPtr& communicator)
     //
     cout << "pinging server objects... " << flush;
 
-    TestPrx obj;
+    TestIntfPrx obj;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service2@IceBox1Service2Adapter"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox1-Service2@IceBox1Service2Adapter"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     
     cout << "ok" << endl;
 
     cout << "testing server configuration... " << flush;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
     test(obj->getProperty("Type") == "Server");
     test(obj->getProperty("Name") == "Server1");
 
@@ -120,7 +121,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(obj->getProperty("Variable1") == "");
     test(obj->getProperty("Variable2") == "");
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
     test(obj->getProperty("Target1") == "1");
     test(obj->getProperty("Target2") == "1");
     test(obj->getProperty("Variable") == "val0prop");
@@ -131,13 +132,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing service configuration... " << flush;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
     test(obj->getProperty("Service1.Type") == "standard");
     test(obj->getProperty("Service1.ServiceName") == "Service1");
     
     test(obj->getProperty("Service1.InheritedVariable") == "inherited");
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     test(obj->getProperty("Service2.Type") == "freeze");
     test(obj->getProperty("Service2.ServiceName") == "Service2");
 
@@ -151,7 +152,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing server options... " << flush;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
     test(obj->getProperty("Test.Test") == "2");
     test(obj->getProperty("Test.Test1") == "0");
 
@@ -169,11 +170,11 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
 
     cout << "pinging server objects... " << flush;
 
-    TestPrx obj;
+    TestIntfPrx obj;
     admin->setServerActivation("Server1", IcePack::Manual);
     try
     {
-	obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
+	obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
 	test(false);
     }
     catch(const Ice::LocalException&)
@@ -181,15 +182,15 @@ allTestsWithTarget(const Ice::CommunicatorPtr& communicator)
     }
     admin->startServer("Server1");
     
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server1@Server1.Server"));
     test(obj->getProperty("Mode") == "manual");
-    obj = TestPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("Server2@Server2.Server"));
 
     cout << "ok" << endl;
 
     cout << "testing service configuration... " << flush;
 
-    obj = TestPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+    obj = TestIntfPrx::checkedCast(communicator->stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
     test(obj->getProperty("Service1.DebugProperty") == "debug");
 
     cout << "ok" << endl;

@@ -10,6 +10,9 @@
 #ifndef TEST_AMD_ICE
 #define TEST_AMD_ICE
 
+module Test
+{
+
 class SBase
 {
     string sb;
@@ -66,7 +69,7 @@ exception DerivedException extends BaseException
 
 class Forward;		// Forward-declared class defined in another compilation unit
 
-["ami", "amd"] interface Test
+["ami", "amd"] interface TestIntf
 {
     Object SBaseAsObject();
     SBase SBaseAsSBase();
@@ -104,6 +107,8 @@ class Forward;		// Forward-declared class defined in another compilation unit
     void useForward(out Forward f);	// Use of forward-declared class to verify that code is generated correctly.
 
     void shutdown();
+};
+
 };
 
 #endif

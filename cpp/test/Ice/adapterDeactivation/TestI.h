@@ -12,7 +12,7 @@
 
 #include <Test.h>
 
-class TestI : public Test
+class TestI : public Test::TestIntf
 {
 public:
 
@@ -20,7 +20,7 @@ public:
     virtual void deactivate(const Ice::Current&);
 };
 
-class CookieI : public Cookie
+class CookieI : public Test::Cookie
 {
 public:
 

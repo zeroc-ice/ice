@@ -9,10 +9,12 @@
 
 
 
-
-
+module Test
+{
 
 sequence<int> Seq;
-module Seq;
+module Seq { };
 module Mod { };
 module Mod { };
+
+};

@@ -11,6 +11,8 @@
 #include <Ice/Ice.h>
 #include <sstream>
 
+using namespace Test;
+
 TestI::TestI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {

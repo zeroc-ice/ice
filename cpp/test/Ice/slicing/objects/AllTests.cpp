@@ -13,6 +13,7 @@
 #include <sstream>
 
 using namespace std;
+using namespace Test;
 
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -56,13 +57,13 @@ private:
     bool _called;
 };
 
-class AMI_Test_SBaseAsObjectI : public AMI_Test_SBaseAsObject, public CallbackBase
+class AMI_Test_SBaseAsObjectI : public AMI_TestIntf_SBaseAsObject, public CallbackBase
 {
     virtual void
     ice_response(const ::Ice::ObjectPtr& o)
     {
 	test(o);
-	test(o->ice_id() == "::SBase");
+	test(o->ice_id() == "::Test::SBase");
 	SBasePtr sb = SBasePtr::dynamicCast(o);
 	test(sb);
 	test(sb->sb == "SBase.sb");
@@ -78,7 +79,7 @@ class AMI_Test_SBaseAsObjectI : public AMI_Test_SBaseAsObject, public CallbackBa
 
 typedef IceUtil::Handle<AMI_Test_SBaseAsObjectI> AMI_Test_SBaseAsObjectIPtr;
 
-class AMI_Test_SBaseAsSBaseI : public AMI_Test_SBaseAsSBase, public CallbackBase
+class AMI_Test_SBaseAsSBaseI : public AMI_TestIntf_SBaseAsSBase, public CallbackBase
 {
     virtual void
     ice_response(const SBasePtr& sb)
@@ -96,7 +97,7 @@ class AMI_Test_SBaseAsSBaseI : public AMI_Test_SBaseAsSBase, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_SBaseAsSBaseI> AMI_Test_SBaseAsSBaseIPtr;
 
-class AMI_Test_SBSKnownDerivedAsSBaseI : public AMI_Test_SBSKnownDerivedAsSBase, public CallbackBase
+class AMI_Test_SBSKnownDerivedAsSBaseI : public AMI_TestIntf_SBSKnownDerivedAsSBase, public CallbackBase
 {
     virtual void
     ice_response(const SBasePtr& sb)
@@ -116,7 +117,8 @@ class AMI_Test_SBSKnownDerivedAsSBaseI : public AMI_Test_SBSKnownDerivedAsSBase,
 
 typedef IceUtil::Handle<AMI_Test_SBSKnownDerivedAsSBaseI> AMI_Test_SBSKnownDerivedAsSBaseIPtr;
 
-class AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI : public AMI_Test_SBSKnownDerivedAsSBSKnownDerived, public CallbackBase
+class AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI
+    : public AMI_TestIntf_SBSKnownDerivedAsSBSKnownDerived, public CallbackBase
 {
     virtual void
     ice_response(const SBSKnownDerivedPtr& sbskd)
@@ -134,7 +136,7 @@ class AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI : public AMI_Test_SBSKnownDeriv
 
 typedef IceUtil::Handle<AMI_Test_SBSKnownDerivedAsSBSKnownDerivedI> AMI_Test_SBSKnownDerivedAsSBSKnownDerivedIPtr;
 
-class AMI_Test_SBSUnknownDerivedAsSBaseI : public AMI_Test_SBSUnknownDerivedAsSBase, public CallbackBase
+class AMI_Test_SBSUnknownDerivedAsSBaseI : public AMI_TestIntf_SBSUnknownDerivedAsSBase, public CallbackBase
 {
     virtual void
     ice_response(const SBasePtr& sb)
@@ -152,7 +154,7 @@ class AMI_Test_SBSUnknownDerivedAsSBaseI : public AMI_Test_SBSUnknownDerivedAsSB
 
 typedef IceUtil::Handle<AMI_Test_SBSUnknownDerivedAsSBaseI> AMI_Test_SBSUnknownDerivedAsSBaseIPtr;
 
-class AMI_Test_SUnknownAsObjectI : public AMI_Test_SUnknownAsObject, public CallbackBase
+class AMI_Test_SUnknownAsObjectI : public AMI_TestIntf_SUnknownAsObject, public CallbackBase
 {
     virtual void
     ice_response(const Ice::ObjectPtr& o)
@@ -170,13 +172,13 @@ class AMI_Test_SUnknownAsObjectI : public AMI_Test_SUnknownAsObject, public Call
 
 typedef IceUtil::Handle<AMI_Test_SUnknownAsObjectI> AMI_Test_SUnknownAsObjectIPtr;
 
-class AMI_Test_oneElementCycleI : public AMI_Test_oneElementCycle, public CallbackBase
+class AMI_Test_oneElementCycleI : public AMI_TestIntf_oneElementCycle, public CallbackBase
 {
     virtual void
     ice_response(const BPtr& b)
     {
 	test(b);
-	test(b->ice_id() == "::B");
+	test(b->ice_id() == "::Test::B");
 	test(b->sb == "B1.sb");
 	test(b->pb == b);
 	called();
@@ -191,18 +193,18 @@ class AMI_Test_oneElementCycleI : public AMI_Test_oneElementCycle, public Callba
 
 typedef IceUtil::Handle<AMI_Test_oneElementCycleI> AMI_Test_oneElementCycleIPtr;
 
-class AMI_Test_twoElementCycleI : public AMI_Test_twoElementCycle, public CallbackBase
+class AMI_Test_twoElementCycleI : public AMI_TestIntf_twoElementCycle, public CallbackBase
 {
     virtual void
     ice_response(const BPtr& b1)
     {
 	test(b1);
-	test(b1->ice_id() == "::B");
+	test(b1->ice_id() == "::Test::B");
 	test(b1->sb == "B1.sb");
 
 	BPtr b2 = b1->pb;
 	test(b2);
-	test(b2->ice_id() == "::B");
+	test(b2->ice_id() == "::Test::B");
 	test(b2->sb == "B2.sb");
 	test(b2->pb == b1);
 	called();
@@ -217,13 +219,13 @@ class AMI_Test_twoElementCycleI : public AMI_Test_twoElementCycle, public Callba
 
 typedef IceUtil::Handle<AMI_Test_twoElementCycleI> AMI_Test_twoElementCycleIPtr;
 
-class AMI_Test_D1AsBI : public AMI_Test_D1AsB, public CallbackBase
+class AMI_Test_D1AsBI : public AMI_TestIntf_D1AsB, public CallbackBase
 {
     virtual void
     ice_response(const BPtr& b1)
     {
 	test(b1);
-	test(b1->ice_id() == "::D1");
+	test(b1->ice_id() == "::Test::D1");
 	test(b1->sb == "D1.sb");
 	test(b1->pb);
 	test(b1->pb != b1);
@@ -238,7 +240,7 @@ class AMI_Test_D1AsBI : public AMI_Test_D1AsB, public CallbackBase
 	test(b2);
 	test(b2->pb == b1);
 	test(b2->sb == "D2.sb");
-	test(b2->ice_id() == "::B");
+	test(b2->ice_id() == "::Test::B");
 	called();
     }
 
@@ -251,20 +253,20 @@ class AMI_Test_D1AsBI : public AMI_Test_D1AsB, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_D1AsBI> AMI_Test_D1AsBIPtr;
 
-class AMI_Test_D1AsD1I : public AMI_Test_D1AsD1, public CallbackBase
+class AMI_Test_D1AsD1I : public AMI_TestIntf_D1AsD1, public CallbackBase
 {
     virtual void
     ice_response(const D1Ptr& d1)
     {
 	test(d1);
-	test(d1->ice_id() == "::D1");
+	test(d1->ice_id() == "::Test::D1");
 	test(d1->sb == "D1.sb");
 	test(d1->pb);
 	test(d1->pb != d1);
 
 	BPtr b2 = d1->pb;
 	test(b2);
-	test(b2->ice_id() == "::B");
+	test(b2->ice_id() == "::Test::B");
 	test(b2->sb == "D2.sb");
 	test(b2->pb == d1);
 	called();
@@ -279,20 +281,20 @@ class AMI_Test_D1AsD1I : public AMI_Test_D1AsD1, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_D1AsD1I> AMI_Test_D1AsD1IPtr;
 
-class AMI_Test_D2AsBI : public AMI_Test_D2AsB, public CallbackBase
+class AMI_Test_D2AsBI : public AMI_TestIntf_D2AsB, public CallbackBase
 {
     virtual void
     ice_response(const BPtr& b2)
     {
 	test(b2);
-	test(b2->ice_id() == "::B");
+	test(b2->ice_id() == "::Test::B");
 	test(b2->sb == "D2.sb");
 	test(b2->pb);
 	test(b2->pb != b2);
 
 	BPtr b1 = b2->pb;
 	test(b1);
-	test(b1->ice_id() == "::D1");
+	test(b1->ice_id() == "::Test::D1");
 	test(b1->sb == "D1.sb");
 	test(b1->pb == b2);
 	D1Ptr d1 = D1Ptr::dynamicCast(b1);
@@ -311,13 +313,13 @@ class AMI_Test_D2AsBI : public AMI_Test_D2AsB, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_D2AsBI> AMI_Test_D2AsBIPtr;
 
-class AMI_Test_paramTest1I : public AMI_Test_paramTest1, public CallbackBase
+class AMI_Test_paramTest1I : public AMI_TestIntf_paramTest1, public CallbackBase
 {
     virtual void
     ice_response(const BPtr& b1, const BPtr& b2)
     {
 	test(b1);
-	test(b1->ice_id() == "::D1");
+	test(b1->ice_id() == "::Test::D1");
 	test(b1->sb == "D1.sb");
 	test(b1->pb == b2);
 	D1Ptr d1 = D1Ptr::dynamicCast(b1);
@@ -326,7 +328,7 @@ class AMI_Test_paramTest1I : public AMI_Test_paramTest1, public CallbackBase
 	test(d1->pd1 == b2);
 
 	test(b2);
-	test(b2->ice_id() == "::B");	// No factory, must be sliced
+	test(b2->ice_id() == "::Test::B");	// No factory, must be sliced
 	test(b2->sb == "D2.sb");
 	test(b2->pb == b1);
 	called();
@@ -341,7 +343,7 @@ class AMI_Test_paramTest1I : public AMI_Test_paramTest1, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_paramTest1I> AMI_Test_paramTest1IPtr;
 
-class AMI_Test_returnTest1I : public AMI_Test_returnTest1, public CallbackBase
+class AMI_Test_returnTest1I : public AMI_TestIntf_returnTest1, public CallbackBase
 {
     virtual void
     ice_response(const BPtr& r, const BPtr& p1, const BPtr& p2)
@@ -359,7 +361,7 @@ class AMI_Test_returnTest1I : public AMI_Test_returnTest1, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_returnTest1I> AMI_Test_returnTest1IPtr;
 
-class AMI_Test_returnTest2I : public AMI_Test_returnTest2, public CallbackBase
+class AMI_Test_returnTest2I : public AMI_TestIntf_returnTest2, public CallbackBase
 {
     virtual void
     ice_response(const BPtr& r, const BPtr& p1, const BPtr& p2)
@@ -377,7 +379,7 @@ class AMI_Test_returnTest2I : public AMI_Test_returnTest2, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_returnTest2I> AMI_Test_returnTest2IPtr;
 
-class AMI_Test_returnTest3I : public AMI_Test_returnTest3, public CallbackBase
+class AMI_Test_returnTest3I : public AMI_TestIntf_returnTest3, public CallbackBase
 {
 public:
     virtual void
@@ -398,7 +400,7 @@ public:
 
 typedef IceUtil::Handle<AMI_Test_returnTest3I> AMI_Test_returnTest3IPtr;
 
-class AMI_Test_paramTest3I : public AMI_Test_paramTest3, public CallbackBase
+class AMI_Test_paramTest3I : public AMI_TestIntf_paramTest3, public CallbackBase
 {
     virtual void
     ice_response(const BPtr& ret, const BPtr& p1, const BPtr& p2)
@@ -406,17 +408,17 @@ class AMI_Test_paramTest3I : public AMI_Test_paramTest3, public CallbackBase
 	test(p1);
 	test(p1->sb == "D2.sb (p1 1)");
 	test(p1->pb == 0);
-	test(p1->ice_id() == "::B");
+	test(p1->ice_id() == "::Test::B");
 
 	test(p2);
 	test(p2->sb == "D2.sb (p2 1)");
 	test(p2->pb == 0);
-	test(p2->ice_id() == "::B");
+	test(p2->ice_id() == "::Test::B");
 
 	test(ret);
 	test(ret->sb == "D1.sb (p2 2)");
 	test(ret->pb == 0);
-	test(ret->ice_id() == "::D1");
+	test(ret->ice_id() == "::Test::D1");
 	called();
     }
 
@@ -429,7 +431,7 @@ class AMI_Test_paramTest3I : public AMI_Test_paramTest3, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_paramTest3I> AMI_Test_paramTest3IPtr;
 
-class AMI_Test_paramTest4I : public AMI_Test_paramTest4, public CallbackBase
+class AMI_Test_paramTest4I : public AMI_TestIntf_paramTest4, public CallbackBase
 {
     virtual void
     ice_response(const BPtr& ret, const BPtr& b)
@@ -437,12 +439,12 @@ class AMI_Test_paramTest4I : public AMI_Test_paramTest4, public CallbackBase
 	test(b);
 	test(b->sb == "D4.sb (1)");
 	test(b->pb == 0);
-	test(b->ice_id() == "::B");
+	test(b->ice_id() == "::Test::B");
 
 	test(ret);
 	test(ret->sb == "B.sb (2)");
 	test(ret->pb == 0);
-	test(ret->ice_id() == "::B");
+	test(ret->ice_id() == "::Test::B");
 	called();
     }
 
@@ -455,7 +457,7 @@ class AMI_Test_paramTest4I : public AMI_Test_paramTest4, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_paramTest4I> AMI_Test_paramTest4IPtr;
 
-class AMI_Test_sequenceTestI : public AMI_Test_sequenceTest, public CallbackBase
+class AMI_Test_sequenceTestI : public AMI_TestIntf_sequenceTest, public CallbackBase
 {
     virtual void
     ice_response(const SS& ss)
@@ -477,7 +479,7 @@ public:
 
 typedef IceUtil::Handle<AMI_Test_sequenceTestI> AMI_Test_sequenceTestIPtr;
 
-class AMI_Test_dictionaryTestI : public AMI_Test_dictionaryTest, public CallbackBase
+class AMI_Test_dictionaryTestI : public AMI_TestIntf_dictionaryTest, public CallbackBase
 {
     virtual void
     ice_response(const BDict& r, const BDict& bout)
@@ -501,7 +503,7 @@ public:
 
 typedef IceUtil::Handle<AMI_Test_dictionaryTestI> AMI_Test_dictionaryTestIPtr;
 
-class AMI_Test_throwBaseAsBaseI : public AMI_Test_throwBaseAsBase, public CallbackBase
+class AMI_Test_throwBaseAsBaseI : public AMI_TestIntf_throwBaseAsBase, public CallbackBase
 {
     virtual void
     ice_response()
@@ -512,7 +514,7 @@ class AMI_Test_throwBaseAsBaseI : public AMI_Test_throwBaseAsBase, public Callba
     virtual void
     ice_exception(const ::Ice::Exception& ex)
     {
-	test(ex.ice_name() == "BaseException");
+	test(ex.ice_name() == "Test::BaseException");
 	const BaseException& e = dynamic_cast<const BaseException&>(ex);
 	test(e.sbe == "sbe");
 	test(e.pb);
@@ -524,7 +526,7 @@ class AMI_Test_throwBaseAsBaseI : public AMI_Test_throwBaseAsBase, public Callba
 
 typedef IceUtil::Handle<AMI_Test_throwBaseAsBaseI> AMI_Test_throwBaseAsBaseIPtr;
 
-class AMI_Test_throwDerivedAsBaseI : public AMI_Test_throwDerivedAsBase, public CallbackBase
+class AMI_Test_throwDerivedAsBaseI : public AMI_TestIntf_throwDerivedAsBase, public CallbackBase
 {
     virtual void
     ice_response()
@@ -535,7 +537,7 @@ class AMI_Test_throwDerivedAsBaseI : public AMI_Test_throwDerivedAsBase, public 
     virtual void
     ice_exception(const ::Ice::Exception& ex)
     {
-	test(ex.ice_name() == "DerivedException");
+	test(ex.ice_name() == "Test::DerivedException");
 	const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
 	test(e.sbe == "sbe");
 	test(e.pb);
@@ -553,7 +555,7 @@ class AMI_Test_throwDerivedAsBaseI : public AMI_Test_throwDerivedAsBase, public 
 
 typedef IceUtil::Handle<AMI_Test_throwDerivedAsBaseI> AMI_Test_throwDerivedAsBaseIPtr;
 
-class AMI_Test_throwDerivedAsDerivedI : public AMI_Test_throwDerivedAsDerived, public CallbackBase
+class AMI_Test_throwDerivedAsDerivedI : public AMI_TestIntf_throwDerivedAsDerived, public CallbackBase
 {
     virtual void
     ice_response()
@@ -564,7 +566,7 @@ class AMI_Test_throwDerivedAsDerivedI : public AMI_Test_throwDerivedAsDerived, p
     virtual void
     ice_exception(const ::Ice::Exception& ex)
     {
-	test(ex.ice_name() == "DerivedException");
+	test(ex.ice_name() == "Test::DerivedException");
 	const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
 	test(e.sbe == "sbe");
 	test(e.pb);
@@ -582,7 +584,7 @@ class AMI_Test_throwDerivedAsDerivedI : public AMI_Test_throwDerivedAsDerived, p
 
 typedef IceUtil::Handle<AMI_Test_throwDerivedAsDerivedI> AMI_Test_throwDerivedAsDerivedIPtr;
 
-class AMI_Test_throwUnknownDerivedAsBaseI : public AMI_Test_throwUnknownDerivedAsBase, public CallbackBase
+class AMI_Test_throwUnknownDerivedAsBaseI : public AMI_TestIntf_throwUnknownDerivedAsBase, public CallbackBase
 {
     virtual void
     ice_response()
@@ -593,7 +595,7 @@ class AMI_Test_throwUnknownDerivedAsBaseI : public AMI_Test_throwUnknownDerivedA
     virtual void
     ice_exception(const ::Ice::Exception& ex)
     {
-	test(ex.ice_name() == "BaseException");
+	test(ex.ice_name() == "Test::BaseException");
 	const BaseException& e = dynamic_cast<const BaseException&>(ex);
 	test(e.sbe == "sbe");
 	test(e.pb);
@@ -605,7 +607,7 @@ class AMI_Test_throwUnknownDerivedAsBaseI : public AMI_Test_throwUnknownDerivedA
 
 typedef IceUtil::Handle<AMI_Test_throwUnknownDerivedAsBaseI> AMI_Test_throwUnknownDerivedAsBaseIPtr;
 
-class AMI_Test_useForwardI : public AMI_Test_useForward, public CallbackBase
+class AMI_Test_useForwardI : public AMI_TestIntf_useForward, public CallbackBase
 {
     virtual void
     ice_response(const ForwardPtr& f)
@@ -623,11 +625,11 @@ class AMI_Test_useForwardI : public AMI_Test_useForward, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_useForwardI> AMI_Test_useForwardIPtr;
 
-TestPrx
+TestIntfPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectPrx obj = communicator->stringToProxy("Test:default -p 12345");
-    TestPrx test = TestPrx::checkedCast(obj);
+    TestIntfPrx test = TestIntfPrx::checkedCast(obj);
 
     cout << "base as Object... " << flush;
     {
@@ -636,7 +638,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    o = test->SBaseAsObject();
 	    test(o);
-	    test(o->ice_id() == "::SBase");
+	    test(o->ice_id() == "::Test::SBase");
 	}
 	catch(...)
 	{
@@ -780,7 +782,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    BPtr b = test->oneElementCycle();
 	    test(b);
-	    test(b->ice_id() == "::B");
+	    test(b->ice_id() == "::Test::B");
 	    test(b->sb == "B1.sb");
 	    test(b->pb == b);
 	}
@@ -805,12 +807,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    BPtr b1 = test->twoElementCycle();
 	    test(b1);
-	    test(b1->ice_id() == "::B");
+	    test(b1->ice_id() == "::Test::B");
 	    test(b1->sb == "B1.sb");
 
 	    BPtr b2 = b1->pb;
 	    test(b2);
-	    test(b2->ice_id() == "::B");
+	    test(b2->ice_id() == "::Test::B");
 	    test(b2->sb == "B2.sb");
 	    test(b2->pb == b1);
 	}
@@ -836,7 +838,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    BPtr b1;
 	    b1 = test->D1AsB();
 	    test(b1);
-	    test(b1->ice_id() == "::D1");
+	    test(b1->ice_id() == "::Test::D1");
 	    test(b1->sb == "D1.sb");
 	    test(b1->pb);
 	    test(b1->pb != b1);
@@ -851,7 +853,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(b2);
 	    test(b2->pb == b1);
 	    test(b2->sb == "D2.sb");
-	    test(b2->ice_id() == "::B");
+	    test(b2->ice_id() == "::Test::B");
 	}
 	catch(...)
 	{
@@ -875,14 +877,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    D1Ptr d1;
 	    d1 = test->D1AsD1();
 	    test(d1);
-	    test(d1->ice_id() == "::D1");
+	    test(d1->ice_id() == "::Test::D1");
 	    test(d1->sb == "D1.sb");
 	    test(d1->pb);
 	    test(d1->pb != d1);
 
 	    BPtr b2 = d1->pb;
 	    test(b2);
-	    test(b2->ice_id() == "::B");
+	    test(b2->ice_id() == "::Test::B");
 	    test(b2->sb == "D2.sb");
 	    test(b2->pb == d1);
 	}
@@ -908,14 +910,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    BPtr b2;
 	    b2 = test->D2AsB();
 	    test(b2);
-	    test(b2->ice_id() == "::B");
+	    test(b2->ice_id() == "::Test::B");
 	    test(b2->sb == "D2.sb");
 	    test(b2->pb);
 	    test(b2->pb != b2);
 
 	    BPtr b1 = b2->pb;
 	    test(b1);
-	    test(b1->ice_id() == "::D1");
+	    test(b1->ice_id() == "::Test::D1");
 	    test(b1->sb == "D1.sb");
 	    test(b1->pb == b2);
 	    D1Ptr d1 = D1Ptr::dynamicCast(b1);
@@ -947,7 +949,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test->paramTest1(b1, b2);
 
 	    test(b1);
-	    test(b1->ice_id() == "::D1");
+	    test(b1->ice_id() == "::Test::D1");
 	    test(b1->sb == "D1.sb");
 	    test(b1->pb == b2);
 	    D1Ptr d1 = D1Ptr::dynamicCast(b1);
@@ -956,7 +958,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(d1->pd1 == b2);
 
 	    test(b2);
-	    test(b2->ice_id() == "::B");	// No factory, must be sliced
+	    test(b2->ice_id() == "::Test::B");	// No factory, must be sliced
 	    test(b2->sb == "D2.sb");
 	    test(b2->pb == b1);
 	}
@@ -984,7 +986,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test->paramTest2(b2, b1);
 
 	    test(b1);
-	    test(b1->ice_id() == "::D1");
+	    test(b1->ice_id() == "::Test::D1");
 	    test(b1->sb == "D1.sb");
 	    test(b1->pb == b2);
 	    D1Ptr d1 = D1Ptr::dynamicCast(b1);
@@ -993,7 +995,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(d1->pd1 == b2);
 
 	    test(b2);
-	    test(b2->ice_id() == "::B");	// No factory, must be sliced
+	    test(b2->ice_id() == "::Test::B");	// No factory, must be sliced
 	    test(b2->sb == "D2.sb");
 	    test(b2->pb == b1);
 	}
@@ -1071,7 +1073,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	    test(b1);
 	    test(b1->sb == "D1.sb");
-	    test(b1->ice_id() == "::D1");
+	    test(b1->ice_id() == "::Test::D1");
 	    D1Ptr p1 = D1Ptr::dynamicCast(b1);
 	    test(p1);
 	    test(p1->sd1 == "D1.sd1");
@@ -1080,7 +1082,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    BPtr b2 = b1->pb;
 	    test(b2);
 	    test(b2->sb == "D3.sb");
-	    test(b2->ice_id() == "::B");	// Sliced by server
+	    test(b2->ice_id() == "::Test::B");	// Sliced by server
 	    test(b2->pb == b1);
 	    D3Ptr p3 = D3Ptr::dynamicCast(b2);
 	    test(!p3);
@@ -1119,7 +1121,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	    test(b1);
 	    test(b1->sb == "D1.sb");
-	    test(b1->ice_id() == "::D1");
+	    test(b1->ice_id() == "::Test::D1");
 	    D1Ptr p1 = D1Ptr::dynamicCast(b1);
 	    test(p1);
 	    test(p1->sd1 == "D1.sd1");
@@ -1128,7 +1130,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    BPtr b2 = b1->pb;
 	    test(b2);
 	    test(b2->sb == "D3.sb");
-	    test(b2->ice_id() == "::B");	// Sliced by server
+	    test(b2->ice_id() == "::Test::B");	// Sliced by server
 	    test(b2->pb == b1);
 	    D3Ptr p3 = D3Ptr::dynamicCast(b2);
 	    test(!p3);
@@ -1164,14 +1166,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	    test(b1);
 	    test(b1->sb == "D3.sb");
-	    test(b1->ice_id() == "::B");	// Sliced by server
+	    test(b1->ice_id() == "::Test::B");	// Sliced by server
 	    D3Ptr p1 = D3Ptr::dynamicCast(b1);
 	    test(!p1);
 
 	    BPtr b2 = b1->pb;
 	    test(b2);
 	    test(b2->sb == "D1.sb");
-	    test(b2->ice_id() == "::D1");
+	    test(b2->ice_id() == "::Test::D1");
 	    test(b2->pb == b1);
 	    D1Ptr p3 = D1Ptr::dynamicCast(b2);
 	    test(p3);
@@ -1212,14 +1214,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	    test(b1);
 	    test(b1->sb == "D3.sb");
-	    test(b1->ice_id() == "::B");	// Sliced by server
+	    test(b1->ice_id() == "::Test::B");	// Sliced by server
 	    D3Ptr p1 = D3Ptr::dynamicCast(b1);
 	    test(!p1);
 
 	    BPtr b2 = b1->pb;
 	    test(b2);
 	    test(b2->sb == "D1.sb");
-	    test(b2->ice_id() == "::D1");
+	    test(b2->ice_id() == "::Test::D1");
 	    test(b2->pb == b1);
 	    D1Ptr p3 = D1Ptr::dynamicCast(b2);
 	    test(p3);
@@ -1249,17 +1251,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(p1);
 	    test(p1->sb == "D2.sb (p1 1)");
 	    test(p1->pb == 0);
-	    test(p1->ice_id() == "::B");
+	    test(p1->ice_id() == "::Test::B");
 
 	    test(p2);
 	    test(p2->sb == "D2.sb (p2 1)");
 	    test(p2->pb == 0);
-	    test(p2->ice_id() == "::B");
+	    test(p2->ice_id() == "::Test::B");
 
 	    test(ret);
 	    test(ret->sb == "D1.sb (p2 2)");
 	    test(ret->pb == 0);
-	    test(ret->ice_id() == "::D1");
+	    test(ret->ice_id() == "::Test::D1");
 	}
 	catch(...)
 	{
@@ -1286,12 +1288,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(b);
 	    test(b->sb == "D4.sb (1)");
 	    test(b->pb == 0);
-	    test(b->ice_id() == "::B");
+	    test(b->ice_id() == "::Test::B");
 
 	    test(ret);
 	    test(ret->sb == "B.sb (2)");
 	    test(ret->pb == 0);
-	    test(ret->ice_id() == "::B");
+	    test(ret->ice_id() == "::Test::B");
 	}
 	catch(...)
 	{
@@ -1330,7 +1332,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    BPtr r = test->returnTest3(d3, b2);
 
 	    test(r);
-	    test(r->ice_id() == "::B");
+	    test(r->ice_id() == "::Test::B");
 	    test(r->sb == "D3.sb");
 	    test(r->pb = r);
 	}
@@ -1365,7 +1367,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    BPtr r = cb->r;
 
 	    test(r);
-	    test(r->ice_id() == "::B");
+	    test(r->ice_id() == "::Test::B");
 	    test(r->sb == "D3.sb");
 	    test(r->pb = r);
 	}
@@ -1400,7 +1402,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
 	    BPtr r = test->returnTest3(d3, d12);
 	    test(r);
-	    test(r->ice_id() == "::B");
+	    test(r->ice_id() == "::Test::B");
 	    test(r->sb == "D3.sb");
 	    test(r->pb = r);
 	}
@@ -1438,7 +1440,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(cb->check());
 	    BPtr r = cb->r;
 	    test(r);
-	    test(r->ice_id() == "::B");
+	    test(r->ice_id() == "::Test::B");
 	    test(r->sb == "D3.sb");
 	    test(r->pb = r);
 	}
@@ -1521,13 +1523,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(ss2d1->pb == ss2b);
 	    test(ss2d3->pb == ss2b);
 
-	    test(ss1b->ice_id() == "::B");
-	    test(ss1d1->ice_id() == "::D1");
-	    test(ss1d3->ice_id() == "::B");
+	    test(ss1b->ice_id() == "::Test::B");
+	    test(ss1d1->ice_id() == "::Test::D1");
+	    test(ss1d3->ice_id() == "::Test::B");
 
-	    test(ss2b->ice_id() == "::B");
-	    test(ss2d1->ice_id() == "::D1");
-	    test(ss2d3->ice_id() == "::B");
+	    test(ss2b->ice_id() == "::Test::B");
+	    test(ss2d1->ice_id() == "::Test::D1");
+	    test(ss2d3->ice_id() == "::Test::B");
 	}
 	catch(const ::Ice::Exception&)
 	{
@@ -1611,13 +1613,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(ss2d1->pb == ss2b);
 	    test(ss2d3->pb == ss2b);
 
-	    test(ss1b->ice_id() == "::B");
-	    test(ss1d1->ice_id() == "::D1");
-	    test(ss1d3->ice_id() == "::B");
+	    test(ss1b->ice_id() == "::Test::B");
+	    test(ss1d1->ice_id() == "::Test::D1");
+	    test(ss1d3->ice_id() == "::Test::B");
 
-	    test(ss2b->ice_id() == "::B");
-	    test(ss2d1->ice_id() == "::D1");
-	    test(ss2d3->ice_id() == "::B");
+	    test(ss2b->ice_id() == "::Test::B");
+	    test(ss2d1->ice_id() == "::Test::D1");
+	    test(ss2d3->ice_id() == "::Test::B");
 	}
 	catch(const ::Ice::Exception&)
 	{
@@ -1753,7 +1755,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const BaseException& e)
 	{
-	    test(e.ice_name() == "BaseException");
+	    test(e.ice_name() == "Test::BaseException");
 	    test(e.sbe == "sbe");
 	    test(e.pb);
 	    test(e.pb->sb == "sb");
@@ -1783,7 +1785,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const DerivedException& e)
 	{
-	    test(e.ice_name() == "DerivedException");
+	    test(e.ice_name() == "Test::DerivedException");
 	    test(e.sbe == "sbe");
 	    test(e.pb);
 	    test(e.pb->sb == "sb1");
@@ -1819,7 +1821,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const DerivedException& e)
 	{
-	    test(e.ice_name() == "DerivedException");
+	    test(e.ice_name() == "Test::DerivedException");
 	    test(e.sbe == "sbe");
 	    test(e.pb);
 	    test(e.pb->sb == "sb1");
@@ -1855,7 +1857,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	}
 	catch(const BaseException& e)
 	{
-	    test(e.ice_name() == "BaseException");
+	    test(e.ice_name() == "Test::BaseException");
 	    test(e.sbe == "sbe");
 	    test(e.pb);
 	    test(e.pb->sb == "sb d2");

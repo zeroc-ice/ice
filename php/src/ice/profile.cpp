@@ -313,7 +313,7 @@ parseSlice(const string& argStr, Slice::UnitPtr& unit)
             break;
         }
 
-        int parseStatus = unit->parse(cppHandle, debug);
+        int parseStatus = unit->parse(cppHandle, debug, false);
 
         if(!icecpp.close())
         {

@@ -1,6 +1,21 @@
 Changes since version 1.5.1
 ---------------------------
 
+- The documentation has always stated that same-named constructs
+  cannot be directly nested inside each other. (For example, a
+  module `M' cannot contain a constant named `M'. The slice2cpp
+  compiler did not enforce this correctly up to now for modules
+  containing constructs with the same name as the enclosing module.
+  This has been fixed and now results in a diagnostic.
+
+- The slice2cpp compiler now deprecates Slice definitions at global scope:
+  only modules can be defined at global scope. Everything else
+  (constants, classes, interfaces, etc.) must be defined inside a module.
+
+  For the time being, the compiler issues a warning for each global definition
+  but continues to compile the code. Global non-module definitions will
+  elicit a hard error two releases from now.
+
 - Several demos used Slice classes where interface were more
   appropriate. This has been fixed.
 

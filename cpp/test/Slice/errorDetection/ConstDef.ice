@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 //
 // Basic checks (all OK)
@@ -27,7 +27,7 @@ const string stringconst = "X\aX\x00001X\rX\007\xffX\xffffX\xff7f";
 const string stringconst2 = "Hello World!";
 enum color { red, green, blue };
 const color colorconst = blue;
-const ::color colorconst2 = ::green;
+const ::Test::color colorconst2 = ::Test::green;
 
 //
 // Checks for number formats (all OK)
@@ -73,7 +73,7 @@ const float nf10 = -1E+1f;
 const float nf11 = -1E1F;
 
 const XXX ic1 = 1;		// no such type
-const long f11 = 1;		// redifinition
+const long f11 = 1;		// redefinition
 const long F10 = 1;		// case-insensitive redefinition
 
 sequence<long> LS;
@@ -123,3 +123,5 @@ const byte b1 = 0;			// OK
 const byte b2 = 255;			// OK
 const byte b3 = -1;			// underflow
 const byte b4 = 256;			// overflow
+
+};

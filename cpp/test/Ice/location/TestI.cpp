@@ -11,6 +11,8 @@
 #include <Ice/Locator.h>
 #include <TestI.h>
 
+using namespace Test;
+
 ServerManagerI::ServerManagerI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {

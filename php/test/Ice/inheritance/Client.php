@@ -23,7 +23,7 @@ function allTests()
 
     echo "testing checked cast... ";
     flush();
-    $initial = $base->ice_checkedCast("::Initial");
+    $initial = $base->ice_checkedCast("::Test::Initial");
     test($initial != null);
     test($initial == $base);
     echo "ok\n";

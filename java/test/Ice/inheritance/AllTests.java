@@ -18,7 +18,7 @@ public class AllTests
         }
     }
 
-    public static InitialPrx
+    public static Test.InitialPrx
     allTests(Ice.Communicator communicator)
     {
         System.out.print("testing stringToProxy... ");
@@ -30,17 +30,17 @@ public class AllTests
 
         System.out.print("testing checked cast... ");
         System.out.flush();
-        InitialPrx initial = InitialPrxHelper.checkedCast(base);
+        Test.InitialPrx initial = Test.InitialPrxHelper.checkedCast(base);
         test(initial != null);
         test(initial.equals(base));
         System.out.println("ok");
 
         System.out.print("getting proxies for class hierarchy... ");
         System.out.flush();
-        MA.CAPrx ca = initial.caop();
-        MB.CBPrx cb = initial.cbop();
-        MA.CCPrx cc = initial.ccop();
-        MA.CDPrx cd = initial.cdop();
+        Test.MA.CAPrx ca = initial.caop();
+        Test.MB.CBPrx cb = initial.cbop();
+        Test.MA.CCPrx cc = initial.ccop();
+        Test.MA.CDPrx cd = initial.cdop();
         test(ca != cb);
         test(ca != cc);
         test(ca != cd);
@@ -51,10 +51,10 @@ public class AllTests
 
         System.out.print("getting proxies for interface hierarchy... ");
         System.out.flush();
-        MA.IAPrx ia = initial.iaop();
-        MB.IB1Prx ib1 = initial.ib1op();
-        MB.IB2Prx ib2 = initial.ib2op();
-        MA.ICPrx ic = initial.icop();
+        Test.MA.IAPrx ia = initial.iaop();
+        Test.MB.IB1Prx ib1 = initial.ib1op();
+        Test.MB.IB2Prx ib2 = initial.ib2op();
+        Test.MA.ICPrx ic = initial.icop();
         test(ia != ib1);
         test(ia != ib2);
         test(ia != ic);
@@ -64,9 +64,9 @@ public class AllTests
 
         System.out.print("invoking proxy operations on class hierarchy... ");
         System.out.flush();
-        MA.CAPrx cao;
-        MB.CBPrx cbo;
-        MA.CCPrx cco;
+        Test.MA.CAPrx cao;
+        Test.MB.CBPrx cbo;
+        Test.MA.CCPrx cco;
         
         cao = ca.caop(ca);
         test(cao.equals(ca));
@@ -114,10 +114,10 @@ public class AllTests
 
         System.out.print("ditto, but for interface hierarchy... ");
         System.out.flush();
-        MA.IAPrx iao;
-        MB.IB1Prx ib1o;
-        MB.IB2Prx ib2o;
-        MA.ICPrx ico;
+        Test.MA.IAPrx iao;
+        Test.MB.IB1Prx ib1o;
+        Test.MB.IB2Prx ib2o;
+        Test.MA.ICPrx ico;
 
         iao = ia.iaop(ia);
         test(iao.equals(ia));
@@ -198,7 +198,7 @@ public class AllTests
 
         System.out.print("ditto, but for class implementing interfaces... ");
         System.out.flush();
-        MA.CDPrx cdo;
+        Test.MA.CDPrx cdo;
 
         cao = cd.caop(cd);
         test(cao.equals(cd));

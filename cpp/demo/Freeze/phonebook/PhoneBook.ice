@@ -12,6 +12,9 @@
 
 #include <Ice/Identity.ice>
 
+module Demo
+{
+
 exception DatabaseException
 {
     string message;
@@ -43,6 +46,8 @@ interface PhoneBook
     nonmutating Contacts findContacts(string name) throws DatabaseException;
     void setEvictorSize(int size) throws DatabaseException;
     nonmutating void shutdown();
+};
+
 };
 
 #endif

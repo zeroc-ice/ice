@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 class InitialI extends Initial
 {
     InitialI(Ice.ObjectAdapter adapter)

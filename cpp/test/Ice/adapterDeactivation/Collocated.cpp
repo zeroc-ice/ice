@@ -14,6 +14,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace Test;
 
 class TestServer : public Application
 {
@@ -37,7 +38,7 @@ TestServer::run(int argc, char* argv[])
     ServantLocatorPtr locator = new ServantLocatorI;
     adapter->addServantLocator(locator, "");
 
-    TestPrx allTests(const CommunicatorPtr&);
+    TestIntfPrx allTests(const CommunicatorPtr&);
     allTests(communicator());
 
     adapter->waitForDeactivate();

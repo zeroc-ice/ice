@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 sequence<int> Seq;
 dictionary<Seq, int> Dict;
@@ -25,4 +25,6 @@ interface I
     void f5(Dict*);
     void f6(out Dict*);
     void op();
+};
+
 };

@@ -9,14 +9,16 @@
 
 
 
-
-
+module Test
+{
 
 interface Foo { long op(); };
-class Class1 implements Foo { byte b; };
-class Class1 implements Foo { long l; };
+class Class1 implements Foo { byte b; long l; };
 class Class1;
+class Class1 implements Foo { long l; };
 
 local class Class2 implements Foo { byte b; };
-local class Class2 implements Foo { byte b; };
 local class Class2;
+local class Class2 implements Foo { byte b; };
+
+};

@@ -42,32 +42,13 @@
             <fileset dir="." includes="NoModuleWithPackage.ice"/>
             <fileset dir="." includes="SingleModuleNoPackage.ice"/>
             <fileset dir="." includes="SingleModuleWithPackage.ice"/>
-            <fileset dir="." includes="TestNoModuleNoPackage.ice"/>
-            <fileset dir="." includes="TestNoModuleWithPackage1.ice"/>
-            <fileset dir="." includes="TestNoModuleWithPackage2.ice"/>
-            <fileset dir="." includes="TestNoModuleWithPackage3.ice"/>
-            <fileset dir="." includes="TestNoModuleWithPackage4.ice"/>
-            <fileset dir="." includes="TestNoModuleWithPackage5.ice"/>
-            <fileset dir="." includes="TestNoModuleWithPackage6.ice"/>
-            <fileset dir="." includes="TestNoModuleWithPackage7.ice"/>
-            <fileset dir="." includes="TestNoModuleWithPackage8.ice"/>
-            <fileset dir="." includes="TestNoModuleWithPackage9.ice"/>
-            <fileset dir="." includes="TestSingleModuleNoPackage1.ice"/>
-            <fileset dir="." includes="TestSingleModuleNoPackage2.ice"/>
-            <fileset dir="." includes="TestSingleModuleNoPackage3.ice"/>
             <fileset dir="." includes="TestSingleModuleNoPackage4.ice"/>
-            <fileset dir="." includes="TestSingleModuleNoPackage5.ice"/>
             <fileset dir="." includes="TestSingleModuleNoPackage6.ice"/>
             <fileset dir="." includes="TestSingleModuleNoPackage7.ice"/>
-            <fileset dir="." includes="TestSingleModuleNoPackage8.ice"/>
-            <fileset dir="." includes="TestSingleModuleWithPackage1.ice"/>
-            <fileset dir="." includes="TestSingleModuleWithPackage2.ice"/>
-            <fileset dir="." includes="TestSingleModuleWithPackage3.ice"/>
             <fileset dir="." includes="TestSingleModuleWithPackage4.ice"/>
             <fileset dir="." includes="TestSingleModuleWithPackage5.ice"/>
             <fileset dir="." includes="TestSingleModuleWithPackage6.ice"/>
             <fileset dir="." includes="TestSingleModuleWithPackage7.ice"/>
-            <fileset dir="." includes="TestSingleModuleWithPackage8.ice"/>
             <fileset dir="." includes="TestSingleModuleWithPackage9.ice"/>
             <fileset dir="." includes="TestSingleModuleWithPackage10.ice"/>
             <fileset dir="." includes="TestSingleModuleWithPackage11.ice"/>
@@ -79,16 +60,10 @@
             <includepath>
                 <pathelement path="." />
             </includepath>
-            <fileset dir="." includes="TestDoubleModuleNoPackage1.ice"/>
-            <fileset dir="." includes="TestDoubleModuleNoPackage2.ice"/>
-            <fileset dir="." includes="TestDoubleModuleNoPackage3.ice"/>
             <fileset dir="." includes="TestDoubleModuleNoPackage4.ice"/>
             <fileset dir="." includes="TestDoubleModuleNoPackage5.ice"/>
             <fileset dir="." includes="TestDoubleModuleNoPackage6.ice"/>
             <fileset dir="." includes="TestDoubleModuleNoPackage7.ice"/>
-            <fileset dir="." includes="TestDoubleModuleWithPackage1.ice"/>
-            <fileset dir="." includes="TestDoubleModuleWithPackage2.ice"/>
-            <fileset dir="." includes="TestDoubleModuleWithPackage3.ice"/>
             <fileset dir="." includes="TestDoubleModuleWithPackage4.ice"/>
             <fileset dir="." includes="TestDoubleModuleWithPackage5.ice"/>
             <fileset dir="." includes="TestDoubleModuleWithPackage6.ice"/>

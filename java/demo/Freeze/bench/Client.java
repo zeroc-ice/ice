@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 class TestApp extends Ice.Application
 {
     TestApp(String envName)

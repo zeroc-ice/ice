@@ -10,6 +10,9 @@
 #ifndef LIBRARY_ICE
 #define LIBRARY_ICE
 
+module Demo
+{
+
 /**
  *
  * This exception is raised in the case of a database failure.
@@ -225,6 +228,8 @@ interface Library
      *
      **/
     idempotent void shutdown();
+};
+
 };
 
 #endif

@@ -23,7 +23,7 @@ function allTests()
 
     echo "testing checked cast... ";
     flush();
-    $d = $db->ice_checkedCast("::D");
+    $d = $db->ice_checkedCast("::Test::D");
     test($d != null);
     test($d == $db);
     echo "ok\n";
@@ -38,7 +38,7 @@ function allTests()
 
     echo "testing facets A, B, C, and D... ";
     flush();
-    $df = $d->ice_checkedCast("::D", "facetABCD");
+    $df = $d->ice_checkedCast("::Test::D", "facetABCD");
     test($df != null);
     test($df->callA() == "A");
     test($df->callB() == "B");
@@ -48,7 +48,7 @@ function allTests()
 
     echo "testing facets E and F... ";
     flush();
-    $ff = $d->ice_checkedCast("::F", "facetEF");
+    $ff = $d->ice_checkedCast("::Test::F", "facetEF");
     test($ff != null);
     test($ff->callE() == "E");
     test($ff->callF() == "F");
@@ -56,14 +56,14 @@ function allTests()
 
     echo "testing facet G... ";
     flush();
-    $gf = $ff->ice_checkedCast("::G", "facetGH");
+    $gf = $ff->ice_checkedCast("::Test::G", "facetGH");
     test($gf != null);
     test($gf->callG() == "G");
     echo "ok\n";
 
     echo "testing whether casting preserves the facet... ";
     flush();
-    $hf = $gf->ice_checkedCast("::H");
+    $hf = $gf->ice_checkedCast("::Test::H");
     test($hf != null);
     test($hf->callG() == "G");
     test($hf->callH() == "H");

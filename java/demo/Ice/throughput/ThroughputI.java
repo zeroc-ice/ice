@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 public final class ThroughputI extends _ThroughputDisp
 {
     public

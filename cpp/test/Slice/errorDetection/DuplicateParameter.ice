@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 class Foo
 {
@@ -28,4 +28,6 @@ interface IFoo
     string bar2(string s, out int s);
     string bar3(out string s, out int s);
     string bar4(string s, int i, out int i);
+};
+
 };

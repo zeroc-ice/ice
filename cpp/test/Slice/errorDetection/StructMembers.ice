@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 struct s1		// Illegal empty struct
 {
@@ -62,4 +62,6 @@ struct s10
 struct s11
 {
     long		// Missing data member name
+};
+
 };

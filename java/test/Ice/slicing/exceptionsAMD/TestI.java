@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-public final class TestI extends _TestDisp
+import Test.*;
+
+public final class TestI extends _TestIntfDisp
 {
     public
     TestI(Ice.ObjectAdapter adapter)
@@ -16,14 +18,14 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    shutdown_async(AMD_Test_shutdown cb, Ice.Current current)
+    shutdown_async(AMD_TestIntf_shutdown cb, Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
 	cb.ice_response();
     }
 
     public void
-    baseAsBase_async(AMD_Test_baseAsBase cb, Ice.Current current)
+    baseAsBase_async(AMD_TestIntf_baseAsBase cb, Ice.Current current)
         throws Base
     {
         Base b = new Base();
@@ -32,7 +34,7 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    unknownDerivedAsBase_async(AMD_Test_unknownDerivedAsBase cb, Ice.Current current)
+    unknownDerivedAsBase_async(AMD_TestIntf_unknownDerivedAsBase cb, Ice.Current current)
         throws Base
     {
 	UnknownDerived d = new UnknownDerived();
@@ -42,7 +44,7 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    knownDerivedAsBase_async(AMD_Test_knownDerivedAsBase cb, Ice.Current current)
+    knownDerivedAsBase_async(AMD_TestIntf_knownDerivedAsBase cb, Ice.Current current)
         throws Base
     {
 	KnownDerived d = new KnownDerived();
@@ -52,7 +54,7 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    knownDerivedAsKnownDerived_async(AMD_Test_knownDerivedAsKnownDerived cb, Ice.Current current)
+    knownDerivedAsKnownDerived_async(AMD_TestIntf_knownDerivedAsKnownDerived cb, Ice.Current current)
         throws KnownDerived
     {
 	KnownDerived d = new KnownDerived();
@@ -62,7 +64,7 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    unknownIntermediateAsBase_async(AMD_Test_unknownIntermediateAsBase cb, Ice.Current current)
+    unknownIntermediateAsBase_async(AMD_TestIntf_unknownIntermediateAsBase cb, Ice.Current current)
         throws Base
     {
 	UnknownIntermediate ui = new UnknownIntermediate();
@@ -72,7 +74,7 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    knownIntermediateAsBase_async(AMD_Test_knownIntermediateAsBase cb, Ice.Current current)
+    knownIntermediateAsBase_async(AMD_TestIntf_knownIntermediateAsBase cb, Ice.Current current)
         throws Base
     {
 	KnownIntermediate ki = new KnownIntermediate();
@@ -82,7 +84,7 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    knownMostDerivedAsBase_async(AMD_Test_knownMostDerivedAsBase cb, Ice.Current current)
+    knownMostDerivedAsBase_async(AMD_TestIntf_knownMostDerivedAsBase cb, Ice.Current current)
         throws Base
     {
 	KnownMostDerived kmd = new KnownMostDerived();
@@ -93,7 +95,8 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    knownIntermediateAsKnownIntermediate_async(AMD_Test_knownIntermediateAsKnownIntermediate cb, Ice.Current current)
+    knownIntermediateAsKnownIntermediate_async(AMD_TestIntf_knownIntermediateAsKnownIntermediate cb,
+    					       Ice.Current current)
         throws KnownIntermediate
     {
 	KnownIntermediate ki = new KnownIntermediate();
@@ -103,7 +106,8 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    knownMostDerivedAsKnownIntermediate_async(AMD_Test_knownMostDerivedAsKnownIntermediate cb, Ice.Current current)
+    knownMostDerivedAsKnownIntermediate_async(AMD_TestIntf_knownMostDerivedAsKnownIntermediate cb,
+    					      Ice.Current current)
         throws KnownIntermediate
     {
 	KnownMostDerived kmd = new KnownMostDerived();
@@ -114,7 +118,8 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    knownMostDerivedAsKnownMostDerived_async(AMD_Test_knownMostDerivedAsKnownMostDerived cb, Ice.Current current)
+    knownMostDerivedAsKnownMostDerived_async(AMD_TestIntf_knownMostDerivedAsKnownMostDerived cb,
+    					     Ice.Current current)
         throws KnownMostDerived
     {
 	KnownMostDerived kmd = new KnownMostDerived();
@@ -125,7 +130,7 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    unknownMostDerived1AsBase_async(AMD_Test_unknownMostDerived1AsBase cb, Ice.Current current)
+    unknownMostDerived1AsBase_async(AMD_TestIntf_unknownMostDerived1AsBase cb, Ice.Current current)
         throws Base
     {
 	UnknownMostDerived1 umd1 = new UnknownMostDerived1();
@@ -136,7 +141,7 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    unknownMostDerived1AsKnownIntermediate_async(AMD_Test_unknownMostDerived1AsKnownIntermediate cb,
+    unknownMostDerived1AsKnownIntermediate_async(AMD_TestIntf_unknownMostDerived1AsKnownIntermediate cb,
                                                  Ice.Current current)
         throws KnownIntermediate
     {
@@ -148,7 +153,7 @@ public final class TestI extends _TestDisp
     }
 
     public void
-    unknownMostDerived2AsBase_async(AMD_Test_unknownMostDerived2AsBase cb, Ice.Current current)
+    unknownMostDerived2AsBase_async(AMD_TestIntf_unknownMostDerived2AsBase cb, Ice.Current current)
         throws Base
     {
 	UnknownMostDerived2 umd2 = new UnknownMostDerived2();

@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 public class HelloFactoryI extends _HelloFactoryDisp
 {
     public HelloPrx

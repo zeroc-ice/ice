@@ -10,6 +10,9 @@
 #ifndef TEST_AMD_ICE
 #define TEST_AMD_ICE
 
+module Test
+{
+
 interface Thrower;
 
 exception A
@@ -34,7 +37,7 @@ exception D
 
 module Mod
 {
-    exception A extends :: A
+    exception A extends ::Test::A
     {
 	int a2Mem;
     };
@@ -68,6 +71,8 @@ module Mod
 ["ami", "amd"] interface WrongOperation
 {
     void noSuchOperation();
+};
+
 };
 
 #endif

@@ -7,27 +7,27 @@
 //
 // **********************************************************************
 
-public final class CCI extends MA.CC
+public final class CCI extends Test.MA.CC
 {
     public
     CCI()
     {
     }
 
-    public MA.CAPrx
-    caop(MA.CAPrx p, Ice.Current current)
+    public Test.MA.CAPrx
+    caop(Test.MA.CAPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public MA.CCPrx
-    ccop(MA.CCPrx p, Ice.Current current)
+    public Test.MA.CCPrx
+    ccop(Test.MA.CCPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public MB.CBPrx
-    cbop(MB.CBPrx p, Ice.Current current)
+    public Test.MB.CBPrx
+    cbop(Test.MB.CBPrx p, Ice.Current current)
     {
         return p;
     }

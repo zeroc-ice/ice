@@ -12,6 +12,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace Test;
 
 CallbackReceiverI::CallbackReceiverI() :
     _callback(false)

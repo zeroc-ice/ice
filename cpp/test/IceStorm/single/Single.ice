@@ -10,9 +10,14 @@
 #ifndef SINGLE_ICE
 #define SINGLE_ICE
 
+module Test
+{
+
 interface Single
 {
     void event();
+};
+
 };
 
 #endif

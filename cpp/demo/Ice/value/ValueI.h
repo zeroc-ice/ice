@@ -12,34 +12,34 @@
 
 #include <Value.h>
 
-class InitialI : public Initial
+class InitialI : public ::Demo::Initial
 {
 public:
 
     InitialI(::Ice::ObjectAdapterPtr);
 
-    virtual SimplePtr getSimple(const Ice::Current&);
+    virtual ::Demo::SimplePtr getSimple(const Ice::Current&);
     virtual ::Ice::ObjectPtr getPrinterAsObject(const Ice::Current&);
-    virtual void getPrinter(PrinterPtr&, PrinterPrx&, const Ice::Current&);
-    virtual PrinterPtr getDerivedPrinter(const Ice::Current&);
+    virtual void getPrinter(::Demo::PrinterPtr&, ::Demo::PrinterPrx&, const Ice::Current&);
+    virtual ::Demo::PrinterPtr getDerivedPrinter(const Ice::Current&);
     virtual void throwDerivedPrinter(const Ice::Current&);
 
 private:
 
-    SimplePtr _simple;
-    PrinterPtr _printer;
-    PrinterPrx _printerProxy;
-    DerivedPrinterPtr _derivedPrinter;
+    ::Demo::SimplePtr _simple;
+    ::Demo::PrinterPtr _printer;
+    ::Demo::PrinterPrx _printerProxy;
+    ::Demo::DerivedPrinterPtr _derivedPrinter;
 };
 
-class PrinterI : virtual public Printer
+class PrinterI : virtual public ::Demo::Printer
 {
 public:
 
     virtual void printBackwards(const Ice::Current&);
 };
 
-class DerivedPrinterI : virtual public DerivedPrinter, virtual public PrinterI
+class DerivedPrinterI : virtual public ::Demo::DerivedPrinter, virtual public PrinterI
 {
 public:
 

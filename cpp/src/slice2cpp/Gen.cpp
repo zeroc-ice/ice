@@ -401,7 +401,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << sp << nl << "const ::std::string " << scoped.substr(2) << "::_name = \"" << p->scoped().substr(2) << "\";";
     C << sp << nl << "const ::std::string&" << nl << scoped.substr(2) << "::ice_name() const";
     C << sb;
-    C << nl << "return " << scoped.substr(2) << "::_name;";
+    C << nl << "return " << scoped << "::_name;";
     C << eb;
     
     if(p->isLocal())
@@ -426,7 +426,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 	H << sp << nl << "static const ::IceInternal::UserExceptionFactoryPtr& ice_factory();";
 
 	C << sp << nl << "const ::IceInternal::UserExceptionFactoryPtr&";
-	C << nl << scoped.substr(2) << "::ice_factory()";
+	C << nl << scoped << "::ice_factory()";
 	C << sb;
 	C << nl << "return _factory;";
 	C << eb;

@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public class AllTests
 {
     private static void
@@ -131,21 +133,21 @@ public class AllTests
 	System.out.print("pinging server objects... ");
 	System.out.flush();
 
-	TestPrx obj;
+	TestIntfPrx obj;
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server2@Server2.Server"));
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service2@IceBox1Service2Adapter"));
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("Server2@Server2.Server"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service2@IceBox1Service2Adapter"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("IceBox2-Service1@IceBox2.Service1.Service1"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
     
 	System.out.println("ok");
 
 	System.out.print("testing server configuration... ");
 	System.out.flush();
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
 	test(obj.getProperty("Type").equals("Server"));
 	test(obj.getProperty("Name").equals("Server1"));
 
@@ -158,13 +160,13 @@ public class AllTests
 	System.out.print("testing service configuration... ");
 	System.out.flush();
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
 	test(obj.getProperty("Service1.Type").equals("standard"));
 	test(obj.getProperty("Service1.ServiceName").equals("Service1"));
     
 	test(obj.getProperty("Service1.InheritedVariable").equals("inherited"));
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("IceBox2-Service2@IceBox2Service2Adapter"));
 	test(obj.getProperty("Service2.Type").equals("freeze"));
 	test(obj.getProperty("Service2.ServiceName").equals("Service2"));
 
@@ -176,7 +178,7 @@ public class AllTests
 	System.out.print("testing server options... ");
 	System.out.flush();
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
 	test(obj.getProperty("Test.Test").equals("2"));
 	test(obj.getProperty("Test.Test1").equals("0"));
 
@@ -213,10 +215,10 @@ public class AllTests
 	    test(false);
 	}
 
-	TestPrx obj;
+	TestIntfPrx obj;
 	try
 	{
-	    obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
+	    obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
 	    test(false);
 	}
 	catch(Ice.LocalException ex)
@@ -236,15 +238,15 @@ public class AllTests
 	    test(false);
 	}
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("Server1@Server1.Server"));
 	test(obj.getProperty("Mode").equals("manual"));
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("Server2@Server2.Server"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("Server2@Server2.Server"));
 
 	System.out.println("ok");
 
 	System.out.print("testing service configuration... ");
 
-	obj = TestPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
+	obj = TestIntfPrxHelper.checkedCast(communicator.stringToProxy("IceBox1-Service1@IceBox1.Service1.Service1"));
 	test(obj.getProperty("Service1.DebugProperty").equals("debug"));
 
 	System.out.println("ok");

@@ -10,9 +10,14 @@
 #ifndef EVENT_ICE
 #define EVENT_ICE
 
+module Test
+{
+
 interface Event
 {
     void pub(string data);
+};
+
 };
 
 #endif

@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public class HelloI extends _HelloDisp
 {
     public void

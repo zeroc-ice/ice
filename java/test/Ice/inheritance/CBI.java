@@ -7,21 +7,21 @@
 //
 // **********************************************************************
 
-public final class CBI extends MB.CB
+public final class CBI extends Test.MB.CB
 {
     public
     CBI()
     {
     }
 
-    public MA.CAPrx
-    caop(MA.CAPrx p, Ice.Current current)
+    public Test.MA.CAPrx
+    caop(Test.MA.CAPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public MB.CBPrx
-    cbop(MB.CBPrx p, Ice.Current current)
+    public Test.MB.CBPrx
+    cbop(Test.MB.CBPrx p, Ice.Current current)
     {
         return p;
     }

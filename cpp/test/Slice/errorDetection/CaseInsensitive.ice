@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 interface i1
 {
@@ -227,8 +227,8 @@ sequence<long> s1;
 struct s
 {
     S1 x;
-    ::xxx::xx::S1 y;
-    ::xxx::XX::s1 z;
+    xxx::xx::S1 y;
+    xxx::XX::s1 z;
     xxx::XX::s1 w;
 };
 
@@ -247,14 +247,14 @@ interface Foo
     void op(long param, string Param);
     void op2() throws e1;
     void op3() throws E1;
-    void op4() throws xxx::xx::e1;
-    void op5() throws xxx::xx::E1;
-    void op6() throws xxx::XX::e1;
-    void op7() throws XXX::xx::e1;
-    void op8() throws ::xxx::xx::e1;
-    void op9() throws ::xxx::xx::E1;
-    void op10() throws ::xxx::XX::e1;
-    void op11() throws ::XXX::xx::e1;
+    void op4() throws Test::xxx::xx::e1;
+    void op5() throws Test::xxx::xx::E1;
+    void op6() throws Test::xxx::XX::e1;
+    void op7() throws Test::XXX::xx::e1;
+    void op8() throws ::Test::xxx::xx::e1;
+    void op9() throws ::Test::xxx::xx::E1;
+    void op10() throws ::Test::xxx::XX::e1;
+    void op11() throws ::Test::XXX::xx::e1;
     void op12(long op12);
     void op13(long OP13);
 };
@@ -274,4 +274,6 @@ module CI
     interface derived extends base1, base2
     {
     };
+};
+
 };

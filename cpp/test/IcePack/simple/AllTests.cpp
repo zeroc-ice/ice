@@ -13,8 +13,9 @@
 #include <Test.h>
 
 using namespace std;
+using namespace Test;
 
-TestPrx
+TestIntfPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
@@ -23,7 +24,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestPrx obj = TestPrx::checkedCast(base);
+    TestIntfPrx obj = TestIntfPrx::checkedCast(base);
     test(obj);
     test(obj == base);
     cout << "ok" << endl;
@@ -35,7 +36,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     return obj;
 }
 
-TestPrx
+TestIntfPrx
 allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
 {
     cout << "testing stringToProxy... " << flush;
@@ -46,10 +47,10 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestPrx obj = TestPrx::checkedCast(base);
+    TestIntfPrx obj = TestIntfPrx::checkedCast(base);
     test(obj);
     test(obj == base);
-    TestPrx obj2 = TestPrx::checkedCast(base2);
+    TestIntfPrx obj2 = TestIntfPrx::checkedCast(base2);
     test(obj2);
     test(obj2 == base2);
     cout << "ok" << endl;
@@ -94,7 +95,7 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     cout << "testing whether server is still reachable... " << flush;
     try
     {
-	obj = TestPrx::checkedCast(base);
+	obj = TestIntfPrx::checkedCast(base);
 	test(false);
     }
     catch(const Ice::NoEndpointException&)
@@ -102,7 +103,7 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     }
     try
     {
-	obj2 = TestPrx::checkedCast(base2);
+	obj2 = TestIntfPrx::checkedCast(base2);
 	test(false);
     }
     catch(const Ice::NoEndpointException&)
@@ -113,7 +114,7 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
 
     try
     {
-	obj = TestPrx::checkedCast(base);
+	obj = TestIntfPrx::checkedCast(base);
     }
     catch(const Ice::NoEndpointException&)
     {
@@ -121,7 +122,7 @@ allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
     }
     try
     {
-	obj2 = TestPrx::checkedCast(base2);
+	obj2 = TestIntfPrx::checkedCast(base2);
     }
     catch(const Ice::NoEndpointException&)
     {

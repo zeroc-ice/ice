@@ -10,6 +10,9 @@
 #ifndef CLASS_ICE
 #define CLASS_ICE
 
+module Test
+{
+
 //
 // TEST: Same
 //
@@ -425,6 +428,8 @@ local struct LocalStruct
 //
 local class LocalClass
 {
+};
+
 };
 
 #endif

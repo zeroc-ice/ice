@@ -12,18 +12,18 @@
 
 #include <Callback.h>
 
-class CallbackReceiverI : public CallbackReceiver
+class CallbackReceiverI : public Demo::CallbackReceiver
 {
 public:
 
     virtual void callback(const Ice::Current&);
 };
 
-class CallbackI : public Callback
+class CallbackI : public Demo::Callback
 {
 public:
 
-    virtual void initiateCallback(const CallbackReceiverPrx&, const Ice::Current&);
+    virtual void initiateCallback(const Demo::CallbackReceiverPrx&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 };

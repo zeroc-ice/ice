@@ -31,7 +31,7 @@ $(CLIENT): $(OBJS)
 
 IntSMap.h IntSMap.cpp: $(SLICE2FREEZE)
 	rm -f IntSMap.h IntSMap.cpp
-	$(SLICE2FREEZE) --dict IntSMap,int,::S IntSMap TestOld.ice
+	$(SLICE2FREEZE) --dict IntSMap,int,::Test::S IntSMap TestOld.ice
 
 clean::
 	rm -f IntSMap.h IntSMap.cpp

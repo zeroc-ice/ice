@@ -10,6 +10,9 @@
 #ifndef TEST_AMD_ICE
 #define TEST_AMD_ICE
 
+module Test
+{
+
 interface Thrower;
 
 exception A
@@ -56,6 +59,8 @@ exception D
 ["ami", "amd"] interface WrongOperation
 {
     void noSuchOperation();
+};
+
 };
 
 #endif

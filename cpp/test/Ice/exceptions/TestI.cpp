@@ -10,6 +10,8 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
+using namespace Test;
+
 ThrowerI::ThrowerI(const Ice::ObjectAdapterPtr& adapter) :
     _adapter(adapter)
 {

@@ -10,6 +10,9 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+module Test
+{
+
 module MA
 {
 
@@ -76,6 +79,8 @@ interface Initial
     MB::IB1* ib1op();
     MB::IB2* ib2op();
     MA::IC* icop();
+};
+
 };
 
 #endif

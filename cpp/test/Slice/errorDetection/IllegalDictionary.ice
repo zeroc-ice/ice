@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 dictionary<bool, long> d1;		// OK
 dictionary<byte, long> d2;		// OK
@@ -55,3 +55,5 @@ sequence<e> s4;
 dictionary<s4, long> d10;		// OK
 
 dictionary<d9, long> b9;		// Bad
+
+};

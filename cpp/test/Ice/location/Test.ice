@@ -10,6 +10,9 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+module Test
+{
+
 interface ServerManager
 {
     void startServer();
@@ -21,11 +24,13 @@ interface Hello
     void sayHello();
 };
 
-interface Test
+interface TestIntf
 {
     void shutdown();
 
     Hello* getHello();
+};
+
 };
 
 #endif

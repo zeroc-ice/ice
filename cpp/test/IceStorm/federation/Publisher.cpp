@@ -14,6 +14,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
+using namespace Test;
 
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)

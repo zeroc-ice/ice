@@ -1,14 +1,14 @@
 <transformdb>
-    <database key="int" value="::S">
+    <database key="int" value="::Test::S">
 	<record>
         </record>
     </database>
     
     <!-- enum ::E -->
-    <transform type="::E"/>
+    <transform type="::Test::E"/>
     
     <!-- struct ::S -->
-    <transform type="::S">
+    <transform type="::Test::S">
 
         <!-- Primitives -->
 
@@ -268,24 +268,24 @@
 
         <!-- Objects -->
 
-        <set target="new.baseObject" type="::F"/>
+        <set target="new.baseObject" type="::Test::F"/>
         <set target="new.baseObject.stringToEnumSeq" length="2"/>
         <set target="new.baseObject.stringToEnumSeq[0]" value="'E1'"/>
         <set target="new.baseObject.stringToEnumSeq[1]" value="'E3'"/>
 
-        <set target="new.cObject" type="::C"/>
+        <set target="new.cObject" type="::Test::C"/>
         <add target="new.cObject.boolToStringDict" key="0" value="false"/>
         <add target="new.cObject.boolToStringDict" key="1" value="true"/>
 
-        <set target="new.dAsCObject" type="::D"/>
+        <set target="new.dAsCObject" type="::Test::D"/>
         <add target="new.dAsCObject.boolToStringDict" key="0" value="false"/>
         <add target="new.dAsCObject.boolToStringDict" key="1" value="true"/>
         <set target="new.dAsCObject.stringToByteSeq" length="2"/>
         <set target="new.dAsCObject.stringToByteSeq[0]" value="'0'"/>
         <set target="new.dAsCObject.stringToByteSeq[1]" value="'255'"/>
-        <set target="new.dAsCObject.obj" type="::F"/>
+        <set target="new.dAsCObject.obj" type="::Test::F"/>
 
-        <set target="new.dObject" type="::D"/>
+        <set target="new.dObject" type="::Test::D"/>
         <add target="new.dObject.boolToStringDict" key="0" value="false"/>
         <add target="new.dObject.boolToStringDict" key="1" value="true"/>
         <set target="new.dObject.stringToByteSeq" length="2"/>

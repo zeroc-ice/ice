@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 public class HelloI extends Hello
 {
     HelloI(String n)

@@ -11,6 +11,7 @@
 #include <Throughput.h>
 
 using namespace std;
+using namespace Demo;
 
 void
 menu()

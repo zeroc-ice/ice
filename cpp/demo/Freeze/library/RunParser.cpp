@@ -11,6 +11,7 @@
 #include <Parser.h>
 
 using namespace std;
+using namespace Demo;
 
 void
 usage(const char* appName)

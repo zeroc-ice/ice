@@ -12,7 +12,7 @@
 
 #include <Test.h>
 
-class TestI : public Test
+class TestI : public Test::TestIntf
 {
 public:
 

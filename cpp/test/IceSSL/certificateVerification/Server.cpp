@@ -14,6 +14,7 @@
 #include <Pinger.h>
 
 using namespace std;
+using namespace Test;
 
 class KeyManagerI : public KeyManager
 {

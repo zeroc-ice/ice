@@ -1,3 +1,6 @@
+module Test
+{
+
 enum E { E1, E2, E3 };
 
 sequence<bool> BoolStringSeq;
@@ -200,4 +203,6 @@ struct S
     C cObject;
     C dAsCObject;
     D dObject;
+};
+
 };

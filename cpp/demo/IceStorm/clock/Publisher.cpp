@@ -13,6 +13,7 @@
 #include <Clock.h>
 
 using namespace std;
+using namespace Demo;
 
 class Publisher : public Ice::Application
 {

@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 exception module;
 exception void
@@ -73,4 +73,6 @@ enum E
 
 interface Bletch extends Object
 {
+};
+
 };

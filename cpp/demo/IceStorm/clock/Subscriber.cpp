@@ -16,6 +16,7 @@
 #include <map>
 
 using namespace std;
+using namespace Demo;
 
 class Subscriber : public Ice::Application
 {

@@ -7,15 +7,15 @@
 //
 // **********************************************************************
 
-public final class CAI extends MA.CA
+public final class CAI extends Test.MA.CA
 {
     public
     CAI()
     {
     }
 
-    public MA.CAPrx
-    caop(MA.CAPrx p, Ice.Current current)
+    public Test.MA.CAPrx
+    caop(Test.MA.CAPrx p, Ice.Current current)
     {
         return p;
     }

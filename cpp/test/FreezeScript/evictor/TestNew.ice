@@ -1,3 +1,6 @@
+module Test
+{
+
 enum E { E1, E2, E3};
 
 class MainObject
@@ -38,3 +41,5 @@ class DerivedFacetObject extends FacetObject
     long count;
 };
  */
+
+};

@@ -10,6 +10,9 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
+module Test
+{
+
 class C
 {
     C left;
@@ -90,6 +93,8 @@ class CTest
     CSeqDict theCSeqDict;
     SDict theSDict;
     CDictDict theCDictDict;
+};
+
 };
 
 #endif

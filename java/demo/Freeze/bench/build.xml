@@ -64,9 +64,9 @@
                 <pathelement path="${slice.dir}" />
             </includepath>
             <fileset dir="." includes="Test.ice"/>
-	    <dict name="Struct1Struct2Map" key="Struct1" value="Struct2"/>
-	    <dict name="Struct1Class1Map" key="Struct1" value="Class1"/>
-	    <dict name="Struct1ObjectMap" key="Struct1" value="Object"/>
+	    <dict name="Struct1Struct2Map" key="Demo::Struct1" value="Demo::Struct2"/>
+	    <dict name="Struct1Class1Map" key="Demo::Struct1" value="Demo::Class1"/>
+	    <dict name="Struct1ObjectMap" key="Demo::Struct1" value="Object"/>
         </slice2freezej>
     </target>
 

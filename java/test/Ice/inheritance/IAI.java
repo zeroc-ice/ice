@@ -7,15 +7,15 @@
 //
 // **********************************************************************
 
-public final class IAI extends MA._IADisp
+public final class IAI extends Test.MA._IADisp
 {
     public
     IAI()
     {
     }
 
-    public MA.IAPrx
-    iaop(MA.IAPrx p, Ice.Current current)
+    public Test.MA.IAPrx
+    iaop(Test.MA.IAPrx p, Ice.Current current)
     {
         return p;
     }

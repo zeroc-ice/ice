@@ -10,8 +10,13 @@
 #ifndef LATENCY_ICE
 #define LATENCY_ICE
 
+module Demo
+{
+
 class Ping
 {
+};
+
 };
 
 #endif

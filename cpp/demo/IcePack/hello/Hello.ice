@@ -10,6 +10,9 @@
 #ifndef HELLO_ICE
 #define HELLO_ICE
 
+module Demo
+{
+
 class Hello
 {
     /**
@@ -73,6 +76,8 @@ interface HelloFactory
      **/
     nonmutating Hello* find(string name)
 	throws NameNotExistException;
+};
+
 };
 
 #endif

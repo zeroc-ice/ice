@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-public final class TestI extends _TestDisp
+import Test.*;
+
+public final class TestI extends _TestIntfDisp
 {
     public
     TestI(Ice.ObjectAdapter adapter, int port)

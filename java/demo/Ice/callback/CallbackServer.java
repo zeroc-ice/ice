@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 class CallbackServer extends Ice.Application
 {
     public int

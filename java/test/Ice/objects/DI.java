@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public final class DI extends D
 {
     public

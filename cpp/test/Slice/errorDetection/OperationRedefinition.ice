@@ -9,12 +9,14 @@
 
 
 
-
-
+module Test
+{
 
 class C
 {
     void operation();
     void operation();
     long l;
+};
+
 };

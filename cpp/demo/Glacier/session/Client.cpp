@@ -15,6 +15,7 @@
 #include <HelloSession.h>
 
 using namespace std;
+using namespace Demo;
 
 void
 menu()

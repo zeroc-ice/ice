@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-final class HelloSessionI extends HelloSession
+import Demo.*;
+
+final class HelloSessionI extends _HelloSessionDisp
 {
     public
     HelloSessionI(String userId, HelloSessionManagerI manager)

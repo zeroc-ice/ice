@@ -12,6 +12,7 @@
 #include <ObjectFactory.h>
 
 using namespace std;
+using namespace Demo;
 
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)

@@ -12,16 +12,16 @@
 
 #include <Nested.h>
 
-class NestedI : public Nested
+class NestedI : public Demo::Nested
 {
 public:
 
-    NestedI(const NestedPrx&);
-    virtual void nestedCall(Ice::Int, const NestedPrx&, const Ice::Current&);
+    NestedI(const Demo::NestedPrx&);
+    virtual void nestedCall(Ice::Int, const Demo::NestedPrx&, const Ice::Current&);
 
 private:
 
-    NestedPrx _self;
+    Demo::NestedPrx _self;
 };
 
 #endif

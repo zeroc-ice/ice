@@ -15,7 +15,7 @@
 using namespace Freeze;
 using namespace Ice;
 using namespace std;
-
+using namespace Demo;
 
 static void
 testFailed(const char* expr, const char* file, unsigned int line)

@@ -16,7 +16,7 @@
 #   define HELLO_API ICE_DECLSPEC_EXPORT
 #endif
 
-class HELLO_API HelloI : public Hello
+class HELLO_API HelloI : public Demo::Hello
 {
 public:
 

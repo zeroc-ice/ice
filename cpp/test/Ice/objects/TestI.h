@@ -12,7 +12,7 @@
 
 #include <Test.h>
 
-class BI : public B
+class BI : public Test::B
 {
 public:
 
@@ -28,7 +28,7 @@ private:
     bool _postUnmarshalInvoked;
 };
 
-class CI : public C
+class CI : public Test::C
 {
 public:
 
@@ -44,7 +44,7 @@ private:
     bool _postUnmarshalInvoked;
 };
 
-class DI : public D
+class DI : public Test::D
 {
 public:
 
@@ -60,26 +60,26 @@ private:
     bool _postUnmarshalInvoked;
 };
 
-class InitialI : public Initial
+class InitialI : public Test::Initial
 {
 public:
 
     InitialI(const Ice::ObjectAdapterPtr&);
 
     virtual void shutdown(const Ice::Current&);
-    virtual BPtr getB1(const Ice::Current&);
-    virtual BPtr getB2(const Ice::Current&);
-    virtual CPtr getC(const Ice::Current&);
-    virtual DPtr getD(const Ice::Current&);
-    virtual void getAll(BPtr&, BPtr&, CPtr&, DPtr&, const Ice::Current&);
+    virtual Test::BPtr getB1(const Ice::Current&);
+    virtual Test::BPtr getB2(const Ice::Current&);
+    virtual Test::CPtr getC(const Ice::Current&);
+    virtual Test::DPtr getD(const Ice::Current&);
+    virtual void getAll(Test::BPtr&, Test::BPtr&, Test::CPtr&, Test::DPtr&, const Ice::Current&);
 
 private:
 
     Ice::ObjectAdapterPtr _adapter;
-    BPtr _b1;
-    BPtr _b2;
-    CPtr _c;
-    DPtr _d;
+    Test::BPtr _b1;
+    Test::BPtr _b2;
+    Test::CPtr _c;
+    Test::DPtr _d;
 };
 
 #endif

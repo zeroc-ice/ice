@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public class AllTests
 {
     private static void
@@ -45,11 +47,11 @@ public class AllTests
 
 	System.out.print("testing checked cast... ");
         System.out.flush();
-	TestPrx obj = TestPrxHelper.checkedCast(base);
+	TestIntfPrx obj = TestIntfPrxHelper.checkedCast(base);
 	test(obj != null);
-	TestPrx obj2 = TestPrxHelper.checkedCast(base2);
+	TestIntfPrx obj2 = TestIntfPrxHelper.checkedCast(base2);
 	test(obj2 != null);
-	TestPrx obj3 = TestPrxHelper.checkedCast(base3);
+	TestIntfPrx obj3 = TestIntfPrxHelper.checkedCast(base3);
 	test(obj3 != null);
 	ServerManagerPrx obj4 = ServerManagerPrxHelper.checkedCast(base4);
 	test(obj4 != null);

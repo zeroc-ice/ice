@@ -1,1 +1,6 @@
+module Test
+{
+
 class C {};
+
+};

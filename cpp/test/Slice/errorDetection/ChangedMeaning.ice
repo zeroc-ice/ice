@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 sequence<long> ls;
 
@@ -21,7 +21,7 @@ struct s00
 
 struct s0
 {
-    ::ls ls;	// OK
+    Test::ls ls;	// OK
 };
 
 struct s1
@@ -32,7 +32,7 @@ struct s1
 
 struct s2
 {
-    ::ls mem;
+    Test::ls mem;
     long ls;	// OK
 };
 
@@ -67,9 +67,9 @@ module N
 module O
 {
 
-    interface n1 extends ::i1 {};
+    interface n1 extends ::Test::i1 {};
     interface i1 {};			// OK
-    interface i2 extends ::i2 {};	// OK
+    interface i2 extends ::Test::i2 {};	// OK
 
 };
 
@@ -136,19 +136,19 @@ struct x
 
 struct y
 {
-    ::IS is;				// OK, nothing introduced
+    ::Test::IS is;			// OK, nothing introduced
 };
 
 interface Blah
 {
-    void op1() throws ::E::ee1;		// Nothing introduced
+    void op1() throws ::Test::E::ee1;	// Nothing introduced
     void E();				// OK
     void op2() throws E;		// Changed meaning
 };
 
 interface Blah2
 {
-    void op3() throws ::E::ee1;		// Nothing introduced
+    void op3() throws ::Test::E::ee1;	// Nothing introduced
     void E();				// OK
     void op4() throws E::ee1;		// Changed meaning
 };
@@ -178,12 +178,14 @@ module M1
     };
 };
 
-const M1::M2::C MyConstant1 = M1::M2::C2; // OK
-const ::M1::M2::C MyConstant2 = M1::M2::C2; // OK
-const M1::M2::C MyConstant3 = ::M1::M2::C2; // OK
-const ::M1::M2::C MyConstant4 = ::M1::M2::C2; // OK
+const Test::M1::M2::C MyConstant1 = Test::M1::M2::C2; // OK
+const ::Test::M1::M2::C MyConstant2 = Test::M1::M2::C2; // OK
+const Test::M1::M2::C MyConstant3 = ::Test::M1::M2::C2; // OK
+const ::Test::M1::M2::C MyConstant4 = ::Test::M1::M2::C2; // OK
 
 class smnpTest1Class
 {
     M1::smnpStruct smnpTest1Op1() throws M1::smnpException; // OK
+};
+
 };

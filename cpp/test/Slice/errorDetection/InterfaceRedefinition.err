@@ -1,4 +1,2 @@
 InterfaceRedefinition.ice:16: redefinition of interface `Intf1'
-InterfaceRedefinition.ice:16: syntax error
 InterfaceRedefinition.ice:20: redefinition of interface `Intf2'
-InterfaceRedefinition.ice:20: syntax error

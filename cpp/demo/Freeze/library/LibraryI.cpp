@@ -11,6 +11,7 @@
 #include <LibraryI.h>
 
 using namespace std;
+using namespace Demo;
 
 BookI::BookI(const LibraryIPtr& library) :
     _library(library), _destroyed(false)

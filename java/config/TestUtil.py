@@ -234,7 +234,6 @@ def mixedClientServerTestWithOptions(additionalServerOptions, additionalClientOp
     
     print "starting client...",
     clientPipe = os.popen(client + clientOptions + additionalClientOptions + " 2>&1")
-    print  "\n\n" + client + clientOptions + additionalClientOptions + "\n\n"
     print "ok"
 
     printOutputFromPipe(clientPipe)

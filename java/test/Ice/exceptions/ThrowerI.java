@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public final class ThrowerI extends _ThrowerDisp
 {
     public

@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 interface Intf1;
 local interface Intf1;
@@ -39,3 +39,5 @@ interface Class3 { void op(); };
 
 local interface Class4 { void op(); };
 interface Class4;
+
+};

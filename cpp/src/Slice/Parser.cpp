@@ -424,6 +424,7 @@ Slice::Container::createModule(const string& name)
     ContainedList matches = _unit->findContents(thisScope() + name);
     matches.sort(); // Modules can occur many times...
     matches.unique(); // ... but we only want one instance of each.
+
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
 	bool differsOnlyInCase = !_unit->caseSensitive() && matches.front()->name() != name;
@@ -438,20 +439,25 @@ Slice::Container::createModule(const string& name)
 		return 0;
 	    }
 	}
-	else if(differsOnlyInCase)
-	{
-	    string msg = "module `" + name + "' differs only in capitalization from ";
-	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
-	    _unit->error(msg);
-	    return 0;
-	}
-	else
+	else if(!differsOnlyInCase)
 	{
 	    string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
 	    msg += "' as module";
 	    _unit->error(msg);
 	    return 0;
 	}
+	else
+	{
+	    string msg = "module `" + name + "' differs only in capitalization from ";
+	    msg += matches.front()->kindOf() + " name `" + matches.front()->name() + "'";
+	    _unit->error(msg);
+	    return 0;
+	}
+    }
+
+    if(!nameIsLegal(name, "module"))
+    {
+	return 0;
     }
 
     ModulePtr q = new Module(this, name);
@@ -514,6 +520,16 @@ Slice::Container::createClassDef(const string& name, bool intf, const ClassList&
 	    msg += intf ? "interface" : "class";
 	    _unit->error(msg);
 	}
+	return 0;
+    }
+
+    if(!nameIsLegal(name, intf ? "interface" : "class"))
+    {
+	return 0;
+    }
+
+    if(!checkForGlobalDef(name, intf ? "interface" : "class"))
+    {
 	return 0;
     }
 
@@ -589,6 +605,16 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 	}
     }
 
+    if(!nameIsLegal(name, intf ? "interface" : "class"))
+    {
+	return 0;
+    }
+
+    if(!checkForGlobalDef(name, intf ? "interface" : "class"))
+    {
+	return 0;
+    }
+
     //
     // Multiple declarations are permissible. But if we do already
     // have a declaration for the class in this container, we don't
@@ -608,6 +634,7 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 	}
     }
 
+    _unit->currentContainer();
     ClassDeclPtr decl = new ClassDecl(this, name, intf, local);
     _contents.push_back(decl);
 
@@ -649,6 +676,10 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 	    _unit->error(msg);
 	}
     }
+
+    nameIsLegal(name, "exception"); // Don't return here -- we create the exception anyway
+
+    checkForGlobalDef(name, "exception"); // Don't return here -- we create the exception anyway
 
     //
     // If this definition is non-local, base cannot be local.
@@ -694,6 +725,10 @@ Slice::Container::createStruct(const string& name, bool local)
 	}
     }
 
+    nameIsLegal(name, "structure"); // Don't return here -- we create the struct anyway.
+
+    checkForGlobalDef(name, "structure"); // Don't return here -- we create the struct anyway.
+
     StructPtr p = new Struct(this, name, local);
     _contents.push_back(p);
     return p;
@@ -729,6 +764,10 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, bool l
 	    _unit->error(msg);
 	}
     }
+
+    nameIsLegal(name, "sequence"); // Don't return here -- we create the sequence anyway.
+
+    checkForGlobalDef(name, "sequence"); // Don't return here -- we create the sequence anyway.
 
     //
     // If sequence is non-local, element type cannot be local.
@@ -775,6 +814,10 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 	}
     }
     
+    nameIsLegal(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
+
+    checkForGlobalDef(name, "dictionary"); // Don't return here -- we create the dictionary anyway.
+
     if(!Dictionary::legalKeyType(keyType))
     {
 	_unit->error("dictionary `" + name + "' uses an illegal key type");
@@ -831,6 +874,10 @@ Slice::Container::createEnum(const string& name, bool local)
 	}
     }
 
+    nameIsLegal(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
+
+    checkForGlobalDef(name, "enumeration"); // Don't return here -- we create the enumeration anyway.
+
     EnumPtr p = new Enum(this, name, local);
     _contents.push_back(p);
     return p;
@@ -866,6 +913,8 @@ Slice::Container::createEnumerator(const string& name)
 	    _unit->error(msg);
 	}
     }
+
+    nameIsLegal(name, "enumerator"); // Don't return here -- we create the enumerator anyway.
 
     EnumeratorPtr p = new Enumerator(this, name);
     _contents.push_back(p);
@@ -903,6 +952,10 @@ Slice::Container::createConst(const string name, const TypePtr& constType,
 	    _unit->error(msg);
 	}
     }
+
+    nameIsLegal(name, "constant"); // Don't return here -- we create the constant anyway.
+
+    checkForGlobalDef(name, "constant"); // Don't return here -- we create the constant anyway.
 
     //
     // Check that the constant type is legal.
@@ -1788,6 +1841,68 @@ Slice::Container::checkIntroduced(const string& scoped, ContainedPtr namedThing)
     return true;
 }
 
+bool
+Slice::Container::nameIsLegal(const string& newName, const char* newConstruct)
+{
+    //
+    // Check whether enclosing module has the same name.
+    //
+    if(ModulePtr::dynamicCast(this))
+    {
+	ContainedPtr contained = ContainedPtr::dynamicCast(this);
+	assert(contained);
+	if(newName == contained->name())
+	{
+	    string msg = newConstruct;
+	    msg += " name `" + newName + "' must differ from the name of its immediately enclosing module";
+	    _unit->error(msg);
+	    return false;
+	}
+	if(!_unit->caseSensitive())
+	{
+	    string name = newName;
+	    toLower(name);
+	    string thisName = contained->name();
+	    toLower(thisName);
+	    if(name == thisName)
+	    {
+		string msg = newConstruct;
+		msg += " name `" + name + "' cannot differ only in capitalization from its immediately enclosing "
+		       "module name `" + contained->name() + "'";
+		_unit->error(msg);
+		return false;
+	    }
+	}
+    }
+    return true;
+}
+
+bool
+Slice::Container::checkForGlobalDef(const string& name, const char* newConstruct)
+{
+    if(dynamic_cast<Unit*>(this) && strcmp(newConstruct, "module"))
+    {
+	if(_unit->hardErrorForGlobals())
+	{
+	    static const string vowels = "aeiou";
+	    string glottalStop;
+	    if(vowels.find_first_of(newConstruct[0]) != string::npos)
+	    {
+		glottalStop = "n";
+	    }
+	    _unit->error("`" + name + "': a" + glottalStop + " " + newConstruct +
+			 " can be defined only at module scope");
+	    return false;
+	}
+	else
+	{
+	    _unit->warning("`" + name + "': " + newConstruct + " definitions at global scope are deprecated");
+	}
+	return true;
+    }
+    return true;
+}
+
 Slice::Container::Container(const UnitPtr& unit) :
     SyntaxTreeBase(unit)
 {
@@ -2106,6 +2221,7 @@ Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name, b
     Constructed(container, name, local),
     _interface(intf)
 {
+    _unit->currentContainer();
 }
 
 //
@@ -2275,7 +2391,6 @@ Slice::ClassDef::createOperation(const string& name,
 	_unit->error(msg);
 	return 0;
     }
-
 
     //
     // Check whether enclosing interface/class has the same name.
@@ -4803,19 +4918,30 @@ Slice::Unit::usesConsts() const
     return false;
 }
 
+bool
+Slice::Unit::hardErrorForGlobals() const
+{
+    return _hardErrorForGlobals;
+}
+
 StringList
 Slice::Unit::includeFiles() const
 {
     return _includeFiles;
 }
 
+//
+// TODO: remove third parameter once global definitions are outlawed.
+//
 int
-Slice::Unit::parse(FILE* file, bool debug)
+Slice::Unit::parse(FILE* file, bool debug, bool hardErrorForGlobals)
 {
     slice_debug = debug ? 1 : 0;
 
     assert(!Slice::unit);
     Slice::unit = this;
+
+    _hardErrorForGlobals = hardErrorForGlobals; // TODO: remove this once global definitions are outlawed.
 
     _currentComment = "";
     _currentLine = 1;

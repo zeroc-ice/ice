@@ -9,8 +9,10 @@
 
 
 
-
-
+module Test
+{
 
 enum Enum1 { A, B, C };
 enum Enum2 { A, B, E };
+
+};

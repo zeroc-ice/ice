@@ -7,7 +7,9 @@
 //
 // **********************************************************************
 
-public final class TestI extends Test
+import Test.*;
+
+public final class TestI extends TestIntf
 {
     public
     TestI(Ice.Communicator communicator)

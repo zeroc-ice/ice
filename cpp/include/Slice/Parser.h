@@ -81,6 +81,7 @@ class Const;
 class Unit;
 class CICompare;
 class DerivedToBaseCompare;
+class ModulePartialCompare;
 
 typedef ::IceUtil::Handle<GrammarBase> GrammarBasePtr;
 typedef ::IceUtil::Handle<SyntaxTreeBase> SyntaxTreeBasePtr;
@@ -156,7 +157,6 @@ public:
 #if defined(__SUNPRO_CC)
 SLICE_API bool derivedToBaseCompare(const ExceptionPtr&, const ExceptionPtr&);
 #endif
-
 
 // ----------------------------------------------------------------------
 // ParserVisitor
@@ -418,6 +418,8 @@ public:
     void containerRecDependencies(std::set<ConstructedPtr>&); // Internal operation, don't use directly.
 
     bool checkIntroduced(const std::string&, ContainedPtr = 0);
+    bool nameIsLegal(const std::string&, const char *);
+    bool checkForGlobalDef(const std::string&, const char *);
 
 protected:
 
@@ -923,10 +925,11 @@ public:
     bool usesProxies() const;
     bool usesNonLocals() const;
     bool usesConsts() const;
+    bool hardErrorForGlobals() const; // TODO: remove this once global definitions are outlawed.
 
     StringList includeFiles() const;
 
-    int parse(FILE*, bool);
+    int parse(FILE*, bool, bool = true); // TODO: remove third parameter once global definitions are outlawed.
 
     virtual void destroy();
     virtual void visit(ParserVisitor*);
@@ -941,6 +944,7 @@ private:
     bool _all;
     bool _allowIcePrefix;
     bool _caseSensitive;
+    bool _hardErrorForGlobals; // TODO: remove this once global definitions are outlawed.
     int _errors;
     std::string _currentComment;
     int _currentLine;
@@ -954,7 +958,7 @@ private:
     std::map<std::string, ContainedList> _contentMap;
 };
 
-extern SLICE_API Unit* unit;		// The current parser for bison/flex
+extern SLICE_API Unit* unit; // The current parser for bison/flex
 
 }
 

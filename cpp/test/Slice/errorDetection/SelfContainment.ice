@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 struct x
 {
@@ -18,11 +18,10 @@ struct x
     x j;	// Error
 };
 
-// TODO: The following should cause an error, but doesn't. Need to add a check for that.
-#if 0
 class y
 {
     int i;
-    y j;	// Error
+    y j;	// OK
 };
-#endif
+
+};

@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 module Module1 { };
 module Module2 { };
@@ -38,4 +38,6 @@ interface I
 {
     E foo(E e1; E e2);
     void op();
+};
+
 };

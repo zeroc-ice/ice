@@ -16,7 +16,7 @@
 #include <LibraryTypes.h>
 #include <IceUtil/AbstractMutex.h>
 
-class LibraryI : public Library, public IceUtil::RWRecMutex
+class LibraryI : public Demo::Library, public IceUtil::RWRecMutex
 {
 public:
 
@@ -25,13 +25,13 @@ public:
 	     const Freeze::EvictorPtr& evictor);
     virtual ~LibraryI();
 
-    virtual ::BookPrx createBook(const ::BookDescription&, const Ice::Current&);
-    virtual ::BookPrx findByIsbn(const ::std::string&, const Ice::Current&) const;
-    virtual ::BookPrxSeq findByAuthors(const ::std::string&, const Ice::Current&) const;
+    virtual ::Demo::BookPrx createBook(const ::Demo::BookDescription&, const Ice::Current&);
+    virtual ::Demo::BookPrx findByIsbn(const ::std::string&, const Ice::Current&) const;
+    virtual ::Demo::BookPrxSeq findByAuthors(const ::std::string&, const Ice::Current&) const;
     virtual void setEvictorSize(::Ice::Int, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
-    void remove(const BookDescription&);
+    void remove(const Demo::BookDescription&);
 
 private:
 
@@ -47,14 +47,14 @@ private:
 
 typedef IceUtil::Handle<LibraryI> LibraryIPtr;
 
-class BookI : public Book, public IceUtil::AbstractMutexReadI<IceUtil::RWRecMutex>
+class BookI : public Demo::Book, public IceUtil::AbstractMutexReadI<IceUtil::RWRecMutex>
 {
 public:
 
     BookI(const LibraryIPtr&);
     virtual ~BookI();
 
-    virtual ::BookDescription getBookDescription(const Ice::Current&) const;
+    virtual ::Demo::BookDescription getBookDescription(const Ice::Current&) const;
     virtual void destroy(const Ice::Current&);
     virtual void rentBook(const ::std::string&, const Ice::Current&);
     virtual ::std::string getRenterName(const Ice::Current&) const;

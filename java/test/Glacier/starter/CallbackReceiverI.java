@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 final class CallbackReceiverI extends CallbackReceiver
 {
     CallbackReceiverI()

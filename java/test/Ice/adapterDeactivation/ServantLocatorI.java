@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public final class ServantLocatorI extends Ice.LocalObjectImpl implements Ice.ServantLocator
 {
     public

@@ -1,14 +1,14 @@
 <transformdb>
-    <database key="int" value="::S">
+    <database key="int" value="::Test::S">
 	<record>
         </record>
     </database>
     
     <!-- enum ::E -->
-    <transform type="::E"/>
+    <transform type="::Test::E"/>
     
     <!-- struct ::S -->
-    <transform type="::S">
+    <transform type="::Test::S">
 
         <!-- Primitives -->
 
@@ -54,7 +54,7 @@
         <fail test="new.stringToFloat - 2920.1 > 0.001"/>
         <fail test="new.stringToDouble - 9290.9 > 0.001"/>
         <fail test="new.stringToString != 'hello world'"/>
-        <fail test="new.stringToEnum != ::New::E1"/>
+        <fail test="new.stringToEnum != ::New::Test::E1"/>
 
         <!-- Sequences -->
 
@@ -217,8 +217,8 @@
         <fail test="new.stringSeqToStringSeq[1] != 'world'"/>
 
         <fail test="new.stringSeqToEnumSeq.length != 2"/>
-        <fail test="new.stringSeqToEnumSeq[0] != ::New::E2"/>
-        <fail test="new.stringSeqToEnumSeq[1] != ::New::E3"/>
+        <fail test="new.stringSeqToEnumSeq[0] != ::New::Test::E2"/>
+        <fail test="new.stringSeqToEnumSeq[1] != ::New::Test::E3"/>
 
         <!-- Dictionaries -->
 
@@ -269,40 +269,40 @@
         <fail test="new.stringToDoubleDict[1] - 9290.9 > 0.001"/>
 
         <fail test="new.stringToEnumDict.length != 2"/>
-        <fail test="new.stringToEnumDict[0] != ::New::E2"/>
-        <fail test="new.stringToEnumDict[1] != ::New::E3"/>
+        <fail test="new.stringToEnumDict[0] != ::New::Test::E2"/>
+        <fail test="new.stringToEnumDict[1] != ::New::Test::E3"/>
 
         <!-- Objects -->
 
         <fail test="new.nilObject != nil"/>
 
-        <fail test="new.baseObject.ice_id != '::F'"/>
+        <fail test="new.baseObject.ice_id != '::Test::F'"/>
         <fail test="new.baseObject.stringToEnumSeq.length != 2"/>
-        <fail test="new.baseObject.stringToEnumSeq[0] != ::New::E1"/>
-        <fail test="new.baseObject.stringToEnumSeq[1] != ::New::E3"/>
+        <fail test="new.baseObject.stringToEnumSeq[0] != ::New::Test::E1"/>
+        <fail test="new.baseObject.stringToEnumSeq[1] != ::New::Test::E3"/>
 
-        <fail test="new.cObject.ice_id != '::C'"/>
+        <fail test="new.cObject.ice_id != '::Test::C'"/>
         <fail test="new.cObject.boolToStringDict.length != 2"/>
         <fail test="new.cObject.boolToStringDict[0] != 'false'"/>
         <fail test="new.cObject.boolToStringDict[1] != 'true'"/>
 
-        <fail test="new.dAsCObject.ice_id != '::D'"/>
+        <fail test="new.dAsCObject.ice_id != '::Test::D'"/>
         <fail test="new.dAsCObject.boolToStringDict.length != 2"/>
         <fail test="new.dAsCObject.boolToStringDict[0] != 'false'"/>
         <fail test="new.dAsCObject.boolToStringDict[1] != 'true'"/>
         <fail test="new.dAsCObject.stringToByteSeq.length != 2"/>
         <fail test="new.dAsCObject.stringToByteSeq[0] != 0"/>
         <fail test="new.dAsCObject.stringToByteSeq[1] != 255"/>
-        <fail test="new.dAsCObject.obj.ice_id != '::F'"/>
+        <fail test="new.dAsCObject.obj.ice_id != '::Test::F'"/>
 
-        <fail test="new.dObject.ice_id != '::D'"/>
+        <fail test="new.dObject.ice_id != '::Test::D'"/>
         <fail test="new.dObject.boolToStringDict.length != 2"/>
         <fail test="new.dObject.boolToStringDict[0] != 'false'"/>
         <fail test="new.dObject.boolToStringDict[1] != 'true'"/>
         <fail test="new.dObject.stringToByteSeq.length != 2"/>
         <fail test="new.dObject.stringToByteSeq[0] != 0"/>
         <fail test="new.dObject.stringToByteSeq[1] != 255"/>
-        <fail test="new.dObject.obj.ice_id != '::C'"/>
+        <fail test="new.dObject.obj.ice_id != '::Test::C'"/>
 
     </transform>
 </transformdb>

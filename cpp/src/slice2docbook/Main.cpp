@@ -202,7 +202,7 @@ main(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
 	
-	status = p->parse(cppHandle, debug);
+	status = p->parse(cppHandle, debug, false);
 
 	if(!icecpp.close())
 	{

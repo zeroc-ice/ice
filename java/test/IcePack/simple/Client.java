@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public class Client
 {
     private static int
@@ -22,7 +24,7 @@ public class Client
 	    }
 	}
 
-	TestPrx obj;
+	TestIntfPrx obj;
 
 	if(!withDeploy)
 	{

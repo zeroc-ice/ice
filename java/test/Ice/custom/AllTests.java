@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public class AllTests
 {
     private static void
@@ -18,7 +20,7 @@ public class AllTests
         }
     }
 
-    public static TestPrx
+    public static TestIntfPrx
     allTests(Ice.Communicator communicator)
     {
         System.out.print("testing stringToProxy... ");
@@ -30,7 +32,7 @@ public class AllTests
 
         System.out.print("testing checked cast... ");
         System.out.flush();
-        TestPrx t = TestPrxHelper.checkedCast(obj);
+        TestIntfPrx t = TestIntfPrxHelper.checkedCast(obj);
         test(t != null);
         test(t.equals(obj));
         System.out.println("ok");

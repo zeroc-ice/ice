@@ -7,21 +7,21 @@
 //
 // **********************************************************************
 
-public final class IB2I extends MB._IB2Disp
+public final class IB2I extends Test.MB._IB2Disp
 {
     public
     IB2I()
     {
     }
 
-    public MA.IAPrx
-    iaop(MA.IAPrx p, Ice.Current current)
+    public Test.MA.IAPrx
+    iaop(Test.MA.IAPrx p, Ice.Current current)
     {
         return p;
     }
 
-    public MB.IB2Prx
-    ib2op(MB.IB2Prx p, Ice.Current current)
+    public Test.MB.IB2Prx
+    ib2op(Test.MB.IB2Prx p, Ice.Current current)
     {
         return p;
     }

@@ -18,11 +18,10 @@ IdentAsKeyword.ice:31: illegal identifier: `MOdule' differs from keyword `module
 IdentAsKeyword.ice:31: keyword `module' cannot be used as class name
 IdentAsKeyword.ice:32: keyword `module' cannot be used as class name
 IdentAsKeyword.ice:32: redefinition of class `module'
-IdentAsKeyword.ice:32: syntax error
 IdentAsKeyword.ice:34: illegal identifier: `extendS' differs from keyword `extends' only in capitalization
 IdentAsKeyword.ice:34: keyword `extends' cannot be used as data member name
 IdentAsKeyword.ice:35: redefinition of class `C'
-IdentAsKeyword.ice:35: syntax error
+IdentAsKeyword.ice:35: keyword `extends' cannot be used as data member name
 IdentAsKeyword.ice:36: keyword `extends' cannot be used as data member name
 IdentAsKeyword.ice:38: keyword `local' cannot be used as interface name
 IdentAsKeyword.ice:39: illegal identifier: `Local' differs from keyword `local' only in capitalization
@@ -31,7 +30,6 @@ IdentAsKeyword.ice:41: keyword `Object' cannot be used as interface name
 IdentAsKeyword.ice:42: illegal identifier: `object' differs from keyword `Object' only in capitalization
 IdentAsKeyword.ice:42: keyword `Object' cannot be used as interface name
 IdentAsKeyword.ice:42: redefinition of interface `Object'
-IdentAsKeyword.ice:42: syntax error
 IdentAsKeyword.ice:43: keyword `long' cannot be used as interface name
 IdentAsKeyword.ice:45: illegal identifier: `impLEments' differs from keyword `implements' only in capitalization
 IdentAsKeyword.ice:45: keyword `implements' cannot be used as sequence name

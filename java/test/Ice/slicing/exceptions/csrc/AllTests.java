@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public class AllTests
 {
     private static void
@@ -60,7 +62,7 @@ public class AllTests
 	private boolean _called;
     }
 
-    private static class AMI_Test_baseAsBaseI extends AMI_Test_baseAsBase
+    private static class AMI_Test_baseAsBaseI extends AMI_TestIntf_baseAsBase
     {
         public void
 	ice_response()
@@ -84,7 +86,7 @@ public class AllTests
 	    catch(Base b)
 	    {
 		test(b.b.equals("Base.b"));
-		test(b.ice_name().equals("Base"));
+		test(b.ice_name().equals("Test::Base"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -102,7 +104,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_unknownDerivedAsBaseI extends AMI_Test_unknownDerivedAsBase
+    private static class AMI_Test_unknownDerivedAsBaseI extends AMI_TestIntf_unknownDerivedAsBase
     {
         public void
 	ice_response()
@@ -126,7 +128,7 @@ public class AllTests
 	    catch(Base b)
 	    {
 		test(b.b.equals("UnknownDerived.b"));
-		test(b.ice_name().equals("Base"));
+		test(b.ice_name().equals("Test::Base"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -144,7 +146,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_knownDerivedAsBaseI extends AMI_Test_knownDerivedAsBase
+    private static class AMI_Test_knownDerivedAsBaseI extends AMI_TestIntf_knownDerivedAsBase
     {
         public void
 	ice_response()
@@ -169,7 +171,7 @@ public class AllTests
 	    {
 		test(k.b.equals("KnownDerived.b"));
 		test(k.kd.equals("KnownDerived.kd"));
-		test(k.ice_name().equals("KnownDerived"));
+		test(k.ice_name().equals("Test::KnownDerived"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -187,7 +189,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_knownDerivedAsKnownDerivedI extends AMI_Test_knownDerivedAsKnownDerived
+    private static class AMI_Test_knownDerivedAsKnownDerivedI extends AMI_TestIntf_knownDerivedAsKnownDerived
     {
         public void
 	ice_response()
@@ -212,7 +214,7 @@ public class AllTests
 	    {
 		test(k.b.equals("KnownDerived.b"));
 		test(k.kd.equals("KnownDerived.kd"));
-		test(k.ice_name().equals("KnownDerived"));
+		test(k.ice_name().equals("Test::KnownDerived"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -230,7 +232,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_unknownIntermediateAsBaseI extends AMI_Test_unknownIntermediateAsBase
+    private static class AMI_Test_unknownIntermediateAsBaseI extends AMI_TestIntf_unknownIntermediateAsBase
     {
         public void
 	ice_response()
@@ -254,7 +256,7 @@ public class AllTests
 	    catch(Base b)
 	    {
 		test(b.b.equals("UnknownIntermediate.b"));
-		test(b.ice_name().equals("Base"));
+		test(b.ice_name().equals("Test::Base"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -272,7 +274,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_knownIntermediateAsBaseI extends AMI_Test_knownIntermediateAsBase
+    private static class AMI_Test_knownIntermediateAsBaseI extends AMI_TestIntf_knownIntermediateAsBase
     {
         public void
 	ice_response()
@@ -297,7 +299,7 @@ public class AllTests
 	    {
 		test(ki.b.equals("KnownIntermediate.b"));
 		test(ki.ki.equals("KnownIntermediate.ki"));
-		test(ki.ice_name().equals("KnownIntermediate"));
+		test(ki.ice_name().equals("Test::KnownIntermediate"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -315,7 +317,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_knownMostDerivedAsBaseI extends AMI_Test_knownMostDerivedAsBase
+    private static class AMI_Test_knownMostDerivedAsBaseI extends AMI_TestIntf_knownMostDerivedAsBase
     {
         public void
 	ice_response()
@@ -341,7 +343,7 @@ public class AllTests
 		test(kmd.b.equals("KnownMostDerived.b"));
 		test(kmd.ki.equals("KnownMostDerived.ki"));
 		test(kmd.kmd.equals("KnownMostDerived.kmd"));
-		test(kmd.ice_name().equals("KnownMostDerived"));
+		test(kmd.ice_name().equals("Test::KnownMostDerived"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -360,7 +362,7 @@ public class AllTests
     }
 
     private static class AMI_Test_knownIntermediateAsKnownIntermediateI
-	extends AMI_Test_knownIntermediateAsKnownIntermediate
+	extends AMI_TestIntf_knownIntermediateAsKnownIntermediate
     {
         public void
 	ice_response()
@@ -385,7 +387,7 @@ public class AllTests
 	    {
 		test(ki.b.equals("KnownIntermediate.b"));
 		test(ki.ki.equals("KnownIntermediate.ki"));
-		test(ki.ice_name().equals("KnownIntermediate"));
+		test(ki.ice_name().equals("Test::KnownIntermediate"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -404,7 +406,7 @@ public class AllTests
     }
 
     private static class AMI_Test_knownMostDerivedAsKnownIntermediateI
-	extends AMI_Test_knownMostDerivedAsKnownIntermediate
+	extends AMI_TestIntf_knownMostDerivedAsKnownIntermediate
     {
         public void
 	ice_response()
@@ -430,7 +432,7 @@ public class AllTests
 		test(kmd.b.equals("KnownMostDerived.b"));
 		test(kmd.ki.equals("KnownMostDerived.ki"));
 		test(kmd.kmd.equals("KnownMostDerived.kmd"));
-		test(kmd.ice_name().equals("KnownMostDerived"));
+		test(kmd.ice_name().equals("Test::KnownMostDerived"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -449,7 +451,7 @@ public class AllTests
     }
 
     private static class AMI_Test_knownMostDerivedAsKnownMostDerivedI
-	extends AMI_Test_knownMostDerivedAsKnownMostDerived
+	extends AMI_TestIntf_knownMostDerivedAsKnownMostDerived
     {
         public void
 	ice_response()
@@ -475,7 +477,7 @@ public class AllTests
 		test(kmd.b.equals("KnownMostDerived.b"));
 		test(kmd.ki.equals("KnownMostDerived.ki"));
 		test(kmd.kmd.equals("KnownMostDerived.kmd"));
-		test(kmd.ice_name().equals("KnownMostDerived"));
+		test(kmd.ice_name().equals("Test::KnownMostDerived"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -493,7 +495,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_unknownMostDerived1AsBaseI extends AMI_Test_unknownMostDerived1AsBase
+    private static class AMI_Test_unknownMostDerived1AsBaseI extends AMI_TestIntf_unknownMostDerived1AsBase
     {
         public void
 	ice_response()
@@ -518,7 +520,7 @@ public class AllTests
 	    {
 		test(ki.b.equals("UnknownMostDerived1.b"));
 		test(ki.ki.equals("UnknownMostDerived1.ki"));
-		test(ki.ice_name().equals("KnownIntermediate"));
+		test(ki.ice_name().equals("Test::KnownIntermediate"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -537,7 +539,7 @@ public class AllTests
     }
 
     private static class AMI_Test_unknownMostDerived1AsKnownIntermediateI
-	extends AMI_Test_unknownMostDerived1AsKnownIntermediate
+	extends AMI_TestIntf_unknownMostDerived1AsKnownIntermediate
     {
         public void
 	ice_response()
@@ -562,7 +564,7 @@ public class AllTests
 	    {
 		test(ki.b.equals("UnknownMostDerived1.b"));
 		test(ki.ki.equals("UnknownMostDerived1.ki"));
-		test(ki.ice_name().equals("KnownIntermediate"));
+		test(ki.ice_name().equals("Test::KnownIntermediate"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -580,7 +582,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
 
-    private static class AMI_Test_unknownMostDerived2AsBaseI extends AMI_Test_unknownMostDerived2AsBase
+    private static class AMI_Test_unknownMostDerived2AsBaseI extends AMI_TestIntf_unknownMostDerived2AsBase
     {
         public void
 	ice_response()
@@ -604,7 +606,7 @@ public class AllTests
 	    catch(Base b)
 	    {
 		test(b.b.equals("UnknownMostDerived2.b"));
-		test(b.ice_name().equals("Base"));
+		test(b.ice_name().equals("Test::Base"));
 	    }
 	    catch(Exception ex)
 	    {
@@ -622,7 +624,7 @@ public class AllTests
 	private Callback callback = new Callback();
     }
 
-    public static TestPrx
+    public static TestIntfPrx
     allTests(Ice.Communicator communicator, boolean collocated)
     {
         System.out.print("testing stringToProxy... ");
@@ -634,7 +636,7 @@ public class AllTests
 
         System.out.print("testing checked cast... ");
         System.out.flush();
-        TestPrx test = TestPrxHelper.checkedCast(base);
+        TestIntfPrx test = TestIntfPrxHelper.checkedCast(base);
         test(test != null);
         test(test.equals(base));
         System.out.println("ok");
@@ -650,7 +652,7 @@ public class AllTests
 	    catch(Base b)
 	    {
 		test(b.b.equals("Base.b"));
-		test(b.ice_name().equals("Base"));
+		test(b.ice_name().equals("Test::Base"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -681,7 +683,7 @@ public class AllTests
 	    catch(Base b)
 	    {
 		test(b.b.equals("UnknownDerived.b"));
-		test(b.ice_name().equals("Base"));
+		test(b.ice_name().equals("Test::Base"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -713,7 +715,7 @@ public class AllTests
 	    {
 		test(k.b.equals("KnownDerived.b"));
 		test(k.kd.equals("KnownDerived.kd"));
-		test(k.ice_name().equals("KnownDerived"));
+		test(k.ice_name().equals("Test::KnownDerived"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -745,7 +747,7 @@ public class AllTests
 	    {
 		test(k.b.equals("KnownDerived.b"));
 		test(k.kd.equals("KnownDerived.kd"));
-		test(k.ice_name().equals("KnownDerived"));
+		test(k.ice_name().equals("Test::KnownDerived"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -776,7 +778,7 @@ public class AllTests
 	    catch(Base b)
 	    {
 		test(b.b.equals("UnknownIntermediate.b"));
-		test(b.ice_name().equals("Base"));
+		test(b.ice_name().equals("Test::Base"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -808,7 +810,7 @@ public class AllTests
 	    {
 		test(ki.b.equals("KnownIntermediate.b"));
 		test(ki.ki.equals("KnownIntermediate.ki"));
-		test(ki.ice_name().equals("KnownIntermediate"));
+		test(ki.ice_name().equals("Test::KnownIntermediate"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -841,7 +843,7 @@ public class AllTests
 		test(kmd.b.equals("KnownMostDerived.b"));
 		test(kmd.ki.equals("KnownMostDerived.ki"));
 		test(kmd.kmd.equals("KnownMostDerived.kmd"));
-		test(kmd.ice_name().equals("KnownMostDerived"));
+		test(kmd.ice_name().equals("Test::KnownMostDerived"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -873,7 +875,7 @@ public class AllTests
 	    {
 		test(ki.b.equals("KnownIntermediate.b"));
 		test(ki.ki.equals("KnownIntermediate.ki"));
-		test(ki.ice_name().equals("KnownIntermediate"));
+		test(ki.ice_name().equals("Test::KnownIntermediate"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -906,7 +908,7 @@ public class AllTests
 		test(kmd.b.equals("KnownMostDerived.b"));
 		test(kmd.ki.equals("KnownMostDerived.ki"));
 		test(kmd.kmd.equals("KnownMostDerived.kmd"));
-		test(kmd.ice_name().equals("KnownMostDerived"));
+		test(kmd.ice_name().equals("Test::KnownMostDerived"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -939,7 +941,7 @@ public class AllTests
 		test(kmd.b.equals("KnownMostDerived.b"));
 		test(kmd.ki.equals("KnownMostDerived.ki"));
 		test(kmd.kmd.equals("KnownMostDerived.kmd"));
-		test(kmd.ice_name().equals("KnownMostDerived"));
+		test(kmd.ice_name().equals("Test::KnownMostDerived"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -971,7 +973,7 @@ public class AllTests
 	    {
 		test(ki.b.equals("UnknownMostDerived1.b"));
 		test(ki.ki.equals("UnknownMostDerived1.ki"));
-		test(ki.ice_name().equals("KnownIntermediate"));
+		test(ki.ice_name().equals("Test::KnownIntermediate"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -1003,7 +1005,7 @@ public class AllTests
 	    {
 		test(ki.b.equals("UnknownMostDerived1.b"));
 		test(ki.ki.equals("UnknownMostDerived1.ki"));
-		test(ki.ice_name().equals("KnownIntermediate"));
+		test(ki.ice_name().equals("Test::KnownIntermediate"));
 		gotException = true;
 	    }
 	    catch(Exception ex)
@@ -1035,7 +1037,7 @@ public class AllTests
 	    catch(Base b)
 	    {
 		test(b.b.equals("UnknownMostDerived2.b"));
-		test(b.ice_name().equals("Base"));
+		test(b.ice_name().equals("Test::Base"));
 		gotException = true;
 	    }
 	    catch(Exception ex)

@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public class ServerManagerI extends _ServerManagerDisp
 {
     ServerManagerI(Ice.ObjectAdapter adapter)

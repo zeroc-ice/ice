@@ -12,10 +12,15 @@
 
 #include <Test.ice>
 
+module Test
+{
+
 class D3 extends B
 {
     string sd3;
     B pd3;
+};
+
 };
 
 #endif

@@ -12,6 +12,9 @@
 
 #include <Test.ice>
 
+module Test
+{
+
 class SBSUnknownDerived extends SBase
 {
     string sbsud;
@@ -38,6 +41,8 @@ exception UnknownDerivedException extends BaseException
 {
     string sude;
     D2 pd2;
+};
+
 };
 
 #endif

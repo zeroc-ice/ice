@@ -1,7 +1,7 @@
 <?
 Ice_loadProfileWithArgs($argv);
 
-class BI extends B
+class BI extends Test_B
 {
     function ice_postUnmarshal()
     {
@@ -16,7 +16,7 @@ class BI extends B
     var $_postUnmarshalInvoked = false;
 }
 
-class CI extends C
+class CI extends Test_C
 {
     function ice_postUnmarshal()
     {
@@ -31,7 +31,7 @@ class CI extends C
     var $_postUnmarshalInvoked = false;
 }
 
-class DI extends D
+class DI extends Test_D
 {
     function ice_postUnmarshal()
     {
@@ -50,15 +50,15 @@ class MyObjectFactory implements Ice_ObjectFactory
 {
     function create($id)
     {
-        if($id == "::B")
+        if($id == "::Test::B")
         {
             return new BI();
         }
-        else if($id == "::C")
+        else if($id == "::Test::C")
         {
             return new CI();
         }
-        else if($id == "::D")
+        else if($id == "::Test::D")
         {
             return new DI();
         }
@@ -92,7 +92,7 @@ function allTests()
 
     echo "testing checked cast... ";
     flush();
-    $initial = $base->ice_checkedCast("::Initial");
+    $initial = $base->ice_checkedCast("::Test::Initial");
     test($initial != null);
     test($initial == $base);
     echo "ok\n";
@@ -228,9 +228,9 @@ function allTests()
 }
 
 $factory = new MyObjectFactory();
-$ICE->addObjectFactory($factory, "::B");
-$ICE->addObjectFactory($factory, "::C");
-$ICE->addObjectFactory($factory, "::D");
+$ICE->addObjectFactory($factory, "::Test::B");
+$ICE->addObjectFactory($factory, "::Test::C");
+$ICE->addObjectFactory($factory, "::Test::D");
 $initial = allTests();
 $initial->shutdown();
 exit();

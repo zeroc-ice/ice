@@ -12,6 +12,7 @@
 #include <Test.h>
 
 using namespace std;
+using namespace Test;
 
 InitialPrx
 allTests(const Ice::CommunicatorPtr& communicator)

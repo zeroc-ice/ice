@@ -17,6 +17,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace Demo;
 
 extern FILE* yyin;
 

@@ -14,6 +14,7 @@
 #include <Pinger.h>
 
 using namespace std;
+using namespace Test;
 
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)

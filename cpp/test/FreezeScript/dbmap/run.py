@@ -58,7 +58,7 @@ for oldfile in files:
     newfile = oldfile.replace("old", "new")
 
     if oldfile.find("19") == 0:
-        value = "::C"
+        value = "::Test::C"
     else:
         value = "int"
 
@@ -110,7 +110,7 @@ print "ok"
 print "executing default transformations... ",
 sys.stdout.flush()
 
-command = transformdb + " --old " + testold + " --new " + testnew + " --key int --value ::S " + init_dbdir + " default.db " + check_dbdir
+command = transformdb + " --old " + testold + " --new " + testnew + " --key int --value ::Test::S " + init_dbdir + " default.db " + check_dbdir
 stdin, stdout, stderr = os.popen3(command)
 stderr.readlines()
 

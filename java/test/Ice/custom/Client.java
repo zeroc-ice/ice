@@ -7,12 +7,14 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public class Client
 {
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-        TestPrx test = AllTests.allTests(communicator);
+        TestIntfPrx test = AllTests.allTests(communicator);
         test.shutdown();
         return 0;
     }

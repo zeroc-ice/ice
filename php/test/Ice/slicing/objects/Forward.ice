@@ -10,6 +10,9 @@
 #ifndef FORWARD_ICE
 #define FORWARD_ICE
 
+module Test
+{
+
 class Forward;
 
 class Hidden
@@ -20,6 +23,8 @@ class Hidden
 class Forward
 {
     Hidden h;
+};
+
 };
 
 #endif

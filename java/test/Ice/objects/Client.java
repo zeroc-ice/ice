@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Test.*;
+
 public class Client
 {
     private static class MyObjectFactory extends Ice.LocalObjectImpl implements Ice.ObjectFactory
@@ -14,15 +16,15 @@ public class Client
         public Ice.Object
         create(String type)
         {
-            if(type.equals("::B"))
+            if(type.equals("::Test::B"))
             {
                 return new BI();
             }
-            else if(type.equals("::C"))
+            else if(type.equals("::Test::C"))
             {
                 return new CI();
             }
-            else if(type.equals("::D"))
+            else if(type.equals("::Test::D"))
             {
                 return new DI();
             }
@@ -41,9 +43,9 @@ public class Client
     run(String[] args, Ice.Communicator communicator)
     {
         Ice.ObjectFactory factory = new MyObjectFactory();
-        communicator.addObjectFactory(factory, "::B");
-        communicator.addObjectFactory(factory, "::C");
-        communicator.addObjectFactory(factory, "::D");
+        communicator.addObjectFactory(factory, "::Test::B");
+        communicator.addObjectFactory(factory, "::Test::C");
+        communicator.addObjectFactory(factory, "::Test::D");
 
         InitialPrx initial = AllTests.allTests(communicator, false);
         initial.shutdown();

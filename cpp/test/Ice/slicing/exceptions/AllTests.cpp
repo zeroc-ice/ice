@@ -12,6 +12,7 @@
 #include <Test.h>
 
 using namespace std;
+using namespace Test;
 
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -55,7 +56,7 @@ private:
     bool _called;
 };
 
-class AMI_Test_baseAsBaseI : public AMI_Test_baseAsBase, public CallbackBase
+class AMI_Test_baseAsBaseI : public AMI_TestIntf_baseAsBase, public CallbackBase
 {
     virtual void
     ice_response()
@@ -73,7 +74,7 @@ class AMI_Test_baseAsBaseI : public AMI_Test_baseAsBase, public CallbackBase
 	catch(const Base& b)
 	{
 	    test(b.b == "Base.b");
-	    test(b.ice_name() == "Base");
+	    test(b.ice_name() =="Test::Base");
 	}
 	catch(...)
 	{
@@ -85,7 +86,7 @@ class AMI_Test_baseAsBaseI : public AMI_Test_baseAsBase, public CallbackBase
 
 typedef IceUtil::Handle<AMI_Test_baseAsBaseI> AMI_Test_baseAsBaseIPtr;
 
-class AMI_Test_unknownDerivedAsBaseI : public AMI_Test_unknownDerivedAsBase, public CallbackBase
+class AMI_Test_unknownDerivedAsBaseI : public AMI_TestIntf_unknownDerivedAsBase, public CallbackBase
 {
     virtual void
     ice_response()
@@ -103,7 +104,7 @@ class AMI_Test_unknownDerivedAsBaseI : public AMI_Test_unknownDerivedAsBase, pub
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownDerived.b");
-	    test(b.ice_name() == "Base");
+	    test(b.ice_name() =="Test::Base");
 	}
 	catch(...)
 	{
@@ -115,7 +116,7 @@ class AMI_Test_unknownDerivedAsBaseI : public AMI_Test_unknownDerivedAsBase, pub
 
 typedef IceUtil::Handle<AMI_Test_unknownDerivedAsBaseI> AMI_Test_unknownDerivedAsBaseIPtr;
 
-class AMI_Test_knownDerivedAsBaseI : public AMI_Test_knownDerivedAsBase, public CallbackBase
+class AMI_Test_knownDerivedAsBaseI : public AMI_TestIntf_knownDerivedAsBase, public CallbackBase
 {
     virtual void
     ice_response()
@@ -134,7 +135,7 @@ class AMI_Test_knownDerivedAsBaseI : public AMI_Test_knownDerivedAsBase, public 
 	{
 	    test(k.b == "KnownDerived.b");
 	    test(k.kd == "KnownDerived.kd");
-	    test(k.ice_name() == "KnownDerived");
+	    test(k.ice_name() =="Test::KnownDerived");
 	}
 	catch(...)
 	{
@@ -146,7 +147,7 @@ class AMI_Test_knownDerivedAsBaseI : public AMI_Test_knownDerivedAsBase, public 
 
 typedef IceUtil::Handle<AMI_Test_knownDerivedAsBaseI> AMI_Test_knownDerivedAsBaseIPtr;
 
-class AMI_Test_knownDerivedAsKnownDerivedI : public AMI_Test_knownDerivedAsKnownDerived, public CallbackBase
+class AMI_Test_knownDerivedAsKnownDerivedI : public AMI_TestIntf_knownDerivedAsKnownDerived, public CallbackBase
 {
     virtual void
     ice_response()
@@ -165,7 +166,7 @@ class AMI_Test_knownDerivedAsKnownDerivedI : public AMI_Test_knownDerivedAsKnown
 	{
 	    test(k.b == "KnownDerived.b");
 	    test(k.kd == "KnownDerived.kd");
-	    test(k.ice_name() == "KnownDerived");
+	    test(k.ice_name() =="Test::KnownDerived");
 	}
 	catch(...)
 	{
@@ -177,7 +178,7 @@ class AMI_Test_knownDerivedAsKnownDerivedI : public AMI_Test_knownDerivedAsKnown
 
 typedef IceUtil::Handle<AMI_Test_knownDerivedAsKnownDerivedI> AMI_Test_knownDerivedAsKnownDerivedIPtr;
 
-class AMI_Test_unknownIntermediateAsBaseI : public AMI_Test_unknownIntermediateAsBase, public CallbackBase
+class AMI_Test_unknownIntermediateAsBaseI : public AMI_TestIntf_unknownIntermediateAsBase, public CallbackBase
 {
     virtual void
     ice_response()
@@ -195,7 +196,7 @@ class AMI_Test_unknownIntermediateAsBaseI : public AMI_Test_unknownIntermediateA
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownIntermediate.b");
-	    test(b.ice_name() == "Base");
+	    test(b.ice_name() =="Test::Base");
 	}
 	catch(...)
 	{
@@ -207,7 +208,7 @@ class AMI_Test_unknownIntermediateAsBaseI : public AMI_Test_unknownIntermediateA
 
 typedef IceUtil::Handle<AMI_Test_unknownIntermediateAsBaseI> AMI_Test_unknownIntermediateAsBaseIPtr;
 
-class AMI_Test_knownIntermediateAsBaseI : public AMI_Test_knownIntermediateAsBase, public CallbackBase
+class AMI_Test_knownIntermediateAsBaseI : public AMI_TestIntf_knownIntermediateAsBase, public CallbackBase
 {
     virtual void
     ice_response()
@@ -226,7 +227,7 @@ class AMI_Test_knownIntermediateAsBaseI : public AMI_Test_knownIntermediateAsBas
 	{
 	    test(ki.b == "KnownIntermediate.b");
 	    test(ki.ki == "KnownIntermediate.ki");
-	    test(ki.ice_name() == "KnownIntermediate");
+	    test(ki.ice_name() =="Test::KnownIntermediate");
 	}
 	catch(...)
 	{
@@ -238,7 +239,7 @@ class AMI_Test_knownIntermediateAsBaseI : public AMI_Test_knownIntermediateAsBas
 
 typedef IceUtil::Handle<AMI_Test_knownIntermediateAsBaseI> AMI_Test_knownIntermediateAsBaseIPtr;
 
-class AMI_Test_knownMostDerivedAsBaseI : public AMI_Test_knownMostDerivedAsBase,
+class AMI_Test_knownMostDerivedAsBaseI : public AMI_TestIntf_knownMostDerivedAsBase,
 					 public CallbackBase
 {
     virtual void
@@ -259,7 +260,7 @@ class AMI_Test_knownMostDerivedAsBaseI : public AMI_Test_knownMostDerivedAsBase,
 	    test(kmd.b == "KnownMostDerived.b");
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() == "KnownMostDerived");
+	    test(kmd.ice_name() =="Test::KnownMostDerived");
 	}
 	catch(...)
 	{
@@ -271,7 +272,7 @@ class AMI_Test_knownMostDerivedAsBaseI : public AMI_Test_knownMostDerivedAsBase,
 
 typedef IceUtil::Handle<AMI_Test_knownMostDerivedAsBaseI> AMI_Test_knownMostDerivedAsBaseIPtr;
 
-class AMI_Test_knownIntermediateAsKnownIntermediateI : public AMI_Test_knownIntermediateAsKnownIntermediate,
+class AMI_Test_knownIntermediateAsKnownIntermediateI : public AMI_TestIntf_knownIntermediateAsKnownIntermediate,
                                                        public CallbackBase
 {
     virtual void
@@ -291,7 +292,7 @@ class AMI_Test_knownIntermediateAsKnownIntermediateI : public AMI_Test_knownInte
 	{
 	    test(ki.b == "KnownIntermediate.b");
 	    test(ki.ki == "KnownIntermediate.ki");
-	    test(ki.ice_name() == "KnownIntermediate");
+	    test(ki.ice_name() =="Test::KnownIntermediate");
 	}
 	catch(...)
 	{
@@ -303,7 +304,7 @@ class AMI_Test_knownIntermediateAsKnownIntermediateI : public AMI_Test_knownInte
 
 typedef IceUtil::Handle<AMI_Test_knownIntermediateAsKnownIntermediateI> AMI_Test_knownIntermediateAsKnownIntermediateIPtr;
 
-class AMI_Test_knownMostDerivedAsKnownMostDerivedI : public AMI_Test_knownMostDerivedAsKnownMostDerived,
+class AMI_Test_knownMostDerivedAsKnownMostDerivedI : public AMI_TestIntf_knownMostDerivedAsKnownMostDerived,
                                                       public CallbackBase
 {
     virtual void
@@ -324,7 +325,7 @@ class AMI_Test_knownMostDerivedAsKnownMostDerivedI : public AMI_Test_knownMostDe
 	    test(kmd.b == "KnownMostDerived.b");
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() == "KnownMostDerived");
+	    test(kmd.ice_name() =="Test::KnownMostDerived");
 	}
 	catch(...)
 	{
@@ -336,7 +337,7 @@ class AMI_Test_knownMostDerivedAsKnownMostDerivedI : public AMI_Test_knownMostDe
 
 typedef IceUtil::Handle<AMI_Test_knownMostDerivedAsKnownMostDerivedI> AMI_Test_knownMostDerivedAsKnownMostDerivedIPtr;
 
-class AMI_Test_knownMostDerivedAsKnownIntermediateI : public AMI_Test_knownMostDerivedAsKnownIntermediate,
+class AMI_Test_knownMostDerivedAsKnownIntermediateI : public AMI_TestIntf_knownMostDerivedAsKnownIntermediate,
                                                       public CallbackBase
 {
     virtual void
@@ -357,7 +358,7 @@ class AMI_Test_knownMostDerivedAsKnownIntermediateI : public AMI_Test_knownMostD
 	    test(kmd.b == "KnownMostDerived.b");
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() == "KnownMostDerived");
+	    test(kmd.ice_name() =="Test::KnownMostDerived");
 	}
 	catch(...)
 	{
@@ -369,8 +370,8 @@ class AMI_Test_knownMostDerivedAsKnownIntermediateI : public AMI_Test_knownMostD
 
 typedef IceUtil::Handle<AMI_Test_knownMostDerivedAsKnownIntermediateI> AMI_Test_knownMostDerivedAsKnownIntermediateIPtr;
 
-class AMI_Test_unknownMostDerived1AsBaseI : public AMI_Test_unknownMostDerived1AsBase,
-                                                      public CallbackBase
+class AMI_Test_unknownMostDerived1AsBaseI : public AMI_TestIntf_unknownMostDerived1AsBase,
+                                            public CallbackBase
 {
     virtual void
     ice_response()
@@ -389,7 +390,7 @@ class AMI_Test_unknownMostDerived1AsBaseI : public AMI_Test_unknownMostDerived1A
 	{
 	    test(ki.b == "UnknownMostDerived1.b");
 	    test(ki.ki == "UnknownMostDerived1.ki");
-	    test(ki.ice_name() == "KnownIntermediate");
+	    test(ki.ice_name() =="Test::KnownIntermediate");
 	}
 	catch(...)
 	{
@@ -401,7 +402,7 @@ class AMI_Test_unknownMostDerived1AsBaseI : public AMI_Test_unknownMostDerived1A
 
 typedef IceUtil::Handle<AMI_Test_unknownMostDerived1AsBaseI> AMI_Test_unknownMostDerived1AsBaseIPtr;
 
-class AMI_Test_unknownMostDerived1AsKnownIntermediateI : public AMI_Test_unknownMostDerived1AsKnownIntermediate,
+class AMI_Test_unknownMostDerived1AsKnownIntermediateI : public AMI_TestIntf_unknownMostDerived1AsKnownIntermediate,
                                                          public CallbackBase
 {
     virtual void
@@ -421,7 +422,7 @@ class AMI_Test_unknownMostDerived1AsKnownIntermediateI : public AMI_Test_unknown
 	{
 	    test(ki.b == "UnknownMostDerived1.b");
 	    test(ki.ki == "UnknownMostDerived1.ki");
-	    test(ki.ice_name() == "KnownIntermediate");
+	    test(ki.ice_name() =="Test::KnownIntermediate");
 	}
 	catch(...)
 	{
@@ -434,7 +435,7 @@ class AMI_Test_unknownMostDerived1AsKnownIntermediateI : public AMI_Test_unknown
 typedef IceUtil::Handle<AMI_Test_unknownMostDerived1AsKnownIntermediateI>
 	    AMI_Test_unknownMostDerived1AsKnownIntermediateIPtr;
 
-class AMI_Test_unknownMostDerived2AsBaseI : public AMI_Test_unknownMostDerived2AsBase,
+class AMI_Test_unknownMostDerived2AsBaseI : public AMI_TestIntf_unknownMostDerived2AsBase,
                                             public CallbackBase
 {
     virtual void
@@ -453,7 +454,7 @@ class AMI_Test_unknownMostDerived2AsBaseI : public AMI_Test_unknownMostDerived2A
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownMostDerived2.b");
-	    test(b.ice_name() == "Base");
+	    test(b.ice_name() =="Test::Base");
 	}
 	catch(...)
 	{
@@ -465,11 +466,11 @@ class AMI_Test_unknownMostDerived2AsBaseI : public AMI_Test_unknownMostDerived2A
 
 typedef IceUtil::Handle<AMI_Test_unknownMostDerived2AsBaseI> AMI_Test_unknownMostDerived2AsBaseIPtr;
 
-TestPrx
+TestIntfPrx
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectPrx obj = communicator->stringToProxy("Test:default -p 12345");
-    TestPrx test = TestPrx::checkedCast(obj);
+    TestIntfPrx test = TestIntfPrx::checkedCast(obj);
 
     cout << "base... " << flush;
     {
@@ -481,7 +482,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	catch(const Base& b)
 	{
 	    test(b.b == "Base.b");
-	    test(b.ice_name() == "Base");
+	    test(b.ice_name() =="Test::Base");
 	    gotException = true;
 	}
 	catch(...)
@@ -510,7 +511,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownDerived.b");
-	    test(b.ice_name() == "Base");
+	    test(b.ice_name() =="Test::Base");
 	    gotException = true;
 	}
 	catch(...)
@@ -540,7 +541,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(k.b == "KnownDerived.b");
 	    test(k.kd == "KnownDerived.kd");
-	    test(k.ice_name() == "KnownDerived");
+	    test(k.ice_name() =="Test::KnownDerived");
 	    gotException = true;
 	}
 	catch(...)
@@ -570,7 +571,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(k.b == "KnownDerived.b");
 	    test(k.kd == "KnownDerived.kd");
-	    test(k.ice_name() == "KnownDerived");
+	    test(k.ice_name() =="Test::KnownDerived");
 	    gotException = true;
 	}
 	catch(...)
@@ -599,7 +600,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownIntermediate.b");
-	    test(b.ice_name() == "Base");
+	    test(b.ice_name() =="Test::Base");
 	    gotException = true;
 	}
 	catch(...)
@@ -629,7 +630,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(ki.b == "KnownIntermediate.b");
 	    test(ki.ki == "KnownIntermediate.ki");
-	    test(ki.ice_name() == "KnownIntermediate");
+	    test(ki.ice_name() =="Test::KnownIntermediate");
 	    gotException = true;
 	}
 	catch(...)
@@ -660,7 +661,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(kmd.b == "KnownMostDerived.b");
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() == "KnownMostDerived");
+	    test(kmd.ice_name() =="Test::KnownMostDerived");
 	    gotException = true;
 	}
 	catch(...)
@@ -690,7 +691,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(ki.b == "KnownIntermediate.b");
 	    test(ki.ki == "KnownIntermediate.ki");
-	    test(ki.ice_name() == "KnownIntermediate");
+	    test(ki.ice_name() =="Test::KnownIntermediate");
 	    gotException = true;
 	}
 	catch(...)
@@ -721,7 +722,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(kmd.b == "KnownMostDerived.b");
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() == "KnownMostDerived");
+	    test(kmd.ice_name() =="Test::KnownMostDerived");
 	    gotException = true;
 	}
 	catch(...)
@@ -752,7 +753,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	    test(kmd.b == "KnownMostDerived.b");
 	    test(kmd.ki == "KnownMostDerived.ki");
 	    test(kmd.kmd == "KnownMostDerived.kmd");
-	    test(kmd.ice_name() == "KnownMostDerived");
+	    test(kmd.ice_name() =="Test::KnownMostDerived");
 	    gotException = true;
 	}
 	catch(...)
@@ -782,7 +783,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(ki.b == "UnknownMostDerived1.b");
 	    test(ki.ki == "UnknownMostDerived1.ki");
-	    test(ki.ice_name() == "KnownIntermediate");
+	    test(ki.ice_name() =="Test::KnownIntermediate");
 	    gotException = true;
 	}
 	catch(...)
@@ -812,7 +813,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	{
 	    test(ki.b == "UnknownMostDerived1.b");
 	    test(ki.ki == "UnknownMostDerived1.ki");
-	    test(ki.ice_name() == "KnownIntermediate");
+	    test(ki.ice_name() =="Test::KnownIntermediate");
 	    gotException = true;
 	}
 	catch(...)
@@ -841,7 +842,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 	catch(const Base& b)
 	{
 	    test(b.b == "UnknownMostDerived2.b");
-	    test(b.ice_name() == "Base");
+	    test(b.ice_name() =="Test::Base");
 	    gotException = true;
 	}
 	catch(...)

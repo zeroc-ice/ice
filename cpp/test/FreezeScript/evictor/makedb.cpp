@@ -12,6 +12,7 @@
 #include <TestOld.h>
 
 using namespace std;
+using namespace Test;
 
 class MainObjectI : public MainObject, public IceUtil::AbstractMutexI<IceUtil::Mutex>
 {
@@ -36,19 +37,19 @@ public:
     virtual Ice::ObjectPtr
     create(const string& type)
     {
-        if(type == "::MainObject")
+        if(type == "::Test::MainObject")
         {
             return new MainObjectI;
         }
-        else if(type == "::DerivedMainObject")
+        else if(type == "::Test::DerivedMainObject")
         {
             return new DerivedMainObjectI;
         }
-        else if(type == "::FacetObject")
+        else if(type == "::Test::FacetObject")
         {
             return new FacetObjectI;
         }
-        else if(type == "::DerivedFacetObject")
+        else if(type == "::Test::DerivedFacetObject")
         {
             return new DerivedFacetObjectI;
         }

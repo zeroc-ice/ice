@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 INTERFACE i { void op(); };
 
@@ -92,3 +92,5 @@ interface \_true;	// Illegal leading underscore
 interface b_;		// Illegal underscore
 interface tr_ue;	// Illegal underscore
 interface \tr_ue;	// Illegal underscore
+
+};

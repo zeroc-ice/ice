@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 class Parser
 {
     Parser(Ice.Communicator communicator, LibraryPrx library)

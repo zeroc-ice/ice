@@ -10,9 +10,14 @@
 #ifndef CLOCK_ICE
 #define CLOCK_ICE
 
+module Demo
+{
+
 interface Clock
 {
     void tick();
+};
+
 };
 
 #endif

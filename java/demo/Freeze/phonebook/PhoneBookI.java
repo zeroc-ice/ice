@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 class PhoneBookI extends _PhoneBookDisp
 {
     public ContactPrx

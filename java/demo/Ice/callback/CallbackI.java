@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+import Demo.*;
+
 public final class CallbackI extends _CallbackDisp
 {
     public void

@@ -12,6 +12,9 @@
 
 #include <Ice/BuiltinSequences.ice>
 
+module Test
+{
+
 class KeyManager
 {
     void getServerCerts(out Ice::ByteSeq trusted, out Ice::ByteSeq untrusted);
@@ -23,6 +26,8 @@ class KeyManager
 class Pinger
 {
     void ping();
+};
+
 };
 
 #endif

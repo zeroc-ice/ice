@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 interface Base1
 {
@@ -49,3 +49,5 @@ class c1 { long l; };
 class c2 extends c1 { double l; };	// error
 class c3 extends c1 { double d; };	// OK
 class c4 extends c3 { short l; };	// error, l in c1
+
+};

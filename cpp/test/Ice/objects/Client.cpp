@@ -12,6 +12,7 @@
 #include <TestI.h>
 
 using namespace std;
+using namespace Test;
 
 class MyObjectFactory : public Ice::ObjectFactory
 {
@@ -19,15 +20,15 @@ public:
 
     virtual Ice::ObjectPtr create(const string& type)
     {
-	if(type == "::B")
+	if(type == "::Test::B")
 	{
 	    return new BI;
 	}
-	else if(type == "::C")
+	else if(type == "::Test::C")
 	{
 	    return new CI;
 	}
-	else if(type == "::D")
+	else if(type == "::Test::D")
 	{
 	    return new DI;
 	}
@@ -45,9 +46,9 @@ int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     Ice::ObjectFactoryPtr factory = new MyObjectFactory;
-    communicator->addObjectFactory(factory, "::B");
-    communicator->addObjectFactory(factory, "::C");
-    communicator->addObjectFactory(factory, "::D");
+    communicator->addObjectFactory(factory, "::Test::B");
+    communicator->addObjectFactory(factory, "::Test::C");
+    communicator->addObjectFactory(factory, "::Test::D");
 
     InitialPrx allTests(const Ice::CommunicatorPtr&, bool);
     InitialPrx initial = allTests(communicator, false);

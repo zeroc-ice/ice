@@ -16,15 +16,15 @@
 #   define HELLO_API ICE_DECLSPEC_EXPORT
 #endif
 
-class HELLO_API HelloFactoryI : public HelloFactory, public IceUtil::Mutex
+class HELLO_API HelloFactoryI : public Demo::HelloFactory, public IceUtil::Mutex
 {
 public:
 
     HelloFactoryI();
     
-    virtual HelloPrx create(const std::string&, const Ice::Current&);
+    virtual Demo::HelloPrx create(const std::string&, const Ice::Current&);
 
-    virtual HelloPrx find(const std::string&, const Ice::Current&) const;
+    virtual Demo::HelloPrx find(const std::string&, const Ice::Current&) const;
 
 private:
 
@@ -32,7 +32,7 @@ private:
 
 };
 
-class HELLO_API HelloI : public Hello
+class HELLO_API HelloI : public Demo::Hello
 {
 public:
 

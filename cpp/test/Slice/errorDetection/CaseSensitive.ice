@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 module M1
 {
@@ -147,4 +147,6 @@ interface i14
 interface i15
 {
     void op(int Op);
+};
+
 };

@@ -14,7 +14,7 @@
 #include <IceUtil/Monitor.h>
 #include <Callback.h>
 
-class CallbackReceiverI : public CallbackReceiver, IceUtil::Monitor<IceUtil::Mutex>
+class CallbackReceiverI : public ::Test::CallbackReceiver, IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -29,14 +29,14 @@ private:
     bool _callback;
 };
 
-class CallbackI : public Callback
+class CallbackI : public ::Test::Callback
 {
 public:
 
     CallbackI(const Ice::CommunicatorPtr&);
 
-    virtual void initiateCallback(const CallbackReceiverPrx&, const Ice::Current&);
-    virtual void initiateCallbackEx(const CallbackReceiverPrx&, const Ice::Current&);
+    virtual void initiateCallback(const ::Test::CallbackReceiverPrx&, const Ice::Current&);
+    virtual void initiateCallbackEx(const ::Test::CallbackReceiverPrx&, const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:

@@ -10,6 +10,9 @@
 #ifndef CALLBACK_ICE
 #define CALLBACK_ICE
 
+module Test
+{
+
 exception CallbackException
 {
     double someValue;
@@ -32,6 +35,8 @@ class Callback
 	throws CallbackException;
 
     void shutdown();
+};
+
 };
 
 #endif

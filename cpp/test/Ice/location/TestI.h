@@ -13,7 +13,7 @@
 #include <Test.h>
 #include <vector>
 
-class ServerManagerI : public ServerManager
+class ServerManagerI : public Test::ServerManager
 {
 public:
     ServerManagerI(const Ice::ObjectAdapterPtr&);
@@ -27,21 +27,21 @@ private:
     std::vector<Ice::CommunicatorPtr> _communicators;
 };
 
-class HelloI : public Hello
+class HelloI : public Test::Hello
 {
 public:
 
     virtual void sayHello(const Ice::Current&);
 };
 
-class TestI : public Test
+class TestI : public Test::TestIntf
 {
 public:
 
     TestI(const Ice::ObjectAdapterPtr&);
 
     virtual void shutdown(const Ice::Current&);
-    virtual HelloPrx getHello(const Ice::Current&);
+    virtual ::Test::HelloPrx getHello(const Ice::Current&);
 
 private:
 

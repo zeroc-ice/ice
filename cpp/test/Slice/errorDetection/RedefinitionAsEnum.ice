@@ -9,8 +9,10 @@
 
 
 
-
-
+module Test
+{
 
 class C { long l; };
 enum C { A, B, C };
+
+};

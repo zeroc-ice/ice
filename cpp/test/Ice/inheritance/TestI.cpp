@@ -10,6 +10,8 @@
 #include <Ice/Ice.h>
 #include <TestI.h>
 
+using namespace Test;
+
 MA::CAPrx
 CAI_::caop(const MA::CAPrx& p, const Ice::Current&)
 {

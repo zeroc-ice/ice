@@ -13,6 +13,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace Test;
 
 class TestClient : public Application
 {
@@ -31,7 +32,7 @@ main(int argc, char* argv[])
 int
 TestClient::run(int argc, char* argv[])
 {
-    TestPrx allTests(const CommunicatorPtr&);
-    TestPrx obj = allTests(communicator());
+    TestIntfPrx allTests(const CommunicatorPtr&);
+    TestIntfPrx obj = allTests(communicator());
     return EXIT_SUCCESS;
 }

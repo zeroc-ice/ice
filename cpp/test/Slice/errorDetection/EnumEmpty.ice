@@ -9,7 +9,9 @@
 
 
 
-
-
+module Test
+{
 
 enum foo {};
+
+};

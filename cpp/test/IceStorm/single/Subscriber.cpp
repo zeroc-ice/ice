@@ -22,6 +22,7 @@
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
+using namespace Test;
 
 class SingleI : public Single, public IceUtil::Mutex
 {

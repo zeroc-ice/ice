@@ -10,11 +10,16 @@
 #ifndef TEST_ICE
 #define TEST_ICE
 
-interface Test
+module Test
+{
+
+interface TestIntf
 {
     void shutdown();
     
     string getProperty(string name);
+};
+
 };
 
 #endif

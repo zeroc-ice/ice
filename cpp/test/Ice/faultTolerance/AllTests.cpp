@@ -12,6 +12,7 @@
 #include <Test.h>
 
 using namespace std;
+using namespace Test;
 
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -55,7 +56,7 @@ private:
     bool _called;
 };
 
-class AMI_Test_pidI : virtual public AMI_Test_pid, virtual public CallbackBase
+class AMI_Test_pidI : virtual public AMI_TestIntf_pid, virtual public CallbackBase
 {
 public:
 
@@ -82,7 +83,7 @@ private:
 
 typedef IceUtil::Handle<AMI_Test_pidI> AMI_Test_pidIPtr;
 
-class AMI_Test_shutdownI : virtual public AMI_Test_shutdown, virtual public CallbackBase
+class AMI_Test_shutdownI : virtual public AMI_TestIntf_shutdown, virtual public CallbackBase
 {
 public:
 
@@ -99,7 +100,7 @@ public:
 
 typedef IceUtil::Handle<AMI_Test_shutdownI> AMI_Test_shutdownIPtr;
 
-class AMI_Test_abortI : virtual public AMI_Test_abort, virtual public CallbackBase
+class AMI_Test_abortI : virtual public AMI_TestIntf_abort, virtual public CallbackBase
 {
 public:
 
@@ -131,7 +132,7 @@ public:
 
 typedef IceUtil::Handle<AMI_Test_abortI> AMI_Test_abortIPtr;
 
-class AMI_Test_idempotentAbortI : public AMI_Test_idempotentAbort, public AMI_Test_abortI
+class AMI_Test_idempotentAbortI : public AMI_TestIntf_idempotentAbort, public AMI_Test_abortI
 {
     virtual void ice_response()
     {
@@ -146,7 +147,7 @@ class AMI_Test_idempotentAbortI : public AMI_Test_idempotentAbort, public AMI_Te
 
 typedef IceUtil::Handle<AMI_Test_idempotentAbortI> AMI_Test_idempotentAbortIPtr;
 
-class AMI_Test_nonmutatingAbortI : public AMI_Test_nonmutatingAbort, public AMI_Test_abortI
+class AMI_Test_nonmutatingAbortI : public AMI_TestIntf_nonmutatingAbort, public AMI_Test_abortI
 {
     virtual void ice_response()
     {
@@ -176,7 +177,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     cout << "ok" << endl;
 
     cout << "testing checked cast... " << flush;
-    TestPrx obj = TestPrx::checkedCast(base);
+    TestIntfPrx obj = TestIntfPrx::checkedCast(base);
     test(obj);
     test(obj == base);
     cout << "ok" << endl;

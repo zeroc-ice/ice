@@ -14,6 +14,7 @@
 #include <fstream>
 
 using namespace std;
+using namespace Test;
 
 static int num = 0;
 

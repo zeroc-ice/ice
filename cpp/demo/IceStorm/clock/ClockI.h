@@ -12,7 +12,7 @@
 
 #include <Clock.h>
 
-class ClockI : public Clock
+class ClockI : public Demo::Clock
 {
 public:
 

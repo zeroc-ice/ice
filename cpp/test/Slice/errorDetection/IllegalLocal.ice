@@ -9,8 +9,8 @@
 
 
 
-
-
+module Test
+{
 
 interface i1 {};
 
@@ -90,4 +90,6 @@ local interface i6
 local class c7
 {
     void op() throws E;			// error
+};
+
 };
