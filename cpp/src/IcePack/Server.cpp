@@ -314,12 +314,11 @@ int
     adminAdapter->setLocator(locatorProxy);
     
     //
-    // Activate the adapters.
+    // Activate adapters.
     //
-    shutdownOnInterrupt();
     adminAdapter->activate();
-    locatorAdapter->activate();
     locatorRegistryAdapter->activate();
+    locatorAdapter->activate();
 
     //
     // Deploy application desciptor.
@@ -342,6 +341,13 @@ int
 	}
     }
 
+    string bundleName = properties->getProperty("IcePack.PrintServersReady");
+    if(!bundleName.empty())
+    {
+	cout << bundleName << " ready" << endl;
+    }
+
+    shutdownOnInterrupt();
     communicator()->waitForShutdown();
     ignoreInterrupt();
 

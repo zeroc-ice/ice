@@ -46,6 +46,9 @@ public:
 	{
 	    _admin->removeServer(_name);
 	}
+	catch(const ServerNotInactiveException&)
+	{
+	}
 	catch(const ServerNotExistException&)
 	{
 	}

@@ -286,6 +286,9 @@ IcePack::ServerDeployer::undeploy()
     {
 	_serverManager->remove(_description.name);
     }
+    catch(const ServerNotInactiveException&)
+    {
+    }
     catch(const ServerNotExistException&)
     {
     }
