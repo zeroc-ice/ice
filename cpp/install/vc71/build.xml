@@ -131,8 +131,6 @@
 		<include name="icepatch2client.exe"/>
 		<include name="icepatch2server.exe"/>
 		<include name="icestormadmin.exe"/>
-		<include name="slice2freeze.exe"/>
-		<include name="slice2freezej.exe"/>
 		<include name="TransformDB.exe"/>
 	    </fileset>
 	</copy>
@@ -183,6 +181,8 @@
 		<include name="icexml21d.*"/>
 		<include name="slice21d.*"/>
 		<include name="slice2cpp.exe"/>
+		<include name="slice2freeze.exe"/>
+		<include name="slice2freezej.exe"/>
 	    </fileset>
 	</copy>
 

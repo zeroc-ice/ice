@@ -1885,7 +1885,7 @@
 		<col def="I2">Encoded</col>
 		<col def="S0">Comment</col>
 		<col def="I4">TimeStamp</col>
-		<row><td>COMPANY_NAME</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>-1457939797</td></row>
+		<row><td>COMPANY_NAME</td><td>1033</td><td>ZeroC</td><td>0</td><td/><td>563691883</td></row>
 		<row><td>DN_AlwaysInstall</td><td>1033</td><td>Always Install</td><td>0</td><td>	</td><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_COLOR</td><td>1033</td><td>The color settings of your system are not adequate for running [ProductName].</td><td>0</td><td/><td>479664453</td></row>
 		<row><td>IDPROP_EXPRESS_LAUNCH_CONDITION_OS</td><td>1033</td><td>[ProductName] requires that your computer is running Windows NT 4.0 or Windows 2000 or Windows XP or Windows 2003 Server</td><td>0</td><td/><td>-1457925461</td></row>
@@ -2425,7 +2425,7 @@
 		<row><td>ID_STRING11</td><td>1033</td><td>PHP Demos</td><td>0</td><td/><td>-1457924566</td></row>
 		<row><td>ID_STRING12</td><td>1033</td><td>Java Development</td><td>0</td><td/><td>-1457953302</td></row>
 		<row><td>ID_STRING13</td><td>1033</td><td>Python Development</td><td>0</td><td/><td>-1457924630</td></row>
-		<row><td>ID_STRING14</td><td>1033</td><td>http://www.zeroc.com</td><td>0</td><td/><td>-1457931605</td></row>
+		<row><td>ID_STRING14</td><td>1033</td><td>http://www.zeroc.com</td><td>0</td><td/><td>563691883</td></row>
 		<row><td>ID_STRING15</td><td>1033</td><td>+ICE_HOME</td><td>0</td><td/><td>-1457951093</td></row>
 		<row><td>ID_STRING16</td><td>1033</td><td>Ice for C#</td><td>0</td><td/><td>-1055268626</td></row>
 		<row><td>ID_STRING17</td><td>1033</td><td>Ice for C#</td><td>0</td><td/><td>295271542</td></row>
