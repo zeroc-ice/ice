@@ -1,6 +1,10 @@
 Changes since version 1.0.3
 ---------------------------
 
+- Changed facet interface to be compatible with Ice.
+
+- Added the proxy methods ice_newContext and ice_getContext.
+
 - Fixed a bug that could cause a marshaling exception for uninitialized
   string data members.
 
