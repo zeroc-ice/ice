@@ -13,10 +13,7 @@
 // **********************************************************************
 
 #include <Ice/FactoryTable.h>
-
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-#include <Ice/UserExceptionFactory.h> // COMPILERBUG: VC++ 6 complains about an undefined type
-#endif
+#include <Ice/UserExceptionFactory.h>
 
 //
 // This constructor initializes the single global Ice::factoryTable instance
