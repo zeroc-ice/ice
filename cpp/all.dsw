@@ -1022,6 +1022,9 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name simpleIcePackSvc
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name Glacier2
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -2178,9 +2181,6 @@ Package=<4>
     Project_Dep_Name Freeze
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name GlacierRouter
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name IceBox
     End Project Dependency
     Begin Project Dependency
@@ -2224,9 +2224,6 @@ Package=<4>
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name IcePackRegistry
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name GlacierStarter
     End Project Dependency
     Begin Project Dependency
     Project_Dep_Name slice2cpp

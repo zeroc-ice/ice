@@ -111,6 +111,10 @@ SOURCE=.\ClientBlobject.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ClientServantLocator.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Glacier2.cpp
 # End Source File
 # Begin Source File
@@ -124,6 +128,10 @@ SOURCE=.\RouterI.cpp
 # Begin Source File
 
 SOURCE=.\ServerBlobject.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerServantLocator.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -139,6 +147,10 @@ SOURCE=.\ClientBlobject.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ClientServantLocator.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Request.h
 # End Source File
 # Begin Source File
@@ -148,6 +160,10 @@ SOURCE=.\RouterI.h
 # Begin Source File
 
 SOURCE=.\ServerBlobject.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServerServantLocator.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

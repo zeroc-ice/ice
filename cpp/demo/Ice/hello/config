@@ -63,8 +63,11 @@ IceSSL.Server.Config=sslconfig.xml
 #
 # Glacier settings
 #
-Glacier.Router.Endpoints=default -p 10005
-Glacier.Router.Client.Endpoints=tcp:udp:ssl
+# Glacier 1
+#Glacier.Router.Endpoints=default -p 10005
+#Glacier.Router.Client.Endpoints=tcp:udp:ssl
+# Glacier 2
+Glacier.Router.Client.Endpoints=tcp -p 10005:udp:ssl
 Glacier.Router.Trace.Client=2
 Glacier.Router.Trace.RoutingTable=1
 
