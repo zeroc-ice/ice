@@ -23,6 +23,8 @@ public:
 
     FileI(const Ice::ObjectAdapterPtr&, const std::string&);
 
+    virtual Ice::SliceChecksumDict getSliceChecksums(const Ice::Current&) const;
+
 protected:
 
     Ice::ByteSeq readMD5(const Ice::Current&) const;

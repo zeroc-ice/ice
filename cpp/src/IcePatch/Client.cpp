@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-//#include <Ice/SliceChecksum.h>
+#include <Ice/SliceChecksum.h>
 #include <IcePatch/FileDescFactory.h>
 #include <IcePatch/Util.h>
 #include <IcePatch/ClientUtil.h>
@@ -267,7 +267,6 @@ IcePatch::Client::run(int argc, char* argv[])
 		return EXIT_FAILURE;
 	    }
 
-#if 0
             Ice::SliceChecksumDict serverChecksums = top->getSliceChecksums();
             for(Ice::SliceChecksumDict::const_iterator q = Ice::sliceChecksums.begin(); q != Ice::sliceChecksums.end();
                 ++q)
@@ -278,7 +277,6 @@ IcePatch::Client::run(int argc, char* argv[])
                     cerr << appName() << ": server is using different Slice definitions" << endl;
                 }
             }
-#endif
 
 	    DirectoryDescPtr topDesc = DirectoryDescPtr::dynamicCast(top->describe());
 	    if(!topDesc)

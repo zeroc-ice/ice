@@ -46,7 +46,7 @@ SDIR		= $(slicedir)/IcePatch
 include $(top_srcdir)/config/Make.rules
 
 CPPFLAGS	:= -I.. $(CPPFLAGS) -DICE_PATCH_API_EXPORTS $(OPENSSL_FLAGS) $(BZIP2_FLAGS)
-SLICE2CPPFLAGS	:= --ice --include-dir IcePatch --dll-export ICE_PATCH_API $(SLICE2CPPFLAGS)
+SLICE2CPPFLAGS	:= --checksum --ice --include-dir IcePatch --dll-export ICE_PATCH_API $(SLICE2CPPFLAGS)
 
 LINKWITH        := -lIce -lIceUtil $(OPENSSL_LIBS) $(BZIP2_LIBS)
 

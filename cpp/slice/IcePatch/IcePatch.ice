@@ -11,6 +11,7 @@
 #define ICE_PATCH_ICE_PATCH_ICE
 
 #include <Ice/BuiltinSequences.ice>
+#include <Ice/SliceChecksumDict.ice>
 
 /**
  *
@@ -94,6 +95,15 @@ interface File
      **/
     nonmutating FileDesc describe()
 	throws FileAccessException, BusyException;
+
+    /**
+     *
+     * Returns the checksums for the IcePatch Slice definitions.
+     *
+     * @return A dictionary mapping Slice type ids to their checksums.
+     *
+     **/
+    nonmutating Ice::SliceChecksumDict getSliceChecksums();
 };
 
 /**

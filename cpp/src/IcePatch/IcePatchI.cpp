@@ -9,6 +9,7 @@
 
 #include <IcePatch/IcePatchI.h>
 #include <IcePatch/Util.h>
+#include <Ice/SliceChecksum.h>
 #include <fstream>
 
 using namespace std;
@@ -30,6 +31,12 @@ IcePatch::FileI::FileI(const ObjectAdapterPtr& adapter, const string& dir) :
     {
 	const_cast<string&>(_dir) += '/';
     }
+}
+
+SliceChecksumDict
+IcePatch::FileI::getSliceChecksums(const Current&) const
+{
+    return sliceChecksums;
 }
 
 ByteSeq
