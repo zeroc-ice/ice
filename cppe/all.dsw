@@ -489,12 +489,6 @@ Package=<4>
     Project_Dep_Name streamC
     End Project Dependency
     Begin Project Dependency
-    Project_Dep_Name invokeC
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name invokeS
-    End Project Dependency
-    Begin Project Dependency
     Project_Dep_Name glacier2callbackSS
     End Project Dependency
     Begin Project Dependency
@@ -942,42 +936,6 @@ Package=<4>
 
 ###############################################################################
 
-Project: "invokeC"=.\demo\ice\invoke\invokeC.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "invokeS"=.\demo\ice\invoke\invokeS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
 Project: "latencyC"=.\demo\ice\latency\latencyC.dsp - Package Owner=<4>
 
 Package=<5>
@@ -1225,24 +1183,6 @@ Package=<4>
 ###############################################################################
 
 Project: "sliceexS"=.\test\ice\slicing\exceptions\sliceexS.dsp - Package Owner=<4>
-
-Package=<5>
-{{{
-}}}
-
-Package=<4>
-{{{
-    Begin Project Dependency
-    Project_Dep_Name ice
-    End Project Dependency
-    Begin Project Dependency
-    Project_Dep_Name iceutil
-    End Project Dependency
-}}}
-
-###############################################################################
-
-Project: "streamC"=.\test\ice\stream\streamC.dsp - Package Owner=<4>
 
 Package=<5>
 {{{
