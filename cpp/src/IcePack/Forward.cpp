@@ -10,18 +10,19 @@
 
 #include <Ice/Ice.h>
 #include <IcePack/Forward.h>
+#include <IcePack/Admin.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IcePack;
 
-Forward::Forward(const AdminPtr& admin) :
+IcePack::Forward::Forward(const AdminPtr& admin) :
     _admin(admin)
 {
 }
 
 ObjectPtr
-Forward::locate(const ObjectAdapterPtr& adapter, const string& identity, ObjectPtr&)
+IcePack::Forward::locate(const ObjectAdapterPtr& adapter, const string& identity, ObjectPtr&)
 {
     ObjectPrx proxy = adapter->identityToProxy(identity);
     ServerDescriptionPtr desc = _admin->find(proxy);
@@ -34,7 +35,7 @@ Forward::locate(const ObjectAdapterPtr& adapter, const string& identity, ObjectP
 }
 
 void
-Forward::finished(const ObjectAdapterPtr&, const string&, const ObjectPtr&, const ObjectPtr&)
+IcePack::Forward::finished(const ObjectAdapterPtr&, const string&, const ObjectPtr&, const ObjectPtr&)
 {
     // Nothing to do
 }

@@ -22,14 +22,20 @@ IceInternal::interrupted()
 #ifdef WIN32
     int error = WSAGetLastError();
     if (error == WSAEINTR)
+    {
 	return true;
+    }
 #else
     if (errno == EINTR ||
-       errno == EPROTO)
+	errno == EPROTO)
+    {
 	return true;
+    }
 #endif
     else
+    {
 	return false;
+    }
 }
 
 bool
@@ -41,17 +47,23 @@ IceInternal::acceptInterrupted()
 #ifdef WIN32
     int error = WSAGetLastError();
     if (error == WSAECONNABORTED ||
-       error == WSAECONNRESET ||
-       error == WSAETIMEDOUT)
+	error == WSAECONNRESET ||
+	error == WSAETIMEDOUT)
+    {
 	return true;
+    }
 #else
     if (errno == ECONNABORTED ||
-       errno == ECONNRESET ||
-       errno == ETIMEDOUT)
+	errno == ECONNRESET ||
+	errno == ETIMEDOUT)
+    {
 	return true;
+    }
 #endif
     else
+    {
 	return false;
+    }
 }
 
 bool
@@ -60,14 +72,20 @@ IceInternal::noBuffers()
 #ifdef WIN32
     int error = WSAGetLastError();
     if (error == WSAENOBUFS ||
-       error == WSAEFAULT)
+	error == WSAEFAULT)
+    {
 	return true;
+    }
 #else
     if (errno == ENOBUFS)
+    {
 	return true;
+    }
 #endif
     else
+    {
 	return false;
+    }
 }
 
 bool
@@ -76,14 +94,20 @@ IceInternal::wouldBlock()
 #ifdef WIN32
     int error = WSAGetLastError();
     if (error == WSAEWOULDBLOCK)
+    {
 	return true;
+    }
 #else
     if (errno == EAGAIN ||
-       errno == EWOULDBLOCK)
+	errno == EWOULDBLOCK)
+    {
 	return true;
+    }
 #endif
     else
+    {
 	return false;
+    }
 }
 
 bool
@@ -92,23 +116,29 @@ IceInternal::connectFailed()
 #ifdef WIN32
     int error = WSAGetLastError();
     if (error == WSAECONNREFUSED ||
-       error == WSAETIMEDOUT ||
-       error == WSAENETUNREACH ||
-       error == WSAECONNRESET ||
-       error == WSAESHUTDOWN ||
-       error == WSAECONNABORTED)
+	error == WSAETIMEDOUT ||
+	error == WSAENETUNREACH ||
+	error == WSAECONNRESET ||
+	error == WSAESHUTDOWN ||
+	error == WSAECONNABORTED)
+    {
 	return true;
+    }
 #else
     if (errno == ECONNREFUSED ||
-       errno == ETIMEDOUT ||
-       errno == ENETUNREACH ||
-       errno == ECONNRESET ||
-       errno == ESHUTDOWN ||
-       errno == ECONNABORTED)
+	errno == ETIMEDOUT ||
+	errno == ENETUNREACH ||
+	errno == ECONNRESET ||
+	errno == ESHUTDOWN ||
+	errno == ECONNABORTED)
+    {
 	return true;
+    }
 #endif
     else
+    {
 	return false;
+    }
 }
 
 bool
@@ -117,13 +147,19 @@ IceInternal::connectInProgress()
 #ifdef WIN32
     int error = WSAGetLastError();
     if (error == WSAEWOULDBLOCK)
+    {
 	return true;
+    }
 #else
     if (errno == EINPROGRESS)
+    {
 	return true;
+    }
 #endif
     else
+    {
 	return false;
+    }
 }
 
 bool
@@ -132,17 +168,23 @@ IceInternal::connectionLost()
 #ifdef WIN32
     int error = WSAGetLastError();
     if (error == WSAECONNRESET ||
-       error == WSAESHUTDOWN ||
-       error == WSAECONNABORTED)
+	error == WSAESHUTDOWN ||
+	error == WSAECONNABORTED)
+    {
 	return true;
+    }
 #else
     if (errno == ECONNRESET ||
-       errno == ESHUTDOWN ||
-       errno == ECONNABORTED)
+	errno == ESHUTDOWN ||
+	errno == ECONNABORTED)
+    {
 	return true;
+    }
 #endif
     else
+    {
 	return false;
+    }
 }
 
 bool
@@ -151,13 +193,19 @@ IceInternal::notConnected()
 #ifdef WIN32
     int error = WSAGetLastError();
     if (error == WSAENOTCONN)
+    {
 	return true;
+    }
 #else
     if (errno == ENOTCONN)
+    {
 	return true;
+    }
 #endif
     else
+    {
 	return false;
+    }
 }
 
 int
@@ -166,12 +214,18 @@ IceInternal::createSocket(bool udp)
     int fd;
 
     if (udp)
+    {
 	fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    }
     else
+    {
 	fd = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP);
+    }
 
     if (fd == INVALID_SOCKET)
+    {
 	throw SocketException(__FILE__, __LINE__);
+    }
 
     setBlock(fd, false);
 
@@ -287,7 +341,9 @@ repeatListen:
     if (::listen(fd, backlog) == SOCKET_ERROR)
     {
 	if (interrupted())
+	{
 	    goto repeatListen;
+	}
 	
 	closeSocket(fd);
 	throw SocketException(__FILE__, __LINE__);
@@ -309,7 +365,9 @@ repeatConnect:
     if (::connect(fd, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)) == SOCKET_ERROR)
     {
 	if (interrupted())
+	{
 	    goto repeatConnect;
+	}
 	
 	if (connectInProgress())
 	{
@@ -355,7 +413,9 @@ repeatConnect:
 	    else if (ret == SOCKET_ERROR)
 	    {
 		if (interrupted())
+		{
 		    goto repeatSelect;
+		}
 		
 		throw SocketException(__FILE__, __LINE__);
 	    }
@@ -385,9 +445,13 @@ repeatConnect:
 		errno = val;
 #endif
 		if (connectFailed())
+		{
 		    throw ConnectFailedException(__FILE__, __LINE__);
+		}
 		else
+		{
 		    throw SocketException(__FILE__, __LINE__);
+		}
 	    }
 	    
 	    return;
@@ -395,9 +459,13 @@ repeatConnect:
     
 	closeSocket(fd);
 	if (connectFailed())
+	{
 	    throw ConnectFailedException(__FILE__, __LINE__);
+	}
 	else
+	{
 	    throw SocketException(__FILE__, __LINE__);
+	}
     }
 }
 
@@ -410,7 +478,9 @@ repeatAccept:
     if ((ret = ::accept(fd, 0, 0)) == INVALID_SOCKET)
     {
 	if (acceptInterrupted())
+	{
 	    goto repeatAccept;
+	}
 
 	if (wouldBlock())
 	{
@@ -434,13 +504,17 @@ repeatAccept:
 	    if (ret == SOCKET_ERROR)
 	    {
 		if (interrupted())
+		{
 		    goto repeatSelect;
+		}
 		
 		throw SocketException(__FILE__, __LINE__);
 	    }
 	    
 	    if (ret == 0)
+	    {
 		throw TimeoutException(__FILE__, __LINE__);
+	    }
 	    
 	    goto repeatAccept;
 	}
@@ -491,7 +565,9 @@ IceInternal::getAddress(const char* host, int port, struct sockaddr_in& addr)
 #endif
 
 	if (!entry)
+	{
 	    throw DNSException(__FILE__, __LINE__);
+	}
 
 	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
     }
@@ -502,7 +578,9 @@ IceInternal::getLocalAddress(int port, struct sockaddr_in& addr)
 {
     char host[1024 + 1];
     if (gethostname(host, 1024) == -1)
+    {
 	throw SystemException(__FILE__, __LINE__);
+    }
 
     memset(&addr, 0, sizeof(struct sockaddr_in));
     addr.sin_family = AF_INET;
@@ -525,7 +603,9 @@ IceInternal::getLocalAddress(int port, struct sockaddr_in& addr)
 #endif
 	
 	if (!entry)
+	{
 	    throw DNSException(__FILE__, __LINE__);
+	}
 
 	memcpy(&addr.sin_addr, entry->h_addr, entry->h_length);
     }
@@ -536,7 +616,9 @@ IceInternal::getLocalHost(bool numeric)
 {
     char host[1024 + 1];
     if (gethostname(host, 1024) == -1)
+    {
 	throw SystemException(__FILE__, __LINE__);
+    }
 
     {
 	JTCSyncT<JTCMutex> sync(getHostByNameMutex);
@@ -545,7 +627,9 @@ IceInternal::getLocalHost(bool numeric)
 	int retry = 5;
 	
 	do
+	{
 	    entry = gethostbyname(host);
+	}
 #ifdef WIN32
 	while (!entry && WSAGetLastError() == WSATRY_AGAIN && --retry >= 0);
 #else
@@ -553,7 +637,9 @@ IceInternal::getLocalHost(bool numeric)
 #endif
 	
 	if (!entry)
+	{
 	    throw DNSException(__FILE__, __LINE__);
+	}
 
 	if (numeric)
 	{
@@ -563,7 +649,9 @@ IceInternal::getLocalHost(bool numeric)
 	    return string(inet_ntoa(addr.sin_addr));
 	}
 	else
+	{
 	    return string(entry->h_name);
+	}
     }
 }
 
@@ -610,7 +698,9 @@ IceInternal::createPipe(int fds[2])
 #else
 
     if (::pipe(fds) != 0)
+    {
 	throw SystemException(__FILE__, __LINE__);
+    }
 
 #endif
 }

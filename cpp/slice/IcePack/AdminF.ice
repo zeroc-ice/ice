@@ -14,6 +14,7 @@
 module IcePack
 {
 
+class ServerDescription;
 class Admin;
 
 };

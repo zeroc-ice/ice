@@ -122,7 +122,6 @@ The request retry tracing level:
 <!-- ********************************************************************** -->
 
 <section><title>Ice.Adapter.<replaceable>name</replaceable>.Endpoints</title>
-
 <section><title>Synopsis</title>
 <synopsis>
 Ice.Adapter.<replaceable>name</replaceable>.Endpoints=<replaceable>endpoints</replaceable>
@@ -138,6 +137,28 @@ Sets the endpoints for the object adapter
 </section>
 </section>
 
+<section><title>Ice.Adapter.Forward.Endpoints</title>
+<section><title>Synopsis</title>
+<synopsis>
+Ice.Adapter.Forward.Endpoints=<replaceable>endpoints</replaceable>
+</synopsis>
+</section>
+<section>
+<title>Description</title>
+<para>
+<replaceable>endpoints</replaceable> are the &IcePack; location
+forward endpoints. Set this property if you want &Ice; to create
+references that point to the &IcePack; location forwarder.
+<note>
+<para>
+Do not use an Object Adapter with the name <literal>Forward</literal>
+in your own applications.
+</para>
+</note>
+</para>
+</section>
+</section>
+
 </section>
 
 <!-- ********************************************************************** -->
@@ -145,7 +166,6 @@ Sets the endpoints for the object adapter
 <!-- ********************************************************************** -->
 
 <section><title>Ice.ThreadPool.Size</title>
-
 <section><title>Synopsis</title>
 <synopsis>
 Ice.ThreadPool.Size=<replaceable>num</replaceable>
@@ -170,8 +190,8 @@ The number of threads in the thread pool. Default is 10.
 <section><title>Synopsis</title>
 <synopsis>
 Ice.Daemon=<replaceable>num</replaceable>
-Ice.DaemonNoClose=<replaceable>noclose</replaceable>
-Ice.DaemonNoChdir=<replaceable>nochdir</replaceable>
+Ice.DaemonNoClose=<replaceable>no_close</replaceable>
+Ice.DaemonNoChdir=<replaceable>no_chdir</replaceable>
 </synopsis>
 </section>
 <section>
@@ -180,9 +200,9 @@ Ice.DaemonNoChdir=<replaceable>nochdir</replaceable>
 If <replaceable>num</replaceable> is set to a value larger than zero,
 the &Ice; process daeamonizes itself with the
 <literal>daemon</literal> system call. If
-<replaceable>noclose</replaceable> is set to a value larger than zero,
+<replaceable>no_close</replaceable> is set to a value larger than zero,
 standard input, output, and error output are not redirected to
-<literal>/dev/null</literal>. If <replaceable>nochdir</replaceable> is
+<literal>/dev/null</literal>. If <replaceable>no_chdir</replaceable> is
 set to a value larger than zero, &Ice; doesn't change its working
 directory to the root directory. (Unix only.)
 </para>

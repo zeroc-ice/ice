@@ -30,7 +30,8 @@ COBJS		= Grammer.o \
 
 SOBJS		= Server.o \
 		  Forward.o \
-		  AdminI.o
+		  AdminI.o \
+		  Activator.o
 
 SRCS		= $(OBJS:.o=.cpp) \
 		  $(COBJS:.o=.cpp) \

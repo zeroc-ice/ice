@@ -11,8 +11,11 @@
 #ifndef ICE_PACK_FORWARD_H
 #define ICE_PACK_FORWARD_H
 
-#include <IcePack/Admin.h>
+#include <IcePack/AdminF.h>
 #include <map>
+
+namespace IcePack
+{
 
 class Forward : public Ice::ObjectLocator
 {
@@ -28,5 +31,7 @@ private:
 
     IcePack::AdminPtr _admin;
 };
+
+}
 
 #endif

@@ -14,6 +14,9 @@
 #include <IcePack/Admin.h>
 #include <map>
 
+namespace IcePack
+{
+
 class AdminI : public IcePack::Admin, public JTCMutex
 {
 public:
@@ -30,5 +33,7 @@ private:
     Ice::CommunicatorPtr _communicator;
     std::map<Ice::ObjectPrx, IcePack::ServerDescriptionPtr> _map;
 };
+
+}
 
 #endif

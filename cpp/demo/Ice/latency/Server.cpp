@@ -32,7 +32,7 @@ main(int argc, char* argv[])
 
     try
     {
-	Ice::PropertiesPtr properties = Ice::loadProperties(argc, argv, "config");
+	Ice::PropertiesPtr properties = Ice::createPropertiesFromFile(argc, argv, "config");
 	communicator = Ice::initializeWithProperties(properties);
 	status = run(argc, argv, communicator);
     }

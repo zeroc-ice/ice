@@ -19,7 +19,7 @@ ICE_API CommunicatorPtr initializeWithProperties(const PropertiesPtr&, Int = ICE
 
 ICE_API PropertiesPtr getDefaultProperties(int&, char*[]);
 ICE_API PropertiesPtr createProperties(int&, char*[]);
-ICE_API PropertiesPtr loadProperties(int&, char*[], const std::string&);
+ICE_API PropertiesPtr createPropertiesFromFile(int&, char*[], const std::string&);
 
 }
 

@@ -15,7 +15,9 @@
 #include <Ice/Instance.h>
 #include <Ice/Communicator.h>
 #include <Ice/Properties.h>
+#include <Ice/Logger.h>
 #include <Ice/Functional.h>
+#include <sstream>
 
 using namespace std;
 using namespace Ice;
@@ -244,7 +246,7 @@ IceInternal::ThreadPool::run()
 		return;
 	    }
 		
-	    if (FD_ISSET(_fdIntrRead, &fdSet)) // Clear interrupt
+	    if (FD_ISSET(_fdIntrRead, &fdSet))
 	    {
 		clearInterrupt();
 #ifdef WIN32
@@ -421,15 +423,19 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     }
     catch (const LocalException& ex)
     {
-	cerr << ex << endl;
+	ostringstream s;
+	s << "exception in thread pool:\n" << ex;
+	_pool->_instance->logger()->error(s.str());
     }
     catch (const JTCException& ex)
     {
-	cerr << ex << endl;
+	ostringstream s;
+	s << "exception in thread pool:\n" << ex;
+	_pool->_instance->logger()->error(s.str());
     }
     catch (...)
     {
-	cerr << "unknown exception" << endl;
+	_pool->_instance->logger()->error("unknown exception in thread pool");
     }
 
     _pool = 0; // Break cyclic dependency

@@ -206,15 +206,7 @@ Ice::getDefaultProperties(int& argc, char* argv[])
 {
     if (!defaultProperties)
     {
-	const char* file = getenv("ICE_CONFIG");
-	if (file && *file != '\0')
-	{
-	    defaultProperties = new PropertiesI(argc, argv, file);
-	}
-	else
-	{
-	    defaultProperties = new PropertiesI(argc, argv);
-	}
+	defaultProperties = createProperties(argc, argv);
     }
     return defaultProperties;
 }
@@ -226,7 +218,7 @@ Ice::createProperties(int& argc, char* argv[])
 }
 
 PropertiesPtr
-Ice::loadProperties(int& argc, char* argv[], const std::string& file)
+Ice::createPropertiesFromFile(int& argc, char* argv[], const string& file)
 {
     return new PropertiesI(argc, argv, file);
 }

@@ -28,16 +28,14 @@ public:
 private:
 
     PropertiesI(int&, char*[]);
-    PropertiesI(int&, char*[], const std::string&);
-
-    friend ICE_API PropertiesPtr getDefaultProperties(int&, char*[]);
+    PropertiesI(int&, char*[], const std::string& file);
     friend ICE_API PropertiesPtr createProperties(int&, char*[]);
-    friend ICE_API PropertiesPtr loadProperties(int&, char*[], const std::string&);
+    friend ICE_API PropertiesPtr createPropertiesFromFile(int&, char*[], const std::string&);
 
     void parseArgs(int&, char*[]);
     void load(const std::string&);
     void parse(std::istream&);
-    void parseLine(const char*);
+    void parseLine(const std::string&);
 
     std::map<std::string, std::string> _properties;
 };

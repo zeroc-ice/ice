@@ -47,13 +47,48 @@ Ice::PropertiesI::clone()
 
 Ice::PropertiesI::PropertiesI(int& argc, char* argv[])
 {
+    for (int i = 1; i < argc; ++i)
+    {
+	if (strncmp(argv[i], "--Ice.Config", 12) == 0)
+	{
+	    string line = argv[i];
+	    if (line.find('=') == string::npos)
+	    {
+		line += "=1";
+	    }
+	    parseLine(line.substr(2));
+	}
+    }
+
+    string file = getProperty("Ice.Config");
+
+    if (file.empty() || file == "1")
+    {
+	const char* s = getenv("ICE_CONFIG");
+	if (s && *s != '\0')
+	{
+	    file = s;
+	}
+    }
+
+    if (!file.empty())
+    {
+	load(file);
+    }
+
     parseArgs(argc, argv);
+    setProperty("Ice.Config", file);
 }
 
 Ice::PropertiesI::PropertiesI(int& argc, char* argv[], const string& file)
 {
-    load(file);
+    if (!file.empty())
+    {
+	load(file);
+    }
+
     parseArgs(argc, argv);
+    setProperty("Ice.Config", file);
 }
 
 void
@@ -90,7 +125,7 @@ Ice::PropertiesI::parseArgs(int& argc, char* argv[])
 		line += "=1";
 	    }
 	    
-	    parseLine(line.c_str() + 2);
+	    parseLine(line.substr(2));
 	}
 	else
 	{
@@ -121,7 +156,7 @@ Ice::PropertiesI::parse(istream& in)
 }
 
 void
-Ice::PropertiesI::parseLine(const char* line)
+Ice::PropertiesI::parseLine(const string& line)
 {
     const string delim = " \t";
     string s = line;
