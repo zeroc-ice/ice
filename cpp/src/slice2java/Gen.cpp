@@ -1682,6 +1682,26 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << nl << "super.__read(__in, true);";
             out << eb;
         }
+        else
+        {
+            //
+            // Emit placeholder functions to catch errors.
+            //
+            string scoped = p->scoped();
+            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __out)";
+            out << sb;
+            out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
+            out << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
+            out << nl << "throw ex;";
+            out << eb;
+
+            out << sp << nl << "public void" << nl << "__read(Ice.InputStream __in, boolean __rid)";
+            out << sb;
+            out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
+            out << nl << "ex.reason = \"type " << scoped.substr(2) << " was not generated with stream support\";";
+            out << nl << "throw ex;";
+            out << eb;
+        }
     }
 
     return true;
@@ -1930,6 +1950,26 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             {
                 out << nl << "super.__read(__in, true);";
             }
+            out << eb;
+        }
+        else
+        {
+            //
+            // Emit placeholder functions to catch errors.
+            //
+            string scoped = p->scoped();
+            out << sp << nl << "public void" << nl << "__write(Ice.OutputStream __out)";
+            out << sb;
+            out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
+            out << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
+            out << nl << "throw ex;";
+            out << eb;
+
+            out << sp << nl << "public void" << nl << "__read(Ice.InputStream __in, boolean __rid)";
+            out << sb;
+            out << nl << "Ice.MarshalException ex = new Ice.MarshalException();";
+            out << nl << "ex.reason = \"exception " << scoped.substr(2) << " was not generated with stream support\";";
+            out << nl << "throw ex;";
             out << eb;
         }
 
