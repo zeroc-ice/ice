@@ -47,10 +47,12 @@ public:
    
     virtual Ice::ObjectPrx add(const Ice::ObjectPtr&, const Ice::Identity&);
     virtual Ice::ObjectPrx addFacet(const Ice::ObjectPtr&, const Ice::Identity&, const std::string&);
+    virtual void createObject(const Ice::Identity&, const Ice::ObjectPtr&);
 
     virtual void remove(const Ice::Identity&);
     virtual void removeFacet(const Ice::Identity&, const std::string&);
-    
+    virtual void destroyObject(const Ice::Identity&);
+
     virtual bool hasObject(const Ice::Identity&);
     virtual bool hasFacet(const Ice::Identity&, const std::string&);
 

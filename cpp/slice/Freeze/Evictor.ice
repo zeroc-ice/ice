@@ -335,6 +335,55 @@ local interface Evictor extends Ice::ServantLocator
      *
      **/
     EvictorIterator getIterator(string facet, int batchSize);
+
+
+    /**
+     *
+     * Add or update a servant. The state of the servant passed to 
+     * this operation will be saved in the evictor's persistent store.
+     *
+     * This operation is deprecated and will be removed in a future release.
+     * It is recommended to use add instead.
+     *
+     * @param id The identity of the &Ice; object that is implemented by 
+     * the servant.
+     *
+     * @param servant The servant to add.
+     *
+     * @throws DatabaseException Raised if a database failure occurred.
+     *
+     * @throws EvictorDeactivatedException Raised if the evictor has
+     * been deactivated.
+     *
+     * @see add
+     * @see destroyObject
+     *
+     **/
+    void createObject(Ice::Identity id, Object servant);
+
+
+    /**
+     *
+     * Permanently destroy an &Ice; object. Like remove, except
+     * destroyObject does not raise any exception when the object does
+     * not exist.
+     * 
+     * This operation is deprecated and will be removed in a future release.
+     * It is recommended to use remove instead.
+     *
+     * @param id The identity of the &Ice; object.
+     *
+     * @throws DatabaseException Raised if a database failure occurred.
+     *
+     * @throws EvictorDeactivatedException Raised if the evictor has
+     * been deactivated.
+     *
+     * @see remove
+     * @see createObject
+     *
+     **/
+    void destroyObject(Ice::Identity id);
+
 };
 
 };

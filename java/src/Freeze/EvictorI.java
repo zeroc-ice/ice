@@ -389,8 +389,127 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	// TODO: there is currently no way to create an ObjectPrx
 	// with a facet!
 	//
-	return _adapter.createProxy(ident);
+	return null;
     }
+
+
+    //
+    // Deprecated
+    //
+    public void
+    createObject(Ice.Identity ident, Ice.Object servant)
+    {
+	//
+	// Need to clone in case the given ident changes.
+	//
+	try
+	{
+	    ident = (Ice.Identity) ident.clone();
+	}
+	catch(CloneNotSupportedException ex)
+	{
+	    assert false;
+	}
+
+	ObjectStore store = findStore("");
+	assert store != null;
+	
+	for(;;)
+	{
+	    //
+	    // Create a new entry
+	    //
+	    
+	    EvictorElement element = new EvictorElement(ident, store);
+	    element.status = EvictorElement.dead;
+	    element.rec = new ObjectRecord();
+	    element.rec.stats = new Statistics();
+	    
+	    Object o = store.cache().putIfAbsent(ident, element);
+	    
+	    if(o != null)
+	    {
+		element = (EvictorElement) o;
+	    }
+	    
+	    synchronized(this)
+	    {
+		if(_deactivated)
+		{
+		    throw new EvictorDeactivatedException();
+		}
+		
+		if(element.stale)
+		{
+		    //
+		    // Try again
+		    // 
+		    continue;
+		}
+		fixEvictPosition(element);
+		
+		synchronized(element)
+		{
+		    switch(element.status)
+		    {
+			case EvictorElement.clean:
+			{
+			    element.status = EvictorElement.modified;
+			    element.rec.servant = servant;
+			    addToModifiedQueue(element);
+			    break;
+			}
+			case EvictorElement.created:
+			case EvictorElement.modified:
+			{
+			    element.rec.servant = servant;
+			    break;
+			}
+			case EvictorElement.destroyed:
+			{
+			    element.status = EvictorElement.modified;
+			    element.rec.servant = servant;
+			    
+			    //
+			    // No need to push it on the modified queue, as a destroyed object
+			    // is either already on the queue or about to be saved. When saved,
+			    // it becomes dead.
+			    //
+			    break;
+			}
+			case EvictorElement.dead:
+			{
+			    element.status = EvictorElement.created;
+			    ObjectRecord rec = element.rec;
+			    
+			    rec.servant = servant;
+			    rec.stats.creationTime = System.currentTimeMillis();
+			    rec.stats.lastSaveTime = 0;
+			    rec.stats.avgSaveTime = 0;
+			    
+			    addToModifiedQueue(element);
+			    break;
+			}
+			default:
+			{
+			    assert false;
+			    break;
+			}
+		    }
+		}
+	    }
+	    break; // for(;;)
+	}
+	
+	if(_trace >= 1)
+	{
+	    String objString = "object \"" + Ice.Util.identityToString(ident) + "\"";
+	    _communicator.getLogger().trace(
+		"Freeze.Evictor", 
+		"added or updated " + objString + " in the database");
+	}
+    }
+
     
     public void
     remove(Ice.Identity ident)
@@ -515,7 +634,26 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 	}
     }
 
-    
+
+
+    //
+    // Deprecated
+    //
+    public void
+    destroyObject(Ice.Identity ident)
+    {
+	try
+	{
+	    remove(ident);
+	}
+	catch(Ice.NotRegisteredException e)
+	{
+	    //
+	    // Ignored
+	    //
+	}
+    }
+
     public EvictorIterator
     getIterator(String facet, int batchSize)
     {

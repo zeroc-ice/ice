@@ -419,7 +419,107 @@ Freeze::EvictorI::addFacet(const ObjectPtr& servant, const Identity& ident, cons
     // TODO: there is currently no way to create an ObjectPrx
     // with a facet!
     //
-    return _adapter->createProxy(ident);
+    return 0;
+}
+
+//
+// Deprecated
+//
+void
+Freeze::EvictorI::createObject(const Identity& ident, const ObjectPtr& servant)
+{
+    ObjectStore* store = findStore("");
+    assert(store != 0);
+  
+    for(;;)
+    {
+	//
+	// Create a new entry
+	//
+	
+	EvictorElementPtr element = new EvictorElement(*store);
+	element->status = EvictorElement::dead;
+	pair<EvictorElementPtr, bool> ir = store->insert(ident, element);
+      
+	if(ir.second == false)
+	{
+	    element = ir.first;
+	}
+
+	{
+	    Lock sync(*this);
+
+	    if(_deactivated)
+	    {
+		throw EvictorDeactivatedException(__FILE__, __LINE__);
+	    }
+
+	    if(element->stale)
+	    {
+		//
+		// Try again
+		// 
+		continue;
+	    }
+	    fixEvictPosition(element);
+
+	    IceUtil::Mutex::Lock lock(element->mutex);
+	
+	    switch(element->status)
+	    {
+		case EvictorElement::clean:
+		{
+		    element->status = EvictorElement::modified;
+		    element->rec.servant = servant;
+		    addToModifiedQueue(element);
+		    break;
+		}
+		case EvictorElement::created:
+		case EvictorElement::modified:
+		{
+		    element->rec.servant = servant;
+		    break;
+		}  
+		case EvictorElement::destroyed:
+		{
+		    element->status = EvictorElement::modified;
+		    element->rec.servant = servant;
+		    
+		    //
+		    // No need to push it on the modified queue, as a destroyed object
+		    // is either already on the queue or about to be saved. When saved,
+		    // it becomes dead.
+		    //
+		    break;
+		}
+		case EvictorElement::dead:
+		{
+		    element->status = EvictorElement::created;
+		    ObjectRecord& rec = element->rec;
+
+		    rec.servant = servant;
+		    rec.stats.creationTime = IceUtil::Time::now().toMilliSeconds();
+		    rec.stats.lastSaveTime = 0;
+		    rec.stats.avgSaveTime = 0;
+
+		    addToModifiedQueue(element);
+		    break;
+		}
+		default:
+		{
+		    assert(0);
+		    break;
+		}
+	    }
+	}
+	break; // for(;;)
+    }
+
+    if(_trace >= 1)
+    {
+	Trace out(_communicator->getLogger(), "Freeze.Evictor");
+	out << "added object \"" << ident << "\"";
+    }
 }
 
 void
@@ -526,6 +626,25 @@ Freeze::EvictorI::removeFacet(const Identity& ident, const string& facet)
 	}
     }
 }
+
+//
+// Deprecated
+//
+void
+Freeze::EvictorI::destroyObject(const Identity& ident)
+{
+    try
+    {
+	remove(ident);
+    }
+    catch(NotRegisteredException&)
+    {
+	//
+	// Ignored
+	//
+    }
+}
+
 
 EvictorIteratorPtr
 Freeze::EvictorI::getIterator(const string& facet, Int batchSize)
