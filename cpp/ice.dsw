@@ -239,6 +239,12 @@ Package=<4>
     Begin Project Dependency
     Project_Dep_Name faultToleranceS
     End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name locationForwardC
+    End Project Dependency
+    Begin Project Dependency
+    Project_Dep_Name locationForwardS
+    End Project Dependency
 }}}
 
 ###############################################################################
@@ -334,6 +340,36 @@ Package=<4>
 {{{
     Begin Project Dependency
     Project_Dep_Name cpp
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "locationForwardC"=.\test\locationForward\locationForwardC.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name library
+    End Project Dependency
+}}}
+
+###############################################################################
+
+Project: "locationForwardS"=.\test\locationForward\locationForwardS.dsp - Package Owner=<4>
+
+Package=<5>
+{{{
+}}}
+
+Package=<4>
+{{{
+    Begin Project Dependency
+    Project_Dep_Name library
     End Project Dependency
 }}}
 
