@@ -62,7 +62,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	    throughput->ice_ping(); // Initial ping to setup the connection.
 
 	    IceUtil::Time tm = IceUtil::Time::now();
-	    const int repetitions = 100;
+	    const int repetitions = 1000;
 
 	    if(c == 's' || c == 'o' || c == 'r' || c == 'e')
 	    {
