@@ -15,7 +15,30 @@ using namespace std;
 using namespace Slice;
 
 string
-Slice::typeToString(const TypePtr& type)
+Slice::getScopedMinimized(const ContainedPtr& contained, const ContainerPtr& container)
+{
+    string s = contained->scoped();
+    ContainerPtr p = container;
+    ContainedPtr q;
+
+    while((q = ContainedPtr::dynamicCast(p)))
+    {
+	string s2 = q->scoped();
+	s2 += "::";
+
+	if (s.find(s2) == 0)
+	{
+	    return s.substr(s2.size());
+	}
+
+	p = q->container();
+    }
+
+    return s;
+}
+
+string
+Slice::toString(const SyntaxTreeBasePtr& p, const ContainerPtr& container)
 {
     static const char* builtinTable[] =
     {
@@ -33,71 +56,60 @@ Slice::typeToString(const TypePtr& type)
 	"LocalObject"
     };
 
-    string result;
-
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     if (builtin)
-	result = "<type>" + string(builtinTable[builtin->kind()]) + "</type>";
-
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if (proxy)
-	result = "<classname>" + proxy->_class()->scoped().substr(2) + "*</classname>";
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if (cl)
-	result = "<classname>" + cl->scoped().substr(2) + "</classname>";
-
-    ContainedPtr contained = ContainedPtr::dynamicCast(type);
-    if (contained)
     {
-	if (result.empty())
-	    result = "<type>" + contained->scoped().substr(2) + "</type>";
-
-	result = "<link linkend=" + scopedToId(contained->scoped()) + ">" + result + "</link>";
+	return "<type>" + string(builtinTable[builtin->kind()]) + "</type>";
     }
 
-    if (result.empty())
-       result = "???";
+    string tag;
+    string linkend;
+    string s;
 
-    return result;
+    ProxyPtr proxy = ProxyPtr::dynamicCast(p);
+    if (proxy)
+    {
+	tag = "classname";
+	linkend = scopedToId(proxy->_class()->scoped());
+	s = getScopedMinimized(proxy->_class(), container);
+	s += "*";
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(p);
+    if (cl)
+    {
+	tag = "classname";
+	linkend = scopedToId(cl->scoped());
+	s = getScopedMinimized(cl, container);
+    }
+
+    if (s.empty())
+    {
+	ContainedPtr contained = ContainedPtr::dynamicCast(p);
+	assert(contained);
+	tag = "type";
+	linkend = scopedToId(contained->scoped());
+	s = getScopedMinimized(contained, container);
+    }
+
+    return "<link linkend=" + linkend + "><" + tag + ">" + s + "</" + tag + "></link>";
 }
 
 string
-Slice::addLink(const string& s, const ContainerPtr& container)
+Slice::toString(const string& str, const ContainerPtr& container)
 {
+    string s = str;
+
     TypeList types = container->lookupType(s, false);
     if (!types.empty())
     {
-	string result;
-
-	if (ClassDeclPtr::dynamicCast(types.front()))
-	    result = "<classname>" + s + "</classname>";
-	else
-	    result = "<type>" + s + "</type>";
-
-	ContainedPtr p = ContainedPtr::dynamicCast(types.front());
-	if (p)
-	    result = "<link linkend=" + scopedToId(p->scoped()) + ">" + result + "</link>";
-
-	return result;
+	return toString(types.front(), container);
     }
 
     ContainedList contList = container->lookupContained(s, false);
     if (!contList.empty())
     {
-	string result = "<link linkend=" + scopedToId(contList.front()->scoped()) + ">";
-
-	if (ModulePtr::dynamicCast(contList.front()))
-	    result += "<classname>" + s + "</classname>";
-	else if (OperationPtr::dynamicCast(contList.front()))
-	    result += "<function>" + s + "</function>";
-	else if (DataMemberPtr::dynamicCast(contList.front()))
-	    result += "<structfield>" + s + "</structfield>";
-	else
-	    assert(false);
-
-	result += "</link>";
-	return result;
+	return toString(contList.front(), container);
     }
 
     return s;
@@ -108,24 +120,15 @@ struct ToFile
     char operator()(char c)
     {
 	if (c == ':')
+	{
 	    return '_';
+	}
 	else
+	{
 	    return c;
+	}
     }
 };
-
-string
-Slice::scopedToFile(const string& scoped)
-{
-    string result;
-    if (scoped[0] == ':')
-	result = scoped.substr(2);
-    else
-	result = scoped;
-    transform(result.begin(), result.end(), result.begin(), ToFile());
-    result += ".sgml";
-    return result;    
-}
 
 string
 Slice::scopedToId(const string& scoped)
@@ -135,9 +138,13 @@ Slice::scopedToId(const string& scoped)
 
     string s;
     if (scoped[0] == ':')
+    {
 	s = scoped.substr(2);
+    }
     else
+    {
 	s = scoped;
+    }
 
     int id = idMap[s];
     if (id == 0)

@@ -51,55 +51,62 @@ main(int argc, char* argv[])
 
 	    string path = argv[idx] + 2;
 	    if (path.length())
+	    {
 		includePaths.push_back(path);
+	    }
 
 	    for (int i = idx ; i + 1 < argc ; ++i)
+	    {
 		argv[i] = argv[i + 1];
+	    }
 	    --argc;
 	}
-	else if (strncmp(argv[idx], "-D", 2) == 0 ||
-		strncmp(argv[idx], "-U", 2) == 0)
+	else if (strncmp(argv[idx], "-D", 2) == 0 || strncmp(argv[idx], "-U", 2) == 0)
 	{
 	    cpp += ' ';
 	    cpp += argv[idx];
 
 	    for (int i = idx ; i + 1 < argc ; ++i)
+	    {
 		argv[i] = argv[i + 1];
+	    }
 	    --argc;
 	}
-	else if (strcmp(argv[idx], "-s") == 0 ||
-		strcmp(argv[idx], "--stand-alone") == 0)
+	else if (strcmp(argv[idx], "-s") == 0 || strcmp(argv[idx], "--stand-alone") == 0)
 	{
 	    standAlone = true;
 	    for (int i = idx ; i + 1 < argc ; ++i)
+	    {
 		argv[i] = argv[i + 1];
+	    }
 	    --argc;
 	}
 	else if (strcmp(argv[idx], "--no-globals") == 0)
 	{
 	    noGlobals = true;
 	    for (int i = idx ; i + 1 < argc ; ++i)
+	    {
 		argv[i] = argv[i + 1];
+	    }
 	    --argc;
 	}
-	else if (strcmp(argv[idx], "-h") == 0 ||
-		strcmp(argv[idx], "--help") == 0)
+	else if (strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
 	{
 	    usage(argv[0]);
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[idx], "-v") == 0 ||
-		strcmp(argv[idx], "--version") == 0)
+	else if (strcmp(argv[idx], "-v") == 0 || strcmp(argv[idx], "--version") == 0)
 	{
 	    cout << ICE_STRING_VERSION << endl;
 	    return EXIT_SUCCESS;
 	}
-	else if (strcmp(argv[idx], "-d") == 0 ||
-		strcmp(argv[idx], "--debug") == 0)
+	else if (strcmp(argv[idx], "-d") == 0 || strcmp(argv[idx], "--debug") == 0)
 	{
 	    debug = true;
 	    for (int i = idx ; i + 1 < argc ; ++i)
+	    {
 		argv[i] = argv[i + 1];
+	    }
 	    --argc;
 	}
 	else if (argv[idx][0] == '-')
@@ -109,7 +116,9 @@ main(int argc, char* argv[])
 	    return EXIT_FAILURE;
 	}
 	else
+	{
 	    ++idx;
+	}
     }
 
     if (argc < 2)

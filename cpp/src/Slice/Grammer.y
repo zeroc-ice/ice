@@ -171,7 +171,9 @@ module_def
     ContainerPtr cont = unit->currentContainer();
     ModulePtr module = cont->createModule(ident->v);
     if (!module)
+    {
 	YYERROR; // Can't continue, jump to next yyerrok
+    }
     unit->pushContainer(module);
 }
 '{' definitions '}'
@@ -205,9 +207,7 @@ class_decl
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
     ContainerPtr cont = unit->currentContainer();
-    ClassDeclPtr cl = cont->createClassDecl(ident->v,
-					       local->v,
-					       false);
+    ClassDeclPtr cl = cont->createClassDecl(ident->v, local->v, false);
 }
 ;
 
@@ -222,13 +222,14 @@ class_def
     ClassDefPtr base = ClassDefPtr::dynamicCast($4);
     ClassListTokPtr bases = ClassListTokPtr::dynamicCast($5);
     if (base)
+    {
 	bases->v.push_front(base);
-    ClassDefPtr cl = cont->createClassDef(ident->v,
-					     local->v,
-					     false,
-					     bases->v);
+    }
+    ClassDefPtr cl = cont->createClassDef(ident->v, local->v, false, bases->v);
     if (!cl)
+    {
 	YYERROR; // Can't continue, jump to next yyerrok
+    }
     unit->pushContainer(cl);
 }
 '{' class_exports '}'
@@ -300,9 +301,7 @@ interface_decl
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
     ContainerPtr cont = unit->currentContainer();
-    ClassDeclPtr cl = cont->createClassDecl(ident->v,
-					       local->v,
-					       true);
+    ClassDeclPtr cl = cont->createClassDecl(ident->v, local->v, true);
 }
 ;
 
@@ -315,12 +314,11 @@ interface_def
     StringTokPtr ident = StringTokPtr::dynamicCast($3);
     ContainerPtr cont = unit->currentContainer();
     ClassListTokPtr bases = ClassListTokPtr::dynamicCast($4);
-    ClassDefPtr cl = cont->createClassDef(ident->v,
-					     local->v,
-					     true,
-					     bases->v);
+    ClassDefPtr cl = cont->createClassDef(ident->v, local->v, true, bases->v);
     if (!cl)
+    {
 	YYERROR; // Can't continue, jump to next yyerrok
+    }
     unit->pushContainer(cl);
 }
 '{' interface_exports '}'
@@ -426,8 +424,7 @@ operation
     TypeStringListTokPtr outParms = TypeStringListTokPtr::dynamicCast($4);
     TypeListTokPtr throws = TypeListTokPtr::dynamicCast($6);
     ClassDefPtr cl = ClassDefPtr::dynamicCast(unit->currentContainer());
-    cl->createOperation(name->v, returnType, inParms->v, outParms->v,
-			  throws->v);
+    cl->createOperation(name->v, returnType, inParms->v, outParms->v, throws->v);
 }
 
 // ----------------------------------------------------------------------
@@ -550,7 +547,9 @@ type
     ContainerPtr cont = unit->currentContainer();
     list<TypePtr> types = cont->lookupType(scoped->v);
     if (types.empty())
+    {
 	YYERROR; // Can't continue, jump to next yyerrok
+    }
     $$ = types.front();
 }
 | scoped_name '*'
@@ -559,10 +558,10 @@ type
     ContainerPtr cont = unit->currentContainer();
     list<TypePtr> types = cont->lookupType(scoped->v);
     if (types.empty())
+    {
 	YYERROR; // Can't continue, jump to next yyerrok
-    for (list<TypePtr>::iterator p = types.begin();
-	p != types.end();
-	++p)
+    }
+    for (list<TypePtr>::iterator p = types.begin(); p != types.end(); ++p)
     {
 	ClassDeclPtr cl = ClassDeclPtr::dynamicCast(*p);
 	if (!cl)
@@ -657,7 +656,9 @@ identifier_list
     ContainerPtr cont = unit->currentContainer();
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if (en)
+    {
 	ens->v.push_front(ident->v);
+    }
 }
 | ICE_IDENTIFIER
 {
@@ -667,7 +668,9 @@ identifier_list
     ContainerPtr cont = unit->currentContainer();
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if (en)
+    {
 	ens->v.push_front(ident->v);
+    }
 }
 ;
 

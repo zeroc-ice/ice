@@ -17,9 +17,9 @@
 namespace Slice
 {
 
-std::string typeToString(const TypePtr&);
-std::string addLink(const std::string&, const ContainerPtr&);
-std::string scopedToFile(const std::string&);
+std::string getScopedMinimized(const ContainedPtr&, const ContainerPtr&);
+std::string toString(const SyntaxTreeBasePtr&, const ContainerPtr&);
+std::string toString(const std::string&, const ContainerPtr&);
 std::string scopedToId(const std::string&);
 
 }

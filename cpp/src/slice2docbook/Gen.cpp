@@ -51,11 +51,14 @@ Slice::Gen::visitUnitStart(const UnitPtr& p)
 {
     if (_standAlone)
     {
-	O << "<!DOCTYPE book PUBLIC \"-//OASIS//DTD DocBook V3.1//EN\">";
+	O << "<!DOCTYPE article PUBLIC \"-//OASIS//DTD DocBook V3.1//EN\">";
+	printHeader();
 	start("article");
     }
-
-    printHeader();
+    else
+    {
+	printHeader();
+    }
 
     if (!_noGlobals)
     {
@@ -69,7 +72,9 @@ void
 Slice::Gen::visitUnitEnd(const UnitPtr& p)
 {
     if (_standAlone)
+    {
 	end();
+    }
 }
 
 void
@@ -98,7 +103,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	{
 	    start("varlistentry");
 	    start("term");
-	    O << nl << addLink((*q)->name(), p);
+	    O << nl << toString(*q, p);
 	    end();
 	    start("listitem");
 	    printSummary(*q);
@@ -127,7 +132,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	{
 	    start("varlistentry");
 	    start("term");
-	    O << nl << addLink((*q)->name(), p);
+	    O << nl << toString(*q, p);
 	    end();
 	    start("listitem");
 	    printSummary(*q);
@@ -149,7 +154,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	{
 	    start("varlistentry");
 	    start("term");
-	    O << nl << addLink((*q)->name(), p);
+	    O << nl << toString(*q, p);
 	    end();
 	    start("listitem");
 	    printSummary(*q);
@@ -172,7 +177,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	{
 	    start("varlistentry");
 	    start("term");
-	    O << nl << addLink((*q)->name(), p);
+	    O << nl << toString(*q, p);
 	    end();
 	    start("listitem");
 	    printSummary(*q);
@@ -195,7 +200,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	{
 	    start("varlistentry");
 	    start("term");
-	    O << nl << addLink((*q)->name(), p);
+	    O << nl << toString(*q, p);
 	    end();
 	    start("listitem");
 	    printSummary(*q);
@@ -214,13 +219,11 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	start("section", "Native Index");
 	start("variablelist");
 	
-	for (NativeList::iterator q = natives.begin();
-	    q != natives.end();
-	    ++q)
+	for (NativeList::iterator q = natives.begin(); q != natives.end(); ++q)
 	{
 	    start("varlistentry");
 	    start("term");
-	    O << nl << addLink((*q)->name(), p);
+	    O << nl << toString(*q, p);
 	    end();
 	    start("listitem");
 	    printSummary(*q);
@@ -242,7 +245,7 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
 	    
 	    O.zeroIndent();
-	    O << nl << "<synopsis>vector&lt; " << typeToString(type) << " &gt; <type>" << (*q)->name()
+	    O << nl << "<synopsis>vector&lt; " << toString(type, p) << " &gt; <type>" << (*q)->name()
 	      << "</type>;</synopsis>";
 	    O.restoreIndent();
 	    
@@ -266,7 +269,9 @@ Slice::Gen::visitContainer(const ContainerPtr& p)
 	    {
 		O << nl << "<structfield>" << *r << "</structfield>";
 		if (++r != enumerators.end())
+		{
 		    O << ',';
+		}
 	    }
 	    O << eb << ";</synopsis>";
 	    O.restoreIndent();
@@ -304,11 +309,17 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     O.zeroIndent();
     O << nl << "<synopsis>";
     if (p->isLocal())
+    {
 	O << "local ";
+    }
     if (p->isInterface())
+    {
 	O << "interface";
+    }
     else
+    {
 	O << "class";
+    }
     O << " <classname>" << p->name() << "</classname>";
     ClassList bases = p->bases();
     if (!bases.empty() && !bases.front()->isInterface())
@@ -316,7 +327,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	O.inc();
 	O << nl << "extends ";
 	O.inc();
-	O << "<classname>" << bases.front()->scoped().substr(2) << "</classname>";
+	O << nl << toString(bases.front(), p);
 	bases.pop_front();
 	O.dec();
 	O.dec();
@@ -325,16 +336,22 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
     {
 	O.inc();
 	if (p->isInterface())
+	{
 	    O << nl << "extends ";
+	}
 	else
+	{
 	    O << nl << "implements ";
+	}
 	O.inc();
 	ClassList::iterator q = bases.begin();
 	while (q != bases.end())
 	{
-	    O << nl << "<classname>" << (*q)->scoped().substr(2) << "</classname>";
+	    O << nl << toString(*q, p);
 	    if (++q != bases.end())
+	    {
 		O << ",";
+	    }
 	}
 	O.dec();
 	O.dec();
@@ -355,7 +372,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    start("varlistentry");
 	    start("term");
-	    O << nl << addLink((*q)->name(), p);
+	    O << nl << toString(*q, p);
 	    end();
 	    start("listitem");
 	    printSummary(*q);
@@ -378,7 +395,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	{
 	    start("varlistentry");
 	    start("term");
-	    O << nl << addLink((*q)->name(), p);
+	    O << nl << toString(*q, p);
 	    end();
 	    start("listitem");
 	    printSummary(*q);
@@ -403,15 +420,17 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
 	    
 	    O.zeroIndent();
-	    O << nl << "<synopsis>" << (returnType ? typeToString(returnType) : "<type>void</type>")
+	    O << nl << "<synopsis>" << (returnType ? toString(returnType, p) : "<type>void</type>")
 	      << " <function>" << (*q)->name() << "</function>(";
 	    O.inc();
 	    TypeStringList::iterator r = inputParams.begin();
 	    while (r != inputParams.end())
 	    {
-		O << nl << typeToString(r->first) << " <parameter>" << r->second << "</parameter>";
+		O << nl << toString(r->first, p) << " <parameter>" << r->second << "</parameter>";
 		if (++r != inputParams.end())
+		{
 		    O << ',';
+		}
 	    }
 	    if (!outputParams.empty())
 	    {
@@ -419,9 +438,11 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 		r = outputParams.begin();
 		while (r != outputParams.end())
 		{
-		    O << nl << typeToString(r->first) << " <parameter>" << r->second << "</parameter>";
+		    O << nl << toString(r->first, p) << " <parameter>" << r->second << "</parameter>";
 		    if (++r != outputParams.end())
+		    {
 			O << ',';
+		    }
 		}
 	    }
 	    O << ')';
@@ -434,9 +455,11 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 		TypeList::iterator r = throws.begin();
 		while (r != throws.end())
 		{
-		    O << nl << typeToString(*r);
+		    O << nl << toString(*r, p);
 		    if (++r != throws.end())
+		    {
 			O << ',';
+		    }
 		}
 		O.dec();
 		O.dec();
@@ -458,7 +481,7 @@ Slice::Gen::visitClassDefStart(const ClassDefPtr& p)
 	    start("section id=" + scopedToId((*q)->scoped()), (*q)->name());
 	    
 	    O.zeroIndent();
-	    O << nl << "<synopsis>" << typeToString(type) << " <structfield>" << (*q)->name()
+	    O << nl << "<synopsis>" << toString(type, p) << " <structfield>" << (*q)->name()
 	      << "</structfield>;</synopsis>";
 	    O.restoreIndent();
 	    
@@ -502,7 +525,9 @@ Slice::Gen::getTagged(const string& tag, string& comment)
     {
 	begin = comment.find("@" + tag, begin);
 	if (begin == string::npos)
+	{
 	    return result;
+	}
 	
 	string::size_type pos1 = comment.find_first_not_of(" \t\r\n", begin + tag.size() + 1);
 	if (pos1 == string::npos)
@@ -517,7 +542,9 @@ Slice::Gen::getTagged(const string& tag, string& comment)
 
 	string::size_type pos3 = line.find_last_not_of(" \t\r\n");
 	if (pos3 != string::npos)
+	{
 	    line.erase(pos3 + 1);
+	}
 	result.push_back(line);
     }
 
@@ -529,7 +556,9 @@ Slice::Gen::printComment(const ContainedPtr& p)
 {
     ContainerPtr container = ContainerPtr::dynamicCast(p);
     if (!container)
+    {
 	container = p->container();
+    }
 
     string comment = p->comment();
     StringList par = getTagged("param", comment);
@@ -552,19 +581,21 @@ Slice::Gen::printComment(const ContainedPtr& p)
     {
 	start("section", "Parameters");
 	start("variablelist");
-	for (StringList::iterator q = par.begin();
-	    q != par.end();
-	    ++q)
+	for (StringList::iterator q = par.begin(); q != par.end(); ++q)
 	{
 	    string::size_type pos;
 	    string term;
 	    pos = q->find_first_of(" \t\r\n");
 	    if (pos != string::npos)
+	    {
 		term = q->substr(0, pos);
+	    }
 	    string item;
 	    pos = q->find_first_not_of(" \t\r\n", pos);
 	    if (pos != string::npos)
+	    {
 		item = q->substr(pos);
+	    }
 	    
 	    start("varlistentry");
 	    start("term");
@@ -598,23 +629,25 @@ Slice::Gen::printComment(const ContainedPtr& p)
 	start("section", "Exceptions");
 	start("variablelist");
 	
-	for (StringList::iterator q = throws.begin();
-	    q != throws.end();
-	    ++q)
+	for (StringList::iterator q = throws.begin(); q != throws.end(); ++q)
 	{
 	    string::size_type pos;
 	    string term;
 	    pos = q->find_first_of(" \t\r\n");
 	    if (pos != string::npos)
+	    {
 		term = q->substr(0, pos);
+	    }
 	    string item;
 	    pos = q->find_first_not_of(" \t\r\n", pos);
 	    if (pos != string::npos)
+	    {
 		item = q->substr(pos);
+	    }
 	    
 	    start("varlistentry");
 	    start("term");
-	    O << nl << addLink(term, container);
+	    O << nl << toString(term, container);
 	    end();
 	    start("listitem");
 	    start("para");
@@ -634,12 +667,10 @@ Slice::Gen::printComment(const ContainedPtr& p)
 	start("para");
 	start("simplelist type=\"inline\"");
 	
-	for (StringList::iterator q = see.begin();
-	    q != see.end();
-	    ++q)
+	for (StringList::iterator q = see.begin(); q != see.end(); ++q)
 	{
 	    start("member");
-	    O << nl << addLink(*q, container);
+	    O << nl << toString(*q, container);
 	    end();
 	}
 
@@ -674,9 +705,13 @@ Slice::Gen::start(const std::string& element)
 
     string::size_type pos = element.find_first_of(" \t");
     if (pos == string::npos)
+    {
 	_elementStack.push(element);
+    }
     else
+    {
 	_elementStack.push(element.substr(0, pos));
+    }
 }
 
 void

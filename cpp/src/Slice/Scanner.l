@@ -21,10 +21,10 @@ using namespace Slice;
 %option noyywrap
 %option never-interactive
 
-WS			[ \t\v\n\r\f]
-S			[ \t]
-D			[0-9]
-L			[a-zA-Z_]
+WS	[ \t\v\n\r\f]
+S	[ \t]
+D	[0-9]
+L	[a-zA-Z_]
 
 %%
 
@@ -53,7 +53,9 @@ L			[a-zA-Z_]
     {
 	c = yyinput();
 	if (c == '\n')
+	{
 	    unit->nextLine();
+	}
     }
     while (c != '\n' && c != EOF);
 }
@@ -88,7 +90,9 @@ L			[a-zA-Z_]
     }
 
     if (comment[0] == '*')
+    {
 	unit->setComment(comment);
+    }
 }
 
 "::" {
@@ -187,7 +191,9 @@ L			[a-zA-Z_]
     char* s = yytext;
     
     if (s[0] == '\\') // Strip leading backslash
+    {
 	++s;
+    }
     
     StringTokPtr ident = new StringTok;
     ident->v = s;
@@ -199,7 +205,9 @@ L			[a-zA-Z_]
     char* s = yytext;
     
     if (s[0] == '\\') // Strip leading backslash
+    {
 	++s;
+    }
     
     StringTokPtr ident = new StringTok;
     ident->v = s;
@@ -212,7 +220,9 @@ L			[a-zA-Z_]
     // Igore white-space
     
     if (yytext[0] == '\n')
+    {
 	unit->nextLine();
+    }
 }
 
 . {
