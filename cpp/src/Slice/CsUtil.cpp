@@ -600,6 +600,30 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         return;
     }
 
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+        if(marshal)
+	{
+	    out << nl << stream << ".writeSize(" << param << ".Count);";
+	    out << nl << "for(int __i = 0; __i < " << param << ".Count; ++__i)";
+	    out << sb;
+	    out << nl << param << "[__i].__write(" << stream << ");";
+	    out << eb;
+	}
+	else
+	{
+	    out << nl << "int sz = " << stream << ".readSize();";
+	    out << nl << "for(int __i = 0; __i < " << param << ".Count; ++__i)";
+	    out << sb;
+	    string typeS = typeToString(st);
+	    out << nl << param << ".Add(new " << typeS << "());";
+	    out << nl << param << "[__i].__read(" << stream << ");";
+	    out << eb;
+	}
+	return;
+    }
+
 
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)

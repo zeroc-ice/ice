@@ -2527,7 +2527,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 
     _out << sp << nl << "public static " << typeS << " read(IceInternal.BasicStream __is)";
     _out << sb;
-    _out << nl << typeS << " __v;";
+    _out << nl << typeS << " __v = new " << typeS << "();";
     writeSequenceMarshalUnmarshalCode(_out, p, "__v", false, false);
     _out << nl << "return __v;";
     _out << eb;
