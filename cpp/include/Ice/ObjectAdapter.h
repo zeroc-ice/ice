@@ -8,56 +8,75 @@
 //
 // **********************************************************************
 
-#ifndef ICE_OBJECT_ADAPTER_H
-#define ICE_OBJECT_ADAPTER_H
+// Generated from file `ObjectAdapter.ice'
 
-#include <Ice/ObjectAdapterF.h>
-#include <Ice/InstanceF.h>
-#include <Ice/ObjectAdapterFactoryF.h>
-#include <Ice/CommunicatorF.h>
-#include <Ice/CollectorF.h>
+#ifndef __ObjectAdapter_h__
+#define __ObjectAdapter_h__
+
 #include <Ice/ProxyF.h>
 #include <Ice/ObjectF.h>
-#include <Ice/LocalException.h>
-#include <Ice/Shared.h>
-#include <map>
+#include <Ice/LocalObjectF.h>
+#include <Ice/Native.h>
+#include <Ice/LocalObject.h>
+#include <Ice/CommunicatorF.h>
 
 namespace Ice
 {
 
-class ICE_API ObjectAdapter : public ::__Ice::Shared, public JTCMutex
+class ObjectAdapter;
+
+}
+
+namespace __Ice
 {
-public:
 
-    std::string name() const;
-    Communicator_ptr communicator() const;
+void ICE_API incRef(::Ice::ObjectAdapter*);
+void ICE_API decRef(::Ice::ObjectAdapter*);
 
-    void activate();
-    void hold();
-    void deactivate();
+}
 
-    void add(const Object_ptr&, const std::string&);
-    void remove(const std::string&);
-    Object_ptr find(const std::string&);
+namespace Ice
+{
 
-    std::string objectToIdentity(const Object_ptr&);
-    Object_ptr proxyToObject(const Object_prx&);
+typedef ::__Ice::Handle< ::Ice::ObjectAdapter> ObjectAdapter_ptr;
 
-    Object_prx createProxy(const std::string&);
+}
 
-    ::__Ice::Instance_ptr __instance() const;
+namespace Ice
+{
 
-private:
+class ICE_API ObjectAdapter : public ::Ice::LocalObject
+{
+public: 
 
-    ObjectAdapter(const ::__Ice::Instance_ptr&, const std::string&,
-		  const std::string&);
-    virtual ~ObjectAdapter();
-    friend ::__Ice::ObjectAdapterFactory;
+    virtual ::std::string getName() = 0;
 
-    ::__Ice::Instance_ptr instance_;
-    std::string name_;
-    std::vector< __Ice::CollectorFactory_ptr> collectorFactories_;
-    std::map<std::string, Object_ptr> objects_;
+    virtual ::Ice::Communicator_ptr getCommunicator() = 0;
+
+    virtual void activate() = 0;
+
+    virtual void hold() = 0;
+
+    virtual void deactivate() = 0;
+
+    virtual void add(const ::Ice::Object_ptr&, const ::std::string&) = 0;
+
+    virtual void remove(const ::std::string&) = 0;
+
+    virtual ::Ice::Object_ptr identityToObject(const ::std::string&) = 0;
+
+    virtual ::std::string objectToIdentity(const ::Ice::Object_ptr&) = 0;
+
+    virtual ::Ice::Object_ptr proxyToObject(const ::Ice::Object_prx&) = 0;
+
+    virtual ::Ice::Object_prx objectToProxy(const ::Ice::Object_ptr&) = 0;
+
+    virtual ::Ice::Object_prx identityToProxy(const ::std::string&) = 0;
+
+    virtual ::std::string proxyToIdentity(const ::Ice::Object_prx&) = 0;
+
+    virtual void __write(::__Ice::Stream*);
+    virtual void __read(::__Ice::Stream*);
 };
 
 }
