@@ -47,7 +47,6 @@ usage(const char* n)
         "-p                    Purge objects whose types no longer exist.\n"
         "-c                    Use catastrophic recovery on the old database environment.\n"
         "-f FILE               Execute the transformation descriptors in the file FILE.\n"
-        "                      Database transformation is not performed.\n"
         "--include-old DIR     Put DIR in the include file search path for old Slice\n"
         "                      definitions.\n"
         "--include-new DIR     Put DIR in the include file search path for new Slice\n"
