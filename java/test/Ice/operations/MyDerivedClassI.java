@@ -105,17 +105,6 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
         return r;
     }
 
-    public java.util.Map
-    opDoubleStringD(java.util.Map p1, java.util.Map p2,
-                    Test.DoubleStringDHolder p3, Ice.Current current)
-    {
-        p3.value = p1;
-        java.util.Map r = new java.util.HashMap();
-        r.putAll(p1);
-        r.putAll(p2);
-        return r;
-    }
-
     public double
     opFloatDouble(float p1, double p2, Ice.FloatHolder p3,
                   Ice.DoubleHolder p4, Ice.Current current)
@@ -180,17 +169,6 @@ public final class MyDerivedClassI extends Test.MyDerivedClass
             _adapter.createProxy(Ice.Util.stringToIdentity("noSuchIdentity")));
         return Test.MyClassPrxHelper.uncheckedCast(
             _adapter.createProxy(_identity));
-    }
-
-    public java.util.Map
-    opMyClassStringD(java.util.Map p1, java.util.Map p2,
-                     Test.MyClassStringDHolder p3, Ice.Current current)
-    {
-        p3.value = p1;
-        java.util.Map r = new java.util.HashMap();
-        r.putAll(p1);
-        r.putAll(p2);
-        return r;
     }
 
     public Test.MyEnum

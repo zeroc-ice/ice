@@ -467,26 +467,6 @@ class Twoways
 
         {
             java.util.Map di1 = new java.util.HashMap();
-            di1.put(new Double(999999110.10E10), "abc -1.1");
-            di1.put(new Double(9999991100.10E10), "abc 123123.2");
-            java.util.Map di2 = new java.util.HashMap();
-            di2.put(new Double(999999110.10E10), "abc -1.1");
-            di2.put(new Double(999999111.10E10), "abc -100.4");
-            di2.put(new Double(9999991101.10E10), "abc 0.5");
-
-            Test.DoubleStringDHolder _do = new Test.DoubleStringDHolder();
-            java.util.Map ro = p.opDoubleStringD(di1, di2, _do);
-
-            test(_do.value.equals(di1));
-            test(ro.size() == 4);
-            test(((String)ro.get(new Double(999999110.10E10))).equals("abc -1.1"));
-            test(((String)ro.get(new Double(999999111.10E10))).equals("abc -100.4"));
-            test(((String)ro.get(new Double(9999991100.10E10))).equals("abc 123123.2"));
-            test(((String)ro.get(new Double(9999991101.10E10))).equals("abc 0.5"));
-        }
-
-        {
-            java.util.Map di1 = new java.util.HashMap();
             di1.put("foo", "abc -1.1");
             di1.put("bar", "abc 123123.2");
             java.util.Map di2 = new java.util.HashMap();
@@ -523,40 +503,6 @@ class Twoways
             test(((Test.MyEnum)ro.get("qwerty")) == Test.MyEnum.enum3);
             test(((Test.MyEnum)ro.get("")) == Test.MyEnum.enum2);
             test(((Test.MyEnum)ro.get("Hello!!")) == Test.MyEnum.enum2);
-        }
-
-        {
-            java.util.Map di1 = new java.util.HashMap();
-            di1.put(p, "abc");
-            di1.put(null, "def");
-            java.util.Map di2 = new java.util.HashMap();
-            di2.put(p, "abc");
-
-            Test.MyClassStringDHolder _do = new Test.MyClassStringDHolder();
-            java.util.Map ro = p.opMyClassStringD(di1, di2, _do);
-
-            test(_do.value.equals(di1));
-            test(ro.size() == 2);
-            test(((String)ro.get(p)).equals("abc"));
-            test(((String)ro.get(null)).equals("def"));
-
-            /*
-            int i = 0;
-            for(Test.MyClassStringD::iterator q = ro.begin(); q != ro.end(); ++q, ++i)
-            {
-                test(i < 2);
-
-                if(i == 0)
-                {
-                    test(!q.first);
-                }
-                else
-                {
-                    test(q.first);
-                    q.first.opVoid();
-                }
-            }
-            */
         }
     }
 }

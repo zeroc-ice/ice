@@ -40,8 +40,6 @@ sequence<Struct4> Struct4Seq;
 
 dictionary<string, Struct4> StringStruct4Dict;
 
-dictionary<Struct3, Struct4> Struct3Struct4Dict;
-
 enum Color
 {
     Red,

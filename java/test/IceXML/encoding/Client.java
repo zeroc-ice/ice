@@ -244,64 +244,6 @@ public class Client
     }
 
     private static void
-    TestStruct3Struct4Dict(Ice.Communicator communicator)
-    {
-        final String element = "Test.Struct3Struct4Dict";
-        java.util.Map dictin = new java.util.HashMap();
-
-        Test.Struct3 s3in = new Test.Struct3();
-        s3in.l = 20;
-        s3in.s2 = new Test.Struct2();
-        s3in.s2.s1 = new Test.Struct1();
-        s3in.s2.s1.l = 10;
-
-        Test.Struct4 s4in = new Test.Struct4();
-        s4in.l = 30;
-        s4in.s3 = new Test.Struct3();
-        s4in.s3.l = 20;
-        s4in.s3.s2 = new Test.Struct2();
-        s4in.s3.s2.s1 = new Test.Struct1();
-        s4in.s3.s2.s1.l = 10;
-        dictin.put(s3in, s4in);
-
-        s3in = new Test.Struct3();
-        s3in.l = 30;
-        s3in.s2 = new Test.Struct2();
-        s3in.s2.s1 = new Test.Struct1();
-        s3in.s2.s1.l = 20;
-
-        s4in = new Test.Struct4();
-        s4in.l = 40;
-        s4in.s3 = new Test.Struct3();
-        s4in.s3.l = 30;
-        s4in.s3.s2 = new Test.Struct2();
-        s4in.s3.s2.s1 = new Test.Struct1();
-        s4in.s3.s2.s1.l = 20;
-        dictin.put(s3in, s4in);
-
-        java.io.StringWriter sw = new java.io.StringWriter();
-        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-        pw.print(header);
-        Ice.Stream ostream = new IceXML.StreamI(communicator, pw);
-        Test.Struct3Struct4DictHelper.ice_marshal(element, ostream, dictin);
-        pw.print(footer);
-        pw.flush();
-
-        java.io.StringReader sr = new java.io.StringReader(sw.toString());
-        Ice.Stream istream = new IceXML.StreamI(communicator, sr);
-        java.util.Map dictout = Test.Struct3Struct4DictHelper.ice_unmarshal(element, istream);
-        test(dictout.size() == dictin.size());
-        java.util.Iterator p = dictin.entrySet().iterator();
-        while(p.hasNext())
-        {
-            java.util.Map.Entry e = (java.util.Map.Entry)p.next();
-            Test.Struct4 val = (Test.Struct4)dictout.get(e.getKey());
-            test(val != null);
-            test(val.equals(e.getValue()));
-        }
-    }
-
-    private static void
     TestColor(Ice.Communicator communicator)
     {
         final String element = "Test.Color";
@@ -581,7 +523,6 @@ public class Client
         System.out.print("testing dictionaries... ");
         System.out.flush();
         TestStringStruct4Dict(communicator);
-        TestStruct3Struct4Dict(communicator);
         System.out.println("ok");
 
         System.out.print("testing enumerations... ");
