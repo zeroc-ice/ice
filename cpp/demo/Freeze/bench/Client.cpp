@@ -18,7 +18,19 @@
 
 #include <BenchTypes.h>
 
+#include <cstdlib>
+
 using namespace std;
+
+static void
+testFailed(const char* expr, const char* file, unsigned int line)
+{
+    std::cout << "failed!" << std::endl;
+    std::cout << file << ':' << line << ": assertion `" << expr << "' failed" << std::endl;
+    abort();
+}
+
+#define test(ex) ((ex) ? ((void)0) : testFailed(#ex, __FILE__, __LINE__))
 
 class StopWatch
 {
@@ -215,8 +227,8 @@ TestApp::IntIntMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     for (i = 0; i < _repetitions; ++i)
     {
 	IntIntMap::const_iterator p = m.find(i);
-	assert(p != m.end());
-	assert(p->second == i);
+	test(p != m.end());
+	test(p->second == i);
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
@@ -249,8 +261,8 @@ TestApp::generatedRead(IntIntMap& m, int reads , const GeneratorPtr& gen)
     {
 	int key = gen->next();
 	IntIntMap::const_iterator p = m.find(key);
-	assert(p != m.end());
-	assert(p->second == key);
+	test(p != m.end());
+	test(p->second == key);
     }
     double total = _watch.stop();
     double perRecord = total / reads;
@@ -354,10 +366,10 @@ TestApp::Struct1Struct2MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     {
 	s1.l = i;
 	Struct1Struct2Map::const_iterator p = m.find(s1);
-	assert(p != m.end());
+	test(p != m.end());
 	ostringstream os;
 	os << i;
-	assert(p->second.s == os.str());
+	test(p->second.s == os.str());
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
@@ -418,10 +430,10 @@ TestApp::Struct1Class1MapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     {
 	s1.l = i;
 	Struct1Class1Map::const_iterator p = m.find(s1);
-	assert(p != m.end());
+	test(p != m.end());
 	ostringstream os;
 	os << i;
-	assert(p->second->s == os.str());
+	test(p->second->s == os.str());
     }
     total = _watch.stop();
     perRecord = total / _repetitions;
@@ -495,24 +507,24 @@ TestApp::Struct1ObjectMapTest(const Freeze::DBEnvironmentPtr& dbEnv)
     {
 	s1.l = i;
 	Struct1ObjectMap::const_iterator p = m.find(s1);
-	assert(p != m.end());
+	test(p != m.end());
 	Ice::ObjectPtr o = p->second;
 	Class1Ptr nc1;
 	if ((i % 2) == 0)
 	{
 	    Class2Ptr nc2 = Class2Ptr::dynamicCast(o);
-	    assert(nc2);
-	    assert(nc2->rec == nc2);
+	    test(nc2);
+	    test(nc2->rec == nc2);
 	    nc1 = Class1Ptr::dynamicCast(nc2->obj);
 	}
 	else
 	{
 	    nc1 = Class1Ptr::dynamicCast(o);
 	}
-	assert(nc1);
+	test(nc1);
 	ostringstream os;
 	os << i;
-	assert(nc1->s == os.str());
+	test(nc1->s == os.str());
     }
     total = _watch.stop();
     perRecord = total / _repetitions;

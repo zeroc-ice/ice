@@ -36,7 +36,7 @@ clean::
 
 BenchTypes.h BenchTypes.cpp: Test.ice $(SLICE2FREEZE)
 	rm -f BenchTypes.h BenchTypes.cpp
-	$(SLICE2FREEZE) -I$(slicedir) --dict BenchTypes,int,int --dict Struct1Struct2Map,Struct1,Struct2 \
+	$(SLICE2FREEZE) -I$(slicedir) --dict IntIntMap,int,int --dict Struct1Struct2Map,Struct1,Struct2 \
 	--dict Struct1Class1Map,Struct1,Class1 \
 	--dict Struct1ObjectMap,Struct1,Object BenchTypes Test.ice
 
