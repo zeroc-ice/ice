@@ -68,6 +68,7 @@ TopicManagerI::TopicManagerI(const Ice::CommunicatorPtr& communicator, const Ice
 
 TopicManagerI::~TopicManagerI()
 {
+    _flusher->stopFlushing();
 }
 
 TopicPrx

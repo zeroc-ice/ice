@@ -70,6 +70,11 @@ public:
 	    }
 	    flushAll();
 	}
+
+        //
+        // We break a cycle by clearing the subscriber list.
+        //
+        _subscribers.clear();
     }
 
     void
@@ -162,8 +167,6 @@ Flusher::Flusher(const Ice::CommunicatorPtr& communicator, const TraceLevelsPtr&
 
 Flusher::~Flusher()
 {
-    _thread->destroy();
-    _thread->getThreadControl().join();
 }
 
 void
@@ -182,5 +185,5 @@ void
 Flusher::stopFlushing()
 {
     _thread->destroy();
+    _thread->getThreadControl().join();
 }
-
