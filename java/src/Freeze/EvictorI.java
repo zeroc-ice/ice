@@ -925,333 +925,324 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     public void
     run()
     {
-	for(;;)
+	try
 	{
-	    java.util.List allObjects;
-	    int saveNowThreadsSize = 0;
-	    
-	    synchronized(this)
+	    for(;;)
 	    {
-		while((!_deactivated) &&
-		      (_saveNowThreads.size() == 0) &&
-		      (_saveSizeTrigger < 0 || _modifiedQueue.size() < _saveSizeTrigger))
+		java.util.List allObjects;
+		int saveNowThreadsSize = 0;
+		
+		synchronized(this)
 		{
-		    try
+		    while((!_deactivated) &&
+			  (_saveNowThreads.size() == 0) &&
+			  (_saveSizeTrigger < 0 || _modifiedQueue.size() < _saveSizeTrigger))
 		    {
-			if(_savePeriod == 0)
+			try
 			{
-			    wait();
-			}
-			else
-			{
-			    long preSave = System.currentTimeMillis();
-			    wait(_savePeriod);
-			    if(System.currentTimeMillis() > preSave + _savePeriod)
+			    if(_savePeriod == 0)
 			    {
-				break;
+				wait();
 			    }
-			}
-		    }
-		    catch(InterruptedException ex)
-		    {
-		    }
-		}
-
-		saveNowThreadsSize = _saveNowThreads.size();
-		
-		if(_deactivated)
-		{
-		    assert(_modifiedQueue.size() == 0);
-		    if(saveNowThreadsSize > 0)
-		    {
-			_saveNowThreads.clear();
-			notifyAll();
-		    }
-		    break; // for(;;)
-		}
-		
-		//
-		// Check first if there is something to do!
-		//
-		if(_modifiedQueue.size() == 0)
-		{
-		    if(saveNowThreadsSize > 0)
-		    {
-			_saveNowThreads.clear();
-			notifyAll();
-		    }
-		    continue; // for(;;)
-		}
-		
-		allObjects = _modifiedQueue;
-		_modifiedQueue = new java.util.ArrayList();
-	    }
-	    
-	    int size = allObjects.size();
-        
-	    java.util.List streamedObjectQueue = new java.util.ArrayList();
-	    
-	    long streamStart = System.currentTimeMillis();
-	    
-	    //
-	    // Stream each element
-	    //
-	    for(int i = 0; i < size; i++)
-	    {
-		Facet facet = (Facet) allObjects.get(i);
-
-		boolean tryAgain;
-
-		do
-		{
-		    tryAgain = false;
-		    Ice.Object servant = null;
-
-		    synchronized(facet)
-		    {
-			byte status = facet.status;
-
-			switch(status)
-			{
-			    case created:
-			    case modified:
+			    else
 			    {
-				servant = facet.rec.servant;
-				break;
-			    }   
-			    case destroyed:
-			    {
-				if(_trace >= 3)
+				long preSave = System.currentTimeMillis();
+				wait(_savePeriod);
+				if(System.currentTimeMillis() > preSave + _savePeriod)
 				{
-				    _communicator.getLogger().trace(
-					"Freeze.Evictor", 
-					"saving/streaming \"" + Ice.Util.identityToString(facet.element.identity) +
-					"\" " + facetPathToString(facet.path) + ": destroyed -> dead");
+				    break;
 				}
-				
-				facet.status = dead;
-				streamedObjectQueue.add(streamFacet(facet, status, streamStart));
-				break;
-			    }   
-			    default:
-			    {
-				//
-				// Nothing to do (could be a duplicate)
-				//
-				break;
 			    }
 			}
-		    }
-			
-		    if(servant != null)
-		    {
-			//
-			// Lock servant and then facet so that user can safely lock
-			// servant and call various Evictor operations
-			//
-			synchronized(servant)
+			catch(InterruptedException ex)
 			{
-			    synchronized(facet)
+			}
+		    }
+		    
+		    saveNowThreadsSize = _saveNowThreads.size();
+		    
+		    if(_deactivated)
+		    {
+			assert(_modifiedQueue.size() == 0);
+			if(saveNowThreadsSize > 0)
+			{
+			    _saveNowThreads.clear();
+			    notifyAll();
+			}
+			break; // for(;;)
+		    }
+		    
+		    //
+		    // Check first if there is something to do!
+		    //
+		    if(_modifiedQueue.size() == 0)
+		    {
+			if(saveNowThreadsSize > 0)
+			{
+			    _saveNowThreads.clear();
+			    notifyAll();
+			}
+			continue; // for(;;)
+		    }
+		    
+		    allObjects = _modifiedQueue;
+		    _modifiedQueue = new java.util.ArrayList();
+		}
+		
+		int size = allObjects.size();
+		
+		java.util.List streamedObjectQueue = new java.util.ArrayList();
+		
+		long streamStart = System.currentTimeMillis();
+		
+		//
+		// Stream each element
+		//
+		for(int i = 0; i < size; i++)
+		{
+		    Facet facet = (Facet) allObjects.get(i);
+		    
+		    boolean tryAgain;
+		    
+		    do
+		    {
+			tryAgain = false;
+			Ice.Object servant = null;
+			
+			synchronized(facet)
+			{
+			    byte status = facet.status;
+			    
+			    switch(status)
 			    {
-				byte status = facet.status;
-				
-				switch(status)
+				case created:
+				case modified:
 				{
-				    case created:
-				    case modified:
+				    servant = facet.rec.servant;
+				    break;
+				}   
+				case destroyed:
+				{
+				    if(_trace >= 3)
 				    {
-					if(servant == facet.rec.servant)
+					_communicator.getLogger().trace(
+					    "Freeze.Evictor", 
+					    "saving/streaming \"" + Ice.Util.identityToString(facet.element.identity) +
+					    "\" " + facetPathToString(facet.path) + ": destroyed -> dead");
+				    }
+				    
+				    facet.status = dead;
+				    streamedObjectQueue.add(streamFacet(facet, status, streamStart));
+				    break;
+				}   
+				default:
+				{
+				    //
+				    // Nothing to do (could be a duplicate)
+				    //
+				    break;
+				}
+			    }
+			}
+			
+			if(servant != null)
+			{
+			    //
+			    // Lock servant and then facet so that user can safely lock
+			    // servant and call various Evictor operations
+			    //
+			    synchronized(servant)
+			    {
+				synchronized(facet)
+				{
+				    byte status = facet.status;
+				    
+				    switch(status)
+				    {
+					case created:
+					case modified:
+					{
+					    if(servant == facet.rec.servant)
+					    {
+						if(_trace >= 3)
+						{
+						    _communicator.getLogger().trace(
+							"Freeze.Evictor", 
+							"saving/streaming \"" + Ice.Util.identityToString(facet.element.identity) +
+							"\" " + facetPathToString(facet.path) + ": created or modified -> clean");
+						}
+						
+						facet.status = clean;
+						streamedObjectQueue.add(streamFacet(facet, status, streamStart));
+						
+					    }
+					    else
+					    {
+						tryAgain = true;
+					    }
+					    break;
+					}
+					case destroyed:
 					{
 					    if(_trace >= 3)
 					    {
 						_communicator.getLogger().trace(
 						    "Freeze.Evictor", 
 						    "saving/streaming \"" + Ice.Util.identityToString(facet.element.identity) +
-						    "\" " + facetPathToString(facet.path) + ": created or modified -> clean");
+						    "\" " + facetPathToString(facet.path) + ": destroyed -> dead");
 					    }
 					    
-					    facet.status = clean;
-					    try
-					    {
-						streamedObjectQueue.add(streamFacet(facet, status, streamStart));
-					    }
-					    catch(RuntimeException ex)
-					    {
-						java.io.StringWriter sw = new java.io.StringWriter();
-						java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-						ex.printStackTrace(pw);
-						pw.flush();
-						_communicator.getLogger().error
-						    (_errorPrefix + "marshalling error in saving thread:\n" + sw.toString());
-					    }
-					}
-					else
+					    facet.status = dead;
+					    streamedObjectQueue.add(streamFacet(facet, status, streamStart));
+					    break;
+					}   
+					default:
 					{
-					    tryAgain = true;
+					    //
+					    // Nothing to do (could be a duplicate)
+					    //
+					    break;
 					}
-					break;
-				    }
-				    case destroyed:
-				    {
-					if(_trace >= 3)
-					{
-					    _communicator.getLogger().trace(
-						"Freeze.Evictor", 
-						"saving/streaming \"" + Ice.Util.identityToString(facet.element.identity) +
-						"\" " + facetPathToString(facet.path) + ": destroyed -> dead");
-					}
-
-					facet.status = dead;
-					streamedObjectQueue.add(streamFacet(facet, status, streamStart));
-					break;
-				    }   
-				    default:
-				    {
-					//
-					// Nothing to do (could be a duplicate)
-					//
-					break;
 				    }
 				}
 			    }
 			}
-		    }
-		} while(tryAgain);
-	    }
-
-	    if(_trace >= 1)
-	    {
-		long now = System.currentTimeMillis();
-		_communicator.getLogger().trace(
-		    "Freeze.Evictor",
-		    "streamed " + streamedObjectQueue.size() + " objects in " + (now - streamStart) + " ms");
-	    }
-	    
-	    //
-	    // Now let's save all these streamed objects to disk using a transaction
-	    //
-	    
-	    //
-	    // Each time we get a deadlock, we reduce the number of objects to save
-	    // per transaction
-	    //
-	    int txSize = streamedObjectQueue.size();
-	    if(txSize > _maxTxSize)
-	    {
-		txSize = _maxTxSize;
-	    }
-
-	    boolean tryAgain;
-	    
-	    do
-	    {
-		tryAgain = false;
+		    } while(tryAgain);
+		}
 		
-		while(streamedObjectQueue.size() > 0)
+		if(_trace >= 1)
 		{
-		    if(txSize > streamedObjectQueue.size())
-		    {
-			txSize = streamedObjectQueue.size();
-		    }
+		    long now = System.currentTimeMillis();
+		    _communicator.getLogger().trace(
+			"Freeze.Evictor",
+			"streamed " + streamedObjectQueue.size() + " objects in " + (now - streamStart) + " ms");
+		}
+		
+		//
+		// Now let's save all these streamed objects to disk using a transaction
+		//
+		
+		//
+		// Each time we get a deadlock, we reduce the number of objects to save
+		// per transaction
+		//
+		int txSize = streamedObjectQueue.size();
+		if(txSize > _maxTxSize)
+		{
+		    txSize = _maxTxSize;
+		}
+		
+		boolean tryAgain;
+		
+		do
+		{
+		    tryAgain = false;
 		    
-		    long saveStart = System.currentTimeMillis();
-		    try
+		    while(streamedObjectQueue.size() > 0)
 		    {
-			com.sleepycat.db.DbTxn tx = _dbEnv.txn_begin(null, 0);
+			if(txSize > streamedObjectQueue.size())
+			{
+			    txSize = streamedObjectQueue.size();
+			}
+			
+			long saveStart = System.currentTimeMillis();
 			try
-			{   
-			    for(int i = 0; i < txSize; i++)
-			    {
-				StreamedObject obj = (StreamedObject) streamedObjectQueue.get(i);
-				
-				switch(obj.status)
+			{
+			    com.sleepycat.db.DbTxn tx = _dbEnv.txn_begin(null, 0);
+			    try
+			    {   
+				for(int i = 0; i < txSize; i++)
 				{
-				    case created:
-				    case modified:
+				    StreamedObject obj = (StreamedObject) streamedObjectQueue.get(i);
+				    
+				    switch(obj.status)
 				    {
-					com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(obj.key);
-					com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt(obj.value);
-					int flags = (obj.status == created) ? com.sleepycat.db.Db.DB_NOOVERWRITE : 0;
-					int err = _db.put(tx, dbKey, dbValue, flags);
-					if(err != 0)
+					case created:
+					case modified:
 					{
-					    throw new DatabaseException();
+					    com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(obj.key);
+					    com.sleepycat.db.Dbt dbValue = new com.sleepycat.db.Dbt(obj.value);
+					    int flags = (obj.status == created) ? com.sleepycat.db.Db.DB_NOOVERWRITE : 0;
+					    int err = _db.put(tx, dbKey, dbValue, flags);
+					    if(err != 0)
+					    {
+						throw new DatabaseException();
+					    }
+					    break;
 					}
-					break;
-				    }
-				    case destroyed:
-				    {
-					com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(obj.key);
-					int err = _db.del(tx, dbKey, 0);
-					if(err != 0)
+					case destroyed:
 					{
-					    throw new DatabaseException();
+					    com.sleepycat.db.Dbt dbKey = new com.sleepycat.db.Dbt(obj.key);
+					    int err = _db.del(tx, dbKey, 0);
+					    if(err != 0)
+					    {
+						throw new DatabaseException();
+					    }
+					    break;
 					}
-					break;
+					default:
+					{
+					    assert(false);
+					}
 				    }
-				    default:
-				    {
-					assert(false);
-				    }
+				}
+				
+				com.sleepycat.db.DbTxn toCommit = tx;
+				tx = null;
+				toCommit.commit(0);
+			    }
+			    finally
+			    {
+				if(tx != null)
+				{
+				    tx.abort();
 				}
 			    }
 			    
-			    com.sleepycat.db.DbTxn toCommit = tx;
-			    tx = null;
-			    toCommit.commit(0);
-			}
-			finally
-			{
-			    if(tx != null)
+			    for(int i = 0; i < txSize; i++)
 			    {
-				tx.abort();
+				streamedObjectQueue.remove(0);
+			    }
+			    
+			    if(_trace >= 1)
+			    {
+				long now = System.currentTimeMillis();
+				_communicator.getLogger().trace(
+				    "Freeze.Evictor",
+				    "saved " + txSize + " objects in " + (now - saveStart) + " ms");
 			    }
 			}
-   
-			for(int i = 0; i < txSize; i++)
+			catch(com.sleepycat.db.DbDeadlockException deadlock)
 			{
-			    streamedObjectQueue.remove(0);
+			    if(_deadlockWarning)
+			    {
+				_communicator.getLogger().warning
+				    ("Deadlock in Freeze.EvictorI.run while writing into Db \"" + _dbName 
+				     + "\"; retrying ...");
+			    }
+			    
+			    tryAgain = true;
+			    txSize = (txSize + 1)/2;
 			}
-			
-			if(_trace >= 1)
+			catch(com.sleepycat.db.DbException dx)
 			{
-			    long now = System.currentTimeMillis();
-			    _communicator.getLogger().trace(
-				"Freeze.Evictor",
-				"saved " + txSize + " objects in " + (now - saveStart) + " ms");
+			    DatabaseException ex = new DatabaseException();
+			    ex.initCause(dx);
+			    ex.message = _errorPrefix + "saving: " + dx.getMessage();
+			    throw ex;
 			}
-		    }
-		    catch(com.sleepycat.db.DbDeadlockException deadlock)
-		    {
-			if(_deadlockWarning)
-			{
-			    _communicator.getLogger().warning
-				("Deadlock in Freeze.EvictorI.run while writing into Db \"" + _dbName 
-				 + "\"; retrying ...");
-			}
-
-			tryAgain = true;
-			txSize = (txSize + 1)/2;
-		    }
-		    catch(com.sleepycat.db.DbException dx)
-		    {
-			DatabaseException ex = new DatabaseException();
-			ex.initCause(dx);
-			ex.message = _errorPrefix + "saving: " + dx.getMessage();
-			throw ex;
-		    }
-		} 
-	    } while(tryAgain);
-
-	    synchronized(this)
-	    {
-		_generation++;
+		    } 
+		} while(tryAgain);
 		
-		for(int i = 0; i < allObjects.size(); i++)
-		{    
+		synchronized(this)
+		{
+		    _generation++;
+		    
+		    for(int i = 0; i < allObjects.size(); i++)
+		    {    
 		    Facet facet = (Facet) allObjects.get(i);
 		    facet.element.usageCount--;
-
+		    
 		    if(facet != facet.element.mainObject)
 		    {
 			//
@@ -1265,22 +1256,34 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 			    }    
 			}
 		    }
-		}
-		allObjects.clear();
-		evict();
-
-		if(saveNowThreadsSize > 0)
-		{
-		    for(int i = 0; i < saveNowThreadsSize; i++)
-		    {
-			_saveNowThreads.remove(0);
 		    }
-		    notifyAll();
+		    allObjects.clear();
+		    evict();
+		    
+		    if(saveNowThreadsSize > 0)
+		    {
+			for(int i = 0; i < saveNowThreadsSize; i++)
+			{
+			    _saveNowThreads.remove(0);
+		    }
+			notifyAll();
+		    }
 		}
 	    }
 	}
+	catch(RuntimeException ex)
+	{
+	    java.io.StringWriter sw = new java.io.StringWriter();
+	    java.io.PrintWriter pw = new java.io.PrintWriter(sw);
+	    ex.printStackTrace(pw);
+	    pw.flush();
+	    _communicator.getLogger().error
+		(_errorPrefix + "Critical error in saving thread:\n" + sw.toString()
+		 + "\n*** Halting JVM ***");
+	    Runtime.getRuntime().halt(1);
+	}
     }
-
+	
     final Ice.Communicator
     communicator()
     {
