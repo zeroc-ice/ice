@@ -43,7 +43,7 @@ RSC=rc.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MT /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /c
-# ADD CPP /nologo /MD /Ze /W3 /GR /GX /O2 /I ".." /I "../../include" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /c
+# ADD CPP /nologo /MD /W3 /GR /GX /O2 /I ".." /I "../../include" /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "NDEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "NDEBUG" /mktyplib203 /win32
@@ -75,7 +75,7 @@ PostBuild_Cmds=copy Release\ice001.* ..\..\lib
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /MTd /W3 /Gm /GX /ZI /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /D "LIBRARY_EXPORTS" /Yu"stdafx.h" /FD /GZ /c
-# ADD CPP /nologo /MDd /Ze /W3 /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /GZ /c
+# ADD CPP /nologo /MDd /W3 /Gm /GR /GX /Zi /Od /I ".." /I "../../include" /D "WIN32" /D "_DEBUG" /D "_CONSOLE" /D "_USRDLL" /D "ICE_API_EXPORTS" /YX /FD /GZ /c
 # SUBTRACT CPP /Fr
 # ADD BASE MTL /nologo /D "_DEBUG" /mktyplib203 /win32
 # ADD MTL /nologo /D "_DEBUG" /mktyplib203 /win32
@@ -105,6 +105,10 @@ PostBuild_Cmds=copy Debug\ice001d.* ..\..\lib
 # Begin Source File
 
 SOURCE=.\Acceptor.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Application.cpp
 # End Source File
 # Begin Source File
 
@@ -212,6 +216,14 @@ SOURCE=.\Reference.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ServantFactory.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServantFactoryManager.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\SslAcceptor.cpp
 # End Source File
 # Begin Source File
@@ -258,14 +270,6 @@ SOURCE=.\Transceiver.cpp
 
 SOURCE=.\UdpTransceiver.cpp
 # End Source File
-# Begin Source File
-
-SOURCE=.\ServantFactory.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\ServantFactoryManager.cpp
-# End Source File
 # End Group
 # Begin Group "Header Files"
 
@@ -277,6 +281,10 @@ SOURCE=.\Ice\Acceptor.h
 # Begin Source File
 
 SOURCE=.\Ice\AcceptorF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Application.h
 # End Source File
 # Begin Source File
 
@@ -488,6 +496,22 @@ SOURCE=..\..\include\Ice\ReferenceF.h
 # End Source File
 # Begin Source File
 
+SOURCE=..\..\include\Ice\ServantFactory.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\ServantFactoryF.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Ice\ServantFactoryManager.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Ice\ServantFactoryManagerF.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Ice\SslAcceptor.h
 # End Source File
 # Begin Source File
@@ -545,22 +569,6 @@ SOURCE=.\Ice\TransceiverF.h
 # Begin Source File
 
 SOURCE=.\Ice\UdpTransceiver.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\ServantFactory.h
-# End Source File
-# Begin Source File
-
-SOURCE=..\..\include\Ice\ServantFactoryF.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Ice\ServantFactoryManager.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\Ice\ServantFactoryManagerF.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

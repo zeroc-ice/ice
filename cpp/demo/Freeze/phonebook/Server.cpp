@@ -136,5 +136,5 @@ int
 main(int argc, char* argv[])
 {
     PhoneBookServer app;
-    app.main(argc, argv, "config");
+    return app.main(argc, argv, "config");
 }
