@@ -121,6 +121,10 @@ IceBox::ServiceManagerI::run()
             {
                 (*r).second.service->start();
             }
+            catch (const FailureException& ex)
+            {
+                throw;
+            }
             catch (const Exception& ex)
             {
                 FailureException ex;
@@ -130,13 +134,19 @@ IceBox::ServiceManagerI::run()
         }
 
         //
-        // We may want to notify external scripts that the services have started.
-        // This is done by defining IceBox.PrintServicesReady=bundleName
-        // Where bundleName is whatever you choose to call this set of services.
-        // It will be echoed back as "bundleName ready".
+        // We may want to notify external scripts that the services
+        // have started. This is done by defining the property:
+        //
+        // IceBox.PrintServicesReady=bundleName
+        //
+        // Where bundleName is whatever you choose to call this set of
+        // services. It will be echoed back as "bundleName ready".
+        //
+        // This must be done after start() has been invoked on the
+        // services.
         //
         string bundleName = properties->getProperty("IceBox.PrintServicesReady");
-        if (bundleName.length() > 0)
+        if (!bundleName.empty())
         {
             cout << bundleName << " ready" << endl;
         }
@@ -314,16 +324,6 @@ IceBox::ServiceManagerI::stop(const string& service)
     try
     {
         info.service->stop();
-    }
-    catch (const FailureException& ex)
-    {
-        //
-        // Release the service before the library
-        //
-        info.service = 0;
-        info.library = 0;
-
-        throw;
     }
     catch (const Exception& ex)
     {
