@@ -9,69 +9,91 @@
 
 top_srcdir	= ..
 
-SRCS		= ApplicationImpl.py \
-		  BuiltinSequences_ice.py \
-		  Communicator_ice.py \
-		  CommunicatorF_ice.py \
-		  Current_ice.py \
-		  FacetMap_ice.py \
-		  Identity_ice.py \
-		  LocalException_ice.py \
-		  Locator_ice.py \
-		  LocatorF_ice.py \
-		  Logger_ice.py \
-		  LoggerF_ice.py \
-		  ObjectAdapter_ice.py \
-		  ObjectAdapterF_ice.py \
-		  ObjectFactory_ice.py \
-		  ObjectFactoryF_ice.py \
-		  Plugin_ice.py \
-		  PluginF_ice.py \
-		  Process_ice.py \
-		  ProcessF_ice.py \
-		  Properties_ice.py \
-		  PropertiesF_ice.py \
-		  Router_ice.py \
-		  RouterF_ice.py \
-		  ServantLocator_ice.py \
-		  ServantLocatorF_ice.py \
-		  Stats_ice.py \
-		  StatsF_ice.py \
-		  Connection_ice.py \
-		  ConnectionF_ice.py
+ICE_SRCS	= Ice_LocalException_ice.py \
+		  Ice_Communicator_ice.py \
+		  Ice_CommunicatorF_ice.py \
+		  Ice_Logger_ice.py \
+		  Ice_LoggerF_ice.py \
+		  Ice_BuiltinSequences_ice.py \
+		  Ice_ObjectAdapter_ice.py \
+		  Ice_ObjectAdapterF_ice.py \
+		  Ice_ServantLocator_ice.py \
+		  Ice_ServantLocatorF_ice.py \
+		  Ice_Properties_ice.py \
+		  Ice_PropertiesF_ice.py \
+		  Ice_ObjectFactory_ice.py \
+		  Ice_ObjectFactoryF_ice.py \
+		  Ice_Identity_ice.py \
+		  Ice_Current_ice.py \
+		  Ice_Router_ice.py \
+		  Ice_RouterF_ice.py \
+		  Ice_Plugin_ice.py \
+		  Ice_PluginF_ice.py \
+		  Ice_Locator_ice.py \
+		  Ice_LocatorF_ice.py \
+		  Ice_StatsF_ice.py \
+		  Ice_Stats_ice.py \
+		  Ice_Process_ice.py \
+		  Ice_ProcessF_ice.py \
+		  Ice_FacetMap_ice.py \
+		  Ice_Connection_ice.py \
+		  Ice_ConnectionF_ice.py \
+		  Ice_SliceChecksumDict_ice.py
 
-SLICE_SRCS	= $(SDIR)/LocalException.ice \
-		  $(SDIR)/Communicator.ice \
-		  $(SDIR)/CommunicatorF.ice \
-		  $(SDIR)/Logger.ice \
-		  $(SDIR)/LoggerF.ice \
-		  $(SDIR)/BuiltinSequences.ice \
-		  $(SDIR)/ObjectAdapter.ice \
-		  $(SDIR)/ObjectAdapterF.ice \
-		  $(SDIR)/ServantLocator.ice \
-		  $(SDIR)/ServantLocatorF.ice \
-		  $(SDIR)/Properties.ice \
-		  $(SDIR)/PropertiesF.ice \
-		  $(SDIR)/ObjectFactory.ice \
-		  $(SDIR)/ObjectFactoryF.ice \
-		  $(SDIR)/Identity.ice \
-		  $(SDIR)/Current.ice \
-		  $(SDIR)/Router.ice \
-		  $(SDIR)/RouterF.ice \
-		  $(SDIR)/Plugin.ice \
-		  $(SDIR)/PluginF.ice \
-		  $(SDIR)/Locator.ice \
-		  $(SDIR)/LocatorF.ice \
-                  $(SDIR)/StatsF.ice \
-                  $(SDIR)/Stats.ice \
-                  $(SDIR)/Process.ice \
-                  $(SDIR)/ProcessF.ice \
-                  $(SDIR)/FacetMap.ice \
-		  $(SDIR)/Connection.ice \
-		  $(SDIR)/ConnectionF.ice
+GLACIER_SRCS	= Glacier_Router_ice.py \
+		  Glacier_SessionF_ice.py \
+		  Glacier_Session_ice.py \
+		  Glacier_SessionManagerF_ice.py \
+		  Glacier_SessionManager_ice.py \
+		  Glacier_Starter_ice.py
 
-SDIR		= $(slicedir)/Ice
+GLACIER2_SRCS	= Glacier2_PermissionsVerifierF_ice.py \
+		  Glacier2_PermissionsVerifier_ice.py \
+		  Glacier2_RouterF_ice.py \
+		  Glacier2_Router_ice.py
+
+ICEBOX_SRCS	= IceBox_IceBox_ice.py
+
+ICEPACK_SRCS	= IcePack_Admin_ice.py \
+		  IcePack_Exception_ice.py \
+		  IcePack_Query_ice.py
+
+ICEPATCH_SRCS	= IcePatch_IcePatch_ice.py
+
+ICESTORM_SRCS	= IceStorm_IceStorm_ice.py
 
 include $(top_srcdir)/config/Make.rules
 
-SLICE2PYFLAGS	:= --ice --no-package $(SLICE2PYFLAGS)
+all:: $(ICE_SRCS) $(GLACIER_SRCS) $(GLACIER2_SRCS) $(ICEBOX_SRCS) $(ICEPACK_SRCS) $(ICEPATCH_SRCS) $(ICESTORM_SRCS)
+
+Ice_%_ice.py: $(slicedir)/Ice/%.ice
+	rm -f $(*F).py
+	$(SLICE2PY) --prefix Ice_ --ice --no-package $(SLICE2PYFLAGS) $<
+
+Glacier_%_ice.py: $(slicedir)/Glacier/%.ice
+	rm -f $(*F).py
+	$(SLICE2PY) --prefix Glacier_ --checksum $(SLICE2PYFLAGS) $<
+
+Glacier2_%_ice.py: $(slicedir)/Glacier2/%.ice
+	rm -f $(*F).py
+	$(SLICE2PY) --prefix Glacier2_ --checksum $(SLICE2PYFLAGS) $<
+
+IceBox_%_ice.py: $(slicedir)/IceBox/%.ice
+	rm -f $(*F).py
+	$(SLICE2PY) --prefix IceBox_ --ice --checksum $(SLICE2PYFLAGS) $<
+
+IcePack_%_ice.py: $(slicedir)/IcePack/%.ice
+	rm -f $(*F).py
+	$(SLICE2PY) --prefix IcePack_ --ice --checksum $(SLICE2PYFLAGS) $<
+
+IcePatch_%_ice.py: $(slicedir)/IcePatch/%.ice
+	rm -f $(*F).py
+	$(SLICE2PY) --prefix IcePatch_ --ice --checksum $(SLICE2PYFLAGS) $<
+
+IceStorm_%_ice.py: $(slicedir)/IceStorm/%.ice
+	rm -f $(*F).py
+	$(SLICE2PY) --prefix IceStorm_ --ice --checksum $(SLICE2PYFLAGS) $<
+
+clean::
+	rm -rf Glacier Glacier2 IceBox IcePack IcePatch IceStorm
+	rm -f *_ice.py

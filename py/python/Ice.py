@@ -2,7 +2,7 @@
 Ice module
 """
 
-import sys, exceptions, string, imp
+import sys, exceptions, string, imp, os
 import IcePy
 
 #
@@ -103,21 +103,350 @@ IcePy._t_ObjectPrx = IcePy.declareProxy('::Ice::Object')
 sliceChecksums = {}
 
 #
-# Import Ice types.
+# Import generated Ice modules.
 #
-import BuiltinSequences_ice
-import CommunicatorImpl
-import Current_ice
-import Identity_ice
-import LocalException_ice
-import ObjectAdapterImpl
-import ObjectFactory_ice
-import PropertiesImpl
-import ServantLocator_ice
-import Router_ice
-import Locator_ice
-import Logger_ice
-import ApplicationImpl
+import Ice_BuiltinSequences_ice
+import Ice_Communicator_ice
+import Ice_Current_ice
+import Ice_Identity_ice
+import Ice_LocalException_ice
+import Ice_Locator_ice
+import Ice_Logger_ice
+import Ice_ObjectAdapter_ice
+import Ice_ObjectFactory_ice
+import Ice_Properties_ice
+import Ice_Router_ice
+import Ice_ServantLocator_ice
+
+#
+# Communicator wrapper.
+#
+class CommunicatorI(Communicator):
+    def __init__(self, impl):
+        self._impl = impl
+
+    def destroy(self):
+        self._impl.destroy()
+
+    def shutdown(self):
+        self._impl.shutdown()
+
+    def waitForShutdown(self):
+        self._impl.waitForShutdown()
+
+    def stringToProxy(self, str):
+        return self._impl.stringToProxy(str)
+
+    def proxyToString(self, obj):
+        return self._impl.proxyToString(obj)
+
+    def createObjectAdapter(self, name):
+        adapter = self._impl.createObjectAdapter(name)
+        return ObjectAdapterI(adapter)
+
+    def createObjectAdapterWithEndpoints(self, name, endpoints):
+        adapter = self._impl.createObjectAdapterWithEndpoints(name, endpoints)
+        return ObjectAdapterI(adapter)
+
+    def addObjectFactory(self, factory, id):
+        self._impl.addObjectFactory(factory, id)
+
+    def removeObjectFactory(self, id):
+        self._impl.removeObjectFactory(id)
+
+    def findObjectFactory(self, id):
+        return self._impl.findObjectFactory(id)
+
+    def getProperties(self):
+        properties = self._impl.getProperties()
+        return PropertiesI(properties)
+
+    def getLogger(self):
+        logger = self._impl.getLogger()
+        return LoggerI(logger)
+
+    def setLogger(self, log):
+        self._impl.setLogger(log)
+
+    def getStats(self):
+        raise RuntimeError("operation `getStats' not implemented")
+
+    def setStats(self, st):
+        raise RuntimeError("operation `setStats' not implemented")
+
+    def getDefaultRouter(self):
+        return self._impl.getDefaultRouter()
+
+    def setDefaultRouter(self, rtr):
+        self._impl.setDefaultRouter(rtr)
+
+    def getDefaultLocator(self):
+        return self._impl.getDefaultLocator()
+
+    def setDefaultLocator(self, loc):
+        self._impl.setDefaultLocator(loc)
+
+    def getPluginManager(self):
+        raise RuntimeError("operation `getPluginManager' not implemented")
+
+    def flushBatchRequests(self):
+        self._impl.flushBatchRequests()
+
+#
+# Ice.initialize()
+#
+def initialize(args=[]):
+    communicator = IcePy.initialize(args)
+    return CommunicatorI(communicator)
+
+#
+# Ice.initializeWithProperties()
+#
+def initializeWithProperties(args, properties):
+    communicator = IcePy.initializeWithProperties(args, properties._impl)
+    return CommunicatorI(communicator)
+
+#
+# ObjectAdapter wrapper.
+#
+class ObjectAdapterI(ObjectAdapter):
+    def __init__(self, impl):
+        self._impl = impl
+
+    def getName(self):
+        return self._impl.getName()
+
+    def getCommunicator(self):
+        communicator = self._impl.getCommunicator()
+        return CommunicatorI(communicator)
+
+    def activate(self):
+        self._impl.activate()
+
+    def hold(self):
+        self._impl.hold()
+
+    def waitForHold(self):
+        self._impl.waitForHold()
+
+    def deactivate(self):
+        self._impl.deactivate()
+
+    def waitForDeactivate(self):
+        self._impl.waitForDeactivate()
+
+    def add(self, servant, id):
+        return self._impl.add(servant, id)
+
+    def addFacet(self, servant, id, facet):
+        return self._impl.addFacet(servant, id, facet)
+
+    def addWithUUID(self, servant):
+        return self._impl.addWithUUID(servant)
+
+    def addFacetWithUUID(self, servant, facet):
+        return self._impl.addFacetWIthUUID(servant, facet)
+
+    def remove(self, id):
+        return self._impl.remove(id)
+
+    def removeFacet(self, id, facet):
+        return self._impl.removeFacet(id, facet)
+
+    def removeAllFacets(self, id):
+        return self._impl.removeAllFacets(id)
+
+    def find(self, id):
+        return self._impl.find(id)
+
+    def findFacet(self, id, facet):
+        return self._impl.findFacet(id, facet)
+
+    def findAllFacets(self, id):
+        return self._impl.findAllFacets(id)
+
+    def findByProxy(self, proxy):
+        return self._impl.findByProxy(proxy)
+
+    def addServantLocator(self, locator, category):
+        self._impl.addServantLocator(locator, category)
+
+    def findServantLocator(self, category):
+        return self._impl.findServantLocator(category)
+
+    def createProxy(self, id):
+        return self._impl.createProxy(id)
+
+    def createDirectProxy(self, id):
+        return self._impl.createDirectProxy(id)
+
+    def createReverseProxy(self, id):
+        return self._impl.createReverseProxy(id)
+
+    def addRouter(self, rtr):
+        self._impl.addRouter(rtr)
+
+    def setLocator(self, loc):
+        self._impl.setLocator(loc)
+
+#
+# Properties wrapper.
+#
+class PropertiesI(Properties):
+    def __init__(self, impl):
+        self._impl = impl
+
+    def getProperty(self, key):
+        return self._impl.getProperty(key)
+
+    def getPropertyWithDefault(self, key, value):
+        return self._impl.getPropertyWithDefault(key, value)
+
+    def getPropertyAsInt(self, key):
+        return self._impl.getPropertyAsInt(key)
+
+    def getPropertyAsIntWithDefault(self, key, value):
+        return self._impl.getPropertyAsIntWithDefault(key, value)
+
+    def getPropertiesForPrefix(self, prefix):
+        return self._impl.getPropertiesForPrefix(prefix)
+
+    def setProperty(self, key, value):
+        self._impl.setProperty(key, value)
+
+    def getCommandLineOptions(self):
+        return self._impl.getCommandLineOptions()
+
+    def parseCommandLineOptions(self, prefix, options):
+        self._impl.parseCommandLineOptions(prefix, options)
+
+    def parseIceCommandLineOptions(self, options):
+        self._impl.parseIceCommandLineOptions(options)
+
+    def load(self, file):
+        self._impl.load(file)
+
+    def clone(self):
+        properties = self._impl.clone()
+        return PropertiesI(properties)
+
+    def __iter__(self):
+        dict = self._impl.getPropertiesForPrefix('')
+        return iter(dict)
+
+    def __str__(self):
+        return str(self._impl)
+
+#
+# Ice.createProperties()
+#
+def createProperties(args=[]):
+    properties = IcePy.createProperties(args)
+    return PropertiesI(properties)
+
+#
+# Ice.getDefaultProperties()
+#
+def getDefaultProperties(args=[]):
+    properties = IcePy.getDefaultProperties(args)
+    return PropertiesI(properties)
+
+#
+# Application class.
+#
+class Application(object):
+    def __init__(self):
+        pass
+
+    def __del__(self):
+        pass
+
+    def main(self, args, configFile=None):
+        if Application._communicator:
+            print args[0] + ": only one instance of the Application class can be used"
+            return False
+
+        Application._interrupted = False
+        Application._appName = args[0]
+
+        status = 0
+
+        try:
+            if configFile:
+                properties = createProperties(args)
+                properties.load(configFile)
+                Application._communicator = initializeWithProperties(args, properties)
+            else:
+                Application._communicator = initialize(args)
+
+            #
+            # The default is to destroy when a signal is received.
+            #
+            Application.destroyOnInterrupt()
+
+            status = self.run(args)
+        except Exception, ex:
+            print Application._appName + ": " + str(ex)
+            status = 1
+        except exceptions.Exception, ex:
+            print Application._appName + ": " + str(ex)
+            status = 1
+
+        if Application._communicator:
+            #
+            # We don't want to handle signals anymore.
+            #
+            Application.ignoreInterrupt()
+
+            try:
+                Application._communicator.destroy()
+            except Exception, ex:
+                print Application._appName + ": " + str(ex)
+                status = 1
+
+            Application._communicator = None
+
+        return status
+
+    def run(self, args):
+        raise RuntimeError('run() not implemented')
+
+    def appName():
+        return Application._appName
+    appName = staticmethod(appName)
+
+    def communicator():
+        return Application._communicator
+    communicator = staticmethod(communicator)
+
+    def destroyOnInterrupt():
+        pass
+    destroyOnInterrupt = staticmethod(destroyOnInterrupt)
+
+    def shutdownOnInterrupt():
+        pass
+    shutdownOnInterrupt = staticmethod(shutdownOnInterrupt)
+
+    def ignoreInterrupt():
+        pass
+    ignoreInterrupt = staticmethod(ignoreInterrupt)
+
+    def holdInterrupt():
+        pass
+    holdInterrupt = staticmethod(holdInterrupt)
+
+    def releaseInterrupt():
+        pass
+    releaseInterrupt = staticmethod(releaseInterrupt)
+
+    def interrupted():
+        pass
+    interrupted = staticmethod(interrupted)
+
+    _appName = None
+    _communicator = None
+    _interrupted = False
+    _released = False
 
 #
 # Define Ice::Object and Ice::ObjectPrx.
