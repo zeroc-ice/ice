@@ -32,11 +32,11 @@ import random, string
 values = range(32, 500) + range(2000, 2500) + range(40000, 40100)
 random.shuffle(values)
 characters = string.join(map(unichr, values), u"")
-file = open(os.path.join(testdir, "numeric.txt"), "w")
+file = open("numeric.txt", "w")
 for w in values:
     file.write(str(w) + "\n")
 file.close();
-file = open(os.path.join(testdir, "utf8.txt"), "wb")
+file = open("utf8.txt", "wb")
 file.write(characters.encode("utf-8"))
 file.close();
 print "ok"
