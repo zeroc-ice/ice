@@ -124,7 +124,6 @@ IcePack::Registry::start(bool nowarn, bool requiresInternalEndpoints)
     
     _communicator->setDefaultLocator(0);
 
-    properties->setProperty("Ice.Daemon", "0");
     properties->setProperty("Ice.PrintProcessId", "0");
     properties->setProperty("Ice.Warn.Leaks", "0");
 

@@ -24,6 +24,7 @@
 #include <Ice/LocatorInfo.h>
 #include <Ice/Locator.h>
 #include <Ice/StringUtil.h>
+#include <Ice/Functional.h>
 
 using namespace std;
 using namespace Ice;
@@ -628,12 +629,82 @@ IceInternal::Reference::changeCollocationOptimization(bool newCollocationOptimiz
 ReferencePtr
 IceInternal::Reference::changeDefault() const
 {
-    RouterInfoPtr defaultRouterInfo = instance->routerManager()->get(instance->referenceFactory()->getDefaultRouter());
-    LocatorInfoPtr defaultLocatorInfo = instance->locatorManager()->get(instance->referenceFactory()->getDefaultLocator());
+    RouterInfoPtr defaultRouterInfo = instance->routerManager()->
+	get(instance->referenceFactory()->getDefaultRouter());
+    LocatorInfoPtr defaultLocatorInfo = instance->locatorManager()->
+	get(instance->referenceFactory()->getDefaultLocator());
 
     return instance->referenceFactory()->create(identity, context, FacetPath(), ModeTwoway, false, adapterId,
 						endpoints, defaultRouterInfo, defaultLocatorInfo, 0, true);
 }
+
+vector<EndpointPtr>
+IceInternal::Reference::filterEndpoints(const vector<EndpointPtr>& allEndpoints)
+{
+    vector<EndpointPtr> endpoints = allEndpoints;
+
+    //
+    // Filter out unknown endpoints.
+    //
+    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), ::Ice::constMemFun(&Endpoint::unknown)),
+                    endpoints.end());
+
+    switch(mode)
+    {
+	case ModeTwoway:
+	case ModeOneway:
+	case ModeBatchOneway:
+	{
+	    //
+	    // Filter out datagram endpoints.
+	    //
+            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), ::Ice::constMemFun(&Endpoint::datagram)),
+                            endpoints.end());
+	    break;
+	}
+	
+	case ModeDatagram:
+	case ModeBatchDatagram:
+	{
+	    //
+	    // Filter out non-datagram endpoints.
+	    //
+            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
+                                      not1(::Ice::constMemFun(&Endpoint::datagram))),
+                            endpoints.end());
+	    break;
+	}
+    }
+    
+    //
+    // Randomize the order of endpoints.
+    //
+    random_shuffle(endpoints.begin(), endpoints.end());
+    
+    //
+    // If a secure connection is requested, remove all non-secure
+    // endpoints. Otherwise make non-secure endpoints preferred over
+    // secure endpoints by partitioning the endpoint vector, so that
+    // non-secure endpoints come first.
+    //
+    if(secure)
+    {
+	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure))),
+			endpoints.end());
+    }
+    else
+    {
+	//
+	// We must use stable_partition() instead of just simply
+	// partition(), because otherwise some STL implementations
+	// order our now randomized endpoints.
+	//
+	stable_partition(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure)));
+    }
+    
+    return endpoints;
+}
+
 
 IceInternal::Reference::Reference(const InstancePtr& inst,
 				  const Identity& ident,

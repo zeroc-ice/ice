@@ -112,11 +112,6 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 	{
 	    case DispatchOK:
 	    {
-		//
-		// Input and output parameters are always sent in an
-		// encapsulation, which makes it possible to forward
-		// oneway requests as blobs.
-		//
 		_is->startReadEncaps();
 		__response(true);
 		break;
@@ -124,11 +119,6 @@ IceInternal::OutgoingAsync::__finished(BasicStream& is)
 	    
 	    case DispatchUserException:
 	    {
-		//
-		// Input and output parameters are always sent in an
-		// encapsulation, which makes it possible to forward
-		// oneway requests as blobs.
-		//
 		_is->startReadEncaps();
 		__response(false);
 		break;

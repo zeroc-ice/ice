@@ -1265,9 +1265,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	C << sp << nl << "void" << nl << "IceProxy" << scoped << "_async" << paramsDeclAMI
 	  << ", const ::Ice::Context& __ctx)";
 	C << sb;
-	C << nl << "int __cnt = 0;";
-	C << nl << "while(true)";
-	C << sb;
 	C << nl << "try";
 	C << sb;
 	// Async requests may only be sent twoway.
@@ -1277,12 +1274,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 	  << thisPointer << ">(__delBase.get());";
 	C << nl;
 	C << "__del->" << name << "_async" << argsAMI << "__ctx);";
-	C << nl << "return;";
 	C << eb;
 	C << nl << "catch(const ::Ice::LocalException& __ex)";
 	C << sb;
-	C << nl << "__handleException(__ex, __cnt);";
-	C << eb;
+	C << nl << "__cb->__finished(__ex);";
 	C << eb;
 	C << eb;
     }

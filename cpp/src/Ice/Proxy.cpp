@@ -328,20 +328,15 @@ IceProxy::Ice::Object::ice_invoke_async(const AMI_Object_ice_invokePtr& cb,
 					const vector<Byte>& inParams,
 					const Context& context)
 {
-    int __cnt = 0;
-    while(true)
+    try
     {
-	try
-	{
-	    __checkTwowayOnly("ice_invoke_async");
-	    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-	    __del->ice_invoke_async(cb, operation, mode, inParams, context);
-	    return;
-	}
-	catch(const LocalException& __ex)
-	{
-	    __handleException(__ex, __cnt);
-	}
+	__checkTwowayOnly("ice_invoke_async");
+	Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+	__del->ice_invoke_async(cb, operation, mode, inParams, context);
+    }
+    catch(const LocalException& __ex)
+    {
+	cb->__finished(__ex);
     }
 }
 
@@ -1063,7 +1058,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	endpoints.reserve(connections.size());
 	transform(connections.begin(), connections.end(), back_inserter(endpoints),
 		  ::Ice::constMemFun(&Connection::endpoint));
-	endpoints = filterEndpoints(endpoints);
+	endpoints = __reference->filterEndpoints(endpoints);
 	
 	if(endpoints.empty())
 	{
@@ -1109,7 +1104,7 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 		endpoints = __reference->locatorInfo->getEndpoints(__reference, cached);
 	    }
 
-	    vector<EndpointPtr> filteredEndpoints = filterEndpoints(endpoints);
+	    vector<EndpointPtr> filteredEndpoints = __reference->filterEndpoints(endpoints);
 	    if(filteredEndpoints.empty())
 	    {
 		NoEndpointException ex(__FILE__, __LINE__);
@@ -1161,73 +1156,6 @@ IceDelegateM::Ice::Object::setup(const ReferencePtr& ref)
 	    __connection->setAdapter(__reference->routerInfo->getAdapter());
 	}
     }
-}
-
-vector<EndpointPtr>
-IceDelegateM::Ice::Object::filterEndpoints(const vector<EndpointPtr>& allEndpoints) const
-{
-    vector<EndpointPtr> endpoints = allEndpoints;
-
-    //
-    // Filter out unknown endpoints.
-    //
-    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), ::Ice::constMemFun(&Endpoint::unknown)),
-                    endpoints.end());
-
-    switch(__reference->mode)
-    {
-	case Reference::ModeTwoway:
-	case Reference::ModeOneway:
-	case Reference::ModeBatchOneway:
-	{
-	    //
-	    // Filter out datagram endpoints.
-	    //
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), ::Ice::constMemFun(&Endpoint::datagram)),
-                            endpoints.end());
-	    break;
-	}
-	
-	case Reference::ModeDatagram:
-	case Reference::ModeBatchDatagram:
-	{
-	    //
-	    // Filter out non-datagram endpoints.
-	    //
-            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
-                                      not1(::Ice::constMemFun(&Endpoint::datagram))),
-                            endpoints.end());
-	    break;
-	}
-    }
-    
-    //
-    // Randomize the order of endpoints.
-    //
-    random_shuffle(endpoints.begin(), endpoints.end());
-    
-    //
-    // If a secure connection is requested, remove all non-secure
-    // endpoints. Otherwise make non-secure endpoints preferred over
-    // secure endpoints by partitioning the endpoint vector, so that
-    // non-secure endpoints come first.
-    //
-    if(__reference->secure)
-    {
-	endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure))),
-			endpoints.end());
-    }
-    else
-    {
-	//
-	// We must use stable_partition() instead of just simply
-	// partition(), because otherwise some STL implementations
-	// order our now randomized endpoints.
-	//
-	stable_partition(endpoints.begin(), endpoints.end(), not1(::Ice::constMemFun(&Endpoint::secure)));
-    }
-    
-    return endpoints;
 }
 
 bool

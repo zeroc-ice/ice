@@ -218,9 +218,6 @@ private:
 
     void setup(const ::IceInternal::ReferencePtr&);
     friend class ::IceProxy::Ice::Object;
-
-    ::std::vector< ::IceInternal::EndpointPtr>
-    filterEndpoints(const ::std::vector< ::IceInternal::EndpointPtr>&) const;
 };
 
 } }

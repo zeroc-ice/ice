@@ -95,6 +95,11 @@ public:
     ReferencePtr changeCollocationOptimization(bool) const;
     ReferencePtr changeDefault() const;
  
+    //
+    // Filter endpoints based on criteria from this reference.
+    //
+    std::vector<EndpointPtr> filterEndpoints(const std::vector<EndpointPtr>&);
+
 private:
 
     Reference(const InstancePtr&, const Ice::Identity&, const Ice::Context&, const Ice::FacetPath&, Mode, bool,
