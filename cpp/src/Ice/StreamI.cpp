@@ -301,8 +301,14 @@ Ice::StreamI::writeObject(const ObjectPtr& value)
     _stream.write(value);
 }
 
-void
-Ice::StreamI::readObject(ObjectPtr& value)
+bool
+Ice::StreamI::readObject(const string& signatureType, ObjectPtr& value)
 {
-    _stream.read("", value);
+    return _stream.read(signatureType.c_str(), value);
+}
+
+void
+Ice::StreamI::readObjectData(const ObjectPtr& value)
+{
+    _stream.read(value);
 }

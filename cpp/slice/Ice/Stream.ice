@@ -439,16 +439,36 @@ local interface Stream
 
     /**
      *
-     * Read a single object. This operation raises
-     * [NoObjectFactoryException] if no suitable factory for the
-     * object to be read can be found.
+     * Read a single object. Returns true if an object could be
+     * successfully created and read. Returns false if no suitable
+     * factory for the object is available, but the [signatureType]
+     * parameter matches the type of the object being read, meaning
+     * that stub or skeleton code can create the object and read it
+     * with a subsequent call to [readObjectData]. If no suitable
+     * factory is available, and if the [signatureType] parameter
+     * doesn't match the type of the object that has been read,
+     * [NoObjectFactoryException] is raised.
+     *
+     * @param signatureType The signature type, as described above.
      *
      * @param value The object that has been read.
      *
+     * @return The return value as described above;
+     *
      * @see ObjectFactory
+     * @see readObjectData
      *
      **/
-    void readObject(; Object value);
+    bool readObject(string signatureType ; Object value);
+
+    /**
+     *
+     * Read the data of an object that has already been created.
+     *
+     * @param value The object for which data is to be read.
+     *
+     **/
+    void readObjectData(Object value);
 };
 
 };

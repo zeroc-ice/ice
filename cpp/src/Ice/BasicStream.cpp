@@ -904,6 +904,12 @@ IceInternal::BasicStream::read(const char* signatureType, ObjectPtr& v)
 	    v = 0;
 	    return true;
 	}
+	else if (id == "::Ice::Object")
+	{
+	    v = new ::Ice::Object;
+	    read(v);
+	    return true;
+	}
 	else
 	{
 	    ObjectFactoryPtr factory = _instance->servantFactoryManager()->find(id);
@@ -913,21 +919,27 @@ IceInternal::BasicStream::read(const char* signatureType, ObjectPtr& v)
 		v = factory->create(id);
 		if (v)
 		{
-		    _encapsStack.back().objectsRead.push_back(v);
-		    v->__read(this);
+		    read(v);
 		    return true;
 		}
 	    }
 	    
 	    if (id == signatureType)
 	    {
-		_encapsStack.back().objectsRead.push_back(v);
 		return false;
 	    }
 	    
 	    throw NoObjectFactoryException(__FILE__, __LINE__);
 	}
     }
+}
+
+void
+IceInternal::BasicStream::read(const ObjectPtr& v)
+{
+    assert(v);
+    _encapsStack.back().objectsRead.push_back(v);
+    v->__read(this);
 }
 
 void

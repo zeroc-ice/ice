@@ -103,6 +103,7 @@ public:
 
     void write(const Ice::ObjectPtr&);
     bool read(const char*, Ice::ObjectPtr&);
+    void read(const Ice::ObjectPtr&);
 
     void write(const Ice::UserException&);
     ::Ice::Int throwException(const char**, const char**);

@@ -291,10 +291,25 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 
     string func = marshal ? "write(" : "read(";
 
-    if (BuiltinPtr::dynamicCast(type))
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if (builtin)
     {
-	out << nl << stream << deref << func << param << ");";
-	return;
+	if (builtin->kind() == Builtin::KindObject)
+	{
+	    if (marshal)
+	    {
+		out << nl << stream << deref << func << param << ");";
+	    }
+	    else
+	    {
+		out << nl << stream << deref << func << "::Ice::Object::__classIds[0], " << param << ")";
+	    }
+	}
+	else
+	{
+	    out << nl << stream << deref << func << param << ");";
+	    return;
+	}
     }
     
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -319,7 +334,8 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 		out << nl << "else";
 		out << sb;
 		out << nl << param << " = new " << cl->scoped() << ';';
-		out << nl << param << "->__" << func << stream << ");";
+		out << nl << obj << " = " << param << ';';
+		out << nl << stream << deref << func << obj << ");";
 		out << eb;
 	    }
 	    else

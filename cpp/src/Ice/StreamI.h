@@ -70,7 +70,8 @@ public:
     virtual void writeProxy(const ObjectPrx&);
     virtual void readProxy(ObjectPrx&);
     virtual void writeObject(const ObjectPtr&);
-    virtual void readObject(ObjectPtr&);
+    virtual bool readObject(const std::string&, ObjectPtr&);
+    virtual void readObjectData(const ObjectPtr&);
 
 private:
 
