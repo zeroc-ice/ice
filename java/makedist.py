@@ -99,7 +99,6 @@ os.system("cvs " + quiet + " -d cvs.mutablerealms.com:/home/cvsroot export " + t
 print "Copying Slice directories..."
 slicedirs = [\
     "Freeze",\
-    "Glacier",\
     "Glacier2",\
     "Ice",\
     "IceBox",\
