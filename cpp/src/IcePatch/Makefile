@@ -17,7 +17,8 @@ TARGETS		= $(CLIENT) $(SERVER)
 
 OBJS		= Node.o
 
-COBJS		= Client.o
+COBJS		= Client.o \
+		  NodeDescFactory.o
 
 SOBJS		= Server.o \
 		  NodeI.o \

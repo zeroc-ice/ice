@@ -37,7 +37,8 @@ public:
     
     DirectoryI(const Ice::ObjectAdapterPtr&);
 
-    virtual Nodes getNodes(const Ice::Current&);
+    virtual NodeDescPtr describe(const Ice::Current&);
+    virtual NodeDescSeq getContents(const Ice::Current&);
 };
 
 class FileI : virtual public File,
@@ -47,6 +48,7 @@ public:
     
     FileI(const Ice::ObjectAdapterPtr&);
 
+    virtual NodeDescPtr describe(const Ice::Current&);
     virtual Ice::ByteSeq getBytes(Ice::Int, Ice::Int, const Ice::Current&);
 };
 

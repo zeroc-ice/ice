@@ -21,22 +21,38 @@ exception NodeAccessException
     string reason;
 };
 
-interface Node
+class NodeDesc
 {
 };
 
-sequence<Node*> Nodes;
+sequence<NodeDesc> NodeDescSeq;
+
+interface Node
+{
+    NodeDesc describe()
+	throws NodeAccessException;
+};
 
 interface Directory extends Node
 {
-    Nodes getNodes()
+    NodeDescSeq getContents()
 	throws NodeAccessException;
+};
+
+class DirectoryDesc extends NodeDesc
+{
+    Directory* directory;
 };
 
 interface File extends Node
 {
     Ice::ByteSeq getBytes(int startPos, int howMuch)
 	throws NodeAccessException;
+};
+
+class FileDesc extends NodeDesc
+{
+    File* file;
 };
 
 };

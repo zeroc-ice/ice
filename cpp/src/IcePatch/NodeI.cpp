@@ -9,9 +9,6 @@
 // **********************************************************************
 
 #include <IcePatch/NodeI.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <dirent.h>
 
 using namespace std;

@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Ice/Application.h>
-#include <IcePatch/Node.h>
+#include <IcePatch/NodeDescFactory.h>
 
 using namespace std;
 using namespace Ice;
@@ -24,6 +24,7 @@ public:
 
     void usage();
     virtual int run(int, char*[]);
+    void printNodeDesc(const NodeDescPtr&);
     void printNodeDescSeq(const NodeDescSeq&, const string&);
 };
 
@@ -91,21 +92,62 @@ IcePatch::Client::run(int argc, char* argv[])
     }
 
     //
+    // Create and install the node description factory.
+    //
+    ObjectFactoryPtr factory = new NodeDescFactory;
+    communicator()->addObjectFactory(factory, "::IcePatch::DirectoryDesc");
+    communicator()->addObjectFactory(factory, "::IcePatch::FileDesc");
+
+    //
     // Display node structure.
     //
     ObjectPrx topObj = communicator()->stringToProxy("IcePatch/.:" + endpoints);
     NodePrx top = NodePrx::checkedCast(topObj);
-    NodeDescPtr nodeDesc = top->describe();
-    NodeDescSeq nodeDescSeq;
-    nodeDescSeq.push_back(nodeDesc);
-    printNodeDescSeq(nodeDescSeq, "");
+    printNodeDesc(top->describe());
 
     return EXIT_SUCCESS;
 }
 
 void
+IcePatch::Client::printNodeDesc(const NodeDescPtr& nodeDesc)
+{
+    string name;
+    DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(nodeDesc);
+    if (directoryDesc)
+    {
+	name = directoryDesc->directory->ice_getIdentity().name;
+    }
+    else
+    {
+	FileDescPtr fileDesc = FileDescPtr::dynamicCast(nodeDesc);
+	assert(fileDesc);
+	name = fileDesc->file->ice_getIdentity().name;
+    }
+    
+    string::size_type pos = name.rfind('/');
+    if (pos != string::npos)
+    {
+	name.erase(0, pos + 1);
+    }
+    
+    cout << name << endl;
+    
+    if (directoryDesc)
+    {
+	printNodeDescSeq(directoryDesc->directory->getContents(), "");
+    }
+}
+
+void
 IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string& indent)
 {
+    if (nodeDescSeq.empty())
+    {
+	return;
+    }
+
+    cout << indent << "| " << endl;
+
     for (unsigned int i = 0; i < nodeDescSeq.size(); ++i)
     {
 	string name;
@@ -127,7 +169,7 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 	    name.erase(0, pos + 1);
 	}
 	
-	cout << "+-" << name << endl;
+	cout << indent << "+-" << name << endl;
 	
 	if (directoryDesc)
 	{
@@ -144,6 +186,8 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 	    printNodeDescSeq(directoryDesc->directory->getContents(), newIndent);
 	}
     }
+
+    cout << indent << "  " << endl;
 }
 
 int
