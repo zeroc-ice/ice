@@ -8,12 +8,10 @@
 //
 // **********************************************************************
 
-#ifndef ICE_ICE_STUB_H
-#define ICE_ICE_STUB_H
+#ifndef ICE_ICE_SKELETON_H
+#define ICE_ICE_SKELETON_H
 
-#include <Ice/Stub.h>
-#include <Ice/ObjectHandle.h>
-#include <Ice/ObjectFactory.h>
-#include <Ice/Outgoing.h>
+#include <Ice/Skeleton.h>
+#include <Ice/Incoming.h>
 
 #endif

@@ -15,10 +15,11 @@
 #include <Ice/EndpointF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/Shared.h>
-#include <Ice/Stream.h>
 
 namespace __Ice
 {
+
+class Stream;
 
 class ICE_API ReferenceI : public Shared
 {
@@ -63,18 +64,17 @@ private:
     void operator=(const ReferenceI&);
 };
 
-template<>
-inline void streamWrite<Reference>(Stream* s, const Reference& v)
-{
-    assert(v); // TODO: null references
-    v -> streamWrite(s);
-}
+template<typename T>
+void streamWrite(Stream*, const T&);
+
+template<typename T>
+void streamRead(Stream*, T&);
 
 template<>
-inline void streamRead<Reference>(Stream* s, Reference& v)
-{
-    v = new ReferenceI(s);
-}
+void streamWrite<Reference>(Stream*, const Reference&);
+
+template<>
+void streamRead<Reference>(Stream*, Reference& v);
 
 }
 

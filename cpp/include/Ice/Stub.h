@@ -11,12 +11,11 @@
 #ifndef ICE_STUB_H
 #define ICE_STUB_H
 
+#include <Ice/StubF.h>
 #include <Ice/ObjectFactoryF.h>
 #include <Ice/EmitterF.h>
 #include <Ice/ReferenceF.h>
-#include <Ice/ObjectHandle.h>
 #include <Ice/Shared.h>
-#include <Ice/Outgoing.h>
 
 namespace Ice
 {

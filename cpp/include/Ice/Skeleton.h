@@ -13,7 +13,13 @@
 
 #include <Ice/SkeletonF.h>
 #include <Ice/Shared.h>
-#include <Ice/Incoming.h>
+
+namespace __Ice
+{
+
+class Incoming;
+
+}
 
 namespace IceServant { namespace Ice
 {

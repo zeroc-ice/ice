@@ -17,10 +17,11 @@
 #include <Ice/ConnectorF.h>
 #include <Ice/AcceptorF.h>
 #include <Ice/Shared.h>
-#include <Ice/Stream.h>
 
 namespace __Ice
 {
+
+class Stream;
 
 const ::Ice::Short UnknownEndpointType = 0;
 const ::Ice::Short TcpEndpointType = 1;
@@ -207,18 +208,17 @@ private:
     const ::Ice::Int port_;
 };
 
-template<>
-inline void streamWrite<Endpoint>(Stream* s, const Endpoint& v)
-{
-    assert(v); // TODO: null references
-    v -> streamWrite(s);
-}
+template<typename T>
+void streamWrite(Stream*, const T&);
+
+template<typename T>
+void streamRead(Stream*, T&);
 
 template<>
-inline void streamRead<Endpoint>(Stream* s, Endpoint& v)
-{
-    Endpoint::I::streamRead(s, v);
-}
+void streamWrite<Endpoint>(Stream*, const Endpoint&);
+
+template<>
+void streamRead<Endpoint>(Stream*, Endpoint& v);
 
 }
 
