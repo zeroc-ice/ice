@@ -93,21 +93,21 @@ public:
     void read(std::wstring&);
     void read(std::vector<std::wstring>&);
 
-    void write(const ::Ice::ObjectPrx&);
-    void read(::Ice::ObjectPrx&);
+    void write(const Ice::ObjectPrx&);
+    void read(Ice::ObjectPrx&);
 
-    void write(const ::Ice::ObjectPtr&);
+    void write(const Ice::ObjectPtr&);
     //
     // This operation tries to create a servant using a servant
     // factory, read the servant data, and return it through the first
     // parameter. If it cannot create the servant because it cannot
-    // find a suitable servant factory, it returns null as first
+    // find a suitable object factory, it returns null as first
     // parameter. If the servant type does not match the second type
     // argument, this operation raises ServantUnmarshalException.
     //
-    void read(::Ice::ObjectPtr&, const char*);
+    void read(Ice::ObjectPtr&, const char*);
 
-    void write(const ::Ice::UserException&);
+    void write(const Ice::UserException&);
     //
     // This operation tries to create an exception using an exception
     // factory, read the exception data, and throw such exception. If
@@ -131,9 +131,11 @@ private:
 	Container::size_type start;
 	Ice::Byte encoding;
 	std::vector<std::string> stringsRead;
-	std::map<std::string, ::Ice::Int> stringsWritten;
+	std::map<std::string, Ice::Int> stringsWritten;
 	std::vector<std::wstring> wstringsRead;
-	std::map<std::wstring, ::Ice::Int> wstringsWritten;
+	std::map<std::wstring, Ice::Int> wstringsWritten;
+	std::vector<Ice::ObjectPtr> objectsRead;
+	std::map<Ice::ObjectPtr, Ice::Int> objectsWritten;
     };
 
     std::vector<Encaps> _encapsStack;

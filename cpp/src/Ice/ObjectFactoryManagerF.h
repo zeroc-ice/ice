@@ -16,10 +16,10 @@
 namespace IceInternal
 {
 
-class ServantFactoryManager;
-void incRef(ServantFactoryManager*);
-void decRef(ServantFactoryManager*);
-typedef IceInternal::Handle<ServantFactoryManager> ServantFactoryManagerPtr;
+class ObjectFactoryManager;
+void incRef(ObjectFactoryManager*);
+void decRef(ObjectFactoryManager*);
+typedef IceInternal::Handle<ObjectFactoryManager> ObjectFactoryManagerPtr;
 
 }
 

@@ -9,7 +9,7 @@
 // **********************************************************************
 
 #include <Freeze/Application.h>
-#include <ServantFactory.h>
+#include <ObjectFactory.h>
 
 using namespace std;
 using namespace Ice;
@@ -77,9 +77,9 @@ PhoneBookServer::runFreeze(int argc, char* argv[], const DBEnvironmentPtr& dbEnv
     //
     // Create and install a factory and initializer for contacts.
     //
-    ServantFactoryPtr contactFactory = new ContactFactory(phoneBook, evictor);
+    ObjectFactoryPtr contactFactory = new ContactFactory(phoneBook, evictor);
     ServantInitializerPtr contactInitializer = ServantInitializerPtr::dynamicCast(contactFactory);
-    communicator()->addServantFactory(contactFactory, "::Contact");
+    communicator()->addObjectFactory(contactFactory, "::Contact");
     evictor->installServantInitializer(contactInitializer);
     
     //

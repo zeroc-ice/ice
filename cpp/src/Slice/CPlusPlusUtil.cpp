@@ -308,21 +308,16 @@ Slice::writeMarshalUnmarshalCode(Output& out, const TypePtr& type, const string&
 	}
 	else
 	{
-	    out << nl << "::Ice::ObjectPtr " << obj << ';';
-	    out << nl << stream << deref << "read(" << obj << ", " << cl->scoped() << "::__classIds[0]);";
-	    out << nl << "if (!" << obj << ')';
-	    out << sb;
 	    ClassDefPtr def = cl->definition();
 	    if (def && !def->isAbstract())
 	    {
-		out << nl << obj << " = new " << cl->scoped() << ';';
-		out << nl << obj << "->__read(" << (pointer ? "" : "&") << stream << ");";
+		out << nl << "::Ice::ObjectPtr " << obj << " = new " << cl->scoped() << ';';
 	    }
 	    else
 	    {
-		out << nl << "throw ::Ice::NoServantFactoryException(__FILE__, __LINE__);";
+		out << nl << "::Ice::ObjectPtr " << obj << ';';
 	    }
-	    out << eb;
+	    out << nl << stream << deref << "read(" << obj << ", " << cl->scoped() << "::__classIds[0]);";
 	    out << nl << param << " = " << cl->scoped() << "Ptr::dynamicCast(" << obj << ");";
 	    out << nl << "if (!" << param << ')';
 	    out << sb;

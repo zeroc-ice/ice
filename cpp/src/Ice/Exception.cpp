@@ -183,10 +183,10 @@ Ice::UnmarshalOutOfBoundsException::_print(ostream& out) const
 }
 
 void
-Ice::NoServantFactoryException::_print(ostream& out) const
+Ice::NoObjectFactoryException::_print(ostream& out) const
 {
     Exception::_print(out);
-    out << ":\nprotocol error: no servant factory found for servant with operations";
+    out << ":\nprotocol error: no object factory found for servant with operations";
 }
 
 void
@@ -214,7 +214,14 @@ void
 Ice::StringEncodingException::_print(ostream& out) const
 {
     Exception::_print(out);
-    out << ":\nprotocol error: string encoding error";
+    out << ":\nprotocol error: string or wide string encoding error";
+}
+
+void
+Ice::ObjectEncodingException::_print(ostream& out) const
+{
+    Exception::_print(out);
+    out << ":\nprotocol error: object encoding error";
 }
 
 void

@@ -34,6 +34,24 @@ Ice::Object::Object() :
 }
 
 bool
+Ice::Object::operator==(const Object& r) const
+{
+    return this == &r;
+}
+
+bool
+Ice::Object::operator<(const Object& r) const
+{
+    return this < &r;
+}
+
+Int
+Ice::Object::_hash() const
+{
+    return reinterpret_cast<Int>(this);
+}
+
+bool
 Ice::Object::_isA(const string& s)
 {
     return s == "::Ice::Object";

@@ -13,8 +13,8 @@
 #include <Ice/Object.h>
 #include <Ice/Proxy.h>
 #include <Ice/ProxyFactory.h>
-#include <Ice/ServantFactory.h>
-#include <Ice/ServantFactoryManager.h>
+#include <Ice/ObjectFactory.h>
+#include <Ice/ObjectFactoryManager.h>
 #include <Ice/UserExceptionFactory.h>
 #include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/Exception.h>
@@ -620,8 +620,8 @@ IceInternal::BasicStream::write(const string& v)
 	    int pos = b.size();
 	    resize(pos + len);
 	    copy(v.begin(), v.end(), b.begin() + pos);
-	    Int sz = _encapsStack.back().stringsWritten.size();
-	    _encapsStack.back().stringsWritten[v] = -(sz + 1);
+	    Int num = _encapsStack.back().stringsWritten.size();
+	    _encapsStack.back().stringsWritten[v] = -(num + 1);
 	}
     }
 }
@@ -715,8 +715,8 @@ IceInternal::BasicStream::write(const wstring& v)
 	    {
 		write(static_cast<Short>(*p));
 	    }
-	    Int sz = _encapsStack.back().wstringsWritten.size();
-	    _encapsStack.back().wstringsWritten[v] = -(sz + 1);
+	    Int num = _encapsStack.back().wstringsWritten.size();
+	    _encapsStack.back().wstringsWritten[v] = -(num + 1);
 	}
     }
 }
@@ -740,7 +740,7 @@ IceInternal::BasicStream::read(wstring& v)
 
     if (len < 0)
     {
-	if (static_cast<vector<string>::size_type>(-(len + 1)) >= _encapsStack.back().wstringsRead.size())
+	if (static_cast<vector<wstring>::size_type>(-(len + 1)) >= _encapsStack.back().wstringsRead.size())
 	{
 	    throw StringEncodingException(__FILE__, __LINE__);
 	}
@@ -801,55 +801,87 @@ IceInternal::BasicStream::read(ObjectPrx& v)
 void
 IceInternal::BasicStream::write(const ObjectPtr& v)
 {
-    const char** classIds = v->__getClassIds();
-    Int sz = 0;
-    while (strcmp(classIds[sz], "::Ice::Object") != 0)
+    map<ObjectPtr, Int>::const_iterator p = _encapsStack.back().objectsWritten.find(v);
+    if (p != _encapsStack.back().objectsWritten.end())
     {
-	++sz;
+	write(p->second);
     }
-    write(sz);
-    for (int i = 0; i < sz; i++)
+    else
     {
-	write(string(classIds[i]));
+	write(Int(-1));
+	const char** classIds = v->__getClassIds();
+	Int sz = 0;
+	while (strcmp(classIds[sz], "::Ice::Object") != 0)
+	{
+	    ++sz;
+	}
+	write(sz);
+	for (int i = 0; i < sz; i++)
+	{
+	    write(string(classIds[i]));
+	}
+	v->__write(this);
+	Int num = _encapsStack.back().objectsWritten.size();
+	_encapsStack.back().objectsWritten[v] = num;
     }
-    v->__write(this);
 }
 
 void
 IceInternal::BasicStream::read(ObjectPtr& v, const char* type)
 {
-    vector<string> classIds;
-    read(classIds);
-    classIds.push_back("::Ice::Object");
-    for (vector<string>::const_iterator p = classIds.begin(); p != classIds.end(); ++p)
+    Int pos;
+    read(pos);
+
+    if (pos >= 0)
     {
-	ServantFactoryPtr factory = _instance->servantFactoryManager()->find(*p);
-	
-	if (factory)
+	if (static_cast<vector<ObjectPtr>::size_type>(pos) >= _encapsStack.back().objectsRead.size())
 	{
-	    v = factory->create(*p);
-	    v->__read(this);
+	    throw ObjectEncodingException(__FILE__, __LINE__);
+	}
+	v = _encapsStack.back().objectsRead[pos];
+    }
+    else
+    {
+	vector<string> classIds;
+	read(classIds);
+	classIds.push_back("::Ice::Object");
+	for (vector<string>::const_iterator p = classIds.begin(); p != classIds.end(); ++p)
+	{
+	    ObjectFactoryPtr factory = _instance->servantFactoryManager()->find(*p);
 	    
-	    for (; p != classIds.end(); ++p)
+	    if (factory)
 	    {
-		if (*p == type)
+		v = factory->create(*p);
+		v->__read(this);
+		
+		for (; p != classIds.end(); ++p)
 		{
-		    return;
+		    if (*p == type)
+		    {
+			_encapsStack.back().objectsRead.push_back(v);
+			return;
+		    }
 		}
+		
+		throw ServantUnmarshalException(__FILE__, __LINE__);
 	    }
 	    
-	    throw ServantUnmarshalException(__FILE__, __LINE__);
+	    if (*p == type)
+	    {
+		if (!v)
+		{
+		    throw NoObjectFactoryException(__FILE__, __LINE__);
+		}
+		v->__read(this);
+		_encapsStack.back().objectsRead.push_back(v);
+		return;
+	    }
+	    
+	    skipEncaps();
 	}
-	
-	if (*p == type)
-	{
-	    return;
-	}
-	
-	skipEncaps();
-    }
     
-    throw ServantUnmarshalException(__FILE__, __LINE__);
+	throw ServantUnmarshalException(__FILE__, __LINE__);
+    }
 }
 
 void

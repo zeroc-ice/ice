@@ -59,6 +59,10 @@ public:
 
     Object();
 
+    bool operator==(const Object&) const;
+    bool operator<(const Object&) const;
+    ::Ice::Int _hash() const;
+
     virtual bool _isA(const std::string&);
     virtual void _ping();
     ::IceInternal::DispatchStatus ____isA(::IceInternal::Incoming&);

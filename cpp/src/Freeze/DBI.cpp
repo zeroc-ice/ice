@@ -524,7 +524,7 @@ Freeze::DBI::getServant(const string& identity)
     
     if (!servant)
     {
-	throw NoServantFactoryException(__FILE__, __LINE__);
+	throw NoObjectFactoryException(__FILE__, __LINE__);
     }
     
     return servant;

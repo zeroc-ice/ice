@@ -9,13 +9,13 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <ServantFactory.h>
+#include <ObjectFactory.h>
 #include <ValueI.h>
 
 using namespace std;
 
 Ice::ObjectPtr
-ServantFactory::create(const string& type)
+ObjectFactory::create(const string& type)
 {
     if (type == "::Printer")
     {
@@ -32,7 +32,7 @@ ServantFactory::create(const string& type)
 }
 
 void
-ServantFactory::destroy()
+ObjectFactory::destroy()
 {
     // Nothing to do
 }

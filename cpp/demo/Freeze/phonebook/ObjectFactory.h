@@ -13,14 +13,14 @@
 
 #include <PhoneBookI.h>
 
-class ContactFactory : virtual public Ice::ServantFactory, virtual public Freeze::ServantInitializer
+class ContactFactory : virtual public Ice::ObjectFactory, virtual public Freeze::ServantInitializer
 {
 public:
 
     ContactFactory(const PhoneBookIPtr&, const Freeze::EvictorPtr&);
 
     //
-    // Operations from ServantFactory
+    // Operations from ObjectFactory
     //
     virtual Ice::ObjectPtr create(const std::string&);
     virtual void destroy();

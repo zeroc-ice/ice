@@ -14,7 +14,7 @@
 #include <Ice/LoggerF.ice>
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/PropertiesF.ice>
-#include <Ice/ServantFactoryF.ice>
+#include <Ice/ObjectFactoryF.ice>
 #include <Ice/UserExceptionFactoryF.ice>
 #include <Ice/StreamF.ice>
 
@@ -36,7 +36,7 @@ module Ice
  * @see ObjectAdapter
  * @see Pickler
  * @see Properties
- * @see ServantFactory
+ * @see ObjectFactory
  * @see UserExceptionFactory
  *
  **/
@@ -173,12 +173,12 @@ local interface Communicator
      * @param id The type id for which the factory can create
      * instances.
      *
-     * @see removeServantFactory
-     * @see findServantFactory
-     * @see ServantFactory
+     * @see removeObjectFactory
+     * @see findObjectFactory
+     * @see ObjectFactory
      *
      **/
-    void addServantFactory(ServantFactory factory, string id);
+    void addObjectFactory(ObjectFactory factory, string id);
 
     /**
      *
@@ -188,12 +188,12 @@ local interface Communicator
      * @param id The type id for which the factory can create
      * instances.
      *
-     * @see addServantFactory
-     * @see findServantFactory
-     * @see ServantFactory
+     * @see addObjectFactory
+     * @see findObjectFactory
+     * @see ObjectFactory
      *
      **/
-    void removeServantFactory(string id);
+    void removeObjectFactory(string id);
 
     /**
      *
@@ -205,12 +205,12 @@ local interface Communicator
      * @return The Servant factory, or null if no Servant factory was
      * found for the given id.
      *
-     * @see addServantFactory
-     * @see removeServantFactory
-     * @see ServantFactory
+     * @see addObjectFactory
+     * @see removeObjectFactory
+     * @see ObjectFactory
      *
      **/
-    ServantFactory findServantFactory(string id);
+    ObjectFactory findObjectFactory(string id);
 
     /**
      *

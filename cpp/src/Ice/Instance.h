@@ -20,7 +20,7 @@
 #include <Ice/ProxyFactoryF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/EmitterF.h>
-#include <Ice/ServantFactoryManagerF.h>
+#include <Ice/ObjectFactoryManagerF.h>
 #include <Ice/UserExceptionFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
 #include <list>
@@ -46,7 +46,7 @@ public:
     TraceLevelsPtr traceLevels();
     ProxyFactoryPtr proxyFactory();
     EmitterFactoryPtr emitterFactory();
-    ServantFactoryManagerPtr servantFactoryManager();
+    ObjectFactoryManagerPtr servantFactoryManager();
     UserExceptionFactoryManagerPtr userExceptionFactoryManager();
     ObjectAdapterFactoryPtr objectAdapterFactory();
     ThreadPoolPtr threadPool();
@@ -64,7 +64,7 @@ private:
     TraceLevelsPtr _traceLevels;
     ProxyFactoryPtr _proxyFactory;
     EmitterFactoryPtr _emitterFactory;
-    ServantFactoryManagerPtr _servantFactoryManager;
+    ObjectFactoryManagerPtr _servantFactoryManager;
     UserExceptionFactoryManagerPtr _userExceptionFactoryManager;
     ObjectAdapterFactoryPtr _objectAdapterFactory;
     ThreadPoolPtr _threadPool;

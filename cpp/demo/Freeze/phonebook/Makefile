@@ -26,7 +26,7 @@ COBJS		= Grammar.o \
 
 SOBJS		= PhoneBookI.o \
 		  NameIdentitiesDict.o \
-		  ServantFactory.o \
+		  ObjectFactory.o \
 		  Server.o
 
 COLOBJS		= Grammar.o \
@@ -35,7 +35,7 @@ COLOBJS		= Grammar.o \
 		  RunParser.o \
 		  PhoneBookI.o \
 		  NameIdentitiesDict.o \
-		  ServantFactory.o \
+		  ObjectFactory.o \
 		  Collocated.o
 
 SRCS		= $(OBJS:.o=.cpp) \

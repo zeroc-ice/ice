@@ -8,37 +8,38 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SERVANT_FACTORY_ICE
-#define ICE_SERVANT_FACTORY_ICE
+#ifndef ICE_OBJECT_FACTORY_ICE
+#define ICE_OBJECT_FACTORY_ICE
 
 module Ice
 {
 
 /**
  *
- * A factory for Servants. Servant Factories are used in several
+ * A factory for Objects. Object Factories are used in several
  * places, for example, for receiving "objects by value" or for the
- * [Freeze] module. Servant Factories must be implemented by the
+ * [Freeze] module. Object Factories must be implemented by the
  * application writer, and installed with the Communicator.
  *
  * @see Freeze
+ * @see UserExceptionFactory
  *
  **/
-local interface ServantFactory
+local interface ObjectFactory
 {
     /**
      *
-     * Create a new Servant for a given Servant type. The type is the
+     * Create a new Object for a given Object type. The type is the
      * absolute Slice type name, i.e., the the name relative to the
      * unnamed top-level Slice module. For example, the absolute Slice
-     * type name for Servants for interfaces of type [Bar] in the
+     * type name for Objects for interfaces of type [Bar] in the
      * module [Foo] is [::Foo::Bar].
      *
      * <note><para>The leading "[::]" is required.</para></note>
      *
-     * @param type The Servant type.
+     * @param type The Object type.
      *
-     * @return The Servant created for the given type.
+     * @return The Object created for the given type.
      *
      **/
     Object create(string type);
@@ -48,7 +49,7 @@ local interface ServantFactory
      * Called when the factory is removed from the Communicator, or if
      * the Communicator is destroyed.
      *
-     * @see Communicator::removeServantFactory
+     * @see Communicator::removeObjectFactory
      * @see Communicator::destroy
      *
      **/

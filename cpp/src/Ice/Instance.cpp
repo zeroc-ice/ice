@@ -13,7 +13,7 @@
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
 #include <Ice/Emitter.h>
-#include <Ice/ServantFactoryManager.h>
+#include <Ice/ObjectFactoryManager.h>
 #include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Exception.h>
@@ -113,7 +113,7 @@ IceInternal::Instance::emitterFactory()
     return _emitterFactory;
 }
 
-ServantFactoryManagerPtr
+ObjectFactoryManagerPtr
 IceInternal::Instance::servantFactoryManager()
 {
     JTCSyncT<JTCMutex> sync(*this);
@@ -252,7 +252,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Prope
 	_traceLevels = new TraceLevels(_properties);
 	_proxyFactory = new ProxyFactory(this);
 	_emitterFactory = new EmitterFactory(this);
-	_servantFactoryManager = new ServantFactoryManager();
+	_servantFactoryManager = new ObjectFactoryManager();
 	_userExceptionFactoryManager = new UserExceptionFactoryManager();
 	_objectAdapterFactory = new ObjectAdapterFactory(this);
 	_threadPool = new ThreadPool(this);

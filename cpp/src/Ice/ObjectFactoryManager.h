@@ -12,28 +12,28 @@
 #define ICE_SERVANT_FACTORY_MANAGER_H
 
 #include <IceUtil/Shared.h>
-#include <Ice/ServantFactoryManagerF.h>
-#include <Ice/ServantFactoryF.h>
+#include <Ice/ObjectFactoryManagerF.h>
+#include <Ice/ObjectFactoryF.h>
 
 namespace IceInternal
 {
 
-class ServantFactoryManager : public ::IceUtil::Shared, public JTCMutex
+class ObjectFactoryManager : public ::IceUtil::Shared, public JTCMutex
 {
 public:
 
-    void add(const ::Ice::ServantFactoryPtr&, const std::string&);
+    void add(const ::Ice::ObjectFactoryPtr&, const std::string&);
     void remove(const std::string&);
-    ::Ice::ServantFactoryPtr find(const std::string&);
+    ::Ice::ObjectFactoryPtr find(const std::string&);
 
 private:
 
-    ServantFactoryManager();
+    ObjectFactoryManager();
     void destroy();
     friend class Instance;
 
-    std::map<std::string, ::Ice::ServantFactoryPtr> _factoryMap;
-    std::map<std::string, ::Ice::ServantFactoryPtr>::iterator _factoryMapHint;
+    std::map<std::string, ::Ice::ObjectFactoryPtr> _factoryMap;
+    std::map<std::string, ::Ice::ObjectFactoryPtr>::iterator _factoryMapHint;
 };
 
 }

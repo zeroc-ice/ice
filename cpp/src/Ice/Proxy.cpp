@@ -80,6 +80,23 @@ IceInternal::uncheckedCast(const ObjectPrx& b, const string& f, ObjectPrx& d)
 }
 
 bool
+IceProxy::Ice::Object::operator==(const Object& r) const
+{
+    return _reference == r._reference;
+}
+
+bool
+IceProxy::Ice::Object::operator<(const Object& r) const
+{
+    return _reference < r._reference;
+}
+
+Int
+IceProxy::Ice::Object::_hash() const
+{
+    return _reference->hashValue;
+}
+bool
 IceProxy::Ice::Object::_isA(const string& s)
 {
     int __cnt = 0;
@@ -130,31 +147,6 @@ IceProxy::Ice::Object::_ping()
 	    __handleException(__ex, __cnt);
 	}
     }
-}
-
-void
-IceProxy::Ice::Object::_flush()
-{
-    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
-    __del->_flush();
-}
-
-bool
-IceProxy::Ice::Object::operator==(const Object& r) const
-{
-    return _reference == r._reference;
-}
-
-bool
-IceProxy::Ice::Object::operator<(const Object& r) const
-{
-    return _reference < r._reference;
-}
-
-Int
-IceProxy::Ice::Object::_hash() const
-{
-    return _reference->hashValue;
 }
 
 std::string
@@ -309,6 +301,13 @@ IceProxy::Ice::Object::_timeout(int t) const
 	proxy->setup(ref);
 	return proxy;
     }
+}
+
+void
+IceProxy::Ice::Object::_flush()
+{
+    Handle< ::IceDelegate::Ice::Object> __del = __getDelegate();
+    __del->_flush();
 }
 
 ReferencePtr

@@ -34,12 +34,12 @@ OBJS		= Application.o \
 		  Instance.o \
 		  Communicator.o \
 		  CommunicatorI.o \
+		  ObjectFactory.o \
+		  ObjectFactoryManager.o \
 		  ObjectAdapter.o \
 		  ObjectAdapterI.o \
 		  ObjectAdapterFactory.o \
 		  ServantLocator.o \
-		  ServantFactory.o \
-		  ServantFactoryManager.o \
 		  UserExceptionFactory.o \
 		  UserExceptionFactoryManager.o \
 		  Endpoint.o \
@@ -195,22 +195,22 @@ $(HDIR)/PropertiesF.h: $(SDIR)/PropertiesF.ice $(SLICE2CPP)
 clean::
 	rm -f $(HDIR)/PropertiesF.h
 
-$(HDIR)/ServantFactory.h ServantFactory.cpp: $(SDIR)/ServantFactory.ice $(SLICE2CPP)
-	rm -f $(HDIR)/ServantFactory.h ServantFactory.cpp
-	$(SLICECMD) $(SDIR)/ServantFactory.ice
-	mv ServantFactory.h $(HDIR)
+$(HDIR)/ObjectFactory.h ObjectFactory.cpp: $(SDIR)/ObjectFactory.ice $(SLICE2CPP)
+	rm -f $(HDIR)/ObjectFactory.h ObjectFactory.cpp
+	$(SLICECMD) $(SDIR)/ObjectFactory.ice
+	mv ObjectFactory.h $(HDIR)
 
 clean::
-	rm -f $(HDIR)/ServantFactory.h ServantFactory.cpp
+	rm -f $(HDIR)/ObjectFactory.h ObjectFactory.cpp
 
-$(HDIR)/ServantFactoryF.h: $(SDIR)/ServantFactoryF.ice $(SLICE2CPP)
-	rm -f $(HDIR)/ServantFactoryF.h ServantFactoryF.cpp
-	$(SLICECMD) $(SDIR)/ServantFactoryF.ice
-	mv ServantFactoryF.h $(HDIR)
-	rm -f ServantFactoryF.cpp
+$(HDIR)/ObjectFactoryF.h: $(SDIR)/ObjectFactoryF.ice $(SLICE2CPP)
+	rm -f $(HDIR)/ObjectFactoryF.h ObjectFactoryF.cpp
+	$(SLICECMD) $(SDIR)/ObjectFactoryF.ice
+	mv ObjectFactoryF.h $(HDIR)
+	rm -f ObjectFactoryF.cpp
 
 clean::
-	rm -f $(HDIR)/ServantFactoryF.h
+	rm -f $(HDIR)/ObjectFactoryF.h
 
 $(HDIR)/UserExceptionFactory.h UserExceptionFactory.cpp: $(SDIR)/UserExceptionFactory.ice $(SLICE2CPP)
 	rm -f $(HDIR)/UserExceptionFactory.h UserExceptionFactory.cpp

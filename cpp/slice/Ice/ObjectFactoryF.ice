@@ -8,15 +8,14 @@
 //
 // **********************************************************************
 
-#ifndef SERVANT_FACTORY_H
-#define SERVANT_FACTORY_H
+#ifndef ICE_SERVANT_FACTORY_F_ICE
+#define ICE_SERVANT_FACTORY_F_ICE
 
-class ServantFactory : public Ice::ServantFactory
+module Ice
 {
-public:
 
-    virtual Ice::ObjectPtr create(const std::string&);
-    virtual void destroy();
+local interface ObjectFactory;
+
 };
 
 #endif

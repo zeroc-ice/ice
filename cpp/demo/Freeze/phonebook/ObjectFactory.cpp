@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#include <ServantFactory.h>
+#include <ObjectFactory.h>
 
 using namespace std;
 using namespace Ice;

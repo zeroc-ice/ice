@@ -32,9 +32,9 @@ public:
     virtual ObjectAdapterPtr createObjectAdapter(const std::string&);
     virtual ObjectAdapterPtr createObjectAdapterWithEndpoints(const std::string&, const std::string&);
 
-    virtual void addServantFactory(const ServantFactoryPtr&, const std::string&);
-    virtual void removeServantFactory(const std::string&);
-    virtual ServantFactoryPtr findServantFactory(const std::string&);
+    virtual void addObjectFactory(const ObjectFactoryPtr&, const std::string&);
+    virtual void removeObjectFactory(const std::string&);
+    virtual ObjectFactoryPtr findObjectFactory(const std::string&);
 
     virtual void addUserExceptionFactory(const UserExceptionFactoryPtr&, const std::string&);
     virtual void removeUserExceptionFactory(const std::string&);

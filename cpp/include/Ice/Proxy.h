@@ -34,12 +34,12 @@ class ICE_API Object : public ::IceUtil::Shared, JTCMutex
 {
 public:
 
-    bool _isA(const std::string&);
-    void _ping();
-
     bool operator==(const Object&) const;
     bool operator<(const Object&) const;
     ::Ice::Int _hash() const;
+
+    bool _isA(const std::string&);
+    void _ping();
 
     std::string _getIdentity() const;
     ::Ice::ObjectPrx _newIdentity(const std::string&) const;

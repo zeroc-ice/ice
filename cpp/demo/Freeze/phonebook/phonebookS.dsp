@@ -101,7 +101,7 @@ SOURCE=.\PhoneBookI.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServantFactory.cpp
+SOURCE=.\ObjectFactory.cpp
 # End Source File
 # Begin Source File
 
@@ -125,7 +125,7 @@ SOURCE=.\PhoneBookI.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServantFactory.h
+SOURCE=.\ObjectFactory.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

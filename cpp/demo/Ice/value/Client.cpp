@@ -10,7 +10,7 @@
 
 #include <Ice/Ice.h>
 #include <Value.h>
-#include <ServantFactory.h>
+#include <ObjectFactory.h>
 
 using namespace std;
 
@@ -58,7 +58,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
 	initial->printer(printer, printerProxy);
     }
-    catch(const Ice::NoServantFactoryException& ex)
+    catch(const Ice::NoObjectFactoryException& ex)
     {
 	cout << "==> " << ex << endl;
     }
@@ -69,8 +69,8 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
-    Ice::ServantFactoryPtr factory = new ServantFactory;
-    communicator->addServantFactory(factory, "::Printer");
+    Ice::ObjectFactoryPtr factory = new ObjectFactory;
+    communicator->addObjectFactory(factory, "::Printer");
 
     initial->printer(printer, printerProxy);
     cout << "==> " << printer->_message << endl;
@@ -119,7 +119,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 	 << "[press enter]\n";
     cin.getline(&c, 1);
 
-    communicator->addServantFactory(factory, "::DerivedPrinter");
+    communicator->addObjectFactory(factory, "::DerivedPrinter");
 
     derivedAsBase = initial->derivedPrinter();
     DerivedPrinterPtr derived = DerivedPrinterPtr::dynamicCast(derivedAsBase);

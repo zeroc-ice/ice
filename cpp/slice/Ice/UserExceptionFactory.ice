@@ -21,6 +21,8 @@ module Ice
  * an operation's <literal>throws</literal> clause is raised, and
  * exception truncation to the base exception is not desireable.
  *
+ * @see ObjectFactory
+ *
  **/
 local interface UserExceptionFactory
 {

@@ -13,7 +13,7 @@
 #include <Ice/Instance.h>
 #include <Ice/ProxyFactory.h>
 #include <Ice/ThreadPool.h>
-#include <Ice/ServantFactoryManager.h>
+#include <Ice/ObjectFactoryManager.h>
 #include <Ice/UserExceptionFactoryManager.h>
 #include <Ice/ObjectAdapterFactory.h>
 #include <Ice/Logger.h>
@@ -102,7 +102,7 @@ Ice::CommunicatorI::createObjectAdapterWithEndpoints(const string& name, const s
 }
 
 void
-Ice::CommunicatorI::addServantFactory(const ServantFactoryPtr& factory, const string& id)
+Ice::CommunicatorI::addObjectFactory(const ObjectFactoryPtr& factory, const string& id)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     if (!_instance)
@@ -113,7 +113,7 @@ Ice::CommunicatorI::addServantFactory(const ServantFactoryPtr& factory, const st
 }
 
 void
-Ice::CommunicatorI::removeServantFactory(const string& id)
+Ice::CommunicatorI::removeObjectFactory(const string& id)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     if (!_instance)
@@ -123,8 +123,8 @@ Ice::CommunicatorI::removeServantFactory(const string& id)
     _instance->servantFactoryManager()->remove(id);
 }
 
-ServantFactoryPtr
-Ice::CommunicatorI::findServantFactory(const string& id)
+ObjectFactoryPtr
+Ice::CommunicatorI::findObjectFactory(const string& id)
 {
     JTCSyncT<JTCRecursiveMutex> sync(*this);
     if (!_instance)

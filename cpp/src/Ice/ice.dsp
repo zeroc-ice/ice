@@ -220,11 +220,11 @@ SOURCE=.\Reference.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServantFactory.cpp
+SOURCE=.\ObjectFactory.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\ServantFactoryManager.cpp
+SOURCE=.\ObjectFactoryManager.cpp
 # End Source File
 # Begin Source File
 
@@ -516,19 +516,19 @@ SOURCE=..\..\include\Ice\ReferenceF.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\ServantFactory.h
+SOURCE=..\..\include\Ice\ObjectFactory.h
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\include\Ice\ServantFactoryF.h
+SOURCE=..\..\include\Ice\ObjectFactoryF.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\ServantFactoryManager.h
+SOURCE=.\Ice\ObjectFactoryManager.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\Ice\ServantFactoryManagerF.h
+SOURCE=.\Ice\ObjectFactoryManagerF.h
 # End Source File
 # Begin Source File
 
@@ -975,41 +975,41 @@ InputPath=..\..\slice\Ice\PropertiesF.ice
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Ice\ServantFactory.ice
+SOURCE=..\..\slice\Ice\ObjectFactory.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
 # Begin Custom Build
-InputPath=..\..\slice\Ice\ServantFactory.ice
+InputPath=..\..\slice\Ice\ObjectFactory.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantFactory.ice \
-	move ServantFactory.h ..\..\include\Ice \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectFactory.ice \
+	move ObjectFactory.h ..\..\include\Ice \
 	
 
-"..\..\include\Ice\ServantFactory.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\Ice\ObjectFactory.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ServantFactory.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ObjectFactory.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
 # Begin Custom Build
-InputPath=..\..\slice\Ice\ServantFactory.ice
+InputPath=..\..\slice\Ice\ObjectFactory.ice
 
 BuildCmds= \
 	set PATH=%PATH%;..\..\lib \
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantFactory.ice \
-	move ServantFactory.h ..\..\include\Ice \
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectFactory.ice \
+	move ObjectFactory.h ..\..\include\Ice \
 	
 
-"..\..\include\Ice\ServantFactory.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\Ice\ObjectFactory.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 
-"ServantFactory.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"ObjectFactory.cpp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
    $(BuildCmds)
 # End Custom Build
 
@@ -1018,31 +1018,31 @@ BuildCmds= \
 # End Source File
 # Begin Source File
 
-SOURCE=..\..\slice\Ice\ServantFactoryF.ice
+SOURCE=..\..\slice\Ice\ObjectFactoryF.ice
 
 !IF  "$(CFG)" == "Ice - Win32 Release"
 
 # Begin Custom Build
-InputPath=..\..\slice\Ice\ServantFactoryF.ice
+InputPath=..\..\slice\Ice\ObjectFactoryF.ice
 
-"..\..\include\Ice\ServantFactoryF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\Ice\ObjectFactoryF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantFactoryF.ice 
-	move ServantFactoryF.h ..\..\include\Ice 
-	del ServantFactoryF.cpp 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectFactoryF.ice 
+	move ObjectFactoryF.h ..\..\include\Ice 
+	del ObjectFactoryF.cpp 
 	
 # End Custom Build
 
 !ELSEIF  "$(CFG)" == "Ice - Win32 Debug"
 
 # Begin Custom Build
-InputPath=..\..\slice\Ice\ServantFactoryF.ice
+InputPath=..\..\slice\Ice\ObjectFactoryF.ice
 
-"..\..\include\Ice\ServantFactoryF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
+"..\..\include\Ice\ObjectFactoryF.h" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
 	set PATH=%PATH%;..\..\lib 
-	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ServantFactoryF.ice 
-	move ServantFactoryF.h ..\..\include\Ice 
-	del ServantFactoryF.cpp 
+	..\..\bin\slice2cpp.exe --dll-export ICE_API --include-dir Ice -I../../slice ../../slice/Ice/ObjectFactoryF.ice 
+	move ObjectFactoryF.h ..\..\include\Ice 
+	del ObjectFactoryF.cpp 
 	
 # End Custom Build
 
