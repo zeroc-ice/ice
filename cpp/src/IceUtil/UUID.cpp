@@ -45,9 +45,9 @@ inline void halfByteToHex(unsigned char hb, char*& hexBuffer)
     } 
 }
 
-inline void bytesToHex(unsigned char* bytes, int len, char*& hexBuffer)
+inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
 {
-    for(int i = 0; i < len; i++)
+    for(size_t i = 0; i < len; i++)
     {
 	halfByteToHex((bytes[i] & 0xF0) >> 4, hexBuffer);
 	halfByteToHex((bytes[i] & 0x0F), hexBuffer);
@@ -134,7 +134,7 @@ IceUtil::generateUUID()
 
     assert(sizeof(UUID) == 16);
 
-    ssize_t bytesRead = read(fd, &uuid, sizeof(UUID));
+    size_t bytesRead = read(fd, &uuid, sizeof(UUID));
     
     if (bytesRead != sizeof(UUID))
     {

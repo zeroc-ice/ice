@@ -27,7 +27,7 @@ IceSSL::ucharToByteSeq(unsigned char* ucharBuffer, int length, Ice::ByteSeq& des
 unsigned char*
 IceSSL::byteSeqToUChar(const Ice::ByteSeq& sequence)
 {
-    int seqSize = sequence.size();
+    size_t seqSize = sequence.size();
 
     assert(seqSize > 0);
 

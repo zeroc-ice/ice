@@ -790,7 +790,7 @@ IcePatch::createBZ2(const string& path, const Ice::LoggerPtr& logger)
 	
 	if(file.gcount() > 0)
 	{
-	    BZ2_bzWrite(&bzError, bzFile, bytes, file.gcount());
+	    BZ2_bzWrite(&bzError, bzFile, bytes, static_cast<int>(file.gcount()));
 	    if(bzError != BZ_OK)
 	    {
 		FileAccessException ex;

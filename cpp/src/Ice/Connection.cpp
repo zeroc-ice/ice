@@ -219,7 +219,7 @@ IceInternal::Connection::validate()
 		assert(is.i - is.b.begin() >= headerSize);
 		is.i = is.b.begin();
 		MagicBytes m(sizeof(magic), 0);
-		is.readBlob(m, sizeof(magic));
+		is.readBlob(m, static_cast<Int>(sizeof(magic)));
 		if(!equal(m.begin(), m.end(), magic))
 		{
 		    BadMagicException ex(__FILE__, __LINE__);
@@ -435,7 +435,7 @@ IceInternal::Connection::sendRequest(Outgoing* out, bool oneway)
 	    // No compression, just fill in the message size.
 	    //
 	    const Byte* p;
-	    Int sz = os->b.size();
+	    Int sz = static_cast<Int>(os->b.size());
 	    p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIG_ENDIAN
 	    reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
@@ -543,7 +543,7 @@ IceInternal::Connection::sendAsyncRequest(const OutgoingAsyncPtr& out)
 	    //
 	    // No compression, just fill in the message size.
 	    //
-	    Int sz = os->b.size();
+	    Int sz = static_cast<Int>(os->b.size());
 	    p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIG_ENDIAN
 	    reverse_copy(p, p + sizeof(Int), os->b.begin() + 10);
@@ -700,7 +700,7 @@ IceInternal::Connection::flushBatchRequest()
 	    //
 	    // No compression, just fill in the message size.
 	    //
-	    Int sz = _batchStream.b.size();
+	    Int sz = static_cast<Int>(_batchStream.b.size());
 	    p = reinterpret_cast<const Byte*>(&sz);
 
 #ifdef ICE_BIG_ENDIAN
@@ -792,7 +792,7 @@ IceInternal::Connection::sendResponse(BasicStream* os, Byte compressFlag)
 	    // No compression, just fill in the message size.
 	    //
 	    const Byte* p;
-	    Int sz = os->b.size();
+	    Int sz = static_cast<Int>(os->b.size());
 	    p = reinterpret_cast<const Byte*>(&sz);
 
 #ifdef ICE_BIG_ENDIAN
@@ -960,7 +960,7 @@ IceInternal::Connection::message(BasicStream& stream, const ThreadPoolPtr& threa
 	    stream.i = stream.b.begin();
 
 	    MagicBytes m(sizeof(magic), 0);
-	    stream.readBlob(m, sizeof(magic));
+	    stream.readBlob(m, static_cast<Int>(sizeof(magic)));
 	    if(!equal(m.begin(), m.end(), magic))
 	    {
 		BadMagicException ex(__FILE__, __LINE__);
@@ -1674,8 +1674,8 @@ IceInternal::Connection::doCompress(BasicStream& uncompressed, BasicStream& comp
     //
     // Compress the message body, but not the header.
     //
-    unsigned int uncompressedLen = uncompressed.b.size() - headerSize;
-    unsigned int compressedLen = static_cast<int>(uncompressedLen * 1.01 + 600);
+    unsigned int uncompressedLen = static_cast<unsigned int>(uncompressed.b.size() - headerSize);
+    unsigned int compressedLen = static_cast<unsigned int>(uncompressedLen * 1.01 + 600);
     compressed.b.resize(headerSize + sizeof(Int) + compressedLen);
     int bzError = BZ2_bzBuffToBuffCompress(&compressed.b[0] + headerSize + sizeof(Int), &compressedLen,
 					   &uncompressed.b[0] + headerSize, uncompressedLen,
@@ -1693,7 +1693,7 @@ IceInternal::Connection::doCompress(BasicStream& uncompressed, BasicStream& comp
     // uncompressed stream. Since the header will be copied, this size
     // will also be in the header of the compressed stream.
     //
-    Int compressedSize = compressed.b.size();
+    Int compressedSize = static_cast<Int>(compressed.b.size());
     p = reinterpret_cast<const Byte*>(&compressedSize);
 
 #ifdef ICE_BIG_ENDIAN
@@ -1705,7 +1705,7 @@ IceInternal::Connection::doCompress(BasicStream& uncompressed, BasicStream& comp
     // Add the size of the uncompressed stream before the message body
     // of the compressed stream.
     //
-    Int uncompressedSize = uncompressed.b.size();
+    Int uncompressedSize = static_cast<Int>(uncompressed.b.size());
     p = reinterpret_cast<const Byte*>(&uncompressedSize);
 
 #ifdef ICE_BIG_ENDIAN
@@ -1733,7 +1733,7 @@ IceInternal::Connection::doUncompress(BasicStream& compressed, BasicStream& unco
 
     uncompressed.resize(uncompressedSize);
     unsigned int uncompressedLen = uncompressedSize - headerSize;
-    unsigned int compressedLen = compressed.b.size() - headerSize - sizeof(Int);
+    unsigned int compressedLen = static_cast<unsigned int>(compressed.b.size() - headerSize - sizeof(Int));
     int bzError = BZ2_bzBuffToBuffDecompress(&uncompressed.b[0] + headerSize,
 					     &uncompressedLen,
 					     &compressed.b[0] + headerSize + sizeof(Int),

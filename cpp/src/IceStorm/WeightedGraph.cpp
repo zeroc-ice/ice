@@ -262,12 +262,12 @@ WeightedGraph::getEdgesFor(const std::string& vertex) const
     map<std::string, int>::const_iterator p = _vlookup.find(vertex);
     if(p != _vlookup.end())
     {
-	int row = p->second * _vertices.size();
-	for(unsigned int i = row; i < row + _vertices.size(); ++i)
+	size_t row = p->second * _vertices.size();
+	for(size_t i = row; i < row + _vertices.size(); ++i)
 	{
 	    if(_edges[i] != -1)
 	    {
-		edges.push_back(make_pair(_vertices[i-row], _edges[i]));
+		edges.push_back(make_pair(_vertices[i - row], _edges[i]));
 	    }
 	}
     }
@@ -346,14 +346,14 @@ WeightedGraph::visit(unsigned int vertex, int cost, list<pair<unsigned int, int>
     // Run through each edges for this vertex (that's a row in the
     // adjacency matrix).
     //
-    int row = vertex * _vertices.size();
-    for(unsigned int i = row ; i < row + _vertices.size() ; ++i)
+    size_t row = vertex * _vertices.size();
+    for(size_t i = row ; i < row + _vertices.size() ; ++i)
     {
 	if(_edges[i] != -1)
 	{
 	    if(cost + _edges[i] <= max)
 	    {
-		visit(i - row, cost + _edges[i], visited, max);
+		visit(static_cast<unsigned int>(i - row), cost + _edges[i], visited, max);
 	    }
 	}
     }

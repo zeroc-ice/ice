@@ -37,6 +37,6 @@ private:
     const std::string _dbEnvName;
 };
 
-};
+}
 
 #endif

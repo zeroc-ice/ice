@@ -52,6 +52,6 @@ private:
 
 typedef ::IceUtil::Handle< AdapterFactory> AdapterFactoryPtr;
 
-};
+}
 
 #endif

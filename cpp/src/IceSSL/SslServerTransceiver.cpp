@@ -44,7 +44,7 @@ IceSSL::SslServerTransceiver::write(Buffer& buf, int timeout)
     int totalBytesWritten = 0;
     int bytesWritten = 0;
 
-    int packetSize = buf.b.end() - buf.i;
+    Buffer::Container::difference_type packetSize = buf.b.end() - buf.i;
 
 #ifdef _WIN32
     //
@@ -75,7 +75,7 @@ IceSSL::SslServerTransceiver::write(Buffer& buf, int timeout)
             break;
         }
 
-        bytesWritten = sslWrite(static_cast<char*>(&*buf.i), packetSize);
+        bytesWritten = sslWrite(static_cast<char*>(&*buf.i), static_cast<Int>(packetSize));
 
         switch(getLastError())
         {

@@ -42,5 +42,5 @@ Ice::LocalObject::operator<(const LocalObject& r) const
 Int
 Ice::LocalObject::ice_hash() const
 {
-    return reinterpret_cast<Int>(this) >> 4;
+    return static_cast<Int>(reinterpret_cast<Long>(this) >> 4);
 }

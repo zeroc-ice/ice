@@ -60,10 +60,10 @@ populateDB(MAP& m)
 
     for(vector<Byte>::const_iterator j = alphabet.begin(); j != alphabet.end(); ++j)
     {
-#ifdef _MSC_VER
-	m.insert(MAP::value_type(*j, j-alphabet.begin()));
+#if defined(_MSC_VER) || (defined(__SUNPRO_CC) && __SUNPRO_CC <= 0x530)
+	m.insert(MAP::value_type(*j, static_cast<Int>(j - alphabet.begin())));
 #else
-	m.insert(typename MAP::value_type(*j, j-alphabet.begin()));
+	m.insert(typename MAP::value_type(*j, static_cast<Int>(j - alphabet.begin())));
 #endif
     }
 }
@@ -307,13 +307,13 @@ run(int argc, char* argv[], MAP& m)
     //
     j = find(alphabet.begin(), alphabet.end(), 'n');
     map<Byte, const Int> pairs;
-    pairs.insert(pair<const Byte, const Int>(*j, j - alphabet.begin()));
+    pairs.insert(pair<const Byte, const Int>(*j, static_cast<Int>(j - alphabet.begin())));
     ++j;
-    pairs.insert(pair<const Byte, const Int>(*j, j - alphabet.begin()));
+    pairs.insert(pair<const Byte, const Int>(*j, static_cast<Int>(j - alphabet.begin())));
     ++j;
-    pairs.insert(pair<const Byte, const Int>(*j, j - alphabet.begin()));
+    pairs.insert(pair<const Byte, const Int>(*j, static_cast<Int>(j - alphabet.begin())));
     ++j;
-    pairs.insert(pair<const Byte, const Int>(*j, j - alphabet.begin()));
+    pairs.insert(pair<const Byte, const Int>(*j, static_cast<Int>(j - alphabet.begin())));
 
     p = find_first_of(m.begin(), m.end(), pairs.begin(), pairs.end());
     test(p != m.end());

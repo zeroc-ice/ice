@@ -38,6 +38,7 @@ toLower(string& s)
     transform(s.begin(), s.end(), s.begin(), ::tolower);
 }
 
+
 // ----------------------------------------------------------------------
 // SyntaxTreeBase
 // ----------------------------------------------------------------------
@@ -3021,7 +3022,15 @@ Slice::Const::typesAreCompatible(const string& name, const TypePtr& constType,
 				    const UnitPtr& unit)
 {
     BuiltinPtr ct = BuiltinPtr::dynamicCast(constType);
+
+#if defined(__SUNPRO_CC) && (__SUNPRO_CC <= 0x530)
+// Strange Sun C++ 5.3 bug
+    const IceUtil::HandleBase<SyntaxTreeBase>& hb = literalType;
+    BuiltinPtr lt = BuiltinPtr::dynamicCast(hb);
+#else
     BuiltinPtr lt = BuiltinPtr::dynamicCast(literalType);
+#endif
+
     if(ct && lt)
     {
 	switch(ct->kind())

@@ -67,6 +67,6 @@ private:
 
 typedef IceUtil::Handle<WaitQueue> WaitQueuePtr;
 
-};
+}
 
 #endif

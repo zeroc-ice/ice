@@ -461,7 +461,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
 	    }
 	}
 	
-	result = line.length();
+	result = (int) line.length();
 	if(result > maxSize)
 	{
 	    error("input line too long");
@@ -477,7 +477,7 @@ Parser::getInput(char* buf, int& result, int maxSize)
     }
     else
     {
-	if(((result = fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
+	if(((result = (int) fread(buf, 1, maxSize, yyin)) == 0) && ferror(yyin))
 	{
 	    error("input in flex scanner failed");
 	    buf[0] = EOF;

@@ -62,7 +62,7 @@ IceSSL::DefaultCertificateVerifier::verify(int preVerifyOkay, X509_STORE_CTX* x5
 
         X509* err_cert = X509_STORE_CTX_get_current_cert(x509StoreContext);
 
-        X509_NAME_oneline(X509_get_subject_name(err_cert), buf, sizeof(buf));
+        X509_NAME_oneline(X509_get_subject_name(err_cert), buf, int(sizeof(buf)));
 
 	Ice::Trace out(_logger, _traceLevels->securityCat);
 
@@ -79,7 +79,7 @@ IceSSL::DefaultCertificateVerifier::verify(int preVerifyOkay, X509_STORE_CTX* x5
         {
             case X509_V_ERR_UNABLE_TO_GET_ISSUER_CERT:
             {
-                X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, sizeof(buf));
+                X509_NAME_oneline(X509_get_issuer_name(err_cert), buf, int(sizeof(buf)));
                 out << "issuer = " << buf << "\n";
                 break;
             }

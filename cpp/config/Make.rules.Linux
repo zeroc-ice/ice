@@ -35,3 +35,5 @@ LIBS			= -lIce -ldl -lbz2 $(BASELIBS)
 ICEUTIL_OS_LIBS         = -lpthread
 
 PLATFORM_HAS_READLINE  := yes
+
+export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)

@@ -52,7 +52,7 @@ IceSSL::ServerContext::configure(const GeneralConfig& generalConfig,
     string connectionContext = generalConfig.getContext();
     SSL_CTX_set_session_id_context(_sslContext,
                                    reinterpret_cast<const unsigned char *>(connectionContext.c_str()),
-                                   connectionContext.size());
+                                   (unsigned int) connectionContext.size());
 
     if(_traceLevels->security >= SECURITY_PROTOCOL)
     {

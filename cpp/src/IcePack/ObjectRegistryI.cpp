@@ -168,7 +168,7 @@ IcePack::ObjectRegistryI::findByType(const string& type, const Ice::Current&) co
 	throw ObjectNotExistException();
     }
 
-    int r = rand() % p->second.size();
+    int r = rand() % int(p->second.size());
     return p->second[r];
 }
 

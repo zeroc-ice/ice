@@ -369,7 +369,7 @@ XMLTransform::DocumentInfo::DocumentInfo(ICE_XERCES_NS DOMDocument* document, bo
     _targetNamespace(targetNamespace)
 {
     ICE_XERCES_NS DOMNamedNodeMap* attributes = root->getAttributes();
-    unsigned int max = attributes->getLength();
+    size_t max = attributes->getLength();
     for(unsigned int i = 0; i < max; ++i)
     {
 	ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
@@ -2971,7 +2971,7 @@ XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE
                 fullKey.append(header);
                 fullKey.append(&k[0], k.size());
                 fullKey.append(footer);
-                ICE_XERCES_NS MemBufInputSource keySource((const XMLByte*)fullKey.data(), fullKey.size(), "key");
+                ICE_XERCES_NS MemBufInputSource keySource((const XMLByte*)fullKey.data(), static_cast<unsigned int>(fullKey.size()), "key");
                 parser.parse(keySource);
                 ICE_XERCES_NS DOMDocument* keyDoc = parser.getDocument();
 
@@ -2992,8 +2992,9 @@ XMLTransform::DBTransformer::transform(ICE_XERCES_NS DOMDocument* oldSchema, ICE
                 fullValue.append(header);
                 fullValue.append(&value[0], value.size());
                 fullValue.append(footer);
-                ICE_XERCES_NS MemBufInputSource valueSource((const XMLByte*)fullValue.data(), fullValue.size(),
-                                                            "value");
+                ICE_XERCES_NS MemBufInputSource valueSource((const XMLByte*)fullValue.data(), 
+							    static_cast<unsigned int>(fullValue.size()),
+							    "value");
                 parser.parse(valueSource);
                 ICE_XERCES_NS DOMDocument* valueDoc = parser.getDocument();
 
@@ -3149,7 +3150,9 @@ XMLTransform::DBTransformer::transform(const string& schemaStr)
 
     try
     {
-        ICE_XERCES_NS MemBufInputSource source((const XMLByte*)schemaStr.data(), schemaStr.size(), "schema");
+        ICE_XERCES_NS MemBufInputSource source((const XMLByte*)schemaStr.data(), 
+					       static_cast<unsigned int>(schemaStr.size()), 
+					       "schema");
         parser.parse(source);
         schema = parser.getDocument();
     }

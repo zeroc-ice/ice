@@ -63,7 +63,7 @@ IceInternal::UdpTransceiver::write(Buffer& buf, int)
 repeat:
 
     assert(_fd != INVALID_SOCKET);
-    int ret = ::send(_fd, &buf.b[0], buf.b.size(), 0);
+    ssize_t ret = ::send(_fd, &buf.b[0], buf.b.size(), 0);
     
     if(ret == SOCKET_ERROR)
     {
@@ -108,10 +108,10 @@ repeat:
     
     if(_stats)
     {
-	_stats->bytesSent(_name, ret);
+	_stats->bytesSent(_name, static_cast<Int>(ret));
     }
 
-    assert(ret == static_cast<int>(buf.b.size()));
+    assert(ret == static_cast<ssize_t>(buf.b.size()));
     buf.i = buf.b.end();
 }
 
@@ -126,7 +126,7 @@ IceInternal::UdpTransceiver::read(Buffer& buf, int)
 
 repeat:
 
-    int ret;
+    ssize_t ret;
     if(_connect)
     {
 	//
@@ -135,7 +135,7 @@ repeat:
 	//
 	struct sockaddr_in peerAddr;
 	memset(&peerAddr, 0, sizeof(struct sockaddr_in));
-	socklen_t len = sizeof(peerAddr);
+	socklen_t len = static_cast<socklen_t>(sizeof(peerAddr));
 	assert(_fd != INVALID_SOCKET);
 	ret = recvfrom(_fd, &buf.b[0], packetSize, 0, reinterpret_cast<struct sockaddr*>(&peerAddr), &len);
 	if(ret != SOCKET_ERROR)
@@ -199,7 +199,7 @@ repeat:
 
     if(_stats)
     {
-	_stats->bytesReceived(_name, ret);
+	_stats->bytesReceived(_name, static_cast<Int>(ret));
     }
 
     buf.b.resize(ret);

@@ -367,9 +367,9 @@ IceSSL::ConfigParser::getGeneral(ICE_XERCES_NS DOMNode* rootNode, GeneralConfig&
 
     ICE_XERCES_NS DOMNamedNodeMap* attributes = general->getAttributes();
 
-    int attrCount = attributes->getLength();
+    size_t attrCount = attributes->getLength();
 
-    for(int i = 0; i < attrCount; i++)
+    for(size_t i = 0; i < attrCount; i++)
     {
         ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
         string nodeName = toString(attribute->getNodeName());
@@ -398,9 +398,9 @@ IceSSL::ConfigParser::getCertAuth(ICE_XERCES_NS DOMNode* rootNode, CertificateAu
 
     ICE_XERCES_NS DOMNamedNodeMap* attributes = certAuthNode->getAttributes();
 
-    int attrCount = attributes->getLength();
+    size_t attrCount = attributes->getLength();
 
-    for(int i = 0; i < attrCount; i++)
+    for(size_t i = 0; i < attrCount; i++)
     {
         ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
         nodeName = toString(attribute->getNodeName());
@@ -525,9 +525,9 @@ IceSSL::ConfigParser::getCert(ICE_XERCES_NS DOMNode* rootNode, CertificateDesc& 
     int keySize = 0;
 
     ICE_XERCES_NS DOMNamedNodeMap* attributes = rootNode->getAttributes();
-    int attrCount = attributes->getLength();
+    size_t attrCount = attributes->getLength();
 
-    for(int i = 0; i < attrCount; i++)
+    for(size_t i = 0; i < attrCount; i++)
     {
         ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
         string nodeName = toString(attribute->getNodeName());
@@ -562,9 +562,9 @@ IceSSL::ConfigParser::getDHParams(ICE_XERCES_NS DOMNode* rootNode, DiffieHellman
 
     ICE_XERCES_NS DOMNamedNodeMap* attributes = rootNode->getAttributes();
     int keySize = 0;
-    int attrCount = attributes->getLength();
+    size_t attrCount = attributes->getLength();
 
-    for(int i = 0; i < attrCount; i++)
+    for(size_t i = 0; i < attrCount; i++)
     {
         ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
         string nodeName = toString(attribute->getNodeName());
@@ -591,9 +591,9 @@ IceSSL::ConfigParser::loadCertificateFile(ICE_XERCES_NS DOMNode* rootNode, Certi
     int encoding = 0; // Initialize, to keep the compiler from complaining.
 
     ICE_XERCES_NS DOMNamedNodeMap* attributes = rootNode->getAttributes();
-    int attrCount = attributes->getLength();
+    size_t attrCount = attributes->getLength();
 
-    for(int i = 0; i < attrCount; i++)
+    for(size_t i = 0; i < attrCount; i++)
     {
         ICE_XERCES_NS DOMNode* attribute = attributes->item(i);
         string nodeName = toString(attribute->getNodeName());

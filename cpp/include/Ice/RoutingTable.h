@@ -26,7 +26,7 @@ namespace Ice
 
 struct Identity;
 
-};
+}
 
 namespace IceInternal
 {

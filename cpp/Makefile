@@ -29,14 +29,14 @@ install::
 	@if test ! -d $(install_bindir) ; \
 	then \
 	    echo "Creating $(install_bindir)..." ; \
-	    mkdir $(install_bindir) ; \
+	    mkdir -p $(install_bindir) ; \
 	    chmod a+rx $(install_bindir) ; \
 	fi
 
 	@if test ! -d $(install_libdir) ; \
 	then \
 	    echo "Creating $(install_libdir)..." ; \
-	    mkdir $(install_libdir) ; \
+	    mkdir -p $(install_libdir) ; \
 	    chmod a+rx $(install_libdir) ; \
 	fi
 

@@ -77,14 +77,14 @@ IceInternal::BasicStream::swap(BasicStream& other)
 }
 
 void inline
-inlineResize(Buffer* buffer, int total)
+inlineResize(Buffer* buffer, size_t total)
 {
     if(total > 1024 * 1024) // TODO: configurable
     {
 	throw MemoryLimitException(__FILE__, __LINE__);
     }
 
-    int capacity = buffer->b.capacity();
+    size_t capacity = buffer->b.capacity();
     if(capacity < total)
     {
 	buffer->b.reserve(max(total, 2 * capacity));
@@ -125,7 +125,7 @@ void
 IceInternal::BasicStream::endWriteEncaps()
 {
     assert(_currentWriteEncaps);
-    int start = _currentWriteEncaps->start;
+    Container::size_type start = _currentWriteEncaps->start;
     _writeEncapsStack.pop_back();
     if(_writeEncapsStack.empty())
     {
@@ -135,7 +135,7 @@ IceInternal::BasicStream::endWriteEncaps()
     {
 	_currentWriteEncaps = &_writeEncapsStack.back();
     }
-    Int sz = b.size() - start + sizeof(Int) + 2;				// Size includes size and version
+    Int sz = static_cast<Int>(b.size() - start + sizeof(Int) + 2);		// Size includes size and version
     const Byte* p = reinterpret_cast<const Byte*>(&sz);
 #ifdef ICE_BIG_ENDIAN
     reverse_copy(p, p + sizeof(Int), b.begin() + start - sizeof(Int) - 2);	// - 2 for major and minor version byte
@@ -202,7 +202,7 @@ void
 IceInternal::BasicStream::skipReadEncaps()
 {
     assert(_currentReadEncaps);
-    int start = _currentReadEncaps->start;
+    Container::size_type start = _currentReadEncaps->start;
     _readEncapsStack.pop_back();
     if(_readEncapsStack.empty())
     {
@@ -230,7 +230,7 @@ void
 IceInternal::BasicStream::checkReadEncaps()
 {
     assert(_currentReadEncaps);
-    int start = _currentReadEncaps->start;
+    Container::size_type start = _currentReadEncaps->start;
     Container::iterator save = i;
     i = b.begin() + start - sizeof(Int) - 2;	// - 2 for major and minor version byte
     Int sz;
@@ -250,7 +250,7 @@ Int
 IceInternal::BasicStream::getReadEncapsSize()
 {
     assert(_currentReadEncaps);
-    int start = _currentReadEncaps->start;
+    Container::size_type start = _currentReadEncaps->start;
     Container::iterator save = i;
     i = b.begin() + start - sizeof(Int) - 2;	// - 2 for major and minor version byte
     Int sz;
@@ -260,7 +260,7 @@ IceInternal::BasicStream::getReadEncapsSize()
 	throw NegativeSizeException(__FILE__, __LINE__);
     }
     i = save;
-    return sz - sizeof(Int) - 2;
+    return static_cast<Int>(sz - sizeof(Int) - 2);
 }
 
 void
@@ -315,7 +315,7 @@ IceInternal::BasicStream::readSize(Ice::Int& v)
 void
 IceInternal::BasicStream::writeBlob(const vector<Byte>& v)
 {
-    int pos = b.size();
+    size_t pos = b.size();
     inlineResize(this, pos + v.size());
     ice_copy(v.begin(), v.end(), b.begin() + pos);
 }
@@ -336,7 +336,7 @@ IceInternal::BasicStream::readBlob(vector<Byte>& v, Int sz)
 void
 IceInternal::BasicStream::writeBlob(const Ice::Byte* v, size_t len)
 {
-    int pos = b.size();
+    size_t pos = b.size();
     inlineResize(this, pos + len);
     ice_copy(&v[0], &v[0 + len], b.begin() + pos);
 }
@@ -356,9 +356,9 @@ IceInternal::BasicStream::readBlob(Ice::Byte* v, size_t len)
 void
 IceInternal::BasicStream::write(const vector<Byte>& v)
 {
-    Int sz = v.size();
+    Int sz = static_cast<Int>(v.size());
     writeSize(sz);
-    int pos = b.size();
+    size_t pos = b.size();
     inlineResize(this, pos + sz);
     ice_copy(v.begin(), v.end(), b.begin() + pos);
 }
@@ -391,9 +391,9 @@ IceInternal::BasicStream::read(vector<Byte>& v)
 void
 IceInternal::BasicStream::write(const vector<bool>& v)
 {
-    Int sz = v.size();
+    Int sz = static_cast<Int>(v.size());
     writeSize(sz);
-    int pos = b.size();
+    size_t pos = b.size();
     inlineResize(this, pos + sz);
     ice_copy(v.begin(), v.end(), b.begin() + pos);
 }
@@ -426,7 +426,7 @@ IceInternal::BasicStream::read(vector<bool>& v)
 void
 IceInternal::BasicStream::write(Short v)
 {
-    int pos = b.size();
+    size_t pos = b.size();
     inlineResize(this, pos + sizeof(Short));
     const Byte* p = reinterpret_cast<const Byte*>(&v);
 #ifdef ICE_BIG_ENDIAN
@@ -439,11 +439,11 @@ IceInternal::BasicStream::write(Short v)
 void
 IceInternal::BasicStream::write(const vector<Short>& v)
 {
-    Int sz = v.size();
+    Int sz = static_cast<Int>(v.size());
     writeSize(sz);
     if(sz > 0)
     {
-	int pos = b.size();
+	size_t pos = b.size();
 	inlineResize(this, pos + sz * sizeof(Short));
 	const Byte* p = reinterpret_cast<const Byte*>(&v[0]);
 #ifdef ICE_BIG_ENDIAN
@@ -505,7 +505,7 @@ IceInternal::BasicStream::read(vector<Short>& v)
 void
 IceInternal::BasicStream::write(Int v)
 {
-    int pos = b.size();
+    size_t pos = b.size();
     inlineResize(this, pos + sizeof(Int));
     const Byte* p = reinterpret_cast<const Byte*>(&v);
 #ifdef ICE_BIG_ENDIAN
@@ -518,11 +518,11 @@ IceInternal::BasicStream::write(Int v)
 void
 IceInternal::BasicStream::write(const vector<Int>& v)
 {
-    Int sz = v.size();
+    Int sz = static_cast<Int>(v.size());
     writeSize(sz);
     if(sz > 0)
     {
-	int pos = b.size();
+	size_t pos = b.size();
 	inlineResize(this, pos + sz * sizeof(Int));
 	const Byte* p = reinterpret_cast<const Byte*>(&v[0]);
 #ifdef ICE_BIG_ENDIAN
@@ -584,7 +584,7 @@ IceInternal::BasicStream::read(vector<Int>& v)
 void
 IceInternal::BasicStream::write(Long v)
 {
-    int pos = b.size();
+    size_t pos = b.size();
     inlineResize(this, pos + sizeof(Long));
     const Byte* p = reinterpret_cast<const Byte*>(&v);
 #ifdef ICE_BIG_ENDIAN
@@ -597,11 +597,11 @@ IceInternal::BasicStream::write(Long v)
 void
 IceInternal::BasicStream::write(const vector<Long>& v)
 {
-    Int sz = v.size();
+    Int sz = static_cast<Int>(v.size());
     writeSize(sz);
     if(sz > 0)
     {
-	int pos = b.size();
+	size_t pos = b.size();
 	inlineResize(this, pos + sz * sizeof(Long));
 	const Byte* p = reinterpret_cast<const Byte*>(&v[0]);
 #ifdef ICE_BIG_ENDIAN
@@ -663,7 +663,7 @@ IceInternal::BasicStream::read(vector<Long>& v)
 void
 IceInternal::BasicStream::write(Float v)
 {
-    int pos = b.size();
+    size_t pos = b.size();
     inlineResize(this, pos + sizeof(Float));
     const Byte* p = reinterpret_cast<const Byte*>(&v);
 #ifdef ICE_BIG_ENDIAN
@@ -676,11 +676,11 @@ IceInternal::BasicStream::write(Float v)
 void
 IceInternal::BasicStream::write(const vector<Float>& v)
 {
-    Int sz = v.size();
+    Int sz = static_cast<Int>(v.size());
     writeSize(sz);
     if(sz > 0)
     {
-	int pos = b.size();
+	size_t pos = b.size();
 	inlineResize(this, pos + sz * sizeof(Float));
 	const Byte* p = reinterpret_cast<const Byte*>(&v[0]);
 #ifdef ICE_BIG_ENDIAN
@@ -742,7 +742,7 @@ IceInternal::BasicStream::read(vector<Float>& v)
 void
 IceInternal::BasicStream::write(Double v)
 {
-    int pos = b.size();
+    size_t pos = b.size();
     inlineResize(this, pos + sizeof(Double));
     const Byte* p = reinterpret_cast<const Byte*>(&v);
 #ifdef ICE_BIG_ENDIAN
@@ -755,11 +755,11 @@ IceInternal::BasicStream::write(Double v)
 void
 IceInternal::BasicStream::write(const vector<Double>& v)
 {
-    Int sz = v.size();
+    Int sz = static_cast<Int>(v.size());
     writeSize(sz);
     if(sz > 0)
     {
-	int pos = b.size();
+	size_t pos = b.size();
 	inlineResize(this, pos + sz * sizeof(Double));
 	const Byte* p = reinterpret_cast<const Byte*>(&v[0]);
 #ifdef ICE_BIG_ENDIAN
@@ -821,11 +821,11 @@ IceInternal::BasicStream::read(vector<Double>& v)
 void
 IceInternal::BasicStream::write(const string& v)
 {
-    Int len = v.size();
+    Int len = static_cast<Int>(v.size());
     writeSize(len);
     if(len > 0)
     {
-	int pos = b.size();
+	size_t pos = b.size();
 	inlineResize(this, pos + len);
 	ice_copy(v.begin(), v.end(), b.begin() + pos);
     }
@@ -910,7 +910,7 @@ IceInternal::BasicStream::write(const ObjectPtr& v)
 	
 	if(v)
 	{
-	    Int num = _currentWriteEncaps->objectsWritten.size();
+	    Int num = static_cast<Int>(_currentWriteEncaps->objectsWritten.size());
 	    _currentWriteEncaps->objectsWritten[v.get()] = num;
 	    write(v->ice_id());
 	    v->__write(this);
@@ -1021,7 +1021,7 @@ IceInternal::BasicStream::throwException(const string* throwsBegin, const string
     pair<const string*, const string*> p = equal_range(throwsBegin, throwsEnd, id);
     if(p.first != p.second)
     {
-	return p.first - throwsBegin;
+	return static_cast<Int>(p.first - throwsBegin);
     }
     
     NoUserExceptionFactoryException ex(__FILE__, __LINE__);

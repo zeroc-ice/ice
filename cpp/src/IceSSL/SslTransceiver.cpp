@@ -111,7 +111,7 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
 
     _plugin->registerThread();
 
-    int packetSize = buf.b.end() - buf.i;
+    Buffer::Container::difference_type packetSize = buf.b.end() - buf.i;
     int totalBytesRead = 0;
     int bytesRead;
 
@@ -152,7 +152,7 @@ IceSSL::SslTransceiver::read(Buffer& buf, int timeout)
 
         _readTimeout = timeout;
 
-        bytesRead = sslRead(static_cast<char*>(&*buf.i), packetSize);
+        bytesRead = sslRead(static_cast<char*>(&*buf.i), static_cast<Int>(packetSize));
 
         switch(getLastError())
         {
@@ -818,10 +818,10 @@ IceSSL::SslTransceiver::showCertificateChain(BIO* bio)
 
         for(int i = 0; i < sk_X509_num(sk); i++)
         {
-            X509_NAME_oneline(X509_get_subject_name(sk_X509_value(sk,i)), buffer, sizeof(buffer));
+            X509_NAME_oneline(X509_get_subject_name(sk_X509_value(sk,i)), buffer, int(sizeof(buffer)));
             BIO_printf(bio, "%2d s:%s\n", i, buffer);
 
-            X509_NAME_oneline(X509_get_issuer_name(sk_X509_value(sk,i)), buffer, sizeof(buffer));
+            X509_NAME_oneline(X509_get_issuer_name(sk_X509_value(sk,i)), buffer, int(sizeof(buffer)));
             BIO_printf(bio, "   i:%s\n", buffer);
 
             PEM_write_bio_X509(bio, sk_X509_value(sk, i));
@@ -847,10 +847,10 @@ IceSSL::SslTransceiver::showPeerCertificate(BIO* bio, const char* connType)
         BIO_printf(bio, "%s Certificate\n", connType);
         PEM_write_bio_X509(bio, peerCert);
 
-        X509_NAME_oneline(X509_get_subject_name(peerCert), buffer, sizeof(buffer));
+        X509_NAME_oneline(X509_get_subject_name(peerCert), buffer, int(sizeof(buffer)));
         BIO_printf(bio, "subject=%s\n", buffer);
 
-        X509_NAME_oneline(X509_get_issuer_name(peerCert), buffer, sizeof(buffer));
+        X509_NAME_oneline(X509_get_issuer_name(peerCert), buffer, int(sizeof(buffer)));
         BIO_printf(bio, "issuer=%s\n", buffer);
 
         EVP_PKEY *pktmp;
@@ -875,7 +875,7 @@ IceSSL::SslTransceiver::showSharedCiphers(BIO* bio)
     char buffer[4096];
     char* strPointer = 0;
 
-    if((strPointer = SSL_get_shared_ciphers(_sslConnection, buffer, sizeof(buffer))) != 0)
+    if((strPointer = SSL_get_shared_ciphers(_sslConnection, buffer, int(sizeof(buffer)))) != 0)
     {
         // This works only for SSL 2.  In later protocol versions, the client does not know
         // what other ciphers (in addition to the one to be used in the current connection)
@@ -968,8 +968,8 @@ IceSSL::SslTransceiver::showClientCAList(BIO* bio, const char* connType)
 
         for(int i = 0; i < sk_X509_NAME_num(sk); i++)
         {
-            X509_NAME_oneline(sk_X509_NAME_value(sk, i), buffer, sizeof(buffer));
-            BIO_write(bio, buffer, strlen(buffer));
+            X509_NAME_oneline(sk_X509_NAME_value(sk, i), buffer, int(sizeof(buffer)));
+            BIO_write(bio, buffer, int(strlen(buffer)));
             BIO_write(bio,"\n", 1);
         }
     }

@@ -53,7 +53,7 @@ Ice::Object::operator<(const Object& r) const
 Int
 Ice::Object::ice_hash() const
 {
-    return reinterpret_cast<Int>(this) >> 4;
+    return static_cast<Int>(reinterpret_cast<Long>(this) >> 4);
 }
 
 const string Ice::Object::__ids[] =
@@ -238,7 +238,7 @@ Ice::Object::__marshal(const ::Ice::StreamPtr& __os) const
 {
     IceUtil::Mutex::Lock sync(_activeFacetMapMutex);
 
-    __os->startWriteDictionary("ice:facets", _activeFacetMap.size());
+    __os->startWriteDictionary("ice:facets", static_cast<Int>(_activeFacetMap.size()));
     for(map<string, ObjectPtr>::const_iterator p = _activeFacetMap.begin(); p != _activeFacetMap.end(); ++p)
     {
 	__os->startWriteDictionaryElement();
@@ -388,7 +388,7 @@ Ice::Object::ice_findFacet(const string& name)
 ObjectPtr
 Ice::Object::ice_findFacetPath(const vector<string>& path, int start)
 {
-    int sz = path.size();
+    int sz = static_cast<int>(path.size());
 
     if(start > sz)
     {

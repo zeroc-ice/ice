@@ -63,6 +63,6 @@ private:
     ServerState _state;
 };
 
-};
+}
 
 #endif

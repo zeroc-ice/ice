@@ -634,11 +634,11 @@ IceInternal::ThreadPool::read(const EventHandlerPtr& handler)
 	assert(stream.i == stream.b.end());
     }
     
-    int pos = stream.i - stream.b.begin();
+    ptrdiff_t pos = stream.i - stream.b.begin();
     assert(pos >= headerSize);
     stream.i = stream.b.begin();
     MagicBytes m(sizeof(magic), 0);
-    stream.readBlob(m, sizeof(magic));
+    stream.readBlob(m, static_cast<Int>(sizeof(magic)));
     if(!equal(m.begin(), m.end(), magic))
     {
 	BadMagicException ex(__FILE__, __LINE__);

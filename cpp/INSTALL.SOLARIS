@@ -12,6 +12,12 @@ Solaris 9; on Solaris 8, you need to install patch 112438-01.
 C++ compiler
 ------------
 
+- Sun C++ 5.3 (part of Forte 6 update 2 aka Sun WorkShop 6 update 2)
+  It is necessary to setup Sun C++ 5.3 to use the shared version of
+  libCstd, as described in 
+  <F6U2 install base>/SUNWspro/READMEs/c++ C.1.b (line 168).
+ 
+or
 - Sun C++ 5.4 (part of Sun ONE Studio Compiler Collection 7.0 
                aka Forte Developer 7)
 
@@ -26,28 +32,32 @@ Third-party libraries
 
 - bzip2 1.0
 
-Xerces-C++ can be download from:
+bzip2 may already be installed on your system. If not, we recommend to
+download it (in binary form) from http://www.sunfreeware.com.
 
+OpenSSL 0.97 can be downloaded (in binary form) from 
+http://www.sunfreeware.com;  or you can download the source from 
+http://www.openssl.org.
+
+Xerces-C++ can be downloaded from:
 http://xml.apache.org/xerces-c
 
 And Berkeley DB from:
-
 http://www.sleepycat.com/download
 
-And OpenSSL from:
 
-http://www.openssl.org
+GNU Make 3.80
+-------------
 
-And bzip2 from:
-
-http://sources.redhat.com/bzip2
-
+GNU Make 3.80 is required to build Ice on SPARC/Solaris.
+You can download GNU Make from http://www.sunfreeware.com.
 
 Python 2.2
 ----------
 
 To run the automated test suite, you will need Python 2.2. If you have
 no interest in running the test scripts, Python is not required.
+You can download Python from http://www.sunfreeware.com.
 
 
 ======================================================================
@@ -70,13 +80,13 @@ and /usr/include.
 
 Now you're ready to build Ice:
 
-$ make
+$ gmake
 
 This will build the Ice core library, all add-ons, all tests, and all
 examples. After a successful build, you can run the test suite,
 provided that you installed Python:
 
-$ make test
+$ gmake test
 
 This is equivalent to:
 
@@ -86,17 +96,31 @@ If everything worked out, you should see lots of "ok". In case of a
 failure, the tests abort with "failed".
 
 If you want to try out any of the demos, make sure to add "bin" to
-PATH and "lib" to LD_LIBRARY_PATH:
+PATH and "lib" to LD_LIBRARY_PATH or LD_LIBRARY_PATH_64 (for 64 bit
+builds):
 
 $ export PATH=`pwd`/bin:$PATH
-$ export LD_LIBRARY_PATH=`pwd`/bin:$LD_LIBRARY_PATH
+$ export LD_LIBRARY_PATH=`pwd`/lib:$LD_LIBRARY_PATH
+$ export LD_LIBRARY_PATH_64=`pwd`/lib:$LD_LIBRARY_PATH_64
+
+======================================================================
+64 bit builds
+======================================================================
+
+To build Ice in 64 bit mode, you need to:
+ - Obtain or build all the third party dependencies, and put the 64 bit
+   libraries in the "lib/sparcv9" directories. For example put 
+   Berkeley DB 64 bit libraries in $DB_HOME/lib/sparcv9.
+ - Set the environment variable LP64 to yes, e.g.:
+   $ export LP64=yes
+ - Build and test as described above.
 
 
 ======================================================================
 Installation
 ======================================================================
 
-Simply run "make install". This will install Ice in the "prefix"
+Simply run "gmake install". This will install Ice in the "prefix"
 directory specified in the file Make.rules.
 
 After installation, make sure that the <prefix>/bin directory is in
@@ -105,3 +129,8 @@ LD_LIBRARY_PATH. When compiling Ice programs, you must also make sure
 to pass the location of the <prefix>/include directory to the compiler
 with the -I option, and the location of the <prefix>/lib directory
 with the -L option.
+
+If you built in 64 bit mode, the libraries are installed in
+<prefix>/lib/sparcv9 and the programs are installed in 
+<prefix>/bin/sparcv9. Other files are identical for 32 and 64 bit.
+ 

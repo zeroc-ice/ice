@@ -69,7 +69,7 @@ static const char* expressions[] =
     "5*(2+3)",
     "10+(10+(20+(8*(2*(3*2+4+5+6)))))"
 };
-static const int nexpressions = sizeof(expressions)/sizeof(expressions[0]);
+static const size_t nexpressions = sizeof(expressions)/sizeof(expressions[0]);
 
 static int
 populate(const DBPtr& db)
@@ -78,7 +78,7 @@ populate(const DBPtr& db)
 
     cout << "populating the database... ";
     Parser myParser;
-    for(int i = 0 ; i < nexpressions; ++i)
+    for(size_t i = 0 ; i < nexpressions; ++i)
     {
 	Complex::NodePtr root = myParser.parse(expressions[i]);
 	assert(root);

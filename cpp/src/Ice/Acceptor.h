@@ -19,7 +19,9 @@
 #include <Ice/AcceptorF.h>
 #include <Ice/TransceiverF.h>
 
-#ifndef _WIN32
+#ifdef _WIN32
+typedef int ssize_t;
+#else
 #   define SOCKET int
 #endif
 

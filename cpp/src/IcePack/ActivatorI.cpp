@@ -168,7 +168,7 @@ IcePack::ActivatorI::activate(const ServerPtr& server)
     //
     // Compute arguments.
     //
-    int argc = server->description.args.size() + _propertiesOverride.size() + 3;
+    int argc = static_cast<int>(server->description.args.size() + _propertiesOverride.size() + 3);
     char** argv = static_cast<char**>(malloc(argc * sizeof(char*)));
     argv[0] = strdup(path.c_str());
 
@@ -609,7 +609,7 @@ IcePack::ActivatorI::terminationListener()
 		}
 
 		char s[16];
-		int rs;
+		ssize_t rs;
 		string message;
 
 		//

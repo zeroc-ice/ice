@@ -92,7 +92,7 @@ populateDB(const DBPtr& db)
 {
     for(vector<char>::const_iterator j = alphabet.begin() ; j != alphabet.end(); ++j)
     {
-	addValue(db, *j, j-alphabet.begin());
+	addValue(db, *j, static_cast<int>(j - alphabet.begin()));
     }
 }
 

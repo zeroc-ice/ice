@@ -146,7 +146,7 @@ IceInternal::decodeString(const string& s, string::size_type start, string::size
 
     while(start < end)
     {
-        string::size_type ch = s[start];
+        char ch = s[start];
         if(ch == '\\')
         {
             start++;

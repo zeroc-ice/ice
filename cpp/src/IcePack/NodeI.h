@@ -39,6 +39,6 @@ private:
 
 };
 
-};
+}
 
 #endif

@@ -228,7 +228,7 @@ IcePatch::RegularI::getBZ2Size(const Current& current) const
 	    }
 	}
 	
-	return infoBZ2.size;
+	return static_cast<Int>(infoBZ2.size);
     }
     catch(const IceUtil::ThreadLockedException&)
     {

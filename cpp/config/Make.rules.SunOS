@@ -16,15 +16,29 @@
 # This file is included by Make.rules when uname is SunOS.
 #
 
-CXX			= CC
-CXXFLAGS		= -KPIC -mt +w +p
+CXX               	:= CC
+
+#
+# Which version of CC are we using?
+#
+CCVERSION               := $(filter 5.%, $(shell CC -V 2>&1))
 
 ifeq ($(LP64),yes)
-    CXXFLAGS		= -xarch=v9 $(CXXFLAGS)
+    CXXARCHFLAGS        := -xarch=v9
 endif
 
+ifeq ($(CCVERSION),5.3)
+    CXXWARNFLAGS        := 
+    FLEX_NOLINE         := yes
+    BISON_NOLINE        := yes
+else 
+   CXXWARNFLAGS         := +w
+endif
 
-TEMPLATE_REPOSITORY     = SunWS_cache
+CXXFLAGS		= -KPIC -mt +p $(CXXWARNFLAGS) $(CXXARCHFLAGS)
+
+
+TEMPLATE_REPOSITORY     := SunWS_cache
 
 ifeq ($(OPTIMIZE),yes)
      CXXFLAGS		:= -O -DNDEBUG $(CXXFLAGS)
@@ -34,10 +48,19 @@ endif
 
 SHLIB_LDFLAGS		= -G -h $(@F)
 
-LIBEXT			= so
+LIBEXT			:= so
 
 BASELIBS		= -lIceUtil $(STLPORT_LIBS) -lpthread
 LIBS			= -lIce -lbz2 $(BASELIBS) -ldl
 
-ICEUTIL_OS_LIBS         = -lpthread -lrt
-ICE_OS_LIBS             = -lsocket
+ICEUTIL_OS_LIBS         := -lpthread -lrt
+ICE_OS_LIBS             := -lsocket
+
+
+lp64dir                := sparcv9
+
+ifeq ($(LP64),yes)
+    export LD_LIBRARY_PATH_64	:= $(libdir):$(LD_LIBRARY_PATH_64)
+else
+    export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)
+endif

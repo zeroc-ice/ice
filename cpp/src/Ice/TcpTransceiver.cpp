@@ -62,7 +62,7 @@ IceInternal::TcpTransceiver::shutdown()
 void
 IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 {
-    int packetSize = buf.b.end() - buf.i;
+     Buffer::Container::difference_type packetSize = buf.b.end() - buf.i;
     
 #ifdef _WIN32
     //
@@ -77,7 +77,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
     while(buf.i != buf.b.end())
     {
 	assert(_fd != INVALID_SOCKET);
-	int ret = ::send(_fd, &*buf.i, packetSize, 0);
+	ssize_t ret = ::send(_fd, &*buf.i, packetSize, 0);
 
 	if(ret == 0)
 	{
@@ -161,7 +161,7 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 
 	if(_stats)
 	{
-	    _stats->bytesSent(_name, ret);
+	    _stats->bytesSent(_name, static_cast<Int>(ret));
 	}
 
 	buf.i += ret;
@@ -176,12 +176,12 @@ IceInternal::TcpTransceiver::write(Buffer& buf, int timeout)
 void
 IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 {
-    int packetSize = buf.b.end() - buf.i;
+    Buffer::Container::difference_type packetSize = buf.b.end() - buf.i;
     
     while(buf.i != buf.b.end())
     {
 	assert(_fd != INVALID_SOCKET);
-	int ret = ::recv(_fd, &*buf.i, packetSize, 0);
+	ssize_t ret = ::recv(_fd, &*buf.i, packetSize, 0);
 
 	if(ret == 0)
 	{
@@ -265,7 +265,7 @@ IceInternal::TcpTransceiver::read(Buffer& buf, int timeout)
 
 	if(_stats)
 	{
-	    _stats->bytesReceived(_name, ret);
+	    _stats->bytesReceived(_name, static_cast<Int>(ret));
 	}
 
 	buf.i += ret;

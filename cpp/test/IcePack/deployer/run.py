@@ -33,6 +33,7 @@ if TestUtil.isWin32():
     os.environ["PATH"] = testdir + ";" + os.getenv("PATH", "")
 else:
     os.environ["LD_LIBRARY_PATH"] = testdir + ":" + os.getenv("LD_LIBRARY_PATH", "")
+    os.environ["LD_LIBRARY_PATH_64"] = testdir + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
 
 #
 # Start the client.

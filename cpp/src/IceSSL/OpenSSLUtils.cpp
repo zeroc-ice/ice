@@ -338,7 +338,7 @@ IceSSL::getTempDH(unsigned char* p, int plen, unsigned char* g, int glen)
 DH*
 IceSSL::getTempDH512()
 {
-    DH* dh = getTempDH(dh512_p, sizeof(dh512_p), dh512_g, sizeof(dh512_g));
+    DH* dh = getTempDH(dh512_p, (int) sizeof(dh512_p), dh512_g, (int) sizeof(dh512_g));
 
     return dh;
 }
@@ -346,7 +346,7 @@ IceSSL::getTempDH512()
 DH*
 IceSSL::getTempDH1024()
 {
-    DH* dh = getTempDH(dh1024_p, sizeof(dh1024_p), dh1024_g, sizeof(dh1024_g));
+    DH* dh = getTempDH(dh1024_p, (int) sizeof(dh1024_p), dh1024_g, (int) sizeof(dh1024_g));
 
     return dh;
 }
@@ -354,7 +354,7 @@ IceSSL::getTempDH1024()
 DH*
 IceSSL::getTempDH2048()
 {
-    DH* dh = getTempDH(dh2048_p, sizeof(dh2048_p), dh2048_g, sizeof(dh2048_g));
+    DH* dh = getTempDH(dh2048_p, (int) sizeof(dh2048_p), dh2048_g, (int) sizeof(dh2048_g));
 
     return dh;
 }
@@ -362,7 +362,7 @@ IceSSL::getTempDH2048()
 DH*
 IceSSL::getTempDH4096()
 {
-    DH* dh = getTempDH(dh4096_p, sizeof(dh4096_p), dh4096_g, sizeof(dh4096_g));
+    DH* dh = getTempDH(dh4096_p, (int) sizeof(dh4096_p), dh4096_g, (int) sizeof(dh4096_g));
 
     return dh;
 }
@@ -379,7 +379,7 @@ IceSSL::sslGetErrors()
     const char* data = 0;
     int line = 0;
     int flags = 0;
-    unsigned errorCode = 0;
+    unsigned long errorCode = 0;
     int errorNum = 1;
 
     unsigned long es = CRYPTO_thread_id();
@@ -389,7 +389,7 @@ IceSSL::sslGetErrors()
         sprintf(bigBuffer,"%6d - Thread ID: %lu\n", errorNum, es);
         errorMessage += bigBuffer;
 
-        sprintf(bigBuffer,"%6d - Error:     %u\n", errorNum, errorCode);
+        sprintf(bigBuffer,"%6d - Error:     %lu\n", errorNum, errorCode);
         errorMessage += bigBuffer;
 
         // Request an error from the OpenSSL library
@@ -451,7 +451,7 @@ static const char* errorStrings[] =
 };
 
 string
-IceSSL::getVerificationError(int errorCode)
+IceSSL::getVerificationError(long errorCode)
 {
     string errString;
 

@@ -19,6 +19,7 @@
 
 #ifdef _WIN32
 #   include <winsock.h>
+typedef int ssize_t;
 #else
 #   include <unistd.h>
 #   include <fcntl.h>

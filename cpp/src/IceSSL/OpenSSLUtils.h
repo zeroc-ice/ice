@@ -36,7 +36,7 @@ DH* getTempDH4096();
 
 std::string sslGetErrors();
 
-std::string getVerificationError(int);
+std::string getVerificationError(long);
 
 }
 

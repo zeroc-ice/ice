@@ -57,7 +57,7 @@ Glacier::StarterI::StarterI(const CommunicatorPtr& communicator, const PasswordV
     Int bitStrength = _properties->getPropertyAsIntWithDefault(
 	"Glacier.Starter.Certificate.BitStrength", 1024);
     Int secondsValid = _properties->getPropertyAsIntWithDefault(
-	"Glacier.Starter.Certificate.SecondsValid", IceSSL::RSACertificateGenContext::daysToSeconds(1));
+	"Glacier.Starter.Certificate.SecondsValid", static_cast<Int>(IceSSL::RSACertificateGenContext::daysToSeconds(1)));
     Int issuedAdjust = _properties->getPropertyAsIntWithDefault("Glacier.Starter.Certificate.IssuedAdjust", 0);
     
     _certContext.setCountry(country);
@@ -288,7 +288,7 @@ Glacier::StarterI::startRouter(const string& userId, const string& password, Byt
 	//
 	// Convert to standard argc/argv.
 	//
-	int argc = args.size() + 1;
+	int argc = static_cast<int>(args.size()) + 1;
 	char** argv = static_cast<char**>(malloc((argc + 1) * sizeof(char*)));
 	StringSeq::iterator p;
 	int i;

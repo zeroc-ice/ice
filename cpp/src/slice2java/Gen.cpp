@@ -387,7 +387,8 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     StringList::const_iterator firstIter = ids.begin();
     StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), scoped);
     assert(scopedIter != ids.end());
-    int scopedPos = ice_distance(firstIter, scopedIter);
+    StringList::difference_type scopedPos 
+	= ice_distance(firstIter, scopedIter);
 
     out << sp << nl << "public static final String[] __ids =";
     out << sb;
@@ -1714,7 +1715,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     string absolute = getAbsolute(scoped);
     EnumeratorList enumerators = p->getEnumerators();
     EnumeratorList::const_iterator en;
-    int sz = enumerators.size();
+    size_t sz = enumerators.size();
 
     if(!open(absolute))
     {

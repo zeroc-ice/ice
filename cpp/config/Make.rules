@@ -106,10 +106,15 @@ bindir			= $(top_srcdir)/bin
 libdir			= $(top_srcdir)/lib
 includedir		= $(top_srcdir)/include
 slicedir		= $(top_srcdir)/slice
-export LD_LIBRARY_PATH	:= $(libdir):$(LD_LIBRARY_PATH)
 
-install_bindir		= $(prefix)/bin
-install_libdir		= $(prefix)/lib
+ifeq ($(LP64),yes)
+    install_bindir	= $(prefix)/bin/$(lp64dir)
+    install_libdir	= $(prefix)/lib/$(lp64dir)
+else
+    install_bindir	= $(prefix)/bin
+    install_libdir	= $(prefix)/lib
+endif
+
 install_includedir	= $(prefix)/include
 install_slicedir	= $(prefix)/slice
 install_schemadir	= $(prefix)/schema
@@ -127,13 +132,18 @@ UNAME                   := $(shell uname)
 #
 include  $(top_srcdir)/config/Make.rules.$(UNAME)
 
+ifeq ($(LP64),yes)
+    libsubdir             := lib/$(lp64dir)
+else
+    libsubdir             := lib
+endif
 
 ifneq ($(STLPORT_HOME),)
     STLPORT_FLAGS	= -I$(STLPORT_HOME)/include/stlport
     ifeq ($(OPTIMIZE),yes)
-        STLPORT_LIBS	= -L$(STLPORT_HOME)/lib -lstlport_gcc
+        STLPORT_LIBS	= -L$(STLPORT_HOME)/$(libsubdir) -lstlport_gcc
     else
-        STLPORT_LIBS	= -L$(STLPORT_HOME)/lib -lstlport_gcc_stldebug
+        STLPORT_LIBS	= -L$(STLPORT_HOME)/$(libsubdir) -lstlport_gcc_stldebug
     endif
 else
     STLPORT_FLAGS	=
@@ -142,7 +152,7 @@ endif
 
 ifneq ($(OPENSSL_HOME),)
     OPENSSL_FLAGS	= -I$(OPENSSL_HOME)/include
-    OPENSSL_LIBS	= -L$(OPENSSL_HOME)/lib -lssl -lcrypto
+    OPENSSL_LIBS	= -L$(OPENSSL_HOME)/$(libsubdir) -lssl -lcrypto
 else
     OPENSSL_FLAGS	=
     OPENSSL_LIBS	= -lssl -lcrypto
@@ -154,7 +164,7 @@ endif
 
 ifneq ($(DB_HOME),)
     DB_FLAGS		= -I$(DB_HOME)/include
-    DB_LIBS		= -L$(DB_HOME)/lib -ldb
+    DB_LIBS		= -L$(DB_HOME)/$(libsubdir) -ldb
 else
     DB_FLAGS		=
     DB_LIBS		= -ldb
@@ -162,7 +172,7 @@ endif
 
 ifneq ($(XERCESC_HOME),)
     XERCESC_FLAGS	= -I$(XERCESC_HOME)/include
-    XERCESC_LIBS	= -L$(XERCESC_HOME)/lib -lxerces-c
+    XERCESC_LIBS	= -L$(XERCESC_HOME)/$(libsubdir) -lxerces-c
 else
     XERCESC_FLAGS	=
     XERCESC_LIBS	= -lxerces-c
@@ -172,7 +182,7 @@ ifeq ($(PLATFORM_HAS_READLINE),yes)
     ifeq ($(USE_READLINE),yes)
         ifneq ($(READLINE_HOME),)
             READLINE_FLAGS	= -DHAVE_READLINE -I$(READLINE_HOME)/include
-            READLINE_LIBS	= -L$(READLINE_HOME)/lib -lreadline -lncurses
+            READLINE_LIBS	= -L$(READLINE_HOME)/$(libsubdir) -lreadline -lncurses
         else
             READLINE_FLAGS	= -DHAVE_READLINE
             READLINE_LIBS	= -lreadline -lncurses
@@ -185,8 +195,20 @@ CPPFLAGS		= -I$(includedir) $(STLPORT_FLAGS)
 ICECPPFLAGS		= -I$(slicedir)
 SLICE2CPPFLAGS		= $(ICECPPFLAGS)
 
-LDFLAGS			= -L$(libdir)
+LDFLAGS			=  $(CXXFLAGS) -L$(libdir)
 
+ifeq ($(FLEX_NOLINE),yes)
+    FLEXFLAGS          := -L
+else
+    FLEXFLAGS          :=
+endif
+
+ifeq ($(BISON_NOLINE),yes)
+    BISONFLAGS          := -dvtl
+else
+    BISONFLAGS          := -dvt
+endif
+              
 
 SLICE2CPP		= $(bindir)/slice2cpp
 SLICE2XSD		= $(bindir)/slice2xsd
@@ -225,13 +247,13 @@ $(HDIR)/%.h %.cpp: $(SDIR)/%.ice $(SLICE2CPP)
 
 %.h %.cpp: %.y
 	rm -f $(*F).h $(*F).cpp
-	bison -dvt $<
+	bison $(BISONFLAGS) $<
 	mv $(*F).tab.c $(*F).cpp
 	mv $(*F).tab.h $(*F).h
 	rm -f $(*F).output
 
 %.cpp: %.l
-	flex $<
+	flex $(FLEXFLAGS) $<
 	rm -f $@
 	echo '#include <IceUtil/Config.h>' > $@
 	cat lex.yy.c >> $@

@@ -526,7 +526,7 @@ DBCursorI::set(const Value& value)
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
     dbData.data = const_cast<void*>(static_cast<const void*>(&value[0]));
-    dbData.size = value.size();
+    dbData.size = (unsigned int) value.size();
 
     if(_trace >= 1)
     {
@@ -1036,7 +1036,7 @@ Freeze::DBI::getCursorAtKeyImpl(::DB_TXN* txn, const Key& key)
     dbData.flags = DB_DBT_PARTIAL;
 
     dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
-    dbKey.size = key.size();
+    dbKey.size = (unsigned int) key.size();
     try
     {
 	checkBerkeleyDBReturn(cursor->c_get(cursor, &dbKey, &dbData, DB_SET), _errorPrefix, "DBcursor->c_get");
@@ -1071,9 +1071,9 @@ Freeze::DBI::putImpl(::DB_TXN* txn, const Key& key, const Value& value)
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
     dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
-    dbKey.size = key.size();
+    dbKey.size = (unsigned int) key.size();
     dbData.data = const_cast<void*>(static_cast<const void*>(&value[0]));
-    dbData.size = value.size();
+    dbData.size = (unsigned int) value.size();
 
     if(_trace >= 1)
     {
@@ -1101,7 +1101,7 @@ Freeze::DBI::containsImpl(::DB_TXN* txn, const Key& key)
     DBT dbKey;
     memset(&dbKey, 0, sizeof(dbKey));
     dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
-    dbKey.size = key.size();
+    dbKey.size = (unsigned int) key.size();
 
     DBT dbData;
     memset(&dbData, 0, sizeof(dbData));
@@ -1141,7 +1141,7 @@ Freeze::DBI::getImpl(::DB_TXN* txn, const Key& key)
     memset(&dbKey, 0, sizeof(dbKey));
     memset(&dbData, 0, sizeof(dbData));
     dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
-    dbKey.size = key.size();
+    dbKey.size = (unsigned int) key.size();
 
     if(_trace >= 1)
     {
@@ -1171,7 +1171,7 @@ Freeze::DBI::delImpl(::DB_TXN* txn, const Key& key)
     DBT dbKey;
     memset(&dbKey, 0, sizeof(dbKey));
     dbKey.data = const_cast<void*>(static_cast<const void*>(&key[0]));
-    dbKey.size = key.size();
+    dbKey.size = (unsigned int) key.size();
 
     if(_trace >= 1)
     {

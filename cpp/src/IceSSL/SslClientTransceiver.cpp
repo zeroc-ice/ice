@@ -42,7 +42,7 @@ IceSSL::SslClientTransceiver::write(Buffer& buf, int timeout)
     int totalBytesWritten = 0;
     int bytesWritten = 0;
 
-    int packetSize = buf.b.end() - buf.i;
+    Buffer::Container::difference_type packetSize = buf.b.end() - buf.i;
 
 #ifdef _WIN32
     //
@@ -74,7 +74,7 @@ IceSSL::SslClientTransceiver::write(Buffer& buf, int timeout)
             break;
         }
 
-        bytesWritten = sslWrite(static_cast<char*>(&*buf.i), packetSize);
+        bytesWritten = sslWrite(static_cast<char*>(&*buf.i), static_cast<Int>(packetSize));
 
         switch(getLastError())
         {
@@ -303,7 +303,7 @@ IceSSL::SslClientTransceiver::handshake(int timeout)
 
             case SSL_ERROR_SSL:
             {
-                int verifyError = SSL_get_verify_result(_sslConnection);
+                long verifyError = SSL_get_verify_result(_sslConnection);
 
                 if(verifyError != X509_V_OK && verifyError != 1)
 	        {

@@ -861,7 +861,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 	string scoped = fixKwd(p->scoped());
 	string scope = fixKwd(p->scope());
 	
-	int sz = enumerators.size();
+	size_t sz = enumerators.size();
 	assert(sz <= 0x7fffffff); // 64-bit enums are not supported
 	
 	H << sp << nl << _dllExport << "void __write(::IceInternal::BasicStream*, " << name << ");";
@@ -2067,7 +2067,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         StringList::const_iterator firstIter = ids.begin();
         StringList::const_iterator scopedIter = find(ids.begin(), ids.end(), p->scoped());
         assert(scopedIter != ids.end());
-        int scopedPos = ice_distance(firstIter, scopedIter);
+        StringList::difference_type scopedPos = ice_distance(firstIter, scopedIter);
 
 	StringList::const_iterator q;
 

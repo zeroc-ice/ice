@@ -49,12 +49,12 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
     FileInfo infoBZ2 = getFileInfo(pathBZ2, false);
     if(infoBZ2.type == FileTypeRegular)
     {
-	ByteSeq remoteBZ2MD5 = regular->getBZ2MD5(infoBZ2.size);
-	ByteSeq localBZ2MD5 = calcPartialMD5(pathBZ2, infoBZ2.size);
+	ByteSeq remoteBZ2MD5 = regular->getBZ2MD5(static_cast<Int>(infoBZ2.size));
+	ByteSeq localBZ2MD5 = calcPartialMD5(pathBZ2, static_cast<Int>(infoBZ2.size));
 
 	if(remoteBZ2MD5 == localBZ2MD5)
 	{
-	    posBZ2 = infoBZ2.size;
+	    posBZ2 = static_cast<Int>(infoBZ2.size);
 	}
     }
 
@@ -81,7 +81,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 	    break;
 	}
 	
-	posBZ2 += bytesBZ2.size();
+	posBZ2 += static_cast<Int>(bytesBZ2.size());
 	
 	fileBZ2.write(&bytesBZ2[0], bytesBZ2.size());
 	if(!fileBZ2)
@@ -167,7 +167,7 @@ IcePatch::getRegular(const RegularPrx& regular, ProgressCB& progressCB)
 		    throw ex;
 	        }
 
-	        progressCB.updateUncompress(totalBZ2, pos);
+	        progressCB.updateUncompress(totalBZ2, static_cast<Int>(pos));
 	        
 	        file.write(bytesBZ2, sz);
 	        if(!file)

@@ -77,7 +77,7 @@ private:
     bool _destroy;
 };
 
-};
+}
 
 #endif
 

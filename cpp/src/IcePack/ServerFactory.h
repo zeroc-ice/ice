@@ -65,6 +65,6 @@ private:
 
 typedef ::IceUtil::Handle< ServerFactory> ServerFactoryPtr;
 
-};
+}
 
 #endif

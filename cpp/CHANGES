@@ -41,8 +41,8 @@ Changes since version 1.0.1
   thread. Previously, only requests forwarded as batch would be sent
   from a separate thread.
 
-- Added support for SPARC/Solaris with the Sun C++ 5.4 compiler 
-  (32 bits only). See INSTALL.SOLARIS for details.
+- Added support for SPARC/Solaris with the Sun C++ 5.3 and 5.4 compilers 
+  (32 and 64 bit). See INSTALL.SOLARIS for details.
 
 - Replaced the Freeze::EvictorPersistenceMode enumeration with the
   interface Freeze::PersistenceStrategy.

@@ -141,6 +141,7 @@ if isWin32():
     os.environ["PATH"] = os.path.join(toplevel, "bin") + ";" + os.getenv("PATH", "")
 else:
     os.environ["LD_LIBRARY_PATH"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH", "")
+    os.environ["LD_LIBRARY_PATH_64"] = os.path.join(toplevel, "lib") + ":" + os.getenv("LD_LIBRARY_PATH_64", "")
 
 if protocol == "ssl":
     plugin		 = " --Ice.Plugin.IceSSL=IceSSL:create"
