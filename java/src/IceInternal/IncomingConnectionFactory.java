@@ -153,18 +153,10 @@ public class IncomingConnectionFactory extends EventHandler
         _threadPool.promoteFollower();
     }
 
-    public void
-    exception(Ice.LocalException ex)
-    {
-        assert(false); // Must not be called.
-    }
-
     public synchronized void
     finished()
     {
         assert(_state == StateClosed);
-
-        _acceptor.shutdown();
 
 	java.util.ListIterator iter = _connections.listIterator();
 	while (iter.hasNext())
@@ -194,6 +186,12 @@ public class IncomingConnectionFactory extends EventHandler
         }
 
         _acceptor.close();
+    }
+
+    public void
+    exception(Ice.LocalException ex)
+    {
+        assert(false); // Must not be called.
     }
 
     /*

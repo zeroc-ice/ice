@@ -42,16 +42,16 @@ abstract class EventHandler
     abstract void message(BasicStream stream);
 
     //
-    // Propagate an exception to the event handler.
-    //
-    abstract void exception(Ice.LocalException ex);
-
-    //
     // Will be called if the event handler is finally
     // unregistered. (Calling unregister() does not unregister
     // immediately.)
     //
     abstract void finished();
+
+    //
+    // Propagate an exception to the event handler.
+    //
+    abstract void exception(Ice.LocalException ex);
 
     //
     // Try to destroy the event handler. Returns false if the event

@@ -37,40 +37,15 @@ class TcpAcceptor implements Acceptor
             }
             catch (java.io.IOException ex)
             {
-                // Ignore
+                // Ignore.
             }
-        }
-    }
-
-    public void
-    shutdown()
-    {
-        if (_traceLevels.network >= 2)
-        {
-            String s = "shutting down accepting tcp connections at " +
-                toString();
-            _logger.trace(_traceLevels.networkCat, s);
-        }
-
-        //
-        // Java doesn't support shutting down a server socket
-        //
-        java.nio.channels.ServerSocketChannel fd = _fd;
-        _fd = null;
-        try
-        {
-            fd.close();
-        }
-        catch (java.io.IOException ex)
-        {
-            // Ignore
         }
     }
 
     public void
     listen()
     {
-        // Nothing to do
+        // Nothing to do.
 
         if (_traceLevels.network >= 1)
         {

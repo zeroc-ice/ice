@@ -606,12 +606,13 @@ public final class Connection extends EventHandler
     }
 
     public void
-    exception(Ice.LocalException ex)
+    finished()
     {
         _mutex.lock();
         try
         {
-            setState(StateClosed, ex);
+            assert(_state == StateClosed);
+            _transceiver.close();
         }
         finally
         {
@@ -620,13 +621,12 @@ public final class Connection extends EventHandler
     }
 
     public void
-    finished()
+    exception(Ice.LocalException ex)
     {
         _mutex.lock();
         try
         {
-            assert(_state == StateClosed);
-            _transceiver.close();
+            setState(StateClosed, ex);
         }
         finally
         {
