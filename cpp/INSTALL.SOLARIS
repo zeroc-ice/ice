@@ -60,8 +60,9 @@ http://www.sunfreeware.com
 Or you can download the source from:
 http://www.openssl.org
 
-bzip2 may already be installed on your system. If not, we recommend to
-download it (in binary form) from http://www.sunfreeware.com.
+bzip2 comes with Solaris, in Sun package SUNWbzip (32 bit) and
+SUNWbzipx (64 bit). You may want to apply patch 114586-01 to get the
+latest bzip2 version, 1.0.2.
 
 
 GNU Make 3.80
