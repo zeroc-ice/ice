@@ -20,7 +20,7 @@ else:
 sys.path.append(os.path.normpath(toplevel + "/config"))
 import TestUtil
 
-name = "Freeze/cursor"
+name = "Freeze/dbmap"
 
 testdir = os.path.normpath(toplevel + "/test/" + name)
 client = os.path.normpath(testdir + "/client")

@@ -29,6 +29,7 @@ for i in \
     "Ice/locationForward", \
     "IcePack/simple", \
     "Freeze/cursor", \
+    "Freeze/dbmap", \
     ]:
 
     dir = os.path.normpath(toplevel + "/test/" + i)
