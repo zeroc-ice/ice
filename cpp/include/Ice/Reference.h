@@ -19,7 +19,7 @@
 namespace __Ice
 {
 
-class ICE_API ReferenceI : virtual public Shared
+class ICE_API ReferenceI : public Shared
 {
 public:
 

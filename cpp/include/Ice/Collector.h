@@ -13,8 +13,8 @@
 
 #include <Ice/CollectorF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/TcpTransceiverF.h>
-#include <Ice/TcpAcceptorF.h>
+#include <Ice/TransceiverF.h>
+#include <Ice/AcceptorF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/ObjectAdapterF.h>
 #include <Ice/EndpointF.h>
@@ -62,7 +62,7 @@ private:
     void operator=(const CollectorI&);
 
     CollectorI(const ::Ice::ObjectAdapter&, const Endpoint&,
-	       const TcpTransceiver&);
+	       const Transceiver&);
     virtual ~CollectorI();
     friend class CollectorFactoryI; // May create CollectorIs
 
@@ -80,7 +80,7 @@ private:
 
     ::Ice::ObjectAdapter adapter_;
     Endpoint endpoint_;
-    TcpTransceiver transceiver_;
+    Transceiver transceiver_;
     ThreadPool threadPool_;
     int responseCount_;
     State state_;
@@ -131,7 +131,7 @@ private:
 
     ::Ice::ObjectAdapter adapter_;
     Endpoint endpoint_;
-    TcpAcceptor acceptor_;
+    Acceptor acceptor_;
     ThreadPool threadPool_;
     std::list<Collector> collectors_;
     State state_;

@@ -34,7 +34,6 @@ public:
 
     void __decRef()
     {
-	assert(ref_ > 0);
 	if(--ref_ == 0)
 	    delete this;
     }
@@ -67,7 +66,6 @@ public:
     void __decRef()
     {
 	mutex_.lock();
-	assert(ref_ > 0);
 	bool doDelete = false;
 	if(--ref_ == 0)
 	    doDelete = true;

@@ -70,7 +70,7 @@ bool connectInProgress();
 bool connectionLost();
 bool notConnected();
 
-int createSocket();
+int createSocket(bool);
 void closeSocket(int);
 
 void setBlock(int, bool);

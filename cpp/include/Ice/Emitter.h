@@ -13,8 +13,8 @@
 
 #include <Ice/EmitterF.h>
 #include <Ice/InstanceF.h>
-#include <Ice/TcpTransceiverF.h>
-#include <Ice/TcpConnectorF.h>
+#include <Ice/TransceiverF.h>
+#include <Ice/ConnectorF.h>
 #include <Ice/ThreadPoolF.h>
 #include <Ice/EndpointF.h>
 #include <Ice/TraceLevelsF.h>
@@ -57,7 +57,7 @@ private:
     EmitterI(const EmitterI&);
     void operator=(const EmitterI&);
 
-    EmitterI(const Instance&, const Endpoint&, const TcpTransceiver&);
+    EmitterI(const Instance&, const Endpoint&, const Transceiver&);
     virtual ~EmitterI();
     friend class EmitterFactoryI; // May create EmitterIs
 
@@ -72,7 +72,7 @@ private:
     void setState(State, const ::Ice::LocalException&);
 
     Endpoint endpoint_;
-    TcpTransceiver transceiver_;
+    Transceiver transceiver_;
     ThreadPool threadPool_;
     ::Ice::Int nextRequestId_;
     std::map< ::Ice::Int, Outgoing*> requests_;
@@ -88,42 +88,20 @@ class ICE_API EmitterFactoryI : public Shared, public JTCMutex
 {
 public:
 
-    void destroy();
-    const Emitter& create(); // const reference for performance reasons
+    Emitter create(const Endpoint&);
 
 private:
 
     EmitterFactoryI(const EmitterFactoryI&);
     void operator=(const EmitterFactoryI&);
 
-    EmitterFactoryI(const Instance&, const Endpoint&);
+    EmitterFactoryI(const Instance&);
     virtual ~EmitterFactoryI();
-    friend class EmitterFactoryFactoryI; // May create EmitterFactoryIs
-
-    Instance instance_;
-    Endpoint endpoint_;
-    TcpConnector connector_;
-    Emitter emitter_;
-};
-
-class ICE_API EmitterFactoryFactoryI : public Shared, public JTCMutex
-{
-public:
-
-    EmitterFactory create(const Endpoint&);
-
-private:
-
-    EmitterFactoryFactoryI(const EmitterFactoryFactoryI&);
-    void operator=(const EmitterFactoryFactoryI&);
-
-    EmitterFactoryFactoryI(const Instance&);
-    virtual ~EmitterFactoryFactoryI();
     void destroy();
-    friend class InstanceI; // May create and destroy EmitterFactoryFactoryIs
+    friend class InstanceI; // May create and destroy EmitterFactoryIs
 
     Instance instance_;
-    std::map<Endpoint, EmitterFactory> factories_;
+    std::map<Endpoint, Emitter> emitters_;
 };
 
 }

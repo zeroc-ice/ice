@@ -100,7 +100,7 @@ protected:
 
 private:
 
-    ::__Ice::EmitterFactory factory_;
+    ::__Ice::Emitter emitter_;
     ::__Ice::Reference reference_;
 
     ObjectI(const ObjectI&);

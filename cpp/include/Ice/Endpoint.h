@@ -17,15 +17,11 @@
 namespace __Ice
 {
 
-//
-// Regular endpoint using a byte-stream oriented protocol
-//
-class ICE_API EndpointI : virtual public Shared
+class ICE_API EndpointI : public Shared
 {
 public:
 
-    EndpointI(const std::string&, int, int);
-    virtual ~EndpointI();
+    EndpointI(const std::string&, int, int, bool);
 
     //
     // All  members are const, because Endpoints are immutable.
@@ -33,6 +29,7 @@ public:
     const std::string host;
     const int port;
     const int timeout;
+    bool udp;
 
     bool operator==(const EndpointI&) const;
     bool operator!=(const EndpointI&) const;

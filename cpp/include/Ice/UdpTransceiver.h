@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TCP_TRANSCEIVER_H
-#define ICE_TCP_TRANSCEIVER_H
+#ifndef ICE_UDP_TRANSCEIVER_H
+#define ICE_UDP_TRANSCEIVER_H
 
 #include <Ice/InstanceF.h>
 #include <Ice/TraceLevelsF.h>
@@ -19,10 +19,10 @@
 namespace __Ice
 {
 
-class TcpConnectorI;
-class TcpAcceptorI;
+class UdpConnectorI;
+class UdpAcceptorI;
 
-class TcpTransceiverI : public TransceiverI
+class UdpTransceiverI : public TransceiverI
 {
 public:
 
@@ -35,18 +35,16 @@ public:
     
 private:
 
-    TcpTransceiverI(const TcpTransceiverI&);
-    void operator=(const TcpTransceiverI&);
+    UdpTransceiverI(const UdpTransceiverI&);
+    void operator=(const UdpTransceiverI&);
 
-    TcpTransceiverI(Instance, int);
-    virtual ~TcpTransceiverI();
-    friend class TcpConnectorI; // May create TcpTransceiverIs
-    friend class TcpAcceptorI; // May create TcpTransceiverIs
+    UdpTransceiverI(Instance, int);
+    virtual ~UdpTransceiverI();
+    friend class UdpConnectorI; // May create UdpTransceiverIs
+    friend class UdpAcceptorI; // May create UdpTransceiverIs
 
     Instance instance_;
     int fd_;
-    fd_set rFdSet;
-    fd_set wFdSet;
 #ifndef ICE_NO_TRACE
     TraceLevels traceLevels_;
     ::Ice::Logger logger_;

@@ -8,14 +8,14 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TCP_CONNECTOR_H
-#define ICE_TCP_CONNECTOR_H
+#ifndef ICE_UDP_ACCEPTOR_H
+#define ICE_UDP_ACCEPTOR_H
 
 #include <Ice/TransceiverF.h>
 #include <Ice/InstanceF.h>
 #include <Ice/TraceLevelsF.h>
 #include <Ice/LoggerF.h>
-#include <Ice/Connector.h>
+#include <Ice/Acceptor.h>
 
 #ifndef WIN32
 #   include <netinet/in.h> // For struct sockaddr_in
@@ -24,24 +24,27 @@
 namespace __Ice
 {
 
-class EmitterFactoryI;
+class CollectorFactoryI;
 
-class TcpConnectorI : public ConnectorI
+class UdpAcceptorI : public AcceptorI
 {
 public:
-    
+
+    int fd();
+    void close();
+    void shutdown();
     Transceiver initialize();
-    Transceiver connect(int);
+    Transceiver accept(int);
     std::string toString() const;
-    
+
 private:
 
-    TcpConnectorI(const TcpConnectorI&);
-    void operator=(const TcpConnectorI&);
+    UdpAcceptorI(const UdpAcceptorI&);
+    void operator=(const UdpAcceptorI&);
 
-    TcpConnectorI(Instance, const std::string&, int);
-    virtual ~TcpConnectorI();
-    friend class EmitterFactoryI; // May create TcpConnectorIs
+    UdpAcceptorI(Instance, int);
+    virtual ~UdpAcceptorI();
+    friend class CollectorFactoryI; // May create UdpAcceptorIs
 
     Instance instance_;
     struct sockaddr_in addr_;

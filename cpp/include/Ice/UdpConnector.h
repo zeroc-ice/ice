@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TCP_CONNECTOR_H
-#define ICE_TCP_CONNECTOR_H
+#ifndef ICE_UDP_CONNECTOR_H
+#define ICE_UDP_CONNECTOR_H
 
 #include <Ice/TransceiverF.h>
 #include <Ice/InstanceF.h>
@@ -26,7 +26,7 @@ namespace __Ice
 
 class EmitterFactoryI;
 
-class TcpConnectorI : public ConnectorI
+class UdpConnectorI : public ConnectorI
 {
 public:
     
@@ -36,12 +36,12 @@ public:
     
 private:
 
-    TcpConnectorI(const TcpConnectorI&);
-    void operator=(const TcpConnectorI&);
+    UdpConnectorI(const UdpConnectorI&);
+    void operator=(const UdpConnectorI&);
 
-    TcpConnectorI(Instance, const std::string&, int);
-    virtual ~TcpConnectorI();
-    friend class EmitterFactoryI; // May create TcpConnectorIs
+    UdpConnectorI(Instance, const std::string&, int);
+    virtual ~UdpConnectorI();
+    friend class EmitterFactoryI; // May create UdpConnectorIs
 
     Instance instance_;
     struct sockaddr_in addr_;

@@ -8,18 +8,18 @@
 //
 // **********************************************************************
 
-#ifndef ICE_TCP_CONNECTOR_F_H
-#define ICE_TCP_CONNECTOR_F_H
+#ifndef ICE_CONNECTOR_F_H
+#define ICE_CONNECTOR_F_H
 
 #include <Ice/Handle.h>
 
 namespace __Ice
 {
 
-class TcpConnectorI;
-void ICE_API incRef(TcpConnectorI*);
-void ICE_API decRef(TcpConnectorI*);
-typedef __Ice::Handle<TcpConnectorI> TcpConnector;
+class ConnectorI;
+void ICE_API incRef(ConnectorI*);
+void ICE_API decRef(ConnectorI*);
+typedef __Ice::Handle<ConnectorI> Connector;
 
 }
 

@@ -33,7 +33,7 @@ public:
     TraceLevels traceLevels();
     ObjectFactory objectFactory();
     ThreadPool threadPool();
-    EmitterFactoryFactory emitterFactoryFactory();
+    EmitterFactory emitterFactory();
     
 private:
 
@@ -49,7 +49,7 @@ private:
     TraceLevels traceLevels_;
     ObjectFactory objectFactory_;
     ThreadPool threadPool_;
-    EmitterFactoryFactory emitterFactoryFactory_;
+    EmitterFactory emitterFactory_;
 
     //
     // Global state management
