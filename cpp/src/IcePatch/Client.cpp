@@ -402,7 +402,6 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 	{
 	    orphaned.erase(path);
 	    orphaned.erase(path + ".md5");
-	    orphaned.erase(path + ".bz2");
 	}
 
 	bool last = (i == fileDescSeq.size() - 1) && orphaned.empty();
@@ -483,6 +482,7 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 	    {
 		case FileTypeNotExist:
 		{
+		    orphaned.erase(path + ".bz2");
 		    getRegular(regDesc->reg, progressCB);
 		    break;
 		}
@@ -490,6 +490,7 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 		case FileTypeDirectory:
 		{
 		    removeRecursive(path);
+		    orphaned.erase(path + ".bz2");
 		    getRegular(regDesc->reg, progressCB);
 		    break;
 		}
@@ -508,6 +509,7 @@ IcePatch::Client::patch(const DirectoryDescPtr& dirDesc, const string& indent) c
 		    if(md5 != regDesc->md5)
 		    {
 			removeRecursive(path);
+			orphaned.erase(path + ".bz2");
 			getRegular(regDesc->reg, progressCB);
 		    }
 		    else
