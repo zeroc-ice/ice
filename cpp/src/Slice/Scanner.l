@@ -403,7 +403,7 @@ checkIdentifier(const string& id)
 {
     if(id.find('_') != string::npos)
     {
-	unit->warning("illegal underscore in identifier `" + id + "'");
+	unit->error("illegal underscore in identifier `" + id + "'");
     }
 
     static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
