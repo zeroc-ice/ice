@@ -9,6 +9,7 @@
 // **********************************************************************
 
 #include <IcePatch/NodeI.h>
+#include <IcePatch/NodeUtil.h>
 #include <dirent.h>
 
 using namespace std;
@@ -91,21 +92,32 @@ IcePatch::DirectoryI::getContents(const Ice::Current& current)
 	{
 	    string name = namelist[i]->d_name;
 
-	    if (name != ".." && name != ".")
+	    if (name == ".." || name == ".")
 	    {
-		identity.name = path + '/' + name;
-		NodePrx node = NodePrx::uncheckedCast(_adapter->createProxy(identity));
-		try
+		continue;
+	    }
+
+	    string::size_type pos;
+	    if ((pos = name.rfind(".md5")) != string::npos)
+	    {
+		if (name.size() == pos + 4)
 		{
+		    continue;
+		}
+	    }
+	    
+	    identity.name = path + '/' + name;
+	    NodePrx node = NodePrx::uncheckedCast(_adapter->createProxy(identity));
+	    try
+	    {
 		    result.push_back(node->describe());
-		}
-		catch (const ObjectNotExistException&)
-		{
-		    //
-		    // Ignore. This can for example happen if the node
-		    // locator cannot call stat() on the file.
-		    //
-		}
+	    }
+	    catch (const ObjectNotExistException&)
+	    {
+		//
+		// Ignore. This can for example happen if the node
+		// locator cannot call stat() on the file.
+		//
 	    }
 	}
 
@@ -140,6 +152,8 @@ IcePatch::FileI::describe(const Ice::Current& current)
 {
     FileDescPtr desc = new FileDesc;
     desc->file = FilePrx::uncheckedCast(_adapter->createProxy(current.identity));
+    string path = normalizePath(current.identity.name);
+    desc->md5 = getMD5(path);
     return desc;
 }
 

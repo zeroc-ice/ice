@@ -15,7 +15,8 @@ SERVER		= $(top_srcdir)/bin/icepatch
 
 TARGETS		= $(CLIENT) $(SERVER)
 
-OBJS		= Node.o
+OBJS		= Node.o \
+		  NodeUtil.o
 
 COBJS		= Client.o \
 		  NodeDescFactory.o

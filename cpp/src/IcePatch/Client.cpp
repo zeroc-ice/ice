@@ -10,6 +10,7 @@
 
 #include <Ice/Application.h>
 #include <IcePatch/NodeDescFactory.h>
+#include <IcePatch/NodeUtil.h>
 
 using namespace std;
 using namespace Ice;
@@ -98,12 +99,20 @@ IcePatch::Client::run(int argc, char* argv[])
     communicator()->addObjectFactory(factory, "::IcePatch::DirectoryDesc");
     communicator()->addObjectFactory(factory, "::IcePatch::FileDesc");
 
-    //
-    // Display node structure.
-    //
-    ObjectPrx topObj = communicator()->stringToProxy("IcePatch/.:" + endpoints);
-    NodePrx top = NodePrx::checkedCast(topObj);
-    printNodeDesc(top->describe());
+    try
+    {
+	//
+	// Display node structure.
+	//
+	ObjectPrx topObj = communicator()->stringToProxy("IcePatch/.:" + endpoints);
+	NodePrx top = NodePrx::checkedCast(topObj);
+	printNodeDesc(top->describe());
+    }
+    catch (const NodeAccessException& ex)
+    {
+	cerr << ex << ":\n" << ex.reason << endl;
+	return EXIT_FAILURE;
+    }
 
     return EXIT_SUCCESS;
 }
@@ -113,13 +122,14 @@ IcePatch::Client::printNodeDesc(const NodeDescPtr& nodeDesc)
 {
     string name;
     DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(nodeDesc);
+    FileDescPtr fileDesc;
     if (directoryDesc)
     {
 	name = directoryDesc->directory->ice_getIdentity().name;
     }
     else
     {
-	FileDescPtr fileDesc = FileDescPtr::dynamicCast(nodeDesc);
+	fileDesc = FileDescPtr::dynamicCast(nodeDesc);
 	assert(fileDesc);
 	name = fileDesc->file->ice_getIdentity().name;
     }
@@ -134,7 +144,13 @@ IcePatch::Client::printNodeDesc(const NodeDescPtr& nodeDesc)
     
     if (directoryDesc)
     {
+	cout << endl;
 	printNodeDescSeq(directoryDesc->directory->getContents(), "");
+    }
+    else
+    {
+	assert(fileDesc);
+	cout << " (" << MD5ToString(fileDesc->md5) << ')' << endl;
     }
 }
 
@@ -152,13 +168,14 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
     {
 	string name;
 	DirectoryDescPtr directoryDesc = DirectoryDescPtr::dynamicCast(nodeDescSeq[i]);
+	FileDescPtr fileDesc;
 	if (directoryDesc)
 	{
 	    name = directoryDesc->directory->ice_getIdentity().name;
 	}
 	else
 	{
-	    FileDescPtr fileDesc = FileDescPtr::dynamicCast(nodeDescSeq[i]);
+	    fileDesc = FileDescPtr::dynamicCast(nodeDescSeq[i]);
 	    assert(fileDesc);
 	    name = fileDesc->file->ice_getIdentity().name;
 	}
@@ -169,10 +186,12 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 	    name.erase(0, pos + 1);
 	}
 	
-	cout << indent << "+-" << name << endl;
+	cout << indent << "+-" << name;
 	
 	if (directoryDesc)
 	{
+	    cout << endl;
+
 	    string newIndent;
 	    if (i < nodeDescSeq.size() - 1)
 	    {
@@ -184,6 +203,11 @@ IcePatch::Client::printNodeDescSeq(const NodeDescSeq& nodeDescSeq, const string&
 	    }
 
 	    printNodeDescSeq(directoryDesc->directory->getContents(), newIndent);
+	}
+	else
+	{
+	    assert(fileDesc);
+	    cout << " (" << MD5ToString(fileDesc->md5) << ')' << endl;
 	}
     }
 

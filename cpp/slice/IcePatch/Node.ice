@@ -53,6 +53,7 @@ interface File extends Node
 class FileDesc extends NodeDesc
 {
     File* file;
+    Ice::ByteSeq md5;
 };
 
 };
