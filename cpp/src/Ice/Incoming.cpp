@@ -152,7 +152,7 @@ IceInternal::Incoming::invoke()
 	_os.write(static_cast<Byte>(DispatchLocationForward));
 	_os.write(ex._prx);
     }
-    catch (const ProxyRequested& ex)
+    catch (const ProxyRequested&)
     {
 	if (locator && servant)
 	{
