@@ -1390,11 +1390,6 @@ Ice::Service::runDaemon(int argc, char* argv[])
         }
 */
 
-        //
-        // Set the umask.
-        //
-        umask(0);
-
         if(_changeDirectory)
         {
             //

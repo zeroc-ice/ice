@@ -1,6 +1,9 @@
 Changes since version 1.5.1
 ---------------------------
 
+- The Ice::Service class no longer resets the umask to 0, but rather
+  uses the inherited umask.
+
 - Fixed a code generation problem in slice2cpp. This problem showed
   up only for the --impl option.
 
