@@ -22,9 +22,8 @@ Java version
 ------------
 
 Ice for Java requires Java version 1.4.1 or later. Older versions are
-not supported, because Ice makes use of the new java.nio
-packages. (java.nio was already available in version 1.4.0, but was
-broken on Windows.)
+not supported, because Ice makes use of the new java.nio packages.
+(java.nio was introduced in version 1.4.0, but was broken on Windows.)
 
 You can download the Java 2 Platform, Standard Edition from
 http://java.sun.com/j2se/.
@@ -51,7 +50,7 @@ download the binary packages from our FTP server:
 Linux:             ftp://ftp.zeroc.com/TBD
 Windows 2000/XP:   ftp://ftp.zeroc.com/TBD
 
-Another option is to translate Ice for C++, which includes the Slice
+Another option is to build Ice for C++, which includes the Slice
 to Java translators.
 
 Add the Slice to Java translators to your PATH.
@@ -61,10 +60,10 @@ Other Ice utilities
 -------------------
 
 Some of the Ice for Java tests and demonstration programs require
-further Ice for C++ utilities, such as IcePack or Glacier. The
+additional Ice for C++ utilities, such as IcePack or Glacier. The
 binaries for these utilities are included in the Slice to Java
-translator binary packages above. Or you can build Ice for C++ by
-yourself to get these utilities.
+translator binary packages above. Alternatively, you can build Ice
+for C++ from source to get these utilities.
 
 
 Berkeley DB
@@ -73,7 +72,7 @@ Berkeley DB
 Freeze for Java uses Berkeley DB as its underlying database. Even
 though Berkeley DB is included with many Linux distributions, the Java
 files for Berkeley DB are usually not available. This means that you
-must build Berkeley DB by hand.
+must build Berkeley DB manually.
 
 You can download Berkeley DB from:
 
@@ -92,10 +91,10 @@ Make sure to add db.jar to your CLASSPATH.
 Python 2
 --------
 
-To run the automated test suite, you require Python 2. Other than for
-running the test scripts, Python is not required. Linux usually
-includes Python already. For Windows 2000/XP, you can download a
-distribution from:
+To run the automated test suite, you will need Python 2. If you have
+no interest in running the test scripts, Python is not required.
+Linux distributions usually include Python. For Windows 2000/XP, you
+can download a Python distribution from:
 
 http://www.activestate.com
 
@@ -105,10 +104,10 @@ Compilation and Testing
 ======================================================================
 
 Extract the Ice for Java archive in any directory you like (for
-example, in your home directory). Then compile Ice for Java with the
+example, in your home directory), then compile Ice for Java with the
 command "ant". This will build the Ice for Java core library, all
 add-ons, all tests, and all examples. After a successful build, you
-can run the test suite, provided that you installed Python 2:
+can run the test suite, provided that you have installed Python 2:
 
 python allTests.py
 
@@ -120,15 +119,14 @@ python2 allTests.py
 If everything worked out, you should see lots of "ok". In case of a
 failure, the tests abort with "failed".
 
-If you want to try out any of the demos, make sure to add to add the
-"lib" directory to your CLASSPATH.
+If you want to try out any of the demos, make sure to add the "lib"
+directory to your CLASSPATH.
 
 
 ======================================================================
 Installation
 ======================================================================
 
-No automatic installation for Ice for Java is supported. All you have
-to do is to copy the various .jar files from the lib directory to any
-directory of your choice, and then to add these Java archives to your
-CLASSPATH.
+No automatic installation for Ice for Java is supported. Simply copy
+the Ice.jar file from the lib directory to the directory of your
+choice, and then add Ice.jar to your CLASSPATH.
