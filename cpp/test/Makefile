@@ -14,6 +14,7 @@ include $(top_srcdir)/config/Make.rules
 
 SUBDIRS		= IceUtil \
 		  Ice \
+                  IceSSL \
 		  IceXML \
 		  IceStorm \
 		  IcePack \
