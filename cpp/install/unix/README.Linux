@@ -120,8 +120,8 @@ In order to use Ice services and tools such as Slice translators,
 you need to add $ICE_HOME/bin to your PATH and $ICE_HOME/lib to your
 LD_LIBRARY_PATH, as shown in the bash commands below:
 
-$ export PATH=/opt/Ice-2.1.0/bin:$PATH
-$ export LD_LIBRARY_PATH=/opt/Ice-2.1.0/lib:$LD_LIBRARY_PATH
+$ export PATH=$ICE_HOME/bin:$PATH
+$ export LD_LIBRARY_PATH=$ICE_HOME/lib:$LD_LIBRARY_PATH
 
 
 C++
