@@ -10,9 +10,6 @@
 //
 // Work-around for bug in .NET Socket class implementation.
 //
-#if !__MonoCS__
-#define ENDPOINTBUG
-#endif
 
 namespace IceInternal
 {
@@ -355,9 +352,10 @@ namespace IceInternal
             // Set larger send buffer size to avoid performance problems on
             // WIN32.
             //
-#if !__MonoCS__
-	    setSendBufferSize(socket, 64 * 1024);
-#endif
+	    if(AssemblyUtil._platform == AssemblyUtil.Platform.Windows)
+	    {
+		setSendBufferSize(socket, 64 * 1024);
+	    }
 
 	repeatConnect:
 	    try
@@ -730,7 +728,6 @@ namespace IceInternal
 	    return new SocketPair();
 	}
 
-    #if ENDPOINTBUG
 	[StructLayout(LayoutKind.Sequential)]
 	private struct in_addr
 	{
@@ -759,7 +756,6 @@ namespace IceInternal
 
 	[DllImport("ws2_32.dll")]
 	private static extern ushort ntohs(ushort netshort);
-    #endif
 
 	public static string fdToString(Socket socket)
 	{
@@ -774,46 +770,49 @@ namespace IceInternal
 	    // mode. The only way to make this work is to step down to
 	    // the native API and use platform invoke :-(
 	    //
-    #if ENDPOINTBUG
-	    sockaddr addr = new sockaddr();
-	    int addrLen = 16;
-
-	    if(getsockname(socket.Handle, ref addr, ref addrLen) != 0)
-	    {
-		throw new Ice.SyscallException("getsockname call failed");
-	    }
-	    string ip = Marshal.PtrToStringAnsi(inet_ntoa(addr.sin_addr));
-	    int port = ntohs(addr.sin_port);
-	    IPEndPoint localEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
-
-	    IPEndPoint remoteEndpoint = null;
-	    if(getpeername(socket.Handle, ref addr, ref addrLen) == 0)
-	    { 
-		ip = Marshal.PtrToStringAnsi(inet_ntoa(addr.sin_addr));
-		port = ntohs(addr.sin_port);
-		remoteEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
-	    }
-    #else
 	    IPEndPoint localEndpoint;
-	    try
-	    {
-	        localEndpoint = (IPEndPoint)socket.LocalEndPoint;
-	    }
-	    catch(SocketException ex)
-            {
-	        throw new Ice.SocketException(ex);
-	    }
-
 	    IPEndPoint remoteEndpoint;
-	    try
+    	    if(AssemblyUtil._platform == AssemblyUtil.Platform.Windows)
 	    {
-		remoteEndpoint = (IPEndPoint)socket.RemoteEndPoint;
-	    }
-	    catch(SocketException)
-	    {
+		sockaddr addr = new sockaddr();
+		int addrLen = 16;
+
+		if(getsockname(socket.Handle, ref addr, ref addrLen) != 0)
+		{
+		    throw new Ice.SyscallException("getsockname call failed");
+		}
+		string ip = Marshal.PtrToStringAnsi(inet_ntoa(addr.sin_addr));
+		int port = ntohs(addr.sin_port);
+		localEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
+
 		remoteEndpoint = null;
+		if(getpeername(socket.Handle, ref addr, ref addrLen) == 0)
+		{ 
+		    ip = Marshal.PtrToStringAnsi(inet_ntoa(addr.sin_addr));
+		    port = ntohs(addr.sin_port);
+		    remoteEndpoint = new IPEndPoint(IPAddress.Parse(ip), port);
+		}
 	    }
-    #endif
+	    else
+	    {
+		try
+		{
+		    localEndpoint = (IPEndPoint)socket.LocalEndPoint;
+		}
+		catch(SocketException ex)
+		{
+		    throw new Ice.SocketException(ex);
+		}
+
+		try
+		{
+		    remoteEndpoint = (IPEndPoint)socket.RemoteEndPoint;
+		}
+		catch(SocketException)
+		{
+		    remoteEndpoint = null;
+		}
+	    }
 
 	    System.Text.StringBuilder s = new System.Text.StringBuilder();
 	    s.Append("local address = " + localEndpoint.Address);
