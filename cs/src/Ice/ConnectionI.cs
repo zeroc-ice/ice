@@ -1473,15 +1473,36 @@ namespace Ice
 	    _state = StateNotValidated;
 	    _stateTime = System.DateTime.Now.Ticks / 10;
 	    
-	    if(_adapter != null)
+	    try
 	    {
-		_threadPool = ((ObjectAdapterI) _adapter).getThreadPool();
-		_servantManager = ((ObjectAdapterI) _adapter).getServantManager();
+	        if(_adapter != null)
+                {
+		    _threadPool = ((ObjectAdapterI) _adapter).getThreadPool();
+		    _servantManager = ((ObjectAdapterI) _adapter).getServantManager();
+		}
+		else
+                {
+		    _threadPool = _instance.clientThreadPool();
+		    _servantManager = null;
+		}
 	    }
-	    else
+	    catch(System.Exception ex)
 	    {
-		_threadPool = _instance.clientThreadPool();
-		_servantManager = null;
+		string s = "cannot create thread pool for connection:\n" + ex;
+		_instance.logger().error(s);
+
+		_state = StateClosed;
+		try
+		{
+		    _transceiver.close();
+		}
+		catch(LocalException)
+		{
+		    // Here we ignore any exceptions in close().
+		}
+		_transceiver = null;
+
+		throw ex;
 	    }
 
 	    _overrideCompress = _instance.defaultsAndOverrides().overrideCompress;
