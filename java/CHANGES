@@ -1,3 +1,13 @@
+Changes since version 1.5.1
+---------------------------
+
+- Changed the Java language mapping to overload
+  operations on classes such that a version without
+  the trailing Ice.Current parameter is provided. This
+  makes it easier to make collocated calls on classes
+  because it is no longer necessary to pass a trailing
+  null argument.
+
 Changes since version 1.5.0
 ---------------------------
 
