@@ -12,17 +12,17 @@ Requirements
 Operating systems
 -----------------
 
-Ice for Java has been tested under Linux, Solaris, HP-UX, MacOS X and
-Windows 2000/XP, but due to the portability of Java, it is very likely
-that it will also work on other platforms for which a suitable Java
-implementation is available.
+Ice for Java has been tested under Linux, Solaris, HP-UX, MacOS X,
+AIX and Windows 2000/XP, but due to the portability of Java, it is
+very likely that it will also work on other platforms for which a
+suitable Java implementation is available.
 
 Note, however, that you will need the Slice to Java translator (see
-below), which is only available for Linux, Solaris and Windows 2000/XP.
+below). ZeroC provides translator binaries for supported platforms.
 For other platforms, you will have to either port Ice for C++ (which
 contains the Slice to Java translator), or you will have to translate
-Slice to Java on a supported platform, and copy the resulting Java files
-to your target platform.
+Slice to Java on a supported platform, and copy the resulting Java
+files to your target platform.
 
 
 Java version
@@ -36,6 +36,12 @@ You can download the Java 2 Platform, Standard Edition from
 http://java.sun.com/j2se/.
 
 Make sure to add javac and java to your PATH.
+
+On HP-UX 11, we recommend using JDK 1.4.2.06 along with patch
+PHNE_29887 to avoid the potential for hangs during shutdown. See the
+link below for more information:
+
+http://www.hp.com/products1/unix/java/java2/sdkrte14/downloads/index_pa-risc.html
 
 
 Slice to Java translator
@@ -68,8 +74,8 @@ Freeze for Java uses Berkeley DB as its underlying database. It requires
 Berkeley DB 4.2.52.
 
 Even though Berkeley DB is included with many Linux distributions, the 
-Java files for Berkeley DB are usually not available. This means that you
-must build Berkeley DB manually.
+Java files for Berkeley DB are usually not available. This means that
+you must build Berkeley DB manually.
 
 You can download Berkeley DB from:
 
@@ -85,7 +91,7 @@ http://www.sleepycat.com/docs/index.html
 On AIX with Java 1.4.2, you also need the non-public "java-globalrefs"
 patch for Berkeley DB 4.2.52.
 
-Make sure to add db.jar to your CLASSPATH. And verify that the Berkeley
+Make sure to add db.jar to your CLASSPATH, and verify that the Berkeley
 DB shared libraries are in your java.library.path. On Linux, this can
 be achieved by adding <Berkeley DB home>/lib to your LD_LIBRARY_PATH,
 for example:
