@@ -14,14 +14,14 @@ import sys, os
 protocol = "tcp"
 
 serverOptions = \
-" --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.WarnAboutServerExceptions=1 --Ice.ServerIdleTime=30" + \
+" --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.WarnAboutServerExceptions --Ice.ServerIdleTime=30" + \
 " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=server_sslconfig.xml --Ice.Protocol=" + protocol
 
 clientOptions = \
 " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=client_sslconfig.xml --Ice.Protocol=" + protocol
 
 clientServerOptions = \
-" --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.WarnAboutServerExceptions=1 --Ice.ServerIdleTime=30" + \
+" --Ice.PrintProcessId --Ice.PrintAdapterReady --Ice.WarnAboutServerExceptions --Ice.ServerIdleTime=30" + \
 " --Ice.Ssl.CertPath=TOPLEVELDIR/certs --Ice.Ssl.Config=sslconfig.xml --Ice.Protocol=" + protocol
 
 collocatedOptions = \
