@@ -8,20 +8,18 @@
 #
 # **********************************************************************
 
-import os, sys, re, signal, time
+import os, sys, shutil, re, signal, time
 
 progname = os.path.basename(sys.argv[0])
 infile = ""
+classname = ""
 lineNum = 0
 errors = 0
 outputFiles = [] 
 
-#
-# Program usage.
-#
 def usage():
     global progname
-    print >> sys.stderr, "Usage: " + progname + " -{cpp|java|cs} file"
+    print >> sys.stderr, "Usage: " + progname + " [--{cpp|java|cs} file]"
 
 def fileError(msg):
     global progname, infile, lineNum, errors
@@ -143,7 +141,7 @@ def writePostamble(lang, labels):
         file.write("}\n");
         return
     if lang == "cs":
-        file.write("        public static string[] validProps =\n")
+        file.write("        public static string[][] validProps =\n")
 	file.write("        {\n")
 	for label, line in labels.iteritems():
 	    file.write("            " + label + "Props,\n")
@@ -200,136 +198,177 @@ def writeEntry(lang, label, entry):
 	file.write("            ")
     file.write("\"" + label + '.' + entry + "\",\n")
 
+def processFile(lang):
+
+    #
+    # Open input file.
+    #
+    global infile
+    try:
+	f = file(infile, 'r')
+    except IOError, ex:
+	progError("cannot open `" + infile + "': " + ex.strerror)
+	sys.exit(1)
+
+    #
+    # Set up regular expressions for empty and comment lines, section headings, and entry lines.
+    #
+    ignore = re.compile("^\s*(?:#.*)?$") 				# Empty line or comment line
+    section = re.compile("^\s*([a-zA-z_]\w*)\s*:\s*$")		# Section heading
+    entry = re.compile("^\s*([^ \t\n\r\f\v#]+)(?:\s*#.*)?$")	# Any non-whitespace character sequence, except for #
+
+    #
+    # Install signal handler so we can remove the output files if we are interrupted.
+    #
+    signal.signal(signal.SIGINT, handler)
+    signal.signal(signal.SIGHUP, handler)
+    signal.signal(signal.SIGTERM, handler)
+
+    #
+    # Open output files.
+    #
+    global classname
+    classname, ext = os.path.splitext(os.path.basename(infile))
+    openOutputFile(classname + '.' + lang)
+    if(lang == "cpp"):
+	openOutputFile(classname + ".h")
+
+    labels = {}		# Records the line number on which each label is defined
+    atSectionStart = 0	# True for the line on which a label is defined
+    seenSection = 0		# Set to true (and the remains as true) once the first label is defined
+    numEntries = 0		# Number of entries within a section
+    errors = 0		# Number of syntax errors in the input file
+
+    #
+    # Write preamble.
+    #
+    writePreamble(lang)
+
+    #
+    # Loop over lines in input file.
+    #
+    global lineNum
+    lines = f.readlines()
+    for l in lines:
+	lineNum += 1
+
+	#
+	# Ignore empty lines and comments.
+	#
+	if ignore.match(l) != None:
+	    continue
+
+	#
+	# Start of section.
+	#
+	labelMatch = section.match(l)
+	if labelMatch != None:
+	    if atSectionStart:
+		fileError("section `" + label + "' must have at least one entry")
+	    label = labelMatch.group(1)
+	    try:
+		badLine = labels[label]
+		fileError("duplicate section heading: `" + label + "': previously defined on line " + badLine)
+	    except KeyError:
+		pass
+	    if label == "validProps":
+	       fileError("`validProps' is reserved and cannot be used as a section heading")
+	    labels[label] = lineNum
+	    if seenSection:
+		endSection(lang)
+	    numEntries = 0
+	    startSection(lang, label)
+	    seenSection = 1
+	    atSectionStart = 1
+	    continue
+
+	entryMatch = entry.match(l)
+	if entryMatch != None:
+	    writeEntry(lang, label, entryMatch.group(1))
+	    atSectionStart = 0
+	    numEntries += 1
+	    continue
+
+	fileError("syntax error")
+
+    if len(labels) == 0:
+	fileError("input must define at least one section");
+
+    #
+    # End the final section.
+    #
+    if numEntries == 0:
+	fileError("section `" + label + "' must have at least one entry")
+    endSection(lang)
+
+    #
+    # End the source files.
+    #
+    writePostamble(lang, labels)
+
+    global outputFiles
+    for entry in outputFiles:
+        entry[1].close()
+
+    #
+    # Remove the output files if anything went wrong, so we don't leave partically written files behind.
+    #
+    if errors != 0:
+	removeOutputFiles()
+	sys.exit(1)
+    outputFiles = []
+
 #
 # Check arguments.
 #
-if len(sys.argv) != 3:
+if len(sys.argv) != 1 and len(sys.argv) != 3:
     usage()
     sys.exit(1)
 
-option = sys.argv[1]
-if option == "-cpp":
-    lang = "cpp"
-elif option == "-java":
-    lang = "java"
-elif option == "-cs":
-    lang = "cs"
-elif option == "-h" or option == "-?":
-    usage()
-    sys.exit(0)
+lang = ""
+if len(sys.argv) == 1:
+    #
+    # Find where the root of the tree is.
+    #
+    for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
+	toplevel = os.path.normpath(toplevel)
+	if os.path.exists(os.path.join(toplevel, "config", "makeprops.py")):
+	    break
+    else:
+	progError("cannot find top-level directory")
+	sys.exit(1)
+
+    infile = os.path.join(toplevel, "config", "PropertyNames.def")
+    lang = "all"
+
 else:
-    usage()
-    sys.exit(1)
-
-#
-# Open input file.
-#
-try:
+    option = sys.argv[1]
+    if option == "--cpp":
+	lang = "cpp"
+    elif option == "--java":
+	lang = "java"
+    elif option == "--cs":
+	lang = "cs"
+    elif option == "-h" or option == "--help" or option == "-?":
+	usage()
+	sys.exit(0)
+    else:
+	usage()
+	sys.exit(1)
     infile = sys.argv[2]
-    f = file(infile, 'r')
-except IOError, ex:
-    progError("cannot open `" + infile + "': " + ex.strerror)
-    sys.exit(1)
 
-#
-# Set up regular expressions for empty and comment lines, section headings, and entry lines.
-#
-ignore = re.compile("^\s*(?:#.*)?$") 				# Empty line or comment line
-section = re.compile("^\s*([a-zA-z_]\w*)\s*:\s*$")		# Section heading
-entry = re.compile("^\s*([^ \t\n\r\f\v#]+)(?:\s*#.*)?$")	# Any non-whitespace character sequence, except for #
+if lang == "all":
+    processFile("cpp")
+    shutil.move("PropertyNames.cpp", os.path.join(toplevel, "src", "Ice"))
+    shutil.move("PropertyNames.h", os.path.join(toplevel, "src", "Ice"))
+    processFile("java")
+    if os.path.exists(os.path.join(toplevel, "..", "icej")):
+        shutil.move("PropertyNames.java", os.path.join(toplevel, "..", "icej", "src", "IceInternal"));
+    processFile("cs")
+    if os.path.exists(os.path.join(toplevel, "..", "icecs")):
+        shutil.move("PropertyNames.cs", os.path.join(toplevel, "..", "icecs", "src", "Ice"));
+else:
+    processFile(lang)
 
-#
-# Install signal handler so we can remove the output files if we are interrupted.
-#
-signal.signal(signal.SIGINT, handler)
-signal.signal(signal.SIGHUP, handler)
-signal.signal(signal.SIGTERM, handler)
-
-#
-# Open output files.
-#
-classname, ext = os.path.splitext(os.path.basename(infile))
-openOutputFile(classname + '.' + lang)
-if(lang == "cpp"):
-    openOutputFile(classname + ".h")
-
-labels = {}		# Records the line number on which each label is defined
-atSectionStart = 0	# True for the line on which a label is defined
-seenSection = 0		# Set to true (and the remains as true) once the first label is defined
-numEntries = 0		# Number of entries within a section
-errors = 0		# Number of syntax errors in the input file
-
-#
-# Write preamble.
-#
-writePreamble(lang)
-
-#
-# Loop over lines in input file.
-#
-lines = f.readlines()
-for l in lines:
-    lineNum += 1
-
-    #
-    # Ignore empty lines and comments.
-    #
-    if ignore.match(l) != None:
-        continue
-
-    #
-    # Start of section.
-    #
-    labelMatch = section.match(l)
-    if labelMatch != None:
-        if atSectionStart:
-	    fileError("section `" + label + "' must have at least one entry")
-        label = labelMatch.group(1)
-	try:
-	    badLine = labels[label]
-	    fileError("duplicate section heading: `" + label + "': previously defined on line " + badLine)
-	except KeyError:
-	    pass
-	if label == "validProps":
-	   fileError("`validProps' is reserved and cannot be used as a section heading")
-	labels[label] = lineNum
-	if seenSection:
-	    endSection(lang)
-	numEntries = 0
-	startSection(lang, label)
-	seenSection = 1
-	atSectionStart = 1
-	continue
-
-    entryMatch = entry.match(l)
-    if entryMatch != None:
-	writeEntry(lang, label, entryMatch.group(1))
-	atSectionStart = 0
-	numEntries += 1
-	continue
-
-    fileError("syntax error")
-
-if len(labels) == 0:
-    fileError("input must define at least one section");
-
-#
-# End the final section.
-#
-if numEntries == 0:
-    fileError("section `" + label + "' must have at least one entry")
-endSection(lang)
-
-#
-# End the source files.
-#
-writePostamble(lang, labels)
-
-#
-# Remove the output files if anything went wrong, so we don't leave partically written files behind.
-#
-if errors != 0:
-    removeOutputFiles()
-    sys.exit(1)
 
 sys.exit(0)
