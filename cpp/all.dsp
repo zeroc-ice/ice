@@ -22,7 +22,7 @@ CFG=all - Win32 Debug
 !MESSAGE 
 
 # Begin Project
-# PROP allowPerConfigDependencies 0
+# PROP AllowPerConfigDependencies 0
 # PROP Scc_ProjName ""
 # PROP Scc_LocalPath ""
 MTL=midl.exe
