@@ -2374,7 +2374,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 	EnumPtr ep = EnumPtr::dynamicCast(p->type());
 	if(ep)
 	{
-	    _out << fixId(typeToString(p->type())) << "." << fixId(p->value());
+	    _out << typeToString(p->type()) << "." << fixId(p->value());
 	}
 	else
 	{
