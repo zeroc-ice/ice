@@ -189,25 +189,43 @@ Ice::ObjectAdapterI::waitForHold()
 void
 Ice::ObjectAdapterI::deactivate()
 {
-    IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
-    
-    //
-    // Ignore deactivation requests if the object adapter has already
-    // been deactivated.
-    //
-    if(_deactivated)
+    vector<IncomingConnectionFactoryPtr> incomingConnectionFactories;
+    OutgoingConnectionFactoryPtr outgoingConnectionFactory;
+
     {
-	return;
-    }
+	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
+	
+	//
+	// Ignore deactivation requests if the object adapter has already
+	// been deactivated.
+	//
+	if(_deactivated)
+	{
+	    return;
+	}
+
+        incomingConnectionFactories = _incomingConnectionFactories;
+	outgoingConnectionFactory = _instance->outgoingConnectionFactory();
     
-    for_each(_incomingConnectionFactories.begin(), _incomingConnectionFactories.end(),
+	_deactivated = true;
+	
+	notifyAll();
+    }
+
+    //
+    // Must be called outside the thread synchronization, because
+    // Connection::destroy() might block when sending a CloseConnection
+    // message.
+    //
+    for_each(incomingConnectionFactories.begin(), incomingConnectionFactories.end(),
 	     Ice::voidMemFun(&IncomingConnectionFactory::destroy));
     
-    _instance->outgoingConnectionFactory()->removeAdapter(this);
-
-    _deactivated = true;
-    
-    notifyAll();
+    //
+    // Must be called outside the thread synchronization, because
+    // changing the object adapter might block if there are still
+    // requests being dispatched.
+    //
+    outgoingConnectionFactory->removeAdapter(this);
 }
 
 void
@@ -559,7 +577,7 @@ Ice::ObjectAdapterI::getIncomingConnections() const
 void
 Ice::ObjectAdapterI::flushBatchRequests()
 {
-    std::vector<IceInternal::IncomingConnectionFactoryPtr> f;
+    vector<IncomingConnectionFactoryPtr> f;
     {
 	IceUtil::Monitor<IceUtil::RecMutex>::Lock sync(*this);
 	f = _incomingConnectionFactories;
