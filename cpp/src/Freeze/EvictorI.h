@@ -38,6 +38,7 @@ public:
 
     virtual void installServantInitializer(const ServantInitializerPtr&);
     virtual EvictorIteratorPtr getIterator();
+    virtual bool hasObject(const Ice::Identity&);
 
     virtual Ice::ObjectPtr locate(const Ice::ObjectAdapterPtr&, const Ice::Current&, Ice::LocalObjectPtr&);
     virtual void finished(const Ice::ObjectAdapterPtr&, const Ice::Current&,

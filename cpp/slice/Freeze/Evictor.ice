@@ -244,6 +244,22 @@ local interface Evictor extends Ice::ServantLocator
      *
      **/
     EvictorIterator getIterator() throws EvictorDeactivatedException;
+
+    /**
+     *
+     * Returns true if the given identity is in the Evictors
+     * persistent store.
+     *
+     * @return true if the identity is in the Evictors persistent
+     * store, false otherwise.
+     *
+     * @throws DBException Raised if a database failure occurred.
+     *
+     * @throws EvictorDeactivatedException Raised if a the evictor has
+     * been deactivated.
+     *
+     **/
+    bool hasObject(Ice::Identity ident) throws EvictorDeactivatedException, DBException;
 };
 
 };

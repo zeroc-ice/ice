@@ -178,7 +178,27 @@ Freeze::EvictorI::installServantInitializer(const ServantInitializerPtr& initial
 EvictorIteratorPtr
 Freeze::EvictorI::getIterator()
 {
+    IceUtil::Mutex::Lock sync(*this);
+
+    if (_deactivated)
+    {
+	throw EvictorDeactivatedException(__FILE__, __LINE__);
+    }
+
     return new EvictorIteratorI(_dict.begin(), _dict.end());
+}
+
+bool
+Freeze::EvictorI::hasObject(const Ice::Identity& ident)
+{
+    IceUtil::Mutex::Lock sync(*this);
+
+    if (_deactivated)
+    {
+	throw EvictorDeactivatedException(__FILE__, __LINE__);
+    }
+
+    return _dict.find(ident) != _dict.end();
 }
 
 ObjectPtr

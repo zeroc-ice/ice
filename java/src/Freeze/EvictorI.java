@@ -125,10 +125,26 @@ class EvictorI implements Evictor
 	_initializer = initializer;
     }
 
-    public EvictorIterator
+    synchronized public EvictorIterator
     getIterator()
     {
+	if (_deactivated)
+	{
+	    throw new EvictorDeactivatedException();
+	}
+	
 	return new EvictorIteratorI(_dict.keySet().iterator());
+    }
+
+    synchronized public boolean
+    hasObject(Ice.Identity ident)
+    {
+	if (_deactivated)
+	{
+	    throw new EvictorDeactivatedException();
+	}
+	
+	return _evictorMap.get(ident) != null;
     }
 
     synchronized public Ice.Object
