@@ -21,6 +21,14 @@ public:
     virtual bool checkPermissions(const std::string&, const std::string&, std::string&, const Ice::Current&) const;
 };
 
+bool
+DummyPermissionsVerifierI::checkPermissions(const string& userId, const string& password, string&,
+					    const Current&) const
+{
+    cout << "verified user `" << userId << "' with password `" << password << "'" << endl;
+    return true;
+}
+
 class SessionI : public Glacier2::Session
 {
 public:

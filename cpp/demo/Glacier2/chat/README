@@ -1,0 +1,16 @@
+This example demonstrates the use of a Glacier2 session to create a
+very simple chat server.
+
+To run the demo:
+
+Start the chat server:
+
+$ ./server
+
+In a separate window, start the Glacier2 router:
+
+$ ../../../bin/glacier2router --Ice.Config=config.glacier2
+
+In a separate window, start the client:
+
+$ ./client

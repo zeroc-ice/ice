@@ -1,0 +1,116 @@
+#
+# We must set the stack size of new threads created by Glacier2. The
+# default on Linux is typically in the 10MB range, which is way too
+# high.
+#
+# Since Glacier2 always uses thread-per-connection mode, we must use
+# the property below to set the thread stack size. Internal Glacier2
+# threads also use this property value.
+#
+Ice.ThreadPerConnection.StackSize=262144
+
+#
+# The client-visible endpoint of Glacier2. This should be an endpoint
+# visible from the public Internet, and it should be secure.
+# 
+Glacier2.Client.Endpoints=ssl -p 10005
+
+#
+# The server-visible endpoint of Glacier2. This endpoint is only
+# required if callbacks are needed (leave empty otherwise). This
+# should be an endpoint on an internal network (like 192.168.x.x), or
+# on the loopback, so that the server is not directly accessible from
+# the Internet.
+#
+Glacier2.Server.Endpoints=tcp -h 127.0.0.1
+
+# 
+# The configures the session manager. If no external session manager
+# is used, sessions are only handled Glacier2 internally.
+#
+Glacier2.SessionManager=ChatRoomSessionManager:tcp -h 127.0.0.1 -p 10001
+
+# 
+# For this demo, we use a dummy permissions verifier that is
+# collocated with the session server process. This dummy permissions
+# verifier allows any user-id / password combination.
+# 
+Glacier2.PermissionsVerifier=verifier:tcp -h 127.0.0.1 -p 10001
+
+#
+# The timeout for inactive sessions. If any client session is inactive
+# for longer than this value, the session expires and is removed. The
+# unit is seconds.
+#
+Glacier2.SessionTimeout=30
+
+#
+# Glacier can forward requests buffered or unbuffered. Unbuffered
+# means a lower resource consumption, as buffering requires one
+# additional thread per connected client or server. However, without
+# buffering, messages cannot be batched and message overriding doesn't
+# work either. Also, with unbuffered request forwarding, the caller
+# thread blocks for twoway requests.
+#
+Glacier2.Client.Buffered=1
+Glacier2.Server.Buffered=1
+
+#
+# These two lines instruct Glacier2 to forward contexts both for
+# regular routing, as well as for callbacks (reverse routing).
+#
+Glacier2.Client.ForwardContext=1
+Glacier2.Server.ForwardContext=1
+
+#
+# To prevent Glacier2 from being flooded with requests from or to one
+# particular client, Glacier2 can be configured to sleep for a certain
+# period after all current requests for this client have been
+# forwarded. During this sleep period, new requests for the client are
+# queued. These requests are then all sent once the sleep period is
+# over. The unit is milliseconds.
+#
+Glacier2.Client.SleepTime=500
+Glacier2.Server.SleepTime=500
+
+#
+# With the two settings below, Glacier2 can be instructed to always
+# batch oneways, even if they are sent with a _fwd/o instead of a
+# _fwd/O context.
+#
+Glacier2.Client.AlwaysBatch=0
+Glacier2.Server.AlwaysBatch=0
+
+#
+# Glacier2 always disables active connection management so there is no
+# need to configure this manually. Connection retry does not need to
+# be disabled, as it's safe for Glacier2 to retry outgoing connections
+# to servers. Retry for incoming connections from clients must be
+# disabled in the clients.
+#
+
+#
+# Various settings to trace requests, overrides, etc.
+#
+Glacier2.Client.Trace.Request=1
+Glacier2.Server.Trace.Request=1
+Glacier2.Client.Trace.Override=1
+Glacier2.Server.Trace.Override=1
+Glacier2.Client.Trace.Reject=1
+Glacier2.Trace.Session=1
+Glacier2.Trace.RoutingTable=1
+
+#
+# Other settings.
+#
+
+#Ice.Trace.Network=1
+#Ice.Trace.Protocol=1
+Ice.Warn.Connections=1
+
+Ice.Plugin.IceSSL=IceSSL:create
+IceSSL.Client.CertPath=../../../certs
+IceSSL.Client.Config=sslconfig.xml
+IceSSL.Server.CertPath=../../../certs
+IceSSL.Server.Config=sslconfig.xml
+#IceSSL.Trace.Security=1
