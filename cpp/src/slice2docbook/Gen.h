@@ -52,7 +52,7 @@ private:
     void printComment(const ContainedPtr&);
     void printSummary(const ContainedPtr&);
     void start(const std::string&);
-    void start(const std::string&, const std::string&);
+    void start(const std::string&, const std::string&, bool = true);
     void end();
 
     std::string containedToId(const ContainedPtr&);
