@@ -236,17 +236,20 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
                 t->start();
             }
 
-            bool done;
-            {
-                AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
-                done = (*self->shutdownMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
-            }
-
-            if(!done)
-            {
-                Py_INCREF(Py_False);
-                return Py_False;
-            }
+	    while(!self->shutdown)
+	    {
+		bool done;
+		{
+		    AllowThreads allowThreads; // Release Python's global interpreter lock during blocking calls.
+		    done = (*self->shutdownMonitor).timedWait(IceUtil::Time::milliSeconds(timeout));
+		}
+		
+		if(!done)
+		{
+		    Py_INCREF(Py_False);
+		    return Py_False;
+		}
+	    }
         }
 
         assert(self->shutdown);
