@@ -1259,8 +1259,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    notifyAll();
 		}
 	    }
-	    
-	    _lastSave = System.currentTimeMillis();
 	}
     }
 
@@ -1678,8 +1676,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		}
 	    }
 	}
-    
-	_lastSave = System.currentTimeMillis();
 	
 	//
 	// Start saving thread
@@ -2482,7 +2478,6 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
     private int _maxTxSize;
 
     private long _savePeriod;
-    private long _lastSave;
 
     private Thread _thread;
     private String _errorPrefix;
