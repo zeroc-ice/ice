@@ -70,7 +70,7 @@ ice_throw_exception(const IceUtil::Exception& ex TSRMLS_DC)
         MAKE_STD_ZVAL(zex);
         if(object_init_ex(zex, Ice_LocalException_entry_ptr) != SUCCESS)
         {
-            php_error(E_ERROR, "unable to create LocalException in %s()", get_active_function_name(TSRMLS_C));
+            zend_error(E_ERROR, "unable to create LocalException in %s()", get_active_function_name(TSRMLS_C));
             return;
         }
 
@@ -88,13 +88,13 @@ ice_throw_exception(const IceUtil::Exception& ex TSRMLS_DC)
     }
     catch(const Ice::UserException& e)
     {
-        // TODO
+        assert(false);
     }
     catch(const IceUtil::Exception& e)
     {
         ostringstream ostr;
         e.ice_print(ostr);
-        php_error(E_ERROR, "exception: %s", ostr.str().c_str());
+        zend_error(E_ERROR, "exception: %s", ostr.str().c_str());
     }
 }
 
