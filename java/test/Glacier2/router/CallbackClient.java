@@ -93,7 +93,7 @@ class CallbackClient extends Ice.Application
             {
                 System.out.println("ok");
             }
-            catch(Glacier2.SessionExistsException ex)
+            catch(Glacier2.CannotCreateSessionException ex)
             {
                 test(false);
             }
@@ -124,7 +124,7 @@ class CallbackClient extends Ice.Application
             {
                 test(false);
             }
-            catch(Glacier2.SessionExistsException ex)
+            catch(Glacier2.CannotCreateSessionException ex)
             {
                 test(false);
             }
@@ -143,7 +143,7 @@ class CallbackClient extends Ice.Application
             {
                 test(false);
             }
-            catch(Glacier2.SessionExistsException ex)
+            catch(Glacier2.CannotCreateSessionException ex)
             {
                 System.out.println("ok");
             }
