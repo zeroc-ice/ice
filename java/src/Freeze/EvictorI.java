@@ -1240,22 +1240,22 @@ class EvictorI extends Ice.LocalObjectImpl implements Evictor, Runnable
 		    
 		    for(int i = 0; i < allObjects.size(); i++)
 		    {    
-		    Facet facet = (Facet) allObjects.get(i);
-		    facet.element.usageCount--;
-		    
-		    if(facet != facet.element.mainObject)
-		    {
-			//
-			// Remove if dead
-			//
-			synchronized(facet)
+			Facet facet = (Facet) allObjects.get(i);
+			facet.element.usageCount--;
+			
+			if(facet != facet.element.mainObject)
 			{
-			    if(facet.status == dead)
+			    //
+			    // Remove if dead
+			    //
+			    synchronized(facet)
 			    {
-				facet.element.facets.remove(new StringArray(facet.path));
-			    }    
+				if(facet.status == dead)
+				{
+				    facet.element.facets.remove(new StringArray(facet.path));
+				}    
+			    }
 			}
-		    }
 		    }
 		    allObjects.clear();
 		    evict();
