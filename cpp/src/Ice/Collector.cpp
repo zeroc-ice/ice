@@ -22,12 +22,11 @@
 #include <Ice/Exception.h>
 #include <Ice/Protocol.h>
 #include <Ice/Functional.h>
-#include <Ice/SecurityException.h>
+#include <Ice/SecurityException.h> // TODO: bandaid, see below.
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
-using IceSecurity::SecurityException;
 
 void IceInternal::incRef(Collector* p) { p->__incRef(); }
 void IceInternal::decRef(Collector* p) { p->__decRef(); }
@@ -567,17 +566,17 @@ IceInternal::CollectorFactory::message(BasicStream&)
 	collector->activate();
 	_collectors.push_back(collector);
     }
-    catch (const SecurityException& securityEx)
+    catch (const IceSecurity::SecurityException& ex)
     {
-        // TODO: bandaid.  Takes care of SSL Handshake problems during creation of a Transceiver
-        // TODO: THIS DOESN'T WORK!!!  For some reason it skips it.
-        // Ignore, nothing we can do here
-        warning(securityEx);
+        // TODO: bandaid. Takes care of SSL Handshake problems during
+        // creation of a Transceiver. Ignore, nothing we can do here.
+        warning(ex);
     }
-    catch (const SocketException&)
+    catch (const SocketException& ex)
     {
-        // TODO: bandaid.  Takes care of SSL Handshake problems during creation of a Transceiver
-        // Ignore, nothing we can do here
+        // TODO: bandaid. Takes care of SSL Handshake problems during
+        // creation of a Transceiver. Ignore, nothing we can do here.
+        warning(ex);
     }
     catch (const TimeoutException&)
     {

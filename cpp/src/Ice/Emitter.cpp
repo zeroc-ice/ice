@@ -21,6 +21,7 @@
 #include <Ice/Exception.h>
 #include <Ice/Protocol.h>
 #include <Ice/Functional.h>
+#include <Ice/SecurityException.h> // TODO: bandaid, see below.
 
 using namespace std;
 using namespace Ice;
@@ -489,6 +490,10 @@ IceInternal::EmitterFactory::create(const vector<EndpointPtr>& endpoints)
 	    break;
 	}
 	catch (const SocketException& ex)
+	{
+	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
+	}
+	catch (const IceSecurity::SecurityException& ex) // TODO: bandaid to make retry w/ ssl work.
 	{
 	    exception = auto_ptr<LocalException>(dynamic_cast<LocalException*>(ex.ice_clone()));
 	}

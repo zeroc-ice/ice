@@ -413,7 +413,8 @@ local exception UnknownReplyStatusException extends ProtocolException
 /**
  *
  * This exception is a specialization of [ProtocolException],
- * indicating that an exception has been closed by the peer.
+ * indicating that the server sent a close connection message in order
+ * to gracefully shut down the connection.
  *
  **/
 local exception CloseConnectionException extends ProtocolException

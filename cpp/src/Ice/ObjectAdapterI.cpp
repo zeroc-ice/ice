@@ -370,7 +370,8 @@ Ice::ObjectAdapterI::newProxy(const string& ident)
         makeSecure = true;
     }
 
-    ReferencePtr reference = new Reference(_instance, ident, "", Reference::ModeTwoway, makeSecure /* false */, endpoints, endpoints);
+    ReferencePtr reference = new Reference(_instance, ident, "", Reference::ModeTwoway, makeSecure /* false */,
+					   endpoints, endpoints);
     return _instance->proxyFactory()->referenceToProxy(reference);
 }
 

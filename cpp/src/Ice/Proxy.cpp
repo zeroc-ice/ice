@@ -22,6 +22,7 @@
 #include <Ice/BasicStream.h>
 #include <Ice/Exception.h>
 #include <Ice/Functional.h>
+#include <Ice/SecurityException.h> // TODO: bandaid, see below.
 
 using namespace std;
 using namespace Ice;
@@ -344,6 +345,10 @@ IceProxy::Ice::Object::__handleException(const LocalException& ex, int& cnt)
 	// TODO: configurable timeout before we try again?
     }
     catch (const SocketException&)
+    {
+	++cnt;
+    }
+    catch (const IceSecurity::SecurityException& ex) // TODO: bandaid to make retry w/ ssl work.
     {
 	++cnt;
     }

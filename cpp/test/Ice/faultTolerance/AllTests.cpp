@@ -11,6 +11,7 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
+#include <Ice/SecurityException.h>
 
 using namespace std;
 
@@ -77,6 +78,10 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 	    {
 		cout << "ok" << endl;
 	    }
+	    catch(const IceSecurity::SecurityException&)
+	    {
+		cout << "ok" << endl;
+	    }
 	}
 	else if(j == 2)
 	{
@@ -87,6 +92,10 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
 		test(false);
 	    }
 	    catch(const Ice::SocketException&)
+	    {
+		cout << "ok" << endl;
+	    }
+	    catch(const IceSecurity::SecurityException&)
 	    {
 		cout << "ok" << endl;
 	    }
@@ -108,4 +117,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const vector<int>& ports)
     {
 	cout << "ok" << endl;
     }    
+    catch(const IceSecurity::SecurityException&)
+    {
+	cout << "ok" << endl;
+    }
 }
