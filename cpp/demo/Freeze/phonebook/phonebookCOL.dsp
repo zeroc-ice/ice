@@ -51,7 +51,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
-# ADD LINK32 ws2_32.lib jtc.lib /nologo /subsystem:console /machine:I386 /out:"client.exe" /libpath:"../../../lib"
+# ADD LINK32 ws2_32.lib jtc.lib /nologo /subsystem:console /machine:I386 /out:"collocated.exe" /libpath:"../../../lib"
 
 !ELSEIF  "$(CFG)" == "phonebookCOL - Win32 Debug"
 
@@ -76,7 +76,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /debug /machine:I386 /pdbtype:sept
-# ADD LINK32 ws2_32.lib jtcd.lib /nologo /subsystem:console /debug /machine:I386 /out:"client.exe" /pdbtype:sept /libpath:"../../../lib"
+# ADD LINK32 ws2_32.lib jtcd.lib /nologo /subsystem:console /debug /machine:I386 /out:"collocated.exe" /pdbtype:sept /libpath:"../../../lib"
 
 !ENDIF 
 
@@ -89,11 +89,15 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 # Begin Source File
 
-SOURCE=.\Client.cpp
+SOURCE=.\Collocated.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\Grammer.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\NameIdentitiesDict.cpp
 # End Source File
 # Begin Source File
 
@@ -105,7 +109,19 @@ SOURCE=.\PhoneBook.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\PhoneBookI.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\RunParser.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Scanner.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServantFactory.cpp
 # End Source File
 # End Group
 # Begin Group "Header Files"
@@ -117,11 +133,23 @@ SOURCE=.\Grammer.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\NameIdentitiesDict.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Parser.h
 # End Source File
 # Begin Source File
 
 SOURCE=.\PhoneBook.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\PhoneBookI.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\ServantFactory.h
 # End Source File
 # End Group
 # Begin Group "Resource Files"

@@ -128,6 +128,10 @@ SOURCE=.\Connector.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\Direct.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Emitter.cpp
 # End Source File
 # Begin Source File
@@ -321,6 +325,10 @@ SOURCE=.\Ice\Connector.h
 # Begin Source File
 
 SOURCE=.\Ice\ConnectorF.h
+# End Source File
+# Begin Source File
+
+SOURCE=..\..\include\Ice\Direct.h
 # End Source File
 # Begin Source File
 
