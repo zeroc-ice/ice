@@ -63,18 +63,17 @@ public class ObjectAdapterI extends LocalObjectImpl implements ObjectAdapter
 		{
 		    _locatorInfo.getLocatorRegistry().setAdapterDirectProxy(_id, newDirectProxy(ident));
 		}
-		catch(Ice.AdapterNotRegisteredException ex)
+		catch(Ice.AdapterNotFoundException ex)
 		{
 		    NotRegisteredException ex1 = new NotRegisteredException();
-		    ex1.id = Util.identityToString(ident);
+		    ex1.id = _id;
 		    ex1.kindOfObject = "object adapter";
 		    throw ex1;
 		}
 		catch(Ice.AdapterAlreadyActiveException ex)
 		{
-		    AlreadyRegisteredException ex1 = new AlreadyRegisteredException();
-		    ex1.id = _name;
-		    ex1.kindOfObject = "object adapter";
+		    ObjectAdapterIdInUseException ex1 = new ObjectAdapterIdInUseException();
+		    ex1.id = _id;
 		    throw ex1;
 		}
 	    }

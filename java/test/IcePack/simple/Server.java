@@ -12,52 +12,34 @@
 //
 // **********************************************************************
 
-public class Server
+public class Server extends Ice.Application
 {
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public int
+    run(String[] args)
     {
 	Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-	argsH.value = communicator.getProperties().parseCommandLineOptions("TestAdapter", argsH.value);
+	argsH.value = communicator().getProperties().parseCommandLineOptions("TestAdapter", argsH.value);
 
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.Object object = new TestI(adapter);
         adapter.add(object, Ice.Util.stringToIdentity("test"));
-        adapter.activate();
-        communicator.waitForShutdown();
+	shutdownOnInterrupt();
+	try
+	{
+	    adapter.activate();
+	}
+	catch(Ice.ObjectAdapterDeactivatedException ex)
+	{
+	}
+        communicator().waitForShutdown();
+	ignoreInterrupt();
         return 0;
     }
 
     public static void
     main(String[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            communicator = Ice.Util.initialize(args);
-            status = run(args, communicator);
-        }
-        catch (Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if (communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch (Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
-        System.exit(status);
+	Server server = new Server();
+	server.main("test.IcePack.simple.Server", args);
     }
 }

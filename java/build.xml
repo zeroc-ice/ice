@@ -84,6 +84,8 @@ the Free Software Foundation.
             </fileset>
             <fileset dir="${slice.dir}/IcePack">
                 <include name="Admin.ice" />
+                <include name="Query.ice" />
+                <include name="Exception.ice" />
             </fileset>
             <fileset dir="${slice.dir}/IceStorm">
                 <include name="IceStorm.ice" />

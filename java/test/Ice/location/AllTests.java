@@ -27,8 +27,16 @@ public class AllTests
     allTests(Ice.Communicator communicator)
     {
 	ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
-	    communicator.stringToProxy("servermanager :default -t 10000 -p 12345"));
+	    communicator.stringToProxy("ServerManager :default -t 10000 -p 12345"));
 	test(manager != null);
+
+	System.out.print("testing stringToProxy... ");
+        System.out.flush();
+	Ice.ObjectPrx base = communicator.stringToProxy("test @ TestAdapter");
+	Ice.ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
+	Ice.ObjectPrx base3 = communicator.stringToProxy("test");
+	Ice.ObjectPrx base4 = communicator.stringToProxy("ServerManager");
+	System.out.println("ok");
 
 	//
 	// Start a server, get the port of the adapter it's listening on,
@@ -40,18 +48,16 @@ public class AllTests
 	manager.startServer();
 	System.out.println("ok");
 
-	System.out.print("testing stringToProxy... ");
-        System.out.flush();
-	Ice.ObjectPrx base = communicator.stringToProxy("test @ TestAdapter");
-	Ice.ObjectPrx base2 = communicator.stringToProxy("test @ TestAdapter");
-	System.out.println("ok");
-
 	System.out.print("testing checked cast... ");
         System.out.flush();
 	TestPrx obj = TestPrxHelper.checkedCast(base);
 	test(obj != null);
 	TestPrx obj2 = TestPrxHelper.checkedCast(base2);
 	test(obj2 != null);
+	TestPrx obj3 = TestPrxHelper.checkedCast(base3);
+	test(obj3 != null);
+	ServerManagerPrx obj4 = ServerManagerPrxHelper.checkedCast(base4);
+	test(obj4 != null);
 	System.out.println("ok");
  
 	System.out.print("testing object reference from server... ");
@@ -80,13 +86,27 @@ public class AllTests
 	{
 	    test(false);
 	}
-	System.out.println("ok");
-    
+	System.out.println("ok");    
     
 	System.out.print("testing object reference from server... ");
         System.out.flush();
 	hello.sayHello();
 	System.out.println("ok");
+
+	System.out.print("testing reference with unknown identity...");
+	System.out.flush();
+	try
+	{
+	    base = communicator.stringToProxy("unknown/unknown");
+	    base.ice_ping();
+	    test(false);
+	}
+	catch(Ice.NotRegisteredException ex)
+	{
+	    test(ex.kindOfObject.equals("object"));
+	    test(ex.id.equals("unknown/unknown"));
+	}
+	System.out.println("ok");	
 
 	System.out.print("testing reference with unknown adapter...");
 	System.out.flush();
@@ -96,8 +116,10 @@ public class AllTests
 	    base.ice_ping();
 	    test(false);
 	}
-	catch(Ice.NoEndpointException ex)
+	catch(Ice.NotRegisteredException ex)
 	{
+	    test(ex.kindOfObject.equals("object adapter"));
+	    test(ex.id.equals("TestAdapterUnknown"));
 	}
 	System.out.println("ok");	
 

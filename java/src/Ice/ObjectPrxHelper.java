@@ -497,6 +497,11 @@ public class ObjectPrxHelper implements ObjectPrx
 	    _delegate = null;
 	}
 
+	if(_reference.locatorInfo != null)
+	{
+	    _reference.locatorInfo.clearObjectCache(_reference);
+	}
+
 	++cnt;
 
         IceInternal.TraceLevels traceLevels = _reference.instance.traceLevels();
@@ -560,6 +565,11 @@ public class ObjectPrxHelper implements ObjectPrx
     __rethrowException(LocalException ex)
     {
         _delegate = null;
+
+	if(_reference.locatorInfo != null)
+	{
+	    _reference.locatorInfo.clearObjectCache(_reference);
+	}
 
         throw ex;
     }

@@ -17,7 +17,26 @@ public class Client
     private static int
     run(String[] args, Ice.Communicator communicator)
     {
-	TestPrx obj = AllTests.allTests(communicator);
+	boolean withDeploy = false;
+	for(int i = 1; i < args.length; i++)
+	{
+	    if(args[i].equals("--with-deploy"))
+	    {
+		withDeploy = true;
+		break;
+	    }
+	}
+
+	TestPrx obj;
+
+	if(!withDeploy)
+	{
+	    obj = AllTests.allTests(communicator);
+	}
+	else
+	{
+	    obj = AllTests.allTestsWithDeploy(communicator);
+	}
 	
 	System.out.print("shutting down server... ");
 	System.out.flush();

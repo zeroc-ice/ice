@@ -16,10 +16,10 @@ package IceInternal;
 
 public final class LocatorInfo
 {
-    LocatorInfo(Ice.LocatorPrx locator, LocatorAdapterTable adapterTable)
+    LocatorInfo(Ice.LocatorPrx locator, LocatorTable table)
     {
 	_locator = locator;
-	_adapterTable = adapterTable;
+	_table = table;
     }
 
     synchronized public void
@@ -27,7 +27,7 @@ public final class LocatorInfo
     {
 	_locator = null;
 	_locatorRegistry = null;
-	_adapterTable.clear();
+	_table.clear();
     }
 
     public boolean
@@ -66,117 +66,198 @@ public final class LocatorInfo
 	return _locatorRegistry;
     }
 
-    public IceInternal.Endpoint[]
+    public Endpoint[]
     getEndpoints(Reference ref, Ice.BooleanHolder cached)
     {
-	IceInternal.Endpoint[] endpoints = null;
+	assert(ref.endpoints.length == 0);
 
-	if(ref.adapterId.length() > 0)
-	{
-	    cached.value = true;
+	Endpoint[] endpoints = null;
+	Ice.ObjectPrx object = null;
+	cached.value = true;
 	
-	    endpoints = _adapterTable.get(ref.adapterId);
-	    if(endpoints == null)
+	try
+	{
+	    if(ref.adapterId.length() > 0)
 	    {
-		cached.value = false;
-
-		//
-		// Search the adapter in the location service if we didn't
-		// find it in the cache.
-		//
-		try
+		endpoints = _table.getAdapterEndpoints(ref.adapterId);
+		if(endpoints == null)
 		{
-		    Ice.ObjectPrx object = _locator.findAdapterById(ref.adapterId);
+		    cached.value = false;
+		    
+		    //
+		    // Search the adapter in the location service if we didn't
+		    // find it in the cache.
+		    //
+		    object = _locator.findAdapterById(ref.adapterId);
 		    if(object != null)
 		    {
 			endpoints = ((Ice.ObjectPrxHelper)object).__reference().endpoints;
+			
+			if(endpoints != null && endpoints.length > 0)
+			{
+			    _table.addAdapterEndpoints(ref.adapterId, endpoints);
+			}
 		    }
 		}
-		catch(Ice.AdapterNotRegisteredException ex)
+	    }
+	    else
+	    {
+		object = _table.getProxy(ref.identity);
+		if(object == null)
 		{
-		    if(ref.instance.traceLevels().location >= 1)
-		    {
-			StringBuffer s = new StringBuffer();
-			s.append("adapter `" + ref.adapterId + "' is not registered");
-			ref.instance.logger().trace(ref.instance.traceLevels().locationCat, s.toString());
-		    }
+		    cached.value = false;
+
+		    object = _locator.findObjectById(ref.identity);
 		}
-		catch(Ice.LocalException ex)
+
+		if(object != null)
 		{
-		    //
-		    // Just trace the failure. The proxy will most
-		    // likely get empty endpoints and raise a
-		    // NoEndpointException().
-		    //
-		    if(ref.instance.traceLevels().location >= 1)
+		    if(((Ice.ObjectPrxHelper)object).__reference().endpoints.length > 0)
 		    {
-			StringBuffer s = new StringBuffer();
-			s.append("couldn't contact the locator to retrieve adapter endpoints\n");
-			s.append("adapter = " + ref.adapterId + "\n");
-			s.append("reason = " + ex);
-			ref.instance.logger().trace(ref.instance.traceLevels().locationCat, s.toString());
+			endpoints = ((Ice.ObjectPrxHelper)object).__reference().endpoints;
+		    }
+		    else if(((Ice.ObjectPrxHelper)object).__reference().adapterId.length() > 0)
+		    {
+			endpoints = getEndpoints(((Ice.ObjectPrxHelper)object).__reference(), cached);
 		    }
 		}
 		
-		if(endpoints != null && endpoints.length > 0)
+		if(!cached.value && endpoints != null && endpoints.length > 0)
 		{
-		    _adapterTable.add(ref.adapterId, endpoints);
-		}
-	    }
-
-	    if(endpoints != null && endpoints.length > 0)
-	    {
-		if(ref.instance.traceLevels().location >= 1)
-		{
-		    StringBuffer s = new StringBuffer();
-		    if(cached.value)
-			s.append("found endpoints in locator table\n");
-		    else
-			s.append("retrieved endpoints from locator, adding to locator table\n");
-		    s.append("adapter = " + ref.adapterId + "\n");
- 		    s.append("endpoints = ");
-		    final int sz = endpoints.length;
-		    for(int i = 0; i < sz; i++)
-		    {
-			s.append(endpoints[i].toString());
-			if(i + 1 < sz)
-			    s.append(":");
-		    }
-		    ref.instance.logger().trace(ref.instance.traceLevels().locationCat, s.toString());
+		    _table.addProxy(ref.identity, object);
 		}
 	    }
 	}
+	catch(Ice.AdapterNotFoundException ex)
+	{
+	    Ice.NotRegisteredException e = new Ice.NotRegisteredException();
+	    e.kindOfObject = "object adapter";
+	    e.id = ref.adapterId;
+	    throw e;
+	}
+	catch(Ice.ObjectNotFoundException ex)
+	{
+	    Ice.NotRegisteredException e = new Ice.NotRegisteredException();
+	    e.kindOfObject = "object";
+	    e.id = Ice.Util.identityToString(ref.identity);
+	    throw e;
+	}
+	catch(Ice.NotRegisteredException ex)
+	{
+	    throw ex;
+	}
+	catch(Ice.LocalException ex)
+	{
+	    if(ref.instance.traceLevels().location >= 1)
+	    {
+		StringBuffer s = new StringBuffer();
+		s.append("couldn't contact the locator to retrieve adapter endpoints\n");
+		if(ref.adapterId.length() > 0)
+		{
+		    s.append("adapter = " + ref.adapterId + "\n");
+		}
+		else
+		{
+		    s.append("object = " + Ice.Util.identityToString(ref.identity) + "\n");
+		}
+		s.append("reason = " + ex);
+		ref.instance.logger().trace(ref.instance.traceLevels().locationCat, s.toString());
+	    }
+	}
 
-	return endpoints == null ? new IceInternal.Endpoint[0] : endpoints;
+	if(ref.instance.traceLevels().location >= 1 && endpoints != null && endpoints.length > 0)
+	{
+	    if(cached.value)
+	    {
+		trace("found endpoints in locator table", ref, endpoints);
+	    }
+	    else
+	    {
+		trace("retrieved endpoints from locator, adding to locator table", ref, endpoints);
+	    }
+	}
+
+	return endpoints == null ? new Endpoint[0] : endpoints;
     }
 
+    public void
+    clearObjectCache(Reference ref)
+    {
+	if(ref.adapterId.length() == 0 && ref.endpoints.length == 0)
+	{
+	    Ice.ObjectPrx object = _table.removeProxy(ref.identity);
+	    if(object != null && ref.instance.traceLevels().location >= 2)
+	    {
+		Reference r = ((Ice.ObjectPrxHelper)object).__reference();
+		if(r.endpoints.length > 0)
+		{
+		    trace("removed endpoints from locator table", ref, r.endpoints);
+		}
+	    }
+	}
+    }
+    
     public void
     clearCache(Reference ref)
     {
 	if(ref.adapterId.length() > 0)
 	{
-	    IceInternal.Endpoint[] endpoints = _adapterTable.remove(ref.adapterId);
+	    Endpoint[] endpoints = _table.removeAdapterEndpoints(ref.adapterId);
 
 	    if(ref.instance.traceLevels().location >= 2)
 	    {
-		StringBuffer s = new StringBuffer();
-		s.append("removed endpoints from locator table\n");
-		s.append("adapter = " + ref.adapterId + "\n");
-		s.append("endpoints = ");
-		final int sz = endpoints.length;
-		for(int i = 0; i < sz; i++)
+		trace("removed endpoints from locator table\n", ref, endpoints);
+	    }
+	}
+	else if(ref.endpoints.length == 0)
+	{
+	    Ice.ObjectPrx object = _table.getProxy(ref.identity);
+	    if(object != null)
+	    {
+		Reference r = ((Ice.ObjectPrxHelper)object).__reference();
+		if(r.adapterId.length() > 0)
 		{
-		    s.append(endpoints[i].toString());
-		    if(i + 1 < sz)
-			s.append(":");
+		    clearCache(r);
 		}
-		ref.instance.logger().trace(ref.instance.traceLevels().locationCat, s.toString());
+		else if(r.endpoints.length > 0)
+		{
+		    if(ref.instance.traceLevels().location >= 2)
+		    {
+			trace("removed endpoints from locator table", ref, r.endpoints);
+		    }
+		}
 	    }
 	}
     }
 
+    private void
+    trace(String msg, Reference ref, Endpoint[] endpoints)
+    {
+	StringBuffer s = new StringBuffer();
+	s.append(msg + "\n");
+	if(ref.adapterId.length() > 0)
+	{
+	    s.append("adapter = " + ref.adapterId + "\n");
+	}
+	else
+	{
+	    s.append("object = " + Ice.Util.identityToString(ref.identity) + "\n");
+	}
+
+	s.append("endpoints = ");
+	final int sz = endpoints.length;
+	for(int i = 0; i < sz; i++)
+	{
+	    s.append(endpoints[i].toString());
+	    if(i + 1 < sz)
+		s.append(":");
+	}
+
+	ref.instance.logger().trace(ref.instance.traceLevels().locationCat, s.toString());
+    }
+
     private Ice.LocatorPrx _locator; // Immutable.
     private Ice.LocatorRegistryPrx _locatorRegistry;
-    private LocatorAdapterTable _adapterTable; // Immutable.
+    private LocatorTable _table; // Immutable.
 };
 

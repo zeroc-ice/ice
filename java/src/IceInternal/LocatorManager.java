@@ -30,7 +30,7 @@ public final class LocatorManager
             info.destroy();
         }
         _table.clear();
-	_adapterTables.clear();
+	_locatorTables.clear();
     }
 
     //
@@ -59,14 +59,14 @@ public final class LocatorManager
 		// have only one table per locator (not one per locator
 		// proxy).
 		//
-		LocatorAdapterTable adapterTable = (LocatorAdapterTable)_adapterTables.get(locator.ice_getIdentity());
-		if(adapterTable == null)
+		LocatorTable table = (LocatorTable)_locatorTables.get(locator.ice_getIdentity());
+		if(table == null)
 		{
-		    adapterTable = new LocatorAdapterTable();
-		    _adapterTables.put(locator.ice_getIdentity(), adapterTable);
+		    table = new LocatorTable();
+		    _locatorTables.put(locator.ice_getIdentity(), table);
 		}
 
-                info = new LocatorInfo(locator, adapterTable);
+                info = new LocatorInfo(locator, table);
                 _table.put(locator, info);
             }
 
@@ -75,5 +75,5 @@ public final class LocatorManager
     }
 
     private java.util.HashMap _table = new java.util.HashMap();
-    private java.util.HashMap _adapterTables = new java.util.HashMap();
+    private java.util.HashMap _locatorTables = new java.util.HashMap();
 }

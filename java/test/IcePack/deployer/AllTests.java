@@ -52,8 +52,7 @@ public class AllTests
     public static void
     allCommonTests(Ice.Communicator communicator)
     {
-	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(
-	    communicator.stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
+	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"));
 	test(admin != null);
 	
 	System.out.print("test server registration...");
@@ -76,27 +75,47 @@ public class AllTests
 	test(find(adapterIds, "IceBox2Service2Adapter"));
 	System.out.println("ok");
 
-	Yellow.QueryPrx yellow = Yellow.QueryPrxHelper.checkedCast(
-	    communicator.stringToProxy("Yellow/Query@Yellow.Query"));
-	test(yellow != null);
+	IcePack.QueryPrx query = IcePack.QueryPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Query"));
+	test(query != null);
 
-	System.out.print("testing offer registration... ");
+	System.out.print("testing object registration... ");
 	System.out.flush();
-	Ice.ObjectPrx[] offers = null;
 	try
 	{
-	    offers = yellow.lookupAll("::Test");
+	    Ice.ObjectPrx[] objects = query.findAllObjectsWithType("::Test");
+	    test(findIdentity(objects,"Server1"));
+	    test(findIdentity(objects,"Server2"));
+	    test(findIdentity(objects,"IceBox1-Service1"));
+	    test(findIdentity(objects,"IceBox1-Service2"));
+	    test(findIdentity(objects,"IceBox2-Service1"));
+	    test(findIdentity(objects,"IceBox2-Service2"));
 	}
-	catch(Yellow.NoSuchOfferException ex)
+	catch(IcePack.ObjectNotExistException ex)
 	{
 	    test(false);
 	}
-	test(findIdentity(offers,"Server1"));
-	test(findIdentity(offers,"Server2"));
-	test(findIdentity(offers,"IceBox1-Service1"));
-	test(findIdentity(offers,"IceBox1-Service2"));
-	test(findIdentity(offers,"IceBox2-Service1"));
-	test(findIdentity(offers,"IceBox2-Service2"));
+
+	try
+	{
+	    Ice.ObjectPrx obj = query.findObjectByType("::Test");
+	    String id = Ice.Util.identityToString(obj.ice_getIdentity());
+	    test(id.equals("Server1") || id.equals("Server2") || 
+		 id.equals("IceBox1-Service1") || id.equals("IceBox1-Service2") ||
+		 id.equals("IceBox2-Service1") || id.equals("IceBox2-Service2"));
+	}
+	catch(IcePack.ObjectNotExistException ex)
+	{
+	    test(false);
+	}
+
+	try
+	{
+	    Ice.ObjectPrx obj = query.findObjectByType("::Foo");
+	    test(false);
+	}
+	catch(IcePack.ObjectNotExistException ex)
+	{
+	}
 
 	System.out.println("ok");
     }
@@ -151,8 +170,7 @@ public class AllTests
 	test(obj.getProperty("Service2.DebugProperty").equals(""));
 	test(obj.getProperty("Service1.DebugProperty").equals(""));
     
-	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(
-	    communicator.stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
+	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"));
 	test(admin != null);
 
 	//
@@ -196,8 +214,7 @@ public class AllTests
     {
 	allCommonTests(communicator);
 
-	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(
-	    communicator.stringToProxy("IcePack/Admin@IcePack.Registry.Admin"));
+	IcePack.AdminPrx admin = IcePack.AdminPrxHelper.checkedCast(communicator.stringToProxy("IcePack/Admin"));
 	test(admin != null);
 
 	System.out.print("pinging server objects... ");
