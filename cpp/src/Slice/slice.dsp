@@ -112,6 +112,10 @@ SOURCE=.\Grammar.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\JavaUtil.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\Parser.cpp
 # End Source File
 # Begin Source File

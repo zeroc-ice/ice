@@ -17,7 +17,7 @@
 namespace Slice
 {
 
-class JavaGenerator : public ::IceUtil::noncopyable
+class SLICE_API JavaGenerator : public ::IceUtil::noncopyable
 {
 public:
 
