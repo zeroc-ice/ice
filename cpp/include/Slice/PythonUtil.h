@@ -21,7 +21,7 @@ namespace Python
 //
 // Generate Python code for a translation unit.
 //
-SLICE_API void generate(const Slice::UnitPtr&, IceUtil::Output&);
+SLICE_API void generate(const Slice::UnitPtr&, bool, IceUtil::Output&);
 
 //
 // Split up a string using whitespace delimiters.

@@ -39,6 +39,7 @@ public:
 private:
 
     Output& _out;
+    set<string> _history;
 };
 
 //
@@ -77,6 +78,20 @@ protected:
     // Emit the tuple for a Slice type.
     //
     void writeType(const TypePtr&);
+
+    //
+    // Write a default value for a given type.
+    //
+    void writeDefaultValue(const TypePtr&);
+
+    struct ExceptionDataMember
+    {
+        string fixedName;
+        TypePtr type;
+        bool inherited;
+    };
+
+    void collectExceptionMembers(const ExceptionPtr&, list<ExceptionDataMember>&, bool);
 
     Output& _out;
     list<string> _moduleStack;
@@ -151,9 +166,14 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
 {
     if(p->includeLevel() > 0)
     {
-        string name = scopedToName(p->scoped());
-        _out << sp << nl << "# Included module " << name;
-        _out << nl << "_M_" << name << " = Ice.openModule('" << name << "')";
+        string scoped = p->scoped();
+        if(_history.count(scoped) == 0)
+        {
+            string name = scopedToName(scoped);
+            _out << sp << nl << "# Included module " << name;
+            _out << nl << "_M_" << name << " = Ice.openModule('" << name << "')";
+            _history.insert(scoped);
+        }
     }
 
     return true;
@@ -208,14 +228,14 @@ Slice::Python::CodeVisitor::visitModuleEnd(const ModulePtr& p)
 void
 Slice::Python::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
+    //
+    // Emit forward declarations.
+    //
     if(!p->isLocal())
     {
-        //
-        // Emit forward declarations.
-        //
         string scoped = p->scoped();
-        _out << sp << nl << "IcePy.addClass('" << scoped << "')";
-        _out << nl << "IcePy.addProxy('" << scoped << "')";
+        _out << sp << nl << "IcePy.declareClass('" << scoped << "')";
+        _out << nl << "IcePy.declareProxy('" << scoped << "')";
     }
 }
 
@@ -611,11 +631,12 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << sp << nl << "_M_" << fixedScoped << " = Ice.createTempClass()";
     _out << nl << "class " << fixedName << '(';
     ExceptionPtr base = p->base();
-    string baseScoped;
+    string baseScoped, baseName;
     if(base)
     {
         baseScoped = base->scoped();
-        _out << getSymbol(base);
+        baseName = getSymbol(base);
+        _out << baseName;
     }
     else if(p->isLocal())
     {
@@ -627,10 +648,62 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     _out << "):";
     _out.inc();
-    _out << nl << "def ice_id(self):";
+
+    DataMemberList members = p->dataMembers();
+    DataMemberList::iterator dmli;
+
+    //
+    // __init__
+    //
+    _out << nl << "def __init__(self";
+    list<ExceptionDataMember> allMembers;
+    collectExceptionMembers(p, allMembers, false);
+    if(!allMembers.empty())
+    {
+        for(list<ExceptionDataMember>::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        {
+            _out << ", " << q->fixedName << '=';
+            writeDefaultValue(q->type);
+        }
+    }
+    _out << "):";
+    _out.inc();
+    if(!base && members.empty())
+    {
+        _out << nl << "pass";
+    }
+    else
+    {
+        if(base)
+        {
+            _out << nl << baseName << ".__init__(self";
+            for(list<ExceptionDataMember>::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            {
+                if(q->inherited)
+                {
+                    _out << ", " << q->fixedName;
+                }
+            }
+            _out << ')';
+        }
+        for(list<ExceptionDataMember>::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        {
+            if(!q->inherited)
+            {
+                _out << nl << "self." << q->fixedName << " = " << q->fixedName;;
+            }
+        }
+    }
+    _out.dec();
+
+    //
+    // ice_id
+    //
+    _out << sp << nl << "def ice_id(self):";
     _out.inc();
     _out << nl << "return '" << scoped << "'";
     _out.dec();
+
     _out.dec();
 
     //
@@ -638,8 +711,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IcePy.addException('" << scoped << "', " << fixedName << ", '" << baseScoped << "', (";
-        DataMemberList members = p->dataMembers();
+        _out << sp << nl << "IcePy.defineException('" << scoped << "', " << fixedName << ", '" << baseScoped << "', (";
         if(members.size() > 1)
         {
             _out.inc();
@@ -652,14 +724,14 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         //
         // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
         //
-        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for(dmli = members.begin(); dmli != members.end(); ++dmli)
         {
-            if(q != members.begin())
+            if(dmli != members.begin())
             {
                 _out << ',' << nl;
             }
-            _out << "(\"" << fixIdent((*q)->name()) << "\", ";
-            writeType((*q)->type());
+            _out << "(\"" << fixIdent((*dmli)->name()) << "\", ";
+            writeType((*dmli)->type());
             _out << ')';
         }
         if(members.size() == 1)
@@ -685,10 +757,26 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     string scoped = p->scoped();
     string fixedScoped = scopedToName(scoped);
     string fixedName = fixIdent(p->name());
+    DataMemberList members = p->dataMembers();
+    DataMemberList::iterator q;
+
     _out << sp << nl << "_M_" << fixedScoped << " = Ice.createTempClass()";
     _out << nl << "class " << fixedName << "(object):";
     _out.inc();
-    _out << nl << "pass";
+    _out << nl << "def __init__(self";
+    for(q = members.begin(); q != members.end(); ++q)
+    {
+        _out << ", " << fixIdent((*q)->name()) << '=';
+        writeDefaultValue((*q)->type());
+    }
+    _out << "):";
+    _out.inc();
+    for(q = members.begin(); q != members.end(); ++q)
+    {
+        string s = fixIdent((*q)->name());
+        _out << nl << "self." << s << " = " << s;
+    }
+    _out.dec();
     _out.dec();
 
     //
@@ -696,7 +784,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IcePy.addStruct('" << scoped << "', " << fixedName << ", (";
+        _out << sp << nl << "IcePy.defineStruct('" << scoped << "', " << fixedName << ", (";
         //
         // Data members are represented as a tuple:
         //
@@ -704,7 +792,6 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         //
         // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
         //
-        DataMemberList members = p->dataMembers();
         if(members.size() > 1)
         {
             _out.inc();
@@ -745,7 +832,7 @@ Slice::Python::CodeVisitor::visitSequence(const SequencePtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IcePy.addSequence('" << p->scoped() << "', ";
+        _out << sp << nl << "IcePy.defineSequence('" << p->scoped() << "', ";
         writeType(p->type());
         _out << ")";
     }
@@ -759,7 +846,7 @@ Slice::Python::CodeVisitor::visitDictionary(const DictionaryPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IcePy.addDictionary('" << p->scoped() << "', ";
+        _out << sp << nl << "IcePy.defineDictionary('" << p->scoped() << "', ";
         writeType(p->keyType());
         _out << ", ";
         writeType(p->valueType());
@@ -831,7 +918,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     if(!p->isLocal())
     {
-        _out << sp << nl << "IcePy.addEnum('" << scoped << "', " << fixedName << ", (";
+        _out << sp << nl << "IcePy.defineEnum('" << scoped << "', " << fixedName << ", (";
         for(EnumeratorList::iterator q = enums.begin(); q != enums.end(); ++q)
         {
             if(q != enums.begin())
@@ -1109,9 +1196,112 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
 }
 
 void
-Slice::Python::generate(const UnitPtr& unit, Output& out)
+Slice::Python::CodeVisitor::writeDefaultValue(const TypePtr& p)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
+    if(builtin)
+    {
+        switch(builtin->kind())
+        {
+            case Builtin::KindBool:
+            {
+                _out << "False";
+                break;
+            }
+            case Builtin::KindByte:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindLong:
+            {
+                _out << "0";
+                break;
+            }
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
+            {
+                _out << "0.0";
+                break;
+            }
+            case Builtin::KindString:
+            {
+                _out << "''";
+                break;
+            }
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindLocalObject:
+            {
+                _out << "None";
+                break;
+            }
+        }
+        return;
+    }
+
+    EnumPtr en = EnumPtr::dynamicCast(p);
+    if(en)
+    {
+        EnumeratorList enums = en->getEnumerators();
+        _out << getSymbol(en) << "." << fixIdent(enums.front()->name());
+        return;
+    }
+
+    StructPtr st = StructPtr::dynamicCast(p);
+    if(st)
+    {
+        _out << getSymbol(st) << "()";
+        return;
+    }
+
+    _out << "None";
+}
+
+void
+Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, list<ExceptionDataMember>& allMembers,
+                                                    bool inherited)
+{
+    ExceptionPtr base = p->base();
+    if(base)
+    {
+        collectExceptionMembers(base, allMembers, true);
+    }
+
+    DataMemberList members = p->dataMembers();
+
+    for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    {
+        ExceptionDataMember m;
+        m.fixedName = fixIdent((*q)->name());
+        m.type = (*q)->type();
+        m.inherited = inherited;
+        allMembers.push_back(m);
+    }
+}
+
+void
+Slice::Python::generate(const UnitPtr& unit, bool all, Output& out)
 {
     out << nl << "import Ice, IcePy";
+
+    if(!all)
+    {
+        StringList includes = unit->includeFiles();
+        for(StringList::const_iterator p = includes.begin(); p != includes.end(); ++p)
+        {
+            string file = *p;
+            string::size_type pos = file.rfind('.');
+            if(pos != string::npos)
+            {
+                file.erase(pos, file.size() - pos);
+            }
+            pos = file.rfind('/');
+            if(pos != string::npos)
+            {
+                file.erase(0, pos + 1);
+            }
+            out << nl << "import " << file << "_ice";
+        }
+    }
 
     ModuleVisitor moduleVisitor(out);
     unit->visit(&moduleVisitor, true);
