@@ -18,6 +18,7 @@
 #include <Ice/ValueFactoryF.h>
 #include <Ice/PropertiesF.h>
 #include <Ice/LoggerF.h>
+#include <Ice/PicklerF.h>
 #include <Ice/Shared.h>
 
 namespace Ice
@@ -43,6 +44,8 @@ public:
 
     Logger_ptr logger();
     void logger(const Logger_ptr&);
+
+    Pickler_ptr pickler();
 
 private:
 

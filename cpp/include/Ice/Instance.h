@@ -21,6 +21,7 @@
 #include <Ice/EmitterF.h>
 #include <Ice/ValueFactoryManagerF.h>
 #include <Ice/ObjectAdapterFactoryF.h>
+#include <Ice/PicklerF.h>
 #include <Ice/Shared.h>
 
 namespace __Ice
@@ -40,6 +41,7 @@ public:
     EmitterFactory_ptr emitterFactory();
     ValueFactoryManager_ptr valueFactoryManager();
     ObjectAdapterFactory_ptr objectAdapterFactory();
+    ::Ice::Pickler_ptr pickler();
     
 private:
 
@@ -57,6 +59,7 @@ private:
     EmitterFactory_ptr emitterFactory_;
     ValueFactoryManager_ptr valueFactoryManager_;
     ObjectAdapterFactory_ptr objectAdapterFactory_;
+    ::Ice::Pickler_ptr pickler_;
 
     //
     // Global state management
