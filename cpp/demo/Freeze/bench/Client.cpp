@@ -149,12 +149,33 @@ public:
 
 private:
 
-    void IntIntMapTest();
-    void generatedRead(IntIntMap&, int, const GeneratorPtr&);
-    void Struct1Struct2MapTest();
-    void Struct1Class1MapTest();
+    template<class T> void IntIntMapTest(const string&, T* = 0);
+    void IntIntMapIndexTest(IntIntMap&) 
+    {}
+    void IntIntMapIndexTest(IndexedIntIntMap&);
+
+    template<class T> void generatedRead(T&, int, const GeneratorPtr&);
+    void generatedReadWithIndex(IntIntMap&, int, const GeneratorPtr&)
+    {}
+    void generatedReadWithIndex(IndexedIntIntMap&, int, const GeneratorPtr&);
+    
+    template<class T> void Struct1Struct2MapTest(const string&, T* = 0);
+    void Struct1Struct2MapIndexTest(Struct1Struct2Map&) 
+    {}
+    void Struct1Struct2MapIndexTest(IndexedStruct1Struct2Map&);
+
+    template<class T> void Struct1Class1MapTest(const string&, T* = 0);
+    void Struct1Class1MapIndexTest(Struct1Class1Map&) 
+    {}
+    void Struct1Class1MapIndexTest(IndexedStruct1Class1Map&);
+
+    template<class T> void IntIntMapReadTest(const string&, T* = 0);
+    void IntIntMapReadIndexTest(IntIntMap&)
+    {}
+    void IntIntMapReadIndexTest(IndexedIntIntMap&);
+
+
     void Struct1ObjectMapTest();
-    void IntIntMapReadTest();
 
     const string _envName;
     Freeze::ConnectionPtr _connection;
@@ -168,10 +189,11 @@ TestApp::TestApp(const string& envName) :
 {
 }
 
+template<class T>
 void
-TestApp::IntIntMapTest()
+TestApp::IntIntMapTest(const string& mapName, T*)
 {
-    IntIntMap m(_connection, "IntIntMap");
+    T m(_connection, mapName);
 
     //
     // Populate the database.
@@ -182,7 +204,7 @@ TestApp::IntIntMapTest()
 	TransactionHolder txHolder(_connection);
 	for(i = 0; i < _repetitions; ++i)
 	{
-	    m.put(IntIntMap::value_type(i, i));
+	    m.put(typename T::value_type(i, i));
 	}
 	txHolder.commit();
     }
@@ -198,7 +220,7 @@ TestApp::IntIntMapTest()
     _watch.start();
     for(i = 0; i < _repetitions; ++i)
     {
-	IntIntMap::iterator p = m.find(i);
+	typename T::iterator p = m.find(i);
 	test(p != m.end());
 	test(p->second == i);
     }
@@ -207,6 +229,11 @@ TestApp::IntIntMapTest()
 
     cout << "\ttime for " << _repetitions << " reads: " << total  << "ms" << endl;
     cout << "\ttime per read: " << perRecord << "ms" << endl;
+
+    //
+    // Optional index sub-test
+    //
+    IntIntMapIndexTest(m);
 
     //
     // Remove each record.
@@ -228,13 +255,34 @@ TestApp::IntIntMapTest()
 }
 
 void
-TestApp::generatedRead(IntIntMap& m, int reads , const GeneratorPtr& gen)
+TestApp::IntIntMapIndexTest(IndexedIntIntMap& m)
+{
+    //
+    // Read each record.
+    //
+    _watch.start();
+    for(int i = 0; i < _repetitions; ++i)
+    {
+	IndexedIntIntMap::iterator p = m.findByValue(i);
+	test(p != m.end());
+	test(p->second == i);
+    }
+    double total = _watch.stop();
+    double perRecord = total / _repetitions;
+
+    cout << "\ttime for " << _repetitions << " reverse (indexed) reads: " << total  << "ms" << endl;
+    cout << "\ttime per reverse read: " << perRecord << "ms" << endl;
+}
+
+template<class T>
+void
+TestApp::generatedRead(T& m, int reads , const GeneratorPtr& gen)
 {
     _watch.start();
     for(int i = 0; i < reads; ++i)
     {
 	int key = gen->next();
-	IntIntMap::iterator p = m.find(key);
+	typename T::iterator p = m.find(key);
 	test(p != m.end());
 	test(p->second == key);
     }
@@ -244,12 +292,32 @@ TestApp::generatedRead(IntIntMap& m, int reads , const GeneratorPtr& gen)
     cout << "\ttime for " << reads << " reads of " << gen->toString() << " records: " << total << "ms" << endl;
     cout << "\ttime per read: " << perRecord << "ms" << endl;
     
+    generatedReadWithIndex(m, reads, gen);
 }
 
 void
-TestApp::IntIntMapReadTest()
+TestApp::generatedReadWithIndex(IndexedIntIntMap& m, int reads, const GeneratorPtr& gen)
 {
-    IntIntMap m(_connection, "IntIntMap");
+    _watch.start();
+    for(int i = 0; i < reads; ++i)
+    {
+	int value = gen->next();
+	IndexedIntIntMap::iterator p = m.findByValue(value);
+	test(p != m.end());
+	test(p->second == value);
+    }
+    double total = _watch.stop();
+    double perRecord = total / reads;
+
+    cout << "\ttime for " << reads << " reverse (indexed) reads of " << gen->toString() << " records: " << total << "ms" << endl;
+    cout << "\ttime per reverse read: " << perRecord << "ms" << endl;
+}
+
+template<class T>
+void
+TestApp::IntIntMapReadTest(const string& mapName, T*)
+{
+    T m(_connection, mapName);
 
     //
     // Populate the database.
@@ -260,7 +328,7 @@ TestApp::IntIntMapReadTest()
 	TransactionHolder txHolder(_connection);
 	for(i = 0; i < _repetitions; ++i)
 	{
-	    m.put(IntIntMap::value_type(i, i));
+	    m.put(typename T::value_type(i, i));
 	}
 	txHolder.commit();
     }
@@ -304,10 +372,11 @@ TestApp::IntIntMapReadTest()
 
 }
 
+template<class T>
 void
-TestApp::Struct1Struct2MapTest()
+TestApp::Struct1Struct2MapTest(const string& mapName, T*)
 {
-    Struct1Struct2Map m(_connection, "Struct1Struct2");
+    T m(_connection, mapName);
 
     //
     // Populate the database.
@@ -324,7 +393,8 @@ TestApp::Struct1Struct2MapTest()
 	    ostringstream os;
 	    os << i;
 	    s2.s = os.str();
-	    m.put(Struct1Struct2Map::value_type(s1, s2));
+	    s2.s1 = s1;
+	    m.put(typename T::value_type(s1, s2));
 	}
 	txHolder.commit();
     }
@@ -341,7 +411,7 @@ TestApp::Struct1Struct2MapTest()
     for(i = 0; i < _repetitions; ++i)
     {
 	s1.l = i;
-	Struct1Struct2Map::iterator p = m.find(s1);
+	typename T::iterator p = m.find(s1);
 	test(p != m.end());
 	ostringstream os;
 	os << i;
@@ -352,6 +422,11 @@ TestApp::Struct1Struct2MapTest()
 
     cout << "\ttime for " << _repetitions << " reads: " << total  << "ms" << endl;
     cout << "\ttime per read: " << perRecord << "ms" << endl;
+
+    //
+    // Optional index test
+    //
+    Struct1Struct2MapIndexTest(m);
 
     //
     // Remove each record.
@@ -372,10 +447,46 @@ TestApp::Struct1Struct2MapTest()
     cout << "\ttime for " << _repetitions << " removes: " << total  << "ms" << endl;
     cout << "\ttime per remove: " << perRecord << "ms" << endl;
 }
+
 void
-TestApp::Struct1Class1MapTest()
+TestApp::Struct1Struct2MapIndexTest(IndexedStruct1Struct2Map& m)
 {
-    Struct1Class1Map m(_connection, "Struct1Class1");
+    int i;
+    _watch.start();
+    for(i = 0; i < _repetitions; ++i)
+    {
+	ostringstream os;
+	os << i;
+
+	IndexedStruct1Struct2Map::iterator p = m.findByS(os.str());
+	test(p != m.end());
+	test(p->first.l == i);
+	test(p->second.s1.l == i);
+    }
+    
+    for(i = 0; i < _repetitions; ++i)
+    {
+	Struct1 s1;
+	s1.l = i;
+	IndexedStruct1Struct2Map::iterator p = m.findByS1(s1);
+	test(p != m.end());
+	test(p->first.l == i);
+	test(p->second.s1.l == i);
+    }
+
+    double total = _watch.stop();
+    double perRecord = total / (2 *_repetitions);
+
+    cout << "\ttime for " << 2 *_repetitions << " indexed reads: " << total  << "ms" << endl;
+    cout << "\ttime per indexed read: " << perRecord << "ms" << endl;
+}
+
+
+template<class T>
+void
+TestApp::Struct1Class1MapTest(const string& mapName, T*)
+{
+    T m(_connection, mapName);
 
     //
     // Populate the database.
@@ -392,7 +503,7 @@ TestApp::Struct1Class1MapTest()
 	    ostringstream os;
 	    os << i;
 	    c1->s = os.str();
-	    m.put(Struct1Class1Map::value_type(s1, c1));
+	    m.put(typename T::value_type(s1, c1));
 	}
 	txHolder.commit();
      }
@@ -409,7 +520,7 @@ TestApp::Struct1Class1MapTest()
     for(i = 0; i < _repetitions; ++i)
     {
 	s1.l = i;
-	Struct1Class1Map::iterator p = m.find(s1);
+	typename T::iterator p = m.find(s1);
 	test(p != m.end());
 	ostringstream os;
 	os << i;
@@ -420,6 +531,12 @@ TestApp::Struct1Class1MapTest()
 
     cout << "\ttime for " << _repetitions << " reads: " << total  << "ms" << endl;
     cout << "\ttime per read: " << perRecord << "ms" << endl;
+
+    //
+    // Optional index test
+    //
+
+    Struct1Class1MapIndexTest(m);
 
     //
     // Remove each record.
@@ -440,6 +557,31 @@ TestApp::Struct1Class1MapTest()
     cout << "\ttime for " << _repetitions << " removes: " << total  << "ms" << endl;
     cout << "\ttime per remove: " << perRecord << "ms" << endl;
 }
+
+
+void
+TestApp::Struct1Class1MapIndexTest(IndexedStruct1Class1Map& m)
+{
+    //
+    // Read each record.
+    //
+    _watch.start();
+    for(int i = 0; i < _repetitions; ++i)
+    {
+	ostringstream os;
+	os << i;
+
+	IndexedStruct1Class1Map::iterator p = m.findByS(os.str());
+	test(p != m.end());
+	test(p->first.l == i);
+    }
+    double total = _watch.stop();
+    double perRecord = total / _repetitions;
+
+    cout << "\ttime for " << _repetitions << " indexed reads: " << total  << "ms" << endl;
+    cout << "\ttime per indexed read: " << perRecord << "ms" << endl;
+}
+
 
 void
 TestApp::Struct1ObjectMapTest()
@@ -574,14 +716,23 @@ TestApp::run(int argc, char* argv[])
 {
     _connection = createConnection(communicator(), _envName);
 
-    cout <<"IntIntMap" << endl;
-    IntIntMapTest();
-    
+    cout << "IntIntMap" << endl;
+    IntIntMapTest<IntIntMap>("IntIntMap");
+
+    cout << "IntIntMap with index" << endl;
+    IntIntMapTest<IndexedIntIntMap>("IndexedIntIntMap");
+
     cout <<"Struct1Struct2Map" << endl;
-    Struct1Struct2MapTest();
+    Struct1Struct2MapTest<Struct1Struct2Map>("Struct1Struct2Map");
+
+    cout <<"Struct1Struct2Map with index" << endl;
+    Struct1Struct2MapTest<IndexedStruct1Struct2Map>("IndexedStruct1Struct2Map");
     
     cout <<"Struct1Class1Map" << endl;
-    Struct1Class1MapTest();
+    Struct1Class1MapTest<Struct1Class1Map>("Struct1Class1Map");
+
+    cout <<"Struct1Class1Map with index" << endl;
+    Struct1Class1MapTest<IndexedStruct1Class1Map>("IndexedStruct1Class1Map");
     
     MyFactoryPtr factory = new MyFactory();
     factory->install(communicator());
@@ -590,7 +741,10 @@ TestApp::run(int argc, char* argv[])
     Struct1ObjectMapTest();
     
     cout <<"IntIntMap (read test)" << endl;
-    IntIntMapReadTest();
+    IntIntMapReadTest<IntIntMap>("IntIntMap");
+
+    cout <<"IntIntMap (read test) (with index)" << endl;
+    IntIntMapReadTest<IndexedIntIntMap>("IndexedIntIntMap");
 
     _connection->close();
     

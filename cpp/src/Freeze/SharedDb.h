@@ -13,6 +13,7 @@
 #include <IceUtil/Config.h>
 #include <db_cxx.h>
 #include <Freeze/ConnectionI.h>
+#include <Freeze/Map.h>
 #include <IceUtil/Handle.h>
 #include <map>
 
@@ -22,13 +23,47 @@ namespace Freeze
 class SharedDb;
 typedef IceUtil::Handle<SharedDb> SharedDbPtr;
 
+class MapIndexI
+{
+public:
+    
+    MapIndexI(const ConnectionIPtr&, SharedDb&,
+	      DbTxn*, bool, const MapIndexBasePtr&);
+
+    ~MapIndexI();
+   
+    IteratorHelper* untypedFind(const Key&, bool, const MapHelperI&) const;
+    int untypedCount(const Key&, const ConnectionIPtr&) const;
+    
+    int
+    secondaryKeyCreate(Db*, const Dbt*, const Dbt*, Dbt*);
+
+    const std::string name() const
+    {
+	return _index->name();
+    }
+    
+    Db* db() const
+    {
+	return _db.get();
+    }
+
+private:
+
+    const MapIndexBasePtr _index;
+    std::auto_ptr<Db> _db;
+    std::string _dbName;
+};
+
+
 class SharedDb : public ::Db
 {
 public:
     
     using Db::get;
 
-    static SharedDbPtr get(const ConnectionIPtr&, const std::string&, bool);
+    static SharedDbPtr get(const ConnectionIPtr&, const std::string&, 
+			   const std::vector<MapIndexBasePtr>&, bool);
 
     ~SharedDb();
 
@@ -47,6 +82,8 @@ public:
     }
 #endif
 
+    typedef std::map<std::string, MapIndexI*> IndexMap;
+
 private:
 
     struct MapKey
@@ -61,11 +98,17 @@ private:
 
     typedef std::map<MapKey, Freeze::SharedDb*> Map;
    
-    SharedDb(const MapKey&, const ConnectionIPtr&, bool);
+    SharedDb(const MapKey&, const ConnectionIPtr&, 
+	     const std::vector<MapIndexBasePtr>&, bool);
     
+    void connectIndices(const std::vector<MapIndexBasePtr>&) const;
+    void cleanup(bool);
+
     MapKey _key;
     int _refCount;
     Ice::Int _trace;
+
+    IndexMap _indices;
 
     static Map* sharedDbMap;
 };

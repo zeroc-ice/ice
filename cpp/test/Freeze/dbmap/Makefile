@@ -28,7 +28,7 @@ $(CLIENT): $(OBJS)
 
 ByteIntMap.h ByteIntMap.cpp: $(SLICE2FREEZE)
 	rm -f ByteIntMap.h ByteIntMap.cpp
-	$(SLICE2FREEZE) --dict ByteIntMap,byte,int ByteIntMap
+	$(SLICE2FREEZE) --dict Test::ByteIntMap,byte,int --dict-index Test::ByteIntMap ByteIntMap
 
 clean::
 	rm -f ByteIntMap.h ByteIntMap.cpp

@@ -23,23 +23,19 @@ class IteratorHelperI : public IteratorHelper
 {  
 public:
 
-    IteratorHelperI(const MapHelperI& m, bool readOnly);
-    
+    IteratorHelperI(const MapHelperI& m, bool readOnly, const MapIndexBasePtr& index);
     IteratorHelperI(const IteratorHelperI&);
 
     virtual 
     ~IteratorHelperI();
-
-    bool
-    findFirst() const;
-
+  
     bool 
     find(const Key& k) const;
 
     virtual IteratorHelper*
     clone() const;
     
-    const Key*
+    virtual const Key*
     get() const;
 
     virtual void
@@ -53,9 +49,6 @@ public:
 
     virtual bool
     next() const;
-
-    virtual bool
-    equals(const IteratorHelper&) const;
 
     void
     close();
@@ -90,9 +83,9 @@ private:
     void
     cleanup();
 
-
     const MapHelperI& _map;
     Dbc* _dbc;
+    const bool _indexed;
     TxPtr _tx;
 
     mutable Key _key;
@@ -105,7 +98,7 @@ class MapHelperI : public MapHelper
 public:
    
     MapHelperI(const ConnectionIPtr& connection, const std::string& dbName, 
-		 bool createDb);
+	       const std::vector<MapIndexBasePtr>&, bool createDb);
 
     virtual ~MapHelperI();
 
@@ -132,15 +125,25 @@ public:
 
     virtual void
     closeAllIterators();
+
+    virtual const MapIndexBasePtr&
+    index(const std::string&) const;
  
     void
     close();
 
+    const ConnectionIPtr& connection() const
+    {
+	return _connection;
+    }
+
+
+    typedef std::map<std::string, MapIndexBasePtr> IndexMap;
+    
 private:
 
     virtual void
     closeAllIteratorsExcept(const IteratorHelperI::TxPtr&) const;
-
 
     friend class IteratorHelperI;
     friend class IteratorHelperI::Tx;
@@ -149,8 +152,11 @@ private:
     mutable std::list<IteratorHelperI*> _iteratorList;
     SharedDbPtr _db;
     const std::string _dbName;
+    IndexMap _indices;
+
     Ice::Int _trace;    
 };
+
 
 inline const IteratorHelperI::TxPtr&
 IteratorHelperI::tx() const

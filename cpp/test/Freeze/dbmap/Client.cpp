@@ -18,6 +18,7 @@
 using namespace std;
 using namespace Ice;
 using namespace Freeze;
+using namespace Test;
 
 
 // #define SHOW_EXCEPTIONS 1
@@ -484,6 +485,59 @@ run(const CommunicatorPtr& communicator, const string& envName, const string&dbN
 	test(p != m.end());
     }
     cout << "ok" << endl;
+
+    cout << "testing index ... " << flush;
+    m.clear();
+    populateDB(connection, m);
+
+    size_t length = alphabet.size();
+    for(size_t j = 0; j < length; ++j)
+    {
+	p = m.findByValue(static_cast<Int>(j));
+	test(p != m.end());
+	test(p->first == alphabet[j]);
+	test(++p == m.end());
+    }
+
+    //
+    // 2 items at 17
+    // 
+    m.put(ByteIntMap::value_type(alphabet[21], static_cast<Int>(17)));
+
+    p = m.findByValue(17);
+    test(p != m.end());
+    test(p->first == alphabet[17] || p->first == alphabet[21]);
+    test(++p != m.end());
+    test(p->first == alphabet[17] || p->first == alphabet[21]);
+    test(++p == m.end());
+    test(m.valueCount(17) == 2);
+
+    p = m.findByValue(17);
+    test(p != m.end());
+    m.erase(p);
+    test(++p != m.end());
+    test(p->first == alphabet[17] || p->first == alphabet[21]);
+    test(++p == m.end());
+    test(m.valueCount(17) == 1);
+
+    p = m.findByValue(17);
+    test(p != m.end());
+    test(p->first == alphabet[17] || p->first == alphabet[21]);
+    
+    try
+    {
+	p.set(18);
+	test(false);
+    }
+    catch(const DatabaseException& ex)
+    {
+	// Expected
+    }
+    test(p->first == alphabet[17] || p->first == alphabet[21]);
+    test(++p == m.end());
+    test(m.valueCount(17) == 1);
+
+    cout << "ok " << endl;
 
     cout << "testing concurrent access... " << flush;
     m.clear();

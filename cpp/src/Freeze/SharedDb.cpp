@@ -28,7 +28,9 @@ Freeze::SharedDb::Map* Freeze::SharedDb::sharedDbMap = 0;
 
 Freeze::SharedDbPtr 
 Freeze::SharedDb::get(const ConnectionIPtr& connection, 
-		      const string& dbName, bool createDb)
+		      const string& dbName,
+		      const vector<MapIndexBasePtr>& indices,
+		      bool createDb)
 {
     StaticMutex::Lock lock(_mapMutex);
 
@@ -46,6 +48,7 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
 	Map::iterator p = sharedDbMap->find(key);
 	if(p != sharedDbMap->end())
 	{
+	    p->second->connectIndices(indices);
 	    return p->second;
 	}
     }
@@ -53,7 +56,7 @@ Freeze::SharedDb::get(const ConnectionIPtr& connection,
     //
     // MapKey not found, let's create and open a new Db
     //
-    auto_ptr<SharedDb> result(new SharedDb(key, connection, createDb));
+    auto_ptr<SharedDb> result(new SharedDb(key, connection, indices, createDb));
     
     //
     // Insert it into the map
@@ -73,17 +76,7 @@ Freeze::SharedDb::~SharedDb()
 	out << "closing Db \"" << _key.dbName << "\"";
     }
 
-    try
-    {
-	close(0);
-    }
-    catch(const ::DbException& dx)
-    {
-	DatabaseException ex(__FILE__, __LINE__);
-	ex.message = dx.what();
-	throw ex;
-    }
-
+    cleanup(false);
 }
 
 void Freeze::SharedDb::__incRef()
@@ -145,10 +138,10 @@ void Freeze::SharedDb::__decRef()
     }
 }
 
-
   
 Freeze::SharedDb::SharedDb(const MapKey& key, 
 			   const ConnectionIPtr& connection, 
+			   const vector<MapIndexBasePtr>& indices,
 			   bool createDb) :
     Db(connection->dbEnv(), 0),
     _key(key),
@@ -161,19 +154,148 @@ Freeze::SharedDb::SharedDb(const MapKey& key,
 	out << "opening Db \"" << _key.dbName << "\"";
     }
 
+    DbTxn* txn = 0;
+    DbEnv* dbEnv = connection->dbEnv();
+    
     try
     {
-	u_int32_t flags = DB_AUTO_COMMIT | DB_THREAD;
+	dbEnv->txn_begin(0, &txn, 0);
+
+	u_int32_t flags = DB_THREAD;
 	if(createDb)
 	{
 	    flags |= DB_CREATE;
 	}
-	open(0, key.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
+	open(txn, key.dbName.c_str(), 0, DB_BTREE, flags, FREEZE_DB_MODE);
+
+	for(vector<MapIndexBasePtr>::const_iterator p = indices.begin();
+	    p != indices.end(); ++p)
+	{
+	    const MapIndexBasePtr& indexBase = *p; 
+		
+	    if(indexBase->_impl != 0)
+	    {
+		DatabaseException ex(__FILE__, __LINE__);
+		ex.message = "Index \"" + indexBase->name() + "\" already initialized!";
+		throw ex;
+	    }
+
+	    auto_ptr<MapIndexI> indexI(new MapIndexI(connection, *this, txn, createDb, indexBase));
+	    
+	    bool inserted = _indices.insert(IndexMap::value_type(indexBase->name(), indexI.get())).second;
+	    if(!inserted)
+	    {
+		DatabaseException ex(__FILE__, __LINE__);
+		ex.message = "Index \"" + indexBase->name() + "\" listed twice!";
+		throw ex;
+	    }
+	    
+	    indexBase->_impl = indexI.release();
+	}
+
+	DbTxn* toCommit = txn;
+	txn = 0;
+	toCommit->commit(0);
     }
     catch(const ::DbException& dx)
     {
+	if(txn != 0)
+	{
+	    try
+	    {
+		txn->abort();
+	    }
+	    catch(...)
+	    {
+	    }
+	}
+
+	cleanup(true);
+
+	if(dx.get_errno() == ENOENT)
+	{
+	    NotFoundException ex(__FILE__, __LINE__);
+	    ex.message = dx.what();
+	    throw ex;
+	}
+	else
+	{
+	    DatabaseException ex(__FILE__, __LINE__);
+	    ex.message = dx.what();
+	    throw ex;
+	}
+
 	DatabaseException ex(__FILE__, __LINE__);
 	ex.message = dx.what();
 	throw ex;
+    }
+    catch(...)
+    {
+	if(txn != 0)
+	{
+	    try
+	    {
+		txn->abort();
+	    }
+	    catch(...)
+	    {
+	    }
+	}
+
+	cleanup(true);
+	throw;
+    }
+}
+
+void
+Freeze::SharedDb::connectIndices(const vector<MapIndexBasePtr>& indices) const
+{
+    for(vector<MapIndexBasePtr>::const_iterator p = indices.begin();
+	p != indices.end(); ++p)
+    {
+	const MapIndexBasePtr& indexBase = *p; 
+
+	if(indexBase->_impl != 0)
+	{
+	    DatabaseException ex(__FILE__, __LINE__);
+	    ex.message = "Index \"" + indexBase->name() + "\" already initialized!";
+	    throw ex;
+	}
+
+	IndexMap::const_iterator q = _indices.find(indexBase->name());
+	
+	if(q == _indices.end())
+	{
+	    DatabaseException ex(__FILE__, __LINE__);
+	    ex.message = "\"" + _key.dbName + "\" already opened but without index \"" 
+		+ indexBase->name() +"\"";
+	    throw ex;
+	}
+	
+	indexBase->_impl = q->second;
+    }
+}
+
+void
+Freeze::SharedDb::cleanup(bool noThrow)
+{
+    try
+    {
+	for(IndexMap::iterator p = _indices.begin(); p != _indices.end(); ++p)
+	{
+	    delete p->second;
+	}
+	_indices.clear();
+	
+	close(0);
+    }
+    catch(const ::DbException& dx)
+    {
+	if(!noThrow)
+	{
+	    DatabaseException ex(__FILE__, __LINE__);
+	    ex.message = dx.what();
+	    throw ex;
+	}
     }
 }

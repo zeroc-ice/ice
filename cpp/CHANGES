@@ -1,6 +1,12 @@
 Changes since version 1.5.1
 ---------------------------
 
+- Freeze dictionaries now support indices. You can index on the
+  full value of the dictionary, or on a member (when the value
+  is a struct or a class). When you index on a member, you 
+  can define several indices (for different members).
+  See the Freeze bench demo and the Freeze dbmap test for examples.
+
 - The Ice::Service class no longer resets the umask to 0, but rather
   uses the inherited umask.
 

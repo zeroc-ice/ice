@@ -25,6 +25,49 @@ namespace Freeze
 {
 
 class IteratorHelper;
+class MapHelper;
+
+
+class MapIndexI;
+class MapHelperI;
+class IteratorHelperI;
+class SharedDb;
+
+class FREEZE_API MapIndexBase : public IceUtil::Shared
+{
+public:
+    
+    virtual ~MapIndexBase();
+
+    const std::string& name() const;
+
+    IteratorHelper* untypedFind(const Key&, bool) const;
+    int untypedCount(const Key&) const;
+
+    //
+    // Implemented by the generated code
+    //
+    virtual void marshalKey(const Value&, Key&) const = 0;
+
+protected:
+
+    MapIndexBase(const std::string&);
+
+    Ice::CommunicatorPtr _communicator;
+
+private:
+
+    friend class MapHelperI;
+    friend class IteratorHelperI;
+    friend class SharedDb;
+
+    std::string _name;
+    MapIndexI* _impl;
+    const MapHelperI* _map;
+};
+
+typedef IceUtil::Handle<MapIndexBase> MapIndexBasePtr;
+
 
 class FREEZE_API MapHelper
 {
@@ -33,6 +76,7 @@ public:
     static MapHelper*
     create(const Freeze::ConnectionPtr& connection, 
 	   const std::string& dbName, 
+	   const std::vector<MapIndexBasePtr>&,
 	   bool createDb);
 
     virtual ~MapHelper() = 0;
@@ -61,6 +105,8 @@ public:
     virtual void
     closeAllIterators() = 0;
 
+    virtual const MapIndexBasePtr&
+    index(const std::string&) const = 0;
 };
 
 
@@ -77,6 +123,9 @@ public:
     virtual IteratorHelper*
     clone() const = 0;
     
+    virtual const Key* 
+    get() const = 0;
+
     virtual void
     get(const Key*&, const Value*&) const = 0;
     
@@ -88,11 +137,7 @@ public:
 
     virtual bool
     next() const = 0;
-
-    virtual bool
-    equals(const IteratorHelper&) const = 0;
 }; 
-
 
 
 //
@@ -189,14 +234,22 @@ public:
 
     bool operator==(const Iterator& rhs) const
     {
+	if(_helper.get() == rhs._helper.get())
+	{
+	    return true;
+	}
+	
 	if(_helper.get() != 0 && rhs._helper.get() != 0)
 	{
-	    return _helper->equals(*rhs._helper.get());
+	    const Key* lhsKey = _helper->get();
+	    const Key* rhsKey = rhs._helper->get();
+	    
+	    if(lhsKey != 0 && rhsKey != 0)
+	    {
+		return *lhsKey == *rhsKey;
+	    }
 	}
-	else
-	{
-	    return _helper.get() == rhs._helper.get();
-	}
+	return false;
     }
 
     bool operator!=(const Iterator& rhs) const
@@ -413,14 +466,22 @@ public:
 
     bool operator==(const ConstIterator& rhs)
     {
+	if(_helper.get() == rhs._helper.get())
+	{
+	    return true;
+	}
+	
 	if(_helper.get() != 0 && rhs._helper.get() != 0)
 	{
-	    return _helper->equals(*rhs._helper);
+	    const Key* lhsKey = _helper->get();
+	    const Key* rhsKey = rhs._helper->get();
+	    
+	    if(lhsKey != 0 && rhsKey != 0)
+	    {
+		return *lhsKey == *rhsKey;
+	    }
 	}
-	else
-	{
-	    return _helper.get() == rhs._helper.get();
-	}
+	return false;
     }
 
     bool operator!=(const ConstIterator& rhs)
@@ -565,21 +626,23 @@ public:
     // Constructors
     //
     Map(const Freeze::ConnectionPtr& connection, 
-	  const std::string& dbName, 
-	  bool createDb = true) :
-	_helper(MapHelper::create(connection, dbName, createDb)),
+	const std::string& dbName, 
+	bool createDb = true) :
 	_communicator(connection->getCommunicator())
     {
+	std::vector<MapIndexBasePtr> indices;
+	_helper.reset(MapHelper::create(connection, dbName, indices, createDb));
     }
 
     template <class _InputIterator>
     Map(const Freeze::ConnectionPtr& connection, 
-	  const std::string& dbName, 
-	  bool createDb,
-	  _InputIterator first, _InputIterator last) :
-	_helper(new MapHelper(connection, dbName, createDb)),
+	const std::string& dbName, 
+	bool createDb,
+	_InputIterator first, _InputIterator last) :
 	_communicator(connection->getCommunicator())
     {
+	std::vector<MapIndexBasePtr> indices;
+	_helper.reset(MapHelper::create(connection, dbName, indices, createDb));
 	while(first != last)
 	{
 	    put(*first);
@@ -867,10 +930,109 @@ public:
     }
 
 
-private:
+protected:
+
+    Map(const Ice::CommunicatorPtr& communicator) :
+	_communicator(communicator)
+    {
+    }
 
     std::auto_ptr<MapHelper> _helper;
     const Ice::CommunicatorPtr _communicator;
+};
+
+
+//
+// ReverseMapIndex is used when the map's value is the secondary key
+//
+
+template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
+class ReverseMapIndex : public MapIndexBase
+{
+protected:
+
+    ReverseMapIndex(const std::string& name) :
+	MapIndexBase(name)
+    {
+    }
+
+    virtual void marshalKey(const Value& v, Key& k) const
+    {
+	k = v;
+    }
+};
+
+
+template <typename key_type, typename mapped_type, typename KeyCodec, typename ValueCodec>
+class MapWithReverseIndex : public Map<key_type, mapped_type, KeyCodec, ValueCodec>
+{
+public:
+    
+    typedef std::pair<const key_type, const mapped_type> value_type;
+    typedef Iterator<key_type, mapped_type, KeyCodec, ValueCodec > iterator;
+    typedef ConstIterator<key_type, mapped_type, KeyCodec, ValueCodec > const_iterator;
+    typedef size_t size_type;
+    typedef ptrdiff_t difference_type;
+
+    
+    //
+    // Constructors
+    //
+    MapWithReverseIndex(const Freeze::ConnectionPtr& connection, 
+			const std::string& dbName, 
+			bool createDb = true) :
+	Map<key_type, mapped_type, KeyCodec, ValueCodec>(connection->getCommunicator())
+    {
+	std::vector<MapIndexBasePtr> indices;
+	indices.push_back(new ReverseMapIndex<key_type, mapped_type, KeyCodec, ValueCodec>("index"));
+
+	_helper.reset(MapHelper::create(connection, dbName, indices, createDb));
+    }
+
+    template <class _InputIterator>
+    MapWithReverseIndex(const Freeze::ConnectionPtr& connection, 
+			const std::string& dbName, 
+			bool createDb,
+			_InputIterator first, _InputIterator last) :
+	Map<key_type, mapped_type, KeyCodec, ValueCodec>(connection->getCommunicator())
+    {
+	std::vector<MapIndexBasePtr> indices;
+	indices.push_back(new ReverseMapIndex<key_type, mapped_type, KeyCodec, ValueCodec>("index"));
+
+	while(first != last)
+	{
+	    put(*first);
+	    ++first;
+	}
+    }
+    
+    //
+    // Extra functions
+    //
+
+    iterator reverseFind(const mapped_type& k)
+    {
+	Key bytes;
+	ValueCodec::write(k, bytes, _communicator);
+	
+	return iterator(_helper->index("index")->untypedFind(bytes, false), _communicator);
+    }
+
+    const_iterator reverseFind(const mapped_type& k) const
+    {
+	Key bytes;
+	ValueCodec::write(k, bytes, _communicator);
+	
+	return const_iterator(_helper->index("index")->untypedFind(bytes, true), _communicator);
+    }
+
+    int valueCount(const mapped_type& k) const
+    {
+	Key bytes;
+	ValueCodec::write(k, bytes, _communicator);
+	
+	return _helper->index("index")->untypedCount(bytes);
+    }
 };
 
 }

@@ -308,13 +308,8 @@ Freeze::IndexI::secondaryKeyCreate(Db* secondary, const Dbt* dbKey,
 {
     Ice::CommunicatorPtr communicator = _store->communicator();
 
-    Ice::Identity ident;
-    Byte* first = static_cast<Byte*>(dbKey->get_data());
-    Key key(first, first + dbKey->get_size());
-    ObjectStore::unmarshal(ident, key, communicator);
-
     ObjectRecord rec;
-    first = static_cast<Byte*>(dbValue->get_data());
+    Byte* first = static_cast<Byte*>(dbValue->get_data());
     Value value(first, first + dbValue->get_size());
     ObjectStore::unmarshal(rec, value, communicator);
 
