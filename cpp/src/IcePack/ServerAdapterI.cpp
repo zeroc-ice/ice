@@ -66,6 +66,7 @@ IcePack::ServerAdapterI::getDirectProxy(bool activate, const Ice::Current& curre
 			    Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
 			    out << "server adapter `" << id << "' activation timed out";
 			}
+			break;
 		    }
 		}
 	    }
@@ -87,7 +88,10 @@ IcePack::ServerAdapterI::getDirectProxy(bool activate, const Ice::Current& curre
 	    // and throw an ObjectNotExist exception.
 	    //
 	    destroy(current);
-	    throw Ice::ObjectNotExistException(__FILE__, __LINE__);
+
+	    Ice::ObjectNotExistException ex(__FILE__,__LINE__);
+	    ex.id = current.id;
+	    throw ex;
 	}
     }
     return _proxy;

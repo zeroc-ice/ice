@@ -65,6 +65,63 @@ IcePack::Registry::~Registry()
 	}
 	_dbEnv = 0;
     }
+
+    if(_locatorComm)
+    {
+	try
+	{
+	    _locatorComm->destroy();
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    Ice::Error out(_communicator->getLogger());
+	    out << ex;
+	}
+	catch(...)
+	{
+	    Ice::Error out(_communicator->getLogger());
+	    out << "unknown exception";
+	}
+	_locatorComm = 0;
+    }
+
+    if(_locatorRegistryComm)
+    {
+	try
+	{
+	    _locatorRegistryComm->destroy();
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    Ice::Error out(_communicator->getLogger());
+	    out << ex;
+	}
+	catch(...)
+	{
+	    Ice::Error out(_communicator->getLogger());
+	    out << "unknown exception";
+	}
+	_locatorRegistryComm = 0;
+    }
+
+    if(_adminComm)
+    {
+	try
+	{
+	    _adminComm->destroy();
+	}
+	catch(const Ice::Exception& ex)
+	{
+	    Ice::Error out(_communicator->getLogger());
+	    out << ex;
+	}
+	catch(...)
+	{
+	    Ice::Error out(_communicator->getLogger());
+	    out << "unknown exception";
+	}
+	_adminComm = 0;
+    }
 }
 
 bool
@@ -130,6 +187,14 @@ IcePack::Registry::start(bool nowarn)
     
     _communicator->setDefaultLocator(0);
 
+    properties->setProperty("Ice.Daemon", "0");
+    properties->setProperty("Ice.PrintProcessId", "0");
+    if(properties->getPropertyAsInt("IcePack.Registry.Internal.ServerThreadPool.Size") > 0)
+    {
+	properties->setProperty("Ice.ServerThreadPool.Size", 
+				properties->getProperty("IcePack.Registry.Internal.ServerThreadPool.Size"));
+    }
+
     //
     // Register IcePack exception factory with the communicator.
     //
@@ -156,14 +221,18 @@ IcePack::Registry::start(bool nowarn)
     registryAdapter->add(nodeRegistry, Ice::stringToIdentity("IcePack/NodeRegistry"));
     
     //
-    // Create the locator registry adapter and the locator
-    // registry servant.
+    // Create the locator registry communicator, adapter and servant.
     //
-    // NOTE: the locator registry uses the registry object adapter
-    // to activate standalone object adapters.
-    //
+    int argc = 0;
+    char** argv = 0;
+
+    _locatorRegistryComm = Ice::initializeWithProperties(argc, argv, _communicator->getProperties());
+    _locatorRegistryComm->getProperties()->setProperty(
+	"Ice.ServerThreadPool.Size", 
+	properties->getPropertyWithDefault("IcePack.Registry.LocatorRegistry.ServerThreadPool.Size", "2"));
+
     Ice::ObjectAdapterPtr locatorRegistryAdapter = 
-	_communicator->createObjectAdapter("IcePack.Registry.LocatorRegistry");
+	_locatorRegistryComm->createObjectAdapter("IcePack.Registry.LocatorRegistry");    
     
     Ice::Identity locatorRegistryId;
     locatorRegistryId.category = "IcePack";
@@ -173,10 +242,20 @@ IcePack::Registry::start(bool nowarn)
 	locatorRegistryAdapter->add(new LocatorRegistryI(adapterRegistry, registryAdapter), locatorRegistryId));
     
     //
-    // Create the locator registry adapter and the locator
-    // registry servant.
+    // Create the locator communicator, adapter and servant.  We
+    // disable leak warnings for this communicator. To avoid disabling
+    // it, we would have to ensure that all the locator proxy objects
+    // are destroyed which is not trivial since the locator proxy is
+    // used to set the default locator on the main communicator
+    // (_communicator).
     //
-    Ice::ObjectAdapterPtr locatorAdapter = _communicator->createObjectAdapter("IcePack.Registry.Locator");
+    _locatorComm = Ice::initializeWithProperties(argc, argv, _communicator->getProperties());
+    _locatorComm->getProperties()->setProperty("Ice.LeakWarnings", "0");
+    _locatorComm->getProperties()->setProperty(
+	"Ice.ServerThreadPool.Size", 
+	properties->getPropertyWithDefault("IcePack.Registry.Locator.ServerThreadPool.Size", "6"));
+
+    Ice::ObjectAdapterPtr locatorAdapter = _locatorComm->createObjectAdapter("IcePack.Registry.Locator");
     
     Ice::Identity locatorId;
     locatorId.category = "IcePack";
@@ -186,8 +265,13 @@ IcePack::Registry::start(bool nowarn)
 	locatorAdapter->add(new LocatorI(adapterRegistry, locatorRegistryPrx), locatorId));
     
     //
-    // Create the admin adapter and admin servant.
+    // Create the admin communicator, adapter and servant.
     //
+    _adminComm = Ice::initializeWithProperties(argc, argv, _communicator->getProperties());
+    _adminComm->getProperties()->setProperty(
+	"Ice.ServerThreadPool.Size", 
+	properties->getPropertyWithDefault("IcePack.Registry.Admin.ServerThreadPool.Size", "2"));
+
     properties->setProperty("IcePack.Registry.Admin.AdapterId", "IcePack.Registry.Admin");
     Ice::ObjectAdapterPtr adminAdapter = _communicator->createObjectAdapter("IcePack.Registry.Admin");
 

@@ -30,6 +30,11 @@ public:
 private:
 
     Ice::CommunicatorPtr _communicator;
+
+    Ice::CommunicatorPtr _locatorComm;
+    Ice::CommunicatorPtr _locatorRegistryComm;
+    Ice::CommunicatorPtr _adminComm;
+
     Freeze::DBEnvironmentPtr _dbEnv;
 };
 

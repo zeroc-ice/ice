@@ -381,11 +381,14 @@ class Admin
      * @throws DeploymentException Raised if the deployment of the
      * server failed.
      *
+     * @throws NodeUnreachableException Raised if the node couldn't be
+     * reached.
+     *
      * @see removeServer
      *
      **/
     void addServer(string node, string name, string path, string libraryPath, string descriptor, ServerTargets targets)
-	throws DeploymentException;
+	throws DeploymentException, NodeUnreachableException;
 
     /**
      *
@@ -399,11 +402,14 @@ class Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
+     * @throws NodeUnreachableException Raised if the node couldn't be
+     * reached.
+     *
      * @see addServer
      *
      **/
     void removeServer(string name)
-	throws DeploymentException, ServerNotExistException;
+	throws DeploymentException, ServerNotExistException, NodeUnreachableException;
 
     /**
      *
@@ -416,13 +422,16 @@ class Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
+     * @throws NodeUnreachableException Raised if the node couldn't be
+     * reached.
+     *
      * @see getServerState
      * @see getServerPid
      * @see getAllServerNames
      *
      **/
     nonmutating ServerDescription getServerDescription(string name)
-	throws ServerNotExistException;
+	throws ServerNotExistException, NodeUnreachableException;
     
     /**
      *
@@ -435,13 +444,16 @@ class Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
+     * @throws NodeUnreachableException Raised if the node couldn't be
+     * reached.
+     *
      * @see getServerDescription
      * @see getServerPid
      * @see getAllServerNames
      *
      **/
     nonmutating ServerState getServerState(string name)
-	throws ServerNotExistException;
+	throws ServerNotExistException, NodeUnreachableException;
     
     /**
      *
@@ -456,13 +468,16 @@ class Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
+     * @throws NodeUnreachableException Raised if the node couldn't be
+     * reached.
+     *
      * @see getServerDescription
      * @see getServerState
      * @see getAllServerNames
      *
      **/
     nonmutating int getServerPid(string name)
-	throws ServerNotExistException;
+	throws ServerNotExistException, NodeUnreachableException;
 
     /**
      *
@@ -475,13 +490,16 @@ class Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
+     * @throws NodeUnreachableException Raised if the node couldn't be
+     * reached.
+     *
      * @see getServerDescription
      * @see getServerState
      * @see getAllServerNames
      *
      **/
     nonmutating ServerActivation getServerActivation(string name)
-	throws ServerNotExistException;
+	throws ServerNotExistException, NodeUnreachableException;
 
     /**
      *
@@ -494,13 +512,16 @@ class Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
+     * @throws NodeUnreachableException Raised if the node couldn't be
+     * reached.
+     *
      * @see getServerDescription
      * @see getServerState
      * @see getAllServerNames
      *
      **/
     void setServerActivation(string name, ServerActivation mode)
-	throws ServerNotExistException;
+	throws ServerNotExistException, NodeUnreachableException;
 
     /**
      *
@@ -514,9 +535,12 @@ class Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
+     * @throws NodeUnreachableException Raised if the node couldn't be
+     * reached.
+     *
      **/
     bool startServer(string name)
-	throws ServerNotExistException;
+	throws ServerNotExistException, NodeUnreachableException;
 
     /**
      *
@@ -527,9 +551,12 @@ class Admin
      * @throws ServerNotExistException Raised if the server is not
      * found.
      *
+     * @throws NodeUnreachableException Raised if the node couldn't be
+     * reached.
+     *
      **/
     void stopServer(string name)
-	throws ServerNotExistException;
+	throws ServerNotExistException, NodeUnreachableException;
 
     /**
      *
