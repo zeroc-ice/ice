@@ -597,9 +597,8 @@ run(int argc, char** argv, const Ice::CommunicatorPtr& communicator)
             }
 
             //
-            // Transform each database. To workaround a bug in BerkeleyDB, we
-            // delay closing the new databases until after the transaction is
-            // aborted or committed.
+            // Transform each database. We must delay closing the new databases
+            // until after the transaction is committed or aborted.
             //
             for(vector<string>::iterator p = dbNames.begin(); p != dbNames.end(); ++p)
             {
