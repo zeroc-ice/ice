@@ -154,6 +154,20 @@ config = open(os.path.join("icecs", "src", "Ice", "AssemblyInfo.cs"), "r")
 version = re.search("AssemblyVersion.*\"([0-9\.]*)\"", config.read()).group(1)
 
 #
+# Fix source dist demo project files.
+#
+hintPathFiles = ".*\/demo\/.*[^D]\.vbproj"
+hintPathSearch = "(HintPath = \\\"(\.\.\\\\)*)icecs(\\\\bin\\\\.*cs\.dll\\\")"
+hintPathReplace = "\\1IceCS-" + version + "\\3"
+os.system("find . -type f -regex " + 
+          hintPathFiles + 
+          " | xargs perl -p -i -e 's/" + 
+          hintPathSearch + 
+          "/" + 
+          hintPathReplace + 
+          "/'")
+
+#
 # Create source archives.
 #
 print "Creating distribution archives..."
