@@ -72,6 +72,19 @@ private:
     X509* _x509;
 };
 
+class BIOJanitor
+{
+public:
+    BIOJanitor(BIO*);
+    ~BIOJanitor();
+
+    void clear();
+    BIO* get() const;
+
+private:
+    BIO* _bio;
+};
+
 }
 
 }

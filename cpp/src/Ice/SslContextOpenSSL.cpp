@@ -485,6 +485,8 @@ IceSSL::OpenSSL::Context::addKeyCert(const std::string& privateKey, const std::s
 SSL*
 IceSSL::OpenSSL::Context::createSSLConnection(int socket)
 {
+    assert(_sslContext != 0);
+
     SSL* sslConnection = SSL_new(_sslContext);
     assert(sslConnection != 0);
 
@@ -518,6 +520,8 @@ IceSSL::OpenSSL::Context::connectionSetup(const ConnectionPtr& connection)
 void
 IceSSL::OpenSSL::Context::setCipherList(const std::string& cipherList)
 {
+    assert(_sslContext != 0);
+
     if (!cipherList.empty() && (!SSL_CTX_set_cipher_list(_sslContext, cipherList.c_str())) &&
         (_traceLevels->security >= IceSSL::SECURITY_WARNINGS))
     {

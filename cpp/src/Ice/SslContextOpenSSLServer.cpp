@@ -115,6 +115,8 @@ IceSSL::OpenSSL::ServerContext::ServerContext(const IceInternal::InstancePtr& in
 void
 IceSSL::OpenSSL::ServerContext::loadCertificateAuthority(const CertificateAuthority& certAuth)
 {
+    assert(_sslContext != 0);
+
     Context::loadCertificateAuthority(certAuth);
 
     std::string caFile = certAuth.getCAFileName();

@@ -21,17 +21,6 @@
 using IceSSL::ConnectionPtr;
 using IceSSL::SystemInternalPtr;
 
-IceSSL::OpenSSL::ClientContext::ClientContext(const IceInternal::InstancePtr& instance) :
-                                         Context(instance)
-{
-    _rsaPrivateKeyProperty = "Ice.SSL.Client.Overrides.RSA.PrivateKey";
-    _rsaPublicKeyProperty  = "Ice.SSL.Client.Overrides.RSA.Certificate";
-    _dsaPrivateKeyProperty = "Ice.SSL.Client.Overrides.DSA.PrivateKey";
-    _dsaPublicKeyProperty  = "Ice.SSL.Client.Overrides.DSA.Certificate";
-    _caCertificateProperty = "Ice.SSL.Client.Overrides.CACertificate";
-    _handshakeTimeoutProperty = "Ice.SSL.Client.Handshake.ReadTimeout";
-}
-
 void
 IceSSL::OpenSSL::ClientContext::configure(const GeneralConfig& generalConfig,
                                           const CertificateAuthority& certificateAuthority,
@@ -85,5 +74,16 @@ IceSSL::OpenSSL::ClientContext::createConnection(int socket, const SystemInterna
     connectionSetup(connection);
 
     return connection;
+}
+
+IceSSL::OpenSSL::ClientContext::ClientContext(const IceInternal::InstancePtr& instance) :
+                               Context(instance)
+{
+    _rsaPrivateKeyProperty = "Ice.SSL.Client.Overrides.RSA.PrivateKey";
+    _rsaPublicKeyProperty  = "Ice.SSL.Client.Overrides.RSA.Certificate";
+    _dsaPrivateKeyProperty = "Ice.SSL.Client.Overrides.DSA.PrivateKey";
+    _dsaPublicKeyProperty  = "Ice.SSL.Client.Overrides.DSA.Certificate";
+    _caCertificateProperty = "Ice.SSL.Client.Overrides.CACertificate";
+    _handshakeTimeoutProperty = "Ice.SSL.Client.Handshake.ReadTimeout";
 }
 

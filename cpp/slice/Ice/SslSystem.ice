@@ -8,13 +8,8 @@
 //
 // **********************************************************************
 
-// ML: Should be just ICE_SSL_SYSTEM_ICE
-// ML: Ditto for all the other Ssl*.ice files.
-#ifndef ICE_SECURITY_SSL_SYSTEM_ICE
-#define ICE_SECURITY_SSL_SYSTEM_ICE
-
-// ML: There should be more consistency in how @see is used (i.e., for
-// what, and where).
+#ifndef ICE_SSL_SYSTEM_ICE
+#define ICE_SSL_SYSTEM_ICE
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/SslCertificateVerifierF.ice>
@@ -24,21 +19,26 @@ module IceSSL
 
 /**
  *
- * The Context Type for calls into the SSL system. As an SSL system
- * may serve as a Client, Server or both, we should specify which
- * roles the System supports are modified by the call.
- // ML: I don't understand the sentence above. Please check grammar/meaning.
+ *
+ * A [System] may serve as a Client, Server or both (ClientServer).  A
+ * <literal>Context</literal> is set up inside the [System] in order to handle
+ * either Client or Server roles.  The <literal>Context</literal> represents a
+ * role-specific configuration.
+ *
+ * When making calls against the [System] that require us to identify which
+ * <literal>Context</literal> to address, we use a <literal>ContextType</literal>
+ * as a parameter in the call.
  *
  **/
 enum ContextType
 {
-    /** Select only the Client context, no modifications to the Server. */
+    /** Select only the Client <literal>Context</literal>, no modifications to the Server. */
     Client,
 
-    /** Select only the Server context, no modifications to the Client. */
+    /** Select only the Server <literal>Context</literal>, no modifications to the Client. */
     Server,
 
-    /** Select and affect changes on both the Client and Server contexts. */
+    /** Select and affect changes on both the Client and Server <literal>Context</literal>s. */
     ClientServer
 };
 
@@ -55,66 +55,60 @@ local interface System
      *
      * Tell the System to configure itself. If the system is left in a
      * non-configured state, the system will load its configuration
-     * from the properties IceSSL.Server.Config or
-     * IceSSL.Client.Config, depending on the context type.
-     // ML: Use <literal>IceSSL.Client.Config</literal> and <literal>IceSSL.Server.Config</literal>.
+     * from the properties <literal>IceSSL.Server.Config</literal> or
+     * <literal>IceSSL.Client.Config</literal>, depending on the context
+     * type.
      *
      * Configuration property settings will also be loaded as part of
      * this call, with the property values overriding those of the
      * configuration file.
      *
-     * @param contextType The context(s) which to configure.
+     * @param contextType The <literal>Context</literal>(s) to configure.
      *
      **/
     void configure(ContextType contextType);
 
     /**
      *
-     * Tell the System to configure the indicated context using the
-     * settings in the indicated configuration file.
+     * Tell the System to configure the indicated <literal>Context</literal>
+     * using the settings in the indicated configuration file.
      *
      * If the system is left in a non-configured state, the system
      * will load its configuration from the property
-     * Ice.Ssl.Server.Config or Ice.Ssl.Client.Config, depending on
-     // ML: Ditto.
+     * <literal>IceSSL.Server.Config</literal> or
+     * <literal>IceSSL.Client.Config</literal>, depending on
      * the context type.
      *
      * Configuration property settings will also be loaded as part of
      * this call, with the property values overriding those of the
      * configuration file.
      *
-     * @param contextType The context(s) which to configure.
+     * @param contextType The <literal>Context</literal>(s) which to configure.
      *
      * @param configFile The file which contains the SSL configuration
      * information.
      *
      * @param certPath The path where certificates referenced in
-     * configFile may be found.
-     // ML: Either [configFile] or configuration file.
+     * [configFile] may be found.
      *
      **/
     void loadConfig(ContextType contextType, string configFile, string certPath);
 
     /**
      *
-     * Set the CertificateVerifier used for the indicated ContextType
-     // ML: Either Certificate Verifier, or [CertificateVerifier]. Same for ContextType.
-     * role. All System Contexts are created with default
-     * CertificateVerifier objects configured. Replacement
-     // ML: Ditto.
-     * CertificateVerifiers can be specified with this method.
-     // ML: Certificate Verifiers or [CertificateVerifier]s.
+     * Set the [CertificateVerifier] used for the indicated [ContextType]
+     * role. All [System] <literal>Context</literal>s are created with default
+     * [CertificateVerifier] objects configured. Replacement
+     * [CertificateVerifier]s can be specified with this method.
      *
      * This method only affects new connections -- existing
      * connections are left unchanged.
      *
-     * @param contextType The context(s) in which to install the
+     * @param contextType The <literal>Context</literal>(s) in which to install the
      * Certificate Verifier.
      *
-     * @param certVerifier The CertificateVerifier to install.
-     // ML: Ditto.
+     * @param certVerifier The [CertificateVerifier] to install.
      *
-     * @see IceSSL
      * @see IceSSL::CertificateVerifier
      *
      **/
@@ -131,28 +125,25 @@ local interface System
      * This method only affects new connections -- existing
      * connections are left unchanged.
      *
-     * @param contextType The context(s) in which to add the trusted
-     * certificate.
+     * @param contextType The <literal>Context</literal>(s) in which to add
+     * the trusted certificate.
      *
      * @param certificate The certificate, in Base64 encoded binary
      * DER format, to be trusted.
-     *
-     * @see IceSSL
      *
      **/
     void addTrustedCertificate(ContextType contextType, string certificate);
 
     /**
      *
-     * Set the RSA keys to be used by the SSL system when operating in
-     * the context mode specified by contextType.
-     // ML: Either [contextType] or context type.
+     * Set the RSA keys to be used by the SSL [System] when operating in
+     * the context mode specified by [contextType].
      *
      * This method only affects new connections -- existing
      * connections are left unchanged.
      *
-     * @param contextType The context(s) in which to set/replace the
-     * RSA keys.
+     * @param contextType The <literal>Context</literal>(s) in which to
+     * set/replace the RSA keys.
      *
      * @param privateKey The RSA private key, in Base64 encoded binary
      * DER format.
@@ -160,28 +151,23 @@ local interface System
      * @param publicKey The RSA public key, in Base64 encoded binary
      * DER format.
      *
-     * @see IceSSL
-     *
      **/
     void setRSAKeysBase64(ContextType contextType, string privateKey, string publicKey);
 
     /**
      *
-     * Set the RSA keys to be used by the SSL system when operating in
-     * the context mode specified by contextType.
-     // ML: Either [contextType] or context type.
+     * Set the RSA keys to be used by the SSL [System] when operating in
+     * the context mode specified by [contextType].
      *
      * This method only affects new connections -- existing
      * connections are left unchanged.
      *
-     * @param contextType The context(s) in which to set/replace the
-     * RSA keys.
+     * @param contextType The <literal>Context</literal>(s) in which to
+     * set/replace the RSA keys.
      *
      * @param privateKey The RSA private key, in binary DER format.
      *
      * @param publicKey The RSA public key, in binary DER format.
-     *
-     * @see IceSSL
      *
      **/
     void setRSAKeys(ContextType contextType, Ice::ByteSeq privateKey, Ice::ByteSeq publicKey);

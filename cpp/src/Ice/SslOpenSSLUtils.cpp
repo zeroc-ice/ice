@@ -197,7 +197,7 @@ IceSSL::OpenSSL::getASN1time(ASN1_TIME *tm)
 DH*
 IceSSL::OpenSSL::loadDHParam(const char* dhfile)
 {
-    assert(dhfile);
+    assert(dhfile != 0);
 
     DH* ret = 0;
     BIO* bio;

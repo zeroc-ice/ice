@@ -44,7 +44,10 @@ IceSSL::OpenSSL::RSAPrivateKey::RSAPrivateKey(const ByteSeq& keySeq)
 
 IceSSL::OpenSSL::RSAPrivateKey::~RSAPrivateKey()
 {
-    RSA_free(_privateKey);
+    if (_privateKey != 0)
+    {
+        RSA_free(_privateKey);
+    }
 }
 
 void
@@ -66,6 +69,7 @@ IceSSL::OpenSSL::RSAPrivateKey::keyToByteSeq(ByteSeq& keySeq)
     assert(privKeySize > 0);
 
     unsigned char* privateKeyBuffer = new unsigned char[privKeySize];
+    assert(privateKeyBuffer != 0);
 
     // We have to do this because i2d_RSAPrivateKey changes the pointer.
     unsigned char* privKeyBuff = privateKeyBuffer;

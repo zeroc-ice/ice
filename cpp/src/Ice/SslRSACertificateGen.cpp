@@ -113,37 +113,61 @@ IceSSL::OpenSSL::RSACertificateGenContext::setSecondsValid(long secondsValid)
 unsigned char*
 IceSSL::OpenSSL::RSACertificateGenContext::getCountry() const
 {
-    return reinterpret_cast<unsigned char *>(const_cast<char*>(_country.c_str()));
+    unsigned char* country = reinterpret_cast<unsigned char *>(const_cast<char*>(_country.c_str()));
+
+    assert(country != 0);
+
+    return country;
 }
 
 unsigned char*
 IceSSL::OpenSSL::RSACertificateGenContext::getStateProvince() const
 {
-    return reinterpret_cast<unsigned char *>(const_cast<char*>(_stateProvince.c_str()));
+    unsigned char* stateProvince =  reinterpret_cast<unsigned char *>(const_cast<char*>(_stateProvince.c_str()));
+
+    assert(stateProvince != 0);
+
+    return stateProvince;
 }
 
 unsigned char*
 IceSSL::OpenSSL::RSACertificateGenContext::getLocality() const
 {
-    return reinterpret_cast<unsigned char *>(const_cast<char*>(_locality.c_str()));
+    unsigned char* locality = reinterpret_cast<unsigned char *>(const_cast<char*>(_locality.c_str()));
+
+    assert(locality != 0);
+
+    return locality;
 }
 
 unsigned char*
 IceSSL::OpenSSL::RSACertificateGenContext::getOrganization() const
 {
-    return reinterpret_cast<unsigned char *>(const_cast<char*>(_organization.c_str()));
+    unsigned char* organization = reinterpret_cast<unsigned char *>(const_cast<char*>(_organization.c_str()));
+
+    assert(organization != 0);
+
+    return organization;
 }
 
 unsigned char*
 IceSSL::OpenSSL::RSACertificateGenContext::getOrgainizationalUnit() const
 {
-    return reinterpret_cast<unsigned char *>(const_cast<char*>(_organizationalUnit.c_str()));
+    unsigned char* orgUnit = reinterpret_cast<unsigned char *>(const_cast<char*>(_organizationalUnit.c_str()));
+
+    assert(orgUnit != 0);
+
+    return orgUnit;
 }
 
 unsigned char*
 IceSSL::OpenSSL::RSACertificateGenContext::getCommonName() const
 {
-    return reinterpret_cast<unsigned char *>(const_cast<char*>(_commonName.c_str()));
+    unsigned char* commonName = reinterpret_cast<unsigned char *>(const_cast<char*>(_commonName.c_str()));
+
+    assert(commonName != 0);
+
+    return commonName;
 }
 
 int
@@ -174,12 +198,12 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
     RSAJanitor rsaJanitor(RSA_generate_key(context.getModulusLength(), RSA_F4, 0, 0));
     RSA* rsaKeyPair = rsaJanitor.get();
 
-    assert(rsaKeyPair);
+    assert(rsaKeyPair != 0);
 
     // Do this if we already have an RSA* 
     EVP_PKEYJanitor evpPkeyJanitor(EVP_PKEY_new());
     EVP_PKEY* pkey = evpPkeyJanitor.get();
-    assert(pkey);
+    assert(pkey != 0);
     EVP_PKEY_assign_RSA(pkey, rsaKeyPair);
 
     // The RSA structure now belongs (temporarily) to the EVP_PKEY
@@ -188,14 +212,14 @@ IceSSL::OpenSSL::RSACertificateGen::generate(const RSACertificateGenContext& con
     // Create a signing request
     X509_REQJanitor x509ReqJanitor(X509_REQ_new());
     X509_REQ* signingRequest = x509ReqJanitor.get();
-    assert(signingRequest);
+    assert(signingRequest != 0);
 
     X509Janitor x509Janitor(X509_new());
     X509* x509SelfSigned = x509Janitor.get();
-    assert(x509SelfSigned);
+    assert(x509SelfSigned != 0);
 
     // Set version to V3
-    assert(X509_set_version(x509SelfSigned, 2));
+    assert(X509_set_version(x509SelfSigned, 2) != 0);
 
     ASN1_INTEGER_set(X509_get_serialNumber(x509SelfSigned), 0);
 

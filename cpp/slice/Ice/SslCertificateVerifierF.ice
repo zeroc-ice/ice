@@ -8,8 +8,8 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SECURITY_CERTIFICATE_VERIFIER_F_ICE
-#define ICE_SECURITY_CERTIFICATE_VERIFIER_F_ICE
+#ifndef ICE_SSL_CERTIFICATE_VERIFIER_F_ICE
+#define ICE_SSL_CERTIFICATE_VERIFIER_F_ICE
 
 module IceSSL
 {

@@ -13,6 +13,7 @@
 IceSSL::OpenSSL::RSAJanitor::RSAJanitor(RSA* rsa) :
                             _rsa(rsa)
 {
+    assert(_rsa != 0);
 }
 
 IceSSL::OpenSSL::RSAJanitor::~RSAJanitor()
@@ -35,10 +36,10 @@ IceSSL::OpenSSL::RSAJanitor::get() const
     return _rsa;
 }
 
-
 IceSSL::OpenSSL::EVP_PKEYJanitor::EVP_PKEYJanitor(EVP_PKEY* evp_pkey) :
                                  _evp_pkey(evp_pkey)
 {
+    assert(_evp_pkey != 0);
 }
 
 IceSSL::OpenSSL::EVP_PKEYJanitor::~EVP_PKEYJanitor()
@@ -64,6 +65,7 @@ IceSSL::OpenSSL::EVP_PKEYJanitor::get() const
 IceSSL::OpenSSL::X509_REQJanitor::X509_REQJanitor(X509_REQ* x509_req) :
                                  _x509_req(x509_req)
 {
+    assert(_x509_req != 0);
 }
 
 IceSSL::OpenSSL::X509_REQJanitor::~X509_REQJanitor()
@@ -86,11 +88,10 @@ IceSSL::OpenSSL::X509_REQJanitor::get() const
     return _x509_req;
 }
 
-
-
 IceSSL::OpenSSL::X509Janitor::X509Janitor(X509* x509) :
                              _x509(x509)
 {
+    assert(_x509 != 0);
 }
 
 IceSSL::OpenSSL::X509Janitor::~X509Janitor()
@@ -111,5 +112,31 @@ X509*
 IceSSL::OpenSSL::X509Janitor::get() const
 {
     return _x509;
+}
+
+IceSSL::OpenSSL::BIOJanitor::BIOJanitor(BIO* bio) :
+                            _bio(bio)
+{
+    assert(_bio != 0);
+}
+
+IceSSL::OpenSSL::BIOJanitor::~BIOJanitor()
+{
+    if (_bio)
+    {
+        BIO_free(_bio);
+    }
+}
+
+void
+IceSSL::OpenSSL::BIOJanitor::clear()
+{
+    _bio = 0;
+}
+
+BIO*
+IceSSL::OpenSSL::BIOJanitor::get() const
+{
+    return _bio;
 }
 

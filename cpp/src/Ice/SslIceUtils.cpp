@@ -28,6 +28,9 @@ IceSSL::byteSeqToUChar(const Ice::ByteSeq& sequence)
     assert(seqSize > 0);
 
     unsigned char* ucharSeq = new unsigned char[seqSize];
+
+    assert(ucharSeq != 0);
+
     unsigned char* ucharPtr = ucharSeq;
     std::copy(sequence.begin(), sequence.end(), ucharPtr);
 

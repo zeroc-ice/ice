@@ -8,25 +8,32 @@
 //
 // **********************************************************************
 
-#ifndef ICE_SECURITY_CERTIFICATE_VERIFIER_ICE
-#define ICE_SECURITY_CERTIFICATE_VERIFIER_ICE
+#ifndef ICE_SSL_CERTIFICATE_VERIFIER_ICE
+#define ICE_SSL_CERTIFICATE_VERIFIER_ICE
 
 module IceSSL
 {
 
 /**
  *
- * This is the base interface for objects that will perform
- * Certificate Verification during the SSL handshake. Subclass
- * interfaces will depend on the requirements of the underlying SSL
- // ML: Derived interfaces.
- * implementation.
- // ML: I don't understand this explanation at all. What objects are you referring to?
+ * The [CertificateVerifier] is the base interface for all classes that define
+ * additional application-specific certificate verification rules.  These rules
+ * are evaluated during the SSL handshake by an instance of a class derived
+ * from [CertificateVerifier].  The methods defined in derived interfaces will
+ * depend upon the requirements of the underlying SSL implementation.
+ *
+ * Existing stock certificate verifiers can be objtained by obtaining an
+ * [SslExtension] instance and calling the appropriate method to obtain the
+ * desired certificate verifier instance.
+ *
+ * As this is simply a base class for purposes of derivation, no methods are
+ * defined.
+ *
+ * @see SslExtension
  *
  **/
 local interface CertificateVerifier
 {
-// ML: No methods??? What is this class? I guess this needs a lot more explanation.
 };
 
 };

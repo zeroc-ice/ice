@@ -27,6 +27,7 @@
 #include <Ice/SslSystemOpenSSL.h>
 #include <Ice/SecurityException.h>
 #include <Ice/SslConfig.h>
+#include <Ice/SslJanitors.h>
 #include <Ice/TraceLevels.h>
 #include <Ice/Logger.h>
 
@@ -272,11 +273,14 @@ IceSSL::OpenSSL::System::getRSAKey(int isExport, int keyLength)
     {
         // Yes!  Use it.
         rsa_tmp = (*retVal).second;
+
+        assert(rsa_tmp != 0);
     }
     else
     {
         const RSACertMap::iterator& it = _tempRSAFileMap.find(keyLength);
 
+        // First we try to load a private and public key from specified files
         if (it != _tempRSAFileMap.end())
         {
             CertificateDesc& rsaKeyCert = (*it).second;
@@ -290,20 +294,18 @@ IceSSL::OpenSSL::System::getRSAKey(int isExport, int keyLength)
 
             if ((bio = BIO_new_file(pubCertFile.c_str(), "r")) != 0)
             {
-                rsaCert = PEM_read_bio_RSAPublicKey(bio, 0, 0, 0);
+                BIOJanitor bioJanitor(bio);
 
-                BIO_free(bio);
-                bio = 0;
+                rsaCert = PEM_read_bio_RSAPublicKey(bio, 0, 0, 0);
             }
 
             if (rsaCert != 0)
             {
                 if ((bio = BIO_new_file(privKeyFile.c_str(), "r")) != 0)
                 {
-                    rsaKey = PEM_read_bio_RSAPrivateKey(bio, &rsaCert, 0, 0);
+                    BIOJanitor bioJanitor(bio);
 
-                    BIO_free(bio);
-                    bio = 0;
+                    rsaKey = PEM_read_bio_RSAPrivateKey(bio, &rsaCert, 0, 0);
                 }
             }
 
@@ -322,14 +324,14 @@ IceSSL::OpenSSL::System::getRSAKey(int isExport, int keyLength)
             }
         }
 
-        // Last ditch effort - generate a key on the fly.
+        // Couldn't load file, last ditch effort - generate a key on the fly.
         if (rsa_tmp == 0)
         {
             rsa_tmp = RSA_generate_key(keyLength, RSA_F4, 0, 0);
         }
 
         // Save in our temporary key cache.
-        if (rsa_tmp == 0)
+        if (rsa_tmp != 0)
         {
             _tempRSAKeys[keyLength] = rsa_tmp;
         }
@@ -357,6 +359,7 @@ IceSSL::OpenSSL::System::getDHParams(int isExport, int keyLength)
     {
         const DHParamsMap::iterator& it = _tempDHParamsFileMap.find(keyLength);
 
+        // First we try to load params from specified files
         if (it != _tempDHParamsFileMap.end())
         {
             DiffieHellmanParamsFile& dhParamsFile = (*it).second;
@@ -449,9 +452,9 @@ IceSSL::OpenSSL::System::setRSAKeys(ContextType contextType,
 //
 
 IceSSL::OpenSSL::System::System(const IceInternal::InstancePtr& instance) :
-                                  IceSSL::SystemInternal(instance),
-                                  _serverContext(instance),
-                                  _clientContext(instance)
+                        IceSSL::SystemInternal(instance),
+                        _serverContext(instance),
+                        _clientContext(instance)
 {
     _randSeeded = 0;
 
@@ -504,6 +507,8 @@ IceSSL::OpenSSL::System::loadRandFiles(const string& names)
 
         // Make a modifiable copy of the string.
         char* namesString = new char[names.length() + 1];
+        assert(namesString != 0);
+
         strcpy(namesString, names.c_str());
 
         char seps[5];

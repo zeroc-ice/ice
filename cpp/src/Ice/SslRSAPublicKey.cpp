@@ -44,7 +44,10 @@ IceSSL::OpenSSL::RSAPublicKey::RSAPublicKey(const ByteSeq& certSeq)
 
 IceSSL::OpenSSL::RSAPublicKey::~RSAPublicKey()
 {
-    X509_free(_publicKey);
+    if (_publicKey != 0)
+    {
+        X509_free(_publicKey);
+    }
 }
 
 void
@@ -66,6 +69,7 @@ IceSSL::OpenSSL::RSAPublicKey::certToByteSeq(ByteSeq& certSeq)
     assert(pubKeySize > 0);
 
     unsigned char* publicKeyBuffer = new unsigned char[pubKeySize];
+    assert(publicKeyBuffer != 0);
 
     // We have to do this because i2d_X509_PUBKEY changes the pointer.
     unsigned char* pubKeyBuff = publicKeyBuffer;
