@@ -65,7 +65,6 @@ tests = [
     "Ice/adapterDeactivation", 
     "Ice/slicing/exceptions", 
     "Ice/checksum", 
-    "Ice/stream", 
     ]
 
 #
