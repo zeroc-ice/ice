@@ -5,7 +5,7 @@ Installers for Visual Studio .NET 2003 can be created by
 modifying the Visual Studio .NET 2002 installer projects as
 follows:
 
-(1) Copy all the file in the vc70 directory to this directory,
+(1) Copy all the files in the vc70 directory to this directory,
 except the README.
 
 (2) Open the vc71\vc70.sln solution and remove all VC_CRT.msm,
@@ -13,10 +13,11 @@ VC_CRT_IO.msm and VC_STL.msm. They are mostly in the Runtime
 Merge Module projects.
 
 (3) Add msvcr71.dll and msvcr71.dll to the Application 
-Folders/bin folder for ThirdParty and Ice. Visual Studio offers 
-you to use Merge Modules instead ... say no as the 
-Visual Studio .NET 2003 have no relocatable folder.
-These DLLs are in various places, for example:
+Folder\bin folder for ThirdParty and Ice. Visual Studio offers 
+you to use Merge Modules instead ... say no as these 
+Visual Studio .NET 2003 Merge Modules have no relocatable 
+folder.
+These DLLs can be found in various directories, for example:
  C:\Program Files\Microsoft Visual Studio .NET 2003\
     Visual Studio .NET Professional 2003 - English
 
