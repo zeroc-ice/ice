@@ -103,7 +103,7 @@ ciEquals(const string& s, const char* p)
     return true;
 }
 
-const char* Slice::DotNet::manglePrefix = "_Ice_";
+const char* manglePrefix = "_Ice_";
 
 static bool
 mangle(const string& s, const Node* np, string& newName)
