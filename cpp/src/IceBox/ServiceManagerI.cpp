@@ -120,7 +120,7 @@ IceBox::ServiceManagerI::run()
         {
             try
             {
-                (*r).second.service->start();
+                r->second.service->start();
             }
             catch (const FailureException&)
             {
@@ -129,7 +129,7 @@ IceBox::ServiceManagerI::run()
             catch (const Exception& ex)
             {
                 FailureException e;
-                e.reason = "ServiceManager: exception in start for service " + (*r).first + ": " + ex.ice_name();
+                e.reason = "ServiceManager: exception in start for service " + r->first + ": " + ex.ice_name();
                 throw e;
             }
         }
@@ -292,7 +292,7 @@ IceBox::ServiceManagerI::stop(const string& service)
 {
     map<string,ServiceInfo>::iterator r = _services.find(service);
     assert(r != _services.end());
-    ServiceInfo info = (*r).second;
+    ServiceInfo info = r->second;
     _services.erase(r);
 
     try
@@ -322,12 +322,12 @@ IceBox::ServiceManagerI::stop(const string& service)
 void
 IceBox::ServiceManagerI::stopAll()
 {
-    map<string,ServiceInfo>::const_iterator r;
-    for (r = _services.begin(); r != _services.end(); ++r)
+    map<string,ServiceInfo>::const_iterator r = _services.begin();
+    while (r != _services.end())
     {
         try
         {
-            stop((*r).first);
+            stop((*r++).first);
         }
         catch (const FailureException& ex)
         {
